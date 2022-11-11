@@ -2278,6 +2278,8 @@ __meta__ = {
 Put meshes into Scene Items nodes
 "
 }
+lod_0_relative_distance = 7
+lod_1_relative_distance = 30
 
 [node name="LOD0" type="Spatial" parent="Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 __meta__ = {
@@ -2297,10 +2299,10 @@ __meta__ = {
 }
 
 [node name="Cloud spheroid001" type="MeshInstance" parent="Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD1"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
+transform = Transform( 1.35204, -0.160213, 1.05517, 0.219335, 1.54537, -0.0133537, -0.536193, 0.0702985, 1.36306, 0.298714, 0.462266, 0.380719 )
 mesh = SubResource( 2 )
 skeleton = NodePath("../../../../../..")
-material/0 = SubResource( 103 )
+material/0 = SubResource( 105 )
 
 [node name="LOD2" type="Spatial" parent="Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 visible = false
@@ -2309,10 +2311,10 @@ __meta__ = {
 }
 
 [node name="Cloud spheroid002" type="MeshInstance" parent="Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
+transform = Transform( 1.35204, -0.160213, 1.05517, 0.219335, 1.54537, -0.0133537, -0.536193, 0.0702985, 1.36306, 0.298714, 0.462266, 0.380719 )
 mesh = SubResource( 3 )
 skeleton = NodePath("../../../../../..")
-material/0 = SubResource( 103 )
+material/0 = SubResource( 105 )
 
 [node name="LOD3" type="Spatial" parent="Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 visible = false
