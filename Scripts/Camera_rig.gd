@@ -22,11 +22,12 @@ var control_held = false
 # TODO: move to common?
 # Those numbers are made to create a distortion effect 
 var camera_fov_velocity_factor = 1e-4
-var camera_fov_wrap_factor = 21.5
-# TODO: make this reliable
+var camera_fov_derivative = 4
 var camera_fov_max_delta = 169 - 60
-var camera_brightness_velocity_factor = 1e-5
-var camera_brightness_max_delta = 3.0
+
+var camera_brightness_velocity_factor = 1e-4
+var camera_brightness_derivative = 0.1
+var camera_brightness_max_delta = 5.0
 # TODO: adjust background colors separatenly?
 
 var camera_z_near_velocity_factor = 1e-5
@@ -170,11 +171,11 @@ func chase_camera(mv, delta):
 	
 	# This simulates warp effect and hides ship model.
 	p.camera.fov = p.common_camera.camera_fov \
-		+ clamp(camera_fov_wrap_factor*log(tmp_fov.x), 0.0, camera_fov_max_delta)
+		+ clamp(camera_fov_derivative*log(tmp_fov.x), 0.0, camera_fov_max_delta)
 	
 	# Brightness adjustment for velocity.
 	p.environment.environment.adjustment_brightness = 1.0 \
-		+ clamp(tmp_brightness.x, 0.0, camera_brightness_max_delta)
+		+ clamp(camera_brightness_derivative*log(tmp_brightness.x), 0.0, camera_brightness_max_delta)
 	
 	# Increasing camera Z near value prevents flickering.
 	p.camera.near = p.common_camera.camera_near + tmp_near.x

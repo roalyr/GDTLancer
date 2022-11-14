@@ -9,7 +9,15 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 ## Recent changelog
 ### Since v0.10-alpha (current)
 - New release (and some last-minute tweaks)!
+- Tweaked shaders for performance (significant boost due to partially using vertex shading).
+- Fixed some improper LODs.
+- Tweaked warp camera effect (stretch and brightness are now more smooth).
+- Re-introduced star core shader, optimized this time.
 
+
+<details>
+<summary><font size=5><b>Previous versions changelog</font></b></summary>
+  
 ### Since v0.9-alpha
 - CCD is disabled upon reaching specific velocity threshold.
 - Tweaked autopilot to perform some rotation (approach is slightly spiraled).
@@ -70,7 +78,13 @@ accelerate rapidly.
 - Optimized paths.
 - Some temporary fixes for collision model (caused stuttering due to polygon number).
 
+  
+</details>
+
+
 ## Priority TODO list:
+- Improve UI.
+- Improved navigation lists.
 - Info / help window.
 - Refactor ship code.
 - Prevent camera orbiting from interrupting autopilot and warp effect adjustments.
@@ -79,6 +93,7 @@ accelerate rapidly.
 - Make autopilot detect obstacles.
 
 ## TODO list:
+- Make dynamic color-contrast adjustment zones near stars (and maybe other areas).
 - Make primitive building blocks with simple collision shapes (performace).
 - Investigate enabling/disabling trimesh collision shapes on the go.
 - Scalable UI (control panel, texts, buttons, etc).

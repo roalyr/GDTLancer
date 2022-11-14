@@ -1,11 +1,14 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://Scripts/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=2]
 [ext_resource path="res://Scenes/Sprites/Star_sprite.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=4]
 [ext_resource path="res://Assets/Shaders/Star/Star.gdshader" type="Shader" id=5]
-[ext_resource path="res://Assets/Texture_resources/Simplex/Simplex_1_100_0_2.tres" type="OpenSimplexNoise" id=6]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere_32x16.tres" type="SphereMesh" id=7]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere_16x8.tres" type="SphereMesh" id=8]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere_64x32.tres" type="SphereMesh" id=9]
+[ext_resource path="res://Assets/Shaders/_Unused_/_Star_surface.gdshader" type="Shader" id=12]
 
 [sub_resource type="ArrayMesh" id=85]
 resource_name = "Primitives_Icosphere011"
@@ -21,26 +24,65 @@ surfaces/0 = {
 "vertex_count": 2737
 }
 
-[sub_resource type="NoiseTexture" id=83]
-noise = ExtResource( 6 )
+[sub_resource type="OpenSimplexNoise" id=95]
+octaves = 1
+period = 204.7
+persistence = 0.0
+
+[sub_resource type="NoiseTexture" id=96]
+noise = SubResource( 95 )
 
 [sub_resource type="ShaderMaterial" id=42]
 shader = ExtResource( 5 )
-shader_param/halo_color = Color( 0.341176, 0.321569, 0.266667, 1 )
-shader_param/corona_color = Color( 0.384314, 0.329412, 0, 1 )
-shader_param/core_color = Color( 0.129412, 0.137255, 0, 1 )
-shader_param/halo_strength = 4.687
+shader_param/halo_color = Color( 0.341176, 0.0823529, 0, 1 )
+shader_param/corona_color = Color( 0.196078, 0.168627, 0, 1 )
+shader_param/core_color = Color( 0.431373, 0.447059, 0.192157, 1 )
+shader_param/halo_strength = 5.0
 shader_param/halo_power = 1.881
 shader_param/halo_amount = 0.225
-shader_param/corona_strength = 30.091
+shader_param/corona_strength = 30.0
 shader_param/corona_power = 10.0
 shader_param/corona_amount = 50.0
 shader_param/core_strength = 50.0
 shader_param/core_power = 15.0
 shader_param/core_amount = 100.0
-shader_param/displacement_scale = 0.005
-shader_param/displacement_velocity = 0.25
-shader_param/displacement_texture = SubResource( 83 )
+shader_param/displacement_scale = 0.017
+shader_param/displacement_velocity = -0.043
+shader_param/displacement_texture = SubResource( 96 )
+
+[sub_resource type="OpenSimplexNoise" id=91]
+octaves = 9
+period = 7.9
+persistence = 0.526
+
+[sub_resource type="NoiseTexture" id=92]
+seamless = true
+noise = SubResource( 91 )
+
+[sub_resource type="OpenSimplexNoise" id=93]
+period = 11.2
+persistence = 1.0
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=94]
+flags = 15
+noise = SubResource( 93 )
+
+[sub_resource type="ShaderMaterial" id=90]
+shader = ExtResource( 12 )
+shader_param/surface_color = Color( 1, 0.9, 0.4, 1 )
+shader_param/rim_color = Color( 1, 1, 1, 1 )
+shader_param/major_phase = 1.895
+shader_param/small_phase = -1.46
+shader_param/major_detail_scale = 2.0
+shader_param/small_detail_scale = 1.0
+shader_param/major_detail_flow = 0.01
+shader_param/small_detail_flow = 0.02
+shader_param/rim_strength = 4.232
+shader_param/rim_power = 2.369
+shader_param/rim_intensity = 0.155
+shader_param/major_detail_noise = SubResource( 92 )
+shader_param/small_detail_noise = SubResource( 94 )
 
 [sub_resource type="ArrayMesh" id=86]
 resource_name = "Primitives_Icosphere003"
@@ -109,6 +151,11 @@ mesh = SubResource( 85 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 42 )
 
+[node name="UV_sphere_64x32" type="MeshInstance" parent="LODs star red 5e9/LOD0"]
+transform = Transform( 0.83415, 0, 0, 0, 0.83415, 0, 0, 0, 0.83415, 0, 0, 0 )
+mesh = ExtResource( 9 )
+material/0 = SubResource( 90 )
+
 [node name="LOD1" type="Spatial" parent="LODs star red 5e9"]
 visible = false
 __meta__ = {
@@ -120,6 +167,11 @@ mesh = SubResource( 86 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 42 )
 
+[node name="UV_sphere_32x16" type="MeshInstance" parent="LODs star red 5e9/LOD1"]
+transform = Transform( 0.83415, 0, 0, 0, 0.83415, 0, 0, 0, 0.83415, 0, 0, 0 )
+mesh = ExtResource( 7 )
+material/0 = SubResource( 90 )
+
 [node name="LOD2" type="Spatial" parent="LODs star red 5e9"]
 visible = false
 __meta__ = {
@@ -130,6 +182,12 @@ __meta__ = {
 mesh = SubResource( 87 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 42 )
+
+[node name="UV_sphere_16x8" type="MeshInstance" parent="LODs star red 5e9/LOD2"]
+transform = Transform( 0.83415, 0, 0, 0, 0.83415, 0, 0, 0, 0.83415, 0, 0, 0 )
+mesh = ExtResource( 8 )
+skeleton = NodePath("../Icosphere_320")
+material/0 = SubResource( 90 )
 
 [node name="LOD3" type="Spatial" parent="LODs star red 5e9"]
 visible = false

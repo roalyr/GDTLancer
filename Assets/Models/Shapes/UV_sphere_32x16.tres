@@ -1,0 +1,5 @@
+[gd_resource type="SphereMesh" format=2]
+
+[resource]
+radial_segments = 32
+rings = 16

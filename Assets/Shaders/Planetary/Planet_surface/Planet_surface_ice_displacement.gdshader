@@ -1,18 +1,30 @@
 shader_type spatial;
-render_mode depth_draw_opaque, specular_schlick_ggx, blend_mix, cull_back;
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+	
+	// Blending and culling.
+	blend_mix,
+	cull_back,
+	
+	//unshaded,
+	diffuse_oren_nayar, 
+	specular_phong,
+	
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
 
 uniform vec4 albedo : hint_color;
 uniform float specular : hint_range(0,1) = 1.0;
 uniform float metallic : hint_range(0,1) = 0.0;
 uniform float roughness : hint_range(0,1) = 0.5;
-uniform float rim : hint_range(0,1) = 0.003;
 
 uniform sampler2D displacement_texture : hint_normal;
 uniform float displacement_scale = 0.01;
 
 uniform sampler2D major_detail_noise : hint_normal;
 uniform float major_detail_amount = 1.7;
-uniform float major_detail_scale = 2;
 
 uniform sampler2D small_detail_noise : hint_normal;
 uniform float small_detail_amount = 1.2;
@@ -46,7 +58,7 @@ void vertex() {
 void fragment()
 {
 	// Surface details major.
-	vec2 p = texture(major_detail_noise, -UV*major_detail_scale).xy;
+	vec2 p = texture(major_detail_noise, -UV*2.0).xy;
 	vec2 p2 = texture(small_detail_noise, -UV*small_detail_scale).xy;
 	
 	float detail_major = sin(texture(major_detail_noise, p).r*pi+major_detail_amount);
@@ -55,9 +67,8 @@ void fragment()
 	float ice = clamp(pow(detail_major*ice_amount, ice_noise_blend),0.0, 1.0)*ice_detail_intensity;
 	
 	vec4 albedo_tex = texture(displacement_texture, UV);
-	ALBEDO = albedo.rgb*COLOR.rgb+detail_major*detail_small;
+	ALBEDO = albedo.rgb+detail_major*detail_small;
 	SPECULAR = specular+ice;
 	ROUGHNESS = roughness*ice;
 	METALLIC = metallic;
-	RIM = rim;
 }

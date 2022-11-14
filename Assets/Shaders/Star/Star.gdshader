@@ -1,5 +1,19 @@
 shader_type spatial;
-render_mode depth_draw_opaque, cull_front, unshaded, blend_add;
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+	
+	// Blending and culling.
+	blend_add,
+	cull_front,
+	
+	unshaded,
+	//diffuse_lambert, 
+	//specular_schlick_ggx,
+	
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
 
 uniform vec4 halo_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 corona_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);

@@ -1,15 +1,30 @@
 shader_type spatial;
-render_mode depth_draw_opaque, blend_mix, cull_disabled;
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+	
+	// Blending and culling.
+	blend_mix,
+	cull_disabled,
+	
+	//unshaded,
+	diffuse_lambert, 
+	specular_disabled,
+	
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
 
 uniform vec4 albedo : hint_color;
 uniform vec4 emission : hint_color;
+uniform float alpa_clip : hint_range(0,1) = 0.1;
 uniform float rim_strength = 0.1;
 uniform float rim_power = 1.0;
 
 void fragment()
 {
-	float rim = clamp(pow(dot(NORMAL,VIEW),rim_power)*rim_strength, 0.0, 1.0);
-	ALBEDO = albedo.rgb*COLOR.rgb;
+	float rim = clamp(pow(dot(NORMAL,VIEW),rim_power)*rim_strength, 0.0, alpa_clip);
+	ALBEDO = albedo.rgb;
 	ALPHA = rim;
 	EMISSION = emission.rgb;
 }

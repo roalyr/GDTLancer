@@ -17,6 +17,7 @@ shader = ExtResource( 8 )
 shader_param/albedo = null
 shader_param/rim_strength = 0.0
 shader_param/rim_power = 0.0
+shader_param/alpha_clip = 1.0
 
 [sub_resource type="SphereShape" id=79]
 
@@ -40,8 +41,9 @@ surfaces/0 = {
 resource_local_to_scene = true
 shader = ExtResource( 9 )
 shader_param/albedo = Color( 0, 0.717647, 1, 1 )
-shader_param/rim_strength = 0.05
+shader_param/rim_strength = 0.02
 shader_param/rim_power = 15.0
+shader_param/alpha_clip = 1.0
 
 [sub_resource type="ArrayMesh" id=2]
 resource_name = "Cloud spheroid_Mesh001"
@@ -193,5 +195,3 @@ __meta__ = {
 [connection signal="body_exited" from="Star Blue" to="Star Blue" method="_on_Local_space_trigger_zone_body_exited"]
 [connection signal="body_entered" from="Planet Blue Ocean" to="Planet Blue Ocean" method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="Planet Blue Ocean" to="Planet Blue Ocean" method="_on_Local_space_trigger_zone_body_exited"]
-
-[editable path="Planet Blue Ocean/Scenes/Planet Blue"]

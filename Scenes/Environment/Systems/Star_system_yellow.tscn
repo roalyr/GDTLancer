@@ -19,6 +19,7 @@ shader = ExtResource( 6 )
 shader_param/albedo = null
 shader_param/rim_strength = 0.0
 shader_param/rim_power = 0.0
+shader_param/alpha_clip = 1.0
 
 [sub_resource type="ArrayMesh" id=85]
 resource_name = "Primitives_Torus011"
@@ -39,6 +40,7 @@ shader = ExtResource( 9 )
 shader_param/albedo = Color( 0.403922, 0.243137, 0.243137, 1 )
 shader_param/rim_strength = 0.162
 shader_param/rim_power = 2.607
+shader_param/alpha_clip = 1.0
 
 [sub_resource type="ArrayMesh" id=88]
 resource_name = "Primitives_Torus"
@@ -59,6 +61,7 @@ shader = ExtResource( 9 )
 shader_param/albedo = Color( 0.501961, 0.435294, 0.435294, 1 )
 shader_param/rim_strength = 0.086
 shader_param/rim_power = 3.658
+shader_param/alpha_clip = 1.0
 
 [sub_resource type="ArrayMesh" id=90]
 resource_name = "Primitives_Torus005"
@@ -79,6 +82,7 @@ shader = ExtResource( 9 )
 shader_param/albedo = Color( 0.533333, 0.533333, 0.533333, 1 )
 shader_param/rim_strength = 0.065
 shader_param/rim_power = 5.576
+shader_param/alpha_clip = 1.0
 
 [sub_resource type="ArrayMesh" id=86]
 resource_name = "Primitives_Torus010"
@@ -222,17 +226,19 @@ __meta__ = {
 }
 
 [node name="Ring_748_075" type="MeshInstance" parent="LODs rings 5e13/LOD1"]
-transform = Transform( 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0 )
 mesh = SubResource( 86 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 81 )
 
 [node name="Torus_748_05" type="MeshInstance" parent="LODs rings 5e13/LOD1"]
+transform = Transform( 1.74708, 0, 0, 0, 1.74708, 0, 0, 0, 1.74708, 0, 0, 0 )
 mesh = SubResource( 92 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
 [node name="Torus_748_075" type="MeshInstance" parent="LODs rings 5e13/LOD1"]
+transform = Transform( 1.94248, 0, 0, 0, 1.94248, 0, 0, 0, 1.94248, 0, 0, 0 )
 mesh = SubResource( 93 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 91 )
@@ -244,17 +250,19 @@ __meta__ = {
 }
 
 [node name="Ring_505_075" type="MeshInstance" parent="LODs rings 5e13/LOD2"]
-transform = Transform( 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0 )
 mesh = SubResource( 87 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 81 )
 
 [node name="Torus_504_05" type="MeshInstance" parent="LODs rings 5e13/LOD2"]
+transform = Transform( 1.74708, 0, 0, 0, 1.74708, 0, 0, 0, 1.74708, 0, 0, 0 )
 mesh = SubResource( 94 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
 [node name="Torus_505_075" type="MeshInstance" parent="LODs rings 5e13/LOD2"]
+transform = Transform( 1.94248, 0, 0, 0, 1.94248, 0, 0, 0, 1.94248, 0, 0, 0 )
 mesh = SubResource( 95 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 91 )
