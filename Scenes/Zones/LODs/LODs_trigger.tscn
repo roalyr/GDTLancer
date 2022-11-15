@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Scripts/LODs_trigger.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/LODs/LODs_trigger.gd" type="Script" id=1]
 
 [node name="LODs_trigger" type="Spatial"]
 script = ExtResource( 1 )

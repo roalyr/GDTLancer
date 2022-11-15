@@ -1,15 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[sub_resource type="GDScript" id=1]
-resource_name = "Rotating_object"
-script/source = "extends Spatial
-
-export var axis = Vector3(0,1,0)
-export var rotation_speed = 0.01
-
-func _physics_process(delta):
-	self.rotate(axis, rotation_speed*delta)
-"
+[ext_resource path="res://Scripts/Kinematic/Rotating_object.gd" type="Script" id=1]
 
 [node name="Rotating_object" type="Position3D"]
-script = SubResource( 1 )
+script = ExtResource( 1 )

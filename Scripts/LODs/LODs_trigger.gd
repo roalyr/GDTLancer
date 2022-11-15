@@ -1,6 +1,5 @@
-# Copyright © 2020 Hugo Locurcio and contributors - MIT License
-# See `LICENSE.md` included in the source distribution for details.
 extends Spatial
+class_name LODs_trigger, "res://Assets/UI_images/SVG/icons/lod_icon.svg"
 
 # If `false`, LOD won't update anymore. This can be used for performance comparison
 # purposes.

@@ -1,6 +1,6 @@
 [gd_scene load_steps=38 format=2]
 
-[ext_resource path="res://Scripts/LODs_trigger.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/LODs/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar/Stars/Star_red_1e9.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_back.gdshader" type="Shader" id=3]
 [ext_resource path="res://Scripts/Local_space_triggers/Local_space_star.gd" type="Script" id=4]

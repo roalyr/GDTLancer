@@ -18,6 +18,9 @@ render_mode
 uniform vec4 surface_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 rim_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 
+uniform float color_clamp_up = 1.0;
+uniform float color_clamp_down = -1.0;
+
 uniform float major_phase = 2.0;
 uniform float small_phase = -2.0;
 
@@ -54,7 +57,7 @@ void fragment()
 	// interesting effects when colors overflow.
 	ALBEDO = 
 		surface_color.rgb + (1.0-rim)*rim_color.rgb*rim_intensity
-		+detail_major
+		+clamp((detail_major), color_clamp_down, color_clamp_up)
 		+detail_small;
 	//ALBEDO = vec3(DEPTH, DEPTH, DEPTH);
 	// This is may be needed by alpha sorting.

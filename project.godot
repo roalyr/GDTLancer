@@ -14,6 +14,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Scripts/Local_space_triggers/_Local_space_galaxy.gd"
 }, {
+"base": "Spatial",
+"class": "LODs_trigger",
+"language": "GDScript",
+"path": "res://Scripts/LODs/LODs_trigger.gd"
+}, {
 "base": "Position3D",
 "class": "MarkerPlanet",
 "language": "GDScript",
@@ -39,6 +44,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Scripts/Local_space_triggers/Local_space_planet.gd"
 }, {
+"base": "Spatial",
+"class": "RotatingObject",
+"language": "GDScript",
+"path": "res://Scripts/Kinematic/Rotating_object.gd"
+}, {
 "base": "Area",
 "class": "StellarLocalSpace",
 "language": "GDScript",
@@ -53,17 +63,25 @@ _global_script_classes=[ {
 "class": "SystemLocalSpace",
 "language": "GDScript",
 "path": "res://Scripts/Local_space_triggers/Local_space_system.gd"
+}, {
+"base": "Area",
+"class": "ZoneNebula",
+"language": "GDScript",
+"path": "res://Scripts/Generic_zones/Zone_nebula.gd"
 } ]
 _global_script_class_icons={
 "GalaxyLocalSpace": "res://Assets/UI_images/SVG/icons/galaxy.svg",
+"LODs_trigger": "res://Assets/UI_images/SVG/icons/lod_icon.svg",
 "MarkerPlanet": "res://Assets/UI_images/SVG/icons/planet_marker.svg",
 "MarkerStar": "res://Assets/UI_images/SVG/icons/star_marker.svg",
 "MarkerStructure": "res://Assets/UI_images/SVG/icons/structure_marker.svg",
 "MarkerSystem": "res://Assets/UI_images/SVG/icons/system_marker.svg",
 "PlanetLocalSpace": "res://Assets/UI_images/SVG/icons/planet.svg",
+"RotatingObject": "res://Assets/UI_images/SVG/icons/rotating_object.svg",
 "StellarLocalSpace": "res://Assets/UI_images/SVG/icons/star.svg",
 "StructureLocalSpace": "res://Assets/UI_images/SVG/icons/structure.svg",
-"SystemLocalSpace": "res://Assets/UI_images/SVG/icons/system.svg"
+"SystemLocalSpace": "res://Assets/UI_images/SVG/icons/system.svg",
+"ZoneNebula": "res://Assets/UI_images/SVG/icons/nebula.svg"
 }
 
 [application]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=2]
 
-[ext_resource path="res://Scripts/LODs_trigger.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/LODs/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_front.gdshader" type="Shader" id=2]
 
 [sub_resource type="ArrayMesh" id=1]
