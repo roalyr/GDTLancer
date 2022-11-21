@@ -19,7 +19,6 @@ uniform vec4 albedo : hint_color;
 uniform float specular : hint_range(0,1) = 0.0;
 uniform float metallic : hint_range(0,1) = 0.0;
 uniform float roughness : hint_range(0,1) = 1.0;
-uniform float rim : hint_range(0,1) = 0.0;
 
 uniform sampler2D displacement_texture : hint_normal;
 uniform float displacement_scale = 0.01;
@@ -29,13 +28,14 @@ uniform float major_detail_amount = 0.1;
 
 uniform sampler2D small_detail_noise : hint_normal;
 uniform float small_detail_amount = 0.1;
-uniform float small_detail_scale = 2;
+uniform float small_detail_scale = 10;
 
 uniform sampler2D lava_detail_noise : hint_normal;
 uniform float lava_detail_amount = 1.0;
 uniform float lava_detail_intensity = 1.0;
 uniform float lava_detail_scale = 4;
 uniform float lava_noise_blend = 0.2;
+uniform float lava_flow = 0.01;
 
 uniform float uv_shift_x = 0.0;
 uniform float uv_shift_y = 0.0;
@@ -63,7 +63,7 @@ void fragment()
 	// Surface details major.
 	vec2 p = texture(major_detail_noise, -UV*2.0).xy;
 	vec2 p2 = texture(small_detail_noise, -UV*small_detail_scale).xy;
-	vec2 p3 = texture(lava_detail_noise, -UV*lava_detail_scale).xy;
+	vec2 p3 = texture(lava_detail_noise, -UV*lava_detail_scale).xy -TIME*lava_flow;
 	
 	float detail_major = sin(texture(major_detail_noise, p).r*pi+major_detail_amount);
 	float detail_small = sin(texture(small_detail_noise, p2).r*pi+small_detail_amount);
@@ -76,6 +76,5 @@ void fragment()
 	SPECULAR = specular;
 	ROUGHNESS = roughness;
 	METALLIC = metallic;
-	RIM = rim;
 	EMISSION = vec3(lava, 0.0, 0.0);
 }

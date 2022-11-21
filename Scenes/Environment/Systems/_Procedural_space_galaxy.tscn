@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Scripts/Procedural_space/Procedural_space_galaxy.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Procedural space/Procedural_space_galaxy.gd" type="Script" id=1]
 
 [node name="_Procedural_space_galaxy" type="Position3D"]
 transform = Transform( -0.0533076, -0.165096, 0.984836, 0.758477, 0.634796, 0.147471, -0.649516, 0.754836, 0.091382, -1.58621e+17, 7.47256e+17, -1.74482e+18 )

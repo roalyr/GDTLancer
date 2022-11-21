@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=2]
+[gd_scene load_steps=55 format=2]
 
 [ext_resource path="res://Scripts/Main.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Ships/Phoenix_heavy.tscn" type="PackedScene" id=2]
@@ -10,20 +10,20 @@
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudHalo_add/CloudHalo_add_cull_front.gdshader" type="Shader" id=8]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudSolid_add/CloudSolid_add_cull_front.gdshader" type="Shader" id=9]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_sub/CloudSolid_sub/CloudSolid_sub_cull_front.gdshader" type="Shader" id=10]
-[ext_resource path="res://Scripts/Local_space_triggers/Local_space_system.gd" type="Script" id=11]
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/Environment/Environment.tscn" type="PackedScene" id=12]
 [ext_resource path="res://Scripts/View.gd" type="Script" id=13]
 [ext_resource path="res://Scripts/Starsphere_orientation.gd" type="Script" id=14]
 [ext_resource path="res://Assets/Shaders/Starsphere/Starsphere_background.gdshader" type="Shader" id=15]
-[ext_resource path="res://Scenes/Environment/Stellar/Clouds/Compound/CloudCoumpound_cancer_scaled.tscn" type="PackedScene" id=16]
-[ext_resource path="res://Scenes/Environment/Systems/Star_system_yellow.tscn" type="PackedScene" id=17]
+[ext_resource path="res://Scenes/Environment/Nebula_zones/Cancer_Green_Nebula_Zone.tscn" type="PackedScene" id=16]
+[ext_resource path="res://Scenes/Environment/System_zones/System_Yellow_Zone.tscn" type="PackedScene" id=17]
+[ext_resource path="res://Scenes/Environment/System_zones/System_Red_Zone.tscn" type="PackedScene" id=18]
 [ext_resource path="res://Scripts/Input/Mouse.gd" type="Script" id=23]
 [ext_resource path="res://Scripts/Input/Pad.gd" type="Script" id=24]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_local_system.gd" type="Script" id=25]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_local_star.gd" type="Script" id=27]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_local_structure.gd" type="Script" id=28]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_local_planet.gd" type="Script" id=31]
-[ext_resource path="res://Scenes/Environment/Systems/Star_system_red.tscn" type="PackedScene" id=32]
 
 [sub_resource type="GDScript" id=52]
 resource_name = "Paths"
@@ -243,8 +243,6 @@ var systems_visited = [] # Queue of spawned systems in order to manage memory.
 "
 
 [sub_resource type="SphereShape" id=79]
-
-[sub_resource type="SphereShape" id=108]
 
 [sub_resource type="CubeMesh" id=41]
 
@@ -502,7 +500,7 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 
 [node name="Nebulas global" type="Position3D" parent="Container/Viewport/Global_space"]
 
-[node name="CloudCoumpound cancer" parent="Container/Viewport/Global_space/Nebulas global" instance=ExtResource( 16 )]
+[node name="Cancer Green Nebula Zone" parent="Container/Viewport/Global_space/Nebulas global" instance=ExtResource( 16 )]
 
 [node name="Systems" type="Position3D" parent="Container/Viewport/Global_space"]
 
@@ -533,58 +531,11 @@ __meta__ = {
 }
 targetable = false
 
-[node name="System red" type="Area" parent="Container/Viewport/Global_space/Systems"]
+[node name="System Red Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 18 )]
 transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -2.61047e+16, -1.78737e+16, 1.92373e+16 )
-input_ray_pickable = false
-monitorable = false
-gravity = 0.0
-linear_damp = 0.0
-angular_damp = 0.0
-script = ExtResource( 11 )
 
-[node name="Zone shape 1e13 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="Container/Viewport/Global_space/Systems/System red"]
-transform = Transform( 1e+13, 0, 0, 0, 1e+13, 0, 0, 0, 1e+13, 0, 0, 0 )
-shape = SubResource( 79 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Scenes" type="Spatial" parent="Container/Viewport/Global_space/Systems/System red"]
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="System Red" parent="Container/Viewport/Global_space/Systems/System red/Scenes" instance=ExtResource( 32 )]
-__meta__ = {
-"_edit_lock_": true
-}
-targetable = false
-
-[node name="System yellow" type="Area" parent="Container/Viewport/Global_space/Systems"]
-transform = Transform( 0.959478, 0.27979, -0.0334561, -0.28136, 0.957767, -0.0593226, 0.0154453, 0.066332, 0.997678, -8.07131e+16, 2.09594e+12, -4.14367e+16 )
-input_ray_pickable = false
-monitorable = false
-gravity = 0.0
-linear_damp = 0.0
-angular_damp = 0.0
-script = ExtResource( 11 )
-
-[node name="Zone shape 1e14 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="Container/Viewport/Global_space/Systems/System yellow"]
-transform = Transform( 1e+14, 0, 0, 0, 1e+14, 0, 0, 0, 1e+14, 0, 0, 0 )
-shape = SubResource( 108 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "1e15"
-}
-
-[node name="Scenes" type="Spatial" parent="Container/Viewport/Global_space/Systems/System yellow"]
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": ""
-}
-
-[node name="System Yellow" parent="Container/Viewport/Global_space/Systems/System yellow/Scenes" instance=ExtResource( 17 )]
-targetable = false
+[node name="System Yellow Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 17 )]
+transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -8.07131e+16, 2.09594e+12, -4.14367e+16 )
 
 [node name="_Local_space_galaxy" type="Position3D" parent="Container/Viewport"]
 __meta__ = {
@@ -723,7 +674,3 @@ __meta__ = {
 
 [connection signal="body_entered" from="Container/Viewport/Global_space/Systems/System blue" to="Container/Viewport/Global_space/Systems/System blue" method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="Container/Viewport/Global_space/Systems/System blue" to="Container/Viewport/Global_space/Systems/System blue" method="_on_Local_space_trigger_zone_body_exited"]
-[connection signal="body_entered" from="Container/Viewport/Global_space/Systems/System red" to="Container/Viewport/Global_space/Systems/System red" method="_on_Local_space_trigger_zone_body_entered"]
-[connection signal="body_exited" from="Container/Viewport/Global_space/Systems/System red" to="Container/Viewport/Global_space/Systems/System red" method="_on_Local_space_trigger_zone_body_exited"]
-[connection signal="body_entered" from="Container/Viewport/Global_space/Systems/System yellow" to="Container/Viewport/Global_space/Systems/System yellow" method="_on_Local_space_trigger_zone_body_entered"]
-[connection signal="body_exited" from="Container/Viewport/Global_space/Systems/System yellow" to="Container/Viewport/Global_space/Systems/System yellow" method="_on_Local_space_trigger_zone_body_exited"]
