@@ -15,62 +15,68 @@
 
 [sub_resource type="SphereShape" id=43]
 
-[sub_resource type="OpenSimplexNoise" id=109]
-
-[sub_resource type="NoiseTexture" id=73]
-seamless = true
-noise = SubResource( 109 )
-
 [sub_resource type="OpenSimplexNoise" id=110]
-octaves = 5
-period = 6.6
-persistence = 0.771
-lacunarity = 4.0
+octaves = 9
+period = 5.0
 
 [sub_resource type="NoiseTexture" id=84]
+flags = 39
+width = 128
+height = 128
 seamless = true
 noise = SubResource( 110 )
 
 [sub_resource type="OpenSimplexNoise" id=111]
-seed = 18
 octaves = 9
-period = 88.8
+period = 129.1
+persistence = 0.567
 
 [sub_resource type="NoiseTexture" id=78]
+width = 1024
+height = 1024
 seamless = true
 noise = SubResource( 111 )
 
+[sub_resource type="OpenSimplexNoise" id=113]
+octaves = 9
+period = 4.8
+
+[sub_resource type="NoiseTexture" id=114]
+width = 128
+height = 128
+seamless = true
+noise = SubResource( 113 )
+
 [sub_resource type="OpenSimplexNoise" id=112]
 octaves = 9
-period = 35.3
-persistence = 0.709
-lacunarity = 2.36
+period = 27.5
+persistence = 0.721
 
 [sub_resource type="NoiseTexture" id=80]
+width = 128
+height = 128
 seamless = true
 noise = SubResource( 112 )
 
 [sub_resource type="ShaderMaterial" id=71]
 shader = ExtResource( 5 )
-shader_param/albedo = Color( 0.65098, 0.643137, 0.572549, 1 )
-shader_param/specular = 0.0
-shader_param/metallic = 0.0
-shader_param/roughness = 1.0
-shader_param/displacement_scale = 0.01
-shader_param/major_detail_amount = 1.461
-shader_param/small_detail_amount = 1.039
+shader_param/albedo = Color( 0.47451, 0.541176, 0.466667, 1 )
+shader_param/major_detail_phase = 0.942
+shader_param/small_detail_phase = 0.849
+shader_param/micro_detail_phase = -0.318
+shader_param/lava_detail_phase = 1.036
 shader_param/small_detail_scale = 10.0
-shader_param/lava_detail_amount = 1.103
-shader_param/lava_detail_intensity = 1.614
-shader_param/lava_detail_scale = 4.0
-shader_param/lava_noise_blend = 0.793
-shader_param/lava_contrast = 3.099
-shader_param/lava_flow = 0.003
-shader_param/uv_shift_x = -0.197
-shader_param/uv_shift_y = -1.875
-shader_param/displacement_texture = SubResource( 73 )
+shader_param/micro_detail_scale = 50.0
+shader_param/lava_detail_scale = 100.0
+shader_param/lava_detail_intensity = 2.358
+shader_param/lava_noise_blend = 1.477
+shader_param/lava_contrast = 3.131
+shader_param/lava_flow = 0.0
+shader_param/uv_shift_x = 0.0
+shader_param/uv_shift_y = 0.192
 shader_param/major_detail_noise = SubResource( 78 )
 shader_param/small_detail_noise = SubResource( 80 )
+shader_param/micro_detail_noise = SubResource( 114 )
 shader_param/lava_detail_noise = SubResource( 84 )
 
 [sub_resource type="ArrayMesh" id=85]
@@ -155,12 +161,13 @@ __meta__ = {
 autopilot_range = 2e+06
 
 [node name="Planet 1e6" type="StaticBody" parent="Scenes/Planetoid Red"]
-transform = Transform( 1.01e+06, 0, 0, 0, 1.01e+06, 0, 0, 0, 1.01e+06, 0, 0, 0 )
+transform = Transform( 1e+06, 0, 0, 0, 1e+06, 0, 0, 0, 1e+06, 0, 0, 0 )
 
 [node name="CollisionShape" type="CollisionShape" parent="Scenes/Planetoid Red/Planet 1e6"]
 shape = SubResource( 43 )
 
 [node name="Rotating_object" parent="Scenes/Planetoid Red" instance=ExtResource( 6 )]
+rotation_speed = 0.001
 
 [node name="LODs planet lava 1e6" type="Spatial" parent="Scenes/Planetoid Red/Rotating_object"]
 transform = Transform( 1e+06, 0, 0, 0, 1e+06, 0, 0, 0, 1e+06, 0, 0, 0 )
