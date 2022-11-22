@@ -24,7 +24,8 @@ noise = SubResource( 109 )
 [sub_resource type="OpenSimplexNoise" id=110]
 octaves = 5
 period = 6.6
-persistence = 0.801
+persistence = 0.771
+lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=84]
 seamless = true
@@ -56,16 +57,17 @@ shader_param/specular = 0.0
 shader_param/metallic = 0.0
 shader_param/roughness = 1.0
 shader_param/displacement_scale = 0.01
-shader_param/major_detail_amount = 1.48
-shader_param/small_detail_amount = 0.848
+shader_param/major_detail_amount = 1.461
+shader_param/small_detail_amount = 1.039
 shader_param/small_detail_scale = 10.0
-shader_param/lava_detail_amount = 0.818
-shader_param/lava_detail_intensity = 4.551
+shader_param/lava_detail_amount = 1.103
+shader_param/lava_detail_intensity = 1.614
 shader_param/lava_detail_scale = 4.0
-shader_param/lava_noise_blend = 0.144
-shader_param/lava_flow = 0.01
+shader_param/lava_noise_blend = 0.793
+shader_param/lava_contrast = 3.099
+shader_param/lava_flow = 0.003
 shader_param/uv_shift_x = -0.197
-shader_param/uv_shift_y = -0.743
+shader_param/uv_shift_y = -1.875
 shader_param/displacement_texture = SubResource( 73 )
 shader_param/major_detail_noise = SubResource( 78 )
 shader_param/small_detail_noise = SubResource( 80 )
@@ -131,7 +133,6 @@ script = ExtResource( 2 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 3 )]
 transform = Transform( 1, 2.14204e-08, 0, -2.23517e-08, 1, -3.72529e-09, -1.49012e-08, -7.45058e-09, 1, 0, 0, 0 )
-visible = false
 
 [node name="Zone shape 1e8 DNI WITH SAME TYPE" type="CollisionShape" parent="."]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )

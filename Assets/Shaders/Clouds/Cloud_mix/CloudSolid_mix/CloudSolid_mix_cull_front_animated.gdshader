@@ -41,7 +41,7 @@ void vertex() {
 
 void fragment()
 {	
-	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 0.0, alpha_clip);
+	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-6, alpha_clip);
 	ALBEDO = albedo.rgb*COLOR.rgb;
 	ALPHA = rim;
 }

@@ -51,9 +51,9 @@ void vertex() {
 
 void fragment()
 {
-	float halo = clamp(pow(dot(NORMAL,VIEW), halo_power)*halo_strength, 0.0, 1.0);
-	float corona = clamp(pow(dot(NORMAL,VIEW), corona_power)*corona_strength, 0.0, 1.0);
-	float core = clamp(pow(dot(NORMAL,VIEW), core_power)*core_strength, 0.0, 1.0);
+	float halo = clamp(pow(dot(NORMAL,VIEW), halo_power)*halo_strength, 1e-6, 1.0);
+	float corona = clamp(pow(dot(NORMAL,VIEW), corona_power)*corona_strength, 1e-6, 1.0);
+	float core = clamp(pow(dot(NORMAL,VIEW), core_power)*core_strength, 1e-6, 1.0);
 	
 	ALBEDO = 
 		halo*halo_amount*halo_color.rgb 

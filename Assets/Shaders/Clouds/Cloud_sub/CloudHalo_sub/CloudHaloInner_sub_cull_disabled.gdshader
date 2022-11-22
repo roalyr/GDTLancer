@@ -23,7 +23,7 @@ uniform float alpha_global = 0.5;
 
 void fragment()
 {
-	float rim = clamp(pow(dot(NORMAL,VIEW), rim_power)*rim_strength, 0.0, 1.0);
+	float rim = clamp(pow(dot(NORMAL,VIEW), rim_power)*rim_strength, 1e-6, 1.0);
 	ALBEDO = albedo.rgb*COLOR.rgb;
-	ALPHA = clamp(1.0-rim, 0.0, 1.0)*alpha_global;
+	ALPHA = clamp(1.0-rim, 1e-6, 1.0)*alpha_global;
 }

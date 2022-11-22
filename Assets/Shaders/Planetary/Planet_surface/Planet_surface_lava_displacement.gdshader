@@ -35,6 +35,7 @@ uniform float lava_detail_amount = 1.0;
 uniform float lava_detail_intensity = 1.0;
 uniform float lava_detail_scale = 4;
 uniform float lava_noise_blend = 0.2;
+uniform float lava_contrast = 1.0;
 uniform float lava_flow = 0.01;
 
 uniform float uv_shift_x = 0.0;
@@ -70,7 +71,10 @@ void fragment()
 	float detail_lava = sin(texture(lava_detail_noise, p3).r*pi+lava_detail_amount);
 	
 	vec4 albedo_tex = texture(displacement_texture, UV);
-	float lava = clamp(detail_lava-pow(detail_major, lava_noise_blend),0.0, 0.5)*lava_detail_intensity;
+	float lava = clamp(
+			detail_lava
+			-clamp(pow(detail_major, lava_noise_blend),1e-6, 1.0)*lava_contrast
+		,1e-6, 0.5)*lava_detail_intensity;
 	
 	ALBEDO = albedo.rgb*detail_major*detail_small;
 	SPECULAR = specular;

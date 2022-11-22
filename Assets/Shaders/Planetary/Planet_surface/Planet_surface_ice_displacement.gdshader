@@ -64,7 +64,7 @@ void fragment()
 	float detail_major = sin(texture(major_detail_noise, p).r*pi+major_detail_amount);
 	float detail_small = sin(texture(small_detail_noise, p2).r*pi+small_detail_amount);
 	
-	float ice = clamp(pow(detail_major*ice_amount, ice_noise_blend),0.0, 1.0)*ice_detail_intensity;
+	float ice = clamp(pow(detail_major*ice_amount, ice_noise_blend),1e-6, 1.0)*ice_detail_intensity;
 	
 	vec4 albedo_tex = texture(displacement_texture, UV);
 	ALBEDO = albedo.rgb+detail_major*detail_small;

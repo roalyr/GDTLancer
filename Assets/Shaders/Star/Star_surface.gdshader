@@ -51,7 +51,7 @@ void fragment()
 	float detail_major = sin(texture(major_detail_noise, p).r*pi+major_phase);
 	float detail_small = sin(texture(small_detail_noise, p2).r*pi+small_phase);
 	
-	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 0.0, 1.0);
+	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-6, 1.0);
 	
 	// Combine surface colors with details. Not clamping it because it makes
 	// interesting effects when colors overflow.

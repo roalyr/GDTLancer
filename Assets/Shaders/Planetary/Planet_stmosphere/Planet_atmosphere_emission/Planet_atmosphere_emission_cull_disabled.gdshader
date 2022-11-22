@@ -23,7 +23,7 @@ uniform float rim_power = 1.0;
 
 void fragment()
 {
-	float rim = clamp(pow(dot(NORMAL,VIEW),rim_power)*rim_strength, 0.0, alpa_clip);
+	float rim = clamp(pow(dot(NORMAL,VIEW),rim_power)*rim_strength, 1e-6, alpa_clip);
 	ALBEDO = albedo.rgb;
 	ALPHA = rim;
 	EMISSION = emission.rgb;
