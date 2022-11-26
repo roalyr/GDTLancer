@@ -5,12 +5,12 @@
 [ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=3]
 [ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=4]
 [ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=5]
-[ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_32x16.tres" type="SphereMesh" id=7]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_64x32.tres" type="SphereMesh" id=8]
 [ext_resource path="res://Scenes/Kinematics/Rotating_object.tscn" type="PackedScene" id=9]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_16x8.tres" type="SphereMesh" id=10]
 [ext_resource path="res://Scenes/FX/Sprites/Star_sprite.tscn" type="PackedScene" id=11]
+[ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=12]
 
 [sub_resource type="SphereShape" id=79]
 
@@ -57,8 +57,8 @@ shader_param/displacement_texture = SubResource( 96 )
 [sub_resource type="OpenSimplexNoise" id=91]
 octaves = 9
 period = 42.6
-persistence = 0.68
-lacunarity = 1.63
+persistence = 0.619
+lacunarity = 3.81
 
 [sub_resource type="NoiseTexture" id=92]
 seamless = true
@@ -75,13 +75,14 @@ seamless = true
 noise = SubResource( 93 )
 
 [sub_resource type="ShaderMaterial" id=100]
-shader = ExtResource( 6 )
-shader_param/surface_color = Color( 1, 0.945098, 0.666667, 1 )
+shader = ExtResource( 12 )
 shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/color_clamp_up = -0.601
-shader_param/color_clamp_down = -1.0
-shader_param/major_phase = 2.0
-shader_param/small_phase = -1.338
+shader_param/overlay_color = Color( 1, 0.862745, 0.129412, 1 )
+shader_param/surface_color = Color( 1, 0.945098, 0.666667, 1 )
+shader_param/major_phase = 2.794
+shader_param/small_phase = 1.2
+shader_param/major_detail_intensity = 0.899
+shader_param/small_detail_intensity = 2.132
 shader_param/major_detail_scale = 2.0
 shader_param/small_detail_scale = 4.0
 shader_param/major_detail_flow = 0.01
@@ -154,22 +155,22 @@ shader = ExtResource( 4 )
 shader_param/halo_color = Color( 0.509804, 0.121569, 0, 1 )
 shader_param/corona_color = Color( 0.286275, 0.12549, 0, 1 )
 shader_param/core_color = Color( 0.329412, 0, 0.121569, 1 )
-shader_param/halo_strength = 5.401
-shader_param/halo_power = 1.902
-shader_param/halo_amount = 0.322
-shader_param/corona_strength = 30.0
-shader_param/corona_power = 10.098
-shader_param/corona_amount = 50.0
+shader_param/halo_strength = 5.386
+shader_param/halo_power = 5.114
+shader_param/halo_amount = 2.116
+shader_param/corona_strength = 44.982
+shader_param/corona_power = 9.412
+shader_param/corona_amount = 53.886
 shader_param/core_strength = 50.0
 shader_param/core_power = 50.0
 shader_param/core_amount = 50.0
-shader_param/displacement_scale = 0.052
+shader_param/displacement_scale = 0.01
 shader_param/displacement_velocity = 0.048
 shader_param/displacement_texture = SubResource( 107 )
 
 [sub_resource type="OpenSimplexNoise" id=101]
 period = 18.8
-lacunarity = 3.77
+lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=102]
 seamless = true
@@ -186,20 +187,21 @@ seamless = true
 noise = SubResource( 103 )
 
 [sub_resource type="ShaderMaterial" id=105]
-shader = ExtResource( 6 )
-shader_param/surface_color = Color( 1, 0.764706, 0.658824, 1 )
-shader_param/rim_color = Color( 1, 0.937255, 0, 1 )
-shader_param/color_clamp_up = 0.18
-shader_param/color_clamp_down = 0.146
-shader_param/major_phase = 1.238
-shader_param/small_phase = 2.337
-shader_param/major_detail_scale = 2.0
-shader_param/small_detail_scale = 4.0
+shader = ExtResource( 12 )
+shader_param/rim_color = Color( 1, 0.329412, 0, 1 )
+shader_param/overlay_color = Color( 1, 0.72549, 0, 1 )
+shader_param/surface_color = Color( 1, 0.309804, 0, 1 )
+shader_param/major_phase = 0.236
+shader_param/small_phase = 2.41
+shader_param/major_detail_intensity = 1.098
+shader_param/small_detail_intensity = 1.779
+shader_param/major_detail_scale = 1.0
+shader_param/small_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.02
-shader_param/rim_strength = 1.289
-shader_param/rim_power = 0.928
-shader_param/rim_intensity = 0.174
+shader_param/rim_strength = 1.191
+shader_param/rim_power = 1.159
+shader_param/rim_intensity = 0.91
 shader_param/major_detail_noise = SubResource( 102 )
 shader_param/small_detail_noise = SubResource( 104 )
 
