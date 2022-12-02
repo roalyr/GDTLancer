@@ -5,6 +5,11 @@ export var global_brightness = 1.0
 export var global_contrast = 1.0
 export var global_saturation = 1.0
 
+# Upper limit values so preserve your eyes.
+var brightness_cap = 4.0
+var contrast_cap = 2.0
+var saturation_cap = 2.0
+
 # Global rate of adjustment.
 var refresh_rate = 0.05
 var increment_step = 0.01
@@ -14,6 +19,7 @@ var brightness_change_rate = 1e-2
 var contrast_change_rate = 1e-2
 var saturation_change_rate = 1e-2
 
+# INTERNAL VALUES
 # Connect to those variables from other scripts.
 var brightness_variation = 0.0
 var contrast_variation = 0.0
@@ -24,17 +30,9 @@ var warp_brightness_variation = 0.0
 var warp_brightness_variation_prev = 0.0
 
 # Zoner variations.
-var zone_star_brightness_variation = 0.0
-var zone_system_brightness_variation = 0.0
-var zone_planet_brightness_variation = 0.0
-
-var zone_star_contrast_variation = 0.0
-var zone_system_contrast_variation = 0.0
-var zone_planet_contrast_variation = 0.0
-
-var zone_star_saturation_variation = 0.0
-var zone_system_saturation_variation = 0.0
-var zone_planet_saturation_variation = 0.0
+var zone_brightness_variation = 0.0
+var zone_contrast_variation = 0.0
+var zone_saturation_variation = 0.0
 
 enum Adjustment_kind {BRIGHTNESS, CONTRAST, SATURATION}
 
@@ -62,26 +60,15 @@ func _physics_process(delta):
 		return
 
 	timer = 0.0
-#
-#	print(self.environment.adjustment_brightness)
-#	print(self.environment.adjustment_contrast)
-#	print(self.environment.adjustment_saturation)
+
+	print(self.environment.adjustment_brightness)
+	print(self.environment.adjustment_contrast)
+	print(self.environment.adjustment_saturation)
 	
 	
-	brightness_variation = stepify(
-		+ zone_star_brightness_variation 
-		+ zone_system_brightness_variation
-		+ zone_planet_brightness_variation, increment_step )
-	
-	contrast_variation = stepify(
-		+ zone_star_contrast_variation 
-		+ zone_system_contrast_variation
-		+ zone_planet_contrast_variation, increment_step )
-		
-	saturation_variation = stepify(
-		+ zone_star_saturation_variation 
-		+ zone_system_saturation_variation 
-		+ zone_planet_saturation_variation, increment_step )
+	brightness_variation = stepify(zone_brightness_variation + warp_brightness_variation, increment_step )
+	contrast_variation = stepify(zone_contrast_variation, increment_step )
+	saturation_variation = stepify(zone_saturation_variation, increment_step )
 		
 		
 	# Adjust brightness on zone change.
@@ -102,15 +89,15 @@ func _physics_process(delta):
 			global_saturation + saturation_variation,
 			saturation_change_rate)
 
-	# Adjust brightness based on velocity.	
-	if not stepify(warp_brightness_variation_prev, increment_step) == stepify(warp_brightness_variation, increment_step):
-		# 1e-6 is used instead of 0.0 because it is universally used clamping minimum here.
-		if warp_brightness_variation > 1e-6:
-			self.environment.adjustment_brightness = \
-				global_brightness + brightness_variation + warp_brightness_variation
-		# Adjust back and stop updateing.
-		else:
-			self.environment.adjustment_brightness = global_brightness + brightness_variation
+#	# Adjust brightness based on velocity.	
+#	if not stepify(warp_brightness_variation_prev, increment_step) == stepify(warp_brightness_variation, increment_step):
+#		# 1e-6 is used instead of 0.0 because it is universally used clamping minimum here.
+#		if warp_brightness_variation > 1e-6:
+#			self.environment.adjustment_brightness = \
+#				global_brightness + brightness_variation + warp_brightness_variation
+#		# Adjust back and stop updateing.
+#		else:
+#			self.environment.adjustment_brightness = global_brightness + brightness_variation
 
 	# Record previous values.
 	warp_brightness_variation_prev = warp_brightness_variation

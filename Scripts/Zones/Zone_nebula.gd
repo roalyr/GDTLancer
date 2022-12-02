@@ -7,13 +7,12 @@ func _ready():
 	# Disable "Monitorable" for the sake of performance.
 	self.monitorable = false
 	self.monitoring = true
-		
-# Monitor if player ship enters the local space. Pass the reference to scene
-# Which should be used later on.
-func _on_Local_space_trigger_zone_body_entered(_body):
+
+func _on_Zone_nebula_body_entered(_body):
 	if _body == p.ship: 
 		print("Entered: ", self.name)
 
-func _on_Local_space_trigger_zone_body_exited(_body):
+
+func _on_Zone_nebula_body_exited(_body):
 	if _body == p.ship: 
 		print("Exited: ", self.name)

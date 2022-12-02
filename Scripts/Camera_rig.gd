@@ -31,7 +31,7 @@ var camera_fov_velocity_factor = 1e-4
 var camera_fov_derivative = 4
 var camera_fov_max_delta = 175 - 60
 
-var camera_brightness_velocity_factor = 1e-4
+var camera_brightness_velocity_factor = 2e-4
 var camera_brightness_derivative = 0.1
 var camera_brightness_max_delta = 5.0
 # TODO: adjust background colors separatenly?

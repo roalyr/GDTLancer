@@ -26,5 +26,5 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
-[connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
+[connection signal="body_entered" from="." to="." method="_on_Zone_nebula_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Zone_nebula_body_exited"]

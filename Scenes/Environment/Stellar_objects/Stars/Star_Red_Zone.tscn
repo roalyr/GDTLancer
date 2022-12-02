@@ -145,12 +145,12 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
 
-[node name="Zone shape 1e10 DNI WITH SAME TYPE" type="CollisionShape" parent="."]
-transform = Transform( 2e+10, 0, 0, 0, 2e+10, 0, 0, 0, 2e+10, 0, 0, 0 )
+[node name="Zone shape 1e10" type="CollisionShape" parent="."]
+transform = Transform( 1e+10, 0, 0, 0, 1e+10, 0, 0, 0, 1e+10, 0, 0, 0 )
 shape = SubResource( 110 )
 __meta__ = {
 "_edit_lock_": true,
-"_editor_description_": "1e10"
+"_editor_description_": ""
 }
 
 [node name="Scenes" type="Spatial" parent="."]
@@ -184,7 +184,6 @@ __meta__ = {
 If object absolute size is set to 0, script will take size from transform.
 "
 }
-lod_2_relative_distance = 100
 
 [node name="LOD0" type="Spatial" parent="Scenes/Star Red/LODs star red 1e9"]
 __meta__ = {

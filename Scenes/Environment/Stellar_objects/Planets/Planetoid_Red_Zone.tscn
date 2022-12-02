@@ -5,11 +5,11 @@
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger_zone.gd" type="Script" id=4]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_lava_displacement.gdshader" type="Shader" id=5]
-[ext_resource path="res://Scenes/Kinematics/Rotating_object.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scenes/Structures/Object_Cube.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere_emission/Planet_atmosphere_emission_cull_disabled.gdshader" type="Shader" id=7]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_32x16.tres" type="SphereMesh" id=8]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_16x8.tres" type="SphereMesh" id=9]
-[ext_resource path="res://Assets/Models/Shapes/UV_sphere_64x32.tres" type="SphereMesh" id=10]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere_128x64.tres" type="SphereMesh" id=10]
 
 [sub_resource type="SphereShape" id=108]
 
@@ -71,7 +71,7 @@ shader_param/lava_detail_scale = 100.0
 shader_param/lava_detail_intensity = 2.358
 shader_param/lava_noise_blend = 1.477
 shader_param/lava_contrast = 3.131
-shader_param/lava_flow = 0.0
+shader_param/lava_flow = 0.005
 shader_param/uv_shift_x = 0.0
 shader_param/uv_shift_y = 0.192
 shader_param/major_detail_noise = SubResource( 78 )
@@ -95,11 +95,11 @@ surfaces/0 = {
 
 [sub_resource type="ShaderMaterial" id=86]
 shader = ExtResource( 7 )
-shader_param/albedo = Color( 0.415686, 0, 0, 1 )
-shader_param/emission = Color( 0.462745, 0, 0, 1 )
-shader_param/alpa_clip = 0.09
-shader_param/rim_strength = 1.12
-shader_param/rim_power = 3.731
+shader_param/albedo = Color( 0.745098, 0.494118, 0.494118, 1 )
+shader_param/emission = Color( 0.443137, 0, 0, 1 )
+shader_param/alpa_clip = 0.076
+shader_param/rim_strength = 19.569
+shader_param/rim_power = 7.729
 
 [sub_resource type="ArrayMesh" id=87]
 resource_name = "Primitives_Icosphere003"
@@ -139,6 +139,7 @@ script = ExtResource( 2 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 3 )]
 transform = Transform( 1, 2.14204e-08, 0, -2.23517e-08, 1, -3.72529e-09, -1.49012e-08, -7.45058e-09, 1, 0, 0, 0 )
+visible = false
 
 [node name="Zone shape 1e8 DNI WITH SAME TYPE" type="CollisionShape" parent="."]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
@@ -166,10 +167,7 @@ transform = Transform( 1e+06, 0, 0, 0, 1e+06, 0, 0, 0, 1e+06, 0, 0, 0 )
 [node name="CollisionShape" type="CollisionShape" parent="Scenes/Planetoid Red/Planet 1e6"]
 shape = SubResource( 43 )
 
-[node name="Rotating_object" parent="Scenes/Planetoid Red" instance=ExtResource( 6 )]
-rotation_speed = 0.001
-
-[node name="LODs planet lava 1e6" type="Spatial" parent="Scenes/Planetoid Red/Rotating_object"]
+[node name="LODs planet lava 1e6" type="Spatial" parent="Scenes/Planetoid Red"]
 transform = Transform( 1e+06, 0, 0, 0, 1e+06, 0, 0, 0, 1e+06, 0, 0, 0 )
 script = ExtResource( 4 )
 __meta__ = {
@@ -179,60 +177,63 @@ Put meshes into Scene Items nodes
 }
 lod_2_relative_distance = 500
 
-[node name="LOD0" type="Spatial" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6"]
+[node name="LOD0" type="Spatial" parent="Scenes/Planetoid Red/LODs planet lava 1e6"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_64x32" type="MeshInstance" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6/LOD0"]
+[node name="UV_sphere_128x64" type="MeshInstance" parent="Scenes/Planetoid Red/LODs planet lava 1e6/LOD0"]
 mesh = ExtResource( 10 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_5120_atmo" type="MeshInstance" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6/LOD0"]
+[node name="Icosphere_5120_atmo" type="MeshInstance" parent="Scenes/Planetoid Red/LODs planet lava 1e6/LOD0"]
 transform = Transform( 1.15806, 0, 0, 0, 1.15806, 0, 0, 0, 1.15806, 0, 0, 0 )
 mesh = SubResource( 85 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 86 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6"]
+[node name="LOD1" type="Spatial" parent="Scenes/Planetoid Red/LODs planet lava 1e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_32x16" type="MeshInstance" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6/LOD1"]
+[node name="UV_sphere_32x16" type="MeshInstance" parent="Scenes/Planetoid Red/LODs planet lava 1e6/LOD1"]
 mesh = ExtResource( 8 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_1280_atmo" type="MeshInstance" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6/LOD1"]
+[node name="Icosphere_1280_atmo" type="MeshInstance" parent="Scenes/Planetoid Red/LODs planet lava 1e6/LOD1"]
 transform = Transform( 1.15806, 0, 0, 0, 1.15806, 0, 0, 0, 1.15806, 0, 0, 0 )
 mesh = SubResource( 87 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 86 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6"]
+[node name="LOD2" type="Spatial" parent="Scenes/Planetoid Red/LODs planet lava 1e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_16x8" type="MeshInstance" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6/LOD2"]
+[node name="UV_sphere_16x8" type="MeshInstance" parent="Scenes/Planetoid Red/LODs planet lava 1e6/LOD2"]
 mesh = ExtResource( 9 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_320_atmo" type="MeshInstance" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6/LOD2"]
+[node name="Icosphere_320_atmo" type="MeshInstance" parent="Scenes/Planetoid Red/LODs planet lava 1e6/LOD2"]
 transform = Transform( 1.15806, 0, 0, 0, 1.15806, 0, 0, 0, 1.15806, 0, 0, 0 )
 mesh = SubResource( 88 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 86 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/Planetoid Red/Rotating_object/LODs planet lava 1e6"]
+[node name="LOD3" type="Spatial" parent="Scenes/Planetoid Red/LODs planet lava 1e6"]
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="Object Surface Cube" parent="Scenes/Planetoid Red" instance=ExtResource( 6 )]
+transform = Transform( 0.23118, 4.46214, -5.0249, -6.71867, 0.258803, -0.079286, 0.140788, 5.02354, 4.46742, 677180, -21694.8, 735383 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

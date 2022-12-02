@@ -1,0 +1,113 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Plasma_rings/Plasma_Ring_Cloud_Zone.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Planets/Planetoid_Red_Zone.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scripts/Editor_object.gd" type="Script" id=4]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Stars/Star_Red_Zone.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_back.gdshader" type="Shader" id=7]
+[ext_resource path="res://Scripts/Zones/Zone_environment.gd" type="Script" id=8]
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
+
+[sub_resource type="CubeMesh" id=84]
+
+[sub_resource type="ShaderMaterial" id=73]
+shader = ExtResource( 7 )
+shader_param/albedo = null
+shader_param/rim_strength = 0.0
+shader_param/rim_power = 0.0
+shader_param/alpha_clip = 1.0
+
+[sub_resource type="SphereShape" id=79]
+
+[sub_resource type="SphereShape" id=85]
+
+[node name="System Red Zone" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 11 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 6 )]
+
+[node name="_Marker" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+transform = Transform( 1e+14, 0, 0, 0, 9.22337e+17, 0, 0, 0, 1e+14, 0, 0, 0 )
+visible = false
+mesh = SubResource( 84 )
+skeleton = NodePath("../../Scenes/System Red")
+material/0 = SubResource( 73 )
+script = ExtResource( 4 )
+
+[node name="Zone shape 1e13 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
+transform = Transform( 1e+13, 0, 0, 0, 1e+13, 0, 0, 0, 1e+13, 0, 0, 0 )
+shape = SubResource( 79 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="System Red" type="Position3D" parent="Scenes"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+targetable = false
+
+[node name="Star Red Zone" parent="Scenes/System Red" instance=ExtResource( 5 )]
+
+[node name="Star environment" type="Area" parent="Scenes/System Red/Star Red Zone"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 8 )
+zone_brightness_variation = 0.2
+zone_contrast_variation = 0.7
+zone_saturation_variation = -0.4
+
+[node name="Zone shape 6e9" type="CollisionShape" parent="Scenes/System Red/Star Red Zone/Star environment"]
+transform = Transform( 6e+09, 0, 0, 0, 6e+09, 0, 0, 0, 6e+09, 0, 0, 0 )
+shape = SubResource( 85 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "1e15"
+}
+
+[node name="Planetoid Red Zone" parent="Scenes/System Red" instance=ExtResource( 3 )]
+transform = Transform( 0.931164, -0.313806, 0.185634, 0.294479, 0.947504, 0.12457, -0.21498, -0.0613295, 0.974691, -9.85987e+09, -6.03862e+08, -3.80446e+09 )
+
+[node name="Atmosphere environment" type="Area" parent="Scenes/System Red/Planetoid Red Zone"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 8 )
+zone_brightness_variation = -0.2
+zone_contrast_variation = 0.4
+zone_saturation_variation = -0.4
+
+[node name="Zone shape 1_1e6" type="CollisionShape" parent="Scenes/System Red/Planetoid Red Zone/Atmosphere environment"]
+transform = Transform( 1.1e+06, 0, 0, 0, 1.1e+06, 0, 0, 0, 1.1e+06, 0, 0, 0 )
+shape = SubResource( 85 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "1e15"
+}
+
+[node name="Plasma Ring Cloud Zone" parent="Scenes/System Red" instance=ExtResource( 2 )]
+
+[connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
+[connection signal="body_entered" from="Scenes/System Red/Star Red Zone/Star environment" to="Scenes/System Red/Star Red Zone/Star environment" method="_on_Zone_environment_body_entered"]
+[connection signal="body_exited" from="Scenes/System Red/Star Red Zone/Star environment" to="Scenes/System Red/Star Red Zone/Star environment" method="_on_Zone_environment_body_exited"]
+[connection signal="body_entered" from="Scenes/System Red/Planetoid Red Zone/Atmosphere environment" to="Scenes/System Red/Planetoid Red Zone/Atmosphere environment" method="_on_Zone_environment_body_entered"]
+[connection signal="body_exited" from="Scenes/System Red/Planetoid Red Zone/Atmosphere environment" to="Scenes/System Red/Planetoid Red Zone/Atmosphere environment" method="_on_Zone_environment_body_exited"]

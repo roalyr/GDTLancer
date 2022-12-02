@@ -10,6 +10,11 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Area",
+"class": "EnvironmentZone",
+"language": "GDScript",
+"path": "res://Scripts/Zones/Zone_environment.gd"
+}, {
+"base": "Area",
 "class": "GalaxyLocalSpace",
 "language": "GDScript",
 "path": "res://Scripts/Zones/Local_space_triggers_zones/_Local_space_galaxy.gd"
@@ -70,6 +75,7 @@ _global_script_classes=[ {
 "path": "res://Scripts/Zones/Zone_nebula.gd"
 } ]
 _global_script_class_icons={
+"EnvironmentZone": "res://Assets/UI_images/SVG/icons/environment_zone.svg",
 "GalaxyLocalSpace": "res://Assets/UI_images/SVG/icons/galaxy.svg",
 "LODs_trigger": "res://Assets/UI_images/SVG/icons/lod_icon.svg",
 "MarkerPlanet": "res://Assets/UI_images/SVG/icons/planet_marker.svg",
