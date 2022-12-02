@@ -57,8 +57,8 @@ shader_param/displacement_texture = SubResource( 96 )
 [sub_resource type="OpenSimplexNoise" id=91]
 octaves = 9
 period = 42.6
-persistence = 0.619
-lacunarity = 3.81
+persistence = 0.831
+lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=92]
 seamless = true
@@ -83,8 +83,8 @@ shader_param/major_phase = 2.794
 shader_param/small_phase = 1.2
 shader_param/major_detail_intensity = 0.899
 shader_param/small_detail_intensity = 2.132
-shader_param/major_detail_scale = 2.0
-shader_param/small_detail_scale = 4.0
+shader_param/major_detail_scale = 1.0
+shader_param/small_detail_scale = 2.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.02
 shader_param/rim_strength = 4.232
@@ -190,12 +190,12 @@ noise = SubResource( 103 )
 shader = ExtResource( 12 )
 shader_param/rim_color = Color( 1, 0.329412, 0, 1 )
 shader_param/overlay_color = Color( 1, 0.72549, 0, 1 )
-shader_param/surface_color = Color( 1, 0.309804, 0, 1 )
+shader_param/surface_color = Color( 1, 0.768627, 0.662745, 1 )
 shader_param/major_phase = 0.236
 shader_param/small_phase = 2.41
 shader_param/major_detail_intensity = 1.098
-shader_param/small_detail_intensity = 1.779
-shader_param/major_detail_scale = 1.0
+shader_param/small_detail_intensity = 1.921
+shader_param/major_detail_scale = 2.0
 shader_param/small_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.02

@@ -58,6 +58,9 @@ __meta__ = {
 targetable = false
 
 [node name="Star Red Zone" parent="Scenes/System Red" instance=ExtResource( 5 )]
+zone_star_brightness_variation = 0.2
+zone_star_contrast_variation = 0.7
+zone_star_saturation_variation = -0.6
 
 [node name="Planetoid Red Zone" parent="Scenes/System Red" instance=ExtResource( 3 )]
 transform = Transform( 0.931164, -0.313806, 0.185634, 0.294479, 0.947504, 0.12457, -0.21498, -0.0613295, 0.974691, -7.98785e+09, -6.03911e+08, -3.15029e+09 )

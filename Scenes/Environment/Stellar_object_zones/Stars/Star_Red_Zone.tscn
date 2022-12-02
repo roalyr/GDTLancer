@@ -74,11 +74,13 @@ noise = SubResource( 114 )
 shader = ExtResource( 10 )
 shader_param/rim_color = Color( 1, 0.568627, 0.568627, 1 )
 shader_param/overlay_color = Color( 1, 1, 1, 1 )
-shader_param/surface_color = Color( 0.572549, 0, 0.0823529, 1 )
+shader_param/surface_color = Color( 0.784314, 0, 0.113725, 1 )
 shader_param/major_phase = 1.287
 shader_param/small_phase = 1.398
 shader_param/major_detail_intensity = 1.099
 shader_param/small_detail_intensity = 9.516
+shader_param/major_detail_scale = 1.0
+shader_param/small_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.02
 shader_param/rim_strength = 1.84
@@ -143,11 +145,12 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
 
-[node name="Zone shape 1e11 DNI WITH SAME TYPE" type="CollisionShape" parent="."]
-transform = Transform( 1e+11, 0, 0, 0, 1e+11, 0, 0, 0, 1e+11, 0, 0, 0 )
+[node name="Zone shape 1e10 DNI WITH SAME TYPE" type="CollisionShape" parent="."]
+transform = Transform( 2e+10, 0, 0, 0, 2e+10, 0, 0, 0, 2e+10, 0, 0, 0 )
 shape = SubResource( 110 )
 __meta__ = {
-"_edit_lock_": true
+"_edit_lock_": true,
+"_editor_description_": "1e10"
 }
 
 [node name="Scenes" type="Spatial" parent="."]

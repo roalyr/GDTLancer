@@ -4,7 +4,7 @@ extends RigidBody
 # Params.
 var ship_mass = 1e6
 var accel_factor = 1e3 # Propulsion force.
-var accel_ticks_max = pow(2,25) # Engine propulsion increments. Pow 2.
+var accel_ticks_max = pow(2,26) # Engine propulsion increments. Pow 2.
 const ship_linear_damp = 1
 const ship_angular_damp = 5
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
@@ -29,8 +29,8 @@ var autopilot_angle_deviation = 0.8
 
 # Lesser is more precise, aim at ration 1:2 for decel being larger
 # Higher numbers mean more agressive AP velocity handling.
-var autopilot_accel_factor = 0.22
-var autopilot_deccel_factor = 0.44
+var autopilot_accel_factor = 0.22 # 0.22
+var autopilot_deccel_factor = 0.44 # 0.44
 
 # Orbiting factor allows to approach not at a straight line, but slightly orbiting.
 var autopilot_orbiting_factor = 0.1 # Keep it small. Less than 1.0 - deviation
@@ -231,9 +231,9 @@ func adjust_exhaust():
 		for shape in shapes.get_children():
 			var m = shape.get_surface_material(0)
 			
-			m["shader_param/albedo"].r = clamp(albedo*0.4, 0.0, 0.6)
-			m["shader_param/albedo"].g = clamp(albedo*0.1, 0.0, 0.2)
-			m["shader_param/albedo"].b = clamp(albedo*0.05, 0.0, 0.8)
+			m["shader_param/albedo"].r = clamp(albedo*0.4, 1e-6, 0.6)
+			m["shader_param/albedo"].g = clamp(albedo*0.1, 1e-6, 0.2)
+			m["shader_param/albedo"].b = clamp(albedo*0.05, 1e-6, 0.8)
 		
 		# Adjust light intensity
 		if p.ship_state.accel_ticks > 0:
