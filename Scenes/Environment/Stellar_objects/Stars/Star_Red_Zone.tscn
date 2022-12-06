@@ -1,15 +1,15 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
-[ext_resource path="res://Scenes/FX/Sprites/Star_sprite.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=3]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger_zone.gd" type="Script" id=4]
 [ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=5]
-[ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_32x16.tres" type="SphereMesh" id=7]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_16x8.tres" type="SphereMesh" id=8]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere_64x32.tres" type="SphereMesh" id=9]
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=10]
+[ext_resource path="res://Assets/Models/Sprites/Star_sprite_simple.glb" type="PackedScene" id=12]
 
 [sub_resource type="SphereShape" id=110]
 
@@ -117,25 +117,15 @@ surfaces/0 = {
 "vertex_count": 205
 }
 
-[sub_resource type="ArrayMesh" id=2]
-resource_name = "Star_sprite_Plane"
-surfaces/0 = {
-"aabb": AABB( -0.266596, -0.245297, 0, 0.533191, 0.490605, 1e-05 ),
-"array_data": PoolByteArray( 0, 0, 0, 0, 64, 47, 123, 62, 0, 0, 0, 0, 0, 0, 175, 216, 0, 56, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 158, 77, 0, 56, 0, 56, 150, 151, 231, 189, 184, 45, 207, 61, 0, 0, 0, 0, 0, 0, 101, 50, 109, 54, 202, 54, 59, 127, 136, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 127, 193, 37, 50, 0, 56, 150, 151, 231, 61, 184, 45, 207, 61, 0, 0, 0, 0, 0, 0, 155, 206, 109, 54, 202, 54, 59, 127, 136, 62, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 129, 63, 37, 50, 0, 56, 0, 0, 0, 0, 64, 47, 123, 190, 0, 0, 0, 0, 0, 0, 175, 86, 0, 56, 0, 0, 150, 151, 231, 189, 184, 45, 207, 189, 0, 0, 0, 0, 0, 0, 101, 180, 109, 54, 202, 54, 150, 151, 231, 61, 184, 45, 207, 189, 0, 0, 0, 0, 0, 0, 155, 76, 109, 54, 202, 54 ),
-"array_index_data": PoolByteArray( 2, 0, 0, 0, 1, 0, 1, 0, 3, 0, 2, 0, 4, 0, 1, 0, 0, 0, 1, 0, 4, 0, 5, 0, 7, 0, 1, 0, 6, 0, 1, 0, 7, 0, 3, 0, 8, 0, 6, 0, 1, 0, 1, 0, 5, 0, 8, 0 ),
-"blend_shape_data": [  ],
-"format": 2194711,
-"index_count": 24,
-"primitive": 4,
-"skeleton_aabb": [  ],
-"vertex_count": 9
-}
-
-[sub_resource type="ShaderMaterial" id=111]
-resource_local_to_scene = true
-shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.541176, 0.141176, 0, 1 )
-shader_param/scale = 0.009
+[sub_resource type="ShaderMaterial" id=118]
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 1, 0.137255, 0.462745, 1 )
+shader_param/scale = 0.057
+shader_param/intensity = 1.501
+shader_param/power = 13.625
+shader_param/pulse_factor = 0.927
+shader_param/pulse_rate = 17.522
+shader_param/phase = 0.0
 
 [node name="Star Red Zone" type="Area"]
 input_ray_pickable = false
@@ -238,13 +228,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star_sprite" parent="Scenes/Star Red/LODs star red 1e9/LOD3" instance=ExtResource( 3 )]
-mesh = SubResource( 2 )
-skeleton = NodePath("")
-material/0 = SubResource( 111 )
-__meta__ = {
-"_edit_lock_": true
-}
+[node name="Star_sprite_simple" parent="Scenes/Star Red/LODs star red 1e9/LOD3" instance=ExtResource( 12 )]
+
+[node name="Plane" parent="Scenes/Star Red/LODs star red 1e9/LOD3/Star_sprite_simple" index="0"]
+material/0 = SubResource( 118 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
+
+[editable path="Scenes/Star Red/LODs star red 1e9/LOD3/Star_sprite_simple"]

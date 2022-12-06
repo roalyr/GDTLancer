@@ -12,12 +12,12 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
 
-[node name="Zone shape 1e5" type="CollisionShape" parent="."]
+[node name="Zone shape" type="CollisionShape" parent="."]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
 shape = SubResource( 85 )
 __meta__ = {
 "_edit_lock_": true,
-"_editor_description_": "1e15"
+"_editor_description_": ""
 }
 
 [connection signal="body_entered" from="." to="." method="_on_Zone_environment_body_entered"]

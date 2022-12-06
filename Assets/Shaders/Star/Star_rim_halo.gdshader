@@ -19,17 +19,17 @@ uniform vec4 halo_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 corona_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 core_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 
-uniform float halo_strength = 0.2;
-uniform float halo_power = 1.0;
-uniform float halo_amount = 1.0;
+uniform float halo_strength : hint_range(0.0, 100.0, 0.1) = 0.2;
+uniform float halo_power : hint_range(0.0, 100.0, 0.1) = 1.0;
+uniform float halo_amount : hint_range(0.0, 100.0, 0.1) = 1.0;
 
-uniform float corona_strength = 10.0;
-uniform float corona_power = 10.0;
-uniform float corona_amount = 1.0;
+uniform float corona_strength : hint_range(0.0, 100.0, 0.1) = 10.0;
+uniform float corona_power : hint_range(0.0, 100.0, 0.1) = 10.0;
+uniform float corona_amount : hint_range(0.0, 100.0, 0.1) = 1.0;
 
-uniform float core_strength = 50.0;
-uniform float core_power = 50.0;
-uniform float core_amount = 50.0;
+uniform float core_strength : hint_range(0.0, 100.0, 0.1) = 50.0;
+uniform float core_power : hint_range(0.0, 100.0, 0.1) = 50.0;
+uniform float core_amount : hint_range(0.0, 100.0, 0.1) = 50.0;
 
 uniform sampler2D displacement_texture;
 uniform float displacement_scale = 0.02;

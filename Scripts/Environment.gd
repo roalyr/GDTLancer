@@ -61,9 +61,9 @@ func _physics_process(delta):
 
 	timer = 0.0
 
-	print(self.environment.adjustment_brightness)
-	print(self.environment.adjustment_contrast)
-	print(self.environment.adjustment_saturation)
+#	print(self.environment.adjustment_brightness)
+#	print(self.environment.adjustment_contrast)
+#	print(self.environment.adjustment_saturation)
 	
 	
 	brightness_variation = stepify(zone_brightness_variation + warp_brightness_variation, increment_step )

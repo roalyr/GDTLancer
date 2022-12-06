@@ -5,8 +5,7 @@ extends RigidBody
 var ship_mass = 1e6
 var accel_factor = 1e3 # Propulsion force.
 var accel_ticks_max = pow(2,26) # Engine propulsion increments. Pow 2.
-const ship_linear_damp = 1
-const ship_angular_damp = 5
+
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
 var torque_factor = Vector3(15e8,7e8,7e8)
 var camera_vert_offset = 1
@@ -185,13 +184,13 @@ func _integrate_forces(state):
 
 	# DAMPING
 	var damp_coeff = 1e-4
-	var damp_linear = 1.0 - state.step * ship_linear_damp
+	var damp_linear = 1.0 - state.step * p.common_constants.global_linear_damp
 
 	if (damp_linear < 0):
 		damp_linear = 0
 
 
-	var damp_angular = 1.0 - state.step * ship_angular_damp 
+	var damp_angular = 1.0 - state.step * p.common_constants.global_angular_damp 
 
 	if (damp_angular < 0):
 		damp_angular = 0

@@ -4,7 +4,7 @@
 [ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=3]
 [ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=4]
-[ext_resource path="res://Scenes/FX/Sprites/Star_sprite.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Models/Sprites/Star_sprite_double_large.glb" type="PackedScene" id=5]
 
 [sub_resource type="ArrayMesh" id=85]
 resource_name = "Primitives_Icosphere011"
@@ -70,11 +70,15 @@ surfaces/0 = {
 "vertex_count": 205
 }
 
-[sub_resource type="ShaderMaterial" id=84]
-resource_local_to_scene = true
+[sub_resource type="ShaderMaterial" id=88]
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0, 0.388235, 0.619608, 1 )
-shader_param/scale = 0.011
+shader_param/albedo = Color( 0, 0.552941, 1, 1 )
+shader_param/scale = 0.019
+shader_param/intensity = 2.41
+shader_param/power = 8.278
+shader_param/pulse_factor = 0.876
+shader_param/pulse_rate = 5.0
+shader_param/phase = 0.0
 
 [node name="Blue star" type="Position3D"]
 script = ExtResource( 2 )
@@ -134,5 +138,8 @@ __meta__ = {
 }
 
 [node name="Star_sprite" parent="LODs star blue 1e10/LOD3" instance=ExtResource( 5 )]
-skeleton = NodePath("")
-material/0 = SubResource( 84 )
+
+[node name="Plane" parent="LODs star blue 1e10/LOD3/Star_sprite" index="0"]
+material/0 = SubResource( 88 )
+
+[editable path="LODs star blue 1e10/LOD3/Star_sprite"]
