@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Galaxy_spiral_mesh.glb-97514234a1128c650e2627b83bd5e9ff.scn"
+path="res://.import/_Galaxy_ring_mesh.glb-5122a5fcb15b3e9694b7d0c47563cb22.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Environment/Stellar/Galaxy_spiral_mesh.glb"
-dest_files=[ "res://.import/Galaxy_spiral_mesh.glb-97514234a1128c650e2627b83bd5e9ff.scn" ]
+source_file="res://Assets/Models/Environment/Stellar/_Galaxy_ring_mesh.glb"
+dest_files=[ "res://.import/_Galaxy_ring_mesh.glb-5122a5fcb15b3e9694b7d0c47563cb22.scn" ]
 
 [params]
 

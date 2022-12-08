@@ -13,6 +13,9 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 - Fixed some improper LODs.
 - Tweaked warp camera effect (stretch and brightness are now more smooth).
 - Re-introduced star core shader, optimized this time.
+- Refactored and improved performance a lot with use of vertex shaders.
+- Environment zones (locally adjustable brightness, saturation, contrast).
+- New different star sprites.
 
 
 <details>
@@ -78,27 +81,52 @@ accelerate rapidly.
 - Optimized paths.
 - Some temporary fixes for collision model (caused stuttering due to polygon number).
 
-  
 </details>
 
 
-## Priority TODO list:
-- Improve UI.
-- Improved navigation lists.
-- Info / help window.
-- Refactor ship code.
-- Prevent camera orbiting from interrupting autopilot and warp effect adjustments.
-- Investigate flickering on high velocity.
-- Due to space being a complex sandwich got to figure out how to just teleport and spawn at will.
-- Make autopilot detect obstacles.
+<details>
+<summary><font size=5><b>TODO list!</font></b></summary>
 
-## TODO list:
-- Make dynamic color-contrast adjustment zones near stars (and maybe other areas).
+### New features
+#### Collisions
+- Make autopilot detect obstacles.
 - Make primitive building blocks with simple collision shapes (performace).
 - Investigate enabling/disabling trimesh collision shapes on the go.
-- Scalable UI (control panel, texts, buttons, etc).
+
+#### Ship
 - Make "Orient only" autopilot feature.
-- Add a list (options) of allowed post-effects (which work with log depth).
+
+#### UI
+- Infocards.
+- Info / help window.
+
+
+### Improvements
+#### Environment
+- Make star sprites diminish in size with distance (script).
+
+#### UI
+- Improve UI readability.
+- Rearrange butons and windows.
+- Improved navigation lists.
+- Scalable UI (control panel, texts, buttons, etc).
+
+
+### Refactor
+#### Assets
+- Re-attach models directly into scenes (make editable).
+
+#### Ships
+- Refactor ship code.
+
+
+### Fix
+#### UX
+- Prevent camera orbiting from interrupting autopilot and warp effect adjustments.
+- Investigate flickering on high velocity.
+
+</details>
+
 
 ## How to
 You can download one of the pre-compiled binary in the [releases](https://github.com/roalyr/GDTLancer/releases) section.
