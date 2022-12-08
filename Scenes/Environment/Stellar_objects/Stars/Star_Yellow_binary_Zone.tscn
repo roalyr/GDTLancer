@@ -43,7 +43,7 @@ noise = SubResource( 95 )
 shader = ExtResource( 4 )
 shader_param/halo_color = Color( 0.0588235, 0.0705882, 0.0196078, 1 )
 shader_param/corona_color = Color( 0.0705882, 0.0705882, 0, 1 )
-shader_param/core_color = Color( 0.984314, 1, 0.403922, 1 )
+shader_param/core_color = Color( 0.784314, 0.796078, 0.329412, 1 )
 shader_param/halo_strength = 6.6
 shader_param/halo_power = 3.5
 shader_param/halo_amount = 1.8
@@ -79,20 +79,20 @@ noise = SubResource( 93 )
 
 [sub_resource type="ShaderMaterial" id=100]
 shader = ExtResource( 12 )
-shader_param/rim_color = Color( 1, 1, 1, 1 )
+shader_param/rim_color = Color( 1, 0.976471, 0.815686, 1 )
 shader_param/overlay_color = Color( 1, 0.980392, 0.878431, 1 )
-shader_param/surface_color = Color( 1, 0.882353, 0.294118, 1 )
-shader_param/major_phase = 1.501
-shader_param/small_phase = 1.717
-shader_param/major_detail_intensity = 1.294
-shader_param/small_detail_intensity = 2.17
+shader_param/surface_color = Color( 1, 0.964706, 0.788235, 1 )
+shader_param/major_phase = 1.702
+shader_param/small_phase = 2.208
+shader_param/major_detail_intensity = 0.205
+shader_param/small_detail_intensity = 1.041
 shader_param/major_detail_scale = 1.0
 shader_param/small_detail_scale = 1.0
 shader_param/major_detail_flow = 0.022
 shader_param/small_detail_flow = 0.003
-shader_param/rim_strength = 1.429
-shader_param/rim_power = 0.616
-shader_param/rim_intensity = 0.278
+shader_param/rim_strength = 1.251
+shader_param/rim_power = 0.405
+shader_param/rim_intensity = 0.214
 shader_param/major_detail_noise = SubResource( 92 )
 shader_param/small_detail_noise = SubResource( 94 )
 
@@ -241,7 +241,6 @@ autopilot_range = 5e+10
 [node name="OmniLight_5e14" type="OmniLight" parent="Scenes/Rotating_object/Star Yellow a"]
 light_color = Color( 1, 1, 0.8, 1 )
 light_energy = 2.006
-light_indirect_energy = 0.5
 omni_range = 5e+14
 omni_attenuation = 150.0
 __meta__ = {
@@ -326,7 +325,6 @@ autopilot_range = 5e+10
 [node name="OmniLight_5e14" type="OmniLight" parent="Scenes/Rotating_object/Star Yellow b"]
 light_color = Color( 0.968627, 0.415686, 0.247059, 1 )
 light_energy = 1.333
-light_indirect_energy = 1.173
 omni_range = 5e+14
 omni_attenuation = 150.0
 __meta__ = {

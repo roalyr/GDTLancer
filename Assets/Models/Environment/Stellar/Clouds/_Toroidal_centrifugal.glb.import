@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Cloud_spheroid.glb-ae23d79971c0e0894ccb2dc283cbf206.scn"
+path="res://.import/_Toroidal_centrifugal.glb-a81b7248a8ccbbb4cbdbc8bd4f006738.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Environment/Stellar/Clouds/Cloud_spheroid.glb"
-dest_files=[ "res://.import/Cloud_spheroid.glb-ae23d79971c0e0894ccb2dc283cbf206.scn" ]
+source_file="res://Assets/Models/Environment/Stellar/Clouds/_Toroidal_centrifugal.glb"
+dest_files=[ "res://.import/_Toroidal_centrifugal.glb-a81b7248a8ccbbb4cbdbc8bd4f006738.scn" ]
 
 [params]
 

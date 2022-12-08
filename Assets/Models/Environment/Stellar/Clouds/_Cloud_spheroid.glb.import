@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Cloud_turbulent.glb-b78b31431e6a1593a42e7b50488df889.scn"
+path="res://.import/_Cloud_spheroid.glb-d7acdb5038835618d8d04a66b2709497.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Environment/Stellar/Clouds/Cloud_turbulent.glb"
-dest_files=[ "res://.import/Cloud_turbulent.glb-b78b31431e6a1593a42e7b50488df889.scn" ]
+source_file="res://Assets/Models/Environment/Stellar/Clouds/_Cloud_spheroid.glb"
+dest_files=[ "res://.import/_Cloud_spheroid.glb-d7acdb5038835618d8d04a66b2709497.scn" ]
 
 [params]
 

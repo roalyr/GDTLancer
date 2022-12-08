@@ -87,7 +87,7 @@ accelerate rapidly.
 <details>
 <summary><font size=5><b>TODO list!</font></b></summary>
 
-### New features
+## New features
 #### Collisions
 - Make autopilot detect obstacles.
 - Make primitive building blocks with simple collision shapes (performace).
@@ -101,7 +101,7 @@ accelerate rapidly.
 - Info / help window.
 
 
-### Improvements
+## Improvements
 #### Environment
 - Make star sprites diminish in size with distance (script).
 
@@ -112,7 +112,7 @@ accelerate rapidly.
 - Scalable UI (control panel, texts, buttons, etc).
 
 
-### Refactor
+## Refactor
 #### Assets
 - Re-attach models directly into scenes (make editable).
 
@@ -120,7 +120,7 @@ accelerate rapidly.
 - Refactor ship code.
 
 
-### Fix
+## Fix
 #### UX
 - Prevent camera orbiting from interrupting autopilot and warp effect adjustments.
 - Investigate flickering on high velocity.

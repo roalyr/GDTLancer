@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://Scripts/Main.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Ships/Phoenix_heavy.tscn" type="PackedScene" id=2]
@@ -6,9 +6,8 @@
 [ext_resource path="res://Scripts/Input/Keyboard.gd" type="Script" id=4]
 [ext_resource path="res://Scripts/Rebase.gd" type="Script" id=5]
 [ext_resource path="res://Scripts/Input/Input.gd" type="Script" id=6]
-[ext_resource path="res://Scenes/Environment/_Systems/Star_system_blue.tscn" type="PackedScene" id=7]
+[ext_resource path="res://Scenes/Environment/Systems/System_Blue_Zone.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Environment/Camera_decorations.tscn" type="PackedScene" id=8]
-[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/Environment/Environment.tscn" type="PackedScene" id=12]
 [ext_resource path="res://Scripts/View.gd" type="Script" id=13]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/Cancer_Green_Nebula_Zone.tscn" type="PackedScene" id=16]
@@ -242,8 +241,6 @@ var systems_spawned = [] # Queue of spawned systems in order to manage memory.
 var systems_visited = [] # Queue of spawned systems in order to manage memory.
 "
 
-[sub_resource type="SphereShape" id=79]
-
 [node name="Main" type="Node"]
 script = ExtResource( 1 )
 
@@ -319,32 +316,7 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 
 [node name="Systems" type="Position3D" parent="Container/Viewport/Global_space"]
 
-[node name="System blue" type="Area" parent="Container/Viewport/Global_space/Systems"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.39482e+16, 1.25675e+16, -3.97289e+16 )
-input_ray_pickable = false
-monitorable = false
-gravity = 0.0
-linear_damp = 0.0
-angular_damp = 0.0
-script = ExtResource( 11 )
-
-[node name="Zone shape 1e14 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="Container/Viewport/Global_space/Systems/System blue"]
-transform = Transform( 1e+14, 0, 0, 0, 1e+14, 0, 0, 0, 1e+14, 0, 0, 0 )
-shape = SubResource( 79 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Scenes" type="Spatial" parent="Container/Viewport/Global_space/Systems/System blue"]
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="System Blue" parent="Container/Viewport/Global_space/Systems/System blue/Scenes" instance=ExtResource( 7 )]
-__meta__ = {
-"_edit_lock_": true
-}
-targetable = false
+[node name="System Blue Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 7 )]
 
 [node name="System Red Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 18 )]
 transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -2.61047e+16, -1.78737e+16, 1.92373e+16 )
@@ -410,6 +382,3 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 __meta__ = {
 "_edit_lock_": true
 }
-
-[connection signal="body_entered" from="Container/Viewport/Global_space/Systems/System blue" to="Container/Viewport/Global_space/Systems/System blue" method="_on_Local_space_trigger_zone_body_entered"]
-[connection signal="body_exited" from="Container/Viewport/Global_space/Systems/System blue" to="Container/Viewport/Global_space/Systems/System blue" method="_on_Local_space_trigger_zone_body_exited"]

@@ -37,7 +37,7 @@ shader = ExtResource( 7 )
 shader_param/albedo = Color( 0.435294, 0.537255, 0.529412, 1 )
 shader_param/specular = 0.0
 shader_param/metallic = 0.0
-shader_param/roughness = 0.84
+shader_param/roughness = 0.892
 shader_param/displacement_scale = 0.0
 shader_param/major_detail_amount = 1.444
 shader_param/small_detail_amount = 2.007
@@ -68,8 +68,8 @@ surfaces/0 = {
 shader = ExtResource( 6 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/alpha_clip = 0.1
-shader_param/rim_strength = 0.739
-shader_param/rim_power = 1.649
+shader_param/rim_strength = 1.093
+shader_param/rim_power = 2.232
 
 [sub_resource type="SphereMesh" id=81]
 radial_segments = 32
