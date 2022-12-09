@@ -3,6 +3,8 @@ class_name MarkerPlanet, "res://Assets/UI_images/SVG/icons/planet_marker.svg"
 
 export var autopilot_range = 1e8
 export var targetable = true
+export var translations_name = ""
+export var translations_description = ""
 
 onready var p = get_tree().get_root().get_node("Main/Paths")
 

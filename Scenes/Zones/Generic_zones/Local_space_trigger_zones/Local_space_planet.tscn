@@ -11,12 +11,20 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
+__meta__ = {
+"_editor_description_": "█████████████████████████████
+DON'T INTERSECT WITH SAME TYPE ZONES
+█████████████████████████████"
+}
 
-[node name="Zone shape 1e8 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
+[node name="Zone shape" type="CollisionShape" parent="."]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
 shape = SubResource( 79 )
 __meta__ = {
-"_edit_lock_": true
+"_edit_lock_": true,
+"_editor_description_": "█████████████████████████████
+DON'T INTERSECT WITH SAME TYPE ZONES
+█████████████████████████████"
 }
 
 [node name="Scenes" type="Spatial" parent="."]

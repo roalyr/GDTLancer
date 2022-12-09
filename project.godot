@@ -17,12 +17,17 @@ _global_script_classes=[ {
 "base": "Area",
 "class": "GalaxyLocalSpace",
 "language": "GDScript",
-"path": "res://Scripts/Zones/Local_space_triggers_zones/_Local_space_galaxy.gd"
+"path": "res://Scripts/_UNUSED_/_Local_space_galaxy.gd"
 }, {
 "base": "Spatial",
 "class": "LODs_trigger",
 "language": "GDScript",
-"path": "res://Scripts/Zones/LODs_zones/LODs_trigger_zone.gd"
+"path": "res://Scripts/Zones/LODs_zones/LODs_trigger.gd"
+}, {
+"base": "Position3D",
+"class": "MarkerNebula",
+"language": "GDScript",
+"path": "res://Scripts/Markers/Marker_nebula.gd"
 }, {
 "base": "Position3D",
 "class": "MarkerPlanet",
@@ -49,10 +54,40 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Scripts/Zones/Local_space_triggers_zones/Local_space_planet.gd"
 }, {
+"base": "Position3D",
+"class": "RebaseGlobal",
+"language": "GDScript",
+"path": "res://Scripts/Origin_rebase/Rebase_global.gd"
+}, {
+"base": "Position3D",
+"class": "RebasePlanet",
+"language": "GDScript",
+"path": "res://Scripts/Origin_rebase/Rebase_local_planet.gd"
+}, {
+"base": "Position3D",
+"class": "RebaseStar",
+"language": "GDScript",
+"path": "res://Scripts/Origin_rebase/Rebase_local_star.gd"
+}, {
+"base": "Position3D",
+"class": "RebaseStructure",
+"language": "GDScript",
+"path": "res://Scripts/Origin_rebase/Rebase_local_structure.gd"
+}, {
+"base": "Position3D",
+"class": "RebaseSystem",
+"language": "GDScript",
+"path": "res://Scripts/Origin_rebase/Rebase_local_system.gd"
+}, {
 "base": "Spatial",
 "class": "RotatingObject",
 "language": "GDScript",
 "path": "res://Scripts/Kinematics/Rotating_object.gd"
+}, {
+"base": "Position3D",
+"class": "ShipSpace",
+"language": "GDScript",
+"path": "res://Scripts/Origin_rebase/Ship_space.gd"
 }, {
 "base": "Area",
 "class": "StellarLocalSpace",
@@ -76,14 +111,21 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "EnvironmentZone": "res://Assets/UI_images/SVG/icons/environment_zone.svg",
-"GalaxyLocalSpace": "res://Assets/UI_images/SVG/icons/galaxy.svg",
+"GalaxyLocalSpace": "",
 "LODs_trigger": "res://Assets/UI_images/SVG/icons/lod_icon.svg",
+"MarkerNebula": "res://Assets/UI_images/SVG/icons/nebula_marker.svg",
 "MarkerPlanet": "res://Assets/UI_images/SVG/icons/planet_marker.svg",
 "MarkerStar": "res://Assets/UI_images/SVG/icons/star_marker.svg",
 "MarkerStructure": "res://Assets/UI_images/SVG/icons/structure_marker.svg",
 "MarkerSystem": "res://Assets/UI_images/SVG/icons/system_marker.svg",
 "PlanetLocalSpace": "res://Assets/UI_images/SVG/icons/planet.svg",
+"RebaseGlobal": "res://Assets/UI_images/SVG/icons/rebase_global.svg",
+"RebasePlanet": "res://Assets/UI_images/SVG/icons/rebase_planet.svg",
+"RebaseStar": "res://Assets/UI_images/SVG/icons/rebase_star.svg",
+"RebaseStructure": "res://Assets/UI_images/SVG/icons/rebase_structure.svg",
+"RebaseSystem": "res://Assets/UI_images/SVG/icons/rebase_system.svg",
 "RotatingObject": "res://Assets/UI_images/SVG/icons/rotating_object.svg",
+"ShipSpace": "res://Assets/UI_images/SVG/icons/ship_space.svg",
 "StellarLocalSpace": "res://Assets/UI_images/SVG/icons/star.svg",
 "StructureLocalSpace": "res://Assets/UI_images/SVG/icons/structure.svg",
 "SystemLocalSpace": "res://Assets/UI_images/SVG/icons/system.svg",
@@ -112,6 +154,10 @@ touch=false
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
+
+[locale]
+
+translations=PoolStringArray( "res://Assets/Translations/Translations.en.translation", "res://Assets/Translations/Translations.uk.translation" )
 
 [physics]
 

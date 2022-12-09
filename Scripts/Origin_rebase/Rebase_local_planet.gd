@@ -1,5 +1,6 @@
 extends Position3D
 
+class_name RebasePlanet, "res://Assets/UI_images/SVG/icons/rebase_planet.svg"
 onready var p = get_tree().get_root().get_node("Main/Paths")
 
 var scenes = Position3D

@@ -1,5 +1,6 @@
 extends Position3D
 
+class_name RebaseStar, "res://Assets/UI_images/SVG/icons/rebase_star.svg"
 onready var p = get_tree().get_root().get_node("Main/Paths")
 
 var scenes = Position3D

@@ -1,10 +1,22 @@
 [gd_scene load_steps=26 format=2]
 
-[ext_resource path="res://Scripts/Starsphere_orientation.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudHalo_add/CloudHalo_add_cull_front.gdshader" type="Shader" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudSolid_add/CloudSolid_add_cull_front.gdshader" type="Shader" id=3]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_sub/CloudSolid_sub/CloudSolid_sub_cull_front.gdshader" type="Shader" id=4]
 [ext_resource path="res://Assets/Shaders/Starsphere/Starsphere_background.gdshader" type="Shader" id=5]
+
+[sub_resource type="GDScript" id=108]
+script/source = "extends Spatial
+
+# Nodes.
+onready var p = get_tree().get_root().get_node(\"Main/Paths\")
+
+
+func _process(_delta):
+	# Translation follows camera. Prevents artifacts due to origin rebase at high V.
+	if p.ship_state.apparent_velocity > 50000000000000:
+		self.global_transform.origin = p.camera.global_transform.origin
+"
 
 [sub_resource type="CubeMesh" id=41]
 
@@ -192,7 +204,7 @@ shader = ExtResource( 5 )
 shader_param/albedo = Color( 0.537255, 0.541176, 0.262745, 1 )
 
 [node name="Camera_decorations" type="Spatial"]
-script = ExtResource( 1 )
+script = SubResource( 108 )
 __meta__ = {
 "_edit_lock_": true,
 "_editor_description_": "█████████████████████████████

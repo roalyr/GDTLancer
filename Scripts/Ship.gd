@@ -144,9 +144,9 @@ func _integrate_forces(state):
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes.
 	var control_held = false
-	if not p.main.touchscreen_mode and p.input.LMB_held:
+	if not p.common_game_options.touchscreen_mode and p.input.LMB_held:
 		control_held = true
-	elif p.main.touchscreen_mode and p.ui.stick_held:
+	elif p.common_game_options.touchscreen_mode and p.ui.stick_held:
 		control_held = true
 	else: 
 		control_held = false

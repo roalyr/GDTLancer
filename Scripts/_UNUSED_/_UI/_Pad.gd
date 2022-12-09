@@ -12,7 +12,7 @@ func pad_recenter_stick():
 
 func pad_handle_stick():
 	# Process virtual stick input.
-	if p.main.touchscreen_mode:
+	if p.common_game_options.touchscreen_mode:
 		if p.ui.stick_held:
 			stick.position.x = p.input_pad.pad_x_abs-100
 			stick.position.y = p.input_pad.pad_y_abs-100

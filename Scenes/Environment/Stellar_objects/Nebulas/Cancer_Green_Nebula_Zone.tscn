@@ -1,19 +1,10 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=15 format=2]
 
-[ext_resource path="res://Scripts/Editor_object.gd" type="Script" id=1]
-[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger_zone.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
 [ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=3]
-[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_back.gdshader" type="Shader" id=4]
+[ext_resource path="res://Scripts/Markers/Marker_nebula.gd" type="Script" id=4]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_front.gdshader" type="Shader" id=5]
-
-[sub_resource type="CubeMesh" id=72]
-
-[sub_resource type="ShaderMaterial" id=73]
-shader = ExtResource( 4 )
-shader_param/albedo = null
-shader_param/rim_strength = 0.0
-shader_param/rim_power = 0.0
-shader_param/alpha_clip = 1.0
 
 [sub_resource type="CubeMesh" id=74]
 
@@ -101,46 +92,28 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 3 )
 
-[node name="_EDITOR OBJECTS_" type="Spatial" parent="."]
-script = ExtResource( 1 )
-
-[node name="_DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
-transform = Transform( 0.923223, 0.158627, 0.349995, -0.349342, -0.0329116, 0.936417, 0.16006, -0.98679, 0.0250303, 0, 0, 0 )
-visible = false
-
-[node name="_Render border" type="MeshInstance" parent="_EDITOR OBJECTS_"]
-transform = Transform( 1e+11, 0, 0, 0, 1e+11, 0, 0, 0, 1e+11, 0, 0, 0 )
-mesh = SubResource( 72 )
-material/0 = SubResource( 73 )
-
-[node name="_Omni null 1e18" type="OmniLight" parent="_EDITOR OBJECTS_/_Render border"]
-transform = Transform( 1e-11, 0, 0, 0, 1e-11, 0, 0, 0, 1e-11, -457594, -71040.1, -16838.2 )
-light_color = Color( 0, 0, 0, 1 )
-light_energy = 0.0
-light_indirect_energy = 0.0
-omni_range = 1e+19
-omni_attenuation = 1.31951
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 1 )]
 
 [node name="_Material samples" type="Spatial" parent="_EDITOR OBJECTS_"]
 
 [node name="m" type="MeshInstance" parent="_EDITOR OBJECTS_/_Material samples"]
 mesh = SubResource( 74 )
-skeleton = NodePath("../..")
+skeleton = NodePath("")
 material/0 = SubResource( 80 )
 
 [node name="m1" type="MeshInstance" parent="_EDITOR OBJECTS_/_Material samples"]
 mesh = SubResource( 74 )
-skeleton = NodePath("../..")
+skeleton = NodePath("")
 material/0 = SubResource( 81 )
 
 [node name="m2" type="MeshInstance" parent="_EDITOR OBJECTS_/_Material samples"]
 mesh = SubResource( 74 )
-skeleton = NodePath("../..")
+skeleton = NodePath("")
 material/0 = SubResource( 82 )
 
 [node name="m3" type="MeshInstance" parent="_EDITOR OBJECTS_/_Material samples"]
 mesh = SubResource( 74 )
-skeleton = NodePath("../..")
+skeleton = NodePath("")
 material/0 = SubResource( 83 )
 
 [node name="Cloud cancer zone shape 1" type="CollisionShape" parent="."]
@@ -179,7 +152,7 @@ __meta__ = {
 }
 
 [node name="Cloud cancer zone shape 6" type="CollisionShape" parent="."]
-transform = Transform( 6.56035e+16, 0, 0, 0, 6.56035e+16, 0, 0, 0, 6.56035e+16, -8.59541e+16, 2.40916e+16, -2.32533e+16 )
+transform = Transform( 6e+16, 0, 0, 0, 6e+16, 0, 0, 0, 6e+16, -8.59541e+16, 2.40916e+16, -2.32533e+16 )
 shape = SubResource( 79 )
 __meta__ = {
 "_editor_description_": "1e15"
@@ -191,12 +164,20 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="CloudCoumpound cancer" type="Spatial" parent="Scenes"]
+[node name="Cancer nebula" type="Position3D" parent="Scenes"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.592e+16, 1.26702e+13, -3.52727e+16 )
+script = ExtResource( 4 )
+autopilot_range = 5e+16
+translations_name = "NAME_NEBULA_CANCER"
+translations_description = "DESC_NEBULA_CANCER"
+
+[node name="CloudCoumpound cancer" type="Spatial" parent="Scenes/Cancer nebula"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.592e+16, -1.26702e+13, 3.52727e+16 )
 __meta__ = {
 "_editor_description_": "m1, m2, etc - stands for different material."
 }
 
-[node name="OmniLight 2e17 1" type="OmniLight" parent="Scenes/CloudCoumpound cancer"]
+[node name="OmniLight 2e17 1" type="OmniLight" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.57594e+16, -7.10401e+15, -1.68382e+15 )
 light_color = Color( 0.34902, 0.74902, 0.0470588, 1 )
 light_energy = 0.1
@@ -204,7 +185,7 @@ light_indirect_energy = 0.3
 omni_range = 2e+17
 omni_attenuation = 1.31951
 
-[node name="OmniLight 2e17 2" type="OmniLight" parent="Scenes/CloudCoumpound cancer"]
+[node name="OmniLight 2e17 2" type="OmniLight" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.52923e+16, 6.46719e+14, -7.78523e+16 )
 light_color = Color( 0.807843, 0.745098, 0.403922, 1 )
 light_energy = 0.2
@@ -212,7 +193,7 @@ light_indirect_energy = 0.3
 omni_range = 2e+17
 omni_attenuation = 1.31951
 
-[node name="OmniLight 2e17 3" type="OmniLight" parent="Scenes/CloudCoumpound cancer"]
+[node name="OmniLight 2e17 3" type="OmniLight" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.17757e+17, 1.81764e+16, -4.07798e+16 )
 light_color = Color( 0.164706, 0.894118, 0.792157, 1 )
 light_energy = 0.2
@@ -220,9 +201,9 @@ light_indirect_energy = 0.3
 omni_range = 2e+17
 omni_attenuation = 1.31951
 
-[node name="Cloud cancer arm 1" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Cloud cancer arm 1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( -1.94541e+14, -1.37528e+13, 1.45991e+14, 1.63542e+13, 2.38993e+14, 4.4307e+13, -1.45723e+14, 4.5182e+13, -1.89927e+14, -6.13702e+16, -1.88021e+15, -1.06877e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -231,48 +212,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( 1.13727e+13, 9.12535e+13, 4.30132e+14, -3.94667e+14, -1.87569e+14, 5.02287e+13, 1.93846e+14, -3.87246e+14, 7.70312e+13, -6.14248e+16, -1.76304e+15, -1.06309e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -281,48 +262,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( -6.53698e+14, -1.59117e+14, -3.30709e+14, 3.15539e+14, -5.88648e+14, -3.40488e+14, -1.87408e+14, -4.36096e+14, 5.80264e+14, -6.14525e+16, -1.5751e+15, -1.05536e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -331,48 +312,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( 1.20285e+15, -6.29916e+14, 1.38874e+15, -2.10002e+14, 1.68349e+15, 9.45503e+14, -1.51039e+15, -7.35728e+14, 9.74503e+14, -6.21887e+16, -1.33111e+15, -1.03247e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -381,48 +362,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( 1.29925e+15, -9.97186e+14, -2.16255e+15, 2.65393e+14, 2.50875e+15, -9.97376e+14, 2.36655e+15, 2.66115e+14, 1.29911e+15, -6.28504e+16, -1.21885e+15, -1.00506e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -431,48 +412,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid6" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid6" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( 3.17703e+15, -4.22408e+15, -3.85884e+14, -2.49194e+15, -1.46858e+15, -4.44056e+15, 3.43251e+15, 2.84352e+15, -2.86664e+15, -6.34897e+16, -2.26374e+14, -9.44078e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -481,48 +462,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1"]
+[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1"]
 transform = Transform( -6.85747e+15, 7.68917e+15, 1.61098e+15, -9.39642e+14, -2.92579e+15, 9.96491e+15, 7.79972e+15, 6.40782e+15, 2.61685e+15, -6.37002e+16, -2.465e+15, -7.66573e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -531,50 +512,50 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Cloud cancer arm 1/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Clodu cancer arm 2" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Clodu cancer arm 2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( -2.82018e+14, -1.97649e+13, 2.23151e+14, 2.7334e+13, 3.53047e+14, 6.58147e+13, -2.22351e+14, 6.84694e+13, -2.74942e+14, -8.75038e+16, 7.95995e+14, -1.08244e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -583,48 +564,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( 6.02559e+12, 1.47342e+14, 6.33347e+14, -5.8531e+14, -2.74696e+14, 6.94743e+13, 2.83282e+14, -5.70706e+14, 1.30077e+14, -8.76043e+16, 9.64638e+14, -1.07404e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -633,48 +614,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( -9.56314e+14, -2.24622e+14, -5.13234e+14, 4.74382e+14, -8.64819e+14, -5.05421e+14, -2.98041e+14, -6.5577e+14, 8.42344e+14, -8.76718e+16, 1.23581e+15, -1.06261e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -683,48 +664,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( 1.83124e+15, -8.8833e+14, 2.02547e+15, -3.08373e+14, 2.5014e+15, 1.37586e+15, -2.19011e+15, -1.09498e+15, 1.49986e+15, -8.88418e+16, 1.58304e+15, -1.02904e+17 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -733,48 +714,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( 1.83579e+15, -1.46025e+15, -3.25308e+15, 3.58787e+14, 3.71596e+15, -1.46556e+15, 3.5477e+15, 3.79812e+14, 1.83156e+15, -8.99192e+16, 1.73073e+15, -9.8876e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -783,48 +764,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid6_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid6_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( 4.54629e+15, -6.36097e+15, -5.06311e+14, -3.74499e+15, -2.15639e+15, -6.53544e+15, 5.1666e+15, 4.03421e+15, -4.29169e+15, -9.10788e+16, 3.14942e+15, -8.98771e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -833,48 +814,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid7_m2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2"]
+[node name="LODs cloud spheroid7_m2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2"]
 transform = Transform( -1.043e+16, 1.11017e+16, 2.37741e+15, -1.39378e+15, -4.45596e+15, 1.46931e+16, 1.12675e+16, 9.72534e+15, 4.01823e+15, -9.5836e+16, 3.21073e+15, -6.97998e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -883,50 +864,50 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 2/LODs cloud spheroid7_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Clodu cancer arm 3" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Clodu cancer arm 3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( 1.79085e+14, -3.25266e+14, 2.51759e+14, 3.51165e+14, 8.76604e+13, -3.0449e+14, 1.89908e+14, 2.80046e+14, 5.06016e+14, -2.59583e+16, -1.7572e+16, 1.93731e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -935,48 +916,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( 1.35102e+14, 7.89161e+14, -1.22579e+14, -7.49527e+13, -2.86257e+14, -8.01078e+14, -9.71452e+14, 4.83751e+14, 1.73743e+14, -2.6939e+16, -1.73393e+16, 1.84603e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -985,48 +966,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( -1.28988e+14, 1.26531e+15, -5.36759e+14, 1.29204e+15, 9.65979e+13, 6.63179e+14, 4.78134e+14, -1.89136e+14, -1.80125e+15, -2.82975e+16, -1.71061e+16, 1.72904e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1035,48 +1016,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( 2.60975e+15, -7.74944e+14, -2.31954e+15, -2.62693e+15, 1.45257e+15, -2.28227e+15, 3.17136e+15, 3.64911e+15, 4.22245e+14, -3.20551e+16, -1.52284e+16, 1.29752e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1085,48 +1066,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( -3.67809e+15, -3.19537e+15, -1.10266e+15, -2.01264e+15, 2.52071e+15, 4.16357e+15, -3.29365e+15, 2.85415e+15, -5.19152e+15, -3.63392e+16, -1.34424e+16, 7.64889e+15 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1135,48 +1116,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid6_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid6_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( -3.50583e+15, -5.19202e+15, 1.49546e+16, -1.00374e+16, 1.378e+16, -1.26214e+15, -1.41861e+16, -1.65584e+16, -2.93264e+15, -4.65069e+16, -8.54544e+15, 4.24025e+15 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1185,48 +1166,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3"]
+[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3"]
 transform = Transform( -1.77117e+16, -2.07433e+16, -6.63119e+15, 2.98995e+16, -5.11736e+15, -1.00517e+16, 3.15469e+15, -1.36282e+16, 2.05605e+16, -6.45515e+16, 7.5551e+15, -2.50946e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1235,50 +1216,50 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 3/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Clodu cancer arm 4" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Clodu cancer arm 4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( 2.21586e+14, -7.78576e+13, 2.46352e+14, -1.62956e+14, -3.43508e+13, 2.52486e+14, 9.53333e+13, -3.10122e+14, -1.82486e+14, 2.32538e+16, 3.34114e+15, -4.29264e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1287,48 +1268,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( -2.43886e+14, 5.42459e+14, -1.54652e+14, -7.29839e+13, 2.73239e+14, 4.67162e+14, 5.50501e+14, 1.47876e+14, -3.56071e+14, 2.24599e+16, 3.03138e+15, -4.29833e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1337,48 +1318,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( 3.06062e+14, 6.63554e+14, -7.50388e+14, -6.77383e+14, 1.09923e+12, -6.3833e+14, 6.52449e+11, 8.59946e+14, 7.56735e+14, 2.13742e+16, 2.66472e+15, -4.31316e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1387,48 +1368,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( 1.99338e+15, 9.72955e+14, -1.56312e+15, 2.05362e+15, -4.04533e+14, 1.19739e+15, -7.15942e+14, -1.93694e+15, -2.13142e+15, 1.82479e+16, 8.16273e+14, -4.2695e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1437,48 +1418,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( -3.44468e+15, -4.40328e+14, -1.51838e+15, 4.85517e+14, -1.26224e+15, -3.0846e+15, -9.87139e+14, -2.69105e+15, 2.99424e+15, 1.44931e+16, -1.14244e+15, -4.20794e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1487,48 +1468,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid6_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid6_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( -4.93126e+15, -3.42456e+15, 4.33344e+15, 2.19259e+15, -6.15539e+15, 7.72005e+14, 1.58611e+15, 5.23176e+15, 5.97371e+15, 6.00316e+15, -4.52788e+15, -4.2293e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1537,48 +1518,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid6_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4"]
+[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4"]
 transform = Transform( -1.0089e+16, -9.50391e+15, -4.48986e+15, -1.1367e+16, 6.14747e+15, 7.90515e+14, 6.89291e+15, -5.96976e+14, -1.43535e+16, -1.51161e+16, -1.18587e+16, -3.85257e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1587,50 +1568,50 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 4/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Clodu cancer arm 5" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Clodu cancer arm 5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( 7.72251e+13, -1.89906e+14, 3.62654e+14, -3.33121e+14, 3.52928e+13, 5.85427e+11, 1.03649e+14, -3.44242e+14, -3.25785e+14, -2.65188e+16, -1.10964e+16, -6.64053e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1639,48 +1620,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( -9.54163e+13, 7.29825e+14, 1.54875e+14, 1.55705e+14, -2.36913e+14, 5.34264e+14, 7.21718e+14, -2.6716e+11, -4.96424e+14, -2.74616e+16, -1.06703e+16, -6.62357e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1689,48 +1670,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( -3.15481e+14, 8.2145e+14, -9.32253e+14, -8.51351e+14, -5.70155e+14, 1.12947e+14, 9.00938e+13, 8.81864e+14, 1.20132e+15, -2.87246e+16, -1.00393e+16, -6.61007e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1739,48 +1720,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( 3.17842e+15, -1.26297e+14, -9.55149e+14, 2.15306e+13, -1.21829e+15, 2.3765e+15, -1.73495e+15, -2.41352e+15, -2.47504e+15, -3.27635e+16, -8.89689e+15, -6.45061e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1789,48 +1770,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( -2.77553e+15, -2.26475e+15, -2.94728e+15, 3.41826e+15, -7.30483e+14, -1.3024e+15, -5.59042e+14, -2.8179e+15, 4.57531e+15, -3.73655e+16, -7.29868e+15, -6.25418e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1839,48 +1820,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid6" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid6" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( -1.78297e+15, -6.44098e+15, 6.1205e+15, 6.21458e+15, -2.26168e+15, -3.06055e+15, 2.42285e+15, 8.33008e+15, 6.01061e+15, -4.30249e+16, 4.13854e+15, -6.32634e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1889,48 +1870,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid7_m2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5"]
+[node name="LODs cloud spheroid7_m2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5"]
 transform = Transform( -1.58978e+16, -2.94362e+15, -7.52193e+15, -9.14891e+14, 1.35971e+16, 4.45993e+15, 1.28853e+16, -1.06644e+14, -1.62863e+16, -8.51716e+16, 1.78295e+16, -2.54376e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1939,50 +1920,50 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 5/LODs cloud spheroid7_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Clodu cancer arm 6" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Clodu cancer arm 6" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( 3.40134e+14, -1.63437e+13, 5.10314e+14, 1.92191e+14, 2.55713e+14, -3.31363e+14, -3.4028e+14, 5.11776e+14, 3.59739e+14, -3.47633e+16, -8.28028e+15, -7.29476e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -1991,48 +1972,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( -6.40607e+14, 8.97098e+14, -1.08541e+14, -1.94966e+14, -5.97249e+14, -5.44786e+14, -8.46632e+14, -2.76249e+14, 9.27384e+14, -3.61342e+16, -7.65481e+15, -7.27464e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2041,48 +2022,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( 4.9968e+14, 8.18188e+14, -1.62635e+15, 1.1002e+15, -5.93893e+14, 6.67547e+14, -5.38487e+14, -1.64768e+15, -1.34066e+15, -3.79786e+16, -6.85088e+15, -7.23212e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2091,48 +2072,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid4" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( 3.83436e+15, 2.42266e+15, -1.83062e+15, -3.16787e+15, 1.77766e+15, -5.36129e+14, 1.68233e+15, 2.52406e+15, 4.79911e+15, -4.36619e+16, -3.74711e+15, -7.29921e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2141,48 +2122,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid4"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid5" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( -5.57485e+15, 2.21886e+14, -3.94227e+15, 1.20629e+14, 3.80418e+15, 3.43758e+15, 3.21307e+15, 3.75203e+15, -6.20318e+15, -4.90986e+16, 9.07295e+14, -8.08377e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2191,48 +2172,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 80 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid5"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid6_m2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid6_m2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( -1.23513e+16, -1.12456e+16, 7.13093e+15, -5.67851e+15, 1.00091e+16, -7.31337e+15, 8.99211e+14, -1.49995e+16, -1.47871e+16, -3.72652e+16, -1.20286e+16, -5.2406e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2241,48 +2222,48 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 82 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid6_m2"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6"]
+[node name="LODs cloud spheroid7_m1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6"]
 transform = Transform( -3.70606e+16, -6.21616e+15, 1.015e+16, 6.1551e+15, -1.26876e+16, 1.78811e+16, -1.92844e+15, 2.12871e+16, 2.70118e+16, -1.26387e+17, -5.95213e+15, -5.73143e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2291,50 +2272,50 @@ Put meshes into Scene Items nodes
 "
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1/LOD0"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1/LOD1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1/LOD2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 81 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 6/LODs cloud spheroid7_m1"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Clodu cancer arm 7" type="Spatial" parent="Scenes/CloudCoumpound cancer"]
+[node name="Clodu cancer arm 7" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 
-[node name="LODs cloud spheroid8_m3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7"]
+[node name="LODs cloud spheroid8_m3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7"]
 transform = Transform( -6.60455e+15, 4.09468e+15, -2.92166e+16, -2.73352e+15, 1.9936e+16, 7.56599e+15, 2.12179e+16, 3.84295e+15, -8.11964e+15, -1.26177e+17, -6.43449e+14, -4.42428e+16 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -2345,42 +2326,42 @@ Put meshes into Scene Items nodes
 lod_0_relative_distance = 7
 lod_1_relative_distance = 30
 
-[node name="LOD0" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
+[node name="LOD0" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD0"]
+[node name="Cloud spheroid" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD0"]
 transform = Transform( 1.35204, -0.160213, 1.05517, 0.219335, 1.54537, -0.0133537, -0.536193, 0.0702985, 1.36306, 0.298714, 0.462266, 0.380719 )
 mesh = SubResource( 1 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 83 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
+[node name="LOD1" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD1"]
+[node name="Cloud spheroid001" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD1"]
 transform = Transform( 1.35204, -0.160213, 1.05517, 0.219335, 1.54537, -0.0133537, -0.536193, 0.0702985, 1.36306, 0.298714, 0.462266, 0.380719 )
 mesh = SubResource( 2 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 83 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
+[node name="LOD2" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD2"]
+[node name="Cloud spheroid002" type="MeshInstance" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3/LOD2"]
 transform = Transform( 1.35204, -0.160213, 1.05517, 0.219335, 1.54537, -0.0133537, -0.536193, 0.0702985, 1.36306, 0.298714, 0.462266, 0.380719 )
 mesh = SubResource( 3 )
-skeleton = NodePath("../../../../../../../..")
+skeleton = NodePath("../../../../../../../../..")
 material/0 = SubResource( 83 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
+[node name="LOD3" type="Spatial" parent="Scenes/Cancer nebula/CloudCoumpound cancer/Clodu cancer arm 7/LODs cloud spheroid8_m3"]
 visible = false
 __meta__ = {
 "_edit_lock_": true

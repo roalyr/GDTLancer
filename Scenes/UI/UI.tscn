@@ -1,33 +1,87 @@
-[gd_scene load_steps=54 format=2]
+[gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://Scripts/UI.gd" type="Script" id=1]
-[ext_resource path="res://Assets/UI_styles/Button_red/Red_hover_focus.tres" type="StyleBox" id=2]
-[ext_resource path="res://Assets/UI_styles/Button_red/Red_normal.tres" type="StyleBox" id=3]
-[ext_resource path="res://Assets/UI_styles/Button_red/Red_ressed.tres" type="StyleBox" id=4]
-[ext_resource path="res://Assets/Fonts/Ubuntu-Regular.ttf" type="DynamicFontData" id=5]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/stick.png" type="Texture" id=6]
-[ext_resource path="res://Assets/UI_styles/Themes/Touchscreen/Theme1/pad.tres" type="StyleBox" id=7]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/accel.png" type="Texture" id=8]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/ekill.png" type="Texture" id=9]
-[ext_resource path="res://Assets/UI_styles/Themes/Touchscreen/Theme1.tres" type="Theme" id=10]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/turret.png" type="Texture" id=11]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/deccel.png" type="Texture" id=12]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/ui_opacity.png" type="Texture" id=13]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/options.png" type="Texture" id=14]
-[ext_resource path="res://Scripts/UI/Readouts.gd" type="Script" id=15]
-[ext_resource path="res://Scenes/UI/Target_aim.tscn" type="PackedScene" id=16]
-[ext_resource path="res://Scripts/UI/Pad.gd" type="Script" id=17]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/nav.png" type="Texture" id=18]
-[ext_resource path="res://Scripts/UI/ItemList_nav.gd" type="Script" id=19]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/autopilot.png" type="Texture" id=20]
-[ext_resource path="res://Scripts/UI/Targeting.gd" type="Script" id=21]
-[ext_resource path="res://Scenes/UI/Target_autopilot.tscn" type="PackedScene" id=22]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/remove_target.png" type="Texture" id=23]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/autopilot_disable.png" type="Texture" id=24]
-[ext_resource path="res://Assets/Fonts/Ubuntu-Bold.ttf" type="DynamicFontData" id=25]
-[ext_resource path="res://Assets/UI_styles/Themes/Touchscreen/Theme1/button_normal.tres" type="StyleBox" id=26]
-[ext_resource path="res://Assets/UI_styles/Themes/Touchscreen/Theme1/slider_area.tres" type="StyleBox" id=27]
-[ext_resource path="res://Assets/UI_styles/Themes/Touchscreen/Theme1/button_pressed.tres" type="StyleBox" id=28]
+[ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_prompt_greeting.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_popup_panic.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Gameplay.tscn" type="PackedScene" id=6]
+
+[sub_resource type="GDScript" id=17]
+resource_name = "UI"
+script/source = "extends CanvasLayer
+
+# TODO: Scalable UI (control panel, texts, buttons, etc).
+# TODO: Grouping for overlapping markers.
+
+# VARIABLES
+var stick_held = false
+var turret_view = false
+var update_debug_text_on = false
+var ui_hidden = false
+var ui_alpha = 1.0
+var viewport_size = Vector2(1,1)
+
+onready var p = get_tree().get_root().get_node(\"Main/Paths\")
+
+# TODO: to paths
+onready var mouse_vector_debug = p.ui.get_node(\"Gameplay/Debug/Mouse_vector\")
+
+# TODO: to paths
+onready var apparent_velocity = p.ui.get_node(\"Gameplay/Apparent_velocity\")
+onready var apparent_velocity_c = p.ui.get_node(\"Gameplay/Apparent_velocity_c\")
+onready var apparent_velocity_units = p.ui.get_node(\"Gameplay/Apparent_velocity_units\")
+
+
+func _ready():
+	p.ui_paths.common_mobile_buttons_pad.pad_recenter_stick()
+	p.ui_paths.gui_logic.init_gui()
+
+	
+	
+	
+
+func _input(event):
+
+	# Duplicated input listening function for the sake of mouse vector drawing.
+	if event is InputEventMouseMotion and p.ui_paths.debug.visible:
+		# Mouse vector positions.
+		mouse_vector_debug.points[0] = Vector2(viewport_size.x/2, viewport_size.y/2)
+		mouse_vector_debug.points[1] = Vector2(
+				p.input.mouse_vector.x*viewport_size.x/2 + viewport_size.x/2, 
+				p.input.mouse_vector.y*viewport_size.y/2 + viewport_size.y/2
+			)
+	
+func _process(_delta):
+	p.ui_paths.common_mobile_buttons_pad.pad_handle_stick()
+	
+	# DEBUG
+	if update_debug_text_on: update_debug_text()
+	
+	# READOUTS
+	# Adjust displayed speed
+	var speed_val = round(p.ship_state.apparent_velocity)
+	var result_s = p.ui_paths.common_readouts.get_magnitude_units(speed_val)
+	# To prevent from crashing on Nil
+	if result_s:
+		apparent_velocity.text = str(result_s[0])
+		apparent_velocity_units.text = str(result_s[1])+\"/s\"
+		apparent_velocity_c.text = \"| c: \" + str(speed_val/p.common_constants.C)
+	p.ui_paths.gameplay.get_node(\"Accel_ticks\").text = str(\"Accel: \", p.ship_state.accel_ticks)
+
+# ================================== Other ====================================
+# DEBUG
+func update_debug_text():
+	p.ui_paths.debug.get_node(\"FPS\").text = str(\"FPS: \", p.main.fps)
+	p.ui_paths.debug.get_node(\"Mouse_x\").text = str(\"Mouse / Pad x: \", p.input.mouse_vector.x)
+	p.ui_paths.debug.get_node(\"Mouse_y\").text = str(\"Mouse / Pad y: \", p.input.mouse_vector.y)
+
+
+## Keep here
+#func _on_Viewport_main_resized():
+#	# Has to be called manually bc \"Paths/Signals\" doesn't initiate at start.
+#	get_node(\"/root/Main/Common/Signals\").emit_signal(\"sig_viewport_update\")
+#	viewport_size = OS.window_size
+"
 
 [sub_resource type="GDScript" id=9]
 resource_name = "Paths_UI"
@@ -183,130 +237,208 @@ func popup_panic(message):
 	get_tree().paused = true
 "
 
-[sub_resource type="ShaderMaterial" id=2]
+[sub_resource type="GDScript" id=16]
+resource_name = "Pad"
+script/source = "extends Node
 
-[sub_resource type="DynamicFont" id=4]
-size = 35
-font_data = ExtResource( 5 )
+# VARIABLES
+onready var p = get_tree().get_root().get_node(\"Main/Paths\")
+onready var pad_base = p.ui_paths.touchscreen_pad_base
+onready var stick = p.ui_paths.touchscreen_stick
 
-[sub_resource type="DynamicFont" id=5]
-font_data = ExtResource( 5 )
+func pad_recenter_stick():
+	# Recenter the joystic according to GUI to prevent jumping.
+	p.input_pad.pad_x_abs = pad_base.rect_size.x/2
+	p.input_pad.pad_y_abs = pad_base.rect_size.x/2
 
-[sub_resource type="CanvasItemMaterial" id=3]
-
-[sub_resource type="GDScript" id=8]
-script/source = "extends ReferenceRect
-
-
-func _ready():
-	self.hide()
+func pad_handle_stick():
+	# Process virtual stick input.
+	if p.common_game_options.touchscreen_mode:
+		if p.ui.stick_held:
+			stick.position.x = p.input_pad.pad_x_abs-100
+			stick.position.y = p.input_pad.pad_y_abs-100
+		else:
+			# Recenter stick.
+			if stick.position != Vector2(70,70):
+				stick.position = Vector2(
+					pad_base.rect_size.x/2-100,
+					pad_base.rect_size.y/2-100
+				)
+				# Reset stick input coords to prevent jumping.
+				p.input_pad.pad_x_abs = pad_base.rect_size.x/2
+				p.input_pad.pad_y_abs = pad_base.rect_size.y/2
+				p.input.mouse_vector = Vector2(0,0)
 "
 
-[sub_resource type="GDScript" id=11]
-script/source = "extends Button
+[sub_resource type="GDScript" id=15]
+resource_name = "Readouts"
+script/source = "extends Node
 
-func _ready():
-	self.hide() # Hide on ready by default.
+func get_magnitude_units(val):
+	if val < 1:
+		return [stepify(val*1e3, 0.1), \"mm\"]
+	elif (val >= 1) and (val < 1e3):
+		return [stepify(val, 0.1), \"m\"]
+	elif (val >= 1e3) and (val < 1e6):
+		return [stepify(val/1e3, 0.1), \"km\"]
+	elif (val >= 1e6) and (val < 1e9):
+		return [stepify(val/1e6, 0.1), \"Mm\"]
+	elif (val >= 1e9) and (val < 1e12):
+		return [stepify(val/1e9, 0.1), \"Gm\"]
+	elif (val >= 1e12) and (val < 1e15):
+		return [stepify(val/1e12, 0.1), \"Tm\"]
+	elif (val >= 1e15) and (val < 1e18):
+		return [stepify(val/1e15, 0.1), \"Pm\"]
+	elif (val >= 1e18) and (val < 1e21):
+		return [stepify(val/1e18, 0.1), \"Em\"]
 "
 
-[sub_resource type="GDScript" id=7]
-script/source = "extends ReferenceRect
+[sub_resource type="GDScript" id=14]
+resource_name = "Targeting"
+script/source = "extends Node
+
+onready var p = get_tree().get_root().get_node(\"Main/Paths\")
+
+onready var object_aim_name = \"\"
+onready var object_aim_origin = p.ship.global_transform.origin
+var dist_aim_val = 0
+
+onready var object_autopilot_name = \"\"
+onready var object_autopilot_origin = p.ship.global_transform.origin
+var dist_autopilot_val = 0
+
+onready var player = p.camera_rig.global_transform.origin
+
+var target_autopilot_controls_hidden = true
+var target_aim_controls_hidden = true
 
 func _ready():
-	self.hide()
-"
+	# ============================= Connect signals ===========================
+	p.signals.connect(\"sig_target_aim_clear\", self, \"is_target_aim_clear\")
+	p.signals.connect(\"sig_autopilot_start\", self, \"is_autopilot_start\")
+	p.signals.connect(\"sig_autopilot_disable\", self, \"is_autopilot_disable\")
+	# =========================================================================
+	# Hide targeting controls by default,
+	is_autopilot_disable()
+	is_target_aim_clear()
+	# Hide AP start button before we select a target.
+	#p.ui_paths.desktop_button_autopilot_start.hide()
+	#p.ui_paths.touchscreen_button_autopilot_start.hide()
+	
+func _physics_process(_delta):
+	
+	#print(p.ship_state.aim_target, \" | \", p.ship_state.autopilot_target )
+	
+	# AIM TARGET
+	if  p.ship_state.aim_target_locked:	
+		
+		var aim_target = p.ship_state.aim_target
+		
+		if target_aim_controls_hidden:
+			p.ui_paths.target_aim.show()
+			p.ui_paths.desktop_button_target_aim_clear.show()
+			p.ui_paths.touchscreen_button_target_aim_clear.show()
+			
+			# Also display the controls to initiate AP. But keep AP target.
+			p.ui_paths.desktop_button_autopilot_start.show()
+			p.ui_paths.touchscreen_button_autopilot_start.show()
+			
+			target_aim_controls_hidden = false
+		
+		#if is_instance_valid(aim_target):
+		object_aim_origin = aim_target.global_transform.origin
+		object_aim_name = aim_target.get_name()
+		
+		# Player coords must be updated.
+		player = p.camera_rig.global_transform.origin
+		dist_aim_val = round(player.distance_to(object_aim_origin))
+		
+		# This is for UI.
+		# Object visible, marker within range. Enable marker.
 
-[sub_resource type="GDScript" id=12]
-script/source = "extends Button
+		
+		# Multiply by scale factor of viewport to position properly.
+		p.ui_paths.target_aim.visible = not p.viewport.get_camera().is_position_behind(object_aim_origin)
+		p.ui_paths.target_aim.rect_position = p.viewport.get_camera().unproject_position(
+			object_aim_origin)/p.common_game_options.render_res_factor
+		
+		# Update marker.
+		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_aim_val)
+		# Units. Also prevent crashing so there is a check.
+		if result_d:
+			p.ui_paths.target_aim.get_node(\"Text_distance\").text = \\
+				str(result_d[0])+ \" \" + result_d[1]
+			# Object name in bb code.
+			#p.ui_paths.target_autopilot.get_node(\"Text_object\").set_use_bbcode(true)
+		p.ui_paths.target_aim.get_node(\"Text_object\").set_fit_content_height(true)
+		p.ui_paths.target_aim.get_node(\"Text_object\").text = object_aim_name
+				
+	elif not p.ship_state.aim_target_locked and not target_aim_controls_hidden:
+		is_target_aim_clear()
+		
+		# Also hide the controls to initiate AP. But keep AP target.
+		p.ui_paths.desktop_button_autopilot_start.hide()
+		p.ui_paths.touchscreen_button_autopilot_start.hide()
+		
+		target_aim_controls_hidden = true
+	
+	
+	
+	
+	
+	# AUTOPILOT TARGET
+	if  p.ship_state.autopilot_target_locked and p.ship_state.autopilot:	
+		
+		if target_autopilot_controls_hidden:
+			is_autopilot_start()
+			target_autopilot_controls_hidden = false
+		
+		# Get coordinates and distance.
+		# Fail-safety.
+		if p.ship_state.autopilot_target.is_class(\"GDScriptNativeClass\"):
+			return
+		object_autopilot_origin = p.ship_state.autopilot_target.global_transform.origin
+		object_autopilot_name = p.ship_state.autopilot_target.get_name()
+		# Player coords must be updated.
+		player = p.camera_rig.global_transform.origin
+		dist_autopilot_val = round(player.distance_to(object_autopilot_origin))
+		
+		# This is for UI.
+		# Object visible, marker within range. Enable marker.
 
-func _ready():
-	self.hide() # Hide on ready by default.
-"
+		
+		# Multiply by scale factor of viewport to position properly.
+		p.ui_paths.target_autopilot.visible = not p.viewport.get_camera().is_position_behind(object_autopilot_origin)
+		p.ui_paths.target_autopilot.rect_position = p.viewport.get_camera().unproject_position(
+			object_autopilot_origin)/p.common_game_options.render_res_factor
+		
+		# Update marker.
+		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_autopilot_val)
+		# Units. Also prevent crashing so there is a check.
+		if result_d:
+			p.ui_paths.target_autopilot.get_node(\"Text_distance\").text = \\
+				str(result_d[0])+ \" \" + result_d[1]
+			# Object name in bb code.
+			#p.ui_paths.target_autopilot.get_node(\"Text_object\").set_use_bbcode(true)
+		p.ui_paths.target_autopilot.get_node(\"Text_object\").set_fit_content_height(true)
+		p.ui_paths.target_autopilot.get_node(\"Text_object\").text = object_autopilot_name
+				
+	elif not p.ship_state.autopilot_target_locked and not target_autopilot_controls_hidden:
+		is_autopilot_disable()
+		target_autopilot_controls_hidden = true
 
-[sub_resource type="DynamicFont" id=6]
-size = 29
-font_data = ExtResource( 25 )
+func is_target_aim_clear():
+	p.ui_paths.gui_logic.target_controls_hide()
 
-[sub_resource type="StyleBoxEmpty" id=18]
+func is_autopilot_start():
+	p.ui_paths.gui_logic.autopilot_controls_show()
 
-[sub_resource type="StyleBoxFlat" id=19]
-border_width_top = 26
-border_color = Color( 0.192157, 0.192157, 0.192157, 1 )
-
-[sub_resource type="DynamicFont" id=20]
-size = 20
-font_data = ExtResource( 5 )
-
-[sub_resource type="StyleBoxFlat" id=21]
-bg_color = Color( 0.6, 0.6, 0.6, 0 )
-
-[sub_resource type="DynamicFont" id=22]
-size = 32
-font_data = ExtResource( 5 )
-
-[sub_resource type="StyleBoxFlat" id=23]
-bg_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
-border_width_top = 10
-border_width_bottom = 10
-border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
-
-[sub_resource type="StyleBoxFlat" id=17]
-bg_color = Color( 0.168627, 0.168627, 0.168627, 1 )
-border_width_left = 60
-border_color = Color( 0.501961, 0.501961, 0.501961, 0.25098 )
-
-[sub_resource type="StyleBoxFlat" id=15]
-
-[sub_resource type="StyleBoxFlat" id=16]
-
-[sub_resource type="Theme" id=24]
-Button/fonts/font = SubResource( 6 )
-Button/styles/disabled = ExtResource( 26 )
-Button/styles/focus = SubResource( 18 )
-Button/styles/hover = ExtResource( 26 )
-Button/styles/normal = ExtResource( 26 )
-Button/styles/pressed = ExtResource( 28 )
-HSlider/icons/grabber = null
-HSlider/icons/grabber_disabled = null
-HSlider/icons/grabber_highlight = null
-HSlider/icons/tick = null
-HSlider/styles/grabber_area = ExtResource( 27 )
-HSlider/styles/grabber_area_highlight = ExtResource( 27 )
-HSlider/styles/slider = SubResource( 19 )
-ItemList/colors/font_color = Color( 0.501961, 0.501961, 0.501961, 1 )
-ItemList/colors/font_color_selected = Color( 1, 1, 1, 1 )
-ItemList/constants/line_separation = 10
-ItemList/fonts/font = SubResource( 20 )
-ItemList/styles/bg = SubResource( 21 )
-Label/fonts/font = SubResource( 22 )
-VScrollBar/styles/grabber = SubResource( 23 )
-VScrollBar/styles/grabber_highlight = SubResource( 23 )
-VScrollBar/styles/grabber_pressed = SubResource( 23 )
-VScrollBar/styles/scroll = SubResource( 17 )
-VScrollBar/styles/scroll_focus = SubResource( 17 )
-VSlider/styles/grabber_area = SubResource( 15 )
-VSlider/styles/grabber_area_highlight = SubResource( 16 )
-
-[sub_resource type="DynamicFont" id=25]
-size = 35
-font_data = ExtResource( 5 )
-
-[sub_resource type="StyleBoxFlat" id=14]
-bg_color = Color( 0.568627, 0, 0, 1 )
-
-[sub_resource type="DynamicFont" id=13]
-size = 30
-font_data = ExtResource( 5 )
-
-[sub_resource type="GDScript" id=26]
-script/source = "extends Button
-
-func _on_Button_quit_panic_pressed():
-	get_tree().quit()
+func is_autopilot_disable():
+	p.ui_paths.gui_logic.autopilot_controls_hide()
 "
 
 [node name="UI" type="CanvasLayer"]
-script = ExtResource( 1 )
+script = SubResource( 17 )
 
 [node name="Paths" type="Node" parent="."]
 script = SubResource( 9 )
@@ -319,963 +451,29 @@ script = SubResource( 10 )
 [node name="Mobile_buttons" type="Node" parent="Common"]
 
 [node name="Pad" type="Node" parent="Common/Mobile_buttons"]
-script = ExtResource( 17 )
+script = SubResource( 16 )
 
 [node name="Desktop_buttons" type="Node" parent="Common"]
 
 [node name="Readouts" type="Node" parent="Common"]
-script = ExtResource( 15 )
+script = SubResource( 15 )
 
 [node name="Debug" type="Node" parent="Common"]
 
 [node name="Targeting" type="Node" parent="Common"]
-script = ExtResource( 21 )
+script = SubResource( 14 )
 
-[node name="Gameplay" type="Control" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Debug" type="Control" parent="Gameplay"]
+[node name="Gameplay" parent="." instance=ExtResource( 6 )]
 visible = false
-anchor_bottom = 1.0
-margin_right = 192.0
-margin_bottom = -80.0
-mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="_ColorRect" type="ColorRect" parent="Gameplay/Debug"]
+[node name="GUI_prompt_greeting" parent="." instance=ExtResource( 2 )]
 visible = false
-material = SubResource( 2 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0.443137, 0.588235, 0.439216, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Mouse_x" type="Label" parent="Gameplay/Debug"]
-margin_left = 16.0
-margin_top = 112.0
-margin_right = 91.0
-margin_bottom = 126.0
-text = "Mouse / Pad x: 0"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Mouse_y" type="Label" parent="Gameplay/Debug"]
-margin_left = 16.0
-margin_top = 128.0
-margin_right = 91.0
-margin_bottom = 142.0
-text = "Mouse / Pad y: 0"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="FPS" type="Label" parent="Gameplay/Debug"]
-margin_left = 16.0
-margin_top = 72.0
-margin_right = 56.0
-margin_bottom = 86.0
-text = "FPS: 0"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Mouse_vector" type="Line2D" parent="Gameplay/Debug"]
-points = PoolVector2Array( 0, 0, 0, 0 )
-width = 1.0
-default_color = Color( 0.596078, 0, 0, 1 )
-
-[node name="Apparent_velocity" type="Label" parent="Gameplay"]
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -289.0
-margin_top = -66.0
-margin_right = -101.0
-margin_bottom = -15.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-custom_fonts/font = SubResource( 4 )
-text = "0000"
-align = 2
-valign = 1
-clip_text = true
-
-[node name="Apparent_velocity_c" type="Label" parent="Gameplay"]
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -5.0
-margin_top = -66.0
-margin_right = 365.0
-margin_bottom = -15.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-custom_fonts/font = SubResource( 4 )
-text = "| c: 0.0"
-valign = 1
-clip_text = true
-
-[node name="Apparent_velocity_units" type="Label" parent="Gameplay"]
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -93.0
-margin_top = -67.0
-margin_right = 85.0
-margin_bottom = -16.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-custom_fonts/font = SubResource( 4 )
-text = "du/s"
-valign = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Accel_ticks" type="Label" parent="Gameplay"]
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -103.5
-margin_top = -22.0
-margin_right = 103.5
-margin_bottom = -3.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-custom_fonts/font = SubResource( 5 )
-text = "Accel: 0"
-align = 1
-
-[node name="Target_autopilot" parent="Gameplay" instance=ExtResource( 22 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-
-[node name="Target_aim" parent="Gameplay" instance=ExtResource( 16 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-
-[node name="GUI_prompt_greeting" type="Control" parent="."]
+[node name="GUI_desktop" parent="." instance=ExtResource( 5 )]
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="ColorRect2" type="ColorRect" parent="GUI_prompt_greeting"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0.168627, 0.168627, 0.168627, 0.729412 )
-__meta__ = {
-"_edit_lock_": true,
-"_edit_use_anchors_": false
-}
-
-[node name="Button_touchscreen_switch" type="Button" parent="GUI_prompt_greeting"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -196.0
-margin_top = -108.0
-margin_right = 196.0
-margin_bottom = -44.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-text = "Touchscreen"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_cumputer_gui_switch" type="Button" parent="GUI_prompt_greeting"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -196.0
-margin_top = -20.0
-margin_right = 196.0
-margin_bottom = 44.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-text = "Keyboard and mouse"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Slider_screen_res" type="HSlider" parent="GUI_prompt_greeting"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -360.0
-margin_top = 76.0
-margin_right = 456.0
-margin_bottom = 124.0
-theme = ExtResource( 10 )
-min_value = 0.1
-max_value = 1.0
-step = 0.1
-value = 1.0
-tick_count = 10
-ticks_on_borders = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label" type="Label" parent="GUI_prompt_greeting/Slider_screen_res"]
-margin_left = -120.0
-margin_top = 5.0
-margin_right = -14.0
-margin_bottom = 42.0
-theme = ExtResource( 10 )
-text = "Quality"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label2" type="Label" parent="GUI_prompt_greeting/Slider_screen_res"]
-margin_left = -120.0
-margin_top = 50.0
-margin_right = 406.0
-margin_bottom = 167.0
-theme = ExtResource( 10 )
-text = "
-Reduce internal 
-render quality to
-improve FPS"
-
-[node name="Button_screen_filter2" type="Button" parent="GUI_prompt_greeting"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -96.0
-margin_top = 140.0
-margin_right = 84.0
-margin_bottom = 222.0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-text = "Scren filter"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="GUI_desktop" type="Control" parent="."]
+[node name="GUI_touchscreen" parent="." instance=ExtResource( 3 )]
 visible = false
-material = SubResource( 3 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_lock_": true,
-"_edit_use_anchors_": false
-}
 
-[node name="Mouse_area" type="Control" parent="GUI_desktop"]
-anchor_right = 1.0
-anchor_bottom = 0.867
-margin_bottom = -0.200012
-mouse_default_cursor_shape = 3
-
-[node name="Main" type="Control" parent="GUI_desktop"]
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_top = -75.0
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_turret" type="Button" parent="GUI_desktop/Main"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -69.0
-margin_top = 12.0
-margin_right = 35.0
-margin_bottom = 116.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-icon = ExtResource( 11 )
-flat = true
-icon_align = 1
-
-[node name="Button_hide_ui" type="Button" parent="GUI_desktop/Main"]
-margin_left = 15.0
-margin_top = 12.0
-margin_right = 119.0
-margin_bottom = 116.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 13 )
-flat = true
-icon_align = 1
-
-[node name="Button_options" type="Button" parent="GUI_desktop/Main"]
-margin_left = 80.0
-margin_top = 12.0
-margin_right = 184.0
-margin_bottom = 116.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 14 )
-flat = true
-icon_align = 1
-
-[node name="Button_nav" type="Button" parent="GUI_desktop/Main"]
-margin_left = 145.0
-margin_top = 12.0
-margin_right = 249.0
-margin_bottom = 116.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-flat = true
-icon_align = 1
-
-[node name="Button_target_aim_clear" type="Button" parent="GUI_desktop/Main"]
-margin_left = 209.0
-margin_top = 12.0
-margin_right = 313.0
-margin_bottom = 116.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 23 )
-flat = true
-icon_align = 1
-
-[node name="Button_autopilot_disable" type="Button" parent="GUI_desktop/Main"]
-margin_left = 274.0
-margin_top = 13.0
-margin_right = 374.0
-margin_bottom = 113.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 24 )
-flat = true
-icon_align = 1
-
-[node name="Popup_nav" type="ReferenceRect" parent="GUI_desktop/Main"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_left = 16.0
-margin_top = -292.0
-margin_right = 316.0
-margin_bottom = -75.0
-border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
-script = SubResource( 8 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_autopilot_start" type="Button" parent="GUI_desktop/Main/Popup_nav"]
-margin_top = -62.0
-margin_right = 100.0
-margin_bottom = 38.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 20 )
-flat = true
-icon_align = 1
-script = SubResource( 11 )
-
-[node name="ItemList_nav" type="ItemList" parent="GUI_desktop/Main/Popup_nav"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-focus_mode = 0
-theme = ExtResource( 10 )
-script = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Options" type="Control" parent="GUI_desktop"]
+[node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="ColorRect" type="ColorRect" parent="GUI_desktop/Options"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0.168627, 0.168627, 0.168627, 0.729412 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_debug" type="Button" parent="GUI_desktop/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -80.0
-margin_top = -116.0
-margin_right = 18.0
-margin_bottom = -34.0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-text = "Debug"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_quit" type="Button" parent="GUI_desktop/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -96.0
-margin_top = 116.0
-margin_right = 89.0
-margin_bottom = 192.0
-theme = ExtResource( 10 )
-custom_styles/hover = ExtResource( 2 )
-custom_styles/pressed = ExtResource( 4 )
-custom_styles/normal = ExtResource( 3 )
-keep_pressed_outside = true
-text = "Quit game"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_screen_filter" type="Button" parent="GUI_desktop/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -280.0
-margin_top = -116.0
-margin_right = -100.0
-margin_bottom = -34.0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-text = "Scren filter"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_close_options" type="Button" parent="GUI_desktop/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = 144.0
-margin_top = -116.0
-margin_right = 272.0
-margin_bottom = -34.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-text = "Return"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Slider_screen_res2" type="HSlider" parent="GUI_desktop/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -368.0
-margin_top = -4.0
-margin_right = 448.0
-margin_bottom = 44.0
-theme = ExtResource( 10 )
-min_value = 0.1
-max_value = 1.0
-step = 0.1
-value = 1.0
-tick_count = 10
-ticks_on_borders = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label" type="Label" parent="GUI_desktop/Options/Slider_screen_res2"]
-margin_left = -120.0
-margin_top = 5.0
-margin_right = -14.0
-margin_bottom = 42.0
-theme = ExtResource( 10 )
-text = "Quality"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label2" type="Label" parent="GUI_desktop/Options/Slider_screen_res2"]
-margin_left = -120.0
-margin_top = 50.0
-margin_right = 406.0
-margin_bottom = 167.0
-theme = ExtResource( 10 )
-text = "
-Reduce internal 
-render quality to
-improve FPS"
-
-[node name="GUI_touchscreen" type="Control" parent="."]
-visible = false
-material = SubResource( 3 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_lock_": true,
-"_edit_use_anchors_": false
-}
-
-[node name="Main" type="Control" parent="GUI_touchscreen"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_lock_": true,
-"_edit_use_anchors_": false
-}
-
-[node name="_Margin" type="ColorRect" parent="GUI_touchscreen/Main"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 64.0
-margin_top = 64.0
-margin_right = -64.0
-margin_bottom = -68.0
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_turret" type="Button" parent="GUI_touchscreen/Main"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -168.0
-margin_top = 64.0
-margin_right = -64.0
-margin_bottom = 168.0
-focus_mode = 0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-icon = ExtResource( 11 )
-flat = true
-icon_align = 1
-
-[node name="Button_options" type="Button" parent="GUI_touchscreen/Main"]
-margin_left = 192.0
-margin_top = 64.0
-margin_right = 296.0
-margin_bottom = 168.0
-focus_mode = 0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 14 )
-flat = true
-icon_align = 1
-
-[node name="_Button_accel_plus" type="Button" parent="GUI_touchscreen/Main"]
-visible = false
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -208.0
-margin_top = -368.0
-margin_right = -96.0
-margin_bottom = -272.0
-focus_mode = 0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-text = "Accel+"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="_Button_accel_minus" type="Button" parent="GUI_touchscreen/Main"]
-visible = false
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -208.0
-margin_top = -256.0
-margin_right = -96.0
-margin_bottom = -160.0
-focus_mode = 0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-text = "Accel-"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="_Button_ekill" type="Button" parent="GUI_touchscreen/Main"]
-visible = false
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -208.0
-margin_top = -144.0
-margin_right = -96.0
-margin_bottom = -48.0
-focus_mode = 0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-text = "E-Kill"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_hide_ui" type="Button" parent="GUI_touchscreen/Main"]
-margin_left = 64.0
-margin_top = 64.0
-margin_right = 168.0
-margin_bottom = 168.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 13 )
-flat = true
-icon_align = 1
-
-[node name="Button_nav_touchscreen" type="Button" parent="GUI_touchscreen/Main"]
-margin_left = 319.0
-margin_top = 64.0
-margin_right = 423.0
-margin_bottom = 168.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-flat = true
-icon_align = 1
-
-[node name="Button_target_aim_clear_touchscreen" type="Button" parent="GUI_touchscreen/Main"]
-margin_left = 447.0
-margin_top = 64.0
-margin_right = 551.0
-margin_bottom = 168.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 23 )
-flat = true
-icon_align = 1
-
-[node name="Button_autopilot_disable_touchscreen" type="Button" parent="GUI_touchscreen/Main"]
-margin_left = 578.0
-margin_top = 66.0
-margin_right = 678.0
-margin_bottom = 166.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 24 )
-flat = true
-icon_align = 1
-
-[node name="Popup_nav_touchscreen" type="ReferenceRect" parent="GUI_touchscreen/Main"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -703.0
-margin_top = 67.0
-margin_right = -200.0
-margin_bottom = 297.0
-border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
-script = SubResource( 7 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_autopilot_start_touchscreen" type="Button" parent="GUI_touchscreen/Main/Popup_nav_touchscreen"]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = 34.0
-margin_top = 130.0
-margin_right = 134.0
-margin_bottom = 230.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-icon = ExtResource( 20 )
-flat = true
-icon_align = 1
-script = SubResource( 12 )
-
-[node name="ItemList_nav_touchscreen" type="ItemList" parent="GUI_touchscreen/Main/Popup_nav_touchscreen"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-focus_mode = 0
-theme = SubResource( 24 )
-custom_fonts/font = SubResource( 25 )
-script = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Pad_base" type="Panel" parent="GUI_touchscreen/Main"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_left = 64.0
-margin_top = -468.0
-margin_right = 464.0
-margin_bottom = -68.0
-custom_styles/panel = ExtResource( 7 )
-
-[node name="Stick" type="TouchScreenButton" parent="GUI_touchscreen/Main/Pad_base"]
-position = Vector2( 105, 105 )
-normal = ExtResource( 6 )
-pressed = ExtResource( 6 )
-
-[node name="Touch_buttons_container" type="Control" parent="GUI_touchscreen/Main"]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Touch_ekill" type="TouchScreenButton" parent="GUI_touchscreen/Main/Touch_buttons_container"]
-position = Vector2( -476, -372 )
-normal = ExtResource( 9 )
-pressed = ExtResource( 9 )
-
-[node name="Touch_accel_minus" type="TouchScreenButton" parent="GUI_touchscreen/Main/Touch_buttons_container"]
-position = Vector2( -268, -268 )
-normal = ExtResource( 12 )
-pressed = ExtResource( 12 )
-
-[node name="Touch_accel_plus" type="TouchScreenButton" parent="GUI_touchscreen/Main/Touch_buttons_container"]
-position = Vector2( -268, -476 )
-normal = ExtResource( 8 )
-pressed = ExtResource( 8 )
-
-[node name="Options" type="Control" parent="GUI_touchscreen"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="ColorRect" type="ColorRect" parent="GUI_touchscreen/Options"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0.168627, 0.168627, 0.168627, 0.729412 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_debug" type="Button" parent="GUI_touchscreen/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -80.0
-margin_top = -116.0
-margin_right = 18.0
-margin_bottom = -34.0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-text = "Debug"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_quit" type="Button" parent="GUI_touchscreen/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -96.0
-margin_top = 116.0
-margin_right = 89.0
-margin_bottom = 192.0
-theme = ExtResource( 10 )
-custom_styles/hover = ExtResource( 2 )
-custom_styles/pressed = ExtResource( 4 )
-custom_styles/normal = ExtResource( 3 )
-keep_pressed_outside = true
-text = "Quit game"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_screen_filter" type="Button" parent="GUI_touchscreen/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -280.0
-margin_top = -116.0
-margin_right = -100.0
-margin_bottom = -34.0
-theme = ExtResource( 10 )
-toggle_mode = true
-keep_pressed_outside = true
-text = "Scren filter"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_close_options" type="Button" parent="GUI_touchscreen/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = 144.0
-margin_top = -116.0
-margin_right = 272.0
-margin_bottom = -34.0
-theme = ExtResource( 10 )
-keep_pressed_outside = true
-text = "Return"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Slider_screen_res2" type="HSlider" parent="GUI_touchscreen/Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -368.0
-margin_top = -4.0
-margin_right = 448.0
-margin_bottom = 44.0
-theme = ExtResource( 10 )
-min_value = 0.1
-max_value = 1.0
-step = 0.1
-value = 1.0
-tick_count = 10
-ticks_on_borders = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label" type="Label" parent="GUI_touchscreen/Options/Slider_screen_res2"]
-margin_left = -120.0
-margin_top = 5.0
-margin_right = -14.0
-margin_bottom = 42.0
-theme = ExtResource( 10 )
-text = "Quality"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label2" type="Label" parent="GUI_touchscreen/Options/Slider_screen_res2"]
-margin_left = -120.0
-margin_top = 50.0
-margin_right = 406.0
-margin_bottom = 167.0
-theme = ExtResource( 10 )
-text = "
-Reduce internal 
-render quality to
-improve FPS"
-
-[node name="GUI_popup_panic" type="PopupDialog" parent="."]
-pause_mode = 2
-anchor_right = 1.0
-anchor_bottom = 1.0
-custom_styles/panel = SubResource( 14 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Panic_message" type="Label" parent="GUI_popup_panic"]
-pause_mode = 2
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 44.0
-margin_top = 40.0
-margin_right = -48.0
-margin_bottom = -147.0
-custom_fonts/font = SubResource( 13 )
-text = "Some text"
-autowrap = true
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_quit_panic" type="Button" parent="GUI_popup_panic"]
-pause_mode = 2
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -96.0
-margin_top = 244.0
-margin_right = 89.0
-margin_bottom = 320.0
-theme = ExtResource( 10 )
-custom_styles/hover = ExtResource( 2 )
-custom_styles/pressed = ExtResource( 4 )
-custom_styles/normal = ExtResource( 3 )
-keep_pressed_outside = true
-text = "Quit game"
-script = SubResource( 26 )
-__meta__ = {
-"_edit_lock_": true,
-"_edit_use_anchors_": false
-}
-
-[connection signal="resized" from="Gameplay" to="." method="_on_Viewport_main_resized"]
-[connection signal="pressed" from="GUI_prompt_greeting/Button_touchscreen_switch" to="." method="_on_Button_touchscreen_switch_pressed"]
-[connection signal="pressed" from="GUI_prompt_greeting/Button_cumputer_gui_switch" to="." method="_on_Button_cumputer_gui_switch_pressed"]
-[connection signal="value_changed" from="GUI_prompt_greeting/Slider_screen_res" to="." method="_on_Slider_screen_res_value_changed"]
-[connection signal="toggled" from="GUI_prompt_greeting/Button_screen_filter2" to="." method="_on_Button_screen_filter_toggled"]
-[connection signal="mouse_entered" from="GUI_desktop/Mouse_area" to="." method="_on_Mouse_area_mouse_entered"]
-[connection signal="mouse_exited" from="GUI_desktop/Mouse_area" to="." method="_on_Mouse_area_mouse_exited"]
-[connection signal="toggled" from="GUI_desktop/Main/Button_turret" to="." method="_on_Button_turret_toggled"]
-[connection signal="pressed" from="GUI_desktop/Main/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
-[connection signal="pressed" from="GUI_desktop/Main/Button_options" to="." method="_on_Button_options_pressed"]
-[connection signal="pressed" from="GUI_desktop/Main/Button_nav" to="." method="_on_Button_nav_pressed"]
-[connection signal="pressed" from="GUI_desktop/Main/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
-[connection signal="pressed" from="GUI_desktop/Main/Button_autopilot_disable" to="." method="_on_Button_autopilot_disable_pressed"]
-[connection signal="pressed" from="GUI_desktop/Main/Popup_nav/Button_autopilot_start" to="." method="_on_Button_autopilot_start_pressed"]
-[connection signal="item_selected" from="GUI_desktop/Main/Popup_nav/ItemList_nav" to="GUI_desktop/Main/Popup_nav/ItemList_nav" method="_on_ItemList_nav_item_selected"]
-[connection signal="visibility_changed" from="GUI_desktop/Main/Popup_nav/ItemList_nav" to="GUI_desktop/Main/Popup_nav/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
-[connection signal="toggled" from="GUI_desktop/Options/Button_debug" to="." method="_on_Button_debug_toggled"]
-[connection signal="pressed" from="GUI_desktop/Options/Button_quit" to="." method="_on_Button_quit_pressed"]
-[connection signal="toggled" from="GUI_desktop/Options/Button_screen_filter" to="." method="_on_Button_screen_filter_toggled"]
-[connection signal="pressed" from="GUI_desktop/Options/Button_close_options" to="." method="_on_Button_close_options_pressed"]
-[connection signal="value_changed" from="GUI_desktop/Options/Slider_screen_res2" to="." method="_on_Slider_screen_res_value_changed"]
-[connection signal="toggled" from="GUI_touchscreen/Main/Button_turret" to="." method="_on_Button_turret_toggled"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Button_options" to="." method="_on_Button_options_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/_Button_accel_plus" to="." method="_on_Button_accel_plus_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/_Button_accel_minus" to="." method="_on_Button_accel_minus_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/_Button_ekill" to="." method="_on_Button_ekill_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Button_nav_touchscreen" to="." method="_on_Button_nav_touchscreen_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Button_target_aim_clear_touchscreen" to="." method="_on_Button_target_aim_clear_touchscreen_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Button_autopilot_disable_touchscreen" to="." method="_on_Button_autopilot_disable_touchscreen_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Popup_nav_touchscreen/Button_autopilot_start_touchscreen" to="." method="_on_Button_autopilot_start_touchscreen_pressed"]
-[connection signal="item_selected" from="GUI_touchscreen/Main/Popup_nav_touchscreen/ItemList_nav_touchscreen" to="GUI_touchscreen/Main/Popup_nav_touchscreen/ItemList_nav_touchscreen" method="_on_ItemList_nav_item_selected"]
-[connection signal="visibility_changed" from="GUI_touchscreen/Main/Popup_nav_touchscreen/ItemList_nav_touchscreen" to="GUI_touchscreen/Main/Popup_nav_touchscreen/ItemList_nav_touchscreen" method="_on_ItemList_nav_visibility_changed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Pad_base/Stick" to="." method="_on_Stick_pressed"]
-[connection signal="released" from="GUI_touchscreen/Main/Pad_base/Stick" to="." method="_on_Stick_released"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Touch_buttons_container/Touch_ekill" to="." method="_on_Touch_ekill_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Touch_buttons_container/Touch_accel_minus" to="." method="_on_Touch_accel_minus_pressed"]
-[connection signal="pressed" from="GUI_touchscreen/Main/Touch_buttons_container/Touch_accel_plus" to="." method="_on_Touch_accel_plus_pressed"]
-[connection signal="toggled" from="GUI_touchscreen/Options/Button_debug" to="." method="_on_Button_debug_toggled"]
-[connection signal="pressed" from="GUI_touchscreen/Options/Button_quit" to="." method="_on_Button_quit_pressed"]
-[connection signal="toggled" from="GUI_touchscreen/Options/Button_screen_filter" to="." method="_on_Button_screen_filter_toggled"]
-[connection signal="pressed" from="GUI_touchscreen/Options/Button_close_options" to="." method="_on_Button_close_options_pressed"]
-[connection signal="value_changed" from="GUI_touchscreen/Options/Slider_screen_res2" to="." method="_on_Slider_screen_res_value_changed"]
-[connection signal="pressed" from="GUI_popup_panic/Button_quit_panic" to="GUI_popup_panic/Button_quit_panic" method="_on_Button_quit_panic_pressed"]

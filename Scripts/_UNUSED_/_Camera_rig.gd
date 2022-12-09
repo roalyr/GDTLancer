@@ -61,9 +61,9 @@ func _physics_process(delta):
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes.
 	var control_held = false
-	if not p.main.touchscreen_mode and p.input.LMB_held:
+	if not p.common_game_options.touchscreen_mode and p.input.LMB_held:
 		control_held = true
-	elif p.main.touchscreen_mode and p.ui.stick_held:
+	elif p.common_game_options.touchscreen_mode and p.ui.stick_held:
 		control_held = true
 	else: 
 		control_held = false
@@ -79,7 +79,7 @@ func _physics_process(delta):
 	(not control_held or not p.ship_state.mouse_flight):
 		# Stop inertia at small value of the vector.
 		if abs(mouse_vector.x) > 0.01:
-			mouse_vector /= p.common_camera.camera_inertia_factor
+			mouse_vector /= p.common_game_options.camera_inertia_factor
 			yield(get_tree().create_timer(delta), "timeout")
 			orbit_camera(mouse_vector)
 	
@@ -98,8 +98,8 @@ func _physics_process(delta):
 func orbit_camera(mv):
 	# Compensate camera roll speed by camera altitude.
 	var phi = abs(cos(self.rotation.x))
-	var roll_vert = -mv.y * p.common_camera.camera_sensitivity
-	var roll_horiz = -mv.x * p.common_camera.camera_sensitivity*phi
+	var roll_vert = -mv.y * p.common_game_options.camera_sensitivity
+	var roll_horiz = -mv.x * p.common_game_options.camera_sensitivity*phi
 	camera_vert = self.rotation_degrees.x
 	camera_horiz = self.rotation_degrees.y
 	if camera_vert + roll_vert >= p.common_camera.camera_turret_roll_vert_limit:

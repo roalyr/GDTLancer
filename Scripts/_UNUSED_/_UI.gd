@@ -74,7 +74,7 @@ func update_debug_text():
 
 # UI SWITCHING
 func _on_Button_touchscreen_switch_pressed():
-	p.main.touchscreen_mode = true
+	p.common_game_options.touchscreen_mode = true
 	p.ui_paths.gui_logic.gameplay_gui_show()
 	p.ui_paths.gui_logic.touchscreen_gui_show()
 	p.ui_paths.gui_logic.desktop_gui_hide()
@@ -83,7 +83,7 @@ func _on_Button_touchscreen_switch_pressed():
 # DESKTOP
 # UI SWITCHING
 func _on_Button_cumputer_gui_switch_pressed():
-	p.main.touchscreen_mode = false
+	p.common_game_options.touchscreen_mode = false
 	p.ui_paths.gui_logic.gameplay_gui_show()
 	p.ui_paths.gui_logic.desktop_gui_show()
 	p.ui_paths.gui_logic.touchscreen_gui_hide()
