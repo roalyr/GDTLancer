@@ -16,7 +16,9 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 - Refactored and improved performance a lot with use of vertex shaders.
 - Environment zones (locally adjustable brightness, saturation, contrast).
 - New different star sprites.
-
+- Refactored a lot of unused code, moved some scripts to built-in ones.
+- Initiated localization (EN and UA).
+- Started refactoring UI and making proper themes.
 
 <details>
 <summary><font size=5><b>Previous versions changelog</font></b></summary>
