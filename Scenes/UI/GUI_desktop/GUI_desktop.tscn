@@ -1,148 +1,32 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=21 format=2]
 
-[ext_resource path="res://Assets/_UI_styles/Button_red/Red_ressed.tres" type="StyleBox" id=1]
-[ext_resource path="res://Assets/_UI_styles/Button_red/Red_normal.tres" type="StyleBox" id=2]
-[ext_resource path="res://Assets/_UI_styles/Button_red/Red_hover_focus.tres" type="StyleBox" id=3]
-[ext_resource path="res://Scripts/UI/ItemList_nav.gd" type="Script" id=4]
+[ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
+[ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_systems.gd" type="Script" id=3]
+[ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_planets.gd" type="Script" id=4]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/turret.png" type="Texture" id=5]
-[ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1.tres" type="Theme" id=6]
+[ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_structures.gd" type="Script" id=6]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ui_opacity.png" type="Texture" id=7]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/options.png" type="Texture" id=8]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/nav.png" type="Texture" id=9]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/autopilot_disable.png" type="Texture" id=10]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/remove_target.png" type="Texture" id=11]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_planet.png" type="Texture" id=9]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/target.png" type="Texture" id=10]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_structure.png" type="Texture" id=11]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/autopilot.png" type="Texture" id=12]
-[ext_resource path="res://Assets/Themes/Common/Default/Theme_default.tres" type="Theme" id=13]
+[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=13]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_system.png" type="Texture" id=14]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_star.png" type="Texture" id=15]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_constellations.png" type="Texture" id=16]
+[ext_resource path="res://Scripts/UI/GUI_windows/Desktop/GUI_desktop.gd" type="Script" id=17]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=18]
+[ext_resource path="res://Scripts/UI/Assist/Referencerect_hide.gd" type="Script" id=20]
 
 [sub_resource type="CanvasItemMaterial" id=3]
-
-[sub_resource type="GDScript" id=12]
-script/source = "extends Control
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _on_Button_target_aim_clear_pressed():
-	p.signals.emit_signal(\"sig_target_aim_clear\")
-	
-func _on_Button_autopilot_disable_pressed():
-	p.signals.emit_signal(\"sig_autopilot_disable\")
-	
-func _on_Button_autopilot_start_pressed():
-	p.signals.emit_signal(\"sig_autopilot_start\")
-	
-func _on_Button_nav_pressed():
-	p.signals.emit_signal(\"sig_fetch_markers\")
-	if not p.ui_paths.desktop_nav_popup.visible: p.ui_paths.desktop_nav_popup.show()
-	else: p.ui_paths.desktop_nav_popup.hide()
-	
-func _on_Button_ekill_pressed():
-	p.signals.emit_signal(\"sig_engine_kill\")
-	
-func _on_Button_hide_ui_pressed():
-	p.ui_paths.touchscreen_main.modulate.a = p.ui.ui_alpha
-	p.ui_paths.desktop_main.modulate.a = p.ui.ui_alpha
-	p.ui_paths.gameplay.modulate.a = p.ui.ui_alpha
-	p.ui.ui_alpha -= 0.25
-	if p.ui.ui_alpha < 0.0:
-		p.ui.ui_alpha = 1.0
-
-
-# DESKTOP / MOBILE GUI
-func _on_Slider_zoom_value_changed(value):
-	p.signals.emit_signal(\"sig_zoom_value_changed\", value)
-
-# DESKTOP / MOBILE GUI
-func _on_Button_quit_pressed():
-	p.signals.emit_signal(\"sig_quit_game\")
-
-# DESKTOP / MOBILE GUI
-func _on_Button_turret_toggled(button_pressed):
-	if button_pressed: 
-		p.signals.emit_signal(\"sig_turret_mode_on\", true)
-		# Show slider in Touch GUI.
-		# TODO: make two buttons instead
-		
-	else: 
-		p.signals.emit_signal(\"sig_turret_mode_on\", false)
-		# Hide slider in Touch GUI.
-		# TODO: make two buttons instead
-
-
-# DESKTOP / MOBILE GUI
-func _on_Button_debug_toggled(button_pressed):
-	if button_pressed: 
-		p.ui_paths.debug.show()
-		p.ui.update_debug_text_on = true
-	else:
-		p.ui_paths.debug.hide()
-		p.ui.update_debug_text_on = false
-
-# DESKTOP / MOBILE GUI
-func _on_Button_screen_filter_toggled(button_pressed):
-	if button_pressed: p.signals.emit_signal(\"sig_screen_filter_on\", true)
-	else: p.signals.emit_signal(\"sig_screen_filter_on\", false)
-
-# DESKTOP / MOBILE GUI
-func _on_Slider_screen_res_value_changed(value):
-	p.signals.emit_signal(\"sig_render_res_value_changed\", value)
-
-
-# DESKTOP / MOBILE GUI
-# Acceleration / decelartion
-func _on_Button_accel_plus_pressed():
-	p.signals.emit_signal(\"sig_accelerate\", true)
-	
-# DESKTOP / MOBILE GUI
-func _on_Button_accel_minus_pressed():
-	p.signals.emit_signal(\"sig_accelerate\", false)
-
-# DESKTOP / MOBILE GUI
-# Other buttons
-func _on_Button_options_pressed():
-	p.ui_paths.touchscreen_main.hide()
-	p.ui_paths.touchscreen_options.show()
-	p.ui_paths.desktop_main.hide()
-	p.ui_paths.desktop_options.show()
-	
-func _on_Button_close_options_pressed():
-	p.ui_paths.touchscreen_main.show()
-	p.ui_paths.touchscreen_options.hide()
-	p.ui_paths.desktop_main.show()
-	p.ui_paths.desktop_options.hide()
-
-
-
-# Mouse capturing for desktop.
-# Keep here
-func _on_Mouse_area_mouse_entered():
-	p.signals.emit_signal(\"sig_mouse_on_control_area\", true)
-
-func _on_Mouse_area_mouse_exited():
-	p.signals.emit_signal(\"sig_mouse_on_control_area\", false)
-	
-
-"
-
-[sub_resource type="GDScript" id=8]
-script/source = "extends ReferenceRect
-
-
-func _ready():
-	self.hide()
-"
-
-[sub_resource type="GDScript" id=11]
-script/source = "extends Button
-
-func _ready():
-	self.hide() # Hide on ready by default.
-"
 
 [node name="GUI_desktop" type="Control"]
 material = SubResource( 3 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = SubResource( 12 )
+script = ExtResource( 17 )
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
@@ -150,26 +34,40 @@ __meta__ = {
 
 [node name="Mouse_area" type="Control" parent="."]
 anchor_right = 1.0
-anchor_bottom = 0.867
-margin_bottom = -0.200012
-mouse_default_cursor_shape = 3
-
-[node name="Main" type="Control" parent="."]
-anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -75.0
+mouse_default_cursor_shape = 3
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Button_turret" type="Button" parent="Main"]
-anchor_left = 1.0
+[node name="Bar_menu" type="Control" parent="."]
+margin_right = 190.0
+margin_bottom = 70.0
+
+[node name="Panel" type="Panel" parent="Bar_menu"]
 anchor_right = 1.0
-margin_left = -69.0
-margin_top = 12.0
-margin_right = 35.0
-margin_bottom = 116.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_options" type="Button" parent="Bar_menu"]
+margin_left = 130.0
+margin_top = 10.0
+margin_right = 230.0
+margin_bottom = 110.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+keep_pressed_outside = true
+icon = ExtResource( 8 )
+icon_align = 1
+
+[node name="Button_turret" type="Button" parent="Bar_menu"]
+margin_left = 70.0
+margin_top = 10.0
+margin_right = 170.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -177,235 +75,468 @@ keep_pressed_outside = true
 icon = ExtResource( 5 )
 icon_align = 1
 
-[node name="Button_hide_ui" type="Button" parent="Main"]
-margin_left = 15.0
-margin_top = 12.0
-margin_right = 119.0
-margin_bottom = 116.0
+[node name="Button_hide_ui" type="Button" parent="Bar_menu"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
 icon_align = 1
 
-[node name="Button_options" type="Button" parent="Main"]
-margin_left = 80.0
-margin_top = 12.0
-margin_right = 184.0
-margin_bottom = 116.0
+[node name="Bar_nav" type="Control" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -70.0
+margin_right = 310.0
+
+[node name="Panel" type="Panel" parent="Bar_nav"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_constellations" type="Button" parent="Bar_nav"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = -60.0
+margin_right = 110.0
+margin_bottom = 40.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
+toggle_mode = true
 keep_pressed_outside = true
-icon = ExtResource( 8 )
+icon = ExtResource( 16 )
 icon_align = 1
 
-[node name="Button_nav" type="Button" parent="Main"]
-margin_left = 145.0
-margin_top = 12.0
-margin_right = 249.0
-margin_bottom = 116.0
+[node name="Button_systems" type="Button" parent="Bar_nav"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 70.0
+margin_top = -60.0
+margin_right = 170.0
+margin_bottom = 40.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 14 )
+icon_align = 1
+
+[node name="Button_stars" type="Button" parent="Bar_nav"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 130.0
+margin_top = -60.0
+margin_right = 230.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 15 )
+icon_align = 1
+
+[node name="Button_planets" type="Button" parent="Bar_nav"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 190.0
+margin_top = -60.0
+margin_right = 290.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 9 )
 icon_align = 1
 
-[node name="Button_target_aim_clear" type="Button" parent="Main"]
-margin_left = 209.0
-margin_top = 12.0
-margin_right = 313.0
-margin_bottom = 116.0
+[node name="Button_structures" type="Button" parent="Bar_nav"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 250.0
+margin_top = -60.0
+margin_right = 350.0
+margin_bottom = 40.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
+toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 11 )
 icon_align = 1
 
-[node name="Button_autopilot_disable" type="Button" parent="Main"]
-margin_left = 274.0
-margin_top = 12.0
-margin_right = 378.0
-margin_bottom = 116.0
+[node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -300.0
+margin_right = 310.0
+margin_bottom = -70.0
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_constellations"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ItemList_nav" type="ItemList" parent="Bar_nav/Popup_nav_constellations"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme = ExtResource( 13 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Popup_nav_systems" type="ReferenceRect" parent="Bar_nav"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -300.0
+margin_right = 310.0
+margin_bottom = -70.0
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_systems"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ItemList_nav" type="ItemList" parent="Bar_nav/Popup_nav_systems"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme = ExtResource( 13 )
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Popup_nav_stars" type="ReferenceRect" parent="Bar_nav"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -300.0
+margin_right = 310.0
+margin_bottom = -70.0
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_stars"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ItemList_nav" type="ItemList" parent="Bar_nav/Popup_nav_stars"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme = ExtResource( 13 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Popup_nav_planets" type="ReferenceRect" parent="Bar_nav"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -300.0
+margin_right = 310.0
+margin_bottom = -70.0
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_planets"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ItemList_nav" type="ItemList" parent="Bar_nav/Popup_nav_planets"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme = ExtResource( 13 )
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Popup_structures" type="ReferenceRect" parent="Bar_nav"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -300.0
+margin_right = 310.0
+margin_bottom = -70.0
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_nav/Popup_structures"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ItemList_nav" type="ItemList" parent="Bar_nav/Popup_structures"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme = ExtResource( 13 )
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Bar_control" type="Control" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -155.0
+margin_right = 155.0
+margin_bottom = 70.0
+
+[node name="Panel" type="Panel" parent="Bar_control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+
+[node name="Button_autopilot" type="Button" parent="Bar_control"]
+margin_left = 70.0
+margin_top = 10.0
+margin_right = 170.0
+margin_bottom = 110.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 12 )
+icon_align = 1
+
+[node name="Button_target_aim_clear" type="Button" parent="Bar_control"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 keep_pressed_outside = true
 icon = ExtResource( 10 )
 icon_align = 1
 
-[node name="Popup_nav" type="ReferenceRect" parent="Main"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_left = 16.0
-margin_top = -292.0
-margin_right = 316.0
-margin_bottom = -75.0
-border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
-script = SubResource( 8 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_autopilot_start" type="Button" parent="Main/Popup_nav"]
-margin_top = -62.0
-margin_right = 104.0
-margin_bottom = 42.0
+[node name="Button_PLACEHOLDER" type="Button" parent="Bar_control"]
+margin_left = 130.0
+margin_top = 10.0
+margin_right = 230.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 keep_pressed_outside = true
-icon = ExtResource( 12 )
+icon = ExtResource( 18 )
 icon_align = 1
-script = SubResource( 11 )
 
-[node name="ItemList_nav" type="ItemList" parent="Main/Popup_nav"]
+[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_control"]
+margin_left = 190.0
+margin_top = 10.0
+margin_right = 290.0
+margin_bottom = 110.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_control"]
+margin_left = 250.0
+margin_top = 10.0
+margin_right = 350.0
+margin_bottom = 110.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-focus_mode = 0
-theme = ExtResource( 6 )
-script = ExtResource( 4 )
+margin_left = -310.0
+margin_top = -70.0
+
+[node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Options" type="Control" parent="."]
-visible = false
+[node name="Button_PLACEHOLDER" type="Button" parent="Bar_ship_PLACEHOLDER"]
+anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_left = -300.0
+margin_top = -60.0
+margin_right = -200.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
 
-[node name="ColorRect" type="ColorRect" parent="Options"]
+[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_ship_PLACEHOLDER"]
+anchor_left = 1.0
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color( 0.168627, 0.168627, 0.168627, 0.729412 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_debug" type="Button" parent="Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -80.0
-margin_top = -116.0
-margin_right = 18.0
-margin_bottom = -34.0
-theme = ExtResource( 6 )
+margin_left = -240.0
+margin_top = -60.0
+margin_right = -140.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
 toggle_mode = true
 keep_pressed_outside = true
-text = "Debug"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+icon = ExtResource( 18 )
+icon_align = 1
 
-[node name="Button_quit" type="Button" parent="Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -96.0
-margin_top = 116.0
-margin_right = 89.0
-margin_bottom = 192.0
-theme = ExtResource( 6 )
-custom_styles/hover = ExtResource( 3 )
-custom_styles/pressed = ExtResource( 1 )
-custom_styles/normal = ExtResource( 2 )
-keep_pressed_outside = true
-text = "Quit game"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button_screen_filter" type="Button" parent="Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -280.0
-margin_top = -116.0
-margin_right = -100.0
-margin_bottom = -34.0
-theme = ExtResource( 6 )
+[node name="Button_PLACEHOLDER5" type="Button" parent="Bar_ship_PLACEHOLDER"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -180.0
+margin_top = -60.0
+margin_right = -80.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
 toggle_mode = true
 keep_pressed_outside = true
-text = "Scren filter"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+icon = ExtResource( 18 )
+icon_align = 1
 
-[node name="Button_close_options" type="Button" parent="Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = 144.0
-margin_top = -116.0
-margin_right = 272.0
-margin_bottom = -34.0
-theme = ExtResource( 6 )
+[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_ship_PLACEHOLDER"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -120.0
+margin_top = -60.0
+margin_right = -20.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
 keep_pressed_outside = true
-text = "Return"
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER4" type="Button" parent="Bar_ship_PLACEHOLDER"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -60.0
+margin_top = -60.0
+margin_right = 40.0
+margin_bottom = 40.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_ship_PLACEHOLDER"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -300.0
+margin_right = 310.0
+margin_bottom = -70.0
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 __meta__ = {
-"_edit_use_anchors_": false
+"_edit_lock_": true
 }
 
-[node name="Slider_screen_res" type="HSlider" parent="Options"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -368.0
-margin_top = -4.0
-margin_right = 448.0
-margin_bottom = 44.0
-theme = ExtResource( 6 )
-min_value = 0.1
-max_value = 1.0
-step = 0.1
-value = 1.0
-tick_count = 10
-ticks_on_borders = true
+[node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
 __meta__ = {
-"_edit_use_anchors_": false
+"_edit_lock_": true
 }
 
-[node name="Label" type="Label" parent="Options/Slider_screen_res"]
-margin_left = -120.0
-margin_top = 5.0
-margin_right = -14.0
-margin_bottom = 42.0
-theme = ExtResource( 6 )
-text = "Quality"
+[node name="ItemList_PLACEHOLDER" type="ItemList" parent="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme = ExtResource( 13 )
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false ]
 __meta__ = {
-"_edit_use_anchors_": false
+"_edit_lock_": true
 }
-
-[node name="Label2" type="Label" parent="Options/Slider_screen_res"]
-margin_left = -120.0
-margin_top = 50.0
-margin_right = 406.0
-margin_bottom = 167.0
-theme = ExtResource( 6 )
-text = "
-Reduce internal 
-render quality to
-improve FPS"
 
 [connection signal="mouse_entered" from="Mouse_area" to="." method="_on_Mouse_area_mouse_entered"]
 [connection signal="mouse_exited" from="Mouse_area" to="." method="_on_Mouse_area_mouse_exited"]
-[connection signal="toggled" from="Main/Button_turret" to="." method="_on_Button_turret_toggled"]
-[connection signal="pressed" from="Main/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
-[connection signal="pressed" from="Main/Button_options" to="." method="_on_Button_options_pressed"]
-[connection signal="pressed" from="Main/Button_nav" to="." method="_on_Button_nav_pressed"]
-[connection signal="pressed" from="Main/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
-[connection signal="pressed" from="Main/Button_autopilot_disable" to="." method="_on_Button_autopilot_disable_pressed"]
-[connection signal="pressed" from="Main/Popup_nav/Button_autopilot_start" to="." method="_on_Button_autopilot_start_pressed"]
-[connection signal="item_selected" from="Main/Popup_nav/ItemList_nav" to="Main/Popup_nav/ItemList_nav" method="_on_ItemList_nav_item_selected"]
-[connection signal="visibility_changed" from="Main/Popup_nav/ItemList_nav" to="Main/Popup_nav/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
-[connection signal="toggled" from="Options/Button_debug" to="." method="_on_Button_debug_toggled"]
-[connection signal="pressed" from="Options/Button_quit" to="." method="_on_Button_quit_pressed"]
-[connection signal="toggled" from="Options/Button_screen_filter" to="." method="_on_Button_screen_filter_toggled"]
-[connection signal="pressed" from="Options/Button_close_options" to="." method="_on_Button_close_options_pressed"]
-[connection signal="value_changed" from="Options/Slider_screen_res" to="." method="_on_Slider_screen_res_value_changed"]
+[connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
+[connection signal="toggled" from="Bar_menu/Button_turret" to="." method="_on_Button_turret_toggled"]
+[connection signal="pressed" from="Bar_menu/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
+[connection signal="toggled" from="Bar_nav/Button_constellations" to="." method="_on_Button_constellations_toggled"]
+[connection signal="toggled" from="Bar_nav/Button_systems" to="." method="_on_Button_systems_toggled"]
+[connection signal="toggled" from="Bar_nav/Button_stars" to="." method="_on_Button_stars_toggled"]
+[connection signal="toggled" from="Bar_nav/Button_planets" to="." method="_on_Button_planets_toggled"]
+[connection signal="toggled" from="Bar_nav/Button_structures" to="." method="_on_Button_structures_toggled"]
+[connection signal="item_selected" from="Bar_nav/Popup_nav_constellations/ItemList_nav" to="Bar_nav/Popup_nav_constellations/ItemList_nav" method="_on_ItemList_nav_item_selected"]
+[connection signal="visibility_changed" from="Bar_nav/Popup_nav_constellations/ItemList_nav" to="Bar_nav/Popup_nav_constellations/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="item_selected" from="Bar_nav/Popup_nav_systems/ItemList_nav" to="Bar_nav/Popup_nav_systems/ItemList_nav" method="_on_ItemList_nav_item_selected"]
+[connection signal="visibility_changed" from="Bar_nav/Popup_nav_systems/ItemList_nav" to="Bar_nav/Popup_nav_systems/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="item_selected" from="Bar_nav/Popup_nav_stars/ItemList_nav" to="Bar_nav/Popup_nav_stars/ItemList_nav" method="_on_ItemList_nav_item_selected"]
+[connection signal="visibility_changed" from="Bar_nav/Popup_nav_stars/ItemList_nav" to="Bar_nav/Popup_nav_stars/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="item_selected" from="Bar_nav/Popup_nav_planets/ItemList_nav" to="Bar_nav/Popup_nav_planets/ItemList_nav" method="_on_ItemList_nav_item_selected"]
+[connection signal="visibility_changed" from="Bar_nav/Popup_nav_planets/ItemList_nav" to="Bar_nav/Popup_nav_planets/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="item_selected" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_item_selected"]
+[connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
+[connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
+[connection signal="visibility_changed" from="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER/ItemList_PLACEHOLDER" to="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER/ItemList_PLACEHOLDER" method="_on_ItemList_nav_visibility_changed"]

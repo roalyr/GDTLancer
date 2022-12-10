@@ -1,6 +1,6 @@
 [gd_scene load_steps=18 format=2]
 
-[ext_resource path="res://Scripts/Editor_object.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Editor/Editor_object.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_planet.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/Environment/_Stellar/Planets/Planet_blue.tscn" type="PackedScene" id=4]

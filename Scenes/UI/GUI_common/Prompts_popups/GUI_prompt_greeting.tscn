@@ -1,45 +1,12 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1.tres" type="Theme" id=1]
-
-[sub_resource type="GDScript" id=1]
-script/source = "extends Control
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-# DESKTOP
-# UI SWITCHING
-func _on_Button_cumputer_gui_switch_pressed():
-	p.common_game_options.touchscreen_mode = false
-	p.ui_paths.gui_logic.gameplay_gui_show()
-	p.ui_paths.gui_logic.desktop_gui_show()
-	p.ui_paths.gui_logic.touchscreen_gui_hide()
-	p.ui_paths.gui_logic.select_gui_prompt_hide()
-
-# TOUCHSCREEN
-
-# UI SWITCHING
-func _on_Button_touchscreen_switch_pressed():
-	p.common_game_options.touchscreen_mode = true
-	p.ui_paths.gui_logic.gameplay_gui_show()
-	p.ui_paths.gui_logic.touchscreen_gui_show()
-	p.ui_paths.gui_logic.desktop_gui_hide()
-	p.ui_paths.gui_logic.select_gui_prompt_hide()
-
-# DESKTOP / MOBILE GUI
-func _on_Button_screen_filter_toggled(button_pressed):
-	if button_pressed: p.signals.emit_signal(\"sig_screen_filter_on\", true)
-	else: p.signals.emit_signal(\"sig_screen_filter_on\", false)
-
-# DESKTOP / MOBILE GUI
-func _on_Slider_screen_res_value_changed(value):
-	p.signals.emit_signal(\"sig_render_res_value_changed\", value)
-"
+[ext_resource path="res://Scripts/UI/GUI_windows/GUI_prompt_greeting.gd" type="Script" id=2]
 
 [node name="GUI_prompt_greeting" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = SubResource( 1 )
+script = ExtResource( 2 )
 
 [node name="ColorRect2" type="ColorRect" parent="."]
 anchor_right = 1.0

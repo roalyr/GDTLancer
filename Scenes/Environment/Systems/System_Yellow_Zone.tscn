@@ -33,7 +33,6 @@ __meta__ = {
 
 [node name="System Yellow" type="Position3D" parent="Scenes"]
 script = ExtResource( 5 )
-targetable = false
 
 [node name="Star Yellow binary Zone" parent="Scenes/System Yellow" instance=ExtResource( 10 )]
 

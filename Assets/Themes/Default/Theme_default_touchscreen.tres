@@ -1,0 +1,41 @@
+[gd_resource type="Theme" load_steps=16 format=2]
+
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_disabled.tres" type="StyleBox" id=1]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_pressed.tres" type="StyleBox" id=2]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_normal.tres" type="StyleBox" id=3]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_scroll_touchscreen.tres" type="StyleBox" id=4]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_focus.tres" type="StyleBox" id=5]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts_touchscreen/Default_dynamicfont_list_touchscreen.tres" type="DynamicFont" id=6]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_hover.tres" type="StyleBox" id=7]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_selected.tres" type="StyleBox" id=8]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_bg.tres" type="StyleBox" id=9]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_bg_focus.tres" type="StyleBox" id=10]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_selected_focus.tres" type="StyleBox" id=11]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_grabber_pressed_touchscreen.tres" type="StyleBox" id=12]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_scroll_focus_touchscreen.tres" type="StyleBox" id=13]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_grabber_touchscreen.tres" type="StyleBox" id=14]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_grabber_highlighted_touchscreen.tres" type="StyleBox" id=15]
+
+[resource]
+Button/styles/disabled = ExtResource( 1 )
+Button/styles/focus = ExtResource( 5 )
+Button/styles/hover = ExtResource( 7 )
+Button/styles/normal = ExtResource( 3 )
+Button/styles/pressed = ExtResource( 2 )
+ItemList/colors/font_color = Color( 1, 1, 1, 1 )
+ItemList/colors/font_color_selected = Color( 0, 1, 1, 0.768627 )
+ItemList/colors/guide_color = Color( 1, 1, 1, 0.12549 )
+ItemList/constants/hseparation = 0
+ItemList/constants/icon_margin = 4
+ItemList/constants/line_separation = 0
+ItemList/constants/vseparation = 4
+ItemList/fonts/font = ExtResource( 6 )
+ItemList/styles/bg = ExtResource( 9 )
+ItemList/styles/bg_focus = ExtResource( 10 )
+ItemList/styles/selected = ExtResource( 8 )
+ItemList/styles/selected_focus = ExtResource( 11 )
+VScrollBar/styles/grabber = ExtResource( 14 )
+VScrollBar/styles/grabber_highlight = ExtResource( 15 )
+VScrollBar/styles/grabber_pressed = ExtResource( 12 )
+VScrollBar/styles/scroll = ExtResource( 4 )
+VScrollBar/styles/scroll_focus = ExtResource( 13 )

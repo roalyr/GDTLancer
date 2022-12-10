@@ -91,7 +91,6 @@ script = ExtResource( 7 )
 __meta__ = {
 "_edit_lock_": true
 }
-targetable = false
 
 [node name="Star Blue" type="Area" parent="Scenes/System Blue"]
 input_ray_pickable = false

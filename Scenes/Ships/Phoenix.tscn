@@ -1,9 +1,9 @@
 [gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Assets/Shaders/Solid/Solid.gdshader" type="Shader" id=1]
-[ext_resource path="res://Scripts/Ship.gd" type="Script" id=2]
+[ext_resource path="res://Scripts/Ship/Ship.gd" type="Script" id=2]
 [ext_resource path="res://Scenes/FX/Engine_exhaust_blue.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scripts/Editor_object.gd" type="Script" id=4]
+[ext_resource path="res://Scripts/Editor/Editor_object.gd" type="Script" id=4]
 
 [sub_resource type="PhysicsMaterial" id=24]
 friction = 0.0

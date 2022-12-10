@@ -1,467 +1,43 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
+[ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_prompt_greeting.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen_FHD.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_popup_panic.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Gameplay.tscn" type="PackedScene" id=6]
-
-[sub_resource type="GDScript" id=17]
-resource_name = "UI"
-script/source = "extends CanvasLayer
-
-# TODO: Scalable UI (control panel, texts, buttons, etc).
-# TODO: Grouping for overlapping markers.
-
-# VARIABLES
-var stick_held = false
-var turret_view = false
-var update_debug_text_on = false
-var ui_hidden = false
-var ui_alpha = 1.0
-var viewport_size = Vector2(1,1)
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-# TODO: to paths
-onready var mouse_vector_debug = p.ui.get_node(\"Gameplay/Debug/Mouse_vector\")
-
-# TODO: to paths
-onready var apparent_velocity = p.ui.get_node(\"Gameplay/Apparent_velocity\")
-onready var apparent_velocity_c = p.ui.get_node(\"Gameplay/Apparent_velocity_c\")
-onready var apparent_velocity_units = p.ui.get_node(\"Gameplay/Apparent_velocity_units\")
-
-
-func _ready():
-	p.ui_paths.common_mobile_buttons_pad.pad_recenter_stick()
-	p.ui_paths.gui_logic.init_gui()
-
-	
-	
-	
-
-func _input(event):
-
-	# Duplicated input listening function for the sake of mouse vector drawing.
-	if event is InputEventMouseMotion and p.ui_paths.debug.visible:
-		# Mouse vector positions.
-		mouse_vector_debug.points[0] = Vector2(viewport_size.x/2, viewport_size.y/2)
-		mouse_vector_debug.points[1] = Vector2(
-				p.input.mouse_vector.x*viewport_size.x/2 + viewport_size.x/2, 
-				p.input.mouse_vector.y*viewport_size.y/2 + viewport_size.y/2
-			)
-	
-func _process(_delta):
-	p.ui_paths.common_mobile_buttons_pad.pad_handle_stick()
-	
-	# DEBUG
-	if update_debug_text_on: update_debug_text()
-	
-	# READOUTS
-	# Adjust displayed speed
-	var speed_val = round(p.ship_state.apparent_velocity)
-	var result_s = p.ui_paths.common_readouts.get_magnitude_units(speed_val)
-	# To prevent from crashing on Nil
-	if result_s:
-		apparent_velocity.text = str(result_s[0])
-		apparent_velocity_units.text = str(result_s[1])+\"/s\"
-		apparent_velocity_c.text = \"| c: \" + str(speed_val/p.common_constants.C)
-	p.ui_paths.gameplay.get_node(\"Accel_ticks\").text = str(\"Accel: \", p.ship_state.accel_ticks)
-
-# ================================== Other ====================================
-# DEBUG
-func update_debug_text():
-	p.ui_paths.debug.get_node(\"FPS\").text = str(\"FPS: \", p.main.fps)
-	p.ui_paths.debug.get_node(\"Mouse_x\").text = str(\"Mouse / Pad x: \", p.input.mouse_vector.x)
-	p.ui_paths.debug.get_node(\"Mouse_y\").text = str(\"Mouse / Pad y: \", p.input.mouse_vector.y)
-
-
-## Keep here
-#func _on_Viewport_main_resized():
-#	# Has to be called manually bc \"Paths/Signals\" doesn't initiate at start.
-#	get_node(\"/root/Main/Common/Signals\").emit_signal(\"sig_viewport_update\")
-#	viewport_size = OS.window_size
-"
-
-[sub_resource type="GDScript" id=9]
-resource_name = "Paths_UI"
-script/source = "extends Node
-
-# GLOBAL PATHS 
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-# Logic node
-onready var gui_logic = p.ui.get_node(\"GUI_logic\")
-# Common
-onready var common = p.ui.get_node(\"Common\")
-onready var common_mobile_buttons = common.get_node(\"Mobile_buttons\")
-onready var common_mobile_buttons_pad = common_mobile_buttons.get_node(\"Pad\")
-onready var common_desktop_buttons = common.get_node(\"Desktop_buttons\")
-onready var common_readouts = common.get_node(\"Readouts\")
-onready var common_debug = common.get_node(\"Debug\")
-# Desktop UI
-onready var controls_desktop = p.ui.get_node(\"GUI_desktop\")
-onready var mouse_area = controls_desktop.get_node(\"Mouse_area\")
-onready var desktop_options = controls_desktop.get_node(\"Options\")
-onready var desktop_main = controls_desktop.get_node(\"Main\")
-# Desktop nav popup
-onready var desktop_nav_popup = desktop_main.get_node(\"Popup_nav\")
-onready var desktop_nav_list = desktop_nav_popup.get_node(\"ItemList_nav\")
-# Desktop buttons
-onready var desktop_button_target_aim_clear = desktop_main.get_node(\"Button_target_aim_clear\")
-onready var desktop_button_autopilot_disable = desktop_main.get_node(\"Button_autopilot_disable\")
-onready var desktop_button_autopilot_start = desktop_nav_popup.get_node(\"Button_autopilot_start\")
-
-# Touchscreen UI
-onready var controls_touchscreen = p.ui.get_node(\"GUI_touchscreen\")
-onready var touchscreen_options = controls_touchscreen.get_node(\"Options\")
-onready var touchscreen_main = controls_touchscreen.get_node(\"Main\")
-onready var touchscreen_pad_base = touchscreen_main.get_node(\"Pad_base\")
-onready var touchscreen_stick = touchscreen_pad_base.get_node(\"Stick\")
-# Touchscreen nav popup
-onready var touchscreen_nav_popup = touchscreen_main.get_node(\"Popup_nav_touchscreen\")
-onready var touchscreen_nav_list = touchscreen_nav_popup.get_node(\"ItemList_nav_touchscreen\")
-# Touchscreen buttons
-onready var touchscreen_button_target_aim_clear = touchscreen_main.get_node(\"Button_target_aim_clear_touchscreen\")
-onready var touchscreen_button_autopilot_disable = touchscreen_main.get_node(\"Button_autopilot_disable_touchscreen\")
-onready var touchscreen_button_autopilot_start = touchscreen_nav_popup.get_node(\"Button_autopilot_start_touchscreen\")
-# Gameplay UI
-onready var gameplay = p.ui.get_node(\"Gameplay\")
-onready var debug = gameplay.get_node(\"Debug\")
-onready var target_autopilot = gameplay.get_node(\"Target_autopilot\")
-onready var target_aim = gameplay.get_node(\"Target_aim\")
-
-# Other windows
-onready var gui_prompt = p.ui.get_node(\"GUI_prompt_greeting\")
-onready var popup_panic = p.ui.get_node(\"GUI_popup_panic\")
-"
-
-[sub_resource type="GDScript" id=10]
-resource_name = "GUI_logic"
-script/source = "extends Node
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-# INIT
-func init_gui():
-	# Initialize windows in switched off mode to match button states.
-	select_gui_prompt_show()
-	touchscreen_gui_hide()
-	desktop_gui_hide()
-	gameplay_gui_hide()
-	debug_gui_hide()
-	
-	# Test.
-	#popup_panic(\"Test panic msg\")
-
-# GUI TOUCHSCREEN
-func touchscreen_gui_hide():
-	p.ui_paths.controls_touchscreen.hide()
-	p.ui_paths.touchscreen_nav_popup.hide()
-	p.ui_paths.touchscreen_options.hide()
-	target_controls_hide()
-	
-func touchscreen_gui_show():
-	p.ui_paths.controls_touchscreen.show()
-	p.ui_paths.touchscreen_nav_popup.hide() # Always hide initially.
-	p.ui_paths.touchscreen_options.hide() # Always hide initially.
-	target_controls_hide() # Always hide initially.
-
-# GUI DESKTOP
-func desktop_gui_hide():
-	p.ui_paths.mouse_area.hide()
-	p.ui_paths.controls_desktop.hide()
-	p.ui_paths.desktop_nav_popup.hide()
-	p.ui_paths.desktop_options.hide()
-	target_controls_hide()
-	
-func desktop_gui_show():
-	p.ui_paths.mouse_area.show()
-	p.ui_paths.controls_desktop.show()
-	p.ui_paths.desktop_nav_popup.hide() # Always hide initially.
-	p.ui_paths.desktop_options.hide() # Always hide initially.
-	target_controls_hide() # Always hide initially.	
-
-# GUI GAMEPLAY
-func gameplay_gui_hide():
-	p.ui_paths.gameplay.hide()
-
-func gameplay_gui_show():
-	p.ui_paths.gameplay.show()
-
-# GUI DEBUG
-func debug_gui_hide():
-	p.ui_paths.debug.hide()
-
-func debug_gui_show():
-	p.ui_paths.debug.show()
-
-# GUI SELECT PROMPT
-func select_gui_prompt_hide():
-	p.ui_paths.gui_prompt.hide()
-
-func select_gui_prompt_show():
-	p.ui_paths.gui_prompt.show()
-
-# GUI TARGETING
-func target_controls_hide():
-	p.ui_paths.desktop_button_target_aim_clear.hide()
-	p.ui_paths.touchscreen_button_target_aim_clear.hide()
-	p.ui_paths.target_aim.hide()
-
-func target_controls_show():
-	p.ui_paths.desktop_button_target_aim_clear.show()
-	p.ui_paths.touchscreen_button_target_aim_clear.show()
-	p.ui_paths.target_aim.show()
-	
-# GUI AUTOPILOT
-func autopilot_controls_hide():
-	p.ui_paths.desktop_button_autopilot_disable.hide()
-	p.ui_paths.touchscreen_button_autopilot_disable.hide()
-	p.ui_paths.target_autopilot.hide()
-	
-func autopilot_controls_show():
-	p.ui_paths.desktop_button_autopilot_disable.show()
-	p.ui_paths.touchscreen_button_autopilot_disable.show()
-	p.ui_paths.target_autopilot.show()
-
-# GUI PANIC POPUP
-func popup_panic(message):
-	var panic_screen = p.ui_paths.popup_panic
-	var panic_message = panic_screen.get_node(\"Panic_message\")
-	panic_screen.popup()
-	panic_message.text = message
-	# Also write down the message into console.
-	var div = \"\\n\\n=====================================================================\\n\\n\"
-	print(div + message + div)
-	# Pause the game and prompt exit with the button.
-	get_tree().paused = true
-"
-
-[sub_resource type="GDScript" id=16]
-resource_name = "Pad"
-script/source = "extends Node
-
-# VARIABLES
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-onready var pad_base = p.ui_paths.touchscreen_pad_base
-onready var stick = p.ui_paths.touchscreen_stick
-
-func pad_recenter_stick():
-	# Recenter the joystic according to GUI to prevent jumping.
-	p.input_pad.pad_x_abs = pad_base.rect_size.x/2
-	p.input_pad.pad_y_abs = pad_base.rect_size.x/2
-
-func pad_handle_stick():
-	# Process virtual stick input.
-	if p.common_game_options.touchscreen_mode:
-		if p.ui.stick_held:
-			stick.position.x = p.input_pad.pad_x_abs-100
-			stick.position.y = p.input_pad.pad_y_abs-100
-		else:
-			# Recenter stick.
-			if stick.position != Vector2(70,70):
-				stick.position = Vector2(
-					pad_base.rect_size.x/2-100,
-					pad_base.rect_size.y/2-100
-				)
-				# Reset stick input coords to prevent jumping.
-				p.input_pad.pad_x_abs = pad_base.rect_size.x/2
-				p.input_pad.pad_y_abs = pad_base.rect_size.y/2
-				p.input.mouse_vector = Vector2(0,0)
-"
-
-[sub_resource type="GDScript" id=15]
-resource_name = "Readouts"
-script/source = "extends Node
-
-func get_magnitude_units(val):
-	if val < 1:
-		return [stepify(val*1e3, 0.1), \"mm\"]
-	elif (val >= 1) and (val < 1e3):
-		return [stepify(val, 0.1), \"m\"]
-	elif (val >= 1e3) and (val < 1e6):
-		return [stepify(val/1e3, 0.1), \"km\"]
-	elif (val >= 1e6) and (val < 1e9):
-		return [stepify(val/1e6, 0.1), \"Mm\"]
-	elif (val >= 1e9) and (val < 1e12):
-		return [stepify(val/1e9, 0.1), \"Gm\"]
-	elif (val >= 1e12) and (val < 1e15):
-		return [stepify(val/1e12, 0.1), \"Tm\"]
-	elif (val >= 1e15) and (val < 1e18):
-		return [stepify(val/1e15, 0.1), \"Pm\"]
-	elif (val >= 1e18) and (val < 1e21):
-		return [stepify(val/1e18, 0.1), \"Em\"]
-"
-
-[sub_resource type="GDScript" id=14]
-resource_name = "Targeting"
-script/source = "extends Node
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-onready var object_aim_name = \"\"
-onready var object_aim_origin = p.ship.global_transform.origin
-var dist_aim_val = 0
-
-onready var object_autopilot_name = \"\"
-onready var object_autopilot_origin = p.ship.global_transform.origin
-var dist_autopilot_val = 0
-
-onready var player = p.camera_rig.global_transform.origin
-
-var target_autopilot_controls_hidden = true
-var target_aim_controls_hidden = true
-
-func _ready():
-	# ============================= Connect signals ===========================
-	p.signals.connect(\"sig_target_aim_clear\", self, \"is_target_aim_clear\")
-	p.signals.connect(\"sig_autopilot_start\", self, \"is_autopilot_start\")
-	p.signals.connect(\"sig_autopilot_disable\", self, \"is_autopilot_disable\")
-	# =========================================================================
-	# Hide targeting controls by default,
-	is_autopilot_disable()
-	is_target_aim_clear()
-	# Hide AP start button before we select a target.
-	#p.ui_paths.desktop_button_autopilot_start.hide()
-	#p.ui_paths.touchscreen_button_autopilot_start.hide()
-	
-func _physics_process(_delta):
-	
-	#print(p.ship_state.aim_target, \" | \", p.ship_state.autopilot_target )
-	
-	# AIM TARGET
-	if  p.ship_state.aim_target_locked:	
-		
-		var aim_target = p.ship_state.aim_target
-		
-		if target_aim_controls_hidden:
-			p.ui_paths.target_aim.show()
-			p.ui_paths.desktop_button_target_aim_clear.show()
-			p.ui_paths.touchscreen_button_target_aim_clear.show()
-			
-			# Also display the controls to initiate AP. But keep AP target.
-			p.ui_paths.desktop_button_autopilot_start.show()
-			p.ui_paths.touchscreen_button_autopilot_start.show()
-			
-			target_aim_controls_hidden = false
-		
-		#if is_instance_valid(aim_target):
-		object_aim_origin = aim_target.global_transform.origin
-		object_aim_name = aim_target.get_name()
-		
-		# Player coords must be updated.
-		player = p.camera_rig.global_transform.origin
-		dist_aim_val = round(player.distance_to(object_aim_origin))
-		
-		# This is for UI.
-		# Object visible, marker within range. Enable marker.
-
-		
-		# Multiply by scale factor of viewport to position properly.
-		p.ui_paths.target_aim.visible = not p.viewport.get_camera().is_position_behind(object_aim_origin)
-		p.ui_paths.target_aim.rect_position = p.viewport.get_camera().unproject_position(
-			object_aim_origin)/p.common_game_options.render_res_factor
-		
-		# Update marker.
-		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_aim_val)
-		# Units. Also prevent crashing so there is a check.
-		if result_d:
-			p.ui_paths.target_aim.get_node(\"Text_distance\").text = \\
-				str(result_d[0])+ \" \" + result_d[1]
-			# Object name in bb code.
-			#p.ui_paths.target_autopilot.get_node(\"Text_object\").set_use_bbcode(true)
-		p.ui_paths.target_aim.get_node(\"Text_object\").set_fit_content_height(true)
-		p.ui_paths.target_aim.get_node(\"Text_object\").text = object_aim_name
-				
-	elif not p.ship_state.aim_target_locked and not target_aim_controls_hidden:
-		is_target_aim_clear()
-		
-		# Also hide the controls to initiate AP. But keep AP target.
-		p.ui_paths.desktop_button_autopilot_start.hide()
-		p.ui_paths.touchscreen_button_autopilot_start.hide()
-		
-		target_aim_controls_hidden = true
-	
-	
-	
-	
-	
-	# AUTOPILOT TARGET
-	if  p.ship_state.autopilot_target_locked and p.ship_state.autopilot:	
-		
-		if target_autopilot_controls_hidden:
-			is_autopilot_start()
-			target_autopilot_controls_hidden = false
-		
-		# Get coordinates and distance.
-		# Fail-safety.
-		if p.ship_state.autopilot_target.is_class(\"GDScriptNativeClass\"):
-			return
-		object_autopilot_origin = p.ship_state.autopilot_target.global_transform.origin
-		object_autopilot_name = p.ship_state.autopilot_target.get_name()
-		# Player coords must be updated.
-		player = p.camera_rig.global_transform.origin
-		dist_autopilot_val = round(player.distance_to(object_autopilot_origin))
-		
-		# This is for UI.
-		# Object visible, marker within range. Enable marker.
-
-		
-		# Multiply by scale factor of viewport to position properly.
-		p.ui_paths.target_autopilot.visible = not p.viewport.get_camera().is_position_behind(object_autopilot_origin)
-		p.ui_paths.target_autopilot.rect_position = p.viewport.get_camera().unproject_position(
-			object_autopilot_origin)/p.common_game_options.render_res_factor
-		
-		# Update marker.
-		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_autopilot_val)
-		# Units. Also prevent crashing so there is a check.
-		if result_d:
-			p.ui_paths.target_autopilot.get_node(\"Text_distance\").text = \\
-				str(result_d[0])+ \" \" + result_d[1]
-			# Object name in bb code.
-			#p.ui_paths.target_autopilot.get_node(\"Text_object\").set_use_bbcode(true)
-		p.ui_paths.target_autopilot.get_node(\"Text_object\").set_fit_content_height(true)
-		p.ui_paths.target_autopilot.get_node(\"Text_object\").text = object_autopilot_name
-				
-	elif not p.ship_state.autopilot_target_locked and not target_autopilot_controls_hidden:
-		is_autopilot_disable()
-		target_autopilot_controls_hidden = true
-
-func is_target_aim_clear():
-	p.ui_paths.gui_logic.target_controls_hide()
-
-func is_autopilot_start():
-	p.ui_paths.gui_logic.autopilot_controls_show()
-
-func is_autopilot_disable():
-	p.ui_paths.gui_logic.autopilot_controls_hide()
-"
+[ext_resource path="res://Scripts/UI/UI_functions.gd" type="Script" id=7]
+[ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=8]
+[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_pad.gd" type="Script" id=9]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/Readouts.gd" type="Script" id=10]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/Targeting.gd" type="Script" id=11]
+[ext_resource path="res://Scenes/UI/Window_desktop_options.tscn" type="PackedScene" id=12]
 
 [node name="UI" type="CanvasLayer"]
-script = SubResource( 17 )
+script = ExtResource( 1 )
 
-[node name="Paths" type="Node" parent="."]
-script = SubResource( 9 )
+[node name="UI_paths" type="Node" parent="."]
+script = ExtResource( 8 )
 
-[node name="GUI_logic" type="Node" parent="."]
-script = SubResource( 10 )
+[node name="UI_functions" type="Node" parent="."]
+script = ExtResource( 7 )
 
 [node name="Common" type="Node" parent="."]
 
 [node name="Mobile_buttons" type="Node" parent="Common"]
 
-[node name="Pad" type="Node" parent="Common/Mobile_buttons"]
-script = SubResource( 16 )
+[node name="Touchscreen_pad" type="Node" parent="Common/Mobile_buttons"]
+script = ExtResource( 9 )
 
 [node name="Desktop_buttons" type="Node" parent="Common"]
 
 [node name="Readouts" type="Node" parent="Common"]
-script = SubResource( 15 )
+script = ExtResource( 10 )
 
 [node name="Debug" type="Node" parent="Common"]
 
 [node name="Targeting" type="Node" parent="Common"]
-script = SubResource( 14 )
+script = ExtResource( 11 )
 
 [node name="Gameplay" parent="." instance=ExtResource( 6 )]
 visible = false
@@ -472,8 +48,10 @@ visible = false
 [node name="GUI_desktop" parent="." instance=ExtResource( 5 )]
 visible = false
 
-[node name="GUI_touchscreen" parent="." instance=ExtResource( 3 )]
+[node name="GUI_touchscreen_FHD" parent="." instance=ExtResource( 3 )]
 visible = false
 
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]
 visible = false
+
+[node name="Window_desktop_options" parent="." instance=ExtResource( 12 )]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://Scripts/Editor_object.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Editor/Editor_object.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_back.gdshader" type="Shader" id=2]
 
 [sub_resource type="CubeMesh" id=72]

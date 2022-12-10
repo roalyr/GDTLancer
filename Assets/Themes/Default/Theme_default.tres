@@ -1,0 +1,45 @@
+[gd_resource type="Theme" load_steps=17 format=2]
+
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_disabled.tres" type="StyleBox" id=1]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_pressed.tres" type="StyleBox" id=2]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_normal.tres" type="StyleBox" id=3]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar/Default_styleboxflat_grabber_highlighted.tres" type="StyleBox" id=4]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_focus.tres" type="StyleBox" id=5]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_list.tres" type="DynamicFont" id=6]
+[ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_hover.tres" type="StyleBox" id=7]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_selected.tres" type="StyleBox" id=8]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_bg.tres" type="StyleBox" id=9]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_bg_focus.tres" type="StyleBox" id=10]
+[ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_selected_focus.tres" type="StyleBox" id=11]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar/Default_styleboxflat_grabber.tres" type="StyleBox" id=12]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar/Default_styleboxflat_grabber_pressed.tres" type="StyleBox" id=13]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar/Default_styleboxflat_scroll.tres" type="StyleBox" id=14]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar/Default_styleboxflat_scroll_focus.tres" type="StyleBox" id=15]
+[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_styleboxflat_panel.tres" type="StyleBox" id=16]
+
+[resource]
+Button/colors/icon_color_disabled = Color( 1, 1, 1, 0.501961 )
+Button/colors/icon_color_pressed = Color( 0, 1, 1, 1 )
+Button/styles/disabled = ExtResource( 1 )
+Button/styles/focus = ExtResource( 5 )
+Button/styles/hover = ExtResource( 7 )
+Button/styles/normal = ExtResource( 3 )
+Button/styles/pressed = ExtResource( 2 )
+ItemList/colors/font_color = Color( 1, 1, 1, 1 )
+ItemList/colors/font_color_selected = Color( 0, 1, 1, 1 )
+ItemList/colors/guide_color = Color( 1, 1, 1, 0.12549 )
+ItemList/constants/hseparation = 0
+ItemList/constants/icon_margin = 4
+ItemList/constants/line_separation = 0
+ItemList/constants/vseparation = 5
+ItemList/fonts/font = ExtResource( 6 )
+ItemList/styles/bg = ExtResource( 9 )
+ItemList/styles/bg_focus = ExtResource( 10 )
+ItemList/styles/selected = ExtResource( 8 )
+ItemList/styles/selected_focus = ExtResource( 11 )
+Panel/styles/panel = ExtResource( 16 )
+VScrollBar/styles/grabber = ExtResource( 12 )
+VScrollBar/styles/grabber_highlight = ExtResource( 4 )
+VScrollBar/styles/grabber_pressed = ExtResource( 13 )
+VScrollBar/styles/scroll = ExtResource( 14 )
+VScrollBar/styles/scroll_focus = ExtResource( 15 )

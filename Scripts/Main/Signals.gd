@@ -1,0 +1,48 @@
+extends Node
+
+# Rename all signals to "sig_<name_action>".
+# Emitting functions should be "<name>_is_<action>".
+# Receiving functions should be "is_<name_action>".
+# Respective state vars should be "state_<name>"
+
+# Have to supress warning because they all flare up.
+# warning-ignore-all:unused_signal
+
+# GENERIC
+signal sig_mouse_on_control_area(flag)
+signal sig_screen_filter_on(flag)
+signal sig_render_res_value_changed(value)
+signal sig_fov_value_changed(value)
+signal sig_viewport_update
+signal sig_quit_game
+
+# UI MARKERS
+signal sig_fetch_markers
+
+# SPACE OBJECTS SPAWNING
+signal sig_system_coordinates_selected(coordinates)
+signal sig_system_spawned(system_scene)
+
+# CAMERA
+signal sig_turret_mode_on(flag)
+signal sig_mouse_flight_on(flag)
+signal sig_zoom_value_changed(value)
+
+# SHIP
+signal sig_accelerate(flag)
+signal sig_engine_kill
+signal sig_autopilot_start
+signal sig_autopilot_disable
+signal sig_target_aim_clear
+
+# LOCAL SPACE TRIGGERS
+#signal sig_entered_local_space_galaxy(zone)
+#signal sig_exited_local_space_galaxy(zone)
+signal sig_entered_local_space_system(zone)
+signal sig_exited_local_space_system(zone)
+signal sig_entered_local_space_star(zone)
+signal sig_exited_local_space_star(zone)
+signal sig_entered_local_space_planet(zone)
+signal sig_exited_local_space_planet(zone)
+signal sig_entered_local_space_structure(zone)
+signal sig_exited_local_space_structure(zone)

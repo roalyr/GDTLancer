@@ -1,569 +1,65 @@
-[gd_scene load_steps=30 format=2]
+[gd_scene load_steps=17 format=2]
 
-[ext_resource path="res://Scripts/Origin_rebase/Ship_space.gd" type="Script" id=1]
-[ext_resource path="res://Scenes/Ships/Phoenix_heavy.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Viewport.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Paths.gd" type="Script" id=2]
 [ext_resource path="res://Scenes/UI/UI.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=5]
-[ext_resource path="res://Scenes/Environment/Systems/System_Blue_Zone.tscn" type="PackedScene" id=7]
-[ext_resource path="res://Scenes/Environment/Camera_decorations.tscn" type="PackedScene" id=8]
-[ext_resource path="res://Scenes/Environment/Environment.tscn" type="PackedScene" id=12]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/Cancer_Green_Nebula_Zone.tscn" type="PackedScene" id=16]
-[ext_resource path="res://Scenes/Environment/Systems/System_Yellow_Zone.tscn" type="PackedScene" id=17]
-[ext_resource path="res://Scenes/Environment/Systems/System_Red_Zone.tscn" type="PackedScene" id=18]
-[ext_resource path="res://Scripts/Origin_rebase/Rebase_local_system.gd" type="Script" id=25]
-[ext_resource path="res://Scripts/Origin_rebase/Rebase_local_star.gd" type="Script" id=27]
-[ext_resource path="res://Scripts/Origin_rebase/Rebase_local_structure.gd" type="Script" id=28]
-[ext_resource path="res://Scripts/Origin_rebase/Rebase_local_planet.gd" type="Script" id=31]
-
-[sub_resource type="GDScript" id=53]
-script/source = "extends Node
-
-# TODO: move those somewhere else.
-var fps = 0
-
-func _process(_delta):
-	fps = Engine.get_frames_per_second()
-"
-
-[sub_resource type="GDScript" id=52]
-resource_name = "Paths"
-script/source = "extends Node
-
-# TODO: PREFIXES TO PATHS BY CATEGORY?
-
-# MAIN
-onready var main = get_node(\"/root/Main\")
-
-# COMMON
-onready var common = main.get_node(\"Common\")
-onready var common_camera = common.get_node(\"Camera\")
-onready var common_engine = common.get_node(\"Engine\")
-onready var common_game_options = common.get_node(\"Game_options\")
-onready var signals = common.get_node(\"Signals\")
-onready var ship_state = common.get_node(\"Ship_state\")
-onready var common_space_state = common.get_node(\"Space_state\")
-onready var common_constants = common.get_node(\"Constants\")
-onready var common_resources = common.get_node(\"Resources\")
-
-# VIEWPORT CONTAINER
-onready var container = main.get_node(\"Container\")
-onready var viewport = container.get_node(\"Viewport\")
-onready var environment = viewport.get_node(\"Environment\")
-
-# SPACE
-onready var global_space = viewport.get_node(\"Global_space\")
-#onready var local_space_galaxy = viewport.get_node(\"_Local_space_galaxy\")
-onready var local_space_system = viewport.get_node(\"Local_space_system\")
-onready var local_space_star = viewport.get_node(\"Local_space_star\")
-onready var local_space_planet = viewport.get_node(\"Local_space_planet\")
-onready var local_space_structure = viewport.get_node(\"Local_space_structure\")
-onready var ship_space = viewport.get_node(\"Ship_space\")
-
-# SHIP
-onready var ship = ship_space.get_node(\"Ship\")
-
-# CAMERA
-onready var camera_rig = ship.get_node(\"Camera_rig\")
-onready var camera = camera_rig.get_node(\"Camera\")
-
-# INPUT
-onready var input = main.get_node(\"Input\")
-onready var input_keyboard = input.get_node(\"Keyboard\")
-onready var input_mouse = input.get_node(\"Mouse\")
-onready var input_pad = input.get_node(\"Pad\")
-
-
-# UI
-onready var ui = container.get_node(\"UI\")
-onready var ui_paths = ui.get_node(\"Paths\")
-
-
-
-
-
-
-"
-
-[sub_resource type="GDScript" id=54]
-resource_name = "Game_options"
-script/source = "extends Node
-
-# LANGUAGE
-var game_locale = \"uk\"
-
-# CONTROLS
-var touchscreen_mode = false
-
-# CAMERA
-var camera_inertia_factor = 1.1 # 1.05 ... 1.5 Affects camera inertia.
-var camera_sensitivity = 2
-
-# VIEWPORT
-var render_res_factor = 1.0
-var render_texture_filter = true
-
-func _ready():
-	TranslationServer.set_locale(game_locale)
-	print(tr(\"TEST_LOCALE_LOADED\"))
-"
-
-[sub_resource type="GDScript" id=45]
-resource_name = "Resources"
-script/source = "extends Node
-
-var generated_systems_file_node_1 = load(\"res://Data/TSCN/Main_galaxy_stars_50k.tscn\")
-
-var systems_coordinates_bank_1 = generated_systems_file_node_1.instance()
-
-"
-
-[sub_resource type="GDScript" id=44]
-resource_name = "Constants"
-script/source = "extends Node
-
-# Physical
-const C = 299792458 # Speed of light in vacuum
-
-# Space damp values.
-const global_linear_damp = 0.9
-const global_angular_damp = 5
-
-# Other
-# TODO: revivew what goes where.
-const maximum_systems_spawned_on_visiting = 3
-"
-
-[sub_resource type="GDScript" id=46]
-resource_name = "Engine"
-script/source = "extends Node
-
-# CONSTANTS
-const physics_fps = 120
-const graphic_fps = 60
-
-
-# Origin rebase
-const rebase_limit_margin = 5000
-const rebase_lag = 1.1
-
-func _ready():
-	Engine.set_iterations_per_second(physics_fps)
-	Engine.set_target_fps(graphic_fps)
-"
-
-[sub_resource type="GDScript" id=47]
-resource_name = "Camera"
-script/source = "extends Node
-
-# CONSTANTS
-const camera_far = 9e18 # 9e18 is a safe cap.
-const camera_near = 1e-2 # base value.
-const camera_fov = 60 # Initial value.
-
-const camera_turret_roll_vert_limit = 70 # Deg +\\-
-# Zoom out times is multiplied by minimum ship camera distance to define maximum.
-# Sync with touchscreen control slider (max_val = camera_zoom_out_times/camera_zoom_step).
-const camera_zoom_out_times = 500 # For sandnbox mode
-const camera_zoom_out_max = 5e17 # For sandnbox mode
-const camera_zoom_step = 1 # 0.05 ... 0.2
-
-# VARIABLES
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _ready():
-	# Set camera properties.
-	p.camera.fov = camera_fov
-	p.camera.far = camera_far
-	p.camera.near = camera_near
-"
-
-[sub_resource type="GDScript" id=49]
-resource_name = "Signals"
-script/source = "extends Node
-
-# Rename all signals to \"sig_<name_action>\".
-# Emitting functions should be \"<name>_is_<action>\".
-# Receiving functions should be \"is_<name_action>\".
-# Respective state vars should be \"state_<name>\"
-
-# Have to supress warning because they all flare up.
-# warning-ignore-all:unused_signal
-
-# GENERIC
-signal sig_mouse_on_control_area(flag)
-signal sig_screen_filter_on(flag)
-signal sig_render_res_value_changed(value)
-signal sig_fov_value_changed(value)
-signal sig_viewport_update
-signal sig_quit_game
-
-# UI MARKERS
-signal sig_fetch_markers
-
-# SPACE OBJECTS SPAWNING
-signal sig_system_coordinates_selected(coordinates)
-signal sig_system_spawned(system_scene)
-
-# CAMERA
-signal sig_turret_mode_on(flag)
-signal sig_mouse_flight_on(flag)
-signal sig_zoom_value_changed(value)
-
-# SHIP
-signal sig_accelerate(flag)
-signal sig_engine_kill
-signal sig_autopilot_start
-signal sig_autopilot_disable
-signal sig_target_aim_clear
-
-# LOCAL SPACE TRIGGERS
-#signal sig_entered_local_space_galaxy(zone)
-#signal sig_exited_local_space_galaxy(zone)
-signal sig_entered_local_space_system(zone)
-signal sig_exited_local_space_system(zone)
-signal sig_entered_local_space_star(zone)
-signal sig_exited_local_space_star(zone)
-signal sig_entered_local_space_planet(zone)
-signal sig_exited_local_space_planet(zone)
-signal sig_entered_local_space_structure(zone)
-signal sig_exited_local_space_structure(zone)
-"
-
-[sub_resource type="GDScript" id=50]
-resource_name = "Ship_state"
-script/source = "extends Node
-
-var mouse_flight = false
-var turret_mode = false
-
-var acceleration = 0
-var accel_ticks = 0
-var apparent_velocity = 0
-var ship_linear_velocity = 0
-
-var aim_target = Position3D
-var aim_target_locked = false
-
-var autopilot_target = Position3D
-var autopilot_target_locked = false
-var autopilot = false
-"
-
-[sub_resource type="GDScript" id=51]
-resource_name = "Space_state"
-script/source = "extends Node
-
-var markers = [] # Array of global markers.
-var system_coordinates = Position3D # Selected while targeting.
-var systems_spawned = [] # Queue of spawned systems in order to manage memory.
-var systems_visited = [] # Queue of spawned systems in order to manage memory.
-"
-
-[sub_resource type="GDScript" id=59]
-resource_name = "Input"
-script/source = "extends Node
-
-var LMB_held = false
-var LMB_released = true
-
-var mouse_vector = Vector2(0,0)
-var viewport_size = Vector2(1,1)
-
-onready var mouse = get_node(\"Mouse\")
-onready var keyboard = get_node(\"Keyboard\")
-onready var pad = get_node(\"Pad\")
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _ready():
-	# ============================ Connect signals ============================
-	p.signals.connect(\"sig_quit_game\", self, \"is_quit_game\")
-	p.signals.connect(\"sig_viewport_update\", self, \"is_viewport_update\")
-	# =========================================================================
-	
-	# Initial value require for the mouse coords.
-	viewport_size = OS.window_size
-	
-func _input(event):
-	
-	# MOUSE INPUT HANDLING
-	p.input_mouse.handle_input(event, viewport_size)
-	
-	# KEYBOARD INPUT HANDLING
-	p.input_keyboard.handle_input(event)
-		
-	# PAD INPUT HANDLING
-	p.input_pad.handle_input(event)
-				
-
-# SIGNAL PROCESSING
-func is_quit_game():
-	get_tree().quit()
-	
-func is_viewport_update():
-	# For mouse_vector normalized coords.
-	viewport_size = OS.window_size
-"
-
-[sub_resource type="GDScript" id=58]
-resource_name = "Keyboard"
-script/source = "extends Node
-
-# VARIABLES
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _ready():
-	# ============================ Connect signals ============================
-	p.signals.connect(\"sig_turret_mode_on\", self, \"is_turret_mode_on\")
-	# =========================================================================
-
-func handle_input(event):
-
-	# Works in both desktop and touchscreen.
-	if event is InputEventKey:
-		
-		# GUI CONTROLS (GENERIC) ==============================================
-		
-		# Mouse flight.
-		if event.pressed and event.scancode == KEY_SPACE:
-			if p.ship_state.mouse_flight:
-				p.ship_state.mouse_flight = false
-				p.signals.emit_signal(\"sig_mouse_flight_on\", false)
-			else:
-				p.ship_state.mouse_flight = true
-				p.signals.emit_signal(\"sig_mouse_flight_on\", true)
-
-				
-		# Turret mode.
-		if event.pressed and event.scancode == KEY_H:
-			if not p.ship_state.turret_mode: 
-				p.ship_state.turret_mode = true
-			else: p.ship_state.turret_mode = false
-		
-		# Quit the game.
-		# TODO: remove keyboard mapping later on.
-		if event.pressed and event.scancode == KEY_ESCAPE:
-			p.signals.emit_signal(\"sig_quit_game\")
-		
-		# SHIP CONTROLS =======================================================
-		
-		# Accelerate forward.
-		if event.pressed and event.scancode == KEY_UP:
-			p.signals.emit_signal(\"sig_accelerate\", true)
-
-		# Accelerate backward.
-		if event.pressed and event.scancode == KEY_DOWN:
-			p.signals.emit_signal(\"sig_accelerate\", false)
-		
-		# TODO: sort out acceleration WSAD keys
-		# Accelerate up strafe (should be?)
-		if event.pressed and event.scancode == KEY_W:
-			p.signals.emit_signal(\"sig_accelerate\", true)
-
-		# Accelerate down strafe (should be?)
-		if event.pressed and event.scancode == KEY_S:
-			p.signals.emit_signal(\"sig_accelerate\", false)
-		
-		# Engine kill.
-		if event.pressed and event.scancode == KEY_Z:
-			p.signals.emit_signal(\"sig_engine_kill\")
-
-
-
-# SIGNAL PROCESSING
-func is_turret_mode_on(flag):
-	p.ship_state.turret_mode = flag
-"
-
-[sub_resource type="GDScript" id=57]
-resource_name = "Mouse"
-script/source = "extends Node
-
-# VARIABLES
-var mouse_x = 0
-var mouse_y = 0
-var mouse_x_abs = 0
-var mouse_y_abs = 0
-
-var mouse_on_control_area = true
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _ready():
-	# ============================ Connect signals ============================
-	p.signals.connect(\"sig_mouse_on_control_area\", self, \"is_mouse_on_control_area\")
-	# =========================================================================
-
-func handle_input(event, viewport_size):
-	
-	# This ensures that desktop UI is enabled and mouse is on control area, not UI
-	# (TODO: Overlay UI pads on top of the control area to reserve those areas?)
-	if mouse_on_control_area and p.ui_paths.mouse_area.visible:
-		
-		# Track mouse position.
-		if event is InputEventMouseMotion:
-			mouse_x_abs = event.global_position.x
-			mouse_y_abs = event.global_position.y
-			mouse_x = clamp(((mouse_x_abs-viewport_size.x/2) \\
-				/ viewport_size.x*2), -1, 1)
-			mouse_y = clamp(((mouse_y_abs-viewport_size.y/2) \\
-				/ viewport_size.y*2), -1, 1)
-			p.input.mouse_vector = Vector2(mouse_x, mouse_y)
-		
-		# Mouse button held check. LMB_released is to reduce calls number.
-		if Input.is_mouse_button_pressed(BUTTON_LEFT) and p.input.LMB_released:
-			p.input.LMB_released = false
-			p.input.LMB_held = true
-		
-		# Mouse button released check. LMB_released is to reduce calls number.
-		if not Input.is_mouse_button_pressed(BUTTON_LEFT) and not p.input.LMB_released:
-			p.input.LMB_released = true
-			p.input.LMB_held = false
-		
-		# Camera zoom. Pass event in order to check for mouse wheel scroll.
-		if event is InputEventMouseButton and p.ship_state.turret_mode:
-			p.camera_rig.zoom_camera(event)
-
-
-
-# SIGNAL PROCESSING
-# Check if we are hovering mouse over the control area in desktop mode.
-func is_mouse_on_control_area(flag):
-	if flag: mouse_on_control_area = true
-	else: mouse_on_control_area = false
-"
-
-[sub_resource type="GDScript" id=56]
-resource_name = "Pad"
-script/source = "extends Node
-
-# VARIABLES
-var pad_x_abs = 0
-var pad_y_abs = 0
-
-var LMB_held = false
-var LMB_released = true
-
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _ready():
-	pass # Replace with function body.
-
-func handle_input(event):
-	# =================== For events on touchscreen stick held ===================
-	if p.ui.stick_held:
-		# Track the mouse position in +/-1, +/-1 Pad base coordinates.
-		if event is InputEventMouseMotion:
-			pad_x_abs = event.global_position.x-p.ui_paths.touchscreen_pad_base.rect_position.x
-			pad_y_abs = event.global_position.y-p.ui_paths.touchscreen_pad_base.rect_position.y
-			var pad_x = clamp(((pad_x_abs-p.ui_paths.touchscreen_pad_base.rect_size.x/2) \\
-				/ p.ui_paths.touchscreen_pad_base.rect_size.x*2), -1, 1)
-			var pad_y = clamp(((pad_y_abs-p.ui_paths.touchscreen_pad_base.rect_size.y/2) \\
-				/ p.ui_paths.touchscreen_pad_base.rect_size.y*2), -1, 1)
-			p.input.mouse_vector = Vector2(pad_x, pad_y) 
-			# TODO: rename mouse vector to joystick vector.
-			
-		# Mouse button held check. LMB_released is to reduce calls number.
-		if Input.is_mouse_button_pressed(BUTTON_LEFT) and p.input.LMB_released:
-			p.input.LMB_released = false
-			p.input.LMB_held = true
-		
-		# Mouse button released check. LMB_released is to reduce calls number.
-		if not Input.is_mouse_button_pressed(BUTTON_LEFT) and not p.input.LMB_released:
-			p.input.LMB_released = true
-			p.input.LMB_held = false
-"
-
-[sub_resource type="GDScript" id=55]
-resource_name = "Viewport"
-script/source = "extends Viewport
-
-# VARIABLES
-onready var p = get_tree().get_root().get_node(\"Main/Paths\")
-
-func _ready():
-	# ============================ Connect signals ============================
-	p.signals.connect(\"sig_screen_filter_on\", self, \"is_screen_filter_on\")
-	p.signals.connect(\"sig_viewport_update\", self, \"is_viewport_update\")
-	p.signals.connect(\"sig_render_res_value_changed\", self, \"is_render_res_value_changed\")
-	# =========================================================================
-	
-	# Init 
-	# TODO: sync UI elements.
-	init_viewport_update()
-	is_screen_filter_on(p.common_game_options.render_texture_filter)
-
-func init_viewport_update():
-	# Has to be called manually bc doesn't initiate at start.
-	print(\"updated\")
-	var common_game_options = get_node(\"/root/Main/Common/Game_options\")
-	self.size = Vector2(1024, 600) * p.common_game_options.render_res_factor
-	#print(\"viewport updtated\"); print(common_game_options.render_res_factor)
-	#print(self.size)
-
-# SIGNAL PROCESSING
-func is_screen_filter_on(flag):
-	if flag:
-		p.common_game_options.render_texture_filter = true
-		self.get_texture().flags = Texture.FLAG_FILTER
-	else:
-		p.common_game_options.render_texture_filter = false
-		self.get_texture().flags = !Texture.FLAG_FILTER
-		
-func is_viewport_update():
-	# Has to be called manually bc doesn't initiate at start.
-	var common_game_options = get_node(\"/root/Main/Common/Game_options\")
-	self.size = OS.window_size * common_game_options.render_res_factor
-	#print(\"viewport updtated\"); print(common_game_options.render_res_factor)
-	#print(self.size)
-	
-func is_render_res_value_changed(value):
-	p.common_game_options.render_res_factor = value
-	is_viewport_update()
-"
+[ext_resource path="res://Scripts/Input/Input.gd" type="Script" id=4]
+[ext_resource path="res://Scripts/Input/Keyboard.gd" type="Script" id=5]
+[ext_resource path="res://Scripts/Input/Mouse.gd" type="Script" id=6]
+[ext_resource path="res://Scripts/Input/Pad.gd" type="Script" id=7]
+[ext_resource path="res://Scripts/Main/Space_state.gd" type="Script" id=8]
+[ext_resource path="res://Scripts/Main/Ship_state.gd" type="Script" id=9]
+[ext_resource path="res://Scripts/Main/Signals.gd" type="Script" id=10]
+[ext_resource path="res://Scripts/Main/Camera.gd" type="Script" id=11]
+[ext_resource path="res://Scripts/Main/Engine.gd" type="Script" id=12]
+[ext_resource path="res://Scripts/Main/Constants.gd" type="Script" id=13]
+[ext_resource path="res://Scripts/Main/Resources.gd" type="Script" id=14]
+[ext_resource path="res://Scripts/Main/Game_options.gd" type="Script" id=15]
+[ext_resource path="res://Scripts/Main/Main.gd" type="Script" id=16]
 
 [node name="Main" type="Node"]
-script = SubResource( 53 )
+script = ExtResource( 16 )
 
 [node name="Paths" type="Node" parent="."]
-script = SubResource( 52 )
+script = ExtResource( 2 )
 
 [node name="Common" type="Node" parent="."]
 
 [node name="Game_options" type="Node" parent="Common"]
-script = SubResource( 54 )
+script = ExtResource( 15 )
 
 [node name="Resources" type="Node" parent="Common"]
-script = SubResource( 45 )
+script = ExtResource( 14 )
 
 [node name="Constants" type="Node" parent="Common"]
-script = SubResource( 44 )
+script = ExtResource( 13 )
 
 [node name="Engine" type="Node" parent="Common"]
-script = SubResource( 46 )
+script = ExtResource( 12 )
 
 [node name="Camera" type="Node" parent="Common"]
-script = SubResource( 47 )
+script = ExtResource( 11 )
 
 [node name="Signals" type="Node" parent="Common"]
-script = SubResource( 49 )
+script = ExtResource( 10 )
 
 [node name="Ship_state" type="Node" parent="Common"]
-script = SubResource( 50 )
+script = ExtResource( 9 )
 
 [node name="Space_state" type="Node" parent="Common"]
-script = SubResource( 51 )
+script = ExtResource( 8 )
 
 [node name="Input" type="Node" parent="."]
-script = SubResource( 59 )
+script = ExtResource( 4 )
 
 [node name="Keyboard" type="Node" parent="Input"]
-script = SubResource( 58 )
+script = ExtResource( 5 )
 
 [node name="Mouse" type="Node" parent="Input"]
-script = SubResource( 57 )
+script = ExtResource( 6 )
 
 [node name="Pad" type="Node" parent="Input"]
-script = SubResource( 56 )
+script = ExtResource( 7 )
 
 [node name="Container" type="ViewportContainer" parent="."]
 anchor_right = 1.0
@@ -573,85 +69,4 @@ stretch = true
 
 [node name="UI" parent="Container" instance=ExtResource( 3 )]
 
-[node name="Viewport" type="Viewport" parent="Container"]
-size = Vector2( 1280, 720 )
-handle_input_locally = false
-render_target_update_mode = 3
-script = SubResource( 55 )
-
-[node name="Environment" parent="Container/Viewport" instance=ExtResource( 12 )]
-
-[node name="Global_space" type="Position3D" parent="Container/Viewport"]
-script = ExtResource( 5 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
-
-[node name="Nebulas global" type="Position3D" parent="Container/Viewport/Global_space"]
-
-[node name="Cancer Green Nebula Zone" parent="Container/Viewport/Global_space/Nebulas global" instance=ExtResource( 16 )]
-
-[node name="Systems" type="Position3D" parent="Container/Viewport/Global_space"]
-
-[node name="System Blue Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 7 )]
-
-[node name="System Red Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 18 )]
-transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -2.61047e+16, -1.78737e+16, 1.92373e+16 )
-
-[node name="System Yellow Zone" parent="Container/Viewport/Global_space/Systems" instance=ExtResource( 17 )]
-transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -8.07131e+16, 2.09594e+12, -4.14367e+16 )
-
-[node name="Local_space_system" type="Position3D" parent="Container/Viewport"]
-script = ExtResource( 25 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
-
-[node name="Local_space_star" type="Position3D" parent="Container/Viewport"]
-script = ExtResource( 27 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
-
-[node name="Local_space_planet" type="Position3D" parent="Container/Viewport"]
-script = ExtResource( 31 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
-
-[node name="Local_space_structure" type="Position3D" parent="Container/Viewport"]
-script = ExtResource( 28 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
-
-[node name="Ship_space" type="Position3D" parent="Container/Viewport"]
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
-
-[node name="Camera_decorations" parent="Container/Viewport/Ship_space" instance=ExtResource( 8 )]
-
-[node name="Ship" parent="Container/Viewport/Ship_space" instance=ExtResource( 2 )]
-__meta__ = {
-"_edit_lock_": true
-}
+[node name="Viewport" parent="Container" instance=ExtResource( 1 )]

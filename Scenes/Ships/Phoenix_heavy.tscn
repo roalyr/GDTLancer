@@ -1,7 +1,7 @@
 [gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://Scenes/Materials/Radiator.tres" type="Material" id=2]
-[ext_resource path="res://Scripts/Ship.gd" type="Script" id=3]
+[ext_resource path="res://Scripts/Ship/Ship.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/FX/Engine_exhaust_blue.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Kinematics/Camera_rig.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Solid/Solid.gdshader" type="Shader" id=6]

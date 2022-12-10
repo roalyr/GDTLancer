@@ -34,7 +34,7 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
-targetable = false
+autopilot_range = 1e+12
 
 [node name="Star Red Zone" parent="Scenes/System Red" instance=ExtResource( 5 )]
 

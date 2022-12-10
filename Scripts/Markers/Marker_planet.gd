@@ -11,5 +11,5 @@ onready var p = get_tree().get_root().get_node("Main/Paths")
 func _ready():
 
 	# Insert marker into the global marker list (and keep it there)
-	p.common_space_state.markers.append(self)
+	p.common_space_state.markers_planets.append(self)
 	
