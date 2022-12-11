@@ -38,29 +38,85 @@ __meta__ = {
 }
 
 [node name="_EDITOR_MARGIN_60p_" type="ColorRect" parent="."]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 50.0
-margin_top = 60.0
 margin_right = -50.0
-margin_bottom = -60.0
 color = Color( 0.266667, 0.447059, 0.227451, 1 )
 script = ExtResource( 13 )
 __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Decorative_frame" type="ReferenceRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Decorative_frame"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -50.0
+margin_right = 450.0
+theme = ExtResource( 19 )
+
+[node name="Panel2" type="Panel" parent="Decorative_frame"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -450.0
+margin_top = -50.0
+theme = ExtResource( 19 )
+
+[node name="Panel3" type="Panel" parent="Decorative_frame"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -50.0
+margin_top = -450.0
+margin_bottom = -50.0
+theme = ExtResource( 19 )
+
+[node name="Panel4" type="Panel" parent="Decorative_frame"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -450.0
+margin_right = 50.0
+margin_bottom = -50.0
+theme = ExtResource( 19 )
+
+[node name="Panel5" type="Panel" parent="Decorative_frame"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -50.0
+margin_bottom = 110.0
+theme = ExtResource( 19 )
+
+[node name="Panel6" type="Panel" parent="Decorative_frame"]
+margin_right = 50.0
+margin_bottom = 110.0
+theme = ExtResource( 19 )
+
 [node name="Controls_area" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Touch_pad_base" type="Control" parent="Controls_area"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 50.0
-margin_top = -460.0
+margin_top = -450.0
 margin_right = 450.0
-margin_bottom = -60.0
+margin_bottom = -50.0
 
 [node name="Panel" type="Panel" parent="Controls_area/Touch_pad_base"]
 anchor_right = 1.0
@@ -81,9 +137,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -450.0
-margin_top = -460.0
+margin_top = -450.0
 margin_right = -50.0
-margin_bottom = -60.0
+margin_bottom = -50.0
 
 [node name="Panel" type="Panel" parent="Controls_area/Touch_buttons_container"]
 anchor_right = 1.0
@@ -113,9 +169,8 @@ pressed = ExtResource( 24 )
 
 [node name="Bar_menu" type="Control" parent="."]
 margin_left = 50.0
-margin_top = 60.0
 margin_right = 360.0
-margin_bottom = 170.0
+margin_bottom = 110.0
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
 anchor_right = 1.0
@@ -160,13 +215,11 @@ icon = ExtResource( 7 )
 icon_align = 1
 
 [node name="Bar_nav" type="Control" parent="."]
-anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -510.0
-margin_top = -170.0
-margin_bottom = -60.0
+margin_left = 450.0
+margin_top = -110.0
+margin_right = 960.0
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
 anchor_right = 1.0
@@ -254,7 +307,7 @@ icon_align = 1
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -400.0
+margin_top = -450.0
 margin_bottom = -110.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -275,6 +328,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 19 )
+allow_reselect = true
 script = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
@@ -285,7 +339,7 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -400.0
+margin_top = -450.0
 margin_bottom = -110.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -306,6 +360,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 19 )
+allow_reselect = true
 script = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true
@@ -316,7 +371,7 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -400.0
+margin_top = -450.0
 margin_bottom = -110.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -337,6 +392,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 19 )
+allow_reselect = true
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
@@ -347,7 +403,7 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -400.0
+margin_top = -450.0
 margin_bottom = -110.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -368,6 +424,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 19 )
+allow_reselect = true
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_lock_": true
@@ -378,7 +435,7 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -400.0
+margin_top = -450.0
 margin_bottom = -110.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -399,18 +456,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 19 )
+allow_reselect = true
 script = ExtResource( 6 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Bar_control" type="Control" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -255.0
-margin_top = 60.0
-margin_right = 254.999
-margin_bottom = 170.0
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -360.0
+margin_right = -50.0
+margin_bottom = 110.0
 
 [node name="Panel" type="Panel" parent="Bar_control"]
 anchor_right = 1.0
@@ -454,36 +511,14 @@ keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
 
-[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_control"]
-margin_left = 310.0
-margin_top = 10.0
-margin_right = 410.0
-margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
-theme = ExtResource( 19 )
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-icon_align = 1
-
-[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_control"]
-margin_left = 410.0
-margin_top = 10.0
-margin_right = 510.0
-margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
-theme = ExtResource( 19 )
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-icon_align = 1
-
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
-anchor_left = 0.5
+anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -170.0
-margin_right = 510.0
-margin_bottom = -60.0
+margin_left = -960.0
+margin_top = -110.0
+margin_right = -450.0
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
 anchor_right = 1.0
@@ -563,10 +598,13 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -400.0
+margin_top = -450.0
 margin_bottom = -110.0
 theme = ExtResource( 19 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER"]
 anchor_right = 1.0
@@ -582,6 +620,7 @@ anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 19 )
 items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false ]
+allow_reselect = true
 __meta__ = {
 "_edit_lock_": true
 }

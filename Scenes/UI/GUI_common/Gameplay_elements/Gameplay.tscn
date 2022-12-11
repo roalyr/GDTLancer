@@ -74,13 +74,11 @@ default_color = Color( 0.596078, 0, 0, 1 )
 
 [node name="Apparent_velocity" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -289.0
-margin_top = -66.0
-margin_right = -101.0
-margin_bottom = -15.0
+margin_left = -250.0
+margin_top = 10.0
+margin_right = -62.0
+margin_bottom = 61.0
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
 custom_fonts/font = SubResource( 4 )
 text = "0000"
@@ -90,13 +88,11 @@ clip_text = true
 
 [node name="Apparent_velocity_c" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -5.0
-margin_top = -66.0
-margin_right = 365.0
-margin_bottom = -15.0
+margin_left = 50.0
+margin_top = 10.0
+margin_right = 420.0
+margin_bottom = 61.0
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
 custom_fonts/font = SubResource( 4 )
 text = "| c: 0.0"
@@ -105,30 +101,22 @@ clip_text = true
 
 [node name="Apparent_velocity_units" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -93.0
-margin_top = -67.0
-margin_right = 85.0
-margin_bottom = -16.0
+margin_left = -60.0
+margin_top = 10.0
+margin_right = 118.0
+margin_bottom = 61.0
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
 custom_fonts/font = SubResource( 4 )
 text = "du/s"
 valign = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Accel_ticks" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
 margin_left = -103.5
-margin_top = -22.0
 margin_right = 103.5
-margin_bottom = -3.0
+margin_bottom = 19.0
 custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
 custom_fonts/font = SubResource( 5 )
 text = "Accel: 0"

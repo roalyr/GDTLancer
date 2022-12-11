@@ -18,7 +18,7 @@ func _ready():
 	# =========================================================================
 	
 	self.ensure_current_is_visible()
-
+	self.allow_reselect = true
 
 # Update markers every time you open a nav list.
 func is_fetch_markers():
@@ -56,12 +56,7 @@ func is_fetch_markers():
 
 
 func _on_ItemList_nav_visibility_changed():
-	# Preserve apparent selection even when the list is hidden and called again.
-	if self.visible and p.ship_state.aim_target_locked:
-		self.select(selected)
-
-	# TODO: Also clear selection when target lock is removed.
-
+	self.unselect_all()
 
 
 func _on_ItemList_nav_item_selected(index):
