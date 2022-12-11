@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://Assets/Fonts/Ubuntu-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://Assets/Fonts/Ubuntu/Ubuntu-Regular.ttf" type="DynamicFontData" id=1]
 
 [sub_resource type="DynamicFont" id=1]
 size = 20
@@ -21,7 +21,6 @@ margin_left = 10.0
 margin_top = -28.0
 margin_right = 159.0
 margin_bottom = -4.0
-custom_colors/default_color = Color( 0.501961, 0.501961, 0.501961, 1 )
 custom_fonts/normal_font = SubResource( 1 )
 text = "000 km"
 fit_content_height = true
@@ -38,7 +37,6 @@ margin_right = 204.0
 margin_bottom = -29.0
 grow_horizontal = 0
 grow_vertical = 0
-custom_colors/default_color = Color( 0.501961, 0.501961, 0.501961, 1 )
 custom_fonts/normal_font = SubResource( 3 )
 text = "Some object name"
 fit_content_height = true

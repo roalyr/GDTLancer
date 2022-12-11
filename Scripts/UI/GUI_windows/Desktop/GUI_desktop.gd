@@ -75,7 +75,7 @@ func _on_Button_accel_minus_pressed():
 # Other buttons
 func _on_Button_options_pressed():
 	p.ui_paths.desktop_gui.hide()
-	p.ui_paths.desktop_options.show()
+	p.ui_paths.gui_window_options.show()
 	
 
 # Mouse capturing for desktop.
@@ -171,3 +171,10 @@ func is_autopilot_disable():
 	p.ui_paths.desktop_button_autopilot.pressed = false
 		
 	
+
+
+func _on_Button_PLACEHOLDER4_toggled(button_pressed):
+	if button_pressed and not p.ui_paths.desktop_ship_popup.visible: 
+		p.ui_paths.desktop_ship_popup.show()
+	else: 
+		p.ui_paths.desktop_ship_popup.hide()

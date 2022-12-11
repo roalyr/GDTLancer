@@ -17,8 +17,8 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 - Environment zones (locally adjustable brightness, saturation, contrast).
 - New different star sprites.
 - Initiated localization (EN and UA).
-- Started refactoring UI and making proper themes.
 - Separate navigation lists for different stellar objects and structures.
+- Refactored UI, implemented proper GUI themes for different devices.
 
 <details>
 <summary><font size=5><b>Previous versions changelog</font></b></summary>

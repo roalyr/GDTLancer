@@ -1,9 +1,9 @@
 [gd_resource type="Theme" load_steps=16 format=2]
 
-[ext_resource path="res://Assets/Fonts/Ubuntu-Bold.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://Assets/Fonts/Ubuntu/Ubuntu-Bold.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1/button_normal.tres" type="StyleBox" id=2]
 [ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1/button_pressed.tres" type="StyleBox" id=3]
-[ext_resource path="res://Assets/Fonts/Ubuntu-Regular.ttf" type="DynamicFontData" id=4]
+[ext_resource path="res://Assets/Fonts/Ubuntu/Ubuntu-Regular.ttf" type="DynamicFontData" id=4]
 [ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1/slider_area.tres" type="StyleBox" id=5]
 
 [sub_resource type="DynamicFont" id=6]

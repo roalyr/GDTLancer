@@ -55,7 +55,7 @@ func _process(_delta):
 	if result_s:
 		apparent_velocity.text = str(result_s[0])
 		apparent_velocity_units.text = str(result_s[1])+"/s"
-		apparent_velocity_c.text = "| c: " + str(speed_val/p.common_constants.C)
+		apparent_velocity_c.text = "|  c: " + str(stepify(speed_val/p.common_constants.C, 0.1))
 	p.ui_paths.gameplay.get_node("Accel_ticks").text = str("Accel: ", p.ship_state.accel_ticks)
 
 # ================================== Other ====================================

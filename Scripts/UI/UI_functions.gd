@@ -22,7 +22,7 @@ func touchscreen_gui_hide():
 	p.ui_paths.touch_FHD_nav_popup_stars.hide()
 	p.ui_paths.touch_FHD_nav_popup_planets.hide()
 	p.ui_paths.touch_FHD_nav_popup_structures.hide()
-	p.ui_paths.touch_FHD_options.hide()
+	p.ui_paths.gui_window_options.hide()
 	target_controls_hide()
 	
 func touchscreen_gui_show():
@@ -33,7 +33,7 @@ func touchscreen_gui_show():
 	p.ui_paths.touch_FHD_nav_popup_stars.hide()
 	p.ui_paths.touch_FHD_nav_popup_planets.hide()
 	p.ui_paths.touch_FHD_nav_popup_structures.hide()
-	p.ui_paths.touch_FHD_options.hide()
+	p.ui_paths.gui_window_options.hide()
 	target_controls_hide() # Always hide initially.
 
 # GUI DESKTOP
@@ -46,7 +46,7 @@ func desktop_gui_hide():
 	p.ui_paths.desktop_nav_popup_planets.hide()
 	p.ui_paths.desktop_nav_popup_structures.hide()
 	
-	p.ui_paths.desktop_options.hide()
+	p.ui_paths.gui_window_options.hide()
 	target_controls_hide()
 	
 func desktop_gui_show():
@@ -58,7 +58,7 @@ func desktop_gui_show():
 	p.ui_paths.desktop_nav_popup_stars.hide()
 	p.ui_paths.desktop_nav_popup_planets.hide()
 	p.ui_paths.desktop_nav_popup_structures.hide()
-	p.ui_paths.desktop_options.hide() # Always hide initially.
+	p.ui_paths.gui_window_options.hide() # Always hide initially.
 	target_controls_hide() # Always hide initially.	
 
 # GUI GAMEPLAY

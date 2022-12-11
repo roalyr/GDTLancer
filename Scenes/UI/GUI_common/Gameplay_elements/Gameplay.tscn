@@ -1,16 +1,22 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://Assets/Fonts/Ubuntu-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://Assets/Fonts/Roboto_condensed/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=4]
 
 [sub_resource type="ShaderMaterial" id=2]
 
 [sub_resource type="DynamicFont" id=4]
-size = 35
+size = 30
+use_mipmaps = true
+use_filter = true
 font_data = ExtResource( 1 )
 
-[sub_resource type="DynamicFont" id=5]
+[sub_resource type="DynamicFont" id=3]
+size = 20
+use_mipmaps = true
+use_filter = true
 font_data = ExtResource( 1 )
 
 [node name="Gameplay" type="Control"]
@@ -75,11 +81,11 @@ default_color = Color( 0.596078, 0, 0, 1 )
 [node name="Apparent_velocity" type="Label" parent="."]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -250.0
-margin_top = 10.0
-margin_right = -62.0
-margin_bottom = 61.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
+margin_left = -259.0
+margin_top = 31.0
+margin_right = -71.0
+margin_bottom = 82.0
+theme = ExtResource( 4 )
 custom_fonts/font = SubResource( 4 )
 text = "0000"
 align = 2
@@ -89,11 +95,11 @@ clip_text = true
 [node name="Apparent_velocity_c" type="Label" parent="."]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 50.0
-margin_top = 10.0
-margin_right = 420.0
-margin_bottom = 61.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
+margin_left = 15.0
+margin_top = 31.0
+margin_right = 385.0
+margin_bottom = 82.0
+theme = ExtResource( 4 )
 custom_fonts/font = SubResource( 4 )
 text = "| c: 0.0"
 valign = 1
@@ -103,10 +109,10 @@ clip_text = true
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -60.0
-margin_top = 10.0
+margin_top = 31.0
 margin_right = 118.0
-margin_bottom = 61.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
+margin_bottom = 82.0
+theme = ExtResource( 4 )
 custom_fonts/font = SubResource( 4 )
 text = "du/s"
 valign = 1
@@ -115,10 +121,11 @@ valign = 1
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -103.5
+margin_top = 14.0
 margin_right = 103.5
-margin_bottom = 19.0
-custom_colors/font_color = Color( 0.498039, 0.498039, 0.498039, 1 )
-custom_fonts/font = SubResource( 5 )
+margin_bottom = 38.0
+theme = ExtResource( 4 )
+custom_fonts/font = SubResource( 3 )
 text = "Accel: 0"
 align = 1
 

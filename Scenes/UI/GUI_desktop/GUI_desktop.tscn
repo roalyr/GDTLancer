@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -18,7 +18,11 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_constellations.png" type="Texture" id=16]
 [ext_resource path="res://Scripts/UI/GUI_windows/Desktop/GUI_desktop.gd" type="Script" id=17]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=18]
+[ext_resource path="res://Scripts/Editor/Editor_object.gd" type="Script" id=19]
 [ext_resource path="res://Scripts/UI/Assist/Referencerect_hide.gd" type="Script" id=20]
+[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=21]
+[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=22]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=23]
 
 [sub_resource type="CanvasItemMaterial" id=3]
 
@@ -32,6 +36,23 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="_EDITOR_OBJECTS_" type="Control" parent="."]
+script = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_sample" type="Panel" parent="_EDITOR_OBJECTS_"]
+material = ExtResource( 21 )
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = 1080.0
+margin_bottom = 1080.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="Mouse_area" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -41,10 +62,13 @@ __meta__ = {
 }
 
 [node name="Bar_menu" type="Control" parent="."]
-margin_right = 190.0
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -200.0
 margin_bottom = 70.0
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -53,10 +77,10 @@ __meta__ = {
 }
 
 [node name="Button_options" type="Button" parent="Bar_menu"]
-margin_left = 130.0
-margin_top = 10.0
-margin_right = 230.0
-margin_bottom = 110.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 125.0
+margin_bottom = 125.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 keep_pressed_outside = true
@@ -65,9 +89,9 @@ icon_align = 1
 
 [node name="Button_turret" type="Button" parent="Bar_menu"]
 margin_left = 70.0
-margin_top = 10.0
-margin_right = 170.0
-margin_bottom = 110.0
+margin_top = 5.0
+margin_right = 190.0
+margin_bottom = 125.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -76,23 +100,71 @@ icon = ExtResource( 5 )
 icon_align = 1
 
 [node name="Button_hide_ui" type="Button" parent="Bar_menu"]
-margin_left = 10.0
-margin_top = 10.0
-margin_right = 110.0
-margin_bottom = 110.0
+margin_left = 135.0
+margin_top = 5.0
+margin_right = 255.0
+margin_bottom = 125.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
 icon_align = 1
 
+[node name="Bar_control" type="Control" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+
+[node name="Panel" type="Panel" parent="Bar_control"]
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_autopilot" type="Button" parent="Bar_control"]
+margin_left = 70.0
+margin_top = 5.0
+margin_right = 190.0
+margin_bottom = 125.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 12 )
+icon_align = 1
+
+[node name="Button_target_aim_clear" type="Button" parent="Bar_control"]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 125.0
+margin_bottom = 125.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+keep_pressed_outside = true
+icon = ExtResource( 10 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER" type="Button" parent="Bar_control"]
+margin_left = 135.0
+margin_top = 5.0
+margin_right = 255.0
+margin_bottom = 125.0
+rect_scale = Vector2( 0.5, 0.5 )
+theme = ExtResource( 13 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
 [node name="Bar_nav" type="Control" parent="."]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -70.0
-margin_right = 310.0
+margin_right = 330.0
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -103,10 +175,10 @@ __meta__ = {
 [node name="Button_constellations" type="Button" parent="Bar_nav"]
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = 10.0
-margin_top = -60.0
-margin_right = 110.0
-margin_bottom = 40.0
+margin_left = 5.0
+margin_top = -65.0
+margin_right = 125.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -118,9 +190,9 @@ icon_align = 1
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 70.0
-margin_top = -60.0
-margin_right = 170.0
-margin_bottom = 40.0
+margin_top = -65.0
+margin_right = 190.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -131,10 +203,10 @@ icon_align = 1
 [node name="Button_stars" type="Button" parent="Bar_nav"]
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = 130.0
-margin_top = -60.0
-margin_right = 230.0
-margin_bottom = 40.0
+margin_left = 135.0
+margin_top = -65.0
+margin_right = 255.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -145,10 +217,10 @@ icon_align = 1
 [node name="Button_planets" type="Button" parent="Bar_nav"]
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = 190.0
-margin_top = -60.0
-margin_right = 290.0
-margin_bottom = 40.0
+margin_left = 200.0
+margin_top = -65.0
+margin_right = 320.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -159,10 +231,10 @@ icon_align = 1
 [node name="Button_structures" type="Button" parent="Bar_nav"]
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = 250.0
-margin_top = -60.0
-margin_right = 350.0
-margin_bottom = 40.0
+margin_left = 265.0
+margin_top = -65.0
+margin_right = 385.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -171,10 +243,11 @@ icon = ExtResource( 11 )
 icon_align = 1
 
 [node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -300.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = -70.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -183,6 +256,7 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_constellations"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -206,7 +280,7 @@ visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -300.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = -70.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -215,6 +289,7 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_systems"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -238,7 +313,7 @@ visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -300.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = -70.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -247,6 +322,7 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_stars"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -270,7 +346,7 @@ visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -300.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = -70.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -279,6 +355,7 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Bar_nav/Popup_nav_planets"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -298,11 +375,10 @@ __meta__ = {
 }
 
 [node name="Popup_structures" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -300.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = -70.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -311,6 +387,7 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Bar_nav/Popup_structures"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -329,63 +406,16 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Bar_control" type="Control" parent="."]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -190.0
-margin_bottom = 70.0
-
-[node name="Panel" type="Panel" parent="Bar_control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 13 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_autopilot" type="Button" parent="Bar_control"]
-margin_left = 70.0
-margin_top = 10.0
-margin_right = 170.0
-margin_bottom = 110.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
-toggle_mode = true
-keep_pressed_outside = true
-icon = ExtResource( 12 )
-icon_align = 1
-
-[node name="Button_target_aim_clear" type="Button" parent="Bar_control"]
-margin_left = 10.0
-margin_top = 10.0
-margin_right = 110.0
-margin_bottom = 110.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
-keep_pressed_outside = true
-icon = ExtResource( 10 )
-icon_align = 1
-
-[node name="Button_PLACEHOLDER" type="Button" parent="Bar_control"]
-margin_left = 130.0
-margin_top = 10.0
-margin_right = 230.0
-margin_bottom = 110.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-icon_align = 1
-
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -310.0
+margin_left = -330.0
 margin_top = -70.0
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -398,10 +428,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -300.0
-margin_top = -60.0
-margin_right = -200.0
-margin_bottom = 40.0
+margin_left = -325.0
+margin_top = -65.0
+margin_right = -205.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -414,10 +444,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -240.0
-margin_top = -60.0
+margin_left = -260.0
+margin_top = -65.0
 margin_right = -140.0
-margin_bottom = 40.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -430,10 +460,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -180.0
-margin_top = -60.0
-margin_right = -80.0
-margin_bottom = 40.0
+margin_left = -195.0
+margin_top = -65.0
+margin_right = -75.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -446,10 +476,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -120.0
-margin_top = -60.0
-margin_right = -20.0
-margin_bottom = 40.0
+margin_left = -130.0
+margin_top = -65.0
+margin_right = -10.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
@@ -462,29 +492,31 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -60.0
-margin_top = -60.0
-margin_right = 40.0
-margin_bottom = 40.0
+margin_left = -65.0
+margin_top = -65.0
+margin_right = 55.0
+margin_bottom = 55.0
 rect_scale = Vector2( 0.5, 0.5 )
 theme = ExtResource( 13 )
 toggle_mode = true
 keep_pressed_outside = true
-icon = ExtResource( 18 )
+icon = ExtResource( 23 )
 icon_align = 1
 
 [node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -300.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = -70.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER"]
+material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 13 )
@@ -497,7 +529,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
 theme = ExtResource( 13 )
-items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false ]
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false, "Item 32", null, false, "Item 33", null, false, "Item 34", null, false, "Item 35", null, false, "Item 36", null, false, "Item 37", null, false, "Item 38", null, false, "Item 39", null, false, "Item 40", null, false, "Item 41", null, false, "Item 42", null, false, "Item 43", null, false, "Item 44", null, false, "Item 45", null, false, "Item 46", null, false, "Item 47", null, false, "Item 48", null, false, "Item 49", null, false ]
 allow_reselect = true
 __meta__ = {
 "_edit_lock_": true
@@ -508,6 +540,8 @@ __meta__ = {
 [connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
 [connection signal="toggled" from="Bar_menu/Button_turret" to="." method="_on_Button_turret_toggled"]
 [connection signal="pressed" from="Bar_menu/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
+[connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
+[connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
 [connection signal="toggled" from="Bar_nav/Button_constellations" to="." method="_on_Button_constellations_toggled"]
 [connection signal="toggled" from="Bar_nav/Button_systems" to="." method="_on_Button_systems_toggled"]
 [connection signal="toggled" from="Bar_nav/Button_stars" to="." method="_on_Button_stars_toggled"]
@@ -523,6 +557,4 @@ __meta__ = {
 [connection signal="visibility_changed" from="Bar_nav/Popup_nav_planets/ItemList_nav" to="Bar_nav/Popup_nav_planets/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
 [connection signal="item_selected" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_item_selected"]
 [connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
-[connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
-[connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
-[connection signal="visibility_changed" from="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER/ItemList_PLACEHOLDER" to="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER/ItemList_PLACEHOLDER" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="toggled" from="Bar_ship_PLACEHOLDER/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]

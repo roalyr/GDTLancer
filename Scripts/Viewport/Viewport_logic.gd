@@ -17,9 +17,8 @@ func _ready():
 
 func init_viewport_update():
 	# Has to be called manually bc doesn't initiate at start.
-	print("updated")
 	var common_game_options = get_node("/root/Main/Common/Game_options")
-	self.size = Vector2(1024, 600) * p.common_game_options.render_res_factor
+	self.size = Vector2(1280, 720) * p.common_game_options.render_res_factor
 	#print("viewport updtated"); print(common_game_options.render_res_factor)
 	#print(self.size)
 
@@ -42,3 +41,8 @@ func is_viewport_update():
 func is_render_res_value_changed(value):
 	p.common_game_options.render_res_factor = value
 	is_viewport_update()
+
+
+func _on_Viewport_size_changed():
+	print("Viewport updated")
+	p.signals.emit_signal("sig_viewport_update")

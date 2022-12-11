@@ -1,10 +1,7 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://Assets/_UI_styles/Button_red/Red_ressed.tres" type="StyleBox" id=1]
-[ext_resource path="res://Assets/_UI_styles/Button_red/Red_normal.tres" type="StyleBox" id=2]
-[ext_resource path="res://Assets/_UI_styles/Button_red/Red_hover_focus.tres" type="StyleBox" id=3]
-[ext_resource path="res://Assets/Fonts/Ubuntu-Regular.ttf" type="DynamicFontData" id=4]
-[ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1.tres" type="Theme" id=5]
+[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=1]
+[ext_resource path="res://Assets/Fonts/Ubuntu/Ubuntu-Regular.ttf" type="DynamicFontData" id=4]
 
 [sub_resource type="StyleBoxFlat" id=14]
 bg_color = Color( 0.568627, 0, 0, 1 )
@@ -22,7 +19,6 @@ func _on_Button_quit_panic_pressed():
 
 [node name="GUI_popup_panic" type="PopupDialog"]
 pause_mode = 2
-visible = true
 anchor_right = 1.0
 anchor_bottom = 1.0
 custom_styles/panel = SubResource( 14 )
@@ -34,10 +30,10 @@ __meta__ = {
 pause_mode = 2
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 44.0
-margin_top = 40.0
-margin_right = -48.0
-margin_bottom = -147.0
+margin_left = 80.0
+margin_top = 80.0
+margin_right = -80.0
+margin_bottom = -230.0
 custom_fonts/font = SubResource( 13 )
 text = "Some text"
 autowrap = true
@@ -48,17 +44,14 @@ __meta__ = {
 [node name="Button_quit_panic" type="Button" parent="."]
 pause_mode = 2
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -96.0
-margin_top = 244.0
-margin_right = 89.0
-margin_bottom = 320.0
-theme = ExtResource( 5 )
-custom_styles/hover = ExtResource( 3 )
-custom_styles/pressed = ExtResource( 1 )
-custom_styles/normal = ExtResource( 2 )
+anchor_bottom = 1.0
+margin_left = -90.0
+margin_top = -200.0
+margin_right = 111.0
+margin_bottom = -120.0
+theme = ExtResource( 1 )
 keep_pressed_outside = true
 text = "Quit game"
 script = SubResource( 26 )

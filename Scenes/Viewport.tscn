@@ -80,3 +80,5 @@ physics_material_override = SubResource( 76 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[connection signal="size_changed" from="." to="." method="_on_Viewport_size_changed"]
