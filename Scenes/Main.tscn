@@ -70,3 +70,4 @@ stretch = true
 [node name="UI" parent="Container" instance=ExtResource( 3 )]
 
 [node name="Viewport" parent="Container" instance=ExtResource( 1 )]
+size = Vector2( 1920, 1080 )

@@ -16,15 +16,24 @@ func init_gui():
 
 # GUI TOUCHSCREEN
 func touchscreen_gui_hide():
-	p.ui_paths.controls_touchscreen.hide()
-	p.ui_paths.touchscreen_nav_popup.hide()
-	p.ui_paths.touchscreen_options.hide()
+	p.ui_paths.touch_FHD_gui.hide()
+	p.ui_paths.touch_FHD_nav_popup_constellations.hide()
+	p.ui_paths.touch_FHD_nav_popup_systems.hide()
+	p.ui_paths.touch_FHD_nav_popup_stars.hide()
+	p.ui_paths.touch_FHD_nav_popup_planets.hide()
+	p.ui_paths.touch_FHD_nav_popup_structures.hide()
+	p.ui_paths.touch_FHD_options.hide()
 	target_controls_hide()
 	
 func touchscreen_gui_show():
-	p.ui_paths.controls_touchscreen.show()
-	p.ui_paths.touchscreen_nav_popup.hide() # Always hide initially.
-	p.ui_paths.touchscreen_options.hide() # Always hide initially.
+	p.ui_paths.touch_FHD_gui.show()
+	# Always hide initially.
+	p.ui_paths.touch_FHD_nav_popup_constellations.hide()
+	p.ui_paths.touch_FHD_nav_popup_systems.hide()
+	p.ui_paths.touch_FHD_nav_popup_stars.hide()
+	p.ui_paths.touch_FHD_nav_popup_planets.hide()
+	p.ui_paths.touch_FHD_nav_popup_structures.hide()
+	p.ui_paths.touch_FHD_options.hide()
 	target_controls_hide() # Always hide initially.
 
 # GUI DESKTOP

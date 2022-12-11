@@ -23,7 +23,7 @@ onready var apparent_velocity_units = p.ui.get_node("Gameplay/Apparent_velocity_
 
 
 func _ready():
-	p.ui_paths.common_mobile_buttons_pad.pad_recenter_stick()
+	p.ui_paths.common_touchscreen_pad.pad_recenter_stick()
 	p.ui_paths.ui_functions.init_gui()
 
 	
@@ -42,7 +42,7 @@ func _input(event):
 			)
 	
 func _process(_delta):
-	p.ui_paths.common_mobile_buttons_pad.pad_handle_stick()
+	p.ui_paths.common_touchscreen_pad.pad_handle_stick()
 	
 	# DEBUG
 	if update_debug_text_on: update_debug_text()

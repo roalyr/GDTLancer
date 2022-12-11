@@ -1,20 +1,21 @@
-[gd_resource type="Theme" load_steps=16 format=2]
+[gd_resource type="Theme" load_steps=17 format=2]
 
 [ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_disabled.tres" type="StyleBox" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_pressed.tres" type="StyleBox" id=2]
 [ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_normal.tres" type="StyleBox" id=3]
-[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_scroll_touchscreen.tres" type="StyleBox" id=4]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen_FHD/Default_styleboxflat_scroll_touchscreen_FHD.tres" type="StyleBox" id=4]
 [ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_focus.tres" type="StyleBox" id=5]
-[ext_resource path="res://Assets/Themes/Default/Elements/Fonts_touchscreen/Default_dynamicfont_list_touchscreen.tres" type="DynamicFont" id=6]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts_touchscreen_FHD/Default_dynamicfont_list_touchscreen_FHD.tres" type="DynamicFont" id=6]
 [ext_resource path="res://Assets/Themes/Default/Elements/Button/Default_styleboxflat_button_hover.tres" type="StyleBox" id=7]
 [ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_selected.tres" type="StyleBox" id=8]
 [ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_bg.tres" type="StyleBox" id=9]
 [ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_bg_focus.tres" type="StyleBox" id=10]
 [ext_resource path="res://Assets/Themes/Default/Elements/ItemList/Default_styleboxflat_list_selected_focus.tres" type="StyleBox" id=11]
-[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_grabber_pressed_touchscreen.tres" type="StyleBox" id=12]
-[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_scroll_focus_touchscreen.tres" type="StyleBox" id=13]
-[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_grabber_touchscreen.tres" type="StyleBox" id=14]
-[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen/Default_styleboxflat_grabber_highlighted_touchscreen.tres" type="StyleBox" id=15]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen_FHD/Default_styleboxflat_grabber_pressed_touchscreen_FHD.tres" type="StyleBox" id=12]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen_FHD/Default_styleboxflat_scroll_focus_touchscreen_FHD.tres" type="StyleBox" id=13]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen_FHD/Default_styleboxflat_grabber_touchscreen_FHD.tres" type="StyleBox" id=14]
+[ext_resource path="res://Assets/Themes/Default/Elements/VScrollBar_touchscreen_FHD/Default_styleboxflat_grabber_highlighted_touchscreen_FHD.tres" type="StyleBox" id=15]
+[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_styleboxflat_panel.tres" type="StyleBox" id=16]
 
 [resource]
 Button/styles/disabled = ExtResource( 1 )
@@ -34,6 +35,7 @@ ItemList/styles/bg = ExtResource( 9 )
 ItemList/styles/bg_focus = ExtResource( 10 )
 ItemList/styles/selected = ExtResource( 8 )
 ItemList/styles/selected_focus = ExtResource( 11 )
+Panel/styles/panel = ExtResource( 16 )
 VScrollBar/styles/grabber = ExtResource( 14 )
 VScrollBar/styles/grabber_highlight = ExtResource( 15 )
 VScrollBar/styles/grabber_pressed = ExtResource( 12 )

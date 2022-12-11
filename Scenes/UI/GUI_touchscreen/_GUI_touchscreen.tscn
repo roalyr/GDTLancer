@@ -10,7 +10,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ekill.png" type="Texture" id=8]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/accel.png" type="Texture" id=9]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/deccel.png" type="Texture" id=10]
-[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen.tres" type="Theme" id=11]
+[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=11]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/turret.png" type="Texture" id=12]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_planet.png" type="Texture" id=13]
 [ext_resource path="res://Assets/_UI_styles/Themes/Touchscreen/Theme1.tres" type="Theme" id=16]
@@ -169,6 +169,7 @@ __meta__ = {
 }
 
 [node name="_Margin" type="ColorRect" parent="Main"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 64.0

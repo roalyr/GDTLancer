@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_prompt_greeting.tscn" type="PackedScene" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Readouts.gd" type="Script" id=10]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Targeting.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/UI/Window_desktop_options.tscn" type="PackedScene" id=12]
+[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Window_touchscreen_FHD_options.gd" type="Script" id=13]
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource( 1 )
@@ -26,9 +27,6 @@ script = ExtResource( 7 )
 
 [node name="Mobile_buttons" type="Node" parent="Common"]
 
-[node name="Touchscreen_pad" type="Node" parent="Common/Mobile_buttons"]
-script = ExtResource( 9 )
-
 [node name="Desktop_buttons" type="Node" parent="Common"]
 
 [node name="Readouts" type="Node" parent="Common"]
@@ -38,6 +36,9 @@ script = ExtResource( 10 )
 
 [node name="Targeting" type="Node" parent="Common"]
 script = ExtResource( 11 )
+
+[node name="Touchscreen_pad" type="Node" parent="Common"]
+script = ExtResource( 9 )
 
 [node name="Gameplay" parent="." instance=ExtResource( 6 )]
 visible = false
@@ -55,3 +56,6 @@ visible = false
 visible = false
 
 [node name="Window_desktop_options" parent="." instance=ExtResource( 12 )]
+
+[node name="Window_touchscreen_FHD_options" parent="." instance=ExtResource( 12 )]
+script = ExtResource( 13 )

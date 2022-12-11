@@ -17,12 +17,12 @@ func handle_input(event):
 	if p.ui.stick_held:
 		# Track the mouse position in +/-1, +/-1 Pad base coordinates.
 		if event is InputEventMouseMotion:
-			pad_x_abs = event.global_position.x-p.ui_paths.touchscreen_pad_base.rect_position.x
-			pad_y_abs = event.global_position.y-p.ui_paths.touchscreen_pad_base.rect_position.y
-			var pad_x = clamp(((pad_x_abs-p.ui_paths.touchscreen_pad_base.rect_size.x/2) \
-				/ p.ui_paths.touchscreen_pad_base.rect_size.x*2), -1, 1)
-			var pad_y = clamp(((pad_y_abs-p.ui_paths.touchscreen_pad_base.rect_size.y/2) \
-				/ p.ui_paths.touchscreen_pad_base.rect_size.y*2), -1, 1)
+			pad_x_abs = event.global_position.x-p.ui_paths.touch_FHD_touch_pad_base.rect_position.x
+			pad_y_abs = event.global_position.y-p.ui_paths.touch_FHD_touch_pad_base.rect_position.y
+			var pad_x = clamp(((pad_x_abs-p.ui_paths.touch_FHD_touch_pad_base.rect_size.x/2) \
+				/ p.ui_paths.touch_FHD_touch_pad_base.rect_size.x*2), -1, 1)
+			var pad_y = clamp(((pad_y_abs-p.ui_paths.touch_FHD_touch_pad_base.rect_size.y/2) \
+				/ p.ui_paths.touch_FHD_touch_pad_base.rect_size.y*2), -1, 1)
 			p.input.mouse_vector = Vector2(pad_x, pad_y) 
 			# TODO: rename mouse vector to joystick vector.
 			

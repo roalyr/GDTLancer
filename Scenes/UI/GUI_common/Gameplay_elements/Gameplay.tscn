@@ -134,13 +134,13 @@ custom_fonts/font = SubResource( 5 )
 text = "Accel: 0"
 align = 1
 
-[node name="Target_autopilot" type="Control" parent="." instance=ExtResource( 3 )]
+[node name="Target_autopilot" parent="." instance=ExtResource( 3 )]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 
-[node name="Target_aim" type="Control" parent="." instance=ExtResource( 2 )]
+[node name="Target_aim" parent="." instance=ExtResource( 2 )]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
