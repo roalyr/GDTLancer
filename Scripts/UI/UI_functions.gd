@@ -5,61 +5,81 @@ onready var p = get_tree().get_root().get_node("Main/Paths")
 # INIT
 func init_gui():
 	# Initialize windows in switched off mode to match button states.
-	select_gui_prompt_show()
-	touchscreen_gui_hide()
-	desktop_gui_hide()
+	prompt_gui_show()
 	gameplay_gui_hide()
 	debug_gui_hide()
 	
-	# Test.
-	#popup_panic("Test panic msg")
-
-# GUI TOUCHSCREEN
-func touchscreen_gui_hide():
-	p.ui_paths.touch_FHD_gui.hide()
-	p.ui_paths.touch_FHD_nav_popup_constellations.hide()
-	p.ui_paths.touch_FHD_nav_popup_systems.hide()
-	p.ui_paths.touch_FHD_nav_popup_stars.hide()
-	p.ui_paths.touch_FHD_nav_popup_planets.hide()
-	p.ui_paths.touch_FHD_nav_popup_structures.hide()
-	p.ui_paths.gui_window_options.hide()
-	target_controls_hide()
+	touchscreen_FHD_gui_hide()
+	touchscreen_FHD_options_hide()
+	desktop_gui_hide()
+	desktop_options_hide()
 	
-func touchscreen_gui_show():
-	p.ui_paths.touch_FHD_gui.show()
-	# Always hide initially.
-	p.ui_paths.touch_FHD_nav_popup_constellations.hide()
-	p.ui_paths.touch_FHD_nav_popup_systems.hide()
-	p.ui_paths.touch_FHD_nav_popup_stars.hide()
-	p.ui_paths.touch_FHD_nav_popup_planets.hide()
-	p.ui_paths.touch_FHD_nav_popup_structures.hide()
-	p.ui_paths.gui_window_options.hide()
-	target_controls_hide() # Always hide initially.
+	
+	
+	
+# GLOBAL GUI SWITCHING.
+func switch_to_desktop_gui():
+	gameplay_gui_show()
+	desktop_gui_show()
+	
+	desktop_options_hide()
+	prompt_gui_hide()
+	touchscreen_FHD_gui_hide()
+	touchscreen_FHD_options_hide()
+	
+func switch_to_desktop_options():
+	desktop_gui_hide()
+	gameplay_gui_hide()
+	
+	desktop_options_show()
+	
+	
+func switch_to_touchscreen_FHD_gui():
+	gameplay_gui_show()
+	touchscreen_FHD_gui_show()
+	
+	touchscreen_FHD_options_hide()
+	prompt_gui_hide()
+	desktop_gui_hide()
+	desktop_options_hide()
 
-# GUI DESKTOP
+func switch_to_touchscreen_FHD_options():
+	touchscreen_FHD_gui_hide()
+	gameplay_gui_hide()
+	
+	touchscreen_FHD_options_show()
+	
+
+# TOUCHSCREEN FHD
+func touchscreen_FHD_gui_hide():
+	p.common_game_options.touchscreen_mode = false
+	p.ui_paths.touch_FHD_gui.hide()
+	
+func touchscreen_FHD_gui_show():
+	p.common_game_options.touchscreen_mode = true
+	p.ui_paths.touch_FHD_gui.show()
+
+func touchscreen_FHD_options_hide():
+	p.ui_paths.touch_FHD_options.hide()
+
+func touchscreen_FHD_options_show():
+	p.ui_paths.touch_FHD_options.show()
+
+
+# DESKTOP
 func desktop_gui_hide():
 	p.ui_paths.desktop_mouse_area.hide()
 	p.ui_paths.desktop_gui.hide()
-	p.ui_paths.desktop_nav_popup_constellations.hide()
-	p.ui_paths.desktop_nav_popup_systems.hide()
-	p.ui_paths.desktop_nav_popup_stars.hide()
-	p.ui_paths.desktop_nav_popup_planets.hide()
-	p.ui_paths.desktop_nav_popup_structures.hide()
-	
-	p.ui_paths.gui_window_options.hide()
-	target_controls_hide()
 	
 func desktop_gui_show():
 	p.ui_paths.desktop_mouse_area.show()
 	p.ui_paths.desktop_gui.show()
-	# Always hide initially.
-	p.ui_paths.desktop_nav_popup_constellations.hide()
-	p.ui_paths.desktop_nav_popup_systems.hide()
-	p.ui_paths.desktop_nav_popup_stars.hide()
-	p.ui_paths.desktop_nav_popup_planets.hide()
-	p.ui_paths.desktop_nav_popup_structures.hide()
-	p.ui_paths.gui_window_options.hide() # Always hide initially.
-	target_controls_hide() # Always hide initially.	
+
+func desktop_options_hide():
+	p.ui_paths.desktop_options.hide()
+
+func desktop_options_show():
+	p.ui_paths.desktop_options.show()
 
 # GUI GAMEPLAY
 func gameplay_gui_hide():
@@ -76,10 +96,10 @@ func debug_gui_show():
 	p.ui_paths.debug.show()
 
 # GUI SELECT PROMPT
-func select_gui_prompt_hide():
+func prompt_gui_hide():
 	p.ui_paths.gui_prompt.hide()
 
-func select_gui_prompt_show():
+func prompt_gui_show():
 	p.ui_paths.gui_prompt.show()
 
 # GUI TARGETING

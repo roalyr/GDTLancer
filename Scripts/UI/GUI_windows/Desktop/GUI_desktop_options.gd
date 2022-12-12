@@ -10,8 +10,20 @@ func _on_Button_touch_FHD_gui_pressed():
 	p.ui_paths.ui_functions.switch_to_touchscreen_FHD_gui()
 
 
+# DESKTOP OPTIONS BUTTONS
+func _on_Button_return_pressed():
+	p.ui_paths.ui_functions.switch_to_desktop_gui()
+
 func _on_Button_quit_pressed():
 	get_tree().quit()
+
+func _on_Button_debug_toggled(button_pressed):
+	if button_pressed: 
+		p.ui_paths.ui_functions.debug_gui_show()
+		p.ui.update_debug_text_on = true
+	else:
+		p.ui_paths.ui_functions.debug_gui_hide()
+		p.ui.update_debug_text_on = false
 
 
 # GRAPHIC ADJUSTMENTS

@@ -4,6 +4,8 @@ var LMB_held = false
 var LMB_released = true
 
 var mouse_vector = Vector2(0,0)
+var throttle_vector = 0
+
 var viewport_size = Vector2(1,1)
 
 onready var mouse = get_node("Mouse")
@@ -30,6 +32,9 @@ func _input(event):
 		
 	# PAD INPUT HANDLING
 	p.input_pad.handle_input(event)
+	
+	# TROTTLE INPUT
+	p.input_throttle.handle_input(event)
 				
 
 # SIGNAL PROCESSING

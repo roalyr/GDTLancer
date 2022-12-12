@@ -5,16 +5,15 @@ extends CanvasLayer
 
 # VARIABLES
 var stick_held = false
+var throttle_held = false
 var turret_view = false
 var update_debug_text_on = false
 var ui_hidden = false
 var ui_alpha = 1.0
 var viewport_size = Vector2(1,1)
+var debug_output_text = ""
 
 onready var p = get_tree().get_root().get_node("Main/Paths")
-
-# TODO: to paths
-onready var mouse_vector_debug = p.ui.get_node("Gameplay/Debug/Mouse_vector")
 
 # TODO: to paths
 onready var apparent_velocity = p.ui.get_node("Gameplay/Apparent_velocity")
@@ -23,26 +22,17 @@ onready var apparent_velocity_units = p.ui.get_node("Gameplay/Apparent_velocity_
 
 
 func _ready():
-	p.ui_paths.common_touchscreen_pad.pad_recenter_stick()
+	p.ui_paths.common_touchscreen_pad.recenter_stick()
+	p.ui_paths.common_touchscreen_throttle.recenter_throttle()
 	p.ui_paths.ui_functions.init_gui()
 
 	
 	
-	
 
-func _input(event):
-
-	# Duplicated input listening function for the sake of mouse vector drawing.
-	if event is InputEventMouseMotion and p.ui_paths.debug.visible:
-		# Mouse vector positions.
-		mouse_vector_debug.points[0] = Vector2(viewport_size.x/2, viewport_size.y/2)
-		mouse_vector_debug.points[1] = Vector2(
-				p.input.mouse_vector.x*viewport_size.x/2 + viewport_size.x/2, 
-				p.input.mouse_vector.y*viewport_size.y/2 + viewport_size.y/2
-			)
 	
 func _process(_delta):
-	p.ui_paths.common_touchscreen_pad.pad_handle_stick()
+	p.ui_paths.common_touchscreen_pad.handle_stick()
+	p.ui_paths.common_touchscreen_throttle.handle_throttle()
 	
 	# DEBUG
 	if update_debug_text_on: update_debug_text()
@@ -64,10 +54,6 @@ func update_debug_text():
 	p.ui_paths.debug.get_node("FPS").text = str("FPS: ", p.main.fps)
 	p.ui_paths.debug.get_node("Mouse_x").text = str("Mouse / Pad x: ", p.input.mouse_vector.x)
 	p.ui_paths.debug.get_node("Mouse_y").text = str("Mouse / Pad y: ", p.input.mouse_vector.y)
-
-
-## Keep here
-#func _on_Viewport_main_resized():
-#	# Has to be called manually bc "Paths/Signals" doesn't initiate at start.
-#	get_node("/root/Main/Common/Signals").emit_signal("sig_viewport_update")
-#	viewport_size = OS.window_size
+	p.ui_paths.debug.get_node("Throttle").text = str("Throttle: ", p.input.throttle_vector)
+	p.ui_paths.debug.get_node("Print_out").text = str("Output: ", debug_output_text)
+	

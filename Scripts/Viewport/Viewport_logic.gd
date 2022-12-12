@@ -3,6 +3,8 @@ extends Viewport
 # VARIABLES
 onready var p = get_tree().get_root().get_node("Main/Paths")
 
+var viewport_initiated = false
+
 func _ready():
 	# ============================ Connect signals ============================
 	p.signals.connect("sig_screen_filter_on", self, "is_screen_filter_on")
@@ -19,6 +21,7 @@ func init_viewport_update():
 	# Has to be called manually bc doesn't initiate at start.
 	var common_game_options = get_node("/root/Main/Common/Game_options")
 	self.size = Vector2(1280, 720) * p.common_game_options.render_res_factor
+	viewport_initiated = true
 	#print("viewport updtated"); print(common_game_options.render_res_factor)
 	#print(self.size)
 
@@ -44,5 +47,6 @@ func is_render_res_value_changed(value):
 
 
 func _on_Viewport_size_changed():
-	print("Viewport updated")
-	p.signals.emit_signal("sig_viewport_update")
+	if viewport_initiated:
+		print("Viewport updated")
+		p.signals.emit_signal("sig_viewport_update")

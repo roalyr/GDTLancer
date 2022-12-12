@@ -1,8 +1,8 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Assets/UI_images/PNG/buttons/touchscreen_FHD.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=2]
-[ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_window_options.gd" type="Script" id=3]
+[ext_resource path="res://Scripts/UI/GUI_windows/Desktop/GUI_desktop_options.gd" type="Script" id=3]
 [ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=4]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/desktop.png" type="Texture" id=5]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=6]
@@ -15,7 +15,21 @@ func _on_Button_quit_panic_pressed():
 	get_tree().quit()
 "
 
-[node name="GUI_window_options" type="Control"]
+[sub_resource type="GDScript" id=2]
+script/source = "extends Button
+
+func _on_Button_quit_panic_pressed():
+	get_tree().quit()
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Button
+
+func _on_Button_quit_panic_pressed():
+	get_tree().quit()
+"
+
+[node name="GUI_desktop_options" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 3 )
@@ -33,12 +47,10 @@ __meta__ = {
 }
 
 [node name="Button_touch_FHD_gui" type="Button" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -160.0
-margin_top = 30.0
-margin_right = 240.0
-margin_bottom = 430.0
+margin_left = 450.0
+margin_top = 80.0
+margin_right = 850.0
+margin_bottom = 480.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
 keep_pressed_outside = true
@@ -55,12 +67,10 @@ theme = ExtResource( 4 )
 text = "1080px"
 
 [node name="_Button_touch_HD_gui" type="Button" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = 240.0
-margin_top = 30.0
-margin_right = 640.0
-margin_bottom = 430.0
+margin_left = 830.0
+margin_top = 80.0
+margin_right = 1230.0
+margin_bottom = 480.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
 disabled = true
@@ -79,12 +89,10 @@ theme = ExtResource( 4 )
 text = "720px                           WIP"
 
 [node name="Button_desktop_gui" type="Button" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -560.0
-margin_top = 30.0
-margin_right = -160.0
-margin_bottom = 430.0
+margin_left = 80.0
+margin_top = 80.0
+margin_right = 480.0
+margin_bottom = 480.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
 keep_pressed_outside = true
@@ -104,13 +112,11 @@ text = "540px - 1080px"
 [node name="Button_quit" type="Button" parent="."]
 pause_mode = 2
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -220.0
-margin_top = -110.0
-margin_right = -19.0
-margin_bottom = -20.0
+margin_left = -320.0
+margin_top = 320.0
+margin_right = -79.0
+margin_bottom = 400.0
 theme = ExtResource( 4 )
 keep_pressed_outside = true
 text = "Quit game"
@@ -120,18 +126,18 @@ script = SubResource( 1 )
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = -350.0
-margin_right = -20.0
-margin_bottom = -20.0
+margin_top = -370.0
 mouse_filter = 2
 
 [node name="Color_presets" type="Control" parent="Controls_visual"]
 anchor_left = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
+anchor_bottom = 1.0
 margin_left = -610.0
+margin_top = -360.0
 margin_right = 610.0
-margin_bottom = 120.0
+margin_bottom = -240.0
 
 [node name="Panel_sample" type="Panel" parent="Controls_visual/Color_presets"]
 material = ExtResource( 2 )
@@ -375,13 +381,10 @@ __meta__ = {
 }
 
 [node name="Slider_screen_res" type="HSlider" parent="Controls_visual"]
-anchor_left = -0.016
 anchor_top = 1.0
-anchor_right = 1.016
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 19.84
 margin_top = -92.0
-margin_right = -239.84
 theme = ExtResource( 4 )
 min_value = 0.1
 max_value = 1.0
@@ -405,14 +408,11 @@ align = 1
 valign = 1
 
 [node name="Slider_color_power" type="HSlider" parent="Controls_visual"]
-anchor_left = -0.016
 anchor_top = 1.0
-anchor_right = 1.016
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 19.84
-margin_top = -200.0
-margin_right = -19.8401
-margin_bottom = -108.0
+margin_top = -210.0
+margin_bottom = -118.0
 theme = ExtResource( 4 )
 max_value = 2.0
 step = 0.1
@@ -434,6 +434,33 @@ text = "GUI color power"
 align = 1
 valign = 1
 
+[node name="Button_debug" type="Button" parent="."]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -320.0
+margin_top = 200.0
+margin_right = -79.0
+margin_bottom = 280.0
+theme = ExtResource( 4 )
+toggle_mode = true
+keep_pressed_outside = true
+text = "Debug"
+script = SubResource( 2 )
+
+[node name="Button_return" type="Button" parent="."]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -320.0
+margin_top = 80.0
+margin_right = -79.0
+margin_bottom = 160.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+text = "Return"
+script = SubResource( 3 )
+
 [connection signal="pressed" from="Button_touch_FHD_gui" to="." method="_on_Button_touch_FHD_gui_pressed"]
 [connection signal="pressed" from="_Button_touch_HD_gui" to="." method="_on_Button_touch_FHD_gui_pressed"]
 [connection signal="pressed" from="Button_desktop_gui" to="." method="_on_Button_desktop_gui_pressed"]
@@ -451,3 +478,5 @@ valign = 1
 [connection signal="pressed" from="Controls_visual/Color_presets/Color_11" to="." method="_on_Color_11_pressed"]
 [connection signal="value_changed" from="Controls_visual/Slider_screen_res" to="." method="_on_Slider_screen_res_value_changed"]
 [connection signal="value_changed" from="Controls_visual/Slider_color_power" to="." method="_on_Slider_color_power_value_changed"]
+[connection signal="toggled" from="Button_debug" to="." method="_on_Button_debug_toggled"]
+[connection signal="pressed" from="Button_return" to="." method="_on_Button_return_pressed"]

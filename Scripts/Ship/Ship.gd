@@ -172,7 +172,7 @@ func _integrate_forces(state):
 
 
 	
-	if not p.ship_state.turret_mode and (p.input.LMB_held or p.ship_state.mouse_flight):
+	if not p.ship_state.turret_mode and (control_held or p.ship_state.mouse_flight):
 
 		var tx = -transform.basis.y*self.torque_factor.x* p.input.mouse_vector.x
 		var ty = -transform.basis.x*self.torque_factor.y* p.input.mouse_vector.y

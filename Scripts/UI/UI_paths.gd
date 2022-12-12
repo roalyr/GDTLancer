@@ -7,11 +7,13 @@ onready var ui_functions = p.ui.get_node("UI_functions")
 # Common
 onready var common = p.ui.get_node("Common")
 onready var common_touchscreen_pad = common.get_node("Touchscreen_pad")
+onready var common_touchscreen_throttle = common.get_node("Touchscreen_throttle")
 onready var common_readouts = common.get_node("Readouts")
 
 
 # Desktop UI
 onready var desktop_gui = p.ui.get_node("GUI_desktop")
+onready var desktop_options = p.ui.get_node("GUI_desktop_options")
 onready var desktop_mouse_area = desktop_gui.get_node("Mouse_area")
 # Menu bar
 onready var desktop_bar_menu = desktop_gui.get_node("Bar_menu")
@@ -48,6 +50,7 @@ onready var desktop_ship_popup = desktop_bar_ship.get_node("Popup_PLACEHOLDER")
 
 # Touchscreen Full-HD UI
 onready var touch_FHD_gui = p.ui.get_node("GUI_touchscreen_FHD")
+onready var touch_FHD_options = p.ui.get_node("GUI_touchscreen_FHD_options")
 # Menu bar
 onready var touch_FHD_bar_menu = touch_FHD_gui.get_node("Bar_menu")
 onready var touch_FHD_button_options = touch_FHD_bar_menu.get_node("Button_options")
@@ -80,6 +83,10 @@ onready var touch_FHD_button_autopilot = touch_FHD_bar_control.get_node("Button_
 onready var touch_FHD_control_area = touch_FHD_gui.get_node("Controls_area")
 onready var touch_FHD_touch_pad_base = touch_FHD_control_area.get_node("Touch_pad_base")
 onready var touch_FHD_touch_pad_stick = touch_FHD_touch_pad_base.get_node("Stick")
+
+onready var touch_FHD_touch_throttle_base = touch_FHD_control_area.get_node("Touch_throttle_base")
+onready var touch_FHD_touch_throttle = touch_FHD_touch_throttle_base.get_node("Throttle")
+
 onready var touch_FHD_touch_buttons_container = touch_FHD_control_area.get_node("Touch_buttons_container")
 onready var touch_FHD_touch_button_ekill = touch_FHD_touch_buttons_container.get_node("Touch_ekill")
 onready var touch_FHD_touch_button_accel_minus = touch_FHD_touch_buttons_container.get_node("Touch_accel_minus")
@@ -100,4 +107,4 @@ onready var target_aim = gameplay.get_node("Target_aim")
 # Other windows
 onready var gui_prompt = p.ui.get_node("GUI_prompt_greeting")
 onready var popup_panic = p.ui.get_node("GUI_popup_panic")
-onready var gui_window_options = p.ui.get_node("GUI_window_options")
+#onready var gui_window_options = p.ui.get_node("GUI_window_options")

@@ -4,13 +4,13 @@ extends Node
 
 # MAIN
 onready var main = get_node("/root/Main")
+onready var signals = main.get_node("Signals")
 
 # COMMON
 onready var common = main.get_node("Common")
 onready var common_camera = common.get_node("Camera")
 onready var common_engine = common.get_node("Engine")
 onready var common_game_options = common.get_node("Game_options")
-onready var signals = common.get_node("Signals")
 onready var ship_state = common.get_node("Ship_state")
 onready var common_space_state = common.get_node("Space_state")
 onready var common_constants = common.get_node("Constants")
@@ -42,7 +42,7 @@ onready var input = main.get_node("Input")
 onready var input_keyboard = input.get_node("Keyboard")
 onready var input_mouse = input.get_node("Mouse")
 onready var input_pad = input.get_node("Pad")
-
+onready var input_throttle = input.get_node("Throttle")
 
 # UI
 onready var ui = container.get_node("UI")

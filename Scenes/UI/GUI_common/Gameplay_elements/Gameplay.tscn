@@ -1,11 +1,9 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Fonts/Roboto_condensed/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=4]
-
-[sub_resource type="ShaderMaterial" id=2]
 
 [sub_resource type="DynamicFont" id=4]
 size = 30
@@ -24,59 +22,54 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="Debug" type="Control" parent="."]
-visible = false
-anchor_bottom = 1.0
-margin_right = 192.0
-margin_bottom = -80.0
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_left = 40.0
+margin_top = -460.0
+margin_right = 410.0
+margin_bottom = -190.0
 mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="_ColorRect" type="ColorRect" parent="Debug"]
-visible = false
-material = SubResource( 2 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0.443137, 0.588235, 0.439216, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Mouse_x" type="Label" parent="Debug"]
-margin_left = 16.0
-margin_top = 112.0
-margin_right = 91.0
-margin_bottom = 126.0
+margin_left = 20.0
+margin_top = 110.0
+margin_right = 126.0
+margin_bottom = 124.0
 text = "Mouse / Pad x: 0"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Mouse_y" type="Label" parent="Debug"]
-margin_left = 16.0
-margin_top = 128.0
-margin_right = 91.0
-margin_bottom = 142.0
+margin_left = 20.0
+margin_top = 130.0
+margin_right = 126.0
+margin_bottom = 144.0
 text = "Mouse / Pad y: 0"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+
+[node name="Throttle" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 150.0
+margin_right = 126.0
+margin_bottom = 164.0
+text = "Throttle: 0"
+
+[node name="Print_out" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 170.0
+margin_right = 480.0
+margin_bottom = 240.0
+text = "Output: ....."
 
 [node name="FPS" type="Label" parent="Debug"]
-margin_left = 16.0
-margin_top = 72.0
-margin_right = 56.0
-margin_bottom = 86.0
+margin_left = 20.0
+margin_top = 90.0
+margin_right = 60.0
+margin_bottom = 104.0
 text = "FPS: 0"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Mouse_vector" type="Line2D" parent="Debug"]
-points = PoolVector2Array( 0, 0, 0, 0 )
-width = 1.0
-default_color = Color( 0.596078, 0, 0, 1 )
 
 [node name="Apparent_velocity" type="Label" parent="."]
 anchor_left = 0.5

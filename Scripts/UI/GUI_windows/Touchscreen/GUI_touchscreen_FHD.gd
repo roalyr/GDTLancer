@@ -74,8 +74,7 @@ func _on_Button_accel_minus_pressed():
 # touch_FHD / MOBILE GUI
 # Other buttons
 func _on_Button_options_pressed():
-	p.ui_paths.touch_FHD_gui.hide()
-	p.ui_paths.gui_window_options.show()
+	p.ui_paths.ui_functions.switch_to_touchscreen_FHD_options()
 	
 
 # Mouse capturing for touch_FHD.
@@ -173,8 +172,8 @@ func _on_Stick_pressed():
 	p.ui.stick_held = true
 
 func _on_Stick_released():
-	p.ui.stick_held = false		
-		
+	p.ui.stick_held = false
+	
 # Touchscreen controls.
 func _on_Touch_accel_plus_pressed():
 	p.signals.emit_signal("sig_accelerate", true)
@@ -196,3 +195,11 @@ func _on_Button_PLACEHOLDER4_toggled(button_pressed):
 		p.ui_paths.touch_FHD_ship_popup.show()
 	else: 
 		p.ui_paths.touch_FHD_ship_popup.hide()
+
+
+func _on_Throttle_slider_pressed():
+	p.ui.throttle_held = true
+
+
+func _on_Throttle_slider_released():
+	p.ui.throttle_held = false
