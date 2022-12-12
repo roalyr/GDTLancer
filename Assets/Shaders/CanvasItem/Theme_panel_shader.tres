@@ -11,5 +11,5 @@ uniform float power = 1.0;
 
 
 void fragment(){
-	COLOR = albedo * power;
+	COLOR = COLOR * albedo * power;
 }"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -25,10 +25,6 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/deccel.png" type="Texture" id=23]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/accel.png" type="Texture" id=24]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=25]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/accel_flat.png" type="Texture" id=26]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/stick_flat.png" type="Texture" id=27]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/ekill_flat.png" type="Texture" id=28]
-[ext_resource path="res://Assets/UI_images/PNG/buttons/deccel_flat.png" type="Texture" id=29]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
 
 [sub_resource type="CanvasItemMaterial" id=3]
@@ -71,9 +67,6 @@ corner_detail = 1
 expand_margin_right = 50.0
 expand_margin_bottom = 40.0
 anti_aliasing = false
-
-[sub_resource type="StyleBoxFlat" id=10]
-bg_color = Color( 1, 1, 1, 1 )
 
 [node name="GUI_touchscreen_FHD" type="Control"]
 material = SubResource( 3 )
@@ -168,6 +161,7 @@ margin_right = 450.0
 margin_bottom = -50.0
 
 [node name="Panel_pad" type="Panel" parent="Controls_area/Touch_pad_base"]
+visible = false
 material = ExtResource( 25 )
 margin_right = 400.0
 margin_bottom = 400.0
@@ -178,6 +172,7 @@ __meta__ = {
 }
 
 [node name="Panel_buttons_shade" type="Panel" parent="Controls_area/Touch_pad_base"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 19 )
@@ -185,7 +180,7 @@ custom_styles/panel = SubResource( 9 )
 
 [node name="Stick" type="TouchScreenButton" parent="Controls_area/Touch_pad_base"]
 position = Vector2( 105, 105 )
-normal = ExtResource( 27 )
+normal = ExtResource( 21 )
 pressed = ExtResource( 21 )
 
 [node name="Touch_buttons_container" type="Control" parent="Controls_area"]
@@ -199,6 +194,7 @@ margin_right = -50.0
 margin_bottom = -50.0
 
 [node name="Panel_buttons" type="Panel" parent="Controls_area/Touch_buttons_container"]
+visible = false
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -209,6 +205,7 @@ __meta__ = {
 }
 
 [node name="Panel_buttons_shade" type="Panel" parent="Controls_area/Touch_buttons_container"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 19 )
@@ -220,19 +217,19 @@ __meta__ = {
 [node name="Touch_ekill" type="TouchScreenButton" parent="Controls_area/Touch_buttons_container"]
 position = Vector2( 30, 110 )
 scale = Vector2( 0.9, 0.9 )
-normal = ExtResource( 28 )
+normal = ExtResource( 22 )
 pressed = ExtResource( 22 )
 
 [node name="Touch_accel_minus" type="TouchScreenButton" parent="Controls_area/Touch_buttons_container"]
 position = Vector2( 210, 210 )
 scale = Vector2( 0.9, 0.9 )
-normal = ExtResource( 29 )
+normal = ExtResource( 23 )
 pressed = ExtResource( 23 )
 
 [node name="Touch_accel_plus" type="TouchScreenButton" parent="Controls_area/Touch_buttons_container"]
 position = Vector2( 210, 10 )
 scale = Vector2( 0.9, 0.9 )
-normal = ExtResource( 26 )
+normal = ExtResource( 24 )
 pressed = ExtResource( 24 )
 
 [node name="Bar_menu" type="Control" parent="."]
@@ -338,14 +335,13 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 450.0
 margin_top = -110.0
-margin_right = 950.0
+margin_right = 960.0
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 19 )
-custom_styles/panel = SubResource( 10 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -593,7 +589,7 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -950.0
+margin_left = -960.0
 margin_top = -110.0
 margin_right = -450.0
 

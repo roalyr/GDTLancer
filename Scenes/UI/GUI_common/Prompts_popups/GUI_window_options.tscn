@@ -55,10 +55,11 @@ theme = ExtResource( 4 )
 text = "1080px"
 
 [node name="_Button_touch_HD_gui" type="Button" parent="."]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -400.0
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = 240.0
 margin_top = 30.0
+margin_right = 640.0
 margin_bottom = 430.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
@@ -78,9 +79,11 @@ theme = ExtResource( 4 )
 text = "720px                           WIP"
 
 [node name="Button_desktop_gui" type="Button" parent="."]
-margin_left = 80.0
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -560.0
 margin_top = 30.0
-margin_right = 480.0
+margin_right = -160.0
 margin_bottom = 430.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
@@ -121,6 +124,7 @@ margin_left = 20.0
 margin_top = -350.0
 margin_right = -20.0
 margin_bottom = -20.0
+mouse_filter = 2
 
 [node name="Color_presets" type="Control" parent="Controls_visual"]
 anchor_left = 0.5
@@ -410,7 +414,7 @@ margin_top = -200.0
 margin_right = -19.8401
 margin_bottom = -108.0
 theme = ExtResource( 4 )
-max_value = 1.0
+max_value = 2.0
 step = 0.1
 value = 1.0
 tick_count = 10

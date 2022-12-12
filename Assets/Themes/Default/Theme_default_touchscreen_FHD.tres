@@ -34,12 +34,17 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=15]
-bg_color = Color( 0, 0, 0, 0 )
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxFlat" id=19]
+bg_color = Color( 0, 0, 0, 0.752941 )
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color( 1, 1, 1, 0.25098 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 corner_detail = 1
 
 [sub_resource type="ImageTexture" id=18]
@@ -70,8 +75,15 @@ bg_color = Color( 1, 1, 1, 0.12549 )
 corner_detail = 1
 
 [sub_resource type="StyleBoxFlat" id=5]
-bg_color = Color( 1, 1, 1, 1 )
+bg_color = Color( 0, 0, 0, 0 )
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color( 1, 1, 1, 1 )
 corner_detail = 1
+shadow_color = Color( 1, 1, 1, 0.501961 )
+shadow_size = 15
 
 [sub_resource type="StyleBoxFlat" id=6]
 content_margin_top = 30.0
@@ -95,7 +107,7 @@ Button/styles/disabled = SubResource( 11 )
 Button/styles/focus = SubResource( 12 )
 Button/styles/hover = SubResource( 13 )
 Button/styles/normal = SubResource( 14 )
-Button/styles/pressed = SubResource( 15 )
+Button/styles/pressed = SubResource( 19 )
 HSlider/icons/grabber = SubResource( 18 )
 HSlider/icons/grabber_disabled = SubResource( 18 )
 HSlider/icons/grabber_highlight = SubResource( 18 )

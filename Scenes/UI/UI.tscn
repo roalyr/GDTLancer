@@ -37,7 +37,6 @@ script = ExtResource( 9 )
 visible = false
 
 [node name="GUI_prompt_greeting" parent="." instance=ExtResource( 2 )]
-visible = false
 
 [node name="GUI_window_options" parent="." instance=ExtResource( 12 )]
 
