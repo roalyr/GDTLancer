@@ -147,9 +147,6 @@ margin_left = 80.0
 margin_top = -560.0
 margin_right = 480.0
 margin_bottom = -160.0
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="Panel_pad_mark" type="Panel" parent="Controls_area/Touch_pad_base"]
 material = ExtResource( 25 )
@@ -281,9 +278,6 @@ margin_left = -480.0
 margin_top = -560.0
 margin_right = -80.0
 margin_bottom = -160.0
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="Panel_throttle_mark" type="Panel" parent="Controls_area/Touch_throttle_base"]
 material = ExtResource( 25 )

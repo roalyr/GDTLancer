@@ -63,11 +63,25 @@ func switch_to_touchscreen_controls_swapped():
 # TOUCHSCREEN FHD
 func is_controls_swapped():
 	if touchscreen_controls_swapped:
-		p.ui_paths.touch_FHD_touch_throttle_base.rect_position = Vector2(80, 520)
-		p.ui_paths.touch_FHD_touch_pad_base.rect_position = Vector2(1440, 520)
+		p.ui_paths.touch_FHD_touch_throttle_base.margin_left = 80
+		p.ui_paths.touch_FHD_touch_throttle_base.margin_right = 480
+		p.ui_paths.touch_FHD_touch_throttle_base.anchor_left = 0
+		p.ui_paths.touch_FHD_touch_throttle_base.anchor_right = 0
+		
+		p.ui_paths.touch_FHD_touch_pad_base.margin_left = -480
+		p.ui_paths.touch_FHD_touch_pad_base.margin_right = -80
+		p.ui_paths.touch_FHD_touch_pad_base.anchor_left = 1
+		p.ui_paths.touch_FHD_touch_pad_base.anchor_right = 1
 	else:
-		p.ui_paths.touch_FHD_touch_throttle_base.rect_position = Vector2(1440, 520)
-		p.ui_paths.touch_FHD_touch_pad_base.rect_position = Vector2(80, 520)
+		p.ui_paths.touch_FHD_touch_pad_base.margin_left = 80
+		p.ui_paths.touch_FHD_touch_pad_base.margin_right = 480
+		p.ui_paths.touch_FHD_touch_pad_base.anchor_left = 0
+		p.ui_paths.touch_FHD_touch_pad_base.anchor_right = 0
+		
+		p.ui_paths.touch_FHD_touch_throttle_base.margin_left = -480
+		p.ui_paths.touch_FHD_touch_throttle_base.margin_right = -80
+		p.ui_paths.touch_FHD_touch_throttle_base.anchor_left = 1
+		p.ui_paths.touch_FHD_touch_throttle_base.anchor_right = 1
 
 
 func touchscreen_FHD_gui_hide():
