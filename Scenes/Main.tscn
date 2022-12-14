@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Scenes/Viewport.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scripts/Paths.gd" type="Script" id=2]
@@ -6,7 +6,7 @@
 [ext_resource path="res://Scripts/Input/Input.gd" type="Script" id=4]
 [ext_resource path="res://Scripts/Input/Keyboard.gd" type="Script" id=5]
 [ext_resource path="res://Scripts/Input/Mouse.gd" type="Script" id=6]
-[ext_resource path="res://Scripts/Input/Pad.gd" type="Script" id=7]
+[ext_resource path="res://Scripts/Input/Touch_controls.gd" type="Script" id=7]
 [ext_resource path="res://Scripts/Main/Space_state.gd" type="Script" id=8]
 [ext_resource path="res://Scripts/Main/Ship_state.gd" type="Script" id=9]
 [ext_resource path="res://Scripts/Main/Signals.gd" type="Script" id=10]
@@ -16,7 +16,6 @@
 [ext_resource path="res://Scripts/Main/Resources.gd" type="Script" id=14]
 [ext_resource path="res://Scripts/Main/Game_options.gd" type="Script" id=15]
 [ext_resource path="res://Scripts/Main/Main.gd" type="Script" id=16]
-[ext_resource path="res://Scripts/Input/Throttle.gd" type="Script" id=17]
 
 [node name="Main" type="Node"]
 script = ExtResource( 16 )
@@ -59,11 +58,8 @@ script = ExtResource( 5 )
 [node name="Mouse" type="Node" parent="Input"]
 script = ExtResource( 6 )
 
-[node name="Pad" type="Node" parent="Input"]
+[node name="Touch_controls" type="Node" parent="Input"]
 script = ExtResource( 7 )
-
-[node name="Throttle" type="Node" parent="Input"]
-script = ExtResource( 17 )
 
 [node name="Container" type="ViewportContainer" parent="."]
 anchor_right = 1.0
@@ -74,3 +70,4 @@ stretch = true
 [node name="UI" parent="Container" instance=ExtResource( 3 )]
 
 [node name="Viewport" parent="Container" instance=ExtResource( 1 )]
+size = Vector2( 1920, 1080 )

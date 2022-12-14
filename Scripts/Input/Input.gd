@@ -10,7 +10,6 @@ var viewport_size = Vector2(1,1)
 
 onready var mouse = get_node("Mouse")
 onready var keyboard = get_node("Keyboard")
-onready var pad = get_node("Pad")
 onready var p = get_tree().get_root().get_node("Main/Paths")
 
 func _ready():
@@ -30,11 +29,8 @@ func _input(event):
 	# KEYBOARD INPUT HANDLING
 	p.input_keyboard.handle_input(event)
 		
-	# PAD INPUT HANDLING
-	p.input_pad.handle_input(event)
-	
-	# TROTTLE INPUT
-	p.input_throttle.handle_input(event)
+	# PAD AND THROTTLE INPUT HANDLING
+	p.input_touch_controls.handle_input(event)
 				
 
 # SIGNAL PROCESSING

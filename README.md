@@ -19,6 +19,9 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 - Initiated localization (EN and UA).
 - Separate navigation lists for different stellar objects and structures.
 - Refactored UI, implemented proper GUI themes for different devices.
+- Updated engine binaries (3.x as of 13th December 2022).
+- Reworked touchscreen controls. They can be swapped.
+- Reworked options menus.
 
 <details>
 <summary><font size=5><b>Previous versions changelog</font></b></summary>

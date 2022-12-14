@@ -257,24 +257,24 @@ material/0 = SubResource( 80 )
 
 [node name="Galactic_background_lights" type="Spatial" parent="."]
 
-[node name="Background lights 1500 9e18" type="MeshInstance" parent="Galactic_background_lights"]
-transform = Transform( 1e+16, 0, 0, 0, 1e+16, 0, 0, 0, 1e+16, 0, 0, 0 )
+[node name="Background lights 1500 1e18" type="MeshInstance" parent="Galactic_background_lights"]
+transform = Transform( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
 mesh = SubResource( 34 )
 skeleton = NodePath("../../../../Global_space")
 material/0 = SubResource( 35 )
 material/1 = SubResource( 36 )
 material/2 = SubResource( 37 )
 
-[node name="Background lights 1500_2 9e18" type="MeshInstance" parent="Galactic_background_lights"]
+[node name="Background lights 1500 1e17" type="MeshInstance" parent="Galactic_background_lights"]
+transform = Transform( 1e+17, 0, 0, 0, 1e+17, 0, 0, 0, 1e+17, 0, 0, 0 )
+mesh = SubResource( 34 )
+skeleton = NodePath("../../../../Global_space")
+material/0 = SubResource( 35 )
+material/1 = SubResource( 36 )
+material/2 = SubResource( 37 )
+
+[node name="Background lights 1500 1e16" type="MeshInstance" parent="Galactic_background_lights"]
 transform = Transform( -1.06996e+14, -8.84475e+15, -4.66464e+15, -9.23541e+15, 1.87581e+15, -3.34493e+15, 3.83351e+15, 4.2722e+15, -8.18856e+15, 0, 0, 0 )
-mesh = SubResource( 34 )
-skeleton = NodePath("../../../../Global_space")
-material/0 = SubResource( 35 )
-material/1 = SubResource( 36 )
-material/2 = SubResource( 37 )
-
-[node name="Background lights 1500_3 9e18" type="MeshInstance" parent="Galactic_background_lights"]
-transform = Transform( 1.14677e+15, -4.43473e+15, -8.88921e+15, -9.26407e+14, 8.86151e+15, -4.54042e+15, 9.89074e+15, 1.34418e+15, 6.05372e+14, 0, 0, 0 )
 mesh = SubResource( 34 )
 skeleton = NodePath("../../../../Global_space")
 material/0 = SubResource( 35 )

@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=34 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -26,6 +26,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/accel.png" type="Texture" id=24]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=25]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_200.png" type="Texture" id=26]
+[ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=27]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
 
 [sub_resource type="CanvasItemMaterial" id=3]
@@ -83,8 +84,8 @@ __meta__ = {
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 50.0
-margin_right = -50.0
+margin_left = 80.0
+margin_right = -80.0
 color = Color( 0.266667, 0.447059, 0.227451, 1 )
 script = ExtResource( 13 )
 __meta__ = {
@@ -142,53 +143,100 @@ __meta__ = {
 [node name="Touch_pad_base" type="Control" parent="Controls_area"]
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = 50.0
-margin_top = -450.0
-margin_right = 450.0
-margin_bottom = -50.0
-
-[node name="Panel_pad" type="Panel" parent="Controls_area/Touch_pad_base"]
-visible = false
-material = ExtResource( 25 )
-margin_right = 400.0
-margin_bottom = 400.0
-theme = ExtResource( 19 )
+margin_left = 80.0
+margin_top = -560.0
+margin_right = 480.0
+margin_bottom = -160.0
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Panel_buttons_shade" type="Panel" parent="Controls_area/Touch_pad_base"]
-visible = false
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -5.0
-margin_top = -200.0
-margin_right = 5.0
-margin_bottom = 200.0
+[node name="Panel_pad_mark" type="Panel" parent="Controls_area/Touch_pad_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 70.0
+margin_top = 195.0
+margin_right = -300.0
+margin_bottom = -195.0
 theme = ExtResource( 19 )
-custom_styles/panel = SubResource( 9 )
 
-[node name="Panel_buttons_shade2" type="Panel" parent="Controls_area/Touch_pad_base"]
-visible = false
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -200.0
-margin_top = -5.0
-margin_right = 200.0
-margin_bottom = 5.0
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_pad_base/Panel_pad_mark"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 19 )
 custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_pad_mark2" type="Panel" parent="Controls_area/Touch_pad_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 300.0
+margin_top = 195.0
+margin_right = -70.0
+margin_bottom = -195.0
+theme = ExtResource( 19 )
+
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_pad_base/Panel_pad_mark2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_pad_mark3" type="Panel" parent="Controls_area/Touch_pad_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 195.0
+margin_top = 75.0
+margin_right = -195.0
+margin_bottom = -300.0
+theme = ExtResource( 19 )
+
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_pad_base/Panel_pad_mark3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_pad_mark4" type="Panel" parent="Controls_area/Touch_pad_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 195.0
+margin_top = 300.0
+margin_right = -195.0
+margin_bottom = -75.0
+theme = ExtResource( 19 )
+
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_pad_base/Panel_pad_mark4"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Stick" type="TouchScreenButton" parent="Controls_area/Touch_pad_base"]
 position = Vector2( 100, 100 )
 normal = ExtResource( 21 )
 pressed = ExtResource( 21 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel_stick" type="Panel" parent="Controls_area/Touch_pad_base/Stick"]
+show_behind_parent = true
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -205,7 +253,7 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = -5.0
-margin_top = -200.0
+margin_top = -610.0
 margin_right = 5.0
 margin_bottom = 200.0
 theme = ExtResource( 19 )
@@ -229,35 +277,100 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -330.0
-margin_top = -450.0
-margin_right = -170.0
-margin_bottom = -50.0
+margin_left = -480.0
+margin_top = -560.0
+margin_right = -80.0
+margin_bottom = -160.0
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Panel_throttle" type="Panel" parent="Controls_area/Touch_throttle_base"]
+[node name="Panel_throttle_mark" type="Panel" parent="Controls_area/Touch_throttle_base"]
 material = ExtResource( 25 )
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -80.0
-margin_top = -200.0
-margin_right = 80.0
-margin_bottom = 200.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 70.0
+margin_top = 110.0
+margin_right = -300.0
+margin_bottom = -280.0
 theme = ExtResource( 19 )
 
-[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_throttle_base/Panel_throttle"]
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_throttle_base/Panel_throttle_mark"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 19 )
 custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_throttle_mark2" type="Panel" parent="Controls_area/Touch_throttle_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 70.0
+margin_top = 280.0
+margin_right = -300.0
+margin_bottom = -110.0
+theme = ExtResource( 19 )
+
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_throttle_base/Panel_throttle_mark2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_throttle_mark3" type="Panel" parent="Controls_area/Touch_throttle_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 300.0
+margin_top = 110.0
+margin_right = -70.0
+margin_bottom = -280.0
+theme = ExtResource( 19 )
+
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_throttle_base/Panel_throttle_mark3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_throttle_mark4" type="Panel" parent="Controls_area/Touch_throttle_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 300.0
+margin_top = 280.0
+margin_right = -70.0
+margin_bottom = -110.0
+theme = ExtResource( 19 )
+
+[node name="Panel_throttle_shade" type="Panel" parent="Controls_area/Touch_throttle_base/Panel_throttle_mark4"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+custom_styles/panel = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Throttle" type="TouchScreenButton" parent="Controls_area/Touch_throttle_base"]
-position = Vector2( -20, 100 )
+position = Vector2( 100, 100 )
 normal = ExtResource( 26 )
 pressed = ExtResource( 26 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel_throttle" type="Panel" parent="Controls_area/Touch_throttle_base/Throttle"]
+show_behind_parent = true
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -267,7 +380,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Touch_buttons_container" type="Control" parent="Controls_area"]
+[node name="_Touch_buttons_container" type="Control" parent="Controls_area"]
 visible = false
 anchor_left = 1.0
 anchor_top = 1.0
@@ -278,7 +391,7 @@ margin_top = -450.0
 margin_right = -50.0
 margin_bottom = -50.0
 
-[node name="Panel_buttons" type="Panel" parent="Controls_area/Touch_buttons_container"]
+[node name="Panel_buttons" type="Panel" parent="Controls_area/_Touch_buttons_container"]
 visible = false
 material = ExtResource( 25 )
 anchor_right = 1.0
@@ -289,7 +402,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Panel_buttons_shade" type="Panel" parent="Controls_area/Touch_buttons_container"]
+[node name="Panel_buttons_shade" type="Panel" parent="Controls_area/_Touch_buttons_container"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -299,19 +412,22 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Touch_ekill" type="TouchScreenButton" parent="Controls_area/Touch_buttons_container"]
+[node name="Touch_ekill" type="TouchScreenButton" parent="Controls_area/_Touch_buttons_container"]
+visible = false
 position = Vector2( 30, 110 )
 scale = Vector2( 0.9, 0.9 )
 normal = ExtResource( 22 )
 pressed = ExtResource( 22 )
 
-[node name="Touch_accel_minus" type="TouchScreenButton" parent="Controls_area/Touch_buttons_container"]
+[node name="Touch_accel_minus" type="TouchScreenButton" parent="Controls_area/_Touch_buttons_container"]
+visible = false
 position = Vector2( 210, 210 )
 scale = Vector2( 0.9, 0.9 )
 normal = ExtResource( 23 )
 pressed = ExtResource( 23 )
 
-[node name="Touch_accel_plus" type="TouchScreenButton" parent="Controls_area/Touch_buttons_container"]
+[node name="Touch_accel_plus" type="TouchScreenButton" parent="Controls_area/_Touch_buttons_container"]
+visible = false
 position = Vector2( 210, 10 )
 scale = Vector2( 0.9, 0.9 )
 normal = ExtResource( 24 )
@@ -320,8 +436,8 @@ pressed = ExtResource( 24 )
 [node name="Bar_menu" type="Control" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -360.0
-margin_right = -50.0
+margin_left = -455.0
+margin_right = -145.0
 margin_bottom = 110.0
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
@@ -368,8 +484,8 @@ icon = ExtResource( 7 )
 icon_align = 1
 
 [node name="Bar_control" type="Control" parent="."]
-margin_left = 50.0
-margin_right = 360.0
+margin_left = 145.0
+margin_right = 455.0
 margin_bottom = 110.0
 
 [node name="Panel" type="Panel" parent="Bar_control"]
@@ -506,7 +622,6 @@ icon = ExtResource( 11 )
 icon_align = 1
 
 [node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -638,6 +753,7 @@ __meta__ = {
 }
 
 [node name="Popup_structures" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -781,6 +897,7 @@ focus_mode = 0
 theme = ExtResource( 19 )
 items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false, "Item 32", null, false, "Item 33", null, false, "Item 34", null, false, "Item 35", null, false, "Item 36", null, false, "Item 37", null, false, "Item 38", null, false, "Item 39", null, false, "Item 40", null, false, "Item 41", null, false, "Item 42", null, false, "Item 43", null, false, "Item 44", null, false, "Item 45", null, false, "Item 46", null, false, "Item 47", null, false, "Item 48", null, false, "Item 49", null, false, "Item 50", null, false, "Item 51", null, false, "Item 52", null, false, "Item 53", null, false, "Item 54", null, false, "Item 55", null, false, "Item 56", null, false, "Item 57", null, false, "Item 58", null, false, "Item 59", null, false, "Item 60", null, false, "Item 61", null, false, "Item 62", null, false, "Item 63", null, false, "Item 64", null, false, "Item 65", null, false, "Item 66", null, false, "Item 67", null, false, "Item 68", null, false, "Item 69", null, false, "Item 70", null, false, "Item 71", null, false, "Item 72", null, false, "Item 73", null, false, "Item 74", null, false, "Item 75", null, false, "Item 76", null, false, "Item 77", null, false, "Item 78", null, false, "Item 79", null, false, "Item 80", null, false, "Item 81", null, false, "Item 82", null, false, "Item 83", null, false, "Item 84", null, false, "Item 85", null, false, "Item 86", null, false, "Item 87", null, false, "Item 88", null, false, "Item 89", null, false, "Item 90", null, false, "Item 91", null, false, "Item 92", null, false, "Item 93", null, false, "Item 94", null, false, "Item 95", null, false, "Item 96", null, false, "Item 97", null, false, "Item 98", null, false, "Item 99", null, false, "Item 100", null, false, "Item 101", null, false, "Item 102", null, false, "Item 103", null, false, "Item 104", null, false, "Item 105", null, false, "Item 106", null, false, "Item 107", null, false, "Item 108", null, false, "Item 109", null, false, "Item 110", null, false, "Item 111", null, false, "Item 112", null, false, "Item 113", null, false, "Item 114", null, false, "Item 115", null, false, "Item 116", null, false, "Item 117", null, false, "Item 118", null, false, "Item 119", null, false, "Item 120", null, false, "Item 121", null, false, "Item 122", null, false, "Item 123", null, false, "Item 124", null, false, "Item 125", null, false, "Item 126", null, false, "Item 127", null, false, "Item 128", null, false, "Item 129", null, false, "Item 130", null, false, "Item 131", null, false, "Item 132", null, false, "Item 133", null, false, "Item 134", null, false, "Item 135", null, false, "Item 136", null, false, "Item 137", null, false, "Item 138", null, false, "Item 139", null, false, "Item 140", null, false, "Item 141", null, false, "Item 142", null, false, "Item 143", null, false, "Item 144", null, false, "Item 145", null, false, "Item 146", null, false, "Item 147", null, false, "Item 148", null, false, "Item 149", null, false, "Item 150", null, false, "Item 151", null, false, "Item 152", null, false, "Item 153", null, false, "Item 154", null, false, "Item 155", null, false, "Item 156", null, false, "Item 157", null, false, "Item 158", null, false, "Item 159", null, false, "Item 160", null, false, "Item 161", null, false, "Item 162", null, false, "Item 163", null, false, "Item 164", null, false, "Item 165", null, false, "Item 166", null, false, "Item 167", null, false, "Item 168", null, false, "Item 169", null, false, "Item 170", null, false, "Item 171", null, false ]
 allow_reselect = true
+script = ExtResource( 27 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -789,9 +906,9 @@ __meta__ = {
 [connection signal="released" from="Controls_area/Touch_pad_base/Stick" to="." method="_on_Stick_released"]
 [connection signal="pressed" from="Controls_area/Touch_throttle_base/Throttle" to="." method="_on_Throttle_slider_pressed"]
 [connection signal="released" from="Controls_area/Touch_throttle_base/Throttle" to="." method="_on_Throttle_slider_released"]
-[connection signal="pressed" from="Controls_area/Touch_buttons_container/Touch_ekill" to="." method="_on_Touch_ekill_pressed"]
-[connection signal="pressed" from="Controls_area/Touch_buttons_container/Touch_accel_minus" to="." method="_on_Touch_accel_minus_pressed"]
-[connection signal="pressed" from="Controls_area/Touch_buttons_container/Touch_accel_plus" to="." method="_on_Touch_accel_plus_pressed"]
+[connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_ekill" to="." method="_on_Touch_ekill_pressed"]
+[connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_accel_minus" to="." method="_on_Touch_accel_minus_pressed"]
+[connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_accel_plus" to="." method="_on_Touch_accel_plus_pressed"]
 [connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
 [connection signal="toggled" from="Bar_menu/Button_turret" to="." method="_on_Button_turret_toggled"]
 [connection signal="pressed" from="Bar_menu/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]

@@ -76,3 +76,9 @@ func _on_Slider_color_power_value_changed(value):
 #	if button_pressed: p.signals.emit_signal("sig_screen_filter_on", true)
 #	else: p.signals.emit_signal("sig_screen_filter_on", false)
 	
+
+func _on_Button_controls_swap_toggled(button_pressed):
+	if button_pressed:
+		p.ui_paths.ui_functions.switch_to_touchscreen_controls_swapped()
+	else:
+		p.ui_paths.ui_functions.switch_to_touchscreen_controls_unswapped()

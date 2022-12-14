@@ -1,5 +1,7 @@
 extends ItemList
 
+var pad_material = load("res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres")
+
 onready var p = get_tree().get_root().get_node("Main/Paths")
 #onready var coordinates_bank = p.common_resources.systems_coordinates_bank_1
 onready var coordinates_bank = p.common_space_state.markers_planets
@@ -19,6 +21,9 @@ func _ready():
 	
 	self.ensure_current_is_visible()
 	self.allow_reselect = true
+	
+	# Make sure slider fits the color theme.
+	self.get_v_scroll().set_material(pad_material)
 
 # Update markers every time you open a nav list.
 func is_fetch_markers():

@@ -41,13 +41,15 @@ script = ExtResource( 13 )
 [node name="Gameplay" parent="." instance=ExtResource( 6 )]
 
 [node name="GUI_prompt_greeting" parent="." instance=ExtResource( 2 )]
-visible = false
 
 [node name="GUI_desktop" parent="." instance=ExtResource( 5 )]
+visible = false
 
 [node name="GUI_desktop_options" parent="." instance=ExtResource( 12 )]
+visible = false
 
 [node name="GUI_touchscreen_FHD" parent="." instance=ExtResource( 3 )]
+visible = false
 
 [node name="GUI_touchscreen_FHD_options" parent="." instance=ExtResource( 14 )]
 visible = false

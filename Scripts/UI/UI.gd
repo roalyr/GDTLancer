@@ -6,6 +6,7 @@ extends CanvasLayer
 # VARIABLES
 var stick_held = false
 var throttle_held = false
+
 var turret_view = false
 var update_debug_text_on = false
 var ui_hidden = false
@@ -21,13 +22,21 @@ onready var apparent_velocity_c = p.ui.get_node("Gameplay/Apparent_velocity_c")
 onready var apparent_velocity_units = p.ui.get_node("Gameplay/Apparent_velocity_units")
 
 
+
 func _ready():
+	# ============================ Connect signals ============================
+	# p.signals.connect("sig_viewport_update", self, "is_viewport_update")
+	# =========================================================================
+	
+
 	p.ui_paths.common_touchscreen_pad.recenter_stick()
 	p.ui_paths.common_touchscreen_throttle.recenter_throttle()
 	p.ui_paths.ui_functions.init_gui()
 
-	
-	
+
+#func is_viewport_update():
+#	var ratio = OS.window_size.y/ProjectSettings.get_setting("display/window/size/height")
+#	self.scale = Vector2(ratio, ratio)
 
 	
 func _process(_delta):

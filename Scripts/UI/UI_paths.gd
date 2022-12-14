@@ -87,10 +87,10 @@ onready var touch_FHD_touch_pad_stick = touch_FHD_touch_pad_base.get_node("Stick
 onready var touch_FHD_touch_throttle_base = touch_FHD_control_area.get_node("Touch_throttle_base")
 onready var touch_FHD_touch_throttle = touch_FHD_touch_throttle_base.get_node("Throttle")
 
-onready var touch_FHD_touch_buttons_container = touch_FHD_control_area.get_node("Touch_buttons_container")
-onready var touch_FHD_touch_button_ekill = touch_FHD_touch_buttons_container.get_node("Touch_ekill")
-onready var touch_FHD_touch_button_accel_minus = touch_FHD_touch_buttons_container.get_node("Touch_accel_minus")
-onready var touch_FHD_touch_button_accel_plus = touch_FHD_touch_buttons_container.get_node("Touch_accel_plus")
+#onready var touch_FHD_touch_buttons_container = touch_FHD_control_area.get_node("Touch_buttons_container")
+#onready var touch_FHD_touch_button_ekill = touch_FHD_touch_buttons_container.get_node("Touch_ekill")
+#onready var touch_FHD_touch_button_accel_minus = touch_FHD_touch_buttons_container.get_node("Touch_accel_minus")
+#onready var touch_FHD_touch_button_accel_plus = touch_FHD_touch_buttons_container.get_node("Touch_accel_plus")
 # Ship bar
 onready var touch_FHD_bar_ship = touch_FHD_gui.get_node("Bar_ship_PLACEHOLDER")
 onready var touch_FHD_ship_popup = touch_FHD_bar_ship.get_node("Popup_PLACEHOLDER")

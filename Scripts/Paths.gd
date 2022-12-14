@@ -41,8 +41,7 @@ onready var camera = camera_rig.get_node("Camera")
 onready var input = main.get_node("Input")
 onready var input_keyboard = input.get_node("Keyboard")
 onready var input_mouse = input.get_node("Mouse")
-onready var input_pad = input.get_node("Pad")
-onready var input_throttle = input.get_node("Throttle")
+onready var input_touch_controls = input.get_node("Touch_controls")
 
 # UI
 onready var ui = container.get_node("UI")

@@ -3,8 +3,8 @@ extends RigidBody
 # TODO check materials and shaders for FX
 # Params.
 var ship_mass = 1e6
-var accel_factor = 1e3 # Propulsion force.
-var accel_ticks_max = pow(2,26) # Engine propulsion increments. Pow 2.
+var accel_factor = 1e2 # Propulsion force.
+var accel_ticks_max = pow(2,29) # Engine propulsion increments. Pow 2.
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
 var torque_factor = Vector3(15e8,7e8,7e8)
@@ -22,7 +22,7 @@ var camera_push_velocity_factor = 2.5
 var camera_push_max_factor = 1000.0
 const camera_push_visibility_velocity = 1e8
 
-var engine_step_delay = 0.2
+var engine_step_delay = 0.3
 
 var autopilot_angle_deviation = 0.8
 
@@ -85,7 +85,7 @@ func _integrate_forces(state):
 	if vel > p.common_engine.rebase_limit_margin*p.common_engine.rebase_lag:
 		p.global_space.rebase_limit = round(vel*p.common_engine.rebase_lag)
 	
-	state.add_central_force(-global_transform.basis.z* p.ship_state.acceleration* p.ship_state.acceleration)
+	state.add_central_force(-global_transform.basis.z * p.ship_state.acceleration* p.ship_state.acceleration)
 	
 	# Limiting by engine ticks. It is a hard rebase_limits.
 	# TODO: move capped velocity to constants.
@@ -210,20 +210,34 @@ func init_ship():
 	self.can_sleep = false
 	self.mass = self.ship_mass
 	adjust_exhaust()
+	# Initiate timer.
 	engine_cooldown()
-	
+
+# Globally limit the speed of engine gear shifting.
 func engine_cooldown():
 	get_tree().create_timer(engine_step_delay).connect("timeout", self, "set_timing", [false])
 
+# Do not remove, it is needed for engine change speed control.
+func set_timing(value: bool):
+	engine_delay = value
+	# Reset timer
+	engine_cooldown()
+
 func adjust_exhaust():
+	
+	var engine_warp_factor = 1e-3
+	
+	var a = log(max(p.ship_state.accel_ticks, 1))
+	var accel_val = pow(a, 1.0 + pow(a,5)*2e-5)
+	if accel_val > 1e3:
+		accel_val = 1e3
 	
 	for i in engines.get_children():
 		
 		# Adjust shape size.
-		i.get_node("Engine_exhaust_shapes").scale.z = \
-				pow(p.ship_state.accel_ticks, 1.2)*0.05
+		i.get_node("Engine_exhaust_shapes").scale.z = accel_val
 
-		var albedo =  log(p.ship_state.accel_ticks)
+		var albedo = accel_val
 
 		# Get and modify sprite intensity.
 		var shapes = i.get_node("Engine_exhaust_shapes")
@@ -236,49 +250,57 @@ func adjust_exhaust():
 		
 		# Adjust light intensity
 		if p.ship_state.accel_ticks > 0:
-			i.get_node("Engine_exhaust_light").light_energy = \
-					p.ship_state.accel_ticks * 0.05
+			i.get_node("Engine_exhaust_light").light_energy = accel_val
 		else:
 			i.get_node("Engine_exhaust_light").light_energy = 0.1
 
 
 
 # SIGNAL PROCESSING
-func is_accelerating_old(flag):
-	if flag and (p.ship_state.accel_ticks < accel_ticks_max) and not engine_delay:
-		if p.ship_state.accel_ticks == 0:
-			p.ship_state.accel_ticks = 1
-		p.ship_state.accel_ticks *= 2
-		p.ship_state.acceleration += p.ship_state.accel_ticks*accel_factor
-		engine_delay = true
-	elif not flag and (p.ship_state.accel_ticks > 0) and not engine_delay:
-		p.ship_state.acceleration -= p.ship_state.accel_ticks*accel_factor
-		p.ship_state.accel_ticks /= 2
-		if p.ship_state.accel_ticks == 1:
-			p.ship_state.accel_ticks = 0
-		engine_delay = true
-	adjust_exhaust()
-	
-func is_accelerating(flag):
-	if flag and (p.ship_state.accel_ticks < accel_ticks_max) and not engine_delay:
-		if p.ship_state.accel_ticks == 0:
-			p.ship_state.accel_ticks = 1
-		p.ship_state.accel_ticks *= 2
-		p.ship_state.acceleration += p.ship_state.accel_ticks*accel_factor
-		engine_delay = true
-	elif not flag and (p.ship_state.accel_ticks > 0) and not engine_delay:
-		p.ship_state.acceleration -= p.ship_state.accel_ticks*accel_factor
-		p.ship_state.accel_ticks /= 2
-		if p.ship_state.accel_ticks == 1:
-			p.ship_state.accel_ticks = 0
-		engine_delay = true
-	adjust_exhaust()
+#func is_accelerating_old(flag):
+#	if flag and (p.ship_state.accel_ticks < accel_ticks_max) and not engine_delay:
+#		if p.ship_state.accel_ticks == 0:
+#			p.ship_state.accel_ticks = 1
+#		p.ship_state.accel_ticks *= 2
+#		p.ship_state.acceleration += p.ship_state.accel_ticks*accel_factor
+#		engine_delay = true
+#	elif not flag and (p.ship_state.accel_ticks > 0) and not engine_delay:
+#		p.ship_state.acceleration -= p.ship_state.accel_ticks*accel_factor
+#		p.ship_state.accel_ticks /= 2
+#		if p.ship_state.accel_ticks == 1:
+#			p.ship_state.accel_ticks = 0
+#		engine_delay = true
+#	adjust_exhaust()
+#
+#func is_accelerating(flag):
+#	if flag and (p.ship_state.accel_ticks < accel_ticks_max) and not engine_delay:
+#		if p.ship_state.accel_ticks == 0:
+#			p.ship_state.accel_ticks = 1
+#		p.ship_state.accel_ticks *= 2
+#		p.ship_state.acceleration += p.ship_state.accel_ticks*accel_factor
+#		engine_delay = true
+#	elif not flag and (p.ship_state.accel_ticks > 0) and not engine_delay:
+#		p.ship_state.acceleration -= p.ship_state.accel_ticks*accel_factor
+#		p.ship_state.accel_ticks /= 2
+#		if p.ship_state.accel_ticks == 1:
+#			p.ship_state.accel_ticks = 0
+#		engine_delay = true
+#	adjust_exhaust()
 
-func set_timing(value: bool):
-	#print("time")
-	engine_delay = value
-	# Reset timer
-	engine_cooldown()
+func is_accelerating(accelerating):
+	if accelerating and (p.ship_state.accel_ticks < accel_ticks_max) and not engine_delay:
+		if p.ship_state.accel_ticks == 0:
+			p.ship_state.accel_ticks = 1
+		p.ship_state.accel_ticks *= 2
+		p.ship_state.acceleration += p.ship_state.accel_ticks*accel_factor
+		engine_delay = true
+	elif not accelerating and (p.ship_state.accel_ticks > 0) and not engine_delay:
+		p.ship_state.acceleration -= p.ship_state.accel_ticks*accel_factor
+		p.ship_state.accel_ticks /= 2
+		if p.ship_state.accel_ticks == 1:
+			p.ship_state.accel_ticks = 0
+		engine_delay = true
+	adjust_exhaust()
 
 
 func is_engine_kill():

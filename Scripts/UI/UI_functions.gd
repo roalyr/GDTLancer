@@ -2,6 +2,8 @@ extends Node
 
 onready var p = get_tree().get_root().get_node("Main/Paths")
 
+var touchscreen_controls_swapped = false
+
 # INIT
 func init_gui():
 	# Initialize windows in switched off mode to match button states.
@@ -37,6 +39,7 @@ func switch_to_desktop_options():
 func switch_to_touchscreen_FHD_gui():
 	gameplay_gui_show()
 	touchscreen_FHD_gui_show()
+	is_controls_swapped()
 	
 	touchscreen_FHD_options_hide()
 	prompt_gui_hide()
@@ -49,8 +52,24 @@ func switch_to_touchscreen_FHD_options():
 	
 	touchscreen_FHD_options_show()
 	
+func switch_to_touchscreen_controls_unswapped():
+	touchscreen_controls_swapped = false
+	print("unswapped")
+
+func switch_to_touchscreen_controls_swapped():
+	touchscreen_controls_swapped = true
+	print("swapped")
 
 # TOUCHSCREEN FHD
+func is_controls_swapped():
+	if touchscreen_controls_swapped:
+		p.ui_paths.touch_FHD_touch_throttle_base.rect_position = Vector2(80, 520)
+		p.ui_paths.touch_FHD_touch_pad_base.rect_position = Vector2(1440, 520)
+	else:
+		p.ui_paths.touch_FHD_touch_throttle_base.rect_position = Vector2(1440, 520)
+		p.ui_paths.touch_FHD_touch_pad_base.rect_position = Vector2(80, 520)
+
+
 func touchscreen_FHD_gui_hide():
 	p.common_game_options.touchscreen_mode = false
 	p.ui_paths.touch_FHD_gui.hide()

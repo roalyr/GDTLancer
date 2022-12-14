@@ -1,0 +1,80 @@
+extends Node
+
+const throttle_deadzone = 0.5
+
+# VARIABLES
+var pad_x_abs = 0
+var pad_y_abs = 0
+var throttle_y_abs = 0
+#var acceleration_delay = true
+
+var current_pad_touch_index = 0
+var current_throttle_touch_index = 1
+
+onready var p = get_tree().get_root().get_node("Main/Paths")
+
+
+
+func _physics_process(_delta):
+	# Skip if not adjusting throttle.
+	if p.input.throttle_vector == 0:
+		pass
+		
+	# Process throttle value.
+	if p.input.throttle_vector > throttle_deadzone:
+		p.signals.emit_signal("sig_accelerate", true)
+	elif p.input.throttle_vector < -throttle_deadzone:
+		p.signals.emit_signal("sig_accelerate", false)
+	else:
+		pass
+
+
+func handle_input(event):
+	# Make sure we start reading the drag position after control is held.
+	if event is InputEventScreenTouch and (p.ui.stick_held or p.ui.throttle_held):
+		
+		# Keep a track of only this input.
+		var index = event.index
+		
+		# Prevent the case of triple+ touch.
+		if index >= 2:
+			pass
+		
+		# See which control was touched first so as to expect the other one.
+		if p.ui.stick_held and not p.ui.throttle_held:
+			# Stick touched first.
+			current_pad_touch_index = 0
+			current_throttle_touch_index = 1
+		elif not p.ui.stick_held and p.ui.throttle_held:
+			# Throttle touched first.
+			current_pad_touch_index = 1
+			current_throttle_touch_index = 0
+		else:
+			pass
+		
+	if event is InputEventScreenDrag and (p.ui.stick_held or p.ui.throttle_held):
+		
+		# Keep a track of only this input.
+		var index = event.index
+		
+		# Now dynamically re-assign each index depending on situation.
+		# This should work because they are always different (0 and 1).
+		if index == current_pad_touch_index:
+			
+			pad_x_abs = event.position.x-p.ui_paths.touch_FHD_touch_pad_base.rect_position.x
+			pad_y_abs = event.position.y-p.ui_paths.touch_FHD_touch_pad_base.rect_position.y
+			var pad_x = clamp(((pad_x_abs-p.ui_paths.touch_FHD_touch_pad_base.rect_size.x/2) \
+				/ p.ui_paths.touch_FHD_touch_pad_base.rect_size.x*2), -1, 1)
+			var pad_y = clamp(((pad_y_abs-p.ui_paths.touch_FHD_touch_pad_base.rect_size.y/2) \
+				/ p.ui_paths.touch_FHD_touch_pad_base.rect_size.y*2), -1, 1)
+			p.input.mouse_vector = Vector2(pad_x, pad_y) 
+		
+		elif index == current_throttle_touch_index:
+			throttle_y_abs = event.position.y-p.ui_paths.touch_FHD_touch_throttle_base.rect_position.y
+			var throttle_y = clamp(((throttle_y_abs-p.ui_paths.touch_FHD_touch_throttle_base.rect_size.y/2) \
+				/ p.ui_paths.touch_FHD_touch_throttle_base.rect_size.y*2), -1, 1)
+			
+			# Reverse it for proper alignment.
+			p.input.throttle_vector = -throttle_y
+
+
