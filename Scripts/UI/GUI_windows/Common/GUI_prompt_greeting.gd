@@ -7,8 +7,8 @@ onready var p = get_tree().get_root().get_node("Main/Paths")
 func _on_Button_desktop_gui_pressed():
 	p.ui_paths.ui_functions.switch_to_desktop_gui()
 
-func _on_Button_touch_FHD_gui_pressed():
-	p.ui_paths.ui_functions.switch_to_touchscreen_FHD_gui()
+func _on_Button_touch_gui_pressed():
+	p.ui_paths.ui_functions.switch_to_touchscreen_gui()
 
 
 func _on_Button_quit_pressed():

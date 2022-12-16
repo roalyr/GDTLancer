@@ -9,6 +9,7 @@ onready var common = p.ui.get_node("Common")
 onready var common_touchscreen_pad = common.get_node("Touchscreen_pad")
 onready var common_touchscreen_throttle = common.get_node("Touchscreen_throttle")
 onready var common_readouts = common.get_node("Readouts")
+onready var common_debug = common.get_node("Debug")
 
 
 # Desktop UI
@@ -49,60 +50,56 @@ onready var desktop_ship_popup = desktop_bar_ship.get_node("Popup_PLACEHOLDER")
 
 
 # Touchscreen Full-HD UI
-onready var touch_FHD_gui = p.ui.get_node("GUI_touchscreen_FHD")
-onready var touch_FHD_options = p.ui.get_node("GUI_touchscreen_FHD_options")
+onready var touch_gui = p.ui.get_node("GUI_touchscreen")
+onready var touch_options = p.ui.get_node("GUI_touchscreen_options")
 # Menu bar
-onready var touch_FHD_bar_menu = touch_FHD_gui.get_node("Bar_menu")
-onready var touch_FHD_button_options = touch_FHD_bar_menu.get_node("Button_options")
-onready var touch_FHD_button_turret = touch_FHD_bar_menu.get_node("Button_turret")
-onready var touch_FHD_button_hide_ui = touch_FHD_bar_menu.get_node("Button_hide_ui")
+onready var touch_bar_menu = touch_gui.get_node("Bar_menu")
+onready var touch_button_options = touch_bar_menu.get_node("Button_options")
+onready var touch_button_turret = touch_bar_menu.get_node("Button_turret")
+onready var touch_button_hide_ui = touch_bar_menu.get_node("Button_hide_ui")
 # Nav bar
-onready var touch_FHD_nav = touch_FHD_gui.get_node("Bar_nav")
+onready var touch_bar_nav = touch_gui.get_node("Bar_nav")
 # Nav bar popup lists
-onready var touch_FHD_nav_popup_constellations = touch_FHD_nav.get_node("Popup_nav_constellations")
-onready var touch_FHD_nav_list_constellations = touch_FHD_nav_popup_constellations.get_node("ItemList_nav")
-onready var touch_FHD_nav_popup_systems = touch_FHD_nav.get_node("Popup_nav_systems")
-onready var touch_FHD_nav_list_systems = touch_FHD_nav_popup_systems.get_node("ItemList_nav")
-onready var touch_FHD_nav_popup_stars = touch_FHD_nav.get_node("Popup_nav_stars")
-onready var touch_FHD_nav_list_stars = touch_FHD_nav_popup_stars.get_node("ItemList_nav")
-onready var touch_FHD_nav_popup_planets = touch_FHD_nav.get_node("Popup_nav_planets")
-onready var touch_FHD_nav_list_planets = touch_FHD_nav_popup_planets.get_node("ItemList_nav")
-onready var touch_FHD_nav_popup_structures = touch_FHD_nav.get_node("Popup_structures")
-onready var touch_FHD_nav_list_structures = touch_FHD_nav_popup_structures.get_node("ItemList_nav")
+onready var touch_nav_popup_constellations = touch_bar_nav.get_node("Popup_nav_constellations")
+onready var touch_nav_list_constellations = touch_nav_popup_constellations.get_node("ItemList_nav")
+onready var touch_nav_popup_systems = touch_bar_nav.get_node("Popup_nav_systems")
+onready var touch_nav_list_systems = touch_nav_popup_systems.get_node("ItemList_nav")
+onready var touch_nav_popup_stars = touch_bar_nav.get_node("Popup_nav_stars")
+onready var touch_nav_list_stars = touch_nav_popup_stars.get_node("ItemList_nav")
+onready var touch_nav_popup_planets = touch_bar_nav.get_node("Popup_nav_planets")
+onready var touch_nav_list_planets = touch_nav_popup_planets.get_node("ItemList_nav")
+onready var touch_nav_popup_structures = touch_bar_nav.get_node("Popup_structures")
+onready var touch_nav_list_structures = touch_nav_popup_structures.get_node("ItemList_nav")
 # Nav bar buttons
-onready var touch_FHD_button_constellations = touch_FHD_nav.get_node("Button_constellations")
-onready var touch_FHD_button_systems = touch_FHD_nav.get_node("Button_systems")
-onready var touch_FHD_button_stars = touch_FHD_nav.get_node("Button_stars")
-onready var touch_FHD_button_planets = touch_FHD_nav.get_node("Button_planets")
-onready var touch_FHD_button_structures = touch_FHD_nav.get_node("Button_structures")
+onready var touch_button_constellations = touch_bar_nav.get_node("Button_constellations")
+onready var touch_button_systems = touch_bar_nav.get_node("Button_systems")
+onready var touch_button_stars = touch_bar_nav.get_node("Button_stars")
+onready var touch_button_planets = touch_bar_nav.get_node("Button_planets")
+onready var touch_button_structures = touch_bar_nav.get_node("Button_structures")
 # Control bar
-onready var touch_FHD_bar_control = touch_FHD_gui.get_node("Bar_control")
-onready var touch_FHD_button_target_aim_clear = touch_FHD_bar_control.get_node("Button_target_aim_clear")
-onready var touch_FHD_button_autopilot = touch_FHD_bar_control.get_node("Button_autopilot")
-# Control area
-onready var touch_FHD_control_area = touch_FHD_gui.get_node("Controls_area")
-onready var touch_FHD_touch_pad_base = touch_FHD_control_area.get_node("Touch_pad_base")
-onready var touch_FHD_touch_pad_stick = touch_FHD_touch_pad_base.get_node("Stick")
-
-onready var touch_FHD_touch_throttle_base = touch_FHD_control_area.get_node("Touch_throttle_base")
-onready var touch_FHD_touch_throttle = touch_FHD_touch_throttle_base.get_node("Throttle")
-
-#onready var touch_FHD_touch_buttons_container = touch_FHD_control_area.get_node("Touch_buttons_container")
-#onready var touch_FHD_touch_button_ekill = touch_FHD_touch_buttons_container.get_node("Touch_ekill")
-#onready var touch_FHD_touch_button_accel_minus = touch_FHD_touch_buttons_container.get_node("Touch_accel_minus")
-#onready var touch_FHD_touch_button_accel_plus = touch_FHD_touch_buttons_container.get_node("Touch_accel_plus")
+onready var touch_bar_control = touch_gui.get_node("Bar_control")
+onready var touch_button_target_aim_clear = touch_bar_control.get_node("Button_target_aim_clear")
+onready var touch_button_autopilot = touch_bar_control.get_node("Button_autopilot")
 # Ship bar
-onready var touch_FHD_bar_ship = touch_FHD_gui.get_node("Bar_ship_PLACEHOLDER")
-onready var touch_FHD_ship_popup = touch_FHD_bar_ship.get_node("Popup_PLACEHOLDER")
-
-
-# Common
-# Gameplay UI
-onready var gameplay = p.ui.get_node("Gameplay")
-onready var debug = gameplay.get_node("Debug")
-onready var target_autopilot = gameplay.get_node("Target_autopilot")
-onready var target_aim = gameplay.get_node("Target_aim")
-
+onready var touch_bar_ship = touch_gui.get_node("Bar_ship_PLACEHOLDER")
+onready var touch_ship_popup = touch_bar_ship.get_node("Popup_PLACEHOLDER")
+# Control area
+onready var touch_control_area = touch_gui.get_node("Controls_area")
+onready var touch_touch_pad_base = touch_control_area.get_node("Touch_pad_base")
+onready var touch_touch_pad_stick = touch_touch_pad_base.get_node("Stick")
+onready var touch_touch_throttle_base = touch_control_area.get_node("Touch_throttle_base")
+onready var touch_touch_throttle = touch_touch_throttle_base.get_node("Throttle")
+# Readings
+onready var touch_readings = p.ui.get_node("GUI_touchscreen_readings")
+onready var touch_readings_debug = touch_readings.get_node("Debug")
+onready var touch_readings_target_autopilot = touch_readings.get_node("Target_autopilot")
+onready var touch_readings_target_aim = touch_readings.get_node("Target_aim")
+# Readings top area
+onready var touch_top_readings = touch_readings.get_node("Top_readings")
+onready var touch_top_readings_apparent_velocity = touch_top_readings.get_node("Apparent_velocity")
+onready var touch_top_readings_apparent_velocity_c = touch_top_readings.get_node("Apparent_velocity_c")
+onready var touch_top_readings_apparent_velocity_units = touch_top_readings.get_node("Apparent_velocity_units")
+onready var touch_top_readings_accel_ticks = touch_top_readings.get_node("Accel_ticks")
 
 # Other windows
 onready var gui_prompt = p.ui.get_node("GUI_prompt_greeting")

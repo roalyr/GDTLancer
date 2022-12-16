@@ -11,8 +11,8 @@ func init_gui():
 	gameplay_gui_hide()
 	debug_gui_hide()
 	
-	touchscreen_FHD_gui_hide()
-	touchscreen_FHD_options_hide()
+	touchscreen_gui_hide()
+	touchscreen_options_hide()
 	desktop_gui_hide()
 	desktop_options_hide()
 	
@@ -26,8 +26,8 @@ func switch_to_desktop_gui():
 	
 	desktop_options_hide()
 	prompt_gui_hide()
-	touchscreen_FHD_gui_hide()
-	touchscreen_FHD_options_hide()
+	touchscreen_gui_hide()
+	touchscreen_options_hide()
 	
 func switch_to_desktop_options():
 	desktop_gui_hide()
@@ -36,21 +36,21 @@ func switch_to_desktop_options():
 	desktop_options_show()
 	
 	
-func switch_to_touchscreen_FHD_gui():
+func switch_to_touchscreen_gui():
 	gameplay_gui_show()
-	touchscreen_FHD_gui_show()
+	touchscreen_gui_show()
 	is_controls_swapped()
 	
-	touchscreen_FHD_options_hide()
+	touchscreen_options_hide()
 	prompt_gui_hide()
 	desktop_gui_hide()
 	desktop_options_hide()
 
-func switch_to_touchscreen_FHD_options():
-	touchscreen_FHD_gui_hide()
+func switch_to_touchscreen_options():
+	touchscreen_gui_hide()
 	gameplay_gui_hide()
 	
-	touchscreen_FHD_options_show()
+	touchscreen_options_show()
 	
 func switch_to_touchscreen_controls_unswapped():
 	touchscreen_controls_swapped = false
@@ -63,40 +63,40 @@ func switch_to_touchscreen_controls_swapped():
 # TOUCHSCREEN FHD
 func is_controls_swapped():
 	if touchscreen_controls_swapped:
-		p.ui_paths.touch_FHD_touch_throttle_base.margin_left = 80
-		p.ui_paths.touch_FHD_touch_throttle_base.margin_right = 480
-		p.ui_paths.touch_FHD_touch_throttle_base.anchor_left = 0
-		p.ui_paths.touch_FHD_touch_throttle_base.anchor_right = 0
+		p.ui_paths.touch_touch_throttle_base.margin_left = 80
+		p.ui_paths.touch_touch_throttle_base.margin_right = 480
+		p.ui_paths.touch_touch_throttle_base.anchor_left = 0
+		p.ui_paths.touch_touch_throttle_base.anchor_right = 0
 		
-		p.ui_paths.touch_FHD_touch_pad_base.margin_left = -480
-		p.ui_paths.touch_FHD_touch_pad_base.margin_right = -80
-		p.ui_paths.touch_FHD_touch_pad_base.anchor_left = 1
-		p.ui_paths.touch_FHD_touch_pad_base.anchor_right = 1
+		p.ui_paths.touch_touch_pad_base.margin_left = -480
+		p.ui_paths.touch_touch_pad_base.margin_right = -80
+		p.ui_paths.touch_touch_pad_base.anchor_left = 1
+		p.ui_paths.touch_touch_pad_base.anchor_right = 1
 	else:
-		p.ui_paths.touch_FHD_touch_pad_base.margin_left = 80
-		p.ui_paths.touch_FHD_touch_pad_base.margin_right = 480
-		p.ui_paths.touch_FHD_touch_pad_base.anchor_left = 0
-		p.ui_paths.touch_FHD_touch_pad_base.anchor_right = 0
+		p.ui_paths.touch_touch_pad_base.margin_left = 80
+		p.ui_paths.touch_touch_pad_base.margin_right = 480
+		p.ui_paths.touch_touch_pad_base.anchor_left = 0
+		p.ui_paths.touch_touch_pad_base.anchor_right = 0
 		
-		p.ui_paths.touch_FHD_touch_throttle_base.margin_left = -480
-		p.ui_paths.touch_FHD_touch_throttle_base.margin_right = -80
-		p.ui_paths.touch_FHD_touch_throttle_base.anchor_left = 1
-		p.ui_paths.touch_FHD_touch_throttle_base.anchor_right = 1
+		p.ui_paths.touch_touch_throttle_base.margin_left = -480
+		p.ui_paths.touch_touch_throttle_base.margin_right = -80
+		p.ui_paths.touch_touch_throttle_base.anchor_left = 1
+		p.ui_paths.touch_touch_throttle_base.anchor_right = 1
 
 
-func touchscreen_FHD_gui_hide():
+func touchscreen_gui_hide():
 	p.common_game_options.touchscreen_mode = false
-	p.ui_paths.touch_FHD_gui.hide()
+	p.ui_paths.touch_gui.hide()
 	
-func touchscreen_FHD_gui_show():
+func touchscreen_gui_show():
 	p.common_game_options.touchscreen_mode = true
-	p.ui_paths.touch_FHD_gui.show()
+	p.ui_paths.touch_gui.show()
 
-func touchscreen_FHD_options_hide():
-	p.ui_paths.touch_FHD_options.hide()
+func touchscreen_options_hide():
+	p.ui_paths.touch_options.hide()
 
-func touchscreen_FHD_options_show():
-	p.ui_paths.touch_FHD_options.show()
+func touchscreen_options_show():
+	p.ui_paths.touch_options.show()
 
 
 # DESKTOP
@@ -116,17 +116,17 @@ func desktop_options_show():
 
 # GUI GAMEPLAY
 func gameplay_gui_hide():
-	p.ui_paths.gameplay.hide()
+	p.ui_paths.touch_readings.hide()
 
 func gameplay_gui_show():
-	p.ui_paths.gameplay.show()
+	p.ui_paths.touch_readings.show()
 
 # GUI DEBUG
 func debug_gui_hide():
-	p.ui_paths.debug.hide()
+	p.ui_paths.touch_readings_debug.hide()
 
 func debug_gui_show():
-	p.ui_paths.debug.show()
+	p.ui_paths.touch_readings_debug.show()
 
 # GUI SELECT PROMPT
 func prompt_gui_hide():
@@ -137,17 +137,17 @@ func prompt_gui_show():
 
 # GUI TARGETING
 func target_controls_hide():
-	p.ui_paths.target_aim.hide()
+	p.ui_paths.touch_readings_target_aim.hide()
 
 func target_controls_show():
-	p.ui_paths.target_aim.show()
+	p.ui_paths.touch_readings_target_aim.show()
 	
 # GUI AUTOPILOT
 func autopilot_controls_hide():
-	p.ui_paths.target_autopilot.hide()
+	p.ui_paths.touch_readings_target_autopilot.hide()
 	
 func autopilot_controls_show():
-	p.ui_paths.target_autopilot.show()
+	p.ui_paths.touch_readings_target_autopilot.show()
 
 # GUI PANIC POPUP
 func popup_panic(message):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -27,6 +27,7 @@
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=25]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_200.png" type="Texture" id=26]
 [ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=27]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen_readings.tscn" type="PackedScene" id=28]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
 
 [sub_resource type="CanvasItemMaterial" id=3]
@@ -70,23 +71,33 @@ expand_margin_right = 50.0
 expand_margin_bottom = 40.0
 anti_aliasing = false
 
-[node name="GUI_touchscreen_FHD" type="Control"]
+[node name="GUI_touchscreen" type="Control"]
 material = SubResource( 3 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 17 )
-__meta__ = {
-"_edit_lock_": true,
-"_edit_use_anchors_": false
-}
+
+[node name="_EDITOR_REFERENCE_" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 13 )
+
+[node name="GUI_touchscreen_readings" parent="_EDITOR_REFERENCE_" instance=ExtResource( 28 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -540.0
+margin_right = 960.0
+margin_bottom = 540.0
 
 [node name="_EDITOR_MARGIN_60p_" type="ColorRect" parent="."]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 80.0
 margin_right = -80.0
-color = Color( 0.266667, 0.447059, 0.227451, 1 )
+color = Color( 0.266667, 0.447059, 0.227451, 0.411765 )
 script = ExtResource( 13 )
 __meta__ = {
 "_edit_lock_": true
@@ -104,6 +115,7 @@ __meta__ = {
 }
 
 [node name="Decorative_frame" type="ReferenceRect" parent="."]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 1
@@ -134,11 +146,8 @@ margin_bottom = -450.0
 theme = ExtResource( 19 )
 
 [node name="Controls_area" type="Control" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_lock_": true
-}
+margin_right = 1920.0
+margin_bottom = 1080.0
 
 [node name="Touch_pad_base" type="Control" parent="Controls_area"]
 anchor_top = 1.0
@@ -428,10 +437,8 @@ normal = ExtResource( 24 )
 pressed = ExtResource( 24 )
 
 [node name="Bar_menu" type="Control" parent="."]
-anchor_left = 1.0
-anchor_right = 1.0
-margin_left = -455.0
-margin_right = -145.0
+margin_left = 1465.0
+margin_right = 1775.0
 margin_bottom = 110.0
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
@@ -526,11 +533,10 @@ icon = ExtResource( 18 )
 icon_align = 1
 
 [node name="Bar_nav" type="Control" parent="."]
-anchor_top = 1.0
-anchor_bottom = 1.0
 margin_left = 450.0
-margin_top = -110.0
+margin_top = 970.0
 margin_right = 960.0
+margin_bottom = 1080.0
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
 material = ExtResource( 25 )
@@ -780,13 +786,10 @@ __meta__ = {
 }
 
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -960.0
-margin_top = -110.0
-margin_right = -450.0
+margin_left = 960.0
+margin_top = 970.0
+margin_right = 1470.0
+margin_bottom = 1080.0
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
 material = ExtResource( 25 )

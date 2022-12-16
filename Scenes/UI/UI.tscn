@@ -1,11 +1,11 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_prompt_greeting.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Scenes/UI/GUI_touchscreen_FHD/GUI_touchscreen_FHD.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_popup_panic.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
-[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Gameplay.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen_readings.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scripts/UI/UI_functions.gd" type="Script" id=7]
 [ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=8]
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_pad.gd" type="Script" id=9]
@@ -13,7 +13,8 @@
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Targeting.gd" type="Script" id=11]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop_options.tscn" type="PackedScene" id=12]
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_throttle.gd" type="Script" id=13]
-[ext_resource path="res://Scenes/UI/GUI_touchscreen_FHD/GUI_touchscreen_FHD_options.tscn" type="PackedScene" id=14]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen_options.tscn" type="PackedScene" id=14]
+[ext_resource path="res://Scripts/UI/Common/Debug.gd" type="Script" id=15]
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource( 1 )
@@ -38,9 +39,11 @@ script = ExtResource( 9 )
 [node name="Touchscreen_throttle" type="Node" parent="Common"]
 script = ExtResource( 13 )
 
-[node name="Gameplay" parent="." instance=ExtResource( 6 )]
+[node name="Debug" type="Node" parent="Common"]
+script = ExtResource( 15 )
 
 [node name="GUI_prompt_greeting" parent="." instance=ExtResource( 2 )]
+visible = false
 
 [node name="GUI_desktop" parent="." instance=ExtResource( 5 )]
 visible = false
@@ -48,10 +51,15 @@ visible = false
 [node name="GUI_desktop_options" parent="." instance=ExtResource( 12 )]
 visible = false
 
-[node name="GUI_touchscreen_FHD" parent="." instance=ExtResource( 3 )]
+[node name="GUI_touchscreen" parent="." instance=ExtResource( 3 )]
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="GUI_touchscreen_options" parent="." instance=ExtResource( 14 )]
 visible = false
 
-[node name="GUI_touchscreen_FHD_options" parent="." instance=ExtResource( 14 )]
-visible = false
+[node name="GUI_touchscreen_readings" parent="." instance=ExtResource( 6 )]
 
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]

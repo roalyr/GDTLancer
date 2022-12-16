@@ -56,23 +56,24 @@ func handle_input(event):
 		
 		# Keep a track of only this input.
 		var index = event.index
-		
+		var fx = p.ui.scale.x
+		var fy = p.ui.scale.y
 		# Now dynamically re-assign each index depending on situation.
 		# This should work because they are always different (0 and 1).
 		if index == current_pad_touch_index:
-			
-			pad_x_abs = event.position.x-p.ui_paths.touch_FHD_touch_pad_base.rect_position.x
-			pad_y_abs = event.position.y-p.ui_paths.touch_FHD_touch_pad_base.rect_position.y
-			var pad_x = clamp(((pad_x_abs-p.ui_paths.touch_FHD_touch_pad_base.rect_size.x/2) \
-				/ p.ui_paths.touch_FHD_touch_pad_base.rect_size.x*2), -1, 1)
-			var pad_y = clamp(((pad_y_abs-p.ui_paths.touch_FHD_touch_pad_base.rect_size.y/2) \
-				/ p.ui_paths.touch_FHD_touch_pad_base.rect_size.y*2), -1, 1)
+			pad_x_abs = (event.position.x-p.ui_paths.touch_touch_pad_base.rect_position.x*fx)/fx
+			pad_y_abs = (event.position.y-p.ui_paths.touch_touch_pad_base.rect_position.y*fy)/fy
+
+			var pad_x = clamp(((pad_x_abs-p.ui_paths.touch_touch_pad_base.rect_size.x/2) \
+				/ p.ui_paths.touch_touch_pad_base.rect_size.x*2), -1, 1)
+			var pad_y = clamp(((pad_y_abs-p.ui_paths.touch_touch_pad_base.rect_size.y/2) \
+				/ p.ui_paths.touch_touch_pad_base.rect_size.y*2), -1, 1)
 			p.input.mouse_vector = Vector2(pad_x, pad_y) 
 		
 		elif index == current_throttle_touch_index:
-			throttle_y_abs = event.position.y-p.ui_paths.touch_FHD_touch_throttle_base.rect_position.y
-			var throttle_y = clamp(((throttle_y_abs-p.ui_paths.touch_FHD_touch_throttle_base.rect_size.y/2) \
-				/ p.ui_paths.touch_FHD_touch_throttle_base.rect_size.y*2), -1, 1)
+			throttle_y_abs = (event.position.y-p.ui_paths.touch_touch_throttle_base.rect_position.y*fy)/fy
+			var throttle_y = clamp(((throttle_y_abs-p.ui_paths.touch_touch_throttle_base.rect_size.y/2) \
+				/ p.ui_paths.touch_touch_throttle_base.rect_size.y*2), -1, 1)
 			
 			# Reverse it for proper alignment.
 			p.input.throttle_vector = -throttle_y

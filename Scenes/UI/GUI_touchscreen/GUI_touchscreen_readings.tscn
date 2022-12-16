@@ -1,0 +1,125 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=1]
+[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=2]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen_readings.gd" type="Script" id=5]
+
+[node name="GUI_touchscreen_readings" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 5 )
+
+[node name="Debug" type="Control" parent="."]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_left = 40.0
+margin_top = -460.0
+margin_right = 410.0
+margin_bottom = -190.0
+mouse_filter = 2
+
+[node name="Mouse_x" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 110.0
+margin_right = 126.0
+margin_bottom = 124.0
+text = "Mouse / Pad x: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_y" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 130.0
+margin_right = 126.0
+margin_bottom = 144.0
+text = "Mouse / Pad y: 0"
+
+[node name="Throttle" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 150.0
+margin_right = 126.0
+margin_bottom = 164.0
+text = "Throttle: 0"
+
+[node name="Print_out" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 170.0
+margin_right = 480.0
+margin_bottom = 240.0
+text = "Output: ....."
+
+[node name="FPS" type="Label" parent="Debug"]
+margin_left = 20.0
+margin_top = 90.0
+margin_right = 60.0
+margin_bottom = 104.0
+text = "FPS: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Target_autopilot" parent="." instance=ExtResource( 4 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="Target_aim" parent="." instance=ExtResource( 3 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="Top_readings" type="Control" parent="."]
+margin_left = 460.0
+margin_right = 1461.0
+margin_bottom = 110.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Top_readings"]
+material = ExtResource( 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity" type="Label" parent="Top_readings"]
+margin_right = 261.0
+margin_bottom = 48.0
+theme = ExtResource( 2 )
+text = "v: 0.000"
+valign = 1
+clip_text = true
+
+[node name="Apparent_velocity_units" type="Label" parent="Top_readings"]
+margin_left = 180.18
+margin_right = 441.18
+margin_bottom = 48.0
+theme = ExtResource( 2 )
+text = "du/s"
+valign = 1
+
+[node name="Apparent_velocity_c" type="Label" parent="Top_readings"]
+margin_top = 50.05
+margin_right = 261.0
+margin_bottom = 98.05
+theme = ExtResource( 2 )
+text = "c: 0.00000"
+valign = 1
+clip_text = true
+
+[node name="Accel_ticks" type="Label" parent="Top_readings"]
+margin_left = 180.18
+margin_top = 50.05
+margin_right = 441.18
+margin_bottom = 98.05
+theme = ExtResource( 2 )
+text = "Accel: 0"

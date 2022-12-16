@@ -7,19 +7,20 @@ func _ready():
 	p.signals.connect("sig_autopilot_disable", self, "is_autopilot_disable")
 	# =========================================================================
 
+
 func hide_navbars():
-	p.ui_paths.touch_FHD_nav_popup_constellations.hide()	
-	p.ui_paths.touch_FHD_nav_popup_systems.hide()
-	p.ui_paths.touch_FHD_nav_popup_stars.hide()
-	p.ui_paths.touch_FHD_nav_popup_planets.hide()
-	p.ui_paths.touch_FHD_nav_popup_structures.hide()
+	p.ui_paths.touch_nav_popup_constellations.hide()	
+	p.ui_paths.touch_nav_popup_systems.hide()
+	p.ui_paths.touch_nav_popup_stars.hide()
+	p.ui_paths.touch_nav_popup_planets.hide()
+	p.ui_paths.touch_nav_popup_structures.hide()
 	
 func unpress_nav_buttons():
-	p.ui_paths.touch_FHD_button_constellations.pressed = false
-	p.ui_paths.touch_FHD_button_systems.pressed = false
-	p.ui_paths.touch_FHD_button_stars.pressed = false
-	p.ui_paths.touch_FHD_button_planets.pressed = false
-	p.ui_paths.touch_FHD_button_structures.pressed = false
+	p.ui_paths.touch_button_constellations.pressed = false
+	p.ui_paths.touch_button_systems.pressed = false
+	p.ui_paths.touch_button_stars.pressed = false
+	p.ui_paths.touch_button_planets.pressed = false
+	p.ui_paths.touch_button_structures.pressed = false
 	
 	
 # SIGNAL PROCESSING
@@ -36,7 +37,7 @@ func _on_Button_ekill_pressed():
 	p.signals.emit_signal("sig_engine_kill")
 	
 func _on_Button_hide_ui_pressed():
-	p.ui_paths.touch_FHD_gui.modulate.a = p.ui.ui_alpha
+	p.ui_paths.touch_gui.modulate.a = p.ui.ui_alpha
 	p.ui_paths.gameplay.modulate.a = p.ui.ui_alpha
 	p.ui.ui_alpha -= 0.25
 	if p.ui.ui_alpha < 0.0:
@@ -74,7 +75,7 @@ func _on_Button_accel_minus_pressed():
 # touch_FHD / MOBILE GUI
 # Other buttons
 func _on_Button_options_pressed():
-	p.ui_paths.ui_functions.switch_to_touchscreen_FHD_options()
+	p.ui_paths.ui_functions.switch_to_touchscreen_options()
 	
 
 # Mouse capturing for touch_FHD.
@@ -90,72 +91,72 @@ func _on_Mouse_area_mouse_exited():
 # Open and close navigation lists.
 func _on_Button_constellations_toggled(button_pressed):
 	p.signals.emit_signal("sig_fetch_markers")
-	if button_pressed and not p.ui_paths.touch_FHD_nav_popup_constellations.visible: 
+	if button_pressed and not p.ui_paths.touch_nav_popup_constellations.visible: 
 		hide_navbars()
-#		p.ui_paths.touch_FHD_button_constellations.pressed = false
-		p.ui_paths.touch_FHD_button_systems.pressed = false
-		p.ui_paths.touch_FHD_button_stars.pressed = false
-		p.ui_paths.touch_FHD_button_planets.pressed = false
-		p.ui_paths.touch_FHD_button_structures.pressed = false
-		p.ui_paths.touch_FHD_nav_popup_constellations.show()
+#		p.ui_paths.touch_button_constellations.pressed = false
+		p.ui_paths.touch_button_systems.pressed = false
+		p.ui_paths.touch_button_stars.pressed = false
+		p.ui_paths.touch_button_planets.pressed = false
+		p.ui_paths.touch_button_structures.pressed = false
+		p.ui_paths.touch_nav_popup_constellations.show()
 	else: 
-		p.ui_paths.touch_FHD_nav_popup_constellations.hide()
+		p.ui_paths.touch_nav_popup_constellations.hide()
 
 
 func _on_Button_systems_toggled(button_pressed):
 	p.signals.emit_signal("sig_fetch_markers")
-	if button_pressed and not p.ui_paths.touch_FHD_nav_popup_systems.visible: 
+	if button_pressed and not p.ui_paths.touch_nav_popup_systems.visible: 
 		hide_navbars()
-		p.ui_paths.touch_FHD_button_constellations.pressed = false
-#		p.ui_paths.touch_FHD_button_systems.pressed = false
-		p.ui_paths.touch_FHD_button_stars.pressed = false
-		p.ui_paths.touch_FHD_button_planets.pressed = false
-		p.ui_paths.touch_FHD_button_structures.pressed = false
-		p.ui_paths.touch_FHD_nav_popup_systems.show()
+		p.ui_paths.touch_button_constellations.pressed = false
+#		p.ui_paths.touch_button_systems.pressed = false
+		p.ui_paths.touch_button_stars.pressed = false
+		p.ui_paths.touch_button_planets.pressed = false
+		p.ui_paths.touch_button_structures.pressed = false
+		p.ui_paths.touch_nav_popup_systems.show()
 	else: 
-		p.ui_paths.touch_FHD_nav_popup_systems.hide()
+		p.ui_paths.touch_nav_popup_systems.hide()
 
 
 func _on_Button_stars_toggled(button_pressed):
 	p.signals.emit_signal("sig_fetch_markers")
-	if button_pressed and not p.ui_paths.touch_FHD_nav_popup_stars.visible: 
+	if button_pressed and not p.ui_paths.touch_nav_popup_stars.visible: 
 		hide_navbars()
-		p.ui_paths.touch_FHD_button_constellations.pressed = false
-		p.ui_paths.touch_FHD_button_systems.pressed = false
-#		p.ui_paths.touch_FHD_button_stars.pressed = false
-		p.ui_paths.touch_FHD_button_planets.pressed = false
-		p.ui_paths.touch_FHD_button_structures.pressed = false
-		p.ui_paths.touch_FHD_nav_popup_stars.show()
+		p.ui_paths.touch_button_constellations.pressed = false
+		p.ui_paths.touch_button_systems.pressed = false
+#		p.ui_paths.touch_button_stars.pressed = false
+		p.ui_paths.touch_button_planets.pressed = false
+		p.ui_paths.touch_button_structures.pressed = false
+		p.ui_paths.touch_nav_popup_stars.show()
 	else: 
-		p.ui_paths.touch_FHD_nav_popup_stars.hide()
+		p.ui_paths.touch_nav_popup_stars.hide()
 
 
 func _on_Button_planets_toggled(button_pressed):
 	p.signals.emit_signal("sig_fetch_markers")
-	if button_pressed and not p.ui_paths.touch_FHD_nav_popup_planets.visible: 
+	if button_pressed and not p.ui_paths.touch_nav_popup_planets.visible: 
 		hide_navbars()
-		p.ui_paths.touch_FHD_button_constellations.pressed = false
-		p.ui_paths.touch_FHD_button_systems.pressed = false
-		p.ui_paths.touch_FHD_button_stars.pressed = false
-#		p.ui_paths.touch_FHD_button_planets.pressed = false
-		p.ui_paths.touch_FHD_button_structures.pressed = false
-		p.ui_paths.touch_FHD_nav_popup_planets.show()
+		p.ui_paths.touch_button_constellations.pressed = false
+		p.ui_paths.touch_button_systems.pressed = false
+		p.ui_paths.touch_button_stars.pressed = false
+#		p.ui_paths.touch_button_planets.pressed = false
+		p.ui_paths.touch_button_structures.pressed = false
+		p.ui_paths.touch_nav_popup_planets.show()
 	else: 
-		p.ui_paths.touch_FHD_nav_popup_planets.hide()
+		p.ui_paths.touch_nav_popup_planets.hide()
 	
 
 func _on_Button_structures_toggled(button_pressed):
 	p.signals.emit_signal("sig_fetch_markers")
-	if button_pressed and not p.ui_paths.touch_FHD_nav_popup_structures.visible: 
+	if button_pressed and not p.ui_paths.touch_nav_popup_structures.visible: 
 		hide_navbars()
-		p.ui_paths.touch_FHD_button_constellations.pressed = false
-		p.ui_paths.touch_FHD_button_systems.pressed = false
-		p.ui_paths.touch_FHD_button_stars.pressed = false
-		p.ui_paths.touch_FHD_button_planets.pressed = false
-#		p.ui_paths.touch_FHD_button_structures.pressed = false
-		p.ui_paths.touch_FHD_nav_popup_structures.show()
+		p.ui_paths.touch_button_constellations.pressed = false
+		p.ui_paths.touch_button_systems.pressed = false
+		p.ui_paths.touch_button_stars.pressed = false
+		p.ui_paths.touch_button_planets.pressed = false
+#		p.ui_paths.touch_button_structures.pressed = false
+		p.ui_paths.touch_nav_popup_structures.show()
 	else: 
-		p.ui_paths.touch_FHD_nav_popup_structures.hide()
+		p.ui_paths.touch_nav_popup_structures.hide()
 
 
 func _on_Button_autopilot_toggled(button_pressed):
@@ -185,16 +186,16 @@ func _on_Touch_ekill_pressed():
 	p.signals.emit_signal("sig_engine_kill")
 		
 func is_autopilot_disable():
-	p.ui_paths.touch_FHD_button_autopilot.pressed = false
+	p.ui_paths.touch_button_autopilot.pressed = false
 		
 	
 
 
 func _on_Button_PLACEHOLDER4_toggled(button_pressed):
-	if button_pressed and not p.ui_paths.touch_FHD_ship_popup.visible: 
-		p.ui_paths.touch_FHD_ship_popup.show()
+	if button_pressed and not p.ui_paths.touch_ship_popup.visible: 
+		p.ui_paths.touch_ship_popup.show()
 	else: 
-		p.ui_paths.touch_FHD_ship_popup.hide()
+		p.ui_paths.touch_ship_popup.hide()
 
 
 func _on_Throttle_slider_pressed():
