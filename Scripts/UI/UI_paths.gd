@@ -97,7 +97,6 @@ onready var touch_readings_target_aim = touch_readings.get_node("Target_aim")
 # Readings top area
 onready var touch_top_readings = touch_readings.get_node("Top_readings")
 onready var touch_top_readings_apparent_velocity = touch_top_readings.get_node("Apparent_velocity")
-onready var touch_top_readings_apparent_velocity_c = touch_top_readings.get_node("Apparent_velocity_c")
 onready var touch_top_readings_apparent_velocity_units = touch_top_readings.get_node("Apparent_velocity_units")
 onready var touch_top_readings_accel_ticks = touch_top_readings.get_node("Accel_ticks")
 

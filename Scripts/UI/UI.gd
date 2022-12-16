@@ -69,12 +69,9 @@ func _process(_delta):
 	if result_s:
 		var vel = str(result_s[0]).pad_decimals(3).left(5)
 		var units = str(result_s[1])
-		var vel_c = str(stepify(speed_val/p.common_constants.C, 0.001)) \
-			.pad_decimals(3).left(5)
-		
-		p.ui_paths.common_readouts.apparent_velocity = " v: " + vel
+		p.ui_paths.common_readouts.apparent_velocity = " V: " + vel
 		p.ui_paths.common_readouts.apparent_velocity_units = units + " / s"
-		p.ui_paths.common_readouts.apparent_velocity_c = " c: " + vel_c
-	p.ui_paths.common_readouts.accel_ticks = str("Accel: ", p.ship_state.accel_ticks)
+		
+	p.ui_paths.common_readouts.accel_ticks = str(" Accel: ", p.ship_state.accel_ticks)
 
 	

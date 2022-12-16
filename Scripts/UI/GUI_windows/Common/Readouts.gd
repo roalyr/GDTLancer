@@ -3,7 +3,6 @@ extends Node
 
 var accel_ticks = ""
 var apparent_velocity = ""
-var apparent_velocity_c = ""
 var apparent_velocity_units = ""
 
 func get_magnitude_units(val):

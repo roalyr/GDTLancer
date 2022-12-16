@@ -89,10 +89,10 @@ func _integrate_forces(state):
 	
 	# Limiting by engine ticks. It is a hard rebase_limits.
 	# TODO: move capped velocity to constants.
-	if vel > p.common_constants.C*0.01 and self.continuous_cd:
+	if vel > 3e6 and self.continuous_cd:
 		self.continuous_cd = false
 		print("disable ship CCD due to high velocity")
-	elif vel < p.common_constants.C*0.01 and not self.continuous_cd:
+	elif vel <= 3e6 and not self.continuous_cd:
 		self.continuous_cd = true
 		print("enable ship CCD")
 

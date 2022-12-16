@@ -76,11 +76,17 @@ material = SubResource( 3 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 17 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_EDITOR_REFERENCE_" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="GUI_touchscreen_readings" parent="_EDITOR_REFERENCE_" instance=ExtResource( 28 )]
 anchor_left = 0.5
@@ -148,6 +154,9 @@ theme = ExtResource( 19 )
 [node name="Controls_area" type="Control" parent="."]
 margin_right = 1920.0
 margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Touch_pad_base" type="Control" parent="Controls_area"]
 anchor_top = 1.0
@@ -437,9 +446,10 @@ normal = ExtResource( 24 )
 pressed = ExtResource( 24 )
 
 [node name="Bar_menu" type="Control" parent="."]
-margin_left = 1465.0
-margin_right = 1775.0
-margin_bottom = 110.0
+margin_left = 1471.0
+margin_top = 961.0
+margin_right = 1811.0
+margin_bottom = 1081.0
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
 material = ExtResource( 25 )
@@ -450,44 +460,51 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Button_options" type="Button" parent="Bar_menu"]
-margin_left = 10.0
-margin_top = 10.0
-margin_right = 110.0
-margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
-theme = ExtResource( 19 )
-keep_pressed_outside = true
-icon = ExtResource( 8 )
-icon_align = 1
-
 [node name="Button_turret" type="Button" parent="Bar_menu"]
-margin_left = 110.0
+margin_left = 120.0
 margin_top = 10.0
-margin_right = 210.0
+margin_right = 220.0
 margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 5 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_options" type="Button" parent="Bar_menu"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
+theme = ExtResource( 19 )
+keep_pressed_outside = true
+icon = ExtResource( 8 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_hide_ui" type="Button" parent="Bar_menu"]
-margin_left = 210.0
+margin_left = 230.0
 margin_top = 10.0
-margin_right = 310.0
+margin_right = 330.0
 margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Bar_control" type="Control" parent="."]
-margin_left = 145.0
-margin_right = 455.0
-margin_bottom = 110.0
+margin_left = 110.0
+margin_top = 961.0
+margin_right = 451.0
+margin_bottom = 1081.0
 
 [node name="Panel" type="Panel" parent="Bar_control"]
 material = ExtResource( 25 )
@@ -499,44 +516,52 @@ __meta__ = {
 }
 
 [node name="Button_autopilot" type="Button" parent="Bar_control"]
-margin_left = 110.0
+margin_left = 121.0
 margin_top = 10.0
-margin_right = 210.0
+margin_right = 221.0
 margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 12 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_target_aim_clear" type="Button" parent="Bar_control"]
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 110.0
 margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 keep_pressed_outside = true
 icon = ExtResource( 10 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER" type="Button" parent="Bar_control"]
-margin_left = 210.0
+margin_left = 231.0
 margin_top = 10.0
-margin_right = 310.0
+margin_right = 331.0
 margin_bottom = 110.0
-rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Bar_nav" type="Control" parent="."]
-margin_left = 450.0
-margin_top = 970.0
-margin_right = 960.0
-margin_bottom = 1080.0
+margin_left = 80.0
+margin_right = 590.0
+margin_bottom = 110.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
 material = ExtResource( 25 )
@@ -561,6 +586,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 16 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_systems" type="Button" parent="Bar_nav"]
 anchor_left = 1.0
@@ -576,6 +604,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 14 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_stars" type="Button" parent="Bar_nav"]
 anchor_left = 1.0
@@ -591,6 +622,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 15 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_planets" type="Button" parent="Bar_nav"]
 anchor_left = 1.0
@@ -606,6 +640,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 9 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_structures" type="Button" parent="Bar_nav"]
 anchor_left = 1.0
@@ -620,13 +657,17 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 11 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -360.0
-margin_bottom = -110.0
+margin_top = 1.0
+margin_bottom = 251.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -658,8 +699,8 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -360.0
-margin_bottom = -110.0
+margin_top = 1.0
+margin_bottom = 251.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -691,8 +732,8 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -360.0
-margin_bottom = -110.0
+margin_top = 1.0
+margin_bottom = 251.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -724,8 +765,8 @@ visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -360.0
-margin_bottom = -110.0
+margin_top = 1.0
+margin_bottom = 251.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -753,12 +794,11 @@ __meta__ = {
 }
 
 [node name="Popup_structures" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -360.0
-margin_bottom = -110.0
+margin_top = 1.0
+margin_bottom = 251.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -786,10 +826,12 @@ __meta__ = {
 }
 
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
-margin_left = 960.0
-margin_top = 970.0
-margin_right = 1470.0
-margin_bottom = 1080.0
+margin_left = 1331.0
+margin_right = 1841.0
+margin_bottom = 110.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
 material = ExtResource( 25 )
@@ -812,6 +854,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER2" type="Button" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
@@ -825,6 +870,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER5" type="Button" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
@@ -838,6 +886,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER3" type="Button" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
@@ -851,6 +902,9 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER4" type="Button" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
@@ -864,13 +918,18 @@ toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 30 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -360.0
-margin_bottom = -110.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 1.0
+margin_bottom = 251.0
 theme = ExtResource( 19 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -906,8 +965,8 @@ __meta__ = {
 [connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_ekill" to="." method="_on_Touch_ekill_pressed"]
 [connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_accel_minus" to="." method="_on_Touch_accel_minus_pressed"]
 [connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_accel_plus" to="." method="_on_Touch_accel_plus_pressed"]
-[connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
 [connection signal="toggled" from="Bar_menu/Button_turret" to="." method="_on_Button_turret_toggled"]
+[connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
 [connection signal="pressed" from="Bar_menu/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
 [connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
 [connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]

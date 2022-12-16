@@ -1,7 +1,7 @@
 extends Node
 
 # Physical
-const C = 299792458 # Speed of light in vacuum
+
 
 # Space damp values.
 const global_linear_damp = 1.0

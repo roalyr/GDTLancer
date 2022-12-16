@@ -11,6 +11,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Debug" type="Control" parent="."]
 anchor_top = 0.5
@@ -77,12 +80,14 @@ anchor_bottom = 0.5
 mouse_filter = 2
 
 [node name="Top_readings" type="Control" parent="."]
-margin_left = 460.0
-margin_right = 1461.0
-margin_bottom = 110.0
+margin_left = 450.0
+margin_top = 961.0
+margin_right = 791.0
+margin_bottom = 1081.0
 mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="Top_readings"]
+visible = false
 material = ExtResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -92,34 +97,77 @@ __meta__ = {
 }
 
 [node name="Apparent_velocity" type="Label" parent="Top_readings"]
-margin_right = 261.0
-margin_bottom = 48.0
+margin_top = 10.0
+margin_right = 181.0
+margin_bottom = 58.0
 theme = ExtResource( 2 )
-text = "v: 0.000"
+text = " V: 0.000"
 valign = 1
 clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Apparent_velocity_units" type="Label" parent="Top_readings"]
-margin_left = 180.18
-margin_right = 441.18
-margin_bottom = 48.0
+margin_left = 160.98
+margin_top = 10.0
+margin_right = 310.98
+margin_bottom = 58.0
 theme = ExtResource( 2 )
 text = "du/s"
 valign = 1
 
-[node name="Apparent_velocity_c" type="Label" parent="Top_readings"]
-margin_top = 50.05
-margin_right = 261.0
-margin_bottom = 98.05
+[node name="Accel_ticks" type="Label" parent="Top_readings"]
+margin_top = 60.0
+margin_right = 331.0
+margin_bottom = 108.0
 theme = ExtResource( 2 )
-text = "c: 0.00000"
+text = " Accel: 0"
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Status_panel" type="Control" parent="."]
+margin_left = 1131.0
+margin_top = 961.0
+margin_right = 1472.0
+margin_bottom = 1081.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Status_panel"]
+visible = false
+material = ExtResource( 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_1" type="Label" parent="Status_panel"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 331.0
+margin_bottom = 58.0
+theme = ExtResource( 2 )
+text = "[][][][]"
+align = 2
 valign = 1
 clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Accel_ticks" type="Label" parent="Top_readings"]
-margin_left = 180.18
-margin_top = 50.05
-margin_right = 441.18
-margin_bottom = 98.05
+[node name="HP_2" type="Label" parent="Status_panel"]
+margin_left = 10.0
+margin_top = 60.0
+margin_right = 331.0
+margin_bottom = 108.0
 theme = ExtResource( 2 )
-text = "Accel: 0"
+text = "[][][][][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}

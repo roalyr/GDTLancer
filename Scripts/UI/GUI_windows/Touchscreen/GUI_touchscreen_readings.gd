@@ -7,5 +7,4 @@ func _process(delta):
 	if p.common_game_options.touchscreen_mode:
 		p.ui_paths.touch_top_readings_apparent_velocity.text = p.ui_paths.common_readouts.apparent_velocity
 		p.ui_paths.touch_top_readings_apparent_velocity_units.text = p.ui_paths.common_readouts.apparent_velocity_units
-		p.ui_paths.touch_top_readings_apparent_velocity_c.text = p.ui_paths.common_readouts.apparent_velocity_c
 		p.ui_paths.touch_top_readings_accel_ticks.text = p.ui_paths.common_readouts.accel_ticks
