@@ -1,11 +1,10 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_prompt_greeting.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_popup_panic.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
-[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen_readings.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scripts/UI/UI_functions.gd" type="Script" id=7]
 [ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=8]
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_pad.gd" type="Script" id=9]
@@ -59,7 +58,5 @@ __meta__ = {
 
 [node name="GUI_touchscreen_options" parent="." instance=ExtResource( 14 )]
 visible = false
-
-[node name="GUI_touchscreen_readings" parent="." instance=ExtResource( 6 )]
 
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]

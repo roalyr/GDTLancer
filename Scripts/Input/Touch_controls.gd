@@ -52,7 +52,7 @@ func handle_input(event):
 		else:
 			pass
 		
-	if event is InputEventScreenDrag and (p.ui.stick_held or p.ui.throttle_held):
+	if event is InputEventScreenDrag:
 		
 		# Keep a track of only this input.
 		var index = event.index
@@ -60,7 +60,7 @@ func handle_input(event):
 		var fy = p.ui.scale.y
 		# Now dynamically re-assign each index depending on situation.
 		# This should work because they are always different (0 and 1).
-		if index == current_pad_touch_index:
+		if index == current_pad_touch_index and p.ui.stick_held:
 			pad_x_abs = (event.position.x-p.ui_paths.touch_touch_pad_base.rect_position.x*fx)/fx
 			pad_y_abs = (event.position.y-p.ui_paths.touch_touch_pad_base.rect_position.y*fy)/fy
 
@@ -70,7 +70,7 @@ func handle_input(event):
 				/ p.ui_paths.touch_touch_pad_base.rect_size.y*2), -1, 1)
 			p.input.mouse_vector = Vector2(pad_x, pad_y) 
 		
-		elif index == current_throttle_touch_index:
+		elif index == current_throttle_touch_index and p.ui.throttle_held:
 			throttle_y_abs = (event.position.y-p.ui_paths.touch_touch_throttle_base.rect_position.y*fy)/fy
 			var throttle_y = clamp(((throttle_y_abs-p.ui_paths.touch_touch_throttle_base.rect_size.y/2) \
 				/ p.ui_paths.touch_touch_throttle_base.rect_size.y*2), -1, 1)

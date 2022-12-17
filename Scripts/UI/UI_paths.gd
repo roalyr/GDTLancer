@@ -55,8 +55,10 @@ onready var touch_options = p.ui.get_node("GUI_touchscreen_options")
 # Menu bar
 onready var touch_bar_menu = touch_gui.get_node("Bar_menu")
 onready var touch_button_options = touch_bar_menu.get_node("Button_options")
-onready var touch_button_turret = touch_bar_menu.get_node("Button_turret")
-onready var touch_button_hide_ui = touch_bar_menu.get_node("Button_hide_ui")
+# Menu bar 2
+onready var touch_bar_menu_2 = touch_gui.get_node("Bar_menu_2")
+onready var touch_button_turret = touch_bar_menu_2.get_node("Button_turret")
+onready var touch_button_hide_ui = touch_bar_menu_2.get_node("Button_hide_ui")
 # Nav bar
 onready var touch_bar_nav = touch_gui.get_node("Bar_nav")
 # Nav bar popup lists
@@ -80,6 +82,8 @@ onready var touch_button_structures = touch_bar_nav.get_node("Button_structures"
 onready var touch_bar_control = touch_gui.get_node("Bar_control")
 onready var touch_button_target_aim_clear = touch_bar_control.get_node("Button_target_aim_clear")
 onready var touch_button_autopilot = touch_bar_control.get_node("Button_autopilot")
+# Control bar 2
+onready var touch_bar_control_2 = touch_gui.get_node("Bar_control_2")
 # Ship bar
 onready var touch_bar_ship = touch_gui.get_node("Bar_ship_PLACEHOLDER")
 onready var touch_ship_popup = touch_bar_ship.get_node("Popup_PLACEHOLDER")
@@ -90,15 +94,18 @@ onready var touch_touch_pad_stick = touch_touch_pad_base.get_node("Stick")
 onready var touch_touch_throttle_base = touch_control_area.get_node("Touch_throttle_base")
 onready var touch_touch_throttle = touch_touch_throttle_base.get_node("Throttle")
 # Readings
-onready var touch_readings = p.ui.get_node("GUI_touchscreen_readings")
-onready var touch_readings_debug = touch_readings.get_node("Debug")
+onready var touch_readings = touch_gui.get_node("Readings")
+onready var touch_readings_debug = touch_readings.get_node("Debug_panel")
 onready var touch_readings_target_autopilot = touch_readings.get_node("Target_autopilot")
 onready var touch_readings_target_aim = touch_readings.get_node("Target_aim")
-# Readings top area
-onready var touch_top_readings = touch_readings.get_node("Top_readings")
-onready var touch_top_readings_apparent_velocity = touch_top_readings.get_node("Apparent_velocity")
-onready var touch_top_readings_apparent_velocity_units = touch_top_readings.get_node("Apparent_velocity_units")
-onready var touch_top_readings_accel_ticks = touch_top_readings.get_node("Accel_ticks")
+# Velocity panel area
+onready var touch_velocity_panel = touch_readings.get_node("Velocity_panel")
+onready var touch_velocity_panel_apparent_velocity = touch_velocity_panel.get_node("Apparent_velocity")
+onready var touch_velocity_panel_apparent_velocity_units = touch_velocity_panel.get_node("Apparent_velocity_units")
+onready var touch_velocity_panel_accel_ticks = touch_velocity_panel.get_node("Accel_ticks")
+# Status panel area
+onready var touch_status_panel = touch_readings.get_node("Status_panel")
+
 
 # Other windows
 onready var gui_prompt = p.ui.get_node("GUI_prompt_greeting")

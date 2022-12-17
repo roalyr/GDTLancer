@@ -1,46 +1,36 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://Assets/Fonts/Ubuntu/Ubuntu-Regular.ttf" type="DynamicFontData" id=1]
-
-[sub_resource type="DynamicFont" id=1]
-size = 20
-font_data = ExtResource( 1 )
-
-[sub_resource type="DynamicFont" id=3]
-size = 20
-font_data = ExtResource( 1 )
+[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=1]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts_touchscreen_FHD/Default_dynamicfont_list_touchscreen_FHD_0.75.tres" type="DynamicFont" id=2]
 
 [node name="Target_aim" type="Control"]
 
-[node name="Text_distance" type="RichTextLabel" parent="."]
+[node name="Text_distance" type="Label" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = 10.0
-margin_top = -28.0
+margin_top = 10.0
 margin_right = 159.0
-margin_bottom = -4.0
-custom_fonts/normal_font = SubResource( 1 )
-text = "000 km"
-fit_content_height = true
-scroll_active = false
+margin_bottom = 58.0
+theme = ExtResource( 1 )
+text = "0000 km"
 
-[node name="Text_object" type="RichTextLabel" parent="."]
+[node name="Text_object" type="Label" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = 11.0
-margin_top = -53.0
-margin_right = 204.0
-margin_bottom = -29.0
+margin_left = 10.0
+margin_top = 60.0
+margin_right = 160.0
+margin_bottom = 96.0
 grow_horizontal = 0
-grow_vertical = 0
-custom_fonts/normal_font = SubResource( 3 )
-text = "Some object name"
-fit_content_height = true
-scroll_active = false
+theme = ExtResource( 1 )
+custom_fonts/font = ExtResource( 2 )
+text = "No target"
+clip_text = true
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchor_left = 0.5
@@ -51,7 +41,6 @@ margin_left = -1.0
 margin_top = -17.0
 margin_right = 1.0
 margin_bottom = -9.0
-color = Color( 0.501961, 0.501961, 0.501961, 1 )
 
 [node name="ColorRect2" type="ColorRect" parent="."]
 anchor_left = 0.5
@@ -62,7 +51,6 @@ margin_left = -1.0
 margin_top = 9.0
 margin_right = 1.0
 margin_bottom = 17.0
-color = Color( 0.501961, 0.501961, 0.501961, 1 )
 
 [node name="ColorRect3" type="ColorRect" parent="."]
 anchor_left = 0.5
@@ -74,7 +62,6 @@ margin_top = -1.0
 margin_right = -7.0
 margin_bottom = 7.0
 rect_rotation = 90.0
-color = Color( 0.501961, 0.501961, 0.501961, 1 )
 
 [node name="ColorRect4" type="ColorRect" parent="."]
 anchor_left = 0.5
@@ -86,4 +73,3 @@ margin_top = -1.0
 margin_right = 19.0
 margin_bottom = 7.0
 rect_rotation = 90.0
-color = Color( 0.501961, 0.501961, 0.501961, 1 )

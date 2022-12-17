@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=37 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -27,8 +27,10 @@
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=25]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_200.png" type="Texture" id=26]
 [ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=27]
-[ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen_readings.tscn" type="PackedScene" id=28]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=28]
+[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen_readings.gd" type="Script" id=29]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=31]
 
 [sub_resource type="CanvasItemMaterial" id=3]
 
@@ -80,29 +82,10 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="_EDITOR_REFERENCE_" type="Control" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 13 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="GUI_touchscreen_readings" parent="_EDITOR_REFERENCE_" instance=ExtResource( 28 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -960.0
-margin_top = -540.0
-margin_right = 960.0
-margin_bottom = 540.0
-
 [node name="_EDITOR_MARGIN_60p_" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 80.0
-margin_right = -80.0
+margin_left = 40.0
+margin_right = 1882.0
+margin_bottom = 1080.0
 color = Color( 0.266667, 0.447059, 0.227451, 0.411765 )
 script = ExtResource( 13 )
 __meta__ = {
@@ -110,6 +93,7 @@ __meta__ = {
 }
 
 [node name="Panel_sample" type="Panel" parent="_EDITOR_MARGIN_60p_"]
+visible = false
 material = ExtResource( 25 )
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -120,36 +104,193 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Decorative_frame" type="ReferenceRect" parent="."]
+[node name="VScrollBar_sample" type="VScrollBar" parent="_EDITOR_MARGIN_60p_"]
 visible = false
+material = ExtResource( 25 )
+margin_right = 12.0
+margin_bottom = 12.0
+
+[node name="Readings" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 1
+mouse_filter = 2
+script = ExtResource( 29 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Panel" type="Panel" parent="Decorative_frame"]
-visible = false
-material = ExtResource( 25 )
-anchor_bottom = 1.0
-margin_left = 350.0
-margin_top = 110.0
-margin_right = 360.0
-margin_bottom = -450.0
-theme = ExtResource( 19 )
+[node name="Debug_panel" type="Control" parent="Readings"]
+margin_left = 551.0
+margin_right = 1361.0
+margin_bottom = 400.0
+mouse_filter = 2
 
-[node name="Panel2" type="Panel" parent="Decorative_frame"]
+[node name="Panel" type="Panel" parent="Readings/Debug_panel"]
 visible = false
 material = ExtResource( 25 )
-anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -360.0
-margin_top = 110.0
-margin_right = -350.0
-margin_bottom = -450.0
 theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="FPS" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 10.0
+margin_right = 120.0
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = "FPS: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_x" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 60.0
+margin_right = 285.0
+margin_bottom = 108.0
+theme = ExtResource( 19 )
+text = "Mouse / Pad x: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_y" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 110.0
+margin_right = 284.0
+margin_bottom = 158.0
+theme = ExtResource( 19 )
+text = "Mouse / Pad y: 0"
+
+[node name="Throttle" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 160.0
+margin_right = 182.0
+margin_bottom = 208.0
+theme = ExtResource( 19 )
+text = "Throttle: 0"
+
+[node name="Print_out" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 210.0
+margin_right = 810.0
+margin_bottom = 390.0
+theme = ExtResource( 19 )
+text = "Output: ....."
+autowrap = true
+
+[node name="Velocity_panel" type="Control" parent="Readings"]
+margin_left = 521.0
+margin_top = 961.0
+margin_right = 841.0
+margin_bottom = 1081.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Readings/Velocity_panel"]
+visible = false
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity" type="Label" parent="Readings/Velocity_panel"]
+margin_top = 10.0
+margin_right = 181.0
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = " V: 0.000"
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity_units" type="Label" parent="Readings/Velocity_panel"]
+margin_left = 160.98
+margin_top = 10.0
+margin_right = 310.98
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = "du/s"
+valign = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Accel_ticks" type="Label" parent="Readings/Velocity_panel"]
+margin_top = 60.0
+margin_right = 331.0
+margin_bottom = 108.0
+theme = ExtResource( 19 )
+text = " Accel: 0"
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Status_panel" type="Control" parent="Readings"]
+margin_left = 1081.0
+margin_top = 961.0
+margin_right = 1402.0
+margin_bottom = 1081.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Readings/Status_panel"]
+visible = false
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_1" type="Label" parent="Readings/Status_panel"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 310.0
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = "[][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_2" type="Label" parent="Readings/Status_panel"]
+margin_left = 10.0
+margin_top = 60.0
+margin_right = 310.0
+margin_bottom = 108.0
+theme = ExtResource( 19 )
+text = "[][][][][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Target_aim" parent="Readings" instance=ExtResource( 31 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="Target_autopilot" parent="Readings" instance=ExtResource( 28 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
 
 [node name="Controls_area" type="Control" parent="."]
 margin_right = 1920.0
@@ -161,10 +302,13 @@ __meta__ = {
 [node name="Touch_pad_base" type="Control" parent="Controls_area"]
 anchor_top = 1.0
 anchor_bottom = 1.0
-margin_left = 80.0
-margin_top = -560.0
-margin_right = 480.0
-margin_bottom = -160.0
+margin_left = 40.0
+margin_top = -559.0
+margin_right = 440.0
+margin_bottom = -159.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel_pad_mark" type="Panel" parent="Controls_area/Touch_pad_base"]
 material = ExtResource( 25 )
@@ -292,10 +436,13 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -480.0
-margin_top = -560.0
-margin_right = -80.0
-margin_bottom = -160.0
+margin_left = -439.0
+margin_top = -559.0
+margin_right = -39.0
+margin_bottom = -159.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel_throttle_mark" type="Panel" parent="Controls_area/Touch_throttle_base"]
 material = ExtResource( 25 )
@@ -446,12 +593,11 @@ normal = ExtResource( 24 )
 pressed = ExtResource( 24 )
 
 [node name="Bar_menu" type="Control" parent="."]
-margin_left = 1471.0
-margin_top = 961.0
-margin_right = 1811.0
-margin_bottom = 1081.0
+margin_right = 120.0
+margin_bottom = 1080.0
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
+visible = false
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -460,51 +606,60 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Button_turret" type="Button" parent="Bar_menu"]
-margin_left = 120.0
-margin_top = 10.0
-margin_right = 220.0
-margin_bottom = 110.0
+[node name="Button_options" type="Button" parent="Bar_menu"]
+margin_left = 10.0
+margin_top = 410.0
+margin_right = 110.0
+margin_bottom = 510.0
+theme = ExtResource( 19 )
+keep_pressed_outside = true
+icon = ExtResource( 8 )
+icon_align = 1
+
+[node name="Bar_menu_2" type="Control" parent="."]
+margin_left = 1802.0
+margin_right = 1922.0
+margin_bottom = 1080.0
+
+[node name="Panel" type="Panel" parent="Bar_menu_2"]
+visible = false
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_turret" type="Button" parent="Bar_menu_2"]
+margin_left = 10.0
+margin_top = 410.0
+margin_right = 110.0
+margin_bottom = 510.0
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 5 )
 icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
 
-[node name="Button_options" type="Button" parent="Bar_menu"]
+[node name="Button_hide_ui" type="Button" parent="Bar_menu_2"]
 margin_left = 10.0
-margin_top = 10.0
+margin_top = 520.0
 margin_right = 110.0
-margin_bottom = 110.0
-theme = ExtResource( 19 )
-keep_pressed_outside = true
-icon = ExtResource( 8 )
-icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Button_hide_ui" type="Button" parent="Bar_menu"]
-margin_left = 230.0
-margin_top = 10.0
-margin_right = 330.0
-margin_bottom = 110.0
+margin_bottom = 620.0
 theme = ExtResource( 19 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
 icon_align = 1
+
+[node name="Bar_control" type="Control" parent="."]
+margin_left = 180.0
+margin_top = 961.0
+margin_right = 521.0
+margin_bottom = 1081.0
 __meta__ = {
 "_edit_lock_": true
 }
-
-[node name="Bar_control" type="Control" parent="."]
-margin_left = 110.0
-margin_top = 961.0
-margin_right = 451.0
-margin_bottom = 1081.0
 
 [node name="Panel" type="Panel" parent="Bar_control"]
 material = ExtResource( 25 )
@@ -555,9 +710,66 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Bar_control_2" type="Control" parent="."]
+margin_left = 1401.0
+margin_top = 961.0
+margin_right = 1741.0
+margin_bottom = 1081.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_control_2"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_PLACEHOLDER" type="Button" parent="Bar_control_2"]
+margin_left = 231.0
+margin_top = 10.0
+margin_right = 331.0
+margin_bottom = 110.0
+theme = ExtResource( 19 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_control_2"]
+margin_left = 121.0
+margin_top = 10.0
+margin_right = 221.0
+margin_bottom = 110.0
+theme = ExtResource( 19 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_control_2"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
+theme = ExtResource( 19 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="Bar_nav" type="Control" parent="."]
-margin_left = 80.0
-margin_right = 590.0
+margin_left = 40.0
+margin_right = 550.0
 margin_bottom = 110.0
 __meta__ = {
 "_edit_lock_": true
@@ -662,12 +874,11 @@ __meta__ = {
 }
 
 [node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 1.0
-margin_bottom = 251.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -695,12 +906,11 @@ __meta__ = {
 }
 
 [node name="Popup_nav_systems" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 1.0
-margin_bottom = 251.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -728,12 +938,11 @@ __meta__ = {
 }
 
 [node name="Popup_nav_stars" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 1.0
-margin_bottom = 251.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -761,12 +970,11 @@ __meta__ = {
 }
 
 [node name="Popup_nav_planets" type="ReferenceRect" parent="Bar_nav"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 1.0
-margin_bottom = 251.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -798,7 +1006,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_top = 1.0
-margin_bottom = 251.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -826,8 +1034,8 @@ __meta__ = {
 }
 
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
-margin_left = 1331.0
-margin_right = 1841.0
+margin_left = 1371.0
+margin_right = 1881.0
 margin_bottom = 110.0
 __meta__ = {
 "_edit_lock_": true
@@ -929,7 +1137,7 @@ anchor_bottom = 1.0
 margin_left = 1.0
 margin_top = 1.0
 margin_right = 1.0
-margin_bottom = 251.0
+margin_bottom = 290.0
 theme = ExtResource( 19 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
@@ -965,9 +1173,9 @@ __meta__ = {
 [connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_ekill" to="." method="_on_Touch_ekill_pressed"]
 [connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_accel_minus" to="." method="_on_Touch_accel_minus_pressed"]
 [connection signal="pressed" from="Controls_area/_Touch_buttons_container/Touch_accel_plus" to="." method="_on_Touch_accel_plus_pressed"]
-[connection signal="toggled" from="Bar_menu/Button_turret" to="." method="_on_Button_turret_toggled"]
 [connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
-[connection signal="pressed" from="Bar_menu/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
+[connection signal="toggled" from="Bar_menu_2/Button_turret" to="." method="_on_Button_turret_toggled"]
+[connection signal="pressed" from="Bar_menu_2/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
 [connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
 [connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
 [connection signal="toggled" from="Bar_nav/Button_constellations" to="." method="_on_Button_constellations_toggled"]

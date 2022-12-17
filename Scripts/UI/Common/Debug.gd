@@ -17,3 +17,10 @@ func update_debug_text():
 	mouse_y = str("Mouse / Pad y: ", p.input.mouse_vector.y)
 	throttle = str("Throttle: ", p.input.throttle_vector)
 	print_out = str("Output: ", debug_output_text)
+	
+	if p.common_game_options.touchscreen_mode:
+		p.ui_paths.touch_readings_debug.get_node("FPS").text = fps
+		p.ui_paths.touch_readings_debug.get_node("Mouse_x").text = mouse_x
+		p.ui_paths.touch_readings_debug.get_node("Mouse_y").text = mouse_y
+		p.ui_paths.touch_readings_debug.get_node("Throttle").text = throttle
+		p.ui_paths.touch_readings_debug.get_node("Print_out").text = print_out

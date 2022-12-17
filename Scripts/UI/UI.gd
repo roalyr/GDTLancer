@@ -42,11 +42,14 @@ func is_viewport_update():
 	# Restore the proportions of the controls.
 	restore_proportions(p.ui_paths.touch_bar_ship)
 	restore_proportions(p.ui_paths.touch_bar_control)
+	restore_proportions(p.ui_paths.touch_bar_control_2)
 	restore_proportions(p.ui_paths.touch_bar_nav)
 	restore_proportions(p.ui_paths.touch_bar_menu)
+	restore_proportions(p.ui_paths.touch_bar_menu_2)
 	restore_proportions(p.ui_paths.touch_touch_throttle_base)
 	restore_proportions(p.ui_paths.touch_touch_pad_base)
-	restore_proportions(p.ui_paths.touch_top_readings)
+	restore_proportions(p.ui_paths.touch_velocity_panel)
+	restore_proportions(p.ui_paths.touch_status_panel)
 
 func restore_proportions(c):
 	c.rect_pivot_offset.x = c.rect_size.x/2
@@ -55,8 +58,9 @@ func restore_proportions(c):
 
 	
 func _process(_delta):
-	p.ui_paths.common_touchscreen_pad.handle_stick()
-	p.ui_paths.common_touchscreen_throttle.handle_throttle()
+	if p.common_game_options.touchscreen_mode:
+		p.ui_paths.common_touchscreen_pad.handle_stick()
+		p.ui_paths.common_touchscreen_throttle.handle_throttle()
 	
 	# DEBUG
 	if update_debug_text_on: p.ui_paths.common_debug.update_debug_text()

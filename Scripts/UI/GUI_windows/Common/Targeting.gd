@@ -64,7 +64,7 @@ func _physics_process(_delta):
 				str(result_d[0])+ " " + result_d[1]
 			# Object name in bb code.
 			#p.ui_paths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
-		p.ui_paths.touch_readings_target_aim.get_node("Text_object").set_fit_content_height(true)
+		p.ui_paths.touch_readings_target_aim.get_node("Text_object")
 		p.ui_paths.touch_readings_target_aim.get_node("Text_object").text = object_aim_name
 				
 	elif not p.ship_state.aim_target_locked and not target_aim_controls_hidden:
@@ -112,7 +112,7 @@ func _physics_process(_delta):
 				str(result_d[0])+ " " + result_d[1]
 			# Object name in bb code.
 			#p.ui_paths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
-		p.ui_paths.touch_readings_target_autopilot.get_node("Text_object").set_fit_content_height(true)
+		p.ui_paths.touch_readings_target_autopilot.get_node("Text_object")
 		p.ui_paths.touch_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
 				
 	elif not p.ship_state.autopilot_target_locked and not target_autopilot_controls_hidden:

@@ -38,7 +38,6 @@ func _on_Button_ekill_pressed():
 	
 func _on_Button_hide_ui_pressed():
 	p.ui_paths.touch_gui.modulate.a = p.ui.ui_alpha
-	p.ui_paths.gameplay.modulate.a = p.ui.ui_alpha
 	p.ui.ui_alpha -= 0.25
 	if p.ui.ui_alpha < 0.0:
 		p.ui.ui_alpha = 1.0
@@ -161,10 +160,8 @@ func _on_Button_structures_toggled(button_pressed):
 
 func _on_Button_autopilot_toggled(button_pressed):
 	if button_pressed:
-		print("Started AP")
 		p.signals.emit_signal("sig_autopilot_start")
 	else:
-		print("Disabled AP")
 		p.signals.emit_signal("sig_autopilot_disable")
 		
 		
