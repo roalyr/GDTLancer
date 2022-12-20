@@ -36,7 +36,14 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Background" type="Control" parent="."]
+margin_right = 1920.0
+margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Background"]
 material = ExtResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -45,7 +52,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Panel2" type="Panel" parent="."]
+[node name="Panel2" type="Panel" parent="Background"]
 material = ExtResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0

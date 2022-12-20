@@ -14,11 +14,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Scripts/Zones/Zone_environment.gd"
 }, {
-"base": "Area",
-"class": "GalaxyLocalSpace",
-"language": "GDScript",
-"path": "res://Scripts/_UNUSED_/_Local_space_galaxy.gd"
-}, {
 "base": "Spatial",
 "class": "LODs_trigger",
 "language": "GDScript",
@@ -116,7 +111,6 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "EnvironmentZone": "res://Assets/UI_images/SVG/icons/environment_zone.svg",
-"GalaxyLocalSpace": "res://Assets/UI_images/SVG/icons/galaxy.svg",
 "LODs_trigger": "res://Assets/UI_images/SVG/icons/lod_icon.svg",
 "MarkerConstellations": "res://Assets/UI_images/SVG/icons/constellation_marker.svg",
 "MarkerNebula": "res://Assets/UI_images/SVG/icons/nebula_marker.svg",
@@ -143,9 +137,9 @@ _global_script_class_icons={
 config/name="GDTLancer"
 config/description="A space game."
 run/main_scene="res://Scenes/Main.tscn"
+boot_splash/image="res://Assets/UI_images/PNG/Icon_splash/Splash.png"
 config/icon="res://Assets/UI_images/PNG/Icon_splash/Icon.png"
 config/windows_native_icon="res://Assets/Images/Icon.ico"
-boot_splash/image="res://Assets/UI_images/PNG/Icon_splash/Splash.png"
 
 [display]
 
