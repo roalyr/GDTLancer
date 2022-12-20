@@ -50,6 +50,10 @@ func is_viewport_update():
 	restore_proportions(p.ui_paths.touch_touch_pad_base)
 	restore_proportions(p.ui_paths.touch_velocity_panel)
 	restore_proportions(p.ui_paths.touch_status_panel)
+	restore_proportions(p.ui_paths.touch_options_buttons_general_bar)
+	restore_proportions(p.ui_paths.touch_options_buttons_quick_bar)
+	
+	
 
 func restore_proportions(c):
 	c.rect_pivot_offset.x = c.rect_size.x/2

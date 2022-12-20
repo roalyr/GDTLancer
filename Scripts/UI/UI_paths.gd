@@ -52,6 +52,10 @@ onready var desktop_ship_popup = desktop_bar_ship.get_node("Popup_PLACEHOLDER")
 # Touchscreen Full-HD UI
 onready var touch_gui = p.ui.get_node("GUI_touchscreen")
 onready var touch_options = p.ui.get_node("GUI_touchscreen_options")
+onready var touch_options_buttons_general_bar = touch_options.get_node("Buttons_general_bar")
+onready var touch_options_buttons_quick_bar = touch_options.get_node("Buttons_quick_bar")
+
+
 # Menu bar
 onready var touch_bar_menu = touch_gui.get_node("Bar_menu")
 onready var touch_button_options = touch_bar_menu.get_node("Button_options")

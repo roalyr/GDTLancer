@@ -57,6 +57,5 @@ __meta__ = {
 }
 
 [node name="GUI_touchscreen_options" parent="." instance=ExtResource( 14 )]
-visible = false
 
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]

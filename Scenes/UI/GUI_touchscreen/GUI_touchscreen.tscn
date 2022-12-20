@@ -83,9 +83,8 @@ __meta__ = {
 }
 
 [node name="_EDITOR_MARGIN_60p_" type="ColorRect" parent="."]
-margin_left = 40.0
-margin_right = 1882.0
-margin_bottom = 1080.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 color = Color( 0.266667, 0.447059, 0.227451, 0.411765 )
 script = ExtResource( 13 )
 __meta__ = {
@@ -120,8 +119,8 @@ __meta__ = {
 }
 
 [node name="Debug_panel" type="Control" parent="Readings"]
-margin_left = 551.0
-margin_right = 1361.0
+margin_left = 550.0
+margin_right = 1370.0
 margin_bottom = 400.0
 mouse_filter = 2
 
@@ -183,10 +182,10 @@ text = "Output: ....."
 autowrap = true
 
 [node name="Velocity_panel" type="Control" parent="Readings"]
-margin_left = 521.0
-margin_top = 961.0
-margin_right = 841.0
-margin_bottom = 1081.0
+margin_left = 520.0
+margin_top = 960.0
+margin_right = 840.0
+margin_bottom = 1080.0
 mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="Readings/Velocity_panel"]
@@ -234,10 +233,10 @@ __meta__ = {
 }
 
 [node name="Status_panel" type="Control" parent="Readings"]
-margin_left = 1081.0
-margin_top = 961.0
-margin_right = 1402.0
-margin_bottom = 1081.0
+margin_left = 1080.0
+margin_top = 960.0
+margin_right = 1400.0
+margin_bottom = 1080.0
 mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="Readings/Status_panel"]
@@ -303,9 +302,9 @@ __meta__ = {
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 40.0
-margin_top = -559.0
+margin_top = -560.0
 margin_right = 440.0
-margin_bottom = -159.0
+margin_bottom = -160.0
 __meta__ = {
 "_edit_lock_": true
 }
@@ -436,10 +435,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -439.0
-margin_top = -559.0
-margin_right = -39.0
-margin_bottom = -159.0
+margin_left = -440.0
+margin_top = -560.0
+margin_right = -40.0
+margin_bottom = -160.0
 __meta__ = {
 "_edit_lock_": true
 }
@@ -595,6 +594,9 @@ pressed = ExtResource( 24 )
 [node name="Bar_menu" type="Control" parent="."]
 margin_right = 120.0
 margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_menu"]
 visible = false
@@ -608,18 +610,21 @@ __meta__ = {
 
 [node name="Button_options" type="Button" parent="Bar_menu"]
 margin_left = 10.0
-margin_top = 410.0
+margin_top = 970.0
 margin_right = 110.0
-margin_bottom = 510.0
+margin_bottom = 1070.0
 theme = ExtResource( 19 )
 keep_pressed_outside = true
 icon = ExtResource( 8 )
 icon_align = 1
 
 [node name="Bar_menu_2" type="Control" parent="."]
-margin_left = 1802.0
-margin_right = 1922.0
+margin_left = 1800.0
+margin_right = 1920.0
 margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_menu_2"]
 visible = false
@@ -633,9 +638,9 @@ __meta__ = {
 
 [node name="Button_turret" type="Button" parent="Bar_menu_2"]
 margin_left = 10.0
-margin_top = 410.0
+margin_top = 860.0
 margin_right = 110.0
-margin_bottom = 510.0
+margin_bottom = 960.0
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
@@ -644,9 +649,9 @@ icon_align = 1
 
 [node name="Button_hide_ui" type="Button" parent="Bar_menu_2"]
 margin_left = 10.0
-margin_top = 520.0
+margin_top = 970.0
 margin_right = 110.0
-margin_bottom = 620.0
+margin_bottom = 1070.0
 theme = ExtResource( 19 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
@@ -654,9 +659,9 @@ icon_align = 1
 
 [node name="Bar_control" type="Control" parent="."]
 margin_left = 180.0
-margin_top = 961.0
-margin_right = 521.0
-margin_bottom = 1081.0
+margin_top = 960.0
+margin_right = 520.0
+margin_bottom = 1080.0
 __meta__ = {
 "_edit_lock_": true
 }
@@ -671,9 +676,9 @@ __meta__ = {
 }
 
 [node name="Button_autopilot" type="Button" parent="Bar_control"]
-margin_left = 121.0
+margin_left = 120.0
 margin_top = 10.0
-margin_right = 221.0
+margin_right = 220.0
 margin_bottom = 110.0
 theme = ExtResource( 19 )
 toggle_mode = true
@@ -698,9 +703,9 @@ __meta__ = {
 }
 
 [node name="Button_PLACEHOLDER" type="Button" parent="Bar_control"]
-margin_left = 231.0
+margin_left = 230.0
 margin_top = 10.0
-margin_right = 331.0
+margin_right = 330.0
 margin_bottom = 110.0
 theme = ExtResource( 19 )
 keep_pressed_outside = true
@@ -711,10 +716,10 @@ __meta__ = {
 }
 
 [node name="Bar_control_2" type="Control" parent="."]
-margin_left = 1401.0
-margin_top = 961.0
-margin_right = 1741.0
-margin_bottom = 1081.0
+margin_left = 1400.0
+margin_top = 960.0
+margin_right = 1740.0
+margin_bottom = 1080.0
 __meta__ = {
 "_edit_lock_": true
 }
@@ -729,9 +734,9 @@ __meta__ = {
 }
 
 [node name="Button_PLACEHOLDER" type="Button" parent="Bar_control_2"]
-margin_left = 231.0
+margin_left = 230.0
 margin_top = 10.0
-margin_right = 331.0
+margin_right = 330.0
 margin_bottom = 110.0
 theme = ExtResource( 19 )
 keep_pressed_outside = true
@@ -742,9 +747,9 @@ __meta__ = {
 }
 
 [node name="Button_PLACEHOLDER2" type="Button" parent="Bar_control_2"]
-margin_left = 121.0
+margin_left = 120.0
 margin_top = 10.0
-margin_right = 221.0
+margin_right = 220.0
 margin_bottom = 110.0
 theme = ExtResource( 19 )
 keep_pressed_outside = true
@@ -1034,8 +1039,8 @@ __meta__ = {
 }
 
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
-margin_left = 1371.0
-margin_right = 1881.0
+margin_left = 1370.0
+margin_right = 1880.0
 margin_bottom = 110.0
 __meta__ = {
 "_edit_lock_": true

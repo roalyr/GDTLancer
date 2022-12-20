@@ -7,7 +7,7 @@ var apparent_velocity = ""
 var apparent_velocity_units = ""
 
 func get_magnitude_units(val):
-	if (val >= 1) and (val < 1e3):
+	if (val >= 0) and (val < 1e3):
 		return [stepify(val, stepify_to), "m"]
 	elif (val >= 1e3) and (val < 1e6):
 		return [stepify(val/1e3, stepify_to), "km"]
