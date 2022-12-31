@@ -8,7 +8,7 @@ var touchscreen_mode = false
 
 # CAMERA
 var camera_inertia_factor = 1.1 # 1.05 ... 1.5 Affects camera inertia.
-var camera_sensitivity = 2
+var camera_sensitivity = 1.5
 
 # VIEWPORT
 var render_res_factor = 1.0

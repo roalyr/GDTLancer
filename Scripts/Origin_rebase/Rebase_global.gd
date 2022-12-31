@@ -14,7 +14,7 @@ func _physics_process(_delta):
 	# Hide ship from view to prevent annoying visuals jitter.
 	# TODO: add a sprite for the value above which is projected.
 	# TODO: move this to a proper module.
-	if rebase_limit > p.ship.camera_push_visibility_velocity:
+	if rebase_limit > p.camera_rig.camera_push_visibility_velocity:
 		p.ship.hide()
 	else:
 		p.ship.show()

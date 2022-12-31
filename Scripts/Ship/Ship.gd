@@ -2,37 +2,27 @@ extends RigidBody
 
 # TODO check materials and shaders for FX
 # Params.
-var ship_mass = 1e6
-var accel_factor = 1e2 # Propulsion force.
-var accel_ticks_max = pow(2,29) # Engine propulsion increments. Pow 2.
+const ship_mass = 1e6
+const accel_factor = 1e2 # Propulsion force.
+const accel_ticks_max = pow(2,29) # Engine propulsion increments. Pow 2.
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
-var torque_factor = Vector3(15e8,7e8,7e8)
-var camera_vert_offset = 1
-var camera_horiz_offset = 6
-# Higher damp value - more restricted camera motion in given direction.
-var camera_chase_tilt_horiz_damp_up = 6 # Can't be zero
-var camera_chase_tilt_horiz_damp_down = 1.8 # Can't be zero
-var camera_chase_tilt_vert_damp_left = 2 # Can't be zero
-var camera_chase_tilt_vert_damp_right = 2 # Can't be zero
-# Higher values - more responsive camera.
-var camera_tilt_velocity_factor = 1
+const torque_factor = Vector3(15e8,7e8,7e8)
 
-var camera_push_velocity_factor = 2.5
-var camera_push_max_factor = 1000.0
-const camera_push_visibility_velocity = 1e8
+const camera_vert_offset = 1
+const camera_horiz_offset = 6
 
-var engine_step_delay = 0.3
+const engine_step_delay = 0.3
 
-var autopilot_angle_deviation = 0.8
+const autopilot_angle_deviation = 0.8
 
 # Lesser is more precise, aim at ration 1:2 for decel being larger
 # Higher numbers mean more agressive AP velocity handling.
-var autopilot_accel_factor = 0.22 # 0.22
-var autopilot_deccel_factor = 0.44 # 0.44
+const autopilot_accel_factor = 0.22 # 0.22
+const autopilot_deccel_factor = 0.44 # 0.44
 
 # Orbiting factor allows to approach not at a straight line, but slightly orbiting.
-var autopilot_orbiting_factor = 0.1 # Keep it small. Less than 1.0 - deviation
+const autopilot_orbiting_factor = 0.1 # Keep it small. Less than 1.0 - deviation
 
 # Vars.
 var default_linear_damp = 0
@@ -47,7 +37,7 @@ var autopilot_range = 0
 
 var dist_val = 0
 var steering_vector = Vector3(0,0,0)
-
+var control_held = false
 
 # Objects.
 var torque = Vector3(0,0,0)
@@ -143,7 +133,6 @@ func _integrate_forces(state):
 	
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes.
-	var control_held = false
 	if not p.common_game_options.touchscreen_mode and p.input.LMB_held:
 		control_held = true
 	elif p.common_game_options.touchscreen_mode and p.ui.stick_held:
@@ -151,8 +140,10 @@ func _integrate_forces(state):
 	else: 
 		control_held = false
 	
-	
-	if not (control_held or p.ship_state.mouse_flight) and p.ship_state.autopilot:
+	# If AP is on, controls are not engaged, but allow camera orbit.
+	if p.ship_state.autopilot and \
+		((not p.ship_state.turret_mode and not (control_held or p.ship_state.mouse_flight)) \
+		or p.ship_state.turret_mode):
 
 		# Fix directions being flipped
 
