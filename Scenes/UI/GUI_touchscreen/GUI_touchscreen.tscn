@@ -16,7 +16,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_system.png" type="Texture" id=14]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_star.png" type="Texture" id=15]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_constellations.png" type="Texture" id=16]
-[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen_FHD.gd" type="Script" id=17]
+[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen.gd" type="Script" id=17]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=18]
 [ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=19]
 [ext_resource path="res://Scripts/UI/Assist/Referencerect_hide.gd" type="Script" id=20]
@@ -28,7 +28,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_200.png" type="Texture" id=26]
 [ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=27]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=28]
-[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen_readings.gd" type="Script" id=29]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_readings.gd" type="Script" id=29]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=31]
 
@@ -305,6 +305,15 @@ margin_left = 40.0
 margin_top = -560.0
 margin_right = 440.0
 margin_bottom = -160.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Controls_area/Touch_pad_base"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -879,6 +888,7 @@ __meta__ = {
 }
 
 [node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -911,6 +921,7 @@ __meta__ = {
 }
 
 [node name="Popup_nav_systems" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -943,6 +954,7 @@ __meta__ = {
 }
 
 [node name="Popup_nav_stars" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -975,6 +987,7 @@ __meta__ = {
 }
 
 [node name="Popup_nav_planets" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1007,6 +1020,7 @@ __meta__ = {
 }
 
 [node name="Popup_structures" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0

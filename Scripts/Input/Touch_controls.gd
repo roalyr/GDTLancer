@@ -61,6 +61,7 @@ func handle_input(event):
 		# Now dynamically re-assign each index depending on situation.
 		# This should work because they are always different (0 and 1).
 		if index == current_pad_touch_index and p.ui.stick_held:
+			# TODO: pad x movement when scaling.
 			pad_x_abs = (event.position.x-p.ui_paths.touch_touch_pad_base.rect_position.x*fx)/fx
 			pad_y_abs = (event.position.y-p.ui_paths.touch_touch_pad_base.rect_position.y*fy)/fy
 

@@ -24,6 +24,7 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 - Theme color and intensity can be selected now.
 - Reworked options menus.
 - Improved and fixed camera behavior.
+- Reworking desktop GUI layout.
 
 ## Documentation
 

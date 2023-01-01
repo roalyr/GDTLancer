@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -12,7 +12,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/target.png" type="Texture" id=10]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_structure.png" type="Texture" id=11]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/autopilot.png" type="Texture" id=12]
-[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=13]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_readings.gd" type="Script" id=13]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_system.png" type="Texture" id=14]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_star.png" type="Texture" id=15]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_constellations.png" type="Texture" id=16]
@@ -23,6 +23,9 @@
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=21]
 [ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=22]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=23]
+[ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=24]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=25]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=26]
 
 [sub_resource type="CanvasItemMaterial" id=3]
 
@@ -53,7 +56,21 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Mouse_area" type="Control" parent="."]
+[node name="Mouse_area_container" type="Control" parent="."]
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Panel" type="Panel" parent="Mouse_area_container"]
+visible = false
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Mouse_area" type="Control" parent="Mouse_area_container"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_default_cursor_shape = 3
@@ -61,194 +78,485 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Bar_menu" type="Control" parent="."]
-anchor_left = 1.0
+[node name="Readings" type="Control" parent="."]
 anchor_right = 1.0
-margin_left = -200.0
-margin_bottom = 70.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Panel" type="Panel" parent="Bar_menu"]
+[node name="Debug_panel" type="Control" parent="Readings"]
+visible = false
+margin_left = 550.0
+margin_right = 1370.0
+margin_bottom = 400.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Readings/Debug_panel"]
+visible = false
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="FPS" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 10.0
+margin_right = 120.0
+margin_bottom = 58.0
+theme = ExtResource( 22 )
+text = "FPS: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_x" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 60.0
+margin_right = 285.0
+margin_bottom = 108.0
+theme = ExtResource( 22 )
+text = "Mouse / Pad x: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_y" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 110.0
+margin_right = 284.0
+margin_bottom = 158.0
+theme = ExtResource( 22 )
+text = "Mouse / Pad y: 0"
+
+[node name="Throttle" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 160.0
+margin_right = 182.0
+margin_bottom = 208.0
+theme = ExtResource( 22 )
+text = "Throttle: 0"
+
+[node name="Print_out" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 210.0
+margin_right = 810.0
+margin_bottom = 390.0
+theme = ExtResource( 22 )
+text = "Output: ....."
+autowrap = true
+
+[node name="Velocity_panel" type="Control" parent="Readings"]
+margin_left = 520.0
+margin_top = 960.0
+margin_right = 840.0
+margin_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Readings/Velocity_panel"]
+visible = false
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity" type="Label" parent="Readings/Velocity_panel"]
+margin_top = 10.0
+margin_right = 181.0
+margin_bottom = 58.0
+theme = ExtResource( 22 )
+text = " V: 0.000"
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity_units" type="Label" parent="Readings/Velocity_panel"]
+margin_left = 160.98
+margin_top = 10.0
+margin_right = 310.98
+margin_bottom = 58.0
+theme = ExtResource( 22 )
+text = "du/s"
+valign = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Accel_ticks" type="Label" parent="Readings/Velocity_panel"]
+margin_top = 60.0
+margin_right = 331.0
+margin_bottom = 108.0
+theme = ExtResource( 22 )
+text = " Accel: 0"
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Status_panel" type="Control" parent="Readings"]
+margin_left = 1080.0
+margin_top = 960.0
+margin_right = 1400.0
+margin_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Readings/Status_panel"]
+visible = false
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_1" type="Label" parent="Readings/Status_panel"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 310.0
+margin_bottom = 58.0
+theme = ExtResource( 22 )
+text = "[][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_2" type="Label" parent="Readings/Status_panel"]
+margin_left = 10.0
+margin_top = 60.0
+margin_right = 310.0
+margin_bottom = 108.0
+theme = ExtResource( 22 )
+text = "[][][][][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Target_aim" parent="Readings" instance=ExtResource( 26 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="Target_autopilot" parent="Readings" instance=ExtResource( 25 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+
+[node name="Bar_menu" type="Control" parent="."]
+margin_right = 120.0
+margin_bottom = 1080.0
+mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_menu"]
+visible = false
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Button_options" type="Button" parent="Bar_menu"]
-margin_left = 5.0
-margin_top = 5.0
-margin_right = 125.0
-margin_bottom = 125.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 10.0
+margin_top = 970.0
+margin_right = 110.0
+margin_bottom = 1070.0
+theme = ExtResource( 22 )
 keep_pressed_outside = true
 icon = ExtResource( 8 )
 icon_align = 1
 
-[node name="Button_turret" type="Button" parent="Bar_menu"]
-margin_left = 70.0
-margin_top = 5.0
-margin_right = 190.0
-margin_bottom = 125.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+[node name="Bar_menu_2" type="Control" parent="."]
+margin_left = 1800.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_menu_2"]
+visible = false
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_turret" type="Button" parent="Bar_menu_2"]
+margin_left = 10.0
+margin_top = 860.0
+margin_right = 110.0
+margin_bottom = 960.0
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 5 )
 icon_align = 1
 
-[node name="Button_hide_ui" type="Button" parent="Bar_menu"]
-margin_left = 135.0
-margin_top = 5.0
-margin_right = 255.0
-margin_bottom = 125.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+[node name="Button_hide_ui" type="Button" parent="Bar_menu_2"]
+margin_left = 10.0
+margin_top = 970.0
+margin_right = 110.0
+margin_bottom = 1070.0
+theme = ExtResource( 22 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
 icon_align = 1
 
 [node name="Bar_control" type="Control" parent="."]
-margin_right = 200.0
-margin_bottom = 70.0
+margin_left = 180.0
+margin_top = 960.0
+margin_right = 520.0
+margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_control"]
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Button_autopilot" type="Button" parent="Bar_control"]
-margin_left = 70.0
-margin_top = 5.0
-margin_right = 190.0
-margin_bottom = 125.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 120.0
+margin_top = 10.0
+margin_right = 220.0
+margin_bottom = 110.0
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 12 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_target_aim_clear" type="Button" parent="Bar_control"]
-margin_left = 5.0
-margin_top = 5.0
-margin_right = 125.0
-margin_bottom = 125.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
+theme = ExtResource( 22 )
 keep_pressed_outside = true
 icon = ExtResource( 10 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER" type="Button" parent="Bar_control"]
-margin_left = 135.0
-margin_top = 5.0
-margin_right = 255.0
-margin_bottom = 125.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 230.0
+margin_top = 10.0
+margin_right = 330.0
+margin_bottom = 110.0
+theme = ExtResource( 22 )
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Bar_control_2" type="Control" parent="."]
+margin_left = 1400.0
+margin_top = 960.0
+margin_right = 1740.0
+margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_control_2"]
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_PLACEHOLDER" type="Button" parent="Bar_control_2"]
+margin_left = 230.0
+margin_top = 10.0
+margin_right = 330.0
+margin_bottom = 110.0
+theme = ExtResource( 22 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_control_2"]
+margin_left = 120.0
+margin_top = 10.0
+margin_right = 220.0
+margin_bottom = 110.0
+theme = ExtResource( 22 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_control_2"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
+theme = ExtResource( 22 )
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Bar_nav" type="Control" parent="."]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_top = -70.0
-margin_right = 330.0
+margin_left = 40.0
+margin_right = 550.0
+margin_bottom = 110.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Button_constellations" type="Button" parent="Bar_nav"]
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 5.0
-margin_top = -65.0
-margin_right = 125.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = -500.0
+margin_top = -100.0
+margin_right = -400.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 16 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_systems" type="Button" parent="Bar_nav"]
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 70.0
-margin_top = -65.0
-margin_right = 190.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = -400.0
+margin_top = -100.0
+margin_right = -300.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 14 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_stars" type="Button" parent="Bar_nav"]
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 135.0
-margin_top = -65.0
-margin_right = 255.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = -300.0
+margin_top = -100.0
+margin_right = -200.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 15 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_planets" type="Button" parent="Bar_nav"]
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 200.0
-margin_top = -65.0
-margin_right = 320.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = -200.0
+margin_top = -100.0
+margin_right = -100.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 9 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_structures" type="Button" parent="Bar_nav"]
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 265.0
-margin_top = -65.0
-margin_right = 385.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = -100.0
+margin_top = -100.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 11 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Popup_nav_constellations" type="ReferenceRect" parent="Bar_nav"]
 visible = false
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -300.0
-margin_right = 330.0
-margin_bottom = -70.0
+margin_top = 1.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -259,7 +567,7 @@ __meta__ = {
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -268,7 +576,7 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 allow_reselect = true
 script = ExtResource( 2 )
 __meta__ = {
@@ -278,10 +586,10 @@ __meta__ = {
 [node name="Popup_nav_systems" type="ReferenceRect" parent="Bar_nav"]
 visible = false
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -300.0
-margin_right = 330.0
-margin_bottom = -70.0
+margin_top = 1.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -292,7 +600,7 @@ __meta__ = {
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -301,7 +609,7 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 allow_reselect = true
 script = ExtResource( 3 )
 __meta__ = {
@@ -311,10 +619,10 @@ __meta__ = {
 [node name="Popup_nav_stars" type="ReferenceRect" parent="Bar_nav"]
 visible = false
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -300.0
-margin_right = 330.0
-margin_bottom = -70.0
+margin_top = 1.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -325,7 +633,7 @@ __meta__ = {
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -334,7 +642,7 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 allow_reselect = true
 script = ExtResource( 1 )
 __meta__ = {
@@ -344,10 +652,10 @@ __meta__ = {
 [node name="Popup_nav_planets" type="ReferenceRect" parent="Bar_nav"]
 visible = false
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -300.0
-margin_right = 330.0
-margin_bottom = -70.0
+margin_top = 1.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -358,7 +666,7 @@ __meta__ = {
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -367,7 +675,7 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 allow_reselect = true
 script = ExtResource( 4 )
 __meta__ = {
@@ -375,11 +683,12 @@ __meta__ = {
 }
 
 [node name="Popup_structures" type="ReferenceRect" parent="Bar_nav"]
+visible = false
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -300.0
-margin_right = 330.0
-margin_bottom = -70.0
+margin_top = 1.0
+margin_bottom = 290.0
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -390,7 +699,7 @@ __meta__ = {
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -399,7 +708,7 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 allow_reselect = true
 script = ExtResource( 6 )
 __meta__ = {
@@ -407,108 +716,111 @@ __meta__ = {
 }
 
 [node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -330.0
-margin_top = -70.0
+margin_left = 1370.0
+margin_right = 1880.0
+margin_bottom = 110.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Button_PLACEHOLDER" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -325.0
-margin_top = -65.0
-margin_right = -205.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 10.0
+margin_top = -100.0
+margin_right = 110.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER2" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -260.0
-margin_top = -65.0
-margin_right = -140.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 110.0
+margin_top = -100.0
+margin_right = 210.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER5" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -195.0
-margin_top = -65.0
-margin_right = -75.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 210.0
+margin_top = -100.0
+margin_right = 310.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER3" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -130.0
-margin_top = -65.0
-margin_right = -10.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 310.0
+margin_top = -100.0
+margin_right = 410.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Button_PLACEHOLDER4" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_left = 1.0
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -65.0
-margin_top = -65.0
-margin_right = 55.0
-margin_bottom = 55.0
-rect_scale = Vector2( 0.5, 0.5 )
-theme = ExtResource( 13 )
+margin_left = 410.0
+margin_top = -100.0
+margin_right = 510.0
+rect_scale = Vector2( 0.9, 0.9 )
+theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 23 )
 icon_align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_ship_PLACEHOLDER"]
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -300.0
-margin_right = 330.0
-margin_bottom = -70.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 1.0
+margin_bottom = 290.0
+theme = ExtResource( 22 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
 script = ExtResource( 20 )
 __meta__ = {
@@ -519,7 +831,7 @@ __meta__ = {
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 13 )
+theme = ExtResource( 22 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -528,18 +840,19 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
-theme = ExtResource( 13 )
-items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false, "Item 32", null, false, "Item 33", null, false, "Item 34", null, false, "Item 35", null, false, "Item 36", null, false, "Item 37", null, false, "Item 38", null, false, "Item 39", null, false, "Item 40", null, false, "Item 41", null, false, "Item 42", null, false, "Item 43", null, false, "Item 44", null, false, "Item 45", null, false, "Item 46", null, false, "Item 47", null, false, "Item 48", null, false, "Item 49", null, false ]
+theme = ExtResource( 22 )
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false, "Item 32", null, false, "Item 33", null, false, "Item 34", null, false, "Item 35", null, false, "Item 36", null, false, "Item 37", null, false, "Item 38", null, false, "Item 39", null, false, "Item 40", null, false, "Item 41", null, false, "Item 42", null, false, "Item 43", null, false, "Item 44", null, false, "Item 45", null, false, "Item 46", null, false, "Item 47", null, false, "Item 48", null, false, "Item 49", null, false, "Item 50", null, false, "Item 51", null, false, "Item 52", null, false, "Item 53", null, false, "Item 54", null, false, "Item 55", null, false, "Item 56", null, false, "Item 57", null, false, "Item 58", null, false, "Item 59", null, false, "Item 60", null, false, "Item 61", null, false, "Item 62", null, false, "Item 63", null, false, "Item 64", null, false, "Item 65", null, false, "Item 66", null, false, "Item 67", null, false, "Item 68", null, false, "Item 69", null, false, "Item 70", null, false, "Item 71", null, false, "Item 72", null, false, "Item 73", null, false, "Item 74", null, false, "Item 75", null, false, "Item 76", null, false, "Item 77", null, false, "Item 78", null, false, "Item 79", null, false, "Item 80", null, false, "Item 81", null, false, "Item 82", null, false, "Item 83", null, false, "Item 84", null, false, "Item 85", null, false, "Item 86", null, false, "Item 87", null, false, "Item 88", null, false, "Item 89", null, false, "Item 90", null, false, "Item 91", null, false, "Item 92", null, false, "Item 93", null, false, "Item 94", null, false, "Item 95", null, false, "Item 96", null, false, "Item 97", null, false, "Item 98", null, false, "Item 99", null, false, "Item 100", null, false, "Item 101", null, false, "Item 102", null, false, "Item 103", null, false, "Item 104", null, false, "Item 105", null, false, "Item 106", null, false, "Item 107", null, false, "Item 108", null, false, "Item 109", null, false, "Item 110", null, false, "Item 111", null, false, "Item 112", null, false, "Item 113", null, false, "Item 114", null, false, "Item 115", null, false, "Item 116", null, false, "Item 117", null, false, "Item 118", null, false, "Item 119", null, false, "Item 120", null, false, "Item 121", null, false, "Item 122", null, false, "Item 123", null, false, "Item 124", null, false, "Item 125", null, false, "Item 126", null, false, "Item 127", null, false, "Item 128", null, false, "Item 129", null, false, "Item 130", null, false, "Item 131", null, false, "Item 132", null, false, "Item 133", null, false, "Item 134", null, false, "Item 135", null, false, "Item 136", null, false, "Item 137", null, false, "Item 138", null, false, "Item 139", null, false, "Item 140", null, false, "Item 141", null, false, "Item 142", null, false, "Item 143", null, false, "Item 144", null, false, "Item 145", null, false, "Item 146", null, false, "Item 147", null, false, "Item 148", null, false, "Item 149", null, false, "Item 150", null, false, "Item 151", null, false, "Item 152", null, false, "Item 153", null, false, "Item 154", null, false, "Item 155", null, false, "Item 156", null, false, "Item 157", null, false, "Item 158", null, false, "Item 159", null, false, "Item 160", null, false, "Item 161", null, false, "Item 162", null, false, "Item 163", null, false, "Item 164", null, false, "Item 165", null, false, "Item 166", null, false, "Item 167", null, false, "Item 168", null, false, "Item 169", null, false, "Item 170", null, false, "Item 171", null, false ]
 allow_reselect = true
+script = ExtResource( 24 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[connection signal="mouse_entered" from="Mouse_area" to="." method="_on_Mouse_area_mouse_entered"]
-[connection signal="mouse_exited" from="Mouse_area" to="." method="_on_Mouse_area_mouse_exited"]
+[connection signal="mouse_entered" from="Mouse_area_container/Mouse_area" to="." method="_on_Mouse_area_mouse_entered"]
+[connection signal="mouse_exited" from="Mouse_area_container/Mouse_area" to="." method="_on_Mouse_area_mouse_exited"]
 [connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
-[connection signal="toggled" from="Bar_menu/Button_turret" to="." method="_on_Button_turret_toggled"]
-[connection signal="pressed" from="Bar_menu/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
+[connection signal="toggled" from="Bar_menu_2/Button_turret" to="." method="_on_Button_turret_toggled"]
+[connection signal="pressed" from="Bar_menu_2/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
 [connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
 [connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
 [connection signal="toggled" from="Bar_nav/Button_constellations" to="." method="_on_Button_constellations_toggled"]

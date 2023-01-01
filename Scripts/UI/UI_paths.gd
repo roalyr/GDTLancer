@@ -15,12 +15,14 @@ onready var common_debug = common.get_node("Debug")
 # Desktop UI
 onready var desktop_gui = p.ui.get_node("GUI_desktop")
 onready var desktop_options = p.ui.get_node("GUI_desktop_options")
-onready var desktop_mouse_area = desktop_gui.get_node("Mouse_area")
+onready var desktop_mouse_area = desktop_gui.get_node("Mouse_area_container/Mouse_area")
 # Menu bar
 onready var desktop_bar_menu = desktop_gui.get_node("Bar_menu")
 onready var desktop_button_options = desktop_bar_menu.get_node("Button_options")
-onready var desktop_button_turret = desktop_bar_menu.get_node("Button_turret")
-onready var desktop_button_hide_ui = desktop_bar_menu.get_node("Button_hide_ui")
+# Menu bar 2
+onready var desktop_bar_menu_2 = desktop_gui.get_node("Bar_menu_2")
+onready var desktop_button_turret = desktop_bar_menu_2.get_node("Button_turret")
+onready var desktop_button_hide_ui = desktop_bar_menu_2.get_node("Button_hide_ui")
 # Nav bar
 onready var desktop_bar_nav = desktop_gui.get_node("Bar_nav")
 # Nav bar popup lists
@@ -44,18 +46,27 @@ onready var desktop_button_structures = desktop_bar_nav.get_node("Button_structu
 onready var desktop_bar_control = desktop_gui.get_node("Bar_control")
 onready var desktop_button_target_aim_clear = desktop_bar_control.get_node("Button_target_aim_clear")
 onready var desktop_button_autopilot = desktop_bar_control.get_node("Button_autopilot")
+# Control bar 2
+onready var desktop_bar_control_2 = desktop_gui.get_node("Bar_control_2")
 # Ship bar
 onready var desktop_bar_ship = desktop_gui.get_node("Bar_ship_PLACEHOLDER")
 onready var desktop_ship_popup = desktop_bar_ship.get_node("Popup_PLACEHOLDER")
+# Readings
+onready var desktop_readings = desktop_gui.get_node("Readings")
+onready var desktop_readings_debug = desktop_readings.get_node("Debug_panel")
+onready var desktop_readings_target_autopilot = desktop_readings.get_node("Target_autopilot")
+onready var desktop_readings_target_aim = desktop_readings.get_node("Target_aim")
+# Velocity panel area
+onready var desktop_velocity_panel = desktop_readings.get_node("Velocity_panel")
+onready var desktop_velocity_panel_apparent_velocity = desktop_velocity_panel.get_node("Apparent_velocity")
+onready var desktop_velocity_panel_apparent_velocity_units = desktop_velocity_panel.get_node("Apparent_velocity_units")
+onready var desktop_velocity_panel_accel_ticks = desktop_velocity_panel.get_node("Accel_ticks")
+# Status panel area
+onready var desktop_status_panel = desktop_readings.get_node("Status_panel")
 
 
 # Touchscreen Full-HD UI
 onready var touch_gui = p.ui.get_node("GUI_touchscreen")
-onready var touch_options = p.ui.get_node("GUI_touchscreen_options")
-onready var touch_options_buttons_general_bar = touch_options.get_node("Buttons_general_bar")
-onready var touch_options_buttons_quick_bar = touch_options.get_node("Buttons_quick_bar")
-
-
 # Menu bar
 onready var touch_bar_menu = touch_gui.get_node("Bar_menu")
 onready var touch_button_options = touch_bar_menu.get_node("Button_options")
@@ -112,6 +123,8 @@ onready var touch_status_panel = touch_readings.get_node("Status_panel")
 
 
 # Other windows
-onready var gui_prompt = p.ui.get_node("GUI_prompt_greeting")
 onready var popup_panic = p.ui.get_node("GUI_popup_panic")
-#onready var gui_window_options = p.ui.get_node("GUI_window_options")
+# Options
+onready var options_gui = p.ui.get_node("GUI_options")
+onready var options_buttons_general_bar = options_gui.get_node("Buttons_general_bar")
+onready var options_buttons_quick_bar = options_gui.get_node("Buttons_quick_bar")

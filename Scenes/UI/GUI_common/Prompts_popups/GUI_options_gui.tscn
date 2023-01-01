@@ -2,7 +2,7 @@
 
 [ext_resource path="res://Assets/UI_images/PNG/buttons/touchscreen_FHD.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=2]
-[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen_FHD_options.gd" type="Script" id=3]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_options.gd" type="Script" id=3]
 [ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=4]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/desktop.png" type="Texture" id=5]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=6]
@@ -28,7 +28,7 @@ func _on_Button_controls_swap_toggled(button_pressed):
 		self.icon = icon_untoggled
 "
 
-[node name="GUI_touchscreen_options" type="Control"]
+[node name="GUI_options" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 3 )

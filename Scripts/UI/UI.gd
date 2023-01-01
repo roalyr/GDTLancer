@@ -50,9 +50,23 @@ func is_viewport_update():
 	restore_proportions(p.ui_paths.touch_touch_pad_base)
 	restore_proportions(p.ui_paths.touch_velocity_panel)
 	restore_proportions(p.ui_paths.touch_status_panel)
-	restore_proportions(p.ui_paths.touch_options_buttons_general_bar)
-	restore_proportions(p.ui_paths.touch_options_buttons_quick_bar)
+	restore_proportions(p.ui_paths.touch_readings_target_autopilot)
+	restore_proportions(p.ui_paths.touch_readings_target_aim)
 	
+	#restore_proportions(p.ui_paths.desktop_mouse_area)
+	restore_proportions(p.ui_paths.desktop_bar_ship)
+	restore_proportions(p.ui_paths.desktop_bar_control)
+	restore_proportions(p.ui_paths.desktop_bar_control_2)
+	restore_proportions(p.ui_paths.desktop_bar_nav)
+	restore_proportions(p.ui_paths.desktop_bar_menu)
+	restore_proportions(p.ui_paths.desktop_bar_menu_2)
+	restore_proportions(p.ui_paths.desktop_velocity_panel)
+	restore_proportions(p.ui_paths.desktop_status_panel)
+	restore_proportions(p.ui_paths.desktop_readings_target_autopilot)
+	restore_proportions(p.ui_paths.desktop_readings_target_aim)
+	
+	restore_proportions(p.ui_paths.options_buttons_general_bar)
+	restore_proportions(p.ui_paths.options_buttons_quick_bar)
 	
 
 func restore_proportions(c):

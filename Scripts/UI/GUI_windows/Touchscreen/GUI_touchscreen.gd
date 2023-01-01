@@ -74,7 +74,7 @@ func _on_Button_accel_minus_pressed():
 # touch_FHD / MOBILE GUI
 # Other buttons
 func _on_Button_options_pressed():
-	p.ui_paths.ui_functions.switch_to_touchscreen_options()
+	p.ui_paths.ui_functions.switch_to_options_gui()
 	
 
 # Mouse capturing for touch_FHD.

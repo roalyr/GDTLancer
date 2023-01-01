@@ -4,7 +4,7 @@
 [ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=2]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen_readings.gd" type="Script" id=5]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_readings.gd" type="Script" id=5]
 
 [node name="GUI_touchscreen_readings" type="Control"]
 anchor_right = 1.0

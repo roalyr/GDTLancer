@@ -37,7 +37,6 @@ func _on_Button_ekill_pressed():
 	
 func _on_Button_hide_ui_pressed():
 	p.ui_paths.desktop_gui.modulate.a = p.ui.ui_alpha
-	p.ui_paths.gameplay.modulate.a = p.ui.ui_alpha
 	p.ui.ui_alpha -= 0.25
 	if p.ui.ui_alpha < 0.0:
 		p.ui.ui_alpha = 1.0
@@ -74,7 +73,7 @@ func _on_Button_accel_minus_pressed():
 # DESKTOP / MOBILE GUI
 # Other buttons
 func _on_Button_options_pressed():
-	p.ui_paths.ui_functions.switch_to_desktop_options()
+	p.ui_paths.ui_functions.switch_to_options_gui()
 	
 
 # Mouse capturing for desktop.

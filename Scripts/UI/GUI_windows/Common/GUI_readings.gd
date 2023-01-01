@@ -8,3 +8,7 @@ func _process(delta):
 		p.ui_paths.touch_velocity_panel_apparent_velocity.text = p.ui_paths.common_readouts.apparent_velocity
 		p.ui_paths.touch_velocity_panel_apparent_velocity_units.text = p.ui_paths.common_readouts.apparent_velocity_units
 		p.ui_paths.touch_velocity_panel_accel_ticks.text = p.ui_paths.common_readouts.accel_ticks
+	else:
+		p.ui_paths.desktop_velocity_panel_apparent_velocity.text = p.ui_paths.common_readouts.apparent_velocity
+		p.ui_paths.desktop_velocity_panel_apparent_velocity_units.text = p.ui_paths.common_readouts.apparent_velocity_units
+		p.ui_paths.desktop_velocity_panel_accel_ticks.text = p.ui_paths.common_readouts.accel_ticks

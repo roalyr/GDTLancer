@@ -7,50 +7,31 @@ var touchscreen_controls_swapped = false
 # INIT
 func init_gui():
 	# Initialize windows in switched off mode to match button states.
-	prompt_gui_show()
+	options_gui_show()
 	gameplay_gui_hide()
-	debug_gui_hide()
-	
 	touchscreen_gui_hide()
-	touchscreen_options_hide()
 	desktop_gui_hide()
-	desktop_options_hide()
-	
-	
-	
+	debug_gui_hide()
 	
 # GLOBAL GUI SWITCHING.
 func switch_to_desktop_gui():
 	gameplay_gui_show()
 	desktop_gui_show()
-	
-	desktop_options_hide()
-	prompt_gui_hide()
+	options_gui_hide()
 	touchscreen_gui_hide()
-	touchscreen_options_hide()
-	
-func switch_to_desktop_options():
-	desktop_gui_hide()
-	gameplay_gui_hide()
-	
-	desktop_options_show()
-	
 	
 func switch_to_touchscreen_gui():
 	gameplay_gui_show()
 	touchscreen_gui_show()
 	is_controls_swapped()
-	
-	touchscreen_options_hide()
-	prompt_gui_hide()
+	options_gui_hide()
 	desktop_gui_hide()
-	desktop_options_hide()
 
-func switch_to_touchscreen_options():
+func switch_to_options_gui():
 	touchscreen_gui_hide()
+	desktop_gui_hide()
 	gameplay_gui_hide()
-	
-	touchscreen_options_show()
+	options_gui_show()
 	
 func switch_to_touchscreen_controls_unswapped():
 	touchscreen_controls_swapped = false
@@ -92,11 +73,12 @@ func touchscreen_gui_show():
 	p.common_game_options.touchscreen_mode = true
 	p.ui_paths.touch_gui.show()
 
-func touchscreen_options_hide():
-	p.ui_paths.touch_options.hide()
+# OPTIONS
+func options_gui_hide():
+	p.ui_paths.options_gui.hide()
 
-func touchscreen_options_show():
-	p.ui_paths.touch_options.show()
+func options_gui_show():
+	p.ui_paths.options_gui.show()
 
 
 # DESKTOP
@@ -107,12 +89,6 @@ func desktop_gui_hide():
 func desktop_gui_show():
 	p.ui_paths.desktop_mouse_area.show()
 	p.ui_paths.desktop_gui.show()
-
-func desktop_options_hide():
-	p.ui_paths.desktop_options.hide()
-
-func desktop_options_show():
-	p.ui_paths.desktop_options.show()
 
 # GUI GAMEPLAY
 func gameplay_gui_hide():
@@ -128,12 +104,6 @@ func debug_gui_hide():
 func debug_gui_show():
 	p.ui_paths.touch_readings_debug.show()
 
-# GUI SELECT PROMPT
-func prompt_gui_hide():
-	p.ui_paths.gui_prompt.hide()
-
-func prompt_gui_show():
-	p.ui_paths.gui_prompt.show()
 
 # GUI TARGETING
 func target_controls_hide():
