@@ -1,0 +1,963 @@
+[gd_scene load_steps=24 format=2]
+
+[ext_resource path="res://Assets/UI_images/PNG/buttons/touchscreen_GUI.png" type="Texture" id=1]
+[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=2]
+[ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_options.gd" type="Script" id=3]
+[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=4]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/desktop_GUI.png" type="Texture" id=5]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=6]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/controls_swap.png" type="Texture" id=7]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=8]
+[ext_resource path="res://Scripts/UI/Assist/ScrollContainer_link_material.gd" type="Script" id=9]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/autopilot.png" type="Texture" id=10]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/turret.png" type="Texture" id=11]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/ui_opacity.png" type="Texture" id=12]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/options.png" type="Texture" id=13]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/target.png" type="Texture" id=14]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_system.png" type="Texture" id=15]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_star.png" type="Texture" id=16]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_constellations.png" type="Texture" id=17]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_planet.png" type="Texture" id=18]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_structure.png" type="Texture" id=19]
+[ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=20]
+[ext_resource path="res://Scripts/UI/Assist/Control_show.gd" type="Script" id=21]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Button
+
+var icon_untoggled =  load(\"res://Assets/UI_images/PNG/buttons/controls_swap.png\")
+var icon_toggled = load(\"res://Assets/UI_images/PNG/buttons/controls_swap_toggled.png\")
+
+func _on_Button_controls_swap_toggled(button_pressed):
+	if button_pressed:
+		self.icon = icon_toggled
+	else:
+		self.icon = icon_untoggled
+"
+
+[sub_resource type="StyleBoxFlat" id=3]
+content_margin_left = 30.0
+content_margin_top = 20.0
+bg_color = Color( 0.6, 0.6, 0.6, 0 )
+corner_detail = 1
+
+[node name="GUI_options" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+
+[node name="Background" type="Control" parent="."]
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Panel" type="Panel" parent="Background"]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel2" type="Panel" parent="Background"]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Buttons_general_bar" type="Control" parent="."]
+margin_right = 480.0
+margin_bottom = 1080.0
+script = ExtResource( 21 )
+
+[node name="Panel" type="Panel" parent="Buttons_general_bar"]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Button_start" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 80.0
+margin_right = -80.0
+margin_bottom = 160.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+text = "Start"
+
+[node name="Button_resume" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 200.0
+margin_right = -80.0
+margin_bottom = 280.0
+theme = ExtResource( 4 )
+disabled = true
+keep_pressed_outside = true
+text = "Resume"
+
+[node name="Button_options_general" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 320.0
+margin_right = -80.0
+margin_bottom = 400.0
+theme = ExtResource( 4 )
+toggle_mode = true
+keep_pressed_outside = true
+text = "Options general"
+
+[node name="Button_options_graphic" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 440.0
+margin_right = -80.0
+margin_bottom = 520.0
+theme = ExtResource( 4 )
+toggle_mode = true
+keep_pressed_outside = true
+text = "Options graphic"
+
+[node name="Button_options_audio" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 560.0
+margin_right = -80.0
+margin_bottom = 640.0
+theme = ExtResource( 4 )
+disabled = true
+toggle_mode = true
+keep_pressed_outside = true
+text = "Options audio"
+
+[node name="Button_info" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 680.0
+margin_right = -80.0
+margin_bottom = 760.0
+theme = ExtResource( 4 )
+toggle_mode = true
+keep_pressed_outside = true
+text = "Info"
+
+[node name="Button_quit" type="Button" parent="Buttons_general_bar"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -400.0
+margin_top = 800.0
+margin_right = -80.0
+margin_bottom = 880.0
+theme = ExtResource( 4 )
+custom_colors/font_color = Color( 1, 0.505882, 0.505882, 1 )
+keep_pressed_outside = true
+text = "Quit game"
+
+[node name="Options_prompt_start" type="Control" parent="."]
+visible = false
+margin_left = 480.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Button_desktop_gui" type="Button" parent="Options_prompt_start"]
+margin_left = 160.0
+margin_top = 240.0
+margin_right = 680.0
+margin_bottom = 800.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+icon = ExtResource( 5 )
+icon_align = 1
+
+[node name="Label" type="Label" parent="Options_prompt_start/Button_desktop_gui"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -97.5
+margin_top = -80.0
+margin_right = 97.5
+margin_bottom = -32.0
+theme = ExtResource( 4 )
+text = "Desktop GUI"
+
+[node name="Button_touch_gui" type="Button" parent="Options_prompt_start"]
+margin_left = 760.0
+margin_top = 240.0
+margin_right = 1280.0
+margin_bottom = 800.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+icon = ExtResource( 1 )
+icon_align = 1
+
+[node name="Label" type="Label" parent="Options_prompt_start/Button_touch_gui"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -133.5
+margin_top = -80.0
+margin_right = 133.5
+margin_bottom = -32.0
+theme = ExtResource( 4 )
+text = "Touchscreen GUI"
+
+[node name="Label" type="Label" parent="Options_prompt_start"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -335.5
+margin_top = 110.0
+margin_right = 335.5
+margin_bottom = 158.0
+theme = ExtResource( 4 )
+text = "Select GUI mode depending on your device"
+
+[node name="Options_tab_options_general" type="Control" parent="."]
+visible = false
+margin_left = 480.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Button_desktop_gui" type="Button" parent="Options_tab_options_general"]
+margin_left = 80.0
+margin_top = 80.0
+margin_right = 480.0
+margin_bottom = 480.0
+rect_scale = Vector2( 0.8, 0.8 )
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+icon = ExtResource( 5 )
+icon_align = 1
+
+[node name="Label" type="Label" parent="Options_tab_options_general/Button_desktop_gui"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = -60.0
+margin_right = 88.0
+margin_bottom = -18.0
+theme = ExtResource( 4 )
+text = "Desktop GUI"
+
+[node name="Button_touch_gui" type="Button" parent="Options_tab_options_general"]
+margin_left = 440.0
+margin_top = 80.0
+margin_right = 840.0
+margin_bottom = 480.0
+rect_scale = Vector2( 0.8, 0.8 )
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+icon = ExtResource( 1 )
+icon_align = 1
+
+[node name="Label" type="Label" parent="Options_tab_options_general/Button_touch_gui"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = -60.0
+margin_right = 105.0
+margin_bottom = -18.0
+theme = ExtResource( 4 )
+text = "Touchscreen GUI"
+
+[node name="Button_controls_swap" type="Button" parent="Options_tab_options_general"]
+margin_left = 800.0
+margin_top = 80.0
+margin_right = 1360.0
+margin_bottom = 400.0
+theme = ExtResource( 4 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 7 )
+icon_align = 1
+script = SubResource( 2 )
+
+[node name="Label" type="Label" parent="Options_tab_options_general/Button_controls_swap"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -260.13
+margin_top = -50.0
+margin_right = 59.8699
+margin_bottom = -1.99994
+rect_scale = Vector2( 0.8, 0.8 )
+theme = ExtResource( 4 )
+text = "Swap touch controls"
+
+[node name="Button_debug" type="Button" parent="Options_tab_options_general"]
+pause_mode = 2
+margin_left = 80.0
+margin_top = 440.0
+margin_right = 400.0
+margin_bottom = 520.0
+theme = ExtResource( 4 )
+toggle_mode = true
+keep_pressed_outside = true
+text = "Debug"
+
+[node name="Button_PLACEHOLDER" type="Button" parent="Options_tab_options_general"]
+pause_mode = 2
+margin_left = 440.0
+margin_top = 440.0
+margin_right = 760.0
+margin_bottom = 520.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+
+[node name="Button_PLACEHOLDER2" type="Button" parent="Options_tab_options_general"]
+pause_mode = 2
+margin_left = 440.0
+margin_top = 560.0
+margin_right = 760.0
+margin_bottom = 640.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+
+[node name="Button_PLACEHOLDER3" type="Button" parent="Options_tab_options_general"]
+pause_mode = 2
+margin_left = 80.0
+margin_top = 560.0
+margin_right = 400.0
+margin_bottom = 640.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+
+[node name="Language_list" type="ItemList" parent="Options_tab_options_general"]
+margin_left = 801.0
+margin_top = 440.0
+margin_right = 1360.0
+margin_bottom = 640.0
+theme = ExtResource( 4 )
+items = [ "Language: EN", null, false, "Мова: UK", null, false, "Language: WW", null, true, "Language: XX", null, true, "Language: YY", null, true, "Language: ZZ", null, true ]
+allow_reselect = true
+script = ExtResource( 20 )
+
+[node name="Options_tab_options_graphic" type="Control" parent="."]
+visible = false
+margin_left = 480.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Color_presets" type="Control" parent="Options_tab_options_graphic"]
+margin_left = 250.0
+margin_top = 80.0
+margin_right = 1470.0
+margin_bottom = 201.0
+rect_scale = Vector2( 0.91, 0.91 )
+
+[node name="Panel_sample" type="Panel" parent="Options_tab_options_graphic/Color_presets"]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "DO NOT REMOVE"
+}
+
+[node name="Color_1" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 110.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.25098, 0.501961, 0.501961, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_2" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 120.0
+margin_top = 10.0
+margin_right = 220.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.25, 0.35, 0.5, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_3" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 230.0
+margin_top = 10.0
+margin_right = 330.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.3, 0.25, 0.5, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_4" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 340.0
+margin_top = 10.0
+margin_right = 440.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_4"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.45098, 0.25098, 0.501961, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_5" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 450.0
+margin_top = 10.0
+margin_right = 550.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_5"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.5, 0.25, 0.4, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_6" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 560.0
+margin_top = 10.0
+margin_right = 660.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_6"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.5, 0.25, 0.254167, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_7" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 670.0
+margin_top = 10.0
+margin_right = 770.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_7"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.5, 0.4, 0.25, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_8" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 780.0
+margin_top = 10.0
+margin_right = 880.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_8"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.45, 0.5, 0.25, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_9" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 890.0
+margin_top = 10.0
+margin_right = 990.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_9"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.3, 0.5, 0.25, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_10" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 1000.0
+margin_top = 10.0
+margin_right = 1100.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_10"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.25, 0.5, 0.35, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Color_11" type="Button" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = 1110.0
+margin_top = 10.0
+margin_right = 1210.0
+margin_bottom = 110.0
+theme = ExtResource( 4 )
+icon = ExtResource( 6 )
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Color_11"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+mouse_filter = 2
+color = Color( 0.5, 0.5, 0.5, 0.501961 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Label" type="Label" parent="Options_tab_options_graphic/Color_presets"]
+margin_left = -187.0
+margin_bottom = 121.0
+theme = ExtResource( 4 )
+text = "GUI color"
+align = 1
+valign = 1
+
+[node name="Panel" type="Panel" parent="Options_tab_options_graphic/Color_presets/Label"]
+show_behind_parent = true
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Color_presets/Label"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 3.0
+margin_top = 3.0
+margin_right = -3.0
+margin_bottom = -3.0
+color = Color( 0, 0, 0, 0.376471 )
+
+[node name="Slider_screen_res" type="HSlider" parent="Options_tab_options_graphic"]
+margin_left = 320.0
+margin_top = 360.0
+margin_right = 1359.0
+margin_bottom = 460.0
+theme = ExtResource( 4 )
+min_value = 0.1
+max_value = 1.0
+step = 0.1
+value = 1.0
+tick_count = 10
+ticks_on_borders = true
+
+[node name="Label" type="Label" parent="Options_tab_options_graphic/Slider_screen_res"]
+margin_left = -240.0
+margin_bottom = 100.0
+theme = ExtResource( 4 )
+custom_fonts/font = ExtResource( 8 )
+text = "Render quality
+(affects FPS)"
+align = 1
+valign = 1
+
+[node name="Panel" type="Panel" parent="Options_tab_options_graphic/Slider_screen_res/Label"]
+show_behind_parent = true
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Slider_screen_res/Label"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 3.0
+margin_top = 3.0
+margin_right = -3.0
+margin_bottom = -3.0
+color = Color( 0, 0, 0, 0.376471 )
+
+[node name="Slider_color_power" type="HSlider" parent="Options_tab_options_graphic"]
+margin_left = 320.0
+margin_top = 230.0
+margin_right = 1359.0
+margin_bottom = 330.0
+theme = ExtResource( 4 )
+max_value = 2.0
+step = 0.1
+value = 1.0
+tick_count = 10
+ticks_on_borders = true
+
+[node name="Label" type="Label" parent="Options_tab_options_graphic/Slider_color_power"]
+margin_left = -240.0
+margin_bottom = 100.0
+theme = ExtResource( 4 )
+custom_fonts/font = ExtResource( 8 )
+text = "GUI color power"
+align = 1
+valign = 1
+
+[node name="Panel" type="Panel" parent="Options_tab_options_graphic/Slider_color_power/Label"]
+show_behind_parent = true
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ColorRect" type="ColorRect" parent="Options_tab_options_graphic/Slider_color_power/Label"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 3.0
+margin_top = 3.0
+margin_right = -3.0
+margin_bottom = -3.0
+color = Color( 0, 0, 0, 0.376471 )
+
+[node name="Options_tab_options_audio" type="Control" parent="."]
+visible = false
+margin_left = 480.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Options_tab_info" type="Control" parent="."]
+visible = false
+margin_left = 480.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Options_tab_info"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 4 )
+script = ExtResource( 9 )
+
+[node name="Container2" type="VBoxContainer" parent="Options_tab_info/ScrollContainer"]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 946.0
+margin_bottom = 1056.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_right = 916.0
+margin_bottom = 100.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer2"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 14 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer2"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 690.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Target (currently clears target only)"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 104.0
+margin_right = 916.0
+margin_bottom = 204.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 10 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 278.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Autopilot"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 208.0
+margin_right = 916.0
+margin_bottom = 308.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer3"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 13 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer3"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 439.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Open options menu"
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 312.0
+margin_right = 916.0
+margin_bottom = 412.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer4"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 12 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer4"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 916.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Change GUI opacity in game (click multiple times)"
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 416.0
+margin_right = 916.0
+margin_bottom = 516.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer5"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 11 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer5"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 557.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Camera turret (orbit) mode"
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 520.0
+margin_right = 916.0
+margin_bottom = 620.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer6"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 17 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer6"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 798.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Navigation list: nebulas and constellations"
+
+[node name="HBoxContainer7" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 624.0
+margin_right = 916.0
+margin_bottom = 724.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer7"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 15 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer7"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 580.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Navigation list: star systems"
+
+[node name="HBoxContainer8" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 728.0
+margin_right = 916.0
+margin_bottom = 828.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer8"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 16 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer8"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 457.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Navigation list: stars"
+
+[node name="HBoxContainer9" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 832.0
+margin_right = 916.0
+margin_bottom = 932.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer9"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 18 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer9"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 494.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Navigation list: planets"
+
+[node name="HBoxContainer10" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+margin_top = 936.0
+margin_right = 916.0
+margin_bottom = 1036.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer10"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 19 )
+
+[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer10"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 729.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Navigation list: structures and objects"
+
+[connection signal="pressed" from="Buttons_general_bar/Button_start" to="." method="_on_Button_start_pressed"]
+[connection signal="pressed" from="Buttons_general_bar/Button_resume" to="." method="_on_Button_resume_pressed"]
+[connection signal="toggled" from="Buttons_general_bar/Button_options_general" to="." method="_on_Button_options_general_toggled"]
+[connection signal="toggled" from="Buttons_general_bar/Button_options_graphic" to="." method="_on_Button_options_graphic_toggled"]
+[connection signal="toggled" from="Buttons_general_bar/Button_options_audio" to="." method="_on_Button_options_audio_toggled"]
+[connection signal="toggled" from="Buttons_general_bar/Button_info" to="." method="_on_Button_info_toggled"]
+[connection signal="pressed" from="Buttons_general_bar/Button_quit" to="." method="_on_Button_quit_pressed"]
+[connection signal="pressed" from="Options_prompt_start/Button_desktop_gui" to="." method="_on_Button_desktop_gui_pressed"]
+[connection signal="pressed" from="Options_prompt_start/Button_touch_gui" to="." method="_on_Button_touch_gui_pressed"]
+[connection signal="pressed" from="Options_tab_options_general/Button_desktop_gui" to="." method="_on_Button_desktop_gui_pressed"]
+[connection signal="pressed" from="Options_tab_options_general/Button_touch_gui" to="." method="_on_Button_touch_gui_pressed"]
+[connection signal="toggled" from="Options_tab_options_general/Button_controls_swap" to="." method="_on_Button_controls_swap_toggled"]
+[connection signal="toggled" from="Options_tab_options_general/Button_controls_swap" to="Options_tab_options_general/Button_controls_swap" method="_on_Button_controls_swap_toggled"]
+[connection signal="toggled" from="Options_tab_options_general/Button_debug" to="." method="_on_Button_debug_toggled"]
+[connection signal="item_selected" from="Options_tab_options_general/Language_list" to="." method="_on_Language_list_item_selected"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_1" to="." method="_on_Color_1_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_2" to="." method="_on_Color_2_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_3" to="." method="_on_Color_3_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_4" to="." method="_on_Color_4_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_5" to="." method="_on_Color_5_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_6" to="." method="_on_Color_6_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_7" to="." method="_on_Color_7_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_8" to="." method="_on_Color_8_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_9" to="." method="_on_Color_9_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_10" to="." method="_on_Color_10_pressed"]
+[connection signal="pressed" from="Options_tab_options_graphic/Color_presets/Color_11" to="." method="_on_Color_11_pressed"]
+[connection signal="value_changed" from="Options_tab_options_graphic/Slider_screen_res" to="." method="_on_Slider_screen_res_value_changed"]
+[connection signal="value_changed" from="Options_tab_options_graphic/Slider_color_power" to="." method="_on_Slider_color_power_value_changed"]

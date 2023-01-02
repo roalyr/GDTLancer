@@ -6,29 +6,19 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 
 [Progress]: Doc/Images/Progress.png "Progress"
 
-## Recent changelog
-### Since v0.10-alpha (current)
-- New release (and some last-minute tweaks)!
-- Tweaked shaders for performance (significant boost due to partially using vertex shading).
-- Fixed some improper LODs.
-- Tweaked warp camera effect (stretch and brightness are now more smooth).
-- Re-introduced star core shader, optimized this time.
-- Refactored and improved performance a lot with use of vertex shaders.
-- Environment zones (locally adjustable brightness, saturation, contrast).
-- New different star sprites.
-- Initiated localization (EN and UA).
-- Separate navigation lists for different stellar objects and structures.
-- Refactored UI, implemented proper GUI themes for different devices.
-- Updated engine binaries (3.x as of 13th December 2022).
-- Reworked touchscreen controls. They can be swapped.
-- Theme color and intensity can be selected now.
-- Reworked options menus.
-- Improved and fixed camera behavior.
-- Reworking desktop GUI layout.
+## Requirements
+The game is designed to be as performance-friendly as possible.  
+So it should run on any hardware that passes through basic requirements.  
+FPS can be adjusted with the internal render quality.  
+
+- GPU which supports GLES3.
+- Windows x86-64, Linux x86-64, Linux 32-bit, Android ARMv7, Android ARMv8.
+- Screen ratio 16:9 and wider (qHD, HD, FHD, QHD, etc.)
+- Mouse + Keyboard or touchscreen.
 
 ## Documentation
 
-[Previous versions changelog](Doc/changelog.md)  
+[Versions changelog](Doc/changelog.md)  
 [TODO list](Doc/todo.md)  
 
 

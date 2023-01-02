@@ -14,7 +14,8 @@ func hide_navbars():
 	p.ui_paths.touch_nav_popup_stars.hide()
 	p.ui_paths.touch_nav_popup_planets.hide()
 	p.ui_paths.touch_nav_popup_structures.hide()
-	
+
+# TODO: should this be used instead?
 func unpress_nav_buttons():
 	p.ui_paths.touch_button_constellations.pressed = false
 	p.ui_paths.touch_button_systems.pressed = false

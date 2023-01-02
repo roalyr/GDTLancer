@@ -21,7 +21,7 @@
 [ext_resource path="res://Scripts/Editor/Editor_object.gd" type="Script" id=19]
 [ext_resource path="res://Scripts/UI/Assist/Referencerect_hide.gd" type="Script" id=20]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=21]
-[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=22]
+[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=22]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=23]
 [ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=24]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=25]
@@ -197,7 +197,7 @@ margin_top = 60.0
 margin_right = 331.0
 margin_bottom = 108.0
 theme = ExtResource( 22 )
-text = " Accel: 0"
+text = " A: 0"
 __meta__ = {
 "_edit_lock_": true
 }

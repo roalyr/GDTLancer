@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/touchscreen_FHD.png-9ca6cba1e2f77fc971b495d8d1a45b1d.stex"
+path="res://.import/desktop_GUI.png-b2cbc9f72b1567aac284d5ef9a3511bc.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/UI_images/PNG/buttons/touchscreen_FHD.png"
-dest_files=[ "res://.import/touchscreen_FHD.png-9ca6cba1e2f77fc971b495d8d1a45b1d.stex" ]
+source_file="res://Assets/UI_images/PNG/buttons/desktop_GUI.png"
+dest_files=[ "res://.import/desktop_GUI.png-b2cbc9f72b1567aac284d5ef9a3511bc.stex" ]
 
 [params]
 

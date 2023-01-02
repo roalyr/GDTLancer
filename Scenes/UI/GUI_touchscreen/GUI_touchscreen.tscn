@@ -18,7 +18,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_constellations.png" type="Texture" id=16]
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/GUI_touchscreen.gd" type="Script" id=17]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/_blank_button_100px.png" type="Texture" id=18]
-[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=19]
+[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=19]
 [ext_resource path="res://Scripts/UI/Assist/Referencerect_hide.gd" type="Script" id=20]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/stick.png" type="Texture" id=21]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ekill.png" type="Texture" id=22]
@@ -227,7 +227,7 @@ margin_top = 60.0
 margin_right = 331.0
 margin_bottom = 108.0
 theme = ExtResource( 19 )
-text = " Accel: 0"
+text = " A: 0"
 __meta__ = {
 "_edit_lock_": true
 }
@@ -310,6 +310,7 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Controls_area/Touch_pad_base"]
+visible = false
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0

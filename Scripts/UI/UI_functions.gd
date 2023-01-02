@@ -8,6 +8,8 @@ var touchscreen_controls_swapped = false
 func init_gui():
 	# Initialize windows in switched off mode to match button states.
 	options_gui_show()
+	options_prompt_start_show()
+	
 	gameplay_gui_hide()
 	touchscreen_gui_hide()
 	desktop_gui_hide()
@@ -66,11 +68,9 @@ func is_controls_swapped():
 
 
 func touchscreen_gui_hide():
-	p.common_game_options.touchscreen_mode = false
 	p.ui_paths.touch_gui.hide()
 	
 func touchscreen_gui_show():
-	p.common_game_options.touchscreen_mode = true
 	p.ui_paths.touch_gui.show()
 
 # OPTIONS
@@ -80,6 +80,12 @@ func options_gui_hide():
 func options_gui_show():
 	p.ui_paths.options_gui.show()
 
+# INITIAL PROMPT
+func options_prompt_start_hide():
+	p.ui_paths.options_prompt_start.hide()
+
+func options_prompt_start_show():
+	p.ui_paths.options_prompt_start.show()
 
 # DESKTOP
 func desktop_gui_hide():

@@ -1,5 +1,8 @@
 extends Node
 
+# GAME STATE
+var game_started = false
+
 # LANGUAGE
 var game_locale = "uk"
 

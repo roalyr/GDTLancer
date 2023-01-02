@@ -2,7 +2,7 @@
 
 [ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_popup_panic.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/UI/GUI_common/Prompts_menus/GUI_popup_panic.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scripts/UI/UI_functions.gd" type="Script" id=7]
 [ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=8]
@@ -10,7 +10,7 @@
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Readouts.gd" type="Script" id=10]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Targeting.gd" type="Script" id=11]
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_throttle.gd" type="Script" id=13]
-[ext_resource path="res://Scenes/UI/GUI_common/Prompts_popups/GUI_options_gui.tscn" type="PackedScene" id=14]
+[ext_resource path="res://Scenes/UI/GUI_common/Prompts_menus/GUI_options.tscn" type="PackedScene" id=14]
 [ext_resource path="res://Scripts/UI/Common/Debug.gd" type="Script" id=15]
 
 [node name="UI" type="CanvasLayer"]

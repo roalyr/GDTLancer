@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://Assets/Themes/Default/Theme_default_touchscreen_FHD.tres" type="Theme" id=1]
-[ext_resource path="res://Assets/Themes/Default/Elements/Fonts_touchscreen_FHD/Default_dynamicfont_list_touchscreen_FHD_0.75.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=1]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=2]
 
 [node name="Target_autopilot" type="Control"]
 

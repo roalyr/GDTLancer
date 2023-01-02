@@ -15,6 +15,8 @@ var ui_alpha = 1.0
 # Internal values.
 var viewport_size = Vector2(1,1)
 var reverse_scale = Vector2(1,1)
+var ratio_height = 1.0
+var ratio_width = 1.0
 
 
 onready var p = get_tree().get_root().get_node("Main/Paths")
@@ -31,8 +33,8 @@ func _ready():
 
 
 func is_viewport_update():
-	var ratio_height = OS.window_size.y/ProjectSettings.get_setting("display/window/size/height")
-	var ratio_width = OS.window_size.x/ProjectSettings.get_setting("display/window/size/width")
+	ratio_height = OS.window_size.y/ProjectSettings.get_setting("display/window/size/height")
+	ratio_width = OS.window_size.x/ProjectSettings.get_setting("display/window/size/width")
 	self.scale = Vector2(ratio_width, ratio_height)
 	# Calculate reverse scale, but make sure 1/0 is not happening.
 	reverse_scale = Vector2(
@@ -66,13 +68,25 @@ func is_viewport_update():
 	restore_proportions(p.ui_paths.desktop_readings_target_aim)
 	
 	restore_proportions(p.ui_paths.options_buttons_general_bar)
-	restore_proportions(p.ui_paths.options_buttons_quick_bar)
+	restore_proportions(p.ui_paths.options_tab_options_general)
+	restore_proportions(p.ui_paths.options_tab_options_graphic)
+	restore_proportions(p.ui_paths.options_tab_options_audio)
+	restore_proportions(p.ui_paths.options_tab_info)
+	restore_proportions(p.ui_paths.options_prompt_start)
 	
 
 func restore_proportions(c):
 	c.rect_pivot_offset.x = c.rect_size.x/2
 	c.rect_pivot_offset.y = c.rect_size.y/2
 	c.rect_scale = reverse_scale/reverse_scale.y
+
+# Restore the window, provide margins as if it was a FHD resolution.
+# TODO: how?
+func restore_proportions_with_margins(c):
+	c.rect_pivot_offset.x = c.rect_size.x/2
+	c.rect_pivot_offset.y = c.rect_size.y/2
+	c.rect_scale = reverse_scale/reverse_scale.y
+	c.rect_size.x = 1920*reverse_scale.x/reverse_scale.y
 
 	
 func _process(_delta):
@@ -94,6 +108,6 @@ func _process(_delta):
 		p.ui_paths.common_readouts.apparent_velocity = " V: " + vel
 		p.ui_paths.common_readouts.apparent_velocity_units = units + " / s"
 		
-	p.ui_paths.common_readouts.accel_ticks = str(" Accel: ", p.ship_state.accel_ticks)
+	p.ui_paths.common_readouts.accel_ticks = str(" A: ", p.ship_state.accel_ticks)
 
 	

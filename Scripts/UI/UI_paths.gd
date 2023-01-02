@@ -126,5 +126,30 @@ onready var touch_status_panel = touch_readings.get_node("Status_panel")
 onready var popup_panic = p.ui.get_node("GUI_popup_panic")
 # Options
 onready var options_gui = p.ui.get_node("GUI_options")
+# Button side bar
 onready var options_buttons_general_bar = options_gui.get_node("Buttons_general_bar")
-onready var options_buttons_quick_bar = options_gui.get_node("Buttons_quick_bar")
+onready var options_button_resume = options_buttons_general_bar.get_node("Button_resume")
+onready var options_button_options_general = options_buttons_general_bar.get_node("Button_options_general")
+onready var options_button_options_graphic = options_buttons_general_bar.get_node("Button_options_graphic")
+onready var options_button_options_audio = options_buttons_general_bar.get_node("Button_options_audio")
+onready var options_button_info = options_buttons_general_bar.get_node("Button_info")
+# Starting prompt
+onready var options_prompt_start = options_gui.get_node("Options_prompt_start")
+# General options tab
+onready var options_tab_options_general = options_gui.get_node("Options_tab_options_general")
+# Graphic options tab
+onready var options_tab_options_graphic = options_gui.get_node("Options_tab_options_graphic")
+onready var options_graphic_color_presets = options_tab_options_graphic.get_node("Color_presets")
+# Audio options tab
+onready var options_tab_options_audio = options_gui.get_node("Options_tab_options_audio")
+# Info tab
+onready var options_tab_info = options_gui.get_node("Options_tab_info")
+
+
+
+
+
+
+
+
+

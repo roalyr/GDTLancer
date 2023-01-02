@@ -1,8 +1,9 @@
-[gd_resource type="Theme" load_steps=12 format=2]
+[gd_resource type="Theme" load_steps=20 format=2]
 
-[ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_list.tres" type="DynamicFont" id=6]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/slider_horiz_100_flat.png" type="Texture" id=2]
 
-[sub_resource type="StyleBoxFlat" id=1]
+[sub_resource type="StyleBoxFlat" id=11]
 bg_color = Color( 0, 0, 0, 0.376471 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -10,7 +11,7 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=2]
+[sub_resource type="StyleBoxFlat" id=12]
 bg_color = Color( 0, 0, 0, 0 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -18,7 +19,7 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="StyleBoxFlat" id=13]
 bg_color = Color( 0, 0, 0, 0.376471 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -26,7 +27,7 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=4]
+[sub_resource type="StyleBoxFlat" id=14]
 bg_color = Color( 0, 0, 0, 0.376471 )
 corner_radius_top_left = 5
 corner_radius_top_right = 5
@@ -34,7 +35,7 @@ corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=5]
+[sub_resource type="StyleBoxFlat" id=19]
 bg_color = Color( 0, 0, 0, 0.752941 )
 border_width_left = 4
 border_width_top = 4
@@ -47,61 +48,133 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=6]
-content_margin_left = 10.0
-content_margin_right = 10.0
-bg_color = Color( 0, 0, 0, 0.376471 )
-corner_detail = 1
-
-[sub_resource type="StyleBoxFlat" id=8]
-bg_color = Color( 1, 1, 1, 0.12549 )
-corner_detail = 1
-
-[sub_resource type="StyleBoxFlat" id=15]
+[sub_resource type="StyleBoxFlat" id=22]
+content_margin_left = 40.0
+content_margin_right = 40.0
 bg_color = Color( 0, 0, 0, 0 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
 border_color = Color( 1, 1, 1, 1 )
 corner_detail = 1
 shadow_color = Color( 1, 1, 1, 0.501961 )
 shadow_size = 15
 
-[sub_resource type="StyleBoxFlat" id=11]
-bg_color = Color( 1, 1, 1, 0 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color( 1, 1, 1, 0.501961 )
+[sub_resource type="StyleBoxFlat" id=23]
+content_margin_top = 90.0
+bg_color = Color( 0, 0, 0, 0 )
 corner_detail = 1
 
-[sub_resource type="StyleBoxFlat" id=14]
-content_margin_left = 25.0
+[sub_resource type="ImageTexture" id=18]
+
+[sub_resource type="StyleBoxFlat" id=17]
+bg_color = Color( 0, 0, 0, 0.376471 )
+corner_detail = 1
+expand_margin_right = 50.0
+expand_margin_bottom = 1.0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=16]
+content_margin_top = 90.0
+bg_color = Color( 0, 0, 0, 0 )
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color( 1, 1, 1, 1 )
+corner_detail = 1
+expand_margin_top = 3.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color( 0, 0, 0, 0.376471 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id=24]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color( 0, 0, 0, 0 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 1, 1, 1, 0.12549 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0, 0, 0, 0 )
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color( 1, 1, 1, 1 )
+corner_detail = 1
+shadow_color = Color( 1, 1, 1, 0.501961 )
+shadow_size = 15
+
+[sub_resource type="StyleBoxFlat" id=21]
+content_margin_left = 30.0
+content_margin_top = 20.0
+bg_color = Color( 0, 0, 0, 0.376471 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id=20]
+content_margin_top = 40.0
+content_margin_bottom = 40.0
+bg_color = Color( 0, 0, 0, 0 )
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color( 1, 1, 1, 1 )
+corner_detail = 1
+shadow_color = Color( 1, 1, 1, 0.501961 )
+shadow_size = 15
+
+[sub_resource type="StyleBoxFlat" id=9]
+content_margin_left = 90.0
 bg_color = Color( 0, 0, 0, 0 )
 corner_detail = 1
 
 [resource]
-Button/styles/disabled = SubResource( 1 )
-Button/styles/focus = SubResource( 2 )
-Button/styles/hover = SubResource( 3 )
-Button/styles/normal = SubResource( 4 )
-Button/styles/pressed = SubResource( 5 )
+Button/colors/font_color = Color( 1, 1, 1, 1 )
+Button/fonts/font = ExtResource( 1 )
+Button/styles/disabled = SubResource( 11 )
+Button/styles/focus = SubResource( 12 )
+Button/styles/hover = SubResource( 13 )
+Button/styles/normal = SubResource( 14 )
+Button/styles/pressed = SubResource( 19 )
+HScrollBar/styles/grabber = SubResource( 22 )
+HScrollBar/styles/grabber_highlight = SubResource( 22 )
+HScrollBar/styles/grabber_pressed = SubResource( 22 )
+HScrollBar/styles/scroll = SubResource( 23 )
+HScrollBar/styles/scroll_focus = SubResource( 23 )
+HSlider/icons/grabber = ExtResource( 2 )
+HSlider/icons/grabber_disabled = ExtResource( 2 )
+HSlider/icons/grabber_highlight = ExtResource( 2 )
+HSlider/icons/tick = SubResource( 18 )
+HSlider/styles/grabber_area = SubResource( 17 )
+HSlider/styles/grabber_area_highlight = SubResource( 17 )
+HSlider/styles/slider = SubResource( 16 )
 ItemList/colors/font_color = Color( 1, 1, 1, 1 )
 ItemList/colors/font_color_selected = Color( 1, 1, 1, 1 )
 ItemList/constants/hseparation = 0
 ItemList/constants/icon_margin = 4
 ItemList/constants/line_separation = 0
 ItemList/constants/vseparation = 4
-ItemList/fonts/font = ExtResource( 6 )
-ItemList/styles/bg = SubResource( 6 )
-ItemList/styles/bg_focus = SubResource( 6 )
-ItemList/styles/selected = SubResource( 8 )
-ItemList/styles/selected_focus = SubResource( 8 )
-Panel/styles/panel = SubResource( 15 )
-VScrollBar/styles/grabber = SubResource( 11 )
-VScrollBar/styles/grabber_highlight = SubResource( 11 )
-VScrollBar/styles/grabber_pressed = SubResource( 11 )
-VScrollBar/styles/scroll = SubResource( 14 )
-VScrollBar/styles/scroll_focus = SubResource( 14 )
+ItemList/fonts/font = ExtResource( 1 )
+ItemList/styles/bg = SubResource( 1 )
+ItemList/styles/bg_focus = SubResource( 24 )
+ItemList/styles/selected = SubResource( 3 )
+ItemList/styles/selected_focus = SubResource( 3 )
+Label/colors/font_color = Color( 1, 1, 1, 1 )
+Label/fonts/font = ExtResource( 1 )
+Panel/styles/panel = SubResource( 5 )
+ScrollContainer/styles/bg = SubResource( 21 )
+VScrollBar/styles/grabber = SubResource( 20 )
+VScrollBar/styles/grabber_highlight = SubResource( 20 )
+VScrollBar/styles/grabber_pressed = SubResource( 20 )
+VScrollBar/styles/scroll = SubResource( 9 )
+VScrollBar/styles/scroll_focus = SubResource( 9 )

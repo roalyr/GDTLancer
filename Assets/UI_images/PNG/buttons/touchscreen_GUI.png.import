@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/desktop.png-2444a58d3e5faf6dfef1eb412fdf5c39.stex"
+path="res://.import/touchscreen_GUI.png-8453625a385509e9dcd787fb7bfa6c7a.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/UI_images/PNG/buttons/desktop.png"
-dest_files=[ "res://.import/desktop.png-2444a58d3e5faf6dfef1eb412fdf5c39.stex" ]
+source_file="res://Assets/UI_images/PNG/buttons/touchscreen_GUI.png"
+dest_files=[ "res://.import/touchscreen_GUI.png-8453625a385509e9dcd787fb7bfa6c7a.stex" ]
 
 [params]
 

@@ -1,6 +1,29 @@
-# Previous versions changelog
-  
-## Since v0.9-alpha
+# Versions changelog
+ 
+## v0.11-alpha (work in progress)
+- Updated engine binaries (3.x as of 13th December 2022).
+### Models
+- Fixed some improper LODs.
+### Camera
+- Improved and fixed camera behavior.
+- Tweaked warp camera effect (stretch and brightness are now more smooth).
+### Environment
+- Environment zones (locally adjustable brightness, saturation, contrast).
+### Shaders
+- Tweaked shaders for performance (significant boost due to partially using vertex shading).
+- Re-introduced star core shader, optimized this time.
+- New different star sprites.
+### Locales
+- Initiated localization (EN and UA).
+### Interface
+- Separate navigation lists for different stellar objects and structures.
+- Reworked touchscreen controls. They can be swapped.
+- Reworked options menus.
+- Reworked desktop GUI layout.
+- Implemented basic info window.
+- Theme color and intensity can be selected now.
+
+## v0.10-alpha (last release)
 - CCD is disabled upon reaching specific velocity threshold.
 - Tweaked autopilot to perform some rotation (approach is slightly spiraled).
 - Introduced star system coordinates databank for main galaxy (50k stars for now).
@@ -29,7 +52,7 @@
 - Added a new planetary shader (ice).
 - Pre-release tweaks.
 
-## Since v0.8-alpha
+## v0.9-alpha
 - Tweaks to desktop UI.
 - Fixed lag due to complex collision trimesh.
 - Autopilot added.
@@ -37,7 +60,7 @@
 - Default window size is 720p.
 - Some tweaks to superliminal velocity effects.
 
-## Since v0.7-alpha
+## v0.8-alpha
 - A new star system!
 - Switched to full-scale stellar bodies (stars and planets are up to scale now).
 - Using `meters` instead of `units` now. Updated distance prefixes according to 
