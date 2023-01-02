@@ -14,7 +14,6 @@ onready var common_debug = common.get_node("Debug")
 
 # Desktop UI
 onready var desktop_gui = p.ui.get_node("GUI_desktop")
-onready var desktop_options = p.ui.get_node("GUI_desktop_options")
 onready var desktop_mouse_area = desktop_gui.get_node("Mouse_area_container/Mouse_area")
 # Menu bar
 onready var desktop_bar_menu = desktop_gui.get_node("Bar_menu")
@@ -128,11 +127,13 @@ onready var popup_panic = p.ui.get_node("GUI_popup_panic")
 onready var options_gui = p.ui.get_node("GUI_options")
 # Button side bar
 onready var options_buttons_general_bar = options_gui.get_node("Buttons_general_bar")
+onready var options_button_start = options_buttons_general_bar.get_node("Button_start")
 onready var options_button_resume = options_buttons_general_bar.get_node("Button_resume")
 onready var options_button_options_general = options_buttons_general_bar.get_node("Button_options_general")
 onready var options_button_options_graphic = options_buttons_general_bar.get_node("Button_options_graphic")
 onready var options_button_options_audio = options_buttons_general_bar.get_node("Button_options_audio")
 onready var options_button_info = options_buttons_general_bar.get_node("Button_info")
+onready var options_button_quit = options_buttons_general_bar.get_node("Button_quit")
 # Starting prompt
 onready var options_prompt_start = options_gui.get_node("Options_prompt_start")
 # General options tab

@@ -234,7 +234,6 @@ theme = ExtResource( 4 )
 text = "Select GUI mode depending on your device"
 
 [node name="Options_tab_options_general" type="Control" parent="."]
-visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0

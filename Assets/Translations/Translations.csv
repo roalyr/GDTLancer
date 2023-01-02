@@ -2,3 +2,10 @@ keys,en,uk
 TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.
 NAME_NEBULA_CANCER,Cancer Nebula,Крабоподібна туманність.
 DESC_NEBULA_CANCER,This is a Cancer Nebula. It is large and green.,Це Крабоподібна туманність. Вона велика і зелена.
+BUTTON_INFO,Info,Інформація
+BUTTON_OPTIONS_AUDIO,Options audio,Опції звуку
+BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки
+BUTTON_OPTIONS_GENERAL,Options general,Опції загальні
+BUTTON_RESUME,Resume,Продовжити
+BUTTON_START,Start,Розпочати
+BUTTON_QUIT,Quit,Вийти

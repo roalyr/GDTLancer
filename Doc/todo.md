@@ -13,7 +13,7 @@ Highlighted entries are "Work in progress".
 - Sandbox (debug) mode separate from gameplay mode.
 - **Ambient music and sounds.**
 - **Save game state and options.**
-- **Ship switching (in debug).**
+- **Ship switching (in debug) (https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html).**
 
 ## Improvements
 - Make star sprites diminish in size with distance (script).
@@ -26,6 +26,7 @@ Highlighted entries are "Work in progress".
 ## Refactor
 - **Re-attach models directly into scenes (make editable).**
 - **Refactor ship code.**
+- Paths and common to autoload (https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html)
 
 ## Fix
 - Investigate flickering on high velocity.

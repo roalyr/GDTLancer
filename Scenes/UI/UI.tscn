@@ -1,6 +1,7 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/UI/Translations.gd" type="Script" id=2]
 [ext_resource path="res://Scenes/UI/GUI_touchscreen/GUI_touchscreen.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_menus/GUI_popup_panic.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
@@ -38,6 +39,9 @@ script = ExtResource( 13 )
 
 [node name="Debug" type="Node" parent="Common"]
 script = ExtResource( 15 )
+
+[node name="Translations" type="Node" parent="Common"]
+script = ExtResource( 2 )
 
 [node name="GUI_desktop" parent="." instance=ExtResource( 5 )]
 visible = false

@@ -15,6 +15,7 @@ signal sig_render_res_value_changed(value)
 signal sig_fov_value_changed(value)
 signal sig_viewport_update
 signal sig_quit_game
+signal sig_language_selected(index)
 
 # UI MARKERS
 signal sig_fetch_markers

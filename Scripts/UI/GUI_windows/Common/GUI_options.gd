@@ -2,6 +2,9 @@ extends Control
 
 onready var p = get_tree().get_root().get_node("Main/Paths")
 
+func _ready():
+	hide_tabs()
+
 
 func hide_tabs():
 	p.ui_paths.options_tab_info.hide()	
@@ -112,7 +115,7 @@ func _on_Button_controls_swap_toggled(button_pressed):
 		p.ui_paths.ui_functions.switch_to_touchscreen_controls_unswapped()
 
 func _on_Language_list_item_selected(index):
-	pass # Replace with function body.
+	p.signals.emit_signal("sig_language_selected", index)
 
 
 # GRAPHIC OPTIONS
