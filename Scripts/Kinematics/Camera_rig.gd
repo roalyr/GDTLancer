@@ -111,6 +111,7 @@ func orbit_camera(mv):
 		self.rotate_object_local(Vector3(1,0,0), deg2rad(roll_vert))
 	self.rotate_object_local(Vector3(0,1,0), deg2rad(roll_horiz))
 	self.rotation.z = 0
+	
 
 func chase_camera(mv):
 	# Calculating camera tilt amount.
@@ -174,9 +175,11 @@ func camera_common_behavior():
 	# Camera rolling back and down.
 	if p.ship_state.turret_mode:
 		$Camera.translation.z = camera_push_z + current_zoom_extra
+		$Camera.translation.y = 0
 	else:
 		$Camera.translation.z = camera_push_z
-	$Camera.translation.y = camera_push_y
+		$Camera.translation.y = camera_push_y
+	
 	
 	# This simulates warp effect and hides ship model.
 	p.camera.fov = p.common_camera.camera_fov \

@@ -27,9 +27,12 @@ func handle_input(event):
 				
 		# Turret mode.
 		if event.pressed and event.scancode == KEY_H:
-			if not p.ship_state.turret_mode: 
+			if not p.ship_state.turret_mode:
+				p.signals.emit_signal("sig_turret_mode_on", true)
 				p.ship_state.turret_mode = true
-			else: p.ship_state.turret_mode = false
+			else:
+				p.signals.emit_signal("sig_turret_mode_on", false) 
+				p.ship_state.turret_mode = false
 		
 		# Quit the game.
 		# TODO: remove keyboard mapping later on.

@@ -8,7 +8,6 @@ Highlighted entries are "Work in progress".
 - **Infocards. Accessible from targeting and in-game list.**
 - **Info about an object in-game.**
 - Internal game wiki. 
-- **Help window.**
 - Pause the game while menu (options) window is on.
 - **Connect localization strings with interface, add language switching button.**
 - Sandbox (debug) mode separate from gameplay mode.
@@ -19,8 +18,6 @@ Highlighted entries are "Work in progress".
 ## Improvements
 - Make star sprites diminish in size with distance (script).
 - **Improve UI readability.**
-- **Rearrange butons and windows.**
-- **Scalable UI (control panel, texts, buttons, etc).**
 - Investigate enabling/disabling trimesh collision shapes on the go.
 - Option for debanding.
 - Engine kill button for touch UI.
@@ -33,4 +30,3 @@ Highlighted entries are "Work in progress".
 ## Fix
 - Investigate flickering on high velocity.
 - Keyboard keys (also refactor).
-- **Camera switching re-center in turret.**

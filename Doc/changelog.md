@@ -16,6 +16,7 @@
 ### Locales
 - Initiated localization (EN and UA).
 ### Interface
+- GUI is now scaleable, and will adapt to any screen (16:9 and wider).
 - Separate navigation lists for different stellar objects and structures.
 - Reworked touchscreen controls. They can be swapped.
 - Reworked options menus.
