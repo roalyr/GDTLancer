@@ -12,7 +12,7 @@ func recenter_throttle():
 
 func handle_throttle():
 	# Process virtual throttle input.
-	if p.common_game_options.touchscreen_mode:
+	if GameOptions.touchscreen_mode:
 		if p.ui.throttle_held:
 			throttle.position.y = p.input_touch_controls.throttle_y_abs-throttle_size_half.y
 		else:

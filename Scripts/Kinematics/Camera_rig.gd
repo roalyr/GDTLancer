@@ -67,9 +67,9 @@ func _physics_process(delta):
 	
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes. Needed for detection camera orbiting.
-	if not p.common_game_options.touchscreen_mode and p.input.LMB_held:
+	if not GameOptions.touchscreen_mode and p.input.LMB_held:
 		control_held = true
-	elif p.common_game_options.touchscreen_mode and p.ui.stick_held:
+	elif GameOptions.touchscreen_mode and p.ui.stick_held:
 		control_held = true
 	else: 
 		control_held = false
@@ -83,7 +83,7 @@ func _physics_process(delta):
 	elif p.ship_state.turret_mode and (not control_held or not p.ship_state.mouse_flight):
 		# Small inertia camera movement after releasing the controls.
 		if abs(camera_vector.x) > camera_inertial_movement_threshold_low:
-			camera_vector /= p.common_game_options.camera_inertia_factor
+			camera_vector /= GameOptions.camera_inertia_factor
 			orbit_camera(camera_vector)
 	
 	# CHASE CAMERA
@@ -99,8 +99,8 @@ func _physics_process(delta):
 func orbit_camera(mv):
 	# Compensate camera roll speed by camera altitude.
 	var phi = abs(cos(self.rotation.x))
-	var roll_vert = -mv.y * p.common_game_options.camera_sensitivity
-	var roll_horiz = -mv.x * p.common_game_options.camera_sensitivity*phi
+	var roll_vert = -mv.y * GameOptions.camera_sensitivity
+	var roll_horiz = -mv.x * GameOptions.camera_sensitivity*phi
 	camera_vert = self.rotation_degrees.x
 	camera_horiz = self.rotation_degrees.y
 	if camera_vert + roll_vert >= p.common_camera.camera_turret_roll_vert_limit:

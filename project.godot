@@ -141,6 +141,10 @@ boot_splash/image="res://Assets/UI_images/PNG/Icon_splash/Splash.png"
 config/icon="res://Assets/UI_images/PNG/Icon_splash/Icon.png"
 config/windows_native_icon="res://Assets/Images/Icon.ico"
 
+[autoload]
+
+GameOptions="*res://Scripts/Main/autoload_Game_options.gd"
+
 [display]
 
 window/size/width=1920

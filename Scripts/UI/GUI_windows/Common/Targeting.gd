@@ -55,11 +55,11 @@ func _physics_process(_delta):
 		# Multiply by scale factor of viewport to position properly.
 		p.ui_paths.touch_readings_target_aim.visible = not p.viewport.get_camera().is_position_behind(object_aim_origin)
 		p.ui_paths.touch_readings_target_aim.rect_position = p.viewport.get_camera().unproject_position(
-			object_aim_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
+			object_aim_origin)/GameOptions.render_res_factor*p.ui.reverse_scale
 		
 		p.ui_paths.desktop_readings_target_aim.visible = not p.viewport.get_camera().is_position_behind(object_aim_origin)
 		p.ui_paths.desktop_readings_target_aim.rect_position = p.viewport.get_camera().unproject_position(
-			object_aim_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
+			object_aim_origin)/GameOptions.render_res_factor*p.ui.reverse_scale
 		
 		
 		
@@ -114,11 +114,11 @@ func _physics_process(_delta):
 		# Multiply by scale factor of viewport to position properly.
 		p.ui_paths.touch_readings_target_autopilot.visible = not p.viewport.get_camera().is_position_behind(object_autopilot_origin)
 		p.ui_paths.touch_readings_target_autopilot.rect_position = p.viewport.get_camera().unproject_position(
-			object_autopilot_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
+			object_autopilot_origin)/GameOptions.render_res_factor*p.ui.reverse_scale
 		
 		p.ui_paths.desktop_readings_target_autopilot.visible = not p.viewport.get_camera().is_position_behind(object_autopilot_origin)
 		p.ui_paths.desktop_readings_target_autopilot.rect_position = p.viewport.get_camera().unproject_position(
-			object_autopilot_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
+			object_autopilot_origin)/GameOptions.render_res_factor*p.ui.reverse_scale
 		
 		# Update marker.
 		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_autopilot_val)

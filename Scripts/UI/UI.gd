@@ -90,7 +90,7 @@ func restore_proportions_with_margins(c):
 
 	
 func _process(_delta):
-	if p.common_game_options.touchscreen_mode:
+	if GameOptions.touchscreen_mode:
 		p.ui_paths.common_touchscreen_pad.handle_stick()
 		p.ui_paths.common_touchscreen_throttle.handle_throttle()
 	

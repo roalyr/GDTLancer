@@ -30,7 +30,7 @@ func _input(event):
 	p.input_keyboard.handle_input(event)
 		
 	# PAD AND THROTTLE INPUT HANDLING
-	if p.common_game_options.touchscreen_mode:
+	if GameOptions.touchscreen_mode:
 		p.input_touch_controls.handle_input(event)
 				
 

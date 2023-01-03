@@ -10,7 +10,7 @@ onready var signals = main.get_node("Signals")
 onready var common = main.get_node("Common")
 onready var common_camera = common.get_node("Camera")
 onready var common_engine = common.get_node("Engine")
-onready var common_game_options = common.get_node("Game_options")
+
 onready var ship_state = common.get_node("Ship_state")
 onready var common_space_state = common.get_node("Space_state")
 onready var common_constants = common.get_node("Constants")

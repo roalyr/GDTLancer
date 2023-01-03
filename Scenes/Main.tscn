@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://Scenes/Viewport.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scripts/Paths.gd" type="Script" id=2]
@@ -7,14 +7,13 @@
 [ext_resource path="res://Scripts/Input/Keyboard.gd" type="Script" id=5]
 [ext_resource path="res://Scripts/Input/Mouse.gd" type="Script" id=6]
 [ext_resource path="res://Scripts/Input/Touch_controls.gd" type="Script" id=7]
-[ext_resource path="res://Scripts/Main/Space_state.gd" type="Script" id=8]
-[ext_resource path="res://Scripts/Main/Ship_state.gd" type="Script" id=9]
+[ext_resource path="res://Scripts/State/autoload_Space_state.gd" type="Script" id=8]
+[ext_resource path="res://Scripts/State/autoload_Ship_state.gd" type="Script" id=9]
 [ext_resource path="res://Scripts/Main/Signals.gd" type="Script" id=10]
 [ext_resource path="res://Scripts/Main/Camera.gd" type="Script" id=11]
 [ext_resource path="res://Scripts/Main/Engine.gd" type="Script" id=12]
 [ext_resource path="res://Scripts/Main/Constants.gd" type="Script" id=13]
 [ext_resource path="res://Scripts/Main/Resources.gd" type="Script" id=14]
-[ext_resource path="res://Scripts/Main/Game_options.gd" type="Script" id=15]
 [ext_resource path="res://Scripts/Main/Main.gd" type="Script" id=16]
 
 [node name="Main" type="Node"]
@@ -27,9 +26,6 @@ script = ExtResource( 2 )
 script = ExtResource( 10 )
 
 [node name="Common" type="Node" parent="."]
-
-[node name="Game_options" type="Node" parent="Common"]
-script = ExtResource( 15 )
 
 [node name="Resources" type="Node" parent="Common"]
 script = ExtResource( 14 )

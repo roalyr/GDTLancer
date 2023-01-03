@@ -70,51 +70,54 @@ func _physics_process(delta):
 	
 	if distance < lod_0_relative_distance * object_absolute_size:
 		# Show
-		if is_hidden("LOD0"):
+		if is_shown("LOD0"):
+			return
+		else:
 			show_scenes("LOD0")
-		# Hide
-		hide_scenes("LOD1")
-		hide_scenes("LOD2")
-		hide_scenes("LOD3")
+			# Hide
+			hide_scenes("LOD1")
+			hide_scenes("LOD2")
+			hide_scenes("LOD3")
 
 	elif distance < lod_1_relative_distance * object_absolute_size:
 		# Show
-		if is_hidden("LOD1"):
+		if is_shown("LOD1"):
+			return
+		else:
 			show_scenes("LOD1")
-		# Hide
-		hide_scenes("LOD2")
-		hide_scenes("LOD0")
-		hide_scenes("LOD3")
+			# Hide
+			hide_scenes("LOD2")
+			hide_scenes("LOD0")
+			hide_scenes("LOD3")
 
 	elif distance < lod_2_relative_distance * object_absolute_size:
 		# Show
-		if is_hidden("LOD2"):
+		if is_shown("LOD2"):
+			return
+		else:
 			show_scenes("LOD2")
-		# Hide
-		hide_scenes("LOD1")
-		hide_scenes("LOD0")
-		hide_scenes("LOD3")
+			# Hide
+			hide_scenes("LOD1")
+			hide_scenes("LOD0")
+			hide_scenes("LOD3")
 
 	else:
 		# Show
-		if is_hidden("LOD3"):
+		if is_shown("LOD3"):
+			return
+		else:
 			show_scenes("LOD3")
-		# Hide
-		hide_scenes("LOD0")
-		hide_scenes("LOD1")
-		hide_scenes("LOD2")
-
-		
-		
+			# Hide
+			hide_scenes("LOD0")
+			hide_scenes("LOD1")
+			hide_scenes("LOD2")
 
 func show_scenes(lod_name):
-	#print("Showing: ", lod_name)
 	self.get_node(lod_name).show()
 			
 func hide_scenes(lod_name):
 	self.get_node(lod_name).hide()
 
-func is_hidden(lod_name):
-	if not self.get_node(lod_name).visible:
+func is_shown(lod_name):
+	if self.get_node(lod_name).visible:
 		return true
-			

@@ -15,7 +15,7 @@ func recenter_stick():
 
 func handle_stick():
 	# Process virtual stick input.
-	if p.common_game_options.touchscreen_mode:
+	if GameOptions.touchscreen_mode:
 		if p.ui.stick_held:
 			stick.position.x = p.input_touch_controls.pad_x_abs-stick_size_half.x
 			stick.position.y = p.input_touch_controls.pad_y_abs-stick_size_half.y

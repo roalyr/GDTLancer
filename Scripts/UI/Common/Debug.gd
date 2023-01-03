@@ -18,7 +18,7 @@ func update_debug_text():
 	throttle = str("Throttle: ", p.input.throttle_vector)
 	print_out = str("Output: ", debug_output_text)
 	
-	if p.common_game_options.touchscreen_mode:
+	if GameOptions.touchscreen_mode:
 		p.ui_paths.touch_readings_debug.get_node("FPS").text = fps
 		p.ui_paths.touch_readings_debug.get_node("Mouse_x").text = mouse_x
 		p.ui_paths.touch_readings_debug.get_node("Mouse_y").text = mouse_y
