@@ -37,6 +37,7 @@ func _physics_process(_delta):
 		
 		if target_aim_controls_hidden:
 			p.ui_paths.touch_readings_target_aim.show()
+			p.ui_paths.desktop_readings_target_aim.show()
 			target_aim_controls_hidden = false
 		
 		#if is_instance_valid(aim_target):
@@ -56,16 +57,27 @@ func _physics_process(_delta):
 		p.ui_paths.touch_readings_target_aim.rect_position = p.viewport.get_camera().unproject_position(
 			object_aim_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
 		
+		p.ui_paths.desktop_readings_target_aim.visible = not p.viewport.get_camera().is_position_behind(object_aim_origin)
+		p.ui_paths.desktop_readings_target_aim.rect_position = p.viewport.get_camera().unproject_position(
+			object_aim_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
+		
+		
+		
 		# Update marker.
 		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_aim_val)
 		# Units. Also prevent crashing so there is a check.
 		if result_d:
 			p.ui_paths.touch_readings_target_aim.get_node("Text_distance").text = \
 				str(result_d[0])+ " " + result_d[1]
+			p.ui_paths.desktop_readings_target_aim.get_node("Text_distance").text = \
+				str(result_d[0])+ " " + result_d[1]
 			# Object name in bb code.
 			#p.ui_paths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
 		p.ui_paths.touch_readings_target_aim.get_node("Text_object")
 		p.ui_paths.touch_readings_target_aim.get_node("Text_object").text = object_aim_name
+		
+		p.ui_paths.desktop_readings_target_aim.get_node("Text_object")
+		p.ui_paths.desktop_readings_target_aim.get_node("Text_object").text = object_aim_name
 				
 	elif not p.ship_state.aim_target_locked and not target_aim_controls_hidden:
 		is_target_aim_clear()
@@ -104,16 +116,26 @@ func _physics_process(_delta):
 		p.ui_paths.touch_readings_target_autopilot.rect_position = p.viewport.get_camera().unproject_position(
 			object_autopilot_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
 		
+		p.ui_paths.desktop_readings_target_autopilot.visible = not p.viewport.get_camera().is_position_behind(object_autopilot_origin)
+		p.ui_paths.desktop_readings_target_autopilot.rect_position = p.viewport.get_camera().unproject_position(
+			object_autopilot_origin)/p.common_game_options.render_res_factor*p.ui.reverse_scale
+		
 		# Update marker.
 		var result_d = p.ui_paths.common_readouts.get_magnitude_units(dist_autopilot_val)
 		# Units. Also prevent crashing so there is a check.
 		if result_d:
 			p.ui_paths.touch_readings_target_autopilot.get_node("Text_distance").text = \
 				str(result_d[0])+ " " + result_d[1]
+			p.ui_paths.desktop_readings_target_autopilot.get_node("Text_distance").text = \
+				str(result_d[0])+ " " + result_d[1]
 			# Object name in bb code.
 			#p.ui_paths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
 		p.ui_paths.touch_readings_target_autopilot.get_node("Text_object")
 		p.ui_paths.touch_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
+				
+				
+		p.ui_paths.desktop_readings_target_autopilot.get_node("Text_object")
+		p.ui_paths.desktop_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
 				
 	elif not p.ship_state.autopilot_target_locked and not target_autopilot_controls_hidden:
 		is_autopilot_disable()

@@ -136,8 +136,11 @@ onready var options_button_info = options_buttons_general_bar.get_node("Button_i
 onready var options_button_quit = options_buttons_general_bar.get_node("Button_quit")
 # Starting prompt
 onready var options_prompt_start = options_gui.get_node("Options_prompt_start")
+onready var options_prompt_start_confirm = options_gui.get_node("Options_prompt_start_confirm")
 # General options tab
 onready var options_tab_options_general = options_gui.get_node("Options_tab_options_general")
+onready var options_tab_options_general_button_desktop_gui = options_tab_options_general.get_node("Button_desktop_gui")
+onready var options_tab_options_general_button_touch_gui = options_tab_options_general.get_node("Button_touch_gui")
 # Graphic options tab
 onready var options_tab_options_graphic = options_gui.get_node("Options_tab_options_graphic")
 onready var options_graphic_color_presets = options_tab_options_graphic.get_node("Color_presets")

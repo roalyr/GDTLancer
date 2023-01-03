@@ -87,6 +87,13 @@ func options_prompt_start_hide():
 func options_prompt_start_show():
 	p.ui_paths.options_prompt_start.show()
 
+func options_prompt_start_confirm_hide():
+	p.ui_paths.options_prompt_start_confirm.hide()
+
+func options_prompt_start_confirm_show():
+	p.ui_paths.options_prompt_start_confirm.show()
+
+
 # DESKTOP
 func desktop_gui_hide():
 	p.ui_paths.desktop_mouse_area.hide()
@@ -106,24 +113,30 @@ func gameplay_gui_show():
 # GUI DEBUG
 func debug_gui_hide():
 	p.ui_paths.touch_readings_debug.hide()
+	p.ui_paths.desktop_readings_debug.hide()
 
 func debug_gui_show():
 	p.ui_paths.touch_readings_debug.show()
+	p.ui_paths.desktop_readings_debug.show()
 
 
 # GUI TARGETING
 func target_controls_hide():
 	p.ui_paths.touch_readings_target_aim.hide()
+	p.ui_paths.desktop_readings_target_aim.hide()
 
 func target_controls_show():
 	p.ui_paths.touch_readings_target_aim.show()
+	p.ui_paths.desktop_readings_target_aim.show()
 	
 # GUI AUTOPILOT
 func autopilot_controls_hide():
 	p.ui_paths.touch_readings_target_autopilot.hide()
+	p.ui_paths.desktop_readings_target_autopilot.hide()
 	
 func autopilot_controls_show():
 	p.ui_paths.touch_readings_target_autopilot.show()
+	p.ui_paths.desktop_readings_target_autopilot.show()
 
 # GUI PANIC POPUP
 func popup_panic(message):

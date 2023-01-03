@@ -24,3 +24,9 @@ func update_debug_text():
 		p.ui_paths.touch_readings_debug.get_node("Mouse_y").text = mouse_y
 		p.ui_paths.touch_readings_debug.get_node("Throttle").text = throttle
 		p.ui_paths.touch_readings_debug.get_node("Print_out").text = print_out
+	else:
+		p.ui_paths.desktop_readings_debug.get_node("FPS").text = fps
+		p.ui_paths.desktop_readings_debug.get_node("Mouse_x").text = mouse_x
+		p.ui_paths.desktop_readings_debug.get_node("Mouse_y").text = mouse_y
+		p.ui_paths.desktop_readings_debug.get_node("Throttle").text = throttle
+		p.ui_paths.desktop_readings_debug.get_node("Print_out").text = print_out

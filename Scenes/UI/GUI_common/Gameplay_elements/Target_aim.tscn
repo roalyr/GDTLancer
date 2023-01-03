@@ -30,7 +30,7 @@ grow_horizontal = 0
 theme = ExtResource( 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "No target"
-clip_text = true
+autowrap = true
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchor_left = 0.5

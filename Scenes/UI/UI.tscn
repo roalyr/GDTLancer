@@ -44,7 +44,6 @@ script = ExtResource( 15 )
 script = ExtResource( 2 )
 
 [node name="GUI_desktop" parent="." instance=ExtResource( 5 )]
-visible = false
 
 [node name="GUI_touchscreen" parent="." instance=ExtResource( 3 )]
 visible = false
@@ -54,5 +53,6 @@ __meta__ = {
 }
 
 [node name="GUI_options" parent="." instance=ExtResource( 14 )]
+visible = false
 
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]

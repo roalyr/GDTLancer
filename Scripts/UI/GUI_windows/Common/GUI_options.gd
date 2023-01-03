@@ -12,6 +12,7 @@ func hide_tabs():
 	p.ui_paths.options_tab_options_graphic.hide()
 	p.ui_paths.options_tab_options_general.hide()
 	p.ui_paths.options_prompt_start.hide()
+	p.ui_paths.options_prompt_start_confirm.hide()
 
 # TODO: should this be used instead?
 func unpress_buttons():
@@ -23,6 +24,16 @@ func unpress_buttons():
 
 # BUTTON SIDE BAR BUTTONS
 func _on_Button_start_pressed():
+	if not p.common_game_options.game_started:
+		hide_tabs()
+		unpress_buttons()
+		p.ui_paths.ui_functions.options_prompt_start_show()
+	else:
+		hide_tabs()
+		unpress_buttons()
+		p.ui_paths.ui_functions.options_prompt_start_confirm_show()
+
+func _on_Button_start_confirm_pressed():
 	hide_tabs()
 	unpress_buttons()
 	p.ui_paths.ui_functions.options_prompt_start_show()
@@ -32,6 +43,7 @@ func _on_Button_resume_pressed():
 		p.ui_paths.ui_functions.switch_to_touchscreen_gui()
 	else:
 		p.ui_paths.ui_functions.switch_to_desktop_gui()
+	p.ui_paths.ui_functions.options_prompt_start_confirm_hide()
 	p.ui_paths.ui_functions.options_prompt_start_hide()
 	p.common_game_options.game_started = true
 	p.ui_paths.options_button_resume.disabled = false
@@ -92,6 +104,8 @@ func _on_Button_desktop_gui_pressed():
 	p.common_game_options.game_started = true
 	p.common_game_options.touchscreen_mode = false
 	p.ui_paths.options_button_resume.disabled = false
+	p.ui_paths.options_tab_options_general_button_desktop_gui.pressed = true
+	p.ui_paths.options_tab_options_general_button_touch_gui.pressed = false
 
 func _on_Button_touch_gui_pressed():
 	p.ui_paths.ui_functions.switch_to_touchscreen_gui()
@@ -99,6 +113,25 @@ func _on_Button_touch_gui_pressed():
 	p.common_game_options.game_started = true
 	p.common_game_options.touchscreen_mode = true
 	p.ui_paths.options_button_resume.disabled = false
+	p.ui_paths.options_tab_options_general_button_desktop_gui.pressed = false
+	p.ui_paths.options_tab_options_general_button_touch_gui.pressed = true
+	
+
+func _on_Button_desktop_gui_toggled(button_pressed):
+	if button_pressed:
+		p.common_game_options.touchscreen_mode = false
+		p.ui_paths.options_tab_options_general_button_touch_gui.pressed = false
+	else:
+		p.common_game_options.touchscreen_mode = true
+		p.ui_paths.options_tab_options_general_button_touch_gui.pressed = true
+
+func _on_Button_touch_gui_toggled(button_pressed):
+	if button_pressed:
+		p.common_game_options.touchscreen_mode = true
+		p.ui_paths.options_tab_options_general_button_desktop_gui.pressed = false
+	else:
+		p.common_game_options.touchscreen_mode = false
+		p.ui_paths.options_tab_options_general_button_desktop_gui.pressed = true
 
 func _on_Button_debug_toggled(button_pressed):
 	if button_pressed: 
@@ -165,3 +198,5 @@ func set_theme_color(color):
 #func _on_Button_screen_filter_toggled(button_pressed):
 #	if button_pressed: p.signals.emit_signal("sig_screen_filter_on", true)
 #	else: p.signals.emit_signal("sig_screen_filter_on", false)
+
+

@@ -227,13 +227,41 @@ text = "Touchscreen GUI"
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -335.5
-margin_top = 110.0
+margin_top = 830.0
 margin_right = 335.5
-margin_bottom = 158.0
+margin_bottom = 878.0
 theme = ExtResource( 4 )
 text = "Select GUI mode depending on your device"
 
+[node name="Options_prompt_start_confirm" type="Control" parent="."]
+margin_left = 480.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Label" type="Label" parent="Options_prompt_start_confirm"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -265.5
+margin_top = -184.0
+margin_right = 265.5
+margin_bottom = -136.0
+theme = ExtResource( 4 )
+text = "Do you want to start a new game?"
+
+[node name="Button_start_confirm" type="Button" parent="Options_prompt_start_confirm"]
+pause_mode = 2
+margin_left = 560.0
+margin_top = 480.0
+margin_right = 880.0
+margin_bottom = 560.0
+theme = ExtResource( 4 )
+keep_pressed_outside = true
+text = "Start"
+
 [node name="Options_tab_options_general" type="Control" parent="."]
+visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -245,6 +273,7 @@ margin_right = 480.0
 margin_bottom = 480.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
+toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 5 )
 icon_align = 1
@@ -266,6 +295,7 @@ margin_right = 840.0
 margin_bottom = 480.0
 rect_scale = Vector2( 0.8, 0.8 )
 theme = ExtResource( 4 )
+toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 1 )
 icon_align = 1
@@ -308,48 +338,21 @@ text = "Swap touch controls"
 [node name="Button_debug" type="Button" parent="Options_tab_options_general"]
 pause_mode = 2
 margin_left = 80.0
-margin_top = 440.0
+margin_top = 800.0
 margin_right = 400.0
-margin_bottom = 520.0
+margin_bottom = 880.0
 theme = ExtResource( 4 )
 toggle_mode = true
 keep_pressed_outside = true
 text = "Debug"
 
-[node name="Button_PLACEHOLDER" type="Button" parent="Options_tab_options_general"]
-pause_mode = 2
-margin_left = 440.0
-margin_top = 440.0
-margin_right = 760.0
-margin_bottom = 520.0
-theme = ExtResource( 4 )
-keep_pressed_outside = true
-
-[node name="Button_PLACEHOLDER2" type="Button" parent="Options_tab_options_general"]
-pause_mode = 2
-margin_left = 440.0
-margin_top = 560.0
-margin_right = 760.0
-margin_bottom = 640.0
-theme = ExtResource( 4 )
-keep_pressed_outside = true
-
-[node name="Button_PLACEHOLDER3" type="Button" parent="Options_tab_options_general"]
-pause_mode = 2
-margin_left = 80.0
-margin_top = 560.0
-margin_right = 400.0
-margin_bottom = 640.0
-theme = ExtResource( 4 )
-keep_pressed_outside = true
-
 [node name="Language_list" type="ItemList" parent="Options_tab_options_general"]
-margin_left = 801.0
+margin_left = 80.0
 margin_top = 440.0
-margin_right = 1360.0
-margin_bottom = 640.0
+margin_right = 399.0
+margin_bottom = 760.0
 theme = ExtResource( 4 )
-items = [ "Language: EN", null, false, "Мова: UK", null, false, "Language: WW", null, true, "Language: XX", null, true, "Language: YY", null, true, "Language: ZZ", null, true ]
+items = [ "Language: EN", null, false, "Мова: UK", null, false, "Language: WW", null, true, "Language: XX", null, true, "Language: YY", null, true ]
 allow_reselect = true
 script = ExtResource( 20 )
 
@@ -941,8 +944,9 @@ text = "Navigation list: structures and objects"
 [connection signal="pressed" from="Buttons_general_bar/Button_quit" to="." method="_on_Button_quit_pressed"]
 [connection signal="pressed" from="Options_prompt_start/Button_desktop_gui" to="." method="_on_Button_desktop_gui_pressed"]
 [connection signal="pressed" from="Options_prompt_start/Button_touch_gui" to="." method="_on_Button_touch_gui_pressed"]
-[connection signal="pressed" from="Options_tab_options_general/Button_desktop_gui" to="." method="_on_Button_desktop_gui_pressed"]
-[connection signal="pressed" from="Options_tab_options_general/Button_touch_gui" to="." method="_on_Button_touch_gui_pressed"]
+[connection signal="pressed" from="Options_prompt_start_confirm/Button_start_confirm" to="." method="_on_Button_start_confirm_pressed"]
+[connection signal="toggled" from="Options_tab_options_general/Button_desktop_gui" to="." method="_on_Button_desktop_gui_toggled"]
+[connection signal="toggled" from="Options_tab_options_general/Button_touch_gui" to="." method="_on_Button_touch_gui_toggled"]
 [connection signal="toggled" from="Options_tab_options_general/Button_controls_swap" to="." method="_on_Button_controls_swap_toggled"]
 [connection signal="toggled" from="Options_tab_options_general/Button_controls_swap" to="Options_tab_options_general/Button_controls_swap" method="_on_Button_controls_swap_toggled"]
 [connection signal="toggled" from="Options_tab_options_general/Button_debug" to="." method="_on_Button_debug_toggled"]
