@@ -1,14 +1,12 @@
 extends Control
 
-onready var p = get_tree().get_root().get_node("Main/Paths")
-
 func _process(delta):
 	# Connect the UI with the data.
 	if GameOptions.touchscreen_mode:
-		p.ui_paths.touch_velocity_panel_apparent_velocity.text = p.ui_paths.common_readouts.apparent_velocity
-		p.ui_paths.touch_velocity_panel_apparent_velocity_units.text = p.ui_paths.common_readouts.apparent_velocity_units
-		p.ui_paths.touch_velocity_panel_accel_ticks.text = p.ui_paths.common_readouts.accel_ticks
+		UiPaths.touch_velocity_panel_apparent_velocity.text = UiPaths.common_readouts.apparent_velocity
+		UiPaths.touch_velocity_panel_apparent_velocity_units.text = UiPaths.common_readouts.apparent_velocity_units
+		UiPaths.touch_velocity_panel_accel_ticks.text = UiPaths.common_readouts.accel_ticks
 	else:
-		p.ui_paths.desktop_velocity_panel_apparent_velocity.text = p.ui_paths.common_readouts.apparent_velocity
-		p.ui_paths.desktop_velocity_panel_apparent_velocity_units.text = p.ui_paths.common_readouts.apparent_velocity_units
-		p.ui_paths.desktop_velocity_panel_accel_ticks.text = p.ui_paths.common_readouts.accel_ticks
+		UiPaths.desktop_velocity_panel_apparent_velocity.text = UiPaths.common_readouts.apparent_velocity
+		UiPaths.desktop_velocity_panel_apparent_velocity_units.text = UiPaths.common_readouts.apparent_velocity_units
+		UiPaths.desktop_velocity_panel_accel_ticks.text = UiPaths.common_readouts.accel_ticks

@@ -10,12 +10,12 @@ var viewport_size = Vector2(1,1)
 
 onready var mouse = get_node("Mouse")
 onready var keyboard = get_node("Keyboard")
-onready var p = get_tree().get_root().get_node("Main/Paths")
+
 
 func _ready():
 	# ============================ Connect signals ============================
-	p.signals.connect("sig_quit_game", self, "is_quit_game")
-	p.signals.connect("sig_viewport_update", self, "is_viewport_update")
+	Signals.connect("sig_quit_game", self, "is_quit_game")
+	Signals.connect("sig_viewport_update", self, "is_viewport_update")
 	# =========================================================================
 	
 	# Initial value require for the mouse coords.
@@ -24,14 +24,14 @@ func _ready():
 func _input(event):
 	
 	# MOUSE INPUT HANDLING
-	p.input_mouse.handle_input(event, viewport_size)
+	GlobalInput.get_node("Mouse").handle_input(event, viewport_size)
 	
 	# KEYBOARD INPUT HANDLING
-	p.input_keyboard.handle_input(event)
+	GlobalInput.get_node("Keyboard").handle_input(event)
 		
 	# PAD AND THROTTLE INPUT HANDLING
 	if GameOptions.touchscreen_mode:
-		p.input_touch_controls.handle_input(event)
+		GlobalInput.get_node("Touch_controls").handle_input(event)
 				
 
 # SIGNAL PROCESSING

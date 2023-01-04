@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Scripts/UI/UI.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/Translations.gd" type="Script" id=2]
@@ -6,7 +6,6 @@
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_menus/GUI_popup_panic.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/UI/GUI_desktop/GUI_desktop.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scripts/UI/UI_functions.gd" type="Script" id=7]
-[ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=8]
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_pad.gd" type="Script" id=9]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Readouts.gd" type="Script" id=10]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Targeting.gd" type="Script" id=11]
@@ -16,9 +15,6 @@
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource( 1 )
-
-[node name="UI_paths" type="Node" parent="."]
-script = ExtResource( 8 )
 
 [node name="UI_functions" type="Node" parent="."]
 script = ExtResource( 7 )
@@ -56,3 +52,7 @@ __meta__ = {
 visible = false
 
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "		p.ui_paths.gui_logic.popup_panic(message)"
+}

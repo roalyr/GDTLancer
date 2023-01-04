@@ -47,14 +47,10 @@ var init_near = Vector2(0.0, 0.0)
 var camera_vector = Vector2(0,0)
 var control_held = false
 
-
-# Paths node.
-onready var p = get_tree().get_root().get_node("Main/Paths")
-
 func _ready():
 	# ============================ Connect signals ============================
-	p.signals.connect("sig_turret_mode_on", self, "is_turret_mode_on")
-	p.signals.connect("sig_zoom_value_changed", self, "is_zoom_value_changed")
+	Signals.connect("sig_turret_mode_on", self, "is_turret_mode_on")
+	Signals.connect("sig_zoom_value_changed", self, "is_zoom_value_changed")
 	# =========================================================================
 	
 	# Init
@@ -67,9 +63,9 @@ func _physics_process(delta):
 	
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes. Needed for detection camera orbiting.
-	if not GameOptions.touchscreen_mode and p.input.LMB_held:
+	if not GameOptions.touchscreen_mode and GlobalInput.LMB_held:
 		control_held = true
-	elif GameOptions.touchscreen_mode and p.ui.stick_held:
+	elif GameOptions.touchscreen_mode and Paths.ui.stick_held:
 		control_held = true
 	else: 
 		control_held = false
@@ -77,21 +73,21 @@ func _physics_process(delta):
 	# ORBIT CAMERA
 	# Track the change in camera mode and update mouse vector when controls are held.
 	# When the control is released proceed with a little of inertia for smoothness.
-	if p.ship_state.turret_mode and (control_held or p.ship_state.mouse_flight):
-		camera_vector = p.input.mouse_vector
+	if PlayerState.turret_mode and (control_held or PlayerState.mouse_flight):
+		camera_vector = GlobalInput.mouse_vector
 		orbit_camera(camera_vector)
-	elif p.ship_state.turret_mode and (not control_held or not p.ship_state.mouse_flight):
+	elif PlayerState.turret_mode and (not control_held or not PlayerState.mouse_flight):
 		# Small inertia camera movement after releasing the controls.
 		if abs(camera_vector.x) > camera_inertial_movement_threshold_low:
 			camera_vector /= GameOptions.camera_inertia_factor
 			orbit_camera(camera_vector)
 	
 	# CHASE CAMERA
-	if not p.ship_state.turret_mode and (control_held or p.ship_state.mouse_flight):
-		camera_vector = p.input.mouse_vector
+	if not PlayerState.turret_mode and (control_held or PlayerState.mouse_flight):
+		camera_vector = GlobalInput.mouse_vector
 		chase_camera(camera_vector)
 	# Return to initial position and update camera based on velocity only.
-	elif not p.ship_state.turret_mode and not (control_held or p.ship_state.mouse_flight):
+	elif not PlayerState.turret_mode and not (control_held or PlayerState.mouse_flight):
 		camera_vector = Vector2(0,0)
 		chase_camera(camera_vector)
 	
@@ -103,10 +99,10 @@ func orbit_camera(mv):
 	var roll_horiz = -mv.x * GameOptions.camera_sensitivity*phi
 	camera_vert = self.rotation_degrees.x
 	camera_horiz = self.rotation_degrees.y
-	if camera_vert + roll_vert >= p.common_camera.camera_turret_roll_vert_limit:
-		self.rotation_degrees.x = p.common_camera.camera_turret_roll_vert_limit
-	elif camera_vert + roll_vert <= -p.common_camera.camera_turret_roll_vert_limit:
-		self.rotation_degrees.x = -p.common_camera.camera_turret_roll_vert_limit
+	if camera_vert + roll_vert >= Constants.camera_turret_roll_vert_limit:
+		self.rotation_degrees.x = Constants.camera_turret_roll_vert_limit
+	elif camera_vert + roll_vert <= -Constants.camera_turret_roll_vert_limit:
+		self.rotation_degrees.x = -Constants.camera_turret_roll_vert_limit
 	else:
 		self.rotate_object_local(Vector3(1,0,0), deg2rad(roll_vert))
 	self.rotate_object_local(Vector3(0,1,0), deg2rad(roll_horiz))
@@ -115,29 +111,29 @@ func orbit_camera(mv):
 
 func chase_camera(mv):
 	# Calculating camera tilt amount.
-	# $Camera.rotation.x - vertical, $Camera.rotation.y - horizontal
+	# $GameCamera.rotation.x - vertical, $GameCamera.rotation.y - horizontal
 	# UP - DOWN
 	if mv.y < 0:
-		vert = -mv.y*cos($Camera.rotation.x)/(camera_chase_tilt_horiz_damp_up)
+		vert = -mv.y*cos($GameCamera.rotation.x)/(camera_chase_tilt_horiz_damp_up)
 	else:
-		vert = -mv.y*cos($Camera.rotation.x)/(camera_chase_tilt_horiz_damp_down)
+		vert = -mv.y*cos($GameCamera.rotation.x)/(camera_chase_tilt_horiz_damp_down)
 	
 	# LEFT - RIGHT
 	if mv.x < 0:
-		horiz = -mv.x*cos($Camera.rotation.y)/(camera_chase_tilt_vert_damp_left)
+		horiz = -mv.x*cos($GameCamera.rotation.y)/(camera_chase_tilt_vert_damp_left)
 	else:
-		horiz = -mv.x*cos($Camera.rotation.y)/(camera_chase_tilt_vert_damp_right)
+		horiz = -mv.x*cos($GameCamera.rotation.y)/(camera_chase_tilt_vert_damp_right)
 	
 	# Initial and final camera modifier values.
-	var init_tilt = Vector2($Camera.rotation.x, $Camera.rotation.y)
+	var init_tilt = Vector2($GameCamera.rotation.x, $GameCamera.rotation.y)
 	var fin_tilt = Vector2(vert, horiz)
 	# Temporary interpolated values.
 	var tmp_tilt = init_tilt.linear_interpolate(fin_tilt, 
 		get_physics_process_delta_time() * camera_tilt_velocity_factor)
 	
 	# Tilt motion in chase camera.
-	$Camera.rotation.x = tmp_tilt.x
-	$Camera.rotation.y = tmp_tilt.y
+	$GameCamera.rotation.x = tmp_tilt.x
+	$GameCamera.rotation.y = tmp_tilt.y
 	self.rotation.x = -tmp_tilt.x
 	self.rotation.y = -tmp_tilt.y
 
@@ -145,10 +141,10 @@ func chase_camera(mv):
 func camera_common_behavior():
 	# Common behavior for different camera modes.
 	# Final interpolation values.
-	var fin_push = Vector2(p.ship_state.ship_linear_velocity, 0.0)
-	var fin_fov = Vector2(p.ship_state.ship_linear_velocity, 0.0)
-	var fin_brightness = Vector2(p.ship_state.ship_linear_velocity, 0.0)
-	var fin_near = Vector2(p.ship_state.ship_linear_velocity, 0.0)
+	var fin_push = Vector2(PlayerState.ship_linear_velocity, 0.0)
+	var fin_fov = Vector2(PlayerState.ship_linear_velocity, 0.0)
+	var fin_brightness = Vector2(PlayerState.ship_linear_velocity, 0.0)
+	var fin_near = Vector2(PlayerState.ship_linear_velocity, 0.0)
 	# Intermediate interpolation values.
 	var tmp_push = init_push.linear_interpolate(fin_push, 
 		pow(get_physics_process_delta_time() * camera_push_velocity_factor, camera_push_velocity_power))
@@ -165,7 +161,7 @@ func camera_common_behavior():
 	
 	# Vertical camera push to hide the jitter from the engine trail.
 	# Normalize value here and add it to default offset at 0 speed.
-	camera_push_y = p.ship.camera_vert_offset \
+	camera_push_y = Player.camera_vert_offset \
 		+ clamp(3*log(tmp_push.x/camera_min_zoom), 
 			1e-6, camera_push_max_factor)
 	
@@ -173,33 +169,33 @@ func camera_common_behavior():
 	camera_push_z = clamp(tmp_push.x, 1e-6, camera_push_max_factor)
 	
 	# Camera rolling back and down.
-	if p.ship_state.turret_mode:
-		$Camera.translation.z = camera_push_z + current_zoom_extra
-		$Camera.translation.y = 0
+	if PlayerState.turret_mode:
+		$GameCamera.translation.z = camera_push_z + current_zoom_extra
+		$GameCamera.translation.y = 0
 	else:
-		$Camera.translation.z = camera_push_z
-		$Camera.translation.y = camera_push_y
+		$GameCamera.translation.z = camera_push_z
+		$GameCamera.translation.y = camera_push_y
 	
 	
-	# This simulates warp effect and hides ship model.
-	p.camera.fov = p.common_camera.camera_fov \
+	# This simulates warp effect and hides Player model.
+	$GameCamera.fov = Constants.camera_fov \
 		+ clamp(camera_fov_derivative*log(tmp_fov.x), 1e-6, camera_fov_max_delta)
 	
 	# Brightness adjustment for velocity.
-	p.environment.warp_brightness_variation = clamp(
+	Paths.environment.warp_brightness_variation = clamp(
 		camera_brightness_derivative*log(tmp_brightness.x), 
 		1e-6, 
 		camera_brightness_max_delta)
 	
 	# Increasing camera Z near value prevents flickering.
-	p.camera.near = p.common_camera.camera_near + tmp_near.x
+	$GameCamera.near = Constants.camera_near + tmp_near.x
 
 
 
 # Initial position for turret camera
 func reset_orbit_camera():
-	$Camera.translation.y = 0
-	$Camera.translation.z = camera_min_zoom
+	$GameCamera.translation.y = 0
+	$GameCamera.translation.z = camera_min_zoom
 	zoom_ticks = 0
 	current_zoom = camera_min_zoom
 	current_zoom_extra = 0
@@ -209,11 +205,11 @@ func reset_chase_camera():
 	self.rotation_degrees.x = 0
 	self.rotation_degrees.y = 0
 	self.rotation_degrees.z = 0
-	$Camera.rotation_degrees.x = 0
-	$Camera.rotation_degrees.y = 0
-	$Camera.rotation_degrees.z = 0
-	$Camera.translation.y = p.ship.camera_vert_offset
-	$Camera.translation.z = camera_min_zoom
+	$GameCamera.rotation_degrees.x = 0
+	$GameCamera.rotation_degrees.y = 0
+	$GameCamera.rotation_degrees.z = 0
+	$GameCamera.translation.y = Player.camera_vert_offset
+	$GameCamera.translation.z = camera_min_zoom
 	zoom_ticks = 0
 	current_zoom = camera_min_zoom
 	current_zoom_extra = 0
@@ -223,41 +219,41 @@ func zoom_camera(mouse_event):
 		var delta = get_physics_process_delta_time()
 		#print(camera_min_zoom," | ",  current_zoom, " | ", camera_max_zoom)
 		if mouse_event.button_index == BUTTON_WHEEL_UP and \
-			zoom_ticks < p.common_camera.camera_zoom_ticks_max:
+			zoom_ticks < Constants.camera_zoom_ticks_max:
 			zoom_ticks += 1
-			current_zoom_extra += p.common_camera.camera_zoom_step*zoom_ticks
+			current_zoom_extra += Constants.camera_zoom_step*zoom_ticks
 			# More zoom range if debug is on.
-			if p.ui.update_debug_text_on:
+			if Paths.ui.update_debug_text_on:
 				camera_max_zoom = 1e18
 				current_zoom_extra *= 2
 			# Reset max zoom otherwise.
-			elif not p.ui.update_debug_text_on and \
+			elif not Paths.ui.update_debug_text_on and \
 				(camera_max_zoom != camera_min_zoom \
-					* p.common_camera.camera_zoom_ticks_max \
-					* p.common_camera.camera_zoom_step):
+					* Constants.camera_zoom_ticks_max \
+					* Constants.camera_zoom_step):
 				reset_camera_zoom()
 			
 		elif mouse_event.button_index == BUTTON_WHEEL_DOWN and \
 			zoom_ticks > 0:
-			current_zoom_extra -= p.common_camera.camera_zoom_step*zoom_ticks
+			current_zoom_extra -= Constants.camera_zoom_step*zoom_ticks
 			zoom_ticks -= 1
 			# More zoom range if debug is on.
-			if p.ui.update_debug_text_on:
+			if Paths.ui.update_debug_text_on:
 				camera_max_zoom = 1e18
 				current_zoom_extra /= 2
 			# Reset max zoom otherwise.
-			elif not p.ui.update_debug_text_on and \
+			elif not Paths.ui.update_debug_text_on and \
 				(camera_max_zoom != camera_min_zoom \
-					* p.common_camera.camera_zoom_ticks_max \
-					* p.common_camera.camera_zoom_step):
+					* Constants.camera_zoom_ticks_max \
+					* Constants.camera_zoom_step):
 				reset_camera_zoom()
 			
 
 func reset_camera_zoom():
-	camera_min_zoom = p.ship.camera_horiz_offset
+	camera_min_zoom = Player.camera_horiz_offset
 	camera_max_zoom = camera_min_zoom \
-					* p.common_camera.camera_zoom_ticks_max \
-					* p.common_camera.camera_zoom_step
+					* Constants.camera_zoom_ticks_max \
+					* Constants.camera_zoom_step
 	current_zoom = camera_min_zoom
 	current_zoom_extra = 0
 	zoom_ticks = 0
@@ -275,10 +271,10 @@ func is_turret_mode_on(flag):
 func is_zoom_value_changed(value):
 	# print(camera_min_zoom," | ",  current_zoom, " | ", camera_max_zoom)
 	zoom_ticks = value
-	if zoom_ticks > p.common_camera.camera_zoom_ticks_max:
-		zoom_ticks = p.common_camera.camera_zoom_ticks_max
-	current_zoom_extra = p.common_camera.camera_zoom_step*zoom_ticks
+	if zoom_ticks > Constants.camera_zoom_ticks_max:
+		zoom_ticks = Constants.camera_zoom_ticks_max
+	current_zoom_extra = Constants.camera_zoom_step*zoom_ticks
 
 
 func is_fov_value_changed(value):
-	p.camera.fov = value
+	$GameCamera.fov = value

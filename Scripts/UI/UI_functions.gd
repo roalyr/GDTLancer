@@ -1,7 +1,5 @@
 extends Node
 
-onready var p = get_tree().get_root().get_node("Main/Paths")
-
 var touchscreen_controls_swapped = false
 
 # INIT
@@ -46,101 +44,101 @@ func switch_to_touchscreen_controls_swapped():
 # TOUCHSCREEN FHD
 func is_controls_swapped():
 	if touchscreen_controls_swapped:
-		p.ui_paths.touch_touch_throttle_base.margin_left = 80
-		p.ui_paths.touch_touch_throttle_base.margin_right = 480
-		p.ui_paths.touch_touch_throttle_base.anchor_left = 0
-		p.ui_paths.touch_touch_throttle_base.anchor_right = 0
+		UiPaths.touch_touch_throttle_base.margin_left = 80
+		UiPaths.touch_touch_throttle_base.margin_right = 480
+		UiPaths.touch_touch_throttle_base.anchor_left = 0
+		UiPaths.touch_touch_throttle_base.anchor_right = 0
 		
-		p.ui_paths.touch_touch_pad_base.margin_left = -480
-		p.ui_paths.touch_touch_pad_base.margin_right = -80
-		p.ui_paths.touch_touch_pad_base.anchor_left = 1
-		p.ui_paths.touch_touch_pad_base.anchor_right = 1
+		UiPaths.touch_touch_pad_base.margin_left = -480
+		UiPaths.touch_touch_pad_base.margin_right = -80
+		UiPaths.touch_touch_pad_base.anchor_left = 1
+		UiPaths.touch_touch_pad_base.anchor_right = 1
 	else:
-		p.ui_paths.touch_touch_pad_base.margin_left = 80
-		p.ui_paths.touch_touch_pad_base.margin_right = 480
-		p.ui_paths.touch_touch_pad_base.anchor_left = 0
-		p.ui_paths.touch_touch_pad_base.anchor_right = 0
+		UiPaths.touch_touch_pad_base.margin_left = 80
+		UiPaths.touch_touch_pad_base.margin_right = 480
+		UiPaths.touch_touch_pad_base.anchor_left = 0
+		UiPaths.touch_touch_pad_base.anchor_right = 0
 		
-		p.ui_paths.touch_touch_throttle_base.margin_left = -480
-		p.ui_paths.touch_touch_throttle_base.margin_right = -80
-		p.ui_paths.touch_touch_throttle_base.anchor_left = 1
-		p.ui_paths.touch_touch_throttle_base.anchor_right = 1
+		UiPaths.touch_touch_throttle_base.margin_left = -480
+		UiPaths.touch_touch_throttle_base.margin_right = -80
+		UiPaths.touch_touch_throttle_base.anchor_left = 1
+		UiPaths.touch_touch_throttle_base.anchor_right = 1
 
 
 func touchscreen_gui_hide():
-	p.ui_paths.touch_gui.hide()
+	UiPaths.touch_gui.hide()
 	
 func touchscreen_gui_show():
-	p.ui_paths.touch_gui.show()
+	UiPaths.touch_gui.show()
 
 # OPTIONS
 func options_gui_hide():
-	p.ui_paths.options_gui.hide()
+	UiPaths.options_gui.hide()
 
 func options_gui_show():
-	p.ui_paths.options_gui.show()
+	UiPaths.options_gui.show()
 
 # INITIAL PROMPT
 func options_prompt_start_hide():
-	p.ui_paths.options_prompt_start.hide()
+	UiPaths.options_prompt_start.hide()
 
 func options_prompt_start_show():
-	p.ui_paths.options_prompt_start.show()
+	UiPaths.options_prompt_start.show()
 
 func options_prompt_start_confirm_hide():
-	p.ui_paths.options_prompt_start_confirm.hide()
+	UiPaths.options_prompt_start_confirm.hide()
 
 func options_prompt_start_confirm_show():
-	p.ui_paths.options_prompt_start_confirm.show()
+	UiPaths.options_prompt_start_confirm.show()
 
 
 # DESKTOP
 func desktop_gui_hide():
-	p.ui_paths.desktop_mouse_area.hide()
-	p.ui_paths.desktop_gui.hide()
+	UiPaths.desktop_mouse_area.hide()
+	UiPaths.desktop_gui.hide()
 	
 func desktop_gui_show():
-	p.ui_paths.desktop_mouse_area.show()
-	p.ui_paths.desktop_gui.show()
+	UiPaths.desktop_mouse_area.show()
+	UiPaths.desktop_gui.show()
 
 # GUI GAMEPLAY
 func gameplay_gui_hide():
-	p.ui_paths.touch_readings.hide()
+	UiPaths.touch_readings.hide()
 
 func gameplay_gui_show():
-	p.ui_paths.touch_readings.show()
+	UiPaths.touch_readings.show()
 
 # GUI DEBUG
 func debug_gui_hide():
-	p.ui_paths.touch_readings_debug.hide()
-	p.ui_paths.desktop_readings_debug.hide()
+	UiPaths.touch_readings_debug.hide()
+	UiPaths.desktop_readings_debug.hide()
 
 func debug_gui_show():
-	p.ui_paths.touch_readings_debug.show()
-	p.ui_paths.desktop_readings_debug.show()
+	UiPaths.touch_readings_debug.show()
+	UiPaths.desktop_readings_debug.show()
 
 
 # GUI TARGETING
 func target_controls_hide():
-	p.ui_paths.touch_readings_target_aim.hide()
-	p.ui_paths.desktop_readings_target_aim.hide()
+	UiPaths.touch_readings_target_aim.hide()
+	UiPaths.desktop_readings_target_aim.hide()
 
 func target_controls_show():
-	p.ui_paths.touch_readings_target_aim.show()
-	p.ui_paths.desktop_readings_target_aim.show()
+	UiPaths.touch_readings_target_aim.show()
+	UiPaths.desktop_readings_target_aim.show()
 	
 # GUI AUTOPILOT
 func autopilot_controls_hide():
-	p.ui_paths.touch_readings_target_autopilot.hide()
-	p.ui_paths.desktop_readings_target_autopilot.hide()
+	UiPaths.touch_readings_target_autopilot.hide()
+	UiPaths.desktop_readings_target_autopilot.hide()
 	
 func autopilot_controls_show():
-	p.ui_paths.touch_readings_target_autopilot.show()
-	p.ui_paths.desktop_readings_target_autopilot.show()
+	UiPaths.touch_readings_target_autopilot.show()
+	UiPaths.desktop_readings_target_autopilot.show()
 
 # GUI PANIC POPUP
 func popup_panic(message):
-	var panic_screen = p.ui_paths.popup_panic
+	var panic_screen = UiPaths.popup_panic
 	var panic_message = panic_screen.get_node("Panic_message")
 	panic_screen.popup()
 	panic_message.text = message

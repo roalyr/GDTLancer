@@ -44,31 +44,37 @@ func _ready():
 # Despite LOD not being related to physics, we chose to run in `_physics_process()`
 # to minimize the amount of method calls per second (and therefore decrease CPU usage).
 func _physics_process(delta):
-	if not enable_lod:
-		# Show
-		show_scenes("LOD0")
-		# Hide
-		hide_scenes("LOD1")
-		hide_scenes("LOD2")
-		hide_scenes("LOD3")
+		
+	if timer <= refresh_rate:
+		timer += delta
 		return
-
+	else:
+		timer = 0.0
+		
 	# We need a camera to do the rest.
 	var camera = get_viewport().get_camera()
 	if camera == null:
 		return
+		
+	if not enable_lod:
+		# Show
+		if is_shown("LOD0"):
+			return
+		else:
+			show_scenes("LOD0")
+			# Hide
+			hide_scenes("LOD1")
+			hide_scenes("LOD2")
+			hide_scenes("LOD3")
+			return
 
-	if timer <= refresh_rate:
-		timer += delta
-		return
-
-	timer = 0.0
-
-	var distance = camera.global_transform.origin.distance_to(global_transform.origin)
+	# Relative distance (in object sizes).
+	var distance = camera.global_transform.origin.distance_to(global_transform.origin) \
+		/ object_absolute_size
+		
 	# The LOD level to choose (lower is more detailed).
-	# Multiply distance values by scale for relativism.
 	
-	if distance < lod_0_relative_distance * object_absolute_size:
+	if distance < lod_0_relative_distance:
 		# Show
 		if is_shown("LOD0"):
 			return
@@ -79,7 +85,7 @@ func _physics_process(delta):
 			hide_scenes("LOD2")
 			hide_scenes("LOD3")
 
-	elif distance < lod_1_relative_distance * object_absolute_size:
+	elif distance < lod_1_relative_distance:
 		# Show
 		if is_shown("LOD1"):
 			return
@@ -90,7 +96,7 @@ func _physics_process(delta):
 			hide_scenes("LOD0")
 			hide_scenes("LOD3")
 
-	elif distance < lod_2_relative_distance * object_absolute_size:
+	elif distance < lod_2_relative_distance:
 		# Show
 		if is_shown("LOD2"):
 			return

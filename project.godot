@@ -143,13 +143,27 @@ config/windows_native_icon="res://Assets/Images/Icon.ico"
 
 [autoload]
 
+Constants="*res://Scripts/Main/Constants.gd"
+Paths="*res://Scenes/Paths.tscn"
+UiPaths="*res://Scenes/UI_paths.tscn"
 GameOptions="*res://Scripts/Main/autoload_Game_options.gd"
+Signals="*res://Scripts/Main/Signals.gd"
+PlayerState="*res://Scripts/State/autoload_Ship_state.gd"
+SpaceState="*res://Scripts/State/autoload_Space_state.gd"
+GlobalInput="*res://Scenes/Input.tscn"
+ViewportContainer2d="*res://Scenes/ViewportContainer2D.tscn"
+GlobalEnvironment="*res://Scenes/Environment/Environment.tscn"
+GlobalSpace="*res://Scenes/Environment/Global_space.tscn"
+LocalSpaceSystem="*res://Scenes/Coordinate_systems/Local_space_system.tscn"
+LocalSpaceStar="*res://Scenes/Coordinate_systems/Local_space_star.tscn"
+LocalSpacePlanet="*res://Scenes/Coordinate_systems/Local_space_planet.tscn"
+LocalSpaceStructure="*res://Scenes/Coordinate_systems/Local_space_structure.tscn"
+Player="*res://Scenes/Player.tscn"
 
 [display]
 
 window/size/width=1920
 window/size/height=1080
-window/stretch/aspect="keep"
 
 [global]
 

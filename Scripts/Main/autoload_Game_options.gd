@@ -21,5 +21,10 @@ var camera_sensitivity = 1.5
 var render_res_factor = 1.0
 var render_texture_filter = true
 
+func _ready():
+	Engine.set_iterations_per_second(Constants.physics_fps)
+	Engine.set_target_fps(Constants.graphic_fps)
+
+
 
 

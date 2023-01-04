@@ -1,7 +1,13 @@
 extends Node
 
-# Physical
+# CONSTANTS
+const physics_fps = 120
+const graphic_fps = 60
 
+
+# Origin rebase
+const rebase_limit_margin = 5000
+const rebase_lag = 1.1
 
 # Space damp values.
 const global_linear_damp = 1.0
@@ -10,3 +16,15 @@ const global_angular_damp = 5
 # Other
 # TODO: revivew what goes where.
 const maximum_systems_spawned_on_visiting = 3
+
+# CONSTANTS
+const camera_far = 9e18 # 9e18 is a safe cap.
+const camera_near = 1e-2 # base value.
+const camera_fov = 60 # Initial value.
+
+const camera_turret_roll_vert_limit = 70 # Deg +\-
+# Zoom out times is multiplied by minimum ship camera distance to define maximum.
+# Sync with touchscreen control slider (max_val = camera_zoom_out_times/camera_zoom_step).
+const camera_zoom_ticks_max = 100
+#const camera_zoom_out_max = 1e3 # For sandnbox mode
+const camera_zoom_step = 1 # 0.05 ... 0.2

@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scripts/Viewport2D.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Environment/Camera_decorations.tscn" type="PackedScene" id=5]
+
+[node name="ViewportContainer3D" type="ViewportContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Viewport" type="Viewport" parent="."]
+size = Vector2( 100, 100 )
+script = ExtResource( 1 )
+
+[node name="Camera_decorations" parent="Viewport" instance=ExtResource( 5 )]
+visible = false
+
+[connection signal="size_changed" from="Viewport" to="Viewport" method="_on_Viewport_size_changed"]

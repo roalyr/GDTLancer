@@ -14,6 +14,7 @@ Highlighted entries are "Work in progress".
 - **Ambient music and sounds.**
 - **Save game state and options.**
 - **Ship switching (in debug) (https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html).**
+- Make different "print()" debug calls into a proper logging system.
 
 ## Improvements
 - Make star sprites diminish in size with distance (script).
@@ -22,6 +23,7 @@ Highlighted entries are "Work in progress".
 - Option for debanding.
 - Engine kill button for touch UI.
 - Improve pad X direction movement on scaling.
+- Remove objects (zone contents) that are way too far.
 
 ## Refactor
 - **Re-attach models directly into scenes (make editable).**

@@ -1,11 +1,11 @@
 extends Node
 
 # GLOBAL PATHS 
-onready var p = get_tree().get_root().get_node("Main/Paths")
+onready var ui = ViewportContainer2d.get_node("UI")
 # Logic node
-onready var ui_functions = p.ui.get_node("UI_functions")
+onready var ui_functions = ui.get_node("UI_functions")
 # Common
-onready var common = p.ui.get_node("Common")
+onready var common = ui.get_node("Common")
 onready var common_touchscreen_pad = common.get_node("Touchscreen_pad")
 onready var common_touchscreen_throttle = common.get_node("Touchscreen_throttle")
 onready var common_readouts = common.get_node("Readouts")
@@ -13,7 +13,7 @@ onready var common_debug = common.get_node("Debug")
 
 
 # Desktop UI
-onready var desktop_gui = p.ui.get_node("GUI_desktop")
+onready var desktop_gui = ui.get_node("GUI_desktop")
 onready var desktop_mouse_area = desktop_gui.get_node("Mouse_area_container/Mouse_area")
 # Menu bar
 onready var desktop_bar_menu = desktop_gui.get_node("Bar_menu")
@@ -65,7 +65,7 @@ onready var desktop_status_panel = desktop_readings.get_node("Status_panel")
 
 
 # Touchscreen Full-HD UI
-onready var touch_gui = p.ui.get_node("GUI_touchscreen")
+onready var touch_gui = ui.get_node("GUI_touchscreen")
 # Menu bar
 onready var touch_bar_menu = touch_gui.get_node("Bar_menu")
 onready var touch_button_options = touch_bar_menu.get_node("Button_options")
@@ -122,9 +122,9 @@ onready var touch_status_panel = touch_readings.get_node("Status_panel")
 
 
 # Other windows
-onready var popup_panic = p.ui.get_node("GUI_popup_panic")
+onready var popup_panic = ui.get_node("GUI_popup_panic")
 # Options
-onready var options_gui = p.ui.get_node("GUI_options")
+onready var options_gui = ui.get_node("GUI_options")
 # Button side bar
 onready var options_buttons_general_bar = options_gui.get_node("Buttons_general_bar")
 onready var options_button_start = options_buttons_general_bar.get_node("Button_start")
