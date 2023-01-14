@@ -1,25 +1,6 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Scripts/Viewport2D.gd" type="Script" id=1]
-[ext_resource path="res://Scenes/Environment/Camera_decorations.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Scenes/Kinematics/Camera_rig.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scripts/Main/Main.gd" type="Script" id=16]
 
 [node name="Main" type="Node"]
 script = ExtResource( 16 )
-
-[node name="ViewportContainer3D" type="ViewportContainer" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Viewport" type="Viewport" parent="ViewportContainer3D"]
-size = Vector2( 100, 100 )
-handle_input_locally = false
-render_target_update_mode = 3
-script = ExtResource( 1 )
-
-[node name="Camera_decorations" parent="ViewportContainer3D/Viewport" instance=ExtResource( 2 )]
-
-[node name="Camera_rig" parent="ViewportContainer3D/Viewport/Camera_decorations" instance=ExtResource( 3 )]
-
-[connection signal="size_changed" from="ViewportContainer3D/Viewport" to="ViewportContainer3D/Viewport" method="_on_Viewport_size_changed"]

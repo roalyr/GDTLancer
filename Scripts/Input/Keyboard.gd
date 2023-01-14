@@ -2,7 +2,7 @@ extends Node
 
 func _ready():
 	# ============================ Connect signals ============================
-	Signals.connect("sig_turret_mode_on", self, "is_turret_mode_on")
+	Signals.connect_checked("sig_turret_mode_on", self, "is_turret_mode_on")
 	# =========================================================================
 
 func handle_input(event):

@@ -54,5 +54,5 @@ visible = false
 [node name="GUI_popup_panic" parent="." instance=ExtResource( 4 )]
 __meta__ = {
 "_edit_lock_": true,
-"_editor_description_": "		p.ui_paths.gui_logic.popup_panic(message)"
+"_editor_description_": "UiPaths.ui_functions.popup_panic(message)"
 }

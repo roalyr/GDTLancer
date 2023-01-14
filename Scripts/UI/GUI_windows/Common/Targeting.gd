@@ -1,23 +1,23 @@
 extends Node
 
 onready var object_aim_name = ""
-onready var object_aim_origin = Player.global_transform.origin
+onready var object_aim_origin = Paths.player.global_transform.origin
 var dist_aim_val = 0
 
 onready var object_autopilot_name = ""
-onready var object_autopilot_origin = Player.global_transform.origin
+onready var object_autopilot_origin = Paths.player.global_transform.origin
 var dist_autopilot_val = 0
 
-onready var player = Player.global_transform.origin
+onready var player_pos = Paths.player.global_transform.origin
 
 var target_autopilot_controls_hidden = true
 var target_aim_controls_hidden = true
 
 func _ready():
 	# ============================= Connect signals ===========================
-	Signals.connect("sig_target_aim_clear", self, "is_target_aim_clear")
-	Signals.connect("sig_autopilot_start", self, "is_autopilot_start")
-	Signals.connect("sig_autopilot_disable", self, "is_autopilot_disable")
+	Signals.connect_checked("sig_target_aim_clear", self, "is_target_aim_clear")
+	Signals.connect_checked("sig_autopilot_start", self, "is_autopilot_start")
+	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
 	# =========================================================================
 	# Hide targeting controls by default,
 	is_autopilot_disable()
@@ -47,9 +47,9 @@ func _physics_process(_delta):
 		object_aim_origin = aim_target.global_transform.origin
 		object_aim_name = aim_target.get_name()
 		
-		# Player coords must be updated.
-		player = Paths.camera_rig.global_transform.origin
-		dist_aim_val = round(player.distance_to(object_aim_origin))
+		# Paths.player coords must be updated.
+		player_pos = Paths.player.global_transform.origin
+		dist_aim_val = round(player_pos.distance_to(object_aim_origin))
 		
 		# This is for UI.
 		# Object visible, marker within range. Enable marker.
@@ -89,10 +89,6 @@ func _physics_process(_delta):
 		
 		target_aim_controls_hidden = true
 	
-	
-	
-	
-	
 	# AUTOPILOT TARGET
 	if  PlayerState.autopilot_target_locked and PlayerState.autopilot:	
 		
@@ -113,9 +109,9 @@ func _physics_process(_delta):
 		
 		object_autopilot_origin = PlayerState.autopilot_target.global_transform.origin
 		object_autopilot_name = PlayerState.autopilot_target.get_name()
-		# Player coords must be updated.
-		player = Paths.camera_rig.global_transform.origin
-		dist_autopilot_val = round(player.distance_to(object_autopilot_origin))
+		# Paths.player coords must be updated.
+		player_pos = Paths.player.global_transform.origin
+		dist_autopilot_val = round(player_pos.distance_to(object_autopilot_origin))
 		
 		# This is for UI.
 		# Object visible, marker within range. Enable marker.

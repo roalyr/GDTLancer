@@ -53,10 +53,10 @@ onready var engines = get_node("Engines")
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# ============================= Connect signals ===========================
-	Signals.connect("sig_accelerate", self, "is_accelerating")
-	Signals.connect("sig_engine_kill", self, "is_engine_kill")
-	Signals.connect("sig_autopilot_start", self, "is_autopilot_start")
-	Signals.connect("sig_autopilot_disable", self, "is_autopilot_disable")
+	Signals.connect_checked("sig_accelerate", self, "is_accelerating")
+	Signals.connect_checked("sig_engine_kill", self, "is_engine_kill")
+	Signals.connect_checked("sig_autopilot_start", self, "is_autopilot_start")
+	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
 	# =========================================================================
 	
 	# Initialize the vessel params.
@@ -73,7 +73,7 @@ func _integrate_forces(state):
 	
 	# Modify origin rebase limit.
 	if vel > Constants.rebase_limit_margin*Constants.rebase_lag:
-		GlobalSpace.rebase_limit = round(vel*Constants.rebase_lag)
+		Paths.global_space.rebase_limit = round(vel*Constants.rebase_lag)
 	
 	state.add_central_force(-global_transform.basis.z * PlayerState.acceleration* PlayerState.acceleration)
 	
@@ -165,8 +165,8 @@ func _integrate_forces(state):
 	
 	if not PlayerState.turret_mode and (control_held or PlayerState.mouse_flight):
 
-		var tx = -transform.basis.y*self.torque_factor.x* GlobalInput.mouse_vector.x
-		var ty = -transform.basis.x*self.torque_factor.y* GlobalInput.mouse_vector.y
+		tx = -transform.basis.y*self.torque_factor.x* GlobalInput.mouse_vector.x
+		ty = -transform.basis.x*self.torque_factor.y* GlobalInput.mouse_vector.y
 		
 		state.add_torque(tx+ty)
 	
@@ -174,7 +174,7 @@ func _integrate_forces(state):
 
 
 	# DAMPING
-	var damp_coeff = 1e-4
+	# var damp_coeff = 1e-4
 	var damp_linear = 1.0 - state.step * Constants.global_linear_damp
 
 	if (damp_linear < 0):
@@ -206,6 +206,7 @@ func init_ship():
 
 # Globally limit the speed of engine gear shifting.
 func engine_cooldown():
+	# warning-ignore:return_value_discarded
 	get_tree().create_timer(engine_step_delay).connect("timeout", self, "set_timing", [false])
 
 # Do not remove, it is needed for engine change speed control.
@@ -216,7 +217,7 @@ func set_timing(value: bool):
 
 func adjust_exhaust():
 	
-	var engine_warp_factor = 1e-3
+	# var engine_warp_factor = 1e-3
 	
 	var a = log(max(PlayerState.accel_ticks, 1))
 	var accel_val = pow(a, 1.0 + pow(a,5)*2e-5)
@@ -302,6 +303,7 @@ func is_engine_kill():
 
 func is_autopilot_start():
 	if PlayerState.autopilot_target_locked:
+		print("AP START SHIP")
 		autopilot_target = PlayerState.autopilot_target
 		PlayerState.autopilot = true
 	

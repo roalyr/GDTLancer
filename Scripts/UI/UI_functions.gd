@@ -138,12 +138,12 @@ func autopilot_controls_show():
 
 # GUI PANIC POPUP
 func popup_panic(message):
-	var panic_screen = UiPaths.popup_panic
+	var panic_screen = UiPaths.popup_panic_gui
 	var panic_message = panic_screen.get_node("Panic_message")
 	panic_screen.popup()
 	panic_message.text = message
 	# Also write down the message into console.
-	var div = "\n\n=====================================================================\n\n"
+	var div = "\n\n============================= P A N I C =============================\n\n"
 	print(div + message + div)
 	# Pause the game and prompt exit with the button.
 	get_tree().paused = true

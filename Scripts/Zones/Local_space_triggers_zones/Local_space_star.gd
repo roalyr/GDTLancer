@@ -7,12 +7,12 @@ func _ready():
 	self.monitoring = true
 
 
-# Monitor if player ship enters the local space. Pass the reference to scene
+# Monitor if Paths.player ship enters the local space. Pass the reference to scene
 # Which should be used later on.
 func _on_Local_space_trigger_zone_body_entered(_body):
-	if _body == Player: 
+	if _body == Paths.player: 
 		Signals.emit_signal("sig_entered_local_space_star", self)
 
 func _on_Local_space_trigger_zone_body_exited(_body):
-	if _body == Player: 
+	if _body == Paths.player: 
 		Signals.emit_signal("sig_exited_local_space_star", self)

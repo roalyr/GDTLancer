@@ -49,15 +49,15 @@ var control_held = false
 
 func _ready():
 	# ============================ Connect signals ============================
-	Signals.connect("sig_turret_mode_on", self, "is_turret_mode_on")
-	Signals.connect("sig_zoom_value_changed", self, "is_zoom_value_changed")
+	Signals.connect_checked("sig_turret_mode_on", self, "is_turret_mode_on")
+	Signals.connect_checked("sig_zoom_value_changed", self, "is_zoom_value_changed")
 	# =========================================================================
 	
 	# Init
 	reset_camera_zoom()
 	reset_chase_camera()
 	
-func _physics_process(delta):
+func _physics_process(_delta):
 	# Common camera behavior, independent from the camera mode.
 	camera_common_behavior()
 	
@@ -161,7 +161,7 @@ func camera_common_behavior():
 	
 	# Vertical camera push to hide the jitter from the engine trail.
 	# Normalize value here and add it to default offset at 0 speed.
-	camera_push_y = Player.camera_vert_offset \
+	camera_push_y = Paths.player.camera_vert_offset \
 		+ clamp(3*log(tmp_push.x/camera_min_zoom), 
 			1e-6, camera_push_max_factor)
 	
@@ -177,7 +177,7 @@ func camera_common_behavior():
 		$GameCamera.translation.y = camera_push_y
 	
 	
-	# This simulates warp effect and hides Player model.
+	# This simulates warp effect and hides Paths.player model.
 	$GameCamera.fov = Constants.camera_fov \
 		+ clamp(camera_fov_derivative*log(tmp_fov.x), 1e-6, camera_fov_max_delta)
 	
@@ -208,7 +208,7 @@ func reset_chase_camera():
 	$GameCamera.rotation_degrees.x = 0
 	$GameCamera.rotation_degrees.y = 0
 	$GameCamera.rotation_degrees.z = 0
-	$GameCamera.translation.y = Player.camera_vert_offset
+	$GameCamera.translation.y = Paths.player.camera_vert_offset
 	$GameCamera.translation.z = camera_min_zoom
 	zoom_ticks = 0
 	current_zoom = camera_min_zoom
@@ -216,7 +216,7 @@ func reset_chase_camera():
 	
 func zoom_camera(mouse_event):
 	if mouse_event.is_pressed():
-		var delta = get_physics_process_delta_time()
+#		var delta = get_physics_process_delta_time()
 		#print(camera_min_zoom," | ",  current_zoom, " | ", camera_max_zoom)
 		if mouse_event.button_index == BUTTON_WHEEL_UP and \
 			zoom_ticks < Constants.camera_zoom_ticks_max:
@@ -250,7 +250,7 @@ func zoom_camera(mouse_event):
 			
 
 func reset_camera_zoom():
-	camera_min_zoom = Player.camera_horiz_offset
+	camera_min_zoom = Paths.player.camera_horiz_offset
 	camera_max_zoom = camera_min_zoom \
 					* Constants.camera_zoom_ticks_max \
 					* Constants.camera_zoom_step

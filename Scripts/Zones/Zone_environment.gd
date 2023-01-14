@@ -12,13 +12,13 @@ func _ready():
 
 
 func _on_Zone_environment_body_entered(_body):
-	if _body == Player: 
+	if _body == Paths.player: 
 		Paths.environment.zone_brightness_variation = zone_brightness_variation
 		Paths.environment.zone_contrast_variation = zone_contrast_variation
 		Paths.environment.zone_saturation_variation = zone_saturation_variation
 
 func _on_Zone_environment_body_exited(_body):
-	if _body == Player: 
+	if _body == Paths.player: 
 		Paths.environment.zone_brightness_variation = 0.0
 		Paths.environment.zone_contrast_variation = 0.0
 		Paths.environment.zone_saturation_variation = 0.0

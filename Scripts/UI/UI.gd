@@ -21,8 +21,14 @@ var ratio_width = 1.0
 
 func _ready():
 	# ============================ Connect signals ============================
-	Signals.connect("sig_viewport_update", self, "is_viewport_update")
+	Signals.connect_checked("sig_viewport_update", self, "is_viewport_update")
 	# =========================================================================
+	
+#	# Set the root viewport to 2D only. Use tree viewport for 3D.
+#	get_viewport().set_usage(Viewport.USAGE_2D)
+#	get_viewport().set_transparent_background(false)
+#	get_viewport().set_as_audio_listener_2d(false)
+#	get_viewport().set_as_audio_listener(false)
 	
 	UiPaths.common_touchscreen_pad.recenter_stick()
 	UiPaths.common_touchscreen_throttle.recenter_throttle()

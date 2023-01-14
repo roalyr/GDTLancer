@@ -10,7 +10,7 @@ var mouse_on_control_area = true
 
 func _ready():
 	# ============================ Connect signals ============================
-	Signals.connect("sig_mouse_on_control_area", self, "is_mouse_on_control_area")
+	Signals.connect_checked("sig_mouse_on_control_area", self, "is_mouse_on_control_area")
 	# =========================================================================
 
 func handle_input(event, viewport_size):

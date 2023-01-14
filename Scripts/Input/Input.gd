@@ -14,8 +14,8 @@ onready var keyboard = get_node("Keyboard")
 
 func _ready():
 	# ============================ Connect signals ============================
-	Signals.connect("sig_quit_game", self, "is_quit_game")
-	Signals.connect("sig_viewport_update", self, "is_viewport_update")
+	Signals.connect_checked("sig_quit_game", self, "is_quit_game")
+	Signals.connect_checked("sig_viewport_update", self, "is_viewport_update")
 	# =========================================================================
 	
 	# Initial value require for the mouse coords.

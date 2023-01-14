@@ -1,7 +1,8 @@
 extends Node
 
 # GLOBAL PATHS 
-onready var ui = ViewportContainer2d.get_node("UI")
+onready var paths = Paths
+onready var ui = paths.ui
 # Logic node
 onready var ui_functions = ui.get_node("UI_functions")
 # Common
@@ -122,7 +123,7 @@ onready var touch_status_panel = touch_readings.get_node("Status_panel")
 
 
 # Other windows
-onready var popup_panic = ui.get_node("GUI_popup_panic")
+onready var popup_panic_gui = ui.get_node("GUI_popup_panic")
 # Options
 onready var options_gui = ui.get_node("GUI_options")
 # Button side bar

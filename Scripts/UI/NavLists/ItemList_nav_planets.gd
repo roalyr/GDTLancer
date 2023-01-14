@@ -11,11 +11,11 @@ var targeted_scene = Position3D
 # Fetch a fresh list of markers whenever nav button is pressed.
 func _ready():
 	# ============================= Connect signals ===========================
-	Signals.connect("sig_fetch_markers", self, "is_fetch_markers")
-	Signals.connect("sig_target_aim_clear", self, "is_target_aim_clear")
-	Signals.connect("sig_autopilot_start", self, "is_autopilot_start")
-	Signals.connect("sig_autopilot_disable", self, "is_autopilot_disable")
-	Signals.connect("sig_system_spawned", self, "is_system_spawned")
+	Signals.connect_checked("sig_fetch_markers", self, "is_fetch_markers")
+	Signals.connect_checked("sig_target_aim_clear", self, "is_target_aim_clear")
+	Signals.connect_checked("sig_autopilot_start", self, "is_autopilot_start")
+	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
+	Signals.connect_checked("sig_system_spawned", self, "is_system_spawned")
 	# =========================================================================
 	
 	self.ensure_current_is_visible()

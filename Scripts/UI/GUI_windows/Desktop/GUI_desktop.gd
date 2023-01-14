@@ -2,7 +2,7 @@ extends Control
 
 func _ready():
 	# ============================= Connect signals ===========================
-	Signals.connect("sig_autopilot_disable", self, "is_autopilot_disable")
+	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
 	# =========================================================================
 
 func hide_navbars():

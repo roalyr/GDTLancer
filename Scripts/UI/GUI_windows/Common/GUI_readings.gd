@@ -1,6 +1,6 @@
 extends Control
 
-func _process(delta):
+func _process(_delta):
 	# Connect the UI with the data.
 	if GameOptions.touchscreen_mode:
 		UiPaths.touch_velocity_panel_apparent_velocity.text = UiPaths.common_readouts.apparent_velocity
