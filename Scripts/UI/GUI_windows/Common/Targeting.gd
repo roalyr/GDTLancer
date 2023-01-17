@@ -1,5 +1,8 @@
 extends Node
 
+onready var ui_paths = get_node("/root/Main/UI_paths")
+onready var ui = ui_paths.ui
+
 onready var object_aim_name = ""
 onready var object_aim_origin = Paths.player.global_transform.origin
 var dist_aim_val = 0
@@ -39,8 +42,8 @@ func _physics_process(_delta):
 			return
 		
 		if target_aim_controls_hidden:
-			UiPaths.touch_readings_target_aim.show()
-			UiPaths.desktop_readings_target_aim.show()
+			ui_paths.touch_readings_target_aim.show()
+			ui_paths.desktop_readings_target_aim.show()
 			target_aim_controls_hidden = false
 		
 		#if is_instance_valid(aim_target):
@@ -56,31 +59,31 @@ func _physics_process(_delta):
 
 		
 		# Multiply by scale factor of viewport to position properly.
-		UiPaths.touch_readings_target_aim.visible = not Paths.camera.is_position_behind(object_aim_origin)
-		UiPaths.touch_readings_target_aim.rect_position = Paths.camera.unproject_position(
-			object_aim_origin)/GameOptions.render_res_factor*Paths.ui.reverse_scale
+		ui_paths.touch_readings_target_aim.visible = not Paths.camera.is_position_behind(object_aim_origin)
+		ui_paths.touch_readings_target_aim.rect_position = Paths.camera.unproject_position(
+			object_aim_origin)/GameOptions.render_res_factor*GameState.reverse_scale
 		
-		UiPaths.desktop_readings_target_aim.visible = not Paths.camera.is_position_behind(object_aim_origin)
-		UiPaths.desktop_readings_target_aim.rect_position = Paths.camera.unproject_position(
-			object_aim_origin)/GameOptions.render_res_factor*Paths.ui.reverse_scale
+		ui_paths.desktop_readings_target_aim.visible = not Paths.camera.is_position_behind(object_aim_origin)
+		ui_paths.desktop_readings_target_aim.rect_position = Paths.camera.unproject_position(
+			object_aim_origin)/GameOptions.render_res_factor*GameState.reverse_scale
 		
 		
 		
 		# Update marker.
-		var result_d = UiPaths.common_readouts.get_magnitude_units(dist_aim_val)
+		var result_d = ui_paths.common_readouts.get_magnitude_units(dist_aim_val)
 		# Units. Also prevent crashing so there is a check.
 		if result_d:
-			UiPaths.touch_readings_target_aim.get_node("Text_distance").text = \
+			ui_paths.touch_readings_target_aim.get_node("Text_distance").text = \
 				str(result_d[0])+ " " + result_d[1]
-			UiPaths.desktop_readings_target_aim.get_node("Text_distance").text = \
+			ui_paths.desktop_readings_target_aim.get_node("Text_distance").text = \
 				str(result_d[0])+ " " + result_d[1]
 			# Object name in bb code.
-			#UiPaths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
-		UiPaths.touch_readings_target_aim.get_node("Text_object")
-		UiPaths.touch_readings_target_aim.get_node("Text_object").text = object_aim_name
+			#ui_paths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
+		ui_paths.touch_readings_target_aim.get_node("Text_object")
+		ui_paths.touch_readings_target_aim.get_node("Text_object").text = object_aim_name
 		
-		UiPaths.desktop_readings_target_aim.get_node("Text_object")
-		UiPaths.desktop_readings_target_aim.get_node("Text_object").text = object_aim_name
+		ui_paths.desktop_readings_target_aim.get_node("Text_object")
+		ui_paths.desktop_readings_target_aim.get_node("Text_object").text = object_aim_name
 				
 	elif not PlayerState.aim_target_locked and not target_aim_controls_hidden:
 		is_target_aim_clear()
@@ -118,40 +121,40 @@ func _physics_process(_delta):
 
 		
 		# Multiply by scale factor of viewport to position properly.
-		UiPaths.touch_readings_target_autopilot.visible = not Paths.camera.is_position_behind(object_autopilot_origin)
-		UiPaths.touch_readings_target_autopilot.rect_position = Paths.camera.unproject_position(
-			object_autopilot_origin)/GameOptions.render_res_factor*Paths.ui.reverse_scale
+		ui_paths.touch_readings_target_autopilot.visible = not Paths.camera.is_position_behind(object_autopilot_origin)
+		ui_paths.touch_readings_target_autopilot.rect_position = Paths.camera.unproject_position(
+			object_autopilot_origin)/GameOptions.render_res_factor*GameState.reverse_scale
 		
-		UiPaths.desktop_readings_target_autopilot.visible = not Paths.camera.is_position_behind(object_autopilot_origin)
-		UiPaths.desktop_readings_target_autopilot.rect_position = Paths.camera.unproject_position(
-			object_autopilot_origin)/GameOptions.render_res_factor*Paths.ui.reverse_scale
+		ui_paths.desktop_readings_target_autopilot.visible = not Paths.camera.is_position_behind(object_autopilot_origin)
+		ui_paths.desktop_readings_target_autopilot.rect_position = Paths.camera.unproject_position(
+			object_autopilot_origin)/GameOptions.render_res_factor*GameState.reverse_scale
 		
 		# Update marker.
-		var result_d = UiPaths.common_readouts.get_magnitude_units(dist_autopilot_val)
+		var result_d = ui_paths.common_readouts.get_magnitude_units(dist_autopilot_val)
 		# Units. Also prevent crashing so there is a check.
 		if result_d:
-			UiPaths.touch_readings_target_autopilot.get_node("Text_distance").text = \
+			ui_paths.touch_readings_target_autopilot.get_node("Text_distance").text = \
 				str(result_d[0])+ " " + result_d[1]
-			UiPaths.desktop_readings_target_autopilot.get_node("Text_distance").text = \
+			ui_paths.desktop_readings_target_autopilot.get_node("Text_distance").text = \
 				str(result_d[0])+ " " + result_d[1]
 			# Object name in bb code.
-			#UiPaths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
-		UiPaths.touch_readings_target_autopilot.get_node("Text_object")
-		UiPaths.touch_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
+			#ui_paths.target_autopilot.get_node("Text_object").set_use_bbcode(true)
+		ui_paths.touch_readings_target_autopilot.get_node("Text_object")
+		ui_paths.touch_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
 				
 				
-		UiPaths.desktop_readings_target_autopilot.get_node("Text_object")
-		UiPaths.desktop_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
+		ui_paths.desktop_readings_target_autopilot.get_node("Text_object")
+		ui_paths.desktop_readings_target_autopilot.get_node("Text_object").text = object_autopilot_name
 				
 	elif not PlayerState.autopilot_target_locked and not target_autopilot_controls_hidden:
 		is_autopilot_disable()
 		target_autopilot_controls_hidden = true
 
 func is_target_aim_clear():
-	UiPaths.ui_functions.target_controls_hide()
+	ui_paths.ui_functions.target_controls_hide()
 
 func is_autopilot_start():
-	UiPaths.ui_functions.autopilot_controls_show()
+	ui_paths.ui_functions.autopilot_controls_show()
 
 func is_autopilot_disable():
-	UiPaths.ui_functions.autopilot_controls_hide()
+	ui_paths.ui_functions.autopilot_controls_hide()

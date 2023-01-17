@@ -1,6 +1,5 @@
 extends Node
 
-onready var ui = Ui
 onready var viewport_container_3D = ViewportContainer3d
 onready var viewport_3D = viewport_container_3D.get_node("Viewport3D")
 onready var environment = viewport_3D.get_node("Environment")

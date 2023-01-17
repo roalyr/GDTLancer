@@ -3,6 +3,9 @@ extends Node
 var LMB_held = false
 var LMB_released = true
 
+var stick_held = false
+var throttle_held = false
+
 var mouse_vector = Vector2(0,0)
 var throttle_vector = 0
 
@@ -30,7 +33,7 @@ func _input(event):
 	GlobalInput.get_node("Keyboard").handle_input(event)
 		
 	# PAD AND THROTTLE INPUT HANDLING
-	if GameOptions.touchscreen_mode:
+	if GameState.touchscreen_mode:
 		GlobalInput.get_node("Touch_controls").handle_input(event)
 				
 

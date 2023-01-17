@@ -1,7 +1,9 @@
 extends Node
 
-onready var throttle_base = UiPaths.touch_touch_throttle_base
-onready var throttle = UiPaths.touch_touch_throttle
+onready var ui_paths = get_node("/root/Main/UI_paths")
+
+onready var throttle_base = ui_paths.touch_touch_throttle_base
+onready var throttle = ui_paths.touch_touch_throttle
 onready var throttle_size_half = throttle.get_texture().get_size()/2
 
 func recenter_throttle():
@@ -10,8 +12,8 @@ func recenter_throttle():
 
 func handle_throttle():
 	# Process virtual throttle input.
-	if GameOptions.touchscreen_mode:
-		if Paths.ui.throttle_held:
+	if GameState.touchscreen_mode:
+		if GlobalInput.throttle_held:
 			throttle.position.y = GlobalInput.get_node("Touch_controls").throttle_y_abs-throttle_size_half.y
 		else:
 			# Recenter throttle.

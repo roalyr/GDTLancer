@@ -1,7 +1,9 @@
 extends Node
 
-onready var pad_base = UiPaths.touch_touch_pad_base
-onready var stick = UiPaths.touch_touch_pad_stick
+onready var ui_paths = get_node("/root/Main/UI_paths")
+
+onready var pad_base = ui_paths.touch_touch_pad_base
+onready var stick = ui_paths.touch_touch_pad_stick
 onready var stick_size_half = stick.get_texture().get_size()/2
 
 
@@ -13,8 +15,8 @@ func recenter_stick():
 
 func handle_stick():
 	# Process virtual stick input.
-	if GameOptions.touchscreen_mode:
-		if Paths.ui.stick_held:
+	if GameState.touchscreen_mode:
+		if GlobalInput.stick_held:
 			stick.position.x = GlobalInput.get_node("Touch_controls").pad_x_abs-stick_size_half.x
 			stick.position.y = GlobalInput.get_node("Touch_controls").pad_y_abs-stick_size_half.y
 		else:

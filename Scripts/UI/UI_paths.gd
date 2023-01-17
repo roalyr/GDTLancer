@@ -1,8 +1,8 @@
 extends Node
 
 # GLOBAL PATHS 
-onready var paths = Paths
-onready var ui = paths.ui
+onready var main = get_parent()
+onready var ui = main.get_node("UI")
 # Logic node
 onready var ui_functions = ui.get_node("UI_functions")
 # Common

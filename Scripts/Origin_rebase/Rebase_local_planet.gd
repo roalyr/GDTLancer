@@ -26,7 +26,7 @@ func is_entered_local_space_planet(zone):
 			+ "' was not freed properly, which led to overlapping and corrupt object coordinates.\n" \
 			+ "Scenes which were not freed properly: " + str(scene_names) 
 			
-		UiPaths.ui_functions.popup_panic(message)
+		Paths.ui_paths.ui_functions.popup_panic(message)
 		
 	# Get a child scenes.
 	# print("Entered zone: ", zone)

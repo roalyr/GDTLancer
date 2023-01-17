@@ -1,5 +1,7 @@
 extends Node
 
+onready var ui_paths = get_node("/root/Main/UI_paths")
+
 # VARIABLES
 var mouse_x = 0
 var mouse_y = 0
@@ -17,7 +19,8 @@ func handle_input(event, viewport_size):
 	
 	# This ensures that desktop UI is enabled and mouse is on control area, not UI
 	# (TODO: Overlay UI pads on top of the control area to reserve those areas?)
-	if mouse_on_control_area and UiPaths.desktop_mouse_area.visible:
+	if mouse_on_control_area and not GameState.touchscreen_mode \
+		and not GameState.game_paused:
 		
 		# Track mouse position.
 		if event is InputEventMouseMotion:

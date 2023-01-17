@@ -63,9 +63,9 @@ func _physics_process(_delta):
 	
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes. Needed for detection camera orbiting.
-	if not GameOptions.touchscreen_mode and GlobalInput.LMB_held:
+	if not GameState.touchscreen_mode and GlobalInput.LMB_held:
 		control_held = true
-	elif GameOptions.touchscreen_mode and Paths.ui.stick_held:
+	elif GameState.touchscreen_mode and GlobalInput.stick_held:
 		control_held = true
 	else: 
 		control_held = false
@@ -223,11 +223,11 @@ func zoom_camera(mouse_event):
 			zoom_ticks += 1
 			current_zoom_extra += Constants.camera_zoom_step*zoom_ticks
 			# More zoom range if debug is on.
-			if Paths.ui.update_debug_text_on:
+			if GameState.update_debug_text_on:
 				camera_max_zoom = 1e18
 				current_zoom_extra *= 2
 			# Reset max zoom otherwise.
-			elif not Paths.ui.update_debug_text_on and \
+			elif not GameState.update_debug_text_on and \
 				(camera_max_zoom != camera_min_zoom \
 					* Constants.camera_zoom_ticks_max \
 					* Constants.camera_zoom_step):
@@ -238,11 +238,11 @@ func zoom_camera(mouse_event):
 			current_zoom_extra -= Constants.camera_zoom_step*zoom_ticks
 			zoom_ticks -= 1
 			# More zoom range if debug is on.
-			if Paths.ui.update_debug_text_on:
+			if GameState.update_debug_text_on:
 				camera_max_zoom = 1e18
 				current_zoom_extra /= 2
 			# Reset max zoom otherwise.
-			elif not Paths.ui.update_debug_text_on and \
+			elif not GameState.update_debug_text_on and \
 				(camera_max_zoom != camera_min_zoom \
 					* Constants.camera_zoom_ticks_max \
 					* Constants.camera_zoom_step):

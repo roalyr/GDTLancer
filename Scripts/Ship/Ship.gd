@@ -1,5 +1,7 @@
 extends RigidBody
 
+onready var ui = get_node("/root/Main/UI")
+
 # TODO check materials and shaders for FX
 # Params.
 const ship_mass = 1e6
@@ -133,9 +135,9 @@ func _integrate_forces(state):
 	
 	# Due to difference in handling LMB and stick actuation, check those separately for
 	# different game modes.
-	if not GameOptions.touchscreen_mode and GlobalInput.LMB_held:
+	if not GameState.touchscreen_mode and GlobalInput.LMB_held:
 		control_held = true
-	elif GameOptions.touchscreen_mode and Paths.ui.stick_held:
+	elif GameState.touchscreen_mode and GlobalInput.stick_held:
 		control_held = true
 	else: 
 		control_held = false
