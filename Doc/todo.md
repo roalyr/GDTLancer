@@ -9,7 +9,6 @@ Highlighted entries are "Work in progress".
 - **Info about an object in-game.**
 - Internal game wiki. 
 - Pause the game while menu (options) window is on.
-- **Connect localization strings with interface, add language switching button.**
 - Sandbox (debug) mode separate from gameplay mode.
 - **Ambient music and sounds.**
 - **Save game state and options.**
@@ -18,7 +17,6 @@ Highlighted entries are "Work in progress".
 
 ## Improvements
 - Make star sprites diminish in size with distance (script).
-- **Improve UI readability.**
 - Investigate enabling/disabling trimesh collision shapes on the go.
 - Option for debanding.
 - Engine kill button for touch UI.

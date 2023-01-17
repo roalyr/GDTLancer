@@ -10,10 +10,15 @@ var ui_hidden = false
 var ui_alpha = 1.0
 
 func _ready():
-	# Init.
-	ui_paths.ui_functions.is_viewport_update()
-	ui_paths.common_touchscreen_pad.recenter_stick()
-	ui_paths.common_touchscreen_throttle.recenter_throttle()
+	# ============================= Connect signals ===========================
+	Signals.connect_checked("sig_language_selected", self, "is_language_selected")
+	# =========================================================================
+
+	# TRANSLATION INIT
+	TranslationServer.set_locale(GameOptions.current_locale)
+	print(tr("TEST_LOCALE_LOADED"))
+	
+	# INITIATE GUI
 	ui_paths.ui_functions.init_gui()
 
 	
@@ -38,4 +43,17 @@ func _process(_delta):
 		
 	ui_paths.common_readouts.accel_ticks = str(" A: ", PlayerState.accel_ticks)
 
-	
+func is_language_selected(index):
+	# English
+	if index == 0:
+		GameOptions.current_locale = GameOptions.game_locale_0
+		TranslationServer.set_locale(GameOptions.current_locale)
+		# warning-ignore:return_value_discarded
+		get_tree().reload_current_scene()
+
+	# Ukrainian
+	elif index == 1:
+		GameOptions.current_locale = GameOptions.game_locale_1
+		TranslationServer.set_locale(GameOptions.current_locale)
+		# warning-ignore:return_value_discarded
+		get_tree().reload_current_scene()

@@ -21,6 +21,7 @@ func _ready():
 	Signals.connect_checked("sig_target_aim_clear", self, "is_target_aim_clear")
 	Signals.connect_checked("sig_autopilot_start", self, "is_autopilot_start")
 	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
+	Signals.connect_checked("sig_target_aim_locked", self, "is_target_aim_locked")
 	# =========================================================================
 	# Hide targeting controls by default,
 	is_autopilot_disable()
@@ -61,11 +62,11 @@ func _physics_process(_delta):
 		# Multiply by scale factor of viewport to position properly.
 		ui_paths.touch_readings_target_aim.visible = not Paths.camera.is_position_behind(object_aim_origin)
 		ui_paths.touch_readings_target_aim.rect_position = Paths.camera.unproject_position(
-			object_aim_origin)/GameOptions.render_res_factor*GameState.reverse_scale
+			object_aim_origin)/GameOptions.render_res_factor*GameState.ui_reverse_scale
 		
 		ui_paths.desktop_readings_target_aim.visible = not Paths.camera.is_position_behind(object_aim_origin)
 		ui_paths.desktop_readings_target_aim.rect_position = Paths.camera.unproject_position(
-			object_aim_origin)/GameOptions.render_res_factor*GameState.reverse_scale
+			object_aim_origin)/GameOptions.render_res_factor*GameState.ui_reverse_scale
 		
 		
 		
@@ -93,8 +94,8 @@ func _physics_process(_delta):
 		target_aim_controls_hidden = true
 	
 	# AUTOPILOT TARGET
+
 	if  PlayerState.autopilot_target_locked and PlayerState.autopilot:	
-		
 		if target_autopilot_controls_hidden:
 			is_autopilot_start()
 			target_autopilot_controls_hidden = false
@@ -109,6 +110,8 @@ func _physics_process(_delta):
 		if not is_instance_valid(PlayerState.autopilot_target):
 			Signals.emit_signal("sig_autopilot_disable")
 			return	
+			
+		
 		
 		object_autopilot_origin = PlayerState.autopilot_target.global_transform.origin
 		object_autopilot_name = PlayerState.autopilot_target.get_name()
@@ -123,11 +126,11 @@ func _physics_process(_delta):
 		# Multiply by scale factor of viewport to position properly.
 		ui_paths.touch_readings_target_autopilot.visible = not Paths.camera.is_position_behind(object_autopilot_origin)
 		ui_paths.touch_readings_target_autopilot.rect_position = Paths.camera.unproject_position(
-			object_autopilot_origin)/GameOptions.render_res_factor*GameState.reverse_scale
+			object_autopilot_origin)/GameOptions.render_res_factor*GameState.ui_reverse_scale
 		
 		ui_paths.desktop_readings_target_autopilot.visible = not Paths.camera.is_position_behind(object_autopilot_origin)
 		ui_paths.desktop_readings_target_autopilot.rect_position = Paths.camera.unproject_position(
-			object_autopilot_origin)/GameOptions.render_res_factor*GameState.reverse_scale
+			object_autopilot_origin)/GameOptions.render_res_factor*GameState.ui_reverse_scale
 		
 		# Update marker.
 		var result_d = ui_paths.common_readouts.get_magnitude_units(dist_autopilot_val)
@@ -149,6 +152,10 @@ func _physics_process(_delta):
 	elif not PlayerState.autopilot_target_locked and not target_autopilot_controls_hidden:
 		is_autopilot_disable()
 		target_autopilot_controls_hidden = true
+
+func is_target_aim_locked(target):
+	PlayerState.aim_target = target
+	PlayerState.aim_target_locked = true
 
 func is_target_aim_clear():
 	ui_paths.ui_functions.target_controls_hide()

@@ -33,7 +33,6 @@ var ty = 0
 var tz = 0
 var engine_delay = false
 
-var autopilot_target = Position3D
 var target_origin = Vector3(0,0,0)
 var autopilot_range = 0
 
@@ -59,6 +58,7 @@ func _ready():
 	Signals.connect_checked("sig_engine_kill", self, "is_engine_kill")
 	Signals.connect_checked("sig_autopilot_start", self, "is_autopilot_start")
 	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
+	Signals.connect_checked("sig_target_autopilot_locked", self, "is_target_autopilot_locked")
 	# =========================================================================
 	
 	# Initialize the vessel params.
@@ -94,10 +94,10 @@ func _integrate_forces(state):
 	# Coordinates must be within physics process because they are updating.
 	if PlayerState.autopilot_target_locked:
 		# Fail-safety
-		if autopilot_target.is_class("GDScriptNativeClass"):
+		if PlayerState.autopilot_target.is_class("GDScriptNativeClass"):
 			return
-		target_origin = autopilot_target.global_transform.origin
-		autopilot_range = autopilot_target.autopilot_range
+		target_origin = PlayerState.autopilot_target.global_transform.origin
+		autopilot_range = PlayerState.autopilot_target.autopilot_range
 	
 	#print(autopilot_range)
 
@@ -301,14 +301,14 @@ func is_engine_kill():
 	PlayerState.acceleration = 0
 	PlayerState.accel_ticks = 0
 	adjust_exhaust()
-
-
-func is_autopilot_start():
-	if PlayerState.autopilot_target_locked:
-		print("AP START SHIP")
-		autopilot_target = PlayerState.autopilot_target
-		PlayerState.autopilot = true
+		
+func is_target_autopilot_locked(target):
+	PlayerState.autopilot_target = target
+	PlayerState.autopilot_target_locked = true
 	
+func is_autopilot_start():
+	PlayerState.autopilot = true
+
 func is_autopilot_disable():
 	is_engine_kill()
 	PlayerState.autopilot = false

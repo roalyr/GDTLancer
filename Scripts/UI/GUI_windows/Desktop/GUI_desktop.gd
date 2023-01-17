@@ -159,10 +159,8 @@ func _on_Button_structures_toggled(button_pressed):
 
 func _on_Button_autopilot_toggled(button_pressed):
 	if button_pressed:
-		print("Started AP")
 		Signals.emit_signal("sig_autopilot_start")
 	else:
-		print("Disabled AP")
 		Signals.emit_signal("sig_autopilot_disable")
 		
 func is_autopilot_disable():

@@ -250,13 +250,15 @@ anchor_bottom = 0.5
 mouse_filter = 2
 
 [node name="Text_distance" parent="Readings/Target_aim" index="0"]
+margin_top = -70.0
 margin_right = 224.0
+margin_bottom = -22.0
 rect_scale = Vector2( 0.7, 0.7 )
 
 [node name="Text_object" parent="Readings/Target_aim" index="1"]
-margin_top = 40.0
+margin_top = -40.0
 margin_right = 224.0
-margin_bottom = 76.0
+margin_bottom = -3.99997
 rect_scale = Vector2( 0.7, 0.7 )
 
 [node name="Target_autopilot" parent="Readings" instance=ExtResource( 25 )]

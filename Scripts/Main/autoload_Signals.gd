@@ -1,5 +1,6 @@
 extends Node
 
+onready var ui_paths = get_node("/root/Main/UI_paths")
 # Rename all signals to "sig_<name_action>".
 # Emitting functions should be "<name>_is_<action>".
 # Receiving functions should be "is_<name_action>".
@@ -14,6 +15,7 @@ signal sig_screen_filter_on(flag)
 signal sig_render_res_value_changed(value)
 signal sig_fov_value_changed(value)
 signal sig_viewport_update
+signal sig_game_started(flag)
 signal sig_game_paused(flag)
 signal sig_quit_game
 signal sig_language_selected(index)
@@ -35,6 +37,8 @@ signal sig_accelerate(flag)
 signal sig_engine_kill
 signal sig_autopilot_start
 signal sig_autopilot_disable
+signal sig_target_aim_locked(scene)
+signal sig_target_autopilot_locked(scene)
 signal sig_target_aim_clear
 
 # LOCAL SPACE TRIGGERS
@@ -54,4 +58,4 @@ func connect_checked(signal_name, target, function_name):
 	var message = "Scene " + str(target.name) + " has failed to connect signal:\n" \
 		+ "*  " +signal_name + "\n\nto a function:\n" \
 		+ "*  " + function_name
-	if e != OK: Paths.ui_paths.ui_functions.popup_panic(message)
+	if e != OK: ui_paths.ui_functions.popup_panic(message)

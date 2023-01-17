@@ -7,54 +7,91 @@ func _ready():
 	Signals.connect_checked("sig_viewport_update", self, "is_viewport_update")
 	# =========================================================================
 
+
 # INIT
 func init_gui():
 	# Initialize windows in switched off mode to match button states.
 	Signals.emit_signal("sig_game_paused", true)
-	options_gui_show()
-	options_prompt_start_show()
 	
+	# Check if resume button must be enabled.
+	is_game_started()
+	is_viewport_update()
+	
+	# Start with options window.
+	options_gui_show()
+
+	# Hide all the gameplay elements and UI for now.
 	gameplay_gui_hide()
 	touchscreen_gui_hide()
 	desktop_gui_hide()
 	debug_gui_hide()
 	
+	
 # GLOBAL GUI SWITCHING.
 func switch_to_desktop_gui():
-	is_viewport_update()
+	if not GameState.game_started: Signals.emit_signal("sig_game_started", true)
 	Signals.emit_signal("sig_game_paused", false)
-	
+	GameState.touchscreen_mode = false
+	# Switch the button for GUI changing.
+	ui_paths.options_tab_options_general_button_desktop_gui.pressed = true
+	ui_paths.options_tab_options_general_button_touch_gui.pressed = false
 	gameplay_gui_show()
 	desktop_gui_show()
 	options_gui_hide()
+	options_prompt_start_hide()
+	options_prompt_start_confirm_hide()
 	touchscreen_gui_hide()
+	is_game_started()
+	is_viewport_update()
+	
 	
 func switch_to_touchscreen_gui():
-	is_viewport_update()
+	if not GameState.game_started: Signals.emit_signal("sig_game_started", true)
 	Signals.emit_signal("sig_game_paused", false)
-	
+	GameState.touchscreen_mode = true
+	# Switch the button for GUI changing.
+	ui_paths.options_tab_options_general_button_desktop_gui.pressed = false
+	ui_paths.options_tab_options_general_button_touch_gui.pressed = true
 	gameplay_gui_show()
 	touchscreen_gui_show()
-	is_controls_swapped()
 	options_gui_hide()
+	options_prompt_start_hide()
+	options_prompt_start_confirm_hide()
 	desktop_gui_hide()
+	ui_paths.common_touchscreen_pad.recenter_stick()
+	ui_paths.common_touchscreen_throttle.recenter_throttle()
+	is_controls_swapped()
+	is_game_started()
+	is_viewport_update()
+
 
 func switch_to_options_gui():
-	is_viewport_update()
 	Signals.emit_signal("sig_game_paused", true)
-	
 	touchscreen_gui_hide()
 	desktop_gui_hide()
 	gameplay_gui_hide()
 	options_gui_show()
+	is_viewport_update()
+	
+	
+func resume_game():
+	if GameState.game_started and GameState.touchscreen_mode:
+		switch_to_touchscreen_gui()
+	elif GameState.game_started and not GameState.touchscreen_mode:
+		switch_to_desktop_gui()
+	else:
+		switch_to_options_gui()
+		
 	
 func switch_to_touchscreen_controls_unswapped():
 	GameState.touchscreen_controls_swapped = false
 	print("Controls unswapped")
+	
 
 func switch_to_touchscreen_controls_swapped():
 	GameState.touchscreen_controls_swapped = true
 	print("Controls swapped")
+	
 
 func is_controls_swapped():
 	if GameState.touchscreen_controls_swapped:
@@ -82,6 +119,15 @@ func is_controls_swapped():
 	is_viewport_update()
 
 
+func is_game_started():
+	if GameState.game_started:
+		ui_paths.options_button_resume.disabled = false
+	else:
+		ui_paths.options_button_resume.disabled = true
+		
+
+# SERVICE
+# Service functions, in case we need some more complex behavior than just 'hide'
 func touchscreen_gui_hide():
 	ui_paths.touch_gui.hide()
 	
@@ -200,6 +246,7 @@ func restore_proportions(c):
 	c.rect_pivot_offset.y = c.rect_size.y/2
 	c.rect_scale = GameState.ui_reverse_scale/GameState.ui_reverse_scale.y
 
+
 # Restore the window, provide margins as if it was a FHD resolution.
 # TODO: how?
 func restore_proportions_with_margins(c):
@@ -208,7 +255,8 @@ func restore_proportions_with_margins(c):
 	c.rect_scale = GameState.ui_reverse_scale/GameState.ui_reverse_scale.y
 	c.rect_size.x = 1920*GameState.ui_reverse_scale.x/GameState.ui_reverse_scale.y
 
-# GUI PANIC POPUP
+
+# GUI PANIC POPUP WINDOW.
 func popup_panic(message):
 	var panic_screen = ui_paths.popup_panic_gui
 	var panic_message = panic_screen.get_node("Panic_message")

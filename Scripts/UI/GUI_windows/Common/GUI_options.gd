@@ -2,18 +2,20 @@ extends Control
 
 onready var ui_paths = get_node("/root/Main/UI_paths")
 
+
 func _ready():
 	hide_tabs()
 
+
 func hide_tabs():
-	ui_paths.options_tab_info.hide()	
+	ui_paths.options_tab_info.hide()
 	ui_paths.options_tab_options_audio.hide()
 	ui_paths.options_tab_options_graphic.hide()
 	ui_paths.options_tab_options_general.hide()
 	ui_paths.options_prompt_start.hide()
 	ui_paths.options_prompt_start_confirm.hide()
 
-# TODO: should this be used instead?
+
 func unpress_buttons():
 	ui_paths.options_button_info.pressed = false
 	ui_paths.options_button_options_audio.pressed = false
@@ -21,7 +23,7 @@ func unpress_buttons():
 	ui_paths.options_button_options_general.pressed = false
 
 
-# BUTTON SIDE BAR BUTTONS
+# GAME START / RESUME / QUIT BUTTONS.
 func _on_Button_start_pressed():
 	if not GameState.game_started:
 		hide_tabs()
@@ -32,21 +34,27 @@ func _on_Button_start_pressed():
 		unpress_buttons()
 		ui_paths.ui_functions.options_prompt_start_confirm_show()
 
+
+# If the game was already started.
 func _on_Button_start_confirm_pressed():
 	hide_tabs()
 	unpress_buttons()
 	ui_paths.ui_functions.options_prompt_start_show()
 
-func _on_Button_resume_pressed():
-	if GameState.touchscreen_mode:
-		ui_paths.ui_functions.switch_to_touchscreen_gui()
-	else:
-		ui_paths.ui_functions.switch_to_desktop_gui()
-	ui_paths.ui_functions.options_prompt_start_confirm_hide()
-	ui_paths.ui_functions.options_prompt_start_hide()
-	GameState.game_started = true
-	ui_paths.options_button_resume.disabled = false
 
+func _on_Button_resume_pressed():
+	ui_paths.ui_functions.resume_game()
+
+
+func _on_Button_desktop_gui_pressed():
+	ui_paths.ui_functions.switch_to_desktop_gui()
+
+
+func _on_Button_touch_gui_pressed():
+	ui_paths.ui_functions.switch_to_touchscreen_gui()
+	
+
+# OPTIONS BUTTONS.
 func _on_Button_options_general_toggled(button_pressed):
 	if button_pressed and not ui_paths.options_tab_options_general.visible: 
 		hide_tabs()
@@ -57,6 +65,7 @@ func _on_Button_options_general_toggled(button_pressed):
 		ui_paths.options_tab_options_general.show()
 	else: 
 		ui_paths.options_tab_options_general.hide()
+
 
 func _on_Button_options_graphic_toggled(button_pressed):
 	if button_pressed and not ui_paths.options_tab_options_graphic.visible: 
@@ -81,6 +90,7 @@ func _on_Button_options_audio_toggled(button_pressed):
 	else: 
 		ui_paths.options_tab_options_audio.hide()
 		
+		
 func _on_Button_info_toggled(button_pressed):
 	if button_pressed and not ui_paths.options_tab_info.visible: 
 		hide_tabs()
@@ -92,29 +102,10 @@ func _on_Button_info_toggled(button_pressed):
 	else: 
 		ui_paths.options_tab_info.hide()
 
+
 func _on_Button_quit_pressed():
 	get_tree().quit()
 
-
-# GENERAL OPTIONS
-func _on_Button_desktop_gui_pressed():
-	ui_paths.ui_functions.switch_to_desktop_gui()
-	ui_paths.ui_functions.options_prompt_start_hide()
-	GameState.game_started = true
-	GameState.touchscreen_mode = false
-	ui_paths.options_button_resume.disabled = false
-	ui_paths.options_tab_options_general_button_desktop_gui.pressed = true
-	ui_paths.options_tab_options_general_button_touch_gui.pressed = false
-
-func _on_Button_touch_gui_pressed():
-	ui_paths.ui_functions.switch_to_touchscreen_gui()
-	ui_paths.ui_functions.options_prompt_start_hide()
-	GameState.game_started = true
-	GameState.touchscreen_mode = true
-	ui_paths.options_button_resume.disabled = false
-	ui_paths.options_tab_options_general_button_desktop_gui.pressed = false
-	ui_paths.options_tab_options_general_button_touch_gui.pressed = true
-	
 
 func _on_Button_desktop_gui_toggled(button_pressed):
 	if button_pressed:
@@ -124,6 +115,7 @@ func _on_Button_desktop_gui_toggled(button_pressed):
 		GameState.touchscreen_mode = true
 		ui_paths.options_tab_options_general_button_touch_gui.pressed = true
 
+
 func _on_Button_touch_gui_toggled(button_pressed):
 	if button_pressed:
 		GameState.touchscreen_mode = true
@@ -132,6 +124,7 @@ func _on_Button_touch_gui_toggled(button_pressed):
 		GameState.touchscreen_mode = false
 		ui_paths.options_tab_options_general_button_desktop_gui.pressed = true
 
+
 func _on_Button_debug_toggled(button_pressed):
 	if button_pressed: 
 		ui_paths.ui_functions.debug_gui_show()
@@ -139,6 +132,7 @@ func _on_Button_debug_toggled(button_pressed):
 	else:
 		ui_paths.ui_functions.debug_gui_hide()
 		GameState.update_debug_text_on = false
+
 
 func _on_Button_controls_swap_toggled(button_pressed):
 	if button_pressed:
@@ -154,8 +148,10 @@ func _on_Language_list_item_selected(index):
 func _on_Slider_color_power_value_changed(value):
 	ui_paths.options_graphic_color_presets.get_node("Panel_sample").get_material().set_shader_param("power", value)	
 
+
 func _on_Slider_screen_res_value_changed(value):
 	Signals.emit_signal("sig_render_res_value_changed", value)
+
 
 # Color palette.
 func _on_Color_1_pressed():

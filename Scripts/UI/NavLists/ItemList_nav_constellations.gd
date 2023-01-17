@@ -82,19 +82,16 @@ func _on_ItemList_nav_item_selected(index):
 	# TODO: sort out markers vs dyn. spawned objects.
 	var marker_scene = coordinates
 	Signals.emit_signal("sig_system_spawned", marker_scene)
+	Signals.emit_signal("sig_target_aim_locked", targeted_scene)
 	
 func is_system_spawned(system_scene):
 	# Save currently selected scene reference in memory
 	targeted_scene = system_scene
-	
-	# Update aim target.
-	PlayerState.aim_target = targeted_scene
-	PlayerState.aim_target_locked = true
+	#Signals.emit_signal("sig_target_autopilot_locked", targeted_scene)
 	
 func is_autopilot_start():
 	# When AP starts, update and use this target.
-	PlayerState.autopilot_target = targeted_scene
-	PlayerState.autopilot_target_locked = true
+	Signals.emit_signal("sig_target_autopilot_locked", targeted_scene)
 	
 # If aim is disable and then AUP immediately after that - it prevents systems from despawning.
 # It happens when target is the same for both modes and is consequtively disabled.

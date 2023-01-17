@@ -92,7 +92,7 @@ margin_right = -80.0
 margin_bottom = 160.0
 theme = ExtResource( 4 )
 keep_pressed_outside = true
-text = "Start"
+text = "New game"
 
 [node name="Button_resume" type="Button" parent="Buttons_general_bar"]
 pause_mode = 2
@@ -234,6 +234,7 @@ theme = ExtResource( 4 )
 text = "Select GUI mode depending on your device"
 
 [node name="Options_prompt_start_confirm" type="Control" parent="."]
+visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -261,7 +262,6 @@ keep_pressed_outside = true
 text = "Start"
 
 [node name="Options_tab_options_general" type="Control" parent="."]
-visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0

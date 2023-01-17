@@ -1,7 +1,8 @@
 # Versions changelog
  
 ## v0.11-alpha (work in progress)
-- Updated engine binaries (3.x as of 13th December 2022).
+### Engine
+- Updated engine binaries (3.x as of 13th January 2023).
 ### Models
 - Fixed some improper LODs.
 ### Camera
@@ -15,6 +16,7 @@
 - New different star sprites.
 ### Locales
 - Initiated localization (EN and UA).
+- Connected localization strings with interface, added language switching button.
 ### Interface
 - GUI is now scaleable, and will adapt to any screen (16:9 and wider).
 - Separate navigation lists for different stellar objects and structures.
@@ -23,6 +25,11 @@
 - Reworked desktop GUI layout.
 - Implemented basic info window.
 - Theme color and intensity can be selected now.
+- Improved UI readability.
+### Refactoring
+- Refactored whole project to heavily rely on autoload for persistent data.
+- Refactored autopilot code to be more reliable.
+- Refactored UI code to be more reliable.
 
 ## v0.10-alpha (last release)
 - CCD is disabled upon reaching specific velocity threshold.

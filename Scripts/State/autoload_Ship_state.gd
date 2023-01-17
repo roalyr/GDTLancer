@@ -14,3 +14,4 @@ var aim_target_locked = false
 var autopilot_target = Position3D
 var autopilot_target_locked = false
 var autopilot = false
+
