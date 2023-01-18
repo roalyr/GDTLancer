@@ -22,6 +22,8 @@ Highlighted entries are "Work in progress".
 - Engine kill button for touch UI.
 - Improve pad X direction movement on scaling.
 - Remove objects (zone contents) that are way too far.
+- Make a "UI state" autoload object to store UI data and synchronize states.
+- Examine PID regulator applicability (https://github.com/slavfox/godot_pid_controller or https://github.com/fire/godot-pid/blob/master/PID_Controller/PID_Controller.gd).
 
 ## Refactor
 - **Re-attach models directly into scenes (make editable).**

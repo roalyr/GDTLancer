@@ -282,15 +282,6 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-mouse_filter = 2
-
-[node name="Text_distance" parent="Readings/Target_aim" index="0"]
-margin_top = -100.0
-margin_bottom = -52.0
-
-[node name="Text_object" parent="Readings/Target_aim" index="1"]
-margin_top = -50.0
-margin_bottom = -14.0
 
 [node name="Target_autopilot" parent="Readings" instance=ExtResource( 28 )]
 anchor_left = 0.5
@@ -1222,5 +1213,3 @@ __meta__ = {
 [connection signal="item_selected" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_item_selected"]
 [connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
 [connection signal="toggled" from="Bar_ship_PLACEHOLDER/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]
-
-[editable path="Readings/Target_aim"]
