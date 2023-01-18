@@ -157,6 +157,8 @@ ViewportContainer3d="*res://Scenes/ViewportContainer3D.tscn"
 
 window/size/width=1920
 window/size/height=1080
+window/size/fullscreen=true
+window/dpi/allow_hidpi=true
 
 [global]
 
@@ -200,6 +202,9 @@ quality/shading/force_lambert_over_burley.mobile=false
 quality/shading/force_blinn_over_ggx.mobile=false
 quality/depth_prepass/enable=false
 quality/filters/anisotropic_filter_level=1
+gles3/shaders/shader_compilation_mode=2
+gles3/shaders/shader_compilation_mode.mobile=2
+gles3/shaders/max_simultaneous_compiles=1
 quality/lightmapping/use_bicubic_sampling=false
 quality/subsurface_scattering/quality=0
 quality/reflections/atlas_size=512
