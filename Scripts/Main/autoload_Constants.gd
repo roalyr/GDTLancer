@@ -1,5 +1,16 @@
 extends Node
 
+# PROJECT NAME
+const game_name = "GDTLancer"
+const version = "v0.10-alpha"
+
+var system_time = Time.get_date_dict_from_system()
+var project_name = game_name + "-"  \
+	+ version + "-" \
+	+ str(system_time["year"]) + "." \
+	+ str(system_time["month"]) + "." \
+	+ str(system_time["day"])
+
 # CONSTANTS
 const physics_fps = 120
 const graphic_fps = 60
@@ -28,3 +39,7 @@ const camera_turret_roll_vert_limit = 70 # Deg +\-
 const camera_zoom_ticks_max = 100
 #const camera_zoom_out_max = 1e3 # For sandnbox mode
 const camera_zoom_step = 1 # 0.05 ... 0.2
+
+func _ready():
+	print(project_name)
+	#ProjectSettings.set_setting('application/config/name', project_name)

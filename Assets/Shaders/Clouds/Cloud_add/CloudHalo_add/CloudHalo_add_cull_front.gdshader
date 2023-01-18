@@ -24,8 +24,8 @@ uniform float rim_power_inner = 9.0;
 
 void fragment()
 {
-	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-6, 1.0);
-	float rim_inner = clamp(pow(dot(NORMAL, VIEW), rim_power_inner)*rim_strength_inner, 1e-6, 1.0);
+	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-4, 1.0);
+	float rim_inner = clamp(pow(dot(NORMAL, VIEW), rim_power_inner)*rim_strength_inner, 1e-4, 1.0);
 	ALBEDO = albedo.rgb*COLOR.rgb;
-	ALPHA = clamp(1.0-rim_inner, 1e-6, 1.0)*clamp(rim, 1e-6, 1.0);
+	ALPHA = clamp(1.0-rim_inner, 1e-4, 1.0)*clamp(rim, 1e-4, 1.0);
 }

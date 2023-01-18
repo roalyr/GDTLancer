@@ -144,7 +144,7 @@ config/windows_native_icon="res://Assets/Images/Icon.ico"
 [autoload]
 
 Paths="*res://Scenes/Paths.tscn"
-Constants="*res://Scripts/Main/Constants.gd"
+Constants="*res://Scripts/Main/autoload_Constants.gd"
 Signals="*res://Scripts/Main/autoload_Signals.gd"
 GameOptions="*res://Scripts/Main/autoload_Game_options.gd"
 GameState="*res://Scripts/State/autoload_Game_state.gd"

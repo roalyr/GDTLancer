@@ -23,7 +23,7 @@ uniform float alpha_clip : hint_range(0,1) = 1.0;
 
 void fragment()
 {
-	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-6, alpha_clip);
+	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-4, alpha_clip);
 	ALBEDO = albedo.rgb*COLOR.rgb;
 	ALPHA = rim;
 }
