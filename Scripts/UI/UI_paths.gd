@@ -137,18 +137,40 @@ onready var options_button_info = options_buttons_general_bar.get_node("Button_i
 onready var options_button_quit = options_buttons_general_bar.get_node("Button_quit")
 # Starting prompt
 onready var options_prompt_start = options_gui.get_node("Options_prompt_start")
+onready var options_prompt_start_label = options_prompt_start.get_node("Label")
+onready var options_prompt_start_desktop_gui = options_prompt_start.get_node("Button_desktop_gui")
+onready var options_prompt_start_touch_gui = options_prompt_start.get_node("Button_touch_gui")
+# Starting prompt confirmation
 onready var options_prompt_start_confirm = options_gui.get_node("Options_prompt_start_confirm")
+onready var options_prompt_start_confirm_button = options_prompt_start_confirm.get_node("Button_start_confirm")
 # General options tab
 onready var options_tab_options_general = options_gui.get_node("Options_tab_options_general")
 onready var options_tab_options_general_button_desktop_gui = options_tab_options_general.get_node("Button_desktop_gui")
 onready var options_tab_options_general_button_touch_gui = options_tab_options_general.get_node("Button_touch_gui")
+onready var options_tab_options_general_button_touch_swap_controls = options_tab_options_general.get_node("Button_controls_swap")
+onready var options_tab_options_general_button_debug = options_tab_options_general.get_node("Button_debug")
 # Graphic options tab
 onready var options_tab_options_graphic = options_gui.get_node("Options_tab_options_graphic")
 onready var options_graphic_color_presets = options_tab_options_graphic.get_node("Color_presets")
+onready var options_graphic_slider_screen_res = options_tab_options_graphic.get_node("Slider_screen_res")
+onready var options_graphic_slider_color_power = options_tab_options_graphic.get_node("Slider_color_power")
 # Audio options tab
 onready var options_tab_options_audio = options_gui.get_node("Options_tab_options_audio")
 # Info tab
 onready var options_tab_info = options_gui.get_node("Options_tab_info")
+onready var options_info_container = options_tab_info.get_node("ScrollContainer/Container")
+onready var options_info_target = options_info_container.get_node("HBoxContainer1/Label_info_target")
+onready var options_info_autopilot = options_info_container.get_node("HBoxContainer2/Label_info_autopilot")
+onready var options_info_options = options_info_container.get_node("HBoxContainer3/Label_info_options")
+onready var options_info_gui_opacity = options_info_container.get_node("HBoxContainer4/Label_info_gui_opacity")
+onready var options_info_turret_camera = options_info_container.get_node("HBoxContainer5/Label_info_turret_camera")
+onready var options_info_nav_nebula = options_info_container.get_node("HBoxContainer6/Label_info_nav_nebula")
+onready var options_info_nav_system = options_info_container.get_node("HBoxContainer7/Label_info_nav_system")
+onready var options_info_nav_star = options_info_container.get_node("HBoxContainer8/Label_info_nav_star")
+onready var options_info_nav_planet = options_info_container.get_node("HBoxContainer9/Label_info_nav_planet")
+onready var options_info_nav_object = options_info_container.get_node("HBoxContainer10/Label_info_nav_object")
+onready var options_info_ship = options_info_container.get_node("HBoxContainer11/Label_info_ship")
+
 
 
 

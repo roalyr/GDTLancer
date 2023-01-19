@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=20 format=2]
+[gd_resource type="Theme" load_steps=21 format=2]
 
 [ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont.tres" type="DynamicFont" id=1]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_horiz_100_flat.png" type="Texture" id=2]
@@ -117,7 +117,12 @@ shadow_size = 15
 [sub_resource type="StyleBoxFlat" id=21]
 content_margin_left = 30.0
 content_margin_top = 20.0
+content_margin_bottom = 20.0
 bg_color = Color( 0, 0, 0, 0.376471 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id=25]
+bg_color = Color( 0, 0, 0, 0 )
 corner_detail = 1
 
 [sub_resource type="StyleBoxFlat" id=20]
@@ -177,6 +182,9 @@ Label/constants/shadow_offset_y = 2
 Label/fonts/font = ExtResource( 1 )
 Panel/styles/panel = SubResource( 5 )
 ScrollContainer/styles/bg = SubResource( 21 )
+TooltipLabel/colors/font_color = Color( 0, 0, 0, 0 )
+TooltipLabel/colors/font_color_shadow = Color( 0, 0, 0, 0 )
+TooltipPanel/styles/panel = SubResource( 25 )
 VScrollBar/styles/grabber = SubResource( 20 )
 VScrollBar/styles/grabber_highlight = SubResource( 20 )
 VScrollBar/styles/grabber_pressed = SubResource( 20 )

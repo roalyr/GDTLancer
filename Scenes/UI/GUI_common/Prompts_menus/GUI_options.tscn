@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://Assets/UI_images/PNG/buttons/touchscreen_GUI.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=2]
@@ -21,6 +21,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/navlist_structure.png" type="Texture" id=19]
 [ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=20]
 [ext_resource path="res://Scripts/UI/Assist/Control_show.gd" type="Script" id=21]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=22]
 
 [sub_resource type="GDScript" id=2]
 script/source = "extends Button
@@ -195,11 +196,13 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 margin_left = -97.5
-margin_top = -80.0
+margin_top = -78.0
 margin_right = 97.5
-margin_bottom = -32.0
+margin_bottom = -30.0
+grow_horizontal = 2
 theme = ExtResource( 4 )
 text = "Desktop GUI"
+align = 1
 
 [node name="Button_touch_gui" type="Button" parent="Options_prompt_start"]
 margin_left = 760.0
@@ -217,11 +220,13 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 margin_left = -133.5
-margin_top = -80.0
+margin_top = -78.0
 margin_right = 133.5
-margin_bottom = -32.0
+margin_bottom = -30.0
+grow_horizontal = 2
 theme = ExtResource( 4 )
 text = "Touchscreen GUI"
+align = 1
 
 [node name="Label" type="Label" parent="Options_prompt_start"]
 anchor_left = 0.5
@@ -262,6 +267,7 @@ keep_pressed_outside = true
 text = "Start"
 
 [node name="Options_tab_options_general" type="Control" parent="."]
+visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -279,14 +285,18 @@ icon = ExtResource( 5 )
 icon_align = 1
 
 [node name="Label" type="Label" parent="Options_tab_options_general/Button_desktop_gui"]
+anchor_left = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = -60.0
-margin_right = 88.0
-margin_bottom = -18.0
+margin_left = -97.5
+margin_top = -60.5
+margin_right = 97.5
+margin_bottom = -12.5
+grow_horizontal = 2
 theme = ExtResource( 4 )
 text = "Desktop GUI"
+align = 1
 
 [node name="Button_touch_gui" type="Button" parent="Options_tab_options_general"]
 margin_left = 440.0
@@ -301,14 +311,18 @@ icon = ExtResource( 1 )
 icon_align = 1
 
 [node name="Label" type="Label" parent="Options_tab_options_general/Button_touch_gui"]
+anchor_left = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = -60.0
-margin_right = 105.0
-margin_bottom = -18.0
+margin_left = -133.5
+margin_top = -60.5
+margin_right = 133.5
+margin_bottom = -12.5
+grow_horizontal = 2
 theme = ExtResource( 4 )
 text = "Touchscreen GUI"
+align = 1
 
 [node name="Button_controls_swap" type="Button" parent="Options_tab_options_general"]
 margin_left = 800.0
@@ -327,13 +341,15 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -260.13
-margin_top = -50.0
-margin_right = 59.8699
-margin_bottom = -1.99994
-rect_scale = Vector2( 0.8, 0.8 )
+margin_left = -160.0
+margin_top = -48.0
+margin_right = 160.0
+margin_bottom = -12.0
+grow_horizontal = 2
 theme = ExtResource( 4 )
+custom_fonts/font = ExtResource( 8 )
 text = "Swap touch controls"
+align = 1
 
 [node name="Button_debug" type="Button" parent="Options_tab_options_general"]
 pause_mode = 2
@@ -740,22 +756,22 @@ anchor_bottom = 1.0
 theme = ExtResource( 4 )
 script = ExtResource( 9 )
 
-[node name="Container2" type="VBoxContainer" parent="Options_tab_info/ScrollContainer"]
+[node name="Container" type="VBoxContainer" parent="Options_tab_info/ScrollContainer"]
 margin_left = 30.0
 margin_top = 20.0
 margin_right = 946.0
-margin_bottom = 1056.0
+margin_bottom = 1160.0
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer1" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_right = 916.0
 margin_bottom = 100.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer2"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer1"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 14 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer2"]
+[node name="Label_info_target" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer1"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 690.0
@@ -764,17 +780,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Target (currently clears target only)"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 104.0
 margin_right = 916.0
 margin_bottom = 204.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer2"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 10 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer"]
+[node name="Label_info_autopilot" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer2"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 278.0
@@ -783,17 +799,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Autopilot"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 208.0
 margin_right = 916.0
 margin_bottom = 308.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer3"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer3"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 13 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer3"]
+[node name="Label_info_options" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer3"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 439.0
@@ -802,17 +818,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Open options menu"
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer4" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 312.0
 margin_right = 916.0
 margin_bottom = 412.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer4"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer4"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 12 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer4"]
+[node name="Label_info_gui_opacity" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer4"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 916.0
@@ -821,17 +837,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Change GUI opacity in game (click multiple times)"
 
-[node name="HBoxContainer5" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer5" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 416.0
 margin_right = 916.0
 margin_bottom = 516.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer5"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer5"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 11 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer5"]
+[node name="Label_info_turret_camera" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer5"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 557.0
@@ -840,17 +856,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Camera turret (orbit) mode"
 
-[node name="HBoxContainer6" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer6" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 520.0
 margin_right = 916.0
 margin_bottom = 620.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer6"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer6"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 17 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer6"]
+[node name="Label_info_nav_nebula" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer6"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 798.0
@@ -859,17 +875,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Navigation list: nebulas and constellations"
 
-[node name="HBoxContainer7" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer7" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 624.0
 margin_right = 916.0
 margin_bottom = 724.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer7"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer7"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 15 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer7"]
+[node name="Label_info_nav_system" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer7"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 580.0
@@ -878,17 +894,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Navigation list: star systems"
 
-[node name="HBoxContainer8" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer8" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 728.0
 margin_right = 916.0
 margin_bottom = 828.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer8"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer8"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 16 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer8"]
+[node name="Label_info_nav_star" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer8"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 457.0
@@ -897,17 +913,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Navigation list: stars"
 
-[node name="HBoxContainer9" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer9" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 832.0
 margin_right = 916.0
 margin_bottom = 932.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer9"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer9"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 18 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer9"]
+[node name="Label_info_nav_planet" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer9"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 494.0
@@ -916,17 +932,17 @@ theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Navigation list: planets"
 
-[node name="HBoxContainer10" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container2"]
+[node name="HBoxContainer10" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
 margin_top = 936.0
 margin_right = 916.0
 margin_bottom = 1036.0
 
-[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer10"]
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer10"]
 margin_right = 100.0
 margin_bottom = 100.0
 texture = ExtResource( 19 )
 
-[node name="Label2" type="Label" parent="Options_tab_info/ScrollContainer/Container2/HBoxContainer10"]
+[node name="Label_info_nav_object" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer10"]
 margin_left = 104.0
 margin_top = 16.0
 margin_right = 729.0
@@ -934,6 +950,25 @@ margin_bottom = 84.0
 theme = ExtResource( 4 )
 custom_styles/normal = SubResource( 3 )
 text = "Navigation list: structures and objects"
+
+[node name="HBoxContainer11" type="HBoxContainer" parent="Options_tab_info/ScrollContainer/Container"]
+margin_top = 1040.0
+margin_right = 916.0
+margin_bottom = 1140.0
+
+[node name="TextureRect" type="TextureRect" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer11"]
+margin_right = 100.0
+margin_bottom = 100.0
+texture = ExtResource( 22 )
+
+[node name="Label_info_ship" type="Label" parent="Options_tab_info/ScrollContainer/Container/HBoxContainer11"]
+margin_left = 104.0
+margin_top = 16.0
+margin_right = 573.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+custom_styles/normal = SubResource( 3 )
+text = "Ship menu (PLACEHOLDER)"
 
 [connection signal="pressed" from="Buttons_general_bar/Button_start" to="." method="_on_Button_start_pressed"]
 [connection signal="pressed" from="Buttons_general_bar/Button_resume" to="." method="_on_Button_resume_pressed"]

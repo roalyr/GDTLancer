@@ -123,6 +123,9 @@ margin_left = 550.0
 margin_right = 1370.0
 margin_bottom = 400.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Readings/Debug_panel"]
 visible = false
@@ -182,11 +185,14 @@ text = "Output: ....."
 autowrap = true
 
 [node name="Velocity_panel" type="Control" parent="Readings"]
-margin_left = 520.0
+margin_left = 530.0
 margin_top = 960.0
-margin_right = 840.0
+margin_right = 850.0
 margin_bottom = 1080.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Readings/Velocity_panel"]
 visible = false
@@ -233,11 +239,14 @@ __meta__ = {
 }
 
 [node name="Status_panel" type="Control" parent="Readings"]
-margin_left = 1080.0
+margin_left = 1070.0
 margin_top = 960.0
-margin_right = 1400.0
+margin_right = 1390.0
 margin_bottom = 1080.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Panel" type="Panel" parent="Readings/Status_panel"]
 visible = false
@@ -282,6 +291,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Target_autopilot" parent="Readings" instance=ExtResource( 28 )]
 anchor_left = 0.5
@@ -289,6 +301,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Controls_area" type="Control" parent="."]
 margin_right = 1920.0

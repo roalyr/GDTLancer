@@ -14,6 +14,7 @@
 - Tweaked shaders for performance (significant boost due to partially using vertex shading).
 - Re-introduced star core shader, optimized this time.
 - New different star sprites.
+- Clamped shaders alpha to prevent unexpected bugs.
 ### Locales
 - Initiated localization (EN and UA).
 - Connected localization strings with interface, added language switching button.
