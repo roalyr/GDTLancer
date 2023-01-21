@@ -24,6 +24,7 @@ uniform float small_phase : hint_range(0, 3.14) = 1.0;
 
 uniform float major_detail_intensity = 1;
 uniform float small_detail_intensity = 1;
+uniform float detail_decay_distance = 1e12;
 
 uniform sampler2D major_detail_noise : hint_normal;
 uniform sampler2D small_detail_noise : hint_normal;
@@ -42,6 +43,13 @@ uniform float rim_intensity = 0.1;
 const float pi = 3.1415926535;
 const vec3 WHITE = vec3(1.0,1.0,1.0);
 
+varying float z_dist;
+
+void vertex()
+{
+	z_dist = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
+}
+
 void fragment()
 {
 	vec2 p = texture(major_detail_noise, -UV*major_detail_scale).xy -TIME*major_detail_flow;
@@ -54,7 +62,8 @@ void fragment()
 	
 	ALBEDO = 
 		+ detail_major*WHITE * major_detail_intensity
-		+ detail_small*WHITE * small_detail_intensity;
+		+ detail_small*WHITE * small_detail_intensity
+		- z_dist/detail_decay_distance;
 		
 	ALBEDO += overlay_color.rgb;
 	ALBEDO *= surface_color.rgb;
