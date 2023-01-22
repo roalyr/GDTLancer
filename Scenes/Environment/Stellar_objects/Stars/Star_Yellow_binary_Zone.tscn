@@ -48,22 +48,24 @@ shader_param/displacement_velocity = 0.05
 shader_param/displacement_texture = SubResource( 96 )
 
 [sub_resource type="OpenSimplexNoise" id=91]
-period = 13.0
-persistence = 0.831
-lacunarity = 4.0
+period = 4.0
 
 [sub_resource type="NoiseTexture" id=92]
+width = 256
+height = 256
 seamless = true
 noise = SubResource( 91 )
 
 [sub_resource type="OpenSimplexNoise" id=93]
 octaves = 4
-period = 3.6
+period = 1.0
 persistence = 1.0
 lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=94]
 flags = 15
+width = 256
+height = 256
 seamless = true
 noise = SubResource( 93 )
 
@@ -77,8 +79,8 @@ shader_param/small_phase = 2.232
 shader_param/major_detail_intensity = 0.205
 shader_param/small_detail_intensity = 1.041
 shader_param/detail_decay_distance = 1e+12
-shader_param/major_detail_scale = 1.0
-shader_param/small_detail_scale = 1.0
+shader_param/major_detail_scale = 2.0
+shader_param/small_detail_scale = 2.0
 shader_param/major_detail_flow = 0.022
 shader_param/small_detail_flow = 0.003
 shader_param/rim_strength = 1.251
@@ -129,20 +131,25 @@ shader_param/displacement_velocity = 0.048
 shader_param/displacement_texture = SubResource( 107 )
 
 [sub_resource type="OpenSimplexNoise" id=101]
-period = 18.8
+period = 5.0
+persistence = 0.926
 lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=102]
+width = 128
+height = 128
 seamless = true
 noise = SubResource( 101 )
 
 [sub_resource type="OpenSimplexNoise" id=103]
 octaves = 9
-period = 115.2
+period = 6.1
 persistence = 1.0
 lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=104]
+width = 256
+height = 256
 seamless = true
 noise = SubResource( 103 )
 

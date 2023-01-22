@@ -17,9 +17,11 @@
 [sub_resource type="SphereShape" id=110]
 
 [sub_resource type="OpenSimplexNoise" id=117]
-period = 211.5
+period = 56.9
 
 [sub_resource type="NoiseTexture" id=83]
+width = 128
+height = 128
 noise = SubResource( 117 )
 
 [sub_resource type="ShaderMaterial" id=42]
@@ -36,26 +38,30 @@ shader_param/corona_amount = 6.482
 shader_param/core_strength = 50.88
 shader_param/core_power = 100.0
 shader_param/core_amount = 53.46
-shader_param/displacement_scale = -0.02
+shader_param/displacement_scale = 0.033
 shader_param/displacement_velocity = 0.243
 shader_param/displacement_texture = SubResource( 83 )
 
 [sub_resource type="OpenSimplexNoise" id=112]
 octaves = 5
-period = 26.1
-persistence = 0.281
+period = 3.0
 lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=113]
+width = 128
+height = 128
 seamless = true
 noise = SubResource( 112 )
 
 [sub_resource type="OpenSimplexNoise" id=114]
 octaves = 9
-period = 6.1
-persistence = 0.712
+period = 4.0
+persistence = 0.646
+lacunarity = 4.0
 
 [sub_resource type="NoiseTexture" id=115]
+width = 256
+height = 256
 seamless = true
 noise = SubResource( 114 )
 
@@ -70,7 +76,7 @@ shader_param/major_detail_intensity = 1.099
 shader_param/small_detail_intensity = 9.516
 shader_param/detail_decay_distance = 1e+10
 shader_param/major_detail_scale = 1.0
-shader_param/small_detail_scale = 1.0
+shader_param/small_detail_scale = 2.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.02
 shader_param/rim_strength = 1.84
