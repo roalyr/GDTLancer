@@ -8,12 +8,12 @@
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudSolid_add/CloudSolid_add_cull_front_animated.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD1.glb" type="PackedScene" id=7]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD2.glb" type="PackedScene" id=8]
-[ext_resource path="res://Assets/Models/Shapes/Torus_1248_05.tres" type="ArrayMesh" id=9]
-[ext_resource path="res://Assets/Models/Shapes/Torus_748_075.tres" type="ArrayMesh" id=10]
-[ext_resource path="res://Assets/Models/Shapes/Torus_1248_075.tres" type="ArrayMesh" id=11]
-[ext_resource path="res://Assets/Models/Shapes/Torus_504_05.tres" type="ArrayMesh" id=12]
-[ext_resource path="res://Assets/Models/Shapes/Torus_748_05.tres" type="ArrayMesh" id=13]
-[ext_resource path="res://Assets/Models/Shapes/Torus_504_075.tres" type="ArrayMesh" id=14]
+[ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD0.tres" type="ArrayMesh" id=9]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD1.tres" type="ArrayMesh" id=10]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD0.tres" type="ArrayMesh" id=11]
+[ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD2.tres" type="ArrayMesh" id=12]
+[ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD1.tres" type="ArrayMesh" id=13]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD2.tres" type="ArrayMesh" id=14]
 
 [sub_resource type="SphereShape" id=79]
 
@@ -124,12 +124,12 @@ transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 [node name="Icosphere" parent="Scenes/LODs plasma rim clouds/LOD0/Cloud_jagged_LOD0" index="0"]
 material/0 = SubResource( 103 )
 
-[node name="Torus_1248_05" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD0"]
+[node name="Torus_05_LOD0" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD0"]
 transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )
 mesh = ExtResource( 9 )
 material/0 = SubResource( 69 )
 
-[node name="Torus_1248_075" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD0"]
+[node name="Torus_075_LOD0" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD0"]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
 mesh = ExtResource( 11 )
 material/0 = SubResource( 110 )
@@ -146,13 +146,13 @@ transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 [node name="Icosphere" parent="Scenes/LODs plasma rim clouds/LOD1/Cloud_jagged_LOD1" index="0"]
 material/0 = SubResource( 103 )
 
-[node name="Torus_748_05" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD1"]
+[node name="Torus_05_LOD1" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD1"]
 transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )
 mesh = ExtResource( 13 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 69 )
 
-[node name="Torus_748_075" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD1"]
+[node name="Torus_075_LOD1" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD1"]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
 mesh = ExtResource( 10 )
 skeleton = NodePath("../../..")
@@ -170,13 +170,13 @@ transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 [node name="Icosphere" parent="Scenes/LODs plasma rim clouds/LOD2/Cloud_jagged_LOD2" index="0"]
 material/0 = SubResource( 103 )
 
-[node name="Torus_504_05" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD2"]
+[node name="Torus_05_LOD2" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD2"]
 transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )
 mesh = ExtResource( 12 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 69 )
 
-[node name="Torus_504_075" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD2"]
+[node name="Torus_075_LOD2" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD2"]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
 mesh = ExtResource( 14 )
 skeleton = NodePath("../../..")

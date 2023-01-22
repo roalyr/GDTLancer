@@ -1,13 +1,24 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scenes/UI/UI.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Environment/Global_space.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scripts/Main/Main.gd" type="Script" id=16]
 
 [node name="Main" type="Node"]
 script = ExtResource( 16 )
 
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 3 )]
+__meta__ = {
+"_editor_description_": "Is removed on startup"
+}
+
+[node name="Global_space" parent="_EDITOR OBJECTS_" instance=ExtResource( 4 )]
+
 [node name="UI_paths" type="Node" parent="."]
 script = ExtResource( 2 )
 
 [node name="UI" parent="." instance=ExtResource( 1 )]
+
+[editable path="_EDITOR OBJECTS_/Global_space"]

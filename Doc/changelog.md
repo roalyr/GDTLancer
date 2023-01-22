@@ -1,5 +1,5 @@
-# Versions changelog
- 
+# Current
+
 ## v0.11-alpha (work in progress)
 ### Engine
 - Updated engine binaries (3.x as of 13th January 2023).
@@ -12,9 +12,10 @@
 - Environment zones (locally adjustable brightness, saturation, contrast).
 ### Shaders
 - Tweaked shaders for performance (significant boost due to partially using vertex shading).
-- Re-introduced star core shader, optimized this time.
+- Re-introduced star core shader, optimized this time. Distance-modified brightness.
 - New different star sprites.
 - Clamped shaders alpha to prevent unexpected bugs.
+- Star sprite shader is adaptable with distance.
 ### Locales
 - Initiated localization (EN and UA).
 - Connected localization strings with interface, added language switching button.
@@ -31,6 +32,9 @@
 - Refactored whole project to heavily rely on autoload for persistent data.
 - Refactored autopilot code to be more reliable.
 - Refactored UI code to be more reliable.
+- Refactored meshes of primitives and used unified names.
+
+# Previous
 
 ## v0.10-alpha (last release)
 - CCD is disabled upon reaching specific velocity threshold.

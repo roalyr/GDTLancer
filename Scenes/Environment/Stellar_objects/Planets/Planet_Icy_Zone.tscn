@@ -7,12 +7,12 @@
 [ext_resource path="res://Scenes/Kinematics/Rotating_object.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere_cull_disabled.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_ice_displacement.gdshader" type="Shader" id=7]
-[ext_resource path="res://Assets/Models/Shapes/UV_sphere_32x16.tres" type="SphereMesh" id=8]
-[ext_resource path="res://Assets/Models/Shapes/UV_sphere_64x32.tres" type="SphereMesh" id=9]
-[ext_resource path="res://Assets/Models/Shapes/Icosphere_5120.tres" type="ArrayMesh" id=10]
-[ext_resource path="res://Assets/Models/Shapes/UV_sphere_16x8.tres" type="SphereMesh" id=11]
-[ext_resource path="res://Assets/Models/Shapes/Icosphere_320.tres" type="ArrayMesh" id=12]
-[ext_resource path="res://Assets/Models/Shapes/Icosphere_1280.tres" type="ArrayMesh" id=13]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD1.tres" type="SphereMesh" id=8]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD0.tres" type="SphereMesh" id=9]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.tres" type="ArrayMesh" id=10]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD2.tres" type="SphereMesh" id=11]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.tres" type="ArrayMesh" id=12]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD1.tres" type="ArrayMesh" id=13]
 
 [sub_resource type="SphereShape" id=96]
 
@@ -112,12 +112,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_64x32" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD0"]
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD0"]
 mesh = ExtResource( 9 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_5120_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD0"]
+[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD0"]
 transform = Transform( 1.02575, 0, 0, 0, 1.02575, 0, 0, 0, 1.02575, 0, 0, 0 )
 mesh = ExtResource( 10 )
 skeleton = NodePath("../..")
@@ -129,12 +129,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_32x16" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD1"]
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD1"]
 mesh = ExtResource( 8 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_1280_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD1"]
+[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD1"]
 transform = Transform( 1.02575, 0, 0, 0, 1.02575, 0, 0, 0, 1.02575, 0, 0, 0 )
 mesh = ExtResource( 13 )
 skeleton = NodePath("../..")
@@ -146,12 +146,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_16x8" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD2"]
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD2"]
 mesh = ExtResource( 11 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_320_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD2"]
+[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD2"]
 transform = Transform( 1.02575, 0, 0, 0, 1.02575, 0, 0, 0, 1.02575, 0, 0, 0 )
 mesh = ExtResource( 12 )
 skeleton = NodePath("../..")

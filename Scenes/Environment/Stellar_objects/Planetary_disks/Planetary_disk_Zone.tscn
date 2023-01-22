@@ -4,15 +4,15 @@
 [ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_front.gdshader" type="Shader" id=3]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Assets/Models/Shapes/Torus_748_05.tres" type="ArrayMesh" id=5]
-[ext_resource path="res://Assets/Models/Shapes/Ring_1248_075.tres" type="ArrayMesh" id=6]
-[ext_resource path="res://Assets/Models/Shapes/Torus_1248_075.tres" type="ArrayMesh" id=7]
-[ext_resource path="res://Assets/Models/Shapes/Torus_748_075.tres" type="ArrayMesh" id=8]
-[ext_resource path="res://Assets/Models/Shapes/Torus_1248_05.tres" type="ArrayMesh" id=9]
-[ext_resource path="res://Assets/Models/Shapes/Ring_748_075.tres" type="ArrayMesh" id=10]
-[ext_resource path="res://Assets/Models/Shapes/Torus_504_05.tres" type="ArrayMesh" id=11]
-[ext_resource path="res://Assets/Models/Shapes/Torus_504_075.tres" type="ArrayMesh" id=12]
-[ext_resource path="res://Assets/Models/Shapes/Ring_504_075.tres" type="ArrayMesh" id=13]
+[ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD1.tres" type="ArrayMesh" id=5]
+[ext_resource path="res://Assets/Models/Shapes/Ring_075/Ring_075_LOD0.tres" type="ArrayMesh" id=6]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD0.tres" type="ArrayMesh" id=7]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD1.tres" type="ArrayMesh" id=8]
+[ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD0.tres" type="ArrayMesh" id=9]
+[ext_resource path="res://Assets/Models/Shapes/Ring_075/Ring_075_LOD1.tres" type="ArrayMesh" id=10]
+[ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD2.tres" type="ArrayMesh" id=11]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD2.tres" type="ArrayMesh" id=12]
+[ext_resource path="res://Assets/Models/Shapes/Ring_075/Ring_075_LOD2.tres" type="ArrayMesh" id=13]
 
 [sub_resource type="SphereShape" id=97]
 
@@ -75,19 +75,19 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Ring_1248_075" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD0"]
+[node name="Ring_075_LOD0" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD0"]
 transform = Transform( 1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0 )
 mesh = ExtResource( 6 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 81 )
 
-[node name="Torus_1248_05" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD0"]
+[node name="Torus_05_LOD0" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD0"]
 transform = Transform( 1.74708, 0, 0, 0, 1.74708, 0, 0, 0, 1.74708, 0, 0, 0 )
 mesh = ExtResource( 9 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
-[node name="Torus_1248_075" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD0"]
+[node name="Torus_075_LOD0" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD0"]
 transform = Transform( 1.94248, 0, 0, 0, 1.94248, 0, 0, 0, 1.94248, 0, 0, 0 )
 mesh = ExtResource( 7 )
 skeleton = NodePath("../..")
@@ -99,19 +99,19 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Ring_748_075" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD1"]
+[node name="Ring_075_LOD1" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD1"]
 transform = Transform( 1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0 )
 mesh = ExtResource( 10 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 81 )
 
-[node name="Torus_748_05" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD1"]
+[node name="Torus_05_LOD1" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD1"]
 transform = Transform( 1.74708, 0, 0, 0, 1.74708, 0, 0, 0, 1.74708, 0, 0, 0 )
 mesh = ExtResource( 5 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
-[node name="Torus_748_075" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD1"]
+[node name="Torus_075_LOD1" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD1"]
 transform = Transform( 1.94248, 0, 0, 0, 1.94248, 0, 0, 0, 1.94248, 0, 0, 0 )
 mesh = ExtResource( 8 )
 skeleton = NodePath("../..")
@@ -123,19 +123,19 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Ring_505_075" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD2"]
+[node name="Ring_075_LOD2" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD2"]
 transform = Transform( 1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0 )
 mesh = ExtResource( 13 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 81 )
 
-[node name="Torus_504_05" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD2"]
+[node name="Torus_05_LOD2" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD2"]
 transform = Transform( 1.74708, 0, 0, 0, 1.74708, 0, 0, 0, 1.74708, 0, 0, 0 )
 mesh = ExtResource( 11 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
-[node name="Torus_505_075" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD2"]
+[node name="Torus_075_LOD2" type="MeshInstance" parent="Scenes/LODs rings 5e13/LOD2"]
 transform = Transform( 1.94248, 0, 0, 0, 1.94248, 0, 0, 0, 1.94248, 0, 0, 0 )
 mesh = ExtResource( 12 )
 skeleton = NodePath("../..")
