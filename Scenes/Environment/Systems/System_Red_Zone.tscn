@@ -1,9 +1,8 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Plasma_rings/Plasma_Ring_Cloud_Zone.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Planets/Planetoid_Red_Zone.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/Zones/Generic_zones/Zone_environment.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Stars/Star_Red_Zone.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
 
@@ -37,30 +36,16 @@ __meta__ = {
 autopilot_range = 1e+12
 
 [node name="Star Red Zone" parent="Scenes/System Red" instance=ExtResource( 5 )]
-
-[node name="Star" parent="Scenes/System Red/Star Red Zone" instance=ExtResource( 4 )]
-zone_brightness_variation = 0.2
-zone_contrast_variation = 0.7
-zone_saturation_variation = -0.4
-
-[node name="Zone shape" parent="Scenes/System Red/Star Red Zone/Star" index="0"]
-transform = Transform( 6e+09, 0, 0, 0, 6e+09, 0, 0, 0, 6e+09, 0, 0, 0 )
+star_brightness_variation = 0.2
+star_contrast_variation = 0.5
+star_saturation_variation = -0.3
 
 [node name="Planetoid Red Zone" parent="Scenes/System Red" instance=ExtResource( 3 )]
 transform = Transform( 0.931164, -0.313806, 0.185634, 0.294479, 0.947504, 0.12457, -0.21498, -0.0613295, 0.974691, -9.85987e+09, -6.03862e+08, -3.80446e+09 )
 
-[node name="Atmosphere" parent="Scenes/System Red/Planetoid Red Zone" instance=ExtResource( 4 )]
-zone_brightness_variation = -0.2
-zone_contrast_variation = 0.4
-zone_saturation_variation = -0.4
-
-[node name="Zone shape" parent="Scenes/System Red/Planetoid Red Zone/Atmosphere" index="0"]
-transform = Transform( 1.1e+06, 0, 0, 0, 1.1e+06, 0, 0, 0, 1.1e+06, 0, 0, 0 )
-
 [node name="Plasma Ring Cloud Zone" parent="Scenes/System Red" instance=ExtResource( 2 )]
+nebula_contrast_variation = 0.2
+nebula_saturation_variation = -0.1
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
-
-[editable path="Scenes/System Red/Star Red Zone/Star"]
-[editable path="Scenes/System Red/Planetoid Red Zone/Atmosphere"]

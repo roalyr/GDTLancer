@@ -1,15 +1,12 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=1]
-[ext_resource path="res://Scenes/Zones/Generic_zones/Zone_environment.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=5]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Planetary_disks/Planetary_disk_Zone.tscn" type="PackedScene" id=8]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Planets/Planet_Icy_Zone.tscn" type="PackedScene" id=9]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Stars/Star_Yellow_binary_Zone.tscn" type="PackedScene" id=10]
 
 [sub_resource type="SphereShape" id=108]
-
-[sub_resource type="SphereShape" id=109]
 
 [node name="System Yellow Zone" type="Area"]
 input_ray_pickable = false
@@ -37,31 +34,18 @@ __meta__ = {
 script = ExtResource( 5 )
 
 [node name="Star Yellow binary Zone" parent="Scenes/System Yellow" instance=ExtResource( 10 )]
-
-[node name="Stars" parent="Scenes/System Yellow/Star Yellow binary Zone" instance=ExtResource( 2 )]
-zone_brightness_variation = 0.1
-zone_contrast_variation = 0.5
-zone_saturation_variation = -0.4
-
-[node name="Zone shape" parent="Scenes/System Yellow/Star Yellow binary Zone/Stars" index="0"]
-transform = Transform( 3e+11, 0, 0, 0, 3e+11, 0, 0, 0, 3e+11, 0, 0, 0 )
+star_brightness_variation = -0.2
+star_contrast_variation = 0.5
+star_saturation_variation = 0.2
 
 [node name="Planet Icy Zone" parent="Scenes/System Yellow" instance=ExtResource( 9 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.99496e+12, 0, 2.68368e+09 )
+planet_saturation_variation = 0.5
 
 [node name="Planetary Disk Zone" parent="Scenes/System Yellow" instance=ExtResource( 8 )]
-
-[node name="Dust disk" parent="Scenes/System Yellow/Planetary Disk Zone" instance=ExtResource( 2 )]
-zone_brightness_variation = 0.25
-zone_contrast_variation = -0.1
-zone_saturation_variation = -0.5
-
-[node name="Zone shape" parent="Scenes/System Yellow/Planetary Disk Zone/Dust disk" index="0"]
-transform = Transform( 1e+13, 0, 0, 0, 1e+12, 0, 0, 0, 1e+13, 0, 0, 0 )
-shape = SubResource( 109 )
+nebula_brightness_variation = 0.25
+nebula_contrast_variation = -0.1
+nebula_saturation_variation = -0.5
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
-
-[editable path="Scenes/System Yellow/Star Yellow binary Zone/Stars"]
-[editable path="Scenes/System Yellow/Planetary Disk Zone/Dust disk"]
