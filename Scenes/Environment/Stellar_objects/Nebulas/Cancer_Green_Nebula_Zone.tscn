@@ -180,7 +180,7 @@ __meta__ = {
 [node name="OmniLight 2e17 1" type="OmniLight" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.57594e+16, -7.10401e+15, -1.68382e+15 )
 light_color = Color( 0.34902, 0.74902, 0.0470588, 1 )
-light_energy = 0.1
+light_energy = 0.05
 light_indirect_energy = 0.3
 omni_range = 2e+17
 omni_attenuation = 1.31951
@@ -188,7 +188,7 @@ omni_attenuation = 1.31951
 [node name="OmniLight 2e17 2" type="OmniLight" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.52923e+16, 6.46719e+14, -7.78523e+16 )
 light_color = Color( 0.807843, 0.745098, 0.403922, 1 )
-light_energy = 0.2
+light_energy = 0.1
 light_indirect_energy = 0.3
 omni_range = 2e+17
 omni_attenuation = 1.31951
@@ -196,7 +196,7 @@ omni_attenuation = 1.31951
 [node name="OmniLight 2e17 3" type="OmniLight" parent="Scenes/Cancer nebula/CloudCoumpound cancer"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.17757e+17, 1.81764e+16, -4.07798e+16 )
 light_color = Color( 0.164706, 0.894118, 0.792157, 1 )
-light_energy = 0.2
+light_energy = 0.1
 light_indirect_energy = 0.3
 omni_range = 2e+17
 omni_attenuation = 1.31951

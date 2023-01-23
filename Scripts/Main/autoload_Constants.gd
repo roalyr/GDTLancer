@@ -21,7 +21,7 @@ const rebase_limit_margin = 5000
 const rebase_lag = 1.1
 
 # Space damp values.
-const global_linear_damp = 1.0
+const global_linear_damp = 1.2
 const global_angular_damp = 5
 
 # Other

@@ -10,7 +10,7 @@ func _ready():
 	self.monitorable = false
 	self.monitoring = true
 
-
+# TODO: solve intersecting zones.
 func _on_Zone_environment_body_entered(_body):
 	if _body == Paths.player: 
 		Paths.environment.zone_brightness_variation = zone_brightness_variation
