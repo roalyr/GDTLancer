@@ -1,9 +1,8 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_planet.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
 [ext_resource path="res://Scripts/Markers/Marker_planet.gd" type="Script" id=3]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Kinematics/Rotating_object.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere_emission/Planet_atmosphere_emission_cull_disabled.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_ice_displacement.gdshader" type="Shader" id=7]
@@ -69,10 +68,6 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
-
-[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 4 )]
-transform = Transform( 0.409021, 0.854958, 0.31898, -0.892573, 0.447537, -0.0549998, -0.189778, -0.262217, 0.946164, 0, 0, 0 )
-visible = false
 
 [node name="Zone shape 1e8 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )

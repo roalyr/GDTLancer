@@ -98,7 +98,7 @@ shader_param/pulse_factor = 0.958
 shader_param/pulse_rate = 10.0
 shader_param/phase = 0.0
 
-[node name="Star Blue Zone" type="Area"]
+[node name="STAR_MAIN_O_1_Zone" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0

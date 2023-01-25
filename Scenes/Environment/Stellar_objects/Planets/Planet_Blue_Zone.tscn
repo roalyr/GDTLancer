@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_planet.gd" type="Script" id=3]
@@ -7,7 +7,6 @@
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere_cull_back.gdshader" type="Shader" id=7]
 [ext_resource path="res://Assets/Shaders/Planetary/Planetary_rings.gdshader" type="Shader" id=8]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_gas.gdshader" type="Shader" id=9]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=10]
 [ext_resource path="res://Scenes/Structures/Object_Cube.tscn" type="PackedScene" id=11]
 
 [sub_resource type="SphereShape" id=91]
@@ -165,8 +164,6 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 3 )
-
-[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 10 )]
 
 [node name="Zone shape 1e8 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )

@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scenes/Environment/Systems/System_Yellow_Zone.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Scenes/Environment/Systems/System_Blue_Zone.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Environment/Systems/STAR_MAIN_O_1_System_Zone.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/Environment/Systems/System_Red_Zone.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/Cancer_Green_Nebula_Zone.tscn" type="PackedScene" id=6]
@@ -33,7 +33,7 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 █████████████████████████████"
 }
 
-[node name="System Blue Zone" parent="Systems" instance=ExtResource( 2 )]
+[node name="STAR_MAIN_O_1_System_Zone" parent="Systems" instance=ExtResource( 2 )]
 
 [node name="System Red Zone" parent="Systems" instance=ExtResource( 4 )]
 transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -2.61047e+16, -1.78737e+16, 1.92373e+16 )

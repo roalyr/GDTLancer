@@ -1,9 +1,8 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_front_animated.gdshader" type="Shader" id=3]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD0.glb" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudSolid_add/CloudSolid_add_cull_front_animated.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD1.glb" type="PackedScene" id=7]
@@ -84,8 +83,6 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
-
-[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 4 )]
 
 [node name="Zone shape 3e10 by 1e10" type="CollisionShape" parent="."]
 transform = Transform( 3e+10, 0, 0, 0, 1e+10, 0, 0, 0, 3e+10, 0, 0, 0 )
