@@ -2,11 +2,12 @@
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=2]
-[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_front_animated.gdshader" type="Shader" id=3]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD0.glb" type="PackedScene" id=5]
-[ext_resource path="res://Assets/Shaders/Clouds/Cloud_add/CloudSolid_add/CloudSolid_add_cull_front_animated.gdshader" type="Shader" id=6]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD1.glb" type="PackedScene" id=7]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD2.glb" type="PackedScene" id=8]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front_animated.gdshader" type="Shader" id=3]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged/Cloud_jagged_LOD0.glb" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=6]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged/Cloud_jagged_LOD1.glb" type="PackedScene" id=7]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged/Cloud_jagged_LOD2.glb" type="PackedScene" id=8]
 [ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD0.tres" type="ArrayMesh" id=9]
 [ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD1.tres" type="ArrayMesh" id=10]
 [ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD0.tres" type="ArrayMesh" id=11]
@@ -14,67 +15,58 @@
 [ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD1.tres" type="ArrayMesh" id=13]
 [ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD2.tres" type="ArrayMesh" id=14]
 
-[sub_resource type="SphereShape" id=79]
+[sub_resource type="CubeMesh" id=120]
 
-[sub_resource type="OpenSimplexNoise" id=104]
-octaves = 1
-period = 17.0
-
-[sub_resource type="NoiseTexture" id=105]
-width = 128
-height = 128
-seamless = true
-noise = SubResource( 104 )
-
-[sub_resource type="ShaderMaterial" id=103]
-shader = ExtResource( 3 )
-shader_param/albedo = Color( 1, 0.423529, 0.34902, 1 )
+[sub_resource type="ShaderMaterial" id=121]
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 1, 0.4, 0, 1 )
 shader_param/rim_strength = 0.05
 shader_param/rim_power = 15.0
 shader_param/alpha_clip = 1.0
-shader_param/displacement_scale = 0.045
-shader_param/displacement_velocity = 0.022
-shader_param/displacement_texture = SubResource( 105 )
 
 [sub_resource type="OpenSimplexNoise" id=116]
 octaves = 1
-period = 19.9
+period = 12.9
 persistence = 0.757
 lacunarity = 0.1
 
 [sub_resource type="NoiseTexture" id=117]
-width = 128
-height = 128
+width = 64
+height = 64
 seamless = true
 noise = SubResource( 116 )
 
 [sub_resource type="ShaderMaterial" id=69]
-shader = ExtResource( 6 )
-shader_param/albedo = Color( 1, 0.607843, 0.894118, 1 )
-shader_param/rim_strength = 0.04
-shader_param/rim_power = 15.0
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 1, 0.427451, 0.427451, 1 )
+shader_param/rim_strength = 0.1
+shader_param/rim_power = 26.0
+shader_param/alpha_clip = 1.0
 shader_param/displacement_scale = 0.056
 shader_param/displacement_velocity = 0.018
 shader_param/displacement_texture = SubResource( 117 )
 
 [sub_resource type="OpenSimplexNoise" id=118]
 octaves = 1
-period = 17.7
+period = 5.4
 
 [sub_resource type="NoiseTexture" id=119]
-width = 128
-height = 128
+width = 64
+height = 64
 seamless = true
 noise = SubResource( 118 )
 
 [sub_resource type="ShaderMaterial" id=110]
-shader = ExtResource( 6 )
+shader = ExtResource( 3 )
 shader_param/albedo = Color( 1, 0.6, 0.337255, 1 )
-shader_param/rim_strength = 0.14
+shader_param/rim_strength = 0.15
 shader_param/rim_power = 15.0
+shader_param/alpha_clip = 1.0
 shader_param/displacement_scale = 0.032
 shader_param/displacement_velocity = 0.055
 shader_param/displacement_texture = SubResource( 119 )
+
+[sub_resource type="SphereShape" id=79]
 
 [node name="Plasma Ring Cloud Zone" type="Area"]
 input_ray_pickable = false
@@ -83,6 +75,20 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 4 )]
+
+[node name="mat_cloud" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 120 )
+material/0 = SubResource( 121 )
+
+[node name="mat_plasma_ring_out" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 120 )
+material/0 = SubResource( 69 )
+
+[node name="mat_plasma_ring_inner" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 120 )
+material/0 = SubResource( 110 )
 
 [node name="Zone shape 3e10 by 1e10" type="CollisionShape" parent="."]
 transform = Transform( 3e+10, 0, 0, 0, 1e+10, 0, 0, 0, 3e+10, 0, 0, 0 )
@@ -118,8 +124,8 @@ __meta__ = {
 [node name="Cloud_jagged_LOD0" parent="Scenes/LODs plasma rim clouds/LOD0" instance=ExtResource( 5 )]
 transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 
-[node name="Icosphere" parent="Scenes/LODs plasma rim clouds/LOD0/Cloud_jagged_LOD0" index="0"]
-material/0 = SubResource( 103 )
+[node name="Cloud_mesh_LOD0" parent="Scenes/LODs plasma rim clouds/LOD0/Cloud_jagged_LOD0" index="0"]
+material/0 = SubResource( 121 )
 
 [node name="Torus_05_LOD0" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD0"]
 transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )
@@ -140,8 +146,8 @@ __meta__ = {
 [node name="Cloud_jagged_LOD1" parent="Scenes/LODs plasma rim clouds/LOD1" instance=ExtResource( 7 )]
 transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 
-[node name="Icosphere" parent="Scenes/LODs plasma rim clouds/LOD1/Cloud_jagged_LOD1" index="0"]
-material/0 = SubResource( 103 )
+[node name="Cloud_mesh_LOD1" parent="Scenes/LODs plasma rim clouds/LOD1/Cloud_jagged_LOD1" index="0"]
+material/0 = SubResource( 121 )
 
 [node name="Torus_05_LOD1" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD1"]
 transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )
@@ -164,8 +170,8 @@ __meta__ = {
 [node name="Cloud_jagged_LOD2" parent="Scenes/LODs plasma rim clouds/LOD2" instance=ExtResource( 8 )]
 transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 
-[node name="Icosphere" parent="Scenes/LODs plasma rim clouds/LOD2/Cloud_jagged_LOD2" index="0"]
-material/0 = SubResource( 103 )
+[node name="Cloud_mesh_LOD2" parent="Scenes/LODs plasma rim clouds/LOD2/Cloud_jagged_LOD2" index="0"]
+material/0 = SubResource( 121 )
 
 [node name="Torus_05_LOD2" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD2"]
 transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )

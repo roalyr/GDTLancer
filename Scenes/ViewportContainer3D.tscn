@@ -17,6 +17,8 @@ stretch = true
 
 [node name="Viewport3D" type="Viewport" parent="."]
 size = Vector2( 1920, 1080 )
+handle_input_locally = false
+render_target_update_mode = 3
 shadow_atlas_quad_0 = 0
 shadow_atlas_quad_1 = 0
 shadow_atlas_quad_2 = 0

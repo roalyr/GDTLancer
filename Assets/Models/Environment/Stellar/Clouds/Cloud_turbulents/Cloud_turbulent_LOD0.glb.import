@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Cloud_jagged_LOD0.glb-f106c0cb0509312f06671fcb1b3dee35.scn"
+path="res://.import/Cloud_turbulent_LOD0.glb-7279da76e8ffd3e701bce284fdb2bef6.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged_LOD0.glb"
-dest_files=[ "res://.import/Cloud_jagged_LOD0.glb-f106c0cb0509312f06671fcb1b3dee35.scn" ]
+source_file="res://Assets/Models/Environment/Stellar/Clouds/Cloud_turbulents/Cloud_turbulent_LOD0.glb"
+dest_files=[ "res://.import/Cloud_turbulent_LOD0.glb-7279da76e8ffd3e701bce284fdb2bef6.scn" ]
 
 [params]
 

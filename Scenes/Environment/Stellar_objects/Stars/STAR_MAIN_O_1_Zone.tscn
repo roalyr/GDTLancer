@@ -4,7 +4,7 @@
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
 [ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=3]
 [ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=4]
-[ext_resource path="res://Assets/Models/Sprites/Star_sprite_double_large.glb" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Models/Sprites/Star_sprite_square_wide.glb" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.tres" type="ArrayMesh" id=7]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.tres" type="ArrayMesh" id=8]
@@ -44,7 +44,7 @@ shader_param/displacement_velocity = 0.062
 shader_param/displacement_texture = SubResource( 83 )
 
 [sub_resource type="OpenSimplexNoise" id=94]
-period = 9.5
+period = 3.7
 persistence = 1.0
 lacunarity = 2.3
 
@@ -71,27 +71,27 @@ shader_param/rim_color = Color( 1, 1, 1, 1 )
 shader_param/overlay_color = Color( 0, 0, 0, 1 )
 shader_param/surface_color = Color( 0, 1, 0.905882, 1 )
 shader_param/major_phase = 0.0
-shader_param/small_phase = 1.846
+shader_param/small_phase = 2.107
 shader_param/major_detail_intensity = 1.105
 shader_param/small_detail_intensity = 1.706
-shader_param/detail_decay_distance = 1e+11
+shader_param/detail_decay_distance = 2.31e+11
 shader_param/major_detail_scale = 2.0
 shader_param/small_detail_scale = 3.0
-shader_param/major_detail_flow = 0.005
+shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.01
-shader_param/rim_strength = 6.0
-shader_param/rim_power = 3.0
-shader_param/rim_intensity = 0.1
+shader_param/rim_strength = 0.958
+shader_param/rim_power = 0.605
+shader_param/rim_intensity = 0.182
 shader_param/major_detail_noise = SubResource( 95 )
 shader_param/small_detail_noise = SubResource( 97 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 6 )
 shader_param/albedo = Color( 0, 0.929412, 1, 1 )
-shader_param/scale = 0.1
-shader_param/flare_distance = 1e+12
+shader_param/scale = 0.2
+shader_param/flare_distance = 1.16e+12
 shader_param/flare_size = 3.0
-shader_param/attenuation = 0.2
+shader_param/attenuation = 0.15
 shader_param/intensity = 0.5
 shader_param/power = 5.0
 shader_param/pulse_factor = 0.958
@@ -105,9 +105,12 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
+star_brightness_variation = 0.1
+star_contrast_variation = 0.2
+star_saturation_variation = -0.5
 
-[node name="Zone shape 1e12 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
-transform = Transform( 1e+12, 0, 0, 0, 1e+12, 0, 0, 0, 1e+12, 0, 0, 0 )
+[node name="Zone shape 1_16e+11" type="CollisionShape" parent="."]
+transform = Transform( 1.16e+11, 0, 0, 0, 1.16e+11, 0, 0, 0, 1.16e+11, 0, 0, 0 )
 shape = SubResource( 92 )
 __meta__ = {
 "_edit_lock_": true
@@ -124,94 +127,92 @@ script = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 2e+10
+autopilot_range = 5.78e+10
 
-[node name="OmniLight_1e15" type="OmniLight" parent="Scenes/Star Blue"]
+[node name="OmniLight_8_99e+14" type="OmniLight" parent="Scenes/Star Blue"]
 light_color = Color( 0.52549, 0.823529, 1, 1 )
-light_energy = 3.0
+light_energy = 2.0
 light_indirect_energy = 0.5
-omni_range = 1e+15
-omni_attenuation = 150.0
+omni_range = 8.99e+14
+omni_attenuation = 5.0
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LODs star blue 1e10" type="Spatial" parent="Scenes/Star Blue"]
-transform = Transform( 1e+10, 0, 0, 0, 1e+10, 0, 0, 0, 1e+10, 0, 0, 0 )
+[node name="LODs star blue 1_16e+10" type="Spatial" parent="Scenes/Star Blue"]
+transform = Transform( 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0 )
 script = ExtResource( 1 )
 __meta__ = {
-"_editor_description_": "Do not rename or edit the shape or area nodes
-Put scenes into Scene Items nodes
-Areas set on layer 16 for camera"
+"_editor_description_": ""
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1e10"]
+[node name="LOD0" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1_16e+10"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD0" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1e10/LOD0"]
+[node name="Icosphere_LOD0" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD0"]
 transform = Transform( 1.27093, 0, 0, 0, 1.27093, 0, 0, 0, 1.27093, 0, 0, 0 )
 mesh = ExtResource( 8 )
 material/0 = SubResource( 42 )
 
-[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1e10/LOD0"]
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD0"]
 mesh = ExtResource( 10 )
 material/0 = SubResource( 98 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1e10"]
+[node name="LOD1" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1_16e+10"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD1" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1e10/LOD1"]
+[node name="Icosphere_LOD1" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD1"]
 transform = Transform( 1.271, 0, 0, 0, 1.271, 0, 0, 0, 1.271, 0, 0, 0 )
 mesh = ExtResource( 9 )
 material/0 = SubResource( 42 )
 
-[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1e10/LOD1"]
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD1"]
 mesh = ExtResource( 12 )
 material/0 = SubResource( 98 )
 
-[node name="Star_sprite_double_large" parent="Scenes/Star Blue/LODs star blue 1e10/LOD1" instance=ExtResource( 5 )]
+[node name="Star_sprite_square_wide" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD1" instance=ExtResource( 5 )]
 
-[node name="Plane" parent="Scenes/Star Blue/LODs star blue 1e10/LOD1/Star_sprite_double_large" index="0"]
+[node name="Plane" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD1/Star_sprite_square_wide" index="0"]
 material/0 = SubResource( 93 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1e10"]
+[node name="LOD2" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1_16e+10"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD2" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1e10/LOD2"]
+[node name="Icosphere_LOD2" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD2"]
 transform = Transform( 1.271, 0, 0, 0, 1.271, 0, 0, 0, 1.271, 0, 0, 0 )
 mesh = ExtResource( 7 )
 material/0 = SubResource( 42 )
 
-[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1e10/LOD2"]
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD2"]
 mesh = ExtResource( 13 )
 material/0 = SubResource( 98 )
 
-[node name="Star_sprite_double_large" parent="Scenes/Star Blue/LODs star blue 1e10/LOD2" instance=ExtResource( 5 )]
+[node name="Star_sprite_square_wide" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD2" instance=ExtResource( 5 )]
 
-[node name="Plane" parent="Scenes/Star Blue/LODs star blue 1e10/LOD2/Star_sprite_double_large" index="0"]
+[node name="Plane" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD2/Star_sprite_square_wide" index="0"]
 material/0 = SubResource( 93 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1e10"]
+[node name="LOD3" type="Spatial" parent="Scenes/Star Blue/LODs star blue 1_16e+10"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star_sprite_double_large" parent="Scenes/Star Blue/LODs star blue 1e10/LOD3" instance=ExtResource( 5 )]
+[node name="Star_sprite_square_wide" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD3" instance=ExtResource( 5 )]
 
-[node name="Plane" parent="Scenes/Star Blue/LODs star blue 1e10/LOD3/Star_sprite_double_large" index="0"]
+[node name="Plane" parent="Scenes/Star Blue/LODs star blue 1_16e+10/LOD3/Star_sprite_square_wide" index="0"]
 material/0 = SubResource( 93 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
 
-[editable path="Scenes/Star Blue/LODs star blue 1e10/LOD1/Star_sprite_double_large"]
-[editable path="Scenes/Star Blue/LODs star blue 1e10/LOD2/Star_sprite_double_large"]
-[editable path="Scenes/Star Blue/LODs star blue 1e10/LOD3/Star_sprite_double_large"]
+[editable path="Scenes/Star Blue/LODs star blue 1_16e+10/LOD1/Star_sprite_square_wide"]
+[editable path="Scenes/Star Blue/LODs star blue 1_16e+10/LOD2/Star_sprite_square_wide"]
+[editable path="Scenes/Star Blue/LODs star blue 1_16e+10/LOD3/Star_sprite_square_wide"]

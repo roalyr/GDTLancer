@@ -6,7 +6,7 @@ onready var ui = get_node("/root/Main/UI")
 # Params.
 const ship_mass = 1e6
 const accel_factor = 1e2 # Propulsion force.
-const accel_ticks_max = pow(2,29) # Engine propulsion increments. Pow 2.
+const accel_ticks_max = pow(2,31) # Engine propulsion increments. Pow 2.
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
 const torque_factor = Vector3(15e8,7e8,7e8)

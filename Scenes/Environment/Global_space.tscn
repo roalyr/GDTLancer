@@ -1,10 +1,21 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Scenes/Environment/Systems/System_Yellow_Zone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Environment/Systems/STAR_MAIN_O_1_System_Zone.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/Environment/Systems/System_Red_Zone.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/Cancer_Green_Nebula_Zone.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=5]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/Moirai_Cluster_Zone.tscn" type="PackedScene" id=7]
+
+[sub_resource type="CubeMesh" id=1]
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.521569, 1, 0, 1 )
+shader_param/rim_strength = 0.05
+shader_param/rim_power = 1.0
+shader_param/alpha_clip = 1.0
 
 [node name="Global_space" type="Position3D"]
 script = ExtResource( 3 )
@@ -15,7 +26,15 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 █████████████████████████████"
 }
 
-[node name="Nebulas global" type="Position3D" parent="."]
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 6 )]
+
+[node name="1e18 Moirai cluster reference" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+visible = false
+mesh = SubResource( 1 )
+material/0 = SubResource( 2 )
+
+[node name="Global clusters" type="Position3D" parent="."]
 __meta__ = {
 "_edit_lock_": true,
 "_editor_description_": "█████████████████████████████
@@ -23,20 +42,14 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 █████████████████████████████"
 }
 
-[node name="Cancer Green Nebula Zone" parent="Nebulas global" instance=ExtResource( 6 )]
+[node name="Moirai_Cluster_Zone" parent="Global clusters" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.29462e+17, 0, -7.38962e+17 )
 
-[node name="Systems" type="Position3D" parent="."]
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
+[node name="System Yellow Zone" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 1 )]
+transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -5.13188e+17, 1.99136e+17, 4.91606e+16 )
 
-[node name="STAR_MAIN_O_1_System_Zone" parent="Systems" instance=ExtResource( 2 )]
+[node name="STAR_MAIN_O_1_System_Zone" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.36408e+17, 1.46325e+18, 3.64596e+17 )
 
-[node name="System Red Zone" parent="Systems" instance=ExtResource( 4 )]
-transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -2.61047e+16, -1.78737e+16, 1.92373e+16 )
-
-[node name="System Yellow Zone" parent="Systems" instance=ExtResource( 1 )]
-transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -8.07131e+16, 2.09594e+12, -4.14367e+16 )
+[node name="System Red Zone" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 4 )]
+transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -4.76765e+15, -2.65905e+16, -6.83113e+15 )

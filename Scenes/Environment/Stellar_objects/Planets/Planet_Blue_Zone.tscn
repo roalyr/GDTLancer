@@ -195,9 +195,7 @@ shape = SubResource( 43 )
 transform = Transform( 7e+06, 0, 0, 0, 7e+06, 0, 0, 0, 7e+06, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
-"_editor_description_": "Do not rename or edit nodes.
-Put meshes into Scene Items nodes
-"
+"_editor_description_": ""
 }
 lod_2_relative_distance = 500
 

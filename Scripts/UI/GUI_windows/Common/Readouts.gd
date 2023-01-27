@@ -21,3 +21,5 @@ func get_magnitude_units(val):
 		return [stepify(val/1e15, stepify_to), "Pm"]
 	elif (val >= 1e18) and (val < 1e21):
 		return [stepify(val/1e18, stepify_to), "Em"]
+	else:
+		return [stepify(val/1e21, stepify_to), "Zm"]

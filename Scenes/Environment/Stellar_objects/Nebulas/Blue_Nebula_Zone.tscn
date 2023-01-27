@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=1]
-[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix/CloudSolid_mix/CloudSolid_mix_cull_front.gdshader" type="Shader" id=2]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=2]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=3]
 
 [sub_resource type="SphereShape" id=94]
@@ -64,8 +64,8 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
 
-[node name="Zone shape" type="CollisionShape" parent="."]
-transform = Transform( 1e+14, 0, 0, 0, 1e+14, 0, 0, 0, 1e+14, 0, 0, 0 )
+[node name="Zone shape 5e15" type="CollisionShape" parent="."]
+transform = Transform( 5e+15, 0, 0, 0, 5e+15, 0, 0, 0, 5e+15, 0, 0, 0 )
 shape = SubResource( 94 )
 __meta__ = {
 "_edit_lock_": true,
@@ -82,8 +82,7 @@ __meta__ = {
 transform = Transform( 4.85049e+15, 0, 0, 0, 2.42524e+15, 0, 0, 0, 4.85049e+15, 0, 0, 0 )
 script = ExtResource( 3 )
 __meta__ = {
-"_editor_description_": "Do not rename or edit nodes.
-Put meshes into Scene Items nodes
+"_editor_description_": "
 "
 }
 

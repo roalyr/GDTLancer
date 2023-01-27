@@ -10,6 +10,8 @@
 - Tweaked warp camera effect (stretch and brightness are now more smooth).
 ### Environment
 - Environment zones (locally adjustable brightness, saturation, contrast).
+- New star cluster Moirai.
+- Stars are adjusted according to their types (size, color, light ranges).
 ### Shaders
 - Tweaked shaders for performance (significant boost due to partially using vertex shading).
 - Re-introduced star core shader, optimized this time. Distance-modified brightness.
