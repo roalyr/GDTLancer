@@ -29,8 +29,8 @@ uniform float detail_decay_distance = 1e12;
 uniform sampler2D major_detail_noise : hint_normal;
 uniform sampler2D small_detail_noise : hint_normal;
 
-uniform float major_detail_scale = 1;
-uniform float small_detail_scale = 1;
+uniform float major_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
+uniform float small_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
 
 uniform float major_detail_flow = 0.01;
 uniform float small_detail_flow = 0.02;

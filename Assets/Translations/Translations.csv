@@ -1,33 +1,33 @@
 keys,en,uk
-TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.
-NAME_NEBULA_CANCER,Cancer Nebula,Крабоподібна туманність.
-DESC_NEBULA_CANCER,This is a Cancer Nebula. It is large and green.,Це Крабоподібна туманність. Вона велика і зелена.
+BUTTON_DEBUG,Debug,Налагодження
+BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК
 BUTTON_INFO,Info,Інформація
 BUTTON_OPTIONS_AUDIO,Options audio,Опції звуку
-BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки
 BUTTON_OPTIONS_GENERAL,Options general,Опції загальні
+BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки
+BUTTON_QUIT,Quit,Вийти
 BUTTON_RESUME,Resume,Продовжити
 BUTTON_START,New game,Нова гра
-BUTTON_QUIT,Quit,Вийти
-BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК
+BUTTON_START_CONFIRM,Start,Розпочати
 BUTTON_TOUCH_GUI,Touchscreen GUI,Сенсорний ГІК
 BUTTON_TOUCH_SWAP_CONTROLS,Swap touch controls position,Змінити положення контролерів
-BUTTON_DEBUG,Debug,Налагодження
 LABEL_GUI_COLOR,GUI color,Колір ГІК
-LABEL_SCREEN_RES,3D quality,Якість 3D
 LABEL_GUI_COLOR_POWER,GUI color power,"Інтенсивність 
 кольору ГІК"
-LABEL_INFO_TARGET,Target (currently clears target only),Ціль (наразі лише прибирає вибір цілі)
 LABEL_INFO_AUTOPILOT,Autopilot,Автопілот
-LABEL_INFO_OPTIONS,Open options menu,Відкрити опції
 LABEL_INFO_GUI_OPACITY,Change GUI opacity in game (click multiple times),Змінити прозорість ГІК (в декілька кліків)
-LABEL_INFO_TURRET_CAMERA,Camera turret (orbit) mode,Режим турелі камери
 LABEL_INFO_NAV_NEBULA,Navigation list: nebulas and constellations,Навігаційний список: туманності і сузір'я
-LABEL_INFO_NAV_SYSTEM,Navigation list: star systems,Навігаційний список: зоряні системи
-LABEL_INFO_NAV_STAR,Navigation list: stars,Навігаційний список: зірки
-LABEL_INFO_NAV_PLANET,Navigation list: planets,Навігаційний список: планети
 LABEL_INFO_NAV_OBJECT,Navigation list: structures and objects,Навігаційний список: структури і об'єкти
+LABEL_INFO_NAV_PLANET,Navigation list: planets,Навігаційний список: планети
+LABEL_INFO_NAV_STAR,Navigation list: stars,Навігаційний список: зірки
+LABEL_INFO_NAV_SYSTEM,Navigation list: star systems,Навігаційний список: зоряні системи
+LABEL_INFO_OPTIONS,Open options menu,Відкрити опції
 LABEL_INFO_SHIP,Ship menu (PLACEHOLDER),Меню корабля
+LABEL_INFO_TARGET,Target (currently clears target only),Ціль (наразі лише прибирає вибір цілі)
+LABEL_INFO_TURRET_CAMERA,Camera turret (orbit) mode,Режим турелі камери
+LABEL_SCREEN_RES,3D quality,Якість 3D
 LABEL_START_CONFIRM,Do you want to start a new game?,Ви бажаєте розпочати нову гру?
-BUTTON_START_CONFIRM,Start,Розпочати
 LABEL_START_PROMPT,Select GUI mode depending on your device,Оберіть ГІК в залежності від вашого пристрою
+TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.
+NAME_STAR_MAIN_O_1,Victory A,Вікторі А
+DESC_STAR_MAIN_O_1,The brightest main sequence star in the Moirai cluster.,Найяскравіша зірка головної послідовності у кластері Мойр.

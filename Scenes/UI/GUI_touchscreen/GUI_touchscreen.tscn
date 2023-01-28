@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=39 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -31,6 +31,8 @@
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_readings.gd" type="Script" id=29]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=31]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/info.png" type="Texture" id=32]
+[ext_resource path="res://Scripts/UI/Assist/ScrollContainer_link_material.gd" type="Script" id=33]
 
 [sub_resource type="CanvasItemMaterial" id=3]
 
@@ -1067,15 +1069,16 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Bar_ship_PLACEHOLDER" type="Control" parent="."]
+[node name="Bar_items" type="Control" parent="."]
 margin_left = 1370.0
 margin_right = 1880.0
 margin_bottom = 110.0
 __meta__ = {
+"_edit_group_": true,
 "_edit_lock_": true
 }
 
-[node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER"]
+[node name="Panel" type="Panel" parent="Bar_items"]
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1084,87 +1087,68 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Button_PLACEHOLDER" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_top = 1.0
-anchor_bottom = 1.0
+[node name="Button_info" type="Button" parent="Bar_items"]
 margin_left = 10.0
-margin_top = -100.0
+margin_top = 10.0
 margin_right = 110.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
-icon = ExtResource( 18 )
+icon = ExtResource( 32 )
 icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
 
-[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_top = 1.0
-anchor_bottom = 1.0
+[node name="Button_PLACEHOLDER2" type="Button" parent="Bar_items"]
 margin_left = 110.0
-margin_top = -100.0
+margin_top = 10.0
 margin_right = 210.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
 
-[node name="Button_PLACEHOLDER5" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_top = 1.0
-anchor_bottom = 1.0
+[node name="Button_PLACEHOLDER5" type="Button" parent="Bar_items"]
 margin_left = 210.0
-margin_top = -100.0
+margin_top = 10.0
 margin_right = 310.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
 
-[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_top = 1.0
-anchor_bottom = 1.0
+[node name="Button_PLACEHOLDER3" type="Button" parent="Bar_items"]
 margin_left = 310.0
-margin_top = -100.0
+margin_top = 10.0
 margin_right = 410.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
 
-[node name="Button_PLACEHOLDER4" type="Button" parent="Bar_ship_PLACEHOLDER"]
-anchor_top = 1.0
-anchor_bottom = 1.0
+[node name="Button_PLACEHOLDER4" type="Button" parent="Bar_items"]
 margin_left = 410.0
-margin_top = -100.0
+margin_top = 10.0
 margin_right = 510.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.9, 0.9 )
 theme = ExtResource( 19 )
 toggle_mode = true
 keep_pressed_outside = true
 icon = ExtResource( 30 )
 icon_align = 1
-__meta__ = {
-"_edit_lock_": true
-}
 
-[node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_ship_PLACEHOLDER"]
+[node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_items"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1179,7 +1163,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Panel" type="Panel" parent="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER"]
+[node name="Panel" type="Panel" parent="Bar_items/Popup_PLACEHOLDER"]
 material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1188,7 +1172,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ItemList_PLACEHOLDER" type="ItemList" parent="Bar_ship_PLACEHOLDER/Popup_PLACEHOLDER"]
+[node name="ItemList_PLACEHOLDER" type="ItemList" parent="Bar_items/Popup_PLACEHOLDER"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 focus_mode = 0
@@ -1199,6 +1183,94 @@ script = ExtResource( 27 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="Popup_info" type="ReferenceRect" parent="Bar_items"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 1.0
+margin_bottom = 290.0
+theme = ExtResource( 19 )
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Bar_items/Popup_info"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Bar_items/Popup_info"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 33 )
+
+[node name="Label" type="Label" parent="Bar_items/Popup_info/ScrollContainer"]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 767.0
+margin_bottom = 2669.0
+theme = ExtResource( 19 )
+text = " Lorem ipsum dolor sit amet, 
+consectetur adipiscing elit. Aliquam eget
+ aliquet massa. Quisque non convallis lorem, 
+vitae fringilla velit. Praesent bibendum 
+tempus pulvinar. Mauris molestie augue quis 
+mi ultrices dignissim eget quis elit. Nulla 
+facilisi. Quisque vestibulum vitae mauris nec 
+hendrerit. Vestibulum ante ipsum primis in 
+faucibus orci luctus et ultrices posuere cubilia 
+curae; Ut mattis sed nisl viverra pharetra. 
+Quisque pharetra, massa ornare dapibus 
+blandit, metus arcu rutrum ligula, eget 
+porttitor lacus arcu a quam. Orci varius 
+
+natoque penatibus et magnis dis parturient 
+montes, nascetur ridiculus mus. Suspendisse 
+eu magna eu risus faucibus scelerisque. 
+Integer ullamcorper enim ac est ullamcorper, 
+et auctor ex vehicula. Fusce laoreet tempor 
+velit ut bibendum. Curabitur nulla dolor, 
+fermentum eget est suscipit, cursus gravida 
+lectus. Quisque commodo tortor vitae augue 
+hendrerit, sagittis iaculis magna scelerisque.
+
+
+
+Aenean congue, justo non varius vulputate, 
+nibh enim efficitur ipsum, eget commodo 
+libero ante sed dui. Proin id sagittis tellus. 
+Duis magna est, consequat vitae sapien non, 
+pellentesque ornare mauris. In ornare blandit 
+quam id porttitor. Nullam tincidunt mi vitae 
+efficitur faucibus. Lorem ipsum dolor sit amet, 
+consectetur adipiscing elit. Sed a pretium 
+purus. Nulla ut eros tristique, molestie felis 
+vitae, tempor augue. Vestibulum ante ipsum 
+primis in faucibus orci luctus et ultrices 
+posuere cubilia curae; Vivamus congue tortor 
+ut nisl fermentum varius. Nulla in metus velit. 
+Cras sodales, est id iaculis posuere, ante 
+lorem dictum magna, non consectetur enim 
+neque eget libero. Suspendisse imperdiet, elit 
+vitae elementum congue, ligula enim sagittis 
+justo, vel porttitor metus nisi et diam. 
+Maecenas eget lectus pretium, sodales nulla 
+sed, consectetur metus. Integer hendrerit 
+mauris vel sapien posuere rhoncus. Curabitur 
+
+ultricies neque vitae tempus lobortis. 
+
+
+"
 
 [connection signal="pressed" from="Controls_area/Touch_pad_base/Stick" to="." method="_on_Stick_pressed"]
 [connection signal="released" from="Controls_area/Touch_pad_base/Stick" to="." method="_on_Stick_released"]
@@ -1227,4 +1299,5 @@ __meta__ = {
 [connection signal="visibility_changed" from="Bar_nav/Popup_nav_planets/ItemList_nav" to="Bar_nav/Popup_nav_planets/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
 [connection signal="item_selected" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_item_selected"]
 [connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
-[connection signal="toggled" from="Bar_ship_PLACEHOLDER/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]
+[connection signal="toggled" from="Bar_items/Button_info" to="." method="_on_Button_info_toggled"]
+[connection signal="toggled" from="Bar_items/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]

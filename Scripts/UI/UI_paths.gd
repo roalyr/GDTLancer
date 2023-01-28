@@ -49,8 +49,8 @@ onready var desktop_button_autopilot = desktop_bar_control.get_node("Button_auto
 # Control bar 2
 onready var desktop_bar_control_2 = desktop_gui.get_node("Bar_control_2")
 # Ship bar
-onready var desktop_bar_ship = desktop_gui.get_node("Bar_ship_PLACEHOLDER")
-onready var desktop_ship_popup = desktop_bar_ship.get_node("Popup_PLACEHOLDER")
+onready var desktop_bar_items = desktop_gui.get_node("Bar_items")
+onready var desktop_ship_popup = desktop_bar_items.get_node("Popup_PLACEHOLDER")
 # Readings
 onready var desktop_readings = desktop_gui.get_node("Readings")
 onready var desktop_readings_debug = desktop_readings.get_node("Debug_panel")
@@ -100,8 +100,10 @@ onready var touch_button_autopilot = touch_bar_control.get_node("Button_autopilo
 # Control bar 2
 onready var touch_bar_control_2 = touch_gui.get_node("Bar_control_2")
 # Ship bar
-onready var touch_bar_ship = touch_gui.get_node("Bar_ship_PLACEHOLDER")
-onready var touch_ship_popup = touch_bar_ship.get_node("Popup_PLACEHOLDER")
+onready var touch_bar_items = touch_gui.get_node("Bar_items")
+onready var touch_ship_popup = touch_bar_items.get_node("Popup_PLACEHOLDER")
+onready var touch_info_popup = touch_bar_items.get_node("Popup_info")
+
 # Control area
 onready var touch_control_area = touch_gui.get_node("Controls_area")
 onready var touch_touch_pad_base = touch_control_area.get_node("Touch_pad_base")

@@ -50,6 +50,10 @@ func _physics_process(_delta):
 		#if is_instance_valid(aim_target):
 		object_aim_origin = aim_target.global_transform.origin
 		object_aim_name = aim_target.get_name()
+		if aim_target.translations_name:
+			object_aim_name = tr(aim_target.translations_name)
+		else:
+			object_aim_name = aim_target.get_name()
 		
 		# Paths.player coords must be updated.
 		player_pos = Paths.player.global_transform.origin
@@ -114,7 +118,12 @@ func _physics_process(_delta):
 		
 		
 		object_autopilot_origin = PlayerState.autopilot_target.global_transform.origin
-		object_autopilot_name = PlayerState.autopilot_target.get_name()
+
+		if PlayerState.autopilot_target.translations_name:
+			object_autopilot_name = tr(PlayerState.autopilot_target.translations_name)
+		else:
+			object_autopilot_name = PlayerState.autopilot_target.get_name()
+		
 		# Paths.player coords must be updated.
 		player_pos = Paths.player.global_transform.origin
 		dist_autopilot_val = round(player_pos.distance_to(object_autopilot_origin))

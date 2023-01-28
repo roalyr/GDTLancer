@@ -50,7 +50,10 @@ func is_fetch_markers():
 			var id = self.get_item_count()
 				
 			# Add item with the node name.
-			self.add_item(coordinates.get_name(), null, true)
+			if coordinates.translations_name:
+				self.add_item(tr(coordinates.translations_name), null, true)
+			else:
+				self.add_item(coordinates.get_name(), null, true)
 			
 			# Icon (same as script class).
 #			var texture = ImageTexture.new()

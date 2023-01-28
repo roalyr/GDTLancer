@@ -208,7 +208,7 @@ func is_viewport_update():
 	GameState.touch_touch_throttle_base_rect_size = ui_paths.touch_touch_throttle_base.rect_size
 	
 	# Restore the proportions of the controls.
-	restore_proportions(ui_paths.touch_bar_ship)
+	restore_proportions(ui_paths.touch_bar_items)
 	restore_proportions(ui_paths.touch_bar_control)
 	restore_proportions(ui_paths.touch_bar_control_2)
 	restore_proportions(ui_paths.touch_bar_nav)
@@ -222,7 +222,7 @@ func is_viewport_update():
 	restore_proportions(ui_paths.touch_readings_target_aim)
 	
 	#restore_proportions(ui_paths.desktop_mouse_area)
-	restore_proportions(ui_paths.desktop_bar_ship)
+	restore_proportions(ui_paths.desktop_bar_items)
 	restore_proportions(ui_paths.desktop_bar_control)
 	restore_proportions(ui_paths.desktop_bar_control_2)
 	restore_proportions(ui_paths.desktop_bar_nav)

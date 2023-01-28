@@ -27,9 +27,9 @@ uniform float small_detail_phase = 1.0;
 uniform float micro_detail_phase = 0.4;
 uniform float lava_detail_phase = 1.0;
 
-uniform float small_detail_scale = 10;
-uniform float micro_detail_scale = 10;
-uniform float lava_detail_scale = 100;
+uniform float small_detail_scale : hint_range(1.0, 10.0, 1.0) = 10;
+uniform float micro_detail_scale : hint_range(1.0, 10.0, 1.0)= 10;
+uniform float lava_detail_scale : hint_range(1.0, 100.0, 1.0) = 100;
 
 uniform float lava_detail_intensity = 1.0;
 uniform float lava_noise_blend = 0.7;

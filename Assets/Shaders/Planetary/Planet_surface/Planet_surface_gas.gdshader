@@ -8,48 +8,72 @@ render_mode
 	cull_back,
 	
 	//unshaded,
-	diffuse_oren_nayar, 
+	diffuse_lambert, 
 	specular_disabled,
 	
 	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
-	
-uniform vec4 albedo : hint_color;
-uniform vec4 albedo_bands : hint_color;
+
+uniform vec4 rim_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
+uniform vec4 overlay_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform vec4 surface_color : hint_color = vec4(1.0, 1.0, 0.0, 1.0);
+
+uniform float major_phase : hint_range(0, 3.14) = 2.0;
+uniform float small_phase : hint_range(0, 3.14) = 1.0;
+uniform float turbulent_phase : hint_range(0, 3.14) = 1.0;
+
+
+uniform float major_detail_intensity = 1;
+uniform float small_detail_intensity = 1;
+uniform float turbulent_detail_intensity = 1;
+
 
 uniform sampler2D major_detail_noise : hint_normal;
-uniform float major_detail_stretch_x = 1.0;
-uniform float major_detail_stretch_y = 10.0;
-uniform float major_detail_amount = 1.0;
-uniform float major_detail_scale = 1.0;
+uniform sampler2D small_detail_noise : hint_normal;
+uniform sampler2D turbulent_detail_noise : hint_normal;
 
-uniform sampler2D bands_noise : hint_normal;
-uniform float bands_amount = 1.0;
-uniform float bands_stretch_x = 0.0;
-uniform float bands_stretch_y = 10.0;
 
-uniform float uv_shift_x = 0.0;
-uniform float uv_shift_y = 0.0;
+uniform float major_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
+uniform float small_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
+uniform float turbulent_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
+
+
+uniform float major_detail_flow = 0.01;
+uniform float small_detail_flow = 0.02;
+uniform float turbulent_detail_flow = 0.02;
+
+
+uniform float rim_strength = 6.0;
+uniform float rim_power = 3.0;
+uniform float rim_intensity = 0.1;
 
 const float pi = 3.1415926535;
-
+const vec3 WHITE = vec3(1.0,1.0,1.0);
 
 void fragment()
 {
-	// Surface details.
-	vec2 p1 = texture(major_detail_noise, 
-		-vec2(
-			UV.x*major_detail_stretch_x*major_detail_scale, 
-			UV.y*major_detail_stretch_y*major_detail_scale)).xy;
-
-	vec2 p2 = texture(bands_noise, 
-		-vec2(
-			UV.x*bands_stretch_x, 
-			UV.y*bands_stretch_y)).xy;
-			
-	float detail_bands = sin(texture(bands_noise, p2).r*pi+bands_amount);
-	float detail_major = sin(texture(major_detail_noise, p1).r*pi+major_detail_amount);
+	vec2 p = texture(major_detail_noise, -vec2(UV.x*1.0-TIME*major_detail_flow, UV.y*major_detail_scale)).xy;
+	vec2 p2 = texture(small_detail_noise, -vec2(UV.x*1.0+TIME*small_detail_flow, UV.y*small_detail_scale)).xy;
+	vec2 p3 = texture(turbulent_detail_noise, 
+		-vec2(UV.x*turbulent_detail_scale, UV.y*(small_detail_scale - 1.0)*turbulent_detail_scale)).xy 
+		- TIME*turbulent_detail_flow;
 	
-	ALBEDO = albedo_bands.rgb*detail_bands+albedo.rgb*detail_major;
+	
+	float detail_major = sin(texture(major_detail_noise, p).r*pi+major_phase);
+	float detail_small = sin(texture(small_detail_noise, p2).r*pi+small_phase);
+	float detail_turbulent = sin(texture(turbulent_detail_noise, p3).r*pi+turbulent_phase);
+	
+	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-6, 1.0);
+	
+	ALBEDO = 
+		+ detail_major * WHITE * major_detail_intensity
+		+ detail_small * WHITE * small_detail_intensity
+		+ detail_turbulent * WHITE * turbulent_detail_intensity;
+		
+		
+	ALBEDO += overlay_color.rgb;
+	ALBEDO *= surface_color.rgb;
+	ALBEDO += (1.0-rim)*rim_color.rgb*rim_intensity;
+	
 }

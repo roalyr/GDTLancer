@@ -187,6 +187,11 @@ func is_autopilot_disable():
 	ui_paths.touch_button_autopilot.pressed = false
 		
 	
+func _on_Button_info_toggled(button_pressed):
+	if button_pressed: 
+		ui_paths.touch_info_popup.show()
+	else: 
+		ui_paths.touch_info_popup.hide()
 
 
 func _on_Button_PLACEHOLDER4_toggled(button_pressed):
@@ -202,3 +207,5 @@ func _on_Throttle_slider_pressed():
 
 func _on_Throttle_slider_released():
 	GlobalInput.throttle_held = false
+
+

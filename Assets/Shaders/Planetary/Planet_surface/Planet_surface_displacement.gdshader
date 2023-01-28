@@ -29,7 +29,7 @@ uniform float major_detail_amount = 0.1;
 
 uniform sampler2D small_detail_noise : hint_normal;
 uniform float small_detail_amount = 0.1;
-uniform float small_detail_scale = 2;
+uniform float small_detail_scale : hint_range(1.0, 10.0, 1.0) = 2;
 
 uniform float uv_shift_x = 0.0;
 uniform float uv_shift_y = 0.0;

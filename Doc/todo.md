@@ -30,6 +30,8 @@ Highlighted entries are "Work in progress".
 - **Re-attach models directly into scenes (make editable).**
 - **Refactor ship code.**
 - Paths and common to autoload (https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html)
+- Rename all the space objects to their proper names.
+- Refactor nav list scripts.
 
 ## Fix
 - Investigate flickering on high velocity.

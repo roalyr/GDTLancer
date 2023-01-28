@@ -9,7 +9,7 @@ render_mode
 	
 	unshaded,
 	//diffuse_lambert, 
-	//specular_disabled,
+	specular_disabled,
 	
 	// Additional flags just in case.
 	ambient_light_disabled,

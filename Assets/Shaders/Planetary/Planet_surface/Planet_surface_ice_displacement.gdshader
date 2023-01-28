@@ -28,7 +28,7 @@ uniform float major_detail_amount = 1.7;
 
 uniform sampler2D small_detail_noise : hint_normal;
 uniform float small_detail_amount = 1.2;
-uniform float small_detail_scale = 8;
+uniform float small_detail_scale : hint_range(1.0, 10.0, 1.0) = 8;
 
 uniform float ice_amount = 1.0;
 uniform float ice_detail_intensity = 1.0;
