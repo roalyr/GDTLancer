@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -27,6 +27,8 @@
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=25]
 [ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=26]
 [ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=27]
+[ext_resource path="res://Scripts/UI/Assist/ScrollContainer_link_material.gd" type="Script" id=28]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/info.png" type="Texture" id=29]
 
 [sub_resource type="CanvasItemMaterial" id=3]
 
@@ -280,6 +282,52 @@ custom_fonts/font = ExtResource( 27 )
 [node name="Text_object" parent="Readings/Target_autopilot" index="1"]
 margin_top = 60.0
 margin_bottom = 96.0
+
+[node name="Popup_info" type="ReferenceRect" parent="Readings"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -550.0
+margin_right = 550.0
+margin_bottom = 380.0
+theme = ExtResource( 22 )
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+
+[node name="Panel" type="Panel" parent="Readings/Popup_info"]
+material = ExtResource( 21 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Readings/Popup_info"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 28 )
+
+[node name="LabelContainer" type="VBoxContainer" parent="Readings/Popup_info/ScrollContainer"]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 992.0
+margin_bottom = 1032.0
+
+[node name="Header" type="Label" parent="Readings/Popup_info/ScrollContainer/LabelContainer"]
+margin_right = 962.0
+margin_bottom = 36.0
+theme = ExtResource( 22 )
+custom_fonts/font = ExtResource( 27 )
+text = "                                                                INFO                                                                 "
+
+[node name="Label" type="Label" parent="Readings/Popup_info/ScrollContainer/LabelContainer"]
+margin_top = 40.0
+margin_right = 962.0
+margin_bottom = 1012.0
+theme = ExtResource( 22 )
+custom_fonts/font = ExtResource( 27 )
+text = "Lorem ipsum dolor sit amet,  consectetur adipiscing elit. Aliquam eget  aliquet massa. Quisque non convallis lorem,  vitae fringilla velit. Praesent bibendum  tempus pulvinar. Mauris molestie augue quis  mi ultrices dignissim eget quis elit. Nulla  facilisi. Quisque vestibulum vitae mauris nec  hendrerit. Vestibulum ante ipsum primis in  faucibus orci luctus et ultrices posuere cubilia  curae; Ut mattis sed nisl viverra pharetra.  Quisque pharetra, massa ornare dapibus  blandit, metus arcu rutrum ligula, eget  porttitor lacus arcu a quam. Orci varius   natoque penatibus et magnis dis parturient  montes, nascetur ridiculus mus. Suspendisse  eu magna eu risus faucibus scelerisque.  Integer ullamcorper enim ac est ullamcorper,  et auctor ex vehicula. Fusce laoreet tempor  velit ut bibendum. Curabitur nulla dolor,  fermentum eget est suscipit, cursus gravida  lectus. Quisque commodo tortor vitae augue  hendrerit, sagittis iaculis magna scelerisque.    Aenean congue, justo non varius vulputate,  nibh enim efficitur ipsum, eget commodo  libero ante sed dui. Proin id sagittis tellus.  Duis magna est, consequat vitae sapien non,  pellentesque ornare mauris. In ornare blandit  quam id porttitor. Nullam tincidunt mi vitae  efficitur faucibus. Lorem ipsum dolor sit amet,  consectetur adipiscing elit. Sed a pretium  purus. Nulla ut eros tristique, molestie felis  vitae, tempor augue. Vestibulum ante ipsum  primis in faucibus orci luctus et ultrices  posuere cubilia curae; Vivamus congue tortor  ut nisl fermentum varius. Nulla in metus velit.  Cras sodales, est id iaculis posuere, ante  lorem dictum magna, non consectetur enim  neque eget libero. Suspendisse imperdiet, elit  vitae elementum congue, ligula enim sagittis  justo, vel porttitor metus nisi et diam.  Maecenas eget lectus pretium, sodales nulla  sed, consectetur metus. Integer hendrerit  mauris vel sapien posuere rhoncus. Curabitur   ultricies neque vitae tempus lobortis.    "
+autowrap = true
 
 [node name="Bar_menu" type="Control" parent="."]
 margin_right = 120.0
@@ -722,7 +770,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Button_PLACEHOLDER" type="Button" parent="Bar_items"]
+[node name="Button_info" type="Button" parent="Bar_items"]
 margin_left = 10.0
 margin_top = 10.0
 margin_right = 110.0
@@ -731,7 +779,7 @@ rect_scale = Vector2( 0.7, 0.7 )
 theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
-icon = ExtResource( 18 )
+icon = ExtResource( 29 )
 icon_align = 1
 
 [node name="Button_PLACEHOLDER2" type="Button" parent="Bar_items"]
@@ -832,6 +880,7 @@ script = ExtResource( 24 )
 [connection signal="visibility_changed" from="Bar_nav/Popup_nav_planets/ItemList_nav" to="Bar_nav/Popup_nav_planets/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
 [connection signal="item_selected" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_item_selected"]
 [connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
+[connection signal="toggled" from="Bar_items/Button_info" to="." method="_on_Button_info_toggled"]
 [connection signal="toggled" from="Bar_items/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]
 
 [editable path="Readings/Target_aim"]

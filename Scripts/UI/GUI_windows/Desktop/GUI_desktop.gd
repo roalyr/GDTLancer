@@ -167,10 +167,19 @@ func is_autopilot_disable():
 	ui_paths.desktop_button_autopilot.pressed = false
 		
 	
-
+func _on_Button_info_toggled(button_pressed):
+	if button_pressed: 
+		ui_paths.desktop_readings_info_popup.show()
+		Signals.emit_signal("sig_fetch_object_info")
+	else: 
+		ui_paths.desktop_readings_info_popup.hide()
+		
 
 func _on_Button_PLACEHOLDER4_toggled(button_pressed):
 	if button_pressed and not ui_paths.desktop_ship_popup.visible: 
 		ui_paths.desktop_ship_popup.show()
 	else: 
 		ui_paths.desktop_ship_popup.hide()
+
+
+

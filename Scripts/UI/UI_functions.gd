@@ -5,6 +5,7 @@ onready var ui_paths = get_node("/root/Main/UI_paths")
 func _ready():
 	# ============================ Connect signals ============================
 	Signals.connect_checked("sig_viewport_update", self, "is_viewport_update")
+	Signals.connect_checked("sig_fetch_object_info", self, "is_fetch_object_info")	
 	# =========================================================================
 
 
@@ -256,6 +257,23 @@ func restore_proportions_with_margins(c):
 	c.rect_size.x = 1920*GameState.ui_reverse_scale.x/GameState.ui_reverse_scale.y
 
 
+func is_fetch_object_info():
+	# Fail-safety in case nothing is selected.
+	if PlayerState.aim_target.is_class("GDScriptNativeClass"):
+		var msg = "NO OBJECT SELECTED"
+		ui_paths.touch_readings_info_label.text = msg
+		ui_paths.desktop_readings_info_label.text = msg
+		return
+		
+	if PlayerState.aim_target.translations_description:
+		ui_paths.touch_readings_info_label.text = tr(PlayerState.aim_target.translations_description)
+		ui_paths.desktop_readings_info_label.text = tr(PlayerState.aim_target.translations_description)
+	else:
+		var msg = "NO INFO ON OBJECT: " + str(PlayerState.aim_target.get_name())
+		ui_paths.touch_readings_info_label.text = msg
+		ui_paths.desktop_readings_info_label.text = msg
+		
+		
 # GUI PANIC POPUP WINDOW.
 func popup_panic(message):
 	var panic_screen = ui_paths.popup_panic_gui

@@ -22,6 +22,7 @@ signal sig_language_selected(index)
 
 # UI MARKERS
 signal sig_fetch_markers
+signal sig_fetch_object_info
 
 # SPACE OBJECTS SPAWNING
 signal sig_system_coordinates_selected(coordinates)

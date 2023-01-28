@@ -111,202 +111,6 @@ material = ExtResource( 25 )
 margin_right = 12.0
 margin_bottom = 12.0
 
-[node name="Readings" type="Control" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-script = ExtResource( 29 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Debug_panel" type="Control" parent="Readings"]
-margin_left = 550.0
-margin_right = 1370.0
-margin_bottom = 400.0
-mouse_filter = 2
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Panel" type="Panel" parent="Readings/Debug_panel"]
-visible = false
-material = ExtResource( 25 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="FPS" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 10.0
-margin_right = 120.0
-margin_bottom = 58.0
-theme = ExtResource( 19 )
-text = "FPS: 0"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Mouse_x" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 60.0
-margin_right = 285.0
-margin_bottom = 108.0
-theme = ExtResource( 19 )
-text = "Mouse / Pad x: 0"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Mouse_y" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 110.0
-margin_right = 284.0
-margin_bottom = 158.0
-theme = ExtResource( 19 )
-text = "Mouse / Pad y: 0"
-
-[node name="Throttle" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 160.0
-margin_right = 182.0
-margin_bottom = 208.0
-theme = ExtResource( 19 )
-text = "Throttle: 0"
-
-[node name="Print_out" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 210.0
-margin_right = 810.0
-margin_bottom = 390.0
-theme = ExtResource( 19 )
-text = "Output: ....."
-autowrap = true
-
-[node name="Velocity_panel" type="Control" parent="Readings"]
-margin_left = 530.0
-margin_top = 960.0
-margin_right = 850.0
-margin_bottom = 1080.0
-mouse_filter = 2
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Panel" type="Panel" parent="Readings/Velocity_panel"]
-visible = false
-material = ExtResource( 25 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Apparent_velocity" type="Label" parent="Readings/Velocity_panel"]
-margin_top = 10.0
-margin_right = 181.0
-margin_bottom = 58.0
-theme = ExtResource( 19 )
-text = " V: 0.000"
-valign = 1
-clip_text = true
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Apparent_velocity_units" type="Label" parent="Readings/Velocity_panel"]
-margin_left = 160.98
-margin_top = 10.0
-margin_right = 310.98
-margin_bottom = 58.0
-theme = ExtResource( 19 )
-text = "du/s"
-valign = 1
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Accel_ticks" type="Label" parent="Readings/Velocity_panel"]
-margin_top = 60.0
-margin_right = 331.0
-margin_bottom = 108.0
-theme = ExtResource( 19 )
-text = " A: 0"
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Status_panel" type="Control" parent="Readings"]
-margin_left = 1070.0
-margin_top = 960.0
-margin_right = 1390.0
-margin_bottom = 1080.0
-mouse_filter = 2
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Panel" type="Panel" parent="Readings/Status_panel"]
-visible = false
-material = ExtResource( 25 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="HP_1" type="Label" parent="Readings/Status_panel"]
-margin_left = 10.0
-margin_top = 10.0
-margin_right = 310.0
-margin_bottom = 58.0
-theme = ExtResource( 19 )
-text = "[][][][]"
-align = 2
-valign = 1
-clip_text = true
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="HP_2" type="Label" parent="Readings/Status_panel"]
-margin_left = 10.0
-margin_top = 60.0
-margin_right = 310.0
-margin_bottom = 108.0
-theme = ExtResource( 19 )
-text = "[][][][][][][]"
-align = 2
-valign = 1
-clip_text = true
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Target_aim" parent="Readings" instance=ExtResource( 31 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Target_autopilot" parent="Readings" instance=ExtResource( 28 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-mouse_filter = 2
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="Controls_area" type="Control" parent="."]
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -617,6 +421,239 @@ scale = Vector2( 0.9, 0.9 )
 normal = ExtResource( 24 )
 pressed = ExtResource( 24 )
 
+[node name="Readings" type="Control" parent="."]
+margin_right = 1920.0
+margin_bottom = 1080.0
+script = ExtResource( 29 )
+
+[node name="Debug_panel" type="Control" parent="Readings"]
+visible = false
+margin_left = 550.0
+margin_right = 1370.0
+margin_bottom = 400.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Readings/Debug_panel"]
+visible = false
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="FPS" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 10.0
+margin_right = 120.0
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = "FPS: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_x" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 60.0
+margin_right = 285.0
+margin_bottom = 108.0
+theme = ExtResource( 19 )
+text = "Mouse / Pad x: 0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Mouse_y" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 110.0
+margin_right = 284.0
+margin_bottom = 158.0
+theme = ExtResource( 19 )
+text = "Mouse / Pad y: 0"
+
+[node name="Throttle" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 160.0
+margin_right = 182.0
+margin_bottom = 208.0
+theme = ExtResource( 19 )
+text = "Throttle: 0"
+
+[node name="Print_out" type="Label" parent="Readings/Debug_panel"]
+margin_left = 20.0
+margin_top = 210.0
+margin_right = 810.0
+margin_bottom = 390.0
+theme = ExtResource( 19 )
+text = "Output: ....."
+autowrap = true
+
+[node name="Velocity_panel" type="Control" parent="Readings"]
+margin_left = 530.0
+margin_top = 960.0
+margin_right = 850.0
+margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Readings/Velocity_panel"]
+visible = false
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity" type="Label" parent="Readings/Velocity_panel"]
+margin_top = 10.0
+margin_right = 181.0
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = " V: 0.000"
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Apparent_velocity_units" type="Label" parent="Readings/Velocity_panel"]
+margin_left = 160.98
+margin_top = 10.0
+margin_right = 310.98
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = "du/s"
+valign = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Accel_ticks" type="Label" parent="Readings/Velocity_panel"]
+margin_top = 60.0
+margin_right = 331.0
+margin_bottom = 108.0
+theme = ExtResource( 19 )
+text = " A: 0"
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Status_panel" type="Control" parent="Readings"]
+margin_left = 1070.0
+margin_top = 960.0
+margin_right = 1390.0
+margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel" type="Panel" parent="Readings/Status_panel"]
+visible = false
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_1" type="Label" parent="Readings/Status_panel"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 310.0
+margin_bottom = 58.0
+theme = ExtResource( 19 )
+text = "[][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="HP_2" type="Label" parent="Readings/Status_panel"]
+margin_left = 10.0
+margin_top = 60.0
+margin_right = 310.0
+margin_bottom = 108.0
+theme = ExtResource( 19 )
+text = "[][][][][][][]"
+align = 2
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Target_aim" parent="Readings" instance=ExtResource( 31 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Target_autopilot" parent="Readings" instance=ExtResource( 28 )]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Popup_info" type="ReferenceRect" parent="Readings"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -410.0
+margin_right = 411.0
+margin_bottom = 400.0
+theme = ExtResource( 19 )
+border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
+script = ExtResource( 20 )
+
+[node name="Panel" type="Panel" parent="Readings/Popup_info"]
+material = ExtResource( 25 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Readings/Popup_info"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 33 )
+
+[node name="LabelContainer" type="VBoxContainer" parent="Readings/Popup_info/ScrollContainer"]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 702.0
+margin_bottom = 2517.0
+
+[node name="Header" type="Label" parent="Readings/Popup_info/ScrollContainer/LabelContainer"]
+margin_right = 672.0
+margin_bottom = 48.0
+theme = ExtResource( 19 )
+text = "                                  INFO                                "
+
+[node name="Label" type="Label" parent="Readings/Popup_info/ScrollContainer/LabelContainer"]
+margin_top = 52.0
+margin_right = 672.0
+margin_bottom = 2497.0
+theme = ExtResource( 19 )
+text = "Lorem ipsum dolor sit amet,  consectetur adipiscing elit. Aliquam eget  aliquet massa. Quisque non convallis lorem,  vitae fringilla velit. Praesent bibendum  tempus pulvinar. Mauris molestie augue quis  mi ultrices dignissim eget quis elit. Nulla  facilisi. Quisque vestibulum vitae mauris nec  hendrerit. Vestibulum ante ipsum primis in  faucibus orci luctus et ultrices posuere cubilia  curae; Ut mattis sed nisl viverra pharetra.  Quisque pharetra, massa ornare dapibus  blandit, metus arcu rutrum ligula, eget  porttitor lacus arcu a quam. Orci varius   natoque penatibus et magnis dis parturient  montes, nascetur ridiculus mus. Suspendisse  eu magna eu risus faucibus scelerisque.  Integer ullamcorper enim ac est ullamcorper,  et auctor ex vehicula. Fusce laoreet tempor  velit ut bibendum. Curabitur nulla dolor,  fermentum eget est suscipit, cursus gravida  lectus. Quisque commodo tortor vitae augue  hendrerit, sagittis iaculis magna scelerisque.    Aenean congue, justo non varius vulputate,  nibh enim efficitur ipsum, eget commodo  libero ante sed dui. Proin id sagittis tellus.  Duis magna est, consequat vitae sapien non,  pellentesque ornare mauris. In ornare blandit  quam id porttitor. Nullam tincidunt mi vitae  efficitur faucibus. Lorem ipsum dolor sit amet,  consectetur adipiscing elit. Sed a pretium  purus. Nulla ut eros tristique, molestie felis  vitae, tempor augue. Vestibulum ante ipsum  primis in faucibus orci luctus et ultrices  posuere cubilia curae; Vivamus congue tortor  ut nisl fermentum varius. Nulla in metus velit.  Cras sodales, est id iaculis posuere, ante  lorem dictum magna, non consectetur enim  neque eget libero. Suspendisse imperdiet, elit  vitae elementum congue, ligula enim sagittis  justo, vel porttitor metus nisi et diam.  Maecenas eget lectus pretium, sodales nulla  sed, consectetur metus. Integer hendrerit  mauris vel sapien posuere rhoncus. Curabitur   ultricies neque vitae tempus lobortis.    "
+autowrap = true
+
 [node name="Bar_menu" type="Control" parent="."]
 margin_right = 120.0
 margin_bottom = 1080.0
@@ -802,9 +839,6 @@ __meta__ = {
 margin_left = 40.0
 margin_right = 550.0
 margin_bottom = 110.0
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="Panel" type="Panel" parent="Bar_nav"]
 material = ExtResource( 25 )
@@ -1074,8 +1108,7 @@ margin_left = 1370.0
 margin_right = 1880.0
 margin_bottom = 110.0
 __meta__ = {
-"_edit_group_": true,
-"_edit_lock_": true
+"_edit_group_": true
 }
 
 [node name="Panel" type="Panel" parent="Bar_items"]
@@ -1148,7 +1181,6 @@ icon = ExtResource( 30 )
 icon_align = 1
 
 [node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_items"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1183,94 +1215,6 @@ script = ExtResource( 27 )
 __meta__ = {
 "_edit_lock_": true
 }
-
-[node name="Popup_info" type="ReferenceRect" parent="Bar_items"]
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 1.0
-margin_top = 1.0
-margin_right = 1.0
-margin_bottom = 290.0
-theme = ExtResource( 19 )
-border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )
-script = ExtResource( 20 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Panel" type="Panel" parent="Bar_items/Popup_info"]
-material = ExtResource( 25 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Bar_items/Popup_info"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 33 )
-
-[node name="Label" type="Label" parent="Bar_items/Popup_info/ScrollContainer"]
-margin_left = 30.0
-margin_top = 20.0
-margin_right = 767.0
-margin_bottom = 2669.0
-theme = ExtResource( 19 )
-text = " Lorem ipsum dolor sit amet, 
-consectetur adipiscing elit. Aliquam eget
- aliquet massa. Quisque non convallis lorem, 
-vitae fringilla velit. Praesent bibendum 
-tempus pulvinar. Mauris molestie augue quis 
-mi ultrices dignissim eget quis elit. Nulla 
-facilisi. Quisque vestibulum vitae mauris nec 
-hendrerit. Vestibulum ante ipsum primis in 
-faucibus orci luctus et ultrices posuere cubilia 
-curae; Ut mattis sed nisl viverra pharetra. 
-Quisque pharetra, massa ornare dapibus 
-blandit, metus arcu rutrum ligula, eget 
-porttitor lacus arcu a quam. Orci varius 
-
-natoque penatibus et magnis dis parturient 
-montes, nascetur ridiculus mus. Suspendisse 
-eu magna eu risus faucibus scelerisque. 
-Integer ullamcorper enim ac est ullamcorper, 
-et auctor ex vehicula. Fusce laoreet tempor 
-velit ut bibendum. Curabitur nulla dolor, 
-fermentum eget est suscipit, cursus gravida 
-lectus. Quisque commodo tortor vitae augue 
-hendrerit, sagittis iaculis magna scelerisque.
-
-
-
-Aenean congue, justo non varius vulputate, 
-nibh enim efficitur ipsum, eget commodo 
-libero ante sed dui. Proin id sagittis tellus. 
-Duis magna est, consequat vitae sapien non, 
-pellentesque ornare mauris. In ornare blandit 
-quam id porttitor. Nullam tincidunt mi vitae 
-efficitur faucibus. Lorem ipsum dolor sit amet, 
-consectetur adipiscing elit. Sed a pretium 
-purus. Nulla ut eros tristique, molestie felis 
-vitae, tempor augue. Vestibulum ante ipsum 
-primis in faucibus orci luctus et ultrices 
-posuere cubilia curae; Vivamus congue tortor 
-ut nisl fermentum varius. Nulla in metus velit. 
-Cras sodales, est id iaculis posuere, ante 
-lorem dictum magna, non consectetur enim 
-neque eget libero. Suspendisse imperdiet, elit 
-vitae elementum congue, ligula enim sagittis 
-justo, vel porttitor metus nisi et diam. 
-Maecenas eget lectus pretium, sodales nulla 
-sed, consectetur metus. Integer hendrerit 
-mauris vel sapien posuere rhoncus. Curabitur 
-
-ultricies neque vitae tempus lobortis. 
-
-
-"
 
 [connection signal="pressed" from="Controls_area/Touch_pad_base/Stick" to="." method="_on_Stick_pressed"]
 [connection signal="released" from="Controls_area/Touch_pad_base/Stick" to="." method="_on_Stick_released"]

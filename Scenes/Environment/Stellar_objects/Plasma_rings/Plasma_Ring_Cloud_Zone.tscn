@@ -9,11 +9,11 @@
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged/Cloud_jagged_LOD1.glb" type="PackedScene" id=7]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged/Cloud_jagged_LOD2.glb" type="PackedScene" id=8]
 [ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD0.tres" type="ArrayMesh" id=9]
-[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD1.tres" type="ArrayMesh" id=10]
-[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD0.tres" type="ArrayMesh" id=11]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD2.glb" type="PackedScene" id=10]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD1.glb" type="PackedScene" id=11]
 [ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD2.tres" type="ArrayMesh" id=12]
 [ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD1.tres" type="ArrayMesh" id=13]
-[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD2.tres" type="ArrayMesh" id=14]
+[ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD0.glb" type="PackedScene" id=15]
 
 [sub_resource type="CubeMesh" id=120]
 
@@ -132,9 +132,10 @@ transform = Transform( 1.44022, 0, 0, 0, 3.35465, 0, 0, 0, 1.44022, 0, 0, 0 )
 mesh = ExtResource( 9 )
 material/0 = SubResource( 69 )
 
-[node name="Torus_075_LOD0" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD0"]
+[node name="Torus_075_LOD0" parent="Scenes/LODs plasma rim clouds/LOD0" instance=ExtResource( 15 )]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
-mesh = ExtResource( 11 )
+
+[node name="Torus_075_LOD0" parent="Scenes/LODs plasma rim clouds/LOD0/Torus_075_LOD0" index="0"]
 material/0 = SubResource( 110 )
 
 [node name="LOD1" type="Spatial" parent="Scenes/LODs plasma rim clouds"]
@@ -155,10 +156,10 @@ mesh = ExtResource( 13 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 69 )
 
-[node name="Torus_075_LOD1" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD1"]
+[node name="Torus_075_LOD1" parent="Scenes/LODs plasma rim clouds/LOD1" instance=ExtResource( 11 )]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
-mesh = ExtResource( 10 )
-skeleton = NodePath("../../..")
+
+[node name="Torus_075_LOD1" parent="Scenes/LODs plasma rim clouds/LOD1/Torus_075_LOD1" index="0"]
 material/0 = SubResource( 110 )
 
 [node name="LOD2" type="Spatial" parent="Scenes/LODs plasma rim clouds"]
@@ -179,10 +180,10 @@ mesh = ExtResource( 12 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 69 )
 
-[node name="Torus_075_LOD2" type="MeshInstance" parent="Scenes/LODs plasma rim clouds/LOD2"]
+[node name="Torus_075_LOD2" parent="Scenes/LODs plasma rim clouds/LOD2" instance=ExtResource( 10 )]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
-mesh = ExtResource( 14 )
-skeleton = NodePath("../../..")
+
+[node name="Torus_075_LOD2" parent="Scenes/LODs plasma rim clouds/LOD2/Torus_075_LOD2" index="0"]
 material/0 = SubResource( 110 )
 
 [node name="LOD3" type="Spatial" parent="Scenes/LODs plasma rim clouds"]
@@ -195,5 +196,8 @@ __meta__ = {
 [connection signal="body_exited" from="." to="." method="_on_Zone_nebula_body_exited"]
 
 [editable path="Scenes/LODs plasma rim clouds/LOD0/Cloud_jagged_LOD0"]
+[editable path="Scenes/LODs plasma rim clouds/LOD0/Torus_075_LOD0"]
 [editable path="Scenes/LODs plasma rim clouds/LOD1/Cloud_jagged_LOD1"]
+[editable path="Scenes/LODs plasma rim clouds/LOD1/Torus_075_LOD1"]
 [editable path="Scenes/LODs plasma rim clouds/LOD2/Cloud_jagged_LOD2"]
+[editable path="Scenes/LODs plasma rim clouds/LOD2/Torus_075_LOD2"]

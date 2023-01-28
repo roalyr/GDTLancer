@@ -189,9 +189,10 @@ func is_autopilot_disable():
 	
 func _on_Button_info_toggled(button_pressed):
 	if button_pressed: 
-		ui_paths.touch_info_popup.show()
+		ui_paths.touch_readings_info_popup.show()
+		Signals.emit_signal("sig_fetch_object_info")
 	else: 
-		ui_paths.touch_info_popup.hide()
+		ui_paths.touch_readings_info_popup.hide()
 
 
 func _on_Button_PLACEHOLDER4_toggled(button_pressed):

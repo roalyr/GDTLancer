@@ -53,6 +53,10 @@ onready var desktop_bar_items = desktop_gui.get_node("Bar_items")
 onready var desktop_ship_popup = desktop_bar_items.get_node("Popup_PLACEHOLDER")
 # Readings
 onready var desktop_readings = desktop_gui.get_node("Readings")
+onready var desktop_readings_info_popup = desktop_readings.get_node("Popup_info")
+onready var desktop_readings_info_container = desktop_readings_info_popup.get_node("ScrollContainer/LabelContainer")
+onready var desktop_readings_info_label = desktop_readings_info_container.get_node("Label")
+
 onready var desktop_readings_debug = desktop_readings.get_node("Debug_panel")
 onready var desktop_readings_target_autopilot = desktop_readings.get_node("Target_autopilot")
 onready var desktop_readings_target_aim = desktop_readings.get_node("Target_aim")
@@ -102,7 +106,7 @@ onready var touch_bar_control_2 = touch_gui.get_node("Bar_control_2")
 # Ship bar
 onready var touch_bar_items = touch_gui.get_node("Bar_items")
 onready var touch_ship_popup = touch_bar_items.get_node("Popup_PLACEHOLDER")
-onready var touch_info_popup = touch_bar_items.get_node("Popup_info")
+
 
 # Control area
 onready var touch_control_area = touch_gui.get_node("Controls_area")
@@ -112,6 +116,10 @@ onready var touch_touch_throttle_base = touch_control_area.get_node("Touch_throt
 onready var touch_touch_throttle = touch_touch_throttle_base.get_node("Throttle")
 # Readings
 onready var touch_readings = touch_gui.get_node("Readings")
+onready var touch_readings_info_popup = touch_readings.get_node("Popup_info")
+onready var touch_readings_info_container = touch_readings_info_popup.get_node("ScrollContainer/LabelContainer")
+onready var touch_readings_info_label = touch_readings_info_container.get_node("Label")
+
 onready var touch_readings_debug = touch_readings.get_node("Debug_panel")
 onready var touch_readings_target_autopilot = touch_readings.get_node("Target_autopilot")
 onready var touch_readings_target_aim = touch_readings.get_node("Target_aim")
