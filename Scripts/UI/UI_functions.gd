@@ -6,6 +6,7 @@ func _ready():
 	# ============================ Connect signals ============================
 	Signals.connect_checked("sig_viewport_update", self, "is_viewport_update")
 	Signals.connect_checked("sig_fetch_object_info", self, "is_fetch_object_info")	
+	Signals.connect_checked("sig_switch_to_options_gui", self, "is_switch_to_options_gui")
 	# =========================================================================
 
 
@@ -276,6 +277,10 @@ func is_fetch_object_info():
 		var msg = "NO INFO ON OBJECT: " + str(PlayerState.aim_target.get_name())
 		ui_paths.touch_readings_info_label.text = msg
 		ui_paths.desktop_readings_info_label.text = msg
+		
+
+func is_switch_to_options_gui():
+	ui_paths.ui_functions.switch_to_options_gui()
 		
 		
 # GUI PANIC POPUP WINDOW.

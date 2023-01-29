@@ -21,7 +21,7 @@ uniform float flare_distance = 1e11;
 uniform float flare_size : hint_range(1.0, 10.0) = 3.0;
 uniform float attenuation : hint_range(0.01, 2.0) = 0.3;
 uniform float intensity : hint_range(0.0, 1.0) = 0.5;
-uniform float power = 5.0;
+uniform float exponent : hint_range(0.0, 50.0, 0.1) = 5.0;
 uniform float pulse_factor : hint_range(0.5, 1.0) = 1.0;
 uniform float pulse_rate = 10.0;
 uniform float phase : hint_range(0.0, 3.14) = 0.0;
@@ -48,7 +48,7 @@ void vertex() {
 void fragment() {
 	float pulse = (pulse_factor - sin(TIME * pulse_rate + phase) * (1.0 - pulse_factor));
 	ALBEDO = albedo.rgb 
-	* pow(COLOR.r, power / pulse) 
+	* pow(COLOR.r, exponent / pulse) 
 	* intensity 
 	* pulse;
 }

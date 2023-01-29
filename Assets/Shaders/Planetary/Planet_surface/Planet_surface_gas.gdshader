@@ -45,7 +45,7 @@ uniform float turbulent_detail_flow = 0.02;
 
 
 uniform float rim_strength = 6.0;
-uniform float rim_power = 3.0;
+uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 3.0;
 uniform float rim_intensity = 0.1;
 
 const float pi = 3.1415926535;
@@ -64,7 +64,7 @@ void fragment()
 	float detail_small = sin(texture(small_detail_noise, p2).r*pi+small_phase);
 	float detail_turbulent = sin(texture(turbulent_detail_noise, p3).r*pi+turbulent_phase);
 	
-	float rim = clamp(pow(dot(NORMAL, VIEW), rim_power)*rim_strength, 1e-6, 1.0);
+	float rim = clamp(pow(dot(NORMAL, VIEW), rim_exponent)*rim_strength, 1e-6, 1.0);
 	
 	ALBEDO = 
 		+ detail_major * WHITE * major_detail_intensity

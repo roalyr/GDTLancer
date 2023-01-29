@@ -73,7 +73,7 @@ func _on_Button_accel_minus_pressed():
 # DESKTOP / MOBILE GUI
 # Other buttons
 func _on_Button_options_pressed():
-	ui_paths.ui_functions.switch_to_options_gui()
+	Signals.emit_signal("sig_switch_to_options_gui")
 	
 
 # Mouse capturing for desktop.

@@ -19,21 +19,20 @@ uniform vec4 halo_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 corona_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 uniform vec4 core_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
 
-uniform float halo_strength : hint_range(0.0, 100.0, 0.1) = 0.2;
-uniform float halo_power : hint_range(0.0, 100.0, 0.1) = 1.0;
-uniform float halo_amount : hint_range(0.0, 100.0, 0.1) = 1.0;
+uniform float halo_strength : hint_range(0.1, 10.0, 0.1) = 1.0;
+uniform float halo_exponent : hint_range(0.0, 50.0, 0.1) = 1.0;
 
-uniform float corona_strength : hint_range(0.0, 100.0, 0.1) = 10.0;
-uniform float corona_power : hint_range(0.0, 100.0, 0.1) = 10.0;
-uniform float corona_amount : hint_range(0.0, 100.0, 0.1) = 1.0;
+uniform float corona_strength : hint_range(0.1, 1000.0, 0.1) = 500.0;
+uniform float corona_exponent : hint_range(0.0, 50.0, 0.1) = 25.0;
 
-uniform float core_strength : hint_range(0.0, 100.0, 0.1) = 50.0;
-uniform float core_power : hint_range(0.0, 100.0, 0.1) = 50.0;
-uniform float core_amount : hint_range(0.0, 100.0, 0.1) = 50.0;
+uniform float core_strength : hint_range(0.1, 100.0, 0.1) = 100.0;
+uniform float core_exponent : hint_range(0.0, 100.0, 0.1) = 32.0;
+
+uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 6.0;
 
 uniform sampler2D displacement_texture;
-uniform float displacement_scale = 0.02;
-uniform float displacement_velocity = 0.01;
+uniform float displacement_scale = 0.1;
+uniform float displacement_velocity = 0.02;
 
 void vertex() {
 	vec2 tex_position_x = VERTEX.yz - TIME*displacement_velocity;
@@ -51,14 +50,16 @@ void vertex() {
 
 void fragment()
 {
-	float halo = clamp(pow(dot(NORMAL,VIEW), halo_power)*halo_strength, 1e-6, 1.0);
-	float corona = clamp(pow(dot(NORMAL,VIEW), corona_power)*corona_strength, 1e-6, 1.0);
-	float core = clamp(pow(dot(NORMAL,VIEW), core_power)*core_strength, 1e-6, 1.0);
+	float dt = clamp(dot(NORMAL,VIEW), 1e-6, 1.0);
+	float rim = clamp(pow(dt, rim_exponent), 1e-6, 1.0);
+	float halo = clamp(pow(dt, halo_exponent)*halo_strength, 1e-6, 1.0);
+	float corona = clamp(pow(dt, corona_exponent)*corona_strength, 1e-6, 1.0);
+	float core = clamp(pow(dt, core_exponent)*core_strength, 1e-6, 1.0);
 	
 	ALBEDO = 
-		halo*halo_amount*halo_color.rgb 
-		+ corona*corona_amount*corona_color.rgb 
-		+ core*core_amount*core_color.rgb;
+		+ halo*halo_color.rgb 
+		+ corona*corona_color.rgb 
+		+ core*core_color.rgb;
 		
-	ALPHA = halo;
+	ALPHA = rim;
 }

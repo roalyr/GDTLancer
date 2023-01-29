@@ -20,6 +20,9 @@ signal sig_game_paused(flag)
 signal sig_quit_game
 signal sig_language_selected(index)
 
+# UI
+signal sig_switch_to_options_gui
+
 # UI MARKERS
 signal sig_fetch_markers
 signal sig_fetch_object_info

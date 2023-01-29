@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
@@ -13,42 +13,44 @@
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=11]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD1.tres" type="SphereMesh" id=12]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD2.tres" type="SphereMesh" id=13]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=14]
+[ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=15]
 
-[sub_resource type="SphereShape" id=92]
+[sub_resource type="CubeMesh" id=119]
 
-[sub_resource type="OpenSimplexNoise" id=99]
-period = 173.1
-lacunarity = 3.25
+[sub_resource type="OpenSimplexNoise" id=117]
+octaves = 1
+period = 24.8
 
-[sub_resource type="NoiseTexture" id=83]
-width = 128
-height = 128
-noise = SubResource( 99 )
+[sub_resource type="NoiseTexture" id=120]
+width = 64
+height = 64
+noise = SubResource( 117 )
 
 [sub_resource type="ShaderMaterial" id=42]
 shader = ExtResource( 4 )
-shader_param/halo_color = Color( 0.121569, 0.105882, 0.160784, 1 )
-shader_param/corona_color = Color( 0, 0.388235, 0.4, 1 )
-shader_param/core_color = Color( 0.0901961, 0.478431, 0.403922, 1 )
-shader_param/halo_strength = 0.7
-shader_param/halo_power = 2.2
-shader_param/halo_amount = 100.0
-shader_param/corona_strength = 100.0
-shader_param/corona_power = 9.3
-shader_param/corona_amount = 5.7
-shader_param/core_strength = 50.3
-shader_param/core_power = 11.6
-shader_param/core_amount = 100.0
-shader_param/displacement_scale = 0.114
-shader_param/displacement_velocity = 0.062
-shader_param/displacement_texture = SubResource( 83 )
+shader_param/halo_color = Color( 0, 0.309804, 0.305882, 1 )
+shader_param/corona_color = Color( 0.67451, 0, 1, 1 )
+shader_param/core_color = Color( 0.980392, 0.968627, 0.968627, 1 )
+shader_param/halo_strength = 1.0
+shader_param/halo_exponent = 1.5
+shader_param/corona_strength = 1000.0
+shader_param/corona_exponent = 15.8
+shader_param/core_strength = 100.0
+shader_param/core_exponent = 11.6
+shader_param/rim_exponent = 1.5
+shader_param/displacement_scale = 0.1
+shader_param/displacement_velocity = 0.02
+shader_param/displacement_texture = SubResource( 120 )
+
+[sub_resource type="CubeMesh" id=118]
 
 [sub_resource type="OpenSimplexNoise" id=94]
 period = 3.7
 persistence = 1.0
 lacunarity = 2.3
 
-[sub_resource type="NoiseTexture" id=95]
+[sub_resource type="NoiseTexture" id=121]
 width = 128
 height = 128
 seamless = true
@@ -59,7 +61,7 @@ period = 2.9
 persistence = 0.664
 lacunarity = 3.57
 
-[sub_resource type="NoiseTexture" id=97]
+[sub_resource type="NoiseTexture" id=122]
 width = 256
 height = 256
 seamless = true
@@ -68,35 +70,37 @@ noise = SubResource( 96 )
 [sub_resource type="ShaderMaterial" id=98]
 shader = ExtResource( 11 )
 shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0, 0.482353, 0.54902, 1 )
-shader_param/surface_color = Color( 0, 0.815686, 0.741176, 1 )
-shader_param/major_phase = 1.164
-shader_param/small_phase = 1.64
-shader_param/major_detail_intensity = 0.477
-shader_param/small_detail_intensity = 0.691
-shader_param/detail_decay_distance = 2.31e+11
+shader_param/overlay_color = Color( 0.501961, 0.231373, 0.611765, 1 )
+shader_param/surface_color = Color( 1, 0.803922, 0.937255, 1 )
+shader_param/major_phase = 1.2
+shader_param/small_phase = 1.8
+shader_param/major_detail_intensity = 0.5
+shader_param/small_detail_intensity = 0.7
+shader_param/detail_decay_distance = 2.32e+11
 shader_param/major_detail_scale = 3.0
 shader_param/small_detail_scale = 2.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.01
-shader_param/rim_strength = 0.958
-shader_param/rim_power = 0.605
-shader_param/rim_intensity = 0.182
-shader_param/major_detail_noise = SubResource( 95 )
-shader_param/small_detail_noise = SubResource( 97 )
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 0.5
+shader_param/rim_intensity = 0.3
+shader_param/major_detail_noise = SubResource( 121 )
+shader_param/small_detail_noise = SubResource( 122 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0, 0.929412, 1, 1 )
-shader_param/scale = 0.2
+shader_param/albedo = Color( 0.917647, 0.509804, 1, 1 )
+shader_param/scale = 0.17
 shader_param/flare_distance = 1.16e+12
 shader_param/flare_size = 3.0
 shader_param/attenuation = 0.15
 shader_param/intensity = 0.5
-shader_param/power = 5.0
+shader_param/exponent = 5.0
 shader_param/pulse_factor = 0.958
 shader_param/pulse_rate = 10.0
 shader_param/phase = 0.0
+
+[sub_resource type="SphereShape" id=92]
 
 [node name="STAR_MAIN_O_1_Zone" type="Area"]
 input_ray_pickable = false
@@ -108,6 +112,23 @@ script = ExtResource( 2 )
 star_brightness_variation = 0.1
 star_contrast_variation = 0.2
 star_saturation_variation = -0.5
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 14 )]
+
+[node name="mat_halo" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = SubResource( 119 )
+material/0 = SubResource( 42 )
+
+[node name="mat_core" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = SubResource( 118 )
+material/0 = SubResource( 98 )
+
+[node name="mat_sprite" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = ExtResource( 15 )
+material/0 = SubResource( 93 )
 
 [node name="Zone shape 1_16e+11" type="CollisionShape" parent="."]
 transform = Transform( 1.16e+11, 0, 0, 0, 1.16e+11, 0, 0, 0, 1.16e+11, 0, 0, 0 )
@@ -127,12 +148,12 @@ script = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 3.47e+10
+autopilot_range = 2.31e+10
 translations_name = "NAME_STAR_MAIN_O_1"
 translations_description = "DESC_STAR_MAIN_O_1"
 
 [node name="OmniLight_8_99e+14" type="OmniLight" parent="Scenes/STAR_MAIN_O_1"]
-light_color = Color( 0.52549, 0.823529, 1, 1 )
+light_color = Color( 0.752941, 0.52549, 1, 1 )
 light_energy = 2.0
 light_indirect_energy = 0.5
 omni_range = 8.99e+14
@@ -154,7 +175,7 @@ __meta__ = {
 }
 
 [node name="Icosphere_LOD0" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD0"]
-transform = Transform( 1.27093, 0, 0, 0, 1.27093, 0, 0, 0, 1.27093, 0, 0, 0 )
+transform = Transform( 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0 )
 mesh = ExtResource( 8 )
 material/0 = SubResource( 42 )
 
@@ -169,7 +190,7 @@ __meta__ = {
 }
 
 [node name="Icosphere_LOD1" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD1"]
-transform = Transform( 1.271, 0, 0, 0, 1.271, 0, 0, 0, 1.271, 0, 0, 0 )
+transform = Transform( 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0 )
 mesh = ExtResource( 9 )
 material/0 = SubResource( 42 )
 
@@ -189,7 +210,7 @@ __meta__ = {
 }
 
 [node name="Icosphere_LOD2" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD2"]
-transform = Transform( 1.271, 0, 0, 0, 1.271, 0, 0, 0, 1.271, 0, 0, 0 )
+transform = Transform( 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0 )
 mesh = ExtResource( 7 )
 material/0 = SubResource( 42 )
 

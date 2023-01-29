@@ -24,6 +24,7 @@ FPS can be adjusted with the internal render quality.
 
 ## How to play (edit) the game
 You can download one of the pre-compiled binary in the [releases](https://github.com/roalyr/GDTLancer/releases) section.  
+GDTLancer is also published on [itch.io](https://roal-yr.itch.io/gdtlancer).  
 If you want to open it in editor, then you must use a custom Godot build:  
 https://github.com/roalyr/godot-for-3d-open-worlds
 

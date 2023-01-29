@@ -28,19 +28,21 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="System Blue" type="Position3D" parent="Scenes"]
+[node name="STAR_MAIN_O_1_System" type="Position3D" parent="Scenes"]
 script = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 1e+15
+autopilot_range = 1.16e+14
+translations_name = "NAME_STAR_MAIN_O_1_SYSTEM"
+translations_description = "DESC_STAR_MAIN_O_1_SYSTEM"
 
-[node name="STAR_MAIN_O_1_Zone" parent="Scenes/System Blue" instance=ExtResource( 5 )]
+[node name="STAR_MAIN_O_1_Zone" parent="Scenes/STAR_MAIN_O_1_System" instance=ExtResource( 5 )]
 
-[node name="Planet Blue Zone" parent="Scenes/System Blue" instance=ExtResource( 3 )]
+[node name="Planet Blue Zone" parent="Scenes/STAR_MAIN_O_1_System" instance=ExtResource( 3 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.34819e+13, -6.86217e+10, 1.09831e+14 )
 
-[node name="Blue Nebula Zone" parent="Scenes/System Blue" instance=ExtResource( 4 )]
+[node name="Blue Nebula Zone" parent="Scenes/STAR_MAIN_O_1_System" instance=ExtResource( 4 )]
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

@@ -22,11 +22,11 @@
 
 [sub_resource type="ShaderMaterial" id=65]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/albedo = Color( 0.698039, 0.745098, 1, 1 )
 shader_param/emission = Color( 0, 0.203922, 0.262745, 1 )
-shader_param/alpa_clip = 0.036
-shader_param/rim_strength = 1.643
-shader_param/rim_power = 2.87
+shader_param/alpha_clip = 0.1
+shader_param/rim_strength = 25.0
+shader_param/rim_exponent = 4.0
 
 [sub_resource type="SphereMesh" id=80]
 
@@ -78,7 +78,7 @@ shader_param/major_detail_flow = 0.004
 shader_param/small_detail_flow = 0.001
 shader_param/turbulent_detail_flow = 0.005
 shader_param/rim_strength = 1.0
-shader_param/rim_power = 2.0
+shader_param/rim_exponent = 3.0
 shader_param/rim_intensity = 0.5
 shader_param/major_detail_noise = SubResource( 89 )
 shader_param/small_detail_noise = SubResource( 93 )
@@ -88,7 +88,7 @@ shader_param/turbulent_detail_noise = SubResource( 95 )
 shader = ExtResource( 8 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/rim_strength = 0.05
-shader_param/rim_power = 2.749
+shader_param/rim_exponent = 5.0
 shader_param/alpha_clip = 0.009
 
 [sub_resource type="SphereMesh" id=84]
@@ -126,20 +126,20 @@ __meta__ = {
 "_editor_description_": "Add marker to scene and set its level."
 }
 
-[node name="Planet Blue" type="Position3D" parent="Scenes"]
+[node name="Victory b" type="Position3D" parent="Scenes"]
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_lock_": true
 }
 autopilot_range = 1.4e+07
 
-[node name="Planet 7e6" type="StaticBody" parent="Scenes/Planet Blue"]
+[node name="Planet 7e6" type="StaticBody" parent="Scenes/Victory b"]
 transform = Transform( 7e+06, 0, 0, 0, 7e+06, 0, 0, 0, 7e+06, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="Scenes/Planet Blue/Planet 7e6"]
+[node name="CollisionShape" type="CollisionShape" parent="Scenes/Victory b/Planet 7e6"]
 shape = SubResource( 43 )
 
-[node name="LODs planet blue 7e6" type="Spatial" parent="Scenes/Planet Blue"]
+[node name="LODs planet blue 7e6" type="Spatial" parent="Scenes/Victory b"]
 transform = Transform( 7e+06, 0, 0, 0, 7e+06, 0, 0, 0, 7e+06, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -147,90 +147,90 @@ __meta__ = {
 }
 lod_2_relative_distance = 500
 
-[node name="LOD0" type="Spatial" parent="Scenes/Planet Blue/LODs planet blue 7e6"]
+[node name="LOD0" type="Spatial" parent="Scenes/Victory b/LODs planet blue 7e6"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD0"]
+[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/Victory b/LODs planet blue 7e6/LOD0"]
 transform = Transform( 1.03, 0, 0, 0, 1.03, 0, 0, 0, 1.03, 0, 0, 0 )
 mesh = ExtResource( 13 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 65 )
 
-[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD0"]
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Victory b/LODs planet blue 7e6/LOD0"]
 mesh = SubResource( 80 )
 material/0 = SubResource( 83 )
 
-[node name="Ring_075_LOD0_1" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD0" instance=ExtResource( 7 )]
+[node name="Ring_075_LOD0_1" parent="Scenes/Victory b/LODs planet blue 7e6/LOD0" instance=ExtResource( 7 )]
 transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 )
 
-[node name="Ring_075_LOD0" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD0/Ring_075_LOD0_1" index="0"]
+[node name="Ring_075_LOD0" parent="Scenes/Victory b/LODs planet blue 7e6/LOD0/Ring_075_LOD0_1" index="0"]
 material/0 = SubResource( 63 )
 
-[node name="Ring_075_LOD0_2" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD0" instance=ExtResource( 7 )]
+[node name="Ring_075_LOD0_2" parent="Scenes/Victory b/LODs planet blue 7e6/LOD0" instance=ExtResource( 7 )]
 transform = Transform( 2.2, 0, 0, 0, 0.2, 0, 0, 0, 2.2, 0, 0, 0 )
 
-[node name="Ring_075_LOD0" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD0/Ring_075_LOD0_2" index="0"]
+[node name="Ring_075_LOD0" parent="Scenes/Victory b/LODs planet blue 7e6/LOD0/Ring_075_LOD0_2" index="0"]
 material/0 = SubResource( 63 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/Planet Blue/LODs planet blue 7e6"]
+[node name="LOD1" type="Spatial" parent="Scenes/Victory b/LODs planet blue 7e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD1"]
+[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/Victory b/LODs planet blue 7e6/LOD1"]
 transform = Transform( 1.03, 0, 0, 0, 1.03, 0, 0, 0, 1.03, 0, 0, 0 )
 mesh = ExtResource( 14 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 65 )
 
-[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD1"]
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Victory b/LODs planet blue 7e6/LOD1"]
 mesh = SubResource( 84 )
 material/0 = SubResource( 83 )
 
-[node name="Ring_075_LOD1_1" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD1" instance=ExtResource( 10 )]
+[node name="Ring_075_LOD1_1" parent="Scenes/Victory b/LODs planet blue 7e6/LOD1" instance=ExtResource( 10 )]
 transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 )
 
-[node name="Ring_075_LOD1" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD1/Ring_075_LOD1_1" index="0"]
+[node name="Ring_075_LOD1" parent="Scenes/Victory b/LODs planet blue 7e6/LOD1/Ring_075_LOD1_1" index="0"]
 material/0 = SubResource( 63 )
 
-[node name="Ring_075_LOD1_2" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD1" instance=ExtResource( 10 )]
+[node name="Ring_075_LOD1_2" parent="Scenes/Victory b/LODs planet blue 7e6/LOD1" instance=ExtResource( 10 )]
 transform = Transform( 2.2, 0, 0, 0, 0.2, 0, 0, 0, 2.2, 0, 0, 0 )
 
-[node name="Ring_075_LOD1" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD1/Ring_075_LOD1_2" index="0"]
+[node name="Ring_075_LOD1" parent="Scenes/Victory b/LODs planet blue 7e6/LOD1/Ring_075_LOD1_2" index="0"]
 material/0 = SubResource( 63 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/Planet Blue/LODs planet blue 7e6"]
+[node name="LOD2" type="Spatial" parent="Scenes/Victory b/LODs planet blue 7e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD2"]
+[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/Victory b/LODs planet blue 7e6/LOD2"]
 transform = Transform( 1.03, 0, 0, 0, 1.03, 0, 0, 0, 1.03, 0, 0, 0 )
 mesh = ExtResource( 15 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 65 )
 
-[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD2"]
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Victory b/LODs planet blue 7e6/LOD2"]
 mesh = SubResource( 85 )
 material/0 = SubResource( 83 )
 
-[node name="Ring_075_LOD2_1" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD2" instance=ExtResource( 12 )]
+[node name="Ring_075_LOD2_1" parent="Scenes/Victory b/LODs planet blue 7e6/LOD2" instance=ExtResource( 12 )]
 transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 )
 
-[node name="Ring_075_LOD2" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD2/Ring_075_LOD2_1" index="0"]
+[node name="Ring_075_LOD2" parent="Scenes/Victory b/LODs planet blue 7e6/LOD2/Ring_075_LOD2_1" index="0"]
 material/0 = SubResource( 63 )
 
-[node name="Ring_075_LOD2_2" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD2" instance=ExtResource( 12 )]
+[node name="Ring_075_LOD2_2" parent="Scenes/Victory b/LODs planet blue 7e6/LOD2" instance=ExtResource( 12 )]
 transform = Transform( 2.2, 0, 0, 0, 0.2, 0, 0, 0, 2.2, 0, 0, 0 )
 
-[node name="Ring_075_LOD2" parent="Scenes/Planet Blue/LODs planet blue 7e6/LOD2/Ring_075_LOD2_2" index="0"]
+[node name="Ring_075_LOD2" parent="Scenes/Victory b/LODs planet blue 7e6/LOD2/Ring_075_LOD2_2" index="0"]
 material/0 = SubResource( 63 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/Planet Blue/LODs planet blue 7e6"]
+[node name="LOD3" type="Spatial" parent="Scenes/Victory b/LODs planet blue 7e6"]
 __meta__ = {
 "_edit_lock_": true
 }
@@ -260,9 +260,9 @@ __meta__ = {
 [connection signal="body_entered" from="Scenes/Object Cube" to="Scenes/Object Cube" method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="Scenes/Object Cube" to="Scenes/Object Cube" method="_on_Local_space_trigger_zone_body_exited"]
 
-[editable path="Scenes/Planet Blue/LODs planet blue 7e6/LOD0/Ring_075_LOD0_1"]
-[editable path="Scenes/Planet Blue/LODs planet blue 7e6/LOD0/Ring_075_LOD0_2"]
-[editable path="Scenes/Planet Blue/LODs planet blue 7e6/LOD1/Ring_075_LOD1_1"]
-[editable path="Scenes/Planet Blue/LODs planet blue 7e6/LOD1/Ring_075_LOD1_2"]
-[editable path="Scenes/Planet Blue/LODs planet blue 7e6/LOD2/Ring_075_LOD2_1"]
-[editable path="Scenes/Planet Blue/LODs planet blue 7e6/LOD2/Ring_075_LOD2_2"]
+[editable path="Scenes/Victory b/LODs planet blue 7e6/LOD0/Ring_075_LOD0_1"]
+[editable path="Scenes/Victory b/LODs planet blue 7e6/LOD0/Ring_075_LOD0_2"]
+[editable path="Scenes/Victory b/LODs planet blue 7e6/LOD1/Ring_075_LOD1_1"]
+[editable path="Scenes/Victory b/LODs planet blue 7e6/LOD1/Ring_075_LOD1_2"]
+[editable path="Scenes/Victory b/LODs planet blue 7e6/LOD2/Ring_075_LOD2_1"]
+[editable path="Scenes/Victory b/LODs planet blue 7e6/LOD2/Ring_075_LOD2_2"]

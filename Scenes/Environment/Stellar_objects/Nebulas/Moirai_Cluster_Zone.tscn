@@ -24,51 +24,51 @@
 shader = ExtResource( 5 )
 shader_param/albedo = Color( 0, 0.352941, 0.380392, 1 )
 shader_param/rim_strength = 0.05
-shader_param/rim_power = 6.0
+shader_param/rim_exponent = 6.0
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=83]
 shader = ExtResource( 5 )
 shader_param/albedo = Color( 0.321569, 0.486275, 0, 1 )
 shader_param/rim_strength = 0.05
-shader_param/rim_power = 5.0
+shader_param/rim_exponent = 5.0
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=84]
 shader = ExtResource( 5 )
 shader_param/albedo = Color( 0.686275, 0.407843, 0, 1 )
 shader_param/rim_strength = 0.05
-shader_param/rim_power = 5.0
+shader_param/rim_exponent = 4.6
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=85]
 shader = ExtResource( 5 )
 shader_param/albedo = Color( 0.803922, 0.431373, 0, 1 )
 shader_param/rim_strength = 0.05
-shader_param/rim_power = 10.0
+shader_param/rim_exponent = 6.5
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=86]
 shader = ExtResource( 11 )
-shader_param/albedo = Color( 1, 0, 0, 1 )
+shader_param/albedo = Color( 0.635294, 0.317647, 0.317647, 1 )
 shader_param/rim_strength = 0.05
-shader_param/rim_power = 15.0
+shader_param/rim_exponent = 15.0
 
 [sub_resource type="ShaderMaterial" id=87]
 shader = ExtResource( 12 )
 shader_param/albedo = Color( 0.235294, 0, 0, 1 )
 shader_param/rim_strength = 22.092
-shader_param/rim_power = 6.573
+shader_param/rim_exponent = 5.3
 shader_param/rim_strength_inner = 1.309
-shader_param/rim_power_inner = 1.433
+shader_param/rim_exponent_inner = 1.2
 
 [sub_resource type="ShaderMaterial" id=88]
 shader = ExtResource( 12 )
-shader_param/albedo = Color( 0.490196, 0.278431, 0, 1 )
-shader_param/rim_strength = 1.5
-shader_param/rim_power = 9.0
-shader_param/rim_strength_inner = 1.5
-shader_param/rim_power_inner = 2.767
+shader_param/albedo = Color( 0.462745, 0.196078, 0, 1 )
+shader_param/rim_strength = 0.184
+shader_param/rim_exponent = 2.7
+shader_param/rim_strength_inner = 1.652
+shader_param/rim_exponent_inner = 9.2
 
 [sub_resource type="SphereShape" id=79]
 
@@ -245,7 +245,6 @@ transform = Transform( 0.197, 0, 0, 0, 0.197, 0, 0, 0, 0.197, 0.259, 0.308, 0.48
 material/0 = SubResource( 85 )
 
 [node name="Shade_core_LOD0" type="Position3D" parent="Scenes/Moirai_Cluster/LODs_trigger/LOD0"]
-visible = false
 
 [node name="Cloud_spheroid_LOD0" parent="Scenes/Moirai_Cluster/LODs_trigger/LOD0/Shade_core_LOD0" instance=ExtResource( 10 )]
 transform = Transform( 0.383, 0, 0, 0, 0.383, 0, 0, 0, 0.383, 0.096, 0.359, 0.413 )
@@ -262,7 +261,7 @@ transform = Transform( 0.198, 0, 0, 0, 0.198, 0, 0, 0, 0.198, 0.096, 0.359, 0.41
 material/0 = SubResource( 87 )
 
 [node name="Cloud_turbulent_LOD0_1" parent="Scenes/Moirai_Cluster/LODs_trigger/LOD0/Halo_core_LOD0" instance=ExtResource( 13 )]
-transform = Transform( 0.139, 0, 0, 0, 0.139, 0, 0, 0, 0.139, 0.096, 0.359, 0.413 )
+transform = Transform( 0.118644, -0.0203561, 0.0695, 0.0695, 0.0695, -0.0982878, -0.0203561, 0.118644, 0.0695, 0.096, 0.359, 0.413 )
 
 [node name="Cloud_mesh_LOD0" parent="Scenes/Moirai_Cluster/LODs_trigger/LOD0/Halo_core_LOD0/Cloud_turbulent_LOD0_1" index="0"]
 material/0 = SubResource( 88 )

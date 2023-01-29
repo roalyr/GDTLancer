@@ -34,7 +34,7 @@ func handle_input(event):
 		# Quit the game.
 		# TODO: remove keyboard mapping later on.
 		if event.pressed and event.scancode == KEY_ESCAPE:
-			Signals.emit_signal("sig_quit_game")
+			Signals.emit_signal("sig_switch_to_options_gui")
 		
 		# SHIP CONTROLS =======================================================
 		

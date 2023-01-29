@@ -1,8 +1,9 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=3]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Models/Shapes/Torus_05/Torus_05_LOD1.tres" type="ArrayMesh" id=5]
 [ext_resource path="res://Assets/Models/Shapes/Ring_075/Ring_075_LOD0.tres" type="ArrayMesh" id=6]
 [ext_resource path="res://Assets/Models/Shapes/Torus_075/Torus_075_LOD0.tres" type="ArrayMesh" id=7]
@@ -19,21 +20,21 @@
 shader = ExtResource( 3 )
 shader_param/albedo = Color( 0.403922, 0.243137, 0.243137, 1 )
 shader_param/rim_strength = 0.162
-shader_param/rim_power = 2.607
+shader_param/rim_exponent = 15.0
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=89]
 shader = ExtResource( 3 )
 shader_param/albedo = Color( 0.501961, 0.435294, 0.435294, 1 )
 shader_param/rim_strength = 0.086
-shader_param/rim_power = 3.658
+shader_param/rim_exponent = 15.0
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=91]
 shader = ExtResource( 3 )
 shader_param/albedo = Color( 0.533333, 0.533333, 0.533333, 1 )
 shader_param/rim_strength = 0.065
-shader_param/rim_power = 5.576
+shader_param/rim_exponent = 15.0
 shader_param/alpha_clip = 1.0
 
 [node name="Planetary disk Zone" type="Area"]
@@ -43,6 +44,8 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 4 )]
 
 [node name="Zone shape 1e13x1e12" type="CollisionShape" parent="."]
 transform = Transform( 1e+13, 0, 0, 0, 1e+12, 0, 0, 0, 1e+13, 0, 0, 0 )
