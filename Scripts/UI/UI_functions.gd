@@ -221,6 +221,8 @@ func is_viewport_update():
 	restore_proportions(ui_paths.touch_status_panel)
 	restore_proportions(ui_paths.touch_readings_target_autopilot)
 	restore_proportions(ui_paths.touch_readings_target_aim)
+	restore_proportions(ui_paths.touch_readings_info_popup)
+	restore_proportions(ui_paths.touch_readings_debug)
 	
 	#restore_proportions(ui_paths.desktop_mouse_area)
 	restore_proportions(ui_paths.desktop_bar_items)
@@ -233,6 +235,8 @@ func is_viewport_update():
 	restore_proportions(ui_paths.desktop_status_panel)
 	restore_proportions(ui_paths.desktop_readings_target_autopilot)
 	restore_proportions(ui_paths.desktop_readings_target_aim)
+	restore_proportions(ui_paths.desktop_readings_info_popup)
+	restore_proportions(ui_paths.desktop_readings_debug)
 	
 	restore_proportions(ui_paths.options_buttons_general_bar)
 	restore_proportions(ui_paths.options_tab_options_general)

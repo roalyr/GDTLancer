@@ -284,10 +284,8 @@ margin_top = 60.0
 margin_bottom = 96.0
 
 [node name="Popup_info" type="ReferenceRect" parent="Readings"]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -550.0
-margin_right = 550.0
+margin_left = 410.0
+margin_right = 1510.0
 margin_bottom = 380.0
 theme = ExtResource( 22 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )

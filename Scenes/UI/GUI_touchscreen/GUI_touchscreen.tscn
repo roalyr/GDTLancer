@@ -422,9 +422,12 @@ normal = ExtResource( 24 )
 pressed = ExtResource( 24 )
 
 [node name="Readings" type="Control" parent="."]
-margin_right = 1920.0
-margin_bottom = 1080.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource( 29 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Debug_panel" type="Control" parent="Readings"]
 visible = false
@@ -611,10 +614,8 @@ __meta__ = {
 }
 
 [node name="Popup_info" type="ReferenceRect" parent="Readings"]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -410.0
-margin_right = 411.0
+margin_left = 550.0
+margin_right = 1371.0
 margin_bottom = 400.0
 theme = ExtResource( 19 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )

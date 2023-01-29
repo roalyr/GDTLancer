@@ -27,7 +27,7 @@
 - Reworked touchscreen controls. They can be swapped.
 - Reworked options menus.
 - Reworked desktop GUI layout.
-- Implemented basic info window.
+- Implemented object info window.
 - Theme color and intensity can be selected now.
 - Improved UI readability.
 ### Refactoring
