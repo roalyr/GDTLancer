@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Scenes/Environment/Systems/System_Yellow_Zone.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Scenes/Environment/Systems/STAR_MAIN_O_1_System_Zone.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Environment/Systems/STAR_MAIN_O_1_SYSTEM_ZONE.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/Environment/Systems/STAR_MAIN_M_159_System_Zone.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=5]

@@ -102,7 +102,7 @@ shader_param/phase = 0.0
 
 [sub_resource type="SphereShape" id=92]
 
-[node name="STAR_MAIN_O_1_Zone" type="Area"]
+[node name="STAR_MAIN_O_1_ZONE" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
@@ -152,21 +152,22 @@ autopilot_range = 2.31e+10
 translations_name = "NAME_STAR_MAIN_O_1"
 translations_description = "DESC_STAR_MAIN_O_1"
 
-[node name="OmniLight_8_99e+14" type="OmniLight" parent="Scenes/STAR_MAIN_O_1"]
-light_color = Color( 0.752941, 0.52549, 1, 1 )
+[node name="LODs star blue 1_16e+10" type="Spatial" parent="Scenes/STAR_MAIN_O_1"]
+transform = Transform( 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0 )
+script = ExtResource( 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="OmniLight_8_99e+14" type="OmniLight" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
+light_color = Color( 0.811765, 0.639216, 1, 1 )
 light_energy = 2.0
 light_indirect_energy = 0.5
 omni_range = 8.99e+14
 omni_attenuation = 5.0
 __meta__ = {
 "_edit_lock_": true
-}
-
-[node name="LODs star blue 1_16e+10" type="Spatial" parent="Scenes/STAR_MAIN_O_1"]
-transform = Transform( 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0 )
-script = ExtResource( 1 )
-__meta__ = {
-"_editor_description_": ""
 }
 
 [node name="LOD0" type="Spatial" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
