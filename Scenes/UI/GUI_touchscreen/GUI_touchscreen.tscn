@@ -613,6 +613,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Text_distance" parent="Readings/Target_autopilot" index="0"]
+visible = false
+
+[node name="Text_object" parent="Readings/Target_autopilot" index="1"]
+visible = false
+
 [node name="Popup_info" type="ReferenceRect" parent="Readings"]
 margin_left = 550.0
 margin_right = 1371.0
@@ -1246,3 +1252,5 @@ __meta__ = {
 [connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
 [connection signal="toggled" from="Bar_items/Button_info" to="." method="_on_Button_info_toggled"]
 [connection signal="toggled" from="Bar_items/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]
+
+[editable path="Readings/Target_autopilot"]

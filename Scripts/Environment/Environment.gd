@@ -51,9 +51,9 @@ var planet_brightness_variation = 0.0
 var planet_contrast_variation = 0.0
 var planet_saturation_variation = 0.0
 
-var object_brightness_variation = 0.0
-var object_contrast_variation = 0.0
-var object_saturation_variation = 0.0
+var structure_brightness_variation = 0.0
+var structure_contrast_variation = 0.0
+var structure_saturation_variation = 0.0
 
 
 enum Adjustment_kind {BRIGHTNESS, CONTRAST, SATURATION}
@@ -88,13 +88,13 @@ func _physics_process(delta):
 #	print(self.environment.adjustment_saturation)
 
 	zone_brightness_variation = system_brightness_variation + star_brightness_variation \
-		+ planet_brightness_variation + object_brightness_variation + nebula_brightness_variation
+		+ planet_brightness_variation + structure_brightness_variation + nebula_brightness_variation
 		
 	zone_contrast_variation = system_contrast_variation + star_contrast_variation \
-		+ planet_contrast_variation + object_contrast_variation + nebula_contrast_variation
+		+ planet_contrast_variation + structure_contrast_variation + nebula_contrast_variation
 		
 	zone_saturation_variation = system_saturation_variation + star_saturation_variation \
-		+ planet_saturation_variation + object_saturation_variation + nebula_saturation_variation
+		+ planet_saturation_variation + structure_saturation_variation + nebula_saturation_variation
 	
 	
 	brightness_variation = stepify(zone_brightness_variation + warp_brightness_variation, increment_step )

@@ -277,9 +277,11 @@ __meta__ = {
 }
 
 [node name="Text_distance" parent="Readings/Target_autopilot" index="0"]
+visible = false
 custom_fonts/font = ExtResource( 27 )
 
 [node name="Text_object" parent="Readings/Target_autopilot" index="1"]
+visible = false
 margin_top = 60.0
 margin_bottom = 96.0
 

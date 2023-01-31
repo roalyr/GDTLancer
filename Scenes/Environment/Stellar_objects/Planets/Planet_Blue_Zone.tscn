@@ -74,9 +74,9 @@ shader_param/turbulent_detail_intensity = 0.18
 shader_param/major_detail_scale = 5.0
 shader_param/small_detail_scale = 4.0
 shader_param/turbulent_detail_scale = 3.0
-shader_param/major_detail_flow = 0.004
-shader_param/small_detail_flow = 0.001
-shader_param/turbulent_detail_flow = 0.005
+shader_param/major_detail_flow = 0.008
+shader_param/small_detail_flow = 0.002
+shader_param/turbulent_detail_flow = 0.01
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 3.0
 shader_param/rim_intensity = 0.5
@@ -114,7 +114,7 @@ script = ExtResource( 3 )
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 
 [node name="Zone shape 1e8 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
-transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
+transform = Transform( 1e+09, 0, 0, 0, 1e+09, 0, 0, 0, 1e+09, 0, 0, 0 )
 shape = SubResource( 91 )
 __meta__ = {
 "_edit_lock_": true
@@ -131,12 +131,12 @@ script = ExtResource( 4 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 1.4e+07
+autopilot_range = 2e+08
 
-[node name="Planet 7e6" type="StaticBody" parent="Scenes/Victory b"]
-transform = Transform( 7e+06, 0, 0, 0, 7e+06, 0, 0, 0, 7e+06, 0, 0, 0 )
+[node name="Planet 1e8" type="StaticBody" parent="Scenes/Victory b"]
+transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="Scenes/Victory b/Planet 7e6"]
+[node name="CollisionShape" type="CollisionShape" parent="Scenes/Victory b/Planet 1e8"]
 shape = SubResource( 43 )
 
 [node name="LODs planet blue 1e8" type="Spatial" parent="Scenes/Victory b"]
@@ -236,7 +236,7 @@ __meta__ = {
 }
 
 [node name="Object Cube" type="Area" parent="Scenes"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.41885e+07, 3.8871e+06, 7.92986e+06 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.82843e+08, 125740, 3.16302e+07 )
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
