@@ -70,7 +70,7 @@ noise = SubResource( 96 )
 [sub_resource type="ShaderMaterial" id=98]
 shader = ExtResource( 11 )
 shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0.501961, 0.231373, 0.611765, 1 )
+shader_param/overlay_color = Color( 0.231373, 0.270588, 0.611765, 1 )
 shader_param/surface_color = Color( 1, 0.803922, 0.937255, 1 )
 shader_param/major_phase = 1.2
 shader_param/small_phase = 1.8
@@ -161,7 +161,7 @@ __meta__ = {
 
 [node name="OmniLight_8_99e+14" type="OmniLight" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 0.811765, 0.639216, 1, 1 )
+light_color = Color( 0.694118, 0.639216, 1, 1 )
 light_energy = 2.0
 light_indirect_energy = 0.5
 omni_range = 8.99e+14

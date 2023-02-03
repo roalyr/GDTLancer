@@ -33,7 +33,11 @@ NAME_STAR_MAIN_O_1,Victory A,Вікторі А
 DESC_STAR_MAIN_O_1,The brightest main sequence star in the Moirai cluster.,Найяскравіша зірка головної послідовності у кластері Мойр.
 NAME_STAR_MAIN_O_1_SYSTEM,Victory,Вікторі
 DESC_STAR_MAIN_O_1_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.
+NAME_STAR_MAIN_O_1_PLANET_B,Victory b,Вікторі b
+DESC_STAR_MAIN_O_1_PLANET_B,Gas giant in Victory planetary system.,Газовий гігант у планетарній системі Вікторі.
 NAME_STAR_MAIN_M_159,Spark A,Спарк А
 DESC_STAR_MAIN_M_159,A red dwarf in the heart of the Moirai cluster.,Червоний карлик у самому серці кластеру Мойр.
 NAME_STAR_MAIN_M_159_SYSTEM,Spark,Спарк
 DESC_STAR_MAIN_M_159_SYSTEM,A planetary system around the Spark A star.,Планетарна система зірки Спарк А.
+NAME_STAR_MAIN_K_1_1,Victory B,Вікторі B
+DESC_STAR_MAIN_K_1_1,A companion star in Victory star system.,Зірка-компаньйон у зоряній системі Вікторі.
