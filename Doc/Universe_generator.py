@@ -1,3 +1,49 @@
+############### SYSTEMS ###############
+# Specify the cluster and a number of systems in it.
+clusters = [
+	("Moirai", 270),
+]
+
+# If user_defined stars and planets are set - they will take up the
+# quota of the total number of stars or planets, otherwise, all
+# bodies will be generated within said numbers.
+systems = [
+
+	# An example of user-specified planetary system.
+	{
+		"cluster" : "Moirai",
+		"name" : "Victory",
+		"total_stars" : 3,
+		"total_planets" : 10,
+		"user_defined_main_star" : "O",
+		"user_defined_companion_stars" : ["K"],
+		"user_defined_planets_and_moons" : [
+			["hot_neptunian", "moon_rocky", "moon_rocky"],
+			["warm_terran"],
+			["cold_jovian", "moon_rocky", "moon_icy", "moon_atmo"],
+		],
+	},
+	
+	# Partially specified system.
+	{
+		"cluster" : "Moirai",
+		"name" : "Valeri",
+		"total_stars" : 3,
+	},
+	
+	# Only the name of a system is given.
+	{
+		"cluster" : "Moirai",
+		"name" : "Spark",
+	},
+	
+	# Nothing is provided, everything is at random.
+	{
+		"cluster" : "Moirai",
+	},
+	
+]
+
 ############### CONSTANTS ###############
 # General
 seed = "GDTLancer"
@@ -9,6 +55,12 @@ v_max = 1.2
 sun_diameter = 1.39e9
 sun_omni_sidstance = 1e13
 sun_density = 1408
+
+num_stars_min = 1
+num_stars_max = 7
+
+num_planets_min = 0
+num_planets_max = 30
 
 # GODOT engine parameters.
 # Star constants
@@ -114,64 +166,137 @@ star_m_mass_max = 0.45
 # Icy
 # Atmosphere
 
-############### SYSTEMS ###############
-# Specify the cluster and a number of systems in it.
-clusters = [
-	("Moirai", 270),
-]
 
-# If user_defined stars and planets are set - they will take up the
-# quota of the total number of stars or planets, otherwise, all
-# bodies will be generated within said numbers.
-systems = [
-
-	# An example of user-specified planetary system.
-	{
-		"cluster" : "Moirai",
-		"name" : "Victory",
-		"total_stars" : 3,
-		"total_planets" : 10,
-		"usee_defined_main_star" : "O",
-		"user_defined_companion_stars" : ["K"],
-		"user_defined_planets_and_moons" : [
-			["hot_neptunian", "moon_rocky", "moon_rocky"],
-			["warm_terran"],
-			["cold_jovian", "moon_rocky", "moon_icy", "moon_atmo"],
-		],
-	},
-	
-	# Partially specified system.
-	{
-		"cluster" : "Moirai",
-		"name" : "Valeri",
-		"total_stars" : 3,
-		"total_planets" : 10,
-	},
-	
-	# Only the name of a system is given.
-	{
-		"cluster" : "Moirai",
-		"name" : "Spark",
-	},
-	
-	# Nothing is provided, everything is at random.
-	{
-		"cluster" : "Moirai",
-	},
-	
-]
 
 ############### FUNCTIONS ###############
+import random
+random.seed(seed)
+# Quantity according to frequency
+# https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
+chars_low_v = "y"+"u"*2+"oi"*4+"a"*5+"e"*6
+chars_low_c = "qjzx"+"vk"*5+"w"*7+"f"*9+"b"*11\
+	+"g"*12+"hm"*15+"p"*16+"d"*17+"c"*23+"l"*28\
+	+"s"*29+"n"*34+"t"*35+"r"*39
+
+chars_low_c = ''.join(random.sample(chars_low_c,len(chars_low_c)))
+chars_low_v = ''.join(random.sample(chars_low_v,len(chars_low_v)))
+
+
 generated_systems_random = []
 generated_systems_preset = []
+generated_names = []
 
 def system_random_generation(star_id, cluster_name):
-	print("rnd ", star_id, cluster_name)
-	#generated_systems_random.append(1)
+	p = ""
+	p += "Star cluster: " + cluster_name + "\n"
+	p += "System ID: " + str(star_id) + "\n"
+	p += "System name (gen): " + random_system_name(5, 6) + "\n"
+	p += "Total number of stars (gen): " + str(random_star_number()) + "\n"
+	p += "Total number of planets (gen): " + str(random_planet_number())+ "\n"
 	
-def system_preset_generation(system):
-	print("DEF ", system)
-	#generated_systems_preset.append(1)
+	print(p)
+	
+def system_preset_generation(star_id, system):
+	p = ""
+	p += "System ID: " + str(star_id) + "\n"
+	
+	if "cluster" in system:
+		p += "Star cluster: " + system["cluster"] + "\n"
+	else:
+		p += "Star cluster: unspecified" + "\n"
+	
+	if "name" in system:
+		p += "System name: " + system["name"] + "\n"
+	else:
+		p += "System name (gen): " + random_system_name(5, 6) + "\n"
+	
+	if "total_stars" in system:
+		p += "Total number of stars: " + str(system["total_stars"]) + "\n"
+	else:
+		p += "Total number of stars (gen): " + str(random_star_number())+ "\n"
+		
+	if "total_planets" in system:
+		p += "Total number of planets: " + str(system["total_planets"]) + "\n"
+	else:
+		p += "Total number of planets (gen): " + str(random_planet_number())+ "\n"
+	
+	print(p)
+	
+def random_star_number():
+	num = int(random.random()*random.randint(num_stars_min, num_stars_max))
+	if num == 0:
+		num =1
+	return num
+	
+def random_planet_number():
+	num = int(random.random()*random.randint(num_planets_min, num_planets_max))
+	return num
+
+def random_system_name(min, max):
+	system_name = random_name(min, max)
+	if not system_name in generated_names:
+		generated_names.append(system_name)
+	else:
+		print("duplicate name: ", system_name)
+		while system_name in generated_names:
+			system_name = random_name(min, max)
+	return system_name
+
+def random_name(length_max, length_min):
+	length = random.randint(length_max, length_min)
+	vowel_ratio = 0.5
+	r = random.random()
+	max_vowels_consequtive = 0
+	max_cosonants_consequiteve = 0
+	if r < 0.3:
+		max_vowels_consequtive = 1
+		max_cosonants_consequiteve = 2
+	elif r > 0.3 and r < 0.6:
+		max_vowels_consequtive = 2
+		max_cosonants_consequiteve = 2
+	else:
+		max_vowels_consequtive = 1
+		max_cosonants_consequiteve = 1
+		length += 1
+		
+	num_v = 0
+	num_c = 0
+	str = ''
+	for ch in range(length):
+		r = random.random()
+		if r < vowel_ratio:
+			if num_v < max_vowels_consequtive:
+				str += ''.join(random.choices(chars_low_v, k=1))
+				num_v += 1
+				num_c = 0
+			else:
+				str += ''.join(random.choices(chars_low_c, k=1))
+				num_v = 0
+				num_c += 1
+		else:
+			if num_c < max_cosonants_consequiteve:
+				str += ''.join(random.choices(chars_low_c, k=1))
+				num_c += 1
+				num_v = 0
+			else:
+				str += ''.join(random.choices(chars_low_v, k=1))
+				num_c = 0
+				num_v += 1
+	
+	#str = str.replace("rs", "ras")
+	if (str[0] in chars_low_c and str[1] in chars_low_c):
+		str = str[1:]
+	
+	if  str[0] == 'x':
+		str = str[1:]
+		
+	if  str[len(str)-1] == 'x':
+		str = str[:len(str)-1]
+		
+	if  str[len(str)-1] == 'y':
+		str = str[:len(str)-1]
+	
+	return str.capitalize()
 
 ############### MAIN ###############
 print("Generation begin")
@@ -186,13 +311,13 @@ for cluster in clusters:
 			# Proceed with user-defined list.
 			# If cluster name matches - proceed with data.
 			if systems[star_id]["cluster"] == cluster_name:
-				system_preset_generation(systems[star_id])
+				system_preset_generation(star_id, systems[star_id])
 				generated_stars += 1
 			# If clustee name is different - skip to random.
 			else:
 				system_random_generation(star_id, cluster_name)
 				generated_stars += 1
-		except:
+		except IndexError:
 			# Proceed with generation at random.
 			system_random_generation(star_id, cluster_name)
 			generated_stars += 1
