@@ -20,6 +20,7 @@ FPS can be adjusted with the internal render quality.
 
 [Versions changelog](Doc/changelog.md)  
 [TODO list](Doc/todo.md)  
+[Credits](Doc/credits.md)  
 
 
 ## How to play (edit) the game
