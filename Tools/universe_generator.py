@@ -6,7 +6,7 @@
 # Specify the cluster and a number of systems in it.
 # Those systems will be written in Universe/Universe_random.md
 clusters = [
-	("Moirai", 1000),
+	("Moirai", 200),
 ]
 
 # If user_defined stars and planets are set - they will be written to
@@ -66,6 +66,9 @@ systems = [
 # General
 seed = "GDTLancer"
 
+import os
+cwd = os.path.normpath(os.getcwd())
+
 # Sun data for reference
 sun_diameter = 1.39e9
 sun_density = 1408 # kg / m3
@@ -82,7 +85,26 @@ sun_omni_sidstance = 1e13 # GODOT omni light
 # Luminocity formula
 # https://www.quora.com/What-is-the-formula-between-the-temperature-and-luminosity-of-a-main-sequence-star
 # L = (7.12560265e-7 Wm⁻²K⁻⁴) R²T⁴
-lum_sigma = 7.12560265e-7
+c_lum = 7.12560265e-7
+
+# Wavelength constant. nm*K
+c_wien = 2897771.9 
+# Spectrum margins. In nanometers.
+# X-ray. https://en.m.wikipedia.org/wiki/X-ray
+wl_xray_min = 0.01
+# Ultraviolet. https://en.m.wikipedia.org/wiki/Ultraviolet
+wl_euv_min = 10
+wl_fuv_min = 122
+wl_muv_min = 200
+wl_nuv_min = 300
+# Visible. https://en.m.wikipedia.org/wiki/Light
+wl_visible_min = 400
+# Infrared. https://en.m.wikipedia.org/wiki/Infrared#Regions_within_the_infrared
+wl_nir_min = 700
+wl_swir_min = 1400
+wl_mwir_min = 3000
+wl_lwir_min = 8000
+wl_fir_min = 15000
 
 # Companion stars for the main star.
 num_stars_min = 0
@@ -218,15 +240,12 @@ import random as random_planet_num
 import random as random_planet_val
 import random as random_char
 
-
 random_star_num.seed(seed + '153gf67')
 random_star_abundance.seed(seed + 'hwhdd34')
 random_star_val.seed(seed + 'gj754')
 random_planet_num.seed(seed + '2hf5578')
 random_planet_val.seed(seed + 'wyf7eh')
 random_char.seed(seed + '3643rg')
-
-
 
 # Quantity according to frequency
 # https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
@@ -258,6 +277,8 @@ def e(x):
 	return  "{:.2e}".format(x)
 
 
+
+###### FORMATTING ######
 def system_generation(star_id, system, cluster_name):
 	
 	global output
@@ -294,6 +315,8 @@ def system_generation(star_id, system, cluster_name):
 	# Format the number for temperature.
 	star_temp = round(main_star["temperature"])
 	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
+	
+	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
 	
 	p = ""
 	p += "# System ID: " + str(star_id) + "  \n"
@@ -338,6 +361,9 @@ def system_generation(star_id, system, cluster_name):
 	p += "* Temperature: " + str(star_temp_rel) + " T☉" + "  \n"
 	p += "* Luminosity: " + str(star_lum_rel) + " L☉" + "  \n"
 	
+	p += "#### Spectral data."+ "  \n"
+	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "  \n"
+	
 	p += "\n </details>" + "  \n"
 	
 	p += "\n---\n"
@@ -346,6 +372,7 @@ def system_generation(star_id, system, cluster_name):
 	
 
 
+###### STAR FUNCTIONS #######
 def random_star(user_defined_type):
 	global total_number_o_stars
 	global total_number_b_stars
@@ -423,28 +450,37 @@ def random_star(user_defined_type):
 		total_number_all_stars += 1
 	
 	star_lum = get_strar_lum(star_size, star_temp)
+	star_peak_wavelength = get_strar_peak_wavelength(star_temp)
 	
 	star = {
 		"type" : star_type,
 		"size" : star_size,
 		"luminosity" : star_lum,
 		"temperature" : star_temp,
+		"peak_wavelength":  star_peak_wavelength,
 	}
 	
 	return star
 	
-
 def get_strar_lum(star_size, star_temp):
-	lum = 7.12560265e-7 * pow((star_size/2), 2) * pow(star_temp, 4)
+	lum = c_lum * pow((star_size/2), 2) * pow(star_temp, 4)
 	return lum
 	
+def get_strar_peak_wavelength(star_temp):
+	peak_wavelength = 0
+	if star_temp > 0:
+		peak_wavelength = c_wien / star_temp
+	return peak_wavelength
 
 def random_star_number():
 	num = int(random_star_num.random()*random_star_num.randint(num_stars_min, num_stars_max))
 	if num == 0:
 		num =1
 	return num
-	
+
+
+
+###### PLANET FUNCTIONS #######
 def random_planet_number(star_type):
 	num = 0
 	if star_type == "O":
@@ -464,6 +500,9 @@ def random_planet_number(star_type):
 		
 	return num
 
+
+
+###### NAMING ######
 def random_system_name(min, max):
 	system_name = random_name(min, max)
 	if not system_name in generated_names:
@@ -530,6 +569,8 @@ def random_name(length_max, length_min):
 	
 	return str.capitalize()
 
+
+
 ############### MAIN ###############
 import os
 try:
@@ -556,7 +597,7 @@ print("Generation done: Universe/Universe_preset.md")
 print()
 
 
-f = open("Universe/Universe_preset.md", "w")
+f = open(cwd + "/Doc/Universe/Universe_preset.md", "w")
 f.write(output)
 f.close()
 #print(output)
@@ -615,7 +656,7 @@ print("All - ", total_number_all_stars)
 print("Generation done: Universe/Universe_random.md")
 
 
-f = open("Universe/Universe_random.md", "w")
+f = open(cwd + "/Doc/Universe/Universe_random.md", "w")
 f.write(output)
 f.close()
 #print(output)

@@ -94,6 +94,7 @@ def main_menu():
 		print_main_ops()
 		if inp == "t": target_tree()
 		elif inp == "g": grep_search()
+		elif inp == "u": generate_universe()
 		elif inp == "todo": todo()
 		elif inp == "git": git_menu(); print_main_ops()
 		elif inp == "q": cl_divider(); quit()
@@ -231,6 +232,7 @@ def print_main_ops():
 	divider()
 	print(tw_i.fill('(g) - "grep" the source folder files'))
 	print(tw_i.fill('(t) - "tree" the target folder'))
+	print(tw_i.fill('(u) - generate universe reference docs'))
 	print(tw_i.fill('(todo) - find all "todo" comments'))
 	print()
 	print(tw_i.fill('(git) - git menu'))
@@ -338,6 +340,12 @@ def grep_search():
 def todo():
 	cl_divider();
 	os.system('grep --exclude="*.py" --exclude-dir=".git" -rni --color=always "todo" .')
+
+def generate_universe():
+	cl_divider();
+	import Tools.universe_generator as ug
+	ug
+	
 
 #Start
 while True:

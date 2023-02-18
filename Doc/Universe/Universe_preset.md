@@ -14,6 +14,8 @@ Total number of planets: 10
 * Size: 7.926 D☉  
 * Temperature: 6.8 T☉  
 * Luminosity: 134441 L☉  
+#### Spectral data.  
+* Peak wavelength: 74.0 nm  
 
  </details>  
 
@@ -34,6 +36,8 @@ Total number of planets (gen): 9
 * Size: 3.782 D☉  
 * Temperature: 4.65 T☉  
 * Luminosity: 6665 L☉  
+#### Spectral data.  
+* Peak wavelength: 108.0 nm  
 
  </details>  
 
@@ -54,6 +58,8 @@ Total number of planets (gen): 0
 * Size: 0.491 D☉  
 * Temperature: 0.57 T☉  
 * Luminosity: 0.025 L☉  
+#### Spectral data.  
+* Peak wavelength: 881.0 nm  
 
  </details>  
 
@@ -74,6 +80,8 @@ Total number of planets (gen): 5
 * Size: 1.757 D☉  
 * Temperature: 1.7 T☉  
 * Luminosity: 25.6 L☉  
+#### Spectral data.  
+* Peak wavelength: 296.0 nm  
 
  </details>  
 
