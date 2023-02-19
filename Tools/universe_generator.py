@@ -980,7 +980,7 @@ def system_generation(star_id, system, cluster_name):
 	else:
 		p += "### Main star (generated): " + star_name + " A (" + star_type[0] + str(star_type[1]) + ")" + "  \n"
 	
-	#p += "<details><summary>Main star details</summary>" + "  \n\n"
+	p += "<details><summary>Main star details</summary>" + "  \n\n"
 	
 	p += "#### Absolute units." + "  \n"
 	p += "* Size: " + str(star_size) + " m" + "  \n"
@@ -1001,7 +1001,7 @@ def system_generation(star_id, system, cluster_name):
 	p += " | " + str(star_peak_wavelength_colorcode)
 	p += " | #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
 	
-	#p += "\n </details>" + "  \n"
+	p += "\n </details>" + "  \n"
 	
 	p += "\n---\n"
 	

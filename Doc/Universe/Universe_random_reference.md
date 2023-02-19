@@ -4,6 +4,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tegan A (G5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.57e+09 m  
 * Temperature: 5614 K  
@@ -18,6 +20,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f0ff00](Colors/f0ff00.png) | (240, 255, 0) | #f0ff00  
 
+ </details>  
+
 ---
 # System ID: 1  
 ## System name (generated): Eetasn  
@@ -25,6 +29,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Eetasn A (A3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.19e+09 m  
 * Temperature: 8327 K  
@@ -39,6 +45,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![6dff45](Colors/6dff45.png) | (109, 255, 69) | #6dff45  
 
+ </details>  
+
 ---
 # System ID: 2  
 ## System name (generated): Mivites  
@@ -46,6 +54,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Mivites A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.96e+08 m  
 * Temperature: 3510 K  
@@ -60,6 +70,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff2500](Colors/ff2500.png) | (255, 37, 0) | #ff2500  
 
+ </details>  
+
 ---
 # System ID: 3  
 ## System name (generated): Elnoe  
@@ -67,6 +79,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Elnoe A (A0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.34e+09 m  
 * Temperature: 7575 K  
@@ -81,6 +95,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![9bff00](Colors/9bff00.png) | (155, 255, 0) | #9bff00  
 
+ </details>  
+
 ---
 # System ID: 4  
 ## System name (generated): Atemuse  
@@ -88,6 +104,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Atemuse A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.32e+08 m  
 * Temperature: 2955 K  
@@ -102,6 +120,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![dd0000](Colors/dd0000.png) | (221, 0, 0) | #dd0000  
 
+ </details>  
+
 ---
 # System ID: 5  
 ## System name (generated): Cilse  
@@ -109,6 +129,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Cilse A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -122,6 +144,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 6  
@@ -130,6 +154,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Lisere A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -144,6 +170,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 7  
 ## System name (generated): Ohmikn  
@@ -151,6 +179,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Ohmikn A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.64e+08 m  
 * Temperature: 2535 K  
@@ -165,6 +195,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a70000](Colors/a70000.png) | (167, 0, 0) | #a70000  
 
+ </details>  
+
 ---
 # System ID: 8  
 ## System name (generated): Aesteu  
@@ -172,6 +204,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aesteu A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.51e+08 m  
 * Temperature: 3311 K  
@@ -186,6 +220,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0000](Colors/ff0000.png) | (255, 0, 0) | #ff0000  
 
+ </details>  
+
 ---
 # System ID: 9  
 ## System name (generated): Icreld  
@@ -193,6 +229,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Icreld A (K9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.07e+09 m  
 * Temperature: 5127 K  
@@ -207,6 +245,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffec00](Colors/ffec00.png) | (255, 236, 0) | #ffec00  
 
+ </details>  
+
 ---
 # System ID: 10  
 ## System name (generated): Efuvco  
@@ -214,6 +254,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Efuvco A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.41e+08 m  
 * Temperature: 2411 K  
@@ -228,6 +270,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![960000](Colors/960000.png) | (150, 0, 0) | #960000  
 
+ </details>  
+
 ---
 # System ID: 11  
 ## System name (generated): Ralafo  
@@ -235,6 +279,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ralafo A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.93e+08 m  
 * Temperature: 3298 K  
@@ -249,6 +295,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![fc0000](Colors/fc0000.png) | (252, 0, 0) | #fc0000  
 
+ </details>  
+
 ---
 # System ID: 12  
 ## System name (generated): Arimar  
@@ -256,6 +304,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Arimar A (F0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.77e+09 m  
 * Temperature: 6067 K  
@@ -270,6 +320,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![d7ff00](Colors/d7ff00.png) | (215, 255, 0) | #d7ff00  
 
+ </details>  
+
 ---
 # System ID: 13  
 ## System name (generated): Ogispa  
@@ -277,6 +329,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ogispa A (K6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.23e+09 m  
 * Temperature: 4635 K  
@@ -291,6 +345,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffc000](Colors/ffc000.png) | (255, 192, 0) | #ffc000  
 
+ </details>  
+
 ---
 # System ID: 14  
 ## System name (generated): Onorim  
@@ -298,6 +354,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Onorim A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -312,6 +370,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 15  
 ## System name (generated): Denilo  
@@ -319,6 +379,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Denilo A (B5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.08e+09 m  
 * Temperature: 21080 K  
@@ -333,6 +395,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![00a5ff](Colors/00a5ff.png) | (0, 165, 255) | #00a5ff  
 
+ </details>  
+
 ---
 # System ID: 16  
 ## System name (generated): Ehepeto  
@@ -340,6 +404,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ehepeto A (G5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.45e+09 m  
 * Temperature: 5652 K  
@@ -354,6 +420,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ebff00](Colors/ebff00.png) | (235, 255, 0) | #ebff00  
 
+ </details>  
+
 ---
 # System ID: 17  
 ## System name (generated): Waikra  
@@ -361,6 +429,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Waikra A (A1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.12e+09 m  
 * Temperature: 7754 K  
@@ -375,6 +445,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![96ff00](Colors/96ff00.png) | (150, 255, 0) | #96ff00  
 
+ </details>  
+
 ---
 # System ID: 18  
 ## System name (generated): Ecerici  
@@ -382,6 +454,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ecerici A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.46e+08 m  
 * Temperature: 3469 K  
@@ -396,6 +470,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1f00](Colors/ff1f00.png) | (255, 31, 0) | #ff1f00  
 
+ </details>  
+
 ---
 # System ID: 19  
 ## System name (generated): Inlamo  
@@ -403,6 +479,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Inlamo A (K7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.31e+09 m  
 * Temperature: 4875 K  
@@ -417,6 +495,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffd300](Colors/ffd300.png) | (255, 211, 0) | #ffd300  
 
+ </details>  
+
 ---
 # System ID: 20  
 ## System name (generated): Acidew  
@@ -424,6 +504,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Acidew A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.29e+08 m  
 * Temperature: 3336 K  
@@ -438,6 +520,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0000](Colors/ff0000.png) | (255, 0, 0) | #ff0000  
 
+ </details>  
+
 ---
 # System ID: 21  
 ## System name (generated): Itoman  
@@ -445,6 +529,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Itoman A (F3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.60e+09 m  
 * Temperature: 6579 K  
@@ -459,6 +545,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![beff00](Colors/beff00.png) | (190, 255, 0) | #beff00  
 
+ </details>  
+
 ---
 # System ID: 22  
 ## System name (generated): Bituhan  
@@ -466,6 +554,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Bituhan A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.41e+08 m  
 * Temperature: 3166 K  
@@ -480,6 +570,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f20000](Colors/f20000.png) | (242, 0, 0) | #f20000  
 
+ </details>  
+
 ---
 # System ID: 23  
 ## System name (generated): Niatii  
@@ -487,6 +579,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Niatii A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -500,6 +594,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 24  
@@ -508,6 +604,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Esdeyf A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -522,6 +620,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 25  
 ## System name (generated): Rarase  
@@ -529,6 +629,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Rarase A (K9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.13e+09 m  
 * Temperature: 5103 K  
@@ -543,6 +645,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffec00](Colors/ffec00.png) | (255, 236, 0) | #ffec00  
 
+ </details>  
+
 ---
 # System ID: 26  
 ## System name (generated): Nicina  
@@ -550,6 +654,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Nicina A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.93e+08 m  
 * Temperature: 2455 K  
@@ -564,6 +670,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![9d0000](Colors/9d0000.png) | (157, 0, 0) | #9d0000  
 
+ </details>  
+
 ---
 # System ID: 27  
 ## System name (generated): Gorah  
@@ -571,6 +679,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Gorah A (A6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.12e+09 m  
 * Temperature: 9166 K  
@@ -585,6 +695,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![36ffa2](Colors/36ffa2.png) | (54, 255, 162) | #36ffa2  
 
+ </details>  
+
 ---
 # System ID: 28  
 ## System name (generated): Fisuhen  
@@ -592,6 +704,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Fisuhen A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.80e+08 m  
 * Temperature: 2705 K  
@@ -606,6 +720,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![be0000](Colors/be0000.png) | (190, 0, 0) | #be0000  
 
+ </details>  
+
 ---
 # System ID: 29  
 ## System name (generated): Astev  
@@ -613,6 +729,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Astev A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.96e+08 m  
 * Temperature: 3588 K  
@@ -627,6 +745,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3100](Colors/ff3100.png) | (255, 49, 0) | #ff3100  
 
+ </details>  
+
 ---
 # System ID: 30  
 ## System name (generated): Uinol  
@@ -634,6 +754,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Uinol A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.38e+08 m  
 * Temperature: 3657 K  
@@ -648,6 +770,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3e00](Colors/ff3e00.png) | (255, 62, 0) | #ff3e00  
 
+ </details>  
+
 ---
 # System ID: 31  
 ## System name (generated): Aradaro  
@@ -655,6 +779,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aradaro A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.62e+08 m  
 * Temperature: 3510 K  
@@ -669,6 +795,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff2500](Colors/ff2500.png) | (255, 37, 0) | #ff2500  
 
+ </details>  
+
 ---
 # System ID: 32  
 ## System name (generated): Acalih  
@@ -676,6 +804,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Acalih A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -690,6 +820,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 33  
 ## System name (generated): Pidoco  
@@ -697,6 +829,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Pidoco A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.67e+08 m  
 * Temperature: 3618 K  
@@ -711,6 +845,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3700](Colors/ff3700.png) | (255, 55, 0) | #ff3700  
 
+ </details>  
+
 ---
 # System ID: 34  
 ## System name (generated): Lirar  
@@ -718,6 +854,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Lirar A (A6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.30e+09 m  
 * Temperature: 9100 K  
@@ -732,6 +870,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![36ffa2](Colors/36ffa2.png) | (54, 255, 162) | #36ffa2  
 
+ </details>  
+
 ---
 # System ID: 35  
 ## System name (generated): Seco  
@@ -739,6 +879,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Seco A (A2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.18e+09 m  
 * Temperature: 8017 K  
@@ -753,6 +895,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![88ff17](Colors/88ff17.png) | (136, 255, 23) | #88ff17  
 
+ </details>  
+
 ---
 # System ID: 36  
 ## System name (generated): Fipami  
@@ -760,6 +904,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Fipami A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -774,6 +920,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 37  
 ## System name (generated): Receco  
@@ -781,6 +929,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Receco A (K1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.27e+09 m  
 * Temperature: 3971 K  
@@ -795,6 +945,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff6f00](Colors/ff6f00.png) | (255, 111, 0) | #ff6f00  
 
+ </details>  
+
 ---
 # System ID: 38  
 ## System name (generated): Ototil  
@@ -802,6 +954,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ototil A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -815,6 +969,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 39  
@@ -823,6 +979,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Edosama A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -837,6 +995,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 40  
 ## System name (generated): Urybyf  
@@ -844,6 +1004,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Urybyf A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.00e+08 m  
 * Temperature: 3417 K  
@@ -858,6 +1020,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1200](Colors/ff1200.png) | (255, 18, 0) | #ff1200  
 
+ </details>  
+
 ---
 # System ID: 41  
 ## System name (generated): Soecai  
@@ -865,6 +1029,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Soecai A (G4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.58e+09 m  
 * Temperature: 5558 K  
@@ -879,6 +1045,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f5ff00](Colors/f5ff00.png) | (245, 255, 0) | #f5ff00  
 
+ </details>  
+
 ---
 # System ID: 42  
 ## System name (generated): Lelear  
@@ -886,6 +1054,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Lelear A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -900,6 +1070,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 43  
 ## System name (generated): Elevetu  
@@ -907,6 +1079,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Elevetu A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.84e+08 m  
 * Temperature: 2754 K  
@@ -921,6 +1095,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c60000](Colors/c60000.png) | (198, 0, 0) | #c60000  
 
+ </details>  
+
 ---
 # System ID: 44  
 ## System name (generated): Ciropoc  
@@ -928,6 +1104,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ciropoc A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.42e+08 m  
 * Temperature: 2952 K  
@@ -942,6 +1120,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![db0000](Colors/db0000.png) | (219, 0, 0) | #db0000  
 
+ </details>  
+
 ---
 # System ID: 45  
 ## System name (generated): Abopip  
@@ -949,6 +1129,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Abopip A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.73e+08 m  
 * Temperature: 2484 K  
@@ -963,6 +1145,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a20000](Colors/a20000.png) | (162, 0, 0) | #a20000  
 
+ </details>  
+
 ---
 # System ID: 46  
 ## System name (generated): Enehh  
@@ -970,6 +1154,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 4  
 Total number of planets (generated): 0  
 ### Main star (generated): Enehh A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.79e+08 m  
 * Temperature: 2621 K  
@@ -984,6 +1170,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![b40000](Colors/b40000.png) | (180, 0, 0) | #b40000  
 
+ </details>  
+
 ---
 # System ID: 47  
 ## System name (generated): Tokenow  
@@ -991,6 +1179,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tokenow A (B5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.16e+09 m  
 * Temperature: 20126 K  
@@ -1005,6 +1195,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![00aaff](Colors/00aaff.png) | (0, 170, 255) | #00aaff  
 
+ </details>  
+
 ---
 # System ID: 48  
 ## System name (generated): Ebreet  
@@ -1012,6 +1204,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Ebreet A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.94e+08 m  
 * Temperature: 3334 K  
@@ -1026,6 +1220,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0000](Colors/ff0000.png) | (255, 0, 0) | #ff0000  
 
+ </details>  
+
 ---
 # System ID: 49  
 ## System name (generated): Geryn  
@@ -1033,6 +1229,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Geryn A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.25e+08 m  
 * Temperature: 2502 K  
@@ -1047,6 +1245,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a50000](Colors/a50000.png) | (165, 0, 0) | #a50000  
 
+ </details>  
+
 ---
 # System ID: 50  
 ## System name (generated): Diucn  
@@ -1054,6 +1254,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Diucn A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.43e+08 m  
 * Temperature: 2870 K  
@@ -1068,6 +1270,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![d30000](Colors/d30000.png) | (211, 0, 0) | #d30000  
 
+ </details>  
+
 ---
 # System ID: 51  
 ## System name (generated): Ebjamt  
@@ -1075,6 +1279,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ebjamt A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.32e+08 m  
 * Temperature: 3005 K  
@@ -1089,6 +1295,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e20000](Colors/e20000.png) | (226, 0, 0) | #e20000  
 
+ </details>  
+
 ---
 # System ID: 52  
 ## System name (generated): Essifu  
@@ -1096,6 +1304,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Essifu A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.93e+08 m  
 * Temperature: 3119 K  
@@ -1110,6 +1320,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ed0000](Colors/ed0000.png) | (237, 0, 0) | #ed0000  
 
+ </details>  
+
 ---
 # System ID: 53  
 ## System name (generated): Isobop  
@@ -1117,6 +1329,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 4  
 Total number of planets (generated): 0  
 ### Main star (generated): Isobop A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.67e+08 m  
 * Temperature: 3012 K  
@@ -1131,6 +1345,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e20000](Colors/e20000.png) | (226, 0, 0) | #e20000  
 
+ </details>  
+
 ---
 # System ID: 54  
 ## System name (generated): Ytlan  
@@ -1138,6 +1354,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Ytlan A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.83e+08 m  
 * Temperature: 3239 K  
@@ -1152,6 +1370,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f70000](Colors/f70000.png) | (247, 0, 0) | #f70000  
 
+ </details>  
+
 ---
 # System ID: 55  
 ## System name (generated): Agocolo  
@@ -1159,6 +1379,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Agocolo A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.49e+08 m  
 * Temperature: 2455 K  
@@ -1173,6 +1395,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![9d0000](Colors/9d0000.png) | (157, 0, 0) | #9d0000  
 
+ </details>  
+
 ---
 # System ID: 56  
 ## System name (generated): Efofoti  
@@ -1180,6 +1404,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Efofoti A (G9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.40e+09 m  
 * Temperature: 5922 K  
@@ -1194,6 +1420,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e1ff00](Colors/e1ff00.png) | (225, 255, 0) | #e1ff00  
 
+ </details>  
+
 ---
 # System ID: 57  
 ## System name (generated): Nenen  
@@ -1201,6 +1429,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 6  
 Total number of planets (generated): 0  
 ### Main star (generated): Nenen A (G2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.49e+09 m  
 * Temperature: 5367 K  
@@ -1215,6 +1445,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffff00](Colors/ffff00.png) | (255, 255, 0) | #ffff00  
 
+ </details>  
+
 ---
 # System ID: 58  
 ## System name (generated): Ratilom  
@@ -1222,6 +1454,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ratilom A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.38e+08 m  
 * Temperature: 3482 K  
@@ -1236,6 +1470,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1f00](Colors/ff1f00.png) | (255, 31, 0) | #ff1f00  
 
+ </details>  
+
 ---
 # System ID: 59  
 ## System name (generated): Calyl  
@@ -1243,6 +1479,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Calyl A (K2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.10e+09 m  
 * Temperature: 4108 K  
@@ -1257,6 +1495,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff8200](Colors/ff8200.png) | (255, 130, 0) | #ff8200  
 
+ </details>  
+
 ---
 # System ID: 60  
 ## System name (generated): Ronarat  
@@ -1264,6 +1504,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 4  
 Total number of planets (generated): 0  
 ### Main star (generated): Ronarat A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1277,6 +1519,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 61  
@@ -1285,6 +1529,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ifanok A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1299,6 +1545,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 62  
 ## System name (generated): Elacel  
@@ -1306,6 +1554,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Elacel A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.08e+08 m  
 * Temperature: 2872 K  
@@ -1320,6 +1570,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![d30000](Colors/d30000.png) | (211, 0, 0) | #d30000  
 
+ </details>  
+
 ---
 # System ID: 63  
 ## System name (generated): Uvtiht  
@@ -1327,6 +1579,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Uvtiht A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.91e+08 m  
 * Temperature: 2790 K  
@@ -1341,6 +1595,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c90000](Colors/c90000.png) | (201, 0, 0) | #c90000  
 
+ </details>  
+
 ---
 # System ID: 64  
 ## System name (generated): Apnysd  
@@ -1348,6 +1604,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Apnysd A (A4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.46e+09 m  
 * Temperature: 8524 K  
@@ -1362,6 +1620,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![5fff5c](Colors/5fff5c.png) | (95, 255, 92) | #5fff5c  
 
+ </details>  
+
 ---
 # System ID: 65  
 ## System name (generated): Icrasu  
@@ -1369,6 +1629,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Icrasu A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.31e+08 m  
 * Temperature: 3371 K  
@@ -1383,6 +1645,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0c00](Colors/ff0c00.png) | (255, 12, 0) | #ff0c00  
 
+ </details>  
+
 ---
 # System ID: 66  
 ## System name (generated): Ranotot  
@@ -1390,6 +1654,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ranotot A (G8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.41e+09 m  
 * Temperature: 5847 K  
@@ -1404,6 +1670,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e1ff00](Colors/e1ff00.png) | (225, 255, 0) | #e1ff00  
 
+ </details>  
+
 ---
 # System ID: 67  
 ## System name (generated): Utlos  
@@ -1411,6 +1679,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Utlos A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.12e+08 m  
 * Temperature: 2479 K  
@@ -1425,6 +1695,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a00000](Colors/a00000.png) | (160, 0, 0) | #a00000  
 
+ </details>  
+
 ---
 # System ID: 68  
 ## System name (generated): Meqii  
@@ -1432,6 +1704,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Meqii A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.83e+08 m  
 * Temperature: 2743 K  
@@ -1446,6 +1720,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c40000](Colors/c40000.png) | (196, 0, 0) | #c40000  
 
+ </details>  
+
 ---
 # System ID: 69  
 ## System name (generated): Letal  
@@ -1453,6 +1729,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Letal A (B2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.05e+09 m  
 * Temperature: 14045 K  
@@ -1467,6 +1745,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![00cdff](Colors/00cdff.png) | (0, 205, 255) | #00cdff  
 
+ </details>  
+
 ---
 # System ID: 70  
 ## System name (generated): Icotoha  
@@ -1474,6 +1754,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Icotoha A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.82e+08 m  
 * Temperature: 3594 K  
@@ -1488,6 +1770,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3100](Colors/ff3100.png) | (255, 49, 0) | #ff3100  
 
+ </details>  
+
 ---
 # System ID: 71  
 ## System name (generated): Poliren  
@@ -1495,6 +1779,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Poliren A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1508,6 +1794,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 72  
@@ -1516,6 +1804,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Roewoe A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1530,6 +1820,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 73  
 ## System name (generated): Iletide  
@@ -1537,6 +1829,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Iletide A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.21e+08 m  
 * Temperature: 3572 K  
@@ -1551,6 +1845,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3100](Colors/ff3100.png) | (255, 49, 0) | #ff3100  
 
+ </details>  
+
 ---
 # System ID: 74  
 ## System name (generated): Tuabn  
@@ -1558,6 +1854,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tuabn A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1571,6 +1869,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 75  
@@ -1579,6 +1879,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tesr A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1592,6 +1894,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 76  
@@ -1600,6 +1904,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ananit A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1614,6 +1920,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 77  
 ## System name (generated): Niboto  
@@ -1621,6 +1929,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Niboto A (F9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.89e+09 m  
 * Temperature: 7361 K  
@@ -1635,6 +1945,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a5ff00](Colors/a5ff00.png) | (165, 255, 0) | #a5ff00  
 
+ </details>  
+
 ---
 # System ID: 78  
 ## System name (generated): Tiledi  
@@ -1642,6 +1954,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tiledi A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.33e+08 m  
 * Temperature: 3218 K  
@@ -1656,6 +1970,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f70000](Colors/f70000.png) | (247, 0, 0) | #f70000  
 
+ </details>  
+
 ---
 # System ID: 79  
 ## System name (generated): Ceca  
@@ -1663,6 +1979,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ceca A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.13e+08 m  
 * Temperature: 2513 K  
@@ -1677,6 +1995,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a50000](Colors/a50000.png) | (165, 0, 0) | #a50000  
 
+ </details>  
+
 ---
 # System ID: 80  
 ## System name (generated): Aeryc  
@@ -1684,6 +2004,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aeryc A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1698,6 +2020,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 81  
 ## System name (generated): Equbera  
@@ -1705,6 +2029,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Equbera A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.26e+08 m  
 * Temperature: 3365 K  
@@ -1719,6 +2045,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0600](Colors/ff0600.png) | (255, 6, 0) | #ff0600  
 
+ </details>  
+
 ---
 # System ID: 82  
 ## System name (generated): Lokt  
@@ -1726,6 +2054,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Lokt A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.84e+08 m  
 * Temperature: 3617 K  
@@ -1740,6 +2070,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3700](Colors/ff3700.png) | (255, 55, 0) | #ff3700  
 
+ </details>  
+
 ---
 # System ID: 83  
 ## System name (generated): Tilepeg  
@@ -1747,6 +2079,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tilepeg A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.83e+08 m  
 * Temperature: 2455 K  
@@ -1761,6 +2095,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![9d0000](Colors/9d0000.png) | (157, 0, 0) | #9d0000  
 
+ </details>  
+
 ---
 # System ID: 84  
 ## System name (generated): Aronido  
@@ -1768,6 +2104,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aronido A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.67e+08 m  
 * Temperature: 2974 K  
@@ -1782,6 +2120,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![dd0000](Colors/dd0000.png) | (221, 0, 0) | #dd0000  
 
+ </details>  
+
 ---
 # System ID: 85  
 ## System name (generated): Ecubuc  
@@ -1789,6 +2129,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Ecubuc A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1803,6 +2145,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 86  
 ## System name (generated): Cidot  
@@ -1810,6 +2154,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Cidot A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.15e+08 m  
 * Temperature: 2405 K  
@@ -1824,6 +2170,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![960000](Colors/960000.png) | (150, 0, 0) | #960000  
 
+ </details>  
+
 ---
 # System ID: 87  
 ## System name (generated): Wilhe  
@@ -1831,6 +2179,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Wilhe A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.40e+08 m  
 * Temperature: 3286 K  
@@ -1845,6 +2195,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![fc0000](Colors/fc0000.png) | (252, 0, 0) | #fc0000  
 
+ </details>  
+
 ---
 # System ID: 88  
 ## System name (generated): Ecitiro  
@@ -1852,6 +2204,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Ecitiro A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1865,6 +2219,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 89  
@@ -1873,6 +2229,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Osopebe A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1887,6 +2245,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 90  
 ## System name (generated): Osixara  
@@ -1894,6 +2254,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Osixara A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.31e+08 m  
 * Temperature: 2718 K  
@@ -1908,6 +2270,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c10000](Colors/c10000.png) | (193, 0, 0) | #c10000  
 
+ </details>  
+
 ---
 # System ID: 91  
 ## System name (generated): Riipe  
@@ -1915,6 +2279,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Riipe A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.65e+08 m  
 * Temperature: 3135 K  
@@ -1929,6 +2295,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ef0000](Colors/ef0000.png) | (239, 0, 0) | #ef0000  
 
+ </details>  
+
 ---
 # System ID: 92  
 ## System name (generated): Egatahu  
@@ -1936,6 +2304,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Egatahu A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1950,6 +2320,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 93  
 ## System name (generated): Nasp  
@@ -1957,6 +2329,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Nasp A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.34e+08 m  
 * Temperature: 2593 K  
@@ -1971,6 +2345,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![b20000](Colors/b20000.png) | (178, 0, 0) | #b20000  
 
+ </details>  
+
 ---
 # System ID: 94  
 ## System name (generated): Caresan  
@@ -1978,6 +2354,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Caresan A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -1992,6 +2370,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 95  
 ## System name (generated): Sekici  
@@ -1999,6 +2379,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Sekici A (G9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.41e+09 m  
 * Temperature: 5986 K  
@@ -2013,6 +2395,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![dcff00](Colors/dcff00.png) | (220, 255, 0) | #dcff00  
 
+ </details>  
+
 ---
 # System ID: 96  
 ## System name (generated): Lokorab  
@@ -2020,6 +2404,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Lokorab A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.04e+08 m  
 * Temperature: 3062 K  
@@ -2034,6 +2420,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e70000](Colors/e70000.png) | (231, 0, 0) | #e70000  
 
+ </details>  
+
 ---
 # System ID: 97  
 ## System name (generated): Ubadfi  
@@ -2041,6 +2429,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Ubadfi A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.32e+08 m  
 * Temperature: 3441 K  
@@ -2055,6 +2445,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1800](Colors/ff1800.png) | (255, 24, 0) | #ff1800  
 
+ </details>  
+
 ---
 # System ID: 98  
 ## System name (generated): Omureco  
@@ -2062,6 +2454,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Omureco A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.43e+08 m  
 * Temperature: 3341 K  
@@ -2076,6 +2470,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0600](Colors/ff0600.png) | (255, 6, 0) | #ff0600  
 
+ </details>  
+
 ---
 # System ID: 99  
 ## System name (generated): Secog  
@@ -2083,6 +2479,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Secog A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.86e+08 m  
 * Temperature: 2691 K  
@@ -2097,6 +2495,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![be0000](Colors/be0000.png) | (190, 0, 0) | #be0000  
 
+ </details>  
+
 ---
 # System ID: 100  
 ## System name (generated): Milale  
@@ -2104,6 +2504,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Milale A (G1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.41e+09 m  
 * Temperature: 5304 K  
@@ -2118,6 +2520,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![fff800](Colors/fff800.png) | (255, 248, 0) | #fff800  
 
+ </details>  
+
 ---
 # System ID: 101  
 ## System name (generated): Ugocac  
@@ -2125,6 +2529,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Ugocac A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.47e+08 m  
 * Temperature: 2574 K  
@@ -2139,6 +2545,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![af0000](Colors/af0000.png) | (175, 0, 0) | #af0000  
 
+ </details>  
+
 ---
 # System ID: 102  
 ## System name (generated): Mawm  
@@ -2146,6 +2554,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Mawm A (G9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.39e+09 m  
 * Temperature: 5992 K  
@@ -2160,6 +2570,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![dcff00](Colors/dcff00.png) | (220, 255, 0) | #dcff00  
 
+ </details>  
+
 ---
 # System ID: 103  
 ## System name (generated): Aatais  
@@ -2167,6 +2579,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Aatais A (G9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.50e+09 m  
 * Temperature: 5998 K  
@@ -2181,6 +2595,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![dcff00](Colors/dcff00.png) | (220, 255, 0) | #dcff00  
 
+ </details>  
+
 ---
 # System ID: 104  
 ## System name (generated): Bydare  
@@ -2188,6 +2604,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Bydare A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2202,6 +2620,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 105  
 ## System name (generated): Senamu  
@@ -2209,6 +2629,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Senamu A (K5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.26e+09 m  
 * Temperature: 4474 K  
@@ -2223,6 +2645,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffae00](Colors/ffae00.png) | (255, 174, 0) | #ffae00  
 
+ </details>  
+
 ---
 # System ID: 106  
 ## System name (generated): Owemin  
@@ -2230,6 +2654,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Owemin A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.24e+08 m  
 * Temperature: 3440 K  
@@ -2244,6 +2670,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1800](Colors/ff1800.png) | (255, 24, 0) | #ff1800  
 
+ </details>  
+
 ---
 # System ID: 107  
 ## System name (generated): Egavne  
@@ -2251,6 +2679,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Egavne A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2265,6 +2695,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 108  
 ## System name (generated): Tyni  
@@ -2272,6 +2704,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Tyni A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.22e+08 m  
 * Temperature: 3293 K  
@@ -2286,6 +2720,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![fc0000](Colors/fc0000.png) | (252, 0, 0) | #fc0000  
 
+ </details>  
+
 ---
 # System ID: 109  
 ## System name (generated): Tidolir  
@@ -2293,6 +2729,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tidolir A (K3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.10e+09 m  
 * Temperature: 4198 K  
@@ -2307,6 +2745,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff8f00](Colors/ff8f00.png) | (255, 143, 0) | #ff8f00  
 
+ </details>  
+
 ---
 # System ID: 110  
 ## System name (generated): Adsoca  
@@ -2314,6 +2754,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Adsoca A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.83e+08 m  
 * Temperature: 3571 K  
@@ -2328,6 +2770,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3100](Colors/ff3100.png) | (255, 49, 0) | #ff3100  
 
+ </details>  
+
 ---
 # System ID: 111  
 ## System name (generated): Umtone  
@@ -2335,6 +2779,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Umtone A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2349,6 +2795,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 112  
 ## System name (generated): Jede  
@@ -2356,6 +2804,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Jede A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.12e+08 m  
 * Temperature: 3009 K  
@@ -2370,6 +2820,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e20000](Colors/e20000.png) | (226, 0, 0) | #e20000  
 
+ </details>  
+
 ---
 # System ID: 113  
 ## System name (generated): Nore  
@@ -2377,6 +2829,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Nore A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.20e+08 m  
 * Temperature: 3081 K  
@@ -2391,6 +2845,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ea0000](Colors/ea0000.png) | (234, 0, 0) | #ea0000  
 
+ </details>  
+
 ---
 # System ID: 114  
 ## System name (generated): Tewa  
@@ -2398,6 +2854,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tewa A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2412,6 +2870,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 115  
 ## System name (generated): Ahtavr  
@@ -2419,6 +2879,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ahtavr A (G7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.40e+09 m  
 * Temperature: 5811 K  
@@ -2433,6 +2895,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e6ff00](Colors/e6ff00.png) | (230, 255, 0) | #e6ff00  
 
+ </details>  
+
 ---
 # System ID: 116  
 ## System name (generated): Ybunifo  
@@ -2440,6 +2904,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ybunifo A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.20e+08 m  
 * Temperature: 2818 K  
@@ -2454,6 +2920,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ce0000](Colors/ce0000.png) | (206, 0, 0) | #ce0000  
 
+ </details>  
+
 ---
 # System ID: 117  
 ## System name (generated): Lanisas  
@@ -2461,6 +2929,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 4  
 Total number of planets (generated): 0  
 ### Main star (generated): Lanisas A (K7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.21e+09 m  
 * Temperature: 4849 K  
@@ -2475,6 +2945,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffd300](Colors/ffd300.png) | (255, 211, 0) | #ffd300  
 
+ </details>  
+
 ---
 # System ID: 118  
 ## System name (generated): Ysetake  
@@ -2482,6 +2954,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Ysetake A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.02e+08 m  
 * Temperature: 3638 K  
@@ -2496,6 +2970,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3700](Colors/ff3700.png) | (255, 55, 0) | #ff3700  
 
+ </details>  
+
 ---
 # System ID: 119  
 ## System name (generated): Igegaf  
@@ -2503,6 +2979,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Igegaf A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.75e+08 m  
 * Temperature: 2536 K  
@@ -2517,6 +2995,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![aa0000](Colors/aa0000.png) | (170, 0, 0) | #aa0000  
 
+ </details>  
+
 ---
 # System ID: 120  
 ## System name (generated): Aatauc  
@@ -2524,6 +3004,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aatauc A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.97e+08 m  
 * Temperature: 3242 K  
@@ -2538,6 +3020,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f70000](Colors/f70000.png) | (247, 0, 0) | #f70000  
 
+ </details>  
+
 ---
 # System ID: 121  
 ## System name (generated): Rogile  
@@ -2545,6 +3029,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Rogile A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.89e+08 m  
 * Temperature: 2794 K  
@@ -2559,6 +3045,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![cb0000](Colors/cb0000.png) | (203, 0, 0) | #cb0000  
 
+ </details>  
+
 ---
 # System ID: 122  
 ## System name (generated): Enomit  
@@ -2566,6 +3054,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Enomit A (G0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.55e+09 m  
 * Temperature: 5252 K  
@@ -2580,6 +3070,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![fff800](Colors/fff800.png) | (255, 248, 0) | #fff800  
 
+ </details>  
+
 ---
 # System ID: 123  
 ## System name (generated): Bibso  
@@ -2587,6 +3079,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Bibso A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2601,6 +3095,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 124  
 ## System name (generated): Cakaso  
@@ -2608,6 +3104,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Cakaso A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.40e+08 m  
 * Temperature: 3687 K  
@@ -2622,6 +3120,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff4400](Colors/ff4400.png) | (255, 68, 0) | #ff4400  
 
+ </details>  
+
 ---
 # System ID: 125  
 ## System name (generated): Ynanivi  
@@ -2629,6 +3129,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ynanivi A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2643,6 +3145,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 126  
 ## System name (generated): Yirto  
@@ -2650,6 +3154,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Yirto A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.46e+08 m  
 * Temperature: 3171 K  
@@ -2664,6 +3170,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f20000](Colors/f20000.png) | (242, 0, 0) | #f20000  
 
+ </details>  
+
 ---
 # System ID: 127  
 ## System name (generated): Imacac  
@@ -2671,6 +3179,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Imacac A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.67e+08 m  
 * Temperature: 2501 K  
@@ -2685,6 +3195,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a50000](Colors/a50000.png) | (165, 0, 0) | #a50000  
 
+ </details>  
+
 ---
 # System ID: 128  
 ## System name (generated): Ticara  
@@ -2692,6 +3204,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ticara A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.45e+08 m  
 * Temperature: 3456 K  
@@ -2706,6 +3220,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1800](Colors/ff1800.png) | (255, 24, 0) | #ff1800  
 
+ </details>  
+
 ---
 # System ID: 129  
 ## System name (generated): Emtaw  
@@ -2713,6 +3229,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Emtaw A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.90e+08 m  
 * Temperature: 2520 K  
@@ -2727,6 +3245,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a70000](Colors/a70000.png) | (167, 0, 0) | #a70000  
 
+ </details>  
+
 ---
 # System ID: 130  
 ## System name (generated): Muremaf  
@@ -2734,6 +3254,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 4  
 Total number of planets (generated): 0  
 ### Main star (generated): Muremaf A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.08e+08 m  
 * Temperature: 3144 K  
@@ -2748,6 +3270,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ef0000](Colors/ef0000.png) | (239, 0, 0) | #ef0000  
 
+ </details>  
+
 ---
 # System ID: 131  
 ## System name (generated): Sukloc  
@@ -2755,6 +3279,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Sukloc A (B4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.87e+09 m  
 * Temperature: 18604 K  
@@ -2769,6 +3295,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![00afff](Colors/00afff.png) | (0, 175, 255) | #00afff  
 
+ </details>  
+
 ---
 # System ID: 132  
 ## System name (generated): Otycegi  
@@ -2776,6 +3304,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Otycegi A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.25e+08 m  
 * Temperature: 3011 K  
@@ -2790,6 +3320,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e20000](Colors/e20000.png) | (226, 0, 0) | #e20000  
 
+ </details>  
+
 ---
 # System ID: 133  
 ## System name (generated): Ekerefu  
@@ -2797,6 +3329,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ekerefu A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.25e+08 m  
 * Temperature: 2770 K  
@@ -2811,6 +3345,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c60000](Colors/c60000.png) | (198, 0, 0) | #c60000  
 
+ </details>  
+
 ---
 # System ID: 134  
 ## System name (generated): Aororn  
@@ -2818,6 +3354,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aororn A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2832,6 +3370,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 135  
 ## System name (generated): Wahyte  
@@ -2839,6 +3379,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Wahyte A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.70e+08 m  
 * Temperature: 3458 K  
@@ -2853,6 +3395,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1800](Colors/ff1800.png) | (255, 24, 0) | #ff1800  
 
+ </details>  
+
 ---
 # System ID: 136  
 ## System name (generated): Cinyna  
@@ -2860,6 +3404,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Cinyna A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.02e+08 m  
 * Temperature: 3227 K  
@@ -2874,6 +3420,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f70000](Colors/f70000.png) | (247, 0, 0) | #f70000  
 
+ </details>  
+
 ---
 # System ID: 137  
 ## System name (generated): Ueteu  
@@ -2881,6 +3429,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ueteu A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2895,6 +3445,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 138  
 ## System name (generated): Fenele  
@@ -2902,6 +3454,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Fenele A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.80e+08 m  
 * Temperature: 3459 K  
@@ -2916,6 +3470,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1800](Colors/ff1800.png) | (255, 24, 0) | #ff1800  
 
+ </details>  
+
 ---
 # System ID: 139  
 ## System name (generated): Yrelah  
@@ -2923,6 +3479,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Yrelah A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -2937,6 +3495,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 140  
 ## System name (generated): Feto  
@@ -2944,6 +3504,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Feto A (G4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.52e+09 m  
 * Temperature: 5567 K  
@@ -2958,6 +3520,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f0ff00](Colors/f0ff00.png) | (240, 255, 0) | #f0ff00  
 
+ </details>  
+
 ---
 # System ID: 141  
 ## System name (generated): Ihosedi  
@@ -2965,6 +3529,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 4  
 Total number of planets (generated): 0  
 ### Main star (generated): Ihosedi A (K0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.99e+08 m  
 * Temperature: 3804 K  
@@ -2979,6 +3545,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff5700](Colors/ff5700.png) | (255, 87, 0) | #ff5700  
 
+ </details>  
+
 ---
 # System ID: 142  
 ## System name (generated): Nocev  
@@ -2986,6 +3554,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Nocev A (K9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.98e+08 m  
 * Temperature: 5054 K  
@@ -3000,6 +3570,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffe600](Colors/ffe600.png) | (255, 230, 0) | #ffe600  
 
+ </details>  
+
 ---
 # System ID: 143  
 ## System name (generated): Ofosp  
@@ -3007,6 +3579,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ofosp A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.75e+08 m  
 * Temperature: 2767 K  
@@ -3021,6 +3595,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c60000](Colors/c60000.png) | (198, 0, 0) | #c60000  
 
+ </details>  
+
 ---
 # System ID: 144  
 ## System name (generated): Nasapiw  
@@ -3028,6 +3604,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Nasapiw A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.38e+08 m  
 * Temperature: 3664 K  
@@ -3042,6 +3620,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3e00](Colors/ff3e00.png) | (255, 62, 0) | #ff3e00  
 
+ </details>  
+
 ---
 # System ID: 145  
 ## System name (generated): Okokef  
@@ -3049,6 +3629,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Okokef A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.68e+08 m  
 * Temperature: 2464 K  
@@ -3063,6 +3645,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![9d0000](Colors/9d0000.png) | (157, 0, 0) | #9d0000  
 
+ </details>  
+
 ---
 # System ID: 146  
 ## System name (generated): Lenel  
@@ -3070,6 +3654,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Lenel A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.57e+08 m  
 * Temperature: 3143 K  
@@ -3084,6 +3670,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ef0000](Colors/ef0000.png) | (239, 0, 0) | #ef0000  
 
+ </details>  
+
 ---
 # System ID: 147  
 ## System name (generated): Agitag  
@@ -3091,6 +3679,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Agitag A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3105,6 +3695,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 148  
 ## System name (generated): Esinik  
@@ -3112,6 +3704,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Esinik A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.53e+08 m  
 * Temperature: 2636 K  
@@ -3126,6 +3720,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![b70000](Colors/b70000.png) | (183, 0, 0) | #b70000  
 
+ </details>  
+
 ---
 # System ID: 149  
 ## System name (generated): Wesecyc  
@@ -3133,6 +3729,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Wesecyc A (F2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.77e+09 m  
 * Temperature: 6374 K  
@@ -3147,6 +3745,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c8ff00](Colors/c8ff00.png) | (200, 255, 0) | #c8ff00  
 
+ </details>  
+
 ---
 # System ID: 150  
 ## System name (generated): Entyns  
@@ -3154,6 +3754,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Entyns A (G6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.54e+09 m  
 * Temperature: 5732 K  
@@ -3168,6 +3770,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ebff00](Colors/ebff00.png) | (235, 255, 0) | #ebff00  
 
+ </details>  
+
 ---
 # System ID: 151  
 ## System name (generated): Sunoduv  
@@ -3175,6 +3779,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Sunoduv A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3189,6 +3795,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 152  
 ## System name (generated): Nera  
@@ -3196,6 +3804,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Nera A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.92e+08 m  
 * Temperature: 3404 K  
@@ -3210,6 +3820,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1200](Colors/ff1200.png) | (255, 18, 0) | #ff1200  
 
+ </details>  
+
 ---
 # System ID: 153  
 ## System name (generated): Atebon  
@@ -3217,6 +3829,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Atebon A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.33e+08 m  
 * Temperature: 2747 K  
@@ -3231,6 +3845,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c40000](Colors/c40000.png) | (196, 0, 0) | #c40000  
 
+ </details>  
+
 ---
 # System ID: 154  
 ## System name (generated): Uketos  
@@ -3238,6 +3854,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Uketos A (K5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.09e+09 m  
 * Temperature: 4495 K  
@@ -3252,6 +3870,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffae00](Colors/ffae00.png) | (255, 174, 0) | #ffae00  
 
+ </details>  
+
 ---
 # System ID: 155  
 ## System name (generated): Ehyssa  
@@ -3259,6 +3879,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ehyssa A (K1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.16e+09 m  
 * Temperature: 3880 K  
@@ -3273,6 +3895,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff6300](Colors/ff6300.png) | (255, 99, 0) | #ff6300  
 
+ </details>  
+
 ---
 # System ID: 156  
 ## System name (generated): Ifrat  
@@ -3280,6 +3904,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ifrat A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.20e+08 m  
 * Temperature: 3056 K  
@@ -3294,6 +3920,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e70000](Colors/e70000.png) | (231, 0, 0) | #e70000  
 
+ </details>  
+
 ---
 # System ID: 157  
 ## System name (generated): Iofpuo  
@@ -3301,6 +3929,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Iofpuo A (B9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.64e+09 m  
 * Temperature: 29744 K  
@@ -3315,6 +3945,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![247af5](Colors/247af5.png) | (36, 122, 245) | #247af5  
 
+ </details>  
+
 ---
 # System ID: 158  
 ## System name (generated): Winece  
@@ -3322,6 +3954,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Winece A (M9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.98e+08 m  
 * Temperature: 3617 K  
@@ -3336,6 +3970,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff3700](Colors/ff3700.png) | (255, 55, 0) | #ff3700  
 
+ </details>  
+
 ---
 # System ID: 159  
 ## System name (generated): Axrenc  
@@ -3343,6 +3979,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Axrenc A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.26e+08 m  
 * Temperature: 3319 K  
@@ -3357,6 +3995,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff0000](Colors/ff0000.png) | (255, 0, 0) | #ff0000  
 
+ </details>  
+
 ---
 # System ID: 160  
 ## System name (generated): Abnyot  
@@ -3364,6 +4004,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Abnyot A (G1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.56e+09 m  
 * Temperature: 5312 K  
@@ -3378,6 +4020,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffff00](Colors/ffff00.png) | (255, 255, 0) | #ffff00  
 
+ </details>  
+
 ---
 # System ID: 161  
 ## System name (generated): Tepati  
@@ -3385,6 +4029,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Tepati A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.46e+08 m  
 * Temperature: 3207 K  
@@ -3399,6 +4045,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f40000](Colors/f40000.png) | (244, 0, 0) | #f40000  
 
+ </details>  
+
 ---
 # System ID: 162  
 ## System name (generated): Ovedew  
@@ -3406,6 +4054,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ovedew A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3420,6 +4070,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 163  
 ## System name (generated): Utenii  
@@ -3427,6 +4079,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Utenii A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.71e+08 m  
 * Temperature: 2664 K  
@@ -3441,6 +4095,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![b90000](Colors/b90000.png) | (185, 0, 0) | #b90000  
 
+ </details>  
+
 ---
 # System ID: 164  
 ## System name (generated): Ibynute  
@@ -3448,6 +4104,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ibynute A (A3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.40e+09 m  
 * Temperature: 8498 K  
@@ -3462,6 +4120,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![5fff5c](Colors/5fff5c.png) | (95, 255, 92) | #5fff5c  
 
+ </details>  
+
 ---
 # System ID: 165  
 ## System name (generated): Aonla  
@@ -3469,6 +4129,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Aonla A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3482,6 +4144,8 @@ Total number of planets (generated): 0
 * Peak wavelength type: gamma  
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
+
+ </details>  
 
 ---
 # System ID: 166  
@@ -3490,6 +4154,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ocyhaba A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3504,6 +4170,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 167  
 ## System name (generated): Uhuwal  
@@ -3511,6 +4179,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 5  
 Total number of planets (generated): 0  
 ### Main star (generated): Uhuwal A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 4.94e+08 m  
 * Temperature: 3148 K  
@@ -3525,6 +4195,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ef0000](Colors/ef0000.png) | (239, 0, 0) | #ef0000  
 
+ </details>  
+
 ---
 # System ID: 168  
 ## System name (generated): Ettela  
@@ -3532,6 +4204,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ettela A (M1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.87e+08 m  
 * Temperature: 2541 K  
@@ -3546,6 +4220,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![aa0000](Colors/aa0000.png) | (170, 0, 0) | #aa0000  
 
+ </details>  
+
 ---
 # System ID: 169  
 ## System name (generated): Benisus  
@@ -3553,6 +4229,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Benisus A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 8.41e+08 m  
 * Temperature: 3068 K  
@@ -3567,6 +4245,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e70000](Colors/e70000.png) | (231, 0, 0) | #e70000  
 
+ </details>  
+
 ---
 # System ID: 170  
 ## System name (generated): Enhefe  
@@ -3574,6 +4254,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Enhefe A (K9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.00e+09 m  
 * Temperature: 5062 K  
@@ -3588,6 +4270,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ffe600](Colors/ffe600.png) | (255, 230, 0) | #ffe600  
 
+ </details>  
+
 ---
 # System ID: 171  
 ## System name (generated): Moacoa  
@@ -3595,6 +4279,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Moacoa A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 9.71e+08 m  
 * Temperature: 3219 K  
@@ -3609,6 +4295,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f70000](Colors/f70000.png) | (247, 0, 0) | #f70000  
 
+ </details>  
+
 ---
 # System ID: 172  
 ## System name (generated): Sosedo  
@@ -3616,6 +4304,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Sosedo A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.92e+08 m  
 * Temperature: 2418 K  
@@ -3630,6 +4320,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![980000](Colors/980000.png) | (152, 0, 0) | #980000  
 
+ </details>  
+
 ---
 # System ID: 173  
 ## System name (generated): Rulesa  
@@ -3637,6 +4329,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Rulesa A (B9)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.86e+09 m  
 * Temperature: 29370 K  
@@ -3651,6 +4345,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![247af5](Colors/247af5.png) | (36, 122, 245) | #247af5  
 
+ </details>  
+
 ---
 # System ID: 174  
 ## System name (generated): Ucehur  
@@ -3658,6 +4354,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ucehur A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.05e+08 m  
 * Temperature: 2863 K  
@@ -3672,6 +4370,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![d30000](Colors/d30000.png) | (211, 0, 0) | #d30000  
 
+ </details>  
+
 ---
 # System ID: 175  
 ## System name (generated): Ianeeh  
@@ -3679,6 +4379,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ianeeh A (G7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.50e+09 m  
 * Temperature: 5821 K  
@@ -3693,6 +4395,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e6ff00](Colors/e6ff00.png) | (230, 255, 0) | #e6ff00  
 
+ </details>  
+
 ---
 # System ID: 176  
 ## System name (generated): Apotro  
@@ -3700,6 +4404,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Apotro A (M6)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 2.78e+08 m  
 * Temperature: 3269 K  
@@ -3714,6 +4420,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f90000](Colors/f90000.png) | (249, 0, 0) | #f90000  
 
+ </details>  
+
 ---
 # System ID: 177  
 ## System name (generated): Tefsio  
@@ -3721,6 +4429,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tefsio A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.54e+08 m  
 * Temperature: 2746 K  
@@ -3735,6 +4445,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c40000](Colors/c40000.png) | (196, 0, 0) | #c40000  
 
+ </details>  
+
 ---
 # System ID: 178  
 ## System name (generated): Iacar  
@@ -3742,6 +4454,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Iacar A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.62e+08 m  
 * Temperature: 3068 K  
@@ -3756,6 +4470,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e70000](Colors/e70000.png) | (231, 0, 0) | #e70000  
 
+ </details>  
+
 ---
 # System ID: 179  
 ## System name (generated): Ucipas  
@@ -3763,6 +4479,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Ucipas A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.23e+08 m  
 * Temperature: 3547 K  
@@ -3777,6 +4495,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff2b00](Colors/ff2b00.png) | (255, 43, 0) | #ff2b00  
 
+ </details>  
+
 ---
 # System ID: 180  
 ## System name (generated): Nohomi  
@@ -3784,6 +4504,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Nohomi A (M2)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.30e+08 m  
 * Temperature: 2769 K  
@@ -3798,6 +4520,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![c60000](Colors/c60000.png) | (198, 0, 0) | #c60000  
 
+ </details>  
+
 ---
 # System ID: 181  
 ## System name (generated): Hecosif  
@@ -3805,6 +4529,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 3  
 Total number of planets (generated): 0  
 ### Main star (generated): Hecosif A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3819,6 +4545,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 182  
 ## System name (generated): Pudas  
@@ -3826,6 +4554,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Pudas A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.78e+08 m  
 * Temperature: 3088 K  
@@ -3840,6 +4570,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ea0000](Colors/ea0000.png) | (234, 0, 0) | #ea0000  
 
+ </details>  
+
 ---
 # System ID: 183  
 ## System name (generated): Arelro  
@@ -3847,6 +4579,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Arelro A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3861,6 +4595,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 184  
 ## System name (generated): Reciseh  
@@ -3868,6 +4604,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Reciseh A (M3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 3.99e+08 m  
 * Temperature: 2916 K  
@@ -3882,6 +4620,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![d80000](Colors/d80000.png) | (216, 0, 0) | #d80000  
 
+ </details>  
+
 ---
 # System ID: 185  
 ## System name (generated): Ebpael  
@@ -3889,6 +4629,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ebpael A (M0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.50e+08 m  
 * Temperature: 2470 K  
@@ -3903,6 +4645,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a00000](Colors/a00000.png) | (160, 0, 0) | #a00000  
 
+ </details>  
+
 ---
 # System ID: 186  
 ## System name (generated): Ugedabe  
@@ -3910,6 +4654,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Ugedabe A (M5)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.04e+08 m  
 * Temperature: 3050 K  
@@ -3924,6 +4670,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![e50000](Colors/e50000.png) | (229, 0, 0) | #e50000  
 
+ </details>  
+
 ---
 # System ID: 187  
 ## System name (generated): Mahtet  
@@ -3931,6 +4679,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Mahtet A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -3945,6 +4695,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 188  
 ## System name (generated): Saleg  
@@ -3952,6 +4704,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Saleg A (K1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.04e+09 m  
 * Temperature: 3952 K  
@@ -3966,6 +4720,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff6900](Colors/ff6900.png) | (255, 105, 0) | #ff6900  
 
+ </details>  
+
 ---
 # System ID: 189  
 ## System name (generated): Byota  
@@ -3973,6 +4729,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Byota A (M4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 5.33e+08 m  
 * Temperature: 2974 K  
@@ -3987,6 +4745,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![dd0000](Colors/dd0000.png) | (221, 0, 0) | #dd0000  
 
+ </details>  
+
 ---
 # System ID: 190  
 ## System name (generated): Tinubo  
@@ -3994,6 +4754,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Tinubo A (F8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.73e+09 m  
 * Temperature: 7288 K  
@@ -4008,6 +4770,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![a5ff00](Colors/a5ff00.png) | (165, 255, 0) | #a5ff00  
 
+ </details>  
+
 ---
 # System ID: 191  
 ## System name (generated): Berw  
@@ -4015,6 +4779,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Berw A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -4029,6 +4795,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 192  
 ## System name (generated): Ifrop  
@@ -4036,6 +4804,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Ifrop A (M8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 7.18e+08 m  
 * Temperature: 3528 K  
@@ -4050,6 +4820,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff2500](Colors/ff2500.png) | (255, 37, 0) | #ff2500  
 
+ </details>  
+
 ---
 # System ID: 193  
 ## System name (generated): Uigdae  
@@ -4057,6 +4829,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Uigdae A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -4071,6 +4845,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 194  
 ## System name (generated): Nesinor  
@@ -4078,6 +4854,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Nesinor A (F3)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.91e+09 m  
 * Temperature: 6596 K  
@@ -4092,6 +4870,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![beff00](Colors/beff00.png) | (190, 255, 0) | #beff00  
 
+ </details>  
+
 ---
 # System ID: 195  
 ## System name (generated): Avosome  
@@ -4099,6 +4879,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Avosome A (M7)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 6.98e+08 m  
 * Temperature: 3402 K  
@@ -4113,6 +4895,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![ff1200](Colors/ff1200.png) | (255, 18, 0) | #ff1200  
 
+ </details>  
+
 ---
 # System ID: 196  
 ## System name (generated): Mebyc  
@@ -4120,6 +4904,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 2  
 Total number of planets (generated): 0  
 ### Main star (generated): Mebyc A (G4)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.38e+09 m  
 * Temperature: 5546 K  
@@ -4134,6 +4920,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![f5ff00](Colors/f5ff00.png) | (245, 255, 0) | #f5ff00  
 
+ </details>  
+
 ---
 # System ID: 197  
 ## System name (generated): Arecofi  
@@ -4141,6 +4929,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Arecofi A (Other0)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 0.00e+00 m  
 * Temperature: 0 K  
@@ -4155,6 +4945,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![000000](Colors/000000.png) | (0, 0, 0) | #000000  
 
+ </details>  
+
 ---
 # System ID: 198  
 ## System name (generated): Sikiho  
@@ -4162,6 +4954,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Sikiho A (F1)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.68e+09 m  
 * Temperature: 6296 K  
@@ -4176,6 +4970,8 @@ Total number of planets (generated): 0
 * Peak w.l. color code (R, G, B), hex:  
 ![cdff00](Colors/cdff00.png) | (205, 255, 0) | #cdff00  
 
+ </details>  
+
 ---
 # System ID: 199  
 ## System name (generated): Lalni  
@@ -4183,6 +4979,8 @@ Star cluster: Moirai
 Total number of companion stars (generated): 1  
 Total number of planets (generated): 0  
 ### Main star (generated): Lalni A (K8)  
+<details><summary>Main star details</summary>  
+
 #### Absolute units.  
 * Size: 1.02e+09 m  
 * Temperature: 4934 K  
@@ -4196,5 +4994,7 @@ Total number of planets (generated): 0
 * Peak wavelength type: visible  
 * Peak w.l. color code (R, G, B), hex:  
 ![ffd900](Colors/ffd900.png) | (255, 217, 0) | #ffd900  
+
+ </details>  
 
 ---
