@@ -343,8 +343,7 @@ def todo():
 
 def generate_universe():
 	cl_divider();
-	import Tools.universe_generator as ug
-	ug
+	os.system('python ./Tools/universe_generator.py')
 	
 
 #Start

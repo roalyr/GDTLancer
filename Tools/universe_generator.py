@@ -153,10 +153,15 @@ autopilot_distance_factor = 3
 #K 	3,700–5,200 K 	light orange 	pale yellow orange 	0.45–0.8 M☉ 	0.7–0.96 R☉ 	0.08–0.6 L☉ 	Very weak 	12.1%
 #M 	2,400–3,700 K 	orange red 	light orange red 	0.08–0.45 M☉ 	≤ 0.7 R☉ 	≤ 0.08 L☉ 	Very weak 	76.45%
 
+star_temp_max = 100000
+star_temp_min = 2400
+star_primary_wl_min = c_wien / star_temp_min
+star_primary_wl_max = c_wien / star_temp_max
+
 star_o_size_min = 6.6 * sun_diameter
 star_o_size_max = 10 * sun_diameter
 star_o_temp_min = 30000
-star_o_temp_max = 100000
+star_o_temp_max = star_temp_max
 star_o_mass_min = 16
 star_o_mass_max = 90
 # Abundance is tweaked for gameplay purposes.
@@ -209,7 +214,7 @@ star_k_abundance = 0.3
 
 star_m_size_min = 0.1 * sun_diameter
 star_m_size_max = 0.7 * sun_diameter
-star_m_temp_min = 2400
+star_m_temp_min = star_temp_min
 star_m_temp_max = 3700
 star_m_mass_min = 0.08
 star_m_mass_max = 0.45
@@ -261,7 +266,7 @@ output = ''
 
 generated_systems_random = []
 generated_systems_preset = []
-generated_names = []
+used_names = []
 
 total_number_o_stars = 0
 total_number_b_stars = 0
@@ -273,10 +278,79 @@ total_number_m_stars = 0
 total_number_other_stars = 0
 total_number_all_stars = 0
 
+# Visible spectrum palette.64 colors
+spectrum_palette  = [
+(79, 38, 122), 
+(85, 51, 141), 
+(85, 62, 150), 
+(84, 73, 157), 
+(85, 80, 162), 
+(87, 91, 168), 
+(93, 109, 179), 
+(100, 128, 192), 
+(106, 146, 204), 
+(113, 163, 215),
+(119, 179, 225), 
+(125, 193, 234), 
+(128, 205, 241), 
+(120, 208, 232), 
+(100, 201, 206), 
+(77, 193, 177), 
+(55, 185, 151), 
+(35, 178, 125), 
+(17, 171, 103), 
+(3, 166, 85), 
+(8, 167, 78), 
+(25, 172, 71), 
+(47, 179, 65), 
+(72, 186, 57), 
+(99, 195, 49), 
+(128, 202, 39), 
+(159, 212, 29), 
+(192, 222, 18), 
+(225, 232, 8), 
+(248, 236, 2), 
+(252, 227, 2), 
+(251, 213, 3), 
+(250, 199, 6), 
+(249, 185, 9), 
+(248, 170, 11), 
+(247, 155, 14), 
+(246, 139, 16),
+(244, 123, 19),
+(243, 106, 22),
+(241, 90, 24),
+(240, 74, 26),
+(239, 57, 29),
+(237, 40, 32),
+(236, 27, 35),
+(236, 27, 36),
+(237, 27, 37),
+(237, 27, 38),
+(237, 27, 39),
+(236, 26, 40),
+(237, 26, 42),
+(237, 26, 44),
+(236, 26, 46),
+(236, 26, 49), 
+(235, 25, 51), 
+(236, 25, 54),
+(236, 25, 57), 
+(236, 25, 58), 
+(236, 25, 58), 
+(235, 25, 58), 
+(232, 26, 57), 
+(226, 26, 56), 
+(216, 27, 55), 
+(202, 29, 53), 
+(176, 31, 48),
+(0, 0, 0)]
+
 def e(x):
 	return  "{:.2e}".format(x)
 
-
+def rgb_to_hex(rgb):
+	return '%02x%02x%02x' % rgb
 
 ###### FORMATTING ######
 def system_generation(star_id, system, cluster_name):
@@ -285,6 +359,7 @@ def system_generation(star_id, system, cluster_name):
 	
 	main_star = {}
 	star_type = ''
+	star_name = ''
 	
 	# Get the star if it was defined.
 	if "user_defined_main_star" in system:
@@ -317,37 +392,44 @@ def system_generation(star_id, system, cluster_name):
 	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
 	
 	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
+	star_peak_wavelength_type = main_star["peak_wavelength_type"]
+	star_peak_wavelength_colorcode = main_star["peak_wavelength_colorcode"]
+	star_peak_wavelength_colorcode_hex = rgb_to_hex(star_peak_wavelength_colorcode)
 	
 	p = ""
 	p += "# System ID: " + str(star_id) + "  \n"
 	
 	if "name" in system:
-		p += "## System name: " + system["name"] + "  \n"
+		star_name = system["name"]
+		# Track user-defined names too.
+		used_names.append(star_name)
+		p += "## System name: " + star_name + "  \n"
 	else:
-		p += "## System name (gen): " + random_system_name(5, 6) + "  \n"
+		star_name = random_system_name(5, 6) 
+		p += "## System name (generated): " + star_name + "  \n"
 	
 	if "cluster" in system:
-		p += "### Star cluster: " + system["cluster"] + "  \n"
+		p += "Star cluster: " + system["cluster"] + "  \n"
 	else:
 		if cluster_name:
-			p += "### Star cluster: " + cluster_name + "  \n"
+			p += "Star cluster: " + cluster_name + "  \n"
 		else:
-			p += "### Star cluster: unspecified" + "  \n"
+			p += "Star cluster: unspecified" + "  \n"
 	
 	if "total_companion_stars" in system:
 		p += "Total number of companion stars: " + str(system["total_companion_stars"]) + "  \n"
 	else:
-		p += "Total number of companion stars (gen): " + str(random_star_number())+ "  \n"
+		p += "Total number of companion stars (generated): " + str(random_star_number())+ "  \n"
 		
 	if "total_planets" in system:
 		p += "Total number of planets: " + str(system["total_planets"]) + "  \n"
 	else:
-		p += "Total number of planets (gen): " + str(random_planet_number(star_type)) + "  \n"
+		p += "Total number of planets (generated): " + str(random_planet_number(star_type)) + "  \n"
 	
 	if "user_defined_main_star" in system:
-		p += "### Main star: " + star_type + "  \n"
+		p += "### Main star: " + star_name + " A (" + star_type + ")" + "  \n"
 	else:
-		p += "### Main star (gen): " + star_type + "  \n"
+		p += "### Main star (generated): " + star_name + " A (" + star_type + ")" + "  \n"
 	
 	p += "<details><summary>Main star details</summary>" + "  \n\n"
 	
@@ -363,6 +445,12 @@ def system_generation(star_id, system, cluster_name):
 	
 	p += "#### Spectral data."+ "  \n"
 	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "  \n"
+	p += "* Peak wavelength type: " + star_peak_wavelength_type + "  \n"
+	p += "* Peak w.l. color code (R, G, B), hex:" + "  \n"
+	p +=  "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
+		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
+	p += " | " + str(star_peak_wavelength_colorcode)
+	p += " | #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
 	
 	p += "\n </details>" + "  \n"
 	
@@ -415,11 +503,13 @@ def random_star(user_defined_type):
 		total_number_all_stars += 1
 		star_size = random_star_val.randrange(int(star_o_size_min), int(star_o_size_max))
 		star_temp = random_star_val.randrange(int(star_o_temp_min), int(star_o_temp_max))
+		star_temp_norm = (star_temp - star_o_temp_min) / (star_o_temp_max - star_o_temp_min)
 	elif star_type == "B":
 		total_number_b_stars += 1
 		total_number_all_stars += 1
 		star_size = random_star_val.randrange(int(star_b_size_min), int(star_b_size_max))
 		star_temp = random_star_val.randrange(int(star_b_temp_min), int(star_b_temp_max))
+		star_temp_norm = (star_temp - star_b_temp_min) / (star_b_temp_max - star_b_temp_min)
 	elif star_type == "A":
 		total_number_a_stars += 1
 		total_number_all_stars += 1
@@ -452,25 +542,68 @@ def random_star(user_defined_type):
 	star_lum = get_strar_lum(star_size, star_temp)
 	star_peak_wavelength = get_strar_peak_wavelength(star_temp)
 	
+	
 	star = {
 		"type" : star_type,
 		"size" : star_size,
 		"luminosity" : star_lum,
 		"temperature" : star_temp,
-		"peak_wavelength":  star_peak_wavelength,
+		"peak_wavelength":  star_peak_wavelength[0],
+		"peak_wavelength_type":  star_peak_wavelength[1],
+		"peak_wavelength_colorcode":  star_peak_wavelength[2],
 	}
 	
 	return star
+	
 	
 def get_strar_lum(star_size, star_temp):
 	lum = c_lum * pow((star_size/2), 2) * pow(star_temp, 4)
 	return lum
 	
+	
 def get_strar_peak_wavelength(star_temp):
 	peak_wavelength = 0
+	peak_wavelength_type = ''
+	peak_wavelength_colorcode = (0, 0, 0)
+	
 	if star_temp > 0:
 		peak_wavelength = c_wien / star_temp
-	return peak_wavelength
+	
+	if peak_wavelength < wl_xray_min:
+		peak_wavelength_type  = "gamma"
+	elif peak_wavelength >= wl_xray_min and peak_wavelength < wl_euv_min:
+		peak_wavelength_type  = "x-ray"
+	elif peak_wavelength >= wl_euv_min and peak_wavelength < wl_fuv_min:
+		peak_wavelength_type  = "extreme UV"
+	elif peak_wavelength >= wl_fuv_min and peak_wavelength < wl_muv_min:
+		peak_wavelength_type  = "far UV"
+	elif peak_wavelength >= wl_muv_min and peak_wavelength < wl_nuv_min:
+		peak_wavelength_type  = "medium UV"
+	elif peak_wavelength >= wl_nuv_min and peak_wavelength < wl_visible_min:
+		peak_wavelength_type  = "near UV"
+	elif peak_wavelength >= wl_visible_min and peak_wavelength < wl_nir_min:
+		peak_wavelength_type  = "visible"
+	elif peak_wavelength >= wl_nir_min and peak_wavelength < wl_swir_min:
+		peak_wavelength_type  = "near IR"
+	elif peak_wavelength >= wl_swir_min and peak_wavelength < wl_mwir_min:
+		peak_wavelength_type  = "short IR"
+	elif peak_wavelength >= wl_mwir_min and peak_wavelength < wl_lwir_min:
+		peak_wavelength_type  = "medium IR"
+	elif peak_wavelength >= wl_lwir_min and peak_wavelength < wl_fir_min:
+		peak_wavelength_type  = "long IR"
+	elif peak_wavelength >= wl_fir_min:
+		peak_wavelength_type  = "far IR"
+	elif peak_wavelength == 0:
+		peak_wavelength_type  = " -- "
+		
+	# Get proper RGB from palette.
+	if peak_wavelength > 0:
+		wl_norm = (peak_wavelength - star_primary_wl_min) / (star_primary_wl_max - star_primary_wl_min)
+		palette_index = 64 - int(wl_norm*64) # reverse spectrum.
+		peak_wavelength_colorcode = spectrum_palette[palette_index]
+		
+	return (peak_wavelength, peak_wavelength_type, peak_wavelength_colorcode)
+
 
 def random_star_number():
 	num = int(random_star_num.random()*random_star_num.randint(num_stars_min, num_stars_max))
@@ -505,11 +638,11 @@ def random_planet_number(star_type):
 ###### NAMING ######
 def random_system_name(min, max):
 	system_name = random_name(min, max)
-	if not system_name in generated_names:
-		generated_names.append(system_name)
+	if not system_name in used_names:
+		used_names.append(system_name)
 	else:
 		print("duplicate name: ", system_name)
-		while system_name in generated_names:
+		while system_name in used_names:
 			system_name = random_name(min, max)
 	return system_name
 
@@ -574,15 +707,41 @@ def random_name(length_max, length_min):
 ############### MAIN ###############
 import os
 try:
-	os.mkdir("Universe")
+	os.mkdir(cwd + "/Doc/Universe/")
 except:
 	pass
+
+try:
+	os.mkdir(cwd + "/Doc/Universe/Colors")
+except:
+	pass
+
+# Prepare colors from palettes.
+# https://stackoverflow.com/questions/8554282/creating-a-png-file-in-python
+import png
+width = 15*3
+height = 15
+
+for color in spectrum_palette:
+	img = []
+	for y in range(height):
+		row = ()
+		for x in range(width):
+			row = color*width
+		img.append(row)
+		
+	name = rgb_to_hex(color) + ".png"
+	with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
+		w = png.Writer(width, height, greyscale=False)
+		w.write(f, img)
+
+	
 # Proceed with preset data.
+print("Generation begin: FROM PRESET")
 for cluster in clusters:
 	for star_id in range(len(systems)):
 		system_generation(star_id, systems[star_id], '')
 			
-print("Generation begin: FROM PRESET")
 print("Total number of stars:")
 print("O - ", total_number_o_stars)
 print("B - ", total_number_b_stars)
@@ -593,11 +752,11 @@ print("K - ", total_number_k_stars)
 print("M - ", total_number_m_stars)
 print("Other - ", total_number_other_stars)
 print("All - ", total_number_all_stars)
-print("Generation done: Universe/Universe_preset.md")
+print("Generation done: Universe/Universe_user_defined.md")
 print()
 
 
-f = open(cwd + "/Doc/Universe/Universe_preset.md", "w")
+f = open(cwd + "/Doc/Universe/Universe_user_defined.md", "w")
 f.write(output)
 f.close()
 #print(output)
@@ -633,6 +792,7 @@ total_number_m_stars = 0
 total_number_other_stars = 0
 total_number_all_stars = 0
 
+print("Generation begin: RANDOM")
 for cluster in clusters:
 	generated_stars = 0
 	cluster_name = cluster[0]
@@ -642,7 +802,6 @@ for cluster in clusters:
 		system_generation(star_id, {}, cluster_name)
 		generated_stars += 1
 	
-print("Generation begin: RANDOM")
 print("Total number of stars:")
 print("O - ", total_number_o_stars)
 print("B - ", total_number_b_stars)
@@ -653,10 +812,10 @@ print("K - ", total_number_k_stars)
 print("M - ", total_number_m_stars)
 print("Other - ", total_number_other_stars)
 print("All - ", total_number_all_stars)
-print("Generation done: Universe/Universe_random.md")
+print("Generation done: Universe/Universe_random_reference.md")
 
 
-f = open(cwd + "/Doc/Universe/Universe_random.md", "w")
+f = open(cwd + "/Doc/Universe/Universe_random_reference.md", "w")
 f.write(output)
 f.close()
 #print(output)

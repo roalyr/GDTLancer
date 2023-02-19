@@ -1,9 +1,9 @@
 # System ID: 0  
-## System name (gen): Tegan  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): G  
+## System name (generated): Tegan  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Tegan A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -16,16 +16,19 @@ Total number of planets (gen): 0
 * Luminosity: 1.14 L☉  
 #### Spectral data.  
 * Peak wavelength: 516.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![c0de12](Colors/c0de12.png) | (192, 222, 18) | c0de12  
 
  </details>  
 
 ---
 # System ID: 1  
-## System name (gen): Eetasn  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Eetasn  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Eetasn A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -38,16 +41,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.004 L☉  
 #### Spectral data.  
 * Peak wavelength: 1030.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1939](Colors/ec1939.png) | (236, 25, 57) | ec1939  
 
  </details>  
 
 ---
 # System ID: 2  
-## System name (gen): Mivites  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Mivites  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Mivites A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -60,16 +66,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.034 L☉  
 #### Spectral data.  
 * Peak wavelength: 826.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b24](Colors/ec1b24.png) | (236, 27, 36) | ec1b24  
 
  </details>  
 
 ---
 # System ID: 3  
-## System name (gen): Iganpa  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Iganpa  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Iganpa A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -82,16 +91,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.001 L☉  
 #### Spectral data.  
 * Peak wavelength: 1029.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1939](Colors/ec1939.png) | (236, 25, 57) | ec1939  
 
  </details>  
 
 ---
 # System ID: 4  
-## System name (gen): Asiwaf  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): K  
+## System name (generated): Asiwaf  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Asiwaf A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -104,16 +116,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.304 L☉  
 #### Spectral data.  
 * Peak wavelength: 578.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fce302](Colors/fce302.png) | (252, 227, 2) | fce302  
 
  </details>  
 
 ---
 # System ID: 5  
-## System name (gen): Midacen  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 6  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Midacen  
+Star cluster: Moirai  
+Total number of companion stars (generated): 6  
+Total number of planets (generated): 4  
+### Main star (generated): Midacen A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -126,16 +141,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.017 L☉  
 #### Spectral data.  
 * Peak wavelength: 1096.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb193a](Colors/eb193a.png) | (235, 25, 58) | eb193a  
 
  </details>  
 
 ---
 # System ID: 6  
-## System name (gen): Lisuret  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Lisuret  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Lisuret A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -148,16 +166,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 1001.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb1933](Colors/eb1933.png) | (235, 25, 51) | eb1933  
 
  </details>  
 
 ---
 # System ID: 7  
-## System name (gen): Meac  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Meac  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Meac A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -170,16 +191,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 8  
-## System name (gen): Etetela  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Etetela  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Etetela A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -192,16 +216,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 9  
-## System name (gen): Emrec  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Emrec  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 4  
+### Main star (generated): Emrec A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -214,16 +241,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.004 L☉  
 #### Spectral data.  
 * Peak wavelength: 961.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 10  
-## System name (gen): Farrec  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Farrec  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 0  
+### Main star (generated): Farrec A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -236,16 +266,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 11  
-## System name (gen): Taoll  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Taoll  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Taoll A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -258,16 +291,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 12  
-## System name (gen): Nalgo  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Nalgo  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Nalgo A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -280,16 +316,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 13  
-## System name (gen): Ogispa  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): K  
+## System name (generated): Ogispa  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Ogispa A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -302,16 +341,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.324 L☉  
 #### Spectral data.  
 * Peak wavelength: 625.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f9b909](Colors/f9b909.png) | (249, 185, 9) | f9b909  
 
  </details>  
 
 ---
 # System ID: 14  
-## System name (gen): Widadid  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Widadid  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Widadid A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -324,16 +366,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 15  
-## System name (gen): Ennuos  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Ennuos  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 2  
+### Main star (generated): Ennuos A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -346,16 +391,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.074 L☉  
 #### Spectral data.  
 * Peak wavelength: 792.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 16  
-## System name (gen): Nirapi  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Nirapi  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Nirapi A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -368,16 +416,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.001 L☉  
 #### Spectral data.  
 * Peak wavelength: 1175.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![b01f30](Colors/b01f30.png) | (176, 31, 48) | b01f30  
 
  </details>  
 
 ---
 # System ID: 17  
-## System name (gen): Ligah  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 7  
-### Main star (gen): G  
+## System name (generated): Ligah  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 7  
+### Main star (generated): Ligah A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -390,16 +441,19 @@ Total number of planets (gen): 7
 * Luminosity: 1.19 L☉  
 #### Spectral data.  
 * Peak wavelength: 510.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![c0de12](Colors/c0de12.png) | (192, 222, 18) | c0de12  
 
  </details>  
 
 ---
 # System ID: 18  
-## System name (gen): Ecerici  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Ecerici  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Ecerici A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -412,16 +466,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 19  
-## System name (gen): Inlamo  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): K  
+## System name (generated): Inlamo  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Inlamo A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -434,16 +491,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.454 L☉  
 #### Spectral data.  
 * Peak wavelength: 594.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fbd503](Colors/fbd503.png) | (251, 213, 3) | fbd503  
 
  </details>  
 
 ---
 # System ID: 20  
-## System name (gen): Ycloar  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Ycloar  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Ycloar A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -456,16 +516,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 21  
-## System name (gen): Itoman  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): K  
+## System name (generated): Itoman  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Itoman A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -478,16 +541,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.149 L☉  
 #### Spectral data.  
 * Peak wavelength: 677.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f68b10](Colors/f68b10.png) | (246, 139, 16) | f68b10  
 
  </details>  
 
 ---
 # System ID: 22  
-## System name (gen): Leriti  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 12  
-### Main star (gen): A  
+## System name (generated): Leriti  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 12  
+### Main star (generated): Leriti A (A)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -500,16 +566,19 @@ Total number of planets (gen): 12
 * Luminosity: 15.1 L☉  
 #### Spectral data.  
 * Peak wavelength: 331.0 nm  
+* Peak wavelength type: near UV  
+* Peak w.l. color code (R, G, B), hex:  
+![23b27d](Colors/23b27d.png) | (35, 178, 125) | 23b27d  
 
  </details>  
 
 ---
 # System ID: 23  
-## System name (gen): Regamed  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Regamed  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Regamed A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -522,16 +591,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.01 L☉  
 #### Spectral data.  
 * Peak wavelength: 1200.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 24  
-## System name (gen): Anmei  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Anmei  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Anmei A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -544,16 +616,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.035 L☉  
 #### Spectral data.  
 * Peak wavelength: 924.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1a2a](Colors/ed1a2a.png) | (237, 26, 42) | ed1a2a  
 
  </details>  
 
 ---
 # System ID: 25  
-## System name (gen): Rasece  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 10  
-### Main star (gen): G  
+## System name (generated): Rasece  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 10  
+### Main star (generated): Rasece A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -566,16 +641,19 @@ Total number of planets (gen): 10
 * Luminosity: 0.817 L☉  
 #### Spectral data.  
 * Peak wavelength: 546.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f8ec02](Colors/f8ec02.png) | (248, 236, 2) | f8ec02  
 
  </details>  
 
 ---
 # System ID: 26  
-## System name (gen): Auriu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Auriu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Auriu A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -588,16 +666,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 27  
-## System name (gen): Alurr  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Alurr  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 3  
+### Main star (generated): Alurr A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -610,16 +691,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.027 L☉  
 #### Spectral data.  
 * Peak wavelength: 871.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 28  
-## System name (gen): Fisuhen  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Fisuhen  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 3  
+### Main star (generated): Fisuhen A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -632,16 +716,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 820.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 29  
-## System name (gen): Astev  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 8  
-### Main star (gen): G  
+## System name (generated): Astev  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 8  
+### Main star (generated): Astev A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -654,16 +741,19 @@ Total number of planets (gen): 8
 * Luminosity: 1.1 L☉  
 #### Spectral data.  
 * Peak wavelength: 500.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 30  
-## System name (gen): Petp  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Petp  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 1  
+### Main star (generated): Petp A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -676,16 +766,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.003 L☉  
 #### Spectral data.  
 * Peak wavelength: 916.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1a2a](Colors/ed1a2a.png) | (237, 26, 42) | ed1a2a  
 
  </details>  
 
 ---
 # System ID: 31  
-## System name (gen): Risege  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 9  
-### Main star (gen): G  
+## System name (generated): Risege  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 9  
+### Main star (generated): Risege A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -698,16 +791,19 @@ Total number of planets (gen): 9
 * Luminosity: 1.23 L☉  
 #### Spectral data.  
 * Peak wavelength: 498.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 32  
-## System name (gen): Arenipe  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Arenipe  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Arenipe A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -720,16 +816,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 33  
-## System name (gen): Pett  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Pett  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Pett A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -742,16 +841,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 34  
-## System name (gen): Felelug  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Felelug  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Felelug A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -764,16 +866,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.01 L☉  
 #### Spectral data.  
 * Peak wavelength: 952.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 35  
-## System name (gen): Allaun  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Allaun  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Allaun A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -786,16 +891,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1185.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![b01f30](Colors/b01f30.png) | (176, 31, 48) | b01f30  
 
  </details>  
 
 ---
 # System ID: 36  
-## System name (gen): Apmot  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Apmot  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 1  
+### Main star (generated): Apmot A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -808,16 +916,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.047 L☉  
 #### Spectral data.  
 * Peak wavelength: 873.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 37  
-## System name (gen): Aoliec  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 6  
-Total number of planets (gen): 12  
-### Main star (gen): F  
+## System name (generated): Aoliec  
+Star cluster: Moirai  
+Total number of companion stars (generated): 6  
+Total number of planets (generated): 12  
+### Main star (generated): Aoliec A (F)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -830,16 +941,19 @@ Total number of planets (gen): 12
 * Luminosity: 3.36 L☉  
 #### Spectral data.  
 * Peak wavelength: 404.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![19ac47](Colors/19ac47.png) | (25, 172, 71) | 19ac47  
 
  </details>  
 
 ---
 # System ID: 38  
-## System name (gen): Medosam  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 6  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Medosam  
+Star cluster: Moirai  
+Total number of companion stars (generated): 6  
+Total number of planets (generated): 2  
+### Main star (generated): Medosam A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -852,16 +966,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 997.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb1933](Colors/eb1933.png) | (235, 25, 51) | eb1933  
 
  </details>  
 
 ---
 # System ID: 39  
-## System name (gen): Urybyf  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Urybyf  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Urybyf A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -874,16 +991,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.041 L☉  
 #### Spectral data.  
 * Peak wavelength: 848.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 40  
-## System name (gen): Soecai  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 7  
-### Main star (gen): K  
+## System name (generated): Soecai  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 7  
+### Main star (generated): Soecai A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -896,16 +1016,19 @@ Total number of planets (gen): 7
 * Luminosity: 0.359 L☉  
 #### Spectral data.  
 * Peak wavelength: 593.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fbd503](Colors/fbd503.png) | (251, 213, 3) | fbd503  
 
  </details>  
 
 ---
 # System ID: 41  
-## System name (gen): Uneneto  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Uneneto  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Uneneto A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -918,16 +1041,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 908.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a28](Colors/ec1a28.png) | (236, 26, 40) | ec1a28  
 
  </details>  
 
 ---
 # System ID: 42  
-## System name (gen): Anycera  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Anycera  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Anycera A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -940,16 +1066,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 815.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 43  
-## System name (gen): Riropen  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 15  
-### Main star (gen): A  
+## System name (generated): Riropen  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 15  
+### Main star (generated): Riropen A (A)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -962,16 +1091,19 @@ Total number of planets (gen): 15
 * Luminosity: 14.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 339.0 nm  
+* Peak wavelength type: near UV  
+* Peak w.l. color code (R, G, B), hex:  
+![23b27d](Colors/23b27d.png) | (35, 178, 125) | 23b27d  
 
  </details>  
 
 ---
 # System ID: 44  
-## System name (gen): Yneer  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): G  
+## System name (generated): Yneer  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Yneer A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -984,16 +1116,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.645 L☉  
 #### Spectral data.  
 * Peak wavelength: 554.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f8ec02](Colors/f8ec02.png) | (248, 236, 2) | f8ec02  
 
  </details>  
 
 ---
 # System ID: 45  
-## System name (gen): Hegfab  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Hegfab  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Hegfab A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1006,16 +1141,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 46  
-## System name (gen): Vuenor  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Vuenor  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 3  
+### Main star (generated): Vuenor A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1028,16 +1166,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.005 L☉  
 #### Spectral data.  
 * Peak wavelength: 785.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 47  
-## System name (gen): Peta  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): K  
+## System name (generated): Peta  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Peta A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1050,16 +1191,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.254 L☉  
 #### Spectral data.  
 * Peak wavelength: 594.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fbd503](Colors/fbd503.png) | (251, 213, 3) | fbd503  
 
  </details>  
 
 ---
 # System ID: 48  
-## System name (gen): Ryne  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Ryne  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Ryne A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1072,16 +1216,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.058 L☉  
 #### Spectral data.  
 * Peak wavelength: 843.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 49  
-## System name (gen): Ramumu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): G  
+## System name (generated): Ramumu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Ramumu A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1094,16 +1241,19 @@ Total number of planets (gen): 2
 * Luminosity: 1.12 L☉  
 #### Spectral data.  
 * Peak wavelength: 503.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 50  
-## System name (gen): Alesab  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Alesab  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Alesab A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1116,16 +1266,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.027 L☉  
 #### Spectral data.  
 * Peak wavelength: 839.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 51  
-## System name (gen): Neletu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): K  
+## System name (generated): Neletu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Neletu A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1138,16 +1291,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.183 L☉  
 #### Spectral data.  
 * Peak wavelength: 662.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f79b0e](Colors/f79b0e.png) | (247, 155, 14) | f79b0e  
 
  </details>  
 
 ---
 # System ID: 52  
-## System name (gen): Obopoce  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Obopoce  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Obopoce A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1160,16 +1316,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 53  
-## System name (gen): Ride  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Ride  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Ride A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1182,16 +1341,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 54  
-## System name (gen): Epyopl  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Epyopl  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Epyopl A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1204,16 +1366,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 1191.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 55  
-## System name (gen): Timal  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Timal  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Timal A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1226,16 +1391,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 995.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb1933](Colors/eb1933.png) | (235, 25, 51) | eb1933  
 
  </details>  
 
 ---
 # System ID: 56  
-## System name (gen): Inenen  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Inenen  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Inenen A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1248,16 +1416,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.017 L☉  
 #### Spectral data.  
 * Peak wavelength: 1142.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![d81b37](Colors/d81b37.png) | (216, 27, 55) | d81b37  
 
  </details>  
 
 ---
 # System ID: 57  
-## System name (gen): Linenig  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Linenig  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Linenig A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1270,16 +1441,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 58  
-## System name (gen): Inrar  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Inrar  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 2  
+### Main star (generated): Inrar A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1292,16 +1466,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1008.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1936](Colors/ec1936.png) | (236, 25, 54) | ec1936  
 
  </details>  
 
 ---
 # System ID: 59  
-## System name (gen): Ronarat  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Ronarat  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 0  
+### Main star (generated): Ronarat A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1314,16 +1491,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 1093.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb193a](Colors/eb193a.png) | (235, 25, 58) | eb193a  
 
  </details>  
 
 ---
 # System ID: 60  
-## System name (gen): Ipisano  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Ipisano  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Ipisano A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1336,16 +1516,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 61  
-## System name (gen): Dahela  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Dahela  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 1  
+### Main star (generated): Dahela A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1358,16 +1541,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.058 L☉  
 #### Spectral data.  
 * Peak wavelength: 793.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 62  
-## System name (gen): Otelam  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Otelam  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Otelam A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1380,16 +1566,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 63  
-## System name (gen): Reecci  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Reecci  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 1  
+### Main star (generated): Reecci A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1402,16 +1591,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 964.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 64  
-## System name (gen): Utipar  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): A  
+## System name (generated): Utipar  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Utipar A (A)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1424,16 +1616,19 @@ Total number of planets (gen): 4
 * Luminosity: 24.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 299.0 nm  
+* Peak wavelength type: medium UV  
+* Peak w.l. color code (R, G, B), hex:  
+![4dc1b1](Colors/4dc1b1.png) | (77, 193, 177) | 4dc1b1  
 
  </details>  
 
 ---
 # System ID: 65  
-## System name (gen): Orylad  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Orylad  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Orylad A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1446,16 +1641,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.016 L☉  
 #### Spectral data.  
 * Peak wavelength: 1106.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![e81a39](Colors/e81a39.png) | (232, 26, 57) | e81a39  
 
  </details>  
 
 ---
 # System ID: 66  
-## System name (gen): Cyrid  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): G  
+## System name (generated): Cyrid  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Cyrid A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1468,16 +1666,19 @@ Total number of planets (gen): 0
 * Luminosity: 1.26 L☉  
 #### Spectral data.  
 * Peak wavelength: 494.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 67  
-## System name (gen): Ceat  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 6  
-### Main star (gen): G  
+## System name (generated): Ceat  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 6  
+### Main star (generated): Ceat A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1490,16 +1691,19 @@ Total number of planets (gen): 6
 * Luminosity: 1.26 L☉  
 #### Spectral data.  
 * Peak wavelength: 504.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 68  
-## System name (gen): Licira  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Licira  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 3  
+### Main star (generated): Licira A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1512,16 +1716,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1013.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1936](Colors/ec1936.png) | (236, 25, 54) | ec1936  
 
  </details>  
 
 ---
 # System ID: 69  
-## System name (gen): Eckao  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Eckao  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Eckao A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1534,16 +1741,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 70  
-## System name (gen): Cinot  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): G  
+## System name (generated): Cinot  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Cinot A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1556,16 +1766,19 @@ Total number of planets (gen): 2
 * Luminosity: 1.02 L☉  
 #### Spectral data.  
 * Peak wavelength: 490.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 71  
-## System name (gen): Ohelz  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Ohelz  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Ohelz A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1578,16 +1791,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 72  
-## System name (gen): Amabir  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Amabir  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 3  
+### Main star (generated): Amabir A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1600,16 +1816,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.009 L☉  
 #### Spectral data.  
 * Peak wavelength: 858.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 73  
-## System name (gen): Silice  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Silice  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 1  
+### Main star (generated): Silice A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1622,16 +1841,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.036 L☉  
 #### Spectral data.  
 * Peak wavelength: 801.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 74  
-## System name (gen): Recict  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Recict  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 5  
+### Main star (generated): Recict A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1644,16 +1866,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 1207.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 75  
-## System name (gen): Ippof  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Ippof  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 2  
+### Main star (generated): Ippof A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1666,16 +1891,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.022 L☉  
 #### Spectral data.  
 * Peak wavelength: 840.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 76  
-## System name (gen): Elimeme  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Elimeme  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Elimeme A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1688,16 +1916,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.048 L☉  
 #### Spectral data.  
 * Peak wavelength: 868.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 77  
-## System name (gen): Itagypu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Itagypu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Itagypu A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1710,16 +1941,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 78  
-## System name (gen): Tedola  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Tedola  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 0  
+### Main star (generated): Tedola A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1732,16 +1966,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 79  
-## System name (gen): Lehmua  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Lehmua  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 0  
+### Main star (generated): Lehmua A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1754,16 +1991,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 80  
-## System name (gen): Neowe  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Neowe  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Neowe A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1776,16 +2016,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 81  
-## System name (gen): Doherl  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Doherl  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 5  
+### Main star (generated): Doherl A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1798,16 +2041,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 1124.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![e21a38](Colors/e21a38.png) | (226, 26, 56) | e21a38  
 
  </details>  
 
 ---
 # System ID: 82  
-## System name (gen): Itoang  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Itoang  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Itoang A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1820,16 +2066,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.04 L☉  
 #### Spectral data.  
 * Peak wavelength: 842.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 83  
-## System name (gen): Mecl  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Mecl  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Mecl A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1842,16 +2091,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.009 L☉  
 #### Spectral data.  
 * Peak wavelength: 1129.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![e21a38](Colors/e21a38.png) | (226, 26, 56) | e21a38  
 
  </details>  
 
 ---
 # System ID: 84  
-## System name (gen): Adsaab  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 6  
-### Main star (gen): K  
+## System name (generated): Adsaab  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 6  
+### Main star (generated): Adsaab A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1864,16 +2116,19 @@ Total number of planets (gen): 6
 * Luminosity: 0.248 L☉  
 #### Spectral data.  
 * Peak wavelength: 630.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f9b909](Colors/f9b909.png) | (249, 185, 9) | f9b909  
 
  </details>  
 
 ---
 # System ID: 85  
-## System name (gen): Rorwi  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Rorwi  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Rorwi A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1886,16 +2141,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 86  
-## System name (gen): Darere  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Darere  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Darere A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1908,16 +2166,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.015 L☉  
 #### Spectral data.  
 * Peak wavelength: 995.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb1933](Colors/eb1933.png) | (235, 25, 51) | eb1933  
 
  </details>  
 
 ---
 # System ID: 87  
-## System name (gen): Misri  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 9  
-### Main star (gen): F  
+## System name (generated): Misri  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 9  
+### Main star (generated): Misri A (F)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1930,16 +2191,19 @@ Total number of planets (gen): 9
 * Luminosity: 2.22 L☉  
 #### Spectral data.  
 * Peak wavelength: 480.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![80ca27](Colors/80ca27.png) | (128, 202, 39) | 80ca27  
 
  </details>  
 
 ---
 # System ID: 88  
-## System name (gen): Ucuceh  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Ucuceh  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Ucuceh A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1952,16 +2216,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.015 L☉  
 #### Spectral data.  
 * Peak wavelength: 1012.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1936](Colors/ec1936.png) | (236, 25, 54) | ec1936  
 
  </details>  
 
 ---
 # System ID: 89  
-## System name (gen): Otomena  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Otomena  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 4  
+### Main star (generated): Otomena A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1974,16 +2241,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.008 L☉  
 #### Spectral data.  
 * Peak wavelength: 937.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1a2c](Colors/ed1a2c.png) | (237, 26, 44) | ed1a2c  
 
  </details>  
 
 ---
 # System ID: 90  
-## System name (gen): Esautl  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Esautl  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Esautl A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -1996,16 +2266,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 91  
-## System name (gen): Lyme  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Lyme  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 0  
+### Main star (generated): Lyme A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2018,16 +2291,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 92  
-## System name (gen): Hynemap  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Hynemap  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Hynemap A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2040,16 +2316,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 1085.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb193a](Colors/eb193a.png) | (235, 25, 58) | eb193a  
 
  </details>  
 
 ---
 # System ID: 93  
-## System name (gen): Osroow  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Osroow  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Osroow A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2062,16 +2341,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.003 L☉  
 #### Spectral data.  
 * Peak wavelength: 819.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 94  
-## System name (gen): Faca  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Faca  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 3  
+### Main star (generated): Faca A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2084,16 +2366,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 1061.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 95  
-## System name (gen): Melipem  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Melipem  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Melipem A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2106,16 +2391,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.023 L☉  
 #### Spectral data.  
 * Peak wavelength: 903.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a28](Colors/ec1a28.png) | (236, 26, 40) | ec1a28  
 
  </details>  
 
 ---
 # System ID: 96  
-## System name (gen): Lamen  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 6  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Lamen  
+Star cluster: Moirai  
+Total number of companion stars (generated): 6  
+Total number of planets (generated): 0  
+### Main star (generated): Lamen A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2128,16 +2416,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 97  
-## System name (gen): Ecomm  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Ecomm  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 2  
+### Main star (generated): Ecomm A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2150,16 +2441,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.001 L☉  
 #### Spectral data.  
 * Peak wavelength: 1117.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![e21a38](Colors/e21a38.png) | (226, 26, 56) | e21a38  
 
  </details>  
 
 ---
 # System ID: 98  
-## System name (gen): Huob  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Huob  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Huob A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2172,16 +2466,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.022 L☉  
 #### Spectral data.  
 * Peak wavelength: 858.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 99  
-## System name (gen): Ralala  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Ralala  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 3  
+### Main star (generated): Ralala A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2194,16 +2491,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.033 L☉  
 #### Spectral data.  
 * Peak wavelength: 821.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 100  
-## System name (gen): Yigue  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Yigue  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Yigue A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2216,16 +2516,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.008 L☉  
 #### Spectral data.  
 * Peak wavelength: 982.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a31](Colors/ec1a31.png) | (236, 26, 49) | ec1a31  
 
  </details>  
 
 ---
 # System ID: 101  
-## System name (gen): Mywehel  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Mywehel  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Mywehel A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2238,16 +2541,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.005 L☉  
 #### Spectral data.  
 * Peak wavelength: 817.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 102  
-## System name (gen): Onidere  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Onidere  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Onidere A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2260,16 +2566,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.001 L☉  
 #### Spectral data.  
 * Peak wavelength: 1044.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 103  
-## System name (gen): Tenefor  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Tenefor  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Tenefor A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2282,16 +2591,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.008 L☉  
 #### Spectral data.  
 * Peak wavelength: 1042.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 104  
-## System name (gen): Eemka  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Eemka  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Eemka A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2304,16 +2616,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 105  
-## System name (gen): Egavne  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Egavne  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 0  
+### Main star (generated): Egavne A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2326,16 +2641,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 106  
-## System name (gen): Tyni  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Tyni  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 2  
+### Main star (generated): Tyni A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2348,16 +2666,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.021 L☉  
 #### Spectral data.  
 * Peak wavelength: 880.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b27](Colors/ed1b27.png) | (237, 27, 39) | ed1b27  
 
  </details>  
 
 ---
 # System ID: 107  
-## System name (gen): Idvena  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): K  
+## System name (generated): Idvena  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Idvena A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2370,16 +2691,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.231 L☉  
 #### Spectral data.  
 * Peak wavelength: 645.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f8aa0b](Colors/f8aa0b.png) | (248, 170, 11) | f8aa0b  
 
  </details>  
 
 ---
 # System ID: 108  
-## System name (gen): Remd  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Remd  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Remd A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2392,16 +2716,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.02 L☉  
 #### Spectral data.  
 * Peak wavelength: 985.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a31](Colors/ec1a31.png) | (236, 26, 49) | ec1a31  
 
  </details>  
 
 ---
 # System ID: 109  
-## System name (gen): Nyvp  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Nyvp  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Nyvp A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2414,16 +2741,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.005 L☉  
 #### Spectral data.  
 * Peak wavelength: 964.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 110  
-## System name (gen): Pard  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Pard  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 2  
+### Main star (generated): Pard A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2436,16 +2766,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 1147.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![d81b37](Colors/d81b37.png) | (216, 27, 55) | d81b37  
 
  </details>  
 
 ---
 # System ID: 111  
-## System name (gen): Eskew  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Eskew  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Eskew A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2458,16 +2791,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.003 L☉  
 #### Spectral data.  
 * Peak wavelength: 908.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a28](Colors/ec1a28.png) | (236, 26, 40) | ec1a28  
 
  </details>  
 
 ---
 # System ID: 112  
-## System name (gen): Tewa  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): K  
+## System name (generated): Tewa  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Tewa A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2480,16 +2816,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.42 L☉  
 #### Spectral data.  
 * Peak wavelength: 583.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fbd503](Colors/fbd503.png) | (251, 213, 3) | fbd503  
 
  </details>  
 
 ---
 # System ID: 113  
-## System name (gen): Husle  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 13  
-### Main star (gen): F  
+## System name (generated): Husle  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 13  
+### Main star (generated): Husle A (F)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2502,16 +2841,19 @@ Total number of planets (gen): 13
 * Luminosity: 3.45 L☉  
 #### Spectral data.  
 * Peak wavelength: 433.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![2fb341](Colors/2fb341.png) | (47, 179, 65) | 2fb341  
 
  </details>  
 
 ---
 # System ID: 114  
-## System name (gen): Fagoba  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Fagoba  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 1  
+### Main star (generated): Fagoba A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2524,16 +2866,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 870.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 115  
-## System name (gen): Lanisas  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Lanisas  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 0  
+### Main star (generated): Lanisas A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2546,16 +2891,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 116  
-## System name (gen): Ysetake  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Ysetake  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 5  
+### Main star (generated): Ysetake A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2568,16 +2916,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.04 L☉  
 #### Spectral data.  
 * Peak wavelength: 797.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 117  
-## System name (gen): Ireto  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Ireto  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Ireto A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2590,16 +2941,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 118  
-## System name (gen): Oaktau  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Oaktau  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Oaktau A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2612,16 +2966,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1042.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 119  
-## System name (gen): Erurase  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Erurase  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Erurase A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2634,16 +2991,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.008 L☉  
 #### Spectral data.  
 * Peak wavelength: 1197.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 120  
-## System name (gen): Pirwu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 7  
-### Main star (gen): A  
+## System name (generated): Pirwu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 7  
+### Main star (generated): Pirwu A (A)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2656,16 +3016,19 @@ Total number of planets (gen): 7
 * Luminosity: 13.4 L☉  
 #### Spectral data.  
 * Peak wavelength: 315.0 nm  
+* Peak wavelength type: near UV  
+* Peak w.l. color code (R, G, B), hex:  
+![37b997](Colors/37b997.png) | (55, 185, 151) | 37b997  
 
  </details>  
 
 ---
 # System ID: 121  
-## System name (gen): Irisic  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 15  
-### Main star (gen): F  
+## System name (generated): Irisic  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 15  
+### Main star (generated): Irisic A (F)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2678,16 +3041,19 @@ Total number of planets (gen): 15
 * Luminosity: 3.56 L☉  
 #### Spectral data.  
 * Peak wavelength: 416.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![19ac47](Colors/19ac47.png) | (25, 172, 71) | 19ac47  
 
  </details>  
 
 ---
 # System ID: 122  
-## System name (gen): Udals  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Udals  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 0  
+### Main star (generated): Udals A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2700,16 +3066,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 123  
-## System name (gen): Banofel  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Banofel  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 4  
+### Main star (generated): Banofel A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2722,16 +3091,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.001 L☉  
 #### Spectral data.  
 * Peak wavelength: 1134.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![d81b37](Colors/d81b37.png) | (216, 27, 55) | d81b37  
 
  </details>  
 
 ---
 # System ID: 124  
-## System name (gen): Olipet  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 6  
-### Main star (gen): G  
+## System name (generated): Olipet  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 6  
+### Main star (generated): Olipet A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2744,16 +3116,19 @@ Total number of planets (gen): 6
 * Luminosity: 0.826 L☉  
 #### Spectral data.  
 * Peak wavelength: 548.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f8ec02](Colors/f8ec02.png) | (248, 236, 2) | f8ec02  
 
  </details>  
 
 ---
 # System ID: 125  
-## System name (gen): Tasseg  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Tasseg  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Tasseg A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2766,16 +3141,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.012 L☉  
 #### Spectral data.  
 * Peak wavelength: 857.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 126  
-## System name (gen): Meiwv  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Meiwv  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Meiwv A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2788,16 +3166,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.008 L☉  
 #### Spectral data.  
 * Peak wavelength: 1146.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![d81b37](Colors/d81b37.png) | (216, 27, 55) | d81b37  
 
  </details>  
 
 ---
 # System ID: 127  
-## System name (gen): Orefasi  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Orefasi  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Orefasi A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2810,16 +3191,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.001 L☉  
 #### Spectral data.  
 * Peak wavelength: 997.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb1933](Colors/eb1933.png) | (235, 25, 51) | eb1933  
 
  </details>  
 
 ---
 # System ID: 128  
-## System name (gen): Irevos  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Irevos  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Irevos A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2832,16 +3216,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.018 L☉  
 #### Spectral data.  
 * Peak wavelength: 818.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 129  
-## System name (gen): Evilot  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 9  
-### Main star (gen): G  
+## System name (generated): Evilot  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 9  
+### Main star (generated): Evilot A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2854,16 +3241,19 @@ Total number of planets (gen): 9
 * Luminosity: 1.2 L☉  
 #### Spectral data.  
 * Peak wavelength: 494.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 130  
-## System name (gen): Ococo  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 7  
-### Main star (gen): G  
+## System name (generated): Ococo  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 7  
+### Main star (generated): Ococo A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2876,16 +3266,19 @@ Total number of planets (gen): 7
 * Luminosity: 1.36 L☉  
 #### Spectral data.  
 * Peak wavelength: 494.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 131  
-## System name (gen): Esanice  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Esanice  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Esanice A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2898,16 +3291,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 1042.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 132  
-## System name (gen): Ilreck  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Ilreck  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 3  
+### Main star (generated): Ilreck A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2920,16 +3316,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1016.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1936](Colors/ec1936.png) | (236, 25, 54) | ec1936  
 
  </details>  
 
 ---
 # System ID: 133  
-## System name (gen): Aazeo  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Aazeo  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 3  
+### Main star (generated): Aazeo A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2942,16 +3341,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.006 L☉  
 #### Spectral data.  
 * Peak wavelength: 864.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b26](Colors/ed1b26.png) | (237, 27, 38) | ed1b26  
 
  </details>  
 
 ---
 # System ID: 134  
-## System name (gen): Adenuto  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Adenuto  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Adenuto A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2964,16 +3366,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 1126.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![e21a38](Colors/e21a38.png) | (226, 26, 56) | e21a38  
 
  </details>  
 
 ---
 # System ID: 135  
-## System name (gen): Ehetyti  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): B  
+## System name (generated): Ehetyti  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Ehetyti A (B)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -2986,16 +3391,19 @@ Total number of planets (gen): 5
 * Luminosity: 1147 L☉  
 #### Spectral data.  
 * Peak wavelength: 150.0 nm  
+* Peak wavelength type: far UV  
+* Peak w.l. color code (R, G, B), hex:  
+![6480c0](Colors/6480c0.png) | (100, 128, 192) | 6480c0  
 
  </details>  
 
 ---
 # System ID: 136  
-## System name (gen): Nipan  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): K  
+## System name (generated): Nipan  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Nipan A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3008,16 +3416,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.422 L☉  
 #### Spectral data.  
 * Peak wavelength: 579.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fce302](Colors/fce302.png) | (252, 227, 2) | fce302  
 
  </details>  
 
 ---
 # System ID: 137  
-## System name (gen): Etoera  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Etoera  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Etoera A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3030,16 +3441,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.05 L☉  
 #### Spectral data.  
 * Peak wavelength: 786.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 138  
-## System name (gen): Ireras  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 15  
-### Main star (gen): F  
+## System name (generated): Ireras  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 15  
+### Main star (generated): Ireras A (F)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3052,16 +3466,19 @@ Total number of planets (gen): 15
 * Luminosity: 2.67 L☉  
 #### Spectral data.  
 * Peak wavelength: 464.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![63c331](Colors/63c331.png) | (99, 195, 49) | 63c331  
 
  </details>  
 
 ---
 # System ID: 139  
-## System name (gen): Amegod  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Amegod  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Amegod A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3074,16 +3491,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.006 L☉  
 #### Spectral data.  
 * Peak wavelength: 1191.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 140  
-## System name (gen): Iisdeu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Iisdeu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Iisdeu A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3096,16 +3516,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 141  
-## System name (gen): Leni  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Leni  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Leni A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3118,16 +3541,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 142  
-## System name (gen): Okokef  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Okokef  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 0  
+### Main star (generated): Okokef A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3140,16 +3566,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 143  
-## System name (gen): Lenel  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Lenel  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Lenel A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3162,16 +3591,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.042 L☉  
 #### Spectral data.  
 * Peak wavelength: 922.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1a2a](Colors/ed1a2a.png) | (237, 26, 42) | ed1a2a  
 
  </details>  
 
 ---
 # System ID: 144  
-## System name (gen): Agitag  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Agitag  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Agitag A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3184,16 +3616,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 145  
-## System name (gen): Esinik  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Esinik  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Esinik A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3206,16 +3641,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 1099.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![e81a39](Colors/e81a39.png) | (232, 26, 57) | e81a39  
 
  </details>  
 
 ---
 # System ID: 146  
-## System name (gen): Aleid  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 28  
-### Main star (gen): O  
+## System name (generated): Aleid  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 28  
+### Main star (generated): Aleid A (O)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3228,16 +3666,19 @@ Total number of planets (gen): 28
 * Luminosity: 4427494 L☉  
 #### Spectral data.  
 * Peak wavelength: 33.0 nm  
+* Peak wavelength type: extreme UV  
+* Peak w.l. color code (R, G, B), hex:  
+![55338d](Colors/55338d.png) | (85, 51, 141) | 55338d  
 
  </details>  
 
 ---
 # System ID: 147  
-## System name (gen): Entyns  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Entyns  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Entyns A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3250,16 +3691,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.063 L☉  
 #### Spectral data.  
 * Peak wavelength: 836.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b24](Colors/ec1b24.png) | (236, 27, 36) | ec1b24  
 
  </details>  
 
 ---
 # System ID: 148  
-## System name (gen): Nokoe  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Nokoe  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Nokoe A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3272,16 +3716,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 784.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 149  
-## System name (gen): Nera  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Nera  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Nera A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3294,16 +3741,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.015 L☉  
 #### Spectral data.  
 * Peak wavelength: 851.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
 ---
 # System ID: 150  
-## System name (gen): Atebon  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Atebon  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 2  
+### Main star (generated): Atebon A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3316,16 +3766,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.009 L☉  
 #### Spectral data.  
 * Peak wavelength: 784.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 151  
-## System name (gen): Heen  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Heen  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Heen A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3338,16 +3791,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.005 L☉  
 #### Spectral data.  
 * Peak wavelength: 1173.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![b01f30](Colors/b01f30.png) | (176, 31, 48) | b01f30  
 
  </details>  
 
 ---
 # System ID: 152  
-## System name (gen): Ehyssa  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 6  
-### Main star (gen): K  
+## System name (generated): Ehyssa  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 6  
+### Main star (generated): Ehyssa A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3360,16 +3816,19 @@ Total number of planets (gen): 6
 * Luminosity: 0.142 L☉  
 #### Spectral data.  
 * Peak wavelength: 747.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![f15a18](Colors/f15a18.png) | (241, 90, 24) | f15a18  
 
  </details>  
 
 ---
 # System ID: 153  
-## System name (gen): Ononili  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 9  
-### Main star (gen): G  
+## System name (generated): Ononili  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 9  
+### Main star (generated): Ononili A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3382,16 +3841,19 @@ Total number of planets (gen): 9
 * Luminosity: 0.886 L☉  
 #### Spectral data.  
 * Peak wavelength: 523.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![c0de12](Colors/c0de12.png) | (192, 222, 18) | c0de12  
 
  </details>  
 
 ---
 # System ID: 154  
-## System name (gen): Ernywo  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Ernywo  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 2  
+### Main star (generated): Ernywo A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3404,16 +3866,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.006 L☉  
 #### Spectral data.  
 * Peak wavelength: 959.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 155  
-## System name (gen): Osotn  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Osotn  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 3  
+### Main star (generated): Osotn A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3426,16 +3891,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 795.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 156  
-## System name (gen): Icohon  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 10  
-### Main star (gen): G  
+## System name (generated): Icohon  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 10  
+### Main star (generated): Icohon A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3448,16 +3916,19 @@ Total number of planets (gen): 10
 * Luminosity: 1.08 L☉  
 #### Spectral data.  
 * Peak wavelength: 494.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 157  
-## System name (gen): Abnyot  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Abnyot  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Abnyot A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3470,16 +3941,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 158  
-## System name (gen): Tepati  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Tepati  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 1  
+### Main star (generated): Tepati A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3492,16 +3966,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.035 L☉  
 #### Spectral data.  
 * Peak wavelength: 904.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a28](Colors/ec1a28.png) | (236, 26, 40) | ec1a28  
 
  </details>  
 
 ---
 # System ID: 159  
-## System name (gen): Ofibimu  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Ofibimu  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Ofibimu A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3514,16 +3991,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.004 L☉  
 #### Spectral data.  
 * Peak wavelength: 1049.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 160  
-## System name (gen): Cehahit  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Cehahit  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 0  
+### Main star (generated): Cehahit A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3536,16 +4016,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 161  
-## System name (gen): Ecetyme  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Ecetyme  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 5  
+### Main star (generated): Ecetyme A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3558,16 +4041,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.016 L☉  
 #### Spectral data.  
 * Peak wavelength: 974.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a31](Colors/ec1a31.png) | (236, 26, 49) | ec1a31  
 
  </details>  
 
 ---
 # System ID: 162  
-## System name (gen): Malikit  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 5  
-### Main star (gen): G  
+## System name (generated): Malikit  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 5  
+### Main star (generated): Malikit A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3580,16 +4066,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.971 L☉  
 #### Spectral data.  
 * Peak wavelength: 507.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![9fd41d](Colors/9fd41d.png) | (159, 212, 29) | 9fd41d  
 
  </details>  
 
 ---
 # System ID: 163  
-## System name (gen): Esical  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Esical  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 2  
+### Main star (generated): Esical A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3602,16 +4091,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.02 L☉  
 #### Spectral data.  
 * Peak wavelength: 956.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 164  
-## System name (gen): Oepii  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Oepii  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 5  
+### Main star (generated): Oepii A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3624,16 +4116,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.006 L☉  
 #### Spectral data.  
 * Peak wavelength: 1164.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ca1d35](Colors/ca1d35.png) | (202, 29, 53) | ca1d35  
 
  </details>  
 
 ---
 # System ID: 165  
-## System name (gen): Rabna  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Rabna  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Rabna A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3646,16 +4141,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 166  
-## System name (gen): Fyarai  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Fyarai  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Fyarai A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3668,16 +4166,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 167  
-## System name (gen): Noewoa  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Noewoa  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Noewoa A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3690,16 +4191,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 168  
-## System name (gen): Esynas  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Esynas  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Esynas A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3712,16 +4216,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.006 L☉  
 #### Spectral data.  
 * Peak wavelength: 1196.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 169  
-## System name (gen): Duph  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Duph  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Duph A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3734,16 +4241,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.02 L☉  
 #### Spectral data.  
 * Peak wavelength: 1033.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1939](Colors/ec1939.png) | (236, 25, 57) | ec1939  
 
  </details>  
 
 ---
 # System ID: 170  
-## System name (gen): Gokedoc  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 8  
-### Main star (gen): B  
+## System name (generated): Gokedoc  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 8  
+### Main star (generated): Gokedoc A (B)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3756,16 +4266,19 @@ Total number of planets (gen): 8
 * Luminosity: 1064 L☉  
 #### Spectral data.  
 * Peak wavelength: 197.0 nm  
+* Peak wavelength type: far UV  
+* Peak w.l. color code (R, G, B), hex:  
+![77b3e1](Colors/77b3e1.png) | (119, 179, 225) | 77b3e1  
 
  </details>  
 
 ---
 # System ID: 171  
-## System name (gen): Miehni  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): G  
+## System name (generated): Miehni  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Miehni A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3778,16 +4291,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.873 L☉  
 #### Spectral data.  
 * Peak wavelength: 544.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![e1e808](Colors/e1e808.png) | (225, 232, 8) | e1e808  
 
  </details>  
 
 ---
 # System ID: 172  
-## System name (gen): Ehaent  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 0  
-### Main star (gen): M  
+## System name (generated): Ehaent  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 0  
+### Main star (generated): Ehaent A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3800,16 +4316,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.007 L☉  
 #### Spectral data.  
 * Peak wavelength: 1155.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ca1d35](Colors/ca1d35.png) | (202, 29, 53) | ca1d35  
 
  </details>  
 
 ---
 # System ID: 173  
-## System name (gen): Ototet  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): K  
+## System name (generated): Ototet  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Ototet A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3822,16 +4341,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.326 L☉  
 #### Spectral data.  
 * Peak wavelength: 592.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![fbd503](Colors/fbd503.png) | (251, 213, 3) | fbd503  
 
  </details>  
 
 ---
 # System ID: 174  
-## System name (gen): Aagni  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Aagni  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Aagni A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3844,16 +4366,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 175  
-## System name (gen): Laik  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): K  
+## System name (generated): Laik  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Laik A (K)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3866,16 +4391,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.32 L☉  
 #### Spectral data.  
 * Peak wavelength: 650.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![f8aa0b](Colors/f8aa0b.png) | (248, 170, 11) | f8aa0b  
 
  </details>  
 
 ---
 # System ID: 176  
-## System name (gen): Ocetere  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Ocetere  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Ocetere A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3888,16 +4416,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.049 L☉  
 #### Spectral data.  
 * Peak wavelength: 832.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b24](Colors/ec1b24.png) | (236, 27, 36) | ec1b24  
 
  </details>  
 
 ---
 # System ID: 177  
-## System name (gen): Hecosif  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Hecosif  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 3  
+### Main star (generated): Hecosif A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3910,16 +4441,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.011 L☉  
 #### Spectral data.  
 * Peak wavelength: 989.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb1933](Colors/eb1933.png) | (235, 25, 51) | eb1933  
 
  </details>  
 
 ---
 # System ID: 178  
-## System name (gen): Sura  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Sura  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Sura A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3932,16 +4466,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.006 L☉  
 #### Spectral data.  
 * Peak wavelength: 1084.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb193a](Colors/eb193a.png) | (235, 25, 58) | eb193a  
 
  </details>  
 
 ---
 # System ID: 179  
-## System name (gen): Gomejav  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 0  
-### Main star (gen): G  
+## System name (generated): Gomejav  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 0  
+### Main star (generated): Gomejav A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3954,16 +4491,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.787 L☉  
 #### Spectral data.  
 * Peak wavelength: 542.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![e1e808](Colors/e1e808.png) | (225, 232, 8) | e1e808  
 
  </details>  
 
 ---
 # System ID: 180  
-## System name (gen): Atarez  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Atarez  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Atarez A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3976,16 +4516,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 954.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a2e](Colors/ec1a2e.png) | (236, 26, 46) | ec1a2e  
 
  </details>  
 
 ---
 # System ID: 181  
-## System name (gen): Oikec  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 5  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Oikec  
+Star cluster: Moirai  
+Total number of companion stars (generated): 5  
+Total number of planets (generated): 2  
+### Main star (generated): Oikec A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -3998,16 +4541,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 832.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b24](Colors/ec1b24.png) | (236, 27, 36) | ec1b24  
 
  </details>  
 
 ---
 # System ID: 182  
-## System name (gen): Gedabe  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Gedabe  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 5  
+### Main star (generated): Gedabe A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4020,16 +4566,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1047.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec193a](Colors/ec193a.png) | (236, 25, 58) | ec193a  
 
  </details>  
 
 ---
 # System ID: 183  
-## System name (gen): Apfou  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Apfou  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 4  
+### Main star (generated): Apfou A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4042,16 +4591,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 810.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1b23](Colors/ec1b23.png) | (236, 27, 35) | ec1b23  
 
  </details>  
 
 ---
 # System ID: 184  
-## System name (gen): Lafiler  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 7  
-### Main star (gen): G  
+## System name (generated): Lafiler  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 7  
+### Main star (generated): Lafiler A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4064,16 +4616,19 @@ Total number of planets (gen): 7
 * Luminosity: 0.879 L☉  
 #### Spectral data.  
 * Peak wavelength: 517.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![c0de12](Colors/c0de12.png) | (192, 222, 18) | c0de12  
 
  </details>  
 
 ---
 # System ID: 185  
-## System name (gen): Cerow  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Cerow  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 1  
+### Main star (generated): Cerow A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4086,16 +4641,19 @@ Total number of planets (gen): 1
 * Luminosity: 0.02 L☉  
 #### Spectral data.  
 * Peak wavelength: 895.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a28](Colors/ec1a28.png) | (236, 26, 40) | ec1a28  
 
  </details>  
 
 ---
 # System ID: 186  
-## System name (gen): Feloik  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): G  
+## System name (generated): Feloik  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Feloik A (G)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4108,16 +4666,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.97 L☉  
 #### Spectral data.  
 * Peak wavelength: 533.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![e1e808](Colors/e1e808.png) | (225, 232, 8) | e1e808  
 
  </details>  
 
 ---
 # System ID: 187  
-## System name (gen): Ilifef  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 4  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Ilifef  
+Star cluster: Moirai  
+Total number of companion stars (generated): 4  
+Total number of planets (generated): 4  
+### Main star (generated): Ilifef A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4130,16 +4691,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.013 L☉  
 #### Spectral data.  
 * Peak wavelength: 786.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 188  
-## System name (gen): Surodat  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): B  
+## System name (generated): Surodat  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Surodat A (B)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4152,16 +4716,19 @@ Total number of planets (gen): 3
 * Luminosity: 1853 L☉  
 #### Spectral data.  
 * Peak wavelength: 190.0 nm  
+* Peak wavelength type: far UV  
+* Peak w.l. color code (R, G, B), hex:  
+![71a3d7](Colors/71a3d7.png) | (113, 163, 215) | 71a3d7  
 
  </details>  
 
 ---
 # System ID: 189  
-## System name (gen): Inedepo  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Inedepo  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Inedepo A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4174,16 +4741,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 190  
-## System name (gen): Ravosom  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 15  
-### Main star (gen): A  
+## System name (generated): Ravosom  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 15  
+### Main star (generated): Ravosom A (A)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4196,16 +4766,19 @@ Total number of planets (gen): 15
 * Luminosity: 15.4 L☉  
 #### Spectral data.  
 * Peak wavelength: 322.0 nm  
+* Peak wavelength type: near UV  
+* Peak w.l. color code (R, G, B), hex:  
+![37b997](Colors/37b997.png) | (55, 185, 151) | 37b997  
 
  </details>  
 
 ---
 # System ID: 191  
-## System name (gen): Mebyc  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Mebyc  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 4  
+### Main star (generated): Mebyc A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4218,16 +4791,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 1092.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![eb193a](Colors/eb193a.png) | (235, 25, 58) | eb193a  
 
  </details>  
 
 ---
 # System ID: 192  
-## System name (gen): Arecofi  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Arecofi  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Arecofi A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4240,16 +4816,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 193  
-## System name (gen): Sikiho  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): F  
+## System name (generated): Sikiho  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Sikiho A (F)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4262,16 +4841,19 @@ Total number of planets (gen): 4
 * Luminosity: 2.06 L☉  
 #### Spectral data.  
 * Peak wavelength: 460.0 nm  
+* Peak wavelength type: visible  
+* Peak w.l. color code (R, G, B), hex:  
+![63c331](Colors/63c331.png) | (99, 195, 49) | 63c331  
 
  </details>  
 
 ---
 # System ID: 194  
-## System name (gen): Lalni  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 0  
-### Main star (gen): Other  
+## System name (generated): Lalni  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 0  
+### Main star (generated): Lalni A (Other)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4284,16 +4866,19 @@ Total number of planets (gen): 0
 * Luminosity: 0.0 L☉  
 #### Spectral data.  
 * Peak wavelength: 0 nm  
+* Peak wavelength type: gamma  
+* Peak w.l. color code (R, G, B), hex:  
+![000000](Colors/000000.png) | (0, 0, 0) | 000000  
 
  </details>  
 
 ---
 # System ID: 195  
-## System name (gen): Uotnod  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 2  
-Total number of planets (gen): 2  
-### Main star (gen): M  
+## System name (generated): Uotnod  
+Star cluster: Moirai  
+Total number of companion stars (generated): 2  
+Total number of planets (generated): 2  
+### Main star (generated): Uotnod A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4306,16 +4891,19 @@ Total number of planets (gen): 2
 * Luminosity: 0.016 L☉  
 #### Spectral data.  
 * Peak wavelength: 899.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a28](Colors/ec1a28.png) | (236, 26, 40) | ec1a28  
 
  </details>  
 
 ---
 # System ID: 196  
-## System name (gen): Catoher  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 5  
-### Main star (gen): M  
+## System name (generated): Catoher  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 5  
+### Main star (generated): Catoher A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4328,16 +4916,19 @@ Total number of planets (gen): 5
 * Luminosity: 0.025 L☉  
 #### Spectral data.  
 * Peak wavelength: 973.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ec1a31](Colors/ec1a31.png) | (236, 26, 49) | ec1a31  
 
  </details>  
 
 ---
 # System ID: 197  
-## System name (gen): Usnan  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 3  
-### Main star (gen): M  
+## System name (generated): Usnan  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 3  
+### Main star (generated): Usnan A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4350,16 +4941,19 @@ Total number of planets (gen): 3
 * Luminosity: 0.002 L☉  
 #### Spectral data.  
 * Peak wavelength: 795.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 198  
-## System name (gen): Educage  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 1  
-Total number of planets (gen): 4  
-### Main star (gen): M  
+## System name (generated): Educage  
+Star cluster: Moirai  
+Total number of companion stars (generated): 1  
+Total number of planets (generated): 4  
+### Main star (generated): Educage A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4372,16 +4966,19 @@ Total number of planets (gen): 4
 * Luminosity: 0.038 L☉  
 #### Spectral data.  
 * Peak wavelength: 795.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed2820](Colors/ed2820.png) | (237, 40, 32) | ed2820  
 
  </details>  
 
 ---
 # System ID: 199  
-## System name (gen): Sirucil  
-### Star cluster: Moirai  
-Total number of companion stars (gen): 3  
-Total number of planets (gen): 1  
-### Main star (gen): M  
+## System name (generated): Sirucil  
+Star cluster: Moirai  
+Total number of companion stars (generated): 3  
+Total number of planets (generated): 1  
+### Main star (generated): Sirucil A (M)  
 <details><summary>Main star details</summary>  
 
 #### Absolute units.  
@@ -4394,6 +4991,9 @@ Total number of planets (gen): 1
 * Luminosity: 0.031 L☉  
 #### Spectral data.  
 * Peak wavelength: 843.0 nm  
+* Peak wavelength type: near IR  
+* Peak w.l. color code (R, G, B), hex:  
+![ed1b25](Colors/ed1b25.png) | (237, 27, 37) | ed1b25  
 
  </details>  
 
