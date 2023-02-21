@@ -540,12 +540,9 @@ sun_luminosity = 3.827e+26 # Watts
 sun_luminosity_visible = 0.47 * sun_luminosity # ~1.8e+26 Watts
 sun_temperature = 5771.8 # K
 # GODOT omni light
-sun_omni_didstance = 1e14 # Distance at which expected energy is negl.
-sun_omni_energy = sun_luminosity_visible
-sun_omni_attenuation = 2.35
-
-sun_brightness_1au = sun_luminosity_visible / (4*3.14*sun_distance_au*sun_distance_au)
-print(sun_brightness_1au) # ~640 W / m^2 in visible spectrum.
+sun_omni_didstance = 1e13 # var for stars
+sun_omni_energy = 2.0 # const
+sun_omni_attenuation = 10.0 # const
 
 # f = L / (4 * pi * d²).
 # https://www.astronomy.ohio-state.edu/weinberg.21/Intro/lec2.html#:~:text=More%20generally%2C%20the%20luminosity%2C%20apparent,is%20an%20important%20intrinsic%20property.
@@ -602,10 +599,9 @@ star_m_num_planets_max = 5
 star_flare_distance_factor = 100
 star_zone_size_factor = 10
 star_detail_decay_distance_factor = 20
-# Omni light formula: pow((a*log(size) + b), 10)
-# Omni energy = 2, omni attenuation = 5.
-star_omni_a = 2.076
-star_omni_b = -5.937
+# Omni light formula: range = (luminocity/4)^(1/2)
+# Omni energy = 2, omni attenuation = 10.
+star_omni_ratio = 4
 
 # System constants
 system_zone_size_factor = 10000
