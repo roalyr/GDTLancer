@@ -1,7 +1,6 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://Scenes/Structures/Object_Cube.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere_cull_back.gdshader" type="Shader" id=2]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Shaders/Planetary/Planetary_rings.gdshader" type="Shader" id=4]
 [ext_resource path="res://Scripts/Markers/Marker_planet.gd" type="Script" id=5]
@@ -25,12 +24,44 @@ surfaces/0 = {
 "vertex_count": 2737
 }
 
+[sub_resource type="Shader" id=90]
+code = "shader_type spatial;
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+	
+	// Blending and culling.
+	blend_mix,
+	cull_back,
+	
+	//unshaded,
+	diffuse_lambert, 
+	specular_disabled,
+	
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
+
+uniform vec4 albedo : hint_color;
+uniform float alpha_clip : hint_range(0,1) = 0.05;
+uniform float rim_strength = 25;
+uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 4.0;
+
+void fragment()
+{
+	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
+	float rim = clamp(pow(dt,rim_exponent)*rim_strength, 1e-6, alpha_clip);
+	ALBEDO = albedo.rgb;
+	ALPHA = rim;
+}
+"
+
 [sub_resource type="ShaderMaterial" id=65]
-shader = ExtResource( 2 )
+shader = SubResource( 90 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/alpha_clip = 0.042
 shader_param/rim_strength = 1.643
-shader_param/rim_power = 2.87
+shader_param/rim_exponent = 4.0
 
 [sub_resource type="ArrayMesh" id=72]
 resource_name = "Primitives_Torus011"
@@ -50,18 +81,10 @@ surfaces/0 = {
 shader = ExtResource( 4 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/rim_strength = 0.011
-shader_param/rim_power = 2.442
+shader_param/rim_exponent = 5.0
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="SphereMesh" id=80]
-
-[sub_resource type="OpenSimplexNoise" id=86]
-octaves = 1
-period = 100.0
-persistence = 0.0
-
-[sub_resource type="NoiseTexture" id=87]
-noise = SubResource( 86 )
 
 [sub_resource type="OpenSimplexNoise" id=88]
 octaves = 9
@@ -74,19 +97,25 @@ noise = SubResource( 88 )
 
 [sub_resource type="ShaderMaterial" id=83]
 shader = ExtResource( 11 )
-shader_param/albedo = Color( 0.556863, 0.545098, 0.862745, 1 )
-shader_param/albedo_bands = Color( 0.211765, 0.207843, 0.254902, 1 )
-shader_param/major_detail_stretch_x = 1.0
-shader_param/major_detail_stretch_y = 3.0
-shader_param/major_detail_amount = -0.254
+shader_param/rim_color = Color( 1, 0.9, 0.4, 1 )
+shader_param/overlay_color = Color( 0, 0, 0, 1 )
+shader_param/surface_color = Color( 1, 1, 0, 1 )
+shader_param/major_phase = 2.0
+shader_param/small_phase = 1.0
+shader_param/turbulent_phase = 1.0
+shader_param/major_detail_intensity = 1.0
+shader_param/small_detail_intensity = 1.0
+shader_param/turbulent_detail_intensity = 1.0
 shader_param/major_detail_scale = 3.0
-shader_param/bands_amount = 1.0
-shader_param/bands_stretch_x = 0.0
-shader_param/bands_stretch_y = 4.352
-shader_param/uv_shift_x = 0.0
-shader_param/uv_shift_y = 0.0
+shader_param/small_detail_scale = 1.0
+shader_param/turbulent_detail_scale = 1.0
+shader_param/major_detail_flow = 0.01
+shader_param/small_detail_flow = 0.02
+shader_param/turbulent_detail_flow = 0.02
+shader_param/rim_strength = 6.0
+shader_param/rim_exponent = 3.0
+shader_param/rim_intensity = 0.1
 shader_param/major_detail_noise = SubResource( 89 )
-shader_param/bands_noise = SubResource( 87 )
 
 [sub_resource type="ArrayMesh" id=69]
 resource_name = "Primitives_Icosphere003"

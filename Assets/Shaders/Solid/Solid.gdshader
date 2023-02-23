@@ -21,7 +21,7 @@ uniform vec4 emission : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
 uniform float specular : hint_range(0,1) = 0.5;
 uniform float metallic : hint_range(0,1) = 0.0;
 uniform float roughness : hint_range(0,1) = 0.5;
-uniform float rim : hint_range(0,1) = 0.01;
+uniform float rim : hint_range(0,1) = 0.005;
 uniform float rim_tint : hint_range(0,1) = 0.0;
 
 void fragment()

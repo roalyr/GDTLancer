@@ -1,10 +1,6 @@
 extends Spatial
 class_name LODs_trigger, "res://Assets/UI_images/SVG/icons/lod_icon.svg"
 
-# If `false`, LOD won't update anymore. This can be used for performance comparison
-# purposes.
-export var enable_lod = true
-
 export var object_absolute_size = 0
 
 # The maximum LOD 0 (high quality) distance in units.
@@ -31,6 +27,12 @@ var timer = 0.0
 var lod_level = -1
 
 func _ready():
+	# Hide all LODs.
+	hide_scenes("LOD0")
+	hide_scenes("LOD1")
+	hide_scenes("LOD2")
+	hide_scenes("LOD3")
+	
 	# Get actual size of the object.
 	if object_absolute_size == 0:
 		object_absolute_size = self.get_scale().length()
@@ -55,18 +57,6 @@ func _physics_process(delta):
 	var camera = get_viewport().get_camera()
 	if camera == null:
 		return
-		
-	if not enable_lod:
-		# Show
-		if is_shown("LOD0"):
-			return
-		else:
-			show_scenes("LOD0")
-			# Hide
-			hide_scenes("LOD1")
-			hide_scenes("LOD2")
-			hide_scenes("LOD3")
-			return
 
 	# Relative distance (in object sizes).
 	var distance = camera.global_transform.origin.distance_to(global_transform.origin) \

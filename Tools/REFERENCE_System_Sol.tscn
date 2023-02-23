@@ -1,7 +1,7 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://Assets/Shaders/Solid/Solid.gdshader" type="Shader" id=1]
-[ext_resource path="res://Assets/Models/Ships/Phoenix_heavy.glb" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/Player.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=4]
 [ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=5]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD0.tres" type="SphereMesh" id=6]
@@ -27,14 +27,12 @@ shader_param/halo_color = Color( 0.0588235, 0.0705882, 0.0196078, 1 )
 shader_param/corona_color = Color( 0.0705882, 0.0705882, 0, 1 )
 shader_param/core_color = Color( 0.784314, 0.796078, 0.329412, 1 )
 shader_param/halo_strength = 6.6
-shader_param/halo_power = 3.5
-shader_param/halo_amount = 1.8
+shader_param/halo_exponent = 1.0
 shader_param/corona_strength = 22.8
-shader_param/corona_power = 0.0
-shader_param/corona_amount = 0.9
+shader_param/corona_exponent = 25.0
 shader_param/core_strength = 100.0
-shader_param/core_power = 36.3
-shader_param/core_amount = 100.0
+shader_param/core_exponent = 32.0
+shader_param/rim_exponent = 6.0
 shader_param/displacement_scale = 0.02
 shader_param/displacement_velocity = 0.05
 shader_param/displacement_texture = SubResource( 96 )
@@ -74,7 +72,7 @@ shader_param/small_detail_scale = 1.0
 shader_param/major_detail_flow = 0.022
 shader_param/small_detail_flow = 0.003
 shader_param/rim_strength = 1.251
-shader_param/rim_power = 0.405
+shader_param/rim_exponent = 0.5
 shader_param/rim_intensity = 0.214
 shader_param/major_detail_noise = SubResource( 92 )
 shader_param/small_detail_noise = SubResource( 94 )
@@ -87,7 +85,7 @@ shader_param/flare_distance = 1.4e+11
 shader_param/flare_size = 3.0
 shader_param/attenuation = 0.3
 shader_param/intensity = 0.5
-shader_param/power = 5.0
+shader_param/exponent = 5.0
 shader_param/pulse_factor = 0.979
 shader_param/pulse_rate = 10.0
 shader_param/phase = 0.0
@@ -112,7 +110,7 @@ shader_param/flare_distance = 1e+12
 shader_param/flare_size = 3.0
 shader_param/attenuation = 0.3
 shader_param/intensity = 1.0
-shader_param/power = 5.0
+shader_param/exponent = 5.0
 shader_param/pulse_factor = 1.0
 shader_param/pulse_rate = 15.0
 shader_param/phase = 0.0
@@ -145,7 +143,7 @@ shader_param/flare_distance = 1e+12
 shader_param/flare_size = 3.0
 shader_param/attenuation = 0.3
 shader_param/intensity = 1.0
-shader_param/power = 5.0
+shader_param/exponent = 5.0
 shader_param/pulse_factor = 1.0
 shader_param/pulse_rate = 15.0
 shader_param/phase = 0.0
@@ -168,20 +166,10 @@ shader_param/flare_distance = 1e+12
 shader_param/flare_size = 3.0
 shader_param/attenuation = 0.3
 shader_param/intensity = 1.0
-shader_param/power = 5.0
+shader_param/exponent = 5.0
 shader_param/pulse_factor = 1.0
 shader_param/pulse_rate = 15.0
 shader_param/phase = 0.0
-
-[sub_resource type="ShaderMaterial" id=121]
-shader = ExtResource( 1 )
-shader_param/albedo = Color( 0.541176, 0.27451, 0.27451, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/specular = 0.5
-shader_param/metallic = 0.0
-shader_param/roughness = 0.5
-shader_param/rim = 0.01
-shader_param/rim_tint = 0.0
 
 [node name="Reference Sol system" type="Spatial"]
 
@@ -192,12 +180,11 @@ mesh = SubResource( 110 )
 [node name="Sun 1_4e9" type="Position3D" parent="."]
 transform = Transform( 1.4e+09, 0, 0, 0, 1.4e+09, 0, 0, 0, 1.4e+09, 0, 0, 0 )
 
-[node name="OmniLight_1e13_atten_5_energy_2" type="OmniLight" parent="Sun 1_4e9"]
+[node name="OmniLight_1e13_atten_10_energy_2" type="OmniLight" parent="Sun 1_4e9"]
 transform = Transform( 7.14286e-10, 0, 0, 0, 7.14286e-10, 0, 0, 0, 7.14286e-10, 0, 0, 0 )
-light_color = Color( 1, 1, 0.752941, 1 )
 light_energy = 2.0
 omni_range = 1e+13
-omni_attenuation = 5.0
+omni_attenuation = 10.0
 __meta__ = {
 "_edit_lock_": true
 }
@@ -267,23 +254,27 @@ material/0 = SubResource( 116 )
 [node name="Plane" parent="Pluto-like planet 2_4e6 at 3_7e12/Star_sprite_square_wide" index="0"]
 material/0 = SubResource( 118 )
 
-[node name="Phoenix_heavy" parent="." instance=ExtResource( 2 )]
+[node name="Phoenix_heavy" type="Spatial" parent="."]
 transform = Transform( 10000, 0, 0, 0, 10000, 0, 0, 0, 10000, 2.61044e+09, 0, 1.99e+08 )
 
-[node name="Phoenix_heavy2" parent="." instance=ExtResource( 2 )]
-transform = Transform( 10000, 0, 0, 0, 10000, 0, 0, 0, 10000, 1.49583e+11, 0, 2.60997e+07 )
+[node name="Player" parent="Phoenix_heavy" instance=ExtResource( 3 )]
 
-[node name="Sym_hull" parent="Phoenix_heavy2" index="1"]
-material/1 = SubResource( 121 )
+[node name="Phoenix_heavy2" type="Spatial" parent="."]
+transform = Transform( 50000, 0, 0, 0, 50000, 0, 0, 0, 50000, 1.49583e+11, 0, 2.60997e+07 )
 
-[node name="Phoenix_heavy3" parent="." instance=ExtResource( 2 )]
-transform = Transform( 10000, 0, 0, 0, 10000, 0, 0, 0, 10000, 7.39943e+11, -642016, 1.27312e+08 )
+[node name="Player" parent="Phoenix_heavy2" instance=ExtResource( 3 )]
 
-[node name="Phoenix_heavy4" parent="." instance=ExtResource( 2 )]
-transform = Transform( 10000, 0, 0, 0, 10000, 0, 0, 0, 10000, 3.7e+12, 154292, 3.76618e+06 )
+[node name="Phoenix_heavy3" type="Spatial" parent="."]
+transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 7.39943e+11, -642016, 1.27312e+08 )
+
+[node name="Player" parent="Phoenix_heavy3" instance=ExtResource( 3 )]
+
+[node name="Phoenix_heavy4" type="Spatial" parent="."]
+transform = Transform( 1e+06, 0, 0, 0, 1e+06, 0, 0, 0, 1e+06, 3.7e+12, 154292, 3.76618e+06 )
+
+[node name="Player" parent="Phoenix_heavy4" instance=ExtResource( 3 )]
 
 [editable path="Sun 1_4e9/Star_sprite_square_wide"]
 [editable path="Earth-Moon at 1_49e11/Earth-like planet 12e6/Star_sprite_square_wide"]
 [editable path="Jupiter-like planet 69e6 at 7_4e11/Star_sprite_square_wide"]
 [editable path="Pluto-like planet 2_4e6 at 3_7e12/Star_sprite_square_wide"]
-[editable path="Phoenix_heavy2"]

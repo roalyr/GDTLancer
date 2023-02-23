@@ -134,6 +134,7 @@ run/main_scene="res://Scenes/Main.tscn"
 boot_splash/image="res://Assets/UI_images/PNG/Icon_splash/Splash.png"
 config/icon="res://Assets/UI_images/PNG/Icon_splash/Icon.png"
 config/windows_native_icon="res://Assets/Images/Icon.ico"
+boot_splash/minimum_display_time=3000
 
 [autoload]
 
@@ -169,6 +170,7 @@ translations=PoolStringArray( "res://Assets/Translations/Translations.en.transla
 [physics]
 
 3d/smooth_trimesh_collision=true
+common/physics_fps=120
 3d/physics_engine="Bullet"
 3d/active_soft_world=false
 3d/default_gravity=0.0
@@ -177,7 +179,8 @@ translations=PoolStringArray( "res://Assets/Translations/Translations.en.transla
 
 [rendering]
 
-quality/intended_usage/framebuffer_allocation=3
+quality/intended_usage/framebuffer_allocation.mobile=2
+threads/thread_model=2
 quality/directional_shadow/size=256
 quality/directional_shadow/size.mobile=256
 quality/shadow_atlas/size=256
@@ -194,9 +197,11 @@ quality/reflections/irradiance_max_size=64
 quality/shading/force_vertex_shading.mobile=false
 quality/shading/force_lambert_over_burley.mobile=false
 quality/shading/force_blinn_over_ggx.mobile=false
-quality/depth_prepass/enable=false
 quality/filters/anisotropic_filter_level=1
+gles3/shaders/shader_compilation_mode=2
+gles3/shaders/shader_compilation_mode.mobile=2
 gles3/shaders/max_simultaneous_compiles=1
+gles3/shaders/shader_cache_size_mb=128
 quality/lightmapping/use_bicubic_sampling=false
 quality/subsurface_scattering/quality=0
 quality/reflections/atlas_size=512
