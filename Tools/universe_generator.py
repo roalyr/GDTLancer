@@ -535,9 +535,14 @@ cwd = os.path.normpath(os.getcwd())
 # Sun data for reference
 sun_diameter = 1.39e9
 sun_density = 1408 # kg / m3
+sun_distance_au = 149597870700 #m
 sun_luminosity = 3.827e+26 # Watts
+sun_luminosity_visible = 0.47 * sun_luminosity # ~1.8e+26 Watts
 sun_temperature = 5771.8 # K
-sun_omni_sidstance = 1e13 # GODOT omni light
+# GODOT omni light
+sun_omni_didstance = 1e13 # var for stars
+sun_omni_energy = 2.0 # const
+sun_omni_attenuation = 10.0 # const
 
 # f = L / (4 * pi * d²).
 # https://www.astronomy.ohio-state.edu/weinberg.21/Intro/lec2.html#:~:text=More%20generally%2C%20the%20luminosity%2C%20apparent,is%20an%20important%20intrinsic%20property.
@@ -594,10 +599,9 @@ star_m_num_planets_max = 5
 star_flare_distance_factor = 100
 star_zone_size_factor = 10
 star_detail_decay_distance_factor = 20
-# Omni light formula: pow((a*log(size) + b), 10)
-# Omni energy = 2, omni attenuation = 5.
-star_omni_a = 2.076
-star_omni_b = -5.937
+# Omni light formula: range = (luminocity/4)^(1/2)
+# Omni energy = 2, omni attenuation = 10.
+star_omni_ratio = 4
 
 # System constants
 system_zone_size_factor = 10000
