@@ -1,529 +1,5 @@
-######################################
-# Editable section - presets.
-######################################
-
-
-# Specify the cluster and a number of systems in it.
-# Those systems will be written in Universe/Universe_random.md
-clusters = [
-	("Moirai", 200),
-]
-
-# If user_defined stars and planets are set - they will be written to
-# Universe/Universe_preset.md
-systems = [
-
-
-	###### TYPE O ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("O", 0),
-		"total_companion_stars" : 0,
-	},
-	
-	###### TYPE B ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("B", 0),
-		"total_companion_stars" : 0,
-	},
-	
-	###### TYPE A ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("A", 0),
-		"total_companion_stars" : 0,
-	},
-	
-	
-	###### TYPE F ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("F", 0),
-		"total_companion_stars" : 0,
-	},
-	
-	###### TYPE G ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("G", 0),
-		"total_companion_stars" : 0,
-	},
-	
-	
-	###### TYPE K ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("K", 0),
-		"total_companion_stars" : 0,
-	},
-	
-	###### TYPE M ######
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 9),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 8),
-		"total_companion_stars" : 0,
-	},
-
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 7),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 6),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 5),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 4),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 3),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 2),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 1),
-		"total_companion_stars" : 0,
-	},
-	
-	{
-		"cluster" : "Moirai",
-		"name" : "Test",
-		"user_defined_main_star" : ("M", 0),
-		"total_companion_stars" : 0,
-	},
-	
-]
-
-
-
-
-
-######################################
-# Below is the code, do not edit.
-######################################
-
-
+import universe_presets
+import palettes
 
 ############### CONSTANTS ###############
 # General
@@ -539,10 +15,26 @@ sun_distance_au = 149597870700 #m
 sun_luminosity = 3.827e+26 # Watts
 sun_luminosity_visible = 0.47 * sun_luminosity # ~1.8e+26 Watts
 sun_temperature = 5771.8 # K
+
 # GODOT omni light
 sun_omni_didstance = 1e13 # var for stars
 sun_omni_energy = 2.0 # const
 sun_omni_attenuation = 10.0 # const
+
+# GODOT engine parameters.
+system_zone_size_factor = 10000
+star_zone_size_factor = 10
+star_flare_distance_factor = 100
+star_detail_decay_distance_factor = 20
+
+# Omni light formula: range = (luminocity/4)^(1/2)
+# Omni energy = 2, omni attenuation = 10.
+star_omni_ratio = 4
+
+
+# Generic
+autopilot_distance_factor = 4
+
 
 # f = L / (4 * pi * d²).
 # https://www.astronomy.ohio-state.edu/weinberg.21/Intro/lec2.html#:~:text=More%20generally%2C%20the%20luminosity%2C%20apparent,is%20an%20important%20intrinsic%20property.
@@ -594,20 +86,6 @@ star_k_num_planets_max = 7
 star_m_num_planets_min = 0
 star_m_num_planets_max = 5
 
-# GODOT engine parameters.
-# Star constants
-star_flare_distance_factor = 100
-star_zone_size_factor = 10
-star_detail_decay_distance_factor = 20
-# Omni light formula: range = (luminocity/4)^(1/2)
-# Omni energy = 2, omni attenuation = 10.
-star_omni_ratio = 4
-
-# System constants
-system_zone_size_factor = 10000
-
-# Generic
-autopilot_distance_factor = 3
 
 # Star type parameters
 # https://en.m.wikipedia.org/wiki/Stellar_classification
@@ -745,158 +223,6 @@ total_number_m_stars = 0
 total_number_other_stars = 0
 total_number_all_stars = 0
 
-# Visible spectrum palette.64 colors
-# http://www.zonums.com/online/color_ramp/
-
-spectrum_palette  = [
-(200,0,200), #C800C8
-(181,13,205), #B50DCD
-(163,27,210), #A31BD2
-(145,40,215), #9128D7
-(127,54,220), #7F36DC
-(109,68,225), #6D44E1
-(90,81,230), #5A51E6
-(72,95,235), #485FEB
-(54,109,240), #366DF0
-(36,122,245), #247AF5
-(18,136,250), #1288FA
-(0,150,255), #0096FF
-(0,155,255), #009BFF
-(0,160,255), #00A0FF
-(0,165,255), #00A5FF
-(0,170,255), #00AAFF
-(0,175,255), #00AFFF
-(0,180,255), #00B4FF
-(0,185,255), #00B9FF
-(0,190,255), #00BEFF
-(0,195,255), #00C3FF
-(0,200,255), #00C8FF
-(0,205,255), #00CDFF
-(0,210,255), #00D2FF
-(0,215,255), #00D7FF
-(0,220,255), #00DCFF
-(0,225,255), #00E1FF
-(0,230,255), #00E6FF
-(0,235,255), #00EBFF
-(0,240,255), #00F0FF
-(0,245,255), #00F5FF
-(0,250,255), #00FAFF
-(0,255,255), #00FFFF
-(13,255,231), #0DFFE7
-(27,255,208), #1BFFD0
-(40,255,185), #28FFB9
-(54,255,162), #36FFA2
-(68,255,139), #44FF8B
-(81,255,115), #51FF73
-(95,255,92), #5FFF5C
-(109,255,69), #6DFF45
-(122,255,46), #7AFF2E
-(136,255,23), #88FF17
-(150, 255, 0), #96FF00
-(155,255,0), #9BFF00
-(160,255,0), #A0FF00
-(165,255,0), #A5FF00
-(170,255,0), #AAFF00
-(175,255,0), #AFFF00
-(180,255,0), #B4FF00
-(185,255,0), #B9FF00
-(190,255,0), #BEFF00
-(195,255,0), #C3FF00
-(200,255,0), #C8FF00
-(205,255,0), #CDFF00
-(210,255,0), #D2FF00
-(215,255,0), #D7FF00
-(220,255,0), #DCFF00
-(225,255,0), #E1FF00
-(230,255,0), #E6FF00
-(235,255,0), #EBFF00
-(240,255,0), #F0FF00
-(245,255,0), #F5FF00
-(250,255,0), #FAFF00
-(255, 255, 0), #FFFF00
-(255,248,0), #FFF800
-(255,242,0), #FFF200
-(255,236,0), #FFEC00
-(255,230,0), #FFE600
-(255,223,0), #FFDF00
-(255,217,0), #FFD900
-(255,211,0), #FFD300
-(255,205,0), #FFCD00
-(255,199,0), #FFC700
-(255,192,0), #FFC000
-(255,186,0), #FFBA00
-(255,180,0), #FFB400
-(255,174,0), #FFAE00
-(255,167,0), #FFA700
-(255,161,0), #FFA100
-(255,155,0), #FF9B00
-(255,149,0), #FF9500
-(255,143,0), #FF8F00
-(255,136,0), #FF8800
-(255,130,0), #FF8200
-(255,124,0), #FF7C00
-(255,118,0), #FF7600
-(255,111,0), #FF6F00
-(255,105,0), #FF6900
-(255,99,0), #FF6300
-(255,93,0), #FF5D00
-(255,87,0), #FF5700
-(255,80,0), #FF5000
-(255,74,0), #FF4A00
-(255,68,0), #FF4400
-(255,62,0), #FF3E00
-(255,55,0), #FF3700
-(255,49,0), #FF3100
-(255,43,0), #FF2B00
-(255,37,0), #FF2500
-(255,31,0), #FF1F00
-(255,24,0), #FF1800
-(255,18,0), #FF1200
-(255,12,0), #FF0C00
-(255,6,0), #FF0600
-(255, 0, 0), #FF0000
-(252,0,0), #FC0000
-(249,0,0), #F90000
-(247,0,0), #F70000
-(244,0,0), #F40000
-(242,0,0), #F20000
-(239,0,0), #EF0000
-(237,0,0), #ED0000
-(234,0,0), #EA0000
-(231,0,0), #E70000
-(229,0,0), #E50000
-(226,0,0), #E20000
-(224,0,0), #E00000
-(221,0,0), #DD0000
-(219,0,0), #DB0000
-(216,0,0), #D80000
-(214,0,0), #D60000
-(211,0,0), #D30000
-(208,0,0), #D00000
-(206,0,0), #CE0000
-(203,0,0), #CB0000
-(201,0,0), #C90000
-(198,0,0), #C60000
-(196,0,0), #C40000
-(193,0,0), #C10000
-(190,0,0), #BE0000
-(188,0,0), #BC0000
-(185,0,0), #B90000
-(183,0,0), #B70000
-(180,0,0), #B40000
-(178,0,0), #B20000
-(175,0,0), #AF0000
-(173,0,0), #AD0000
-(170,0,0), #AA0000
-(167,0,0), #A70000
-(165,0,0), #A50000
-(162,0,0), #A20000
-(160,0,0), #A00000
-(157,0,0), #9D0000
-(155,0,0), #9B0000
-(152,0,0), #980000
-(150, 0, 0), #960000
-]
 
 def e(x):
 	return  "{:.2e}".format(x)
@@ -948,6 +274,12 @@ def system_generation(star_id, system, cluster_name):
 	star_peak_wavelength_type = main_star["peak_wavelength_type"]
 	star_peak_wavelength_colorcode = main_star["peak_wavelength_colorcode"]
 	star_peak_wavelength_colorcode_hex = rgb_to_hex(star_peak_wavelength_colorcode)
+	star_omni_range = e(main_star["omni_range"])
+	
+	system_zone_size = e(system_zone_size_factor * main_star["size"])
+	system_autopilot_range = system_zone_size
+	
+	star_autopilot_range = e(autopilot_distance_factor * main_star["size"])
 	
 	p = ""
 	p += "# System ID: " + str(star_id) + "  \n"
@@ -986,24 +318,60 @@ def system_generation(star_id, system, cluster_name):
 	
 	p += "<details><summary>Main star details</summary>" + "  \n\n"
 	
-	p += "#### Absolute units." + "  \n"
+	p += "#### Infocard data"+ "  \n"
+	
+	p += "```" + "  \n"
+	
+	p += "Absolute units:" + "  \n"
 	p += "* Size: " + str(star_size) + " m" + "  \n"
 	p += "* Temperature: " + str(star_temp) + " K" + "  \n"
-	p += "* Luminosity: " + str(star_lum) + " W" + "  \n"
+	p += "* Luminosity: " + str(star_lum) + " W" + "  \n"*2
 	
-	p += "#### Sun units." + "  \n"
+	p += "Sun units:" + "  \n"
 	p += "* Size: " + str(star_size_rel) + " D☉" + "  \n"
 	p += "* Temperature: " + str(star_temp_rel) + " T☉" + "  \n"
-	p += "* Luminosity: " + str(star_lum_rel) + " L☉" + "  \n"
+	p += "* Luminosity: " + str(star_lum_rel) + " L☉" + "  \n"*2
 	
-	p += "#### Spectral data."+ "  \n"
+	p += "Spectral data:"+ "  \n"
+	p += "* Type: " + star_type[0] + str(star_type[1]) + "  \n"
 	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "  \n"
 	p += "* Peak wavelength type: " + star_peak_wavelength_type + "  \n"
-	p += "* Peak w.l. color code (R, G, B), hex:" + "  \n"
+	
+	p += "```" + "  \n"
+	
+	p += "#### GODOT data"+ "  \n"
+	
+	p += "```" + "  \n"
+	
+	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "  \n"
+	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
+	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
+	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
+	p += "* System zone size: " + str(system_zone_size) + "  \n"
+	p += "* System autopilot range: " + str(system_autopilot_range) + "  \n"
+	
+	p += " ---\n"
+	
+	p += "* Star zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_ZONE" + "  \n"
+	p += "* Star codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "  \n"
+	p += "* Star translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "  \n"
+	p += "* Star translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "  \n"
+	p += "* Star name: " + star_name + " A"  + "  \n"
+	p += "* Star description: see above." + "  \n"
+	p += "* Star size: " + str(star_size) + "  \n"
+	p += "* Star autopilot range: " + str(star_autopilot_range) + "  \n"
+	
+	p += " ---\n"
+	
+	p += "* Omni range: " + str(star_omni_range) + "  \n"
+	p += "* Surface color (Peak w.l. color code):" + "  \n"
+	p += " - rgb: " + str(star_peak_wavelength_colorcode) + "  \n"
+	p += " - hex: #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
+	
+	p += "```" + "  \n"
+	
 	p +=  "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
 		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
-	p += " | " + str(star_peak_wavelength_colorcode)
-	p += " | #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
 	
 	p += "\n </details>" + "  \n"
 	
@@ -1139,6 +507,8 @@ def random_star(user_defined_type):
 	star_lum = get_strar_lum(star_size, star_temp)
 	star_peak_wavelength = get_strar_peak_wavelength(star_temp)
 	
+	# Godot parameters.
+	star_omni_range = pow(star_lum/star_omni_ratio, 0.5)
 	
 	star = {
 		"type" : (star_type, star_type_temp),
@@ -1148,6 +518,7 @@ def random_star(user_defined_type):
 		"peak_wavelength":  star_peak_wavelength[0],
 		"peak_wavelength_type":  star_peak_wavelength[1],
 		"peak_wavelength_colorcode":  star_peak_wavelength[2],
+		"omni_range": star_omni_range,
 	}
 	
 	return star
@@ -1196,8 +567,8 @@ def get_strar_peak_wavelength(star_temp):
 	# Get proper RGB from palette.
 	if peak_wavelength > 0:
 		wl_norm = (peak_wavelength - star_primary_wl_min) / (star_primary_wl_max - star_primary_wl_min)
-		palette_index = (len(spectrum_palette)-1) - int(wl_norm*(len(spectrum_palette)-1)) # reverse spectrum.
-		peak_wavelength_colorcode = spectrum_palette[palette_index]
+		palette_index = (len(palettes.spectrum_palette)-1) - int(wl_norm*(len(palettes.spectrum_palette)-1)) # reverse spectrum.
+		peak_wavelength_colorcode = palettes.spectrum_palette[palette_index]
 		
 	return (peak_wavelength, peak_wavelength_type, peak_wavelength_colorcode)
 
@@ -1319,7 +690,7 @@ import png
 width = 15*3
 height = 15
 
-for color in spectrum_palette:
+for color in palettes.spectrum_palette:
 	img = []
 	for y in range(height):
 		row = ()
@@ -1348,9 +719,9 @@ with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
 	
 # Proceed with preset data.
 print("Generation begin: FROM PRESET")
-for cluster in clusters:
-	for star_id in range(len(systems)):
-		system_generation(star_id, systems[star_id], '')
+for cluster in universe_presets.clusters:
+	for star_id in range(len(universe_presets.systems)):
+		system_generation(star_id, universe_presets.systems[star_id], '')
 			
 print("Total number of stars:")
 print("O - ", total_number_o_stars)
@@ -1403,7 +774,7 @@ total_number_other_stars = 0
 total_number_all_stars = 0
 
 print("Generation begin: RANDOM")
-for cluster in clusters:
+for cluster in universe_presets.clusters:
 	generated_stars = 0
 	cluster_name = cluster[0]
 	cluster_stars = cluster[1]
