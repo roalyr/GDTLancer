@@ -37,6 +37,7 @@ autopilot_distance_factor = 4
 
 
 # f = L / (4 * pi * d²).
+# d² = L / (4 * pi * f), d = (L / (4 * pi * f))^(1/2)
 # https://www.astronomy.ohio-state.edu/weinberg.21/Intro/lec2.html#:~:text=More%20generally%2C%20the%20luminosity%2C%20apparent,is%20an%20important%20intrinsic%20property.
 # L = intrinsic luminosity of the source
 # d = distance of the source
@@ -49,6 +50,38 @@ c_lum = 7.12560265e-7
 
 # Wavelength constant. nm*K
 c_wien = 2897771.9 
+
+
+# Habitable zone margins for sun (lax).
+# https://en.m.wikipedia.org/wiki/Circumstellar_habitable_zone
+# 0.2 a.u. from Sun (hot zone).
+sun_hot_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 0.2 * 0.2)
+# Venus (warm zone).
+sun_warm_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 0.7 * 0.7)
+# Earth (reference value).
+sun_temperate_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au)
+# Mars (cold zone).
+sun_cold_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 1.5 * 1.5)
+# Saturn (icy zone).
+sun_icy_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 9.5 * 9.5)
+
+print("Value testing")
+
+print("Sun hot zone flux (W/m2)", sun_hot_zone_flux) # ~34000
+print("Sun warm zone flux (W/m2)", sun_warm_zone_flux) # ~2800
+print("Sun temperate zone flux (W/m2)", sun_temperate_zone_flux) # ~1400
+print("Sun cold zone flux (W/m2)", sun_cold_zone_flux) # ~600
+print("Sun icy zone flux (W/m2)", sun_icy_zone_flux) # ~15
+print()
+
+# Set those margins respectively.
+# W/m^2 at respective star distance.
+flux_hot_zone  = 34000
+flux_warm_zone  = 2800
+flux_temperate_zone  = 1400
+flux_cold_zone  = 600
+flux_icy_zone  = 15
+
 # Spectrum margins. In nanometers.
 # X-ray. https://en.m.wikipedia.org/wiki/X-ray
 wl_xray_min = 0.01
@@ -269,6 +302,13 @@ def system_generation(star_id, system, cluster_name):
 	# Format the number for temperature.
 	star_temp = round(main_star["temperature"])
 	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
+	star_zone_margins = main_star["zone_margins"]
+	
+	star_hot_zone = e(star_zone_margins[4])
+	star_warm_zone = e(star_zone_margins[3])
+	star_temperate_zone = e(star_zone_margins[2])
+	star_cold_zone = e(star_zone_margins[1])
+	star_icy_zone = e(star_zone_margins[0])
 	
 	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
 	star_peak_wavelength_type = main_star["peak_wavelength_type"]
@@ -335,7 +375,14 @@ def system_generation(star_id, system, cluster_name):
 	p += "Spectral data:"+ "  \n"
 	p += "* Type: " + star_type[0] + str(star_type[1]) + "  \n"
 	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "  \n"
-	p += "* Peak wavelength type: " + star_peak_wavelength_type + "  \n"
+	p += "* Peak wavelength type: " + star_peak_wavelength_type + "  \n"*2
+	
+	p += "Temperature zone data:"+ "  \n"
+	p += "* Hot zone   :"+ " < " + str(star_hot_zone) + " m" + "  \n"
+	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " m" + "  \n"
+	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " m" + "  \n"
+	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " m" + "  \n"
+	p += "* Icy zone   :" + " > " + str(star_icy_zone) + " m" + "  \n"
 	
 	p += "```" + "  \n"
 	
@@ -509,6 +556,7 @@ def random_star(user_defined_type):
 	
 	# Godot parameters.
 	star_omni_range = pow(star_lum/star_omni_ratio, 0.5)
+	star_zone_margins = get_star_zone_margins(star_lum)
 	
 	star = {
 		"type" : (star_type, star_type_temp),
@@ -519,10 +567,18 @@ def random_star(user_defined_type):
 		"peak_wavelength_type":  star_peak_wavelength[1],
 		"peak_wavelength_colorcode":  star_peak_wavelength[2],
 		"omni_range": star_omni_range,
+		"zone_margins": star_zone_margins,
 	}
 	
 	return star
-	
+
+def get_star_zone_margins(star_lum):
+	star_hot_zone = pow(star_lum /(4 * 3.14 * flux_hot_zone), 0.5)
+	star_warm_zone = pow(star_lum /(4 * 3.14 * flux_warm_zone), 0.5)
+	star_temperate_zone = pow(star_lum /(4 * 3.14 * flux_temperate_zone), 0.5)
+	star_cold_zone = pow(star_lum /(4 * 3.14 * flux_cold_zone), 0.5)
+	star_icy_zone = pow(star_lum /(4 * 3.14 * flux_icy_zone), 0.5)
+	return (star_icy_zone, star_cold_zone, star_temperate_zone, star_warm_zone, star_hot_zone,)
 	
 def get_strar_lum(star_size, star_temp):
 	lum = c_lum * pow((star_size/2), 2) * pow(star_temp, 4)

@@ -22,6 +22,13 @@ Spectral data:
 * Type: G5  
 * Peak wavelength: 516.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.20e+10 m  
+* Warm zone  :   3.20e+10 ... 1.12e+11 m  
+* Temp. zone :   1.12e+11 ... 1.58e+11 m  
+* Cold zone  :   1.58e+11 ... 2.41e+11 m  
+* Icy zone   : > 1.52e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -74,6 +81,13 @@ Spectral data:
 * Type: A3  
 * Peak wavelength: 348.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 9.83e+10 m  
+* Warm zone  :   9.83e+10 ... 3.42e+11 m  
+* Temp. zone :   3.42e+11 ... 4.84e+11 m  
+* Cold zone  :   4.84e+11 ... 7.40e+11 m  
+* Icy zone   : > 4.68e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -126,6 +140,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 826.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.54e+09 m  
+* Warm zone  :   5.54e+09 ... 1.93e+10 m  
+* Temp. zone :   1.93e+10 ... 2.73e+10 m  
+* Cold zone  :   2.73e+10 ... 4.17e+10 m  
+* Icy zone   : > 2.64e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -178,6 +199,13 @@ Spectral data:
 * Type: A0  
 * Peak wavelength: 383.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 8.67e+10 m  
+* Warm zone  :   8.67e+10 ... 3.02e+11 m  
+* Temp. zone :   3.02e+11 ... 4.27e+11 m  
+* Cold zone  :   4.27e+11 ... 6.52e+11 m  
+* Icy zone   : > 4.13e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -230,6 +258,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 981.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.69e+09 m  
+* Warm zone  :   4.69e+09 ... 1.64e+10 m  
+* Temp. zone :   1.64e+10 ... 2.31e+10 m  
+* Cold zone  :   2.31e+10 ... 3.53e+10 m  
+* Icy zone   : > 2.23e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -282,6 +317,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -334,6 +376,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -386,6 +435,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1143.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.59e+09 m  
+* Warm zone  :   3.59e+09 ... 1.25e+10 m  
+* Temp. zone :   1.25e+10 ... 1.77e+10 m  
+* Cold zone  :   1.77e+10 ... 2.70e+10 m  
+* Icy zone   : > 1.71e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -438,6 +494,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 875.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.78e+09 m  
+* Warm zone  :   1.78e+09 ... 6.19e+09 m  
+* Temp. zone :   6.19e+09 ... 8.76e+09 m  
+* Cold zone  :   8.76e+09 ... 1.34e+10 m  
+* Icy zone   : > 8.46e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -490,6 +553,13 @@ Spectral data:
 * Type: K9  
 * Peak wavelength: 565.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.82e+10 m  
+* Warm zone  :   1.82e+10 ... 6.35e+10 m  
+* Temp. zone :   6.35e+10 ... 8.98e+10 m  
+* Cold zone  :   8.98e+10 ... 1.37e+11 m  
+* Icy zone   : > 8.67e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -542,6 +612,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1202.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.78e+09 m  
+* Warm zone  :   2.78e+09 ... 9.70e+09 m  
+* Temp. zone :   9.70e+09 ... 1.37e+10 m  
+* Cold zone  :   1.37e+10 ... 2.10e+10 m  
+* Icy zone   : > 1.33e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -594,6 +671,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 879.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.47e+09 m  
+* Warm zone  :   3.47e+09 ... 1.21e+10 m  
+* Temp. zone :   1.21e+10 ... 1.71e+10 m  
+* Cold zone  :   1.71e+10 ... 2.61e+10 m  
+* Icy zone   : > 1.65e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -646,6 +730,13 @@ Spectral data:
 * Type: F0  
 * Peak wavelength: 478.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 4.20e+10 m  
+* Warm zone  :   4.20e+10 ... 1.46e+11 m  
+* Temp. zone :   1.46e+11 ... 2.07e+11 m  
+* Cold zone  :   2.07e+11 ... 3.16e+11 m  
+* Icy zone   : > 2.00e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -698,6 +789,13 @@ Spectral data:
 * Type: K6  
 * Peak wavelength: 625.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.70e+10 m  
+* Warm zone  :   1.70e+10 ... 5.94e+10 m  
+* Temp. zone :   5.94e+10 ... 8.40e+10 m  
+* Cold zone  :   8.40e+10 ... 1.28e+11 m  
+* Icy zone   : > 8.12e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -750,6 +848,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -802,6 +907,13 @@ Spectral data:
 * Type: B5  
 * Peak wavelength: 137.0 nm  
 * Peak wavelength type: far UV  
+  
+Temperature zone data:  
+* Hot zone   : < 2.03e+12 m  
+* Warm zone  :   2.03e+12 ... 7.09e+12 m  
+* Temp. zone :   7.09e+12 ... 1.00e+13 m  
+* Cold zone  :   1.00e+13 ... 1.53e+13 m  
+* Icy zone   : > 9.68e+13 m  
 ```  
 #### GODOT data  
 ```  
@@ -854,6 +966,13 @@ Spectral data:
 * Type: G5  
 * Peak wavelength: 513.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.99e+10 m  
+* Warm zone  :   2.99e+10 ... 1.04e+11 m  
+* Temp. zone :   1.04e+11 ... 1.48e+11 m  
+* Cold zone  :   1.48e+11 ... 2.25e+11 m  
+* Icy zone   : > 1.43e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -906,6 +1025,13 @@ Spectral data:
 * Type: A1  
 * Peak wavelength: 374.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 8.22e+10 m  
+* Warm zone  :   8.22e+10 ... 2.86e+11 m  
+* Temp. zone :   2.86e+11 ... 4.05e+11 m  
+* Cold zone  :   4.05e+11 ... 6.19e+11 m  
+* Icy zone   : > 3.91e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -958,6 +1084,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 835.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.13e+09 m  
+* Warm zone  :   1.13e+09 ... 3.95e+09 m  
+* Temp. zone :   3.95e+09 ... 5.59e+09 m  
+* Cold zone  :   5.59e+09 ... 8.54e+09 m  
+* Icy zone   : > 5.40e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -1010,6 +1143,13 @@ Spectral data:
 * Type: K7  
 * Peak wavelength: 594.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.02e+10 m  
+* Warm zone  :   2.02e+10 ... 7.03e+10 m  
+* Temp. zone :   7.03e+10 ... 9.94e+10 m  
+* Cold zone  :   9.94e+10 ... 1.52e+11 m  
+* Icy zone   : > 9.60e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1062,6 +1202,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 869.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.37e+09 m  
+* Warm zone  :   2.37e+09 ... 8.25e+09 m  
+* Temp. zone :   8.25e+09 ... 1.17e+10 m  
+* Cold zone  :   1.17e+10 ... 1.78e+10 m  
+* Icy zone   : > 1.13e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1114,6 +1261,13 @@ Spectral data:
 * Type: F3  
 * Peak wavelength: 440.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 4.48e+10 m  
+* Warm zone  :   4.48e+10 ... 1.56e+11 m  
+* Temp. zone :   1.56e+11 ... 2.21e+11 m  
+* Cold zone  :   2.21e+11 ... 3.37e+11 m  
+* Icy zone   : > 2.13e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -1166,6 +1320,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 915.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 9.10e+08 m  
+* Warm zone  :   9.10e+08 ... 3.17e+09 m  
+* Temp. zone :   3.17e+09 ... 4.48e+09 m  
+* Cold zone  :   4.48e+09 ... 6.85e+09 m  
+* Icy zone   : > 4.33e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -1218,6 +1379,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -1270,6 +1438,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -1322,6 +1497,13 @@ Spectral data:
 * Type: K9  
 * Peak wavelength: 568.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.91e+10 m  
+* Warm zone  :   1.91e+10 ... 6.64e+10 m  
+* Temp. zone :   6.64e+10 ... 9.39e+10 m  
+* Cold zone  :   9.39e+10 ... 1.43e+11 m  
+* Icy zone   : > 9.07e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1374,6 +1556,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1180.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.53e+09 m  
+* Warm zone  :   1.53e+09 ... 5.34e+09 m  
+* Temp. zone :   5.34e+09 ... 7.55e+09 m  
+* Cold zone  :   7.55e+09 ... 1.15e+10 m  
+* Icy zone   : > 7.29e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -1426,6 +1615,13 @@ Spectral data:
 * Type: A6  
 * Peak wavelength: 316.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.15e+11 m  
+* Warm zone  :   1.15e+11 ... 4.00e+11 m  
+* Temp. zone :   4.00e+11 ... 5.66e+11 m  
+* Cold zone  :   5.66e+11 ... 8.64e+11 m  
+* Icy zone   : > 5.47e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -1478,6 +1674,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1071.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.16e+09 m  
+* Warm zone  :   4.16e+09 ... 1.45e+10 m  
+* Temp. zone :   1.45e+10 ... 2.05e+10 m  
+* Cold zone  :   2.05e+10 ... 3.13e+10 m  
+* Icy zone   : > 1.98e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1530,6 +1733,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 808.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.95e+09 m  
+* Warm zone  :   4.95e+09 ... 1.73e+10 m  
+* Temp. zone :   1.73e+10 ... 2.44e+10 m  
+* Cold zone  :   2.44e+10 ... 3.73e+10 m  
+* Icy zone   : > 2.36e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1582,6 +1792,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 792.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 8.10e+09 m  
+* Warm zone  :   8.10e+09 ... 2.82e+10 m  
+* Temp. zone :   2.82e+10 ... 3.99e+10 m  
+* Cold zone  :   3.99e+10 ... 6.10e+10 m  
+* Icy zone   : > 3.86e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1634,6 +1851,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 826.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.66e+09 m  
+* Warm zone  :   7.66e+09 ... 2.67e+10 m  
+* Temp. zone :   2.67e+10 ... 3.77e+10 m  
+* Cold zone  :   3.77e+10 ... 5.76e+10 m  
+* Icy zone   : > 3.64e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1686,6 +1910,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -1738,6 +1969,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 801.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.26e+09 m  
+* Warm zone  :   2.26e+09 ... 7.86e+09 m  
+* Temp. zone :   7.86e+09 ... 1.11e+10 m  
+* Cold zone  :   1.11e+10 ... 1.70e+10 m  
+* Icy zone   : > 1.07e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1790,6 +2028,13 @@ Spectral data:
 * Type: A6  
 * Peak wavelength: 318.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.23e+11 m  
+* Warm zone  :   1.23e+11 ... 4.28e+11 m  
+* Temp. zone :   4.28e+11 ... 6.05e+11 m  
+* Cold zone  :   6.05e+11 ... 9.24e+11 m  
+* Icy zone   : > 5.85e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -1842,6 +2087,13 @@ Spectral data:
 * Type: A2  
 * Peak wavelength: 361.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 9.06e+10 m  
+* Warm zone  :   9.06e+10 ... 3.16e+11 m  
+* Temp. zone :   3.16e+11 ... 4.47e+11 m  
+* Cold zone  :   4.47e+11 ... 6.82e+11 m  
+* Icy zone   : > 4.32e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -1894,6 +2146,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -1946,6 +2205,13 @@ Spectral data:
 * Type: K1  
 * Peak wavelength: 730.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.29e+10 m  
+* Warm zone  :   1.29e+10 ... 4.50e+10 m  
+* Temp. zone :   4.50e+10 ... 6.36e+10 m  
+* Cold zone  :   6.36e+10 ... 9.71e+10 m  
+* Icy zone   : > 6.14e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -1998,6 +2264,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -2050,6 +2323,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -2102,6 +2382,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 848.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.04e+09 m  
+* Warm zone  :   6.04e+09 ... 2.10e+10 m  
+* Temp. zone :   2.10e+10 ... 2.97e+10 m  
+* Cold zone  :   2.97e+10 ... 4.54e+10 m  
+* Icy zone   : > 2.87e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2154,6 +2441,13 @@ Spectral data:
 * Type: G4  
 * Peak wavelength: 521.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.15e+10 m  
+* Warm zone  :   3.15e+10 ... 1.10e+11 m  
+* Temp. zone :   1.10e+11 ... 1.55e+11 m  
+* Cold zone  :   1.55e+11 ... 2.37e+11 m  
+* Icy zone   : > 1.50e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -2206,6 +2500,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -2258,6 +2559,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1052.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.33e+09 m  
+* Warm zone  :   4.33e+09 ... 1.51e+10 m  
+* Temp. zone :   1.51e+10 ... 2.13e+10 m  
+* Cold zone  :   2.13e+10 ... 3.26e+10 m  
+* Icy zone   : > 2.06e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2310,6 +2618,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 982.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.49e+09 m  
+* Warm zone  :   2.49e+09 ... 8.68e+09 m  
+* Temp. zone :   8.68e+09 ... 1.23e+10 m  
+* Cold zone  :   1.23e+10 ... 1.87e+10 m  
+* Icy zone   : > 1.19e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2362,6 +2677,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1167.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.28e+09 m  
+* Warm zone  :   2.28e+09 ... 7.95e+09 m  
+* Temp. zone :   7.95e+09 ... 1.12e+10 m  
+* Cold zone  :   1.12e+10 ... 1.72e+10 m  
+* Icy zone   : > 1.09e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2414,6 +2736,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1106.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.68e+09 m  
+* Warm zone  :   1.68e+09 ... 5.86e+09 m  
+* Temp. zone :   5.86e+09 ... 8.29e+09 m  
+* Cold zone  :   8.29e+09 ... 1.27e+10 m  
+* Icy zone   : > 8.01e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -2466,6 +2795,13 @@ Spectral data:
 * Type: B5  
 * Peak wavelength: 144.0 nm  
 * Peak wavelength type: far UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.61e+12 m  
+* Warm zone  :   1.61e+12 ... 5.62e+12 m  
+* Temp. zone :   5.62e+12 ... 7.94e+12 m  
+* Cold zone  :   7.94e+12 ... 1.21e+13 m  
+* Icy zone   : > 7.67e+13 m  
 ```  
 #### GODOT data  
 ```  
@@ -2518,6 +2854,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 869.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.83e+09 m  
+* Warm zone  :   2.83e+09 ... 9.86e+09 m  
+* Temp. zone :   9.86e+09 ... 1.39e+10 m  
+* Cold zone  :   1.39e+10 ... 2.13e+10 m  
+* Icy zone   : > 1.35e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2570,6 +2913,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1158.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.34e+09 m  
+* Warm zone  :   3.34e+09 ... 1.16e+10 m  
+* Temp. zone :   1.16e+10 ... 1.64e+10 m  
+* Cold zone  :   1.64e+10 ... 2.51e+10 m  
+* Icy zone   : > 1.59e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2622,6 +2972,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 1010.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.63e+08 m  
+* Warm zone  :   7.63e+08 ... 2.66e+09 m  
+* Temp. zone :   2.66e+09 ... 3.76e+09 m  
+* Cold zone  :   3.76e+09 ... 5.74e+09 m  
+* Icy zone   : > 3.63e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -2674,6 +3031,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 964.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.10e+09 m  
+* Warm zone  :   3.10e+09 ... 1.08e+10 m  
+* Temp. zone :   1.08e+10 ... 1.53e+10 m  
+* Cold zone  :   1.53e+10 ... 2.33e+10 m  
+* Icy zone   : > 1.48e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2726,6 +3090,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 929.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.47e+09 m  
+* Warm zone  :   2.47e+09 ... 8.61e+09 m  
+* Temp. zone :   8.61e+09 ... 1.22e+10 m  
+* Cold zone  :   1.22e+10 ... 1.86e+10 m  
+* Icy zone   : > 1.18e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2778,6 +3149,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 962.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.74e+09 m  
+* Warm zone  :   2.74e+09 ... 9.53e+09 m  
+* Temp. zone :   9.53e+09 ... 1.35e+10 m  
+* Cold zone  :   1.35e+10 ... 2.06e+10 m  
+* Icy zone   : > 1.30e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2830,6 +3208,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 895.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.60e+09 m  
+* Warm zone  :   2.60e+09 ... 9.05e+09 m  
+* Temp. zone :   9.05e+09 ... 1.28e+10 m  
+* Cold zone  :   1.28e+10 ... 1.95e+10 m  
+* Icy zone   : > 1.24e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -2882,6 +3267,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1180.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 9.70e+08 m  
+* Warm zone  :   9.70e+08 ... 3.38e+09 m  
+* Temp. zone :   3.38e+09 ... 4.78e+09 m  
+* Cold zone  :   4.78e+09 ... 7.30e+09 m  
+* Icy zone   : > 4.62e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -2934,6 +3326,13 @@ Spectral data:
 * Type: G9  
 * Peak wavelength: 489.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.17e+10 m  
+* Warm zone  :   3.17e+10 ... 1.11e+11 m  
+* Temp. zone :   1.11e+11 ... 1.56e+11 m  
+* Cold zone  :   1.56e+11 ... 2.39e+11 m  
+* Icy zone   : > 1.51e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -2986,6 +3385,13 @@ Spectral data:
 * Type: G2  
 * Peak wavelength: 540.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.77e+10 m  
+* Warm zone  :   2.77e+10 ... 9.64e+10 m  
+* Temp. zone :   9.64e+10 ... 1.36e+11 m  
+* Cold zone  :   1.36e+11 ... 2.08e+11 m  
+* Icy zone   : > 1.32e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -3038,6 +3444,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 832.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.43e+09 m  
+* Warm zone  :   3.43e+09 ... 1.20e+10 m  
+* Temp. zone :   1.20e+10 ... 1.69e+10 m  
+* Cold zone  :   1.69e+10 ... 2.58e+10 m  
+* Icy zone   : > 1.63e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3090,6 +3503,13 @@ Spectral data:
 * Type: K2  
 * Peak wavelength: 705.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.19e+10 m  
+* Warm zone  :   1.19e+10 ... 4.16e+10 m  
+* Temp. zone :   4.16e+10 ... 5.88e+10 m  
+* Cold zone  :   5.88e+10 ... 8.99e+10 m  
+* Icy zone   : > 5.68e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3142,6 +3562,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -3194,6 +3621,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -3246,6 +3680,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 1009.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.17e+09 m  
+* Warm zone  :   2.17e+09 ... 7.58e+09 m  
+* Temp. zone :   7.58e+09 ... 1.07e+10 m  
+* Cold zone  :   1.07e+10 ... 1.64e+10 m  
+* Icy zone   : > 1.04e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3298,6 +3739,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 1039.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.48e+09 m  
+* Warm zone  :   3.48e+09 ... 1.21e+10 m  
+* Temp. zone :   1.21e+10 ... 1.71e+10 m  
+* Cold zone  :   1.71e+10 ... 2.62e+10 m  
+* Icy zone   : > 1.65e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3350,6 +3798,13 @@ Spectral data:
 * Type: A4  
 * Peak wavelength: 340.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.16e+11 m  
+* Warm zone  :   1.16e+11 ... 4.03e+11 m  
+* Temp. zone :   4.03e+11 ... 5.69e+11 m  
+* Cold zone  :   5.69e+11 ... 8.70e+11 m  
+* Icy zone   : > 5.50e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -3402,6 +3857,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 860.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.10e+09 m  
+* Warm zone  :   6.10e+09 ... 2.12e+10 m  
+* Temp. zone :   2.12e+10 ... 3.00e+10 m  
+* Cold zone  :   3.00e+10 ... 4.59e+10 m  
+* Icy zone   : > 2.90e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3454,6 +3916,13 @@ Spectral data:
 * Type: G8  
 * Peak wavelength: 496.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.10e+10 m  
+* Warm zone  :   3.10e+10 ... 1.08e+11 m  
+* Temp. zone :   1.08e+11 ... 1.53e+11 m  
+* Cold zone  :   1.53e+11 ... 2.34e+11 m  
+* Icy zone   : > 1.48e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -3506,6 +3975,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1169.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.43e+09 m  
+* Warm zone  :   2.43e+09 ... 8.47e+09 m  
+* Temp. zone :   8.47e+09 ... 1.20e+10 m  
+* Cold zone  :   1.20e+10 ... 1.83e+10 m  
+* Icy zone   : > 1.16e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3558,6 +4034,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1056.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.29e+09 m  
+* Warm zone  :   4.29e+09 ... 1.50e+10 m  
+* Temp. zone :   1.50e+10 ... 2.12e+10 m  
+* Cold zone  :   2.12e+10 ... 3.23e+10 m  
+* Icy zone   : > 2.04e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3610,6 +4093,13 @@ Spectral data:
 * Type: B2  
 * Peak wavelength: 206.0 nm  
 * Peak wavelength type: medium UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.03e+12 m  
+* Warm zone  :   1.03e+12 ... 3.57e+12 m  
+* Temp. zone :   3.57e+12 ... 5.05e+12 m  
+* Cold zone  :   5.05e+12 ... 7.72e+12 m  
+* Icy zone   : > 4.88e+13 m  
 ```  
 #### GODOT data  
 ```  
@@ -3662,6 +4152,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 806.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.85e+09 m  
+* Warm zone  :   4.85e+09 ... 1.69e+10 m  
+* Temp. zone :   1.69e+10 ... 2.39e+10 m  
+* Cold zone  :   2.39e+10 ... 3.65e+10 m  
+* Icy zone   : > 2.31e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3714,6 +4211,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -3766,6 +4270,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -3818,6 +4329,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 811.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.30e+09 m  
+* Warm zone  :   4.30e+09 ... 1.50e+10 m  
+* Temp. zone :   1.50e+10 ... 2.12e+10 m  
+* Cold zone  :   2.12e+10 ... 3.23e+10 m  
+* Icy zone   : > 2.04e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -3870,6 +4388,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -3922,6 +4447,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -3974,6 +4506,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4026,6 +4565,13 @@ Spectral data:
 * Type: F9  
 * Peak wavelength: 394.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 6.60e+10 m  
+* Warm zone  :   6.60e+10 ... 2.30e+11 m  
+* Temp. zone :   2.30e+11 ... 3.25e+11 m  
+* Cold zone  :   3.25e+11 ... 4.97e+11 m  
+* Icy zone   : > 3.14e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -4078,6 +4624,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 900.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.57e+09 m  
+* Warm zone  :   5.57e+09 ... 1.94e+10 m  
+* Temp. zone :   1.94e+10 ... 2.74e+10 m  
+* Cold zone  :   2.74e+10 ... 4.19e+10 m  
+* Icy zone   : > 2.65e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4130,6 +4683,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1153.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.91e+09 m  
+* Warm zone  :   2.91e+09 ... 1.01e+10 m  
+* Temp. zone :   1.01e+10 ... 1.43e+10 m  
+* Cold zone  :   1.43e+10 ... 2.19e+10 m  
+* Icy zone   : > 1.39e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4182,6 +4742,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4234,6 +4801,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 861.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.84e+09 m  
+* Warm zone  :   3.84e+09 ... 1.34e+10 m  
+* Temp. zone :   1.34e+10 ... 1.89e+10 m  
+* Cold zone  :   1.89e+10 ... 2.89e+10 m  
+* Icy zone   : > 1.83e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4286,6 +4860,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 801.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.25e+09 m  
+* Warm zone  :   3.25e+09 ... 1.13e+10 m  
+* Temp. zone :   1.13e+10 ... 1.60e+10 m  
+* Cold zone  :   1.60e+10 ... 2.44e+10 m  
+* Icy zone   : > 1.55e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4338,6 +4919,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1180.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.49e+09 m  
+* Warm zone  :   1.49e+09 ... 5.20e+09 m  
+* Temp. zone :   5.20e+09 ... 7.36e+09 m  
+* Cold zone  :   7.36e+09 ... 1.12e+10 m  
+* Icy zone   : > 7.11e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -4390,6 +4978,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 974.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.81e+09 m  
+* Warm zone  :   3.81e+09 ... 1.33e+10 m  
+* Temp. zone :   1.33e+10 ... 1.88e+10 m  
+* Cold zone  :   1.88e+10 ... 2.87e+10 m  
+* Icy zone   : > 1.81e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4442,6 +5037,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4494,6 +5096,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1205.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.04e+09 m  
+* Warm zone  :   3.04e+09 ... 1.06e+10 m  
+* Temp. zone :   1.06e+10 ... 1.50e+10 m  
+* Cold zone  :   1.50e+10 ... 2.29e+10 m  
+* Icy zone   : > 1.45e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4546,6 +5155,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 882.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.77e+09 m  
+* Warm zone  :   3.77e+09 ... 1.31e+10 m  
+* Temp. zone :   1.31e+10 ... 1.86e+10 m  
+* Cold zone  :   1.86e+10 ... 2.83e+10 m  
+* Icy zone   : > 1.79e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4598,6 +5214,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4650,6 +5273,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4702,6 +5332,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1066.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.44e+09 m  
+* Warm zone  :   4.44e+09 ... 1.55e+10 m  
+* Temp. zone :   1.55e+10 ... 2.19e+10 m  
+* Cold zone  :   2.19e+10 ... 3.34e+10 m  
+* Icy zone   : > 2.11e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4754,6 +5391,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 924.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.49e+09 m  
+* Warm zone  :   5.49e+09 ... 1.91e+10 m  
+* Temp. zone :   1.91e+10 ... 2.71e+10 m  
+* Cold zone  :   2.71e+10 ... 4.14e+10 m  
+* Icy zone   : > 2.62e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4806,6 +5450,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4858,6 +5509,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1118.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.19e+09 m  
+* Warm zone  :   3.19e+09 ... 1.11e+10 m  
+* Temp. zone :   1.11e+10 ... 1.57e+10 m  
+* Cold zone  :   1.57e+10 ... 2.40e+10 m  
+* Icy zone   : > 1.52e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -4910,6 +5568,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -4962,6 +5627,13 @@ Spectral data:
 * Type: G9  
 * Peak wavelength: 484.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.25e+10 m  
+* Warm zone  :   3.25e+10 ... 1.13e+11 m  
+* Temp. zone :   1.13e+11 ... 1.60e+11 m  
+* Cold zone  :   1.60e+11 ... 2.45e+11 m  
+* Icy zone   : > 1.55e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -5014,6 +5686,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 946.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.45e+09 m  
+* Warm zone  :   2.45e+09 ... 8.52e+09 m  
+* Temp. zone :   8.52e+09 ... 1.21e+10 m  
+* Cold zone  :   1.21e+10 ... 1.84e+10 m  
+* Icy zone   : > 1.16e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5066,6 +5745,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 842.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.78e+09 m  
+* Warm zone  :   1.78e+09 ... 6.19e+09 m  
+* Temp. zone :   6.19e+09 ... 8.75e+09 m  
+* Cold zone  :   8.75e+09 ... 1.34e+10 m  
+* Icy zone   : > 8.45e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -5118,6 +5804,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 867.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.63e+09 m  
+* Warm zone  :   4.63e+09 ... 1.61e+10 m  
+* Temp. zone :   1.61e+10 ... 2.28e+10 m  
+* Cold zone  :   2.28e+10 ... 3.49e+10 m  
+* Icy zone   : > 2.21e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5170,6 +5863,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1077.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 8.70e+08 m  
+* Warm zone  :   8.70e+08 ... 3.03e+09 m  
+* Temp. zone :   3.03e+09 ... 4.29e+09 m  
+* Cold zone  :   4.29e+09 ... 6.55e+09 m  
+* Icy zone   : > 4.14e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -5222,6 +5922,13 @@ Spectral data:
 * Type: G1  
 * Peak wavelength: 546.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.56e+10 m  
+* Warm zone  :   2.56e+10 ... 8.91e+10 m  
+* Temp. zone :   8.91e+10 ... 1.26e+11 m  
+* Cold zone  :   1.26e+11 ... 1.92e+11 m  
+* Icy zone   : > 1.22e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -5274,6 +5981,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1126.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.62e+09 m  
+* Warm zone  :   3.62e+09 ... 1.26e+10 m  
+* Temp. zone :   1.26e+10 ... 1.79e+10 m  
+* Cold zone  :   1.79e+10 ... 2.73e+10 m  
+* Icy zone   : > 1.72e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5326,6 +6040,13 @@ Spectral data:
 * Type: G9  
 * Peak wavelength: 484.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.22e+10 m  
+* Warm zone  :   3.22e+10 ... 1.12e+11 m  
+* Temp. zone :   1.12e+11 ... 1.59e+11 m  
+* Cold zone  :   1.59e+11 ... 2.43e+11 m  
+* Icy zone   : > 1.54e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -5378,6 +6099,13 @@ Spectral data:
 * Type: G9  
 * Peak wavelength: 483.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.48e+10 m  
+* Warm zone  :   3.48e+10 ... 1.21e+11 m  
+* Temp. zone :   1.21e+11 ... 1.72e+11 m  
+* Cold zone  :   1.72e+11 ... 2.62e+11 m  
+* Icy zone   : > 1.66e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -5430,6 +6158,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -5482,6 +6217,13 @@ Spectral data:
 * Type: K5  
 * Peak wavelength: 648.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.63e+10 m  
+* Warm zone  :   1.63e+10 ... 5.67e+10 m  
+* Temp. zone :   5.67e+10 ... 8.01e+10 m  
+* Cold zone  :   8.01e+10 ... 1.22e+11 m  
+* Icy zone   : > 7.74e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5534,6 +6276,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 842.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.06e+09 m  
+* Warm zone  :   7.06e+09 ... 2.46e+10 m  
+* Temp. zone :   2.46e+10 ... 3.48e+10 m  
+* Cold zone  :   3.48e+10 ... 5.32e+10 m  
+* Icy zone   : > 3.36e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5586,6 +6335,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -5638,6 +6394,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 880.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.35e+09 m  
+* Warm zone  :   4.35e+09 ... 1.52e+10 m  
+* Temp. zone :   1.52e+10 ... 2.15e+10 m  
+* Cold zone  :   2.15e+10 ... 3.28e+10 m  
+* Icy zone   : > 2.07e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5690,6 +6453,13 @@ Spectral data:
 * Type: K3  
 * Peak wavelength: 690.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.25e+10 m  
+* Warm zone  :   1.25e+10 ... 4.37e+10 m  
+* Temp. zone :   4.37e+10 ... 6.18e+10 m  
+* Cold zone  :   6.18e+10 ... 9.44e+10 m  
+* Icy zone   : > 5.97e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5742,6 +6512,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 811.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.45e+09 m  
+* Warm zone  :   6.45e+09 ... 2.25e+10 m  
+* Temp. zone :   2.25e+10 ... 3.18e+10 m  
+* Cold zone  :   3.18e+10 ... 4.85e+10 m  
+* Icy zone   : > 3.07e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5794,6 +6571,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -5846,6 +6630,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 963.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.24e+09 m  
+* Warm zone  :   1.24e+09 ... 4.32e+09 m  
+* Temp. zone :   4.32e+09 ... 6.11e+09 m  
+* Cold zone  :   6.11e+09 ... 9.33e+09 m  
+* Icy zone   : > 5.90e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -5898,6 +6689,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 941.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.58e+09 m  
+* Warm zone  :   2.58e+09 ... 8.98e+09 m  
+* Temp. zone :   8.98e+09 ... 1.27e+10 m  
+* Cold zone  :   1.27e+10 ... 1.94e+10 m  
+* Icy zone   : > 1.23e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -5950,6 +6748,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -6002,6 +6807,13 @@ Spectral data:
 * Type: G7  
 * Peak wavelength: 499.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.04e+10 m  
+* Warm zone  :   3.04e+10 ... 1.06e+11 m  
+* Temp. zone :   1.06e+11 ... 1.50e+11 m  
+* Cold zone  :   1.50e+11 ... 2.29e+11 m  
+* Icy zone   : > 1.45e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -6054,6 +6866,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 1028.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.18e+09 m  
+* Warm zone  :   3.18e+09 ... 1.11e+10 m  
+* Temp. zone :   1.11e+10 ... 1.57e+10 m  
+* Cold zone  :   1.57e+10 ... 2.39e+10 m  
+* Icy zone   : > 1.51e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6106,6 +6925,13 @@ Spectral data:
 * Type: K7  
 * Peak wavelength: 598.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.84e+10 m  
+* Warm zone  :   1.84e+10 ... 6.42e+10 m  
+* Temp. zone :   6.42e+10 ... 9.08e+10 m  
+* Cold zone  :   9.08e+10 ... 1.39e+11 m  
+* Icy zone   : > 8.77e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6158,6 +6984,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 797.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.00e+09 m  
+* Warm zone  :   6.00e+09 ... 2.09e+10 m  
+* Temp. zone :   2.09e+10 ... 2.96e+10 m  
+* Cold zone  :   2.96e+10 ... 4.52e+10 m  
+* Icy zone   : > 2.86e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6210,6 +7043,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1143.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.22e+09 m  
+* Warm zone  :   3.22e+09 ... 1.12e+10 m  
+* Temp. zone :   1.12e+10 ... 1.59e+10 m  
+* Cold zone  :   1.59e+10 ... 2.42e+10 m  
+* Icy zone   : > 1.53e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6262,6 +7102,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 894.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.37e+09 m  
+* Warm zone  :   3.37e+09 ... 1.18e+10 m  
+* Temp. zone :   1.18e+10 ... 1.66e+10 m  
+* Cold zone  :   1.66e+10 ... 2.54e+10 m  
+* Icy zone   : > 1.61e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6314,6 +7161,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 1037.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.46e+09 m  
+* Warm zone  :   1.46e+09 ... 5.07e+09 m  
+* Temp. zone :   5.07e+09 ... 7.17e+09 m  
+* Cold zone  :   7.17e+09 ... 1.10e+10 m  
+* Icy zone   : > 6.93e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -6366,6 +7220,13 @@ Spectral data:
 * Type: G0  
 * Peak wavelength: 552.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.75e+10 m  
+* Warm zone  :   2.75e+10 ... 9.60e+10 m  
+* Temp. zone :   9.60e+10 ... 1.36e+11 m  
+* Cold zone  :   1.36e+11 ... 2.07e+11 m  
+* Icy zone   : > 1.31e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -6418,6 +7279,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -6470,6 +7338,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 786.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.37e+09 m  
+* Warm zone  :   7.37e+09 ... 2.57e+10 m  
+* Temp. zone :   2.57e+10 ... 3.63e+10 m  
+* Cold zone  :   3.63e+10 ... 5.55e+10 m  
+* Icy zone   : > 3.51e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6522,6 +7397,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -6574,6 +7456,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 914.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.50e+09 m  
+* Warm zone  :   5.50e+09 ... 1.92e+10 m  
+* Temp. zone :   1.92e+10 ... 2.71e+10 m  
+* Cold zone  :   2.71e+10 ... 4.14e+10 m  
+* Icy zone   : > 2.62e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6626,6 +7515,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1159.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.48e+09 m  
+* Warm zone  :   1.48e+09 ... 5.16e+09 m  
+* Temp. zone :   5.16e+09 ... 7.30e+09 m  
+* Cold zone  :   7.30e+09 ... 1.11e+10 m  
+* Icy zone   : > 7.05e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -6678,6 +7574,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 838.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.74e+09 m  
+* Warm zone  :   5.74e+09 ... 2.00e+10 m  
+* Temp. zone :   2.00e+10 ... 2.83e+10 m  
+* Cold zone  :   2.83e+10 ... 4.32e+10 m  
+* Icy zone   : > 2.73e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6730,6 +7633,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1150.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.19e+09 m  
+* Warm zone  :   1.19e+09 ... 4.15e+09 m  
+* Temp. zone :   4.15e+09 ... 5.87e+09 m  
+* Cold zone  :   5.87e+09 ... 8.96e+09 m  
+* Icy zone   : > 5.67e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -6782,6 +7692,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 922.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.80e+09 m  
+* Warm zone  :   5.80e+09 ... 2.02e+10 m  
+* Temp. zone :   2.02e+10 ... 2.86e+10 m  
+* Cold zone  :   2.86e+10 ... 4.36e+10 m  
+* Icy zone   : > 2.76e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6834,6 +7751,13 @@ Spectral data:
 * Type: B4  
 * Peak wavelength: 156.0 nm  
 * Peak wavelength type: far UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.76e+12 m  
+* Warm zone  :   1.76e+12 ... 6.13e+12 m  
+* Temp. zone :   6.13e+12 ... 8.67e+12 m  
+* Cold zone  :   8.67e+12 ... 1.33e+13 m  
+* Icy zone   : > 8.38e+13 m  
 ```  
 #### GODOT data  
 ```  
@@ -6886,6 +7810,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 962.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.91e+09 m  
+* Warm zone  :   1.91e+09 ... 6.64e+09 m  
+* Temp. zone :   6.64e+09 ... 9.39e+09 m  
+* Cold zone  :   9.39e+09 ... 1.43e+10 m  
+* Icy zone   : > 9.07e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -6938,6 +7869,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1046.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.58e+09 m  
+* Warm zone  :   4.58e+09 ... 1.60e+10 m  
+* Temp. zone :   1.60e+10 ... 2.26e+10 m  
+* Cold zone  :   2.26e+10 ... 3.45e+10 m  
+* Icy zone   : > 2.18e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -6990,6 +7928,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -7042,6 +7987,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 838.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.40e+09 m  
+* Warm zone  :   4.40e+09 ... 1.53e+10 m  
+* Temp. zone :   1.53e+10 ... 2.17e+10 m  
+* Cold zone  :   2.17e+10 ... 3.31e+10 m  
+* Icy zone   : > 2.09e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7094,6 +8046,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 898.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.39e+09 m  
+* Warm zone  :   5.39e+09 ... 1.88e+10 m  
+* Temp. zone :   1.88e+10 ... 2.66e+10 m  
+* Cold zone  :   2.66e+10 ... 4.06e+10 m  
+* Icy zone   : > 2.57e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7146,6 +8105,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -7198,6 +8164,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 838.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.80e+09 m  
+* Warm zone  :   6.80e+09 ... 2.37e+10 m  
+* Temp. zone :   2.37e+10 ... 3.35e+10 m  
+* Cold zone  :   3.35e+10 ... 5.12e+10 m  
+* Icy zone   : > 3.24e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7250,6 +8223,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -7302,6 +8282,13 @@ Spectral data:
 * Type: G4  
 * Peak wavelength: 521.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.04e+10 m  
+* Warm zone  :   3.04e+10 ... 1.06e+11 m  
+* Temp. zone :   1.06e+11 ... 1.50e+11 m  
+* Cold zone  :   1.50e+11 ... 2.29e+11 m  
+* Icy zone   : > 1.45e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -7354,6 +8341,13 @@ Spectral data:
 * Type: K0  
 * Peak wavelength: 762.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 9.34e+09 m  
+* Warm zone  :   9.34e+09 ... 3.25e+10 m  
+* Temp. zone :   3.25e+10 ... 4.60e+10 m  
+* Cold zone  :   4.60e+10 ... 7.03e+10 m  
+* Icy zone   : > 4.45e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7406,6 +8400,13 @@ Spectral data:
 * Type: K9  
 * Peak wavelength: 573.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.65e+10 m  
+* Warm zone  :   1.65e+10 ... 5.74e+10 m  
+* Temp. zone :   5.74e+10 ... 8.12e+10 m  
+* Cold zone  :   8.12e+10 ... 1.24e+11 m  
+* Icy zone   : > 7.84e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7458,6 +8459,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1047.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.83e+09 m  
+* Warm zone  :   3.83e+09 ... 1.34e+10 m  
+* Temp. zone :   1.34e+10 ... 1.89e+10 m  
+* Cold zone  :   1.89e+10 ... 2.89e+10 m  
+* Icy zone   : > 1.82e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7510,6 +8518,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 791.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.26e+09 m  
+* Warm zone  :   7.26e+09 ... 2.53e+10 m  
+* Temp. zone :   2.53e+10 ... 3.58e+10 m  
+* Cold zone  :   3.58e+10 ... 5.47e+10 m  
+* Icy zone   : > 3.46e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7562,6 +8577,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1176.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.80e+09 m  
+* Warm zone  :   3.80e+09 ... 1.32e+10 m  
+* Temp. zone :   1.32e+10 ... 1.87e+10 m  
+* Cold zone  :   1.87e+10 ... 2.86e+10 m  
+* Icy zone   : > 1.81e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7614,6 +8636,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 922.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.11e+09 m  
+* Warm zone  :   6.11e+09 ... 2.13e+10 m  
+* Temp. zone :   2.13e+10 ... 3.01e+10 m  
+* Cold zone  :   3.01e+10 ... 4.60e+10 m  
+* Icy zone   : > 2.91e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7666,6 +8695,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -7718,6 +8754,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1099.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.48e+09 m  
+* Warm zone  :   2.48e+09 ... 8.65e+09 m  
+* Temp. zone :   8.65e+09 ... 1.22e+10 m  
+* Cold zone  :   1.22e+10 ... 1.87e+10 m  
+* Icy zone   : > 1.18e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7770,6 +8813,13 @@ Spectral data:
 * Type: F2  
 * Peak wavelength: 455.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 4.65e+10 m  
+* Warm zone  :   4.65e+10 ... 1.62e+11 m  
+* Temp. zone :   1.62e+11 ... 2.29e+11 m  
+* Cold zone  :   2.29e+11 ... 3.50e+11 m  
+* Icy zone   : > 2.21e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -7822,6 +8872,13 @@ Spectral data:
 * Type: G6  
 * Peak wavelength: 506.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.27e+10 m  
+* Warm zone  :   3.27e+10 ... 1.14e+11 m  
+* Temp. zone :   1.14e+11 ... 1.61e+11 m  
+* Cold zone  :   1.61e+11 ... 2.46e+11 m  
+* Icy zone   : > 1.56e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -7874,6 +8931,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -7926,6 +8990,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 851.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.68e+09 m  
+* Warm zone  :   3.68e+09 ... 1.28e+10 m  
+* Temp. zone :   1.28e+10 ... 1.82e+10 m  
+* Cold zone  :   1.82e+10 ... 2.77e+10 m  
+* Icy zone   : > 1.75e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -7978,6 +9049,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1055.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.57e+09 m  
+* Warm zone  :   3.57e+09 ... 1.24e+10 m  
+* Temp. zone :   1.24e+10 ... 1.76e+10 m  
+* Cold zone  :   1.76e+10 ... 2.69e+10 m  
+* Icy zone   : > 1.70e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8030,6 +9108,13 @@ Spectral data:
 * Type: K5  
 * Peak wavelength: 645.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.42e+10 m  
+* Warm zone  :   1.42e+10 ... 4.96e+10 m  
+* Temp. zone :   4.96e+10 ... 7.01e+10 m  
+* Cold zone  :   7.01e+10 ... 1.07e+11 m  
+* Icy zone   : > 6.77e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8082,6 +9167,13 @@ Spectral data:
 * Type: K1  
 * Peak wavelength: 747.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.13e+10 m  
+* Warm zone  :   1.13e+10 ... 3.93e+10 m  
+* Temp. zone :   3.93e+10 ... 5.56e+10 m  
+* Cold zone  :   5.56e+10 ... 8.49e+10 m  
+* Icy zone   : > 5.37e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8134,6 +9226,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 948.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.34e+09 m  
+* Warm zone  :   4.34e+09 ... 1.51e+10 m  
+* Temp. zone :   1.51e+10 ... 2.14e+10 m  
+* Cold zone  :   2.14e+10 ... 3.27e+10 m  
+* Icy zone   : > 2.07e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8186,6 +9285,13 @@ Spectral data:
 * Type: B9  
 * Peak wavelength: 97.0 nm  
 * Peak wavelength type: extreme UV  
+  
+Temperature zone data:  
+* Hot zone   : < 4.94e+12 m  
+* Warm zone  :   4.94e+12 ... 1.72e+13 m  
+* Temp. zone :   1.72e+13 ... 2.43e+13 m  
+* Cold zone  :   2.43e+13 ... 3.72e+13 m  
+* Icy zone   : > 2.35e+14 m  
 ```  
 #### GODOT data  
 ```  
@@ -8238,6 +9344,13 @@ Spectral data:
 * Type: M9  
 * Peak wavelength: 801.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.21e+09 m  
+* Warm zone  :   4.21e+09 ... 1.47e+10 m  
+* Temp. zone :   1.47e+10 ... 2.07e+10 m  
+* Cold zone  :   2.07e+10 ... 3.17e+10 m  
+* Icy zone   : > 2.00e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8290,6 +9403,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 873.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.16e+09 m  
+* Warm zone  :   5.16e+09 ... 1.80e+10 m  
+* Temp. zone :   1.80e+10 ... 2.54e+10 m  
+* Cold zone  :   2.54e+10 ... 3.89e+10 m  
+* Icy zone   : > 2.46e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8342,6 +9462,13 @@ Spectral data:
 * Type: G1  
 * Peak wavelength: 546.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.84e+10 m  
+* Warm zone  :   2.84e+10 ... 9.91e+10 m  
+* Temp. zone :   9.91e+10 ... 1.40e+11 m  
+* Cold zone  :   1.40e+11 ... 2.14e+11 m  
+* Icy zone   : > 1.35e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -8394,6 +9521,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 904.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.62e+09 m  
+* Warm zone  :   5.62e+09 ... 1.96e+10 m  
+* Temp. zone :   1.96e+10 ... 2.77e+10 m  
+* Cold zone  :   2.77e+10 ... 4.23e+10 m  
+* Icy zone   : > 2.68e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8446,6 +9580,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -8498,6 +9639,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1088.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.82e+08 m  
+* Warm zone  :   7.82e+08 ... 2.73e+09 m  
+* Temp. zone :   2.73e+09 ... 3.86e+09 m  
+* Cold zone  :   3.86e+09 ... 5.89e+09 m  
+* Icy zone   : > 3.73e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -8550,6 +9698,13 @@ Spectral data:
 * Type: A3  
 * Peak wavelength: 341.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 1.12e+11 m  
+* Warm zone  :   1.12e+11 ... 3.89e+11 m  
+* Temp. zone :   3.89e+11 ... 5.51e+11 m  
+* Cold zone  :   5.51e+11 ... 8.41e+11 m  
+* Icy zone   : > 5.32e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -8602,6 +9757,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -8654,6 +9816,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -8706,6 +9875,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 921.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.16e+09 m  
+* Warm zone  :   3.16e+09 ... 1.10e+10 m  
+* Temp. zone :   1.10e+10 ... 1.56e+10 m  
+* Cold zone  :   1.56e+10 ... 2.38e+10 m  
+* Icy zone   : > 1.51e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8758,6 +9934,13 @@ Spectral data:
 * Type: M1  
 * Peak wavelength: 1140.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.78e+08 m  
+* Warm zone  :   7.78e+08 ... 2.71e+09 m  
+* Temp. zone :   2.71e+09 ... 3.83e+09 m  
+* Cold zone  :   3.83e+09 ... 5.86e+09 m  
+* Icy zone   : > 3.70e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -8810,6 +9993,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 945.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.11e+09 m  
+* Warm zone  :   5.11e+09 ... 1.78e+10 m  
+* Temp. zone :   1.78e+10 ... 2.52e+10 m  
+* Cold zone  :   2.52e+10 ... 3.85e+10 m  
+* Icy zone   : > 2.43e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8862,6 +10052,13 @@ Spectral data:
 * Type: K9  
 * Peak wavelength: 572.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.66e+10 m  
+* Warm zone  :   1.66e+10 ... 5.79e+10 m  
+* Temp. zone :   5.79e+10 ... 8.18e+10 m  
+* Cold zone  :   8.18e+10 ... 1.25e+11 m  
+* Icy zone   : > 7.90e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8914,6 +10111,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 900.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 6.50e+09 m  
+* Warm zone  :   6.50e+09 ... 2.26e+10 m  
+* Temp. zone :   2.26e+10 ... 3.20e+10 m  
+* Cold zone  :   3.20e+10 ... 4.89e+10 m  
+* Icy zone   : > 3.09e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -8966,6 +10170,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1198.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 7.26e+08 m  
+* Warm zone  :   7.26e+08 ... 2.53e+09 m  
+* Temp. zone :   2.53e+09 ... 3.58e+09 m  
+* Cold zone  :   3.58e+09 ... 5.47e+09 m  
+* Icy zone   : > 3.46e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -9018,6 +10229,13 @@ Spectral data:
 * Type: B9  
 * Peak wavelength: 99.0 nm  
 * Peak wavelength type: extreme UV  
+  
+Temperature zone data:  
+* Hot zone   : < 2.15e+12 m  
+* Warm zone  :   2.15e+12 ... 7.50e+12 m  
+* Temp. zone :   7.50e+12 ... 1.06e+13 m  
+* Cold zone  :   1.06e+13 ... 1.62e+13 m  
+* Icy zone   : > 1.03e+14 m  
 ```  
 #### GODOT data  
 ```  
@@ -9070,6 +10288,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 1012.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.73e+09 m  
+* Warm zone  :   3.73e+09 ... 1.30e+10 m  
+* Temp. zone :   1.30e+10 ... 1.84e+10 m  
+* Cold zone  :   1.84e+10 ... 2.81e+10 m  
+* Icy zone   : > 1.78e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9122,6 +10347,13 @@ Spectral data:
 * Type: G7  
 * Peak wavelength: 498.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 3.28e+10 m  
+* Warm zone  :   3.28e+10 ... 1.14e+11 m  
+* Temp. zone :   1.14e+11 ... 1.62e+11 m  
+* Cold zone  :   1.62e+11 ... 2.47e+11 m  
+* Icy zone   : > 1.56e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -9174,6 +10406,13 @@ Spectral data:
 * Type: M6  
 * Peak wavelength: 886.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.92e+09 m  
+* Warm zone  :   1.92e+09 ... 6.69e+09 m  
+* Temp. zone :   6.69e+09 ... 9.45e+09 m  
+* Cold zone  :   9.45e+09 ... 1.44e+10 m  
+* Icy zone   : > 9.13e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -9226,6 +10465,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1055.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.19e+09 m  
+* Warm zone  :   3.19e+09 ... 1.11e+10 m  
+* Temp. zone :   1.11e+10 ... 1.57e+10 m  
+* Cold zone  :   1.57e+10 ... 2.40e+10 m  
+* Icy zone   : > 1.52e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9278,6 +10524,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 945.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.20e+09 m  
+* Warm zone  :   2.20e+09 ... 7.67e+09 m  
+* Temp. zone :   7.67e+09 ... 1.09e+10 m  
+* Cold zone  :   1.09e+10 ... 1.66e+10 m  
+* Icy zone   : > 1.05e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9330,6 +10583,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 817.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.88e+09 m  
+* Warm zone  :   5.88e+09 ... 2.05e+10 m  
+* Temp. zone :   2.05e+10 ... 2.90e+10 m  
+* Cold zone  :   2.90e+10 ... 4.42e+10 m  
+* Icy zone   : > 2.80e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9382,6 +10642,13 @@ Spectral data:
 * Type: M2  
 * Peak wavelength: 1047.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.63e+09 m  
+* Warm zone  :   1.63e+09 ... 5.69e+09 m  
+* Temp. zone :   5.69e+09 ... 8.04e+09 m  
+* Cold zone  :   8.04e+09 ... 1.23e+10 m  
+* Icy zone   : > 7.77e+10 m  
 ```  
 #### GODOT data  
 ```  
@@ -9434,6 +10701,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -9486,6 +10760,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 938.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 4.79e+09 m  
+* Warm zone  :   4.79e+09 ... 1.67e+10 m  
+* Temp. zone :   1.67e+10 ... 2.36e+10 m  
+* Cold zone  :   2.36e+10 ... 3.61e+10 m  
+* Icy zone   : > 2.28e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9538,6 +10819,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -9590,6 +10878,13 @@ Spectral data:
 * Type: M3  
 * Peak wavelength: 994.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.19e+09 m  
+* Warm zone  :   2.19e+09 ... 7.64e+09 m  
+* Temp. zone :   7.64e+09 ... 1.08e+10 m  
+* Cold zone  :   1.08e+10 ... 1.65e+10 m  
+* Icy zone   : > 1.04e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9642,6 +10937,13 @@ Spectral data:
 * Type: M0  
 * Peak wavelength: 1173.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 2.17e+09 m  
+* Warm zone  :   2.17e+09 ... 7.55e+09 m  
+* Temp. zone :   7.55e+09 ... 1.07e+10 m  
+* Cold zone  :   1.07e+10 ... 1.63e+10 m  
+* Icy zone   : > 1.03e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9694,6 +10996,13 @@ Spectral data:
 * Type: M5  
 * Peak wavelength: 950.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.03e+09 m  
+* Warm zone  :   3.03e+09 ... 1.06e+10 m  
+* Temp. zone :   1.06e+10 ... 1.49e+10 m  
+* Cold zone  :   1.49e+10 ... 2.28e+10 m  
+* Icy zone   : > 1.44e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9746,6 +11055,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -9798,6 +11114,13 @@ Spectral data:
 * Type: K1  
 * Peak wavelength: 733.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 1.05e+10 m  
+* Warm zone  :   1.05e+10 ... 3.67e+10 m  
+* Temp. zone :   3.67e+10 ... 5.19e+10 m  
+* Cold zone  :   5.19e+10 ... 7.93e+10 m  
+* Icy zone   : > 5.02e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9850,6 +11173,13 @@ Spectral data:
 * Type: M4  
 * Peak wavelength: 974.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 3.04e+09 m  
+* Warm zone  :   3.04e+09 ... 1.06e+10 m  
+* Temp. zone :   1.06e+10 ... 1.50e+10 m  
+* Cold zone  :   1.50e+10 ... 2.29e+10 m  
+* Icy zone   : > 1.45e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -9902,6 +11232,13 @@ Spectral data:
 * Type: F8  
 * Peak wavelength: 398.0 nm  
 * Peak wavelength type: near UV  
+  
+Temperature zone data:  
+* Hot zone   : < 5.93e+10 m  
+* Warm zone  :   5.93e+10 ... 2.06e+11 m  
+* Temp. zone :   2.06e+11 ... 2.92e+11 m  
+* Cold zone  :   2.92e+11 ... 4.46e+11 m  
+* Icy zone   : > 2.82e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -9954,6 +11291,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -10006,6 +11350,13 @@ Spectral data:
 * Type: M8  
 * Peak wavelength: 821.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.77e+09 m  
+* Warm zone  :   5.77e+09 ... 2.01e+10 m  
+* Temp. zone :   2.01e+10 ... 2.84e+10 m  
+* Cold zone  :   2.84e+10 ... 4.34e+10 m  
+* Icy zone   : > 2.75e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -10058,6 +11409,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -10110,6 +11468,13 @@ Spectral data:
 * Type: F3  
 * Peak wavelength: 439.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 5.38e+10 m  
+* Warm zone  :   5.38e+10 ... 1.87e+11 m  
+* Temp. zone :   1.87e+11 ... 2.65e+11 m  
+* Cold zone  :   2.65e+11 ... 4.05e+11 m  
+* Icy zone   : > 2.56e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -10162,6 +11527,13 @@ Spectral data:
 * Type: M7  
 * Peak wavelength: 852.0 nm  
 * Peak wavelength type: near IR  
+  
+Temperature zone data:  
+* Hot zone   : < 5.22e+09 m  
+* Warm zone  :   5.22e+09 ... 1.82e+10 m  
+* Temp. zone :   1.82e+10 ... 2.57e+10 m  
+* Cold zone  :   2.57e+10 ... 3.93e+10 m  
+* Icy zone   : > 2.48e+11 m  
 ```  
 #### GODOT data  
 ```  
@@ -10214,6 +11586,13 @@ Spectral data:
 * Type: G4  
 * Peak wavelength: 522.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 2.74e+10 m  
+* Warm zone  :   2.74e+10 ... 9.53e+10 m  
+* Temp. zone :   9.53e+10 ... 1.35e+11 m  
+* Cold zone  :   1.35e+11 ... 2.06e+11 m  
+* Icy zone   : > 1.30e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -10266,6 +11645,13 @@ Spectral data:
 * Type: Other0  
 * Peak wavelength: 0 nm  
 * Peak wavelength type: gamma  
+  
+Temperature zone data:  
+* Hot zone   : < 0.00e+00 m  
+* Warm zone  :   0.00e+00 ... 0.00e+00 m  
+* Temp. zone :   0.00e+00 ... 0.00e+00 m  
+* Cold zone  :   0.00e+00 ... 0.00e+00 m  
+* Icy zone   : > 0.00e+00 m  
 ```  
 #### GODOT data  
 ```  
@@ -10318,6 +11704,13 @@ Spectral data:
 * Type: F1  
 * Peak wavelength: 460.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 4.30e+10 m  
+* Warm zone  :   4.30e+10 ... 1.50e+11 m  
+* Temp. zone :   1.50e+11 ... 2.12e+11 m  
+* Cold zone  :   2.12e+11 ... 3.24e+11 m  
+* Icy zone   : > 2.05e+12 m  
 ```  
 #### GODOT data  
 ```  
@@ -10370,6 +11763,13 @@ Spectral data:
 * Type: K8  
 * Peak wavelength: 587.0 nm  
 * Peak wavelength type: visible  
+  
+Temperature zone data:  
+* Hot zone   : < 1.61e+10 m  
+* Warm zone  :   1.61e+10 ... 5.60e+10 m  
+* Temp. zone :   5.60e+10 ... 7.93e+10 m  
+* Cold zone  :   7.93e+10 ... 1.21e+11 m  
+* Icy zone   : > 7.66e+11 m  
 ```  
 #### GODOT data  
 ```  
