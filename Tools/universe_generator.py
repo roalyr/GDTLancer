@@ -101,7 +101,7 @@ wl_fir_min = 15000
 
 # Companion stars for the main star.
 num_stars_min = 0
-num_stars_max = 7
+num_stars_max = 5
 
 # Planets for each star type.
 star_o_num_planets_min = 1
@@ -143,7 +143,7 @@ star_o_temp_max = star_temp_max
 star_o_mass_min = 16
 star_o_mass_max = 90
 # Abundance is tweaked for gameplay purposes.
-star_o_abundance = 0.002
+star_o_abundance = 0.02 # use 0.002
 
 star_b_size_min = 1.8 * sun_diameter
 star_b_size_max = 6.6 * sun_diameter
@@ -152,7 +152,7 @@ star_b_temp_max = 30000
 star_b_mass_min = 2.1
 star_b_mass_max = 16
 # Abundance is tweaked for gameplay purposes.
-star_b_abundance = 0.02
+star_b_abundance = 0.05 # use 0.02
 
 star_a_size_min = 1.4 * sun_diameter
 star_a_size_max = 1.8 * sun_diameter
@@ -161,7 +161,7 @@ star_a_temp_max = 10000
 star_a_mass_min = 1.4
 star_a_mass_max = 2.1
 # Abundance is tweaked for gameplay purposes.
-star_a_abundance = 0.06
+star_a_abundance = 0.1 # use 0.06
 
 star_f_size_min = 1.15 * sun_diameter
 star_f_size_max = 1.4 * sun_diameter
@@ -170,7 +170,7 @@ star_f_temp_max = 7500
 star_f_mass_min = 1.04
 star_f_mass_max = 1.4
 # Abundance is tweaked for gameplay purposes.
-star_f_abundance = 0.1
+star_f_abundance = 0.2 # use 0.1
 
 star_g_size_min = 0.96 * sun_diameter
 star_g_size_max = 1.15 * sun_diameter
@@ -179,7 +179,7 @@ star_g_temp_max = 6000
 star_g_mass_min = 0.8
 star_g_mass_max = 1.04
 # Abundance is tweaked for gameplay purposes.
-star_g_abundance = 0.2
+star_g_abundance = 0.3 # use 0.2
 
 star_k_size_min = 0.7 * sun_diameter
 star_k_size_max = 0.96 * sun_diameter
@@ -188,7 +188,7 @@ star_k_temp_max = 5200
 star_k_mass_min = 0.45
 star_k_mass_max = 0.8
 # Abundance is tweaked for gameplay purposes.
-star_k_abundance = 0.3
+star_k_abundance = 0.5 # use 0.3
 
 star_m_size_min = 0.1 * sun_diameter
 star_m_size_max = 0.7 * sun_diameter
@@ -197,7 +197,7 @@ star_m_temp_max = 3700
 star_m_mass_min = 0.08
 star_m_mass_max = 0.45
 # Abundance is tweaked for gameplay purposes.
-star_m_abundance = 0.8
+star_m_abundance = 1.0 #use 0.8 when giants and white dwarfs are implemented.
 
 # Planetary parameters
 #HOT, WARM, COLD, ICY
@@ -222,6 +222,7 @@ import random as random_star_val
 import random as random_planet_num
 import random as random_planet_val
 import random as random_char
+import operator
 
 random_star_num.seed(seed + '153gf67')
 random_star_abundance.seed(seed + 'hwhdd34')
@@ -239,6 +240,8 @@ chars_low_c = "qjzx"+"vk"*5+"w"*7+"f"*9+"b"*11\
 
 chars_low_c = ''.join(random_char.sample(chars_low_c,len(chars_low_c)))
 chars_low_v = ''.join(random_char.sample(chars_low_v,len(chars_low_v)))
+
+ABC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
 output = ''
 
@@ -270,19 +273,138 @@ def system_generation(star_id, system, cluster_name):
 	
 	main_star = {}
 	star_type = ''
-	star_type_temp = 0
+	secondary_stars_num = 0
+	planets_num = 0
 	star_name = ''
+	p = ''
+	p_secondary_stars = ''
+	star_list = []
+	star_color_list = []
 	
-	# Get the star if it was defined.
-	if "user_defined_main_star" in system:
-		main_star = random_star(system["user_defined_main_star"])
-		star_type = system["user_defined_main_star"]
+	# Get the star if it was defined. Second argument is for secondary stars, thus empty.
+	if "main_star" in system:
+		main_star = make_star(system["main_star"], ())
+		star_type = system["main_star"]
 	else:
 		# Generate a stat.
-		main_star = random_star('')
+		main_star = make_star('', ())
 		star_type = main_star["type"]
-		
 	
+	# Generate a systems and main star name if not defined.
+	if "name" in system:
+		star_name = system["name"]
+		# Track user-defined names too.
+		used_names.append(star_name)
+	else:
+		star_name = random_system_name(5, 6) 
+	
+	# Number of planets.
+	if "total_planets" in system:
+		planets_num = len(system["total_planets"])
+	else:
+		planets_num = random_planet_number(star_type)
+	
+	
+	# Index 0 in the end takes the text + color sample image, 1 - only returns image.
+	primary_star = formatting_star_data(star_id, True, main_star, star_name + " A")
+	
+	
+	# Whether there are secondary stars (user defined).
+	if "companion_stars" in system:
+		secondary_stars_num = len(system["companion_stars"])
+		if secondary_stars_num > 0:
+			
+			# Make from preset and store.
+			for secondary_star_type in system["companion_stars"]:
+				secondary_star = make_star(secondary_star_type, main_star["type"])
+				star_list.append(secondary_star)
+	
+	# Randomly generate secondary stars otherwise.
+	else:
+		secondary_stars_num = random_star_number()
+		if secondary_stars_num > 0:
+			
+			# Generate and store.
+			for _ in range(secondary_stars_num):
+				secondary_star = make_star('', main_star["type"])
+				star_list.append(secondary_star)
+					
+	# Sort and output.
+	star_list.sort(key = lambda x: (-x["temperature"]) )
+	i = 0
+	for secondary_star in star_list:
+		i += 1
+		s = formatting_star_data(
+			str(star_id) + "_" + str(i), 
+			False, # Not primary
+			secondary_star, 
+			star_name + " " + ABC[i])
+		p_secondary_stars += s[0]
+		star_color_list.append(s[1])
+	
+	# Write down the text for the main star and the system.
+	p += formatting_system_data(star_id, system, main_star, star_name)
+	p += primary_star[0]
+	p += p_secondary_stars
+	
+	# Add star color samples in the end of star block.
+	p += " " + primary_star[1] + ' '
+	for sec_star_color in star_color_list:
+		p += sec_star_color + ' '
+	p += "  \n"
+	p += "\n---  \n"
+
+	# Write down to the global output.
+	output += p
+
+###### FORMATTING FUNCTIONS ######
+def formatting_system_data(star_id, system, main_star, star_name):
+	star_type = main_star["type"]
+	system_zone_size = e(system_zone_size_factor * main_star["size"])
+	system_autopilot_range = system_zone_size
+	
+	
+	p = ''
+	p += "# System: " + star_name + "  \n"
+	
+	p += "<details><summary>" \
+		+ "System data" \
+		+  "</summary>" + "  \n\n"
+	
+	p += "```" + "  \n"
+	
+	p += "* System ID: " + str(star_id) + "  \n"
+	
+	if "cluster" in system:
+		p += "* Star cluster: " + system["cluster"] + "  \n"
+	else:
+		p += "* Star cluster: unspecified" + "  \n"
+	
+	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "  \n"
+	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
+	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
+	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
+	p += "* System zone size: " + str(system_zone_size) + "  \n"
+	p += "* System autopilot range: " + str(system_autopilot_range) + "  \n"
+
+	p += "```" + "  \n"
+	p += "\n </details>" + "  \n"
+	
+	p += "\n---  \n"
+	
+	return p
+
+
+
+def formatting_star_data(star_id, primary, main_star, star_name):
+	p = ''
+	
+	if primary:
+		star_in_system_hierarchy = "Primary star"
+	else:
+		star_in_system_hierarchy = "Secondary star"
+	
+	star_type = main_star["type"]
 	# Format star size.
 	star_size = e(main_star["size"])
 	star_size_rel = round(main_star["size"] / sun_diameter, 3)
@@ -316,49 +438,16 @@ def system_generation(star_id, system, cluster_name):
 	star_peak_wavelength_colorcode_hex = rgb_to_hex(star_peak_wavelength_colorcode)
 	star_omni_range = e(main_star["omni_range"])
 	
-	system_zone_size = e(system_zone_size_factor * main_star["size"])
-	system_autopilot_range = system_zone_size
-	
 	star_autopilot_range = e(autopilot_distance_factor * main_star["size"])
 	
-	p = ""
-	p += "# System ID: " + str(star_id) + "  \n"
 	
-	if "name" in system:
-		star_name = system["name"]
-		# Track user-defined names too.
-		used_names.append(star_name)
-		p += "## System name: " + star_name + "  \n"
-	else:
-		star_name = random_system_name(5, 6) 
-		p += "## System name (generated): " + star_name + "  \n"
+	p += "<details><summary>" \
+		+ star_in_system_hierarchy  + " : " \
+		+ star_name + ", type: " \
+		+ star_type[0] + str(star_type[1]) \
+		+  "</summary>" + "  \n\n"
 	
-	if "cluster" in system:
-		p += "Star cluster: " + system["cluster"] + "  \n"
-	else:
-		if cluster_name:
-			p += "Star cluster: " + cluster_name + "  \n"
-		else:
-			p += "Star cluster: unspecified" + "  \n"
-	
-	if "total_companion_stars" in system:
-		p += "Total number of companion stars: " + str(system["total_companion_stars"]) + "  \n"
-	else:
-		p += "Total number of companion stars (generated): " + str(random_star_number())+ "  \n"
-		
-	if "total_planets" in system:
-		p += "Total number of planets: " + str(system["total_planets"]) + "  \n"
-	else:
-		p += "Total number of planets (generated): " + str(random_planet_number(star_type)) + "  \n"
-	
-	if "user_defined_main_star" in system:
-		p += "### Main star: " + star_name + " A (" + star_type[0] + str(star_type[1]) + ")" + "  \n"
-	else:
-		p += "### Main star (generated): " + star_name + " A (" + star_type[0] + str(star_type[1]) + ")" + "  \n"
-	
-	p += "<details><summary>Main star details</summary>" + "  \n\n"
-	
-	p += "#### Infocard data"+ "  \n"
+	p += "#### Star Infocard data"+ "  \n"
 	
 	p += "```" + "  \n"
 	
@@ -390,25 +479,16 @@ def system_generation(star_id, system, cluster_name):
 	
 	p += "```" + "  \n"
 	
-	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "  \n"
-	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
-	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
-	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
-	p += "* System zone size: " + str(system_zone_size) + "  \n"
-	p += "* System autopilot range: " + str(system_autopilot_range) + "  \n"
-	
-	p += " ---\n"
-	
 	p += "* Star zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_ZONE" + "  \n"
 	p += "* Star codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "  \n"
 	p += "* Star translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "  \n"
 	p += "* Star translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "  \n"
-	p += "* Star name: " + star_name + " A"  + "  \n"
+	p += "* Star name: " + star_name  + "  \n"
 	p += "* Star description: see above." + "  \n"
 	p += "* Star size: " + str(star_size) + "  \n"
 	p += "* Star autopilot range: " + str(star_autopilot_range) + "  \n"
 	
-	p += " ---\n"
+	p += "\n"
 	
 	p += "* Omni range: " + str(star_omni_range) + "  \n"
 	p += "* Surface color (Peak w.l. color code):" + "  \n"
@@ -416,20 +496,21 @@ def system_generation(star_id, system, cluster_name):
 	p += " - hex: #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
 	
 	p += "```" + "  \n"
-	
-	p +=  "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
+
+	color_sample = "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
 		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
+	
+	p += "`* Surface color: `" + color_sample
 	
 	p += "\n </details>" + "  \n"
 	
-	p += "\n---\n"
+	p += "\n---  \n"
 	
-	output += p
-	
+	return (p, color_sample)
 
 
 ###### STAR FUNCTIONS #######
-def random_star(user_defined_type):
+def make_star(user_defined_type, primary_star_type):
 	global total_number_o_stars
 	global total_number_b_stars
 	global total_number_a_stars
@@ -442,32 +523,86 @@ def random_star(user_defined_type):
 	
 	star_type = ''
 	star_type_temp = -1
+	star_type_id = -1 # For further sorting.
 	star_size = 0
 	star_lum = 0
 	star_temp = 0
 	star_temp_norm = 0
 	
+	# If the star is secondary - limit its class according to primary star.
 	r = random_star_abundance.random()
 	if user_defined_type :
 		star_type = user_defined_type[0]
 		star_type_temp = user_defined_type[1]
 	else:
-		if r < star_o_abundance:
-			star_type = ("O")
-		elif r < star_b_abundance:
-			star_type = ("B")
-		elif r < star_a_abundance:
-			star_type = ("A")
-		elif r < star_f_abundance:
-			star_type = ("F")
-		elif r < star_g_abundance:
-			star_type = ("G")
-		elif r < star_k_abundance:
-			star_type = ("K")
-		elif r < star_m_abundance:
-			star_type = ("M")
+		# For secondary stars (if primary exists).
+		if primary_star_type:
+			if r < star_o_abundance and primary_star_type[0] == 'O' and primary_star_type[1] > 0:
+				star_type = ("O")
+				star_type_id = 6
+			elif r < star_b_abundance and primary_star_type \
+				and (primary_star_type[0] == 'O' or (primary_star_type[0] == 'B' and primary_star_type[1] > 0)):
+				star_type = ("B")
+				star_type_id = 5
+			elif r < star_a_abundance and primary_star_type \
+				and (primary_star_type[0] == 'O' or primary_star_type[0] == 'B' or (primary_star_type[0] == 'A' and primary_star_type[1] > 0)):
+				star_type = ("A")
+				star_type_id = 4
+			elif r < star_f_abundance and primary_star_type \
+				and (primary_star_type[0] == 'O' or primary_star_type[0] == 'B' or primary_star_type[0] == 'A' \
+					or (primary_star_type[0] == 'F' and primary_star_type[1] > 0)):
+				star_type = ("F")
+				star_type_id = 3
+			elif r < star_g_abundance and primary_star_type \
+				and (primary_star_type[0] == 'O' or primary_star_type[0] == 'B' or primary_star_type[0] == 'A' \
+					or primary_star_type[0] == 'F' or (primary_star_type[0] == 'G' and primary_star_type[1] > 0)):
+				star_type = ("G")
+				star_type_id = 2
+			elif r < star_k_abundance and primary_star_type \
+				and (primary_star_type[0] == 'O' or primary_star_type[0] == 'B' or primary_star_type[0] == 'A' \
+					or primary_star_type[0] == 'F' or primary_star_type[0] == 'G' or (primary_star_type[0] == 'K' and primary_star_type[1] > 0)):
+				star_type = ("K")
+				star_type_id = 1
+			elif r <= star_m_abundance  and primary_star_type \
+				and (primary_star_type[0] == 'O' or primary_star_type[0] == 'B' or primary_star_type[0] == 'A' \
+					or primary_star_type[0] == 'F' or primary_star_type[0] == 'G' or primary_star_type[0] == 'K' \
+					or primary_star_type[0] == 'M'): # Allows M0 star systems.
+				star_type = ("M")
+				star_type_id = 0
+			else:
+				star_type = ("Other")
+				star_type_id = -1
+		
+		# For primary stars:
 		else:
-			star_type = ("Other")
+			if r < star_o_abundance :
+				star_type = ("O")
+				star_type_id = 6
+			elif r < star_b_abundance :
+				star_type = ("B")
+				star_type_id = 5
+			elif r < star_a_abundance :
+				star_type = ("A")
+				star_type_id = 4
+			elif r < star_f_abundance :
+				star_type = ("F")
+				star_type_id = 3
+			elif r < star_g_abundance :
+				star_type = ("G")
+				star_type_id = 2
+			elif r < star_k_abundance :
+				star_type = ("K")
+				star_type_id = 1
+			elif r <= star_m_abundance  :
+				star_type = ("M")
+				star_type_id = 0
+			else:
+				star_type = ("Other")
+				star_type_id = -1
+		
+	# Make sure that if the star is secondary - it is less or equally bright than primary if in the same class.
+	if primary_star_type and (star_type == primary_star_type[0]):
+		star_type_temp = random_star_val.randint(0, int(primary_star_type[1]))
 		
 	if star_type == "O":
 		total_number_o_stars += 1
@@ -559,7 +694,7 @@ def random_star(user_defined_type):
 	star_zone_margins = get_star_zone_margins(star_lum)
 	
 	star = {
-		"type" : (star_type, star_type_temp),
+		"type" : (star_type, star_type_temp, star_type_id),
 		"size" : star_size,
 		"luminosity" : star_lum,
 		"temperature" : star_temp,
@@ -630,9 +765,9 @@ def get_strar_peak_wavelength(star_temp):
 
 
 def random_star_number():
-	num = int(random_star_num.random()*random_star_num.randint(num_stars_min, num_stars_max))
-	if num == 0:
-		num =1
+	num = int(
+		pow(random_star_num.random(), 1.5) \
+		* random_star_num.randint(num_stars_min, num_stars_max))
 	return num
 
 
@@ -743,15 +878,21 @@ except:
 # Prepare colors from palettes.
 # https://stackoverflow.com/questions/8554282/creating-a-png-file-in-python
 import png
-width = 15*3
-height = 15
+import math
+
+width = 19
+height = 19
 
 for color in palettes.spectrum_palette:
 	img = []
 	for y in range(height):
-		row = ()
+		t = pow(math.sin(y/height*math.pi),1.2)
+		row = []
 		for x in range(width):
-			row = color*width
+			s = pow(math.sin(x/width*math.pi),1.2)
+			row.append(int(color[0]*s*t))
+			row.append(int(color[1]*s*t))
+			row.append(int(color[2]*s*t))
 		img.append(row)
 		
 	name = rgb_to_hex(color) + ".png"
