@@ -296,7 +296,7 @@ def system_generation(star_id, system, cluster_name):
 		# Track user-defined names too.
 		used_names.append(star_name)
 	else:
-		star_name = random_system_name(5, 6) 
+		star_name = random_system_name(4, 7) 
 	
 	# Number of planets.
 	if "total_planets" in system:

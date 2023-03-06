@@ -16,8 +16,29 @@ systems = [
 	{
 		"cluster" : "Moirai",
 		"name" : "Victory",
-		"main_star" : ("O", 9),
+		"main_star" : ("B", 2),
 		"companion_stars" : [("G", 1),],
+	},
+	
+	{
+		"cluster" : "Moirai",
+		"name" : "Equberan",
+		"main_star" : ("A", 2),
+		"companion_stars" : [],
+	},
+	
+	{
+		"cluster" : "Moirai",
+		"name" : "Spark",
+		"main_star" : ("M", 0),
+		"companion_stars" : [],
+	},
+	
+	{
+		"cluster" : "Moirai",
+		"name" : "Valeri",
+		"main_star" : ("A", 0),
+		"companion_stars" : [], # White dwarf
 	},
 
 
