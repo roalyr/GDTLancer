@@ -26,7 +26,7 @@ sun_omni_attenuation = 10.0 # const
 # GODOT engine parameters.
 system_zone_size_factor = 10000
 star_zone_size_factor = 10
-star_flare_distance_factor = 100
+star_flare_distance_factor = 10
 star_detail_decay_distance_factor = 20
 
 # Omni light formula: range = (luminocity/4)^(1/2)
@@ -35,7 +35,7 @@ star_omni_ratio = 4
 
 
 # Generic
-autopilot_distance_factor = 4
+autopilot_distance_factor = 3
 
 
 # f = L / (4 * pi * d²).
@@ -124,14 +124,6 @@ star_m_num_planets_max = 5
 
 # Star type parameters
 # https://en.m.wikipedia.org/wiki/Stellar_classification
-#Class | Temp | Vega-chr. Chromaticity | Mass | Radius | Luminosity bolometric | Hydrogen | Fraction
-#O 	≥ 30,000 K 	blue 	blue 	≥ 16 M☉ 	≥ 6.6 R☉ 	≥ 30,000 L☉ 	Weak 	~0.00003%
-#B 	10,000–30,000 K 	blue white 	deep blue white 	2.1–16 M☉ 	1.8–6.6 R☉ 	25–30,000 L☉ 	Medium 	0.13%
-#A 	7,500–10,000 K 	white 	blue white 	1.4–2.1 M☉ 	1.4–1.8 R☉ 	5–25 L☉ 	Strong 	0.6%
-#F 	6,000–7,500 K 	yellow white 	white 	1.04–1.4 M☉ 	1.15–1.4 R☉ 	1.5–5 L☉ 	Medium 	3%
-#G 	5,200–6,000 K 	yellow 	yellowish white 	0.8–1.04 M☉ 	0.96–1.15 R☉ 	0.6–1.5 L☉ 	Weak 	7.6%
-#K 	3,700–5,200 K 	light orange 	pale yellow orange 	0.45–0.8 M☉ 	0.7–0.96 R☉ 	0.08–0.6 L☉ 	Very weak 	12.1%
-#M 	2,400–3,700 K 	orange red 	light orange red 	0.08–0.45 M☉ 	≤ 0.7 R☉ 	≤ 0.08 L☉ 	Very weak 	76.45%
 
 star_temp_max = 100000
 star_temp_min = 2400
@@ -375,21 +367,21 @@ def formatting_system_data(star_id, system, main_star, star_name):
 	
 	p += "```" + "  \n"
 	
-	p += "* System ID: " + str(star_id) + "  \n"
+	p += "* System ID: " + str(star_id) + "\n"
 	
 	if "cluster" in system:
-		p += "* Star cluster: " + system["cluster"] + "  \n"
+		p += "* Star cluster: " + system["cluster"] + "\n"
 	else:
-		p += "* Star cluster: unspecified" + "  \n"
+		p += "* Star cluster: unspecified" + "\n"
 	
-	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "  \n"
-	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
-	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
-	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "  \n"
-	p += "* System zone size: " + str(system_zone_size) + "  \n"
-	p += "* System autopilot range: " + str(system_autopilot_range) + "  \n"
+	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "\n"
+	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System zone size: " + str(system_zone_size) + "\n"
+	p += "* System autopilot range: " + str(system_autopilot_range) + "\n"
 
-	p += "```" + "  \n"
+	p += "```" + "\n"
 	p += "\n </details>" + "  \n"
 	
 	p += "\n---  \n"
@@ -410,6 +402,8 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	# Format star size.
 	star_size = e(main_star["size"])
 	star_size_rel = round(main_star["size"] / sun_diameter, 3)
+	star_zone_size = e(star_zone_size_factor * main_star["size"])
+	star_flare_distance = e(star_flare_distance_factor * main_star["size"])
 	
 	# Format the number back to proper range.
 	star_lum = e(main_star["luminosity"])
@@ -459,27 +453,51 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	
 	p += "```" + "  \n"
 	
-	p += "Absolute units:" + "  \n"
-	p += "* Size: " + str(star_size) + " m" + "  \n"
-	p += "* Temperature: " + str(star_temp) + " K" + "  \n"
-	p += "* Luminosity: " + str(star_lum) + " W" + "  \n"*2
+	p += "Absolute units:" + "\n"
+	p += "* Size: " + str(star_size) + " m" + "\n"
+	p += "* Temperature: " + str(star_temp) + " K" + "\n"
+	p += "* Luminosity: " + str(star_lum) + " W" + "\n"*2
 	
-	p += "Sun units:" + "  \n"
-	p += "* Size: " + str(star_size_rel) + " D☉" + "  \n"
-	p += "* Temperature: " + str(star_temp_rel) + " T☉" + "  \n"
-	p += "* Luminosity: " + str(star_lum_rel) + " L☉" + "  \n"*2
+	p += "Sun units:" + "\n"
+	p += "* Size: " + str(star_size_rel) + " D" + "\n"
+	p += "* Temperature: " + str(star_temp_rel) + " T" + "\n"
+	p += "* Luminosity: " + str(star_lum_rel) + " L" + "\n"*2
 	
-	p += "Spectral data:"+ "  \n"
-	p += "* Type: " + star_type[0] + str(star_type[1]) + "  \n"
-	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "  \n"
-	p += "* Peak wavelength type: " + star_peak_wavelength_type + "  \n"*2
+	p += "Spectral data:"+ "\n"
+	p += "* Type: " + star_type[0] + str(star_type[1]) + "\n"
+	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "\n"
+	p += "* Peak wavelength type: " + star_peak_wavelength_type + "\n"*2
 	
-	p += "Temperature zone data:"+ "  \n"
-	p += "* Hot zone   :"+ " < " + str(star_hot_zone) + " m" + "  \n"
-	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " m" + "  \n"
-	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " m" + "  \n"
-	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " m" + "  \n"
-	p += "* Icy zone   :" + " > " + str(star_icy_zone) + " m" + "  \n"
+	p += "Temperature zone data:"+ "\n"
+	p += "* Hot zone   :"+ " < " + str(star_hot_zone) + " m" + "\n"
+	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " m" + "\n"
+	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " m" + "\n"
+	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " m" + "\n"
+	p += "* Icy zone   :" + " > " + str(star_icy_zone) + " m" + "\n"
+	p += "```" + "  \n"
+	
+	p += "```" + "  \n"
+	p += "Абсолютні величини:" + "\n"
+	p += "* Розмір: " + str(star_size) + " м" + "\n"
+	p += "* Температура: " + str(star_temp) + " К" + "\n"
+	p += "* Світність: " + str(star_lum) + " Вт" + "\n"*2
+	
+	p += "Відносно Сонця:" + "\n"
+	p += "* Розмір: " + str(star_size_rel) + " D" + "\n"
+	p += "* Температура: " + str(star_temp_rel) + " T" + "\n"
+	p += "* Світність: " + str(star_lum_rel) + " L" + "\n"*2
+	
+	p += "Спектральні дані:"+ "\n"
+	p += "* Тип: " + star_type[0] + str(star_type[1]) + "\n"
+	p += "* Пікова довжина хвилі: " + str(star_peak_wavelength) + " нм"+ "\n"
+	p += "* Тип пікового випромінювання: " + star_peak_wavelength_type + "\n"*2
+	
+	p += "Дані температурного зонування:"+ "\n"
+	p += "* Гаряча зона  :"+ " < " + str(star_hot_zone) + " м" + "\n"
+	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " м" + "\n"
+	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " м" + "\n"
+	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " м" + "\n"
+	p += "* Крижана зона :" + " > " + str(star_icy_zone) + " м" + "\n"
 	
 	p += "```" + "  \n"
 	
@@ -493,12 +511,16 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Star translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "  \n"
 	p += "* Star name: " + star_name  + "  \n"
 	p += "* Star description: see above." + "  \n"
+	p += "* Star zone size: " + str(star_zone_size) + "\n"
 	p += "* Star size: " + str(star_size) + "  \n"
+	p += "* Star flare distance: " + str(star_flare_distance) + "\n"
 	p += "* Star autopilot range: " + str(star_autopilot_range) + "  \n"
 	
 	p += "\n"
 	
 	p += "* Omni range: " + str(star_omni_range) + "  \n"
+	p += "* Omni attenuation: " + str(sun_omni_attenuation) + "  \n"
+	p += "* Omni energy: " + str(sun_omni_energy) + "  \n"
 	p += "* Surface color (Peak w.l. color code):" + "  \n"
 	p += " - rgb: " + str(star_peak_wavelength_colorcode) + "  \n"
 	p += " - hex: #" + str(star_peak_wavelength_colorcode_hex) + "  \n"

@@ -49,4 +49,11 @@ systems = [
 		"companion_stars" : [],
 	},
 	
+	{
+		"cluster" : "Moirai",
+		"name" : "Glory",
+		"main_star" : ("G", 0),
+		"companion_stars" : [],
+	},
+	
 ]

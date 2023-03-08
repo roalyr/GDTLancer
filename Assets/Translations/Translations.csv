@@ -29,10 +29,50 @@ LABEL_SCREEN_RES,3D quality,Якість 3D
 LABEL_START_CONFIRM,Do you want to start a new game?,Ви бажаєте розпочати нову гру?
 LABEL_START_PROMPT,Select GUI mode depending on your device,Оберіть ГІК в залежності від вашого пристрою
 TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.
-NAME_STAR_MAIN_O_1,Victory A,Вікторі А
-DESC_STAR_MAIN_O_1,The brightest main sequence star in the Moirai cluster.,Найяскравіша зірка головної послідовності у кластері Мойр.
-NAME_STAR_MAIN_O_1_SYSTEM,Victory,Вікторі
-DESC_STAR_MAIN_O_1_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.
+NAME_STAR_B2_0,Victory A,Вікторі А
+DESC_STAR_B2_0,"Absolute units:
+* Size: 6.32e+09 m
+* Temperature: 15669 K
+* Luminosity: 4.29e+29 W
+
+Sun units:
+* Size: 4.547 D
+* Temperature: 2.71 T
+* Luminosity: 1121 L
+
+Spectral data:
+* Type: B2
+* Peak wavelength: 185.0 nm
+* Peak wavelength type: far UV
+
+Temperature zone data:
+* Hot zone   : < 1.00e+12 m
+* Warm zone  :   1.00e+12 ... 3.49e+12 m
+* Temp. zone :   3.49e+12 ... 4.94e+12 m
+* Cold zone  :   4.94e+12 ... 7.54e+12 m
+* Icy zone   : > 4.77e+13 m","Абсолютні величини:
+* Розмір: 6.32e+09 м
+* Температура: 15669 К
+* Світність: 4.29e+29 Вт
+
+Відносно Сонця:
+* Розмір: 4.547 D
+* Температура: 2.71 T
+* Світність: 1121 L
+
+Спектральні дані:
+* Тип: B2
+* Пікова довжина хвилі: 185.0 нм
+* Тип пікового випромінювання: far UV
+
+Дані температурного зонування:
+* Гаряча зона  : < 1.00e+12 м
+* Тепла зона   :   1.00e+12 ... 3.49e+12 м
+* Помірна зона :   3.49e+12 ... 4.94e+12 м
+* Холодна зона :   4.94e+12 ... 7.54e+12 м
+* Крижана зона : > 4.77e+13 м"
+NAME_STAR_B2_0_SYSTEM,Victory,Вікторі
+DESC_STAR_B2_0_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.
 NAME_STAR_MAIN_O_1_PLANET_B,Victory b,Вікторі b
 DESC_STAR_MAIN_O_1_PLANET_B,Gas giant in Victory planetary system.,Газовий гігант у планетарній системі Вікторі.
 NAME_STAR_MAIN_M_159,Spark A,Спарк А

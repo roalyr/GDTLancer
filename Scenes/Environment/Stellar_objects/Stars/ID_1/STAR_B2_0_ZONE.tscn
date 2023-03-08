@@ -30,8 +30,8 @@ noise = SubResource( 117 )
 [sub_resource type="ShaderMaterial" id=42]
 shader = ExtResource( 4 )
 shader_param/halo_color = Color( 0, 0.309804, 0.305882, 1 )
-shader_param/corona_color = Color( 0.67451, 0, 1, 1 )
-shader_param/core_color = Color( 0.980392, 0.968627, 0.968627, 1 )
+shader_param/corona_color = Color( 0, 0.960784, 1, 1 )
+shader_param/core_color = Color( 0.454902, 0.454902, 0.454902, 1 )
 shader_param/halo_strength = 1.0
 shader_param/halo_exponent = 1.5
 shader_param/corona_strength = 1000.0
@@ -39,7 +39,7 @@ shader_param/corona_exponent = 15.8
 shader_param/core_strength = 100.0
 shader_param/core_exponent = 11.6
 shader_param/rim_exponent = 1.5
-shader_param/displacement_scale = 0.1
+shader_param/displacement_scale = 0.047
 shader_param/displacement_velocity = 0.02
 shader_param/displacement_texture = SubResource( 120 )
 
@@ -70,8 +70,8 @@ noise = SubResource( 96 )
 [sub_resource type="ShaderMaterial" id=98]
 shader = ExtResource( 11 )
 shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0.231373, 0.270588, 0.611765, 1 )
-shader_param/surface_color = Color( 1, 0.803922, 0.937255, 1 )
+shader_param/overlay_color = Color( 0.14902, 0.596078, 0.670588, 1 )
+shader_param/surface_color = Color( 0.47451, 0.721569, 0.886275, 1 )
 shader_param/major_phase = 1.2
 shader_param/small_phase = 1.8
 shader_param/major_detail_intensity = 0.5
@@ -89,20 +89,20 @@ shader_param/small_detail_noise = SubResource( 122 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.917647, 0.509804, 1, 1 )
-shader_param/scale = 0.17
-shader_param/flare_distance = 1.16e+12
-shader_param/flare_size = 3.0
-shader_param/attenuation = 0.15
+shader_param/albedo = Color( 0.498039, 0.890196, 1, 1 )
+shader_param/scale = 0.558
+shader_param/flare_distance = 6.32e+10
+shader_param/flare_size = 2.0
+shader_param/attenuation = 0.25
 shader_param/intensity = 0.5
 shader_param/exponent = 5.0
 shader_param/pulse_factor = 0.958
-shader_param/pulse_rate = 10.0
+shader_param/pulse_rate = 3.038
 shader_param/phase = 0.0
 
 [sub_resource type="SphereShape" id=92]
 
-[node name="STAR_MAIN_O_1_ZONE" type="Area"]
+[node name="STAR_B2_0_ZONE" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
@@ -130,8 +130,8 @@ visible = false
 mesh = ExtResource( 15 )
 material/0 = SubResource( 93 )
 
-[node name="Zone shape 1_16e+11" type="CollisionShape" parent="."]
-transform = Transform( 1.16e+11, 0, 0, 0, 1.16e+11, 0, 0, 0, 1.16e+11, 0, 0, 0 )
+[node name="Zone shape 6_32e+10" type="CollisionShape" parent="."]
+transform = Transform( 6.32e+10, 0, 0, 0, 6.32e+10, 0, 0, 0, 6.32e+10, 0, 0, 0 )
 shape = SubResource( 92 )
 __meta__ = {
 "_edit_lock_": true
@@ -143,100 +143,88 @@ __meta__ = {
 "_editor_description_": "Add marker to scene and set its level."
 }
 
-[node name="STAR_MAIN_O_1" type="Position3D" parent="Scenes"]
+[node name="STAR_B2_0" type="Position3D" parent="Scenes"]
 script = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 2.31e+10
-translations_name = "NAME_STAR_MAIN_O_1"
-translations_description = "DESC_STAR_MAIN_O_1"
+autopilot_range = 1.8975e+10
+translations_name = "NAME_STAR_B2_0"
+translations_description = "DESC_STAR_B2_0"
 
-[node name="LODs star blue 1_16e+10" type="Spatial" parent="Scenes/STAR_MAIN_O_1"]
-transform = Transform( 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0, 1.16e+10, 0, 0, 0 )
+[node name="LODs 6_32e+09" type="Spatial" parent="Scenes/STAR_B2_0"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0 )
 script = ExtResource( 1 )
 __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="OmniLight_8_99e+14" type="OmniLight" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
+[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 0.694118, 0.639216, 1, 1 )
+light_color = Color( 0, 0.764706, 1, 1 )
 light_energy = 2.0
-light_indirect_energy = 0.5
-omni_range = 8.99e+14
-omni_attenuation = 5.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="LOD0" type="Spatial" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
+[node name="Star_sprite_square_wide" parent="Scenes/STAR_B2_0/LODs 6_32e+09" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+
+[node name="Plane" parent="Scenes/STAR_B2_0/LODs 6_32e+09/Star_sprite_square_wide" index="0"]
+material/0 = SubResource( 93 )
+
+[node name="LOD0" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD0" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD0"]
+[node name="Icosphere_LOD0" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD0"]
 transform = Transform( 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0 )
 mesh = ExtResource( 8 )
 material/0 = SubResource( 42 )
 
-[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD0"]
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD0"]
 mesh = ExtResource( 10 )
 material/0 = SubResource( 98 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
+[node name="LOD1" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD1" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD1"]
+[node name="Icosphere_LOD1" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD1"]
 transform = Transform( 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0 )
 mesh = ExtResource( 9 )
 material/0 = SubResource( 42 )
 
-[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD1"]
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD1"]
 mesh = ExtResource( 12 )
 material/0 = SubResource( 98 )
 
-[node name="Star_sprite_square_wide" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD1" instance=ExtResource( 5 )]
-
-[node name="Plane" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD1/Star_sprite_square_wide" index="0"]
-material/0 = SubResource( 93 )
-
-[node name="LOD2" type="Spatial" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
+[node name="LOD2" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD2" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD2"]
+[node name="Icosphere_LOD2" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD2"]
 transform = Transform( 1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0, 0 )
 mesh = ExtResource( 7 )
 material/0 = SubResource( 42 )
 
-[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD2"]
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD2"]
 mesh = ExtResource( 13 )
 material/0 = SubResource( 98 )
 
-[node name="Star_sprite_square_wide" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD2" instance=ExtResource( 5 )]
-
-[node name="Plane" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD2/Star_sprite_square_wide" index="0"]
-material/0 = SubResource( 93 )
-
-[node name="LOD3" type="Spatial" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10"]
+[node name="LOD3" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star_sprite_square_wide" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD3" instance=ExtResource( 5 )]
-
-[node name="Plane" parent="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD3/Star_sprite_square_wide" index="0"]
-material/0 = SubResource( 93 )
-
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
 
-[editable path="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD1/Star_sprite_square_wide"]
-[editable path="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD2/Star_sprite_square_wide"]
-[editable path="Scenes/STAR_MAIN_O_1/LODs star blue 1_16e+10/LOD3/Star_sprite_square_wide"]
+[editable path="Scenes/STAR_B2_0/LODs 6_32e+09/Star_sprite_square_wide"]
