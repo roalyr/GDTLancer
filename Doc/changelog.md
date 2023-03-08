@@ -2,7 +2,7 @@
 
 ## v0.11-alpha (work in progress)
 ### Engine
-- Updated engine binaries (3.x as of 13th January 2023).
+- Updated engine binaries (3.x as of 21th February 2023).
 ### Models
 - Fixed some improper LODs.
 ### Camera
@@ -35,6 +35,11 @@
 - Refactored autopilot code to be more reliable.
 - Refactored UI code to be more reliable.
 - Refactored meshes of primitives and used unified names.
+### Documentation
+- Universe reference papers (presets, test, random systems).
+### Tools
+- Universe generator script in Python3 added (works stand-alone).
+- Main sequence stars generator algorithm implemented.
 
 # Previous
 

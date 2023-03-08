@@ -1,4 +1,6 @@
 import universe_presets
+import universe_test_presets
+
 import palettes
 
 ############### CONSTANTS ###############
@@ -440,12 +442,18 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	
 	star_autopilot_range = e(autopilot_distance_factor * main_star["size"])
 	
-	
+	color_sample = "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
+		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
+		
 	p += "<details><summary>" \
 		+ star_in_system_hierarchy  + " : " \
 		+ star_name + ", type: " \
 		+ star_type[0] + str(star_type[1]) \
 		+  "</summary>" + "  \n\n"
+	
+	p += "#### Star pseudo-color" + "  \n"
+
+	p += color_sample + "  \n"
 	
 	p += "#### Star Infocard data"+ "  \n"
 	
@@ -496,11 +504,6 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += " - hex: #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
 	
 	p += "```" + "  \n"
-
-	color_sample = "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
-		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
-	
-	p += "`* Surface color: `" + color_sample
 	
 	p += "\n </details>" + "  \n"
 	
@@ -913,12 +916,66 @@ with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
 	w = png.Writer(width, height, greyscale=False)
 	w.write(f, img)
 
+
+################### TEST ####################
+print("Generation begin: FROM TEST PRESET")
+for star_id in range(len(universe_test_presets.systems)):
+	system_generation(star_id, universe_test_presets.systems[star_id], '')
+			
+print("Total number of stars:")
+print("O - ", total_number_o_stars)
+print("B - ", total_number_b_stars)
+print("A - ", total_number_a_stars)
+print("F - ", total_number_f_stars)
+print("G - ", total_number_g_stars)
+print("K - ", total_number_k_stars)
+print("M - ", total_number_m_stars)
+print("Other - ", total_number_other_stars)
+print("All - ", total_number_all_stars)
+print("Generation done: Universe/Universe_test.md")
+print()
+
+
+f = open(cwd + "/Doc/Universe/Universe_test.md", "w")
+f.write(output)
+f.close()
+#print(output)
 	
-# Proceed with preset data.
+
+
+################### PRESET ###################
+# Reset generators in order to not to affect new entities.
+import random as random_star_num
+import random as random_star_abundance
+import random as random_star_val
+import random as random_planet_num
+import random as random_planet_val
+import random as random_char
+
+
+random_star_num.seed(seed + '153gf67')
+random_star_abundance.seed(seed + 'hwhdd34')
+random_star_val.seed(seed + 'gj754')
+random_planet_num.seed(seed + '2hf5578')
+random_planet_val.seed(seed + 'wyf7eh')
+random_char.seed(seed + '3643rg')
+
+
+output = ''
+
+total_number_o_stars = 0
+total_number_b_stars = 0
+total_number_a_stars = 0
+total_number_f_stars = 0
+total_number_g_stars = 0
+total_number_k_stars = 0
+total_number_m_stars = 0
+total_number_other_stars = 0
+total_number_all_stars = 0
+
 print("Generation begin: FROM PRESET")
-for cluster in universe_presets.clusters:
-	for star_id in range(len(universe_presets.systems)):
-		system_generation(star_id, universe_presets.systems[star_id], '')
+for star_id in range(len(universe_presets.systems)):
+	system_generation(star_id, universe_presets.systems[star_id], '')
 			
 print("Total number of stars:")
 print("O - ", total_number_o_stars)
@@ -940,8 +997,9 @@ f.close()
 #print(output)
 
 
-# Generate additional random universe file.
-# Quickly reset generators in order to not to affect new entities.
+
+###################### RANDOM ####################
+# Reset generators in order to not to affect new entities.
 import random as random_star_num
 import random as random_star_abundance
 import random as random_star_val

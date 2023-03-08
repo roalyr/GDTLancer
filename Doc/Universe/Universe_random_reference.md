@@ -17,6 +17,8 @@
 ---  
 <details><summary>Primary star : Seekc A, type: F6</summary>  
 
+#### Star pseudo-color  
+![b4ff00](Colors/b4ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -57,7 +59,7 @@ Temperature zone data:
  - rgb: (180, 255, 0)  
  - hex: #b4ff00  
 ```  
-`* Surface color: `![b4ff00](Colors/b4ff00.png)
+
  </details>  
 
 ---  
@@ -83,6 +85,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Pokesan A, type: B4</summary>  
 
+#### Star pseudo-color  
+![00aaff](Colors/00aaff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -123,12 +127,14 @@ Temperature zone data:
  - rgb: (0, 170, 255)  
  - hex: #00aaff  
 ```  
-`* Surface color: `![00aaff](Colors/00aaff.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Pokesan B, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -169,12 +175,14 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Pokesan C, type: M4</summary>  
 
+#### Star pseudo-color  
+![e20000](Colors/e20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -215,7 +223,7 @@ Temperature zone data:
  - rgb: (226, 0, 0)  
  - hex: #e20000  
 ```  
-`* Surface color: `![e20000](Colors/e20000.png)
+
  </details>  
 
 ---  
@@ -241,6 +249,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tese A, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -281,7 +291,7 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
@@ -307,6 +317,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Losehe A, type: G3</summary>  
 
+#### Star pseudo-color  
+![f5ff00](Colors/f5ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -347,12 +359,14 @@ Temperature zone data:
  - rgb: (245, 255, 0)  
  - hex: #f5ff00  
 ```  
-`* Surface color: `![f5ff00](Colors/f5ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Losehe B, type: M1</summary>  
 
+#### Star pseudo-color  
+![aa0000](Colors/aa0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -393,7 +407,7 @@ Temperature zone data:
  - rgb: (170, 0, 0)  
  - hex: #aa0000  
 ```  
-`* Surface color: `![aa0000](Colors/aa0000.png)
+
  </details>  
 
 ---  
@@ -419,6 +433,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Iwafys A, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -459,12 +475,14 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Iwafys B, type: M2</summary>  
 
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -505,12 +523,14 @@ Temperature zone data:
  - rgb: (198, 0, 0)  
  - hex: #c60000  
 ```  
-`* Surface color: `![c60000](Colors/c60000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Iwafys C, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -551,7 +571,7 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
@@ -577,6 +597,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nehona A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c10000](Colors/c10000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -617,7 +639,7 @@ Temperature zone data:
  - rgb: (193, 0, 0)  
  - hex: #c10000  
 ```  
-`* Surface color: `![c10000](Colors/c10000.png)
+
  </details>  
 
 ---  
@@ -643,6 +665,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etrel A, type: A2</summary>  
 
+#### Star pseudo-color  
+![7aff2e](Colors/7aff2e.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -683,12 +707,14 @@ Temperature zone data:
  - rgb: (122, 255, 46)  
  - hex: #7aff2e  
 ```  
-`* Surface color: `![7aff2e](Colors/7aff2e.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Etrel B, type: M6</summary>  
 
+#### Star pseudo-color  
+![f40000](Colors/f40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -729,7 +755,7 @@ Temperature zone data:
  - rgb: (244, 0, 0)  
  - hex: #f40000  
 ```  
-`* Surface color: `![f40000](Colors/f40000.png)
+
  </details>  
 
 ---  
@@ -755,6 +781,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Binura A, type: F7</summary>  
 
+#### Star pseudo-color  
+![afff00](Colors/afff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -795,7 +823,7 @@ Temperature zone data:
  - rgb: (175, 255, 0)  
  - hex: #afff00  
 ```  
-`* Surface color: `![afff00](Colors/afff00.png)
+
  </details>  
 
 ---  
@@ -821,6 +849,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Icrelde A, type: G8</summary>  
 
+#### Star pseudo-color  
+![e1ff00](Colors/e1ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -861,12 +891,14 @@ Temperature zone data:
  - rgb: (225, 255, 0)  
  - hex: #e1ff00  
 ```  
-`* Surface color: `![e1ff00](Colors/e1ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Icrelde B, type: G4</summary>  
 
+#### Star pseudo-color  
+![f5ff00](Colors/f5ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -907,12 +939,14 @@ Temperature zone data:
  - rgb: (245, 255, 0)  
  - hex: #f5ff00  
 ```  
-`* Surface color: `![f5ff00](Colors/f5ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Icrelde C, type: G3</summary>  
 
+#### Star pseudo-color  
+![f5ff00](Colors/f5ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -953,7 +987,7 @@ Temperature zone data:
  - rgb: (245, 255, 0)  
  - hex: #f5ff00  
 ```  
-`* Surface color: `![f5ff00](Colors/f5ff00.png)
+
  </details>  
 
 ---  
@@ -979,6 +1013,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Acde A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1019,12 +1055,14 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Acde B, type: M1</summary>  
 
+#### Star pseudo-color  
+![b70000](Colors/b70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1065,7 +1103,7 @@ Temperature zone data:
  - rgb: (183, 0, 0)  
  - hex: #b70000  
 ```  
-`* Surface color: `![b70000](Colors/b70000.png)
+
  </details>  
 
 ---  
@@ -1091,6 +1129,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aplat A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1131,7 +1171,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -1157,6 +1197,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Leisaot A, type: G7</summary>  
 
+#### Star pseudo-color  
+![e1ff00](Colors/e1ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1197,12 +1239,14 @@ Temperature zone data:
  - rgb: (225, 255, 0)  
  - hex: #e1ff00  
 ```  
-`* Surface color: `![e1ff00](Colors/e1ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Leisaot B, type: M4</summary>  
 
+#### Star pseudo-color  
+![db0000](Colors/db0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1243,7 +1287,7 @@ Temperature zone data:
  - rgb: (219, 0, 0)  
  - hex: #db0000  
 ```  
-`* Surface color: `![db0000](Colors/db0000.png)
+
  </details>  
 
 ---  
@@ -1269,6 +1313,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Odop A, type: K5</summary>  
 
+#### Star pseudo-color  
+![ffba00](Colors/ffba00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1309,7 +1355,7 @@ Temperature zone data:
  - rgb: (255, 186, 0)  
  - hex: #ffba00  
 ```  
-`* Surface color: `![ffba00](Colors/ffba00.png)
+
  </details>  
 
 ---  
@@ -1335,6 +1381,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Imotod A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1375,7 +1423,7 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
@@ -1401,6 +1449,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nunevat A, type: K9</summary>  
 
+#### Star pseudo-color  
+![ffe600](Colors/ffe600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1441,12 +1491,14 @@ Temperature zone data:
  - rgb: (255, 230, 0)  
  - hex: #ffe600  
 ```  
-`* Surface color: `![ffe600](Colors/ffe600.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Nunevat B, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff4400](Colors/ff4400.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1487,12 +1539,14 @@ Temperature zone data:
  - rgb: (255, 68, 0)  
  - hex: #ff4400  
 ```  
-`* Surface color: `![ff4400](Colors/ff4400.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Nunevat C, type: M6</summary>  
 
+#### Star pseudo-color  
+![f40000](Colors/f40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1533,7 +1587,7 @@ Temperature zone data:
  - rgb: (244, 0, 0)  
  - hex: #f40000  
 ```  
-`* Surface color: `![f40000](Colors/f40000.png)
+
  </details>  
 
 ---  
@@ -1559,6 +1613,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Soriwa A, type: A1</summary>  
 
+#### Star pseudo-color  
+![88ff17](Colors/88ff17.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1599,7 +1655,7 @@ Temperature zone data:
  - rgb: (136, 255, 23)  
  - hex: #88ff17  
 ```  
-`* Surface color: `![88ff17](Colors/88ff17.png)
+
  </details>  
 
 ---  
@@ -1625,6 +1681,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ignonr A, type: A6</summary>  
 
+#### Star pseudo-color  
+![36ffa2](Colors/36ffa2.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1665,12 +1723,14 @@ Temperature zone data:
  - rgb: (54, 255, 162)  
  - hex: #36ffa2  
 ```  
-`* Surface color: `![36ffa2](Colors/36ffa2.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ignonr B, type: K9</summary>  
 
+#### Star pseudo-color  
+![fff200](Colors/fff200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1711,7 +1771,7 @@ Temperature zone data:
  - rgb: (255, 242, 0)  
  - hex: #fff200  
 ```  
-`* Surface color: `![fff200](Colors/fff200.png)
+
  </details>  
 
 ---  
@@ -1737,6 +1797,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Satg A, type: M3</summary>  
 
+#### Star pseudo-color  
+![d00000](Colors/d00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1777,7 +1839,7 @@ Temperature zone data:
  - rgb: (208, 0, 0)  
  - hex: #d00000  
 ```  
-`* Surface color: `![d00000](Colors/d00000.png)
+
  </details>  
 
 ---  
@@ -1803,6 +1865,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Walaci A, type: M1</summary>  
 
+#### Star pseudo-color  
+![ad0000](Colors/ad0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1843,7 +1907,7 @@ Temperature zone data:
  - rgb: (173, 0, 0)  
  - hex: #ad0000  
 ```  
-`* Surface color: `![ad0000](Colors/ad0000.png)
+
  </details>  
 
 ---  
@@ -1869,6 +1933,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Onone A, type: K2</summary>  
 
+#### Star pseudo-color  
+![ff7c00](Colors/ff7c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1909,7 +1975,7 @@ Temperature zone data:
  - rgb: (255, 124, 0)  
  - hex: #ff7c00  
 ```  
-`* Surface color: `![ff7c00](Colors/ff7c00.png)
+
  </details>  
 
 ---  
@@ -1935,6 +2001,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Lawema A, type: G2</summary>  
 
+#### Star pseudo-color  
+![ffff00](Colors/ffff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -1975,12 +2043,14 @@ Temperature zone data:
  - rgb: (255, 255, 0)  
  - hex: #ffff00  
 ```  
-`* Surface color: `![ffff00](Colors/ffff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lawema B, type: G2</summary>  
 
+#### Star pseudo-color  
+![ffff00](Colors/ffff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2021,12 +2091,14 @@ Temperature zone data:
  - rgb: (255, 255, 0)  
  - hex: #ffff00  
 ```  
-`* Surface color: `![ffff00](Colors/ffff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lawema C, type: K2</summary>  
 
+#### Star pseudo-color  
+![ff7600](Colors/ff7600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2067,12 +2139,14 @@ Temperature zone data:
  - rgb: (255, 118, 0)  
  - hex: #ff7600  
 ```  
-`* Surface color: `![ff7600](Colors/ff7600.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lawema D, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2500](Colors/ff2500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2113,12 +2187,14 @@ Temperature zone data:
  - rgb: (255, 37, 0)  
  - hex: #ff2500  
 ```  
-`* Surface color: `![ff2500](Colors/ff2500.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lawema E, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2159,7 +2235,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -2185,6 +2261,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etace A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2225,7 +2303,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -2251,6 +2329,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Esdeyf A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2500](Colors/ff2500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2291,7 +2371,7 @@ Temperature zone data:
  - rgb: (255, 37, 0)  
  - hex: #ff2500  
 ```  
-`* Surface color: `![ff2500](Colors/ff2500.png)
+
  </details>  
 
 ---  
@@ -2317,6 +2397,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Henaren A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2357,7 +2439,7 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
@@ -2383,6 +2465,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nicina A, type: G8</summary>  
 
+#### Star pseudo-color  
+![e1ff00](Colors/e1ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2423,7 +2507,7 @@ Temperature zone data:
  - rgb: (225, 255, 0)  
  - hex: #e1ff00  
 ```  
-`* Surface color: `![e1ff00](Colors/e1ff00.png)
+
  </details>  
 
 ---  
@@ -2449,6 +2533,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Gorah A, type: A6</summary>  
 
+#### Star pseudo-color  
+![36ffa2](Colors/36ffa2.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2489,7 +2575,7 @@ Temperature zone data:
  - rgb: (54, 255, 162)  
  - hex: #36ffa2  
 ```  
-`* Surface color: `![36ffa2](Colors/36ffa2.png)
+
  </details>  
 
 ---  
@@ -2515,6 +2601,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aruhuhe A, type: M5</summary>  
 
+#### Star pseudo-color  
+![f20000](Colors/f20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2555,7 +2643,7 @@ Temperature zone data:
  - rgb: (242, 0, 0)  
  - hex: #f20000  
 ```  
-`* Surface color: `![f20000](Colors/f20000.png)
+
  </details>  
 
 ---  
@@ -2581,6 +2669,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Derooct A, type: F1</summary>  
 
+#### Star pseudo-color  
+![cdff00](Colors/cdff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2621,12 +2711,14 @@ Temperature zone data:
  - rgb: (205, 255, 0)  
  - hex: #cdff00  
 ```  
-`* Surface color: `![cdff00](Colors/cdff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Derooct B, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2667,7 +2759,7 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
@@ -2693,6 +2785,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tusibiri A, type: A1</summary>  
 
+#### Star pseudo-color  
+![88ff17](Colors/88ff17.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2733,7 +2827,7 @@ Temperature zone data:
  - rgb: (136, 255, 23)  
  - hex: #88ff17  
 ```  
-`* Surface color: `![88ff17](Colors/88ff17.png)
+
  </details>  
 
 ---  
@@ -2759,6 +2853,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Dotacla A, type: F3</summary>  
 
+#### Star pseudo-color  
+![c3ff00](Colors/c3ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2799,7 +2895,7 @@ Temperature zone data:
  - rgb: (195, 255, 0)  
  - hex: #c3ff00  
 ```  
-`* Surface color: `![c3ff00](Colors/c3ff00.png)
+
  </details>  
 
 ---  
@@ -2825,6 +2921,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Rerv A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3100](Colors/ff3100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2865,7 +2963,7 @@ Temperature zone data:
  - rgb: (255, 49, 0)  
  - hex: #ff3100  
 ```  
-`* Surface color: `![ff3100](Colors/ff3100.png)
+
  </details>  
 
 ---  
@@ -2891,6 +2989,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Eturepol A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff1800](Colors/ff1800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2931,7 +3031,7 @@ Temperature zone data:
  - rgb: (255, 24, 0)  
  - hex: #ff1800  
 ```  
-`* Surface color: `![ff1800](Colors/ff1800.png)
+
  </details>  
 
 ---  
@@ -2957,6 +3057,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Fyli A, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -2997,12 +3099,14 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Fyli B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3043,7 +3147,7 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
@@ -3069,6 +3173,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Allaun A, type: G7</summary>  
 
+#### Star pseudo-color  
+![e6ff00](Colors/e6ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3109,7 +3215,7 @@ Temperature zone data:
  - rgb: (230, 255, 0)  
  - hex: #e6ff00  
 ```  
-`* Surface color: `![e6ff00](Colors/e6ff00.png)
+
  </details>  
 
 ---  
@@ -3135,6 +3241,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Doritu A, type: M5</summary>  
 
+#### Star pseudo-color  
+![f20000](Colors/f20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3175,12 +3283,14 @@ Temperature zone data:
  - rgb: (242, 0, 0)  
  - hex: #f20000  
 ```  
-`* Surface color: `![f20000](Colors/f20000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Doritu B, type: M5</summary>  
 
+#### Star pseudo-color  
+![ed0000](Colors/ed0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3221,7 +3331,7 @@ Temperature zone data:
  - rgb: (237, 0, 0)  
  - hex: #ed0000  
 ```  
-`* Surface color: `![ed0000](Colors/ed0000.png)
+
  </details>  
 
 ---  
@@ -3247,6 +3357,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ototi A, type: M1</summary>  
 
+#### Star pseudo-color  
+![aa0000](Colors/aa0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3287,12 +3399,14 @@ Temperature zone data:
  - rgb: (170, 0, 0)  
  - hex: #aa0000  
 ```  
-`* Surface color: `![aa0000](Colors/aa0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ototi B, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3333,7 +3447,7 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
@@ -3359,6 +3473,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Oade A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2500](Colors/ff2500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3399,7 +3515,7 @@ Temperature zone data:
  - rgb: (255, 37, 0)  
  - hex: #ff2500  
 ```  
-`* Surface color: `![ff2500](Colors/ff2500.png)
+
  </details>  
 
 ---  
@@ -3425,6 +3541,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Behhyo A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0c00](Colors/ff0c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3465,7 +3583,7 @@ Temperature zone data:
  - rgb: (255, 12, 0)  
  - hex: #ff0c00  
 ```  
-`* Surface color: `![ff0c00](Colors/ff0c00.png)
+
  </details>  
 
 ---  
@@ -3491,6 +3609,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ivres A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0c00](Colors/ff0c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3531,7 +3651,7 @@ Temperature zone data:
  - rgb: (255, 12, 0)  
  - hex: #ff0c00  
 ```  
-`* Surface color: `![ff0c00](Colors/ff0c00.png)
+
  </details>  
 
 ---  
@@ -3557,6 +3677,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etawihe A, type: G3</summary>  
 
+#### Star pseudo-color  
+![faff00](Colors/faff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3597,12 +3719,14 @@ Temperature zone data:
  - rgb: (250, 255, 0)  
  - hex: #faff00  
 ```  
-`* Surface color: `![faff00](Colors/faff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Etawihe B, type: K4</summary>  
 
+#### Star pseudo-color  
+![ffa100](Colors/ffa100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3643,12 +3767,14 @@ Temperature zone data:
  - rgb: (255, 161, 0)  
  - hex: #ffa100  
 ```  
-`* Surface color: `![ffa100](Colors/ffa100.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Etawihe C, type: K3</summary>  
 
+#### Star pseudo-color  
+![ff8800](Colors/ff8800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3689,7 +3815,7 @@ Temperature zone data:
  - rgb: (255, 136, 0)  
  - hex: #ff8800  
 ```  
-`* Surface color: `![ff8800](Colors/ff8800.png)
+
  </details>  
 
 ---  
@@ -3715,6 +3841,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Akerig A, type: M6</summary>  
 
+#### Star pseudo-color  
+![f70000](Colors/f70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3755,7 +3883,7 @@ Temperature zone data:
  - rgb: (247, 0, 0)  
  - hex: #f70000  
 ```  
-`* Surface color: `![f70000](Colors/f70000.png)
+
  </details>  
 
 ---  
@@ -3781,6 +3909,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ciropoc A, type: F7</summary>  
 
+#### Star pseudo-color  
+![aaff00](Colors/aaff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3821,7 +3951,7 @@ Temperature zone data:
  - rgb: (170, 255, 0)  
  - hex: #aaff00  
 ```  
-`* Surface color: `![aaff00](Colors/aaff00.png)
+
  </details>  
 
 ---  
@@ -3847,6 +3977,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Enol A, type: K9</summary>  
 
+#### Star pseudo-color  
+![ffe600](Colors/ffe600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3887,7 +4019,7 @@ Temperature zone data:
  - rgb: (255, 230, 0)  
  - hex: #ffe600  
 ```  
-`* Surface color: `![ffe600](Colors/ffe600.png)
+
  </details>  
 
 ---  
@@ -3913,6 +4045,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etotiral A, type: F7</summary>  
 
+#### Star pseudo-color  
+![aaff00](Colors/aaff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -3953,7 +4087,7 @@ Temperature zone data:
  - rgb: (170, 255, 0)  
  - hex: #aaff00  
 ```  
-`* Surface color: `![aaff00](Colors/aaff00.png)
+
  </details>  
 
 ---  
@@ -3979,6 +4113,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tokenow A, type: M4</summary>  
 
+#### Star pseudo-color  
+![e50000](Colors/e50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4019,7 +4155,7 @@ Temperature zone data:
  - rgb: (229, 0, 0)  
  - hex: #e50000  
 ```  
-`* Surface color: `![e50000](Colors/e50000.png)
+
  </details>  
 
 ---  
@@ -4045,6 +4181,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Necorene A, type: M3</summary>  
 
+#### Star pseudo-color  
+![d60000](Colors/d60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4085,7 +4223,7 @@ Temperature zone data:
  - rgb: (214, 0, 0)  
  - hex: #d60000  
 ```  
-`* Surface color: `![d60000](Colors/d60000.png)
+
  </details>  
 
 ---  
@@ -4111,6 +4249,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Geryne A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a50000](Colors/a50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4151,7 +4291,7 @@ Temperature zone data:
  - rgb: (165, 0, 0)  
  - hex: #a50000  
 ```  
-`* Surface color: `![a50000](Colors/a50000.png)
+
  </details>  
 
 ---  
@@ -4177,6 +4317,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ramum A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff1200](Colors/ff1200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4217,7 +4359,7 @@ Temperature zone data:
  - rgb: (255, 18, 0)  
  - hex: #ff1200  
 ```  
-`* Surface color: `![ff1200](Colors/ff1200.png)
+
  </details>  
 
 ---  
@@ -4243,6 +4385,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Egason A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c10000](Colors/c10000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4283,7 +4427,7 @@ Temperature zone data:
  - rgb: (193, 0, 0)  
  - hex: #c10000  
 ```  
-`* Surface color: `![c10000](Colors/c10000.png)
+
  </details>  
 
 ---  
@@ -4309,6 +4453,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Essifut A, type: M5</summary>  
 
+#### Star pseudo-color  
+![ed0000](Colors/ed0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4349,12 +4495,14 @@ Temperature zone data:
  - rgb: (237, 0, 0)  
  - hex: #ed0000  
 ```  
-`* Surface color: `![ed0000](Colors/ed0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Essifut B, type: M5</summary>  
 
+#### Star pseudo-color  
+![ed0000](Colors/ed0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4395,7 +4543,7 @@ Temperature zone data:
  - rgb: (237, 0, 0)  
  - hex: #ed0000  
 ```  
-`* Surface color: `![ed0000](Colors/ed0000.png)
+
  </details>  
 
 ---  
@@ -4421,6 +4569,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Awl A, type: F5</summary>  
 
+#### Star pseudo-color  
+![b9ff00](Colors/b9ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4461,7 +4611,7 @@ Temperature zone data:
  - rgb: (185, 255, 0)  
  - hex: #b9ff00  
 ```  
-`* Surface color: `![b9ff00](Colors/b9ff00.png)
+
  </details>  
 
 ---  
@@ -4487,6 +4637,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aasli A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4527,7 +4679,7 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
@@ -4553,6 +4705,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Epyoplo A, type: M0</summary>  
 
+#### Star pseudo-color  
+![9b0000](Colors/9b0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4593,7 +4747,7 @@ Temperature zone data:
  - rgb: (155, 0, 0)  
  - hex: #9b0000  
 ```  
-`* Surface color: `![9b0000](Colors/9b0000.png)
+
  </details>  
 
 ---  
@@ -4619,6 +4773,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nadr A, type: G3</summary>  
 
+#### Star pseudo-color  
+![faff00](Colors/faff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4659,7 +4815,7 @@ Temperature zone data:
  - rgb: (250, 255, 0)  
  - hex: #faff00  
 ```  
-`* Surface color: `![faff00](Colors/faff00.png)
+
  </details>  
 
 ---  
@@ -4685,6 +4841,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Inene A, type: M1</summary>  
 
+#### Star pseudo-color  
+![aa0000](Colors/aa0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4725,12 +4883,14 @@ Temperature zone data:
  - rgb: (170, 0, 0)  
  - hex: #aa0000  
 ```  
-`* Surface color: `![aa0000](Colors/aa0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Inene B, type: M1</summary>  
 
+#### Star pseudo-color  
+![b20000](Colors/b20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4771,7 +4931,7 @@ Temperature zone data:
  - rgb: (178, 0, 0)  
  - hex: #b20000  
 ```  
-`* Surface color: `![b20000](Colors/b20000.png)
+
  </details>  
 
 ---  
@@ -4797,6 +4957,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ratilom A, type: K3</summary>  
 
+#### Star pseudo-color  
+![ff9500](Colors/ff9500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4837,7 +4999,7 @@ Temperature zone data:
  - rgb: (255, 149, 0)  
  - hex: #ff9500  
 ```  
-`* Surface color: `![ff9500](Colors/ff9500.png)
+
  </details>  
 
 ---  
@@ -4863,6 +5025,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Calyl A, type: G2</summary>  
 
+#### Star pseudo-color  
+![faff00](Colors/faff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4903,7 +5067,7 @@ Temperature zone data:
  - rgb: (250, 255, 0)  
  - hex: #faff00  
 ```  
-`* Surface color: `![faff00](Colors/faff00.png)
+
  </details>  
 
 ---  
@@ -4929,6 +5093,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ererase A, type: F1</summary>  
 
+#### Star pseudo-color  
+![cdff00](Colors/cdff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -4969,7 +5135,7 @@ Temperature zone data:
  - rgb: (205, 255, 0)  
  - hex: #cdff00  
 ```  
-`* Surface color: `![cdff00](Colors/cdff00.png)
+
  </details>  
 
 ---  
@@ -4995,6 +5161,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tieg A, type: M2</summary>  
 
+#### Star pseudo-color  
+![b90000](Colors/b90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5035,7 +5203,7 @@ Temperature zone data:
  - rgb: (185, 0, 0)  
  - hex: #b90000  
 ```  
-`* Surface color: `![b90000](Colors/b90000.png)
+
  </details>  
 
 ---  
@@ -5061,6 +5229,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Dahelat A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5101,7 +5271,7 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
@@ -5127,6 +5297,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Elgute A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5167,12 +5339,14 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Elgute B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a70000](Colors/a70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5213,12 +5387,14 @@ Temperature zone data:
  - rgb: (167, 0, 0)  
  - hex: #a70000  
 ```  
-`* Surface color: `![a70000](Colors/a70000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Elgute C, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5259,7 +5435,7 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
@@ -5285,6 +5461,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Oewfe A, type: M4</summary>  
 
+#### Star pseudo-color  
+![dd0000](Colors/dd0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5325,7 +5503,7 @@ Temperature zone data:
  - rgb: (221, 0, 0)  
  - hex: #dd0000  
 ```  
-`* Surface color: `![dd0000](Colors/dd0000.png)
+
  </details>  
 
 ---  
@@ -5351,6 +5529,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ranotota A, type: A9</summary>  
 
+#### Star pseudo-color  
+![1bffd0](Colors/1bffd0.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5391,7 +5571,7 @@ Temperature zone data:
  - rgb: (27, 255, 208)  
  - hex: #1bffd0  
 ```  
-`* Surface color: `![1bffd0](Colors/1bffd0.png)
+
  </details>  
 
 ---  
@@ -5417,6 +5597,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nef A, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5457,7 +5639,7 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
@@ -5483,6 +5665,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Imeqisib A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5523,7 +5707,7 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
@@ -5549,6 +5733,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Asacec A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5589,7 +5775,7 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
@@ -5615,6 +5801,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Abecero A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3100](Colors/ff3100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5655,7 +5843,7 @@ Temperature zone data:
  - rgb: (255, 49, 0)  
  - hex: #ff3100  
 ```  
-`* Surface color: `![ff3100](Colors/ff3100.png)
+
  </details>  
 
 ---  
@@ -5681,6 +5869,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Irene A, type: M2</summary>  
 
+#### Star pseudo-color  
+![bc0000](Colors/bc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5721,7 +5911,7 @@ Temperature zone data:
  - rgb: (188, 0, 0)  
  - hex: #bc0000  
 ```  
-`* Surface color: `![bc0000](Colors/bc0000.png)
+
  </details>  
 
 ---  
@@ -5747,6 +5937,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Temole A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5787,7 +5979,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -5813,6 +6005,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ehahapos A, type: G3</summary>  
 
+#### Star pseudo-color  
+![faff00](Colors/faff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5853,12 +6047,14 @@ Temperature zone data:
  - rgb: (250, 255, 0)  
  - hex: #faff00  
 ```  
-`* Surface color: `![faff00](Colors/faff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ehahapos B, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5899,7 +6095,7 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
@@ -5925,6 +6121,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nuhino A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c10000](Colors/c10000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -5965,7 +6163,7 @@ Temperature zone data:
  - rgb: (193, 0, 0)  
  - hex: #c10000  
 ```  
-`* Surface color: `![c10000](Colors/c10000.png)
+
  </details>  
 
 ---  
@@ -5991,6 +6189,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Recicte A, type: A9</summary>  
 
+#### Star pseudo-color  
+![0dffe7](Colors/0dffe7.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6031,12 +6231,14 @@ Temperature zone data:
  - rgb: (13, 255, 231)  
  - hex: #0dffe7  
 ```  
-`* Surface color: `![0dffe7](Colors/0dffe7.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Recicte B, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6077,7 +6279,7 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
@@ -6103,6 +6305,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Hodap A, type: A5</summary>  
 
+#### Star pseudo-color  
+![44ff8b](Colors/44ff8b.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6143,12 +6347,14 @@ Temperature zone data:
  - rgb: (68, 255, 139)  
  - hex: #44ff8b  
 ```  
-`* Surface color: `![44ff8b](Colors/44ff8b.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Hodap B, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6189,7 +6395,7 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
@@ -6215,6 +6421,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tuloec A, type: K9</summary>  
 
+#### Star pseudo-color  
+![ffec00](Colors/ffec00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6255,12 +6463,14 @@ Temperature zone data:
  - rgb: (255, 236, 0)  
  - hex: #ffec00  
 ```  
-`* Surface color: `![ffec00](Colors/ffec00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Tuloec B, type: M2</summary>  
 
+#### Star pseudo-color  
+![b90000](Colors/b90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6301,7 +6511,7 @@ Temperature zone data:
  - rgb: (185, 0, 0)  
  - hex: #b90000  
 ```  
-`* Surface color: `![b90000](Colors/b90000.png)
+
  </details>  
 
 ---  
@@ -6327,6 +6537,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Eosl A, type: F7</summary>  
 
+#### Star pseudo-color  
+![afff00](Colors/afff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6367,7 +6579,7 @@ Temperature zone data:
  - rgb: (175, 255, 0)  
  - hex: #afff00  
 ```  
-`* Surface color: `![afff00](Colors/afff00.png)
+
  </details>  
 
 ---  
@@ -6393,6 +6605,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Rahita A, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6433,7 +6647,7 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
@@ -6459,6 +6673,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etatet A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6499,7 +6715,7 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
@@ -6525,6 +6741,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Leh A, type: F3</summary>  
 
+#### Star pseudo-color  
+![c3ff00](Colors/c3ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6565,7 +6783,7 @@ Temperature zone data:
  - rgb: (195, 255, 0)  
  - hex: #c3ff00  
 ```  
-`* Surface color: `![c3ff00](Colors/c3ff00.png)
+
  </details>  
 
 ---  
@@ -6591,6 +6809,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Itoangi A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1800](Colors/ff1800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6631,12 +6851,14 @@ Temperature zone data:
  - rgb: (255, 24, 0)  
  - hex: #ff1800  
 ```  
-`* Surface color: `![ff1800](Colors/ff1800.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Itoangi B, type: M3</summary>  
 
+#### Star pseudo-color  
+![d60000](Colors/d60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6677,7 +6899,7 @@ Temperature zone data:
  - rgb: (214, 0, 0)  
  - hex: #d60000  
 ```  
-`* Surface color: `![d60000](Colors/d60000.png)
+
  </details>  
 
 ---  
@@ -6703,6 +6925,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ecubuc A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3700](Colors/ff3700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6743,7 +6967,7 @@ Temperature zone data:
  - rgb: (255, 55, 0)  
  - hex: #ff3700  
 ```  
-`* Surface color: `![ff3700](Colors/ff3700.png)
+
  </details>  
 
 ---  
@@ -6769,6 +6993,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Cidotu A, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6809,7 +7035,7 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
@@ -6835,6 +7061,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Dytihyna A, type: K3</summary>  
 
+#### Star pseudo-color  
+![ff8800](Colors/ff8800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6875,7 +7103,7 @@ Temperature zone data:
  - rgb: (255, 136, 0)  
  - hex: #ff8800  
 ```  
-`* Surface color: `![ff8800](Colors/ff8800.png)
+
  </details>  
 
 ---  
@@ -6901,6 +7129,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Imelole A, type: G6</summary>  
 
+#### Star pseudo-color  
+![e6ff00](Colors/e6ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6941,12 +7171,14 @@ Temperature zone data:
  - rgb: (230, 255, 0)  
  - hex: #e6ff00  
 ```  
-`* Surface color: `![e6ff00](Colors/e6ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Imelole B, type: M5</summary>  
 
+#### Star pseudo-color  
+![ed0000](Colors/ed0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -6987,12 +7219,14 @@ Temperature zone data:
  - rgb: (237, 0, 0)  
  - hex: #ed0000  
 ```  
-`* Surface color: `![ed0000](Colors/ed0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Imelole C, type: M4</summary>  
 
+#### Star pseudo-color  
+![db0000](Colors/db0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7033,7 +7267,7 @@ Temperature zone data:
  - rgb: (219, 0, 0)  
  - hex: #db0000  
 ```  
-`* Surface color: `![db0000](Colors/db0000.png)
+
  </details>  
 
 ---  
@@ -7059,6 +7293,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Soad A, type: M3</summary>  
 
+#### Star pseudo-color  
+![ce0000](Colors/ce0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7099,7 +7335,7 @@ Temperature zone data:
  - rgb: (206, 0, 0)  
  - hex: #ce0000  
 ```  
-`* Surface color: `![ce0000](Colors/ce0000.png)
+
  </details>  
 
 ---  
@@ -7125,6 +7361,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Titses A, type: M1</summary>  
 
+#### Star pseudo-color  
+![af0000](Colors/af0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7165,12 +7403,14 @@ Temperature zone data:
  - rgb: (175, 0, 0)  
  - hex: #af0000  
 ```  
-`* Surface color: `![af0000](Colors/af0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Titses B, type: M1</summary>  
 
+#### Star pseudo-color  
+![b90000](Colors/b90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7211,7 +7451,7 @@ Temperature zone data:
  - rgb: (185, 0, 0)  
  - hex: #b90000  
 ```  
-`* Surface color: `![b90000](Colors/b90000.png)
+
  </details>  
 
 ---  
@@ -7237,6 +7477,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Oline A, type: K3</summary>  
 
+#### Star pseudo-color  
+![ff9500](Colors/ff9500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7277,7 +7519,7 @@ Temperature zone data:
  - rgb: (255, 149, 0)  
  - hex: #ff9500  
 ```  
-`* Surface color: `![ff9500](Colors/ff9500.png)
+
  </details>  
 
 ---  
@@ -7303,6 +7545,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Pairtu A, type: A9</summary>  
 
+#### Star pseudo-color  
+![1bffd0](Colors/1bffd0.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7343,12 +7587,14 @@ Temperature zone data:
  - rgb: (27, 255, 208)  
  - hex: #1bffd0  
 ```  
-`* Surface color: `![1bffd0](Colors/1bffd0.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Pairtu B, type: K4</summary>  
 
+#### Star pseudo-color  
+![ffa100](Colors/ffa100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7389,7 +7635,7 @@ Temperature zone data:
  - rgb: (255, 161, 0)  
  - hex: #ffa100  
 ```  
-`* Surface color: `![ffa100](Colors/ffa100.png)
+
  </details>  
 
 ---  
@@ -7415,6 +7661,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ria A, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7455,12 +7703,14 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ria B, type: M2</summary>  
 
+#### Star pseudo-color  
+![bc0000](Colors/bc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7501,12 +7751,14 @@ Temperature zone data:
  - rgb: (188, 0, 0)  
  - hex: #bc0000  
 ```  
-`* Surface color: `![bc0000](Colors/bc0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ria C, type: M1</summary>  
 
+#### Star pseudo-color  
+![ad0000](Colors/ad0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7547,12 +7799,14 @@ Temperature zone data:
  - rgb: (173, 0, 0)  
  - hex: #ad0000  
 ```  
-`* Surface color: `![ad0000](Colors/ad0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ria D, type: M0</summary>  
 
+#### Star pseudo-color  
+![9b0000](Colors/9b0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7593,7 +7847,7 @@ Temperature zone data:
  - rgb: (155, 0, 0)  
  - hex: #9b0000  
 ```  
-`* Surface color: `![9b0000](Colors/9b0000.png)
+
  </details>  
 
 ---  
@@ -7619,6 +7873,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nuic A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7659,12 +7915,14 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Nuic B, type: M6</summary>  
 
+#### Star pseudo-color  
+![f40000](Colors/f40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7705,12 +7963,14 @@ Temperature zone data:
  - rgb: (244, 0, 0)  
  - hex: #f40000  
 ```  
-`* Surface color: `![f40000](Colors/f40000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Nuic C, type: M2</summary>  
 
+#### Star pseudo-color  
+![bc0000](Colors/bc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7751,7 +8011,7 @@ Temperature zone data:
  - rgb: (188, 0, 0)  
  - hex: #bc0000  
 ```  
-`* Surface color: `![bc0000](Colors/bc0000.png)
+
  </details>  
 
 ---  
@@ -7777,6 +8037,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Elalu A, type: M6</summary>  
 
+#### Star pseudo-color  
+![fc0000](Colors/fc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7817,7 +8079,7 @@ Temperature zone data:
  - rgb: (252, 0, 0)  
  - hex: #fc0000  
 ```  
-`* Surface color: `![fc0000](Colors/fc0000.png)
+
  </details>  
 
 ---  
@@ -7843,6 +8105,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Mucarom A, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff4a00](Colors/ff4a00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7883,7 +8147,7 @@ Temperature zone data:
  - rgb: (255, 74, 0)  
  - hex: #ff4a00  
 ```  
-`* Surface color: `![ff4a00](Colors/ff4a00.png)
+
  </details>  
 
 ---  
@@ -7909,6 +8173,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Pocars A, type: M3</summary>  
 
+#### Star pseudo-color  
+![d60000](Colors/d60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -7949,7 +8215,7 @@ Temperature zone data:
  - rgb: (214, 0, 0)  
  - hex: #d60000  
 ```  
-`* Surface color: `![d60000](Colors/d60000.png)
+
  </details>  
 
 ---  
@@ -7975,6 +8241,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tobtam A, type: K2</summary>  
 
+#### Star pseudo-color  
+![ff8200](Colors/ff8200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8015,7 +8283,7 @@ Temperature zone data:
  - rgb: (255, 130, 0)  
  - hex: #ff8200  
 ```  
-`* Surface color: `![ff8200](Colors/ff8200.png)
+
  </details>  
 
 ---  
@@ -8041,6 +8309,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Kam A, type: A2</summary>  
 
+#### Star pseudo-color  
+![7aff2e](Colors/7aff2e.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8081,12 +8351,14 @@ Temperature zone data:
  - rgb: (122, 255, 46)  
  - hex: #7aff2e  
 ```  
-`* Surface color: `![7aff2e](Colors/7aff2e.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Kam B, type: M4</summary>  
 
+#### Star pseudo-color  
+![db0000](Colors/db0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8127,12 +8399,14 @@ Temperature zone data:
  - rgb: (219, 0, 0)  
  - hex: #db0000  
 ```  
-`* Surface color: `![db0000](Colors/db0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Kam C, type: M2</summary>  
 
+#### Star pseudo-color  
+![c10000](Colors/c10000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8173,7 +8447,7 @@ Temperature zone data:
  - rgb: (193, 0, 0)  
  - hex: #c10000  
 ```  
-`* Surface color: `![c10000](Colors/c10000.png)
+
  </details>  
 
 ---  
@@ -8199,6 +8473,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Anin A, type: K5</summary>  
 
+#### Star pseudo-color  
+![ffba00](Colors/ffba00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8239,12 +8515,14 @@ Temperature zone data:
  - rgb: (255, 186, 0)  
  - hex: #ffba00  
 ```  
-`* Surface color: `![ffba00](Colors/ffba00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Anin B, type: M6</summary>  
 
+#### Star pseudo-color  
+![f70000](Colors/f70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8285,12 +8563,14 @@ Temperature zone data:
  - rgb: (247, 0, 0)  
  - hex: #f70000  
 ```  
-`* Surface color: `![f70000](Colors/f70000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Anin C, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8331,7 +8611,7 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
@@ -8357,6 +8637,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Esofe A, type: M1</summary>  
 
+#### Star pseudo-color  
+![b20000](Colors/b20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8397,7 +8679,7 @@ Temperature zone data:
  - rgb: (178, 0, 0)  
  - hex: #b20000  
 ```  
-`* Surface color: `![b20000](Colors/b20000.png)
+
  </details>  
 
 ---  
@@ -8423,6 +8705,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Libyda A, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8463,12 +8747,14 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Libyda B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8509,12 +8795,14 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Libyda C, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8555,12 +8843,14 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Libyda D, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8601,12 +8891,14 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Libyda E, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8647,7 +8939,7 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
@@ -8673,6 +8965,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tasti A, type: M4</summary>  
 
+#### Star pseudo-color  
+![db0000](Colors/db0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8713,12 +9007,14 @@ Temperature zone data:
  - rgb: (219, 0, 0)  
  - hex: #db0000  
 ```  
-`* Surface color: `![db0000](Colors/db0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Tasti B, type: M2</summary>  
 
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8759,7 +9055,7 @@ Temperature zone data:
  - rgb: (198, 0, 0)  
  - hex: #c60000  
 ```  
-`* Surface color: `![c60000](Colors/c60000.png)
+
  </details>  
 
 ---  
@@ -8785,6 +9081,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Katere A, type: G9</summary>  
 
+#### Star pseudo-color  
+![dcff00](Colors/dcff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8825,7 +9123,7 @@ Temperature zone data:
  - rgb: (220, 255, 0)  
  - hex: #dcff00  
 ```  
-`* Surface color: `![dcff00](Colors/dcff00.png)
+
  </details>  
 
 ---  
@@ -8851,6 +9149,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Yncoe A, type: G0</summary>  
 
+#### Star pseudo-color  
+![fff800](Colors/fff800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8891,7 +9191,7 @@ Temperature zone data:
  - rgb: (255, 248, 0)  
  - hex: #fff800  
 ```  
-`* Surface color: `![fff800](Colors/fff800.png)
+
  </details>  
 
 ---  
@@ -8917,6 +9217,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Posetul A, type: M3</summary>  
 
+#### Star pseudo-color  
+![c90000](Colors/c90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -8957,12 +9259,14 @@ Temperature zone data:
  - rgb: (201, 0, 0)  
  - hex: #c90000  
 ```  
-`* Surface color: `![c90000](Colors/c90000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Posetul B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9003,7 +9307,7 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
@@ -9029,6 +9333,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Enafme A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff1800](Colors/ff1800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9069,12 +9375,14 @@ Temperature zone data:
  - rgb: (255, 24, 0)  
  - hex: #ff1800  
 ```  
-`* Surface color: `![ff1800](Colors/ff1800.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enafme B, type: M5</summary>  
 
+#### Star pseudo-color  
+![e70000](Colors/e70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9115,12 +9423,14 @@ Temperature zone data:
  - rgb: (231, 0, 0)  
  - hex: #e70000  
 ```  
-`* Surface color: `![e70000](Colors/e70000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enafme C, type: M4</summary>  
 
+#### Star pseudo-color  
+![e50000](Colors/e50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9161,12 +9471,14 @@ Temperature zone data:
  - rgb: (229, 0, 0)  
  - hex: #e50000  
 ```  
-`* Surface color: `![e50000](Colors/e50000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enafme D, type: M4</summary>  
 
+#### Star pseudo-color  
+![e20000](Colors/e20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9207,12 +9519,14 @@ Temperature zone data:
  - rgb: (226, 0, 0)  
  - hex: #e20000  
 ```  
-`* Surface color: `![e20000](Colors/e20000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enafme E, type: M3</summary>  
 
+#### Star pseudo-color  
+![d00000](Colors/d00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9253,7 +9567,7 @@ Temperature zone data:
  - rgb: (208, 0, 0)  
  - hex: #d00000  
 ```  
-`* Surface color: `![d00000](Colors/d00000.png)
+
  </details>  
 
 ---  
@@ -9279,6 +9593,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Rekah A, type: O1</summary>  
 
+#### Star pseudo-color  
+![6d44e1](Colors/6d44e1.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9319,12 +9635,14 @@ Temperature zone data:
  - rgb: (109, 68, 225)  
  - hex: #6d44e1  
 ```  
-`* Surface color: `![6d44e1](Colors/6d44e1.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Rekah B, type: F4</summary>  
 
+#### Star pseudo-color  
+![beff00](Colors/beff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9365,12 +9683,14 @@ Temperature zone data:
  - rgb: (190, 255, 0)  
  - hex: #beff00  
 ```  
-`* Surface color: `![beff00](Colors/beff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Rekah C, type: G5</summary>  
 
+#### Star pseudo-color  
+![f0ff00](Colors/f0ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9411,12 +9731,14 @@ Temperature zone data:
  - rgb: (240, 255, 0)  
  - hex: #f0ff00  
 ```  
-`* Surface color: `![f0ff00](Colors/f0ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Rekah D, type: M6</summary>  
 
+#### Star pseudo-color  
+![f70000](Colors/f70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9457,7 +9779,7 @@ Temperature zone data:
  - rgb: (247, 0, 0)  
  - hex: #f70000  
 ```  
-`* Surface color: `![f70000](Colors/f70000.png)
+
  </details>  
 
 ---  
@@ -9483,6 +9805,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Eske A, type: K5</summary>  
 
+#### Star pseudo-color  
+![ffae00](Colors/ffae00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9523,7 +9847,7 @@ Temperature zone data:
  - rgb: (255, 174, 0)  
  - hex: #ffae00  
 ```  
-`* Surface color: `![ffae00](Colors/ffae00.png)
+
  </details>  
 
 ---  
@@ -9549,6 +9873,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Kosenn A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c90000](Colors/c90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9589,12 +9915,14 @@ Temperature zone data:
  - rgb: (201, 0, 0)  
  - hex: #c90000  
 ```  
-`* Surface color: `![c90000](Colors/c90000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Kosenn B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9635,7 +9963,7 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
@@ -9661,6 +9989,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Setuc A, type: F9</summary>  
 
+#### Star pseudo-color  
+![a0ff00](Colors/a0ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9701,7 +10031,7 @@ Temperature zone data:
  - rgb: (160, 255, 0)  
  - hex: #a0ff00  
 ```  
-`* Surface color: `![a0ff00](Colors/a0ff00.png)
+
  </details>  
 
 ---  
@@ -9727,6 +10057,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ybunifof A, type: M3</summary>  
 
+#### Star pseudo-color  
+![ce0000](Colors/ce0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9767,7 +10099,7 @@ Temperature zone data:
  - rgb: (206, 0, 0)  
  - hex: #ce0000  
 ```  
-`* Surface color: `![ce0000](Colors/ce0000.png)
+
  </details>  
 
 ---  
@@ -9793,6 +10125,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Lanisasa A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3700](Colors/ff3700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9833,12 +10167,14 @@ Temperature zone data:
  - rgb: (255, 55, 0)  
  - hex: #ff3700  
 ```  
-`* Surface color: `![ff3700](Colors/ff3700.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lanisasa B, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2b00](Colors/ff2b00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9879,7 +10215,7 @@ Temperature zone data:
  - rgb: (255, 43, 0)  
  - hex: #ff2b00  
 ```  
-`* Surface color: `![ff2b00](Colors/ff2b00.png)
+
  </details>  
 
 ---  
@@ -9905,6 +10241,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Rocor A, type: M6</summary>  
 
+#### Star pseudo-color  
+![fc0000](Colors/fc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -9945,7 +10283,7 @@ Temperature zone data:
  - rgb: (252, 0, 0)  
  - hex: #fc0000  
 ```  
-`* Surface color: `![fc0000](Colors/fc0000.png)
+
  </details>  
 
 ---  
@@ -9971,6 +10309,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Igega A, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff5700](Colors/ff5700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10011,7 +10351,7 @@ Temperature zone data:
  - rgb: (255, 87, 0)  
  - hex: #ff5700  
 ```  
-`* Surface color: `![ff5700](Colors/ff5700.png)
+
  </details>  
 
 ---  
@@ -10037,6 +10377,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Oaktau A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c90000](Colors/c90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10077,7 +10419,7 @@ Temperature zone data:
  - rgb: (201, 0, 0)  
  - hex: #c90000  
 ```  
-`* Surface color: `![c90000](Colors/c90000.png)
+
  </details>  
 
 ---  
@@ -10103,6 +10445,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Erurase A, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff4a00](Colors/ff4a00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10143,7 +10487,7 @@ Temperature zone data:
  - rgb: (255, 74, 0)  
  - hex: #ff4a00  
 ```  
-`* Surface color: `![ff4a00](Colors/ff4a00.png)
+
  </details>  
 
 ---  
@@ -10169,6 +10513,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Yrivb A, type: M0</summary>  
 
+#### Star pseudo-color  
+![980000](Colors/980000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10209,7 +10555,7 @@ Temperature zone data:
  - rgb: (152, 0, 0)  
  - hex: #980000  
 ```  
-`* Surface color: `![980000](Colors/980000.png)
+
  </details>  
 
 ---  
@@ -10235,6 +10581,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Atotuc A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10275,12 +10623,14 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Atotuc B, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0000](Colors/ff0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10321,12 +10671,14 @@ Temperature zone data:
  - rgb: (255, 0, 0)  
  - hex: #ff0000  
 ```  
-`* Surface color: `![ff0000](Colors/ff0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Atotuc C, type: M3</summary>  
 
+#### Star pseudo-color  
+![d30000](Colors/d30000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10367,12 +10719,14 @@ Temperature zone data:
  - rgb: (211, 0, 0)  
  - hex: #d30000  
 ```  
-`* Surface color: `![d30000](Colors/d30000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Atotuc D, type: M2</summary>  
 
+#### Star pseudo-color  
+![c40000](Colors/c40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10413,12 +10767,14 @@ Temperature zone data:
  - rgb: (196, 0, 0)  
  - hex: #c40000  
 ```  
-`* Surface color: `![c40000](Colors/c40000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Atotuc E, type: M1</summary>  
 
+#### Star pseudo-color  
+![b70000](Colors/b70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10459,7 +10815,7 @@ Temperature zone data:
  - rgb: (183, 0, 0)  
  - hex: #b70000  
 ```  
-`* Surface color: `![b70000](Colors/b70000.png)
+
  </details>  
 
 ---  
@@ -10485,6 +10841,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Egibirun A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10525,7 +10883,7 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
@@ -10551,6 +10909,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Kebalig A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0c00](Colors/ff0c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10591,7 +10951,7 @@ Temperature zone data:
  - rgb: (255, 12, 0)  
  - hex: #ff0c00  
 ```  
-`* Surface color: `![ff0c00](Colors/ff0c00.png)
+
  </details>  
 
 ---  
@@ -10617,6 +10977,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Unac A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10657,7 +11019,7 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
@@ -10683,6 +11045,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Sease A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2500](Colors/ff2500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10723,7 +11087,7 @@ Temperature zone data:
  - rgb: (255, 37, 0)  
  - hex: #ff2500  
 ```  
-`* Surface color: `![ff2500](Colors/ff2500.png)
+
  </details>  
 
 ---  
@@ -10749,6 +11113,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Hievaso A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2b00](Colors/ff2b00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10789,12 +11155,14 @@ Temperature zone data:
  - rgb: (255, 43, 0)  
  - hex: #ff2b00  
 ```  
-`* Surface color: `![ff2b00](Colors/ff2b00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Hievaso B, type: M5</summary>  
 
+#### Star pseudo-color  
+![ef0000](Colors/ef0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10835,12 +11203,14 @@ Temperature zone data:
  - rgb: (239, 0, 0)  
  - hex: #ef0000  
 ```  
-`* Surface color: `![ef0000](Colors/ef0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Hievaso C, type: M5</summary>  
 
+#### Star pseudo-color  
+![ed0000](Colors/ed0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10881,12 +11251,14 @@ Temperature zone data:
  - rgb: (237, 0, 0)  
  - hex: #ed0000  
 ```  
-`* Surface color: `![ed0000](Colors/ed0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Hievaso D, type: M0</summary>  
 
+#### Star pseudo-color  
+![a50000](Colors/a50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10927,12 +11299,14 @@ Temperature zone data:
  - rgb: (165, 0, 0)  
  - hex: #a50000  
 ```  
-`* Surface color: `![a50000](Colors/a50000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Hievaso E, type: M0</summary>  
 
+#### Star pseudo-color  
+![9b0000](Colors/9b0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -10973,7 +11347,7 @@ Temperature zone data:
  - rgb: (155, 0, 0)  
  - hex: #9b0000  
 ```  
-`* Surface color: `![9b0000](Colors/9b0000.png)
+
  </details>  
 
 ---  
@@ -10999,6 +11373,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Wuika A, type: K7</summary>  
 
+#### Star pseudo-color  
+![ffd300](Colors/ffd300.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11039,7 +11415,7 @@ Temperature zone data:
  - rgb: (255, 211, 0)  
  - hex: #ffd300  
 ```  
-`* Surface color: `![ffd300](Colors/ffd300.png)
+
  </details>  
 
 ---  
@@ -11065,6 +11441,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Saese A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11105,7 +11483,7 @@ Temperature zone data:
  - rgb: (198, 0, 0)  
  - hex: #c60000  
 ```  
-`* Surface color: `![c60000](Colors/c60000.png)
+
  </details>  
 
 ---  
@@ -11131,6 +11509,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Fococo A, type: K8</summary>  
 
+#### Star pseudo-color  
+![ffdf00](Colors/ffdf00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11171,7 +11551,7 @@ Temperature zone data:
  - rgb: (255, 223, 0)  
  - hex: #ffdf00  
 ```  
-`* Surface color: `![ffdf00](Colors/ffdf00.png)
+
  </details>  
 
 ---  
@@ -11197,6 +11577,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Uluror A, type: K6</summary>  
 
+#### Star pseudo-color  
+![ffc700](Colors/ffc700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11237,7 +11619,7 @@ Temperature zone data:
  - rgb: (255, 199, 0)  
  - hex: #ffc700  
 ```  
-`* Surface color: `![ffc700](Colors/ffc700.png)
+
  </details>  
 
 ---  
@@ -11263,6 +11645,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ubrym A, type: A1</summary>  
 
+#### Star pseudo-color  
+![96ff00](Colors/96ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11303,7 +11687,7 @@ Temperature zone data:
  - rgb: (150, 255, 0)  
  - hex: #96ff00  
 ```  
-`* Surface color: `![96ff00](Colors/96ff00.png)
+
  </details>  
 
 ---  
@@ -11329,6 +11713,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Wahyt A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1800](Colors/ff1800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11369,7 +11755,7 @@ Temperature zone data:
  - rgb: (255, 24, 0)  
  - hex: #ff1800  
 ```  
-`* Surface color: `![ff1800](Colors/ff1800.png)
+
  </details>  
 
 ---  
@@ -11395,6 +11781,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Accid A, type: M4</summary>  
 
+#### Star pseudo-color  
+![e50000](Colors/e50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11435,7 +11823,7 @@ Temperature zone data:
  - rgb: (229, 0, 0)  
  - hex: #e50000  
 ```  
-`* Surface color: `![e50000](Colors/e50000.png)
+
  </details>  
 
 ---  
@@ -11461,6 +11849,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Uete A, type: B3</summary>  
 
+#### Star pseudo-color  
+![00b9ff](Colors/00b9ff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11501,7 +11891,7 @@ Temperature zone data:
  - rgb: (0, 185, 255)  
  - hex: #00b9ff  
 ```  
-`* Surface color: `![00b9ff](Colors/00b9ff.png)
+
  </details>  
 
 ---  
@@ -11527,6 +11917,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Fenele A, type: F9</summary>  
 
+#### Star pseudo-color  
+![a0ff00](Colors/a0ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11567,7 +11959,7 @@ Temperature zone data:
  - rgb: (160, 255, 0)  
  - hex: #a0ff00  
 ```  
-`* Surface color: `![a0ff00](Colors/a0ff00.png)
+
  </details>  
 
 ---  
@@ -11593,6 +11985,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ymred A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c40000](Colors/c40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11633,12 +12027,14 @@ Temperature zone data:
  - rgb: (196, 0, 0)  
  - hex: #c40000  
 ```  
-`* Surface color: `![c40000](Colors/c40000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ymred B, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11679,12 +12075,14 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ymred C, type: M1</summary>  
 
+#### Star pseudo-color  
+![aa0000](Colors/aa0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11725,7 +12123,7 @@ Temperature zone data:
  - rgb: (170, 0, 0)  
  - hex: #aa0000  
 ```  
-`* Surface color: `![aa0000](Colors/aa0000.png)
+
  </details>  
 
 ---  
@@ -11751,6 +12149,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etoeras A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff4400](Colors/ff4400.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11791,7 +12191,7 @@ Temperature zone data:
  - rgb: (255, 68, 0)  
  - hex: #ff4400  
 ```  
-`* Surface color: `![ff4400](Colors/ff4400.png)
+
  </details>  
 
 ---  
@@ -11817,6 +12217,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Tihocl A, type: F1</summary>  
 
+#### Star pseudo-color  
+![d2ff00](Colors/d2ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11857,7 +12259,7 @@ Temperature zone data:
  - rgb: (210, 255, 0)  
  - hex: #d2ff00  
 ```  
-`* Surface color: `![d2ff00](Colors/d2ff00.png)
+
  </details>  
 
 ---  
@@ -11883,6 +12285,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Taryip A, type: O0</summary>  
 
+#### Star pseudo-color  
+![247af5](Colors/247af5.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11923,7 +12327,7 @@ Temperature zone data:
  - rgb: (36, 122, 245)  
  - hex: #247af5  
 ```  
-`* Surface color: `![247af5](Colors/247af5.png)
+
  </details>  
 
 ---  
@@ -11949,6 +12353,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Anpok A, type: G3</summary>  
 
+#### Star pseudo-color  
+![faff00](Colors/faff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -11989,7 +12395,7 @@ Temperature zone data:
  - rgb: (250, 255, 0)  
  - hex: #faff00  
 ```  
-`* Surface color: `![faff00](Colors/faff00.png)
+
  </details>  
 
 ---  
@@ -12015,6 +12421,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Wotor A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3100](Colors/ff3100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12055,12 +12463,14 @@ Temperature zone data:
  - rgb: (255, 49, 0)  
  - hex: #ff3100  
 ```  
-`* Surface color: `![ff3100](Colors/ff3100.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Wotor B, type: M5</summary>  
 
+#### Star pseudo-color  
+![e50000](Colors/e50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12101,7 +12511,7 @@ Temperature zone data:
  - rgb: (229, 0, 0)  
  - hex: #e50000  
 ```  
-`* Surface color: `![e50000](Colors/e50000.png)
+
  </details>  
 
 ---  
@@ -12127,6 +12537,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Laewi A, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff4a00](Colors/ff4a00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12167,7 +12579,7 @@ Temperature zone data:
  - rgb: (255, 74, 0)  
  - hex: #ff4a00  
 ```  
-`* Surface color: `![ff4a00](Colors/ff4a00.png)
+
  </details>  
 
 ---  
@@ -12193,6 +12605,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ukagitag A, type: M3</summary>  
 
+#### Star pseudo-color  
+![cb0000](Colors/cb0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12233,7 +12647,7 @@ Temperature zone data:
  - rgb: (203, 0, 0)  
  - hex: #cb0000  
 ```  
-`* Surface color: `![cb0000](Colors/cb0000.png)
+
  </details>  
 
 ---  
@@ -12259,6 +12673,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Esini A, type: M1</summary>  
 
+#### Star pseudo-color  
+![b70000](Colors/b70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12299,12 +12715,14 @@ Temperature zone data:
  - rgb: (183, 0, 0)  
  - hex: #b70000  
 ```  
-`* Surface color: `![b70000](Colors/b70000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Esini B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12345,7 +12763,7 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
@@ -12371,6 +12789,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Wesecyco A, type: A2</summary>  
 
+#### Star pseudo-color  
+![6dff45](Colors/6dff45.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12411,12 +12831,14 @@ Temperature zone data:
  - rgb: (109, 255, 69)  
  - hex: #6dff45  
 ```  
-`* Surface color: `![6dff45](Colors/6dff45.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Wesecyco B, type: G6</summary>  
 
+#### Star pseudo-color  
+![e6ff00](Colors/e6ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12457,12 +12879,14 @@ Temperature zone data:
  - rgb: (230, 255, 0)  
  - hex: #e6ff00  
 ```  
-`* Surface color: `![e6ff00](Colors/e6ff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Wesecyco C, type: K4</summary>  
 
+#### Star pseudo-color  
+![ffa100](Colors/ffa100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12503,12 +12927,14 @@ Temperature zone data:
  - rgb: (255, 161, 0)  
  - hex: #ffa100  
 ```  
-`* Surface color: `![ffa100](Colors/ffa100.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Wesecyco D, type: M6</summary>  
 
+#### Star pseudo-color  
+![f20000](Colors/f20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12549,7 +12975,7 @@ Temperature zone data:
  - rgb: (242, 0, 0)  
  - hex: #f20000  
 ```  
-`* Surface color: `![f20000](Colors/f20000.png)
+
  </details>  
 
 ---  
@@ -12575,6 +13001,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Siriss A, type: G6</summary>  
 
+#### Star pseudo-color  
+![ebff00](Colors/ebff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12615,12 +13043,14 @@ Temperature zone data:
  - rgb: (235, 255, 0)  
  - hex: #ebff00  
 ```  
-`* Surface color: `![ebff00](Colors/ebff00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Siriss B, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff5700](Colors/ff5700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12661,7 +13091,7 @@ Temperature zone data:
  - rgb: (255, 87, 0)  
  - hex: #ff5700  
 ```  
-`* Surface color: `![ff5700](Colors/ff5700.png)
+
  </details>  
 
 ---  
@@ -12687,6 +13117,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ahostea A, type: F9</summary>  
 
+#### Star pseudo-color  
+![a5ff00](Colors/a5ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12727,7 +13159,7 @@ Temperature zone data:
  - rgb: (165, 255, 0)  
  - hex: #a5ff00  
 ```  
-`* Surface color: `![a5ff00](Colors/a5ff00.png)
+
  </details>  
 
 ---  
@@ -12753,6 +13185,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Naperef A, type: K1</summary>  
 
+#### Star pseudo-color  
+![ff5d00](Colors/ff5d00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12793,7 +13227,7 @@ Temperature zone data:
  - rgb: (255, 93, 0)  
  - hex: #ff5d00  
 ```  
-`* Surface color: `![ff5d00](Colors/ff5d00.png)
+
  </details>  
 
 ---  
@@ -12819,6 +13253,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Onochar A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3700](Colors/ff3700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12859,7 +13295,7 @@ Temperature zone data:
  - rgb: (255, 55, 0)  
  - hex: #ff3700  
 ```  
-`* Surface color: `![ff3700](Colors/ff3700.png)
+
  </details>  
 
 ---  
@@ -12885,6 +13321,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ucudeti A, type: M3</summary>  
 
+#### Star pseudo-color  
+![d60000](Colors/d60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12925,7 +13363,7 @@ Temperature zone data:
  - rgb: (214, 0, 0)  
  - hex: #d60000  
 ```  
-`* Surface color: `![d60000](Colors/d60000.png)
+
  </details>  
 
 ---  
@@ -12951,6 +13389,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ionon A, type: M6</summary>  
 
+#### Star pseudo-color  
+![fc0000](Colors/fc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -12991,7 +13431,7 @@ Temperature zone data:
  - rgb: (252, 0, 0)  
  - hex: #fc0000  
 ```  
-`* Surface color: `![fc0000](Colors/fc0000.png)
+
  </details>  
 
 ---  
@@ -13017,6 +13457,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Dula A, type: G9</summary>  
 
+#### Star pseudo-color  
+![dcff00](Colors/dcff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13057,7 +13499,7 @@ Temperature zone data:
  - rgb: (220, 255, 0)  
  - hex: #dcff00  
 ```  
-`* Surface color: `![dcff00](Colors/dcff00.png)
+
  </details>  
 
 ---  
@@ -13083,6 +13525,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Detetoso A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0000](Colors/ff0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13123,7 +13567,7 @@ Temperature zone data:
  - rgb: (255, 0, 0)  
  - hex: #ff0000  
 ```  
-`* Surface color: `![ff0000](Colors/ff0000.png)
+
  </details>  
 
 ---  
@@ -13149,6 +13593,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Lorico A, type: F2</summary>  
 
+#### Star pseudo-color  
+![cdff00](Colors/cdff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13189,7 +13635,7 @@ Temperature zone data:
  - rgb: (205, 255, 0)  
  - hex: #cdff00  
 ```  
-`* Surface color: `![cdff00](Colors/cdff00.png)
+
  </details>  
 
 ---  
@@ -13215,6 +13661,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Hilicele A, type: F2</summary>  
 
+#### Star pseudo-color  
+![cdff00](Colors/cdff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13255,7 +13703,7 @@ Temperature zone data:
  - rgb: (205, 255, 0)  
  - hex: #cdff00  
 ```  
-`* Surface color: `![cdff00](Colors/cdff00.png)
+
  </details>  
 
 ---  
@@ -13281,6 +13729,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aranise A, type: K8</summary>  
 
+#### Star pseudo-color  
+![ffe600](Colors/ffe600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13321,7 +13771,7 @@ Temperature zone data:
  - rgb: (255, 230, 0)  
  - hex: #ffe600  
 ```  
-`* Surface color: `![ffe600](Colors/ffe600.png)
+
  </details>  
 
 ---  
@@ -13347,6 +13797,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ofibimut A, type: M2</summary>  
 
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13387,7 +13839,7 @@ Temperature zone data:
  - rgb: (198, 0, 0)  
  - hex: #c60000  
 ```  
-`* Surface color: `![c60000](Colors/c60000.png)
+
  </details>  
 
 ---  
@@ -13413,6 +13865,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Iifune A, type: M3</summary>  
 
+#### Star pseudo-color  
+![d00000](Colors/d00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13453,12 +13907,14 @@ Temperature zone data:
  - rgb: (208, 0, 0)  
  - hex: #d00000  
 ```  
-`* Surface color: `![d00000](Colors/d00000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Iifune B, type: M3</summary>  
 
+#### Star pseudo-color  
+![cb0000](Colors/cb0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13499,7 +13955,7 @@ Temperature zone data:
  - rgb: (203, 0, 0)  
  - hex: #cb0000  
 ```  
-`* Surface color: `![cb0000](Colors/cb0000.png)
+
  </details>  
 
 ---  
@@ -13525,6 +13981,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Pedef A, type: K2</summary>  
 
+#### Star pseudo-color  
+![ff8800](Colors/ff8800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13565,7 +14023,7 @@ Temperature zone data:
  - rgb: (255, 136, 0)  
  - hex: #ff8800  
 ```  
-`* Surface color: `![ff8800](Colors/ff8800.png)
+
  </details>  
 
 ---  
@@ -13591,6 +14049,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Malikit A, type: F6</summary>  
 
+#### Star pseudo-color  
+![afff00](Colors/afff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13631,7 +14091,7 @@ Temperature zone data:
  - rgb: (175, 255, 0)  
  - hex: #afff00  
 ```  
-`* Surface color: `![afff00](Colors/afff00.png)
+
  </details>  
 
 ---  
@@ -13657,6 +14117,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aruhle A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a50000](Colors/a50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13697,7 +14159,7 @@ Temperature zone data:
  - rgb: (165, 0, 0)  
  - hex: #a50000  
 ```  
-`* Surface color: `![a50000](Colors/a50000.png)
+
  </details>  
 
 ---  
@@ -13723,6 +14185,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Icepigod A, type: M4</summary>  
 
+#### Star pseudo-color  
+![e00000](Colors/e00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13763,7 +14227,7 @@ Temperature zone data:
  - rgb: (224, 0, 0)  
  - hex: #e00000  
 ```  
-`* Surface color: `![e00000](Colors/e00000.png)
+
  </details>  
 
 ---  
@@ -13789,6 +14253,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nis A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0000](Colors/ff0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13829,12 +14295,14 @@ Temperature zone data:
  - rgb: (255, 0, 0)  
  - hex: #ff0000  
 ```  
-`* Surface color: `![ff0000](Colors/ff0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Nis B, type: M5</summary>  
 
+#### Star pseudo-color  
+![ef0000](Colors/ef0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13875,7 +14343,7 @@ Temperature zone data:
  - rgb: (239, 0, 0)  
  - hex: #ef0000  
 ```  
-`* Surface color: `![ef0000](Colors/ef0000.png)
+
  </details>  
 
 ---  
@@ -13901,6 +14369,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Enhefe A, type: B0</summary>  
 
+#### Star pseudo-color  
+![00e6ff](Colors/00e6ff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -13941,7 +14411,7 @@ Temperature zone data:
  - rgb: (0, 230, 255)  
  - hex: #00e6ff  
 ```  
-`* Surface color: `![00e6ff](Colors/00e6ff.png)
+
  </details>  
 
 ---  
@@ -13967,6 +14437,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Moacoag A, type: M6</summary>  
 
+#### Star pseudo-color  
+![f70000](Colors/f70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14007,7 +14479,7 @@ Temperature zone data:
  - rgb: (247, 0, 0)  
  - hex: #f70000  
 ```  
-`* Surface color: `![f70000](Colors/f70000.png)
+
  </details>  
 
 ---  
@@ -14033,6 +14505,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Enire A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14073,12 +14547,14 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enire B, type: M6</summary>  
 
+#### Star pseudo-color  
+![f40000](Colors/f40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14119,12 +14595,14 @@ Temperature zone data:
  - rgb: (244, 0, 0)  
  - hex: #f40000  
 ```  
-`* Surface color: `![f40000](Colors/f40000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enire C, type: M1</summary>  
 
+#### Star pseudo-color  
+![b90000](Colors/b90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14165,12 +14643,14 @@ Temperature zone data:
  - rgb: (185, 0, 0)  
  - hex: #b90000  
 ```  
-`* Surface color: `![b90000](Colors/b90000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Enire D, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14211,7 +14691,7 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
@@ -14237,6 +14717,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Usure A, type: A4</summary>  
 
+#### Star pseudo-color  
+![51ff73](Colors/51ff73.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14277,7 +14759,7 @@ Temperature zone data:
  - rgb: (81, 255, 115)  
  - hex: #51ff73  
 ```  
-`* Surface color: `![51ff73](Colors/51ff73.png)
+
  </details>  
 
 ---  
@@ -14303,6 +14785,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Etelap A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3100](Colors/ff3100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14343,7 +14827,7 @@ Temperature zone data:
  - rgb: (255, 49, 0)  
  - hex: #ff3100  
 ```  
-`* Surface color: `![ff3100](Colors/ff3100.png)
+
  </details>  
 
 ---  
@@ -14369,6 +14853,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Hadytho A, type: K2</summary>  
 
+#### Star pseudo-color  
+![ff7c00](Colors/ff7c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14409,7 +14895,7 @@ Temperature zone data:
  - rgb: (255, 124, 0)  
  - hex: #ff7c00  
 ```  
-`* Surface color: `![ff7c00](Colors/ff7c00.png)
+
  </details>  
 
 ---  
@@ -14435,6 +14921,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Oatema A, type: M1</summary>  
 
+#### Star pseudo-color  
+![af0000](Colors/af0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14475,12 +14963,14 @@ Temperature zone data:
  - rgb: (175, 0, 0)  
  - hex: #af0000  
 ```  
-`* Surface color: `![af0000](Colors/af0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Oatema B, type: M1</summary>  
 
+#### Star pseudo-color  
+![af0000](Colors/af0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14521,12 +15011,14 @@ Temperature zone data:
  - rgb: (175, 0, 0)  
  - hex: #af0000  
 ```  
-`* Surface color: `![af0000](Colors/af0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Oatema C, type: M0</summary>  
 
+#### Star pseudo-color  
+![9d0000](Colors/9d0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14567,7 +15059,7 @@ Temperature zone data:
  - rgb: (157, 0, 0)  
  - hex: #9d0000  
 ```  
-`* Surface color: `![9d0000](Colors/9d0000.png)
+
  </details>  
 
 ---  
@@ -14593,6 +15085,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Icfaryr A, type: M1</summary>  
 
+#### Star pseudo-color  
+![b70000](Colors/b70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14633,12 +15127,14 @@ Temperature zone data:
  - rgb: (183, 0, 0)  
  - hex: #b70000  
 ```  
-`* Surface color: `![b70000](Colors/b70000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Icfaryr B, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14679,12 +15175,14 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Icfaryr C, type: M0</summary>  
 
+#### Star pseudo-color  
+![a20000](Colors/a20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14725,7 +15223,7 @@ Temperature zone data:
  - rgb: (162, 0, 0)  
  - hex: #a20000  
 ```  
-`* Surface color: `![a20000](Colors/a20000.png)
+
  </details>  
 
 ---  
@@ -14751,6 +15249,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Oceteret A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14791,12 +15291,14 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Oceteret B, type: M5</summary>  
 
+#### Star pseudo-color  
+![f20000](Colors/f20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14837,7 +15339,7 @@ Temperature zone data:
  - rgb: (242, 0, 0)  
  - hex: #f20000  
 ```  
-`* Surface color: `![f20000](Colors/f20000.png)
+
  </details>  
 
 ---  
@@ -14863,6 +15365,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Roses A, type: K7</summary>  
 
+#### Star pseudo-color  
+![ffd900](Colors/ffd900.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14903,12 +15407,14 @@ Temperature zone data:
  - rgb: (255, 217, 0)  
  - hex: #ffd900  
 ```  
-`* Surface color: `![ffd900](Colors/ffd900.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Roses B, type: K1</summary>  
 
+#### Star pseudo-color  
+![ff6f00](Colors/ff6f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -14949,7 +15455,7 @@ Temperature zone data:
  - rgb: (255, 111, 0)  
  - hex: #ff6f00  
 ```  
-`* Surface color: `![ff6f00](Colors/ff6f00.png)
+
  </details>  
 
 ---  
@@ -14975,6 +15481,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Sihes A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1800](Colors/ff1800.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15015,12 +15523,14 @@ Temperature zone data:
  - rgb: (255, 24, 0)  
  - hex: #ff1800  
 ```  
-`* Surface color: `![ff1800](Colors/ff1800.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Sihes B, type: M1</summary>  
 
+#### Star pseudo-color  
+![aa0000](Colors/aa0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15061,7 +15571,7 @@ Temperature zone data:
  - rgb: (170, 0, 0)  
  - hex: #aa0000  
 ```  
-`* Surface color: `![aa0000](Colors/aa0000.png)
+
  </details>  
 
 ---  
@@ -15087,6 +15597,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Esusum A, type: K9</summary>  
 
+#### Star pseudo-color  
+![ffec00](Colors/ffec00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15127,7 +15639,7 @@ Temperature zone data:
  - rgb: (255, 236, 0)  
  - hex: #ffec00  
 ```  
-`* Surface color: `![ffec00](Colors/ffec00.png)
+
  </details>  
 
 ---  
@@ -15153,6 +15665,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Rured A, type: M2</summary>  
 
+#### Star pseudo-color  
+![b90000](Colors/b90000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15193,7 +15707,7 @@ Temperature zone data:
  - rgb: (185, 0, 0)  
  - hex: #b90000  
 ```  
-`* Surface color: `![b90000](Colors/b90000.png)
+
  </details>  
 
 ---  
@@ -15219,6 +15733,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Inlemfa A, type: M0</summary>  
 
+#### Star pseudo-color  
+![a70000](Colors/a70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15259,12 +15775,14 @@ Temperature zone data:
  - rgb: (167, 0, 0)  
  - hex: #a70000  
 ```  
-`* Surface color: `![a70000](Colors/a70000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Inlemfa B, type: M0</summary>  
 
+#### Star pseudo-color  
+![960000](Colors/960000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15305,7 +15823,7 @@ Temperature zone data:
  - rgb: (150, 0, 0)  
  - hex: #960000  
 ```  
-`* Surface color: `![960000](Colors/960000.png)
+
  </details>  
 
 ---  
@@ -15331,6 +15849,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Wotapar A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff1200](Colors/ff1200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15371,7 +15891,7 @@ Temperature zone data:
  - rgb: (255, 18, 0)  
  - hex: #ff1200  
 ```  
-`* Surface color: `![ff1200](Colors/ff1200.png)
+
  </details>  
 
 ---  
@@ -15397,6 +15917,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Alreh A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3100](Colors/ff3100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15437,7 +15959,7 @@ Temperature zone data:
  - rgb: (255, 49, 0)  
  - hex: #ff3100  
 ```  
-`* Surface color: `![ff3100](Colors/ff3100.png)
+
  </details>  
 
 ---  
@@ -15463,6 +15985,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Homesr A, type: O6</summary>  
 
+#### Star pseudo-color  
+![a31bd2](Colors/a31bd2.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15503,7 +16027,7 @@ Temperature zone data:
  - rgb: (163, 27, 210)  
  - hex: #a31bd2  
 ```  
-`* Surface color: `![a31bd2](Colors/a31bd2.png)
+
  </details>  
 
 ---  
@@ -15529,6 +16053,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nodubeti A, type: A1</summary>  
 
+#### Star pseudo-color  
+![88ff17](Colors/88ff17.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15569,7 +16095,7 @@ Temperature zone data:
  - rgb: (136, 255, 23)  
  - hex: #88ff17  
 ```  
-`* Surface color: `![88ff17](Colors/88ff17.png)
+
  </details>  
 
 ---  
@@ -15595,6 +16121,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Wam A, type: K9</summary>  
 
+#### Star pseudo-color  
+![ffec00](Colors/ffec00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15635,7 +16163,7 @@ Temperature zone data:
  - rgb: (255, 236, 0)  
  - hex: #ffec00  
 ```  
-`* Surface color: `![ffec00](Colors/ffec00.png)
+
  </details>  
 
 ---  
@@ -15661,6 +16189,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aciho A, type: K4</summary>  
 
+#### Star pseudo-color  
+![ff9b00](Colors/ff9b00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15701,12 +16231,14 @@ Temperature zone data:
  - rgb: (255, 155, 0)  
  - hex: #ff9b00  
 ```  
-`* Surface color: `![ff9b00](Colors/ff9b00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Aciho B, type: K1</summary>  
 
+#### Star pseudo-color  
+![ff6900](Colors/ff6900.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15747,12 +16279,14 @@ Temperature zone data:
  - rgb: (255, 105, 0)  
  - hex: #ff6900  
 ```  
-`* Surface color: `![ff6900](Colors/ff6900.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Aciho C, type: K1</summary>  
 
+#### Star pseudo-color  
+![ff6300](Colors/ff6300.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15793,12 +16327,14 @@ Temperature zone data:
  - rgb: (255, 99, 0)  
  - hex: #ff6300  
 ```  
-`* Surface color: `![ff6300](Colors/ff6300.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Aciho D, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff5700](Colors/ff5700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15839,12 +16375,14 @@ Temperature zone data:
  - rgb: (255, 87, 0)  
  - hex: #ff5700  
 ```  
-`* Surface color: `![ff5700](Colors/ff5700.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Aciho E, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff4a00](Colors/ff4a00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15885,7 +16423,7 @@ Temperature zone data:
  - rgb: (255, 74, 0)  
  - hex: #ff4a00  
 ```  
-`* Surface color: `![ff4a00](Colors/ff4a00.png)
+
  </details>  
 
 ---  
@@ -15911,6 +16449,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nesinor A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -15951,7 +16491,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -15977,6 +16517,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ravosome A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16017,7 +16559,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -16043,6 +16585,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Meb A, type: F4</summary>  
 
+#### Star pseudo-color  
+![beff00](Colors/beff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16083,7 +16627,7 @@ Temperature zone data:
  - rgb: (190, 255, 0)  
  - hex: #beff00  
 ```  
-`* Surface color: `![beff00](Colors/beff00.png)
+
  </details>  
 
 ---  
@@ -16109,6 +16653,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Vaubeon A, type: O5</summary>  
 
+#### Star pseudo-color  
+![a31bd2](Colors/a31bd2.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16149,7 +16695,7 @@ Temperature zone data:
  - rgb: (163, 27, 210)  
  - hex: #a31bd2  
 ```  
-`* Surface color: `![a31bd2](Colors/a31bd2.png)
+
  </details>  
 
 ---  
@@ -16175,6 +16721,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Nonrai A, type: F0</summary>  
 
+#### Star pseudo-color  
+![d7ff00](Colors/d7ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16215,7 +16763,7 @@ Temperature zone data:
  - rgb: (215, 255, 0)  
  - hex: #d7ff00  
 ```  
-`* Surface color: `![d7ff00](Colors/d7ff00.png)
+
  </details>  
 
 ---  
@@ -16241,6 +16789,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Noav A, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16281,12 +16831,14 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Noav B, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16327,12 +16879,14 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Noav C, type: M5</summary>  
 
+#### Star pseudo-color  
+![ed0000](Colors/ed0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16373,12 +16927,14 @@ Temperature zone data:
  - rgb: (237, 0, 0)  
  - hex: #ed0000  
 ```  
-`* Surface color: `![ed0000](Colors/ed0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Noav D, type: M3</summary>  
 
+#### Star pseudo-color  
+![cb0000](Colors/cb0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16419,12 +16975,14 @@ Temperature zone data:
  - rgb: (203, 0, 0)  
  - hex: #cb0000  
 ```  
-`* Surface color: `![cb0000](Colors/cb0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Noav E, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16465,7 +17023,7 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
@@ -16491,6 +17049,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Idrild A, type: K2</summary>  
 
+#### Star pseudo-color  
+![ff7c00](Colors/ff7c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16531,7 +17091,7 @@ Temperature zone data:
  - rgb: (255, 124, 0)  
  - hex: #ff7c00  
 ```  
-`* Surface color: `![ff7c00](Colors/ff7c00.png)
+
  </details>  
 
 ---  
@@ -16557,6 +17117,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Aqmu A, type: A7</summary>  
 
+#### Star pseudo-color  
+![36ffa2](Colors/36ffa2.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16597,7 +17159,7 @@ Temperature zone data:
  - rgb: (54, 255, 162)  
  - hex: #36ffa2  
 ```  
-`* Surface color: `![36ffa2](Colors/36ffa2.png)
+
  </details>  
 
 ---  
@@ -16623,6 +17185,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Keclom A, type: K0</summary>  
 
+#### Star pseudo-color  
+![ff4400](Colors/ff4400.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16663,7 +17227,7 @@ Temperature zone data:
  - rgb: (255, 68, 0)  
  - hex: #ff4400  
 ```  
-`* Surface color: `![ff4400](Colors/ff4400.png)
+
  </details>  
 
 ---  
@@ -16689,6 +17253,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Cilima A, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16729,12 +17295,14 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Cilima B, type: M2</summary>  
 
+#### Star pseudo-color  
+![c40000](Colors/c40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16775,7 +17343,7 @@ Temperature zone data:
  - rgb: (196, 0, 0)  
  - hex: #c40000  
 ```  
-`* Surface color: `![c40000](Colors/c40000.png)
+
  </details>  
 
 ---  
@@ -16801,6 +17369,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Sanc A, type: G2</summary>  
 
+#### Star pseudo-color  
+![faff00](Colors/faff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16841,7 +17411,7 @@ Temperature zone data:
  - rgb: (250, 255, 0)  
  - hex: #faff00  
 ```  
-`* Surface color: `![faff00](Colors/faff00.png)
+
  </details>  
 
 ---  
@@ -16867,6 +17437,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Mele A, type: G7</summary>  
 
+#### Star pseudo-color  
+![e6ff00](Colors/e6ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16907,7 +17479,7 @@ Temperature zone data:
  - rgb: (230, 255, 0)  
  - hex: #e6ff00  
 ```  
-`* Surface color: `![e6ff00](Colors/e6ff00.png)
+
  </details>  
 
 ---  
@@ -16933,6 +17505,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Akdiemi A, type: M3</summary>  
 
+#### Star pseudo-color  
+![ce0000](Colors/ce0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -16973,12 +17547,14 @@ Temperature zone data:
  - rgb: (206, 0, 0)  
  - hex: #ce0000  
 ```  
-`* Surface color: `![ce0000](Colors/ce0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Akdiemi B, type: M2</summary>  
 
+#### Star pseudo-color  
+![c40000](Colors/c40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17019,7 +17595,7 @@ Temperature zone data:
  - rgb: (196, 0, 0)  
  - hex: #c40000  
 ```  
-`* Surface color: `![c40000](Colors/c40000.png)
+
  </details>  
 
 ---  
@@ -17045,6 +17621,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Kise A, type: M4</summary>  
 
+#### Star pseudo-color  
+![db0000](Colors/db0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17085,7 +17663,7 @@ Temperature zone data:
  - rgb: (219, 0, 0)  
  - hex: #db0000  
 ```  
-`* Surface color: `![db0000](Colors/db0000.png)
+
  </details>  
 
 ---  
@@ -17111,6 +17689,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Eaci A, type: M3</summary>  
 
+#### Star pseudo-color  
+![d30000](Colors/d30000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17151,12 +17731,14 @@ Temperature zone data:
  - rgb: (211, 0, 0)  
  - hex: #d30000  
 ```  
-`* Surface color: `![d30000](Colors/d30000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Eaci B, type: M3</summary>  
 
+#### Star pseudo-color  
+![ce0000](Colors/ce0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17197,12 +17779,14 @@ Temperature zone data:
  - rgb: (206, 0, 0)  
  - hex: #ce0000  
 ```  
-`* Surface color: `![ce0000](Colors/ce0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Eaci C, type: M3</summary>  
 
+#### Star pseudo-color  
+![cb0000](Colors/cb0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17243,12 +17827,14 @@ Temperature zone data:
  - rgb: (203, 0, 0)  
  - hex: #cb0000  
 ```  
-`* Surface color: `![cb0000](Colors/cb0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Eaci D, type: M2</summary>  
 
+#### Star pseudo-color  
+![bc0000](Colors/bc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17289,7 +17875,7 @@ Temperature zone data:
  - rgb: (188, 0, 0)  
  - hex: #bc0000  
 ```  
-`* Surface color: `![bc0000](Colors/bc0000.png)
+
  </details>  
 
 ---  
@@ -17315,6 +17901,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Yelpum A, type: K8</summary>  
 
+#### Star pseudo-color  
+![ffe600](Colors/ffe600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17355,7 +17943,7 @@ Temperature zone data:
  - rgb: (255, 230, 0)  
  - hex: #ffe600  
 ```  
-`* Surface color: `![ffe600](Colors/ffe600.png)
+
  </details>  
 
 ---  
@@ -17381,6 +17969,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Lals A, type: K1</summary>  
 
+#### Star pseudo-color  
+![ff6900](Colors/ff6900.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17421,12 +18011,14 @@ Temperature zone data:
  - rgb: (255, 105, 0)  
  - hex: #ff6900  
 ```  
-`* Surface color: `![ff6900](Colors/ff6900.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lals B, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3e00](Colors/ff3e00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17467,12 +18059,14 @@ Temperature zone data:
  - rgb: (255, 62, 0)  
  - hex: #ff3e00  
 ```  
-`* Surface color: `![ff3e00](Colors/ff3e00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lals C, type: M9</summary>  
 
+#### Star pseudo-color  
+![ff3100](Colors/ff3100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17513,12 +18107,14 @@ Temperature zone data:
  - rgb: (255, 49, 0)  
  - hex: #ff3100  
 ```  
-`* Surface color: `![ff3100](Colors/ff3100.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Lals D, type: M0</summary>  
 
+#### Star pseudo-color  
+![a00000](Colors/a00000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17559,7 +18155,7 @@ Temperature zone data:
  - rgb: (160, 0, 0)  
  - hex: #a00000  
 ```  
-`* Surface color: `![a00000](Colors/a00000.png)
+
  </details>  
 
 ---  
@@ -17585,6 +18181,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Goper A, type: F5</summary>  
 
+#### Star pseudo-color  
+![b9ff00](Colors/b9ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17625,7 +18223,7 @@ Temperature zone data:
  - rgb: (185, 255, 0)  
  - hex: #b9ff00  
 ```  
-`* Surface color: `![b9ff00](Colors/b9ff00.png)
+
  </details>  
 
 ---  
@@ -17651,6 +18249,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Iceha A, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff2500](Colors/ff2500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17691,12 +18291,14 @@ Temperature zone data:
  - rgb: (255, 37, 0)  
  - hex: #ff2500  
 ```  
-`* Surface color: `![ff2500](Colors/ff2500.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Iceha B, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17737,12 +18339,14 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Iceha C, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17783,7 +18387,7 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
@@ -17809,6 +18413,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Ratt A, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff0600](Colors/ff0600.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17849,12 +18455,14 @@ Temperature zone data:
  - rgb: (255, 6, 0)  
  - hex: #ff0600  
 ```  
-`* Surface color: `![ff0600](Colors/ff0600.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ratt B, type: M1</summary>  
 
+#### Star pseudo-color  
+![b40000](Colors/b40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17895,12 +18503,14 @@ Temperature zone data:
  - rgb: (180, 0, 0)  
  - hex: #b40000  
 ```  
-`* Surface color: `![b40000](Colors/b40000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Ratt C, type: M0</summary>  
 
+#### Star pseudo-color  
+![a50000](Colors/a50000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -17941,7 +18551,7 @@ Temperature zone data:
  - rgb: (165, 0, 0)  
  - hex: #a50000  
 ```  
-`* Surface color: `![a50000](Colors/a50000.png)
+
  </details>  
 
 ---  
@@ -17967,6 +18577,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Acyredi A, type: A6</summary>  
 
+#### Star pseudo-color  
+![36ffa2](Colors/36ffa2.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18007,12 +18619,14 @@ Temperature zone data:
  - rgb: (54, 255, 162)  
  - hex: #36ffa2  
 ```  
-`* Surface color: `![36ffa2](Colors/36ffa2.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Acyredi B, type: M8</summary>  
 
+#### Star pseudo-color  
+![ff1f00](Colors/ff1f00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18053,7 +18667,7 @@ Temperature zone data:
  - rgb: (255, 31, 0)  
  - hex: #ff1f00  
 ```  
-`* Surface color: `![ff1f00](Colors/ff1f00.png)
+
  </details>  
 
 ---  
@@ -18079,6 +18693,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Letekadi A, type: M4</summary>  
 
+#### Star pseudo-color  
+![db0000](Colors/db0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18119,12 +18735,14 @@ Temperature zone data:
  - rgb: (219, 0, 0)  
  - hex: #db0000  
 ```  
-`* Surface color: `![db0000](Colors/db0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Letekadi B, type: M0</summary>  
 
+#### Star pseudo-color  
+![9d0000](Colors/9d0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18165,7 +18783,7 @@ Temperature zone data:
  - rgb: (157, 0, 0)  
  - hex: #9d0000  
 ```  
-`* Surface color: `![9d0000](Colors/9d0000.png)
+
  </details>  
 
 ---  
@@ -18191,6 +18809,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Itneli A, type: K6</summary>  
 
+#### Star pseudo-color  
+![ffc000](Colors/ffc000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18231,12 +18851,14 @@ Temperature zone data:
  - rgb: (255, 192, 0)  
  - hex: #ffc000  
 ```  
-`* Surface color: `![ffc000](Colors/ffc000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Itneli B, type: K5</summary>  
 
+#### Star pseudo-color  
+![ffb400](Colors/ffb400.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18277,12 +18899,14 @@ Temperature zone data:
  - rgb: (255, 180, 0)  
  - hex: #ffb400  
 ```  
-`* Surface color: `![ffb400](Colors/ffb400.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Itneli C, type: K3</summary>  
 
+#### Star pseudo-color  
+![ff9500](Colors/ff9500.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18323,12 +18947,14 @@ Temperature zone data:
  - rgb: (255, 149, 0)  
  - hex: #ff9500  
 ```  
-`* Surface color: `![ff9500](Colors/ff9500.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Itneli D, type: K1</summary>  
 
+#### Star pseudo-color  
+![ff5d00](Colors/ff5d00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18369,12 +18995,14 @@ Temperature zone data:
  - rgb: (255, 93, 0)  
  - hex: #ff5d00  
 ```  
-`* Surface color: `![ff5d00](Colors/ff5d00.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Itneli E, type: M7</summary>  
 
+#### Star pseudo-color  
+![ff1200](Colors/ff1200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18415,7 +19043,7 @@ Temperature zone data:
  - rgb: (255, 18, 0)  
  - hex: #ff1200  
 ```  
-`* Surface color: `![ff1200](Colors/ff1200.png)
+
  </details>  
 
 ---  
@@ -18441,6 +19069,8 @@ Temperature zone data:
 ---  
 <details><summary>Primary star : Fodid A, type: M2</summary>  
 
+#### Star pseudo-color  
+![be0000](Colors/be0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18481,12 +19111,14 @@ Temperature zone data:
  - rgb: (190, 0, 0)  
  - hex: #be0000  
 ```  
-`* Surface color: `![be0000](Colors/be0000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Fodid B, type: M2</summary>  
 
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18527,12 +19159,14 @@ Temperature zone data:
  - rgb: (198, 0, 0)  
  - hex: #c60000  
 ```  
-`* Surface color: `![c60000](Colors/c60000.png)
+
  </details>  
 
 ---  
 <details><summary>Secondary star : Fodid C, type: M2</summary>  
 
+#### Star pseudo-color  
+![bc0000](Colors/bc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:  
@@ -18573,7 +19207,7 @@ Temperature zone data:
  - rgb: (188, 0, 0)  
  - hex: #bc0000  
 ```  
-`* Surface color: `![bc0000](Colors/bc0000.png)
+
  </details>  
 
 ---  

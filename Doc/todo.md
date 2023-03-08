@@ -6,7 +6,7 @@ Highlighted entries are "Work in progress".
 - Make primitive building blocks with simple collision shapes (performace).
 - Make "Orient only" autopilot feature.
 - **Infocards. Accessible from targeting and in-game list. (WIP)**
-- Internal game wiki. 
+- **Internal game wiki. (WIP)** 
 - Pause the game while menu (options) window is on.
 - Sandbox (debug) mode separate from gameplay mode.
 - **Ambient music and sounds. (WIP)**
@@ -16,6 +16,7 @@ Highlighted entries are "Work in progress".
 - **Add "Credits" info panel in options to feature contributors.**
 - Make stellar objects accessible at certain ranges or in certain zones (i.e. you would have to fly to a planetary system to access its planets coordinates).
 - Move readouts to the bottom of the screen (targeting infor, autopilot, etc).
+- Universe generator: brown and Wwhite dwarfs, giant stars.
 
 ## Improvements
 - Make star sprites diminish in size with distance (script).

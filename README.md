@@ -18,6 +18,7 @@ FPS can be adjusted with the internal render quality.
 
 ## Documentation
 
+[Documentation main](Doc/main.md)  
 [Versions changelog](Doc/changelog.md)  
 [TODO list](Doc/todo.md)  
 [Credits](Doc/credits.md)  
