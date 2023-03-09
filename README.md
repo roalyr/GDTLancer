@@ -8,11 +8,15 @@ Developed in Godot 3 for desktop (Windows, Linux) and mobile (Android) platforms
 
 ## Requirements
 The game is designed to be as performance-friendly as possible.  
-So it should run on any hardware that passes through basic requirements.  
+It should run on any hardware that satisfies basic requirements.  
 FPS can be adjusted with the internal render quality.  
+For example, game runs at 60 FPS on ThinkPad x230 at 70% render quality  
+and 60+ FPS on Motorola G60 at 100% quality.
+
+Reuirements are as follows:
 
 - GPU which supports GLES3.
-- Windows x86-64, Linux x86-64, Linux 32-bit, Android ARMv7, Android ARMv8.
+- Windows x86-64, Linux x86-64, Android ARMv7, Android ARMv8 (additional builds are possible).
 - Screen ratio 16:9 and wider (qHD, HD, FHD, QHD, etc.)
 - Mouse + Keyboard or touchscreen.
 
