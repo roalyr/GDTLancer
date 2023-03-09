@@ -1,6 +1,7 @@
 extends Position3D
 
 class_name RebaseStar, "res://Assets/UI_images/SVG/icons/rebase_star.svg"
+onready var ui_paths = get_node("/root/Main/UI_paths")
 
 var scenes = Position3D
 
@@ -26,7 +27,7 @@ func is_entered_local_space_star(zone):
 			+ "' was not freed properly, which led to overlapping and corrupt object coordinates.\n" \
 			+ "Scenes which were not freed properly: " + str(scene_names) 
 			
-		Paths.ui_paths.ui_functions.popup_panic(message)
+		ui_paths.ui_functions.popup_panic(message)
 		
 	# Get a child scenes.
 	# print("Entered zone: ", zone)

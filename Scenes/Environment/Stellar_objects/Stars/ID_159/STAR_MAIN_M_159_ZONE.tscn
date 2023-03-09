@@ -11,7 +11,7 @@
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD0.tres" type="SphereMesh" id=9]
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=10]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD1.tres" type="ArrayMesh" id=11]
-[ext_resource path="res://Assets/Models/Sprites/Star_sprite_simple.glb" type="PackedScene" id=12]
+[ext_resource path="res://Assets/Models/Sprites/_Star_sprite_simple.glb" type="PackedScene" id=12]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.tres" type="ArrayMesh" id=13]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=14]
 [ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=15]

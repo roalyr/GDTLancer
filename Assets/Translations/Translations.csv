@@ -79,5 +79,45 @@ NAME_STAR_MAIN_M_159,Spark A,Спарк А
 DESC_STAR_MAIN_M_159,A red dwarf in the heart of the Moirai cluster.,Червоний карлик у самому серці кластеру Мойр.
 NAME_STAR_MAIN_M_159_SYSTEM,Spark,Спарк
 DESC_STAR_MAIN_M_159_SYSTEM,A planetary system around the Spark A star.,Планетарна система зірки Спарк А.
-NAME_STAR_MAIN_K_1_1,Victory B,Вікторі B
-DESC_STAR_MAIN_K_1_1,A companion star in Victory star system.,Зірка-компаньйон у зоряній системі Вікторі.
+NAME_STAR_G1_0_1,Victory B,Вікторі B
+DESC_STAR_G1_0_1,"Absolute units:
+* Size: 1.45e+09 m
+* Temperature: 5313 K
+* Luminosity: 3.00e+26 W
+
+Sun units:
+* Size: 1.045 D
+* Temperature: 0.92 T
+* Luminosity: 0.783 L
+
+Spectral data:
+* Type: G1
+* Peak wavelength: 545.0 nm
+* Peak wavelength type: visible
+
+Temperature zone data:
+* Hot zone   : < 2.65e+10 m
+* Warm zone  :   2.65e+10 ... 9.23e+10 m
+* Temp. zone :   9.23e+10 ... 1.31e+11 m
+* Cold zone  :   1.31e+11 ... 1.99e+11 m
+* Icy zone   : > 1.26e+12 m","Абсолютні величини:
+* Розмір: 1.45e+09 м
+* Температура: 5313 К
+* Світність: 3.00e+26 Вт
+
+Відносно Сонця:
+* Розмір: 1.045 D
+* Температура: 0.92 T
+* Світність: 0.783 L
+
+Спектральні дані:
+* Тип: G1
+* Пікова довжина хвилі: 545.0 нм
+* Тип пікового випромінювання: visible
+
+Дані температурного зонування:
+* Гаряча зона  : < 2.65e+10 м
+* Тепла зона   :   2.65e+10 ... 9.23e+10 м
+* Помірна зона :   9.23e+10 ... 1.31e+11 м
+* Холодна зона :   1.31e+11 ... 1.99e+11 м
+* Крижана зона : > 1.26e+12 м"

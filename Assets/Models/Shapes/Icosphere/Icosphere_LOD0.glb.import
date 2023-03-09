@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Star_sprite_square.glb-7b702b0ddb2d15a13ca76880734499ac.scn"
+path="res://.import/Icosphere_LOD0.glb-e07348b4d4407facd4dd3fa55d4c192f.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Sprites/Star_sprite_square.glb"
-dest_files=[ "res://.import/Star_sprite_square.glb-7b702b0ddb2d15a13ca76880734499ac.scn" ]
+source_file="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.glb"
+dest_files=[ "res://.import/Icosphere_LOD0.glb-e07348b4d4407facd4dd3fa55d4c192f.scn" ]
 
 [params]
 

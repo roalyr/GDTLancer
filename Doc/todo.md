@@ -41,3 +41,4 @@ Highlighted entries are "Work in progress".
 - Investigate flickering on high velocity.
 - Keyboard keys behavior (also refactor).
 - Multitouch event sorting.
+- Panic screen scaling.

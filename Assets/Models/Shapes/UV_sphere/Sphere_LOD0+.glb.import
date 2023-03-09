@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Star_sprite_double_wide.glb-a9b21aa6a708a65ad463e4f8fc59226a.scn"
+path="res://.import/Sphere_LOD0+.glb-de4e507fb4e692d66507d9ecda2614d7.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Sprites/Star_sprite_double_wide.glb"
-dest_files=[ "res://.import/Star_sprite_double_wide.glb-a9b21aa6a708a65ad463e4f8fc59226a.scn" ]
+source_file="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD0+.glb"
+dest_files=[ "res://.import/Sphere_LOD0+.glb-de4e507fb4e692d66507d9ecda2614d7.scn" ]
 
 [params]
 
