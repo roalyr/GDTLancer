@@ -229,30 +229,23 @@ text = "Touchscreen GUI"
 align = 1
 
 [node name="Label" type="Label" parent="Options_prompt_start"]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -335.5
+margin_left = 384.5
 margin_top = 830.0
-margin_right = 335.5
+margin_right = 1055.5
 margin_bottom = 878.0
 theme = ExtResource( 4 )
 text = "Select GUI mode depending on your device"
 
 [node name="Options_prompt_start_confirm" type="Control" parent="."]
-visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0
 
 [node name="Label" type="Label" parent="Options_prompt_start_confirm"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -265.5
-margin_top = -184.0
-margin_right = 265.5
-margin_bottom = -136.0
+margin_left = 454.5
+margin_top = 356.0
+margin_right = 985.5
+margin_bottom = 404.0
 theme = ExtResource( 4 )
 text = "Do you want to start a new game?"
 
@@ -745,6 +738,7 @@ margin_right = 1920.0
 margin_bottom = 1080.0
 
 [node name="Options_tab_info" type="Control" parent="."]
+visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0

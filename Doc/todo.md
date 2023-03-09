@@ -6,7 +6,7 @@ Highlighted entries are "Work in progress".
 - Make primitive building blocks with simple collision shapes (performace).
 - Make "Orient only" autopilot feature.
 - **Infocards. Accessible from targeting and in-game list. (WIP)**
-- **Internal game wiki. (WIP)** 
+- Internal game wiki.  
 - Pause the game while menu (options) window is on.
 - Sandbox (debug) mode separate from gameplay mode.
 - **Ambient music and sounds. (WIP)**
@@ -40,3 +40,4 @@ Highlighted entries are "Work in progress".
 ## Fix
 - Investigate flickering on high velocity.
 - Keyboard keys behavior (also refactor).
+- Multitouch event sorting.

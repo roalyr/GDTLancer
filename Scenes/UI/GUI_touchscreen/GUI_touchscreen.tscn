@@ -619,9 +619,33 @@ visible = false
 [node name="Text_object" parent="Readings/Target_autopilot" index="1"]
 visible = false
 
+[node name="ColorRect" parent="Readings/Target_autopilot" index="2"]
+margin_left = -31.0
+margin_top = -19.0
+margin_right = -27.0
+margin_bottom = -11.0
+
+[node name="ColorRect2" parent="Readings/Target_autopilot" index="3"]
+margin_left = 27.0
+margin_top = 11.0
+margin_right = 31.0
+margin_bottom = 19.0
+
+[node name="ColorRect3" parent="Readings/Target_autopilot" index="4"]
+margin_left = 31.0
+margin_top = 18.0
+margin_right = 35.0
+margin_bottom = 26.0
+
+[node name="ColorRect4" parent="Readings/Target_autopilot" index="5"]
+margin_left = -23.0
+margin_top = -22.0
+margin_right = -19.0
+margin_bottom = -14.0
+
 [node name="Popup_info" type="ReferenceRect" parent="Readings"]
 margin_left = 550.0
-margin_right = 1371.0
+margin_right = 1370.0
 margin_bottom = 400.0
 theme = ExtResource( 19 )
 border_color = Color( 0.501961, 0.501961, 0.501961, 0.501961 )

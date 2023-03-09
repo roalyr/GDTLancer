@@ -222,7 +222,7 @@ func is_viewport_update():
 	restore_proportions(ui_paths.touch_status_panel)
 	restore_proportions(ui_paths.touch_readings_target_autopilot)
 	restore_proportions(ui_paths.touch_readings_target_aim)
-	restore_proportions(ui_paths.touch_readings_info_popup)
+	restore_proportions_with_margins(ui_paths.touch_readings_info_popup, 820)
 	restore_proportions(ui_paths.touch_readings_debug)
 	
 	#restore_proportions(ui_paths.desktop_mouse_area)
@@ -236,15 +236,15 @@ func is_viewport_update():
 	restore_proportions(ui_paths.desktop_status_panel)
 	restore_proportions(ui_paths.desktop_readings_target_autopilot)
 	restore_proportions(ui_paths.desktop_readings_target_aim)
-	restore_proportions(ui_paths.desktop_readings_info_popup)
+	restore_proportions_with_margins(ui_paths.desktop_readings_info_popup, 1100)
 	restore_proportions(ui_paths.desktop_readings_debug)
 	
-	restore_proportions(ui_paths.options_buttons_general_bar)
-	restore_proportions(ui_paths.options_tab_options_general)
-	restore_proportions(ui_paths.options_tab_options_graphic)
-	restore_proportions(ui_paths.options_tab_options_audio)
-	restore_proportions(ui_paths.options_tab_info)
-	restore_proportions(ui_paths.options_prompt_start)
+	restore_proportions_with_margins(ui_paths.options_buttons_general_bar, 480)
+	restore_proportions_with_margins(ui_paths.options_tab_options_general, 1440)
+	restore_proportions_with_margins(ui_paths.options_tab_options_graphic, 1440)
+	restore_proportions_with_margins(ui_paths.options_tab_options_audio, 1440)
+	restore_proportions_with_margins(ui_paths.options_tab_info, 1440)
+	restore_proportions_with_margins(ui_paths.options_prompt_start, 1440)
 	
 
 func restore_proportions(c):
@@ -255,11 +255,10 @@ func restore_proportions(c):
 
 # Restore the window, provide margins as if it was a FHD resolution.
 # TODO: how?
-func restore_proportions_with_margins(c):
-	c.rect_pivot_offset.x = c.rect_size.x/2
-	c.rect_pivot_offset.y = c.rect_size.y/2
+func restore_proportions_with_margins(c, size):
+	var t = GameState.ui_scale.x/GameState.ui_scale.y
+	c.rect_size.x = size*t
 	c.rect_scale = GameState.ui_reverse_scale/GameState.ui_reverse_scale.y
-	c.rect_size.x = 1920*GameState.ui_reverse_scale.x/GameState.ui_reverse_scale.y
 
 
 func is_fetch_object_info():
