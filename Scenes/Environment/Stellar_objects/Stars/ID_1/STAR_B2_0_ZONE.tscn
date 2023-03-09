@@ -110,7 +110,7 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
 star_brightness_variation = 0.1
-star_contrast_variation = 0.2
+star_contrast_variation = 0.3
 star_saturation_variation = -0.5
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 14 )]
@@ -159,18 +159,7 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
-transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 0, 0.764706, 1, 1 )
-light_energy = 2.0
-omni_range = 3.27e+14
-omni_attenuation = 10.0
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="Star_sprite_square_wide" parent="Scenes/STAR_B2_0/LODs 6_32e+09" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 
 [node name="Plane" parent="Scenes/STAR_B2_0/LODs 6_32e+09/Star_sprite_square_wide" index="0"]
 material/0 = SubResource( 93 )
@@ -189,6 +178,26 @@ material/0 = SubResource( 42 )
 mesh = ExtResource( 10 )
 material/0 = SubResource( 98 )
 
+[node name="OmniLight 3_27e+14 1" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD0"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 1, 0 )
+light_color = Color( 0, 0.764706, 1, 1 )
+light_energy = 2.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="OmniLight 3_27e+14 -1" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD0"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, -1, 0 )
+light_color = Color( 0, 0.764706, 1, 1 )
+light_energy = 2.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="LOD1" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 visible = false
 __meta__ = {
@@ -203,6 +212,16 @@ material/0 = SubResource( 42 )
 [node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD1"]
 mesh = ExtResource( 12 )
 material/0 = SubResource( 98 )
+
+[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD1"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
+light_color = Color( 0, 0.764706, 1, 1 )
+light_energy = 2.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LOD2" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 visible = false
@@ -219,7 +238,27 @@ material/0 = SubResource( 42 )
 mesh = ExtResource( 13 )
 material/0 = SubResource( 98 )
 
+[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD2"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
+light_color = Color( 0, 0.764706, 1, 1 )
+light_energy = 2.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="LOD3" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD3"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
+light_color = Color( 0, 0.764706, 1, 1 )
+light_energy = 2.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
 __meta__ = {
 "_edit_lock_": true
 }
