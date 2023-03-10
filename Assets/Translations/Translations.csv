@@ -1,35 +1,5 @@
-keys,en,uk
-BUTTON_DEBUG,Debug,Налагодження
-BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК
-BUTTON_INFO,Info,Інформація
-BUTTON_OPTIONS_AUDIO,Options audio,Опції звуку
-BUTTON_OPTIONS_GENERAL,Options general,Опції загальні
-BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки
-BUTTON_QUIT,Quit,Вийти
-BUTTON_RESUME,Resume,Продовжити
-BUTTON_START,New game,Нова гра
-BUTTON_START_CONFIRM,Start,Розпочати
-BUTTON_TOUCH_GUI,Touchscreen GUI,Сенсорний ГІК
-BUTTON_TOUCH_SWAP_CONTROLS,Swap touch controls position,Змінити положення контролерів
-LABEL_GUI_COLOR,GUI color,Колір ГІК
-LABEL_GUI_COLOR_POWER,GUI color power,"Інтенсивність 
-кольору ГІК"
-LABEL_INFO_AUTOPILOT,Autopilot,Автопілот
-LABEL_INFO_GUI_OPACITY,Change GUI opacity in game (click multiple times),Змінити прозорість ГІК (в декілька кліків)
-LABEL_INFO_NAV_NEBULA,Navigation list: nebulas and constellations,Навігаційний список: туманності і сузір'я
-LABEL_INFO_NAV_OBJECT,Navigation list: structures and objects,Навігаційний список: структури і об'єкти
-LABEL_INFO_NAV_PLANET,Navigation list: planets,Навігаційний список: планети
-LABEL_INFO_NAV_STAR,Navigation list: stars,Навігаційний список: зірки
-LABEL_INFO_NAV_SYSTEM,Navigation list: star systems,Навігаційний список: зоряні системи
-LABEL_INFO_OPTIONS,Open options menu,Відкрити опції
-LABEL_INFO_SHIP,Ship menu (PLACEHOLDER),Меню корабля
-LABEL_INFO_TARGET,Target (currently clears target only),Ціль (наразі лише прибирає вибір цілі)
-LABEL_INFO_TURRET_CAMERA,Camera turret (orbit) mode,Режим турелі камери
-LABEL_SCREEN_RES,3D quality,Якість 3D
-LABEL_START_CONFIRM,Do you want to start a new game?,Ви бажаєте розпочати нову гру?
-LABEL_START_PROMPT,Select GUI mode depending on your device,Оберіть ГІК в залежності від вашого пристрою
-TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.
-NAME_STAR_B2_0,Victory A,Вікторі А
+keys,en,uk,categry
+TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.,misc
 DESC_STAR_B2_0,"Absolute units:
 * Size: 6.32e+09 m
 * Temperature: 15669 K
@@ -70,16 +40,11 @@ Temperature zone data:
 * Тепла зона   :   1.00e+12 ... 3.49e+12 м
 * Помірна зона :   3.49e+12 ... 4.94e+12 м
 * Холодна зона :   4.94e+12 ... 7.54e+12 м
-* Крижана зона : > 4.77e+13 м"
-NAME_STAR_B2_0_SYSTEM,Victory,Вікторі
-DESC_STAR_B2_0_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.
-NAME_STAR_MAIN_O_1_PLANET_B,Victory b,Вікторі b
-DESC_STAR_MAIN_O_1_PLANET_B,Gas giant in Victory planetary system.,Газовий гігант у планетарній системі Вікторі.
-NAME_STAR_MAIN_M_159,Spark A,Спарк А
-DESC_STAR_MAIN_M_159,A red dwarf in the heart of the Moirai cluster.,Червоний карлик у самому серці кластеру Мойр.
-NAME_STAR_MAIN_M_159_SYSTEM,Spark,Спарк
-DESC_STAR_MAIN_M_159_SYSTEM,A planetary system around the Spark A star.,Планетарна система зірки Спарк А.
-NAME_STAR_G1_0_1,Victory B,Вікторі B
+* Крижана зона : > 4.77e+13 м",Object description
+DESC_STAR_B2_0_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.,Object description
+DESC_STAR_B2_0_PLANET_0,Gas giant in Victory planetary system.,Газовий гігант у планетарній системі Вікторі.,Object description
+DESC_STAR_MAIN_M_159,A red dwarf in the heart of the Moirai cluster.,Червоний карлик у самому серці кластеру Мойр.,Object description
+DESC_STAR_MAIN_M_159_SYSTEM,A planetary system around the Spark A star.,Планетарна система зірки Спарк А.,Object description
 DESC_STAR_G1_0_1,"Absolute units:
 * Size: 1.45e+09 m
 * Temperature: 5313 K
@@ -120,4 +85,39 @@ Temperature zone data:
 * Тепла зона   :   2.65e+10 ... 9.23e+10 м
 * Помірна зона :   9.23e+10 ... 1.31e+11 м
 * Холодна зона :   1.31e+11 ... 1.99e+11 м
-* Крижана зона : > 1.26e+12 м"
+* Крижана зона : > 1.26e+12 м",Object description
+NAME_STAR_B2_0,Victory A,Вікторі А,Object name
+NAME_STAR_B2_0_SYSTEM,Victory,Вікторі,Object name
+NAME_STAR_B2_0_PLANET_0,Victory b planet,Вікторі b планета,Object name
+NAME_STAR_MAIN_M_159,Spark A,Спарк А,Object name
+NAME_STAR_MAIN_M_159_SYSTEM,Spark,Спарк,Object name
+NAME_STAR_G1_0_1,Victory B,Вікторі B,Object name
+BUTTON_DEBUG,Debug,Налагодження,UI buttons
+BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК,UI buttons
+BUTTON_INFO,Info,Інформація,UI buttons
+BUTTON_OPTIONS_AUDIO,Options audio,Опції звуку,UI buttons
+BUTTON_OPTIONS_GENERAL,Options general,Опції загальні,UI buttons
+BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки,UI buttons
+BUTTON_QUIT,Quit,Вийти,UI buttons
+BUTTON_RESUME,Resume,Продовжити,UI buttons
+BUTTON_START,New game,Нова гра,UI buttons
+BUTTON_START_CONFIRM,Start,Розпочати,UI buttons
+BUTTON_TOUCH_GUI,Touchscreen GUI,Сенсорний ГІК,UI buttons
+BUTTON_TOUCH_SWAP_CONTROLS,Swap touch controls position,Змінити положення контролерів,UI buttons
+LABEL_GUI_COLOR,GUI color,Колір ГІК,UI labels
+LABEL_GUI_COLOR_POWER,GUI color power,"Інтенсивність 
+кольору ГІК",UI labels
+LABEL_INFO_AUTOPILOT,Autopilot,Автопілот,UI labels
+LABEL_INFO_GUI_OPACITY,Change GUI opacity in game (click multiple times),Змінити прозорість ГІК (в декілька кліків),UI labels
+LABEL_INFO_NAV_NEBULA,Navigation list: nebulas and constellations,Навігаційний список: туманності і сузір'я,UI labels
+LABEL_INFO_NAV_OBJECT,Navigation list: structures and objects,Навігаційний список: структури і об'єкти,UI labels
+LABEL_INFO_NAV_PLANET,Navigation list: planets,Навігаційний список: планети,UI labels
+LABEL_INFO_NAV_STAR,Navigation list: stars,Навігаційний список: зірки,UI labels
+LABEL_INFO_NAV_SYSTEM,Navigation list: star systems,Навігаційний список: зоряні системи,UI labels
+LABEL_INFO_OPTIONS,Open options menu,Відкрити опції,UI labels
+LABEL_INFO_SHIP,Ship menu (PLACEHOLDER),Меню корабля,UI labels
+LABEL_INFO_TARGET,Target (currently clears target only),Ціль (наразі лише прибирає вибір цілі),UI labels
+LABEL_INFO_TURRET_CAMERA,Camera turret (orbit) mode,Режим турелі камери,UI labels
+LABEL_SCREEN_RES,3D quality,Якість 3D,UI labels
+LABEL_START_CONFIRM,Do you want to start a new game?,Ви бажаєте розпочати нову гру?,UI labels
+LABEL_START_PROMPT,Select GUI mode depending on your device,Оберіть ГІК в залежності від вашого пристрою,UI labels

@@ -2,8 +2,8 @@
 
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=2]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Planets/Planet_Blue_Zone.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/Blue_Nebula_Zone.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Planets/STAR_B2_0_PLANET_0_ZONE.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Nebulas/STAR_B2_0_NEBULA_ZONE.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Stars/ID_0/STAR_B2_0_ZONE.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Stars/ID_0/STAR_G1_0_1_ZONE.tscn" type="PackedScene" id=6]
 
@@ -43,10 +43,10 @@ translations_description = "DESC_STAR_B2_0_SYSTEM"
 [node name="STAR_G1_0_1_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 6 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.60332e+11, 4.09622e+10, 1.25487e+11 )
 
-[node name="Planet Blue Zone" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.91776e+13, -6.45085e+10, 5.3178e+13 )
+[node name="STAR_B2_0_NEBULA_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 4 )]
 
-[node name="Blue Nebula Zone" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 4 )]
+[node name="STAR_B2_0_PLANET_0_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.91776e+13, -6.45085e+10, 5.3178e+13 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

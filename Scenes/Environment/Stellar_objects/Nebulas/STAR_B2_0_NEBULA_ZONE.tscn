@@ -1,0 +1,101 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=2]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=3]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_turbulents/Cloud_turbulent_LOD1.glb" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_turbulents/Cloud_turbulent_LOD2.glb" type="PackedScene" id=6]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_turbulents/Cloud_turbulent_LOD0.glb" type="PackedScene" id=7]
+
+[sub_resource type="QuadMesh" id=95]
+
+[sub_resource type="ShaderMaterial" id=93]
+resource_local_to_scene = true
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.639216, 0, 1, 1 )
+shader_param/rim_strength = 0.02
+shader_param/rim_exponent = 15.0
+shader_param/alpha_clip = 1.0
+
+[sub_resource type="SphereShape" id=94]
+
+[node name="STAR_B2_0_NEBULA_ZONE" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 1 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 4 )]
+
+[node name="mat" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 95 )
+material/0 = SubResource( 93 )
+
+[node name="Zone shape 5e15" type="CollisionShape" parent="."]
+transform = Transform( 5e+15, 0, 0, 0, 5e+15, 0, 0, 0, 5e+15, 0, 0, 0 )
+shape = SubResource( 94 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="LODs cloud spheroid" type="Spatial" parent="Scenes"]
+transform = Transform( 4.85049e+15, 0, 0, 0, 2.42524e+15, 0, 0, 0, 4.85049e+15, 0, 0, 0 )
+script = ExtResource( 3 )
+__meta__ = {
+"_editor_description_": "
+"
+}
+
+[node name="LOD0" type="Spatial" parent="Scenes/LODs cloud spheroid"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud_turbulent_LOD0" parent="Scenes/LODs cloud spheroid/LOD0" instance=ExtResource( 7 )]
+
+[node name="Cloud_mesh_LOD0" parent="Scenes/LODs cloud spheroid/LOD0/Cloud_turbulent_LOD0" index="0"]
+material/0 = SubResource( 93 )
+
+[node name="LOD1" type="Spatial" parent="Scenes/LODs cloud spheroid"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud_turbulent_LOD1" parent="Scenes/LODs cloud spheroid/LOD1" instance=ExtResource( 5 )]
+
+[node name="Cloud_mesh_LOD1" parent="Scenes/LODs cloud spheroid/LOD1/Cloud_turbulent_LOD1" index="0"]
+material/0 = SubResource( 93 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/LODs cloud spheroid"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud_turbulent_LOD2" parent="Scenes/LODs cloud spheroid/LOD2" instance=ExtResource( 6 )]
+
+[node name="Cloud_mesh_LOD2" parent="Scenes/LODs cloud spheroid/LOD2/Cloud_turbulent_LOD2" index="0"]
+material/0 = SubResource( 93 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/LODs cloud spheroid"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[connection signal="body_entered" from="." to="." method="_on_Zone_nebula_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Zone_nebula_body_exited"]
+
+[editable path="Scenes/LODs cloud spheroid/LOD0/Cloud_turbulent_LOD0"]
+[editable path="Scenes/LODs cloud spheroid/LOD1/Cloud_turbulent_LOD1"]
+[editable path="Scenes/LODs cloud spheroid/LOD2/Cloud_turbulent_LOD2"]
