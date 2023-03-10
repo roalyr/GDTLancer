@@ -104,9 +104,9 @@ shader_param/phase = 0.0
 
 [sub_resource type="ShaderMaterial" id=123]
 shader = ExtResource( 8 )
-shader_param/albedo = Color( 0.227451, 0.219608, 0, 1 )
+shader_param/albedo = Color( 0.203922, 0.192157, 0, 1 )
 shader_param/rim_strength = 1.88
-shader_param/rim_exponent = 5.9
+shader_param/rim_exponent = 10.8
 shader_param/rim_strength_inner = 0.504
 shader_param/rim_exponent_inner = 19.8
 
@@ -203,7 +203,7 @@ material/0 = SubResource( 123 )
 
 [node name="OmniLight 8_66e+12 1" type="OmniLight" parent="Scenes/STAR_G1_0_1/LODs 1_45e+09/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 1, 0 )
-light_color = Color( 1, 1, 0, 1 )
+light_color = Color( 1, 1, 0.541176, 1 )
 light_energy = 2.0
 omni_range = 8.66e+12
 omni_attenuation = 10.0
@@ -213,7 +213,7 @@ __meta__ = {
 
 [node name="OmniLight 8_66e+12 -1" type="OmniLight" parent="Scenes/STAR_G1_0_1/LODs 1_45e+09/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, -1, 0 )
-light_color = Color( 1, 1, 0, 1 )
+light_color = Color( 1, 1, 0.541176, 1 )
 light_energy = 2.0
 omni_range = 8.66e+12
 omni_attenuation = 10.0
@@ -246,7 +246,7 @@ material/0 = SubResource( 123 )
 
 [node name="OmniLight 8_66e+12" type="OmniLight" parent="Scenes/STAR_G1_0_1/LODs 1_45e+09/LOD1"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 1, 1, 0, 1 )
+light_color = Color( 1, 1, 0.541176, 1 )
 light_energy = 2.0
 omni_range = 8.66e+12
 omni_attenuation = 10.0
@@ -279,7 +279,7 @@ material/0 = SubResource( 123 )
 
 [node name="OmniLight 8_66e+12" type="OmniLight" parent="Scenes/STAR_G1_0_1/LODs 1_45e+09/LOD2"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 1, 1, 0, 1 )
+light_color = Color( 1, 1, 0.541176, 1 )
 light_energy = 2.0
 omni_range = 8.66e+12
 omni_attenuation = 10.0
@@ -294,7 +294,7 @@ __meta__ = {
 
 [node name="OmniLight 8_66e+12" type="OmniLight" parent="Scenes/STAR_G1_0_1/LODs 1_45e+09/LOD3"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 1, 1, 0, 1 )
+light_color = Color( 1, 1, 0.541176, 1 )
 light_energy = 2.0
 omni_range = 8.66e+12
 omni_attenuation = 10.0

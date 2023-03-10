@@ -354,7 +354,7 @@ def system_generation(star_id, system, cluster_name):
 ###### FORMATTING FUNCTIONS ######
 def formatting_system_data(star_id, system, main_star, star_name):
 	star_type = main_star["type"]
-	system_zone_size = e(system_zone_size_factor * main_star["size"])
+	system_zone_size = e(main_star["omni_range"]) # use omni range instead.
 	system_autopilot_range = system_zone_size
 	
 	

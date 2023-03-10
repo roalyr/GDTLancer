@@ -8,8 +8,8 @@
 * System codename: STAR_B2_0_SYSTEM
 * System translation name codename: NAME_STAR_B2_0_SYSTEM
 * System translation description codename: DESC_STAR_B2_0_SYSTEM
-* System zone size: 6.32e+13
-* System autopilot range: 6.32e+13
+* System zone size: 3.27e+14
+* System autopilot range: 3.27e+14
 ```
 
  </details>  
@@ -178,8 +178,8 @@ Temperature zone data:
 * System codename: STAR_A2_1_SYSTEM
 * System translation name codename: NAME_STAR_A2_1_SYSTEM
 * System translation description codename: DESC_STAR_A2_1_SYSTEM
-* System zone size: 2.01e+13
-* System autopilot range: 2.01e+13
+* System zone size: 2.84e+13
+* System autopilot range: 2.84e+13
 ```
 
  </details>  
@@ -273,8 +273,8 @@ Temperature zone data:
 * System codename: STAR_M0_2_SYSTEM
 * System translation name codename: NAME_STAR_M0_2_SYSTEM
 * System translation description codename: DESC_STAR_M0_2_SYSTEM
-* System zone size: 1.40e+12
-* System autopilot range: 1.40e+12
+* System zone size: 1.79e+11
+* System autopilot range: 1.79e+11
 ```
 
  </details>  
@@ -368,8 +368,8 @@ Temperature zone data:
 * System codename: STAR_A0_3_SYSTEM
 * System translation name codename: NAME_STAR_A0_3_SYSTEM
 * System translation description codename: DESC_STAR_A0_3_SYSTEM
-* System zone size: 2.27e+13
-* System autopilot range: 2.27e+13
+* System zone size: 2.73e+13
+* System autopilot range: 2.73e+13
 ```
 
  </details>  
@@ -538,8 +538,8 @@ Temperature zone data:
 * System codename: STAR_M7_4_SYSTEM
 * System translation name codename: NAME_STAR_M7_4_SYSTEM
 * System translation description codename: DESC_STAR_M7_4_SYSTEM
-* System zone size: 1.57e+12
-* System autopilot range: 1.57e+12
+* System zone size: 3.64e+11
+* System autopilot range: 3.64e+11
 ```
 
  </details>  
@@ -633,8 +633,8 @@ Temperature zone data:
 * System codename: STAR_G0_5_SYSTEM
 * System translation name codename: NAME_STAR_G0_5_SYSTEM
 * System translation description codename: DESC_STAR_G0_5_SYSTEM
-* System zone size: 1.60e+13
-* System autopilot range: 1.60e+13
+* System zone size: 9.22e+12
+* System autopilot range: 9.22e+12
 ```
 
  </details>  

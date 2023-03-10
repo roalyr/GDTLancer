@@ -13,9 +13,9 @@
 [sub_resource type="ShaderMaterial" id=93]
 resource_local_to_scene = true
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.639216, 0, 1, 1 )
-shader_param/rim_strength = 0.02
-shader_param/rim_exponent = 15.0
+shader_param/albedo = Color( 0, 0.372549, 0.521569, 1 )
+shader_param/rim_strength = 0.05
+shader_param/rim_exponent = 7.8
 shader_param/alpha_clip = 1.0
 
 [sub_resource type="SphereShape" id=94]

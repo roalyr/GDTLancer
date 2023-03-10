@@ -17,8 +17,8 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
 
-[node name="Zone shape 6_32e+13" type="CollisionShape" parent="."]
-transform = Transform( 6.32e+13, 0, 0, 0, 6.32e+13, 0, 0, 0, 6.32e+13, 0, 0, 0 )
+[node name="Zone shape 3_27e+14" type="CollisionShape" parent="."]
+transform = Transform( 3.27e+14, 0, 0, 0, 3.27e+14, 0, 0, 0, 3.27e+14, 0, 0, 0 )
 shape = SubResource( 79 )
 __meta__ = {
 "_edit_lock_": true
@@ -46,7 +46,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.60332e+11, 4.09622e+10, 1.2
 [node name="STAR_B2_0_NEBULA_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 4 )]
 
 [node name="STAR_B2_0_PLANET_0_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.91776e+13, -6.45085e+10, 5.3178e+13 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.79583e+13, -6.45085e+10, 3.11671e+14 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

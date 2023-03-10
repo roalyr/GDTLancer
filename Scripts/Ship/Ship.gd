@@ -9,7 +9,7 @@ const accel_factor = 1e2 # Propulsion force.
 const accel_ticks_max = pow(2,31) # Engine propulsion increments. Pow 2.
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
-const torque_factor = Vector3(15e8,7e8,7e8)
+const torque_factor = Vector3(10e8,5e8,5e8)
 
 const camera_vert_offset = 1
 const camera_horiz_offset = 6
@@ -20,8 +20,8 @@ const autopilot_angle_deviation = 0.8
 
 # Lesser is more precise, aim at ration 1:2 for decel being larger
 # Higher numbers mean more agressive AP velocity handling.
-const autopilot_accel_factor = 0.22 # 0.22
-const autopilot_deccel_factor = 0.44 # 0.44
+const autopilot_accel_factor = 0.2 # 0.22
+const autopilot_deccel_factor = 0.4 # 0.44
 
 # Orbiting factor allows to approach not at a straight line, but slightly orbiting.
 const autopilot_orbiting_factor = 0.1 # Keep it small. Less than 1.0 - deviation

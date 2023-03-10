@@ -29,6 +29,7 @@ Highlighted entries are "Work in progress".
 - Examine PID regulator applicability (https://github.com/slavfox/godot_pid_controller or https://github.com/fire/godot-pid/blob/master/PID_Controller/PID_Controller.gd).
 - Info tab: make clickable entries that expand to tutorial entries.
 - E-kill touchscreen button.
+- Split LOD system into objects / environment / ship categories and allow maximum LOD level.
 
 ## Refactor
 - **Re-attach models directly into scenes (make editable). (WIP)**

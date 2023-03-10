@@ -8,8 +8,8 @@
 * System codename: STAR_F6_0_SYSTEM
 * System translation name codename: NAME_STAR_F6_0_SYSTEM
 * System translation description codename: DESC_STAR_F6_0_SYSTEM
-* System zone size: 1.82e+13
-* System autopilot range: 1.82e+13
+* System zone size: 1.83e+13
+* System autopilot range: 1.83e+13
 ```
 
  </details>  
@@ -103,8 +103,8 @@ Temperature zone data:
 * System codename: STAR_B4_1_SYSTEM
 * System translation name codename: NAME_STAR_B4_1_SYSTEM
 * System translation description codename: DESC_STAR_B4_1_SYSTEM
-* System zone size: 3.50e+13
-* System autopilot range: 3.50e+13
+* System zone size: 2.80e+14
+* System autopilot range: 2.80e+14
 ```
 
  </details>  
@@ -348,8 +348,8 @@ Temperature zone data:
 * System codename: STAR_M1_2_SYSTEM
 * System translation name codename: NAME_STAR_M1_2_SYSTEM
 * System translation description codename: DESC_STAR_M1_2_SYSTEM
-* System zone size: 4.35e+12
-* System autopilot range: 4.35e+12
+* System zone size: 6.29e+11
+* System autopilot range: 6.29e+11
 ```
 
  </details>  
@@ -443,8 +443,8 @@ Temperature zone data:
 * System codename: STAR_G3_3_SYSTEM
 * System translation name codename: NAME_STAR_G3_3_SYSTEM
 * System translation description codename: DESC_STAR_G3_3_SYSTEM
-* System zone size: 1.34e+13
-* System autopilot range: 1.34e+13
+* System zone size: 8.51e+12
+* System autopilot range: 8.51e+12
 ```
 
  </details>  
@@ -613,8 +613,8 @@ Temperature zone data:
 * System codename: STAR_M2_4_SYSTEM
 * System translation name codename: NAME_STAR_M2_4_SYSTEM
 * System translation description codename: DESC_STAR_M2_4_SYSTEM
-* System zone size: 1.70e+12
-* System autopilot range: 1.70e+12
+* System zone size: 2.59e+11
+* System autopilot range: 2.59e+11
 ```
 
  </details>  
@@ -858,8 +858,8 @@ Temperature zone data:
 * System codename: STAR_M2_5_SYSTEM
 * System translation name codename: NAME_STAR_M2_5_SYSTEM
 * System translation description codename: DESC_STAR_M2_5_SYSTEM
-* System zone size: 4.79e+12
-* System autopilot range: 4.79e+12
+* System zone size: 7.46e+11
+* System autopilot range: 7.46e+11
 ```
 
  </details>  
@@ -953,8 +953,8 @@ Temperature zone data:
 * System codename: STAR_A2_6_SYSTEM
 * System translation name codename: NAME_STAR_A2_6_SYSTEM
 * System translation description codename: DESC_STAR_A2_6_SYSTEM
-* System zone size: 2.29e+13
-* System autopilot range: 2.29e+13
+* System zone size: 3.17e+13
+* System autopilot range: 3.17e+13
 ```
 
  </details>  
@@ -1123,8 +1123,8 @@ Temperature zone data:
 * System codename: STAR_F7_7_SYSTEM
 * System translation name codename: NAME_STAR_F7_7_SYSTEM
 * System translation description codename: DESC_STAR_F7_7_SYSTEM
-* System zone size: 1.85e+13
-* System autopilot range: 1.85e+13
+* System zone size: 1.96e+13
+* System autopilot range: 1.96e+13
 ```
 
  </details>  
@@ -1218,8 +1218,8 @@ Temperature zone data:
 * System codename: STAR_G8_8_SYSTEM
 * System translation name codename: NAME_STAR_G8_8_SYSTEM
 * System translation description codename: DESC_STAR_G8_8_SYSTEM
-* System zone size: 1.38e+13
-* System autopilot range: 1.38e+13
+* System zone size: 1.02e+13
+* System autopilot range: 1.02e+13
 ```
 
  </details>  
@@ -1463,8 +1463,8 @@ Temperature zone data:
 * System codename: STAR_M7_9_SYSTEM
 * System translation name codename: NAME_STAR_M7_9_SYSTEM
 * System translation description codename: DESC_STAR_M7_9_SYSTEM
-* System zone size: 8.97e+12
-* System autopilot range: 8.97e+12
+* System zone size: 2.11e+12
+* System autopilot range: 2.11e+12
 ```
 
  </details>  
@@ -1633,8 +1633,8 @@ Temperature zone data:
 * System codename: STAR_M8_10_SYSTEM
 * System translation name codename: NAME_STAR_M8_10_SYSTEM
 * System translation description codename: DESC_STAR_M8_10_SYSTEM
-* System zone size: 1.52e+12
-* System autopilot range: 1.52e+12
+* System zone size: 3.92e+11
+* System autopilot range: 3.92e+11
 ```
 
  </details>  
@@ -1728,8 +1728,8 @@ Temperature zone data:
 * System codename: STAR_G7_11_SYSTEM
 * System translation name codename: NAME_STAR_G7_11_SYSTEM
 * System translation description codename: DESC_STAR_G7_11_SYSTEM
-* System zone size: 1.58e+13
-* System autopilot range: 1.58e+13
+* System zone size: 1.14e+13
+* System autopilot range: 1.14e+13
 ```
 
  </details>  
@@ -1898,8 +1898,8 @@ Temperature zone data:
 * System codename: STAR_K5_12_SYSTEM
 * System translation name codename: NAME_STAR_K5_12_SYSTEM
 * System translation description codename: DESC_STAR_K5_12_SYSTEM
-* System zone size: 1.25e+13
-* System autopilot range: 1.25e+13
+* System zone size: 5.54e+12
+* System autopilot range: 5.54e+12
 ```
 
  </details>  
@@ -1993,8 +1993,8 @@ Temperature zone data:
 * System codename: STAR_M0_13_SYSTEM
 * System translation name codename: NAME_STAR_M0_13_SYSTEM
 * System translation description codename: DESC_STAR_M0_13_SYSTEM
-* System zone size: 2.55e+12
-* System autopilot range: 2.55e+12
+* System zone size: 3.33e+11
+* System autopilot range: 3.33e+11
 ```
 
  </details>  
@@ -2088,8 +2088,8 @@ Temperature zone data:
 * System codename: STAR_K9_14_SYSTEM
 * System translation name codename: NAME_STAR_K9_14_SYSTEM
 * System translation description codename: DESC_STAR_K9_14_SYSTEM
-* System zone size: 1.04e+13
-* System autopilot range: 1.04e+13
+* System zone size: 5.66e+12
+* System autopilot range: 5.66e+12
 ```
 
  </details>  
@@ -2333,8 +2333,8 @@ Temperature zone data:
 * System codename: STAR_A1_15_SYSTEM
 * System translation name codename: NAME_STAR_A1_15_SYSTEM
 * System translation description codename: DESC_STAR_A1_15_SYSTEM
-* System zone size: 2.36e+13
-* System autopilot range: 2.36e+13
+* System zone size: 3.17e+13
+* System autopilot range: 3.17e+13
 ```
 
  </details>  
@@ -2428,8 +2428,8 @@ Temperature zone data:
 * System codename: STAR_A6_16_SYSTEM
 * System translation name codename: NAME_STAR_A6_16_SYSTEM
 * System translation description codename: DESC_STAR_A6_16_SYSTEM
-* System zone size: 2.26e+13
-* System autopilot range: 2.26e+13
+* System zone size: 4.05e+13
+* System autopilot range: 4.05e+13
 ```
 
  </details>  
@@ -2598,8 +2598,8 @@ Temperature zone data:
 * System codename: STAR_M3_17_SYSTEM
 * System translation name codename: NAME_STAR_M3_17_SYSTEM
 * System translation description codename: DESC_STAR_M3_17_SYSTEM
-* System zone size: 2.49e+12
-* System autopilot range: 2.49e+12
+* System zone size: 4.27e+11
+* System autopilot range: 4.27e+11
 ```
 
  </details>  
@@ -2693,8 +2693,8 @@ Temperature zone data:
 * System codename: STAR_M1_18_SYSTEM
 * System translation name codename: NAME_STAR_M1_18_SYSTEM
 * System translation description codename: DESC_STAR_M1_18_SYSTEM
-* System zone size: 1.90e+12
-* System autopilot range: 1.90e+12
+* System zone size: 2.66e+11
+* System autopilot range: 2.66e+11
 ```
 
  </details>  
@@ -2788,8 +2788,8 @@ Temperature zone data:
 * System codename: STAR_K2_19_SYSTEM
 * System translation name codename: NAME_STAR_K2_19_SYSTEM
 * System translation description codename: DESC_STAR_K2_19_SYSTEM
-* System zone size: 1.24e+13
-* System autopilot range: 1.24e+13
+* System zone size: 4.37e+12
+* System autopilot range: 4.37e+12
 ```
 
  </details>  
@@ -2883,8 +2883,8 @@ Temperature zone data:
 * System codename: STAR_G2_20_SYSTEM
 * System translation name codename: NAME_STAR_G2_20_SYSTEM
 * System translation description codename: DESC_STAR_G2_20_SYSTEM
-* System zone size: 1.46e+13
-* System autopilot range: 1.46e+13
+* System zone size: 8.96e+12
+* System autopilot range: 8.96e+12
 ```
 
  </details>  
@@ -3278,8 +3278,8 @@ Temperature zone data:
 * System codename: STAR_M8_21_SYSTEM
 * System translation name codename: NAME_STAR_M8_21_SYSTEM
 * System translation description codename: DESC_STAR_M8_21_SYSTEM
-* System zone size: 5.15e+12
-* System autopilot range: 5.15e+12
+* System zone size: 1.32e+12
+* System autopilot range: 1.32e+12
 ```
 
  </details>  
@@ -3373,8 +3373,8 @@ Temperature zone data:
 * System codename: STAR_M8_22_SYSTEM
 * System translation name codename: NAME_STAR_M8_22_SYSTEM
 * System translation description codename: DESC_STAR_M8_22_SYSTEM
-* System zone size: 3.75e+12
-* System autopilot range: 3.75e+12
+* System zone size: 9.79e+11
+* System autopilot range: 9.79e+11
 ```
 
  </details>  
@@ -3468,8 +3468,8 @@ Temperature zone data:
 * System codename: STAR_M7_23_SYSTEM
 * System translation name codename: NAME_STAR_M7_23_SYSTEM
 * System translation description codename: DESC_STAR_M7_23_SYSTEM
-* System zone size: 4.23e+12
-* System autopilot range: 4.23e+12
+* System zone size: 1.01e+12
+* System autopilot range: 1.01e+12
 ```
 
  </details>  
@@ -3563,8 +3563,8 @@ Temperature zone data:
 * System codename: STAR_G8_24_SYSTEM
 * System translation name codename: NAME_STAR_G8_24_SYSTEM
 * System translation description codename: DESC_STAR_G8_24_SYSTEM
-* System zone size: 1.56e+13
-* System autopilot range: 1.56e+13
+* System zone size: 1.15e+13
+* System autopilot range: 1.15e+13
 ```
 
  </details>  
@@ -3658,8 +3658,8 @@ Temperature zone data:
 * System codename: STAR_A6_25_SYSTEM
 * System translation name codename: NAME_STAR_A6_25_SYSTEM
 * System translation description codename: DESC_STAR_A6_25_SYSTEM
-* System zone size: 2.12e+13
-* System autopilot range: 2.12e+13
+* System zone size: 3.75e+13
+* System autopilot range: 3.75e+13
 ```
 
  </details>  
@@ -3753,8 +3753,8 @@ Temperature zone data:
 * System codename: STAR_M5_26_SYSTEM
 * System translation name codename: NAME_STAR_M5_26_SYSTEM
 * System translation description codename: DESC_STAR_M5_26_SYSTEM
-* System zone size: 6.21e+12
-* System autopilot range: 6.21e+12
+* System zone size: 1.32e+12
+* System autopilot range: 1.32e+12
 ```
 
  </details>  
@@ -3848,8 +3848,8 @@ Temperature zone data:
 * System codename: STAR_F1_27_SYSTEM
 * System translation name codename: NAME_STAR_F1_27_SYSTEM
 * System translation description codename: DESC_STAR_F1_27_SYSTEM
-* System zone size: 1.93e+13
-* System autopilot range: 1.93e+13
+* System zone size: 1.59e+13
+* System autopilot range: 1.59e+13
 ```
 
  </details>  
@@ -4018,8 +4018,8 @@ Temperature zone data:
 * System codename: STAR_A1_28_SYSTEM
 * System translation name codename: NAME_STAR_A1_28_SYSTEM
 * System translation description codename: DESC_STAR_A1_28_SYSTEM
-* System zone size: 2.13e+13
-* System autopilot range: 2.13e+13
+* System zone size: 2.80e+13
+* System autopilot range: 2.80e+13
 ```
 
  </details>  
@@ -4113,8 +4113,8 @@ Temperature zone data:
 * System codename: STAR_F3_29_SYSTEM
 * System translation name codename: NAME_STAR_F3_29_SYSTEM
 * System translation description codename: DESC_STAR_F3_29_SYSTEM
-* System zone size: 1.87e+13
-* System autopilot range: 1.87e+13
+* System zone size: 1.66e+13
+* System autopilot range: 1.66e+13
 ```
 
  </details>  
@@ -4208,8 +4208,8 @@ Temperature zone data:
 * System codename: STAR_M9_30_SYSTEM
 * System translation name codename: NAME_STAR_M9_30_SYSTEM
 * System translation description codename: DESC_STAR_M9_30_SYSTEM
-* System zone size: 3.58e+12
-* System autopilot range: 3.58e+12
+* System zone size: 9.71e+11
+* System autopilot range: 9.71e+11
 ```
 
  </details>  
@@ -4303,8 +4303,8 @@ Temperature zone data:
 * System codename: STAR_M7_31_SYSTEM
 * System translation name codename: NAME_STAR_M7_31_SYSTEM
 * System translation description codename: DESC_STAR_M7_31_SYSTEM
-* System zone size: 4.87e+12
-* System autopilot range: 4.87e+12
+* System zone size: 1.21e+12
+* System autopilot range: 1.21e+12
 ```
 
  </details>  
@@ -4398,8 +4398,8 @@ Temperature zone data:
 * System codename: STAR_M1_32_SYSTEM
 * System translation name codename: NAME_STAR_M1_32_SYSTEM
 * System translation description codename: DESC_STAR_M1_32_SYSTEM
-* System zone size: 7.95e+12
-* System autopilot range: 7.95e+12
+* System zone size: 1.16e+12
+* System autopilot range: 1.16e+12
 ```
 
  </details>  
@@ -4568,8 +4568,8 @@ Temperature zone data:
 * System codename: STAR_G7_33_SYSTEM
 * System translation name codename: NAME_STAR_G7_33_SYSTEM
 * System translation description codename: DESC_STAR_G7_33_SYSTEM
-* System zone size: 1.34e+13
-* System autopilot range: 1.34e+13
+* System zone size: 9.40e+12
+* System autopilot range: 9.40e+12
 ```
 
  </details>  
@@ -4663,8 +4663,8 @@ Temperature zone data:
 * System codename: STAR_M5_34_SYSTEM
 * System translation name codename: NAME_STAR_M5_34_SYSTEM
 * System translation description codename: DESC_STAR_M5_34_SYSTEM
-* System zone size: 8.48e+12
-* System autopilot range: 8.48e+12
+* System zone size: 1.81e+12
+* System autopilot range: 1.81e+12
 ```
 
  </details>  
@@ -4833,8 +4833,8 @@ Temperature zone data:
 * System codename: STAR_M1_35_SYSTEM
 * System translation name codename: NAME_STAR_M1_35_SYSTEM
 * System translation description codename: DESC_STAR_M1_35_SYSTEM
-* System zone size: 4.25e+12
-* System autopilot range: 4.25e+12
+* System zone size: 5.84e+11
+* System autopilot range: 5.84e+11
 ```
 
  </details>  
@@ -5003,8 +5003,8 @@ Temperature zone data:
 * System codename: STAR_M8_36_SYSTEM
 * System translation name codename: NAME_STAR_M8_36_SYSTEM
 * System translation description codename: DESC_STAR_M8_36_SYSTEM
-* System zone size: 6.10e+12
-* System autopilot range: 6.10e+12
+* System zone size: 1.59e+12
+* System autopilot range: 1.59e+12
 ```
 
  </details>  
@@ -5098,8 +5098,8 @@ Temperature zone data:
 * System codename: STAR_M7_37_SYSTEM
 * System translation name codename: NAME_STAR_M7_37_SYSTEM
 * System translation description codename: DESC_STAR_M7_37_SYSTEM
-* System zone size: 8.34e+12
-* System autopilot range: 8.34e+12
+* System zone size: 2.03e+12
+* System autopilot range: 2.03e+12
 ```
 
  </details>  
@@ -5193,8 +5193,8 @@ Temperature zone data:
 * System codename: STAR_M7_38_SYSTEM
 * System translation name codename: NAME_STAR_M7_38_SYSTEM
 * System translation description codename: DESC_STAR_M7_38_SYSTEM
-* System zone size: 2.03e+12
-* System autopilot range: 2.03e+12
+* System zone size: 4.90e+11
+* System autopilot range: 4.90e+11
 ```
 
  </details>  
@@ -5288,8 +5288,8 @@ Temperature zone data:
 * System codename: STAR_G3_39_SYSTEM
 * System translation name codename: NAME_STAR_G3_39_SYSTEM
 * System translation description codename: DESC_STAR_G3_39_SYSTEM
-* System zone size: 1.40e+13
-* System autopilot range: 1.40e+13
+* System zone size: 8.81e+12
+* System autopilot range: 8.81e+12
 ```
 
  </details>  
@@ -5533,8 +5533,8 @@ Temperature zone data:
 * System codename: STAR_M6_40_SYSTEM
 * System translation name codename: NAME_STAR_M6_40_SYSTEM
 * System translation description codename: DESC_STAR_M6_40_SYSTEM
-* System zone size: 1.72e+12
-* System autopilot range: 1.72e+12
+* System zone size: 3.81e+11
+* System autopilot range: 3.81e+11
 ```
 
  </details>  
@@ -5628,8 +5628,8 @@ Temperature zone data:
 * System codename: STAR_F7_41_SYSTEM
 * System translation name codename: NAME_STAR_F7_41_SYSTEM
 * System translation description codename: DESC_STAR_F7_41_SYSTEM
-* System zone size: 1.74e+13
-* System autopilot range: 1.74e+13
+* System zone size: 1.85e+13
+* System autopilot range: 1.85e+13
 ```
 
  </details>  
@@ -5723,8 +5723,8 @@ Temperature zone data:
 * System codename: STAR_K9_42_SYSTEM
 * System translation name codename: NAME_STAR_K9_42_SYSTEM
 * System translation description codename: DESC_STAR_K9_42_SYSTEM
-* System zone size: 1.19e+13
-* System autopilot range: 1.19e+13
+* System zone size: 6.45e+12
+* System autopilot range: 6.45e+12
 ```
 
  </details>  
@@ -5818,8 +5818,8 @@ Temperature zone data:
 * System codename: STAR_F7_43_SYSTEM
 * System translation name codename: NAME_STAR_F7_43_SYSTEM
 * System translation description codename: DESC_STAR_F7_43_SYSTEM
-* System zone size: 1.80e+13
-* System autopilot range: 1.80e+13
+* System zone size: 1.92e+13
+* System autopilot range: 1.92e+13
 ```
 
  </details>  
@@ -5913,8 +5913,8 @@ Temperature zone data:
 * System codename: STAR_M4_44_SYSTEM
 * System translation name codename: NAME_STAR_M4_44_SYSTEM
 * System translation description codename: DESC_STAR_M4_44_SYSTEM
-* System zone size: 2.73e+12
-* System autopilot range: 2.73e+12
+* System zone size: 5.30e+11
+* System autopilot range: 5.30e+11
 ```
 
  </details>  
@@ -6008,8 +6008,8 @@ Temperature zone data:
 * System codename: STAR_M3_45_SYSTEM
 * System translation name codename: NAME_STAR_M3_45_SYSTEM
 * System translation description codename: DESC_STAR_M3_45_SYSTEM
-* System zone size: 4.70e+12
-* System autopilot range: 4.70e+12
+* System zone size: 8.26e+11
+* System autopilot range: 8.26e+11
 ```
 
  </details>  
@@ -6103,8 +6103,8 @@ Temperature zone data:
 * System codename: STAR_M0_46_SYSTEM
 * System translation name codename: NAME_STAR_M0_46_SYSTEM
 * System translation description codename: DESC_STAR_M0_46_SYSTEM
-* System zone size: 5.49e+12
-* System autopilot range: 5.49e+12
+* System zone size: 7.25e+11
+* System autopilot range: 7.25e+11
 ```
 
  </details>  
@@ -6198,8 +6198,8 @@ Temperature zone data:
 * System codename: STAR_M7_47_SYSTEM
 * System translation name codename: NAME_STAR_M7_47_SYSTEM
 * System translation description codename: DESC_STAR_M7_47_SYSTEM
-* System zone size: 2.52e+12
-* System autopilot range: 2.52e+12
+* System zone size: 6.24e+11
+* System autopilot range: 6.24e+11
 ```
 
  </details>  
@@ -6293,8 +6293,8 @@ Temperature zone data:
 * System codename: STAR_M2_48_SYSTEM
 * System translation name codename: NAME_STAR_M2_48_SYSTEM
 * System translation description codename: DESC_STAR_M2_48_SYSTEM
-* System zone size: 7.06e+12
-* System autopilot range: 7.06e+12
+* System zone size: 1.09e+12
+* System autopilot range: 1.09e+12
 ```
 
  </details>  
@@ -6388,8 +6388,8 @@ Temperature zone data:
 * System codename: STAR_M5_49_SYSTEM
 * System translation name codename: NAME_STAR_M5_49_SYSTEM
 * System translation description codename: DESC_STAR_M5_49_SYSTEM
-* System zone size: 9.40e+12
-* System autopilot range: 9.40e+12
+* System zone size: 1.93e+12
+* System autopilot range: 1.93e+12
 ```
 
  </details>  
@@ -6558,8 +6558,8 @@ Temperature zone data:
 * System codename: STAR_F5_50_SYSTEM
 * System translation name codename: NAME_STAR_F5_50_SYSTEM
 * System translation description codename: DESC_STAR_F5_50_SYSTEM
-* System zone size: 1.74e+13
-* System autopilot range: 1.74e+13
+* System zone size: 1.68e+13
+* System autopilot range: 1.68e+13
 ```
 
  </details>  
@@ -6653,8 +6653,8 @@ Temperature zone data:
 * System codename: STAR_M0_51_SYSTEM
 * System translation name codename: NAME_STAR_M0_51_SYSTEM
 * System translation description codename: DESC_STAR_M0_51_SYSTEM
-* System zone size: 4.07e+12
-* System autopilot range: 4.07e+12
+* System zone size: 5.25e+11
+* System autopilot range: 5.25e+11
 ```
 
  </details>  
@@ -6748,8 +6748,8 @@ Temperature zone data:
 * System codename: STAR_M0_52_SYSTEM
 * System translation name codename: NAME_STAR_M0_52_SYSTEM
 * System translation description codename: DESC_STAR_M0_52_SYSTEM
-* System zone size: 6.43e+12
-* System autopilot range: 6.43e+12
+* System zone size: 8.04e+11
+* System autopilot range: 8.04e+11
 ```
 
  </details>  
@@ -6843,8 +6843,8 @@ Temperature zone data:
 * System codename: STAR_G3_53_SYSTEM
 * System translation name codename: NAME_STAR_G3_53_SYSTEM
 * System translation description codename: DESC_STAR_G3_53_SYSTEM
-* System zone size: 1.39e+13
-* System autopilot range: 1.39e+13
+* System zone size: 8.77e+12
+* System autopilot range: 8.77e+12
 ```
 
  </details>  
@@ -6938,8 +6938,8 @@ Temperature zone data:
 * System codename: STAR_M1_54_SYSTEM
 * System translation name codename: NAME_STAR_M1_54_SYSTEM
 * System translation description codename: DESC_STAR_M1_54_SYSTEM
-* System zone size: 9.32e+12
-* System autopilot range: 9.32e+12
+* System zone size: 1.27e+12
+* System autopilot range: 1.27e+12
 ```
 
  </details>  
@@ -7108,8 +7108,8 @@ Temperature zone data:
 * System codename: STAR_K3_55_SYSTEM
 * System translation name codename: NAME_STAR_K3_55_SYSTEM
 * System translation description codename: DESC_STAR_K3_55_SYSTEM
-* System zone size: 1.01e+13
-* System autopilot range: 1.01e+13
+* System zone size: 3.88e+12
+* System autopilot range: 3.88e+12
 ```
 
  </details>  
@@ -7203,8 +7203,8 @@ Temperature zone data:
 * System codename: STAR_G2_56_SYSTEM
 * System translation name codename: NAME_STAR_G2_56_SYSTEM
 * System translation description codename: DESC_STAR_G2_56_SYSTEM
-* System zone size: 1.40e+13
-* System autopilot range: 1.40e+13
+* System zone size: 8.60e+12
+* System autopilot range: 8.60e+12
 ```
 
  </details>  
@@ -7298,8 +7298,8 @@ Temperature zone data:
 * System codename: STAR_F1_57_SYSTEM
 * System translation name codename: NAME_STAR_F1_57_SYSTEM
 * System translation description codename: DESC_STAR_F1_57_SYSTEM
-* System zone size: 1.73e+13
-* System autopilot range: 1.73e+13
+* System zone size: 1.43e+13
+* System autopilot range: 1.43e+13
 ```
 
  </details>  
@@ -7393,8 +7393,8 @@ Temperature zone data:
 * System codename: STAR_M2_58_SYSTEM
 * System translation name codename: NAME_STAR_M2_58_SYSTEM
 * System translation description codename: DESC_STAR_M2_58_SYSTEM
-* System zone size: 4.50e+12
-* System autopilot range: 4.50e+12
+* System zone size: 6.75e+11
+* System autopilot range: 6.75e+11
 ```
 
  </details>  
@@ -7488,8 +7488,8 @@ Temperature zone data:
 * System codename: STAR_M9_59_SYSTEM
 * System translation name codename: NAME_STAR_M9_59_SYSTEM
 * System translation description codename: DESC_STAR_M9_59_SYSTEM
-* System zone size: 2.39e+12
-* System autopilot range: 2.39e+12
+* System zone size: 6.74e+11
+* System autopilot range: 6.74e+11
 ```
 
  </details>  
@@ -7583,8 +7583,8 @@ Temperature zone data:
 * System codename: STAR_M0_60_SYSTEM
 * System translation name codename: NAME_STAR_M0_60_SYSTEM
 * System translation description codename: DESC_STAR_M0_60_SYSTEM
-* System zone size: 2.69e+12
-* System autopilot range: 2.69e+12
+* System zone size: 3.46e+11
+* System autopilot range: 3.46e+11
 ```
 
  </details>  
@@ -7828,8 +7828,8 @@ Temperature zone data:
 * System codename: STAR_M4_61_SYSTEM
 * System translation name codename: NAME_STAR_M4_61_SYSTEM
 * System translation description codename: DESC_STAR_M4_61_SYSTEM
-* System zone size: 4.18e+12
-* System autopilot range: 4.18e+12
+* System zone size: 7.74e+11
+* System autopilot range: 7.74e+11
 ```
 
  </details>  
@@ -7923,8 +7923,8 @@ Temperature zone data:
 * System codename: STAR_A9_62_SYSTEM
 * System translation name codename: NAME_STAR_A9_62_SYSTEM
 * System translation description codename: DESC_STAR_A9_62_SYSTEM
-* System zone size: 2.23e+13
-* System autopilot range: 2.23e+13
+* System zone size: 4.48e+13
+* System autopilot range: 4.48e+13
 ```
 
  </details>  
@@ -8018,8 +8018,8 @@ Temperature zone data:
 * System codename: STAR_M2_63_SYSTEM
 * System translation name codename: NAME_STAR_M2_63_SYSTEM
 * System translation description codename: DESC_STAR_M2_63_SYSTEM
-* System zone size: 1.81e+12
-* System autopilot range: 1.81e+12
+* System zone size: 2.77e+11
+* System autopilot range: 2.77e+11
 ```
 
  </details>  
@@ -8113,8 +8113,8 @@ Temperature zone data:
 * System codename: STAR_M9_64_SYSTEM
 * System translation name codename: NAME_STAR_M9_64_SYSTEM
 * System translation description codename: DESC_STAR_M9_64_SYSTEM
-* System zone size: 1.89e+12
-* System autopilot range: 1.89e+12
+* System zone size: 5.39e+11
+* System autopilot range: 5.39e+11
 ```
 
  </details>  
@@ -8208,8 +8208,8 @@ Temperature zone data:
 * System codename: STAR_M0_65_SYSTEM
 * System translation name codename: NAME_STAR_M0_65_SYSTEM
 * System translation description codename: DESC_STAR_M0_65_SYSTEM
-* System zone size: 9.10e+12
-* System autopilot range: 9.10e+12
+* System zone size: 1.18e+12
+* System autopilot range: 1.18e+12
 ```
 
  </details>  
@@ -8303,8 +8303,8 @@ Temperature zone data:
 * System codename: STAR_M9_66_SYSTEM
 * System translation name codename: NAME_STAR_M9_66_SYSTEM
 * System translation description codename: DESC_STAR_M9_66_SYSTEM
-* System zone size: 8.45e+12
-* System autopilot range: 8.45e+12
+* System zone size: 2.30e+12
+* System autopilot range: 2.30e+12
 ```
 
  </details>  
@@ -8398,8 +8398,8 @@ Temperature zone data:
 * System codename: STAR_M2_67_SYSTEM
 * System translation name codename: NAME_STAR_M2_67_SYSTEM
 * System translation description codename: DESC_STAR_M2_67_SYSTEM
-* System zone size: 6.41e+12
-* System autopilot range: 6.41e+12
+* System zone size: 9.64e+11
+* System autopilot range: 9.64e+11
 ```
 
  </details>  
@@ -8493,8 +8493,8 @@ Temperature zone data:
 * System codename: STAR_M8_68_SYSTEM
 * System translation name codename: NAME_STAR_M8_68_SYSTEM
 * System translation description codename: DESC_STAR_M8_68_SYSTEM
-* System zone size: 3.89e+12
-* System autopilot range: 3.89e+12
+* System zone size: 9.93e+11
+* System autopilot range: 9.93e+11
 ```
 
  </details>  
@@ -8588,8 +8588,8 @@ Temperature zone data:
 * System codename: STAR_G3_69_SYSTEM
 * System translation name codename: NAME_STAR_G3_69_SYSTEM
 * System translation description codename: DESC_STAR_G3_69_SYSTEM
-* System zone size: 1.44e+13
-* System autopilot range: 1.44e+13
+* System zone size: 8.98e+12
+* System autopilot range: 8.98e+12
 ```
 
  </details>  
@@ -8758,8 +8758,8 @@ Temperature zone data:
 * System codename: STAR_M2_70_SYSTEM
 * System translation name codename: NAME_STAR_M2_70_SYSTEM
 * System translation description codename: DESC_STAR_M2_70_SYSTEM
-* System zone size: 9.26e+12
-* System autopilot range: 9.26e+12
+* System zone size: 1.45e+12
+* System autopilot range: 1.45e+12
 ```
 
  </details>  
@@ -8853,8 +8853,8 @@ Temperature zone data:
 * System codename: STAR_A9_71_SYSTEM
 * System translation name codename: NAME_STAR_A9_71_SYSTEM
 * System translation description codename: DESC_STAR_A9_71_SYSTEM
-* System zone size: 1.95e+13
-* System autopilot range: 1.95e+13
+* System zone size: 3.97e+13
+* System autopilot range: 3.97e+13
 ```
 
  </details>  
@@ -9023,8 +9023,8 @@ Temperature zone data:
 * System codename: STAR_A5_72_SYSTEM
 * System translation name codename: NAME_STAR_A5_72_SYSTEM
 * System translation description codename: DESC_STAR_A5_72_SYSTEM
-* System zone size: 2.02e+13
-* System autopilot range: 2.02e+13
+* System zone size: 3.42e+13
+* System autopilot range: 3.42e+13
 ```
 
  </details>  
@@ -9193,8 +9193,8 @@ Temperature zone data:
 * System codename: STAR_K9_73_SYSTEM
 * System translation name codename: NAME_STAR_K9_73_SYSTEM
 * System translation description codename: DESC_STAR_K9_73_SYSTEM
-* System zone size: 1.24e+13
-* System autopilot range: 1.24e+13
+* System zone size: 6.88e+12
+* System autopilot range: 6.88e+12
 ```
 
  </details>  
@@ -9363,8 +9363,8 @@ Temperature zone data:
 * System codename: STAR_F7_74_SYSTEM
 * System translation name codename: NAME_STAR_F7_74_SYSTEM
 * System translation description codename: DESC_STAR_F7_74_SYSTEM
-* System zone size: 1.66e+13
-* System autopilot range: 1.66e+13
+* System zone size: 1.77e+13
+* System autopilot range: 1.77e+13
 ```
 
  </details>  
@@ -9458,8 +9458,8 @@ Temperature zone data:
 * System codename: STAR_M0_75_SYSTEM
 * System translation name codename: NAME_STAR_M0_75_SYSTEM
 * System translation description codename: DESC_STAR_M0_75_SYSTEM
-* System zone size: 9.10e+12
-* System autopilot range: 9.10e+12
+* System zone size: 1.11e+12
+* System autopilot range: 1.11e+12
 ```
 
  </details>  
@@ -9553,8 +9553,8 @@ Temperature zone data:
 * System codename: STAR_M7_76_SYSTEM
 * System translation name codename: NAME_STAR_M7_76_SYSTEM
 * System translation description codename: DESC_STAR_M7_76_SYSTEM
-* System zone size: 5.26e+12
-* System autopilot range: 5.26e+12
+* System zone size: 1.26e+12
+* System autopilot range: 1.26e+12
 ```
 
  </details>  
@@ -9648,8 +9648,8 @@ Temperature zone data:
 * System codename: STAR_F3_77_SYSTEM
 * System translation name codename: NAME_STAR_F3_77_SYSTEM
 * System translation description codename: DESC_STAR_F3_77_SYSTEM
-* System zone size: 1.85e+13
-* System autopilot range: 1.85e+13
+* System zone size: 1.63e+13
+* System autopilot range: 1.63e+13
 ```
 
  </details>  
@@ -9743,8 +9743,8 @@ Temperature zone data:
 * System codename: STAR_M8_78_SYSTEM
 * System translation name codename: NAME_STAR_M8_78_SYSTEM
 * System translation description codename: DESC_STAR_M8_78_SYSTEM
-* System zone size: 7.79e+12
-* System autopilot range: 7.79e+12
+* System zone size: 1.95e+12
+* System autopilot range: 1.95e+12
 ```
 
  </details>  
@@ -9913,8 +9913,8 @@ Temperature zone data:
 * System codename: STAR_M9_79_SYSTEM
 * System translation name codename: NAME_STAR_M9_79_SYSTEM
 * System translation description codename: DESC_STAR_M9_79_SYSTEM
-* System zone size: 2.89e+12
-* System autopilot range: 2.89e+12
+* System zone size: 8.02e+11
+* System autopilot range: 8.02e+11
 ```
 
  </details>  
@@ -10008,8 +10008,8 @@ Temperature zone data:
 * System codename: STAR_M0_80_SYSTEM
 * System translation name codename: NAME_STAR_M0_80_SYSTEM
 * System translation description codename: DESC_STAR_M0_80_SYSTEM
-* System zone size: 8.15e+12
-* System autopilot range: 8.15e+12
+* System zone size: 9.95e+11
+* System autopilot range: 9.95e+11
 ```
 
  </details>  
@@ -10103,8 +10103,8 @@ Temperature zone data:
 * System codename: STAR_K3_81_SYSTEM
 * System translation name codename: NAME_STAR_K3_81_SYSTEM
 * System translation description codename: DESC_STAR_K3_81_SYSTEM
-* System zone size: 1.23e+13
-* System autopilot range: 1.23e+13
+* System zone size: 4.52e+12
+* System autopilot range: 4.52e+12
 ```
 
  </details>  
@@ -10198,8 +10198,8 @@ Temperature zone data:
 * System codename: STAR_G6_82_SYSTEM
 * System translation name codename: NAME_STAR_G6_82_SYSTEM
 * System translation description codename: DESC_STAR_G6_82_SYSTEM
-* System zone size: 1.49e+13
-* System autopilot range: 1.49e+13
+* System zone size: 1.04e+13
+* System autopilot range: 1.04e+13
 ```
 
  </details>  
@@ -10443,8 +10443,8 @@ Temperature zone data:
 * System codename: STAR_M3_83_SYSTEM
 * System translation name codename: NAME_STAR_M3_83_SYSTEM
 * System translation description codename: DESC_STAR_M3_83_SYSTEM
-* System zone size: 3.82e+12
-* System autopilot range: 3.82e+12
+* System zone size: 6.39e+11
+* System autopilot range: 6.39e+11
 ```
 
  </details>  
@@ -10538,8 +10538,8 @@ Temperature zone data:
 * System codename: STAR_M1_84_SYSTEM
 * System translation name codename: NAME_STAR_M1_84_SYSTEM
 * System translation description codename: DESC_STAR_M1_84_SYSTEM
-* System zone size: 1.45e+12
-* System autopilot range: 1.45e+12
+* System zone size: 2.02e+11
+* System autopilot range: 2.02e+11
 ```
 
  </details>  
@@ -10708,8 +10708,8 @@ Temperature zone data:
 * System codename: STAR_K3_85_SYSTEM
 * System translation name codename: NAME_STAR_K3_85_SYSTEM
 * System translation description codename: DESC_STAR_K3_85_SYSTEM
-* System zone size: 1.10e+13
-* System autopilot range: 1.10e+13
+* System zone size: 4.26e+12
+* System autopilot range: 4.26e+12
 ```
 
  </details>  
@@ -10803,8 +10803,8 @@ Temperature zone data:
 * System codename: STAR_A9_86_SYSTEM
 * System translation name codename: NAME_STAR_A9_86_SYSTEM
 * System translation description codename: DESC_STAR_A9_86_SYSTEM
-* System zone size: 2.31e+13
-* System autopilot range: 2.31e+13
+* System zone size: 4.65e+13
+* System autopilot range: 4.65e+13
 ```
 
  </details>  
@@ -10973,8 +10973,8 @@ Temperature zone data:
 * System codename: STAR_M2_87_SYSTEM
 * System translation name codename: NAME_STAR_M2_87_SYSTEM
 * System translation description codename: DESC_STAR_M2_87_SYSTEM
-* System zone size: 3.80e+12
-* System autopilot range: 3.80e+12
+* System zone size: 5.82e+11
+* System autopilot range: 5.82e+11
 ```
 
  </details>  
@@ -11293,8 +11293,8 @@ Temperature zone data:
 * System codename: STAR_M9_88_SYSTEM
 * System translation name codename: NAME_STAR_M9_88_SYSTEM
 * System translation description codename: DESC_STAR_M9_88_SYSTEM
-* System zone size: 8.53e+12
-* System autopilot range: 8.53e+12
+* System zone size: 2.39e+12
+* System autopilot range: 2.39e+12
 ```
 
  </details>  
@@ -11538,8 +11538,8 @@ Temperature zone data:
 * System codename: STAR_M6_89_SYSTEM
 * System translation name codename: NAME_STAR_M6_89_SYSTEM
 * System translation description codename: DESC_STAR_M6_89_SYSTEM
-* System zone size: 6.95e+12
-* System autopilot range: 6.95e+12
+* System zone size: 1.57e+12
+* System autopilot range: 1.57e+12
 ```
 
  </details>  
@@ -11633,8 +11633,8 @@ Temperature zone data:
 * System codename: STAR_K0_90_SYSTEM
 * System translation name codename: NAME_STAR_K0_90_SYSTEM
 * System translation description codename: DESC_STAR_K0_90_SYSTEM
-* System zone size: 1.08e+13
-* System autopilot range: 1.08e+13
+* System zone size: 3.19e+12
+* System autopilot range: 3.19e+12
 ```
 
  </details>  
@@ -11728,8 +11728,8 @@ Temperature zone data:
 * System codename: STAR_M3_91_SYSTEM
 * System translation name codename: NAME_STAR_M3_91_SYSTEM
 * System translation description codename: DESC_STAR_M3_91_SYSTEM
-* System zone size: 3.76e+12
-* System autopilot range: 3.76e+12
+* System zone size: 6.64e+11
+* System autopilot range: 6.64e+11
 ```
 
  </details>  
@@ -11823,8 +11823,8 @@ Temperature zone data:
 * System codename: STAR_K2_92_SYSTEM
 * System translation name codename: NAME_STAR_K2_92_SYSTEM
 * System translation description codename: DESC_STAR_K2_92_SYSTEM
-* System zone size: 1.29e+13
-* System autopilot range: 1.29e+13
+* System zone size: 4.66e+12
+* System autopilot range: 4.66e+12
 ```
 
  </details>  
@@ -11918,8 +11918,8 @@ Temperature zone data:
 * System codename: STAR_A2_93_SYSTEM
 * System translation name codename: NAME_STAR_A2_93_SYSTEM
 * System translation description codename: DESC_STAR_A2_93_SYSTEM
-* System zone size: 2.10e+13
-* System autopilot range: 2.10e+13
+* System zone size: 2.91e+13
+* System autopilot range: 2.91e+13
 ```
 
  </details>  
@@ -12163,8 +12163,8 @@ Temperature zone data:
 * System codename: STAR_K5_94_SYSTEM
 * System translation name codename: NAME_STAR_K5_94_SYSTEM
 * System translation description codename: DESC_STAR_K5_94_SYSTEM
-* System zone size: 1.20e+13
-* System autopilot range: 1.20e+13
+* System zone size: 5.30e+12
+* System autopilot range: 5.30e+12
 ```
 
  </details>  
@@ -12408,8 +12408,8 @@ Temperature zone data:
 * System codename: STAR_M1_95_SYSTEM
 * System translation name codename: NAME_STAR_M1_95_SYSTEM
 * System translation description codename: DESC_STAR_M1_95_SYSTEM
-* System zone size: 3.65e+12
-* System autopilot range: 3.65e+12
+* System zone size: 5.18e+11
+* System autopilot range: 5.18e+11
 ```
 
  </details>  
@@ -12503,8 +12503,8 @@ Temperature zone data:
 * System codename: STAR_M0_96_SYSTEM
 * System translation name codename: NAME_STAR_M0_96_SYSTEM
 * System translation description codename: DESC_STAR_M0_96_SYSTEM
-* System zone size: 4.50e+12
-* System autopilot range: 4.50e+12
+* System zone size: 5.54e+11
+* System autopilot range: 5.54e+11
 ```
 
  </details>  
@@ -12898,8 +12898,8 @@ Temperature zone data:
 * System codename: STAR_M4_97_SYSTEM
 * System translation name codename: NAME_STAR_M4_97_SYSTEM
 * System translation description codename: DESC_STAR_M4_97_SYSTEM
-* System zone size: 8.16e+12
-* System autopilot range: 8.16e+12
+* System zone size: 1.49e+12
+* System autopilot range: 1.49e+12
 ```
 
  </details>  
@@ -13068,8 +13068,8 @@ Temperature zone data:
 * System codename: STAR_G9_98_SYSTEM
 * System translation name codename: NAME_STAR_G9_98_SYSTEM
 * System translation description codename: DESC_STAR_G9_98_SYSTEM
-* System zone size: 1.36e+13
-* System autopilot range: 1.36e+13
+* System zone size: 1.02e+13
+* System autopilot range: 1.02e+13
 ```
 
  </details>  
@@ -13163,8 +13163,8 @@ Temperature zone data:
 * System codename: STAR_G0_99_SYSTEM
 * System translation name codename: NAME_STAR_G0_99_SYSTEM
 * System translation description codename: DESC_STAR_G0_99_SYSTEM
-* System zone size: 1.59e+13
-* System autopilot range: 1.59e+13
+* System zone size: 9.23e+12
+* System autopilot range: 9.23e+12
 ```
 
  </details>  
@@ -13258,8 +13258,8 @@ Temperature zone data:
 * System codename: STAR_M3_100_SYSTEM
 * System translation name codename: NAME_STAR_M3_100_SYSTEM
 * System translation description codename: DESC_STAR_M3_100_SYSTEM
-* System zone size: 6.07e+12
-* System autopilot range: 6.07e+12
+* System zone size: 9.98e+11
+* System autopilot range: 9.98e+11
 ```
 
  </details>  
@@ -13428,8 +13428,8 @@ Temperature zone data:
 * System codename: STAR_M7_101_SYSTEM
 * System translation name codename: NAME_STAR_M7_101_SYSTEM
 * System translation description codename: DESC_STAR_M7_101_SYSTEM
-* System zone size: 6.19e+12
-* System autopilot range: 6.19e+12
+* System zone size: 1.54e+12
+* System autopilot range: 1.54e+12
 ```
 
  </details>  
@@ -13823,8 +13823,8 @@ Temperature zone data:
 * System codename: STAR_O1_102_SYSTEM
 * System translation name codename: NAME_STAR_O1_102_SYSTEM
 * System translation description codename: DESC_STAR_O1_102_SYSTEM
-* System zone size: 1.00e+14
-* System autopilot range: 1.00e+14
+* System zone size: 3.90e+15
+* System autopilot range: 3.90e+15
 ```
 
  </details>  
@@ -14143,8 +14143,8 @@ Temperature zone data:
 * System codename: STAR_K5_103_SYSTEM
 * System translation name codename: NAME_STAR_K5_103_SYSTEM
 * System translation description codename: DESC_STAR_K5_103_SYSTEM
-* System zone size: 1.02e+13
-* System autopilot range: 1.02e+13
+* System zone size: 4.35e+12
+* System autopilot range: 4.35e+12
 ```
 
  </details>  
@@ -14238,8 +14238,8 @@ Temperature zone data:
 * System codename: STAR_M2_104_SYSTEM
 * System translation name codename: NAME_STAR_M2_104_SYSTEM
 * System translation description codename: DESC_STAR_M2_104_SYSTEM
-* System zone size: 2.85e+12
-* System autopilot range: 2.85e+12
+* System zone size: 4.67e+11
+* System autopilot range: 4.67e+11
 ```
 
  </details>  
@@ -14408,8 +14408,8 @@ Temperature zone data:
 * System codename: STAR_F9_105_SYSTEM
 * System translation name codename: NAME_STAR_F9_105_SYSTEM
 * System translation description codename: DESC_STAR_F9_105_SYSTEM
-* System zone size: 1.75e+13
-* System autopilot range: 1.75e+13
+* System zone size: 2.03e+13
+* System autopilot range: 2.03e+13
 ```
 
  </details>  
@@ -14503,8 +14503,8 @@ Temperature zone data:
 * System codename: STAR_M3_106_SYSTEM
 * System translation name codename: NAME_STAR_M3_106_SYSTEM
 * System translation description codename: DESC_STAR_M3_106_SYSTEM
-* System zone size: 6.20e+12
-* System autopilot range: 6.20e+12
+* System zone size: 1.04e+12
+* System autopilot range: 1.04e+12
 ```
 
  </details>  
@@ -14598,8 +14598,8 @@ Temperature zone data:
 * System codename: STAR_M9_107_SYSTEM
 * System translation name codename: NAME_STAR_M9_107_SYSTEM
 * System translation description codename: DESC_STAR_M9_107_SYSTEM
-* System zone size: 8.20e+12
-* System autopilot range: 8.20e+12
+* System zone size: 2.29e+12
+* System autopilot range: 2.29e+12
 ```
 
  </details>  
@@ -14768,8 +14768,8 @@ Temperature zone data:
 * System codename: STAR_M6_108_SYSTEM
 * System translation name codename: NAME_STAR_M6_108_SYSTEM
 * System translation description codename: DESC_STAR_M6_108_SYSTEM
-* System zone size: 4.21e+12
-* System autopilot range: 4.21e+12
+* System zone size: 9.57e+11
+* System autopilot range: 9.57e+11
 ```
 
  </details>  
@@ -14863,8 +14863,8 @@ Temperature zone data:
 * System codename: STAR_K0_109_SYSTEM
 * System translation name codename: NAME_STAR_K0_109_SYSTEM
 * System translation description codename: DESC_STAR_K0_109_SYSTEM
-* System zone size: 1.29e+13
-* System autopilot range: 1.29e+13
+* System zone size: 4.01e+12
+* System autopilot range: 4.01e+12
 ```
 
  </details>  
@@ -14958,8 +14958,8 @@ Temperature zone data:
 * System codename: STAR_M2_110_SYSTEM
 * System translation name codename: NAME_STAR_M2_110_SYSTEM
 * System translation description codename: DESC_STAR_M2_110_SYSTEM
-* System zone size: 2.83e+12
-* System autopilot range: 2.83e+12
+* System zone size: 4.62e+11
+* System autopilot range: 4.62e+11
 ```
 
  </details>  
@@ -15053,8 +15053,8 @@ Temperature zone data:
 * System codename: STAR_K0_111_SYSTEM
 * System translation name codename: NAME_STAR_K0_111_SYSTEM
 * System translation description codename: DESC_STAR_K0_111_SYSTEM
-* System zone size: 1.26e+13
-* System autopilot range: 1.26e+13
+* System zone size: 3.68e+12
+* System autopilot range: 3.68e+12
 ```
 
  </details>  
@@ -15148,8 +15148,8 @@ Temperature zone data:
 * System codename: STAR_M0_112_SYSTEM
 * System translation name codename: NAME_STAR_M0_112_SYSTEM
 * System translation description codename: DESC_STAR_M0_112_SYSTEM
-* System zone size: 9.07e+12
-* System autopilot range: 9.07e+12
+* System zone size: 1.13e+12
+* System autopilot range: 1.13e+12
 ```
 
  </details>  
@@ -15243,8 +15243,8 @@ Temperature zone data:
 * System codename: STAR_M7_113_SYSTEM
 * System translation name codename: NAME_STAR_M7_113_SYSTEM
 * System translation description codename: DESC_STAR_M7_113_SYSTEM
-* System zone size: 6.50e+12
-* System autopilot range: 6.50e+12
+* System zone size: 1.55e+12
+* System autopilot range: 1.55e+12
 ```
 
  </details>  
@@ -15638,8 +15638,8 @@ Temperature zone data:
 * System codename: STAR_M0_114_SYSTEM
 * System translation name codename: NAME_STAR_M0_114_SYSTEM
 * System translation description codename: DESC_STAR_M0_114_SYSTEM
-* System zone size: 3.19e+12
-* System autopilot range: 3.19e+12
+* System zone size: 4.17e+11
+* System autopilot range: 4.17e+11
 ```
 
  </details>  
@@ -15733,8 +15733,8 @@ Temperature zone data:
 * System codename: STAR_M7_115_SYSTEM
 * System translation name codename: NAME_STAR_M7_115_SYSTEM
 * System translation description codename: DESC_STAR_M7_115_SYSTEM
-* System zone size: 1.75e+12
-* System autopilot range: 1.75e+12
+* System zone size: 4.21e+11
+* System autopilot range: 4.21e+11
 ```
 
  </details>  
@@ -15828,8 +15828,8 @@ Temperature zone data:
 * System codename: STAR_M9_116_SYSTEM
 * System translation name codename: NAME_STAR_M9_116_SYSTEM
 * System translation description codename: DESC_STAR_M9_116_SYSTEM
-* System zone size: 4.04e+12
-* System autopilot range: 4.04e+12
+* System zone size: 1.14e+12
+* System autopilot range: 1.14e+12
 ```
 
  </details>  
@@ -15923,8 +15923,8 @@ Temperature zone data:
 * System codename: STAR_M8_117_SYSTEM
 * System translation name codename: NAME_STAR_M8_117_SYSTEM
 * System translation description codename: DESC_STAR_M8_117_SYSTEM
-* System zone size: 7.29e+12
-* System autopilot range: 7.29e+12
+* System zone size: 1.90e+12
+* System autopilot range: 1.90e+12
 ```
 
  </details>  
@@ -16018,8 +16018,8 @@ Temperature zone data:
 * System codename: STAR_M8_118_SYSTEM
 * System translation name codename: NAME_STAR_M8_118_SYSTEM
 * System translation description codename: DESC_STAR_M8_118_SYSTEM
-* System zone size: 7.39e+12
-* System autopilot range: 7.39e+12
+* System zone size: 1.96e+12
+* System autopilot range: 1.96e+12
 ```
 
  </details>  
@@ -16413,8 +16413,8 @@ Temperature zone data:
 * System codename: STAR_K7_119_SYSTEM
 * System translation name codename: NAME_STAR_K7_119_SYSTEM
 * System translation description codename: DESC_STAR_K7_119_SYSTEM
-* System zone size: 1.11e+13
-* System autopilot range: 1.11e+13
+* System zone size: 5.47e+12
+* System autopilot range: 5.47e+12
 ```
 
  </details>  
@@ -16508,8 +16508,8 @@ Temperature zone data:
 * System codename: STAR_M2_120_SYSTEM
 * System translation name codename: NAME_STAR_M2_120_SYSTEM
 * System translation description codename: DESC_STAR_M2_120_SYSTEM
-* System zone size: 3.58e+12
-* System autopilot range: 3.58e+12
+* System zone size: 5.73e+11
+* System autopilot range: 5.73e+11
 ```
 
  </details>  
@@ -16603,8 +16603,8 @@ Temperature zone data:
 * System codename: STAR_K8_121_SYSTEM
 * System translation name codename: NAME_STAR_K8_121_SYSTEM
 * System translation description codename: DESC_STAR_K8_121_SYSTEM
-* System zone size: 1.22e+13
-* System autopilot range: 1.22e+13
+* System zone size: 6.28e+12
+* System autopilot range: 6.28e+12
 ```
 
  </details>  
@@ -16698,8 +16698,8 @@ Temperature zone data:
 * System codename: STAR_K6_122_SYSTEM
 * System translation name codename: NAME_STAR_K6_122_SYSTEM
 * System translation description codename: DESC_STAR_K6_122_SYSTEM
-* System zone size: 1.33e+13
-* System autopilot range: 1.33e+13
+* System zone size: 6.32e+12
+* System autopilot range: 6.32e+12
 ```
 
  </details>  
@@ -16793,8 +16793,8 @@ Temperature zone data:
 * System codename: STAR_A1_123_SYSTEM
 * System translation name codename: NAME_STAR_A1_123_SYSTEM
 * System translation description codename: DESC_STAR_A1_123_SYSTEM
-* System zone size: 2.36e+13
-* System autopilot range: 2.36e+13
+* System zone size: 3.05e+13
+* System autopilot range: 3.05e+13
 ```
 
  </details>  
@@ -16888,8 +16888,8 @@ Temperature zone data:
 * System codename: STAR_M8_124_SYSTEM
 * System translation name codename: NAME_STAR_M8_124_SYSTEM
 * System translation description codename: DESC_STAR_M8_124_SYSTEM
-* System zone size: 5.70e+12
-* System autopilot range: 5.70e+12
+* System zone size: 1.44e+12
+* System autopilot range: 1.44e+12
 ```
 
  </details>  
@@ -16983,8 +16983,8 @@ Temperature zone data:
 * System codename: STAR_M4_125_SYSTEM
 * System translation name codename: NAME_STAR_M4_125_SYSTEM
 * System translation description codename: DESC_STAR_M4_125_SYSTEM
-* System zone size: 1.44e+12
-* System autopilot range: 1.44e+12
+* System zone size: 2.79e+11
+* System autopilot range: 2.79e+11
 ```
 
  </details>  
@@ -17078,8 +17078,8 @@ Temperature zone data:
 * System codename: STAR_B3_126_SYSTEM
 * System translation name codename: NAME_STAR_B3_126_SYSTEM
 * System translation description codename: DESC_STAR_B3_126_SYSTEM
-* System zone size: 8.48e+13
-* System autopilot range: 8.48e+13
+* System zone size: 5.07e+14
+* System autopilot range: 5.07e+14
 ```
 
  </details>  
@@ -17173,8 +17173,8 @@ Temperature zone data:
 * System codename: STAR_F9_127_SYSTEM
 * System translation name codename: NAME_STAR_F9_127_SYSTEM
 * System translation description codename: DESC_STAR_F9_127_SYSTEM
-* System zone size: 1.86e+13
-* System autopilot range: 1.86e+13
+* System zone size: 2.15e+13
+* System autopilot range: 2.15e+13
 ```
 
  </details>  
@@ -17268,8 +17268,8 @@ Temperature zone data:
 * System codename: STAR_M2_128_SYSTEM
 * System translation name codename: NAME_STAR_M2_128_SYSTEM
 * System translation description codename: DESC_STAR_M2_128_SYSTEM
-* System zone size: 9.14e+12
-* System autopilot range: 9.14e+12
+* System zone size: 1.44e+12
+* System autopilot range: 1.44e+12
 ```
 
  </details>  
@@ -17513,8 +17513,8 @@ Temperature zone data:
 * System codename: STAR_M9_129_SYSTEM
 * System translation name codename: NAME_STAR_M9_129_SYSTEM
 * System translation description codename: DESC_STAR_M9_129_SYSTEM
-* System zone size: 7.64e+12
-* System autopilot range: 7.64e+12
+* System zone size: 2.19e+12
+* System autopilot range: 2.19e+12
 ```
 
  </details>  
@@ -17608,8 +17608,8 @@ Temperature zone data:
 * System codename: STAR_F1_130_SYSTEM
 * System translation name codename: NAME_STAR_F1_130_SYSTEM
 * System translation description codename: DESC_STAR_F1_130_SYSTEM
-* System zone size: 1.79e+13
-* System autopilot range: 1.79e+13
+* System zone size: 1.44e+13
+* System autopilot range: 1.44e+13
 ```
 
  </details>  
@@ -17703,8 +17703,8 @@ Temperature zone data:
 * System codename: STAR_O0_131_SYSTEM
 * System translation name codename: NAME_STAR_O0_131_SYSTEM
 * System translation description codename: DESC_STAR_O0_131_SYSTEM
-* System zone size: 1.28e+14
-* System autopilot range: 1.28e+14
+* System zone size: 2.46e+15
+* System autopilot range: 2.46e+15
 ```
 
  </details>  
@@ -17798,8 +17798,8 @@ Temperature zone data:
 * System codename: STAR_G3_132_SYSTEM
 * System translation name codename: NAME_STAR_G3_132_SYSTEM
 * System translation description codename: DESC_STAR_G3_132_SYSTEM
-* System zone size: 1.48e+13
-* System autopilot range: 1.48e+13
+* System zone size: 9.23e+12
+* System autopilot range: 9.23e+12
 ```
 
  </details>  
@@ -17893,8 +17893,8 @@ Temperature zone data:
 * System codename: STAR_M9_133_SYSTEM
 * System translation name codename: NAME_STAR_M9_133_SYSTEM
 * System translation description codename: DESC_STAR_M9_133_SYSTEM
-* System zone size: 2.74e+12
-* System autopilot range: 2.74e+12
+* System zone size: 7.50e+11
+* System autopilot range: 7.50e+11
 ```
 
  </details>  
@@ -18063,8 +18063,8 @@ Temperature zone data:
 * System codename: STAR_K0_134_SYSTEM
 * System translation name codename: NAME_STAR_K0_134_SYSTEM
 * System translation description codename: DESC_STAR_K0_134_SYSTEM
-* System zone size: 1.33e+13
-* System autopilot range: 1.33e+13
+* System zone size: 3.87e+12
+* System autopilot range: 3.87e+12
 ```
 
  </details>  
@@ -18158,8 +18158,8 @@ Temperature zone data:
 * System codename: STAR_M3_135_SYSTEM
 * System translation name codename: NAME_STAR_M3_135_SYSTEM
 * System translation description codename: DESC_STAR_M3_135_SYSTEM
-* System zone size: 8.66e+12
-* System autopilot range: 8.66e+12
+* System zone size: 1.43e+12
+* System autopilot range: 1.43e+12
 ```
 
  </details>  
@@ -18253,8 +18253,8 @@ Temperature zone data:
 * System codename: STAR_M1_136_SYSTEM
 * System translation name codename: NAME_STAR_M1_136_SYSTEM
 * System translation description codename: DESC_STAR_M1_136_SYSTEM
-* System zone size: 5.53e+12
-* System autopilot range: 5.53e+12
+* System zone size: 8.12e+11
+* System autopilot range: 8.12e+11
 ```
 
  </details>  
@@ -18423,8 +18423,8 @@ Temperature zone data:
 * System codename: STAR_A2_137_SYSTEM
 * System translation name codename: NAME_STAR_A2_137_SYSTEM
 * System translation description codename: DESC_STAR_A2_137_SYSTEM
-* System zone size: 2.29e+13
-* System autopilot range: 2.29e+13
+* System zone size: 3.29e+13
+* System autopilot range: 3.29e+13
 ```
 
  </details>  
@@ -18743,8 +18743,8 @@ Temperature zone data:
 * System codename: STAR_G6_138_SYSTEM
 * System translation name codename: NAME_STAR_G6_138_SYSTEM
 * System translation description codename: DESC_STAR_G6_138_SYSTEM
-* System zone size: 1.52e+13
-* System autopilot range: 1.52e+13
+* System zone size: 1.05e+13
+* System autopilot range: 1.05e+13
 ```
 
  </details>  
@@ -18913,8 +18913,8 @@ Temperature zone data:
 * System codename: STAR_F9_139_SYSTEM
 * System translation name codename: NAME_STAR_F9_139_SYSTEM
 * System translation description codename: DESC_STAR_F9_139_SYSTEM
-* System zone size: 1.78e+13
-* System autopilot range: 1.78e+13
+* System zone size: 2.04e+13
+* System autopilot range: 2.04e+13
 ```
 
  </details>  
@@ -19008,8 +19008,8 @@ Temperature zone data:
 * System codename: STAR_K1_140_SYSTEM
 * System translation name codename: NAME_STAR_K1_140_SYSTEM
 * System translation description codename: DESC_STAR_K1_140_SYSTEM
-* System zone size: 9.83e+12
-* System autopilot range: 9.83e+12
+* System zone size: 3.08e+12
+* System autopilot range: 3.08e+12
 ```
 
  </details>  
@@ -19103,8 +19103,8 @@ Temperature zone data:
 * System codename: STAR_M9_141_SYSTEM
 * System translation name codename: NAME_STAR_M9_141_SYSTEM
 * System translation description codename: DESC_STAR_M9_141_SYSTEM
-* System zone size: 5.23e+12
-* System autopilot range: 5.23e+12
+* System zone size: 1.45e+12
+* System autopilot range: 1.45e+12
 ```
 
  </details>  
@@ -19198,8 +19198,8 @@ Temperature zone data:
 * System codename: STAR_M3_142_SYSTEM
 * System translation name codename: NAME_STAR_M3_142_SYSTEM
 * System translation description codename: DESC_STAR_M3_142_SYSTEM
-* System zone size: 2.70e+12
-* System autopilot range: 2.70e+12
+* System zone size: 4.80e+11
+* System autopilot range: 4.80e+11
 ```
 
  </details>  
@@ -19293,8 +19293,8 @@ Temperature zone data:
 * System codename: STAR_M6_143_SYSTEM
 * System translation name codename: NAME_STAR_M6_143_SYSTEM
 * System translation description codename: DESC_STAR_M6_143_SYSTEM
-* System zone size: 1.85e+12
-* System autopilot range: 1.85e+12
+* System zone size: 4.21e+11
+* System autopilot range: 4.21e+11
 ```
 
  </details>  
@@ -19388,8 +19388,8 @@ Temperature zone data:
 * System codename: STAR_G9_144_SYSTEM
 * System translation name codename: NAME_STAR_G9_144_SYSTEM
 * System translation description codename: DESC_STAR_G9_144_SYSTEM
-* System zone size: 1.41e+13
-* System autopilot range: 1.41e+13
+* System zone size: 1.05e+13
+* System autopilot range: 1.05e+13
 ```
 
  </details>  
@@ -19483,8 +19483,8 @@ Temperature zone data:
 * System codename: STAR_M7_145_SYSTEM
 * System translation name codename: NAME_STAR_M7_145_SYSTEM
 * System translation description codename: DESC_STAR_M7_145_SYSTEM
-* System zone size: 9.34e+12
-* System autopilot range: 9.34e+12
+* System zone size: 2.19e+12
+* System autopilot range: 2.19e+12
 ```
 
  </details>  
@@ -19578,8 +19578,8 @@ Temperature zone data:
 * System codename: STAR_F2_146_SYSTEM
 * System translation name codename: NAME_STAR_F2_146_SYSTEM
 * System translation description codename: DESC_STAR_F2_146_SYSTEM
-* System zone size: 1.85e+13
-* System autopilot range: 1.85e+13
+* System zone size: 1.57e+13
+* System autopilot range: 1.57e+13
 ```
 
  </details>  
@@ -19673,8 +19673,8 @@ Temperature zone data:
 * System codename: STAR_F2_147_SYSTEM
 * System translation name codename: NAME_STAR_F2_147_SYSTEM
 * System translation description codename: DESC_STAR_F2_147_SYSTEM
-* System zone size: 1.64e+13
-* System autopilot range: 1.64e+13
+* System zone size: 1.38e+13
+* System autopilot range: 1.38e+13
 ```
 
  </details>  
@@ -19768,8 +19768,8 @@ Temperature zone data:
 * System codename: STAR_K8_148_SYSTEM
 * System translation name codename: NAME_STAR_K8_148_SYSTEM
 * System translation description codename: DESC_STAR_K8_148_SYSTEM
-* System zone size: 1.02e+13
-* System autopilot range: 1.02e+13
+* System zone size: 5.44e+12
+* System autopilot range: 5.44e+12
 ```
 
  </details>  
@@ -19863,8 +19863,8 @@ Temperature zone data:
 * System codename: STAR_M2_149_SYSTEM
 * System translation name codename: NAME_STAR_M2_149_SYSTEM
 * System translation description codename: DESC_STAR_M2_149_SYSTEM
-* System zone size: 3.79e+12
-* System autopilot range: 3.79e+12
+* System zone size: 6.10e+11
+* System autopilot range: 6.10e+11
 ```
 
  </details>  
@@ -19958,8 +19958,8 @@ Temperature zone data:
 * System codename: STAR_M3_150_SYSTEM
 * System translation name codename: NAME_STAR_M3_150_SYSTEM
 * System translation description codename: DESC_STAR_M3_150_SYSTEM
-* System zone size: 4.87e+12
-* System autopilot range: 4.87e+12
+* System zone size: 8.37e+11
+* System autopilot range: 8.37e+11
 ```
 
  </details>  
@@ -20128,8 +20128,8 @@ Temperature zone data:
 * System codename: STAR_K2_151_SYSTEM
 * System translation name codename: NAME_STAR_K2_151_SYSTEM
 * System translation description codename: DESC_STAR_K2_151_SYSTEM
-* System zone size: 1.10e+13
-* System autopilot range: 1.10e+13
+* System zone size: 3.99e+12
+* System autopilot range: 3.99e+12
 ```
 
  </details>  
@@ -20223,8 +20223,8 @@ Temperature zone data:
 * System codename: STAR_F6_152_SYSTEM
 * System translation name codename: NAME_STAR_F6_152_SYSTEM
 * System translation description codename: DESC_STAR_F6_152_SYSTEM
-* System zone size: 1.73e+13
-* System autopilot range: 1.73e+13
+* System zone size: 1.80e+13
+* System autopilot range: 1.80e+13
 ```
 
  </details>  
@@ -20318,8 +20318,8 @@ Temperature zone data:
 * System codename: STAR_M0_153_SYSTEM
 * System translation name codename: NAME_STAR_M0_153_SYSTEM
 * System translation description codename: DESC_STAR_M0_153_SYSTEM
-* System zone size: 6.65e+12
-* System autopilot range: 6.65e+12
+* System zone size: 8.89e+11
+* System autopilot range: 8.89e+11
 ```
 
  </details>  
@@ -20413,8 +20413,8 @@ Temperature zone data:
 * System codename: STAR_M4_154_SYSTEM
 * System translation name codename: NAME_STAR_M4_154_SYSTEM
 * System translation description codename: DESC_STAR_M4_154_SYSTEM
-* System zone size: 2.78e+12
-* System autopilot range: 2.78e+12
+* System zone size: 5.24e+11
+* System autopilot range: 5.24e+11
 ```
 
  </details>  
@@ -20508,8 +20508,8 @@ Temperature zone data:
 * System codename: STAR_M7_155_SYSTEM
 * System translation name codename: NAME_STAR_M7_155_SYSTEM
 * System translation description codename: DESC_STAR_M7_155_SYSTEM
-* System zone size: 4.90e+12
-* System autopilot range: 4.90e+12
+* System zone size: 1.14e+12
+* System autopilot range: 1.14e+12
 ```
 
  </details>  
@@ -20678,8 +20678,8 @@ Temperature zone data:
 * System codename: STAR_B0_156_SYSTEM
 * System translation name codename: NAME_STAR_B0_156_SYSTEM
 * System translation description codename: DESC_STAR_B0_156_SYSTEM
-* System zone size: 7.86e+13
-* System autopilot range: 7.86e+13
+* System zone size: 2.33e+14
+* System autopilot range: 2.33e+14
 ```
 
  </details>  
@@ -20773,8 +20773,8 @@ Temperature zone data:
 * System codename: STAR_M6_157_SYSTEM
 * System translation name codename: NAME_STAR_M6_157_SYSTEM
 * System translation description codename: DESC_STAR_M6_157_SYSTEM
-* System zone size: 9.71e+12
-* System autopilot range: 9.71e+12
+* System zone size: 2.12e+12
+* System autopilot range: 2.12e+12
 ```
 
  </details>  
@@ -20868,8 +20868,8 @@ Temperature zone data:
 * System codename: STAR_M7_158_SYSTEM
 * System translation name codename: NAME_STAR_M7_158_SYSTEM
 * System translation description codename: DESC_STAR_M7_158_SYSTEM
-* System zone size: 4.28e+12
-* System autopilot range: 4.28e+12
+* System zone size: 1.01e+12
+* System autopilot range: 1.01e+12
 ```
 
  </details>  
@@ -21188,8 +21188,8 @@ Temperature zone data:
 * System codename: STAR_A4_159_SYSTEM
 * System translation name codename: NAME_STAR_A4_159_SYSTEM
 * System translation description codename: DESC_STAR_A4_159_SYSTEM
-* System zone size: 1.97e+13
-* System autopilot range: 1.97e+13
+* System zone size: 3.14e+13
+* System autopilot range: 3.14e+13
 ```
 
  </details>  
@@ -21283,8 +21283,8 @@ Temperature zone data:
 * System codename: STAR_M9_160_SYSTEM
 * System translation name codename: NAME_STAR_M9_160_SYSTEM
 * System translation description codename: DESC_STAR_M9_160_SYSTEM
-* System zone size: 5.74e+12
-* System autopilot range: 5.74e+12
+* System zone size: 1.55e+12
+* System autopilot range: 1.55e+12
 ```
 
  </details>  
@@ -21378,8 +21378,8 @@ Temperature zone data:
 * System codename: STAR_K2_161_SYSTEM
 * System translation name codename: NAME_STAR_K2_161_SYSTEM
 * System translation description codename: DESC_STAR_K2_161_SYSTEM
-* System zone size: 1.25e+13
-* System autopilot range: 1.25e+13
+* System zone size: 4.37e+12
+* System autopilot range: 4.37e+12
 ```
 
  </details>  
@@ -21473,8 +21473,8 @@ Temperature zone data:
 * System codename: STAR_M1_162_SYSTEM
 * System translation name codename: NAME_STAR_M1_162_SYSTEM
 * System translation description codename: DESC_STAR_M1_162_SYSTEM
-* System zone size: 5.95e+12
-* System autopilot range: 5.95e+12
+* System zone size: 8.34e+11
+* System autopilot range: 8.34e+11
 ```
 
  </details>  
@@ -21718,8 +21718,8 @@ Temperature zone data:
 * System codename: STAR_M1_163_SYSTEM
 * System translation name codename: NAME_STAR_M1_163_SYSTEM
 * System translation description codename: DESC_STAR_M1_163_SYSTEM
-* System zone size: 4.89e+12
-* System autopilot range: 4.89e+12
+* System zone size: 7.22e+11
+* System autopilot range: 7.22e+11
 ```
 
  </details>  
@@ -21963,8 +21963,8 @@ Temperature zone data:
 * System codename: STAR_M8_164_SYSTEM
 * System translation name codename: NAME_STAR_M8_164_SYSTEM
 * System translation description codename: DESC_STAR_M8_164_SYSTEM
-* System zone size: 8.51e+12
-* System autopilot range: 8.51e+12
+* System zone size: 2.18e+12
+* System autopilot range: 2.18e+12
 ```
 
  </details>  
@@ -22133,8 +22133,8 @@ Temperature zone data:
 * System codename: STAR_K7_165_SYSTEM
 * System translation name codename: NAME_STAR_K7_165_SYSTEM
 * System translation description codename: DESC_STAR_K7_165_SYSTEM
-* System zone size: 1.11e+13
-* System autopilot range: 1.11e+13
+* System zone size: 5.62e+12
+* System autopilot range: 5.62e+12
 ```
 
  </details>  
@@ -22303,8 +22303,8 @@ Temperature zone data:
 * System codename: STAR_M8_166_SYSTEM
 * System translation name codename: NAME_STAR_M8_166_SYSTEM
 * System translation description codename: DESC_STAR_M8_166_SYSTEM
-* System zone size: 2.40e+12
-* System autopilot range: 2.40e+12
+* System zone size: 6.04e+11
+* System autopilot range: 6.04e+11
 ```
 
  </details>  
@@ -22473,8 +22473,8 @@ Temperature zone data:
 * System codename: STAR_K9_167_SYSTEM
 * System translation name codename: NAME_STAR_K9_167_SYSTEM
 * System translation description codename: DESC_STAR_K9_167_SYSTEM
-* System zone size: 1.24e+13
-* System autopilot range: 1.24e+13
+* System zone size: 6.87e+12
+* System autopilot range: 6.87e+12
 ```
 
  </details>  
@@ -22568,8 +22568,8 @@ Temperature zone data:
 * System codename: STAR_M2_168_SYSTEM
 * System translation name codename: NAME_STAR_M2_168_SYSTEM
 * System translation description codename: DESC_STAR_M2_168_SYSTEM
-* System zone size: 2.34e+12
-* System autopilot range: 2.34e+12
+* System zone size: 3.51e+11
+* System autopilot range: 3.51e+11
 ```
 
  </details>  
@@ -22663,8 +22663,8 @@ Temperature zone data:
 * System codename: STAR_M0_169_SYSTEM
 * System translation name codename: NAME_STAR_M0_169_SYSTEM
 * System translation description codename: DESC_STAR_M0_169_SYSTEM
-* System zone size: 7.17e+12
-* System autopilot range: 7.17e+12
+* System zone size: 9.62e+11
+* System autopilot range: 9.62e+11
 ```
 
  </details>  
@@ -22833,8 +22833,8 @@ Temperature zone data:
 * System codename: STAR_M7_170_SYSTEM
 * System translation name codename: NAME_STAR_M7_170_SYSTEM
 * System translation description codename: DESC_STAR_M7_170_SYSTEM
-* System zone size: 6.38e+12
-* System autopilot range: 6.38e+12
+* System zone size: 1.56e+12
+* System autopilot range: 1.56e+12
 ```
 
  </details>  
@@ -22928,8 +22928,8 @@ Temperature zone data:
 * System codename: STAR_M9_171_SYSTEM
 * System translation name codename: NAME_STAR_M9_171_SYSTEM
 * System translation description codename: DESC_STAR_M9_171_SYSTEM
-* System zone size: 3.56e+12
-* System autopilot range: 3.56e+12
+* System zone size: 9.57e+11
+* System autopilot range: 9.57e+11
 ```
 
  </details>  
@@ -23023,8 +23023,8 @@ Temperature zone data:
 * System codename: STAR_O6_172_SYSTEM
 * System translation name codename: NAME_STAR_O6_172_SYSTEM
 * System translation description codename: DESC_STAR_O6_172_SYSTEM
-* System zone size: 1.15e+14
-* System autopilot range: 1.15e+14
+* System zone size: 1.48e+16
+* System autopilot range: 1.48e+16
 ```
 
  </details>  
@@ -23118,8 +23118,8 @@ Temperature zone data:
 * System codename: STAR_A1_173_SYSTEM
 * System translation name codename: NAME_STAR_A1_173_SYSTEM
 * System translation description codename: DESC_STAR_A1_173_SYSTEM
-* System zone size: 2.20e+13
-* System autopilot range: 2.20e+13
+* System zone size: 2.97e+13
+* System autopilot range: 2.97e+13
 ```
 
  </details>  
@@ -23213,8 +23213,8 @@ Temperature zone data:
 * System codename: STAR_K9_174_SYSTEM
 * System translation name codename: NAME_STAR_K9_174_SYSTEM
 * System translation description codename: DESC_STAR_K9_174_SYSTEM
-* System zone size: 1.19e+13
-* System autopilot range: 1.19e+13
+* System zone size: 6.51e+12
+* System autopilot range: 6.51e+12
 ```
 
  </details>  
@@ -23308,8 +23308,8 @@ Temperature zone data:
 * System codename: STAR_K4_175_SYSTEM
 * System translation name codename: NAME_STAR_K4_175_SYSTEM
 * System translation description codename: DESC_STAR_K4_175_SYSTEM
-* System zone size: 1.29e+13
-* System autopilot range: 1.29e+13
+* System zone size: 5.08e+12
+* System autopilot range: 5.08e+12
 ```
 
  </details>  
@@ -23703,8 +23703,8 @@ Temperature zone data:
 * System codename: STAR_M8_176_SYSTEM
 * System translation name codename: NAME_STAR_M8_176_SYSTEM
 * System translation description codename: DESC_STAR_M8_176_SYSTEM
-* System zone size: 4.52e+12
-* System autopilot range: 4.52e+12
+* System zone size: 1.15e+12
+* System autopilot range: 1.15e+12
 ```
 
  </details>  
@@ -23798,8 +23798,8 @@ Temperature zone data:
 * System codename: STAR_M8_177_SYSTEM
 * System translation name codename: NAME_STAR_M8_177_SYSTEM
 * System translation description codename: DESC_STAR_M8_177_SYSTEM
-* System zone size: 5.35e+12
-* System autopilot range: 5.35e+12
+* System zone size: 1.38e+12
+* System autopilot range: 1.38e+12
 ```
 
  </details>  
@@ -23893,8 +23893,8 @@ Temperature zone data:
 * System codename: STAR_F4_178_SYSTEM
 * System translation name codename: NAME_STAR_F4_178_SYSTEM
 * System translation description codename: DESC_STAR_F4_178_SYSTEM
-* System zone size: 1.68e+13
-* System autopilot range: 1.68e+13
+* System zone size: 1.59e+13
+* System autopilot range: 1.59e+13
 ```
 
  </details>  
@@ -23988,8 +23988,8 @@ Temperature zone data:
 * System codename: STAR_O5_179_SYSTEM
 * System translation name codename: NAME_STAR_O5_179_SYSTEM
 * System translation description codename: DESC_STAR_O5_179_SYSTEM
-* System zone size: 1.22e+14
-* System autopilot range: 1.22e+14
+* System zone size: 1.10e+16
+* System autopilot range: 1.10e+16
 ```
 
  </details>  
@@ -24083,8 +24083,8 @@ Temperature zone data:
 * System codename: STAR_F0_180_SYSTEM
 * System translation name codename: NAME_STAR_F0_180_SYSTEM
 * System translation description codename: DESC_STAR_F0_180_SYSTEM
-* System zone size: 1.69e+13
-* System autopilot range: 1.69e+13
+* System zone size: 1.32e+13
+* System autopilot range: 1.32e+13
 ```
 
  </details>  
@@ -24178,8 +24178,8 @@ Temperature zone data:
 * System codename: STAR_M9_181_SYSTEM
 * System translation name codename: NAME_STAR_M9_181_SYSTEM
 * System translation description codename: DESC_STAR_M9_181_SYSTEM
-* System zone size: 2.86e+12
-* System autopilot range: 2.86e+12
+* System zone size: 8.15e+11
+* System autopilot range: 8.15e+11
 ```
 
  </details>  
@@ -24573,8 +24573,8 @@ Temperature zone data:
 * System codename: STAR_K2_182_SYSTEM
 * System translation name codename: NAME_STAR_K2_182_SYSTEM
 * System translation description codename: DESC_STAR_K2_182_SYSTEM
-* System zone size: 1.25e+13
-* System autopilot range: 1.25e+13
+* System zone size: 4.36e+12
+* System autopilot range: 4.36e+12
 ```
 
  </details>  
@@ -24668,8 +24668,8 @@ Temperature zone data:
 * System codename: STAR_A7_183_SYSTEM
 * System translation name codename: NAME_STAR_A7_183_SYSTEM
 * System translation description codename: DESC_STAR_A7_183_SYSTEM
-* System zone size: 2.30e+13
-* System autopilot range: 2.30e+13
+* System zone size: 4.16e+13
+* System autopilot range: 4.16e+13
 ```
 
  </details>  
@@ -24763,8 +24763,8 @@ Temperature zone data:
 * System codename: STAR_K0_184_SYSTEM
 * System translation name codename: NAME_STAR_K0_184_SYSTEM
 * System translation description codename: DESC_STAR_K0_184_SYSTEM
-* System zone size: 1.06e+13
-* System autopilot range: 1.06e+13
+* System zone size: 3.08e+12
+* System autopilot range: 3.08e+12
 ```
 
  </details>  
@@ -24858,8 +24858,8 @@ Temperature zone data:
 * System codename: STAR_M2_185_SYSTEM
 * System translation name codename: NAME_STAR_M2_185_SYSTEM
 * System translation description codename: DESC_STAR_M2_185_SYSTEM
-* System zone size: 9.07e+12
-* System autopilot range: 9.07e+12
+* System zone size: 1.40e+12
+* System autopilot range: 1.40e+12
 ```
 
  </details>  
@@ -25028,8 +25028,8 @@ Temperature zone data:
 * System codename: STAR_G2_186_SYSTEM
 * System translation name codename: NAME_STAR_G2_186_SYSTEM
 * System translation description codename: DESC_STAR_G2_186_SYSTEM
-* System zone size: 1.37e+13
-* System autopilot range: 1.37e+13
+* System zone size: 8.50e+12
+* System autopilot range: 8.50e+12
 ```
 
  </details>  
@@ -25123,8 +25123,8 @@ Temperature zone data:
 * System codename: STAR_G7_187_SYSTEM
 * System translation name codename: NAME_STAR_G7_187_SYSTEM
 * System translation description codename: DESC_STAR_G7_187_SYSTEM
-* System zone size: 1.56e+13
-* System autopilot range: 1.56e+13
+* System zone size: 1.10e+13
+* System autopilot range: 1.10e+13
 ```
 
  </details>  
@@ -25218,8 +25218,8 @@ Temperature zone data:
 * System codename: STAR_M3_188_SYSTEM
 * System translation name codename: NAME_STAR_M3_188_SYSTEM
 * System translation description codename: DESC_STAR_M3_188_SYSTEM
-* System zone size: 2.47e+12
-* System autopilot range: 2.47e+12
+* System zone size: 4.14e+11
+* System autopilot range: 4.14e+11
 ```
 
  </details>  
@@ -25388,8 +25388,8 @@ Temperature zone data:
 * System codename: STAR_M4_189_SYSTEM
 * System translation name codename: NAME_STAR_M4_189_SYSTEM
 * System translation description codename: DESC_STAR_M4_189_SYSTEM
-* System zone size: 2.02e+12
-* System autopilot range: 2.02e+12
+* System zone size: 3.65e+11
+* System autopilot range: 3.65e+11
 ```
 
  </details>  
@@ -25483,8 +25483,8 @@ Temperature zone data:
 * System codename: STAR_M3_190_SYSTEM
 * System translation name codename: NAME_STAR_M3_190_SYSTEM
 * System translation description codename: DESC_STAR_M3_190_SYSTEM
-* System zone size: 3.71e+12
-* System autopilot range: 3.71e+12
+* System zone size: 6.42e+11
+* System autopilot range: 6.42e+11
 ```
 
  </details>  
@@ -25803,8 +25803,8 @@ Temperature zone data:
 * System codename: STAR_K8_191_SYSTEM
 * System translation name codename: NAME_STAR_K8_191_SYSTEM
 * System translation description codename: DESC_STAR_K8_191_SYSTEM
-* System zone size: 1.21e+13
-* System autopilot range: 1.21e+13
+* System zone size: 6.46e+12
+* System autopilot range: 6.46e+12
 ```
 
  </details>  
@@ -25898,8 +25898,8 @@ Temperature zone data:
 * System codename: STAR_K1_192_SYSTEM
 * System translation name codename: NAME_STAR_K1_192_SYSTEM
 * System translation description codename: DESC_STAR_K1_192_SYSTEM
-* System zone size: 1.19e+13
-* System autopilot range: 1.19e+13
+* System zone size: 3.93e+12
+* System autopilot range: 3.93e+12
 ```
 
  </details>  
@@ -26218,8 +26218,8 @@ Temperature zone data:
 * System codename: STAR_F5_193_SYSTEM
 * System translation name codename: NAME_STAR_F5_193_SYSTEM
 * System translation description codename: DESC_STAR_F5_193_SYSTEM
-* System zone size: 1.85e+13
-* System autopilot range: 1.85e+13
+* System zone size: 1.80e+13
+* System autopilot range: 1.80e+13
 ```
 
  </details>  
@@ -26313,8 +26313,8 @@ Temperature zone data:
 * System codename: STAR_M8_194_SYSTEM
 * System translation name codename: NAME_STAR_M8_194_SYSTEM
 * System translation description codename: DESC_STAR_M8_194_SYSTEM
-* System zone size: 1.48e+12
-* System autopilot range: 1.48e+12
+* System zone size: 3.86e+11
+* System autopilot range: 3.86e+11
 ```
 
  </details>  
@@ -26558,8 +26558,8 @@ Temperature zone data:
 * System codename: STAR_M7_195_SYSTEM
 * System translation name codename: NAME_STAR_M7_195_SYSTEM
 * System translation description codename: DESC_STAR_M7_195_SYSTEM
-* System zone size: 3.13e+12
-* System autopilot range: 3.13e+12
+* System zone size: 7.35e+11
+* System autopilot range: 7.35e+11
 ```
 
  </details>  
@@ -26803,8 +26803,8 @@ Temperature zone data:
 * System codename: STAR_A6_196_SYSTEM
 * System translation name codename: NAME_STAR_A6_196_SYSTEM
 * System translation description codename: DESC_STAR_A6_196_SYSTEM
-* System zone size: 2.08e+13
-* System autopilot range: 2.08e+13
+* System zone size: 3.68e+13
+* System autopilot range: 3.68e+13
 ```
 
  </details>  
@@ -26973,8 +26973,8 @@ Temperature zone data:
 * System codename: STAR_M4_197_SYSTEM
 * System translation name codename: NAME_STAR_M4_197_SYSTEM
 * System translation description codename: DESC_STAR_M4_197_SYSTEM
-* System zone size: 6.00e+12
-* System autopilot range: 6.00e+12
+* System zone size: 1.09e+12
+* System autopilot range: 1.09e+12
 ```
 
  </details>  
@@ -27143,8 +27143,8 @@ Temperature zone data:
 * System codename: STAR_K6_198_SYSTEM
 * System translation name codename: NAME_STAR_K6_198_SYSTEM
 * System translation description codename: DESC_STAR_K6_198_SYSTEM
-* System zone size: 1.08e+13
-* System autopilot range: 1.08e+13
+* System zone size: 4.99e+12
+* System autopilot range: 4.99e+12
 ```
 
  </details>  
@@ -27538,8 +27538,8 @@ Temperature zone data:
 * System codename: STAR_M2_199_SYSTEM
 * System translation name codename: NAME_STAR_M2_199_SYSTEM
 * System translation description codename: DESC_STAR_M2_199_SYSTEM
-* System zone size: 9.22e+12
-* System autopilot range: 9.22e+12
+* System zone size: 1.42e+12
+* System autopilot range: 1.42e+12
 ```
 
  </details>  
