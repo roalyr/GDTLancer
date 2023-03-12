@@ -25,3 +25,6 @@ visible = false
 [node name="Global_space" parent="_EDITOR OBJECTS_" instance=ExtResource( 4 )]
 
 [editable path="_EDITOR OBJECTS_/Camera_decorations"]
+[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere"]
+[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere2"]
+[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere3"]

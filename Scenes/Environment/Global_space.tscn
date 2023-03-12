@@ -61,3 +61,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.39582e+17, -7.91786e+16, -2
 transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -3.73673e+16, -8.36826e+16, 1.52458e+16 )
 
 [editable path="_EDITOR OBJECTS_/Camera_decorations"]
+[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere"]
+[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere2"]
+[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere3"]

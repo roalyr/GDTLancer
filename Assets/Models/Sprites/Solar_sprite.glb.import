@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/1500_stars.glb-e250d583b9b32a39150ed4b93acf0254.scn"
+path="res://.import/Solar_sprite.glb-581719c42d114596a4521f43ee699dd3.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Starspheres/1500_stars.glb"
-dest_files=[ "res://.import/1500_stars.glb-e250d583b9b32a39150ed4b93acf0254.scn" ]
+source_file="res://Assets/Models/Sprites/Solar_sprite.glb"
+dest_files=[ "res://.import/Solar_sprite.glb-581719c42d114596a4521f43ee699dd3.scn" ]
 
 [params]
 

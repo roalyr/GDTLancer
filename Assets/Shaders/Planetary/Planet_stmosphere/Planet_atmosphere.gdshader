@@ -5,7 +5,7 @@ render_mode
 	
 	// Blending and culling.
 	blend_mix,
-	cull_disabled,
+	cull_front,
 	
 	//unshaded,
 	diffuse_lambert, 

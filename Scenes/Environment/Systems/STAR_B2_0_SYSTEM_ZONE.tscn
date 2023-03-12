@@ -44,9 +44,10 @@ translations_description = "DESC_STAR_B2_0_SYSTEM"
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.60332e+11, 4.09622e+10, 1.25487e+11 )
 
 [node name="STAR_B2_0_NEBULA_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 4 )]
+visible = false
 
 [node name="STAR_B2_0_PLANET_0_ZONE" parent="Scenes/STAR_B2_0_SYSTEM" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.79583e+13, -6.45085e+10, 3.11671e+14 )
+transform = Transform( 0.995598, 0.0530671, 0.077257, -0.0788714, 0.91967, 0.38469, -0.0506366, -0.38909, 0.919807, -2.36236e+11, -5.23952e+10, 5e+13 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

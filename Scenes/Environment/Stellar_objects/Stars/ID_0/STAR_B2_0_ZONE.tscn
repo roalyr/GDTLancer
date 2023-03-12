@@ -108,6 +108,8 @@ shader_param/rim_strength = 2.1
 shader_param/rim_exponent = 5.9
 shader_param/rim_strength_inner = 0.65
 shader_param/rim_exponent_inner = 5.2
+shader_param/alpha_clip = null
+shader_param/alpha_clip_inner = null
 
 [sub_resource type="SphereShape" id=92]
 
@@ -173,6 +175,16 @@ __meta__ = {
 "_editor_description_": ""
 }
 
+[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
+transform = Transform( 1.58228e-10, 0, 0, 0, 1.58228e-10, 0, 0, 0, 1.58228e-10, 0, 0, 0 )
+light_color = Color( 0.745098, 0.941176, 1, 1 )
+light_energy = 2.0
+omni_range = 3.27e+14
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="Star_sprite_square_wide" parent="Scenes/STAR_B2_0/LODs 6_32e+09" instance=ExtResource( 5 )]
 
 [node name="Plane" parent="Scenes/STAR_B2_0/LODs 6_32e+09/Star_sprite_square_wide" index="0"]
@@ -202,8 +214,7 @@ material/0 = SubResource( 123 )
 
 [node name="OmniLight 3_27e+14 1" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 1, 0 )
-light_color = Color( 0, 0.764706, 1, 1 )
-light_energy = 2.0
+light_color = Color( 0.745098, 0.941176, 1, 1 )
 omni_range = 3.27e+14
 omni_attenuation = 10.0
 __meta__ = {
@@ -212,8 +223,7 @@ __meta__ = {
 
 [node name="OmniLight 3_27e+14 -1" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, -1, 0 )
-light_color = Color( 0, 0.764706, 1, 1 )
-light_energy = 2.0
+light_color = Color( 0.745098, 0.941176, 1, 1 )
 omni_range = 3.27e+14
 omni_attenuation = 10.0
 __meta__ = {
@@ -243,16 +253,6 @@ transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 [node name="Icosphere_LOD2" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD1/Halo outer Icosphere_LOD2_as_LOD1" index="0"]
 material/0 = SubResource( 123 )
 
-[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD1"]
-transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 0, 0.764706, 1, 1 )
-light_energy = 2.0
-omni_range = 3.27e+14
-omni_attenuation = 10.0
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="LOD2" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
 visible = false
 __meta__ = {
@@ -276,27 +276,7 @@ transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0 )
 [node name="Icosphere_LOD2" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD2/Halo outer Icosphere_LOD2" index="0"]
 material/0 = SubResource( 123 )
 
-[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD2"]
-transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 0, 0.764706, 1, 1 )
-light_energy = 2.0
-omni_range = 3.27e+14
-omni_attenuation = 10.0
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="LOD3" type="Spatial" parent="Scenes/STAR_B2_0/LODs 6_32e+09"]
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="OmniLight 3_27e+14" type="OmniLight" parent="Scenes/STAR_B2_0/LODs 6_32e+09/LOD3"]
-transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0 )
-light_color = Color( 0, 0.764706, 1, 1 )
-light_energy = 2.0
-omni_range = 3.27e+14
-omni_attenuation = 10.0
 __meta__ = {
 "_edit_lock_": true
 }
