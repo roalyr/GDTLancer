@@ -193,7 +193,60 @@ star_m_mass_max = 0.45
 # Abundance is tweaked for gameplay purposes.
 star_m_abundance = 1.0 #use 0.8 when giants and white dwarfs are implemented.
 
-# Planetary parameters
+
+
+
+########## PLANETARY SYSTEMS ##########
+
+# Protoplanetary disks
+# https://www.researchgate.net/publication/311106398_The_Gas_Disk_Evolution_and_Chemistry
+# Total amount of planetaty systems which are at protoplanetary stage.
+protoplanetary_disks_fraction = 0.1 
+
+# Total number of protoplanetary systems which are moderately young.
+# have acctetion and jets. Uniform consistent disks?
+protoplanetary_disks_with_accretion_fraction = 0.2 
+
+# Amount of gas mass in protoplanetary systems which are more mature.
+# Here we assume that some of it was scattered away.
+protoplanetaty_disk_gas_debris_ratio_max = 1.0
+protoplanetaty_disk_gas_debris_ratio_min = 0.1
+
+# Protoplanetary disk mass according to central star mass ratio.
+# https://www.researchgate.net/figure/Scattering-of-protoplanetary-disk-masses-according-to-the-mass-of-the-central-star_fig5_330576670
+protoplanetaty_disk_mass_ratio_max = 1.0
+protoplanetaty_disk_mass_ratio_min = 0.01
+
+# Zoning of a disk as a function of a star flux (W/m2).
+# Distance can be found as a function of flux, because star luminosity is given.
+# Flux at which dust starts to condense. Accretion zone prior to it(?).
+protoplanetaty_disk_dust_condensation_zone_flux = ???
+
+# Flux at which ice begins to form.
+protoplanetaty_disk_snow_line_flux = ???
+
+# A next stage in modelling after a protoplanetagy disk will be young planetary system.
+# Total number of young planetary systems.
+young_planetary_systems_fraction = 0.3
+
+# The amount of mass distributed as debris and dust(?).
+young_planetary_system_debris_ratio_max = 0.4
+young_planetary_system_debris_ratio_min = 0.05
+
+# Large planetary objects.
+young_planetary_system_planets_min  = 0
+young_planetary_system_planets_max  = ???
+
+# Small planetary objects.
+young_planetary_system_planetoid_min  = 0
+young_planetary_system_planetoid_max  = ???
+
+# Mature planetary systems
+
+
+# 
+
+# Planets
 #HOT, WARM, COLD, ICY
 #Miniterrans
 #Subterrans
@@ -202,7 +255,7 @@ star_m_abundance = 1.0 #use 0.8 when giants and white dwarfs are implemented.
 #Neptunians
 #Jovians
 
-# Moon parameters
+# Moons
 # Rocky
 # Icy
 # Atmosphere
