@@ -16,21 +16,21 @@ systems = [
 	{
 		"cluster" : "Moirai",
 		"name" : "Victory",
-		"main_star" : ("B", 2),
-		"companion_stars" : [("G", 1),],
+		"main_star" : ("B", 7),
+		"companion_stars" : [("G", 8),],
 	},
 	
 	{
 		"cluster" : "Moirai",
 		"name" : "Equberan",
-		"main_star" : ("A", 2),
+		"main_star" : ("A", 7),
 		"companion_stars" : [],
 	},
 	
 	{
 		"cluster" : "Moirai",
 		"name" : "Selk'nam",
-		"main_star" : ("M", 0), # Try brown dwarf later on.
+		"main_star" : ("M", 9), # Try brown dwarf later on.
 		"companion_stars" : [],
 		# Asteroid belt and debris instead of planets.
 	},
@@ -38,21 +38,21 @@ systems = [
 	{
 		"cluster" : "Moirai",
 		"name" : "Valeri",
-		"main_star" : ("A", 0),
-		"companion_stars" : [("M", 0),], # Change Valeri B to white dwarf.
+		"main_star" : ("A", 9),
+		"companion_stars" : [("M", 9),], # Change Valeri B to white dwarf.
 	},
 	
 	{
 		"cluster" : "Moirai",
 		"name" : "Viakata",
-		"main_star" : ("M", 7),
+		"main_star" : ("M", 2),
 		"companion_stars" : [],
 	},
 	
 	{
 		"cluster" : "Moirai",
 		"name" : "Glory",
-		"main_star" : ("G", 0),
+		"main_star" : ("G", 9),
 		"companion_stars" : [],
 	},
 	

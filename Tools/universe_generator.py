@@ -10,6 +10,10 @@ seed = "GDTLancer"
 import os
 cwd = os.path.normpath(os.getcwd())
 
+# Number formatter.
+def e(x):
+	return  "{:.2e}".format(x)
+
 # Sun data for reference
 sun_diameter = 1.39e9
 sun_density = 1408 # kg / m3
@@ -57,32 +61,75 @@ c_wien = 2897771.9
 # Habitable zone margins for sun (lax).
 # https://en.m.wikipedia.org/wiki/Circumstellar_habitable_zone
 # 0.2 a.u. from Sun (hot zone).
-sun_hot_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 0.2 * 0.2)
+sun_hot_zone = sun_distance_au * 0.2 
+sun_hot_zone_flux = sun_luminosity / (4 * 3.14 * sun_hot_zone * sun_hot_zone)
 # Venus (warm zone).
-sun_warm_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 0.7 * 0.7)
+sun_warm_zone = sun_distance_au * 0.7
+sun_warm_zone_flux = sun_luminosity / (4 * 3.14 * sun_warm_zone * sun_warm_zone)
 # Earth (reference value).
-sun_temperate_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au)
+sun_temperate_zone = sun_distance_au * 1.0
+sun_temperate_zone_flux = sun_luminosity / (4 * 3.14 * sun_temperate_zone * sun_temperate_zone)
 # Mars (cold zone).
-sun_cold_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 1.5 * 1.5)
-# Saturn (icy zone).
-sun_icy_zone_flux = sun_luminosity / (4 * 3.14 * sun_distance_au * sun_distance_au * 9.5 * 9.5)
+sun_cold_zone = sun_distance_au * 1.5
+sun_cold_zone_flux = sun_luminosity / (4 * 3.14 * sun_cold_zone * sun_cold_zone)
+
+# Sun snow line.
+# T = (L / (2.85e-6 * R^2))^(1/4)
+# T^4 = L / (2.85e-6 * R^2); R = (L / (T^4 * 2.85e-6))^(1/2)
+# flux = sigma * T^4
+SB_sigma = 5.670373e-8 # Stefan-Boltzman c.
+sun_frost_line_dust_temp = 170
+sun_frost_line_distance = pow(sun_luminosity / (2.85e-6 * pow(sun_frost_line_dust_temp, 4)), 0.5)
+sun_frost_line_flux = sun_luminosity / (4 * 3.14 * sun_frost_line_distance * sun_frost_line_distance)
+
+# Silicate particles melting distance.
+dust_melting_temp = 1000
+sun_dust_melting_distance = pow(sun_luminosity / (2.85e-6 * pow(dust_melting_temp, 4)), 0.5)
+sun_dust_melting_flux = sun_luminosity / (4 * 3.14 * sun_dust_melting_distance * sun_dust_melting_distance)
+
+# Testing scenarios.
+melting_temp = 900
+material_albedo = 0.9
+melting_flux_worst =  SB_sigma * pow(melting_temp, 4) / (1 - material_albedo)
+melting_flux_average = melting_flux_worst * 2
+melting_distance_average_O0 =  pow( 2e33 / (4 * 3.14 * melting_flux_average), 0.5)
+melting_distance_average_B9 =  pow( 1.85e+29 / (4 * 3.14 * melting_flux_average), 0.5)
+melting_distance_average_G5 =  pow( 4.5e26 / (4 * 3.14 * melting_flux_average), 0.5)
+melting_distance_average_M9 =  pow( 2.94e+23 / (4 * 3.14 * melting_flux_average), 0.5)
+
 
 print("Value testing")
-
-print("Sun hot zone flux (W/m2)", sun_hot_zone_flux) # ~34000
-print("Sun warm zone flux (W/m2)", sun_warm_zone_flux) # ~2800
-print("Sun temperate zone flux (W/m2)", sun_temperate_zone_flux) # ~1400
-print("Sun cold zone flux (W/m2)", sun_cold_zone_flux) # ~600
-print("Sun icy zone flux (W/m2)", sun_icy_zone_flux) # ~15
+print("-----------")
+print("Melting flux at 0.9 albedo (W/m2) worst ", e(melting_flux_worst))
+print("Melting flux at 0.9 albedo (W/m2) avg ", e(melting_flux_average))
+print("Melting distance avg O0 star (rel) ", e(melting_distance_average_O0/1.1e10))
+print("Melting distance avg B9 star (rel) ", e(melting_distance_average_B9/7.85e+09))
+print("Melting distance avg G5 star (rel) ", e(melting_distance_average_G5/1.6e9))
+print("Melting distance avg M9 star (rel) ", e(melting_distance_average_M9/2.13e+08))
+print("-----------")
+print("Assumed dust melting temperature (K)", dust_melting_temp)
+print("Sun dust melting flux (W/m2)", round(sun_dust_melting_flux, 1), " at ", round(sun_dust_melting_distance/sun_distance_au, 2), "AU" ) # ~34000
 print()
+print("Sun hot zone flux (W/m2)", round(sun_hot_zone_flux, 1), " at ", round(sun_hot_zone/sun_distance_au, 2), "AU" ) # ~34000
+print("Sun warm zone flux (W/m2)", round(sun_warm_zone_flux, 1), " at ", round(sun_warm_zone/sun_distance_au, 2), "AU" ) # ~2800
+print("Sun temperate zone flux (W/m2)", round(sun_temperate_zone_flux, 1), " at ", round(sun_temperate_zone/sun_distance_au, 2), "AU" ) # ~1400
+print("Sun cold zone flux (W/m2)", round(sun_cold_zone_flux, 1), " at ", round(sun_cold_zone/sun_distance_au, 2), "AU" ) # ~600
+print()
+print("Sun frost line flux (W/m2)", round(sun_frost_line_flux, 1), " at ", round(sun_frost_line_distance/sun_distance_au, 2), "AU" ) # ~190
+print("Sun frost line dust temp (K)", round(sun_frost_line_dust_temp, 1)) # 170
+print("-----------")
 
 # Set those margins respectively.
 # W/m^2 at respective star distance.
+flux_dust_melting  = 225000 # Derived above.
 flux_hot_zone  = 34000
 flux_warm_zone  = 2800
 flux_temperate_zone  = 1400
 flux_cold_zone  = 600
-flux_icy_zone  = 15
+# https://en.m.wikipedia.org/wiki/Frost_line_(astrophysics)
+# Distinction between terran and jovian planet formation regions.
+# Water ice formation flux.
+flux_frost_line  = 170 # Ice sublimation.
 
 # Spectrum margins. In nanometers.
 # X-ray. https://en.m.wikipedia.org/wiki/X-ray
@@ -201,7 +248,7 @@ star_m_abundance = 1.0 #use 0.8 when giants and white dwarfs are implemented.
 # Protoplanetary disks
 # https://www.researchgate.net/publication/311106398_The_Gas_Disk_Evolution_and_Chemistry
 # Total amount of planetaty systems which are at protoplanetary stage.
-protoplanetary_disks_fraction = 0.1 
+protoplanetary_disks_fraction = 0.05
 
 # Total number of protoplanetary systems which are moderately young.
 # have acctetion and jets. Uniform consistent disks?
@@ -218,16 +265,14 @@ protoplanetaty_disk_mass_ratio_max = 1.0
 protoplanetaty_disk_mass_ratio_min = 0.01
 
 # Zoning of a disk as a function of a star flux (W/m2).
-# Distance can be found as a function of flux, because star luminosity is given.
-# Flux at which dust starts to condense. Accretion zone prior to it(?).
-protoplanetaty_disk_dust_condensation_zone_flux = ???
-
 # Flux at which ice begins to form.
-protoplanetaty_disk_snow_line_flux = ???
+protoplanetaty_disk_snow_line_flux = flux_frost_line
+
+
 
 # A next stage in modelling after a protoplanetagy disk will be young planetary system.
 # Total number of young planetary systems.
-young_planetary_systems_fraction = 0.3
+young_planetary_systems_fraction = 0.2
 
 # The amount of mass distributed as debris and dust(?).
 young_planetary_system_debris_ratio_max = 0.4
@@ -235,11 +280,11 @@ young_planetary_system_debris_ratio_min = 0.05
 
 # Large planetary objects.
 young_planetary_system_planets_min  = 0
-young_planetary_system_planets_max  = ???
+# young_planetary_system_planets_max  = ???
 
 # Small planetary objects.
 young_planetary_system_planetoid_min  = 0
-young_planetary_system_planetoid_max  = ???
+# young_planetary_system_planetoid_max  = ???
 
 # Mature planetary systems
 
@@ -306,9 +351,6 @@ total_number_m_stars = 0
 total_number_other_stars = 0
 total_number_all_stars = 0
 
-
-def e(x):
-	return  "{:.2e}".format(x)
 
 def rgb_to_hex(rgb):
 	return '%02x%02x%02x' % rgb
@@ -475,11 +517,13 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
 	star_zone_margins = main_star["zone_margins"]
 	
-	star_hot_zone = e(star_zone_margins[4])
-	star_warm_zone = e(star_zone_margins[3])
-	star_temperate_zone = e(star_zone_margins[2])
-	star_cold_zone = e(star_zone_margins[1])
-	star_icy_zone = e(star_zone_margins[0])
+	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
+	star_dust_melting_meters = e(star_zone_margins[5])
+	star_hot_zone = round(star_zone_margins[4] / sun_distance_au, 3)
+	star_warm_zone = round(star_zone_margins[3] / sun_distance_au, 3)
+	star_temperate_zone = round(star_zone_margins[2] / sun_distance_au, 3)
+	star_cold_zone = round(star_zone_margins[1] / sun_distance_au, 3)
+	star_frost_line = round(star_zone_margins[0] / sun_distance_au, 3)
 	
 	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
 	star_peak_wavelength_type = main_star["peak_wavelength_type"]
@@ -522,11 +566,12 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Peak wavelength type: " + star_peak_wavelength_type + "\n"*2
 	
 	p += "Temperature zone data:"+ "\n"
-	p += "* Hot zone   :"+ " < " + str(star_hot_zone) + " m" + "\n"
-	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " m" + "\n"
-	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " m" + "\n"
-	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " m" + "\n"
-	p += "* Icy zone   :" + " > " + str(star_icy_zone) + " m" + "\n"
+	p += "* Mineral melting line:"+ " < " + str(star_dust_melting) + " AU" + "\n"
+	p += "* Hot zone   :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " AU" + "\n"
+	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " AU" + "\n"
+	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " AU" + "\n"
+	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_frost_line) + " AU" + "\n"
+	p += "* Frost line :" + " > " + str(star_frost_line) + " AU" + "\n"
 	p += "```" + "  \n"
 	
 	p += "```" + "  \n"
@@ -546,11 +591,12 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Тип пікового випромінювання: " + star_peak_wavelength_type + "\n"*2
 	
 	p += "Дані температурного зонування:"+ "\n"
-	p += "* Гаряча зона  :"+ " < " + str(star_hot_zone) + " м" + "\n"
-	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " м" + "\n"
-	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " м" + "\n"
-	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " м" + "\n"
-	p += "* Крижана зона :" + " > " + str(star_icy_zone) + " м" + "\n"
+	p += "* Межа плавлення мінералів:"+ " < " + str(star_dust_melting) + " а.о." + "\n"
+	p += "* Гаряча зона  :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " а.о." + "\n"
+	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " а.о." + "\n"
+	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " а.о." + "\n"
+	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " а.о." + "\n"
+	p += "* Межа кригоутворення :" + " > " + str(star_frost_line) + " а.о." + "\n"
 	
 	p += "```" + "  \n"
 	
@@ -565,6 +611,7 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Star name: " + star_name  + "  \n"
 	p += "* Star description: see above." + "  \n"
 	p += "* Star zone size: " + str(star_zone_size) + "\n"
+	p += "* Star death zone size: " + str(star_dust_melting_meters) + "\n"
 	p += "* Star size: " + str(star_size) + "  \n"
 	p += "* Star flare distance: " + str(star_flare_distance) + "\n"
 	p += "* Star autopilot range: " + str(star_autopilot_range) + "  \n"
@@ -644,7 +691,7 @@ def make_star(user_defined_type, primary_star_type):
 			elif r <= star_m_abundance  and primary_star_type \
 				and (primary_star_type[0] == 'O' or primary_star_type[0] == 'B' or primary_star_type[0] == 'A' \
 					or primary_star_type[0] == 'F' or primary_star_type[0] == 'G' or primary_star_type[0] == 'K' \
-					or primary_star_type[0] == 'M'): # Allows M0 star systems.
+					or primary_star_type[0] == 'M'): # Allows M9 star systems.
 				star_type = ("M")
 				star_type_id = 0
 			else:
@@ -680,7 +727,7 @@ def make_star(user_defined_type, primary_star_type):
 		
 	# Make sure that if the star is secondary - it is less or equally bright than primary if in the same class.
 	if primary_star_type and (star_type == primary_star_type[0]):
-		star_type_temp = random_star_val.randint(0, int(primary_star_type[1]))
+		star_type_temp = random_star_val.randint(int(primary_star_type[1]), 9)
 		
 	if star_type == "O":
 		total_number_o_stars += 1
@@ -689,8 +736,8 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_o_temp_min), int(star_o_temp_max))
 		else:
-			star_o_temp_min_type = (star_o_temp_max - star_o_temp_min) / 10 * star_type_temp + star_o_temp_min
-			star_o_temp_max_type = (star_o_temp_max - star_o_temp_min) / 10 * (star_type_temp + 1) + star_o_temp_min
+			star_o_temp_min_type = (star_o_temp_max - star_o_temp_min) / 10 * (9-star_type_temp) + star_o_temp_min
+			star_o_temp_max_type = (star_o_temp_max - star_o_temp_min) / 10 * (9-star_type_temp + 1) + star_o_temp_min
 			star_temp = random_star_val.randrange(int(star_o_temp_min_type), int(star_o_temp_max_type))
 		star_temp_norm = (star_temp - star_o_temp_min) / (star_o_temp_max - star_o_temp_min)
 	elif star_type == "B":
@@ -700,8 +747,8 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_b_temp_min), int(star_b_temp_max))
 		else:
-			star_b_temp_min_type = (star_b_temp_max - star_b_temp_min) / 10 * star_type_temp + star_b_temp_min
-			star_b_temp_max_type = (star_b_temp_max - star_b_temp_min) / 10 * (star_type_temp + 1) + star_b_temp_min
+			star_b_temp_min_type = (star_b_temp_max - star_b_temp_min) / 10 * (9-star_type_temp) + star_b_temp_min
+			star_b_temp_max_type = (star_b_temp_max - star_b_temp_min) / 10 * (9-star_type_temp + 1) + star_b_temp_min
 			star_temp = random_star_val.randrange(int(star_b_temp_min_type), int(star_b_temp_max_type))
 		star_temp_norm = (star_temp - star_b_temp_min) / (star_b_temp_max - star_b_temp_min)
 	elif star_type == "A":
@@ -711,8 +758,8 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_a_temp_min), int(star_a_temp_max))
 		else:
-			star_a_temp_min_type = (star_a_temp_max - star_a_temp_min) / 10 * star_type_temp + star_a_temp_min
-			star_a_temp_max_type = (star_a_temp_max - star_a_temp_min) / 10 * (star_type_temp + 1) + star_a_temp_min
+			star_a_temp_min_type = (star_a_temp_max - star_a_temp_min) / 10 * (9-star_type_temp) + star_a_temp_min
+			star_a_temp_max_type = (star_a_temp_max - star_a_temp_min) / 10 * (9-star_type_temp + 1) + star_a_temp_min
 			star_temp = random_star_val.randrange(int(star_a_temp_min_type), int(star_a_temp_max_type))
 		star_temp_norm = (star_temp - star_a_temp_min) / (star_a_temp_max - star_a_temp_min)
 	elif star_type == "F":
@@ -722,8 +769,8 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_f_temp_min), int(star_f_temp_max))
 		else:
-			star_f_temp_min_type = (star_f_temp_max - star_f_temp_min) / 10 * star_type_temp + star_f_temp_min
-			star_f_temp_max_type = (star_f_temp_max - star_f_temp_min) / 10 * (star_type_temp + 1) + star_f_temp_min
+			star_f_temp_min_type = (star_f_temp_max - star_f_temp_min) / 10 * (9-star_type_temp) + star_f_temp_min
+			star_f_temp_max_type = (star_f_temp_max - star_f_temp_min) / 10 * (9-star_type_temp + 1) + star_f_temp_min
 			star_temp = random_star_val.randrange(int(star_f_temp_min_type), int(star_f_temp_max_type))
 		star_temp_norm = (star_temp - star_f_temp_min) / (star_f_temp_max - star_f_temp_min)
 	elif star_type == "G":
@@ -733,8 +780,8 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_g_temp_min), int(star_g_temp_max))
 		else:
-			star_g_temp_min_type = (star_g_temp_max - star_g_temp_min) / 10 * star_type_temp + star_g_temp_min
-			star_g_temp_max_type = (star_g_temp_max - star_g_temp_min) / 10 * (star_type_temp + 1) + star_g_temp_min
+			star_g_temp_min_type = (star_g_temp_max - star_g_temp_min) / 10 * (9-star_type_temp) + star_g_temp_min
+			star_g_temp_max_type = (star_g_temp_max - star_g_temp_min) / 10 * (9-star_type_temp + 1) + star_g_temp_min
 			star_temp = random_star_val.randrange(int(star_g_temp_min_type), int(star_g_temp_max_type))
 		star_temp_norm = (star_temp - star_g_temp_min) / (star_g_temp_max - star_g_temp_min)
 	elif star_type == "K":
@@ -744,8 +791,8 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_k_temp_min), int(star_k_temp_max))
 		else:
-			star_k_temp_min_type = (star_k_temp_max - star_k_temp_min) / 10 * star_type_temp + star_k_temp_min
-			star_k_temp_max_type = (star_k_temp_max - star_k_temp_min) / 10 * (star_type_temp + 1) + star_k_temp_min
+			star_k_temp_min_type = (star_k_temp_max - star_k_temp_min) / 10 * (9-star_type_temp) + star_k_temp_min
+			star_k_temp_max_type = (star_k_temp_max - star_k_temp_min) / 10 * (9-star_type_temp + 1) + star_k_temp_min
 			star_temp = random_star_val.randrange(int(star_k_temp_min_type), int(star_k_temp_max_type))
 		star_temp_norm = (star_temp - star_k_temp_min) / (star_k_temp_max - star_k_temp_min)
 	elif star_type == "M":
@@ -755,15 +802,15 @@ def make_star(user_defined_type, primary_star_type):
 		if star_type_temp == -1:
 			star_temp = random_star_val.randrange(int(star_m_temp_min), int(star_m_temp_max))
 		else:
-			star_m_temp_min_type = (star_m_temp_max - star_m_temp_min) / 10 * star_type_temp + star_m_temp_min
-			star_m_temp_max_type = (star_m_temp_max - star_m_temp_min) / 10 * (star_type_temp + 1) + star_m_temp_min
+			star_m_temp_min_type = (star_m_temp_max - star_m_temp_min) / 10 * (9-star_type_temp) + star_m_temp_min
+			star_m_temp_max_type = (star_m_temp_max - star_m_temp_min) / 10 * (9-star_type_temp + 1) + star_m_temp_min
 			star_temp = random_star_val.randrange(int(star_m_temp_min_type), int(star_m_temp_max_type))
 		star_temp_norm = (star_temp - star_m_temp_min) / (star_m_temp_max - star_m_temp_min)
 	else:
 		total_number_other_stars += 1
 		total_number_all_stars += 1
 	
-	star_type_temp = int(star_temp_norm*10)
+	star_type_temp = 9 - int(star_temp_norm*10)
 	star_lum = get_strar_lum(star_size, star_temp)
 	star_peak_wavelength = get_strar_peak_wavelength(star_temp)
 	
@@ -790,8 +837,9 @@ def get_star_zone_margins(star_lum):
 	star_warm_zone = pow(star_lum /(4 * 3.14 * flux_warm_zone), 0.5)
 	star_temperate_zone = pow(star_lum /(4 * 3.14 * flux_temperate_zone), 0.5)
 	star_cold_zone = pow(star_lum /(4 * 3.14 * flux_cold_zone), 0.5)
-	star_icy_zone = pow(star_lum /(4 * 3.14 * flux_icy_zone), 0.5)
-	return (star_icy_zone, star_cold_zone, star_temperate_zone, star_warm_zone, star_hot_zone,)
+	star_frost_line = pow(star_lum /(4 * 3.14 * flux_frost_line), 0.5)
+	star_dust_melting = pow(star_lum /(4 * 3.14 * flux_dust_melting), 0.5)
+	return (star_frost_line, star_cold_zone, star_temperate_zone, star_warm_zone, star_hot_zone, star_dust_melting)
 	
 def get_strar_lum(star_size, star_temp):
 	lum = c_lum * pow((star_size/2), 2) * pow(star_temp, 4)

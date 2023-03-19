@@ -17,6 +17,8 @@ Highlighted entries are "Work in progress".
 - Make stellar objects accessible at certain ranges or in certain zones (i.e. you would have to fly to a planetary system to access its planets coordinates).
 - Move readouts to the bottom of the screen (targeting infor, autopilot, etc).
 - Universe generator: brown and Wwhite dwarfs, giant stars.
+- Temperature / flux zones (distance-affected) and gauge.
+- Reflective ship / base coating.
 
 ## Improvements
 - Make star sprites diminish in size with distance (script).
@@ -30,6 +32,8 @@ Highlighted entries are "Work in progress".
 - Info tab: make clickable entries that expand to tutorial entries.
 - E-kill touchscreen button.
 - Split LOD system into objects / environment / ship categories and allow maximum LOD level.
+- Based on star flux, derive gameplay "death zones" for stars.
+- Take into account star death zone based on ship's reflection / radiation ability.
 
 ## Refactor
 - **Re-attach models directly into scenes (make editable). (WIP)**
