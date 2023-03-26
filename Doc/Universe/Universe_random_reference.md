@@ -174,7 +174,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B5_1  
 * Star name: Pokesan A  
 * Star description: see above.  
-* Star zone size: 3.50e+10
+* Star zone size: 2.20e+11
 * Star death zone size: 1.83e+11
 * Star size: 3.50e+09  
 * Star flare distance: 1.92e+11
@@ -2580,7 +2580,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A3_16  
 * Star name: Ignonr A  
 * Star description: see above.  
-* Star zone size: 2.26e+10
+* Star zone size: 3.18e+10
 * Star death zone size: 2.65e+10
 * Star size: 2.26e+09  
 * Star flare distance: 2.78e+10
@@ -3852,7 +3852,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A3_25  
 * Star name: Gorah A  
 * Star description: see above.  
-* Star zone size: 2.12e+10
+* Star zone size: 2.94e+10
 * Star death zone size: 2.45e+10
 * Star size: 2.12e+09  
 * Star flare distance: 2.58e+10
@@ -8258,7 +8258,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A0_62  
 * Star name: Ranotota A  
 * Star description: see above.  
-* Star zone size: 2.23e+10
+* Star zone size: 3.52e+10
 * Star death zone size: 2.93e+10
 * Star size: 2.23e+09  
 * Star flare distance: 3.08e+10
@@ -9218,7 +9218,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A0_71  
 * Star name: Recicte A  
 * Star description: see above.  
-* Star zone size: 1.95e+10
+* Star zone size: 3.12e+10
 * Star death zone size: 2.60e+10
 * Star size: 1.95e+09  
 * Star flare distance: 2.73e+10
@@ -9394,7 +9394,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A4_72  
 * Star name: Hodap A  
 * Star description: see above.  
-* Star zone size: 2.02e+10
+* Star zone size: 2.69e+10
 * Star death zone size: 2.24e+10
 * Star size: 2.02e+09  
 * Star flare distance: 2.35e+10
@@ -11234,7 +11234,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A0_86  
 * Star name: Pairtu A  
 * Star description: see above.  
-* Star zone size: 2.31e+10
+* Star zone size: 3.65e+10
 * Star death zone size: 3.04e+10
 * Star size: 2.31e+09  
 * Star flare distance: 3.20e+10
@@ -14362,7 +14362,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O8_102  
 * Star name: Rekah A  
 * Star description: see above.  
-* Star zone size: 1.00e+11
+* Star zone size: 3.06e+12
 * Star death zone size: 2.55e+12
 * Star size: 1.00e+10  
 * Star flare distance: 2.68e+12
@@ -17728,7 +17728,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B6_126  
 * Star name: Uete A  
 * Star description: see above.  
-* Star zone size: 8.48e+10
+* Star zone size: 3.98e+11
 * Star death zone size: 3.32e+11
 * Star size: 8.48e+09  
 * Star flare distance: 3.48e+11
@@ -18374,7 +18374,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O9_131  
 * Star name: Taryip A  
 * Star description: see above.  
-* Star zone size: 1.28e+11
+* Star zone size: 1.93e+12
 * Star death zone size: 1.61e+12
 * Star size: 1.28e+10  
 * Star flare distance: 1.69e+12
@@ -21448,7 +21448,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B9_156  
 * Star name: Enhefe A  
 * Star description: see above.  
-* Star zone size: 7.86e+10
+* Star zone size: 1.83e+11
 * Star death zone size: 1.52e+11
 * Star size: 7.86e+09  
 * Star flare distance: 1.60e+11
@@ -21976,7 +21976,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A5_159  
 * Star name: Usure A  
 * Star description: see above.  
-* Star zone size: 1.97e+10
+* Star zone size: 2.47e+10
 * Star death zone size: 2.06e+10
 * Star size: 1.97e+09  
 * Star flare distance: 2.16e+10
@@ -23874,7 +23874,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O3_172  
 * Star name: Homesr A  
 * Star description: see above.  
-* Star zone size: 1.15e+11
+* Star zone size: 1.17e+13
 * Star death zone size: 9.71e+12
 * Star size: 1.15e+10  
 * Star flare distance: 1.02e+13
@@ -24872,7 +24872,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O4_179  
 * Star name: Vaubeon A  
 * Star description: see above.  
-* Star zone size: 1.22e+11
+* Star zone size: 8.65e+12
 * Star death zone size: 7.21e+12
 * Star size: 1.22e+10  
 * Star flare distance: 7.57e+12
@@ -25576,7 +25576,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A2_183  
 * Star name: Aqmu A  
 * Star description: see above.  
-* Star zone size: 2.30e+10
+* Star zone size: 3.26e+10
 * Star death zone size: 2.72e+10
 * Star size: 2.30e+09  
 * Star flare distance: 2.85e+10
@@ -27786,7 +27786,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A3_196  
 * Star name: Acyredi A  
 * Star description: see above.  
-* Star zone size: 2.08e+10
+* Star zone size: 2.89e+10
 * Star death zone size: 2.41e+10
 * Star size: 2.08e+09  
 * Star flare distance: 2.53e+10

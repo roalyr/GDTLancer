@@ -76,7 +76,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O0_0  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.10e+11
+* Star zone size: 1.78e+13
 * Star death zone size: 1.49e+13
 * Star size: 1.10e+10  
 * Star flare distance: 1.56e+13
@@ -174,7 +174,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O1_1  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.38e+11
+* Star zone size: 1.78e+13
 * Star death zone size: 1.49e+13
 * Star size: 1.38e+10  
 * Star flare distance: 1.56e+13
@@ -272,7 +272,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O2_2  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.31e+11
+* Star zone size: 1.35e+13
 * Star death zone size: 1.13e+13
 * Star size: 1.31e+10  
 * Star flare distance: 1.18e+13
@@ -370,7 +370,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O3_3  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.02e+11
+* Star zone size: 9.95e+12
 * Star death zone size: 8.29e+12
 * Star size: 1.02e+10  
 * Star flare distance: 8.71e+12
@@ -468,7 +468,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O4_4  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.23e+11
+* Star zone size: 1.01e+13
 * Star death zone size: 8.45e+12
 * Star size: 1.23e+10  
 * Star flare distance: 8.87e+12
@@ -566,7 +566,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O5_5  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.32e+11
+* Star zone size: 9.02e+12
 * Star death zone size: 7.52e+12
 * Star size: 1.32e+10  
 * Star flare distance: 7.89e+12
@@ -664,7 +664,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O6_6  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 9.85e+10
+* Star zone size: 4.31e+12
 * Star death zone size: 3.59e+12
 * Star size: 9.85e+09  
 * Star flare distance: 3.77e+12
@@ -762,7 +762,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O7_7  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 9.84e+10
+* Star zone size: 4.10e+12
 * Star death zone size: 3.42e+12
 * Star size: 9.84e+09  
 * Star flare distance: 3.59e+12
@@ -860,7 +860,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O8_8  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 1.19e+11
+* Star zone size: 3.42e+12
 * Star death zone size: 2.85e+12
 * Star size: 1.19e+10  
 * Star flare distance: 3.00e+12
@@ -958,7 +958,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O9_9  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 9.22e+10
+* Star zone size: 1.94e+12
 * Star death zone size: 1.62e+12
 * Star size: 9.22e+09  
 * Star flare distance: 1.70e+12
@@ -1056,7 +1056,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B0_10  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 6.50e+10
+* Star zone size: 9.29e+11
 * Star death zone size: 7.74e+11
 * Star size: 6.50e+09  
 * Star flare distance: 8.13e+11
@@ -1154,7 +1154,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B1_11  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 3.71e+10
+* Star zone size: 4.76e+11
 * Star death zone size: 3.97e+11
 * Star size: 3.71e+09  
 * Star flare distance: 4.17e+11
@@ -1252,7 +1252,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B2_12  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 4.05e+10
+* Star zone size: 4.32e+11
 * Star death zone size: 3.60e+11
 * Star size: 4.05e+09  
 * Star flare distance: 3.78e+11
@@ -1350,7 +1350,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B3_13  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 8.77e+10
+* Star zone size: 8.30e+11
 * Star death zone size: 6.91e+11
 * Star size: 8.77e+09  
 * Star flare distance: 7.26e+11
@@ -1448,7 +1448,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B4_14  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 8.18e+10
+* Star zone size: 5.58e+11
 * Star death zone size: 4.65e+11
 * Star size: 8.18e+09  
 * Star flare distance: 4.89e+11
@@ -1546,7 +1546,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B5_15  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 4.16e+10
+* Star zone size: 2.29e+11
 * Star death zone size: 1.91e+11
 * Star size: 4.16e+09  
 * Star flare distance: 2.01e+11
@@ -1644,7 +1644,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B6_16  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 4.40e+10
+* Star zone size: 2.22e+11
 * Star death zone size: 1.85e+11
 * Star size: 4.40e+09  
 * Star flare distance: 1.94e+11
@@ -1742,7 +1742,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B7_17  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 5.34e+10
+* Star zone size: 1.85e+11
 * Star death zone size: 1.54e+11
 * Star size: 5.34e+09  
 * Star flare distance: 1.62e+11
@@ -1840,7 +1840,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B8_18  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 7.31e+10
+* Star zone size: 2.32e+11
 * Star death zone size: 1.94e+11
 * Star size: 7.31e+09  
 * Star flare distance: 2.03e+11
@@ -1938,7 +1938,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B9_19  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 7.85e+10
+* Star zone size: 1.69e+11
 * Star death zone size: 1.41e+11
 * Star size: 7.85e+09  
 * Star flare distance: 1.48e+11
@@ -2036,7 +2036,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A0_20  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 2.01e+10
+* Star zone size: 3.25e+10
 * Star death zone size: 2.71e+10
 * Star size: 2.01e+09  
 * Star flare distance: 2.85e+10
@@ -2134,7 +2134,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A1_21  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 2.07e+10
+* Star zone size: 3.14e+10
 * Star death zone size: 2.62e+10
 * Star size: 2.07e+09  
 * Star flare distance: 2.75e+10
@@ -2232,7 +2232,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A2_22  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 2.02e+10
+* Star zone size: 2.87e+10
 * Star death zone size: 2.39e+10
 * Star size: 2.02e+09  
 * Star flare distance: 2.51e+10
@@ -2330,7 +2330,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A3_23  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 2.01e+10
+* Star zone size: 2.83e+10
 * Star death zone size: 2.36e+10
 * Star size: 2.01e+09  
 * Star flare distance: 2.48e+10
@@ -2428,7 +2428,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A4_24  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 2.42e+10
+* Star zone size: 3.10e+10
 * Star death zone size: 2.58e+10
 * Star size: 2.42e+09  
 * Star flare distance: 2.71e+10
@@ -2526,7 +2526,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A5_25  
 * Star name: Test A  
 * Star description: see above.  
-* Star zone size: 2.10e+10
+* Star zone size: 2.63e+10
 * Star death zone size: 2.19e+10
 * Star size: 2.10e+09  
 * Star flare distance: 2.30e+10

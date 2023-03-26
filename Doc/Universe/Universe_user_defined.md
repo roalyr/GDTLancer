@@ -76,7 +76,7 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B7_0  
 * Star name: Victory A  
 * Star description: see above.  
-* Star zone size: 6.32e+10
+* Star zone size: 2.57e+11
 * Star death zone size: 2.14e+11
 * Star size: 6.32e+09  
 * Star flare distance: 2.25e+11

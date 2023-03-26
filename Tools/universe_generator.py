@@ -499,7 +499,7 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	# Format star size.
 	star_size = e(main_star["size"])
 	star_size_rel = round(main_star["size"] / sun_diameter, 3)
-	star_zone_size = e(star_zone_size_factor * main_star["size"])
+	
 	
 	# Format the number back to proper range.
 	star_lum = e(main_star["luminosity"])
@@ -517,6 +517,11 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	star_temp = round(main_star["temperature"])
 	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
 	star_zone_margins = main_star["zone_margins"]
+	
+	#Make zone size larger than death zone, if it is smaller
+	star_zone_size = e(star_zone_size_factor * main_star["size"])
+	if star_zone_size_factor * main_star["size"] < star_zone_margins[6]:
+		star_zone_size = e(star_zone_margins[6] * 1.2)
 	
 	star_death_zone = round(star_zone_margins[6] / sun_distance_au, 3)
 	star_death_zone_meters = e(star_zone_margins[6])
