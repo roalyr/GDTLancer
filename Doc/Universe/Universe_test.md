@@ -77,10 +77,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.10e+11
-* Star death zone size: 2.70e+13
+* Star death zone size: 1.49e+13
 * Star size: 1.10e+10  
-* Star flare distance: 1.10e+11
-* Star autopilot range: 3.31e+10  
+* Star flare distance: 1.56e+13
+* Star autopilot range: 1.71e+13  
 
 * Omni range: 2.27e+16  
 * Omni attenuation: 10.0  
@@ -175,10 +175,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.38e+11
-* Star death zone size: 2.70e+13
+* Star death zone size: 1.49e+13
 * Star size: 1.38e+10  
-* Star flare distance: 1.38e+11
-* Star autopilot range: 4.15e+10  
+* Star flare distance: 1.56e+13
+* Star autopilot range: 1.71e+13  
 
 * Omni range: 2.27e+16  
 * Omni attenuation: 10.0  
@@ -273,10 +273,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.31e+11
-* Star death zone size: 2.05e+13
+* Star death zone size: 1.13e+13
 * Star size: 1.31e+10  
-* Star flare distance: 1.31e+11
-* Star autopilot range: 3.92e+10  
+* Star flare distance: 1.18e+13
+* Star autopilot range: 1.30e+13  
 
 * Omni range: 1.72e+16  
 * Omni attenuation: 10.0  
@@ -371,10 +371,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.02e+11
-* Star death zone size: 1.51e+13
+* Star death zone size: 8.29e+12
 * Star size: 1.02e+10  
-* Star flare distance: 1.02e+11
-* Star autopilot range: 3.06e+10  
+* Star flare distance: 8.71e+12
+* Star autopilot range: 9.54e+12  
 
 * Omni range: 1.27e+16  
 * Omni attenuation: 10.0  
@@ -469,10 +469,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.23e+11
-* Star death zone size: 1.54e+13
+* Star death zone size: 8.45e+12
 * Star size: 1.23e+10  
-* Star flare distance: 1.23e+11
-* Star autopilot range: 3.70e+10  
+* Star flare distance: 8.87e+12
+* Star autopilot range: 9.72e+12  
 
 * Omni range: 1.29e+16  
 * Omni attenuation: 10.0  
@@ -567,10 +567,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.32e+11
-* Star death zone size: 1.37e+13
+* Star death zone size: 7.52e+12
 * Star size: 1.32e+10  
-* Star flare distance: 1.32e+11
-* Star autopilot range: 3.96e+10  
+* Star flare distance: 7.89e+12
+* Star autopilot range: 8.64e+12  
 
 * Omni range: 1.15e+16  
 * Omni attenuation: 10.0  
@@ -665,10 +665,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 9.85e+10
-* Star death zone size: 6.52e+12
+* Star death zone size: 3.59e+12
 * Star size: 9.85e+09  
-* Star flare distance: 9.85e+10
-* Star autopilot range: 2.96e+10  
+* Star flare distance: 3.77e+12
+* Star autopilot range: 4.13e+12  
 
 * Omni range: 5.48e+15  
 * Omni attenuation: 10.0  
@@ -763,10 +763,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 9.84e+10
-* Star death zone size: 6.22e+12
+* Star death zone size: 3.42e+12
 * Star size: 9.84e+09  
-* Star flare distance: 9.84e+10
-* Star autopilot range: 2.95e+10  
+* Star flare distance: 3.59e+12
+* Star autopilot range: 3.93e+12  
 
 * Omni range: 5.23e+15  
 * Omni attenuation: 10.0  
@@ -861,10 +861,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.19e+11
-* Star death zone size: 5.19e+12
+* Star death zone size: 2.85e+12
 * Star size: 1.19e+10  
-* Star flare distance: 1.19e+11
-* Star autopilot range: 3.57e+10  
+* Star flare distance: 3.00e+12
+* Star autopilot range: 3.28e+12  
 
 * Omni range: 4.36e+15  
 * Omni attenuation: 10.0  
@@ -959,10 +959,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 9.22e+10
-* Star death zone size: 2.94e+12
+* Star death zone size: 1.62e+12
 * Star size: 9.22e+09  
-* Star flare distance: 9.22e+10
-* Star autopilot range: 2.77e+10  
+* Star flare distance: 1.70e+12
+* Star autopilot range: 1.86e+12  
 
 * Omni range: 2.47e+15  
 * Omni attenuation: 10.0  
@@ -1057,10 +1057,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 6.50e+10
-* Star death zone size: 1.41e+12
+* Star death zone size: 7.74e+11
 * Star size: 6.50e+09  
-* Star flare distance: 6.50e+10
-* Star autopilot range: 1.95e+10  
+* Star flare distance: 8.13e+11
+* Star autopilot range: 8.90e+11  
 
 * Omni range: 1.18e+15  
 * Omni attenuation: 10.0  
@@ -1155,10 +1155,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 3.71e+10
-* Star death zone size: 7.22e+11
+* Star death zone size: 3.97e+11
 * Star size: 3.71e+09  
-* Star flare distance: 3.71e+10
-* Star autopilot range: 1.11e+10  
+* Star flare distance: 4.17e+11
+* Star autopilot range: 4.56e+11  
 
 * Omni range: 6.06e+14  
 * Omni attenuation: 10.0  
@@ -1253,10 +1253,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 4.05e+10
-* Star death zone size: 6.55e+11
+* Star death zone size: 3.60e+11
 * Star size: 4.05e+09  
-* Star flare distance: 4.05e+10
-* Star autopilot range: 1.22e+10  
+* Star flare distance: 3.78e+11
+* Star autopilot range: 4.14e+11  
 
 * Omni range: 5.51e+14  
 * Omni attenuation: 10.0  
@@ -1351,10 +1351,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 8.77e+10
-* Star death zone size: 1.26e+12
+* Star death zone size: 6.91e+11
 * Star size: 8.77e+09  
-* Star flare distance: 8.77e+10
-* Star autopilot range: 2.63e+10  
+* Star flare distance: 7.26e+11
+* Star autopilot range: 7.95e+11  
 
 * Omni range: 1.06e+15  
 * Omni attenuation: 10.0  
@@ -1449,10 +1449,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 8.18e+10
-* Star death zone size: 8.46e+11
+* Star death zone size: 4.65e+11
 * Star size: 8.18e+09  
-* Star flare distance: 8.18e+10
-* Star autopilot range: 2.45e+10  
+* Star flare distance: 4.89e+11
+* Star autopilot range: 5.35e+11  
 
 * Omni range: 7.11e+14  
 * Omni attenuation: 10.0  
@@ -1547,10 +1547,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 4.16e+10
-* Star death zone size: 3.48e+11
+* Star death zone size: 1.91e+11
 * Star size: 4.16e+09  
-* Star flare distance: 4.16e+10
-* Star autopilot range: 1.25e+10  
+* Star flare distance: 2.01e+11
+* Star autopilot range: 2.20e+11  
 
 * Omni range: 2.92e+14  
 * Omni attenuation: 10.0  
@@ -1645,10 +1645,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 4.40e+10
-* Star death zone size: 3.37e+11
+* Star death zone size: 1.85e+11
 * Star size: 4.40e+09  
-* Star flare distance: 4.40e+10
-* Star autopilot range: 1.32e+10  
+* Star flare distance: 1.94e+11
+* Star autopilot range: 2.13e+11  
 
 * Omni range: 2.83e+14  
 * Omni attenuation: 10.0  
@@ -1743,10 +1743,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 5.34e+10
-* Star death zone size: 2.80e+11
+* Star death zone size: 1.54e+11
 * Star size: 5.34e+09  
-* Star flare distance: 5.34e+10
-* Star autopilot range: 1.60e+10  
+* Star flare distance: 1.62e+11
+* Star autopilot range: 1.77e+11  
 
 * Omni range: 2.36e+14  
 * Omni attenuation: 10.0  
@@ -1841,10 +1841,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 7.31e+10
-* Star death zone size: 3.52e+11
+* Star death zone size: 1.94e+11
 * Star size: 7.31e+09  
-* Star flare distance: 7.31e+10
-* Star autopilot range: 2.19e+10  
+* Star flare distance: 2.03e+11
+* Star autopilot range: 2.23e+11  
 
 * Omni range: 2.96e+14  
 * Omni attenuation: 10.0  
@@ -1939,10 +1939,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 7.85e+10
-* Star death zone size: 2.56e+11
+* Star death zone size: 1.41e+11
 * Star size: 7.85e+09  
-* Star flare distance: 7.85e+10
-* Star autopilot range: 2.36e+10  
+* Star flare distance: 1.48e+11
+* Star autopilot range: 1.62e+11  
 
 * Omni range: 2.15e+14  
 * Omni attenuation: 10.0  
@@ -2037,10 +2037,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.01e+10
-* Star death zone size: 4.93e+10
+* Star death zone size: 2.71e+10
 * Star size: 2.01e+09  
-* Star flare distance: 2.01e+10
-* Star autopilot range: 6.02e+09  
+* Star flare distance: 2.85e+10
+* Star autopilot range: 3.12e+10  
 
 * Omni range: 4.14e+13  
 * Omni attenuation: 10.0  
@@ -2135,10 +2135,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.07e+10
-* Star death zone size: 4.77e+10
+* Star death zone size: 2.62e+10
 * Star size: 2.07e+09  
-* Star flare distance: 2.07e+10
-* Star autopilot range: 6.22e+09  
+* Star flare distance: 2.75e+10
+* Star autopilot range: 3.01e+10  
 
 * Omni range: 4.01e+13  
 * Omni attenuation: 10.0  
@@ -2233,10 +2233,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.02e+10
-* Star death zone size: 4.35e+10
+* Star death zone size: 2.39e+10
 * Star size: 2.02e+09  
-* Star flare distance: 2.02e+10
-* Star autopilot range: 6.07e+09  
+* Star flare distance: 2.51e+10
+* Star autopilot range: 2.75e+10  
 
 * Omni range: 3.66e+13  
 * Omni attenuation: 10.0  
@@ -2331,10 +2331,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.01e+10
-* Star death zone size: 4.29e+10
+* Star death zone size: 2.36e+10
 * Star size: 2.01e+09  
-* Star flare distance: 2.01e+10
-* Star autopilot range: 6.04e+09  
+* Star flare distance: 2.48e+10
+* Star autopilot range: 2.72e+10  
 
 * Omni range: 3.61e+13  
 * Omni attenuation: 10.0  
@@ -2429,10 +2429,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.42e+10
-* Star death zone size: 4.69e+10
+* Star death zone size: 2.58e+10
 * Star size: 2.42e+09  
-* Star flare distance: 2.42e+10
-* Star autopilot range: 7.27e+09  
+* Star flare distance: 2.71e+10
+* Star autopilot range: 2.97e+10  
 
 * Omni range: 3.94e+13  
 * Omni attenuation: 10.0  
@@ -2527,10 +2527,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.10e+10
-* Star death zone size: 3.98e+10
+* Star death zone size: 2.19e+10
 * Star size: 2.10e+09  
-* Star flare distance: 2.10e+10
-* Star autopilot range: 6.30e+09  
+* Star flare distance: 2.30e+10
+* Star autopilot range: 2.52e+10  
 
 * Omni range: 3.34e+13  
 * Omni attenuation: 10.0  
@@ -2625,10 +2625,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.04e+10
-* Star death zone size: 3.57e+10
+* Star death zone size: 1.96e+10
 * Star size: 2.04e+09  
-* Star flare distance: 2.04e+10
-* Star autopilot range: 6.12e+09  
+* Star flare distance: 2.06e+10
+* Star autopilot range: 2.25e+10  
 
 * Omni range: 3.00e+13  
 * Omni attenuation: 10.0  
@@ -2723,10 +2723,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.02e+10
-* Star death zone size: 3.26e+10
+* Star death zone size: 1.80e+10
 * Star size: 2.02e+09  
-* Star flare distance: 2.02e+10
-* Star autopilot range: 6.07e+09  
+* Star flare distance: 1.88e+10
+* Star autopilot range: 2.06e+10  
 
 * Omni range: 2.74e+13  
 * Omni attenuation: 10.0  
@@ -2821,10 +2821,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.26e+10
-* Star death zone size: 3.56e+10
+* Star death zone size: 1.96e+10
 * Star size: 2.26e+09  
-* Star flare distance: 2.26e+10
-* Star autopilot range: 6.77e+09  
+* Star flare distance: 2.05e+10
+* Star autopilot range: 2.25e+10  
 
 * Omni range: 2.99e+13  
 * Omni attenuation: 10.0  
@@ -2919,10 +2919,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.30e+10
-* Star death zone size: 3.26e+10
+* Star death zone size: 1.79e+10
 * Star size: 2.30e+09  
-* Star flare distance: 2.30e+10
-* Star autopilot range: 6.91e+09  
+* Star flare distance: 1.88e+10
+* Star autopilot range: 2.06e+10  
 
 * Omni range: 2.74e+13  
 * Omni attenuation: 10.0  
@@ -3017,10 +3017,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.84e+10
-* Star death zone size: 2.49e+10
+* Star death zone size: 1.37e+10
 * Star size: 1.84e+09  
-* Star flare distance: 1.84e+10
-* Star autopilot range: 5.51e+09  
+* Star flare distance: 1.44e+10
+* Star autopilot range: 1.58e+10  
 
 * Omni range: 2.10e+13  
 * Omni attenuation: 10.0  
@@ -3115,10 +3115,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.78e+10
-* Star death zone size: 2.32e+10
+* Star death zone size: 1.28e+10
 * Star size: 1.78e+09  
-* Star flare distance: 1.78e+10
-* Star autopilot range: 5.33e+09  
+* Star flare distance: 1.34e+10
+* Star autopilot range: 1.47e+10  
 
 * Omni range: 1.95e+13  
 * Omni attenuation: 10.0  
@@ -3213,10 +3213,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.68e+10
-* Star death zone size: 2.18e+10
+* Star death zone size: 1.20e+10
 * Star size: 1.68e+09  
-* Star flare distance: 1.68e+10
-* Star autopilot range: 5.05e+09  
+* Star flare distance: 1.26e+10
+* Star autopilot range: 1.38e+10  
 
 * Omni range: 1.83e+13  
 * Omni attenuation: 10.0  
@@ -3311,10 +3311,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.67e+10
-* Star death zone size: 2.00e+10
+* Star death zone size: 1.10e+10
 * Star size: 1.67e+09  
-* Star flare distance: 1.67e+10
-* Star autopilot range: 5.01e+09  
+* Star flare distance: 1.16e+10
+* Star autopilot range: 1.27e+10  
 
 * Omni range: 1.68e+13  
 * Omni attenuation: 10.0  
@@ -3409,10 +3409,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.86e+10
-* Star death zone size: 2.21e+10
+* Star death zone size: 1.21e+10
 * Star size: 1.86e+09  
-* Star flare distance: 1.86e+10
-* Star autopilot range: 5.57e+09  
+* Star flare distance: 1.27e+10
+* Star autopilot range: 1.40e+10  
 
 * Omni range: 1.85e+13  
 * Omni attenuation: 10.0  
@@ -3507,10 +3507,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.66e+10
-* Star death zone size: 1.83e+10
+* Star death zone size: 1.00e+10
 * Star size: 1.66e+09  
-* Star flare distance: 1.66e+10
-* Star autopilot range: 4.97e+09  
+* Star flare distance: 1.05e+10
+* Star autopilot range: 1.15e+10  
 
 * Omni range: 1.53e+13  
 * Omni attenuation: 10.0  
@@ -3605,10 +3605,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.68e+10
-* Star death zone size: 1.79e+10
+* Star death zone size: 9.86e+09
 * Star size: 1.68e+09  
-* Star flare distance: 1.68e+10
-* Star autopilot range: 5.05e+09  
+* Star flare distance: 1.04e+10
+* Star autopilot range: 1.13e+10  
 
 * Omni range: 1.51e+13  
 * Omni attenuation: 10.0  
@@ -3703,10 +3703,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.91e+10
-* Star death zone size: 1.95e+10
+* Star death zone size: 1.07e+10
 * Star size: 1.91e+09  
-* Star flare distance: 1.91e+10
-* Star autopilot range: 5.72e+09  
+* Star flare distance: 1.12e+10
+* Star autopilot range: 1.23e+10  
 
 * Omni range: 1.64e+13  
 * Omni attenuation: 10.0  
@@ -3801,10 +3801,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.75e+10
-* Star death zone size: 1.73e+10
+* Star death zone size: 9.52e+09
 * Star size: 1.75e+09  
-* Star flare distance: 1.75e+10
-* Star autopilot range: 5.24e+09  
+* Star flare distance: 1.00e+10
+* Star autopilot range: 1.09e+10  
 
 * Omni range: 1.46e+13  
 * Omni attenuation: 10.0  
@@ -3899,10 +3899,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.72e+10
-* Star death zone size: 1.63e+10
+* Star death zone size: 8.97e+09
 * Star size: 1.72e+09  
-* Star flare distance: 1.72e+10
-* Star autopilot range: 5.16e+09  
+* Star flare distance: 9.42e+09
+* Star autopilot range: 1.03e+10  
 
 * Omni range: 1.37e+13  
 * Omni attenuation: 10.0  
@@ -3997,10 +3997,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.54e+10
-* Star death zone size: 1.38e+10
+* Star death zone size: 7.59e+09
 * Star size: 1.54e+09  
-* Star flare distance: 1.54e+10
-* Star autopilot range: 4.61e+09  
+* Star flare distance: 7.97e+09
+* Star autopilot range: 8.73e+09  
 
 * Omni range: 1.16e+13  
 * Omni attenuation: 10.0  
@@ -4095,10 +4095,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.53e+10
-* Star death zone size: 1.31e+10
+* Star death zone size: 7.23e+09
 * Star size: 1.53e+09  
-* Star flare distance: 1.53e+10
-* Star autopilot range: 4.60e+09  
+* Star flare distance: 7.59e+09
+* Star autopilot range: 8.31e+09  
 
 * Omni range: 1.10e+13  
 * Omni attenuation: 10.0  
@@ -4193,10 +4193,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.40e+10
-* Star death zone size: 1.19e+10
+* Star death zone size: 6.54e+09
 * Star size: 1.40e+09  
-* Star flare distance: 1.40e+10
-* Star autopilot range: 4.21e+09  
+* Star flare distance: 6.86e+09
+* Star autopilot range: 7.52e+09  
 
 * Omni range: 9.99e+12  
 * Omni attenuation: 10.0  
@@ -4291,10 +4291,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.34e+10
-* Star death zone size: 1.11e+10
+* Star death zone size: 6.13e+09
 * Star size: 1.34e+09  
-* Star flare distance: 1.34e+10
-* Star autopilot range: 4.02e+09  
+* Star flare distance: 6.43e+09
+* Star autopilot range: 7.04e+09  
 
 * Omni range: 9.36e+12  
 * Omni attenuation: 10.0  
@@ -4389,10 +4389,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.58e+10
-* Star death zone size: 1.27e+10
+* Star death zone size: 7.00e+09
 * Star size: 1.58e+09  
-* Star flare distance: 1.58e+10
-* Star autopilot range: 4.75e+09  
+* Star flare distance: 7.35e+09
+* Star autopilot range: 8.05e+09  
 
 * Omni range: 1.07e+13  
 * Omni attenuation: 10.0  
@@ -4487,10 +4487,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.34e+10
-* Star death zone size: 1.05e+10
+* Star death zone size: 5.78e+09
 * Star size: 1.34e+09  
-* Star flare distance: 1.34e+10
-* Star autopilot range: 4.03e+09  
+* Star flare distance: 6.07e+09
+* Star autopilot range: 6.65e+09  
 
 * Omni range: 8.84e+12  
 * Omni attenuation: 10.0  
@@ -4585,10 +4585,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.48e+10
-* Star death zone size: 1.13e+10
+* Star death zone size: 6.22e+09
 * Star size: 1.48e+09  
-* Star flare distance: 1.48e+10
-* Star autopilot range: 4.44e+09  
+* Star flare distance: 6.53e+09
+* Star autopilot range: 7.15e+09  
 
 * Omni range: 9.50e+12  
 * Omni attenuation: 10.0  
@@ -4683,10 +4683,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.58e+10
-* Star death zone size: 1.16e+10
+* Star death zone size: 6.39e+09
 * Star size: 1.58e+09  
-* Star flare distance: 1.58e+10
-* Star autopilot range: 4.73e+09  
+* Star flare distance: 6.71e+09
+* Star autopilot range: 7.35e+09  
 
 * Omni range: 9.77e+12  
 * Omni attenuation: 10.0  
@@ -4781,10 +4781,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.39e+10
-* Star death zone size: 9.96e+09
+* Star death zone size: 5.48e+09
 * Star size: 1.39e+09  
-* Star flare distance: 1.39e+10
-* Star autopilot range: 4.17e+09  
+* Star flare distance: 5.75e+09
+* Star autopilot range: 6.30e+09  
 
 * Omni range: 8.37e+12  
 * Omni attenuation: 10.0  
@@ -4879,10 +4879,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.45e+10
-* Star death zone size: 9.86e+09
+* Star death zone size: 5.42e+09
 * Star size: 1.45e+09  
-* Star flare distance: 1.45e+10
-* Star autopilot range: 4.34e+09  
+* Star flare distance: 5.69e+09
+* Star autopilot range: 6.23e+09  
 
 * Omni range: 8.29e+12  
 * Omni attenuation: 10.0  
@@ -4977,10 +4977,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.01e+10
-* Star death zone size: 6.83e+09
+* Star death zone size: 3.75e+09
 * Star size: 1.01e+09  
-* Star flare distance: 1.01e+10
-* Star autopilot range: 3.03e+09  
+* Star flare distance: 3.94e+09
+* Star autopilot range: 4.32e+09  
 
 * Omni range: 5.74e+12  
 * Omni attenuation: 10.0  
@@ -5075,10 +5075,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.05e+10
-* Star death zone size: 6.48e+09
+* Star death zone size: 3.56e+09
 * Star size: 1.05e+09  
-* Star flare distance: 1.05e+10
-* Star autopilot range: 3.14e+09  
+* Star flare distance: 3.74e+09
+* Star autopilot range: 4.10e+09  
 
 * Omni range: 5.45e+12  
 * Omni attenuation: 10.0  
@@ -5173,10 +5173,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 9.78e+09
-* Star death zone size: 5.71e+09
+* Star death zone size: 3.14e+09
 * Star size: 9.78e+08  
-* Star flare distance: 9.78e+09
-* Star autopilot range: 2.93e+09  
+* Star flare distance: 3.30e+09
+* Star autopilot range: 3.61e+09  
 
 * Omni range: 4.80e+12  
 * Omni attenuation: 10.0  
@@ -5271,10 +5271,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.05e+10
-* Star death zone size: 5.61e+09
+* Star death zone size: 3.08e+09
 * Star size: 1.05e+09  
-* Star flare distance: 1.05e+10
-* Star autopilot range: 3.16e+09  
+* Star flare distance: 3.24e+09
+* Star autopilot range: 3.55e+09  
 
 * Omni range: 4.71e+12  
 * Omni attenuation: 10.0  
@@ -5369,10 +5369,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.11e+10
-* Star death zone size: 5.59e+09
+* Star death zone size: 3.07e+09
 * Star size: 1.11e+09  
-* Star flare distance: 1.11e+10
-* Star autopilot range: 3.33e+09  
+* Star flare distance: 3.23e+09
+* Star autopilot range: 3.54e+09  
 
 * Omni range: 4.70e+12  
 * Omni attenuation: 10.0  
@@ -5467,10 +5467,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.19e+10
-* Star death zone size: 5.55e+09
+* Star death zone size: 3.05e+09
 * Star size: 1.19e+09  
-* Star flare distance: 1.19e+10
-* Star autopilot range: 3.57e+09  
+* Star flare distance: 3.20e+09
+* Star autopilot range: 3.51e+09  
 
 * Omni range: 4.67e+12  
 * Omni attenuation: 10.0  
@@ -5565,10 +5565,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.23e+10
-* Star death zone size: 5.44e+09
+* Star death zone size: 2.99e+09
 * Star size: 1.23e+09  
-* Star flare distance: 1.23e+10
-* Star autopilot range: 3.69e+09  
+* Star flare distance: 3.14e+09
+* Star autopilot range: 3.44e+09  
 
 * Omni range: 4.57e+12  
 * Omni attenuation: 10.0  
@@ -5663,10 +5663,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.24e+10
-* Star death zone size: 5.12e+09
+* Star death zone size: 2.82e+09
 * Star size: 1.24e+09  
-* Star flare distance: 1.24e+10
-* Star autopilot range: 3.72e+09  
+* Star flare distance: 2.96e+09
+* Star autopilot range: 3.24e+09  
 
 * Omni range: 4.30e+12  
 * Omni attenuation: 10.0  
@@ -5761,10 +5761,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 9.79e+09
-* Star death zone size: 3.82e+09
+* Star death zone size: 2.10e+09
 * Star size: 9.79e+08  
-* Star flare distance: 9.79e+09
-* Star autopilot range: 2.94e+09  
+* Star flare distance: 2.21e+09
+* Star autopilot range: 2.42e+09  
 
 * Omni range: 3.21e+12  
 * Omni attenuation: 10.0  
@@ -5859,10 +5859,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.17e+10
-* Star death zone size: 4.21e+09
+* Star death zone size: 2.31e+09
 * Star size: 1.17e+09  
-* Star flare distance: 1.17e+10
-* Star autopilot range: 3.52e+09  
+* Star flare distance: 2.43e+09
+* Star autopilot range: 2.66e+09  
 
 * Omni range: 3.54e+12  
 * Omni attenuation: 10.0  
@@ -5957,10 +5957,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 8.98e+09
-* Star death zone size: 2.97e+09
+* Star death zone size: 1.63e+09
 * Star size: 8.98e+08  
-* Star flare distance: 8.98e+09
-* Star autopilot range: 2.69e+09  
+* Star flare distance: 1.71e+09
+* Star autopilot range: 1.88e+09  
 
 * Omni range: 2.50e+12  
 * Omni attenuation: 10.0  
@@ -6055,10 +6055,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.62e+09
-* Star death zone size: 8.26e+08
+* Star death zone size: 4.54e+08
 * Star size: 2.62e+08  
-* Star flare distance: 2.62e+09
-* Star autopilot range: 7.85e+08  
+* Star flare distance: 4.77e+08
+* Star autopilot range: 5.23e+08  
 
 * Omni range: 6.95e+11  
 * Omni attenuation: 10.0  
@@ -6153,10 +6153,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 3.16e+09
-* Star death zone size: 9.17e+08
+* Star death zone size: 5.05e+08
 * Star size: 3.16e+08  
-* Star flare distance: 3.16e+09
-* Star autopilot range: 9.49e+08  
+* Star flare distance: 5.30e+08
+* Star autopilot range: 5.80e+08  
 
 * Omni range: 7.71e+11  
 * Omni attenuation: 10.0  
@@ -6251,10 +6251,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 8.44e+09
-* Star death zone size: 2.14e+09
+* Star death zone size: 1.18e+09
 * Star size: 8.44e+08  
-* Star flare distance: 8.44e+09
-* Star autopilot range: 2.53e+09  
+* Star flare distance: 1.24e+09
+* Star autopilot range: 1.36e+09  
 
 * Omni range: 1.80e+12  
 * Omni attenuation: 10.0  
@@ -6349,10 +6349,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 5.15e+09
-* Star death zone size: 1.20e+09
+* Star death zone size: 6.62e+08
 * Star size: 5.15e+08  
-* Star flare distance: 5.15e+09
-* Star autopilot range: 1.55e+09  
+* Star flare distance: 6.95e+08
+* Star autopilot range: 7.61e+08  
 
 * Omni range: 1.01e+12  
 * Omni attenuation: 10.0  
@@ -6447,10 +6447,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 4.84e+09
-* Star death zone size: 1.11e+09
+* Star death zone size: 6.10e+08
 * Star size: 4.84e+08  
-* Star flare distance: 4.84e+09
-* Star autopilot range: 1.45e+09  
+* Star flare distance: 6.41e+08
+* Star autopilot range: 7.02e+08  
 
 * Omni range: 9.33e+11  
 * Omni attenuation: 10.0  
@@ -6545,10 +6545,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.74e+09
-* Star death zone size: 3.58e+08
+* Star death zone size: 1.97e+08
 * Star size: 1.74e+08  
-* Star flare distance: 1.74e+09
-* Star autopilot range: 5.22e+08  
+* Star flare distance: 2.06e+08
+* Star autopilot range: 2.26e+08  
 
 * Omni range: 3.01e+11  
 * Omni attenuation: 10.0  
@@ -6643,10 +6643,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.80e+09
-* Star death zone size: 5.12e+08
+* Star death zone size: 2.82e+08
 * Star size: 2.80e+08  
-* Star flare distance: 2.80e+09
-* Star autopilot range: 8.40e+08  
+* Star flare distance: 2.96e+08
+* Star autopilot range: 3.24e+08  
 
 * Omni range: 4.30e+11  
 * Omni attenuation: 10.0  
@@ -6741,10 +6741,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 1.88e+09
-* Star death zone size: 3.26e+08
+* Star death zone size: 1.79e+08
 * Star size: 1.88e+08  
-* Star flare distance: 1.88e+09
-* Star autopilot range: 5.65e+08  
+* Star flare distance: 1.88e+08
+* Star autopilot range: 2.06e+08  
 
 * Omni range: 2.74e+11  
 * Omni attenuation: 10.0  
@@ -6839,10 +6839,10 @@ Temperature zone data:
 * Star name: Test A  
 * Star description: see above.  
 * Star zone size: 2.13e+09
-* Star death zone size: 3.23e+08
+* Star death zone size: 1.77e+08
 * Star size: 2.13e+08  
-* Star flare distance: 2.13e+09
-* Star autopilot range: 6.39e+08  
+* Star flare distance: 1.86e+08
+* Star autopilot range: 2.04e+08  
 
 * Omni range: 2.71e+11  
 * Omni attenuation: 10.0  

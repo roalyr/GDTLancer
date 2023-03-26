@@ -87,11 +87,13 @@ dust_melting_temp = 1000
 sun_dust_melting_distance = pow(sun_luminosity / (2.85e-6 * pow(dust_melting_temp, 4)), 0.5)
 sun_dust_melting_flux = sun_luminosity / (4 * 3.14 * sun_dust_melting_distance * sun_dust_melting_distance)
 
-# Testing scenarios.
+# T0Values for ship default flux resistence. Affects the distance you can be at around star.
 melting_temp = 900
 material_albedo = 0.9
 melting_flux_worst =  SB_sigma * pow(melting_temp, 4) / (1 - material_albedo)
 melting_flux_average = melting_flux_worst * 2
+
+# Testing.
 melting_distance_average_O0 =  pow( 2e33 / (4 * 3.14 * melting_flux_average), 0.5)
 melting_distance_average_B9 =  pow( 1.85e+29 / (4 * 3.14 * melting_flux_average), 0.5)
 melting_distance_average_G5 =  pow( 4.5e26 / (4 * 3.14 * melting_flux_average), 0.5)
@@ -291,19 +293,19 @@ young_planetary_system_planetoid_min  = 0
 
 # 
 
-# Planets
-#HOT, WARM, COLD, ICY
-#Miniterrans
-#Subterrans
-#Terrans
-#Superterrans
-#Neptunians
-#Jovians
-
-# Moons
-# Rocky
-# Icy
-# Atmosphere
+# Type of planet  Earth units        R = M^f
+#  M min  M max  R min  R max  f
+# Sub-dwarf  0.000002  0.00002  0.025  0.048  0.28
+# Dwarf  0.00002  0.0002  0.048  0.092  0.28
+# Super-dwarf  0.0002  0.002  0.092  0.176  0.28
+#           
+# Sub-terrestrial  0.002  0.02  0.176  0.334  0.28
+# Terrestrial  0.02  0.2  0.334  0.637  0.28
+# Super-terrestrial  0.2  2  0.637  1.214  0.28
+#        
+# Sub-giant  2  130  1.505  17.670  0.59
+# Giant  130  300  9.000  20.000  -
+# Super-giant  300  3000  9.000  20.000  -
 
 
 
@@ -498,7 +500,6 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	star_size = e(main_star["size"])
 	star_size_rel = round(main_star["size"] / sun_diameter, 3)
 	star_zone_size = e(star_zone_size_factor * main_star["size"])
-	star_flare_distance = e(star_flare_distance_factor * main_star["size"])
 	
 	# Format the number back to proper range.
 	star_lum = e(main_star["luminosity"])
@@ -517,8 +518,10 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
 	star_zone_margins = main_star["zone_margins"]
 	
+	star_death_zone = round(star_zone_margins[6] / sun_distance_au, 3)
+	star_death_zone_meters = e(star_zone_margins[6])
+	
 	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
-	star_dust_melting_meters = e(star_zone_margins[5])
 	star_hot_zone = round(star_zone_margins[4] / sun_distance_au, 3)
 	star_warm_zone = round(star_zone_margins[3] / sun_distance_au, 3)
 	star_temperate_zone = round(star_zone_margins[2] / sun_distance_au, 3)
@@ -531,7 +534,9 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	star_peak_wavelength_colorcode_hex = rgb_to_hex(star_peak_wavelength_colorcode)
 	star_omni_range = e(main_star["omni_range"])
 	
-	star_autopilot_range = e(autopilot_distance_factor * main_star["size"])
+	# Limited by death zone size.
+	star_autopilot_range = e(star_zone_margins[6]  * 1.15)
+	star_flare_distance = e(star_zone_margins[6]  * 1.05)
 	
 	color_sample = "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
 		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
@@ -611,7 +616,7 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Star name: " + star_name  + "  \n"
 	p += "* Star description: see above." + "  \n"
 	p += "* Star zone size: " + str(star_zone_size) + "\n"
-	p += "* Star death zone size: " + str(star_dust_melting_meters) + "\n"
+	p += "* Star death zone size: " + str(star_death_zone_meters) + "\n"
 	p += "* Star size: " + str(star_size) + "  \n"
 	p += "* Star flare distance: " + str(star_flare_distance) + "\n"
 	p += "* Star autopilot range: " + str(star_autopilot_range) + "  \n"
@@ -833,13 +838,15 @@ def make_star(user_defined_type, primary_star_type):
 	return star
 
 def get_star_zone_margins(star_lum):
+	# Star death zone corresponds to  afistance where ship with coating should start to melt.
+	star_death_zone =  pow(star_lum / (4 * 3.14 * melting_flux_average), 0.5)
 	star_hot_zone = pow(star_lum /(4 * 3.14 * flux_hot_zone), 0.5)
 	star_warm_zone = pow(star_lum /(4 * 3.14 * flux_warm_zone), 0.5)
 	star_temperate_zone = pow(star_lum /(4 * 3.14 * flux_temperate_zone), 0.5)
 	star_cold_zone = pow(star_lum /(4 * 3.14 * flux_cold_zone), 0.5)
 	star_frost_line = pow(star_lum /(4 * 3.14 * flux_frost_line), 0.5)
 	star_dust_melting = pow(star_lum /(4 * 3.14 * flux_dust_melting), 0.5)
-	return (star_frost_line, star_cold_zone, star_temperate_zone, star_warm_zone, star_hot_zone, star_dust_melting)
+	return (star_frost_line, star_cold_zone, star_temperate_zone, star_warm_zone, star_hot_zone, star_dust_melting, star_death_zone)
 	
 def get_strar_lum(star_size, star_temp):
 	lum = c_lum * pow((star_size/2), 2) * pow(star_temp, 4)

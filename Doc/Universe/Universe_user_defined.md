@@ -77,10 +77,10 @@ Temperature zone data:
 * Star name: Victory A  
 * Star description: see above.  
 * Star zone size: 6.32e+10
-* Star death zone size: 3.90e+11
+* Star death zone size: 2.14e+11
 * Star size: 6.32e+09  
-* Star flare distance: 6.32e+10
-* Star autopilot range: 1.90e+10  
+* Star flare distance: 2.25e+11
+* Star autopilot range: 2.46e+11  
 
 * Omni range: 3.27e+14  
 * Omni attenuation: 10.0  
@@ -155,10 +155,10 @@ Temperature zone data:
 * Star name: Victory B  
 * Star description: see above.  
 * Star zone size: 1.45e+10
-* Star death zone size: 1.03e+10
+* Star death zone size: 5.66e+09
 * Star size: 1.45e+09  
-* Star flare distance: 1.45e+10
-* Star autopilot range: 4.36e+09  
+* Star flare distance: 5.95e+09
+* Star autopilot range: 6.51e+09  
 
 * Omni range: 8.66e+12  
 * Omni attenuation: 10.0  
@@ -253,10 +253,10 @@ Temperature zone data:
 * Star name: Equberan A  
 * Star description: see above.  
 * Star zone size: 2.01e+10
-* Star death zone size: 3.38e+10
+* Star death zone size: 1.86e+10
 * Star size: 2.01e+09  
-* Star flare distance: 2.01e+10
-* Star autopilot range: 6.03e+09  
+* Star flare distance: 1.95e+10
+* Star autopilot range: 2.14e+10  
 
 * Omni range: 2.84e+13  
 * Omni attenuation: 10.0  
@@ -351,10 +351,10 @@ Temperature zone data:
 * Star name: Selk'nam A  
 * Star description: see above.  
 * Star zone size: 1.40e+09
-* Star death zone size: 2.13e+08
+* Star death zone size: 1.17e+08
 * Star size: 1.40e+08  
-* Star flare distance: 1.40e+09
-* Star autopilot range: 4.21e+08  
+* Star flare distance: 1.23e+08
+* Star autopilot range: 1.34e+08  
 
 * Omni range: 1.79e+11  
 * Omni attenuation: 10.0  
@@ -449,10 +449,10 @@ Temperature zone data:
 * Star name: Valeri A  
 * Star description: see above.  
 * Star zone size: 2.27e+10
-* Star death zone size: 3.25e+10
+* Star death zone size: 1.79e+10
 * Star size: 2.27e+09  
-* Star flare distance: 2.27e+10
-* Star autopilot range: 6.80e+09  
+* Star flare distance: 1.87e+10
+* Star autopilot range: 2.05e+10  
 
 * Omni range: 2.73e+13  
 * Omni attenuation: 10.0  
@@ -527,10 +527,10 @@ Temperature zone data:
 * Star name: Valeri B  
 * Star description: see above.  
 * Star zone size: 2.05e+09
-* Star death zone size: 2.98e+08
+* Star death zone size: 1.64e+08
 * Star size: 2.05e+08  
-* Star flare distance: 2.05e+09
-* Star autopilot range: 6.15e+08  
+* Star flare distance: 1.72e+08
+* Star autopilot range: 1.88e+08  
 
 * Omni range: 2.50e+11  
 * Omni attenuation: 10.0  
@@ -625,10 +625,10 @@ Temperature zone data:
 * Star name: Viakata A  
 * Star description: see above.  
 * Star zone size: 1.57e+09
-* Star death zone size: 4.33e+08
+* Star death zone size: 2.38e+08
 * Star size: 1.57e+08  
-* Star flare distance: 1.57e+09
-* Star autopilot range: 4.71e+08  
+* Star flare distance: 2.50e+08
+* Star autopilot range: 2.74e+08  
 
 * Omni range: 3.64e+11  
 * Omni attenuation: 10.0  
@@ -723,10 +723,10 @@ Temperature zone data:
 * Star name: Glory A  
 * Star description: see above.  
 * Star zone size: 1.60e+10
-* Star death zone size: 1.10e+10
+* Star death zone size: 6.03e+09
 * Star size: 1.60e+09  
-* Star flare distance: 1.60e+10
-* Star autopilot range: 4.79e+09  
+* Star flare distance: 6.33e+09
+* Star autopilot range: 6.94e+09  
 
 * Omni range: 9.22e+12  
 * Omni attenuation: 10.0  
