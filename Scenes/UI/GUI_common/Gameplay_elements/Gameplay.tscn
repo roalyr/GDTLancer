@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Fonts/Roboto_condensed/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=1]
-[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/_Target_aim.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/_Target_autopilot.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=4]
 
 [sub_resource type="DynamicFont" id=4]

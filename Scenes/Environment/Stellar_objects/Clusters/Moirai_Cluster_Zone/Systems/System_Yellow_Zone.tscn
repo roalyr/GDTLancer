@@ -2,9 +2,9 @@
 
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=5]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Planetary_disks/Planetary_disk_Zone.tscn" type="PackedScene" id=8]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Planets/Planet_Icy_Zone.tscn" type="PackedScene" id=9]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Stars/Star_Yellow_binary_Zone.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/_Planetary_disks/Planetary_disk_Zone.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/_Planets/Planet_Icy_Zone.tscn" type="PackedScene" id=9]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/_Stars/Star_Yellow_binary_Zone.tscn" type="PackedScene" id=10]
 
 [sub_resource type="SphereShape" id=108]
 

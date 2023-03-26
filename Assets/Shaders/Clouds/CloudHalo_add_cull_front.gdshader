@@ -20,8 +20,8 @@ uniform float rim_strength = 1.5;
 uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 9.0;
 uniform float rim_strength_inner = 1.5;
 uniform float rim_exponent_inner : hint_range(0.0, 50.0, 0.1) = 9.0;
-uniform float alpha_clip : hint_range(0.0, 1.0);
-uniform float alpha_clip_inner : hint_range(0.0, 1.0);
+uniform float alpha_clip : hint_range(0.0, 1.0) = 1.0;
+uniform float alpha_clip_inner : hint_range(0.0, 1.0) = 1.0;
 
 void fragment()
 {

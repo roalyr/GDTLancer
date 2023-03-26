@@ -58,8 +58,8 @@ onready var desktop_readings_info_container = desktop_readings_info_popup.get_no
 onready var desktop_readings_info_label = desktop_readings_info_container.get_node("Label")
 
 onready var desktop_readings_debug = desktop_readings.get_node("Debug_panel")
-onready var desktop_readings_target_autopilot = desktop_readings.get_node("Target_autopilot")
-onready var desktop_readings_target_aim = desktop_readings.get_node("Target_aim")
+onready var desktop_readings_target_autopilot = desktop_readings.get_node("Target_autopilot_desktop")
+onready var desktop_readings_target_aim = desktop_readings.get_node("Target_aim_desktop")
 # Velocity panel area
 onready var desktop_velocity_panel = desktop_readings.get_node("Velocity_panel")
 onready var desktop_velocity_panel_apparent_velocity = desktop_velocity_panel.get_node("Apparent_velocity")
@@ -121,8 +121,8 @@ onready var touch_readings_info_container = touch_readings_info_popup.get_node("
 onready var touch_readings_info_label = touch_readings_info_container.get_node("Label")
 
 onready var touch_readings_debug = touch_readings.get_node("Debug_panel")
-onready var touch_readings_target_autopilot = touch_readings.get_node("Target_autopilot")
-onready var touch_readings_target_aim = touch_readings.get_node("Target_aim")
+onready var touch_readings_target_autopilot = touch_readings.get_node("Target_autopilot_touchscreen")
+onready var touch_readings_target_aim = touch_readings.get_node("Target_aim_touchscreen")
 # Velocity panel area
 onready var touch_velocity_panel = touch_readings.get_node("Velocity_panel")
 onready var touch_velocity_panel_apparent_velocity = touch_velocity_panel.get_node("Apparent_velocity")

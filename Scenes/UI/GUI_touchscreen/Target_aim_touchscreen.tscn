@@ -1,0 +1,84 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=1]
+[ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=3]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0, 0, 0, 0.25098 )
+border_color = Color( 0, 0, 0, 0 )
+corner_detail = 1
+anti_aliasing = false
+
+[node name="Target_aim_touchscreen" type="Control"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Text_distance" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -80.0
+margin_top = -120.0
+margin_right = 79.0
+margin_bottom = -72.0
+grow_horizontal = 2
+theme = ExtResource( 1 )
+text = "0000 km"
+align = 1
+
+[node name="Text_object" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -80.0
+margin_top = 70.0
+margin_right = 80.0
+margin_bottom = 106.0
+grow_horizontal = 2
+theme = ExtResource( 1 )
+custom_fonts/font = ExtResource( 2 )
+text = "No target"
+align = 1
+
+[node name="Frame" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ColorRect" type="Control" parent="Frame"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -80.0
+margin_top = -60.0
+margin_right = 80.0
+margin_bottom = 60.0
+
+[node name="Panel" type="Panel" parent="Frame/ColorRect"]
+material = ExtResource( 3 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Panel_shade" type="Panel" parent="Frame/ColorRect/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 1 )
+custom_styles/panel = SubResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}

@@ -27,10 +27,10 @@
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=25]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_200.png" type="Texture" id=26]
 [ext_resource path="res://Scripts/UI/Assist/ItemList_link_material.gd" type="Script" id=27]
-[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_autopilot.tscn" type="PackedScene" id=28]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/Target_aim_touchscreen.tscn" type="PackedScene" id=28]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/GUI_readings.gd" type="Script" id=29]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/ship.png" type="Texture" id=30]
-[ext_resource path="res://Scenes/UI/GUI_common/Gameplay_elements/Target_aim.tscn" type="PackedScene" id=31]
+[ext_resource path="res://Scenes/UI/GUI_touchscreen/Target_autopilot_touchscreen.tscn" type="PackedScene" id=31]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/info.png" type="Texture" id=32]
 [ext_resource path="res://Scripts/UI/Assist/ScrollContainer_link_material.gd" type="Script" id=33]
 
@@ -595,53 +595,9 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Target_aim" parent="Readings" instance=ExtResource( 31 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-__meta__ = {
-"_edit_lock_": true
-}
+[node name="Target_aim_touchscreen" parent="Readings" instance=ExtResource( 28 )]
 
-[node name="Target_autopilot" parent="Readings" instance=ExtResource( 28 )]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Text_distance" parent="Readings/Target_autopilot" index="0"]
-visible = false
-
-[node name="Text_object" parent="Readings/Target_autopilot" index="1"]
-visible = false
-
-[node name="ColorRect" parent="Readings/Target_autopilot" index="2"]
-margin_left = -31.0
-margin_top = -19.0
-margin_right = -27.0
-margin_bottom = -11.0
-
-[node name="ColorRect2" parent="Readings/Target_autopilot" index="3"]
-margin_left = 27.0
-margin_top = 11.0
-margin_right = 31.0
-margin_bottom = 19.0
-
-[node name="ColorRect3" parent="Readings/Target_autopilot" index="4"]
-margin_left = 31.0
-margin_top = 18.0
-margin_right = 35.0
-margin_bottom = 26.0
-
-[node name="ColorRect4" parent="Readings/Target_autopilot" index="5"]
-margin_left = -23.0
-margin_top = -22.0
-margin_right = -19.0
-margin_bottom = -14.0
+[node name="Target_autopilot_touchscreen" parent="Readings" instance=ExtResource( 31 )]
 
 [node name="Popup_info" type="ReferenceRect" parent="Readings"]
 margin_left = 550.0
@@ -1276,5 +1232,3 @@ __meta__ = {
 [connection signal="visibility_changed" from="Bar_nav/Popup_structures/ItemList_nav" to="Bar_nav/Popup_structures/ItemList_nav" method="_on_ItemList_nav_visibility_changed"]
 [connection signal="toggled" from="Bar_items/Button_info" to="." method="_on_Button_info_toggled"]
 [connection signal="toggled" from="Bar_items/Button_PLACEHOLDER4" to="." method="_on_Button_PLACEHOLDER4_toggled"]
-
-[editable path="Readings/Target_autopilot"]

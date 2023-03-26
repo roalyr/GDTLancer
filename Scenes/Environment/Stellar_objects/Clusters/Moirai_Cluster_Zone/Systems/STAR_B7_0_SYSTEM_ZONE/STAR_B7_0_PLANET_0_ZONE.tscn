@@ -136,7 +136,7 @@ shader_param/detail_decay_distance = 1e+09
 
 [sub_resource type="SphereShape" id=79]
 
-[node name="STAR_B2_0_PLANET_0_ZONE" type="Area"]
+[node name="STAR_B7_0_PLANET_0_ZONE" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
@@ -196,22 +196,22 @@ __meta__ = {
 "_editor_description_": "Add marker to scene and set its level."
 }
 
-[node name="STAR_B2_0_PLANET_0" type="Position3D" parent="Scenes"]
+[node name="STAR_B7_0_PLANET_0" type="Position3D" parent="Scenes"]
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_lock_": true
 }
 autopilot_range = 2e+08
-translations_name = "NAME_STAR_B2_0_PLANET_0"
-translations_description = "DESC_STAR_B2_0_PLANET_0"
+translations_name = "NAME_STAR_B7_0_PLANET_0"
+translations_description = "DESC_STAR_B7_0_PLANET_0"
 
-[node name="Planet 1e8" type="StaticBody" parent="Scenes/STAR_B2_0_PLANET_0"]
+[node name="Planet 1e8" type="StaticBody" parent="Scenes/STAR_B7_0_PLANET_0"]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="Scenes/STAR_B2_0_PLANET_0/Planet 1e8"]
+[node name="CollisionShape" type="CollisionShape" parent="Scenes/STAR_B7_0_PLANET_0/Planet 1e8"]
 shape = SubResource( 43 )
 
-[node name="LODs planet blue 1e8" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0"]
+[node name="LODs planet blue 1e8" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0"]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -219,129 +219,129 @@ __meta__ = {
 }
 lod_2_relative_distance = 500
 
-[node name="LOD0" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8"]
+[node name="LOD0" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0"]
+[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0"]
 transform = Transform( 1.03, 0, 0, 0, 1.03, 0, 0, 0, 1.03, 0, 0, 0 )
 mesh = ExtResource( 13 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 65 )
 
-[node name="Sphere_LOD0" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0" instance=ExtResource( 19 )]
+[node name="Sphere_LOD0" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0" instance=ExtResource( 19 )]
 
-[node name="Sphere" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Sphere_LOD0" index="0"]
+[node name="Sphere" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Sphere_LOD0" index="0"]
 material/0 = SubResource( 83 )
 
-[node name="Rings" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0"]
+[node name="Rings" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0"]
 
-[node name="Ring texture_down" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings"]
+[node name="Ring texture_down" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings"]
 transform = Transform( 4, 0, 0, 0, -1.74846e-07, -4, 0, 4, -1.74846e-07, 0, -0.001, 0 )
 mesh = SubResource( 101 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 102 )
 
-[node name="Ring texture_up" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings"]
+[node name="Ring texture_up" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings"]
 transform = Transform( 4, 0, 0, 0, -1.74846e-07, 4, 0, -4, -1.74846e-07, 0, 0.001, 0 )
 mesh = SubResource( 101 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 102 )
 
-[node name="Ring_075_LOD0_1" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings" instance=ExtResource( 7 )]
+[node name="Ring_075_LOD0_1" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings" instance=ExtResource( 7 )]
 transform = Transform( 1.87, 0, 0, 0, 0.946, 0, 0, 0, 1.87, 0, 0, 0 )
 
-[node name="Ring_075_LOD0" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings/Ring_075_LOD0_1" index="0"]
+[node name="Ring_075_LOD0" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings/Ring_075_LOD0_1" index="0"]
 material/0 = SubResource( 103 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8"]
+[node name="LOD1" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1"]
+[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1"]
 transform = Transform( 1.03, 0, 0, 0, 1.03, 0, 0, 0, 1.03, 0, 0, 0 )
 mesh = ExtResource( 14 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 65 )
 
-[node name="Sphere_LOD1" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1" instance=ExtResource( 20 )]
+[node name="Sphere_LOD1" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1" instance=ExtResource( 20 )]
 
-[node name="Sphere" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Sphere_LOD1" index="0"]
+[node name="Sphere" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Sphere_LOD1" index="0"]
 material/0 = SubResource( 83 )
 
-[node name="Rings" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1"]
+[node name="Rings" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1"]
 
-[node name="Ring texture_down" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings"]
+[node name="Ring texture_down" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings"]
 transform = Transform( 4, 0, 0, 0, -1.74846e-07, -4, 0, 4, -1.74846e-07, 0, -0.001, 0 )
 mesh = SubResource( 101 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 102 )
 
-[node name="Ring texture_up" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings"]
+[node name="Ring texture_up" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings"]
 transform = Transform( 4, 0, 0, 0, -1.74846e-07, 4, 0, -4, -1.74846e-07, 0, 0.001, 0 )
 mesh = SubResource( 101 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 102 )
 
-[node name="Ring_075_LOD1_1" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings" instance=ExtResource( 10 )]
+[node name="Ring_075_LOD1_1" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings" instance=ExtResource( 10 )]
 transform = Transform( 1.87, 0, 0, 0, 0.935, 0, 0, 0, 1.87, 0, 0, 0 )
 
-[node name="Ring_075_LOD1" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings/Ring_075_LOD1_1" index="0"]
+[node name="Ring_075_LOD1" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings/Ring_075_LOD1_1" index="0"]
 material/0 = SubResource( 103 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8"]
+[node name="LOD2" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2"]
+[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2"]
 transform = Transform( 1.03, 0, 0, 0, 1.03, 0, 0, 0, 1.03, 0, 0, 0 )
 mesh = ExtResource( 15 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 65 )
 
-[node name="Sphere_LOD2" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2" instance=ExtResource( 21 )]
+[node name="Sphere_LOD2" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2" instance=ExtResource( 21 )]
 
-[node name="Sphere" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Sphere_LOD2" index="0"]
+[node name="Sphere" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Sphere_LOD2" index="0"]
 material/0 = SubResource( 83 )
 
-[node name="Solar_sprite" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2" instance=ExtResource( 17 )]
+[node name="Solar_sprite" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2" instance=ExtResource( 17 )]
 
-[node name="Solar_sprite" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Solar_sprite" index="0"]
+[node name="Solar_sprite" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Solar_sprite" index="0"]
 material/0 = SubResource( 96 )
 
-[node name="Rings" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2"]
+[node name="Rings" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2"]
 
-[node name="Ring texture_down" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings"]
+[node name="Ring texture_down" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings"]
 transform = Transform( 4, 0, 0, 0, -1.74846e-07, -4, 0, 4, -1.74846e-07, 0, -0.001, 0 )
 mesh = SubResource( 101 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 102 )
 
-[node name="Ring texture_up" type="MeshInstance" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings"]
+[node name="Ring texture_up" type="MeshInstance" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings"]
 transform = Transform( 4, 0, 0, 0, -1.74846e-07, 4, 0, -4, -1.74846e-07, 0, 0.001, 0 )
 mesh = SubResource( 101 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 102 )
 
-[node name="Ring_075_LOD2_1" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings" instance=ExtResource( 12 )]
+[node name="Ring_075_LOD2_1" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings" instance=ExtResource( 12 )]
 transform = Transform( 1.87, 0, 0, 0, 0.935, 0, 0, 0, 1.87, 0, 0, 0 )
 
-[node name="Ring_075_LOD2" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings/Ring_075_LOD2_1" index="0"]
+[node name="Ring_075_LOD2" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings/Ring_075_LOD2_1" index="0"]
 material/0 = SubResource( 103 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8"]
+[node name="LOD3" type="Spatial" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8"]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Solar_sprite" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD3" instance=ExtResource( 17 )]
+[node name="Solar_sprite" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD3" instance=ExtResource( 17 )]
 
-[node name="Solar_sprite" parent="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD3/Solar_sprite" index="0"]
+[node name="Solar_sprite" parent="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD3/Solar_sprite" index="0"]
 material/0 = SubResource( 96 )
 
 [node name="Object Cube" type="Area" parent="Scenes"]
@@ -369,11 +369,11 @@ __meta__ = {
 [connection signal="body_entered" from="Scenes/Object Cube" to="Scenes/Object Cube" method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="Scenes/Object Cube" to="Scenes/Object Cube" method="_on_Local_space_trigger_zone_body_exited"]
 
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Sphere_LOD0"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings/Ring_075_LOD0_1"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Sphere_LOD1"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings/Ring_075_LOD1_1"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Sphere_LOD2"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Solar_sprite"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings/Ring_075_LOD2_1"]
-[editable path="Scenes/STAR_B2_0_PLANET_0/LODs planet blue 1e8/LOD3/Solar_sprite"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Sphere_LOD0"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings/Ring_075_LOD0_1"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Sphere_LOD1"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD1/Rings/Ring_075_LOD1_1"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Sphere_LOD2"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Solar_sprite"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD2/Rings/Ring_075_LOD2_1"]
+[editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD3/Solar_sprite"]

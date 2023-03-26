@@ -1,0 +1,52 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_NEBULA_ZONE.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_G8_0_1_ZONE.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_PLANET_0_ZONE.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_ZONE.tscn" type="PackedScene" id=6]
+
+[sub_resource type="SphereShape" id=79]
+
+[node name="STAR_B7_0_SYSTEM_ZONE" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 1 )
+
+[node name="Zone shape 3_27e+14" type="CollisionShape" parent="."]
+transform = Transform( 3.27e+14, 0, 0, 0, 3.27e+14, 0, 0, 0, 3.27e+14, 0, 0, 0 )
+shape = SubResource( 79 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="STAR_B7_0_SYSTEM" type="Position3D" parent="Scenes"]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+autopilot_range = 3.27e+14
+translations_name = "NAME_STAR_B7_0_SYSTEM"
+translations_description = "DESC_STAR_B7_0_SYSTEM"
+
+[node name="STAR_B7_0_ZONE" parent="Scenes/STAR_B7_0_SYSTEM" instance=ExtResource( 6 )]
+
+[node name="STAR_G8_0_1_ZONE" parent="Scenes/STAR_B7_0_SYSTEM" instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.07614e+11, 4.09622e+10, -1.34997e+12 )
+
+[node name="STAR_B7_0_NEBULA_ZONE" parent="Scenes/STAR_B7_0_SYSTEM" instance=ExtResource( 3 )]
+
+[node name="STAR_B7_0_PLANET_0_ZONE" parent="Scenes/STAR_B7_0_SYSTEM" instance=ExtResource( 5 )]
+transform = Transform( 0.342799, 0.387713, -0.855668, -0.0781797, 0.919473, 0.385303, 0.93615, -0.0651856, 0.345505, -4.65547e+13, -5.23952e+10, 5.14618e+12 )
+
+[connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

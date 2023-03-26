@@ -20,7 +20,7 @@ shader_param/alpha_clip = 1.0
 
 [sub_resource type="SphereShape" id=94]
 
-[node name="STAR_B2_0_NEBULA_ZONE" type="Area"]
+[node name="STAR_B7_0_NEBULA_ZONE" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
