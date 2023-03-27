@@ -1,13 +1,13 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_M2_4_SYSTEM_ZONE/STAR_M2_4_ZONE.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/_Planets/Planetoid_Red_Zone.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/_Stars/ID_159/STAR_MAIN_M_159_ZONE.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
 
 [sub_resource type="SphereShape" id=79]
 
-[node name="STAR_MAIN_M_159_System_Zone" type="Area"]
+[node name="STAR_M2_4_SYSTEM_ZONE" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
@@ -15,8 +15,8 @@ linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 11 )
 
-[node name="Zone shape 1_77e+12" type="CollisionShape" parent="."]
-transform = Transform( 1.77e+12, 0, 0, 0, 1.77e+12, 0, 0, 0, 1.77e+12, 0, 0, 0 )
+[node name="3_64e+11" type="CollisionShape" parent="."]
+transform = Transform( 3.64e+11, 0, 0, 0, 3.64e+11, 0, 0, 0, 3.64e+11, 0, 0, 0 )
 shape = SubResource( 79 )
 __meta__ = {
 "_edit_lock_": true
@@ -27,21 +27,18 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="STAR_MAIN_M_159_System" type="Position3D" parent="Scenes"]
+[node name="STAR_M2_4_SYSTEM" type="Position3D" parent="Scenes"]
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 1.77e+12
-translations_name = "NAME_STAR_MAIN_M_159_SYSTEM"
-translations_description = "DESC_STAR_MAIN_M_159_SYSTEM"
+autopilot_range = 3.64e+11
+translations_name = "NAME_STAR_M2_4_SYSTEM"
+translations_description = "DESC_STAR_M2_4_SYSTEM"
 
-[node name="STAR_MAIN_M_159_ZONE" parent="Scenes/STAR_MAIN_M_159_System" instance=ExtResource( 5 )]
-star_brightness_variation = 0.2
-star_contrast_variation = 0.5
-star_saturation_variation = -0.3
+[node name="STAR_M2_4_ZONE" parent="Scenes/STAR_M2_4_SYSTEM" instance=ExtResource( 2 )]
 
-[node name="Planetoid Red Zone" parent="Scenes/STAR_MAIN_M_159_System" instance=ExtResource( 3 )]
+[node name="_Planetoid Red Zone" parent="Scenes/STAR_M2_4_SYSTEM" instance=ExtResource( 3 )]
 transform = Transform( 0.931164, -0.313806, 0.185634, 0.294479, 0.947504, 0.12457, -0.21498, -0.0613295, 0.974691, -9.85987e+09, -6.03862e+08, -3.80446e+09 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]

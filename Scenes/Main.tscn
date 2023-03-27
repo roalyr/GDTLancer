@@ -17,14 +17,6 @@ script = ExtResource( 2 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 3 )]
 
-[node name="Camera_decorations" parent="_EDITOR OBJECTS_" instance=ExtResource( 5 )]
-
-[node name="Galaxy_belt" parent="_EDITOR OBJECTS_/Camera_decorations" index="1"]
-visible = false
-
 [node name="Global_space" parent="_EDITOR OBJECTS_" instance=ExtResource( 4 )]
 
-[editable path="_EDITOR OBJECTS_/Camera_decorations"]
-[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere"]
-[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere2"]
-[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere3"]
+[node name="Camera_decorations" parent="_EDITOR OBJECTS_" instance=ExtResource( 5 )]

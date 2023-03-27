@@ -1,0 +1,310 @@
+[gd_scene load_steps=32 format=2]
+
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
+[ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=3]
+[ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=4]
+[ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=5]
+[ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=6]
+[ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=7]
+[ext_resource path="res://Assets/Shaders/Clouds/CloudHalo_add_cull_front.gdshader" type="Shader" id=8]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.glb" type="PackedScene" id=9]
+[ext_resource path="res://Assets/Models/Sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=11]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD2.glb" type="PackedScene" id=12]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD0.glb" type="PackedScene" id=13]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD1.glb" type="PackedScene" id=14]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD1.glb" type="PackedScene" id=15]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.glb" type="PackedScene" id=16]
+[ext_resource path="res://Scripts/Zones/Zone_death.gd" type="Script" id=17]
+
+[sub_resource type="CubeMesh" id=119]
+
+[sub_resource type="OpenSimplexNoise" id=117]
+octaves = 1
+period = 38.9
+
+[sub_resource type="NoiseTexture" id=83]
+width = 64
+height = 64
+noise = SubResource( 117 )
+
+[sub_resource type="ShaderMaterial" id=42]
+shader = ExtResource( 3 )
+shader_param/halo_color = Color( 0.239216, 0, 0, 1 )
+shader_param/corona_color = Color( 0.2, 0, 0, 1 )
+shader_param/core_color = Color( 0.678431, 0.207843, 0.207843, 1 )
+shader_param/halo_strength = 1.4
+shader_param/halo_exponent = 0.9
+shader_param/corona_strength = 92.7
+shader_param/corona_exponent = 12.8
+shader_param/core_strength = 100.0
+shader_param/core_exponent = 32.8
+shader_param/rim_exponent = 1.3
+shader_param/displacement_scale = 0.113
+shader_param/displacement_velocity = 0.108
+shader_param/displacement_texture = SubResource( 83 )
+
+[sub_resource type="ShaderMaterial" id=123]
+shader = ExtResource( 8 )
+shader_param/albedo = Color( 0.203922, 0, 0, 1 )
+shader_param/rim_strength = 1.88
+shader_param/rim_exponent = 10.8
+shader_param/rim_strength_inner = 0.504
+shader_param/rim_exponent_inner = 19.8
+shader_param/alpha_clip = 1.0
+shader_param/alpha_clip_inner = 0.0
+
+[sub_resource type="CubeMesh" id=118]
+
+[sub_resource type="OpenSimplexNoise" id=112]
+octaves = 5
+period = 3.0
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=113]
+width = 128
+height = 128
+seamless = true
+noise = SubResource( 112 )
+
+[sub_resource type="OpenSimplexNoise" id=114]
+octaves = 9
+period = 4.0
+persistence = 0.646
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=115]
+width = 256
+height = 256
+seamless = true
+noise = SubResource( 114 )
+
+[sub_resource type="ShaderMaterial" id=116]
+shader = ExtResource( 5 )
+shader_param/rim_color = Color( 0.803922, 0.137255, 0.137255, 1 )
+shader_param/overlay_color = Color( 0.537255, 0, 0, 1 )
+shader_param/surface_color = Color( 0.784314, 0, 0.113725, 1 )
+shader_param/major_phase = 1.906
+shader_param/small_phase = 1.785
+shader_param/major_detail_intensity = 1.207
+shader_param/small_detail_intensity = -6.082
+shader_param/detail_decay_distance = 8.875e+08
+shader_param/major_detail_scale = 1.0
+shader_param/small_detail_scale = 2.0
+shader_param/major_detail_flow = 0.01
+shader_param/small_detail_flow = 0.02
+shader_param/rim_strength = 1.277
+shader_param/rim_exponent = 0.5
+shader_param/rim_intensity = 1.392
+shader_param/major_detail_noise = SubResource( 113 )
+shader_param/small_detail_noise = SubResource( 115 )
+
+[sub_resource type="ShaderMaterial" id=93]
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 1, 0, 0, 1 )
+shader_param/scale = 3.0
+shader_param/flare_distance = 2.5e+08
+shader_param/flare_size = 1.5
+shader_param/attenuation = 0.5
+shader_param/intensity = 0.5
+shader_param/exponent = 5.0
+shader_param/pulse_factor = 0.935
+shader_param/pulse_rate = 3.038
+shader_param/phase = 0.0
+
+[sub_resource type="SphereShape" id=92]
+
+[sub_resource type="SphereShape" id=124]
+
+[node name="STAR_M2_4_ZONE" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 2 )
+star_brightness_variation = 0.1
+star_contrast_variation = 0.3
+star_saturation_variation = -0.5
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 11 )]
+
+[node name="mat_halo" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = SubResource( 119 )
+material/0 = SubResource( 42 )
+
+[node name="mat_halo_outer" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = ExtResource( 7 )
+material/0 = SubResource( 123 )
+
+[node name="mat_core" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = SubResource( 118 )
+material/0 = SubResource( 116 )
+
+[node name="mat_sprite" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = ExtResource( 7 )
+material/0 = SubResource( 93 )
+
+[node name="Zone shape  1_57e+09" type="CollisionShape" parent="."]
+transform = Transform( 1.57e+09, 0, 0, 0, 1.57e+09, 0, 0, 0, 1.57e+09, 0, 0, 0 )
+shape = SubResource( 92 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "Add marker to scene and set its level."
+}
+
+[node name="STAR_M2_4" type="Position3D" parent="Scenes"]
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+autopilot_range = 2.74e+08
+translations_name = "NAME_STAR_M2_4"
+translations_description = "DESC_STAR_M2_4"
+
+[node name="Star_sprite_square_wide" parent="Scenes/STAR_M2_4" instance=ExtResource( 10 )]
+transform = Transform( 1.45e+09, 0, 0, 0, 1.45e+09, 0, 0, 0, 1.45e+09, 0, 0, 0 )
+
+[node name="Plane" parent="Scenes/STAR_M2_4/Star_sprite_square_wide" index="0"]
+material/0 = SubResource( 93 )
+
+[node name="OmniLight 3_64e+11" type="OmniLight" parent="Scenes/STAR_M2_4"]
+light_color = Color( 1, 0, 0, 1 )
+light_energy = 2.0
+omni_range = 3.64e+11
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Death_zone" type="Area" parent="Scenes/STAR_M2_4"]
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 17 )
+
+[node name="Zone shape 2_38e+08" type="CollisionShape" parent="Scenes/STAR_M2_4/Death_zone"]
+transform = Transform( 2.38e+08, 0, 0, 0, 2.38e+08, 0, 0, 0, 2.38e+08, 0, 0, 0 )
+shape = SubResource( 124 )
+
+[node name="LODs 1_57e+08" type="Spatial" parent="Scenes/STAR_M2_4"]
+transform = Transform( 1.57e+08, 0, 0, 0, 1.57e+08, 0, 0, 0, 1.57e+08, 0, 0, 0 )
+script = ExtResource( 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="LOD0" type="Spatial" parent="Scenes/STAR_M2_4/LODs 1_57e+08"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Halo Icosphere_LOD0" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0" instance=ExtResource( 16 )]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+
+[node name="Icosphere_LOD0" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0/Halo Icosphere_LOD0" index="0"]
+material/0 = SubResource( 42 )
+
+[node name="Core Sphere_LOD0" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0" instance=ExtResource( 13 )]
+
+[node name="Sphere" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0/Core Sphere_LOD0" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Halo outer Icosphere_LOD1_as_LOD0" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0" instance=ExtResource( 15 )]
+transform = Transform( 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0 )
+
+[node name="Icosphere_LOD1" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0/Halo outer Icosphere_LOD1_as_LOD0" index="0"]
+material/0 = SubResource( 123 )
+
+[node name="OmniLight 3_64e+11 1" type="OmniLight" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 1, 0 )
+light_color = Color( 1, 0, 0, 1 )
+omni_range = 3.64e+11
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="OmniLight 3_64e+11 -1" type="OmniLight" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0"]
+transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, -1, 0 )
+light_color = Color( 1, 0, 0, 1 )
+omni_range = 3.64e+11
+omni_attenuation = 10.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="LOD1" type="Spatial" parent="Scenes/STAR_M2_4/LODs 1_57e+08"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Halo Icosphere_LOD1" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1" instance=ExtResource( 15 )]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+
+[node name="Icosphere_LOD1" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1/Halo Icosphere_LOD1" index="0"]
+material/0 = SubResource( 42 )
+
+[node name="Core Sphere_LOD1" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1" instance=ExtResource( 14 )]
+
+[node name="Sphere" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1/Core Sphere_LOD1" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Halo outer Icosphere_LOD2_as_LOD1" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1" instance=ExtResource( 9 )]
+transform = Transform( 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0 )
+
+[node name="Icosphere_LOD2" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1/Halo outer Icosphere_LOD2_as_LOD1" index="0"]
+material/0 = SubResource( 123 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/STAR_M2_4/LODs 1_57e+08"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Halo Icosphere_LOD2" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2" instance=ExtResource( 9 )]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+
+[node name="Icosphere_LOD2" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2/Halo Icosphere_LOD2" index="0"]
+material/0 = SubResource( 42 )
+
+[node name="Core Sphere_LOD2" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2" instance=ExtResource( 12 )]
+
+[node name="Sphere" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2/Core Sphere_LOD2" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Halo outer Icosphere_LOD2" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2" instance=ExtResource( 9 )]
+transform = Transform( 7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0 )
+
+[node name="Icosphere_LOD2" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2/Halo outer Icosphere_LOD2" index="0"]
+material/0 = SubResource( 123 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/STAR_M2_4/LODs 1_57e+08"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
+
+[editable path="Scenes/STAR_M2_4/Star_sprite_square_wide"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0/Halo Icosphere_LOD0"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0/Core Sphere_LOD0"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0/Halo outer Icosphere_LOD1_as_LOD0"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1/Halo Icosphere_LOD1"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1/Core Sphere_LOD1"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD1/Halo outer Icosphere_LOD2_as_LOD1"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2/Halo Icosphere_LOD2"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2/Core Sphere_LOD2"]
+[editable path="Scenes/STAR_M2_4/LODs 1_57e+08/LOD2/Halo outer Icosphere_LOD2"]

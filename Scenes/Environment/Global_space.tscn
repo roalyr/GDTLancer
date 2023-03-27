@@ -1,13 +1,13 @@
 [gd_scene load_steps=11 format=2]
 
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/System_Yellow_Zone.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_System_Yellow_Zone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_SYSTEM_ZONE.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=3]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_MAIN_M_159_System_Zone.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_M2_4_SYSTEM_ZONE/STAR_M2_4_SYSTEM_ZONE.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=5]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Moirai_Cluster_Zone.tscn" type="PackedScene" id=7]
-[ext_resource path="res://Scenes/Environment/Camera_decorations.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_A7_1_SYSTEM_ZONE/STAR_A7_1_SYSTEM_ZONE.tscn" type="PackedScene" id=8]
 
 [sub_resource type="CubeMesh" id=1]
 
@@ -22,9 +22,7 @@ shader_param/alpha_clip = 1.0
 script = ExtResource( 3 )
 __meta__ = {
 "_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
+"_editor_description_": ""
 }
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 6 )]
@@ -34,11 +32,6 @@ transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 4.41227e+17, 1.918
 visible = false
 mesh = SubResource( 1 )
 material/0 = SubResource( 2 )
-
-[node name="Camera_decorations" parent="_EDITOR OBJECTS_" instance=ExtResource( 8 )]
-
-[node name="Galaxy_belt" parent="_EDITOR OBJECTS_/Camera_decorations" index="1"]
-visible = false
 
 [node name="Global clusters" type="Position3D" parent="."]
 __meta__ = {
@@ -51,16 +44,14 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 [node name="Moirai_Cluster_Zone" parent="Global clusters" instance=ExtResource( 7 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.29462e+17, 0, -7.38962e+17 )
 
-[node name="System Yellow Zone" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 1 )]
-transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -5.13188e+17, 1.99136e+17, 4.91606e+16 )
-
 [node name="STAR_B7_0_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.39582e+17, -7.91786e+16, -2.82083e+17 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.69282e+17, -7.92571e+16, 4.11434e+17 )
 
-[node name="STAR_MAIN_M_159_System_Zone" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 4 )]
+[node name="STAR_A7_1_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.70303e+17, 5.59405e+16, 2.18203e+17 )
+
+[node name="STAR_M2_4_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 4 )]
 transform = Transform( 0.66897, 0.702731, -0.242172, -0.634387, 0.709588, 0.306656, 0.387339, -0.0515134, 0.920497, -3.73673e+16, -8.36826e+16, 1.52458e+16 )
 
-[editable path="_EDITOR OBJECTS_/Camera_decorations"]
-[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere"]
-[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere2"]
-[editable path="_EDITOR OBJECTS_/Camera_decorations/Galactic_background_lights/Starsphere3"]
+[node name="_System Yellow Zone" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 1 )]
+transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -3.52228e+17, 7.09459e+17, -1.01058e+18 )

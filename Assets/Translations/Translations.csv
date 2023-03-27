@@ -90,12 +90,102 @@ Temperature zone data:
 * Помірна зона :   0.617 ... 0.873 а.о.
 * Холодна зона :   0.873 ... 1.333 а.о.
 * Межа кригоутворення : > 2.504 а.о.",Object description
+DESC_STAR_A7_1_SYSTEM,A planetary system around the Equberan A star.,Планетарна система зірки Екуберан А.,Object description
+DESC_STAR_A7_1,"Absolute units:
+* Size: 2.01e+09 m
+* Temperature: 8184 K
+* Luminosity: 3.22e+27 W
+
+Sun units:
+* Size: 1.445 D
+* Temperature: 1.42 T
+* Luminosity: 8.43 L
+
+Spectral data:
+* Type: A7
+* Peak wavelength: 354.0 nm
+* Peak wavelength type: near UV
+
+Temperature zone data:
+* Mineral melting line: < 0.226 AU
+* Hot zone   :   0.226 ... 0.581 AU
+* Warm zone  :   0.581 ... 2.024 AU
+* Temp. zone :   2.024 ... 2.863 AU
+* Cold zone  :   2.863 ... 8.215 AU
+* Frost line : > 8.215 AU","Абсолютні величини:
+* Розмір: 2.01e+09 м
+* Температура: 8184 К
+* Світність: 3.22e+27 Вт
+
+Відносно Сонця:
+* Розмір: 1.445 D
+* Температура: 1.42 T
+* Світність: 8.43 L
+
+Спектральні дані:
+* Тип: A7
+* Пікова довжина хвилі: 354.0 нм
+* Тип пікового випромінювання: near UV
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.226 а.о.
+* Гаряча зона  :   0.226 ... 0.581 а.о.
+* Тепла зона   :   0.581 ... 2.024 а.о.
+* Помірна зона :   2.024 ... 2.863 а.о.
+* Холодна зона :   2.863 ... 4.373 а.о.
+* Межа кригоутворення : > 8.215 а.о.",Object description
+DESC_STAR_M2_4,"Absolute units:
+* Size: 1.57e+08 m
+* Temperature: 3315 K
+* Luminosity: 5.31e+23 W
+
+Sun units:
+* Size: 0.113 D
+* Temperature: 0.57 T
+* Luminosity: 0.001 L
+
+Spectral data:
+* Type: M2
+* Peak wavelength: 874.0 nm
+* Peak wavelength type: near IR
+
+Temperature zone data:
+* Mineral melting line: < 0.003 AU
+* Hot zone   :   0.003 ... 0.007 AU
+* Warm zone  :   0.007 ... 0.026 AU
+* Temp. zone :   0.026 ... 0.037 AU
+* Cold zone  :   0.037 ... 0.105 AU
+* Frost line : > 0.105 AU","Абсолютні величини:
+* Розмір: 1.57e+08 м
+* Температура: 3315 К
+* Світність: 5.31e+23 Вт
+
+Відносно Сонця:
+* Розмір: 0.113 D
+* Температура: 0.57 T
+* Світність: 0.001 L
+
+Спектральні дані:
+* Тип: M2
+* Пікова довжина хвилі: 874.0 нм
+* Тип пікового випромінювання: near IR
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.003 а.о.
+* Гаряча зона  :   0.003 ... 0.007 а.о.
+* Тепла зона   :   0.007 ... 0.026 а.о.
+* Помірна зона :   0.026 ... 0.037 а.о.
+* Холодна зона :   0.037 ... 0.056 а.о.
+* Межа кригоутворення : > 0.105 а.о.",Object description
 NAME_STAR_B7_0,Victory A,Вікторі А,Object name
-NAME_STAR_B7_0_SYSTEM,Victory,Вікторі,Object name
+NAME_STAR_B7_0_SYSTEM,Victory system,Система Вікторі,Object name
 NAME_STAR_B7_0_PLANET_0,Victory b planet,Вікторі b планета,Object name
 NAME_STAR_MAIN_M_159,Spark A,Спарк А,Object name
-NAME_STAR_MAIN_M_159_SYSTEM,Spark,Спарк,Object name
+NAME_STAR_MAIN_M_159_SYSTEM,Spark system,Система Спарк,Object name
 NAME_STAR_G8_0_1,Victory B,Вікторі B,Object name
+NAME_STAR_A7_1_SYSTEM,Equberan system,Система Екуберан,Object name
+NAME_STAR_A7_1,Equberan A,Екуберан А,Object name
+NAME_STAR_M2_4,Viakata A,Віаката А,Object name
 BUTTON_DEBUG,Debug,Налагодження,UI buttons
 BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК,UI buttons
 BUTTON_INFO,Info,Інформація,UI buttons
