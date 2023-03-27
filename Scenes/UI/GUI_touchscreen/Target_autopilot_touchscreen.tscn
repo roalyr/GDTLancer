@@ -1,16 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=2]
-[ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=3]
+[ext_resource path="res://Assets/UI_images/PNG/gui_elements/bracket_autopilot.png" type="Texture" id=3]
 
-[sub_resource type="StyleBoxFlat" id=1]
-bg_color = Color( 0, 0, 0, 0.25098 )
-border_color = Color( 0, 0, 0, 0 )
-corner_detail = 1
-anti_aliasing = false
-
-[node name="Target_autopilot_touchscreen" type="Control"]
+[node name="Target_aim_touchscreen" type="Control"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -25,13 +19,14 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = 10.0
-margin_top = 20.0
-margin_right = 159.0
-margin_bottom = 68.0
+margin_left = -80.0
+margin_top = -120.0
+margin_right = 79.0
+margin_bottom = -72.0
+grow_horizontal = 2
 theme = ExtResource( 1 )
-custom_colors/font_color = Color( 0, 1, 0, 1 )
 text = "0000 km"
+align = 1
 
 [node name="Text_object" type="Label" parent="."]
 visible = false
@@ -39,16 +34,15 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = 10.0
-margin_top = 70.0
-margin_right = 400.0
-margin_bottom = 106.0
-grow_horizontal = 0
+margin_left = -80.0
+margin_top = 75.0
+margin_right = 80.0
+margin_bottom = 111.0
+grow_horizontal = 2
 theme = ExtResource( 1 )
-custom_colors/font_color = Color( 0, 1, 0, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "No target"
-autowrap = true
+align = 1
 
 [node name="Frame" type="Control" parent="."]
 anchor_right = 1.0
@@ -57,30 +51,5 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ColorRect9" type="Control" parent="Frame"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -20.0
-margin_top = -20.0
-margin_right = 20.0
-margin_bottom = 20.0
-
-[node name="Panel" type="Panel" parent="Frame/ColorRect9"]
-material = ExtResource( 3 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 1 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Panel_shade" type="Panel" parent="Frame/ColorRect9"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 1 )
-custom_styles/panel = SubResource( 1 )
-__meta__ = {
-"_edit_lock_": true
-}
+[node name="Bracket" type="Sprite" parent="Frame"]
+texture = ExtResource( 3 )

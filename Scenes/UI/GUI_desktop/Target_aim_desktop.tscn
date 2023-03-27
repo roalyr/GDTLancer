@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Assets/UI_images/PNG/gui_elements/bracket_targeting.png" type="Texture" id=3]
 
 [node name="Target_aim_desktop" type="Control"]
 anchor_left = 0.5
@@ -17,67 +18,37 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = 10.0
-margin_top = -100.0
-margin_right = 159.0
-margin_bottom = -52.0
+margin_left = -80.0
+margin_top = -110.0
+margin_right = 79.0
+margin_bottom = -74.0
+grow_horizontal = 2
 theme = ExtResource( 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "0000 km"
+align = 1
 
 [node name="Text_object" type="Label" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = 10.0
-margin_top = -60.0
-margin_right = 400.0
-margin_bottom = -24.0
-grow_horizontal = 0
+margin_left = -80.0
+margin_top = 75.0
+margin_right = 80.0
+margin_bottom = 111.0
+grow_horizontal = 2
 theme = ExtResource( 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "No target"
-autowrap = true
+align = 1
 
-[node name="ColorRect" type="ColorRect" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -1.0
-margin_top = -17.0
-margin_right = 1.0
-margin_bottom = -9.0
+[node name="Frame" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="ColorRect2" type="ColorRect" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -1.0
-margin_top = 9.0
-margin_right = 1.0
-margin_bottom = 17.0
-
-[node name="ColorRect3" type="ColorRect" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -9.0
-margin_top = -1.0
-margin_right = -7.0
-margin_bottom = 7.0
-rect_rotation = 90.0
-
-[node name="ColorRect4" type="ColorRect" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = 17.0
-margin_top = -1.0
-margin_right = 19.0
-margin_bottom = 7.0
-rect_rotation = 90.0
+[node name="Bracket" type="Sprite" parent="Frame"]
+texture = ExtResource( 3 )
