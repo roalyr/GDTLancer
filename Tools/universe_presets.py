@@ -56,4 +56,11 @@ systems = [
 		"companion_stars" : [],
 	},
 	
+	{
+		"cluster" : "", # Most likely outside of Moirai.
+		"name" : "Hilicele", # In lore this will be the system where X are first found.
+		"main_star" : ("F", 7),
+		"companion_stars" : [],
+	},
+	
 ]
