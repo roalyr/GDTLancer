@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_System_Yellow_Zone.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_SYSTEM_ZONE.tscn" type="PackedScene" id=2]
@@ -8,6 +8,9 @@
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Moirai_Cluster_Zone.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_A7_1_SYSTEM_ZONE/STAR_A7_1_SYSTEM_ZONE.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Scenes/Environment/Star_placeholders_M.tscn" type="PackedScene" id=9]
+[ext_resource path="res://Scenes/Environment/Star_placeholders_G.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Scenes/Environment/Star_placeholders_B.tscn" type="PackedScene" id=11]
 
 [sub_resource type="CubeMesh" id=1]
 
@@ -17,6 +20,33 @@ shader_param/albedo = Color( 0.521569, 1, 0, 1 )
 shader_param/rim_strength = 0.012
 shader_param/rim_exponent = 15.0
 shader_param/alpha_clip = 1.0
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Position3D
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# By hiding the object initially and showing it afterwards it 
+# mitigates the lag when some objects are not rendered.
+
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	self.hide()
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	if self.visible:
+		pass
+	else:
+		self.show()
+"
 
 [node name="Global_space" type="Position3D"]
 script = ExtResource( 3 )
@@ -43,6 +73,23 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 
 [node name="Moirai_Cluster_Zone" parent="Global clusters" instance=ExtResource( 7 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.29462e+17, 0, -7.38962e+17 )
+
+[node name="Fake_stars" type="Position3D" parent="Global clusters/Moirai_Cluster_Zone"]
+script = SubResource( 3 )
+
+[node name="Star_placeholders_B" parent="Global clusters/Moirai_Cluster_Zone/Fake_stars" instance=ExtResource( 11 )]
+transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, 0, 0, 0 )
+
+[node name="Star_placeholders_G" parent="Global clusters/Moirai_Cluster_Zone/Fake_stars" instance=ExtResource( 10 )]
+transform = Transform( 0.14542, -0.764867, -0.146223, 0.595024, 0.0131821, 0.522803, -0.502344, -0.205802, 0.576928, 3.43597e+10, 0, 0 )
+
+[node name="Star_placeholders_G2" parent="Global clusters/Moirai_Cluster_Zone/Fake_stars" instance=ExtResource( 10 )]
+transform = Transform( -0.591883, 0.566968, 0.808645, 0.118221, -0.895294, 0.714253, 0.980501, 0.4502, 0.402022, 0, 0, 0 )
+
+[node name="Star_placeholders_M" parent="Global clusters/Moirai_Cluster_Zone/Fake_stars" instance=ExtResource( 9 )]
+
+[node name="Star_placeholders_M2" parent="Global clusters/Moirai_Cluster_Zone/Fake_stars" instance=ExtResource( 9 )]
+transform = Transform( -1.79409, -0.0271194, 2.20582, 0.150114, -2.83813, 0.0872007, 2.20087, 0.171472, 1.79217, 0, 0, 0 )
 
 [node name="STAR_B7_0_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.69282e+17, -7.92571e+16, 4.11434e+17 )

@@ -1,0 +1,408 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Assets/Shaders/Sprites/Sprite_star_no_tex.gdshader" type="Shader" id=1]
+
+[sub_resource type="SpatialMaterial" id=4]
+vertex_color_use_as_albedo = true
+
+[sub_resource type="ArrayMesh" id=5]
+resource_name = "Star_sprite_square_wide_Plane"
+surfaces/0 = {
+"aabb": AABB( -0.718175, -0.245297, 0, 1.43635, 0.490605, 1e-05 ),
+"array_data": PoolByteArray( 0, 0, 0, 0, 64, 47, 123, 62, 0, 0, 0, 0, 0, 0, 69, 34, 0, 0, 0, 255, 54, 55, 202, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 50, 255, 255, 255, 255, 0, 56, 0, 56, 43, 211, 76, 190, 168, 59, 55, 62, 0, 0, 0, 128, 0, 0, 107, 53, 0, 0, 0, 255, 109, 54, 202, 54, 9, 166, 154, 62, 223, 180, 161, 188, 0, 0, 0, 128, 0, 0, 135, 60, 55, 55, 55, 255, 251, 53, 101, 55, 77, 218, 55, 191, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 121, 66, 0, 0, 0, 255, 192, 52, 101, 55, 77, 218, 55, 191, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 121, 196, 0, 0, 0, 255, 192, 52, 101, 55, 43, 211, 76, 62, 168, 59, 55, 62, 0, 0, 0, 128, 0, 0, 149, 203, 0, 0, 0, 255, 109, 54, 202, 54, 77, 218, 55, 63, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 135, 60, 0, 0, 0, 255, 192, 52, 101, 55, 0, 0, 0, 0, 64, 47, 123, 190, 0, 0, 0, 0, 0, 0, 187, 92, 0, 0, 0, 255, 54, 55, 202, 50, 0, 0, 0, 0, 64, 47, 123, 190, 0, 0, 0, 0, 0, 0, 69, 164, 0, 0, 0, 255, 54, 55, 202, 50, 15, 231, 208, 62, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 135, 190, 55, 55, 55, 255, 36, 53, 178, 55, 43, 211, 76, 190, 168, 59, 55, 190, 0, 0, 0, 128, 0, 0, 107, 183, 0, 0, 0, 255, 109, 54, 202, 54, 43, 211, 76, 62, 168, 59, 55, 190, 0, 0, 0, 128, 0, 0, 149, 73, 0, 0, 0, 255, 109, 54, 202, 54, 0, 0, 0, 0, 2, 172, 147, 61, 0, 0, 0, 128, 0, 0, 21, 10, 248, 248, 248, 255, 0, 56, 0, 52, 99, 126, 160, 189, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 124, 64, 255, 255, 255, 255, 137, 53, 0, 56, 133, 255, 236, 60, 196, 3, 212, 60, 0, 0, 0, 128, 0, 0, 160, 208, 255, 255, 255, 255, 54, 55, 101, 55, 99, 126, 160, 61, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 132, 192, 255, 255, 255, 255, 137, 53, 0, 56, 0, 0, 0, 0, 2, 172, 147, 189, 0, 0, 0, 128, 0, 0, 21, 140, 255, 255, 255, 255, 0, 56, 0, 52, 133, 255, 236, 188, 196, 3, 212, 188, 0, 0, 0, 128, 0, 0, 96, 178, 252, 252, 252, 255, 54, 55, 101, 55, 133, 255, 236, 60, 196, 3, 212, 188, 0, 0, 0, 128, 0, 0, 160, 78, 255, 255, 255, 255, 54, 55, 101, 55, 133, 255, 236, 188, 196, 3, 212, 60, 0, 0, 0, 128, 0, 0, 96, 48, 255, 255, 255, 255, 54, 55, 101, 55, 9, 166, 154, 62, 223, 180, 161, 60, 0, 0, 0, 128, 0, 0, 135, 190, 55, 55, 55, 255, 251, 53, 101, 55, 15, 231, 208, 190, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 121, 66, 55, 55, 55, 255, 36, 53, 178, 55, 15, 231, 208, 190, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 121, 196, 55, 55, 55, 255, 36, 53, 178, 55, 9, 166, 154, 190, 223, 180, 161, 60, 0, 0, 0, 128, 0, 0, 121, 66, 55, 55, 55, 255, 251, 53, 101, 55, 9, 166, 154, 190, 223, 180, 161, 188, 0, 0, 0, 128, 0, 0, 121, 196, 55, 55, 55, 255, 251, 53, 101, 55 ),
+"array_index_data": PoolByteArray( 2, 0, 0, 0, 20, 0, 1, 0, 14, 0, 20, 0, 6, 0, 15, 0, 0, 0, 1, 0, 15, 0, 16, 0, 11, 0, 18, 0, 9, 0, 1, 0, 18, 0, 14, 0, 12, 0, 8, 0, 19, 0, 1, 0, 16, 0, 19, 0, 16, 0, 10, 0, 3, 0, 19, 0, 3, 0, 12, 0, 8, 0, 17, 0, 19, 0, 19, 0, 17, 0, 1, 0, 18, 0, 11, 0, 25, 0, 14, 0, 18, 0, 25, 0, 18, 0, 1, 0, 17, 0, 18, 0, 17, 0, 9, 0, 15, 0, 6, 0, 21, 0, 16, 0, 15, 0, 21, 0, 15, 0, 1, 0, 13, 0, 15, 0, 13, 0, 0, 0, 14, 0, 22, 0, 24, 0, 20, 0, 24, 0, 2, 0, 0, 0, 13, 0, 20, 0, 20, 0, 13, 0, 1, 0, 21, 0, 7, 0, 10, 0, 10, 0, 7, 0, 3, 0, 25, 0, 5, 0, 23, 0, 22, 0, 4, 0, 24, 0, 24, 0, 4, 0, 2, 0, 11, 0, 5, 0, 25, 0, 6, 0, 7, 0, 21, 0, 3, 0, 7, 0, 12, 0, 16, 0, 3, 0, 19, 0, 14, 0, 25, 0, 23, 0, 16, 0, 21, 0, 10, 0, 14, 0, 24, 0, 20, 0 ),
+"blend_shape_data": [  ],
+"format": 2194719,
+"index_count": 108,
+"material": SubResource( 4 ),
+"primitive": 4,
+"skeleton_aabb": [  ],
+"vertex_count": 26
+}
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.984314, 0.235294, 0.235294, 1 )
+shader_param/scale = 1.5
+shader_param/flare_distance = 2.5e+08
+shader_param/flare_size = 2.0
+shader_param/attenuation = 0.23
+shader_param/intensity = 0.5
+shader_param/exponent = 5.0
+shader_param/pulse_factor = 0.958
+shader_param/pulse_rate = 3.038
+shader_param/phase = 0.0
+
+[node name="Star_placeholders_M" type="Position3D"]
+
+[node name="mat_M" type="Spatial" parent="."]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.01716e+18, -1.12058e+17, -1.04451e+18 )
+
+[node name="Plane" type="MeshInstance" parent="mat_M"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="Star_placeholders" type="Position3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.29462e+17, 0, 7.38962e+17 )
+
+[node name="1" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.01716e+18, -1.12058e+17, -1.04451e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/1"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="2" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -4.70972e+17, 5.3976e+17, -1.41647e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/2"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="3" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.50557e+18, -1.36651e+17, -1.6845e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/3"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="4" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -1.51449e+17, 4.13623e+17, -1.0505e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/4"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="5" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.73367e+17, 1.61006e+17, 2.4221e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/5"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="6" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -6.03226e+16, 1.44464e+17, 2.47322e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/6"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="7" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 8.04933e+17, -5.05114e+17, -1.15256e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/7"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="8" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 5.21121e+17, -3.1475e+17, -4.38178e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/8"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="9" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 4.06109e+17, -9.39672e+16, -8.50771e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/9"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="10" type="Spatial" parent="Star_placeholders"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.04451e+17, 4.69406e+16, -5.20678e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders/10"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="Star_placeholders3" type="Position3D" parent="."]
+transform = Transform( -0.669742, -0.487697, -1.16695, 0.0181193, -1.32403, 0.542945, -1.26463, 0.239311, 0.62579, -3.14522e+17, 3.834e+17, 1.06191e+18 )
+
+[node name="1" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.01716e+18, -1.12058e+17, -1.04451e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/1"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="2" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -4.70972e+17, 5.3976e+17, -1.41647e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/2"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="3" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.50557e+18, -1.36651e+17, -1.6845e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/3"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="4" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -1.51449e+17, 4.13623e+17, -1.0505e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/4"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="5" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.73367e+17, 1.61006e+17, 2.4221e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/5"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="6" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -6.03226e+16, 1.44464e+17, 2.47322e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/6"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="7" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 8.04933e+17, -5.05114e+17, -1.15256e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/7"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="8" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 5.21121e+17, -3.1475e+17, -4.38178e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/8"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="9" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 4.06109e+17, -9.39672e+16, -8.50771e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/9"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="10" type="Spatial" parent="Star_placeholders3"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.04451e+17, 4.69406e+16, -5.20678e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders3/10"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="Star_placeholders5" type="Position3D" parent="."]
+transform = Transform( 0.502768, 0.770204, 1.85467, 0.0287973, -1.91448, 0.787234, 2.00803, -0.165387, -0.475659, 1.04076e+18, 5.53173e+17, -1.41548e+18 )
+
+[node name="1" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.01716e+18, -1.12058e+17, -1.04451e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/1"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="2" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -4.70972e+17, 5.3976e+17, -1.41647e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/2"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="3" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.50557e+18, -1.36651e+17, -1.6845e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/3"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="4" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -1.51449e+17, 4.13623e+17, -1.0505e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/4"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="5" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.73367e+17, 1.61006e+17, 2.4221e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/5"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="6" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -6.03226e+16, 1.44464e+17, 2.47322e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/6"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="7" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 8.04933e+17, -5.05114e+17, -1.15256e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/7"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="8" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 5.21121e+17, -3.1475e+17, -4.38178e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/8"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="9" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 4.06109e+17, -9.39672e+16, -8.50771e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/9"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="10" type="Spatial" parent="Star_placeholders5"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.04451e+17, 4.69406e+16, -5.20678e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders5/10"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="Star_placeholders2" type="Position3D" parent="."]
+transform = Transform( -0.471106, 0.00175747, -0.220995, 0.0561283, 0.504241, -0.115641, 0.213756, -0.128531, -0.456695, 1.11959e+17, -1.9295e+17, -4.34435e+17 )
+
+[node name="1" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.01716e+18, -1.12058e+17, -1.04451e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/1"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="2" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -4.70972e+17, 5.3976e+17, -1.41647e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/2"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="3" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.50557e+18, -1.36651e+17, -1.6845e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/3"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="4" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -1.51449e+17, 4.13623e+17, -1.0505e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/4"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="5" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.73367e+17, 1.61006e+17, 2.4221e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/5"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="6" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -6.03226e+16, 1.44464e+17, 2.47322e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/6"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="7" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 8.04933e+17, -5.05114e+17, -1.15256e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/7"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="8" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 5.21121e+17, -3.1475e+17, -4.38178e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/8"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="9" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 4.06109e+17, -9.39672e+16, -8.50771e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/9"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="10" type="Spatial" parent="Star_placeholders2"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.04451e+17, 4.69406e+16, -5.20678e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders2/10"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="Star_placeholders4" type="Position3D" parent="."]
+transform = Transform( 0.198138, 0.0720398, 0.26432, 0.0445721, -0.330334, 0.0566201, 0.270311, 0.00166432, -0.203083, -3.86091e+16, 1.58506e+17, -8.13045e+16 )
+
+[node name="1" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.01716e+18, -1.12058e+17, -1.04451e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/1"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="2" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -4.70972e+17, 5.3976e+17, -1.41647e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/2"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="3" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 1.50557e+18, -1.36651e+17, -1.6845e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/3"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="4" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -1.51449e+17, 4.13623e+17, -1.0505e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/4"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="5" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.73367e+17, 1.61006e+17, 2.4221e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/5"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="6" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, -6.03226e+16, 1.44464e+17, 2.47322e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/6"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="7" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 8.04933e+17, -5.05114e+17, -1.15256e+18 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/7"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="8" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 5.21121e+17, -3.1475e+17, -4.38178e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/8"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="9" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 4.06109e+17, -9.39672e+16, -8.50771e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/9"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )
+
+[node name="10" type="Spatial" parent="Star_placeholders4"]
+transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 6.04451e+17, 4.69406e+16, -5.20678e+17 )
+
+[node name="Plane" type="MeshInstance" parent="Star_placeholders4/10"]
+mesh = SubResource( 5 )
+material/0 = SubResource( 3 )

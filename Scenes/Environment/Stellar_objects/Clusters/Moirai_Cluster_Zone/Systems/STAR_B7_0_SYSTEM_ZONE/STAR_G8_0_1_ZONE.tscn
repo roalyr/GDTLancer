@@ -92,11 +92,11 @@ shader_param/small_detail_noise = SubResource( 122 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 1, 1, 0, 1 )
-shader_param/scale = 1.0
+shader_param/albedo = Color( 1, 1, 0.454902, 1 )
+shader_param/scale = 0.8
 shader_param/flare_distance = 5.95e+09
 shader_param/flare_size = 3.0
-shader_param/attenuation = 0.35
+shader_param/attenuation = 0.22
 shader_param/intensity = 0.5
 shader_param/exponent = 5.0
 shader_param/pulse_factor = 0.935

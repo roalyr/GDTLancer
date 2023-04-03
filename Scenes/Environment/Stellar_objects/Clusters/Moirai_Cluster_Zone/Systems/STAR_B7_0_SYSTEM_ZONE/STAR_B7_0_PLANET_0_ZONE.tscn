@@ -364,10 +364,32 @@ __meta__ = {
 
 [node name="Object Cube" parent="Scenes/Object Cube/Scenes" instance=ExtResource( 11 )]
 
+[node name="Object Cube2" type="Area" parent="Scenes"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.82813e+08, 125740, 3.16302e+07 )
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 5 )
+
+[node name="Zone shape 1e4" type="CollisionShape" parent="Scenes/Object Cube2"]
+transform = Transform( 10000, 0, 0, 0, 10000, 0, 0, 0, 10000, 0, 0, 0 )
+shape = SubResource( 79 )
+
+[node name="Scenes" type="Spatial" parent="Scenes/Object Cube2"]
+__meta__ = {
+"_editor_description_": "Add marker to scene and set its level."
+}
+
+[node name="Object Cube" parent="Scenes/Object Cube2/Scenes" instance=ExtResource( 11 )]
+
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
 [connection signal="body_entered" from="Scenes/Object Cube" to="Scenes/Object Cube" method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="Scenes/Object Cube" to="Scenes/Object Cube" method="_on_Local_space_trigger_zone_body_exited"]
+[connection signal="body_entered" from="Scenes/Object Cube2" to="Scenes/Object Cube2" method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="Scenes/Object Cube2" to="Scenes/Object Cube2" method="_on_Local_space_trigger_zone_body_exited"]
 
 [editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Sphere_LOD0"]
 [editable path="Scenes/STAR_B7_0_PLANET_0/LODs planet blue 1e8/LOD0/Rings/Ring_075_LOD0_1"]

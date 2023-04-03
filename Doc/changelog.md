@@ -12,12 +12,16 @@
 - Environment zones (locally adjustable brightness, saturation, contrast).
 - New star cluster Moirai.
 - Stars are adjusted according to their types (size, color, light ranges).
+- Added placeholder fake stars (sprites) to make space look less empty and for testing.
+- Added death zones (around stars for now) for future gameplay use.
 ### Shaders
 - Tweaked shaders for performance (significant boost due to partially using vertex shading).
 - Re-introduced star core shader, optimized this time. Distance-modified brightness.
 - New different star sprites.
 - Clamped shaders alpha to prevent unexpected bugs.
 - Star sprite shader is adaptable with distance.
+- Gas planet shader added.
+- Planetary rings shaders added.
 ### Locales
 - Initiated localization (EN and UA).
 - Connected localization strings with interface, added language switching button.
@@ -35,8 +39,10 @@
 - Refactored autopilot code to be more reliable.
 - Refactored UI code to be more reliable.
 - Refactored meshes of primitives and used unified names.
+- Refactoring meshes to use .gltf format directly.
 ### Documentation
 - Universe reference papers (presets, test, random systems).
+- Lore: Xenohive alien race.
 ### Tools
 - Universe generator script in Python3 added (works stand-alone).
 - Main sequence stars generator algorithm implemented.
