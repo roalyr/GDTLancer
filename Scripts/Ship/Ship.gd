@@ -12,7 +12,7 @@ const accel_ticks_max = pow(2,31) # Engine propulsion increments. Pow 2.
 const torque_factor = Vector3(10e8,5e8,5e8)
 
 const camera_vert_offset = 1
-const camera_horiz_offset = 6
+const camera_horiz_offset = 7
 
 const engine_step_delay = 0.3
 

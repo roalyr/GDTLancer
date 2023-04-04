@@ -179,7 +179,7 @@ transform = Transform( 1.45e+09, 0, 0, 0, 1.45e+09, 0, 0, 0, 1.45e+09, 0, 0, 0 )
 material/0 = SubResource( 93 )
 
 [node name="OmniLight 3_64e+11" type="OmniLight" parent="Scenes/STAR_M2_4"]
-light_color = Color( 1, 0, 0, 1 )
+light_color = Color( 1, 0.494118, 0.494118, 1 )
 light_energy = 2.0
 omni_range = 3.64e+11
 omni_attenuation = 10.0
@@ -228,7 +228,7 @@ material/0 = SubResource( 123 )
 
 [node name="OmniLight 3_64e+11 1" type="OmniLight" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 1, 0 )
-light_color = Color( 1, 0, 0, 1 )
+light_color = Color( 1, 0.494118, 0.494118, 1 )
 omni_range = 3.64e+11
 omni_attenuation = 10.0
 __meta__ = {
@@ -237,7 +237,7 @@ __meta__ = {
 
 [node name="OmniLight 3_64e+11 -1" type="OmniLight" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, -1, 0 )
-light_color = Color( 1, 0, 0, 1 )
+light_color = Color( 1, 0.494118, 0.494118, 1 )
 omni_range = 3.64e+11
 omni_attenuation = 10.0
 __meta__ = {

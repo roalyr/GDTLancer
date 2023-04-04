@@ -71,6 +71,7 @@ angular_damp = 0.0
 script = ExtResource( 1 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 4 )]
+visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 
@@ -87,19 +88,19 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Planet Icy" type="Position3D" parent="Scenes"]
+[node name="Valeri Ab planet" type="Position3D" parent="Scenes"]
 script = ExtResource( 3 )
 autopilot_range = 1.4e+07
 
-[node name="Planet 7e6" type="StaticBody" parent="Scenes/Planet Icy"]
+[node name="Planet 7e6" type="StaticBody" parent="Scenes/Valeri Ab planet"]
 transform = Transform( 7.01e+06, 0, 0, 0, 7.01e+06, 0, 0, 0, 7.01e+06, 0, 0, 0 )
 
-[node name="CollisionShape" type="CollisionShape" parent="Scenes/Planet Icy/Planet 7e6"]
+[node name="CollisionShape" type="CollisionShape" parent="Scenes/Valeri Ab planet/Planet 7e6"]
 shape = SubResource( 43 )
 
-[node name="Rotating_object" parent="Scenes/Planet Icy" instance=ExtResource( 5 )]
+[node name="Rotating_object" parent="Scenes/Valeri Ab planet" instance=ExtResource( 5 )]
 
-[node name="LODs planet ice 7e6" type="Spatial" parent="Scenes/Planet Icy/Rotating_object"]
+[node name="LODs planet ice 7e6" type="Spatial" parent="Scenes/Valeri Ab planet/Rotating_object"]
 transform = Transform( 7e+06, 0, 0, 0, 7e+06, 0, 0, 0, 7e+06, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
@@ -109,58 +110,58 @@ Put meshes into Scene Items nodes
 }
 lod_2_relative_distance = 500
 
-[node name="LOD0" type="Spatial" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6"]
+[node name="LOD0" type="Spatial" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD0"]
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6/LOD0"]
 mesh = ExtResource( 9 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD0"]
+[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6/LOD0"]
 transform = Transform( 1.02575, 0, 0, 0, 1.02575, 0, 0, 0, 1.02575, 0, 0, 0 )
 mesh = ExtResource( 10 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
-[node name="LOD1" type="Spatial" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6"]
+[node name="LOD1" type="Spatial" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD1"]
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6/LOD1"]
 mesh = ExtResource( 8 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD1"]
+[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6/LOD1"]
 transform = Transform( 1.02575, 0, 0, 0, 1.02575, 0, 0, 0, 1.02575, 0, 0, 0 )
 mesh = ExtResource( 13 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
-[node name="LOD2" type="Spatial" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6"]
+[node name="LOD2" type="Spatial" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD2"]
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6/LOD2"]
 mesh = ExtResource( 11 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 71 )
 
-[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6/LOD2"]
+[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6/LOD2"]
 transform = Transform( 1.02575, 0, 0, 0, 1.02575, 0, 0, 0, 1.02575, 0, 0, 0 )
 mesh = ExtResource( 12 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 89 )
 
-[node name="LOD3" type="Spatial" parent="Scenes/Planet Icy/Rotating_object/LODs planet ice 7e6"]
+[node name="LOD3" type="Spatial" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6"]
 visible = false
 __meta__ = {
 "_edit_lock_": true

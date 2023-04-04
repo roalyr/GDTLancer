@@ -22,7 +22,7 @@ surfaces/0 = {
 
 [sub_resource type="ShaderMaterial" id=3]
 shader = ExtResource( 1 )
-shader_param/albedo = Color( 1, 0.94902, 0.384314, 1 )
+shader_param/albedo = Color( 1, 0.952941, 0.423529, 1 )
 shader_param/scale = 0.8
 shader_param/flare_distance = 5.95e+09
 shader_param/flare_size = 2.0

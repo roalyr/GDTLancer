@@ -128,6 +128,7 @@ star_contrast_variation = 0.3
 star_saturation_variation = -0.5
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 14 )]
+visible = false
 
 [node name="mat_halo" type="MeshInstance" parent="_EDITOR OBJECTS_"]
 visible = false

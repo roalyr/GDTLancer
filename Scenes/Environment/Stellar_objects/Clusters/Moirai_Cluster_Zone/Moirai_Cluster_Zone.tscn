@@ -84,6 +84,7 @@ angular_damp = 0.0
 script = ExtResource( 1 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 6 )]
+visible = false
 
 [node name="mat1_blue1" type="MeshInstance" parent="_EDITOR OBJECTS_"]
 mesh = SubResource( 81 )
@@ -131,7 +132,7 @@ __meta__ = {
 script = ExtResource( 3 )
 
 [node name="LODs_trigger_main" type="Spatial" parent="Scenes/Moirai_Cluster"]
-transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+transform = Transform( 7.65169e+17, -2.06972e+14, -6.4383e+17, -1.66719e+14, 1e+18, -5.19611e+14, 6.4383e+17, 5.04929e+14, 7.65169e+17, 4.51044e+17, 5.65889e+17, -1.47392e+18 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -242,7 +243,7 @@ __meta__ = {
 }
 
 [node name="LODs_trigger_arm2" type="Spatial" parent="Scenes/Moirai_Cluster"]
-transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+transform = Transform( 7.65169e+17, -2.06972e+14, -6.4383e+17, -1.66719e+14, 1e+18, -5.19611e+14, 6.4383e+17, 5.04929e+14, 7.65169e+17, 4.51044e+17, 5.65889e+17, -1.47392e+18 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -378,7 +379,7 @@ __meta__ = {
 }
 
 [node name="LODs_trigger_arm1" type="Spatial" parent="Scenes/Moirai_Cluster"]
-transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+transform = Transform( 7.65169e+17, -2.06972e+14, -6.4383e+17, -1.66719e+14, 1e+18, -5.19611e+14, 6.4383e+17, 5.04929e+14, 7.65169e+17, 4.51044e+17, 5.65889e+17, -1.47392e+18 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -511,7 +512,7 @@ __meta__ = {
 }
 
 [node name="LODs_trigger_core" type="Spatial" parent="Scenes/Moirai_Cluster"]
-transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+transform = Transform( 7.65169e+17, -2.06972e+14, -6.4383e+17, -1.66719e+14, 1e+18, -5.19611e+14, 6.4383e+17, 5.04929e+14, 7.65169e+17, 4.51044e+17, 5.65889e+17, -1.47392e+18 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
