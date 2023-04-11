@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=29 format=2]
 
 [ext_resource path="res://Scripts/Origin_rebase/Ship_space.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Materials/Radiator.tres" type="Material" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://Scenes/FX/Engine_exhaust_blue.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Kinematics/Camera_rig.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Solid/Solid.gdshader" type="Shader" id=6]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Assets/Shaders/Solid/Vertex_lighting/Solid_vertex_lighting.gdshader" type="Shader" id=11]
 
 [sub_resource type="PhysicsMaterial" id=76]
@@ -189,31 +190,33 @@ surfaces/7 = {
 
 [sub_resource type="ShaderMaterial" id=86]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.368627, 0.654902, 0.407843, 1 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/specular = 0.5
-shader_param/metallic = 0.238
-shader_param/roughness = 0.5
+shader_param/metallic = 1.0
+shader_param/roughness = 0.305
 shader_param/rim = 0.01
 shader_param/rim_tint = 0.0
 
 [sub_resource type="ShaderMaterial" id=87]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.380392, 0.380392, 0.380392, 1 )
+shader_param/albedo = Color( 1, 0.870588, 0, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/specular = 0.5
-shader_param/metallic = 0.51
-shader_param/roughness = 0.5
+shader_param/metallic = 1.0
+shader_param/roughness = 0.236
 shader_param/rim = 0.01
 shader_param/rim_tint = 0.0
 
 [sub_resource type="ShaderMaterial" id=88]
-shader = ExtResource( 11 )
-shader_param/albedo = Color( 0.647059, 0.647059, 0.647059, 1 )
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/specular = 0.0
-shader_param/metallic = 0.0
-shader_param/roughness = 1.0
+shader_param/specular = 0.5
+shader_param/metallic = 1.0
+shader_param/roughness = 0.701
+shader_param/rim = 0.005
+shader_param/rim_tint = 0.0
 
 [sub_resource type="ShaderMaterial" id=89]
 shader = ExtResource( 6 )
@@ -221,13 +224,13 @@ shader_param/albedo = Color( 0.631373, 0.764706, 0.839216, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/specular = 0.5
 shader_param/metallic = 1.0
-shader_param/roughness = 0.5
+shader_param/roughness = 0.684
 shader_param/rim = 0.01
 shader_param/rim_tint = 0.0
 
 [sub_resource type="ShaderMaterial" id=90]
 shader = ExtResource( 6 )
-shader_param/albedo = null
+shader_param/albedo = Color( 0, 0, 0, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/specular = 0.5
 shader_param/metallic = 0.0
@@ -258,6 +261,11 @@ physics_material_override = SubResource( 76 )
 custom_integrator = true
 continuous_cd = true
 script = ExtResource( 3 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 7 )]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
+transform = Transform( -0.698318, 0.428579, -0.573299, -0.238896, 0.615461, 0.75109, 0.674745, 0.661458, -0.327402, 0, 0, 0 )
 
 [node name="Camera_rig" parent="." instance=ExtResource( 5 )]
 transform = Transform( 10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0 )

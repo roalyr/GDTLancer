@@ -27,21 +27,6 @@ uniform float pulse_rate = 10.0;
 uniform float phase : hint_range(0.0, 3.14) = 0.0;
 
 void vertex() {
-	    // get the vector from the object to the camera
-    vec3 to_camera = normalize(CAMERA_MATRIX[3].xyz - WORLD_MATRIX[3].xyz);
-
-    // get the forward vector of the camera
-    vec3 camera_forward = -normalize(CAMERA_MATRIX[2].xyz);
-
-    // calculate the dot product between the two vectors
-    float dot_product = dot(to_camera, camera_forward);
-
-    // map the dot product from the range [-1, 1] to [0, 1]
-    float t = (dot_product + 1.0) / 2.0;
-
-    // calculate the new scale based on the mapped value
-    float angle_scale = pow(2.0 - mix(1.0, 2.0, t), 4.0);
-	
 	float z_dist = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
 	float b = flare_distance/(z_dist + flare_distance);
 	float scale_mod = clamp(pow(abs(b), attenuation), 0.0, flare_size);

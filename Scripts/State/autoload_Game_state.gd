@@ -10,6 +10,7 @@ var touch_touch_throttle_base_rect_position = Vector2(0,0)
 var touch_touch_throttle_base_rect_size = Vector2(0,0)
 var touchscreen_controls_swapped = false
 var update_debug_text_on = false
+var debug_output_text = ""
 
 # GAME STATE
 var game_started = false
@@ -28,14 +29,17 @@ func _ready():
 	# FPS INIT
 	Engine.set_iterations_per_second(Constants.physics_fps)
 	Engine.set_target_fps(Constants.graphic_fps)
-	
+
+func debug(out):
+	debug_output_text += str(out)
+	debug_output_text += "\n"
 	
 func is_game_paused(flag):
 	if flag:
 		game_paused = true
 	else:
 		game_paused = false
-	print("Game paused: ", game_paused)
+	GameState.debug("Game paused: " + str(game_paused))
 		
 
 func is_game_started(flag):
@@ -43,4 +47,4 @@ func is_game_started(flag):
 		game_started = true
 	else:
 		game_started = false
-	print("Game started: ", game_started)
+	GameState.debug("Game started: " + str(game_started))

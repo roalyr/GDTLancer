@@ -7,7 +7,7 @@ Highlighted entries are "Work in progress".
 - Make "Orient only" autopilot feature.
 - **Infocards. Accessible from targeting and in-game list. (WIP)**
 - Internal game wiki.  
-- Pause the game while menu (options) window is on.
+- **Pause the game while menu (options) window is on.**
 - Sandbox (debug) mode separate from gameplay mode.
 - **Ambient music and sounds. (WIP)**
 - **Save game state and options. Make autosave on entering planetary systems.**
@@ -15,31 +15,24 @@ Highlighted entries are "Work in progress".
 - Make different "print()" debug calls into a proper logging system.
 - **Add "Credits" info panel in options to feature contributors.**
 - Make stellar objects accessible at certain ranges or in certain zones (i.e. you would have to fly to a planetary system to access its planets coordinates).
-- Move readouts to the bottom of the screen (targeting infor, autopilot, etc).
 - Universe generator: brown and Wwhite dwarfs, giant stars.
 - Temperature / flux zones (distance-affected) and gauge.
 - Reflective ship / base coating.
 
 ## Improvements
-- Make star sprites diminish in size with distance (script).
 - Investigate enabling/disabling trimesh collision shapes on the go.
 - Option for debanding.
-- Engine kill button for touch UI.
-- Improve pad X direction movement on scaling.
 - Remove objects (zone contents) that are way too far.
-- Make a "UI state" autoload object to store UI data and synchronize states.
 - Examine PID regulator applicability (https://github.com/slavfox/godot_pid_controller or https://github.com/fire/godot-pid/blob/master/PID_Controller/PID_Controller.gd).
 - Info tab: make clickable entries that expand to tutorial entries.
-- E-kill touchscreen button.
+- **E-kill touchscreen button.**
 - Split LOD system into objects / environment / ship categories and allow maximum LOD level.
-- Based on star flux, derive gameplay "death zones" for stars.
 - Take into account star death zone based on ship's reflection / radiation ability.
 
 ## Refactor
 - **Re-attach models directly into scenes (make editable). (WIP)**
-- **Refactor ship code.**
-- Paths and common to autoload (https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html)
-- Rename all the space objects to their proper names.
+- Refactor ship code.
+- **Rename all the space objects to their proper names.**
 - Refactor nav list scripts.
 
 ## Fix

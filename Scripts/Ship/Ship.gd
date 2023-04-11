@@ -6,7 +6,7 @@ onready var ui = get_node("/root/Main/UI")
 # Params.
 const ship_mass = 1e6
 const accel_factor = 1e2 # Propulsion force.
-const accel_ticks_max = pow(2,31) # Engine propulsion increments. Pow 2.
+var accel_ticks_max = pow(2,15) # Engine propulsion increments. Pow 2.
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
 const torque_factor = Vector3(10e8,5e8,5e8)
@@ -64,8 +64,13 @@ func _ready():
 	# Initialize the vessel params.
 	init_ship()
 
-func _integrate_forces(state):	
-
+func _integrate_forces(state):
+	
+	# More engine ticks if debug is on.
+	if GameState.update_debug_text_on:
+		accel_ticks_max = pow(2,31) # Engine propulsion increments. Pow 2.
+	else:
+		accel_ticks_max = pow(2,16) # Engine propulsion increments. Pow 2.
 	
 	#print("L: ", state.total_linear_damp, "   A: ", state.total_angular_damp)
 	# TODO: arrange for proper signs for accel and torque.
@@ -83,10 +88,10 @@ func _integrate_forces(state):
 	# TODO: move capped velocity to constants.
 	if vel > 3e6 and self.continuous_cd:
 		self.continuous_cd = false
-		print("disable ship CCD due to high velocity")
+		GameState.debug("disable ship CCD due to high velocity")
 	elif vel <= 3e6 and not self.continuous_cd:
 		self.continuous_cd = true
-		print("enable ship CCD")
+		GameState.debug("enable ship CCD")
 
 
 	# AUTOPILOT

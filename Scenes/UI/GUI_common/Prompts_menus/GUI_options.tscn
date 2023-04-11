@@ -738,7 +738,6 @@ margin_right = 1920.0
 margin_bottom = 1080.0
 
 [node name="Options_tab_info" type="Control" parent="."]
-visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0

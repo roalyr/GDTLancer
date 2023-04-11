@@ -183,3 +183,21 @@ func _on_Button_PLACEHOLDER4_toggled(button_pressed):
 
 
 
+
+
+func _on_Button_debug_toggled(button_pressed):
+	if button_pressed: 
+		ui_paths.ui_functions.debug_gui_show()
+		GameState.update_debug_text_on = true
+	else:
+		ui_paths.ui_functions.debug_gui_hide()
+		GameState.update_debug_text_on = false
+
+
+func _on_Button_camera_change_pressed():
+	GameState.debug("Player model visible: " + str(Paths.player.visible))
+	if Paths.player.visible:
+		 Paths.player.hide()
+	else:
+		 Paths.player.show()
+	

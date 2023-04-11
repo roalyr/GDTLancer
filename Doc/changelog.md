@@ -20,6 +20,8 @@
 - New different star sprites.
 - Clamped shaders alpha to prevent unexpected bugs.
 - Star sprite shader is adaptable with distance.
+- Added star halo (glow) shader based on camera angle.
+- Gas planet shader added.
 - Gas planet shader added.
 - Planetary rings shaders added.
 ### Locales
@@ -34,6 +36,9 @@
 - Implemented object info window.
 - Theme color and intensity can be selected now.
 - Improved UI readability.
+- Moved readouts to the bottom of the screen.
+- Ship model can be hidden.
+- Reworking debug menu and output.
 ### Refactoring
 - Refactored whole project to heavily rely on autoload for persistent data.
 - Refactored autopilot code to be more reliable.

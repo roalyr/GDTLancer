@@ -29,6 +29,7 @@ uniform float core_strength : hint_range(0.1, 100.0, 0.1) = 100.0;
 uniform float core_exponent : hint_range(0.0, 100.0, 0.1) = 32.0;
 
 uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 6.0;
+uniform float alpha_clip : hint_range(0,1) = 1.0;
 
 uniform sampler2D displacement_texture;
 uniform float displacement_scale = 0.1;
@@ -51,7 +52,7 @@ void vertex() {
 void fragment()
 {
 	float dt = clamp(dot(NORMAL,VIEW), 1e-6, 1.0);
-	float rim = clamp(pow(dt, rim_exponent), 1e-6, 1.0);
+	float rim = clamp(pow(dt, rim_exponent), 1e-6, alpha_clip);
 	float halo = clamp(pow(dt, halo_exponent)*halo_strength, 1e-6, 1.0);
 	float corona = clamp(pow(dt, corona_exponent)*corona_strength, 1e-6, 1.0);
 	float core = clamp(pow(dt, core_exponent)*core_strength, 1e-6, 1.0);

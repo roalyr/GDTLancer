@@ -89,7 +89,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5297e+17, 7.52118e+17, -1.01
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.41629e+16, 7.16957e+17, -1.89278e+18 )
 
 [node name="orig_STAR_M2_4_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 __meta__ = {
 "_edit_lock_": true
 }

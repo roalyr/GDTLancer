@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Area",
+"class": "DeathZone",
+"language": "GDScript",
+"path": "res://Scripts/Zones/Zone_death.gd"
+}, {
 "base": "Spatial",
 "class": "LODs_trigger",
 "language": "GDScript",
@@ -105,6 +110,7 @@ _global_script_classes=[ {
 "path": "res://Scripts/Zones/Zone_nebula.gd"
 } ]
 _global_script_class_icons={
+"DeathZone": "res://Assets/UI_images/SVG/icons/death_zone.svg",
 "LODs_trigger": "res://Assets/UI_images/SVG/icons/lod_icon.svg",
 "MarkerConstellations": "res://Assets/UI_images/SVG/icons/constellation_marker.svg",
 "MarkerNebula": "res://Assets/UI_images/SVG/icons/nebula_marker.svg",
@@ -152,7 +158,6 @@ ViewportContainer3d="*res://Scenes/ViewportContainer3D.tscn"
 
 window/size/width=1920
 window/size/height=1080
-window/size/fullscreen=true
 window/dpi/allow_hidpi=true
 
 [global]

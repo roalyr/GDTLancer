@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=2]
+[gd_scene load_steps=34 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -29,8 +29,16 @@
 [ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont_0.75.tres" type="DynamicFont" id=27]
 [ext_resource path="res://Scripts/UI/Assist/ScrollContainer_link_material.gd" type="Script" id=28]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/info.png" type="Texture" id=29]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/debug.png" type="Texture" id=30]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/camera.png" type="Texture" id=31]
 
 [sub_resource type="CanvasItemMaterial" id=3]
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0, 0, 0, 0.25098 )
+border_color = Color( 0, 0, 0, 0 )
+corner_detail = 1
+anti_aliasing = false
 
 [node name="GUI_desktop" type="Control"]
 material = SubResource( 3 )
@@ -103,7 +111,6 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="Readings/Debug_panel"]
-visible = false
 material = ExtResource( 21 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -112,54 +119,182 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Button_PLACEHOLDER2" type="Button" parent="Readings/Debug_panel"]
+margin_left = 1010.0
+margin_top = 50.0
+margin_right = 1110.0
+margin_bottom = 150.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER6" type="Button" parent="Readings/Debug_panel"]
+margin_left = 930.0
+margin_top = 50.0
+margin_right = 1030.0
+margin_bottom = 150.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER3" type="Button" parent="Readings/Debug_panel"]
+margin_left = 1010.0
+margin_top = 290.0
+margin_right = 1110.0
+margin_bottom = 390.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER9" type="Button" parent="Readings/Debug_panel"]
+margin_left = 930.0
+margin_top = 290.0
+margin_right = 1030.0
+margin_bottom = 390.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER4" type="Button" parent="Readings/Debug_panel"]
+margin_left = 1010.0
+margin_top = 210.0
+margin_right = 1110.0
+margin_bottom = 310.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER8" type="Button" parent="Readings/Debug_panel"]
+margin_left = 930.0
+margin_top = 210.0
+margin_right = 1030.0
+margin_bottom = 310.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER5" type="Button" parent="Readings/Debug_panel"]
+margin_left = 1010.0
+margin_top = 130.0
+margin_right = 1110.0
+margin_bottom = 230.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
+[node name="Button_PLACEHOLDER7" type="Button" parent="Readings/Debug_panel"]
+margin_left = 930.0
+margin_top = 130.0
+margin_right = 1030.0
+margin_bottom = 230.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 18 )
+icon_align = 1
+
 [node name="FPS" type="Label" parent="Readings/Debug_panel"]
 margin_left = 20.0
 margin_top = 10.0
 margin_right = 120.0
-margin_bottom = 58.0
-rect_scale = Vector2( 0.7, 0.7 )
+margin_bottom = 46.0
 theme = ExtResource( 22 )
-text = "FPS: 0"
+custom_fonts/font = ExtResource( 27 )
+text = "FPS: 00"
+align = 1
 
-[node name="Mouse_x" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 60.0
-margin_right = 285.0
-margin_bottom = 108.0
-rect_scale = Vector2( 0.7, 0.7 )
+[node name="Panel_shade" type="Panel" parent="Readings/Debug_panel/FPS"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 22 )
-text = "Mouse / Pad x: 0"
+custom_styles/panel = SubResource( 4 )
 __meta__ = {
-"_edit_use_anchors_": false
+"_edit_lock_": true
 }
 
-[node name="Mouse_y" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 110.0
-margin_right = 284.0
-margin_bottom = 158.0
-rect_scale = Vector2( 0.7, 0.7 )
+[node name="Verts" type="Label" parent="Readings/Debug_panel"]
+margin_left = 150.0
+margin_top = 10.0
+margin_right = 360.0
+margin_bottom = 46.0
 theme = ExtResource( 22 )
-text = "Mouse / Pad y: 0"
+custom_fonts/font = ExtResource( 27 )
+text = "Verts: 00000000"
+align = 1
 
-[node name="Throttle" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
-margin_top = 160.0
-margin_right = 182.0
-margin_bottom = 208.0
-rect_scale = Vector2( 0.7, 0.7 )
+[node name="Panel_shade" type="Panel" parent="Readings/Debug_panel/Verts"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme = ExtResource( 22 )
-text = "Throttle: 0"
+custom_styles/panel = SubResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Print_out" type="Label" parent="Readings/Debug_panel"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Readings/Debug_panel"]
 margin_left = 20.0
-margin_top = 210.0
-margin_right = 1080.0
-margin_bottom = 380.0
-rect_scale = Vector2( 0.7, 0.7 )
+margin_top = 50.0
+margin_right = 910.0
+margin_bottom = 360.0
 theme = ExtResource( 22 )
-text = "Output: ....."
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Readings/Debug_panel/ScrollContainer"]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 772.0
+margin_bottom = 681.0
+
+[node name="Label" type="Label" parent="Readings/Debug_panel/ScrollContainer/VBoxContainer"]
+margin_right = 742.0
+margin_bottom = 36.0
+theme = ExtResource( 22 )
+custom_fonts/font = ExtResource( 27 )
+text = "                                     Debug output                                              "
+
+[node name="Print_out" type="Label" parent="Readings/Debug_panel/ScrollContainer/VBoxContainer"]
+margin_top = 40.0
+margin_right = 742.0
+margin_bottom = 661.0
+theme = ExtResource( 22 )
+custom_fonts/font = ExtResource( 27 )
+text = "Output: .....
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut sodales orci. Nulla sed felis pretium magna volutpat rutrum. Phasellus iaculis vitae tortor a condimentum. Aliquam eget risus id sem mattis consequat et in elit. Nullam non vehicula tellus. Donec malesuada purus urna, non gravida est viverra in. Mauris condimentum, justo at pharetra blandit, ante massa aliquam felis, sit amet bibendum enim turpis rutrum tortor. Nunc rhoncus ante eu sem pulvinar, eget pulvinar dolor vulputate. Donec eu rutrum tortor. Sed magna ligula, mattis a diam at, rutrum blandit nibh. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Maecenas rutrum blandit ipsum, a facilisis purus suscipit viverra. Sed pretium varius ex sollicitudin blandit. Duis turpis risus, fermentum vitae laoreet eget, dictum ut nibh. Etiam id malesuada erat, sit amet condimentum leo. "
 autowrap = true
+
+[node name="Panel_shade" type="Panel" parent="Readings/Debug_panel/ScrollContainer/VBoxContainer/Print_out"]
+visible = false
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 22 )
+custom_styles/panel = SubResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Velocity_panel" type="Control" parent="Readings"]
 margin_left = 350.0
@@ -258,6 +393,7 @@ clip_text = true
 [node name="Target_autopilot_desktop" parent="Readings" instance=ExtResource( 25 )]
 
 [node name="Popup_info" type="ReferenceRect" parent="Readings"]
+visible = false
 margin_left = 410.0
 margin_right = 1510.0
 margin_bottom = 380.0
@@ -306,7 +442,6 @@ margin_right = 120.0
 margin_bottom = 1080.0
 mouse_filter = 2
 __meta__ = {
-"_edit_group_": true,
 "_edit_lock_": true
 }
 
@@ -331,13 +466,24 @@ keep_pressed_outside = true
 icon = ExtResource( 8 )
 icon_align = 1
 
+[node name="Button_debug" type="Button" parent="Bar_menu"]
+margin_left = 10.0
+margin_top = 920.0
+margin_right = 110.0
+margin_bottom = 1020.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+toggle_mode = true
+keep_pressed_outside = true
+icon = ExtResource( 30 )
+icon_align = 1
+
 [node name="Bar_menu_2" type="Control" parent="."]
 margin_left = 1800.0
 margin_right = 1920.0
 margin_bottom = 1080.0
 mouse_filter = 2
 __meta__ = {
-"_edit_group_": true,
 "_edit_lock_": true
 }
 
@@ -372,6 +518,17 @@ rect_scale = Vector2( 0.7, 0.7 )
 theme = ExtResource( 22 )
 keep_pressed_outside = true
 icon = ExtResource( 7 )
+icon_align = 1
+
+[node name="Button_camera_change" type="Button" parent="Bar_menu_2"]
+margin_left = 40.0
+margin_top = 840.0
+margin_right = 140.0
+margin_bottom = 940.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+keep_pressed_outside = true
+icon = ExtResource( 31 )
 icon_align = 1
 
 [node name="Bar_control" type="Control" parent="."]
@@ -804,6 +961,7 @@ icon = ExtResource( 23 )
 icon_align = 1
 
 [node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_items"]
+visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -834,8 +992,10 @@ script = ExtResource( 24 )
 [connection signal="mouse_entered" from="Mouse_area_container/Mouse_area" to="." method="_on_Mouse_area_mouse_entered"]
 [connection signal="mouse_exited" from="Mouse_area_container/Mouse_area" to="." method="_on_Mouse_area_mouse_exited"]
 [connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
+[connection signal="toggled" from="Bar_menu/Button_debug" to="." method="_on_Button_debug_toggled"]
 [connection signal="toggled" from="Bar_menu_2/Button_turret" to="." method="_on_Button_turret_toggled"]
 [connection signal="pressed" from="Bar_menu_2/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
+[connection signal="pressed" from="Bar_menu_2/Button_camera_change" to="." method="_on_Button_camera_change_pressed"]
 [connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
 [connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
 [connection signal="toggled" from="Bar_nav/Button_constellations" to="." method="_on_Button_constellations_toggled"]

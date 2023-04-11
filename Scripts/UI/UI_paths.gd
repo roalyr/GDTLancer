@@ -58,6 +58,7 @@ onready var desktop_readings_info_container = desktop_readings_info_popup.get_no
 onready var desktop_readings_info_label = desktop_readings_info_container.get_node("Label")
 
 onready var desktop_readings_debug = desktop_readings.get_node("Debug_panel")
+onready var desktop_readings_debug_output = desktop_readings.get_node("Debug_panel/ScrollContainer/VBoxContainer/Print_out")
 onready var desktop_readings_target_autopilot = desktop_readings.get_node("Target_autopilot_desktop")
 onready var desktop_readings_target_aim = desktop_readings.get_node("Target_aim_desktop")
 # Velocity panel area
