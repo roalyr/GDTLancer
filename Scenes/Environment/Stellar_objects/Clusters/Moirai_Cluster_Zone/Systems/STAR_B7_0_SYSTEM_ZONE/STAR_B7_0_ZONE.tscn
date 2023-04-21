@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=34 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
@@ -15,8 +15,8 @@
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD2.glb" type="PackedScene" id=13]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=14]
 [ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=15]
-[ext_resource path="res://Assets/Shaders/Clouds/CloudHalo_add_cull_front.gdshader" type="Shader" id=16]
 [ext_resource path="res://Scripts/Zones/Zone_death.gd" type="Script" id=17]
+[ext_resource path="res://Assets/Shaders/Star/Star_deriection_halo.gdshader" type="Shader" id=18]
 
 [sub_resource type="CubeMesh" id=119]
 
@@ -41,6 +41,7 @@ shader_param/corona_exponent = 15.8
 shader_param/core_strength = 100.0
 shader_param/core_exponent = 11.6
 shader_param/rim_exponent = 1.5
+shader_param/alpha_clip = 1.0
 shader_param/displacement_scale = 0.047
 shader_param/displacement_velocity = 0.02
 shader_param/displacement_texture = SubResource( 120 )
@@ -85,7 +86,7 @@ shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.01
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 0.5
-shader_param/rim_intensity = 0.3
+shader_param/rim_intensity = 0.449
 shader_param/major_detail_noise = SubResource( 121 )
 shader_param/small_detail_noise = SubResource( 122 )
 
@@ -103,14 +104,28 @@ shader_param/pulse_rate = 3.038
 shader_param/phase = 0.0
 
 [sub_resource type="ShaderMaterial" id=123]
-shader = ExtResource( 16 )
-shader_param/albedo = Color( 0, 0.509804, 0.647059, 1 )
-shader_param/rim_strength = 1.5
-shader_param/rim_exponent = 17.4
-shader_param/rim_strength_inner = 1.919
-shader_param/rim_exponent_inner = 6.4
-shader_param/alpha_clip = 0.442
-shader_param/alpha_clip_inner = 0.82
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.368627, 0.666667, 0.8, 1 )
+shader_param/rim_strength = 0.3
+shader_param/rim_exponent = 10.0
+shader_param/alpha_clip = 1.0
+shader_param/absolute_scale = 0.1
+shader_param/directional_scale = 0.05
+shader_param/scale_power = 1.0
+shader_param/threshold = 1.0
+
+[sub_resource type="CubeMesh" id=125]
+
+[sub_resource type="ShaderMaterial" id=126]
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.458824, 0.909804, 1, 1 )
+shader_param/rim_strength = 0.07
+shader_param/rim_exponent = 5.0
+shader_param/alpha_clip = 0.03
+shader_param/absolute_scale = 1.0
+shader_param/directional_scale = 0.59
+shader_param/scale_power = 50.0
+shader_param/threshold = 1.0
 
 [sub_resource type="SphereShape" id=92]
 
@@ -123,8 +138,7 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
-star_brightness_variation = 0.1
-star_contrast_variation = 0.3
+star_contrast_variation = 0.2
 star_saturation_variation = -0.5
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 14 )]
@@ -149,6 +163,11 @@ material/0 = SubResource( 93 )
 visible = false
 mesh = ExtResource( 15 )
 material/0 = SubResource( 123 )
+
+[node name="mat_halo_directional" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = SubResource( 125 )
+material/0 = SubResource( 126 )
 
 [node name="Zone shape 2_57e+11" type="CollisionShape" parent="."]
 transform = Transform( 2.57e+11, 0, 0, 0, 2.57e+11, 0, 0, 0, 2.57e+11, 0, 0, 0 )
@@ -190,6 +209,11 @@ script = ExtResource( 17 )
 [node name="Zone shape 2_14e+11" type="CollisionShape" parent="Scenes/STAR_B7_0/Death_zone"]
 transform = Transform( 2.14e+11, 0, 0, 0, 2.14e+11, 0, 0, 0, 2.14e+11, 0, 0, 0 )
 shape = SubResource( 124 )
+
+[node name="Star_directional_halo" parent="Scenes/STAR_B7_0" instance=ExtResource( 7 )]
+
+[node name="Icosphere_LOD2" parent="Scenes/STAR_B7_0/Star_directional_halo" index="0"]
+material/0 = SubResource( 126 )
 
 [node name="Star_sprite_square_wide" parent="Scenes/STAR_B7_0" instance=ExtResource( 5 )]
 transform = Transform( 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0, 6.32e+09, 0, 0, 0 )
@@ -298,6 +322,7 @@ __meta__ = {
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
 
+[editable path="Scenes/STAR_B7_0/Star_directional_halo"]
 [editable path="Scenes/STAR_B7_0/Star_sprite_square_wide"]
 [editable path="Scenes/STAR_B7_0/LODs 6_32e+09/LOD0/Halo Icosphere_LOD0"]
 [editable path="Scenes/STAR_B7_0/LODs 6_32e+09/LOD0/Core Sphere_LOD0"]

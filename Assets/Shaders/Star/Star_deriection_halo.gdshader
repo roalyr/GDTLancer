@@ -19,9 +19,10 @@ uniform vec4 albedo : hint_color;
 uniform float rim_strength = 0.05;
 uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 15.0;
 uniform float alpha_clip : hint_range(0,1) = 1.0;
-uniform float absolute_scale = 1.0e8;
-uniform float directional_scale : hint_range(0,1) = 0.1;
-uniform float scale_power = 2.0;
+uniform float absolute_scale = 1.0;
+uniform float directional_scale : hint_range(0,1) = 1.0;
+uniform float scale_power = 1.0;
+uniform float threshold : hint_range(0,1) = 1.0;
 
 
 void vertex() {
@@ -37,8 +38,12 @@ void vertex() {
     float dot_product = dot(to_camera, camera_forward);
 
     // map the dot product from the range [-1, 1] to [0, 1]
-    float t = (dot_product + 1.0) / 2.0;
-
+	float t = 1.0;
+	if (dot_product < 0.0 - threshold){
+		t = 0.0;
+	} else {
+		t = (dot_product + 1.0) / 2.0;
+	}
     // calculate the new scale based on the mapped value
     float new_scale = pow(mix(directional_scale, 1.0, t), scale_power);
 

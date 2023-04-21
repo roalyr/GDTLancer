@@ -8,4 +8,4 @@ shader_param/albedo = Color( 0, 0, 0, 1 )
 shader_param/emission = Color( 0.556863, 0, 0, 1 )
 shader_param/specular = 0.0
 shader_param/metallic = 0.557
-shader_param/roughness = 0.612
+shader_param/roughness = 1.0

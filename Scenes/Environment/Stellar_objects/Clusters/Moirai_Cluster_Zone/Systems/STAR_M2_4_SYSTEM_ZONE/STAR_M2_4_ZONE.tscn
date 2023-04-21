@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
@@ -7,7 +7,6 @@
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=5]
 [ext_resource path="res://Assets/Shaders/Star/Star_sprite.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=7]
-[ext_resource path="res://Assets/Shaders/Clouds/CloudHalo_add_cull_front.gdshader" type="Shader" id=8]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.glb" type="PackedScene" id=9]
 [ext_resource path="res://Assets/Models/Sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=11]
@@ -34,38 +33,40 @@ noise = SubResource( 117 )
 shader = ExtResource( 3 )
 shader_param/halo_color = Color( 0.239216, 0, 0, 1 )
 shader_param/corona_color = Color( 0.2, 0, 0, 1 )
-shader_param/core_color = Color( 0.678431, 0.207843, 0.207843, 1 )
-shader_param/halo_strength = 1.4
-shader_param/halo_exponent = 0.9
-shader_param/corona_strength = 92.7
-shader_param/corona_exponent = 12.8
+shader_param/core_color = Color( 1, 0.396078, 0.396078, 1 )
+shader_param/halo_strength = 2.5
+shader_param/halo_exponent = 2.4
+shader_param/corona_strength = 211.5
+shader_param/corona_exponent = 12.3
 shader_param/core_strength = 100.0
 shader_param/core_exponent = 32.8
 shader_param/rim_exponent = 1.2
-shader_param/alpha_clip = 0.6
+shader_param/alpha_clip = 0.96
 shader_param/displacement_scale = 0.113
 shader_param/displacement_velocity = 0.108
 shader_param/displacement_texture = SubResource( 83 )
 
 [sub_resource type="ShaderMaterial" id=125]
 shader = ExtResource( 18 )
-shader_param/albedo = Color( 1, 0.470588, 0.109804, 1 )
-shader_param/rim_strength = 0.04
-shader_param/rim_exponent = 15.0
-shader_param/alpha_clip = 0.028
-shader_param/absolute_scale = 1e+07
-shader_param/directional_scale = 0.039
-shader_param/scale_power = 2.0
+shader_param/albedo = Color( 1, 0.478431, 0.478431, 1 )
+shader_param/rim_strength = 0.07
+shader_param/rim_exponent = 5.0
+shader_param/alpha_clip = 0.03
+shader_param/absolute_scale = 1.0
+shader_param/directional_scale = 0.64
+shader_param/scale_power = 50.0
+shader_param/threshold = 1.0
 
 [sub_resource type="ShaderMaterial" id=123]
-shader = ExtResource( 8 )
-shader_param/albedo = Color( 0.203922, 0, 0, 1 )
-shader_param/rim_strength = 1.88
-shader_param/rim_exponent = 10.8
-shader_param/rim_strength_inner = 0.504
-shader_param/rim_exponent_inner = 19.8
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.878431, 0.360784, 0.309804, 1 )
+shader_param/rim_strength = 0.333
+shader_param/rim_exponent = 10.0
 shader_param/alpha_clip = 1.0
-shader_param/alpha_clip_inner = 0.0
+shader_param/absolute_scale = 0.1
+shader_param/directional_scale = 0.1
+shader_param/scale_power = 1.0
+shader_param/threshold = 1.0
 
 [sub_resource type="CubeMesh" id=118]
 
@@ -94,21 +95,21 @@ noise = SubResource( 114 )
 
 [sub_resource type="ShaderMaterial" id=116]
 shader = ExtResource( 5 )
-shader_param/rim_color = Color( 0.803922, 0.137255, 0.137255, 1 )
-shader_param/overlay_color = Color( 0.537255, 0, 0, 1 )
-shader_param/surface_color = Color( 0.784314, 0, 0.113725, 1 )
-shader_param/major_phase = 1.906
-shader_param/small_phase = 1.785
-shader_param/major_detail_intensity = 1.207
-shader_param/small_detail_intensity = -6.082
+shader_param/rim_color = Color( 1, 0.403922, 0.403922, 1 )
+shader_param/overlay_color = Color( 1, 0, 0, 1 )
+shader_param/surface_color = Color( 0.764706, 0.054902, 0.203922, 1 )
+shader_param/major_phase = 2.184
+shader_param/small_phase = 1.723
+shader_param/major_detail_intensity = 0.986
+shader_param/small_detail_intensity = -3.695
 shader_param/detail_decay_distance = 8.875e+08
 shader_param/major_detail_scale = 1.0
 shader_param/small_detail_scale = 2.0
 shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.02
 shader_param/rim_strength = 1.277
-shader_param/rim_exponent = 0.5
-shader_param/rim_intensity = 1.392
+shader_param/rim_exponent = 0.9
+shader_param/rim_intensity = 0.566
 shader_param/major_detail_noise = SubResource( 113 )
 shader_param/small_detail_noise = SubResource( 115 )
 
@@ -136,8 +137,8 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
-star_brightness_variation = 0.1
-star_contrast_variation = 0.3
+star_brightness_variation = 0.15
+star_contrast_variation = 0.2
 star_saturation_variation = -0.5
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 11 )]
@@ -185,7 +186,7 @@ script = ExtResource( 4 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 2.74e+08
+autopilot_range = 5e+08
 translations_name = "NAME_STAR_M2_4"
 translations_description = "DESC_STAR_M2_4"
 

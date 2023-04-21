@@ -106,9 +106,6 @@ margin_left = 410.0
 margin_right = 1510.0
 margin_bottom = 380.0
 mouse_filter = 2
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="Panel" type="Panel" parent="Readings/Debug_panel"]
 material = ExtResource( 21 )
@@ -119,47 +116,23 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Button_PLACEHOLDER2" type="Button" parent="Readings/Debug_panel"]
-margin_left = 1010.0
-margin_top = 50.0
-margin_right = 1110.0
-margin_bottom = 150.0
+[node name="Button_debug" type="Button" parent="Readings/Debug_panel"]
+margin_left = 1020.0
+margin_top = 10.0
+margin_right = 1120.0
+margin_bottom = 110.0
 rect_scale = Vector2( 0.7, 0.7 )
 theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
-icon = ExtResource( 18 )
-icon_align = 1
-
-[node name="Button_PLACEHOLDER6" type="Button" parent="Readings/Debug_panel"]
-margin_left = 930.0
-margin_top = 50.0
-margin_right = 1030.0
-margin_bottom = 150.0
-rect_scale = Vector2( 0.7, 0.7 )
-theme = ExtResource( 22 )
-toggle_mode = true
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-icon_align = 1
-
-[node name="Button_PLACEHOLDER3" type="Button" parent="Readings/Debug_panel"]
-margin_left = 1010.0
-margin_top = 290.0
-margin_right = 1110.0
-margin_bottom = 390.0
-rect_scale = Vector2( 0.7, 0.7 )
-theme = ExtResource( 22 )
-toggle_mode = true
-keep_pressed_outside = true
-icon = ExtResource( 18 )
+icon = ExtResource( 30 )
 icon_align = 1
 
 [node name="Button_PLACEHOLDER9" type="Button" parent="Readings/Debug_panel"]
-margin_left = 930.0
-margin_top = 290.0
-margin_right = 1030.0
-margin_bottom = 390.0
+margin_left = 1020.0
+margin_top = 250.0
+margin_right = 1120.0
+margin_bottom = 350.0
 rect_scale = Vector2( 0.7, 0.7 )
 theme = ExtResource( 22 )
 toggle_mode = true
@@ -167,12 +140,12 @@ keep_pressed_outside = true
 icon = ExtResource( 18 )
 icon_align = 1
 
-[node name="Button_PLACEHOLDER4" type="Button" parent="Readings/Debug_panel"]
-margin_left = 1010.0
-margin_top = 210.0
-margin_right = 1110.0
-margin_bottom = 310.0
-rect_scale = Vector2( 0.7, 0.7 )
+[node name="Button_PLACEHOLDER10" type="Button" parent="Readings/Debug_panel"]
+margin_left = 1020.0
+margin_top = 330.0
+margin_right = 1120.0
+margin_bottom = 430.0
+rect_scale = Vector2( 0.7, 0.4 )
 theme = ExtResource( 22 )
 toggle_mode = true
 keep_pressed_outside = true
@@ -180,22 +153,10 @@ icon = ExtResource( 18 )
 icon_align = 1
 
 [node name="Button_PLACEHOLDER8" type="Button" parent="Readings/Debug_panel"]
-margin_left = 930.0
-margin_top = 210.0
-margin_right = 1030.0
-margin_bottom = 310.0
-rect_scale = Vector2( 0.7, 0.7 )
-theme = ExtResource( 22 )
-toggle_mode = true
-keep_pressed_outside = true
-icon = ExtResource( 18 )
-icon_align = 1
-
-[node name="Button_PLACEHOLDER5" type="Button" parent="Readings/Debug_panel"]
-margin_left = 1010.0
-margin_top = 130.0
-margin_right = 1110.0
-margin_bottom = 230.0
+margin_left = 1020.0
+margin_top = 170.0
+margin_right = 1120.0
+margin_bottom = 270.0
 rect_scale = Vector2( 0.7, 0.7 )
 theme = ExtResource( 22 )
 toggle_mode = true
@@ -204,10 +165,10 @@ icon = ExtResource( 18 )
 icon_align = 1
 
 [node name="Button_PLACEHOLDER7" type="Button" parent="Readings/Debug_panel"]
-margin_left = 930.0
-margin_top = 130.0
-margin_right = 1030.0
-margin_bottom = 230.0
+margin_left = 1020.0
+margin_top = 90.0
+margin_right = 1120.0
+margin_bottom = 190.0
 rect_scale = Vector2( 0.7, 0.7 )
 theme = ExtResource( 22 )
 toggle_mode = true
@@ -216,9 +177,9 @@ icon = ExtResource( 18 )
 icon_align = 1
 
 [node name="FPS" type="Label" parent="Readings/Debug_panel"]
-margin_left = 20.0
+margin_left = 10.0
 margin_top = 10.0
-margin_right = 120.0
+margin_right = 110.0
 margin_bottom = 46.0
 theme = ExtResource( 22 )
 custom_fonts/font = ExtResource( 27 )
@@ -256,33 +217,33 @@ __meta__ = {
 }
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Readings/Debug_panel"]
-margin_left = 20.0
+margin_left = 10.0
 margin_top = 50.0
-margin_right = 910.0
-margin_bottom = 360.0
+margin_right = 1010.0
+margin_bottom = 380.0
 theme = ExtResource( 22 )
+script = ExtResource( 28 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Readings/Debug_panel/ScrollContainer"]
 margin_left = 30.0
 margin_top = 20.0
-margin_right = 772.0
-margin_bottom = 681.0
+margin_right = 891.0
+margin_bottom = 96.0
 
 [node name="Label" type="Label" parent="Readings/Debug_panel/ScrollContainer/VBoxContainer"]
-margin_right = 742.0
+margin_right = 861.0
 margin_bottom = 36.0
 theme = ExtResource( 22 )
 custom_fonts/font = ExtResource( 27 )
-text = "                                     Debug output                                              "
+text = "                                                      Debug output                                              "
 
 [node name="Print_out" type="Label" parent="Readings/Debug_panel/ScrollContainer/VBoxContainer"]
 margin_top = 40.0
-margin_right = 742.0
-margin_bottom = 661.0
+margin_right = 861.0
+margin_bottom = 76.0
 theme = ExtResource( 22 )
 custom_fonts/font = ExtResource( 27 )
-text = "Output: .....
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut sodales orci. Nulla sed felis pretium magna volutpat rutrum. Phasellus iaculis vitae tortor a condimentum. Aliquam eget risus id sem mattis consequat et in elit. Nullam non vehicula tellus. Donec malesuada purus urna, non gravida est viverra in. Mauris condimentum, justo at pharetra blandit, ante massa aliquam felis, sit amet bibendum enim turpis rutrum tortor. Nunc rhoncus ante eu sem pulvinar, eget pulvinar dolor vulputate. Donec eu rutrum tortor. Sed magna ligula, mattis a diam at, rutrum blandit nibh. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Maecenas rutrum blandit ipsum, a facilisis purus suscipit viverra. Sed pretium varius ex sollicitudin blandit. Duis turpis risus, fermentum vitae laoreet eget, dictum ut nibh. Etiam id malesuada erat, sit amet condimentum leo. "
+text = "Press debug key on the top right of this menu to enable it."
 autowrap = true
 
 [node name="Panel_shade" type="Panel" parent="Readings/Debug_panel/ScrollContainer/VBoxContainer/Print_out"]
@@ -466,7 +427,7 @@ keep_pressed_outside = true
 icon = ExtResource( 8 )
 icon_align = 1
 
-[node name="Button_debug" type="Button" parent="Bar_menu"]
+[node name="Button_debug_menu_show" type="Button" parent="Bar_menu"]
 margin_left = 10.0
 margin_top = 920.0
 margin_right = 110.0
@@ -991,8 +952,9 @@ script = ExtResource( 24 )
 
 [connection signal="mouse_entered" from="Mouse_area_container/Mouse_area" to="." method="_on_Mouse_area_mouse_entered"]
 [connection signal="mouse_exited" from="Mouse_area_container/Mouse_area" to="." method="_on_Mouse_area_mouse_exited"]
+[connection signal="toggled" from="Readings/Debug_panel/Button_debug" to="." method="_on_Button_debug_toggled"]
 [connection signal="pressed" from="Bar_menu/Button_options" to="." method="_on_Button_options_pressed"]
-[connection signal="toggled" from="Bar_menu/Button_debug" to="." method="_on_Button_debug_toggled"]
+[connection signal="toggled" from="Bar_menu/Button_debug_menu_show" to="." method="_on_Button_debug_menu_show_toggled"]
 [connection signal="toggled" from="Bar_menu_2/Button_turret" to="." method="_on_Button_turret_toggled"]
 [connection signal="pressed" from="Bar_menu_2/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
 [connection signal="pressed" from="Bar_menu_2/Button_camera_change" to="." method="_on_Button_camera_change_pressed"]

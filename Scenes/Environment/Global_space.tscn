@@ -59,7 +59,6 @@ __meta__ = {
 
 [node name="Fake_stars" type="Position3D" parent="Global clusters/Moirai_Cluster_Zone"]
 transform = Transform( 0.794417, 0.325931, -0.512514, -0.223404, 0.94147, 0.252438, 0.564794, -0.0860435, 0.820734, 4.38633e+17, 4.83888e+17, -1.51792e+18 )
-visible = false
 script = SubResource( 3 )
 __meta__ = {
 "_edit_lock_": true
@@ -86,7 +85,7 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5297e+17, 7.52118e+17, -1.01849e+18 )
 
 [node name="STAR_A7_1_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.41629e+16, 7.16957e+17, -1.89278e+18 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.72273e+16, 1.76628e+16, -2.579e+17 )
 
 [node name="orig_STAR_M2_4_SYSTEM_ZONE" parent="Global clusters/Moirai_Cluster_Zone" instance=ExtResource( 4 )]
 __meta__ = {

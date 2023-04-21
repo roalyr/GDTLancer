@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=34 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
@@ -7,7 +7,7 @@
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=5]
 [ext_resource path="res://Assets/Shaders/Star/Star_sprite.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=7]
-[ext_resource path="res://Assets/Shaders/Clouds/CloudHalo_add_cull_front.gdshader" type="Shader" id=8]
+[ext_resource path="res://Assets/Shaders/Star/Star_deriection_halo.gdshader" type="Shader" id=8]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.glb" type="PackedScene" id=9]
 [ext_resource path="res://Assets/Models/Sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=11]
@@ -41,6 +41,7 @@ shader_param/corona_exponent = 14.7
 shader_param/core_strength = 45.3
 shader_param/core_exponent = 5.5
 shader_param/rim_exponent = 1.3
+shader_param/alpha_clip = 1.0
 shader_param/displacement_scale = 0.034
 shader_param/displacement_velocity = 0.14
 shader_param/displacement_texture = SubResource( 120 )
@@ -71,7 +72,7 @@ noise = SubResource( 96 )
 
 [sub_resource type="ShaderMaterial" id=98]
 shader = ExtResource( 5 )
-shader_param/rim_color = Color( 0.803922, 1, 0, 1 )
+shader_param/rim_color = Color( 0.811765, 1, 0.0470588, 1 )
 shader_param/overlay_color = Color( 0.705882, 1, 0, 1 )
 shader_param/surface_color = Color( 0.27451, 0.756863, 0, 1 )
 shader_param/major_phase = 1.732
@@ -85,7 +86,7 @@ shader_param/major_detail_flow = 0.01
 shader_param/small_detail_flow = 0.005
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 0.4
-shader_param/rim_intensity = 0.3
+shader_param/rim_intensity = 0.497
 shader_param/major_detail_noise = SubResource( 121 )
 shader_param/small_detail_noise = SubResource( 122 )
 
@@ -104,13 +105,27 @@ shader_param/phase = 0.0
 
 [sub_resource type="ShaderMaterial" id=123]
 shader = ExtResource( 8 )
-shader_param/albedo = Color( 0.0862745, 0.203922, 0, 1 )
-shader_param/rim_strength = 1.493
-shader_param/rim_exponent = 4.5
-shader_param/rim_strength_inner = 2.406
-shader_param/rim_exponent_inner = 9.1
-shader_param/alpha_clip = 0.46
-shader_param/alpha_clip_inner = 0.31
+shader_param/albedo = Color( 0.478431, 1, 0.294118, 1 )
+shader_param/rim_strength = 0.085
+shader_param/rim_exponent = 10.0
+shader_param/alpha_clip = 1.0
+shader_param/absolute_scale = 0.2
+shader_param/directional_scale = 0.1
+shader_param/scale_power = 1.0
+shader_param/threshold = 1.0
+
+[sub_resource type="CubeMesh" id=125]
+
+[sub_resource type="ShaderMaterial" id=126]
+shader = ExtResource( 8 )
+shader_param/albedo = Color( 0.701961, 1, 0.572549, 1 )
+shader_param/rim_strength = 0.07
+shader_param/rim_exponent = 5.0
+shader_param/alpha_clip = 0.03
+shader_param/absolute_scale = 1.0
+shader_param/directional_scale = 0.62
+shader_param/scale_power = 50.0
+shader_param/threshold = 1.0
 
 [sub_resource type="SphereShape" id=92]
 
@@ -149,6 +164,11 @@ visible = false
 mesh = ExtResource( 7 )
 material/0 = SubResource( 123 )
 
+[node name="mat_halo_directional" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+visible = false
+mesh = SubResource( 125 )
+material/0 = SubResource( 126 )
+
 [node name="Zone shape  2_01e+10" type="CollisionShape" parent="."]
 transform = Transform( 2.01e+10, 0, 0, 0, 2.01e+10, 0, 0, 0, 2.01e+10, 0, 0, 0 )
 shape = SubResource( 92 )
@@ -176,6 +196,11 @@ transform = Transform( 1.45e+09, 0, 0, 0, 1.45e+09, 0, 0, 0, 1.45e+09, 0, 0, 0 )
 
 [node name="Plane" parent="Scenes/STAR_A7_1/Star_sprite_square_wide" index="0"]
 material/0 = SubResource( 93 )
+
+[node name="Star_directional_halo" parent="Scenes/STAR_A7_1" instance=ExtResource( 9 )]
+
+[node name="Icosphere_LOD2" parent="Scenes/STAR_A7_1/Star_directional_halo" index="0"]
+material/0 = SubResource( 126 )
 
 [node name="OmniLight 2_84e+13" type="OmniLight" parent="Scenes/STAR_A7_1"]
 light_color = Color( 1, 1, 0.694118, 1 )
@@ -298,6 +323,7 @@ __meta__ = {
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
 
 [editable path="Scenes/STAR_A7_1/Star_sprite_square_wide"]
+[editable path="Scenes/STAR_A7_1/Star_directional_halo"]
 [editable path="Scenes/STAR_A7_1/LODs 2_01e+09/LOD0/Halo Icosphere_LOD0"]
 [editable path="Scenes/STAR_A7_1/LODs 2_01e+09/LOD0/Core Sphere_LOD0"]
 [editable path="Scenes/STAR_A7_1/LODs 2_01e+09/LOD0/Halo outer Icosphere_LOD1_as_LOD0"]
