@@ -16,21 +16,21 @@ render_mode
 	ambient_light_disabled,
 	depth_draw_opaque;
 
-uniform vec4 albedo : hint_color;
+//uniform vec4 albedo : hint_color;
 uniform vec4 emission : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
-uniform float specular : hint_range(0,1) = 0.5;
-uniform float metallic : hint_range(0,1) = 0.0;
-uniform float roughness : hint_range(0,1) = 0.5;
-uniform float rim : hint_range(0,1) = 0.005;
-uniform float rim_tint : hint_range(0,1) = 0.0;
+//uniform float specular : hint_range(0,1) = 0.5;
+//uniform float metallic : hint_range(0,1) = 0.0;
+//uniform float roughness : hint_range(0,1) = 0.5;
+//uniform float rim : hint_range(0,1) = 0.005;
+//uniform float rim_tint : hint_range(0,1) = 0.0;
 
 void fragment()
 {
-	ALBEDO = albedo.rgb*COLOR.rgb;
-	METALLIC = metallic;
-	ROUGHNESS = roughness;
-	SPECULAR = specular;
+	//ALBEDO = albedo.rgb*COLOR.rgb;
+	//METALLIC = metallic;
+	//ROUGHNESS = roughness;
+	//SPECULAR = specular;
 	//RIM = rim;
 	//RIM_TINT = rim_tint;
-	//EMISSION = emission.rgb*COLOR.rgb;
+	EMISSION = emission.rgb*COLOR.rgb;
 }

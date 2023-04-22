@@ -40,6 +40,7 @@ shader_param/corona_exponent = 25.0
 shader_param/core_strength = 100.0
 shader_param/core_exponent = 32.0
 shader_param/rim_exponent = 6.0
+shader_param/alpha_clip = 1.0
 shader_param/displacement_scale = 0.02
 shader_param/displacement_velocity = 0.05
 shader_param/displacement_texture = SubResource( 96 )
@@ -121,6 +122,7 @@ shader_param/corona_exponent = 25.0
 shader_param/core_strength = 9.7
 shader_param/core_exponent = 32.0
 shader_param/rim_exponent = 6.0
+shader_param/alpha_clip = 1.0
 shader_param/displacement_scale = 0.029
 shader_param/displacement_velocity = 0.048
 shader_param/displacement_texture = SubResource( 107 )
@@ -188,6 +190,8 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
+star_contrast_variation = 0.2
+star_saturation_variation = -0.5
 
 [node name="Zone shape 1e12" type="CollisionShape" parent="."]
 transform = Transform( 9e+11, 0, 0, 0, 9e+11, 0, 0, 0, 9e+11, 0, 0, 0 )

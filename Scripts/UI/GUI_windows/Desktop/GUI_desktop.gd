@@ -202,9 +202,12 @@ func _on_Button_camera_change_pressed():
 	if Paths.player.visible:
 		GameState.debug("Hide player ship model.")
 		Paths.player.hide()
+		GameState.player_hidden = true
 	else:
 		GameState.debug("Show player ship model.")		
 		Paths.player.show()
+		GameState.player_hidden = false
+		
 	
 
 

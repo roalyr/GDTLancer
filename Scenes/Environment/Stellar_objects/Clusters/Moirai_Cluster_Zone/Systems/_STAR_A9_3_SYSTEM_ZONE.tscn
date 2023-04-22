@@ -1,0 +1,451 @@
+[gd_scene load_steps=40 format=2]
+
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=3]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD1.tres" type="SphereMesh" id=4]
+[ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=5]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD0.tres" type="SphereMesh" id=6]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.tres" type="ArrayMesh" id=7]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/_Planetary_disks/Planetary_disk_Zone.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/_Planets/Planet_Icy_Zone.tscn" type="PackedScene" id=9]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD1.tres" type="ArrayMesh" id=10]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.tres" type="ArrayMesh" id=11]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD2.tres" type="SphereMesh" id=12]
+[ext_resource path="res://Assets/Shaders/Star/Star_rim_halo.gdshader" type="Shader" id=13]
+[ext_resource path="res://Assets/Shaders/Star/Star_sprite.gdshader" type="Shader" id=14]
+[ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=15]
+[ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=16]
+[ext_resource path="res://Scenes/Kinematics/Rotating_object.tscn" type="PackedScene" id=17]
+[ext_resource path="res://Assets/Models/Sprites/_Star_sprite_square.glb" type="PackedScene" id=18]
+[ext_resource path="res://Assets/Models/Sprites/Star_sprite_square_wide.glb" type="PackedScene" id=19]
+
+[sub_resource type="SphereShape" id=108]
+
+[sub_resource type="SphereShape" id=79]
+
+[sub_resource type="OpenSimplexNoise" id=95]
+octaves = 1
+period = 95.5
+persistence = 0.0
+
+[sub_resource type="NoiseTexture" id=96]
+width = 128
+height = 128
+noise = SubResource( 95 )
+
+[sub_resource type="ShaderMaterial" id=99]
+shader = ExtResource( 13 )
+shader_param/halo_color = Color( 0.0588235, 0.0705882, 0.0196078, 1 )
+shader_param/corona_color = Color( 0.0705882, 0.0705882, 0, 1 )
+shader_param/core_color = Color( 0.784314, 0.796078, 0.329412, 1 )
+shader_param/halo_strength = 6.6
+shader_param/halo_exponent = 1.0
+shader_param/corona_strength = 22.8
+shader_param/corona_exponent = 25.0
+shader_param/core_strength = 100.0
+shader_param/core_exponent = 32.0
+shader_param/rim_exponent = 6.0
+shader_param/alpha_clip = 1.0
+shader_param/displacement_scale = 0.02
+shader_param/displacement_velocity = 0.05
+shader_param/displacement_texture = SubResource( 96 )
+
+[sub_resource type="OpenSimplexNoise" id=91]
+period = 4.0
+
+[sub_resource type="NoiseTexture" id=92]
+width = 256
+height = 256
+seamless = true
+noise = SubResource( 91 )
+
+[sub_resource type="OpenSimplexNoise" id=93]
+octaves = 4
+period = 1.0
+persistence = 1.0
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=94]
+flags = 15
+width = 256
+height = 256
+seamless = true
+noise = SubResource( 93 )
+
+[sub_resource type="ShaderMaterial" id=100]
+shader = ExtResource( 16 )
+shader_param/rim_color = Color( 1, 0.976471, 0.815686, 1 )
+shader_param/overlay_color = Color( 1, 0.980392, 0.878431, 1 )
+shader_param/surface_color = Color( 1, 0.964706, 0.788235, 1 )
+shader_param/major_phase = 1.895
+shader_param/small_phase = 2.232
+shader_param/major_detail_intensity = 0.205
+shader_param/small_detail_intensity = 1.041
+shader_param/detail_decay_distance = 1e+12
+shader_param/major_detail_scale = 2.0
+shader_param/small_detail_scale = 2.0
+shader_param/major_detail_flow = 0.022
+shader_param/small_detail_flow = 0.003
+shader_param/rim_strength = 1.251
+shader_param/rim_exponent = 0.5
+shader_param/rim_intensity = 0.214
+shader_param/major_detail_noise = SubResource( 92 )
+shader_param/small_detail_noise = SubResource( 94 )
+
+[sub_resource type="ShaderMaterial" id=109]
+shader = ExtResource( 14 )
+shader_param/albedo = Color( 1, 0.933333, 0.388235, 1 )
+shader_param/scale = 0.1
+shader_param/flare_distance = 9e+11
+shader_param/flare_size = 3.0
+shader_param/attenuation = 0.3
+shader_param/intensity = 0.5
+shader_param/exponent = 5.0
+shader_param/pulse_factor = 1.0
+shader_param/pulse_rate = 10.0
+shader_param/phase = 0.0
+
+[sub_resource type="OpenSimplexNoise" id=106]
+octaves = 1
+period = 55.8
+persistence = 0.0
+
+[sub_resource type="NoiseTexture" id=107]
+width = 128
+height = 128
+noise = SubResource( 106 )
+
+[sub_resource type="ShaderMaterial" id=111]
+shader = ExtResource( 13 )
+shader_param/halo_color = Color( 0.137255, 0.0313726, 0, 1 )
+shader_param/corona_color = Color( 0.101961, 0.0823529, 0.0627451, 1 )
+shader_param/core_color = Color( 1, 0.560784, 0, 1 )
+shader_param/halo_strength = 7.4
+shader_param/halo_exponent = 1.0
+shader_param/corona_strength = 0.7
+shader_param/corona_exponent = 25.0
+shader_param/core_strength = 9.7
+shader_param/core_exponent = 32.0
+shader_param/rim_exponent = 6.0
+shader_param/alpha_clip = 1.0
+shader_param/displacement_scale = 0.029
+shader_param/displacement_velocity = 0.048
+shader_param/displacement_texture = SubResource( 107 )
+
+[sub_resource type="OpenSimplexNoise" id=101]
+period = 5.0
+persistence = 0.926
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=102]
+width = 128
+height = 128
+seamless = true
+noise = SubResource( 101 )
+
+[sub_resource type="OpenSimplexNoise" id=103]
+octaves = 9
+period = 6.1
+persistence = 1.0
+lacunarity = 4.0
+
+[sub_resource type="NoiseTexture" id=104]
+width = 256
+height = 256
+seamless = true
+noise = SubResource( 103 )
+
+[sub_resource type="ShaderMaterial" id=105]
+shader = ExtResource( 16 )
+shader_param/rim_color = Color( 1, 0.329412, 0, 1 )
+shader_param/overlay_color = Color( 1, 0.72549, 0, 1 )
+shader_param/surface_color = Color( 1, 0.768627, 0.662745, 1 )
+shader_param/major_phase = 0.236
+shader_param/small_phase = 2.354
+shader_param/major_detail_intensity = 1.098
+shader_param/small_detail_intensity = 1.921
+shader_param/detail_decay_distance = 1e+12
+shader_param/major_detail_scale = 2.0
+shader_param/small_detail_scale = 1.0
+shader_param/major_detail_flow = 0.01
+shader_param/small_detail_flow = 0.02
+shader_param/rim_strength = 1.191
+shader_param/rim_exponent = 0.5
+shader_param/rim_intensity = 0.91
+shader_param/major_detail_noise = SubResource( 102 )
+shader_param/small_detail_noise = SubResource( 104 )
+
+[sub_resource type="ShaderMaterial" id=110]
+shader = ExtResource( 14 )
+shader_param/albedo = Color( 1, 0.415686, 0.0705882, 1 )
+shader_param/scale = 0.1
+shader_param/flare_distance = 5e+11
+shader_param/flare_size = 3.0
+shader_param/attenuation = 0.3
+shader_param/intensity = 0.5
+shader_param/exponent = 5.0
+shader_param/pulse_factor = 1.0
+shader_param/pulse_rate = 10.0
+shader_param/phase = 0.0
+
+[node name="_STAR_A9_3_SYSTEM_ZONE" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 1 )
+
+[node name="Zone shape 1e14 DNI WITH SAME ZONE TYPE" type="CollisionShape" parent="."]
+transform = Transform( 1e+14, 0, 0, 0, 1e+14, 0, 0, 0, 1e+14, 0, 0, 0 )
+shape = SubResource( 108 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "1e15"
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="Valeri system" type="Position3D" parent="Scenes"]
+script = ExtResource( 5 )
+
+[node name="_STAR_A9_3_ZONE" type="Area" parent="Scenes/Valeri system"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 3 )
+star_brightness_variation = -0.2
+star_contrast_variation = 0.5
+star_saturation_variation = 0.2
+
+[node name="Zone shape 1e12" type="CollisionShape" parent="Scenes/Valeri system/_STAR_A9_3_ZONE"]
+transform = Transform( 9e+11, 0, 0, 0, 9e+11, 0, 0, 0, 9e+11, 0, 0, 0 )
+shape = SubResource( 79 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Scenes" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE"]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "Add marker to scene and set its level."
+}
+
+[node name="Rotating_object" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes" instance=ExtResource( 17 )]
+rotation_speed = 0.001
+
+[node name="Valeri A star" type="Position3D" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8.31443e+09 )
+script = ExtResource( 15 )
+autopilot_range = 5e+10
+
+[node name="OmniLight_1e13" type="OmniLight" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star"]
+light_color = Color( 0.980392, 1, 0.376471, 1 )
+light_energy = 2.0
+omni_range = 1e+13
+omni_attenuation = 5.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="LODs star red 9e9" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star"]
+transform = Transform( 9e+09, 0, 0, 0, 9e+09, 0, 0, 0, 9e+09, 0, 0, 0 )
+script = ExtResource( 2 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+If object absolute size is set to 0, script will take size from transform.
+"
+}
+
+[node name="LOD0" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Icosphere_LOD0_corona" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD0"]
+transform = Transform( 1.7, 0, 0, 0, 1.7, 0, 0, 0, 1.7, 0, 0, 0 )
+mesh = ExtResource( 7 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 99 )
+
+[node name="UV_sphere_LOD0_core" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD0"]
+transform = Transform( 0.83415, 0, 0, 0, 0.83415, 0, 0, 0, 0.83415, 0, 0, 0 )
+mesh = ExtResource( 6 )
+material/0 = SubResource( 100 )
+
+[node name="LOD1" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Icosphere_LOD1_corona" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD1"]
+transform = Transform( 1.7, 0, 0, 0, 1.7, 0, 0, 0, 1.7, 0, 0, 0 )
+mesh = ExtResource( 10 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 99 )
+
+[node name="UV_sphere_LOD1_core" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD1"]
+transform = Transform( 0.83415, 0, 0, 0, 0.83415, 0, 0, 0, 0.83415, 0, 0, 0 )
+mesh = ExtResource( 4 )
+material/0 = SubResource( 100 )
+
+[node name="Star_sprite_square_wide" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD1" instance=ExtResource( 19 )]
+
+[node name="Plane" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD1/Star_sprite_square_wide" index="0"]
+material/0 = SubResource( 109 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Icosphere_LOD2_corona" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD2"]
+transform = Transform( 1.7, 0, 0, 0, 1.7, 0, 0, 0, 1.7, 0, 0, 0 )
+mesh = ExtResource( 11 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 99 )
+
+[node name="UV_sphere_LOD2_core" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD2"]
+transform = Transform( 0.83415, 0, 0, 0, 0.83415, 0, 0, 0, 0.83415, 0, 0, 0 )
+mesh = ExtResource( 12 )
+skeleton = NodePath("../Icosphere_LOD2_corona")
+material/0 = SubResource( 100 )
+
+[node name="Star_sprite_square_wide" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD2" instance=ExtResource( 19 )]
+
+[node name="Plane" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD2/Star_sprite_square_wide" index="0"]
+material/0 = SubResource( 109 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Star_sprite_square_wide" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD3" instance=ExtResource( 19 )]
+
+[node name="Plane" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD3/Star_sprite_square_wide" index="0"]
+material/0 = SubResource( 109 )
+
+[node name="Valeri B star" type="Position3D" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.32093e+10 )
+script = ExtResource( 15 )
+autopilot_range = 5e+10
+
+[node name="OmniLight_1e13" type="OmniLight" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star"]
+light_color = Color( 1, 0.415686, 0.239216, 1 )
+light_energy = 2.0
+omni_range = 1e+13
+omni_attenuation = 5.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="LODs star red 5e9" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star"]
+transform = Transform( 3e+09, 0, 0, 0, 3e+09, 0, 0, 0, 3e+09, 0, 0, 0 )
+script = ExtResource( 2 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+If object absolute size is set to 0, script will take size from transform.
+"
+}
+
+[node name="LOD0" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Icosphere_LOD0" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD0"]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+mesh = ExtResource( 7 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 111 )
+
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD0"]
+transform = Transform( 0.8, 3.80481e-09, 3.04385e-08, -3.80481e-09, 0.8, -1.52192e-08, -3.04385e-08, 1.52192e-08, 0.8, 0, 0, 0 )
+mesh = ExtResource( 6 )
+material/0 = SubResource( 105 )
+
+[node name="LOD1" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Icosphere_LOD1" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD1"]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+mesh = ExtResource( 10 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 111 )
+
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD1"]
+transform = Transform( 0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0, 0 )
+mesh = ExtResource( 4 )
+material/0 = SubResource( 105 )
+
+[node name="Star_sprite_square" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD1" instance=ExtResource( 18 )]
+
+[node name="Plane" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD1/Star_sprite_square" index="0"]
+material/0 = SubResource( 110 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Icosphere_LOD2" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD2"]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+mesh = ExtResource( 11 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 111 )
+
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD2"]
+transform = Transform( 0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0, 0 )
+mesh = ExtResource( 12 )
+skeleton = NodePath("../Icosphere_LOD2")
+material/0 = SubResource( 105 )
+
+[node name="Star_sprite_square" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD2" instance=ExtResource( 18 )]
+
+[node name="Plane" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD2/Star_sprite_square" index="0"]
+material/0 = SubResource( 110 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Star_sprite_square" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD3" instance=ExtResource( 18 )]
+
+[node name="Plane" parent="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD3/Star_sprite_square" index="0"]
+material/0 = SubResource( 110 )
+
+[node name="Planet Icy Zone" parent="Scenes/Valeri system" instance=ExtResource( 9 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.99496e+12, 0, 2.68368e+09 )
+planet_saturation_variation = 0.5
+
+[node name="Planetary Disk Zone" parent="Scenes/Valeri system" instance=ExtResource( 8 )]
+nebula_brightness_variation = 0.25
+nebula_contrast_variation = -0.1
+nebula_saturation_variation = -0.5
+
+[connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
+[connection signal="body_entered" from="Scenes/Valeri system/_STAR_A9_3_ZONE" to="Scenes/Valeri system/_STAR_A9_3_ZONE" method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="Scenes/Valeri system/_STAR_A9_3_ZONE" to="Scenes/Valeri system/_STAR_A9_3_ZONE" method="_on_Local_space_trigger_zone_body_exited"]
+
+[editable path="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD1/Star_sprite_square_wide"]
+[editable path="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD2/Star_sprite_square_wide"]
+[editable path="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri A star/LODs star red 9e9/LOD3/Star_sprite_square_wide"]
+[editable path="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD1/Star_sprite_square"]
+[editable path="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD2/Star_sprite_square"]
+[editable path="Scenes/Valeri system/_STAR_A9_3_ZONE/Scenes/Rotating_object/Valeri B star/LODs star red 5e9/LOD3/Star_sprite_square"]

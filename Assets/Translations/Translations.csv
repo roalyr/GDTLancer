@@ -134,6 +134,7 @@ Temperature zone data:
 * Помірна зона :   2.024 ... 2.863 а.о.
 * Холодна зона :   2.863 ... 4.373 а.о.
 * Межа кригоутворення : > 8.215 а.о.",Object description
+DESC_STAR_M2_4_SYSTEM,A planetary system around the Viakata A star.,Планетарна система зірки Віаката А.,Object description
 DESC_STAR_M2_4,"Absolute units:
 * Size: 1.57e+08 m
 * Temperature: 3315 K
@@ -177,15 +178,16 @@ Temperature zone data:
 * Помірна зона :   0.026 ... 0.037 а.о.
 * Холодна зона :   0.037 ... 0.056 а.о.
 * Межа кригоутворення : > 0.105 а.о.",Object description
-NAME_STAR_B7_0,Victory A,Вікторі А,Object name
+NAME_STAR_B7_0,Victory A star,Зірка Вікторі А,Object name
 NAME_STAR_B7_0_SYSTEM,Victory system,Система Вікторі,Object name
 NAME_STAR_B7_0_PLANET_0,Victory b planet,Вікторі b планета,Object name
-NAME_STAR_MAIN_M_159,Spark A,Спарк А,Object name
-NAME_STAR_MAIN_M_159_SYSTEM,Spark system,Система Спарк,Object name
-NAME_STAR_G8_0_1,Victory B,Вікторі B,Object name
+,,,Object name
+,,,Object name
+NAME_STAR_G8_0_1,Victory B star,Зірка Вікторі B,Object name
 NAME_STAR_A7_1_SYSTEM,Equberan system,Система Екуберан,Object name
-NAME_STAR_A7_1,Equberan A,Екуберан А,Object name
-NAME_STAR_M2_4,Viakata A,Віаката А,Object name
+NAME_STAR_A7_1,Equberan A star,Зірка Екуберан А,Object name
+NAME_STAR_M2_4_SYSTEM,Viakata system,Система Віаката,Object name
+NAME_STAR_M2_4,Viakata A star,Зірка Віаката А,Object name
 BUTTON_DEBUG,Debug,Налагодження,UI buttons
 BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК,UI buttons
 BUTTON_INFO,Info,Інформація,UI buttons

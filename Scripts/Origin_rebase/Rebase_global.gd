@@ -12,10 +12,13 @@ func _physics_process(_delta):
 	# Hide Paths.player from view to prevent annoying visuals jitter.
 	# TODO: add a sprite for the value above which is projected.
 #	# TODO: move this to a proper module.
-#	if rebase_limit > Paths.camera_rig.camera_push_visibility_velocity:
-#		Paths.player.hide()
-#	else:
-#		Paths.player.show()
+	if rebase_limit > Paths.camera_rig.camera_push_visibility_velocity:
+		Paths.player.hide()
+	else:
+		if GameState.player_hidden:
+			pass
+		else:
+			Paths.player.show()
 
 
 	if Paths.player.translation.x > rebase_limit:

@@ -1,18 +1,149 @@
-import universe_presets
-import universe_test_presets
-
-import palettes
-
-############### CONSTANTS ###############
-# General
+############### PARAMETERS ###############
 seed = "GDTLancer"
 
-import os
-cwd = os.path.normpath(os.getcwd())
+# GODOT engine parameters.
+star_zone_size_factor = 50 # Multiplied by star size.
+star_zone_size_by_death_zone_factor = 10 # If star zone is less than death zone.
+star_death_zone_min_factor = 1.5 # If death zone is too small.
+star_detail_decay_distance_factor = 40 # Distance factor at which star core turns white.
+star_autopilot_factor = 2 # Multiplied by death zone size.
+star_flare_factor = 1.05 # Multiplied by death zone size. Acts like an indicatort.
 
-# Number formatter.
+# Companion stars for the main star.
+num_stars_min = 0
+num_stars_max = 5
+
+# Planets for each star type.
+star_o_num_planets_min = 1
+star_o_num_planets_max = 30
+
+star_b_num_planets_min = 1
+star_b_num_planets_max = 20
+
+star_a_num_planets_min = 1
+star_a_num_planets_max = 20
+
+star_f_num_planets_min = 1
+star_f_num_planets_max = 15
+
+star_g_num_planets_min = 0
+star_g_num_planets_max = 10
+
+star_k_num_planets_min = 0
+star_k_num_planets_max = 7
+
+star_m_num_planets_min = 0
+star_m_num_planets_max = 5
+
+
+
+
+
+
+
+
+
+############### IMPORTS ################
+
+import universe_presets
+import universe_test_presets
+import palettes
+
+# Using multiple random instances to not to affect different states.
+import random as random_star_num
+import random as random_star_abundance
+import random as random_star_val
+import random as random_planet_num
+import random as random_planet_val
+import random as random_char
+import operator
+
+import os
+import png
+import math
+
+
+
+
+
+
+
+
+
+
+
+
+######### CONSTANTS: FUNCTIONS ##########
+
+# Formatting mini-functions.
 def e(x):
 	return  "{:.2e}".format(x)
+
+def rgb_to_hex(rgb):
+	return '%02x%02x%02x' % rgb
+
+# Make additional folders.
+cwd = os.path.normpath(os.getcwd())
+
+try:
+	os.mkdir(cwd + "/Doc/Universe/")
+except:
+	pass
+
+try:
+	os.mkdir(cwd + "/Doc/Universe/Colors")
+except:
+	pass
+
+# Prepare colors from palettes.
+# https://stackoverflow.com/questions/8554282/creating-a-png-file-in-python
+width = 19
+height = 19
+
+for color in palettes.spectrum_palette:
+	img = []
+	for y in range(height):
+		t = pow(math.sin(y/height*math.pi),1.2)
+		row = []
+		for x in range(width):
+			s = pow(math.sin(x/width*math.pi),1.2)
+			row.append(int(color[0]*s*t))
+			row.append(int(color[1]*s*t))
+			row.append(int(color[2]*s*t))
+		img.append(row)
+		
+	name = rgb_to_hex(color) + ".png"
+	with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
+		w = png.Writer(width, height, greyscale=False)
+		w.write(f, img)
+		
+# Make a blank image.
+img = []
+for y in range(height):
+	row = ()
+	for x in range(width):
+		row = (0, 0, 0)*width
+	img.append(row)
+	
+name = rgb_to_hex((0, 0, 0)) + ".png"
+with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
+	w = png.Writer(width, height, greyscale=False)
+	w.write(f, img)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######### CONSTANTS: STARS ##########
 
 # Sun data for reference
 sun_diameter = 1.39e9
@@ -23,24 +154,12 @@ sun_luminosity_visible = 0.47 * sun_luminosity # ~1.8e+26 Watts
 sun_temperature = 5771.8 # K
 
 # GODOT omni light
-sun_omni_didstance = 1e13 # var for stars
-sun_omni_energy = 2.0 # const
-sun_omni_attenuation = 10.0 # const
-
-# GODOT engine parameters.
-system_zone_size_factor = 10000
-star_zone_size_factor = 10
-star_flare_distance_factor = 10
-star_detail_decay_distance_factor = 20
-
 # Omni light formula: range = (luminocity/4)^(1/2)
 # Omni energy = 2, omni attenuation = 10.
-star_omni_ratio = 4
-
-
-# Generic
-autopilot_distance_factor = 3
-
+star_omni_ratio = 4 
+sun_omni_didstance = 1e13 # For reference.
+sun_omni_energy = 2.0
+sun_omni_attenuation = 10.0 
 
 # f = L / (4 * pi * d²).
 # d² = L / (4 * pi * f), d = (L / (4 * pi * f))^(1/2)
@@ -56,70 +175,6 @@ c_lum = 7.12560265e-7
 
 # Wavelength constant. nm*K
 c_wien = 2897771.9 
-
-
-# Habitable zone margins for sun (lax).
-# https://en.m.wikipedia.org/wiki/Circumstellar_habitable_zone
-# 0.2 a.u. from Sun (hot zone).
-sun_hot_zone = sun_distance_au * 0.2 
-sun_hot_zone_flux = sun_luminosity / (4 * 3.14 * sun_hot_zone * sun_hot_zone)
-# Venus (warm zone).
-sun_warm_zone = sun_distance_au * 0.7
-sun_warm_zone_flux = sun_luminosity / (4 * 3.14 * sun_warm_zone * sun_warm_zone)
-# Earth (reference value).
-sun_temperate_zone = sun_distance_au * 1.0
-sun_temperate_zone_flux = sun_luminosity / (4 * 3.14 * sun_temperate_zone * sun_temperate_zone)
-# Mars (cold zone).
-sun_cold_zone = sun_distance_au * 1.5
-sun_cold_zone_flux = sun_luminosity / (4 * 3.14 * sun_cold_zone * sun_cold_zone)
-
-# Sun snow line.
-# T = (L / (2.85e-6 * R^2))^(1/4)
-# T^4 = L / (2.85e-6 * R^2); R = (L / (T^4 * 2.85e-6))^(1/2)
-# flux = sigma * T^4
-SB_sigma = 5.670373e-8 # Stefan-Boltzman c.
-sun_frost_line_dust_temp = 170
-sun_frost_line_distance = pow(sun_luminosity / (2.85e-6 * pow(sun_frost_line_dust_temp, 4)), 0.5)
-sun_frost_line_flux = sun_luminosity / (4 * 3.14 * sun_frost_line_distance * sun_frost_line_distance)
-
-# Silicate particles melting distance.
-dust_melting_temp = 1000
-sun_dust_melting_distance = pow(sun_luminosity / (2.85e-6 * pow(dust_melting_temp, 4)), 0.5)
-sun_dust_melting_flux = sun_luminosity / (4 * 3.14 * sun_dust_melting_distance * sun_dust_melting_distance)
-
-# T0Values for ship default flux resistence. Affects the distance you can be at around star.
-melting_temp = 900
-material_albedo = 0.9
-melting_flux_worst =  SB_sigma * pow(melting_temp, 4) / (1 - material_albedo)
-melting_flux_average = melting_flux_worst * 2
-
-# Testing.
-melting_distance_average_O0 =  pow( 2e33 / (4 * 3.14 * melting_flux_average), 0.5)
-melting_distance_average_B9 =  pow( 1.85e+29 / (4 * 3.14 * melting_flux_average), 0.5)
-melting_distance_average_G5 =  pow( 4.5e26 / (4 * 3.14 * melting_flux_average), 0.5)
-melting_distance_average_M9 =  pow( 2.94e+23 / (4 * 3.14 * melting_flux_average), 0.5)
-
-
-print("Value testing")
-print("-----------")
-print("Melting flux at 0.9 albedo (W/m2) worst ", e(melting_flux_worst))
-print("Melting flux at 0.9 albedo (W/m2) avg ", e(melting_flux_average))
-print("Melting distance avg O0 star (rel) ", e(melting_distance_average_O0/1.1e10))
-print("Melting distance avg B9 star (rel) ", e(melting_distance_average_B9/7.85e+09))
-print("Melting distance avg G5 star (rel) ", e(melting_distance_average_G5/1.6e9))
-print("Melting distance avg M9 star (rel) ", e(melting_distance_average_M9/2.13e+08))
-print("-----------")
-print("Assumed dust melting temperature (K)", dust_melting_temp)
-print("Sun dust melting flux (W/m2)", round(sun_dust_melting_flux, 1), " at ", round(sun_dust_melting_distance/sun_distance_au, 2), "AU" ) # ~34000
-print()
-print("Sun hot zone flux (W/m2)", round(sun_hot_zone_flux, 1), " at ", round(sun_hot_zone/sun_distance_au, 2), "AU" ) # ~34000
-print("Sun warm zone flux (W/m2)", round(sun_warm_zone_flux, 1), " at ", round(sun_warm_zone/sun_distance_au, 2), "AU" ) # ~2800
-print("Sun temperate zone flux (W/m2)", round(sun_temperate_zone_flux, 1), " at ", round(sun_temperate_zone/sun_distance_au, 2), "AU" ) # ~1400
-print("Sun cold zone flux (W/m2)", round(sun_cold_zone_flux, 1), " at ", round(sun_cold_zone/sun_distance_au, 2), "AU" ) # ~600
-print()
-print("Sun frost line flux (W/m2)", round(sun_frost_line_flux, 1), " at ", round(sun_frost_line_distance/sun_distance_au, 2), "AU" ) # ~190
-print("Sun frost line dust temp (K)", round(sun_frost_line_dust_temp, 1)) # 170
-print("-----------")
 
 # Set those margins respectively.
 # W/m^2 at respective star distance.
@@ -149,26 +204,6 @@ wl_swir_min = 1400
 wl_mwir_min = 3000
 wl_lwir_min = 8000
 wl_fir_min = 15000
-
-# Companion stars for the main star.
-num_stars_min = 0
-num_stars_max = 5
-
-# Planets for each star type.
-star_o_num_planets_min = 1
-star_o_num_planets_max = 30
-star_b_num_planets_min = 1
-star_b_num_planets_max = 20
-star_a_num_planets_min = 1
-star_a_num_planets_max = 20
-star_f_num_planets_min = 1
-star_f_num_planets_max = 15
-star_g_num_planets_min = 0
-star_g_num_planets_max = 10
-star_k_num_planets_min = 0
-star_k_num_planets_max = 7
-star_m_num_planets_min = 0
-star_m_num_planets_max = 5
 
 
 # Star type parameters
@@ -245,7 +280,12 @@ star_m_abundance = 1.0 #use 0.8 when giants and white dwarfs are implemented.
 
 
 
-########## PLANETARY SYSTEMS ##########
+
+
+
+
+
+######### CONSTANTS: PLANETS ##########
 
 # Protoplanetary disks
 # https://www.researchgate.net/publication/311106398_The_Gas_Disk_Evolution_and_Chemistry
@@ -309,14 +349,95 @@ young_planetary_system_planetoid_min  = 0
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+################# TESTING ###############
+# Habitable zone margins for sun (lax).
+# https://en.m.wikipedia.org/wiki/Circumstellar_habitable_zone
+# 0.2 a.u. from Sun (hot zone).
+sun_hot_zone = sun_distance_au * 0.2 
+sun_hot_zone_flux = sun_luminosity / (4 * 3.14 * sun_hot_zone * sun_hot_zone)
+# Venus (warm zone).
+sun_warm_zone = sun_distance_au * 0.7
+sun_warm_zone_flux = sun_luminosity / (4 * 3.14 * sun_warm_zone * sun_warm_zone)
+# Earth (reference value).
+sun_temperate_zone = sun_distance_au * 1.0
+sun_temperate_zone_flux = sun_luminosity / (4 * 3.14 * sun_temperate_zone * sun_temperate_zone)
+# Mars (cold zone).
+sun_cold_zone = sun_distance_au * 1.5
+sun_cold_zone_flux = sun_luminosity / (4 * 3.14 * sun_cold_zone * sun_cold_zone)
+
+# Sun snow line.
+# T = (L / (2.85e-6 * R^2))^(1/4)
+# T^4 = L / (2.85e-6 * R^2); R = (L / (T^4 * 2.85e-6))^(1/2)
+# flux = sigma * T^4
+SB_sigma = 5.670373e-8 # Stefan-Boltzman c.
+sun_frost_line_dust_temp = 170
+sun_frost_line_distance = pow(sun_luminosity / (2.85e-6 * pow(sun_frost_line_dust_temp, 4)), 0.5)
+sun_frost_line_flux = sun_luminosity / (4 * 3.14 * sun_frost_line_distance * sun_frost_line_distance)
+
+# Silicate particles melting distance.
+dust_melting_temp = 1000
+sun_dust_melting_distance = pow(sun_luminosity / (2.85e-6 * pow(dust_melting_temp, 4)), 0.5)
+sun_dust_melting_flux = sun_luminosity / (4 * 3.14 * sun_dust_melting_distance * sun_dust_melting_distance)
+
+# Values for ship default flux resistence. Affects the distance you can be at around star.
+melting_temp = 900
+material_albedo = 0.9
+melting_flux_worst =  SB_sigma * pow(melting_temp, 4) / (1 - material_albedo)
+melting_flux_average = melting_flux_worst * 2
+
+# Testing.
+melting_distance_average_O0 =  pow( 2e33 / (4 * 3.14 * melting_flux_average), 0.5)
+melting_distance_average_B9 =  pow( 1.85e+29 / (4 * 3.14 * melting_flux_average), 0.5)
+melting_distance_average_G5 =  pow( 4.5e26 / (4 * 3.14 * melting_flux_average), 0.5)
+melting_distance_average_M9 =  pow( 2.94e+23 / (4 * 3.14 * melting_flux_average), 0.5)
+
+
+print("Value testing")
+print("-----------")
+print("Melting flux at 0.9 albedo (W/m2) worst ", e(melting_flux_worst))
+print("Melting flux at 0.9 albedo (W/m2) avg ", e(melting_flux_average))
+print("Melting distance avg O0 star (rel) ", e(melting_distance_average_O0/1.1e10))
+print("Melting distance avg B9 star (rel) ", e(melting_distance_average_B9/7.85e+09))
+print("Melting distance avg G5 star (rel) ", e(melting_distance_average_G5/1.6e9))
+print("Melting distance avg M9 star (rel) ", e(melting_distance_average_M9/2.13e+08))
+print("-----------")
+print("Assumed dust melting temperature (K)", dust_melting_temp)
+print("Sun dust melting flux (W/m2)", round(sun_dust_melting_flux, 1), " at ", round(sun_dust_melting_distance/sun_distance_au, 2), "AU" ) # ~34000
+print()
+print("Sun hot zone flux (W/m2)", round(sun_hot_zone_flux, 1), " at ", round(sun_hot_zone/sun_distance_au, 2), "AU" ) # ~34000
+print("Sun warm zone flux (W/m2)", round(sun_warm_zone_flux, 1), " at ", round(sun_warm_zone/sun_distance_au, 2), "AU" ) # ~2800
+print("Sun temperate zone flux (W/m2)", round(sun_temperate_zone_flux, 1), " at ", round(sun_temperate_zone/sun_distance_au, 2), "AU" ) # ~1400
+print("Sun cold zone flux (W/m2)", round(sun_cold_zone_flux, 1), " at ", round(sun_cold_zone/sun_distance_au, 2), "AU" ) # ~600
+print()
+print("Sun frost line flux (W/m2)", round(sun_frost_line_flux, 1), " at ", round(sun_frost_line_distance/sun_distance_au, 2), "AU" ) # ~190
+print("Sun frost line dust temp (K)", round(sun_frost_line_dust_temp, 1)) # 170
+print("-----------")
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############### FUNCTIONS ###############
-import random as random_star_num
-import random as random_star_abundance
-import random as random_star_val
-import random as random_planet_num
-import random as random_planet_val
-import random as random_char
-import operator
 
 random_star_num.seed(seed + '153gf67')
 random_star_abundance.seed(seed + 'hwhdd34')
@@ -324,18 +445,6 @@ random_star_val.seed(seed + 'gj754')
 random_planet_num.seed(seed + '2hf5578')
 random_planet_val.seed(seed + 'wyf7eh')
 random_char.seed(seed + '3643rg')
-
-# Quantity according to frequency
-# https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
-chars_low_v = "y"+"u"*2+"oi"*4+"a"*5+"e"*6
-chars_low_c = "qjzx"+"vk"*5+"w"*7+"f"*9+"b"*11\
-	+"g"*12+"hm"*15+"p"*16+"d"*17+"c"*23+"l"*28\
-	+"s"*29+"n"*34+"t"*35+"r"*39
-
-chars_low_c = ''.join(random_char.sample(chars_low_c,len(chars_low_c)))
-chars_low_v = ''.join(random_char.sample(chars_low_v,len(chars_low_v)))
-
-ABC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
 output = ''
 
@@ -354,10 +463,22 @@ total_number_other_stars = 0
 total_number_all_stars = 0
 
 
-def rgb_to_hex(rgb):
-	return '%02x%02x%02x' % rgb
 
-###### FORMATTING ######
+
+
+
+
+
+
+
+
+
+
+
+
+
+############ SYSTEM GENERATION ###########
+
 def system_generation(star_id, system, cluster_name):
 	
 	global output
@@ -448,203 +569,17 @@ def system_generation(star_id, system, cluster_name):
 	# Write down to the global output.
 	output += p
 
-###### FORMATTING FUNCTIONS ######
-def formatting_system_data(star_id, system, main_star, star_name):
-	star_type = main_star["type"]
-	system_zone_size = e(main_star["omni_range"]) # use omni range instead.
-	system_autopilot_range = system_zone_size
-	
-	
-	p = ''
-	p += "# System: " + star_name + "  \n"
-	
-	p += "<details><summary>" \
-		+ "System data" \
-		+  "</summary>" + "  \n\n"
-	
-	p += "```" + "  \n"
-	
-	p += "* System ID: " + str(star_id) + "\n"
-	
-	if "cluster" in system:
-		p += "* Star cluster: " + system["cluster"] + "\n"
-	else:
-		p += "* Star cluster: unspecified" + "\n"
-	
-	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "\n"
-	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
-	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
-	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
-	p += "* System zone size: " + str(system_zone_size) + "\n"
-	p += "* System autopilot range: " + str(system_autopilot_range) + "\n"
-
-	p += "```" + "\n"
-	p += "\n </details>" + "  \n"
-	
-	p += "\n---  \n"
-	
-	return p
 
 
 
-def formatting_star_data(star_id, primary, main_star, star_name):
-	p = ''
-	
-	if primary:
-		star_in_system_hierarchy = "Primary star"
-	else:
-		star_in_system_hierarchy = "Secondary star"
-	
-	star_type = main_star["type"]
-	# Format star size.
-	star_size = e(main_star["size"])
-	star_size_rel = round(main_star["size"] / sun_diameter, 3)
-	
-	
-	# Format the number back to proper range.
-	star_lum = e(main_star["luminosity"])
-	star_lum_rel = main_star["luminosity"] / sun_luminosity
-	if star_lum_rel < 1:
-		star_lum_rel = round(star_lum_rel, 3)
-	elif star_lum_rel < 10:
-		star_lum_rel = round(star_lum_rel, 2)
-	elif star_lum_rel < 100:
-		star_lum_rel = round(star_lum_rel, 1)
-	else:
-		star_lum_rel = round(star_lum_rel)
-		
-	# Format the number for temperature.
-	star_temp = round(main_star["temperature"])
-	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
-	star_zone_margins = main_star["zone_margins"]
-	
-	#Make zone size larger than death zone, if it is smaller
-	star_zone_size = e(star_zone_size_factor * main_star["size"])
-	if star_zone_size_factor * main_star["size"] < star_zone_margins[6]:
-		star_zone_size = e(star_zone_margins[6] * 1.2)
-	
-	star_death_zone = round(star_zone_margins[6] / sun_distance_au, 3)
-	star_death_zone_meters = e(star_zone_margins[6])
-	
-	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
-	star_hot_zone = round(star_zone_margins[4] / sun_distance_au, 3)
-	star_warm_zone = round(star_zone_margins[3] / sun_distance_au, 3)
-	star_temperate_zone = round(star_zone_margins[2] / sun_distance_au, 3)
-	star_cold_zone = round(star_zone_margins[1] / sun_distance_au, 3)
-	star_frost_line = round(star_zone_margins[0] / sun_distance_au, 3)
-	
-	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
-	star_peak_wavelength_type = main_star["peak_wavelength_type"]
-	star_peak_wavelength_colorcode = main_star["peak_wavelength_colorcode"]
-	star_peak_wavelength_colorcode_hex = rgb_to_hex(star_peak_wavelength_colorcode)
-	star_omni_range = e(main_star["omni_range"])
-	
-	# Limited by death zone size.
-	star_autopilot_range = e(star_zone_margins[6]  * 1.15)
-	star_flare_distance = e(star_zone_margins[6]  * 1.05)
-	
-	color_sample = "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
-		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
-		
-	p += "<details><summary>" \
-		+ star_in_system_hierarchy  + " : " \
-		+ star_name + ", type: " \
-		+ star_type[0] + str(star_type[1]) \
-		+  "</summary>" + "  \n\n"
-	
-	p += "#### Star pseudo-color" + "  \n"
-
-	p += color_sample + "  \n"
-	
-	p += "#### Star Infocard data"+ "  \n"
-	
-	p += "```" + "  \n"
-	
-	p += "Absolute units:" + "\n"
-	p += "* Size: " + str(star_size) + " m" + "\n"
-	p += "* Temperature: " + str(star_temp) + " K" + "\n"
-	p += "* Luminosity: " + str(star_lum) + " W" + "\n"*2
-	
-	p += "Sun units:" + "\n"
-	p += "* Size: " + str(star_size_rel) + " D" + "\n"
-	p += "* Temperature: " + str(star_temp_rel) + " T" + "\n"
-	p += "* Luminosity: " + str(star_lum_rel) + " L" + "\n"*2
-	
-	p += "Spectral data:"+ "\n"
-	p += "* Type: " + star_type[0] + str(star_type[1]) + "\n"
-	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "\n"
-	p += "* Peak wavelength type: " + star_peak_wavelength_type + "\n"*2
-	
-	p += "Temperature zone data:"+ "\n"
-	p += "* Mineral melting line:"+ " < " + str(star_dust_melting) + " AU" + "\n"
-	p += "* Hot zone   :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " AU" + "\n"
-	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " AU" + "\n"
-	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " AU" + "\n"
-	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_frost_line) + " AU" + "\n"
-	p += "* Frost line :" + " > " + str(star_frost_line) + " AU" + "\n"
-	p += "```" + "  \n"
-	
-	p += "```" + "  \n"
-	p += "Абсолютні величини:" + "\n"
-	p += "* Розмір: " + str(star_size) + " м" + "\n"
-	p += "* Температура: " + str(star_temp) + " К" + "\n"
-	p += "* Світність: " + str(star_lum) + " Вт" + "\n"*2
-	
-	p += "Відносно Сонця:" + "\n"
-	p += "* Розмір: " + str(star_size_rel) + " D" + "\n"
-	p += "* Температура: " + str(star_temp_rel) + " T" + "\n"
-	p += "* Світність: " + str(star_lum_rel) + " L" + "\n"*2
-	
-	p += "Спектральні дані:"+ "\n"
-	p += "* Тип: " + star_type[0] + str(star_type[1]) + "\n"
-	p += "* Пікова довжина хвилі: " + str(star_peak_wavelength) + " нм"+ "\n"
-	p += "* Тип пікового випромінювання: " + star_peak_wavelength_type + "\n"*2
-	
-	p += "Дані температурного зонування:"+ "\n"
-	p += "* Межа плавлення мінералів:"+ " < " + str(star_dust_melting) + " а.о." + "\n"
-	p += "* Гаряча зона  :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " а.о." + "\n"
-	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " а.о." + "\n"
-	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " а.о." + "\n"
-	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " а.о." + "\n"
-	p += "* Межа кригоутворення :" + " > " + str(star_frost_line) + " а.о." + "\n"
-	
-	p += "```" + "  \n"
-	
-	p += "#### GODOT data"+ "  \n"
-	
-	p += "```" + "  \n"
-	
-	p += "* Star zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_ZONE" + "  \n"
-	p += "* Star codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "  \n"
-	p += "* Star translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "  \n"
-	p += "* Star translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "  \n"
-	p += "* Star name: " + star_name  + "  \n"
-	p += "* Star description: see above." + "  \n"
-	p += "* Star zone size: " + str(star_zone_size) + "\n"
-	p += "* Star death zone size: " + str(star_death_zone_meters) + "\n"
-	p += "* Star size: " + str(star_size) + "  \n"
-	p += "* Star flare distance: " + str(star_flare_distance) + "\n"
-	p += "* Star autopilot range: " + str(star_autopilot_range) + "  \n"
-	
-	p += "\n"
-	
-	p += "* Omni range: " + str(star_omni_range) + "  \n"
-	p += "* Omni attenuation: " + str(sun_omni_attenuation) + "  \n"
-	p += "* Omni energy: " + str(sun_omni_energy) + "  \n"
-	p += "* Surface color (Peak w.l. color code):" + "  \n"
-	p += " - rgb: " + str(star_peak_wavelength_colorcode) + "  \n"
-	p += " - hex: #" + str(star_peak_wavelength_colorcode_hex) + "  \n"
-	
-	p += "```" + "  \n"
-	
-	p += "\n </details>" + "  \n"
-	
-	p += "\n---  \n"
-	
-	return (p, color_sample)
 
 
-###### STAR FUNCTIONS #######
+
+
+
+
+########### STAR GENERATION #############
+
 def make_star(user_defined_type, primary_star_type):
 	global total_number_o_stars
 	global total_number_b_stars
@@ -910,7 +845,15 @@ def random_star_number():
 
 
 
+
+
+
+
+
+
+
 ###### PLANET FUNCTIONS #######
+
 def random_planet_number(star_type):
 	num = 0
 	if star_type == "O":
@@ -932,7 +875,25 @@ def random_planet_number(star_type):
 
 
 
-###### NAMING ######
+
+
+
+
+######## NAME GENERATOR ##########
+
+# Quantity according to frequency
+# https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
+chars_low_v = "y"+"u"*2+"oi"*4+"a"*5+"e"*6
+chars_low_c = "qjzx"+"vk"*5+"w"*7+"f"*9+"b"*11\
+	+"g"*12+"hm"*15+"p"*16+"d"*17+"c"*23+"l"*28\
+	+"s"*29+"n"*34+"t"*35+"r"*39
+
+chars_low_c = ''.join(random_char.sample(chars_low_c,len(chars_low_c)))
+chars_low_v = ''.join(random_char.sample(chars_low_v,len(chars_low_v)))
+
+ABC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+
+
 def random_system_name(min, max):
 	system_name = random_name(min, max)
 	if not system_name in used_names:
@@ -1001,58 +962,241 @@ def random_name(length_max, length_min):
 
 
 
-############### MAIN ###############
-import os
-try:
-	os.mkdir(cwd + "/Doc/Universe/")
-except:
-	pass
 
-try:
-	os.mkdir(cwd + "/Doc/Universe/Colors")
-except:
-	pass
 
-# Prepare colors from palettes.
-# https://stackoverflow.com/questions/8554282/creating-a-png-file-in-python
-import png
-import math
 
-width = 19
-height = 19
 
-for color in palettes.spectrum_palette:
-	img = []
-	for y in range(height):
-		t = pow(math.sin(y/height*math.pi),1.2)
-		row = []
-		for x in range(width):
-			s = pow(math.sin(x/width*math.pi),1.2)
-			row.append(int(color[0]*s*t))
-			row.append(int(color[1]*s*t))
-			row.append(int(color[2]*s*t))
-		img.append(row)
-		
-	name = rgb_to_hex(color) + ".png"
-	with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
-		w = png.Writer(width, height, greyscale=False)
-		w.write(f, img)
-		
-# Make a blank image.
-img = []
-for y in range(height):
-	row = ()
-	for x in range(width):
-		row = (0, 0, 0)*width
-	img.append(row)
+
+
+######### FORMATTING FUNCTIONS ############
+
+def formatting_system_data(star_id, system, main_star, star_name):
+	star_type = main_star["type"]
+	system_zone_size = e(main_star["omni_range"]) # use omni range instead.
+	system_autopilot_range = system_zone_size
 	
-name = rgb_to_hex((0, 0, 0)) + ".png"
-with open(cwd + "/Doc/Universe/Colors/" + name, 'wb') as f:
-	w = png.Writer(width, height, greyscale=False)
-	w.write(f, img)
+	
+	p = ''
+	p += "# System: " + star_name + "  \n"
+	
+	p += "<details><summary>" \
+		+ "System data" \
+		+  "</summary>" + "  \n\n"
+	
+	p += "```" + "  \n"
+	
+	p += "* System ID: " + str(star_id) + "\n"
+	
+	if "cluster" in system:
+		p += "* Star cluster: " + system["cluster"] + "\n"
+	else:
+		p += "* Star cluster: unspecified" + "\n"
+	
+	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "\n"
+	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System zone size: " + str(system_zone_size) + "\n"
+	p += "* System autopilot range: " + str(system_autopilot_range) + "\n"
+
+	p += "```" + "\n"
+	p += "\n </details>" + "  \n"
+	
+	p += "\n---  \n"
+	
+	return p
 
 
-################### TEST ####################
+
+def formatting_star_data(star_id, primary, main_star, star_name):
+	p = ''
+	
+	if primary:
+		star_in_system_hierarchy = "Primary star"
+	else:
+		star_in_system_hierarchy = "Secondary star"
+	
+	star_type = main_star["type"]
+	# Format star size.
+	star_size = e(main_star["size"])
+	star_size_rel = round(main_star["size"] / sun_diameter, 3)
+	
+	
+	# Format the number back to proper range.
+	star_lum = e(main_star["luminosity"])
+	star_lum_rel = main_star["luminosity"] / sun_luminosity
+	if star_lum_rel < 1:
+		star_lum_rel = round(star_lum_rel, 3)
+	elif star_lum_rel < 10:
+		star_lum_rel = round(star_lum_rel, 2)
+	elif star_lum_rel < 100:
+		star_lum_rel = round(star_lum_rel, 1)
+	else:
+		star_lum_rel = round(star_lum_rel)
+		
+	# temperature values.
+	star_temp = round(main_star["temperature"])
+	star_temp_rel = round(main_star["temperature"] / sun_temperature, 2)
+	star_zone_margins = main_star["zone_margins"]
+	star_death_zone_size = star_zone_margins[6]
+
+	# If star death zone is too small, tweak it.
+	if star_death_zone_size < (star_death_zone_min_factor * main_star["size"]):
+		star_death_zone_size = star_death_zone_min_factor * main_star["size"]
+	
+	# Death zone values.
+	star_death_zone = round(star_death_zone_size / sun_distance_au, 3)
+	star_death_zone_meters = e(star_death_zone_size)
+	
+	# Make zone size larger than death zone, if it is smaller.
+	star_zone_size = e(star_zone_size_factor * main_star["size"])
+	if (star_zone_size_factor * main_star["size"]) < star_death_zone_size:
+		star_zone_size = e(star_death_zone_size * star_zone_size_by_death_zone_factor)
+	
+	# Auopilot approach range, limited by death zone + comfortable margin.
+	star_autopilot_range = e(star_death_zone_size  * star_autopilot_factor)
+	
+	# Sprite flare distance, handy to depict the entrance to death zone.
+	star_flare_distance = e(star_death_zone_size  * star_flare_factor)
+	
+	# Temperature zoning.
+	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
+	star_hot_zone = round(star_zone_margins[4] / sun_distance_au, 3)
+	star_warm_zone = round(star_zone_margins[3] / sun_distance_au, 3)
+	star_temperate_zone = round(star_zone_margins[2] / sun_distance_au, 3)
+	star_cold_zone = round(star_zone_margins[1] / sun_distance_au, 3)
+	star_frost_line = round(star_zone_margins[0] / sun_distance_au, 3)
+	
+	# Wavelength data.
+	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
+	star_peak_wavelength_type = main_star["peak_wavelength_type"]
+	star_peak_wavelength_colorcode = main_star["peak_wavelength_colorcode"]
+	star_peak_wavelength_colorcode_hex = rgb_to_hex(star_peak_wavelength_colorcode)
+	star_omni_range = e(main_star["omni_range"])
+	
+	
+	color_sample = "![" + str(star_peak_wavelength_colorcode_hex)  + "]" \
+		+ "(Colors/" + str(star_peak_wavelength_colorcode_hex)  + ".png)"
+		
+	p += "<details><summary>" \
+		+ star_in_system_hierarchy  + " : " \
+		+ star_name + ", type: " \
+		+ star_type[0] + str(star_type[1]) \
+		+  "</summary>" + "  \n\n"
+	
+	p += "#### Star pseudo-color" + "  \n"
+
+	p += color_sample + "  \n"
+	
+	p += "#### Star Infocard data"+ "  \n"
+	
+	p += "```" + "  \n"
+	
+	p += "Absolute units:" + "\n"
+	p += "* Size: " + str(star_size) + " m" + "\n"
+	p += "* Temperature: " + str(star_temp) + " K" + "\n"
+	p += "* Luminosity: " + str(star_lum) + " W" + "\n"*2
+	
+	p += "Sun units:" + "\n"
+	p += "* Size: " + str(star_size_rel) + " D" + "\n"
+	p += "* Temperature: " + str(star_temp_rel) + " T" + "\n"
+	p += "* Luminosity: " + str(star_lum_rel) + " L" + "\n"*2
+	
+	p += "Spectral data:"+ "\n"
+	p += "* Type: " + star_type[0] + str(star_type[1]) + "\n"
+	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "\n"
+	p += "* Peak wavelength type: " + star_peak_wavelength_type + "\n"*2
+	
+	p += "Temperature zone data:"+ "\n"
+	p += "* Mineral melting line:"+ " < " + str(star_dust_melting) + " AU" + "\n"
+	p += "* Hot zone   :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " AU" + "\n"
+	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " AU" + "\n"
+	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " AU" + "\n"
+	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_frost_line) + " AU" + "\n"
+	p += "* Frost line :" + " > " + str(star_frost_line) + " AU" + "\n"
+	p += "```" + "  \n"
+	
+	p += "```" + "  \n"
+	p += "Абсолютні величини:" + "\n"
+	p += "* Розмір: " + str(star_size) + " м" + "\n"
+	p += "* Температура: " + str(star_temp) + " К" + "\n"
+	p += "* Світність: " + str(star_lum) + " Вт" + "\n"*2
+	
+	p += "Відносно Сонця:" + "\n"
+	p += "* Розмір: " + str(star_size_rel) + " D" + "\n"
+	p += "* Температура: " + str(star_temp_rel) + " T" + "\n"
+	p += "* Світність: " + str(star_lum_rel) + " L" + "\n"*2
+	
+	p += "Спектральні дані:"+ "\n"
+	p += "* Тип: " + star_type[0] + str(star_type[1]) + "\n"
+	p += "* Пікова довжина хвилі: " + str(star_peak_wavelength) + " нм"+ "\n"
+	p += "* Тип пікового випромінювання: " + star_peak_wavelength_type + "\n"*2
+	
+	p += "Дані температурного зонування:"+ "\n"
+	p += "* Межа плавлення мінералів:"+ " < " + str(star_dust_melting) + " а.о." + "\n"
+	p += "* Гаряча зона  :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " а.о." + "\n"
+	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " а.о." + "\n"
+	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " а.о." + "\n"
+	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " а.о." + "\n"
+	p += "* Межа кригоутворення :" + " > " + str(star_frost_line) + " а.о." + "\n"
+	
+	p += "```" + "  \n"
+	
+	p += "#### GODOT data"+ "  \n"
+	
+	p += "```" + "  \n"
+	
+	p += "* Star zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_ZONE" + "\n"
+	p += "* Star codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "\n"
+	p += "* Star translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "\n"
+	p += "* Star translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "\n"
+	p += "* Star name: " + star_name  + "\n"
+	p += "* Star description: see above." + "\n"
+	p += "* Star zone size: " + str(star_zone_size) + "\n"
+	p += "* Star death zone size: " + str(star_death_zone_meters) + "\n"
+	p += "* Star size: " + str(star_size) + "\n"
+	p += "* Star flare distance: " + str(star_flare_distance) + "\n"
+	p += "* Star autopilot range: " + str(star_autopilot_range) + "\n"
+	
+	p += "\n"
+	
+	p += "* Omni range: " + str(star_omni_range) + "\n"
+	p += "* Omni attenuation: " + str(sun_omni_attenuation) + "\n"
+	p += "* Omni energy: " + str(sun_omni_energy) + "\n"
+	p += "* Surface color (Peak w.l. color code):" + "\n"
+	p += " - rgb: " + str(star_peak_wavelength_colorcode) + "\n"
+	p += " - hex: #" + str(star_peak_wavelength_colorcode_hex) + "\n"
+	
+	p += "```" + "  \n"
+	
+	p += "\n </details>" + "  \n"
+	
+	p += "\n---  \n"
+	
+	return (p, color_sample)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################### GENERATE TEST ####################
 print("Generation begin: FROM TEST PRESET")
 for star_id in range(len(universe_test_presets.systems)):
 	system_generation(star_id, universe_test_presets.systems[star_id], '')
@@ -1078,7 +1222,7 @@ f.close()
 	
 
 
-################### PRESET ###################
+################### GENERATE PRESET ###################
 # Reset generators in order to not to affect new entities.
 import random as random_star_num
 import random as random_star_abundance
@@ -1133,7 +1277,7 @@ f.close()
 
 
 
-###################### RANDOM ####################
+###################### GENERATE RANDOM ####################
 # Reset generators in order to not to affect new entities.
 import random as random_star_num
 import random as random_star_abundance

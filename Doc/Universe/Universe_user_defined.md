@@ -70,24 +70,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_B7_0_ZONE  
-* Star codename: STAR_B7_0  
-* Star translation name codename: NAME_STAR_B7_0  
-* Star translation description codename: DESC_STAR_B7_0  
-* Star name: Victory A  
-* Star description: see above.  
-* Star zone size: 2.57e+11
+* Star zone codename: STAR_B7_0_ZONE
+* Star codename: STAR_B7_0
+* Star translation name codename: NAME_STAR_B7_0
+* Star translation description codename: DESC_STAR_B7_0
+* Star name: Victory A
+* Star description: see above.
+* Star zone size: 3.16e+11
 * Star death zone size: 2.14e+11
-* Star size: 6.32e+09  
+* Star size: 6.32e+09
 * Star flare distance: 2.25e+11
-* Star autopilot range: 2.46e+11  
+* Star autopilot range: 4.28e+11
 
-* Omni range: 3.27e+14  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (0, 195, 255)  
- - hex: #00c3ff  
+* Omni range: 3.27e+14
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (0, 195, 255)
+ - hex: #00c3ff
 ```  
 
  </details>  
@@ -148,24 +148,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_G8_0_1_ZONE  
-* Star codename: STAR_G8_0_1  
-* Star translation name codename: NAME_STAR_G8_0_1  
-* Star translation description codename: DESC_STAR_G8_0_1  
-* Star name: Victory B  
-* Star description: see above.  
-* Star zone size: 1.45e+10
+* Star zone codename: STAR_G8_0_1_ZONE
+* Star codename: STAR_G8_0_1
+* Star translation name codename: NAME_STAR_G8_0_1
+* Star translation description codename: DESC_STAR_G8_0_1
+* Star name: Victory B
+* Star description: see above.
+* Star zone size: 7.27e+10
 * Star death zone size: 5.66e+09
-* Star size: 1.45e+09  
+* Star size: 1.45e+09
 * Star flare distance: 5.95e+09
-* Star autopilot range: 6.51e+09  
+* Star autopilot range: 1.13e+10
 
-* Omni range: 8.66e+12  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (255, 255, 0)  
- - hex: #ffff00  
+* Omni range: 8.66e+12
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (255, 255, 0)
+ - hex: #ffff00
 ```  
 
  </details>  
@@ -246,24 +246,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_A7_1_ZONE  
-* Star codename: STAR_A7_1  
-* Star translation name codename: NAME_STAR_A7_1  
-* Star translation description codename: DESC_STAR_A7_1  
-* Star name: Equberan A  
-* Star description: see above.  
-* Star zone size: 2.01e+10
+* Star zone codename: STAR_A7_1_ZONE
+* Star codename: STAR_A7_1
+* Star translation name codename: NAME_STAR_A7_1
+* Star translation description codename: DESC_STAR_A7_1
+* Star name: Equberan A
+* Star description: see above.
+* Star zone size: 1.00e+11
 * Star death zone size: 1.86e+10
-* Star size: 2.01e+09  
+* Star size: 2.01e+09
 * Star flare distance: 1.95e+10
-* Star autopilot range: 2.14e+10  
+* Star autopilot range: 3.72e+10
 
-* Omni range: 2.84e+13  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (122, 255, 46)  
- - hex: #7aff2e  
+* Omni range: 2.84e+13
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (122, 255, 46)
+ - hex: #7aff2e
 ```  
 
  </details>  
@@ -344,24 +344,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_M9_2_ZONE  
-* Star codename: STAR_M9_2  
-* Star translation name codename: NAME_STAR_M9_2  
-* Star translation description codename: DESC_STAR_M9_2  
-* Star name: Selk'nam A  
-* Star description: see above.  
-* Star zone size: 1.40e+09
-* Star death zone size: 1.17e+08
-* Star size: 1.40e+08  
-* Star flare distance: 1.23e+08
-* Star autopilot range: 1.34e+08  
+* Star zone codename: STAR_M9_2_ZONE
+* Star codename: STAR_M9_2
+* Star translation name codename: NAME_STAR_M9_2
+* Star translation description codename: DESC_STAR_M9_2
+* Star name: Selk'nam A
+* Star description: see above.
+* Star zone size: 7.02e+09
+* Star death zone size: 2.11e+08
+* Star size: 1.40e+08
+* Star flare distance: 2.21e+08
+* Star autopilot range: 4.21e+08
 
-* Omni range: 1.79e+11  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (157, 0, 0)  
- - hex: #9d0000  
+* Omni range: 1.79e+11
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (157, 0, 0)
+ - hex: #9d0000
 ```  
 
  </details>  
@@ -442,24 +442,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_A9_3_ZONE  
-* Star codename: STAR_A9_3  
-* Star translation name codename: NAME_STAR_A9_3  
-* Star translation description codename: DESC_STAR_A9_3  
-* Star name: Valeri A  
-* Star description: see above.  
-* Star zone size: 2.27e+10
+* Star zone codename: STAR_A9_3_ZONE
+* Star codename: STAR_A9_3
+* Star translation name codename: NAME_STAR_A9_3
+* Star translation description codename: DESC_STAR_A9_3
+* Star name: Valeri A
+* Star description: see above.
+* Star zone size: 1.13e+11
 * Star death zone size: 1.79e+10
-* Star size: 2.27e+09  
+* Star size: 2.27e+09
 * Star flare distance: 1.87e+10
-* Star autopilot range: 2.05e+10  
+* Star autopilot range: 3.57e+10
 
-* Omni range: 2.73e+13  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (155, 255, 0)  
- - hex: #9bff00  
+* Omni range: 2.73e+13
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (155, 255, 0)
+ - hex: #9bff00
 ```  
 
  </details>  
@@ -520,24 +520,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_M9_3_1_ZONE  
-* Star codename: STAR_M9_3_1  
-* Star translation name codename: NAME_STAR_M9_3_1  
-* Star translation description codename: DESC_STAR_M9_3_1  
-* Star name: Valeri B  
-* Star description: see above.  
-* Star zone size: 2.05e+09
-* Star death zone size: 1.64e+08
-* Star size: 2.05e+08  
-* Star flare distance: 1.72e+08
-* Star autopilot range: 1.88e+08  
+* Star zone codename: STAR_M9_3_1_ZONE
+* Star codename: STAR_M9_3_1
+* Star translation name codename: NAME_STAR_M9_3_1
+* Star translation description codename: DESC_STAR_M9_3_1
+* Star name: Valeri B
+* Star description: see above.
+* Star zone size: 1.02e+10
+* Star death zone size: 3.07e+08
+* Star size: 2.05e+08
+* Star flare distance: 3.23e+08
+* Star autopilot range: 6.15e+08
 
-* Omni range: 2.50e+11  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (150, 0, 0)  
- - hex: #960000  
+* Omni range: 2.50e+11
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (150, 0, 0)
+ - hex: #960000
 ```  
 
  </details>  
@@ -618,24 +618,24 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_M2_4_ZONE  
-* Star codename: STAR_M2_4  
-* Star translation name codename: NAME_STAR_M2_4  
-* Star translation description codename: DESC_STAR_M2_4  
-* Star name: Viakata A  
-* Star description: see above.  
-* Star zone size: 1.57e+09
+* Star zone codename: STAR_M2_4_ZONE
+* Star codename: STAR_M2_4
+* Star translation name codename: NAME_STAR_M2_4
+* Star translation description codename: DESC_STAR_M2_4
+* Star name: Viakata A
+* Star description: see above.
+* Star zone size: 7.85e+09
 * Star death zone size: 2.38e+08
-* Star size: 1.57e+08  
+* Star size: 1.57e+08
 * Star flare distance: 2.50e+08
-* Star autopilot range: 2.74e+08  
+* Star autopilot range: 4.77e+08
 
-* Omni range: 3.64e+11  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (255, 0, 0)  
- - hex: #ff0000  
+* Omni range: 3.64e+11
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (255, 0, 0)
+ - hex: #ff0000
 ```  
 
  </details>  
@@ -716,29 +716,127 @@ Temperature zone data:
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_G9_5_ZONE  
-* Star codename: STAR_G9_5  
-* Star translation name codename: NAME_STAR_G9_5  
-* Star translation description codename: DESC_STAR_G9_5  
-* Star name: Glory A  
-* Star description: see above.  
-* Star zone size: 1.60e+10
+* Star zone codename: STAR_G9_5_ZONE
+* Star codename: STAR_G9_5
+* Star translation name codename: NAME_STAR_G9_5
+* Star translation description codename: DESC_STAR_G9_5
+* Star name: Glory A
+* Star description: see above.
+* Star zone size: 7.99e+10
 * Star death zone size: 6.03e+09
-* Star size: 1.60e+09  
+* Star size: 1.60e+09
 * Star flare distance: 6.33e+09
-* Star autopilot range: 6.94e+09  
+* Star autopilot range: 1.21e+10
 
-* Omni range: 9.22e+12  
-* Omni attenuation: 10.0  
-* Omni energy: 2.0  
-* Surface color (Peak w.l. color code):  
- - rgb: (255, 242, 0)  
- - hex: #fff200  
+* Omni range: 9.22e+12
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (255, 242, 0)
+ - hex: #fff200
 ```  
 
  </details>  
 
 ---  
  ![fff200](Colors/fff200.png)   
+
+---  
+# System: Hilicele  
+<details><summary>System data</summary>  
+
+```  
+* System ID: 6
+* Star cluster: 
+* System zone codename: STAR_F7_6_SYSTEM_ZONE
+* System codename: STAR_F7_6_SYSTEM
+* System translation name codename: NAME_STAR_F7_6_SYSTEM
+* System translation description codename: DESC_STAR_F7_6_SYSTEM
+* System zone size: 1.49e+13
+* System autopilot range: 1.49e+13
+```
+
+ </details>  
+
+---  
+<details><summary>Primary star : Hilicele A, type: F7</summary>  
+
+#### Star pseudo-color  
+![cdff00](Colors/cdff00.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 1.77e+09 m
+* Temperature: 6328 K
+* Luminosity: 8.91e+26 W
+
+Sun units:
+* Size: 1.271 D
+* Temperature: 1.1 T
+* Luminosity: 2.33 L
+
+Spectral data:
+* Type: F7
+* Peak wavelength: 458.0 nm
+* Peak wavelength type: visible
+
+Temperature zone data:
+* Mineral melting line: < 0.119 AU
+* Hot zone   :   0.119 ... 0.305 AU
+* Warm zone  :   0.305 ... 1.064 AU
+* Temp. zone :   1.064 ... 1.505 AU
+* Cold zone  :   1.505 ... 4.318 AU
+* Frost line : > 4.318 AU
+```  
+```  
+Абсолютні величини:
+* Розмір: 1.77e+09 м
+* Температура: 6328 К
+* Світність: 8.91e+26 Вт
+
+Відносно Сонця:
+* Розмір: 1.271 D
+* Температура: 1.1 T
+* Світність: 2.33 L
+
+Спектральні дані:
+* Тип: F7
+* Пікова довжина хвилі: 458.0 нм
+* Тип пікового випромінювання: visible
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.119 а.о.
+* Гаряча зона  :   0.119 ... 0.305 а.о.
+* Тепла зона   :   0.305 ... 1.064 а.о.
+* Помірна зона :   1.064 ... 1.505 а.о.
+* Холодна зона :   1.505 ... 2.299 а.о.
+* Межа кригоутворення : > 4.318 а.о.
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_F7_6_ZONE
+* Star codename: STAR_F7_6
+* Star translation name codename: NAME_STAR_F7_6
+* Star translation description codename: DESC_STAR_F7_6
+* Star name: Hilicele A
+* Star description: see above.
+* Star zone size: 8.83e+10
+* Star death zone size: 9.76e+09
+* Star size: 1.77e+09
+* Star flare distance: 1.03e+10
+* Star autopilot range: 1.95e+10
+
+* Omni range: 1.49e+13
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (205, 255, 0)
+ - hex: #cdff00
+```  
+
+ </details>  
+
+---  
+ ![cdff00](Colors/cdff00.png)   
 
 ---  

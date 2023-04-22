@@ -106,7 +106,7 @@ shader_param/phase = 0.0
 
 [sub_resource type="ShaderMaterial" id=123]
 shader = ExtResource( 18 )
-shader_param/albedo = Color( 0.478431, 1, 0.294118, 1 )
+shader_param/albedo = Color( 1, 0.976471, 0.294118, 1 )
 shader_param/rim_strength = 0.085
 shader_param/rim_exponent = 10.0
 shader_param/alpha_clip = 1.0

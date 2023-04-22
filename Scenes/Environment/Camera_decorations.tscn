@@ -149,7 +149,7 @@ mesh = SubResource( 41 )
 script = SubResource( 42 )
 
 [node name="Galaxy_belt" type="Spatial" parent="."]
-transform = Transform( 9.99999e+17, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, -2.58117e+18 )
+transform = Transform( 9.92196e+17, 1.24381e+17, -8.66144e+15, -1.24503e+17, 9.921e+17, -1.53515e+16, 6.68358e+15, 1.63101e+16, 9.99845e+17, 0, 0, -2.58117e+18 )
 
 [node name="Galaxy_light" type="OmniLight" parent="Galaxy_belt"]
 light_color = Color( 0.760784, 0.92549, 1, 1 )

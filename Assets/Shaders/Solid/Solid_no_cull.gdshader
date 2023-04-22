@@ -30,7 +30,7 @@ void fragment()
 	METALLIC = metallic;
 	ROUGHNESS = roughness;
 	SPECULAR = specular;
-	RIM = rim;
-	RIM_TINT = rim_tint;
-	EMISSION = emission.rgb*COLOR.rgb;
+	//RIM = rim;
+	//RIM_TINT = rim_tint;
+	//EMISSION = emission.rgb*COLOR.rgb;
 }

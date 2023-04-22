@@ -16,6 +16,9 @@ var debug_output_text = ""
 var game_started = false
 var game_paused = false
 
+# temp
+var player_hidden = false
+
 # CONTROLS
 var touchscreen_mode = false
 var turret_view = false
