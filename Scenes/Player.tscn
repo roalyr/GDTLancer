@@ -263,6 +263,7 @@ continuous_cd = true
 script = ExtResource( 3 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 7 )]
+visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( -0.698318, 0.428579, -0.573299, -0.238896, 0.615461, 0.75109, 0.674745, 0.661458, -0.327402, 0, 0, 0 )

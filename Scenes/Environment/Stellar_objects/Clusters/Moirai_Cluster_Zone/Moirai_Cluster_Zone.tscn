@@ -115,6 +115,7 @@ mesh = SubResource( 81 )
 material/0 = SubResource( 88 )
 
 [node name="_EDITOR_ORIGINS_" parent="_EDITOR OBJECTS_" instance=ExtResource( 7 )]
+visible = false
 
 [node name="Coord_1LY" parent="_EDITOR OBJECTS_/_EDITOR_ORIGINS_" index="0"]
 visible = false
@@ -154,7 +155,7 @@ omni_range = 2e+17
 omni_attenuation = 3.0
 
 [node name="LODs_trigger_main" type="Spatial" parent="Scenes/Moirai Cluster"]
-transform = Transform( 7.65169e+16, -2.06973e+13, -6.4383e+16, -1.66719e+13, 1e+17, -5.19611e+13, 6.4383e+16, 5.04928e+13, 7.65169e+16, 0, 0, 0 )
+transform = Transform( 3.82584e+17, -1.03486e+14, -3.21915e+17, -8.33595e+13, 5e+17, -2.59805e+14, 3.21915e+17, 2.52464e+14, 3.82584e+17, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -251,7 +252,7 @@ __meta__ = {
 }
 
 [node name="LODs_trigger_arm2" type="Spatial" parent="Scenes/Moirai Cluster"]
-transform = Transform( 7.65169e+16, -2.06973e+13, -6.4383e+16, -1.66719e+13, 1e+17, -5.19611e+13, 6.4383e+16, 5.04928e+13, 7.65169e+16, 0, 0, 0 )
+transform = Transform( 3.82584e+17, -1.03486e+14, -3.21915e+17, -8.33595e+13, 5e+17, -2.59805e+14, 3.21915e+17, 2.52464e+14, 3.82584e+17, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -387,7 +388,7 @@ __meta__ = {
 }
 
 [node name="LODs_trigger_arm1" type="Spatial" parent="Scenes/Moirai Cluster"]
-transform = Transform( 7.65169e+16, -2.06973e+13, -6.4383e+16, -1.66719e+13, 1e+17, -5.19611e+13, 6.4383e+16, 5.04928e+13, 7.65169e+16, 0, 0, 0 )
+transform = Transform( 3.82584e+17, -1.03486e+14, -3.21915e+17, -8.33595e+13, 5e+17, -2.59805e+14, 3.21915e+17, 2.52464e+14, 3.82584e+17, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -520,7 +521,7 @@ __meta__ = {
 }
 
 [node name="LODs_trigger_core" type="Spatial" parent="Scenes/Moirai Cluster"]
-transform = Transform( 7.65169e+16, -2.06973e+13, -6.4383e+16, -1.66719e+13, 1e+17, -5.19611e+13, 6.4383e+16, 5.04928e+13, 7.65169e+16, 0, 0, 0 )
+transform = Transform( 3.82584e+17, -1.03486e+14, -3.21915e+17, -8.33595e+13, 5e+17, -2.59805e+14, 3.21915e+17, 2.52464e+14, 3.82584e+17, 0, 0, 0 )
 script = ExtResource( 2 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.

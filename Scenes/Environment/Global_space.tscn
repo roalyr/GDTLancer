@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_STAR_A9_3_SYSTEM_ZONE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_SYSTEM_ZONE.tscn" type="PackedScene" id=2]
@@ -14,33 +14,8 @@
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_STAR_G9_5_SYSTEM_ZONE.tscn" type="PackedScene" id=12]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_STAR_M9_2_SYSTEM_ZONE.tscn" type="PackedScene" id=13]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_STAR_F7_6_SYSTEM_ZONE.tscn" type="PackedScene" id=14]
-
-[sub_resource type="GDScript" id=3]
-script/source = "extends Position3D
-
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = \"text\"
-
-
-# By hiding the object initially and showing it afterwards it 
-# mitigates the lag when some objects are not rendered.
-
-
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	self.hide()
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	if self.visible:
-		pass
-	else:
-		self.show()
-"
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/GMC.tscn" type="PackedScene" id=15]
+[ext_resource path="res://Scripts/Viewport/Object_visible_after_load.gd" type="Script" id=16]
 
 [node name="Global_space" type="Position3D"]
 script = ExtResource( 3 )
@@ -58,11 +33,16 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 }
 
 [node name="Moirai_Cluster_Zone" parent="Global clusters" instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55308e+16, 3.51885e+17, -1.97071e+18 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3554e+16, 2.72078e+17, -1.00992e+18 )
+visible = false
 
 [node name="Southern_region" type="Position3D" parent="Global clusters"]
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_EDITOR OBJECTS_" parent="Global clusters/Southern_region" instance=ExtResource( 5 )]
+visible = false
 
 [node name="_EDITOR_ORIGINS_" parent="Global clusters/Southern_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
 
@@ -83,8 +63,12 @@ __meta__ = {
 
 [node name="Eastern_region" type="Position3D" parent="Global clusters"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2e+18, 0, -2e+18 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_EDITOR OBJECTS_" parent="Global clusters/Eastern_region" instance=ExtResource( 5 )]
+visible = false
 
 [node name="_EDITOR_ORIGINS_" parent="Global clusters/Eastern_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
 
@@ -97,15 +81,23 @@ __meta__ = {
 
 [node name="Western_region" type="Position3D" parent="Global clusters"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2e+18, 0, -2e+18 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_EDITOR OBJECTS_" parent="Global clusters/Western_region" instance=ExtResource( 5 )]
+visible = false
 
 [node name="_EDITOR_ORIGINS_" parent="Global clusters/Western_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
 
 [node name="Central_region" type="Position3D" parent="Global clusters"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2e+18 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_EDITOR OBJECTS_" parent="Global clusters/Central_region" instance=ExtResource( 5 )]
+visible = false
 
 [node name="_EDITOR_ORIGINS_" parent="Global clusters/Central_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
 
@@ -121,8 +113,12 @@ __meta__ = {
 
 [node name="Northern_region" type="Position3D" parent="Global clusters"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4e+18 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_EDITOR OBJECTS_" parent="Global clusters/Northern_region" instance=ExtResource( 5 )]
+visible = false
 
 [node name="_EDITOR_ORIGINS_" parent="Global clusters/Northern_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
 
@@ -130,24 +126,30 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4e+18 )
 
 [node name="Fake_stars" type="Position3D" parent="Global clusters"]
 transform = Transform( 0.794417, 0.325931, -0.512514, -0.223404, 0.94147, 0.252438, 0.564794, -0.0860435, 0.820734, 4.55308e+16, 3.51885e+17, -1.97071e+18 )
-script = SubResource( 3 )
+script = ExtResource( 16 )
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="Star_placeholders_B" parent="Global clusters/Fake_stars" instance=ExtResource( 11 )]
 transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, 0, 0, 0 )
+visible = false
 
 [node name="Star_placeholders_G" parent="Global clusters/Fake_stars" instance=ExtResource( 10 )]
-transform = Transform( 0.14542, -0.764867, -0.146223, 0.595024, 0.0131821, 0.522803, -0.502344, -0.205802, 0.576928, 3.43597e+10, 0, 0 )
+transform = Transform( 0.260385, -1.36955, -0.261823, 1.06543, 0.0236036, 0.936118, -0.899484, -0.368504, 1.03303, 5.06946e+17, -7.05029e+17, -8.68812e+17 )
 
 [node name="Star_placeholders_G2" parent="Global clusters/Fake_stars" instance=ExtResource( 10 )]
 transform = Transform( -0.591883, 0.566968, 0.808645, 0.118221, -0.895294, 0.714253, 0.980501, 0.4502, 0.402022, 0, 0, 0 )
 
 [node name="Star_placeholders_M" parent="Global clusters/Fake_stars" instance=ExtResource( 9 )]
+transform = Transform( 0.798356, -0.396812, -0.0291432, 0.344893, 0.722754, -0.392884, 0.198388, 0.340367, 0.800296, 5.73009e+17, -2.36849e+17, -8.79426e+17 )
 
 [node name="Star_placeholders_M2" parent="Global clusters/Fake_stars" instance=ExtResource( 9 )]
 transform = Transform( -1.79409, -0.0271194, 2.20582, 0.150114, -2.83813, 0.0872008, 2.20087, 0.171472, 1.79217, 2.46831e+08, -9088, -1.01802e+09 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="GMC" parent="." instance=ExtResource( 15 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.13208e+17, -7.87858e+17, -2.84215e+18 )
+script = ExtResource( 16 )

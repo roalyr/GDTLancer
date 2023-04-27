@@ -28,7 +28,8 @@ func update_debug_text():
 	else:
 		ui_paths.desktop_readings_debug.get_node("FPS").text = "FPS: " + str(Performance.get_monitor(Performance.TIME_FPS))
 		ui_paths.desktop_readings_debug.get_node("Verts").text = "Verts: " + str(Performance.get_monitor(Performance.RENDER_VERTICES_IN_FRAME))
-#		ui_paths.desktop_readings_debug.get_node("Mouse_x").text = mouse_x
+		ui_paths.desktop_readings_debug.get_node("Calls").text = "Calls: " + str(Performance.get_monitor(Performance.RENDER_DRAW_CALLS_IN_FRAME))
+		#ui_paths.desktop_readings_debug.get_node("Mouse_x").text = mouse_x
 #		ui_paths.desktop_readings_debug.get_node("Mouse_y").text = mouse_y
 #		ui_paths.desktop_readings_debug.get_node("Throttle").text = throttle
 		ui_paths.desktop_readings_debug_output.text = print_out

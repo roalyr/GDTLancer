@@ -149,7 +149,8 @@ mesh = SubResource( 41 )
 script = SubResource( 42 )
 
 [node name="Galaxy_belt" type="Spatial" parent="."]
-transform = Transform( 9.92196e+17, 1.24381e+17, -8.66144e+15, -1.24503e+17, 9.921e+17, -1.53515e+16, 6.68358e+15, 1.63101e+16, 9.99845e+17, 0, 0, -2.58117e+18 )
+transform = Transform( 9.98482e+17, 2.97226e+16, -4.6358e+16, -3.79648e+16, 9.81335e+17, -1.88521e+17, 3.98894e+16, 1.89994e+17, 9.80975e+17, 3.61286e+17, 3.66649e+16, -2.7583e+18 )
+visible = false
 
 [node name="Galaxy_light" type="OmniLight" parent="Galaxy_belt"]
 light_color = Color( 0.760784, 0.92549, 1, 1 )
@@ -185,19 +186,19 @@ material/0 = SubResource( 80 )
 [node name="Galactic_background_lights" type="Spatial" parent="."]
 
 [node name="Starsphere" parent="Galactic_background_lights" instance=ExtResource( 3 )]
-transform = Transform( 9.22337e+18, 0, 0, 0, 9.22337e+18, 0, 0, 0, 9.22337e+18, 0, 0, 0 )
+transform = Transform( 1e+19, 0, 0, 0, 1e+19, 0, 0, 0, 1e+19, 0, 0, 0 )
 
 [node name="Starsphere007" parent="Galactic_background_lights/Starsphere" index="0"]
 material/0 = SubResource( 35 )
 
 [node name="Starsphere2" parent="Galactic_background_lights" instance=ExtResource( 3 )]
-transform = Transform( 6.08547e+18, -6.86459e+18, 9.56584e+17, -6.81319e+18, -5.69121e+18, 2.50224e+18, -1.27207e+18, -2.35757e+18, -8.82578e+18, 0, 0, 0 )
+transform = Transform( 6.59788e+18, -7.4426e+18, 1.03713e+18, -7.38687e+18, -6.17042e+18, 2.71294e+18, -1.37918e+18, -2.55608e+18, -9.56892e+18, 0, 0, 0 )
 
 [node name="Starsphere007" parent="Galactic_background_lights/Starsphere2" index="0"]
 material/0 = SubResource( 107 )
 
 [node name="Starsphere3" parent="Galactic_background_lights" instance=ExtResource( 3 )]
-transform = Transform( -2.03207e+18, 3.96241e+18, -8.07717e+18, 1.61445e+17, 8.29536e+18, 4.02883e+18, 8.99529e+18, 7.4624e+17, -1.89697e+18, 0, 0, 0 )
+transform = Transform( -2.20317e+18, 4.29605e+18, -8.75728e+18, 1.75039e+17, 8.99385e+18, 4.36807e+18, 9.75271e+18, 8.09076e+17, -2.0567e+18, 0, 0, 0 )
 
 [node name="Starsphere007" parent="Galactic_background_lights/Starsphere3" index="0"]
 material/0 = SubResource( 108 )

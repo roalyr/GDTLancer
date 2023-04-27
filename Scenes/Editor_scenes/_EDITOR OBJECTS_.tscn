@@ -50,3 +50,8 @@ script = ExtResource( 1 )
 transform = Transform( 1e+19, 0, 0, 0, 1e+19, 0, 0, 0, 1e+19, 0, 0, 0 )
 mesh = SubResource( 72 )
 material/0 = SubResource( 73 )
+
+[node name="_Black_omni_1e19" type="OmniLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.54277e+17, -1.64502e+17, -1.08706e+18 )
+light_color = Color( 0, 0, 0, 1 )
+omni_range = 1e+19
