@@ -111,6 +111,8 @@ onready var touch_ship_popup = touch_bar_items.get_node("Popup_PLACEHOLDER")
 
 # Control area
 onready var touch_control_area = touch_gui.get_node("Controls_area")
+onready var touch_left_control_area = touch_control_area.get_node("Left_control_area")
+onready var touch_right_control_area = touch_control_area.get_node("Right_control_area")
 onready var touch_touch_pad_base = touch_control_area.get_node("Touch_pad_base")
 onready var touch_touch_pad_stick = touch_touch_pad_base.get_node("Stick")
 onready var touch_touch_throttle_base = touch_control_area.get_node("Touch_throttle_base")

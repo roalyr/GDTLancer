@@ -1,6 +1,8 @@
 extends Node
 
 # UI
+var window_height = 1
+var window_width = 1
 var ui_alpha = 1.0
 var ui_scale = Vector2(1,1)
 var ui_reverse_scale = Vector2(1,1)

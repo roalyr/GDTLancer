@@ -195,6 +195,9 @@ func autopilot_controls_show():
 
 # VIEWPORT UPDATING
 func is_viewport_update():
+	# Store window size values.
+	GameState.window_height = ProjectSettings.get_setting("display/window/size/height")
+	GameState.window_width = ProjectSettings.get_setting("display/window/size/width")
 	var ratio_height = OS.window_size.y/ProjectSettings.get_setting("display/window/size/height")
 	var ratio_width = OS.window_size.x/ProjectSettings.get_setting("display/window/size/width")
 	ui_paths.ui.scale = Vector2(ratio_width, ratio_height)

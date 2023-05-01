@@ -19,10 +19,10 @@ const camera_z_near_velocity_factor = 1e-5
 # Those numbers are made to create a warp effect.
 const camera_fov_velocity_factor = 1e-4
 const camera_fov_derivative = 3
-const camera_fov_max_delta = 140 - Constants.camera_fov
+const camera_fov_max_delta = 150 - Constants.camera_fov
 const camera_brightness_velocity_factor = 2e-4
 const camera_brightness_derivative = 0.1
-const camera_brightness_max_delta = 5.0
+const camera_brightness_max_delta = 3.0
 # TODO: adjust background colors separatenly?
 
 # Values.

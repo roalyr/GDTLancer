@@ -2,9 +2,11 @@
 
 ## v0.11-alpha (work in progress)
 ### Engine
-- Updated engine binaries (3.x as of 21th February 2023).
+- Updated engine binaries (3.x as of 16th April 2023).
 ### Models
 - Fixed some improper LODs.
+### Controls
+- Improved touch controls (event sorting).
 ### Camera
 - Improved and fixed camera behavior.
 - Tweaked warp camera effect (stretch and brightness are now more smooth).
@@ -21,6 +23,7 @@
 - Clamped shaders alpha to prevent unexpected bugs.
 - Star sprite shader is adaptable with distance.
 - Added star halo (glow) shader based on camera angle.
+- Added opaque cloud and shade (like proximity fog) shaders.
 - Gas planet shader added.
 - Gas planet shader added.
 - Planetary rings shaders added.

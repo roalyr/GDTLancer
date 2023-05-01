@@ -17,7 +17,8 @@ Highlighted entries are "Work in progress".
 - Make stellar objects accessible at certain ranges or in certain zones (i.e. you would have to fly to a planetary system to access its planets coordinates).
 - Universe generator: brown and Wwhite dwarfs, giant stars.
 - Temperature / flux zones (distance-affected) and gauge.
-- Reflective ship / base coating.
+- Reflective ship / base coating materials.
+- **Basic gameplay loop(s).**
 
 ## Improvements
 - Investigate enabling/disabling trimesh collision shapes on the go.
@@ -38,5 +39,4 @@ Highlighted entries are "Work in progress".
 ## Fix
 - Investigate flickering on high velocity.
 - Keyboard keys behavior (also refactor).
-- Multitouch event sorting.
 - Panic screen scaling.

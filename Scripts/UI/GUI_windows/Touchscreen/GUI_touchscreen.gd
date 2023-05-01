@@ -210,3 +210,13 @@ func _on_Throttle_slider_released():
 	GlobalInput.throttle_held = false
 
 
+
+
+func _on_Controls_area_mouse_entered():
+	Signals.emit_signal("sig_mouse_on_control_area", true)
+
+
+func _on_Controls_area_mouse_exited():
+	Signals.emit_signal("sig_mouse_on_control_area", false)
+
+
