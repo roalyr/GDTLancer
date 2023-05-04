@@ -11,13 +11,13 @@
 
 [sub_resource type="ShaderMaterial" id=3]
 shader = ExtResource( 3 )
-shader_param/albedo = Color( 0.490196, 0.65098, 0.858824, 1 )
-shader_param/albedo_detail = Color( 0.772549, 0.239216, 0.239216, 1 )
-shader_param/rim_strength = 0.498
-shader_param/rim_exponent = 4.7
-shader_param/rim_strength_detail = 0.495
-shader_param/rim_exponent_detail = 0.2
-shader_param/alpha_clip = 1.0
+shader_param/albedo = Color( 0.490196, 0.631373, 0.839216, 1 )
+shader_param/albedo_detail = Color( 0.92549, 0.215686, 0.215686, 1 )
+shader_param/rim_strength = 3.557
+shader_param/rim_exponent = 1.1
+shader_param/rim_strength_detail = 4.887
+shader_param/rim_exponent_detail = 7.5
+shader_param/alpha_clip = 0.6
 shader_param/distance_fade_min = 0.0
 shader_param/distance_fade_max = 1e+18
 

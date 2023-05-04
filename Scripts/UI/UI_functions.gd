@@ -61,7 +61,7 @@ func switch_to_touchscreen_gui():
 	options_prompt_start_confirm_hide()
 	desktop_gui_hide()
 	ui_paths.common_touchscreen_pad.recenter_stick()
-	ui_paths.common_touchscreen_throttle.recenter_throttle()
+	#ui_paths.common_touchscreen_throttle.recenter_throttle()
 	is_controls_swapped()
 	is_game_started()
 	is_viewport_update()
@@ -97,25 +97,25 @@ func switch_to_touchscreen_controls_swapped():
 
 func is_controls_swapped():
 	if GameState.touchscreen_controls_swapped:
-		ui_paths.touch_touch_throttle_base.margin_left = 80
-		ui_paths.touch_touch_throttle_base.margin_right = 480
-		ui_paths.touch_touch_throttle_base.anchor_left = 0
-		ui_paths.touch_touch_throttle_base.anchor_right = 0
+		ui_paths.touch_touch_buttons.margin_left = 100
+		ui_paths.touch_touch_buttons.margin_right = 500
+		ui_paths.touch_touch_buttons.anchor_left = 0
+		ui_paths.touch_touch_buttons.anchor_right = 0
 		
-		ui_paths.touch_touch_pad_base.margin_left = -480
-		ui_paths.touch_touch_pad_base.margin_right = -80
+		ui_paths.touch_touch_pad_base.margin_left = -500
+		ui_paths.touch_touch_pad_base.margin_right = -100
 		ui_paths.touch_touch_pad_base.anchor_left = 1
 		ui_paths.touch_touch_pad_base.anchor_right = 1
 	else:
-		ui_paths.touch_touch_pad_base.margin_left = 80
-		ui_paths.touch_touch_pad_base.margin_right = 480
+		ui_paths.touch_touch_pad_base.margin_left = 100
+		ui_paths.touch_touch_pad_base.margin_right = 500
 		ui_paths.touch_touch_pad_base.anchor_left = 0
 		ui_paths.touch_touch_pad_base.anchor_right = 0
 		
-		ui_paths.touch_touch_throttle_base.margin_left = -480
-		ui_paths.touch_touch_throttle_base.margin_right = -80
-		ui_paths.touch_touch_throttle_base.anchor_left = 1
-		ui_paths.touch_touch_throttle_base.anchor_right = 1
+		ui_paths.touch_touch_buttons.margin_left = -500
+		ui_paths.touch_touch_buttons.margin_right = -100
+		ui_paths.touch_touch_buttons.anchor_left = 1
+		ui_paths.touch_touch_buttons.anchor_right = 1
 	
 	# Call this after swapping.
 	is_viewport_update()
@@ -209,8 +209,8 @@ func is_viewport_update():
 	GameState.ui_scale = ui_paths.ui.scale
 	GameState.touch_touch_pad_base_rect_position = ui_paths.touch_touch_pad_base.rect_position
 	GameState.touch_touch_pad_base_rect_size = ui_paths.touch_touch_pad_base.rect_size
-	GameState.touch_touch_throttle_base_rect_position = ui_paths.touch_touch_throttle_base.rect_position
-	GameState.touch_touch_throttle_base_rect_size = ui_paths.touch_touch_throttle_base.rect_size
+	#GameState.touch_touch_throttle_base_rect_position = ui_paths.touch_touch_throttle_base.rect_position
+	#GameState.touch_touch_throttle_base_rect_size = ui_paths.touch_touch_throttle_base.rect_size
 	
 	# Restore the proportions of the controls.
 	restore_proportions(ui_paths.touch_bar_items)
@@ -219,13 +219,13 @@ func is_viewport_update():
 	restore_proportions(ui_paths.touch_bar_nav)
 	restore_proportions(ui_paths.touch_bar_menu)
 	restore_proportions(ui_paths.touch_bar_menu_2)
-	restore_proportions(ui_paths.touch_touch_throttle_base)
+	restore_proportions(ui_paths.touch_touch_buttons)
 	restore_proportions(ui_paths.touch_touch_pad_base)
 	restore_proportions(ui_paths.touch_velocity_panel)
 	restore_proportions(ui_paths.touch_status_panel)
 	restore_proportions(ui_paths.touch_readings_target_autopilot)
 	restore_proportions(ui_paths.touch_readings_target_aim)
-	restore_proportions_with_margins(ui_paths.touch_readings_info_popup, 820)
+	restore_proportions_with_margins(ui_paths.touch_readings_info_popup, 900)
 	restore_proportions(ui_paths.touch_readings_debug)
 	
 	#restore_proportions(ui_paths.desktop_mouse_area)

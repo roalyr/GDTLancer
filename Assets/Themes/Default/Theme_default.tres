@@ -1,7 +1,8 @@
-[gd_resource type="Theme" load_steps=21 format=2]
+[gd_resource type="Theme" load_steps=24 format=2]
 
 [ext_resource path="res://Assets/Themes/Default/Elements/Fonts/Default_dynamicfont.tres" type="DynamicFont" id=1]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/slider_horiz_100_flat.png" type="Texture" id=2]
+[ext_resource path="res://Assets/UI_images/PNG/buttons/slider_vert_100_flat.png" type="Texture" id=3]
 
 [sub_resource type="StyleBoxFlat" id=11]
 bg_color = Color( 0, 0, 0, 0.376471 )
@@ -69,20 +70,20 @@ corner_detail = 1
 [sub_resource type="ImageTexture" id=18]
 
 [sub_resource type="StyleBoxFlat" id=17]
-bg_color = Color( 0, 0, 0, 0.376471 )
+bg_color = Color( 0, 0, 0, 0.25098 )
 corner_detail = 1
-expand_margin_right = 50.0
+expand_margin_right = 47.0
 expand_margin_bottom = 1.0
 anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id=16]
 content_margin_top = 90.0
-bg_color = Color( 0, 0, 0, 0 )
+bg_color = Color( 0, 0, 0, 0.12549 )
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
-border_color = Color( 1, 1, 1, 1 )
+border_color = Color( 0, 0, 0, 0.25098 )
 corner_detail = 1
 expand_margin_top = 3.0
 expand_margin_bottom = 4.0
@@ -143,6 +144,27 @@ content_margin_left = 90.0
 bg_color = Color( 0, 0, 0, 0 )
 corner_detail = 1
 
+[sub_resource type="StyleBoxFlat" id=26]
+content_margin_bottom = 0.0
+bg_color = Color( 0, 0, 0, 0.25098 )
+corner_detail = 1
+expand_margin_left = 44.0
+expand_margin_right = 44.0
+expand_margin_top = 47.0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=27]
+content_margin_top = 90.0
+bg_color = Color( 0, 0, 0, 0.12549 )
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color( 0, 0, 0, 0.25098 )
+corner_detail = 1
+expand_margin_left = 47.0
+expand_margin_right = 47.0
+
 [resource]
 Button/colors/font_color = Color( 1, 1, 1, 1 )
 Button/fonts/font = ExtResource( 1 )
@@ -175,10 +197,7 @@ ItemList/styles/bg_focus = SubResource( 24 )
 ItemList/styles/selected = SubResource( 3 )
 ItemList/styles/selected_focus = SubResource( 3 )
 Label/colors/font_color = Color( 1, 1, 1, 1 )
-Label/colors/font_color_shadow = Color( 0, 0, 0, 0.376471 )
-Label/constants/shadow_as_outline = 1
-Label/constants/shadow_offset_x = 2
-Label/constants/shadow_offset_y = 2
+Label/colors/font_color_shadow = Color( 0, 0, 0, 0 )
 Label/fonts/font = ExtResource( 1 )
 Panel/styles/panel = SubResource( 5 )
 ScrollContainer/styles/bg = SubResource( 21 )
@@ -190,3 +209,10 @@ VScrollBar/styles/grabber_highlight = SubResource( 20 )
 VScrollBar/styles/grabber_pressed = SubResource( 20 )
 VScrollBar/styles/scroll = SubResource( 9 )
 VScrollBar/styles/scroll_focus = SubResource( 9 )
+VSlider/icons/grabber = ExtResource( 3 )
+VSlider/icons/grabber_disabled = ExtResource( 3 )
+VSlider/icons/grabber_highlight = ExtResource( 3 )
+VSlider/icons/tick = SubResource( 18 )
+VSlider/styles/grabber_area = SubResource( 26 )
+VSlider/styles/grabber_area_highlight = SubResource( 26 )
+VSlider/styles/slider = SubResource( 27 )

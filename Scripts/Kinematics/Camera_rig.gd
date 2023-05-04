@@ -218,36 +218,16 @@ func zoom_camera(mouse_event):
 	if mouse_event.is_pressed():
 #		var delta = get_physics_process_delta_time()
 		#print(camera_min_zoom," | ",  current_zoom, " | ", camera_max_zoom)
-		if mouse_event.button_index == BUTTON_WHEEL_UP and \
-			zoom_ticks < Constants.camera_zoom_ticks_max:
+		if mouse_event.button_index == BUTTON_WHEEL_UP and zoom_ticks < Constants.camera_zoom_ticks_max:
 			zoom_ticks += 1
-			current_zoom_extra += Constants.camera_zoom_step*zoom_ticks
-			# More zoom range if debug is on.
-			if GameState.update_debug_text_on:
-				camera_max_zoom = 1e18
-				current_zoom_extra *= 2
-			# Reset max zoom otherwise.
-			elif not GameState.update_debug_text_on and \
-				(camera_max_zoom != camera_min_zoom \
-					* Constants.camera_zoom_ticks_max \
-					* Constants.camera_zoom_step):
-				reset_camera_zoom()
+			current_zoom_extra = get_extra_zoom(zoom_ticks)
 			
-		elif mouse_event.button_index == BUTTON_WHEEL_DOWN and \
-			zoom_ticks > 0:
-			current_zoom_extra -= Constants.camera_zoom_step*zoom_ticks
+		elif mouse_event.button_index == BUTTON_WHEEL_DOWN and zoom_ticks > 0:
 			zoom_ticks -= 1
-			# More zoom range if debug is on.
-			if GameState.update_debug_text_on:
-				camera_max_zoom = 1e18
-				current_zoom_extra /= 2
-			# Reset max zoom otherwise.
-			elif not GameState.update_debug_text_on and \
-				(camera_max_zoom != camera_min_zoom \
-					* Constants.camera_zoom_ticks_max \
-					* Constants.camera_zoom_step):
-				reset_camera_zoom()
-			
+			current_zoom_extra = get_extra_zoom(zoom_ticks)
+
+func get_extra_zoom(zoom_ticks):
+	return Constants.camera_zoom_step*pow(zoom_ticks, 1.4)
 
 func reset_camera_zoom():
 	camera_min_zoom = Paths.player.camera_horiz_offset
@@ -273,7 +253,7 @@ func is_zoom_value_changed(value):
 	zoom_ticks = value
 	if zoom_ticks > Constants.camera_zoom_ticks_max:
 		zoom_ticks = Constants.camera_zoom_ticks_max
-	current_zoom_extra = Constants.camera_zoom_step*zoom_ticks
+	current_zoom_extra = get_extra_zoom(zoom_ticks)
 
 
 func is_fov_value_changed(value):

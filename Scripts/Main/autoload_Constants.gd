@@ -24,6 +24,9 @@ const rebase_lag = 1.1
 const global_linear_damp = 1.2
 const global_angular_damp = 5
 
+# Ship
+const velocity_limiter_states = 3
+
 # Other
 # TODO: revivew what goes where.
 const maximum_systems_spawned_on_visiting = 3

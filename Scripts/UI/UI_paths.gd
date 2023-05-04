@@ -23,6 +23,7 @@ onready var desktop_button_options = desktop_bar_menu.get_node("Button_options")
 onready var desktop_bar_menu_2 = desktop_gui.get_node("Bar_menu_2")
 onready var desktop_button_turret = desktop_bar_menu_2.get_node("Button_turret")
 onready var desktop_button_hide_ui = desktop_bar_menu_2.get_node("Button_hide_ui")
+onready var desktop_slider_zoom = desktop_bar_menu_2.get_node("Slider_zoom")
 # Nav bar
 onready var desktop_bar_nav = desktop_gui.get_node("Bar_nav")
 # Nav bar popup lists
@@ -79,6 +80,7 @@ onready var touch_button_options = touch_bar_menu.get_node("Button_options")
 onready var touch_bar_menu_2 = touch_gui.get_node("Bar_menu_2")
 onready var touch_button_turret = touch_bar_menu_2.get_node("Button_turret")
 onready var touch_button_hide_ui = touch_bar_menu_2.get_node("Button_hide_ui")
+onready var touch_slider_zoom = touch_bar_menu_2.get_node("Slider_zoom")
 # Nav bar
 onready var touch_bar_nav = touch_gui.get_node("Bar_nav")
 # Nav bar popup lists
@@ -104,6 +106,7 @@ onready var touch_button_target_aim_clear = touch_bar_control.get_node("Button_t
 onready var touch_button_autopilot = touch_bar_control.get_node("Button_autopilot")
 # Control bar 2
 onready var touch_bar_control_2 = touch_gui.get_node("Bar_control_2")
+onready var touch_button_velocity_limiter = touch_bar_control_2.get_node("Button_velocity_limiter")
 # Ship bar
 onready var touch_bar_items = touch_gui.get_node("Bar_items")
 onready var touch_ship_popup = touch_bar_items.get_node("Popup_PLACEHOLDER")
@@ -115,8 +118,9 @@ onready var touch_left_control_area = touch_control_area.get_node("Left_control_
 onready var touch_right_control_area = touch_control_area.get_node("Right_control_area")
 onready var touch_touch_pad_base = touch_control_area.get_node("Touch_pad_base")
 onready var touch_touch_pad_stick = touch_touch_pad_base.get_node("Stick")
-onready var touch_touch_throttle_base = touch_control_area.get_node("Touch_throttle_base")
-onready var touch_touch_throttle = touch_touch_throttle_base.get_node("Throttle")
+#onready var touch_touch_throttle_base = touch_control_area.get_node("Touch_throttle_base")
+onready var touch_touch_buttons = touch_control_area.get_node("Touch_buttons")
+#onready var touch_touch_throttle = touch_touch_throttle_base.get_node("Throttle")
 # Readings
 onready var touch_readings = touch_gui.get_node("Readings")
 onready var touch_readings_info_popup = touch_readings.get_node("Popup_info")

@@ -2,11 +2,35 @@ extends Control
 
 onready var ui_paths = get_node("/root/Main/UI_paths")
 
+var icon_velocity_1 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_1.png")
+var icon_velocity_2 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_2.png")
+var icon_velocity_3 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_3.png")
+var icon_velocity_4 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_4.png")
+
+var accel_held = false
+var deccel_held = false
+
+var sticky_button_timer = 0
+var sticky_button_delay = 0.5
+
 func _ready():
 	# ============================= Connect signals ===========================
 	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
 	# =========================================================================
 
+func _physics_process(delta):
+	
+	if sticky_button_timer <= sticky_button_delay:
+		sticky_button_timer += delta
+		return
+#	else:
+#		sticky_button_timer = 0.0
+	
+	if accel_held:
+		Signals.emit_signal("sig_accelerate", true)
+	elif deccel_held:
+		Signals.emit_signal("sig_accelerate", false)
+		
 
 func hide_navbars():
 	ui_paths.touch_nav_popup_constellations.hide()	
@@ -44,22 +68,22 @@ func _on_Button_hide_ui_pressed():
 		GameState.ui_alpha = 1.0
 
 
-# touch_FHD / MOBILE GUI
 func _on_Slider_zoom_value_changed(value):
 	Signals.emit_signal("sig_zoom_value_changed", value)
 
 
-# touch_FHD / MOBILE GUI
 func _on_Button_turret_toggled(button_pressed):
 	if button_pressed: 
 		Signals.emit_signal("sig_turret_mode_on", true)
-		# Show slider in Touch GUI.
-		# TODO: make two buttons instead
+		ui_paths.touch_slider_zoom.show()
+		ui_paths.touch_slider_zoom.value = 0
 		
 	else: 
 		Signals.emit_signal("sig_turret_mode_on", false)
 		# Hide slider in Touch GUI.
-		# TODO: make two buttons instead
+		ui_paths.touch_slider_zoom.hide()
+		ui_paths.touch_slider_zoom.value = 0
+		
 
 
 
@@ -173,15 +197,38 @@ func _on_Stick_pressed():
 func _on_Stick_released():
 	GlobalInput.stick_held = false
 	
+	
+	
+	
 # Touchscreen controls.
 func _on_Touch_accel_plus_pressed():
+	accel_held = true
 	Signals.emit_signal("sig_accelerate", true)
+	sticky_button_timer = 0.0
+	
+	
 
+func _on_Touch_accel_plus_released():
+	accel_held = false
+	
 func _on_Touch_accel_minus_pressed():
+	deccel_held = true
 	Signals.emit_signal("sig_accelerate", false)
+	sticky_button_timer = 0.0
+
+	
+func _on_Touch_accel_minus_released():
+	deccel_held = false	
+
 
 func _on_Touch_ekill_pressed():
 	Signals.emit_signal("sig_engine_kill")
+		
+		
+		
+		
+		
+		
 		
 func is_autopilot_disable():
 	ui_paths.touch_button_autopilot.pressed = false
@@ -220,3 +267,42 @@ func _on_Controls_area_mouse_exited():
 	Signals.emit_signal("sig_mouse_on_control_area", false)
 
 
+
+func _on_Button_camera_change_pressed():
+	if Paths.player.visible:
+		GameState.debug("Hide player ship model.")
+		Paths.player.hide()
+		GameState.player_hidden = true
+	else:
+		GameState.debug("Show player ship model.")		
+		Paths.player.show()
+		GameState.player_hidden = false
+
+
+func _on_Button_debug_menu_show_toggled(button_pressed):
+	if button_pressed: 
+		GameState.update_debug_text_on = true
+		GameState.debug("Debug mode ON")
+	else:
+		GameState.debug("Debug mode OFF")
+		GameState.update_debug_text_on = false
+
+
+func _on_Button_velocity_limiter_pressed():
+	# res://Assets/UI_images/PNG/buttons/velocity_limiter_1.png
+	PlayerState.velocity_limiter += 1
+	if PlayerState.velocity_limiter > Constants.velocity_limiter_states:
+		PlayerState.velocity_limiter = 0
+	
+	if PlayerState.velocity_limiter == 0:
+		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_1
+		Signals.emit_signal("sig_velocity_limiter_set", 0)
+	elif PlayerState.velocity_limiter == 1:
+		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_2
+		Signals.emit_signal("sig_velocity_limiter_set", 1)
+	elif PlayerState.velocity_limiter == 2:
+		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_3
+		Signals.emit_signal("sig_velocity_limiter_set", 2)
+	elif PlayerState.velocity_limiter == 3:
+		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_4
+		Signals.emit_signal("sig_velocity_limiter_set", 3)

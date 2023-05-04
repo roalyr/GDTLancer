@@ -9,7 +9,7 @@
 [ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_pad.gd" type="Script" id=9]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Readouts.gd" type="Script" id=10]
 [ext_resource path="res://Scripts/UI/GUI_windows/Common/Targeting.gd" type="Script" id=11]
-[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/Touchscreen_throttle.gd" type="Script" id=13]
+[ext_resource path="res://Scripts/UI/GUI_windows/Touchscreen/_Touchscreen_throttle.gd" type="Script" id=13]
 [ext_resource path="res://Scenes/UI/GUI_common/Prompts_menus/GUI_options.tscn" type="PackedScene" id=14]
 [ext_resource path="res://Scripts/UI/Common/Debug.gd" type="Script" id=15]
 

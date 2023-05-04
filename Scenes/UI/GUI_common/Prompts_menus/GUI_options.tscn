@@ -237,6 +237,7 @@ theme = ExtResource( 4 )
 text = "Select GUI mode depending on your device"
 
 [node name="Options_prompt_start_confirm" type="Control" parent="."]
+visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -366,7 +367,6 @@ allow_reselect = true
 script = ExtResource( 20 )
 
 [node name="Options_tab_options_graphic" type="Control" parent="."]
-visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -660,6 +660,17 @@ value = 1.0
 tick_count = 10
 ticks_on_borders = true
 
+[node name="Panel" type="Panel" parent="Options_tab_options_graphic/Slider_screen_res"]
+show_behind_parent = true
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="Label" type="Label" parent="Options_tab_options_graphic/Slider_screen_res"]
 margin_left = -240.0
 margin_bottom = 100.0
@@ -702,6 +713,17 @@ value = 1.0
 tick_count = 10
 ticks_on_borders = true
 
+[node name="Panel" type="Panel" parent="Options_tab_options_graphic/Slider_color_power"]
+show_behind_parent = true
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
+
 [node name="Label" type="Label" parent="Options_tab_options_graphic/Slider_color_power"]
 margin_left = -240.0
 margin_bottom = 100.0
@@ -738,6 +760,7 @@ margin_right = 1920.0
 margin_bottom = 1080.0
 
 [node name="Options_tab_info" type="Control" parent="."]
+visible = false
 margin_left = 480.0
 margin_right = 1920.0
 margin_bottom = 1080.0

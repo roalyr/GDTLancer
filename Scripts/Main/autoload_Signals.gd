@@ -44,6 +44,7 @@ signal sig_autopilot_disable
 signal sig_target_aim_locked(scene)
 signal sig_target_autopilot_locked(scene)
 signal sig_target_aim_clear
+signal sig_velocity_limiter_set(value)
 
 # LOCAL SPACE TRIGGERS
 #signal sig_entered_local_space_galaxy(zone)

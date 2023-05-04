@@ -25,7 +25,7 @@ func _ready():
 func _process(_delta):
 	if GameState.touchscreen_mode:
 		ui_paths.common_touchscreen_pad.handle_stick()
-		ui_paths.common_touchscreen_throttle.handle_throttle()
+		#ui_paths.common_touchscreen_throttle.handle_throttle()
 	
 	# DEBUG
 	if GameState.update_debug_text_on: ui_paths.common_debug.update_debug_text()

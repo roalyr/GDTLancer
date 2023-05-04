@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -39,6 +39,14 @@ bg_color = Color( 0, 0, 0, 0.25098 )
 border_color = Color( 0, 0, 0, 0 )
 corner_detail = 1
 anti_aliasing = false
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends VSlider
+
+func _ready():
+	self.hide()
+	self.max_value = Constants.camera_zoom_ticks_max
+"
 
 [node name="GUI_desktop" type="Control"]
 material = SubResource( 3 )
@@ -505,6 +513,15 @@ keep_pressed_outside = true
 icon = ExtResource( 31 )
 icon_align = 1
 
+[node name="Slider_zoom" type="VSlider" parent="Bar_menu_2"]
+margin_left = 40.0
+margin_top = 390.0
+margin_right = 140.0
+margin_bottom = 1020.0
+rect_scale = Vector2( 0.7, 0.7 )
+theme = ExtResource( 22 )
+script = SubResource( 5 )
+
 [node name="Bar_control" type="Control" parent="."]
 margin_left = 90.0
 margin_top = 990.0
@@ -951,7 +968,6 @@ icon = ExtResource( 23 )
 icon_align = 1
 
 [node name="Popup_PLACEHOLDER" type="ReferenceRect" parent="Bar_items"]
-visible = false
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -987,6 +1003,7 @@ script = ExtResource( 24 )
 [connection signal="toggled" from="Bar_menu_2/Button_turret" to="." method="_on_Button_turret_toggled"]
 [connection signal="pressed" from="Bar_menu_2/Button_hide_ui" to="." method="_on_Button_hide_ui_pressed"]
 [connection signal="pressed" from="Bar_menu_2/Button_camera_change" to="." method="_on_Button_camera_change_pressed"]
+[connection signal="value_changed" from="Bar_menu_2/Slider_zoom" to="." method="_on_Slider_zoom_value_changed"]
 [connection signal="toggled" from="Bar_control/Button_autopilot" to="." method="_on_Button_autopilot_toggled"]
 [connection signal="pressed" from="Bar_control/Button_target_aim_clear" to="." method="_on_Button_target_aim_clear_pressed"]
 [connection signal="toggled" from="Bar_nav/Button_constellations" to="." method="_on_Button_constellations_toggled"]

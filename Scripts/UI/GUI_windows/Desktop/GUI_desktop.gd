@@ -51,13 +51,13 @@ func _on_Slider_zoom_value_changed(value):
 func _on_Button_turret_toggled(button_pressed):
 	if button_pressed: 
 		Signals.emit_signal("sig_turret_mode_on", true)
-		# Show slider in Touch GUI.
-		# TODO: make two buttons instead
+		ui_paths.desktop_slider_zoom.show()
+		ui_paths.desktop_slider_zoom.value = 0
 		
 	else: 
 		Signals.emit_signal("sig_turret_mode_on", false)
-		# Hide slider in Touch GUI.
-		# TODO: make two buttons instead
+		ui_paths.desktop_slider_zoom.hide()
+		ui_paths.desktop_slider_zoom.value = 0
 
 
 

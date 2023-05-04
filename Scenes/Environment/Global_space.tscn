@@ -137,15 +137,19 @@ visible = false
 
 [node name="Star_placeholders_G" parent="Global clusters/Fake_stars" instance=ExtResource( 10 )]
 transform = Transform( 0.260385, -1.36955, -0.261823, 1.06543, 0.0236036, 0.936118, -0.899484, -0.368504, 1.03303, 5.06946e+17, -7.05029e+17, -8.68812e+17 )
+visible = false
 
 [node name="Star_placeholders_G2" parent="Global clusters/Fake_stars" instance=ExtResource( 10 )]
 transform = Transform( -0.591883, 0.566968, 0.808645, 0.118221, -0.895294, 0.714253, 0.980501, 0.4502, 0.402022, 0, 0, 0 )
+visible = false
 
 [node name="Star_placeholders_M" parent="Global clusters/Fake_stars" instance=ExtResource( 9 )]
 transform = Transform( 0.798356, -0.396812, -0.0291432, 0.344893, 0.722754, -0.392884, 0.198388, 0.340367, 0.800296, 5.73009e+17, -2.36849e+17, -8.79426e+17 )
+visible = false
 
 [node name="Star_placeholders_M2" parent="Global clusters/Fake_stars" instance=ExtResource( 9 )]
 transform = Transform( -1.79409, -0.0271194, 2.20582, 0.150114, -2.83813, 0.0872008, 2.20087, 0.171472, 1.79217, 2.46831e+08, -9088, -1.01802e+09 )
+visible = false
 __meta__ = {
 "_edit_lock_": true
 }

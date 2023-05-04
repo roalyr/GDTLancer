@@ -159,6 +159,7 @@ ViewportContainer3d="*res://Scenes/ViewportContainer3D.tscn"
 window/size/width=1920
 window/size/height=1080
 window/dpi/allow_hidpi=true
+window/handheld/orientation="sensor_landscape"
 
 [global]
 
