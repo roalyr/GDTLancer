@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=2]
@@ -36,8 +36,8 @@ noise = SubResource( 117 )
 [sub_resource type="ShaderMaterial" id=42]
 shader = ExtResource( 7 )
 shader_param/halo_color = Color( 0.117647, 0.113725, 0.109804, 1 )
-shader_param/corona_color = Color( 0.0470588, 0.980392, 0, 1 )
-shader_param/core_color = Color( 0.12549, 0.25098, 0, 1 )
+shader_param/corona_color = Color( 0.945098, 0.980392, 0, 1 )
+shader_param/core_color = Color( 0.243137, 0.25098, 0, 1 )
 shader_param/halo_strength = 3.8
 shader_param/halo_exponent = 1.3
 shader_param/corona_strength = 643.7
@@ -53,50 +53,34 @@ shader_param/displacement_texture = SubResource( 120 )
 [sub_resource type="CubeMesh" id=118]
 
 [sub_resource type="OpenSimplexNoise" id=94]
-period = 2.7
-persistence = 0.373
-lacunarity = 2.64
+octaves = 1
+period = 8.0
 
 [sub_resource type="NoiseTexture" id=121]
-width = 128
-height = 128
-seamless = true
-noise = SubResource( 94 )
-
-[sub_resource type="OpenSimplexNoise" id=96]
-period = 5.2
-persistence = 0.321
-lacunarity = 3.59
-
-[sub_resource type="NoiseTexture" id=122]
 width = 256
 height = 256
 seamless = true
-noise = SubResource( 96 )
+as_normalmap = true
+noise = SubResource( 94 )
 
 [sub_resource type="ShaderMaterial" id=98]
 shader = ExtResource( 10 )
-shader_param/rim_color = Color( 0.811765, 1, 0.0470588, 1 )
-shader_param/overlay_color = Color( 0.705882, 1, 0, 1 )
-shader_param/surface_color = Color( 0.27451, 0.756863, 0, 1 )
-shader_param/major_phase = 1.732
-shader_param/small_phase = 2.492
-shader_param/major_detail_intensity = 0.311
-shader_param/small_detail_intensity = 0.731
+shader_param/rim_color = Color( 1, 0.992157, 0.0470588, 1 )
+shader_param/overlay_color = Color( 0.988235, 1, 0, 1 )
+shader_param/surface_color = Color( 0.709804, 0.756863, 0, 1 )
+shader_param/major_phase = 1.1
+shader_param/major_detail_intensity = -1.062
 shader_param/detail_decay_distance = 2.95e+10
-shader_param/major_detail_scale = 3.0
-shader_param/small_detail_scale = 2.0
+shader_param/major_detail_scale = 2.0
 shader_param/major_detail_flow = 0.01
-shader_param/small_detail_flow = 0.005
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 0.4
 shader_param/rim_intensity = 0.497
 shader_param/major_detail_noise = SubResource( 121 )
-shader_param/small_detail_noise = SubResource( 122 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 8 )
-shader_param/albedo = Color( 0.74902, 1, 0.345098, 1 )
+shader_param/albedo = Color( 0.945098, 1, 0.345098, 1 )
 shader_param/scale = 0.7
 shader_param/flare_distance = 1.95e+10
 shader_param/flare_size = 3.0
@@ -109,7 +93,7 @@ shader_param/phase = 0.0
 
 [sub_resource type="ShaderMaterial" id=123]
 shader = ExtResource( 11 )
-shader_param/albedo = Color( 0.478431, 1, 0.294118, 1 )
+shader_param/albedo = Color( 0.972549, 1, 0.294118, 1 )
 shader_param/rim_strength = 0.085
 shader_param/rim_exponent = 10.0
 shader_param/alpha_clip = 1.0
@@ -122,7 +106,7 @@ shader_param/threshold = 1.0
 
 [sub_resource type="ShaderMaterial" id=126]
 shader = ExtResource( 11 )
-shader_param/albedo = Color( 0.701961, 1, 0.572549, 1 )
+shader_param/albedo = Color( 0.941176, 1, 0, 1 )
 shader_param/rim_strength = 0.07
 shader_param/rim_exponent = 5.0
 shader_param/alpha_clip = 0.03

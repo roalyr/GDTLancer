@@ -22,17 +22,20 @@ uniform sampler2D small_detail_noise : hint_normal;
 //uniform sampler2D micro_detail_noise : hint_normal;
 uniform sampler2D lava_detail_noise : hint_normal;
 
-uniform float major_detail_phase = 1.5;
-uniform float small_detail_phase = 1.0;
+uniform float major_detail_phase : hint_range(0, 3.14) = 1.4;
+uniform float small_detail_phase : hint_range(0, 3.14) = 1.0;
 //uniform float micro_detail_phase = 0.4;
-uniform float lava_detail_phase = 1.0;
+uniform float lava_detail_phase : hint_range(0, 3.14) = 1.0;
 
 uniform float major_detail_scale : hint_range(1.0, 10.0, 1.0) = 10;
 uniform float small_detail_scale : hint_range(1.0, 10.0, 1.0) = 10;
 //uniform float micro_detail_scale : hint_range(1.0, 10.0, 1.0)= 10;
-uniform float lava_detail_scale : hint_range(1.0, 100.0, 1.0) = 100;
+uniform float lava_detail_scale : hint_range(1.0, 100.0, 1.0) = 20;
 
-uniform float lava_detail_intensity = 1.0;
+uniform float detail_min : hint_range(-1.0, 1.0) = 0.0;
+uniform float detail_max : hint_range(0.0, 1.0) = 1.0;
+
+uniform float lava_detail_intensity : hint_range(0, 10.0) = 10.0;
 uniform float lava_noise_blend = 0.7;
 uniform float lava_contrast = 3.0;
 uniform float lava_flow = 0.01;
@@ -50,12 +53,12 @@ void vertex() {
 void fragment()
 {
 	// Surface details major.
-	vec2 p = texture(major_detail_noise, -UV*major_detail_scale).xy;
-	vec2 p2 = texture(small_detail_noise, -UV*small_detail_scale).xy;
+	vec2 p = texture(major_detail_noise, -UV * 2.0 * major_detail_scale).xy;
+	vec2 p2 = texture(small_detail_noise, -UV * 2.0 * small_detail_scale).xy;
 	//vec2 p2_1 = texture(micro_detail_noise, -UV*micro_detail_scale).xy;
-	vec2 p3 = texture(lava_detail_noise, -UV*lava_detail_scale).xy -TIME*lava_flow;
+	vec2 p3 = texture(lava_detail_noise, -UV * 2.0 * lava_detail_scale).xy -TIME*lava_flow;
 	
-	float detail_major = sin(texture(major_detail_noise, p).r*pi+major_detail_phase);
+	float detail_major = clamp(sin(texture(major_detail_noise, p).r*pi+major_detail_phase), detail_min, detail_max);
 	float detail_small = sin(texture(small_detail_noise, p2).r*pi+small_detail_phase);
 	//float detail_micro = sin(texture(micro_detail_noise, p2_1).r*pi+micro_detail_phase);
 	float detail_lava = sin(texture(lava_detail_noise, p3).r*pi+lava_detail_phase);
@@ -65,6 +68,7 @@ void fragment()
 			-clamp(pow(detail_major, lava_noise_blend),1e-6, 1.0)*lava_contrast,
 		1e-6, 0.5)*lava_detail_intensity;
 	
-	ALBEDO = albedo.rgb*detail_major*detail_small;//*detail_micro;
+	ALBEDO = albedo.rgb*detail_major*detail_small;
+	
 	EMISSION = vec3(lava, 0.0, 0.0)*detail_small;
 }

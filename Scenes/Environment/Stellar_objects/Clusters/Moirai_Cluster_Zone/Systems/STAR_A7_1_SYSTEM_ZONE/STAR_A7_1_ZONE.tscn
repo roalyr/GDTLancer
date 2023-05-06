@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
@@ -49,46 +49,31 @@ shader_param/displacement_texture = SubResource( 120 )
 [sub_resource type="CubeMesh" id=118]
 
 [sub_resource type="OpenSimplexNoise" id=94]
-period = 2.7
-persistence = 0.373
-lacunarity = 2.64
+period = 28.2
+persistence = 1.0
+lacunarity = 2.87
 
 [sub_resource type="NoiseTexture" id=121]
-width = 128
-height = 128
-seamless = true
-noise = SubResource( 94 )
-
-[sub_resource type="OpenSimplexNoise" id=96]
-period = 5.2
-persistence = 0.321
-lacunarity = 3.59
-
-[sub_resource type="NoiseTexture" id=122]
 width = 256
 height = 256
 seamless = true
-noise = SubResource( 96 )
+as_normalmap = true
+noise = SubResource( 94 )
 
 [sub_resource type="ShaderMaterial" id=98]
 shader = ExtResource( 5 )
-shader_param/rim_color = Color( 0.811765, 1, 0.0470588, 1 )
-shader_param/overlay_color = Color( 0.705882, 1, 0, 1 )
-shader_param/surface_color = Color( 0.27451, 0.756863, 0, 1 )
-shader_param/major_phase = 1.732
-shader_param/small_phase = 2.492
-shader_param/major_detail_intensity = 0.311
-shader_param/small_detail_intensity = 0.731
+shader_param/rim_color = Color( 0.792157, 1, 0.0470588, 1 )
+shader_param/overlay_color = Color( 0.682353, 0.945098, 0.0392157, 1 )
+shader_param/surface_color = Color( 0.592157, 0.756863, 0, 1 )
+shader_param/major_phase = 1.977
+shader_param/major_detail_intensity = 1.044
 shader_param/detail_decay_distance = 2.95e+10
-shader_param/major_detail_scale = 3.0
-shader_param/small_detail_scale = 2.0
+shader_param/major_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
-shader_param/small_detail_flow = 0.005
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 0.4
-shader_param/rim_intensity = 0.497
+shader_param/rim_strength = 1.093
+shader_param/rim_exponent = 0.9
+shader_param/rim_intensity = 0.213
 shader_param/major_detail_noise = SubResource( 121 )
-shader_param/small_detail_noise = SubResource( 122 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 6 )

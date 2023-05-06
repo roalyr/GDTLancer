@@ -18,7 +18,7 @@ func _ready():
 	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
 	# =========================================================================
 
-func _physics_process(delta):
+func _process(delta):
 	
 	if sticky_button_timer <= sticky_button_delay:
 		sticky_button_timer += delta

@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_star.gd" type="Script" id=2]
@@ -71,47 +71,32 @@ shader_param/threshold = 1.0
 [sub_resource type="CubeMesh" id=118]
 
 [sub_resource type="OpenSimplexNoise" id=112]
-octaves = 5
-period = 3.0
-lacunarity = 4.0
+period = 26.5
+persistence = 1.0
+lacunarity = 2.54
 
 [sub_resource type="NoiseTexture" id=113]
-width = 128
-height = 128
-seamless = true
-noise = SubResource( 112 )
-
-[sub_resource type="OpenSimplexNoise" id=114]
-octaves = 9
-period = 4.0
-persistence = 0.646
-lacunarity = 4.0
-
-[sub_resource type="NoiseTexture" id=115]
 width = 256
 height = 256
 seamless = true
-noise = SubResource( 114 )
+as_normalmap = true
+bump_strength = 4.8
+noise = SubResource( 112 )
 
 [sub_resource type="ShaderMaterial" id=116]
 shader = ExtResource( 5 )
 shader_param/rim_color = Color( 1, 0.403922, 0.403922, 1 )
-shader_param/overlay_color = Color( 1, 0, 0, 1 )
-shader_param/surface_color = Color( 0.764706, 0.054902, 0.203922, 1 )
-shader_param/major_phase = 2.184
-shader_param/small_phase = 1.723
-shader_param/major_detail_intensity = 0.986
-shader_param/small_detail_intensity = -3.695
+shader_param/overlay_color = Color( 1, 0, 0.513726, 1 )
+shader_param/surface_color = Color( 0.956863, 0.145098, 0.313726, 1 )
+shader_param/major_phase = 1.635
+shader_param/major_detail_intensity = 3.038
 shader_param/detail_decay_distance = 8.875e+08
 shader_param/major_detail_scale = 1.0
-shader_param/small_detail_scale = 2.0
 shader_param/major_detail_flow = 0.01
-shader_param/small_detail_flow = 0.02
-shader_param/rim_strength = 1.277
-shader_param/rim_exponent = 0.9
-shader_param/rim_intensity = 0.566
+shader_param/rim_strength = 1.052
+shader_param/rim_exponent = 0.4
+shader_param/rim_intensity = 0.888
 shader_param/major_detail_noise = SubResource( 113 )
-shader_param/small_detail_noise = SubResource( 115 )
 
 [sub_resource type="ShaderMaterial" id=93]
 shader = ExtResource( 6 )
@@ -202,7 +187,7 @@ material/0 = SubResource( 93 )
 material/0 = SubResource( 125 )
 
 [node name="OmniLight 3_64e+11" type="OmniLight" parent="Scenes/STAR_M2_4"]
-light_color = Color( 1, 0.494118, 0.494118, 1 )
+light_color = Color( 1, 0.647059, 0.494118, 1 )
 light_energy = 2.0
 omni_range = 3.64e+11
 omni_attenuation = 10.0
@@ -251,7 +236,7 @@ material/0 = SubResource( 123 )
 
 [node name="OmniLight 3_64e+11 1" type="OmniLight" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 1, 0 )
-light_color = Color( 1, 0.494118, 0.494118, 1 )
+light_color = Color( 1, 0.647059, 0.494118, 1 )
 omni_range = 3.64e+11
 omni_attenuation = 10.0
 __meta__ = {
@@ -260,7 +245,7 @@ __meta__ = {
 
 [node name="OmniLight 3_64e+11 -1" type="OmniLight" parent="Scenes/STAR_M2_4/LODs 1_57e+08/LOD0"]
 transform = Transform( 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, 0, 0, 8.62069e-11, 0, -1, 0 )
-light_color = Color( 1, 0.494118, 0.494118, 1 )
+light_color = Color( 1, 0.647059, 0.494118, 1 )
 omni_range = 3.64e+11
 omni_attenuation = 10.0
 __meta__ = {

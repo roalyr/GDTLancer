@@ -17,45 +17,33 @@ render_mode
 	depth_draw_opaque;
 
 uniform vec4 albedo : hint_color;
+uniform vec4 albedo_outer : hint_color;
 uniform vec4 albedo_detail : hint_color;
-uniform vec4 albedo_detail_inner : hint_color;
 
+uniform sampler2D major_detail_noise;
+uniform float major_detail_scale = 1.0;
+uniform float major_detail_phase = 1.0;
+uniform float factor = 1.0;
+uniform float distance_fade_min = 0;
+uniform float distance_fade_max = 0;
 
-uniform float rim_strength_alpha = 1.0;
-uniform float rim_exponent_alpha : hint_range(0.0, 50.0, 0.1) = 5.0;
 
 uniform float rim_strength = 1.0;
-uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 5.0;
+uniform float rim_exponent : hint_range(0.0, 10.0) = 1.0;
 
-uniform float rim_strength_detail = 1.0;
-uniform float rim_exponent_detail : hint_range(0.0, 50.0, 0.1) = 10.0;
-
-uniform float rim_strength_detail_inner = 2.0;
-uniform float rim_exponent_detail_inner : hint_range(0.0, 50.0, 0.1) = 15.0;
-
-uniform float alpha_factor = 1.0;
-uniform float alpha_clip : hint_range(0,1) = 1.0;
-
-uniform float distance_fade_min = 0.0;
-uniform float distance_fade_max = 5.0;
-
-uniform sampler2D noise;
+const float pi = 3.1415926535;
 
 
 void fragment()
 {
+	vec2 p = texture(major_detail_noise, -UV * 2.0 * major_detail_scale).yx;
 	
+	float detail_major = sin(texture(major_detail_noise, UV*major_detail_scale).r*pi+major_detail_phase);
 	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, 1.0);
-	float rim_alpha = clamp(pow(dt, rim_exponent_alpha)*rim_strength_alpha, 1e-6, alpha_clip);
-	
-	float rim_detail = clamp(pow(dt, rim_exponent_detail)*rim_strength_detail, 1e-6, 1.0);
-	float rim_detail_inner = clamp(pow(dt, rim_exponent_detail_inner)*rim_strength_detail_inner, 1e-6, 1.0);
 
-	ALBEDO = albedo.rgb*rim + albedo_detail.rgb*(1.0-rim_detail) + albedo_detail_inner.rgb*(1.0-rim_detail_inner);
+	ALBEDO = albedo.rgb*rim + (1.0-rim)*albedo_outer.rgb;
 	ALBEDO *= COLOR.rgb;
-	//ALPHA = COLOR.r*COLOR.g*COLOR.b*500.0;
-	//ALPHA *= clamp(smoothstep(distance_fade_min, distance_fade_max, length(VERTEX)), 1e-6, 1.0);
-
-	
+	ALBEDO += clamp(pow((1.0-rim), factor)*albedo_detail.rgb*detail_major*clamp(smoothstep(distance_fade_min, distance_fade_max, length(VERTEX)), 1e-6, 1.0), 0.0, 1.0);
+//	clamp(pow((1.0-rim), factor)*albedo_detail.rgb*detail_major, 0.0, 1.0)
 }

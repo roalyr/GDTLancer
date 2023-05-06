@@ -18,53 +18,56 @@
 [sub_resource type="SphereShape" id=43]
 
 [sub_resource type="OpenSimplexNoise" id=110]
-octaves = 9
-period = 5.0
+period = 11.5
 
 [sub_resource type="NoiseTexture" id=84]
-flags = 39
 width = 128
 height = 128
 seamless = true
+as_normalmap = true
 noise = SubResource( 110 )
 
 [sub_resource type="OpenSimplexNoise" id=111]
+seed = 4
 octaves = 9
-period = 32.5
-lacunarity = 2.23
+period = 28.2
 
 [sub_resource type="NoiseTexture" id=78]
 width = 256
 height = 256
 seamless = true
+bump_strength = 107.8
 noise = SubResource( 111 )
 
 [sub_resource type="OpenSimplexNoise" id=112]
-octaves = 9
-period = 27.5
-persistence = 0.721
+octaves = 5
+period = 59.8
 
 [sub_resource type="NoiseTexture" id=80]
-width = 128
+width = 256
 height = 128
 seamless = true
+as_normalmap = true
+bump_strength = 3.6
 noise = SubResource( 112 )
 
 [sub_resource type="ShaderMaterial" id=71]
 shader = ExtResource( 5 )
-shader_param/albedo = Color( 0.47451, 0.541176, 0.466667, 1 )
-shader_param/major_detail_phase = 1.299
-shader_param/small_detail_phase = 1.598
-shader_param/lava_detail_phase = 1.418
-shader_param/major_detail_scale = 2.0
-shader_param/small_detail_scale = 10.0
-shader_param/lava_detail_scale = 50.0
-shader_param/lava_detail_intensity = 3.0
-shader_param/lava_noise_blend = 0.998
-shader_param/lava_contrast = 3.956
+shader_param/albedo = Color( 0.815686, 0.815686, 0.815686, 1 )
+shader_param/major_detail_phase = 1.138
+shader_param/small_detail_phase = 1.478
+shader_param/lava_detail_phase = 1.336
+shader_param/major_detail_scale = 1.0
+shader_param/small_detail_scale = 5.0
+shader_param/lava_detail_scale = 20.0
+shader_param/detail_min = -1.0
+shader_param/detail_max = 0.323
+shader_param/lava_detail_intensity = 4.0
+shader_param/lava_noise_blend = 0.802
+shader_param/lava_contrast = 3.954
 shader_param/lava_flow = 0.01
 shader_param/uv_shift_x = 0.0
-shader_param/uv_shift_y = -0.082
+shader_param/uv_shift_y = -0.139
 shader_param/major_detail_noise = SubResource( 78 )
 shader_param/small_detail_noise = SubResource( 80 )
 shader_param/lava_detail_noise = SubResource( 84 )
@@ -88,7 +91,9 @@ script = ExtResource( 2 )
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 3 )]
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
-visible = false
+transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )
+light_color = Color( 1, 0.647059, 0.494118, 1 )
+light_energy = 2.578
 
 [node name="Zone shape 1e8 DNI WITH SAME TYPE" type="CollisionShape" parent="."]
 transform = Transform( 1e+08, 0, 0, 0, 1e+08, 0, 0, 0, 1e+08, 0, 0, 0 )
