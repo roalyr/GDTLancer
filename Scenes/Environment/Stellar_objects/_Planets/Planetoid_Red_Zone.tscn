@@ -92,6 +92,7 @@ script = ExtResource( 2 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )
+visible = false
 light_color = Color( 1, 0.647059, 0.494118, 1 )
 light_energy = 2.578
 

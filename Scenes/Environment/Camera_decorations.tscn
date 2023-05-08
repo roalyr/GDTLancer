@@ -144,6 +144,13 @@ __meta__ = {
 "_editor_description_": ""
 }
 
+[node name="OmniLight 1e21" type="OmniLight" parent="."]
+light_color = Color( 0, 0, 0, 1 )
+light_energy = 0.0
+light_indirect_energy = 0.0
+light_specular = 0.0
+omni_range = 1e+21
+
 [node name="Cube rendering zone 1e21" type="MeshInstance" parent="."]
 mesh = SubResource( 41 )
 script = SubResource( 42 )

@@ -18,11 +18,11 @@ const camera_push_visibility_velocity = 1e8
 const camera_z_near_velocity_factor = 1e-5
 # Those numbers are made to create a warp effect.
 const camera_fov_velocity_factor = 1e-4
-const camera_fov_derivative = 3
-const camera_fov_max_delta = 150 - Constants.camera_fov
+const camera_fov_derivative = 2
+const camera_fov_max_delta = 140 - Constants.camera_fov
 const camera_brightness_velocity_factor = 2e-4
 const camera_brightness_derivative = 0.1
-const camera_brightness_max_delta = 3.0
+const camera_brightness_max_delta = 2.0
 # TODO: adjust background colors separatenly?
 
 # Values.
@@ -227,7 +227,7 @@ func zoom_camera(mouse_event):
 			current_zoom_extra = get_extra_zoom(zoom_ticks)
 
 func get_extra_zoom(zoom_ticks):
-	return Constants.camera_zoom_step*pow(zoom_ticks, 1.4)
+	return Constants.camera_zoom_step*pow(zoom_ticks, 1.2)
 
 func reset_camera_zoom():
 	camera_min_zoom = Paths.player.camera_horiz_offset
