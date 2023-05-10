@@ -306,3 +306,11 @@ func _on_Button_velocity_limiter_pressed():
 	elif PlayerState.velocity_limiter == 3:
 		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_4
 		Signals.emit_signal("sig_velocity_limiter_set", 3)
+
+
+func _on_Button_character_toggled(button_pressed):
+	if button_pressed: 
+		ui_paths.touch_readings_character_popup.show()
+#		Signals.emit_signal("sig_fetch_character_info")
+	else: 
+		ui_paths.touch_readings_character_popup.hide()

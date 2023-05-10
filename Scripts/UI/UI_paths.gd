@@ -126,6 +126,7 @@ onready var touch_readings = touch_gui.get_node("Readings")
 onready var touch_readings_info_popup = touch_readings.get_node("Popup_info")
 onready var touch_readings_info_container = touch_readings_info_popup.get_node("ScrollContainer/LabelContainer")
 onready var touch_readings_info_label = touch_readings_info_container.get_node("Label")
+onready var touch_readings_character_popup = touch_readings.get_node("Popup_character")
 
 onready var touch_readings_debug = touch_readings.get_node("Debug_panel")
 onready var touch_readings_target_autopilot = touch_readings.get_node("Target_autopilot_touchscreen")

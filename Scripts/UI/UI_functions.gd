@@ -226,6 +226,7 @@ func is_viewport_update():
 	restore_proportions(ui_paths.touch_readings_target_autopilot)
 	restore_proportions(ui_paths.touch_readings_target_aim)
 	restore_proportions_with_margins(ui_paths.touch_readings_info_popup, 900)
+	restore_proportions_with_margins(ui_paths.touch_readings_character_popup, 900)
 	restore_proportions(ui_paths.touch_readings_debug)
 	
 	#restore_proportions(ui_paths.desktop_mouse_area)

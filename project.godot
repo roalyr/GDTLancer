@@ -159,7 +159,6 @@ ViewportContainer3d="*res://Scenes/ViewportContainer3D.tscn"
 window/size/width=1920
 window/size/height=1080
 window/dpi/allow_hidpi=true
-window/handheld/orientation="sensor_landscape"
 
 [global]
 
@@ -199,7 +198,7 @@ quality/shadow_atlas/quadrant_3_subdiv=0
 quality/shadows/filter_mode=0
 quality/reflections/texture_array_reflections=false
 quality/reflections/high_quality_ggx=false
-quality/reflections/irradiance_max_size=64
+quality/reflections/irradiance_max_size=32
 quality/shading/force_vertex_shading.mobile=false
 quality/shading/force_lambert_over_burley.mobile=false
 quality/shading/force_blinn_over_ggx.mobile=false
@@ -208,6 +207,6 @@ gles3/shaders/max_simultaneous_compiles=1
 gles3/shaders/shader_cache_size_mb=128
 quality/lightmapping/use_bicubic_sampling=false
 quality/subsurface_scattering/quality=0
-quality/reflections/atlas_size=512
+quality/reflections/atlas_size=8
 quality/depth/hdr.mobile=true
 environment/default_environment="res://Assets/Environment/Environment.tres"
