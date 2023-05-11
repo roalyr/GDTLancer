@@ -16,7 +16,7 @@ const velocity_limmiter_3 = 1e12
 const velocity_limmiter_4 = 1e17
 
 
-const accel_max = 1e23
+const accel_max = 1e22
 
 const engine_delay_time_base = 0.1
 const engine_delay_lag_factor = 1

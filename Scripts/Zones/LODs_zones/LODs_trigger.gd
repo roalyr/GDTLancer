@@ -1,17 +1,17 @@
 extends Spatial
 class_name LODs_trigger, "res://Assets/UI_images/SVG/icons/lod_icon.svg"
 
-export var object_absolute_size = 0
+export var object_absolute_size = 0.0
 
 # The maximum LOD 0 (high quality) distance in units.
-export var lod_0_relative_distance = 5
+export var lod_0_relative_distance = 5.0
 
 # The maximum LOD 1 (medium quality) distance in units.
-export var lod_1_relative_distance = 25
+export var lod_1_relative_distance = 25.0
 
 # The maximum LOD 2 (low quality) distance in units.
 # Past this distance, all LOD variants are hidden.
-export var lod_2_relative_distance = 150
+export var lod_2_relative_distance = 150.0
 
 # The rate at which LODs will be updated (in seconds). Lower values are more reactive
 # but use more CPU, which is especially noticeable with large amounts of LOD-enabled nodes.
@@ -35,8 +35,8 @@ func _ready():
 	
 	# Get actual size of the object.
 	if object_absolute_size == 0:
-		object_absolute_size = self.get_scale().length()
-	# print(self, ":", object_absolute_size)
+		object_absolute_size = max(max(self.get_scale().x, self.get_scale().y), self.get_scale().z)
+	#print(self, ":", object_absolute_size)
 
 	# Add random jitter to the timer to ensure LODs don't all swap at the same time.
 	randomize()
@@ -60,8 +60,9 @@ func _physics_process(delta):
 
 	# Relative distance (in object sizes).
 	var distance = camera.global_transform.origin.distance_to(global_transform.origin) \
-		/ object_absolute_size
-		
+		/ object_absolute_size * 2.0
+	#print(self, " - ", distance)
+	
 	# The LOD level to choose (lower is more detailed).
 	
 	if distance < lod_0_relative_distance:

@@ -1,12 +1,16 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_fade_back.tres" type="Shader" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_double_add.gdshader" type="Shader" id=3]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_alpha_mix_cull_back.gdshader" type="Shader" id=4]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_outer.glb" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_fade_front.tres" type="Shader" id=6]
-[ext_resource path="res://Assets/Models/Shapes/Cloud_agglomeration.glb" type="PackedScene" id=7]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=7]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_halo_double_add.gdshader" type="Shader" id=8]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1_LOD0.glb" type="PackedScene" id=9]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1_LOD1.glb" type="PackedScene" id=10]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1_LOD2.glb" type="PackedScene" id=11]
 
 [sub_resource type="SphereMesh" id=8]
 
@@ -51,14 +55,14 @@ shader_param/distance_fade_max = 1e+16
 shader = ExtResource( 2 )
 shader_param/albedo = Color( 0.0941176, 0.0901961, 0.137255, 1 )
 shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 2.5e+18
+shader_param/distance_fade_max = 2.5e+17
 
 [sub_resource type="ShaderMaterial" id=13]
 next_pass = SubResource( 19 )
 shader = ExtResource( 6 )
 shader_param/albedo = Color( 0.14902, 0.188235, 0.184314, 1 )
 shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 1e+18
+shader_param/distance_fade_max = 1e+17
 
 [sub_resource type="OpenSimplexNoise" id=26]
 octaves = 1
@@ -73,14 +77,14 @@ noise = SubResource( 26 )
 [sub_resource type="ShaderMaterial" id=11]
 next_pass = SubResource( 13 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.105882, 0.0627451, 0.0352941, 1 )
-shader_param/albedo_outer = Color( 0.0862745, 0.156863, 0.172549, 1 )
-shader_param/albedo_detail = Color( 0.568627, 0.243137, 0.243137, 1 )
-shader_param/major_detail_scale = 0.327
-shader_param/major_detail_phase = 1.288
+shader_param/albedo = Color( 0.156863, 0.156863, 0.156863, 1 )
+shader_param/albedo_outer = Color( 0.360784, 0.423529, 0.45098, 1 )
+shader_param/albedo_detail = Color( 0.882353, 0.505882, 0.505882, 1 )
+shader_param/major_detail_scale = 0.791
+shader_param/major_detail_phase = 0.617
 shader_param/factor = 3.0
 shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 2e+18
+shader_param/distance_fade_max = 5e+17
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 1.0
 shader_param/major_detail_noise = SubResource( 27 )
@@ -179,32 +183,62 @@ transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
 material/0 = SubResource( 32 )
 
-[node name="Cloud_agglomeration" parent="." instance=ExtResource( 7 )]
+[node name="Cloud_outer" parent="." instance=ExtResource( 5 )]
 transform = Transform( 1e+16, 0, 0, 0, 1e+16, 0, 0, 0, 1e+16, 0, 0, 0 )
 
-[node name="Opaque_twisted" parent="Cloud_agglomeration" index="0"]
+[node name="Cloud_outer" parent="Cloud_outer" index="0"]
 material/0 = SubResource( 11 )
 
-[node name="Plane" parent="Cloud_agglomeration" index="1"]
-material/0 = SubResource( 28 )
+[node name="LODs_trigger" type="Spatial" parent="."]
+transform = Transform( 2.6e+17, 0, 0, 0, 2.6e+17, 0, 0, 0, 2.6e+17, 0, 0, 0 )
+script = ExtResource( 7 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+Put meshes into Scene Items nodes
+"
+}
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 1.1
+lod_2_relative_distance = 1.5
 
-[node name="Plane001" parent="Cloud_agglomeration" index="2"]
+[node name="LOD0" type="Spatial" parent="LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud1_LOD0" parent="LODs_trigger/LOD0" instance=ExtResource( 9 )]
+
+[node name="Cloud1_LOD0" parent="LODs_trigger/LOD0/Cloud1_LOD0" index="0"]
+material/0 = SubResource( 11 )
+
+[node name="LOD1" type="Spatial" parent="LODs_trigger"]
 visible = false
-material/0 = SubResource( 29 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Plane002" parent="Cloud_agglomeration" index="3"]
-transform = Transform( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-material/0 = SubResource( 32 )
+[node name="Cloud1_LOD1" parent="LODs_trigger/LOD1" instance=ExtResource( 10 )]
 
-[node name="Plane003" parent="Cloud_agglomeration" index="4"]
-material/0 = SubResource( 30 )
+[node name="Cloud1_LOD1" parent="LODs_trigger/LOD1/Cloud1_LOD1" index="0"]
+material/0 = SubResource( 11 )
 
-[node name="Plane004" parent="Cloud_agglomeration" index="5"]
+[node name="LOD2" type="Spatial" parent="LODs_trigger"]
 visible = false
-material/0 = SubResource( 31 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Plane005" parent="Cloud_agglomeration" index="6"]
-visible = false
-material/0 = SubResource( 32 )
+[node name="Cloud1_LOD2" parent="LODs_trigger/LOD2" instance=ExtResource( 11 )]
 
-[editable path="Cloud_agglomeration"]
+[node name="Cloud1_LOD2" parent="LODs_trigger/LOD2/Cloud1_LOD2" index="0"]
+material/0 = SubResource( 11 )
+
+[node name="LOD3" type="Spatial" parent="LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[editable path="Cloud_outer"]
+[editable path="LODs_trigger/LOD0/Cloud1_LOD0"]
+[editable path="LODs_trigger/LOD1/Cloud1_LOD1"]
+[editable path="LODs_trigger/LOD2/Cloud1_LOD2"]
