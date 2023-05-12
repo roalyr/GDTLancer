@@ -1,16 +1,19 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=36 format=2]
 
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_fade_back.tres" type="Shader" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_double_add.gdshader" type="Shader" id=3]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_alpha_mix_cull_back.gdshader" type="Shader" id=4]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_outer.glb" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_outer/Cloud_outer.glb" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_fade_front.tres" type="Shader" id=6]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=7]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_halo_double_add.gdshader" type="Shader" id=8]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1_LOD0.glb" type="PackedScene" id=9]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1_LOD1.glb" type="PackedScene" id=10]
-[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1_LOD2.glb" type="PackedScene" id=11]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1/Cloud1_LOD0.glb" type="PackedScene" id=9]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1/Cloud1_LOD1.glb" type="PackedScene" id=10]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1/Cloud1_LOD2.glb" type="PackedScene" id=11]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_LOD1.glb" type="PackedScene" id=12]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_LOD0.glb" type="PackedScene" id=13]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_LOD2.glb" type="PackedScene" id=14]
 
 [sub_resource type="SphereMesh" id=8]
 
@@ -51,49 +54,80 @@ shader_param/alpha_clip = 1.0
 shader_param/distance_fade_min = 0.0
 shader_param/distance_fade_max = 1e+16
 
-[sub_resource type="ShaderMaterial" id=19]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.0941176, 0.0901961, 0.137255, 1 )
-shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 2.5e+17
-
 [sub_resource type="ShaderMaterial" id=13]
-next_pass = SubResource( 19 )
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.14902, 0.188235, 0.184314, 1 )
+shader_param/albedo = Color( 0.231373, 0.231373, 0.231373, 1 )
+shader_param/albedo_rim = Color( 0.270588, 0.270588, 0.270588, 1 )
+shader_param/albedo_near = Color( 0.27451, 0.27451, 0.27451, 1 )
+shader_param/rim_strength = 0.7
+shader_param/rim_exponent = 1.0
+shader_param/distance_fade = 1.5e+17
+shader_param/distance_fade_near = 8e+16
+shader_param/near_transparency_factor = 0.5
+
+[sub_resource type="ShaderMaterial" id=35]
+next_pass = SubResource( 13 )
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.0117647, 0.101961, 0.133333, 1 )
 shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 1e+17
+shader_param/distance_fade_max = 3e+17
+
+[sub_resource type="OpenSimplexNoise" id=39]
+octaves = 1
+period = 0.1
+
+[sub_resource type="NoiseTexture" id=40]
+width = 32
+height = 32
+bump_strength = 19.6
+noise = SubResource( 39 )
+
+[sub_resource type="ShaderMaterial" id=34]
+next_pass = SubResource( 35 )
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.223529, 0.223529, 0.223529, 1 )
+shader_param/albedo_outer = Color( 0.0313726, 0.360784, 0.501961, 1 )
+shader_param/albedo_detail = Color( 0.298039, 0.160784, 0.0117647, 1 )
+shader_param/major_detail_scale = 0.122
+shader_param/major_detail_phase = -0.694
+shader_param/factor = 2.25
+shader_param/distance_fade_detail = 1e+17
+shader_param/distance_fade_outer_rim = 3e+17
+shader_param/rim_strength = 0.669
+shader_param/rim_exponent = 1.0
+shader_param/major_detail_noise = SubResource( 40 )
+
+[sub_resource type="ShaderMaterial" id=37]
+next_pass = SubResource( 13 )
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.37, 0.282125, 0.1591, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 3e+17
 
 [sub_resource type="OpenSimplexNoise" id=26]
 octaves = 1
 period = 0.1
 
-[sub_resource type="NoiseTexture" id=27]
+[sub_resource type="NoiseTexture" id=38]
 width = 32
 height = 32
 bump_strength = 19.6
 noise = SubResource( 26 )
 
-[sub_resource type="ShaderMaterial" id=11]
-next_pass = SubResource( 13 )
+[sub_resource type="ShaderMaterial" id=36]
+next_pass = SubResource( 37 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.156863, 0.156863, 0.156863, 1 )
-shader_param/albedo_outer = Color( 0.360784, 0.423529, 0.45098, 1 )
-shader_param/albedo_detail = Color( 0.882353, 0.505882, 0.505882, 1 )
-shader_param/major_detail_scale = 0.791
-shader_param/major_detail_phase = 0.617
-shader_param/factor = 3.0
-shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 5e+17
+shader_param/albedo = Color( 0.160784, 0.160784, 0.160784, 1 )
+shader_param/albedo_outer = Color( 0.29, 0.164478, 0.1363, 1 )
+shader_param/albedo_detail = Color( 0.635294, 0.513726, 0, 1 )
+shader_param/major_detail_scale = 0.315
+shader_param/major_detail_phase = 1.351
+shader_param/factor = 1.0
+shader_param/distance_fade_detail = 5e+17
+shader_param/distance_fade_outer_rim = 1e+18
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 1.0
-shader_param/major_detail_noise = SubResource( 27 )
-
-[sub_resource type="ShaderMaterial" id=21]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0, 0, 0, 1 )
-shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 1e+18
+shader_param/major_detail_noise = SubResource( 38 )
 
 [sub_resource type="SpatialMaterial" id=28]
 flags_unshaded = true
@@ -119,6 +153,27 @@ flags_use_point_size = true
 params_point_size = 1.5
 albedo_color = Color( 0.290196, 0.0862745, 0.298039, 1 )
 
+[sub_resource type="NoiseTexture" id=27]
+width = 32
+height = 32
+bump_strength = 19.6
+noise = SubResource( 26 )
+
+[sub_resource type="ShaderMaterial" id=11]
+next_pass = SubResource( 13 )
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.223529, 0.223529, 0.223529, 1 )
+shader_param/albedo_outer = Color( 0.360784, 0.423529, 0.45098, 1 )
+shader_param/albedo_detail = Color( 0.882353, 0.505882, 0.505882, 1 )
+shader_param/major_detail_scale = 0.791
+shader_param/major_detail_phase = 0.617
+shader_param/factor = 3.0
+shader_param/distance_fade_detail = 0.0
+shader_param/distance_fade_outer_rim = 1e+19
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 1.0
+shader_param/major_detail_noise = SubResource( 27 )
+
 [node name="GMC" type="Position3D"]
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 1 )]
@@ -128,59 +183,82 @@ transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
 material/0 = SubResource( 12 )
 
-[node name="Cloud_glow" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="_Cloud_glow" type="MeshInstance" parent="_EDITOR OBJECTS_"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 4 )
 material/0 = SubResource( 3 )
 
-[node name="Cloud_glow_flat" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="_Cloud_glow_flat" type="MeshInstance" parent="_EDITOR OBJECTS_"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 4 )
 material/0 = SubResource( 18 )
 
-[node name="Cloud_opaque" type="MeshInstance" parent="_EDITOR OBJECTS_"]
-transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
-mesh = SubResource( 8 )
-material/0 = SubResource( 11 )
+[node name="Cloud1" type="Spatial" parent="_EDITOR OBJECTS_"]
 
-[node name="Cloud_fog_inner" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="Cloud1_opaque" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud1"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 34 )
+
+[node name="Cloud1_fog_inner" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud1/Cloud1_opaque"]
+mesh = SubResource( 8 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 35 )
+
+[node name="Cloud_fog_outer_all" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud1/Cloud1_opaque/Cloud1_fog_inner"]
+mesh = SubResource( 8 )
+skeleton = NodePath("../../../..")
 material/0 = SubResource( 13 )
 
-[node name="Cloud_fog_inner_filaments" type="MeshInstance" parent="_EDITOR OBJECTS_"]
-transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
-mesh = SubResource( 8 )
-material/0 = SubResource( 19 )
+[node name="Cloud2" type="Spatial" parent="_EDITOR OBJECTS_"]
 
-[node name="Cloud_fog_outer" type="MeshInstance" parent="_EDITOR OBJECTS_"]
-transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
+[node name="Cloud2_opaque" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
 mesh = SubResource( 8 )
-material/0 = SubResource( 21 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 36 )
 
-[node name="Fake_stars_1" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="Cloud2_fog_inner" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2/Cloud2_opaque"]
+mesh = SubResource( 8 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 37 )
+
+[node name="Cloud_fog_outer_all" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2/Cloud2_opaque/Cloud2_fog_inner"]
+mesh = SubResource( 8 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 13 )
+
+[node name="Fake_stars" type="Spatial" parent="_EDITOR OBJECTS_"]
+
+[node name="Fake_stars_1" type="MeshInstance" parent="_EDITOR OBJECTS_/Fake_stars"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
+skeleton = NodePath("../..")
 material/0 = SubResource( 28 )
 
-[node name="Fake_stars_2" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="Fake_stars_2" type="MeshInstance" parent="_EDITOR OBJECTS_/Fake_stars"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
+skeleton = NodePath("../..")
 material/0 = SubResource( 29 )
 
-[node name="Fake_stars_3" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="Fake_stars_3" type="MeshInstance" parent="_EDITOR OBJECTS_/Fake_stars"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
+skeleton = NodePath("../..")
 material/0 = SubResource( 30 )
 
-[node name="Fake_stars_4" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="Fake_stars_4" type="MeshInstance" parent="_EDITOR OBJECTS_/Fake_stars"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
+skeleton = NodePath("../..")
 material/0 = SubResource( 31 )
 
-[node name="Fake_stars_5" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+[node name="Fake_stars_5" type="MeshInstance" parent="_EDITOR OBJECTS_/Fake_stars"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
 mesh = SubResource( 8 )
+skeleton = NodePath("../..")
 material/0 = SubResource( 32 )
 
 [node name="Cloud_outer" parent="." instance=ExtResource( 5 )]
@@ -197,9 +275,9 @@ __meta__ = {
 Put meshes into Scene Items nodes
 "
 }
-lod_0_relative_distance = 1.05
-lod_1_relative_distance = 1.2
-lod_2_relative_distance = 1.5
+lod_0_relative_distance = 1.5
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 3.0
 
 [node name="LOD0" type="Spatial" parent="Cloud1_LODs_trigger"]
 __meta__ = {
@@ -209,7 +287,7 @@ __meta__ = {
 [node name="Cloud1_LOD0" parent="Cloud1_LODs_trigger/LOD0" instance=ExtResource( 9 )]
 
 [node name="Cloud1_LOD0" parent="Cloud1_LODs_trigger/LOD0/Cloud1_LOD0" index="0"]
-material/0 = SubResource( 11 )
+material/0 = SubResource( 34 )
 
 [node name="LOD1" type="Spatial" parent="Cloud1_LODs_trigger"]
 visible = false
@@ -220,7 +298,7 @@ __meta__ = {
 [node name="Cloud1_LOD1" parent="Cloud1_LODs_trigger/LOD1" instance=ExtResource( 10 )]
 
 [node name="Cloud1_LOD1" parent="Cloud1_LODs_trigger/LOD1/Cloud1_LOD1" index="0"]
-material/0 = SubResource( 11 )
+material/0 = SubResource( 34 )
 
 [node name="LOD2" type="Spatial" parent="Cloud1_LODs_trigger"]
 visible = false
@@ -231,9 +309,58 @@ __meta__ = {
 [node name="Cloud1_LOD2" parent="Cloud1_LODs_trigger/LOD2" instance=ExtResource( 11 )]
 
 [node name="Cloud1_LOD2" parent="Cloud1_LODs_trigger/LOD2/Cloud1_LOD2" index="0"]
-material/0 = SubResource( 11 )
+material/0 = SubResource( 34 )
 
 [node name="LOD3" type="Spatial" parent="Cloud1_LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_LODs_trigger" type="Spatial" parent="."]
+transform = Transform( 4.55509e+17, 0, 0, 0, 4.55509e+17, 0, 0, 0, 4.55509e+17, 3.23186e+17, -9.30519e+15, -2.71477e+16 )
+script = ExtResource( 7 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+Put meshes into Scene Items nodes
+"
+}
+lod_0_relative_distance = 1.5
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 3.0
+
+[node name="LOD0" type="Spatial" parent="Cloud2_LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_LOD0" parent="Cloud2_LODs_trigger/LOD0" instance=ExtResource( 13 )]
+
+[node name="Cloud2_LOD0" parent="Cloud2_LODs_trigger/LOD0/Cloud2_LOD0" index="0"]
+material/0 = SubResource( 36 )
+
+[node name="LOD1" type="Spatial" parent="Cloud2_LODs_trigger"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_LOD1" parent="Cloud2_LODs_trigger/LOD1" instance=ExtResource( 12 )]
+
+[node name="Cloud2_LOD1" parent="Cloud2_LODs_trigger/LOD1/Cloud2_LOD1" index="0"]
+material/0 = SubResource( 36 )
+
+[node name="LOD2" type="Spatial" parent="Cloud2_LODs_trigger"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_LOD2" parent="Cloud2_LODs_trigger/LOD2" instance=ExtResource( 14 )]
+
+[node name="Cloud2_LOD2" parent="Cloud2_LODs_trigger/LOD2/Cloud2_LOD2" index="0"]
+material/0 = SubResource( 36 )
+
+[node name="LOD3" type="Spatial" parent="Cloud2_LODs_trigger"]
 __meta__ = {
 "_edit_lock_": true
 }
@@ -242,3 +369,6 @@ __meta__ = {
 [editable path="Cloud1_LODs_trigger/LOD0/Cloud1_LOD0"]
 [editable path="Cloud1_LODs_trigger/LOD1/Cloud1_LOD1"]
 [editable path="Cloud1_LODs_trigger/LOD2/Cloud1_LOD2"]
+[editable path="Cloud2_LODs_trigger/LOD0/Cloud2_LOD0"]
+[editable path="Cloud2_LODs_trigger/LOD1/Cloud2_LOD1"]
+[editable path="Cloud2_LODs_trigger/LOD2/Cloud2_LOD2"]

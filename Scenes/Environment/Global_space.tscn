@@ -1,11 +1,10 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_STAR_A9_3_SYSTEM_ZONE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_SYSTEM_ZONE.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=3]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_M2_4_SYSTEM_ZONE/STAR_M2_4_SYSTEM_ZONE.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=5]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_ORIGINS_.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Moirai_Cluster_Zone.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_A7_1_SYSTEM_ZONE/STAR_A7_1_SYSTEM_ZONE.tscn" type="PackedScene" id=8]
 [ext_resource path="res://Scenes/Environment/Star_placeholders_M.tscn" type="PackedScene" id=9]
@@ -38,120 +37,62 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 █████████████████████████████"
 }
 
-[node name="Southern_region" type="Position3D" parent="Global_regions"]
-__meta__ = {
-"_edit_lock_": true
-}
+[node name="Fake_stars" type="Position3D" parent="."]
+transform = Transform( 0.158883, 0.0651861, -0.102503, -0.0446808, 0.188294, 0.0504876, 0.112959, -0.0172087, 0.164147, 1.87264e+17, 6.72165e+16, -3.53759e+16 )
+script = ExtResource( 16 )
 
-[node name="_EDITOR OBJECTS_" parent="Global_regions/Southern_region" instance=ExtResource( 5 )]
+[node name="Star_placeholders_B" parent="Fake_stars" instance=ExtResource( 11 )]
+transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, -2.37796e+17, -4.6393e+17, -1.77499e+17 )
 visible = false
 
-[node name="_EDITOR_ORIGINS_" parent="Global_regions/Southern_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
+[node name="Star_placeholders_G" parent="Fake_stars" instance=ExtResource( 10 )]
+transform = Transform( 0.0922172, -0.482554, -0.0929365, 0.371378, 0.00650714, 0.334717, -0.321829, -0.130763, 0.359621, -6.75589e+17, -4.57595e+17, -1.35124e+16 )
 
-[node name="STAR_A7_1_SYSTEM_ZONE" parent="Global_regions/Southern_region" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.43275e+16, 4.70485e+16, -5.46225e+16 )
+[node name="Star_placeholders_G2" parent="Fake_stars" instance=ExtResource( 10 )]
+transform = Transform( -0.257031, 0.246212, 0.351162, 0.0513386, -0.38879, 0.310171, 0.425793, 0.195504, 0.174582, 8.1026e+17, -4.90514e+16, -1.13861e+18 )
+
+[node name="Star_placeholders_M" parent="Fake_stars" instance=ExtResource( 9 )]
+transform = Transform( 0.447504, -0.222426, -0.0163354, 0.193323, 0.405126, -0.220224, 0.111203, 0.190786, 0.448591, 1.05532e+18, -1.73938e+17, -4.23937e+17 )
+
+[node name="Star_placeholders_M2" parent="Fake_stars" instance=ExtResource( 9 )]
+transform = Transform( -0.315479, -0.00476883, 0.387879, 0.0263967, -0.499067, 0.0153337, 0.387009, 0.0301524, 0.315143, -7.51411e+17, -5.80986e+17, 3.90544e+17 )
+
+[node name="GMC" parent="." instance=ExtResource( 15 )]
+script = ExtResource( 16 )
+
+[node name="STAR_M2_4_SYSTEM_ZONE" parent="." instance=ExtResource( 4 )]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "System: Viakata
+"
+}
+
+[node name="STAR_A7_1_SYSTEM_ZONE" parent="." instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6.50124e+16, 5.71111e+16, -1.51821e+17 )
 __meta__ = {
 "_editor_description_": "System: Equberan
 "
 }
 
-[node name="STAR_M2_4_SYSTEM_ZONE" parent="Global_regions/Southern_region" instance=ExtResource( 4 )]
-__meta__ = {
-"_editor_description_": "System: Viakata
-"
-}
+[node name="_STAR_G9_5_SYSTEM_ZONE" parent="." instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8842e+16, -5.47187e+15, 2.36004e+16 )
 
-[node name="_STAR_G9_5_SYSTEM_ZONE" parent="Global_regions/Southern_region" instance=ExtResource( 12 )]
-
-[node name="Western_region" type="Position3D" parent="Global_regions"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2e+18, 0, -2e+18 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="_EDITOR OBJECTS_" parent="Global_regions/Western_region" instance=ExtResource( 5 )]
-visible = false
-
-[node name="_EDITOR_ORIGINS_" parent="Global_regions/Western_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
-
-[node name="Eastern_region" type="Position3D" parent="Global_regions"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2e+18, 0, -2e+18 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="_EDITOR OBJECTS_" parent="Global_regions/Eastern_region" instance=ExtResource( 5 )]
-visible = false
-
-[node name="_EDITOR_ORIGINS_" parent="Global_regions/Eastern_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
-
-[node name="_STAR_A9_3_SYSTEM_ZONE" parent="Global_regions/Eastern_region" instance=ExtResource( 1 )]
-transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -1.99725e+17, 8.99308e+17, -6.97365e+15 )
+[node name="_STAR_A9_3_SYSTEM_ZONE" parent="." instance=ExtResource( 1 )]
+transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, 4.28249e+17, 1.66586e+15, -2.6614e+16 )
 __meta__ = {
 "_editor_description_": "System: Valeri
 "
 }
 
-[node name="Central_region" type="Position3D" parent="Global_regions"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2e+18 )
-__meta__ = {
-"_edit_lock_": true
-}
+[node name="_STAR_M9_2_SYSTEM_ZONE" parent="." instance=ExtResource( 13 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.71453e+17, 3.39804e+16, 9.99814e+16 )
 
-[node name="_EDITOR OBJECTS_" parent="Global_regions/Central_region" instance=ExtResource( 5 )]
-visible = false
-
-[node name="_EDITOR_ORIGINS_" parent="Global_regions/Central_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
-
-[node name="_STAR_M9_2_SYSTEM_ZONE" parent="Global_regions/Central_region" instance=ExtResource( 13 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.01956e+16, 3.44208e+17, 2.53344e+16 )
-
-[node name="STAR_B7_0_SYSTEM_ZONE" parent="Global_regions/Central_region" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.62246e+17, 3.46692e+17, 2.04593e+17 )
+[node name="STAR_B7_0_SYSTEM_ZONE" parent="." instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.49919e+17, 7.97563e+16, -1.23531e+17 )
 __meta__ = {
 "_editor_description_": "System: Victory
 "
 }
 
-[node name="Northern_region" type="Position3D" parent="Global_regions"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4e+18 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="_EDITOR OBJECTS_" parent="Global_regions/Northern_region" instance=ExtResource( 5 )]
-visible = false
-
-[node name="_EDITOR_ORIGINS_" parent="Global_regions/Northern_region/_EDITOR OBJECTS_" instance=ExtResource( 6 )]
-
-[node name="_STAR_F7_6_SYSTEM_ZONE" parent="Global_regions/Northern_region" instance=ExtResource( 14 )]
-
-[node name="Fake_stars" type="Position3D" parent="."]
-transform = Transform( 0.397209, 0.162965, -0.256257, -0.111702, 0.470735, 0.126219, 0.282397, -0.0430218, 0.410367, 4.55308e+16, 3.51885e+17, -1.97071e+18 )
-script = ExtResource( 16 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="Star_placeholders_B" parent="Fake_stars" instance=ExtResource( 11 )]
-transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, 0, 0, 0 )
-
-[node name="Star_placeholders_G" parent="Fake_stars" instance=ExtResource( 10 )]
-transform = Transform( 0.260385, -1.36955, -0.261823, 1.06543, 0.0236036, 0.936118, -0.899484, -0.368504, 1.03303, -5.44972e+17, -7.31526e+17, -1.70132e+18 )
-
-[node name="Star_placeholders_G2" parent="Fake_stars" instance=ExtResource( 10 )]
-transform = Transform( -0.591883, 0.566968, 0.808645, 0.118221, -0.895294, 0.714253, 0.980501, 0.4502, 0.402022, 1.15345e+18, -7.34992e+17, 1.40243e+18 )
-
-[node name="Star_placeholders_M" parent="Fake_stars" instance=ExtResource( 9 )]
-transform = Transform( 0.798356, -0.396812, -0.0291432, 0.344893, 0.722754, -0.392884, 0.198388, 0.340367, 0.800296, 1.71997e+18, -2.57482e+17, 4.95134e+17 )
-visible = false
-
-[node name="Star_placeholders_M2" parent="Fake_stars" instance=ExtResource( 9 )]
-transform = Transform( -0.630959, -0.00953772, 0.775758, 0.0527933, -0.998134, 0.0306674, 0.774018, 0.0603047, 0.630285, 0, 0, 0 )
-visible = false
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="GMC" parent="." instance=ExtResource( 15 )]
-script = ExtResource( 16 )
+[node name="_STAR_F7_6_SYSTEM_ZONE" parent="." instance=ExtResource( 14 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.14606e+17, -5.56049e+16, 1.3784e+17 )
