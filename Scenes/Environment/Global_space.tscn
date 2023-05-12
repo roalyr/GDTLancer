@@ -154,5 +154,4 @@ __meta__ = {
 }
 
 [node name="GMC" parent="." instance=ExtResource( 15 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 script = ExtResource( 16 )
