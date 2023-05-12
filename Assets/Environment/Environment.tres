@@ -2,7 +2,7 @@
 
 [resource]
 background_mode = 1
-background_color = Color( 0.0941176, 0.0901961, 0.137255, 1 )
+background_color = Color( 0.0666667, 0.0666667, 0.105882, 1 )
 background_energy = 0.0
 ambient_light_energy = 0.0
 ambient_light_sky_contribution = 0.0

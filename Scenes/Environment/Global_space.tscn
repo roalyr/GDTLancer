@@ -29,6 +29,27 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3554e+16, 2.72078e+17, -1.00992e+18 )
 visible = false
 
+[node name="Fake_stars" type="Position3D" parent="_EDITOR OBJECTS_"]
+transform = Transform( 0.158883, 0.0651861, -0.102503, -0.0446808, 0.188294, 0.0504876, 0.112959, -0.0172087, 0.164147, 1.87264e+17, 6.72165e+16, -3.53759e+16 )
+visible = false
+script = ExtResource( 16 )
+
+[node name="Star_placeholders_B" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 11 )]
+transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, -2.37796e+17, -4.6393e+17, -1.77499e+17 )
+visible = false
+
+[node name="Star_placeholders_G" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 10 )]
+transform = Transform( 0.0922172, -0.482554, -0.0929365, 0.371378, 0.00650714, 0.334717, -0.321829, -0.130763, 0.359621, -6.75589e+17, -4.57595e+17, -1.35124e+16 )
+
+[node name="Star_placeholders_G2" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 10 )]
+transform = Transform( -0.257031, 0.246212, 0.351162, 0.0513386, -0.38879, 0.310171, 0.425793, 0.195504, 0.174582, 8.1026e+17, -4.90514e+16, -1.13861e+18 )
+
+[node name="Star_placeholders_M" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 9 )]
+transform = Transform( 0.447504, -0.222426, -0.0163354, 0.193323, 0.405126, -0.220224, 0.111203, 0.190786, 0.448591, 1.05532e+18, -1.73938e+17, -4.23937e+17 )
+
+[node name="Star_placeholders_M2" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 9 )]
+transform = Transform( -0.315479, -0.00476883, 0.387879, 0.0263967, -0.499067, 0.0153337, 0.387009, 0.0301524, 0.315143, -7.51411e+17, -5.80986e+17, 3.90544e+17 )
+
 [node name="Global_regions" type="Position3D" parent="."]
 __meta__ = {
 "_edit_lock_": true,
@@ -36,26 +57,6 @@ __meta__ = {
 DO NOT TRANSLATE AND DO NOT REMOVE
 █████████████████████████████"
 }
-
-[node name="Fake_stars" type="Position3D" parent="."]
-transform = Transform( 0.158883, 0.0651861, -0.102503, -0.0446808, 0.188294, 0.0504876, 0.112959, -0.0172087, 0.164147, 1.87264e+17, 6.72165e+16, -3.53759e+16 )
-script = ExtResource( 16 )
-
-[node name="Star_placeholders_B" parent="Fake_stars" instance=ExtResource( 11 )]
-transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, -2.37796e+17, -4.6393e+17, -1.77499e+17 )
-visible = false
-
-[node name="Star_placeholders_G" parent="Fake_stars" instance=ExtResource( 10 )]
-transform = Transform( 0.0922172, -0.482554, -0.0929365, 0.371378, 0.00650714, 0.334717, -0.321829, -0.130763, 0.359621, -6.75589e+17, -4.57595e+17, -1.35124e+16 )
-
-[node name="Star_placeholders_G2" parent="Fake_stars" instance=ExtResource( 10 )]
-transform = Transform( -0.257031, 0.246212, 0.351162, 0.0513386, -0.38879, 0.310171, 0.425793, 0.195504, 0.174582, 8.1026e+17, -4.90514e+16, -1.13861e+18 )
-
-[node name="Star_placeholders_M" parent="Fake_stars" instance=ExtResource( 9 )]
-transform = Transform( 0.447504, -0.222426, -0.0163354, 0.193323, 0.405126, -0.220224, 0.111203, 0.190786, 0.448591, 1.05532e+18, -1.73938e+17, -4.23937e+17 )
-
-[node name="Star_placeholders_M2" parent="Fake_stars" instance=ExtResource( 9 )]
-transform = Transform( -0.315479, -0.00476883, 0.387879, 0.0263967, -0.499067, 0.0153337, 0.387009, 0.0301524, 0.315143, -7.51411e+17, -5.80986e+17, 3.90544e+17 )
 
 [node name="GMC" parent="." instance=ExtResource( 15 )]
 script = ExtResource( 16 )

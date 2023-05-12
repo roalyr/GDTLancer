@@ -160,7 +160,6 @@ transform = Transform( 9.98482e+17, 2.97226e+16, -4.6358e+16, -3.79648e+16, 9.81
 visible = false
 
 [node name="Galaxy_light" type="OmniLight" parent="Galaxy_belt"]
-visible = false
 light_color = Color( 0.760784, 0.92549, 1, 1 )
 light_energy = 0.1
 omni_range = 9e+18
@@ -168,54 +167,45 @@ omni_attenuation = 5.0
 
 [node name="Torus orange" type="MeshInstance" parent="Galaxy_belt"]
 transform = Transform( -5.52512e-08, 0, 3.392, 0, 1.409, 0, -1.264, 0, -1.48269e-07, 0, 0, 0 )
-visible = false
 mesh = SubResource( 97 )
 material/0 = SubResource( 90 )
 
 [node name="Torus inner dark" type="MeshInstance" parent="Galaxy_belt"]
 transform = Transform( -4.86945e-08, 0, 1.651, 0, 0.385, 0, -1.114, 0, -7.21675e-08, 0, 0, 0 )
-visible = false
 mesh = SubResource( 99 )
 material/0 = SubResource( 82 )
 
 [node name="Ellisoid_1280_05 inner bright" type="MeshInstance" parent="Galaxy_belt"]
 transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0 )
-visible = false
 mesh = SubResource( 100 )
 material/0 = SubResource( 77 )
 
 [node name="Ellisoid_1280_025 median bright" type="MeshInstance" parent="Galaxy_belt"]
 transform = Transform( 1.99, 0, 0, 0, 1.534, 0, 0, 0, 1.99, 0, 0, 0 )
-visible = false
 mesh = SubResource( 101 )
 material/0 = SubResource( 92 )
 
 [node name="Ellisoid_1280_026 outer dim" type="MeshInstance" parent="Galaxy_belt"]
 transform = Transform( 3, 0, 0, 0, 1.2, 0, 0, 0, 2, 0, 0, 0 )
-visible = false
 mesh = SubResource( 101 )
 material/0 = SubResource( 80 )
 
 [node name="Galactic_background_lights" type="Spatial" parent="."]
-visible = false
 
 [node name="Starsphere" parent="Galactic_background_lights" instance=ExtResource( 3 )]
 transform = Transform( 1e+19, 0, 0, 0, 1e+19, 0, 0, 0, 1e+19, 0, 0, 0 )
-visible = false
 
 [node name="Starsphere007" parent="Galactic_background_lights/Starsphere" index="0"]
 material/0 = SubResource( 35 )
 
 [node name="Starsphere2" parent="Galactic_background_lights" instance=ExtResource( 3 )]
 transform = Transform( 6.59788e+18, -7.4426e+18, 1.03713e+18, -7.38687e+18, -6.17042e+18, 2.71294e+18, -1.37918e+18, -2.55608e+18, -9.56892e+18, 0, 0, 0 )
-visible = false
 
 [node name="Starsphere007" parent="Galactic_background_lights/Starsphere2" index="0"]
 material/0 = SubResource( 107 )
 
 [node name="Starsphere3" parent="Galactic_background_lights" instance=ExtResource( 3 )]
 transform = Transform( -2.20317e+18, 4.29605e+18, -8.75728e+18, 1.75039e+17, 8.99385e+18, 4.36807e+18, 9.75271e+18, 8.09076e+17, -2.0567e+18, 0, 0, 0 )
-visible = false
 
 [node name="Starsphere007" parent="Galactic_background_lights/Starsphere3" index="0"]
 material/0 = SubResource( 108 )
