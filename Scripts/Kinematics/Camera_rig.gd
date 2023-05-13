@@ -22,7 +22,7 @@ const camera_fov_derivative = 2
 const camera_fov_max_delta = 140 - Constants.camera_fov
 const camera_brightness_velocity_factor = 2e-4
 const camera_brightness_derivative = 0.05
-const camera_brightness_max_delta = 0.5
+const camera_brightness_max_delta = 0.15
 # TODO: adjust background colors separatenly?
 
 # Values.
