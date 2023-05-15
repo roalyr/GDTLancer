@@ -28,7 +28,6 @@ uniform float factor = 1.0;
 uniform float distance_fade_detail = 0;
 uniform float distance_fade_outer_rim = 1e19;
 
-
 uniform float rim_strength = 1.0;
 uniform float rim_exponent : hint_range(0.0, 10.0) = 1.0;
 
@@ -50,10 +49,11 @@ void fragment()
 	float detail_major = sin(texture(major_detail_noise, UV*major_detail_scale).r*pi+major_detail_phase);
 	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, 1.0);
-
-	ALBEDO = albedo.rgb*rim + (1.0-rim)*albedo_outer.rgb*(1.0-clamp(smoothstep(0.0, distance_fade_outer_rim, length(VERTEX)), 1e-6, 1.0));
+	float dist = length(VERTEX);
+	
+	ALBEDO = albedo.rgb*rim + (1.0-rim)*albedo_outer.rgb*(1.0-clamp(smoothstep(0.0, distance_fade_outer_rim, dist), 1e-6, 1.0));
 	ALBEDO *= COLOR.rgb;
-	ALBEDO += clamp(pow((1.0-rim), factor)*albedo_detail.rgb*detail_major*clamp(smoothstep(0.0, distance_fade_detail, length(VERTEX)), 1e-6, 1.0), 0.0, 1.0);
+	ALBEDO += clamp(pow((1.0-rim), factor)*albedo_detail.rgb*detail_major*clamp(smoothstep(0.0, distance_fade_detail, dist), 1e-6, 1.0), 0.0, 1.0);
 	ALBEDO = vec3(
 		pow(ALBEDO.r, color_power_r)*color_multiplier_r,
 		pow(ALBEDO.g, color_power_g)*color_multiplier_g,
