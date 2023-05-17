@@ -1,4 +1,4 @@
-[gd_scene load_steps=46 format=2]
+[gd_scene load_steps=48 format=2]
 
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=2]
@@ -17,6 +17,9 @@
 [ext_resource path="res://Assets/Shaders/Solid/Solid_emission.gdshader" type="Shader" id=15]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_double_add.gdshader" type="Shader" id=16]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud_Outside_glow.glb" type="PackedScene" id=17]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=18]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_Outside_LOD1.glb" type="PackedScene" id=19]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_Outside_LOD2.glb" type="PackedScene" id=20]
 
 [sub_resource type="SphereMesh" id=8]
 
@@ -96,23 +99,33 @@ next_pass = SubResource( 46 )
 shader = ExtResource( 4 )
 shader_param/albedo = Color( 0.172549, 0.172549, 0.172549, 1 )
 shader_param/albedo_outer = Color( 0.29, 0.16, 0.13, 1 )
-shader_param/albedo_detail = Color( 0.63, 0.51, 0, 1 )
+shader_param/albedo_detail = Color( 0.458824, 0.376471, 0.0313726, 1 )
 shader_param/major_detail_scale = 0.315
-shader_param/major_detail_phase = 1.351
+shader_param/major_detail_phase = 0.761
 shader_param/factor = 1.0
 shader_param/distance_fade_detail = 5e+17
 shader_param/distance_fade_outer_rim = 1e+18
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 1.0
-shader_param/color_power_r = 1.138
+shader_param/color_power_r = 1.036
 shader_param/color_power_g = 1.113
-shader_param/color_power_b = 1.031
+shader_param/color_power_b = 0.995
 shader_param/color_multiplier_r = 1.485
 shader_param/color_multiplier_g = 1.707
 shader_param/color_multiplier_b = 4.809
 shader_param/major_detail_noise = SubResource( 38 )
 
+[sub_resource type="ShaderMaterial" id=48]
+shader = ExtResource( 8 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/albedo_rim = Color( 0.454902, 0.447059, 0.427451, 1 )
+shader_param/rim_strength = 4.99
+shader_param/rim_exponent = 1.875
+shader_param/distance_fade = 4.5e+17
+shader_param/alpha_clamp = 0.5
+
 [sub_resource type="ShaderMaterial" id=49]
+next_pass = SubResource( 48 )
 shader = ExtResource( 2 )
 shader_param/albedo = Color( 0.25098, 0.141176, 0.109804, 1 )
 shader_param/distance_fade_min = 0.0
@@ -121,92 +134,30 @@ shader_param/distance_fade_max = 3e+16
 [sub_resource type="ShaderMaterial" id=50]
 next_pass = SubResource( 49 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.0705882, 0.109804, 0.0627451, 1 )
-shader_param/albedo_outer = Color( 0.25098, 0.25098, 0.25098, 1 )
-shader_param/albedo_detail = Color( 0.207843, 0.133333, 0.133333, 1 )
-shader_param/major_detail_scale = 0.299
-shader_param/major_detail_phase = 0.181
-shader_param/factor = 1.0
+shader_param/albedo = Color( 0.0941176, 0.0941176, 0.0941176, 1 )
+shader_param/albedo_outer = Color( 0.321569, 0.321569, 0.321569, 1 )
+shader_param/albedo_detail = Color( 0.270588, 0.172549, 0.109804, 1 )
+shader_param/major_detail_scale = 0.062
+shader_param/major_detail_phase = 1.199
+shader_param/factor = 1.953
 shader_param/distance_fade_detail = 0.0
 shader_param/distance_fade_outer_rim = 1e+19
-shader_param/rim_strength = 1.02
-shader_param/rim_exponent = 0.707
-shader_param/color_power_r = 0.741
-shader_param/color_power_g = 0.976
-shader_param/color_power_b = 1.097
-shader_param/color_multiplier_r = 1.293
-shader_param/color_multiplier_g = 1.406
-shader_param/color_multiplier_b = 0.75
+shader_param/rim_strength = 1.343
+shader_param/rim_exponent = 1.148
+shader_param/color_power_r = 0.767
+shader_param/color_power_g = 0.981
+shader_param/color_power_b = 1.135
+shader_param/color_multiplier_r = 0.799
+shader_param/color_multiplier_g = 0.964
+shader_param/color_multiplier_b = 0.536
 shader_param/major_detail_noise = SubResource( 38 )
 
-[sub_resource type="ShaderMaterial" id=48]
-shader = ExtResource( 8 )
-shader_param/albedo = Color( 0.203922, 0.0431373, 0.0431373, 1 )
-shader_param/albedo_rim = Color( 0.121569, 0.121569, 0.121569, 1 )
-shader_param/rim_strength = 0.948
-shader_param/rim_exponent = 1.831
-shader_param/distance_fade = 4.91e+17
-shader_param/alpha_clamp = 1.0
-
-[sub_resource type="Shader" id=55]
-code = "shader_type spatial;
-
-render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
-	vertex_lighting,
-	
-	// Blending and culling.
-	blend_add,
-	cull_back,
-	
-	unshaded,
-	diffuse_lambert, 
-	specular_disabled,
-	
-	// Additional flags just in case.
-	ambient_light_disabled,
-	depth_draw_opaque;
-
-uniform vec4 albedo : hint_color;
-uniform vec4 albedo_detail : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
-
-uniform float rim_strength = 0.05;
-uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 15.0;
-
-uniform float rim_strength_detail = 0.05;
-uniform float rim_exponent_detail : hint_range(0.0, 50.0, 0.1) = 15.0;
-
-uniform float alpha_clip : hint_range(0,1) = 1.0;
-
-uniform float distance_fade_min = 0.0;
-uniform float distance_fade_max = 5.0;
-
-
-void fragment()
-{
-	
-	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
-	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, alpha_clip);
-	float rim_detail = clamp(pow(dt, rim_exponent_detail)*rim_strength_detail, 1e-6, alpha_clip);
-
-	ALBEDO = albedo.rgb*COLOR.rgb*(1.0-rim)*rim + albedo_detail.rgb*COLOR.rgb*(1.0-rim_detail)*rim;
-	ALBEDO *= clamp(smoothstep(distance_fade_min, distance_fade_max, length(VERTEX)), 1e-6, alpha_clip);
-	
-}
-"
-
 [sub_resource type="ShaderMaterial" id=56]
-render_priority = 1
-shader = SubResource( 55 )
-shader_param/albedo = Color( 0.313726, 0.333333, 0.0705882, 1 )
-shader_param/albedo_detail = Color( 0.45098, 0.301961, 0.152941, 1 )
-shader_param/rim_strength = 3.098
-shader_param/rim_exponent = 4.3
-shader_param/rim_strength_detail = 1.202
-shader_param/rim_exponent_detail = 19.1
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.321569, 0.27451, 0.172549, 1 )
+shader_param/rim_strength = 2.956
+shader_param/rim_exponent = 3.5
 shader_param/alpha_clip = 1.0
-shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 5.0
 
 [sub_resource type="ShaderMaterial" id=51]
 shader = ExtResource( 8 )
@@ -287,15 +238,15 @@ shader_param/emission = Color( 0.203922, 0.270588, 0.27451, 1 )
 [sub_resource type="ShaderMaterial" id=54]
 render_priority = 1
 shader = ExtResource( 16 )
-shader_param/albedo = Color( 0.262745, 0.141176, 0.101961, 1 )
-shader_param/albedo_detail = Color( 0.545098, 0.541176, 0.270588, 1 )
-shader_param/rim_strength = 1.69
-shader_param/rim_exponent = 4.8
-shader_param/rim_strength_detail = 0.352
-shader_param/rim_exponent_detail = 14.1
-shader_param/alpha_clip = 0.589
+shader_param/albedo = Color( 0.192157, 0.109804, 0.0235294, 1 )
+shader_param/albedo_detail = Color( 0.407843, 0.4, 0.27451, 1 )
+shader_param/rim_strength = 3.332
+shader_param/rim_exponent = 6.4
+shader_param/rim_strength_detail = 0.34
+shader_param/rim_exponent_detail = 8.8
+shader_param/alpha_clip = 0.678
 shader_param/distance_fade_min = 2e+17
-shader_param/distance_fade_max = 1e+18
+shader_param/distance_fade_max = 4e+17
 
 [node name="GMC" type="Position3D"]
 
@@ -471,16 +422,15 @@ __meta__ = {
 }
 
 [node name="Cloud2_LODs_trigger" type="Spatial" parent="."]
-transform = Transform( 4.55509e+17, 0, 0, 0, 4.55509e+17, 0, 0, 0, 4.55509e+17, -1.43809e+17, 1.30797e+17, 7.0144e+17 )
+transform = Transform( 4.55509e+17, 0, 0, 0, 4.55509e+17, 0, 0, 0, 4.55509e+17, -2.5861e+17, 1.06844e+17, 3.31247e+17 )
 script = ExtResource( 7 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
 Put meshes into Scene Items nodes
 "
 }
-lod_0_relative_distance = 1.2
-lod_1_relative_distance = 1.5
-lod_2_relative_distance = 2.0
+lod_0_relative_distance = 2.0
+lod_1_relative_distance = 5.0
 
 [node name="LOD0" type="Spatial" parent="Cloud2_LODs_trigger"]
 __meta__ = {
@@ -503,26 +453,26 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Cloud2_Outside_LOD1" parent="Cloud2_LODs_trigger/LOD1" instance=ExtResource( 19 )]
+
+[node name="Cloud2_Outside_LOD1" parent="Cloud2_LODs_trigger/LOD1/Cloud2_Outside_LOD1" index="0"]
+material/0 = SubResource( 50 )
+
 [node name="LOD2" type="Spatial" parent="Cloud2_LODs_trigger"]
 visible = false
 __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Cloud2_Outside_LOD2" parent="Cloud2_LODs_trigger/LOD2" instance=ExtResource( 20 )]
+
+[node name="Cloud2_Outside_LOD2" parent="Cloud2_LODs_trigger/LOD2/Cloud2_Outside_LOD2" index="0"]
+material/0 = SubResource( 50 )
+
 [node name="LOD3" type="Spatial" parent="Cloud2_LODs_trigger"]
 __meta__ = {
 "_edit_lock_": true
 }
-
-[node name="Cloud_global" parent="Cloud2_LODs_trigger" instance=ExtResource( 14 )]
-
-[node name="Cloud_global" parent="Cloud2_LODs_trigger/Cloud_global" index="0"]
-material/0 = SubResource( 54 )
-
-[node name="Cloud_Outside_glow" parent="Cloud2_LODs_trigger" instance=ExtResource( 17 )]
-
-[node name="Cloud2_Outside_glow" parent="Cloud2_LODs_trigger/Cloud_Outside_glow" index="0"]
-material/0 = SubResource( 56 )
 
 [node name="Vertex_cloud_192_1" parent="." instance=ExtResource( 5 )]
 transform = Transform( 1e+19, 0, 0, 0, 1e+19, 0, 0, 0, 1e+19, 0, 0, 0 )
@@ -536,12 +486,26 @@ transform = Transform( -4.48546e+18, -2.07495e+18, 8.69343e+18, 3.51989e+18, 8.5
 [node name="Vertex_cloud_192" parent="Vertex_cloud_192_2" index="0"]
 material/0 = SubResource( 44 )
 
+[node name="Cloud_global" parent="." instance=ExtResource( 14 )]
+transform = Transform( 4.55509e+17, 0, 0, 0, 4.55509e+17, 0, 0, 0, 4.55509e+17, -2.5861e+17, 1.06844e+17, 3.31247e+17 )
+
+[node name="Cloud_global" parent="Cloud_global" index="0"]
+material/0 = SubResource( 54 )
+
+[node name="Cloud_Outside_glow" parent="." instance=ExtResource( 17 )]
+transform = Transform( 5.0106e+17, 0, 0, 0, 5.0106e+17, 0, 0, 0, 5.0106e+17, -2.5861e+17, 1.06844e+17, 3.31247e+17 )
+
+[node name="Cloud2_Outside_glow" parent="Cloud_Outside_glow" index="0"]
+material/0 = SubResource( 56 )
+
 [editable path="Cloud1_LODs_trigger/LOD0/Cloud1_LOD0"]
 [editable path="Cloud1_LODs_trigger/LOD1/Cloud1_LOD1"]
 [editable path="Cloud1_LODs_trigger/LOD2/Cloud1_LOD2"]
 [editable path="Cloud2_LODs_trigger/LOD0/Cloud2_LOD0"]
 [editable path="Cloud2_LODs_trigger/LOD0/Cloud2_Outside_LOD1"]
-[editable path="Cloud2_LODs_trigger/Cloud_global"]
-[editable path="Cloud2_LODs_trigger/Cloud_Outside_glow"]
+[editable path="Cloud2_LODs_trigger/LOD1/Cloud2_Outside_LOD1"]
+[editable path="Cloud2_LODs_trigger/LOD2/Cloud2_Outside_LOD2"]
 [editable path="Vertex_cloud_192_1"]
 [editable path="Vertex_cloud_192_2"]
+[editable path="Cloud_global"]
+[editable path="Cloud_Outside_glow"]
