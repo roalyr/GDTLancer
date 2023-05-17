@@ -26,8 +26,8 @@ uniform float rim_strength = 1.0;
 uniform float rim_exponent : hint_range(0.0, 10.0) = 1.0;
 
 uniform float distance_fade = 5e16;
-uniform float dist_factor = 1.0;
-uniform float dist_clip : hint_range(0.0, 1.0) = 0.5;
+uniform float alpha_clamp = 0.5;
+
 
 
 void fragment()
@@ -35,12 +35,11 @@ void fragment()
 	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, 1.0);
 	float dist = length(VERTEX);
-	float dist_limit = distance_fade;
-	float dist_norm = max(clamp(smoothstep(0.0, dist_limit, dist), 1e-6, 1.0), dist_clip);
+	float dist_norm = clamp(smoothstep(0.0, distance_fade, dist), 1e-6, 1.0);
 	
 	ALBEDO = albedo.rgb;
 	ALBEDO += (1.0-rim)*albedo_rim.rgb*(1.0 - dist_norm);
-	ALPHA = clamp(dist_norm, 1e-6, 0.98);
+	ALPHA = clamp(dist_norm, 1e-6, alpha_clamp);
 	
 	
 }
