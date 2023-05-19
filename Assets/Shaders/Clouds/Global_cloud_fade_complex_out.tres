@@ -21,26 +21,27 @@ render_mode
 
 uniform vec4 albedo : hint_color;
 uniform vec4 albedo_rim : hint_color;
+uniform vec4 albedo_near : hint_color;
 
 uniform float rim_strength = 1.0;
 uniform float rim_exponent : hint_range(0.0, 10.0) = 1.0;
 
 uniform float distance_fade = 5e16;
-uniform float alpha_clamp = 0.5;
-
-
+uniform float distance_fade_near = 1e16;
+uniform float near_transparency_factor = 0.5;
 
 void fragment()
 {
 	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, 1.0);
-	float dist = length(VERTEX);
-	float dist_norm = clamp(smoothstep(0.0, distance_fade, dist), 1e-6, 1.0);
 	
+
 	ALBEDO = albedo.rgb;
-	ALBEDO += (1.0-rim)*albedo_rim.rgb*(1.0 - dist_norm);
-	ALPHA = clamp(dist_norm, 1e-6, alpha_clamp);
+	ALPHA *= clamp(smoothstep(0.0, distance_fade, length(VERTEX)), 1e-6, 1.0);
 	
-	
+	float near_field = (1.0 - clamp(smoothstep(0.0, distance_fade_near, length(VERTEX)), 1e-6, 1.0));
+	ALPHA += clamp(near_transparency_factor*near_field, 1e-6, 1.0);
+	ALBEDO -= near_field*albedo_near.rgb;
+	ALBEDO += (1.0-rim)*albedo_rim.rgb*(1.0 - clamp(smoothstep(0.0, distance_fade, length(VERTEX)), 1e-6, 1.0));
 }
 "
