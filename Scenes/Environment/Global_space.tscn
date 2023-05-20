@@ -96,4 +96,4 @@ __meta__ = {
 }
 
 [node name="_STAR_F7_6_SYSTEM_ZONE" parent="." instance=ExtResource( 14 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.43703e+17, 8.51418e+16, 3.28613e+17 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.29076e+17, 1.58414e+17, 2.56509e+17 )

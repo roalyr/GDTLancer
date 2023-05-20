@@ -123,12 +123,12 @@ shader_param/major_detail_noise = SubResource( 38 )
 shader = ExtResource( 2 )
 shader_param/albedo = Color( 0.337255, 0.203922, 0.168627, 1 )
 shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 6e+15
+shader_param/distance_fade_max = 5e+16
 
 [sub_resource type="ShaderMaterial" id=72]
 next_pass = SubResource( 71 )
 shader = ExtResource( 12 )
-shader_param/albedo = Color( 0.129412, 0.141176, 0.160784, 1 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
 shader_param/distance_fade_max = 3e+16
 
 [sub_resource type="ShaderMaterial" id=73]
@@ -243,7 +243,7 @@ shader_param/near_transparency_factor = 0.25
 [sub_resource type="ShaderMaterial" id=58]
 next_pass = SubResource( 57 )
 shader = ExtResource( 12 )
-shader_param/albedo = Color( 0.129412, 0.141176, 0.160784, 1 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
 shader_param/distance_fade_max = 3e+16
 
 [sub_resource type="OpenSimplexNoise" id=66]
@@ -317,43 +317,44 @@ shader_param/distance_fade_min = 5e+17
 shader_param/distance_fade_max = 1e+18
 
 [sub_resource type="ShaderMaterial" id=61]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.117647, 0.176471, 0.219608, 1 )
-shader_param/distance_fade_min = 0.0
-shader_param/distance_fade_max = 1e+18
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 0.105882, 0.184314, 0.176471, 1 )
+shader_param/albedo_rim = Color( 0, 0, 0, 1 )
+shader_param/albedo_near = Color( 0.219608, 0.219608, 0.219608, 1 )
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 1.0
+shader_param/distance_fade = 8e+17
+shader_param/distance_fade_near = 2e+17
+shader_param/near_transparency_factor = 0.5
 
 [sub_resource type="ShaderMaterial" id=62]
 next_pass = SubResource( 61 )
 shader = ExtResource( 12 )
-shader_param/albedo = Color( 0.129412, 0.141176, 0.160784, 1 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
 shader_param/distance_fade_max = 3e+16
 
-[sub_resource type="NoiseTexture" id=64]
-width = 32
-height = 32
-bump_strength = 19.6
-noise = SubResource( 26 )
+[sub_resource type="ImageTexture" id=74]
 
 [sub_resource type="ShaderMaterial" id=63]
 next_pass = SubResource( 62 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.101961, 0.101961, 0.101961, 1 )
-shader_param/albedo_outer = Color( 0.129412, 0.356863, 0.427451, 1 )
-shader_param/albedo_detail = Color( 0.705882, 0.443137, 0, 1 )
-shader_param/major_detail_scale = 0.089
-shader_param/major_detail_phase = 1.059
-shader_param/factor = 2.0
-shader_param/distance_fade_detail = 1e+18
-shader_param/distance_fade_outer_rim = 1e+18
-shader_param/rim_strength = 0.65
+shader_param/albedo = Color( 0.0901961, 0.0901961, 0.0901961, 1 )
+shader_param/albedo_outer = Color( 0.207843, 0.286275, 0.298039, 1 )
+shader_param/albedo_detail = Color( 0.54902, 0.368627, 0.211765, 1 )
+shader_param/major_detail_scale = 1.0
+shader_param/major_detail_phase = 1.0
+shader_param/factor = 1.0
+shader_param/distance_fade_detail = 8e+17
+shader_param/distance_fade_outer_rim = 4e+17
+shader_param/rim_strength = 0.753
 shader_param/rim_exponent = 1.0
-shader_param/color_power_r = 1.223
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.234
-shader_param/color_multiplier_r = 1.0
-shader_param/color_multiplier_g = 0.591
-shader_param/color_multiplier_b = 1.0
-shader_param/major_detail_noise = SubResource( 64 )
+shader_param/color_power_r = 1.3
+shader_param/color_power_g = 1.3
+shader_param/color_power_b = 1.3
+shader_param/color_multiplier_r = 2.0
+shader_param/color_multiplier_g = 2.0
+shader_param/color_multiplier_b = 2.0
+shader_param/major_detail_noise = SubResource( 74 )
 
 [node name="GMC" type="Position3D"]
 
@@ -578,7 +579,7 @@ __meta__ = {
 }
 
 [node name="Cloud2_LODs_trigger" type="Spatial" parent="."]
-transform = Transform( 1e+17, 0, 0, 0, 1e+17, 0, 0, 0, 1e+17, -2.5861e+17, 1.06844e+17, 3.31247e+17 )
+transform = Transform( 1e+17, 0, 0, 0, 1e+17, 0, 0, 0, 1e+17, -2.24227e+17, 1.6744e+17, 2.40428e+17 )
 script = ExtResource( 7 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -586,8 +587,8 @@ Put meshes into Scene Items nodes
 "
 }
 lod_0_relative_distance = 1.0
-lod_1_relative_distance = 1.5
-lod_2_relative_distance = 2.0
+lod_1_relative_distance = 1.2
+lod_2_relative_distance = 1.5
 
 [node name="LOD0" type="Spatial" parent="Cloud2_LODs_trigger"]
 __meta__ = {
@@ -645,7 +646,7 @@ material/0 = SubResource( 63 )
 material/0 = SubResource( 59 )
 
 [node name="Cloud_global_outer_halo_gas" parent="Cloud_global" instance=ExtResource( 21 )]
-transform = Transform( 1.354, 0, 0, 0, 1.354, 0, 0, 0, 1.354, 0.509, 0.141, 0 )
+transform = Transform( 1.354, 0, 0, 0, 1.354, 0, 0, 0, 1.354, -0.092, 0.141, 0 )
 
 [node name="Cloud_global_outer_halo_gas" parent="Cloud_global/Cloud_global_outer_halo_gas" index="0"]
 material/0 = SubResource( 54 )
