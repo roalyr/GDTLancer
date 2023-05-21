@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=2]
+[gd_scene load_steps=64 format=2]
 
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=2]
@@ -129,7 +129,7 @@ shader_param/distance_fade_max = 5e+16
 next_pass = SubResource( 71 )
 shader = ExtResource( 12 )
 shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
-shader_param/distance_fade_max = 3e+16
+shader_param/distance_fade_max = 1e+16
 
 [sub_resource type="ShaderMaterial" id=73]
 next_pass = SubResource( 72 )
@@ -330,28 +330,35 @@ shader = ExtResource( 12 )
 shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
 shader_param/distance_fade_max = 3e+16
 
-[sub_resource type="ImageTexture" id=74]
+[sub_resource type="OpenSimplexNoise" id=74]
+period = 0.1
+
+[sub_resource type="NoiseTexture" id=75]
+width = 32
+height = 32
+seamless = true
+noise = SubResource( 74 )
 
 [sub_resource type="ShaderMaterial" id=63]
 next_pass = SubResource( 62 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0, 0, 0, 1 )
-shader_param/albedo_outer = Color( 0.309804, 0.419608, 0.392157, 1 )
-shader_param/albedo_detail = Color( 0.666667, 0.360784, 0.211765, 1 )
-shader_param/major_detail_scale = 1.0
-shader_param/major_detail_phase = 1.0
-shader_param/factor = 1.0
-shader_param/distance_fade_detail = 2e+18
-shader_param/distance_fade_outer_rim = 1e+18
+shader_param/albedo = Color( 0.0862745, 0.0862745, 0.0862745, 1 )
+shader_param/albedo_outer = Color( 0.317647, 0.317647, 0.317647, 1 )
+shader_param/albedo_detail = Color( 0.764706, 0.509804, 0.168627, 1 )
+shader_param/major_detail_scale = 0.284
+shader_param/major_detail_phase = 0.952
+shader_param/factor = 2.0
+shader_param/distance_fade_detail = 3e+18
+shader_param/distance_fade_outer_rim = 1.5e+18
 shader_param/rim_strength = 0.7
 shader_param/rim_exponent = 1.0
-shader_param/color_power_r = 1.1
-shader_param/color_power_g = 0.9
-shader_param/color_power_b = 0.9
+shader_param/color_power_r = 1.05
+shader_param/color_power_g = 1.05
+shader_param/color_power_b = 1.05
 shader_param/color_multiplier_r = 1.2
-shader_param/color_multiplier_g = 0.8
-shader_param/color_multiplier_b = 0.8
-shader_param/major_detail_noise = SubResource( 74 )
+shader_param/color_multiplier_g = 1.2
+shader_param/color_multiplier_b = 1.2
+shader_param/major_detail_noise = SubResource( 75 )
 
 [node name="GMC" type="Position3D"]
 

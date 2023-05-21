@@ -42,6 +42,8 @@
 - Moved readouts to the bottom of the screen.
 - Ship model can be hidden.
 - Reworking debug menu and output.
+### Audio
+- Ambient music added.
 ### Refactoring
 - Refactored whole project to heavily rely on autoload for persistent data.
 - Refactored autopilot code to be more reliable.

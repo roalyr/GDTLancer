@@ -76,24 +76,24 @@ __meta__ = {
 }
 
 [node name="_STAR_G9_5_SYSTEM_ZONE" parent="." instance=ExtResource( 12 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9746e+15, 2.19102e+17, 6.22598e+16 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.40542e+17, 3.41884e+17, 8.66837e+16 )
 
 [node name="_STAR_A9_3_SYSTEM_ZONE" parent="." instance=ExtResource( 1 )]
-transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, -1.39381e+17, 7.63553e+16, 9.63268e+16 )
+transform = Transform( 0.992175, 0.0942712, 0.081859, -0.0881187, 0.993223, -0.0757793, -0.0884481, 0.067973, 0.993759, 6.98896e+17, 1.29535e+17, -1.74346e+17 )
 __meta__ = {
 "_editor_description_": "System: Valeri
 "
 }
 
 [node name="_STAR_M9_2_SYSTEM_ZONE" parent="." instance=ExtResource( 13 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.32186e+17, 2.83322e+17, -2.38983e+17 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.24463e+17, -3.30827e+17, -4.3376e+17 )
 
 [node name="STAR_B7_0_SYSTEM_ZONE" parent="." instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.21845e+17, 9.95688e+16, -1.92148e+16 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.27635e+17, 2.82455e+17, 2.67204e+17 )
 __meta__ = {
 "_editor_description_": "System: Victory
 "
 }
 
 [node name="_STAR_F7_6_SYSTEM_ZONE" parent="." instance=ExtResource( 14 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.29076e+17, 1.58414e+17, 2.56509e+17 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7554e+17, -4.49866e+17, 3.475e+17 )

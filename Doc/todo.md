@@ -9,7 +9,6 @@ Highlighted entries are "Work in progress".
 - Internal game wiki.  
 - **Pause the game while menu (options) window is on.**
 - Sandbox (debug) mode separate from gameplay mode.
-- **Ambient music and sounds. (WIP)**
 - **Save game state and options. Make autosave on entering planetary systems.**
 - **Ship switching (in debug) (https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html).**
 - Make different "print()" debug calls into a proper logging system.
@@ -26,7 +25,6 @@ Highlighted entries are "Work in progress".
 - Remove objects (zone contents) that are way too far.
 - Examine PID regulator applicability (https://github.com/slavfox/godot_pid_controller or https://github.com/fire/godot-pid/blob/master/PID_Controller/PID_Controller.gd).
 - Info tab: make clickable entries that expand to tutorial entries.
-- **E-kill touchscreen button.**
 - Split LOD system into objects / environment / ship categories and allow maximum LOD level.
 - Take into account star death zone based on ship's reflection / radiation ability.
 

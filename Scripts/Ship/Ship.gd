@@ -16,10 +16,10 @@ const velocity_limmiter_3 = 1e12
 const velocity_limmiter_4 = 1e17
 
 
-const accel_max = 1e22
+const accel_max = 1e23
 
-const engine_delay_time_base = 0.1
-const engine_delay_lag_factor = 1
+const engine_delay_time_base = 0.05
+# const engine_delay_lag_factor = 1
 
 var engine_delay_timer = 0
 var engine_delay_time = 0.1
@@ -110,7 +110,7 @@ func _integrate_forces(state):
 		(vel > velocity_limmiter_2 and velocity_limiter_state == 1) or \
 		(vel > velocity_limmiter_3 and velocity_limiter_state == 2) or \
 		(vel > velocity_limmiter_4 and velocity_limiter_state == 3):
-		engine_delay_time = engine_delay_time_base * engine_delay_lag_factor
+		# engine_delay_time = engine_delay_time_base * engine_delay_lag_factor
 		is_accelerating(false)
 	else:
 		engine_delay_time = engine_delay_time_base
