@@ -14,7 +14,7 @@
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=12]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_LOD0.glb" type="PackedScene" id=13]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_spheroid/Cloud_spheroid_LOD2.glb" type="PackedScene" id=14]
-[ext_resource path="res://Assets/Shaders/Solid/Solid_emission.gdshader" type="Shader" id=15]
+[ext_resource path="res://Assets/Shaders/Clouds/Vertex_cloud.gdshader" type="Shader" id=15]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_double_add.gdshader" type="Shader" id=16]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=18]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_Outside_LOD1.glb" type="PackedScene" id=19]
@@ -223,11 +223,13 @@ albedo_color = Color( 0.290196, 0.0862745, 0.298039, 1 )
 
 [sub_resource type="ShaderMaterial" id=43]
 shader = ExtResource( 15 )
-shader_param/emission = Color( 0.47451, 0.462745, 0.462745, 1 )
+shader_param/albedo = Color( 0.415686, 0.298039, 0.298039, 1 )
+shader_param/size = 1.0
 
 [sub_resource type="ShaderMaterial" id=44]
 shader = ExtResource( 15 )
-shader_param/emission = Color( 0.203922, 0.270588, 0.27451, 1 )
+shader_param/albedo = Color( 0.431373, 0.407843, 0.243137, 1 )
+shader_param/size = 1.5
 
 [sub_resource type="ShaderMaterial" id=57]
 shader = ExtResource( 6 )
@@ -317,15 +319,10 @@ shader_param/distance_fade_min = 5e+17
 shader_param/distance_fade_max = 1e+18
 
 [sub_resource type="ShaderMaterial" id=61]
-shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.105882, 0.184314, 0.176471, 1 )
-shader_param/albedo_rim = Color( 0, 0, 0, 1 )
-shader_param/albedo_near = Color( 0.219608, 0.219608, 0.219608, 1 )
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 1.0
-shader_param/distance_fade = 8e+17
-shader_param/distance_fade_near = 2e+17
-shader_param/near_transparency_factor = 0.5
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.0784314, 0.192157, 0.215686, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 2e+18
 
 [sub_resource type="ShaderMaterial" id=62]
 next_pass = SubResource( 61 )
@@ -338,22 +335,22 @@ shader_param/distance_fade_max = 3e+16
 [sub_resource type="ShaderMaterial" id=63]
 next_pass = SubResource( 62 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.0901961, 0.0901961, 0.0901961, 1 )
-shader_param/albedo_outer = Color( 0.207843, 0.286275, 0.298039, 1 )
-shader_param/albedo_detail = Color( 0.54902, 0.368627, 0.211765, 1 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/albedo_outer = Color( 0.309804, 0.419608, 0.392157, 1 )
+shader_param/albedo_detail = Color( 0.666667, 0.360784, 0.211765, 1 )
 shader_param/major_detail_scale = 1.0
 shader_param/major_detail_phase = 1.0
 shader_param/factor = 1.0
-shader_param/distance_fade_detail = 8e+17
-shader_param/distance_fade_outer_rim = 4e+17
-shader_param/rim_strength = 0.753
+shader_param/distance_fade_detail = 2e+18
+shader_param/distance_fade_outer_rim = 1e+18
+shader_param/rim_strength = 0.7
 shader_param/rim_exponent = 1.0
-shader_param/color_power_r = 1.3
-shader_param/color_power_g = 1.3
-shader_param/color_power_b = 1.3
-shader_param/color_multiplier_r = 2.0
-shader_param/color_multiplier_g = 2.0
-shader_param/color_multiplier_b = 2.0
+shader_param/color_power_r = 1.1
+shader_param/color_power_g = 0.9
+shader_param/color_power_b = 0.9
+shader_param/color_multiplier_r = 1.2
+shader_param/color_multiplier_g = 0.8
+shader_param/color_multiplier_b = 0.8
 shader_param/major_detail_noise = SubResource( 74 )
 
 [node name="GMC" type="Position3D"]
@@ -579,7 +576,7 @@ __meta__ = {
 }
 
 [node name="Cloud2_LODs_trigger" type="Spatial" parent="."]
-transform = Transform( 1e+17, 0, 0, 0, 1e+17, 0, 0, 0, 1e+17, -2.24227e+17, 1.6744e+17, 2.40428e+17 )
+transform = Transform( 9.16107e+16, -2.13323e+16, -3.39472e+16, -3.56984e+16, -4.85631e+15, -9.32847e+16, 1.82512e+16, 9.75774e+16, -1.20642e+16, -4.49269e+17, -2.18009e+16, 1.27797e+17 )
 script = ExtResource( 7 )
 __meta__ = {
 "_editor_description_": "Do not rename or edit nodes.
@@ -633,7 +630,7 @@ __meta__ = {
 }
 
 [node name="Cloud_global" type="Position3D" parent="."]
-transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 
 [node name="Cloud_global_inner" parent="Cloud_global" instance=ExtResource( 25 )]
 
@@ -641,35 +638,39 @@ transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
 material/0 = SubResource( 63 )
 
 [node name="Cloud_global_outer" parent="Cloud_global" instance=ExtResource( 24 )]
+visible = false
 
 [node name="Cloud_global_outer" parent="Cloud_global/Cloud_global_outer" index="0"]
 material/0 = SubResource( 59 )
 
 [node name="Cloud_global_outer_halo_gas" parent="Cloud_global" instance=ExtResource( 21 )]
 transform = Transform( 1.354, 0, 0, 0, 1.354, 0, 0, 0, 1.354, -0.092, 0.141, 0 )
+visible = false
 
 [node name="Cloud_global_outer_halo_gas" parent="Cloud_global/Cloud_global_outer_halo_gas" index="0"]
 material/0 = SubResource( 54 )
 
 [node name="Cloud_global_outer_halo_gas_2" parent="Cloud_global" instance=ExtResource( 22 )]
 transform = Transform( 1.94, 0, 0, 0, 1.94, 0, 0, 0, 1.94, 0, 0, 0 )
+visible = false
 
 [node name="Cloud_global_outer_halo_gas_2" parent="Cloud_global/Cloud_global_outer_halo_gas_2" index="0"]
 material/0 = SubResource( 60 )
 
 [node name="Vertex_cloud_192_2" parent="Cloud_global" instance=ExtResource( 5 )]
-transform = Transform( -3.62117e-08, -1.41421, 1.41421, -1.23634e-07, -1.41421, -1.41421, 2, -1.13028e-07, -6.18172e-08, 0, 0, 0 )
+transform = Transform( -1.26118e-07, -1.41421, 1.41421, -2.1354e-07, -1.41421, -1.41421, 2, -2.40174e-07, -6.18172e-08, 0.076, 0, 0.089 )
 
 [node name="Vertex_cloud_192" parent="Cloud_global/Vertex_cloud_192_2" index="0"]
 material/0 = SubResource( 44 )
 
 [node name="Vertex_cloud_192_1" parent="Cloud_global" instance=ExtResource( 5 )]
-transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 )
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0.022, -0.005, 0.094 )
 
 [node name="Vertex_cloud_192" parent="Cloud_global/Vertex_cloud_192_1" index="0"]
 material/0 = SubResource( 43 )
 
 [node name="Halo" type="Position3D" parent="Cloud_global"]
+visible = false
 
 [node name="Cloud_global_outer_halo" parent="Cloud_global/Halo" instance=ExtResource( 23 )]
 
