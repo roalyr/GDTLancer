@@ -6,8 +6,9 @@ star_zone_size_factor = 50 # Multiplied by star size.
 star_zone_size_by_death_zone_factor = 10 # If star zone is less than death zone.
 star_death_zone_min_factor = 1.5 # If death zone is too small.
 star_detail_decay_distance_factor = 40 # Distance factor at which star core turns white.
-star_autopilot_factor = 2 # Multiplied by death zone size.
-star_flare_factor = 1.05 # Multiplied by death zone size. Acts like an indicatort.
+star_autopilot_factor = 2.0 # Multiplied by death zone size.
+star_flare_factor = 1.0 # Multiplied by star zone size. Acts like an indicatort.
+system_zone_size_min = 1e13
 
 # Companion stars for the main star.
 num_stars_min = 0
@@ -973,6 +974,9 @@ def random_name(length_max, length_min):
 def formatting_system_data(star_id, system, main_star, star_name):
 	star_type = main_star["type"]
 	system_zone_size = e(main_star["omni_range"]) # use omni range instead.
+	if float(system_zone_size) < system_zone_size_min:
+		system_zone_size = e(system_zone_size_min)
+		
 	system_autopilot_range = system_zone_size
 	
 	
@@ -1041,23 +1045,23 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	star_death_zone_size = star_zone_margins[6]
 
 	# If star death zone is too small, tweak it.
-	if star_death_zone_size < (star_death_zone_min_factor * main_star["size"]):
-		star_death_zone_size = star_death_zone_min_factor * main_star["size"]
+	if star_death_zone_size < (star_death_zone_min_factor * float(star_size)):
+		star_death_zone_size = star_death_zone_min_factor * float(star_size)
 	
 	# Death zone values.
 	star_death_zone = round(star_death_zone_size / sun_distance_au, 3)
 	star_death_zone_meters = e(star_death_zone_size)
 	
 	# Make zone size larger than death zone, if it is smaller.
-	star_zone_size = e(star_zone_size_factor * main_star["size"])
-	if (star_zone_size_factor * main_star["size"]) < star_death_zone_size:
+	star_zone_size = e(star_zone_size_factor * float(star_size))
+	if (star_zone_size_factor * float(star_size)) < star_death_zone_size:
 		star_zone_size = e(star_death_zone_size * star_zone_size_by_death_zone_factor)
 	
 	# Auopilot approach range, limited by death zone + comfortable margin.
 	star_autopilot_range = e(star_death_zone_size  * star_autopilot_factor)
 	
-	# Sprite flare distance, handy to depict the entrance to death zone.
-	star_flare_distance = e(star_death_zone_size  * star_flare_factor)
+	# Sprite flare distance, handy to depict the entrance to star zone.
+	star_flare_distance = e(float(star_zone_size)  * star_flare_factor)
 	
 	# Temperature zoning.
 	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
