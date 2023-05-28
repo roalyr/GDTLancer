@@ -108,6 +108,11 @@ _global_script_classes=[ {
 "class": "ZoneNebula",
 "language": "GDScript",
 "path": "res://Scripts/Zones/Zone_nebula.gd"
+}, {
+"base": "Area",
+"class": "ZoneNebulaGlobal",
+"language": "GDScript",
+"path": "res://Scripts/Zones/Zone_nebula_global.gd"
 } ]
 _global_script_class_icons={
 "DeathZone": "res://Assets/UI_images/SVG/icons/death_zone.svg",
@@ -129,7 +134,8 @@ _global_script_class_icons={
 "StellarLocalSpace": "res://Assets/UI_images/SVG/icons/star.svg",
 "StructureLocalSpace": "res://Assets/UI_images/SVG/icons/structure.svg",
 "SystemLocalSpace": "res://Assets/UI_images/SVG/icons/system.svg",
-"ZoneNebula": "res://Assets/UI_images/SVG/icons/nebula.svg"
+"ZoneNebula": "res://Assets/UI_images/SVG/icons/nebula.svg",
+"ZoneNebulaGlobal": "res://Assets/UI_images/SVG/icons/nebula.svg"
 }
 
 [application]

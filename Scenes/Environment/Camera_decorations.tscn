@@ -191,6 +191,7 @@ mesh = SubResource( 101 )
 material/0 = SubResource( 80 )
 
 [node name="Galactic_background_lights" type="Spatial" parent="."]
+visible = false
 
 [node name="Starsphere" parent="Galactic_background_lights" instance=ExtResource( 3 )]
 transform = Transform( 1e+19, 0, 0, 0, 1e+19, 0, 0, 0, 1e+19, 0, 0, 0 )

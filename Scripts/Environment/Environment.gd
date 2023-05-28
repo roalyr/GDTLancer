@@ -1,9 +1,9 @@
 extends WorldEnvironment
 
 # GLOBAL VALUES
-export var global_brightness = 1.0
-export var global_contrast = 1.0
-export var global_saturation = 1.0
+export var global_brightness = 1.0 + Constants.outside_fog_brightness
+export var global_contrast = 1.0 + Constants.outside_fog_contrast
+export var global_saturation = 1.0 + Constants.outside_fog_saturation
 
 # Upper limit values so preserve your eyes.
 var brightness_cap = 4.0
@@ -35,6 +35,10 @@ var zone_contrast_variation = 0.0
 var zone_saturation_variation = 0.0
 
 # Different kinds of zones
+var nebula_global_brightness_variation = 0.0
+var nebula_global_contrast_variation = 0.0
+var nebula_global_saturation_variation = 0.0
+
 var nebula_brightness_variation = 0.0
 var nebula_contrast_variation = 0.0
 var nebula_saturation_variation = 0.0
@@ -88,13 +92,16 @@ func _physics_process(delta):
 #	print(self.environment.adjustment_saturation)
 
 	zone_brightness_variation = system_brightness_variation + star_brightness_variation \
-		+ planet_brightness_variation + structure_brightness_variation + nebula_brightness_variation
+		+ planet_brightness_variation + structure_brightness_variation \
+		+ nebula_brightness_variation + nebula_global_brightness_variation
 		
 	zone_contrast_variation = system_contrast_variation + star_contrast_variation \
-		+ planet_contrast_variation + structure_contrast_variation + nebula_contrast_variation
+		+ planet_contrast_variation + structure_contrast_variation \
+		+ nebula_contrast_variation + nebula_global_contrast_variation
 		
 	zone_saturation_variation = system_saturation_variation + star_saturation_variation \
-		+ planet_saturation_variation + structure_saturation_variation + nebula_saturation_variation
+		+ planet_saturation_variation + structure_saturation_variation \
+		+ nebula_saturation_variation + nebula_global_saturation_variation
 	
 	
 	brightness_variation = stepify(zone_brightness_variation + warp_brightness_variation, increment_step )

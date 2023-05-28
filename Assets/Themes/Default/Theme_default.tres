@@ -129,7 +129,7 @@ corner_detail = 1
 [sub_resource type="StyleBoxFlat" id=20]
 content_margin_top = 40.0
 content_margin_bottom = 40.0
-bg_color = Color( 0, 0, 0, 0 )
+bg_color = Color( 0, 0, 0, 0.376471 )
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3

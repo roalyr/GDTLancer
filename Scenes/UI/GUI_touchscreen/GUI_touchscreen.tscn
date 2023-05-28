@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=2]
+[gd_scene load_steps=45 format=2]
 
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_stars.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/UI/NavLists/ItemList_nav_constellations.gd" type="Script" id=2]
@@ -36,6 +36,7 @@
 [ext_resource path="res://Assets/UI_images/PNG/buttons/debug.png" type="Texture" id=34]
 [ext_resource path="res://Assets/UI_images/PNG/buttons/velocity_limiter_1.png" type="Texture" id=35]
 [ext_resource path="res://Assets/UI_images/test_character.png" type="Texture" id=36]
+[ext_resource path="res://Scripts/UI/Assist/Wrap_text_label.gd" type="Script" id=37]
 
 [sub_resource type="CanvasItemMaterial" id=3]
 
@@ -556,16 +557,6 @@ theme = ExtResource( 19 )
 margin_right = 400.0
 margin_bottom = 400.0
 
-[node name="Panel" type="Panel" parent="Readings/Popup_character/Picture_frame"]
-visible = false
-material = ExtResource( 25 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 19 )
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="Panel_shade" type="Panel" parent="Readings/Popup_character/Picture_frame"]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -581,15 +572,25 @@ margin_top = 10.0
 margin_right = 390.0
 margin_bottom = 390.0
 
-[node name="TextureRect" type="TextureRect" parent="Readings/Popup_character/Picture_frame/Inner_Frame"]
-material = SubResource( 14 )
+[node name="Panel" type="Panel" parent="Readings/Popup_character/Picture_frame/Inner_Frame"]
+material = ExtResource( 25 )
 anchor_right = 1.0
 anchor_bottom = 1.0
-texture = ExtResource( 36 )
-expand = true
+theme = ExtResource( 19 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="Character_image" type="TextureRect" parent="Readings/Popup_character/Picture_frame/Inner_Frame"]
+material = SubResource( 14 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 3.0
+margin_top = 3.0
+margin_right = -3.0
+margin_bottom = -3.0
+texture = ExtResource( 36 )
+expand = true
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Readings/Popup_character"]
 anchor_right = 1.0
@@ -600,22 +601,33 @@ script = ExtResource( 33 )
 [node name="LabelContainer" type="VBoxContainer" parent="Readings/Popup_character/ScrollContainer"]
 margin_left = 30.0
 margin_top = 20.0
-margin_right = 374.0
-margin_bottom = 1293.0
+margin_right = 240.0
+margin_bottom = 6138.0
 
 [node name="Header" type="Label" parent="Readings/Popup_character/ScrollContainer/LabelContainer"]
-margin_right = 344.0
-margin_bottom = 48.0
+margin_right = 210.0
+margin_bottom = 150.0
 theme = ExtResource( 19 )
-text = "       CHARACTER         "
+text = "CHARACTER 
+(placeholder)
+"
 
-[node name="Label" type="Label" parent="Readings/Popup_character/ScrollContainer/LabelContainer"]
-margin_top = 52.0
-margin_right = 344.0
-margin_bottom = 1273.0
+[node name="Character_text" type="Label" parent="Readings/Popup_character/ScrollContainer/LabelContainer"]
+margin_top = 154.0
+margin_right = 210.0
+margin_bottom = 6118.0
 theme = ExtResource( 19 )
-text = "Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet, "
+text = "Character name: Harrison Riggs
+Age: 30
+Gender: male
+Affiliation: Orbital Settlers inc.
+Credits: 1000000
+
+Biography: Harrison Riggs, a humble spacer of 30 years, is an unassuming presence in the vast expanse of space within the Moirai Star Cluster. Affiliated with Orbital Settlers Inc., Harrison has spent a significant portion of his life traversing the depths of the cluster, quietly carrying out his duties without seeking the spotlight.  Having grown up amidst the challenges and uncertainties of space travel, Harrison possesses a wealth of experience and knowledge that belies his unassuming nature. His years of service have honed his skills in navigating the treacherous caverns of the Nebulous Expanse and adapting to the ever-changing environments encountered along his journeys.
+
+Having grown up amidst the challenges and uncertainties of space travel, Harrison possesses a wealth of experience and knowledge that belies his unassuming nature. His years of service have honed his skills in navigating the treacherous caverns of the Nebulous Expanse and adapting to the ever-changing environments encountered along his journeys."
 autowrap = true
+script = ExtResource( 37 )
 
 [node name="Bar_menu" type="Control" parent="."]
 margin_right = 120.0

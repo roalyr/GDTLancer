@@ -23,4 +23,3 @@ script = ExtResource( 2 )
 [node name="Camera_decorations" parent="_EDITOR OBJECTS_" instance=ExtResource( 5 )]
 
 [node name="Player" parent="_EDITOR OBJECTS_" instance=ExtResource( 6 )]
-visible = false

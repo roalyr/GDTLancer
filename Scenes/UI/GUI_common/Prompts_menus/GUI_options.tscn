@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://Assets/UI_images/PNG/buttons/touchscreen_GUI.png" type="Texture" id=1]
 [ext_resource path="res://Assets/Themes/Default/Elements/Panel/Default_panel_mat_shader.tres" type="Material" id=2]
@@ -34,6 +34,16 @@ func _on_Button_controls_swap_toggled(button_pressed):
 		self.icon = icon_toggled
 	else:
 		self.icon = icon_untoggled
+"
+
+[sub_resource type="GDScript" id=4]
+resource_name = "screen_slider_res"
+script/source = "extends HSlider
+
+# TODO: adjust this from options?
+# TODO: Or use centralized default values.
+func _ready():
+	value = 0.7
 "
 
 [sub_resource type="StyleBoxFlat" id=3]
@@ -659,6 +669,7 @@ step = 0.1
 value = 1.0
 tick_count = 10
 ticks_on_borders = true
+script = SubResource( 4 )
 
 [node name="Panel" type="Panel" parent="Options_tab_options_graphic/Slider_screen_res"]
 show_behind_parent = true

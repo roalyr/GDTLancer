@@ -1,0 +1,358 @@
+[gd_scene load_steps=40 format=2]
+
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=2]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_main.gdshader" type="Shader" id=3]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=4]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_complex.tres" type="Shader" id=5]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=7]
+[ext_resource path="res://Assets/Shaders/Clouds/Cloud2_double_add.gdshader" type="Shader" id=8]
+[ext_resource path="res://Assets/Shaders/Clouds/Vertex_cloud.gdshader" type="Shader" id=9]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_spheroid/Cloud_spheroid_LOD2.glb" type="PackedScene" id=11]
+[ext_resource path="res://Assets/Models/Shapes/Vertices/Vertex_cloud_192.glb" type="PackedScene" id=12]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_outer_halo.glb" type="PackedScene" id=13]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_outer_halo_gas.glb" type="PackedScene" id=14]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_outer_halo_gas_2.glb" type="PackedScene" id=15]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_outer.glb" type="PackedScene" id=16]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_inner.glb" type="PackedScene" id=17]
+[ext_resource path="res://Scripts/Zones/Zone_nebula_global.gd" type="Script" id=18]
+
+[sub_resource type="QuadMesh" id=96]
+
+[sub_resource type="ShaderMaterial" id=97]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0.415686, 0.298039, 0.298039, 1 )
+shader_param/size = 1.0
+
+[sub_resource type="ShaderMaterial" id=98]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0.431373, 0.407843, 0.243137, 1 )
+shader_param/size = 1.5
+
+[sub_resource type="SphereMesh" id=76]
+
+[sub_resource type="ShaderMaterial" id=99]
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.188235, 0.156863, 0.101961, 1 )
+shader_param/albedo_rim = Color( 0.48, 0.38848, 0.2304, 1 )
+shader_param/albedo_near = Color( 0, 0, 0, 1 )
+shader_param/rim_strength = 2.472
+shader_param/rim_exponent = 1.063
+shader_param/distance_fade = 1e+19
+shader_param/distance_fade_near = 5e+18
+shader_param/near_transparency_factor = 0.25
+
+[sub_resource type="ShaderMaterial" id=100]
+next_pass = SubResource( 99 )
+shader = ExtResource( 7 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 3e+16
+
+[sub_resource type="OpenSimplexNoise" id=101]
+period = 9.0
+
+[sub_resource type="NoiseTexture" id=102]
+width = 32
+height = 32
+seamless = true
+noise = SubResource( 101 )
+
+[sub_resource type="ShaderMaterial" id=103]
+next_pass = SubResource( 100 )
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 0, 0.207843, 0.207843, 1 )
+shader_param/albedo_outer = Color( 0.54902, 0.466667, 0.411765, 1 )
+shader_param/albedo_detail = Color( 0.376471, 0.207843, 0.188235, 1 )
+shader_param/major_detail_scale = 3.282
+shader_param/major_detail_phase = 1.2
+shader_param/factor = 2.397
+shader_param/distance_fade_detail = 0.0
+shader_param/distance_fade_outer_rim = 1e+19
+shader_param/rim_strength = 0.973
+shader_param/rim_exponent = 1.153
+shader_param/color_power_r = 0.986
+shader_param/color_power_g = 1.244
+shader_param/color_power_b = 1.007
+shader_param/color_multiplier_r = 1.605
+shader_param/color_multiplier_g = 1.908
+shader_param/color_multiplier_b = 1.005
+shader_param/major_detail_noise = SubResource( 102 )
+
+[sub_resource type="ShaderMaterial" id=104]
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.188235, 0.156863, 0.101961, 1 )
+shader_param/albedo_rim = Color( 0.48, 0.38848, 0.2304, 1 )
+shader_param/albedo_near = Color( 0, 0, 0, 1 )
+shader_param/rim_strength = 2.472
+shader_param/rim_exponent = 1.063
+shader_param/distance_fade = 1e+19
+shader_param/distance_fade_near = 5e+18
+shader_param/near_transparency_factor = 0.25
+
+[sub_resource type="ShaderMaterial" id=105]
+next_pass = SubResource( 104 )
+shader = ExtResource( 7 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 3e+16
+
+[sub_resource type="ShaderMaterial" id=106]
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.509804, 0.34902, 0.294118, 1 )
+shader_param/rim_strength = 0.566
+shader_param/rim_exponent = 4.9
+shader_param/alpha_clip = 1.0
+
+[sub_resource type="ShaderMaterial" id=107]
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.505882, 0.313726, 0.235294, 1 )
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 10.0
+shader_param/alpha_clip = 1.0
+
+[sub_resource type="ShaderMaterial" id=108]
+render_priority = 1
+shader = ExtResource( 8 )
+shader_param/albedo = Color( 0.0862745, 0.00392157, 0.0980392, 1 )
+shader_param/albedo_detail = Color( 0.443137, 0.294118, 0.184314, 1 )
+shader_param/rim_strength = 3.332
+shader_param/rim_exponent = 2.9
+shader_param/rim_strength_detail = 0.34
+shader_param/rim_exponent_detail = 8.2
+shader_param/alpha_clip = 0.678
+shader_param/distance_fade_min = 5e+17
+shader_param/distance_fade_max = 1e+18
+
+[sub_resource type="ShaderMaterial" id=109]
+render_priority = 1
+shader = ExtResource( 8 )
+shader_param/albedo = Color( 0.141176, 0.0117647, 0.105882, 1 )
+shader_param/albedo_detail = Color( 0.247059, 0.239216, 0.113725, 1 )
+shader_param/rim_strength = 3.332
+shader_param/rim_exponent = 3.1
+shader_param/rim_strength_detail = 0.34
+shader_param/rim_exponent_detail = 7.1
+shader_param/alpha_clip = 0.701
+shader_param/distance_fade_min = 5e+17
+shader_param/distance_fade_max = 1e+18
+
+[sub_resource type="ShaderMaterial" id=110]
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.0784314, 0.192157, 0.215686, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 2e+18
+
+[sub_resource type="ShaderMaterial" id=62]
+next_pass = SubResource( 110 )
+shader = ExtResource( 7 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 3e+16
+
+[sub_resource type="OpenSimplexNoise" id=111]
+period = 0.1
+
+[sub_resource type="NoiseTexture" id=75]
+width = 32
+height = 32
+seamless = true
+noise = SubResource( 111 )
+
+[sub_resource type="ShaderMaterial" id=112]
+next_pass = SubResource( 62 )
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 0.0862745, 0.0862745, 0.0862745, 1 )
+shader_param/albedo_outer = Color( 0.317647, 0.317647, 0.317647, 1 )
+shader_param/albedo_detail = Color( 0.764706, 0.509804, 0.168627, 1 )
+shader_param/major_detail_scale = 0.284
+shader_param/major_detail_phase = 0.952
+shader_param/factor = 2.0
+shader_param/distance_fade_detail = 3e+18
+shader_param/distance_fade_outer_rim = 1.5e+18
+shader_param/rim_strength = 0.7
+shader_param/rim_exponent = 1.0
+shader_param/color_power_r = 1.05
+shader_param/color_power_g = 1.05
+shader_param/color_power_b = 1.05
+shader_param/color_multiplier_r = 1.2
+shader_param/color_multiplier_g = 1.2
+shader_param/color_multiplier_b = 1.2
+shader_param/major_detail_noise = SubResource( 75 )
+
+[sub_resource type="ShaderMaterial" id=61]
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.0784314, 0.192157, 0.215686, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 2e+18
+
+[sub_resource type="ShaderMaterial" id=113]
+next_pass = SubResource( 61 )
+shader = ExtResource( 7 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 3e+16
+
+[sub_resource type="SphereShape" id=116]
+
+[node name="Zone nebula global" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 18 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 10 )]
+transform = Transform( 100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0 )
+
+[node name="Vertex_clouds_mat" type="Spatial" parent="_EDITOR OBJECTS_"]
+visible = false
+
+[node name="Vertex_cloud1" type="MeshInstance" parent="_EDITOR OBJECTS_/Vertex_clouds_mat"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
+mesh = SubResource( 96 )
+material/0 = SubResource( 97 )
+
+[node name="Vertex_cloud2" type="MeshInstance" parent="_EDITOR OBJECTS_/Vertex_clouds_mat"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 0, 0, 0 )
+mesh = SubResource( 96 )
+material/0 = SubResource( 98 )
+
+[node name="Cloud_global_mat" type="Spatial" parent="_EDITOR OBJECTS_"]
+visible = false
+
+[node name="Cloud_global_outer" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
+mesh = SubResource( 76 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 103 )
+
+[node name="Cloud_global_fog_dense" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_outer"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 105 )
+
+[node name="Cloud_global_outer" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_outer/Cloud_global_fog_dense"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 99 )
+
+[node name="Cloud_global_outer_halo" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_outer/Cloud_global_fog_dense"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 106 )
+
+[node name="Cloud_global_outer_halo2" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_outer/Cloud_global_fog_dense"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 107 )
+
+[node name="Cloud_global_outer_gas" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_outer/Cloud_global_fog_dense"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 108 )
+
+[node name="Cloud_global_outer_gas2" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_outer/Cloud_global_fog_dense"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 109 )
+
+[node name="Cloud_global_inner" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
+mesh = SubResource( 76 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_fog_dense" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_inner"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 113 )
+
+[node name="Cloud_inner_fog_thin_innermost" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud_global_mat/Cloud_global_inner/Cloud_global_fog_dense"]
+mesh = SubResource( 76 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 110 )
+
+[node name="_unused" type="Position3D" parent="_EDITOR OBJECTS_"]
+visible = false
+
+[node name="Cloud_global_outer" parent="_EDITOR OBJECTS_/_unused" instance=ExtResource( 16 )]
+visible = false
+
+[node name="Cloud_global_outer" parent="_EDITOR OBJECTS_/_unused/Cloud_global_outer" index="0"]
+material/0 = SubResource( 103 )
+
+[node name="Cloud_global_outer_halo_gas" parent="_EDITOR OBJECTS_/_unused" instance=ExtResource( 14 )]
+transform = Transform( 1.354, 0, 0, 0, 1.354, 0, 0, 0, 1.354, -0.092, 0.141, 0 )
+visible = false
+
+[node name="Cloud_global_outer_halo_gas" parent="_EDITOR OBJECTS_/_unused/Cloud_global_outer_halo_gas" index="0"]
+material/0 = SubResource( 108 )
+
+[node name="Cloud_global_outer_halo_gas_2" parent="_EDITOR OBJECTS_/_unused" instance=ExtResource( 15 )]
+transform = Transform( 1.94, 0, 0, 0, 1.94, 0, 0, 0, 1.94, 0, 0, 0 )
+visible = false
+
+[node name="Cloud_global_outer_halo_gas_2" parent="_EDITOR OBJECTS_/_unused/Cloud_global_outer_halo_gas_2" index="0"]
+material/0 = SubResource( 109 )
+
+[node name="Halo" type="Position3D" parent="_EDITOR OBJECTS_/_unused"]
+visible = false
+
+[node name="Cloud_global_outer_halo" parent="_EDITOR OBJECTS_/_unused/Halo" instance=ExtResource( 13 )]
+
+[node name="Cloud_global_outer_halo" parent="_EDITOR OBJECTS_/_unused/Halo/Cloud_global_outer_halo" index="0"]
+material/0 = SubResource( 106 )
+
+[node name="Cloud_spheroid_LOD2_glow2" parent="_EDITOR OBJECTS_/_unused/Halo" instance=ExtResource( 11 )]
+transform = Transform( 0.409, 0, 0, 0, 0.218, 0, 0, 0, 0.328, -0.042, 0, 0.1 )
+
+[node name="Cloud_mesh_LOD2" parent="_EDITOR OBJECTS_/_unused/Halo/Cloud_spheroid_LOD2_glow2" index="0"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
+material/0 = SubResource( 107 )
+
+[node name="Cloud_spheroid_LOD2_glow3" parent="_EDITOR OBJECTS_/_unused/Halo" instance=ExtResource( 11 )]
+transform = Transform( -0.413, 0, -5.33015e-08, 0, 0.233, 0, 6.23613e-08, 0, -0.353, -0.018, 0, 0 )
+
+[node name="Cloud_mesh_LOD2" parent="_EDITOR OBJECTS_/_unused/Halo/Cloud_spheroid_LOD2_glow3" index="0"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0366433, -0.190627, 0.0382015 )
+material/0 = SubResource( 107 )
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="Cloud_global_inner" parent="Scenes" instance=ExtResource( 17 )]
+
+[node name="Cloud_global_inner" parent="Scenes/Cloud_global_inner" index="0"]
+material/0 = SubResource( 112 )
+
+[node name="Vertex_cloud_192_2" parent="Scenes" instance=ExtResource( 12 )]
+transform = Transform( -1.26118e-07, -1.41421, 1.41421, -2.1354e-07, -1.41421, -1.41421, 2, -2.40174e-07, -6.18172e-08, 0.076, 0, 0.089 )
+visible = false
+
+[node name="Vertex_cloud_192" parent="Scenes/Vertex_cloud_192_2" index="0"]
+material/0 = SubResource( 98 )
+
+[node name="Vertex_cloud_192_1" parent="Scenes" instance=ExtResource( 12 )]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0.022, -0.005, 0.094 )
+visible = false
+
+[node name="Vertex_cloud_192" parent="Scenes/Vertex_cloud_192_1" index="0"]
+material/0 = SubResource( 97 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 0.131306, 0, 0, 0, 0.0857322, 0, 0, 0, 0.150145, -0.0606247, 0.0381303, 0.0389147 )
+shape = SubResource( 116 )
+
+[connection signal="body_entered" from="." to="." method="_on_Zone_nebula_global_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Zone_nebula_global_body_exited"]
+
+[editable path="_EDITOR OBJECTS_/_unused/Cloud_global_outer"]
+[editable path="_EDITOR OBJECTS_/_unused/Cloud_global_outer_halo_gas"]
+[editable path="_EDITOR OBJECTS_/_unused/Cloud_global_outer_halo_gas_2"]
+[editable path="_EDITOR OBJECTS_/_unused/Halo/Cloud_global_outer_halo"]
+[editable path="_EDITOR OBJECTS_/_unused/Halo/Cloud_spheroid_LOD2_glow2"]
+[editable path="_EDITOR OBJECTS_/_unused/Halo/Cloud_spheroid_LOD2_glow3"]
+[editable path="Scenes/Cloud_global_inner"]
+[editable path="Scenes/Vertex_cloud_192_2"]
+[editable path="Scenes/Vertex_cloud_192_1"]

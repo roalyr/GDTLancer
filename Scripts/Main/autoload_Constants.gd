@@ -43,6 +43,13 @@ const camera_zoom_ticks_max = 100
 #const camera_zoom_out_max = 1e3 # For sandnbox mode
 const camera_zoom_step = 1 # 0.05 ... 0.2
 
+# Environment
+# Those values are set globally when exiting the global nebula cavity. Reverse is applied to when inside,
+# this makes the inside of the global nebula apply zerod values to adjustemnts.
+const outside_fog_brightness = 0.0
+const outside_fog_contrast = -0.1
+const outside_fog_saturation = -0.5
+
 func _ready():
 	print(project_name)
 	#ProjectSettings.set_setting('application/config/name', project_name)
