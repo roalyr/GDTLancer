@@ -79,7 +79,7 @@ Temperature zone data:
 * Star zone size: 3.16e+11
 * Star death zone size: 2.14e+11
 * Star size: 6.32e+09
-* Star flare distance: 2.25e+11
+* Star flare distance: 3.16e+11
 * Star autopilot range: 4.28e+11
 
 * Omni range: 3.27e+14
@@ -154,10 +154,10 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G8_0_1
 * Star name: Victory B
 * Star description: see above.
-* Star zone size: 7.27e+10
+* Star zone size: 7.25e+10
 * Star death zone size: 5.66e+09
 * Star size: 1.45e+09
-* Star flare distance: 5.95e+09
+* Star flare distance: 7.25e+10
 * Star autopilot range: 1.13e+10
 
 * Omni range: 8.66e+12
@@ -255,7 +255,7 @@ Temperature zone data:
 * Star zone size: 1.00e+11
 * Star death zone size: 1.86e+10
 * Star size: 2.01e+09
-* Star flare distance: 1.95e+10
+* Star flare distance: 1.00e+11
 * Star autopilot range: 3.72e+10
 
 * Omni range: 2.84e+13
@@ -282,8 +282,8 @@ Temperature zone data:
 * System codename: STAR_M9_2_SYSTEM
 * System translation name codename: NAME_STAR_M9_2_SYSTEM
 * System translation description codename: DESC_STAR_M9_2_SYSTEM
-* System zone size: 1.79e+11
-* System autopilot range: 1.79e+11
+* System zone size: 1.00e+13
+* System autopilot range: 1.00e+13
 ```
 
  </details>  
@@ -350,11 +350,11 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M9_2
 * Star name: Selk'nam A
 * Star description: see above.
-* Star zone size: 7.02e+09
-* Star death zone size: 2.11e+08
+* Star zone size: 7.00e+09
+* Star death zone size: 2.10e+08
 * Star size: 1.40e+08
-* Star flare distance: 2.21e+08
-* Star autopilot range: 4.21e+08
+* Star flare distance: 7.00e+09
+* Star autopilot range: 4.20e+08
 
 * Omni range: 1.79e+11
 * Omni attenuation: 10.0
@@ -448,10 +448,10 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A9_3
 * Star name: Valeri A
 * Star description: see above.
-* Star zone size: 1.13e+11
+* Star zone size: 1.14e+11
 * Star death zone size: 1.79e+10
 * Star size: 2.27e+09
-* Star flare distance: 1.87e+10
+* Star flare distance: 1.14e+11
 * Star autopilot range: 3.57e+10
 
 * Omni range: 2.73e+13
@@ -527,9 +527,9 @@ Temperature zone data:
 * Star name: Valeri B
 * Star description: see above.
 * Star zone size: 1.02e+10
-* Star death zone size: 3.07e+08
+* Star death zone size: 3.08e+08
 * Star size: 2.05e+08
-* Star flare distance: 3.23e+08
+* Star flare distance: 1.02e+10
 * Star autopilot range: 6.15e+08
 
 * Omni range: 2.50e+11
@@ -556,8 +556,8 @@ Temperature zone data:
 * System codename: STAR_M2_4_SYSTEM
 * System translation name codename: NAME_STAR_M2_4_SYSTEM
 * System translation description codename: DESC_STAR_M2_4_SYSTEM
-* System zone size: 3.64e+11
-* System autopilot range: 3.64e+11
+* System zone size: 1.00e+13
+* System autopilot range: 1.00e+13
 ```
 
  </details>  
@@ -627,7 +627,7 @@ Temperature zone data:
 * Star zone size: 7.85e+09
 * Star death zone size: 2.38e+08
 * Star size: 1.57e+08
-* Star flare distance: 2.50e+08
+* Star flare distance: 7.85e+09
 * Star autopilot range: 4.77e+08
 
 * Omni range: 3.64e+11
@@ -654,8 +654,8 @@ Temperature zone data:
 * System codename: STAR_G9_5_SYSTEM
 * System translation name codename: NAME_STAR_G9_5_SYSTEM
 * System translation description codename: DESC_STAR_G9_5_SYSTEM
-* System zone size: 9.22e+12
-* System autopilot range: 9.22e+12
+* System zone size: 1.00e+13
+* System autopilot range: 1.00e+13
 ```
 
  </details>  
@@ -722,10 +722,10 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G9_5
 * Star name: Glory A
 * Star description: see above.
-* Star zone size: 7.99e+10
+* Star zone size: 8.00e+10
 * Star death zone size: 6.03e+09
 * Star size: 1.60e+09
-* Star flare distance: 6.33e+09
+* Star flare distance: 8.00e+10
 * Star autopilot range: 1.21e+10
 
 * Omni range: 9.22e+12
@@ -820,10 +820,10 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F7_6
 * Star name: Hilicele A
 * Star description: see above.
-* Star zone size: 8.83e+10
+* Star zone size: 8.85e+10
 * Star death zone size: 9.76e+09
 * Star size: 1.77e+09
-* Star flare distance: 1.03e+10
+* Star flare distance: 8.85e+10
 * Star autopilot range: 1.95e+10
 
 * Omni range: 1.49e+13
