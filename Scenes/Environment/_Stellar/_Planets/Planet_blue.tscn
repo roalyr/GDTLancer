@@ -1,7 +1,7 @@
 [gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://Scenes/Structures/Object_Cube.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Shaders/Planetary/Planets_rings/Planetary_rings_cloud.gdshader" type="Shader" id=4]
 [ext_resource path="res://Scripts/Markers/Marker_planet.gd" type="Script" id=5]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_structure.gd" type="Script" id=6]

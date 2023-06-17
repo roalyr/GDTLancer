@@ -8,17 +8,17 @@ render_mode
 	cull_back,
 	
 	//unshaded,
-	diffuse_oren_nayar, 
-	specular_phong,
+	diffuse_lambert, 
+	specular_schlick_ggx,
 	
 	// Additional flags just in case.
-	ambient_light_disabled,
+	//ambient_light_disabled,
 	depth_draw_opaque;
 
 uniform vec4 albedo : hint_color;
-uniform float specular : hint_range(0,1) = 0.0;
-uniform float metallic : hint_range(0,1) = 0.0;
-uniform float roughness : hint_range(0,1) = 0.5;
+uniform float specular : hint_range(-1,1) = 0.0;
+uniform float metallic : hint_range(-1,1) = 0.0;
+uniform float roughness : hint_range(-1,1) = 0.5;
 
 uniform sampler2D displacement_texture : hint_normal;
 uniform float displacement_scale = 0.01;

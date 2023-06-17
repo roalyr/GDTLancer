@@ -2,7 +2,7 @@ shader_type spatial;
 
 render_mode
 	// Vertex or pixel shading (screen-large object can use vertex)
-	//vertex_lighting,
+	vertex_lighting,
 	
 	// Blending and culling.
 	blend_mix,
@@ -13,7 +13,7 @@ render_mode
 	specular_schlick_ggx,
 	
 	// Additional flags just in case.
-	ambient_light_disabled,
+	//ambient_light_disabled,
 	depth_draw_opaque;
 
 uniform vec4 albedo : hint_color;
@@ -25,18 +25,22 @@ uniform float rim : hint_range(0,1) = 0.005;
 uniform float rim_tint : hint_range(0,1) = 0.0;
 uniform sampler2D texture_normal : hint_normal;
 uniform sampler2D texture_alpha : hint_normal;
+uniform sampler2D texture_specular : hint_normal;
+uniform sampler2D texture_height : hint_normal;
+uniform sampler2D texture_ao : hint_normal;
 uniform float normal_depth : hint_range(-1,1) = 1.0;
 
 void fragment()
 {
-	ALBEDO = albedo.rgb*COLOR.rgb;
+	ALBEDO = albedo.rgb*COLOR.rgb*texture(texture_ao, UV).r;
 	METALLIC = metallic;
-	ROUGHNESS = roughness;
-	SPECULAR = specular;
 	//RIM = rim;
 	//RIM_TINT = rim_tint;
 	//EMISSION = emission.rgb*COLOR.rgb;
 	NORMALMAP = texture(texture_normal, UV).rgb;
+	SPECULAR = specular*texture(texture_specular, UV).r;
+	ROUGHNESS = roughness*texture(texture_specular, UV).r;
+	
 	ALPHA = texture(texture_alpha, UV).r; 
-	NORMALMAP_DEPTH = normal_depth;
+	NORMALMAP_DEPTH = normal_depth*texture(texture_height, UV).r;
 }

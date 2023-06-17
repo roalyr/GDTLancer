@@ -7,7 +7,7 @@
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=7]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud2_double_add.gdshader" type="Shader" id=8]
 [ext_resource path="res://Assets/Shaders/Clouds/Vertex_cloud.gdshader" type="Shader" id=9]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=10]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_spheroid/Cloud_spheroid_LOD2.glb" type="PackedScene" id=11]
 [ext_resource path="res://Assets/Models/Shapes/Vertices/Vertex_cloud_192.glb" type="PackedScene" id=12]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_outer_halo.glb" type="PackedScene" id=13]
@@ -189,9 +189,9 @@ shader = ExtResource( 7 )
 shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
 shader_param/distance_fade_max = 3e+16
 
-[sub_resource type="SphereShape" id=116]
+[sub_resource type="SphereShape" id=114]
 
-[node name="Zone nebula global" type="Area"]
+[node name="Nebula_global" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0
@@ -200,7 +200,6 @@ angular_damp = 0.0
 script = ExtResource( 18 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 10 )]
-transform = Transform( 100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0 )
 
 [node name="Vertex_clouds_mat" type="Spatial" parent="_EDITOR OBJECTS_"]
 visible = false
@@ -322,27 +321,27 @@ __meta__ = {
 }
 
 [node name="Cloud_global_inner" parent="Scenes" instance=ExtResource( 17 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 
 [node name="Cloud_global_inner" parent="Scenes/Cloud_global_inner" index="0"]
 material/0 = SubResource( 112 )
 
 [node name="Vertex_cloud_192_2" parent="Scenes" instance=ExtResource( 12 )]
-transform = Transform( -1.26118e-07, -1.41421, 1.41421, -2.1354e-07, -1.41421, -1.41421, 2, -2.40174e-07, -6.18172e-08, 0.076, 0, 0.089 )
+transform = Transform( -6.30588e+10, -7.07107e+17, 7.07107e+17, -1.0677e+11, -7.07107e+17, -7.07107e+17, 1e+18, -1.20087e+11, -3.09086e+10, 0.076, 0, 0.089 )
 visible = false
 
 [node name="Vertex_cloud_192" parent="Scenes/Vertex_cloud_192_2" index="0"]
 material/0 = SubResource( 98 )
 
 [node name="Vertex_cloud_192_1" parent="Scenes" instance=ExtResource( 12 )]
-transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0.022, -0.005, 0.094 )
-visible = false
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0.022, -0.005, 0.094 )
 
 [node name="Vertex_cloud_192" parent="Scenes/Vertex_cloud_192_1" index="0"]
 material/0 = SubResource( 97 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 0.131306, 0, 0, 0, 0.0857322, 0, 0, 0, 0.150145, -0.0606247, 0.0381303, 0.0389147 )
-shape = SubResource( 116 )
+transform = Transform( 7.56e+17, 0, 0, 0, 5.52e+17, 0, 0, 0, 6.02e+17, -0.0580967, 0.0230848, 0.0268611 )
+shape = SubResource( 114 )
 
 [connection signal="body_entered" from="." to="." method="_on_Zone_nebula_global_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Zone_nebula_global_body_exited"]

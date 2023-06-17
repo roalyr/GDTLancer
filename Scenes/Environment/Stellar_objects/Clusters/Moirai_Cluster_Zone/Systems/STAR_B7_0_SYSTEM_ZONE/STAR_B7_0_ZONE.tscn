@@ -13,7 +13,7 @@
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=11]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD1.glb" type="PackedScene" id=12]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD2.glb" type="PackedScene" id=13]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=14]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=14]
 [ext_resource path="res://Assets/Models/Shapes/Triangle/Triangle_z_up.tres" type="ArrayMesh" id=15]
 [ext_resource path="res://Scripts/Zones/Zone_death.gd" type="Script" id=17]
 [ext_resource path="res://Assets/Shaders/Star/Star_deriection_halo.gdshader" type="Shader" id=18]

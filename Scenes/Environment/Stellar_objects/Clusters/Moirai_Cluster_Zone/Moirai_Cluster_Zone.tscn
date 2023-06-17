@@ -5,7 +5,7 @@
 [ext_resource path="res://Scripts/Markers/Marker_nebula.gd" type="Script" id=3]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_jagged/Cloud_jagged_LOD0.glb" type="PackedScene" id=4]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_mix_cull_front.gdshader" type="Shader" id=5]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR_ORIGINS_.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_spheroid/Cloud_spheroid_LOD0.glb" type="PackedScene" id=10]
 [ext_resource path="res://Assets/Shaders/Clouds/Cloud_sub_cull_front.gdshader" type="Shader" id=11]

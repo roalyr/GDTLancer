@@ -1,10 +1,9 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scenes/UI/UI.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scripts/UI/UI_paths.gd" type="Script" id=2]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/Environment/Global_space.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Scenes/Environment/Camera_decorations.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/Player.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scripts/Main/Main.gd" type="Script" id=16]
 
@@ -18,8 +17,6 @@ script = ExtResource( 2 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 3 )]
 
-[node name="Global_space" parent="_EDITOR OBJECTS_" instance=ExtResource( 4 )]
-
-[node name="Camera_decorations" parent="_EDITOR OBJECTS_" instance=ExtResource( 5 )]
-
 [node name="Player" parent="_EDITOR OBJECTS_" instance=ExtResource( 6 )]
+
+[node name="Global_space" parent="_EDITOR OBJECTS_" instance=ExtResource( 4 )]

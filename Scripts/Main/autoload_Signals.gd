@@ -58,6 +58,8 @@ signal sig_exited_local_space_planet(zone)
 signal sig_entered_local_space_structure(zone)
 signal sig_exited_local_space_structure(zone)
 
+signal sig_nebula_entered(flag)
+
 func connect_checked(signal_name, target, function_name):
 	var e = Signals.connect(signal_name, target, function_name)
 	var message = "Scene " + str(target.name) + " has failed to connect signal:\n" \

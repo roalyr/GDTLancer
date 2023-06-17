@@ -150,7 +150,7 @@ boot_splash/minimum_display_time=3000
 
 [autoload]
 
-Paths="*res://Scenes/Paths.tscn"
+Paths="*res://Scripts/Main/autoload_Paths.gd"
 Constants="*res://Scripts/Main/autoload_Constants.gd"
 Signals="*res://Scripts/Main/autoload_Signals.gd"
 GameOptions="*res://Scripts/Main/autoload_Game_options.gd"

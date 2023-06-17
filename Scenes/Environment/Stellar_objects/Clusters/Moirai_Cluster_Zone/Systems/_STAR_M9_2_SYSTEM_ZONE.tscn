@@ -12,7 +12,7 @@
 [ext_resource path="res://Scripts/Markers/Marker_star.gd" type="Script" id=10]
 [ext_resource path="res://Assets/Shaders/Star/Star_surface.gdshader" type="Shader" id=11]
 [ext_resource path="res://Assets/Shaders/Star/Star_deriection_halo.gdshader" type="Shader" id=12]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=13]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=13]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.glb" type="PackedScene" id=14]
 [ext_resource path="res://Assets/Models/Sprites/Star_sprite_square_wide.glb" type="PackedScene" id=15]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.glb" type="PackedScene" id=16]

@@ -3,7 +3,7 @@
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_planet.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
 [ext_resource path="res://Scripts/Markers/Marker_planet.gd" type="Script" id=3]
-[ext_resource path="res://Scenes/Editor_scenes/_EDITOR OBJECTS_.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Kinematics/Rotating_object.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere.gdshader" type="Shader" id=6]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_ice_displacement.gdshader" type="Shader" id=7]
@@ -39,9 +39,9 @@ noise = SubResource( 98 )
 [sub_resource type="ShaderMaterial" id=71]
 shader = ExtResource( 7 )
 shader_param/albedo = Color( 0.435294, 0.537255, 0.529412, 1 )
-shader_param/specular = 0.0
-shader_param/metallic = 0.0
-shader_param/roughness = 0.892
+shader_param/specular = -1.0
+shader_param/metallic = -0.427
+shader_param/roughness = -1.0
 shader_param/displacement_scale = 0.0
 shader_param/major_detail_amount = 1.594
 shader_param/small_detail_amount = 1.49
@@ -111,7 +111,6 @@ Put meshes into Scene Items nodes
 lod_2_relative_distance = 500
 
 [node name="LOD0" type="Spatial" parent="Scenes/Valeri Ab planet/Rotating_object/LODs planet ice 7e6"]
-visible = false
 __meta__ = {
 "_edit_lock_": true
 }

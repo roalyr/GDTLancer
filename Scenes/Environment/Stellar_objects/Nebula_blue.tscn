@@ -1,0 +1,157 @@
+[gd_scene load_steps=18 format=2]
+
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_main.gdshader" type="Shader" id=4]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=5]
+[ext_resource path="res://Scripts/Markers/Marker_nebula.gd" type="Script" id=6]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1/Cloud1_LOD1.glb" type="PackedScene" id=7]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1/Cloud1_LOD2.glb" type="PackedScene" id=8]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud1/Cloud1_LOD0.glb" type="PackedScene" id=9]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=10]
+
+[sub_resource type="SphereMesh" id=137]
+
+[sub_resource type="ShaderMaterial" id=143]
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.101961, 0.0901961, 0.160784, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 2.5e+17
+
+[sub_resource type="ShaderMaterial" id=144]
+next_pass = SubResource( 143 )
+shader = ExtResource( 10 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 4e+16
+
+[sub_resource type="OpenSimplexNoise" id=141]
+period = 2.8
+
+[sub_resource type="NoiseTexture" id=142]
+width = 32
+height = 32
+seamless = true
+noise = SubResource( 141 )
+
+[sub_resource type="ShaderMaterial" id=139]
+next_pass = SubResource( 144 )
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.258824, 0.258824, 0.258824, 1 )
+shader_param/albedo_outer = Color( 0.792157, 0.792157, 0.792157, 1 )
+shader_param/albedo_detail = Color( 0.0784314, 0.65098, 0.662745, 1 )
+shader_param/major_detail_scale = 0.404
+shader_param/major_detail_phase = 1.321
+shader_param/factor = 0.798
+shader_param/distance_fade_detail = 3e+17
+shader_param/distance_fade_outer_rim = 3e+17
+shader_param/rim_strength = 0.919
+shader_param/rim_exponent = 0.43
+shader_param/color_power_r = 1.144
+shader_param/color_power_g = 1.303
+shader_param/color_power_b = 1.108
+shader_param/color_multiplier_r = 0.904
+shader_param/color_multiplier_g = 1.322
+shader_param/color_multiplier_b = 1.298
+shader_param/major_detail_noise = SubResource( 142 )
+
+[sub_resource type="SphereShape" id=79]
+
+[node name="Zone_nebula_blue" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 2 )
+
+[node name="_EDITOR_OBJECTS_" parent="." instance=ExtResource( 3 )]
+
+[node name="Cloud1_outside_opaque" type="MeshInstance" parent="_EDITOR_OBJECTS_"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
+visible = false
+mesh = SubResource( 137 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 139 )
+
+[node name="Cloud1_outside_fog_outermost" type="MeshInstance" parent="_EDITOR_OBJECTS_/Cloud1_outside_opaque"]
+mesh = SubResource( 137 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 144 )
+
+[node name="Cloud1_inside_fog_thin" type="MeshInstance" parent="_EDITOR_OBJECTS_/Cloud1_outside_opaque/Cloud1_outside_fog_outermost"]
+mesh = SubResource( 137 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 143 )
+
+[node name="Zone shape" type="CollisionShape" parent="."]
+transform = Transform( 1.5e+17, 0, 0, 0, 1.3e+17, 0, 0, 0, 1.54e+17, -4.40495e+15, 2.17505e+16, -3.12674e+12 )
+shape = SubResource( 79 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="Nebula Blue" type="Position3D" parent="Scenes"]
+script = ExtResource( 6 )
+
+[node name="Cloud1_LODs_trigger" type="Spatial" parent="Scenes/Nebula Blue"]
+transform = Transform( 2.6e+17, 0, 0, 0, 2.6e+17, 0, 0, 0, 2.6e+17, 0, 0, 0 )
+script = ExtResource( 1 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+Put meshes into Scene Items nodes
+"
+}
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 1.2
+lod_2_relative_distance = 1.5
+
+[node name="LOD0" type="Spatial" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud1_LOD0" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD0" instance=ExtResource( 9 )]
+
+[node name="Cloud1_LOD0" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD0/Cloud1_LOD0" index="0"]
+material/0 = SubResource( 139 )
+
+[node name="LOD1" type="Spatial" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud1_LOD1" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD1" instance=ExtResource( 7 )]
+
+[node name="Cloud1_LOD1" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD1/Cloud1_LOD1" index="0"]
+material/0 = SubResource( 139 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud1_LOD2" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD2" instance=ExtResource( 8 )]
+
+[node name="Cloud1_LOD2" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD2/Cloud1_LOD2" index="0"]
+material/0 = SubResource( 139 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/Nebula Blue/Cloud1_LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[connection signal="body_entered" from="." to="." method="_on_Zone_nebula_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Zone_nebula_body_exited"]
+
+[editable path="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD0/Cloud1_LOD0"]
+[editable path="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD1/Cloud1_LOD1"]
+[editable path="Scenes/Nebula Blue/Cloud1_LODs_trigger/LOD2/Cloud1_LOD2"]

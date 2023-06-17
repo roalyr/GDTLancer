@@ -12,7 +12,7 @@ render_mode
 	specular_disabled,
 	
 	// Additional flags just in case.
-	ambient_light_disabled,
+	//ambient_light_disabled,
 	depth_draw_opaque;
 
 uniform vec4 rim_color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
@@ -77,5 +77,5 @@ void fragment()
 	ALBEDO += overlay_color.rgb;
 	ALBEDO *= surface_color.rgb;
 	ALBEDO += (1.0-rim)*rim_color.rgb*rim_intensity;
-
+	ROUGHNESS = 1.0;
 }

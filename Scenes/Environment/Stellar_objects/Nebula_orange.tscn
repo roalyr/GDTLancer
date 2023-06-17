@@ -1,0 +1,219 @@
+[gd_scene load_steps=22 format=2]
+
+[ext_resource path="res://Scripts/Zones/Zone_nebula.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_main.gdshader" type="Shader" id=3]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=4]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=5]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_Outside_LOD0.glb" type="PackedScene" id=6]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_Outside_LOD1.glb" type="PackedScene" id=7]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_LOD0.glb" type="PackedScene" id=8]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud2/Cloud2_Outside_LOD2.glb" type="PackedScene" id=9]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Scripts/Markers/Marker_nebula.gd" type="Script" id=11]
+
+[sub_resource type="SphereMesh" id=129]
+
+[sub_resource type="ShaderMaterial" id=124]
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.752941, 0.615686, 0.34902, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 1e+17
+
+[sub_resource type="ShaderMaterial" id=137]
+next_pass = SubResource( 124 )
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.337255, 0.203922, 0.168627, 1 )
+shader_param/distance_fade_max = 6e+15
+
+[sub_resource type="OpenSimplexNoise" id=125]
+octaves = 1
+period = 0.1
+
+[sub_resource type="NoiseTexture" id=138]
+width = 32
+height = 32
+bump_strength = 19.6
+noise = SubResource( 125 )
+
+[sub_resource type="ShaderMaterial" id=126]
+next_pass = SubResource( 137 )
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 0.117647, 0.121569, 0.12549, 1 )
+shader_param/albedo_outer = Color( 0.29, 0.16, 0.13, 1 )
+shader_param/albedo_detail = Color( 0.458824, 0.376471, 0.0313726, 1 )
+shader_param/major_detail_scale = 0.315
+shader_param/major_detail_phase = 0.761
+shader_param/factor = 1.0
+shader_param/distance_fade_detail = 2e+17
+shader_param/distance_fade_outer_rim = 2e+17
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 1.0
+shader_param/color_power_r = 1.068
+shader_param/color_power_g = 1.039
+shader_param/color_power_b = 1.084
+shader_param/color_multiplier_r = 2.158
+shader_param/color_multiplier_g = 2.329
+shader_param/color_multiplier_b = 4.085
+shader_param/major_detail_noise = SubResource( 138 )
+
+[sub_resource type="ShaderMaterial" id=134]
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.337255, 0.203922, 0.168627, 1 )
+shader_param/distance_fade_min = 0.0
+shader_param/distance_fade_max = 3e+16
+
+[sub_resource type="ShaderMaterial" id=136]
+next_pass = SubResource( 134 )
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 1e+16
+
+[sub_resource type="ShaderMaterial" id=128]
+next_pass = SubResource( 136 )
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 0.188235, 0.176471, 0.156863, 1 )
+shader_param/albedo_outer = Color( 0.133333, 0.137255, 0.156863, 1 )
+shader_param/albedo_detail = Color( 0, 0, 0, 1 )
+shader_param/major_detail_scale = 0.062
+shader_param/major_detail_phase = 1.199
+shader_param/factor = 1.953
+shader_param/distance_fade_detail = 0.0
+shader_param/distance_fade_outer_rim = 1e+19
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 1.0
+
+[sub_resource type="SphereShape" id=79]
+
+[node name="Zone nebula orange" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 1 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 10 )]
+visible = false
+
+[node name="Cloud2_orange" type="Spatial" parent="_EDITOR OBJECTS_"]
+visible = false
+
+[node name="Cloud2_opaque" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2_orange"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
+visible = false
+mesh = SubResource( 129 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 126 )
+
+[node name="Cloud2_fog_dense" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2_orange/Cloud2_opaque"]
+mesh = SubResource( 129 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 137 )
+
+[node name="Cloud2_fog_thin_innermost" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2_orange/Cloud2_opaque/Cloud2_fog_dense"]
+mesh = SubResource( 129 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 124 )
+
+[node name="Cloud2_outside_opaque" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2_orange"]
+transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
+visible = false
+mesh = SubResource( 129 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 128 )
+
+[node name="Cloud2_outside_fog_outermost" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2_orange/Cloud2_outside_opaque"]
+mesh = SubResource( 129 )
+skeleton = NodePath("../../..")
+material/0 = SubResource( 136 )
+
+[node name="Cloud2_outside_fog_dense" type="MeshInstance" parent="_EDITOR OBJECTS_/Cloud2_orange/Cloud2_outside_opaque/Cloud2_outside_fog_outermost"]
+mesh = SubResource( 129 )
+skeleton = NodePath("../../../..")
+material/0 = SubResource( 134 )
+
+[node name="Zone shape" type="CollisionShape" parent="."]
+transform = Transform( 3.96e+16, 0, 0, 0, 3.168e+16, 0, 0, 0, 3.96e+16, 0, 0, 0 )
+shape = SubResource( 79 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="Nebula Orange" type="Position3D" parent="Scenes"]
+script = ExtResource( 11 )
+
+[node name="Cloud2_LODs_trigger" type="Spatial" parent="Scenes/Nebula Orange"]
+transform = Transform( 7.2e+16, 0, 0, 0, 7.2e+16, 0, 0, 0, 7.2e+16, 0, 0, 0 )
+script = ExtResource( 2 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+Put meshes into Scene Items nodes
+"
+}
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 1.2
+lod_2_relative_distance = 1.5
+
+[node name="LOD0" type="Spatial" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_LOD0" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD0" instance=ExtResource( 8 )]
+
+[node name="Cloud2_LOD0" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD0/Cloud2_LOD0" index="0"]
+material/0 = SubResource( 126 )
+
+[node name="Cloud2_Outside_LOD1" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD0" instance=ExtResource( 6 )]
+
+[node name="Cloud2_Outside_LOD0" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD0/Cloud2_Outside_LOD1" index="0"]
+material/0 = SubResource( 128 )
+
+[node name="LOD1" type="Spatial" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_Outside_LOD1" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD1" instance=ExtResource( 7 )]
+
+[node name="Cloud2_Outside_LOD1" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD1/Cloud2_Outside_LOD1" index="0"]
+material/0 = SubResource( 128 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Cloud2_Outside_LOD2" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD2" instance=ExtResource( 9 )]
+
+[node name="Cloud2_Outside_LOD2" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD2/Cloud2_Outside_LOD2" index="0"]
+material/0 = SubResource( 128 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/Nebula Orange/Cloud2_LODs_trigger"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[connection signal="body_entered" from="." to="." method="_on_Zone_nebula_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Zone_nebula_body_exited"]
+
+[editable path="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD0/Cloud2_LOD0"]
+[editable path="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD0/Cloud2_Outside_LOD1"]
+[editable path="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD1/Cloud2_Outside_LOD1"]
+[editable path="Scenes/Nebula Orange/Cloud2_LODs_trigger/LOD2/Cloud2_Outside_LOD2"]

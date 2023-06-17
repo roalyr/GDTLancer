@@ -1,9 +1,9 @@
 extends WorldEnvironment
 
 # GLOBAL VALUES
-export var global_brightness = 1.0 + Constants.outside_fog_brightness
-export var global_contrast = 1.0 + Constants.outside_fog_contrast
-export var global_saturation = 1.0 + Constants.outside_fog_saturation
+export var global_brightness = 1.0
+export var global_contrast = 1.0
+export var global_saturation = 1.0
 
 # Upper limit values so preserve your eyes.
 var brightness_cap = 4.0
@@ -11,7 +11,7 @@ var contrast_cap = 2.0
 var saturation_cap = 2.0
 
 # Global rate of adjustment.
-var refresh_rate = 0.05
+var refresh_rate = 0.1
 var increment_step = 0.01
 
 # Individual rates of change (mult. by physical delta).

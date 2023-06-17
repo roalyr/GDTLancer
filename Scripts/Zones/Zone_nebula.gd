@@ -16,6 +16,7 @@ func _on_Zone_nebula_body_entered(_body):
 		Paths.environment.nebula_brightness_variation = nebula_brightness_variation
 		Paths.environment.nebula_contrast_variation = nebula_contrast_variation
 		Paths.environment.nebula_saturation_variation = nebula_saturation_variation
+		Signals.emit_signal("sig_nebula_entered", true)
 
 
 func _on_Zone_nebula_body_exited(_body):
@@ -24,3 +25,5 @@ func _on_Zone_nebula_body_exited(_body):
 		Paths.environment.nebula_brightness_variation = 0.0
 		Paths.environment.nebula_contrast_variation = 0.0
 		Paths.environment.nebula_saturation_variation = 0.0
+		Signals.emit_signal("sig_nebula_entered", false)
+		
