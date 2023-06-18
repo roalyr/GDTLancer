@@ -2,6 +2,11 @@ extends Control
 
 onready var ui_paths = get_node("/root/Main/UI_paths")
 
+var icon_velocity_1 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_1.png")
+var icon_velocity_2 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_2.png")
+var icon_velocity_3 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_3.png")
+var icon_velocity_4 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter_4.png")
+
 func _ready():
 	# ============================= Connect signals ===========================
 	Signals.connect_checked("sig_autopilot_disable", self, "is_autopilot_disable")
@@ -208,7 +213,21 @@ func _on_Button_camera_change_pressed():
 		Paths.player.show()
 		GameState.player_hidden = false
 		
+func _on_Button_velocity_limiter_pressed():
+	# res://Assets/UI_images/PNG/buttons/velocity_limiter_1.png
+	PlayerState.velocity_limiter += 1
+	if PlayerState.velocity_limiter > Constants.velocity_limiter_states:
+		PlayerState.velocity_limiter = 0
 	
-
-
-
+	if PlayerState.velocity_limiter == 0:
+		ui_paths.desktop_button_velocity_limiter.icon = icon_velocity_1
+		Signals.emit_signal("sig_velocity_limiter_set", 0)
+	elif PlayerState.velocity_limiter == 1:
+		ui_paths.desktop_button_velocity_limiter.icon = icon_velocity_2
+		Signals.emit_signal("sig_velocity_limiter_set", 1)
+	elif PlayerState.velocity_limiter == 2:
+		ui_paths.desktop_button_velocity_limiter.icon = icon_velocity_3
+		Signals.emit_signal("sig_velocity_limiter_set", 2)
+	elif PlayerState.velocity_limiter == 3:
+		ui_paths.desktop_button_velocity_limiter.icon = icon_velocity_4
+		Signals.emit_signal("sig_velocity_limiter_set", 3)

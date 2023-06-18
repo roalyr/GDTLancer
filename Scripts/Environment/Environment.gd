@@ -11,7 +11,7 @@ var contrast_cap = 2.0
 var saturation_cap = 2.0
 
 # Global rate of adjustment.
-var refresh_rate = 0.1
+var refresh_rate = 0.05
 var increment_step = 0.01
 
 # Individual rates of change (mult. by physical delta).
@@ -102,7 +102,6 @@ func _physics_process(delta):
 	zone_saturation_variation = system_saturation_variation + star_saturation_variation \
 		+ planet_saturation_variation + structure_saturation_variation \
 		+ nebula_saturation_variation + nebula_global_saturation_variation
-	
 	
 	brightness_variation = stepify(zone_brightness_variation + warp_brightness_variation, increment_step )
 	contrast_variation = stepify(zone_contrast_variation, increment_step )

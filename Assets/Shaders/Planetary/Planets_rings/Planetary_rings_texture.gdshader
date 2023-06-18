@@ -8,7 +8,7 @@ render_mode
 	cull_back,
 	
 	//unshaded,
-	//diffuse_lambert, 
+	diffuse_lambert, 
 	specular_disabled,
 	
 	// Additional flags just in case.

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://Assets/Shaders/Star/Star_sprite.gdshader" type="Shader" id=1]
+[ext_resource path="res://Assets/Shaders/Lights/Light_distant_sprite.gdshader" type="Shader" id=1]
 
 [sub_resource type="SpatialMaterial" id=4]
 vertex_color_use_as_albedo = true

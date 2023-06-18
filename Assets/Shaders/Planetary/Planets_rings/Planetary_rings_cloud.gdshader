@@ -8,11 +8,11 @@ render_mode
 	cull_front,
 	
 	unshaded,
-	//diffuse_lambert, 
+	diffuse_lambert, 
 	specular_disabled,
 	
 	// Additional flags just in case.
-	//ambient_light_disabled,
+	ambient_light_disabled,
 	depth_draw_opaque;
 
 uniform vec4 albedo : hint_color;

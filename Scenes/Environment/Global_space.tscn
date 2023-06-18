@@ -6,7 +6,6 @@
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_M2_4_SYSTEM_ZONE/STAR_M2_4_SYSTEM_ZONE.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Cloud_global.tscn" type="PackedScene" id=6]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Moirai_Cluster_Zone.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_A7_1_SYSTEM_ZONE/STAR_A7_1_SYSTEM_ZONE.tscn" type="PackedScene" id=8]
 [ext_resource path="res://Scenes/Environment/Star_placeholders_M.tscn" type="PackedScene" id=9]
 [ext_resource path="res://Scenes/Environment/Star_placeholders_G.tscn" type="PackedScene" id=10]
@@ -17,26 +16,66 @@
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Nebula_blue.tscn" type="PackedScene" id=15]
 [ext_resource path="res://Scripts/Viewport/Object_visible_after_load.gd" type="Script" id=16]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Nebula_orange.tscn" type="PackedScene" id=17]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=18]
+[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=19]
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_main.gdshader" type="Shader" id=20]
-[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_complex.tres" type="Shader" id=22]
-[ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_complex_out.tres" type="Shader" id=26]
 
 [sub_resource type="SphereMesh" id=118]
 
 [sub_resource type="ShaderMaterial" id=119]
-shader = ExtResource( 26 )
+shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.0588235, 0.00784314, 0.172549, 1 )
-shader_param/albedo_rim = Color( 0.494118, 0.152941, 0.152941, 1 )
-shader_param/albedo_near = null
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 1.0
-shader_param/distance_fade = 5e+16
-shader_param/distance_fade_near = 1e+16
-shader_param/near_transparency_factor = 0.5
+shader_param/distance_fade_max = 5.0
+
+[sub_resource type="Shader" id=124]
+code = "shader_type spatial;
+
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+	
+	// Blending and culling.
+	blend_mix,
+	cull_back,
+	
+	unshaded,
+	diffuse_lambert, 
+	specular_disabled,
+	
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
+
+uniform vec4 albedo : hint_color;
+uniform vec4 albedo_rim : hint_color;
+uniform vec4 albedo_near : hint_color;
+
+uniform float rim_strength = 1.0;
+uniform float rim_exponent : hint_range(0.0, 10.0) = 1.0;
+
+uniform float distance_fade = 5e16;
+uniform float distance_fade_near = 1e16;
+uniform float near_transparency_factor = 0.5;
+
+void fragment()
+{
+	float dt = clamp(dot(NORMAL, VIEW), 0.0, 1.0);
+	float rim = clamp(pow(dt, rim_exponent)*rim_strength, 1e-6, 1.0);
+	
+
+	ALBEDO = albedo.rgb;
+	ALPHA *= clamp(smoothstep(0.0, distance_fade, length(VERTEX)), 1e-6, 1.0);
+	
+	float near_field = (1.0 - clamp(smoothstep(0.0, distance_fade_near, length(VERTEX)), 1e-6, 1.0));
+	ALPHA += clamp(near_transparency_factor*near_field, 1e-6, 1.0);
+	ALBEDO -= near_field*albedo_near.rgb;
+	ALBEDO += (1.0-rim)*albedo_rim.rgb*(1.0 - clamp(smoothstep(0.0, distance_fade, length(VERTEX)), 1e-6, 1.0));
+}
+"
 
 [sub_resource type="ShaderMaterial" id=90]
 next_pass = SubResource( 119 )
-shader = ExtResource( 22 )
+shader = SubResource( 124 )
 shader_param/albedo = Color( 0.121569, 0.121569, 0.34902, 1 )
 shader_param/albedo_rim = Color( 0.913725, 0.913725, 0.913725, 1 )
 shader_param/albedo_near = null
@@ -78,27 +117,15 @@ shader_param/color_multiplier_b = 4.809
 shader_param/major_detail_noise = SubResource( 121 )
 
 [sub_resource type="ShaderMaterial" id=88]
-shader = ExtResource( 26 )
+shader = ExtResource( 19 )
 shader_param/albedo = Color( 0.0588235, 0.00784314, 0.172549, 1 )
-shader_param/albedo_rim = Color( 0.494118, 0.152941, 0.152941, 1 )
-shader_param/albedo_near = null
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 1.0
-shader_param/distance_fade = 5e+16
-shader_param/distance_fade_near = 1e+16
-shader_param/near_transparency_factor = 0.5
+shader_param/distance_fade_max = 5.0
 
 [sub_resource type="ShaderMaterial" id=123]
 next_pass = SubResource( 88 )
-shader = ExtResource( 22 )
+shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.121569, 0.121569, 0.34902, 1 )
-shader_param/albedo_rim = Color( 0.913725, 0.913725, 0.913725, 1 )
-shader_param/albedo_near = null
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 1.0
-shader_param/distance_fade = 5e+17
-shader_param/distance_fade_near = 1e+16
-shader_param/near_transparency_factor = 0.5
+shader_param/distance_fade_max = 5.0
 
 [node name="Global_space" type="Position3D"]
 script = ExtResource( 3 )
@@ -109,10 +136,6 @@ __meta__ = {
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 5 )]
 
-[node name="Moirai_Cluster_Zone" parent="_EDITOR OBJECTS_" instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.3554e+16, 2.72078e+17, -1.00992e+18 )
-visible = false
-
 [node name="Fake_stars" type="Position3D" parent="_EDITOR OBJECTS_"]
 transform = Transform( 0.158883, 0.0651861, -0.102503, -0.0446808, 0.188294, 0.0504876, 0.112959, -0.0172087, 0.164147, 1.87264e+17, 6.72165e+16, -3.53759e+16 )
 visible = false
@@ -120,7 +143,6 @@ script = ExtResource( 16 )
 
 [node name="Star_placeholders_B" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 11 )]
 transform = Transform( -0.309857, 0.301959, 0.287281, 0.391488, 0.33368, 0.0715256, -0.142991, 0.259229, -0.426702, -2.37796e+17, -4.6393e+17, -1.77499e+17 )
-visible = false
 
 [node name="Star_placeholders_G" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 10 )]
 transform = Transform( 0.0922172, -0.482554, -0.0929365, 0.371378, 0.00650714, 0.334717, -0.321829, -0.130763, 0.359621, -6.75589e+17, -4.57595e+17, -1.35124e+16 )
@@ -133,14 +155,6 @@ transform = Transform( 0.447504, -0.222426, -0.0163354, 0.193323, 0.405126, -0.2
 
 [node name="Star_placeholders_M2" parent="_EDITOR OBJECTS_/Fake_stars" instance=ExtResource( 9 )]
 transform = Transform( -0.315479, -0.00476883, 0.387879, 0.0263967, -0.499067, 0.0153337, 0.387009, 0.0301524, 0.315143, -7.51411e+17, -5.80986e+17, 3.90544e+17 )
-
-[node name="Global_regions" type="Position3D" parent="."]
-__meta__ = {
-"_edit_lock_": true,
-"_editor_description_": "█████████████████████████████
-DO NOT TRANSLATE AND DO NOT REMOVE
-█████████████████████████████"
-}
 
 [node name="Nebula_global" parent="." instance=ExtResource( 6 )]
 
@@ -187,21 +201,21 @@ transform = Transform( 0.0893932, 0.99594, 0.0106466, -0.297457, 0.0368978, -0.9
 [node name="Zone_nebula_blue" parent="." instance=ExtResource( 15 )]
 transform = Transform( 0.729017, -0.221007, 0.647835, -0.412554, -0.897088, 0.158214, 0.546199, -0.382608, -0.74517, 1.03615e+17, -2.71994e+17, 5.00278e+17 )
 
-[node name="Cloud3_sky" type="Spatial" parent="."]
+[node name="_Cloud3_sky" type="Spatial" parent="."]
 visible = false
 
-[node name="_Cloud3_outside_opaque_(sky)" type="MeshInstance" parent="Cloud3_sky"]
+[node name="Cloud3_outside_opaque" type="MeshInstance" parent="_Cloud3_sky"]
 transform = Transform( 1.02301, 0, 0, 0, 1.02301, 0, 0, 0, 1.02301, 9.07576e+17, -1.5189e+17, -2.98373e+17 )
 mesh = SubResource( 118 )
 skeleton = NodePath("../..")
 material/0 = SubResource( 122 )
 
-[node name="Cloud3_outside_fog_dense" type="MeshInstance" parent="Cloud3_sky/_Cloud3_outside_opaque_(sky)"]
+[node name="Cloud3_outside_fog_dense" type="MeshInstance" parent="_Cloud3_sky/Cloud3_outside_opaque"]
 mesh = SubResource( 118 )
 skeleton = NodePath("../../..")
 material/0 = SubResource( 123 )
 
-[node name="Cloud3_outside_fog_outtermost" type="MeshInstance" parent="Cloud3_sky/_Cloud3_outside_opaque_(sky)/Cloud3_outside_fog_dense"]
+[node name="Cloud3_outside_fog_outtermost" type="MeshInstance" parent="_Cloud3_sky/Cloud3_outside_opaque/Cloud3_outside_fog_dense"]
 mesh = SubResource( 118 )
 skeleton = NodePath("../../../..")
 material/0 = SubResource( 119 )

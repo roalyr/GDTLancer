@@ -10,37 +10,37 @@ render_mode
 	
 	//unshaded,
 	diffuse_lambert, 
-	specular_schlick_ggx,
+	specular_phong,
 	
 	// Additional flags just in case.
 	//ambient_light_disabled,
 	depth_draw_opaque;
 
-uniform vec4 albedo : hint_color;
+uniform vec4 albedo : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 emission : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
 uniform float specular : hint_range(0,1) = 0.5;
 uniform float metallic : hint_range(0,1) = 0.0;
 uniform float roughness : hint_range(0,1) = 0.5;
-uniform float rim : hint_range(0,1) = 0.005;
-uniform float rim_tint : hint_range(0,1) = 0.0;
-uniform sampler2D texture_normal : hint_normal;
+uniform float normal_depth : hint_range(-1,1) = 1.0;
+uniform float alpha : hint_range(0,1) = 1.0;
+
 uniform sampler2D texture_alpha : hint_normal;
 uniform sampler2D texture_specular : hint_normal;
-uniform sampler2D texture_height : hint_normal;
+uniform sampler2D texture_roughness : hint_normal;
+uniform sampler2D texture_normal_depth : hint_normal;
 uniform sampler2D texture_ao : hint_normal;
-uniform float normal_depth : hint_range(-1,1) = 1.0;
+uniform sampler2D texture_normal : hint_normal;
 
 void fragment()
 {
 	ALBEDO = albedo.rgb*COLOR.rgb*texture(texture_ao, UV).r;
 	METALLIC = metallic;
-	//RIM = rim;
-	//RIM_TINT = rim_tint;
-	//EMISSION = emission.rgb*COLOR.rgb;
-	NORMALMAP = texture(texture_normal, UV).rgb;
+	EMISSION = emission.rgb*COLOR.rgb;
 	SPECULAR = specular*texture(texture_specular, UV).r;
-	ROUGHNESS = roughness*texture(texture_specular, UV).r;
+	ROUGHNESS = roughness*texture(texture_roughness, UV).r;
 	
-	ALPHA = texture(texture_alpha, UV).r; 
-	NORMALMAP_DEPTH = normal_depth*texture(texture_height, UV).r;
+	ALPHA = alpha*texture(texture_alpha, UV).r;
+	
+	NORMALMAP = texture(texture_normal, UV).rgb;
+	NORMALMAP_DEPTH = normal_depth*texture(texture_normal_depth, UV).r;
 }

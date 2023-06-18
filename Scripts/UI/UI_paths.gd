@@ -49,6 +49,7 @@ onready var desktop_button_target_aim_clear = desktop_bar_control.get_node("Butt
 onready var desktop_button_autopilot = desktop_bar_control.get_node("Button_autopilot")
 # Control bar 2
 onready var desktop_bar_control_2 = desktop_gui.get_node("Bar_control_2")
+onready var desktop_button_velocity_limiter = desktop_bar_control_2.get_node("Button_velocity_limiter")
 # Ship bar
 onready var desktop_bar_items = desktop_gui.get_node("Bar_items")
 onready var desktop_ship_popup = desktop_bar_items.get_node("Popup_PLACEHOLDER")
