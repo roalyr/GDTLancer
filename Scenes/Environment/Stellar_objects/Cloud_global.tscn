@@ -1,5 +1,7 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=23 format=2]
 
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_0.glb" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_main.gdshader" type="Shader" id=3]
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple.tres" type="Shader" id=4]
 [ext_resource path="res://Assets/Shaders/Clouds/Global_cloud_fade_simple_out.tres" type="Shader" id=7]
@@ -125,20 +127,162 @@ __meta__ = {
 "_editor_description_": ""
 }
 
+[node name="LODS_Cloud_global_0" parent="Scenes" instance=ExtResource( 1 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+use_aabb_for_size = true
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 3.0
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_0" index="0"]
+material/0 = SubResource( 112 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_0" index="1"]
+material/0 = SubResource( 112 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_0" index="2"]
+material/0 = SubResource( 112 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_0" index="3"]
+material/0 = SubResource( 112 )
+
 [node name="Cloud_global_inner" parent="Scenes" instance=ExtResource( 17 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 
 [node name="Cloud_global_inner" parent="Scenes/Cloud_global_inner" index="0"]
+visible = false
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner001" parent="Scenes/Cloud_global_inner" index="1"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner002" parent="Scenes/Cloud_global_inner" index="2"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner003" parent="Scenes/Cloud_global_inner" index="3"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner004" parent="Scenes/Cloud_global_inner" index="4"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner005" parent="Scenes/Cloud_global_inner" index="5"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner006" parent="Scenes/Cloud_global_inner" index="6"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner007" parent="Scenes/Cloud_global_inner" index="7"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner008" parent="Scenes/Cloud_global_inner" index="8"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner009" parent="Scenes/Cloud_global_inner" index="9"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner010" parent="Scenes/Cloud_global_inner" index="10"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner011" parent="Scenes/Cloud_global_inner" index="11"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner012" parent="Scenes/Cloud_global_inner" index="12"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner013" parent="Scenes/Cloud_global_inner" index="13"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner014" parent="Scenes/Cloud_global_inner" index="14"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner015" parent="Scenes/Cloud_global_inner" index="15"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner016" parent="Scenes/Cloud_global_inner" index="16"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner017" parent="Scenes/Cloud_global_inner" index="17"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner018" parent="Scenes/Cloud_global_inner" index="18"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner019" parent="Scenes/Cloud_global_inner" index="19"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner020" parent="Scenes/Cloud_global_inner" index="20"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner021" parent="Scenes/Cloud_global_inner" index="21"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner022" parent="Scenes/Cloud_global_inner" index="22"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner023" parent="Scenes/Cloud_global_inner" index="23"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner024" parent="Scenes/Cloud_global_inner" index="24"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner025" parent="Scenes/Cloud_global_inner" index="25"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner026" parent="Scenes/Cloud_global_inner" index="26"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner027" parent="Scenes/Cloud_global_inner" index="27"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner028" parent="Scenes/Cloud_global_inner" index="28"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner029" parent="Scenes/Cloud_global_inner" index="29"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner030" parent="Scenes/Cloud_global_inner" index="30"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner031" parent="Scenes/Cloud_global_inner" index="31"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner032" parent="Scenes/Cloud_global_inner" index="32"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner033" parent="Scenes/Cloud_global_inner" index="33"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner034" parent="Scenes/Cloud_global_inner" index="34"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner035" parent="Scenes/Cloud_global_inner" index="35"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner036" parent="Scenes/Cloud_global_inner" index="36"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner037" parent="Scenes/Cloud_global_inner" index="37"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner038" parent="Scenes/Cloud_global_inner" index="38"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner039" parent="Scenes/Cloud_global_inner" index="39"]
+material/0 = SubResource( 112 )
+
+[node name="Cloud_global_inner040" parent="Scenes/Cloud_global_inner" index="40"]
 material/0 = SubResource( 112 )
 
 [node name="Vertex_cloud_192_2" parent="Scenes" instance=ExtResource( 12 )]
-transform = Transform( -1.51171e+11, -1.69515e+18, 1.69515e+18, -2.5596e+11, -1.69515e+18, -1.69515e+18, 2.39731e+18, -2.87885e+11, -7.40974e+10, -3.46624e+16, 1.86265e+17, 1.92074e+17 )
+transform = Transform( -6.30588e-08, -0.707107, 0.707107, -1.0677e-07, -0.707107, -0.707107, 1, -1.20087e-07, -3.09086e-08, 0, 0, 0 )
+visible = false
 
 [node name="Vertex_cloud_192" parent="Scenes/Vertex_cloud_192_2" index="0"]
 material/0 = SubResource( 98 )
 
 [node name="Vertex_cloud_192_1" parent="Scenes" instance=ExtResource( 12 )]
-transform = Transform( 2.53063e+18, 0, 0, 0, 2.53063e+18, 0, 0, 0, 2.53063e+18, 0.022, -0.005, 0.094 )
+visible = false
 
 [node name="Vertex_cloud_192" parent="Scenes/Vertex_cloud_192_1" index="0"]
 material/0 = SubResource( 97 )
@@ -150,6 +294,7 @@ shape = SubResource( 114 )
 [connection signal="body_entered" from="." to="." method="_on_Zone_nebula_global_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Zone_nebula_global_body_exited"]
 
+[editable path="Scenes/LODS_Cloud_global_0"]
 [editable path="Scenes/Cloud_global_inner"]
 [editable path="Scenes/Vertex_cloud_192_2"]
 [editable path="Scenes/Vertex_cloud_192_1"]

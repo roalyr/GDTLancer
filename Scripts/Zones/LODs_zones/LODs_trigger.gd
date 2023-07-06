@@ -1,6 +1,8 @@
 extends Spatial
 class_name LODs_trigger, "res://Assets/UI_images/SVG/icons/lod_icon.svg"
 
+export var use_aabb_for_size = false
+
 export var object_absolute_size = 0.0
 
 # The maximum LOD 0 (high quality) distance in units.
@@ -35,8 +37,12 @@ func _ready():
 	
 	# Get actual size of the object.
 	if object_absolute_size == 0:
-		object_absolute_size = max(max(self.get_scale().x, self.get_scale().y), self.get_scale().z)
-	#print(self, ":", object_absolute_size)
+		if not use_aabb_for_size:
+			object_absolute_size = max(max(self.scale.x, self.scale.y), self.scale.z)
+		else:
+			# For objects that are a part of a scene, which are not of a unit size or are displaced.
+			object_absolute_size = self.get_child(0).get_aabb().size.abs().length()*max(max(self.scale.x, self.scale.y), self.scale.z)
+	print(self, ":", object_absolute_size)
 
 	# Add random jitter to the timer to ensure LODs don't all swap at the same time.
 	randomize()
@@ -59,9 +65,9 @@ func _physics_process(delta):
 		return
 
 	# Relative distance (in object sizes).
-	var distance = camera.global_transform.origin.distance_to(global_transform.origin) \
-		/ object_absolute_size * 2.0
-	#print(self, " - ", distance)
+	var distance = camera.global_transform.origin.distance_to(
+		self.get_child(0).global_transform.origin) / object_absolute_size * 2.0
+	# print(self, " - ", distance)
 	
 	# The LOD level to choose (lower is more detailed).
 	
@@ -111,6 +117,7 @@ func _physics_process(delta):
 
 func show_scenes(lod_name):
 	self.get_node(lod_name).show()
+	print("Showing ", lod_name, " | ", self)
 			
 func hide_scenes(lod_name):
 	self.get_node(lod_name).hide()

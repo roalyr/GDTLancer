@@ -130,7 +130,6 @@ __meta__ = {
 Put meshes into Scene Items nodes
 "
 }
-lod_2_relative_distance = 500
 
 [node name="LOD0" type="Spatial" parent="Scenes/Viakata b planet/LODs planet lava 1e6"]
 __meta__ = {
