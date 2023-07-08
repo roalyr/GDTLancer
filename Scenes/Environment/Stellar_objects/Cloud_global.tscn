@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=46 format=2]
 
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_1.glb" type="PackedScene" id=1]
 [ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=2]
@@ -19,6 +19,13 @@
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Cloud_global_inner.glb" type="PackedScene" id=17]
 [ext_resource path="res://Scripts/Zones/Zone_nebula_global.gd" type="Script" id=18]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_10.glb" type="PackedScene" id=19]
+[ext_resource path="res://Assets/Shaders/Solid/Solid_material.gdshader" type="Shader" id=20]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_11.glb" type="PackedScene" id=21]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_12.glb" type="PackedScene" id=22]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_13.glb" type="PackedScene" id=23]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_14.glb" type="PackedScene" id=24]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_15.glb" type="PackedScene" id=25]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_16.glb" type="PackedScene" id=26]
 
 [sub_resource type="QuadMesh" id=96]
 
@@ -86,6 +93,44 @@ shader = ExtResource( 7 )
 shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
 shader_param/distance_fade_max = 3e+16
 
+[sub_resource type="QuadMesh" id=115]
+
+[sub_resource type="ShaderMaterial" id=116]
+shader = ExtResource( 20 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/emission = Color( 0.0627451, 0.443137, 0, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 0.5
+
+[sub_resource type="ShaderMaterial" id=121]
+shader = ExtResource( 20 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/emission = Color( 0, 0.337255, 0.443137, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 0.5
+
+[sub_resource type="PlaneMesh" id=117]
+
+[sub_resource type="ShaderMaterial" id=118]
+shader = ExtResource( 20 )
+shader_param/albedo = null
+shader_param/emission = Color( 0.796078, 0.596078, 0, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 0.5
+
+[sub_resource type="PlaneMesh" id=119]
+
+[sub_resource type="ShaderMaterial" id=120]
+shader = ExtResource( 20 )
+shader_param/albedo = null
+shader_param/emission = Color( 0.729412, 0.254902, 0, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 0.5
+
 [sub_resource type="SphereShape" id=114]
 
 [node name="Nebula_global" type="Area"]
@@ -130,6 +175,22 @@ mesh = SubResource( 76 )
 skeleton = NodePath("../../../..")
 material/0 = SubResource( 110 )
 
+[node name="mat_LOD1" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 115 )
+material/0 = SubResource( 116 )
+
+[node name="mat_LOD0" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 115 )
+material/0 = SubResource( 121 )
+
+[node name="mat_LOD2" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 117 )
+material/0 = SubResource( 118 )
+
+[node name="mat_LOD3" type="MeshInstance" parent="_EDITOR OBJECTS_"]
+mesh = SubResource( 119 )
+material/0 = SubResource( 120 )
+
 [node name="Scenes" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true,
@@ -141,115 +202,115 @@ transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 2.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_1" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_1" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_1" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_1" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_2" parent="Scenes" instance=ExtResource( 5 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
-lod_0_relative_distance = 1.0
+lod_0_relative_distance = 1.5
 lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_2_relative_distance = 2.5
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_2" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_2" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_2" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_2" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_3" parent="Scenes" instance=ExtResource( 6 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 2.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_3" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_3" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_3" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_3" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_4" parent="Scenes" instance=ExtResource( 8 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
-lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_0_relative_distance = 3.0
+lod_1_relative_distance = 5.0
+lod_2_relative_distance = 8.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_4" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_4" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_4" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_4" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_5" parent="Scenes" instance=ExtResource( 11 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 2.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_5" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_5" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_5" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_5" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_6" parent="Scenes" instance=ExtResource( 13 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
@@ -257,45 +318,45 @@ script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
 lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_2_relative_distance = 4.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_6" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_6" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_6" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_6" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_7" parent="Scenes" instance=ExtResource( 14 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
-lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_0_relative_distance = 3.0
+lod_1_relative_distance = 5.0
+lod_2_relative_distance = 8.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_7" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_7" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_7" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_7" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_8" parent="Scenes" instance=ExtResource( 15 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
@@ -303,68 +364,200 @@ script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
 lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_2_relative_distance = 4.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_8" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_8" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_8" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_8" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_9" parent="Scenes" instance=ExtResource( 16 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 2.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_9" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_9" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_9" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_9" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
 
 [node name="LODS_Cloud_global_10" parent="Scenes" instance=ExtResource( 19 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
 script = ExtResource( 2 )
 use_aabb_for_size = true
 lod_0_relative_distance = 1.0
-lod_1_relative_distance = 2.0
-lod_2_relative_distance = 3.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 2.0
 
 [node name="LOD0" parent="Scenes/LODS_Cloud_global_10" index="0"]
-material/0 = SubResource( 112 )
+material/0 = SubResource( 121 )
 
 [node name="LOD1" parent="Scenes/LODS_Cloud_global_10" index="1"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 116 )
 
 [node name="LOD2" parent="Scenes/LODS_Cloud_global_10" index="2"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 118 )
 
 [node name="LOD3" parent="Scenes/LODS_Cloud_global_10" index="3"]
 visible = false
-material/0 = SubResource( 112 )
+material/0 = SubResource( 120 )
+
+[node name="LODS_Cloud_global_11" parent="Scenes" instance=ExtResource( 21 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 3.0
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_11" index="0"]
+material/0 = SubResource( 121 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_11" index="1"]
+visible = false
+material/0 = SubResource( 116 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_11" index="2"]
+visible = false
+material/0 = SubResource( 118 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_11" index="3"]
+visible = false
+material/0 = SubResource( 120 )
+
+[node name="LODS_Cloud_global_12" parent="Scenes" instance=ExtResource( 22 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 3.0
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_12" index="0"]
+material/0 = SubResource( 121 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_12" index="1"]
+visible = false
+material/0 = SubResource( 116 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_12" index="2"]
+visible = false
+material/0 = SubResource( 118 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_12" index="3"]
+visible = false
+material/0 = SubResource( 120 )
+
+[node name="LODS_Cloud_global_13" parent="Scenes" instance=ExtResource( 23 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 3.0
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_13" index="0"]
+material/0 = SubResource( 121 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_13" index="1"]
+visible = false
+material/0 = SubResource( 116 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_13" index="2"]
+visible = false
+material/0 = SubResource( 118 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_13" index="3"]
+visible = false
+material/0 = SubResource( 120 )
+
+[node name="LODS_Cloud_global_14" parent="Scenes" instance=ExtResource( 24 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 3.0
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_14" index="0"]
+material/0 = SubResource( 121 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_14" index="1"]
+visible = false
+material/0 = SubResource( 116 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_14" index="2"]
+visible = false
+material/0 = SubResource( 118 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_14" index="3"]
+visible = false
+material/0 = SubResource( 120 )
+
+[node name="LODS_Cloud_global_15" parent="Scenes" instance=ExtResource( 25 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+lod_0_relative_distance = 1.0
+lod_1_relative_distance = 1.5
+lod_2_relative_distance = 2.0
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_15" index="0"]
+material/0 = SubResource( 121 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_15" index="1"]
+visible = false
+material/0 = SubResource( 116 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_15" index="2"]
+visible = false
+material/0 = SubResource( 118 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_15" index="3"]
+visible = false
+material/0 = SubResource( 120 )
+
+[node name="LODS_Cloud_global_16" parent="Scenes" instance=ExtResource( 26 )]
+transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
+script = ExtResource( 2 )
+lod_0_relative_distance = 1.5
+lod_1_relative_distance = 2.0
+lod_2_relative_distance = 2.5
+
+[node name="LOD0" parent="Scenes/LODS_Cloud_global_16" index="0"]
+material/0 = SubResource( 121 )
+
+[node name="LOD1" parent="Scenes/LODS_Cloud_global_16" index="1"]
+visible = false
+material/0 = SubResource( 116 )
+
+[node name="LOD2" parent="Scenes/LODS_Cloud_global_16" index="2"]
+visible = false
+material/0 = SubResource( 118 )
+
+[node name="LOD3" parent="Scenes/LODS_Cloud_global_16" index="3"]
+visible = false
+material/0 = SubResource( 120 )
 
 [node name="Cloud_global_inner" parent="Scenes" instance=ExtResource( 17 )]
 transform = Transform( 2e+18, 0, 0, 0, 2e+18, 0, 0, 0, 2e+18, 0, 0, 0 )
@@ -410,21 +603,27 @@ visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE011" parent="Scenes/Cloud_global_inner" index="10"]
+visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE012" parent="Scenes/Cloud_global_inner" index="11"]
+visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE013" parent="Scenes/Cloud_global_inner" index="12"]
+visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE014" parent="Scenes/Cloud_global_inner" index="13"]
+visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE015" parent="Scenes/Cloud_global_inner" index="14"]
+visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE016" parent="Scenes/Cloud_global_inner" index="15"]
+visible = false
 material/0 = SubResource( 112 )
 
 [node name="Cloud_global_inner_SOURCE017" parent="Scenes/Cloud_global_inner" index="16"]
@@ -490,6 +689,12 @@ shape = SubResource( 114 )
 [editable path="Scenes/LODS_Cloud_global_8"]
 [editable path="Scenes/LODS_Cloud_global_9"]
 [editable path="Scenes/LODS_Cloud_global_10"]
+[editable path="Scenes/LODS_Cloud_global_11"]
+[editable path="Scenes/LODS_Cloud_global_12"]
+[editable path="Scenes/LODS_Cloud_global_13"]
+[editable path="Scenes/LODS_Cloud_global_14"]
+[editable path="Scenes/LODS_Cloud_global_15"]
+[editable path="Scenes/LODS_Cloud_global_16"]
 [editable path="Scenes/Cloud_global_inner"]
 [editable path="Scenes/Vertex_cloud_192_2"]
 [editable path="Scenes/Vertex_cloud_192_1"]
