@@ -34,7 +34,7 @@ const torque_factor = Vector3(10e8,5e8,5e8)
 const autopilot_torque_factor = 10
 
 const camera_vert_offset = 1
-const camera_horiz_offset = 6
+const camera_horiz_offset = 5.5
 
 # Allowed angle deviation for autopilot to engage.
 const autopilot_angle_deviation = 0.8
