@@ -42,7 +42,7 @@ func _ready():
 		else:
 			# For objects that are a part of a scene, which are not of a unit size or are displaced.
 			object_absolute_size = self.get_child(0).get_aabb().size.abs().length()*max(max(self.scale.x, self.scale.y), self.scale.z)
-	print(self, ":", object_absolute_size)
+	# print(self, ":", object_absolute_size)
 
 	# Add random jitter to the timer to ensure LODs don't all swap at the same time.
 	randomize()
@@ -117,7 +117,7 @@ func _physics_process(delta):
 
 func show_scenes(lod_name):
 	self.get_node(lod_name).show()
-	print("Showing ", lod_name, " | ", self)
+	#print("Showing ", lod_name, " | ", self)
 			
 func hide_scenes(lod_name):
 	self.get_node(lod_name).hide()
