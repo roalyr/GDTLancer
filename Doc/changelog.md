@@ -12,12 +12,13 @@
 - Tweaked warp camera effect (stretch and brightness are now more smooth).
 ### Environment
 - Environment zones (locally adjustable brightness, saturation, contrast).
+- New global nebula.
 - New star cluster Moirai.
 - Stars are adjusted according to their types (size, color, light ranges).
 - Added placeholder fake stars (sprites) to make space look less empty and for testing.
 - Added death zones (around stars for now) for future gameplay use.
 ### Shaders
-- Tweaked shaders for performance (significant boost due to partially using vertex shading).
+- Tweaked shaders for performance (significant boost due to using vertex shading).
 - Re-introduced star core shader, optimized this time. Distance-modified brightness.
 - New different star sprites.
 - Clamped shaders alpha to prevent unexpected bugs.
@@ -42,6 +43,7 @@
 - Moved readouts to the bottom of the screen.
 - Ship model can be hidden.
 - Reworking debug menu and output.
+- Character info panel added.
 ### Audio
 - Ambient music added.
 ### Refactoring

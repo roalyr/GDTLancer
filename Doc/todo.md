@@ -29,7 +29,6 @@ Highlighted entries are "Work in progress".
 - Take into account star death zone based on ship's reflection / radiation ability.
 
 ## Refactor
-- **Re-attach models directly into scenes (make editable). (WIP)**
 - Refactor ship code.
 - **Rename all the space objects to their proper names.**
 - Refactor nav list scripts.
