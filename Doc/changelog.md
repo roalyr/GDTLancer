@@ -17,6 +17,7 @@
 - Stars are adjusted according to their types (size, color, light ranges).
 - Added placeholder fake stars (sprites) to make space look less empty and for testing.
 - Added death zones (around stars for now) for future gameplay use.
+- Implemented mechnism which hides nebula environments or global nebula when needed.
 ### Shaders
 - Tweaked shaders for performance (significant boost due to using vertex shading).
 - Re-introduced star core shader, optimized this time. Distance-modified brightness.

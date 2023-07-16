@@ -58,7 +58,7 @@ signal sig_exited_local_space_planet(zone)
 signal sig_entered_local_space_structure(zone)
 signal sig_exited_local_space_structure(zone)
 
-signal sig_nebula_entered(flag)
+signal sig_nebula_distance(data)
 
 func connect_checked(signal_name, target, function_name):
 	var e = Signals.connect(signal_name, target, function_name)

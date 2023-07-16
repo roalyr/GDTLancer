@@ -17,7 +17,6 @@
 [sub_resource type="ShaderMaterial" id=124]
 shader = ExtResource( 4 )
 shader_param/albedo = Color( 0.752941, 0.615686, 0.34902, 1 )
-shader_param/distance_fade_min = 0.0
 shader_param/distance_fade_max = 1e+17
 
 [sub_resource type="ShaderMaterial" id=137]
@@ -60,7 +59,6 @@ shader_param/major_detail_noise = SubResource( 138 )
 [sub_resource type="ShaderMaterial" id=134]
 shader = ExtResource( 4 )
 shader_param/albedo = Color( 0.337255, 0.203922, 0.168627, 1 )
-shader_param/distance_fade_min = 0.0
 shader_param/distance_fade_max = 3e+16
 
 [sub_resource type="ShaderMaterial" id=136]
@@ -90,6 +88,7 @@ shader_param/color_multiplier_g = 1.0
 shader_param/color_multiplier_b = 1.0
 
 [sub_resource type="SphereShape" id=79]
+margin = 0.001
 
 [node name="Zone nebula orange" type="Area"]
 input_ray_pickable = false
@@ -98,9 +97,10 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 1 )
+enable_environemnt_switching = true
+environment_switch_distance = 3.5e+16
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 10 )]
-visible = false
 
 [node name="Cloud2_orange" type="Spatial" parent="_EDITOR OBJECTS_"]
 visible = false
@@ -140,7 +140,7 @@ skeleton = NodePath("../../../..")
 material/0 = SubResource( 134 )
 
 [node name="Zone shape" type="CollisionShape" parent="."]
-transform = Transform( 3.96e+16, 0, 0, 0, 3.168e+16, 0, 0, 0, 3.96e+16, 0, 0, 0 )
+transform = Transform( 3.5e+16, 0, 0, 0, 2.8e+16, 0, 0, 0, 3.5e+16, 0, 0, 0 )
 shape = SubResource( 79 )
 __meta__ = {
 "_edit_lock_": true,

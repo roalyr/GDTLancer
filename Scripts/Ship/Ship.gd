@@ -103,7 +103,6 @@ func _integrate_forces(state):
 	# TODO: arrange for proper signs for accel and torque.
 	var vel = state.linear_velocity.length()
 	PlayerState.ship_linear_velocity = vel
-	PlayerState.apparent_velocity = vel
 	
 	# Limit the velocity according to engine state.
 	if (vel > velocity_limmiter_1 and velocity_limiter_state == 0) or \

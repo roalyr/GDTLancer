@@ -32,7 +32,7 @@ func _process(_delta):
 	
 	# READOUTS
 	# Adjust displayed speed
-	var speed_val = round(PlayerState.apparent_velocity)
+	var speed_val = round(PlayerState.ship_linear_velocity)
 	var result_s = ui_paths.common_readouts.get_magnitude_units(speed_val)
 	# To prevent from crashing on Nil
 	if result_s:

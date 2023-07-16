@@ -27,6 +27,7 @@ Highlighted entries are "Work in progress".
 - Info tab: make clickable entries that expand to tutorial entries.
 - Split LOD system into objects / environment / ship categories and allow maximum LOD level.
 - Take into account star death zone based on ship's reflection / radiation ability.
+- Add solar prominences.
 
 ## Refactor
 - Refactor ship code.
