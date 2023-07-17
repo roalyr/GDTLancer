@@ -29,7 +29,7 @@ systems = [
 	
 	{
 		"cluster" : "Moirai",
-		"name" : "Selk'nam",
+		"name" : "Selk'nam", # Make reference-trubute to a tribe.
 		"main_star" : ("M", 9), # Try brown dwarf later on.
 		"companion_stars" : [],
 		# Asteroid belt and debris instead of planets.
@@ -44,9 +44,9 @@ systems = [
 	
 	{
 		"cluster" : "Moirai",
-		"name" : "Viakata",
+		"name" : "Viakata", # A starting point in the game, give info as such.
 		"main_star" : ("M", 2),
-		"companion_stars" : [],
+		"total_planets" : ["sD", "D", "sT", "D",],
 	},
 	
 	{
@@ -54,6 +54,7 @@ systems = [
 		"name" : "Glory",
 		"main_star" : ("G", 9),
 		"companion_stars" : [],
+		"total_planets" : [],
 	},
 	
 	{

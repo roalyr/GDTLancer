@@ -8,7 +8,7 @@ star_death_zone_min_factor = 1.5 # If death zone is too small.
 star_detail_decay_distance_factor = 40 # Distance factor at which star core turns white.
 star_autopilot_factor = 2.0 # Multiplied by death zone size.
 star_flare_factor = 1.0 # Multiplied by star zone size. Acts like an indicatort.
-system_zone_size_min = 1e13
+system_zone_size_min = 1e13 # Threshold to prevent jitter.
 
 # Companion stars for the main star.
 num_stars_min = 0
@@ -287,6 +287,8 @@ star_m_abundance = 1.0 #use 0.8 when giants and white dwarfs are implemented.
 
 
 ######### CONSTANTS: PLANETS ##########
+earth_mass = 5.972e24 #kg
+earth_radius =  6.3781e6 #m
 
 # Protoplanetary disks
 # https://www.researchgate.net/publication/311106398_The_Gas_Disk_Evolution_and_Chemistry
@@ -329,26 +331,51 @@ young_planetary_system_planets_min  = 0
 young_planetary_system_planetoid_min  = 0
 # young_planetary_system_planetoid_max  = ???
 
-# Mature planetary systems
-
-
-# 
 
 # Type of planet  Earth units        R = M^f
+planet_rocky_radius_factor = 0.28
+
 #  M min  M max  R min  R max  f
 # Sub-dwarf  0.000002  0.00002  0.025  0.048  0.28
+planet_sD_mass_min = 0.000002
+planet_sD_mass_max = 0.00002
+
 # Dwarf  0.00002  0.0002  0.048  0.092  0.28
+planet_D_mass_min = 0.00002
+planet_D_mass_max = 0.0002
+
 # Super-dwarf  0.0002  0.002  0.092  0.176  0.28
-#           
+planet_SD_mass_min = 0.0002
+planet_SD_mass_max = 0.002
+           
 # Sub-terrestrial  0.002  0.02  0.176  0.334  0.28
+planet_sT_mass_min = 0.002
+planet_sT_mass_max = 0.02
+
 # Terrestrial  0.02  0.2  0.334  0.637  0.28
+planet_T_mass_min = 0.02
+planet_T_mass_max = 0.2
+
 # Super-terrestrial  0.2  2  0.637  1.214  0.28
-#        
+planet_ST_mass_min = 0.2
+planet_ST_mass_max = 2
+
 # Sub-giant  2  130  1.505  17.670  0.59
+planet_sub_giant_radius_factor = 0.59
+
+planet_sG_mass_min = 2
+planet_sG_mass_max = 130
+
 # Giant  130  300  9.000  20.000  -
+planet_G_mass_min = 130
+planet_G_mass_max = 300
+
 # Super-giant  300  3000  9.000  20.000  -
+planet_SG_mass_min = 300
+planet_SG_mass_max = 3000
 
-
+planet_G_radius_min = 9
+planet_G_radius_max = 20
 
 
 
@@ -492,6 +519,7 @@ def system_generation(star_id, system, cluster_name):
 	p = ''
 	p_secondary_stars = ''
 	star_list = []
+	planet_list = []
 	star_color_list = []
 	
 	# Get the star if it was defined. Second argument is for secondary stars, thus empty.
@@ -514,9 +542,22 @@ def system_generation(star_id, system, cluster_name):
 	# Number of planets.
 	if "total_planets" in system:
 		planets_num = len(system["total_planets"])
+		if planets_num > 0:
+			
+			# Make from preset and store.
+			for planet_type in system["total_planets"]:
+				planet = make_planet(planet_type, main_star["type"])
+				planet_list.append(planet)
 	else:
-		planets_num = random_planet_number(star_type)
+		planets_num = random_planet_number(star_type[0])
+		if planets_num > 0:
+			
+			# Generate and store.
+			for _ in range(planets_num):
+				planet = make_planet('', main_star["type"])
+				planet_list.append(planet)
 	
+	#if not planet_list: print("no planets")
 	
 	# Index 0 in the end takes the text + color sample image, 1 - only returns image.
 	primary_star = formatting_star_data(star_id, True, main_star, star_name + " A")
@@ -569,6 +610,152 @@ def system_generation(star_id, system, cluster_name):
 
 	# Write down to the global output.
 	output += p
+	
+	
+	
+	
+	
+	
+	
+###### PLANET FUNCTIONS #######
+
+def random_planet_number(star_type):
+	num = 0
+	if star_type == "O":
+		num = int(random_planet_num.uniform(star_o_num_planets_min, star_o_num_planets_max))
+	elif star_type == "B":
+		num = int(random_planet_num.uniform(star_b_num_planets_min, star_b_num_planets_max))
+	elif star_type == "A":
+		num = int(random_planet_num.uniform(star_a_num_planets_min, star_a_num_planets_max))
+	elif star_type == "F":
+		num = int(random_planet_num.uniform(star_f_num_planets_min, star_f_num_planets_max))
+	elif star_type == "G":
+		num = int(random_planet_num.uniform(star_g_num_planets_min, star_g_num_planets_max))
+	elif star_type == "K":
+		num = int(random_planet_num.uniform(star_k_num_planets_min, star_k_num_planets_max))
+	elif star_type == "M":
+		num = int(random_planet_num.uniform(star_m_num_planets_min, star_m_num_planets_max))
+		
+	return num
+
+
+def make_planet(user_defined_type, primary_star_type):
+	planet_type = ""
+	planet_size = 0
+	planet_zone_margins = 0
+	
+	if user_defined_type:
+		# Process planet data according to type.
+		if user_defined_type == "sD":
+			planet_type = "sub dwarf"
+		elif user_defined_type == "D":
+			planet_type = "dwarf"
+		elif user_defined_type == "SD":
+			planet_type = "super dwarf"
+			
+		elif user_defined_type == "sT":
+			planet_type = "sub terrestrial"
+		elif user_defined_type == "T":
+			planet_type = "terrestrial"
+		elif user_defined_type == "ST":
+			planet_type = "super terrestrial"
+			
+		elif user_defined_type == "sG":
+			planet_type = "sub giant"
+		elif user_defined_type == "G":
+			planet_type = "giant"
+		elif user_defined_type == "SG":
+			planet_type = "super giant"
+		
+		else:
+			planet_type = "other"
+			
+	else:
+		# Make a random type first.
+		planet_type_list  = [
+			"sub dwarf",
+			"dwarf",
+			"super dwarf",
+			"sub terrestrial",
+			"terrestrial",
+			"super terrestrial",
+			"sub giant",
+			"giant",
+			"super giant",
+		]
+		planet_type = random_planet_val.choice(planet_type_list)
+
+	
+	planet_mass = get_planet_mass(planet_type)
+	planet_size = get_planet_size(planet_type, planet_mass)
+	
+	planet = {
+		"type" : planet_type,
+		"size" : planet_size,
+		"mass" : planet_mass,
+		"zone_margins": planet_zone_margins,
+	}
+	
+	return planet
+
+
+def get_planet_mass(planet_type):
+	planet_mass = 0
+	
+	if planet_type == "sub dwarf":
+		planet_mass = random_planet_val.uniform(planet_sD_mass_min, planet_sD_mass_max)
+	elif planet_type == "dwarf":
+		planet_mass = random_planet_val.uniform(planet_D_mass_min, planet_D_mass_max)
+	elif planet_type == "super dwarf":
+		planet_mass = random_planet_val.uniform(planet_SD_mass_min, planet_SD_mass_max)
+
+	elif planet_type == "sub terrestrial":
+		planet_mass = random_planet_val.uniform(planet_sT_mass_min, planet_sT_mass_max)
+	elif planet_type == "terrestrial":
+		planet_mass = random_planet_val.uniform(planet_T_mass_min, planet_T_mass_max)
+	elif planet_type == "super terrestrial":
+		planet_mass = random_planet_val.uniform(planet_ST_mass_min, planet_ST_mass_max)
+		
+	elif planet_type == "sub giant":
+		planet_mass = random_planet_val.uniform(planet_sG_mass_min, planet_sG_mass_max)
+	elif planet_type == "giant":
+		planet_mass = random_planet_val.uniform(planet_G_mass_min, planet_G_mass_max)
+	elif planet_type == "super giant":
+		planet_mass = random_planet_val.uniform(planet_SG_mass_min, planet_SG_mass_max)
+
+	else:
+		print("Unknown planet type: ", planet_type)
+
+	planet_mass *= earth_mass
+	return planet_mass
+	
+
+def get_planet_size(planet_type, planet_mass):
+	planet_size = 0
+
+	planet_mass /= earth_mass
+
+	if planet_type == "sub dwarf" or \
+		planet_type == "dwarf" or \
+		planet_type == "super dwarf" or \
+		planet_type == "sub terrestrial" or \
+		planet_type == "terrestrial" or \
+		planet_type == "super terrestrial":
+			
+		planet_size = pow(planet_mass, planet_rocky_radius_factor) * earth_radius * 2
+
+	elif planet_type == "sub giant":
+		planet_size = pow(planet_mass, planet_sub_giant_radius_factor) * earth_radius * 2
+
+	elif planet_type == "giant" or \
+		planet_type == "super giant":
+
+		planet_size = random_planet_val.uniform(planet_G_radius_min, planet_G_radius_max)
+	
+	else:
+		print("Unknown planet type: ", planet_type)
+	
+	return planet_size
 
 
 
@@ -844,35 +1031,6 @@ def random_star_number():
 		* random_star_num.randint(num_stars_min, num_stars_max))
 	return num
 
-
-
-
-
-
-
-
-
-
-###### PLANET FUNCTIONS #######
-
-def random_planet_number(star_type):
-	num = 0
-	if star_type == "O":
-		num = int(random_planet_num.randint(star_o_num_planets_min, star_o_num_planets_max))
-	elif star_type == "B":
-		num = int(random_planet_num.randint(star_b_num_planets_min, star_b_num_planets_max))
-	elif star_type == "A":
-		num = int(random_planet_num.randint(star_a_num_planets_min, star_a_num_planets_max))
-	elif star_type == "F":
-		num = int(random_planet_num.randint(star_f_num_planets_min, star_f_num_planets_max))
-	elif star_type == "G":
-		num = int(random_planet_num.randint(star_g_num_planets_min, star_g_num_planets_max))
-	elif star_type == "K":
-		num = int(random_planet_num.randint(star_k_num_planets_min, star_k_num_planets_max))
-	elif star_type == "M":
-		num = int(random_planet_num.randint(star_m_num_planets_min, star_m_num_planets_max))
-		
-	return num
 
 
 
