@@ -100,14 +100,14 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.56e+09 m
-* Temperature: 5315 K
-* Luminosity: 3.46e+26 W
+* Size: 1.45e+09 m
+* Temperature: 5313 K
+* Luminosity: 3.00e+26 W
 
 Sun units:
-* Size: 1.123 D
+* Size: 1.045 D
 * Temperature: 0.92 T
-* Luminosity: 0.905 L
+* Luminosity: 0.783 L
 
 Spectral data:
 * Type: G8
@@ -115,23 +115,23 @@ Spectral data:
 * Peak wavelength type: visible
 
 Temperature zone data:
-* Mineral melting line: < 0.074 AU
-* Hot zone   :   0.074 ... 0.19 AU
-* Warm zone  :   0.19 ... 0.663 AU
-* Temp. zone :   0.663 ... 0.938 AU
-* Cold zone  :   0.938 ... 2.692 AU
-* Frost line : > 2.692 AU
+* Mineral melting line: < 0.069 AU
+* Hot zone   :   0.069 ... 0.177 AU
+* Warm zone  :   0.177 ... 0.617 AU
+* Temp. zone :   0.617 ... 0.873 AU
+* Cold zone  :   0.873 ... 2.504 AU
+* Frost line : > 2.504 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.56e+09 м
-* Температура: 5315 К
-* Світність: 3.46e+26 Вт
+* Розмір: 1.45e+09 м
+* Температура: 5313 К
+* Світність: 3.00e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.123 D
+* Розмір: 1.045 D
 * Температура: 0.92 T
-* Світність: 0.905 L
+* Світність: 0.783 L
 
 Спектральні дані:
 * Тип: G8
@@ -139,12 +139,12 @@ Temperature zone data:
 * Тип пікового випромінювання: visible
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.074 а.о.
-* Гаряча зона  :   0.074 ... 0.19 а.о.
-* Тепла зона   :   0.19 ... 0.663 а.о.
-* Помірна зона :   0.663 ... 0.938 а.о.
-* Холодна зона :   0.938 ... 1.433 а.о.
-* Межа кригоутворення : > 2.692 а.о.
+* Межа плавлення мінералів: < 0.069 а.о.
+* Гаряча зона  :   0.069 ... 0.177 а.о.
+* Тепла зона   :   0.177 ... 0.617 а.о.
+* Помірна зона :   0.617 ... 0.873 а.о.
+* Холодна зона :   0.873 ... 1.333 а.о.
+* Межа кригоутворення : > 2.504 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -154,13 +154,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G8_0_1
 * Star name: Victory B
 * Star description: see above.
-* Star zone size: 7.80e+10
-* Star death zone size: 6.09e+09
-* Star size: 1.56e+09
-* Star flare distance: 7.80e+10
-* Star autopilot range: 1.22e+10
+* Star zone size: 7.25e+10
+* Star death zone size: 5.66e+09
+* Star size: 1.45e+09
+* Star flare distance: 7.25e+10
+* Star autopilot range: 1.13e+10
 
-* Omni range: 9.30e+12
+* Omni range: 8.66e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -184,8 +184,8 @@ Temperature zone data:
 * System codename: STAR_A7_1_SYSTEM
 * System translation name codename: NAME_STAR_A7_1_SYSTEM
 * System translation description codename: DESC_STAR_A7_1_SYSTEM
-* System zone size: 2.81e+13
-* System autopilot range: 2.81e+13
+* System zone size: 2.97e+13
+* System autopilot range: 2.97e+13
 ```
 
  </details>  
@@ -198,51 +198,51 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.01e+09 m
-* Temperature: 8132 K
-* Luminosity: 3.15e+27 W
+* Size: 2.15e+09 m
+* Temperature: 8093 K
+* Luminosity: 3.54e+27 W
 
 Sun units:
-* Size: 1.448 D
-* Temperature: 1.41 T
-* Luminosity: 8.24 L
+* Size: 1.548 D
+* Temperature: 1.4 T
+* Luminosity: 9.25 L
 
 Spectral data:
 * Type: A7
-* Peak wavelength: 356.0 nm
+* Peak wavelength: 358.0 nm
 * Peak wavelength type: near UV
 
 Temperature zone data:
-* Mineral melting line: < 0.223 AU
-* Hot zone   :   0.223 ... 0.575 AU
-* Warm zone  :   0.575 ... 2.002 AU
-* Temp. zone :   2.002 ... 2.831 AU
-* Cold zone  :   2.831 ... 8.125 AU
-* Frost line : > 8.125 AU
+* Mineral melting line: < 0.237 AU
+* Hot zone   :   0.237 ... 0.609 AU
+* Warm zone  :   0.609 ... 2.121 AU
+* Temp. zone :   2.121 ... 2.999 AU
+* Cold zone  :   2.999 ... 8.607 AU
+* Frost line : > 8.607 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.01e+09 м
-* Температура: 8132 К
-* Світність: 3.15e+27 Вт
+* Розмір: 2.15e+09 м
+* Температура: 8093 К
+* Світність: 3.54e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.448 D
-* Температура: 1.41 T
-* Світність: 8.24 L
+* Розмір: 1.548 D
+* Температура: 1.4 T
+* Світність: 9.25 L
 
 Спектральні дані:
 * Тип: A7
-* Пікова довжина хвилі: 356.0 нм
+* Пікова довжина хвилі: 358.0 нм
 * Тип пікового випромінювання: near UV
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.223 а.о.
-* Гаряча зона  :   0.223 ... 0.575 а.о.
-* Тепла зона   :   0.575 ... 2.002 а.о.
-* Помірна зона :   2.002 ... 2.831 а.о.
-* Холодна зона :   2.831 ... 4.325 а.о.
-* Межа кригоутворення : > 8.125 а.о.
+* Межа плавлення мінералів: < 0.237 а.о.
+* Гаряча зона  :   0.237 ... 0.609 а.о.
+* Тепла зона   :   0.609 ... 2.121 а.о.
+* Помірна зона :   2.121 ... 2.999 а.о.
+* Холодна зона :   2.999 ... 4.582 а.о.
+* Межа кригоутворення : > 8.607 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -252,13 +252,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A7_1
 * Star name: Equberan A
 * Star description: see above.
-* Star zone size: 1.00e+11
-* Star death zone size: 1.84e+10
-* Star size: 2.01e+09
-* Star flare distance: 1.00e+11
-* Star autopilot range: 3.67e+10
+* Star zone size: 1.08e+11
+* Star death zone size: 1.95e+10
+* Star size: 2.15e+09
+* Star flare distance: 1.08e+11
+* Star autopilot range: 3.89e+10
 
-* Omni range: 2.81e+13
+* Omni range: 2.97e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -292,55 +292,55 @@ Temperature zone data:
 <details><summary>Primary star : Selk'nam A, type: M9</summary>  
 
 #### Star pseudo-color  
-![9b0000](Colors/9b0000.png)  
+![980000](Colors/980000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 5.95e+08 m
-* Temperature: 2433 K
-* Luminosity: 2.21e+24 W
+* Size: 2.83e+08 m
+* Temperature: 2423 K
+* Luminosity: 4.91e+23 W
 
 Sun units:
-* Size: 0.428 D
+* Size: 0.203 D
 * Temperature: 0.42 T
-* Luminosity: 0.006 L
+* Luminosity: 0.001 L
 
 Spectral data:
 * Type: M9
-* Peak wavelength: 1191.0 nm
+* Peak wavelength: 1196.0 nm
 * Peak wavelength type: near IR
 
 Temperature zone data:
-* Mineral melting line: < 0.006 AU
-* Hot zone   :   0.006 ... 0.015 AU
-* Warm zone  :   0.015 ... 0.053 AU
-* Temp. zone :   0.053 ... 0.075 AU
-* Cold zone  :   0.075 ... 0.215 AU
-* Frost line : > 0.215 AU
+* Mineral melting line: < 0.003 AU
+* Hot zone   :   0.003 ... 0.007 AU
+* Warm zone  :   0.007 ... 0.025 AU
+* Temp. zone :   0.025 ... 0.035 AU
+* Cold zone  :   0.035 ... 0.101 AU
+* Frost line : > 0.101 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 5.95e+08 м
-* Температура: 2433 К
-* Світність: 2.21e+24 Вт
+* Розмір: 2.83e+08 м
+* Температура: 2423 К
+* Світність: 4.91e+23 Вт
 
 Відносно Сонця:
-* Розмір: 0.428 D
+* Розмір: 0.203 D
 * Температура: 0.42 T
-* Світність: 0.006 L
+* Світність: 0.001 L
 
 Спектральні дані:
 * Тип: M9
-* Пікова довжина хвилі: 1191.0 нм
+* Пікова довжина хвилі: 1196.0 нм
 * Тип пікового випромінювання: near IR
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.006 а.о.
-* Гаряча зона  :   0.006 ... 0.015 а.о.
-* Тепла зона   :   0.015 ... 0.053 а.о.
-* Помірна зона :   0.053 ... 0.075 а.о.
-* Холодна зона :   0.075 ... 0.114 а.о.
-* Межа кригоутворення : > 0.215 а.о.
+* Межа плавлення мінералів: < 0.003 а.о.
+* Гаряча зона  :   0.003 ... 0.007 а.о.
+* Тепла зона   :   0.007 ... 0.025 а.о.
+* Помірна зона :   0.025 ... 0.035 а.о.
+* Холодна зона :   0.035 ... 0.054 а.о.
+* Межа кригоутворення : > 0.101 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -350,24 +350,24 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M9_2
 * Star name: Selk'nam A
 * Star description: see above.
-* Star zone size: 2.98e+10
-* Star death zone size: 8.92e+08
-* Star size: 5.95e+08
-* Star flare distance: 2.98e+10
-* Star autopilot range: 1.78e+09
+* Star zone size: 1.42e+10
+* Star death zone size: 4.24e+08
+* Star size: 2.83e+08
+* Star flare distance: 1.42e+10
+* Star autopilot range: 8.49e+08
 
-* Omni range: 7.43e+11
+* Omni range: 3.50e+11
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (155, 0, 0)
- - hex: #9b0000
+ - rgb: (152, 0, 0)
+ - hex: #980000
 ```  
 
  </details>  
 
 ---  
- ![9b0000](Colors/9b0000.png)   
+ ![980000](Colors/980000.png)   
 
 ---  
 # System: Valeri  
@@ -380,8 +380,8 @@ Temperature zone data:
 * System codename: STAR_A9_3_SYSTEM
 * System translation name codename: NAME_STAR_A9_3_SYSTEM
 * System translation description codename: DESC_STAR_A9_3_SYSTEM
-* System zone size: 2.81e+13
-* System autopilot range: 2.81e+13
+* System zone size: 2.69e+13
+* System autopilot range: 2.69e+13
 ```
 
  </details>  
@@ -394,51 +394,51 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.31e+09 m
-* Temperature: 7594 K
-* Luminosity: 3.16e+27 W
+* Size: 2.24e+09 m
+* Temperature: 7544 K
+* Luminosity: 2.89e+27 W
 
 Sun units:
-* Size: 1.662 D
-* Temperature: 1.32 T
-* Luminosity: 8.26 L
+* Size: 1.61 D
+* Temperature: 1.31 T
+* Luminosity: 7.55 L
 
 Spectral data:
 * Type: A9
-* Peak wavelength: 382.0 nm
+* Peak wavelength: 384.0 nm
 * Peak wavelength type: near UV
 
 Temperature zone data:
-* Mineral melting line: < 0.224 AU
-* Hot zone   :   0.224 ... 0.575 AU
-* Warm zone  :   0.575 ... 2.005 AU
-* Temp. zone :   2.005 ... 2.835 AU
-* Cold zone  :   2.835 ... 8.136 AU
-* Frost line : > 8.136 AU
+* Mineral melting line: < 0.214 AU
+* Hot zone   :   0.214 ... 0.55 AU
+* Warm zone  :   0.55 ... 1.916 AU
+* Temp. zone :   1.916 ... 2.709 AU
+* Cold zone  :   2.709 ... 7.775 AU
+* Frost line : > 7.775 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.31e+09 м
-* Температура: 7594 К
-* Світність: 3.16e+27 Вт
+* Розмір: 2.24e+09 м
+* Температура: 7544 К
+* Світність: 2.89e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.662 D
-* Температура: 1.32 T
-* Світність: 8.26 L
+* Розмір: 1.61 D
+* Температура: 1.31 T
+* Світність: 7.55 L
 
 Спектральні дані:
 * Тип: A9
-* Пікова довжина хвилі: 382.0 нм
+* Пікова довжина хвилі: 384.0 нм
 * Тип пікового випромінювання: near UV
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.224 а.о.
-* Гаряча зона  :   0.224 ... 0.575 а.о.
-* Тепла зона   :   0.575 ... 2.005 а.о.
-* Помірна зона :   2.005 ... 2.835 а.о.
-* Холодна зона :   2.835 ... 4.331 а.о.
-* Межа кригоутворення : > 8.136 а.о.
+* Межа плавлення мінералів: < 0.214 а.о.
+* Гаряча зона  :   0.214 ... 0.55 а.о.
+* Тепла зона   :   0.55 ... 1.916 а.о.
+* Помірна зона :   1.916 ... 2.709 а.о.
+* Холодна зона :   2.709 ... 4.138 а.о.
+* Межа кригоутворення : > 7.775 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -448,13 +448,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A9_3
 * Star name: Valeri A
 * Star description: see above.
-* Star zone size: 1.16e+11
-* Star death zone size: 1.84e+10
-* Star size: 2.31e+09
-* Star flare distance: 1.16e+11
-* Star autopilot range: 3.68e+10
+* Star zone size: 1.12e+11
+* Star death zone size: 1.76e+10
+* Star size: 2.24e+09
+* Star flare distance: 1.12e+11
+* Star autopilot range: 3.52e+10
 
-* Omni range: 2.81e+13
+* Omni range: 2.69e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -468,55 +468,55 @@ Temperature zone data:
 <details><summary>Secondary star : Valeri B, type: M9</summary>  
 
 #### Star pseudo-color  
-![a00000](Colors/a00000.png)  
+![a70000](Colors/a70000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 5.95e+08 m
-* Temperature: 2466 K
-* Luminosity: 2.34e+24 W
+* Size: 9.32e+08 m
+* Temperature: 2522 K
+* Luminosity: 6.27e+24 W
 
 Sun units:
-* Size: 0.428 D
-* Temperature: 0.43 T
-* Luminosity: 0.006 L
+* Size: 0.671 D
+* Temperature: 0.44 T
+* Luminosity: 0.016 L
 
 Spectral data:
 * Type: M9
-* Peak wavelength: 1175.0 nm
+* Peak wavelength: 1149.0 nm
 * Peak wavelength type: near IR
 
 Temperature zone data:
-* Mineral melting line: < 0.006 AU
-* Hot zone   :   0.006 ... 0.016 AU
-* Warm zone  :   0.016 ... 0.054 AU
-* Temp. zone :   0.054 ... 0.077 AU
-* Cold zone  :   0.077 ... 0.221 AU
-* Frost line : > 0.221 AU
+* Mineral melting line: < 0.01 AU
+* Hot zone   :   0.01 ... 0.026 AU
+* Warm zone  :   0.026 ... 0.089 AU
+* Temp. zone :   0.089 ... 0.126 AU
+* Cold zone  :   0.126 ... 0.362 AU
+* Frost line : > 0.362 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 5.95e+08 м
-* Температура: 2466 К
-* Світність: 2.34e+24 Вт
+* Розмір: 9.32e+08 м
+* Температура: 2522 К
+* Світність: 6.27e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.428 D
-* Температура: 0.43 T
-* Світність: 0.006 L
+* Розмір: 0.671 D
+* Температура: 0.44 T
+* Світність: 0.016 L
 
 Спектральні дані:
 * Тип: M9
-* Пікова довжина хвилі: 1175.0 нм
+* Пікова довжина хвилі: 1149.0 нм
 * Тип пікового випромінювання: near IR
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.006 а.о.
-* Гаряча зона  :   0.006 ... 0.016 а.о.
-* Тепла зона   :   0.016 ... 0.054 а.о.
-* Помірна зона :   0.054 ... 0.077 а.о.
-* Холодна зона :   0.077 ... 0.118 а.о.
-* Межа кригоутворення : > 0.221 а.о.
+* Межа плавлення мінералів: < 0.01 а.о.
+* Гаряча зона  :   0.01 ... 0.026 а.о.
+* Тепла зона   :   0.026 ... 0.089 а.о.
+* Помірна зона :   0.089 ... 0.126 а.о.
+* Холодна зона :   0.126 ... 0.193 а.о.
+* Межа кригоутворення : > 0.362 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -526,24 +526,24 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M9_3_1
 * Star name: Valeri B
 * Star description: see above.
-* Star zone size: 2.98e+10
-* Star death zone size: 8.92e+08
-* Star size: 5.95e+08
-* Star flare distance: 2.98e+10
-* Star autopilot range: 1.78e+09
+* Star zone size: 4.66e+10
+* Star death zone size: 1.40e+09
+* Star size: 9.32e+08
+* Star flare distance: 4.66e+10
+* Star autopilot range: 2.80e+09
 
-* Omni range: 7.64e+11
+* Omni range: 1.25e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (160, 0, 0)
- - hex: #a00000
+ - rgb: (167, 0, 0)
+ - hex: #a70000
 ```  
 
  </details>  
 
 ---  
- ![9bff00](Colors/9bff00.png) ![a00000](Colors/a00000.png)   
+ ![9bff00](Colors/9bff00.png) ![a70000](Colors/a70000.png)   
 
 ---  
 # System: Viakata  
@@ -566,55 +566,55 @@ Temperature zone data:
 <details><summary>Primary star : Viakata A, type: M2</summary>  
 
 #### Star pseudo-color  
-![ff1200](Colors/ff1200.png)  
+![ff0000](Colors/ff0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.88e+08 m
-* Temperature: 3415 K
-* Luminosity: 2.00e+24 W
+* Size: 8.34e+08 m
+* Temperature: 3310 K
+* Luminosity: 1.49e+25 W
 
 Sun units:
-* Size: 0.207 D
-* Temperature: 0.59 T
-* Luminosity: 0.005 L
+* Size: 0.6 D
+* Temperature: 0.57 T
+* Luminosity: 0.039 L
 
 Spectral data:
 * Type: M2
-* Peak wavelength: 849.0 nm
+* Peak wavelength: 875.0 nm
 * Peak wavelength type: near IR
 
 Temperature zone data:
-* Mineral melting line: < 0.006 AU
-* Hot zone   :   0.006 ... 0.014 AU
-* Warm zone  :   0.014 ... 0.05 AU
-* Temp. zone :   0.05 ... 0.071 AU
-* Cold zone  :   0.071 ... 0.205 AU
-* Frost line : > 0.205 AU
+* Mineral melting line: < 0.015 AU
+* Hot zone   :   0.015 ... 0.039 AU
+* Warm zone  :   0.039 ... 0.137 AU
+* Temp. zone :   0.137 ... 0.194 AU
+* Cold zone  :   0.194 ... 0.558 AU
+* Frost line : > 0.558 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.88e+08 м
-* Температура: 3415 К
-* Світність: 2.00e+24 Вт
+* Розмір: 8.34e+08 м
+* Температура: 3310 К
+* Світність: 1.49e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.207 D
-* Температура: 0.59 T
-* Світність: 0.005 L
+* Розмір: 0.6 D
+* Температура: 0.57 T
+* Світність: 0.039 L
 
 Спектральні дані:
 * Тип: M2
-* Пікова довжина хвилі: 849.0 нм
+* Пікова довжина хвилі: 875.0 нм
 * Тип пікового випромінювання: near IR
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.006 а.о.
-* Гаряча зона  :   0.006 ... 0.014 а.о.
-* Тепла зона   :   0.014 ... 0.05 а.о.
-* Помірна зона :   0.05 ... 0.071 а.о.
-* Холодна зона :   0.071 ... 0.109 а.о.
-* Межа кригоутворення : > 0.205 а.о.
+* Межа плавлення мінералів: < 0.015 а.о.
+* Гаряча зона  :   0.015 ... 0.039 а.о.
+* Тепла зона   :   0.039 ... 0.137 а.о.
+* Помірна зона :   0.137 ... 0.194 а.о.
+* Холодна зона :   0.194 ... 0.297 а.о.
+* Межа кригоутворення : > 0.558 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -624,102 +624,336 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M2_4
 * Star name: Viakata A
 * Star description: see above.
-* Star zone size: 1.44e+10
-* Star death zone size: 4.63e+08
-* Star size: 2.88e+08
-* Star flare distance: 1.44e+10
-* Star autopilot range: 9.26e+08
+* Star zone size: 4.17e+10
+* Star death zone size: 1.26e+09
+* Star size: 8.34e+08
+* Star flare distance: 4.17e+10
+* Star autopilot range: 2.52e+09
 
-* Omni range: 7.08e+11
+* Omni range: 1.93e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 18, 0)
- - hex: #ff1200
+ - rgb: (255, 0, 0)
+ - hex: #ff0000
 ```  
 
  </details>  
 
 ---  
-<details><summary>Secondary star : Viakata B, type: M7</summary>  
+<details><summary>Secondary star : Viakata B, type: M3</summary>  
 
 #### Star pseudo-color  
-![be0000](Colors/be0000.png)  
+![fc0000](Colors/fc0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.89e+08 m
-* Temperature: 2692 K
-* Luminosity: 3.33e+23 W
+* Size: 7.64e+08 m
+* Temperature: 3284 K
+* Luminosity: 1.21e+25 W
 
 Sun units:
-* Size: 0.136 D
-* Temperature: 0.47 T
-* Luminosity: 0.001 L
+* Size: 0.55 D
+* Temperature: 0.57 T
+* Luminosity: 0.032 L
 
 Spectral data:
-* Type: M7
-* Peak wavelength: 1076.0 nm
+* Type: M3
+* Peak wavelength: 882.0 nm
 * Peak wavelength type: near IR
 
 Temperature zone data:
-* Mineral melting line: < 0.002 AU
-* Hot zone   :   0.002 ... 0.006 AU
-* Warm zone  :   0.006 ... 0.021 AU
-* Temp. zone :   0.021 ... 0.029 AU
-* Cold zone  :   0.029 ... 0.084 AU
-* Frost line : > 0.084 AU
+* Mineral melting line: < 0.014 AU
+* Hot zone   :   0.014 ... 0.036 AU
+* Warm zone  :   0.036 ... 0.124 AU
+* Temp. zone :   0.124 ... 0.175 AU
+* Cold zone  :   0.175 ... 0.503 AU
+* Frost line : > 0.503 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.89e+08 м
-* Температура: 2692 К
-* Світність: 3.33e+23 Вт
+* Розмір: 7.64e+08 м
+* Температура: 3284 К
+* Світність: 1.21e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.136 D
-* Температура: 0.47 T
-* Світність: 0.001 L
+* Розмір: 0.55 D
+* Температура: 0.57 T
+* Світність: 0.032 L
 
 Спектральні дані:
-* Тип: M7
-* Пікова довжина хвилі: 1076.0 нм
+* Тип: M3
+* Пікова довжина хвилі: 882.0 нм
 * Тип пікового випромінювання: near IR
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.002 а.о.
-* Гаряча зона  :   0.002 ... 0.006 а.о.
-* Тепла зона   :   0.006 ... 0.021 а.о.
-* Помірна зона :   0.021 ... 0.029 а.о.
-* Холодна зона :   0.029 ... 0.044 а.о.
-* Межа кригоутворення : > 0.084 а.о.
+* Межа плавлення мінералів: < 0.014 а.о.
+* Гаряча зона  :   0.014 ... 0.036 а.о.
+* Тепла зона   :   0.036 ... 0.124 а.о.
+* Помірна зона :   0.124 ... 0.175 а.о.
+* Холодна зона :   0.175 ... 0.268 а.о.
+* Межа кригоутворення : > 0.503 а.о.
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_M7_4_1_ZONE
-* Star codename: STAR_M7_4_1
-* Star translation name codename: NAME_STAR_M7_4_1
-* Star translation description codename: DESC_STAR_M7_4_1
+* Star zone codename: STAR_M3_4_1_ZONE
+* Star codename: STAR_M3_4_1
+* Star translation name codename: NAME_STAR_M3_4_1
+* Star translation description codename: DESC_STAR_M3_4_1
 * Star name: Viakata B
 * Star description: see above.
-* Star zone size: 9.45e+09
-* Star death zone size: 2.84e+08
-* Star size: 1.89e+08
-* Star flare distance: 9.45e+09
-* Star autopilot range: 5.67e+08
+* Star zone size: 3.82e+10
+* Star death zone size: 1.15e+09
+* Star size: 7.64e+08
+* Star flare distance: 3.82e+10
+* Star autopilot range: 2.29e+09
 
-* Omni range: 2.89e+11
+* Omni range: 1.74e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (190, 0, 0)
- - hex: #be0000
+ - rgb: (252, 0, 0)
+ - hex: #fc0000
 ```  
 
  </details>  
 
 ---  
- ![ff1200](Colors/ff1200.png) ![be0000](Colors/be0000.png)   
+<details><summary>Secondary star : Viakata C, type: M4</summary>  
+
+#### Star pseudo-color  
+![ea0000](Colors/ea0000.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 9.47e+08 m
+* Temperature: 3091 K
+* Luminosity: 1.46e+25 W
+
+Sun units:
+* Size: 0.682 D
+* Temperature: 0.54 T
+* Luminosity: 0.038 L
+
+Spectral data:
+* Type: M4
+* Peak wavelength: 937.0 nm
+* Peak wavelength type: near IR
+
+Temperature zone data:
+* Mineral melting line: < 0.015 AU
+* Hot zone   :   0.015 ... 0.039 AU
+* Warm zone  :   0.039 ... 0.136 AU
+* Temp. zone :   0.136 ... 0.193 AU
+* Cold zone  :   0.193 ... 0.553 AU
+* Frost line : > 0.553 AU
+```  
+```  
+Абсолютні величини:
+* Розмір: 9.47e+08 м
+* Температура: 3091 К
+* Світність: 1.46e+25 Вт
+
+Відносно Сонця:
+* Розмір: 0.682 D
+* Температура: 0.54 T
+* Світність: 0.038 L
+
+Спектральні дані:
+* Тип: M4
+* Пікова довжина хвилі: 937.0 нм
+* Тип пікового випромінювання: near IR
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.015 а.о.
+* Гаряча зона  :   0.015 ... 0.039 а.о.
+* Тепла зона   :   0.039 ... 0.136 а.о.
+* Помірна зона :   0.136 ... 0.193 а.о.
+* Холодна зона :   0.193 ... 0.294 а.о.
+* Межа кригоутворення : > 0.553 а.о.
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_M4_4_2_ZONE
+* Star codename: STAR_M4_4_2
+* Star translation name codename: NAME_STAR_M4_4_2
+* Star translation description codename: DESC_STAR_M4_4_2
+* Star name: Viakata C
+* Star description: see above.
+* Star zone size: 4.74e+10
+* Star death zone size: 1.42e+09
+* Star size: 9.47e+08
+* Star flare distance: 4.74e+10
+* Star autopilot range: 2.84e+09
+
+* Omni range: 1.91e+12
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (234, 0, 0)
+ - hex: #ea0000
+```  
+
+ </details>  
+
+---  
+<details><summary>Secondary star : Viakata D, type: M7</summary>  
+
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 5.34e+08 m
+* Temperature: 2758 K
+* Luminosity: 2.94e+24 W
+
+Sun units:
+* Size: 0.384 D
+* Temperature: 0.48 T
+* Luminosity: 0.008 L
+
+Spectral data:
+* Type: M7
+* Peak wavelength: 1051.0 nm
+* Peak wavelength type: near IR
+
+Temperature zone data:
+* Mineral melting line: < 0.007 AU
+* Hot zone   :   0.007 ... 0.018 AU
+* Warm zone  :   0.018 ... 0.061 AU
+* Temp. zone :   0.061 ... 0.086 AU
+* Cold zone  :   0.086 ... 0.248 AU
+* Frost line : > 0.248 AU
+```  
+```  
+Абсолютні величини:
+* Розмір: 5.34e+08 м
+* Температура: 2758 К
+* Світність: 2.94e+24 Вт
+
+Відносно Сонця:
+* Розмір: 0.384 D
+* Температура: 0.48 T
+* Світність: 0.008 L
+
+Спектральні дані:
+* Тип: M7
+* Пікова довжина хвилі: 1051.0 нм
+* Тип пікового випромінювання: near IR
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.007 а.о.
+* Гаряча зона  :   0.007 ... 0.018 а.о.
+* Тепла зона   :   0.018 ... 0.061 а.о.
+* Помірна зона :   0.061 ... 0.086 а.о.
+* Холодна зона :   0.086 ... 0.132 а.о.
+* Межа кригоутворення : > 0.248 а.о.
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_M7_4_3_ZONE
+* Star codename: STAR_M7_4_3
+* Star translation name codename: NAME_STAR_M7_4_3
+* Star translation description codename: DESC_STAR_M7_4_3
+* Star name: Viakata D
+* Star description: see above.
+* Star zone size: 2.67e+10
+* Star death zone size: 8.01e+08
+* Star size: 5.34e+08
+* Star flare distance: 2.67e+10
+* Star autopilot range: 1.60e+09
+
+* Omni range: 8.57e+11
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (198, 0, 0)
+ - hex: #c60000
+```  
+
+ </details>  
+
+---  
+<details><summary>Secondary star : Viakata E, type: M7</summary>  
+
+#### Star pseudo-color  
+![c60000](Colors/c60000.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 9.72e+08 m
+* Temperature: 2758 K
+* Luminosity: 9.74e+24 W
+
+Sun units:
+* Size: 0.699 D
+* Temperature: 0.48 T
+* Luminosity: 0.025 L
+
+Spectral data:
+* Type: M7
+* Peak wavelength: 1051.0 nm
+* Peak wavelength type: near IR
+
+Temperature zone data:
+* Mineral melting line: < 0.012 AU
+* Hot zone   :   0.012 ... 0.032 AU
+* Warm zone  :   0.032 ... 0.111 AU
+* Temp. zone :   0.111 ... 0.157 AU
+* Cold zone  :   0.157 ... 0.451 AU
+* Frost line : > 0.451 AU
+```  
+```  
+Абсолютні величини:
+* Розмір: 9.72e+08 м
+* Температура: 2758 К
+* Світність: 9.74e+24 Вт
+
+Відносно Сонця:
+* Розмір: 0.699 D
+* Температура: 0.48 T
+* Світність: 0.025 L
+
+Спектральні дані:
+* Тип: M7
+* Пікова довжина хвилі: 1051.0 нм
+* Тип пікового випромінювання: near IR
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.012 а.о.
+* Гаряча зона  :   0.012 ... 0.032 а.о.
+* Тепла зона   :   0.032 ... 0.111 а.о.
+* Помірна зона :   0.111 ... 0.157 а.о.
+* Холодна зона :   0.157 ... 0.24 а.о.
+* Межа кригоутворення : > 0.451 а.о.
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_M7_4_4_ZONE
+* Star codename: STAR_M7_4_4
+* Star translation name codename: NAME_STAR_M7_4_4
+* Star translation description codename: DESC_STAR_M7_4_4
+* Star name: Viakata E
+* Star description: see above.
+* Star zone size: 4.86e+10
+* Star death zone size: 1.46e+09
+* Star size: 9.72e+08
+* Star flare distance: 4.86e+10
+* Star autopilot range: 2.92e+09
+
+* Omni range: 1.56e+12
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (198, 0, 0)
+ - hex: #c60000
+```  
+
+ </details>  
+
+---  
+ ![ff0000](Colors/ff0000.png) ![fc0000](Colors/fc0000.png) ![ea0000](Colors/ea0000.png) ![c60000](Colors/c60000.png) ![c60000](Colors/c60000.png)   
 
 ---  
 # System: Glory  
@@ -746,51 +980,51 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.57e+09 m
-* Temperature: 5256 K
-* Luminosity: 3.35e+26 W
+* Size: 1.47e+09 m
+* Temperature: 5268 K
+* Luminosity: 2.96e+26 W
 
 Sun units:
-* Size: 1.129 D
+* Size: 1.057 D
 * Temperature: 0.91 T
-* Luminosity: 0.876 L
+* Luminosity: 0.774 L
 
 Spectral data:
 * Type: G9
-* Peak wavelength: 551.0 nm
+* Peak wavelength: 550.0 nm
 * Peak wavelength type: visible
 
 Temperature zone data:
-* Mineral melting line: < 0.073 AU
-* Hot zone   :   0.073 ... 0.187 AU
-* Warm zone  :   0.187 ... 0.652 AU
-* Temp. zone :   0.652 ... 0.923 AU
-* Cold zone  :   0.923 ... 2.648 AU
-* Frost line : > 2.648 AU
+* Mineral melting line: < 0.068 AU
+* Hot zone   :   0.068 ... 0.176 AU
+* Warm zone  :   0.176 ... 0.614 AU
+* Temp. zone :   0.614 ... 0.868 AU
+* Cold zone  :   0.868 ... 2.49 AU
+* Frost line : > 2.49 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.57e+09 м
-* Температура: 5256 К
-* Світність: 3.35e+26 Вт
+* Розмір: 1.47e+09 м
+* Температура: 5268 К
+* Світність: 2.96e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.129 D
+* Розмір: 1.057 D
 * Температура: 0.91 T
-* Світність: 0.876 L
+* Світність: 0.774 L
 
 Спектральні дані:
 * Тип: G9
-* Пікова довжина хвилі: 551.0 нм
+* Пікова довжина хвилі: 550.0 нм
 * Тип пікового випромінювання: visible
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.073 а.о.
-* Гаряча зона  :   0.073 ... 0.187 а.о.
-* Тепла зона   :   0.187 ... 0.652 а.о.
-* Помірна зона :   0.652 ... 0.923 а.о.
-* Холодна зона :   0.923 ... 1.41 а.о.
-* Межа кригоутворення : > 2.648 а.о.
+* Межа плавлення мінералів: < 0.068 а.о.
+* Гаряча зона  :   0.068 ... 0.176 а.о.
+* Тепла зона   :   0.176 ... 0.614 а.о.
+* Помірна зона :   0.614 ... 0.868 а.о.
+* Холодна зона :   0.868 ... 1.325 а.о.
+* Межа кригоутворення : > 2.49 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -800,13 +1034,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G9_5
 * Star name: Glory A
 * Star description: see above.
-* Star zone size: 7.85e+10
-* Star death zone size: 5.99e+09
-* Star size: 1.57e+09
-* Star flare distance: 7.85e+10
-* Star autopilot range: 1.20e+10
+* Star zone size: 7.35e+10
+* Star death zone size: 5.63e+09
+* Star size: 1.47e+09
+* Star flare distance: 7.35e+10
+* Star autopilot range: 1.13e+10
 
-* Omni range: 9.15e+12
+* Omni range: 8.61e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -830,8 +1064,8 @@ Temperature zone data:
 * System codename: STAR_F7_6_SYSTEM
 * System translation name codename: NAME_STAR_F7_6_SYSTEM
 * System translation description codename: DESC_STAR_F7_6_SYSTEM
-* System zone size: 1.60e+13
-* System autopilot range: 1.60e+13
+* System zone size: 1.61e+13
+* System autopilot range: 1.61e+13
 ```
 
  </details>  
@@ -844,14 +1078,14 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.84e+09 m
-* Temperature: 6420 K
-* Luminosity: 1.02e+27 W
+* Size: 1.85e+09 m
+* Temperature: 6421 K
+* Luminosity: 1.03e+27 W
 
 Sun units:
-* Size: 1.323 D
+* Size: 1.329 D
 * Temperature: 1.11 T
-* Luminosity: 2.67 L
+* Luminosity: 2.7 L
 
 Spectral data:
 * Type: F7
@@ -859,23 +1093,23 @@ Spectral data:
 * Peak wavelength type: visible
 
 Temperature zone data:
-* Mineral melting line: < 0.127 AU
-* Hot zone   :   0.127 ... 0.327 AU
-* Warm zone  :   0.327 ... 1.14 AU
-* Temp. zone :   1.14 ... 1.612 AU
-* Cold zone  :   1.612 ... 4.626 AU
-* Frost line : > 4.626 AU
+* Mineral melting line: < 0.128 AU
+* Hot zone   :   0.128 ... 0.329 AU
+* Warm zone  :   0.329 ... 1.146 AU
+* Temp. zone :   1.146 ... 1.62 AU
+* Cold zone  :   1.62 ... 4.65 AU
+* Frost line : > 4.65 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.84e+09 м
-* Температура: 6420 К
-* Світність: 1.02e+27 Вт
+* Розмір: 1.85e+09 м
+* Температура: 6421 К
+* Світність: 1.03e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.323 D
+* Розмір: 1.329 D
 * Температура: 1.11 T
-* Світність: 2.67 L
+* Світність: 2.7 L
 
 Спектральні дані:
 * Тип: F7
@@ -883,12 +1117,12 @@ Temperature zone data:
 * Тип пікового випромінювання: visible
 
 Дані температурного зонування:
-* Межа плавлення мінералів: < 0.127 а.о.
-* Гаряча зона  :   0.127 ... 0.327 а.о.
-* Тепла зона   :   0.327 ... 1.14 а.о.
-* Помірна зона :   1.14 ... 1.612 а.о.
-* Холодна зона :   1.612 ... 2.462 а.о.
-* Межа кригоутворення : > 4.626 а.о.
+* Межа плавлення мінералів: < 0.128 а.о.
+* Гаряча зона  :   0.128 ... 0.329 а.о.
+* Тепла зона   :   0.329 ... 1.146 а.о.
+* Помірна зона :   1.146 ... 1.62 а.о.
+* Холодна зона :   1.62 ... 2.475 а.о.
+* Межа кригоутворення : > 4.65 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -898,13 +1132,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F7_6
 * Star name: Hilicele A
 * Star description: see above.
-* Star zone size: 9.20e+10
+* Star zone size: 9.25e+10
 * Star death zone size: 1.05e+10
-* Star size: 1.84e+09
-* Star flare distance: 9.20e+10
-* Star autopilot range: 2.09e+10
+* Star size: 1.85e+09
+* Star flare distance: 9.25e+10
+* Star autopilot range: 2.10e+10
 
-* Omni range: 1.60e+13
+* Omni range: 1.61e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):

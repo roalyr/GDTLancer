@@ -16,10 +16,10 @@ num_stars_max = 5
 
 # Planets for each star type.
 star_o_num_planets_min = 1
-star_o_num_planets_max = 30
+star_o_num_planets_max = 5
 
 star_b_num_planets_min = 1
-star_b_num_planets_max = 20
+star_b_num_planets_max = 15
 
 star_a_num_planets_min = 1
 star_a_num_planets_max = 20
@@ -332,7 +332,7 @@ young_planetary_system_planetoid_min  = 0
 # young_planetary_system_planetoid_max  = ???
 
 
-# Type of planet  Earth units        R = M^f
+# Type of planet  Earth units		R = M^f
 planet_rocky_radius_factor = 0.28
 
 #  M min  M max  R min  R max  f
@@ -347,7 +347,7 @@ planet_D_mass_max = 0.0002
 # Super-dwarf  0.0002  0.002  0.092  0.176  0.28
 planet_SD_mass_min = 0.0002
 planet_SD_mass_max = 0.002
-           
+		   
 # Sub-terrestrial  0.002  0.02  0.176  0.334  0.28
 planet_sT_mass_min = 0.002
 planet_sT_mass_max = 0.02
@@ -520,6 +520,7 @@ def system_generation(star_id, system, cluster_name):
 	p_secondary_stars = ''
 	star_list = []
 	planet_list = []
+	orbit_list = []
 	star_color_list = []
 	
 	# Get the star if it was defined. Second argument is for secondary stars, thus empty.
@@ -538,26 +539,6 @@ def system_generation(star_id, system, cluster_name):
 		used_names.append(star_name)
 	else:
 		star_name = random_system_name(4, 7) 
-	
-	# Number of planets.
-	if "total_planets" in system:
-		planets_num = len(system["total_planets"])
-		if planets_num > 0:
-			
-			# Make from preset and store.
-			for planet_type in system["total_planets"]:
-				planet = make_planet(planet_type, main_star["type"])
-				planet_list.append(planet)
-	else:
-		planets_num = random_planet_number(star_type[0])
-		if planets_num > 0:
-			
-			# Generate and store.
-			for _ in range(planets_num):
-				planet = make_planet('', main_star["type"])
-				planet_list.append(planet)
-	
-	#if not planet_list: print("no planets")
 	
 	# Index 0 in the end takes the text + color sample image, 1 - only returns image.
 	primary_star = formatting_star_data(star_id, True, main_star, star_name + " A")
@@ -595,6 +576,44 @@ def system_generation(star_id, system, cluster_name):
 			star_name + " " + ABC[i])
 		p_secondary_stars += s[0]
 		star_color_list.append(s[1])
+		
+	# Generate planets.
+	if "total_planets" in system:
+		planets_num = len(system["total_planets"])
+		if planets_num > 0:
+			
+			# Make from preset and store.
+			for planet_type in system["total_planets"]:
+				planet = make_planet(planet_type, main_star["type"])
+				planet_list.append(planet)
+	else:
+		planets_num = random_planet_number(star_type[0])
+		if planets_num > 0:
+			
+			# Generate and store.
+			for _ in range(planets_num):
+				planet = make_planet('', main_star["type"])
+				planet_list.append(planet)
+	
+	# Check planet list and sort out unlikely sequences.
+	print("-------", star_name, star_type[0], star_type[1], "--------")
+	planet_list = sort_orbits(planet_list)
+		
+	# Split planetary system into orbits.
+	Lmin = main_star["zone_margins"][5]*random_planet_val.uniform(1.1, 100)  # Minimum distance from star
+	Lmax = main_star["omni_range"]  # Maximum distance from star
+	N = len(planet_list)
+	resonance_ratio = 2
+	if N > 1:
+		orbit_list = generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio)
+	elif N == 1:
+		orbit_list = [random_planet_val.uniform(Lmin, Lmax)]
+	else:
+		orbit_list = []
+	
+	
+	for i in range(len(orbit_list)):
+		print(planet_list[i]["type"], " - ", round(orbit_list[i]/sun_distance_au, 3), "AU")
 	
 	# Write down the text for the main star and the system.
 	p += formatting_system_data(star_id, system, main_star, star_name)
@@ -758,6 +777,49 @@ def get_planet_size(planet_type, planet_mass):
 	return planet_size
 
 
+def sort_orbits(planet_list):
+	# Remove small planets between giants.
+	i = 0
+	while i < len(planet_list)-2:
+		if planet_list[i+1]["type"] == "sub dwarf" or \
+		planet_list[i+1]["type"] == "dwarf" or \
+		planet_list[i+1]["type"] == "super dwarf" or \
+		planet_list[i+1]["type"] == "sub terrestrial" or \
+		planet_list[i+1]["type"] == "terrestrial" or \
+		planet_list[i+1]["type"] == "super terrestrial":
+			
+			if planet_list[i]["type"] == "sub giant" or \
+			planet_list[i]["type"] == "giant" or \
+			planet_list[i]["type"] == "super giant":
+				if planet_list[i+2]["type"] == "sub giant" or \
+				planet_list[i+2]["type"] == "giant" or \
+				planet_list[i+2]["type"] == "super giant":
+				
+					print("removing:", planet_list[i+1]["type"], "between:", planet_list[i]["type"], "and", planet_list[i+2]["type"])
+					planet_list[i+1]["type"] = "- empty orbit -"
+					i = 0
+			
+		i += 1
+		
+	return planet_list
+
+
+def generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio):
+	semi_major_axes = [Lmin]  # Start with the minimum distance as the first orbit
+
+	for i in range(1, N):
+		prev_axis = semi_major_axes[i-1]
+		semi_major_axis = prev_axis * resonance_ratio
+		semi_major_axes.append(semi_major_axis)
+
+	# Scale the semi-major axes to fit within the desired range (Lmin to Lmax)
+	range_span = Lmax - Lmin
+	axes_span = max(semi_major_axes) - min(semi_major_axes)
+	scaling_factor = range_span / axes_span
+	semi_major_axes = [axis * scaling_factor for axis in semi_major_axes]
+
+	return semi_major_axes
+	
 
 
 
