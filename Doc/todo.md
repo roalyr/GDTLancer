@@ -18,6 +18,7 @@ Highlighted entries are "Work in progress".
 - Temperature / flux zones (distance-affected) and gauge.
 - Reflective ship / base coating materials.
 - **Basic gameplay loop(s).**
+- Space markers hierarchy (make planets appear on lists when in respective system).
 
 ## Improvements
 - Investigate enabling/disabling trimesh collision shapes on the go.

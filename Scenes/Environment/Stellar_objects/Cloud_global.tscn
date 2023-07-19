@@ -37,6 +37,7 @@
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_25.glb" type="PackedScene" id=35]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_26.glb" type="PackedScene" id=36]
 [ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global/Segments/LODS_Cloud_global_27.glb" type="PackedScene" id=37]
+[ext_resource path="res://Assets/Models/Environment/Stellar/Clouds/Cloud_global_new.glb" type="PackedScene" id=38]
 
 [sub_resource type="QuadMesh" id=96]
 
@@ -54,14 +55,20 @@ shader_param/size = 1.0
 
 [sub_resource type="ShaderMaterial" id=110]
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.0745098, 0.105882, 0.0980392, 1 )
-shader_param/distance_fade_max = 1.5e+18
+shader_param/albedo = Color( 0.027451, 0.0705882, 0.0901961, 1 )
+shader_param/distance_fade_max = 2e+18
 
-[sub_resource type="ShaderMaterial" id=62]
+[sub_resource type="ShaderMaterial" id=113]
 next_pass = SubResource( 110 )
 shader = ExtResource( 7 )
 shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
-shader_param/distance_fade_max = 3e+16
+shader_param/distance_fade_max = 1e+17
+
+[sub_resource type="ShaderMaterial" id=62]
+next_pass = SubResource( 113 )
+shader = ExtResource( 7 )
+shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
+shader_param/distance_fade_max = 1e+18
 
 [sub_resource type="OpenSimplexNoise" id=111]
 period = 0.1
@@ -75,34 +82,23 @@ noise = SubResource( 111 )
 [sub_resource type="ShaderMaterial" id=112]
 next_pass = SubResource( 62 )
 shader = ExtResource( 3 )
-shader_param/albedo = Color( 0.247059, 0, 0, 1 )
-shader_param/albedo_outer = Color( 0.4, 0.368627, 0.368627, 1 )
-shader_param/albedo_detail = Color( 0.341176, 0.262745, 0.2, 1 )
-shader_param/major_detail_scale = 0.284
-shader_param/major_detail_phase = 0.952
-shader_param/factor = 0.209
-shader_param/distance_fade_detail = 3e+18
-shader_param/distance_fade_outer_rim = 1e+18
-shader_param/rim_strength = 0.873
-shader_param/rim_exponent = 1.825
-shader_param/color_power_r = 1.05
-shader_param/color_power_g = 1.05
-shader_param/color_power_b = 1.05
-shader_param/color_multiplier_r = 1.2
-shader_param/color_multiplier_g = 1.2
-shader_param/color_multiplier_b = 1.2
+shader_param/albedo = Color( 0.286275, 0.286275, 0.286275, 1 )
+shader_param/albedo_outer = Color( 0.545098, 0.360784, 0.262745, 1 )
+shader_param/albedo_detail = Color( 0.160784, 0.6, 0.486275, 1 )
+shader_param/major_detail_scale = 0.234
+shader_param/major_detail_phase = 1.112
+shader_param/factor = 0.8
+shader_param/distance_fade_detail = 6e+18
+shader_param/distance_fade_outer_rim = 1e+19
+shader_param/rim_strength = 0.8
+shader_param/rim_exponent = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 1.0
 shader_param/major_detail_noise = SubResource( 75 )
-
-[sub_resource type="ShaderMaterial" id=61]
-shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.0784314, 0.192157, 0.215686, 1 )
-shader_param/distance_fade_max = 2e+18
-
-[sub_resource type="ShaderMaterial" id=113]
-next_pass = SubResource( 61 )
-shader = ExtResource( 7 )
-shader_param/albedo = Color( 0.0666667, 0.0862745, 0.0980392, 1 )
-shader_param/distance_fade_max = 3e+16
 
 [sub_resource type="QuadMesh" id=115]
 
@@ -147,7 +143,7 @@ resource_name = "Gobal_cloud_segments_LOD_ranges"
 script/source = "extends Spatial
 
 # TODO: Make this a global option for all such cases where LODs distances are computed.
-const lod_0_rel_dist = 0.35
+const lod_0_rel_dist = 0.25
 const lod_1_factor = 2.0
 const lod_2_factor = 4.0
 
@@ -250,7 +246,14 @@ visible = false
 skeleton = NodePath("../../Cloud_global_inner2")
 material/0 = SubResource( 112 )
 
+[node name="Cloud_global_new" parent="." instance=ExtResource( 38 )]
+transform = Transform( 1e+18, 0, 0, 0, 1e+18, 0, 0, 0, 1e+18, 0, 0, 0 )
+
+[node name="Global_nebula" parent="Cloud_global_new" index="0"]
+material/0 = SubResource( 112 )
+
 [node name="Scenes" type="Spatial" parent="."]
+visible = false
 script = SubResource( 122 )
 __meta__ = {
 "_edit_lock_": true,
@@ -889,6 +892,7 @@ shape = SubResource( 114 )
 [editable path="_EDITOR OBJECTS_/Vertex_cloud_192_2"]
 [editable path="_EDITOR OBJECTS_/Vertex_cloud_192_1"]
 [editable path="_EDITOR OBJECTS_/Cloud_global_inner2"]
+[editable path="Cloud_global_new"]
 [editable path="Scenes/LODS_Cloud_global_1"]
 [editable path="Scenes/LODS_Cloud_global_2"]
 [editable path="Scenes/LODS_Cloud_global_3"]
