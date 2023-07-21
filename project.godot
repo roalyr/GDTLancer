@@ -150,15 +150,15 @@ boot_splash/minimum_display_time=3000
 
 [autoload]
 
-Paths="*res://Scripts/Main/autoload_Paths.gd"
-Constants="*res://Scripts/Main/autoload_Constants.gd"
-Signals="*res://Scripts/Main/autoload_Signals.gd"
-GameOptions="*res://Scripts/Main/autoload_Game_options.gd"
-GameState="*res://Scripts/State/autoload_Game_state.gd"
-PlayerState="*res://Scripts/State/autoload_Ship_state.gd"
-SpaceState="*res://Scripts/State/autoload_Space_state.gd"
-GlobalInput="*res://Scenes/Input.tscn"
-ViewportContainer3d="*res://Scenes/ViewportContainer3D.tscn"
+Paths="*res://Scripts/Autoload/autoload_Paths.gd"
+Constants="*res://Scripts/Autoload/autoload_Constants.gd"
+Signals="*res://Scripts/Autoload/autoload_Signals.gd"
+GameOptions="*res://Scripts/Autoload/autoload_Game_options.gd"
+GameState="*res://Scripts/Autoload/autoload_Game_state.gd"
+PlayerState="*res://Scripts/Autoload/autoload_Player_state.gd"
+SpaceState="*res://Scripts/Autoload/autoload_Space_state.gd"
+GlobalInput="*res://Scenes/Autoload/autoload_Input.tscn"
+ViewportContainer3d="*res://Scenes/Autoload/autoload_ViewportContainer3D.tscn"
 
 [display]
 
