@@ -166,9 +166,6 @@ transform = Transform( 0.729017, -0.221007, 0.647835, -0.412554, -0.897088, 0.15
 [node name="_STAR_F7_6_SYSTEM_ZONE" parent="." instance=ExtResource( 14 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.73047e+17, -9.23179e+17, -1.19595e+17 )
 
-[node name="_STAR_F7_6_SYSTEM_ZONE2" parent="." instance=ExtResource( 14 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.73047e+17, -9.23179e+17, -1.19595e+17 )
-
 [node name="STAR_B7_0_SYSTEM_ZONE" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.99526e+17, 2.37025e+17, -1.99909e+17 )
 __meta__ = {

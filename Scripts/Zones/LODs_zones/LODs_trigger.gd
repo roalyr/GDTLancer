@@ -41,7 +41,7 @@ func _ready():
 			object_absolute_size = max(max(self.scale.x, self.scale.y), self.scale.z)
 		else:
 			# For objects that are a part of a scene, which are not of a unit size or are displaced.
-			object_absolute_size = self.get_child(0).get_aabb().size.abs().length()*max(max(self.scale.x, self.scale.y), self.scale.z)
+			object_absolute_size = self.get_child(0).get_transformed_aabb().size.abs().length()*max(max(self.scale.x, self.scale.y), self.scale.z)
 	# print(self, ":", object_absolute_size)
 
 	# Add random jitter to the timer to ensure LODs don't all swap at the same time.

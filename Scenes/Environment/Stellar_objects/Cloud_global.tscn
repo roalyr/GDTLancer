@@ -116,12 +116,12 @@ resource_name = "Gobal_cloud_segments_LOD_ranges"
 script/source = "extends Spatial
 
 # TODO: Make this a global option for all such cases where LODs distances are computed.
-const lod_0_rel_dist = 0.5
+const lod_0_rel_dist = 1
 const lod_1_factor = 1.5
 const lod_2_factor = 2.0
 
 # Keep this a constant since it is a scale factor of a global nebula.
-const base_abs_size = 2e18
+const base_abs_size = 1e18
 
 func _ready():
 	pass
