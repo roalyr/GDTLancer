@@ -521,6 +521,7 @@ def system_generation(star_id, system, cluster_name):
 	star_list = []
 	planet_list = []
 	orbit_list = []
+	planetary_data = []
 	star_color_list = []
 	
 	# Get the star if it was defined. Second argument is for secondary stars, thus empty.
@@ -600,8 +601,8 @@ def system_generation(star_id, system, cluster_name):
 	planet_list = sort_orbits(planet_list)
 		
 	# Split planetary system into orbits.
-	Lmin = main_star["zone_margins"][5]*random_planet_val.uniform(1.1, 100)  # Minimum distance from star
-	Lmax = main_star["omni_range"]  # Maximum distance from star
+	Lmin = main_star["zone_margins"][4]*random_planet_val.uniform(1, 10)  # Minimum distance from star
+	Lmax = main_star["zone_margins"][0]*random_planet_val.uniform(1, 10)  # Maximum distance from star
 	N = len(planet_list)
 	resonance_ratio = 2
 	if N > 1:
@@ -610,10 +611,36 @@ def system_generation(star_id, system, cluster_name):
 		orbit_list = [random_planet_val.uniform(Lmin, Lmax)]
 	else:
 		orbit_list = []
+
+	
+	# Determine temperature range and combine data.
+	temperature_list = get_planet_temperature_list(orbit_list, main_star)
 	
 	
-	for i in range(len(orbit_list)):
-		print(planet_list[i]["type"], " - ", round(orbit_list[i]/sun_distance_au, 3), "AU")
+	
+	
+	
+	# Combine data previously received.
+	for i in range(len(planet_list)):
+		planetary_data.append(planet_list[i])
+		planetary_data[i]["orbit"] = orbit_list[i]
+		#print(planetary_data[i])
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	# TEST
+	#for i in range(len(orbit_list)):
+		#print(planet_list[i]["type"], " - ", round(orbit_list[i]/sun_distance_au, 3), "AU")
+		
+		
+		
 	
 	# Write down the text for the main star and the system.
 	p += formatting_system_data(star_id, system, main_star, star_name)
@@ -806,6 +833,8 @@ def sort_orbits(planet_list):
 
 def generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio):
 	semi_major_axes = [Lmin]  # Start with the minimum distance as the first orbit
+	
+	print("Lmin:", round(Lmin/sun_distance_au, 3), "Lmax", round(Lmax/sun_distance_au), "AU")
 
 	for i in range(1, N):
 		prev_axis = semi_major_axes[i-1]
@@ -821,11 +850,45 @@ def generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio):
 	return semi_major_axes
 	
 
-
-
-
-
-
+def get_planet_temperature_list(orbit_list, main_star):
+	# flux = sigma * T^4
+	# T = (flux / sigma)^(1/4)
+	# zones : type
+	#	> star_frost_line		:	icy
+	#	< star_frost_line		:	cold
+	#	< star_temperate_zone	:	temperate
+	#	< star_warm_zone		:	warm
+	#	< star_hot_zone			:	hot
+	#	< star_dust_melting		:	very hot
+	#	< star_death_zone		:	evaporated
+	
+	temperature_list = []
+	temperature_type = ""
+	
+	
+	for i in range(len(orbit_list)):
+		current_orbit = orbit_list[i]
+		if current_orbit < main_star["zone_margins"][5]:
+			temperature_type = "evaporated"
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+		elif current_orbit < main_star["zone_margins"][4]:
+			temperature_type = "very hot"	
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+		elif current_orbit < main_star["zone_margins"][3]:
+			temperature_type = "hot"	
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+		elif current_orbit < main_star["zone_margins"][2]:
+			temperature_type = "warm"	
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+		elif current_orbit < main_star["zone_margins"][1]:
+			temperature_type = "temperate"	
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+		elif current_orbit < main_star["zone_margins"][0]:
+			temperature_type = "cold"	
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+		elif current_orbit > main_star["zone_margins"][0]:
+			temperature_type = "icy"	
+			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 
 
 ########### STAR GENERATION #############
