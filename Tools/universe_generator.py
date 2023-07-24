@@ -10,6 +10,10 @@ star_autopilot_factor = 2.0 # Multiplied by death zone size.
 star_flare_factor = 1.0 # Multiplied by star zone size. Acts like an indicatort.
 system_zone_size_min = 1e13 # Threshold to prevent jitter.
 
+planet_zone_size_factor = 20 # Multiplied by planet size.
+planet_death_zone_factor = 1.05 # Planet death zone (atmosphere or gravitation pull?)
+planet_autopilot_factor = 1.5 # Multiplied by death zone size.
+
 # Companion stars for the main star.
 num_stars_min = 0
 num_stars_max = 5
@@ -153,6 +157,7 @@ sun_distance_au = 149597870700 #m
 sun_luminosity = 3.827e+26 # Watts
 sun_luminosity_visible = 0.47 * sun_luminosity # ~1.8e+26 Watts
 sun_temperature = 5771.8 # K
+sun_mass = 1.99e30 # kg
 
 # GODOT omni light
 # Omni light formula: range = (luminocity/4)^(1/2)
@@ -331,6 +336,15 @@ young_planetary_system_planets_min  = 0
 young_planetary_system_planetoid_min  = 0
 # young_planetary_system_planetoid_max  = ???
 
+
+# Planetary resonanse factors.
+resonance_ratio_list = [1.33, 1.5, 2.0]
+
+# Safe gravitational zone threshild multiplier for beighbor planets.
+hill_radii_stability_multiplier = 2
+
+# Multiplier for frost line.
+gas_giant_spawn_distance_factor = 10
 
 # Type of planet  Earth units		R = M^f
 planet_rocky_radius_factor = 0.28
@@ -596,35 +610,47 @@ def system_generation(star_id, system, cluster_name):
 				planet = make_planet('', main_star["type"])
 				planet_list.append(planet)
 	
-	# Check planet list and sort out unlikely sequences.
+	
+	
+	
+	
+	# Test
 	print("-------", star_name, star_type[0], star_type[1], "--------")
-	planet_list = sort_orbits(planet_list)
-		
+
 	# Split planetary system into orbits.
-	Lmin = main_star["zone_margins"][4]*random_planet_val.uniform(1, 10)  # Minimum distance from star
-	Lmax = main_star["zone_margins"][0]*random_planet_val.uniform(1, 10)  # Maximum distance from star
+	# Initial ranges.
+	Lmin = main_star["zone_margins"][5]*random_planet_val.uniform(1, 10)  # Minimum distance from star
+	Lmax = main_star["zone_margins"][0]*random_planet_val.uniform(0.9, 1.2)  # Maximum distance from star
 	N = len(planet_list)
-	resonance_ratio = 2
+	resonance_ratio = random_planet_val.choice(resonance_ratio_list)
+	
 	if N > 1:
 		orbit_list = generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio)
 	elif N == 1:
 		orbit_list = [random_planet_val.uniform(Lmin, Lmax)]
 	else:
 		orbit_list = []
-
+		
+	# Check planet list and sort out unlikely sequences.
+	# Calculate Hill radii of each star-planet pair.
+	planet_list = sort_orbits(planet_list, orbit_list, main_star, Lmax)
 	
 	# Determine temperature range and combine data.
-	temperature_list = get_planet_temperature_list(orbit_list, main_star)
+	temperature_list = get_planet_temperature_list(orbit_list, planet_list, main_star)
 	
+	# Determine atmosphere.
+	atmosphere_list = get_planet_atmosphere(planet_list, temperature_list)
 	
-	
+	# Determine albedo.
 	
 	
 	# Combine data previously received.
 	for i in range(len(planet_list)):
 		planetary_data.append(planet_list[i])
 		planetary_data[i]["orbit"] = orbit_list[i]
-		#print(planetary_data[i])
+		planetary_data[i]["temperature_type"] = temperature_list[i][0]
+		planetary_data[i]["temperature"] = temperature_list[i][1]
+		print(planetary_data[i])
 	
 	
 	
@@ -636,8 +662,8 @@ def system_generation(star_id, system, cluster_name):
 	
 	
 	# TEST
-	#for i in range(len(orbit_list)):
-		#print(planet_list[i]["type"], " - ", round(orbit_list[i]/sun_distance_au, 3), "AU")
+	for i in range(len(orbit_list)):
+		print(planet_list[i]["type"], " - ", round(orbit_list[i]/sun_distance_au, 3), "AU")
 		
 		
 		
@@ -735,6 +761,12 @@ def make_planet(user_defined_type, primary_star_type):
 	planet_mass = get_planet_mass(planet_type)
 	planet_size = get_planet_size(planet_type, planet_mass)
 	
+	# Define zones.
+	planet_zone_size = planet_size * planet_zone_size_factor
+	planet_death_zone = planet_size * planet_death_zone_factor
+	
+	planet_zone_margins = [planet_zone_size, planet_death_zone]
+	
 	planet = {
 		"type" : planet_type,
 		"size" : planet_size,
@@ -804,7 +836,31 @@ def get_planet_size(planet_type, planet_mass):
 	return planet_size
 
 
-def sort_orbits(planet_list):
+def sort_orbits(planet_list, orbit_list, main_star, Lmax):
+	# Hill radii.
+	hill_radii_list = []
+	for i in range(len(orbit_list)):
+		planet = planet_list[i]
+		orbit = orbit_list[i]
+		hr = orbit * pow((planet["mass"] / 3 / (planet["mass"] + main_star["mass"])), (1/3))
+		hill_radii_list.append(hr)
+	
+	# Remove gas giants past some threshold by changung its type.
+	threshold = main_star["zone_margins"][0] * gas_giant_spawn_distance_factor
+	for i in range(len(orbit_list)):
+		planet = planet_list[i]
+		orbit = orbit_list[i]
+		if orbit >= threshold:
+			if planet["type"] == "sub giant" or \
+				planet["type"] == "giant" or \
+				planet["type"] == "super giant": 
+					
+					# Change gas planet for tge dwarf planet.
+					planet_list[i]["type"] = random_planet_val.choice(["sub dwarf", "dwarf", "super dwarf"])
+					planet_list[i]["mass"] = get_planet_mass(planet_list[i]["type"])
+					planet_list[i]["size"] = get_planet_size(planet_list[i]["type"], planet_list[i]["mass"])
+					#print("Changing planet type past threshold at:", e(threshold), planet_list[i]["type"])
+	
 	# Remove small planets between giants.
 	i = 0
 	while i < len(planet_list)-2:
@@ -821,20 +877,71 @@ def sort_orbits(planet_list):
 				if planet_list[i+2]["type"] == "sub giant" or \
 				planet_list[i+2]["type"] == "giant" or \
 				planet_list[i+2]["type"] == "super giant":
-				
-					print("removing:", planet_list[i+1]["type"], "between:", planet_list[i]["type"], "and", planet_list[i+2]["type"])
+					
+					#print("removing:", planet_list[i+1]["type"], "between:", planet_list[i]["type"], "and", planet_list[i+2]["type"])
 					planet_list[i+1]["type"] = "- empty orbit -"
+					planet_list[i+1]["mass"] = 0
+					planet_list[i+1]["size"] = 0
+					hill_radii_list[i+1] = 0
 					i = 0
 			
 		i += 1
-		
+	
+	# Remove small planets between hot-cold giants and frost line (migration).
+	for i in range(len(orbit_list)):
+		if orbit_list[i] < main_star["zone_margins"][0]:
+			if planet_list[i]["type"] == "sub giant" or \
+			planet_list[i]["type"] == "giant" or \
+			planet_list[i]["type"] == "super giant":
+				
+				k = i + 1# start checking planets ahead of i.
+				k_max = len(orbit_list) - 1
+				if k < k_max - i - 1:
+					while orbit_list[k] < main_star["zone_margins"][0] and k < k_max:
+						# Remove all the small planets.
+						if planet_list[k]["type"] == "sub dwarf" or \
+						planet_list[k]["type"] == "dwarf" or \
+						planet_list[k]["type"] == "super dwarf" or \
+						planet_list[k]["type"] == "sub terrestrial" or \
+						planet_list[k]["type"] == "terrestrial" or \
+						planet_list[k]["type"] == "super terrestrial": 
+							
+							planet_list[k]["type"] = "- empty orbit -"
+							planet_list[k]["mass"] = 0
+							planet_list[k]["size"] = 0
+							hill_radii_list[k] = 0
+							
+						k += 1
+					
+	# Check for intersecting HR.
+	for i in range(len(orbit_list)-1):
+		# Find the distance between neighbiring orbits.
+		orbit_distance = orbit_list[i+1] - orbit_list[i]
+		# Get respective Hill radii.
+		hr1 = hill_radii_list[i]
+		hr2 = hill_radii_list[i+1]
+		# Check if Hill radii overlap within said orbits.
+		if (hill_radii_stability_multiplier*hr1 + hill_radii_stability_multiplier*hr2) > orbit_distance:
+			# print("Hill radii overlap:", planet_list[i]["type"], planet_list[i+1]["type"], e(hr1), e(hr2), e(orbit_distance))
+			# Eject smaller planet.
+			if planet_list[i]["mass"] < planet_list[i+1]["mass"]:
+				planet_list[i]["type"] = "- empty orbit -"
+				planet_list[i]["mass"] = 0
+				planet_list[i]["size"] = 0
+				hill_radii_list[i] = 0
+			else:
+				planet_list[i+1]["type"] = "- empty orbit -"
+				planet_list[i+1]["mass"] = 0
+				planet_list[i+1]["size"] = 0
+				hill_radii_list[i+1] = 0
+	
 	return planet_list
 
 
 def generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio):
 	semi_major_axes = [Lmin]  # Start with the minimum distance as the first orbit
 	
-	print("Lmin:", round(Lmin/sun_distance_au, 3), "Lmax", round(Lmax/sun_distance_au), "AU")
+	# print("Initial orbit ranges:", "Lmin:", round(Lmin/sun_distance_au, 3), "Lmax", round(Lmax/sun_distance_au, 3), "AU")
 
 	for i in range(1, N):
 		prev_axis = semi_major_axes[i-1]
@@ -845,12 +952,14 @@ def generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio):
 	range_span = Lmax - Lmin
 	axes_span = max(semi_major_axes) - min(semi_major_axes)
 	scaling_factor = range_span / axes_span
+	if scaling_factor < 1.0:
+		scaling_factor = 1.0
 	semi_major_axes = [axis * scaling_factor for axis in semi_major_axes]
 
 	return semi_major_axes
 	
 
-def get_planet_temperature_list(orbit_list, main_star):
+def get_planet_temperature_list(orbit_list, planet_list, main_star):
 	# flux = sigma * T^4
 	# T = (flux / sigma)^(1/4)
 	# zones : type
@@ -868,27 +977,41 @@ def get_planet_temperature_list(orbit_list, main_star):
 	
 	for i in range(len(orbit_list)):
 		current_orbit = orbit_list[i]
+		# Get the flux and temperature at said orbit.
+		orbit_flux = main_star["luminosity"] / (4 * 3.14 * current_orbit * current_orbit)
+		orbit_temperature = round(pow((orbit_flux / SB_sigma), 0.25), 2)
+		orbit_temperature_c = round(orbit_temperature - 273.15, 2)
+		
 		if current_orbit < main_star["zone_margins"][5]:
 			temperature_type = "evaporated"
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 		elif current_orbit < main_star["zone_margins"][4]:
 			temperature_type = "very hot"	
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 		elif current_orbit < main_star["zone_margins"][3]:
 			temperature_type = "hot"	
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 		elif current_orbit < main_star["zone_margins"][2]:
 			temperature_type = "warm"	
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 		elif current_orbit < main_star["zone_margins"][1]:
 			temperature_type = "temperate"	
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 		elif current_orbit < main_star["zone_margins"][0]:
 			temperature_type = "cold"	
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
 		elif current_orbit > main_star["zone_margins"][0]:
-			temperature_type = "icy"	
-			print(temperature_type, round(current_orbit/sun_distance_au, 3), "AU")
+			temperature_type = "icy"
+
+		# print(planet_list[i]["type"],temperature_type, round(current_orbit/sun_distance_au, 3), "AU,", "t.:", orbit_temperature, "K,", orbit_temperature_c, "C")
+
+		temperature_list.append((temperature_type, orbit_temperature))
+
+	return temperature_list
+
+
+def get_planet_atmosphere(planet_list, temperature_list):
+	return
+	#for i in range(len(planet_list)):
+		#if temperature_list[0][i] == 
+
+
+
+
 
 
 ########### STAR GENERATION #############
@@ -1071,6 +1194,7 @@ def make_star(user_defined_type, primary_star_type):
 	star_type_temp = 9 - int(star_temp_norm*10)
 	star_lum = get_strar_lum(star_size, star_temp)
 	star_peak_wavelength = get_strar_peak_wavelength(star_temp)
+	star_mass = get_star_mass(star_type, star_type_temp)
 	
 	# Godot parameters.
 	star_omni_range = pow(star_lum/star_omni_ratio, 0.5)
@@ -1079,6 +1203,7 @@ def make_star(user_defined_type, primary_star_type):
 	star = {
 		"type" : (star_type, star_type_temp, star_type_id),
 		"size" : star_size,
+		"mass" : star_mass,
 		"luminosity" : star_lum,
 		"temperature" : star_temp,
 		"peak_wavelength":  star_peak_wavelength[0],
@@ -1156,10 +1281,38 @@ def random_star_number():
 		* random_star_num.randint(num_stars_min, num_stars_max))
 	return num
 
+def get_star_mass(star_type, star_type_temp):
+	star_mass = 0
+	if star_type == "O":
+		star_o_mass_min_type = (star_o_mass_max - star_o_mass_min) / 10 * (9-star_type_temp) + star_o_mass_min
+		star_o_mass_max_type = (star_o_mass_max - star_o_mass_min) / 10 * (9-star_type_temp + 1) + star_o_mass_min
+		star_mass = random_star_val.uniform((star_o_mass_min_type), (star_o_mass_max_type))
+	elif star_type == "B":
+		star_b_mass_min_type = (star_b_mass_max - star_b_mass_min) / 10 * (9-star_type_temp) + star_b_mass_min
+		star_b_mass_max_type = (star_b_mass_max - star_b_mass_min) / 10 * (9-star_type_temp + 1) + star_b_mass_min
+		star_mass = random_star_val.uniform((star_b_mass_min_type), (star_b_mass_max_type))
+	elif star_type == "A":
+		star_a_mass_min_type = (star_a_mass_max - star_a_mass_min) / 10 * (9-star_type_temp) + star_a_mass_min
+		star_a_mass_max_type = (star_a_mass_max - star_a_mass_min) / 10 * (9-star_type_temp + 1) + star_a_mass_min
+		star_mass = random_star_val.uniform((star_a_mass_min_type), (star_a_mass_max_type))
+	elif star_type == "F":
+		star_f_mass_min_type = (star_f_mass_max - star_f_mass_min) / 10 * (9-star_type_temp) + star_f_mass_min
+		star_f_mass_max_type = (star_f_mass_max - star_f_mass_min) / 10 * (9-star_type_temp + 1) + star_f_mass_min
+		star_mass = random_star_val.uniform((star_f_mass_min_type), (star_f_mass_max_type))
+	elif star_type == "G":
+		star_g_mass_min_type = (star_g_mass_max - star_g_mass_min) / 10 * (9-star_type_temp) + star_g_mass_min
+		star_g_mass_max_type = (star_g_mass_max - star_g_mass_min) / 10 * (9-star_type_temp + 1) + star_g_mass_min
+		star_mass = random_star_val.uniform((star_g_mass_min_type), (star_g_mass_max_type))
+	elif star_type == "K":
+		star_k_mass_min_type = (star_k_mass_max - star_k_mass_min) / 10 * (9-star_type_temp) + star_k_mass_min
+		star_k_mass_max_type = (star_k_mass_max - star_k_mass_min) / 10 * (9-star_type_temp + 1) + star_k_mass_min
+		star_mass = random_star_val.uniform((star_k_mass_min_type), (star_k_mass_max_type))
+	elif star_type == "M":
+		star_m_mass_min_type = (star_m_mass_max - star_m_mass_min) / 10 * (9-star_type_temp) + star_m_mass_min
+		star_m_mass_max_type = (star_m_mass_max - star_m_mass_min) / 10 * (9-star_type_temp + 1) + star_m_mass_min
+		star_mass = random_star_val.uniform((star_m_mass_min_type), (star_m_mass_max_type))
 
-
-
-
+	return star_mass*sun_mass
 
 
 
@@ -1262,6 +1415,14 @@ def formatting_system_data(star_id, system, main_star, star_name):
 		
 	system_autopilot_range = system_zone_size
 	
+	# Temperature zoning.
+	star_zone_margins = main_star["zone_margins"]
+	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
+	star_hot_zone = round(star_zone_margins[4] / sun_distance_au, 3)
+	star_warm_zone = round(star_zone_margins[3] / sun_distance_au, 3)
+	star_temperate_zone = round(star_zone_margins[2] / sun_distance_au, 3)
+	star_cold_zone = round(star_zone_margins[1] / sun_distance_au, 3)
+	star_frost_line = round(star_zone_margins[0] / sun_distance_au, 3)
 	
 	p = ''
 	p += "# System: " + star_name + "  \n"
@@ -1269,9 +1430,34 @@ def formatting_system_data(star_id, system, main_star, star_name):
 	p += "<details><summary>" \
 		+ "System data" \
 		+  "</summary>" + "  \n\n"
+		
+	p += "#### System Infocard data"+ "  \n"
+		
+	p += "```" + "  \n"
+	
+	p += "Temperature zone data by main star:"+ "\n"
+	p += "* Mineral melting line:"+ " < " + str(star_dust_melting) + " AU" + "\n"
+	p += "* Hot zone   :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " AU" + "\n"
+	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " AU" + "\n"
+	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " AU" + "\n"
+	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_frost_line) + " AU" + "\n"
+	p += "* Frost line :" + " > " + str(star_frost_line) + " AU" + "\n"
+	p += "```" + "  \n"
+	
+	p += "```" + "  \n"
+	p += "Дані температурного зонування відносно основної зірки:"+ "\n"
+	p += "* Межа плавлення мінералів:"+ " < " + str(star_dust_melting) + " а.о." + "\n"
+	p += "* Гаряча зона  :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " а.о." + "\n"
+	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " а.о." + "\n"
+	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " а.о." + "\n"
+	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " а.о." + "\n"
+	p += "* Межа кригоутворення :" + " > " + str(star_frost_line) + " а.о." + "\n"
 	
 	p += "```" + "  \n"
 	
+	p += "#### GODOT data"+ "  \n"
+	
+	p += "```" + "  \n"
 	p += "* System ID: " + str(star_id) + "\n"
 	
 	if "cluster" in system:
@@ -1283,6 +1469,8 @@ def formatting_system_data(star_id, system, main_star, star_name):
 	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
 	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
 	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System name: " + star_name  + "\n"
+	p += "* System description: see above. Optionally add lore." + "\n"
 	p += "* System zone size: " + str(system_zone_size) + "\n"
 	p += "* System autopilot range: " + str(system_autopilot_range) + "\n"
 
@@ -1307,6 +1495,9 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	# Format star size.
 	star_size = e(main_star["size"])
 	star_size_rel = round(main_star["size"] / sun_diameter, 3)
+	
+	star_mass = e(main_star["mass"])
+	star_mass_rel = round(main_star["mass"] / sun_mass, 3)
 	
 	
 	# Format the number back to proper range.
@@ -1346,13 +1537,7 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	# Sprite flare distance, handy to depict the entrance to star zone.
 	star_flare_distance = e(float(star_zone_size)  * star_flare_factor)
 	
-	# Temperature zoning.
-	star_dust_melting = round(star_zone_margins[5] / sun_distance_au, 3)
-	star_hot_zone = round(star_zone_margins[4] / sun_distance_au, 3)
-	star_warm_zone = round(star_zone_margins[3] / sun_distance_au, 3)
-	star_temperate_zone = round(star_zone_margins[2] / sun_distance_au, 3)
-	star_cold_zone = round(star_zone_margins[1] / sun_distance_au, 3)
-	star_frost_line = round(star_zone_margins[0] / sun_distance_au, 3)
+	
 	
 	# Wavelength data.
 	star_peak_wavelength = round(main_star["peak_wavelength"], 0)
@@ -1381,11 +1566,13 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	
 	p += "Absolute units:" + "\n"
 	p += "* Size: " + str(star_size) + " m" + "\n"
+	p += "* Mass: " + str(star_mass) + " kg" + "\n"
 	p += "* Temperature: " + str(star_temp) + " K" + "\n"
 	p += "* Luminosity: " + str(star_lum) + " W" + "\n"*2
 	
 	p += "Sun units:" + "\n"
 	p += "* Size: " + str(star_size_rel) + " D" + "\n"
+	p += "* Mass: " + str(star_mass_rel) + " M" + "\n"
 	p += "* Temperature: " + str(star_temp_rel) + " T" + "\n"
 	p += "* Luminosity: " + str(star_lum_rel) + " L" + "\n"*2
 	
@@ -1393,15 +1580,8 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Type: " + star_type[0] + str(star_type[1]) + "\n"
 	p += "* Peak wavelength: " + str(star_peak_wavelength) + " nm"+ "\n"
 	p += "* Peak wavelength type: " + star_peak_wavelength_type + "\n"*2
-	
-	p += "Temperature zone data:"+ "\n"
-	p += "* Mineral melting line:"+ " < " + str(star_dust_melting) + " AU" + "\n"
-	p += "* Hot zone   :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " AU" + "\n"
-	p += "* Warm zone  :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " AU" + "\n"
-	p += "* Temp. zone :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " AU" + "\n"
-	p += "* Cold zone  :"+ "   " + str(star_temperate_zone) + " ... " + str(star_frost_line) + " AU" + "\n"
-	p += "* Frost line :" + " > " + str(star_frost_line) + " AU" + "\n"
 	p += "```" + "  \n"
+	
 	
 	p += "```" + "  \n"
 	p += "Абсолютні величини:" + "\n"
@@ -1418,14 +1598,6 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Тип: " + star_type[0] + str(star_type[1]) + "\n"
 	p += "* Пікова довжина хвилі: " + str(star_peak_wavelength) + " нм"+ "\n"
 	p += "* Тип пікового випромінювання: " + star_peak_wavelength_type + "\n"*2
-	
-	p += "Дані температурного зонування:"+ "\n"
-	p += "* Межа плавлення мінералів:"+ " < " + str(star_dust_melting) + " а.о." + "\n"
-	p += "* Гаряча зона  :"+ "   " + str(star_dust_melting) + " ... " + str(star_hot_zone) + " а.о." + "\n"
-	p += "* Тепла зона   :"+ "   " + str(star_hot_zone) + " ... " + str(star_warm_zone) + " а.о." + "\n"
-	p += "* Помірна зона :"+ "   " + str(star_warm_zone) + " ... " + str(star_temperate_zone) + " а.о." + "\n"
-	p += "* Холодна зона :"+ "   " + str(star_temperate_zone) + " ... " + str(star_cold_zone) + " а.о." + "\n"
-	p += "* Межа кригоутворення :" + " > " + str(star_frost_line) + " а.о." + "\n"
 	
 	p += "```" + "  \n"
 	

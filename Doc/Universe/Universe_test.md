@@ -1,6 +1,26 @@
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 180.626 AU
+* Hot zone   :   180.626 ... 464.657 AU
+* Warm zone  :   464.657 ... 1619.173 AU
+* Temp. zone :   1619.173 ... 2289.857 AU
+* Cold zone  :   2289.857 ... 6571.249 AU
+* Frost line : > 6571.249 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 180.626 а.о.
+* Гаряча зона  :   180.626 ... 464.657 а.о.
+* Тепла зона   :   464.657 ... 1619.173 а.о.
+* Помірна зона :   1619.173 ... 2289.857 а.о.
+* Холодна зона :   2289.857 ... 3497.814 а.о.
+* Межа кригоутворення : > 6571.249 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 0
 * Star cluster: Moirai
@@ -8,6 +28,8 @@
 * System codename: STAR_O0_0_SYSTEM
 * System translation name codename: NAME_STAR_O0_0_SYSTEM
 * System translation description codename: DESC_STAR_O0_0_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 2.27e+16
 * System autopilot range: 2.27e+16
 ```
@@ -23,11 +45,13 @@
 ```  
 Absolute units:
 * Size: 1.10e+10 m
+* Mass: 1.65e+32 kg
 * Temperature: 98836 K
 * Luminosity: 2.06e+33 W
 
 Sun units:
 * Size: 7.926 D
+* Mass: 83.124 M
 * Temperature: 17.12 T
 * Luminosity: 5391713 L
 
@@ -36,13 +60,6 @@ Spectral data:
 * Peak wavelength: 29.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 180.626 AU
-* Hot zone   :   180.626 ... 464.657 AU
-* Warm zone  :   464.657 ... 1619.173 AU
-* Temp. zone :   1619.173 ... 2289.857 AU
-* Cold zone  :   2289.857 ... 6571.249 AU
-* Frost line : > 6571.249 AU
 ```  
 ```  
 Абсолютні величини:
@@ -60,13 +77,6 @@ Temperature zone data:
 * Пікова довжина хвилі: 29.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 180.626 а.о.
-* Гаряча зона  :   180.626 ... 464.657 а.о.
-* Тепла зона   :   464.657 ... 1619.173 а.о.
-* Помірна зона :   1619.173 ... 2289.857 а.о.
-* Холодна зона :   2289.857 ... 3497.814 а.о.
-* Межа кригоутворення : > 6571.249 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -99,6 +109,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 131.351 AU
+* Hot zone   :   131.351 ... 337.898 AU
+* Warm zone  :   337.898 ... 1177.461 AU
+* Temp. zone :   1177.461 ... 1665.182 AU
+* Cold zone  :   1665.182 ... 4778.606 AU
+* Frost line : > 4778.606 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 131.351 а.о.
+* Гаряча зона  :   131.351 ... 337.898 а.о.
+* Тепла зона   :   337.898 ... 1177.461 а.о.
+* Помірна зона :   1177.461 ... 1665.182 а.о.
+* Холодна зона :   1665.182 ... 2543.607 а.о.
+* Межа кригоутворення : > 4778.606 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 1
 * Star cluster: Moirai
@@ -106,8 +136,10 @@ Temperature zone data:
 * System codename: STAR_O1_1_SYSTEM
 * System translation name codename: NAME_STAR_O1_1_SYSTEM
 * System translation description codename: DESC_STAR_O1_1_SYSTEM
-* System zone size: 2.30e+16
-* System autopilot range: 2.30e+16
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.65e+16
+* System autopilot range: 1.65e+16
 ```
 
  </details>  
@@ -120,51 +152,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.35e+10 m
-* Temperature: 89789 K
-* Luminosity: 2.11e+33 W
+* Size: 9.24e+09 m
+* Mass: 1.54e+32 kg
+* Temperature: 92031 K
+* Luminosity: 1.09e+33 W
 
 Sun units:
-* Size: 9.721 D
-* Temperature: 15.56 T
-* Luminosity: 5524201 L
+* Size: 6.648 D
+* Mass: 77.346 M
+* Temperature: 15.94 T
+* Luminosity: 2851237 L
 
 Spectral data:
 * Type: O1
-* Peak wavelength: 32.0 nm
+* Peak wavelength: 31.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 182.832 AU
-* Hot zone   :   182.832 ... 470.332 AU
-* Warm zone  :   470.332 ... 1638.946 AU
-* Temp. zone :   1638.946 ... 2317.82 AU
-* Cold zone  :   2317.82 ... 6651.495 AU
-* Frost line : > 6651.495 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.35e+10 м
-* Температура: 89789 К
-* Світність: 2.11e+33 Вт
+* Розмір: 9.24e+09 м
+* Температура: 92031 К
+* Світність: 1.09e+33 Вт
 
 Відносно Сонця:
-* Розмір: 9.721 D
-* Температура: 15.56 T
-* Світність: 5524201 L
+* Розмір: 6.648 D
+* Температура: 15.94 T
+* Світність: 2851237 L
 
 Спектральні дані:
 * Тип: O1
-* Пікова довжина хвилі: 32.0 нм
+* Пікова довжина хвилі: 31.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 182.832 а.о.
-* Гаряча зона  :   182.832 ... 470.332 а.о.
-* Тепла зона   :   470.332 ... 1638.946 а.о.
-* Помірна зона :   1638.946 ... 2317.82 а.о.
-* Холодна зона :   2317.82 ... 3540.529 а.о.
-* Межа кригоутворення : > 6651.495 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -174,13 +194,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O1_1
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.50e+14
-* Star death zone size: 1.50e+13
-* Star size: 1.35e+10
-* Star flare distance: 1.50e+14
-* Star autopilot range: 3.01e+13
+* Star zone size: 1.08e+14
+* Star death zone size: 1.08e+13
+* Star size: 9.24e+09
+* Star flare distance: 1.08e+14
+* Star autopilot range: 2.16e+13
 
-* Omni range: 2.30e+16
+* Omni range: 1.65e+16
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -197,6 +217,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 112.512 AU
+* Hot zone   :   112.512 ... 289.435 AU
+* Warm zone  :   289.435 ... 1008.583 AU
+* Temp. zone :   1008.583 ... 1426.352 AU
+* Cold zone  :   1426.352 ... 4093.231 AU
+* Frost line : > 4093.231 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 112.512 а.о.
+* Гаряча зона  :   112.512 ... 289.435 а.о.
+* Тепла зона   :   289.435 ... 1008.583 а.о.
+* Помірна зона :   1008.583 ... 1426.352 а.о.
+* Холодна зона :   1426.352 ... 2178.788 а.о.
+* Межа кригоутворення : > 4093.231 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 2
 * Star cluster: Moirai
@@ -204,8 +244,10 @@ Temperature zone data:
 * System codename: STAR_O2_2_SYSTEM
 * System translation name codename: NAME_STAR_O2_2_SYSTEM
 * System translation description codename: DESC_STAR_O2_2_SYSTEM
-* System zone size: 1.31e+16
-* System autopilot range: 1.31e+16
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.41e+16
+* System autopilot range: 1.41e+16
 ```
 
  </details>  
@@ -218,51 +260,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.85e+09 m
-* Temperature: 79351 K
-* Luminosity: 6.86e+32 W
+* Size: 1.03e+10 m
+* Mass: 1.45e+32 kg
+* Temperature: 80584 K
+* Luminosity: 8.01e+32 W
 
 Sun units:
-* Size: 7.09 D
-* Temperature: 13.75 T
-* Luminosity: 1792342 L
+* Size: 7.427 D
+* Mass: 72.895 M
+* Temperature: 13.96 T
+* Luminosity: 2092008 L
 
 Spectral data:
 * Type: O2
-* Peak wavelength: 37.0 nm
+* Peak wavelength: 36.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 104.143 AU
-* Hot zone   :   104.143 ... 267.904 AU
-* Warm zone  :   267.904 ... 933.556 AU
-* Temp. zone :   933.556 ... 1320.248 AU
-* Cold zone  :   1320.248 ... 3788.741 AU
-* Frost line : > 3788.741 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.85e+09 м
-* Температура: 79351 К
-* Світність: 6.86e+32 Вт
+* Розмір: 1.03e+10 м
+* Температура: 80584 К
+* Світність: 8.01e+32 Вт
 
 Відносно Сонця:
-* Розмір: 7.09 D
-* Температура: 13.75 T
-* Світність: 1792342 L
+* Розмір: 7.427 D
+* Температура: 13.96 T
+* Світність: 2092008 L
 
 Спектральні дані:
 * Тип: O2
-* Пікова довжина хвилі: 37.0 нм
+* Пікова довжина хвилі: 36.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 104.143 а.о.
-* Гаряча зона  :   104.143 ... 267.904 а.о.
-* Тепла зона   :   267.904 ... 933.556 а.о.
-* Помірна зона :   933.556 ... 1320.248 а.о.
-* Холодна зона :   1320.248 ... 2016.711 а.о.
-* Межа кригоутворення : > 3788.741 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -272,13 +302,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O2_2
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.57e+13
-* Star death zone size: 8.57e+12
-* Star size: 9.85e+09
-* Star flare distance: 8.57e+13
-* Star autopilot range: 1.71e+13
+* Star zone size: 9.26e+13
+* Star death zone size: 9.26e+12
+* Star size: 1.03e+10
+* Star flare distance: 9.26e+13
+* Star autopilot range: 1.85e+13
 
-* Omni range: 1.31e+16
+* Omni range: 1.41e+16
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -295,6 +325,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 122.008 AU
+* Hot zone   :   122.008 ... 313.863 AU
+* Warm zone  :   313.863 ... 1093.707 AU
+* Temp. zone :   1093.707 ... 1546.735 AU
+* Cold zone  :   1546.735 ... 4438.697 AU
+* Frost line : > 4438.697 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 122.008 а.о.
+* Гаряча зона  :   122.008 ... 313.863 а.о.
+* Тепла зона   :   313.863 ... 1093.707 а.о.
+* Помірна зона :   1093.707 ... 1546.735 а.о.
+* Холодна зона :   1546.735 ... 2362.677 а.о.
+* Межа кригоутворення : > 4438.697 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 3
 * Star cluster: Moirai
@@ -302,8 +352,10 @@ Temperature zone data:
 * System codename: STAR_O3_3_SYSTEM
 * System translation name codename: NAME_STAR_O3_3_SYSTEM
 * System translation description codename: DESC_STAR_O3_3_SYSTEM
-* System zone size: 1.18e+16
-* System autopilot range: 1.18e+16
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.53e+16
+* System autopilot range: 1.53e+16
 ```
 
  </details>  
@@ -316,51 +368,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.03e+10 m
-* Temperature: 73584 K
-* Luminosity: 5.57e+32 W
+* Size: 1.24e+10 m
+* Mass: 1.22e+32 kg
+* Temperature: 76689 K
+* Luminosity: 9.41e+32 W
 
 Sun units:
-* Size: 7.427 D
-* Temperature: 12.75 T
-* Luminosity: 1454460 L
+* Size: 8.893 D
+* Mass: 61.485 M
+* Temperature: 13.29 T
+* Luminosity: 2460038 L
 
 Spectral data:
 * Type: O3
-* Peak wavelength: 39.0 nm
+* Peak wavelength: 38.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 93.814 AU
-* Hot zone   :   93.814 ... 241.335 AU
-* Warm zone  :   241.335 ... 840.971 AU
-* Temp. zone :   840.971 ... 1189.312 AU
-* Cold zone  :   1189.312 ... 3412.993 AU
-* Frost line : > 3412.993 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.03e+10 м
-* Температура: 73584 К
-* Світність: 5.57e+32 Вт
+* Розмір: 1.24e+10 м
+* Температура: 76689 К
+* Світність: 9.41e+32 Вт
 
 Відносно Сонця:
-* Розмір: 7.427 D
-* Температура: 12.75 T
-* Світність: 1454460 L
+* Розмір: 8.893 D
+* Температура: 13.29 T
+* Світність: 2460038 L
 
 Спектральні дані:
 * Тип: O3
-* Пікова довжина хвилі: 39.0 нм
+* Пікова довжина хвилі: 38.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 93.814 а.о.
-* Гаряча зона  :   93.814 ... 241.335 а.о.
-* Тепла зона   :   241.335 ... 840.971 а.о.
-* Помірна зона :   840.971 ... 1189.312 а.о.
-* Холодна зона :   1189.312 ... 1816.704 а.о.
-* Межа кригоутворення : > 3412.993 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -370,13 +410,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O3_3
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.72e+13
-* Star death zone size: 7.72e+12
-* Star size: 1.03e+10
-* Star flare distance: 7.72e+13
-* Star autopilot range: 1.54e+13
+* Star zone size: 1.00e+14
+* Star death zone size: 1.00e+13
+* Star size: 1.24e+10
+* Star flare distance: 1.00e+14
+* Star autopilot range: 2.01e+13
 
-* Omni range: 1.18e+16
+* Omni range: 1.53e+16
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -393,6 +433,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 104.343 AU
+* Hot zone   :   104.343 ... 268.42 AU
+* Warm zone  :   268.42 ... 935.353 AU
+* Temp. zone :   935.353 ... 1322.789 AU
+* Cold zone  :   1322.789 ... 3796.035 AU
+* Frost line : > 3796.035 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 104.343 а.о.
+* Гаряча зона  :   104.343 ... 268.42 а.о.
+* Тепла зона   :   268.42 ... 935.353 а.о.
+* Помірна зона :   935.353 ... 1322.789 а.о.
+* Холодна зона :   1322.789 ... 2020.594 а.о.
+* Межа кригоутворення : > 3796.035 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 4
 * Star cluster: Moirai
@@ -400,8 +460,10 @@ Temperature zone data:
 * System codename: STAR_O4_4_SYSTEM
 * System translation name codename: NAME_STAR_O4_4_SYSTEM
 * System translation description codename: DESC_STAR_O4_4_SYSTEM
-* System zone size: 1.21e+16
-* System autopilot range: 1.21e+16
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.31e+16
+* System autopilot range: 1.31e+16
 ```
 
  </details>  
@@ -414,51 +476,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.29e+10 m
-* Temperature: 66694 K
-* Luminosity: 5.84e+32 W
+* Size: 1.33e+10 m
+* Mass: 1.16e+32 kg
+* Temperature: 68270 K
+* Luminosity: 6.89e+32 W
 
 Sun units:
-* Size: 9.26 D
-* Temperature: 11.56 T
-* Luminosity: 1525883 L
+* Size: 9.597 D
+* Mass: 58.046 M
+* Temperature: 11.83 T
+* Luminosity: 1799249 L
 
 Spectral data:
 * Type: O4
-* Peak wavelength: 43.0 nm
+* Peak wavelength: 42.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 96.09 AU
-* Hot zone   :   96.09 ... 247.19 AU
-* Warm zone  :   247.19 ... 861.372 AU
-* Temp. zone :   861.372 ... 1218.164 AU
-* Cold zone  :   1218.164 ... 3495.789 AU
-* Frost line : > 3495.789 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.29e+10 м
-* Температура: 66694 К
-* Світність: 5.84e+32 Вт
+* Розмір: 1.33e+10 м
+* Температура: 68270 К
+* Світність: 6.89e+32 Вт
 
 Відносно Сонця:
-* Розмір: 9.26 D
-* Температура: 11.56 T
-* Світність: 1525883 L
+* Розмір: 9.597 D
+* Температура: 11.83 T
+* Світність: 1799249 L
 
 Спектральні дані:
 * Тип: O4
-* Пікова довжина хвилі: 43.0 нм
+* Пікова довжина хвилі: 42.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 96.09 а.о.
-* Гаряча зона  :   96.09 ... 247.19 а.о.
-* Тепла зона   :   247.19 ... 861.372 а.о.
-* Помірна зона :   861.372 ... 1218.164 а.о.
-* Холодна зона :   1218.164 ... 1860.776 а.о.
-* Межа кригоутворення : > 3495.789 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -468,13 +518,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O4_4
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.90e+13
-* Star death zone size: 7.90e+12
-* Star size: 1.29e+10
-* Star flare distance: 7.90e+13
-* Star autopilot range: 1.58e+13
+* Star zone size: 8.58e+13
+* Star death zone size: 8.58e+12
+* Star size: 1.33e+10
+* Star flare distance: 8.58e+13
+* Star autopilot range: 1.72e+13
 
-* Omni range: 1.21e+16
+* Omni range: 1.31e+16
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -491,6 +541,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 76.258 AU
+* Hot zone   :   76.258 ... 196.173 AU
+* Warm zone  :   196.173 ... 683.596 AU
+* Temp. zone :   683.596 ... 966.751 AU
+* Cold zone  :   966.751 ... 2774.305 AU
+* Frost line : > 2774.305 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 76.258 а.о.
+* Гаряча зона  :   76.258 ... 196.173 а.о.
+* Тепла зона   :   196.173 ... 683.596 а.о.
+* Помірна зона :   683.596 ... 966.751 а.о.
+* Холодна зона :   966.751 ... 1476.736 а.о.
+* Межа кригоутворення : > 2774.305 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 5
 * Star cluster: Moirai
@@ -498,8 +568,10 @@ Temperature zone data:
 * System codename: STAR_O5_5_SYSTEM
 * System translation name codename: NAME_STAR_O5_5_SYSTEM
 * System translation description codename: DESC_STAR_O5_5_SYSTEM
-* System zone size: 7.84e+15
-* System autopilot range: 7.84e+15
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 9.59e+15
+* System autopilot range: 9.59e+15
 ```
 
  </details>  
@@ -512,51 +584,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.32e+09 m
-* Temperature: 63158 K
-* Luminosity: 2.46e+32 W
+* Size: 1.22e+10 m
+* Mass: 1.02e+32 kg
+* Temperature: 61029 K
+* Luminosity: 3.68e+32 W
 
 Sun units:
-* Size: 6.703 D
-* Temperature: 10.94 T
-* Luminosity: 642869 L
+* Size: 8.777 D
+* Mass: 51.364 M
+* Temperature: 10.57 T
+* Luminosity: 961035 L
 
 Spectral data:
 * Type: O5
-* Peak wavelength: 46.0 nm
+* Peak wavelength: 47.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 62.37 AU
-* Hot zone   :   62.37 ... 160.447 AU
-* Warm zone  :   160.447 ... 559.102 AU
-* Temp. zone :   559.102 ... 790.69 AU
-* Cold zone  :   790.69 ... 2269.059 AU
-* Frost line : > 2269.059 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.32e+09 м
-* Температура: 63158 К
-* Світність: 2.46e+32 Вт
+* Розмір: 1.22e+10 м
+* Температура: 61029 К
+* Світність: 3.68e+32 Вт
 
 Відносно Сонця:
-* Розмір: 6.703 D
-* Температура: 10.94 T
-* Світність: 642869 L
+* Розмір: 8.777 D
+* Температура: 10.57 T
+* Світність: 961035 L
 
 Спектральні дані:
 * Тип: O5
-* Пікова довжина хвилі: 46.0 нм
+* Пікова довжина хвилі: 47.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 62.37 а.о.
-* Гаряча зона  :   62.37 ... 160.447 а.о.
-* Тепла зона   :   160.447 ... 559.102 а.о.
-* Помірна зона :   559.102 ... 790.69 а.о.
-* Холодна зона :   790.69 ... 1207.799 а.о.
-* Межа кригоутворення : > 2269.059 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -566,13 +626,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O5_5
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 5.13e+13
-* Star death zone size: 5.13e+12
-* Star size: 9.32e+09
-* Star flare distance: 5.13e+13
-* Star autopilot range: 1.03e+13
+* Star zone size: 6.27e+13
+* Star death zone size: 6.27e+12
+* Star size: 1.22e+10
+* Star flare distance: 6.27e+13
+* Star autopilot range: 1.25e+13
 
-* Omni range: 7.84e+15
+* Omni range: 9.59e+15
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -589,6 +649,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 41.99 AU
+* Hot zone   :   41.99 ... 108.018 AU
+* Warm zone  :   108.018 ... 376.408 AU
+* Temp. zone :   376.408 ... 532.321 AU
+* Cold zone  :   532.321 ... 1527.612 AU
+* Frost line : > 1527.612 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 41.99 а.о.
+* Гаряча зона  :   41.99 ... 108.018 а.о.
+* Тепла зона   :   108.018 ... 376.408 а.о.
+* Помірна зона :   376.408 ... 532.321 а.о.
+* Холодна зона :   532.321 ... 813.134 а.о.
+* Межа кригоутворення : > 1527.612 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 6
 * Star cluster: Moirai
@@ -596,8 +676,10 @@ Temperature zone data:
 * System codename: STAR_O6_6_SYSTEM
 * System translation name codename: NAME_STAR_O6_6_SYSTEM
 * System translation description codename: DESC_STAR_O6_6_SYSTEM
-* System zone size: 6.80e+15
-* System autopilot range: 6.80e+15
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 5.28e+15
+* System autopilot range: 5.28e+15
 ```
 
  </details>  
@@ -610,51 +692,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.23e+10 m
-* Temperature: 51191 K
-* Luminosity: 1.85e+32 W
+* Size: 9.53e+09 m
+* Mass: 8.68e+31 kg
+* Temperature: 51231 K
+* Luminosity: 1.12e+32 W
 
 Sun units:
-* Size: 8.852 D
-* Temperature: 8.87 T
-* Luminosity: 483959 L
+* Size: 6.858 D
+* Mass: 43.611 M
+* Temperature: 8.88 T
+* Luminosity: 291378 L
 
 Spectral data:
 * Type: O6
 * Peak wavelength: 57.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 54.116 AU
-* Hot zone   :   54.116 ... 139.211 AU
-* Warm zone  :   139.211 ... 485.104 AU
-* Temp. zone :   485.104 ... 686.04 AU
-* Cold zone  :   686.04 ... 1968.743 AU
-* Frost line : > 1968.743 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.23e+10 м
-* Температура: 51191 К
-* Світність: 1.85e+32 Вт
+* Розмір: 9.53e+09 м
+* Температура: 51231 К
+* Світність: 1.12e+32 Вт
 
 Відносно Сонця:
-* Розмір: 8.852 D
-* Температура: 8.87 T
-* Світність: 483959 L
+* Розмір: 6.858 D
+* Температура: 8.88 T
+* Світність: 291378 L
 
 Спектральні дані:
 * Тип: O6
 * Пікова довжина хвилі: 57.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 54.116 а.о.
-* Гаряча зона  :   54.116 ... 139.211 а.о.
-* Тепла зона   :   139.211 ... 485.104 а.о.
-* Помірна зона :   485.104 ... 686.04 а.о.
-* Холодна зона :   686.04 ... 1047.943 а.о.
-* Межа кригоутворення : > 1968.743 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -664,13 +734,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O6_6
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.45e+13
-* Star death zone size: 4.45e+12
-* Star size: 1.23e+10
-* Star flare distance: 4.45e+13
-* Star autopilot range: 8.90e+12
+* Star zone size: 3.45e+13
+* Star death zone size: 3.45e+12
+* Star size: 9.53e+09
+* Star flare distance: 3.45e+13
+* Star autopilot range: 6.91e+12
 
-* Omni range: 6.80e+15
+* Omni range: 5.28e+15
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -687,6 +757,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 42.969 AU
+* Hot zone   :   42.969 ... 110.536 AU
+* Warm zone  :   110.536 ... 385.179 AU
+* Temp. zone :   385.179 ... 544.726 AU
+* Cold zone  :   544.726 ... 1563.211 AU
+* Frost line : > 1563.211 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 42.969 а.о.
+* Гаряча зона  :   42.969 ... 110.536 а.о.
+* Тепла зона   :   110.536 ... 385.179 а.о.
+* Помірна зона :   385.179 ... 544.726 а.о.
+* Холодна зона :   544.726 ... 832.083 а.о.
+* Межа кригоутворення : > 1563.211 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 7
 * Star cluster: Moirai
@@ -694,8 +784,10 @@ Temperature zone data:
 * System codename: STAR_O7_7_SYSTEM
 * System translation name codename: NAME_STAR_O7_7_SYSTEM
 * System translation description codename: DESC_STAR_O7_7_SYSTEM
-* System zone size: 3.96e+15
-* System autopilot range: 3.96e+15
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 5.40e+15
+* System autopilot range: 5.40e+15
 ```
 
  </details>  
@@ -708,51 +800,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.49e+09 m
-* Temperature: 44494 K
-* Luminosity: 6.28e+31 W
+* Size: 1.27e+10 m
+* Mass: 7.55e+31 kg
+* Temperature: 44837 K
+* Luminosity: 1.17e+32 W
 
 Sun units:
-* Size: 6.824 D
-* Temperature: 7.71 T
-* Luminosity: 164151 L
+* Size: 9.162 D
+* Mass: 37.922 M
+* Temperature: 7.77 T
+* Luminosity: 305117 L
 
 Spectral data:
 * Type: O7
 * Peak wavelength: 65.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 31.517 AU
-* Hot zone   :   31.517 ... 81.076 AU
-* Warm zone  :   81.076 ... 282.521 AU
-* Temp. zone :   282.521 ... 399.546 AU
-* Cold zone  :   399.546 ... 1146.584 AU
-* Frost line : > 1146.584 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.49e+09 м
-* Температура: 44494 К
-* Світність: 6.28e+31 Вт
+* Розмір: 1.27e+10 м
+* Температура: 44837 К
+* Світність: 1.17e+32 Вт
 
 Відносно Сонця:
-* Розмір: 6.824 D
-* Температура: 7.71 T
-* Світність: 164151 L
+* Розмір: 9.162 D
+* Температура: 7.77 T
+* Світність: 305117 L
 
 Спектральні дані:
 * Тип: O7
 * Пікова довжина хвилі: 65.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 31.517 а.о.
-* Гаряча зона  :   31.517 ... 81.076 а.о.
-* Тепла зона   :   81.076 ... 282.521 а.о.
-* Помірна зона :   282.521 ... 399.546 а.о.
-* Холодна зона :   399.546 ... 610.316 а.о.
-* Межа кригоутворення : > 1146.584 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -762,13 +842,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O7_7
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 2.59e+13
-* Star death zone size: 2.59e+12
-* Star size: 9.49e+09
-* Star flare distance: 2.59e+13
-* Star autopilot range: 5.19e+12
+* Star zone size: 3.53e+13
+* Star death zone size: 3.53e+12
+* Star size: 1.27e+10
+* Star flare distance: 3.53e+13
+* Star autopilot range: 7.07e+12
 
-* Omni range: 3.96e+15
+* Omni range: 5.40e+15
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -785,6 +865,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 28.387 AU
+* Hot zone   :   28.387 ... 73.026 AU
+* Warm zone  :   73.026 ... 254.469 AU
+* Temp. zone :   254.469 ... 359.874 AU
+* Cold zone  :   359.874 ... 1032.738 AU
+* Frost line : > 1032.738 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 28.387 а.о.
+* Гаряча зона  :   28.387 ... 73.026 а.о.
+* Тепла зона   :   73.026 ... 254.469 а.о.
+* Помірна зона :   254.469 ... 359.874 а.о.
+* Холодна зона :   359.874 ... 549.717 а.о.
+* Межа кригоутворення : > 1032.738 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 8
 * Star cluster: Moirai
@@ -792,8 +892,10 @@ Temperature zone data:
 * System codename: STAR_O8_8_SYSTEM
 * System translation name codename: NAME_STAR_O8_8_SYSTEM
 * System translation description codename: DESC_STAR_O8_8_SYSTEM
-* System zone size: 5.13e+15
-* System autopilot range: 5.13e+15
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 3.57e+15
+* System autopilot range: 3.57e+15
 ```
 
  </details>  
@@ -802,55 +904,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: O8</summary>  
 
 #### Star pseudo-color  
-![6d44e1](Colors/6d44e1.png)  
+![485feb](Colors/485feb.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.34e+10 m
-* Temperature: 42626 K
-* Luminosity: 1.05e+32 W
+* Size: 1.21e+10 m
+* Mass: 4.78e+31 kg
+* Temperature: 37392 K
+* Luminosity: 5.10e+31 W
 
 Sun units:
-* Size: 9.621 D
-* Temperature: 7.39 T
-* Luminosity: 274820 L
+* Size: 8.703 D
+* Mass: 24.02 M
+* Temperature: 6.48 T
+* Luminosity: 133171 L
 
 Spectral data:
 * Type: O8
-* Peak wavelength: 68.0 nm
+* Peak wavelength: 77.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 40.779 AU
-* Hot zone   :   40.779 ... 104.904 AU
-* Warm zone  :   104.904 ... 365.556 AU
-* Temp. zone :   365.556 ... 516.974 AU
-* Cold zone  :   516.974 ... 1483.572 AU
-* Frost line : > 1483.572 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.34e+10 м
-* Температура: 42626 К
-* Світність: 1.05e+32 Вт
+* Розмір: 1.21e+10 м
+* Температура: 37392 К
+* Світність: 5.10e+31 Вт
 
 Відносно Сонця:
-* Розмір: 9.621 D
-* Температура: 7.39 T
-* Світність: 274820 L
+* Розмір: 8.703 D
+* Температура: 6.48 T
+* Світність: 133171 L
 
 Спектральні дані:
 * Тип: O8
-* Пікова довжина хвилі: 68.0 нм
+* Пікова довжина хвилі: 77.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 40.779 а.о.
-* Гаряча зона  :   40.779 ... 104.904 а.о.
-* Тепла зона   :   104.904 ... 365.556 а.о.
-* Помірна зона :   365.556 ... 516.974 а.о.
-* Холодна зона :   516.974 ... 789.692 а.о.
-* Межа кригоутворення : > 1483.572 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -860,111 +950,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_O8_8
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 3.35e+13
-* Star death zone size: 3.35e+12
-* Star size: 1.34e+10
-* Star flare distance: 3.35e+13
-* Star autopilot range: 6.71e+12
+* Star zone size: 2.34e+13
+* Star death zone size: 2.34e+12
+* Star size: 1.21e+10
+* Star flare distance: 2.34e+13
+* Star autopilot range: 4.67e+12
 
-* Omni range: 5.13e+15
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (109, 68, 225)
- - hex: #6d44e1
-```  
-
- </details>  
-
----  
- ![6d44e1](Colors/6d44e1.png)   
-
----  
-# System: Test  
-<details><summary>System data</summary>  
-
-```  
-* System ID: 9
-* Star cluster: Moirai
-* System zone codename: STAR_O9_9_SYSTEM_ZONE
-* System codename: STAR_O9_9_SYSTEM
-* System translation name codename: NAME_STAR_O9_9_SYSTEM
-* System translation description codename: DESC_STAR_O9_9_SYSTEM
-* System zone size: 2.92e+15
-* System autopilot range: 2.92e+15
-```
-
- </details>  
-
----  
-<details><summary>Primary star : Test A, type: O9</summary>  
-
-#### Star pseudo-color  
-![485feb](Colors/485feb.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 1.11e+10 m
-* Temperature: 35334 K
-* Luminosity: 3.40e+31 W
-
-Sun units:
-* Size: 7.96 D
-* Temperature: 6.12 T
-* Luminosity: 88821 L
-
-Spectral data:
-* Type: O9
-* Peak wavelength: 82.0 nm
-* Peak wavelength type: extreme UV
-
-Temperature zone data:
-* Mineral melting line: < 23.183 AU
-* Hot zone   :   23.183 ... 59.639 AU
-* Warm zone  :   59.639 ... 207.821 AU
-* Temp. zone :   207.821 ... 293.903 AU
-* Cold zone  :   293.903 ... 843.418 AU
-* Frost line : > 843.418 AU
-```  
-```  
-Абсолютні величини:
-* Розмір: 1.11e+10 м
-* Температура: 35334 К
-* Світність: 3.40e+31 Вт
-
-Відносно Сонця:
-* Розмір: 7.96 D
-* Температура: 6.12 T
-* Світність: 88821 L
-
-Спектральні дані:
-* Тип: O9
-* Пікова довжина хвилі: 82.0 нм
-* Тип пікового випромінювання: extreme UV
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 23.183 а.о.
-* Гаряча зона  :   23.183 ... 59.639 а.о.
-* Тепла зона   :   59.639 ... 207.821 а.о.
-* Помірна зона :   207.821 ... 293.903 а.о.
-* Холодна зона :   293.903 ... 448.944 а.о.
-* Межа кригоутворення : > 843.418 а.о.
-```  
-#### GODOT data  
-```  
-* Star zone codename: STAR_O9_9_ZONE
-* Star codename: STAR_O9_9
-* Star translation name codename: NAME_STAR_O9_9
-* Star translation description codename: DESC_STAR_O9_9
-* Star name: Test A
-* Star description: see above.
-* Star zone size: 1.91e+13
-* Star death zone size: 1.91e+12
-* Star size: 1.11e+10
-* Star flare distance: 1.91e+13
-* Star autopilot range: 3.81e+12
-
-* Omni range: 2.92e+15
+* Omni range: 3.57e+15
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -981,6 +973,134 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 25.275 AU
+* Hot zone   :   25.275 ... 65.02 AU
+* Warm zone  :   65.02 ... 226.573 AU
+* Temp. zone :   226.573 ... 320.422 AU
+* Cold zone  :   320.422 ... 919.521 AU
+* Frost line : > 919.521 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 25.275 а.о.
+* Гаряча зона  :   25.275 ... 65.02 а.о.
+* Тепла зона   :   65.02 ... 226.573 а.о.
+* Помірна зона :   226.573 ... 320.422 а.о.
+* Холодна зона :   320.422 ... 489.453 а.о.
+* Межа кригоутворення : > 919.521 а.о.
+```  
+#### GODOT data  
+```  
+* System ID: 9
+* Star cluster: Moirai
+* System zone codename: STAR_O9_9_SYSTEM_ZONE
+* System codename: STAR_O9_9_SYSTEM
+* System translation name codename: NAME_STAR_O9_9_SYSTEM
+* System translation description codename: DESC_STAR_O9_9_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 3.18e+15
+* System autopilot range: 3.18e+15
+```
+
+ </details>  
+
+---  
+<details><summary>Primary star : Test A, type: O9</summary>  
+
+#### Star pseudo-color  
+![485feb](Colors/485feb.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 1.11e+10 m
+* Mass: 3.49e+31 kg
+* Temperature: 36836 K
+* Luminosity: 4.04e+31 W
+
+Sun units:
+* Size: 7.985 D
+* Mass: 17.551 M
+* Temperature: 6.38 T
+* Luminosity: 105573 L
+
+Spectral data:
+* Type: O9
+* Peak wavelength: 79.0 nm
+* Peak wavelength type: extreme UV
+
+```  
+```  
+Абсолютні величини:
+* Розмір: 1.11e+10 м
+* Температура: 36836 К
+* Світність: 4.04e+31 Вт
+
+Відносно Сонця:
+* Розмір: 7.985 D
+* Температура: 6.38 T
+* Світність: 105573 L
+
+Спектральні дані:
+* Тип: O9
+* Пікова довжина хвилі: 79.0 нм
+* Тип пікового випромінювання: extreme UV
+
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_O9_9_ZONE
+* Star codename: STAR_O9_9
+* Star translation name codename: NAME_STAR_O9_9
+* Star translation description codename: DESC_STAR_O9_9
+* Star name: Test A
+* Star description: see above.
+* Star zone size: 2.08e+13
+* Star death zone size: 2.08e+12
+* Star size: 1.11e+10
+* Star flare distance: 2.08e+13
+* Star autopilot range: 4.16e+12
+
+* Omni range: 3.18e+15
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (72, 95, 235)
+ - hex: #485feb
+```  
+
+ </details>  
+
+---  
+ ![485feb](Colors/485feb.png)   
+
+---  
+# System: Test  
+<details><summary>System data</summary>  
+
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 8.613 AU
+* Hot zone   :   8.613 ... 22.156 AU
+* Warm zone  :   22.156 ... 77.206 AU
+* Temp. zone :   77.206 ... 109.186 AU
+* Cold zone  :   109.186 ... 313.333 AU
+* Frost line : > 313.333 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 8.613 а.о.
+* Гаряча зона  :   8.613 ... 22.156 а.о.
+* Тепла зона   :   22.156 ... 77.206 а.о.
+* Помірна зона :   77.206 ... 109.186 а.о.
+* Холодна зона :   109.186 ... 166.784 а.о.
+* Межа кригоутворення : > 313.333 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 10
 * Star cluster: Moirai
@@ -988,8 +1108,10 @@ Temperature zone data:
 * System codename: STAR_B0_10_SYSTEM
 * System translation name codename: NAME_STAR_B0_10_SYSTEM
 * System translation description codename: DESC_STAR_B0_10_SYSTEM
-* System zone size: 1.23e+15
-* System autopilot range: 1.23e+15
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.08e+15
+* System autopilot range: 1.08e+15
 ```
 
  </details>  
@@ -1002,51 +1124,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 6.73e+09 m
-* Temperature: 29467 K
-* Luminosity: 6.08e+30 W
+* Size: 6.28e+09 m
+* Mass: 3.16e+31 kg
+* Temperature: 28579 K
+* Luminosity: 4.69e+30 W
 
 Sun units:
-* Size: 4.84 D
-* Temperature: 5.11 T
-* Luminosity: 15884 L
+* Size: 4.52 D
+* Mass: 15.873 M
+* Temperature: 4.95 T
+* Luminosity: 12259 L
 
 Spectral data:
 * Type: B0
-* Peak wavelength: 98.0 nm
+* Peak wavelength: 101.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 9.804 AU
-* Hot zone   :   9.804 ... 25.22 AU
-* Warm zone  :   25.22 ... 87.883 AU
-* Temp. zone :   87.883 ... 124.285 AU
-* Cold zone  :   124.285 ... 356.664 AU
-* Frost line : > 356.664 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 6.73e+09 м
-* Температура: 29467 К
-* Світність: 6.08e+30 Вт
+* Розмір: 6.28e+09 м
+* Температура: 28579 К
+* Світність: 4.69e+30 Вт
 
 Відносно Сонця:
-* Розмір: 4.84 D
-* Температура: 5.11 T
-* Світність: 15884 L
+* Розмір: 4.52 D
+* Температура: 4.95 T
+* Світність: 12259 L
 
 Спектральні дані:
 * Тип: B0
-* Пікова довжина хвилі: 98.0 нм
+* Пікова довжина хвилі: 101.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 9.804 а.о.
-* Гаряча зона  :   9.804 ... 25.22 а.о.
-* Тепла зона   :   25.22 ... 87.883 а.о.
-* Помірна зона :   87.883 ... 124.285 а.о.
-* Холодна зона :   124.285 ... 189.849 а.о.
-* Межа кригоутворення : > 356.664 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1056,13 +1166,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B0_10
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.06e+12
-* Star death zone size: 8.06e+11
-* Star size: 6.73e+09
-* Star flare distance: 8.06e+12
-* Star autopilot range: 1.61e+12
+* Star zone size: 7.09e+12
+* Star death zone size: 7.09e+11
+* Star size: 6.28e+09
+* Star flare distance: 7.09e+12
+* Star autopilot range: 1.42e+12
 
-* Omni range: 1.23e+15
+* Omni range: 1.08e+15
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -1079,6 +1189,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 7.746 AU
+* Hot zone   :   7.746 ... 19.926 AU
+* Warm zone  :   19.926 ... 69.435 AU
+* Temp. zone :   69.435 ... 98.196 AU
+* Cold zone  :   98.196 ... 281.794 AU
+* Frost line : > 281.794 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 7.746 а.о.
+* Гаряча зона  :   7.746 ... 19.926 а.о.
+* Тепла зона   :   19.926 ... 69.435 а.о.
+* Помірна зона :   69.435 ... 98.196 а.о.
+* Холодна зона :   98.196 ... 149.996 а.о.
+* Межа кригоутворення : > 281.794 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 11
 * Star cluster: Moirai
@@ -1086,8 +1216,10 @@ Temperature zone data:
 * System codename: STAR_B1_11_SYSTEM
 * System translation name codename: NAME_STAR_B1_11_SYSTEM
 * System translation description codename: DESC_STAR_B1_11_SYSTEM
-* System zone size: 9.33e+14
-* System autopilot range: 9.33e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 9.74e+14
+* System autopilot range: 9.74e+14
 ```
 
  </details>  
@@ -1100,51 +1232,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 5.85e+09 m
-* Temperature: 27493 K
-* Luminosity: 3.48e+30 W
+* Size: 6.59e+09 m
+* Mass: 2.84e+31 kg
+* Temperature: 26456 K
+* Luminosity: 3.79e+30 W
 
 Sun units:
-* Size: 4.208 D
-* Temperature: 4.76 T
-* Luminosity: 9100 L
+* Size: 4.744 D
+* Mass: 14.263 M
+* Temperature: 4.58 T
+* Luminosity: 9915 L
 
 Spectral data:
 * Type: B1
-* Peak wavelength: 105.0 nm
+* Peak wavelength: 110.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 7.421 AU
-* Hot zone   :   7.421 ... 19.09 AU
-* Warm zone  :   19.09 ... 66.521 AU
-* Temp. zone :   66.521 ... 94.074 AU
-* Cold zone  :   94.074 ... 269.967 AU
-* Frost line : > 269.967 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 5.85e+09 м
-* Температура: 27493 К
-* Світність: 3.48e+30 Вт
+* Розмір: 6.59e+09 м
+* Температура: 26456 К
+* Світність: 3.79e+30 Вт
 
 Відносно Сонця:
-* Розмір: 4.208 D
-* Температура: 4.76 T
-* Світність: 9100 L
+* Розмір: 4.744 D
+* Температура: 4.58 T
+* Світність: 9915 L
 
 Спектральні дані:
 * Тип: B1
-* Пікова довжина хвилі: 105.0 нм
+* Пікова довжина хвилі: 110.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 7.421 а.о.
-* Гаряча зона  :   7.421 ... 19.09 а.о.
-* Тепла зона   :   19.09 ... 66.521 а.о.
-* Помірна зона :   66.521 ... 94.074 а.о.
-* Холодна зона :   94.074 ... 143.701 а.о.
-* Межа кригоутворення : > 269.967 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1154,13 +1274,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B1_11
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.10e+12
-* Star death zone size: 6.10e+11
-* Star size: 5.85e+09
-* Star flare distance: 6.10e+12
-* Star autopilot range: 1.22e+12
+* Star zone size: 6.37e+12
+* Star death zone size: 6.37e+11
+* Star size: 6.59e+09
+* Star flare distance: 6.37e+12
+* Star autopilot range: 1.27e+12
 
-* Omni range: 9.33e+14
+* Omni range: 9.74e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -1177,6 +1297,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 8.188 AU
+* Hot zone   :   8.188 ... 21.064 AU
+* Warm zone  :   21.064 ... 73.402 AU
+* Temp. zone :   73.402 ... 103.806 AU
+* Cold zone  :   103.806 ... 297.893 AU
+* Frost line : > 297.893 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 8.188 а.о.
+* Гаряча зона  :   8.188 ... 21.064 а.о.
+* Тепла зона   :   21.064 ... 73.402 а.о.
+* Помірна зона :   73.402 ... 103.806 а.о.
+* Холодна зона :   103.806 ... 158.566 а.о.
+* Межа кригоутворення : > 297.893 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 12
 * Star cluster: Moirai
@@ -1184,8 +1324,10 @@ Temperature zone data:
 * System codename: STAR_B2_12_SYSTEM
 * System translation name codename: NAME_STAR_B2_12_SYSTEM
 * System translation description codename: DESC_STAR_B2_12_SYSTEM
-* System zone size: 7.46e+14
-* System autopilot range: 7.46e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.03e+15
+* System autopilot range: 1.03e+15
 ```
 
  </details>  
@@ -1198,51 +1340,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 5.24e+09 m
-* Temperature: 25992 K
-* Luminosity: 2.23e+30 W
+* Size: 7.36e+09 m
+* Mass: 2.40e+31 kg
+* Temperature: 25745 K
+* Luminosity: 4.24e+30 W
 
 Sun units:
-* Size: 3.767 D
-* Temperature: 4.5 T
-* Luminosity: 5824 L
+* Size: 5.296 D
+* Mass: 12.044 M
+* Temperature: 4.46 T
+* Luminosity: 11080 L
 
 Spectral data:
 * Type: B2
-* Peak wavelength: 111.0 nm
+* Peak wavelength: 113.0 nm
 * Peak wavelength type: extreme UV
 
-Temperature zone data:
-* Mineral melting line: < 5.937 AU
-* Hot zone   :   5.937 ... 15.272 AU
-* Warm zone  :   15.272 ... 53.218 AU
-* Temp. zone :   53.218 ... 75.261 AU
-* Cold zone  :   75.261 ... 215.978 AU
-* Frost line : > 215.978 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 5.24e+09 м
-* Температура: 25992 К
-* Світність: 2.23e+30 Вт
+* Розмір: 7.36e+09 м
+* Температура: 25745 К
+* Світність: 4.24e+30 Вт
 
 Відносно Сонця:
-* Розмір: 3.767 D
-* Температура: 4.5 T
-* Світність: 5824 L
+* Розмір: 5.296 D
+* Температура: 4.46 T
+* Світність: 11080 L
 
 Спектральні дані:
 * Тип: B2
-* Пікова довжина хвилі: 111.0 нм
+* Пікова довжина хвилі: 113.0 нм
 * Тип пікового випромінювання: extreme UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 5.937 а.о.
-* Гаряча зона  :   5.937 ... 15.272 а.о.
-* Тепла зона   :   15.272 ... 53.218 а.о.
-* Помірна зона :   53.218 ... 75.261 а.о.
-* Холодна зона :   75.261 ... 114.963 а.о.
-* Межа кригоутворення : > 215.978 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1252,13 +1382,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B2_12
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.88e+12
-* Star death zone size: 4.88e+11
-* Star size: 5.24e+09
-* Star flare distance: 4.88e+12
-* Star autopilot range: 9.77e+11
+* Star zone size: 6.74e+12
+* Star death zone size: 6.74e+11
+* Star size: 7.36e+09
+* Star flare distance: 6.74e+12
+* Star autopilot range: 1.35e+12
 
-* Omni range: 7.46e+14
+* Omni range: 1.03e+15
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -1275,6 +1405,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 4.535 AU
+* Hot zone   :   4.535 ... 11.665 AU
+* Warm zone  :   11.665 ... 40.65 AU
+* Temp. zone :   40.65 ... 57.488 AU
+* Cold zone  :   57.488 ... 164.974 AU
+* Frost line : > 164.974 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 4.535 а.о.
+* Гаряча зона  :   4.535 ... 11.665 а.о.
+* Тепла зона   :   11.665 ... 40.65 а.о.
+* Помірна зона :   40.65 ... 57.488 а.о.
+* Холодна зона :   57.488 ... 87.814 а.о.
+* Межа кригоутворення : > 164.974 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 13
 * Star cluster: Moirai
@@ -1282,8 +1432,10 @@ Temperature zone data:
 * System codename: STAR_B3_13_SYSTEM
 * System translation name codename: NAME_STAR_B3_13_SYSTEM
 * System translation description codename: DESC_STAR_B3_13_SYSTEM
-* System zone size: 9.32e+14
-* System autopilot range: 9.32e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 5.70e+14
+* System autopilot range: 5.70e+14
 ```
 
  </details>  
@@ -1292,55 +1444,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: B3</summary>  
 
 #### Star pseudo-color  
-![00a0ff](Colors/00a0ff.png)  
+![009bff](Colors/009bff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.07e+09 m
-* Temperature: 22066 K
-* Luminosity: 3.47e+30 W
+* Size: 4.93e+09 m
+* Mass: 2.12e+31 kg
+* Temperature: 23409 K
+* Luminosity: 1.30e+30 W
 
 Sun units:
-* Size: 6.524 D
-* Temperature: 3.82 T
-* Luminosity: 9076 L
+* Size: 3.547 D
+* Mass: 10.655 M
+* Temperature: 4.06 T
+* Luminosity: 3398 L
 
 Spectral data:
 * Type: B3
-* Peak wavelength: 131.0 nm
+* Peak wavelength: 124.0 nm
 * Peak wavelength type: far UV
 
-Temperature zone data:
-* Mineral melting line: < 7.411 AU
-* Hot zone   :   7.411 ... 19.065 AU
-* Warm zone  :   19.065 ... 66.434 AU
-* Temp. zone :   66.434 ... 93.951 AU
-* Cold zone  :   93.951 ... 269.614 AU
-* Frost line : > 269.614 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.07e+09 м
-* Температура: 22066 К
-* Світність: 3.47e+30 Вт
+* Розмір: 4.93e+09 м
+* Температура: 23409 К
+* Світність: 1.30e+30 Вт
 
 Відносно Сонця:
-* Розмір: 6.524 D
-* Температура: 3.82 T
-* Світність: 9076 L
+* Розмір: 3.547 D
+* Температура: 4.06 T
+* Світність: 3398 L
 
 Спектральні дані:
 * Тип: B3
-* Пікова довжина хвилі: 131.0 нм
+* Пікова довжина хвилі: 124.0 нм
 * Тип пікового випромінювання: far UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 7.411 а.о.
-* Гаряча зона  :   7.411 ... 19.065 а.о.
-* Тепла зона   :   19.065 ... 66.434 а.о.
-* Помірна зона :   66.434 ... 93.951 а.о.
-* Холодна зона :   93.951 ... 143.513 а.о.
-* Межа кригоутворення : > 269.614 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1350,29 +1490,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B3_13
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.10e+12
-* Star death zone size: 6.10e+11
-* Star size: 9.07e+09
-* Star flare distance: 6.10e+12
-* Star autopilot range: 1.22e+12
+* Star zone size: 3.73e+12
+* Star death zone size: 3.73e+11
+* Star size: 4.93e+09
+* Star flare distance: 3.73e+12
+* Star autopilot range: 7.46e+11
 
-* Omni range: 9.32e+14
+* Omni range: 5.70e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (0, 160, 255)
- - hex: #00a0ff
+ - rgb: (0, 155, 255)
+ - hex: #009bff
 ```  
 
  </details>  
 
 ---  
- ![00a0ff](Colors/00a0ff.png)   
+ ![009bff](Colors/009bff.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 3.235 AU
+* Hot zone   :   3.235 ... 8.322 AU
+* Warm zone  :   8.322 ... 28.999 AU
+* Temp. zone :   28.999 ... 41.01 AU
+* Cold zone  :   41.01 ... 117.689 AU
+* Frost line : > 117.689 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 3.235 а.о.
+* Гаряча зона  :   3.235 ... 8.322 а.о.
+* Тепла зона   :   8.322 ... 28.999 а.о.
+* Помірна зона :   28.999 ... 41.01 а.о.
+* Холодна зона :   41.01 ... 62.644 а.о.
+* Межа кригоутворення : > 117.689 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 14
 * Star cluster: Moirai
@@ -1380,8 +1540,10 @@ Temperature zone data:
 * System codename: STAR_B4_14_SYSTEM
 * System translation name codename: NAME_STAR_B4_14_SYSTEM
 * System translation description codename: DESC_STAR_B4_14_SYSTEM
-* System zone size: 2.82e+14
-* System autopilot range: 2.82e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 4.07e+14
+* System autopilot range: 4.07e+14
 ```
 
  </details>  
@@ -1390,55 +1552,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: B4</summary>  
 
 #### Star pseudo-color  
-![00a0ff](Colors/00a0ff.png)  
+![00aaff](Colors/00aaff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.81e+09 m
-* Temperature: 21828 K
-* Luminosity: 3.18e+29 W
+* Size: 4.72e+09 m
+* Mass: 1.94e+31 kg
+* Temperature: 20217 K
+* Luminosity: 6.62e+29 W
 
 Sun units:
-* Size: 2.018 D
-* Temperature: 3.78 T
-* Luminosity: 832 L
+* Size: 3.393 D
+* Mass: 9.741 M
+* Temperature: 3.5 T
+* Luminosity: 1729 L
 
 Spectral data:
 * Type: B4
-* Peak wavelength: 133.0 nm
+* Peak wavelength: 143.0 nm
 * Peak wavelength type: far UV
 
-Temperature zone data:
-* Mineral melting line: < 2.243 AU
-* Hot zone   :   2.243 ... 5.771 AU
-* Warm zone  :   5.771 ... 20.11 AU
-* Temp. zone :   20.11 ... 28.441 AU
-* Cold zone  :   28.441 ... 81.616 AU
-* Frost line : > 81.616 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.81e+09 м
-* Температура: 21828 К
-* Світність: 3.18e+29 Вт
+* Розмір: 4.72e+09 м
+* Температура: 20217 К
+* Світність: 6.62e+29 Вт
 
 Відносно Сонця:
-* Розмір: 2.018 D
-* Температура: 3.78 T
-* Світність: 832 L
+* Розмір: 3.393 D
+* Температура: 3.5 T
+* Світність: 1729 L
 
 Спектральні дані:
 * Тип: B4
-* Пікова довжина хвилі: 133.0 нм
+* Пікова довжина хвилі: 143.0 нм
 * Тип пікового випромінювання: far UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 2.243 а.о.
-* Гаряча зона  :   2.243 ... 5.771 а.о.
-* Тепла зона   :   5.771 ... 20.11 а.о.
-* Помірна зона :   20.11 ... 28.441 а.о.
-* Холодна зона :   28.441 ... 43.444 а.о.
-* Межа кригоутворення : > 81.616 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1448,29 +1598,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B4_14
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.85e+12
-* Star death zone size: 1.85e+11
-* Star size: 2.81e+09
-* Star flare distance: 1.85e+12
-* Star autopilot range: 3.69e+11
+* Star zone size: 2.66e+12
+* Star death zone size: 2.66e+11
+* Star size: 4.72e+09
+* Star flare distance: 2.66e+12
+* Star autopilot range: 5.32e+11
 
-* Omni range: 2.82e+14
+* Omni range: 4.07e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (0, 160, 255)
- - hex: #00a0ff
+ - rgb: (0, 170, 255)
+ - hex: #00aaff
 ```  
 
  </details>  
 
 ---  
- ![00a0ff](Colors/00a0ff.png)   
+ ![00aaff](Colors/00aaff.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 1.678 AU
+* Hot zone   :   1.678 ... 4.316 AU
+* Warm zone  :   4.316 ... 15.04 AU
+* Temp. zone :   15.04 ... 21.27 AU
+* Cold zone  :   21.27 ... 61.039 AU
+* Frost line : > 61.039 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 1.678 а.о.
+* Гаряча зона  :   1.678 ... 4.316 а.о.
+* Тепла зона   :   4.316 ... 15.04 а.о.
+* Помірна зона :   15.04 ... 21.27 а.о.
+* Холодна зона :   21.27 ... 32.49 а.о.
+* Межа кригоутворення : > 61.039 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 15
 * Star cluster: Moirai
@@ -1478,8 +1648,10 @@ Temperature zone data:
 * System codename: STAR_B5_15_SYSTEM
 * System translation name codename: NAME_STAR_B5_15_SYSTEM
 * System translation description codename: DESC_STAR_B5_15_SYSTEM
-* System zone size: 2.60e+14
-* System autopilot range: 2.60e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.11e+14
+* System autopilot range: 2.11e+14
 ```
 
  </details>  
@@ -1488,55 +1660,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: B5</summary>  
 
 #### Star pseudo-color  
-![00afff](Colors/00afff.png)  
+![00aaff](Colors/00aaff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 3.42e+09 m
-* Temperature: 18968 K
-* Luminosity: 2.70e+29 W
+* Size: 2.63e+09 m
+* Mass: 1.66e+31 kg
+* Temperature: 19497 K
+* Luminosity: 1.78e+29 W
 
 Sun units:
-* Size: 2.462 D
-* Temperature: 3.29 T
-* Luminosity: 706 L
+* Size: 1.892 D
+* Mass: 8.336 M
+* Temperature: 3.38 T
+* Luminosity: 465 L
 
 Spectral data:
 * Type: B5
-* Peak wavelength: 153.0 nm
+* Peak wavelength: 149.0 nm
 * Peak wavelength type: far UV
 
-Temperature zone data:
-* Mineral melting line: < 2.066 AU
-* Hot zone   :   2.066 ... 5.316 AU
-* Warm zone  :   5.316 ... 18.524 AU
-* Temp. zone :   18.524 ... 26.198 AU
-* Cold zone  :   26.198 ... 75.18 AU
-* Frost line : > 75.18 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 3.42e+09 м
-* Температура: 18968 К
-* Світність: 2.70e+29 Вт
+* Розмір: 2.63e+09 м
+* Температура: 19497 К
+* Світність: 1.78e+29 Вт
 
 Відносно Сонця:
-* Розмір: 2.462 D
-* Температура: 3.29 T
-* Світність: 706 L
+* Розмір: 1.892 D
+* Температура: 3.38 T
+* Світність: 465 L
 
 Спектральні дані:
 * Тип: B5
-* Пікова довжина хвилі: 153.0 нм
+* Пікова довжина хвилі: 149.0 нм
 * Тип пікового випромінювання: far UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 2.066 а.о.
-* Гаряча зона  :   2.066 ... 5.316 а.о.
-* Тепла зона   :   5.316 ... 18.524 а.о.
-* Помірна зона :   18.524 ... 26.198 а.о.
-* Холодна зона :   26.198 ... 40.017 а.о.
-* Межа кригоутворення : > 75.18 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1546,29 +1706,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B5_15
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.71e+11
-* Star death zone size: 1.70e+11
-* Star size: 3.42e+09
-* Star flare distance: 1.71e+11
-* Star autopilot range: 3.40e+11
+* Star zone size: 1.38e+12
+* Star death zone size: 1.38e+11
+* Star size: 2.63e+09
+* Star flare distance: 1.38e+12
+* Star autopilot range: 2.76e+11
 
-* Omni range: 2.60e+14
+* Omni range: 2.11e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (0, 175, 255)
- - hex: #00afff
+ - rgb: (0, 170, 255)
+ - hex: #00aaff
 ```  
 
  </details>  
 
 ---  
- ![00afff](Colors/00afff.png)   
+ ![00aaff](Colors/00aaff.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 3.216 AU
+* Hot zone   :   3.216 ... 8.273 AU
+* Warm zone  :   8.273 ... 28.83 AU
+* Temp. zone :   28.83 ... 40.772 AU
+* Cold zone  :   40.772 ... 117.003 AU
+* Frost line : > 117.003 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 3.216 а.о.
+* Гаряча зона  :   3.216 ... 8.273 а.о.
+* Тепла зона   :   8.273 ... 28.83 а.о.
+* Помірна зона :   28.83 ... 40.772 а.о.
+* Холодна зона :   40.772 ... 62.28 а.о.
+* Межа кригоутворення : > 117.003 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 16
 * Star cluster: Moirai
@@ -1576,8 +1756,10 @@ Temperature zone data:
 * System codename: STAR_B6_16_SYSTEM
 * System translation name codename: NAME_STAR_B6_16_SYSTEM
 * System translation description codename: DESC_STAR_B6_16_SYSTEM
-* System zone size: 2.37e+14
-* System autopilot range: 2.37e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 4.04e+14
+* System autopilot range: 4.04e+14
 ```
 
  </details>  
@@ -1586,55 +1768,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: B6</summary>  
 
 #### Star pseudo-color  
-![00b4ff](Colors/00b4ff.png)  
+![00b9ff](Colors/00b9ff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 3.55e+09 m
-* Temperature: 17805 K
-* Luminosity: 2.25e+29 W
+* Size: 6.49e+09 m
+* Mass: 1.43e+31 kg
+* Temperature: 17188 K
+* Luminosity: 6.54e+29 W
 
 Sun units:
-* Size: 2.553 D
-* Temperature: 3.08 T
-* Luminosity: 589 L
+* Size: 4.667 D
+* Mass: 7.169 M
+* Temperature: 2.98 T
+* Luminosity: 1709 L
 
 Spectral data:
 * Type: B6
-* Peak wavelength: 163.0 nm
+* Peak wavelength: 169.0 nm
 * Peak wavelength type: far UV
 
-Temperature zone data:
-* Mineral melting line: < 1.888 AU
-* Hot zone   :   1.888 ... 4.857 AU
-* Warm zone  :   4.857 ... 16.926 AU
-* Temp. zone :   16.926 ... 23.937 AU
-* Cold zone  :   23.937 ... 68.691 AU
-* Frost line : > 68.691 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 3.55e+09 м
-* Температура: 17805 К
-* Світність: 2.25e+29 Вт
+* Розмір: 6.49e+09 м
+* Температура: 17188 К
+* Світність: 6.54e+29 Вт
 
 Відносно Сонця:
-* Розмір: 2.553 D
-* Температура: 3.08 T
-* Світність: 589 L
+* Розмір: 4.667 D
+* Температура: 2.98 T
+* Світність: 1709 L
 
 Спектральні дані:
 * Тип: B6
-* Пікова довжина хвилі: 163.0 нм
+* Пікова довжина хвилі: 169.0 нм
 * Тип пікового випромінювання: far UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 1.888 а.о.
-* Гаряча зона  :   1.888 ... 4.857 а.о.
-* Тепла зона   :   4.857 ... 16.926 а.о.
-* Помірна зона :   16.926 ... 23.937 а.о.
-* Холодна зона :   23.937 ... 36.564 а.о.
-* Межа кригоутворення : > 68.691 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1644,29 +1814,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B6_16
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.78e+11
-* Star death zone size: 1.55e+11
-* Star size: 3.55e+09
-* Star flare distance: 1.78e+11
-* Star autopilot range: 3.11e+11
+* Star zone size: 3.24e+11
+* Star death zone size: 2.65e+11
+* Star size: 6.49e+09
+* Star flare distance: 3.24e+11
+* Star autopilot range: 5.29e+11
 
-* Omni range: 2.37e+14
+* Omni range: 4.04e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (0, 180, 255)
- - hex: #00b4ff
+ - rgb: (0, 185, 255)
+ - hex: #00b9ff
 ```  
 
  </details>  
 
 ---  
- ![00b4ff](Colors/00b4ff.png)   
+ ![00b9ff](Colors/00b9ff.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 1.011 AU
+* Hot zone   :   1.011 ... 2.601 AU
+* Warm zone  :   2.601 ... 9.065 AU
+* Temp. zone :   9.065 ... 12.819 AU
+* Cold zone  :   12.819 ... 36.788 AU
+* Frost line : > 36.788 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 1.011 а.о.
+* Гаряча зона  :   1.011 ... 2.601 а.о.
+* Тепла зона   :   2.601 ... 9.065 а.о.
+* Помірна зона :   9.065 ... 12.819 а.о.
+* Холодна зона :   12.819 ... 19.582 а.о.
+* Межа кригоутворення : > 36.788 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 17
 * Star cluster: Moirai
@@ -1674,8 +1864,10 @@ Temperature zone data:
 * System codename: STAR_B7_17_SYSTEM
 * System translation name codename: NAME_STAR_B7_17_SYSTEM
 * System translation description codename: DESC_STAR_B7_17_SYSTEM
-* System zone size: 2.54e+14
-* System autopilot range: 2.54e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.27e+14
+* System autopilot range: 1.27e+14
 ```
 
  </details>  
@@ -1684,55 +1876,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: B7</summary>  
 
 #### Star pseudo-color  
-![00c3ff](Colors/00c3ff.png)  
+![00cdff](Colors/00cdff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 5.12e+09 m
-* Temperature: 15322 K
-* Luminosity: 2.58e+29 W
+* Size: 2.93e+09 m
+* Mass: 9.99e+30 kg
+* Temperature: 14345 K
+* Luminosity: 6.47e+28 W
 
 Sun units:
-* Size: 3.686 D
-* Temperature: 2.65 T
-* Luminosity: 673 L
+* Size: 2.106 D
+* Mass: 5.018 M
+* Temperature: 2.49 T
+* Luminosity: 169 L
 
 Spectral data:
 * Type: B7
-* Peak wavelength: 189.0 nm
-* Peak wavelength type: far UV
+* Peak wavelength: 202.0 nm
+* Peak wavelength type: medium UV
 
-Temperature zone data:
-* Mineral melting line: < 2.019 AU
-* Hot zone   :   2.019 ... 5.193 AU
-* Warm zone  :   5.193 ... 18.094 AU
-* Temp. zone :   18.094 ... 25.589 AU
-* Cold zone  :   25.589 ... 73.434 AU
-* Frost line : > 73.434 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 5.12e+09 м
-* Температура: 15322 К
-* Світність: 2.58e+29 Вт
+* Розмір: 2.93e+09 м
+* Температура: 14345 К
+* Світність: 6.47e+28 Вт
 
 Відносно Сонця:
-* Розмір: 3.686 D
-* Температура: 2.65 T
-* Світність: 673 L
+* Розмір: 2.106 D
+* Температура: 2.49 T
+* Світність: 169 L
 
 Спектральні дані:
 * Тип: B7
-* Пікова довжина хвилі: 189.0 нм
-* Тип пікового випромінювання: far UV
+* Пікова довжина хвилі: 202.0 нм
+* Тип пікового випромінювання: medium UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 2.019 а.о.
-* Гаряча зона  :   2.019 ... 5.193 а.о.
-* Тепла зона   :   5.193 ... 18.094 а.о.
-* Помірна зона :   18.094 ... 25.589 а.о.
-* Холодна зона :   25.589 ... 39.088 а.о.
-* Межа кригоутворення : > 73.434 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1742,29 +1922,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B7_17
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 2.56e+11
-* Star death zone size: 1.66e+11
-* Star size: 5.12e+09
-* Star flare distance: 2.56e+11
-* Star autopilot range: 3.32e+11
+* Star zone size: 1.46e+11
+* Star death zone size: 8.32e+10
+* Star size: 2.93e+09
+* Star flare distance: 1.46e+11
+* Star autopilot range: 1.66e+11
 
-* Omni range: 2.54e+14
+* Omni range: 1.27e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (0, 195, 255)
- - hex: #00c3ff
+ - rgb: (0, 205, 255)
+ - hex: #00cdff
 ```  
 
  </details>  
 
 ---  
- ![00c3ff](Colors/00c3ff.png)   
+ ![00cdff](Colors/00cdff.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 2.2 AU
+* Hot zone   :   2.2 ... 5.66 AU
+* Warm zone  :   5.66 ... 19.723 AU
+* Temp. zone :   19.723 ... 27.892 AU
+* Cold zone  :   27.892 ... 80.043 AU
+* Frost line : > 80.043 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 2.2 а.о.
+* Гаряча зона  :   2.2 ... 5.66 а.о.
+* Тепла зона   :   5.66 ... 19.723 а.о.
+* Помірна зона :   19.723 ... 27.892 а.о.
+* Холодна зона :   27.892 ... 42.606 а.о.
+* Межа кригоутворення : > 80.043 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 18
 * Star cluster: Moirai
@@ -1772,8 +1972,10 @@ Temperature zone data:
 * System codename: STAR_B8_18_SYSTEM
 * System translation name codename: NAME_STAR_B8_18_SYSTEM
 * System translation description codename: DESC_STAR_B8_18_SYSTEM
-* System zone size: 2.29e+14
-* System autopilot range: 2.29e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.77e+14
+* System autopilot range: 2.77e+14
 ```
 
  </details>  
@@ -1786,51 +1988,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 6.09e+09 m
-* Temperature: 13342 K
-* Luminosity: 2.09e+29 W
+* Size: 7.69e+09 m
+* Mass: 7.29e+30 kg
+* Temperature: 13056 K
+* Luminosity: 3.06e+29 W
 
 Sun units:
-* Size: 4.378 D
-* Temperature: 2.31 T
-* Luminosity: 546 L
+* Size: 5.533 D
+* Mass: 3.663 M
+* Temperature: 2.26 T
+* Luminosity: 800 L
 
 Spectral data:
 * Type: B8
-* Peak wavelength: 217.0 nm
+* Peak wavelength: 222.0 nm
 * Peak wavelength type: medium UV
 
-Temperature zone data:
-* Mineral melting line: < 1.818 AU
-* Hot zone   :   1.818 ... 4.677 AU
-* Warm zone  :   4.677 ... 16.298 AU
-* Temp. zone :   16.298 ... 23.048 AU
-* Cold zone  :   23.048 ... 66.143 AU
-* Frost line : > 66.143 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 6.09e+09 м
-* Температура: 13342 К
-* Світність: 2.09e+29 Вт
+* Розмір: 7.69e+09 м
+* Температура: 13056 К
+* Світність: 3.06e+29 Вт
 
 Відносно Сонця:
-* Розмір: 4.378 D
-* Температура: 2.31 T
-* Світність: 546 L
+* Розмір: 5.533 D
+* Температура: 2.26 T
+* Світність: 800 L
 
 Спектральні дані:
 * Тип: B8
-* Пікова довжина хвилі: 217.0 нм
+* Пікова довжина хвилі: 222.0 нм
 * Тип пікового випромінювання: medium UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 1.818 а.о.
-* Гаряча зона  :   1.818 ... 4.677 а.о.
-* Тепла зона   :   4.677 ... 16.298 а.о.
-* Помірна зона :   16.298 ... 23.048 а.о.
-* Холодна зона :   23.048 ... 35.207 а.о.
-* Межа кригоутворення : > 66.143 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1840,13 +2030,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B8_18
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 3.04e+11
-* Star death zone size: 1.50e+11
-* Star size: 6.09e+09
-* Star flare distance: 3.04e+11
-* Star autopilot range: 2.99e+11
+* Star zone size: 3.84e+11
+* Star death zone size: 1.81e+11
+* Star size: 7.69e+09
+* Star flare distance: 3.84e+11
+* Star autopilot range: 3.62e+11
 
-* Omni range: 2.29e+14
+* Omni range: 2.77e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -1863,6 +2053,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 1.18 AU
+* Hot zone   :   1.18 ... 3.035 AU
+* Warm zone  :   3.035 ... 10.577 AU
+* Temp. zone :   10.577 ... 14.959 AU
+* Cold zone  :   14.959 ... 42.927 AU
+* Frost line : > 42.927 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 1.18 а.о.
+* Гаряча зона  :   1.18 ... 3.035 а.о.
+* Тепла зона   :   3.035 ... 10.577 а.о.
+* Помірна зона :   10.577 ... 14.959 а.о.
+* Холодна зона :   14.959 ... 22.85 а.о.
+* Межа кригоутворення : > 42.927 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 19
 * Star cluster: Moirai
@@ -1870,8 +2080,10 @@ Temperature zone data:
 * System codename: STAR_B9_19_SYSTEM
 * System translation name codename: NAME_STAR_B9_19_SYSTEM
 * System translation description codename: DESC_STAR_B9_19_SYSTEM
-* System zone size: 1.89e+14
-* System autopilot range: 1.89e+14
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.48e+14
+* System autopilot range: 1.48e+14
 ```
 
  </details>  
@@ -1880,55 +2092,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: B9</summary>  
 
 #### Star pseudo-color  
-![00ebff](Colors/00ebff.png)  
+![00faff](Colors/00faff.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 6.75e+09 m
-* Temperature: 11531 K
-* Luminosity: 1.43e+29 W
+* Size: 6.23e+09 m
+* Mass: 6.52e+30 kg
+* Temperature: 10627 K
+* Luminosity: 8.81e+28 W
 
 Sun units:
-* Size: 4.853 D
-* Temperature: 2.0 T
-* Luminosity: 375 L
+* Size: 4.479 D
+* Mass: 3.276 M
+* Temperature: 1.84 T
+* Luminosity: 230 L
 
 Spectral data:
 * Type: B9
-* Peak wavelength: 251.0 nm
+* Peak wavelength: 273.0 nm
 * Peak wavelength type: medium UV
 
-Temperature zone data:
-* Mineral melting line: < 1.505 AU
-* Hot zone   :   1.505 ... 3.873 AU
-* Warm zone  :   3.873 ... 13.495 AU
-* Temp. zone :   13.495 ... 19.084 AU
-* Cold zone  :   19.084 ... 54.767 AU
-* Frost line : > 54.767 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 6.75e+09 м
-* Температура: 11531 К
-* Світність: 1.43e+29 Вт
+* Розмір: 6.23e+09 м
+* Температура: 10627 К
+* Світність: 8.81e+28 Вт
 
 Відносно Сонця:
-* Розмір: 4.853 D
-* Температура: 2.0 T
-* Світність: 375 L
+* Розмір: 4.479 D
+* Температура: 1.84 T
+* Світність: 230 L
 
 Спектральні дані:
 * Тип: B9
-* Пікова довжина хвилі: 251.0 нм
+* Пікова довжина хвилі: 273.0 нм
 * Тип пікового випромінювання: medium UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 1.505 а.о.
-* Гаряча зона  :   1.505 ... 3.873 а.о.
-* Тепла зона   :   3.873 ... 13.495 а.о.
-* Помірна зона :   13.495 ... 19.084 а.о.
-* Холодна зона :   19.084 ... 29.152 а.о.
-* Межа кригоутворення : > 54.767 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1938,29 +2138,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_B9_19
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 3.38e+11
-* Star death zone size: 1.24e+11
-* Star size: 6.75e+09
-* Star flare distance: 3.38e+11
-* Star autopilot range: 2.48e+11
+* Star zone size: 3.12e+11
+* Star death zone size: 9.71e+10
+* Star size: 6.23e+09
+* Star flare distance: 3.12e+11
+* Star autopilot range: 1.94e+11
 
-* Omni range: 1.89e+14
+* Omni range: 1.48e+14
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (0, 235, 255)
- - hex: #00ebff
+ - rgb: (0, 250, 255)
+ - hex: #00faff
 ```  
 
  </details>  
 
 ---  
- ![00ebff](Colors/00ebff.png)   
+ ![00faff](Colors/00faff.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.339 AU
+* Hot zone   :   0.339 ... 0.871 AU
+* Warm zone  :   0.871 ... 3.036 AU
+* Temp. zone :   3.036 ... 4.293 AU
+* Cold zone  :   4.293 ... 12.32 AU
+* Frost line : > 12.32 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.339 а.о.
+* Гаряча зона  :   0.339 ... 0.871 а.о.
+* Тепла зона   :   0.871 ... 3.036 а.о.
+* Помірна зона :   3.036 ... 4.293 а.о.
+* Холодна зона :   4.293 ... 6.558 а.о.
+* Межа кригоутворення : > 12.32 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 20
 * Star cluster: Moirai
@@ -1968,8 +2188,10 @@ Temperature zone data:
 * System codename: STAR_A0_20_SYSTEM
 * System translation name codename: NAME_STAR_A0_20_SYSTEM
 * System translation description codename: DESC_STAR_A0_20_SYSTEM
-* System zone size: 4.62e+13
-* System autopilot range: 4.62e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 4.26e+13
+* System autopilot range: 4.26e+13
 ```
 
  </details>  
@@ -1978,55 +2200,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: A0</summary>  
 
 #### Star pseudo-color  
-![0dffe7](Colors/0dffe7.png)  
+![1bffd0](Colors/1bffd0.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.20e+09 m
-* Temperature: 9988 K
-* Luminosity: 8.55e+27 W
+* Size: 2.12e+09 m
+* Mass: 4.10e+30 kg
+* Temperature: 9760 K
+* Luminosity: 7.25e+27 W
 
 Sun units:
-* Size: 1.58 D
-* Temperature: 1.73 T
-* Luminosity: 22.3 L
+* Size: 1.524 D
+* Mass: 2.06 M
+* Temperature: 1.69 T
+* Luminosity: 19.0 L
 
 Spectral data:
 * Type: A0
-* Peak wavelength: 290.0 nm
+* Peak wavelength: 297.0 nm
 * Peak wavelength type: medium UV
 
-Temperature zone data:
-* Mineral melting line: < 0.368 AU
-* Hot zone   :   0.368 ... 0.946 AU
-* Warm zone  :   0.946 ... 3.296 AU
-* Temp. zone :   3.296 ... 4.662 AU
-* Cold zone  :   4.662 ... 13.379 AU
-* Frost line : > 13.379 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.20e+09 м
-* Температура: 9988 К
-* Світність: 8.55e+27 Вт
+* Розмір: 2.12e+09 м
+* Температура: 9760 К
+* Світність: 7.25e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.58 D
-* Температура: 1.73 T
-* Світність: 22.3 L
+* Розмір: 1.524 D
+* Температура: 1.69 T
+* Світність: 19.0 L
 
 Спектральні дані:
 * Тип: A0
-* Пікова довжина хвилі: 290.0 нм
+* Пікова довжина хвилі: 297.0 нм
 * Тип пікового випромінювання: medium UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.368 а.о.
-* Гаряча зона  :   0.368 ... 0.946 а.о.
-* Тепла зона   :   0.946 ... 3.296 а.о.
-* Помірна зона :   3.296 ... 4.662 а.о.
-* Холодна зона :   4.662 ... 7.121 а.о.
-* Межа кригоутворення : > 13.379 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2036,111 +2246,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A0_20
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.10e+11
-* Star death zone size: 3.03e+10
-* Star size: 2.20e+09
-* Star flare distance: 1.10e+11
-* Star autopilot range: 6.05e+10
+* Star zone size: 1.06e+11
+* Star death zone size: 2.79e+10
+* Star size: 2.12e+09
+* Star flare distance: 1.06e+11
+* Star autopilot range: 5.57e+10
 
-* Omni range: 4.62e+13
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (13, 255, 231)
- - hex: #0dffe7
-```  
-
- </details>  
-
----  
- ![0dffe7](Colors/0dffe7.png)   
-
----  
-# System: Test  
-<details><summary>System data</summary>  
-
-```  
-* System ID: 21
-* Star cluster: Moirai
-* System zone codename: STAR_A1_21_SYSTEM_ZONE
-* System codename: STAR_A1_21_SYSTEM
-* System translation name codename: NAME_STAR_A1_21_SYSTEM
-* System translation description codename: DESC_STAR_A1_21_SYSTEM
-* System zone size: 4.24e+13
-* System autopilot range: 4.24e+13
-```
-
- </details>  
-
----  
-<details><summary>Primary star : Test A, type: A1</summary>  
-
-#### Star pseudo-color  
-![1bffd0](Colors/1bffd0.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 2.15e+09 m
-* Temperature: 9660 K
-* Luminosity: 7.17e+27 W
-
-Sun units:
-* Size: 1.547 D
-* Temperature: 1.67 T
-* Luminosity: 18.7 L
-
-Spectral data:
-* Type: A1
-* Peak wavelength: 300.0 nm
-* Peak wavelength type: medium UV
-
-Temperature zone data:
-* Mineral melting line: < 0.337 AU
-* Hot zone   :   0.337 ... 0.866 AU
-* Warm zone  :   0.866 ... 3.019 AU
-* Temp. zone :   3.019 ... 4.27 AU
-* Cold zone  :   4.27 ... 12.253 AU
-* Frost line : > 12.253 AU
-```  
-```  
-Абсолютні величини:
-* Розмір: 2.15e+09 м
-* Температура: 9660 К
-* Світність: 7.17e+27 Вт
-
-Відносно Сонця:
-* Розмір: 1.547 D
-* Температура: 1.67 T
-* Світність: 18.7 L
-
-Спектральні дані:
-* Тип: A1
-* Пікова довжина хвилі: 300.0 нм
-* Тип пікового випромінювання: medium UV
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.337 а.о.
-* Гаряча зона  :   0.337 ... 0.866 а.о.
-* Тепла зона   :   0.866 ... 3.019 а.о.
-* Помірна зона :   3.019 ... 4.27 а.о.
-* Холодна зона :   4.27 ... 6.522 а.о.
-* Межа кригоутворення : > 12.253 а.о.
-```  
-#### GODOT data  
-```  
-* Star zone codename: STAR_A1_21_ZONE
-* Star codename: STAR_A1_21
-* Star translation name codename: NAME_STAR_A1_21
-* Star translation description codename: DESC_STAR_A1_21
-* Star name: Test A
-* Star description: see above.
-* Star zone size: 1.08e+11
-* Star death zone size: 2.77e+10
-* Star size: 2.15e+09
-* Star flare distance: 1.08e+11
-* Star autopilot range: 5.54e+10
-
-* Omni range: 4.24e+13
+* Omni range: 4.26e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2157,6 +2269,134 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.392 AU
+* Hot zone   :   0.392 ... 1.009 AU
+* Warm zone  :   1.009 ... 3.515 AU
+* Temp. zone :   3.515 ... 4.972 AU
+* Cold zone  :   4.972 ... 14.267 AU
+* Frost line : > 14.267 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.392 а.о.
+* Гаряча зона  :   0.392 ... 1.009 а.о.
+* Тепла зона   :   1.009 ... 3.515 а.о.
+* Помірна зона :   3.515 ... 4.972 а.о.
+* Холодна зона :   4.972 ... 7.594 а.о.
+* Межа кригоутворення : > 14.267 а.о.
+```  
+#### GODOT data  
+```  
+* System ID: 21
+* Star cluster: Moirai
+* System zone codename: STAR_A1_21_SYSTEM_ZONE
+* System codename: STAR_A1_21_SYSTEM
+* System translation name codename: NAME_STAR_A1_21_SYSTEM
+* System translation description codename: DESC_STAR_A1_21_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 4.93e+13
+* System autopilot range: 4.93e+13
+```
+
+ </details>  
+
+---  
+<details><summary>Primary star : Test A, type: A1</summary>  
+
+#### Star pseudo-color  
+![1bffd0](Colors/1bffd0.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 2.50e+09 m
+* Mass: 4.03e+30 kg
+* Temperature: 9664 K
+* Luminosity: 9.73e+27 W
+
+Sun units:
+* Size: 1.8 D
+* Mass: 2.026 M
+* Temperature: 1.67 T
+* Luminosity: 25.4 L
+
+Spectral data:
+* Type: A1
+* Peak wavelength: 300.0 nm
+* Peak wavelength type: medium UV
+
+```  
+```  
+Абсолютні величини:
+* Розмір: 2.50e+09 м
+* Температура: 9664 К
+* Світність: 9.73e+27 Вт
+
+Відносно Сонця:
+* Розмір: 1.8 D
+* Температура: 1.67 T
+* Світність: 25.4 L
+
+Спектральні дані:
+* Тип: A1
+* Пікова довжина хвилі: 300.0 нм
+* Тип пікового випромінювання: medium UV
+
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_A1_21_ZONE
+* Star codename: STAR_A1_21
+* Star translation name codename: NAME_STAR_A1_21
+* Star translation description codename: DESC_STAR_A1_21
+* Star name: Test A
+* Star description: see above.
+* Star zone size: 1.25e+11
+* Star death zone size: 3.23e+10
+* Star size: 2.50e+09
+* Star flare distance: 1.25e+11
+* Star autopilot range: 6.45e+10
+
+* Omni range: 4.93e+13
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (27, 255, 208)
+ - hex: #1bffd0
+```  
+
+ </details>  
+
+---  
+ ![1bffd0](Colors/1bffd0.png)   
+
+---  
+# System: Test  
+<details><summary>System data</summary>  
+
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.367 AU
+* Hot zone   :   0.367 ... 0.944 AU
+* Warm zone  :   0.944 ... 3.29 AU
+* Temp. zone :   3.29 ... 4.653 AU
+* Cold zone  :   4.653 ... 13.352 AU
+* Frost line : > 13.352 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.367 а.о.
+* Гаряча зона  :   0.367 ... 0.944 а.о.
+* Тепла зона   :   0.944 ... 3.29 а.о.
+* Помірна зона :   3.29 ... 4.653 а.о.
+* Холодна зона :   4.653 ... 7.107 а.о.
+* Межа кригоутворення : > 13.352 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 22
 * Star cluster: Moirai
@@ -2164,8 +2404,10 @@ Temperature zone data:
 * System codename: STAR_A2_22_SYSTEM
 * System translation name codename: NAME_STAR_A2_22_SYSTEM
 * System translation description codename: DESC_STAR_A2_22_SYSTEM
-* System zone size: 3.79e+13
-* System autopilot range: 3.79e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 4.62e+13
+* System autopilot range: 4.62e+13
 ```
 
  </details>  
@@ -2174,55 +2416,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: A2</summary>  
 
 #### Star pseudo-color  
-![36ffa2](Colors/36ffa2.png)  
+![28ffb9](Colors/28ffb9.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.08e+09 m
-* Temperature: 9283 K
-* Luminosity: 5.73e+27 W
+* Size: 2.48e+09 m
+* Mass: 3.90e+30 kg
+* Temperature: 9399 K
+* Luminosity: 8.52e+27 W
 
 Sun units:
-* Size: 1.498 D
-* Temperature: 1.61 T
-* Luminosity: 15.0 L
+* Size: 1.781 D
+* Mass: 1.958 M
+* Temperature: 1.63 T
+* Luminosity: 22.3 L
 
 Spectral data:
 * Type: A2
-* Peak wavelength: 312.0 nm
+* Peak wavelength: 308.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.301 AU
-* Hot zone   :   0.301 ... 0.774 AU
-* Warm zone  :   0.774 ... 2.699 AU
-* Temp. zone :   2.699 ... 3.816 AU
-* Cold zone  :   3.816 ... 10.952 AU
-* Frost line : > 10.952 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.08e+09 м
-* Температура: 9283 К
-* Світність: 5.73e+27 Вт
+* Розмір: 2.48e+09 м
+* Температура: 9399 К
+* Світність: 8.52e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.498 D
-* Температура: 1.61 T
-* Світність: 15.0 L
+* Розмір: 1.781 D
+* Температура: 1.63 T
+* Світність: 22.3 L
 
 Спектральні дані:
 * Тип: A2
-* Пікова довжина хвилі: 312.0 нм
+* Пікова довжина хвилі: 308.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.301 а.о.
-* Гаряча зона  :   0.301 ... 0.774 а.о.
-* Тепла зона   :   0.774 ... 2.699 а.о.
-* Помірна зона :   2.699 ... 3.816 а.о.
-* Холодна зона :   3.816 ... 5.83 а.о.
-* Межа кригоутворення : > 10.952 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2232,29 +2462,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A2_22
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.04e+11
-* Star death zone size: 2.48e+10
-* Star size: 2.08e+09
-* Star flare distance: 1.04e+11
-* Star autopilot range: 4.95e+10
+* Star zone size: 1.24e+11
+* Star death zone size: 3.02e+10
+* Star size: 2.48e+09
+* Star flare distance: 1.24e+11
+* Star autopilot range: 6.04e+10
 
-* Omni range: 3.79e+13
+* Omni range: 4.62e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (54, 255, 162)
- - hex: #36ffa2
+ - rgb: (40, 255, 185)
+ - hex: #28ffb9
 ```  
 
  </details>  
 
 ---  
- ![36ffa2](Colors/36ffa2.png)   
+ ![28ffb9](Colors/28ffb9.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.332 AU
+* Hot zone   :   0.332 ... 0.853 AU
+* Warm zone  :   0.853 ... 2.972 AU
+* Temp. zone :   2.972 ... 4.203 AU
+* Cold zone  :   4.203 ... 12.061 AU
+* Frost line : > 12.061 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.332 а.о.
+* Гаряча зона  :   0.332 ... 0.853 а.о.
+* Тепла зона   :   0.853 ... 2.972 а.о.
+* Помірна зона :   2.972 ... 4.203 а.о.
+* Холодна зона :   4.203 ... 6.42 а.о.
+* Межа кригоутворення : > 12.061 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 23
 * Star cluster: Moirai
@@ -2262,8 +2512,10 @@ Temperature zone data:
 * System codename: STAR_A3_23_SYSTEM
 * System translation name codename: NAME_STAR_A3_23_SYSTEM
 * System translation description codename: DESC_STAR_A3_23_SYSTEM
-* System zone size: 4.06e+13
-* System autopilot range: 4.06e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 4.17e+13
+* System autopilot range: 4.17e+13
 ```
 
  </details>  
@@ -2276,51 +2528,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.33e+09 m
-* Temperature: 9076 K
-* Luminosity: 6.58e+27 W
+* Size: 2.38e+09 m
+* Mass: 3.75e+30 kg
+* Temperature: 9115 K
+* Luminosity: 6.95e+27 W
 
 Sun units:
-* Size: 1.678 D
-* Temperature: 1.57 T
-* Luminosity: 17.2 L
+* Size: 1.711 D
+* Mass: 1.882 M
+* Temperature: 1.58 T
+* Luminosity: 18.2 L
 
 Spectral data:
 * Type: A3
-* Peak wavelength: 319.0 nm
+* Peak wavelength: 318.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.323 AU
-* Hot zone   :   0.323 ... 0.83 AU
-* Warm zone  :   0.83 ... 2.891 AU
-* Temp. zone :   2.891 ... 4.089 AU
-* Cold zone  :   4.089 ... 11.734 AU
-* Frost line : > 11.734 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.33e+09 м
-* Температура: 9076 К
-* Світність: 6.58e+27 Вт
+* Розмір: 2.38e+09 м
+* Температура: 9115 К
+* Світність: 6.95e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.678 D
-* Температура: 1.57 T
-* Світність: 17.2 L
+* Розмір: 1.711 D
+* Температура: 1.58 T
+* Світність: 18.2 L
 
 Спектральні дані:
 * Тип: A3
-* Пікова довжина хвилі: 319.0 нм
+* Пікова довжина хвилі: 318.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.323 а.о.
-* Гаряча зона  :   0.323 ... 0.83 а.о.
-* Тепла зона   :   0.83 ... 2.891 а.о.
-* Помірна зона :   2.891 ... 4.089 а.о.
-* Холодна зона :   4.089 ... 6.246 а.о.
-* Межа кригоутворення : > 11.734 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2330,13 +2570,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A3_23
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.16e+11
-* Star death zone size: 2.65e+10
-* Star size: 2.33e+09
-* Star flare distance: 1.16e+11
-* Star autopilot range: 5.31e+10
+* Star zone size: 1.19e+11
+* Star death zone size: 2.73e+10
+* Star size: 2.38e+09
+* Star flare distance: 1.19e+11
+* Star autopilot range: 5.45e+10
 
-* Omni range: 4.06e+13
+* Omni range: 4.17e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2353,6 +2593,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.316 AU
+* Hot zone   :   0.316 ... 0.812 AU
+* Warm zone  :   0.812 ... 2.83 AU
+* Temp. zone :   2.83 ... 4.002 AU
+* Cold zone  :   4.002 ... 11.485 AU
+* Frost line : > 11.485 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.316 а.о.
+* Гаряча зона  :   0.316 ... 0.812 а.о.
+* Тепла зона   :   0.812 ... 2.83 а.о.
+* Помірна зона :   2.83 ... 4.002 а.о.
+* Холодна зона :   4.002 ... 6.113 а.о.
+* Межа кригоутворення : > 11.485 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 24
 * Star cluster: Moirai
@@ -2360,8 +2620,10 @@ Temperature zone data:
 * System codename: STAR_A4_24_SYSTEM
 * System translation name codename: NAME_STAR_A4_24_SYSTEM
 * System translation description codename: DESC_STAR_A4_24_SYSTEM
-* System zone size: 3.81e+13
-* System autopilot range: 3.81e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 3.97e+13
+* System autopilot range: 3.97e+13
 ```
 
  </details>  
@@ -2370,55 +2632,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: A4</summary>  
 
 #### Star pseudo-color  
-![51ff73](Colors/51ff73.png)  
+![44ff8b](Colors/44ff8b.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.32e+09 m
-* Temperature: 8819 K
-* Luminosity: 5.81e+27 W
+* Size: 2.33e+09 m
+* Mass: 3.53e+30 kg
+* Temperature: 8983 K
+* Luminosity: 6.30e+27 W
 
 Sun units:
-* Size: 1.671 D
-* Temperature: 1.53 T
-* Luminosity: 15.2 L
+* Size: 1.677 D
+* Mass: 1.772 M
+* Temperature: 1.56 T
+* Luminosity: 16.5 L
 
 Spectral data:
 * Type: A4
-* Peak wavelength: 329.0 nm
+* Peak wavelength: 323.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.303 AU
-* Hot zone   :   0.303 ... 0.78 AU
-* Warm zone  :   0.78 ... 2.717 AU
-* Temp. zone :   2.717 ... 3.843 AU
-* Cold zone  :   3.843 ... 11.028 AU
-* Frost line : > 11.028 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.32e+09 м
-* Температура: 8819 К
-* Світність: 5.81e+27 Вт
+* Розмір: 2.33e+09 м
+* Температура: 8983 К
+* Світність: 6.30e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.671 D
-* Температура: 1.53 T
-* Світність: 15.2 L
+* Розмір: 1.677 D
+* Температура: 1.56 T
+* Світність: 16.5 L
 
 Спектральні дані:
 * Тип: A4
-* Пікова довжина хвилі: 329.0 нм
+* Пікова довжина хвилі: 323.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.303 а.о.
-* Гаряча зона  :   0.303 ... 0.78 а.о.
-* Тепла зона   :   0.78 ... 2.717 а.о.
-* Помірна зона :   2.717 ... 3.843 а.о.
-* Холодна зона :   3.843 ... 5.87 а.о.
-* Межа кригоутворення : > 11.028 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2429,28 +2679,48 @@ Temperature zone data:
 * Star name: Test A
 * Star description: see above.
 * Star zone size: 1.16e+11
-* Star death zone size: 2.49e+10
-* Star size: 2.32e+09
+* Star death zone size: 2.60e+10
+* Star size: 2.33e+09
 * Star flare distance: 1.16e+11
-* Star autopilot range: 4.99e+10
+* Star autopilot range: 5.19e+10
 
-* Omni range: 3.81e+13
+* Omni range: 3.97e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (81, 255, 115)
- - hex: #51ff73
+ - rgb: (68, 255, 139)
+ - hex: #44ff8b
 ```  
 
  </details>  
 
 ---  
- ![51ff73](Colors/51ff73.png)   
+ ![44ff8b](Colors/44ff8b.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.272 AU
+* Hot zone   :   0.272 ... 0.701 AU
+* Warm zone  :   0.701 ... 2.441 AU
+* Temp. zone :   2.441 ... 3.453 AU
+* Cold zone  :   3.453 ... 9.908 AU
+* Frost line : > 9.908 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.272 а.о.
+* Гаряча зона  :   0.272 ... 0.701 а.о.
+* Тепла зона   :   0.701 ... 2.441 а.о.
+* Помірна зона :   2.441 ... 3.453 а.о.
+* Холодна зона :   3.453 ... 5.274 а.о.
+* Межа кригоутворення : > 9.908 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 25
 * Star cluster: Moirai
@@ -2458,8 +2728,10 @@ Temperature zone data:
 * System codename: STAR_A5_25_SYSTEM
 * System translation name codename: NAME_STAR_A5_25_SYSTEM
 * System translation description codename: DESC_STAR_A5_25_SYSTEM
-* System zone size: 3.72e+13
-* System autopilot range: 3.72e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 3.42e+13
+* System autopilot range: 3.42e+13
 ```
 
  </details>  
@@ -2472,51 +2744,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.38e+09 m
-* Temperature: 8615 K
-* Luminosity: 5.55e+27 W
+* Size: 2.20e+09 m
+* Mass: 3.36e+30 kg
+* Temperature: 8586 K
+* Luminosity: 4.69e+27 W
 
 Sun units:
-* Size: 1.711 D
+* Size: 1.584 D
+* Mass: 1.689 M
 * Temperature: 1.49 T
-* Luminosity: 14.5 L
+* Luminosity: 12.3 L
 
 Spectral data:
 * Type: A5
-* Peak wavelength: 336.0 nm
+* Peak wavelength: 337.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.296 AU
-* Hot zone   :   0.296 ... 0.762 AU
-* Warm zone  :   0.762 ... 2.655 AU
-* Temp. zone :   2.655 ... 3.754 AU
-* Cold zone  :   3.754 ... 10.774 AU
-* Frost line : > 10.774 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.38e+09 м
-* Температура: 8615 К
-* Світність: 5.55e+27 Вт
+* Розмір: 2.20e+09 м
+* Температура: 8586 К
+* Світність: 4.69e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.711 D
+* Розмір: 1.584 D
 * Температура: 1.49 T
-* Світність: 14.5 L
+* Світність: 12.3 L
 
 Спектральні дані:
 * Тип: A5
-* Пікова довжина хвилі: 336.0 нм
+* Пікова довжина хвилі: 337.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.296 а.о.
-* Гаряча зона  :   0.296 ... 0.762 а.о.
-* Тепла зона   :   0.762 ... 2.655 а.о.
-* Помірна зона :   2.655 ... 3.754 а.о.
-* Холодна зона :   3.754 ... 5.735 а.о.
-* Межа кригоутворення : > 10.774 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2526,13 +2786,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A5_25
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.19e+11
-* Star death zone size: 2.44e+10
-* Star size: 2.38e+09
-* Star flare distance: 1.19e+11
-* Star autopilot range: 4.87e+10
+* Star zone size: 1.10e+11
+* Star death zone size: 2.24e+10
+* Star size: 2.20e+09
+* Star flare distance: 1.10e+11
+* Star autopilot range: 4.48e+10
 
-* Omni range: 3.72e+13
+* Omni range: 3.42e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2549,6 +2809,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.234 AU
+* Hot zone   :   0.234 ... 0.603 AU
+* Warm zone  :   0.603 ... 2.1 AU
+* Temp. zone :   2.1 ... 2.97 AU
+* Cold zone  :   2.97 ... 8.524 AU
+* Frost line : > 8.524 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.234 а.о.
+* Гаряча зона  :   0.234 ... 0.603 а.о.
+* Тепла зона   :   0.603 ... 2.1 а.о.
+* Помірна зона :   2.1 ... 2.97 а.о.
+* Холодна зона :   2.97 ... 4.537 а.о.
+* Межа кригоутворення : > 8.524 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 26
 * Star cluster: Moirai
@@ -2556,8 +2836,10 @@ Temperature zone data:
 * System codename: STAR_A6_26_SYSTEM
 * System translation name codename: NAME_STAR_A6_26_SYSTEM
 * System translation description codename: DESC_STAR_A6_26_SYSTEM
-* System zone size: 3.63e+13
-* System autopilot range: 3.63e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.95e+13
+* System autopilot range: 2.95e+13
 ```
 
  </details>  
@@ -2566,55 +2848,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: A6</summary>  
 
 #### Star pseudo-color  
-![5fff5c](Colors/5fff5c.png)  
+![6dff45](Colors/6dff45.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.39e+09 m
-* Temperature: 8495 K
-* Luminosity: 5.28e+27 W
+* Size: 1.99e+09 m
+* Mass: 3.34e+30 kg
+* Temperature: 8371 K
+* Luminosity: 3.47e+27 W
 
 Sun units:
-* Size: 1.717 D
-* Temperature: 1.47 T
-* Luminosity: 13.8 L
+* Size: 1.433 D
+* Mass: 1.676 M
+* Temperature: 1.45 T
+* Luminosity: 9.07 L
 
 Spectral data:
 * Type: A6
-* Peak wavelength: 341.0 nm
+* Peak wavelength: 346.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.289 AU
-* Hot zone   :   0.289 ... 0.743 AU
-* Warm zone  :   0.743 ... 2.591 AU
-* Temp. zone :   2.591 ... 3.664 AU
-* Cold zone  :   3.664 ... 10.514 AU
-* Frost line : > 10.514 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.39e+09 м
-* Температура: 8495 К
-* Світність: 5.28e+27 Вт
+* Розмір: 1.99e+09 м
+* Температура: 8371 К
+* Світність: 3.47e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.717 D
-* Температура: 1.47 T
-* Світність: 13.8 L
+* Розмір: 1.433 D
+* Температура: 1.45 T
+* Світність: 9.07 L
 
 Спектральні дані:
 * Тип: A6
-* Пікова довжина хвилі: 341.0 нм
+* Пікова довжина хвилі: 346.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.289 а.о.
-* Гаряча зона  :   0.289 ... 0.743 а.о.
-* Тепла зона   :   0.743 ... 2.591 а.о.
-* Помірна зона :   2.591 ... 3.664 а.о.
-* Холодна зона :   3.664 ... 5.596 а.о.
-* Межа кригоутворення : > 10.514 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2624,29 +2894,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A6_26
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.20e+11
-* Star death zone size: 2.38e+10
-* Star size: 2.39e+09
-* Star flare distance: 1.20e+11
-* Star autopilot range: 4.75e+10
+* Star zone size: 9.95e+10
+* Star death zone size: 1.93e+10
+* Star size: 1.99e+09
+* Star flare distance: 9.95e+10
+* Star autopilot range: 3.85e+10
 
-* Omni range: 3.63e+13
+* Omni range: 2.95e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (95, 255, 92)
- - hex: #5fff5c
+ - rgb: (109, 255, 69)
+ - hex: #6dff45
 ```  
 
  </details>  
 
 ---  
- ![5fff5c](Colors/5fff5c.png)   
+ ![6dff45](Colors/6dff45.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.246 AU
+* Hot zone   :   0.246 ... 0.632 AU
+* Warm zone  :   0.632 ... 2.203 AU
+* Temp. zone :   2.203 ... 3.116 AU
+* Cold zone  :   3.116 ... 8.942 AU
+* Frost line : > 8.942 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.246 а.о.
+* Гаряча зона  :   0.246 ... 0.632 а.о.
+* Тепла зона   :   0.632 ... 2.203 а.о.
+* Помірна зона :   2.203 ... 3.116 а.о.
+* Холодна зона :   3.116 ... 4.76 а.о.
+* Межа кригоутворення : > 8.942 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 27
 * Star cluster: Moirai
@@ -2654,8 +2944,10 @@ Temperature zone data:
 * System codename: STAR_A7_27_SYSTEM
 * System translation name codename: NAME_STAR_A7_27_SYSTEM
 * System translation description codename: DESC_STAR_A7_27_SYSTEM
-* System zone size: 3.04e+13
-* System autopilot range: 3.04e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 3.09e+13
+* System autopilot range: 3.09e+13
 ```
 
  </details>  
@@ -2668,51 +2960,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.20e+09 m
-* Temperature: 8086 K
-* Luminosity: 3.69e+27 W
+* Size: 2.19e+09 m
+* Mass: 3.08e+30 kg
+* Temperature: 8185 K
+* Luminosity: 3.82e+27 W
 
 Sun units:
-* Size: 1.584 D
-* Temperature: 1.4 T
-* Luminosity: 9.64 L
+* Size: 1.573 D
+* Mass: 1.548 M
+* Temperature: 1.42 T
+* Luminosity: 9.98 L
 
 Spectral data:
 * Type: A7
-* Peak wavelength: 358.0 nm
+* Peak wavelength: 354.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.242 AU
-* Hot zone   :   0.242 ... 0.621 AU
-* Warm zone  :   0.621 ... 2.165 AU
-* Temp. zone :   2.165 ... 3.062 AU
-* Cold zone  :   3.062 ... 8.788 AU
-* Frost line : > 8.788 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.20e+09 м
-* Температура: 8086 К
-* Світність: 3.69e+27 Вт
+* Розмір: 2.19e+09 м
+* Температура: 8185 К
+* Світність: 3.82e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.584 D
-* Температура: 1.4 T
-* Світність: 9.64 L
+* Розмір: 1.573 D
+* Температура: 1.42 T
+* Світність: 9.98 L
 
 Спектральні дані:
 * Тип: A7
-* Пікова довжина хвилі: 358.0 нм
+* Пікова довжина хвилі: 354.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.242 а.о.
-* Гаряча зона  :   0.242 ... 0.621 а.о.
-* Тепла зона   :   0.621 ... 2.165 а.о.
-* Помірна зона :   2.165 ... 3.062 а.о.
-* Холодна зона :   3.062 ... 4.678 а.о.
-* Межа кригоутворення : > 8.788 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2723,12 +3003,12 @@ Temperature zone data:
 * Star name: Test A
 * Star description: see above.
 * Star zone size: 1.10e+11
-* Star death zone size: 1.99e+10
-* Star size: 2.20e+09
+* Star death zone size: 2.02e+10
+* Star size: 2.19e+09
 * Star flare distance: 1.10e+11
-* Star autopilot range: 3.97e+10
+* Star autopilot range: 4.04e+10
 
-* Omni range: 3.04e+13
+* Omni range: 3.09e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2745,6 +3025,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.26 AU
+* Hot zone   :   0.26 ... 0.669 AU
+* Warm zone  :   0.669 ... 2.33 AU
+* Temp. zone :   2.33 ... 3.295 AU
+* Cold zone  :   3.295 ... 9.455 AU
+* Frost line : > 9.455 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.26 а.о.
+* Гаряча зона  :   0.26 ... 0.669 а.о.
+* Тепла зона   :   0.669 ... 2.33 а.о.
+* Помірна зона :   2.33 ... 3.295 а.о.
+* Холодна зона :   3.295 ... 5.033 а.о.
+* Межа кригоутворення : > 9.455 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 28
 * Star cluster: Moirai
@@ -2752,8 +3052,10 @@ Temperature zone data:
 * System codename: STAR_A8_28_SYSTEM
 * System translation name codename: NAME_STAR_A8_28_SYSTEM
 * System translation description codename: DESC_STAR_A8_28_SYSTEM
-* System zone size: 2.95e+13
-* System autopilot range: 2.95e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 3.27e+13
+* System autopilot range: 3.27e+13
 ```
 
  </details>  
@@ -2766,51 +3068,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.22e+09 m
-* Temperature: 7930 K
-* Luminosity: 3.48e+27 W
+* Size: 2.42e+09 m
+* Mass: 3.04e+30 kg
+* Temperature: 7993 K
+* Luminosity: 4.27e+27 W
 
 Sun units:
-* Size: 1.598 D
-* Temperature: 1.37 T
-* Luminosity: 9.08 L
+* Size: 1.744 D
+* Mass: 1.526 M
+* Temperature: 1.38 T
+* Luminosity: 11.2 L
 
 Spectral data:
 * Type: A8
-* Peak wavelength: 365.0 nm
+* Peak wavelength: 363.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.234 AU
-* Hot zone   :   0.234 ... 0.603 AU
-* Warm zone  :   0.603 ... 2.102 AU
-* Temp. zone :   2.102 ... 2.972 AU
-* Cold zone  :   2.972 ... 8.53 AU
-* Frost line : > 8.53 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.22e+09 м
-* Температура: 7930 К
-* Світність: 3.48e+27 Вт
+* Розмір: 2.42e+09 м
+* Температура: 7993 К
+* Світність: 4.27e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.598 D
-* Температура: 1.37 T
-* Світність: 9.08 L
+* Розмір: 1.744 D
+* Температура: 1.38 T
+* Світність: 11.2 L
 
 Спектральні дані:
 * Тип: A8
-* Пікова довжина хвилі: 365.0 нм
+* Пікова довжина хвилі: 363.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.234 а.о.
-* Гаряча зона  :   0.234 ... 0.603 а.о.
-* Тепла зона   :   0.603 ... 2.102 а.о.
-* Помірна зона :   2.102 ... 2.972 а.о.
-* Холодна зона :   2.972 ... 4.54 а.о.
-* Межа кригоутворення : > 8.53 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2820,13 +3110,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A8_28
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.11e+11
-* Star death zone size: 1.93e+10
-* Star size: 2.22e+09
-* Star flare distance: 1.11e+11
-* Star autopilot range: 3.86e+10
+* Star zone size: 1.21e+11
+* Star death zone size: 2.14e+10
+* Star size: 2.42e+09
+* Star flare distance: 1.21e+11
+* Star autopilot range: 4.28e+10
 
-* Omni range: 2.95e+13
+* Omni range: 3.27e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2843,6 +3133,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.234 AU
+* Hot zone   :   0.234 ... 0.602 AU
+* Warm zone  :   0.602 ... 2.098 AU
+* Temp. zone :   2.098 ... 2.968 AU
+* Cold zone  :   2.968 ... 8.516 AU
+* Frost line : > 8.516 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.234 а.о.
+* Гаряча зона  :   0.234 ... 0.602 а.о.
+* Тепла зона   :   0.602 ... 2.098 а.о.
+* Помірна зона :   2.098 ... 2.968 а.о.
+* Холодна зона :   2.968 ... 4.533 а.о.
+* Межа кригоутворення : > 8.516 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 29
 * Star cluster: Moirai
@@ -2850,8 +3160,10 @@ Temperature zone data:
 * System codename: STAR_A9_29_SYSTEM
 * System translation name codename: NAME_STAR_A9_29_SYSTEM
 * System translation description codename: DESC_STAR_A9_29_SYSTEM
-* System zone size: 2.73e+13
-* System autopilot range: 2.73e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.94e+13
+* System autopilot range: 2.94e+13
 ```
 
  </details>  
@@ -2860,55 +3172,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: A9</summary>  
 
 #### Star pseudo-color  
-![a0ff00](Colors/a0ff00.png)  
+![9bff00](Colors/9bff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.29e+09 m
-* Temperature: 7522 K
-* Luminosity: 2.99e+27 W
+* Size: 2.41e+09 m
+* Mass: 2.82e+30 kg
+* Temperature: 7602 K
+* Luminosity: 3.47e+27 W
 
 Sun units:
-* Size: 1.646 D
-* Temperature: 1.3 T
-* Luminosity: 7.8 L
+* Size: 1.736 D
+* Mass: 1.416 M
+* Temperature: 1.32 T
+* Luminosity: 9.06 L
 
 Spectral data:
 * Type: A9
-* Peak wavelength: 385.0 nm
+* Peak wavelength: 381.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.217 AU
-* Hot zone   :   0.217 ... 0.559 AU
-* Warm zone  :   0.559 ... 1.948 AU
-* Temp. zone :   1.948 ... 2.755 AU
-* Cold zone  :   2.755 ... 7.906 AU
-* Frost line : > 7.906 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.29e+09 м
-* Температура: 7522 К
-* Світність: 2.99e+27 Вт
+* Розмір: 2.41e+09 м
+* Температура: 7602 К
+* Світність: 3.47e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.646 D
-* Температура: 1.3 T
-* Світність: 7.8 L
+* Розмір: 1.736 D
+* Температура: 1.32 T
+* Світність: 9.06 L
 
 Спектральні дані:
 * Тип: A9
-* Пікова довжина хвилі: 385.0 нм
+* Пікова довжина хвилі: 381.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.217 а.о.
-* Гаряча зона  :   0.217 ... 0.559 а.о.
-* Тепла зона   :   0.559 ... 1.948 а.о.
-* Помірна зона :   1.948 ... 2.755 а.о.
-* Холодна зона :   2.755 ... 4.208 а.о.
-* Межа кригоутворення : > 7.906 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2918,13 +3218,121 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_A9_29
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.14e+11
-* Star death zone size: 1.79e+10
-* Star size: 2.29e+09
-* Star flare distance: 1.14e+11
-* Star autopilot range: 3.58e+10
+* Star zone size: 1.20e+11
+* Star death zone size: 1.93e+10
+* Star size: 2.41e+09
+* Star flare distance: 1.20e+11
+* Star autopilot range: 3.85e+10
 
-* Omni range: 2.73e+13
+* Omni range: 2.94e+13
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (155, 255, 0)
+ - hex: #9bff00
+```  
+
+ </details>  
+
+---  
+ ![9bff00](Colors/9bff00.png)   
+
+---  
+# System: Test  
+<details><summary>System data</summary>  
+
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.177 AU
+* Hot zone   :   0.177 ... 0.456 AU
+* Warm zone  :   0.456 ... 1.589 AU
+* Temp. zone :   1.589 ... 2.248 AU
+* Cold zone  :   2.248 ... 6.45 AU
+* Frost line : > 6.45 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.177 а.о.
+* Гаряча зона  :   0.177 ... 0.456 а.о.
+* Тепла зона   :   0.456 ... 1.589 а.о.
+* Помірна зона :   1.589 ... 2.248 а.о.
+* Холодна зона :   2.248 ... 3.433 а.о.
+* Межа кригоутворення : > 6.45 а.о.
+```  
+#### GODOT data  
+```  
+* System ID: 30
+* Star cluster: Moirai
+* System zone codename: STAR_F0_30_SYSTEM_ZONE
+* System codename: STAR_F0_30_SYSTEM
+* System translation name codename: NAME_STAR_F0_30_SYSTEM
+* System translation description codename: DESC_STAR_F0_30_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.23e+13
+* System autopilot range: 2.23e+13
+```
+
+ </details>  
+
+---  
+<details><summary>Primary star : Test A, type: F0</summary>  
+
+#### Star pseudo-color  
+![a0ff00](Colors/a0ff00.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 1.90e+09 m
+* Mass: 2.74e+30 kg
+* Temperature: 7463 K
+* Luminosity: 1.99e+27 W
+
+Sun units:
+* Size: 1.365 D
+* Mass: 1.377 M
+* Temperature: 1.29 T
+* Luminosity: 5.19 L
+
+Spectral data:
+* Type: F0
+* Peak wavelength: 388.0 nm
+* Peak wavelength type: near UV
+
+```  
+```  
+Абсолютні величини:
+* Розмір: 1.90e+09 м
+* Температура: 7463 К
+* Світність: 1.99e+27 Вт
+
+Відносно Сонця:
+* Розмір: 1.365 D
+* Температура: 1.29 T
+* Світність: 5.19 L
+
+Спектральні дані:
+* Тип: F0
+* Пікова довжина хвилі: 388.0 нм
+* Тип пікового випромінювання: near UV
+
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_F0_30_ZONE
+* Star codename: STAR_F0_30
+* Star translation name codename: NAME_STAR_F0_30
+* Star translation description codename: DESC_STAR_F0_30
+* Star name: Test A
+* Star description: see above.
+* Star zone size: 9.50e+10
+* Star death zone size: 1.46e+10
+* Star size: 1.90e+09
+* Star flare distance: 9.50e+10
+* Star autopilot range: 2.92e+10
+
+* Omni range: 2.23e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2941,104 +3349,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
 ```  
-* System ID: 30
-* Star cluster: Moirai
-* System zone codename: STAR_F0_30_SYSTEM_ZONE
-* System codename: STAR_F0_30_SYSTEM
-* System translation name codename: NAME_STAR_F0_30_SYSTEM
-* System translation description codename: DESC_STAR_F0_30_SYSTEM
-* System zone size: 2.00e+13
-* System autopilot range: 2.00e+13
-```
-
- </details>  
-
----  
-<details><summary>Primary star : Test A, type: F0</summary>  
-
-#### Star pseudo-color  
-![a5ff00](Colors/a5ff00.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 1.75e+09 m
-* Temperature: 7354 K
-* Luminosity: 1.60e+27 W
-
-Sun units:
-* Size: 1.259 D
-* Temperature: 1.27 T
-* Luminosity: 4.17 L
-
-Spectral data:
-* Type: F0
-* Peak wavelength: 394.0 nm
-* Peak wavelength type: near UV
-
-Temperature zone data:
-* Mineral melting line: < 0.159 AU
-* Hot zone   :   0.159 ... 0.409 AU
-* Warm zone  :   0.409 ... 1.424 AU
-* Temp. zone :   1.424 ... 2.014 AU
-* Cold zone  :   2.014 ... 5.779 AU
-* Frost line : > 5.779 AU
+Temperature zone data by main star:
+* Mineral melting line: < 0.162 AU
+* Hot zone   :   0.162 ... 0.416 AU
+* Warm zone  :   0.416 ... 1.451 AU
+* Temp. zone :   1.451 ... 2.052 AU
+* Cold zone  :   2.052 ... 5.888 AU
+* Frost line : > 5.888 AU
 ```  
 ```  
-Абсолютні величини:
-* Розмір: 1.75e+09 м
-* Температура: 7354 К
-* Світність: 1.60e+27 Вт
-
-Відносно Сонця:
-* Розмір: 1.259 D
-* Температура: 1.27 T
-* Світність: 4.17 L
-
-Спектральні дані:
-* Тип: F0
-* Пікова довжина хвилі: 394.0 нм
-* Тип пікового випромінювання: near UV
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.159 а.о.
-* Гаряча зона  :   0.159 ... 0.409 а.о.
-* Тепла зона   :   0.409 ... 1.424 а.о.
-* Помірна зона :   1.424 ... 2.014 а.о.
-* Холодна зона :   2.014 ... 3.076 а.о.
-* Межа кригоутворення : > 5.779 а.о.
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.162 а.о.
+* Гаряча зона  :   0.162 ... 0.416 а.о.
+* Тепла зона   :   0.416 ... 1.451 а.о.
+* Помірна зона :   1.451 ... 2.052 а.о.
+* Холодна зона :   2.052 ... 3.134 а.о.
+* Межа кригоутворення : > 5.888 а.о.
 ```  
 #### GODOT data  
-```  
-* Star zone codename: STAR_F0_30_ZONE
-* Star codename: STAR_F0_30
-* Star translation name codename: NAME_STAR_F0_30
-* Star translation description codename: DESC_STAR_F0_30
-* Star name: Test A
-* Star description: see above.
-* Star zone size: 8.75e+10
-* Star death zone size: 1.31e+10
-* Star size: 1.75e+09
-* Star flare distance: 8.75e+10
-* Star autopilot range: 2.61e+10
-
-* Omni range: 2.00e+13
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (165, 255, 0)
- - hex: #a5ff00
-```  
-
- </details>  
-
----  
- ![a5ff00](Colors/a5ff00.png)   
-
----  
-# System: Test  
-<details><summary>System data</summary>  
-
 ```  
 * System ID: 31
 * Star cluster: Moirai
@@ -3046,8 +3376,10 @@ Temperature zone data:
 * System codename: STAR_F1_31_SYSTEM
 * System translation name codename: NAME_STAR_F1_31_SYSTEM
 * System translation description codename: DESC_STAR_F1_31_SYSTEM
-* System zone size: 1.96e+13
-* System autopilot range: 1.96e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.04e+13
+* System autopilot range: 2.04e+13
 ```
 
  </details>  
@@ -3060,51 +3392,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.75e+09 m
-* Temperature: 7291 K
-* Luminosity: 1.53e+27 W
+* Size: 1.82e+09 m
+* Mass: 2.69e+30 kg
+* Temperature: 7287 K
+* Luminosity: 1.66e+27 W
 
 Sun units:
-* Size: 1.256 D
+* Size: 1.307 D
+* Mass: 1.351 M
 * Temperature: 1.26 T
-* Luminosity: 4.01 L
+* Luminosity: 4.33 L
 
 Spectral data:
 * Type: F1
-* Peak wavelength: 397.0 nm
+* Peak wavelength: 398.0 nm
 * Peak wavelength type: near UV
 
-Temperature zone data:
-* Mineral melting line: < 0.156 AU
-* Hot zone   :   0.156 ... 0.401 AU
-* Warm zone  :   0.401 ... 1.396 AU
-* Temp. zone :   1.396 ... 1.974 AU
-* Cold zone  :   1.974 ... 5.665 AU
-* Frost line : > 5.665 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.75e+09 м
-* Температура: 7291 К
-* Світність: 1.53e+27 Вт
+* Розмір: 1.82e+09 м
+* Температура: 7287 К
+* Світність: 1.66e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.256 D
+* Розмір: 1.307 D
 * Температура: 1.26 T
-* Світність: 4.01 L
+* Світність: 4.33 L
 
 Спектральні дані:
 * Тип: F1
-* Пікова довжина хвилі: 397.0 нм
+* Пікова довжина хвилі: 398.0 нм
 * Тип пікового випромінювання: near UV
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.156 а.о.
-* Гаряча зона  :   0.156 ... 0.401 а.о.
-* Тепла зона   :   0.401 ... 1.396 а.о.
-* Помірна зона :   1.396 ... 1.974 а.о.
-* Холодна зона :   1.974 ... 3.015 а.о.
-* Межа кригоутворення : > 5.665 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3114,13 +3434,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F1_31
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.75e+10
-* Star death zone size: 1.28e+10
-* Star size: 1.75e+09
-* Star flare distance: 8.75e+10
-* Star autopilot range: 2.56e+10
+* Star zone size: 9.10e+10
+* Star death zone size: 1.33e+10
+* Star size: 1.82e+09
+* Star flare distance: 9.10e+10
+* Star autopilot range: 2.66e+10
 
-* Omni range: 1.96e+13
+* Omni range: 2.04e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -3137,6 +3457,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.159 AU
+* Hot zone   :   0.159 ... 0.409 AU
+* Warm zone  :   0.409 ... 1.425 AU
+* Temp. zone :   1.425 ... 2.015 AU
+* Cold zone  :   2.015 ... 5.781 AU
+* Frost line : > 5.781 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.159 а.о.
+* Гаряча зона  :   0.159 ... 0.409 а.о.
+* Тепла зона   :   0.409 ... 1.425 а.о.
+* Помірна зона :   1.425 ... 2.015 а.о.
+* Холодна зона :   2.015 ... 3.077 а.о.
+* Межа кригоутворення : > 5.781 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 32
 * Star cluster: Moirai
@@ -3144,8 +3484,10 @@ Temperature zone data:
 * System codename: STAR_F2_32_SYSTEM
 * System translation name codename: NAME_STAR_F2_32_SYSTEM
 * System translation description codename: DESC_STAR_F2_32_SYSTEM
-* System zone size: 1.99e+13
-* System autopilot range: 1.99e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 2.00e+13
+* System autopilot range: 2.00e+13
 ```
 
  </details>  
@@ -3154,55 +3496,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: F2</summary>  
 
 #### Star pseudo-color  
-![afff00](Colors/afff00.png)  
+![aaff00](Colors/aaff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.89e+09 m
-* Temperature: 7064 K
-* Luminosity: 1.58e+27 W
+* Size: 1.85e+09 m
+* Mass: 2.61e+30 kg
+* Temperature: 7160 K
+* Luminosity: 1.60e+27 W
 
 Sun units:
-* Size: 1.36 D
-* Temperature: 1.22 T
-* Luminosity: 4.14 L
+* Size: 1.329 D
+* Mass: 1.309 M
+* Temperature: 1.24 T
+* Luminosity: 4.17 L
 
 Spectral data:
 * Type: F2
-* Peak wavelength: 410.0 nm
+* Peak wavelength: 405.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.158 AU
-* Hot zone   :   0.158 ... 0.407 AU
-* Warm zone  :   0.407 ... 1.419 AU
-* Temp. zone :   1.419 ... 2.007 AU
-* Cold zone  :   2.007 ... 5.759 AU
-* Frost line : > 5.759 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.89e+09 м
-* Температура: 7064 К
-* Світність: 1.58e+27 Вт
+* Розмір: 1.85e+09 м
+* Температура: 7160 К
+* Світність: 1.60e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.36 D
-* Температура: 1.22 T
-* Світність: 4.14 L
+* Розмір: 1.329 D
+* Температура: 1.24 T
+* Світність: 4.17 L
 
 Спектральні дані:
 * Тип: F2
-* Пікова довжина хвилі: 410.0 нм
+* Пікова довжина хвилі: 405.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.158 а.о.
-* Гаряча зона  :   0.158 ... 0.407 а.о.
-* Тепла зона   :   0.407 ... 1.419 а.о.
-* Помірна зона :   1.419 ... 2.007 а.о.
-* Холодна зона :   2.007 ... 3.065 а.о.
-* Межа кригоутворення : > 5.759 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3212,29 +3542,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F2_32
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 9.45e+10
-* Star death zone size: 1.30e+10
-* Star size: 1.89e+09
-* Star flare distance: 9.45e+10
-* Star autopilot range: 2.60e+10
+* Star zone size: 9.25e+10
+* Star death zone size: 1.31e+10
+* Star size: 1.85e+09
+* Star flare distance: 9.25e+10
+* Star autopilot range: 2.61e+10
 
-* Omni range: 1.99e+13
+* Omni range: 2.00e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (175, 255, 0)
- - hex: #afff00
+ - rgb: (170, 255, 0)
+ - hex: #aaff00
 ```  
 
  </details>  
 
 ---  
- ![afff00](Colors/afff00.png)   
+ ![aaff00](Colors/aaff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.148 AU
+* Hot zone   :   0.148 ... 0.38 AU
+* Warm zone  :   0.38 ... 1.325 AU
+* Temp. zone :   1.325 ... 1.874 AU
+* Cold zone  :   1.874 ... 5.377 AU
+* Frost line : > 5.377 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.148 а.о.
+* Гаряча зона  :   0.148 ... 0.38 а.о.
+* Тепла зона   :   0.38 ... 1.325 а.о.
+* Помірна зона :   1.325 ... 1.874 а.о.
+* Холодна зона :   1.874 ... 2.862 а.о.
+* Межа кригоутворення : > 5.377 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 33
 * Star cluster: Moirai
@@ -3242,8 +3592,10 @@ Temperature zone data:
 * System codename: STAR_F3_33_SYSTEM
 * System translation name codename: NAME_STAR_F3_33_SYSTEM
 * System translation description codename: DESC_STAR_F3_33_SYSTEM
-* System zone size: 1.78e+13
-* System autopilot range: 1.78e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.86e+13
+* System autopilot range: 1.86e+13
 ```
 
  </details>  
@@ -3252,55 +3604,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: F3</summary>  
 
 #### Star pseudo-color  
-![afff00](Colors/afff00.png)  
+![b4ff00](Colors/b4ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.73e+09 m
-* Temperature: 6989 K
-* Luminosity: 1.27e+27 W
+* Size: 1.84e+09 m
+* Mass: 2.54e+30 kg
+* Temperature: 6919 K
+* Luminosity: 1.38e+27 W
 
 Sun units:
-* Size: 1.241 D
-* Temperature: 1.21 T
-* Luminosity: 3.31 L
+* Size: 1.323 D
+* Mass: 1.276 M
+* Temperature: 1.2 T
+* Luminosity: 3.61 L
 
 Spectral data:
 * Type: F3
-* Peak wavelength: 415.0 nm
+* Peak wavelength: 419.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.141 AU
-* Hot zone   :   0.141 ... 0.364 AU
-* Warm zone  :   0.364 ... 1.268 AU
-* Temp. zone :   1.268 ... 1.793 AU
-* Cold zone  :   1.793 ... 5.146 AU
-* Frost line : > 5.146 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.73e+09 м
-* Температура: 6989 К
-* Світність: 1.27e+27 Вт
+* Розмір: 1.84e+09 м
+* Температура: 6919 К
+* Світність: 1.38e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.241 D
-* Температура: 1.21 T
-* Світність: 3.31 L
+* Розмір: 1.323 D
+* Температура: 1.2 T
+* Світність: 3.61 L
 
 Спектральні дані:
 * Тип: F3
-* Пікова довжина хвилі: 415.0 нм
+* Пікова довжина хвилі: 419.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.141 а.о.
-* Гаряча зона  :   0.141 ... 0.364 а.о.
-* Тепла зона   :   0.364 ... 1.268 а.о.
-* Помірна зона :   1.268 ... 1.793 а.о.
-* Холодна зона :   1.793 ... 2.739 а.о.
-* Межа кригоутворення : > 5.146 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3310,29 +3650,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F3_33
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.65e+10
-* Star death zone size: 1.16e+10
-* Star size: 1.73e+09
-* Star flare distance: 8.65e+10
-* Star autopilot range: 2.33e+10
+* Star zone size: 9.20e+10
+* Star death zone size: 1.22e+10
+* Star size: 1.84e+09
+* Star flare distance: 9.20e+10
+* Star autopilot range: 2.43e+10
 
-* Omni range: 1.78e+13
+* Omni range: 1.86e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (175, 255, 0)
- - hex: #afff00
+ - rgb: (180, 255, 0)
+ - hex: #b4ff00
 ```  
 
  </details>  
 
 ---  
- ![afff00](Colors/afff00.png)   
+ ![b4ff00](Colors/b4ff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.132 AU
+* Hot zone   :   0.132 ... 0.341 AU
+* Warm zone  :   0.341 ... 1.187 AU
+* Temp. zone :   1.187 ... 1.679 AU
+* Cold zone  :   1.679 ... 4.819 AU
+* Frost line : > 4.819 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.132 а.о.
+* Гаряча зона  :   0.132 ... 0.341 а.о.
+* Тепла зона   :   0.341 ... 1.187 а.о.
+* Помірна зона :   1.187 ... 1.679 а.о.
+* Холодна зона :   1.679 ... 2.565 а.о.
+* Межа кригоутворення : > 4.819 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 34
 * Star cluster: Moirai
@@ -3340,8 +3700,10 @@ Temperature zone data:
 * System codename: STAR_F4_34_SYSTEM
 * System translation name codename: NAME_STAR_F4_34_SYSTEM
 * System translation description codename: DESC_STAR_F4_34_SYSTEM
-* System zone size: 1.70e+13
-* System autopilot range: 1.70e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.67e+13
+* System autopilot range: 1.67e+13
 ```
 
  </details>  
@@ -3350,55 +3712,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: F4</summary>  
 
 #### Star pseudo-color  
-![b9ff00](Colors/b9ff00.png)  
+![b4ff00](Colors/b4ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.76e+09 m
-* Temperature: 6774 K
-* Luminosity: 1.16e+27 W
+* Size: 1.68e+09 m
+* Mass: 2.45e+30 kg
+* Temperature: 6852 K
+* Luminosity: 1.11e+27 W
 
 Sun units:
-* Size: 1.266 D
-* Temperature: 1.17 T
-* Luminosity: 3.03 L
+* Size: 1.209 D
+* Mass: 1.229 M
+* Temperature: 1.19 T
+* Luminosity: 2.9 L
 
 Spectral data:
 * Type: F4
-* Peak wavelength: 428.0 nm
+* Peak wavelength: 423.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.135 AU
-* Hot zone   :   0.135 ... 0.349 AU
-* Warm zone  :   0.349 ... 1.214 AU
-* Temp. zone :   1.214 ... 1.717 AU
-* Cold zone  :   1.717 ... 4.929 AU
-* Frost line : > 4.929 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.76e+09 м
-* Температура: 6774 К
-* Світність: 1.16e+27 Вт
+* Розмір: 1.68e+09 м
+* Температура: 6852 К
+* Світність: 1.11e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.266 D
-* Температура: 1.17 T
-* Світність: 3.03 L
+* Розмір: 1.209 D
+* Температура: 1.19 T
+* Світність: 2.9 L
 
 Спектральні дані:
 * Тип: F4
-* Пікова довжина хвилі: 428.0 нм
+* Пікова довжина хвилі: 423.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.135 а.о.
-* Гаряча зона  :   0.135 ... 0.349 а.о.
-* Тепла зона   :   0.349 ... 1.214 а.о.
-* Помірна зона :   1.214 ... 1.717 а.о.
-* Холодна зона :   1.717 ... 2.623 а.о.
-* Межа кригоутворення : > 4.929 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3408,29 +3758,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F4_34
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.80e+10
-* Star death zone size: 1.11e+10
-* Star size: 1.76e+09
-* Star flare distance: 8.80e+10
-* Star autopilot range: 2.23e+10
+* Star zone size: 8.40e+10
+* Star death zone size: 1.09e+10
+* Star size: 1.68e+09
+* Star flare distance: 8.40e+10
+* Star autopilot range: 2.18e+10
 
-* Omni range: 1.70e+13
+* Omni range: 1.67e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (185, 255, 0)
- - hex: #b9ff00
+ - rgb: (180, 255, 0)
+ - hex: #b4ff00
 ```  
 
  </details>  
 
 ---  
- ![b9ff00](Colors/b9ff00.png)   
+ ![b4ff00](Colors/b4ff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.121 AU
+* Hot zone   :   0.121 ... 0.31 AU
+* Warm zone  :   0.31 ... 1.081 AU
+* Temp. zone :   1.081 ... 1.529 AU
+* Cold zone  :   1.529 ... 4.389 AU
+* Frost line : > 4.389 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.121 а.о.
+* Гаряча зона  :   0.121 ... 0.31 а.о.
+* Тепла зона   :   0.31 ... 1.081 а.о.
+* Помірна зона :   1.081 ... 1.529 а.о.
+* Холодна зона :   1.529 ... 2.336 а.о.
+* Межа кригоутворення : > 4.389 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 35
 * Star cluster: Moirai
@@ -3438,8 +3808,10 @@ Temperature zone data:
 * System codename: STAR_F5_35_SYSTEM
 * System translation name codename: NAME_STAR_F5_35_SYSTEM
 * System translation description codename: DESC_STAR_F5_35_SYSTEM
-* System zone size: 1.59e+13
-* System autopilot range: 1.59e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.52e+13
+* System autopilot range: 1.52e+13
 ```
 
  </details>  
@@ -3448,55 +3820,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: F5</summary>  
 
 #### Star pseudo-color  
-![b9ff00](Colors/b9ff00.png)  
+![beff00](Colors/beff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.67e+09 m
-* Temperature: 6734 K
-* Luminosity: 1.02e+27 W
+* Size: 1.63e+09 m
+* Mass: 2.42e+30 kg
+* Temperature: 6631 K
+* Luminosity: 9.20e+26 W
 
 Sun units:
-* Size: 1.198 D
-* Temperature: 1.17 T
-* Luminosity: 2.66 L
+* Size: 1.176 D
+* Mass: 1.217 M
+* Temperature: 1.15 T
+* Luminosity: 2.41 L
 
 Spectral data:
 * Type: F5
-* Peak wavelength: 430.0 nm
+* Peak wavelength: 437.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.127 AU
-* Hot zone   :   0.127 ... 0.326 AU
-* Warm zone  :   0.326 ... 1.136 AU
-* Temp. zone :   1.136 ... 1.607 AU
-* Cold zone  :   1.607 ... 4.611 AU
-* Frost line : > 4.611 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.67e+09 м
-* Температура: 6734 К
-* Світність: 1.02e+27 Вт
+* Розмір: 1.63e+09 м
+* Температура: 6631 К
+* Світність: 9.20e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.198 D
-* Температура: 1.17 T
-* Світність: 2.66 L
+* Розмір: 1.176 D
+* Температура: 1.15 T
+* Світність: 2.41 L
 
 Спектральні дані:
 * Тип: F5
-* Пікова довжина хвилі: 430.0 нм
+* Пікова довжина хвилі: 437.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.127 а.о.
-* Гаряча зона  :   0.127 ... 0.326 а.о.
-* Тепла зона   :   0.326 ... 1.136 а.о.
-* Помірна зона :   1.136 ... 1.607 а.о.
-* Холодна зона :   1.607 ... 2.455 а.о.
-* Межа кригоутворення : > 4.611 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3506,29 +3866,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F5_35
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.35e+10
-* Star death zone size: 1.04e+10
-* Star size: 1.67e+09
-* Star flare distance: 8.35e+10
-* Star autopilot range: 2.09e+10
+* Star zone size: 8.15e+10
+* Star death zone size: 9.92e+09
+* Star size: 1.63e+09
+* Star flare distance: 8.15e+10
+* Star autopilot range: 1.98e+10
 
-* Omni range: 1.59e+13
+* Omni range: 1.52e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (185, 255, 0)
- - hex: #b9ff00
+ - rgb: (190, 255, 0)
+ - hex: #beff00
 ```  
 
  </details>  
 
 ---  
- ![b9ff00](Colors/b9ff00.png)   
+ ![beff00](Colors/beff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.131 AU
+* Hot zone   :   0.131 ... 0.336 AU
+* Warm zone  :   0.336 ... 1.17 AU
+* Temp. zone :   1.17 ... 1.655 AU
+* Cold zone  :   1.655 ... 4.75 AU
+* Frost line : > 4.75 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.131 а.о.
+* Гаряча зона  :   0.131 ... 0.336 а.о.
+* Тепла зона   :   0.336 ... 1.17 а.о.
+* Помірна зона :   1.17 ... 1.655 а.о.
+* Холодна зона :   1.655 ... 2.528 а.о.
+* Межа кригоутворення : > 4.75 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 36
 * Star cluster: Moirai
@@ -3536,8 +3916,10 @@ Temperature zone data:
 * System codename: STAR_F6_36_SYSTEM
 * System translation name codename: NAME_STAR_F6_36_SYSTEM
 * System translation description codename: DESC_STAR_F6_36_SYSTEM
-* System zone size: 1.55e+13
-* System autopilot range: 1.55e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.64e+13
+* System autopilot range: 1.64e+13
 ```
 
  </details>  
@@ -3550,51 +3932,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.74e+09 m
-* Temperature: 6500 K
-* Luminosity: 9.62e+26 W
+* Size: 1.85e+09 m
+* Mass: 2.33e+30 kg
+* Temperature: 6479 K
+* Luminosity: 1.08e+27 W
 
 Sun units:
-* Size: 1.251 D
-* Temperature: 1.13 T
-* Luminosity: 2.51 L
+* Size: 1.333 D
+* Mass: 1.172 M
+* Temperature: 1.12 T
+* Luminosity: 2.82 L
 
 Spectral data:
 * Type: F6
-* Peak wavelength: 446.0 nm
+* Peak wavelength: 447.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.123 AU
-* Hot zone   :   0.123 ... 0.317 AU
-* Warm zone  :   0.317 ... 1.105 AU
-* Temp. zone :   1.105 ... 1.563 AU
-* Cold zone  :   1.563 ... 4.486 AU
-* Frost line : > 4.486 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.74e+09 м
-* Температура: 6500 К
-* Світність: 9.62e+26 Вт
+* Розмір: 1.85e+09 м
+* Температура: 6479 К
+* Світність: 1.08e+27 Вт
 
 Відносно Сонця:
-* Розмір: 1.251 D
-* Температура: 1.13 T
-* Світність: 2.51 L
+* Розмір: 1.333 D
+* Температура: 1.12 T
+* Світність: 2.82 L
 
 Спектральні дані:
 * Тип: F6
-* Пікова довжина хвилі: 446.0 нм
+* Пікова довжина хвилі: 447.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.123 а.о.
-* Гаряча зона  :   0.123 ... 0.317 а.о.
-* Тепла зона   :   0.317 ... 1.105 а.о.
-* Помірна зона :   1.105 ... 1.563 а.о.
-* Холодна зона :   1.563 ... 2.388 а.о.
-* Межа кригоутворення : > 4.486 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3604,13 +3974,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F6_36
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.70e+10
-* Star death zone size: 1.01e+10
-* Star size: 1.74e+09
-* Star flare distance: 8.70e+10
-* Star autopilot range: 2.03e+10
+* Star zone size: 9.25e+10
+* Star death zone size: 1.07e+10
+* Star size: 1.85e+09
+* Star flare distance: 9.25e+10
+* Star autopilot range: 2.15e+10
 
-* Omni range: 1.55e+13
+* Omni range: 1.64e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -3627,6 +3997,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.112 AU
+* Hot zone   :   0.112 ... 0.289 AU
+* Warm zone  :   0.289 ... 1.008 AU
+* Temp. zone :   1.008 ... 1.425 AU
+* Cold zone  :   1.425 ... 4.09 AU
+* Frost line : > 4.09 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.112 а.о.
+* Гаряча зона  :   0.112 ... 0.289 а.о.
+* Тепла зона   :   0.289 ... 1.008 а.о.
+* Помірна зона :   1.008 ... 1.425 а.о.
+* Холодна зона :   1.425 ... 2.177 а.о.
+* Межа кригоутворення : > 4.09 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 37
 * Star cluster: Moirai
@@ -3634,8 +4024,10 @@ Temperature zone data:
 * System codename: STAR_F7_37_SYSTEM
 * System translation name codename: NAME_STAR_F7_37_SYSTEM
 * System translation description codename: DESC_STAR_F7_37_SYSTEM
-* System zone size: 1.56e+13
-* System autopilot range: 1.56e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.41e+13
+* System autopilot range: 1.41e+13
 ```
 
  </details>  
@@ -3648,51 +4040,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.79e+09 m
-* Temperature: 6426 K
-* Luminosity: 9.69e+26 W
+* Size: 1.66e+09 m
+* Mass: 2.27e+30 kg
+* Temperature: 6359 K
+* Luminosity: 7.99e+26 W
 
 Sun units:
-* Size: 1.285 D
-* Temperature: 1.11 T
-* Luminosity: 2.53 L
+* Size: 1.192 D
+* Mass: 1.14 M
+* Temperature: 1.1 T
+* Luminosity: 2.09 L
 
 Spectral data:
 * Type: F7
-* Peak wavelength: 451.0 nm
+* Peak wavelength: 456.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.124 AU
-* Hot zone   :   0.124 ... 0.318 AU
-* Warm zone  :   0.318 ... 1.11 AU
-* Temp. zone :   1.11 ... 1.569 AU
-* Cold zone  :   1.569 ... 4.504 AU
-* Frost line : > 4.504 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.79e+09 м
-* Температура: 6426 К
-* Світність: 9.69e+26 Вт
+* Розмір: 1.66e+09 м
+* Температура: 6359 К
+* Світність: 7.99e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.285 D
-* Температура: 1.11 T
-* Світність: 2.53 L
+* Розмір: 1.192 D
+* Температура: 1.1 T
+* Світність: 2.09 L
 
 Спектральні дані:
 * Тип: F7
-* Пікова довжина хвилі: 451.0 нм
+* Пікова довжина хвилі: 456.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.124 а.о.
-* Гаряча зона  :   0.124 ... 0.318 а.о.
-* Тепла зона   :   0.318 ... 1.11 а.о.
-* Помірна зона :   1.11 ... 1.569 а.о.
-* Холодна зона :   1.569 ... 2.397 а.о.
-* Межа кригоутворення : > 4.504 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3702,13 +4082,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F7_37
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.95e+10
-* Star death zone size: 1.02e+10
-* Star size: 1.79e+09
-* Star flare distance: 8.95e+10
-* Star autopilot range: 2.04e+10
+* Star zone size: 8.30e+10
+* Star death zone size: 9.25e+09
+* Star size: 1.66e+09
+* Star flare distance: 8.30e+10
+* Star autopilot range: 1.85e+10
 
-* Omni range: 1.56e+13
+* Omni range: 1.41e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -3725,6 +4105,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.109 AU
+* Hot zone   :   0.109 ... 0.281 AU
+* Warm zone  :   0.281 ... 0.979 AU
+* Temp. zone :   0.979 ... 1.384 AU
+* Cold zone  :   1.384 ... 3.972 AU
+* Frost line : > 3.972 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.109 а.о.
+* Гаряча зона  :   0.109 ... 0.281 а.о.
+* Тепла зона   :   0.281 ... 0.979 а.о.
+* Помірна зона :   0.979 ... 1.384 а.о.
+* Холодна зона :   1.384 ... 2.114 а.о.
+* Межа кригоутворення : > 3.972 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 38
 * Star cluster: Moirai
@@ -3732,8 +4132,10 @@ Temperature zone data:
 * System codename: STAR_F8_38_SYSTEM
 * System translation name codename: NAME_STAR_F8_38_SYSTEM
 * System translation description codename: DESC_STAR_F8_38_SYSTEM
-* System zone size: 1.49e+13
-* System autopilot range: 1.49e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.37e+13
+* System autopilot range: 1.37e+13
 ```
 
  </details>  
@@ -3742,55 +4144,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: F8</summary>  
 
 #### Star pseudo-color  
-![d2ff00](Colors/d2ff00.png)  
+![cdff00](Colors/cdff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.86e+09 m
-* Temperature: 6155 K
-* Luminosity: 8.83e+26 W
+* Size: 1.66e+09 m
+* Mass: 2.16e+30 kg
+* Temperature: 6264 K
+* Luminosity: 7.54e+26 W
 
 Sun units:
-* Size: 1.337 D
-* Temperature: 1.07 T
-* Luminosity: 2.31 L
+* Size: 1.193 D
+* Mass: 1.088 M
+* Temperature: 1.09 T
+* Luminosity: 1.97 L
 
 Spectral data:
 * Type: F8
-* Peak wavelength: 471.0 nm
+* Peak wavelength: 463.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.118 AU
-* Hot zone   :   0.118 ... 0.304 AU
-* Warm zone  :   0.304 ... 1.059 AU
-* Temp. zone :   1.059 ... 1.498 AU
-* Cold zone  :   1.498 ... 4.299 AU
-* Frost line : > 4.299 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.86e+09 м
-* Температура: 6155 К
-* Світність: 8.83e+26 Вт
+* Розмір: 1.66e+09 м
+* Температура: 6264 К
+* Світність: 7.54e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.337 D
-* Температура: 1.07 T
-* Світність: 2.31 L
+* Розмір: 1.193 D
+* Температура: 1.09 T
+* Світність: 1.97 L
 
 Спектральні дані:
 * Тип: F8
-* Пікова довжина хвилі: 471.0 нм
+* Пікова довжина хвилі: 463.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.118 а.о.
-* Гаряча зона  :   0.118 ... 0.304 а.о.
-* Тепла зона   :   0.304 ... 1.059 а.о.
-* Помірна зона :   1.059 ... 1.498 а.о.
-* Холодна зона :   1.498 ... 2.288 а.о.
-* Межа кригоутворення : > 4.299 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3800,29 +4190,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F8_38
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 9.30e+10
-* Star death zone size: 9.72e+09
-* Star size: 1.86e+09
-* Star flare distance: 9.30e+10
-* Star autopilot range: 1.94e+10
+* Star zone size: 8.30e+10
+* Star death zone size: 8.98e+09
+* Star size: 1.66e+09
+* Star flare distance: 8.30e+10
+* Star autopilot range: 1.80e+10
 
-* Omni range: 1.49e+13
+* Omni range: 1.37e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (210, 255, 0)
- - hex: #d2ff00
+ - rgb: (205, 255, 0)
+ - hex: #cdff00
 ```  
 
  </details>  
 
 ---  
- ![d2ff00](Colors/d2ff00.png)   
+ ![cdff00](Colors/cdff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.119 AU
+* Hot zone   :   0.119 ... 0.307 AU
+* Warm zone  :   0.307 ... 1.069 AU
+* Temp. zone :   1.069 ... 1.512 AU
+* Cold zone  :   1.512 ... 4.34 AU
+* Frost line : > 4.34 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.119 а.о.
+* Гаряча зона  :   0.119 ... 0.307 а.о.
+* Тепла зона   :   0.307 ... 1.069 а.о.
+* Помірна зона :   1.069 ... 1.512 а.о.
+* Холодна зона :   1.512 ... 2.31 а.о.
+* Межа кригоутворення : > 4.34 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 39
 * Star cluster: Moirai
@@ -3830,8 +4240,10 @@ Temperature zone data:
 * System codename: STAR_F9_39_SYSTEM
 * System translation name codename: NAME_STAR_F9_39_SYSTEM
 * System translation description codename: DESC_STAR_F9_39_SYSTEM
-* System zone size: 1.33e+13
-* System autopilot range: 1.33e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.50e+13
+* System autopilot range: 1.50e+13
 ```
 
  </details>  
@@ -3844,51 +4256,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.72e+09 m
-* Temperature: 6051 K
-* Luminosity: 7.07e+26 W
+* Size: 1.94e+09 m
+* Mass: 2.08e+30 kg
+* Temperature: 6046 K
+* Luminosity: 9.00e+26 W
 
 Sun units:
-* Size: 1.238 D
+* Size: 1.399 D
+* Mass: 1.043 M
 * Temperature: 1.05 T
-* Luminosity: 1.85 L
+* Luminosity: 2.35 L
 
 Spectral data:
 * Type: F9
 * Peak wavelength: 479.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.106 AU
-* Hot zone   :   0.106 ... 0.272 AU
-* Warm zone  :   0.272 ... 0.948 AU
-* Temp. zone :   0.948 ... 1.341 AU
-* Cold zone  :   1.341 ... 3.847 AU
-* Frost line : > 3.847 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.72e+09 м
-* Температура: 6051 К
-* Світність: 7.07e+26 Вт
+* Розмір: 1.94e+09 м
+* Температура: 6046 К
+* Світність: 9.00e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.238 D
+* Розмір: 1.399 D
 * Температура: 1.05 T
-* Світність: 1.85 L
+* Світність: 2.35 L
 
 Спектральні дані:
 * Тип: F9
 * Пікова довжина хвилі: 479.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.106 а.о.
-* Гаряча зона  :   0.106 ... 0.272 а.о.
-* Тепла зона   :   0.272 ... 0.948 а.о.
-* Помірна зона :   0.948 ... 1.341 а.о.
-* Холодна зона :   1.341 ... 2.048 а.о.
-* Межа кригоутворення : > 3.847 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3898,13 +4298,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_F9_39
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 8.60e+10
-* Star death zone size: 8.70e+09
-* Star size: 1.72e+09
-* Star flare distance: 8.60e+10
-* Star autopilot range: 1.74e+10
+* Star zone size: 9.70e+10
+* Star death zone size: 9.81e+09
+* Star size: 1.94e+09
+* Star flare distance: 9.70e+10
+* Star autopilot range: 1.96e+10
 
-* Omni range: 1.33e+13
+* Omni range: 1.50e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -3921,6 +4321,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.079 AU
+* Hot zone   :   0.079 ... 0.203 AU
+* Warm zone  :   0.203 ... 0.707 AU
+* Temp. zone :   0.707 ... 0.999 AU
+* Cold zone  :   0.999 ... 2.868 AU
+* Frost line : > 2.868 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.079 а.о.
+* Гаряча зона  :   0.079 ... 0.203 а.о.
+* Тепла зона   :   0.203 ... 0.707 а.о.
+* Помірна зона :   0.707 ... 0.999 а.о.
+* Холодна зона :   0.999 ... 1.527 а.о.
+* Межа кригоутворення : > 2.868 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 40
 * Star cluster: Moirai
@@ -3928,8 +4348,10 @@ Temperature zone data:
 * System codename: STAR_G0_40_SYSTEM
 * System translation name codename: NAME_STAR_G0_40_SYSTEM
 * System translation description codename: DESC_STAR_G0_40_SYSTEM
-* System zone size: 1.02e+13
-* System autopilot range: 1.02e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.00e+13
+* System autopilot range: 1.00e+13
 ```
 
  </details>  
@@ -3942,51 +4364,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.37e+09 m
-* Temperature: 5952 K
-* Luminosity: 4.18e+26 W
+* Size: 1.34e+09 m
+* Mass: 2.06e+30 kg
+* Temperature: 5931 K
+* Luminosity: 3.93e+26 W
 
 Sun units:
-* Size: 0.984 D
+* Size: 0.961 D
+* Mass: 1.033 M
 * Temperature: 1.03 T
-* Luminosity: 1.09 L
+* Luminosity: 1.03 L
 
 Spectral data:
 * Type: G0
-* Peak wavelength: 487.0 nm
+* Peak wavelength: 489.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.081 AU
-* Hot zone   :   0.081 ... 0.209 AU
-* Warm zone  :   0.209 ... 0.729 AU
-* Temp. zone :   0.729 ... 1.031 AU
-* Cold zone  :   1.031 ... 2.958 AU
-* Frost line : > 2.958 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.37e+09 м
-* Температура: 5952 К
-* Світність: 4.18e+26 Вт
+* Розмір: 1.34e+09 м
+* Температура: 5931 К
+* Світність: 3.93e+26 Вт
 
 Відносно Сонця:
-* Розмір: 0.984 D
+* Розмір: 0.961 D
 * Температура: 1.03 T
-* Світність: 1.09 L
+* Світність: 1.03 L
 
 Спектральні дані:
 * Тип: G0
-* Пікова довжина хвилі: 487.0 нм
+* Пікова довжина хвилі: 489.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.081 а.о.
-* Гаряча зона  :   0.081 ... 0.209 а.о.
-* Тепла зона   :   0.209 ... 0.729 а.о.
-* Помірна зона :   0.729 ... 1.031 а.о.
-* Холодна зона :   1.031 ... 1.574 а.о.
-* Межа кригоутворення : > 2.958 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -3996,13 +4406,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G0_40
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.85e+10
-* Star death zone size: 6.69e+09
-* Star size: 1.37e+09
-* Star flare distance: 6.85e+10
-* Star autopilot range: 1.34e+10
+* Star zone size: 6.70e+10
+* Star death zone size: 6.49e+09
+* Star size: 1.34e+09
+* Star flare distance: 6.70e+10
+* Star autopilot range: 1.30e+10
 
-* Omni range: 1.02e+13
+* Omni range: 9.91e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4019,6 +4429,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.08 AU
+* Hot zone   :   0.08 ... 0.206 AU
+* Warm zone  :   0.206 ... 0.717 AU
+* Temp. zone :   0.717 ... 1.014 AU
+* Cold zone  :   1.014 ... 2.91 AU
+* Frost line : > 2.91 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.08 а.о.
+* Гаряча зона  :   0.08 ... 0.206 а.о.
+* Тепла зона   :   0.206 ... 0.717 а.о.
+* Помірна зона :   0.717 ... 1.014 а.о.
+* Холодна зона :   1.014 ... 1.549 а.о.
+* Межа кригоутворення : > 2.91 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 41
 * Star cluster: Moirai
@@ -4026,8 +4456,10 @@ Temperature zone data:
 * System codename: STAR_G1_41_SYSTEM
 * System translation name codename: NAME_STAR_G1_41_SYSTEM
 * System translation description codename: DESC_STAR_G1_41_SYSTEM
-* System zone size: 1.14e+13
-* System autopilot range: 1.14e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.01e+13
+* System autopilot range: 1.01e+13
 ```
 
  </details>  
@@ -4040,51 +4472,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.57e+09 m
-* Temperature: 5877 K
-* Luminosity: 5.24e+26 W
+* Size: 1.37e+09 m
+* Mass: 2.02e+30 kg
+* Temperature: 5896 K
+* Luminosity: 4.05e+26 W
 
 Sun units:
-* Size: 1.13 D
+* Size: 0.986 D
+* Mass: 1.015 M
 * Temperature: 1.02 T
-* Luminosity: 1.37 L
+* Luminosity: 1.06 L
 
 Spectral data:
 * Type: G1
-* Peak wavelength: 493.0 nm
+* Peak wavelength: 491.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.091 AU
-* Hot zone   :   0.091 ... 0.234 AU
-* Warm zone  :   0.234 ... 0.816 AU
-* Temp. zone :   0.816 ... 1.154 AU
-* Cold zone  :   1.154 ... 3.311 AU
-* Frost line : > 3.311 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.57e+09 м
-* Температура: 5877 К
-* Світність: 5.24e+26 Вт
+* Розмір: 1.37e+09 м
+* Температура: 5896 К
+* Світність: 4.05e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.13 D
+* Розмір: 0.986 D
 * Температура: 1.02 T
-* Світність: 1.37 L
+* Світність: 1.06 L
 
 Спектральні дані:
 * Тип: G1
-* Пікова довжина хвилі: 493.0 нм
+* Пікова довжина хвилі: 491.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.091 а.о.
-* Гаряча зона  :   0.091 ... 0.234 а.о.
-* Тепла зона   :   0.234 ... 0.816 а.о.
-* Помірна зона :   0.816 ... 1.154 а.о.
-* Холодна зона :   1.154 ... 1.763 а.о.
-* Межа кригоутворення : > 3.311 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4094,13 +4514,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G1_41
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.85e+10
-* Star death zone size: 7.49e+09
-* Star size: 1.57e+09
-* Star flare distance: 7.85e+10
-* Star autopilot range: 1.50e+10
+* Star zone size: 6.85e+10
+* Star death zone size: 6.58e+09
+* Star size: 1.37e+09
+* Star flare distance: 6.85e+10
+* Star autopilot range: 1.32e+10
 
-* Omni range: 1.14e+13
+* Omni range: 1.01e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4117,6 +4537,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.086 AU
+* Hot zone   :   0.086 ... 0.22 AU
+* Warm zone  :   0.22 ... 0.767 AU
+* Temp. zone :   0.767 ... 1.084 AU
+* Cold zone  :   1.084 ... 3.112 AU
+* Frost line : > 3.112 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.086 а.о.
+* Гаряча зона  :   0.086 ... 0.22 а.о.
+* Тепла зона   :   0.22 ... 0.767 а.о.
+* Помірна зона :   0.767 ... 1.084 а.о.
+* Холодна зона :   1.084 ... 1.656 а.о.
+* Межа кригоутворення : > 3.112 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 42
 * Star cluster: Moirai
@@ -4124,8 +4564,10 @@ Temperature zone data:
 * System codename: STAR_G2_42_SYSTEM
 * System translation name codename: NAME_STAR_G2_42_SYSTEM
 * System translation description codename: DESC_STAR_G2_42_SYSTEM
-* System zone size: 1.03e+13
-* System autopilot range: 1.03e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.08e+13
+* System autopilot range: 1.08e+13
 ```
 
  </details>  
@@ -4138,51 +4580,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.45e+09 m
-* Temperature: 5784 K
-* Luminosity: 4.22e+26 W
+* Size: 1.52e+09 m
+* Mass: 1.95e+30 kg
+* Temperature: 5792 K
+* Luminosity: 4.63e+26 W
 
 Sun units:
-* Size: 1.047 D
+* Size: 1.093 D
+* Mass: 0.982 M
 * Temperature: 1.0 T
-* Luminosity: 1.1 L
+* Luminosity: 1.21 L
 
 Spectral data:
 * Type: G2
-* Peak wavelength: 501.0 nm
+* Peak wavelength: 500.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.082 AU
-* Hot zone   :   0.082 ... 0.21 AU
-* Warm zone  :   0.21 ... 0.732 AU
-* Temp. zone :   0.732 ... 1.036 AU
-* Cold zone  :   1.036 ... 2.972 AU
-* Frost line : > 2.972 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.45e+09 м
-* Температура: 5784 К
-* Світність: 4.22e+26 Вт
+* Розмір: 1.52e+09 м
+* Температура: 5792 К
+* Світність: 4.63e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.047 D
+* Розмір: 1.093 D
 * Температура: 1.0 T
-* Світність: 1.1 L
+* Світність: 1.21 L
 
 Спектральні дані:
 * Тип: G2
-* Пікова довжина хвилі: 501.0 нм
+* Пікова довжина хвилі: 500.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.082 а.о.
-* Гаряча зона  :   0.082 ... 0.21 а.о.
-* Тепла зона   :   0.21 ... 0.732 а.о.
-* Помірна зона :   0.732 ... 1.036 а.о.
-* Холодна зона :   1.036 ... 1.582 а.о.
-* Межа кригоутворення : > 2.972 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4192,13 +4622,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G2_42
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.25e+10
-* Star death zone size: 6.72e+09
-* Star size: 1.45e+09
-* Star flare distance: 7.25e+10
-* Star autopilot range: 1.34e+10
+* Star zone size: 7.60e+10
+* Star death zone size: 7.04e+09
+* Star size: 1.52e+09
+* Star flare distance: 7.60e+10
+* Star autopilot range: 1.41e+10
 
-* Omni range: 1.03e+13
+* Omni range: 1.08e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4215,6 +4645,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.081 AU
+* Hot zone   :   0.081 ... 0.209 AU
+* Warm zone  :   0.209 ... 0.729 AU
+* Temp. zone :   0.729 ... 1.031 AU
+* Cold zone  :   1.031 ... 2.96 AU
+* Frost line : > 2.96 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.081 а.о.
+* Гаряча зона  :   0.081 ... 0.209 а.о.
+* Тепла зона   :   0.209 ... 0.729 а.о.
+* Помірна зона :   0.729 ... 1.031 а.о.
+* Холодна зона :   1.031 ... 1.576 а.о.
+* Межа кригоутворення : > 2.96 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 43
 * Star cluster: Moirai
@@ -4222,8 +4672,10 @@ Temperature zone data:
 * System codename: STAR_G3_43_SYSTEM
 * System translation name codename: NAME_STAR_G3_43_SYSTEM
 * System translation description codename: DESC_STAR_G3_43_SYSTEM
-* System zone size: 1.06e+13
-* System autopilot range: 1.06e+13
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.02e+13
+* System autopilot range: 1.02e+13
 ```
 
  </details>  
@@ -4232,55 +4684,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: G3</summary>  
 
 #### Star pseudo-color  
-![ebff00](Colors/ebff00.png)  
+![e6ff00](Colors/e6ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.54e+09 m
-* Temperature: 5729 K
-* Luminosity: 4.52e+26 W
+* Size: 1.46e+09 m
+* Mass: 1.92e+30 kg
+* Temperature: 5759 K
+* Luminosity: 4.19e+26 W
 
 Sun units:
-* Size: 1.104 D
-* Temperature: 0.99 T
-* Luminosity: 1.18 L
+* Size: 1.052 D
+* Mass: 0.967 M
+* Temperature: 1.0 T
+* Luminosity: 1.09 L
 
 Spectral data:
 * Type: G3
-* Peak wavelength: 506.0 nm
+* Peak wavelength: 503.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.085 AU
-* Hot zone   :   0.085 ... 0.218 AU
-* Warm zone  :   0.218 ... 0.758 AU
-* Temp. zone :   0.758 ... 1.072 AU
-* Cold zone  :   1.072 ... 3.076 AU
-* Frost line : > 3.076 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.54e+09 м
-* Температура: 5729 К
-* Світність: 4.52e+26 Вт
+* Розмір: 1.46e+09 м
+* Температура: 5759 К
+* Світність: 4.19e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.104 D
-* Температура: 0.99 T
-* Світність: 1.18 L
+* Розмір: 1.052 D
+* Температура: 1.0 T
+* Світність: 1.09 L
 
 Спектральні дані:
 * Тип: G3
-* Пікова довжина хвилі: 506.0 нм
+* Пікова довжина хвилі: 503.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.085 а.о.
-* Гаряча зона  :   0.085 ... 0.218 а.о.
-* Тепла зона   :   0.218 ... 0.758 а.о.
-* Помірна зона :   0.758 ... 1.072 а.о.
-* Холодна зона :   1.072 ... 1.637 а.о.
-* Межа кригоутворення : > 3.076 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4290,13 +4730,121 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G3_43
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.70e+10
-* Star death zone size: 6.96e+09
-* Star size: 1.54e+09
-* Star flare distance: 7.70e+10
-* Star autopilot range: 1.39e+10
+* Star zone size: 7.30e+10
+* Star death zone size: 6.69e+09
+* Star size: 1.46e+09
+* Star flare distance: 7.30e+10
+* Star autopilot range: 1.34e+10
 
-* Omni range: 1.06e+13
+* Omni range: 1.02e+13
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (230, 255, 0)
+ - hex: #e6ff00
+```  
+
+ </details>  
+
+---  
+ ![e6ff00](Colors/e6ff00.png)   
+
+---  
+# System: Test  
+<details><summary>System data</summary>  
+
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.081 AU
+* Hot zone   :   0.081 ... 0.208 AU
+* Warm zone  :   0.208 ... 0.726 AU
+* Temp. zone :   0.726 ... 1.027 AU
+* Cold zone  :   1.027 ... 2.947 AU
+* Frost line : > 2.947 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.081 а.о.
+* Гаряча зона  :   0.081 ... 0.208 а.о.
+* Тепла зона   :   0.208 ... 0.726 а.о.
+* Помірна зона :   0.726 ... 1.027 а.о.
+* Холодна зона :   1.027 ... 1.569 а.о.
+* Межа кригоутворення : > 2.947 а.о.
+```  
+#### GODOT data  
+```  
+* System ID: 44
+* Star cluster: Moirai
+* System zone codename: STAR_G4_44_SYSTEM_ZONE
+* System codename: STAR_G4_44_SYSTEM
+* System translation name codename: NAME_STAR_G4_44_SYSTEM
+* System translation description codename: DESC_STAR_G4_44_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.02e+13
+* System autopilot range: 1.02e+13
+```
+
+ </details>  
+
+---  
+<details><summary>Primary star : Test A, type: G4</summary>  
+
+#### Star pseudo-color  
+![ebff00](Colors/ebff00.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 1.50e+09 m
+* Mass: 1.83e+30 kg
+* Temperature: 5668 K
+* Luminosity: 4.15e+26 W
+
+Sun units:
+* Size: 1.081 D
+* Mass: 0.92 M
+* Temperature: 0.98 T
+* Luminosity: 1.08 L
+
+Spectral data:
+* Type: G4
+* Peak wavelength: 511.0 nm
+* Peak wavelength type: visible
+
+```  
+```  
+Абсолютні величини:
+* Розмір: 1.50e+09 м
+* Температура: 5668 К
+* Світність: 4.15e+26 Вт
+
+Відносно Сонця:
+* Розмір: 1.081 D
+* Температура: 0.98 T
+* Світність: 1.08 L
+
+Спектральні дані:
+* Тип: G4
+* Пікова довжина хвилі: 511.0 нм
+* Тип пікового випромінювання: visible
+
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_G4_44_ZONE
+* Star codename: STAR_G4_44
+* Star translation name codename: NAME_STAR_G4_44
+* Star translation description codename: DESC_STAR_G4_44
+* Star name: Test A
+* Star description: see above.
+* Star zone size: 7.50e+10
+* Star death zone size: 6.66e+09
+* Star size: 1.50e+09
+* Star flare distance: 7.50e+10
+* Star autopilot range: 1.33e+10
+
+* Omni range: 1.02e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4313,104 +4861,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
 ```  
-* System ID: 44
-* Star cluster: Moirai
-* System zone codename: STAR_G4_44_SYSTEM_ZONE
-* System codename: STAR_G4_44_SYSTEM
-* System translation name codename: NAME_STAR_G4_44_SYSTEM
-* System translation description codename: DESC_STAR_G4_44_SYSTEM
-* System zone size: 1.00e+13
-* System autopilot range: 1.00e+13
-```
-
- </details>  
-
----  
-<details><summary>Primary star : Test A, type: G4</summary>  
-
-#### Star pseudo-color  
-![f0ff00](Colors/f0ff00.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 1.46e+09 m
-* Temperature: 5619 K
-* Luminosity: 3.76e+26 W
-
-Sun units:
-* Size: 1.047 D
-* Temperature: 0.97 T
-* Luminosity: 0.983 L
-
-Spectral data:
-* Type: G4
-* Peak wavelength: 516.0 nm
-* Peak wavelength type: visible
-
-Temperature zone data:
-* Mineral melting line: < 0.077 AU
-* Hot zone   :   0.077 ... 0.198 AU
-* Warm zone  :   0.198 ... 0.691 AU
-* Temp. zone :   0.691 ... 0.978 AU
-* Cold zone  :   0.978 ... 2.805 AU
-* Frost line : > 2.805 AU
+Temperature zone data by main star:
+* Mineral melting line: < 0.071 AU
+* Hot zone   :   0.071 ... 0.182 AU
+* Warm zone  :   0.182 ... 0.635 AU
+* Temp. zone :   0.635 ... 0.898 AU
+* Cold zone  :   0.898 ... 2.578 AU
+* Frost line : > 2.578 AU
 ```  
 ```  
-Абсолютні величини:
-* Розмір: 1.46e+09 м
-* Температура: 5619 К
-* Світність: 3.76e+26 Вт
-
-Відносно Сонця:
-* Розмір: 1.047 D
-* Температура: 0.97 T
-* Світність: 0.983 L
-
-Спектральні дані:
-* Тип: G4
-* Пікова довжина хвилі: 516.0 нм
-* Тип пікового випромінювання: visible
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.077 а.о.
-* Гаряча зона  :   0.077 ... 0.198 а.о.
-* Тепла зона   :   0.198 ... 0.691 а.о.
-* Помірна зона :   0.691 ... 0.978 а.о.
-* Холодна зона :   0.978 ... 1.493 а.о.
-* Межа кригоутворення : > 2.805 а.о.
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.071 а.о.
+* Гаряча зона  :   0.071 ... 0.182 а.о.
+* Тепла зона   :   0.182 ... 0.635 а.о.
+* Помірна зона :   0.635 ... 0.898 а.о.
+* Холодна зона :   0.898 ... 1.372 а.о.
+* Межа кригоутворення : > 2.578 а.о.
 ```  
 #### GODOT data  
-```  
-* Star zone codename: STAR_G4_44_ZONE
-* Star codename: STAR_G4_44
-* Star translation name codename: NAME_STAR_G4_44
-* Star translation description codename: DESC_STAR_G4_44
-* Star name: Test A
-* Star description: see above.
-* Star zone size: 7.30e+10
-* Star death zone size: 6.34e+09
-* Star size: 1.46e+09
-* Star flare distance: 7.30e+10
-* Star autopilot range: 1.27e+10
-
-* Omni range: 9.70e+12
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (240, 255, 0)
- - hex: #f0ff00
-```  
-
- </details>  
-
----  
- ![f0ff00](Colors/f0ff00.png)   
-
----  
-# System: Test  
-<details><summary>System data</summary>  
-
 ```  
 * System ID: 45
 * Star cluster: Moirai
@@ -4418,6 +4888,8 @@ Temperature zone data:
 * System codename: STAR_G5_45_SYSTEM
 * System translation name codename: NAME_STAR_G5_45_SYSTEM
 * System translation description codename: DESC_STAR_G5_45_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -4432,51 +4904,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.44e+09 m
-* Temperature: 5575 K
-* Luminosity: 3.58e+26 W
+* Size: 1.37e+09 m
+* Mass: 1.81e+30 kg
+* Temperature: 5559 K
+* Luminosity: 3.18e+26 W
 
 Sun units:
-* Size: 1.038 D
-* Temperature: 0.97 T
-* Luminosity: 0.936 L
+* Size: 0.983 D
+* Mass: 0.909 M
+* Temperature: 0.96 T
+* Luminosity: 0.83 L
 
 Spectral data:
 * Type: G5
-* Peak wavelength: 520.0 nm
+* Peak wavelength: 521.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.075 AU
-* Hot zone   :   0.075 ... 0.194 AU
-* Warm zone  :   0.194 ... 0.675 AU
-* Temp. zone :   0.675 ... 0.954 AU
-* Cold zone  :   0.954 ... 2.738 AU
-* Frost line : > 2.738 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.44e+09 м
-* Температура: 5575 К
-* Світність: 3.58e+26 Вт
+* Розмір: 1.37e+09 м
+* Температура: 5559 К
+* Світність: 3.18e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.038 D
-* Температура: 0.97 T
-* Світність: 0.936 L
+* Розмір: 0.983 D
+* Температура: 0.96 T
+* Світність: 0.83 L
 
 Спектральні дані:
 * Тип: G5
-* Пікова довжина хвилі: 520.0 нм
+* Пікова довжина хвилі: 521.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.075 а.о.
-* Гаряча зона  :   0.075 ... 0.194 а.о.
-* Тепла зона   :   0.194 ... 0.675 а.о.
-* Помірна зона :   0.675 ... 0.954 а.о.
-* Холодна зона :   0.954 ... 1.458 а.о.
-* Межа кригоутворення : > 2.738 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4486,13 +4946,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G5_45
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.20e+10
-* Star death zone size: 6.19e+09
-* Star size: 1.44e+09
-* Star flare distance: 7.20e+10
-* Star autopilot range: 1.24e+10
+* Star zone size: 6.85e+10
+* Star death zone size: 5.83e+09
+* Star size: 1.37e+09
+* Star flare distance: 6.85e+10
+* Star autopilot range: 1.17e+10
 
-* Omni range: 9.46e+12
+* Omni range: 8.91e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4509,6 +4969,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.079 AU
+* Hot zone   :   0.079 ... 0.204 AU
+* Warm zone  :   0.204 ... 0.712 AU
+* Temp. zone :   0.712 ... 1.006 AU
+* Cold zone  :   1.006 ... 2.888 AU
+* Frost line : > 2.888 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.079 а.о.
+* Гаряча зона  :   0.079 ... 0.204 а.о.
+* Тепла зона   :   0.204 ... 0.712 а.о.
+* Помірна зона :   0.712 ... 1.006 а.о.
+* Холодна зона :   1.006 ... 1.537 а.о.
+* Межа кригоутворення : > 2.888 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 46
 * Star cluster: Moirai
@@ -4516,6 +4996,8 @@ Temperature zone data:
 * System codename: STAR_G6_46_SYSTEM
 * System translation name codename: NAME_STAR_G6_46_SYSTEM
 * System translation description codename: DESC_STAR_G6_46_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -4526,55 +5008,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: G6</summary>  
 
 #### Star pseudo-color  
-![faff00](Colors/faff00.png)  
+![f5ff00](Colors/f5ff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.41e+09 m
-* Temperature: 5457 K
-* Luminosity: 3.13e+26 W
+* Size: 1.57e+09 m
+* Mass: 1.76e+30 kg
+* Temperature: 5493 K
+* Luminosity: 3.99e+26 W
 
 Sun units:
-* Size: 1.013 D
+* Size: 1.128 D
+* Mass: 0.886 M
 * Temperature: 0.95 T
-* Luminosity: 0.819 L
+* Luminosity: 1.04 L
 
 Spectral data:
 * Type: G6
-* Peak wavelength: 531.0 nm
+* Peak wavelength: 528.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.07 AU
-* Hot zone   :   0.07 ... 0.181 AU
-* Warm zone  :   0.181 ... 0.631 AU
-* Temp. zone :   0.631 ... 0.892 AU
-* Cold zone  :   0.892 ... 2.56 AU
-* Frost line : > 2.56 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.41e+09 м
-* Температура: 5457 К
-* Світність: 3.13e+26 Вт
+* Розмір: 1.57e+09 м
+* Температура: 5493 К
+* Світність: 3.99e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.013 D
+* Розмір: 1.128 D
 * Температура: 0.95 T
-* Світність: 0.819 L
+* Світність: 1.04 L
 
 Спектральні дані:
 * Тип: G6
-* Пікова довжина хвилі: 531.0 нм
+* Пікова довжина хвилі: 528.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.07 а.о.
-* Гаряча зона  :   0.07 ... 0.181 а.о.
-* Тепла зона   :   0.181 ... 0.631 а.о.
-* Помірна зона :   0.631 ... 0.892 а.о.
-* Холодна зона :   0.892 ... 1.363 а.о.
-* Межа кригоутворення : > 2.56 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4584,29 +5054,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G6_46
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.05e+10
-* Star death zone size: 5.79e+09
-* Star size: 1.41e+09
-* Star flare distance: 7.05e+10
-* Star autopilot range: 1.16e+10
+* Star zone size: 7.85e+10
+* Star death zone size: 6.53e+09
+* Star size: 1.57e+09
+* Star flare distance: 7.85e+10
+* Star autopilot range: 1.31e+10
 
-* Omni range: 8.85e+12
+* Omni range: 9.98e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (250, 255, 0)
- - hex: #faff00
+ - rgb: (245, 255, 0)
+ - hex: #f5ff00
 ```  
 
  </details>  
 
 ---  
- ![faff00](Colors/faff00.png)   
+ ![f5ff00](Colors/f5ff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.075 AU
+* Hot zone   :   0.075 ... 0.194 AU
+* Warm zone  :   0.194 ... 0.674 AU
+* Temp. zone :   0.674 ... 0.954 AU
+* Cold zone  :   0.954 ... 2.737 AU
+* Frost line : > 2.737 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.075 а.о.
+* Гаряча зона  :   0.075 ... 0.194 а.о.
+* Тепла зона   :   0.194 ... 0.674 а.о.
+* Помірна зона :   0.674 ... 0.954 а.о.
+* Холодна зона :   0.954 ... 1.457 а.о.
+* Межа кригоутворення : > 2.737 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 47
 * Star cluster: Moirai
@@ -4614,6 +5104,8 @@ Temperature zone data:
 * System codename: STAR_G7_47_SYSTEM
 * System translation name codename: NAME_STAR_G7_47_SYSTEM
 * System translation description codename: DESC_STAR_G7_47_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -4624,55 +5116,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: G7</summary>  
 
 #### Star pseudo-color  
-![faff00](Colors/faff00.png)  
+![ffff00](Colors/ffff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.48e+09 m
-* Temperature: 5431 K
-* Luminosity: 3.40e+26 W
+* Size: 1.56e+09 m
+* Mass: 1.72e+30 kg
+* Temperature: 5365 K
+* Luminosity: 3.58e+26 W
 
 Sun units:
-* Size: 1.066 D
-* Temperature: 0.94 T
-* Luminosity: 0.889 L
+* Size: 1.12 D
+* Mass: 0.863 M
+* Temperature: 0.93 T
+* Luminosity: 0.935 L
 
 Spectral data:
 * Type: G7
-* Peak wavelength: 534.0 nm
+* Peak wavelength: 540.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.073 AU
-* Hot zone   :   0.073 ... 0.189 AU
-* Warm zone  :   0.189 ... 0.658 AU
-* Temp. zone :   0.658 ... 0.93 AU
-* Cold zone  :   0.93 ... 2.669 AU
-* Frost line : > 2.669 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.48e+09 м
-* Температура: 5431 К
-* Світність: 3.40e+26 Вт
+* Розмір: 1.56e+09 м
+* Температура: 5365 К
+* Світність: 3.58e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.066 D
-* Температура: 0.94 T
-* Світність: 0.889 L
+* Розмір: 1.12 D
+* Температура: 0.93 T
+* Світність: 0.935 L
 
 Спектральні дані:
 * Тип: G7
-* Пікова довжина хвилі: 534.0 нм
+* Пікова довжина хвилі: 540.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.073 а.о.
-* Гаряча зона  :   0.073 ... 0.189 а.о.
-* Тепла зона   :   0.189 ... 0.658 а.о.
-* Помірна зона :   0.658 ... 0.93 а.о.
-* Холодна зона :   0.93 ... 1.421 а.о.
-* Межа кригоутворення : > 2.669 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4682,29 +5162,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G7_47
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.40e+10
-* Star death zone size: 6.04e+09
-* Star size: 1.48e+09
-* Star flare distance: 7.40e+10
-* Star autopilot range: 1.21e+10
+* Star zone size: 7.80e+10
+* Star death zone size: 6.19e+09
+* Star size: 1.56e+09
+* Star flare distance: 7.80e+10
+* Star autopilot range: 1.24e+10
 
-* Omni range: 9.23e+12
+* Omni range: 9.46e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (250, 255, 0)
- - hex: #faff00
+ - rgb: (255, 255, 0)
+ - hex: #ffff00
 ```  
 
  </details>  
 
 ---  
- ![faff00](Colors/faff00.png)   
+ ![ffff00](Colors/ffff00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.067 AU
+* Hot zone   :   0.067 ... 0.173 AU
+* Warm zone  :   0.173 ... 0.602 AU
+* Temp. zone :   0.602 ... 0.852 AU
+* Cold zone  :   0.852 ... 2.444 AU
+* Frost line : > 2.444 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.067 а.о.
+* Гаряча зона  :   0.067 ... 0.173 а.о.
+* Тепла зона   :   0.173 ... 0.602 а.о.
+* Помірна зона :   0.602 ... 0.852 а.о.
+* Холодна зона :   0.852 ... 1.301 а.о.
+* Межа кригоутворення : > 2.444 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 48
 * Star cluster: Moirai
@@ -4712,6 +5212,8 @@ Temperature zone data:
 * System codename: STAR_G8_48_SYSTEM
 * System translation name codename: NAME_STAR_G8_48_SYSTEM
 * System translation description codename: DESC_STAR_G8_48_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -4722,55 +5224,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: G8</summary>  
 
 #### Star pseudo-color  
-![fff800](Colors/fff800.png)  
+![ffff00](Colors/ffff00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.38e+09 m
-* Temperature: 5298 K
-* Luminosity: 2.66e+26 W
+* Size: 1.42e+09 m
+* Mass: 1.67e+30 kg
+* Temperature: 5317 K
+* Luminosity: 2.85e+26 W
 
 Sun units:
-* Size: 0.991 D
+* Size: 1.019 D
+* Mass: 0.841 M
 * Temperature: 0.92 T
-* Luminosity: 0.696 L
+* Luminosity: 0.746 L
 
 Spectral data:
 * Type: G8
-* Peak wavelength: 547.0 nm
+* Peak wavelength: 545.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.065 AU
-* Hot zone   :   0.065 ... 0.167 AU
-* Warm zone  :   0.167 ... 0.582 AU
-* Temp. zone :   0.582 ... 0.822 AU
-* Cold zone  :   0.822 ... 2.36 AU
-* Frost line : > 2.36 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.38e+09 м
-* Температура: 5298 К
-* Світність: 2.66e+26 Вт
+* Розмір: 1.42e+09 м
+* Температура: 5317 К
+* Світність: 2.85e+26 Вт
 
 Відносно Сонця:
-* Розмір: 0.991 D
+* Розмір: 1.019 D
 * Температура: 0.92 T
-* Світність: 0.696 L
+* Світність: 0.746 L
 
 Спектральні дані:
 * Тип: G8
-* Пікова довжина хвилі: 547.0 нм
+* Пікова довжина хвилі: 545.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.065 а.о.
-* Гаряча зона  :   0.065 ... 0.167 а.о.
-* Тепла зона   :   0.167 ... 0.582 а.о.
-* Помірна зона :   0.582 ... 0.822 а.о.
-* Холодна зона :   0.822 ... 1.256 а.о.
-* Межа кригоутворення : > 2.36 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -4780,13 +5270,121 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_G8_48
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.90e+10
-* Star death zone size: 5.34e+09
-* Star size: 1.38e+09
-* Star flare distance: 6.90e+10
-* Star autopilot range: 1.07e+10
+* Star zone size: 7.10e+10
+* Star death zone size: 5.53e+09
+* Star size: 1.42e+09
+* Star flare distance: 7.10e+10
+* Star autopilot range: 1.11e+10
 
-* Omni range: 8.16e+12
+* Omni range: 8.45e+12
+* Omni attenuation: 10.0
+* Omni energy: 2.0
+* Surface color (Peak w.l. color code):
+ - rgb: (255, 255, 0)
+ - hex: #ffff00
+```  
+
+ </details>  
+
+---  
+ ![ffff00](Colors/ffff00.png)   
+
+---  
+# System: Test  
+<details><summary>System data</summary>  
+
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.069 AU
+* Hot zone   :   0.069 ... 0.177 AU
+* Warm zone  :   0.177 ... 0.616 AU
+* Temp. zone :   0.616 ... 0.871 AU
+* Cold zone  :   0.871 ... 2.5 AU
+* Frost line : > 2.5 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.069 а.о.
+* Гаряча зона  :   0.069 ... 0.177 а.о.
+* Тепла зона   :   0.177 ... 0.616 а.о.
+* Помірна зона :   0.616 ... 0.871 а.о.
+* Холодна зона :   0.871 ... 1.33 а.о.
+* Межа кригоутворення : > 2.5 а.о.
+```  
+#### GODOT data  
+```  
+* System ID: 49
+* Star cluster: Moirai
+* System zone codename: STAR_G9_49_SYSTEM_ZONE
+* System codename: STAR_G9_49_SYSTEM
+* System translation name codename: NAME_STAR_G9_49_SYSTEM
+* System translation description codename: DESC_STAR_G9_49_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
+* System zone size: 1.00e+13
+* System autopilot range: 1.00e+13
+```
+
+ </details>  
+
+---  
+<details><summary>Primary star : Test A, type: G9</summary>  
+
+#### Star pseudo-color  
+![fff800](Colors/fff800.png)  
+#### Star Infocard data  
+```  
+Absolute units:
+* Size: 1.49e+09 m
+* Mass: 1.60e+30 kg
+* Temperature: 5249 K
+* Luminosity: 2.99e+26 W
+
+Sun units:
+* Size: 1.069 D
+* Mass: 0.806 M
+* Temperature: 0.91 T
+* Luminosity: 0.78 L
+
+Spectral data:
+* Type: G9
+* Peak wavelength: 552.0 nm
+* Peak wavelength type: visible
+
+```  
+```  
+Абсолютні величини:
+* Розмір: 1.49e+09 м
+* Температура: 5249 К
+* Світність: 2.99e+26 Вт
+
+Відносно Сонця:
+* Розмір: 1.069 D
+* Температура: 0.91 T
+* Світність: 0.78 L
+
+Спектральні дані:
+* Тип: G9
+* Пікова довжина хвилі: 552.0 нм
+* Тип пікового випромінювання: visible
+
+```  
+#### GODOT data  
+```  
+* Star zone codename: STAR_G9_49_ZONE
+* Star codename: STAR_G9_49
+* Star translation name codename: NAME_STAR_G9_49
+* Star translation description codename: DESC_STAR_G9_49
+* Star name: Test A
+* Star description: see above.
+* Star zone size: 7.45e+10
+* Star death zone size: 5.65e+09
+* Star size: 1.49e+09
+* Star flare distance: 7.45e+10
+* Star autopilot range: 1.13e+10
+
+* Omni range: 8.64e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4803,13 +5401,35 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
 ```  
-* System ID: 49
+Temperature zone data by main star:
+* Mineral melting line: < 0.05 AU
+* Hot zone   :   0.05 ... 0.129 AU
+* Warm zone  :   0.129 ... 0.45 AU
+* Temp. zone :   0.45 ... 0.636 AU
+* Cold zone  :   0.636 ... 1.825 AU
+* Frost line : > 1.825 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.05 а.о.
+* Гаряча зона  :   0.05 ... 0.129 а.о.
+* Тепла зона   :   0.129 ... 0.45 а.о.
+* Помірна зона :   0.45 ... 0.636 а.о.
+* Холодна зона :   0.636 ... 0.971 а.о.
+* Межа кригоутворення : > 1.825 а.о.
+```  
+#### GODOT data  
+```  
+* System ID: 50
 * Star cluster: Moirai
-* System zone codename: STAR_G9_49_SYSTEM_ZONE
-* System codename: STAR_G9_49_SYSTEM
-* System translation name codename: NAME_STAR_G9_49_SYSTEM
-* System translation description codename: DESC_STAR_G9_49_SYSTEM
+* System zone codename: STAR_K0_50_SYSTEM_ZONE
+* System codename: STAR_K0_50_SYSTEM
+* System translation name codename: NAME_STAR_K0_50_SYSTEM
+* System translation description codename: DESC_STAR_K0_50_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -4817,74 +5437,62 @@ Temperature zone data:
  </details>  
 
 ---  
-<details><summary>Primary star : Test A, type: G9</summary>  
+<details><summary>Primary star : Test A, type: K0</summary>  
 
 #### Star pseudo-color  
 ![fff200](Colors/fff200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.51e+09 m
-* Temperature: 5207 K
-* Luminosity: 2.97e+26 W
+* Size: 1.12e+09 m
+* Mass: 1.59e+30 kg
+* Temperature: 5169 K
+* Luminosity: 1.59e+26 W
 
 Sun units:
-* Size: 1.084 D
+* Size: 0.805 D
+* Mass: 0.798 M
 * Temperature: 0.9 T
-* Luminosity: 0.777 L
+* Luminosity: 0.416 L
 
 Spectral data:
-* Type: G9
-* Peak wavelength: 557.0 nm
+* Type: K0
+* Peak wavelength: 561.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.069 AU
-* Hot zone   :   0.069 ... 0.176 AU
-* Warm zone  :   0.176 ... 0.615 AU
-* Temp. zone :   0.615 ... 0.869 AU
-* Cold zone  :   0.869 ... 2.495 AU
-* Frost line : > 2.495 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.51e+09 м
-* Температура: 5207 К
-* Світність: 2.97e+26 Вт
+* Розмір: 1.12e+09 м
+* Температура: 5169 К
+* Світність: 1.59e+26 Вт
 
 Відносно Сонця:
-* Розмір: 1.084 D
+* Розмір: 0.805 D
 * Температура: 0.9 T
-* Світність: 0.777 L
+* Світність: 0.416 L
 
 Спектральні дані:
-* Тип: G9
-* Пікова довжина хвилі: 557.0 нм
+* Тип: K0
+* Пікова довжина хвилі: 561.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.069 а.о.
-* Гаряча зона  :   0.069 ... 0.176 а.о.
-* Тепла зона   :   0.176 ... 0.615 а.о.
-* Помірна зона :   0.615 ... 0.869 а.о.
-* Холодна зона :   0.869 ... 1.328 а.о.
-* Межа кригоутворення : > 2.495 а.о.
 ```  
 #### GODOT data  
 ```  
-* Star zone codename: STAR_G9_49_ZONE
-* Star codename: STAR_G9_49
-* Star translation name codename: NAME_STAR_G9_49
-* Star translation description codename: DESC_STAR_G9_49
+* Star zone codename: STAR_K0_50_ZONE
+* Star codename: STAR_K0_50
+* Star translation name codename: NAME_STAR_K0_50
+* Star translation description codename: DESC_STAR_K0_50
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 7.55e+10
-* Star death zone size: 5.64e+09
-* Star size: 1.51e+09
-* Star flare distance: 7.55e+10
-* Star autopilot range: 1.13e+10
+* Star zone size: 5.60e+10
+* Star death zone size: 4.13e+09
+* Star size: 1.12e+09
+* Star flare distance: 5.60e+10
+* Star autopilot range: 8.25e+09
 
-* Omni range: 8.62e+12
+* Omni range: 6.31e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -4901,104 +5509,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
 ```  
-* System ID: 50
-* Star cluster: Moirai
-* System zone codename: STAR_K0_50_SYSTEM_ZONE
-* System codename: STAR_K0_50_SYSTEM
-* System translation name codename: NAME_STAR_K0_50_SYSTEM
-* System translation description codename: DESC_STAR_K0_50_SYSTEM
-* System zone size: 1.00e+13
-* System autopilot range: 1.00e+13
-```
-
- </details>  
-
----  
-<details><summary>Primary star : Test A, type: K0</summary>  
-
-#### Star pseudo-color  
-![ffe600](Colors/ffe600.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 1.14e+09 m
-* Temperature: 5059 K
-* Luminosity: 1.52e+26 W
-
-Sun units:
-* Size: 0.82 D
-* Temperature: 0.88 T
-* Luminosity: 0.397 L
-
-Spectral data:
-* Type: K0
-* Peak wavelength: 573.0 nm
-* Peak wavelength type: visible
-
-Temperature zone data:
-* Mineral melting line: < 0.049 AU
-* Hot zone   :   0.049 ... 0.126 AU
-* Warm zone  :   0.126 ... 0.439 AU
-* Temp. zone :   0.439 ... 0.621 AU
-* Cold zone  :   0.621 ... 1.782 AU
-* Frost line : > 1.782 AU
+Temperature zone data by main star:
+* Mineral melting line: < 0.042 AU
+* Hot zone   :   0.042 ... 0.108 AU
+* Warm zone  :   0.108 ... 0.375 AU
+* Temp. zone :   0.375 ... 0.53 AU
+* Cold zone  :   0.53 ... 1.521 AU
+* Frost line : > 1.521 AU
 ```  
 ```  
-Абсолютні величини:
-* Розмір: 1.14e+09 м
-* Температура: 5059 К
-* Світність: 1.52e+26 Вт
-
-Відносно Сонця:
-* Розмір: 0.82 D
-* Температура: 0.88 T
-* Світність: 0.397 L
-
-Спектральні дані:
-* Тип: K0
-* Пікова довжина хвилі: 573.0 нм
-* Тип пікового випромінювання: visible
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.049 а.о.
-* Гаряча зона  :   0.049 ... 0.126 а.о.
-* Тепла зона   :   0.126 ... 0.439 а.о.
-* Помірна зона :   0.439 ... 0.621 а.о.
-* Холодна зона :   0.621 ... 0.949 а.о.
-* Межа кригоутворення : > 1.782 а.о.
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.042 а.о.
+* Гаряча зона  :   0.042 ... 0.108 а.о.
+* Тепла зона   :   0.108 ... 0.375 а.о.
+* Помірна зона :   0.375 ... 0.53 а.о.
+* Холодна зона :   0.53 ... 0.81 а.о.
+* Межа кригоутворення : > 1.521 а.о.
 ```  
 #### GODOT data  
-```  
-* Star zone codename: STAR_K0_50_ZONE
-* Star codename: STAR_K0_50
-* Star translation name codename: NAME_STAR_K0_50
-* Star translation description codename: DESC_STAR_K0_50
-* Star name: Test A
-* Star description: see above.
-* Star zone size: 5.70e+10
-* Star death zone size: 4.03e+09
-* Star size: 1.14e+09
-* Star flare distance: 5.70e+10
-* Star autopilot range: 8.06e+09
-
-* Omni range: 6.16e+12
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (255, 230, 0)
- - hex: #ffe600
-```  
-
- </details>  
-
----  
- ![ffe600](Colors/ffe600.png)   
-
----  
-# System: Test  
-<details><summary>System data</summary>  
-
 ```  
 * System ID: 51
 * Star cluster: Moirai
@@ -5006,6 +5536,8 @@ Temperature zone data:
 * System codename: STAR_K1_51_SYSTEM
 * System translation name codename: NAME_STAR_K1_51_SYSTEM
 * System translation description codename: DESC_STAR_K1_51_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5020,51 +5552,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.79e+08 m
-* Temperature: 5005 K
-* Luminosity: 1.07e+26 W
+* Size: 9.97e+08 m
+* Mass: 1.47e+30 kg
+* Temperature: 4999 K
+* Luminosity: 1.11e+26 W
 
 Sun units:
-* Size: 0.704 D
+* Size: 0.717 D
+* Mass: 0.739 M
 * Temperature: 0.87 T
-* Luminosity: 0.28 L
+* Luminosity: 0.289 L
 
 Spectral data:
 * Type: K1
-* Peak wavelength: 579.0 nm
+* Peak wavelength: 580.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.041 AU
-* Hot zone   :   0.041 ... 0.106 AU
-* Warm zone  :   0.106 ... 0.369 AU
-* Temp. zone :   0.369 ... 0.522 AU
-* Cold zone  :   0.522 ... 1.498 AU
-* Frost line : > 1.498 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.79e+08 м
-* Температура: 5005 К
-* Світність: 1.07e+26 Вт
+* Розмір: 9.97e+08 м
+* Температура: 4999 К
+* Світність: 1.11e+26 Вт
 
 Відносно Сонця:
-* Розмір: 0.704 D
+* Розмір: 0.717 D
 * Температура: 0.87 T
-* Світність: 0.28 L
+* Світність: 0.289 L
 
 Спектральні дані:
 * Тип: K1
-* Пікова довжина хвилі: 579.0 нм
+* Пікова довжина хвилі: 580.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.041 а.о.
-* Гаряча зона  :   0.041 ... 0.106 а.о.
-* Тепла зона   :   0.106 ... 0.369 а.о.
-* Помірна зона :   0.369 ... 0.522 а.о.
-* Холодна зона :   0.522 ... 0.797 а.о.
-* Межа кригоутворення : > 1.498 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5074,13 +5594,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K1_51
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.90e+10
-* Star death zone size: 3.39e+09
-* Star size: 9.79e+08
-* Star flare distance: 4.90e+10
-* Star autopilot range: 6.77e+09
+* Star zone size: 4.98e+10
+* Star death zone size: 3.44e+09
+* Star size: 9.97e+08
+* Star flare distance: 4.98e+10
+* Star autopilot range: 6.88e+09
 
-* Omni range: 5.18e+12
+* Omni range: 5.26e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -5097,6 +5617,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.041 AU
+* Hot zone   :   0.041 ... 0.105 AU
+* Warm zone  :   0.105 ... 0.364 AU
+* Temp. zone :   0.364 ... 0.515 AU
+* Cold zone  :   0.515 ... 1.479 AU
+* Frost line : > 1.479 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.041 а.о.
+* Гаряча зона  :   0.041 ... 0.105 а.о.
+* Тепла зона   :   0.105 ... 0.364 а.о.
+* Помірна зона :   0.364 ... 0.515 а.о.
+* Холодна зона :   0.515 ... 0.787 а.о.
+* Межа кригоутворення : > 1.479 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 52
 * Star cluster: Moirai
@@ -5104,6 +5644,8 @@ Temperature zone data:
 * System codename: STAR_K2_52_SYSTEM
 * System translation name codename: NAME_STAR_K2_52_SYSTEM
 * System translation description codename: DESC_STAR_K2_52_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5114,55 +5656,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: K2</summary>  
 
 #### Star pseudo-color  
-![ffd300](Colors/ffd300.png)  
+![ffcd00](Colors/ffcd00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.28e+09 m
-* Temperature: 4844 K
-* Luminosity: 1.61e+26 W
+* Size: 1.05e+09 m
+* Mass: 1.42e+30 kg
+* Temperature: 4802 K
+* Luminosity: 1.05e+26 W
 
 Sun units:
-* Size: 0.923 D
-* Temperature: 0.84 T
-* Luminosity: 0.422 L
+* Size: 0.756 D
+* Mass: 0.716 M
+* Temperature: 0.83 T
+* Luminosity: 0.273 L
 
 Spectral data:
 * Type: K2
-* Peak wavelength: 598.0 nm
+* Peak wavelength: 603.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.051 AU
-* Hot zone   :   0.051 ... 0.13 AU
-* Warm zone  :   0.13 ... 0.453 AU
-* Temp. zone :   0.453 ... 0.64 AU
-* Cold zone  :   0.64 ... 1.838 AU
-* Frost line : > 1.838 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.28e+09 м
-* Температура: 4844 К
-* Світність: 1.61e+26 Вт
+* Розмір: 1.05e+09 м
+* Температура: 4802 К
+* Світність: 1.05e+26 Вт
 
 Відносно Сонця:
-* Розмір: 0.923 D
-* Температура: 0.84 T
-* Світність: 0.422 L
+* Розмір: 0.756 D
+* Температура: 0.83 T
+* Світність: 0.273 L
 
 Спектральні дані:
 * Тип: K2
-* Пікова довжина хвилі: 598.0 нм
+* Пікова довжина хвилі: 603.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.051 а.о.
-* Гаряча зона  :   0.051 ... 0.13 а.о.
-* Тепла зона   :   0.13 ... 0.453 а.о.
-* Помірна зона :   0.453 ... 0.64 а.о.
-* Холодна зона :   0.64 ... 0.978 а.о.
-* Межа кригоутворення : > 1.838 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5172,29 +5702,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K2_52
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.40e+10
-* Star death zone size: 4.16e+09
-* Star size: 1.28e+09
-* Star flare distance: 6.40e+10
-* Star autopilot range: 8.31e+09
+* Star zone size: 5.25e+10
+* Star death zone size: 3.34e+09
+* Star size: 1.05e+09
+* Star flare distance: 5.25e+10
+* Star autopilot range: 6.69e+09
 
-* Omni range: 6.35e+12
+* Omni range: 5.11e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 211, 0)
- - hex: #ffd300
+ - rgb: (255, 205, 0)
+ - hex: #ffcd00
 ```  
 
  </details>  
 
 ---  
- ![ffd300](Colors/ffd300.png)   
+ ![ffcd00](Colors/ffcd00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.046 AU
+* Hot zone   :   0.046 ... 0.117 AU
+* Warm zone  :   0.117 ... 0.409 AU
+* Temp. zone :   0.409 ... 0.578 AU
+* Cold zone  :   0.578 ... 1.658 AU
+* Frost line : > 1.658 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.046 а.о.
+* Гаряча зона  :   0.046 ... 0.117 а.о.
+* Тепла зона   :   0.117 ... 0.409 а.о.
+* Помірна зона :   0.409 ... 0.578 а.о.
+* Холодна зона :   0.578 ... 0.883 а.о.
+* Межа кригоутворення : > 1.658 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 53
 * Star cluster: Moirai
@@ -5202,6 +5752,8 @@ Temperature zone data:
 * System codename: STAR_K3_53_SYSTEM
 * System translation name codename: NAME_STAR_K3_53_SYSTEM
 * System translation description codename: DESC_STAR_K3_53_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5216,51 +5768,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.28e+09 m
-* Temperature: 4746 K
-* Luminosity: 1.48e+26 W
+* Size: 1.21e+09 m
+* Mass: 1.35e+30 kg
+* Temperature: 4741 K
+* Luminosity: 1.31e+26 W
 
 Sun units:
-* Size: 0.922 D
+* Size: 0.869 D
+* Mass: 0.678 M
 * Temperature: 0.82 T
-* Luminosity: 0.388 L
+* Luminosity: 0.343 L
 
 Spectral data:
 * Type: K3
 * Peak wavelength: 611.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.048 AU
-* Hot zone   :   0.048 ... 0.125 AU
-* Warm zone  :   0.125 ... 0.434 AU
-* Temp. zone :   0.434 ... 0.614 AU
-* Cold zone  :   0.614 ... 1.762 AU
-* Frost line : > 1.762 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.28e+09 м
-* Температура: 4746 К
-* Світність: 1.48e+26 Вт
+* Розмір: 1.21e+09 м
+* Температура: 4741 К
+* Світність: 1.31e+26 Вт
 
 Відносно Сонця:
-* Розмір: 0.922 D
+* Розмір: 0.869 D
 * Температура: 0.82 T
-* Світність: 0.388 L
+* Світність: 0.343 L
 
 Спектральні дані:
 * Тип: K3
 * Пікова довжина хвилі: 611.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.048 а.о.
-* Гаряча зона  :   0.048 ... 0.125 а.о.
-* Тепла зона   :   0.125 ... 0.434 а.о.
-* Помірна зона :   0.434 ... 0.614 а.о.
-* Холодна зона :   0.614 ... 0.938 а.о.
-* Межа кригоутворення : > 1.762 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5270,13 +5810,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K3_53
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.40e+10
-* Star death zone size: 3.98e+09
-* Star size: 1.28e+09
-* Star flare distance: 6.40e+10
-* Star autopilot range: 7.97e+09
+* Star zone size: 6.05e+10
+* Star death zone size: 3.75e+09
+* Star size: 1.21e+09
+* Star flare distance: 6.05e+10
+* Star autopilot range: 7.50e+09
 
-* Omni range: 6.09e+12
+* Omni range: 5.73e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -5293,6 +5833,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.04 AU
+* Hot zone   :   0.04 ... 0.102 AU
+* Warm zone  :   0.102 ... 0.356 AU
+* Temp. zone :   0.356 ... 0.503 AU
+* Cold zone  :   0.503 ... 1.444 AU
+* Frost line : > 1.444 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.04 а.о.
+* Гаряча зона  :   0.04 ... 0.102 а.о.
+* Тепла зона   :   0.102 ... 0.356 а.о.
+* Помірна зона :   0.356 ... 0.503 а.о.
+* Холодна зона :   0.503 ... 0.769 а.о.
+* Межа кригоутворення : > 1.444 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 54
 * Star cluster: Moirai
@@ -5300,6 +5860,8 @@ Temperature zone data:
 * System codename: STAR_K4_54_SYSTEM
 * System translation name codename: NAME_STAR_K4_54_SYSTEM
 * System translation description codename: DESC_STAR_K4_54_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5314,51 +5876,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.01e+09 m
-* Temperature: 4568 K
-* Luminosity: 7.95e+25 W
+* Size: 1.14e+09 m
+* Mass: 1.28e+30 kg
+* Temperature: 4546 K
+* Luminosity: 9.97e+25 W
 
 Sun units:
-* Size: 0.728 D
+* Size: 0.824 D
+* Mass: 0.643 M
 * Temperature: 0.79 T
-* Luminosity: 0.208 L
+* Luminosity: 0.261 L
 
 Spectral data:
 * Type: K4
-* Peak wavelength: 634.0 nm
+* Peak wavelength: 637.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.035 AU
-* Hot zone   :   0.035 ... 0.091 AU
-* Warm zone  :   0.091 ... 0.318 AU
-* Temp. zone :   0.318 ... 0.449 AU
-* Cold zone  :   0.449 ... 1.29 AU
-* Frost line : > 1.29 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.01e+09 м
-* Температура: 4568 К
-* Світність: 7.95e+25 Вт
+* Розмір: 1.14e+09 м
+* Температура: 4546 К
+* Світність: 9.97e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.728 D
+* Розмір: 0.824 D
 * Температура: 0.79 T
-* Світність: 0.208 L
+* Світність: 0.261 L
 
 Спектральні дані:
 * Тип: K4
-* Пікова довжина хвилі: 634.0 нм
+* Пікова довжина хвилі: 637.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.035 а.о.
-* Гаряча зона  :   0.035 ... 0.091 а.о.
-* Тепла зона   :   0.091 ... 0.318 а.о.
-* Помірна зона :   0.318 ... 0.449 а.о.
-* Холодна зона :   0.449 ... 0.686 а.о.
-* Межа кригоутворення : > 1.29 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5368,13 +5918,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K4_54
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 5.05e+10
-* Star death zone size: 2.92e+09
-* Star size: 1.01e+09
-* Star flare distance: 5.05e+10
-* Star autopilot range: 5.83e+09
+* Star zone size: 5.70e+10
+* Star death zone size: 3.27e+09
+* Star size: 1.14e+09
+* Star flare distance: 5.70e+10
+* Star autopilot range: 6.53e+09
 
-* Omni range: 4.46e+12
+* Omni range: 4.99e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -5391,6 +5941,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.039 AU
+* Hot zone   :   0.039 ... 0.1 AU
+* Warm zone  :   0.1 ... 0.347 AU
+* Temp. zone :   0.347 ... 0.491 AU
+* Cold zone  :   0.491 ... 1.409 AU
+* Frost line : > 1.409 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.039 а.о.
+* Гаряча зона  :   0.039 ... 0.1 а.о.
+* Тепла зона   :   0.1 ... 0.347 а.о.
+* Помірна зона :   0.347 ... 0.491 а.о.
+* Холодна зона :   0.491 ... 0.75 а.о.
+* Межа кригоутворення : > 1.409 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 55
 * Star cluster: Moirai
@@ -5398,6 +5968,8 @@ Temperature zone data:
 * System codename: STAR_K5_55_SYSTEM
 * System translation name codename: NAME_STAR_K5_55_SYSTEM
 * System translation description codename: DESC_STAR_K5_55_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5408,55 +5980,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: K5</summary>  
 
 #### Star pseudo-color  
-![ffa700](Colors/ffa700.png)  
+![ffa100](Colors/ffa100.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.75e+08 m
-* Temperature: 4422 K
-* Luminosity: 6.48e+25 W
+* Size: 1.22e+09 m
+* Mass: 1.19e+30 kg
+* Temperature: 4349 K
+* Luminosity: 9.49e+25 W
 
 Sun units:
-* Size: 0.701 D
-* Temperature: 0.77 T
-* Luminosity: 0.169 L
+* Size: 0.878 D
+* Mass: 0.598 M
+* Temperature: 0.75 T
+* Luminosity: 0.248 L
 
 Spectral data:
 * Type: K5
-* Peak wavelength: 655.0 nm
+* Peak wavelength: 666.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.032 AU
-* Hot zone   :   0.032 ... 0.082 AU
-* Warm zone  :   0.082 ... 0.287 AU
-* Temp. zone :   0.287 ... 0.406 AU
-* Cold zone  :   0.406 ... 1.164 AU
-* Frost line : > 1.164 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.75e+08 м
-* Температура: 4422 К
-* Світність: 6.48e+25 Вт
+* Розмір: 1.22e+09 м
+* Температура: 4349 К
+* Світність: 9.49e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.701 D
-* Температура: 0.77 T
-* Світність: 0.169 L
+* Розмір: 0.878 D
+* Температура: 0.75 T
+* Світність: 0.248 L
 
 Спектральні дані:
 * Тип: K5
-* Пікова довжина хвилі: 655.0 нм
+* Пікова довжина хвилі: 666.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.032 а.о.
-* Гаряча зона  :   0.032 ... 0.082 а.о.
-* Тепла зона   :   0.082 ... 0.287 а.о.
-* Помірна зона :   0.287 ... 0.406 а.о.
-* Холодна зона :   0.406 ... 0.62 а.о.
-* Межа кригоутворення : > 1.164 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5466,29 +6026,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K5_55
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.88e+10
-* Star death zone size: 2.63e+09
-* Star size: 9.75e+08
-* Star flare distance: 4.88e+10
-* Star autopilot range: 5.26e+09
+* Star zone size: 6.10e+10
+* Star death zone size: 3.19e+09
+* Star size: 1.22e+09
+* Star flare distance: 6.10e+10
+* Star autopilot range: 6.37e+09
 
-* Omni range: 4.02e+12
+* Omni range: 4.87e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 167, 0)
- - hex: #ffa700
+ - rgb: (255, 161, 0)
+ - hex: #ffa100
 ```  
 
  </details>  
 
 ---  
- ![ffa700](Colors/ffa700.png)   
+ ![ffa100](Colors/ffa100.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.037 AU
+* Hot zone   :   0.037 ... 0.095 AU
+* Warm zone  :   0.095 ... 0.329 AU
+* Temp. zone :   0.329 ... 0.466 AU
+* Cold zone  :   0.466 ... 1.337 AU
+* Frost line : > 1.337 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.037 а.о.
+* Гаряча зона  :   0.037 ... 0.095 а.о.
+* Тепла зона   :   0.095 ... 0.329 а.о.
+* Помірна зона :   0.329 ... 0.466 а.о.
+* Холодна зона :   0.466 ... 0.712 а.о.
+* Межа кригоутворення : > 1.337 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 56
 * Star cluster: Moirai
@@ -5496,6 +6076,8 @@ Temperature zone data:
 * System codename: STAR_K6_56_SYSTEM
 * System translation name codename: NAME_STAR_K6_56_SYSTEM
 * System translation description codename: DESC_STAR_K6_56_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5510,51 +6092,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.27e+09 m
-* Temperature: 4277 K
-* Luminosity: 9.66e+25 W
+* Size: 1.19e+09 m
+* Mass: 1.14e+30 kg
+* Temperature: 4281 K
+* Luminosity: 8.54e+25 W
 
 Sun units:
-* Size: 0.916 D
+* Size: 0.859 D
+* Mass: 0.573 M
 * Temperature: 0.74 T
-* Luminosity: 0.253 L
+* Luminosity: 0.223 L
 
 Spectral data:
 * Type: K6
-* Peak wavelength: 678.0 nm
+* Peak wavelength: 677.0 nm
 * Peak wavelength type: visible
 
-Temperature zone data:
-* Mineral melting line: < 0.039 AU
-* Hot zone   :   0.039 ... 0.101 AU
-* Warm zone  :   0.101 ... 0.35 AU
-* Temp. zone :   0.35 ... 0.496 AU
-* Cold zone  :   0.496 ... 1.422 AU
-* Frost line : > 1.422 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.27e+09 м
-* Температура: 4277 К
-* Світність: 9.66e+25 Вт
+* Розмір: 1.19e+09 м
+* Температура: 4281 К
+* Світність: 8.54e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.916 D
+* Розмір: 0.859 D
 * Температура: 0.74 T
-* Світність: 0.253 L
+* Світність: 0.223 L
 
 Спектральні дані:
 * Тип: K6
-* Пікова довжина хвилі: 678.0 нм
+* Пікова довжина хвилі: 677.0 нм
 * Тип пікового випромінювання: visible
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.039 а.о.
-* Гаряча зона  :   0.039 ... 0.101 а.о.
-* Тепла зона   :   0.101 ... 0.35 а.о.
-* Помірна зона :   0.35 ... 0.496 а.о.
-* Холодна зона :   0.496 ... 0.757 а.о.
-* Межа кригоутворення : > 1.422 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5564,13 +6134,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K6_56
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.35e+10
-* Star death zone size: 3.22e+09
-* Star size: 1.27e+09
-* Star flare distance: 6.35e+10
-* Star autopilot range: 6.43e+09
+* Star zone size: 5.95e+10
+* Star death zone size: 3.02e+09
+* Star size: 1.19e+09
+* Star flare distance: 5.95e+10
+* Star autopilot range: 6.05e+09
 
-* Omni range: 4.92e+12
+* Omni range: 4.62e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -5587,6 +6157,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.035 AU
+* Hot zone   :   0.035 ... 0.09 AU
+* Warm zone  :   0.09 ... 0.313 AU
+* Temp. zone :   0.313 ... 0.442 AU
+* Cold zone  :   0.442 ... 1.27 AU
+* Frost line : > 1.27 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.035 а.о.
+* Гаряча зона  :   0.035 ... 0.09 а.о.
+* Тепла зона   :   0.09 ... 0.313 а.о.
+* Помірна зона :   0.313 ... 0.442 а.о.
+* Холодна зона :   0.442 ... 0.676 а.о.
+* Межа кригоутворення : > 1.27 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 57
 * Star cluster: Moirai
@@ -5594,6 +6184,8 @@ Temperature zone data:
 * System codename: STAR_K7_57_SYSTEM
 * System translation name codename: NAME_STAR_K7_57_SYSTEM
 * System translation description codename: DESC_STAR_K7_57_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5604,55 +6196,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: K7</summary>  
 
 #### Star pseudo-color  
-![ff7600](Colors/ff7600.png)  
+![ff8200](Colors/ff8200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.97e+08 m
-* Temperature: 4026 K
-* Luminosity: 4.65e+25 W
+* Size: 1.24e+09 m
+* Mass: 1.06e+30 kg
+* Temperature: 4102 K
+* Luminosity: 7.71e+25 W
 
 Sun units:
-* Size: 0.717 D
-* Temperature: 0.7 T
-* Luminosity: 0.122 L
+* Size: 0.889 D
+* Mass: 0.534 M
+* Temperature: 0.71 T
+* Luminosity: 0.201 L
 
 Spectral data:
 * Type: K7
-* Peak wavelength: 720.0 nm
+* Peak wavelength: 706.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.027 AU
-* Hot zone   :   0.027 ... 0.07 AU
-* Warm zone  :   0.07 ... 0.243 AU
-* Temp. zone :   0.243 ... 0.344 AU
-* Cold zone  :   0.344 ... 0.987 AU
-* Frost line : > 0.987 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.97e+08 м
-* Температура: 4026 К
-* Світність: 4.65e+25 Вт
+* Розмір: 1.24e+09 м
+* Температура: 4102 К
+* Світність: 7.71e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.717 D
-* Температура: 0.7 T
-* Світність: 0.122 L
+* Розмір: 0.889 D
+* Температура: 0.71 T
+* Світність: 0.201 L
 
 Спектральні дані:
 * Тип: K7
-* Пікова довжина хвилі: 720.0 нм
+* Пікова довжина хвилі: 706.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.027 а.о.
-* Гаряча зона  :   0.027 ... 0.07 а.о.
-* Тепла зона   :   0.07 ... 0.243 а.о.
-* Помірна зона :   0.243 ... 0.344 а.о.
-* Холодна зона :   0.344 ... 0.525 а.о.
-* Межа кригоутворення : > 0.987 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5662,29 +6242,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K7_57
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.98e+10
-* Star death zone size: 2.23e+09
-* Star size: 9.97e+08
-* Star flare distance: 4.98e+10
-* Star autopilot range: 4.46e+09
+* Star zone size: 6.20e+10
+* Star death zone size: 2.87e+09
+* Star size: 1.24e+09
+* Star flare distance: 6.20e+10
+* Star autopilot range: 5.74e+09
 
-* Omni range: 3.41e+12
+* Omni range: 4.39e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 118, 0)
- - hex: #ff7600
+ - rgb: (255, 130, 0)
+ - hex: #ff8200
 ```  
 
  </details>  
 
 ---  
- ![ff7600](Colors/ff7600.png)   
+ ![ff8200](Colors/ff8200.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.033 AU
+* Hot zone   :   0.033 ... 0.084 AU
+* Warm zone  :   0.084 ... 0.294 AU
+* Temp. zone :   0.294 ... 0.416 AU
+* Cold zone  :   0.416 ... 1.193 AU
+* Frost line : > 1.193 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.033 а.о.
+* Гаряча зона  :   0.033 ... 0.084 а.о.
+* Тепла зона   :   0.084 ... 0.294 а.о.
+* Помірна зона :   0.294 ... 0.416 а.о.
+* Холодна зона :   0.416 ... 0.635 а.о.
+* Межа кригоутворення : > 1.193 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 58
 * Star cluster: Moirai
@@ -5692,6 +6292,8 @@ Temperature zone data:
 * System codename: STAR_K8_58_SYSTEM
 * System translation name codename: NAME_STAR_K8_58_SYSTEM
 * System translation description codename: DESC_STAR_K8_58_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5702,55 +6304,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: K8</summary>  
 
 #### Star pseudo-color  
-![ff6f00](Colors/ff6f00.png)  
+![ff6900](Colors/ff6900.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.15e+09 m
-* Temperature: 3995 K
-* Luminosity: 5.96e+25 W
+* Size: 1.26e+09 m
+* Mass: 1.00e+30 kg
+* Temperature: 3942 K
+* Luminosity: 6.80e+25 W
 
 Sun units:
-* Size: 0.825 D
-* Temperature: 0.69 T
-* Luminosity: 0.156 L
+* Size: 0.904 D
+* Mass: 0.505 M
+* Temperature: 0.68 T
+* Luminosity: 0.178 L
 
 Spectral data:
 * Type: K8
-* Peak wavelength: 725.0 nm
+* Peak wavelength: 735.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.031 AU
-* Hot zone   :   0.031 ... 0.079 AU
-* Warm zone  :   0.079 ... 0.275 AU
-* Temp. zone :   0.275 ... 0.389 AU
-* Cold zone  :   0.389 ... 1.117 AU
-* Frost line : > 1.117 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.15e+09 м
-* Температура: 3995 К
-* Світність: 5.96e+25 Вт
+* Розмір: 1.26e+09 м
+* Температура: 3942 К
+* Світність: 6.80e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.825 D
-* Температура: 0.69 T
-* Світність: 0.156 L
+* Розмір: 0.904 D
+* Температура: 0.68 T
+* Світність: 0.178 L
 
 Спектральні дані:
 * Тип: K8
-* Пікова довжина хвилі: 725.0 нм
+* Пікова довжина хвилі: 735.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.031 а.о.
-* Гаряча зона  :   0.031 ... 0.079 а.о.
-* Тепла зона   :   0.079 ... 0.275 а.о.
-* Помірна зона :   0.275 ... 0.389 а.о.
-* Холодна зона :   0.389 ... 0.595 а.о.
-* Межа кригоутворення : > 1.117 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5760,29 +6350,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K8_58
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 5.75e+10
-* Star death zone size: 2.53e+09
-* Star size: 1.15e+09
-* Star flare distance: 5.75e+10
-* Star autopilot range: 5.05e+09
+* Star zone size: 6.30e+10
+* Star death zone size: 2.70e+09
+* Star size: 1.26e+09
+* Star flare distance: 6.30e+10
+* Star autopilot range: 5.39e+09
 
-* Omni range: 3.86e+12
+* Omni range: 4.12e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 111, 0)
- - hex: #ff6f00
+ - rgb: (255, 105, 0)
+ - hex: #ff6900
 ```  
 
  </details>  
 
 ---  
- ![ff6f00](Colors/ff6f00.png)   
+ ![ff6900](Colors/ff6900.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.029 AU
+* Hot zone   :   0.029 ... 0.074 AU
+* Warm zone  :   0.074 ... 0.256 AU
+* Temp. zone :   0.256 ... 0.363 AU
+* Cold zone  :   0.363 ... 1.04 AU
+* Frost line : > 1.04 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.029 а.о.
+* Гаряча зона  :   0.029 ... 0.074 а.о.
+* Тепла зона   :   0.074 ... 0.256 а.о.
+* Помірна зона :   0.256 ... 0.363 а.о.
+* Холодна зона :   0.363 ... 0.554 а.о.
+* Межа кригоутворення : > 1.04 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 59
 * Star cluster: Moirai
@@ -5790,6 +6400,8 @@ Temperature zone data:
 * System codename: STAR_K9_59_SYSTEM
 * System translation name codename: NAME_STAR_K9_59_SYSTEM
 * System translation description codename: DESC_STAR_K9_59_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5800,55 +6412,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: K9</summary>  
 
 #### Star pseudo-color  
-![ff4a00](Colors/ff4a00.png)  
+![ff5700](Colors/ff5700.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.26e+09 m
-* Temperature: 3755 K
-* Luminosity: 5.62e+25 W
+* Size: 1.17e+09 m
+* Mass: 9.04e+29 kg
+* Temperature: 3811 K
+* Luminosity: 5.17e+25 W
 
 Sun units:
-* Size: 0.907 D
-* Temperature: 0.65 T
-* Luminosity: 0.147 L
+* Size: 0.844 D
+* Mass: 0.454 M
+* Temperature: 0.66 T
+* Luminosity: 0.135 L
 
 Spectral data:
 * Type: K9
-* Peak wavelength: 772.0 nm
+* Peak wavelength: 760.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.03 AU
-* Hot zone   :   0.03 ... 0.077 AU
-* Warm zone  :   0.077 ... 0.267 AU
-* Temp. zone :   0.267 ... 0.378 AU
-* Cold zone  :   0.378 ... 1.085 AU
-* Frost line : > 1.085 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.26e+09 м
-* Температура: 3755 К
-* Світність: 5.62e+25 Вт
+* Розмір: 1.17e+09 м
+* Температура: 3811 К
+* Світність: 5.17e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.907 D
-* Температура: 0.65 T
-* Світність: 0.147 L
+* Розмір: 0.844 D
+* Температура: 0.66 T
+* Світність: 0.135 L
 
 Спектральні дані:
 * Тип: K9
-* Пікова довжина хвилі: 772.0 нм
+* Пікова довжина хвилі: 760.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.03 а.о.
-* Гаряча зона  :   0.03 ... 0.077 а.о.
-* Тепла зона   :   0.077 ... 0.267 а.о.
-* Помірна зона :   0.267 ... 0.378 а.о.
-* Холодна зона :   0.378 ... 0.578 а.о.
-* Межа кригоутворення : > 1.085 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5858,29 +6458,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_K9_59
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 6.30e+10
-* Star death zone size: 2.45e+09
-* Star size: 1.26e+09
-* Star flare distance: 6.30e+10
-* Star autopilot range: 4.91e+09
+* Star zone size: 5.85e+10
+* Star death zone size: 2.35e+09
+* Star size: 1.17e+09
+* Star flare distance: 5.85e+10
+* Star autopilot range: 4.71e+09
 
-* Omni range: 3.75e+12
+* Omni range: 3.60e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 74, 0)
- - hex: #ff4a00
+ - rgb: (255, 87, 0)
+ - hex: #ff5700
 ```  
 
  </details>  
 
 ---  
- ![ff4a00](Colors/ff4a00.png)   
+ ![ff5700](Colors/ff5700.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.019 AU
+* Hot zone   :   0.019 ... 0.05 AU
+* Warm zone  :   0.05 ... 0.175 AU
+* Temp. zone :   0.175 ... 0.247 AU
+* Cold zone  :   0.247 ... 0.708 AU
+* Frost line : > 0.708 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.019 а.о.
+* Гаряча зона  :   0.019 ... 0.05 а.о.
+* Тепла зона   :   0.05 ... 0.175 а.о.
+* Помірна зона :   0.175 ... 0.247 а.о.
+* Холодна зона :   0.247 ... 0.377 а.о.
+* Межа кригоутворення : > 0.708 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 60
 * Star cluster: Moirai
@@ -5888,6 +6508,8 @@ Temperature zone data:
 * System codename: STAR_M0_60_SYSTEM
 * System translation name codename: NAME_STAR_M0_60_SYSTEM
 * System translation description codename: DESC_STAR_M0_60_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5902,51 +6524,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.67e+08 m
-* Temperature: 3577 K
-* Luminosity: 2.73e+25 W
+* Size: 9.10e+08 m
+* Mass: 8.82e+29 kg
+* Temperature: 3570 K
+* Luminosity: 2.40e+25 W
 
 Sun units:
-* Size: 0.696 D
+* Size: 0.655 D
+* Mass: 0.443 M
 * Temperature: 0.62 T
-* Luminosity: 0.071 L
+* Luminosity: 0.063 L
 
 Spectral data:
 * Type: M0
-* Peak wavelength: 810.0 nm
+* Peak wavelength: 812.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.021 AU
-* Hot zone   :   0.021 ... 0.053 AU
-* Warm zone  :   0.053 ... 0.186 AU
-* Temp. zone :   0.186 ... 0.263 AU
-* Cold zone  :   0.263 ... 0.756 AU
-* Frost line : > 0.756 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.67e+08 м
-* Температура: 3577 К
-* Світність: 2.73e+25 Вт
+* Розмір: 9.10e+08 м
+* Температура: 3570 К
+* Світність: 2.40e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.696 D
+* Розмір: 0.655 D
 * Температура: 0.62 T
-* Світність: 0.071 L
+* Світність: 0.063 L
 
 Спектральні дані:
 * Тип: M0
-* Пікова довжина хвилі: 810.0 нм
+* Пікова довжина хвилі: 812.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.021 а.о.
-* Гаряча зона  :   0.021 ... 0.053 а.о.
-* Тепла зона   :   0.053 ... 0.186 а.о.
-* Помірна зона :   0.186 ... 0.263 а.о.
-* Холодна зона :   0.263 ... 0.402 а.о.
-* Межа кригоутворення : > 0.756 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -5956,13 +6566,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M0_60
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.84e+10
-* Star death zone size: 1.71e+09
-* Star size: 9.67e+08
-* Star flare distance: 4.84e+10
-* Star autopilot range: 3.42e+09
+* Star zone size: 4.55e+10
+* Star death zone size: 1.60e+09
+* Star size: 9.10e+08
+* Star flare distance: 4.55e+10
+* Star autopilot range: 3.20e+09
 
-* Omni range: 2.61e+12
+* Omni range: 2.45e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -5979,6 +6589,26 @@ Temperature zone data:
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.019 AU
+* Hot zone   :   0.019 ... 0.05 AU
+* Warm zone  :   0.05 ... 0.174 AU
+* Temp. zone :   0.174 ... 0.245 AU
+* Cold zone  :   0.245 ... 0.704 AU
+* Frost line : > 0.704 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.019 а.о.
+* Гаряча зона  :   0.019 ... 0.05 а.о.
+* Тепла зона   :   0.05 ... 0.174 а.о.
+* Помірна зона :   0.174 ... 0.245 а.о.
+* Холодна зона :   0.245 ... 0.375 а.о.
+* Межа кригоутворення : > 0.704 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 61
 * Star cluster: Moirai
@@ -5986,6 +6616,8 @@ Temperature zone data:
 * System codename: STAR_M1_61_SYSTEM
 * System translation name codename: NAME_STAR_M1_61_SYSTEM
 * System translation description codename: DESC_STAR_M1_61_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -5996,55 +6628,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M1</summary>  
 
 #### Star pseudo-color  
-![ff1800](Colors/ff1800.png)  
+![ff2b00](Colors/ff2b00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 7.13e+08 m
-* Temperature: 3454 K
-* Luminosity: 1.29e+25 W
+* Size: 9.19e+08 m
+* Mass: 7.82e+29 kg
+* Temperature: 3543 K
+* Luminosity: 2.37e+25 W
 
 Sun units:
-* Size: 0.513 D
-* Temperature: 0.6 T
-* Luminosity: 0.034 L
+* Size: 0.661 D
+* Mass: 0.393 M
+* Temperature: 0.61 T
+* Luminosity: 0.062 L
 
 Spectral data:
 * Type: M1
-* Peak wavelength: 839.0 nm
+* Peak wavelength: 818.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.014 AU
-* Hot zone   :   0.014 ... 0.037 AU
-* Warm zone  :   0.037 ... 0.128 AU
-* Temp. zone :   0.128 ... 0.181 AU
-* Cold zone  :   0.181 ... 0.52 AU
-* Frost line : > 0.52 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 7.13e+08 м
-* Температура: 3454 К
-* Світність: 1.29e+25 Вт
+* Розмір: 9.19e+08 м
+* Температура: 3543 К
+* Світність: 2.37e+25 Вт
 
 Відносно Сонця:
-* Розмір: 0.513 D
-* Температура: 0.6 T
-* Світність: 0.034 L
+* Розмір: 0.661 D
+* Температура: 0.61 T
+* Світність: 0.062 L
 
 Спектральні дані:
 * Тип: M1
-* Пікова довжина хвилі: 839.0 нм
+* Пікова довжина хвилі: 818.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.014 а.о.
-* Гаряча зона  :   0.014 ... 0.037 а.о.
-* Тепла зона   :   0.037 ... 0.128 а.о.
-* Помірна зона :   0.128 ... 0.181 а.о.
-* Холодна зона :   0.181 ... 0.277 а.о.
-* Межа кригоутворення : > 0.52 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6054,29 +6674,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M1_61
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 3.56e+10
-* Star death zone size: 1.17e+09
-* Star size: 7.13e+08
-* Star flare distance: 3.56e+10
-* Star autopilot range: 2.35e+09
+* Star zone size: 4.60e+10
+* Star death zone size: 1.59e+09
+* Star size: 9.19e+08
+* Star flare distance: 4.60e+10
+* Star autopilot range: 3.18e+09
 
-* Omni range: 1.80e+12
+* Omni range: 2.43e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 24, 0)
- - hex: #ff1800
+ - rgb: (255, 43, 0)
+ - hex: #ff2b00
 ```  
 
  </details>  
 
 ---  
- ![ff1800](Colors/ff1800.png)   
+ ![ff2b00](Colors/ff2b00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.007 AU
+* Hot zone   :   0.007 ... 0.019 AU
+* Warm zone  :   0.019 ... 0.065 AU
+* Temp. zone :   0.065 ... 0.092 AU
+* Cold zone  :   0.092 ... 0.265 AU
+* Frost line : > 0.265 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.007 а.о.
+* Гаряча зона  :   0.007 ... 0.019 а.о.
+* Тепла зона   :   0.019 ... 0.065 а.о.
+* Помірна зона :   0.065 ... 0.092 а.о.
+* Холодна зона :   0.092 ... 0.141 а.о.
+* Межа кригоутворення : > 0.265 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 62
 * Star cluster: Moirai
@@ -6084,6 +6724,8 @@ Temperature zone data:
 * System codename: STAR_M2_62_SYSTEM
 * System translation name codename: NAME_STAR_M2_62_SYSTEM
 * System translation description codename: DESC_STAR_M2_62_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6094,55 +6736,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M2</summary>  
 
 #### Star pseudo-color  
-![ff0000](Colors/ff0000.png)  
+![ff0c00](Colors/ff0c00.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.52e+08 m
-* Temperature: 3313 K
-* Luminosity: 1.94e+25 W
+* Size: 3.76e+08 m
+* Mass: 6.83e+29 kg
+* Temperature: 3396 K
+* Luminosity: 3.36e+24 W
 
 Sun units:
-* Size: 0.685 D
-* Temperature: 0.57 T
-* Luminosity: 0.051 L
+* Size: 0.271 D
+* Mass: 0.343 M
+* Temperature: 0.59 T
+* Luminosity: 0.009 L
 
 Spectral data:
 * Type: M2
-* Peak wavelength: 875.0 nm
+* Peak wavelength: 853.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.018 AU
-* Hot zone   :   0.018 ... 0.045 AU
-* Warm zone  :   0.045 ... 0.157 AU
-* Temp. zone :   0.157 ... 0.222 AU
-* Cold zone  :   0.222 ... 0.638 AU
-* Frost line : > 0.638 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.52e+08 м
-* Температура: 3313 К
-* Світність: 1.94e+25 Вт
+* Розмір: 3.76e+08 м
+* Температура: 3396 К
+* Світність: 3.36e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.685 D
-* Температура: 0.57 T
-* Світність: 0.051 L
+* Розмір: 0.271 D
+* Температура: 0.59 T
+* Світність: 0.009 L
 
 Спектральні дані:
 * Тип: M2
-* Пікова довжина хвилі: 875.0 нм
+* Пікова довжина хвилі: 853.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.018 а.о.
-* Гаряча зона  :   0.018 ... 0.045 а.о.
-* Тепла зона   :   0.045 ... 0.157 а.о.
-* Помірна зона :   0.157 ... 0.222 а.о.
-* Холодна зона :   0.222 ... 0.339 а.о.
-* Межа кригоутворення : > 0.638 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6152,29 +6782,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M2_62
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.76e+10
-* Star death zone size: 1.44e+09
-* Star size: 9.52e+08
-* Star flare distance: 4.76e+10
-* Star autopilot range: 2.88e+09
+* Star zone size: 1.88e+10
+* Star death zone size: 5.99e+08
+* Star size: 3.76e+08
+* Star flare distance: 1.88e+10
+* Star autopilot range: 1.20e+09
 
-* Omni range: 2.20e+12
+* Omni range: 9.16e+11
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 0, 0)
- - hex: #ff0000
+ - rgb: (255, 12, 0)
+ - hex: #ff0c00
 ```  
 
  </details>  
 
 ---  
- ![ff0000](Colors/ff0000.png)   
+ ![ff0c00](Colors/ff0c00.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.008 AU
+* Hot zone   :   0.008 ... 0.021 AU
+* Warm zone  :   0.021 ... 0.072 AU
+* Temp. zone :   0.072 ... 0.102 AU
+* Cold zone  :   0.102 ... 0.294 AU
+* Frost line : > 0.294 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.008 а.о.
+* Гаряча зона  :   0.008 ... 0.021 а.о.
+* Тепла зона   :   0.021 ... 0.072 а.о.
+* Помірна зона :   0.072 ... 0.102 а.о.
+* Холодна зона :   0.102 ... 0.156 а.о.
+* Межа кригоутворення : > 0.294 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 63
 * Star cluster: Moirai
@@ -6182,6 +6832,8 @@ Temperature zone data:
 * System codename: STAR_M3_63_SYSTEM
 * System translation name codename: NAME_STAR_M3_63_SYSTEM
 * System translation description codename: DESC_STAR_M3_63_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6192,55 +6844,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M3</summary>  
 
 #### Star pseudo-color  
-![fc0000](Colors/fc0000.png)  
+![f40000](Colors/f40000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.04e+08 m
-* Temperature: 3290 K
-* Luminosity: 1.70e+25 W
+* Size: 4.69e+08 m
+* Mass: 6.29e+29 kg
+* Temperature: 3204 K
+* Luminosity: 4.12e+24 W
 
 Sun units:
-* Size: 0.65 D
-* Temperature: 0.57 T
-* Luminosity: 0.045 L
+* Size: 0.337 D
+* Mass: 0.316 M
+* Temperature: 0.56 T
+* Luminosity: 0.011 L
 
 Spectral data:
 * Type: M3
-* Peak wavelength: 881.0 nm
+* Peak wavelength: 904.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.016 AU
-* Hot zone   :   0.016 ... 0.042 AU
-* Warm zone  :   0.042 ... 0.147 AU
-* Temp. zone :   0.147 ... 0.208 AU
-* Cold zone  :   0.208 ... 0.597 AU
-* Frost line : > 0.597 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.04e+08 м
-* Температура: 3290 К
-* Світність: 1.70e+25 Вт
+* Розмір: 4.69e+08 м
+* Температура: 3204 К
+* Світність: 4.12e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.65 D
-* Температура: 0.57 T
-* Світність: 0.045 L
+* Розмір: 0.337 D
+* Температура: 0.56 T
+* Світність: 0.011 L
 
 Спектральні дані:
 * Тип: M3
-* Пікова довжина хвилі: 881.0 нм
+* Пікова довжина хвилі: 904.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.016 а.о.
-* Гаряча зона  :   0.016 ... 0.042 а.о.
-* Тепла зона   :   0.042 ... 0.147 а.о.
-* Помірна зона :   0.147 ... 0.208 а.о.
-* Холодна зона :   0.208 ... 0.318 а.о.
-* Межа кригоутворення : > 0.597 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6250,29 +6890,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M3_63
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.52e+10
-* Star death zone size: 1.36e+09
-* Star size: 9.04e+08
-* Star flare distance: 4.52e+10
-* Star autopilot range: 2.71e+09
+* Star zone size: 2.34e+10
+* Star death zone size: 7.04e+08
+* Star size: 4.69e+08
+* Star flare distance: 2.34e+10
+* Star autopilot range: 1.41e+09
 
-* Omni range: 2.06e+12
+* Omni range: 1.02e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (252, 0, 0)
- - hex: #fc0000
+ - rgb: (244, 0, 0)
+ - hex: #f40000
 ```  
 
  </details>  
 
 ---  
- ![fc0000](Colors/fc0000.png)   
+ ![f40000](Colors/f40000.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.009 AU
+* Hot zone   :   0.009 ... 0.024 AU
+* Warm zone  :   0.024 ... 0.083 AU
+* Temp. zone :   0.083 ... 0.118 AU
+* Cold zone  :   0.118 ... 0.339 AU
+* Frost line : > 0.339 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.009 а.о.
+* Гаряча зона  :   0.009 ... 0.024 а.о.
+* Тепла зона   :   0.024 ... 0.083 а.о.
+* Помірна зона :   0.083 ... 0.118 а.о.
+* Холодна зона :   0.118 ... 0.18 а.о.
+* Межа кригоутворення : > 0.339 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 64
 * Star cluster: Moirai
@@ -6280,6 +6940,8 @@ Temperature zone data:
 * System codename: STAR_M4_64_SYSTEM
 * System translation name codename: NAME_STAR_M4_64_SYSTEM
 * System translation description codename: DESC_STAR_M4_64_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6290,55 +6952,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M4</summary>  
 
 #### Star pseudo-color  
-![ef0000](Colors/ef0000.png)  
+![f20000](Colors/f20000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 4.49e+08 m
-* Temperature: 3142 K
-* Luminosity: 3.50e+24 W
+* Size: 5.55e+08 m
+* Mass: 5.68e+29 kg
+* Temperature: 3162 K
+* Luminosity: 5.49e+24 W
 
 Sun units:
-* Size: 0.323 D
-* Temperature: 0.54 T
-* Luminosity: 0.009 L
+* Size: 0.399 D
+* Mass: 0.285 M
+* Temperature: 0.55 T
+* Luminosity: 0.014 L
 
 Spectral data:
 * Type: M4
-* Peak wavelength: 922.0 nm
+* Peak wavelength: 916.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.007 AU
-* Hot zone   :   0.007 ... 0.019 AU
-* Warm zone  :   0.019 ... 0.067 AU
-* Temp. zone :   0.067 ... 0.094 AU
-* Cold zone  :   0.094 ... 0.271 AU
-* Frost line : > 0.271 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 4.49e+08 м
-* Температура: 3142 К
-* Світність: 3.50e+24 Вт
+* Розмір: 5.55e+08 м
+* Температура: 3162 К
+* Світність: 5.49e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.323 D
-* Температура: 0.54 T
-* Світність: 0.009 L
+* Розмір: 0.399 D
+* Температура: 0.55 T
+* Світність: 0.014 L
 
 Спектральні дані:
 * Тип: M4
-* Пікова довжина хвилі: 922.0 нм
+* Пікова довжина хвилі: 916.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.007 а.о.
-* Гаряча зона  :   0.007 ... 0.019 а.о.
-* Тепла зона   :   0.019 ... 0.067 а.о.
-* Помірна зона :   0.067 ... 0.094 а.о.
-* Холодна зона :   0.094 ... 0.144 а.о.
-* Межа кригоутворення : > 0.271 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6348,29 +6998,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M4_64
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 2.24e+10
-* Star death zone size: 6.74e+08
-* Star size: 4.49e+08
-* Star flare distance: 2.24e+10
-* Star autopilot range: 1.35e+09
+* Star zone size: 2.78e+10
+* Star death zone size: 8.32e+08
+* Star size: 5.55e+08
+* Star flare distance: 2.78e+10
+* Star autopilot range: 1.66e+09
 
-* Omni range: 9.35e+11
+* Omni range: 1.17e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (239, 0, 0)
- - hex: #ef0000
+ - rgb: (242, 0, 0)
+ - hex: #f20000
 ```  
 
  </details>  
 
 ---  
- ![ef0000](Colors/ef0000.png)   
+ ![f20000](Colors/f20000.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.006 AU
+* Hot zone   :   0.006 ... 0.014 AU
+* Warm zone  :   0.014 ... 0.049 AU
+* Temp. zone :   0.049 ... 0.07 AU
+* Cold zone  :   0.07 ... 0.2 AU
+* Frost line : > 0.2 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.006 а.о.
+* Гаряча зона  :   0.006 ... 0.014 а.о.
+* Тепла зона   :   0.014 ... 0.049 а.о.
+* Помірна зона :   0.049 ... 0.07 а.о.
+* Холодна зона :   0.07 ... 0.107 а.о.
+* Межа кригоутворення : > 0.2 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 65
 * Star cluster: Moirai
@@ -6378,6 +7048,8 @@ Temperature zone data:
 * System codename: STAR_M5_65_SYSTEM
 * System translation name codename: NAME_STAR_M5_65_SYSTEM
 * System translation description codename: DESC_STAR_M5_65_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6388,55 +7060,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M5</summary>  
 
 #### Star pseudo-color  
-![e00000](Colors/e00000.png)  
+![d80000](Colors/d80000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.74e+08 m
-* Temperature: 2994 K
-* Luminosity: 1.07e+24 W
+* Size: 3.83e+08 m
+* Mass: 4.95e+29 kg
+* Temperature: 2926 K
+* Luminosity: 1.92e+24 W
 
 Sun units:
-* Size: 0.197 D
-* Temperature: 0.52 T
-* Luminosity: 0.003 L
+* Size: 0.276 D
+* Mass: 0.249 M
+* Temperature: 0.51 T
+* Luminosity: 0.005 L
 
 Spectral data:
 * Type: M5
-* Peak wavelength: 968.0 nm
+* Peak wavelength: 990.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.004 AU
-* Hot zone   :   0.004 ... 0.011 AU
-* Warm zone  :   0.011 ... 0.037 AU
-* Temp. zone :   0.037 ... 0.052 AU
-* Cold zone  :   0.052 ... 0.15 AU
-* Frost line : > 0.15 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.74e+08 м
-* Температура: 2994 К
-* Світність: 1.07e+24 Вт
+* Розмір: 3.83e+08 м
+* Температура: 2926 К
+* Світність: 1.92e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.197 D
-* Температура: 0.52 T
-* Світність: 0.003 L
+* Розмір: 0.276 D
+* Температура: 0.51 T
+* Світність: 0.005 L
 
 Спектральні дані:
 * Тип: M5
-* Пікова довжина хвилі: 968.0 нм
+* Пікова довжина хвилі: 990.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.004 а.о.
-* Гаряча зона  :   0.004 ... 0.011 а.о.
-* Тепла зона   :   0.011 ... 0.037 а.о.
-* Помірна зона :   0.037 ... 0.052 а.о.
-* Холодна зона :   0.052 ... 0.08 а.о.
-* Межа кригоутворення : > 0.15 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6446,29 +7106,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M5_65
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.37e+10
-* Star death zone size: 4.11e+08
-* Star size: 2.74e+08
-* Star flare distance: 1.37e+10
-* Star autopilot range: 8.22e+08
+* Star zone size: 1.92e+10
+* Star death zone size: 5.74e+08
+* Star size: 3.83e+08
+* Star flare distance: 1.92e+10
+* Star autopilot range: 1.15e+09
 
-* Omni range: 5.18e+11
+* Omni range: 6.93e+11
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (224, 0, 0)
- - hex: #e00000
+ - rgb: (216, 0, 0)
+ - hex: #d80000
 ```  
 
  </details>  
 
 ---  
- ![e00000](Colors/e00000.png)   
+ ![d80000](Colors/d80000.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.011 AU
+* Hot zone   :   0.011 ... 0.029 AU
+* Warm zone  :   0.029 ... 0.1 AU
+* Temp. zone :   0.1 ... 0.141 AU
+* Cold zone  :   0.141 ... 0.405 AU
+* Frost line : > 0.405 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.011 а.о.
+* Гаряча зона  :   0.011 ... 0.029 а.о.
+* Тепла зона   :   0.029 ... 0.1 а.о.
+* Помірна зона :   0.1 ... 0.141 а.о.
+* Холодна зона :   0.141 ... 0.215 а.о.
+* Межа кригоутворення : > 0.405 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 66
 * Star cluster: Moirai
@@ -6476,6 +7156,8 @@ Temperature zone data:
 * System codename: STAR_M6_66_SYSTEM
 * System translation name codename: NAME_STAR_M6_66_SYSTEM
 * System translation description codename: DESC_STAR_M6_66_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6486,55 +7168,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M6</summary>  
 
 #### Star pseudo-color  
-![ce0000](Colors/ce0000.png)  
+![d80000](Colors/d80000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 9.50e+08 m
-* Temperature: 2831 K
-* Luminosity: 1.03e+25 W
+* Size: 7.79e+08 m
+* Mass: 4.16e+29 kg
+* Temperature: 2917 K
+* Luminosity: 7.83e+24 W
 
 Sun units:
-* Size: 0.683 D
-* Temperature: 0.49 T
-* Luminosity: 0.027 L
+* Size: 0.561 D
+* Mass: 0.209 M
+* Temperature: 0.51 T
+* Luminosity: 0.02 L
 
 Spectral data:
 * Type: M6
-* Peak wavelength: 1024.0 nm
+* Peak wavelength: 993.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.013 AU
-* Hot zone   :   0.013 ... 0.033 AU
-* Warm zone  :   0.033 ... 0.114 AU
-* Temp. zone :   0.114 ... 0.162 AU
-* Cold zone  :   0.162 ... 0.465 AU
-* Frost line : > 0.465 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 9.50e+08 м
-* Температура: 2831 К
-* Світність: 1.03e+25 Вт
+* Розмір: 7.79e+08 м
+* Температура: 2917 К
+* Світність: 7.83e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.683 D
-* Температура: 0.49 T
-* Світність: 0.027 L
+* Розмір: 0.561 D
+* Температура: 0.51 T
+* Світність: 0.02 L
 
 Спектральні дані:
 * Тип: M6
-* Пікова довжина хвилі: 1024.0 нм
+* Пікова довжина хвилі: 993.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.013 а.о.
-* Гаряча зона  :   0.013 ... 0.033 а.о.
-* Тепла зона   :   0.033 ... 0.114 а.о.
-* Помірна зона :   0.114 ... 0.162 а.о.
-* Холодна зона :   0.162 ... 0.247 а.о.
-* Межа кригоутворення : > 0.465 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6544,29 +7214,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M6_66
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 4.75e+10
-* Star death zone size: 1.42e+09
-* Star size: 9.50e+08
-* Star flare distance: 4.75e+10
-* Star autopilot range: 2.85e+09
+* Star zone size: 3.90e+10
+* Star death zone size: 1.17e+09
+* Star size: 7.79e+08
+* Star flare distance: 3.90e+10
+* Star autopilot range: 2.34e+09
 
-* Omni range: 1.61e+12
+* Omni range: 1.40e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (206, 0, 0)
- - hex: #ce0000
+ - rgb: (216, 0, 0)
+ - hex: #d80000
 ```  
 
  </details>  
 
 ---  
- ![ce0000](Colors/ce0000.png)   
+ ![d80000](Colors/d80000.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.011 AU
+* Hot zone   :   0.011 ... 0.029 AU
+* Warm zone  :   0.029 ... 0.1 AU
+* Temp. zone :   0.1 ... 0.142 AU
+* Cold zone  :   0.142 ... 0.407 AU
+* Frost line : > 0.407 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.011 а.о.
+* Гаряча зона  :   0.011 ... 0.029 а.о.
+* Тепла зона   :   0.029 ... 0.1 а.о.
+* Помірна зона :   0.1 ... 0.142 а.о.
+* Холодна зона :   0.142 ... 0.217 а.о.
+* Межа кригоутворення : > 0.407 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 67
 * Star cluster: Moirai
@@ -6574,6 +7264,8 @@ Temperature zone data:
 * System codename: STAR_M7_67_SYSTEM
 * System translation name codename: NAME_STAR_M7_67_SYSTEM
 * System translation description codename: DESC_STAR_M7_67_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6584,55 +7276,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M7</summary>  
 
 #### Star pseudo-color  
-![c60000](Colors/c60000.png)  
+![c10000](Colors/c10000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 7.29e+08 m
-* Temperature: 2757 K
-* Luminosity: 5.48e+24 W
+* Size: 9.01e+08 m
+* Mass: 3.25e+29 kg
+* Temperature: 2720 K
+* Luminosity: 7.91e+24 W
 
 Sun units:
-* Size: 0.525 D
-* Temperature: 0.48 T
-* Luminosity: 0.014 L
+* Size: 0.648 D
+* Mass: 0.163 M
+* Temperature: 0.47 T
+* Luminosity: 0.021 L
 
 Spectral data:
 * Type: M7
-* Peak wavelength: 1051.0 nm
+* Peak wavelength: 1065.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.009 AU
-* Hot zone   :   0.009 ... 0.024 AU
-* Warm zone  :   0.024 ... 0.083 AU
-* Temp. zone :   0.083 ... 0.118 AU
-* Cold zone  :   0.118 ... 0.339 AU
-* Frost line : > 0.339 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 7.29e+08 м
-* Температура: 2757 К
-* Світність: 5.48e+24 Вт
+* Розмір: 9.01e+08 м
+* Температура: 2720 К
+* Світність: 7.91e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.525 D
-* Температура: 0.48 T
-* Світність: 0.014 L
+* Розмір: 0.648 D
+* Температура: 0.47 T
+* Світність: 0.021 L
 
 Спектральні дані:
 * Тип: M7
-* Пікова довжина хвилі: 1051.0 нм
+* Пікова довжина хвилі: 1065.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.009 а.о.
-* Гаряча зона  :   0.009 ... 0.024 а.о.
-* Тепла зона   :   0.024 ... 0.083 а.о.
-* Помірна зона :   0.083 ... 0.118 а.о.
-* Холодна зона :   0.118 ... 0.18 а.о.
-* Межа кригоутворення : > 0.339 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6642,29 +7322,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M7_67
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 3.64e+10
-* Star death zone size: 1.09e+09
-* Star size: 7.29e+08
-* Star flare distance: 3.64e+10
-* Star autopilot range: 2.19e+09
+* Star zone size: 4.50e+10
+* Star death zone size: 1.35e+09
+* Star size: 9.01e+08
+* Star flare distance: 4.50e+10
+* Star autopilot range: 2.70e+09
 
-* Omni range: 1.17e+12
+* Omni range: 1.41e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (198, 0, 0)
- - hex: #c60000
+ - rgb: (193, 0, 0)
+ - hex: #c10000
 ```  
 
  </details>  
 
 ---  
- ![c60000](Colors/c60000.png)   
+ ![c10000](Colors/c10000.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.006 AU
+* Hot zone   :   0.006 ... 0.016 AU
+* Warm zone  :   0.016 ... 0.056 AU
+* Temp. zone :   0.056 ... 0.079 AU
+* Cold zone  :   0.079 ... 0.227 AU
+* Frost line : > 0.227 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.006 а.о.
+* Гаряча зона  :   0.006 ... 0.016 а.о.
+* Тепла зона   :   0.016 ... 0.056 а.о.
+* Помірна зона :   0.056 ... 0.079 а.о.
+* Холодна зона :   0.079 ... 0.121 а.о.
+* Межа кригоутворення : > 0.227 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 68
 * Star cluster: Moirai
@@ -6672,6 +7372,8 @@ Temperature zone data:
 * System codename: STAR_M8_68_SYSTEM
 * System translation name codename: NAME_STAR_M8_68_SYSTEM
 * System translation description codename: DESC_STAR_M8_68_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6682,55 +7384,43 @@ Temperature zone data:
 <details><summary>Primary star : Test A, type: M8</summary>  
 
 #### Star pseudo-color  
-![af0000](Colors/af0000.png)  
+![aa0000](Colors/aa0000.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 6.33e+08 m
-* Temperature: 2588 K
-* Luminosity: 3.20e+24 W
+* Size: 5.74e+08 m
+* Mass: 2.43e+29 kg
+* Temperature: 2546 K
+* Luminosity: 2.46e+24 W
 
 Sun units:
-* Size: 0.455 D
-* Temperature: 0.45 T
-* Luminosity: 0.008 L
+* Size: 0.413 D
+* Mass: 0.122 M
+* Temperature: 0.44 T
+* Luminosity: 0.006 L
 
 Spectral data:
 * Type: M8
-* Peak wavelength: 1120.0 nm
+* Peak wavelength: 1138.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.007 AU
-* Hot zone   :   0.007 ... 0.018 AU
-* Warm zone  :   0.018 ... 0.064 AU
-* Temp. zone :   0.064 ... 0.09 AU
-* Cold zone  :   0.09 ... 0.259 AU
-* Frost line : > 0.259 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 6.33e+08 м
-* Температура: 2588 К
-* Світність: 3.20e+24 Вт
+* Розмір: 5.74e+08 м
+* Температура: 2546 К
+* Світність: 2.46e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.455 D
-* Температура: 0.45 T
-* Світність: 0.008 L
+* Розмір: 0.413 D
+* Температура: 0.44 T
+* Світність: 0.006 L
 
 Спектральні дані:
 * Тип: M8
-* Пікова довжина хвилі: 1120.0 нм
+* Пікова довжина хвилі: 1138.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.007 а.о.
-* Гаряча зона  :   0.007 ... 0.018 а.о.
-* Тепла зона   :   0.018 ... 0.064 а.о.
-* Помірна зона :   0.064 ... 0.09 а.о.
-* Холодна зона :   0.09 ... 0.138 а.о.
-* Межа кригоутворення : > 0.259 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6740,29 +7430,49 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M8_68
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 3.16e+10
-* Star death zone size: 9.50e+08
-* Star size: 6.33e+08
-* Star flare distance: 3.16e+10
-* Star autopilot range: 1.90e+09
+* Star zone size: 2.87e+10
+* Star death zone size: 8.61e+08
+* Star size: 5.74e+08
+* Star flare distance: 2.87e+10
+* Star autopilot range: 1.72e+09
 
-* Omni range: 8.94e+11
+* Omni range: 7.85e+11
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (175, 0, 0)
- - hex: #af0000
+ - rgb: (170, 0, 0)
+ - hex: #aa0000
 ```  
 
  </details>  
 
 ---  
- ![af0000](Colors/af0000.png)   
+ ![aa0000](Colors/aa0000.png)   
 
 ---  
 # System: Test  
 <details><summary>System data</summary>  
 
+#### System Infocard data  
+```  
+Temperature zone data by main star:
+* Mineral melting line: < 0.005 AU
+* Hot zone   :   0.005 ... 0.012 AU
+* Warm zone  :   0.012 ... 0.041 AU
+* Temp. zone :   0.041 ... 0.058 AU
+* Cold zone  :   0.058 ... 0.165 AU
+* Frost line : > 0.165 AU
+```  
+```  
+Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.005 а.о.
+* Гаряча зона  :   0.005 ... 0.012 а.о.
+* Тепла зона   :   0.012 ... 0.041 а.о.
+* Помірна зона :   0.041 ... 0.058 а.о.
+* Холодна зона :   0.058 ... 0.088 а.о.
+* Межа кригоутворення : > 0.165 а.о.
+```  
+#### GODOT data  
 ```  
 * System ID: 69
 * Star cluster: Moirai
@@ -6770,6 +7480,8 @@ Temperature zone data:
 * System codename: STAR_M9_69_SYSTEM
 * System translation name codename: NAME_STAR_M9_69_SYSTEM
 * System translation description codename: DESC_STAR_M9_69_SYSTEM
+* System name: Test
+* System description: see above. Optionally add lore.
 * System zone size: 1.00e+13
 * System autopilot range: 1.00e+13
 ```
@@ -6784,51 +7496,39 @@ Temperature zone data:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 2.41e+08 m
-* Temperature: 2456 K
-* Luminosity: 3.75e+23 W
+* Size: 4.47e+08 m
+* Mass: 2.07e+29 kg
+* Temperature: 2459 K
+* Luminosity: 1.30e+24 W
 
 Sun units:
-* Size: 0.173 D
+* Size: 0.322 D
+* Mass: 0.104 M
 * Temperature: 0.43 T
-* Luminosity: 0.001 L
+* Luminosity: 0.003 L
 
 Spectral data:
 * Type: M9
-* Peak wavelength: 1180.0 nm
+* Peak wavelength: 1178.0 nm
 * Peak wavelength type: near IR
 
-Temperature zone data:
-* Mineral melting line: < 0.002 AU
-* Hot zone   :   0.002 ... 0.006 AU
-* Warm zone  :   0.006 ... 0.022 AU
-* Temp. zone :   0.022 ... 0.031 AU
-* Cold zone  :   0.031 ... 0.089 AU
-* Frost line : > 0.089 AU
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 2.41e+08 м
-* Температура: 2456 К
-* Світність: 3.75e+23 Вт
+* Розмір: 4.47e+08 м
+* Температура: 2459 К
+* Світність: 1.30e+24 Вт
 
 Відносно Сонця:
-* Розмір: 0.173 D
+* Розмір: 0.322 D
 * Температура: 0.43 T
-* Світність: 0.001 L
+* Світність: 0.003 L
 
 Спектральні дані:
 * Тип: M9
-* Пікова довжина хвилі: 1180.0 нм
+* Пікова довжина хвилі: 1178.0 нм
 * Тип пікового випромінювання: near IR
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.002 а.о.
-* Гаряча зона  :   0.002 ... 0.006 а.о.
-* Тепла зона   :   0.006 ... 0.022 а.о.
-* Помірна зона :   0.022 ... 0.031 а.о.
-* Холодна зона :   0.031 ... 0.047 а.о.
-* Межа кригоутворення : > 0.089 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -6838,13 +7538,13 @@ Temperature zone data:
 * Star translation description codename: DESC_STAR_M9_69
 * Star name: Test A
 * Star description: see above.
-* Star zone size: 1.20e+10
-* Star death zone size: 3.62e+08
-* Star size: 2.41e+08
-* Star flare distance: 1.20e+10
-* Star autopilot range: 7.23e+08
+* Star zone size: 2.24e+10
+* Star death zone size: 6.70e+08
+* Star size: 4.47e+08
+* Star flare distance: 2.24e+10
+* Star autopilot range: 1.34e+09
 
-* Omni range: 3.06e+11
+* Omni range: 5.71e+11
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
