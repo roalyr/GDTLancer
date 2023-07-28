@@ -105,7 +105,7 @@ func _physics_process(delta):
 	
 	brightness_variation = stepify(zone_brightness_variation + warp_brightness_variation, increment_step )
 	contrast_variation = stepify(zone_contrast_variation, increment_step )
-	saturation_variation = stepify(zone_saturation_variation, increment_step )
+	saturation_variation = stepify(zone_saturation_variation - warp_brightness_variation/8, increment_step )
 		
 		
 	# Adjust brightness on zone change.

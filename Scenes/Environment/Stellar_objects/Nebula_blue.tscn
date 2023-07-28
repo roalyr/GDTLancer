@@ -15,7 +15,7 @@
 
 [sub_resource type="ShaderMaterial" id=143]
 shader = ExtResource( 5 )
-shader_param/albedo = Color( 0.101961, 0.0901961, 0.160784, 1 )
+shader_param/albedo = Color( 0.145098, 0.247059, 0.309804, 1 )
 shader_param/distance_fade_max = 2.5e+17
 
 [sub_resource type="ShaderMaterial" id=144]
@@ -36,9 +36,9 @@ noise = SubResource( 141 )
 [sub_resource type="ShaderMaterial" id=139]
 next_pass = SubResource( 144 )
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.258824, 0.258824, 0.258824, 1 )
-shader_param/albedo_outer = Color( 0.792157, 0.792157, 0.792157, 1 )
-shader_param/albedo_detail = Color( 0.0784314, 0.65098, 0.662745, 1 )
+shader_param/albedo = Color( 0.176471, 0.321569, 0.333333, 1 )
+shader_param/albedo_outer = Color( 0.921569, 0.560784, 0.639216, 1 )
+shader_param/albedo_detail = Color( 0.2, 0.45098, 0.458824, 1 )
 shader_param/major_detail_scale = 0.404
 shader_param/major_detail_phase = 1.321
 shader_param/factor = 0.798
