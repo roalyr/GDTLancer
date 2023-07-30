@@ -134,50 +134,50 @@ Temperature zone data:
 * Помірна зона :   2.024 ... 2.863 а.о.
 * Холодна зона :   2.863 ... 4.373 а.о.
 * Межа кригоутворення : > 8.215 а.о.",Object description
-DESC_STAR_M2_4_SYSTEM,A planetary system around the Viakata A star.,Планетарна система зірки Віаката А.,Object description
-DESC_STAR_M2_4,"Absolute units:
-* Size: 1.57e+08 m
-* Temperature: 3315 K
-* Luminosity: 5.31e+23 W
+DESC_STAR_4_SYSTEM,"Temperature zone data by main star:
+* Mineral melting line: < 0.012 AU
+* Hot zone   :   0.012 ... 0.032 AU
+* Warm zone  :   0.032 ... 0.111 AU
+* Temp. zone :   0.111 ... 0.157 AU
+* Cold zone  :   0.157 ... 0.45 AU
+* Frost line : > 0.45 AU","Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.012 а.о.
+* Гаряча зона  :   0.012 ... 0.032 а.о.
+* Тепла зона   :   0.032 ... 0.111 а.о.
+* Помірна зона :   0.111 ... 0.157 а.о.
+* Холодна зона :   0.157 ... 0.239 а.о.
+* Межа кригоутворення : > 0.45 а.о.",Object description
+DESC_STAR_4,"Absolute units:
+* Size: 6.63e+08 m
+* Mass: 7.34e+29 kg
+* Temperature: 3333 K
+* Luminosity: 9.67e+24 W
 
-Sun units:
-* Size: 0.113 D
-* Temperature: 0.57 T
-* Luminosity: 0.001 L
+Sun-relative units:
+* Size: 0.477 D
+* Mass: 0.369 M
+* Temperature: 0.58 T
+* Luminosity: 0.025 L
 
 Spectral data:
 * Type: M2
-* Peak wavelength: 874.0 nm
-* Peak wavelength type: near IR
+* Peak wavelength: 869.0 nm
+* Peak wavelength type: near IR","Абсолютні величини:
+* Розмір: 6.63e+08 м
+* Маса: 7.34e+29 кг
+* Температура: 3333 К
+* Світність: 9.67e+24 Вт
 
-Temperature zone data:
-* Mineral melting line: < 0.003 AU
-* Hot zone   :   0.003 ... 0.007 AU
-* Warm zone  :   0.007 ... 0.026 AU
-* Temp. zone :   0.026 ... 0.037 AU
-* Cold zone  :   0.037 ... 0.105 AU
-* Frost line : > 0.105 AU","Абсолютні величини:
-* Розмір: 1.57e+08 м
-* Температура: 3315 К
-* Світність: 5.31e+23 Вт
-
-Відносно Сонця:
-* Розмір: 0.113 D
-* Температура: 0.57 T
-* Світність: 0.001 L
+Величини відносно Сонця:
+* Розмір: 0.477 D
+* Маса: 0.369 M
+* Температура: 0.58 T
+* Світність: 0.025 L
 
 Спектральні дані:
 * Тип: M2
-* Пікова довжина хвилі: 874.0 нм
-* Тип пікового випромінювання: near IR
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.003 а.о.
-* Гаряча зона  :   0.003 ... 0.007 а.о.
-* Тепла зона   :   0.007 ... 0.026 а.о.
-* Помірна зона :   0.026 ... 0.037 а.о.
-* Холодна зона :   0.037 ... 0.056 а.о.
-* Межа кригоутворення : > 0.105 а.о.",Object description
+* Пікова довжина хвилі: 869.0 нм
+* Тип пікового випромінювання: near IR",Object description
 NAME_STAR_B7_0,Victory A star,Зірка Вікторі А,Object name
 NAME_STAR_B7_0_SYSTEM,Victory system,Система Вікторі,Object name
 NAME_STAR_B7_0_PLANET_0,Victory b planet,Вікторі b планета,Object name
@@ -186,8 +186,8 @@ NAME_STAR_B7_0_PLANET_0,Victory b planet,Вікторі b планета,Object 
 NAME_STAR_G8_0_1,Victory B star,Зірка Вікторі B,Object name
 NAME_STAR_A7_1_SYSTEM,Equberan system,Система Екуберан,Object name
 NAME_STAR_A7_1,Equberan A star,Зірка Екуберан А,Object name
-NAME_STAR_M2_4_SYSTEM,Viakata system,Система Віаката,Object name
-NAME_STAR_M2_4,Viakata A star,Зірка Віаката А,Object name
+NAME_STAR_4_SYSTEM,Viakata system,Система Віаката,Object name
+NAME_STAR_4,Viakata A star,Зірка Віаката А,Object name
 BUTTON_DEBUG,Debug,Налагодження,UI buttons
 BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК,UI buttons
 BUTTON_INFO,Info,Інформація,UI buttons

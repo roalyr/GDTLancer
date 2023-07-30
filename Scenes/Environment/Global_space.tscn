@@ -3,7 +3,7 @@
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/_STAR_A9_3_SYSTEM_ZONE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_B7_0_SYSTEM_ZONE/STAR_B7_0_SYSTEM_ZONE.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Origin_rebase/Rebase_global.gd" type="Script" id=3]
-[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Moirai_Cluster_Zone/Systems/STAR_M2_4_SYSTEM_ZONE/STAR_M2_4_SYSTEM_ZONE.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Nebula_global/STAR_4_SYSTEM_ZONE/STAR_4_SYSTEM_ZONE.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Cloud_global.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Nebula_green_red.tscn" type="PackedScene" id=7]
@@ -59,7 +59,7 @@ __meta__ = {
 [node name="_STAR_G9_5_SYSTEM_ZONE" parent="Nebula_global" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.03615e+17, -2.71994e+17, 5.00278e+17 )
 
-[node name="STAR_M2_4_SYSTEM_ZONE" parent="Nebula_global" instance=ExtResource( 4 )]
+[node name="STAR_4_SYSTEM_ZONE" parent="Nebula_global" instance=ExtResource( 4 )]
 __meta__ = {
 "_edit_lock_": true,
 "_editor_description_": "System: Viakata
@@ -81,7 +81,7 @@ transform = Transform( 0.729017, -0.412555, 0.546199, -0.221007, -0.897088, -0.3
 [node name="Zone_nebula_green_red" parent="." instance=ExtResource( 7 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.3983e+16, -7.94959e+17, -9.16667e+17 )
 
-[node name="STAR_A7_1_SYSTEM_ZONE" parent="Zone_nebula_green_red" instance=ExtResource( 8 )]
+[node name="_STAR_A7_1_SYSTEM_ZONE" parent="Zone_nebula_green_red" instance=ExtResource( 8 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.43809e+16, 1.39491e+17, 1.34797e+17 )
 __meta__ = {
 "_editor_description_": "System: Equberan
@@ -91,7 +91,7 @@ __meta__ = {
 [node name="Zone_nebula_sky" parent="." instance=ExtResource( 18 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.02324e+17, 2.04906e+18, -1.19853e+17 )
 
-[node name="STAR_B7_0_SYSTEM_ZONE" parent="Zone_nebula_sky" instance=ExtResource( 2 )]
+[node name="_STAR_B7_0_SYSTEM_ZONE" parent="Zone_nebula_sky" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1138e+16, 1.82969e+16, -2.66981e+16 )
 __meta__ = {
 "_editor_description_": "System: Victory
