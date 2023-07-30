@@ -511,14 +511,6 @@ total_number_all_stars = 0
 
 
 
-
-
-
-
-
-
-
-
 ############ SYSTEM GENERATION ###########
 
 def system_generation(star_id, system, cluster_name):
@@ -609,13 +601,6 @@ def system_generation(star_id, system, cluster_name):
 			for _ in range(planets_num):
 				planet = make_planet('', main_star["type"])
 				planet_list.append(planet)
-	
-	
-	
-	
-	
-	# Test
-	print("-------", star_name, star_type[0], star_type[1], "--------")
 
 	# Split planetary system into orbits.
 	# Initial ranges.
@@ -638,6 +623,7 @@ def system_generation(star_id, system, cluster_name):
 	# Determine temperature range and combine data.
 	temperature_list = get_planet_temperature_list(orbit_list, planet_list, main_star)
 	
+	# TODO
 	# Determine atmosphere.
 	atmosphere_list = get_planet_atmosphere(planet_list, temperature_list)
 	
@@ -650,28 +636,13 @@ def system_generation(star_id, system, cluster_name):
 		planetary_data[i]["orbit"] = orbit_list[i]
 		planetary_data[i]["temperature_type"] = temperature_list[i][0]
 		planetary_data[i]["temperature"] = temperature_list[i][1]
-		print(planetary_data[i])
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	# TEST
-	for i in range(len(orbit_list)):
-		print(planet_list[i]["type"], " - ", round(orbit_list[i]/sun_distance_au, 3), "AU")
-		
-		
-		
+
 	
 	# Write down the text for the main star and the system.
 	p += formatting_system_data(star_id, system, main_star, star_name)
 	p += primary_star[0]
 	p += p_secondary_stars
+	p += formatting_planet_data(star_name, star_type, planetary_data)
 	
 	# Add star color samples in the end of star block.
 	p += " " + primary_star[1] + ' '
@@ -828,7 +799,7 @@ def get_planet_size(planet_type, planet_mass):
 	elif planet_type == "giant" or \
 		planet_type == "super giant":
 
-		planet_size = random_planet_val.uniform(planet_G_radius_min, planet_G_radius_max)
+		planet_size = random_planet_val.uniform(planet_G_radius_min, planet_G_radius_max) * earth_radius * 2
 	
 	else:
 		print("Unknown planet type: ", planet_type)
@@ -1465,10 +1436,10 @@ def formatting_system_data(star_id, system, main_star, star_name):
 	else:
 		p += "* Star cluster: unspecified" + "\n"
 	
-	p += "* System zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM_ZONE" + "\n"
-	p += "* System codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
-	p += "* System translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
-	p += "* System translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System zone codename: " + "STAR_" + str(star_id) + "_SYSTEM_ZONE" + "\n"
+	p += "* System codename: " + "STAR_" +  str(star_id) + "_SYSTEM" + "\n"
+	p += "* System translation name codename: " + "NAME_STAR_" + str(star_id) + "_SYSTEM" + "\n"
+	p += "* System translation description codename: " + "DESC_STAR_" + str(star_id) + "_SYSTEM" + "\n"
 	p += "* System name: " + star_name  + "\n"
 	p += "* System description: see above. Optionally add lore." + "\n"
 	p += "* System zone size: " + str(system_zone_size) + "\n"
@@ -1570,7 +1541,7 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "* Temperature: " + str(star_temp) + " K" + "\n"
 	p += "* Luminosity: " + str(star_lum) + " W" + "\n"*2
 	
-	p += "Sun units:" + "\n"
+	p += "Sun-relative units:" + "\n"
 	p += "* Size: " + str(star_size_rel) + " D" + "\n"
 	p += "* Mass: " + str(star_mass_rel) + " M" + "\n"
 	p += "* Temperature: " + str(star_temp_rel) + " T" + "\n"
@@ -1586,11 +1557,13 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	p += "```" + "  \n"
 	p += "Абсолютні величини:" + "\n"
 	p += "* Розмір: " + str(star_size) + " м" + "\n"
+	p += "* Маса: " + str(star_mass) + " кг" + "\n"
 	p += "* Температура: " + str(star_temp) + " К" + "\n"
 	p += "* Світність: " + str(star_lum) + " Вт" + "\n"*2
 	
-	p += "Відносно Сонця:" + "\n"
+	p += "Величини відносно Сонця:" + "\n"
 	p += "* Розмір: " + str(star_size_rel) + " D" + "\n"
+	p += "* Маса: " + str(star_mass_rel) + " M" + "\n"
 	p += "* Температура: " + str(star_temp_rel) + " T" + "\n"
 	p += "* Світність: " + str(star_lum_rel) + " L" + "\n"*2
 	
@@ -1605,10 +1578,10 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	
 	p += "```" + "  \n"
 	
-	p += "* Star zone codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "_ZONE" + "\n"
-	p += "* Star codename: " + "STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "\n"
-	p += "* Star translation name codename: " + "NAME_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id)  + "\n"
-	p += "* Star translation description codename: " + "DESC_STAR_" + star_type[0] + str(star_type[1]) + "_" + str(star_id) + "\n"
+	p += "* Star zone codename: " + "STAR_" + str(star_id) + "_ZONE" + "\n"
+	p += "* Star codename: " + "STAR_" + str(star_id)  + "\n"
+	p += "* Star translation name codename: " + "NAME_STAR_" + str(star_id)  + "\n"
+	p += "* Star translation description codename: " + "DESC_STAR_" +  str(star_id) + "\n"
 	p += "* Star name: " + star_name  + "\n"
 	p += "* Star description: see above." + "\n"
 	p += "* Star zone size: " + str(star_zone_size) + "\n"
@@ -1635,9 +1608,110 @@ def formatting_star_data(star_id, primary, main_star, star_name):
 	return (p, color_sample)
 
 
+def formatting_planet_data(star_name, star_type, planetary_data):
+	p =""
+	
+	for i in range(len(planetary_data)):
+		planet = planetary_data[i]
+		planet_order_letter = ABC[i].lower()
+		
+		#"type"
+		#"size"
+		#"mass"
+		#"zone_margins" [planet_zone_size, planet_death_zone]
+		#"orbit"
+		#"temperature_type"
+		#"temperature" [temperature_type, orbit_temperature]
+		
+		planet_orbit = e(planet["orbit"])
+		planet_orbit_au = round(planet["orbit"] / sun_distance_au, 3)
+		planet_type = planet["type"]
+		planet_temperature_type = planet["temperature_type"]
+		planet_temperature_abs = round(planet["temperature"], 2)
+		planet_temperature_celsius =  round(planet["temperature"] - 273.15, 2)
+		# Size is diameter.
+		planet_size = e(planet["size"])
+		planet_size_earth = round(planet["size"] / (earth_radius * 2), 3)
+		planet_mass = e(planet["mass"])
+		planet_mass_earth = round(planet["mass"] / earth_mass, 5)
+		# Godot data
+		planet_zone_size = e(planet["zone_margins"][0])
+		planet_death_zone = e(planet["zone_margins"][1])
+		planet_autopilot_range = e(planet_autopilot_factor*planet["zone_margins"][1])
 
+		p += "<details><summary>" \
+			+ "Planet " \
+			+ star_name + " " + planet_order_letter \
+			+ " (" + str(planet_temperature_type) + " " + str(planet_type) + ")" \
+			+  "</summary>" + "  \n\n"
+		
+		p += "#### Planet albedo" + "  \n"
+	
+		p += "WIP" + "  \n"
+		
+		p += "#### Planet Infocard data"+ "  \n"
+		
+		p += "```" + "  \n"
+		p += "Planet type: " + str(planet_temperature_type + " " + planet_type) + "\n"*2
+		
+		p += "Absolute units:" + "\n"
+		p += "* Size: " + str(planet_size) + " m" + "\n"
+		p += "* Mass: " + str(planet_mass) + " kg" + "\n"
+		p += "* Temperature: " + str(planet_temperature_abs) + " K" + "\n"
+		p += "* Orbit semi-major axis: " + str(planet_orbit) + " m" + "\n"*2
+		
+		p += "Earth-relative units:" + "\n"
+		p += "* Size: " + str(planet_size_earth) + " D" + "\n"
+		p += "* Mass: " + str(planet_mass_earth) + " M" + "\n"
+		p += "* Temperature: " + str(planet_temperature_celsius) + " C" + "\n"
+		p += "* Orbit semi-major axis: " + str(planet_orbit_au) + " AU" + "\n"*2
+		p += "```" + "  \n"
+		
+		p += "```" + "  \n"
+		p += "Тип планети: " + str(planet_temperature_type + " " + planet_type) + "\n"*2
+		
+		p += "Абсолютні величини:" + "\n"
+		p += "* Розмір: " + str(planet_size) + " м" + "\n"
+		p += "* Маса: " + str(planet_mass) + " кг" + "\n"
+		p += "* Температура: " + str(planet_temperature_abs) + " К" + "\n"
+		p += "* Велика піввісь орбіти: " + str(planet_orbit) + " м" + "\n"*2
+		
+		p += "Величини відносно Землі:" + "\n"
+		p += "* Розмір: " + str(planet_size_earth) + " D" + "\n"
+		p += "* Маса: " + str(planet_mass_earth) + " M" + "\n"
+		p += "* Температура: " + str(planet_temperature_celsius) + " C" + "\n"
+		p += "* Велика піввісь орбіти: " + str(planet_orbit_au) + " а.о." + "\n"*2
+		p += "```" + "  \n"
+		
+		p += "#### GODOT data"+ "  \n"
+		
+		p += "```" + "  \n"
+		
+		p += "* Planet zone codename: " + "STAR_" + str(star_id) + "_PLANET_" + str(i) + "_ZONE" + "\n"
+		p += "* Planet codename: " + "STAR_"  + str(star_id)  + "_PLANET_" + str(i) + "\n"
+		p += "* Planet translation name codename: " + "NAME_STAR_" + str(star_id)  + "_PLANET_" + str(i) + "\n"
+		p += "* Planet translation description codename: " + "DESC_STAR_" + str(star_id) + "_PLANET_" + str(i)  + "\n"
+		p += "* Planet name: " + star_name + " " + planet_order_letter + "\n"
+		p += "* Planet description: see above." + "\n"
+		p += "* Planet zone size: " + str(planet_zone_size) + "\n"
+		p += "* Planet death zone size: " + str(planet_death_zone) + "\n"
+		p += "* Planet size: " + str(planet_size) + "\n"
+		p += "* Planet autopilot range: " + str(planet_autopilot_range) + "\n"
+		
+		p += "\n"
+		
+		p += "* Surface color (albedo):" + "\n"
+		p += " - rgb: " + "WIP" + "\n"
+		p += " - hex: #" + "WIP" + "\n"
+		
+		p += "```" + "  \n"
+		
+		p += "\n </details>" + "  \n"
+		
+		p += "\n---  \n"
+	
 
-
+	return p
 
 
 
