@@ -87,6 +87,14 @@ def e(x):
 def rgb_to_hex(rgb):
 	return '%02x%02x%02x' % rgb
 
+def clamp(n, min, max):
+	if n < min:
+		return min
+	elif n > max:
+		return max
+	else:
+		return n
+
 # Make additional folders.
 cwd = os.path.normpath(os.getcwd())
 
@@ -606,8 +614,16 @@ def system_generation(star_id, system, cluster_name):
 	# Initial ranges.
 	Lmin = main_star["zone_margins"][5]*random_planet_val.uniform(1, 10)  # Minimum distance from star
 	Lmax = main_star["zone_margins"][0]*random_planet_val.uniform(0.9, 1.2)  # Maximum distance from star
+	if "closest_orbit" in system:
+		Lmin = clamp(system["closest_orbit"], main_star["zone_margins"][5], main_star["omni_range"])
+	if "furthest_orbit" in system:
+		Lmax = clamp(system["furthest_orbit"], main_star["zone_margins"][5], main_star["omni_range"])
+	
 	N = len(planet_list)
 	resonance_ratio = random_planet_val.choice(resonance_ratio_list)
+	if "orbit_ratio" in system:
+		if system["orbit_ratio"] in resonance_ratio_list:
+			resonance_ratio = system["orbit_ratio"]
 	
 	if N > 1:
 		orbit_list = generate_semi_major_axes(N, Lmin, Lmax, resonance_ratio)

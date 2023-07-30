@@ -1411,7 +1411,7 @@ Temperature zone data by main star:
 #### GODOT data  
 ```  
 * System ID: 4
-* Star cluster: Moirai
+* Star cluster: Global nebula
 * System zone codename: STAR_4_SYSTEM_ZONE
 * System codename: STAR_4_SYSTEM
 * System translation name codename: NAME_STAR_4_SYSTEM
@@ -1493,177 +1493,41 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Secondary star : Viakata B, type: M2</summary>  
-
-#### Star pseudo-color  
-![ff0600](Colors/ff0600.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 9.26e+08 m
-* Mass: 7.36e+29 kg
-* Temperature: 3346 K
-* Luminosity: 1.91e+25 W
-
-Sun-relative units:
-* Size: 0.666 D
-* Mass: 0.37 M
-* Temperature: 0.58 T
-* Luminosity: 0.05 L
-
-Spectral data:
-* Type: M2
-* Peak wavelength: 866.0 nm
-* Peak wavelength type: near IR
-
-```  
-```  
-Абсолютні величини:
-* Розмір: 9.26e+08 м
-* Маса: 7.36e+29 кг
-* Температура: 3346 К
-* Світність: 1.91e+25 Вт
-
-Величини відносно Сонця:
-* Розмір: 0.666 D
-* Маса: 0.37 M
-* Температура: 0.58 T
-* Світність: 0.05 L
-
-Спектральні дані:
-* Тип: M2
-* Пікова довжина хвилі: 866.0 нм
-* Тип пікового випромінювання: near IR
-
-```  
-#### GODOT data  
-```  
-* Star zone codename: STAR_4_1_ZONE
-* Star codename: STAR_4_1
-* Star translation name codename: NAME_STAR_4_1
-* Star translation description codename: DESC_STAR_4_1
-* Star name: Viakata B
-* Star description: see above.
-* Star zone size: 4.63e+10
-* Star death zone size: 1.43e+09
-* Star size: 9.26e+08
-* Star flare distance: 4.63e+10
-* Star autopilot range: 2.86e+09
-
-* Omni range: 2.19e+12
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (255, 6, 0)
- - hex: #ff0600
-```  
-
- </details>  
-
----  
-<details><summary>Secondary star : Viakata C, type: M6</summary>  
-
-#### Star pseudo-color  
-![cb0000](Colors/cb0000.png)  
-#### Star Infocard data  
-```  
-Absolute units:
-* Size: 4.93e+08 m
-* Mass: 4.27e+29 kg
-* Temperature: 2811 K
-* Luminosity: 2.71e+24 W
-
-Sun-relative units:
-* Size: 0.355 D
-* Mass: 0.215 M
-* Temperature: 0.49 T
-* Luminosity: 0.007 L
-
-Spectral data:
-* Type: M6
-* Peak wavelength: 1031.0 nm
-* Peak wavelength type: near IR
-
-```  
-```  
-Абсолютні величини:
-* Розмір: 4.93e+08 м
-* Маса: 4.27e+29 кг
-* Температура: 2811 К
-* Світність: 2.71e+24 Вт
-
-Величини відносно Сонця:
-* Розмір: 0.355 D
-* Маса: 0.215 M
-* Температура: 0.49 T
-* Світність: 0.007 L
-
-Спектральні дані:
-* Тип: M6
-* Пікова довжина хвилі: 1031.0 нм
-* Тип пікового випромінювання: near IR
-
-```  
-#### GODOT data  
-```  
-* Star zone codename: STAR_4_2_ZONE
-* Star codename: STAR_4_2
-* Star translation name codename: NAME_STAR_4_2
-* Star translation description codename: DESC_STAR_4_2
-* Star name: Viakata C
-* Star description: see above.
-* Star zone size: 2.46e+10
-* Star death zone size: 7.40e+08
-* Star size: 4.93e+08
-* Star flare distance: 2.46e+10
-* Star autopilot range: 1.48e+09
-
-* Omni range: 8.23e+11
-* Omni attenuation: 10.0
-* Omni energy: 2.0
-* Surface color (Peak w.l. color code):
- - rgb: (203, 0, 0)
- - hex: #cb0000
-```  
-
- </details>  
-
----  
-<details><summary>Planet Viakata a (hot sub dwarf)</summary>  
+<details><summary>Planet Viakata a (very hot sub dwarf)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub dwarf
+Planet type: very hot sub dwarf
 
 Absolute units:
-* Size: 4.14e+05 m
-* Mass: 2.89e+19 kg
-* Temperature: 580.17 K
-* Orbit semi-major axis: 1.09e+10 m
+* Size: 6.06e+05 m
+* Mass: 1.13e+20 kg
+* Temperature: 957.28 K
+* Orbit semi-major axis: 4.02e+09 m
 
 Earth-relative units:
-* Size: 0.032 D
-* Mass: 0.0 M
-* Temperature: 307.02 C
-* Orbit semi-major axis: 0.073 AU
+* Size: 0.048 D
+* Mass: 2e-05 M
+* Temperature: 684.13 C
+* Orbit semi-major axis: 0.027 AU
 
 ```  
 ```  
-Тип планети: hot sub dwarf
+Тип планети: very hot sub dwarf
 
 Абсолютні величини:
-* Розмір: 4.14e+05 м
-* Маса: 2.89e+19 кг
-* Температура: 580.17 К
-* Велика піввісь орбіти: 1.09e+10 м
+* Розмір: 6.06e+05 м
+* Маса: 1.13e+20 кг
+* Температура: 957.28 К
+* Велика піввісь орбіти: 4.02e+09 м
 
 Величини відносно Землі:
-* Розмір: 0.032 D
-* Маса: 0.0 M
-* Температура: 307.02 C
-* Велика піввісь орбіти: 0.073 а.о.
+* Розмір: 0.048 D
+* Маса: 2e-05 M
+* Температура: 684.13 C
+* Велика піввісь орбіти: 0.027 а.о.
 
 ```  
 #### GODOT data  
@@ -1674,10 +1538,10 @@ Earth-relative units:
 * Planet translation description codename: DESC_STAR_4_PLANET_0
 * Planet name: Viakata a
 * Planet description: see above.
-* Planet zone size: 8.29e+06
-* Planet death zone size: 4.35e+05
-* Planet size: 4.14e+05
-* Planet autopilot range: 6.52e+05
+* Planet zone size: 1.21e+07
+* Planet death zone size: 6.37e+05
+* Planet size: 6.06e+05
+* Planet autopilot range: 9.55e+05
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1687,41 +1551,41 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Viakata b (warm dwarf)</summary>  
+<details><summary>Planet Viakata b (hot dwarf)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm dwarf
+Planet type: hot dwarf
 
 Absolute units:
-* Size: 6.38e+05 m
-* Mass: 1.35e+20 kg
-* Temperature: 410.24 K
-* Orbit semi-major axis: 2.19e+10 m
+* Size: 9.47e+05 m
+* Mass: 5.52e+20 kg
+* Temperature: 676.9 K
+* Orbit semi-major axis: 8.04e+09 m
 
 Earth-relative units:
-* Size: 0.05 D
-* Mass: 2e-05 M
-* Temperature: 137.09 C
-* Orbit semi-major axis: 0.146 AU
+* Size: 0.074 D
+* Mass: 9e-05 M
+* Temperature: 403.75 C
+* Orbit semi-major axis: 0.054 AU
 
 ```  
 ```  
-Тип планети: warm dwarf
+Тип планети: hot dwarf
 
 Абсолютні величини:
-* Розмір: 6.38e+05 м
-* Маса: 1.35e+20 кг
-* Температура: 410.24 К
-* Велика піввісь орбіти: 2.19e+10 м
+* Розмір: 9.47e+05 м
+* Маса: 5.52e+20 кг
+* Температура: 676.9 К
+* Велика піввісь орбіти: 8.04e+09 м
 
 Величини відносно Землі:
-* Розмір: 0.05 D
-* Маса: 2e-05 M
-* Температура: 137.09 C
-* Велика піввісь орбіти: 0.146 а.о.
+* Розмір: 0.074 D
+* Маса: 9e-05 M
+* Температура: 403.75 C
+* Велика піввісь орбіти: 0.054 а.о.
 
 ```  
 #### GODOT data  
@@ -1732,10 +1596,10 @@ Earth-relative units:
 * Planet translation description codename: DESC_STAR_4_PLANET_1
 * Planet name: Viakata b
 * Planet description: see above.
-* Planet zone size: 1.28e+07
-* Planet death zone size: 6.70e+05
-* Planet size: 6.38e+05
-* Planet autopilot range: 1.00e+06
+* Planet zone size: 1.89e+07
+* Planet death zone size: 9.94e+05
+* Planet size: 9.47e+05
+* Planet autopilot range: 1.49e+06
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1745,41 +1609,41 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Viakata c (cold sub terrestrial)</summary>  
+<details><summary>Planet Viakata c (hot sub terrestrial)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: hot sub terrestrial
 
 Absolute units:
-* Size: 3.61e+06 m
-* Mass: 6.57e+22 kg
-* Temperature: 290.09 K
-* Orbit semi-major axis: 4.38e+10 m
+* Size: 3.83e+06 m
+* Mass: 8.13e+22 kg
+* Temperature: 478.64 K
+* Orbit semi-major axis: 1.61e+10 m
 
 Earth-relative units:
-* Size: 0.283 D
-* Mass: 0.01101 M
-* Temperature: 16.94 C
-* Orbit semi-major axis: 0.293 AU
+* Size: 0.3 D
+* Mass: 0.01362 M
+* Temperature: 205.49 C
+* Orbit semi-major axis: 0.108 AU
 
 ```  
 ```  
-Тип планети: cold sub terrestrial
+Тип планети: hot sub terrestrial
 
 Абсолютні величини:
-* Розмір: 3.61e+06 м
-* Маса: 6.57e+22 кг
-* Температура: 290.09 К
-* Велика піввісь орбіти: 4.38e+10 м
+* Розмір: 3.83e+06 м
+* Маса: 8.13e+22 кг
+* Температура: 478.64 К
+* Велика піввісь орбіти: 1.61e+10 м
 
 Величини відносно Землі:
-* Розмір: 0.283 D
-* Маса: 0.01101 M
-* Температура: 16.94 C
-* Велика піввісь орбіти: 0.293 а.о.
+* Розмір: 0.3 D
+* Маса: 0.01362 M
+* Температура: 205.49 C
+* Велика піввісь орбіти: 0.108 а.о.
 
 ```  
 #### GODOT data  
@@ -1790,10 +1654,10 @@ Earth-relative units:
 * Planet translation description codename: DESC_STAR_4_PLANET_2
 * Planet name: Viakata c
 * Planet description: see above.
-* Planet zone size: 7.22e+07
-* Planet death zone size: 3.79e+06
-* Planet size: 3.61e+06
-* Planet autopilot range: 5.68e+06
+* Planet zone size: 7.66e+07
+* Planet death zone size: 4.02e+06
+* Planet size: 3.83e+06
+* Planet autopilot range: 6.03e+06
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1803,41 +1667,41 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Viakata d (icy dwarf)</summary>  
+<details><summary>Planet Viakata d (temperate dwarf)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: temperate dwarf
 
 Absolute units:
-* Size: 7.30e+05 m
-* Mass: 2.18e+20 kg
-* Temperature: 205.12 K
-* Orbit semi-major axis: 8.76e+10 m
+* Size: 9.07e+05 m
+* Mass: 4.74e+20 kg
+* Temperature: 338.45 K
+* Orbit semi-major axis: 3.22e+10 m
 
 Earth-relative units:
-* Size: 0.057 D
-* Mass: 4e-05 M
-* Temperature: -68.03 C
-* Orbit semi-major axis: 0.585 AU
+* Size: 0.071 D
+* Mass: 8e-05 M
+* Temperature: 65.3 C
+* Orbit semi-major axis: 0.215 AU
 
 ```  
 ```  
-Тип планети: icy dwarf
+Тип планети: temperate dwarf
 
 Абсолютні величини:
-* Розмір: 7.30e+05 м
-* Маса: 2.18e+20 кг
-* Температура: 205.12 К
-* Велика піввісь орбіти: 8.76e+10 м
+* Розмір: 9.07e+05 м
+* Маса: 4.74e+20 кг
+* Температура: 338.45 К
+* Велика піввісь орбіти: 3.22e+10 м
 
 Величини відносно Землі:
-* Розмір: 0.057 D
-* Маса: 4e-05 M
-* Температура: -68.03 C
-* Велика піввісь орбіти: 0.585 а.о.
+* Розмір: 0.071 D
+* Маса: 8e-05 M
+* Температура: 65.3 C
+* Велика піввісь орбіти: 0.215 а.о.
 
 ```  
 #### GODOT data  
@@ -1848,10 +1712,10 @@ Earth-relative units:
 * Planet translation description codename: DESC_STAR_4_PLANET_3
 * Planet name: Viakata d
 * Planet description: see above.
-* Planet zone size: 1.46e+07
-* Planet death zone size: 7.67e+05
-* Planet size: 7.30e+05
-* Planet autopilot range: 1.15e+06
+* Planet zone size: 1.81e+07
+* Planet death zone size: 9.53e+05
+* Planet size: 9.07e+05
+* Planet autopilot range: 1.43e+06
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1861,7 +1725,7 @@ Earth-relative units:
  </details>  
 
 ---  
- ![ff0000](Colors/ff0000.png) ![ff0600](Colors/ff0600.png) ![cb0000](Colors/cb0000.png)   
+ ![ff0000](Colors/ff0000.png)   
 
 ---  
 # System: Glory  
@@ -1871,20 +1735,20 @@ Earth-relative units:
 ```  
 Temperature zone data by main star:
 * Mineral melting line: < 0.07 AU
-* Hot zone   :   0.07 ... 0.18 AU
-* Warm zone  :   0.18 ... 0.629 AU
-* Temp. zone :   0.629 ... 0.889 AU
-* Cold zone  :   0.889 ... 2.552 AU
-* Frost line : > 2.552 AU
+* Hot zone   :   0.07 ... 0.179 AU
+* Warm zone  :   0.179 ... 0.623 AU
+* Temp. zone :   0.623 ... 0.881 AU
+* Cold zone  :   0.881 ... 2.53 AU
+* Frost line : > 2.53 AU
 ```  
 ```  
 Дані температурного зонування відносно основної зірки:
 * Межа плавлення мінералів: < 0.07 а.о.
-* Гаряча зона  :   0.07 ... 0.18 а.о.
-* Тепла зона   :   0.18 ... 0.629 а.о.
-* Помірна зона :   0.629 ... 0.889 а.о.
-* Холодна зона :   0.889 ... 1.359 а.о.
-* Межа кригоутворення : > 2.552 а.о.
+* Гаряча зона  :   0.07 ... 0.179 а.о.
+* Тепла зона   :   0.179 ... 0.623 а.о.
+* Помірна зона :   0.623 ... 0.881 а.о.
+* Холодна зона :   0.881 ... 1.346 а.о.
+* Межа кригоутворення : > 2.53 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -1906,43 +1770,43 @@ Temperature zone data by main star:
 <details><summary>Primary star : Glory A, type: G9</summary>  
 
 #### Star pseudo-color  
-![fff800](Colors/fff800.png)  
+![fff200](Colors/fff200.png)  
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.51e+09 m
-* Mass: 1.59e+30 kg
-* Temperature: 5265 K
-* Luminosity: 3.11e+26 W
+* Size: 1.52e+09 m
+* Mass: 1.63e+30 kg
+* Temperature: 5218 K
+* Luminosity: 3.06e+26 W
 
 Sun-relative units:
-* Size: 1.085 D
-* Mass: 0.8 M
-* Temperature: 0.91 T
-* Luminosity: 0.813 L
+* Size: 1.095 D
+* Mass: 0.82 M
+* Temperature: 0.9 T
+* Luminosity: 0.799 L
 
 Spectral data:
 * Type: G9
-* Peak wavelength: 550.0 nm
+* Peak wavelength: 555.0 nm
 * Peak wavelength type: visible
 
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.51e+09 м
-* Маса: 1.59e+30 кг
-* Температура: 5265 К
-* Світність: 3.11e+26 Вт
+* Розмір: 1.52e+09 м
+* Маса: 1.63e+30 кг
+* Температура: 5218 К
+* Світність: 3.06e+26 Вт
 
 Величини відносно Сонця:
-* Розмір: 1.085 D
-* Маса: 0.8 M
-* Температура: 0.91 T
-* Світність: 0.813 L
+* Розмір: 1.095 D
+* Маса: 0.82 M
+* Температура: 0.9 T
+* Світність: 0.799 L
 
 Спектральні дані:
 * Тип: G9
-* Пікова довжина хвилі: 550.0 нм
+* Пікова довжина хвилі: 555.0 нм
 * Тип пікового випромінювання: visible
 
 ```  
@@ -1954,24 +1818,24 @@ Spectral data:
 * Star translation description codename: DESC_STAR_5
 * Star name: Glory A
 * Star description: see above.
-* Star zone size: 7.55e+10
-* Star death zone size: 5.77e+09
-* Star size: 1.51e+09
-* Star flare distance: 7.55e+10
-* Star autopilot range: 1.15e+10
+* Star zone size: 7.60e+10
+* Star death zone size: 5.72e+09
+* Star size: 1.52e+09
+* Star flare distance: 7.60e+10
+* Star autopilot range: 1.14e+10
 
-* Omni range: 8.82e+12
+* Omni range: 8.74e+12
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
- - rgb: (255, 248, 0)
- - hex: #fff800
+ - rgb: (255, 242, 0)
+ - hex: #fff200
 ```  
 
  </details>  
 
 ---  
- ![fff800](Colors/fff800.png)   
+ ![fff200](Colors/fff200.png)   
 
 ---  
 # System: Hilicele  
@@ -1980,21 +1844,21 @@ Spectral data:
 #### System Infocard data  
 ```  
 Temperature zone data by main star:
-* Mineral melting line: < 0.116 AU
-* Hot zone   :   0.116 ... 0.299 AU
-* Warm zone  :   0.299 ... 1.04 AU
-* Temp. zone :   1.04 ... 1.471 AU
-* Cold zone  :   1.471 ... 4.222 AU
-* Frost line : > 4.222 AU
+* Mineral melting line: < 0.123 AU
+* Hot zone   :   0.123 ... 0.317 AU
+* Warm zone  :   0.317 ... 1.103 AU
+* Temp. zone :   1.103 ... 1.56 AU
+* Cold zone  :   1.56 ... 4.477 AU
+* Frost line : > 4.477 AU
 ```  
 ```  
 Дані температурного зонування відносно основної зірки:
-* Межа плавлення мінералів: < 0.116 а.о.
-* Гаряча зона  :   0.116 ... 0.299 а.о.
-* Тепла зона   :   0.299 ... 1.04 а.о.
-* Помірна зона :   1.04 ... 1.471 а.о.
-* Холодна зона :   1.471 ... 2.247 а.о.
-* Межа кригоутворення : > 4.222 а.о.
+* Межа плавлення мінералів: < 0.123 а.о.
+* Гаряча зона  :   0.123 ... 0.317 а.о.
+* Тепла зона   :   0.317 ... 1.103 а.о.
+* Помірна зона :   1.103 ... 1.56 а.о.
+* Холодна зона :   1.56 ... 2.383 а.о.
+* Межа кригоутворення : > 4.477 а.о.
 ```  
 #### GODOT data  
 ```  
@@ -2006,8 +1870,8 @@ Temperature zone data by main star:
 * System translation description codename: DESC_STAR_6_SYSTEM
 * System name: Hilicele
 * System description: see above. Optionally add lore.
-* System zone size: 1.46e+13
-* System autopilot range: 1.46e+13
+* System zone size: 1.55e+13
+* System autopilot range: 1.55e+13
 ```
 
  </details>  
@@ -2020,39 +1884,39 @@ Temperature zone data by main star:
 #### Star Infocard data  
 ```  
 Absolute units:
-* Size: 1.66e+09 m
-* Mass: 2.26e+30 kg
-* Temperature: 6449 K
-* Luminosity: 8.52e+26 W
+* Size: 1.77e+09 m
+* Mass: 2.24e+30 kg
+* Temperature: 6439 K
+* Luminosity: 9.58e+26 W
 
 Sun-relative units:
-* Size: 1.196 D
-* Mass: 1.134 M
+* Size: 1.272 D
+* Mass: 1.125 M
 * Temperature: 1.12 T
-* Luminosity: 2.23 L
+* Luminosity: 2.5 L
 
 Spectral data:
 * Type: F7
-* Peak wavelength: 449.0 nm
+* Peak wavelength: 450.0 nm
 * Peak wavelength type: visible
 
 ```  
 ```  
 Абсолютні величини:
-* Розмір: 1.66e+09 м
-* Маса: 2.26e+30 кг
-* Температура: 6449 К
-* Світність: 8.52e+26 Вт
+* Розмір: 1.77e+09 м
+* Маса: 2.24e+30 кг
+* Температура: 6439 К
+* Світність: 9.58e+26 Вт
 
 Величини відносно Сонця:
-* Розмір: 1.196 D
-* Маса: 1.134 M
+* Розмір: 1.272 D
+* Маса: 1.125 M
 * Температура: 1.12 T
-* Світність: 2.23 L
+* Світність: 2.5 L
 
 Спектральні дані:
 * Тип: F7
-* Пікова довжина хвилі: 449.0 нм
+* Пікова довжина хвилі: 450.0 нм
 * Тип пікового випромінювання: visible
 
 ```  
@@ -2064,13 +1928,13 @@ Spectral data:
 * Star translation description codename: DESC_STAR_6
 * Star name: Hilicele A
 * Star description: see above.
-* Star zone size: 8.30e+10
-* Star death zone size: 9.55e+09
-* Star size: 1.66e+09
-* Star flare distance: 8.30e+10
-* Star autopilot range: 1.91e+10
+* Star zone size: 8.85e+10
+* Star death zone size: 1.01e+10
+* Star size: 1.77e+09
+* Star flare distance: 8.85e+10
+* Star autopilot range: 2.02e+10
 
-* Omni range: 1.46e+13
+* Omni range: 1.55e+13
 * Omni attenuation: 10.0
 * Omni energy: 2.0
 * Surface color (Peak w.l. color code):
@@ -2081,41 +1945,41 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele a (warm super terrestrial)</summary>  
+<details><summary>Planet Hilicele a (warm sub giant)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super terrestrial
+Planet type: warm sub giant
 
 Absolute units:
-* Size: 1.22e+07 m
-* Mass: 5.15e+24 kg
-* Temperature: 447.21 K
-* Orbit semi-major axis: 1.73e+11 m
+* Size: 1.75e+08 m
+* Mass: 5.06e+26 kg
+* Temperature: 454.86 K
+* Orbit semi-major axis: 1.77e+11 m
 
 Earth-relative units:
-* Size: 0.959 D
-* Mass: 0.86197 M
-* Temperature: 174.06 C
-* Orbit semi-major axis: 1.156 AU
+* Size: 13.733 D
+* Mass: 84.80543 M
+* Temperature: 181.71 C
+* Orbit semi-major axis: 1.185 AU
 
 ```  
 ```  
-Тип планети: warm super terrestrial
+Тип планети: warm sub giant
 
 Абсолютні величини:
-* Розмір: 1.22e+07 м
-* Маса: 5.15e+24 кг
-* Температура: 447.21 К
-* Велика піввісь орбіти: 1.73e+11 м
+* Розмір: 1.75e+08 м
+* Маса: 5.06e+26 кг
+* Температура: 454.86 К
+* Велика піввісь орбіти: 1.77e+11 м
 
 Величини відносно Землі:
-* Розмір: 0.959 D
-* Маса: 0.86197 M
-* Температура: 174.06 C
-* Велика піввісь орбіти: 1.156 а.о.
+* Розмір: 13.733 D
+* Маса: 84.80543 M
+* Температура: 181.71 C
+* Велика піввісь орбіти: 1.185 а.о.
 
 ```  
 #### GODOT data  
@@ -2126,9 +1990,299 @@ Earth-relative units:
 * Planet translation description codename: DESC_STAR_6_PLANET_0
 * Planet name: Hilicele a
 * Planet description: see above.
+* Planet zone size: 3.50e+09
+* Planet death zone size: 1.84e+08
+* Planet size: 1.75e+08
+* Planet autopilot range: 2.76e+08
+
+* Surface color (albedo):
+ - rgb: WIP
+ - hex: #WIP
+```  
+
+ </details>  
+
+---  
+<details><summary>Planet Hilicele b (temperate - empty orbit -)</summary>  
+
+#### Planet albedo  
+WIP  
+#### Planet Infocard data  
+```  
+Planet type: temperate - empty orbit -
+
+Absolute units:
+* Size: 0.00e+00 m
+* Mass: 0.00e+00 kg
+* Temperature: 371.39 K
+* Orbit semi-major axis: 2.66e+11 m
+
+Earth-relative units:
+* Size: 0.0 D
+* Mass: 0.0 M
+* Temperature: 98.24 C
+* Orbit semi-major axis: 1.777 AU
+
+```  
+```  
+Тип планети: temperate - empty orbit -
+
+Абсолютні величини:
+* Розмір: 0.00e+00 м
+* Маса: 0.00e+00 кг
+* Температура: 371.39 К
+* Велика піввісь орбіти: 2.66e+11 м
+
+Величини відносно Землі:
+* Розмір: 0.0 D
+* Маса: 0.0 M
+* Температура: 98.24 C
+* Велика піввісь орбіти: 1.777 а.о.
+
+```  
+#### GODOT data  
+```  
+* Planet zone codename: STAR_6_PLANET_1_ZONE
+* Planet codename: STAR_6_PLANET_1
+* Planet translation name codename: NAME_STAR_6_PLANET_1
+* Planet translation description codename: DESC_STAR_6_PLANET_1
+* Planet name: Hilicele b
+* Planet description: see above.
+* Planet zone size: 1.22e+07
+* Planet death zone size: 6.40e+05
+* Planet size: 0.00e+00
+* Planet autopilot range: 9.60e+05
+
+* Surface color (albedo):
+ - rgb: WIP
+ - hex: #WIP
+```  
+
+ </details>  
+
+---  
+<details><summary>Planet Hilicele c (cold - empty orbit -)</summary>  
+
+#### Planet albedo  
+WIP  
+#### Planet Infocard data  
+```  
+Planet type: cold - empty orbit -
+
+Absolute units:
+* Size: 0.00e+00 m
+* Mass: 0.00e+00 kg
+* Temperature: 303.24 K
+* Orbit semi-major axis: 3.99e+11 m
+
+Earth-relative units:
+* Size: 0.0 D
+* Mass: 0.0 M
+* Temperature: 30.09 C
+* Orbit semi-major axis: 2.666 AU
+
+```  
+```  
+Тип планети: cold - empty orbit -
+
+Абсолютні величини:
+* Розмір: 0.00e+00 м
+* Маса: 0.00e+00 кг
+* Температура: 303.24 К
+* Велика піввісь орбіти: 3.99e+11 м
+
+Величини відносно Землі:
+* Розмір: 0.0 D
+* Маса: 0.0 M
+* Температура: 30.09 C
+* Велика піввісь орбіти: 2.666 а.о.
+
+```  
+#### GODOT data  
+```  
+* Planet zone codename: STAR_6_PLANET_2_ZONE
+* Planet codename: STAR_6_PLANET_2
+* Planet translation name codename: NAME_STAR_6_PLANET_2
+* Planet translation description codename: DESC_STAR_6_PLANET_2
+* Planet name: Hilicele c
+* Planet description: see above.
+* Planet zone size: 3.63e+07
+* Planet death zone size: 1.91e+06
+* Planet size: 0.00e+00
+* Planet autopilot range: 2.86e+06
+
+* Surface color (albedo):
+ - rgb: WIP
+ - hex: #WIP
+```  
+
+ </details>  
+
+---  
+<details><summary>Planet Hilicele d (cold - empty orbit -)</summary>  
+
+#### Planet albedo  
+WIP  
+#### Planet Infocard data  
+```  
+Planet type: cold - empty orbit -
+
+Absolute units:
+* Size: 0.00e+00 m
+* Mass: 0.00e+00 kg
+* Temperature: 247.59 K
+* Orbit semi-major axis: 5.98e+11 m
+
+Earth-relative units:
+* Size: 0.0 D
+* Mass: 0.0 M
+* Temperature: -25.56 C
+* Orbit semi-major axis: 3.999 AU
+
+```  
+```  
+Тип планети: cold - empty orbit -
+
+Абсолютні величини:
+* Розмір: 0.00e+00 м
+* Маса: 0.00e+00 кг
+* Температура: 247.59 К
+* Велика піввісь орбіти: 5.98e+11 м
+
+Величини відносно Землі:
+* Розмір: 0.0 D
+* Маса: 0.0 M
+* Температура: -25.56 C
+* Велика піввісь орбіти: 3.999 а.о.
+
+```  
+#### GODOT data  
+```  
+* Planet zone codename: STAR_6_PLANET_3_ZONE
+* Planet codename: STAR_6_PLANET_3
+* Planet translation name codename: NAME_STAR_6_PLANET_3
+* Planet translation description codename: DESC_STAR_6_PLANET_3
+* Planet name: Hilicele d
+* Planet description: see above.
+* Planet zone size: 2.06e+07
+* Planet death zone size: 1.08e+06
+* Planet size: 0.00e+00
+* Planet autopilot range: 1.62e+06
+
+* Surface color (albedo):
+ - rgb: WIP
+ - hex: #WIP
+```  
+
+ </details>  
+
+---  
+<details><summary>Planet Hilicele e (icy sub giant)</summary>  
+
+#### Planet albedo  
+WIP  
+#### Planet Infocard data  
+```  
+Planet type: icy sub giant
+
+Absolute units:
+* Size: 2.08e+08 m
+* Mass: 6.80e+26 kg
+* Temperature: 202.16 K
+* Orbit semi-major axis: 8.97e+11 m
+
+Earth-relative units:
+* Size: 16.339 D
+* Mass: 113.84929 M
+* Temperature: -70.99 C
+* Orbit semi-major axis: 5.998 AU
+
+```  
+```  
+Тип планети: icy sub giant
+
+Абсолютні величини:
+* Розмір: 2.08e+08 м
+* Маса: 6.80e+26 кг
+* Температура: 202.16 К
+* Велика піввісь орбіти: 8.97e+11 м
+
+Величини відносно Землі:
+* Розмір: 16.339 D
+* Маса: 113.84929 M
+* Температура: -70.99 C
+* Велика піввісь орбіти: 5.998 а.о.
+
+```  
+#### GODOT data  
+```  
+* Planet zone codename: STAR_6_PLANET_4_ZONE
+* Planet codename: STAR_6_PLANET_4
+* Planet translation name codename: NAME_STAR_6_PLANET_4
+* Planet translation description codename: DESC_STAR_6_PLANET_4
+* Planet name: Hilicele e
+* Planet description: see above.
+* Planet zone size: 4.17e+09
+* Planet death zone size: 2.19e+08
+* Planet size: 2.08e+08
+* Planet autopilot range: 3.28e+08
+
+* Surface color (albedo):
+ - rgb: WIP
+ - hex: #WIP
+```  
+
+ </details>  
+
+---  
+<details><summary>Planet Hilicele f (icy - empty orbit -)</summary>  
+
+#### Planet albedo  
+WIP  
+#### Planet Infocard data  
+```  
+Planet type: icy - empty orbit -
+
+Absolute units:
+* Size: 0.00e+00 m
+* Mass: 0.00e+00 kg
+* Temperature: 165.06 K
+* Orbit semi-major axis: 1.35e+12 m
+
+Earth-relative units:
+* Size: 0.0 D
+* Mass: 0.0 M
+* Temperature: -108.09 C
+* Orbit semi-major axis: 8.997 AU
+
+```  
+```  
+Тип планети: icy - empty orbit -
+
+Абсолютні величини:
+* Розмір: 0.00e+00 м
+* Маса: 0.00e+00 кг
+* Температура: 165.06 К
+* Велика піввісь орбіти: 1.35e+12 м
+
+Величини відносно Землі:
+* Розмір: 0.0 D
+* Маса: 0.0 M
+* Температура: -108.09 C
+* Велика піввісь орбіти: 8.997 а.о.
+
+```  
+#### GODOT data  
+```  
+* Planet zone codename: STAR_6_PLANET_5_ZONE
+* Planet codename: STAR_6_PLANET_5
+* Planet translation name codename: NAME_STAR_6_PLANET_5
+* Planet translation description codename: DESC_STAR_6_PLANET_5
+* Planet name: Hilicele f
+* Planet description: see above.
 * Planet zone size: 2.45e+08
 * Planet death zone size: 1.28e+07
-* Planet size: 1.22e+07
+* Planet size: 0.00e+00
 * Planet autopilot range: 1.93e+07
 
 * Surface color (albedo):
@@ -2139,50 +2293,50 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele b (cold super giant)</summary>  
+<details><summary>Planet Hilicele g (icy super giant)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: icy super giant
 
 Absolute units:
 * Size: 1.69e+08 m
 * Mass: 1.79e+28 kg
-* Temperature: 316.22 K
-* Orbit semi-major axis: 3.46e+11 m
+* Temperature: 134.77 K
+* Orbit semi-major axis: 2.02e+12 m
 
 Earth-relative units:
 * Size: 13.252 D
 * Mass: 2991.92168 M
-* Temperature: 43.07 C
-* Orbit semi-major axis: 2.312 AU
+* Temperature: -138.38 C
+* Orbit semi-major axis: 13.495 AU
 
 ```  
 ```  
-Тип планети: cold super giant
+Тип планети: icy super giant
 
 Абсолютні величини:
 * Розмір: 1.69e+08 м
 * Маса: 1.79e+28 кг
-* Температура: 316.22 К
-* Велика піввісь орбіти: 3.46e+11 м
+* Температура: 134.77 К
+* Велика піввісь орбіти: 2.02e+12 м
 
 Величини відносно Землі:
 * Розмір: 13.252 D
 * Маса: 2991.92168 M
-* Температура: 43.07 C
-* Велика піввісь орбіти: 2.312 а.о.
+* Температура: -138.38 C
+* Велика піввісь орбіти: 13.495 а.о.
 
 ```  
 #### GODOT data  
 ```  
-* Planet zone codename: STAR_6_PLANET_1_ZONE
-* Planet codename: STAR_6_PLANET_1
-* Planet translation name codename: NAME_STAR_6_PLANET_1
-* Planet translation description codename: DESC_STAR_6_PLANET_1
-* Planet name: Hilicele b
+* Planet zone codename: STAR_6_PLANET_6_ZONE
+* Planet codename: STAR_6_PLANET_6
+* Planet translation name codename: NAME_STAR_6_PLANET_6
+* Planet translation description codename: DESC_STAR_6_PLANET_6
+* Planet name: Hilicele g
 * Planet description: see above.
 * Planet zone size: 3.38e+09
 * Planet death zone size: 1.78e+08
@@ -2197,7 +2351,7 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele c (icy - empty orbit -)</summary>  
+<details><summary>Planet Hilicele h (icy - empty orbit -)</summary>  
 
 #### Planet albedo  
 WIP  
@@ -2208,14 +2362,14 @@ Planet type: icy - empty orbit -
 Absolute units:
 * Size: 0.00e+00 m
 * Mass: 0.00e+00 kg
-* Temperature: 223.6 K
-* Orbit semi-major axis: 6.92e+11 m
+* Temperature: 110.04 K
+* Orbit semi-major axis: 3.03e+12 m
 
 Earth-relative units:
 * Size: 0.0 D
 * Mass: 0.0 M
-* Temperature: -49.55 C
-* Orbit semi-major axis: 4.623 AU
+* Temperature: -163.11 C
+* Orbit semi-major axis: 20.243 AU
 
 ```  
 ```  
@@ -2224,23 +2378,23 @@ Earth-relative units:
 Абсолютні величини:
 * Розмір: 0.00e+00 м
 * Маса: 0.00e+00 кг
-* Температура: 223.6 К
-* Велика піввісь орбіти: 6.92e+11 м
+* Температура: 110.04 К
+* Велика піввісь орбіти: 3.03e+12 м
 
 Величини відносно Землі:
 * Розмір: 0.0 D
 * Маса: 0.0 M
-* Температура: -49.55 C
-* Велика піввісь орбіти: 4.623 а.о.
+* Температура: -163.11 C
+* Велика піввісь орбіти: 20.243 а.о.
 
 ```  
 #### GODOT data  
 ```  
-* Planet zone codename: STAR_6_PLANET_2_ZONE
-* Planet codename: STAR_6_PLANET_2
-* Planet translation name codename: NAME_STAR_6_PLANET_2
-* Planet translation description codename: DESC_STAR_6_PLANET_2
-* Planet name: Hilicele c
+* Planet zone codename: STAR_6_PLANET_7_ZONE
+* Planet codename: STAR_6_PLANET_7
+* Planet translation name codename: NAME_STAR_6_PLANET_7
+* Planet translation description codename: DESC_STAR_6_PLANET_7
+* Planet name: Hilicele h
 * Planet description: see above.
 * Planet zone size: 8.43e+07
 * Planet death zone size: 4.43e+06
@@ -2255,7 +2409,7 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele d (icy sub giant)</summary>  
+<details><summary>Planet Hilicele i (icy sub giant)</summary>  
 
 #### Planet albedo  
 WIP  
@@ -2266,14 +2420,14 @@ Planet type: icy sub giant
 Absolute units:
 * Size: 2.08e+08 m
 * Mass: 6.75e+26 kg
-* Temperature: 158.11 K
-* Orbit semi-major axis: 1.38e+12 m
+* Temperature: 89.85 K
+* Orbit semi-major axis: 4.54e+12 m
 
 Earth-relative units:
 * Size: 16.268 D
 * Mass: 113.00741 M
-* Temperature: -115.04 C
-* Orbit semi-major axis: 9.247 AU
+* Temperature: -183.3 C
+* Orbit semi-major axis: 30.365 AU
 
 ```  
 ```  
@@ -2282,23 +2436,23 @@ Earth-relative units:
 Абсолютні величини:
 * Розмір: 2.08e+08 м
 * Маса: 6.75e+26 кг
-* Температура: 158.11 К
-* Велика піввісь орбіти: 1.38e+12 м
+* Температура: 89.85 К
+* Велика піввісь орбіти: 4.54e+12 м
 
 Величини відносно Землі:
 * Розмір: 16.268 D
 * Маса: 113.00741 M
-* Температура: -115.04 C
-* Велика піввісь орбіти: 9.247 а.о.
+* Температура: -183.3 C
+* Велика піввісь орбіти: 30.365 а.о.
 
 ```  
 #### GODOT data  
 ```  
-* Planet zone codename: STAR_6_PLANET_3_ZONE
-* Planet codename: STAR_6_PLANET_3
-* Planet translation name codename: NAME_STAR_6_PLANET_3
-* Planet translation description codename: DESC_STAR_6_PLANET_3
-* Planet name: Hilicele d
+* Planet zone codename: STAR_6_PLANET_8_ZONE
+* Planet codename: STAR_6_PLANET_8
+* Planet translation name codename: NAME_STAR_6_PLANET_8
+* Planet translation description codename: DESC_STAR_6_PLANET_8
+* Planet name: Hilicele i
 * Planet description: see above.
 * Planet zone size: 4.15e+09
 * Planet death zone size: 2.18e+08
@@ -2313,7 +2467,7 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele e (icy super dwarf)</summary>  
+<details><summary>Planet Hilicele j (icy super dwarf)</summary>  
 
 #### Planet albedo  
 WIP  
@@ -2324,14 +2478,14 @@ Planet type: icy super dwarf
 Absolute units:
 * Size: 2.09e+06 m
 * Mass: 9.29e+21 kg
-* Temperature: 111.8 K
-* Orbit semi-major axis: 2.77e+12 m
+* Temperature: 73.36 K
+* Orbit semi-major axis: 6.81e+12 m
 
 Earth-relative units:
 * Size: 0.164 D
 * Mass: 0.00156 M
-* Temperature: -161.35 C
-* Orbit semi-major axis: 18.493 AU
+* Temperature: -199.79 C
+* Orbit semi-major axis: 45.547 AU
 
 ```  
 ```  
@@ -2340,23 +2494,23 @@ Earth-relative units:
 Абсолютні величини:
 * Розмір: 2.09e+06 м
 * Маса: 9.29e+21 кг
-* Температура: 111.8 К
-* Велика піввісь орбіти: 2.77e+12 м
+* Температура: 73.36 К
+* Велика піввісь орбіти: 6.81e+12 м
 
 Величини відносно Землі:
 * Розмір: 0.164 D
 * Маса: 0.00156 M
-* Температура: -161.35 C
-* Велика піввісь орбіти: 18.493 а.о.
+* Температура: -199.79 C
+* Велика піввісь орбіти: 45.547 а.о.
 
 ```  
 #### GODOT data  
 ```  
-* Planet zone codename: STAR_6_PLANET_4_ZONE
-* Planet codename: STAR_6_PLANET_4
-* Planet translation name codename: NAME_STAR_6_PLANET_4
-* Planet translation description codename: DESC_STAR_6_PLANET_4
-* Planet name: Hilicele e
+* Planet zone codename: STAR_6_PLANET_9_ZONE
+* Planet codename: STAR_6_PLANET_9
+* Planet translation name codename: NAME_STAR_6_PLANET_9
+* Planet translation description codename: DESC_STAR_6_PLANET_9
+* Planet name: Hilicele j
 * Planet description: see above.
 * Planet zone size: 4.17e+07
 * Planet death zone size: 2.19e+06
@@ -2371,7 +2525,7 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele f (icy super terrestrial)</summary>  
+<details><summary>Planet Hilicele k (icy super terrestrial)</summary>  
 
 #### Planet albedo  
 WIP  
@@ -2382,14 +2536,14 @@ Planet type: icy super terrestrial
 Absolute units:
 * Size: 1.49e+07 m
 * Mass: 1.04e+25 kg
-* Temperature: 79.06 K
-* Orbit semi-major axis: 5.53e+12 m
+* Temperature: 59.9 K
+* Orbit semi-major axis: 1.02e+13 m
 
 Earth-relative units:
 * Size: 1.168 D
 * Mass: 1.74284 M
-* Temperature: -194.09 C
-* Orbit semi-major axis: 36.987 AU
+* Temperature: -213.25 C
+* Orbit semi-major axis: 68.321 AU
 
 ```  
 ```  
@@ -2398,23 +2552,23 @@ Earth-relative units:
 Абсолютні величини:
 * Розмір: 1.49e+07 м
 * Маса: 1.04e+25 кг
-* Температура: 79.06 К
-* Велика піввісь орбіти: 5.53e+12 м
+* Температура: 59.9 К
+* Велика піввісь орбіти: 1.02e+13 м
 
 Величини відносно Землі:
 * Розмір: 1.168 D
 * Маса: 1.74284 M
-* Температура: -194.09 C
-* Велика піввісь орбіти: 36.987 а.о.
+* Температура: -213.25 C
+* Велика піввісь орбіти: 68.321 а.о.
 
 ```  
 #### GODOT data  
 ```  
-* Planet zone codename: STAR_6_PLANET_5_ZONE
-* Planet codename: STAR_6_PLANET_5
-* Planet translation name codename: NAME_STAR_6_PLANET_5
-* Planet translation description codename: DESC_STAR_6_PLANET_5
-* Planet name: Hilicele f
+* Planet zone codename: STAR_6_PLANET_10_ZONE
+* Planet codename: STAR_6_PLANET_10
+* Planet translation name codename: NAME_STAR_6_PLANET_10
+* Planet translation description codename: DESC_STAR_6_PLANET_10
+* Planet name: Hilicele k
 * Planet description: see above.
 * Planet zone size: 2.98e+08
 * Planet death zone size: 1.56e+07
@@ -2429,7 +2583,7 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hilicele g (icy sub terrestrial)</summary>  
+<details><summary>Planet Hilicele l (icy sub terrestrial)</summary>  
 
 #### Planet albedo  
 WIP  
@@ -2440,14 +2594,14 @@ Planet type: icy sub terrestrial
 Absolute units:
 * Size: 3.10e+06 m
 * Mass: 3.83e+22 kg
-* Temperature: 55.9 K
-* Orbit semi-major axis: 1.11e+13 m
+* Temperature: 48.91 K
+* Orbit semi-major axis: 1.53e+13 m
 
 Earth-relative units:
 * Size: 0.243 D
 * Mass: 0.00641 M
-* Temperature: -217.25 C
-* Orbit semi-major axis: 73.973 AU
+* Temperature: -224.24 C
+* Orbit semi-major axis: 102.481 AU
 
 ```  
 ```  
@@ -2456,304 +2610,14 @@ Earth-relative units:
 Абсолютні величини:
 * Розмір: 3.10e+06 м
 * Маса: 3.83e+22 кг
-* Температура: 55.9 К
-* Велика піввісь орбіти: 1.11e+13 м
+* Температура: 48.91 К
+* Велика піввісь орбіти: 1.53e+13 м
 
 Величини відносно Землі:
 * Розмір: 0.243 D
 * Маса: 0.00641 M
-* Температура: -217.25 C
-* Велика піввісь орбіти: 73.973 а.о.
-
-```  
-#### GODOT data  
-```  
-* Planet zone codename: STAR_6_PLANET_6_ZONE
-* Planet codename: STAR_6_PLANET_6
-* Planet translation name codename: NAME_STAR_6_PLANET_6
-* Planet translation description codename: DESC_STAR_6_PLANET_6
-* Planet name: Hilicele g
-* Planet description: see above.
-* Planet zone size: 6.20e+07
-* Planet death zone size: 3.26e+06
-* Planet size: 3.10e+06
-* Planet autopilot range: 4.89e+06
-
-* Surface color (albedo):
- - rgb: WIP
- - hex: #WIP
-```  
-
- </details>  
-
----  
-<details><summary>Planet Hilicele h (icy sub dwarf)</summary>  
-
-#### Planet albedo  
-WIP  
-#### Planet Infocard data  
-```  
-Planet type: icy sub dwarf
-
-Absolute units:
-* Size: 5.89e+05 m
-* Mass: 1.01e+20 kg
-* Temperature: 39.53 K
-* Orbit semi-major axis: 2.21e+13 m
-
-Earth-relative units:
-* Size: 0.046 D
-* Mass: 2e-05 M
-* Temperature: -233.62 C
-* Orbit semi-major axis: 147.946 AU
-
-```  
-```  
-Тип планети: icy sub dwarf
-
-Абсолютні величини:
-* Розмір: 5.89e+05 м
-* Маса: 1.01e+20 кг
-* Температура: 39.53 К
-* Велика піввісь орбіти: 2.21e+13 м
-
-Величини відносно Землі:
-* Розмір: 0.046 D
-* Маса: 2e-05 M
-* Температура: -233.62 C
-* Велика піввісь орбіти: 147.946 а.о.
-
-```  
-#### GODOT data  
-```  
-* Planet zone codename: STAR_6_PLANET_7_ZONE
-* Planet codename: STAR_6_PLANET_7
-* Planet translation name codename: NAME_STAR_6_PLANET_7
-* Planet translation description codename: DESC_STAR_6_PLANET_7
-* Planet name: Hilicele h
-* Planet description: see above.
-* Planet zone size: 1.18e+07
-* Planet death zone size: 6.19e+05
-* Planet size: 5.89e+05
-* Planet autopilot range: 9.28e+05
-
-* Surface color (albedo):
- - rgb: WIP
- - hex: #WIP
-```  
-
- </details>  
-
----  
-<details><summary>Planet Hilicele i (icy dwarf)</summary>  
-
-#### Planet albedo  
-WIP  
-#### Planet Infocard data  
-```  
-Planet type: icy dwarf
-
-Absolute units:
-* Size: 7.78e+05 m
-* Mass: 2.74e+20 kg
-* Temperature: 27.95 K
-* Orbit semi-major axis: 4.43e+13 m
-
-Earth-relative units:
-* Size: 0.061 D
-* Mass: 5e-05 M
-* Temperature: -245.2 C
-* Orbit semi-major axis: 295.892 AU
-
-```  
-```  
-Тип планети: icy dwarf
-
-Абсолютні величини:
-* Розмір: 7.78e+05 м
-* Маса: 2.74e+20 кг
-* Температура: 27.95 К
-* Велика піввісь орбіти: 4.43e+13 м
-
-Величини відносно Землі:
-* Розмір: 0.061 D
-* Маса: 5e-05 M
-* Температура: -245.2 C
-* Велика піввісь орбіти: 295.892 а.о.
-
-```  
-#### GODOT data  
-```  
-* Planet zone codename: STAR_6_PLANET_8_ZONE
-* Planet codename: STAR_6_PLANET_8
-* Planet translation name codename: NAME_STAR_6_PLANET_8
-* Planet translation description codename: DESC_STAR_6_PLANET_8
-* Planet name: Hilicele i
-* Planet description: see above.
-* Planet zone size: 3.38e+09
-* Planet death zone size: 1.78e+08
-* Planet size: 7.78e+05
-* Planet autopilot range: 2.67e+08
-
-* Surface color (albedo):
- - rgb: WIP
- - hex: #WIP
-```  
-
- </details>  
-
----  
-<details><summary>Planet Hilicele j (icy sub terrestrial)</summary>  
-
-#### Planet albedo  
-WIP  
-#### Planet Infocard data  
-```  
-Planet type: icy sub terrestrial
-
-Absolute units:
-* Size: 3.85e+06 m
-* Mass: 8.31e+22 kg
-* Temperature: 19.76 K
-* Orbit semi-major axis: 8.85e+13 m
-
-Earth-relative units:
-* Size: 0.302 D
-* Mass: 0.01392 M
-* Temperature: -253.39 C
-* Orbit semi-major axis: 591.785 AU
-
-```  
-```  
-Тип планети: icy sub terrestrial
-
-Абсолютні величини:
-* Розмір: 3.85e+06 м
-* Маса: 8.31e+22 кг
-* Температура: 19.76 К
-* Велика піввісь орбіти: 8.85e+13 м
-
-Величини відносно Землі:
-* Розмір: 0.302 D
-* Маса: 0.01392 M
-* Температура: -253.39 C
-* Велика піввісь орбіти: 591.785 а.о.
-
-```  
-#### GODOT data  
-```  
-* Planet zone codename: STAR_6_PLANET_9_ZONE
-* Planet codename: STAR_6_PLANET_9
-* Planet translation name codename: NAME_STAR_6_PLANET_9
-* Planet translation description codename: DESC_STAR_6_PLANET_9
-* Planet name: Hilicele j
-* Planet description: see above.
-* Planet zone size: 7.71e+07
-* Planet death zone size: 4.05e+06
-* Planet size: 3.85e+06
-* Planet autopilot range: 6.07e+06
-
-* Surface color (albedo):
- - rgb: WIP
- - hex: #WIP
-```  
-
- </details>  
-
----  
-<details><summary>Planet Hilicele k (icy sub dwarf)</summary>  
-
-#### Planet albedo  
-WIP  
-#### Planet Infocard data  
-```  
-Planet type: icy sub dwarf
-
-Absolute units:
-* Size: 5.49e+05 m
-* Mass: 7.90e+19 kg
-* Temperature: 13.98 K
-* Orbit semi-major axis: 1.77e+14 m
-
-Earth-relative units:
-* Size: 0.043 D
-* Mass: 1e-05 M
-* Temperature: -259.17 C
-* Orbit semi-major axis: 1183.57 AU
-
-```  
-```  
-Тип планети: icy sub dwarf
-
-Абсолютні величини:
-* Розмір: 5.49e+05 м
-* Маса: 7.90e+19 кг
-* Температура: 13.98 К
-* Велика піввісь орбіти: 1.77e+14 м
-
-Величини відносно Землі:
-* Розмір: 0.043 D
-* Маса: 1e-05 M
-* Температура: -259.17 C
-* Велика піввісь орбіти: 1183.57 а.о.
-
-```  
-#### GODOT data  
-```  
-* Planet zone codename: STAR_6_PLANET_10_ZONE
-* Planet codename: STAR_6_PLANET_10
-* Planet translation name codename: NAME_STAR_6_PLANET_10
-* Planet translation description codename: DESC_STAR_6_PLANET_10
-* Planet name: Hilicele k
-* Planet description: see above.
-* Planet zone size: 3.98e+09
-* Planet death zone size: 2.09e+08
-* Planet size: 5.49e+05
-* Planet autopilot range: 3.14e+08
-
-* Surface color (albedo):
- - rgb: WIP
- - hex: #WIP
-```  
-
- </details>  
-
----  
-<details><summary>Planet Hilicele l (icy dwarf)</summary>  
-
-#### Planet albedo  
-WIP  
-#### Planet Infocard data  
-```  
-Planet type: icy dwarf
-
-Absolute units:
-* Size: 1.17e+06 m
-* Mass: 1.19e+21 kg
-* Temperature: 9.88 K
-* Orbit semi-major axis: 3.54e+14 m
-
-Earth-relative units:
-* Size: 0.092 D
-* Mass: 0.0002 M
-* Temperature: -263.27 C
-* Orbit semi-major axis: 2367.139 AU
-
-```  
-```  
-Тип планети: icy dwarf
-
-Абсолютні величини:
-* Розмір: 1.17e+06 м
-* Маса: 1.19e+21 кг
-* Температура: 9.88 К
-* Велика піввісь орбіти: 3.54e+14 м
-
-Величини відносно Землі:
-* Розмір: 0.092 D
-* Маса: 0.0002 M
-* Температура: -263.27 C
-* Велика піввісь орбіти: 2367.139 а.о.
+* Температура: -224.24 C
+* Велика піввісь орбіти: 102.481 а.о.
 
 ```  
 #### GODOT data  
@@ -2764,68 +2628,10 @@ Earth-relative units:
 * Planet translation description codename: DESC_STAR_6_PLANET_11
 * Planet name: Hilicele l
 * Planet description: see above.
-* Planet zone size: 2.35e+07
-* Planet death zone size: 1.23e+06
-* Planet size: 1.17e+06
-* Planet autopilot range: 1.85e+06
-
-* Surface color (albedo):
- - rgb: WIP
- - hex: #WIP
-```  
-
- </details>  
-
----  
-<details><summary>Planet Hilicele m (icy dwarf)</summary>  
-
-#### Planet albedo  
-WIP  
-#### Planet Infocard data  
-```  
-Planet type: icy dwarf
-
-Absolute units:
-* Size: 8.37e+05 m
-* Mass: 3.55e+20 kg
-* Temperature: 6.99 K
-* Orbit semi-major axis: 7.08e+14 m
-
-Earth-relative units:
-* Size: 0.066 D
-* Mass: 6e-05 M
-* Temperature: -266.16 C
-* Orbit semi-major axis: 4734.279 AU
-
-```  
-```  
-Тип планети: icy dwarf
-
-Абсолютні величини:
-* Розмір: 8.37e+05 м
-* Маса: 3.55e+20 кг
-* Температура: 6.99 К
-* Велика піввісь орбіти: 7.08e+14 м
-
-Величини відносно Землі:
-* Розмір: 0.066 D
-* Маса: 6e-05 M
-* Температура: -266.16 C
-* Велика піввісь орбіти: 4734.279 а.о.
-
-```  
-#### GODOT data  
-```  
-* Planet zone codename: STAR_6_PLANET_12_ZONE
-* Planet codename: STAR_6_PLANET_12
-* Planet translation name codename: NAME_STAR_6_PLANET_12
-* Planet translation description codename: DESC_STAR_6_PLANET_12
-* Planet name: Hilicele m
-* Planet description: see above.
-* Planet zone size: 2.48e+09
-* Planet death zone size: 1.30e+08
-* Planet size: 8.37e+05
-* Planet autopilot range: 1.95e+08
+* Planet zone size: 6.20e+07
+* Planet death zone size: 3.26e+06
+* Planet size: 3.10e+06
+* Planet autopilot range: 4.89e+06
 
 * Surface color (albedo):
  - rgb: WIP
