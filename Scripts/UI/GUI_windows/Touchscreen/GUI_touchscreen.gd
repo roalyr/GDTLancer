@@ -9,6 +9,7 @@ var icon_velocity_4 =  load("res://Assets/UI_images/PNG/buttons/velocity_limiter
 
 var accel_held = false
 var deccel_held = false
+var control_area_touched = false
 
 var sticky_button_timer = 0
 var sticky_button_delay = 0.5
@@ -101,14 +102,6 @@ func _on_Button_accel_minus_pressed():
 func _on_Button_options_pressed():
 	Signals.emit_signal("sig_switch_to_options_gui")
 	
-
-# Mouse capturing for touch_FHD.
-# Keep here
-func _on_Mouse_area_mouse_entered():
-	Signals.emit_signal("sig_mouse_on_control_area", true)
-
-func _on_Mouse_area_mouse_exited():
-	Signals.emit_signal("sig_mouse_on_control_area", false)
 	
 
 # NAVIGATION BAR BUTTONS
@@ -257,14 +250,21 @@ func _on_Throttle_slider_released():
 	GlobalInput.throttle_held = false
 
 
+func _on_Controls_area_gui_input(event):
+	if not control_area_touched:
+		if event is InputEventScreenDrag or event is InputEventScreenTouch:
+			Signals.emit_signal("sig_mouse_on_control_area", true)
+			control_area_touched = true
 
 
 func _on_Controls_area_mouse_entered():
 	Signals.emit_signal("sig_mouse_on_control_area", true)
-
+	control_area_touched = true
 
 func _on_Controls_area_mouse_exited():
 	Signals.emit_signal("sig_mouse_on_control_area", false)
+	control_area_touched = false
+	
 
 
 
@@ -281,11 +281,9 @@ func _on_Button_camera_change_pressed():
 
 func _on_Button_debug_menu_show_toggled(button_pressed):
 	if button_pressed: 
-		GameState.update_debug_text_on = true
-		GameState.debug("Debug mode ON")
+		ui_paths.ui_functions.debug_gui_show()
 	else:
-		GameState.debug("Debug mode OFF")
-		GameState.update_debug_text_on = false
+		ui_paths.ui_functions.debug_gui_hide()
 
 
 func _on_Button_velocity_limiter_pressed():
@@ -295,16 +293,16 @@ func _on_Button_velocity_limiter_pressed():
 		PlayerState.velocity_limiter = 0
 	
 	if PlayerState.velocity_limiter == 0:
-		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_1
+		ui_paths.touch_button_velocity_limiter.normal = icon_velocity_1
 		Signals.emit_signal("sig_velocity_limiter_set", 0)
 	elif PlayerState.velocity_limiter == 1:
-		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_2
+		ui_paths.touch_button_velocity_limiter.normal = icon_velocity_2
 		Signals.emit_signal("sig_velocity_limiter_set", 1)
 	elif PlayerState.velocity_limiter == 2:
-		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_3
+		ui_paths.touch_button_velocity_limiter.normal = icon_velocity_3
 		Signals.emit_signal("sig_velocity_limiter_set", 2)
 	elif PlayerState.velocity_limiter == 3:
-		ui_paths.touch_button_velocity_limiter.icon = icon_velocity_4
+		ui_paths.touch_button_velocity_limiter.normal = icon_velocity_4
 		Signals.emit_signal("sig_velocity_limiter_set", 3)
 
 
@@ -314,3 +312,12 @@ func _on_Button_character_toggled(button_pressed):
 #		Signals.emit_signal("sig_fetch_character_info")
 	else: 
 		ui_paths.touch_readings_character_popup.hide()
+
+
+func _on_Button_debug_toggled(button_pressed):
+	if button_pressed: 
+		GameState.update_debug_text_on = true
+		GameState.debug("Debug mode ON")
+	else:
+		GameState.debug("Debug mode OFF")
+		GameState.update_debug_text_on = false
