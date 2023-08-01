@@ -5,6 +5,7 @@
 - Updated engine binaries (3.x as of 16th April 2023).
 ### Models
 - Fixed some improper LODs.
+- Implemented sphere decals (for planets).
 ### Controls
 - Improved touch controls (event sorting).
 ### Camera
@@ -29,6 +30,9 @@
 - Gas planet shader added.
 - Gas planet shader added.
 - Planetary rings shaders added.
+- Added decal shaders.
+### Textures
+- Added crater decals.
 ### Locales
 - Initiated localization (EN and UA).
 - Connected localization strings with interface, added language switching button.

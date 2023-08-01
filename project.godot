@@ -170,6 +170,30 @@ window/dpi/allow_hidpi=true
 
 touch=false
 
+[importer_defaults]
+
+texture={
+"compress/bptc_ldr": 0,
+"compress/hdr_mode": 0,
+"compress/lossy_quality": 0.7,
+"compress/mode": 2,
+"compress/normal_map": 0,
+"detect_3d": false,
+"flags/anisotropic": false,
+"flags/filter": true,
+"flags/mipmaps": true,
+"flags/repeat": 1,
+"flags/srgb": 2,
+"process/HDR_as_SRGB": false,
+"process/fix_alpha_border": false,
+"process/invert_color": false,
+"process/normal_map_invert_y": false,
+"process/premult_alpha": false,
+"size_limit": 0,
+"stream": false,
+"svg/scale": 1.0
+}
+
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
@@ -192,6 +216,7 @@ common/physics_fps=120
 
 quality/intended_usage/framebuffer_allocation.mobile=2
 threads/thread_model=2
+misc/lossless_compression/force_png=true
 quality/directional_shadow/size=256
 quality/directional_shadow/size.mobile=256
 quality/shadow_atlas/size=256

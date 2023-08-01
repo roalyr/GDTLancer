@@ -80,7 +80,7 @@ shader_param/alpha_clip = 0.186
 shader_param/rim_strength = 25.0
 shader_param/rim_exponent = 4.0
 
-[node name="Planetoid Zone" type="Area"]
+[node name="STAR_4_PLANET_0_ZONE" type="Area"]
 input_ray_pickable = false
 monitorable = false
 gravity = 0.0

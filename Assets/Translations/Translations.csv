@@ -1,96 +1,85 @@
 keys,en,uk,categry
-TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.,misc
-DESC_STAR_B7_0,"Absolute units:
-* Size: 6.32e+09 m
-* Temperature: 15669 K
-* Luminosity: 4.29e+29 W
+BUTTON_DEBUG,Debug,Налагодження,UI buttons
+BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК,UI buttons
+BUTTON_INFO,Info,Інформація,UI buttons
+BUTTON_OPTIONS_AUDIO,Options audio,Опції звуку,UI buttons
+BUTTON_OPTIONS_GENERAL,Options general,Опції загальні,UI buttons
+BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки,UI buttons
+BUTTON_QUIT,Quit,Вийти,UI buttons
+BUTTON_RESUME,Resume,Продовжити,UI buttons
+BUTTON_START,New game,Нова гра,UI buttons
+BUTTON_START_CONFIRM,Start,Розпочати,UI buttons
+BUTTON_TOUCH_GUI,Touchscreen GUI,Сенсорний ГІК,UI buttons
+BUTTON_TOUCH_SWAP_CONTROLS,Swap touch controls position,Змінити положення контролерів,UI buttons
+DESC_STAR_4,"Absolute units:
+* Size: 6.63e+08 m
+* Mass: 7.34e+29 kg
+* Temperature: 3333 K
+* Luminosity: 9.67e+24 W
 
-Sun units:
-* Size: 4.547 D
-* Temperature: 2.71 T
-* Luminosity: 1121 L
-
-Spectral data:
-* Type: B7
-* Peak wavelength: 185.0 nm
-* Peak wavelength type: far UV
-
-Temperature zone data:
-* Mineral melting line: < 2.604 AU
-* Hot zone   :   2.604 ... 6.699 AU
-* Warm zone  :   6.699 ... 23.343 AU
-* Temp. zone :   23.343 ... 33.012 AU
-* Cold zone  :   33.012 ... 94.737 AU
-* Frost line : > 94.737 AU","Абсолютні величини:
-* Розмір: 6.32e+09 м
-* Температура: 15669 К
-* Світність: 4.29e+29 Вт
-
-Відносно Сонця:
-* Розмір: 4.547 D
-* Температура: 2.71 T
-* Світність: 1121 L
-
-Спектральні дані:
-* Тип: B7
-* Пікова довжина хвилі: 185.0 нм
-* Тип пікового випромінювання: far UV
-
-Дані температурного зонування:
-* Межа плавлення мінералів: < 2.604 а.о.
-* Гаряча зона  :   2.604 ... 6.699 а.о.
-* Тепла зона   :   6.699 ... 23.343 а.о.
-* Помірна зона :   23.343 ... 33.012 а.о.
-* Холодна зона :   33.012 ... 50.427 а.о.
-* Межа кригоутворення : > 94.737 а.о.",Object description
-DESC_STAR_B7_0_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.,Object description
-DESC_STAR_B7_0_PLANET_0,Gas giant in Victory planetary system.,Газовий гігант у планетарній системі Вікторі.,Object description
-DESC_STAR_MAIN_M_159,A red dwarf in the heart of the Moirai cluster.,Червоний карлик у самому серці кластеру Мойр.,Object description
-DESC_STAR_MAIN_M_159_SYSTEM,A planetary system around the Spark A star.,Планетарна система зірки Спарк А.,Object description
-DESC_STAR_G8_0_1,"Absolute units:
-* Size: 1.45e+09 m
-* Temperature: 5313 K
-* Luminosity: 3.00e+26 W
-
-Sun units:
-* Size: 1.045 D
-* Temperature: 0.92 T
-* Luminosity: 0.783 L
+Sun-relative units:
+* Size: 0.477 D
+* Mass: 0.369 M
+* Temperature: 0.58 T
+* Luminosity: 0.025 L
 
 Spectral data:
-* Type: G8
-* Peak wavelength: 545.0 nm
-* Peak wavelength type: visible
+* Type: M2
+* Peak wavelength: 869.0 nm
+* Peak wavelength type: near IR","Абсолютні величини:
+* Розмір: 6.63e+08 м
+* Маса: 7.34e+29 кг
+* Температура: 3333 К
+* Світність: 9.67e+24 Вт
 
-Temperature zone data:
-* Mineral melting line: < 0.069 AU
-* Hot zone   :   0.069 ... 0.177 AU
-* Warm zone  :   0.177 ... 0.617 AU
-* Temp. zone :   0.617 ... 0.873 AU
-* Cold zone  :   0.873 ... 2.504 AU
-* Frost line : > 2.504 AU","Абсолютні величини:
-* Розмір: 1.45e+09 м
-* Температура: 5313 К
-* Світність: 3.00e+26 Вт
-
-Відносно Сонця:
-* Розмір: 1.045 D
-* Температура: 0.92 T
-* Світність: 0.783 L
+Величини відносно Сонця:
+* Розмір: 0.477 D
+* Маса: 0.369 M
+* Температура: 0.58 T
+* Світність: 0.025 L
 
 Спектральні дані:
-* Тип: G8
-* Пікова довжина хвилі: 545.0 нм
-* Тип пікового випромінювання: visible
+* Тип: M2
+* Пікова довжина хвилі: 869.0 нм
+* Тип пікового випромінювання: near IR",Object description
+DESC_STAR_4_PLANET_0,"Planet type: very hot sub dwarf
 
-Дані температурного зонування:
-* Межа плавлення мінералів: < 0.069 а.о.
-* Гаряча зона  :   0.069 ... 0.177 а.о.
-* Тепла зона   :   0.177 ... 0.617 а.о.
-* Помірна зона :   0.617 ... 0.873 а.о.
-* Холодна зона :   0.873 ... 1.333 а.о.
-* Межа кригоутворення : > 2.504 а.о.",Object description
-DESC_STAR_A7_1_SYSTEM,A planetary system around the Equberan A star.,Планетарна система зірки Екуберан А.,Object description
+Absolute units:
+* Size: 6.06e+05 m
+* Mass: 1.13e+20 kg
+* Temperature: 957.28 K
+* Orbit semi-major axis: 4.02e+09 m
+
+Earth-relative units:
+* Size: 0.048 D
+* Mass: 2e-05 M
+* Temperature: 684.13 C
+* Orbit semi-major axis: 0.027 AU","Тип планети: very hot sub dwarf
+
+Абсолютні величини:
+* Розмір: 6.06e+05 м
+* Маса: 1.13e+20 кг
+* Температура: 957.28 К
+* Велика піввісь орбіти: 4.02e+09 м
+
+Величини відносно Землі:
+* Розмір: 0.048 D
+* Маса: 2e-05 M
+* Температура: 684.13 C
+* Велика піввісь орбіти: 0.027 а.о.",Object description
+DESC_STAR_4_SYSTEM,"Temperature zone data by main star:
+* Mineral melting line: < 0.012 AU
+* Hot zone   :   0.012 ... 0.032 AU
+* Warm zone  :   0.032 ... 0.111 AU
+* Temp. zone :   0.111 ... 0.157 AU
+* Cold zone  :   0.157 ... 0.45 AU
+* Frost line : > 0.45 AU","Дані температурного зонування відносно основної зірки:
+* Межа плавлення мінералів: < 0.012 а.о.
+* Гаряча зона  :   0.012 ... 0.032 а.о.
+* Тепла зона   :   0.032 ... 0.111 а.о.
+* Помірна зона :   0.111 ... 0.157 а.о.
+* Холодна зона :   0.157 ... 0.239 а.о.
+* Межа кригоутворення : > 0.45 а.о.",Object description
 DESC_STAR_A7_1,"Absolute units:
 * Size: 2.01e+09 m
 * Temperature: 8184 K
@@ -134,72 +123,97 @@ Temperature zone data:
 * Помірна зона :   2.024 ... 2.863 а.о.
 * Холодна зона :   2.863 ... 4.373 а.о.
 * Межа кригоутворення : > 8.215 а.о.",Object description
-DESC_STAR_4_SYSTEM,"Temperature zone data by main star:
-* Mineral melting line: < 0.012 AU
-* Hot zone   :   0.012 ... 0.032 AU
-* Warm zone  :   0.032 ... 0.111 AU
-* Temp. zone :   0.111 ... 0.157 AU
-* Cold zone  :   0.157 ... 0.45 AU
-* Frost line : > 0.45 AU","Дані температурного зонування відносно основної зірки:
-* Межа плавлення мінералів: < 0.012 а.о.
-* Гаряча зона  :   0.012 ... 0.032 а.о.
-* Тепла зона   :   0.032 ... 0.111 а.о.
-* Помірна зона :   0.111 ... 0.157 а.о.
-* Холодна зона :   0.157 ... 0.239 а.о.
-* Межа кригоутворення : > 0.45 а.о.",Object description
-DESC_STAR_4,"Absolute units:
-* Size: 6.63e+08 m
-* Mass: 7.34e+29 kg
-* Temperature: 3333 K
-* Luminosity: 9.67e+24 W
+DESC_STAR_A7_1_SYSTEM,A planetary system around the Equberan A star.,Планетарна система зірки Екуберан А.,Object description
+DESC_STAR_B7_0,"Absolute units:
+* Size: 6.32e+09 m
+* Temperature: 15669 K
+* Luminosity: 4.29e+29 W
 
-Sun-relative units:
-* Size: 0.477 D
-* Mass: 0.369 M
-* Temperature: 0.58 T
-* Luminosity: 0.025 L
+Sun units:
+* Size: 4.547 D
+* Temperature: 2.71 T
+* Luminosity: 1121 L
 
 Spectral data:
-* Type: M2
-* Peak wavelength: 869.0 nm
-* Peak wavelength type: near IR","Абсолютні величини:
-* Розмір: 6.63e+08 м
-* Маса: 7.34e+29 кг
-* Температура: 3333 К
-* Світність: 9.67e+24 Вт
+* Type: B7
+* Peak wavelength: 185.0 nm
+* Peak wavelength type: far UV
 
-Величини відносно Сонця:
-* Розмір: 0.477 D
-* Маса: 0.369 M
-* Температура: 0.58 T
-* Світність: 0.025 L
+Temperature zone data:
+* Mineral melting line: < 2.604 AU
+* Hot zone   :   2.604 ... 6.699 AU
+* Warm zone  :   6.699 ... 23.343 AU
+* Temp. zone :   23.343 ... 33.012 AU
+* Cold zone  :   33.012 ... 94.737 AU
+* Frost line : > 94.737 AU","Абсолютні величини:
+* Розмір: 6.32e+09 м
+* Температура: 15669 К
+* Світність: 4.29e+29 Вт
+
+Відносно Сонця:
+* Розмір: 4.547 D
+* Температура: 2.71 T
+* Світність: 1121 L
 
 Спектральні дані:
-* Тип: M2
-* Пікова довжина хвилі: 869.0 нм
-* Тип пікового випромінювання: near IR",Object description
-NAME_STAR_B7_0,Victory A star,Зірка Вікторі А,Object name
-NAME_STAR_B7_0_SYSTEM,Victory system,Система Вікторі,Object name
-NAME_STAR_B7_0_PLANET_0,Victory b planet,Вікторі b планета,Object name
-,,,Object name
-,,,Object name
-NAME_STAR_G8_0_1,Victory B star,Зірка Вікторі B,Object name
-NAME_STAR_A7_1_SYSTEM,Equberan system,Система Екуберан,Object name
-NAME_STAR_A7_1,Equberan A star,Зірка Екуберан А,Object name
-NAME_STAR_4_SYSTEM,Viakata system,Система Віаката,Object name
-NAME_STAR_4,Viakata A star,Зірка Віаката А,Object name
-BUTTON_DEBUG,Debug,Налагодження,UI buttons
-BUTTON_DESKTOP_GUI,Desktop GUI,Комп'ютерний ГІК,UI buttons
-BUTTON_INFO,Info,Інформація,UI buttons
-BUTTON_OPTIONS_AUDIO,Options audio,Опції звуку,UI buttons
-BUTTON_OPTIONS_GENERAL,Options general,Опції загальні,UI buttons
-BUTTON_OPTIONS_GRAPHIC,Options graphic,Опції графіки,UI buttons
-BUTTON_QUIT,Quit,Вийти,UI buttons
-BUTTON_RESUME,Resume,Продовжити,UI buttons
-BUTTON_START,New game,Нова гра,UI buttons
-BUTTON_START_CONFIRM,Start,Розпочати,UI buttons
-BUTTON_TOUCH_GUI,Touchscreen GUI,Сенсорний ГІК,UI buttons
-BUTTON_TOUCH_SWAP_CONTROLS,Swap touch controls position,Змінити положення контролерів,UI buttons
+* Тип: B7
+* Пікова довжина хвилі: 185.0 нм
+* Тип пікового випромінювання: far UV
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 2.604 а.о.
+* Гаряча зона  :   2.604 ... 6.699 а.о.
+* Тепла зона   :   6.699 ... 23.343 а.о.
+* Помірна зона :   23.343 ... 33.012 а.о.
+* Холодна зона :   33.012 ... 50.427 а.о.
+* Межа кригоутворення : > 94.737 а.о.",Object description
+DESC_STAR_B7_0_PLANET_0,Gas giant in Victory planetary system.,Газовий гігант у планетарній системі Вікторі.,Object description
+DESC_STAR_B7_0_SYSTEM,A planetary system around the Victory A star.,Планетарна система зірки Вікторі А.,Object description
+DESC_STAR_G8_0_1,"Absolute units:
+* Size: 1.45e+09 m
+* Temperature: 5313 K
+* Luminosity: 3.00e+26 W
+
+Sun units:
+* Size: 1.045 D
+* Temperature: 0.92 T
+* Luminosity: 0.783 L
+
+Spectral data:
+* Type: G8
+* Peak wavelength: 545.0 nm
+* Peak wavelength type: visible
+
+Temperature zone data:
+* Mineral melting line: < 0.069 AU
+* Hot zone   :   0.069 ... 0.177 AU
+* Warm zone  :   0.177 ... 0.617 AU
+* Temp. zone :   0.617 ... 0.873 AU
+* Cold zone  :   0.873 ... 2.504 AU
+* Frost line : > 2.504 AU","Абсолютні величини:
+* Розмір: 1.45e+09 м
+* Температура: 5313 К
+* Світність: 3.00e+26 Вт
+
+Відносно Сонця:
+* Розмір: 1.045 D
+* Температура: 0.92 T
+* Світність: 0.783 L
+
+Спектральні дані:
+* Тип: G8
+* Пікова довжина хвилі: 545.0 нм
+* Тип пікового випромінювання: visible
+
+Дані температурного зонування:
+* Межа плавлення мінералів: < 0.069 а.о.
+* Гаряча зона  :   0.069 ... 0.177 а.о.
+* Тепла зона   :   0.177 ... 0.617 а.о.
+* Помірна зона :   0.617 ... 0.873 а.о.
+* Холодна зона :   0.873 ... 1.333 а.о.
+* Межа кригоутворення : > 2.504 а.о.",Object description
+DESC_STAR_MAIN_M_159,A red dwarf in the heart of the Moirai cluster.,Червоний карлик у самому серці кластеру Мойр.,Object description
+DESC_STAR_MAIN_M_159_SYSTEM,A planetary system around the Spark A star.,Планетарна система зірки Спарк А.,Object description
 LABEL_GUI_COLOR,GUI color,Колір ГІК,UI labels
 LABEL_GUI_COLOR_POWER,GUI color power,"Інтенсивність 
 кольору ГІК",UI labels
@@ -217,3 +231,15 @@ LABEL_INFO_TURRET_CAMERA,Camera turret (orbit) mode,Режим турелі ка
 LABEL_SCREEN_RES,3D quality,Якість 3D,UI labels
 LABEL_START_CONFIRM,Do you want to start a new game?,Ви бажаєте розпочати нову гру?,UI labels
 LABEL_START_PROMPT,Select GUI mode depending on your device,Оберіть ГІК в залежності від вашого пристрою,UI labels
+NAME_STAR_4,Viakata A star,Зірка Віаката А,Object name
+NAME_STAR_4_PLANET_0,Viakata a planet,Планета Віаката а,Object name
+NAME_STAR_4_SYSTEM,Viakata system,Система Віаката,Object name
+NAME_STAR_A7_1,Equberan A star,Зірка Екуберан А,Object name
+NAME_STAR_A7_1_SYSTEM,Equberan system,Система Екуберан,Object name
+NAME_STAR_B7_0,Victory A star,Зірка Вікторі А,Object name
+NAME_STAR_B7_0_PLANET_0,Victory b planet,Вікторі b планета,Object name
+NAME_STAR_B7_0_SYSTEM,Victory system,Система Вікторі,Object name
+NAME_STAR_G8_0_1,Victory B star,Зірка Вікторі B,Object name
+TEST_LOCALE_LOADED,English locale successfully loaded.,Українська локалізація успішно завантажена.,misc
+,,,Object name
+,,,Object name

@@ -42,5 +42,5 @@ void fragment()
 	ALPHA = alpha*texture(texture_alpha, UV).r;
 	
 	NORMALMAP = texture(texture_normal, UV).rgb;
-	NORMALMAP_DEPTH = normal_depth*texture(texture_normal_depth, UV).r;
+	NORMALMAP_DEPTH = normal_depth;
 }

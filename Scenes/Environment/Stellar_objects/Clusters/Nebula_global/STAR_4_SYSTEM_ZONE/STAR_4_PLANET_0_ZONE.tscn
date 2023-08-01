@@ -1,0 +1,773 @@
+[gd_scene load_steps=45 format=2]
+
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.tres" type="ArrayMesh" id=1]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD1.tres" type="SphereMesh" id=2]
+[ext_resource path="res://Scripts/Zones/LODs_zones/LODs_trigger.gd" type="Script" id=3]
+[ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_planet.gd" type="Script" id=4]
+[ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere.gdshader" type="Shader" id=5]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.tres" type="ArrayMesh" id=6]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD2.tres" type="SphereMesh" id=7]
+[ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD1.tres" type="ArrayMesh" id=8]
+[ext_resource path="res://Scripts/Markers/Marker_planet.gd" type="Script" id=9]
+[ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_lava_displacement.gdshader" type="Shader" id=10]
+[ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD0+.tres" type="SphereMesh" id=11]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=12]
+[ext_resource path="res://Scripts/Zones/Zone_death.gd" type="Script" id=13]
+[ext_resource path="res://Assets/Models/Shapes/Sphere_segments/Sphere_segment_1.glb" type="PackedScene" id=14]
+[ext_resource path="res://Assets/Models/Shapes/Sphere_segments/Sphere_segment_4.glb" type="PackedScene" id=15]
+[ext_resource path="res://Assets/Models/Shapes/Sphere_segments/Sphere_segment_9.glb" type="PackedScene" id=16]
+[ext_resource path="res://Assets/Models/Shapes/Sphere_segments/Sphere_segment_16.glb" type="PackedScene" id=17]
+[ext_resource path="res://Assets/Shaders/Solid/Solid_decal_diffuse_only.gdshader" type="Shader" id=18]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Mask_medium.png" type="Texture" id=19]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Crater1_render.png" type="Texture" id=20]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Crater3_render.png" type="Texture" id=21]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Crater2_render.png" type="Texture" id=22]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Mask_small.png" type="Texture" id=23]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Crater_small_1_render.png" type="Texture" id=24]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Crater4_render.png" type="Texture" id=25]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Mask_medium_sharp.png" type="Texture" id=26]
+
+[sub_resource type="SphereShape" id=108]
+
+[sub_resource type="SphereShape" id=43]
+
+[sub_resource type="SphereShape" id=113]
+
+[sub_resource type="OpenSimplexNoise" id=110]
+period = 11.5
+
+[sub_resource type="NoiseTexture" id=84]
+width = 128
+height = 128
+seamless = true
+as_normalmap = true
+noise = SubResource( 110 )
+
+[sub_resource type="OpenSimplexNoise" id=111]
+seed = 66
+octaves = 9
+period = 28.2
+
+[sub_resource type="NoiseTexture" id=78]
+width = 256
+height = 256
+seamless = true
+bump_strength = 107.8
+noise = SubResource( 111 )
+
+[sub_resource type="OpenSimplexNoise" id=114]
+octaves = 7
+period = 167.6
+persistence = 1.0
+
+[sub_resource type="NoiseTexture" id=115]
+width = 128
+height = 128
+seamless = true
+as_normalmap = true
+noise = SubResource( 114 )
+
+[sub_resource type="OpenSimplexNoise" id=112]
+octaves = 9
+period = 30.4
+persistence = 0.66
+
+[sub_resource type="NoiseTexture" id=80]
+width = 128
+height = 128
+seamless = true
+bump_strength = 3.6
+noise = SubResource( 112 )
+
+[sub_resource type="ShaderMaterial" id=71]
+shader = ExtResource( 10 )
+shader_param/albedo = Color( 0.309804, 0.309804, 0.309804, 1 )
+shader_param/albedo_overlay = Color( 0.447059, 0.537255, 0.529412, 1 )
+shader_param/major_detail_phase = 0.69
+shader_param/small_detail_phase = 1.991
+shader_param/micro_detail_phase = 1.919
+shader_param/lava_mask_phase = 1.07
+shader_param/lava_detail_phase = 1.469
+shader_param/lava_decay_distance = 4e+06
+shader_param/major_detail_scale = 1.0
+shader_param/small_detail_scale = 3.0
+shader_param/micro_detail_scale = 13.0
+shader_param/lava_detail_scale = 20.0
+shader_param/detail_min = -1.0
+shader_param/detail_max = 1.0
+shader_param/lava_detail_intensity = 1.0
+shader_param/lava_noise_blend = 0.7
+shader_param/lava_contrast = 1.694
+shader_param/lava_flow = 0.01
+shader_param/uv_shift_x = 0.0
+shader_param/uv_shift_y = -0.173
+shader_param/major_detail_noise = SubResource( 78 )
+shader_param/small_detail_noise = SubResource( 80 )
+shader_param/micro_detail_noise = SubResource( 115 )
+shader_param/lava_detail_noise = SubResource( 84 )
+
+[sub_resource type="ShaderMaterial" id=86]
+shader = ExtResource( 5 )
+shader_param/albedo = Color( 0.0862745, 0.0627451, 0.0627451, 1 )
+shader_param/emission = Color( 0.72549, 0.172549, 0.172549, 1 )
+shader_param/alpha_clip = 0.015
+shader_param/rim_strength = 25.0
+shader_param/rim_exponent = 5.8
+
+[sub_resource type="ShaderMaterial" id=116]
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/metallic = 0.0
+shader_param/alpha = 1.0
+shader_param/texture_alpha = ExtResource( 23 )
+shader_param/texture_ao = ExtResource( 24 )
+
+[sub_resource type="ShaderMaterial" id=120]
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/metallic = 0.0
+shader_param/alpha = 1.0
+shader_param/texture_alpha = ExtResource( 19 )
+shader_param/texture_ao = ExtResource( 25 )
+
+[sub_resource type="ShaderMaterial" id=119]
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/metallic = 0.0
+shader_param/alpha = 1.0
+shader_param/texture_alpha = ExtResource( 26 )
+shader_param/texture_ao = ExtResource( 20 )
+
+[sub_resource type="ShaderMaterial" id=117]
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/metallic = 0.0
+shader_param/alpha = 1.0
+shader_param/texture_alpha = ExtResource( 26 )
+shader_param/texture_ao = ExtResource( 22 )
+
+[sub_resource type="ShaderMaterial" id=118]
+shader = ExtResource( 18 )
+shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/metallic = 0.0
+shader_param/alpha = 1.0
+shader_param/texture_alpha = ExtResource( 26 )
+shader_param/texture_ao = ExtResource( 21 )
+
+[node name="STAR_4_PLANET_0_ZONE" type="Area"]
+input_ray_pickable = false
+monitorable = false
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 4 )
+
+[node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 12 )]
+visible = false
+
+[node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
+transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )
+light_color = Color( 0.968627, 0.65098, 0.498039, 1 )
+light_energy = 2.578
+
+[node name="OmniLight" type="OmniLight" parent="_EDITOR OBJECTS_"]
+
+[node name="Zone shape 1_21e+07" type="CollisionShape" parent="."]
+transform = Transform( 1.21e+07, 0, 0, 0, 1.21e+07, 0, 0, 0, 1.21e+07, 0, 0, 0 )
+shape = SubResource( 108 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Scenes" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "Add marker to scene and set its level."
+}
+
+[node name="STAR_4_PLANET_0" type="Position3D" parent="Scenes"]
+script = ExtResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}
+autopilot_range = 2e+06
+translations_name = "NAME_STAR_4_PLANET_0"
+translations_description = "DESC_STAR_4_PLANET_0"
+
+[node name="Collision" type="StaticBody" parent="Scenes/STAR_4_PLANET_0"]
+
+[node name="CollisionShape 6_06e+05" type="CollisionShape" parent="Scenes/STAR_4_PLANET_0/Collision"]
+transform = Transform( 606000, 0, 0, 0, 606000, 0, 0, 0, 606000, 0, 0, 0 )
+shape = SubResource( 43 )
+
+[node name="Death_zone" type="Area" parent="Scenes/STAR_4_PLANET_0"]
+gravity = 0.0
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 13 )
+
+[node name="Zone shape 6_37e+05" type="CollisionShape" parent="Scenes/STAR_4_PLANET_0/Death_zone"]
+transform = Transform( 637000, 0, 0, 0, 637000, 0, 0, 0, 637000, 0, 0, 0 )
+shape = SubResource( 113 )
+
+[node name="LODs 6_06e+05" type="Spatial" parent="Scenes/STAR_4_PLANET_0"]
+transform = Transform( 606000, 0, 0, 0, 606000, 0, 0, 0, 606000, 0, 0, 0 )
+script = ExtResource( 3 )
+__meta__ = {
+"_editor_description_": "Do not rename or edit nodes.
+Put meshes into Scene Items nodes
+"
+}
+
+[node name="LOD0" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="UV_sphere_LOD0" type="MeshInstance" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0"]
+mesh = ExtResource( 11 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 71 )
+
+[node name="Icosphere_LOD0_atmo" type="MeshInstance" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0"]
+transform = Transform( 1.05, 0, 0, 0, 1.05, 0, 0, 0, 1.05, 0, 0, 0 )
+mesh = ExtResource( 1 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 86 )
+
+[node name="Craters_lit_side" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0"]
+
+[node name="Smallest" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+
+[node name="Sphere_segment_10" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.0153978, 0.97774, 0.218609, 0.620394, -0.18098, 0.765742, 0.786688, 0.123586, -0.608155, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_10" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_8" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.684057, 0.202318, 0.70366, 0.189805, -0.979067, 0.0969855, 0.707137, 0.0670805, -0.706725, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_8" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_14" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( -0.692104, -0.459674, -0.560085, -0.091069, 0.823585, -0.563399, 0.718819, -0.338248, -0.610647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_14" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_5" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.476626, -0.327407, 0.818313, -0.237955, -0.943556, -0.23892, 0.848651, -0.0806849, -0.526578, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_5" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_3" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( -0.651502, 0.627908, -0.430442, 0.440837, 0.773066, 0.460473, 0.620654, 0.110024, -0.778901, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_3" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_6" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.458528, -0.0261996, 0.890545, -0.00181287, -1.00159, -0.0285332, 0.890928, 0.0114459, -0.458388, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_6" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_2" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest" instance=ExtResource( 14 )]
+transform = Transform( -0.407561, -0.911394, -0.0851957, -0.524782, 0.309052, -0.795672, 0.750001, -0.279018, -0.603034, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_2" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Smallest2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+transform = Transform( 0.84019, 0.491348, -0.229477, -0.485776, 0.870014, 0.084257, 0.241047, 0.0406826, 0.969661, 0, 0, 0 )
+
+[node name="Sphere_segment_10" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.0153978, 0.97774, 0.218609, 0.620394, -0.18098, 0.765742, 0.786688, 0.123586, -0.608155, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_10" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_8" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.684057, 0.202318, 0.70366, 0.189805, -0.979067, 0.0969855, 0.707137, 0.0670805, -0.706725, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_8" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_14" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( -0.692104, -0.459674, -0.560085, -0.091069, 0.823585, -0.563399, 0.718819, -0.338248, -0.610647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_14" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_5" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.476626, -0.327407, 0.818313, -0.237955, -0.943556, -0.23892, 0.848651, -0.0806849, -0.526578, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_5" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_3" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( -0.651502, 0.627908, -0.430442, 0.440837, 0.773066, 0.460473, 0.620654, 0.110024, -0.778901, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_3" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_6" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.458528, -0.0261996, 0.890545, -0.00181287, -1.00159, -0.0285332, 0.890928, 0.0114459, -0.458388, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_6" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_2" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( -0.407561, -0.911394, -0.0851957, -0.524782, 0.309052, -0.795672, 0.750001, -0.279018, -0.603034, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_2" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Small" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+
+[node name="Sphere_segment_11" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
+transform = Transform( -0.617261, 0.30858, -0.726478, 0.368338, 0.928286, 0.0813381, 0.698083, -0.216949, -0.685286, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_11" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_12" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
+transform = Transform( 0.256649, -0.298041, 0.921578, -0.0871482, -0.956621, -0.285105, 0.964645, -0.00712768, -0.270949, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_12" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
+transform = Transform( 0.259236, 0.385153, 0.887951, 0.18193, -0.922255, 0.346917, 0.950632, 0.0714685, -0.308535, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_9" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_13" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
+transform = Transform( -0.153131, 0.667116, -0.731786, 0.294252, 0.737692, 0.610925, 0.9455, -0.121535, -0.308647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_13" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_7" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
+transform = Transform( 0.590535, 0.662653, 0.464933, 0.612844, -0.741974, 0.279106, 0.528861, 0.11987, -0.84258, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_7" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
+transform = Transform( -0.69723, 0.71657, 0.0663495, 0.491294, 0.406465, 0.77293, 0.525838, 0.570366, -0.634178, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_1" index="0"]
+transform = Transform( 0.999999, 0, 0, 0, 0.999998, 0, 0, 0, 0.999998, 0, 0, 0 )
+material/0 = SubResource( 120 )
+
+[node name="Small2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+transform = Transform( -0.759358, -0.353926, -0.545996, 0.442994, -0.895826, -0.0354129, -0.476583, -0.268764, 0.83704, 0, 0, 0 )
+
+[node name="Sphere_segment_11" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2" instance=ExtResource( 14 )]
+transform = Transform( -0.617261, 0.30858, -0.726478, 0.368338, 0.928286, 0.0813381, 0.698083, -0.216949, -0.685286, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_11" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_12" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2" instance=ExtResource( 14 )]
+transform = Transform( 0.256649, -0.298041, 0.921578, -0.0871482, -0.956621, -0.285105, 0.964645, -0.00712768, -0.270949, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_12" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2" instance=ExtResource( 14 )]
+transform = Transform( 0.259236, 0.385153, 0.887951, 0.18193, -0.922255, 0.346917, 0.950632, 0.0714685, -0.308535, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_9" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_13" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2" instance=ExtResource( 14 )]
+transform = Transform( -0.153131, 0.667116, -0.731786, 0.294252, 0.737692, 0.610925, 0.9455, -0.121535, -0.308647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_13" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_7" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2" instance=ExtResource( 14 )]
+transform = Transform( 0.590535, 0.662653, 0.464933, 0.612844, -0.741974, 0.279106, 0.528861, 0.11987, -0.84258, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_7" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2" instance=ExtResource( 14 )]
+transform = Transform( -0.69723, 0.71657, 0.0663495, 0.491294, 0.406465, 0.77293, 0.525838, 0.570366, -0.634178, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_1" index="0"]
+transform = Transform( 0.999999, 0, 0, 0, 0.999998, 0, 0, 0, 0.999998, 0, 0, 0 )
+material/0 = SubResource( 120 )
+
+[node name="Medium" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.885937, -0.164046, -0.447482, -0.218958, 0.979046, 0.0745836, 0.42333, 0.163078, -0.897905, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_4" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Sphere_segment_5" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.64907, 0.764956, -0.0747319, 0.155169, 0.226218, 0.967875, 0.752772, 0.612946, -0.263946, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_5" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Sphere_segment_6" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.179024, -0.980295, 0.137869, -0.290818, -0.0818433, -0.959563, 0.946261, -0.210616, -0.268823, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_6" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Sphere_segment_7" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.179024, -0.980295, 0.137869, -0.290818, -0.0818433, -0.959563, 0.946261, -0.210616, -0.268823, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_7" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Big" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Big" instance=ExtResource( 16 )]
+transform = Transform( 0.666035, 0.0128034, 0.751165, 0.039341, -1.00307, -0.0177854, 0.750243, 0.0412323, -0.665921, 0, 0, 0 )
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Big/Sphere_segment_9" index="0"]
+material/0 = SubResource( 117 )
+
+[node name="Very_big" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side"]
+
+[node name="Sphere_segment_16" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Very_big" instance=ExtResource( 17 )]
+transform = Transform( -0.868197, 0.418331, 0.277927, -0.350141, -0.902064, 0.263989, 0.360063, 0.131486, 0.926863, 0, 0, 0 )
+
+[node name="Sphere_segment_16" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Very_big/Sphere_segment_16" index="0"]
+material/0 = SubResource( 118 )
+
+[node name="LOD1" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="UV_sphere_LOD1" type="MeshInstance" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1"]
+mesh = ExtResource( 2 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 71 )
+
+[node name="Icosphere_LOD1_atmo" type="MeshInstance" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1"]
+transform = Transform( 1.05, 0, 0, 0, 1.05, 0, 0, 0, 1.05, 0, 0, 0 )
+mesh = ExtResource( 8 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 86 )
+
+[node name="Craters_lit_side2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+
+[node name="Smallest" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+
+[node name="Sphere_segment_10" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.0153978, 0.97774, 0.218609, 0.620394, -0.18098, 0.765742, 0.786688, 0.123586, -0.608155, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_10" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_8" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.684057, 0.202318, 0.70366, 0.189805, -0.979067, 0.0969855, 0.707137, 0.0670805, -0.706725, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_8" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_14" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( -0.692104, -0.459674, -0.560085, -0.091069, 0.823585, -0.563399, 0.718819, -0.338248, -0.610647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_14" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_5" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.476626, -0.327407, 0.818313, -0.237955, -0.943556, -0.23892, 0.848651, -0.0806849, -0.526578, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_5" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_3" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( -0.651502, 0.627908, -0.430442, 0.440837, 0.773066, 0.460473, 0.620654, 0.110024, -0.778901, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_3" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_6" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( 0.458528, -0.0261996, 0.890545, -0.00181287, -1.00159, -0.0285332, 0.890928, 0.0114459, -0.458388, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_6" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_2" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest" instance=ExtResource( 14 )]
+transform = Transform( -0.407561, -0.911394, -0.0851957, -0.524782, 0.309052, -0.795672, 0.750001, -0.279018, -0.603034, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_2" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Smallest2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+transform = Transform( 0.84019, 0.491348, -0.229477, -0.485776, 0.870014, 0.084257, 0.241047, 0.0406826, 0.969661, 0, 0, 0 )
+
+[node name="Sphere_segment_10" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.0153978, 0.97774, 0.218609, 0.620394, -0.18098, 0.765742, 0.786688, 0.123586, -0.608155, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_10" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_8" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.684057, 0.202318, 0.70366, 0.189805, -0.979067, 0.0969855, 0.707137, 0.0670805, -0.706725, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_8" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_14" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( -0.692104, -0.459674, -0.560085, -0.091069, 0.823585, -0.563399, 0.718819, -0.338248, -0.610647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_14" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_5" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.476626, -0.327407, 0.818313, -0.237955, -0.943556, -0.23892, 0.848651, -0.0806849, -0.526578, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_5" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_3" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( -0.651502, 0.627908, -0.430442, 0.440837, 0.773066, 0.460473, 0.620654, 0.110024, -0.778901, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_3" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_6" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( 0.458528, -0.0261996, 0.890545, -0.00181287, -1.00159, -0.0285332, 0.890928, 0.0114459, -0.458388, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_6" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Sphere_segment_2" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2" instance=ExtResource( 14 )]
+transform = Transform( -0.407561, -0.911394, -0.0851957, -0.524782, 0.309052, -0.795672, 0.750001, -0.279018, -0.603034, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_2" index="0"]
+material/0 = SubResource( 116 )
+
+[node name="Small" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+
+[node name="Sphere_segment_11" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small" instance=ExtResource( 14 )]
+transform = Transform( -0.617261, 0.30858, -0.726478, 0.368338, 0.928286, 0.0813381, 0.698083, -0.216949, -0.685286, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_11" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_12" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small" instance=ExtResource( 14 )]
+transform = Transform( 0.256649, -0.298041, 0.921578, -0.0871482, -0.956621, -0.285105, 0.964645, -0.00712768, -0.270949, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_12" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small" instance=ExtResource( 14 )]
+transform = Transform( 0.259236, 0.385153, 0.887951, 0.18193, -0.922255, 0.346917, 0.950632, 0.0714685, -0.308535, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_9" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_13" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small" instance=ExtResource( 14 )]
+transform = Transform( -0.153131, 0.667116, -0.731786, 0.294252, 0.737692, 0.610925, 0.9455, -0.121535, -0.308647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_13" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_7" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small" instance=ExtResource( 14 )]
+transform = Transform( 0.590535, 0.662653, 0.464933, 0.612844, -0.741974, 0.279106, 0.528861, 0.11987, -0.84258, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_7" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small" instance=ExtResource( 14 )]
+transform = Transform( -0.69723, 0.71657, 0.0663495, 0.491294, 0.406465, 0.77293, 0.525838, 0.570366, -0.634178, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_1" index="0"]
+transform = Transform( 0.999999, 0, 0, 0, 0.999998, 0, 0, 0, 0.999998, 0, 0, 0 )
+material/0 = SubResource( 120 )
+
+[node name="Small2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+transform = Transform( -0.759358, -0.353926, -0.545996, 0.442994, -0.895826, -0.0354129, -0.476583, -0.268764, 0.83704, 0, 0, 0 )
+
+[node name="Sphere_segment_11" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2" instance=ExtResource( 14 )]
+transform = Transform( -0.617261, 0.30858, -0.726478, 0.368338, 0.928286, 0.0813381, 0.698083, -0.216949, -0.685286, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_11" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_12" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2" instance=ExtResource( 14 )]
+transform = Transform( 0.256649, -0.298041, 0.921578, -0.0871482, -0.956621, -0.285105, 0.964645, -0.00712768, -0.270949, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_12" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2" instance=ExtResource( 14 )]
+transform = Transform( 0.259236, 0.385153, 0.887951, 0.18193, -0.922255, 0.346917, 0.950632, 0.0714685, -0.308535, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_9" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_13" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2" instance=ExtResource( 14 )]
+transform = Transform( -0.153131, 0.667116, -0.731786, 0.294252, 0.737692, 0.610925, 0.9455, -0.121535, -0.308647, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_13" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_7" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2" instance=ExtResource( 14 )]
+transform = Transform( 0.590535, 0.662653, 0.464933, 0.612844, -0.741974, 0.279106, 0.528861, 0.11987, -0.84258, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_7" index="0"]
+material/0 = SubResource( 120 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2" instance=ExtResource( 14 )]
+transform = Transform( -0.69723, 0.71657, 0.0663495, 0.491294, 0.406465, 0.77293, 0.525838, 0.570366, -0.634178, 0, 0, 0 )
+
+[node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_1" index="0"]
+transform = Transform( 0.999999, 0, 0, 0, 0.999998, 0, 0, 0, 0.999998, 0, 0, 0 )
+material/0 = SubResource( 120 )
+
+[node name="Medium" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.885937, -0.164046, -0.447482, -0.218958, 0.979046, 0.0745836, 0.42333, 0.163078, -0.897905, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_4" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Sphere_segment_5" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.64907, 0.764956, -0.0747319, 0.155169, 0.226218, 0.967875, 0.752772, 0.612946, -0.263946, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_5" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Sphere_segment_6" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.179024, -0.980295, 0.137869, -0.290818, -0.0818433, -0.959563, 0.946261, -0.210616, -0.268823, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_6" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Sphere_segment_7" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium" instance=ExtResource( 15 )]
+transform = Transform( -0.179024, -0.980295, 0.137869, -0.290818, -0.0818433, -0.959563, 0.946261, -0.210616, -0.268823, 0, 0, 0 )
+
+[node name="Sphere_segment_4" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_7" index="0"]
+material/0 = SubResource( 119 )
+
+[node name="Big" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Big" instance=ExtResource( 16 )]
+transform = Transform( 0.666035, 0.0128034, 0.751165, 0.039341, -1.00307, -0.0177854, 0.750243, 0.0412323, -0.665921, 0, 0, 0 )
+
+[node name="Sphere_segment_9" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Big/Sphere_segment_9" index="0"]
+material/0 = SubResource( 117 )
+
+[node name="Very_big" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
+
+[node name="Sphere_segment_16" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Very_big" instance=ExtResource( 17 )]
+transform = Transform( -0.868197, 0.418331, 0.277927, -0.350141, -0.902064, 0.263989, 0.360063, 0.131486, 0.926863, 0, 0, 0 )
+
+[node name="Sphere_segment_16" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Very_big/Sphere_segment_16" index="0"]
+material/0 = SubResource( 118 )
+
+[node name="LOD2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05"]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="UV_sphere_LOD2" type="MeshInstance" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD2"]
+mesh = ExtResource( 7 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 71 )
+
+[node name="Icosphere_LOD2_atmo" type="MeshInstance" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD2"]
+transform = Transform( 1.05, 0, 0, 0, 1.05, 0, 0, 0, 1.05, 0, 0, 0 )
+mesh = ExtResource( 6 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 86 )
+
+[node name="LOD3" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
+
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_10"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_8"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_14"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_5"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_3"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_6"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest/Sphere_segment_2"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_10"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_8"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_14"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_5"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_3"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_6"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Smallest2/Sphere_segment_2"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_11"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_12"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_9"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_13"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_7"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_1"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_11"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_12"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_9"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_13"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_7"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small2/Sphere_segment_1"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_4"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_5"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_6"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Medium/Sphere_segment_7"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Big/Sphere_segment_9"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Very_big/Sphere_segment_16"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_10"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_8"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_14"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_5"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_3"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_6"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest/Sphere_segment_2"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_10"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_8"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_14"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_5"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_3"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_6"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Smallest2/Sphere_segment_2"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_11"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_12"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_9"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_13"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_7"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small/Sphere_segment_1"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_11"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_12"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_9"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_13"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_7"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Small2/Sphere_segment_1"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_4"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_5"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_6"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_7"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Big/Sphere_segment_9"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Very_big/Sphere_segment_16"]
