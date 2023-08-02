@@ -35,6 +35,7 @@ __meta__ = {
 
 [node name="Fake_stars" type="Position3D" parent="Nebula_global"]
 transform = Transform( 0.158883, 0.0651861, -0.102503, -0.0446808, 0.188294, 0.0504876, 0.112959, -0.0172087, 0.164147, 1.87264e+17, 6.72165e+16, -3.53759e+16 )
+visible = false
 script = ExtResource( 16 )
 __meta__ = {
 "_edit_lock_": true

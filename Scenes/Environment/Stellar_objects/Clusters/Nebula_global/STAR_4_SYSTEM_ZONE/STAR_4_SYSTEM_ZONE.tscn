@@ -1,9 +1,20 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Nebula_global/STAR_4_SYSTEM_ZONE/STAR_4_ZONE.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Nebula_global/STAR_4_SYSTEM_ZONE/STAR_4_PLANET_0_ZONE.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Shaders/Solid/Solid_material.gdshader" type="Shader" id=4]
+[ext_resource path="res://Assets/Models/Shapes/Ring_075/Ring_075_LOD0.tres" type="ArrayMesh" id=5]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
+
+[sub_resource type="ShaderMaterial" id=80]
+shader = ExtResource( 4 )
+shader_param/albedo = null
+shader_param/emission = Color( 0.121569, 0.415686, 0.0666667, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 0.0
+shader_param/roughness = 0.5
 
 [sub_resource type="SphereShape" id=79]
 
@@ -14,6 +25,13 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 11 )
+
+[node name="_EDITOR_OBJECTS_" parent="." instance=ExtResource( 6 )]
+
+[node name="Ecliptic" type="MeshInstance" parent="_EDITOR_OBJECTS_"]
+transform = Transform( 1e+13, 0, 0, 0, 1e+13, 0, 0, 0, 1e+13, 0, 0, 0 )
+mesh = ExtResource( 5 )
+material/0 = SubResource( 80 )
 
 [node name="1e13" type="CollisionShape" parent="."]
 transform = Transform( 1e+13, 0, 0, 0, 1e+13, 0, 0, 0, 1e+13, 0, 0, 0 )
@@ -39,9 +57,10 @@ translations_description = "DESC_STAR_4_SYSTEM"
 [node name="STAR_4_ZONE" parent="Scenes/STAR_4_SYSTEM" instance=ExtResource( 2 )]
 
 [node name="STAR_4_PLANET_0_AXIS" type="Position3D" parent="Scenes/STAR_4_SYSTEM"]
+transform = Transform( -0.968885, -0.218268, 0.116707, 0.120996, -0.00634302, 0.992633, -0.215919, 0.975868, 0.0325552, 0, 0, 0 )
 
 [node name="STAR_4_PLANET_0_ZONE" parent="Scenes/STAR_4_SYSTEM/STAR_4_PLANET_0_AXIS" instance=ExtResource( 3 )]
-transform = Transform( -0.40833, 0, -0.912834, 0, 1, 0, 0.912834, 0, -0.40833, 3.91149e+10, 2.33648e+08, 3.47642e+10 )
+transform = Transform( 0.467017, 0.00755577, -0.884215, -0.880844, 0.0916358, -0.464453, 0.0775163, 0.995764, 0.0494512, 4.02e+09, 384, 750 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]

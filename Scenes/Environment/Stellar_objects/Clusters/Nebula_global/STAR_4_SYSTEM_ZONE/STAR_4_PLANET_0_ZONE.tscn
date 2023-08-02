@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=2]
+[gd_scene load_steps=48 format=2]
 
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.tres" type="ArrayMesh" id=1]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/UV_sphere_LOD1.tres" type="SphereMesh" id=2]
@@ -20,12 +20,14 @@
 [ext_resource path="res://Assets/Shaders/Solid/Solid_decal_diffuse_only.gdshader" type="Shader" id=18]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Mask_medium.png" type="Texture" id=19]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Crater1_render.png" type="Texture" id=20]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Crater3_render.png" type="Texture" id=21]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Crater3_render_spiky.png" type="Texture" id=21]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Crater2_render.png" type="Texture" id=22]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Mask_small.png" type="Texture" id=23]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Crater_small_1_render.png" type="Texture" id=24]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Crater4_render.png" type="Texture" id=25]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Mask_medium_sharp.png" type="Texture" id=26]
+[ext_resource path="res://Assets/Shaders/Lights/Light_distant_sprite.gdshader" type="Shader" id=27]
+[ext_resource path="res://Assets/Models/Sprites/Solar_sprite.glb" type="PackedScene" id=28]
 
 [sub_resource type="SphereShape" id=108]
 
@@ -117,47 +119,50 @@ shader_param/rim_exponent = 5.8
 [sub_resource type="ShaderMaterial" id=116]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/metallic = 0.0
 shader_param/alpha = 1.0
 shader_param/texture_alpha = ExtResource( 23 )
-shader_param/texture_ao = ExtResource( 24 )
+shader_param/texture_diffuse = ExtResource( 24 )
 
 [sub_resource type="ShaderMaterial" id=120]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/metallic = 0.0
 shader_param/alpha = 1.0
 shader_param/texture_alpha = ExtResource( 19 )
-shader_param/texture_ao = ExtResource( 25 )
+shader_param/texture_diffuse = ExtResource( 25 )
 
 [sub_resource type="ShaderMaterial" id=119]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/metallic = 0.0
 shader_param/alpha = 1.0
 shader_param/texture_alpha = ExtResource( 26 )
-shader_param/texture_ao = ExtResource( 20 )
+shader_param/texture_diffuse = ExtResource( 20 )
 
 [sub_resource type="ShaderMaterial" id=117]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/metallic = 0.0
 shader_param/alpha = 1.0
 shader_param/texture_alpha = ExtResource( 26 )
-shader_param/texture_ao = ExtResource( 22 )
+shader_param/texture_diffuse = ExtResource( 22 )
 
 [sub_resource type="ShaderMaterial" id=118]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
-shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/metallic = 0.0
 shader_param/alpha = 1.0
 shader_param/texture_alpha = ExtResource( 26 )
-shader_param/texture_ao = ExtResource( 21 )
+shader_param/texture_diffuse = ExtResource( 21 )
+
+[sub_resource type="ShaderMaterial" id=121]
+shader = ExtResource( 27 )
+shader_param/albedo = Color( 0.247059, 0.14902, 0.027451, 1 )
+shader_param/scale = 0.008
+shader_param/flare_distance = 9.09e+07
+shader_param/flare_size = 1.0
+shader_param/attenuation = 0.12
+shader_param/intensity = 1.0
+shader_param/exponent = 0.8
+shader_param/pulse_factor = 1.0
+shader_param/pulse_rate = 10.0
+shader_param/phase = 0.0
 
 [node name="STAR_4_PLANET_0_ZONE" type="Area"]
 input_ray_pickable = false
@@ -172,10 +177,12 @@ visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )
+visible = false
 light_color = Color( 0.968627, 0.65098, 0.498039, 1 )
 light_energy = 2.578
 
 [node name="OmniLight" type="OmniLight" parent="_EDITOR OBJECTS_"]
+visible = false
 
 [node name="Zone shape 1_21e+07" type="CollisionShape" parent="."]
 transform = Transform( 1.21e+07, 0, 0, 0, 1.21e+07, 0, 0, 0, 1.21e+07, 0, 0, 0 )
@@ -195,7 +202,7 @@ script = ExtResource( 9 )
 __meta__ = {
 "_edit_lock_": true
 }
-autopilot_range = 2e+06
+autopilot_range = 1.27e+06
 translations_name = "NAME_STAR_4_PLANET_0"
 translations_description = "DESC_STAR_4_PLANET_0"
 
@@ -223,6 +230,7 @@ __meta__ = {
 Put meshes into Scene Items nodes
 "
 }
+lod_2_relative_distance = 300.0
 
 [node name="LOD0" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05"]
 __meta__ = {
@@ -470,7 +478,6 @@ skeleton = NodePath("../..")
 material/0 = SubResource( 86 )
 
 [node name="Craters_lit_side2" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 
 [node name="Smallest" type="Spatial" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2"]
 
@@ -704,6 +711,11 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Solar_sprite" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD3" instance=ExtResource( 28 )]
+
+[node name="Solar_sprite" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD3/Solar_sprite" index="0"]
+material/0 = SubResource( 121 )
+
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
 
@@ -771,3 +783,4 @@ __meta__ = {
 [editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Medium/Sphere_segment_7"]
 [editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Big/Sphere_segment_9"]
 [editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD1/Craters_lit_side2/Very_big/Sphere_segment_16"]
+[editable path="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD3/Solar_sprite"]

@@ -28,12 +28,12 @@ uniform sampler2D texture_alpha : hint_normal;
 uniform sampler2D texture_specular : hint_normal;
 uniform sampler2D texture_roughness : hint_normal;
 uniform sampler2D texture_normal_depth : hint_normal;
-uniform sampler2D texture_ao : hint_normal;
+uniform sampler2D texture_diffuse : hint_normal;
 uniform sampler2D texture_normal : hint_normal;
 
 void fragment()
 {
-	ALBEDO = albedo.rgb*COLOR.rgb*texture(texture_ao, UV).r;
+	ALBEDO = albedo.rgb*COLOR.rgb*texture(texture_diffuse, UV).r;
 	METALLIC = metallic;
 	EMISSION = emission.rgb*COLOR.rgb;
 	SPECULAR = specular*texture(texture_specular, UV).r;

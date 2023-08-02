@@ -122,9 +122,9 @@ gravity = 0.0
 linear_damp = 0.0
 angular_damp = 0.0
 script = ExtResource( 2 )
-star_brightness_variation = 0.15
-star_contrast_variation = 0.2
-star_saturation_variation = -0.5
+star_brightness_variation = 0.1
+star_contrast_variation = 0.1
+star_saturation_variation = -0.25
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 11 )]
 visible = false

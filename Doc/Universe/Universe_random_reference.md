@@ -153,7 +153,8 @@ Earth-relative units:
 * Planet zone size: 1.53e+08
 * Planet death zone size: 8.04e+06
 * Planet size: 7.66e+06
-* Planet autopilot range: 1.21e+07
+* Planet autopilot range: 1.61e+07
+* Planet semi-major axis: 9.41e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -211,7 +212,8 @@ Earth-relative units:
 * Planet zone size: 2.94e+09
 * Planet death zone size: 1.54e+08
 * Planet size: 1.47e+08
-* Planet autopilot range: 2.31e+08
+* Planet autopilot range: 3.08e+08
+* Planet semi-major axis: 1.25e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -269,7 +271,8 @@ Earth-relative units:
 * Planet zone size: 1.97e+07
 * Planet death zone size: 1.04e+06
 * Planet size: 9.87e+05
-* Planet autopilot range: 1.55e+06
+* Planet autopilot range: 2.07e+06
+* Planet semi-major axis: 1.66e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -437,7 +440,8 @@ Earth-relative units:
 * Planet zone size: 2.34e+07
 * Planet death zone size: 1.23e+06
 * Planet size: 1.17e+06
-* Planet autopilot range: 1.84e+06
+* Planet autopilot range: 2.46e+06
+* Planet semi-major axis: 6.74e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -495,7 +499,8 @@ Earth-relative units:
 * Planet zone size: 1.05e+07
 * Planet death zone size: 5.52e+05
 * Planet size: 5.26e+05
-* Planet autopilot range: 8.28e+05
+* Planet autopilot range: 1.10e+06
+* Planet semi-major axis: 8.96e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -553,7 +558,8 @@ Earth-relative units:
 * Planet zone size: 5.59e+07
 * Planet death zone size: 2.93e+06
 * Planet size: 2.79e+06
-* Planet autopilot range: 4.40e+06
+* Planet autopilot range: 5.87e+06
+* Planet semi-major axis: 1.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -611,7 +617,8 @@ Earth-relative units:
 * Planet zone size: 1.82e+07
 * Planet death zone size: 9.54e+05
 * Planet size: 9.09e+05
-* Planet autopilot range: 1.43e+06
+* Planet autopilot range: 1.91e+06
+* Planet semi-major axis: 1.58e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -779,7 +786,8 @@ Earth-relative units:
 * Planet zone size: 6.90e+06
 * Planet death zone size: 3.62e+05
 * Planet size: 3.45e+05
-* Planet autopilot range: 5.43e+05
+* Planet autopilot range: 7.24e+05
+* Planet semi-major axis: 1.41e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -837,7 +845,8 @@ Earth-relative units:
 * Planet zone size: 4.27e+07
 * Planet death zone size: 2.24e+06
 * Planet size: 2.14e+06
-* Planet autopilot range: 3.37e+06
+* Planet autopilot range: 4.49e+06
+* Planet semi-major axis: 2.82e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -895,7 +904,8 @@ Earth-relative units:
 * Planet zone size: 4.03e+07
 * Planet death zone size: 2.11e+06
 * Planet size: 2.01e+06
-* Planet autopilot range: 3.17e+06
+* Planet autopilot range: 4.23e+06
+* Planet semi-major axis: 5.64e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -953,7 +963,8 @@ Earth-relative units:
 * Planet zone size: 3.18e+09
 * Planet death zone size: 1.67e+08
 * Planet size: 1.59e+08
-* Planet autopilot range: 2.51e+08
+* Planet autopilot range: 3.34e+08
+* Planet semi-major axis: 1.13e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1011,7 +1022,8 @@ Earth-relative units:
 * Planet zone size: 2.44e+08
 * Planet death zone size: 1.28e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.92e+07
+* Planet autopilot range: 2.56e+07
+* Planet semi-major axis: 2.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1069,7 +1081,8 @@ Earth-relative units:
 * Planet zone size: 3.50e+09
 * Planet death zone size: 1.84e+08
 * Planet size: 1.75e+08
-* Planet autopilot range: 2.76e+08
+* Planet autopilot range: 3.68e+08
+* Planet semi-major axis: 4.51e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1373,7 +1386,8 @@ Earth-relative units:
 * Planet zone size: 2.48e+09
 * Planet death zone size: 1.30e+08
 * Planet size: 1.24e+08
-* Planet autopilot range: 1.95e+08
+* Planet autopilot range: 2.61e+08
+* Planet semi-major axis: 9.27e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1431,7 +1445,8 @@ Earth-relative units:
 * Planet zone size: 2.05e+08
 * Planet death zone size: 1.08e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.62e+07
+* Planet autopilot range: 2.15e+07
+* Planet semi-major axis: 1.85e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1489,7 +1504,8 @@ Earth-relative units:
 * Planet zone size: 3.99e+07
 * Planet death zone size: 2.09e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.14e+06
+* Planet autopilot range: 4.19e+06
+* Planet semi-major axis: 3.71e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1547,7 +1563,8 @@ Earth-relative units:
 * Planet zone size: 1.16e+08
 * Planet death zone size: 6.08e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.11e+06
+* Planet autopilot range: 1.22e+07
+* Planet semi-major axis: 7.41e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1605,7 +1622,8 @@ Earth-relative units:
 * Planet zone size: 3.41e+09
 * Planet death zone size: 1.79e+08
 * Planet size: 1.70e+08
-* Planet autopilot range: 2.69e+08
+* Planet autopilot range: 3.58e+08
+* Planet semi-major axis: 1.48e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1663,7 +1681,8 @@ Earth-relative units:
 * Planet zone size: 1.01e+07
 * Planet death zone size: 5.28e+05
 * Planet size: 5.03e+05
-* Planet autopilot range: 7.92e+05
+* Planet autopilot range: 1.06e+06
+* Planet semi-major axis: 2.97e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1721,7 +1740,8 @@ Earth-relative units:
 * Planet zone size: 3.62e+07
 * Planet death zone size: 1.90e+06
 * Planet size: 1.81e+06
-* Planet autopilot range: 2.85e+06
+* Planet autopilot range: 3.80e+06
+* Planet semi-major axis: 5.93e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1779,7 +1799,8 @@ Earth-relative units:
 * Planet zone size: 2.62e+08
 * Planet death zone size: 1.38e+07
 * Planet size: 1.31e+07
-* Planet autopilot range: 2.06e+07
+* Planet autopilot range: 2.75e+07
+* Planet semi-major axis: 1.19e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1837,7 +1858,8 @@ Earth-relative units:
 * Planet zone size: 1.94e+07
 * Planet death zone size: 1.02e+06
 * Planet size: 9.68e+05
-* Planet autopilot range: 1.52e+06
+* Planet autopilot range: 2.03e+06
+* Planet semi-major axis: 2.37e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1895,7 +1917,8 @@ Earth-relative units:
 * Planet zone size: 4.93e+09
 * Planet death zone size: 2.59e+08
 * Planet size: 6.02e+05
-* Planet autopilot range: 3.88e+08
+* Planet autopilot range: 5.18e+08
+* Planet semi-major axis: 4.74e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -1953,7 +1976,8 @@ Earth-relative units:
 * Planet zone size: 1.79e+08
 * Planet death zone size: 9.41e+06
 * Planet size: 8.96e+06
-* Planet autopilot range: 1.41e+07
+* Planet autopilot range: 1.88e+07
+* Planet semi-major axis: 9.49e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2011,7 +2035,8 @@ Earth-relative units:
 * Planet zone size: 3.00e+08
 * Planet death zone size: 1.57e+07
 * Planet size: 1.50e+07
-* Planet autopilot range: 2.36e+07
+* Planet autopilot range: 3.15e+07
+* Planet semi-major axis: 1.90e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2069,7 +2094,8 @@ Earth-relative units:
 * Planet zone size: 3.55e+09
 * Planet death zone size: 1.86e+08
 * Planet size: 4.59e+05
-* Planet autopilot range: 2.80e+08
+* Planet autopilot range: 3.73e+08
+* Planet semi-major axis: 3.80e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2127,7 +2153,8 @@ Earth-relative units:
 * Planet zone size: 7.91e+07
 * Planet death zone size: 4.15e+06
 * Planet size: 3.96e+06
-* Planet autopilot range: 6.23e+06
+* Planet autopilot range: 8.31e+06
+* Planet semi-major axis: 7.59e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2295,7 +2322,8 @@ Earth-relative units:
 * Planet zone size: 6.11e+07
 * Planet death zone size: 3.21e+06
 * Planet size: 3.05e+06
-* Planet autopilot range: 4.81e+06
+* Planet autopilot range: 6.41e+06
+* Planet semi-major axis: 3.33e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2463,7 +2491,8 @@ Earth-relative units:
 * Planet zone size: 3.34e+07
 * Planet death zone size: 1.75e+06
 * Planet size: 1.67e+06
-* Planet autopilot range: 2.63e+06
+* Planet autopilot range: 3.51e+06
+* Planet semi-major axis: 1.20e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2521,7 +2550,8 @@ Earth-relative units:
 * Planet zone size: 1.45e+07
 * Planet death zone size: 7.63e+05
 * Planet size: 7.26e+05
-* Planet autopilot range: 1.14e+06
+* Planet autopilot range: 1.53e+06
+* Planet semi-major axis: 1.59e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2579,7 +2609,8 @@ Earth-relative units:
 * Planet zone size: 9.18e+07
 * Planet death zone size: 4.82e+06
 * Planet size: 4.59e+06
-* Planet autopilot range: 7.23e+06
+* Planet autopilot range: 9.64e+06
+* Planet semi-major axis: 2.12e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2637,7 +2668,8 @@ Earth-relative units:
 * Planet zone size: 8.38e+07
 * Planet death zone size: 4.40e+06
 * Planet size: 4.19e+06
-* Planet autopilot range: 6.60e+06
+* Planet autopilot range: 8.80e+06
+* Planet semi-major axis: 2.81e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2695,7 +2727,8 @@ Earth-relative units:
 * Planet zone size: 1.28e+08
 * Planet death zone size: 6.73e+06
 * Planet size: 6.41e+06
-* Planet autopilot range: 1.01e+07
+* Planet autopilot range: 1.35e+07
+* Planet semi-major axis: 3.74e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2753,7 +2786,8 @@ Earth-relative units:
 * Planet zone size: 3.14e+09
 * Planet death zone size: 1.65e+08
 * Planet size: 1.57e+08
-* Planet autopilot range: 2.47e+08
+* Planet autopilot range: 3.29e+08
+* Planet semi-major axis: 4.98e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2921,7 +2955,8 @@ Earth-relative units:
 * Planet zone size: 4.82e+09
 * Planet death zone size: 2.53e+08
 * Planet size: 2.41e+08
-* Planet autopilot range: 3.79e+08
+* Planet autopilot range: 5.06e+08
+* Planet semi-major axis: 8.85e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -2979,7 +3014,8 @@ Earth-relative units:
 * Planet zone size: 2.32e+09
 * Planet death zone size: 1.22e+08
 * Planet size: 1.16e+08
-* Planet autopilot range: 1.83e+08
+* Planet autopilot range: 2.44e+08
+* Planet semi-major axis: 1.33e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3037,7 +3073,8 @@ Earth-relative units:
 * Planet zone size: 2.62e+09
 * Planet death zone size: 1.38e+08
 * Planet size: 1.31e+08
-* Planet autopilot range: 2.06e+08
+* Planet autopilot range: 2.75e+08
+* Planet semi-major axis: 1.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3095,7 +3132,8 @@ Earth-relative units:
 * Planet zone size: 1.00e+07
 * Planet death zone size: 5.26e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.89e+05
+* Planet autopilot range: 1.05e+06
+* Planet semi-major axis: 2.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3153,7 +3191,8 @@ Earth-relative units:
 * Planet zone size: 1.58e+08
 * Planet death zone size: 8.29e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.66e+07
+* Planet semi-major axis: 4.48e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3211,7 +3250,8 @@ Earth-relative units:
 * Planet zone size: 8.42e+07
 * Planet death zone size: 4.42e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 6.63e+06
+* Planet autopilot range: 8.84e+06
+* Planet semi-major axis: 6.72e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3269,7 +3309,8 @@ Earth-relative units:
 * Planet zone size: 5.02e+09
 * Planet death zone size: 2.63e+08
 * Planet size: 2.51e+08
-* Planet autopilot range: 3.95e+08
+* Planet autopilot range: 5.27e+08
+* Planet semi-major axis: 1.01e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3327,7 +3368,8 @@ Earth-relative units:
 * Planet zone size: 4.07e+09
 * Planet death zone size: 2.13e+08
 * Planet size: 2.03e+08
-* Planet autopilot range: 3.20e+08
+* Planet autopilot range: 4.27e+08
+* Planet semi-major axis: 1.51e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3385,7 +3427,8 @@ Earth-relative units:
 * Planet zone size: 2.84e+07
 * Planet death zone size: 1.49e+06
 * Planet size: 1.42e+06
-* Planet autopilot range: 2.24e+06
+* Planet autopilot range: 2.98e+06
+* Planet semi-major axis: 2.27e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3443,7 +3486,8 @@ Earth-relative units:
 * Planet zone size: 4.43e+07
 * Planet death zone size: 2.33e+06
 * Planet size: 2.21e+06
-* Planet autopilot range: 3.49e+06
+* Planet autopilot range: 4.65e+06
+* Planet semi-major axis: 3.40e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3883,7 +3927,8 @@ Earth-relative units:
 * Planet zone size: 1.73e+07
 * Planet death zone size: 9.08e+05
 * Planet size: 8.65e+05
-* Planet autopilot range: 1.36e+06
+* Planet autopilot range: 1.82e+06
+* Planet semi-major axis: 5.19e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3941,7 +3986,8 @@ Earth-relative units:
 * Planet zone size: 4.42e+09
 * Planet death zone size: 2.32e+08
 * Planet size: 2.21e+08
-* Planet autopilot range: 3.48e+08
+* Planet autopilot range: 4.64e+08
+* Planet semi-major axis: 7.78e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -3999,7 +4045,8 @@ Earth-relative units:
 * Planet zone size: 1.30e+07
 * Planet death zone size: 6.83e+05
 * Planet size: 6.51e+05
-* Planet autopilot range: 1.02e+06
+* Planet autopilot range: 1.37e+06
+* Planet semi-major axis: 1.17e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4235,7 +4282,8 @@ Earth-relative units:
 * Planet zone size: 2.50e+07
 * Planet death zone size: 1.31e+06
 * Planet size: 1.25e+06
-* Planet autopilot range: 1.97e+06
+* Planet autopilot range: 2.63e+06
+* Planet semi-major axis: 3.79e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4293,7 +4341,8 @@ Earth-relative units:
 * Planet zone size: 4.29e+07
 * Planet death zone size: 2.25e+06
 * Planet size: 2.15e+06
-* Planet autopilot range: 3.38e+06
+* Planet autopilot range: 4.51e+06
+* Planet semi-major axis: 5.05e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4351,7 +4400,8 @@ Earth-relative units:
 * Planet zone size: 3.24e+09
 * Planet death zone size: 1.70e+08
 * Planet size: 1.62e+08
-* Planet autopilot range: 2.55e+08
+* Planet autopilot range: 3.41e+08
+* Planet semi-major axis: 6.71e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4409,7 +4459,8 @@ Earth-relative units:
 * Planet zone size: 1.23e+07
 * Planet death zone size: 6.46e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.68e+05
+* Planet autopilot range: 1.29e+06
+* Planet semi-major axis: 8.93e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4467,7 +4518,8 @@ Earth-relative units:
 * Planet zone size: 3.73e+09
 * Planet death zone size: 1.96e+08
 * Planet size: 1.87e+08
-* Planet autopilot range: 2.94e+08
+* Planet autopilot range: 3.92e+08
+* Planet semi-major axis: 1.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4525,7 +4577,8 @@ Earth-relative units:
 * Planet zone size: 3.52e+09
 * Planet death zone size: 1.85e+08
 * Planet size: 1.76e+08
-* Planet autopilot range: 2.77e+08
+* Planet autopilot range: 3.69e+08
+* Planet semi-major axis: 1.58e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4693,7 +4746,8 @@ Earth-relative units:
 * Planet zone size: 4.40e+07
 * Planet death zone size: 2.31e+06
 * Planet size: 2.20e+06
-* Planet autopilot range: 3.46e+06
+* Planet autopilot range: 4.62e+06
+* Planet semi-major axis: 1.74e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4751,7 +4805,8 @@ Earth-relative units:
 * Planet zone size: 2.40e+09
 * Planet death zone size: 1.26e+08
 * Planet size: 1.20e+08
-* Planet autopilot range: 1.89e+08
+* Planet autopilot range: 2.52e+08
+* Planet semi-major axis: 2.61e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4809,7 +4864,8 @@ Earth-relative units:
 * Planet zone size: 9.03e+08
 * Planet death zone size: 4.74e+07
 * Planet size: 4.52e+07
-* Planet autopilot range: 7.11e+07
+* Planet autopilot range: 9.49e+07
+* Planet semi-major axis: 3.91e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -4977,7 +5033,8 @@ Earth-relative units:
 * Planet zone size: 8.47e+07
 * Planet death zone size: 4.45e+06
 * Planet size: 4.24e+06
-* Planet autopilot range: 6.67e+06
+* Planet autopilot range: 8.90e+06
+* Planet semi-major axis: 2.49e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5035,7 +5092,8 @@ Earth-relative units:
 * Planet zone size: 3.45e+09
 * Planet death zone size: 1.81e+08
 * Planet size: 1.72e+08
-* Planet autopilot range: 2.71e+08
+* Planet autopilot range: 3.62e+08
+* Planet semi-major axis: 4.98e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5093,7 +5151,8 @@ Earth-relative units:
 * Planet zone size: 9.70e+06
 * Planet death zone size: 5.09e+05
 * Planet size: 4.85e+05
-* Planet autopilot range: 7.64e+05
+* Planet autopilot range: 1.02e+06
+* Planet semi-major axis: 9.95e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5261,7 +5320,8 @@ Earth-relative units:
 * Planet zone size: 2.66e+08
 * Planet death zone size: 1.39e+07
 * Planet size: 1.33e+07
-* Planet autopilot range: 2.09e+07
+* Planet autopilot range: 2.79e+07
+* Planet semi-major axis: 3.89e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5319,7 +5379,8 @@ Earth-relative units:
 * Planet zone size: 9.47e+06
 * Planet death zone size: 4.97e+05
 * Planet size: 4.73e+05
-* Planet autopilot range: 7.46e+05
+* Planet autopilot range: 9.94e+05
+* Planet semi-major axis: 5.18e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5377,7 +5438,8 @@ Earth-relative units:
 * Planet zone size: 3.85e+09
 * Planet death zone size: 2.02e+08
 * Planet size: 1.93e+08
-* Planet autopilot range: 3.03e+08
+* Planet autopilot range: 4.04e+08
+* Planet semi-major axis: 6.89e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5435,7 +5497,8 @@ Earth-relative units:
 * Planet zone size: 9.20e+06
 * Planet death zone size: 4.83e+05
 * Planet size: 4.60e+05
-* Planet autopilot range: 7.24e+05
+* Planet autopilot range: 9.66e+05
+* Planet semi-major axis: 9.16e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5603,7 +5666,8 @@ Earth-relative units:
 * Planet zone size: 4.35e+09
 * Planet death zone size: 2.28e+08
 * Planet size: 2.18e+08
-* Planet autopilot range: 3.43e+08
+* Planet autopilot range: 4.57e+08
+* Planet semi-major axis: 5.27e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5771,7 +5835,8 @@ Earth-relative units:
 * Planet zone size: 4.29e+07
 * Planet death zone size: 2.25e+06
 * Planet size: 2.15e+06
-* Planet autopilot range: 3.38e+06
+* Planet autopilot range: 4.51e+06
+* Planet semi-major axis: 6.58e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5829,7 +5894,8 @@ Earth-relative units:
 * Planet zone size: 3.84e+09
 * Planet death zone size: 2.01e+08
 * Planet size: 1.92e+08
-* Planet autopilot range: 3.02e+08
+* Planet autopilot range: 4.03e+08
+* Planet semi-major axis: 9.88e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5887,7 +5953,8 @@ Earth-relative units:
 * Planet zone size: 5.93e+07
 * Planet death zone size: 3.11e+06
 * Planet size: 2.97e+06
-* Planet autopilot range: 4.67e+06
+* Planet autopilot range: 6.23e+06
+* Planet semi-major axis: 1.48e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -5945,7 +6012,8 @@ Earth-relative units:
 * Planet zone size: 5.24e+07
 * Planet death zone size: 2.75e+06
 * Planet size: 2.62e+06
-* Planet autopilot range: 4.13e+06
+* Planet autopilot range: 5.50e+06
+* Planet semi-major axis: 2.22e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6003,7 +6071,8 @@ Earth-relative units:
 * Planet zone size: 3.06e+08
 * Planet death zone size: 1.61e+07
 * Planet size: 1.53e+07
-* Planet autopilot range: 2.41e+07
+* Planet autopilot range: 3.21e+07
+* Planet semi-major axis: 3.33e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6171,7 +6240,8 @@ Earth-relative units:
 * Planet zone size: 4.23e+09
 * Planet death zone size: 2.22e+08
 * Planet size: 2.12e+08
-* Planet autopilot range: 3.33e+08
+* Planet autopilot range: 4.44e+08
+* Planet semi-major axis: 1.70e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6229,7 +6299,8 @@ Earth-relative units:
 * Planet zone size: 4.47e+07
 * Planet death zone size: 2.35e+06
 * Planet size: 2.24e+06
-* Planet autopilot range: 3.52e+06
+* Planet autopilot range: 4.70e+06
+* Planet semi-major axis: 2.55e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6287,7 +6358,8 @@ Earth-relative units:
 * Planet zone size: 1.56e+08
 * Planet death zone size: 8.21e+06
 * Planet size: 7.82e+06
-* Planet autopilot range: 1.23e+07
+* Planet autopilot range: 1.64e+07
+* Planet semi-major axis: 3.83e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6455,7 +6527,8 @@ Earth-relative units:
 * Planet zone size: 6.12e+07
 * Planet death zone size: 3.22e+06
 * Planet size: 3.06e+06
-* Planet autopilot range: 4.82e+06
+* Planet autopilot range: 6.43e+06
+* Planet semi-major axis: 1.87e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6513,7 +6586,8 @@ Earth-relative units:
 * Planet zone size: 2.29e+07
 * Planet death zone size: 1.20e+06
 * Planet size: 1.15e+06
-* Planet autopilot range: 1.80e+06
+* Planet autopilot range: 2.40e+06
+* Planet semi-major axis: 2.80e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -6953,7 +7027,8 @@ Earth-relative units:
 * Planet zone size: 3.00e+08
 * Planet death zone size: 1.58e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.36e+07
+* Planet autopilot range: 3.15e+07
+* Planet semi-major axis: 1.10e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7011,7 +7086,8 @@ Earth-relative units:
 * Planet zone size: 4.19e+09
 * Planet death zone size: 2.20e+08
 * Planet size: 2.09e+08
-* Planet autopilot range: 3.30e+08
+* Planet autopilot range: 4.40e+08
+* Planet semi-major axis: 1.46e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7179,7 +7255,8 @@ Earth-relative units:
 * Planet zone size: 1.48e+07
 * Planet death zone size: 7.79e+05
 * Planet size: 7.42e+05
-* Planet autopilot range: 1.17e+06
+* Planet autopilot range: 1.56e+06
+* Planet semi-major axis: 2.87e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7347,7 +7424,8 @@ Earth-relative units:
 * Planet zone size: 2.80e+08
 * Planet death zone size: 1.47e+07
 * Planet size: 1.40e+07
-* Planet autopilot range: 2.20e+07
+* Planet autopilot range: 2.94e+07
+* Planet semi-major axis: 8.38e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7405,7 +7483,8 @@ Earth-relative units:
 * Planet zone size: 4.07e+09
 * Planet death zone size: 2.13e+08
 * Planet size: 2.03e+08
-* Planet autopilot range: 3.20e+08
+* Planet autopilot range: 4.27e+08
+* Planet semi-major axis: 1.12e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7463,7 +7542,8 @@ Earth-relative units:
 * Planet zone size: 3.80e+09
 * Planet death zone size: 1.99e+08
 * Planet size: 1.90e+08
-* Planet autopilot range: 2.99e+08
+* Planet autopilot range: 3.99e+08
+* Planet semi-major axis: 1.48e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7521,7 +7601,8 @@ Earth-relative units:
 * Planet zone size: 2.37e+08
 * Planet death zone size: 1.24e+07
 * Planet size: 1.18e+07
-* Planet autopilot range: 1.87e+07
+* Planet autopilot range: 2.49e+07
+* Planet semi-major axis: 1.97e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7689,7 +7770,8 @@ Earth-relative units:
 * Planet zone size: 3.05e+08
 * Planet death zone size: 1.60e+07
 * Planet size: 1.52e+07
-* Planet autopilot range: 2.40e+07
+* Planet autopilot range: 3.20e+07
+* Planet semi-major axis: 2.43e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7747,7 +7829,8 @@ Earth-relative units:
 * Planet zone size: 7.95e+07
 * Planet death zone size: 4.17e+06
 * Planet size: 3.97e+06
-* Planet autopilot range: 6.26e+06
+* Planet autopilot range: 8.34e+06
+* Planet semi-major axis: 4.86e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7805,7 +7888,8 @@ Earth-relative units:
 * Planet zone size: 3.63e+09
 * Planet death zone size: 1.90e+08
 * Planet size: 1.81e+08
-* Planet autopilot range: 2.86e+08
+* Planet autopilot range: 3.81e+08
+* Planet semi-major axis: 9.73e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7863,7 +7947,8 @@ Earth-relative units:
 * Planet zone size: 1.62e+08
 * Planet death zone size: 8.53e+06
 * Planet size: 8.12e+06
-* Planet autopilot range: 1.28e+07
+* Planet autopilot range: 1.71e+07
+* Planet semi-major axis: 1.95e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7921,7 +8006,8 @@ Earth-relative units:
 * Planet zone size: 3.44e+07
 * Planet death zone size: 1.80e+06
 * Planet size: 1.72e+06
-* Planet autopilot range: 2.71e+06
+* Planet autopilot range: 3.61e+06
+* Planet semi-major axis: 3.89e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -7979,7 +8065,8 @@ Earth-relative units:
 * Planet zone size: 3.07e+07
 * Planet death zone size: 1.61e+06
 * Planet size: 1.53e+06
-* Planet autopilot range: 2.42e+06
+* Planet autopilot range: 3.22e+06
+* Planet semi-major axis: 7.78e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8037,7 +8124,8 @@ Earth-relative units:
 * Planet zone size: 3.54e+09
 * Planet death zone size: 1.86e+08
 * Planet size: 5.96e+05
-* Planet autopilot range: 2.79e+08
+* Planet autopilot range: 3.72e+08
+* Planet semi-major axis: 1.56e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8095,7 +8183,8 @@ Earth-relative units:
 * Planet zone size: 4.13e+07
 * Planet death zone size: 2.17e+06
 * Planet size: 2.06e+06
-* Planet autopilot range: 3.25e+06
+* Planet autopilot range: 4.34e+06
+* Planet semi-major axis: 3.11e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8153,7 +8242,8 @@ Earth-relative units:
 * Planet zone size: 3.33e+07
 * Planet death zone size: 1.75e+06
 * Planet size: 1.67e+06
-* Planet autopilot range: 2.63e+06
+* Planet autopilot range: 3.50e+06
+* Planet semi-major axis: 6.23e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8211,7 +8301,8 @@ Earth-relative units:
 * Planet zone size: 6.22e+07
 * Planet death zone size: 3.26e+06
 * Planet size: 3.11e+06
-* Planet autopilot range: 4.90e+06
+* Planet autopilot range: 6.53e+06
+* Planet semi-major axis: 1.25e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8269,7 +8360,8 @@ Earth-relative units:
 * Planet zone size: 2.99e+09
 * Planet death zone size: 1.57e+08
 * Planet size: 2.18e+06
-* Planet autopilot range: 2.35e+08
+* Planet autopilot range: 3.14e+08
+* Planet semi-major axis: 2.49e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8327,7 +8419,8 @@ Earth-relative units:
 * Planet zone size: 3.57e+09
 * Planet death zone size: 1.87e+08
 * Planet size: 1.65e+06
-* Planet autopilot range: 2.81e+08
+* Planet autopilot range: 3.75e+08
+* Planet semi-major axis: 4.98e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8385,7 +8478,8 @@ Earth-relative units:
 * Planet zone size: 3.79e+07
 * Planet death zone size: 1.99e+06
 * Planet size: 1.89e+06
-* Planet autopilot range: 2.98e+06
+* Planet autopilot range: 3.98e+06
+* Planet semi-major axis: 9.96e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8443,7 +8537,8 @@ Earth-relative units:
 * Planet zone size: 3.82e+07
 * Planet death zone size: 2.00e+06
 * Planet size: 1.91e+06
-* Planet autopilot range: 3.01e+06
+* Planet autopilot range: 4.01e+06
+* Planet semi-major axis: 1.99e+15
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8611,7 +8706,8 @@ Earth-relative units:
 * Planet zone size: 2.34e+09
 * Planet death zone size: 1.23e+08
 * Planet size: 1.17e+08
-* Planet autopilot range: 1.84e+08
+* Planet autopilot range: 2.46e+08
+* Planet semi-major axis: 1.91e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8669,7 +8765,8 @@ Earth-relative units:
 * Planet zone size: 4.92e+07
 * Planet death zone size: 2.58e+06
 * Planet size: 2.46e+06
-* Planet autopilot range: 3.88e+06
+* Planet autopilot range: 5.17e+06
+* Planet semi-major axis: 2.86e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8837,7 +8934,8 @@ Earth-relative units:
 * Planet zone size: 2.85e+09
 * Planet death zone size: 1.50e+08
 * Planet size: 1.43e+08
-* Planet autopilot range: 2.24e+08
+* Planet autopilot range: 2.99e+08
+* Planet semi-major axis: 2.45e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8895,7 +8993,8 @@ Earth-relative units:
 * Planet zone size: 2.57e+09
 * Planet death zone size: 1.35e+08
 * Planet size: 1.28e+08
-* Planet autopilot range: 2.02e+08
+* Planet autopilot range: 2.70e+08
+* Planet semi-major axis: 3.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -8953,7 +9052,8 @@ Earth-relative units:
 * Planet zone size: 2.85e+09
 * Planet death zone size: 1.49e+08
 * Planet size: 1.42e+08
-* Planet autopilot range: 2.24e+08
+* Planet autopilot range: 2.99e+08
+* Planet semi-major axis: 4.34e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9121,7 +9221,8 @@ Earth-relative units:
 * Planet zone size: 4.54e+09
 * Planet death zone size: 2.38e+08
 * Planet size: 2.27e+08
-* Planet autopilot range: 3.57e+08
+* Planet autopilot range: 4.76e+08
+* Planet semi-major axis: 1.17e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9289,7 +9390,8 @@ Earth-relative units:
 * Planet zone size: 7.44e+06
 * Planet death zone size: 3.91e+05
 * Planet size: 3.72e+05
-* Planet autopilot range: 5.86e+05
+* Planet autopilot range: 7.81e+05
+* Planet semi-major axis: 1.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9525,7 +9627,8 @@ Earth-relative units:
 * Planet zone size: 3.62e+09
 * Planet death zone size: 1.90e+08
 * Planet size: 1.81e+08
-* Planet autopilot range: 2.85e+08
+* Planet autopilot range: 3.80e+08
+* Planet semi-major axis: 7.21e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9583,7 +9686,8 @@ Earth-relative units:
 * Planet zone size: 3.87e+09
 * Planet death zone size: 2.03e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.05e+08
+* Planet autopilot range: 4.06e+08
+* Planet semi-major axis: 9.59e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9641,7 +9745,8 @@ Earth-relative units:
 * Planet zone size: 8.90e+06
 * Planet death zone size: 4.67e+05
 * Planet size: 4.45e+05
-* Planet autopilot range: 7.01e+05
+* Planet autopilot range: 9.34e+05
+* Planet semi-major axis: 1.28e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9809,7 +9914,8 @@ Earth-relative units:
 * Planet zone size: 3.88e+07
 * Planet death zone size: 2.04e+06
 * Planet size: 1.94e+06
-* Planet autopilot range: 3.06e+06
+* Planet autopilot range: 4.07e+06
+* Planet semi-major axis: 9.85e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9867,7 +9973,8 @@ Earth-relative units:
 * Planet zone size: 1.55e+08
 * Planet death zone size: 8.13e+06
 * Planet size: 7.75e+06
-* Planet autopilot range: 1.22e+07
+* Planet autopilot range: 1.63e+07
+* Planet semi-major axis: 1.48e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -9925,7 +10032,8 @@ Earth-relative units:
 * Planet zone size: 1.92e+08
 * Planet death zone size: 1.01e+07
 * Planet size: 9.58e+06
-* Planet autopilot range: 1.51e+07
+* Planet autopilot range: 2.01e+07
+* Planet semi-major axis: 2.22e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10093,7 +10201,8 @@ Earth-relative units:
 * Planet zone size: 1.47e+08
 * Planet death zone size: 7.72e+06
 * Planet size: 7.35e+06
-* Planet autopilot range: 1.16e+07
+* Planet autopilot range: 1.54e+07
+* Planet semi-major axis: 1.84e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10329,7 +10438,8 @@ Earth-relative units:
 * Planet zone size: 1.70e+07
 * Planet death zone size: 8.93e+05
 * Planet size: 8.51e+05
-* Planet autopilot range: 1.34e+06
+* Planet autopilot range: 1.79e+06
+* Planet semi-major axis: 6.55e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10387,7 +10497,8 @@ Earth-relative units:
 * Planet zone size: 4.60e+09
 * Planet death zone size: 2.42e+08
 * Planet size: 2.30e+08
-* Planet autopilot range: 3.63e+08
+* Planet autopilot range: 4.84e+08
+* Planet semi-major axis: 1.31e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10445,7 +10556,8 @@ Earth-relative units:
 * Planet zone size: 1.28e+08
 * Planet death zone size: 6.70e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.00e+07
+* Planet autopilot range: 1.34e+07
+* Planet semi-major axis: 2.62e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10503,7 +10615,8 @@ Earth-relative units:
 * Planet zone size: 4.15e+09
 * Planet death zone size: 2.18e+08
 * Planet size: 2.07e+08
-* Planet autopilot range: 3.27e+08
+* Planet autopilot range: 4.35e+08
+* Planet semi-major axis: 5.24e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10561,7 +10674,8 @@ Earth-relative units:
 * Planet zone size: 9.83e+06
 * Planet death zone size: 5.16e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.74e+05
+* Planet autopilot range: 1.03e+06
+* Planet semi-major axis: 1.05e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10619,7 +10733,8 @@ Earth-relative units:
 * Planet zone size: 3.93e+09
 * Planet death zone size: 2.06e+08
 * Planet size: 1.96e+08
-* Planet autopilot range: 3.09e+08
+* Planet autopilot range: 4.13e+08
+* Planet semi-major axis: 2.10e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10923,7 +11038,8 @@ Earth-relative units:
 * Planet zone size: 2.48e+08
 * Planet death zone size: 1.30e+07
 * Planet size: 1.24e+07
-* Planet autopilot range: 1.95e+07
+* Planet autopilot range: 2.60e+07
+* Planet semi-major axis: 1.48e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -10981,7 +11097,8 @@ Earth-relative units:
 * Planet zone size: 2.62e+09
 * Planet death zone size: 1.38e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.06e+08
+* Planet autopilot range: 2.75e+08
+* Planet semi-major axis: 2.21e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11039,7 +11156,8 @@ Earth-relative units:
 * Planet zone size: 2.96e+09
 * Planet death zone size: 1.56e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.33e+08
+* Planet autopilot range: 3.11e+08
+* Planet semi-major axis: 3.32e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11097,7 +11215,8 @@ Earth-relative units:
 * Planet zone size: 4.79e+09
 * Planet death zone size: 2.52e+08
 * Planet size: 2.40e+08
-* Planet autopilot range: 3.77e+08
+* Planet autopilot range: 5.03e+08
+* Planet semi-major axis: 4.98e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11469,7 +11588,8 @@ Earth-relative units:
 * Planet zone size: 2.01e+07
 * Planet death zone size: 1.05e+06
 * Planet size: 1.00e+06
-* Planet autopilot range: 1.58e+06
+* Planet autopilot range: 2.11e+06
+* Planet semi-major axis: 4.42e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11527,7 +11647,8 @@ Earth-relative units:
 * Planet zone size: 3.65e+09
 * Planet death zone size: 1.92e+08
 * Planet size: 1.83e+08
-* Planet autopilot range: 2.88e+08
+* Planet autopilot range: 3.84e+08
+* Planet semi-major axis: 8.85e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11585,7 +11706,8 @@ Earth-relative units:
 * Planet zone size: 1.31e+07
 * Planet death zone size: 6.88e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.03e+06
+* Planet autopilot range: 1.38e+06
+* Planet semi-major axis: 1.77e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11643,7 +11765,8 @@ Earth-relative units:
 * Planet zone size: 7.27e+07
 * Planet death zone size: 3.82e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.72e+06
+* Planet autopilot range: 7.63e+06
+* Planet semi-major axis: 3.54e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11701,7 +11824,8 @@ Earth-relative units:
 * Planet zone size: 4.59e+09
 * Planet death zone size: 2.41e+08
 * Planet size: 2.29e+08
-* Planet autopilot range: 3.61e+08
+* Planet autopilot range: 4.82e+08
+* Planet semi-major axis: 7.08e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11759,7 +11883,8 @@ Earth-relative units:
 * Planet zone size: 4.41e+09
 * Planet death zone size: 2.32e+08
 * Planet size: 2.21e+08
-* Planet autopilot range: 3.47e+08
+* Planet autopilot range: 4.63e+08
+* Planet semi-major axis: 1.42e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11817,7 +11942,8 @@ Earth-relative units:
 * Planet zone size: 3.56e+07
 * Planet death zone size: 1.87e+06
 * Planet size: 1.78e+06
-* Planet autopilot range: 2.80e+06
+* Planet autopilot range: 3.74e+06
+* Planet semi-major axis: 2.83e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11875,7 +12001,8 @@ Earth-relative units:
 * Planet zone size: 6.14e+07
 * Planet death zone size: 3.22e+06
 * Planet size: 3.07e+06
-* Planet autopilot range: 4.84e+06
+* Planet autopilot range: 6.45e+06
+* Planet semi-major axis: 5.66e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -11933,7 +12060,8 @@ Earth-relative units:
 * Planet zone size: 5.27e+07
 * Planet death zone size: 2.77e+06
 * Planet size: 2.64e+06
-* Planet autopilot range: 4.15e+06
+* Planet autopilot range: 5.54e+06
+* Planet semi-major axis: 1.13e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12101,7 +12229,8 @@ Earth-relative units:
 * Planet zone size: 3.21e+07
 * Planet death zone size: 1.69e+06
 * Planet size: 1.61e+06
-* Planet autopilot range: 2.53e+06
+* Planet autopilot range: 3.37e+06
+* Planet semi-major axis: 9.22e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12159,7 +12288,8 @@ Earth-relative units:
 * Planet zone size: 1.13e+08
 * Planet death zone size: 5.96e+06
 * Planet size: 5.67e+06
-* Planet autopilot range: 8.93e+06
+* Planet autopilot range: 1.19e+07
+* Planet semi-major axis: 1.38e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12217,7 +12347,8 @@ Earth-relative units:
 * Planet zone size: 7.61e+07
 * Planet death zone size: 3.99e+06
 * Planet size: 3.80e+06
-* Planet autopilot range: 5.99e+06
+* Planet autopilot range: 7.99e+06
+* Planet semi-major axis: 2.07e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12275,7 +12406,8 @@ Earth-relative units:
 * Planet zone size: 1.65e+09
 * Planet death zone size: 8.67e+07
 * Planet size: 8.26e+07
-* Planet autopilot range: 1.30e+08
+* Planet autopilot range: 1.73e+08
+* Planet semi-major axis: 3.11e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12333,7 +12465,8 @@ Earth-relative units:
 * Planet zone size: 2.61e+08
 * Planet death zone size: 1.37e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.06e+07
+* Planet autopilot range: 2.74e+07
+* Planet semi-major axis: 4.67e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12391,7 +12524,8 @@ Earth-relative units:
 * Planet zone size: 1.88e+07
 * Planet death zone size: 9.86e+05
 * Planet size: 9.39e+05
-* Planet autopilot range: 1.48e+06
+* Planet autopilot range: 1.97e+06
+* Planet semi-major axis: 7.00e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12449,7 +12583,8 @@ Earth-relative units:
 * Planet zone size: 3.53e+09
 * Planet death zone size: 1.85e+08
 * Planet size: 1.77e+08
-* Planet autopilot range: 2.78e+08
+* Planet autopilot range: 3.71e+08
+* Planet semi-major axis: 1.05e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12507,7 +12642,8 @@ Earth-relative units:
 * Planet zone size: 1.36e+08
 * Planet death zone size: 7.15e+06
 * Planet size: 6.81e+06
-* Planet autopilot range: 1.07e+07
+* Planet autopilot range: 1.43e+07
+* Planet semi-major axis: 1.58e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12565,7 +12701,8 @@ Earth-relative units:
 * Planet zone size: 2.30e+07
 * Planet death zone size: 1.21e+06
 * Planet size: 1.15e+06
-* Planet autopilot range: 1.81e+06
+* Planet autopilot range: 2.41e+06
+* Planet semi-major axis: 2.36e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12623,7 +12760,8 @@ Earth-relative units:
 * Planet zone size: 2.49e+09
 * Planet death zone size: 1.31e+08
 * Planet size: 1.24e+08
-* Planet autopilot range: 1.96e+08
+* Planet autopilot range: 2.61e+08
+* Planet semi-major axis: 3.54e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12681,7 +12819,8 @@ Earth-relative units:
 * Planet zone size: 4.23e+07
 * Planet death zone size: 2.22e+06
 * Planet size: 2.11e+06
-* Planet autopilot range: 3.33e+06
+* Planet autopilot range: 4.44e+06
+* Planet semi-major axis: 5.32e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12739,7 +12878,8 @@ Earth-relative units:
 * Planet zone size: 2.36e+09
 * Planet death zone size: 1.24e+08
 * Planet size: 1.01e+06
-* Planet autopilot range: 1.86e+08
+* Planet autopilot range: 2.47e+08
+* Planet semi-major axis: 7.97e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12797,7 +12937,8 @@ Earth-relative units:
 * Planet zone size: 3.69e+09
 * Planet death zone size: 1.94e+08
 * Planet size: 1.01e+06
-* Planet autopilot range: 2.90e+08
+* Planet autopilot range: 3.87e+08
+* Planet semi-major axis: 1.20e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -12965,7 +13106,8 @@ Earth-relative units:
 * Planet zone size: 1.62e+08
 * Planet death zone size: 8.49e+06
 * Planet size: 8.09e+06
-* Planet autopilot range: 1.27e+07
+* Planet autopilot range: 1.70e+07
+* Planet semi-major axis: 7.02e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13133,7 +13275,8 @@ Earth-relative units:
 * Planet zone size: 1.59e+08
 * Planet death zone size: 8.36e+06
 * Planet size: 7.96e+06
-* Planet autopilot range: 1.25e+07
+* Planet autopilot range: 1.67e+07
+* Planet semi-major axis: 8.74e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13191,7 +13334,8 @@ Earth-relative units:
 * Planet zone size: 4.33e+07
 * Planet death zone size: 2.27e+06
 * Planet size: 2.16e+06
-* Planet autopilot range: 3.41e+06
+* Planet autopilot range: 4.54e+06
+* Planet semi-major axis: 1.75e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13249,7 +13393,8 @@ Earth-relative units:
 * Planet zone size: 3.85e+07
 * Planet death zone size: 2.02e+06
 * Planet size: 1.93e+06
-* Planet autopilot range: 3.03e+06
+* Planet autopilot range: 4.05e+06
+* Planet semi-major axis: 3.49e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13307,7 +13452,8 @@ Earth-relative units:
 * Planet zone size: 8.21e+07
 * Planet death zone size: 4.31e+06
 * Planet size: 4.10e+06
-* Planet autopilot range: 6.46e+06
+* Planet autopilot range: 8.62e+06
+* Planet semi-major axis: 6.99e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13475,7 +13621,8 @@ Earth-relative units:
 * Planet zone size: 2.23e+07
 * Planet death zone size: 1.17e+06
 * Planet size: 1.12e+06
-* Planet autopilot range: 1.76e+06
+* Planet autopilot range: 2.34e+06
+* Planet semi-major axis: 6.58e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13533,7 +13680,8 @@ Earth-relative units:
 * Planet zone size: 3.74e+09
 * Planet death zone size: 1.96e+08
 * Planet size: 1.87e+08
-* Planet autopilot range: 2.94e+08
+* Planet autopilot range: 3.93e+08
+* Planet semi-major axis: 1.32e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13591,7 +13739,8 @@ Earth-relative units:
 * Planet zone size: 9.00e+07
 * Planet death zone size: 4.73e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.09e+06
+* Planet autopilot range: 9.45e+06
+* Planet semi-major axis: 2.63e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13649,7 +13798,8 @@ Earth-relative units:
 * Planet zone size: 4.38e+07
 * Planet death zone size: 2.30e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.45e+06
+* Planet autopilot range: 4.60e+06
+* Planet semi-major axis: 5.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13707,7 +13857,8 @@ Earth-relative units:
 * Planet zone size: 1.09e+09
 * Planet death zone size: 5.73e+07
 * Planet size: 5.46e+07
-* Planet autopilot range: 8.60e+07
+* Planet autopilot range: 1.15e+08
+* Planet semi-major axis: 1.05e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13765,7 +13916,8 @@ Earth-relative units:
 * Planet zone size: 4.28e+07
 * Planet death zone size: 2.25e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.37e+06
+* Planet autopilot range: 4.50e+06
+* Planet semi-major axis: 2.10e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -13823,7 +13975,8 @@ Earth-relative units:
 * Planet zone size: 5.04e+09
 * Planet death zone size: 2.64e+08
 * Planet size: 2.52e+08
-* Planet autopilot range: 3.97e+08
+* Planet autopilot range: 5.29e+08
+* Planet semi-major axis: 4.21e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14195,7 +14348,8 @@ Earth-relative units:
 * Planet zone size: 4.05e+09
 * Planet death zone size: 2.13e+08
 * Planet size: 2.03e+08
-* Planet autopilot range: 3.19e+08
+* Planet autopilot range: 4.26e+08
+* Planet semi-major axis: 5.76e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14253,7 +14407,8 @@ Earth-relative units:
 * Planet zone size: 1.23e+07
 * Planet death zone size: 6.47e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.71e+05
+* Planet autopilot range: 1.29e+06
+* Planet semi-major axis: 1.15e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14311,7 +14466,8 @@ Earth-relative units:
 * Planet zone size: 1.50e+07
 * Planet death zone size: 7.88e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.18e+06
+* Planet autopilot range: 1.58e+06
+* Planet semi-major axis: 2.30e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14369,7 +14525,8 @@ Earth-relative units:
 * Planet zone size: 7.05e+07
 * Planet death zone size: 3.70e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.55e+06
+* Planet autopilot range: 7.40e+06
+* Planet semi-major axis: 4.61e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14427,7 +14584,8 @@ Earth-relative units:
 * Planet zone size: 1.58e+07
 * Planet death zone size: 8.27e+05
 * Planet size: 7.88e+05
-* Planet autopilot range: 1.24e+06
+* Planet autopilot range: 1.65e+06
+* Planet semi-major axis: 9.22e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14485,7 +14643,8 @@ Earth-relative units:
 * Planet zone size: 1.56e+08
 * Planet death zone size: 8.20e+06
 * Planet size: 7.81e+06
-* Planet autopilot range: 1.23e+07
+* Planet autopilot range: 1.64e+07
+* Planet semi-major axis: 1.84e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14543,7 +14702,8 @@ Earth-relative units:
 * Planet zone size: 4.51e+09
 * Planet death zone size: 2.37e+08
 * Planet size: 2.25e+08
-* Planet autopilot range: 3.55e+08
+* Planet autopilot range: 4.73e+08
+* Planet semi-major axis: 3.69e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14601,7 +14761,8 @@ Earth-relative units:
 * Planet zone size: 1.79e+07
 * Planet death zone size: 9.39e+05
 * Planet size: 8.94e+05
-* Planet autopilot range: 1.41e+06
+* Planet autopilot range: 1.88e+06
+* Planet semi-major axis: 7.37e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14659,7 +14820,8 @@ Earth-relative units:
 * Planet zone size: 2.59e+09
 * Planet death zone size: 1.36e+08
 * Planet size: 6.15e+05
-* Planet autopilot range: 2.04e+08
+* Planet autopilot range: 2.72e+08
+* Planet semi-major axis: 1.47e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14717,7 +14879,8 @@ Earth-relative units:
 * Planet zone size: 1.86e+07
 * Planet death zone size: 9.78e+05
 * Planet size: 9.32e+05
-* Planet autopilot range: 1.47e+06
+* Planet autopilot range: 1.96e+06
+* Planet semi-major axis: 2.95e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14775,7 +14938,8 @@ Earth-relative units:
 * Planet zone size: 3.39e+09
 * Planet death zone size: 1.78e+08
 * Planet size: 1.36e+06
-* Planet autopilot range: 2.67e+08
+* Planet autopilot range: 3.56e+08
+* Planet semi-major axis: 5.90e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -14943,7 +15107,8 @@ Earth-relative units:
 * Planet zone size: 3.07e+07
 * Planet death zone size: 1.61e+06
 * Planet size: 1.54e+06
-* Planet autopilot range: 2.42e+06
+* Planet autopilot range: 3.23e+06
+* Planet semi-major axis: 1.22e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15001,7 +15166,8 @@ Earth-relative units:
 * Planet zone size: 1.40e+08
 * Planet death zone size: 7.36e+06
 * Planet size: 7.01e+06
-* Planet autopilot range: 1.10e+07
+* Planet autopilot range: 1.47e+07
+* Planet semi-major axis: 2.45e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15059,7 +15225,8 @@ Earth-relative units:
 * Planet zone size: 1.10e+08
 * Planet death zone size: 5.80e+06
 * Planet size: 5.52e+06
-* Planet autopilot range: 8.69e+06
+* Planet autopilot range: 1.16e+07
+* Planet semi-major axis: 4.90e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15117,7 +15284,8 @@ Earth-relative units:
 * Planet zone size: 6.82e+08
 * Planet death zone size: 3.58e+07
 * Planet size: 3.41e+07
-* Planet autopilot range: 5.37e+07
+* Planet autopilot range: 7.16e+07
+* Planet semi-major axis: 9.80e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15175,7 +15343,8 @@ Earth-relative units:
 * Planet zone size: 1.57e+08
 * Planet death zone size: 8.27e+06
 * Planet size: 7.87e+06
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.65e+07
+* Planet semi-major axis: 1.96e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15233,7 +15402,8 @@ Earth-relative units:
 * Planet zone size: 6.61e+07
 * Planet death zone size: 3.47e+06
 * Planet size: 3.30e+06
-* Planet autopilot range: 5.20e+06
+* Planet autopilot range: 6.94e+06
+* Planet semi-major axis: 3.92e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15291,7 +15461,8 @@ Earth-relative units:
 * Planet zone size: 3.72e+09
 * Planet death zone size: 1.95e+08
 * Planet size: 1.61e+06
-* Planet autopilot range: 2.93e+08
+* Planet autopilot range: 3.91e+08
+* Planet semi-major axis: 7.84e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15349,7 +15520,8 @@ Earth-relative units:
 * Planet zone size: 9.36e+06
 * Planet death zone size: 4.91e+05
 * Planet size: 4.68e+05
-* Planet autopilot range: 7.37e+05
+* Planet autopilot range: 9.83e+05
+* Planet semi-major axis: 1.57e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15407,7 +15579,8 @@ Earth-relative units:
 * Planet zone size: 1.87e+07
 * Planet death zone size: 9.83e+05
 * Planet size: 9.36e+05
-* Planet autopilot range: 1.47e+06
+* Planet autopilot range: 1.97e+06
+* Planet semi-major axis: 3.14e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15711,7 +15884,8 @@ Earth-relative units:
 * Planet zone size: 2.94e+08
 * Planet death zone size: 1.54e+07
 * Planet size: 1.47e+07
-* Planet autopilot range: 2.32e+07
+* Planet autopilot range: 3.09e+07
+* Planet semi-major axis: 3.78e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15769,7 +15943,8 @@ Earth-relative units:
 * Planet zone size: 1.56e+08
 * Planet death zone size: 8.19e+06
 * Planet size: 7.80e+06
-* Planet autopilot range: 1.23e+07
+* Planet autopilot range: 1.64e+07
+* Planet semi-major axis: 5.66e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -15827,7 +16002,8 @@ Earth-relative units:
 * Planet zone size: 1.56e+08
 * Planet death zone size: 8.17e+06
 * Planet size: 7.78e+06
-* Planet autopilot range: 1.23e+07
+* Planet autopilot range: 1.63e+07
+* Planet semi-major axis: 8.50e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16131,7 +16307,8 @@ Earth-relative units:
 * Planet zone size: 1.95e+07
 * Planet death zone size: 1.03e+06
 * Planet size: 9.77e+05
-* Planet autopilot range: 1.54e+06
+* Planet autopilot range: 2.05e+06
+* Planet semi-major axis: 1.53e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16189,7 +16366,8 @@ Earth-relative units:
 * Planet zone size: 4.28e+09
 * Planet death zone size: 2.25e+08
 * Planet size: 2.14e+08
-* Planet autopilot range: 3.37e+08
+* Planet autopilot range: 4.49e+08
+* Planet semi-major axis: 3.06e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16247,7 +16425,8 @@ Earth-relative units:
 * Planet zone size: 1.46e+08
 * Planet death zone size: 7.69e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.15e+07
+* Planet autopilot range: 1.54e+07
+* Planet semi-major axis: 6.11e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16305,7 +16484,8 @@ Earth-relative units:
 * Planet zone size: 3.02e+08
 * Planet death zone size: 1.58e+07
 * Planet size: 1.51e+07
-* Planet autopilot range: 2.38e+07
+* Planet autopilot range: 3.17e+07
+* Planet semi-major axis: 1.22e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16363,7 +16543,8 @@ Earth-relative units:
 * Planet zone size: 1.49e+08
 * Planet death zone size: 7.82e+06
 * Planet size: 7.45e+06
-* Planet autopilot range: 1.17e+07
+* Planet autopilot range: 1.56e+07
+* Planet semi-major axis: 2.44e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16421,7 +16602,8 @@ Earth-relative units:
 * Planet zone size: 7.14e+07
 * Planet death zone size: 3.75e+06
 * Planet size: 3.57e+06
-* Planet autopilot range: 5.62e+06
+* Planet autopilot range: 7.50e+06
+* Planet semi-major axis: 4.89e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16479,7 +16661,8 @@ Earth-relative units:
 * Planet zone size: 2.21e+07
 * Planet death zone size: 1.16e+06
 * Planet size: 1.10e+06
-* Planet autopilot range: 1.74e+06
+* Planet autopilot range: 2.32e+06
+* Planet semi-major axis: 9.78e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16537,7 +16720,8 @@ Earth-relative units:
 * Planet zone size: 3.00e+07
 * Planet death zone size: 1.57e+06
 * Planet size: 1.50e+06
-* Planet autopilot range: 2.36e+06
+* Planet autopilot range: 3.15e+06
+* Planet semi-major axis: 1.96e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16595,7 +16779,8 @@ Earth-relative units:
 * Planet zone size: 1.23e+07
 * Planet death zone size: 6.46e+05
 * Planet size: 6.15e+05
-* Planet autopilot range: 9.69e+05
+* Planet autopilot range: 1.29e+06
+* Planet semi-major axis: 3.91e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16763,7 +16948,8 @@ Earth-relative units:
 * Planet zone size: 2.34e+07
 * Planet death zone size: 1.23e+06
 * Planet size: 1.17e+06
-* Planet autopilot range: 1.84e+06
+* Planet autopilot range: 2.46e+06
+* Planet semi-major axis: 4.92e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16821,7 +17007,8 @@ Earth-relative units:
 * Planet zone size: 7.78e+06
 * Planet death zone size: 4.08e+05
 * Planet size: 3.89e+05
-* Planet autopilot range: 6.13e+05
+* Planet autopilot range: 8.17e+05
+* Planet semi-major axis: 7.38e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -16879,7 +17066,8 @@ Earth-relative units:
 * Planet zone size: 1.54e+09
 * Planet death zone size: 8.08e+07
 * Planet size: 7.69e+07
-* Planet autopilot range: 1.21e+08
+* Planet autopilot range: 1.62e+08
+* Planet semi-major axis: 1.11e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17047,7 +17235,8 @@ Earth-relative units:
 * Planet zone size: 2.91e+09
 * Planet death zone size: 1.53e+08
 * Planet size: 1.45e+08
-* Planet autopilot range: 2.29e+08
+* Planet autopilot range: 3.05e+08
+* Planet semi-major axis: 1.66e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17105,7 +17294,8 @@ Earth-relative units:
 * Planet zone size: 3.44e+09
 * Planet death zone size: 1.81e+08
 * Planet size: 1.72e+08
-* Planet autopilot range: 2.71e+08
+* Planet autopilot range: 3.61e+08
+* Planet semi-major axis: 3.31e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17273,7 +17463,8 @@ Earth-relative units:
 * Planet zone size: 1.27e+08
 * Planet death zone size: 6.68e+06
 * Planet size: 6.36e+06
-* Planet autopilot range: 1.00e+07
+* Planet autopilot range: 1.34e+07
+* Planet semi-major axis: 5.72e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17331,7 +17522,8 @@ Earth-relative units:
 * Planet zone size: 4.37e+07
 * Planet death zone size: 2.30e+06
 * Planet size: 2.19e+06
-* Planet autopilot range: 3.45e+06
+* Planet autopilot range: 4.59e+06
+* Planet semi-major axis: 8.58e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17499,7 +17691,8 @@ Earth-relative units:
 * Planet zone size: 4.36e+07
 * Planet death zone size: 2.29e+06
 * Planet size: 2.18e+06
-* Planet autopilot range: 3.43e+06
+* Planet autopilot range: 4.57e+06
+* Planet semi-major axis: 8.48e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17557,7 +17750,8 @@ Earth-relative units:
 * Planet zone size: 2.02e+07
 * Planet death zone size: 1.06e+06
 * Planet size: 1.01e+06
-* Planet autopilot range: 1.59e+06
+* Planet autopilot range: 2.12e+06
+* Planet semi-major axis: 1.13e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17615,7 +17809,8 @@ Earth-relative units:
 * Planet zone size: 3.05e+08
 * Planet death zone size: 1.60e+07
 * Planet size: 1.53e+07
-* Planet autopilot range: 2.40e+07
+* Planet autopilot range: 3.20e+07
+* Planet semi-major axis: 1.50e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17673,7 +17868,8 @@ Earth-relative units:
 * Planet zone size: 3.32e+09
 * Planet death zone size: 1.74e+08
 * Planet size: 1.66e+08
-* Planet autopilot range: 2.61e+08
+* Planet autopilot range: 3.48e+08
+* Planet semi-major axis: 2.00e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17731,7 +17927,8 @@ Earth-relative units:
 * Planet zone size: 3.12e+07
 * Planet death zone size: 1.64e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.46e+06
+* Planet autopilot range: 3.28e+06
+* Planet semi-major axis: 2.65e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17789,7 +17986,8 @@ Earth-relative units:
 * Planet zone size: 7.81e+07
 * Planet death zone size: 4.10e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 6.15e+06
+* Planet autopilot range: 8.20e+06
+* Planet semi-major axis: 3.53e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17847,7 +18045,8 @@ Earth-relative units:
 * Planet zone size: 1.50e+08
 * Planet death zone size: 7.89e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.18e+07
+* Planet autopilot range: 1.58e+07
+* Planet semi-major axis: 4.70e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17905,7 +18104,8 @@ Earth-relative units:
 * Planet zone size: 4.32e+09
 * Planet death zone size: 2.27e+08
 * Planet size: 2.16e+08
-* Planet autopilot range: 3.40e+08
+* Planet autopilot range: 4.54e+08
+* Planet semi-major axis: 6.25e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -17963,7 +18163,8 @@ Earth-relative units:
 * Planet zone size: 2.59e+08
 * Planet death zone size: 1.36e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.04e+07
+* Planet autopilot range: 2.71e+07
+* Planet semi-major axis: 8.31e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18021,7 +18222,8 @@ Earth-relative units:
 * Planet zone size: 4.50e+09
 * Planet death zone size: 2.36e+08
 * Planet size: 2.25e+08
-* Planet autopilot range: 3.54e+08
+* Planet autopilot range: 4.72e+08
+* Planet semi-major axis: 1.10e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18079,7 +18281,8 @@ Earth-relative units:
 * Planet zone size: 1.21e+07
 * Planet death zone size: 6.37e+05
 * Planet size: 6.06e+05
-* Planet autopilot range: 9.55e+05
+* Planet autopilot range: 1.27e+06
+* Planet semi-major axis: 1.47e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18247,7 +18450,8 @@ Earth-relative units:
 * Planet zone size: 4.50e+09
 * Planet death zone size: 2.36e+08
 * Planet size: 2.25e+08
-* Planet autopilot range: 3.55e+08
+* Planet autopilot range: 4.73e+08
+* Planet semi-major axis: 3.24e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18305,7 +18509,8 @@ Earth-relative units:
 * Planet zone size: 1.80e+07
 * Planet death zone size: 9.43e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.42e+06
+* Planet autopilot range: 1.89e+06
+* Planet semi-major axis: 4.87e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18363,7 +18568,8 @@ Earth-relative units:
 * Planet zone size: 7.71e+07
 * Planet death zone size: 4.05e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 6.07e+06
+* Planet autopilot range: 8.10e+06
+* Planet semi-major axis: 7.30e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18421,7 +18627,8 @@ Earth-relative units:
 * Planet zone size: 4.76e+07
 * Planet death zone size: 2.50e+06
 * Planet size: 2.38e+06
-* Planet autopilot range: 3.75e+06
+* Planet autopilot range: 5.00e+06
+* Planet semi-major axis: 1.09e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18589,7 +18796,8 @@ Earth-relative units:
 * Planet zone size: 6.24e+07
 * Planet death zone size: 3.28e+06
 * Planet size: 3.12e+06
-* Planet autopilot range: 4.92e+06
+* Planet autopilot range: 6.56e+06
+* Planet semi-major axis: 2.17e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18757,7 +18965,8 @@ Earth-relative units:
 * Planet zone size: 7.01e+07
 * Planet death zone size: 3.68e+06
 * Planet size: 3.50e+06
-* Planet autopilot range: 5.52e+06
+* Planet autopilot range: 7.36e+06
+* Planet semi-major axis: 3.13e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18815,7 +19024,8 @@ Earth-relative units:
 * Planet zone size: 3.46e+09
 * Planet death zone size: 1.82e+08
 * Planet size: 1.73e+08
-* Planet autopilot range: 2.72e+08
+* Planet autopilot range: 3.63e+08
+* Planet semi-major axis: 6.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18873,7 +19083,8 @@ Earth-relative units:
 * Planet zone size: 1.00e+07
 * Planet death zone size: 5.26e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.89e+05
+* Planet autopilot range: 1.05e+06
+* Planet semi-major axis: 1.25e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18931,7 +19142,8 @@ Earth-relative units:
 * Planet zone size: 2.45e+09
 * Planet death zone size: 1.29e+08
 * Planet size: 1.23e+08
-* Planet autopilot range: 1.93e+08
+* Planet autopilot range: 2.58e+08
+* Planet semi-major axis: 2.50e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -18989,7 +19201,8 @@ Earth-relative units:
 * Planet zone size: 8.55e+06
 * Planet death zone size: 4.49e+05
 * Planet size: 4.28e+05
-* Planet autopilot range: 6.73e+05
+* Planet autopilot range: 8.98e+05
+* Planet semi-major axis: 5.01e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19047,7 +19260,8 @@ Earth-relative units:
 * Planet zone size: 1.45e+07
 * Planet death zone size: 7.62e+05
 * Planet size: 7.26e+05
-* Planet autopilot range: 1.14e+06
+* Planet autopilot range: 1.52e+06
+* Planet semi-major axis: 1.00e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19105,7 +19319,8 @@ Earth-relative units:
 * Planet zone size: 8.08e+07
 * Planet death zone size: 4.24e+06
 * Planet size: 4.04e+06
-* Planet autopilot range: 6.36e+06
+* Planet autopilot range: 8.48e+06
+* Planet semi-major axis: 2.00e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19163,7 +19378,8 @@ Earth-relative units:
 * Planet zone size: 3.21e+09
 * Planet death zone size: 1.69e+08
 * Planet size: 1.85e+06
-* Planet autopilot range: 2.53e+08
+* Planet autopilot range: 3.37e+08
+* Planet semi-major axis: 4.00e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19221,7 +19437,8 @@ Earth-relative units:
 * Planet zone size: 4.32e+09
 * Planet death zone size: 2.27e+08
 * Planet size: 2.00e+06
-* Planet autopilot range: 3.40e+08
+* Planet autopilot range: 4.53e+08
+* Planet semi-major axis: 8.01e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19279,7 +19496,8 @@ Earth-relative units:
 * Planet zone size: 4.55e+09
 * Planet death zone size: 2.39e+08
 * Planet size: 1.60e+06
-* Planet autopilot range: 3.58e+08
+* Planet autopilot range: 4.78e+08
+* Planet semi-major axis: 1.60e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19337,7 +19555,8 @@ Earth-relative units:
 * Planet zone size: 1.83e+07
 * Planet death zone size: 9.62e+05
 * Planet size: 9.16e+05
-* Planet autopilot range: 1.44e+06
+* Planet autopilot range: 1.92e+06
+* Planet semi-major axis: 3.20e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19395,7 +19614,8 @@ Earth-relative units:
 * Planet zone size: 2.54e+08
 * Planet death zone size: 1.33e+07
 * Planet size: 1.27e+07
-* Planet autopilot range: 2.00e+07
+* Planet autopilot range: 2.66e+07
+* Planet semi-major axis: 6.41e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19453,7 +19673,8 @@ Earth-relative units:
 * Planet zone size: 4.06e+09
 * Planet death zone size: 2.13e+08
 * Planet size: 1.89e+06
-* Planet autopilot range: 3.20e+08
+* Planet autopilot range: 4.27e+08
+* Planet semi-major axis: 1.28e+15
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19621,7 +19842,8 @@ Earth-relative units:
 * Planet zone size: 2.93e+07
 * Planet death zone size: 1.54e+06
 * Planet size: 1.47e+06
-* Planet autopilot range: 2.31e+06
+* Planet autopilot range: 3.08e+06
+* Planet semi-major axis: 1.18e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19679,7 +19901,8 @@ Earth-relative units:
 * Planet zone size: 9.88e+06
 * Planet death zone size: 5.18e+05
 * Planet size: 4.94e+05
-* Planet autopilot range: 7.78e+05
+* Planet autopilot range: 1.04e+06
+* Planet semi-major axis: 1.77e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19737,7 +19960,8 @@ Earth-relative units:
 * Planet zone size: 4.10e+09
 * Planet death zone size: 2.15e+08
 * Planet size: 2.05e+08
-* Planet autopilot range: 3.23e+08
+* Planet autopilot range: 4.31e+08
+* Planet semi-major axis: 2.66e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19795,7 +20019,8 @@ Earth-relative units:
 * Planet zone size: 3.49e+09
 * Planet death zone size: 1.83e+08
 * Planet size: 1.75e+08
-* Planet autopilot range: 2.75e+08
+* Planet autopilot range: 3.67e+08
+* Planet semi-major axis: 3.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19853,7 +20078,8 @@ Earth-relative units:
 * Planet zone size: 3.44e+09
 * Planet death zone size: 1.81e+08
 * Planet size: 1.72e+08
-* Planet autopilot range: 2.71e+08
+* Planet autopilot range: 3.61e+08
+* Planet semi-major axis: 5.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -19911,7 +20137,8 @@ Earth-relative units:
 * Planet zone size: 4.26e+07
 * Planet death zone size: 2.24e+06
 * Planet size: 2.13e+06
-* Planet autopilot range: 3.35e+06
+* Planet autopilot range: 4.47e+06
+* Planet semi-major axis: 8.98e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20189,7 +20416,8 @@ Earth-relative units:
 * Planet zone size: 2.96e+09
 * Planet death zone size: 1.55e+08
 * Planet size: 1.48e+08
-* Planet autopilot range: 2.33e+08
+* Planet autopilot range: 3.10e+08
+* Planet semi-major axis: 3.62e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20247,7 +20475,8 @@ Earth-relative units:
 * Planet zone size: 2.18e+07
 * Planet death zone size: 1.15e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.72e+06
+* Planet autopilot range: 2.29e+06
+* Planet semi-major axis: 5.43e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20305,7 +20534,8 @@ Earth-relative units:
 * Planet zone size: 1.57e+08
 * Planet death zone size: 8.23e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.23e+07
+* Planet autopilot range: 1.65e+07
+* Planet semi-major axis: 8.14e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20363,7 +20593,8 @@ Earth-relative units:
 * Planet zone size: 3.66e+09
 * Planet death zone size: 1.92e+08
 * Planet size: 1.83e+08
-* Planet autopilot range: 2.88e+08
+* Planet autopilot range: 3.84e+08
+* Planet semi-major axis: 1.22e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20421,7 +20652,8 @@ Earth-relative units:
 * Planet zone size: 1.17e+08
 * Planet death zone size: 6.14e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.22e+06
+* Planet autopilot range: 1.23e+07
+* Planet semi-major axis: 1.83e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20479,7 +20711,8 @@ Earth-relative units:
 * Planet zone size: 4.42e+09
 * Planet death zone size: 2.32e+08
 * Planet size: 2.21e+08
-* Planet autopilot range: 3.48e+08
+* Planet autopilot range: 4.64e+08
+* Planet semi-major axis: 2.75e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20783,7 +21016,8 @@ Earth-relative units:
 * Planet zone size: 3.03e+08
 * Planet death zone size: 1.59e+07
 * Planet size: 1.52e+07
-* Planet autopilot range: 2.39e+07
+* Planet autopilot range: 3.19e+07
+* Planet semi-major axis: 9.20e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20841,7 +21075,8 @@ Earth-relative units:
 * Planet zone size: 1.38e+08
 * Planet death zone size: 7.24e+06
 * Planet size: 6.90e+06
-* Planet autopilot range: 1.09e+07
+* Planet autopilot range: 1.45e+07
+* Planet semi-major axis: 1.84e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20899,7 +21134,8 @@ Earth-relative units:
 * Planet zone size: 3.83e+07
 * Planet death zone size: 2.01e+06
 * Planet size: 1.91e+06
-* Planet autopilot range: 3.02e+06
+* Planet autopilot range: 4.02e+06
+* Planet semi-major axis: 3.68e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -20957,7 +21193,8 @@ Earth-relative units:
 * Planet zone size: 4.47e+07
 * Planet death zone size: 2.35e+06
 * Planet size: 2.24e+06
-* Planet autopilot range: 3.52e+06
+* Planet autopilot range: 4.70e+06
+* Planet semi-major axis: 7.36e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21015,7 +21252,8 @@ Earth-relative units:
 * Planet zone size: 4.59e+09
 * Planet death zone size: 2.41e+08
 * Planet size: 2.29e+08
-* Planet autopilot range: 3.61e+08
+* Planet autopilot range: 4.82e+08
+* Planet semi-major axis: 1.47e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21073,7 +21311,8 @@ Earth-relative units:
 * Planet zone size: 3.87e+09
 * Planet death zone size: 2.03e+08
 * Planet size: 1.94e+08
-* Planet autopilot range: 3.05e+08
+* Planet autopilot range: 4.06e+08
+* Planet semi-major axis: 2.95e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21131,7 +21370,8 @@ Earth-relative units:
 * Planet zone size: 5.66e+07
 * Planet death zone size: 2.97e+06
 * Planet size: 2.83e+06
-* Planet autopilot range: 4.46e+06
+* Planet autopilot range: 5.95e+06
+* Planet semi-major axis: 5.89e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21189,7 +21429,8 @@ Earth-relative units:
 * Planet zone size: 1.52e+08
 * Planet death zone size: 7.99e+06
 * Planet size: 7.61e+06
-* Planet autopilot range: 1.20e+07
+* Planet autopilot range: 1.60e+07
+* Planet semi-major axis: 1.18e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21247,7 +21488,8 @@ Earth-relative units:
 * Planet zone size: 2.28e+07
 * Planet death zone size: 1.20e+06
 * Planet size: 1.14e+06
-* Planet autopilot range: 1.80e+06
+* Planet autopilot range: 2.39e+06
+* Planet semi-major axis: 2.36e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21305,7 +21547,8 @@ Earth-relative units:
 * Planet zone size: 3.87e+09
 * Planet death zone size: 2.03e+08
 * Planet size: 5.65e+05
-* Planet autopilot range: 3.05e+08
+* Planet autopilot range: 4.06e+08
+* Planet semi-major axis: 4.71e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21363,7 +21606,8 @@ Earth-relative units:
 * Planet zone size: 3.32e+07
 * Planet death zone size: 1.74e+06
 * Planet size: 1.66e+06
-* Planet autopilot range: 2.61e+06
+* Planet autopilot range: 3.48e+06
+* Planet semi-major axis: 9.42e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21421,7 +21665,8 @@ Earth-relative units:
 * Planet zone size: 3.80e+07
 * Planet death zone size: 2.00e+06
 * Planet size: 1.90e+06
-* Planet autopilot range: 2.99e+06
+* Planet autopilot range: 3.99e+06
+* Planet semi-major axis: 1.88e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21479,7 +21724,8 @@ Earth-relative units:
 * Planet zone size: 3.25e+09
 * Planet death zone size: 1.71e+08
 * Planet size: 8.98e+05
-* Planet autopilot range: 2.56e+08
+* Planet autopilot range: 3.41e+08
+* Planet semi-major axis: 3.77e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21537,7 +21783,8 @@ Earth-relative units:
 * Planet zone size: 3.44e+07
 * Planet death zone size: 1.81e+06
 * Planet size: 1.72e+06
-* Planet autopilot range: 2.71e+06
+* Planet autopilot range: 3.61e+06
+* Planet semi-major axis: 7.54e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -21977,7 +22224,8 @@ Earth-relative units:
 * Planet zone size: 4.98e+09
 * Planet death zone size: 2.62e+08
 * Planet size: 2.49e+08
-* Planet autopilot range: 3.92e+08
+* Planet autopilot range: 5.23e+08
+* Planet semi-major axis: 2.00e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22035,7 +22283,8 @@ Earth-relative units:
 * Planet zone size: 4.30e+09
 * Planet death zone size: 2.26e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.39e+08
+* Planet autopilot range: 4.52e+08
+* Planet semi-major axis: 2.66e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22093,7 +22342,8 @@ Earth-relative units:
 * Planet zone size: 3.24e+09
 * Planet death zone size: 1.70e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.55e+08
+* Planet autopilot range: 3.41e+08
+* Planet semi-major axis: 3.53e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22151,7 +22401,8 @@ Earth-relative units:
 * Planet zone size: 4.81e+09
 * Planet death zone size: 2.52e+08
 * Planet size: 2.40e+08
-* Planet autopilot range: 3.79e+08
+* Planet autopilot range: 5.05e+08
+* Planet semi-major axis: 4.70e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22387,7 +22638,8 @@ Earth-relative units:
 * Planet zone size: 8.10e+07
 * Planet death zone size: 4.25e+06
 * Planet size: 4.05e+06
-* Planet autopilot range: 6.38e+06
+* Planet autopilot range: 8.50e+06
+* Planet semi-major axis: 1.79e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22445,7 +22697,8 @@ Earth-relative units:
 * Planet zone size: 1.03e+07
 * Planet death zone size: 5.38e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 8.08e+05
+* Planet autopilot range: 1.08e+06
+* Planet semi-major axis: 2.39e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22503,7 +22756,8 @@ Earth-relative units:
 * Planet zone size: 2.76e+09
 * Planet death zone size: 1.45e+08
 * Planet size: 1.38e+08
-* Planet autopilot range: 2.17e+08
+* Planet autopilot range: 2.90e+08
+* Planet semi-major axis: 3.17e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22561,7 +22815,8 @@ Earth-relative units:
 * Planet zone size: 3.77e+07
 * Planet death zone size: 1.98e+06
 * Planet size: 1.89e+06
-* Planet autopilot range: 2.97e+06
+* Planet autopilot range: 3.96e+06
+* Planet semi-major axis: 4.22e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22619,7 +22874,8 @@ Earth-relative units:
 * Planet zone size: 1.62e+07
 * Planet death zone size: 8.48e+05
 * Planet size: 8.08e+05
-* Planet autopilot range: 1.27e+06
+* Planet autopilot range: 1.70e+06
+* Planet semi-major axis: 5.62e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -22991,7 +23247,8 @@ Earth-relative units:
 * Planet zone size: 1.41e+08
 * Planet death zone size: 7.39e+06
 * Planet size: 7.04e+06
-* Planet autopilot range: 1.11e+07
+* Planet autopilot range: 1.48e+07
+* Planet semi-major axis: 3.61e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23269,7 +23526,8 @@ Earth-relative units:
 * Planet zone size: 1.20e+07
 * Planet death zone size: 6.32e+05
 * Planet size: 6.02e+05
-* Planet autopilot range: 9.49e+05
+* Planet autopilot range: 1.26e+06
+* Planet semi-major axis: 1.48e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23327,7 +23585,8 @@ Earth-relative units:
 * Planet zone size: 1.23e+07
 * Planet death zone size: 6.46e+05
 * Planet size: 6.15e+05
-* Planet autopilot range: 9.69e+05
+* Planet autopilot range: 1.29e+06
+* Planet semi-major axis: 2.96e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23385,7 +23644,8 @@ Earth-relative units:
 * Planet zone size: 1.15e+07
 * Planet death zone size: 6.01e+05
 * Planet size: 5.73e+05
-* Planet autopilot range: 9.02e+05
+* Planet autopilot range: 1.20e+06
+* Planet semi-major axis: 5.92e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23621,7 +23881,8 @@ Earth-relative units:
 * Planet zone size: 2.13e+07
 * Planet death zone size: 1.12e+06
 * Planet size: 1.07e+06
-* Planet autopilot range: 1.68e+06
+* Planet autopilot range: 2.24e+06
+* Planet semi-major axis: 4.47e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23679,7 +23940,8 @@ Earth-relative units:
 * Planet zone size: 4.61e+09
 * Planet death zone size: 2.42e+08
 * Planet size: 2.30e+08
-* Planet autopilot range: 3.63e+08
+* Planet autopilot range: 4.84e+08
+* Planet semi-major axis: 6.71e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23737,7 +23999,8 @@ Earth-relative units:
 * Planet zone size: 7.55e+07
 * Planet death zone size: 3.97e+06
 * Planet size: 3.78e+06
-* Planet autopilot range: 5.95e+06
+* Planet autopilot range: 7.93e+06
+* Planet semi-major axis: 1.01e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23795,7 +24058,8 @@ Earth-relative units:
 * Planet zone size: 5.88e+07
 * Planet death zone size: 3.09e+06
 * Planet size: 2.94e+06
-* Planet autopilot range: 4.63e+06
+* Planet autopilot range: 6.18e+06
+* Planet semi-major axis: 1.51e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -23853,7 +24117,8 @@ Earth-relative units:
 * Planet zone size: 4.01e+07
 * Planet death zone size: 2.10e+06
 * Planet size: 2.00e+06
-* Planet autopilot range: 3.16e+06
+* Planet autopilot range: 4.21e+06
+* Planet semi-major axis: 2.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24021,7 +24286,8 @@ Earth-relative units:
 * Planet zone size: 4.37e+09
 * Planet death zone size: 2.29e+08
 * Planet size: 2.18e+08
-* Planet autopilot range: 3.44e+08
+* Planet autopilot range: 4.58e+08
+* Planet semi-major axis: 7.26e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24079,7 +24345,8 @@ Earth-relative units:
 * Planet zone size: 7.11e+06
 * Planet death zone size: 3.73e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.60e+05
+* Planet autopilot range: 7.46e+05
+* Planet semi-major axis: 1.45e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24137,7 +24404,8 @@ Earth-relative units:
 * Planet zone size: 8.94e+06
 * Planet death zone size: 4.69e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.04e+05
+* Planet autopilot range: 9.38e+05
+* Planet semi-major axis: 2.90e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24195,7 +24463,8 @@ Earth-relative units:
 * Planet zone size: 1.17e+07
 * Planet death zone size: 6.15e+05
 * Planet size: 5.86e+05
-* Planet autopilot range: 9.23e+05
+* Planet autopilot range: 1.23e+06
+* Planet semi-major axis: 5.81e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24363,7 +24632,8 @@ Earth-relative units:
 * Planet zone size: 3.01e+09
 * Planet death zone size: 1.58e+08
 * Planet size: 1.50e+08
-* Planet autopilot range: 2.37e+08
+* Planet autopilot range: 3.16e+08
+* Planet semi-major axis: 1.01e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24421,7 +24691,8 @@ Earth-relative units:
 * Planet zone size: 3.99e+09
 * Planet death zone size: 2.10e+08
 * Planet size: 2.00e+08
-* Planet autopilot range: 3.14e+08
+* Planet autopilot range: 4.19e+08
+* Planet semi-major axis: 1.52e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24479,7 +24750,8 @@ Earth-relative units:
 * Planet zone size: 1.40e+08
 * Planet death zone size: 7.34e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.10e+07
+* Planet autopilot range: 1.47e+07
+* Planet semi-major axis: 2.28e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24537,7 +24809,8 @@ Earth-relative units:
 * Planet zone size: 3.22e+07
 * Planet death zone size: 1.69e+06
 * Planet size: 1.61e+06
-* Planet autopilot range: 2.54e+06
+* Planet autopilot range: 3.38e+06
+* Planet semi-major axis: 3.42e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24773,7 +25046,8 @@ Earth-relative units:
 * Planet zone size: 4.78e+09
 * Planet death zone size: 2.51e+08
 * Planet size: 2.39e+08
-* Planet autopilot range: 3.76e+08
+* Planet autopilot range: 5.02e+08
+* Planet semi-major axis: 4.24e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24831,7 +25105,8 @@ Earth-relative units:
 * Planet zone size: 4.16e+09
 * Planet death zone size: 2.18e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.27e+08
+* Planet autopilot range: 4.37e+08
+* Planet semi-major axis: 5.64e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24889,7 +25164,8 @@ Earth-relative units:
 * Planet zone size: 2.98e+09
 * Planet death zone size: 1.56e+08
 * Planet size: 1.49e+08
-* Planet autopilot range: 2.34e+08
+* Planet autopilot range: 3.12e+08
+* Planet semi-major axis: 7.49e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -24947,7 +25223,8 @@ Earth-relative units:
 * Planet zone size: 2.61e+08
 * Planet death zone size: 1.37e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.06e+07
+* Planet autopilot range: 2.74e+07
+* Planet semi-major axis: 9.97e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25293,7 +25570,8 @@ Earth-relative units:
 * Planet zone size: 1.29e+08
 * Planet death zone size: 6.76e+06
 * Planet size: 6.44e+06
-* Planet autopilot range: 1.01e+07
+* Planet autopilot range: 1.35e+07
+* Planet semi-major axis: 1.16e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25351,7 +25629,8 @@ Earth-relative units:
 * Planet zone size: 1.50e+07
 * Planet death zone size: 7.90e+05
 * Planet size: 7.52e+05
-* Planet autopilot range: 1.19e+06
+* Planet autopilot range: 1.58e+06
+* Planet semi-major axis: 1.55e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25409,7 +25688,8 @@ Earth-relative units:
 * Planet zone size: 1.54e+08
 * Planet death zone size: 8.10e+06
 * Planet size: 7.72e+06
-* Planet autopilot range: 1.22e+07
+* Planet autopilot range: 1.62e+07
+* Planet semi-major axis: 2.06e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25467,7 +25747,8 @@ Earth-relative units:
 * Planet zone size: 4.47e+07
 * Planet death zone size: 2.35e+06
 * Planet size: 2.23e+06
-* Planet autopilot range: 3.52e+06
+* Planet autopilot range: 4.69e+06
+* Planet semi-major axis: 2.74e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25525,7 +25806,8 @@ Earth-relative units:
 * Planet zone size: 2.48e+09
 * Planet death zone size: 1.30e+08
 * Planet size: 1.24e+08
-* Planet autopilot range: 1.96e+08
+* Planet autopilot range: 2.61e+08
+* Planet semi-major axis: 3.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25583,7 +25865,8 @@ Earth-relative units:
 * Planet zone size: 4.51e+09
 * Planet death zone size: 2.37e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.55e+08
+* Planet autopilot range: 4.74e+08
+* Planet semi-major axis: 4.84e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25641,7 +25924,8 @@ Earth-relative units:
 * Planet zone size: 2.66e+09
 * Planet death zone size: 1.39e+08
 * Planet size: 1.33e+08
-* Planet autopilot range: 2.09e+08
+* Planet autopilot range: 2.79e+08
+* Planet semi-major axis: 6.44e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25699,7 +25983,8 @@ Earth-relative units:
 * Planet zone size: 3.92e+09
 * Planet death zone size: 2.06e+08
 * Planet size: 1.96e+08
-* Planet autopilot range: 3.08e+08
+* Planet autopilot range: 4.11e+08
+* Planet semi-major axis: 8.56e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25757,7 +26042,8 @@ Earth-relative units:
 * Planet zone size: 4.19e+07
 * Planet death zone size: 2.20e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.30e+06
+* Planet autopilot range: 4.40e+06
+* Planet semi-major axis: 1.14e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25815,7 +26101,8 @@ Earth-relative units:
 * Planet zone size: 3.29e+09
 * Planet death zone size: 1.73e+08
 * Planet size: 1.65e+08
-* Planet autopilot range: 2.59e+08
+* Planet autopilot range: 3.46e+08
+* Planet semi-major axis: 1.51e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -25873,7 +26160,8 @@ Earth-relative units:
 * Planet zone size: 1.55e+08
 * Planet death zone size: 8.12e+06
 * Planet size: 7.73e+06
-* Planet autopilot range: 1.22e+07
+* Planet autopilot range: 1.62e+07
+* Planet semi-major axis: 2.01e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26041,7 +26329,8 @@ Earth-relative units:
 * Planet zone size: 6.32e+07
 * Planet death zone size: 3.32e+06
 * Planet size: 3.16e+06
-* Planet autopilot range: 4.97e+06
+* Planet autopilot range: 6.63e+06
+* Planet semi-major axis: 6.42e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26099,7 +26388,8 @@ Earth-relative units:
 * Planet zone size: 8.76e+06
 * Planet death zone size: 4.60e+05
 * Planet size: 4.38e+05
-* Planet autopilot range: 6.90e+05
+* Planet autopilot range: 9.19e+05
+* Planet semi-major axis: 9.64e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26157,7 +26447,8 @@ Earth-relative units:
 * Planet zone size: 6.51e+07
 * Planet death zone size: 3.42e+06
 * Planet size: 3.26e+06
-* Planet autopilot range: 5.13e+06
+* Planet autopilot range: 6.84e+06
+* Planet semi-major axis: 1.45e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26215,7 +26506,8 @@ Earth-relative units:
 * Planet zone size: 1.49e+08
 * Planet death zone size: 7.80e+06
 * Planet size: 7.43e+06
-* Planet autopilot range: 1.17e+07
+* Planet autopilot range: 1.56e+07
+* Planet semi-major axis: 2.17e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26273,7 +26565,8 @@ Earth-relative units:
 * Planet zone size: 2.83e+08
 * Planet death zone size: 1.48e+07
 * Planet size: 1.41e+07
-* Planet autopilot range: 2.22e+07
+* Planet autopilot range: 2.97e+07
+* Planet semi-major axis: 3.25e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26331,7 +26624,8 @@ Earth-relative units:
 * Planet zone size: 2.64e+08
 * Planet death zone size: 1.38e+07
 * Planet size: 1.32e+07
-* Planet autopilot range: 2.08e+07
+* Planet autopilot range: 2.77e+07
+* Planet semi-major axis: 4.88e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26389,7 +26683,8 @@ Earth-relative units:
 * Planet zone size: 4.44e+09
 * Planet death zone size: 2.33e+08
 * Planet size: 2.22e+08
-* Planet autopilot range: 3.50e+08
+* Planet autopilot range: 4.66e+08
+* Planet semi-major axis: 7.32e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26447,7 +26742,8 @@ Earth-relative units:
 * Planet zone size: 9.09e+06
 * Planet death zone size: 4.77e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.16e+05
+* Planet autopilot range: 9.54e+05
+* Planet semi-major axis: 1.10e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26505,7 +26801,8 @@ Earth-relative units:
 * Planet zone size: 1.36e+09
 * Planet death zone size: 7.14e+07
 * Planet size: 6.80e+07
-* Planet autopilot range: 1.07e+08
+* Planet autopilot range: 1.43e+08
+* Planet semi-major axis: 1.65e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26741,7 +27038,8 @@ Earth-relative units:
 * Planet zone size: 2.23e+07
 * Planet death zone size: 1.17e+06
 * Planet size: 1.11e+06
-* Planet autopilot range: 1.75e+06
+* Planet autopilot range: 2.34e+06
+* Planet semi-major axis: 7.40e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26909,7 +27207,8 @@ Earth-relative units:
 * Planet zone size: 4.14e+09
 * Planet death zone size: 2.17e+08
 * Planet size: 2.07e+08
-* Planet autopilot range: 3.26e+08
+* Planet autopilot range: 4.35e+08
+* Planet semi-major axis: 2.71e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -26967,7 +27266,8 @@ Earth-relative units:
 * Planet zone size: 4.22e+07
 * Planet death zone size: 2.22e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.32e+06
+* Planet autopilot range: 4.43e+06
+* Planet semi-major axis: 5.43e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27025,7 +27325,8 @@ Earth-relative units:
 * Planet zone size: 4.02e+07
 * Planet death zone size: 2.11e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.17e+06
+* Planet autopilot range: 4.22e+06
+* Planet semi-major axis: 1.09e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27083,7 +27384,8 @@ Earth-relative units:
 * Planet zone size: 2.92e+09
 * Planet death zone size: 1.53e+08
 * Planet size: 1.46e+08
-* Planet autopilot range: 2.30e+08
+* Planet autopilot range: 3.07e+08
+* Planet semi-major axis: 2.17e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27251,7 +27553,8 @@ Earth-relative units:
 * Planet zone size: 2.43e+09
 * Planet death zone size: 1.27e+08
 * Planet size: 1.21e+08
-* Planet autopilot range: 1.91e+08
+* Planet autopilot range: 2.55e+08
+* Planet semi-major axis: 2.14e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27487,7 +27790,8 @@ Earth-relative units:
 * Planet zone size: 1.41e+08
 * Planet death zone size: 7.42e+06
 * Planet size: 7.06e+06
-* Planet autopilot range: 1.11e+07
+* Planet autopilot range: 1.48e+07
+* Planet semi-major axis: 3.17e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27545,7 +27849,8 @@ Earth-relative units:
 * Planet zone size: 1.45e+07
 * Planet death zone size: 7.61e+05
 * Planet size: 7.25e+05
-* Planet autopilot range: 1.14e+06
+* Planet autopilot range: 1.52e+06
+* Planet semi-major axis: 4.75e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27603,7 +27908,8 @@ Earth-relative units:
 * Planet zone size: 3.80e+07
 * Planet death zone size: 2.00e+06
 * Planet size: 1.90e+06
-* Planet autopilot range: 3.00e+06
+* Planet autopilot range: 3.99e+06
+* Planet semi-major axis: 7.12e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27771,7 +28077,8 @@ Earth-relative units:
 * Planet zone size: 2.99e+09
 * Planet death zone size: 1.57e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.35e+08
+* Planet autopilot range: 3.14e+08
+* Planet semi-major axis: 1.36e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27829,7 +28136,8 @@ Earth-relative units:
 * Planet zone size: 4.84e+09
 * Planet death zone size: 2.54e+08
 * Planet size: 2.42e+08
-* Planet autopilot range: 3.81e+08
+* Planet autopilot range: 5.08e+08
+* Planet semi-major axis: 2.04e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -27887,7 +28195,8 @@ Earth-relative units:
 * Planet zone size: 3.67e+09
 * Planet death zone size: 1.93e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.89e+08
+* Planet autopilot range: 3.85e+08
+* Planet semi-major axis: 3.05e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -28327,7 +28636,8 @@ Earth-relative units:
 * Planet zone size: 3.52e+09
 * Planet death zone size: 1.85e+08
 * Planet size: 1.76e+08
-* Planet autopilot range: 2.77e+08
+* Planet autopilot range: 3.69e+08
+* Planet semi-major axis: 4.65e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -28385,7 +28695,8 @@ Earth-relative units:
 * Planet zone size: 4.20e+09
 * Planet death zone size: 2.21e+08
 * Planet size: 2.10e+08
-* Planet autopilot range: 3.31e+08
+* Planet autopilot range: 4.41e+08
+* Planet semi-major axis: 9.31e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -28443,7 +28754,8 @@ Earth-relative units:
 * Planet zone size: 3.78e+07
 * Planet death zone size: 1.98e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.97e+06
+* Planet autopilot range: 3.97e+06
+* Planet semi-major axis: 1.86e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -28501,7 +28813,8 @@ Earth-relative units:
 * Planet zone size: 2.57e+09
 * Planet death zone size: 1.35e+08
 * Planet size: 1.29e+08
-* Planet autopilot range: 2.02e+08
+* Planet autopilot range: 2.70e+08
+* Planet semi-major axis: 3.72e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -28559,7 +28872,8 @@ Earth-relative units:
 * Planet zone size: 3.35e+09
 * Planet death zone size: 1.76e+08
 * Planet size: 1.67e+08
-* Planet autopilot range: 2.64e+08
+* Planet autopilot range: 3.52e+08
+* Planet semi-major axis: 7.44e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -28617,7 +28931,8 @@ Earth-relative units:
 * Planet zone size: 3.93e+09
 * Planet death zone size: 2.06e+08
 * Planet size: 1.96e+08
-* Planet autopilot range: 3.09e+08
+* Planet autopilot range: 4.12e+08
+* Planet semi-major axis: 1.49e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29057,7 +29372,8 @@ Earth-relative units:
 * Planet zone size: 2.44e+09
 * Planet death zone size: 1.28e+08
 * Planet size: 1.22e+08
-* Planet autopilot range: 1.93e+08
+* Planet autopilot range: 2.57e+08
+* Planet semi-major axis: 1.07e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29115,7 +29431,8 @@ Earth-relative units:
 * Planet zone size: 2.29e+09
 * Planet death zone size: 1.20e+08
 * Planet size: 1.14e+08
-* Planet autopilot range: 1.80e+08
+* Planet autopilot range: 2.40e+08
+* Planet semi-major axis: 1.61e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29173,7 +29490,8 @@ Earth-relative units:
 * Planet zone size: 5.04e+09
 * Planet death zone size: 2.65e+08
 * Planet size: 2.52e+08
-* Planet autopilot range: 3.97e+08
+* Planet autopilot range: 5.30e+08
+* Planet semi-major axis: 2.41e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29341,7 +29659,8 @@ Earth-relative units:
 * Planet zone size: 2.29e+08
 * Planet death zone size: 1.20e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.80e+07
+* Planet autopilot range: 2.40e+07
+* Planet semi-major axis: 7.93e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29399,7 +29718,8 @@ Earth-relative units:
 * Planet zone size: 2.74e+09
 * Planet death zone size: 1.44e+08
 * Planet size: 1.37e+08
-* Planet autopilot range: 2.16e+08
+* Planet autopilot range: 2.88e+08
+* Planet semi-major axis: 1.05e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29635,7 +29955,8 @@ Earth-relative units:
 * Planet zone size: 1.33e+08
 * Planet death zone size: 6.96e+06
 * Planet size: 6.63e+06
-* Planet autopilot range: 1.04e+07
+* Planet autopilot range: 1.39e+07
+* Planet semi-major axis: 2.44e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29693,7 +30014,8 @@ Earth-relative units:
 * Planet zone size: 1.18e+09
 * Planet death zone size: 6.18e+07
 * Planet size: 5.89e+07
-* Planet autopilot range: 9.27e+07
+* Planet autopilot range: 1.24e+08
+* Planet semi-major axis: 3.67e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29751,7 +30073,8 @@ Earth-relative units:
 * Planet zone size: 6.29e+07
 * Planet death zone size: 3.30e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 4.95e+06
+* Planet autopilot range: 6.61e+06
+* Planet semi-major axis: 5.50e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29809,7 +30132,8 @@ Earth-relative units:
 * Planet zone size: 4.27e+07
 * Planet death zone size: 2.24e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.36e+06
+* Planet autopilot range: 4.48e+06
+* Planet semi-major axis: 8.25e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29867,7 +30191,8 @@ Earth-relative units:
 * Planet zone size: 2.59e+09
 * Planet death zone size: 1.36e+08
 * Planet size: 1.29e+08
-* Planet autopilot range: 2.04e+08
+* Planet autopilot range: 2.72e+08
+* Planet semi-major axis: 1.24e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -29925,7 +30250,8 @@ Earth-relative units:
 * Planet zone size: 7.45e+06
 * Planet death zone size: 3.91e+05
 * Planet size: 3.72e+05
-* Planet autopilot range: 5.87e+05
+* Planet autopilot range: 7.82e+05
+* Planet semi-major axis: 1.86e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30093,7 +30419,8 @@ Earth-relative units:
 * Planet zone size: 2.93e+08
 * Planet death zone size: 1.54e+07
 * Planet size: 1.46e+07
-* Planet autopilot range: 2.31e+07
+* Planet autopilot range: 3.07e+07
+* Planet semi-major axis: 5.40e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30151,7 +30478,8 @@ Earth-relative units:
 * Planet zone size: 1.93e+09
 * Planet death zone size: 1.01e+08
 * Planet size: 9.66e+07
-* Planet autopilot range: 1.52e+08
+* Planet autopilot range: 2.03e+08
+* Planet semi-major axis: 7.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30429,7 +30757,8 @@ Earth-relative units:
 * Planet zone size: 2.54e+08
 * Planet death zone size: 1.33e+07
 * Planet size: 1.27e+07
-* Planet autopilot range: 2.00e+07
+* Planet autopilot range: 2.66e+07
+* Planet semi-major axis: 4.33e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30487,7 +30816,8 @@ Earth-relative units:
 * Planet zone size: 2.79e+09
 * Planet death zone size: 1.46e+08
 * Planet size: 1.39e+08
-* Planet autopilot range: 2.20e+08
+* Planet autopilot range: 2.93e+08
+* Planet semi-major axis: 8.66e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30545,7 +30875,8 @@ Earth-relative units:
 * Planet zone size: 1.61e+08
 * Planet death zone size: 8.45e+06
 * Planet size: 8.05e+06
-* Planet autopilot range: 1.27e+07
+* Planet autopilot range: 1.69e+07
+* Planet semi-major axis: 1.73e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30603,7 +30934,8 @@ Earth-relative units:
 * Planet zone size: 4.05e+07
 * Planet death zone size: 2.12e+06
 * Planet size: 2.02e+06
-* Planet autopilot range: 3.19e+06
+* Planet autopilot range: 4.25e+06
+* Planet semi-major axis: 3.46e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30661,7 +30993,8 @@ Earth-relative units:
 * Planet zone size: 1.44e+08
 * Planet death zone size: 7.54e+06
 * Planet size: 7.18e+06
-* Planet autopilot range: 1.13e+07
+* Planet autopilot range: 1.51e+07
+* Planet semi-major axis: 6.93e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30719,7 +31052,8 @@ Earth-relative units:
 * Planet zone size: 2.55e+09
 * Planet death zone size: 1.34e+08
 * Planet size: 1.28e+08
-* Planet autopilot range: 2.01e+08
+* Planet autopilot range: 2.68e+08
+* Planet semi-major axis: 1.39e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -30997,7 +31331,8 @@ Earth-relative units:
 * Planet zone size: 1.90e+08
 * Planet death zone size: 9.95e+06
 * Planet size: 9.48e+06
-* Planet autopilot range: 1.49e+07
+* Planet autopilot range: 1.99e+07
+* Planet semi-major axis: 1.48e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31055,7 +31390,8 @@ Earth-relative units:
 * Planet zone size: 2.29e+08
 * Planet death zone size: 1.20e+07
 * Planet size: 1.14e+07
-* Planet autopilot range: 1.80e+07
+* Planet autopilot range: 2.40e+07
+* Planet semi-major axis: 2.21e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31223,7 +31559,8 @@ Earth-relative units:
 * Planet zone size: 2.50e+08
 * Planet death zone size: 1.31e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.97e+07
+* Planet autopilot range: 2.62e+07
+* Planet semi-major axis: 1.39e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31281,7 +31618,8 @@ Earth-relative units:
 * Planet zone size: 4.17e+09
 * Planet death zone size: 2.19e+08
 * Planet size: 2.08e+08
-* Planet autopilot range: 3.28e+08
+* Planet autopilot range: 4.38e+08
+* Planet semi-major axis: 1.85e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31339,7 +31677,8 @@ Earth-relative units:
 * Planet zone size: 3.89e+07
 * Planet death zone size: 2.04e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.07e+06
+* Planet autopilot range: 4.09e+06
+* Planet semi-major axis: 2.46e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31397,7 +31736,8 @@ Earth-relative units:
 * Planet zone size: 1.44e+08
 * Planet death zone size: 7.55e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.13e+07
+* Planet autopilot range: 1.51e+07
+* Planet semi-major axis: 3.27e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31455,7 +31795,8 @@ Earth-relative units:
 * Planet zone size: 3.08e+08
 * Planet death zone size: 1.62e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.43e+07
+* Planet autopilot range: 3.24e+07
+* Planet semi-major axis: 4.35e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31513,7 +31854,8 @@ Earth-relative units:
 * Planet zone size: 1.58e+08
 * Planet death zone size: 8.30e+06
 * Planet size: 7.90e+06
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.66e+07
+* Planet semi-major axis: 5.78e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31749,7 +32091,8 @@ Earth-relative units:
 * Planet zone size: 1.07e+07
 * Planet death zone size: 5.63e+05
 * Planet size: 5.36e+05
-* Planet autopilot range: 8.44e+05
+* Planet autopilot range: 1.13e+06
+* Planet semi-major axis: 1.39e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31807,7 +32150,8 @@ Earth-relative units:
 * Planet zone size: 2.70e+08
 * Planet death zone size: 1.42e+07
 * Planet size: 1.35e+07
-* Planet autopilot range: 2.13e+07
+* Planet autopilot range: 2.83e+07
+* Planet semi-major axis: 2.77e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -31975,7 +32319,8 @@ Earth-relative units:
 * Planet zone size: 3.17e+09
 * Planet death zone size: 1.66e+08
 * Planet size: 1.58e+08
-* Planet autopilot range: 2.49e+08
+* Planet autopilot range: 3.33e+08
+* Planet semi-major axis: 5.28e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32033,7 +32378,8 @@ Earth-relative units:
 * Planet zone size: 1.61e+08
 * Planet death zone size: 8.46e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.27e+07
+* Planet autopilot range: 1.69e+07
+* Planet semi-major axis: 7.92e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32091,7 +32437,8 @@ Earth-relative units:
 * Planet zone size: 4.15e+09
 * Planet death zone size: 2.18e+08
 * Planet size: 2.07e+08
-* Planet autopilot range: 3.26e+08
+* Planet autopilot range: 4.35e+08
+* Planet semi-major axis: 1.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32149,7 +32496,8 @@ Earth-relative units:
 * Planet zone size: 3.08e+08
 * Planet death zone size: 1.61e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.42e+07
+* Planet autopilot range: 3.23e+07
+* Planet semi-major axis: 1.78e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32207,7 +32555,8 @@ Earth-relative units:
 * Planet zone size: 1.64e+07
 * Planet death zone size: 8.61e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.29e+06
+* Planet autopilot range: 1.72e+06
+* Planet semi-major axis: 2.67e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32265,7 +32614,8 @@ Earth-relative units:
 * Planet zone size: 4.36e+09
 * Planet death zone size: 2.29e+08
 * Planet size: 2.18e+08
-* Planet autopilot range: 3.44e+08
+* Planet autopilot range: 4.58e+08
+* Planet semi-major axis: 4.01e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32433,7 +32783,8 @@ Earth-relative units:
 * Planet zone size: 9.48e+06
 * Planet death zone size: 4.98e+05
 * Planet size: 4.74e+05
-* Planet autopilot range: 7.47e+05
+* Planet autopilot range: 9.96e+05
+* Planet semi-major axis: 3.35e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32491,7 +32842,8 @@ Earth-relative units:
 * Planet zone size: 4.41e+07
 * Planet death zone size: 2.32e+06
 * Planet size: 2.21e+06
-* Planet autopilot range: 3.47e+06
+* Planet autopilot range: 4.63e+06
+* Planet semi-major axis: 4.45e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32549,7 +32901,8 @@ Earth-relative units:
 * Planet zone size: 3.54e+09
 * Planet death zone size: 1.86e+08
 * Planet size: 1.77e+08
-* Planet autopilot range: 2.79e+08
+* Planet autopilot range: 3.72e+08
+* Planet semi-major axis: 5.92e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32607,7 +32960,8 @@ Earth-relative units:
 * Planet zone size: 3.24e+09
 * Planet death zone size: 1.70e+08
 * Planet size: 1.62e+08
-* Planet autopilot range: 2.55e+08
+* Planet autopilot range: 3.40e+08
+* Planet semi-major axis: 7.88e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32665,7 +33019,8 @@ Earth-relative units:
 * Planet zone size: 2.78e+08
 * Planet death zone size: 1.46e+07
 * Planet size: 1.39e+07
-* Planet autopilot range: 2.19e+07
+* Planet autopilot range: 2.92e+07
+* Planet semi-major axis: 1.05e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -32969,7 +33324,8 @@ Earth-relative units:
 * Planet zone size: 3.98e+09
 * Planet death zone size: 2.09e+08
 * Planet size: 1.99e+08
-* Planet autopilot range: 3.14e+08
+* Planet autopilot range: 4.18e+08
+* Planet semi-major axis: 1.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33027,7 +33383,8 @@ Earth-relative units:
 * Planet zone size: 8.03e+06
 * Planet death zone size: 4.22e+05
 * Planet size: 4.02e+05
-* Planet autopilot range: 6.33e+05
+* Planet autopilot range: 8.44e+05
+* Planet semi-major axis: 2.18e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33085,7 +33442,8 @@ Earth-relative units:
 * Planet zone size: 2.81e+08
 * Planet death zone size: 1.47e+07
 * Planet size: 1.40e+07
-* Planet autopilot range: 2.21e+07
+* Planet autopilot range: 2.95e+07
+* Planet semi-major axis: 2.90e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33389,7 +33747,8 @@ Earth-relative units:
 * Planet zone size: 1.89e+07
 * Planet death zone size: 9.94e+05
 * Planet size: 9.47e+05
-* Planet autopilot range: 1.49e+06
+* Planet autopilot range: 1.99e+06
+* Planet semi-major axis: 4.05e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33447,7 +33806,8 @@ Earth-relative units:
 * Planet zone size: 2.28e+07
 * Planet death zone size: 1.19e+06
 * Planet size: 1.14e+06
-* Planet autopilot range: 1.79e+06
+* Planet autopilot range: 2.39e+06
+* Planet semi-major axis: 8.09e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33505,7 +33865,8 @@ Earth-relative units:
 * Planet zone size: 2.86e+07
 * Planet death zone size: 1.50e+06
 * Planet size: 1.43e+06
-* Planet autopilot range: 2.25e+06
+* Planet autopilot range: 3.00e+06
+* Planet semi-major axis: 1.62e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33673,7 +34034,8 @@ Earth-relative units:
 * Planet zone size: 1.39e+09
 * Planet death zone size: 7.28e+07
 * Planet size: 6.93e+07
-* Planet autopilot range: 1.09e+08
+* Planet autopilot range: 1.46e+08
+* Planet semi-major axis: 6.95e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -33841,7 +34203,8 @@ Earth-relative units:
 * Planet zone size: 1.50e+08
 * Planet death zone size: 7.86e+06
 * Planet size: 7.49e+06
-* Planet autopilot range: 1.18e+07
+* Planet autopilot range: 1.57e+07
+* Planet semi-major axis: 2.29e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34145,7 +34508,8 @@ Earth-relative units:
 * Planet zone size: 1.31e+09
 * Planet death zone size: 6.87e+07
 * Planet size: 6.54e+07
-* Planet autopilot range: 1.03e+08
+* Planet autopilot range: 1.37e+08
+* Planet semi-major axis: 2.97e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34203,7 +34567,8 @@ Earth-relative units:
 * Planet zone size: 1.57e+08
 * Planet death zone size: 8.27e+06
 * Planet size: 7.87e+06
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.65e+07
+* Planet semi-major axis: 4.46e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34261,7 +34626,8 @@ Earth-relative units:
 * Planet zone size: 7.47e+06
 * Planet death zone size: 3.92e+05
 * Planet size: 3.74e+05
-* Planet autopilot range: 5.89e+05
+* Planet autopilot range: 7.85e+05
+* Planet semi-major axis: 6.69e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34565,7 +34931,8 @@ Earth-relative units:
 * Planet zone size: 8.16e+06
 * Planet death zone size: 4.28e+05
 * Planet size: 4.08e+05
-* Planet autopilot range: 6.42e+05
+* Planet autopilot range: 8.57e+05
+* Planet semi-major axis: 4.40e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34623,7 +34990,8 @@ Earth-relative units:
 * Planet zone size: 2.19e+07
 * Planet death zone size: 1.15e+06
 * Planet size: 1.09e+06
-* Planet autopilot range: 1.72e+06
+* Planet autopilot range: 2.30e+06
+* Planet semi-major axis: 5.86e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34681,7 +35049,8 @@ Earth-relative units:
 * Planet zone size: 1.33e+08
 * Planet death zone size: 6.99e+06
 * Planet size: 6.66e+06
-* Planet autopilot range: 1.05e+07
+* Planet autopilot range: 1.40e+07
+* Planet semi-major axis: 7.79e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34739,7 +35108,8 @@ Earth-relative units:
 * Planet zone size: 4.43e+09
 * Planet death zone size: 2.32e+08
 * Planet size: 2.21e+08
-* Planet autopilot range: 3.49e+08
+* Planet autopilot range: 4.65e+08
+* Planet semi-major axis: 1.04e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34797,7 +35167,8 @@ Earth-relative units:
 * Planet zone size: 8.67e+06
 * Planet death zone size: 4.55e+05
 * Planet size: 4.34e+05
-* Planet autopilot range: 6.83e+05
+* Planet autopilot range: 9.11e+05
+* Planet semi-major axis: 1.38e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -34855,7 +35226,8 @@ Earth-relative units:
 * Planet zone size: 6.87e+07
 * Planet death zone size: 3.61e+06
 * Planet size: 3.44e+06
-* Planet autopilot range: 5.41e+06
+* Planet autopilot range: 7.22e+06
+* Planet semi-major axis: 1.83e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35023,7 +35395,8 @@ Earth-relative units:
 * Planet zone size: 5.85e+07
 * Planet death zone size: 3.07e+06
 * Planet size: 2.92e+06
-* Planet autopilot range: 4.60e+06
+* Planet autopilot range: 6.14e+06
+* Planet semi-major axis: 6.03e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35081,7 +35454,8 @@ Earth-relative units:
 * Planet zone size: 2.85e+07
 * Planet death zone size: 1.50e+06
 * Planet size: 1.43e+06
-* Planet autopilot range: 2.25e+06
+* Planet autopilot range: 3.00e+06
+* Planet semi-major axis: 1.21e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35139,7 +35513,8 @@ Earth-relative units:
 * Planet zone size: 5.37e+07
 * Planet death zone size: 2.82e+06
 * Planet size: 2.68e+06
-* Planet autopilot range: 4.23e+06
+* Planet autopilot range: 5.63e+06
+* Planet semi-major axis: 2.41e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35375,7 +35750,8 @@ Earth-relative units:
 * Planet zone size: 1.51e+08
 * Planet death zone size: 7.92e+06
 * Planet size: 7.55e+06
-* Planet autopilot range: 1.19e+07
+* Planet autopilot range: 1.58e+07
+* Planet semi-major axis: 5.47e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35543,7 +35919,8 @@ Earth-relative units:
 * Planet zone size: 1.58e+08
 * Planet death zone size: 8.28e+06
 * Planet size: 7.89e+06
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.66e+07
+* Planet semi-major axis: 4.50e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35601,7 +35978,8 @@ Earth-relative units:
 * Planet zone size: 8.14e+06
 * Planet death zone size: 4.27e+05
 * Planet size: 4.07e+05
-* Planet autopilot range: 6.41e+05
+* Planet autopilot range: 8.54e+05
+* Planet semi-major axis: 8.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35769,7 +36147,8 @@ Earth-relative units:
 * Planet zone size: 2.90e+08
 * Planet death zone size: 1.53e+07
 * Planet size: 1.45e+07
-* Planet autopilot range: 2.29e+07
+* Planet autopilot range: 3.05e+07
+* Planet semi-major axis: 2.00e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35827,7 +36206,8 @@ Earth-relative units:
 * Planet zone size: 7.23e+07
 * Planet death zone size: 3.79e+06
 * Planet size: 3.61e+06
-* Planet autopilot range: 5.69e+06
+* Planet autopilot range: 7.59e+06
+* Planet semi-major axis: 4.00e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -35885,7 +36265,8 @@ Earth-relative units:
 * Planet zone size: 7.93e+07
 * Planet death zone size: 4.16e+06
 * Planet size: 3.96e+06
-* Planet autopilot range: 6.24e+06
+* Planet autopilot range: 8.33e+06
+* Planet semi-major axis: 8.01e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36053,7 +36434,8 @@ Earth-relative units:
 * Planet zone size: 2.56e+08
 * Planet death zone size: 1.34e+07
 * Planet size: 1.28e+07
-* Planet autopilot range: 2.01e+07
+* Planet autopilot range: 2.69e+07
+* Planet semi-major axis: 1.72e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36111,7 +36493,8 @@ Earth-relative units:
 * Planet zone size: 1.48e+07
 * Planet death zone size: 7.77e+05
 * Planet size: 7.40e+05
-* Planet autopilot range: 1.17e+06
+* Planet autopilot range: 1.55e+06
+* Planet semi-major axis: 2.28e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36169,7 +36552,8 @@ Earth-relative units:
 * Planet zone size: 9.46e+06
 * Planet death zone size: 4.96e+05
 * Planet size: 4.73e+05
-* Planet autopilot range: 7.45e+05
+* Planet autopilot range: 9.93e+05
+* Planet semi-major axis: 3.04e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36227,7 +36611,8 @@ Earth-relative units:
 * Planet zone size: 4.13e+09
 * Planet death zone size: 2.17e+08
 * Planet size: 2.06e+08
-* Planet autopilot range: 3.25e+08
+* Planet autopilot range: 4.34e+08
+* Planet semi-major axis: 4.04e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36285,7 +36670,8 @@ Earth-relative units:
 * Planet zone size: 2.97e+08
 * Planet death zone size: 1.56e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.33e+07
+* Planet autopilot range: 3.11e+07
+* Planet semi-major axis: 5.38e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36343,7 +36729,8 @@ Earth-relative units:
 * Planet zone size: 2.65e+08
 * Planet death zone size: 1.39e+07
 * Planet size: 1.33e+07
-* Planet autopilot range: 2.09e+07
+* Planet autopilot range: 2.79e+07
+* Planet semi-major axis: 7.15e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36401,7 +36788,8 @@ Earth-relative units:
 * Planet zone size: 1.26e+08
 * Planet death zone size: 6.61e+06
 * Planet size: 6.30e+06
-* Planet autopilot range: 9.92e+06
+* Planet autopilot range: 1.32e+07
+* Planet semi-major axis: 9.51e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36459,7 +36847,8 @@ Earth-relative units:
 * Planet zone size: 7.96e+08
 * Planet death zone size: 4.18e+07
 * Planet size: 3.98e+07
-* Planet autopilot range: 6.27e+07
+* Planet autopilot range: 8.36e+07
+* Planet semi-major axis: 1.26e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36517,7 +36906,8 @@ Earth-relative units:
 * Planet zone size: 7.77e+07
 * Planet death zone size: 4.08e+06
 * Planet size: 3.88e+06
-* Planet autopilot range: 6.12e+06
+* Planet autopilot range: 8.16e+06
+* Planet semi-major axis: 1.68e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36575,7 +36965,8 @@ Earth-relative units:
 * Planet zone size: 2.14e+08
 * Planet death zone size: 1.13e+07
 * Planet size: 1.07e+07
-* Planet autopilot range: 1.69e+07
+* Planet autopilot range: 2.25e+07
+* Planet semi-major axis: 2.24e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36633,7 +37024,8 @@ Earth-relative units:
 * Planet zone size: 1.64e+07
 * Planet death zone size: 8.60e+05
 * Planet size: 8.19e+05
-* Planet autopilot range: 1.29e+06
+* Planet autopilot range: 1.72e+06
+* Planet semi-major axis: 2.98e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36691,7 +37083,8 @@ Earth-relative units:
 * Planet zone size: 9.21e+06
 * Planet death zone size: 4.84e+05
 * Planet size: 4.61e+05
-* Planet autopilot range: 7.26e+05
+* Planet autopilot range: 9.68e+05
+* Planet semi-major axis: 3.96e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36749,7 +37142,8 @@ Earth-relative units:
 * Planet zone size: 8.17e+07
 * Planet death zone size: 4.29e+06
 * Planet size: 4.09e+06
-* Planet autopilot range: 6.44e+06
+* Planet autopilot range: 8.58e+06
+* Planet semi-major axis: 5.26e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -36807,7 +37201,8 @@ Earth-relative units:
 * Planet zone size: 1.27e+08
 * Planet death zone size: 6.65e+06
 * Planet size: 6.33e+06
-* Planet autopilot range: 9.98e+06
+* Planet autopilot range: 1.33e+07
+* Planet semi-major axis: 7.00e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37085,7 +37480,8 @@ Earth-relative units:
 * Planet zone size: 7.86e+07
 * Planet death zone size: 4.13e+06
 * Planet size: 3.93e+06
-* Planet autopilot range: 6.19e+06
+* Planet autopilot range: 8.25e+06
+* Planet semi-major axis: 2.71e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37143,7 +37539,8 @@ Earth-relative units:
 * Planet zone size: 1.27e+07
 * Planet death zone size: 6.66e+05
 * Planet size: 6.34e+05
-* Planet autopilot range: 9.98e+05
+* Planet autopilot range: 1.33e+06
+* Planet semi-major axis: 3.60e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37201,7 +37598,8 @@ Earth-relative units:
 * Planet zone size: 2.47e+08
 * Planet death zone size: 1.30e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.94e+07
+* Planet autopilot range: 2.59e+07
+* Planet semi-major axis: 4.79e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37259,7 +37657,8 @@ Earth-relative units:
 * Planet zone size: 4.88e+09
 * Planet death zone size: 2.56e+08
 * Planet size: 2.44e+08
-* Planet autopilot range: 3.85e+08
+* Planet autopilot range: 5.13e+08
+* Planet semi-major axis: 6.37e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37427,7 +37826,8 @@ Earth-relative units:
 * Planet zone size: 1.19e+07
 * Planet death zone size: 6.27e+05
 * Planet size: 5.97e+05
-* Planet autopilot range: 9.41e+05
+* Planet autopilot range: 1.25e+06
+* Planet semi-major axis: 3.22e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37485,7 +37885,8 @@ Earth-relative units:
 * Planet zone size: 2.21e+08
 * Planet death zone size: 1.16e+07
 * Planet size: 1.11e+07
-* Planet autopilot range: 1.74e+07
+* Planet autopilot range: 2.32e+07
+* Planet semi-major axis: 4.83e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37543,7 +37944,8 @@ Earth-relative units:
 * Planet zone size: 1.14e+07
 * Planet death zone size: 5.96e+05
 * Planet size: 5.68e+05
-* Planet autopilot range: 8.95e+05
+* Planet autopilot range: 1.19e+06
+* Planet semi-major axis: 7.25e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -37601,7 +38003,8 @@ Earth-relative units:
 * Planet zone size: 1.90e+07
 * Planet death zone size: 9.95e+05
 * Planet size: 9.48e+05
-* Planet autopilot range: 1.49e+06
+* Planet autopilot range: 1.99e+06
+* Planet semi-major axis: 1.09e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -38015,7 +38418,8 @@ Earth-relative units:
 * Planet zone size: 4.43e+09
 * Planet death zone size: 2.33e+08
 * Planet size: 2.22e+08
-* Planet autopilot range: 3.49e+08
+* Planet autopilot range: 4.65e+08
+* Planet semi-major axis: 3.85e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -38319,7 +38723,8 @@ Earth-relative units:
 * Planet zone size: 4.01e+09
 * Planet death zone size: 2.11e+08
 * Planet size: 2.01e+08
-* Planet autopilot range: 3.16e+08
+* Planet autopilot range: 4.21e+08
+* Planet semi-major axis: 1.46e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -38377,7 +38782,8 @@ Earth-relative units:
 * Planet zone size: 4.07e+09
 * Planet death zone size: 2.14e+08
 * Planet size: 2.04e+08
-* Planet autopilot range: 3.21e+08
+* Planet autopilot range: 4.27e+08
+* Planet semi-major axis: 2.92e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -38681,7 +39087,8 @@ Earth-relative units:
 * Planet zone size: 1.37e+08
 * Planet death zone size: 7.18e+06
 * Planet size: 6.84e+06
-* Planet autopilot range: 1.08e+07
+* Planet autopilot range: 1.44e+07
+* Planet semi-major axis: 2.31e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -38959,7 +39366,8 @@ Earth-relative units:
 * Planet zone size: 4.47e+09
 * Planet death zone size: 2.34e+08
 * Planet size: 2.23e+08
-* Planet autopilot range: 3.52e+08
+* Planet autopilot range: 4.69e+08
+* Planet semi-major axis: 4.04e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39017,7 +39425,8 @@ Earth-relative units:
 * Planet zone size: 1.04e+07
 * Planet death zone size: 5.46e+05
 * Planet size: 5.20e+05
-* Planet autopilot range: 8.19e+05
+* Planet autopilot range: 1.09e+06
+* Planet semi-major axis: 6.06e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39075,7 +39484,8 @@ Earth-relative units:
 * Planet zone size: 1.36e+07
 * Planet death zone size: 7.14e+05
 * Planet size: 6.80e+05
-* Planet autopilot range: 1.07e+06
+* Planet autopilot range: 1.43e+06
+* Planet semi-major axis: 9.10e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39421,7 +39831,8 @@ Earth-relative units:
 * Planet zone size: 1.65e+07
 * Planet death zone size: 8.65e+05
 * Planet size: 8.24e+05
-* Planet autopilot range: 1.30e+06
+* Planet autopilot range: 1.73e+06
+* Planet semi-major axis: 2.75e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39479,7 +39890,8 @@ Earth-relative units:
 * Planet zone size: 2.90e+07
 * Planet death zone size: 1.52e+06
 * Planet size: 1.45e+06
-* Planet autopilot range: 2.28e+06
+* Planet autopilot range: 3.04e+06
+* Planet semi-major axis: 3.66e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39647,7 +40059,8 @@ Earth-relative units:
 * Planet zone size: 3.58e+09
 * Planet death zone size: 1.88e+08
 * Planet size: 1.79e+08
-* Planet autopilot range: 2.82e+08
+* Planet autopilot range: 3.76e+08
+* Planet semi-major axis: 1.41e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39705,7 +40118,8 @@ Earth-relative units:
 * Planet zone size: 1.87e+09
 * Planet death zone size: 9.80e+07
 * Planet size: 9.33e+07
-* Planet autopilot range: 1.47e+08
+* Planet autopilot range: 1.96e+08
+* Planet semi-major axis: 2.83e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39763,7 +40177,8 @@ Earth-relative units:
 * Planet zone size: 7.38e+06
 * Planet death zone size: 3.88e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.81e+05
+* Planet autopilot range: 7.75e+05
+* Planet semi-major axis: 5.66e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39821,7 +40236,8 @@ Earth-relative units:
 * Planet zone size: 1.75e+09
 * Planet death zone size: 9.17e+07
 * Planet size: 8.73e+07
-* Planet autopilot range: 1.38e+08
+* Planet autopilot range: 1.83e+08
+* Planet semi-major axis: 1.13e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39879,7 +40295,8 @@ Earth-relative units:
 * Planet zone size: 4.38e+07
 * Planet death zone size: 2.30e+06
 * Planet size: 2.19e+06
-* Planet autopilot range: 3.45e+06
+* Planet autopilot range: 4.60e+06
+* Planet semi-major axis: 2.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -39937,7 +40354,8 @@ Earth-relative units:
 * Planet zone size: 1.47e+07
 * Planet death zone size: 7.74e+05
 * Planet size: 7.37e+05
-* Planet autopilot range: 1.16e+06
+* Planet autopilot range: 1.55e+06
+* Planet semi-major axis: 4.53e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40173,7 +40591,8 @@ Earth-relative units:
 * Planet zone size: 7.60e+07
 * Planet death zone size: 3.99e+06
 * Planet size: 3.80e+06
-* Planet autopilot range: 5.98e+06
+* Planet autopilot range: 7.98e+06
+* Planet semi-major axis: 3.11e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40231,7 +40650,8 @@ Earth-relative units:
 * Planet zone size: 1.73e+08
 * Planet death zone size: 9.11e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.37e+07
+* Planet autopilot range: 1.82e+07
+* Planet semi-major axis: 4.14e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40289,7 +40709,8 @@ Earth-relative units:
 * Planet zone size: 3.39e+09
 * Planet death zone size: 1.78e+08
 * Planet size: 1.70e+08
-* Planet autopilot range: 2.67e+08
+* Planet autopilot range: 3.56e+08
+* Planet semi-major axis: 5.51e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40347,7 +40768,8 @@ Earth-relative units:
 * Planet zone size: 1.59e+08
 * Planet death zone size: 8.33e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.25e+07
+* Planet autopilot range: 1.67e+07
+* Planet semi-major axis: 7.32e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40405,7 +40827,8 @@ Earth-relative units:
 * Planet zone size: 2.63e+09
 * Planet death zone size: 1.38e+08
 * Planet size: 1.31e+08
-* Planet autopilot range: 2.07e+08
+* Planet autopilot range: 2.76e+08
+* Planet semi-major axis: 9.74e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40463,7 +40886,8 @@ Earth-relative units:
 * Planet zone size: 1.61e+07
 * Planet death zone size: 8.43e+05
 * Planet size: 8.03e+05
-* Planet autopilot range: 1.27e+06
+* Planet autopilot range: 1.69e+06
+* Planet semi-major axis: 1.30e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40741,7 +41165,8 @@ Earth-relative units:
 * Planet zone size: 4.88e+09
 * Planet death zone size: 2.56e+08
 * Planet size: 2.44e+08
-* Planet autopilot range: 3.84e+08
+* Planet autopilot range: 5.12e+08
+* Planet semi-major axis: 6.52e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -40799,7 +41224,8 @@ Earth-relative units:
 * Planet zone size: 9.19e+07
 * Planet death zone size: 4.82e+06
 * Planet size: 4.59e+06
-* Planet autopilot range: 7.23e+06
+* Planet autopilot range: 9.64e+06
+* Planet semi-major axis: 1.30e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -41213,7 +41639,8 @@ Earth-relative units:
 * Planet zone size: 3.53e+09
 * Planet death zone size: 1.85e+08
 * Planet size: 1.77e+08
-* Planet autopilot range: 2.78e+08
+* Planet autopilot range: 3.71e+08
+* Planet semi-major axis: 6.79e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -41653,7 +42080,8 @@ Earth-relative units:
 * Planet zone size: 1.32e+08
 * Planet death zone size: 6.94e+06
 * Planet size: 6.61e+06
-* Planet autopilot range: 1.04e+07
+* Planet autopilot range: 1.39e+07
+* Planet semi-major axis: 7.10e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -41957,7 +42385,8 @@ Earth-relative units:
 * Planet zone size: 4.87e+09
 * Planet death zone size: 2.55e+08
 * Planet size: 2.43e+08
-* Planet autopilot range: 3.83e+08
+* Planet autopilot range: 5.11e+08
+* Planet semi-major axis: 4.01e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42015,7 +42444,8 @@ Earth-relative units:
 * Planet zone size: 2.53e+09
 * Planet death zone size: 1.33e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.99e+08
+* Planet autopilot range: 2.65e+08
+* Planet semi-major axis: 6.01e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42073,7 +42503,8 @@ Earth-relative units:
 * Planet zone size: 1.88e+07
 * Planet death zone size: 9.87e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.48e+06
+* Planet autopilot range: 1.97e+06
+* Planet semi-major axis: 9.02e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42131,7 +42562,8 @@ Earth-relative units:
 * Planet zone size: 3.79e+07
 * Planet death zone size: 1.99e+06
 * Planet size: 1.89e+06
-* Planet autopilot range: 2.98e+06
+* Planet autopilot range: 3.98e+06
+* Planet semi-major axis: 1.35e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42367,7 +42799,8 @@ Earth-relative units:
 * Planet zone size: 1.21e+08
 * Planet death zone size: 6.38e+06
 * Planet size: 6.07e+06
-* Planet autopilot range: 9.57e+06
+* Planet autopilot range: 1.28e+07
+* Planet semi-major axis: 1.32e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42425,7 +42858,8 @@ Earth-relative units:
 * Planet zone size: 3.17e+07
 * Planet death zone size: 1.66e+06
 * Planet size: 1.58e+06
-* Planet autopilot range: 2.49e+06
+* Planet autopilot range: 3.32e+06
+* Planet semi-major axis: 1.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42483,7 +42917,8 @@ Earth-relative units:
 * Planet zone size: 1.37e+07
 * Planet death zone size: 7.17e+05
 * Planet size: 6.83e+05
-* Planet autopilot range: 1.08e+06
+* Planet autopilot range: 1.43e+06
+* Planet semi-major axis: 2.98e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42651,7 +43086,8 @@ Earth-relative units:
 * Planet zone size: 4.48e+09
 * Planet death zone size: 2.35e+08
 * Planet size: 2.24e+08
-* Planet autopilot range: 3.53e+08
+* Planet autopilot range: 4.70e+08
+* Planet semi-major axis: 2.98e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42887,7 +43323,8 @@ Earth-relative units:
 * Planet zone size: 2.82e+08
 * Planet death zone size: 1.48e+07
 * Planet size: 1.41e+07
-* Planet autopilot range: 2.22e+07
+* Planet autopilot range: 2.96e+07
+* Planet semi-major axis: 1.98e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -42945,7 +43382,8 @@ Earth-relative units:
 * Planet zone size: 9.06e+06
 * Planet death zone size: 4.76e+05
 * Planet size: 4.53e+05
-* Planet autopilot range: 7.14e+05
+* Planet autopilot range: 9.52e+05
+* Planet semi-major axis: 3.97e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -43113,7 +43551,8 @@ Earth-relative units:
 * Planet zone size: 3.09e+08
 * Planet death zone size: 1.62e+07
 * Planet size: 1.54e+07
-* Planet autopilot range: 2.43e+07
+* Planet autopilot range: 3.24e+07
+* Planet semi-major axis: 8.52e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -43171,7 +43610,8 @@ Earth-relative units:
 * Planet zone size: 2.18e+07
 * Planet death zone size: 1.15e+06
 * Planet size: 1.09e+06
-* Planet autopilot range: 1.72e+06
+* Planet autopilot range: 2.29e+06
+* Planet semi-major axis: 1.13e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -43229,7 +43669,8 @@ Earth-relative units:
 * Planet zone size: 3.27e+09
 * Planet death zone size: 1.72e+08
 * Planet size: 1.63e+08
-* Planet autopilot range: 2.57e+08
+* Planet autopilot range: 3.43e+08
+* Planet semi-major axis: 1.51e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -43533,7 +43974,8 @@ Earth-relative units:
 * Planet zone size: 1.41e+09
 * Planet death zone size: 7.40e+07
 * Planet size: 7.05e+07
-* Planet autopilot range: 1.11e+08
+* Planet autopilot range: 1.48e+08
+* Planet semi-major axis: 3.82e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -43701,7 +44143,8 @@ Earth-relative units:
 * Planet zone size: 1.45e+08
 * Planet death zone size: 7.63e+06
 * Planet size: 7.27e+06
-* Planet autopilot range: 1.14e+07
+* Planet autopilot range: 1.53e+07
+* Planet semi-major axis: 1.68e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44005,7 +44448,8 @@ Earth-relative units:
 * Planet zone size: 3.20e+07
 * Planet death zone size: 1.68e+06
 * Planet size: 1.60e+06
-* Planet autopilot range: 2.52e+06
+* Planet autopilot range: 3.36e+06
+* Planet semi-major axis: 4.40e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44173,7 +44617,8 @@ Earth-relative units:
 * Planet zone size: 1.99e+08
 * Planet death zone size: 1.04e+07
 * Planet size: 9.93e+06
-* Planet autopilot range: 1.56e+07
+* Planet autopilot range: 2.09e+07
+* Planet semi-major axis: 6.76e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44231,7 +44676,8 @@ Earth-relative units:
 * Planet zone size: 2.05e+07
 * Planet death zone size: 1.07e+06
 * Planet size: 1.02e+06
-* Planet autopilot range: 1.61e+06
+* Planet autopilot range: 2.15e+06
+* Planet semi-major axis: 8.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44399,7 +44845,8 @@ Earth-relative units:
 * Planet zone size: 4.57e+09
 * Planet death zone size: 2.40e+08
 * Planet size: 2.29e+08
-* Planet autopilot range: 3.60e+08
+* Planet autopilot range: 4.80e+08
+* Planet semi-major axis: 4.73e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44457,7 +44904,8 @@ Earth-relative units:
 * Planet zone size: 6.24e+07
 * Planet death zone size: 3.27e+06
 * Planet size: 3.12e+06
-* Planet autopilot range: 4.91e+06
+* Planet autopilot range: 6.55e+06
+* Planet semi-major axis: 9.46e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44515,7 +44963,8 @@ Earth-relative units:
 * Planet zone size: 4.38e+07
 * Planet death zone size: 2.30e+06
 * Planet size: 2.19e+06
-* Planet autopilot range: 3.45e+06
+* Planet autopilot range: 4.59e+06
+* Planet semi-major axis: 1.89e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44683,7 +45132,8 @@ Earth-relative units:
 * Planet zone size: 1.25e+09
 * Planet death zone size: 6.55e+07
 * Planet size: 6.24e+07
-* Planet autopilot range: 9.82e+07
+* Planet autopilot range: 1.31e+08
+* Planet semi-major axis: 2.79e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44741,7 +45191,8 @@ Earth-relative units:
 * Planet zone size: 8.25e+07
 * Planet death zone size: 4.33e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 6.50e+06
+* Planet autopilot range: 8.66e+06
+* Planet semi-major axis: 5.58e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44799,7 +45250,8 @@ Earth-relative units:
 * Planet zone size: 1.07e+07
 * Planet death zone size: 5.63e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 8.44e+05
+* Planet autopilot range: 1.13e+06
+* Planet semi-major axis: 1.12e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -44857,7 +45309,8 @@ Earth-relative units:
 * Planet zone size: 4.22e+09
 * Planet death zone size: 2.21e+08
 * Planet size: 2.11e+08
-* Planet autopilot range: 3.32e+08
+* Planet autopilot range: 4.43e+08
+* Planet semi-major axis: 2.23e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45025,7 +45478,8 @@ Earth-relative units:
 * Planet zone size: 1.37e+07
 * Planet death zone size: 7.21e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.08e+06
+* Planet autopilot range: 1.44e+06
+* Planet semi-major axis: 2.63e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45083,7 +45537,8 @@ Earth-relative units:
 * Planet zone size: 2.88e+09
 * Planet death zone size: 1.51e+08
 * Planet size: 1.44e+08
-* Planet autopilot range: 2.27e+08
+* Planet autopilot range: 3.02e+08
+* Planet semi-major axis: 5.26e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45251,7 +45706,8 @@ Earth-relative units:
 * Planet zone size: 3.49e+07
 * Planet death zone size: 1.83e+06
 * Planet size: 1.75e+06
-* Planet autopilot range: 2.75e+06
+* Planet autopilot range: 3.67e+06
+* Planet semi-major axis: 2.46e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45309,7 +45765,8 @@ Earth-relative units:
 * Planet zone size: 3.22e+07
 * Planet death zone size: 1.69e+06
 * Planet size: 1.61e+06
-* Planet autopilot range: 2.54e+06
+* Planet autopilot range: 3.38e+06
+* Planet semi-major axis: 3.69e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45367,7 +45824,8 @@ Earth-relative units:
 * Planet zone size: 2.86e+09
 * Planet death zone size: 1.50e+08
 * Planet size: 1.43e+08
-* Planet autopilot range: 2.25e+08
+* Planet autopilot range: 3.01e+08
+* Planet semi-major axis: 5.54e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45645,7 +46103,8 @@ Earth-relative units:
 * Planet zone size: 2.63e+09
 * Planet death zone size: 1.38e+08
 * Planet size: 1.31e+08
-* Planet autopilot range: 2.07e+08
+* Planet autopilot range: 2.76e+08
+* Planet semi-major axis: 2.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45703,7 +46162,8 @@ Earth-relative units:
 * Planet zone size: 5.52e+07
 * Planet death zone size: 2.90e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 4.35e+06
+* Planet autopilot range: 5.80e+06
+* Planet semi-major axis: 3.96e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45761,7 +46221,8 @@ Earth-relative units:
 * Planet zone size: 4.00e+09
 * Planet death zone size: 2.10e+08
 * Planet size: 2.00e+08
-* Planet autopilot range: 3.15e+08
+* Planet autopilot range: 4.20e+08
+* Planet semi-major axis: 5.94e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45929,7 +46390,8 @@ Earth-relative units:
 * Planet zone size: 2.02e+07
 * Planet death zone size: 1.06e+06
 * Planet size: 1.01e+06
-* Planet autopilot range: 1.59e+06
+* Planet autopilot range: 2.12e+06
+* Planet semi-major axis: 3.92e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -45987,7 +46449,8 @@ Earth-relative units:
 * Planet zone size: 1.87e+07
 * Planet death zone size: 9.80e+05
 * Planet size: 9.33e+05
-* Planet autopilot range: 1.47e+06
+* Planet autopilot range: 1.96e+06
+* Planet semi-major axis: 5.88e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46291,7 +46754,8 @@ Earth-relative units:
 * Planet zone size: 9.27e+06
 * Planet death zone size: 4.87e+05
 * Planet size: 4.63e+05
-* Planet autopilot range: 7.30e+05
+* Planet autopilot range: 9.73e+05
+* Planet semi-major axis: 7.21e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46349,7 +46813,8 @@ Earth-relative units:
 * Planet zone size: 4.77e+09
 * Planet death zone size: 2.50e+08
 * Planet size: 2.39e+08
-* Planet autopilot range: 3.76e+08
+* Planet autopilot range: 5.01e+08
+* Planet semi-major axis: 1.08e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46407,7 +46872,8 @@ Earth-relative units:
 * Planet zone size: 2.98e+09
 * Planet death zone size: 1.56e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.34e+08
+* Planet autopilot range: 3.12e+08
+* Planet semi-major axis: 1.62e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46465,7 +46931,8 @@ Earth-relative units:
 * Planet zone size: 3.56e+09
 * Planet death zone size: 1.87e+08
 * Planet size: 1.78e+08
-* Planet autopilot range: 2.80e+08
+* Planet autopilot range: 3.73e+08
+* Planet semi-major axis: 2.43e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46633,7 +47100,8 @@ Earth-relative units:
 * Planet zone size: 3.10e+09
 * Planet death zone size: 1.63e+08
 * Planet size: 1.55e+08
-* Planet autopilot range: 2.44e+08
+* Planet autopilot range: 3.26e+08
+* Planet semi-major axis: 1.60e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46691,7 +47159,8 @@ Earth-relative units:
 * Planet zone size: 9.68e+06
 * Planet death zone size: 5.08e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.63e+05
+* Planet autopilot range: 1.02e+06
+* Planet semi-major axis: 2.13e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46749,7 +47218,8 @@ Earth-relative units:
 * Planet zone size: 2.43e+08
 * Planet death zone size: 1.28e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.92e+07
+* Planet autopilot range: 2.55e+07
+* Planet semi-major axis: 2.83e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46807,7 +47277,8 @@ Earth-relative units:
 * Planet zone size: 7.28e+07
 * Planet death zone size: 3.82e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.74e+06
+* Planet autopilot range: 7.65e+06
+* Planet semi-major axis: 3.76e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46865,7 +47336,8 @@ Earth-relative units:
 * Planet zone size: 1.14e+07
 * Planet death zone size: 5.98e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 8.96e+05
+* Planet autopilot range: 1.20e+06
+* Planet semi-major axis: 5.00e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46923,7 +47395,8 @@ Earth-relative units:
 * Planet zone size: 2.33e+09
 * Planet death zone size: 1.22e+08
 * Planet size: 1.16e+08
-* Planet autopilot range: 1.83e+08
+* Planet autopilot range: 2.44e+08
+* Planet semi-major axis: 6.65e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -46981,7 +47454,8 @@ Earth-relative units:
 * Planet zone size: 1.58e+09
 * Planet death zone size: 8.27e+07
 * Planet size: 7.88e+07
-* Planet autopilot range: 1.24e+08
+* Planet autopilot range: 1.65e+08
+* Planet semi-major axis: 8.85e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47039,7 +47513,8 @@ Earth-relative units:
 * Planet zone size: 8.14e+07
 * Planet death zone size: 4.27e+06
 * Planet size: 4.07e+06
-* Planet autopilot range: 6.41e+06
+* Planet autopilot range: 8.55e+06
+* Planet semi-major axis: 1.18e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47097,7 +47572,8 @@ Earth-relative units:
 * Planet zone size: 2.25e+07
 * Planet death zone size: 1.18e+06
 * Planet size: 1.12e+06
-* Planet autopilot range: 1.77e+06
+* Planet autopilot range: 2.36e+06
+* Planet semi-major axis: 1.56e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47155,7 +47631,8 @@ Earth-relative units:
 * Planet zone size: 1.67e+09
 * Planet death zone size: 8.78e+07
 * Planet size: 8.36e+07
-* Planet autopilot range: 1.32e+08
+* Planet autopilot range: 1.76e+08
+* Planet semi-major axis: 2.08e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47213,7 +47690,8 @@ Earth-relative units:
 * Planet zone size: 5.60e+07
 * Planet death zone size: 2.94e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 4.41e+06
+* Planet autopilot range: 5.88e+06
+* Planet semi-major axis: 2.77e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47271,7 +47749,8 @@ Earth-relative units:
 * Planet zone size: 4.20e+09
 * Planet death zone size: 2.21e+08
 * Planet size: 2.10e+08
-* Planet autopilot range: 3.31e+08
+* Planet autopilot range: 4.41e+08
+* Planet semi-major axis: 3.68e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47575,7 +48054,8 @@ Earth-relative units:
 * Planet zone size: 3.97e+07
 * Planet death zone size: 2.08e+06
 * Planet size: 1.98e+06
-* Planet autopilot range: 3.12e+06
+* Planet autopilot range: 4.17e+06
+* Planet semi-major axis: 2.15e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47633,7 +48113,8 @@ Earth-relative units:
 * Planet zone size: 9.68e+07
 * Planet death zone size: 5.08e+06
 * Planet size: 4.84e+06
-* Planet autopilot range: 7.62e+06
+* Planet autopilot range: 1.02e+07
+* Planet semi-major axis: 3.22e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47691,7 +48172,8 @@ Earth-relative units:
 * Planet zone size: 8.26e+06
 * Planet death zone size: 4.33e+05
 * Planet size: 4.13e+05
-* Planet autopilot range: 6.50e+05
+* Planet autopilot range: 8.67e+05
+* Planet semi-major axis: 4.83e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47859,7 +48341,8 @@ Earth-relative units:
 * Planet zone size: 3.57e+09
 * Planet death zone size: 1.88e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.81e+08
+* Planet autopilot range: 3.75e+08
+* Planet semi-major axis: 7.39e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -47917,7 +48400,8 @@ Earth-relative units:
 * Planet zone size: 4.58e+09
 * Planet death zone size: 2.41e+08
 * Planet size: 2.29e+08
-* Planet autopilot range: 3.61e+08
+* Planet autopilot range: 4.81e+08
+* Planet semi-major axis: 1.11e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48085,7 +48569,8 @@ Earth-relative units:
 * Planet zone size: 1.36e+07
 * Planet death zone size: 7.16e+05
 * Planet size: 6.81e+05
-* Planet autopilot range: 1.07e+06
+* Planet autopilot range: 1.43e+06
+* Planet semi-major axis: 2.86e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48143,7 +48628,8 @@ Earth-relative units:
 * Planet zone size: 2.97e+08
 * Planet death zone size: 1.56e+07
 * Planet size: 1.49e+07
-* Planet autopilot range: 2.34e+07
+* Planet autopilot range: 3.12e+07
+* Planet semi-major axis: 3.80e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48201,7 +48687,8 @@ Earth-relative units:
 * Planet zone size: 1.40e+08
 * Planet death zone size: 7.35e+06
 * Planet size: 7.00e+06
-* Planet autopilot range: 1.10e+07
+* Planet autopilot range: 1.47e+07
+* Planet semi-major axis: 5.05e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48259,7 +48746,8 @@ Earth-relative units:
 * Planet zone size: 6.54e+07
 * Planet death zone size: 3.43e+06
 * Planet size: 3.27e+06
-* Planet autopilot range: 5.15e+06
+* Planet autopilot range: 6.86e+06
+* Planet semi-major axis: 6.72e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48741,7 +49229,8 @@ Earth-relative units:
 * Planet zone size: 2.18e+07
 * Planet death zone size: 1.14e+06
 * Planet size: 1.09e+06
-* Planet autopilot range: 1.72e+06
+* Planet autopilot range: 2.29e+06
+* Planet semi-major axis: 1.36e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48799,7 +49288,8 @@ Earth-relative units:
 * Planet zone size: 1.01e+08
 * Planet death zone size: 5.29e+06
 * Planet size: 5.04e+06
-* Planet autopilot range: 7.94e+06
+* Planet autopilot range: 1.06e+07
+* Planet semi-major axis: 2.72e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -48967,7 +49457,8 @@ Earth-relative units:
 * Planet zone size: 1.21e+07
 * Planet death zone size: 6.36e+05
 * Planet size: 6.05e+05
-* Planet autopilot range: 9.53e+05
+* Planet autopilot range: 1.27e+06
+* Planet semi-major axis: 3.85e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49025,7 +49516,8 @@ Earth-relative units:
 * Planet zone size: 2.67e+09
 * Planet death zone size: 1.40e+08
 * Planet size: 1.33e+08
-* Planet autopilot range: 2.10e+08
+* Planet autopilot range: 2.80e+08
+* Planet semi-major axis: 7.71e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49261,7 +49753,8 @@ Earth-relative units:
 * Planet zone size: 2.09e+08
 * Planet death zone size: 1.10e+07
 * Planet size: 1.04e+07
-* Planet autopilot range: 1.64e+07
+* Planet autopilot range: 2.19e+07
+* Planet semi-major axis: 2.65e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49319,7 +49812,8 @@ Earth-relative units:
 * Planet zone size: 2.90e+09
 * Planet death zone size: 1.52e+08
 * Planet size: 1.45e+08
-* Planet autopilot range: 2.28e+08
+* Planet autopilot range: 3.04e+08
+* Planet semi-major axis: 5.31e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49377,7 +49871,8 @@ Earth-relative units:
 * Planet zone size: 8.95e+06
 * Planet death zone size: 4.70e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.05e+05
+* Planet autopilot range: 9.40e+05
+* Planet semi-major axis: 1.06e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49435,7 +49930,8 @@ Earth-relative units:
 * Planet zone size: 2.44e+09
 * Planet death zone size: 1.28e+08
 * Planet size: 1.22e+08
-* Planet autopilot range: 1.92e+08
+* Planet autopilot range: 2.56e+08
+* Planet semi-major axis: 2.12e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49603,7 +50099,8 @@ Earth-relative units:
 * Planet zone size: 4.10e+07
 * Planet death zone size: 2.15e+06
 * Planet size: 2.05e+06
-* Planet autopilot range: 3.23e+06
+* Planet autopilot range: 4.30e+06
+* Planet semi-major axis: 1.01e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -49907,7 +50404,8 @@ Earth-relative units:
 * Planet zone size: 4.06e+07
 * Planet death zone size: 2.13e+06
 * Planet size: 2.03e+06
-* Planet autopilot range: 3.20e+06
+* Planet autopilot range: 4.26e+06
+* Planet semi-major axis: 8.48e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50143,7 +50641,8 @@ Earth-relative units:
 * Planet zone size: 1.30e+09
 * Planet death zone size: 6.84e+07
 * Planet size: 6.51e+07
-* Planet autopilot range: 1.03e+08
+* Planet autopilot range: 1.37e+08
+* Planet semi-major axis: 9.07e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50201,7 +50700,8 @@ Earth-relative units:
 * Planet zone size: 6.71e+07
 * Planet death zone size: 3.52e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.28e+06
+* Planet autopilot range: 7.04e+06
+* Planet semi-major axis: 1.81e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50259,7 +50759,8 @@ Earth-relative units:
 * Planet zone size: 6.56e+07
 * Planet death zone size: 3.45e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.17e+06
+* Planet autopilot range: 6.89e+06
+* Planet semi-major axis: 3.63e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50317,7 +50818,8 @@ Earth-relative units:
 * Planet zone size: 3.81e+09
 * Planet death zone size: 2.00e+08
 * Planet size: 1.90e+08
-* Planet autopilot range: 3.00e+08
+* Planet autopilot range: 4.00e+08
+* Planet semi-major axis: 7.26e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50375,7 +50877,8 @@ Earth-relative units:
 * Planet zone size: 4.47e+07
 * Planet death zone size: 2.34e+06
 * Planet size: 2.23e+06
-* Planet autopilot range: 3.52e+06
+* Planet autopilot range: 4.69e+06
+* Planet semi-major axis: 1.45e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50433,7 +50936,8 @@ Earth-relative units:
 * Planet zone size: 1.88e+07
 * Planet death zone size: 9.89e+05
 * Planet size: 9.42e+05
-* Planet autopilot range: 1.48e+06
+* Planet autopilot range: 1.98e+06
+* Planet semi-major axis: 2.90e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50491,7 +50995,8 @@ Earth-relative units:
 * Planet zone size: 2.27e+07
 * Planet death zone size: 1.19e+06
 * Planet size: 1.14e+06
-* Planet autopilot range: 1.79e+06
+* Planet autopilot range: 2.39e+06
+* Planet semi-major axis: 5.81e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50549,7 +51054,8 @@ Earth-relative units:
 * Planet zone size: 2.83e+09
 * Planet death zone size: 1.49e+08
 * Planet size: 5.90e+05
-* Planet autopilot range: 2.23e+08
+* Planet autopilot range: 2.98e+08
+* Planet semi-major axis: 1.16e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50607,7 +51113,8 @@ Earth-relative units:
 * Planet zone size: 7.00e+07
 * Planet death zone size: 3.67e+06
 * Planet size: 3.50e+06
-* Planet autopilot range: 5.51e+06
+* Planet autopilot range: 7.35e+06
+* Planet semi-major axis: 2.32e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50775,7 +51282,8 @@ Earth-relative units:
 * Planet zone size: 4.32e+09
 * Planet death zone size: 2.27e+08
 * Planet size: 2.16e+08
-* Planet autopilot range: 3.40e+08
+* Planet autopilot range: 4.54e+08
+* Planet semi-major axis: 1.23e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50833,7 +51341,8 @@ Earth-relative units:
 * Planet zone size: 5.75e+07
 * Planet death zone size: 3.02e+06
 * Planet size: 2.88e+06
-* Planet autopilot range: 4.53e+06
+* Planet autopilot range: 6.04e+06
+* Planet semi-major axis: 1.84e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -50891,7 +51400,8 @@ Earth-relative units:
 * Planet zone size: 1.17e+08
 * Planet death zone size: 6.15e+06
 * Planet size: 5.86e+06
-* Planet autopilot range: 9.23e+06
+* Planet autopilot range: 1.23e+07
+* Planet semi-major axis: 2.76e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -51237,7 +51747,8 @@ Earth-relative units:
 * Planet zone size: 4.36e+07
 * Planet death zone size: 2.29e+06
 * Planet size: 2.18e+06
-* Planet autopilot range: 3.43e+06
+* Planet autopilot range: 4.58e+06
+* Planet semi-major axis: 1.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -51719,7 +52230,8 @@ Earth-relative units:
 * Planet zone size: 2.51e+09
 * Planet death zone size: 1.32e+08
 * Planet size: 1.25e+08
-* Planet autopilot range: 1.98e+08
+* Planet autopilot range: 2.63e+08
+* Planet semi-major axis: 8.05e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -51777,7 +52289,8 @@ Earth-relative units:
 * Planet zone size: 1.46e+08
 * Planet death zone size: 7.68e+06
 * Planet size: 7.32e+06
-* Planet autopilot range: 1.15e+07
+* Planet autopilot range: 1.54e+07
+* Planet semi-major axis: 1.21e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -51945,7 +52458,8 @@ Earth-relative units:
 * Planet zone size: 2.61e+09
 * Planet death zone size: 1.37e+08
 * Planet size: 1.31e+08
-* Planet autopilot range: 2.06e+08
+* Planet autopilot range: 2.74e+08
+* Planet semi-major axis: 4.20e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52113,7 +52627,8 @@ Earth-relative units:
 * Planet zone size: 4.08e+07
 * Planet death zone size: 2.14e+06
 * Planet size: 2.04e+06
-* Planet autopilot range: 3.21e+06
+* Planet autopilot range: 4.28e+06
+* Planet semi-major axis: 1.46e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52171,7 +52686,8 @@ Earth-relative units:
 * Planet zone size: 1.94e+07
 * Planet death zone size: 1.02e+06
 * Planet size: 9.69e+05
-* Planet autopilot range: 1.53e+06
+* Planet autopilot range: 2.03e+06
+* Planet semi-major axis: 1.95e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52229,7 +52745,8 @@ Earth-relative units:
 * Planet zone size: 4.12e+07
 * Planet death zone size: 2.16e+06
 * Planet size: 2.06e+06
-* Planet autopilot range: 3.24e+06
+* Planet autopilot range: 4.32e+06
+* Planet semi-major axis: 2.59e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52287,7 +52804,8 @@ Earth-relative units:
 * Planet zone size: 1.29e+08
 * Planet death zone size: 6.77e+06
 * Planet size: 6.45e+06
-* Planet autopilot range: 1.02e+07
+* Planet autopilot range: 1.35e+07
+* Planet semi-major axis: 3.44e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52345,7 +52863,8 @@ Earth-relative units:
 * Planet zone size: 1.61e+08
 * Planet death zone size: 8.43e+06
 * Planet size: 8.03e+06
-* Planet autopilot range: 1.27e+07
+* Planet autopilot range: 1.69e+07
+* Planet semi-major axis: 4.58e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52403,7 +52922,8 @@ Earth-relative units:
 * Planet zone size: 2.70e+08
 * Planet death zone size: 1.42e+07
 * Planet size: 1.35e+07
-* Planet autopilot range: 2.13e+07
+* Planet autopilot range: 2.84e+07
+* Planet semi-major axis: 6.09e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52461,7 +52981,8 @@ Earth-relative units:
 * Planet zone size: 1.63e+07
 * Planet death zone size: 8.57e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.29e+06
+* Planet autopilot range: 1.71e+06
+* Planet semi-major axis: 8.10e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52519,7 +53040,8 @@ Earth-relative units:
 * Planet zone size: 2.85e+09
 * Planet death zone size: 1.49e+08
 * Planet size: 1.42e+08
-* Planet autopilot range: 2.24e+08
+* Planet autopilot range: 2.99e+08
+* Planet semi-major axis: 1.08e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52577,7 +53099,8 @@ Earth-relative units:
 * Planet zone size: 1.21e+07
 * Planet death zone size: 6.37e+05
 * Planet size: 6.07e+05
-* Planet autopilot range: 9.56e+05
+* Planet autopilot range: 1.27e+06
+* Planet semi-major axis: 1.43e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52813,7 +53336,8 @@ Earth-relative units:
 * Planet zone size: 7.27e+07
 * Planet death zone size: 3.82e+06
 * Planet size: 3.64e+06
-* Planet autopilot range: 5.73e+06
+* Planet autopilot range: 7.64e+06
+* Planet semi-major axis: 1.42e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -52871,7 +53395,8 @@ Earth-relative units:
 * Planet zone size: 2.00e+08
 * Planet death zone size: 1.05e+07
 * Planet size: 9.99e+06
-* Planet autopilot range: 1.57e+07
+* Planet autopilot range: 2.10e+07
+* Planet semi-major axis: 1.89e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53107,7 +53632,8 @@ Earth-relative units:
 * Planet zone size: 2.33e+09
 * Planet death zone size: 1.23e+08
 * Planet size: 1.17e+08
-* Planet autopilot range: 1.84e+08
+* Planet autopilot range: 2.45e+08
+* Planet semi-major axis: 1.68e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53165,7 +53691,8 @@ Earth-relative units:
 * Planet zone size: 6.95e+07
 * Planet death zone size: 3.65e+06
 * Planet size: 3.48e+06
-* Planet autopilot range: 5.48e+06
+* Planet autopilot range: 7.30e+06
+* Planet semi-major axis: 3.37e+14
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53333,7 +53860,8 @@ Earth-relative units:
 * Planet zone size: 2.18e+07
 * Planet death zone size: 1.14e+06
 * Planet size: 1.09e+06
-* Planet autopilot range: 1.72e+06
+* Planet autopilot range: 2.29e+06
+* Planet semi-major axis: 1.82e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53501,7 +54029,8 @@ Earth-relative units:
 * Planet zone size: 2.05e+08
 * Planet death zone size: 1.08e+07
 * Planet size: 1.03e+07
-* Planet autopilot range: 1.62e+07
+* Planet autopilot range: 2.16e+07
+* Planet semi-major axis: 1.72e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53559,7 +54088,8 @@ Earth-relative units:
 * Planet zone size: 1.19e+07
 * Planet death zone size: 6.24e+05
 * Planet size: 5.94e+05
-* Planet autopilot range: 9.36e+05
+* Planet autopilot range: 1.25e+06
+* Planet semi-major axis: 2.28e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53617,7 +54147,8 @@ Earth-relative units:
 * Planet zone size: 4.92e+09
 * Planet death zone size: 2.58e+08
 * Planet size: 2.46e+08
-* Planet autopilot range: 3.88e+08
+* Planet autopilot range: 5.17e+08
+* Planet semi-major axis: 3.04e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -53963,7 +54494,8 @@ Earth-relative units:
 * Planet zone size: 4.35e+08
 * Planet death zone size: 2.28e+07
 * Planet size: 2.17e+07
-* Planet autopilot range: 3.42e+07
+* Planet autopilot range: 4.57e+07
+* Planet semi-major axis: 5.30e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54021,7 +54553,8 @@ Earth-relative units:
 * Planet zone size: 1.17e+07
 * Planet death zone size: 6.15e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.23e+05
+* Planet autopilot range: 1.23e+06
+* Planet semi-major axis: 7.95e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54079,7 +54612,8 @@ Earth-relative units:
 * Planet zone size: 7.94e+06
 * Planet death zone size: 4.17e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 6.25e+05
+* Planet autopilot range: 8.34e+05
+* Planet semi-major axis: 1.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54137,7 +54671,8 @@ Earth-relative units:
 * Planet zone size: 5.44e+08
 * Planet death zone size: 2.86e+07
 * Planet size: 2.72e+07
-* Planet autopilot range: 4.28e+07
+* Planet autopilot range: 5.71e+07
+* Planet semi-major axis: 1.79e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54195,7 +54730,8 @@ Earth-relative units:
 * Planet zone size: 2.32e+07
 * Planet death zone size: 1.22e+06
 * Planet size: 1.16e+06
-* Planet autopilot range: 1.83e+06
+* Planet autopilot range: 2.44e+06
+* Planet semi-major axis: 2.68e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54363,7 +54899,8 @@ Earth-relative units:
 * Planet zone size: 2.93e+08
 * Planet death zone size: 1.54e+07
 * Planet size: 1.46e+07
-* Planet autopilot range: 2.31e+07
+* Planet autopilot range: 3.08e+07
+* Planet semi-major axis: 5.51e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54421,7 +54958,8 @@ Earth-relative units:
 * Planet zone size: 1.09e+08
 * Planet death zone size: 5.73e+06
 * Planet size: 5.45e+06
-* Planet autopilot range: 8.59e+06
+* Planet autopilot range: 1.15e+07
+* Planet semi-major axis: 8.27e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54657,7 +55195,8 @@ Earth-relative units:
 * Planet zone size: 4.91e+07
 * Planet death zone size: 2.58e+06
 * Planet size: 2.46e+06
-* Planet autopilot range: 3.87e+06
+* Planet autopilot range: 5.16e+06
+* Planet semi-major axis: 1.72e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54715,7 +55254,8 @@ Earth-relative units:
 * Planet zone size: 2.72e+08
 * Planet death zone size: 1.43e+07
 * Planet size: 1.36e+07
-* Planet autopilot range: 2.14e+07
+* Planet autopilot range: 2.85e+07
+* Planet semi-major axis: 2.57e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -54883,7 +55423,8 @@ Earth-relative units:
 * Planet zone size: 9.22e+06
 * Planet death zone size: 4.84e+05
 * Planet size: 4.61e+05
-* Planet autopilot range: 7.26e+05
+* Planet autopilot range: 9.68e+05
+* Planet semi-major axis: 6.63e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55051,7 +55592,8 @@ Earth-relative units:
 * Planet zone size: 9.46e+07
 * Planet death zone size: 4.96e+06
 * Planet size: 4.73e+06
-* Planet autopilot range: 7.45e+06
+* Planet autopilot range: 9.93e+06
+* Planet semi-major axis: 1.24e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55109,7 +55651,8 @@ Earth-relative units:
 * Planet zone size: 4.19e+07
 * Planet death zone size: 2.20e+06
 * Planet size: 2.09e+06
-* Planet autopilot range: 3.30e+06
+* Planet autopilot range: 4.40e+06
+* Planet semi-major axis: 1.86e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55167,7 +55710,8 @@ Earth-relative units:
 * Planet zone size: 9.02e+07
 * Planet death zone size: 4.74e+06
 * Planet size: 4.51e+06
-* Planet autopilot range: 7.11e+06
+* Planet autopilot range: 9.48e+06
+* Planet semi-major axis: 2.79e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55225,7 +55769,8 @@ Earth-relative units:
 * Planet zone size: 3.56e+07
 * Planet death zone size: 1.87e+06
 * Planet size: 1.78e+06
-* Planet autopilot range: 2.81e+06
+* Planet autopilot range: 3.74e+06
+* Planet semi-major axis: 4.18e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55283,7 +55828,8 @@ Earth-relative units:
 * Planet zone size: 1.90e+07
 * Planet death zone size: 9.99e+05
 * Planet size: 9.51e+05
-* Planet autopilot range: 1.50e+06
+* Planet autopilot range: 2.00e+06
+* Planet semi-major axis: 6.27e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55341,7 +55887,8 @@ Earth-relative units:
 * Planet zone size: 1.64e+08
 * Planet death zone size: 8.61e+06
 * Planet size: 8.20e+06
-* Planet autopilot range: 1.29e+07
+* Planet autopilot range: 1.72e+07
+* Planet semi-major axis: 9.40e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55509,7 +56056,8 @@ Earth-relative units:
 * Planet zone size: 4.78e+07
 * Planet death zone size: 2.51e+06
 * Planet size: 2.39e+06
-* Planet autopilot range: 3.76e+06
+* Planet autopilot range: 5.02e+06
+* Planet semi-major axis: 8.96e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55567,7 +56115,8 @@ Earth-relative units:
 * Planet zone size: 2.39e+09
 * Planet death zone size: 1.26e+08
 * Planet size: 1.20e+08
-* Planet autopilot range: 1.88e+08
+* Planet autopilot range: 2.51e+08
+* Planet semi-major axis: 1.19e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -55735,7 +56284,8 @@ Earth-relative units:
 * Planet zone size: 1.39e+07
 * Planet death zone size: 7.30e+05
 * Planet size: 6.96e+05
-* Planet autopilot range: 1.10e+06
+* Planet autopilot range: 1.46e+06
+* Planet semi-major axis: 9.12e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56039,7 +56589,8 @@ Earth-relative units:
 * Planet zone size: 4.25e+09
 * Planet death zone size: 2.23e+08
 * Planet size: 2.12e+08
-* Planet autopilot range: 3.34e+08
+* Planet autopilot range: 4.46e+08
+* Planet semi-major axis: 4.32e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56097,7 +56648,8 @@ Earth-relative units:
 * Planet zone size: 1.16e+07
 * Planet death zone size: 6.11e+05
 * Planet size: 5.82e+05
-* Planet autopilot range: 9.16e+05
+* Planet autopilot range: 1.22e+06
+* Planet semi-major axis: 5.74e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56155,7 +56707,8 @@ Earth-relative units:
 * Planet zone size: 1.60e+08
 * Planet death zone size: 8.40e+06
 * Planet size: 8.00e+06
-* Planet autopilot range: 1.26e+07
+* Planet autopilot range: 1.68e+07
+* Planet semi-major axis: 7.64e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56323,7 +56876,8 @@ Earth-relative units:
 * Planet zone size: 2.07e+07
 * Planet death zone size: 1.09e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.63e+06
+* Planet autopilot range: 2.18e+06
+* Planet semi-major axis: 3.49e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56381,7 +56935,8 @@ Earth-relative units:
 * Planet zone size: 3.21e+09
 * Planet death zone size: 1.69e+08
 * Planet size: 1.61e+08
-* Planet autopilot range: 2.53e+08
+* Planet autopilot range: 3.37e+08
+* Planet semi-major axis: 4.65e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56549,7 +57104,8 @@ Earth-relative units:
 * Planet zone size: 1.17e+07
 * Planet death zone size: 6.15e+05
 * Planet size: 5.86e+05
-* Planet autopilot range: 9.23e+05
+* Planet autopilot range: 1.23e+06
+* Planet semi-major axis: 4.98e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56607,7 +57163,8 @@ Earth-relative units:
 * Planet zone size: 1.49e+08
 * Planet death zone size: 7.83e+06
 * Planet size: 7.46e+06
-* Planet autopilot range: 1.18e+07
+* Planet autopilot range: 1.57e+07
+* Planet semi-major axis: 6.63e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56665,7 +57222,8 @@ Earth-relative units:
 * Planet zone size: 2.18e+08
 * Planet death zone size: 1.14e+07
 * Planet size: 1.09e+07
-* Planet autopilot range: 1.71e+07
+* Planet autopilot range: 2.29e+07
+* Planet semi-major axis: 8.81e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56723,7 +57281,8 @@ Earth-relative units:
 * Planet zone size: 8.18e+07
 * Planet death zone size: 4.30e+06
 * Planet size: 4.09e+06
-* Planet autopilot range: 6.44e+06
+* Planet autopilot range: 8.59e+06
+* Planet semi-major axis: 1.17e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -56891,7 +57450,8 @@ Earth-relative units:
 * Planet zone size: 1.38e+08
 * Planet death zone size: 7.27e+06
 * Planet size: 6.92e+06
-* Planet autopilot range: 1.09e+07
+* Planet autopilot range: 1.45e+07
+* Planet semi-major axis: 3.56e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57059,7 +57619,8 @@ Earth-relative units:
 * Planet zone size: 4.31e+09
 * Planet death zone size: 2.26e+08
 * Planet size: 2.16e+08
-* Planet autopilot range: 3.39e+08
+* Planet autopilot range: 4.53e+08
+* Planet semi-major axis: 1.97e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57117,7 +57678,8 @@ Earth-relative units:
 * Planet zone size: 7.01e+07
 * Planet death zone size: 3.68e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.52e+06
+* Planet autopilot range: 7.36e+06
+* Planet semi-major axis: 3.93e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57175,7 +57737,8 @@ Earth-relative units:
 * Planet zone size: 1.71e+09
 * Planet death zone size: 8.96e+07
 * Planet size: 8.53e+07
-* Planet autopilot range: 1.34e+08
+* Planet autopilot range: 1.79e+08
+* Planet semi-major axis: 7.86e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57233,7 +57796,8 @@ Earth-relative units:
 * Planet zone size: 4.36e+07
 * Planet death zone size: 2.29e+06
 * Planet size: 2.18e+06
-* Planet autopilot range: 3.43e+06
+* Planet autopilot range: 4.58e+06
+* Planet semi-major axis: 1.57e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57647,7 +58211,8 @@ Earth-relative units:
 * Planet zone size: 4.29e+07
 * Planet death zone size: 2.25e+06
 * Planet size: 2.14e+06
-* Planet autopilot range: 3.38e+06
+* Planet autopilot range: 4.50e+06
+* Planet semi-major axis: 2.07e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57815,7 +58380,8 @@ Earth-relative units:
 * Planet zone size: 9.65e+06
 * Planet death zone size: 5.07e+05
 * Planet size: 4.82e+05
-* Planet autopilot range: 7.60e+05
+* Planet autopilot range: 1.01e+06
+* Planet semi-major axis: 8.20e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57873,7 +58439,8 @@ Earth-relative units:
 * Planet zone size: 7.96e+07
 * Planet death zone size: 4.18e+06
 * Planet size: 3.98e+06
-* Planet autopilot range: 6.27e+06
+* Planet autopilot range: 8.36e+06
+* Planet semi-major axis: 1.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57931,7 +58498,8 @@ Earth-relative units:
 * Planet zone size: 3.51e+09
 * Planet death zone size: 1.84e+08
 * Planet size: 1.75e+08
-* Planet autopilot range: 2.76e+08
+* Planet autopilot range: 3.68e+08
+* Planet semi-major axis: 3.28e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -57989,7 +58557,8 @@ Earth-relative units:
 * Planet zone size: 4.02e+07
 * Planet death zone size: 2.11e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.16e+06
+* Planet autopilot range: 4.22e+06
+* Planet semi-major axis: 6.56e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -58047,7 +58616,8 @@ Earth-relative units:
 * Planet zone size: 5.02e+09
 * Planet death zone size: 2.64e+08
 * Planet size: 2.51e+08
-* Planet autopilot range: 3.95e+08
+* Planet autopilot range: 5.27e+08
+* Planet semi-major axis: 1.31e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -58105,7 +58675,8 @@ Earth-relative units:
 * Planet zone size: 6.53e+07
 * Planet death zone size: 3.43e+06
 * Planet size: 3.27e+06
-* Planet autopilot range: 5.15e+06
+* Planet autopilot range: 6.86e+06
+* Planet semi-major axis: 2.62e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -58273,7 +58844,8 @@ Earth-relative units:
 * Planet zone size: 1.60e+08
 * Planet death zone size: 8.39e+06
 * Planet size: 7.99e+06
-* Planet autopilot range: 1.26e+07
+* Planet autopilot range: 1.68e+07
+* Planet semi-major axis: 7.68e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -58551,7 +59123,8 @@ Earth-relative units:
 * Planet zone size: 3.83e+09
 * Planet death zone size: 2.01e+08
 * Planet size: 1.91e+08
-* Planet autopilot range: 3.02e+08
+* Planet autopilot range: 4.02e+08
+* Planet semi-major axis: 4.41e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -58609,7 +59182,8 @@ Earth-relative units:
 * Planet zone size: 3.91e+09
 * Planet death zone size: 2.05e+08
 * Planet size: 1.95e+08
-* Planet autopilot range: 3.08e+08
+* Planet autopilot range: 4.10e+08
+* Planet semi-major axis: 5.86e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -58845,7 +59419,8 @@ Earth-relative units:
 * Planet zone size: 1.12e+08
 * Planet death zone size: 5.87e+06
 * Planet size: 5.59e+06
-* Planet autopilot range: 8.81e+06
+* Planet autopilot range: 1.17e+07
+* Planet semi-major axis: 2.80e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59013,7 +59588,8 @@ Earth-relative units:
 * Planet zone size: 2.57e+08
 * Planet death zone size: 1.35e+07
 * Planet size: 1.28e+07
-* Planet autopilot range: 2.02e+07
+* Planet autopilot range: 2.70e+07
+* Planet semi-major axis: 1.45e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59071,7 +59647,8 @@ Earth-relative units:
 * Planet zone size: 4.73e+09
 * Planet death zone size: 2.48e+08
 * Planet size: 2.37e+08
-* Planet autopilot range: 3.73e+08
+* Planet autopilot range: 4.97e+08
+* Planet semi-major axis: 2.17e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59239,7 +59816,8 @@ Earth-relative units:
 * Planet zone size: 4.12e+09
 * Planet death zone size: 2.16e+08
 * Planet size: 2.06e+08
-* Planet autopilot range: 3.25e+08
+* Planet autopilot range: 4.33e+08
+* Planet semi-major axis: 1.16e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59297,7 +59875,8 @@ Earth-relative units:
 * Planet zone size: 2.23e+07
 * Planet death zone size: 1.17e+06
 * Planet size: 1.12e+06
-* Planet autopilot range: 1.76e+06
+* Planet autopilot range: 2.34e+06
+* Planet semi-major axis: 1.75e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59533,7 +60112,8 @@ Earth-relative units:
 * Planet zone size: 1.85e+07
 * Planet death zone size: 9.71e+05
 * Planet size: 9.25e+05
-* Planet autopilot range: 1.46e+06
+* Planet autopilot range: 1.94e+06
+* Planet semi-major axis: 1.08e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59591,7 +60171,8 @@ Earth-relative units:
 * Planet zone size: 1.14e+07
 * Planet death zone size: 5.98e+05
 * Planet size: 5.70e+05
-* Planet autopilot range: 8.97e+05
+* Planet autopilot range: 1.20e+06
+* Planet semi-major axis: 2.16e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59649,7 +60230,8 @@ Earth-relative units:
 * Planet zone size: 2.55e+09
 * Planet death zone size: 1.34e+08
 * Planet size: 1.27e+08
-* Planet autopilot range: 2.00e+08
+* Planet autopilot range: 2.67e+08
+* Planet semi-major axis: 4.33e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59707,7 +60289,8 @@ Earth-relative units:
 * Planet zone size: 1.11e+07
 * Planet death zone size: 5.85e+05
 * Planet size: 5.57e+05
-* Planet autopilot range: 8.77e+05
+* Planet autopilot range: 1.17e+06
+* Planet semi-major axis: 8.65e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -59765,7 +60348,8 @@ Earth-relative units:
 * Planet zone size: 2.22e+07
 * Planet death zone size: 1.16e+06
 * Planet size: 1.11e+06
-* Planet autopilot range: 1.74e+06
+* Planet autopilot range: 2.33e+06
+* Planet semi-major axis: 1.73e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60315,7 +60899,8 @@ Earth-relative units:
 * Planet zone size: 1.27e+08
 * Planet death zone size: 6.67e+06
 * Planet size: 6.36e+06
-* Planet autopilot range: 1.00e+07
+* Planet autopilot range: 1.33e+07
+* Planet semi-major axis: 1.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60373,7 +60958,8 @@ Earth-relative units:
 * Planet zone size: 8.08e+07
 * Planet death zone size: 4.24e+06
 * Planet size: 4.04e+06
-* Planet autopilot range: 6.36e+06
+* Planet autopilot range: 8.48e+06
+* Planet semi-major axis: 2.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60541,7 +61127,8 @@ Earth-relative units:
 * Planet zone size: 2.24e+07
 * Planet death zone size: 1.17e+06
 * Planet size: 1.12e+06
-* Planet autopilot range: 1.76e+06
+* Planet autopilot range: 2.35e+06
+* Planet semi-major axis: 2.21e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60599,7 +61186,8 @@ Earth-relative units:
 * Planet zone size: 2.75e+09
 * Planet death zone size: 1.44e+08
 * Planet size: 1.38e+08
-* Planet autopilot range: 2.17e+08
+* Planet autopilot range: 2.89e+08
+* Planet semi-major axis: 3.31e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60657,7 +61245,8 @@ Earth-relative units:
 * Planet zone size: 1.20e+07
 * Planet death zone size: 6.32e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.48e+05
+* Planet autopilot range: 1.26e+06
+* Planet semi-major axis: 4.97e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60715,7 +61304,8 @@ Earth-relative units:
 * Planet zone size: 4.75e+09
 * Planet death zone size: 2.49e+08
 * Planet size: 2.37e+08
-* Planet autopilot range: 3.74e+08
+* Planet autopilot range: 4.98e+08
+* Planet semi-major axis: 7.45e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60883,7 +61473,8 @@ Earth-relative units:
 * Planet zone size: 2.34e+09
 * Planet death zone size: 1.23e+08
 * Planet size: 1.17e+08
-* Planet autopilot range: 1.84e+08
+* Planet autopilot range: 2.46e+08
+* Planet semi-major axis: 2.83e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60941,7 +61532,8 @@ Earth-relative units:
 * Planet zone size: 1.96e+07
 * Planet death zone size: 1.03e+06
 * Planet size: 9.80e+05
-* Planet autopilot range: 1.54e+06
+* Planet autopilot range: 2.06e+06
+* Planet semi-major axis: 3.76e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -60999,7 +61591,8 @@ Earth-relative units:
 * Planet zone size: 2.22e+07
 * Planet death zone size: 1.16e+06
 * Planet size: 1.11e+06
-* Planet autopilot range: 1.75e+06
+* Planet autopilot range: 2.33e+06
+* Planet semi-major axis: 5.00e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61303,7 +61896,8 @@ Earth-relative units:
 * Planet zone size: 1.94e+08
 * Planet death zone size: 1.02e+07
 * Planet size: 9.69e+06
-* Planet autopilot range: 1.53e+07
+* Planet autopilot range: 2.04e+07
+* Planet semi-major axis: 8.85e+09
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61361,7 +61955,8 @@ Earth-relative units:
 * Planet zone size: 1.10e+07
 * Planet death zone size: 5.77e+05
 * Planet size: 5.50e+05
-* Planet autopilot range: 8.66e+05
+* Planet autopilot range: 1.15e+06
+* Planet semi-major axis: 1.33e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61419,7 +62014,8 @@ Earth-relative units:
 * Planet zone size: 1.74e+08
 * Planet death zone size: 9.13e+06
 * Planet size: 8.70e+06
-* Planet autopilot range: 1.37e+07
+* Planet autopilot range: 1.83e+07
+* Planet semi-major axis: 1.99e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61477,7 +62073,8 @@ Earth-relative units:
 * Planet zone size: 1.97e+07
 * Planet death zone size: 1.03e+06
 * Planet size: 9.84e+05
-* Planet autopilot range: 1.55e+06
+* Planet autopilot range: 2.07e+06
+* Planet semi-major axis: 2.99e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61645,7 +62242,8 @@ Earth-relative units:
 * Planet zone size: 3.35e+09
 * Planet death zone size: 1.76e+08
 * Planet size: 1.67e+08
-* Planet autopilot range: 2.64e+08
+* Planet autopilot range: 3.51e+08
+* Planet semi-major axis: 7.88e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61703,7 +62301,8 @@ Earth-relative units:
 * Planet zone size: 2.69e+09
 * Planet death zone size: 1.41e+08
 * Planet size: 1.35e+08
-* Planet autopilot range: 2.12e+08
+* Planet autopilot range: 2.83e+08
+* Planet semi-major axis: 1.58e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61761,7 +62360,8 @@ Earth-relative units:
 * Planet zone size: 3.57e+09
 * Planet death zone size: 1.87e+08
 * Planet size: 1.78e+08
-* Planet autopilot range: 2.81e+08
+* Planet autopilot range: 3.75e+08
+* Planet semi-major axis: 3.15e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61819,7 +62419,8 @@ Earth-relative units:
 * Planet zone size: 4.10e+09
 * Planet death zone size: 2.15e+08
 * Planet size: 2.05e+08
-* Planet autopilot range: 3.23e+08
+* Planet autopilot range: 4.31e+08
+* Planet semi-major axis: 6.30e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61877,7 +62478,8 @@ Earth-relative units:
 * Planet zone size: 9.08e+06
 * Planet death zone size: 4.77e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 7.15e+05
+* Planet autopilot range: 9.54e+05
+* Planet semi-major axis: 1.26e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61935,7 +62537,8 @@ Earth-relative units:
 * Planet zone size: 4.99e+09
 * Planet death zone size: 2.62e+08
 * Planet size: 2.50e+08
-* Planet autopilot range: 3.93e+08
+* Planet autopilot range: 5.24e+08
+* Planet semi-major axis: 2.52e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -61993,7 +62596,8 @@ Earth-relative units:
 * Planet zone size: 1.15e+07
 * Planet death zone size: 6.02e+05
 * Planet size: 5.73e+05
-* Planet autopilot range: 9.02e+05
+* Planet autopilot range: 1.20e+06
+* Planet semi-major axis: 5.04e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62051,7 +62655,8 @@ Earth-relative units:
 * Planet zone size: 2.18e+08
 * Planet death zone size: 1.15e+07
 * Planet size: 1.09e+07
-* Planet autopilot range: 1.72e+07
+* Planet autopilot range: 2.29e+07
+* Planet semi-major axis: 1.01e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62109,7 +62714,8 @@ Earth-relative units:
 * Planet zone size: 1.08e+08
 * Planet death zone size: 5.65e+06
 * Planet size: 5.38e+06
-* Planet autopilot range: 8.48e+06
+* Planet autopilot range: 1.13e+07
+* Planet semi-major axis: 2.02e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62167,7 +62773,8 @@ Earth-relative units:
 * Planet zone size: 1.63e+07
 * Planet death zone size: 8.56e+05
 * Planet size: 8.15e+05
-* Planet autopilot range: 1.28e+06
+* Planet autopilot range: 1.71e+06
+* Planet semi-major axis: 4.03e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62225,7 +62832,8 @@ Earth-relative units:
 * Planet zone size: 3.31e+09
 * Planet death zone size: 1.74e+08
 * Planet size: 1.27e+06
-* Planet autopilot range: 2.61e+08
+* Planet autopilot range: 3.48e+08
+* Planet semi-major axis: 8.07e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62393,7 +63001,8 @@ Earth-relative units:
 * Planet zone size: 1.05e+07
 * Planet death zone size: 5.51e+05
 * Planet size: 5.24e+05
-* Planet autopilot range: 8.26e+05
+* Planet autopilot range: 1.10e+06
+* Planet semi-major axis: 8.61e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62629,7 +63238,8 @@ Earth-relative units:
 * Planet zone size: 8.76e+08
 * Planet death zone size: 4.60e+07
 * Planet size: 4.38e+07
-* Planet autopilot range: 6.90e+07
+* Planet autopilot range: 9.20e+07
+* Planet semi-major axis: 1.80e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62687,7 +63297,8 @@ Earth-relative units:
 * Planet zone size: 3.54e+07
 * Planet death zone size: 1.86e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.79e+06
+* Planet autopilot range: 3.72e+06
+* Planet semi-major axis: 3.60e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62745,7 +63356,8 @@ Earth-relative units:
 * Planet zone size: 1.46e+07
 * Planet death zone size: 7.65e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.15e+06
+* Planet autopilot range: 1.53e+06
+* Planet semi-major axis: 7.19e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -62803,7 +63415,8 @@ Earth-relative units:
 * Planet zone size: 9.49e+06
 * Planet death zone size: 4.98e+05
 * Planet size: 4.75e+05
-* Planet autopilot range: 7.47e+05
+* Planet autopilot range: 9.96e+05
+* Planet semi-major axis: 1.44e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63107,7 +63720,8 @@ Earth-relative units:
 * Planet zone size: 3.06e+08
 * Planet death zone size: 1.61e+07
 * Planet size: 1.53e+07
-* Planet autopilot range: 2.41e+07
+* Planet autopilot range: 3.21e+07
+* Planet semi-major axis: 1.33e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63165,7 +63779,8 @@ Earth-relative units:
 * Planet zone size: 2.19e+07
 * Planet death zone size: 1.15e+06
 * Planet size: 1.10e+06
-* Planet autopilot range: 1.72e+06
+* Planet autopilot range: 2.30e+06
+* Planet semi-major axis: 2.66e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63223,7 +63838,8 @@ Earth-relative units:
 * Planet zone size: 1.62e+09
 * Planet death zone size: 8.49e+07
 * Planet size: 8.09e+07
-* Planet autopilot range: 1.27e+08
+* Planet autopilot range: 1.70e+08
+* Planet semi-major axis: 5.32e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63391,7 +64007,8 @@ Earth-relative units:
 * Planet zone size: 4.63e+09
 * Planet death zone size: 2.43e+08
 * Planet size: 2.32e+08
-* Planet autopilot range: 3.65e+08
+* Planet autopilot range: 4.87e+08
+* Planet semi-major axis: 5.28e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63559,7 +64176,8 @@ Earth-relative units:
 * Planet zone size: 2.88e+09
 * Planet death zone size: 1.51e+08
 * Planet size: 1.44e+08
-* Planet autopilot range: 2.27e+08
+* Planet autopilot range: 3.03e+08
+* Planet semi-major axis: 2.77e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63617,7 +64235,8 @@ Earth-relative units:
 * Planet zone size: 2.03e+09
 * Planet death zone size: 1.07e+08
 * Planet size: 1.01e+08
-* Planet autopilot range: 1.60e+08
+* Planet autopilot range: 2.13e+08
+* Planet semi-major axis: 3.68e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63675,7 +64294,8 @@ Earth-relative units:
 * Planet zone size: 1.56e+08
 * Planet death zone size: 8.17e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.23e+07
+* Planet autopilot range: 1.63e+07
+* Planet semi-major axis: 4.90e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63733,7 +64353,8 @@ Earth-relative units:
 * Planet zone size: 5.08e+09
 * Planet death zone size: 2.67e+08
 * Planet size: 2.54e+08
-* Planet autopilot range: 4.00e+08
+* Planet autopilot range: 5.33e+08
+* Planet semi-major axis: 6.51e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -63901,7 +64522,8 @@ Earth-relative units:
 * Planet zone size: 1.34e+08
 * Planet death zone size: 7.05e+06
 * Planet size: 6.71e+06
-* Planet autopilot range: 1.06e+07
+* Planet autopilot range: 1.41e+07
+* Planet semi-major axis: 2.67e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64069,7 +64691,8 @@ Earth-relative units:
 * Planet zone size: 1.72e+08
 * Planet death zone size: 9.04e+06
 * Planet size: 8.61e+06
-* Planet autopilot range: 1.36e+07
+* Planet autopilot range: 1.81e+07
+* Planet semi-major axis: 1.35e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64127,7 +64750,8 @@ Earth-relative units:
 * Planet zone size: 2.86e+09
 * Planet death zone size: 1.50e+08
 * Planet size: 1.43e+08
-* Planet autopilot range: 2.25e+08
+* Planet autopilot range: 3.00e+08
+* Planet semi-major axis: 2.03e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64185,7 +64809,8 @@ Earth-relative units:
 * Planet zone size: 2.65e+09
 * Planet death zone size: 1.39e+08
 * Planet size: 1.33e+08
-* Planet autopilot range: 2.09e+08
+* Planet autopilot range: 2.78e+08
+* Planet semi-major axis: 3.04e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64243,7 +64868,8 @@ Earth-relative units:
 * Planet zone size: 2.74e+08
 * Planet death zone size: 1.44e+07
 * Planet size: 1.37e+07
-* Planet autopilot range: 2.16e+07
+* Planet autopilot range: 2.88e+07
+* Planet semi-major axis: 4.56e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64411,7 +65037,8 @@ Earth-relative units:
 * Planet zone size: 1.01e+07
 * Planet death zone size: 5.30e+05
 * Planet size: 5.05e+05
-* Planet autopilot range: 7.95e+05
+* Planet autopilot range: 1.06e+06
+* Planet semi-major axis: 2.28e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64469,7 +65096,8 @@ Earth-relative units:
 * Planet zone size: 2.82e+08
 * Planet death zone size: 1.48e+07
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.22e+07
+* Planet autopilot range: 2.97e+07
+* Planet semi-major axis: 3.03e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64527,7 +65155,8 @@ Earth-relative units:
 * Planet zone size: 4.02e+09
 * Planet death zone size: 2.11e+08
 * Planet size: 2.01e+08
-* Planet autopilot range: 3.17e+08
+* Planet autopilot range: 4.23e+08
+* Planet semi-major axis: 4.03e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64585,7 +65214,8 @@ Earth-relative units:
 * Planet zone size: 4.95e+09
 * Planet death zone size: 2.60e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.90e+08
+* Planet autopilot range: 5.20e+08
+* Planet semi-major axis: 5.35e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64821,7 +65451,8 @@ Earth-relative units:
 * Planet zone size: 3.55e+07
 * Planet death zone size: 1.86e+06
 * Planet size: 1.77e+06
-* Planet autopilot range: 2.79e+06
+* Planet autopilot range: 3.73e+06
+* Planet semi-major axis: 4.70e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64879,7 +65510,8 @@ Earth-relative units:
 * Planet zone size: 4.50e+09
 * Planet death zone size: 2.36e+08
 * Planet size: 2.25e+08
-* Planet autopilot range: 3.55e+08
+* Planet autopilot range: 4.73e+08
+* Planet semi-major axis: 7.05e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64937,7 +65569,8 @@ Earth-relative units:
 * Planet zone size: 1.23e+07
 * Planet death zone size: 6.47e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 9.70e+05
+* Planet autopilot range: 1.29e+06
+* Planet semi-major axis: 1.06e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -64995,7 +65628,8 @@ Earth-relative units:
 * Planet zone size: 4.32e+09
 * Planet death zone size: 2.27e+08
 * Planet size: 2.16e+08
-* Planet autopilot range: 3.40e+08
+* Planet autopilot range: 4.54e+08
+* Planet semi-major axis: 1.59e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65053,7 +65687,8 @@ Earth-relative units:
 * Planet zone size: 5.04e+09
 * Planet death zone size: 2.65e+08
 * Planet size: 2.52e+08
-* Planet autopilot range: 3.97e+08
+* Planet autopilot range: 5.30e+08
+* Planet semi-major axis: 2.38e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65111,7 +65746,8 @@ Earth-relative units:
 * Planet zone size: 3.16e+09
 * Planet death zone size: 1.66e+08
 * Planet size: 1.58e+08
-* Planet autopilot range: 2.49e+08
+* Planet autopilot range: 3.32e+08
+* Planet semi-major axis: 3.57e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65169,7 +65805,8 @@ Earth-relative units:
 * Planet zone size: 6.52e+06
 * Planet death zone size: 3.42e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.14e+05
+* Planet autopilot range: 6.85e+05
+* Planet semi-major axis: 5.36e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65227,7 +65864,8 @@ Earth-relative units:
 * Planet zone size: 3.00e+09
 * Planet death zone size: 1.57e+08
 * Planet size: 1.50e+08
-* Planet autopilot range: 2.36e+08
+* Planet autopilot range: 3.15e+08
+* Planet semi-major axis: 8.03e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65777,7 +66415,8 @@ Earth-relative units:
 * Planet zone size: 8.06e+06
 * Planet death zone size: 4.23e+05
 * Planet size: 4.03e+05
-* Planet autopilot range: 6.34e+05
+* Planet autopilot range: 8.46e+05
+* Planet semi-major axis: 1.32e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65835,7 +66474,8 @@ Earth-relative units:
 * Planet zone size: 6.01e+07
 * Planet death zone size: 3.16e+06
 * Planet size: 3.01e+06
-* Planet autopilot range: 4.73e+06
+* Planet autopilot range: 6.31e+06
+* Planet semi-major axis: 1.97e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65893,7 +66533,8 @@ Earth-relative units:
 * Planet zone size: 4.07e+07
 * Planet death zone size: 2.14e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.21e+06
+* Planet autopilot range: 4.28e+06
+* Planet semi-major axis: 2.96e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -65951,7 +66592,8 @@ Earth-relative units:
 * Planet zone size: 2.33e+09
 * Planet death zone size: 1.23e+08
 * Planet size: 1.17e+08
-* Planet autopilot range: 1.84e+08
+* Planet autopilot range: 2.45e+08
+* Planet semi-major axis: 4.44e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66187,7 +66829,8 @@ Earth-relative units:
 * Planet zone size: 3.22e+09
 * Planet death zone size: 1.69e+08
 * Planet size: 1.61e+08
-* Planet autopilot range: 2.54e+08
+* Planet autopilot range: 3.38e+08
+* Planet semi-major axis: 2.71e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66245,7 +66888,8 @@ Earth-relative units:
 * Planet zone size: 3.99e+07
 * Planet death zone size: 2.09e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.14e+06
+* Planet autopilot range: 4.19e+06
+* Planet semi-major axis: 4.07e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66303,7 +66947,8 @@ Earth-relative units:
 * Planet zone size: 7.11e+07
 * Planet death zone size: 3.73e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 5.60e+06
+* Planet autopilot range: 7.46e+06
+* Planet semi-major axis: 6.10e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66361,7 +67006,8 @@ Earth-relative units:
 * Planet zone size: 4.63e+09
 * Planet death zone size: 2.43e+08
 * Planet size: 2.31e+08
-* Planet autopilot range: 3.64e+08
+* Planet autopilot range: 4.86e+08
+* Planet semi-major axis: 9.16e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66419,7 +67065,8 @@ Earth-relative units:
 * Planet zone size: 4.62e+09
 * Planet death zone size: 2.42e+08
 * Planet size: 2.31e+08
-* Planet autopilot range: 3.64e+08
+* Planet autopilot range: 4.85e+08
+* Planet semi-major axis: 1.37e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66477,7 +67124,8 @@ Earth-relative units:
 * Planet zone size: 3.65e+07
 * Planet death zone size: 1.92e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.88e+06
+* Planet autopilot range: 3.83e+06
+* Planet semi-major axis: 2.06e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66535,7 +67183,8 @@ Earth-relative units:
 * Planet zone size: 4.49e+09
 * Planet death zone size: 2.36e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.53e+08
+* Planet autopilot range: 4.71e+08
+* Planet semi-major axis: 3.09e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66593,7 +67242,8 @@ Earth-relative units:
 * Planet zone size: 2.55e+09
 * Planet death zone size: 1.34e+08
 * Planet size: 1.28e+08
-* Planet autopilot range: 2.01e+08
+* Planet autopilot range: 2.68e+08
+* Planet semi-major axis: 4.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66651,7 +67301,8 @@ Earth-relative units:
 * Planet zone size: 1.53e+08
 * Planet death zone size: 8.01e+06
 * Planet size: 7.63e+06
-* Planet autopilot range: 1.20e+07
+* Planet autopilot range: 1.60e+07
+* Planet semi-major axis: 6.95e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66819,7 +67470,8 @@ Earth-relative units:
 * Planet zone size: 4.57e+09
 * Planet death zone size: 2.40e+08
 * Planet size: 2.29e+08
-* Planet autopilot range: 3.60e+08
+* Planet autopilot range: 4.80e+08
+* Planet semi-major axis: 1.60e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66877,7 +67529,8 @@ Earth-relative units:
 * Planet zone size: 8.19e+07
 * Planet death zone size: 4.30e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 6.45e+06
+* Planet autopilot range: 8.60e+06
+* Planet semi-major axis: 2.12e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66935,7 +67588,8 @@ Earth-relative units:
 * Planet zone size: 2.19e+07
 * Planet death zone size: 1.15e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.73e+06
+* Planet autopilot range: 2.30e+06
+* Planet semi-major axis: 2.82e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -66993,7 +67647,8 @@ Earth-relative units:
 * Planet zone size: 3.81e+09
 * Planet death zone size: 2.00e+08
 * Planet size: 1.90e+08
-* Planet autopilot range: 3.00e+08
+* Planet autopilot range: 4.00e+08
+* Planet semi-major axis: 3.75e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67051,7 +67706,8 @@ Earth-relative units:
 * Planet zone size: 1.02e+07
 * Planet death zone size: 5.37e+05
 * Planet size: 0.00e+00
-* Planet autopilot range: 8.06e+05
+* Planet autopilot range: 1.07e+06
+* Planet semi-major axis: 4.99e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67109,7 +67765,8 @@ Earth-relative units:
 * Planet zone size: 3.75e+09
 * Planet death zone size: 1.97e+08
 * Planet size: 1.87e+08
-* Planet autopilot range: 2.95e+08
+* Planet autopilot range: 3.93e+08
+* Planet semi-major axis: 6.64e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67167,7 +67824,8 @@ Earth-relative units:
 * Planet zone size: 1.42e+08
 * Planet death zone size: 7.45e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.12e+07
+* Planet autopilot range: 1.49e+07
+* Planet semi-major axis: 8.83e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67225,7 +67883,8 @@ Earth-relative units:
 * Planet zone size: 1.29e+08
 * Planet death zone size: 6.77e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.02e+07
+* Planet autopilot range: 1.35e+07
+* Planet semi-major axis: 1.17e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67283,7 +67942,8 @@ Earth-relative units:
 * Planet zone size: 1.30e+08
 * Planet death zone size: 6.84e+06
 * Planet size: 6.51e+06
-* Planet autopilot range: 1.03e+07
+* Planet autopilot range: 1.37e+07
+* Planet semi-major axis: 1.56e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67341,7 +68001,8 @@ Earth-relative units:
 * Planet zone size: 2.08e+07
 * Planet death zone size: 1.09e+06
 * Planet size: 1.04e+06
-* Planet autopilot range: 1.64e+06
+* Planet autopilot range: 2.18e+06
+* Planet semi-major axis: 2.08e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67399,7 +68060,8 @@ Earth-relative units:
 * Planet zone size: 9.41e+06
 * Planet death zone size: 4.94e+05
 * Planet size: 4.71e+05
-* Planet autopilot range: 7.41e+05
+* Planet autopilot range: 9.88e+05
+* Planet semi-major axis: 2.76e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67457,7 +68119,8 @@ Earth-relative units:
 * Planet zone size: 3.63e+09
 * Planet death zone size: 1.91e+08
 * Planet size: 1.82e+08
-* Planet autopilot range: 2.86e+08
+* Planet autopilot range: 3.81e+08
+* Planet semi-major axis: 3.67e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67515,7 +68178,8 @@ Earth-relative units:
 * Planet zone size: 2.36e+08
 * Planet death zone size: 1.24e+07
 * Planet size: 1.18e+07
-* Planet autopilot range: 1.85e+07
+* Planet autopilot range: 2.47e+07
+* Planet semi-major axis: 4.89e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67573,7 +68237,8 @@ Earth-relative units:
 * Planet zone size: 6.84e+07
 * Planet death zone size: 3.59e+06
 * Planet size: 3.42e+06
-* Planet autopilot range: 5.39e+06
+* Planet autopilot range: 7.18e+06
+* Planet semi-major axis: 6.50e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67631,7 +68296,8 @@ Earth-relative units:
 * Planet zone size: 3.01e+07
 * Planet death zone size: 1.58e+06
 * Planet size: 1.50e+06
-* Planet autopilot range: 2.37e+06
+* Planet autopilot range: 3.16e+06
+* Planet semi-major axis: 8.64e+12
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67689,7 +68355,8 @@ Earth-relative units:
 * Planet zone size: 2.76e+09
 * Planet death zone size: 1.45e+08
 * Planet size: 1.38e+08
-* Planet autopilot range: 2.17e+08
+* Planet autopilot range: 2.89e+08
+* Planet semi-major axis: 1.15e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67747,7 +68414,8 @@ Earth-relative units:
 * Planet zone size: 9.66e+06
 * Planet death zone size: 5.07e+05
 * Planet size: 4.83e+05
-* Planet autopilot range: 7.60e+05
+* Planet autopilot range: 1.01e+06
+* Planet semi-major axis: 1.53e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67805,7 +68473,8 @@ Earth-relative units:
 * Planet zone size: 1.57e+08
 * Planet death zone size: 8.24e+06
 * Planet size: 7.85e+06
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.65e+07
+* Planet semi-major axis: 2.03e+13
 
 * Surface color (albedo):
  - rgb: WIP
@@ -67973,7 +68642,8 @@ Earth-relative units:
 * Planet zone size: 6.55e+07
 * Planet death zone size: 3.44e+06
 * Planet size: 3.28e+06
-* Planet autopilot range: 5.16e+06
+* Planet autopilot range: 6.88e+06
+* Planet semi-major axis: 4.05e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -68031,7 +68701,8 @@ Earth-relative units:
 * Planet zone size: 1.20e+08
 * Planet death zone size: 6.29e+06
 * Planet size: 5.99e+06
-* Planet autopilot range: 9.43e+06
+* Planet autopilot range: 1.26e+07
+* Planet semi-major axis: 5.39e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -68089,7 +68760,8 @@ Earth-relative units:
 * Planet zone size: 1.58e+08
 * Planet death zone size: 8.28e+06
 * Planet size: 7.88e+06
-* Planet autopilot range: 1.24e+07
+* Planet autopilot range: 1.66e+07
+* Planet semi-major axis: 7.16e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -68147,7 +68819,8 @@ Earth-relative units:
 * Planet zone size: 3.23e+07
 * Planet death zone size: 1.70e+06
 * Planet size: 1.62e+06
-* Planet autopilot range: 2.55e+06
+* Planet autopilot range: 3.39e+06
+* Planet semi-major axis: 9.53e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -68315,7 +68988,8 @@ Earth-relative units:
 * Planet zone size: 6.59e+07
 * Planet death zone size: 3.46e+06
 * Planet size: 3.30e+06
-* Planet autopilot range: 5.19e+06
+* Planet autopilot range: 6.92e+06
+* Planet semi-major axis: 1.54e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -68373,7 +69047,8 @@ Earth-relative units:
 * Planet zone size: 1.47e+08
 * Planet death zone size: 7.71e+06
 * Planet size: 7.34e+06
-* Planet autopilot range: 1.16e+07
+* Planet autopilot range: 1.54e+07
+* Planet semi-major axis: 2.32e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -68431,7 +69106,8 @@ Earth-relative units:
 * Planet zone size: 2.40e+09
 * Planet death zone size: 1.26e+08
 * Planet size: 1.20e+08
-* Planet autopilot range: 1.89e+08
+* Planet autopilot range: 2.52e+08
+* Planet semi-major axis: 3.48e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69091,7 +69767,8 @@ Earth-relative units:
 * Planet zone size: 4.45e+07
 * Planet death zone size: 2.33e+06
 * Planet size: 2.22e+06
-* Planet autopilot range: 3.50e+06
+* Planet autopilot range: 4.67e+06
+* Planet semi-major axis: 2.28e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69149,7 +69826,8 @@ Earth-relative units:
 * Planet zone size: 1.18e+07
 * Planet death zone size: 6.20e+05
 * Planet size: 5.90e+05
-* Planet autopilot range: 9.29e+05
+* Planet autopilot range: 1.24e+06
+* Planet semi-major axis: 3.03e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69521,7 +70199,8 @@ Earth-relative units:
 * Planet zone size: 9.41e+06
 * Planet death zone size: 4.94e+05
 * Planet size: 4.70e+05
-* Planet autopilot range: 7.41e+05
+* Planet autopilot range: 9.88e+05
+* Planet semi-major axis: 1.08e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69579,7 +70258,8 @@ Earth-relative units:
 * Planet zone size: 3.00e+08
 * Planet death zone size: 1.58e+07
 * Planet size: 1.50e+07
-* Planet autopilot range: 2.37e+07
+* Planet autopilot range: 3.15e+07
+* Planet semi-major axis: 1.62e+11
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69747,7 +70427,8 @@ Earth-relative units:
 * Planet zone size: 2.31e+07
 * Planet death zone size: 1.21e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 1.82e+06
+* Planet autopilot range: 2.42e+06
+* Planet semi-major axis: 1.11e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69805,7 +70486,8 @@ Earth-relative units:
 * Planet zone size: 2.79e+09
 * Planet death zone size: 1.47e+08
 * Planet size: 1.40e+08
-* Planet autopilot range: 2.20e+08
+* Planet autopilot range: 2.93e+08
+* Planet semi-major axis: 1.66e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69863,7 +70545,8 @@ Earth-relative units:
 * Planet zone size: 4.31e+09
 * Planet death zone size: 2.26e+08
 * Planet size: 0.00e+00
-* Planet autopilot range: 3.39e+08
+* Planet autopilot range: 4.52e+08
+* Planet semi-major axis: 2.49e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -69921,7 +70604,8 @@ Earth-relative units:
 * Planet zone size: 6.34e+07
 * Planet death zone size: 3.33e+06
 * Planet size: 3.17e+06
-* Planet autopilot range: 4.99e+06
+* Planet autopilot range: 6.66e+06
+* Planet semi-major axis: 3.74e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70225,7 +70909,8 @@ Earth-relative units:
 * Planet zone size: 3.72e+09
 * Planet death zone size: 1.95e+08
 * Planet size: 1.86e+08
-* Planet autopilot range: 2.93e+08
+* Planet autopilot range: 3.90e+08
+* Planet semi-major axis: 1.36e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70283,7 +70968,8 @@ Earth-relative units:
 * Planet zone size: 2.55e+07
 * Planet death zone size: 1.34e+06
 * Planet size: 0.00e+00
-* Planet autopilot range: 2.01e+06
+* Planet autopilot range: 2.68e+06
+* Planet semi-major axis: 2.04e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70341,7 +71027,8 @@ Earth-relative units:
 * Planet zone size: 4.27e+09
 * Planet death zone size: 2.24e+08
 * Planet size: 2.13e+08
-* Planet autopilot range: 3.36e+08
+* Planet autopilot range: 4.48e+08
+* Planet semi-major axis: 3.06e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70509,7 +71196,8 @@ Earth-relative units:
 * Planet zone size: 1.57e+07
 * Planet death zone size: 8.25e+05
 * Planet size: 7.85e+05
-* Planet autopilot range: 1.24e+06
+* Planet autopilot range: 1.65e+06
+* Planet semi-major axis: 2.55e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70567,7 +71255,8 @@ Earth-relative units:
 * Planet zone size: 2.02e+08
 * Planet death zone size: 1.06e+07
 * Planet size: 1.01e+07
-* Planet autopilot range: 1.59e+07
+* Planet autopilot range: 2.12e+07
+* Planet semi-major axis: 3.83e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70625,7 +71314,8 @@ Earth-relative units:
 * Planet zone size: 3.08e+08
 * Planet death zone size: 1.62e+07
 * Planet size: 1.54e+07
-* Planet autopilot range: 2.43e+07
+* Planet autopilot range: 3.24e+07
+* Planet semi-major axis: 5.75e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70793,7 +71483,8 @@ Earth-relative units:
 * Planet zone size: 1.47e+08
 * Planet death zone size: 7.72e+06
 * Planet size: 7.35e+06
-* Planet autopilot range: 1.16e+07
+* Planet autopilot range: 1.54e+07
+* Planet semi-major axis: 1.68e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70851,7 +71542,8 @@ Earth-relative units:
 * Planet zone size: 3.08e+08
 * Planet death zone size: 1.62e+07
 * Planet size: 1.54e+07
-* Planet autopilot range: 2.42e+07
+* Planet autopilot range: 3.23e+07
+* Planet semi-major axis: 2.52e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70909,7 +71601,8 @@ Earth-relative units:
 * Planet zone size: 3.78e+07
 * Planet death zone size: 1.99e+06
 * Planet size: 1.89e+06
-* Planet autopilot range: 2.98e+06
+* Planet autopilot range: 3.97e+06
+* Planet semi-major axis: 3.79e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -70967,7 +71660,8 @@ Earth-relative units:
 * Planet zone size: 2.61e+07
 * Planet death zone size: 1.37e+06
 * Planet size: 1.31e+06
-* Planet autopilot range: 2.06e+06
+* Planet autopilot range: 2.74e+06
+* Planet semi-major axis: 5.68e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -71135,7 +71829,8 @@ Earth-relative units:
 * Planet zone size: 1.20e+07
 * Planet death zone size: 6.31e+05
 * Planet size: 6.01e+05
-* Planet autopilot range: 9.47e+05
+* Planet autopilot range: 1.26e+06
+* Planet semi-major axis: 1.97e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -71193,7 +71888,8 @@ Earth-relative units:
 * Planet zone size: 2.30e+07
 * Planet death zone size: 1.21e+06
 * Planet size: 1.15e+06
-* Planet autopilot range: 1.81e+06
+* Planet autopilot range: 2.42e+06
+* Planet semi-major axis: 2.63e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -71251,7 +71947,8 @@ Earth-relative units:
 * Planet zone size: 2.35e+09
 * Planet death zone size: 1.23e+08
 * Planet size: 1.17e+08
-* Planet autopilot range: 1.85e+08
+* Planet autopilot range: 2.46e+08
+* Planet semi-major axis: 3.49e+10
 
 * Surface color (albedo):
  - rgb: WIP
@@ -71309,7 +72006,8 @@ Earth-relative units:
 * Planet zone size: 7.11e+06
 * Planet death zone size: 3.73e+05
 * Planet size: 3.56e+05
-* Planet autopilot range: 5.60e+05
+* Planet autopilot range: 7.47e+05
+* Planet semi-major axis: 4.65e+10
 
 * Surface color (albedo):
  - rgb: WIP

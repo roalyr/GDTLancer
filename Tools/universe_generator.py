@@ -12,7 +12,7 @@ system_zone_size_min = 1e13 # Threshold to prevent jitter.
 
 planet_zone_size_factor = 20 # Multiplied by planet size.
 planet_death_zone_factor = 1.05 # Planet death zone (atmosphere or gravitation pull?)
-planet_autopilot_factor = 1.5 # Multiplied by death zone size.
+planet_autopilot_factor = 2.0 # Multiplied by death zone size.
 
 # Companion stars for the main star.
 num_stars_min = 0
@@ -1713,7 +1713,8 @@ def formatting_planet_data(star_name, star_type, planetary_data):
 		p += "* Planet death zone size: " + str(planet_death_zone) + "\n"
 		p += "* Planet size: " + str(planet_size) + "\n"
 		p += "* Planet autopilot range: " + str(planet_autopilot_range) + "\n"
-		
+		p += "* Planet semi-major axis: " + str(planet_orbit) + "\n"		
+
 		p += "\n"
 		
 		p += "* Surface color (albedo):" + "\n"
