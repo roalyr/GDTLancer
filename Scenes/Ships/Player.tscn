@@ -188,19 +188,19 @@ surfaces/7 = {
 
 [sub_resource type="ShaderMaterial" id=86]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/albedo = Color( 0.0666667, 0.0823529, 0.235294, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/specular = 0.5
+shader_param/specular = 0.28
 shader_param/metallic = 0.0
-shader_param/roughness = 0.5
+shader_param/roughness = 0.767
 
 [sub_resource type="ShaderMaterial" id=87]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 1, 0.870588, 0, 1 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/specular = 0.5
-shader_param/metallic = 0.0
-shader_param/roughness = 0.236
+shader_param/metallic = 1.0
+shader_param/roughness = 0.0
 
 [sub_resource type="ShaderMaterial" id=88]
 shader = ExtResource( 6 )
@@ -212,11 +212,11 @@ shader_param/roughness = 0.701
 
 [sub_resource type="ShaderMaterial" id=89]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.631373, 0.764706, 0.839216, 1 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
 shader_param/specular = 0.5
-shader_param/metallic = 0.0
-shader_param/roughness = 0.684
+shader_param/metallic = 1.0
+shader_param/roughness = 0.0
 
 [sub_resource type="ShaderMaterial" id=90]
 shader = ExtResource( 6 )
