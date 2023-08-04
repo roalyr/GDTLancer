@@ -54,7 +54,7 @@ Earth-relative units:
 * Size: 0.048 D
 * Mass: 2e-05 M
 * Temperature: 684.13 C
-* Orbit semi-major axis: 0.027 AU","Тип планети: very hot sub dwarf
+* Orbit semi-major axis: 0.027 AU","Тип планети: дуже гаряча субкарликова планета
 
 Абсолютні величини:
 * Розмір: 6.06e+05 м
@@ -67,6 +67,31 @@ Earth-relative units:
 * Маса: 2e-05 M
 * Температура: 684.13 C
 * Велика піввісь орбіти: 0.027 а.о.",Object description
+DESC_STAR_4_PLANET_1,"Planet type: hot dwarf
+
+Absolute units:
+* Size: 9.47e+05 m
+* Mass: 5.52e+20 kg
+* Temperature: 676.9 K
+* Orbit semi-major axis: 8.04e+09 m
+
+Earth-relative units:
+* Size: 0.074 D
+* Mass: 9e-05 M
+* Temperature: 403.75 C
+* Orbit semi-major axis: 0.054 AU","Тип планети: гаряча карликова планета
+
+Абсолютні величини:
+* Розмір: 9.47e+05 м
+* Маса: 5.52e+20 кг
+* Температура: 676.9 К
+* Велика піввісь орбіти: 8.04e+09 м
+
+Величини відносно Землі:
+* Розмір: 0.074 D
+* Маса: 9e-05 M
+* Температура: 403.75 C
+* Велика піввісь орбіти: 0.054 а.о.",Object description
 DESC_STAR_4_SYSTEM,"Temperature zone data by main star:
 * Mineral melting line: < 0.012 AU
 * Hot zone   :   0.012 ... 0.032 AU
@@ -231,9 +256,10 @@ LABEL_INFO_TURRET_CAMERA,Camera turret (orbit) mode,Режим турелі ка
 LABEL_SCREEN_RES,3D quality,Якість 3D,UI labels
 LABEL_START_CONFIRM,Do you want to start a new game?,Ви бажаєте розпочати нову гру?,UI labels
 LABEL_START_PROMPT,Select GUI mode depending on your device,Оберіть ГІК в залежності від вашого пристрою,UI labels
-NAME_STAR_4,Viakata A star,Зірка Віаката А,Object name
-NAME_STAR_4_PLANET_0,Viakata a planet,Планета Віаката а,Object name
-NAME_STAR_4_SYSTEM,Viakata system,Система Віаката,Object name
+NAME_STAR_4,Star Viakata A,Зірка Віаката А,Object name
+NAME_STAR_4_PLANET_0,Planet Viakata a,Планета Віаката а,Object name
+NAME_STAR_4_PLANET_1,Planet Viakata b,Планета Віаката b,Object name
+NAME_STAR_4_SYSTEM,System Viakata,Система Віаката,Object name
 NAME_STAR_A7_1,Equberan A star,Зірка Екуберан А,Object name
 NAME_STAR_A7_1_SYSTEM,Equberan system,Система Екуберан,Object name
 NAME_STAR_B7_0,Victory A star,Зірка Вікторі А,Object name

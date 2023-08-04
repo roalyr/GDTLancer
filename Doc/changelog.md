@@ -3,6 +3,7 @@
 ## v0.11-alpha (work in progress)
 ### Engine
 - Updated engine binaries (3.x as of 16th April 2023).
+- Fixed culling issues (objects and lights) caused by camera far-z plane glitch.
 ### Models
 - Fixed some improper LODs.
 - Implemented sphere decals (for planets).

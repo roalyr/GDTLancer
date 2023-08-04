@@ -36,6 +36,5 @@ Highlighted entries are "Work in progress".
 - Refactor nav list scripts.
 
 ## Fix
-- Investigate flickering on high velocity.
 - Keyboard keys behavior (also refactor).
 - Panic screen scaling.

@@ -1638,11 +1638,46 @@ def formatting_planet_data(star_name, star_type, planetary_data):
 		#"orbit"
 		#"temperature_type"
 		#"temperature" [temperature_type, orbit_temperature]
+		planet_type = planet["type"]
+		planet_type_ua = ""
+		if planet_type == "sub dwarf":
+			planet_type_ua = "субкарликова планета"
+		elif planet_type == "dwarf":
+			planet_type_ua = "карликова планета"
+		elif planet_type == "super dwarf":
+			planet_type_ua = "суперкарликова планета"
+		elif planet_type == "sub terrestrial":
+			planet_type_ua = "планета мініземля"
+		elif planet_type == "terrestrial":
+			planet_type_ua = "землеподібна планета"
+		elif planet_type == "super terrestrial":
+			planet_type_ua = "планета суперземля"
+		elif planet_type == "sub giant":
+			planet_type_ua = "планета субгігант"
+		elif planet_type == "giant":
+			planet_type_ua = "планета гігант"
+		elif planet_type == "super giant":
+			planet_type_ua = "планета супергігант"
+			
+		planet_temperature_type = planet["temperature_type"]
+		if planet_temperature_type == "evaporated":
+			planet_temperature_type_ua = "планета, що випаровується"
+		elif planet_temperature_type == "very hot":
+			planet_temperature_type_ua = "дуже гаряча"
+		elif planet_temperature_type == "hot":
+			planet_temperature_type_ua = "гаряча"
+		elif planet_temperature_type == "warm":	
+			planet_temperature_type_ua = "тепла"
+		elif planet_temperature_type == "temperate":	
+			planet_temperature_type_ua = "помірна"
+		elif planet_temperature_type == "cold":	
+			planet_temperature_type_ua = "холодна"
+		elif planet_temperature_type == "icy":
+			planet_temperature_type_ua = "льодяна"
 		
+				
 		planet_orbit = e(planet["orbit"])
 		planet_orbit_au = round(planet["orbit"] / sun_distance_au, 3)
-		planet_type = planet["type"]
-		planet_temperature_type = planet["temperature_type"]
 		planet_temperature_abs = round(planet["temperature"], 2)
 		planet_temperature_celsius =  round(planet["temperature"] - 273.15, 2)
 		# Size is diameter.
@@ -1684,7 +1719,7 @@ def formatting_planet_data(star_name, star_type, planetary_data):
 		p += "```" + "  \n"
 		
 		p += "```" + "  \n"
-		p += "Тип планети: " + str(planet_temperature_type + " " + planet_type) + "\n"*2
+		p += "Тип планети: " + str(planet_temperature_type_ua + " " + planet_type_ua) + "\n"*2
 		
 		p += "Абсолютні величини:" + "\n"
 		p += "* Розмір: " + str(planet_size) + " м" + "\n"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Scripts/Markers/Marker_system.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Nebula_global/STAR_4_SYSTEM_ZONE/STAR_4_ZONE.tscn" type="PackedScene" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://Assets/Shaders/Solid/Solid_material.gdshader" type="Shader" id=4]
 [ext_resource path="res://Assets/Models/Shapes/Ring_075/Ring_075_LOD0.tres" type="ArrayMesh" id=5]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scenes/Environment/Stellar_objects/Clusters/Nebula_global/STAR_4_SYSTEM_ZONE/STAR_4_PLANET_1_ZONE.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scripts/Zones/Local_space_triggers_zones/Local_space_system.gd" type="Script" id=11]
 
 [sub_resource type="ShaderMaterial" id=80]
@@ -28,7 +29,7 @@ script = ExtResource( 11 )
 
 [node name="_EDITOR_OBJECTS_" parent="." instance=ExtResource( 6 )]
 
-[node name="Ecliptic" type="MeshInstance" parent="_EDITOR_OBJECTS_"]
+[node name="Ecliptic 1e13" type="MeshInstance" parent="_EDITOR_OBJECTS_"]
 transform = Transform( 1e+13, 0, 0, 0, 1e+13, 0, 0, 0, 1e+13, 0, 0, 0 )
 mesh = ExtResource( 5 )
 material/0 = SubResource( 80 )
@@ -61,6 +62,12 @@ transform = Transform( -0.968885, -0.218268, 0.116707, 0.120996, -0.00634302, 0.
 
 [node name="STAR_4_PLANET_0_ZONE" parent="Scenes/STAR_4_SYSTEM/STAR_4_PLANET_0_AXIS" instance=ExtResource( 3 )]
 transform = Transform( 0.467017, 0.00755577, -0.884215, -0.880844, 0.0916358, -0.464453, 0.0775163, 0.995764, 0.0494512, 4.02e+09, 384, 750 )
+
+[node name="STAR_4_PLANET_1_AXIS" type="Position3D" parent="Scenes/STAR_4_SYSTEM"]
+transform = Transform( 0.756821, 0.64538, 0.103467, -0.0141002, -0.142142, 0.989746, 0.653469, -0.750519, -0.0984762, 0, 0, 0 )
+
+[node name="STAR_4_PLANET_1_ZONE" parent="Scenes/STAR_4_SYSTEM/STAR_4_PLANET_1_AXIS" instance=ExtResource( 7 )]
+transform = Transform( 0.320356, -0.0268978, -0.946918, -0.940261, -0.130655, -0.314391, -0.115262, 0.991066, -0.0671469, 8.04e+09, -256, -640 )
 
 [connection signal="body_entered" from="." to="." method="_on_Local_space_trigger_zone_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_Local_space_trigger_zone_body_exited"]
