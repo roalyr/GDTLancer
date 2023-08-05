@@ -705,25 +705,25 @@ def make_planet(user_defined_type, primary_star_type):
 	
 	if user_defined_type:
 		# Process planet data according to type.
-		if user_defined_type == "sD":
+		if user_defined_type == "SD":
 			planet_type = "sub dwarf"
 		elif user_defined_type == "D":
 			planet_type = "dwarf"
-		elif user_defined_type == "SD":
+		elif user_defined_type == "LD":
 			planet_type = "super dwarf"
 			
-		elif user_defined_type == "sT":
+		elif user_defined_type == "ST":
 			planet_type = "sub terrestrial"
 		elif user_defined_type == "T":
 			planet_type = "terrestrial"
-		elif user_defined_type == "ST":
+		elif user_defined_type == "LT":
 			planet_type = "super terrestrial"
 			
-		elif user_defined_type == "sG":
+		elif user_defined_type == "SG":
 			planet_type = "sub giant"
 		elif user_defined_type == "G":
 			planet_type = "giant"
-		elif user_defined_type == "SG":
+		elif user_defined_type == "LG":
 			planet_type = "super giant"
 		
 		else:
@@ -1638,26 +1638,48 @@ def formatting_planet_data(star_name, star_type, planetary_data):
 		#"orbit"
 		#"temperature_type"
 		#"temperature" [temperature_type, orbit_temperature]
+		
+		# Re-assigning those for the sake of tweking the terminology.
 		planet_type = planet["type"]
 		planet_type_ua = ""
 		if planet_type == "sub dwarf":
-			planet_type_ua = "субкарликова планета"
+			planet_type_ua = "мала карликова планета"
 		elif planet_type == "dwarf":
 			planet_type_ua = "карликова планета"
 		elif planet_type == "super dwarf":
-			planet_type_ua = "суперкарликова планета"
+			planet_type_ua = "велика карликова планета"
 		elif planet_type == "sub terrestrial":
-			planet_type_ua = "планета мініземля"
+			planet_type_ua = "мала землеподібна планета"
 		elif planet_type == "terrestrial":
 			planet_type_ua = "землеподібна планета"
 		elif planet_type == "super terrestrial":
-			planet_type_ua = "планета суперземля"
+			planet_type_ua = "велика землеподібна планета"
 		elif planet_type == "sub giant":
-			planet_type_ua = "планета субгігант"
+			planet_type_ua = "планета малий гігант"
 		elif planet_type == "giant":
 			planet_type_ua = "планета гігант"
 		elif planet_type == "super giant":
-			planet_type_ua = "планета супергігант"
+			planet_type_ua = "планета великий гігант"
+			
+		planet_type_en = ""
+		if planet_type == "sub dwarf":
+			planet_type_en = "small dwarf planet"
+		elif planet_type == "dwarf":
+			planet_type_en = "dwarf planet"
+		elif planet_type == "super dwarf":
+			planet_type_en = "large dwarf planet"
+		elif planet_type == "sub terrestrial":
+			planet_type_en = "small terrestrial planet"
+		elif planet_type == "terrestrial":
+			planet_type_en = "terrestrial planet"
+		elif planet_type == "super terrestrial":
+			planet_type_en = "large terrestrial planet"
+		elif planet_type == "sub giant":
+			planet_type_en = "small giant planet"
+		elif planet_type == "giant":
+			planet_type_en = "giant planet"
+		elif planet_type == "super giant":
+			planet_type_en = "large giant planet"
 			
 		planet_temperature_type = planet["temperature_type"]
 		if planet_temperature_type == "evaporated":
@@ -1693,7 +1715,7 @@ def formatting_planet_data(star_name, star_type, planetary_data):
 		p += "<details><summary>" \
 			+ "Planet " \
 			+ star_name + " " + planet_order_letter \
-			+ " (" + str(planet_temperature_type) + " " + str(planet_type) + ")" \
+			+ " (" + str(planet_temperature_type) + " " + str(planet_type_en) + ")" \
 			+  "</summary>" + "  \n\n"
 		
 		p += "#### Planet albedo" + "  \n"
@@ -1703,7 +1725,7 @@ def formatting_planet_data(star_name, star_type, planetary_data):
 		p += "#### Planet Infocard data"+ "  \n"
 		
 		p += "```" + "  \n"
-		p += "Planet type: " + str(planet_temperature_type + " " + planet_type) + "\n"*2
+		p += "Planet type: " + str(planet_temperature_type + " " + planet_type_en) + "\n"*2
 		
 		p += "Absolute units:" + "\n"
 		p += "* Size: " + str(planet_size) + " m" + "\n"

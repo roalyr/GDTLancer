@@ -47,7 +47,7 @@ systems = [
 		"name" : "Viakata", # A starting point in the game, give info as such.
 		"main_star" : ("M", 2),
 		"companion_stars" : [],
-		"total_planets" : ["sD", "D", "sT", "D",],
+		"total_planets" : ["SD", "D", "ST", "D", ],
 		"closest_orbit" : 0,
 		"furthest_orbit" : 3e10,
 		"orbit_ratio" : 2.0 # 1.33 | 1.5 | 2.0
