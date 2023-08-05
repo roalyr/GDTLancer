@@ -105,13 +105,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Elace a (icy terrestrial)</summary>  
+<details><summary>Planet Elace a (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.66e+06 m
@@ -164,13 +164,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Elace b (icy super giant)</summary>  
+<details><summary>Planet Elace b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.47e+08 m
@@ -186,7 +186,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.47e+08 м
@@ -223,13 +223,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Elace c (icy dwarf)</summary>  
+<details><summary>Planet Elace c (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.87e+05 m
@@ -392,13 +392,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Cob a (cold dwarf)</summary>  
+<details><summary>Planet Cob a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 1.17e+06 m
@@ -451,13 +451,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cob b (cold sub dwarf)</summary>  
+<details><summary>Planet Cob b (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 5.26e+05 m
@@ -473,7 +473,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.26e+05 м
@@ -510,13 +510,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cob c (icy sub terrestrial)</summary>  
+<details><summary>Planet Cob c (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.79e+06 m
@@ -532,7 +532,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.79e+06 м
@@ -569,13 +569,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cob d (icy dwarf)</summary>  
+<details><summary>Planet Cob d (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.09e+05 m
@@ -738,13 +738,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Iganpad a (very hot sub dwarf)</summary>  
+<details><summary>Planet Iganpad a (very hot small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot sub dwarf
+Planet type: very hot small dwarf planet
 
 Absolute units:
 * Size: 3.45e+05 m
@@ -760,7 +760,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: дуже гаряча субкарликова планета
+Тип планети: дуже гаряча мала карликова планета
 
 Абсолютні величини:
 * Розмір: 3.45e+05 м
@@ -797,13 +797,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iganpad b (very hot super dwarf)</summary>  
+<details><summary>Planet Iganpad b (very hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot super dwarf
+Planet type: very hot large dwarf planet
 
 Absolute units:
 * Size: 2.14e+06 m
@@ -819,7 +819,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: дуже гаряча суперкарликова планета
+Тип планети: дуже гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.14e+06 м
@@ -856,13 +856,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iganpad c (hot super dwarf)</summary>  
+<details><summary>Planet Iganpad c (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 2.01e+06 m
@@ -878,7 +878,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.01e+06 м
@@ -915,13 +915,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iganpad d (warm super giant)</summary>  
+<details><summary>Planet Iganpad d (warm large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super giant
+Planet type: warm large giant planet
 
 Absolute units:
 * Size: 1.59e+08 m
@@ -937,7 +937,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета супергігант
+Тип планети: тепла планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.59e+08 м
@@ -974,13 +974,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iganpad e (temperate - empty orbit -)</summary>  
+<details><summary>Planet Iganpad e (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -1033,13 +1033,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iganpad f (icy sub giant)</summary>  
+<details><summary>Planet Iganpad f (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.75e+08 m
@@ -1055,7 +1055,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.75e+08 м
@@ -1338,13 +1338,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Niofi a (hot super giant)</summary>  
+<details><summary>Planet Niofi a (hot large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super giant
+Planet type: hot large giant planet
 
 Absolute units:
 * Size: 1.24e+08 m
@@ -1360,7 +1360,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета супергігант
+Тип планети: гаряча планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.24e+08 м
@@ -1397,13 +1397,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi b (hot - empty orbit -)</summary>  
+<details><summary>Planet Niofi b (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -1456,13 +1456,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Niofi c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -1515,13 +1515,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi d (cold - empty orbit -)</summary>  
+<details><summary>Planet Niofi d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -1574,13 +1574,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi e (icy super giant)</summary>  
+<details><summary>Planet Niofi e (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.70e+08 m
@@ -1596,7 +1596,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.70e+08 м
@@ -1633,13 +1633,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi f (icy sub dwarf)</summary>  
+<details><summary>Planet Niofi f (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.03e+05 m
@@ -1655,7 +1655,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.03e+05 м
@@ -1692,13 +1692,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi g (icy super dwarf)</summary>  
+<details><summary>Planet Niofi g (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.81e+06 m
@@ -1714,7 +1714,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.81e+06 м
@@ -1751,13 +1751,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi h (icy super terrestrial)</summary>  
+<details><summary>Planet Niofi h (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.31e+07 m
@@ -1773,7 +1773,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.31e+07 м
@@ -1810,13 +1810,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi i (icy dwarf)</summary>  
+<details><summary>Planet Niofi i (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.68e+05 m
@@ -1869,13 +1869,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi j (icy sub dwarf)</summary>  
+<details><summary>Planet Niofi j (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 6.02e+05 m
@@ -1891,7 +1891,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.02e+05 м
@@ -1928,13 +1928,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi k (icy super terrestrial)</summary>  
+<details><summary>Planet Niofi k (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 8.96e+06 m
@@ -1950,7 +1950,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 8.96e+06 м
@@ -1987,13 +1987,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi l (icy super terrestrial)</summary>  
+<details><summary>Planet Niofi l (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.50e+07 m
@@ -2009,7 +2009,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.50e+07 м
@@ -2046,13 +2046,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi m (icy sub dwarf)</summary>  
+<details><summary>Planet Niofi m (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.59e+05 m
@@ -2068,7 +2068,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.59e+05 м
@@ -2105,13 +2105,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Niofi n (icy sub terrestrial)</summary>  
+<details><summary>Planet Niofi n (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.96e+06 m
@@ -2127,7 +2127,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.96e+06 м
@@ -2274,13 +2274,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Iulore a (temperate sub terrestrial)</summary>  
+<details><summary>Planet Iulore a (temperate small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub terrestrial
+Planet type: temperate small terrestrial planet
 
 Absolute units:
 * Size: 3.05e+06 m
@@ -2296,7 +2296,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета мініземля
+Тип планети: помірна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.05e+06 м
@@ -2443,13 +2443,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Otogaryd a (warm super dwarf)</summary>  
+<details><summary>Planet Otogaryd a (warm large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super dwarf
+Planet type: warm large dwarf planet
 
 Absolute units:
 * Size: 1.67e+06 m
@@ -2465,7 +2465,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла суперкарликова планета
+Тип планети: тепла велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.67e+06 м
@@ -2502,13 +2502,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otogaryd b (temperate dwarf)</summary>  
+<details><summary>Planet Otogaryd b (temperate dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate dwarf
+Planet type: temperate dwarf planet
 
 Absolute units:
 * Size: 7.26e+05 m
@@ -2561,13 +2561,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otogaryd c (cold terrestrial)</summary>  
+<details><summary>Planet Otogaryd c (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 4.59e+06 m
@@ -2620,13 +2620,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otogaryd d (cold sub terrestrial)</summary>  
+<details><summary>Planet Otogaryd d (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 4.19e+06 m
@@ -2642,7 +2642,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.19e+06 м
@@ -2679,13 +2679,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otogaryd e (cold terrestrial)</summary>  
+<details><summary>Planet Otogaryd e (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 6.41e+06 m
@@ -2738,13 +2738,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otogaryd f (icy sub giant)</summary>  
+<details><summary>Planet Otogaryd f (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.57e+08 m
@@ -2760,7 +2760,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.57e+08 м
@@ -2907,13 +2907,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Bouv a (very hot giant)</summary>  
+<details><summary>Planet Bouv a (very hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot giant
+Planet type: very hot giant planet
 
 Absolute units:
 * Size: 2.41e+08 m
@@ -2966,13 +2966,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv b (hot super giant)</summary>  
+<details><summary>Planet Bouv b (hot large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super giant
+Planet type: hot large giant planet
 
 Absolute units:
 * Size: 1.16e+08 m
@@ -2988,7 +2988,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета супергігант
+Тип планети: гаряча планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.16e+08 м
@@ -3025,13 +3025,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv c (hot giant)</summary>  
+<details><summary>Planet Bouv c (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 1.31e+08 m
@@ -3084,13 +3084,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv d (hot - empty orbit -)</summary>  
+<details><summary>Planet Bouv d (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -3143,13 +3143,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv e (warm - empty orbit -)</summary>  
+<details><summary>Planet Bouv e (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -3202,13 +3202,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv f (temperate - empty orbit -)</summary>  
+<details><summary>Planet Bouv f (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -3261,13 +3261,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv g (cold giant)</summary>  
+<details><summary>Planet Bouv g (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.51e+08 m
@@ -3320,13 +3320,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv h (icy super giant)</summary>  
+<details><summary>Planet Bouv h (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.03e+08 m
@@ -3342,7 +3342,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.03e+08 м
@@ -3379,13 +3379,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv i (icy super dwarf)</summary>  
+<details><summary>Planet Bouv i (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.42e+06 m
@@ -3401,7 +3401,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.42e+06 м
@@ -3438,13 +3438,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bouv j (icy super dwarf)</summary>  
+<details><summary>Planet Bouv j (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.21e+06 m
@@ -3460,7 +3460,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.21e+06 м
@@ -3879,13 +3879,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lywin a (cold dwarf)</summary>  
+<details><summary>Planet Lywin a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 8.65e+05 m
@@ -3938,13 +3938,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lywin b (icy sub giant)</summary>  
+<details><summary>Planet Lywin b (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 2.21e+08 m
@@ -3960,7 +3960,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.21e+08 м
@@ -3997,13 +3997,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lywin c (icy dwarf)</summary>  
+<details><summary>Planet Lywin c (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 6.51e+05 m
@@ -4234,13 +4234,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Vidr a (hot super dwarf)</summary>  
+<details><summary>Planet Vidr a (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 1.25e+06 m
@@ -4256,7 +4256,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.25e+06 м
@@ -4293,13 +4293,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Vidr b (warm super dwarf)</summary>  
+<details><summary>Planet Vidr b (warm large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super dwarf
+Planet type: warm large dwarf planet
 
 Absolute units:
 * Size: 2.15e+06 m
@@ -4315,7 +4315,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла суперкарликова планета
+Тип планети: тепла велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.15e+06 м
@@ -4352,13 +4352,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Vidr c (temperate sub giant)</summary>  
+<details><summary>Planet Vidr c (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 1.62e+08 m
@@ -4374,7 +4374,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.62e+08 м
@@ -4411,13 +4411,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Vidr d (cold - empty orbit -)</summary>  
+<details><summary>Planet Vidr d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -4470,13 +4470,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Vidr e (cold giant)</summary>  
+<details><summary>Planet Vidr e (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.87e+08 m
@@ -4529,13 +4529,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Vidr f (cold sub giant)</summary>  
+<details><summary>Planet Vidr f (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.76e+08 m
@@ -4551,7 +4551,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.76e+08 м
@@ -4698,13 +4698,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Inlamo a (cold super dwarf)</summary>  
+<details><summary>Planet Inlamo a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 2.20e+06 m
@@ -4720,7 +4720,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.20e+06 м
@@ -4757,13 +4757,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Inlamo b (icy giant)</summary>  
+<details><summary>Planet Inlamo b (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.20e+08 m
@@ -4816,13 +4816,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Inlamo c (icy sub giant)</summary>  
+<details><summary>Planet Inlamo c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 4.52e+07 m
@@ -4838,7 +4838,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 4.52e+07 м
@@ -4985,13 +4985,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Atigdoh a (warm sub terrestrial)</summary>  
+<details><summary>Planet Atigdoh a (warm small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub terrestrial
+Planet type: warm small terrestrial planet
 
 Absolute units:
 * Size: 4.24e+06 m
@@ -5007,7 +5007,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета мініземля
+Тип планети: тепла мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.24e+06 м
@@ -5044,13 +5044,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atigdoh b (cold giant)</summary>  
+<details><summary>Planet Atigdoh b (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.72e+08 m
@@ -5103,13 +5103,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atigdoh c (icy sub dwarf)</summary>  
+<details><summary>Planet Atigdoh c (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.85e+05 m
@@ -5125,7 +5125,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.85e+05 м
@@ -5272,13 +5272,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Anaso a (cold super terrestrial)</summary>  
+<details><summary>Planet Anaso a (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.33e+07 m
@@ -5294,7 +5294,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.33e+07 м
@@ -5331,13 +5331,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Anaso b (cold sub dwarf)</summary>  
+<details><summary>Planet Anaso b (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 4.73e+05 m
@@ -5353,7 +5353,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.73e+05 м
@@ -5390,13 +5390,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Anaso c (cold sub giant)</summary>  
+<details><summary>Planet Anaso c (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.93e+08 m
@@ -5412,7 +5412,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.93e+08 м
@@ -5449,13 +5449,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Anaso d (icy sub dwarf)</summary>  
+<details><summary>Planet Anaso d (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.60e+05 m
@@ -5471,7 +5471,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.60e+05 м
@@ -5618,13 +5618,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Uvaha a (warm giant)</summary>  
+<details><summary>Planet Uvaha a (warm giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm giant
+Planet type: warm giant planet
 
 Absolute units:
 * Size: 2.18e+08 m
@@ -5787,13 +5787,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Arasec a (hot super dwarf)</summary>  
+<details><summary>Planet Arasec a (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 2.15e+06 m
@@ -5809,7 +5809,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.15e+06 м
@@ -5846,13 +5846,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Arasec b (temperate super giant)</summary>  
+<details><summary>Planet Arasec b (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 1.92e+08 m
@@ -5868,7 +5868,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.92e+08 м
@@ -5905,13 +5905,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Arasec c (cold sub terrestrial)</summary>  
+<details><summary>Planet Arasec c (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 2.97e+06 m
@@ -5927,7 +5927,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.97e+06 м
@@ -5964,13 +5964,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Arasec d (cold sub terrestrial)</summary>  
+<details><summary>Planet Arasec d (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 2.62e+06 m
@@ -5986,7 +5986,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.62e+06 м
@@ -6023,13 +6023,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Arasec e (icy super terrestrial)</summary>  
+<details><summary>Planet Arasec e (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.53e+07 m
@@ -6045,7 +6045,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.53e+07 м
@@ -6192,13 +6192,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Gorah a (cold giant)</summary>  
+<details><summary>Planet Gorah a (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.12e+08 m
@@ -6251,13 +6251,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Gorah b (icy super dwarf)</summary>  
+<details><summary>Planet Gorah b (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.24e+06 m
@@ -6273,7 +6273,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.24e+06 м
@@ -6310,13 +6310,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Gorah c (icy terrestrial)</summary>  
+<details><summary>Planet Gorah c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.82e+06 m
@@ -6479,13 +6479,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Hesect a (icy sub terrestrial)</summary>  
+<details><summary>Planet Hesect a (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.06e+06 m
@@ -6501,7 +6501,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.06e+06 м
@@ -6538,13 +6538,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Hesect b (icy dwarf)</summary>  
+<details><summary>Planet Hesect b (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.15e+06 m
@@ -6979,13 +6979,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Necd a (icy - empty orbit -)</summary>  
+<details><summary>Planet Necd a (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -7038,13 +7038,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Necd b (icy super giant)</summary>  
+<details><summary>Planet Necd b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.09e+08 m
@@ -7060,7 +7060,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.09e+08 м
@@ -7207,13 +7207,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Cor a (cold dwarf)</summary>  
+<details><summary>Planet Cor a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 7.42e+05 m
@@ -7376,13 +7376,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Docor a (cold super terrestrial)</summary>  
+<details><summary>Planet Docor a (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.40e+07 m
@@ -7398,7 +7398,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.40e+07 м
@@ -7435,13 +7435,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Docor b (cold giant)</summary>  
+<details><summary>Planet Docor b (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.03e+08 m
@@ -7494,13 +7494,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Docor c (icy sub giant)</summary>  
+<details><summary>Planet Docor c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.90e+08 m
@@ -7516,7 +7516,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.90e+08 м
@@ -7553,13 +7553,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Docor d (icy super terrestrial)</summary>  
+<details><summary>Planet Docor d (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.18e+07 m
@@ -7575,7 +7575,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.18e+07 м
@@ -7722,13 +7722,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow a (warm super terrestrial)</summary>  
+<details><summary>Planet Ylinfow a (warm large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super terrestrial
+Planet type: warm large terrestrial planet
 
 Absolute units:
 * Size: 1.52e+07 m
@@ -7744,7 +7744,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета суперземля
+Тип планети: тепла велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.52e+07 м
@@ -7781,13 +7781,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow b (temperate sub terrestrial)</summary>  
+<details><summary>Planet Ylinfow b (temperate small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub terrestrial
+Planet type: temperate small terrestrial planet
 
 Absolute units:
 * Size: 3.97e+06 m
@@ -7803,7 +7803,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета мініземля
+Тип планети: помірна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.97e+06 м
@@ -7840,13 +7840,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow c (icy super giant)</summary>  
+<details><summary>Planet Ylinfow c (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.81e+08 m
@@ -7862,7 +7862,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.81e+08 м
@@ -7899,13 +7899,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow d (icy terrestrial)</summary>  
+<details><summary>Planet Ylinfow d (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 8.12e+06 m
@@ -7958,13 +7958,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow e (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow e (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.72e+06 m
@@ -7980,7 +7980,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.72e+06 м
@@ -8017,13 +8017,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow f (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow f (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.53e+06 m
@@ -8039,7 +8039,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.53e+06 м
@@ -8076,13 +8076,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow g (icy sub dwarf)</summary>  
+<details><summary>Planet Ylinfow g (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.96e+05 m
@@ -8098,7 +8098,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.96e+05 м
@@ -8135,13 +8135,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow h (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow h (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.06e+06 m
@@ -8157,7 +8157,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.06e+06 м
@@ -8194,13 +8194,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow i (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow i (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.67e+06 m
@@ -8216,7 +8216,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.67e+06 м
@@ -8253,13 +8253,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow j (icy sub terrestrial)</summary>  
+<details><summary>Planet Ylinfow j (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.11e+06 m
@@ -8275,7 +8275,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.11e+06 м
@@ -8312,13 +8312,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow k (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow k (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.18e+06 m
@@ -8334,7 +8334,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.18e+06 м
@@ -8371,13 +8371,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow l (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow l (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.65e+06 m
@@ -8393,7 +8393,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.65e+06 м
@@ -8430,13 +8430,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow m (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow m (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.89e+06 m
@@ -8452,7 +8452,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.89e+06 м
@@ -8489,13 +8489,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ylinfow n (icy super dwarf)</summary>  
+<details><summary>Planet Ylinfow n (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.91e+06 m
@@ -8511,7 +8511,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.91e+06 м
@@ -8658,13 +8658,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Socami a (icy super giant)</summary>  
+<details><summary>Planet Socami a (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.17e+08 m
@@ -8680,7 +8680,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.17e+08 м
@@ -8717,13 +8717,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Socami b (icy sub terrestrial)</summary>  
+<details><summary>Planet Socami b (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.46e+06 m
@@ -8739,7 +8739,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.46e+06 м
@@ -8886,13 +8886,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Fiekv a (icy sub giant)</summary>  
+<details><summary>Planet Fiekv a (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.43e+08 m
@@ -8908,7 +8908,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.43e+08 м
@@ -8945,13 +8945,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fiekv b (icy sub giant)</summary>  
+<details><summary>Planet Fiekv b (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.28e+08 m
@@ -8967,7 +8967,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.28e+08 м
@@ -9004,13 +9004,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fiekv c (icy sub giant)</summary>  
+<details><summary>Planet Fiekv c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.42e+08 m
@@ -9026,7 +9026,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.42e+08 м
@@ -9173,13 +9173,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Soecai a (temperate giant)</summary>  
+<details><summary>Planet Soecai a (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 2.27e+08 m
@@ -9342,13 +9342,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Buleel a (temperate sub dwarf)</summary>  
+<details><summary>Planet Buleel a (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 3.72e+05 m
@@ -9364,7 +9364,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 3.72e+05 м
@@ -9579,13 +9579,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ifci a (icy giant)</summary>  
+<details><summary>Planet Ifci a (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.81e+08 m
@@ -9638,13 +9638,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ifci b (icy - empty orbit -)</summary>  
+<details><summary>Planet Ifci b (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -9697,13 +9697,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ifci c (icy sub dwarf)</summary>  
+<details><summary>Planet Ifci c (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.45e+05 m
@@ -9719,7 +9719,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.45e+05 м
@@ -9866,13 +9866,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Echaa a (cold super dwarf)</summary>  
+<details><summary>Planet Echaa a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.94e+06 m
@@ -9888,7 +9888,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.94e+06 м
@@ -9925,13 +9925,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Echaa b (cold terrestrial)</summary>  
+<details><summary>Planet Echaa b (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.75e+06 m
@@ -9984,13 +9984,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Echaa c (icy super terrestrial)</summary>  
+<details><summary>Planet Echaa c (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 9.58e+06 m
@@ -10006,7 +10006,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 9.58e+06 м
@@ -10153,13 +10153,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Seatc a (cold terrestrial)</summary>  
+<details><summary>Planet Seatc a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.35e+06 m
@@ -10390,13 +10390,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ebreeta a (very hot dwarf)</summary>  
+<details><summary>Planet Ebreeta a (very hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot dwarf
+Planet type: very hot dwarf planet
 
 Absolute units:
 * Size: 8.51e+05 m
@@ -10449,13 +10449,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ebreeta b (very hot giant)</summary>  
+<details><summary>Planet Ebreeta b (very hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot giant
+Planet type: very hot giant planet
 
 Absolute units:
 * Size: 2.30e+08 m
@@ -10508,13 +10508,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ebreeta c (hot - empty orbit -)</summary>  
+<details><summary>Planet Ebreeta c (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -10567,13 +10567,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ebreeta d (hot giant)</summary>  
+<details><summary>Planet Ebreeta d (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 2.07e+08 m
@@ -10626,13 +10626,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ebreeta e (temperate - empty orbit -)</summary>  
+<details><summary>Planet Ebreeta e (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -10685,13 +10685,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ebreeta f (cold sub giant)</summary>  
+<details><summary>Planet Ebreeta f (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.96e+08 m
@@ -10707,7 +10707,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.96e+08 м
@@ -10990,13 +10990,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Amumuto a (temperate super terrestrial)</summary>  
+<details><summary>Planet Amumuto a (temperate large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super terrestrial
+Planet type: temperate large terrestrial planet
 
 Absolute units:
 * Size: 1.24e+07 m
@@ -11012,7 +11012,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета суперземля
+Тип планети: помірна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.24e+07 м
@@ -11049,13 +11049,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Amumuto b (temperate - empty orbit -)</summary>  
+<details><summary>Planet Amumuto b (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -11108,13 +11108,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Amumuto c (cold - empty orbit -)</summary>  
+<details><summary>Planet Amumuto c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -11167,13 +11167,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Amumuto d (icy super giant)</summary>  
+<details><summary>Planet Amumuto d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.40e+08 m
@@ -11189,7 +11189,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.40e+08 м
@@ -11540,13 +11540,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi a (hot dwarf)</summary>  
+<details><summary>Planet Urorumi a (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 1.00e+06 m
@@ -11599,13 +11599,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi b (hot sub giant)</summary>  
+<details><summary>Planet Urorumi b (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 1.83e+08 m
@@ -11621,7 +11621,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.83e+08 м
@@ -11658,13 +11658,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Urorumi c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -11717,13 +11717,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi d (cold - empty orbit -)</summary>  
+<details><summary>Planet Urorumi d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -11776,13 +11776,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi e (icy giant)</summary>  
+<details><summary>Planet Urorumi e (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.29e+08 m
@@ -11835,13 +11835,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi f (icy super giant)</summary>  
+<details><summary>Planet Urorumi f (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.21e+08 m
@@ -11857,7 +11857,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.21e+08 м
@@ -11894,13 +11894,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi g (icy super dwarf)</summary>  
+<details><summary>Planet Urorumi g (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.78e+06 m
@@ -11916,7 +11916,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.78e+06 м
@@ -11953,13 +11953,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi h (icy sub terrestrial)</summary>  
+<details><summary>Planet Urorumi h (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.07e+06 m
@@ -11975,7 +11975,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.07e+06 м
@@ -12012,13 +12012,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urorumi i (icy sub terrestrial)</summary>  
+<details><summary>Planet Urorumi i (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.64e+06 m
@@ -12034,7 +12034,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.64e+06 м
@@ -12181,13 +12181,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis a (hot super dwarf)</summary>  
+<details><summary>Planet Efofotis a (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 1.61e+06 m
@@ -12203,7 +12203,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.61e+06 м
@@ -12240,13 +12240,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis b (hot terrestrial)</summary>  
+<details><summary>Planet Efofotis b (hot terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot terrestrial
+Planet type: hot terrestrial planet
 
 Absolute units:
 * Size: 5.67e+06 m
@@ -12299,13 +12299,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis c (warm sub terrestrial)</summary>  
+<details><summary>Planet Efofotis c (warm small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub terrestrial
+Planet type: warm small terrestrial planet
 
 Absolute units:
 * Size: 3.80e+06 m
@@ -12321,7 +12321,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета мініземля
+Тип планети: тепла мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.80e+06 м
@@ -12358,13 +12358,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis d (temperate sub giant)</summary>  
+<details><summary>Planet Efofotis d (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 8.26e+07 m
@@ -12380,7 +12380,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 8.26e+07 м
@@ -12417,13 +12417,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis e (cold - empty orbit -)</summary>  
+<details><summary>Planet Efofotis e (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -12476,13 +12476,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis f (icy dwarf)</summary>  
+<details><summary>Planet Efofotis f (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.39e+05 m
@@ -12535,13 +12535,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis g (icy giant)</summary>  
+<details><summary>Planet Efofotis g (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.77e+08 m
@@ -12594,13 +12594,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis h (icy terrestrial)</summary>  
+<details><summary>Planet Efofotis h (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 6.81e+06 m
@@ -12653,13 +12653,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis i (icy dwarf)</summary>  
+<details><summary>Planet Efofotis i (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.15e+06 m
@@ -12712,13 +12712,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis j (icy super giant)</summary>  
+<details><summary>Planet Efofotis j (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.24e+08 m
@@ -12734,7 +12734,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.24e+08 м
@@ -12771,13 +12771,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis k (icy super dwarf)</summary>  
+<details><summary>Planet Efofotis k (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.11e+06 m
@@ -12793,7 +12793,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.11e+06 м
@@ -12830,13 +12830,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis l (icy dwarf)</summary>  
+<details><summary>Planet Efofotis l (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.01e+06 m
@@ -12889,13 +12889,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efofotis m (icy dwarf)</summary>  
+<details><summary>Planet Efofotis m (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.01e+06 m
@@ -13058,13 +13058,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Inrar a (icy terrestrial)</summary>  
+<details><summary>Planet Inrar a (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 8.09e+06 m
@@ -13227,13 +13227,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ekog a (warm terrestrial)</summary>  
+<details><summary>Planet Ekog a (warm terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm terrestrial
+Planet type: warm terrestrial planet
 
 Absolute units:
 * Size: 7.96e+06 m
@@ -13286,13 +13286,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ekog b (temperate super dwarf)</summary>  
+<details><summary>Planet Ekog b (temperate large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super dwarf
+Planet type: temperate large dwarf planet
 
 Absolute units:
 * Size: 2.16e+06 m
@@ -13308,7 +13308,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна суперкарликова планета
+Тип планети: помірна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.16e+06 м
@@ -13345,13 +13345,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ekog c (icy super dwarf)</summary>  
+<details><summary>Planet Ekog c (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.93e+06 m
@@ -13367,7 +13367,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.93e+06 м
@@ -13404,13 +13404,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ekog d (icy sub terrestrial)</summary>  
+<details><summary>Planet Ekog d (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 4.10e+06 m
@@ -13426,7 +13426,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.10e+06 м
@@ -13573,13 +13573,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip a (hot dwarf)</summary>  
+<details><summary>Planet Ofpip a (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 1.12e+06 m
@@ -13632,13 +13632,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip b (hot giant)</summary>  
+<details><summary>Planet Ofpip b (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 1.87e+08 m
@@ -13691,13 +13691,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Ofpip c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -13750,13 +13750,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip d (cold - empty orbit -)</summary>  
+<details><summary>Planet Ofpip d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -13809,13 +13809,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip e (icy sub giant)</summary>  
+<details><summary>Planet Ofpip e (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 5.46e+07 m
@@ -13831,7 +13831,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 5.46e+07 м
@@ -13868,13 +13868,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip f (icy - empty orbit -)</summary>  
+<details><summary>Planet Ofpip f (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -13927,13 +13927,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ofpip g (icy super giant)</summary>  
+<details><summary>Planet Ofpip g (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.52e+08 m
@@ -13949,7 +13949,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.52e+08 м
@@ -14300,13 +14300,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo a (hot giant)</summary>  
+<details><summary>Planet Agutelo a (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 2.03e+08 m
@@ -14359,13 +14359,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo b (hot - empty orbit -)</summary>  
+<details><summary>Planet Agutelo b (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -14418,13 +14418,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Agutelo c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -14477,13 +14477,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo d (cold - empty orbit -)</summary>  
+<details><summary>Planet Agutelo d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -14536,13 +14536,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo e (icy dwarf)</summary>  
+<details><summary>Planet Agutelo e (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 7.88e+05 m
@@ -14595,13 +14595,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo f (icy terrestrial)</summary>  
+<details><summary>Planet Agutelo f (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.81e+06 m
@@ -14654,13 +14654,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo g (icy super giant)</summary>  
+<details><summary>Planet Agutelo g (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.25e+08 m
@@ -14676,7 +14676,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.25e+08 м
@@ -14713,13 +14713,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo h (icy dwarf)</summary>  
+<details><summary>Planet Agutelo h (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.94e+05 m
@@ -14772,13 +14772,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo i (icy sub dwarf)</summary>  
+<details><summary>Planet Agutelo i (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 6.15e+05 m
@@ -14794,7 +14794,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.15e+05 м
@@ -14831,13 +14831,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo j (icy dwarf)</summary>  
+<details><summary>Planet Agutelo j (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.32e+05 m
@@ -14890,13 +14890,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Agutelo k (icy super dwarf)</summary>  
+<details><summary>Planet Agutelo k (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.36e+06 m
@@ -14912,7 +14912,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.36e+06 м
@@ -15059,13 +15059,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Irq a (hot super dwarf)</summary>  
+<details><summary>Planet Irq a (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 1.54e+06 m
@@ -15081,7 +15081,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.54e+06 м
@@ -15118,13 +15118,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq b (temperate terrestrial)</summary>  
+<details><summary>Planet Irq b (temperate terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate terrestrial
+Planet type: temperate terrestrial planet
 
 Absolute units:
 * Size: 7.01e+06 m
@@ -15177,13 +15177,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq c (cold terrestrial)</summary>  
+<details><summary>Planet Irq c (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 5.52e+06 m
@@ -15236,13 +15236,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq d (icy sub giant)</summary>  
+<details><summary>Planet Irq d (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 3.41e+07 m
@@ -15258,7 +15258,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 3.41e+07 м
@@ -15295,13 +15295,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq e (icy terrestrial)</summary>  
+<details><summary>Planet Irq e (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.87e+06 m
@@ -15354,13 +15354,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq f (icy sub terrestrial)</summary>  
+<details><summary>Planet Irq f (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.30e+06 m
@@ -15376,7 +15376,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.30e+06 м
@@ -15413,13 +15413,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq g (icy super dwarf)</summary>  
+<details><summary>Planet Irq g (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.61e+06 m
@@ -15435,7 +15435,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.61e+06 м
@@ -15472,13 +15472,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq h (icy sub dwarf)</summary>  
+<details><summary>Planet Irq h (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.68e+05 m
@@ -15494,7 +15494,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.68e+05 м
@@ -15531,13 +15531,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Irq i (icy dwarf)</summary>  
+<details><summary>Planet Irq i (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.36e+05 m
@@ -15836,13 +15836,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Addup a (cold super terrestrial)</summary>  
+<details><summary>Planet Addup a (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.47e+07 m
@@ -15858,7 +15858,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.47e+07 м
@@ -15895,13 +15895,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Addup b (icy terrestrial)</summary>  
+<details><summary>Planet Addup b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.80e+06 m
@@ -15954,13 +15954,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Addup c (icy terrestrial)</summary>  
+<details><summary>Planet Addup c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.78e+06 m
@@ -16259,13 +16259,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Luxe a (hot dwarf)</summary>  
+<details><summary>Planet Luxe a (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 9.77e+05 m
@@ -16318,13 +16318,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe b (temperate sub giant)</summary>  
+<details><summary>Planet Luxe b (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 2.14e+08 m
@@ -16340,7 +16340,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.14e+08 м
@@ -16377,13 +16377,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe c (cold - empty orbit -)</summary>  
+<details><summary>Planet Luxe c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -16436,13 +16436,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe d (icy super terrestrial)</summary>  
+<details><summary>Planet Luxe d (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.51e+07 m
@@ -16458,7 +16458,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.51e+07 м
@@ -16495,13 +16495,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe e (icy terrestrial)</summary>  
+<details><summary>Planet Luxe e (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.45e+06 m
@@ -16554,13 +16554,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe f (icy sub terrestrial)</summary>  
+<details><summary>Planet Luxe f (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.57e+06 m
@@ -16576,7 +16576,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.57e+06 м
@@ -16613,13 +16613,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe g (icy dwarf)</summary>  
+<details><summary>Planet Luxe g (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.10e+06 m
@@ -16672,13 +16672,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe h (icy super dwarf)</summary>  
+<details><summary>Planet Luxe h (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.50e+06 m
@@ -16694,7 +16694,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.50e+06 м
@@ -16731,13 +16731,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Luxe i (icy sub dwarf)</summary>  
+<details><summary>Planet Luxe i (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 6.15e+05 m
@@ -16753,7 +16753,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.15e+05 м
@@ -16900,13 +16900,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Asisesi a (cold dwarf)</summary>  
+<details><summary>Planet Asisesi a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 1.17e+06 m
@@ -16959,13 +16959,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Asisesi b (icy sub dwarf)</summary>  
+<details><summary>Planet Asisesi b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 3.89e+05 m
@@ -16981,7 +16981,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 3.89e+05 м
@@ -17018,13 +17018,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Asisesi c (icy sub giant)</summary>  
+<details><summary>Planet Asisesi c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 7.69e+07 m
@@ -17040,7 +17040,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 7.69e+07 м
@@ -17187,13 +17187,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ananit a (icy super giant)</summary>  
+<details><summary>Planet Ananit a (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.45e+08 m
@@ -17209,7 +17209,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.45e+08 м
@@ -17246,13 +17246,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ananit b (icy giant)</summary>  
+<details><summary>Planet Ananit b (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.72e+08 m
@@ -17415,13 +17415,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Neul a (icy terrestrial)</summary>  
+<details><summary>Planet Neul a (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 6.36e+06 m
@@ -17474,13 +17474,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Neul b (icy super dwarf)</summary>  
+<details><summary>Planet Neul b (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.19e+06 m
@@ -17496,7 +17496,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.19e+06 м
@@ -17643,13 +17643,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Cec a (hot super dwarf)</summary>  
+<details><summary>Planet Cec a (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 2.18e+06 m
@@ -17665,7 +17665,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.18e+06 м
@@ -17702,13 +17702,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec b (hot dwarf)</summary>  
+<details><summary>Planet Cec b (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 1.01e+06 m
@@ -17761,13 +17761,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec c (hot super terrestrial)</summary>  
+<details><summary>Planet Cec c (hot large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super terrestrial
+Planet type: hot large terrestrial planet
 
 Absolute units:
 * Size: 1.53e+07 m
@@ -17783,7 +17783,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета суперземля
+Тип планети: гаряча велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.53e+07 м
@@ -17820,13 +17820,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec d (warm sub giant)</summary>  
+<details><summary>Planet Cec d (warm small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub giant
+Planet type: warm small giant planet
 
 Absolute units:
 * Size: 1.66e+08 m
@@ -17842,7 +17842,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета субгігант
+Тип планети: тепла планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.66e+08 м
@@ -17879,13 +17879,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec e (warm - empty orbit -)</summary>  
+<details><summary>Planet Cec e (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -17938,13 +17938,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec f (temperate - empty orbit -)</summary>  
+<details><summary>Planet Cec f (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -17997,13 +17997,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec g (cold - empty orbit -)</summary>  
+<details><summary>Planet Cec g (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -18056,13 +18056,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec h (cold giant)</summary>  
+<details><summary>Planet Cec h (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.16e+08 m
@@ -18115,13 +18115,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec i (icy - empty orbit -)</summary>  
+<details><summary>Planet Cec i (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -18174,13 +18174,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec j (icy sub giant)</summary>  
+<details><summary>Planet Cec j (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 2.25e+08 m
@@ -18196,7 +18196,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.25e+08 м
@@ -18233,13 +18233,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cec k (icy sub dwarf)</summary>  
+<details><summary>Planet Cec k (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 6.06e+05 m
@@ -18255,7 +18255,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.06e+05 м
@@ -18402,13 +18402,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Balacem a (temperate super giant)</summary>  
+<details><summary>Planet Balacem a (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 2.25e+08 m
@@ -18424,7 +18424,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.25e+08 м
@@ -18461,13 +18461,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Balacem b (cold - empty orbit -)</summary>  
+<details><summary>Planet Balacem b (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -18520,13 +18520,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Balacem c (cold - empty orbit -)</summary>  
+<details><summary>Planet Balacem c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -18579,13 +18579,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Balacem d (icy sub terrestrial)</summary>  
+<details><summary>Planet Balacem d (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.38e+06 m
@@ -18601,7 +18601,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.38e+06 м
@@ -18748,13 +18748,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Niburub a (temperate sub terrestrial)</summary>  
+<details><summary>Planet Niburub a (temperate small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub terrestrial
+Planet type: temperate small terrestrial planet
 
 Absolute units:
 * Size: 3.12e+06 m
@@ -18770,7 +18770,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета мініземля
+Тип планети: помірна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.12e+06 м
@@ -18917,13 +18917,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Mecl a (hot sub terrestrial)</summary>  
+<details><summary>Planet Mecl a (hot small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub terrestrial
+Planet type: hot small terrestrial planet
 
 Absolute units:
 * Size: 3.50e+06 m
@@ -18939,7 +18939,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета мініземля
+Тип планети: гаряча мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.50e+06 м
@@ -18976,13 +18976,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl b (temperate giant)</summary>  
+<details><summary>Planet Mecl b (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 1.73e+08 m
@@ -19035,13 +19035,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl c (cold - empty orbit -)</summary>  
+<details><summary>Planet Mecl c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -19094,13 +19094,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl d (icy super giant)</summary>  
+<details><summary>Planet Mecl d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.23e+08 m
@@ -19116,7 +19116,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.23e+08 м
@@ -19153,13 +19153,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl e (icy sub dwarf)</summary>  
+<details><summary>Planet Mecl e (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.28e+05 m
@@ -19175,7 +19175,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.28e+05 м
@@ -19212,13 +19212,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl f (icy dwarf)</summary>  
+<details><summary>Planet Mecl f (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 7.26e+05 m
@@ -19271,13 +19271,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl g (icy sub terrestrial)</summary>  
+<details><summary>Planet Mecl g (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 4.04e+06 m
@@ -19293,7 +19293,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.04e+06 м
@@ -19330,13 +19330,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl h (icy super dwarf)</summary>  
+<details><summary>Planet Mecl h (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.85e+06 m
@@ -19352,7 +19352,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.85e+06 м
@@ -19389,13 +19389,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl i (icy super dwarf)</summary>  
+<details><summary>Planet Mecl i (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.00e+06 m
@@ -19411,7 +19411,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.00e+06 м
@@ -19448,13 +19448,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl j (icy super dwarf)</summary>  
+<details><summary>Planet Mecl j (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.60e+06 m
@@ -19470,7 +19470,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.60e+06 м
@@ -19507,13 +19507,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl k (icy dwarf)</summary>  
+<details><summary>Planet Mecl k (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.16e+05 m
@@ -19566,13 +19566,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl l (icy super terrestrial)</summary>  
+<details><summary>Planet Mecl l (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.27e+07 m
@@ -19588,7 +19588,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.27e+07 м
@@ -19625,13 +19625,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Mecl m (icy super dwarf)</summary>  
+<details><summary>Planet Mecl m (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.89e+06 m
@@ -19647,7 +19647,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.89e+06 м
@@ -19794,13 +19794,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ocodic a (warm super dwarf)</summary>  
+<details><summary>Planet Ocodic a (warm large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super dwarf
+Planet type: warm large dwarf planet
 
 Absolute units:
 * Size: 1.47e+06 m
@@ -19816,7 +19816,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла суперкарликова планета
+Тип планети: тепла велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.47e+06 м
@@ -19853,13 +19853,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocodic b (temperate sub dwarf)</summary>  
+<details><summary>Planet Ocodic b (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 4.94e+05 m
@@ -19875,7 +19875,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.94e+05 м
@@ -19912,13 +19912,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocodic c (cold sub giant)</summary>  
+<details><summary>Planet Ocodic c (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 2.05e+08 m
@@ -19934,7 +19934,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.05e+08 м
@@ -19971,13 +19971,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocodic d (cold sub giant)</summary>  
+<details><summary>Planet Ocodic d (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.75e+08 m
@@ -19993,7 +19993,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.75e+08 м
@@ -20030,13 +20030,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocodic e (icy sub giant)</summary>  
+<details><summary>Planet Ocodic e (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.72e+08 m
@@ -20052,7 +20052,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.72e+08 м
@@ -20089,13 +20089,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocodic f (icy super dwarf)</summary>  
+<details><summary>Planet Ocodic f (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.13e+06 m
@@ -20111,7 +20111,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.13e+06 м
@@ -20368,13 +20368,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Seunm a (hot giant)</summary>  
+<details><summary>Planet Seunm a (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 1.48e+08 m
@@ -20427,13 +20427,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Seunm b (warm - empty orbit -)</summary>  
+<details><summary>Planet Seunm b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -20486,13 +20486,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Seunm c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Seunm c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -20545,13 +20545,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Seunm d (cold sub giant)</summary>  
+<details><summary>Planet Seunm d (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.83e+08 m
@@ -20567,7 +20567,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.83e+08 м
@@ -20604,13 +20604,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Seunm e (icy - empty orbit -)</summary>  
+<details><summary>Planet Seunm e (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -20663,13 +20663,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Seunm f (icy super giant)</summary>  
+<details><summary>Planet Seunm f (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.21e+08 m
@@ -20685,7 +20685,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.21e+08 м
@@ -20968,13 +20968,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic a (hot super terrestrial)</summary>  
+<details><summary>Planet Oupoic a (hot large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super terrestrial
+Planet type: hot large terrestrial planet
 
 Absolute units:
 * Size: 1.52e+07 m
@@ -20990,7 +20990,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета суперземля
+Тип планети: гаряча велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.52e+07 м
@@ -21027,13 +21027,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic b (warm terrestrial)</summary>  
+<details><summary>Planet Oupoic b (warm terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm terrestrial
+Planet type: warm terrestrial planet
 
 Absolute units:
 * Size: 6.90e+06 m
@@ -21086,13 +21086,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic c (cold super dwarf)</summary>  
+<details><summary>Planet Oupoic c (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.91e+06 m
@@ -21108,7 +21108,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.91e+06 м
@@ -21145,13 +21145,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic d (icy super dwarf)</summary>  
+<details><summary>Planet Oupoic d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.24e+06 m
@@ -21167,7 +21167,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.24e+06 м
@@ -21204,13 +21204,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic e (icy giant)</summary>  
+<details><summary>Planet Oupoic e (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.29e+08 m
@@ -21263,13 +21263,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic f (icy super giant)</summary>  
+<details><summary>Planet Oupoic f (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.94e+08 m
@@ -21285,7 +21285,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.94e+08 м
@@ -21322,13 +21322,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic g (icy sub terrestrial)</summary>  
+<details><summary>Planet Oupoic g (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.83e+06 m
@@ -21344,7 +21344,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.83e+06 м
@@ -21381,13 +21381,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic h (icy terrestrial)</summary>  
+<details><summary>Planet Oupoic h (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.61e+06 m
@@ -21440,13 +21440,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic i (icy dwarf)</summary>  
+<details><summary>Planet Oupoic i (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.14e+06 m
@@ -21499,13 +21499,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic j (icy sub dwarf)</summary>  
+<details><summary>Planet Oupoic j (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.65e+05 m
@@ -21521,7 +21521,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.65e+05 м
@@ -21558,13 +21558,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic k (icy super dwarf)</summary>  
+<details><summary>Planet Oupoic k (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.66e+06 m
@@ -21580,7 +21580,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.66e+06 м
@@ -21617,13 +21617,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic l (icy super dwarf)</summary>  
+<details><summary>Planet Oupoic l (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.90e+06 m
@@ -21639,7 +21639,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.90e+06 м
@@ -21676,13 +21676,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic m (icy dwarf)</summary>  
+<details><summary>Planet Oupoic m (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.98e+05 m
@@ -21735,13 +21735,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oupoic n (icy super dwarf)</summary>  
+<details><summary>Planet Oupoic n (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.72e+06 m
@@ -21757,7 +21757,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.72e+06 м
@@ -22176,13 +22176,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Aatma a (cold giant)</summary>  
+<details><summary>Planet Aatma a (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.49e+08 m
@@ -22235,13 +22235,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aatma b (cold - empty orbit -)</summary>  
+<details><summary>Planet Aatma b (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -22294,13 +22294,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aatma c (icy - empty orbit -)</summary>  
+<details><summary>Planet Aatma c (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -22353,13 +22353,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aatma d (icy giant)</summary>  
+<details><summary>Planet Aatma d (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.40e+08 m
@@ -22590,13 +22590,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Pocar a (temperate sub terrestrial)</summary>  
+<details><summary>Planet Pocar a (temperate small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub terrestrial
+Planet type: temperate small terrestrial planet
 
 Absolute units:
 * Size: 4.05e+06 m
@@ -22612,7 +22612,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета мініземля
+Тип планети: помірна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.05e+06 м
@@ -22649,13 +22649,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pocar b (cold - empty orbit -)</summary>  
+<details><summary>Planet Pocar b (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -22708,13 +22708,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pocar c (cold super giant)</summary>  
+<details><summary>Planet Pocar c (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.38e+08 m
@@ -22730,7 +22730,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.38e+08 м
@@ -22767,13 +22767,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pocar d (icy super dwarf)</summary>  
+<details><summary>Planet Pocar d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.89e+06 m
@@ -22789,7 +22789,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.89e+06 м
@@ -22826,13 +22826,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pocar e (icy dwarf)</summary>  
+<details><summary>Planet Pocar e (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.08e+05 m
@@ -23199,13 +23199,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Alrir a (temperate terrestrial)</summary>  
+<details><summary>Planet Alrir a (temperate terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate terrestrial
+Planet type: temperate terrestrial planet
 
 Absolute units:
 * Size: 7.04e+06 m
@@ -23478,13 +23478,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Tol a (warm sub dwarf)</summary>  
+<details><summary>Planet Tol a (warm small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub dwarf
+Planet type: warm small dwarf planet
 
 Absolute units:
 * Size: 6.02e+05 m
@@ -23500,7 +23500,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла субкарликова планета
+Тип планети: тепла мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.02e+05 м
@@ -23537,13 +23537,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tol b (temperate sub dwarf)</summary>  
+<details><summary>Planet Tol b (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 6.15e+05 m
@@ -23559,7 +23559,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.15e+05 м
@@ -23596,13 +23596,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tol c (icy sub dwarf)</summary>  
+<details><summary>Planet Tol c (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.73e+05 m
@@ -23618,7 +23618,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.73e+05 м
@@ -23833,13 +23833,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Neos a (warm dwarf)</summary>  
+<details><summary>Planet Neos a (warm dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm dwarf
+Planet type: warm dwarf planet
 
 Absolute units:
 * Size: 1.07e+06 m
@@ -23892,13 +23892,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Neos b (temperate giant)</summary>  
+<details><summary>Planet Neos b (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 2.30e+08 m
@@ -23951,13 +23951,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Neos c (cold sub terrestrial)</summary>  
+<details><summary>Planet Neos c (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.78e+06 m
@@ -23973,7 +23973,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.78e+06 м
@@ -24010,13 +24010,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Neos d (cold sub terrestrial)</summary>  
+<details><summary>Planet Neos d (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 2.94e+06 m
@@ -24032,7 +24032,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.94e+06 м
@@ -24069,13 +24069,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Neos e (icy super dwarf)</summary>  
+<details><summary>Planet Neos e (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.00e+06 m
@@ -24091,7 +24091,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.00e+06 м
@@ -24238,13 +24238,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Leg a (hot sub giant)</summary>  
+<details><summary>Planet Leg a (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 2.18e+08 m
@@ -24260,7 +24260,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.18e+08 м
@@ -24297,13 +24297,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Leg b (warm - empty orbit -)</summary>  
+<details><summary>Planet Leg b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -24356,13 +24356,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Leg c (cold - empty orbit -)</summary>  
+<details><summary>Planet Leg c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -24415,13 +24415,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Leg d (icy sub dwarf)</summary>  
+<details><summary>Planet Leg d (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.86e+05 m
@@ -24437,7 +24437,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.86e+05 м
@@ -24584,13 +24584,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Fefalit a (temperate giant)</summary>  
+<details><summary>Planet Fefalit a (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 1.50e+08 m
@@ -24643,13 +24643,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fefalit b (cold giant)</summary>  
+<details><summary>Planet Fefalit b (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.00e+08 m
@@ -24702,13 +24702,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fefalit c (cold - empty orbit -)</summary>  
+<details><summary>Planet Fefalit c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -24761,13 +24761,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fefalit d (icy super dwarf)</summary>  
+<details><summary>Planet Fefalit d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.61e+06 m
@@ -24783,7 +24783,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.61e+06 м
@@ -24998,13 +24998,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Igero a (cold super giant)</summary>  
+<details><summary>Planet Igero a (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 2.39e+08 m
@@ -25020,7 +25020,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.39e+08 м
@@ -25057,13 +25057,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Igero b (cold - empty orbit -)</summary>  
+<details><summary>Planet Igero b (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -25116,13 +25116,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Igero c (icy super giant)</summary>  
+<details><summary>Planet Igero c (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.49e+08 m
@@ -25138,7 +25138,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.49e+08 м
@@ -25175,13 +25175,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Igero d (icy - empty orbit -)</summary>  
+<details><summary>Planet Igero d (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -25522,13 +25522,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe a (hot terrestrial)</summary>  
+<details><summary>Planet Kosenyxe a (hot terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot terrestrial
+Planet type: hot terrestrial planet
 
 Absolute units:
 * Size: 6.44e+06 m
@@ -25581,13 +25581,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe b (hot dwarf)</summary>  
+<details><summary>Planet Kosenyxe b (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 7.52e+05 m
@@ -25640,13 +25640,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe c (warm terrestrial)</summary>  
+<details><summary>Planet Kosenyxe c (warm terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm terrestrial
+Planet type: warm terrestrial planet
 
 Absolute units:
 * Size: 7.72e+06 m
@@ -25699,13 +25699,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe d (temperate super dwarf)</summary>  
+<details><summary>Planet Kosenyxe d (temperate large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super dwarf
+Planet type: temperate large dwarf planet
 
 Absolute units:
 * Size: 2.23e+06 m
@@ -25721,7 +25721,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна суперкарликова планета
+Тип планети: помірна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.23e+06 м
@@ -25758,13 +25758,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe e (temperate super giant)</summary>  
+<details><summary>Planet Kosenyxe e (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 1.24e+08 m
@@ -25780,7 +25780,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.24e+08 м
@@ -25817,13 +25817,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe f (cold - empty orbit -)</summary>  
+<details><summary>Planet Kosenyxe f (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -25876,13 +25876,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe g (cold giant)</summary>  
+<details><summary>Planet Kosenyxe g (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.33e+08 m
@@ -25935,13 +25935,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe h (icy sub giant)</summary>  
+<details><summary>Planet Kosenyxe h (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.96e+08 m
@@ -25957,7 +25957,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.96e+08 м
@@ -25994,13 +25994,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe i (icy - empty orbit -)</summary>  
+<details><summary>Planet Kosenyxe i (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -26053,13 +26053,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe j (icy sub giant)</summary>  
+<details><summary>Planet Kosenyxe j (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.65e+08 m
@@ -26075,7 +26075,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.65e+08 м
@@ -26112,13 +26112,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Kosenyxe k (icy terrestrial)</summary>  
+<details><summary>Planet Kosenyxe k (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.73e+06 m
@@ -26281,13 +26281,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt a (hot sub terrestrial)</summary>  
+<details><summary>Planet Cysyt a (hot small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub terrestrial
+Planet type: hot small terrestrial planet
 
 Absolute units:
 * Size: 3.16e+06 m
@@ -26303,7 +26303,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета мініземля
+Тип планети: гаряча мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.16e+06 м
@@ -26340,13 +26340,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt b (hot sub dwarf)</summary>  
+<details><summary>Planet Cysyt b (hot small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub dwarf
+Planet type: hot small dwarf planet
 
 Absolute units:
 * Size: 4.38e+05 m
@@ -26362,7 +26362,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча субкарликова планета
+Тип планети: гаряча мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.38e+05 м
@@ -26399,13 +26399,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt c (temperate sub terrestrial)</summary>  
+<details><summary>Planet Cysyt c (temperate small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub terrestrial
+Planet type: temperate small terrestrial planet
 
 Absolute units:
 * Size: 3.26e+06 m
@@ -26421,7 +26421,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета мініземля
+Тип планети: помірна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.26e+06 м
@@ -26458,13 +26458,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt d (cold terrestrial)</summary>  
+<details><summary>Planet Cysyt d (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.43e+06 m
@@ -26517,13 +26517,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt e (cold super terrestrial)</summary>  
+<details><summary>Planet Cysyt e (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.41e+07 m
@@ -26539,7 +26539,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.41e+07 м
@@ -26576,13 +26576,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt f (icy super terrestrial)</summary>  
+<details><summary>Planet Cysyt f (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.32e+07 m
@@ -26598,7 +26598,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.32e+07 м
@@ -26635,13 +26635,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt g (icy super giant)</summary>  
+<details><summary>Planet Cysyt g (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.22e+08 m
@@ -26657,7 +26657,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.22e+08 м
@@ -26694,13 +26694,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt h (icy - empty orbit -)</summary>  
+<details><summary>Planet Cysyt h (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -26753,13 +26753,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cysyt i (icy sub giant)</summary>  
+<details><summary>Planet Cysyt i (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 6.80e+07 m
@@ -26775,7 +26775,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 6.80e+07 м
@@ -26990,13 +26990,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Gat a (warm dwarf)</summary>  
+<details><summary>Planet Gat a (warm dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm dwarf
+Planet type: warm dwarf planet
 
 Absolute units:
 * Size: 1.11e+06 m
@@ -27159,13 +27159,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ytalec a (hot super giant)</summary>  
+<details><summary>Planet Ytalec a (hot large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super giant
+Planet type: hot large giant planet
 
 Absolute units:
 * Size: 2.07e+08 m
@@ -27181,7 +27181,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета супергігант
+Тип планети: гаряча планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.07e+08 м
@@ -27218,13 +27218,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ytalec b (warm - empty orbit -)</summary>  
+<details><summary>Planet Ytalec b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -27277,13 +27277,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ytalec c (cold - empty orbit -)</summary>  
+<details><summary>Planet Ytalec c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -27336,13 +27336,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ytalec d (icy sub giant)</summary>  
+<details><summary>Planet Ytalec d (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.46e+08 m
@@ -27358,7 +27358,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.46e+08 м
@@ -27505,13 +27505,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Actauf a (cold super giant)</summary>  
+<details><summary>Planet Actauf a (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.21e+08 m
@@ -27527,7 +27527,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.21e+08 м
@@ -27742,13 +27742,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Bibso a (cold terrestrial)</summary>  
+<details><summary>Planet Bibso a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.06e+06 m
@@ -27801,13 +27801,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bibso b (cold dwarf)</summary>  
+<details><summary>Planet Bibso b (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 7.25e+05 m
@@ -27860,13 +27860,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Bibso c (icy super dwarf)</summary>  
+<details><summary>Planet Bibso c (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.90e+06 m
@@ -27882,7 +27882,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.90e+06 м
@@ -28029,13 +28029,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Sac a (cold - empty orbit -)</summary>  
+<details><summary>Planet Sac a (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -28088,13 +28088,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sac b (icy super giant)</summary>  
+<details><summary>Planet Sac b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.42e+08 m
@@ -28110,7 +28110,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.42e+08 м
@@ -28147,13 +28147,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sac c (icy - empty orbit -)</summary>  
+<details><summary>Planet Sac c (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -28588,13 +28588,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Otoci a (warm super giant)</summary>  
+<details><summary>Planet Otoci a (warm large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super giant
+Planet type: warm large giant planet
 
 Absolute units:
 * Size: 1.76e+08 m
@@ -28610,7 +28610,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета супергігант
+Тип планети: тепла планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.76e+08 м
@@ -28647,13 +28647,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otoci b (temperate super giant)</summary>  
+<details><summary>Planet Otoci b (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 2.10e+08 m
@@ -28669,7 +28669,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.10e+08 м
@@ -28706,13 +28706,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otoci c (cold - empty orbit -)</summary>  
+<details><summary>Planet Otoci c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -28765,13 +28765,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otoci d (icy giant)</summary>  
+<details><summary>Planet Otoci d (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.29e+08 m
@@ -28824,13 +28824,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otoci e (icy sub giant)</summary>  
+<details><summary>Planet Otoci e (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.67e+08 m
@@ -28846,7 +28846,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.67e+08 м
@@ -28883,13 +28883,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Otoci f (icy giant)</summary>  
+<details><summary>Planet Otoci f (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.96e+08 m
@@ -29324,13 +29324,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Evaso a (cold super giant)</summary>  
+<details><summary>Planet Evaso a (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.22e+08 m
@@ -29346,7 +29346,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.22e+08 м
@@ -29383,13 +29383,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Evaso b (cold sub giant)</summary>  
+<details><summary>Planet Evaso b (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.14e+08 m
@@ -29405,7 +29405,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.14e+08 м
@@ -29442,13 +29442,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Evaso c (icy giant)</summary>  
+<details><summary>Planet Evaso c (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.52e+08 m
@@ -29611,13 +29611,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Magysoh a (icy - empty orbit -)</summary>  
+<details><summary>Planet Magysoh a (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -29670,13 +29670,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Magysoh b (icy giant)</summary>  
+<details><summary>Planet Magysoh b (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.37e+08 m
@@ -29907,13 +29907,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Tou a (hot terrestrial)</summary>  
+<details><summary>Planet Tou a (hot terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot terrestrial
+Planet type: hot terrestrial planet
 
 Absolute units:
 * Size: 6.63e+06 m
@@ -29966,13 +29966,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tou b (hot sub giant)</summary>  
+<details><summary>Planet Tou b (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 5.89e+07 m
@@ -29988,7 +29988,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 5.89e+07 м
@@ -30025,13 +30025,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tou c (warm - empty orbit -)</summary>  
+<details><summary>Planet Tou c (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -30084,13 +30084,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tou d (temperate - empty orbit -)</summary>  
+<details><summary>Planet Tou d (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -30143,13 +30143,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tou e (cold sub giant)</summary>  
+<details><summary>Planet Tou e (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.29e+08 m
@@ -30165,7 +30165,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.29e+08 м
@@ -30202,13 +30202,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tou f (cold sub dwarf)</summary>  
+<details><summary>Planet Tou f (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 3.72e+05 m
@@ -30224,7 +30224,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 3.72e+05 м
@@ -30371,13 +30371,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Usateho a (icy super terrestrial)</summary>  
+<details><summary>Planet Usateho a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.46e+07 m
@@ -30393,7 +30393,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.46e+07 м
@@ -30430,13 +30430,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Usateho b (icy sub giant)</summary>  
+<details><summary>Planet Usateho b (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 9.66e+07 m
@@ -30452,7 +30452,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 9.66e+07 м
@@ -30709,13 +30709,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Etorfe a (warm super terrestrial)</summary>  
+<details><summary>Planet Etorfe a (warm large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super terrestrial
+Planet type: warm large terrestrial planet
 
 Absolute units:
 * Size: 1.27e+07 m
@@ -30731,7 +30731,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета суперземля
+Тип планети: тепла велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.27e+07 м
@@ -30768,13 +30768,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Etorfe b (temperate giant)</summary>  
+<details><summary>Planet Etorfe b (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 1.39e+08 m
@@ -30827,13 +30827,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Etorfe c (icy terrestrial)</summary>  
+<details><summary>Planet Etorfe c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 8.05e+06 m
@@ -30886,13 +30886,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Etorfe d (icy super dwarf)</summary>  
+<details><summary>Planet Etorfe d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.02e+06 m
@@ -30908,7 +30908,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.02e+06 м
@@ -30945,13 +30945,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Etorfe e (icy terrestrial)</summary>  
+<details><summary>Planet Etorfe e (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.18e+06 m
@@ -31004,13 +31004,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Etorfe f (icy sub giant)</summary>  
+<details><summary>Planet Etorfe f (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.28e+08 m
@@ -31026,7 +31026,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.28e+08 м
@@ -31283,13 +31283,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Oahpa a (icy super terrestrial)</summary>  
+<details><summary>Planet Oahpa a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 9.48e+06 m
@@ -31305,7 +31305,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 9.48e+06 м
@@ -31342,13 +31342,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oahpa b (icy super terrestrial)</summary>  
+<details><summary>Planet Oahpa b (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.14e+07 m
@@ -31364,7 +31364,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.14e+07 м
@@ -31511,13 +31511,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ocevemag a (warm - empty orbit -)</summary>  
+<details><summary>Planet Ocevemag a (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -31570,13 +31570,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocevemag b (temperate super giant)</summary>  
+<details><summary>Planet Ocevemag b (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 2.08e+08 m
@@ -31592,7 +31592,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.08e+08 м
@@ -31629,13 +31629,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocevemag c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Ocevemag c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -31688,13 +31688,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocevemag d (cold - empty orbit -)</summary>  
+<details><summary>Planet Ocevemag d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -31747,13 +31747,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocevemag e (cold - empty orbit -)</summary>  
+<details><summary>Planet Ocevemag e (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -31806,13 +31806,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ocevemag f (icy terrestrial)</summary>  
+<details><summary>Planet Ocevemag f (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.90e+06 m
@@ -32043,13 +32043,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Wotor a (cold sub dwarf)</summary>  
+<details><summary>Planet Wotor a (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 5.36e+05 m
@@ -32065,7 +32065,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.36e+05 м
@@ -32102,13 +32102,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Wotor b (icy super terrestrial)</summary>  
+<details><summary>Planet Wotor b (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.35e+07 m
@@ -32124,7 +32124,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.35e+07 м
@@ -32271,13 +32271,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Tatoku a (warm sub giant)</summary>  
+<details><summary>Planet Tatoku a (warm small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub giant
+Planet type: warm small giant planet
 
 Absolute units:
 * Size: 1.58e+08 m
@@ -32293,7 +32293,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета субгігант
+Тип планети: тепла планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.58e+08 м
@@ -32330,13 +32330,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tatoku b (temperate - empty orbit -)</summary>  
+<details><summary>Planet Tatoku b (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -32389,13 +32389,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tatoku c (cold sub giant)</summary>  
+<details><summary>Planet Tatoku c (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 2.07e+08 m
@@ -32411,7 +32411,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.07e+08 м
@@ -32448,13 +32448,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tatoku d (cold - empty orbit -)</summary>  
+<details><summary>Planet Tatoku d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -32507,13 +32507,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tatoku e (icy - empty orbit -)</summary>  
+<details><summary>Planet Tatoku e (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -32566,13 +32566,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tatoku f (icy super giant)</summary>  
+<details><summary>Planet Tatoku f (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.18e+08 m
@@ -32588,7 +32588,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.18e+08 м
@@ -32735,13 +32735,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Natun a (temperate sub dwarf)</summary>  
+<details><summary>Planet Natun a (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 4.74e+05 m
@@ -32757,7 +32757,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.74e+05 м
@@ -32794,13 +32794,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Natun b (cold super dwarf)</summary>  
+<details><summary>Planet Natun b (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 2.21e+06 m
@@ -32816,7 +32816,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.21e+06 м
@@ -32853,13 +32853,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Natun c (cold sub giant)</summary>  
+<details><summary>Planet Natun c (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.77e+08 m
@@ -32875,7 +32875,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.77e+08 м
@@ -32912,13 +32912,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Natun d (icy giant)</summary>  
+<details><summary>Planet Natun d (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.62e+08 m
@@ -32971,13 +32971,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Natun e (icy super terrestrial)</summary>  
+<details><summary>Planet Natun e (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.39e+07 m
@@ -32993,7 +32993,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.39e+07 м
@@ -33276,13 +33276,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Beriniwu a (icy giant)</summary>  
+<details><summary>Planet Beriniwu a (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.99e+08 m
@@ -33335,13 +33335,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Beriniwu b (icy sub dwarf)</summary>  
+<details><summary>Planet Beriniwu b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.02e+05 m
@@ -33357,7 +33357,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.02e+05 м
@@ -33394,13 +33394,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Beriniwu c (icy super terrestrial)</summary>  
+<details><summary>Planet Beriniwu c (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.40e+07 m
@@ -33416,7 +33416,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.40e+07 м
@@ -33699,13 +33699,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Teawc a (hot dwarf)</summary>  
+<details><summary>Planet Teawc a (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 9.47e+05 m
@@ -33758,13 +33758,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Teawc b (temperate dwarf)</summary>  
+<details><summary>Planet Teawc b (temperate dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate dwarf
+Planet type: temperate dwarf planet
 
 Absolute units:
 * Size: 1.14e+06 m
@@ -33817,13 +33817,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Teawc c (cold super dwarf)</summary>  
+<details><summary>Planet Teawc c (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.43e+06 m
@@ -33839,7 +33839,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.43e+06 м
@@ -33986,13 +33986,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Uketo a (temperate sub giant)</summary>  
+<details><summary>Planet Uketo a (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 6.93e+07 m
@@ -34008,7 +34008,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 6.93e+07 м
@@ -34155,13 +34155,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ysavire a (icy terrestrial)</summary>  
+<details><summary>Planet Ysavire a (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.49e+06 m
@@ -34460,13 +34460,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Memocer a (cold sub giant)</summary>  
+<details><summary>Planet Memocer a (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 6.54e+07 m
@@ -34482,7 +34482,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 6.54e+07 м
@@ -34519,13 +34519,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Memocer b (icy terrestrial)</summary>  
+<details><summary>Planet Memocer b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.87e+06 m
@@ -34578,13 +34578,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Memocer c (icy sub dwarf)</summary>  
+<details><summary>Planet Memocer c (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 3.74e+05 m
@@ -34600,7 +34600,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 3.74e+05 м
@@ -34883,13 +34883,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Isdut a (warm sub dwarf)</summary>  
+<details><summary>Planet Isdut a (warm small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub dwarf
+Planet type: warm small dwarf planet
 
 Absolute units:
 * Size: 4.08e+05 m
@@ -34905,7 +34905,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла субкарликова планета
+Тип планети: тепла мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.08e+05 м
@@ -34942,13 +34942,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isdut b (temperate dwarf)</summary>  
+<details><summary>Planet Isdut b (temperate dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate dwarf
+Planet type: temperate dwarf planet
 
 Absolute units:
 * Size: 1.09e+06 m
@@ -35001,13 +35001,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isdut c (temperate terrestrial)</summary>  
+<details><summary>Planet Isdut c (temperate terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate terrestrial
+Planet type: temperate terrestrial planet
 
 Absolute units:
 * Size: 6.66e+06 m
@@ -35060,13 +35060,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isdut d (cold giant)</summary>  
+<details><summary>Planet Isdut d (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.21e+08 m
@@ -35119,13 +35119,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isdut e (cold sub dwarf)</summary>  
+<details><summary>Planet Isdut e (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 4.34e+05 m
@@ -35141,7 +35141,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.34e+05 м
@@ -35178,13 +35178,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isdut f (icy sub terrestrial)</summary>  
+<details><summary>Planet Isdut f (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.44e+06 m
@@ -35200,7 +35200,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.44e+06 м
@@ -35347,13 +35347,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Karanise a (warm sub terrestrial)</summary>  
+<details><summary>Planet Karanise a (warm small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub terrestrial
+Planet type: warm small terrestrial planet
 
 Absolute units:
 * Size: 2.92e+06 m
@@ -35369,7 +35369,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета мініземля
+Тип планети: тепла мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.92e+06 м
@@ -35406,13 +35406,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Karanise b (cold super dwarf)</summary>  
+<details><summary>Planet Karanise b (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.43e+06 m
@@ -35428,7 +35428,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.43e+06 м
@@ -35465,13 +35465,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Karanise c (icy sub terrestrial)</summary>  
+<details><summary>Planet Karanise c (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.68e+06 m
@@ -35487,7 +35487,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.68e+06 м
@@ -35702,13 +35702,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Regila a (cold terrestrial)</summary>  
+<details><summary>Planet Regila a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.55e+06 m
@@ -35871,13 +35871,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ecetymeh a (cold terrestrial)</summary>  
+<details><summary>Planet Ecetymeh a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.89e+06 m
@@ -35930,13 +35930,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecetymeh b (icy sub dwarf)</summary>  
+<details><summary>Planet Ecetymeh b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.07e+05 m
@@ -35952,7 +35952,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.07e+05 м
@@ -36099,13 +36099,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Eabjo a (warm super terrestrial)</summary>  
+<details><summary>Planet Eabjo a (warm large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super terrestrial
+Planet type: warm large terrestrial planet
 
 Absolute units:
 * Size: 1.45e+07 m
@@ -36121,7 +36121,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета суперземля
+Тип планети: тепла велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.45e+07 м
@@ -36158,13 +36158,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eabjo b (cold sub terrestrial)</summary>  
+<details><summary>Planet Eabjo b (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.61e+06 m
@@ -36180,7 +36180,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.61e+06 м
@@ -36217,13 +36217,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eabjo c (icy sub terrestrial)</summary>  
+<details><summary>Planet Eabjo c (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.96e+06 m
@@ -36239,7 +36239,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.96e+06 м
@@ -36386,13 +36386,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod a (warm super terrestrial)</summary>  
+<details><summary>Planet Icepigod a (warm large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super terrestrial
+Planet type: warm large terrestrial planet
 
 Absolute units:
 * Size: 1.28e+07 m
@@ -36408,7 +36408,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета суперземля
+Тип планети: тепла велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.28e+07 м
@@ -36445,13 +36445,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod b (warm dwarf)</summary>  
+<details><summary>Planet Icepigod b (warm dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm dwarf
+Planet type: warm dwarf planet
 
 Absolute units:
 * Size: 7.40e+05 m
@@ -36504,13 +36504,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod c (temperate sub dwarf)</summary>  
+<details><summary>Planet Icepigod c (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 4.73e+05 m
@@ -36526,7 +36526,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.73e+05 м
@@ -36563,13 +36563,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod d (cold giant)</summary>  
+<details><summary>Planet Icepigod d (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.06e+08 m
@@ -36622,13 +36622,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod e (cold - empty orbit -)</summary>  
+<details><summary>Planet Icepigod e (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -36681,13 +36681,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod f (icy super terrestrial)</summary>  
+<details><summary>Planet Icepigod f (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.33e+07 m
@@ -36703,7 +36703,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.33e+07 м
@@ -36740,13 +36740,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod g (icy terrestrial)</summary>  
+<details><summary>Planet Icepigod g (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 6.30e+06 m
@@ -36799,13 +36799,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod h (icy sub giant)</summary>  
+<details><summary>Planet Icepigod h (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 3.98e+07 m
@@ -36821,7 +36821,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 3.98e+07 м
@@ -36858,13 +36858,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod i (icy sub terrestrial)</summary>  
+<details><summary>Planet Icepigod i (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.88e+06 m
@@ -36880,7 +36880,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.88e+06 м
@@ -36917,13 +36917,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod j (icy super terrestrial)</summary>  
+<details><summary>Planet Icepigod j (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.07e+07 m
@@ -36939,7 +36939,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.07e+07 м
@@ -36976,13 +36976,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod k (icy dwarf)</summary>  
+<details><summary>Planet Icepigod k (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.19e+05 m
@@ -37035,13 +37035,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod l (icy sub dwarf)</summary>  
+<details><summary>Planet Icepigod l (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.61e+05 m
@@ -37057,7 +37057,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.61e+05 м
@@ -37094,13 +37094,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod m (icy sub terrestrial)</summary>  
+<details><summary>Planet Icepigod m (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 4.09e+06 m
@@ -37116,7 +37116,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.09e+06 м
@@ -37153,13 +37153,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icepigod n (icy terrestrial)</summary>  
+<details><summary>Planet Icepigod n (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 6.33e+06 m
@@ -37432,13 +37432,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lacol a (cold sub terrestrial)</summary>  
+<details><summary>Planet Lacol a (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.93e+06 m
@@ -37454,7 +37454,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.93e+06 м
@@ -37491,13 +37491,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lacol b (cold dwarf)</summary>  
+<details><summary>Planet Lacol b (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 6.34e+05 m
@@ -37550,13 +37550,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lacol c (icy - empty orbit -)</summary>  
+<details><summary>Planet Lacol c (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -37609,13 +37609,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lacol d (icy super giant)</summary>  
+<details><summary>Planet Lacol d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.44e+08 m
@@ -37631,7 +37631,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.44e+08 м
@@ -37778,13 +37778,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Enus a (temperate sub dwarf)</summary>  
+<details><summary>Planet Enus a (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 5.97e+05 m
@@ -37800,7 +37800,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.97e+05 м
@@ -37837,13 +37837,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Enus b (cold super terrestrial)</summary>  
+<details><summary>Planet Enus b (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.11e+07 m
@@ -37859,7 +37859,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.11e+07 м
@@ -37896,13 +37896,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Enus c (cold sub dwarf)</summary>  
+<details><summary>Planet Enus c (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 5.68e+05 m
@@ -37918,7 +37918,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.68e+05 м
@@ -37955,13 +37955,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Enus d (icy dwarf)</summary>  
+<details><summary>Planet Enus d (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.48e+05 m
@@ -38370,13 +38370,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Urerod a (icy super giant)</summary>  
+<details><summary>Planet Urerod a (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.22e+08 m
@@ -38392,7 +38392,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.22e+08 м
@@ -38675,13 +38675,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ochai a (cold sub giant)</summary>  
+<details><summary>Planet Ochai a (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 2.01e+08 m
@@ -38697,7 +38697,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.01e+08 м
@@ -38734,13 +38734,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ochai b (icy super giant)</summary>  
+<details><summary>Planet Ochai b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.04e+08 m
@@ -38756,7 +38756,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.04e+08 м
@@ -39039,13 +39039,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Erettut a (cold terrestrial)</summary>  
+<details><summary>Planet Erettut a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 6.84e+06 m
@@ -39318,13 +39318,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Oreciseh a (cold sub giant)</summary>  
+<details><summary>Planet Oreciseh a (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 2.23e+08 m
@@ -39340,7 +39340,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.23e+08 м
@@ -39377,13 +39377,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oreciseh b (icy sub dwarf)</summary>  
+<details><summary>Planet Oreciseh b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.20e+05 m
@@ -39399,7 +39399,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.20e+05 м
@@ -39436,13 +39436,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oreciseh c (icy dwarf)</summary>  
+<details><summary>Planet Oreciseh c (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 6.80e+05 m
@@ -39783,13 +39783,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Gusbin a (icy dwarf)</summary>  
+<details><summary>Planet Gusbin a (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.24e+05 m
@@ -39842,13 +39842,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Gusbin b (icy super dwarf)</summary>  
+<details><summary>Planet Gusbin b (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.45e+06 m
@@ -39864,7 +39864,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.45e+06 м
@@ -40011,13 +40011,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Eonk a (hot giant)</summary>  
+<details><summary>Planet Eonk a (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 1.79e+08 m
@@ -40070,13 +40070,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eonk b (hot sub giant)</summary>  
+<details><summary>Planet Eonk b (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 9.33e+07 m
@@ -40092,7 +40092,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 9.33e+07 м
@@ -40129,13 +40129,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eonk c (warm - empty orbit -)</summary>  
+<details><summary>Planet Eonk c (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -40188,13 +40188,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eonk d (cold sub giant)</summary>  
+<details><summary>Planet Eonk d (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 8.73e+07 m
@@ -40210,7 +40210,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 8.73e+07 м
@@ -40247,13 +40247,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eonk e (icy super dwarf)</summary>  
+<details><summary>Planet Eonk e (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.19e+06 m
@@ -40269,7 +40269,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.19e+06 м
@@ -40306,13 +40306,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eonk f (icy dwarf)</summary>  
+<details><summary>Planet Eonk f (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 7.37e+05 m
@@ -40543,13 +40543,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Opilor a (warm sub terrestrial)</summary>  
+<details><summary>Planet Opilor a (warm small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub terrestrial
+Planet type: warm small terrestrial planet
 
 Absolute units:
 * Size: 3.80e+06 m
@@ -40565,7 +40565,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета мініземля
+Тип планети: тепла мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.80e+06 м
@@ -40602,13 +40602,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Opilor b (warm - empty orbit -)</summary>  
+<details><summary>Planet Opilor b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -40661,13 +40661,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Opilor c (temperate super giant)</summary>  
+<details><summary>Planet Opilor c (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 1.70e+08 m
@@ -40683,7 +40683,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.70e+08 м
@@ -40720,13 +40720,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Opilor d (cold - empty orbit -)</summary>  
+<details><summary>Planet Opilor d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -40779,13 +40779,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Opilor e (cold super giant)</summary>  
+<details><summary>Planet Opilor e (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.31e+08 m
@@ -40801,7 +40801,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.31e+08 м
@@ -40838,13 +40838,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Opilor f (icy dwarf)</summary>  
+<details><summary>Planet Opilor f (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.03e+05 m
@@ -41117,13 +41117,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Depsal a (cold super giant)</summary>  
+<details><summary>Planet Depsal a (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 2.44e+08 m
@@ -41139,7 +41139,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.44e+08 м
@@ -41176,13 +41176,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Depsal b (icy terrestrial)</summary>  
+<details><summary>Planet Depsal b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 4.59e+06 m
@@ -41591,13 +41591,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ettomau a (hot sub giant)</summary>  
+<details><summary>Planet Ettomau a (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 1.77e+08 m
@@ -41613,7 +41613,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.77e+08 м
@@ -42032,13 +42032,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Noav a (cold terrestrial)</summary>  
+<details><summary>Planet Noav a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 6.61e+06 m
@@ -42337,13 +42337,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Pin a (temperate super giant)</summary>  
+<details><summary>Planet Pin a (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 2.43e+08 m
@@ -42359,7 +42359,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.43e+08 м
@@ -42396,13 +42396,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pin b (cold - empty orbit -)</summary>  
+<details><summary>Planet Pin b (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -42455,13 +42455,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pin c (cold - empty orbit -)</summary>  
+<details><summary>Planet Pin c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -42514,13 +42514,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Pin d (icy super dwarf)</summary>  
+<details><summary>Planet Pin d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.89e+06 m
@@ -42536,7 +42536,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.89e+06 м
@@ -42751,13 +42751,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Enicili a (cold terrestrial)</summary>  
+<details><summary>Planet Enicili a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 6.07e+06 m
@@ -42810,13 +42810,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Enicili b (icy super dwarf)</summary>  
+<details><summary>Planet Enicili b (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.58e+06 m
@@ -42832,7 +42832,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.58e+06 м
@@ -42869,13 +42869,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Enicili c (icy dwarf)</summary>  
+<details><summary>Planet Enicili c (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 6.83e+05 m
@@ -43038,13 +43038,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Rydume a (temperate sub giant)</summary>  
+<details><summary>Planet Rydume a (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 2.24e+08 m
@@ -43060,7 +43060,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.24e+08 м
@@ -43275,13 +43275,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Dismi a (icy super terrestrial)</summary>  
+<details><summary>Planet Dismi a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.41e+07 m
@@ -43297,7 +43297,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.41e+07 м
@@ -43334,13 +43334,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Dismi b (icy sub dwarf)</summary>  
+<details><summary>Planet Dismi b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.53e+05 m
@@ -43356,7 +43356,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.53e+05 м
@@ -43503,13 +43503,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Fomreb a (icy super terrestrial)</summary>  
+<details><summary>Planet Fomreb a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.54e+07 m
@@ -43525,7 +43525,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.54e+07 м
@@ -43562,13 +43562,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fomreb b (icy dwarf)</summary>  
+<details><summary>Planet Fomreb b (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.09e+06 m
@@ -43621,13 +43621,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Fomreb c (icy sub giant)</summary>  
+<details><summary>Planet Fomreb c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.63e+08 m
@@ -43643,7 +43643,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.63e+08 м
@@ -43926,13 +43926,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Adocol a (temperate sub giant)</summary>  
+<details><summary>Planet Adocol a (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 7.05e+07 m
@@ -43948,7 +43948,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 7.05e+07 м
@@ -44095,13 +44095,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Alesedol a (cold terrestrial)</summary>  
+<details><summary>Planet Alesedol a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.27e+06 m
@@ -44400,13 +44400,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Iceha a (temperate super dwarf)</summary>  
+<details><summary>Planet Iceha a (temperate large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super dwarf
+Planet type: temperate large dwarf planet
 
 Absolute units:
 * Size: 1.60e+06 m
@@ -44422,7 +44422,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна суперкарликова планета
+Тип планети: помірна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.60e+06 м
@@ -44569,13 +44569,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Itirafen a (icy super terrestrial)</summary>  
+<details><summary>Planet Itirafen a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 9.93e+06 m
@@ -44591,7 +44591,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 9.93e+06 м
@@ -44628,13 +44628,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Itirafen b (icy dwarf)</summary>  
+<details><summary>Planet Itirafen b (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.02e+06 m
@@ -44797,13 +44797,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Iotouc a (warm super giant)</summary>  
+<details><summary>Planet Iotouc a (warm large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super giant
+Planet type: warm large giant planet
 
 Absolute units:
 * Size: 2.29e+08 m
@@ -44819,7 +44819,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета супергігант
+Тип планети: тепла планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.29e+08 м
@@ -44856,13 +44856,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iotouc b (cold sub terrestrial)</summary>  
+<details><summary>Planet Iotouc b (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.12e+06 m
@@ -44878,7 +44878,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.12e+06 м
@@ -44915,13 +44915,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iotouc c (icy super dwarf)</summary>  
+<details><summary>Planet Iotouc c (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.19e+06 m
@@ -44937,7 +44937,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.19e+06 м
@@ -45084,13 +45084,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Initowu a (hot sub giant)</summary>  
+<details><summary>Planet Initowu a (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 6.24e+07 m
@@ -45106,7 +45106,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 6.24e+07 м
@@ -45143,13 +45143,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Initowu b (warm - empty orbit -)</summary>  
+<details><summary>Planet Initowu b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -45202,13 +45202,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Initowu c (cold - empty orbit -)</summary>  
+<details><summary>Planet Initowu c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -45261,13 +45261,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Initowu d (icy giant)</summary>  
+<details><summary>Planet Initowu d (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.11e+08 m
@@ -45430,13 +45430,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Nacole a (cold - empty orbit -)</summary>  
+<details><summary>Planet Nacole a (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -45489,13 +45489,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Nacole b (icy super giant)</summary>  
+<details><summary>Planet Nacole b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.44e+08 m
@@ -45511,7 +45511,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.44e+08 м
@@ -45658,13 +45658,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Atani a (cold super dwarf)</summary>  
+<details><summary>Planet Atani a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.75e+06 m
@@ -45680,7 +45680,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.75e+06 м
@@ -45717,13 +45717,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atani b (cold super dwarf)</summary>  
+<details><summary>Planet Atani b (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.61e+06 m
@@ -45739,7 +45739,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.61e+06 м
@@ -45776,13 +45776,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atani c (icy giant)</summary>  
+<details><summary>Planet Atani c (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.43e+08 m
@@ -46055,13 +46055,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Refepese a (cold super giant)</summary>  
+<details><summary>Planet Refepese a (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.31e+08 m
@@ -46077,7 +46077,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.31e+08 м
@@ -46114,13 +46114,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Refepese b (icy - empty orbit -)</summary>  
+<details><summary>Planet Refepese b (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -46173,13 +46173,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Refepese c (icy giant)</summary>  
+<details><summary>Planet Refepese c (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.00e+08 m
@@ -46342,13 +46342,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Somi a (icy dwarf)</summary>  
+<details><summary>Planet Somi a (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.01e+06 m
@@ -46401,13 +46401,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Somi b (icy dwarf)</summary>  
+<details><summary>Planet Somi b (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.33e+05 m
@@ -46706,13 +46706,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Isasora a (warm sub dwarf)</summary>  
+<details><summary>Planet Isasora a (warm small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub dwarf
+Planet type: warm small dwarf planet
 
 Absolute units:
 * Size: 4.63e+05 m
@@ -46728,7 +46728,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла субкарликова планета
+Тип планети: тепла мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.63e+05 м
@@ -46765,13 +46765,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isasora b (temperate super giant)</summary>  
+<details><summary>Planet Isasora b (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 2.39e+08 m
@@ -46787,7 +46787,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.39e+08 м
@@ -46824,13 +46824,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isasora c (cold - empty orbit -)</summary>  
+<details><summary>Planet Isasora c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -46883,13 +46883,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isasora d (icy sub giant)</summary>  
+<details><summary>Planet Isasora d (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.78e+08 m
@@ -46905,7 +46905,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.78e+08 м
@@ -47052,13 +47052,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris a (warm giant)</summary>  
+<details><summary>Planet Oselaris a (warm giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm giant
+Planet type: warm giant planet
 
 Absolute units:
 * Size: 1.55e+08 m
@@ -47111,13 +47111,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris b (warm - empty orbit -)</summary>  
+<details><summary>Planet Oselaris b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -47170,13 +47170,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris c (temperate - empty orbit -)</summary>  
+<details><summary>Planet Oselaris c (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -47229,13 +47229,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris d (cold - empty orbit -)</summary>  
+<details><summary>Planet Oselaris d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -47288,13 +47288,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris e (cold - empty orbit -)</summary>  
+<details><summary>Planet Oselaris e (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -47347,13 +47347,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris f (icy giant)</summary>  
+<details><summary>Planet Oselaris f (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.16e+08 m
@@ -47406,13 +47406,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris g (icy sub giant)</summary>  
+<details><summary>Planet Oselaris g (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 7.88e+07 m
@@ -47428,7 +47428,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 7.88e+07 м
@@ -47465,13 +47465,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris h (icy sub terrestrial)</summary>  
+<details><summary>Planet Oselaris h (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 4.07e+06 m
@@ -47487,7 +47487,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.07e+06 м
@@ -47524,13 +47524,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris i (icy dwarf)</summary>  
+<details><summary>Planet Oselaris i (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.12e+06 m
@@ -47583,13 +47583,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris j (icy sub giant)</summary>  
+<details><summary>Planet Oselaris j (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 8.36e+07 m
@@ -47605,7 +47605,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 8.36e+07 м
@@ -47642,13 +47642,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris k (icy - empty orbit -)</summary>  
+<details><summary>Planet Oselaris k (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -47701,13 +47701,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oselaris l (icy super giant)</summary>  
+<details><summary>Planet Oselaris l (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.10e+08 m
@@ -47723,7 +47723,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.10e+08 м
@@ -48006,13 +48006,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lur a (cold super dwarf)</summary>  
+<details><summary>Planet Lur a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.98e+06 m
@@ -48028,7 +48028,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.98e+06 м
@@ -48065,13 +48065,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lur b (icy terrestrial)</summary>  
+<details><summary>Planet Lur b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 4.84e+06 m
@@ -48124,13 +48124,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lur c (icy sub dwarf)</summary>  
+<details><summary>Planet Lur c (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.13e+05 m
@@ -48146,7 +48146,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.13e+05 м
@@ -48293,13 +48293,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lopolo a (icy - empty orbit -)</summary>  
+<details><summary>Planet Lopolo a (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -48352,13 +48352,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lopolo b (icy super giant)</summary>  
+<details><summary>Planet Lopolo b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.29e+08 m
@@ -48374,7 +48374,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.29e+08 м
@@ -48521,13 +48521,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Aranle a (cold dwarf)</summary>  
+<details><summary>Planet Aranle a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 6.81e+05 m
@@ -48580,13 +48580,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aranle b (cold super terrestrial)</summary>  
+<details><summary>Planet Aranle b (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.49e+07 m
@@ -48602,7 +48602,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.49e+07 м
@@ -48639,13 +48639,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aranle c (icy terrestrial)</summary>  
+<details><summary>Planet Aranle c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.00e+06 m
@@ -48698,13 +48698,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aranle d (icy sub terrestrial)</summary>  
+<details><summary>Planet Aranle d (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.27e+06 m
@@ -48720,7 +48720,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.27e+06 м
@@ -49181,13 +49181,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Emimiv a (cold dwarf)</summary>  
+<details><summary>Planet Emimiv a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 1.09e+06 m
@@ -49240,13 +49240,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emimiv b (icy terrestrial)</summary>  
+<details><summary>Planet Emimiv b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 5.04e+06 m
@@ -49409,13 +49409,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Isipa a (cold sub dwarf)</summary>  
+<details><summary>Planet Isipa a (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 6.05e+05 m
@@ -49431,7 +49431,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.05e+05 м
@@ -49468,13 +49468,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Isipa b (icy giant)</summary>  
+<details><summary>Planet Isipa b (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.33e+08 m
@@ -49705,13 +49705,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lernone a (hot super terrestrial)</summary>  
+<details><summary>Planet Lernone a (hot large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super terrestrial
+Planet type: hot large terrestrial planet
 
 Absolute units:
 * Size: 1.04e+07 m
@@ -49727,7 +49727,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета суперземля
+Тип планети: гаряча велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.04e+07 м
@@ -49764,13 +49764,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lernone b (warm sub giant)</summary>  
+<details><summary>Planet Lernone b (warm small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub giant
+Planet type: warm small giant planet
 
 Absolute units:
 * Size: 1.45e+08 m
@@ -49786,7 +49786,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета субгігант
+Тип планети: тепла планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.45e+08 м
@@ -49823,13 +49823,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lernone c (cold - empty orbit -)</summary>  
+<details><summary>Planet Lernone c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -49882,13 +49882,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lernone d (icy super giant)</summary>  
+<details><summary>Planet Lernone d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.22e+08 m
@@ -49904,7 +49904,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.22e+08 м
@@ -50051,13 +50051,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ikiu a (cold super dwarf)</summary>  
+<details><summary>Planet Ikiu a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 2.05e+06 m
@@ -50073,7 +50073,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.05e+06 м
@@ -50356,13 +50356,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Enedw a (cold super dwarf)</summary>  
+<details><summary>Planet Enedw a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 2.03e+06 m
@@ -50378,7 +50378,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.03e+06 м
@@ -50593,13 +50593,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Cad a (hot sub giant)</summary>  
+<details><summary>Planet Cad a (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 6.51e+07 m
@@ -50615,7 +50615,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 6.51e+07 м
@@ -50652,13 +50652,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad b (temperate - empty orbit -)</summary>  
+<details><summary>Planet Cad b (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -50711,13 +50711,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad c (cold - empty orbit -)</summary>  
+<details><summary>Planet Cad c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -50770,13 +50770,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad d (icy super giant)</summary>  
+<details><summary>Planet Cad d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.90e+08 m
@@ -50792,7 +50792,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.90e+08 м
@@ -50829,13 +50829,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad e (icy super dwarf)</summary>  
+<details><summary>Planet Cad e (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.23e+06 m
@@ -50851,7 +50851,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.23e+06 м
@@ -50888,13 +50888,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad f (icy dwarf)</summary>  
+<details><summary>Planet Cad f (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.42e+05 m
@@ -50947,13 +50947,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad g (icy dwarf)</summary>  
+<details><summary>Planet Cad g (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.14e+06 m
@@ -51006,13 +51006,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad h (icy sub dwarf)</summary>  
+<details><summary>Planet Cad h (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.90e+05 m
@@ -51028,7 +51028,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.90e+05 м
@@ -51065,13 +51065,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Cad i (icy sub terrestrial)</summary>  
+<details><summary>Planet Cad i (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.50e+06 m
@@ -51087,7 +51087,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.50e+06 м
@@ -51234,13 +51234,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Romataki a (cold giant)</summary>  
+<details><summary>Planet Romataki a (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 2.16e+08 m
@@ -51293,13 +51293,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Romataki b (icy sub terrestrial)</summary>  
+<details><summary>Planet Romataki b (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.88e+06 m
@@ -51315,7 +51315,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.88e+06 м
@@ -51352,13 +51352,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Romataki c (icy terrestrial)</summary>  
+<details><summary>Planet Romataki c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 5.86e+06 m
@@ -51699,13 +51699,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Oonz a (cold super dwarf)</summary>  
+<details><summary>Planet Oonz a (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 2.18e+06 m
@@ -51721,7 +51721,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.18e+06 м
@@ -52182,13 +52182,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Natr a (icy sub giant)</summary>  
+<details><summary>Planet Natr a (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.25e+08 m
@@ -52204,7 +52204,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.25e+08 м
@@ -52241,13 +52241,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Natr b (icy terrestrial)</summary>  
+<details><summary>Planet Natr b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.32e+06 m
@@ -52410,13 +52410,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ladu a (cold giant)</summary>  
+<details><summary>Planet Ladu a (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.31e+08 m
@@ -52579,13 +52579,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva a (hot super dwarf)</summary>  
+<details><summary>Planet Tiwfuva a (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 2.04e+06 m
@@ -52601,7 +52601,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.04e+06 м
@@ -52638,13 +52638,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva b (warm dwarf)</summary>  
+<details><summary>Planet Tiwfuva b (warm dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm dwarf
+Planet type: warm dwarf planet
 
 Absolute units:
 * Size: 9.69e+05 m
@@ -52697,13 +52697,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva c (temperate super dwarf)</summary>  
+<details><summary>Planet Tiwfuva c (temperate large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super dwarf
+Planet type: temperate large dwarf planet
 
 Absolute units:
 * Size: 2.06e+06 m
@@ -52719,7 +52719,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна суперкарликова планета
+Тип планети: помірна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.06e+06 м
@@ -52756,13 +52756,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva d (temperate terrestrial)</summary>  
+<details><summary>Planet Tiwfuva d (temperate terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate terrestrial
+Planet type: temperate terrestrial planet
 
 Absolute units:
 * Size: 6.45e+06 m
@@ -52815,13 +52815,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva e (cold terrestrial)</summary>  
+<details><summary>Planet Tiwfuva e (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 8.03e+06 m
@@ -52874,13 +52874,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva f (cold super terrestrial)</summary>  
+<details><summary>Planet Tiwfuva f (cold large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super terrestrial
+Planet type: cold large terrestrial planet
 
 Absolute units:
 * Size: 1.35e+07 m
@@ -52896,7 +52896,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета суперземля
+Тип планети: холодна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.35e+07 м
@@ -52933,13 +52933,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva g (icy - empty orbit -)</summary>  
+<details><summary>Planet Tiwfuva g (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -52992,13 +52992,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva h (icy super giant)</summary>  
+<details><summary>Planet Tiwfuva h (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.42e+08 m
@@ -53014,7 +53014,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.42e+08 м
@@ -53051,13 +53051,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Tiwfuva i (icy sub dwarf)</summary>  
+<details><summary>Planet Tiwfuva i (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 6.07e+05 m
@@ -53073,7 +53073,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.07e+05 м
@@ -53288,13 +53288,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Urmo a (icy sub terrestrial)</summary>  
+<details><summary>Planet Urmo a (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.64e+06 m
@@ -53310,7 +53310,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.64e+06 м
@@ -53347,13 +53347,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Urmo b (icy super terrestrial)</summary>  
+<details><summary>Planet Urmo b (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 9.99e+06 m
@@ -53369,7 +53369,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 9.99e+06 м
@@ -53584,13 +53584,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Sisil a (cold sub giant)</summary>  
+<details><summary>Planet Sisil a (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.17e+08 m
@@ -53606,7 +53606,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.17e+08 м
@@ -53643,13 +53643,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sisil b (icy sub terrestrial)</summary>  
+<details><summary>Planet Sisil b (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.48e+06 m
@@ -53665,7 +53665,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.48e+06 м
@@ -53812,13 +53812,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ben a (icy dwarf)</summary>  
+<details><summary>Planet Ben a (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.09e+06 m
@@ -53981,13 +53981,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Taver a (icy super terrestrial)</summary>  
+<details><summary>Planet Taver a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.03e+07 m
@@ -54003,7 +54003,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.03e+07 м
@@ -54040,13 +54040,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Taver b (icy sub dwarf)</summary>  
+<details><summary>Planet Taver b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.94e+05 m
@@ -54062,7 +54062,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.94e+05 м
@@ -54099,13 +54099,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Taver c (icy giant)</summary>  
+<details><summary>Planet Taver c (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.46e+08 m
@@ -54446,13 +54446,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Dofape a (warm sub giant)</summary>  
+<details><summary>Planet Dofape a (warm small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub giant
+Planet type: warm small giant planet
 
 Absolute units:
 * Size: 2.17e+07 m
@@ -54468,7 +54468,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета субгігант
+Тип планети: тепла планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.17e+07 м
@@ -54505,13 +54505,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Dofape b (temperate - empty orbit -)</summary>  
+<details><summary>Planet Dofape b (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -54564,13 +54564,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Dofape c (cold - empty orbit -)</summary>  
+<details><summary>Planet Dofape c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -54623,13 +54623,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Dofape d (cold sub giant)</summary>  
+<details><summary>Planet Dofape d (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 2.72e+07 m
@@ -54645,7 +54645,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.72e+07 м
@@ -54682,13 +54682,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Dofape e (icy dwarf)</summary>  
+<details><summary>Planet Dofape e (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.16e+06 m
@@ -54851,13 +54851,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Aanrin a (icy super terrestrial)</summary>  
+<details><summary>Planet Aanrin a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.46e+07 m
@@ -54873,7 +54873,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.46e+07 м
@@ -54910,13 +54910,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Aanrin b (icy terrestrial)</summary>  
+<details><summary>Planet Aanrin b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 5.45e+06 m
@@ -55147,13 +55147,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Wap a (icy sub terrestrial)</summary>  
+<details><summary>Planet Wap a (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.46e+06 m
@@ -55169,7 +55169,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.46e+06 м
@@ -55206,13 +55206,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Wap b (icy super terrestrial)</summary>  
+<details><summary>Planet Wap b (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.36e+07 m
@@ -55228,7 +55228,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.36e+07 м
@@ -55375,13 +55375,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Liapn a (hot sub dwarf)</summary>  
+<details><summary>Planet Liapn a (hot small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub dwarf
+Planet type: hot small dwarf planet
 
 Absolute units:
 * Size: 4.61e+05 m
@@ -55397,7 +55397,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча субкарликова планета
+Тип планети: гаряча мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.61e+05 м
@@ -55544,13 +55544,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ysehegad a (hot terrestrial)</summary>  
+<details><summary>Planet Ysehegad a (hot terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot terrestrial
+Planet type: hot terrestrial planet
 
 Absolute units:
 * Size: 4.73e+06 m
@@ -55603,13 +55603,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ysehegad b (hot super dwarf)</summary>  
+<details><summary>Planet Ysehegad b (hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super dwarf
+Planet type: hot large dwarf planet
 
 Absolute units:
 * Size: 2.09e+06 m
@@ -55625,7 +55625,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча суперкарликова планета
+Тип планети: гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.09e+06 м
@@ -55662,13 +55662,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ysehegad c (temperate terrestrial)</summary>  
+<details><summary>Planet Ysehegad c (temperate terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate terrestrial
+Planet type: temperate terrestrial planet
 
 Absolute units:
 * Size: 4.51e+06 m
@@ -55721,13 +55721,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ysehegad d (cold super dwarf)</summary>  
+<details><summary>Planet Ysehegad d (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.78e+06 m
@@ -55743,7 +55743,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.78e+06 м
@@ -55780,13 +55780,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ysehegad e (cold dwarf)</summary>  
+<details><summary>Planet Ysehegad e (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 9.51e+05 m
@@ -55839,13 +55839,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ysehegad f (icy super terrestrial)</summary>  
+<details><summary>Planet Ysehegad f (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 8.20e+06 m
@@ -55861,7 +55861,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 8.20e+06 м
@@ -56008,13 +56008,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ihwar a (icy sub terrestrial)</summary>  
+<details><summary>Planet Ihwar a (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 2.39e+06 m
@@ -56030,7 +56030,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 2.39e+06 м
@@ -56067,13 +56067,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ihwar b (icy sub giant)</summary>  
+<details><summary>Planet Ihwar b (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.20e+08 m
@@ -56089,7 +56089,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.20e+08 м
@@ -56236,13 +56236,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Igis a (cold dwarf)</summary>  
+<details><summary>Planet Igis a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 6.96e+05 m
@@ -56541,13 +56541,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Onats a (icy giant)</summary>  
+<details><summary>Planet Onats a (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.12e+08 m
@@ -56600,13 +56600,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Onats b (icy sub dwarf)</summary>  
+<details><summary>Planet Onats b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.82e+05 m
@@ -56622,7 +56622,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.82e+05 м
@@ -56659,13 +56659,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Onats c (icy terrestrial)</summary>  
+<details><summary>Planet Onats c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 8.00e+06 m
@@ -56828,13 +56828,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Nimomasi a (icy - empty orbit -)</summary>  
+<details><summary>Planet Nimomasi a (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -56887,13 +56887,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Nimomasi b (icy super giant)</summary>  
+<details><summary>Planet Nimomasi b (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.61e+08 m
@@ -56909,7 +56909,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.61e+08 м
@@ -57056,13 +57056,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Sarereba a (cold sub dwarf)</summary>  
+<details><summary>Planet Sarereba a (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 5.86e+05 m
@@ -57078,7 +57078,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.86e+05 м
@@ -57115,13 +57115,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sarereba b (cold terrestrial)</summary>  
+<details><summary>Planet Sarereba b (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.46e+06 m
@@ -57174,13 +57174,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sarereba c (icy super terrestrial)</summary>  
+<details><summary>Planet Sarereba c (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.09e+07 m
@@ -57196,7 +57196,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.09e+07 м
@@ -57233,13 +57233,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sarereba d (icy sub terrestrial)</summary>  
+<details><summary>Planet Sarereba d (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 4.09e+06 m
@@ -57255,7 +57255,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.09e+06 м
@@ -57402,13 +57402,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Pusyret a (cold terrestrial)</summary>  
+<details><summary>Planet Pusyret a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 6.92e+06 m
@@ -57571,13 +57571,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Acaf a (hot giant)</summary>  
+<details><summary>Planet Acaf a (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 2.16e+08 m
@@ -57630,13 +57630,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Acaf b (warm - empty orbit -)</summary>  
+<details><summary>Planet Acaf b (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -57689,13 +57689,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Acaf c (cold sub giant)</summary>  
+<details><summary>Planet Acaf c (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 8.53e+07 m
@@ -57711,7 +57711,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 8.53e+07 м
@@ -57748,13 +57748,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Acaf d (icy super dwarf)</summary>  
+<details><summary>Planet Acaf d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.18e+06 m
@@ -57770,7 +57770,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.18e+06 м
@@ -58163,13 +58163,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lutap a (temperate super dwarf)</summary>  
+<details><summary>Planet Lutap a (temperate large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super dwarf
+Planet type: temperate large dwarf planet
 
 Absolute units:
 * Size: 2.14e+06 m
@@ -58185,7 +58185,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна суперкарликова планета
+Тип планети: помірна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.14e+06 м
@@ -58332,13 +58332,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Esuset a (hot sub dwarf)</summary>  
+<details><summary>Planet Esuset a (hot small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub dwarf
+Planet type: hot small dwarf planet
 
 Absolute units:
 * Size: 4.82e+05 m
@@ -58354,7 +58354,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча субкарликова планета
+Тип планети: гаряча мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.82e+05 м
@@ -58391,13 +58391,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Esuset b (hot sub terrestrial)</summary>  
+<details><summary>Planet Esuset b (hot small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub terrestrial
+Planet type: hot small terrestrial planet
 
 Absolute units:
 * Size: 3.98e+06 m
@@ -58413,7 +58413,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета мініземля
+Тип планети: гаряча мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.98e+06 м
@@ -58450,13 +58450,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Esuset c (temperate giant)</summary>  
+<details><summary>Planet Esuset c (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 1.75e+08 m
@@ -58509,13 +58509,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Esuset d (cold - empty orbit -)</summary>  
+<details><summary>Planet Esuset d (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -58568,13 +58568,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Esuset e (icy super giant)</summary>  
+<details><summary>Planet Esuset e (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.51e+08 m
@@ -58590,7 +58590,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.51e+08 м
@@ -58627,13 +58627,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Esuset f (icy sub terrestrial)</summary>  
+<details><summary>Planet Esuset f (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.27e+06 m
@@ -58649,7 +58649,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.27e+06 м
@@ -58796,13 +58796,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Kisreol a (cold terrestrial)</summary>  
+<details><summary>Planet Kisreol a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 7.99e+06 m
@@ -59075,13 +59075,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Sepyre a (icy sub giant)</summary>  
+<details><summary>Planet Sepyre a (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.91e+08 m
@@ -59097,7 +59097,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.91e+08 м
@@ -59134,13 +59134,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Sepyre b (icy sub giant)</summary>  
+<details><summary>Planet Sepyre b (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.95e+08 m
@@ -59156,7 +59156,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.95e+08 м
@@ -59371,13 +59371,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Atdob a (cold terrestrial)</summary>  
+<details><summary>Planet Atdob a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 5.59e+06 m
@@ -59540,13 +59540,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Icile a (icy super terrestrial)</summary>  
+<details><summary>Planet Icile a (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.28e+07 m
@@ -59562,7 +59562,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.28e+07 м
@@ -59599,13 +59599,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Icile b (icy giant)</summary>  
+<details><summary>Planet Icile b (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.37e+08 m
@@ -59768,13 +59768,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Amoromes a (icy sub giant)</summary>  
+<details><summary>Planet Amoromes a (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 2.06e+08 m
@@ -59790,7 +59790,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.06e+08 м
@@ -59827,13 +59827,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Amoromes b (icy dwarf)</summary>  
+<details><summary>Planet Amoromes b (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.12e+06 m
@@ -60064,13 +60064,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Emanoci a (hot dwarf)</summary>  
+<details><summary>Planet Emanoci a (hot dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot dwarf
+Planet type: hot dwarf planet
 
 Absolute units:
 * Size: 9.25e+05 m
@@ -60123,13 +60123,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emanoci b (warm sub dwarf)</summary>  
+<details><summary>Planet Emanoci b (warm small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm sub dwarf
+Planet type: warm small dwarf planet
 
 Absolute units:
 * Size: 5.70e+05 m
@@ -60145,7 +60145,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла субкарликова планета
+Тип планети: тепла мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.70e+05 м
@@ -60182,13 +60182,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emanoci c (temperate super giant)</summary>  
+<details><summary>Planet Emanoci c (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 1.27e+08 m
@@ -60204,7 +60204,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.27e+08 м
@@ -60241,13 +60241,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emanoci d (icy sub dwarf)</summary>  
+<details><summary>Planet Emanoci d (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.57e+05 m
@@ -60263,7 +60263,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.57e+05 м
@@ -60300,13 +60300,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emanoci e (icy dwarf)</summary>  
+<details><summary>Planet Emanoci e (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.11e+06 m
@@ -60851,13 +60851,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Efniss a (icy terrestrial)</summary>  
+<details><summary>Planet Efniss a (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 6.36e+06 m
@@ -60910,13 +60910,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Efniss b (icy sub terrestrial)</summary>  
+<details><summary>Planet Efniss b (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 4.04e+06 m
@@ -60932,7 +60932,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 4.04e+06 м
@@ -61079,13 +61079,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Emowi a (warm dwarf)</summary>  
+<details><summary>Planet Emowi a (warm dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm dwarf
+Planet type: warm dwarf planet
 
 Absolute units:
 * Size: 1.12e+06 m
@@ -61138,13 +61138,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emowi b (temperate giant)</summary>  
+<details><summary>Planet Emowi b (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 1.38e+08 m
@@ -61197,13 +61197,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emowi c (cold - empty orbit -)</summary>  
+<details><summary>Planet Emowi c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -61256,13 +61256,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Emowi d (icy giant)</summary>  
+<details><summary>Planet Emowi d (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.37e+08 m
@@ -61425,13 +61425,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ehecin a (icy giant)</summary>  
+<details><summary>Planet Ehecin a (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.17e+08 m
@@ -61484,13 +61484,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ehecin b (icy dwarf)</summary>  
+<details><summary>Planet Ehecin b (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.80e+05 m
@@ -61543,13 +61543,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ehecin c (icy dwarf)</summary>  
+<details><summary>Planet Ehecin c (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.11e+06 m
@@ -61848,13 +61848,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Petede a (temperate super terrestrial)</summary>  
+<details><summary>Planet Petede a (temperate large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super terrestrial
+Planet type: temperate large terrestrial planet
 
 Absolute units:
 * Size: 9.69e+06 m
@@ -61870,7 +61870,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета суперземля
+Тип планети: помірна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 9.69e+06 м
@@ -61907,13 +61907,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Petede b (cold sub dwarf)</summary>  
+<details><summary>Planet Petede b (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 5.50e+05 m
@@ -61929,7 +61929,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.50e+05 м
@@ -61966,13 +61966,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Petede c (icy super terrestrial)</summary>  
+<details><summary>Planet Petede c (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 8.70e+06 m
@@ -61988,7 +61988,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 8.70e+06 м
@@ -62025,13 +62025,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Petede d (icy dwarf)</summary>  
+<details><summary>Planet Petede d (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 9.84e+05 m
@@ -62194,13 +62194,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Toragev a (hot sub giant)</summary>  
+<details><summary>Planet Toragev a (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 1.67e+08 m
@@ -62216,7 +62216,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.67e+08 м
@@ -62253,13 +62253,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev b (warm super giant)</summary>  
+<details><summary>Planet Toragev b (warm large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super giant
+Planet type: warm large giant planet
 
 Absolute units:
 * Size: 1.35e+08 m
@@ -62275,7 +62275,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета супергігант
+Тип планети: тепла планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.35e+08 м
@@ -62312,13 +62312,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev c (temperate sub giant)</summary>  
+<details><summary>Planet Toragev c (temperate small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub giant
+Planet type: temperate small giant planet
 
 Absolute units:
 * Size: 1.78e+08 m
@@ -62334,7 +62334,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета субгігант
+Тип планети: помірна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.78e+08 м
@@ -62371,13 +62371,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev d (icy sub giant)</summary>  
+<details><summary>Planet Toragev d (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 2.05e+08 m
@@ -62393,7 +62393,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.05e+08 м
@@ -62430,13 +62430,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev e (icy - empty orbit -)</summary>  
+<details><summary>Planet Toragev e (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -62489,13 +62489,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev f (icy giant)</summary>  
+<details><summary>Planet Toragev f (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.50e+08 m
@@ -62548,13 +62548,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev g (icy sub dwarf)</summary>  
+<details><summary>Planet Toragev g (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.73e+05 m
@@ -62570,7 +62570,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.73e+05 м
@@ -62607,13 +62607,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev h (icy super terrestrial)</summary>  
+<details><summary>Planet Toragev h (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.09e+07 m
@@ -62629,7 +62629,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.09e+07 м
@@ -62666,13 +62666,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev i (icy terrestrial)</summary>  
+<details><summary>Planet Toragev i (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 5.38e+06 m
@@ -62725,13 +62725,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev j (icy dwarf)</summary>  
+<details><summary>Planet Toragev j (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 8.15e+05 m
@@ -62784,13 +62784,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Toragev k (icy super dwarf)</summary>  
+<details><summary>Planet Toragev k (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.27e+06 m
@@ -62806,7 +62806,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.27e+06 м
@@ -62953,13 +62953,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Narduh a (icy sub dwarf)</summary>  
+<details><summary>Planet Narduh a (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.24e+05 m
@@ -62975,7 +62975,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.24e+05 м
@@ -63190,13 +63190,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Uosw a (hot sub giant)</summary>  
+<details><summary>Planet Uosw a (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 4.38e+07 m
@@ -63212,7 +63212,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 4.38e+07 м
@@ -63249,13 +63249,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Uosw b (temperate - empty orbit -)</summary>  
+<details><summary>Planet Uosw b (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -63308,13 +63308,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Uosw c (cold - empty orbit -)</summary>  
+<details><summary>Planet Uosw c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -63367,13 +63367,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Uosw d (icy sub dwarf)</summary>  
+<details><summary>Planet Uosw d (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.75e+05 m
@@ -63389,7 +63389,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.75e+05 м
@@ -63672,13 +63672,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Iimimha a (warm super terrestrial)</summary>  
+<details><summary>Planet Iimimha a (warm large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super terrestrial
+Planet type: warm large terrestrial planet
 
 Absolute units:
 * Size: 1.53e+07 m
@@ -63694,7 +63694,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета суперземля
+Тип планети: тепла велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.53e+07 м
@@ -63731,13 +63731,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iimimha b (cold dwarf)</summary>  
+<details><summary>Planet Iimimha b (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 1.10e+06 m
@@ -63790,13 +63790,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iimimha c (icy sub giant)</summary>  
+<details><summary>Planet Iimimha c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 8.09e+07 m
@@ -63812,7 +63812,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 8.09e+07 м
@@ -63959,13 +63959,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Futacepo a (warm giant)</summary>  
+<details><summary>Planet Futacepo a (warm giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm giant
+Planet type: warm giant planet
 
 Absolute units:
 * Size: 2.32e+08 m
@@ -64128,13 +64128,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Eazih a (cold giant)</summary>  
+<details><summary>Planet Eazih a (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.44e+08 m
@@ -64187,13 +64187,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eazih b (cold sub giant)</summary>  
+<details><summary>Planet Eazih b (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.01e+08 m
@@ -64209,7 +64209,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.01e+08 м
@@ -64246,13 +64246,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eazih c (icy - empty orbit -)</summary>  
+<details><summary>Planet Eazih c (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -64305,13 +64305,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Eazih d (icy super giant)</summary>  
+<details><summary>Planet Eazih d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.54e+08 m
@@ -64327,7 +64327,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.54e+08 м
@@ -64474,13 +64474,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lorip a (cold terrestrial)</summary>  
+<details><summary>Planet Lorip a (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 6.71e+06 m
@@ -64643,13 +64643,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Roel a (temperate super terrestrial)</summary>  
+<details><summary>Planet Roel a (temperate large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super terrestrial
+Planet type: temperate large terrestrial planet
 
 Absolute units:
 * Size: 8.61e+06 m
@@ -64665,7 +64665,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета суперземля
+Тип планети: помірна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 8.61e+06 м
@@ -64702,13 +64702,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Roel b (cold giant)</summary>  
+<details><summary>Planet Roel b (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.43e+08 m
@@ -64761,13 +64761,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Roel c (cold giant)</summary>  
+<details><summary>Planet Roel c (cold giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold giant
+Planet type: cold giant planet
 
 Absolute units:
 * Size: 1.33e+08 m
@@ -64820,13 +64820,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Roel d (icy super terrestrial)</summary>  
+<details><summary>Planet Roel d (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.37e+07 m
@@ -64842,7 +64842,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.37e+07 м
@@ -64989,13 +64989,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Oakeedv a (cold sub dwarf)</summary>  
+<details><summary>Planet Oakeedv a (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 5.05e+05 m
@@ -65011,7 +65011,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.05e+05 м
@@ -65048,13 +65048,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oakeedv b (cold - empty orbit -)</summary>  
+<details><summary>Planet Oakeedv b (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -65107,13 +65107,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oakeedv c (icy super giant)</summary>  
+<details><summary>Planet Oakeedv c (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 2.01e+08 m
@@ -65129,7 +65129,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.01e+08 м
@@ -65166,13 +65166,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Oakeedv d (icy - empty orbit -)</summary>  
+<details><summary>Planet Oakeedv d (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -65403,13 +65403,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Lisace a (very hot super dwarf)</summary>  
+<details><summary>Planet Lisace a (very hot large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot super dwarf
+Planet type: very hot large dwarf planet
 
 Absolute units:
 * Size: 1.77e+06 m
@@ -65425,7 +65425,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: дуже гаряча суперкарликова планета
+Тип планети: дуже гаряча велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.77e+06 м
@@ -65462,13 +65462,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace b (hot sub giant)</summary>  
+<details><summary>Planet Lisace b (hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot sub giant
+Planet type: hot small giant planet
 
 Absolute units:
 * Size: 2.25e+08 m
@@ -65484,7 +65484,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета субгігант
+Тип планети: гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 2.25e+08 м
@@ -65521,13 +65521,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace c (hot - empty orbit -)</summary>  
+<details><summary>Planet Lisace c (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -65580,13 +65580,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace d (hot giant)</summary>  
+<details><summary>Planet Lisace d (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 2.16e+08 m
@@ -65639,13 +65639,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace e (warm giant)</summary>  
+<details><summary>Planet Lisace e (warm giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm giant
+Planet type: warm giant planet
 
 Absolute units:
 * Size: 2.52e+08 m
@@ -65698,13 +65698,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace f (temperate giant)</summary>  
+<details><summary>Planet Lisace f (temperate giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate giant
+Planet type: temperate giant planet
 
 Absolute units:
 * Size: 1.58e+08 m
@@ -65757,13 +65757,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace g (cold - empty orbit -)</summary>  
+<details><summary>Planet Lisace g (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -65816,13 +65816,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Lisace h (icy giant)</summary>  
+<details><summary>Planet Lisace h (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.50e+08 m
@@ -66367,13 +66367,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Iused a (temperate sub dwarf)</summary>  
+<details><summary>Planet Iused a (temperate small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate sub dwarf
+Planet type: temperate small dwarf planet
 
 Absolute units:
 * Size: 4.03e+05 m
@@ -66389,7 +66389,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна субкарликова планета
+Тип планети: помірна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.03e+05 м
@@ -66426,13 +66426,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iused b (cold sub terrestrial)</summary>  
+<details><summary>Planet Iused b (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.01e+06 m
@@ -66448,7 +66448,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.01e+06 м
@@ -66485,13 +66485,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iused c (cold - empty orbit -)</summary>  
+<details><summary>Planet Iused c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -66544,13 +66544,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Iused d (icy super giant)</summary>  
+<details><summary>Planet Iused d (icy large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super giant
+Planet type: icy large giant planet
 
 Absolute units:
 * Size: 1.17e+08 m
@@ -66566,7 +66566,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета супергігант
+Тип планети: льодяна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.17e+08 м
@@ -66781,13 +66781,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit a (very hot sub giant)</summary>  
+<details><summary>Planet Ecicit a (very hot small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot sub giant
+Planet type: very hot small giant planet
 
 Absolute units:
 * Size: 1.61e+08 m
@@ -66803,7 +66803,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: дуже гаряча планета субгігант
+Тип планети: дуже гаряча планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.61e+08 м
@@ -66840,13 +66840,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit b (very hot - empty orbit -)</summary>  
+<details><summary>Planet Ecicit b (very hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: very hot - empty orbit -
+Planet type: very hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -66899,13 +66899,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit c (hot - empty orbit -)</summary>  
+<details><summary>Planet Ecicit c (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -66958,13 +66958,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit d (hot super giant)</summary>  
+<details><summary>Planet Ecicit d (hot large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot super giant
+Planet type: hot large giant planet
 
 Absolute units:
 * Size: 2.31e+08 m
@@ -66980,7 +66980,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: гаряча планета супергігант
+Тип планети: гаряча планета великий гігант
 
 Абсолютні величини:
 * Розмір: 2.31e+08 м
@@ -67017,13 +67017,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit e (hot giant)</summary>  
+<details><summary>Planet Ecicit e (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 2.31e+08 m
@@ -67076,13 +67076,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit f (warm - empty orbit -)</summary>  
+<details><summary>Planet Ecicit f (warm )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm - empty orbit -
+Planet type: warm 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67135,13 +67135,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit g (temperate - empty orbit -)</summary>  
+<details><summary>Planet Ecicit g (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67194,13 +67194,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit h (cold super giant)</summary>  
+<details><summary>Planet Ecicit h (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.28e+08 m
@@ -67216,7 +67216,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.28e+08 м
@@ -67253,13 +67253,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ecicit i (icy terrestrial)</summary>  
+<details><summary>Planet Ecicit i (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.63e+06 m
@@ -67422,13 +67422,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu a (hot giant)</summary>  
+<details><summary>Planet Atehahu a (hot giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot giant
+Planet type: hot giant planet
 
 Absolute units:
 * Size: 2.29e+08 m
@@ -67481,13 +67481,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu b (hot - empty orbit -)</summary>  
+<details><summary>Planet Atehahu b (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67540,13 +67540,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu c (hot - empty orbit -)</summary>  
+<details><summary>Planet Atehahu c (hot )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: hot - empty orbit -
+Planet type: hot 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67599,13 +67599,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu d (warm super giant)</summary>  
+<details><summary>Planet Atehahu d (warm large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm super giant
+Planet type: warm large giant planet
 
 Absolute units:
 * Size: 1.90e+08 m
@@ -67621,7 +67621,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: тепла планета супергігант
+Тип планети: тепла планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.90e+08 м
@@ -67658,13 +67658,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu e (temperate - empty orbit -)</summary>  
+<details><summary>Planet Atehahu e (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67717,13 +67717,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu f (temperate super giant)</summary>  
+<details><summary>Planet Atehahu f (temperate large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super giant
+Planet type: temperate large giant planet
 
 Absolute units:
 * Size: 1.87e+08 m
@@ -67739,7 +67739,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета супергігант
+Тип планети: помірна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.87e+08 м
@@ -67776,13 +67776,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu g (cold - empty orbit -)</summary>  
+<details><summary>Planet Atehahu g (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67835,13 +67835,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu h (cold - empty orbit -)</summary>  
+<details><summary>Planet Atehahu h (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -67894,13 +67894,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu i (icy terrestrial)</summary>  
+<details><summary>Planet Atehahu i (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 6.51e+06 m
@@ -67953,13 +67953,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu j (icy dwarf)</summary>  
+<details><summary>Planet Atehahu j (icy dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy dwarf
+Planet type: icy dwarf planet
 
 Absolute units:
 * Size: 1.04e+06 m
@@ -68012,13 +68012,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu k (icy sub dwarf)</summary>  
+<details><summary>Planet Atehahu k (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.71e+05 m
@@ -68034,7 +68034,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.71e+05 м
@@ -68071,13 +68071,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu l (icy giant)</summary>  
+<details><summary>Planet Atehahu l (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 1.82e+08 m
@@ -68130,13 +68130,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu m (icy super terrestrial)</summary>  
+<details><summary>Planet Atehahu m (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.18e+07 m
@@ -68152,7 +68152,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.18e+07 м
@@ -68189,13 +68189,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu n (icy sub terrestrial)</summary>  
+<details><summary>Planet Atehahu n (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.42e+06 m
@@ -68211,7 +68211,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.42e+06 м
@@ -68248,13 +68248,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu o (icy super dwarf)</summary>  
+<details><summary>Planet Atehahu o (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.50e+06 m
@@ -68270,7 +68270,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.50e+06 м
@@ -68307,13 +68307,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu p (icy sub giant)</summary>  
+<details><summary>Planet Atehahu p (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.38e+08 m
@@ -68329,7 +68329,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.38e+08 м
@@ -68366,13 +68366,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu q (icy sub dwarf)</summary>  
+<details><summary>Planet Atehahu q (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.83e+05 m
@@ -68388,7 +68388,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.83e+05 м
@@ -68425,13 +68425,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Atehahu r (icy terrestrial)</summary>  
+<details><summary>Planet Atehahu r (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.85e+06 m
@@ -68594,13 +68594,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Erurim a (cold sub terrestrial)</summary>  
+<details><summary>Planet Erurim a (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.28e+06 m
@@ -68616,7 +68616,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.28e+06 м
@@ -68653,13 +68653,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Erurim b (cold terrestrial)</summary>  
+<details><summary>Planet Erurim b (cold terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold terrestrial
+Planet type: cold terrestrial planet
 
 Absolute units:
 * Size: 5.99e+06 m
@@ -68712,13 +68712,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Erurim c (icy terrestrial)</summary>  
+<details><summary>Planet Erurim c (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.88e+06 m
@@ -68771,13 +68771,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Erurim d (icy super dwarf)</summary>  
+<details><summary>Planet Erurim d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.62e+06 m
@@ -68793,7 +68793,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.62e+06 м
@@ -68940,13 +68940,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Airro a (cold sub terrestrial)</summary>  
+<details><summary>Planet Airro a (cold small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub terrestrial
+Planet type: cold small terrestrial planet
 
 Absolute units:
 * Size: 3.30e+06 m
@@ -68962,7 +68962,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета мініземля
+Тип планети: холодна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.30e+06 м
@@ -68999,13 +68999,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Airro b (icy terrestrial)</summary>  
+<details><summary>Planet Airro b (icy terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy terrestrial
+Planet type: icy terrestrial planet
 
 Absolute units:
 * Size: 7.34e+06 m
@@ -69058,13 +69058,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Airro c (icy sub giant)</summary>  
+<details><summary>Planet Airro c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.20e+08 m
@@ -69080,7 +69080,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.20e+08 м
@@ -69719,13 +69719,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Acirora a (icy super dwarf)</summary>  
+<details><summary>Planet Acirora a (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 2.22e+06 m
@@ -69741,7 +69741,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 2.22e+06 м
@@ -69778,13 +69778,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Acirora b (icy sub dwarf)</summary>  
+<details><summary>Planet Acirora b (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 5.90e+05 m
@@ -69800,7 +69800,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 5.90e+05 м
@@ -70151,13 +70151,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Dymse a (icy sub dwarf)</summary>  
+<details><summary>Planet Dymse a (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 4.70e+05 m
@@ -70173,7 +70173,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 4.70e+05 м
@@ -70210,13 +70210,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Dymse b (icy super terrestrial)</summary>  
+<details><summary>Planet Dymse b (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.50e+07 m
@@ -70232,7 +70232,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.50e+07 м
@@ -70379,13 +70379,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Madeg a (temperate - empty orbit -)</summary>  
+<details><summary>Planet Madeg a (temperate )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate - empty orbit -
+Planet type: temperate 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -70438,13 +70438,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Madeg b (cold super giant)</summary>  
+<details><summary>Planet Madeg b (cold large giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super giant
+Planet type: cold large giant planet
 
 Absolute units:
 * Size: 1.40e+08 m
@@ -70460,7 +70460,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета супергігант
+Тип планети: холодна планета великий гігант
 
 Абсолютні величини:
 * Розмір: 1.40e+08 м
@@ -70497,13 +70497,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Madeg c (cold - empty orbit -)</summary>  
+<details><summary>Planet Madeg c (cold )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold - empty orbit -
+Planet type: cold 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -70556,13 +70556,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Madeg d (icy sub terrestrial)</summary>  
+<details><summary>Planet Madeg d (icy small terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub terrestrial
+Planet type: icy small terrestrial planet
 
 Absolute units:
 * Size: 3.17e+06 m
@@ -70578,7 +70578,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета мініземля
+Тип планети: льодяна мала землеподібна планета
 
 Абсолютні величини:
 * Розмір: 3.17e+06 м
@@ -70861,13 +70861,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Apolorom a (cold sub giant)</summary>  
+<details><summary>Planet Apolorom a (cold small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub giant
+Planet type: cold small giant planet
 
 Absolute units:
 * Size: 1.86e+08 m
@@ -70883,7 +70883,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна планета субгігант
+Тип планети: холодна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.86e+08 м
@@ -70920,13 +70920,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Apolorom b (icy - empty orbit -)</summary>  
+<details><summary>Planet Apolorom b (icy )</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy - empty orbit -
+Planet type: icy 
 
 Absolute units:
 * Size: 0.00e+00 m
@@ -70979,13 +70979,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Apolorom c (icy giant)</summary>  
+<details><summary>Planet Apolorom c (icy giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy giant
+Planet type: icy giant planet
 
 Absolute units:
 * Size: 2.13e+08 m
@@ -71148,13 +71148,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Noafar a (cold dwarf)</summary>  
+<details><summary>Planet Noafar a (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 7.85e+05 m
@@ -71207,13 +71207,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Noafar b (icy super terrestrial)</summary>  
+<details><summary>Planet Noafar b (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.01e+07 m
@@ -71229,7 +71229,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.01e+07 м
@@ -71266,13 +71266,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Noafar c (icy super terrestrial)</summary>  
+<details><summary>Planet Noafar c (icy large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super terrestrial
+Planet type: icy large terrestrial planet
 
 Absolute units:
 * Size: 1.54e+07 m
@@ -71288,7 +71288,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета суперземля
+Тип планети: льодяна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.54e+07 м
@@ -71435,13 +71435,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Almatap a (warm terrestrial)</summary>  
+<details><summary>Planet Almatap a (warm terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: warm terrestrial
+Planet type: warm terrestrial planet
 
 Absolute units:
 * Size: 7.35e+06 m
@@ -71494,13 +71494,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Almatap b (temperate super terrestrial)</summary>  
+<details><summary>Planet Almatap b (temperate large terrestrial planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: temperate super terrestrial
+Planet type: temperate large terrestrial planet
 
 Absolute units:
 * Size: 1.54e+07 m
@@ -71516,7 +71516,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: помірна планета суперземля
+Тип планети: помірна велика землеподібна планета
 
 Абсолютні величини:
 * Розмір: 1.54e+07 м
@@ -71553,13 +71553,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Almatap c (cold super dwarf)</summary>  
+<details><summary>Planet Almatap c (cold large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold super dwarf
+Planet type: cold large dwarf planet
 
 Absolute units:
 * Size: 1.89e+06 m
@@ -71575,7 +71575,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна суперкарликова планета
+Тип планети: холодна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.89e+06 м
@@ -71612,13 +71612,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Almatap d (icy super dwarf)</summary>  
+<details><summary>Planet Almatap d (icy large dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy super dwarf
+Planet type: icy large dwarf planet
 
 Absolute units:
 * Size: 1.31e+06 m
@@ -71634,7 +71634,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна суперкарликова планета
+Тип планети: льодяна велика карликова планета
 
 Абсолютні величини:
 * Розмір: 1.31e+06 м
@@ -71781,13 +71781,13 @@ Spectral data:
  </details>  
 
 ---  
-<details><summary>Planet Ipicamb a (cold sub dwarf)</summary>  
+<details><summary>Planet Ipicamb a (cold small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold sub dwarf
+Planet type: cold small dwarf planet
 
 Absolute units:
 * Size: 6.01e+05 m
@@ -71803,7 +71803,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: холодна субкарликова планета
+Тип планети: холодна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 6.01e+05 м
@@ -71840,13 +71840,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ipicamb b (cold dwarf)</summary>  
+<details><summary>Planet Ipicamb b (cold dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: cold dwarf
+Planet type: cold dwarf planet
 
 Absolute units:
 * Size: 1.15e+06 m
@@ -71899,13 +71899,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ipicamb c (icy sub giant)</summary>  
+<details><summary>Planet Ipicamb c (icy small giant planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub giant
+Planet type: icy small giant planet
 
 Absolute units:
 * Size: 1.17e+08 m
@@ -71921,7 +71921,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна планета субгігант
+Тип планети: льодяна планета малий гігант
 
 Абсолютні величини:
 * Розмір: 1.17e+08 м
@@ -71958,13 +71958,13 @@ Earth-relative units:
  </details>  
 
 ---  
-<details><summary>Planet Ipicamb d (icy sub dwarf)</summary>  
+<details><summary>Planet Ipicamb d (icy small dwarf planet)</summary>  
 
 #### Planet albedo  
 WIP  
 #### Planet Infocard data  
 ```  
-Planet type: icy sub dwarf
+Planet type: icy small dwarf planet
 
 Absolute units:
 * Size: 3.56e+05 m
@@ -71980,7 +71980,7 @@ Earth-relative units:
 
 ```  
 ```  
-Тип планети: льодяна субкарликова планета
+Тип планети: льодяна мала карликова планета
 
 Абсолютні величини:
 * Розмір: 3.56e+05 м
