@@ -4,12 +4,12 @@ from tensorflow.keras.models import load_model
 import cv2
 
 # Load the trained generator model and generate
-generator = load_model('crater_bump_maps_gray.keras')
+generator = load_model('crater_bump_maps_gray_30000.keras')
 noise_dim = 100
 output_shape = (256, 256, 1)  # Grayscale image shape 256x256 1bit
-num_variations = 50
+num_variations = 500
 
-noise = np.random.normal(0, 0.5, (num_variations, noise_dim))
+noise = np.random.normal(0.0, 1.0, (num_variations, noise_dim))
 variations = generator.predict(noise)
 
 # Denormalize and convert to integer values (0-255)
