@@ -7,6 +7,7 @@
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_stmosphere/Planet_atmosphere.gdshader" type="Shader" id=5]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD1.glb" type="PackedScene" id=6]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD2.glb" type="PackedScene" id=7]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Masks/Mask_small.png" type="Texture" id=8]
 [ext_resource path="res://Scripts/Markers/Marker_planet.gd" type="Script" id=9]
 [ext_resource path="res://Assets/Shaders/Planetary/Planet_surface/Planet_surface_lava.gdshader" type="Shader" id=10]
 [ext_resource path="res://Assets/Models/Shapes/UV_sphere/Sphere_LOD0.glb" type="PackedScene" id=11]
@@ -17,14 +18,13 @@
 [ext_resource path="res://Assets/Models/Shapes/Sphere_segments/Sphere_segment_9.glb" type="PackedScene" id=16]
 [ext_resource path="res://Assets/Models/Shapes/Sphere_segments/Sphere_segment_16.glb" type="PackedScene" id=17]
 [ext_resource path="res://Assets/Shaders/Solid/Solid_decal_diffuse_only.gdshader" type="Shader" id=18]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Mask_medium.png" type="Texture" id=19]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Crater1_render.png" type="Texture" id=20]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Crater3_render_spiky.png" type="Texture" id=21]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Crater2_render.png" type="Texture" id=22]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Mask_small.png" type="Texture" id=23]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Crater_small_1_render.png" type="Texture" id=24]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Crater4_render.png" type="Texture" id=25]
-[ext_resource path="res://Assets/Textures/Decals/Craters/Mask_medium_sharp.png" type="Texture" id=26]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Masks/Mask_medium.png" type="Texture" id=19]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Masks/Mask_large.png" type="Texture" id=20]
+[ext_resource path="res://Assets/Textures/Decals/Craters/512/Craters_5.png" type="Texture" id=21]
+[ext_resource path="res://Assets/Textures/Decals/Craters/512/Craters_194.png" type="Texture" id=22]
+[ext_resource path="res://Assets/Textures/Decals/Craters/512/Craters_447.png" type="Texture" id=23]
+[ext_resource path="res://Assets/Textures/Decals/Craters/512/Craters_387.png" type="Texture" id=24]
+[ext_resource path="res://Assets/Textures/Decals/Craters/512/Craters_317.png" type="Texture" id=25]
 [ext_resource path="res://Assets/Shaders/Lights/Light_distant_sprite.gdshader" type="Shader" id=27]
 [ext_resource path="res://Assets/Models/Sprites/Solar_sprite.glb" type="PackedScene" id=28]
 [ext_resource path="res://Assets/Models/Shapes/Icosphere/Icosphere_LOD0.glb" type="PackedScene" id=29]
@@ -37,38 +37,43 @@
 
 [sub_resource type="ShaderMaterial" id=116]
 shader = ExtResource( 18 )
-shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/albedo = Color( 0.180392, 0.188235, 0.188235, 1 )
 shader_param/alpha = 1.0
-shader_param/texture_alpha = ExtResource( 23 )
-shader_param/texture_diffuse = ExtResource( 24 )
+shader_param/contrast_diffuse = 0.615
+shader_param/texture_alpha = ExtResource( 8 )
+shader_param/texture_diffuse = ExtResource( 21 )
 
 [sub_resource type="ShaderMaterial" id=120]
 shader = ExtResource( 18 )
-shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/albedo = Color( 0.2, 0.211765, 0.211765, 1 )
 shader_param/alpha = 1.0
+shader_param/contrast_diffuse = 1.0
 shader_param/texture_alpha = ExtResource( 19 )
-shader_param/texture_diffuse = ExtResource( 25 )
+shader_param/texture_diffuse = ExtResource( 22 )
 
 [sub_resource type="ShaderMaterial" id=119]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
 shader_param/alpha = 1.0
-shader_param/texture_alpha = ExtResource( 26 )
-shader_param/texture_diffuse = ExtResource( 20 )
+shader_param/contrast_diffuse = 1.541
+shader_param/texture_alpha = ExtResource( 19 )
+shader_param/texture_diffuse = ExtResource( 24 )
 
 [sub_resource type="ShaderMaterial" id=117]
 shader = ExtResource( 18 )
-shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
+shader_param/albedo = Color( 0.227451, 0.239216, 0.239216, 1 )
 shader_param/alpha = 1.0
-shader_param/texture_alpha = ExtResource( 26 )
-shader_param/texture_diffuse = ExtResource( 22 )
+shader_param/contrast_diffuse = 1.514
+shader_param/texture_alpha = ExtResource( 20 )
+shader_param/texture_diffuse = ExtResource( 23 )
 
 [sub_resource type="ShaderMaterial" id=118]
 shader = ExtResource( 18 )
 shader_param/albedo = Color( 0.2068, 0.22, 0.22, 1 )
 shader_param/alpha = 1.0
-shader_param/texture_alpha = ExtResource( 26 )
-shader_param/texture_diffuse = ExtResource( 21 )
+shader_param/contrast_diffuse = 1.0
+shader_param/texture_alpha = ExtResource( 19 )
+shader_param/texture_diffuse = ExtResource( 25 )
 
 [sub_resource type="OpenSimplexNoise" id=110]
 period = 11.5
@@ -176,7 +181,6 @@ script = ExtResource( 4 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )
-visible = false
 light_color = Color( 0.968627, 0.65098, 0.498039, 1 )
 light_energy = 2.578
 
@@ -348,7 +352,7 @@ transform = Transform( 0.259236, 0.385153, 0.887951, 0.18193, -0.922255, 0.34691
 material/0 = SubResource( 120 )
 
 [node name="Sphere_segment_13" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small" instance=ExtResource( 14 )]
-transform = Transform( -0.153131, 0.667116, -0.731786, 0.294252, 0.737692, 0.610925, 0.9455, -0.121535, -0.308647, 0, 0, 0 )
+transform = Transform( -0.0823387, -0.417726, 0.907044, 0.0544367, -0.910646, -0.414443, 0.997127, 0.0152212, 0.0975252, 0, 0, 0 )
 
 [node name="Sphere_segment_1" parent="Scenes/STAR_4_PLANET_0/LODs 6_06e+05/LOD0/Craters_lit_side/Small/Sphere_segment_13" index="0"]
 material/0 = SubResource( 120 )
