@@ -13,9 +13,17 @@
 shader = ExtResource( 4 )
 shader_param/albedo = null
 shader_param/emission = Color( 0.121569, 0.415686, 0.0666667, 1 )
-shader_param/specular = 0.5
-shader_param/metallic = 0.0
-shader_param/roughness = 0.5
+shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
+shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
+shader_param/albedo_strength = 1.0
+shader_param/albedo_exponent = 1.0
+shader_param/specular_strength = 0.3
+shader_param/specular_exponent = 5.0
+shader_param/gloss_strength = 0.5
+shader_param/gloss_exponent = 500.0
+shader_param/albedo_clip = 1.0
+shader_param/specular_clip = 1.0
+shader_param/gloss_clip = 1.0
 
 [sub_resource type="SphereShape" id=79]
 

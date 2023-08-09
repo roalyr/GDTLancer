@@ -20,7 +20,7 @@
 [ext_resource path="res://Assets/Shaders/Solid/Solid_decal_diffuse_only.gdshader" type="Shader" id=18]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Masks/Mask_medium.png" type="Texture" id=19]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Masks/Mask_large.png" type="Texture" id=20]
-[ext_resource path="res://Assets/Textures/Decals/Craters/512/Craters_5.png" type="Texture" id=21]
+[ext_resource path="res://Assets/Textures/Decals/Craters/Textures_512/smooth/Craters_4_smooth.png" type="Texture" id=21]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Textures_512/small_impact/Craters_194_small_impact.png" type="Texture" id=22]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Textures_512/small_impact/Craters_447_small_impact.png" type="Texture" id=23]
 [ext_resource path="res://Assets/Textures/Decals/Craters/Textures_512/flat/Craters_387_flat.png" type="Texture" id=24]
@@ -178,6 +178,7 @@ angular_damp = 0.0
 script = ExtResource( 4 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 12 )]
+visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )

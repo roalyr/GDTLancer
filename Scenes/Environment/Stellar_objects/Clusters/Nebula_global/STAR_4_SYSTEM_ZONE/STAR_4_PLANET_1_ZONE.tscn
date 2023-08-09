@@ -147,6 +147,7 @@ angular_damp = 0.0
 script = ExtResource( 8 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 23 )]
+visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( 0.863762, -0.493721, -0.10077, 0.494281, 0.869046, -0.021092, 0.0979874, -0.0315902, 0.994686, 0, 0, 0 )
