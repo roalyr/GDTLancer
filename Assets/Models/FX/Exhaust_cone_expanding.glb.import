@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Engine_exhaust_shapes.dae-8e8f85e8fe11cd586d08eb68da5a0526.scn"
+path="res://.import/Exhaust_cone_expanding.glb-b79d6d79854c66690c54aae067853b3f.scn"
 
 [deps]
 
-source_file="res://Assets/Models/FX/Engine_exhaust_shapes.dae"
-dest_files=[ "res://.import/Engine_exhaust_shapes.dae-8e8f85e8fe11cd586d08eb68da5a0526.scn" ]
+source_file="res://Assets/Models/FX/Exhaust_cone_expanding.glb"
+dest_files=[ "res://.import/Exhaust_cone_expanding.glb-b79d6d79854c66690c54aae067853b3f.scn" ]
 
 [params]
 
@@ -21,7 +21,7 @@ materials/location=1
 materials/storage=1
 materials/keep_on_reimport=true
 meshes/octahedral_compression=true
-meshes/compress=true
+meshes/compress=4286
 meshes/ensure_tangents=true
 meshes/storage=0
 meshes/light_baking=0

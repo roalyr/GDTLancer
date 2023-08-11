@@ -33,8 +33,10 @@ const accel_ticks_max = 100 + idle_engine_ticks
 const torque_factor = Vector3(10e8,5e8,5e8)
 const autopilot_torque_factor = 10
 
-const camera_vert_offset = 1
-const camera_horiz_offset = 5.0
+const camera_vert_offset = 0.5
+const camera_horiz_offset = 6.0
+
+const exhaust_shape_size_xy_max = 1.5
 
 # Allowed angle deviation for autopilot to engage.
 const autopilot_angle_deviation = 0.8
@@ -258,6 +260,11 @@ func adjust_exhaust():
 		if PlayerState.accel_ticks > idle_engine_ticks:
 			i.get_node("Engine_exhaust_light").light_energy = accel_val/5
 			i.get_node("Engine_exhaust_shapes").scale.z = accel_val
+			i.get_node("Engine_exhaust_shapes").scale.x = accel_val*1e-1
+			i.get_node("Engine_exhaust_shapes").scale.y = accel_val*1e-1
+			if i.get_node("Engine_exhaust_shapes").scale.x >= exhaust_shape_size_xy_max:
+				i.get_node("Engine_exhaust_shapes").scale.x = exhaust_shape_size_xy_max
+				i.get_node("Engine_exhaust_shapes").scale.y = exhaust_shape_size_xy_max
 			albedo = accel_val
 		else:
 			i.get_node("Engine_exhaust_light").light_energy = 0
@@ -268,12 +275,20 @@ func adjust_exhaust():
 		# Get and modify sprite intensity.
 		var shapes = i.get_node("Engine_exhaust_shapes")
 		for shape in shapes.get_children():
-			var m = shape.get_surface_material(0)
+			var m = shape.get_child(0).get_surface_material(0)
 			
 			m["shader_param/albedo"].r = clamp(albedo*0.4, 1e-6, 0.6)
 			m["shader_param/albedo"].g = clamp(albedo*0.1, 1e-6, 0.2)
 			m["shader_param/albedo"].b = clamp(albedo*0.05, 1e-6, 0.8)
-
+		
+				# Get and modify sprite intensity.
+		shapes = i.get_node("Engine_static_shapes")
+		for shape in shapes.get_children():
+			var m = shape.get_child(0).get_surface_material(0)
+			
+			m["shader_param/albedo"].r = clamp(albedo*0.4, 1e-6, 0.6)
+			m["shader_param/albedo"].g = clamp(albedo*0.1, 1e-6, 0.2)
+			m["shader_param/albedo"].b = clamp(albedo*0.05, 1e-6, 0.8)
 
 func is_accelerating(accelerating):
 

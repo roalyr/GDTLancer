@@ -19,7 +19,7 @@ render_mode
 uniform vec4 albedo : hint_color;
 
 uniform float rim_strength = 1.0;
-uniform float rim_exponent : hint_range(0.0, 50.0, 0.1) = 5.0;
+uniform float rim_exponent : hint_range(0.0, 500.0, 0.1) = 5.0;
 
 uniform float alpha_clip : hint_range(0,1) = 1.0;
 

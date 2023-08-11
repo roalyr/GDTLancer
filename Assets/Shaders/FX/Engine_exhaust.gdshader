@@ -19,6 +19,7 @@ render_mode
 uniform vec4 albedo : hint_color;
 uniform float pulse_amount : hint_range(0.0, 1.0) = 0.05;
 uniform float pulse_frequency = 50;
+uniform float power = 1.0;
 
 void vertex()
 {
@@ -28,5 +29,5 @@ void vertex()
 
 void fragment()
 {
-	ALBEDO = albedo.rgb * COLOR.rgb;
+	ALBEDO = albedo.rgb * pow(COLOR.r, power);
 }

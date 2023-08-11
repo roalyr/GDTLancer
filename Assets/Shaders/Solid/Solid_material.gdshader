@@ -20,6 +20,8 @@ uniform vec4 albedo : hint_color;
 uniform vec4 emission : hint_color;
 uniform vec4 albedo_specular : hint_color = vec4(0.5, 0.5, 0.5, 1.0);
 uniform vec4 albedo_gloss : hint_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float emission_strength : hint_range(0.0, 500.0, 0.1) = 1.0;
+
 
 uniform float albedo_strength : hint_range(0.0, 1.0) = 1.0;
 uniform float albedo_exponent : hint_range(0.0, 50.0, 0.1) = 1.0;
@@ -45,5 +47,5 @@ void fragment()
 
 	ALBEDO = albedo.rgb*albedo_rim + albedo_specular.rgb*specular_rim + albedo_gloss.rgb*gloss_rim;
 	ALBEDO *= COLOR.rgb;
-	ALBEDO += emission.rgb * COLOR.rgb;
+	ALBEDO += emission.rgb * COLOR.rgb * emission_strength;
 }
