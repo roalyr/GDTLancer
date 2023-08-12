@@ -7,6 +7,8 @@
 ### Models
 - Fixed some improper LODs.
 - Implemented sphere decals (for planets).
+- Reworked Phoenix Heavy ship model.
+- Reworked engine exhaust models.
 ### Controls
 - Improved touch controls (event sorting).
 ### Camera
@@ -32,6 +34,7 @@
 - Gas planet shader added.
 - Planetary rings shaders added.
 - Added decal shaders.
+- Vertex-lit shader is improved for solid materials to imitate per-pixel lighting.
 ### Textures
 - Added crater decals.
 ### Locales

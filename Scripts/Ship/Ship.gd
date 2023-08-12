@@ -30,13 +30,13 @@ const accel_ticks_max = 100 + idle_engine_ticks
 
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
-const torque_factor = Vector3(10e8,5e8,5e8)
+const torque_factor = Vector3(5e8,5e8,5e8)
 const autopilot_torque_factor = 10
 
-const camera_vert_offset = 0.5
-const camera_horiz_offset = 6.0
+const camera_vert_offset = 10.0
+const camera_horiz_offset = 50.0
 
-const exhaust_shape_size_xy_max = 1.5
+const exhaust_shape_size_xy_max = 1.3
 
 # Allowed angle deviation for autopilot to engage.
 const autopilot_angle_deviation = 0.8

@@ -186,7 +186,6 @@ continuous_cd = true
 script = ExtResource( 3 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 7 )]
-visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( -0.698318, 0.428579, -0.573299, -0.238896, 0.615461, 0.75109, 0.674745, 0.661458, -0.327402, 0, 0, 0 )
@@ -215,22 +214,28 @@ material/0 = SubResource( 88 )
 mesh = SubResource( 80 )
 material/0 = SubResource( 85 )
 
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 18.8812, 0, 0, 0, 7.9837, 0, 0, 0, 24.4581, 0, 0, -2.25814 )
+shape = SubResource( 86 )
+
 [node name="Camera_rig" parent="." instance=ExtResource( 5 )]
-transform = Transform( 10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Engines" type="Spatial" parent="."]
 
 [node name="Engine_exhaust" parent="Engines" instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.07, 0, 44.081 )
-
-[node name="Engine_exhaust2" parent="Engines" instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.07, 0, 44.081 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.74051, 0, 32.6094 )
 
 [node name="Engine_exhaust3" parent="Engines" instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.366, 0, 44.774 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5834, 0, 34.3082 )
 
 [node name="Engine_exhaust4" parent="Engines" instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.366, 0, 44.774 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.583, 0, 34.308 )
+
+[node name="Engine_exhaust2" parent="Engines" instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.741, 0, 32.609 )
 
 [node name="Ship_space" type="Position3D" parent="."]
 script = ExtResource( 1 )
@@ -243,118 +248,73 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 
 [node name="Phoenix_heavy" parent="." instance=ExtResource( 2 )]
 
-[node name="Hull" parent="Phoenix_heavy" index="0"]
+[node name="Containers" parent="Phoenix_heavy" index="0"]
+material/0 = SubResource( 87 )
+
+[node name="Asym_details" parent="Phoenix_heavy" index="1"]
+material/0 = SubResource( 82 )
+material/1 = SubResource( 83 )
+material/2 = SubResource( 81 )
+
+[node name="Hull" parent="Phoenix_heavy" index="2"]
 material/0 = SubResource( 82 )
 material/1 = SubResource( 83 )
 material/2 = SubResource( 81 )
 material/3 = SubResource( 88 )
 
-[node name="Containers" parent="Phoenix_heavy" index="1"]
-material/0 = SubResource( 87 )
+[node name="Lights" type="Spatial" parent="."]
 
-[node name="Head" parent="Phoenix_heavy" index="2"]
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="Frame_link001" parent="Phoenix_heavy" index="3"]
-material/0 = SubResource( 81 )
-
-[node name="Engines" parent="Phoenix_heavy" index="4"]
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-
-[node name="Hull001" parent="Phoenix_heavy" index="5"]
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-
-[node name="Engines001" parent="Phoenix_heavy" index="6"]
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 88 )
-
-[node name="Shield" parent="Phoenix_heavy" index="7"]
-transform = Transform( 0.951162, 0, 0.308694, 0, 1, 0, -0.308694, 0, 0.951162, -1, 0, 0 )
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="Shield001" parent="Phoenix_heavy" index="8"]
-transform = Transform( 0.981646, 0, 0.190714, 0, 1, 0, -0.190714, 0, 0.981646, 0, 0, 0 )
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="Shield002" parent="Phoenix_heavy" index="9"]
-transform = Transform( 0.981627, 0, 0.190809, 0, 1, 0, -0.190809, 0, 0.981627, -1, 0, 0 )
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="Shield003" parent="Phoenix_heavy" index="10"]
-transform = Transform( 0.951162, 0, -0.308694, 0, 1, 0, 0.308694, 0, 0.951162, 1, 0, 0 )
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="Shield004" parent="Phoenix_heavy" index="11"]
-transform = Transform( 0.981627, 0, -0.190809, 0, 1, 0, 0.190809, 0, 0.981627, 1, 0, 0 )
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="Shield005" parent="Phoenix_heavy" index="12"]
-transform = Transform( 0.981646, 0, -0.190714, 0, 1, 0, 0.190714, 0, 0.981646, 0, 0, 0 )
-material/0 = SubResource( 82 )
-material/1 = SubResource( 83 )
-material/2 = SubResource( 81 )
-
-[node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 18.8812, 0, 0, 0, 7.9837, 0, 0, 0, 18.7908, 0, 0, 8.60656 )
-shape = SubResource( 86 )
-
-[node name="OmniLight" type="OmniLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.3114, 5.54944, 10.5991 )
+[node name="OmniLight" type="OmniLight" parent="Lights"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.8664, 4.89004, -4.17266 )
 omni_range = 25.0
 
-[node name="MeshInstance" type="MeshInstance" parent="OmniLight"]
-transform = Transform( 0.057, 0, 0, 0, 0.057, 0, 0, 0, 0.057, 0, 0, 0 )
+[node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight"]
+transform = Transform( 0.042, 0, 0, 0, 0.042, 0, 0, 0, 0.042, 0, 0, 0 )
 mesh = SubResource( 89 )
 material/0 = SubResource( 90 )
 
-[node name="OmniLight4" type="OmniLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.311, -5.549, 10.599 )
+[node name="OmniLight2" type="OmniLight" parent="Lights"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.866, -4.89, -4.173 )
 omni_range = 25.0
 
-[node name="MeshInstance" type="MeshInstance" parent="OmniLight4"]
-transform = Transform( 0.057, 0, 0, 0, 0.057, 0, 0, 0, 0.057, 0, 0, 0 )
+[node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight2"]
+transform = Transform( 0.042, 0, 0, 0, 0.042, 0, 0, 0, 0.042, 0, 0, 0 )
 mesh = SubResource( 89 )
 material/0 = SubResource( 90 )
 
-[node name="OmniLight2" type="OmniLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.311, 5.549, 10.599 )
+[node name="OmniLight3" type="OmniLight" parent="Lights"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, -4.89, -4.173 )
 omni_range = 25.0
 
-[node name="MeshInstance" type="MeshInstance" parent="OmniLight2"]
-transform = Transform( 0.057, 0, 0, 0, 0.057, 0, 0, 0, 0.057, 0, 0, 0 )
+[node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight3"]
+transform = Transform( 0.042, 0, 0, 0, 0.042, 0, 0, 0, 0.042, 0, 0, 0 )
 mesh = SubResource( 89 )
 material/0 = SubResource( 90 )
 
-[node name="OmniLight5" type="OmniLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.311, -5.549, 10.599 )
+[node name="OmniLight4" type="OmniLight" parent="Lights"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, 4.89, -4.173 )
 omni_range = 25.0
 
-[node name="MeshInstance" type="MeshInstance" parent="OmniLight5"]
-transform = Transform( 0.057, 0, 0, 0, 0.057, 0, 0, 0, 0.057, 0, 0, 0 )
+[node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight4"]
+transform = Transform( 0.042, 0, 0, 0, 0.042, 0, 0, 0, 0.042, 0, 0, 0 )
 mesh = SubResource( 89 )
 material/0 = SubResource( 90 )
 
-[node name="OmniLight3" type="OmniLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.31506, -4.49069 )
+[node name="OmniLight5" type="OmniLight" parent="Lights"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, 4.89, -4.173 )
 omni_range = 25.0
 
-[node name="MeshInstance" type="MeshInstance" parent="OmniLight3"]
-transform = Transform( 0.057, 0, 0, 0, 0.057, 0, 0, 0, 0.057, 0, 0, 0 )
+[node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight5"]
+transform = Transform( 0.042, 0, 0, 0, 0.042, 0, 0, 0, 0.042, 0, 0, 0 )
+mesh = SubResource( 89 )
+material/0 = SubResource( 90 )
+
+[node name="OmniLight6" type="OmniLight" parent="Lights"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.24369, 2.3433, -40.0988 )
+omni_range = 25.0
+
+[node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight6"]
+transform = Transform( 0.042, 0, 0, 0, 0.042, 0, 0, 0, 0.042, 0, 0, 0 )
 mesh = SubResource( 89 )
 material/0 = SubResource( 90 )
 
