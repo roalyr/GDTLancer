@@ -186,6 +186,7 @@ continuous_cd = true
 script = ExtResource( 3 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 7 )]
+visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( -0.698318, 0.428579, -0.573299, -0.238896, 0.615461, 0.75109, 0.674745, 0.661458, -0.327402, 0, 0, 0 )
@@ -263,6 +264,7 @@ material/2 = SubResource( 81 )
 material/3 = SubResource( 88 )
 
 [node name="Lights" type="Spatial" parent="."]
+visible = false
 
 [node name="OmniLight" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.8664, 4.89004, -4.17266 )
@@ -275,6 +277,7 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight2" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.866, -4.89, -4.173 )
+visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight2"]
@@ -284,6 +287,7 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight3" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, -4.89, -4.173 )
+visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight3"]
@@ -293,6 +297,7 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight4" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, 4.89, -4.173 )
+visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight4"]
@@ -302,6 +307,7 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight5" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, 4.89, -4.173 )
+visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight5"]
@@ -311,6 +317,7 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight6" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.24369, 2.3433, -40.0988 )
+visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight6"]
