@@ -10,10 +10,10 @@ const ship_mass = 1e6
 const accel_damp_factor = 0.3
 
 var velocity_limiter_state = 0
-const velocity_limmiter_1 = 1e6
-const velocity_limmiter_2 = 1e9
-const velocity_limmiter_3 = 1e12
-const velocity_limmiter_4 = 1e17
+const velocity_limmiter_1 = 1e2
+const velocity_limmiter_2 = 1e5
+const velocity_limmiter_3 = 1e10
+const velocity_limmiter_4 = 1e18
 
 
 const accel_max = 1e23
@@ -34,7 +34,7 @@ const torque_factor = Vector3(5e8,5e8,5e8)
 const autopilot_torque_factor = 10
 
 const camera_vert_offset = 10.0
-const camera_horiz_offset = 60.0
+const camera_horiz_offset = 70.0
 
 const exhaust_shape_size_xy_max = 1.3
 

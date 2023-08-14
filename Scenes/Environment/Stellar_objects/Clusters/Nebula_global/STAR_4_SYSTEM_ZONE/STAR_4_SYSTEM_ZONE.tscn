@@ -19,6 +19,8 @@ shader_param/emission = Color( 0.121569, 0.415686, 0.0666667, 1 )
 shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
 shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
 shader_param/specular_strength = 0.3
@@ -33,23 +35,6 @@ shader_param/gloss_clip = 1.0
 
 [sub_resource type="SphereShape" id=81]
 
-[sub_resource type="ShaderMaterial" id=83]
-shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.466667, 0.466667, 0.466667, 1 )
-shader_param/emission = null
-shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
-shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
-shader_param/emission_strength = 0.0
-shader_param/albedo_strength = 0.0
-shader_param/albedo_exponent = 29.4
-shader_param/specular_strength = 0.066
-shader_param/specular_exponent = 9.5
-shader_param/gloss_strength = 0.331
-shader_param/gloss_exponent = 40.5
-shader_param/albedo_clip = 1.0
-shader_param/specular_clip = 1.0
-shader_param/gloss_clip = 1.0
-
 [sub_resource type="ShaderMaterial" id=84]
 shader = ExtResource( 4 )
 shader_param/albedo = Color( 0.588235, 0.623529, 0, 1 )
@@ -57,6 +42,8 @@ shader_param/emission = null
 shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
 shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
 shader_param/specular_strength = 0.219
@@ -67,13 +54,34 @@ shader_param/albedo_clip = 1.0
 shader_param/specular_clip = 1.0
 shader_param/gloss_clip = 1.0
 
+[sub_resource type="ShaderMaterial" id=87]
+shader = ExtResource( 4 )
+shader_param/albedo = Color( 0.117647, 0.329412, 0.435294, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
+shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
+shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 1.0
+shader_param/albedo_strength = 1.0
+shader_param/albedo_exponent = 1.0
+shader_param/specular_strength = 0.3
+shader_param/specular_exponent = 5.0
+shader_param/gloss_strength = 0.0
+shader_param/gloss_exponent = 500.0
+shader_param/albedo_clip = 1.0
+shader_param/specular_clip = 1.0
+shader_param/gloss_clip = 1.0
+
 [sub_resource type="ShaderMaterial" id=85]
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0.635294, 0.635294, 0.635294, 1 )
+shader_param/albedo = Color( 0.0431373, 0.121569, 0.12549, 1 )
 shader_param/emission = null
 shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
 shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
 shader_param/specular_strength = 0.0
@@ -91,8 +99,10 @@ shader_param/emission = null
 shader_param/albedo_specular = Color( 0, 0.647059, 0.843137, 1 )
 shader_param/albedo_gloss = Color( 1, 0.447059, 0, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 0.0
+shader_param/metallic = 1.0
 shader_param/albedo_strength = 1.0
-shader_param/albedo_exponent = 19.4
+shader_param/albedo_exponent = 1.2
 shader_param/specular_strength = 0.111
 shader_param/specular_exponent = 15.0
 shader_param/gloss_strength = 1.0
@@ -166,11 +176,10 @@ autopilot_range = 5000.0
 translations_name = "Station_1"
 
 [node name="Station_1" parent="Scenes/STAR_4_SYSTEM/STAR_4_PLANET_0_AXIS/STAR_4_PLANET_0_ZONE/StructureLocalSpace/Scenes/MarkerStructure" instance=ExtResource( 10 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 
 [node name="Station_1" parent="Scenes/STAR_4_SYSTEM/STAR_4_PLANET_0_AXIS/STAR_4_PLANET_0_ZONE/StructureLocalSpace/Scenes/MarkerStructure/Station_1" index="0"]
-material/0 = SubResource( 83 )
-material/1 = SubResource( 84 )
+material/0 = SubResource( 84 )
+material/1 = SubResource( 87 )
 material/2 = SubResource( 85 )
 material/3 = SubResource( 86 )
 

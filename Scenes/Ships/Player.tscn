@@ -15,16 +15,18 @@ friction = 0.0
 
 [sub_resource type="ShaderMaterial" id=82]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 1, 0.709804, 0, 1 )
+shader_param/albedo = Color( 0.556863, 0.513726, 0, 1 )
 shader_param/emission = null
-shader_param/albedo_specular = Color( 1, 0.984314, 0, 1 )
-shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
+shader_param/albedo_specular = Color( 1, 0.890196, 0, 1 )
+shader_param/albedo_gloss = Color( 0, 0, 0, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
-shader_param/specular_strength = 1.0
-shader_param/specular_exponent = 7.1
-shader_param/gloss_strength = 0.0
+shader_param/specular_strength = 0.3
+shader_param/specular_exponent = 5.0
+shader_param/gloss_strength = 0.5
 shader_param/gloss_exponent = 500.0
 shader_param/albedo_clip = 1.0
 shader_param/specular_clip = 1.0
@@ -34,16 +36,18 @@ shader_param/gloss_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=83]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.0235294, 0.0196078, 0.0235294, 1 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
 shader_param/emission = null
-shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
+shader_param/albedo_specular = Color( 1, 1, 1, 1 )
 shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
-shader_param/specular_strength = 0.336
-shader_param/specular_exponent = 9.5
-shader_param/gloss_strength = 0.0
+shader_param/specular_strength = 0.06
+shader_param/specular_exponent = 17.6
+shader_param/gloss_strength = 0.5
 shader_param/gloss_exponent = 500.0
 shader_param/albedo_clip = 1.0
 shader_param/specular_clip = 1.0
@@ -58,6 +62,8 @@ shader_param/emission = null
 shader_param/albedo_specular = Color( 0.5, 0.5, 0.5, 1 )
 shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
 shader_param/specular_strength = 0.0
@@ -77,6 +83,8 @@ shader_param/emission = null
 shader_param/albedo_specular = Color( 0.670588, 0.305882, 0.305882, 1 )
 shader_param/albedo_gloss = Color( 0.733333, 0.988235, 1, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 0.775
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 3.0
 shader_param/specular_strength = 0.956
@@ -94,6 +102,8 @@ shader_param/emission = Color( 0.415686, 0, 0, 1 )
 shader_param/albedo_specular = Color( 0, 0, 0, 1 )
 shader_param/albedo_gloss = Color( 0, 0, 0, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 1.0
 shader_param/specular_strength = 0.3
@@ -167,6 +177,8 @@ shader_param/emission = Color( 1, 1, 1, 1 )
 shader_param/albedo_specular = Color( 1, 1, 1, 1 )
 shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission_strength = 500.0
+shader_param/roughness = 1.0
+shader_param/metallic = 0.0
 shader_param/albedo_strength = 1.0
 shader_param/albedo_exponent = 0.0
 shader_param/specular_strength = 0.0
@@ -186,7 +198,6 @@ continuous_cd = true
 script = ExtResource( 3 )
 
 [node name="_EDITOR OBJECTS_" parent="." instance=ExtResource( 7 )]
-visible = false
 
 [node name="DirectionalLight" type="DirectionalLight" parent="_EDITOR OBJECTS_"]
 transform = Transform( -0.698318, 0.428579, -0.573299, -0.238896, 0.615461, 0.75109, 0.674745, 0.661458, -0.327402, 0, 0, 0 )
@@ -277,7 +288,6 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight2" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -24.866, -4.89, -4.173 )
-visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight2"]
@@ -287,7 +297,6 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight3" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, -4.89, -4.173 )
-visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight3"]
@@ -297,7 +306,6 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight4" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, 4.89, -4.173 )
-visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight4"]
@@ -307,7 +315,6 @@ material/0 = SubResource( 90 )
 
 [node name="OmniLight5" type="OmniLight" parent="Lights"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 24.866, 4.89, -4.173 )
-visible = false
 omni_range = 25.0
 
 [node name="MeshInstance" type="MeshInstance" parent="Lights/OmniLight5"]
