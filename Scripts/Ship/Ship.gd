@@ -34,7 +34,7 @@ const torque_factor = Vector3(5e8,5e8,5e8)
 const autopilot_torque_factor = 10
 
 const camera_vert_offset = 10.0
-const camera_horiz_offset = 50.0
+const camera_horiz_offset = 60.0
 
 const exhaust_shape_size_xy_max = 1.3
 

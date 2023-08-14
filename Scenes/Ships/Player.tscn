@@ -89,18 +89,18 @@ shader_param/gloss_clip = 1.0
 
 [sub_resource type="ShaderMaterial" id=88]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.576471, 0.298039, 0, 1 )
-shader_param/emission = Color( 0.556863, 0, 0, 1 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/emission = Color( 0.415686, 0, 0, 1 )
 shader_param/albedo_specular = Color( 0, 0, 0, 1 )
 shader_param/albedo_gloss = Color( 0, 0, 0, 1 )
 shader_param/emission_strength = 1.0
 shader_param/albedo_strength = 1.0
-shader_param/albedo_exponent = 0.0
-shader_param/specular_strength = 0.0
-shader_param/specular_exponent = 7.7
-shader_param/gloss_strength = 0.0
-shader_param/gloss_exponent = 120.6
-shader_param/albedo_clip = 0.369
+shader_param/albedo_exponent = 1.0
+shader_param/specular_strength = 0.3
+shader_param/specular_exponent = 5.0
+shader_param/gloss_strength = 0.5
+shader_param/gloss_exponent = 500.0
+shader_param/albedo_clip = 1.0
 shader_param/specular_clip = 1.0
 shader_param/gloss_clip = 1.0
 

@@ -47,5 +47,5 @@ void fragment()
 
 	ALBEDO = albedo.rgb*albedo_rim + albedo_specular.rgb*specular_rim + albedo_gloss.rgb*gloss_rim;
 	ALBEDO *= COLOR.rgb;
-	ALBEDO += emission.rgb * COLOR.rgb * emission_strength;
+	EMISSION = emission.rgb * COLOR.rgb * emission_strength;
 }
