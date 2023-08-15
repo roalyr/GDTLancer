@@ -1,0 +1,36 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Scripts/Origin_rebase/Ship_space.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Ships/Player_camera.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scripts/Ship/Ship.gd" type="Script" id=3]
+[ext_resource path="res://Scenes/Camera/Camera_rig.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=7]
+
+[sub_resource type="PhysicsMaterial" id=76]
+friction = 0.0
+
+[node name="Player" type="RigidBody"]
+input_ray_pickable = false
+mass = 1000.0
+physics_material_override = SubResource( 76 )
+custom_integrator = true
+continuous_cd = true
+script = ExtResource( 3 )
+
+[node name="Camera_rig" parent="." instance=ExtResource( 5 )]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Ship_space" type="Position3D" parent="."]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true,
+"_editor_description_": "█████████████████████████████
+DO NOT TRANSLATE AND DO NOT REMOVE
+█████████████████████████████"
+}
+
+[node name="_EDITOR_OBJECTS_" parent="." instance=ExtResource( 7 )]
+
+[node name="Ship_package" parent="_EDITOR_OBJECTS_" instance=ExtResource( 2 )]
