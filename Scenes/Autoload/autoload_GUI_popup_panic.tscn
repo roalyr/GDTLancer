@@ -1,10 +1,26 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Themes/Default/Theme_default.tres" type="Theme" id=1]
 [ext_resource path="res://Assets/Fonts/Ubuntu/Ubuntu-Regular.ttf" type="DynamicFontData" id=4]
 
 [sub_resource type="StyleBoxFlat" id=14]
 bg_color = Color( 0.568627, 0, 0, 1 )
+
+[sub_resource type="GDScript" id=27]
+resource_name = "GUI_Popup_panic"
+script/source = "extends PopupDialog
+
+func popup_panic(message):
+	var panic_message = self.get_node(\"Panic_message\")
+	get_tree().get_root().get_node(\"Main/UI\").hide()
+	self.popup()
+	panic_message.text = message
+	# Also write down the message into console.
+	var div = \"\\n\\n============================= P A N I C =============================\\n\\n\"
+	print(div + message + div)
+	# Pause the game and prompt exit with the button.
+	get_tree().paused = true
+"
 
 [sub_resource type="DynamicFont" id=13]
 size = 30
@@ -22,6 +38,7 @@ pause_mode = 2
 anchor_right = 1.0
 anchor_bottom = 1.0
 custom_styles/panel = SubResource( 14 )
+script = SubResource( 27 )
 __meta__ = {
 "_edit_lock_": true
 }

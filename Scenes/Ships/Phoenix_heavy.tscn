@@ -1,5 +1,6 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
+[ext_resource path="res://Scripts/Ship/Ship_package.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Shaders/Solid/Solid_material.gdshader" type="Shader" id=2]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Models/Ships/Phoenix_heavy.glb" type="PackedScene" id=4]
@@ -11,7 +12,6 @@ script/source = "extends Node
 
 const ship_mass = 1e6
 const idle_engine_ticks = 50
-const accel_ticks_max = 100 + idle_engine_ticks
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
 const torque_factor = Vector3(5e8,5e8,5e8)
@@ -21,6 +21,9 @@ const camera_vert_offset = 10.0
 const camera_horiz_offset = 70.0
 
 const exhaust_shape_size_xy_max = 1.3
+
+# Orbiting factor allows to approach not at a straight line, but slightly orbiting.
+var autopilot_orbiting_factor = 0.05
 "
 
 [sub_resource type="QuadMesh" id=80]
@@ -128,12 +131,13 @@ shader_param/gloss_clip = 1.0
 
 [sub_resource type="CapsuleShape" id=91]
 
-[node name="Ship_package" type="Node"]
+[node name="Ship_package" type="Spatial"]
+script = ExtResource( 1 )
 
 [node name="Ship_data" type="Node" parent="."]
 script = SubResource( 90 )
 
-[node name="Engines" type="Node" parent="."]
+[node name="Engines" type="Spatial" parent="."]
 
 [node name="Engine_exhaust" parent="Engines" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.74051, 0, 32.6094 )
@@ -147,7 +151,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.583, 0, 34.308 )
 [node name="Engine_exhaust2" parent="Engines" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.741, 0, 32.609 )
 
-[node name="Models" type="Node" parent="."]
+[node name="Models" type="Spatial" parent="."]
 
 [node name="_EDITOR OBJECTS_" parent="Models" instance=ExtResource( 3 )]
 

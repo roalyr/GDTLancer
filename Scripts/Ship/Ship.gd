@@ -10,7 +10,7 @@ var velocity_limiter_state = 0
 const velocity_limmiter_1 = 1e2
 const velocity_limmiter_2 = 1e5
 const velocity_limmiter_3 = 1e10
-const velocity_limmiter_4 = 1e18
+const velocity_limmiter_4 = 1e17
 
 
 const accel_max = 1e23
@@ -21,7 +21,7 @@ const engine_delay_time_base = 0.05
 var engine_delay_timer = 0
 var engine_delay_time = 0.1
 
-var tick_step = 1
+const tick_step = 1
 
 # Allowed angle deviation for autopilot to engage.
 const autopilot_angle_deviation = 0.8
@@ -32,20 +32,18 @@ const autopilot_accel_factor = 0.2 # 0.22
 const autopilot_deccel_factor = 0.4 # 0.44
 
 # Orbiting factor allows to approach not at a straight line, but slightly orbiting.
-# TODO add modifier for precision?
-var autopilot_orbiting_factor = 0.05
+var autopilot_orbiting_factor = 0.0
 
 # Vars.
 # Ship data to be loaded,
 var ship_mass = 0
 var idle_engine_ticks = 0
-var accel_ticks_max = 0
 var torque_factor = Vector3(0,0,0)
 var autopilot_torque_factor = 0
 var camera_vert_offset = 0.0
 var camera_horiz_offset = 0.0
 var exhaust_shape_size_xy_max = 0
-var engines = Node
+var current_ship = Node
 
 var default_linear_damp = 0
 var tx = 0
@@ -63,9 +61,12 @@ var control_held = false
 # Objects.
 var torque = Vector3(0,0,0)
 
-# This is a default "camera ship".
-onready var player_camera_ship_scene = load("res://Scenes/Ships/Player_camera.tscn")
-onready var player_camera_ship = player_camera_ship_scene.instance()
+# Load ship scenes.
+# Camera ship as default.
+onready var player_camera_ship = load("res://Scenes/Ships/Player_camera.tscn").instance()
+# Load other ships.
+onready var ship_phoenix_heavy = load("res://Scenes/Ships/Phoenix_heavy.tscn").instance()
+
 
 
 
@@ -82,9 +83,10 @@ func _ready():
 	
 	# Initialize the vessel params.
 	# First initialize the camera "ship".
-	init_camera_ship()
-	# Init the rigid body.
-	init_ship()
+	init_specific_ship(player_camera_ship)
+	init_specific_ship(ship_phoenix_heavy)
+
+
 
 func _physics_process(delta):
 	
@@ -233,32 +235,42 @@ func _integrate_forces(state):
 
 # ================================== Other ====================================
 # TODO: Split it off to self's specific properties later on.
-func init_camera_ship():
+func init_specific_ship(ship_ref):
+	# Remove previously existing collision bodies and package.
+	clear_previous_data()
 	# Load ship data.
-	ship_mass = player_camera_ship.get_node("Ship_data").ship_mass
-	idle_engine_ticks = player_camera_ship.get_node("Ship_data").idle_engine_ticks
-	accel_ticks_max = player_camera_ship.get_node("Ship_data").accel_ticks_max
-	torque_factor = player_camera_ship.get_node("Ship_data").torque_factor
-	autopilot_torque_factor = player_camera_ship.get_node("Ship_data").autopilot_torque_factor
-	camera_vert_offset = player_camera_ship.get_node("Ship_data").camera_vert_offset
-	camera_horiz_offset = player_camera_ship.get_node("Ship_data").camera_horiz_offset
-	exhaust_shape_size_xy_max = player_camera_ship.get_node("Ship_data").exhaust_shape_size_xy_max
-	# Add meshes.
-	# TODO: When switching to another ship - clear all collision shapes first.
-	#var models = player_camera_ship.get_node("Models")
-	#self.add_child(models)
-	
-	self.add_child(player_camera_ship)
+	current_ship = ship_ref
+	ship_mass = ship_ref.get_node("Ship_data").ship_mass
+	idle_engine_ticks = ship_ref.get_node("Ship_data").idle_engine_ticks
+	torque_factor = ship_ref.get_node("Ship_data").torque_factor
+	autopilot_torque_factor = ship_ref.get_node("Ship_data").autopilot_torque_factor
+	camera_vert_offset = ship_ref.get_node("Ship_data").camera_vert_offset
+	camera_horiz_offset = ship_ref.get_node("Ship_data").camera_horiz_offset
+	exhaust_shape_size_xy_max = ship_ref.get_node("Ship_data").exhaust_shape_size_xy_max
+	autopilot_orbiting_factor = ship_ref.get_node("Ship_data").autopilot_orbiting_factor
+	# Add the ship to scene.
+	self.add_child(ship_ref.duplicate())
 	
 	# Add collisions.
 	# TODO: When switching to another ship - clear all collision shapes first.
-	#for shape in player_camera_ship.get_node("Collision_shapes").get_children():
-	#	self.add_child(shape)
-		
-	# Add engine exhausts.
-	#engines = player_camera_ship.get_node("Engines")
-	#self.add_child(engines)
+	for shape in ship_ref.get_node("Collision_shapes").get_children():
+		self.add_child(shape.duplicate())
+	
+	
+	# Reset camera offsets.
+	get_node("Camera_rig").reset_camera_zoom()
+	
+	# Init the rigid body.
+	init_ship()
+	
 
+func clear_previous_data():
+	for child in self.get_children():
+		if child.is_class("CollisionShape"):
+			child.queue_free()
+
+		if child.has_method("is_ship_package"):
+			child.queue_free()
 
 func init_ship():
 
@@ -277,7 +289,7 @@ func adjust_exhaust():
 	var accel_val = a + pow(a, pow(a, 12)*4.4e-8)
 	if accel_val > 1e3:
 		accel_val = 1e3
-	
+	var engines = current_ship.get_node("Engines")
 	for i in engines.get_children():
 		
 		var albedo = accel_val

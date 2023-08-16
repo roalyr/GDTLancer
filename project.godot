@@ -84,6 +84,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Scripts/Kinematics/Rotating_object.gd"
 }, {
+"base": "Spatial",
+"class": "ShipPackage",
+"language": "GDScript",
+"path": "res://Scripts/Ship/Ship_package.gd"
+}, {
 "base": "Position3D",
 "class": "ShipSpace",
 "language": "GDScript",
@@ -130,6 +135,7 @@ _global_script_class_icons={
 "RebaseStructure": "res://Assets/UI_images/SVG/icons/rebase_structure.svg",
 "RebaseSystem": "res://Assets/UI_images/SVG/icons/rebase_system.svg",
 "RotatingObject": "res://Assets/UI_images/SVG/icons/rotating_object.svg",
+"ShipPackage": "res://Assets/UI_images/SVG/icons/ship_space.svg",
 "ShipSpace": "res://Assets/UI_images/SVG/icons/ship_space.svg",
 "StellarLocalSpace": "res://Assets/UI_images/SVG/icons/star.svg",
 "StructureLocalSpace": "res://Assets/UI_images/SVG/icons/structure.svg",
@@ -159,6 +165,7 @@ PlayerState="*res://Scripts/Autoload/autoload_Player_state.gd"
 SpaceState="*res://Scripts/Autoload/autoload_Space_state.gd"
 GlobalInput="*res://Scenes/Autoload/autoload_Input.tscn"
 ViewportContainer3d="*res://Scenes/Autoload/autoload_ViewportContainer3D.tscn"
+GuiPopupPanic="*res://Scenes/Autoload/autoload_GUI_popup_panic.tscn"
 
 [display]
 

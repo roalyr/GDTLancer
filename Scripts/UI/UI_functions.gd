@@ -286,14 +286,3 @@ func is_switch_to_options_gui():
 	ui_paths.ui_functions.switch_to_options_gui()
 		
 		
-# GUI PANIC POPUP WINDOW.
-func popup_panic(message):
-	var panic_screen = ui_paths.popup_panic_gui
-	var panic_message = panic_screen.get_node("Panic_message")
-	panic_screen.popup()
-	panic_message.text = message
-	# Also write down the message into console.
-	var div = "\n\n============================= P A N I C =============================\n\n"
-	print(div + message + div)
-	# Pause the game and prompt exit with the button.
-	get_tree().paused = true

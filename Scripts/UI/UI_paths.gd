@@ -138,9 +138,6 @@ onready var touch_velocity_panel_accel_ticks = touch_velocity_panel.get_node("Ac
 # Status panel area
 onready var touch_status_panel = touch_readings.get_node("Status_panel")
 
-
-# Other windows
-onready var popup_panic_gui = ui.get_node("GUI_popup_panic")
 # Options
 onready var options_gui = ui.get_node("GUI_options")
 # Button side bar

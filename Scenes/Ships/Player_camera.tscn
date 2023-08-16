@@ -1,23 +1,26 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/Shaders/Solid/Solid_material.gdshader" type="Shader" id=1]
+[ext_resource path="res://Scripts/Ship/Ship_package.gd" type="Script" id=2]
 
 [sub_resource type="GDScript" id=90]
 resource_name = "Ship_data"
 script/source = "extends Node
 
-const ship_mass = 1000
-const idle_engine_ticks = 50
-const accel_ticks_max = 100 + idle_engine_ticks
+const ship_mass = 1
+const idle_engine_ticks = 0
 
 # Turning sensitivity LEFT-RIGHT | UP-DOWN | ROLL
-const torque_factor = Vector3(5e8,5e8,5e8)
-const autopilot_torque_factor = 10
+const torque_factor = Vector3(5,5,5)
+const autopilot_torque_factor = 1
 
 const camera_vert_offset = 1
 const camera_horiz_offset = 5
 
 const exhaust_shape_size_xy_max = 0
+
+# Orbiting factor allows to approach not at a straight line, but slightly orbiting.
+var autopilot_orbiting_factor = 0.0
 "
 
 [sub_resource type="CubeMesh" id=92]
@@ -43,16 +46,18 @@ shader_param/gloss_clip = 1.0
 
 [sub_resource type="SphereShape" id=91]
 
-[node name="Ship_package" type="Node"]
+[node name="Ship_package" type="Spatial"]
+script = ExtResource( 2 )
 
 [node name="Ship_data" type="Node" parent="."]
 script = SubResource( 90 )
 
-[node name="Engines" type="Node" parent="."]
+[node name="Engines" type="Spatial" parent="."]
 
-[node name="Models" type="Node" parent="."]
+[node name="Models" type="Spatial" parent="."]
 
 [node name="MeshInstance" type="MeshInstance" parent="Models"]
+visible = false
 mesh = SubResource( 92 )
 material/0 = SubResource( 93 )
 
