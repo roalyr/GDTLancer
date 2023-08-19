@@ -37,9 +37,12 @@ shader_param/albedo_specular = Color( 0, 0, 0, 1 )
 shader_param/albedo_gloss = Color( 0, 0, 0, 1 )
 shader_param/emission = Color( 0.415686, 0, 0, 1 )
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
 shader_param/albedo_exponent = 1.0
 shader_param/specular_exponent = 5.0
 shader_param/gloss_exponent = 500.0
+shader_param/roughness_exponent = 3.0
+shader_param/roughness_sharpness = 100.0
 shader_param/scale = 1.0
 shader_param/details_power = 1.0
 shader_param/specular_power = 1.0
@@ -51,9 +54,12 @@ shader_param/albedo_specular = Color( 0.670588, 0.305882, 0.305882, 1 )
 shader_param/albedo_gloss = Color( 0.733333, 0.988235, 1, 1 )
 shader_param/emission = null
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
 shader_param/albedo_exponent = 3.0
 shader_param/specular_exponent = 7.7
 shader_param/gloss_exponent = 120.6
+shader_param/roughness_exponent = 3.0
+shader_param/roughness_sharpness = 100.0
 shader_param/scale = 1.0
 shader_param/details_power = 1.0
 shader_param/specular_power = 1.0
@@ -67,9 +73,12 @@ shader_param/albedo_specular = Color( 0, 0, 0, 1 )
 shader_param/albedo_gloss = Color( 0, 0, 0, 1 )
 shader_param/emission = null
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
 shader_param/albedo_exponent = 0.0
 shader_param/specular_exponent = 5.0
 shader_param/gloss_exponent = 500.0
+shader_param/roughness_exponent = 3.0
+shader_param/roughness_sharpness = 100.0
 shader_param/scale = 1.0
 shader_param/details_power = 1.0
 shader_param/specular_power = 1.0
@@ -83,9 +92,12 @@ shader_param/albedo_specular = Color( 0.227451, 0.227451, 0.227451, 1 )
 shader_param/albedo_gloss = Color( 0.294118, 0.294118, 0.294118, 1 )
 shader_param/emission = null
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
 shader_param/albedo_exponent = 0.0
 shader_param/specular_exponent = 5.0
 shader_param/gloss_exponent = 106.1
+shader_param/roughness_exponent = 3.0
+shader_param/roughness_sharpness = 100.0
 shader_param/scale = 1.0
 shader_param/details_power = 1.0
 shader_param/specular_power = 1.0
@@ -95,15 +107,18 @@ shader_param/specular_power = 1.0
 [sub_resource type="ShaderMaterial" id=82]
 shader = ExtResource( 2 )
 shader_param/albedo = Color( 0.462745, 0.443137, 0.243137, 1 )
-shader_param/albedo_specular = Color( 1, 0.972549, 0.443137, 1 )
-shader_param/albedo_gloss = Color( 0.611765, 0.611765, 0.611765, 1 )
+shader_param/albedo_specular = Color( 0.831373, 0.843137, 0.317647, 1 )
+shader_param/albedo_gloss = Color( 1, 1, 1, 1 )
 shader_param/emission = null
 shader_param/emission_strength = 1.0
+shader_param/roughness = 1.0
 shader_param/albedo_exponent = 0.0
 shader_param/specular_exponent = 5.1
-shader_param/gloss_exponent = 186.9
-shader_param/scale = 5.0
-shader_param/details_power = 3.0
+shader_param/gloss_exponent = 66.5
+shader_param/roughness_exponent = 3.0
+shader_param/roughness_sharpness = 100.0
+shader_param/scale = 2.033
+shader_param/details_power = 2.0
 shader_param/specular_power = 3.0
 shader_param/detail_map = ExtResource( 6 )
 shader_param/specular_map = ExtResource( 7 )
@@ -136,14 +151,16 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.741, 0, 32.609 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="Models/_EDITOR OBJECTS_"]
 transform = Transform( 0.558436, -0.262488, -0.786924, -0.446103, 0.70475, -0.551652, 0.699387, 0.659111, 0.276461, -40.7812, -21.3619, 15.2559 )
+visible = false
 light_color = Color( 0.937255, 0.529412, 0.168627, 1 )
 
 [node name="DirectionalLight2" type="DirectionalLight" parent="Models/_EDITOR OBJECTS_"]
 transform = Transform( 0.3471, -0.443264, 0.826462, 0.646642, -0.52515, -0.553237, 0.679246, 0.726454, 0.104353, 44.4411, -19.2853, 0.639469 )
+visible = false
 light_color = Color( 0, 0.764706, 1, 1 )
 
 [node name="DirectionalLight3" type="DirectionalLight" parent="Models/_EDITOR OBJECTS_"]
-transform = Transform( 0.427638, 0.902956, 0.0423857, 0.54007, -0.292814, 0.78904, 0.72488, -0.314532, -0.612877, 2.67834, 17.2388, -24.6057 )
+transform = Transform( 0.427638, 0.902956, 0.0423857, 0.903942, -0.42697, -0.0241809, -0.00373691, 0.0486549, -0.998809, 2.67834, 17.2388, -24.6057 )
 
 [node name="Materials" type="Node" parent="Models/_EDITOR OBJECTS_"]
 
