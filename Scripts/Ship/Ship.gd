@@ -63,9 +63,9 @@ var torque = Vector3(0,0,0)
 
 # Load ship scenes.
 # Camera ship as default.
-onready var player_camera_ship = load("res://Scenes/Ships/Player_camera.tscn").instance()
+onready var player_camera_ship = load("res://Scenes/Ships/Player_camera.tscn")
 # Load other ships.
-onready var ship_phoenix_heavy = load("res://Scenes/Ships/Phoenix_heavy.tscn").instance()
+onready var ship_phoenix_heavy = load("res://Scenes/Ships/Phoenix_heavy.tscn")
 
 
 
@@ -83,8 +83,8 @@ func _ready():
 	
 	# Initialize the vessel params.
 	# First initialize the camera "ship".
-	init_specific_ship(player_camera_ship)
-	init_specific_ship(ship_phoenix_heavy)
+	init_specific_ship(player_camera_ship.instance())
+	init_specific_ship(ship_phoenix_heavy.instance())
 
 
 
@@ -239,21 +239,21 @@ func init_specific_ship(ship_ref):
 	# Remove previously existing collision bodies and package.
 	clear_previous_data()
 	# Load ship data.
-	current_ship = ship_ref
-	ship_mass = ship_ref.get_node("Ship_data").ship_mass
-	idle_engine_ticks = ship_ref.get_node("Ship_data").idle_engine_ticks
-	torque_factor = ship_ref.get_node("Ship_data").torque_factor
-	autopilot_torque_factor = ship_ref.get_node("Ship_data").autopilot_torque_factor
-	camera_vert_offset = ship_ref.get_node("Ship_data").camera_vert_offset
-	camera_horiz_offset = ship_ref.get_node("Ship_data").camera_horiz_offset
-	exhaust_shape_size_xy_max = ship_ref.get_node("Ship_data").exhaust_shape_size_xy_max
-	autopilot_orbiting_factor = ship_ref.get_node("Ship_data").autopilot_orbiting_factor
+	current_ship = ship_ref.duplicate()
+	ship_mass = current_ship.get_node("Ship_data").ship_mass
+	idle_engine_ticks = current_ship.get_node("Ship_data").idle_engine_ticks
+	torque_factor = current_ship.get_node("Ship_data").torque_factor
+	autopilot_torque_factor = current_ship.get_node("Ship_data").autopilot_torque_factor
+	camera_vert_offset = current_ship.get_node("Ship_data").camera_vert_offset
+	camera_horiz_offset = current_ship.get_node("Ship_data").camera_horiz_offset
+	exhaust_shape_size_xy_max = current_ship.get_node("Ship_data").exhaust_shape_size_xy_max
+	autopilot_orbiting_factor = current_ship.get_node("Ship_data").autopilot_orbiting_factor
 	# Add the ship to scene.
-	self.add_child(ship_ref.duplicate())
+	self.add_child(current_ship)
 	
 	# Add collisions.
 	# TODO: When switching to another ship - clear all collision shapes first.
-	for shape in ship_ref.get_node("Collision_shapes").get_children():
+	for shape in current_ship.get_node("Collision_shapes").get_children():
 		self.add_child(shape.duplicate())
 	
 	

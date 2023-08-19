@@ -100,9 +100,6 @@ transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0
 material/0 = SubResource( 8 )
 
 [node name="Engine_exhaust_shapes" type="Spatial" parent="."]
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="Exhaust_cone_expanding_cut" parent="Engine_exhaust_shapes" instance=ExtResource( 4 )]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )

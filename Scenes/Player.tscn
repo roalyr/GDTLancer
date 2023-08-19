@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Scripts/Origin_rebase/Ship_space.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Ships/Player_camera.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Scripts/Ship/Ship.gd" type="Script" id=3]
+[ext_resource path="res://Scenes/Ships/Phoenix_heavy.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Camera/Camera_rig.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Scenes/Editor_scenes/_EDITOR_OBJECTS_.tscn" type="PackedScene" id=7]
 
@@ -33,4 +34,7 @@ DO NOT TRANSLATE AND DO NOT REMOVE
 
 [node name="_EDITOR_OBJECTS_" parent="." instance=ExtResource( 7 )]
 
-[node name="Ship_package" parent="_EDITOR_OBJECTS_" instance=ExtResource( 2 )]
+[node name="Camera" parent="_EDITOR_OBJECTS_" instance=ExtResource( 2 )]
+visible = false
+
+[node name="Phoenix_heavy" parent="_EDITOR_OBJECTS_" instance=ExtResource( 4 )]

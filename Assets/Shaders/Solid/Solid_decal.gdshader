@@ -10,7 +10,7 @@ render_mode
 	
 	//unshaded,
 	diffuse_lambert, 
-	specular_phong,
+	specular_disabled,
 	
 	// Additional flags just in case.
 	//ambient_light_disabled,
