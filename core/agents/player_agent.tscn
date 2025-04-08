@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://core/agents/agent.tscn" type="PackedScene" id=1]
+
+[node name="player_agent" type="Spatial"]
+
+[node name="AgentBody" parent="." instance=ExtResource( 1 )]

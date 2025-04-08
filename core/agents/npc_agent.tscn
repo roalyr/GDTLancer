@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://modules/piloting/scripts/ship_controller_ai.gd" type="Script" id=1]
+[ext_resource path="res://core/agents/agent.tscn" type="PackedScene" id=2]
+
+[node name="NPCAgent" type="Spatial"]
+
+[node name="AgentBody" parent="." instance=ExtResource( 2 )]
+
+[node name="AIController" type="Node" parent="AgentBody"]
+script = ExtResource( 1 )
