@@ -8,6 +8,22 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Reference",
+"class": "GutHookScript",
+"language": "GDScript",
+"path": "res://addons/gut/hook_script.gd"
+}, {
+"base": "Node",
+"class": "GutTest",
+"language": "GDScript",
+"path": "res://addons/gut/test.gd"
+} ]
+_global_script_class_icons={
+"GutHookScript": "",
+"GutTest": ""
+}
+
 [application]
 
 config/name="GDTLancer-rev"
@@ -17,10 +33,22 @@ boot_splash/image="res://Splash.png"
 config/icon="res://Icon.png"
 config/windows_native_icon="res://Icon.ico"
 
+[autoload]
+
+Constants="*res://autoload/Constants.gd"
+EventBus="*res://autoload/EventBus.gd"
+GlobalRefs="*res://autoload/GlobalRefs.gd"
+CoreMechanicsAPI="*res://autoload/CoreMechanicsAPI.gd"
+GameStateManager="*res://autoload/GameStateManager.gd"
+
 [display]
 
 window/size/width=1920
 window/size/height=1080
+
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/gut/plugin.cfg" )
 
 [gui]
 
