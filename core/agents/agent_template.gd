@@ -1,16 +1,34 @@
-extends Node
+# File: core/agents/agent_template.gd
+# Resource Definition for Agent Stats/Config
+# Version: 1.0
 
+extends Resource
+class_name AgentTemplate # Allows type hinting and creating this resource type in editor
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+# --- Identification ---
+export var template_id : String = "default_template" # Unique ID for this template type
+export var default_agent_name : String = "Agent"     # Base name for agents using this
+export var default_faction_id : String = "Neutral"   # Default faction
 
+# --- Base Movement Capabilities (Reads defaults from Constants) ---
+export var max_move_speed : float = Constants.DEFAULT_MAX_MOVE_SPEED
+export var acceleration : float = Constants.DEFAULT_ACCELERATION
+export var deceleration : float = Constants.DEFAULT_DECELERATION
+export var max_turn_speed : float = Constants.DEFAULT_MAX_TURN_SPEED
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+# --- Base Combat Stats (Placeholders - Link to Combat Module/Character System later) ---
+# export var base_hull : int = 100
+# export var base_shields : int = 0
 
+# --- Base Skills (Placeholders - Link to Character System later) ---
+# These represent the inherent skill level associated with this *type* of agent
+# export var base_piloting_skill : int = 0
+# export var base_tech_skill : int = 0
+# export var base_social_skill : int = 0
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+# --- AI Behavior Hint (Optional) ---
+# export var default_ai_behavior : String = "idle" # Hint for AI controller selection/init
+
+# --- Visuals / Asset Links (Placeholders) ---
+# Optional: Could link to default ship model path, visual effects, etc.
+# export (String, FILE, "*.tscn,*.glb,*.gltf") var default_model_path = ""

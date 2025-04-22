@@ -1,67 +1,51 @@
 # File: autoload/EventBus.gd
-# Autoload Singleton: EventBus
-# Purpose: Central hub for globally emitted signals. Facilitates communication
-#          between decoupled systems and modules.
-# Version: 1.0
+# Version: 1.0 (Reviewed for Complete Zone Scene Architecture)
 
 extends Node
 
 # --- Game State Signals ---
-signal game_loaded(save_data) # Emitted by GameStateManager AFTER loading data dict
-# signal game_saving(slot_id) # Optional: If systems need to prepare before save
-# signal save_complete(slot_id, success) # Optional: Notification after save attempt
-
+signal game_loaded(save_data)
+# signal game_saving(slot_id)
+# signal save_complete(slot_id, success)
 
 # --- Agent Lifecycle Signals ---
-# Emitted by WorldManager AFTER agent node is added to tree and initialized
+# Emitted by WorldManager after agent initialized and added to tree
+# init_data parameter is now Dictionary {"template": Res, "overrides": Dict}
 signal agent_spawned(agent_body, init_data)
-# Emitted by the Agent's despawn() method BEFORE queue_free is called
+# Emitted by Agent's despawn() method via EventBus BEFORE queue_free
 signal agent_despawning(agent_body)
-# Emitted by AI Controller when it reaches its destination (used by WM to trigger despawn)
+# Emitted by AI Controller via EventBus when destination reached
 signal agent_reached_destination(agent_body)
-# Emitted when the designated player agent is spawned/ready
+# Emitted by WorldManager after player specifically spawned
 signal player_spawned(player_agent_body)
 
-
 # --- Camera Control Signals ---
-# Emitted by systems (like WorldManager) requesting the camera target a specific node
-signal camera_set_target_requested(target_node) # Pass null to clear target
-# Emitted by input handlers (like OrbitCamera or UI) when player requests next target
+# Emitted by systems requesting camera target change
+signal camera_set_target_requested(target_node)
+# Emitted by input handlers requesting target cycle (KEEPING for potential future use)
 signal camera_cycle_target_requested()
 
-
 # --- Zone Loading Signals ---
-# Emitted by WorldManager right before unloading the current zone
-signal zone_unloading(zone_node)
-# Emitted by WorldManager when a new zone scene path is about to be loaded
-signal zone_loading(zone_path)
-# Emitted by WorldManager AFTER a new zone is instanced, added to tree, and basic refs found
+# Emitted by WorldManager before unloading current zone instance
+signal zone_unloading(zone_node) # zone_node is the root of the scene being unloaded
+# Emitted by WorldManager when starting to load a new zone path
+signal zone_loading(zone_path) # zone_path is path to the complete zone scene
+# Emitted by WorldManager after new zone is instanced, added, container found
+# zone_node is root of the new zone instance, agent_container_node is ref inside it
 signal zone_loaded(zone_node, zone_path, agent_container_node)
 
-
-# --- Core Mechanics / Gameplay Events (Add as needed) ---
-# Example: Emitted after an Action Check is resolved (by CoreMechanicsAPI or calling script)
+# --- Core Mechanics / Gameplay Events (Placeholders) ---
 # signal action_check_resolved(agent_body, result_dictionary, action_approach)
-# Example: Emitted when Focus Points change significantly
 # signal focus_changed(agent_body, new_focus_value)
-# Example: Emitted when Wealth Points change significantly
 # signal wealth_changed(agent_body, new_wealth_value)
-# Example: Emitted when Time Clock ticks over
 # signal world_event_tick_triggered()
 
-
-# --- Goal System Events (Add as needed) ---
-# Example: Emitted when a goal's progress changes
+# --- Goal System Events (Placeholders) ---
 # signal goal_progress_updated(agent_body, goal_id, new_progress)
-# Example: Emitted when a goal is completed
 # signal goal_completed(agent_body, goal_id, success_level)
 
-
-# --- Module Specific Signals (Use sparingly - prefer module-internal signals first) ---
-# Example: If a major discovery in Exploration needs global announcement
+# --- Module Specific Signals (Placeholders - Use sparingly) ---
 # signal major_discovery_made(discovery_data)
 
-
-# No logic needed in the EventBus itself, it just defines and routes signals.
 func _ready():
 	print("EventBus Ready.")

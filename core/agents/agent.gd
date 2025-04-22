@@ -1,114 +1,109 @@
 # File: core/agents/agent.gd
 # Attached to Agent (KinematicBody) root node in agent.tscn
-# Version: 1.1 - Removed exports, added initialize function
+# Version: 2.1 - Removed invalid is_rotation check for Godot 3
 
 extends KinematicBody
 
-# Signals emitted by this agent
-signal agent_spawned(agent_instance)
-signal agent_despawning(agent_instance) # Emitted just before queue_free()
-
 # --- Agent Identification ---
-# Set via initialize()
 var agent_name: String = "Default Agent"
 var faction_id: String = "Neutral"
+var template_id: String = "default"
 
 # --- Movement Capabilities ---
-# Set via initialize() based on Asset/Character data
-var max_move_speed: float = 50.0   # Units per second
-var acceleration: float = 10.0   # Units per second^2
-var deceleration: float = 15.0   # Units per second^2 (for stopping smoothly)
-var max_turn_speed: float = 2.0    # Radians per second
+var max_move_speed: float = 0.0
+var acceleration: float = 0.0
+var deceleration: float = 0.0
+var max_turn_speed: float = 0.0 # Radians per second
 
 # --- Current State ---
-# Managed primarily by MovementComponent, but stored here
 var current_velocity: Vector3 = Vector3.ZERO
 
+# --- Controller Inputs ---
+var _intended_thrust_direction: Vector3 = Vector3.ZERO
+var _intended_look_direction: Vector3 = Vector3.FORWARD
+
 # --- Initialization ---
-# Called by the spawner (e.g., WorldManager) AFTER instancing and adding to tree
-func initialize(data: Dictionary):
-	# Set properties based on passed data (from Asset, Character template, etc.)
-	if data.has("name"):
-		self.name = data.name # Set the actual node name for easier debugging
-		self.agent_name = data.name
-	if data.has("faction"):
-		self.faction_id = data.faction
-	if data.has("max_move_speed"):
-		self.max_move_speed = data.max_move_speed
-	if data.has("acceleration"):
-		self.acceleration = data.acceleration
-	if data.has("deceleration"):
-		self.deceleration = data.deceleration
-	if data.has("max_turn_speed"):
-		self.max_turn_speed = data.max_turn_speed
+func initialize(template: AgentTemplate, overrides: Dictionary = {}):
+	if not template is AgentTemplate:
+		printerr("Agent Initialize Error: Invalid template for ", self.name); return
 
-	# --- Initialize Other Core Stats/Resources (Placeholders) ---
-	# self.focus_points = data.get("initial_focus", 0)
-	# self.wealth_points = data.get("initial_wealth", 0)
-	# self.current_hull = data.get("max_hull", 100)
-	# self.max_hull = data.get("max_hull", 100)
-	# Load relevant skills from Character System based on agent template/ID?
+	self.template_id = template.template_id
+	self.agent_name = overrides.get("name", template.default_agent_name + "_" + str(get_instance_id()))
+	self.faction_id = overrides.get("faction", template.default_faction_id)
+	self.max_move_speed = overrides.get("max_move_speed", template.max_move_speed)
+	self.acceleration = overrides.get("acceleration", template.acceleration)
+	self.deceleration = overrides.get("deceleration", template.deceleration)
+	self.max_turn_speed = overrides.get("max_turn_speed", template.max_turn_speed)
+	self.name = self.agent_name
 
-	print(self.name + " initialized.")
-	emit_signal("agent_spawned", self)
+	_intended_look_direction = -global_transform.basis.z.normalized()
+	# ... (Initialize other stats/resources placeholders) ...
+	print(self.name + " initialized using template '", self.template_id, "'.")
 
-
-# --- Core Functions ---
+# --- Godot Lifecycle ---
 func _ready():
-	# Add to group for easier management by systems
 	add_to_group("Agents")
-	# Note: Initialization happens AFTER _ready typically, when called by spawner.
-	# So emitting spawn signal in initialize() might be better timing.
+	set_physics_process(true)
 
+func _physics_process(delta):
+	_perform_rotation(delta)
+	_perform_movement(delta)
+
+# --- Internal Movement & Rotation Logic ---
+func _perform_rotation(delta):
+	if _intended_look_direction.length_squared() < 0.001: return
+
+	var target_dir = _intended_look_direction # Already normalized
+	var current_transform = global_transform
+	var current_basis = current_transform.basis
+
+	var up_vector = Vector3.UP
+	if abs(target_dir.dot(Vector3.UP)) > 0.999:
+		up_vector = Vector3.FORWARD
+
+	var look_at_transform = Transform(Basis(), Vector3.ZERO).looking_at(target_dir, up_vector)
+	var target_basis = look_at_transform.basis
+
+	# Orthonormalize bases before slerp
+	current_basis = current_basis.orthonormalized()
+	target_basis = target_basis.orthonormalized()
+
+	# *** REMOVED is_rotation() check ***
+
+	# Use spherical linear interpolation (slerp) for smooth rotation
+	# Assumes orthonormalized bases are valid for slerp
+	var new_basis = current_basis.slerp(target_basis, max_turn_speed * delta)
+	global_transform.basis = new_basis
+
+
+func _perform_movement(delta):
+	var target_velocity: Vector3
+	if _intended_thrust_direction.length_squared() > 0.001:
+		target_velocity = _intended_thrust_direction.normalized() * max_move_speed
+		current_velocity = current_velocity.linear_interpolate(target_velocity, acceleration * delta)
+	else:
+		current_velocity = current_velocity.linear_interpolate(Vector3.ZERO, deceleration * delta)
+
+	current_velocity = move_and_slide(current_velocity, Vector3.UP)
+	_intended_thrust_direction = Vector3.ZERO # Reset thrust intention
+
+
+# --- Public Methods for Controllers ---
+func set_thrust_input(direction: Vector3):
+	_intended_thrust_direction = direction
+
+func set_look_input(direction: Vector3):
+	if direction.length_squared() > 0.001:
+		_intended_look_direction = direction.normalized()
+	# else: Maintain last look direction (current implementation)
+
+# --- Despawn ---
 func despawn():
-	emit_signal("agent_despawning", self)
-	queue_free() # Remove the agent from the scene
+	print("Agent ", self.name, " despawning...")
+	EventBus.emit_signal("agent_despawning", self)
+	queue_free()
 
-# --- Helpers for Movement / Controllers ---
-
-# Internal state for tracking movement intention this frame
-# Controllers call set_movement_input()
-# MovementComponent calls _get_movement_input_vector()
-var _current_movement_input := Vector3.ZERO
-
-# Called by controller scripts (AI/Player) each physics frame they intend to move
-func set_movement_input(input_vector: Vector3):
-	_current_movement_input = input_vector
-
-# Called by MovementComponent to check for input this frame (used for deceleration)
-func _get_movement_input_vector() -> Vector3:
-	var input = _current_movement_input
-	# Reset for the next frame - ensures deceleration applies if no input is set again
-	_current_movement_input = Vector3.ZERO
-	return input
-
-
-# --- Placeholder Functions for Future Systems ---
-
-# func take_damage(amount, type):
-#     pass # Would handle hull/shield reduction
-
-# func get_skill(skill_name: String) -> int:
-#     # Would query the Character System for this agent's skill
-#     return 0
-
-# func get_asset_difficulty(asset_id: String, module_name: String) -> int:
-#     # Would query the Asset System for the difficulty of equipped asset
-#     return 0
-
-# func calculate_module_modifier(module_name: String) -> int:
-#     # Needs info about the currently relevant asset for this module
-#     # var relevant_skill = get_skill(...)
-#     # var asset_difficulty = get_asset_difficulty(...)
-#     # return relevant_skill + asset_difficulty
-#     return 0 # Placeholder
-
-# func update_focus(change: int):
-#     pass # Would update FP tracked potentially here or in Character System
-
-# func update_wealth(change: int):
-#     pass # Would update WP tracked potentially here or in Character System
-
-# func add_time_units(amount: int):
-#     # Could potentially signal a global Time System singleton (Autoload)
-#     pass
+# --- Placeholder Functions ---
+# func take_damage(amount, type): pass
+# func get_skill(skill_name: String) -> int: return 0
+# func calculate_module_modifier(module_name: String) -> int: return 0

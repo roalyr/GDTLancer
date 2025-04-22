@@ -1,93 +1,89 @@
 # File: modules/piloting/scripts/ship_controller_ai.gd
-# Attach to a Node child of the Agent KinematicBody in npc_agent.tscn
-# Version 1.3 - Despawns upon reaching target
+# Attach to a Node child of the AgentBody KinematicBody in npc_agent.tscn
+# Version 2.0 - Works with agent.gd v2.0 (merged movement)
 
 extends Node
 
-# --- Configuration ---
+# --- Configuration (Set via initialize) ---
 var target_position: Vector3 = Vector3.ZERO
-var stopping_distance: float = 1.0 # Increased further for easier trigger
+var stopping_distance: float = 10.0
 
 # --- State ---
-var is_active: bool = false
+var is_active: bool = false # Determines if AI tries to move
 
 # --- References ---
-var agent_body: KinematicBody = null
-var movement_comp: Node = null
+var agent_script: Node = null # Reference to the parent agent.gd script instance
+var agent_body: KinematicBody = null # Reference to the parent KinematicBody
 
+# --- Initialization ---
 func _ready():
+	# Get references to parent agent node and script
 	var parent = get_parent()
-	if parent is KinematicBody:
+	if parent is KinematicBody and parent.has_method("set_thrust_input") and parent.has_method("set_look_input"):
 		agent_body = parent
-		movement_comp = agent_body.get_node_or_null("MovementComponent")
-		if not movement_comp or not movement_comp.has_method("move"):
-			printerr("ShipControllerAI Error: Invalid MovementComponent found for ", agent_body.name if agent_body else "UNKNOWN")
-			is_active = false
-		elif not agent_body.has_method("set_movement_input"):
-			printerr("ShipControllerAI Error: Parent agent node is missing expected methods!")
-			is_active = false
+		agent_script = parent # The script is directly on the KinematicBody parent
+		# Optional Debug: print("AI Controller ready for: ", agent_script.agent_name)
 	else:
-		printerr("ShipControllerAI Error: Parent node is not a KinematicBody!")
+		printerr("AI Controller Error: Parent node is not an Agent KinematicBody with required methods!")
 		is_active = false
-	# No randomize needed here anymore
+		set_physics_process(false) # Disable processing if setup is wrong
 
+# Called by WorldManager's spawn_agent function (via initialize dictionary)
 func initialize(config: Dictionary):
 	if config.has("stopping_distance"):
 		self.stopping_distance = config.stopping_distance
-	# Start active only if an initial target is provided
-	if config.has("initial_target"):
+	# Only become active if given a valid initial target
+	if config.has("initial_target") and config.initial_target is Vector3:
 		set_target(config.initial_target)
 	else:
-		is_active = false # Don't start wandering if no target given
-		print("ShipControllerAI Warning: No initial target provided for ", agent_body.name if agent_body else "UNKNOWN")
+		is_active = false
+		if is_instance_valid(agent_body): print("AI Controller Warning: No initial target provided for ", agent_body.name)
 
-	print("ShipControllerAI initialized for: ", agent_body.name if agent_body else "UNKNOWN")
-
+# --- Physics Update (Decision Making) ---
 func _physics_process(delta):
-	if not is_active or not agent_body or not movement_comp:
-		_signal_movement_intent(Vector3.ZERO)
+	# Don't run if inactive or references are bad
+	if not is_active or not is_instance_valid(agent_body) or not is_instance_valid(agent_script):
+		# Ensure we signal stop if inactive
+		if is_instance_valid(agent_script):
+			agent_script.set_thrust_input(Vector3.ZERO)
 		return
 
 	var current_pos = agent_body.global_transform.origin
 	var distance_to_target = current_pos.distance_to(target_position)
 
 	if distance_to_target > stopping_distance:
-		var direction_to_target = movement_comp.get_direction_to(target_position)
-		if direction_to_target != Vector3.ZERO:
-			movement_comp.rotate_towards(delta, direction_to_target)
-			_signal_movement_intent(-agent_body.global_transform.basis.z)
-			movement_comp.move(delta, -agent_body.global_transform.basis.z)
+		# --- Still moving towards target ---
+		var direction_to_target = (target_position - current_pos)
+		if direction_to_target.length_squared() > 0.001: # Check direction is valid
+			direction_to_target = direction_to_target.normalized()
+			# Command the agent to look towards the target direction
+			agent_script.set_look_input(direction_to_target)
+			# Command the agent to apply thrust in its forward direction
+			agent_script.set_thrust_input(-agent_body.global_transform.basis.z)
 		else:
-			_signal_movement_intent(Vector3.ZERO)
-			movement_comp.move(delta, Vector3.ZERO)
-			_handle_target_reached() # Reached
+			# Edge case: Already at target but distance check somehow failed? Stop thrust.
+			agent_script.set_thrust_input(Vector3.ZERO)
+			_handle_target_reached() # Treat as reached
 	else:
-		# Reached target
-		_signal_movement_intent(Vector3.ZERO)
-		movement_comp.move(delta, Vector3.ZERO)
+		# --- Target Reached ---
+		agent_script.set_thrust_input(Vector3.ZERO) # Command stop
 		_handle_target_reached()
 
-# --- Target Management ---
+
+# --- Event Handling ---
 func _handle_target_reached():
-	if not is_instance_valid(agent_body): return
+	if not is_instance_valid(agent_body): return # Safety check
 
-	print(agent_body.name, " reached target: ", target_position, ". Despawning.")
-	is_active = false # Stop AI processing immediately
-	# Call the agent's despawn method - this emits signal THEN queues free
-	if agent_body.has_method("despawn"):
-		agent_body.despawn()
-	else:
-		# Fallback if method is somehow missing
-		agent_body.queue_free()
+	print(agent_body.name, " reached target: ", target_position, ". Emitting signal.")
+	is_active = false # Stop this AI controller instance from processing further
+	# Emit global signal via EventBus - WorldManager listens for this
+	EventBus.emit_signal("agent_reached_destination", agent_body)
 
-# Public function to set a specific target
+
+# --- Public Functions ---
+# Sets a new target and reactivates the AI
 func set_target(new_target: Vector3):
 	target_position = new_target
-	is_active = true
-	if agent_body:
-		print(agent_body.name, " AI target set to: ", new_target)
-
-# --- Helper for Agent/Movement Component ---
-func _signal_movement_intent(direction: Vector3):
-	if is_instance_valid(agent_body) and agent_body.has_method("set_movement_input"):
-		agent_body.set_movement_input(direction)
+	is_active = true # Activate when given a target
+	# Optional Debug:
+	# if is_instance_valid(agent_body): print(agent_body.name, " AI target set to: ", new_target)

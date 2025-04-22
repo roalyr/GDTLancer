@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/agents/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "default_template"
+default_agent_name = "Agent"
+default_faction_id = "Neutral"
+max_move_speed = 50.0
+acceleration = 10.0
+deceleration = 15.0
+max_turn_speed = 2.0

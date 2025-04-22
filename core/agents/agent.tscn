@@ -1,7 +1,6 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
-[ext_resource path="res://core/agents/components/movement_component.gd" type="Script" id=2]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -15,6 +14,3 @@ shape = SubResource( 1 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 mesh = SubResource( 2 )
-
-[node name="MovementComponent" type="Node" parent="."]
-script = ExtResource( 2 )

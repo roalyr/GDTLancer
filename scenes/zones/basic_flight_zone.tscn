@@ -14,13 +14,13 @@ outer_radius = 1.901
 
 [node name="BasicFlightZone" type="Spatial"]
 
+[node name="AgentContainer" type="Spatial" parent="."]
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 1 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.30227, 0.953222, 0, -0.953222, 0.30227, 0, 1.7978, 0 )
-
-[node name="AgentContainer" type="Spatial" parent="."]
 
 [node name="EntryPointA" type="Position3D" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 82.5905, 12.7857, -35.0582 )
