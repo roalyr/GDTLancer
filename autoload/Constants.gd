@@ -28,6 +28,7 @@ const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer" # Node holding the lo
 
 # Inside Zone Scenes (e.g., basic_flight_zone.tscn)
 const AGENT_CONTAINER_NAME = "AgentContainer" # Child node for housing agents
+const AGENT_MODEL_CONTAINER_NAME = "Model"
 const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"] # Expected Position3D/Spatial nodes
 
 # Inside Agent Scenes (e.g., agent.tscn, npc_agent.tscn)
@@ -55,3 +56,4 @@ const DEFAULT_MAX_TURN_SPEED = 2.0
 const MAX_NPCS_DEFAULT = 10
 const SPAWN_INTERVAL_DEFAULT = 2.0
 const TRAFFIC_SPEED_MULT_DEFAULT = 0.2
+const TARGETING_RAY_LENGTH = 1e4

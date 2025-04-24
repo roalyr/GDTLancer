@@ -27,6 +27,8 @@ var deceleration: float = 0.0
 var brake_strength: float = 0.0
 var max_turn_speed: float = 0.0
 
+var interaction_radius: float = 0.0
+
 # --- Constants for Approach ---
 const APPROACH_DISTANCE_MULTIPLIER = 1.5
 const APPROACH_MIN_DISTANCE = 50.0
@@ -59,6 +61,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 	var default_brake = self.deceleration * 1.5
 	self.brake_strength = overrides.get("brake_strength", default_brake)
 	self.name = self.agent_name # Set Node name
+	self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
 
 	_set_command_idle() # Start idle
 	print(self.name + " initialized template '", self.template_id, "'.")
@@ -255,6 +258,10 @@ func _apply_rotation(delta, target_look_dir):
 		var turn_step = max_turn_speed * delta
 		var new_basis = current_basis.slerp(target_basis, turn_step)
 		global_transform.basis = new_basis
+		
+# --- Public Getter for Radius ---
+func get_interaction_radius() -> float:
+	return interaction_radius
 
 # --- Target Size Helper ---
 func _get_target_effective_radius(target_node: Spatial) -> float:

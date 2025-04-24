@@ -102,15 +102,6 @@ command_move_direction={
 
 pointing/emulate_touch_from_mouse=true
 
-[layer_names]
-
-3d_physics/layer_1="player_ship"
-3d_physics/layer_2="npc_ship"
-3d_physics/layer_3="stations"
-3d_physics/layer_4="asteroids"
-3d_physics/layer_5="projectiles"
-3d_physics/layer_6="targetable_objects"
-
 [physics]
 
 common/enable_pause_aware_picking=true

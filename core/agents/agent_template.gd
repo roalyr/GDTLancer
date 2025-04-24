@@ -16,6 +16,10 @@ export var acceleration : float = Constants.DEFAULT_ACCELERATION
 export var deceleration : float = Constants.DEFAULT_DECELERATION
 export var max_turn_speed : float = Constants.DEFAULT_MAX_TURN_SPEED
 
+# --- Interaction Size ---
+# Used by camera targeting, docking, etc. Represents effective size.
+export var interaction_radius : float = 15.0 # Default reasonable size
+
 # --- Base Combat Stats (Placeholders - Link to Combat Module/Character System later) ---
 # export var base_hull : int = 100
 # export var base_shields : int = 0

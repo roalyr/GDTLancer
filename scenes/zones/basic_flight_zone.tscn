@@ -42,7 +42,6 @@ mesh = SubResource( 4 )
 
 [node name="StaticBody" type="StaticBody" parent="."]
 transform = Transform( 40, 0, 0, 0, 40, 0, 0, 0, 40, 30.6606, -0.574532, -64.2499 )
-collision_layer = 32
 
 [node name="MeshInstance" type="MeshInstance" parent="StaticBody"]
 mesh = SubResource( 2 )
@@ -53,7 +52,6 @@ shape = SubResource( 3 )
 
 [node name="StaticBody2" type="StaticBody" parent="."]
 transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 15, -22.7655, -3.36007, 33.4335 )
-collision_layer = 32
 
 [node name="MeshInstance" type="MeshInstance" parent="StaticBody2"]
 mesh = SubResource( 2 )
@@ -64,7 +62,6 @@ shape = SubResource( 3 )
 
 [node name="StaticBody3" type="StaticBody" parent="."]
 transform = Transform( 20, 0, 0, 0, 20, 0, 0, 0, 20, 79.2529, 1.97987, 137.926 )
-collision_layer = 32
 
 [node name="MeshInstance" type="MeshInstance" parent="StaticBody3"]
 mesh = SubResource( 2 )

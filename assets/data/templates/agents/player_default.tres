@@ -11,3 +11,4 @@ max_move_speed = 50.0
 acceleration = 10.0
 deceleration = 15.0
 max_turn_speed = 2.0
+interaction_radius = 15.0
