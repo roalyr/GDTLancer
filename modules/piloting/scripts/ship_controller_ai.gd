@@ -1,89 +1,69 @@
 # File: modules/piloting/scripts/ship_controller_ai.gd
-# Attach to a Node child of the AgentBody KinematicBody in npc_agent.tscn
-# Version 2.0 - Works with agent.gd v2.0 (merged movement)
+# Attach to Node child of AgentBody in npc_agent.tscn
+# Version 2.1 - Simplified for agent command execution model
 
 extends Node
 
-# --- Configuration (Set via initialize) ---
-var target_position: Vector3 = Vector3.ZERO
-var stopping_distance: float = 10.0
-
-# --- State ---
-var is_active: bool = false # Determines if AI tries to move
-
 # --- References ---
+# Set in _ready()
 var agent_script: Node = null # Reference to the parent agent.gd script instance
-var agent_body: KinematicBody = null # Reference to the parent KinematicBody
 
 # --- Initialization ---
 func _ready():
-	# Get references to parent agent node and script
+	# Get reference to parent agent script
 	var parent = get_parent()
-	if parent is KinematicBody and parent.has_method("set_thrust_input") and parent.has_method("set_look_input"):
-		agent_body = parent
-		agent_script = parent # The script is directly on the KinematicBody parent
-		# Optional Debug: print("AI Controller ready for: ", agent_script.agent_name)
+	# Check if parent is the correct type and has the command methods
+	if parent is KinematicBody and parent.has_method("command_move_to"):
+		agent_script = parent
+		# print("AI Controller ready for: ", agent_script.agent_name) # Optional Debug
 	else:
-		printerr("AI Controller Error: Parent node is not an Agent KinematicBody with required methods!")
-		is_active = false
-		set_physics_process(false) # Disable processing if setup is wrong
+		printerr("AI Controller Error: Parent node is not an Agent KinematicBody with command methods!")
+		# If setup fails, this controller can't function.
+		# We can disable physics process (though it's empty now)
+		# or even detach the script to prevent errors.
+		set_physics_process(false)
+		set_script(null) # Detach script if parent is wrong
 
-# Called by WorldManager's spawn_agent function (via initialize dictionary)
+# Called by WorldManager's spawn_agent function (via initialize dictionary in agent.gd)
+# The 'config' dictionary here is the 'overrides' passed to spawn_agent
 func initialize(config: Dictionary):
-	if config.has("stopping_distance"):
-		self.stopping_distance = config.stopping_distance
-	# Only become active if given a valid initial target
-	if config.has("initial_target") and config.initial_target is Vector3:
-		set_target(config.initial_target)
-	else:
-		is_active = false
-		if is_instance_valid(agent_body): print("AI Controller Warning: No initial target provided for ", agent_body.name)
-
-# --- Physics Update (Decision Making) ---
-func _physics_process(delta):
-	# Don't run if inactive or references are bad
-	if not is_active or not is_instance_valid(agent_body) or not is_instance_valid(agent_script):
-		# Ensure we signal stop if inactive
-		if is_instance_valid(agent_script):
-			agent_script.set_thrust_input(Vector3.ZERO)
+	# Ensure agent script reference is valid before issuing command
+	if not is_instance_valid(agent_script):
+		printerr("AI Initialize Error: Agent script invalid. Cannot issue command.")
 		return
 
-	var current_pos = agent_body.global_transform.origin
-	var distance_to_target = current_pos.distance_to(target_position)
+	# Read necessary parameters from config dictionary if present
+	var stopping_dist = config.get("stopping_distance", 10.0) # May not be needed by AI now
+	# TODO: Agent's MOVE_TO command should probably use its own internal stopping distance logic
 
-	if distance_to_target > stopping_distance:
-		# --- Still moving towards target ---
-		var direction_to_target = (target_position - current_pos)
-		if direction_to_target.length_squared() > 0.001: # Check direction is valid
-			direction_to_target = direction_to_target.normalized()
-			# Command the agent to look towards the target direction
-			agent_script.set_look_input(direction_to_target)
-			# Command the agent to apply thrust in its forward direction
-			agent_script.set_thrust_input(-agent_body.global_transform.basis.z)
-		else:
-			# Edge case: Already at target but distance check somehow failed? Stop thrust.
-			agent_script.set_thrust_input(Vector3.ZERO)
-			_handle_target_reached() # Treat as reached
+	# Immediately issue the initial command based on 'initial_target' in config
+	if config.has("initial_target") and config.initial_target is Vector3:
+		var target_pos = config.initial_target
+		print(agent_script.agent_name, " AI issuing command: MOVE_TO ", target_pos)
+		# Call the command method on the agent script
+		agent_script.command_move_to(target_pos)
 	else:
-		# --- Target Reached ---
-		agent_script.set_thrust_input(Vector3.ZERO) # Command stop
-		_handle_target_reached()
+		# If no target, the agent remains IDLE (its default state)
+		if is_instance_valid(agent_script): # Check again just in case
+			 print("AI Controller Warning: No initial target provided for ",
+					agent_script.agent_name, ". Agent will remain idle.")
 
 
-# --- Event Handling ---
-func _handle_target_reached():
-	if not is_instance_valid(agent_body): return # Safety check
+# --- No Physics Update Needed ---
+# For this simple "go-to" AI, the agent itself executes the command issued
+# during initialize. This controller doesn't need to do anything frame-by-frame.
+# More complex AI would have state machines here, checking conditions and
+# issuing different commands (approach, orbit, flee, etc.) as needed.
+# func _physics_process(delta):
+#     pass
 
-	print(agent_body.name, " reached target: ", target_position, ". Emitting signal.")
-	is_active = false # Stop this AI controller instance from processing further
-	# Emit global signal via EventBus - WorldManager listens for this
-	EventBus.emit_signal("agent_reached_destination", agent_body)
 
+# --- No Event Handling Needed Here ---
+# The agent itself now emits "agent_reached_destination" via EventBus
+# when its relevant command (MOVE_TO -> STOPPING -> IDLE) completes.
+# WorldManager listens for that signal to trigger the despawn.
+# func _handle_target_reached(): # Removed
+# func _on_Agent_Reached_Destination(agent_body): # Removed
 
-# --- Public Functions ---
-# Sets a new target and reactivates the AI
-func set_target(new_target: Vector3):
-	target_position = new_target
-	is_active = true # Activate when given a target
-	# Optional Debug:
-	# if is_instance_valid(agent_body): print(agent_body.name, " AI target set to: ", new_target)
+# --- No Public Functions Needed Here ---
+# func set_target(new_target: Vector3): # Removed - command issued once at init
