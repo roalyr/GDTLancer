@@ -14,7 +14,7 @@ var _selected_target: Spatial = null
 # --- Constants ---
 const DEFAULT_ORBIT_DIST = 3000.0
 # Distance to project Move To command when double-clicking empty space
-const DEFAULT_MOVE_TO_PROJECTION_DIST = 5000.0
+const DEFAULT_MOVE_TO_PROJECTION_DIST = 1e6
 
 # --- Initialization ---
 func _ready():

@@ -1,9 +1,5 @@
 [gd_scene load_steps=5 format=2]
 
-[sub_resource type="Environment" id=1]
-background_mode = 1
-background_color = Color( 0.0156863, 0.105882, 0.188235, 1 )
-
 [sub_resource type="TorusMesh" id=4]
 inner_radius = 1.734
 outer_radius = 1.901
@@ -12,60 +8,73 @@ outer_radius = 1.901
 
 [sub_resource type="SphereShape" id=3]
 
+[sub_resource type="Environment" id=1]
+background_mode = 1
+background_color = Color( 0.0156863, 0.105882, 0.188235, 1 )
+
 [node name="BasicFlightZone" type="Spatial"]
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="AgentContainer" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 1 )
+[node name="SceneAssets" type="Spatial" parent="."]
+transform = Transform( 10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0 )
 
-[node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.30227, 0.953222, 0, -0.953222, 0.30227, 0, 1.7978, 0 )
-
-[node name="EntryPointA" type="Position3D" parent="."]
+[node name="EntryPointA" type="Position3D" parent="SceneAssets"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 82.5905, 12.7857, -35.0582 )
 
-[node name="MeshInstance" type="MeshInstance" parent="EntryPointA"]
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/EntryPointA"]
 mesh = SubResource( 4 )
 
-[node name="EntryPointB" type="Position3D" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -40.9239, 47.0162, 98.7338 )
-
-[node name="MeshInstance" type="MeshInstance" parent="EntryPointB"]
-mesh = SubResource( 4 )
-
-[node name="EntryPointC" type="Position3D" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.944611, -70.6251, -49.7393 )
-
-[node name="MeshInstance" type="MeshInstance" parent="EntryPointC"]
-mesh = SubResource( 4 )
-
-[node name="StaticBody" type="StaticBody" parent="."]
-transform = Transform( 40, 0, 0, 0, 40, 0, 0, 0, 40, 30.6606, -0.574532, -64.2499 )
-
-[node name="MeshInstance" type="MeshInstance" parent="StaticBody"]
-mesh = SubResource( 2 )
-skeleton = NodePath("../..")
-
-[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
-shape = SubResource( 3 )
-
-[node name="StaticBody2" type="StaticBody" parent="."]
-transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 15, -22.7655, -3.36007, 33.4335 )
-
-[node name="MeshInstance" type="MeshInstance" parent="StaticBody2"]
-mesh = SubResource( 2 )
-skeleton = NodePath("../..")
-
-[node name="CollisionShape" type="CollisionShape" parent="StaticBody2"]
-shape = SubResource( 3 )
-
-[node name="StaticBody3" type="StaticBody" parent="."]
+[node name="StaticBody3" type="StaticBody" parent="SceneAssets"]
 transform = Transform( 20, 0, 0, 0, 20, 0, 0, 0, 20, 79.2529, 1.97987, 137.926 )
 
-[node name="MeshInstance" type="MeshInstance" parent="StaticBody3"]
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/StaticBody3"]
 mesh = SubResource( 2 )
-skeleton = NodePath("../..")
+skeleton = NodePath("../../..")
 
-[node name="CollisionShape" type="CollisionShape" parent="StaticBody3"]
+[node name="CollisionShape" type="CollisionShape" parent="SceneAssets/StaticBody3"]
 shape = SubResource( 3 )
+
+[node name="StaticBody2" type="StaticBody" parent="SceneAssets"]
+transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 15, -22.7655, -3.36007, 33.4335 )
+
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/StaticBody2"]
+mesh = SubResource( 2 )
+skeleton = NodePath("../../..")
+
+[node name="CollisionShape" type="CollisionShape" parent="SceneAssets/StaticBody2"]
+shape = SubResource( 3 )
+
+[node name="StaticBody" type="StaticBody" parent="SceneAssets"]
+transform = Transform( 40, 0, 0, 0, 40, 0, 0, 0, 40, 30.6606, -0.574532, -64.2499 )
+
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/StaticBody"]
+mesh = SubResource( 2 )
+skeleton = NodePath("../../..")
+
+[node name="CollisionShape" type="CollisionShape" parent="SceneAssets/StaticBody"]
+shape = SubResource( 3 )
+
+[node name="EntryPointC" type="Position3D" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.944611, -70.6251, -49.7393 )
+
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/EntryPointC"]
+mesh = SubResource( 4 )
+
+[node name="EntryPointB" type="Position3D" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -40.9239, 47.0162, 98.7338 )
+
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/EntryPointB"]
+mesh = SubResource( 4 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 0.30227, 0.953222, 0, -0.953222, 0.30227, 0, 1.7978, 0 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SceneAssets"]
+environment = SubResource( 1 )

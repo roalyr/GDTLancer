@@ -7,21 +7,21 @@ extends Camera
 var distance: float = 55.0        # Fallback/preferred distance basis
 var min_distance_multiplier: float = 1.8
 var max_distance_multiplier: float = 15.0
-var preferred_distance_multiplier: float = 3.5
+var preferred_distance_multiplier: float = 2.5
 const MIN_ABSOLUTE_DISTANCE = 8.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
 var zoom_speed: float = 1.5
 var rotation_speed: float = 0.008
 var pitch_min: float = -1.45
 var pitch_max: float = 1.45
-var position_smoothing_speed: float = 12.0
-var rotation_smoothing_speed: float = 9.0
+var position_smoothing_speed: float = 15.0
+var rotation_smoothing_speed: float = 10.0
 var bob_frequency: float = 0.6
 var bob_amplitude: float = 0.06
 
 # --- Internal State ---
 var _target: Spatial = null
-var _target_radius: float = 10.0
+var _target_radius: float = 15.0
 var _yaw: float = PI
 var _pitch: float = 0.25
 var _current_distance: float = 55.0

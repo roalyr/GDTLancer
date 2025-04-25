@@ -9,5 +9,8 @@
 script = ExtResource( 1 )
 
 [node name="CurrentZoneContainer" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
