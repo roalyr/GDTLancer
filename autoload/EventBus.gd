@@ -1,5 +1,5 @@
 # File: autoload/EventBus.gd
-# Version: 1.0 (Reviewed for Complete Zone Scene Architecture)
+# Version: 1.1 Added target picking.
 
 extends Node
 
@@ -24,6 +24,10 @@ signal player_spawned(player_agent_body)
 signal camera_set_target_requested(target_node)
 # Emitted by input handlers requesting target cycle (KEEPING for potential future use)
 signal camera_cycle_target_requested()
+
+# --- Player Interaction Signals --- ADDED SECTION
+signal player_target_selected(target_node)
+signal player_target_deselected()
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance

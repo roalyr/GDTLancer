@@ -1,5 +1,5 @@
 # File: scenes/camera/orbit_camera.gd
-# Version 1.20 - Simplified radius calc uses target method, Strict Formatting
+# Version 1.21 - Added free flight camera mode.
 
 extends Camera
 
@@ -7,15 +7,15 @@ extends Camera
 var distance: float = 55.0        # Fallback/preferred distance basis
 var min_distance_multiplier: float = 1.8
 var max_distance_multiplier: float = 15.0
-var preferred_distance_multiplier: float = 2.5
+var preferred_distance_multiplier: float = 1.8
 const MIN_ABSOLUTE_DISTANCE = 8.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
 var zoom_speed: float = 1.5
-var rotation_speed: float = 0.008
-var pitch_min: float = -1.45
-var pitch_max: float = 1.45
+var rotation_speed: float = 0.004
+var pitch_min: float = -1.55
+var pitch_max: float = 1.55
 var position_smoothing_speed: float = 15.0
-var rotation_smoothing_speed: float = 10.0
+var rotation_smoothing_speed: float = 20.0
 var bob_frequency: float = 0.6
 var bob_amplitude: float = 0.06
 
@@ -26,6 +26,7 @@ var _yaw: float = PI
 var _pitch: float = 0.25
 var _current_distance: float = 55.0
 var _is_player_rotating: bool = false
+var _rotation_input_active: bool = false # ADDED: Flag for free flight activation
 var _bob_timer: float = 0.0
 
 # --- Initialization ---
@@ -90,14 +91,20 @@ func _unhandled_input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_RIGHT:
 			_is_player_rotating = event.pressed
+			# Optional: Consume RMB press/release if mouse is captured (free flight)
+			# to prevent other actions triggering on RMB while captured?
+			# if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+			#     get_viewport().set_input_as_handled()
 
-	# Rotation Input (RMB Drag)
+	# Rotation Input (Mouse Motion) - MODIFIED Condition
 	if event is InputEventMouseMotion:
-		if _is_player_rotating:
+		# Rotate if RMB is held OR if rotation is activated externally (free flight)
+		if _is_player_rotating or _rotation_input_active:
 			_yaw -= event.relative.x * rotation_speed
 			_pitch += event.relative.y * rotation_speed
 			_pitch = clamp(_pitch, pitch_min, pitch_max)
-			get_viewport().set_input_as_handled()
+			get_viewport().set_input_as_handled() # Consume mouse motion when rotating
+
 
 	# Zoom Input (Wheel) - Only works when attached
 	if is_instance_valid(_target):
@@ -163,6 +170,13 @@ func _physics_process(delta):
 # --- Signal Handler & Public Functions ---
 func _on_Camera_Set_Target_Requested(target_node):
 	set_target_node(target_node)
+	
+# ADDED: Function to allow external control of rotation input activity
+func set_rotation_input_active(is_active: bool):
+	_rotation_input_active = is_active
+	# Ensure RMB state doesn't conflict if activating externally
+	if is_active:
+		_is_player_rotating = false
 
 func set_target_node(new_target: Spatial):
 	if is_instance_valid(new_target):

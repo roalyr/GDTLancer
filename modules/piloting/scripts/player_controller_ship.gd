@@ -1,15 +1,17 @@
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version 2.8 - Added Double-Click Move To command
+# Version 3.0 - Added Free Flight mode.
 
 extends Node
 
 # --- References ---
 var agent_script: Node = null
 var agent_body: KinematicBody = null
+var _main_camera: Camera = null # Added for convenience
 
 # --- State ---
 var _target_under_cursor: Spatial = null
-var _selected_target: Spatial = null
+var _selected_target: Spatial = null setget _set_selected_target # ADDED setget
+var _is_free_flight_mode: bool = false # ADDED: Free flight state flag
 
 # --- Constants ---
 const DEFAULT_ORBIT_DIST = 3000.0
@@ -23,35 +25,45 @@ func _ready():
 		agent_body = parent
 		agent_script = parent
 		print("Player Controller ready for: ", agent_script.agent_name)
-		call_deferred("_find_camera_raycast_workaround") # Using workaround name
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		# Ensure camera reference is obtained early
+		call_deferred("_get_camera_reference")
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE) # Start with mouse visible
 	else:
 		printerr("Player Controller Error: Parent invalid or missing command methods!")
 		set_physics_process(false)
 		set_process_input(false)
 		return
 
-# Workaround: Camera might not have RayCast immediately in _ready via GlobalRefs
-# This waits a frame, then tries to get it. A signal-based approach might be better later.
-func _find_camera_raycast_workaround():
+# Renamed from _find_camera_raycast_workaround
+func _get_camera_reference():
 	yield(get_tree(), "idle_frame") # Wait one frame
-	if is_instance_valid(GlobalRefs.main_camera):
-		# We removed the RayCast node dependency, this function is no longer needed
-		# _camera_raycast = GlobalRefs.main_camera.get_node_or_null("TargetRayCast")
-		# if not is_instance_valid(_camera_raycast):
-		#	 printerr("Player Controller Error: Could not find 'TargetRayCast' on Main Camera!")
-		pass # No RayCast node needed now
+	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera is Camera:
+		_main_camera = GlobalRefs.main_camera
+		print("Player Controller obtained camera reference.")
 	else:
-		printerr("Player Controller Error: Could not find Main Camera in GlobalRefs.")
+		printerr("Player Controller Error: Could not find valid Main Camera in GlobalRefs.")
 
 
 # --- Physics Update ---
 func _physics_process(delta):
-	# Only update target under cursor if mouse is visible (for selection/clicks)
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
+	# Update target under cursor only when mouse is visible (not in free flight)
+	if not _is_free_flight_mode and Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
 		_update_target_under_cursor()
 	else:
 		_target_under_cursor = null
+
+	# --- Free Flight Movement --- ADDED Section
+	if _is_free_flight_mode:
+		if is_instance_valid(_main_camera) and is_instance_valid(agent_script):
+			var move_dir = -_main_camera.global_transform.basis.z.normalized()
+			# Constantly issue move direction command
+			agent_script.command_move_direction(move_dir)
+		elif is_instance_valid(agent_script):
+			# If camera invalid, stop to prevent errors
+			agent_script.command_stop()
+			# Optionally: Toggle free flight off automatically?
+			# _toggle_free_flight()
+
 
 
 func _update_target_under_cursor():
@@ -80,13 +92,30 @@ func _update_target_under_cursor():
 			_target_under_cursor = result.collider
 			# TODO: Highlight _target_under_cursor
 
+func _set_selected_target(new_target: Spatial):
+	if _selected_target == new_target:
+		return # No change
+
+	_selected_target = new_target
+
+	if is_instance_valid(_selected_target):
+		# Emit signal via EventBus when a valid target is selected
+		if EventBus:
+			EventBus.emit_signal("player_target_selected", _selected_target)
+		print("Player selected target: ", _selected_target.name) # Keep existing print
+	else:
+		# Emit signal via EventBus when target is deselected (becomes null)
+		if EventBus:
+			EventBus.emit_signal("player_target_deselected")
+		print("Player de-selected target.") # Keep existing print
 
 # --- Input Event Handling ---
 func _unhandled_input(event):
 	var input_handled = false
 
-	# --- Mouse Button Input ---
-	if event is InputEventMouseButton:
+	# --- Mouse Button Input (Target Selection) ---
+	# Only allow clicking targets when NOT in free flight mode
+	if not _is_free_flight_mode and event is InputEventMouseButton:
 		if event.button_index == BUTTON_LEFT and event.pressed:
 			# Check for double-click FIRST
 			if event.doubleclick:
@@ -109,27 +138,25 @@ func _unhandled_input(event):
 					print("Move To Failed: Agent invalid")
 			else:
 				# --- Single Click Handling (Target Selection) ---
-				# Only process if mouse is visible
 				if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-					if is_instance_valid(_target_under_cursor):
-						if _selected_target != _target_under_cursor:
-							_selected_target = _target_under_cursor
-							print("Player selected target: ", _selected_target.name)
-					elif not is_instance_valid(_target_under_cursor): # Clicked empty space
-						if is_instance_valid(_selected_target):
-							print("Player de-selected target.")
-							_selected_target = null
-					input_handled = true # Consume single click as well
+					self._selected_target = _target_under_cursor
+					input_handled = true # Consume single click
 
-	# --- Keyboard Commands & Mouse Toggle ---
-	if not input_handled and is_instance_valid(agent_script): # Process only if mouse didn't handle it
+	# --- Keyboard Commands & Mode Toggle ---
+	# Allow toggling free flight regardless of other commands
+	if Input.is_action_just_pressed("toggle_free_flight"): # MODIFIED Action Name
+		_toggle_free_flight()
+		input_handled = true # Consume the toggle action
+
+	# Process other commands ONLY if NOT in free flight mode
+	elif not _is_free_flight_mode and is_instance_valid(agent_script):
 		var command_action_key = ""
 		if Input.is_action_just_pressed("command_approach"): command_action_key = "approach"
 		elif Input.is_action_just_pressed("command_orbit"): command_action_key = "orbit"
 		elif Input.is_action_just_pressed("command_flee"): command_action_key = "flee"
 		elif Input.is_action_just_pressed("command_stop"): command_action_key = "stop"
-		elif Input.is_action_just_pressed("command_move_direction"): command_action_key = "move_direction"
-		elif Input.is_action_just_pressed("toggle_mouse_capture"): command_action_key = "toggle_mouse"
+		# Removed "command_move_direction" as it's handled by free flight now
+		# Removed "toggle_mouse_capture"
 
 		if command_action_key != "":
 			input_handled = true # Assume handled unless check fails
@@ -147,17 +174,34 @@ func _unhandled_input(event):
 						input_handled = false
 				"stop":
 					print("Command Input: STOP"); agent_script.command_stop()
-				"move_direction":
-					if is_instance_valid(GlobalRefs.main_camera):
-						var move_dir = -GlobalRefs.main_camera.global_transform.basis.z.normalized()
-						print("Command Input: MOVE_DIRECTION ", move_dir); agent_script.command_move_direction(move_dir)
-					else: print("Command Input: MoveDirection fail - camera invalid."); input_handled = false
-				"toggle_mouse":
-					if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED: Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-					else: Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 				_:
 					input_handled = false # Unhandled action key
 
 	# Consume event if handled
 	if input_handled:
 		get_viewport().set_input_as_handled()
+
+# --- Free Flight Toggle Logic --- ADDED Function
+func _toggle_free_flight():
+	_is_free_flight_mode = not _is_free_flight_mode
+	print("Free Flight Mode: ", "ON" if _is_free_flight_mode else "OFF")
+
+	if _is_free_flight_mode:
+		# --- Entering Free Flight ---
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		# Activate camera rotation input externally
+		if is_instance_valid(_main_camera) and _main_camera.has_method("set_rotation_input_active"):
+			_main_camera.set_rotation_input_active(true)
+		# Deselect any current target when entering free flight
+		if is_instance_valid(_selected_target):
+			self._selected_target = null
+		# Movement command is handled in _physics_process
+	else:
+		# --- Exiting Free Flight ---
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		# Deactivate camera rotation input (will still work if RMB is held)
+		if is_instance_valid(_main_camera) and _main_camera.has_method("set_rotation_input_active"):
+			_main_camera.set_rotation_input_active(false)
+		# Stop the ship
+		if is_instance_valid(agent_script):
+			agent_script.command_stop()

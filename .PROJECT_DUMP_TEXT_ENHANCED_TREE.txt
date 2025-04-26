@@ -5,6 +5,9 @@
 │   │       └── agents
 │   │           ├── npc_traffic.tres
 │   │           └── player_default.tres
+│   ├── models
+│   │   └── ships
+│   │       └── Phoenix.glb
 │   └── themes
 │       └── main_theme.tres
 ├── autoload
@@ -30,6 +33,7 @@
 │   │   ├── traffic_system_placeholder.gd
 │   │   └── world_map_system.gd
 │   └── ui
+│       ├── main_hud.gd
 │       └── main_hud.tscn
 ├── default_env.tres
 ├── Icon.png
@@ -61,6 +65,6 @@
     └── helpers
         └── signal_catcher.gd
 
-22 directories, 40 files
+24 directories, 42 files
 
-22 directories, 40 files
+24 directories, 42 files

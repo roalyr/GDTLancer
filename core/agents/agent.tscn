@@ -1,8 +1,7 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
-
-[sub_resource type="PrismMesh" id=2]
+[ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -13,18 +12,9 @@ __meta__ = {
 }
 
 [node name="Model" type="Spatial" parent="."]
-transform = Transform( 2.26376, 0, 0, 0, 2.26376, 0, 0, 0, 2.26376, 0, 0, 0 )
 
-[node name="MeshInstance" type="MeshInstance" parent="Model"]
-transform = Transform( 1.53067e-15, -1.16726e-07, -0.534074, -0.801111, -1.16726e-07, 0, -3.50177e-08, 2.67037, -2.33451e-08, 0, 0, 2.76058 )
-mesh = SubResource( 2 )
-skeleton = NodePath("../..")
-
-[node name="MeshInstance2" type="MeshInstance" parent="Model"]
-transform = Transform( 1.33586, 0, 0, 0, 0.00823818, 0.890573, 0, -4.45286, 0.00164764, 0, 0, -4.62991 )
-mesh = SubResource( 2 )
-skeleton = NodePath("../..")
+[node name="Phoenix" parent="Model" instance=ExtResource( 2 )]
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 2.78319, 0, 0, 0, 2.78319, 0, 0, 0, 12.205, 0, 0, 0 )
+transform = Transform( 7.77816, 0, 0, 0, 2.3177, 0, 0, 0, 7.25633, 0, 0, 0 )
 shape = SubResource( 1 )

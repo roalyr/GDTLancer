@@ -167,7 +167,7 @@ func perform_action_check(module_modifier: int, focus_points_spent: int) -> Dict
 --- Start of ./autoload/EventBus.gd ---
 
 # File: autoload/EventBus.gd
-# Version: 1.0 (Reviewed for Complete Zone Scene Architecture)
+# Version: 1.1 Added target picking.
 
 extends Node
 
@@ -192,6 +192,10 @@ signal player_spawned(player_agent_body)
 signal camera_set_target_requested(target_node)
 # Emitted by input handlers requesting target cycle (KEEPING for potential future use)
 signal camera_cycle_target_requested()
+
+# --- Player Interaction Signals --- ADDED SECTION
+signal player_target_selected(target_node)
+signal player_target_deselected()
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance
@@ -549,7 +553,7 @@ func set_agent_container(new_ref):
 --- Start of ./core/agents/agent.gd ---
 
 # File: core/agents/agent.gd
-# Version: 3.11 - Strict formatting applied (Tabs, Line Length, Expanded Conditionals)
+# Version 3.19 - Uses Body's Model node global scale for distance calculation (as is).
 
 extends KinematicBody
 
@@ -577,11 +581,11 @@ var deceleration: float = 0.0
 var brake_strength: float = 0.0
 var max_turn_speed: float = 0.0
 
-var interaction_radius: float = 0.0
+var interaction_radius: float = 0.0 # Can still be used as override via template/method
 
 # --- Constants for Approach ---
 const APPROACH_DISTANCE_MULTIPLIER = 1.5
-const APPROACH_MIN_DISTANCE = 50.0
+const APPROACH_MIN_DISTANCE = 500.0 # Minimum distance regardless of target size
 
 # --- Current State ---
 var current_velocity: Vector3 = Vector3.ZERO
@@ -630,7 +634,6 @@ func _execute_current_command(delta):
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	# Validate target node if required by the command type
 	var is_target_cmd = cmd_type in [CommandType.APPROACH,
 			CommandType.ORBIT, CommandType.FLEE]
 	if is_target_cmd:
@@ -638,7 +641,6 @@ func _execute_current_command(delta):
 			command_stop()
 			cmd_type = _current_command.get("type", CommandType.STOPPING)
 
-	# Execute logic based on command type
 	match cmd_type:
 		CommandType.IDLE:
 			_apply_deceleration(delta)
@@ -646,7 +648,6 @@ func _execute_current_command(delta):
 		CommandType.STOPPING:
 			var stopped = _apply_braking(delta)
 			if stopped:
-				print(agent_name, ": Stopped. Emitting agent_reached_destination.")
 				EventBus.emit_signal("agent_reached_destination", self)
 				_set_command_idle()
 
@@ -654,7 +655,7 @@ func _execute_current_command(delta):
 			var target_pos = _current_command.target_pos
 			var vector_to_target = target_pos - global_transform.origin
 			var distance_sq = vector_to_target.length_squared()
-			var stopping_dist_sq = pow(10.0, 2) # Example
+			var stopping_dist_sq = pow(10.0, 2)
 
 			if distance_sq < stopping_dist_sq:
 				command_stop()
@@ -666,23 +667,20 @@ func _execute_current_command(delta):
 		CommandType.MOVE_DIRECTION:
 			var move_dir = _current_command.get("target_dir", Vector3.ZERO)
 			if move_dir.length_squared() > 0.001:
-				# Optional: Align to move direction?
 				_apply_rotation(delta, move_dir)
 				_apply_acceleration(delta, move_dir)
 			else:
-				# Invalid direction, slow down
 				_apply_deceleration(delta)
 
 		CommandType.APPROACH:
-			if not is_instance_valid(target_node):
-				# Target check again inside case for safety
+			if not is_instance_valid(target_node): 
 				command_stop()
 				return
 
 			var target_pos = target_node.global_transform.origin
-			var target_radius = _get_target_effective_radius(target_node)
+			var target_size = _get_target_effective_size(target_node)
 			var desired_stop_dist = max(APPROACH_MIN_DISTANCE,
-					target_radius * APPROACH_DISTANCE_MULTIPLIER)
+					target_size * APPROACH_DISTANCE_MULTIPLIER)
 			var upper_bound = desired_stop_dist * 1.10
 			var lower_bound = desired_stop_dist
 
@@ -690,21 +688,16 @@ func _execute_current_command(delta):
 			var vector_to_target = target_pos - current_pos
 			var distance = vector_to_target.length()
 			var direction = Vector3.ZERO
-			if distance > 0.01:
-				direction = vector_to_target / distance
+			if distance > 0.01: direction = vector_to_target / distance
 
-			_apply_rotation(delta, direction) # Always face target
+			_apply_rotation(delta, direction)
 
-			if distance > upper_bound:
-				_apply_acceleration(delta, direction)
-			elif distance <= lower_bound:
-				# print(agent_name, " APPROACH: Reached target distance.")
-				command_stop()
-			else: # Within tolerance band
-				_apply_deceleration(delta)
+			if distance > upper_bound: _apply_acceleration(delta, direction)
+			elif distance <= lower_bound: command_stop()
+			else: _apply_deceleration(delta)
 
 		CommandType.ORBIT:
-			if not is_instance_valid(target_node):
+			if not is_instance_valid(target_node): 
 				command_stop()
 				return
 
@@ -713,33 +706,30 @@ func _execute_current_command(delta):
 			var vector_to_target = target_pos - global_transform.origin
 			var distance = vector_to_target.length()
 			var direction_to_target = -global_transform.basis.z
-			if distance > 0.01:
-				direction_to_target = vector_to_target / distance
+			if distance > 0.01: direction_to_target = vector_to_target / distance
 
 			_apply_rotation(delta, direction_to_target)
 
 			var target_up = Vector3.UP
-			if target_node is Spatial:
-				target_up = target_node.global_transform.basis.y
 			var tangent_dir = direction_to_target.cross(target_up).normalized()
+			if tangent_dir.length_squared() < 0.1:
+				tangent_dir = direction_to_target.cross(Vector3.RIGHT).normalized()
 
 			var speed_factor = 1.0
-			if distance < orbit_dist * 0.95:
-				speed_factor = 0.7
-			elif distance > orbit_dist * 1.05:
-				speed_factor = 1.0
+			if distance < orbit_dist * 0.95: speed_factor = 0.7
+			elif distance > orbit_dist * 1.05: speed_factor = 1.0
+
 			_apply_acceleration(delta, tangent_dir * speed_factor)
 
 		CommandType.FLEE:
-			if not is_instance_valid(target_node):
-				command_stop() # Or switch to IDLE? Stop seems safer.
+			if not is_instance_valid(target_node): 
+				command_stop()
 				return
 
 			var target_pos = target_node.global_transform.origin
 			var vector_away = global_transform.origin - target_pos
 			var direction_away = -global_transform.basis.z
-			if vector_away.length_squared() > 0.01:
-				direction_away = vector_away.normalized()
+			if vector_away.length_squared() > 0.01: direction_away = vector_away.normalized()
 
 			_apply_rotation(delta, direction_away)
 			_apply_acceleration(delta, direction_away)
@@ -749,8 +739,7 @@ func _execute_current_command(delta):
 			_apply_rotation(delta, target_dir)
 			_apply_deceleration(delta)
 			var current_fwd = -global_transform.basis.z
-			if current_fwd.dot(target_dir) > 0.998:
-				_set_command_idle()
+			if current_fwd.dot(target_dir) > 0.998: _set_command_idle()
 
 
 # --- Internal Movement Helpers ---
@@ -758,111 +747,106 @@ func _apply_acceleration(delta, direction):
 	if direction.length_squared() < 0.001:
 		_apply_deceleration(delta)
 		return
+
 	var target_velocity = direction.normalized() * max_move_speed
-	current_velocity = current_velocity.linear_interpolate(
-		target_velocity,
-		acceleration * delta
-	)
+	current_velocity = current_velocity.linear_interpolate(target_velocity, acceleration * delta)
 	_is_braking = false
 
 func _apply_deceleration(delta):
-	current_velocity = current_velocity.linear_interpolate(
-		Vector3.ZERO,
-		deceleration * delta
-	)
+	current_velocity = current_velocity.linear_interpolate(Vector3.ZERO, deceleration * delta)
 	_is_braking = false
 
 func _apply_braking(delta) -> bool:
-	current_velocity = current_velocity.linear_interpolate(
-		Vector3.ZERO,
-		brake_strength * delta
-	)
+	current_velocity = current_velocity.linear_interpolate(Vector3.ZERO, brake_strength * delta)
 	_is_braking = true
 	return current_velocity.length_squared() < 0.5
 
 func _apply_rotation(delta, target_look_dir):
-	if target_look_dir.length_squared() < 0.001:
-		return
+	if target_look_dir.length_squared() < 0.001: return
 
 	var target_dir = target_look_dir.normalized()
-	var current_transform = global_transform
-	var current_basis = current_transform.basis
-
+	var current_basis = global_transform.basis.orthonormalized()
 	var up_vector = Vector3.UP
-	if abs(target_dir.dot(Vector3.UP)) > 0.999:
-		up_vector = Vector3.FORWARD
+	if abs(target_dir.dot(Vector3.UP)) > 0.999: up_vector = Vector3.FORWARD
 
-	var look_at_transform = Transform(Basis(), Vector3.ZERO).looking_at(
-		target_dir,
-		up_vector
-	)
-	var target_basis = look_at_transform.basis
+	var target_basis = Transform(Basis(), Vector3.ZERO).looking_at(target_dir, up_vector).basis.orthonormalized()
 
-	current_basis = current_basis.orthonormalized()
-	target_basis = target_basis.orthonormalized()
-
-	if current_basis.is_equal_approx(target_basis):
-		return
+	if current_basis.is_equal_approx(target_basis): return
 
 	if max_turn_speed > 0.001:
 		var turn_step = max_turn_speed * delta
 		var new_basis = current_basis.slerp(target_basis, turn_step)
 		global_transform.basis = new_basis
-		
-# --- Public Getter for Radius ---
+
+
+# --- Public Getter for Explicit Interaction Radius ---
 func get_interaction_radius() -> float:
+	# This can be overridden by specific agent types or use value from AgentTemplate.
 	return interaction_radius
 
-# --- Target Size Helper ---
-func _get_target_effective_radius(target_node: Spatial) -> float:
-	var longest_half_extent = 1.0 # Minimum radius default
-	var default_radius = 25.0     # Fallback if nothing found
-	var shape_found = false
+
+# --- Target Size Helper --- REFACTORED
+# Version 3.19 - Returns max extent/size based on "Model" node global scale.
+func _get_target_effective_size(target_node: Spatial) -> float:
+	var calculated_size = 1.0 # Default minimum size
+	var default_size = 50.0   # Fallback size if nothing else found (was default_radius)
+	var found_source = false
+
+	# print("--- Calculating Size for: ", target_node.name, " ---") # Keep for debug if needed
 
 	if not is_instance_valid(target_node):
-		return default_radius
+		# print("Debug Size: Target node invalid.")
+		return default_size
 
+	# --- PRIORITY 1: Check for explicit method on the target ---
+	# Use get_interaction_radius, but interpret as size/extent now
 	if target_node.has_method("get_interaction_radius"):
-		return max(target_node.get_interaction_radius(), 1.0)
+		var explicit_size = target_node.get_interaction_radius() # Treat value as size
+		if (explicit_size is float or explicit_size is int) and explicit_size > 0:
+			# print("Debug Size: Using get_interaction_radius() as size: ", explicit_size)
+			calculated_size = explicit_size
+			found_source = true
+		# else: print("Debug Size: get_interaction_radius() invalid: ", explicit_size)
 
-	if target_node.get_child_count() > 0:
-		for child in target_node.get_children():
-			if child is CollisionShape and is_instance_valid(child.shape):
-				var shape = child.shape
-				if shape is SphereShape:
-					longest_half_extent = shape.radius
-					shape_found = true
-					break
-				elif shape is BoxShape:
-					longest_half_extent = shape.extents.max_axis()
-					shape_found = true
-					break
-				elif shape is CapsuleShape:
-					longest_half_extent = max(shape.radius, shape.height / 2.0)
-					shape_found = true
-					break
-				elif shape is CylinderShape:
-					longest_half_extent = max(shape.radius, shape.height / 2.0)
-					shape_found = true
-					break
+	# --- PRIORITY 2: Find DIRECT CHILD node named "Model" (only if not found via method)---
+	if not found_source:
+		var model_node = target_node.get_node_or_null("Model")
+		# print("Debug Size: Result of get_node_or_null('Model'): ", model_node)
 
-	if not shape_found and target_node.get_child_count() > 0:
-		for child in target_node.get_children():
-			if child is MeshInstance and is_instance_valid(child.mesh):
-				var aabb = child.mesh.get_aabb()
-				longest_half_extent = aabb.get_longest_axis_size() / 2.0
-				shape_found = true
-				# print("Warning: Using Mesh AABB for target radius") # Optional
-				break
+		if is_instance_valid(model_node) and model_node is Spatial:
+			var model_scale_vector = model_node.global_transform.basis.get_scale()
+			# print("Debug Size: Model Global Scale Vector: ", model_scale_vector)
 
-	if not shape_found:
-		# print("Warning: Using default radius for target") # Optional
-		return default_radius
+			# --- Use the maximum scale value directly as the size ---
+			var max_scale_value = max(model_scale_vector.x, max(model_scale_vector.y, model_scale_vector.z))
+			# print("Debug Size: Model Max Scale Value: ", max_scale_value)
 
-	return max(longest_half_extent, 1.0)
+			calculated_size = max_scale_value # REMOVED / 2.0
+			# print("Debug Size: Calculated Size (Before 0 Check): ", calculated_size)
+
+			# Ensure size is not zero or negative
+			if calculated_size <= 0:
+				# print("Debug Size: Calculated size was <= 0, setting to 1.0")
+				calculated_size = 1.0 # Fallback to minimum size 1.0
+
+			found_source = true
+		# else: print("Debug Size: No valid direct child 'Model' node found.")
+
+	# --- Fallback if no source found ---
+	if not found_source:
+		# print("Debug Size: No source found, using default size: ", default_size)
+		calculated_size = default_size
+
+	# Final minimum check (size must be at least 1.0)
+	var final_size = max(calculated_size, 1.0)
+	# print("Debug Size: Final Size Returned: ", final_size)
+	# print("-----------------------------------------------")
+	return final_size
+
 
 
 # --- Public Command Methods ---
+# (No changes to command methods from v3.16)
 func command_stop():
 	_current_command = { "type": CommandType.STOPPING }
 
@@ -872,56 +856,37 @@ func command_move_to(position: Vector3):
 func command_move_direction(direction: Vector3):
 	if direction.length_squared() < 0.001:
 		printerr("MoveDirection command: Invalid direction vector.")
-		command_stop()
-		return
-	_current_command = {
-		"type": CommandType.MOVE_DIRECTION,
-		"target_dir": direction.normalized()
-	}
+		command_stop(); return
+	_current_command = { "type": CommandType.MOVE_DIRECTION, "target_dir": direction.normalized() }
 
-func command_approach(target: Spatial): # Removed distance arg
+func command_approach(target: Spatial):
 	if not is_instance_valid(target):
 		printerr("Approach command: Invalid target node.")
-		return
-	_current_command = {
-		"type": CommandType.APPROACH,
-		"target_node": target
-	}
+		command_stop(); return
+	_current_command = { "type": CommandType.APPROACH, "target_node": target }
 
 func command_orbit(target: Spatial, distance: float):
 	if not is_instance_valid(target):
 		printerr("Orbit command: Invalid target node.")
-		return
-	_current_command = {
-		"type": CommandType.ORBIT,
-		"target_node": target,
-		"distance": max(10.0, distance)
-	}
+		command_stop(); return
+	_current_command = { "type": CommandType.ORBIT, "target_node": target, "distance": max(10.0, distance) }
 
-func command_flee(target: Spatial): # Renamed from keep_at_range
+func command_flee(target: Spatial):
 	if not is_instance_valid(target):
 		printerr("Flee command: Invalid target node.")
-		return
-	_current_command = {
-		"type": CommandType.FLEE,
-		"target_node": target
-	}
+		command_stop(); return
+	_current_command = { "type": CommandType.FLEE, "target_node": target }
 
 func command_align_to(direction: Vector3):
 	if direction.length_squared() < 0.001:
 		printerr("AlignTo command: Invalid direction vector.")
-		return
-	_current_command = {
-		"type": CommandType.ALIGN_TO,
-		"target_dir": direction.normalized()
-	}
+		_set_command_idle(); return
+	_current_command = { "type": CommandType.ALIGN_TO, "target_dir": direction.normalized() }
 
-# Internal helper
+# Internal helper to set state to Idle
 func _set_command_idle():
 	var last_look = -global_transform.basis.z
-	# Expanded if
-	if _current_command and "target_dir" in _current_command:
-		last_look = _current_command.target_dir
+	if _current_command and "target_dir" in _current_command: last_look = _current_command.target_dir
 	_current_command = { "type": CommandType.IDLE, "target_dir": last_look }
 	_is_braking = false
 
@@ -929,10 +894,8 @@ func _set_command_idle():
 func despawn():
 	print("Agent ", self.name, " despawning...")
 	EventBus.emit_signal("agent_despawning", self)
-	queue_free()
-
-# --- Placeholders ---
-# ...
+	set_physics_process(false)
+	call_deferred("queue_free")
 
 --- Start of ./core/agents/agent_template.gd ---
 
@@ -1127,20 +1090,146 @@ func _ready():
 #func _process(delta):
 #	pass
 
+--- Start of ./core/ui/main_hud.gd ---
+
+# File: res://core/ui/main_hud.gd
+# Script for the main HUD container. Handles displaying targeting info, etc.
+# Version: 1.1 - Fixed targeting indicator visibility restoration
+
+extends Control
+
+# --- Nodes ---
+onready var targeting_indicator: Control = $TargetingIndicator
+
+# --- State ---
+var _current_target: Spatial = null
+var _main_camera: Camera = null
+
+# --- Initialization ---
+func _ready():
+	# Ensure indicator starts hidden
+	targeting_indicator.visible = false
+
+	# Get camera reference once
+	_main_camera = get_viewport().get_camera() # Initial attempt
+	if not is_instance_valid(_main_camera) and is_instance_valid(GlobalRefs.main_camera):
+		_main_camera = GlobalRefs.main_camera # Fallback via GlobalRefs
+
+	if not is_instance_valid(_main_camera):
+		printerr("MainHUD Error: Could not get a valid camera reference!")
+		set_process(false) # Disable processing if no camera
+
+	# Connect to EventBus signals
+	if EventBus:
+		if not EventBus.is_connected("player_target_selected", self, "_on_Player_Target_Selected"):
+			EventBus.connect("player_target_selected", self, "_on_Player_Target_Selected")
+		if not EventBus.is_connected("player_target_deselected", self, "_on_Player_Target_Deselected"):
+			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
+	else:
+		printerr("MainHUD Error: EventBus not available!")
+
+	# Connect draw signal for custom drawing (optional, but good for style)
+	targeting_indicator.connect("draw", self, "_draw_targeting_indicator")
+
+
+# --- Process Update ---
+func _process(delta):
+	# Only update position if a target is selected and valid
+	if is_instance_valid(_current_target) and is_instance_valid(_main_camera):
+		# Project the target's 3D origin position to 2D screen coordinates
+		var screen_pos: Vector2 = _main_camera.unproject_position(_current_target.global_transform.origin)
+
+		# Check if the target is behind the camera
+		var target_dir = (_current_target.global_transform.origin - _main_camera.global_transform.origin).normalized()
+		var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
+		var is_in_front = target_dir.dot(camera_fwd) >= 0 # Use >= 0 to include exactly perpendicular
+
+		# --- MODIFIED Visibility Logic ---
+		# Set visibility based on whether the target is in front
+		targeting_indicator.visible = is_in_front
+
+		# Only update position and redraw if it's actually visible
+		if targeting_indicator.visible:
+			# Update the indicator's position
+			targeting_indicator.rect_position = screen_pos - (targeting_indicator.rect_size / 2.0)
+			targeting_indicator.update() # Trigger redraw if using _draw
+	else:
+		# Ensure indicator is hidden if target becomes invalid or camera is invalid
+		if targeting_indicator.visible:
+			targeting_indicator.visible = false
+
+
+# --- Signal Handlers ---
+func _on_Player_Target_Selected(target_node: Spatial):
+	print(target_node)
+	if is_instance_valid(target_node):
+		_current_target = target_node
+		# Visibility is now primarily handled in _process,
+		# but we still need to ensure _process runs.
+		# targeting_indicator.visible = true # This line can be removed or kept, _process will override
+		set_process(true) # Ensure _process runs
+	else:
+		_on_Player_Target_Deselected()
+
+func _on_Player_Target_Deselected():
+	_current_target = null
+	targeting_indicator.visible = false
+	set_process(false) # Can disable processing if target is deselected
+
+
+
+# --- Custom Drawing (Optional but Recommended) ---
+func _draw_targeting_indicator():
+	# Example: Draw a simple white rectangle outline
+	var rect = Rect2(Vector2.ZERO, targeting_indicator.rect_size)
+	var line_color = Color.white
+	var line_width = 1.0 # Adjust thickness as needed
+	#targeting_indicator.draw_rect(rect, line_color, false, line_width)
+
+	# Example: Draw simple corner brackets
+	var size = targeting_indicator.rect_size
+	var corner_len = size.x * 0.25 # Length of corner lines
+	var color = Color.cyan
+	var width = 2.0
+	# # Top-left
+	targeting_indicator.draw_line(Vector2(0,0), Vector2(corner_len, 0), color, width)
+	targeting_indicator.draw_line(Vector2(0,0), Vector2(0, corner_len), color, width)
+	# # Top-right
+	targeting_indicator.draw_line(Vector2(size.x, 0), Vector2(size.x - corner_len, 0), color, width)
+	targeting_indicator.draw_line(Vector2(size.x, 0), Vector2(size.x, corner_len), color, width)
+	# # Bottom-left
+	targeting_indicator.draw_line(Vector2(0, size.y), Vector2(corner_len, size.y), color, width)
+	targeting_indicator.draw_line(Vector2(0, size.y), Vector2(0, size.y - corner_len), color, width)
+	# # Bottom-right
+	targeting_indicator.draw_line(Vector2(size.x, size.y), Vector2(size.x - corner_len, size.y), color, width)
+	targeting_indicator.draw_line(Vector2(size.x, size.y), Vector2(size.x, size.y - corner_len), color, width)
+
+
+# --- Cleanup ---
+func _notification(what):
+	if what == NOTIFICATION_PREDELETE:
+		if EventBus:
+			if EventBus.is_connected("player_target_selected", self, "_on_Player_Target_Selected"):
+				EventBus.disconnect("player_target_selected", self, "_on_Player_Target_Selected")
+			if EventBus.is_connected("player_target_deselected", self, "_on_Player_Target_Deselected"):
+				EventBus.disconnect("player_target_deselected", self, "_on_Player_Target_Deselected")
+
 --- Start of ./modules/piloting/scripts/player_controller_ship.gd ---
 
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version 2.8 - Added Double-Click Move To command
+# Version 3.0 - Added Free Flight mode.
 
 extends Node
 
 # --- References ---
 var agent_script: Node = null
 var agent_body: KinematicBody = null
+var _main_camera: Camera = null # Added for convenience
 
 # --- State ---
 var _target_under_cursor: Spatial = null
-var _selected_target: Spatial = null
+var _selected_target: Spatial = null setget _set_selected_target # ADDED setget
+var _is_free_flight_mode: bool = false # ADDED: Free flight state flag
 
 # --- Constants ---
 const DEFAULT_ORBIT_DIST = 3000.0
@@ -1154,35 +1243,45 @@ func _ready():
 		agent_body = parent
 		agent_script = parent
 		print("Player Controller ready for: ", agent_script.agent_name)
-		call_deferred("_find_camera_raycast_workaround") # Using workaround name
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		# Ensure camera reference is obtained early
+		call_deferred("_get_camera_reference")
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE) # Start with mouse visible
 	else:
 		printerr("Player Controller Error: Parent invalid or missing command methods!")
 		set_physics_process(false)
 		set_process_input(false)
 		return
 
-# Workaround: Camera might not have RayCast immediately in _ready via GlobalRefs
-# This waits a frame, then tries to get it. A signal-based approach might be better later.
-func _find_camera_raycast_workaround():
+# Renamed from _find_camera_raycast_workaround
+func _get_camera_reference():
 	yield(get_tree(), "idle_frame") # Wait one frame
-	if is_instance_valid(GlobalRefs.main_camera):
-		# We removed the RayCast node dependency, this function is no longer needed
-		# _camera_raycast = GlobalRefs.main_camera.get_node_or_null("TargetRayCast")
-		# if not is_instance_valid(_camera_raycast):
-		#	 printerr("Player Controller Error: Could not find 'TargetRayCast' on Main Camera!")
-		pass # No RayCast node needed now
+	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera is Camera:
+		_main_camera = GlobalRefs.main_camera
+		print("Player Controller obtained camera reference.")
 	else:
-		printerr("Player Controller Error: Could not find Main Camera in GlobalRefs.")
+		printerr("Player Controller Error: Could not find valid Main Camera in GlobalRefs.")
 
 
 # --- Physics Update ---
 func _physics_process(delta):
-	# Only update target under cursor if mouse is visible (for selection/clicks)
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
+	# Update target under cursor only when mouse is visible (not in free flight)
+	if not _is_free_flight_mode and Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
 		_update_target_under_cursor()
 	else:
 		_target_under_cursor = null
+
+	# --- Free Flight Movement --- ADDED Section
+	if _is_free_flight_mode:
+		if is_instance_valid(_main_camera) and is_instance_valid(agent_script):
+			var move_dir = -_main_camera.global_transform.basis.z.normalized()
+			# Constantly issue move direction command
+			agent_script.command_move_direction(move_dir)
+		elif is_instance_valid(agent_script):
+			# If camera invalid, stop to prevent errors
+			agent_script.command_stop()
+			# Optionally: Toggle free flight off automatically?
+			# _toggle_free_flight()
+
 
 
 func _update_target_under_cursor():
@@ -1211,13 +1310,30 @@ func _update_target_under_cursor():
 			_target_under_cursor = result.collider
 			# TODO: Highlight _target_under_cursor
 
+func _set_selected_target(new_target: Spatial):
+	if _selected_target == new_target:
+		return # No change
+
+	_selected_target = new_target
+
+	if is_instance_valid(_selected_target):
+		# Emit signal via EventBus when a valid target is selected
+		if EventBus:
+			EventBus.emit_signal("player_target_selected", _selected_target)
+		print("Player selected target: ", _selected_target.name) # Keep existing print
+	else:
+		# Emit signal via EventBus when target is deselected (becomes null)
+		if EventBus:
+			EventBus.emit_signal("player_target_deselected")
+		print("Player de-selected target.") # Keep existing print
 
 # --- Input Event Handling ---
 func _unhandled_input(event):
 	var input_handled = false
 
-	# --- Mouse Button Input ---
-	if event is InputEventMouseButton:
+	# --- Mouse Button Input (Target Selection) ---
+	# Only allow clicking targets when NOT in free flight mode
+	if not _is_free_flight_mode and event is InputEventMouseButton:
 		if event.button_index == BUTTON_LEFT and event.pressed:
 			# Check for double-click FIRST
 			if event.doubleclick:
@@ -1240,27 +1356,25 @@ func _unhandled_input(event):
 					print("Move To Failed: Agent invalid")
 			else:
 				# --- Single Click Handling (Target Selection) ---
-				# Only process if mouse is visible
 				if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-					if is_instance_valid(_target_under_cursor):
-						if _selected_target != _target_under_cursor:
-							_selected_target = _target_under_cursor
-							print("Player selected target: ", _selected_target.name)
-					elif not is_instance_valid(_target_under_cursor): # Clicked empty space
-						if is_instance_valid(_selected_target):
-							print("Player de-selected target.")
-							_selected_target = null
-					input_handled = true # Consume single click as well
+					self._selected_target = _target_under_cursor
+					input_handled = true # Consume single click
 
-	# --- Keyboard Commands & Mouse Toggle ---
-	if not input_handled and is_instance_valid(agent_script): # Process only if mouse didn't handle it
+	# --- Keyboard Commands & Mode Toggle ---
+	# Allow toggling free flight regardless of other commands
+	if Input.is_action_just_pressed("toggle_free_flight"): # MODIFIED Action Name
+		_toggle_free_flight()
+		input_handled = true # Consume the toggle action
+
+	# Process other commands ONLY if NOT in free flight mode
+	elif not _is_free_flight_mode and is_instance_valid(agent_script):
 		var command_action_key = ""
 		if Input.is_action_just_pressed("command_approach"): command_action_key = "approach"
 		elif Input.is_action_just_pressed("command_orbit"): command_action_key = "orbit"
 		elif Input.is_action_just_pressed("command_flee"): command_action_key = "flee"
 		elif Input.is_action_just_pressed("command_stop"): command_action_key = "stop"
-		elif Input.is_action_just_pressed("command_move_direction"): command_action_key = "move_direction"
-		elif Input.is_action_just_pressed("toggle_mouse_capture"): command_action_key = "toggle_mouse"
+		# Removed "command_move_direction" as it's handled by free flight now
+		# Removed "toggle_mouse_capture"
 
 		if command_action_key != "":
 			input_handled = true # Assume handled unless check fails
@@ -1278,20 +1392,37 @@ func _unhandled_input(event):
 						input_handled = false
 				"stop":
 					print("Command Input: STOP"); agent_script.command_stop()
-				"move_direction":
-					if is_instance_valid(GlobalRefs.main_camera):
-						var move_dir = -GlobalRefs.main_camera.global_transform.basis.z.normalized()
-						print("Command Input: MOVE_DIRECTION ", move_dir); agent_script.command_move_direction(move_dir)
-					else: print("Command Input: MoveDirection fail - camera invalid."); input_handled = false
-				"toggle_mouse":
-					if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED: Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-					else: Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 				_:
 					input_handled = false # Unhandled action key
 
 	# Consume event if handled
 	if input_handled:
 		get_viewport().set_input_as_handled()
+
+# --- Free Flight Toggle Logic --- ADDED Function
+func _toggle_free_flight():
+	_is_free_flight_mode = not _is_free_flight_mode
+	print("Free Flight Mode: ", "ON" if _is_free_flight_mode else "OFF")
+
+	if _is_free_flight_mode:
+		# --- Entering Free Flight ---
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		# Activate camera rotation input externally
+		if is_instance_valid(_main_camera) and _main_camera.has_method("set_rotation_input_active"):
+			_main_camera.set_rotation_input_active(true)
+		# Deselect any current target when entering free flight
+		if is_instance_valid(_selected_target):
+			self._selected_target = null
+		# Movement command is handled in _physics_process
+	else:
+		# --- Exiting Free Flight ---
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		# Deactivate camera rotation input (will still work if RMB is held)
+		if is_instance_valid(_main_camera) and _main_camera.has_method("set_rotation_input_active"):
+			_main_camera.set_rotation_input_active(false)
+		# Stop the ship
+		if is_instance_valid(agent_script):
+			agent_script.command_stop()
 
 --- Start of ./modules/piloting/scripts/ship_controller_ai.gd ---
 
@@ -1368,7 +1499,7 @@ func initialize(config: Dictionary):
 --- Start of ./scenes/camera/orbit_camera.gd ---
 
 # File: scenes/camera/orbit_camera.gd
-# Version 1.20 - Simplified radius calc uses target method, Strict Formatting
+# Version 1.21 - Added free flight camera mode.
 
 extends Camera
 
@@ -1376,15 +1507,15 @@ extends Camera
 var distance: float = 55.0        # Fallback/preferred distance basis
 var min_distance_multiplier: float = 1.8
 var max_distance_multiplier: float = 15.0
-var preferred_distance_multiplier: float = 2.5
+var preferred_distance_multiplier: float = 1.8
 const MIN_ABSOLUTE_DISTANCE = 8.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
 var zoom_speed: float = 1.5
-var rotation_speed: float = 0.008
-var pitch_min: float = -1.45
-var pitch_max: float = 1.45
+var rotation_speed: float = 0.004
+var pitch_min: float = -1.55
+var pitch_max: float = 1.55
 var position_smoothing_speed: float = 15.0
-var rotation_smoothing_speed: float = 10.0
+var rotation_smoothing_speed: float = 20.0
 var bob_frequency: float = 0.6
 var bob_amplitude: float = 0.06
 
@@ -1395,6 +1526,7 @@ var _yaw: float = PI
 var _pitch: float = 0.25
 var _current_distance: float = 55.0
 var _is_player_rotating: bool = false
+var _rotation_input_active: bool = false # ADDED: Flag for free flight activation
 var _bob_timer: float = 0.0
 
 # --- Initialization ---
@@ -1459,14 +1591,20 @@ func _unhandled_input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_RIGHT:
 			_is_player_rotating = event.pressed
+			# Optional: Consume RMB press/release if mouse is captured (free flight)
+			# to prevent other actions triggering on RMB while captured?
+			# if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+			#     get_viewport().set_input_as_handled()
 
-	# Rotation Input (RMB Drag)
+	# Rotation Input (Mouse Motion) - MODIFIED Condition
 	if event is InputEventMouseMotion:
-		if _is_player_rotating:
+		# Rotate if RMB is held OR if rotation is activated externally (free flight)
+		if _is_player_rotating or _rotation_input_active:
 			_yaw -= event.relative.x * rotation_speed
 			_pitch += event.relative.y * rotation_speed
 			_pitch = clamp(_pitch, pitch_min, pitch_max)
-			get_viewport().set_input_as_handled()
+			get_viewport().set_input_as_handled() # Consume mouse motion when rotating
+
 
 	# Zoom Input (Wheel) - Only works when attached
 	if is_instance_valid(_target):
@@ -1532,6 +1670,13 @@ func _physics_process(delta):
 # --- Signal Handler & Public Functions ---
 func _on_Camera_Set_Target_Requested(target_node):
 	set_target_node(target_node)
+	
+# ADDED: Function to allow external control of rotation input activity
+func set_rotation_input_active(is_active: bool):
+	_rotation_input_active = is_active
+	# Ensure RMB state doesn't conflict if activating externally
+	if is_active:
+		_is_player_rotating = false
 
 func set_target_node(new_target: Spatial):
 	if is_instance_valid(new_target):
