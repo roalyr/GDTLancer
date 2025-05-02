@@ -83,7 +83,6 @@ func _on_Player_Target_Deselected():
 	set_process(false) # Can disable processing if target is deselected
 
 
-
 # --- Custom Drawing (Optional but Recommended) ---
 func _draw_targeting_indicator():
 	# Example: Draw a simple white rectangle outline
@@ -119,3 +118,27 @@ func _notification(what):
 				EventBus.disconnect("player_target_selected", self, "_on_Player_Target_Selected")
 			if EventBus.is_connected("player_target_deselected", self, "_on_Player_Target_Deselected"):
 				EventBus.disconnect("player_target_deselected", self, "_on_Player_Target_Deselected")
+
+
+func _on_ButtonFreeFlight_pressed():
+	if EventBus: 
+		EventBus.emit_signal("player_free_flight_toggled")
+
+func _on_ButtonStop_pressed():
+	if EventBus: 
+		EventBus.emit_signal("player_stop_pressed")
+
+
+func _on_ButtonOrbit_pressed():
+	if EventBus: 
+		EventBus.emit_signal("player_orbit_pressed")
+
+
+func _on_ButtonApproach_pressed():
+	if EventBus: 
+		EventBus.emit_signal("player_approach_pressed")
+
+
+func _on_ButtonFlee_pressed():
+	if EventBus: 
+		EventBus.emit_signal("player_flee_pressed")

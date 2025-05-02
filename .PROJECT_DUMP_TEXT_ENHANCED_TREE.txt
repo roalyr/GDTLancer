@@ -1,5 +1,39 @@
 .
 ├── assets
+│   ├── art
+│   │   └── ui
+│   │       └── controls
+│   │           ├── bracket_autopilot.dxf
+│   │           ├── bracket_autopilot.png
+│   │           ├── bracket_targeting.dxf
+│   │           ├── bracket_targeting.png
+│   │           ├── ~button_approach.dxf
+│   │           ├── button_approach.dxf
+│   │           ├── button_approach.png
+│   │           ├── button_flee.dxf
+│   │           ├── button_flee.png
+│   │           ├── button_free_flight.dxf
+│   │           ├── button_free_flight.png
+│   │           ├── button_info.dxf
+│   │           ├── button_info.png
+│   │           ├── button_options.dxf
+│   │           ├── button_options.png
+│   │           ├── button_orbit.dxf
+│   │           ├── button_orbit.png
+│   │           ├── button_planet.dxf
+│   │           ├── button_planet.png
+│   │           ├── button_ship.dxf
+│   │           ├── button_ship.png
+│   │           ├── button_stop.dxf
+│   │           ├── button_stop.png
+│   │           ├── button_structure.dxf
+│   │           ├── button_structure.png
+│   │           ├── button_system.dxf
+│   │           ├── button_system.png
+│   │           ├── button_ui_opacity.dxf
+│   │           ├── button_ui_opacity.png
+│   │           ├── _placeholder_map.png
+│   │           └── slider_horizontal.dxf
 │   ├── data
 │   │   └── templates
 │   │       └── agents
@@ -36,6 +70,7 @@
 │       ├── main_hud.gd
 │       └── main_hud.tscn
 ├── default_env.tres
+├── export_presets.cfg
 ├── Icon.png
 ├── modules
 │   └── piloting
@@ -65,6 +100,6 @@
     └── helpers
         └── signal_catcher.gd
 
-24 directories, 42 files
+27 directories, 74 files
 
-24 directories, 42 files
+27 directories, 74 files

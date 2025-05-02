@@ -28,6 +28,11 @@ signal camera_cycle_target_requested()
 # --- Player Interaction Signals --- ADDED SECTION
 signal player_target_selected(target_node)
 signal player_target_deselected()
+signal player_free_flight_toggled()
+signal player_stop_pressed()
+signal player_orbit_pressed()
+signal player_approach_pressed()
+signal player_flee_pressed()
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance

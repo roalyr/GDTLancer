@@ -10,7 +10,7 @@ outer_radius = 1.901
 
 [sub_resource type="Environment" id=1]
 background_mode = 1
-background_color = Color( 0.0156863, 0.105882, 0.188235, 1 )
+background_color = Color( 0.0509804, 0.137255, 0.184314, 1 )
 
 [node name="BasicFlightZone" type="Spatial"]
 __meta__ = {
@@ -52,7 +52,6 @@ shape = SubResource( 3 )
 [node name="Model" type="Spatial" parent="SceneAssets/StaticBody2"]
 
 [node name="MeshInstance" type="MeshInstance" parent="SceneAssets/StaticBody2/Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
 mesh = SubResource( 2 )
 skeleton = NodePath("../../../..")
 

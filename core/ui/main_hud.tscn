@@ -1,11 +1,18 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://core/ui/main_hud.gd" type="Script" id=1]
+[ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
+[ext_resource path="res://assets/art/ui/controls/button_orbit.png" type="Texture" id=3]
+[ext_resource path="res://assets/art/ui/controls/_placeholder_map.png" type="Texture" id=4]
+[ext_resource path="res://assets/art/ui/controls/button_flee.png" type="Texture" id=5]
+[ext_resource path="res://assets/art/ui/controls/button_stop.png" type="Texture" id=6]
+[ext_resource path="res://assets/art/ui/controls/button_free_flight.png" type="Texture" id=7]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+mouse_default_cursor_shape = 3
 script = ExtResource( 1 )
 
 [node name="TargetingIndicator" type="Control" parent="."]
@@ -17,3 +24,183 @@ margin_left = -20.0
 margin_top = -20.0
 margin_right = 20.0
 margin_bottom = 20.0
+mouse_filter = 2
+
+[node name="ScreenControls" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+mouse_filter = 2
+
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="_DoNotCoverWithUI" type="ColorRect" parent="ScreenControls"]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -450.0
+margin_top = -300.0
+margin_right = 450.0
+margin_bottom = 300.0
+mouse_filter = 2
+color = Color( 0.219608, 0.619608, 0.172549, 0.168627 )
+
+[node name="BottomLeftZone" type="Control" parent="ScreenControls"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -470.0
+margin_right = 470.0
+mouse_filter = 2
+
+[node name="BottomCenterZone" type="Control" parent="ScreenControls"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -450.0
+margin_top = -190.0
+margin_right = 450.0
+mouse_filter = 2
+
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/BottomCenterZone"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/BottomCenterZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/BottomCenterZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="ButtonOrbit" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+margin_left = 360.0
+margin_top = 20.0
+margin_right = 510.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 3 )
+
+[node name="ButtonStop" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+margin_left = 530.0
+margin_top = 20.0
+margin_right = 680.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 6 )
+
+[node name="ButtonFreeFlight" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+margin_left = 700.0
+margin_top = 20.0
+margin_right = 850.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 7 )
+
+[node name="ButtonApproach" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+margin_left = 20.0
+margin_top = 20.0
+margin_right = 170.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 2 )
+
+[node name="ButtonFlee" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+margin_left = 190.0
+margin_top = 20.0
+margin_right = 340.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 5 )
+
+[node name="BottomRightZone" type="Control" parent="ScreenControls"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -470.0
+margin_top = -470.0
+mouse_filter = 2
+
+[node name="TopLeftZone" type="Control" parent="ScreenControls"]
+visible = false
+margin_right = 470.0
+margin_bottom = 470.0
+mouse_filter = 2
+
+[node name="TopCenterZone" type="Control" parent="ScreenControls"]
+visible = false
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -450.0
+margin_right = 450.0
+margin_bottom = 200.0
+mouse_filter = 2
+
+[node name="TopRightZone" type="Control" parent="ScreenControls"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -470.0
+margin_bottom = 470.0
+mouse_filter = 2
+
+[node name="_PlaceholderMap" type="TextureRect" parent="ScreenControls/TopRightZone"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+texture = ExtResource( 4 )
+expand = true
+
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFreeFlight" to="." method="_on_ButtonFreeFlight_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonApproach" to="." method="_on_ButtonApproach_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
