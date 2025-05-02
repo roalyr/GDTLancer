@@ -148,9 +148,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -450.0
+margin_left = -435.0
 margin_top = -190.0
-margin_right = 450.0
+margin_right = 435.0
 mouse_filter = 2
 
 [node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/BottomCenterZone"]

@@ -7,7 +7,6 @@
 │   │           ├── bracket_autopilot.png
 │   │           ├── bracket_targeting.dxf
 │   │           ├── bracket_targeting.png
-│   │           ├── ~button_approach.dxf
 │   │           ├── button_approach.dxf
 │   │           ├── button_approach.png
 │   │           ├── button_flee.dxf
@@ -100,6 +99,6 @@
     └── helpers
         └── signal_catcher.gd
 
-27 directories, 74 files
+27 directories, 73 files
 
-27 directories, 74 files
+27 directories, 73 files

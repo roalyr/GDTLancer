@@ -1627,7 +1627,7 @@ var _min_fov_deg: float = 40.0
 var _max_fov_deg: float = 100.0
 
 # --- Rotation Acceleration Config --- (Internal, set via initialize)
-var _rotation_max_speed: float = 2000.0  # Max angular speed (radians/sec) from full mouse motion
+var _rotation_max_speed: float = 0.10  # Max angular speed (radians/sec) from full mouse motion
 var _rotation_acceleration: float = 15.0 # How quickly speed changes towards target
 var _rotation_damping: float = 10.0   # How quickly speed decays when no input (higher = faster stop)
 var _rotation_input_curve: float = 1.5 # Power curve for mouse input (1 = linear, >1 = faster ramp-up)
@@ -1699,8 +1699,8 @@ func _unhandled_input(event):
 		if _rotation_input_active or _is_externally_rotating:
 			# Calculate input strength (normalize relative motion magnitude, maybe clamp)
 			# Note: event.relative can be large, might need scaling factor if uncapped
-			var input_strength_x = abs(event.relative.x) / get_viewport().size.x # Normalize roughly? Or use fixed divisor?
-			var input_strength_y = abs(event.relative.y) / get_viewport().size.y
+			var input_strength_x = abs(event.relative.x)  # Normalize roughly? Or use fixed divisor?
+			var input_strength_y = abs(event.relative.y) 
 			
 			# Apply power curve for non-linear response
 			input_strength_x = pow(input_strength_x, _rotation_input_curve)
