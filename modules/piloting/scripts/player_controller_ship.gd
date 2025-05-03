@@ -191,7 +191,7 @@ func _unhandled_input(event):
 						if is_instance_valid(_selected_target):
 							match command_action_key:
 								"approach": agent_script.command_approach(_selected_target)
-								"orbit": agent_script.command_orbit(_selected_target, DEFAULT_ORBIT_DIST)
+								"orbit": agent_script.command_orbit(_selected_target)
 								"flee": agent_script.command_flee(_selected_target)
 							print("Command Input: ", command_action_key.to_upper()," ", _selected_target.name)
 						else:

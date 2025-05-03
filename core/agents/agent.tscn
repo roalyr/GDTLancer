@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
 [ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
+[ext_resource path="res://core/agents/components/movement_system.gd" type="Script" id=3]
+[ext_resource path="res://core/agents/components/navigation_system.gd" type="Script" id=4]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -18,3 +20,9 @@ __meta__ = {
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 7.77816, 0, 0, 0, 2.3177, 0, 0, 0, 7.25633, 0, 0, 0 )
 shape = SubResource( 1 )
+
+[node name="MovementSystem" type="Node" parent="."]
+script = ExtResource( 3 )
+
+[node name="NavigationSystem" type="Node" parent="."]
+script = ExtResource( 4 )
