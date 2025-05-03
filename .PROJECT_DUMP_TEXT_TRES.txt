@@ -30,6 +30,7 @@ acceleration = 0.2
 deceleration = 1.0
 max_turn_speed = 1.0
 interaction_radius = 12.0
+alignment_threshold_angle_deg = 45.0
 
 --- Start of ./assets/themes/main_theme.tres ---
 

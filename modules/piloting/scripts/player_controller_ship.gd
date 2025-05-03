@@ -234,7 +234,7 @@ func _on_Player_Stop_Pressed():
 	agent_script.command_stop()
 	
 func _on_Player_Orbit_Pressed():
-	agent_script.command_orbit(_selected_target, DEFAULT_ORBIT_DIST)
+	agent_script.command_orbit(_selected_target)
 	
 func _on_Player_Approach_Pressed():
 	agent_script.command_approach(_selected_target)

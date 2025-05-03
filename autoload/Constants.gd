@@ -16,7 +16,7 @@ const INITIAL_ZONE_SCENE_PATH = "res://scenes/zones/basic_flight_zone.tscn"
 
 # Agent Template Resource Paths
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://assets/data/templates/agents/player_default.tres"
-const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/templates/agents/npc_traffic_base.tres"
+const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/templates/agents/npc_traffic.tres"
 
 # Base UI Scenes
 const MAIN_HUD_SCENE_PATH = "res://core/ui/main_hud.tscn"
@@ -51,6 +51,10 @@ const DEFAULT_MAX_MOVE_SPEED = 50.0
 const DEFAULT_ACCELERATION = 10.0
 const DEFAULT_DECELERATION = 15.0
 const DEFAULT_MAX_TURN_SPEED = 2.0
+
+# --- Gameplay / Physics Approximations ---
+const ORBIT_FULL_SPEED_RADIUS = 2000.0 # Example value (e.g., 5000 units)
+
 
 # --- System Defaults (Examples - Used by placeholder systems) ---
 const MAX_NPCS_DEFAULT = 10

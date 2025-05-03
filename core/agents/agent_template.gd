@@ -1,6 +1,6 @@
 # File: core/agents/agent_template.gd
 # Resource Definition for Agent Stats/Config
-# Version: 1.0
+# Version: 1.1 - Added alignment threshold export
 
 extends Resource
 class_name AgentTemplate # Allows type hinting and creating this resource type in editor
@@ -19,6 +19,11 @@ export var max_turn_speed : float = Constants.DEFAULT_MAX_TURN_SPEED
 # --- Interaction Size ---
 # Used by camera targeting, docking, etc. Represents effective size.
 export var interaction_radius : float = 15.0 # Default reasonable size
+
+# --- NEW: Alignment Threshold ---
+# Agent will only accelerate forward if facing within this angle (degrees) of the target direction.
+# Relevant for MOVE_TO, MOVE_DIRECTION, APPROACH, FLEE commands.
+export var alignment_threshold_angle_deg: float = 45.0
 
 # --- Base Combat Stats (Placeholders - Link to Combat Module/Character System later) ---
 # export var base_hull : int = 100
