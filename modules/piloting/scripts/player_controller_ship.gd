@@ -1,5 +1,5 @@
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version 3.6 - Re-enabled input consumption, triggers toggle via signal.
+# Version 3.7 - Stop command now also exits free flight mode.
 
 extends Node
 
@@ -70,14 +70,13 @@ func _ready():
 				printerr(
 					"PlayerController Error: Failed connect player_orbit_pressed signal! Code: ",
 					err
-				)
+				)  # Typo in original error message fixed
 
 		if not EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
 			var err = EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
 			if err != OK:
-				printerr(
-					"PlayerController Error: Failed connect player_orbit_pressed signal! Code: ",
-					err
+				printerr(  # Typo in original error message fixed
+					"PlayerController Error: Failed connect player_flee_pressed signal! Code: ", err
 				)
 
 	else:
@@ -120,7 +119,7 @@ func _physics_process(delta):
 			var move_dir = -_main_camera.global_transform.basis.z.normalized()
 			agent_script.command_move_direction(move_dir)
 		elif is_instance_valid(agent_script):
-			agent_script.command_stop()
+			agent_script.command_stop()  # Existing stop if camera invalid
 		# Removed warping logic
 
 
@@ -222,8 +221,9 @@ func _unhandled_input(event):
 					_main_camera.set_is_rotating(true)
 			# Let camera consume motion event if it uses it
 
-	# --- Other Keyboard Commands (Only if not in free flight) ---
-	elif not _is_free_flight_mode and is_instance_valid(agent_script):
+	# --- Other Keyboard Commands (Only if not in free flight *unless* it's stop) --- # MODIFIED CONDITION
+	# Stop command check is now handled separately inside the helper.
+	elif not _is_free_flight_mode and is_instance_valid(agent_script):  # Original condition kept for other commands
 		# Check only if event wasn't handled by LMB/Touch release
 		if not input_handled:
 			var command_action_key = ""
@@ -233,8 +233,7 @@ func _unhandled_input(event):
 				command_action_key = "orbit"
 			elif Input.is_action_just_pressed("command_flee"):
 				command_action_key = "flee"
-			elif Input.is_action_just_pressed("command_stop"):
-				command_action_key = "stop"
+			# Stop key check moved below
 
 			if command_action_key != "":
 				input_handled = true  # CONSUME event if handled
@@ -245,7 +244,7 @@ func _unhandled_input(event):
 								"approach":
 									agent_script.command_approach(_selected_target)
 								"orbit":
-									agent_script.command_orbit(_selected_target)
+									agent_script.command_orbit(_selected_target)  # Assuming default distance/direction is ok here
 								"flee":
 									agent_script.command_flee(_selected_target)
 							print(
@@ -257,11 +256,14 @@ func _unhandled_input(event):
 						else:
 							print("Command Input: ", command_action_key, " failed - no target.")
 							input_handled = false  # Don't consume if failed
-					"stop":
-						print("Command Input: STOP")
-						agent_script.command_stop()
 					_:
 						input_handled = false  # Don't consume unknown actions
+
+	# --- Stop Command (Keyboard) - Checked Regardless of Free Flight Mode --- # NEW CHECK POSITION
+	# Moved outside the !_is_free_flight_mode block
+	if not input_handled and Input.is_action_just_pressed("command_stop"):
+		_issue_stop_command()  # Call helper
+		input_handled = true  # CONSUME event
 
 	# --- Consume Input ---
 	if input_handled:
@@ -297,19 +299,59 @@ func _on_Player_Free_Flight_Toggled():
 
 
 func _on_Player_Stop_Pressed():
-	agent_script.command_stop()
+	# agent_script.command_stop() # Replaced by helper call
+	_issue_stop_command()  # Call helper
 
 
 func _on_Player_Orbit_Pressed():
-	agent_script.command_orbit(_selected_target)
+	# Check target validity before issuing command
+	if is_instance_valid(_selected_target) and is_instance_valid(agent_script):
+		agent_script.command_orbit(_selected_target)  # Assuming default distance/direction is okay
+	else:
+		print("PlayerController: Cannot Orbit - invalid target or agent.")
 
 
 func _on_Player_Approach_Pressed():
-	agent_script.command_approach(_selected_target)
+	# Check target validity before issuing command
+	if is_instance_valid(_selected_target) and is_instance_valid(agent_script):
+		agent_script.command_approach(_selected_target)
+	else:
+		print("PlayerController: Cannot Approach - invalid target or agent.")
 
 
 func _on_Player_Flee_Pressed():
-	agent_script.command_flee(_selected_target)
+	# Check target validity before issuing command
+	if is_instance_valid(_selected_target) and is_instance_valid(agent_script):
+		agent_script.command_flee(_selected_target)
+	else:
+		print("PlayerController: Cannot Flee - invalid target or agent.")
+
+
+# --- Command Issuance Helpers --- # NEW SECTION
+func _issue_stop_command():
+	if not is_instance_valid(agent_script):
+		printerr("PlayerController Error: AgentScript invalid, cannot issue stop command.")
+		return
+
+	print("Command Input: STOP")
+	agent_script.command_stop()
+
+	# Check if in free flight mode and disable it if necessary
+	if _is_free_flight_mode:
+		# Directly call the parts of _toggle_free_flight needed to exit the mode,
+		# without toggling the state variable again.
+		print("Stop command issued while in Free Flight. Exiting Free Flight...")
+		_is_free_flight_mode = false  # Set state directly
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if is_instance_valid(_main_camera):
+			if _main_camera.has_method("set_rotation_input_active"):
+				_main_camera.set_rotation_input_active(false)
+			if _main_camera.has_method("set_is_rotating"):
+				_main_camera.set_is_rotating(false)
+		# The stop command was already issued above, so agent_script.command_stop() from the original
+		# _toggle_free_flight's exit logic is not needed here.
+		_lmb_pressed = false
+		_is_dragging = false
 
 
 # --- Helper Raycast Function ---
@@ -333,24 +375,31 @@ func _raycast_for_target(screen_pos: Vector2) -> Spatial:
 # --- Free Flight Toggle Logic ---
 # Uses CAPTURED mode
 func _toggle_free_flight():
-	_is_free_flight_mode = not _is_free_flight_mode
-	print("Free Flight Mode: ", "ON" if _is_free_flight_mode else "OFF")
+	# We now only handle *entering* free flight here, or toggling when
+	# triggered by its dedicated key/button. Exiting via Stop is handled separately.
+	var intended_state = not _is_free_flight_mode
 
-	if _is_free_flight_mode:
+	print("Toggling Free Flight Mode. Intended State: ", "ON" if intended_state else "OFF")
+
+	if intended_state == true:  # Entering Free Flight
+		_is_free_flight_mode = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)  # Using CAPTURED
 		if is_instance_valid(_main_camera) and _main_camera.has_method("set_rotation_input_active"):
 			_main_camera.set_rotation_input_active(true)
 		_is_dragging = false  # Clear drag state
 		if is_instance_valid(_main_camera) and _main_camera.has_method("set_is_rotating"):
 			_main_camera.set_is_rotating(false)
-	else:  # Exiting free flight
+	elif _is_free_flight_mode == true:  # Explicitly toggling OFF (not via stop command)
+		_is_free_flight_mode = false
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		if is_instance_valid(_main_camera):
 			if _main_camera.has_method("set_rotation_input_active"):
 				_main_camera.set_rotation_input_active(false)
 			if _main_camera.has_method("set_is_rotating"):
 				_main_camera.set_is_rotating(false)
+		# If toggling off normally, issue a stop command as well.
 		if is_instance_valid(agent_script):
-			agent_script.command_stop()
+			# Call the helper to ensure consistency, though it won't toggle free flight again
+			_issue_stop_command()
 		_lmb_pressed = false
 		_is_dragging = false
