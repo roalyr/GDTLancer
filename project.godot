@@ -23,11 +23,17 @@ _global_script_classes=[ {
 "class": "GutTest",
 "language": "GDScript",
 "path": "res://addons/gut/test.gd"
+}, {
+"base": "Node",
+"class": "PIDController",
+"language": "GDScript",
+"path": "res://core/utils/pid_controller.gd"
 } ]
 _global_script_class_icons={
 "AgentTemplate": "",
 "GutHookScript": "",
-"GutTest": ""
+"GutTest": "",
+"PIDController": ""
 }
 
 [application]
