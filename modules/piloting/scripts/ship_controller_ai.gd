@@ -6,7 +6,8 @@ extends Node
 
 # --- References ---
 # Set in _ready()
-var agent_script: Node = null # Reference to the parent agent.gd script instance
+var agent_script: Node = null  # Reference to the parent agent.gd script instance
+
 
 # --- Initialization ---
 func _ready():
@@ -17,12 +18,15 @@ func _ready():
 		agent_script = parent
 		# print("AI Controller ready for: ", agent_script.agent_name) # Optional Debug
 	else:
-		printerr("AI Controller Error: Parent node is not an Agent KinematicBody with command methods!")
+		printerr(
+			"AI Controller Error: Parent node is not an Agent KinematicBody with command methods!"
+		)
 		# If setup fails, this controller can't function.
 		# We can disable physics process (though it's empty now)
 		# or even detach the script to prevent errors.
 		set_physics_process(false)
-		set_script(null) # Detach script if parent is wrong
+		set_script(null)  # Detach script if parent is wrong
+
 
 # Called by WorldManager's spawn_agent function (via initialize dictionary in agent.gd)
 # The 'config' dictionary here is the 'overrides' passed to spawn_agent
@@ -33,7 +37,7 @@ func initialize(config: Dictionary):
 		return
 
 	# Read necessary parameters from config dictionary if present
-	var stopping_dist = config.get("stopping_distance", 10.0) # May not be needed by AI now
+	var stopping_dist = config.get("stopping_distance", 10.0)  # May not be needed by AI now
 	# TODO: Agent's MOVE_TO command should probably use its own internal stopping distance logic
 
 	# Immediately issue the initial command based on 'initial_target' in config
@@ -44,10 +48,12 @@ func initialize(config: Dictionary):
 		agent_script.command_move_to(target_pos)
 	else:
 		# If no target, the agent remains IDLE (its default state)
-		if is_instance_valid(agent_script): # Check again just in case
-			 print("AI Controller Warning: No initial target provided for ",
-					agent_script.agent_name, ". Agent will remain idle.")
-
+		if is_instance_valid(agent_script):  # Check again just in case
+			print(
+				"AI Controller Warning: No initial target provided for ",
+				agent_script.agent_name,
+				". Agent will remain idle."
+			)
 
 # --- No Physics Update Needed ---
 # For this simple "go-to" AI, the agent itself executes the command issued
@@ -56,7 +62,6 @@ func initialize(config: Dictionary):
 # issuing different commands (approach, orbit, flee, etc.) as needed.
 # func _physics_process(delta):
 #     pass
-
 
 # --- No Event Handling Needed Here ---
 # The agent itself now emits "agent_reached_destination" via EventBus

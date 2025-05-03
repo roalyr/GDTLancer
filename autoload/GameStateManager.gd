@@ -7,7 +7,8 @@ extends Node
 
 const SAVE_DIR = "user://savegames/"
 const SAVE_FILE_PREFIX = "save_"
-const SAVE_FILE_EXT = ".sav" # Godot's variant storage format
+const SAVE_FILE_EXT = ".sav"  # Godot's variant storage format
+
 
 func _ready():
 	print("GameStateManager Ready.")
@@ -16,13 +17,19 @@ func _ready():
 	if not dir.dir_exists(SAVE_DIR):
 		var err = dir.make_dir_recursive(SAVE_DIR)
 		if err != OK:
-			printerr("GameStateManager Error: Could not create save directory: ", SAVE_DIR, " Error: ", err)
+			printerr(
+				"GameStateManager Error: Could not create save directory: ",
+				SAVE_DIR,
+				" Error: ",
+				err
+			)
+
 
 # --- Save Game ---
 # Returns true on success, false on failure
 func save_game(slot_id: int) -> bool:
 	print("Attempting to save game to slot ", slot_id)
-	var save_data = {} # Dictionary to hold all save data
+	var save_data = {}  # Dictionary to hold all save data
 
 	# --- गैदरिंग डाटा (Gathering Data) ---
 	# 1. Player Data
@@ -43,10 +50,13 @@ func save_game(slot_id: int) -> bool:
 		return false
 
 	# 2. Character System Data (FP, WP, Skills, etc.) - Assumed Placeholder
-	if is_instance_valid(GlobalRefs.character_system) and GlobalRefs.character_system.has_method("get_player_save_data"):
-		 save_data["character_state"] = GlobalRefs.character_system.get_player_save_data()
+	if (
+		is_instance_valid(GlobalRefs.character_system)
+		and GlobalRefs.character_system.has_method("get_player_save_data")
+	):
+		save_data["character_state"] = GlobalRefs.character_system.get_player_save_data()
 	else:
-		 print("Save Warning: CharacterSystem missing or no save method. FP/WP/Skills NOT saved.")
+		print("Save Warning: CharacterSystem missing or no save method. FP/WP/Skills NOT saved.")
 
 	# 3. World State
 	var world_data = {}
@@ -66,15 +76,12 @@ func save_game(slot_id: int) -> bool:
 	# 5. Add Metadata
 	# *** CORRECTED for Godot 3 ***
 	var game_version_setting = ProjectSettings.get_setting("application/config/version")
-	var game_version = "0.0.1" # Default version
+	var game_version = "0.0.1"  # Default version
 	if game_version_setting != null:
-		game_version = str(game_version_setting) # Ensure it's a string if found
+		game_version = str(game_version_setting)  # Ensure it's a string if found
 	# *** END CORRECTION ***
 
-	save_data["metadata"] = {
-		"save_time": OS.get_unix_time(),
-		"game_version": game_version
-	}
+	save_data["metadata"] = {"save_time": OS.get_unix_time(), "game_version": game_version}
 
 	# --- Writing File ---
 	var file = File.new()
@@ -89,8 +96,9 @@ func save_game(slot_id: int) -> bool:
 		return true
 	else:
 		printerr("Error saving game to path: ", path, " Error code: ", err)
-		file.close() # Ensure file is closed even on error
+		file.close()  # Ensure file is closed even on error
 		return false
+
 
 # --- Load Game ---
 # Returns true on success, false on failure
@@ -101,8 +109,8 @@ func load_game(slot_id: int) -> bool:
 
 	var file = File.new()
 	if not file.file_exists(path):
-		 printerr("Load Error: Save file not found at path!")
-		 return false
+		printerr("Load Error: Save file not found at path!")
+		return false
 
 	print("Load Debug: File exists. Attempting to open...")
 	var err = file.open(path, File.READ)
@@ -113,8 +121,8 @@ func load_game(slot_id: int) -> bool:
 	print("Load Debug: File opened. Attempting to get var...")
 	# Use true if store_var used true
 	var save_data = file.get_var(true)
-	var file_err = file.get_error() # Check error *after* operation
-	file.close() # Close file immediately
+	var file_err = file.get_error()  # Check error *after* operation
+	file.close()  # Close file immediately
 
 	if file_err != OK:
 		printerr("Load Error: Error reading var from file! File Error code: ", file_err)
@@ -138,7 +146,10 @@ func load_game(slot_id: int) -> bool:
 	# 1. Request Zone Load (WorldManager listens for this?) - NEEDS A ROBUST WORKFLOW
 	if save_data.has("world_state") and save_data.world_state.has("current_zone_path"):
 		var zone_path = save_data.world_state.current_zone_path
-		if is_instance_valid(GlobalRefs.world_manager) and GlobalRefs.world_manager.has_method("load_zone"):
+		if (
+			is_instance_valid(GlobalRefs.world_manager)
+			and GlobalRefs.world_manager.has_method("load_zone")
+		):
 			# Ideally, loading should happen via scene transition, not direct call here.
 			# For now, just logging. Actual loading needs proper handling.
 			print("Load Request: Need to load zone: ", zone_path)
@@ -157,8 +168,12 @@ func load_game(slot_id: int) -> bool:
 	# Placeholder - This should be handled by CharacterSystem reacting to load event or player spawn
 	if save_data.has("player_state"):
 		var p_state = save_data.player_state
-		var p_pos = Vector3(p_state.get("position_x", 0), p_state.get("position_y", 0), p_state.get("position_z", 0))
-		var p_basis_cols = p_state.get("rotation_basis_cols", [Vector3.RIGHT, Vector3.UP, Vector3.BACK])
+		var p_pos = Vector3(
+			p_state.get("position_x", 0), p_state.get("position_y", 0), p_state.get("position_z", 0)
+		)
+		var p_basis_cols = p_state.get(
+			"rotation_basis_cols", [Vector3.RIGHT, Vector3.UP, Vector3.BACK]
+		)
 		var p_basis = Basis(p_basis_cols[0], p_basis_cols[1], p_basis_cols[2])
 		# Need to apply pos/rot AFTER player is spawned in the new zone.
 		print("Load Request: Player should spawn at ", p_pos, " with rotation")
@@ -181,7 +196,7 @@ func load_game(slot_id: int) -> bool:
 
 	# 6. Emit signal that load data is ready (systems should listen and apply)
 	print("Load Process: Emitting game_loaded signal...")
-	EventBus.emit_signal("game_loaded", save_data) # Pass full data
+	EventBus.emit_signal("game_loaded", save_data)  # Pass full data
 
 	# IMPORTANT: Returning true here only means the file was read.
 	# Actual game state restoration is asynchronous and depends on listeners.
@@ -192,17 +207,21 @@ func load_game(slot_id: int) -> bool:
 func get_save_slot_path(slot_id: int) -> String:
 	return SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
 
+
 func save_exists(slot_id: int) -> bool:
 	var file = File.new()
 	return file.file_exists(get_save_slot_path(slot_id))
+
 
 # Gets only the metadata part of a save file, if possible
 func get_save_metadata(slot_id: int) -> Dictionary:
 	var path = get_save_slot_path(slot_id)
 	var file = File.new()
-	if not file.file_exists(path): return {}
+	if not file.file_exists(path):
+		return {}
 	var err = file.open(path, File.READ)
-	if err != OK: return {}
+	if err != OK:
+		return {}
 	# Use false here if we ONLY want the top-level dict, not full object parsing
 	# Depends if metadata is stored simply at top level
 	var data = file.get_var(true)

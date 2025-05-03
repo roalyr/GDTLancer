@@ -24,15 +24,15 @@ const MAIN_MENU_SCENE_PATH = "res://scenes/main_menu/main_menu.tscn"
 
 # --- Common Node Names ---
 # Inside main_game_scene.tscn
-const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer" # Node holding the loaded zone instance
+const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"  # Node holding the loaded zone instance
 
 # Inside Zone Scenes (e.g., basic_flight_zone.tscn)
-const AGENT_CONTAINER_NAME = "AgentContainer" # Child node for housing agents
+const AGENT_CONTAINER_NAME = "AgentContainer"  # Child node for housing agents
 const AGENT_MODEL_CONTAINER_NAME = "Model"
-const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"] # Expected Position3D/Spatial nodes
+const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"]  # Expected Position3D/Spatial nodes
 
 # Inside Agent Scenes (e.g., agent.tscn, npc_agent.tscn)
-const AGENT_BODY_NODE_NAME = "AgentBody"     # The KinematicBody root in agent scenes
+const AGENT_BODY_NODE_NAME = "AgentBody"  # The KinematicBody root in agent scenes
 # MOVEMENT_COMPONENT_NAME removed as component was merged
 const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
@@ -53,8 +53,7 @@ const DEFAULT_DECELERATION = 15.0
 const DEFAULT_MAX_TURN_SPEED = 2.0
 
 # --- Gameplay / Physics Approximations ---
-const ORBIT_FULL_SPEED_RADIUS = 2000.0 # Example value (e.g., 5000 units)
-
+const ORBIT_FULL_SPEED_RADIUS = 2000.0  # Example value (e.g., 5000 units)
 
 # --- System Defaults (Examples - Used by placeholder systems) ---
 const MAX_NPCS_DEFAULT = 10

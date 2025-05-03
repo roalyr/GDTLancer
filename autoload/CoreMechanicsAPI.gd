@@ -9,12 +9,15 @@ extends Node
 # Random Number Generator for dice rolls
 var _rng = RandomNumberGenerator.new()
 
+
 func _ready():
 	# Seed the random number generator once when the game starts
 	_rng.randomize()
 	print("CoreMechanicsAPI Ready.")
 
+
 # --- Core Action Resolution ---
+
 
 # Performs the standard 3d6+Mod Action Check based on passed parameters.
 # Returns a Dictionary containing the detailed results of the check.
@@ -52,16 +55,16 @@ func perform_action_check(module_modifier: int, focus_points_spent: int) -> Dict
 
 	if total_roll >= Constants.ACTION_CHECK_CRIT_THRESHOLD:
 		result_tier = "CritSuccess"
-		focus_gain = 1 # Standard gain on Crit
+		focus_gain = 1  # Standard gain on Crit
 		focus_loss_reset = false
-	elif total_roll >= Constants.ACTION_CHECK_SWC_THRESHOLD: # e.g., 10-13
-		result_tier = "SwC" # Success with Complication
+	elif total_roll >= Constants.ACTION_CHECK_SWC_THRESHOLD:  # e.g., 10-13
+		result_tier = "SwC"  # Success with Complication
 		focus_gain = 0
 		focus_loss_reset = false
-	else: # e.g., < 10
+	else:  # e.g., < 10
 		result_tier = "Failure"
 		focus_gain = 0
-		focus_loss_reset = true # Standard reset on Failure
+		focus_loss_reset = true  # Standard reset on Failure
 
 	# --- Assemble Results Dictionary ---
 	var results = {
@@ -84,7 +87,6 @@ func perform_action_check(module_modifier: int, focus_points_spent: int) -> Dict
 	# print("Action Check: %d (3d6=%d, Mod=%d, FP=%d(+%d)) -> %s" % [total_roll, dice_sum, module_modifier, focus_points_spent, focus_bonus, result_tier]) # Debug
 
 	return results
-
 
 # --- Potential Future Core Mechanic Functions ---
 

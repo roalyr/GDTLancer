@@ -3,22 +3,22 @@
 # Version: 1.1 - Added alignment threshold export
 
 extends Resource
-class_name AgentTemplate # Allows type hinting and creating this resource type in editor
+class_name AgentTemplate  # Allows type hinting and creating this resource type in editor
 
 # --- Identification ---
-export var template_id : String = "default_template" # Unique ID for this template type
-export var default_agent_name : String = "Agent"     # Base name for agents using this
-export var default_faction_id : String = "Neutral"   # Default faction
+export var template_id: String = "default_template"  # Unique ID for this template type
+export var default_agent_name: String = "Agent"  # Base name for agents using this
+export var default_faction_id: String = "Neutral"  # Default faction
 
 # --- Base Movement Capabilities (Reads defaults from Constants) ---
-export var max_move_speed : float = Constants.DEFAULT_MAX_MOVE_SPEED
-export var acceleration : float = Constants.DEFAULT_ACCELERATION
-export var deceleration : float = Constants.DEFAULT_DECELERATION
-export var max_turn_speed : float = Constants.DEFAULT_MAX_TURN_SPEED
+export var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
+export var acceleration: float = Constants.DEFAULT_ACCELERATION
+export var deceleration: float = Constants.DEFAULT_DECELERATION
+export var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
 
 # --- Interaction Size ---
 # Used by camera targeting, docking, etc. Represents effective size.
-export var interaction_radius : float = 15.0 # Default reasonable size
+export var interaction_radius: float = 15.0  # Default reasonable size
 
 # --- NEW: Alignment Threshold ---
 # Agent will only accelerate forward if facing within this angle (degrees) of the target direction.

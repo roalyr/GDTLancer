@@ -23,22 +23,22 @@ signal player_spawned(player_agent_body)
 # Emitted by systems requesting camera target change
 signal camera_set_target_requested(target_node)
 # Emitted by input handlers requesting target cycle (KEEPING for potential future use)
-signal camera_cycle_target_requested()
+signal camera_cycle_target_requested
 
 # --- Player Interaction Signals --- ADDED SECTION
 signal player_target_selected(target_node)
-signal player_target_deselected()
-signal player_free_flight_toggled()
-signal player_stop_pressed()
-signal player_orbit_pressed()
-signal player_approach_pressed()
-signal player_flee_pressed()
+signal player_target_deselected
+signal player_free_flight_toggled
+signal player_stop_pressed
+signal player_orbit_pressed
+signal player_approach_pressed
+signal player_flee_pressed
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance
-signal zone_unloading(zone_node) # zone_node is the root of the scene being unloaded
+signal zone_unloading(zone_node)  # zone_node is the root of the scene being unloaded
 # Emitted by WorldManager when starting to load a new zone path
-signal zone_loading(zone_path) # zone_path is path to the complete zone scene
+signal zone_loading(zone_path)  # zone_path is path to the complete zone scene
 # Emitted by WorldManager after new zone is instanced, added, container found
 # zone_node is root of the new zone instance, agent_container_node is ref inside it
 signal zone_loaded(zone_node, zone_path, agent_container_node)
@@ -55,6 +55,7 @@ signal zone_loaded(zone_node, zone_path, agent_container_node)
 
 # --- Module Specific Signals (Placeholders - Use sparingly) ---
 # signal major_discovery_made(discovery_data)
+
 
 func _ready():
 	print("EventBus Ready.")
