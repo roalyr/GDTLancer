@@ -135,4 +135,5 @@ vram_compression/import_etc2=false
 misc/lossless_compression/force_png=true
 gles2/compatibility/disable_half_float=true
 gles2/compatibility/enable_high_float.Android=true
+quality/filters/msaa=3
 environment/default_environment="res://default_env.tres"

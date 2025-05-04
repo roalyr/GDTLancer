@@ -1,3 +1,27 @@
+--- Start of ./assets/art/effects/particle_dust_material.tres ---
+
+[gd_resource type="SpatialMaterial" format=2]
+
+[resource]
+flags_transparent = true
+flags_unshaded = true
+flags_fixed_size = true
+vertex_color_use_as_albedo = true
+params_billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+--- Start of ./assets/art/effects/particle_quad.tres ---
+
+[gd_resource type="QuadMesh" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/effects/particle_dust_material.tres" type="Material" id=1]
+
+[resource]
+material = ExtResource( 1 )
+size = Vector2( 0.002, 0.002 )
+
 --- Start of ./assets/data/templates/agents/npc_traffic.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]

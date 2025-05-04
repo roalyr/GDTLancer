@@ -10,7 +10,7 @@ outer_radius = 1.901
 
 [sub_resource type="Environment" id=1]
 background_mode = 1
-background_color = Color( 0.0509804, 0.137255, 0.184314, 1 )
+background_color = Color( 0.117647, 0.129412, 0.137255, 1 )
 
 [node name="BasicFlightZone" type="Spatial"]
 __meta__ = {

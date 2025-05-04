@@ -1,6 +1,9 @@
 .
 ├── assets
 │   ├── art
+│   │   ├── effects
+│   │   │   ├── particle_dust_material.tres
+│   │   │   └── particle_quad.tres
 │   │   └── ui
 │   │       └── controls
 │   │           ├── bracket_autopilot.dxf
@@ -84,6 +87,7 @@
 ├── project.godot
 ├── scenes
 │   ├── camera
+│   │   ├── camera_particles_controller.gd
 │   │   ├── orbit_camera.gd
 │   │   └── orbit_camera.tscn
 │   ├── game_world
@@ -104,6 +108,6 @@
     └── helpers
         └── signal_catcher.gd
 
-29 directories, 76 files
+30 directories, 79 files
 
-29 directories, 76 files
+30 directories, 79 files

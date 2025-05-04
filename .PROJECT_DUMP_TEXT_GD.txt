@@ -1046,7 +1046,7 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		_orbit_pid = PIDControllerScript.new()
 		_approach_pid = PIDControllerScript.new()
 		_move_to_pid = PIDControllerScript.new()
-		print("NavigationSystem: PID Controllers instantiated.")
+		#print("NavigationSystem: PID Controllers instantiated.")
 	else:
 		printerr(
 			"NavigationSystem Error: Failed to load PIDController script! Cannot initialize PIDs."
@@ -1061,7 +1061,7 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		var pid_i_limit = nav_params.get("orbit_pid_integral_limit", 1000.0)
 		var pid_o_limit = nav_params.get("orbit_pid_output_limit", 75.0)
 		_orbit_pid.initialize(pid_kp, pid_ki, pid_kd, pid_i_limit, pid_o_limit)
-		print("  Orbit PID Initialized (Kp=%.2f, Ki=%.2f, Kd=%.2f)" % [pid_kp, pid_ki, pid_kd])
+		#print("  Orbit PID Initialized (Kp=%.2f, Ki=%.2f, Kd=%.2f)" % [pid_kp, pid_ki, pid_kd])
 	else:
 		printerr(
 			"NavigationSystem Error: _orbit_pid instance is not valid during initialization (Instantiation likely failed)."
@@ -1074,12 +1074,12 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		var ap_kd = nav_params.get("approach_kd", 1.0)
 		var ap_o_limit = movement_system.max_move_speed
 		_approach_pid.initialize(ap_kp, ap_ki, ap_kd, 1000.0, ap_o_limit)
-		print(
-			(
-				"  Approach PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
-				% [ap_kp, ap_ki, ap_kd]
-			)
-		)
+		#print(
+		#	(
+		#		"  Approach PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
+		#		% [ap_kp, ap_ki, ap_kd]
+		#	)
+		#)
 	else:
 		printerr(
 			"NavigationSystem Error: _approach_pid instance not valid during init (Instantiation likely failed)."
@@ -1092,12 +1092,12 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		var mt_kd = nav_params.get("move_to_kd", 1.0)
 		var mt_o_limit = movement_system.max_move_speed
 		_move_to_pid.initialize(mt_kp, mt_ki, mt_kd, 1000.0, mt_o_limit)
-		print(
-			(
-				"  MoveTo PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
-				% [mt_kp, mt_ki, mt_kd]
-			)
-		)
+		#print(
+		#	(
+		#		"  MoveTo PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
+		#		% [mt_kp, mt_ki, mt_kd]
+		#	)
+		#)
 	else:
 		printerr(
 			"NavigationSystem Error: _move_to_pid instance not valid during init (Instantiation likely failed)."
@@ -1178,7 +1178,7 @@ func set_command_approach(target: Spatial):
 		var current_distance = agent_body.global_transform.origin.distance_to(target_pos)
 
 		if current_distance < (desired_stop_dist + ARRIVAL_DISTANCE_THRESHOLD):
-			print("Agent ", agent_body.name, " already within approach range. Switching to IDLE.")
+			#print("Agent ", agent_body.name, " already within approach range. Switching to IDLE.")
 			EventBus.emit_signal("agent_reached_destination", agent_body)
 			set_command_idle()
 			return
@@ -1312,7 +1312,7 @@ func update_navigation(delta: float):
 				and agent_body.current_velocity.length_squared() < ARRIVAL_SPEED_THRESHOLD_SQ
 			):
 				if not _current_command.get("signaled_stop", false):
-					print("Agent ", agent_body.name, " reached move_to destination.")
+					#print("Agent ", agent_body.name, " reached move_to destination.")
 					EventBus.emit_signal("agent_reached_destination", agent_body)
 					_current_command["signaled_stop"] = true
 				movement_system.apply_braking(delta)
@@ -1351,9 +1351,9 @@ func update_navigation(delta: float):
 			# Early Exit Check
 			if distance < (desired_stop_dist + ARRIVAL_DISTANCE_THRESHOLD):
 				if not _current_command.get("signaled_stop", false):
-					print(
-						"Agent ", agent_body.name, " is within approach range. Switching to IDLE."
-					)
+					#print(
+					#	"Agent ", agent_body.name, " is within approach range. Switching to IDLE."
+					#)
 					EventBus.emit_signal("agent_reached_destination", agent_body)
 					_current_command["signaled_stop"] = true
 				set_command_idle()
@@ -1401,7 +1401,7 @@ func update_navigation(delta: float):
 					and agent_body.current_velocity.length_squared() < ARRIVAL_SPEED_THRESHOLD_SQ
 				):
 					if not _current_command.get("signaled_stop", false):
-						print("Agent ", agent_body.name, " reached approach destination.")
+						#print("Agent ", agent_body.name, " reached approach destination.")
 						EventBus.emit_signal("agent_reached_destination", agent_body)
 						_current_command["signaled_stop"] = true
 					movement_system.apply_braking(delta)
@@ -2483,6 +2483,102 @@ func initialize(config: Dictionary):
 # --- No Public Functions Needed Here ---
 # func set_target(new_target: Vector3): # Removed - command issued once at init
 
+--- Start of ./scenes/camera/camera_particles_controller.gd ---
+
+# File: res://scenes/camera/camera_particles_controller.gd
+# Purpose: Controls the space dust (CPUParticles) effect attached to the camera,
+#          adjusting emission, velocity, and emitter position based on
+#          the CAMERA's movement speed. (GLES2 Compatible)
+extends CPUParticles  # Use CPUParticles for GLES2
+
+# --- Tunable Parameters ---
+# Camera speed threshold below which particles stop emitting strongly
+export var min_camera_speed_threshold: float = 0.5
+# Camera speed at which the effect reaches maximum intensity
+export var max_camera_speed_for_effect: float = 50.0
+# --- NEW: How much to shift emitter opposite to velocity vector ---
+export var velocity_offset_scale: float = -250.0
+
+# --- Node References ---
+var _camera: Camera = null
+
+# --- State ---
+var _previous_camera_pos: Vector3 = Vector3.ZERO
+var _initialized: bool = false
+
+
+func _ready():
+	# Get camera reference (assuming this node is a direct child of the camera)
+	_camera = get_parent() as Camera
+	if not _camera:
+		printerr("CameraParticlesController Error: Parent node is not a Camera!")
+		set_process(false)
+		return
+
+	# Set initial state directly on the node
+	self.emitting = false
+	self.gravity = Vector3.ZERO
+	self.transform.origin = Vector3.ZERO  # Ensure offset starts at zero
+
+	# Defer setting previous position until the first process frame
+	# to ensure the camera has its initial position set.
+	call_deferred("_initialize_position")
+
+
+func _initialize_position():
+	if is_instance_valid(_camera):
+		_previous_camera_pos = _camera.global_transform.origin
+		_initialized = true
+		#print("CameraParticlesController Initialized.")
+	else:
+		printerr("CameraParticlesController Error: Camera invalid during deferred init.")
+		set_process(false)
+
+
+func _process(delta: float):
+	# Ensure camera is valid and initialized
+	if not _initialized or not is_instance_valid(_camera):
+		# Keep particles off if camera isn't ready
+		if self.emitting:
+			self.emitting = false
+		if self.gravity != Vector3.ZERO:
+			self.gravity = Vector3.ZERO
+		# Reset offset if camera becomes invalid
+		if self.transform.origin != Vector3.ZERO:
+			self.transform.origin = Vector3.ZERO
+		return
+
+	# --- Calculate Camera Movement ---
+	var current_pos: Vector3 = _camera.global_transform.origin
+	# Vector representing the camera's displacement over the last frame in global space
+	var position_delta_global: Vector3 = current_pos - _previous_camera_pos
+	var camera_speed: float = 0.0
+
+	if delta > 0.0001:  # Avoid division by zero or large spikes on first frame/lag
+		camera_speed = position_delta_global.length() / delta
+
+	# Store current position for the next frame's calculation
+	_previous_camera_pos = current_pos
+
+	# --- Apply Velocity Offset ---
+	# Calculate the desired offset in the opposite direction of the global movement.
+	# Since this script/node is a child of the camera, we need to transform the global
+	# offset direction into the camera's local space before applying it.
+	var global_offset_vector = -position_delta_global * velocity_offset_scale
+	# Transform the global offset vector into the camera's local coordinate system
+	var local_offset_vector = _camera.global_transform.basis.xform_inv(global_offset_vector)
+
+	# Set the local position offset of this CPUParticles node
+	self.transform.origin = local_offset_vector
+
+	# --- Control Emission (based on speed) ---
+	if camera_speed > min_camera_speed_threshold:
+		if not self.emitting:
+			self.emitting = true
+	else:
+		if self.emitting:
+			self.emitting = false
+
 --- Start of ./scenes/camera/orbit_camera.gd ---
 
 # File: scenes/camera/orbit_camera.gd
@@ -2510,7 +2606,7 @@ var bob_amplitude: float = 0.2
 
 # --- FoV Configuration ---
 var _min_fov_deg: float = 40.0
-var _max_fov_deg: float = 100.0
+var _max_fov_deg: float = 80.0
 
 # --- Rotation PID Config --- (Tunable - Initial guesses)
 # Higher Kp = Faster reaction to input changes

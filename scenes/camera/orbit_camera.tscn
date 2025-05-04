@@ -1,10 +1,79 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scenes/camera/orbit_camera.gd" type="Script" id=1]
+[ext_resource path="res://assets/art/effects/particle_quad.tres" type="QuadMesh" id=2]
+[ext_resource path="res://scenes/camera/camera_particles_controller.gd" type="Script" id=3]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.5, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0 )
 
 [node name="OrbitCamera" type="Camera"]
-far = 10000.0
+near = 0.1
+far = 1e+06
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="NearDustParticles" type="CPUParticles" parent="."]
+amount = 64
+lifetime = 3.0
+preprocess = 3.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 50, 50, 100 )
+direction = Vector3( 0, 0, 1 )
+spread = 10.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+color = Color( 0.890196, 0.890196, 0.890196, 1 )
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 5.0
+max_camera_speed_for_effect = 300.0
+velocity_offset_scale = -100.0
+
+[node name="FarDustParticles" type="CPUParticles" parent="."]
+amount = 128
+lifetime = 10.0
+preprocess = 10.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 1000, 1000, 1000 )
+direction = Vector3( 0, 0, 1 )
+spread = 100.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+color = Color( 0.654902, 0.654902, 0.654902, 1 )
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 0.0
+max_camera_speed_for_effect = 10.0
+velocity_offset_scale = -400.0
+
+[node name="VeryFarDustParticles" type="CPUParticles" parent="."]
+amount = 512
+lifetime = 60.0
+preprocess = 60.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 50000, 50000, 50000 )
+direction = Vector3( 0, 0, 1 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+color = Color( 0.537255, 0.537255, 0.537255, 1 )
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 0.0
+max_camera_speed_for_effect = 1.0

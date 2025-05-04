@@ -56,7 +56,7 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		_orbit_pid = PIDControllerScript.new()
 		_approach_pid = PIDControllerScript.new()
 		_move_to_pid = PIDControllerScript.new()
-		print("NavigationSystem: PID Controllers instantiated.")
+		#print("NavigationSystem: PID Controllers instantiated.")
 	else:
 		printerr(
 			"NavigationSystem Error: Failed to load PIDController script! Cannot initialize PIDs."
@@ -71,7 +71,7 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		var pid_i_limit = nav_params.get("orbit_pid_integral_limit", 1000.0)
 		var pid_o_limit = nav_params.get("orbit_pid_output_limit", 75.0)
 		_orbit_pid.initialize(pid_kp, pid_ki, pid_kd, pid_i_limit, pid_o_limit)
-		print("  Orbit PID Initialized (Kp=%.2f, Ki=%.2f, Kd=%.2f)" % [pid_kp, pid_ki, pid_kd])
+		#print("  Orbit PID Initialized (Kp=%.2f, Ki=%.2f, Kd=%.2f)" % [pid_kp, pid_ki, pid_kd])
 	else:
 		printerr(
 			"NavigationSystem Error: _orbit_pid instance is not valid during initialization (Instantiation likely failed)."
@@ -84,12 +84,12 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		var ap_kd = nav_params.get("approach_kd", 1.0)
 		var ap_o_limit = movement_system.max_move_speed
 		_approach_pid.initialize(ap_kp, ap_ki, ap_kd, 1000.0, ap_o_limit)
-		print(
-			(
-				"  Approach PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
-				% [ap_kp, ap_ki, ap_kd]
-			)
-		)
+		#print(
+		#	(
+		#		"  Approach PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
+		#		% [ap_kp, ap_ki, ap_kd]
+		#	)
+		#)
 	else:
 		printerr(
 			"NavigationSystem Error: _approach_pid instance not valid during init (Instantiation likely failed)."
@@ -102,12 +102,12 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 		var mt_kd = nav_params.get("move_to_kd", 1.0)
 		var mt_o_limit = movement_system.max_move_speed
 		_move_to_pid.initialize(mt_kp, mt_ki, mt_kd, 1000.0, mt_o_limit)
-		print(
-			(
-				"  MoveTo PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
-				% [mt_kp, mt_ki, mt_kd]
-			)
-		)
+		#print(
+		#	(
+		#		"  MoveTo PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
+		#		% [mt_kp, mt_ki, mt_kd]
+		#	)
+		#)
 	else:
 		printerr(
 			"NavigationSystem Error: _move_to_pid instance not valid during init (Instantiation likely failed)."
@@ -188,7 +188,7 @@ func set_command_approach(target: Spatial):
 		var current_distance = agent_body.global_transform.origin.distance_to(target_pos)
 
 		if current_distance < (desired_stop_dist + ARRIVAL_DISTANCE_THRESHOLD):
-			print("Agent ", agent_body.name, " already within approach range. Switching to IDLE.")
+			#print("Agent ", agent_body.name, " already within approach range. Switching to IDLE.")
 			EventBus.emit_signal("agent_reached_destination", agent_body)
 			set_command_idle()
 			return
@@ -322,7 +322,7 @@ func update_navigation(delta: float):
 				and agent_body.current_velocity.length_squared() < ARRIVAL_SPEED_THRESHOLD_SQ
 			):
 				if not _current_command.get("signaled_stop", false):
-					print("Agent ", agent_body.name, " reached move_to destination.")
+					#print("Agent ", agent_body.name, " reached move_to destination.")
 					EventBus.emit_signal("agent_reached_destination", agent_body)
 					_current_command["signaled_stop"] = true
 				movement_system.apply_braking(delta)
@@ -361,9 +361,9 @@ func update_navigation(delta: float):
 			# Early Exit Check
 			if distance < (desired_stop_dist + ARRIVAL_DISTANCE_THRESHOLD):
 				if not _current_command.get("signaled_stop", false):
-					print(
-						"Agent ", agent_body.name, " is within approach range. Switching to IDLE."
-					)
+					#print(
+					#	"Agent ", agent_body.name, " is within approach range. Switching to IDLE."
+					#)
 					EventBus.emit_signal("agent_reached_destination", agent_body)
 					_current_command["signaled_stop"] = true
 				set_command_idle()
@@ -411,7 +411,7 @@ func update_navigation(delta: float):
 					and agent_body.current_velocity.length_squared() < ARRIVAL_SPEED_THRESHOLD_SQ
 				):
 					if not _current_command.get("signaled_stop", false):
-						print("Agent ", agent_body.name, " reached approach destination.")
+						#print("Agent ", agent_body.name, " reached approach destination.")
 						EventBus.emit_signal("agent_reached_destination", agent_body)
 						_current_command["signaled_stop"] = true
 					movement_system.apply_braking(delta)
