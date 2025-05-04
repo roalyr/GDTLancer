@@ -43,6 +43,30 @@ shape = SubResource( 3 )
 mesh = SubResource( 2 )
 skeleton = NodePath("../../../..")
 
+[node name="StaticBody4" type="StaticBody" parent="SceneAssets"]
+transform = Transform( 2.77183, 0, 0, 0, 2.77183, 0, 0, 0, 2.77183, 79.2529, -46.9909, 13.1573 )
+
+[node name="CollisionShape" type="CollisionShape" parent="SceneAssets/StaticBody4"]
+shape = SubResource( 3 )
+
+[node name="Model" type="Spatial" parent="SceneAssets/StaticBody4"]
+
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/StaticBody4/Model"]
+mesh = SubResource( 2 )
+skeleton = NodePath("../../../..")
+
+[node name="StaticBody5" type="StaticBody" parent="SceneAssets"]
+transform = Transform( 0.427231, 0, 0, 0, 0.427231, 0, 0, 0, 0.427231, 72.508, -30.9413, 35.929 )
+
+[node name="CollisionShape" type="CollisionShape" parent="SceneAssets/StaticBody5"]
+shape = SubResource( 3 )
+
+[node name="Model" type="Spatial" parent="SceneAssets/StaticBody5"]
+
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/StaticBody5/Model"]
+mesh = SubResource( 2 )
+skeleton = NodePath("../../../..")
+
 [node name="StaticBody2" type="StaticBody" parent="SceneAssets"]
 transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 15, -22.7655, -3.36007, 33.4335 )
 
