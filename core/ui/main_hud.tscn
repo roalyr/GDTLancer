@@ -183,6 +183,7 @@ margin_bottom = 200.0
 mouse_filter = 2
 
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
+visible = false
 anchor_left = 1.0
 anchor_right = 1.0
 margin_left = -470.0
@@ -190,6 +191,7 @@ margin_bottom = 470.0
 mouse_filter = 2
 
 [node name="_PlaceholderMap" type="TextureRect" parent="ScreenControls/TopRightZone"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 10.0
