@@ -47,9 +47,9 @@ const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
 
 # --- Default Simulation Values ---
-const DEFAULT_MAX_MOVE_SPEED = 50.0
-const DEFAULT_ACCELERATION = 10.0
-const DEFAULT_DECELERATION = 15.0
+const DEFAULT_MAX_MOVE_SPEED = 300.0 # m/s
+const DEFAULT_ACCELERATION = 1.0 # NOT m/s^2
+const DEFAULT_DECELERATION = 1.0 # NOT m/s^2
 const DEFAULT_MAX_TURN_SPEED = 2.0
 
 # --- Gameplay / Physics Approximations ---
