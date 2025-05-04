@@ -15,8 +15,8 @@ var zoom_speed: float = 1.0
 # var rotation_speed: float = 0.004 # REMOVED - Replaced by acceleration logic
 var pitch_min: float = -1.55
 var pitch_max: float = 1.55
-var position_smoothing_speed: float = 17.0
-var rotation_smoothing_speed: float = 22.0  # Now affects how fast camera *looks at* target
+var position_smoothing_speed: float = 15.0
+var rotation_smoothing_speed: float = 15.0  # Now affects how fast camera *looks at* target
 var bob_frequency: float = 0.06
 var bob_amplitude: float = 0.06
 

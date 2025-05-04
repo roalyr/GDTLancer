@@ -154,7 +154,7 @@ func command_orbit(target: Spatial):
 		var orbit_clockwise = vec_to_target_local.x > 0.01
 		var target_size = navigation_system._get_target_effective_size(target)
 		var current_dist = global_transform.origin.distance_to(target.global_transform.origin)
-		var min_orbit_dist = target_size * 1.2 + 10.0
+		var min_orbit_dist = target_size + 1.0
 		var captured_orbit_dist = max(current_dist, min_orbit_dist)
 		navigation_system.set_command_orbit(target, captured_orbit_dist, orbit_clockwise)
 	else:
