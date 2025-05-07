@@ -1,9 +1,19 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
 [ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
 [ext_resource path="res://core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://core/agents/components/navigation_system.gd" type="Script" id=4]
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_color = Color( 0.431373, 0.572549, 0.623529, 1 )
+metallic = 0.5
+roughness = 0.5
+
+[sub_resource type="SpatialMaterial" id=3]
+flags_unshaded = true
+
+[sub_resource type="SphereMesh" id=4]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -17,8 +27,60 @@ __meta__ = {
 
 [node name="Phoenix" parent="Model" instance=ExtResource( 2 )]
 
+[node name="Hull joined" parent="Model/Phoenix" index="0"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
+material_override = SubResource( 2 )
+
+[node name="OmniLight" type="OmniLight" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.027317, 9.40779 )
+light_color = Color( 0.215686, 1, 0.890196, 1 )
+light_specular = 3.0
+shadow_enabled = true
+shadow_bias = 0.2
+shadow_reverse_cull_face = true
+omni_range = 18.6615
+omni_attenuation = 0.101532
+
+[node name="MeshInstance" type="MeshInstance" parent="Model/OmniLight"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2118 )
+material_override = SubResource( 3 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+
+[node name="OmniLight2" type="OmniLight" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.47897, 0.027317, 17.0291 )
+light_color = Color( 0.215686, 1, 0.890196, 1 )
+light_specular = 3.0
+shadow_enabled = true
+shadow_bias = 0.2
+shadow_reverse_cull_face = true
+omni_range = 18.6615
+omni_attenuation = 0.101532
+
+[node name="MeshInstance" type="MeshInstance" parent="Model/OmniLight2"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2118 )
+material_override = SubResource( 3 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+
+[node name="OmniLight3" type="OmniLight" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.59038, 0.027317, 17.0291 )
+light_color = Color( 0.215686, 1, 0.890196, 1 )
+light_specular = 3.0
+shadow_enabled = true
+shadow_bias = 0.2
+shadow_reverse_cull_face = true
+omni_range = 18.6615
+omni_attenuation = 0.101532
+
+[node name="MeshInstance" type="MeshInstance" parent="Model/OmniLight3"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2118 )
+material_override = SubResource( 3 )
+cast_shadow = 0
+mesh = SubResource( 4 )
+
 [node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 7.77816, 0, 0, 0, 2.3177, 0, 0, 0, 7.25633, 0, 0, 0 )
+transform = Transform( 18.679, 0, 0, 0, 5.564, 0, 0, 0, 17.447, 0, 0, 0 )
 shape = SubResource( 1 )
 
 [node name="MovementSystem" type="Node" parent="."]
@@ -26,3 +88,5 @@ script = ExtResource( 3 )
 
 [node name="NavigationSystem" type="Node" parent="."]
 script = ExtResource( 4 )
+
+[editable path="Model/Phoenix"]

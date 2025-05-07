@@ -19,7 +19,6 @@ __meta__ = {
 [node name="NearDustParticles" type="CPUParticles" parent="."]
 amount = 64
 lifetime = 3.0
-preprocess = 3.0
 local_coords = false
 mesh = ExtResource( 2 )
 emission_shape = 2
@@ -40,7 +39,6 @@ velocity_offset_scale = -100.0
 [node name="FarDustParticles" type="CPUParticles" parent="."]
 amount = 128
 lifetime = 10.0
-preprocess = 10.0
 local_coords = false
 mesh = ExtResource( 2 )
 emission_shape = 2
@@ -61,7 +59,6 @@ velocity_offset_scale = -400.0
 [node name="VeryFarDustParticles" type="CPUParticles" parent="."]
 amount = 512
 lifetime = 60.0
-preprocess = 60.0
 local_coords = false
 mesh = ExtResource( 2 )
 emission_shape = 2

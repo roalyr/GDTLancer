@@ -61,7 +61,7 @@ const ORBIT_FULL_SPEED_RADIUS = 2000.0
 const MAX_NPCS_DEFAULT = 10
 const SPAWN_INTERVAL_DEFAULT = 2.0
 const TRAFFIC_SPEED_MULT_DEFAULT = 0.2
-const TARGETING_RAY_LENGTH = 1e4
+const TARGETING_RAY_LENGTH = 1e7
 
 --- Start of ./autoload/CoreMechanicsAPI.gd ---
 
@@ -1905,6 +1905,13 @@ func _on_ButtonFlee_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_flee_pressed")
 
+--- Start of ./core/utils/editor_object.gd ---
+
+extends MeshInstance
+
+func _ready():
+	self.hide()
+
 --- Start of ./core/utils/pid_controller.gd ---
 
 # File: core/utils/pid_controller.gd
@@ -2024,7 +2031,6 @@ var _last_tap_time: int = 0
 # Removed _potential_double_click flag
 
 # --- Constants ---
-const DEFAULT_ORBIT_DIST = 3000.0
 const DEFAULT_MOVE_TO_PROJECTION_DIST = 1e6
 const DRAG_THRESHOLD_PX_SQ = 10 * 10  # Squared distance threshold to start drag
 const DOUBLE_CLICK_TIME_MS = 400  # Max milliseconds between taps for double-click
@@ -2606,7 +2612,7 @@ var bob_amplitude: float = 0.2
 
 # --- FoV Configuration ---
 var _min_fov_deg: float = 40.0
-var _max_fov_deg: float = 80.0
+var _max_fov_deg: float = 40.0
 
 # --- Rotation PID Config --- (Tunable - Initial guesses)
 # Higher Kp = Faster reaction to input changes

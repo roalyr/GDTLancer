@@ -22,7 +22,6 @@ var _last_tap_time: int = 0
 # Removed _potential_double_click flag
 
 # --- Constants ---
-const DEFAULT_ORBIT_DIST = 3000.0
 const DEFAULT_MOVE_TO_PROJECTION_DIST = 1e6
 const DRAG_THRESHOLD_PX_SQ = 10 * 10  # Squared distance threshold to start drag
 const DOUBLE_CLICK_TIME_MS = 400  # Max milliseconds between taps for double-click
