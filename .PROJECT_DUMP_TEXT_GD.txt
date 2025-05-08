@@ -2595,12 +2595,12 @@ extends Camera
 
 # --- Configuration ---
 var distance: float = 55.0
-var min_distance_multiplier: float = 2.0
-var max_distance_multiplier: float = 15.0
-var preferred_distance_multiplier: float = 2.0
+var min_distance_multiplier: float = 1.5
+var max_distance_multiplier: float = 30.0
+var preferred_distance_multiplier: float = 2.5
 const MIN_ABSOLUTE_DISTANCE = 1.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
-var zoom_speed: float = 1.0
+var zoom_speed: float = 0.5
 
 # var rotation_speed: float = 0.004 # REMOVED - Replaced by PID logic
 var pitch_min: float = -1.45
@@ -2611,8 +2611,8 @@ var bob_frequency: float = 0.1
 var bob_amplitude: float = 0.2
 
 # --- FoV Configuration ---
-var _min_fov_deg: float = 40.0
-var _max_fov_deg: float = 40.0
+var _min_fov_deg: float = 30.0
+var _max_fov_deg: float = 80.0
 
 # --- Rotation PID Config --- (Tunable - Initial guesses)
 # Higher Kp = Faster reaction to input changes

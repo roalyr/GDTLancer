@@ -6,7 +6,7 @@
 
 [sub_resource type="Gradient" id=1]
 offsets = PoolRealArray( 0, 0.5, 1 )
-colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 0.501961, 1, 1, 1, 0 )
 
 [node name="OrbitCamera" type="Camera"]
 near = 0.1
@@ -17,19 +17,19 @@ __meta__ = {
 }
 
 [node name="NearDustParticles" type="CPUParticles" parent="."]
-amount = 64
+amount = 50
 lifetime = 3.0
 local_coords = false
 mesh = ExtResource( 2 )
 emission_shape = 2
-emission_box_extents = Vector3( 50, 50, 100 )
+emission_box_extents = Vector3( 20, 20, 50 )
 direction = Vector3( 0, 0, 1 )
 spread = 10.0
 gravity = Vector3( 0, 0, 0 )
 initial_velocity = 1.0
 initial_velocity_random = 0.5
 damping = 0.5
-color = Color( 0.890196, 0.890196, 0.890196, 1 )
+scale_amount = 0.9
 color_ramp = SubResource( 1 )
 script = ExtResource( 3 )
 min_camera_speed_threshold = 5.0
@@ -37,24 +37,44 @@ max_camera_speed_for_effect = 300.0
 velocity_offset_scale = -100.0
 
 [node name="FarDustParticles" type="CPUParticles" parent="."]
-amount = 128
+amount = 200
 lifetime = 10.0
 local_coords = false
 mesh = ExtResource( 2 )
 emission_shape = 2
-emission_box_extents = Vector3( 1000, 1000, 1000 )
+emission_box_extents = Vector3( 500, 500, 1000 )
 direction = Vector3( 0, 0, 1 )
 spread = 100.0
 gravity = Vector3( 0, 0, 0 )
 initial_velocity = 1.0
 initial_velocity_random = 0.5
 damping = 0.5
-color = Color( 0.654902, 0.654902, 0.654902, 1 )
+scale_amount = 0.9
 color_ramp = SubResource( 1 )
 script = ExtResource( 3 )
 min_camera_speed_threshold = 0.0
 max_camera_speed_for_effect = 10.0
-velocity_offset_scale = -400.0
+velocity_offset_scale = -300.0
+
+[node name="FarDustParticles2" type="CPUParticles" parent="."]
+amount = 100
+lifetime = 30.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 1500, 1500, 2500 )
+direction = Vector3( 0, 0, 1 )
+spread = 100.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 0.9
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 0.0
+max_camera_speed_for_effect = 10.0
+velocity_offset_scale = -1200.0
 
 [node name="VeryFarDustParticles" type="CPUParticles" parent="."]
 amount = 512
@@ -69,7 +89,7 @@ gravity = Vector3( 0, 0, 0 )
 initial_velocity = 1.0
 initial_velocity_random = 0.5
 damping = 0.5
-color = Color( 0.537255, 0.537255, 0.537255, 1 )
+scale_amount = 1.1
 color_ramp = SubResource( 1 )
 script = ExtResource( 3 )
 min_camera_speed_threshold = 0.0

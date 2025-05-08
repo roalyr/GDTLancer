@@ -4,6 +4,28 @@
 │   │   ├── effects
 │   │   │   ├── particle_dust_material.tres
 │   │   │   └── particle_quad.tres
+│   │   ├── shaders
+│   │   │   ├── solid.gdshader
+│   │   │   ├── star_corona.gdshader
+│   │   │   └── star_surface.gdshader
+│   │   ├── textures
+│   │   │   └── sbs-noise_texture_pack-512x512
+│   │   │       └── normal_maps
+│   │   │           ├── Cloud 1 - 512x512_normal_light.png
+│   │   │           ├── Melt 4 - 512x512_normal_light.png
+│   │   │           ├── Milky 6 - 512x512_normal_light.png
+│   │   │           ├── Turbulence 1 - 512x512_normal_light.png
+│   │   │           ├── Turbulence 1 - 512x512_normal_strong.png
+│   │   │           ├── Turbulent 1 - 512x512_normal_light.png
+│   │   │           ├── Turbulent 2 - 512x512_normal_light.png
+│   │   │           ├── Turbulent 3 - 512x512_normal_light.png
+│   │   │           ├── Vein 1 - 512x512_normal_light.png
+│   │   │           ├── Vein 1 - 512x512_normal_strong.png
+│   │   │           ├── Voronoi 5 - 512x512_normal_light.png
+│   │   │           ├── Voronoi 7 - 512x512_normal_light.png
+│   │   │           ├── Voronoi 8 - 512x512_normal_light.png
+│   │   │           ├── Voronoi 8 - 512x512_normal_strong.png
+│   │   │           └── Voronoi combined - 512x512_normal_light.png
 │   │   └── ui
 │   │       └── controls
 │   │           ├── bracket_autopilot.dxf
@@ -109,6 +131,6 @@
     └── helpers
         └── signal_catcher.gd
 
-30 directories, 80 files
+34 directories, 98 files
 
-30 directories, 80 files
+34 directories, 98 files
