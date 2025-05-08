@@ -1761,6 +1761,7 @@ var _main_camera: Camera = null
 
 # --- Initialization ---
 func _ready():
+	
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 
@@ -2004,6 +2005,16 @@ func set_integral_limit(value: float):
 
 func set_output_limit(value: float):
 	output_limit = abs(value)
+
+--- Start of ./core/utils/rotating_object.gd ---
+
+extends MeshInstance
+
+export var rotation_speed = 0.01
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _physics_process(delta):
+	self.rotate(Vector3(0,1,0), delta * rotation_speed)
 
 --- Start of ./modules/piloting/scripts/player_controller_ship.gd ---
 
@@ -3341,3 +3352,18 @@ func _notification(what):
 		# Expanded instance check
 		if is_instance_valid(current_zone_instance):
 			current_zone_instance.queue_free()
+
+--- Start of ./scenes/main_menu/SettingsRendering.gd ---
+
+extends Control
+
+var _viewport_size = Vector2(1920, 1080)
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	_viewport_size = get_viewport().size
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass

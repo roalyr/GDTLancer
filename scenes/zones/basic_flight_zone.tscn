@@ -1,12 +1,13 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://core/utils/editor_object.gd" type="Script" id=1]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Milky 6 - 512x512_normal_light.png" type="Texture" id=2]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Melt 4 - 512x512_normal_light.png" type="Texture" id=3]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 7 - 512x512.png" type="Texture" id=2]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Melt 5 - 512x512.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=4]
 [ext_resource path="res://assets/art/shaders/star_surface.gdshader" type="Shader" id=5]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Turbulence 1 - 512x512_normal_strong.png" type="Texture" id=6]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=6]
 [ext_resource path="res://assets/art/shaders/star_corona.gdshader" type="Shader" id=7]
+[ext_resource path="res://core/utils/rotating_object.gd" type="Script" id=8]
 
 [sub_resource type="SpatialMaterial" id=10]
 flags_unshaded = true
@@ -21,19 +22,19 @@ radius = 5000.0
 [sub_resource type="ShaderMaterial" id=19]
 shader = ExtResource( 5 )
 shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0.592157, 0.458824, 0.219608, 1 )
-shader_param/surface_color = Color( 0.905882, 0.752941, 0.592157, 1 )
-shader_param/fade_color = Color( 0.909804, 0.87451, 0.8, 1 )
-shader_param/major_phase = 1.045
-shader_param/major_detail_intensity = 2.074
-shader_param/major_detail_level = 0.647
+shader_param/overlay_color = Color( 0.615686, 0.376471, 0.215686, 1 )
+shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
+shader_param/fade_color = Color( 0.909804, 0.784314, 0.662745, 1 )
+shader_param/major_phase = 0.95
+shader_param/major_detail_intensity = 1.0
+shader_param/major_detail_level = 0.5
 shader_param/detail_decay_distance = 50000.0
 shader_param/detail_decay_power = 2.0
-shader_param/major_detail_scale = 2.0
+shader_param/major_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
-shader_param/rim_strength = 1.263
-shader_param/rim_exponent = 0.5
-shader_param/rim_intensity = 1.567
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 0.03
+shader_param/rim_intensity = 10.0
 shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 25.0
 shader_param/scale_power = 1.0
@@ -57,7 +58,7 @@ shader_param/strength_corona = 40.0
 shader_param/exponent_corona = 2.0
 shader_param/exponent_corona_rim = 2.0
 shader_param/corona_floor_power = 5.0
-shader_param/corona_floor = 1.2
+shader_param/corona_floor = 1.293
 shader_param/displacement_power = 0.05
 shader_param/displacement_scale_xz = 1.0
 shader_param/displacement_scale_y = 0.9
@@ -76,26 +77,23 @@ radius = 1000.0
 
 [sub_resource type="ShaderMaterial" id=17]
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/emission = Color( 0, 0, 0, 1 )
-shader_param/normal_strength = 0.5
-shader_param/albedo_detail_strength = 1.017
-shader_param/albedo_detail_power = 1.448
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 0.5
-shader_param/rim_intensity = 0.0
+shader_param/normal_strength = -0.098
+shader_param/albedo_detail_strength = -0.332
+shader_param/albedo_detail_power = 1.0
+shader_param/specular = 0.5
+shader_param/roughness = 0.9
+shader_param/metallic = 0.0
 shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 25.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.25
-shader_param/dither_threshold = 0.5
-shader_param/light_dither_strength = 0.25
-shader_param/posterization_levels = 32.0
 shader_param/uv_blend_sharpness = 10.0
 shader_param/uv_scale = Vector3( 1, 1, 1 )
-shader_param/uv_offset = Vector3( 0.249, 0.342, 0.395 )
-shader_param/normal_scale = 0.905
-shader_param/albedo_detail_scale = 0.414
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/normal_scale = 1.0
+shader_param/albedo_detail_scale = 1.0
 shader_param/texture_normal = ExtResource( 2 )
 shader_param/texture_albedo = ExtResource( 3 )
 
@@ -125,7 +123,7 @@ sun_energy = 0.0
 [sub_resource type="Environment" id=1]
 background_mode = 1
 background_sky = SubResource( 5 )
-background_color = Color( 0.0392157, 0.0392157, 0.0392157, 1 )
+background_color = Color( 0.0784314, 0.0784314, 0.0784314, 1 )
 dof_blur_far_quality = 0
 glow_enabled = true
 glow_intensity = 1.5
@@ -170,9 +168,10 @@ transform = Transform( 5000, 0, 0, 0, 5000, 0, 0, 0, 5000, 0, 0, 0 )
 material_override = SubResource( 19 )
 mesh = SubResource( 2 )
 skeleton = NodePath("../../../../..")
+script = ExtResource( 8 )
 
 [node name="StarCorona" type="MeshInstance" parent="SceneAssets/System_1/Star_1/Model"]
-transform = Transform( 1.47728, 5.96046e-08, 5.96046e-07, 1.19209e-07, 1.47728, 7.15256e-07, 0, -6.85453e-07, 1.47728, 0, 0, 0 )
+transform = Transform( 1.55764, -5.96046e-08, 3.57628e-07, 8.9407e-08, 1.55764, 8.19564e-07, -5.96046e-08, -7.30157e-07, 1.55764, 0, 0, 0 )
 material_override = SubResource( 21 )
 mesh = SubResource( 25 )
 
@@ -194,6 +193,7 @@ transform = Transform( 1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 0, 0 )
 material_override = SubResource( 17 )
 mesh = SubResource( 2 )
 skeleton = NodePath("../../../../../..")
+script = ExtResource( 8 )
 
 [node name="StaticBody3" type="StaticBody" parent="SceneAssets/System_1/Star_1/Planet_a"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -340.234, 61.8828, -1450.97 )
@@ -213,6 +213,7 @@ transform = Transform( 5.96046e-08, -1, 0, 1, -2.23517e-07, 5.96046e-08, 1.63913
 
 [node name="StaticBody" type="StaticBody" parent="SceneAssets/System_1/EntryPointA"]
 transform = Transform( 1, -2.19963e-15, 0, -2.20657e-15, 1, 0, -2.22045e-16, 0, 1, 0, 0, 0 )
+visible = false
 
 [node name="CollisionShape2" type="CollisionShape" parent="SceneAssets/System_1/EntryPointA/StaticBody"]
 transform = Transform( 50, 0, 1.90735e-06, 0, 50, -5.72205e-06, -2.38419e-06, 7.62939e-06, 50, 0, 0, 0 )

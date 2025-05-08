@@ -1,18 +1,10 @@
 shader_type spatial;
 render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
 	vertex_lighting,
-	//use_debanding,
-
-	// Blending and culling.
 	blend_mix,
 	cull_back,
-
 	unshaded,
-	//diffuse_lambert,
 	specular_disabled,
-
-	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
 
@@ -21,11 +13,11 @@ uniform vec4 overlay_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
 uniform vec4 surface_color : hint_color = vec4(1.0, 1.0, 0.0, 1.0);
 uniform vec4 fade_color : hint_color = vec4(1.0, 1.0, 0.0, 1.0);
 
-uniform float major_phase : hint_range(0, 3.14) = 1.1;
+uniform float major_phase : hint_range(0, 3.14) = 0.95;
 
-uniform float major_detail_intensity = 0.5;
-uniform float major_detail_level  = 1.0;
-uniform float detail_decay_distance = 1e12;
+uniform float major_detail_intensity = 1.0;
+uniform float major_detail_level  = 0.5;
+uniform float detail_decay_distance = 50000;
 uniform float detail_decay_power : hint_range(0.0, 5.0, 5e-4) = 2.0;
 
 uniform sampler2D major_detail_noise : hint_albedo;
@@ -35,12 +27,12 @@ uniform float major_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
 uniform float major_detail_flow = 0.01;
 
 uniform float rim_strength = 1.0;
-uniform float rim_exponent = 0.5;
-uniform float rim_intensity = 0.3;
+uniform float rim_exponent = 0.03;
+uniform float rim_intensity = 10;
 
 // Non-linear perspective
 uniform float scale_start = 3e3;
-uniform float scale_end_mul = 30;
+uniform float scale_end_mul = 25;
 uniform float scale_power = 1.0;
 uniform float scale_min = 0.25;
 

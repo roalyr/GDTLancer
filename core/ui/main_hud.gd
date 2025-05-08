@@ -14,6 +14,7 @@ var _main_camera: Camera = null
 
 # --- Initialization ---
 func _ready():
+	
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 

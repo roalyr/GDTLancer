@@ -10,22 +10,68 @@
 │   │   │   └── star_surface.gdshader
 │   │   ├── textures
 │   │   │   └── sbs-noise_texture_pack-512x512
+│   │   │       ├── bw_noise
+│   │   │       │   ├── Cracks 1 - 512x512.png
+│   │   │       │   ├── Cracks 2 - 512x512.png
+│   │   │       │   ├── Cracks 3 - 512x512.png
+│   │   │       │   ├── Craters 14 - 512x512.png
+│   │   │       │   ├── Craters 1 - 512x512.png
+│   │   │       │   ├── Craters 7 - 512x512.png
+│   │   │       │   ├── Craters 9 - 512x512.png
+│   │   │       │   ├── Grainy 11 - 512x512.png
+│   │   │       │   ├── Grainy 12 - 512x512.png
+│   │   │       │   ├── Grainy 13 - 512x512.png
+│   │   │       │   ├── Manifold 11 - 512x512.png
+│   │   │       │   ├── Marble 14 - 512x512.png
+│   │   │       │   ├── Marble 1 - 512x512.png
+│   │   │       │   ├── Marble 3 - 512x512.png
+│   │   │       │   ├── Melt 14 - 512x512.png
+│   │   │       │   ├── Melt 3 - 512x512.png
+│   │   │       │   ├── Melt 5 - 512x512.png
+│   │   │       │   ├── Milky 11 - 512x512.png
+│   │   │       │   ├── Milky 13 - 512x512.png
+│   │   │       │   ├── Milky 6 - 512x512.png
+│   │   │       │   ├── Streak 1 - 512x512.png
+│   │   │       │   ├── Streak 4 - 512x512.png
+│   │   │       │   ├── Super Perlin 11 - 512x512.png
+│   │   │       │   ├── Super Perlin 13 - 512x512.png
+│   │   │       │   ├── Super Perlin 9 - 512x512.png
+│   │   │       │   ├── Turbulence 13 - 512x512.png
+│   │   │       │   ├── Turbulence 3 - 512x512.png
+│   │   │       │   ├── Turbulence 6 - 512x512.png
+│   │   │       │   ├── Turbulence 9 - 512x512.png
+│   │   │       │   └── Voronoi 8 - 512x512.png
 │   │   │       └── normal_maps
-│   │   │           ├── Cloud 1 - 512x512_normal_light.png
-│   │   │           ├── Melt 4 - 512x512_normal_light.png
-│   │   │           ├── Milky 6 - 512x512_normal_light.png
-│   │   │           ├── Turbulence 1 - 512x512_normal_light.png
-│   │   │           ├── Turbulence 1 - 512x512_normal_strong.png
-│   │   │           ├── Turbulent 1 - 512x512_normal_light.png
-│   │   │           ├── Turbulent 2 - 512x512_normal_light.png
-│   │   │           ├── Turbulent 3 - 512x512_normal_light.png
-│   │   │           ├── Vein 1 - 512x512_normal_light.png
-│   │   │           ├── Vein 1 - 512x512_normal_strong.png
-│   │   │           ├── Voronoi 5 - 512x512_normal_light.png
-│   │   │           ├── Voronoi 7 - 512x512_normal_light.png
-│   │   │           ├── Voronoi 8 - 512x512_normal_light.png
-│   │   │           ├── Voronoi 8 - 512x512_normal_strong.png
-│   │   │           └── Voronoi combined - 512x512_normal_light.png
+│   │   │           ├── Cracks 1 - 512x512.png
+│   │   │           ├── Cracks 2 - 512x512.png
+│   │   │           ├── Cracks 3 - 512x512.png
+│   │   │           ├── Craters 14 - 512x512.png
+│   │   │           ├── Craters 1 - 512x512.png
+│   │   │           ├── Craters 7 - 512x512.png
+│   │   │           ├── Craters 9 - 512x512.png
+│   │   │           ├── Grainy 11 - 512x512.png
+│   │   │           ├── Grainy 12 - 512x512.png
+│   │   │           ├── Grainy 13 - 512x512.png
+│   │   │           ├── Manifold 11 - 512x512.png
+│   │   │           ├── Marble 14 - 512x512.png
+│   │   │           ├── Marble 1 - 512x512.png
+│   │   │           ├── Marble 3 - 512x512.png
+│   │   │           ├── Melt 14 - 512x512.png
+│   │   │           ├── Melt 3 - 512x512.png
+│   │   │           ├── Melt 5 - 512x512.png
+│   │   │           ├── Milky 11 - 512x512.png
+│   │   │           ├── Milky 13 - 512x512.png
+│   │   │           ├── Milky 6 - 512x512.png
+│   │   │           ├── Streak 1 - 512x512.png
+│   │   │           ├── Streak 4 - 512x512.png
+│   │   │           ├── Super Perlin 11 - 512x512.png
+│   │   │           ├── Super Perlin 13 - 512x512.png
+│   │   │           ├── Super Perlin 9 - 512x512.png
+│   │   │           ├── Turbulence 13 - 512x512.png
+│   │   │           ├── Turbulence 3 - 512x512.png
+│   │   │           ├── Turbulence 6 - 512x512.png
+│   │   │           ├── Turbulence 9 - 512x512.png
+│   │   │           └── Voronoi 8 - 512x512.png
 │   │   └── ui
 │   │       └── controls
 │   │           ├── bracket_autopilot.dxf
@@ -34,16 +80,21 @@
 │   │           ├── bracket_targeting.png
 │   │           ├── button_approach.dxf
 │   │           ├── button_approach.png
+│   │           ├── button_camera.dxf
+│   │           ├── button_camera.png
 │   │           ├── button_flee.dxf
 │   │           ├── button_flee.png
 │   │           ├── button_free_flight.dxf
 │   │           ├── button_free_flight.png
 │   │           ├── button_info.dxf
 │   │           ├── button_info.png
+│   │           ├── button_interaction.dxf
+│   │           ├── button_interaction.png
 │   │           ├── button_options.dxf
 │   │           ├── button_options.png
 │   │           ├── button_orbit.dxf
 │   │           ├── button_orbit.png
+│   │           ├── button_placeholder.png
 │   │           ├── button_planet.dxf
 │   │           ├── button_planet.png
 │   │           ├── button_ship.dxf
@@ -98,7 +149,8 @@
 │   │   └── main_hud.tscn
 │   └── utils
 │       ├── editor_object.gd
-│       └── pid_controller.gd
+│       ├── pid_controller.gd
+│       └── rotating_object.gd
 ├── default_env.tres
 ├── export_presets.cfg
 ├── Icon.png
@@ -117,7 +169,8 @@
 │   │   ├── main_game_scene.tscn
 │   │   └── world_manager.gd
 │   ├── main_menu
-│   │   └── main_menu.tscn
+│   │   ├── main_menu.tscn
+│   │   └── SettingsRendering.gd
 │   └── zones
 │       └── basic_flight_zone.tscn
 ├── Splash.png
@@ -131,6 +184,6 @@
     └── helpers
         └── signal_catcher.gd
 
-34 directories, 98 files
+35 directories, 150 files
 
-34 directories, 98 files
+35 directories, 150 files
