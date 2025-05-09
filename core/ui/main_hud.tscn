@@ -8,7 +8,7 @@
 [ext_resource path="res://assets/art/ui/controls/button_stop.png" type="Texture" id=6]
 [ext_resource path="res://assets/art/ui/controls/button_free_flight.png" type="Texture" id=7]
 [ext_resource path="res://assets/art/ui/controls/button_options.png" type="Texture" id=8]
-[ext_resource path="res://assets/art/ui/controls/button_placeholder.png" type="Texture" id=9]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=9]
 [ext_resource path="res://assets/art/ui/controls/button_info.png" type="Texture" id=10]
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
@@ -107,14 +107,15 @@ margin_right = 220.0
 texture_normal = ExtResource( 10 )
 expand = true
 
-[node name="SliderControlLeft" type="TextureButton" parent="ScreenControls/BottomLeftZone"]
+[node name="SliderControlLeft" type="VSlider" parent="ScreenControls/BottomLeftZone"]
 anchor_top = 0.5
 anchor_bottom = 0.5
 margin_top = -250.0
 margin_right = 100.0
 margin_bottom = 250.0
-texture_normal = ExtResource( 9 )
-expand = true
+theme = ExtResource( 9 )
+tick_count = 10
+ticks_on_borders = true
 
 [node name="BottomCenterZone" type="Control" parent="ScreenControls"]
 anchor_left = 0.5
@@ -242,16 +243,18 @@ margin_right = -120.0
 texture_normal = ExtResource( 11 )
 expand = true
 
-[node name="SliderControlRight" type="TextureButton" parent="ScreenControls/BottomRightZone"]
+[node name="SliderControlRight" type="VSlider" parent="ScreenControls/BottomRightZone"]
 anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-margin_left = -100.0
-margin_top = -250.0
-margin_bottom = 250.0
-texture_normal = ExtResource( 9 )
-expand = true
+margin_top = 250.0
+margin_right = 100.0
+margin_bottom = 750.0
+rect_rotation = 180.0
+theme = ExtResource( 9 )
+tick_count = 10
+ticks_on_borders = true
 
 [node name="TopLeftZone" type="Control" parent="ScreenControls"]
 visible = false

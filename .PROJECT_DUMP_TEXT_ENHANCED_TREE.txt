@@ -108,7 +108,11 @@
 │   │           ├── button_ui_opacity.dxf
 │   │           ├── button_ui_opacity.png
 │   │           ├── _placeholder_map.png
-│   │           └── slider_horizontal.dxf
+│   │           ├── slider_horizontal.dxf
+│   │           ├── slider_tick.dxf
+│   │           ├── slider_tick.png
+│   │           ├── slider_vert.dxf
+│   │           └── slider_vert.png
 │   ├── data
 │   │   └── templates
 │   │       └── agents
@@ -184,6 +188,6 @@
     └── helpers
         └── signal_catcher.gd
 
-35 directories, 150 files
+35 directories, 154 files
 
-35 directories, 150 files
+35 directories, 154 files
