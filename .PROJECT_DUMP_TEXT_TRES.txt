@@ -60,10 +60,17 @@ alignment_threshold_angle_deg = 45.0
 
 --- Start of ./assets/themes/main_theme.tres ---
 
-[gd_resource type="Theme" load_steps=6 format=2]
+[gd_resource type="Theme" load_steps=8 format=2]
 
 [ext_resource path="res://assets/art/ui/controls/slider_vert.png" type="Texture" id=1]
 [ext_resource path="res://assets/art/ui/controls/slider_tick.png" type="Texture" id=2]
+[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=3]
+
+[sub_resource type="DynamicFont" id=7]
+size = 22
+use_mipmaps = true
+use_filter = true
+font_data = ExtResource( 3 )
 
 [sub_resource type="StyleBoxFlat" id=4]
 bg_color = Color( 0, 0, 0, 0 )
@@ -77,6 +84,7 @@ border_width_right = 50
 border_color = Color( 0, 0, 0, 0 )
 
 [resource]
+Label/fonts/font = SubResource( 7 )
 VSlider/icons/grabber = ExtResource( 1 )
 VSlider/icons/grabber_disabled = ExtResource( 1 )
 VSlider/icons/grabber_highlight = ExtResource( 1 )
