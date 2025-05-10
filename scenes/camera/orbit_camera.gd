@@ -1,14 +1,13 @@
 # File: scenes/camera/orbit_camera.gd
-# Version 1.30 - Refactored rotation smoothing to use PIDController.
-# Requires tuning of PID gains.
+# Version 1.31 - camera zoom UI slider connected
 
 extends Camera
 
 # --- Configuration ---
 var distance: float = 55.0
-var min_distance_multiplier: float = 1.5
+var min_distance_multiplier: float = 3.0
 var max_distance_multiplier: float = 30.0
-var preferred_distance_multiplier: float = 2.5
+var preferred_distance_multiplier: float = min_distance_multiplier
 const MIN_ABSOLUTE_DISTANCE = 1.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
 var zoom_speed: float = 0.5
@@ -53,6 +52,7 @@ var _current_distance: float = 55.0
 var _rotation_input_active: bool = false  # Free flight flag
 var _is_externally_rotating: bool = false  # LMB/Touch drag flag
 var _bob_timer: float = 0.0
+var _is_programmatically_setting_slider: bool = false  # Flag to prevent signal loops
 
 # --- Rotation PID State ---
 var _target_yaw_speed: float = 0.0
@@ -73,6 +73,24 @@ func _ready():
 	_pitch = 0.25
 	set_as_toplevel(true)
 	GlobalRefs.main_camera = self
+
+	# --- Connect signals ---
+	# Connect to EventBus signals
+	if EventBus:
+		if not EventBus.is_connected(
+			"player_camera_zoom_changed", self, "_on_Player_Camera_Zoom_Changed"
+		):
+			var err = EventBus.connect(
+				"player_camera_zoom_changed", self, "_on_Player_Camera_Zoom_Changed"
+			)
+			if err != OK:
+				printerr(
+					"OrbitCamera Error: Failed connect player_camera_zoom_changed signal! Code: ",
+					err
+				)
+
+	else:
+		printerr("OrbitCamera Error: EventBus not available!")
 
 	# --- Instantiate and Initialize PID Controllers ---
 	if PIDControllerScript:
@@ -240,20 +258,36 @@ func _unhandled_input(event):
 		#	_target_pitch_speed = 0.0
 		# Let physics handle damping back to 0 if input stops or mode changes.
 
-	# Zoom Input (Wheel) - Unchanged
 	elif event is InputEventMouseButton and is_instance_valid(_target):
-		var dyn_min_dist = _get_dynamic_min_distance()
-		var dyn_max_dist = _get_dynamic_max_distance()
-		var zoom_factor = 1.0 + (zoom_speed * 0.1)
+		# var dyn_min_dist = _get_dynamic_min_distance() # Already calculated in _set_and_update_zoom_distance
+		# var dyn_max_dist = _get_dynamic_max_distance() # Already calculated in _set_and_update_zoom_distance
+		var zoom_factor = 1.0 + (zoom_speed * 0.1)  # zoom_speed should be a class variable
 		var input_handled = false
+		var new_distance_candidate = _current_distance
+
 		if event.button_index == BUTTON_WHEEL_UP and event.pressed:
-			_current_distance = max(dyn_min_dist, _current_distance / zoom_factor)
+			new_distance_candidate = _current_distance / zoom_factor
 			input_handled = true
 		elif event.button_index == BUTTON_WHEEL_DOWN and event.pressed:
-			_current_distance = min(dyn_max_dist, _current_distance * zoom_factor)
+			new_distance_candidate = _current_distance * zoom_factor
 			input_handled = true
+
 		if input_handled:
+			_set_and_update_zoom_distance(new_distance_candidate, false)
 			get_viewport().set_input_as_handled()
+
+
+# --- Signal handling ---
+# From UI slider
+func _on_Player_Camera_Zoom_Changed(value):
+	if _is_programmatically_setting_slider:  # If we set the slider from code, don't react to its signal
+		return
+
+	var dyn_min_dist = _get_dynamic_min_distance()
+	var dyn_max_dist = _get_dynamic_max_distance()
+	var target_distance = lerp(dyn_min_dist, dyn_max_dist, value / 100)
+
+	_set_and_update_zoom_distance(target_distance, true)
 
 
 # --- Physics Update ---
@@ -357,7 +391,40 @@ func _update_fov():
 	self.fov = lerp(_min_fov_deg, _max_fov_deg, t)
 
 
-# --- Helper functions for dynamic distances --- (Unchanged)
+# --- Helper functions for dynamic distances ---
+func _set_and_update_zoom_distance(new_distance: float, from_slider_event: bool = false):
+	#print(from_slider_event, " ", new_distance)
+	var dyn_min_dist = _get_dynamic_min_distance()
+	var dyn_max_dist = _get_dynamic_max_distance()
+	var _zoom_slider = GlobalRefs.main_hud.get_node(
+		"ScreenControls/CenterLeftZone/SliderControlLeft"
+	)
+
+	# 1. Clamp and set the internal _current_distance
+	_current_distance = clamp(new_distance, dyn_min_dist, dyn_max_dist)
+
+	# 2. If the change didn't come from the slider itself, update the slider's visual position
+	if not from_slider_event and is_instance_valid(_zoom_slider):
+		if abs(dyn_max_dist - dyn_min_dist) > 0.001:  # Avoid division by zero if range is tiny
+			var normalized_value = (
+				100
+				* (_current_distance - dyn_min_dist)
+				/ (dyn_max_dist - dyn_min_dist)
+			)
+
+			_is_programmatically_setting_slider = true  # Set flag before changing slider value
+			_zoom_slider.value = clamp(normalized_value, 0.0, 100.0)  # Ensure slider value is 0-100
+			_is_programmatically_setting_slider = false  # Reset flag
+		elif _current_distance <= dyn_min_dist:  # Handle edge case where range is effectively zero
+			_is_programmatically_setting_slider = true
+			_zoom_slider.value = 0.0
+			_is_programmatically_setting_slider = false
+		else:  # _current_distance >= dyn_max_dist
+			_is_programmatically_setting_slider = true
+			_zoom_slider.value = 100.0
+			_is_programmatically_setting_slider = false
+
+
 func _get_dynamic_min_distance() -> float:
 	if not is_instance_valid(_target):
 		return MIN_ABSOLUTE_DISTANCE

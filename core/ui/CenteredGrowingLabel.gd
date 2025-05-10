@@ -20,6 +20,7 @@ func _enter_tree():
 func _initial_setup_and_recenter():
 	_is_ready_for_recenter = true
 	_recenter_in_parent()
+	self.focus_mode = Control.FOCUS_NONE
 
 func _exit_tree():
 	if is_in_group(AUTO_GROUP_NAME):

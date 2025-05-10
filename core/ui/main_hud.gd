@@ -14,7 +14,8 @@ var _main_camera: Camera = null
 
 # --- Initialization ---
 func _ready():
-	
+	GlobalRefs.set_main_hud(self)
+
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 
@@ -158,3 +159,16 @@ func _on_ButtonApproach_pressed():
 func _on_ButtonFlee_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_flee_pressed")
+
+
+func _on_SliderControlLeft_value_changed(value):
+	# ZOOM camera slider
+	if EventBus:
+		EventBus.emit_signal("player_camera_zoom_changed", value)
+
+
+func _on_SliderControlRight_value_changed(value):
+	# SPEED (maximum) limiter.
+	# This slider is inverted (rotated by 180) for the sake of appearance.
+	if EventBus:
+		EventBus.emit_signal("player_ship_speed_changed", value)

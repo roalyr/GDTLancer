@@ -117,9 +117,13 @@ anchor_bottom = 0.5
 margin_top = -250.0
 margin_right = 100.0
 margin_bottom = 250.0
+focus_mode = 0
 theme = ExtResource( 9 )
 tick_count = 10
 ticks_on_borders = true
+__meta__ = {
+"_editor_description_": "Zoom"
+}
 
 [node name="LabelContainer" type="Control" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 0.5
@@ -373,9 +377,13 @@ margin_top = 250.0
 margin_right = 100.0
 margin_bottom = 750.0
 rect_rotation = 180.0
+focus_mode = 0
 theme = ExtResource( 9 )
 tick_count = 10
 ticks_on_borders = true
+__meta__ = {
+"_editor_description_": "Speed"
+}
 
 [node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/CenterRightZone/SliderControlRight"]
 visible = false
@@ -467,9 +475,11 @@ margin_bottom = -10.0
 texture = ExtResource( 4 )
 expand = true
 
+[connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonManualFlight" to="." method="_on_ButtonFreeFlight_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonApproach" to="." method="_on_ButtonApproach_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
+[connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]

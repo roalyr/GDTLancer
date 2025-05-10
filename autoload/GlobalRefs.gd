@@ -10,18 +10,18 @@ extends Node
 # Other scripts access these directly (e.g., GlobalRefs.player_agent_body)
 # but should ALWAYS check if is_instance_valid() first!
 
-var player_agent_body = null setget set_player_agent_body
+var player_agent_body = null setget set_player_agent_body #KinematicBody, spawned by WM
 var main_camera = null setget set_main_camera
 var world_manager = null setget set_world_manager
 var event_system = null setget set_event_system  # If EventSystem is a Node, not Autoload
 var goal_system = null setget set_goal_system  # If GoalSystem is a Node
 var character_system = null setget set_character_system  # If CharacterSystem is a Node
 var asset_system = null setget set_asset_system  # If AssetSystem is a Node
-# Add other core system node references as needed...
 
+# Add other core system node references as needed...
 var current_zone = null setget set_current_zone  # Reference to the root node of the loaded zone scene
 var agent_container = null setget set_agent_container  # Reference to the node *within* the zone where agents are parented
-
+var main_hud = null setget set_main_hud 
 
 func _ready():
 	print("GlobalRefs Ready.")
@@ -122,6 +122,18 @@ func set_agent_container(new_ref):
 		)
 	else:
 		printerr("GlobalRefs Error: Attempted to set invalid Agent Container reference: ", new_ref)
+
+
+func set_main_hud(new_ref):
+	if new_ref == main_hud:
+		return
+	if new_ref == null or is_instance_valid(new_ref):
+		main_hud = new_ref
+		print(
+			"GlobalRefs: Main HUD reference ", "set to ", new_ref.name if new_ref else "null"
+		)
+	else:
+		printerr("GlobalRefs Error: Attempted to set invalid Main HUD reference: ", new_ref)
 
 # --- Optional: Add simple getter functions if needed ---
 # func get_player() -> KinematicBody:

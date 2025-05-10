@@ -26,9 +26,6 @@ __meta__ = {
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 5 )
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="Model" type="Spatial" parent="."]
 __meta__ = {

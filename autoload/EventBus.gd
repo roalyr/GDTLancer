@@ -33,6 +33,8 @@ signal player_stop_pressed
 signal player_orbit_pressed
 signal player_approach_pressed
 signal player_flee_pressed
+signal player_camera_zoom_changed(value)
+signal player_ship_speed_changed(value)
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance

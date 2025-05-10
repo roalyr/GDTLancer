@@ -31,7 +31,7 @@ func save_game(slot_id: int) -> bool:
 	print("Attempting to save game to slot ", slot_id)
 	var save_data = {}  # Dictionary to hold all save data
 
-	# --- गैदरिंग डाटा (Gathering Data) ---
+	# --- (Gathering Data) ---
 	# 1. Player Data
 	if is_instance_valid(GlobalRefs.player_agent_body):
 		var player_data = {}
@@ -44,6 +44,7 @@ func save_game(slot_id: int) -> bool:
 			GlobalRefs.player_agent_body.global_transform.basis.y,
 			GlobalRefs.player_agent_body.global_transform.basis.z
 		]
+		player_data["position_z"] = GlobalRefs.player_agent_body.global_transform.origin.z
 		save_data["player_state"] = player_data
 	else:
 		printerr("Save Error: Player agent body not valid!")
