@@ -2753,8 +2753,8 @@ var bob_frequency: float = 0.1
 var bob_amplitude: float = 0.2
 
 # --- FoV Configuration ---
-var _min_fov_deg: float = 30.0
-var _max_fov_deg: float = 80.0
+var _min_fov_deg: float = 70.0
+var _max_fov_deg: float = 90.0
 
 # --- Rotation PID Config --- (Tunable - Initial guesses)
 # Higher Kp = Faster reaction to input changes
