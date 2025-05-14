@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=1]
+[ext_resource path="res://assets/art/shaders/star_surface.gdshader" type="Shader" id=2]
+
+[resource]
+shader = ExtResource( 2 )
+shader_param/rim_color = Color( 1, 1, 1, 1 )
+shader_param/overlay_color = Color( 0.615686, 0.376471, 0.215686, 1 )
+shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
+shader_param/fade_color = Color( 0.909804, 0.784314, 0.662745, 1 )
+shader_param/major_phase = 0.95
+shader_param/major_detail_intensity = 1.0
+shader_param/major_detail_level = 0.5
+shader_param/detail_decay_distance = 30000.0
+shader_param/detail_decay_power = 2.0
+shader_param/major_detail_scale = 1.0
+shader_param/major_detail_flow = 0.01
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 0.03
+shader_param/rim_intensity = 10.0
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 25.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/major_detail_noise = ExtResource( 1 )

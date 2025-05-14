@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 1, 0.635294, 0.435294, 1 )
+shader_param/scale = 0.297
+shader_param/flare_distance = 40000.0
+shader_param/flare_size = 3.0
+shader_param/attenuation = 0.749
+shader_param/intensity = 1.0
+shader_param/exponent = 3.0
+shader_param/pulse_factor = 0.9
+shader_param/pulse_rate = 1.0
+shader_param/phase = 0.0
+shader_param/Fcoef = 0.001
