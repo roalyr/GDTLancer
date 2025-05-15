@@ -932,16 +932,20 @@ transform = Transform( 1.55764, -5.96046e-08, 3.57628e-07, 8.9407e-08, 1.55764, 
 material_override = ExtResource( 7 )
 mesh = SubResource( 25 )
 
-[node name="StarHalo" type="MeshInstance" parent="SceneAssets/System_1/Star_1/Model"]
-transform = Transform( 3.3068, 1.43051e-06, 1.19209e-06, 0, 3.3068, 4.76837e-07, -1.19209e-07, -1.19209e-07, 3.3068, 0, 0, 0 )
+[node name="ModelAdditional" type="Spatial" parent="SceneAssets/System_1/Star_1"]
+transform = Transform( 1, 6.98492e-09, 2.98023e-08, 1.07102e-08, 1, -1.58325e-08, 2.98023e-08, 1.6531e-08, 1, 0, 0, 0 )
+
+[node name="Star_sprite_square_wide" parent="SceneAssets/System_1/Star_1/ModelAdditional" instance=ExtResource( 6 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SceneAssets/System_1/Star_1/ModelAdditional/Star_sprite_square_wide" index="0"]
+material_override = ExtResource( 9 )
+
+[node name="StarHalo" type="MeshInstance" parent="SceneAssets/System_1/Star_1/ModelAdditional"]
+transform = Transform( 15346.5, 6148.67, -226.985, -6095.09, 15108.6, -2819.9, -841.251, 2701.05, 16290.2, 0, 0, 0 )
 material_override = SubResource( 27 )
 mesh = SubResource( 28 )
-
-[node name="Star_sprite_square_wide" parent="SceneAssets/System_1/Star_1/Model" instance=ExtResource( 6 )]
-transform = Transform( 3, 5.45697e-08, 4.96309e-16, -5.45697e-08, 3, 2.72849e-08, -3.97047e-23, -2.72849e-08, 3, 0, 0, 0 )
-
-[node name="Plane" parent="SceneAssets/System_1/Star_1/Model/Star_sprite_square_wide" index="0"]
-material_override = ExtResource( 9 )
+skeleton = NodePath("../../Model")
 
 [node name="OmniLight" type="OmniLight" parent="SceneAssets/System_1/Star_1"]
 light_color = Color( 0.901961, 0.796078, 0.564706, 1 )
@@ -1005,7 +1009,8 @@ transform = Transform( 277876, 80739.2, -187382, -105401, 327889, -15022.2, 1747
 material_override = ExtResource( 11 )
 
 [node name="Nebula_transparent1" parent="SceneAssets/nebula_1" index="1"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.146, 0 )
 material_override = ExtResource( 12 )
 
-[editable path="SceneAssets/System_1/Star_1/Model/Star_sprite_square_wide"]
+[editable path="SceneAssets/System_1/Star_1/ModelAdditional/Star_sprite_square_wide"]
 [editable path="SceneAssets/nebula_1"]

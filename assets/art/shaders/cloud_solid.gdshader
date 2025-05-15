@@ -38,7 +38,9 @@ uniform float normal_intensity = 1.0;
 uniform float normal_detail_power = 1.0;
 uniform float normal_detail_strength = 0.1;
 
+uniform float rim_strength = 1.0;
 uniform float rim_factor = 1.0;
+uniform float rim_normal_detail_factor = 1.0;
 uniform float rim_exponent = 1.0;
 
 uniform float fade_distance = 1e5;
@@ -116,20 +118,15 @@ void fragment()
 	vec3 nm_detail_minor_noise_normalized = normalize(nm_detail_minor_noise.rgb * 2.0 - 1.0);
 	vec3 nm_normal_detail_view = sign(normal_intensity)*normalize(mat3(T, B, normal_intensity*N) * nm_detail_minor_noise_normalized);
 
-	// Calculate the dot product between the normal and view direction.
-	float dt = clamp(dot(NORMAL, VIEW), 1e-6, 1.0);
-	float dt_normal_detail = clamp(dot(nm_normal_detail_view, VIEW), 1e-6, 1.0);
+// Calculate the dot product between the normal and view direction.
+	float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-6, 1.0);
+	float dt_normal_detail = clamp(abs(dot(nm_normal_detail_view, VIEW)), 1e-6, 1.0);
 
 	// Attenuate the dot product.
 	float rim_normal_detail = clamp((dt_normal_detail), 1e-6, 1.0);
-	float rim_color = clamp(pow(dt,rim_exponent)*rim_factor, 1e-6, 1.0);
+	float rim = clamp(pow(dt,rim_exponent), 1e-6, 1.0);
 
-	// Calculate the luminosity by taking the dot product of the RGB color and the weights
-	// COLOR.rgb extracts the Red, Green, and Blue components from the vec4 COLOR attribute
 	float luminosity = dot(COLOR.rgb, vec3(lum_weight_r, lum_weight_g, lum_weight_b));
-
-	// It's good practice to ensure luminosity isn't negative before using pow(),
-	// although vertex colors are typically 0.0-1.0.
 	luminosity = max(luminosity, 0.0);
 
 	// Now use this calculated luminosity value in your original formula
@@ -139,13 +136,15 @@ void fragment()
 	}
 	
 	ALBEDO = albedo_strength * albedo.rgb * COLOR.rgb;
-	ALBEDO += (1.0 - rim_color) * albedo_rim.rgb;
 	
 	// Emulate normal map
-	ALBEDO *= 1.0 - pow((1.0-rim_normal_detail) * normal_detail_power, rim_factor)
-		* normal_detail_strength
-		;
+	float normal_mask = (1.0 - pow((1.0-rim_normal_detail) * normal_detail_power, rim_normal_detail_factor));
+	ALBEDO += normal_mask * normal_detail_strength;
 
+	// Apply rim
+	float rim_mask = pow((1.0 - rim)*rim, rim_factor);
+	ALBEDO += rim_strength * rim_mask * albedo_rim.rgb;
+	
 	// Apply vertex mask
 	ALBEDO *= vertex_mask;
 	

@@ -1,22 +1,40 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=2]
 
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Melt 3 - 512x512.png" type="Texture" id=1]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=1]
 [ext_resource path="res://assets/art/shaders/cloud_transparent.gdshader" type="Shader" id=2]
 
 [resource]
 shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.12549, 0, 0, 1 )
-shader_param/albedo_out = Color( 0.0313726, 0, 0.27451, 1 )
-shader_param/normal_detail_factor = 1.313
-shader_param/normal_detail_power = 2.336
-shader_param/normal_detail_clamp = 15.0
-shader_param/normal_detail_rim_strength = 1.18
-shader_param/normal_detail_rim_exponent = 1.457
-shader_param/normal_detail_uv1_scale = 0.635
-shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
-shader_param/out_rim_strength = 0.998
-shader_param/out_rim_exponent = 1.119
-shader_param/fade_albedo_near = 500000.0
-shader_param/fog_power = 1.0
+shader_param/vertex_mask_power = 1.0
+shader_param/vertex_mask_overlay = 0.0
+shader_param/albedo_strength = 1.0
+shader_param/lum_weight_r = 1.0
+shader_param/lum_weight_g = 1.0
+shader_param/lum_weight_b = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 1.0
+shader_param/albedo = Color( 0.32549, 0.0980392, 0, 1 )
+shader_param/albedo_rim = Color( 0, 0.458824, 0.447059, 1 )
+shader_param/albedo_ambient = Color( 0, 0, 0, 1 )
+shader_param/normal_intensity = -1.0
+shader_param/normal_detail_power = 1.2
+shader_param/normal_detail_factor = 0.034
+shader_param/normal_strength = 1.148
+shader_param/normal_detail_clamp = 0.141
+shader_param/rim_factor = 1.0
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 5.0
+shader_param/fade_distance = 500000.0
+shader_param/fade_power = 2.0
 shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_minor_noise = ExtResource( 1 )
+shader_param/normal_detail_uv1_scale = -2.555
+shader_param/normal_detail_uv1_offset = Vector3( 1.136, 0.214, -0.719 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = ExtResource( 1 )
