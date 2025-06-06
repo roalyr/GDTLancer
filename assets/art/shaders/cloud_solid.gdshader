@@ -31,6 +31,7 @@ uniform float color_multiplier_g = 1.0;
 uniform float color_multiplier_b = 1.0;
 
 uniform vec4 albedo : hint_color;
+uniform vec4 albedo_near : hint_color;
 uniform vec4 albedo_ambient : hint_color;
 uniform vec4 albedo_rim : hint_color;
 
@@ -162,6 +163,8 @@ void fragment()
 	float dist = length(VERTEX);
 	float fade = pow(clamp(smoothstep(0.0, fade_distance, dist), 1e-6, 1.0), fade_power); // fades in
 	vec3 current = ALBEDO;
-	ALBEDO = (1.0-fade) * albedo_ambient.rgb + fade * current;
+	ALBEDO = (1.0-fade) * (albedo_near.rgb * vertex_mask) 
+		+ (1.0-fade) * (albedo_ambient.rgb * (1.0 - vertex_mask)) 
+		+ fade * current;
 
 }

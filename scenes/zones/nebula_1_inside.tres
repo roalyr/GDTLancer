@@ -1,0 +1,30 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/cloud_solid_inside.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/vertex_mask_power = 1.0
+shader_param/vertex_mask_overlay = 0.0
+shader_param/albedo_strength = 1.0
+shader_param/lum_weight_r = 1.0
+shader_param/lum_weight_g = 1.0
+shader_param/lum_weight_b = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 1.0
+shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/albedo_near = Color( 0.027451, 0.0862745, 0.141176, 1 )
+shader_param/albedo_ambient = Color( 0.0313726, 0, 0.0431373, 1 )
+shader_param/albedo_far = Color( 0.454902, 0.0509804, 0.603922, 1 )
+shader_param/fade_distance = 100000.0
+shader_param/fade_distance_far = 500000.0
+shader_param/fade_power = 2.0
+shader_param/rim_exponent = 0.5
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
