@@ -1352,6 +1352,11 @@ func _initialize_pids(nav_params: Dictionary):
 	_pid_approach = PIDControllerScript.new()
 	_pid_move_to = PIDControllerScript.new()
 
+	# FIX: Add the created nodes as children to ensure they get freed.
+	add_child(_pid_orbit)
+	add_child(_pid_approach)
+	add_child(_pid_move_to)
+
 	var o_limit = movement_system.max_move_speed
 	_pid_orbit.initialize(
 		nav_params.get("orbit_kp", 0.5),
@@ -1390,6 +1395,8 @@ func _initialize_command_handlers():
 	}
 
 	for handler_script in _command_handlers.values():
+		# FIX: Add the created nodes as children to ensure they get freed.
+		add_child(handler_script)
 		if handler_script.has_method("initialize"):
 			handler_script.initialize(self)
 

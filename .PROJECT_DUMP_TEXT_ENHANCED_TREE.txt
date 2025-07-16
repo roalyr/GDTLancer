@@ -230,9 +230,18 @@
     │   ├── test_event_bus.gd
     │   ├── test_game_state_manager.gd
     │   └── test_global_refs.gd
+    ├── core
+    │   ├── agents
+    │   │   └── components
+    │   │       ├── test_movement_system.gd
+    │   │       └── test_navigation_system.gd
+    │   └── utils
+    │       └── test_pid_controller.gd
     └── helpers
-        └── signal_catcher.gd
+        ├── mock_event_bus.gd
+        ├── signal_catcher.gd
+        └── test_agent_body.gd
 
-43 directories, 191 files
+47 directories, 196 files
 
-43 directories, 191 files
+47 directories, 196 files
