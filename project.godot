@@ -30,6 +30,11 @@ _global_script_classes=[ {
 "path": "res://addons/gut/test.gd"
 }, {
 "base": "Node",
+"class": "InputState",
+"language": "GDScript",
+"path": "res://modules/piloting/scripts/player_input_states/state_base.gd"
+}, {
+"base": "Node",
 "class": "PIDController",
 "language": "GDScript",
 "path": "res://core/utils/pid_controller.gd"
@@ -39,6 +44,7 @@ _global_script_class_icons={
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
 "GutHookScript": "",
 "GutTest": "",
+"InputState": "",
 "PIDController": ""
 }
 
