@@ -24,7 +24,9 @@ var _selected_target: Spatial = null setget _set_selected_target
 # --- Preload States ---
 const StateBase = preload("res://modules/piloting/scripts/player_input_states/state_base.gd")
 const StateDefault = preload("res://modules/piloting/scripts/player_input_states/state_default.gd")
-const StateFreeFlight = preload("res://modules/piloting/scripts/player_input_states/state_free_flight.gd")
+const StateFreeFlight = preload(
+	"res://modules/piloting/scripts/player_input_states/state_free_flight.gd"
+)
 
 
 func _ready():
@@ -41,19 +43,19 @@ func _ready():
 		set_process(false)
 		return
 
-	_states = {
-		"default": StateDefault.new(),
-		"free_flight": StateFreeFlight.new()
-	}
-	
+	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
+
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
 
 
 func _deferred_ready_setup():
-	if not is_instance_valid(GlobalRefs.main_hud): yield(get_tree().create_timer(0.1), "timeout")
-	_speed_slider = GlobalRefs.main_hud.get_node_or_null("ScreenControls/CenterRightZone/SliderControlRight")
-	
+	if not is_instance_valid(GlobalRefs.main_hud):
+		yield(get_tree().create_timer(0.1), "timeout")
+	_speed_slider = GlobalRefs.main_hud.get_node_or_null(
+		"ScreenControls/CenterRightZone/SliderControlRight"
+	)
+
 	template_max_speed_actual = movement_system.max_move_speed
 	current_target_speed_normalized = 1.0
 	_update_agent_speed_cap_and_slider_visuals()
@@ -72,7 +74,7 @@ func _get_camera_reference():
 func _change_state(new_state_name: String):
 	if _current_input_state and _current_input_state.has_method("exit"):
 		_current_input_state.exit()
-	
+
 	if _states.has(new_state_name):
 		_current_input_state = _states[new_state_name]
 		if _current_input_state.has_method("enter"):
@@ -93,21 +95,24 @@ func _unhandled_input(event: InputEvent):
 		_change_state(new_state)
 		get_viewport().set_input_as_handled()
 		return
-		
+
 	if Input.is_action_pressed("command_speed_up"):
 		var change = KEY_SPEED_INCREMENT_NORMALIZED * event.get_action_strength("command_speed_up")
 		current_target_speed_normalized = clamp(current_target_speed_normalized + change, 0.0, 1.0)
 		_update_agent_speed_cap_and_slider_visuals()
 		get_viewport().set_input_as_handled()
 		return
-		
+
 	if Input.is_action_pressed("command_speed_down"):
-		var change = KEY_SPEED_INCREMENT_NORMALIZED * event.get_action_strength("command_speed_down")
+		var change = (
+			KEY_SPEED_INCREMENT_NORMALIZED
+			* event.get_action_strength("command_speed_down")
+		)
 		current_target_speed_normalized = clamp(current_target_speed_normalized - change, 0.0, 1.0)
 		_update_agent_speed_cap_and_slider_visuals()
 		get_viewport().set_input_as_handled()
 		return
-	
+
 	if Input.is_action_just_pressed("command_stop"):
 		_issue_stop_command()
 		get_viewport().set_input_as_handled()
@@ -122,16 +127,20 @@ func _unhandled_input(event: InputEvent):
 func _update_target_under_cursor():
 	_target_under_cursor = _raycast_for_target(get_viewport().get_mouse_position())
 
+
 func _set_selected_target(new_target: Spatial):
-	if _selected_target == new_target: return
+	if _selected_target == new_target:
+		return
 	_selected_target = new_target
 	if is_instance_valid(_selected_target):
 		EventBus.emit_signal("player_target_selected", _selected_target)
 	else:
 		EventBus.emit_signal("player_target_deselected")
 
+
 func _handle_single_click(_click_pos: Vector2):
 	self._selected_target = _target_under_cursor
+
 
 func _handle_double_click(click_pos: Vector2):
 	if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
@@ -140,24 +149,30 @@ func _handle_double_click(click_pos: Vector2):
 		var target_point = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
 		agent_script.command_move_to(target_point)
 
+
 func _issue_stop_command():
-	if not is_instance_valid(agent_script): return
+	if not is_instance_valid(agent_script):
+		return
 	agent_script.command_stop()
 	if _current_input_state is StateFreeFlight:
 		_change_state("default")
 
+
 func _update_agent_speed_cap_and_slider_visuals():
-	if not is_instance_valid(movement_system): return
+	if not is_instance_valid(movement_system):
+		return
 	var new_cap = lerp(0.0, template_max_speed_actual, current_target_speed_normalized)
 	movement_system.max_move_speed = new_cap
-	
+
 	if is_instance_valid(_speed_slider):
 		var slider_val = 100.0 - (current_target_speed_normalized * 100.0)
 		if not is_equal_approx(_speed_slider.value, slider_val):
 			_speed_slider.value = slider_val
 
+
 func _raycast_for_target(screen_pos: Vector2) -> Spatial:
-	if not is_instance_valid(agent_body) or not is_instance_valid(_main_camera): return null
+	if not is_instance_valid(agent_body) or not is_instance_valid(_main_camera):
+		return null
 	var ray_origin = _main_camera.project_ray_origin(screen_pos)
 	var ray_normal = _main_camera.project_ray_normal(screen_pos)
 	var ray_end = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
@@ -172,16 +187,30 @@ func _on_Player_Free_Flight_Toggled():
 	var new_state = "default" if _current_input_state is StateFreeFlight else "free_flight"
 	_change_state(new_state)
 
-func _on_Player_Stop_Pressed(): _issue_stop_command()
+
+func _on_Player_Stop_Pressed():
+	_issue_stop_command()
+
+
 func _on_Player_Orbit_Pressed():
-	if is_instance_valid(_selected_target): agent_script.command_orbit(_selected_target)
+	if is_instance_valid(_selected_target):
+		agent_script.command_orbit(_selected_target)
+
+
 func _on_Player_Approach_Pressed():
-	if is_instance_valid(_selected_target): agent_script.command_approach(_selected_target)
+	if is_instance_valid(_selected_target):
+		agent_script.command_approach(_selected_target)
+
+
 func _on_Player_Flee_Pressed():
-	if is_instance_valid(_selected_target): agent_script.command_flee(_selected_target)
+	if is_instance_valid(_selected_target):
+		agent_script.command_flee(_selected_target)
+
+
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_target_speed_normalized = (100.0 - slider_ui_value) / 100.0
 	_update_agent_speed_cap_and_slider_visuals()
+
 
 # --- Connections & Cleanup ---
 func _connect_eventbus_signals():
@@ -190,12 +219,19 @@ func _connect_eventbus_signals():
 	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
 	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 	EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
-	EventBus.connect("player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD")
+	EventBus.connect(
+		"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
+	)
+
 
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
-		if EventBus.is_connected("player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"):
-			EventBus.disconnect("player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled")
+		if EventBus.is_connected(
+			"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
+		):
+			EventBus.disconnect(
+				"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
+			)
 		if EventBus.is_connected("player_stop_pressed", self, "_on_Player_Stop_Pressed"):
 			EventBus.disconnect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
 		if EventBus.is_connected("player_orbit_pressed", self, "_on_Player_Orbit_Pressed"):
@@ -204,5 +240,9 @@ func _notification(what):
 			EventBus.disconnect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 		if EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
 			EventBus.disconnect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
-		if EventBus.is_connected("player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"):
-			EventBus.disconnect("player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD")
+		if EventBus.is_connected(
+			"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
+		):
+			EventBus.disconnect(
+				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
+			)

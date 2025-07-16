@@ -53,34 +53,46 @@ func _initialize_pids(nav_params: Dictionary):
 	if not PIDControllerScript:
 		printerr("NavigationSystem Error: Failed to load PIDController script!")
 		return
-		
+
 	_pid_orbit = PIDControllerScript.new()
 	_pid_approach = PIDControllerScript.new()
 	_pid_move_to = PIDControllerScript.new()
 
 	var o_limit = movement_system.max_move_speed
 	_pid_orbit.initialize(
-		nav_params.get("orbit_kp", 0.5), nav_params.get("orbit_ki", 0.001), nav_params.get("orbit_kd", 1.0), 1000.0, 75.0
+		nav_params.get("orbit_kp", 0.5),
+		nav_params.get("orbit_ki", 0.001),
+		nav_params.get("orbit_kd", 1.0),
+		1000.0,
+		75.0
 	)
 	_pid_approach.initialize(
-		nav_params.get("approach_kp", 0.5), nav_params.get("approach_ki", 0.001), nav_params.get("approach_kd", 1.0), 1000.0, o_limit
+		nav_params.get("approach_kp", 0.5),
+		nav_params.get("approach_ki", 0.001),
+		nav_params.get("approach_kd", 1.0),
+		1000.0,
+		o_limit
 	)
 	_pid_move_to.initialize(
-		nav_params.get("move_to_kp", 0.5), nav_params.get("move_to_ki", 0.001), nav_params.get("move_to_kd", 1.0), 1000.0, o_limit
+		nav_params.get("move_to_kp", 0.5),
+		nav_params.get("move_to_ki", 0.001),
+		nav_params.get("move_to_kd", 1.0),
+		1000.0,
+		o_limit
 	)
 
 
 func _initialize_command_handlers():
 	var command_path = "res://core/agents/components/navigation_system/"
 	_command_handlers = {
-		CommandType.IDLE:           load(command_path + "command_idle.gd").new(),
-		CommandType.STOPPING:       load(command_path + "command_stop.gd").new(),
-		CommandType.MOVE_TO:        load(command_path + "command_move_to.gd").new(),
+		CommandType.IDLE: load(command_path + "command_idle.gd").new(),
+		CommandType.STOPPING: load(command_path + "command_stop.gd").new(),
+		CommandType.MOVE_TO: load(command_path + "command_move_to.gd").new(),
 		CommandType.MOVE_DIRECTION: load(command_path + "command_move_direction.gd").new(),
-		CommandType.APPROACH:       load(command_path + "command_approach.gd").new(),
-		CommandType.ORBIT:          load(command_path + "command_orbit.gd").new(),
-		CommandType.FLEE:           load(command_path + "command_flee.gd").new(),
-		CommandType.ALIGN_TO:       load(command_path + "command_align_to.gd").new(),
+		CommandType.APPROACH: load(command_path + "command_approach.gd").new(),
+		CommandType.ORBIT: load(command_path + "command_orbit.gd").new(),
+		CommandType.FLEE: load(command_path + "command_flee.gd").new(),
+		CommandType.ALIGN_TO: load(command_path + "command_align_to.gd").new(),
 	}
 
 	for handler_script in _command_handlers.values():
@@ -92,17 +104,26 @@ func _initialize_command_handlers():
 func set_command_idle():
 	_current_command = {"type": CommandType.IDLE}
 
+
 func set_command_stopping():
 	_current_command = {"type": CommandType.STOPPING}
-	if is_instance_valid(_pid_orbit): _pid_orbit.reset()
-	if is_instance_valid(_pid_approach): _pid_approach.reset()
-	if is_instance_valid(_pid_move_to): _pid_move_to.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
+
 
 func set_command_move_to(position: Vector3):
 	_current_command = {"type": CommandType.MOVE_TO, "target_pos": position}
-	if is_instance_valid(_pid_orbit): _pid_orbit.reset()
-	if is_instance_valid(_pid_approach): _pid_approach.reset()
-	if is_instance_valid(_pid_move_to): _pid_move_to.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
+
 
 func set_command_move_direction(direction: Vector3):
 	if direction.length_squared() < 0.001:
@@ -110,23 +131,37 @@ func set_command_move_direction(direction: Vector3):
 		return
 	_current_command = {"type": CommandType.MOVE_DIRECTION, "target_dir": direction.normalized()}
 
+
 func set_command_approach(target: Spatial):
 	if not is_instance_valid(target):
 		set_command_stopping()
 		return
 	_current_command = {"type": CommandType.APPROACH, "target_node": target}
-	if is_instance_valid(_pid_orbit): _pid_orbit.reset()
-	if is_instance_valid(_pid_approach): _pid_approach.reset()
-	if is_instance_valid(_pid_move_to): _pid_move_to.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
+
 
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 	if not is_instance_valid(target):
 		set_command_stopping()
 		return
-	_current_command = {"type": CommandType.ORBIT, "target_node": target, "distance": distance, "clockwise": clockwise}
-	if is_instance_valid(_pid_orbit): _pid_orbit.reset()
-	if is_instance_valid(_pid_approach): _pid_approach.reset()
-	if is_instance_valid(_pid_move_to): _pid_move_to.reset()
+	_current_command = {
+		"type": CommandType.ORBIT,
+		"target_node": target,
+		"distance": distance,
+		"clockwise": clockwise
+	}
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
+
 
 func set_command_flee(target: Spatial):
 	if not is_instance_valid(target):
@@ -134,11 +169,13 @@ func set_command_flee(target: Spatial):
 		return
 	_current_command = {"type": CommandType.FLEE, "target_node": target}
 
+
 func set_command_align_to(direction: Vector3):
 	if direction.length_squared() < 0.001:
 		set_command_idle()
 		return
 	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
+
 
 # --- Main Update Logic ---
 func update_navigation(delta: float):
@@ -163,19 +200,29 @@ func update_navigation(delta: float):
 
 # --- PID Correction & Helper Functions (Unchanged) ---
 func apply_orbit_pid_correction(delta: float):
-	if _current_command.get("type") != CommandType.ORBIT: return
-	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system) or not is_instance_valid(_pid_orbit): return
+	if _current_command.get("type") != CommandType.ORBIT:
+		return
+	if (
+		not is_instance_valid(agent_body)
+		or not is_instance_valid(movement_system)
+		or not is_instance_valid(_pid_orbit)
+	):
+		return
 
 	var target_node = _current_command.get("target_node", null)
 	if is_instance_valid(target_node):
 		var desired_orbit_dist = _current_command.get("distance", 100.0)
-		var vector_to_target = target_node.global_transform.origin - agent_body.global_transform.origin
+		var vector_to_target = (
+			target_node.global_transform.origin
+			- agent_body.global_transform.origin
+		)
 		var current_distance = vector_to_target.length()
-		if current_distance < 0.01: return
+		if current_distance < 0.01:
+			return
 
 		var distance_error = current_distance - desired_orbit_dist
 		var pid_output = _pid_orbit.update(distance_error, delta)
-		
+
 		var close_orbit_threshold = APPROACH_MIN_DISTANCE * CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
 		if distance_error < 0 and desired_orbit_dist < close_orbit_threshold:
 			var max_outward_push_speed = movement_system.max_move_speed * 0.05
@@ -189,7 +236,7 @@ func apply_orbit_pid_correction(delta: float):
 func _get_target_effective_size(target_node: Spatial) -> float:
 	var calculated_size = 1.0
 	var default_radius = 10.0
-	
+
 	if not is_instance_valid(target_node):
 		return default_radius
 
@@ -210,7 +257,7 @@ func _get_target_effective_size(target_node: Spatial) -> float:
 					first_visual_found = true
 				else:
 					combined_aabb = combined_aabb.merge(child_global_aabb)
-		
+
 		if first_visual_found:
 			var longest_axis_size = combined_aabb.get_longest_axis_size()
 			calculated_size = longest_axis_size / 2.0

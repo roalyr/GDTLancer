@@ -47,13 +47,13 @@ const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
 
 # --- Default Simulation Values ---
-const DEFAULT_MAX_MOVE_SPEED = 300.0 # m/s
-const DEFAULT_ACCELERATION = 0.5 # NOT m/s^2
-const DEFAULT_DECELERATION = 0.5 # NOT m/s^2
+const DEFAULT_MAX_MOVE_SPEED = 300.0  # m/s
+const DEFAULT_ACCELERATION = 0.5  # NOT m/s^2
+const DEFAULT_DECELERATION = 0.5  # NOT m/s^2
 const DEFAULT_MAX_TURN_SPEED = 0.75
 
 # --- Gameplay / Physics Approximations ---
-const ORBIT_FULL_SPEED_RADIUS = 2000.0 
+const ORBIT_FULL_SPEED_RADIUS = 2000.0
 
 # --- System Defaults (Examples - Used by placeholder systems) ---
 const MAX_NPCS_DEFAULT = 10

@@ -3,16 +3,23 @@
 
 extends "res://modules/piloting/scripts/player_input_states/state_base.gd"
 
+
 func enter(controller: Node):
 	.enter(controller)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	if is_instance_valid(_controller._main_camera) and _controller._main_camera.has_method("set_rotation_input_active"):
+	if (
+		is_instance_valid(_controller._main_camera)
+		and _controller._main_camera.has_method("set_rotation_input_active")
+	):
 		_controller._main_camera.set_rotation_input_active(true)
 
 
 func exit():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	if is_instance_valid(_controller._main_camera) and _controller._main_camera.has_method("set_rotation_input_active"):
+	if (
+		is_instance_valid(_controller._main_camera)
+		and _controller._main_camera.has_method("set_rotation_input_active")
+	):
 		_controller._main_camera.set_rotation_input_active(false)
 
 

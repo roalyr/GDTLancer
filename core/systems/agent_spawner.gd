@@ -5,6 +5,7 @@ extends Node
 
 var _player_agent_body: KinematicBody = null
 
+
 func _ready():
 	# Listen for the zone_loaded signal to know when it's safe to spawn.
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
@@ -33,7 +34,9 @@ func spawn_player():
 	if is_instance_valid(GlobalRefs.current_zone):
 		var entry_node = null
 		if Constants.ENTRY_POINT_NAMES.size() > 0:
-			entry_node = GlobalRefs.current_zone.find_node(Constants.ENTRY_POINT_NAMES[0], true, false)
+			entry_node = GlobalRefs.current_zone.find_node(
+				Constants.ENTRY_POINT_NAMES[0], true, false
+			)
 		if entry_node is Spatial:
 			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
 
@@ -50,7 +53,12 @@ func spawn_player():
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
 
 
-func spawn_agent(agent_scene_path: String, position: Vector3, agent_template: Resource, overrides: Dictionary = {}) -> KinematicBody:
+func spawn_agent(
+	agent_scene_path: String,
+	position: Vector3,
+	agent_template: Resource,
+	overrides: Dictionary = {}
+) -> KinematicBody:
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
 		printerr("AgentSpawner Spawn Error: Invalid GlobalRefs.agent_container.")
@@ -58,12 +66,12 @@ func spawn_agent(agent_scene_path: String, position: Vector3, agent_template: Re
 	if not agent_template is AgentTemplate:
 		printerr("AgentSpawner Spawn Error: Invalid AgentTemplate Resource.")
 		return null
-	
+
 	var agent_scene = load(agent_scene_path)
 	if not agent_scene:
 		printerr("AgentSpawner Spawn Error: Failed to load agent scene: ", agent_scene_path)
 		return null
-	
+
 	var agent_root_instance = agent_scene.instance()
 	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
 	if not (agent_node and agent_node is KinematicBody):
@@ -71,16 +79,20 @@ func spawn_agent(agent_scene_path: String, position: Vector3, agent_template: Re
 		agent_root_instance.queue_free()
 		return null
 
-	var instance_name = overrides.get("name", agent_template.default_agent_name + "_" + str(agent_root_instance.get_instance_id()))
+	var instance_name = overrides.get(
+		"name", agent_template.default_agent_name + "_" + str(agent_root_instance.get_instance_id())
+	)
 	agent_root_instance.name = instance_name
-	
+
 	container.add_child(agent_root_instance)
 	agent_node.global_transform.origin = position
 
 	if agent_node.has_method("initialize"):
 		agent_node.initialize(agent_template, overrides)
 
-	EventBus.emit_signal("agent_spawned", agent_node, {"template": agent_template, "overrides": overrides})
+	EventBus.emit_signal(
+		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides}
+	)
 
 	var controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	if controller and controller.has_method("initialize"):

@@ -5,7 +5,8 @@ extends Node
 
 # --- State ---
 var current_zone_instance: Node = null
-var _spawned_agent_bodies = [] # This list can now be managed by a future system if needed.
+var _spawned_agent_bodies = []  # This list can now be managed by a future system if needed.
+
 
 # --- Initialization ---
 func _ready():
@@ -13,7 +14,7 @@ func _ready():
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
-	
+
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 
@@ -52,9 +53,11 @@ func load_zone(zone_scene_path: String):
 	GlobalRefs.current_zone = current_zone_instance
 
 	# 4. Find Agent Container and emit signal that the zone is ready
-	var agent_container = current_zone_instance.find_node(Constants.AGENT_CONTAINER_NAME, true, false)
+	var agent_container = current_zone_instance.find_node(
+		Constants.AGENT_CONTAINER_NAME, true, false
+	)
 	GlobalRefs.agent_container = agent_container
-	
+
 	EventBus.emit_signal("zone_loaded", current_zone_instance, zone_scene_path, agent_container)
 
 
@@ -62,6 +65,7 @@ func load_zone(zone_scene_path: String):
 func _on_Agent_Spawned(agent_body, _init_data):
 	if not _spawned_agent_bodies.has(agent_body):
 		_spawned_agent_bodies.append(agent_body)
+
 
 func _on_Agent_Despawning(agent_body):
 	if _spawned_agent_bodies.has(agent_body):

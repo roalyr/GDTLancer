@@ -5,13 +5,16 @@ var _nav_sys: Node
 var _agent_body: KinematicBody
 var _movement_system: Node
 
+
 func initialize(nav_system):
 	_nav_sys = nav_system
 	_agent_body = nav_system.agent_body
 	_movement_system = nav_system.movement_system
 
+
 func execute(delta: float):
-	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body): return
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
 
 	var cmd = _nav_sys._current_command
 	var target_pos = cmd.target_node.global_transform.origin
@@ -20,7 +23,8 @@ func execute(delta: float):
 
 	var vector_to_target = target_pos - _agent_body.global_transform.origin
 	var distance = vector_to_target.length()
-	if distance < 0.01: distance = 0.01
+	if distance < 0.01:
+		distance = 0.01
 	var direction_to_target = vector_to_target / distance
 
 	var tangent_dir = (direction_to_target.cross(Vector3.UP) if not clockwise else Vector3.UP.cross(direction_to_target)).normalized()

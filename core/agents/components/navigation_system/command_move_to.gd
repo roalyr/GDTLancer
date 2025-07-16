@@ -6,14 +6,17 @@ var _agent_body: KinematicBody
 var _movement_system: Node
 var _pid: PIDController
 
+
 func initialize(nav_system):
 	_nav_sys = nav_system
 	_agent_body = nav_system.agent_body
 	_movement_system = nav_system.movement_system
 	_pid = nav_system._pid_move_to
 
+
 func execute(delta: float):
-	if not is_instance_valid(_pid): return
+	if not is_instance_valid(_pid):
+		return
 
 	var cmd = _nav_sys._current_command
 	var target_pos = cmd.target_pos
@@ -31,7 +34,10 @@ func execute(delta: float):
 		target_velocity, _movement_system.acceleration * delta
 	)
 
-	if distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ:
+	if (
+		distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD
+		and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ
+	):
 		if not cmd.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			cmd["signaled_stop"] = true

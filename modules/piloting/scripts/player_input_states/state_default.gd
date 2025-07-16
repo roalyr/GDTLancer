@@ -16,7 +16,10 @@ const DOUBLE_CLICK_TIME_MS = 400
 func enter(controller: Node):
 	.enter(controller)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	if is_instance_valid(_controller._main_camera) and _controller._main_camera.has_method("set_is_rotating"):
+	if (
+		is_instance_valid(_controller._main_camera)
+		and _controller._main_camera.has_method("set_is_rotating")
+	):
 		_controller._main_camera.set_is_rotating(false)
 	_lmb_pressed = false
 	_is_dragging = false
@@ -32,13 +35,16 @@ func handle_input(event: InputEvent):
 			_lmb_pressed = true
 			_is_dragging = false
 			_lmb_press_pos = event.position
-		else: # Released
+		else:  # Released
 			if _lmb_pressed:
 				if _is_dragging:
 					# Stop camera rotation when drag is released
-					if is_instance_valid(_controller._main_camera) and _controller._main_camera.has_method("set_is_rotating"):
+					if (
+						is_instance_valid(_controller._main_camera)
+						and _controller._main_camera.has_method("set_is_rotating")
+					):
 						_controller._main_camera.set_is_rotating(false)
-				else: # Tap/Click
+				else:  # Tap/Click
 					var time_now = OS.get_ticks_msec()
 					if time_now - _last_tap_time <= DOUBLE_CLICK_TIME_MS:
 						_controller._handle_double_click(event.position)
@@ -53,6 +59,9 @@ func handle_input(event: InputEvent):
 	elif event is InputEventMouseMotion and _lmb_pressed and not _is_dragging:
 		if event.position.distance_squared_to(_lmb_press_pos) > DRAG_THRESHOLD_PX_SQ:
 			_is_dragging = true
-			if is_instance_valid(_controller._main_camera) and _controller._main_camera.has_method("set_is_rotating"):
+			if (
+				is_instance_valid(_controller._main_camera)
+				and _controller._main_camera.has_method("set_is_rotating")
+			):
 				_controller._main_camera.set_is_rotating(true)
 			_controller.get_viewport().set_input_as_handled()
