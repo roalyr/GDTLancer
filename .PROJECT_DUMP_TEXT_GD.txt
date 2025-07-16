@@ -49,13 +49,13 @@ const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
 
 # --- Default Simulation Values ---
-const DEFAULT_MAX_MOVE_SPEED = 300.0 # m/s
-const DEFAULT_ACCELERATION = 0.5 # NOT m/s^2
-const DEFAULT_DECELERATION = 0.5 # NOT m/s^2
+const DEFAULT_MAX_MOVE_SPEED = 300.0  # m/s
+const DEFAULT_ACCELERATION = 0.5  # NOT m/s^2
+const DEFAULT_DECELERATION = 0.5  # NOT m/s^2
 const DEFAULT_MAX_TURN_SPEED = 0.75
 
 # --- Gameplay / Physics Approximations ---
-const ORBIT_FULL_SPEED_RADIUS = 2000.0 
+const ORBIT_FULL_SPEED_RADIUS = 2000.0
 
 # --- System Defaults (Examples - Used by placeholder systems) ---
 const MAX_NPCS_DEFAULT = 10
@@ -488,7 +488,7 @@ extends Node
 # Other scripts access these directly (e.g., GlobalRefs.player_agent_body)
 # but should ALWAYS check if is_instance_valid() first!
 
-var player_agent_body = null setget set_player_agent_body #KinematicBody, spawned by WM
+var player_agent_body = null setget set_player_agent_body  #KinematicBody, spawned by WM
 var main_camera = null setget set_main_camera
 var world_manager = null setget set_world_manager
 var event_system = null setget set_event_system  # If EventSystem is a Node, not Autoload
@@ -499,7 +499,8 @@ var asset_system = null setget set_asset_system  # If AssetSystem is a Node
 # Add other core system node references as needed...
 var current_zone = null setget set_current_zone  # Reference to the root node of the loaded zone scene
 var agent_container = null setget set_agent_container  # Reference to the node *within* the zone where agents are parented
-var main_hud = null setget set_main_hud 
+var main_hud = null setget set_main_hud
+
 
 func _ready():
 	print("GlobalRefs Ready.")
@@ -607,9 +608,7 @@ func set_main_hud(new_ref):
 		return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_hud = new_ref
-		print(
-			"GlobalRefs: Main HUD reference ", "set to ", new_ref.name if new_ref else "null"
-		)
+		print("GlobalRefs: Main HUD reference ", "set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Attempted to set invalid Main HUD reference: ", new_ref)
 
@@ -1001,626 +1000,674 @@ func apply_rotation(target_look_dir: Vector3, delta: float):
 		# If turn speed is zero, snap instantly
 		agent_body.global_transform.basis = target_basis
 
+--- Start of ./core/agents/components/navigation_system/command_align_to.gd ---
+
+# File: core/agents/components/navigation_system/command_align_to.gd
+extends Node
+
+var _nav_sys: Node
+var _agent_body: KinematicBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
+		var target_dir = _nav_sys._current_command.target_dir
+		_movement_system.apply_rotation(target_dir, delta)
+		_movement_system.apply_deceleration(delta)
+		var current_fwd = -_agent_body.global_transform.basis.z
+		if current_fwd.dot(target_dir) > 0.999:
+			_nav_sys.set_command_idle()
+
+--- Start of ./core/agents/components/navigation_system/command_approach.gd ---
+
+# File: core/agents/components/navigation_system/command_approach.gd
+extends Node
+
+var _nav_sys: Node
+var _agent_body: KinematicBody
+var _movement_system: Node
+var _pid: PIDController
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+	_pid = nav_system._pid_approach
+
+
+func execute(delta: float):
+	if not is_instance_valid(_pid):
+		return
+
+	var cmd = _nav_sys._current_command
+	var target_node = cmd.target_node
+	var target_pos = target_node.global_transform.origin
+	var target_size = _nav_sys._get_target_effective_size(target_node)
+	var desired_stop_dist = max(
+		_nav_sys.APPROACH_MIN_DISTANCE, target_size * _nav_sys.APPROACH_DISTANCE_MULTIPLIER
+	)
+
+	var vector_to_target = target_pos - _agent_body.global_transform.origin
+	var distance = vector_to_target.length()
+
+	if distance < (desired_stop_dist + _nav_sys.ARRIVAL_DISTANCE_THRESHOLD):
+		if not cmd.get("signaled_stop", false):
+			EventBus.emit_signal("agent_reached_destination", _agent_body)
+			cmd["signaled_stop"] = true
+		_nav_sys.set_command_idle()
+		_movement_system.apply_braking(delta)
+		return
+
+	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
+	_movement_system.apply_rotation(direction, delta)
+
+	var deceleration_start_dist = (
+		desired_stop_dist
+		* _nav_sys.APPROACH_DECELERATION_START_DISTANCE_FACTOR
+	)
+	var target_velocity: Vector3
+
+	if distance > deceleration_start_dist:
+		target_velocity = direction * _movement_system.max_move_speed
+		_pid.reset()
+		cmd["signaled_stop"] = false
+	else:
+		var distance_error = distance - desired_stop_dist
+		var pid_target_speed = _pid.update(distance_error, delta)
+		pid_target_speed = clamp(
+			pid_target_speed,
+			-_movement_system.max_move_speed * 0.1,
+			_movement_system.max_move_speed
+		)
+		target_velocity = direction * pid_target_speed
+
+		if (
+			abs(distance_error) < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD
+			and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ
+		):
+			if not cmd.get("signaled_stop", false):
+				EventBus.emit_signal("agent_reached_destination", _agent_body)
+				cmd["signaled_stop"] = true
+			_movement_system.apply_braking(delta)
+			return
+		else:
+			cmd["signaled_stop"] = false
+
+	_agent_body.current_velocity = _agent_body.current_velocity.linear_interpolate(
+		target_velocity, _movement_system.acceleration * delta
+	)
+
+--- Start of ./core/agents/components/navigation_system/command_flee.gd ---
+
+# File: core/agents/components/navigation_system/command_flee.gd
+extends Node
+
+var _nav_sys: Node
+var _agent_body: KinematicBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
+		var target_pos = _nav_sys._current_command.target_node.global_transform.origin
+		var vector_away = _agent_body.global_transform.origin - target_pos
+		var direction_away = (
+			vector_away.normalized()
+			if vector_away.length_squared() > 0.01
+			else -_agent_body.global_transform.basis.z
+		)
+		_movement_system.apply_rotation(direction_away, delta)
+		_movement_system.apply_acceleration(direction_away, delta)
+
+--- Start of ./core/agents/components/navigation_system/command_idle.gd ---
+
+# File: core/agents/components/navigation_system/command_idle.gd
+extends Node
+
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if is_instance_valid(_movement_system):
+		_movement_system.apply_deceleration(delta)
+
+--- Start of ./core/agents/components/navigation_system/command_move_direction.gd ---
+
+# File: core/agents/components/navigation_system/command_move_direction.gd
+extends Node
+
+var _nav_sys: Node
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if is_instance_valid(_movement_system):
+		var move_dir = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
+		if move_dir.length_squared() > 0.001:
+			_movement_system.apply_rotation(move_dir, delta)
+			_movement_system.apply_acceleration(move_dir, delta)
+		else:
+			_movement_system.apply_deceleration(delta)
+
+--- Start of ./core/agents/components/navigation_system/command_move_to.gd ---
+
+# File: core/agents/components/navigation_system/command_move_to.gd
+extends Node
+
+var _nav_sys: Node
+var _agent_body: KinematicBody
+var _movement_system: Node
+var _pid: PIDController
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+	_pid = nav_system._pid_move_to
+
+
+func execute(delta: float):
+	if not is_instance_valid(_pid):
+		return
+
+	var cmd = _nav_sys._current_command
+	var target_pos = cmd.target_pos
+	var vector_to_target = target_pos - _agent_body.global_transform.origin
+	var distance = vector_to_target.length()
+
+	var pid_target_speed = _pid.update(distance, delta)
+	pid_target_speed = clamp(pid_target_speed, 0, _movement_system.max_move_speed)
+
+	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
+	_movement_system.apply_rotation(direction, delta)
+
+	var target_velocity = direction * pid_target_speed
+	_agent_body.current_velocity = _agent_body.current_velocity.linear_interpolate(
+		target_velocity, _movement_system.acceleration * delta
+	)
+
+	if (
+		distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD
+		and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ
+	):
+		if not cmd.get("signaled_stop", false):
+			EventBus.emit_signal("agent_reached_destination", _agent_body)
+			cmd["signaled_stop"] = true
+		_movement_system.apply_braking(delta)
+	else:
+		cmd["signaled_stop"] = false
+
+--- Start of ./core/agents/components/navigation_system/command_orbit.gd ---
+
+# File: core/agents/components/navigation_system/command_orbit.gd
+extends Node
+
+var _nav_sys: Node
+var _agent_body: KinematicBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
+
+	var cmd = _nav_sys._current_command
+	var target_pos = cmd.target_node.global_transform.origin
+	var orbit_dist = cmd.get("distance", 100.0)
+	var clockwise = cmd.get("clockwise", false)
+
+	var vector_to_target = target_pos - _agent_body.global_transform.origin
+	var distance = vector_to_target.length()
+	if distance < 0.01:
+		distance = 0.01
+	var direction_to_target = vector_to_target / distance
+
+	var tangent_dir = (direction_to_target.cross(Vector3.UP) if not clockwise else Vector3.UP.cross(direction_to_target)).normalized()
+	_movement_system.apply_rotation(tangent_dir, delta)
+
+	var full_speed_radius = max(1.0, Constants.ORBIT_FULL_SPEED_RADIUS)
+	var target_tangential_speed = _movement_system.max_move_speed
+	if orbit_dist > 0 and orbit_dist < full_speed_radius:
+		target_tangential_speed *= (orbit_dist / full_speed_radius)
+
+	target_tangential_speed = clamp(target_tangential_speed, 0.0, _movement_system.max_move_speed)
+
+	var target_velocity = tangent_dir * target_tangential_speed
+	_agent_body.current_velocity = _agent_body.current_velocity.linear_interpolate(
+		target_velocity, _movement_system.acceleration * delta
+	)
+
+--- Start of ./core/agents/components/navigation_system/command_stop.gd ---
+
+# File: core/agents/components/navigation_system/command_stop.gd
+extends Node
+
+var _nav_sys: Node
+var _agent_body: KinematicBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
+		var stopped = _movement_system.apply_braking(delta)
+		if stopped and not _nav_sys._current_command.get("signaled_stop", false):
+			EventBus.emit_signal("agent_reached_destination", _agent_body)
+			_nav_sys._current_command["signaled_stop"] = true
+
 --- Start of ./core/agents/components/navigation_system.gd ---
 
 # File: res://core/agents/components/navigation_system.gd
-# Version: 1.4.3 - Reworked size calculation to prioritize combined Model AABB radius.
+# Version: 2.0 (Refactored) - Manages and dispatches to command handler components.
+
 extends Node
 
 # --- Enums and Constants ---
 enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO }
-const APPROACH_DISTANCE_MULTIPLIER = 1.3  # Factor of target size for stopping distance
-const APPROACH_MIN_DISTANCE = 50.0  # Minimum stopping distance regardless of size
-const APPROACH_DECELERATION_START_DISTANCE_FACTOR = 50.0  # Start PID deceleration when distance <= this * desired_stop_dist
-
-# Thresholds for considering PID-controlled arrival complete (tune these)
+const APPROACH_DISTANCE_MULTIPLIER = 1.3
+const APPROACH_MIN_DISTANCE = 50.0
+const APPROACH_DECELERATION_START_DISTANCE_FACTOR = 50.0
 const ARRIVAL_DISTANCE_THRESHOLD = 5.0
-const ARRIVAL_SPEED_THRESHOLD_SQ = 1.0  # Squared speed (1 m/s)^2
-# Threshold for considering an orbit "close" to suppress strong outward push
-const CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR = 1.5  # Multiplier for APPROACH_MIN_DISTANCE
+const ARRIVAL_SPEED_THRESHOLD_SQ = 1.0
+const CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR = 1.5
 
-# --- References (Set by AgentBody) ---
+# --- References ---
 var agent_body: KinematicBody = null
-var movement_system: Node = null  # Reference to the MovementSystem sibling node
+var movement_system: Node = null
 
 # --- State ---
-var _current_command = {}  # Holds the active command dictionary
+var _current_command = {}
 
-# --- PID Controller Instances --- # DECLARED HERE, INSTANTIATED IN initialize_navigation
-var _orbit_pid: PIDController = null  # For maintaining orbit distance
-var _approach_pid: PIDController = null  # For controlling approach speed based on distance
-var _move_to_pid: PIDController = null  # For controlling move speed based on distance
+# --- Child Components ---
+var _pid_orbit: PIDController = null
+var _pid_approach: PIDController = null
+var _pid_move_to: PIDController = null
+var _command_handlers = {}
+const PIDControllerScript = preload("res://core/utils/pid_controller.gd")
+
 
 # --- Initialization ---
-
-
 func _ready():
-	# Initial state is typically set via AgentBody calling a command method
-	# Ensure a default state if nothing else is called *after* initialization
 	if not _current_command:
 		set_command_idle()
 
 
-# Called by AgentBody's initialize method
 func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
-	# Store references provided by AgentBody
 	movement_system = move_sys_ref
-	agent_body = get_parent()  # Assume NavigationSystem is a direct child of AgentBody
+	agent_body = get_parent()
 
-	# Safety check references BEFORE using them
-	if not is_instance_valid(agent_body):
-		printerr("NavigationSystem Error: Parent AgentBody is not valid!")
-		return
-	if not is_instance_valid(movement_system):
-		printerr("NavigationSystem Error: MovementSystem reference is not valid!")
+	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
+		printerr("NavigationSystem Error: Invalid parent or movement system reference!")
+		set_process(false)
 		return
 
-	# --- Instantiate PID Controllers HERE ---
-	var PIDControllerScript = load("res://core/utils/pid_controller.gd")
-	if PIDControllerScript:
-		_orbit_pid = PIDControllerScript.new()
-		_approach_pid = PIDControllerScript.new()
-		_move_to_pid = PIDControllerScript.new()
-		#print("NavigationSystem: PID Controllers instantiated.")
-	else:
-		printerr(
-			"NavigationSystem Error: Failed to load PIDController script! Cannot initialize PIDs."
-		)
-
-	# --- Initialize PID controllers ---
-	# Orbit PID
-	if is_instance_valid(_orbit_pid):
-		var pid_kp = nav_params.get("orbit_kp", 0.5)
-		var pid_ki = nav_params.get("orbit_ki", 0.001)
-		var pid_kd = nav_params.get("orbit_kd", 1.0)
-		var pid_i_limit = nav_params.get("orbit_pid_integral_limit", 1000.0)
-		var pid_o_limit = nav_params.get("orbit_pid_output_limit", 75.0)
-		_orbit_pid.initialize(pid_kp, pid_ki, pid_kd, pid_i_limit, pid_o_limit)
-		#print("  Orbit PID Initialized (Kp=%.2f, Ki=%.2f, Kd=%.2f)" % [pid_kp, pid_ki, pid_kd])
-	else:
-		printerr(
-			"NavigationSystem Error: _orbit_pid instance is not valid during initialization (Instantiation likely failed)."
-		)
-
-	# Approach PID (**NEEDS TUNING**)
-	if is_instance_valid(_approach_pid):
-		var ap_kp = nav_params.get("approach_kp", 0.5)
-		var ap_ki = nav_params.get("approach_ki", 0.001)
-		var ap_kd = nav_params.get("approach_kd", 1.0)
-		var ap_o_limit = movement_system.max_move_speed
-		_approach_pid.initialize(ap_kp, ap_ki, ap_kd, 1000.0, ap_o_limit)
-		#print(
-		#	(
-		#		"  Approach PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
-		#		% [ap_kp, ap_ki, ap_kd]
-		#	)
-		#)
-	else:
-		printerr(
-			"NavigationSystem Error: _approach_pid instance not valid during init (Instantiation likely failed)."
-		)
-
-	# Move To PID (**NEEDS TUNING**)
-	if is_instance_valid(_move_to_pid):
-		var mt_kp = nav_params.get("move_to_kp", 0.5)
-		var mt_ki = nav_params.get("move_to_ki", 0.001)
-		var mt_kd = nav_params.get("move_to_kd", 1.0)
-		var mt_o_limit = movement_system.max_move_speed
-		_move_to_pid.initialize(mt_kp, mt_ki, mt_kd, 1000.0, mt_o_limit)
-		#print(
-		#	(
-		#		"  MoveTo PID Initialized (**TUNE ME**: Kp=%.3f, Ki=%.3f, Kd=%.3f)"
-		#		% [mt_kp, mt_ki, mt_kd]
-		#	)
-		#)
-	else:
-		printerr(
-			"NavigationSystem Error: _move_to_pid instance not valid during init (Instantiation likely failed)."
-		)
+	_initialize_pids(nav_params)
+	_initialize_command_handlers()
 
 	print("NavigationSystem Initialized.")
-	if not _current_command:
-		set_command_idle()
+	set_command_idle()
 
 
-# --- Public Command Setting Methods (Called by AgentBody) ---
+func _initialize_pids(nav_params: Dictionary):
+	if not PIDControllerScript:
+		printerr("NavigationSystem Error: Failed to load PIDController script!")
+		return
 
+	_pid_orbit = PIDControllerScript.new()
+	_pid_approach = PIDControllerScript.new()
+	_pid_move_to = PIDControllerScript.new()
 
-func set_command_idle():
-	var last_look = (
-		-agent_body.global_transform.basis.z
-		if is_instance_valid(agent_body)
-		else Vector3.BACK
+	var o_limit = movement_system.max_move_speed
+	_pid_orbit.initialize(
+		nav_params.get("orbit_kp", 0.5),
+		nav_params.get("orbit_ki", 0.001),
+		nav_params.get("orbit_kd", 1.0),
+		1000.0,
+		75.0
 	)
-	if _current_command:
-		if "target_dir" in _current_command:
-			last_look = _current_command.target_dir
-		elif "target_node" in _current_command:
-			var cmd_target = _current_command.get("target_node")
-			if is_instance_valid(cmd_target) and is_instance_valid(agent_body):
-				last_look = (cmd_target.global_transform.origin - agent_body.global_transform.origin).normalized()
+	_pid_approach.initialize(
+		nav_params.get("approach_kp", 0.5),
+		nav_params.get("approach_ki", 0.001),
+		nav_params.get("approach_kd", 1.0),
+		1000.0,
+		o_limit
+	)
+	_pid_move_to.initialize(
+		nav_params.get("move_to_kp", 0.5),
+		nav_params.get("move_to_ki", 0.001),
+		nav_params.get("move_to_kd", 1.0),
+		1000.0,
+		o_limit
+	)
 
-	_current_command = {"type": CommandType.IDLE, "target_dir": last_look}
+
+func _initialize_command_handlers():
+	var command_path = "res://core/agents/components/navigation_system/"
+	_command_handlers = {
+		CommandType.IDLE: load(command_path + "command_idle.gd").new(),
+		CommandType.STOPPING: load(command_path + "command_stop.gd").new(),
+		CommandType.MOVE_TO: load(command_path + "command_move_to.gd").new(),
+		CommandType.MOVE_DIRECTION: load(command_path + "command_move_direction.gd").new(),
+		CommandType.APPROACH: load(command_path + "command_approach.gd").new(),
+		CommandType.ORBIT: load(command_path + "command_orbit.gd").new(),
+		CommandType.FLEE: load(command_path + "command_flee.gd").new(),
+		CommandType.ALIGN_TO: load(command_path + "command_align_to.gd").new(),
+	}
+
+	for handler_script in _command_handlers.values():
+		if handler_script.has_method("initialize"):
+			handler_script.initialize(self)
+
+
+# --- Public Command Setting Methods (Unchanged) ---
+func set_command_idle():
+	_current_command = {"type": CommandType.IDLE}
 
 
 func set_command_stopping():
 	_current_command = {"type": CommandType.STOPPING}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
 
 
 func set_command_move_to(position: Vector3):
 	_current_command = {"type": CommandType.MOVE_TO, "target_pos": position}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
 
 
 func set_command_move_direction(direction: Vector3):
 	if direction.length_squared() < 0.001:
-		printerr("NavigationSystem: Invalid direction vector for MOVE_DIRECTION.")
 		set_command_stopping()
 		return
 	_current_command = {"type": CommandType.MOVE_DIRECTION, "target_dir": direction.normalized()}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
 
 
 func set_command_approach(target: Spatial):
 	if not is_instance_valid(target):
-		printerr("NavigationSystem: Invalid target node for APPROACH.")
 		set_command_stopping()
 		return
-
-	if is_instance_valid(agent_body):
-		var target_pos = target.global_transform.origin
-		var target_size = _get_target_effective_size(target)  # This now returns radius
-		# desired_stop_dist is distance from center, so use radius directly
-		var desired_stop_dist = max(
-			APPROACH_MIN_DISTANCE, target_size * APPROACH_DISTANCE_MULTIPLIER
-		)
-		var current_distance = agent_body.global_transform.origin.distance_to(target_pos)
-
-		if current_distance < (desired_stop_dist + ARRIVAL_DISTANCE_THRESHOLD):
-			#print("Agent ", agent_body.name, " already within approach range. Switching to IDLE.")
-			EventBus.emit_signal("agent_reached_destination", agent_body)
-			set_command_idle()
-			return
-
 	_current_command = {"type": CommandType.APPROACH, "target_node": target}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
 
 
-# Accepts the calculated/captured distance from the caller (e.g., agent.gd)
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
-	if (
-		_current_command.get("type") == CommandType.ORBIT
-		and _current_command.get("target_node") == target
-		and is_equal_approx(_current_command.get("distance"), distance)
-		and _current_command.get("clockwise") == clockwise
-	):
-		return
-
 	if not is_instance_valid(target):
-		printerr("NavigationSystem: Invalid target node for ORBIT.")
 		set_command_stopping()
 		return
-
-	#print(distance)
-
 	_current_command = {
 		"type": CommandType.ORBIT,
 		"target_node": target,
-		"distance": distance,  # Uses the distance passed in
+		"distance": distance,
 		"clockwise": clockwise
 	}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
+	if is_instance_valid(_pid_orbit):
+		_pid_orbit.reset()
+	if is_instance_valid(_pid_approach):
+		_pid_approach.reset()
+	if is_instance_valid(_pid_move_to):
+		_pid_move_to.reset()
 
 
 func set_command_flee(target: Spatial):
 	if not is_instance_valid(target):
-		printerr("NavigationSystem: Invalid target node for FLEE.")
 		set_command_stopping()
 		return
 	_current_command = {"type": CommandType.FLEE, "target_node": target}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
 
 
 func set_command_align_to(direction: Vector3):
 	if direction.length_squared() < 0.001:
-		printerr("NavigationSystem: Invalid direction vector for ALIGN_TO.")
 		set_command_idle()
 		return
 	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
-	if is_instance_valid(_orbit_pid):
-		_orbit_pid.reset()
-	if is_instance_valid(_approach_pid):
-		_approach_pid.reset()
-	if is_instance_valid(_move_to_pid):
-		_move_to_pid.reset()
 
 
-# --- Main Update Logic (Called by AgentBody._physics_process before move_and_slide) ---
+# --- Main Update Logic ---
 func update_navigation(delta: float):
-	# Check basic validity early
 	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
 		return
 
 	var cmd_type = _current_command.get("type", CommandType.IDLE)
 	var target_node = _current_command.get("target_node", null)
 
-	# --- Target Validity Check ---
 	var is_target_cmd = cmd_type in [CommandType.APPROACH, CommandType.ORBIT, CommandType.FLEE]
 	if is_target_cmd and not is_instance_valid(target_node):
-		printerr(
-			(
-				"NavigationSystem: Target node for command %s became invalid."
-				% CommandType.keys()[cmd_type]
-			)
-		)
 		set_command_stopping()
 		cmd_type = CommandType.STOPPING
 
-	# --- Command Execution Logic ---
-	match cmd_type:
-		CommandType.IDLE:
-			movement_system.apply_deceleration(delta)
-
-		CommandType.STOPPING:
-			var stopped = movement_system.apply_braking(delta)
-			if stopped and not _current_command.get("signaled_stop", false):
-				EventBus.emit_signal("agent_reached_destination", agent_body)
-				_current_command["signaled_stop"] = true
-
-		CommandType.MOVE_TO:
-			if not is_instance_valid(_move_to_pid):
-				printerr("NavigationSystem Error: MOVE_TO requires a valid _move_to_pid instance.")
-				set_command_stopping()
-				return
-
-			var target_pos = _current_command.target_pos
-			var vector_to_target = target_pos - agent_body.global_transform.origin
-			var distance = vector_to_target.length()
-			var distance_error = distance
-			var pid_target_speed = _move_to_pid.update(distance_error, delta)
-			pid_target_speed = clamp(pid_target_speed, 0, movement_system.max_move_speed)
-
-			var direction = Vector3.ZERO
-			if distance > 0.01:
-				direction = vector_to_target.normalized()
-
-			movement_system.apply_rotation(direction, delta)
-
-			var target_velocity = direction * pid_target_speed
-			agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-				target_velocity, movement_system.acceleration * delta
-			)
-
-			if (
-				distance < ARRIVAL_DISTANCE_THRESHOLD
-				and agent_body.current_velocity.length_squared() < ARRIVAL_SPEED_THRESHOLD_SQ
-			):
-				if not _current_command.get("signaled_stop", false):
-					#print("Agent ", agent_body.name, " reached move_to destination.")
-					EventBus.emit_signal("agent_reached_destination", agent_body)
-					_current_command["signaled_stop"] = true
-				movement_system.apply_braking(delta)
-			else:
-				_current_command["signaled_stop"] = false
-
-		CommandType.MOVE_DIRECTION:
-			var move_dir = _current_command.get("target_dir", Vector3.ZERO)
-			if move_dir.length_squared() > 0.001:
-				movement_system.apply_rotation(move_dir, delta)
-				movement_system.apply_acceleration(move_dir, delta)
-			else:
-				movement_system.apply_deceleration(delta)
-
-		CommandType.APPROACH:
-			if not is_instance_valid(_approach_pid):
-				printerr(
-					"NavigationSystem Error: APPROACH requires a valid _approach_pid instance."
-				)
-				set_command_stopping()
-				return
-
-			var target_pos = target_node.global_transform.origin
-			var target_size = _get_target_effective_size(target_node)  # Returns radius now
-			# desired_stop_dist is distance from center
-			var desired_stop_dist = max(
-				APPROACH_MIN_DISTANCE, target_size * APPROACH_DISTANCE_MULTIPLIER
-			)
-			var deceleration_start_distance = (
-				desired_stop_dist
-				* APPROACH_DECELERATION_START_DISTANCE_FACTOR
-			)
-			var vector_to_target = target_pos - agent_body.global_transform.origin
-			var distance = vector_to_target.length()
-
-			# Early Exit Check
-			if distance < (desired_stop_dist + ARRIVAL_DISTANCE_THRESHOLD):
-				if not _current_command.get("signaled_stop", false):
-					#print(
-					#	"Agent ", agent_body.name, " is within approach range. Switching to IDLE."
-					#)
-					EventBus.emit_signal("agent_reached_destination", agent_body)
-					_current_command["signaled_stop"] = true
-				set_command_idle()
-				movement_system.apply_braking(delta)
-				return
-
-			var direction = Vector3.ZERO
-			if distance > 0.01:
-				direction = vector_to_target.normalized()
-
-			movement_system.apply_rotation(direction, delta)
-
-			var target_velocity: Vector3
-			if distance > deceleration_start_distance:
-				# Far from target
-				target_velocity = direction * movement_system.max_move_speed
-				if is_instance_valid(_approach_pid):
-					_approach_pid.reset()
-				agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-					target_velocity, movement_system.acceleration * delta
-				)
-				_current_command["signaled_stop"] = false
-			else:
-				# Close to target (PID zone)
-				var distance_error = distance - desired_stop_dist
-				var pid_target_speed = 0.0
-				if is_instance_valid(_approach_pid):
-					pid_target_speed = _approach_pid.update(distance_error, delta)
-
-				pid_target_speed = clamp(
-					pid_target_speed,
-					-movement_system.max_move_speed * 0.1,
-					movement_system.max_move_speed
-				)
-
-				target_velocity = direction * pid_target_speed
-				agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-					target_velocity, movement_system.acceleration * delta
-				)
-
-				# Completion Check (only in PID zone)
-				var final_distance_error = distance - desired_stop_dist
-				if (
-					abs(final_distance_error) < ARRIVAL_DISTANCE_THRESHOLD
-					and agent_body.current_velocity.length_squared() < ARRIVAL_SPEED_THRESHOLD_SQ
-				):
-					if not _current_command.get("signaled_stop", false):
-						#print("Agent ", agent_body.name, " reached approach destination.")
-						EventBus.emit_signal("agent_reached_destination", agent_body)
-						_current_command["signaled_stop"] = true
-					movement_system.apply_braking(delta)
-				else:
-					_current_command["signaled_stop"] = false
-
-		CommandType.ORBIT:
-			if not is_instance_valid(_orbit_pid):
-				printerr("NavigationSystem Error: ORBIT requires a valid _orbit_pid instance.")
-				set_command_stopping()
-				return
-
-			var target_pos = target_node.global_transform.origin
-			var orbit_dist = _current_command.get("distance", 100.0)  # The desired/captured distance
-			var clockwise = _current_command.get("clockwise", false)
-
-			var vector_to_target = target_pos - agent_body.global_transform.origin
-			var distance = vector_to_target.length()  # Current distance
-			if distance < 0.01:
-				distance = 0.01
-			var direction_to_target = vector_to_target / distance
-
-			# Determine tangent direction
-			var target_up = Vector3.UP
-			var tangent_dir: Vector3
-			var cross_fallback_axis = agent_body.global_transform.basis.x
-			var cross_product = (
-				direction_to_target.cross(target_up)
-				if not clockwise
-				else target_up.cross(direction_to_target)
-			)
-			if cross_product.length_squared() < 0.01:
-				cross_product = (
-					direction_to_target.cross(cross_fallback_axis)
-					if not clockwise
-					else cross_fallback_axis.cross(direction_to_target)
-				)
-			tangent_dir = cross_product.normalized()
-
-			# Apply rotation towards the tangent direction
-			movement_system.apply_rotation(tangent_dir, delta)
-
-			# Calculate Target Tangential Speed based on desired orbit_dist
-			var target_tangential_speed = 0.0
-			var full_speed_radius = max(1.0, Constants.ORBIT_FULL_SPEED_RADIUS)
-			if orbit_dist <= 0:
-				target_tangential_speed = 0.0
-			elif orbit_dist < full_speed_radius:
-				target_tangential_speed = (
-					movement_system.max_move_speed
-					* (orbit_dist / full_speed_radius)
-				)
-			else:
-				target_tangential_speed = movement_system.max_move_speed
-
-			target_tangential_speed = clamp(
-				target_tangential_speed, 0.0, movement_system.max_move_speed
-			)
-
-			# Interpolate velocity towards tangential target velocity
-			var target_velocity = tangent_dir * target_tangential_speed
-			agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-				target_velocity, movement_system.acceleration * delta
-			)
-			# PID correction for distance is applied separately
-
-		CommandType.FLEE:
-			var target_pos = target_node.global_transform.origin
-			var vector_away = agent_body.global_transform.origin - target_pos
-			var direction_away = Vector3.ZERO
-			if vector_away.length_squared() > 0.01:
-				direction_away = vector_away.normalized()
-			else:
-				direction_away = (
-					-agent_body.global_transform.basis.z
-					if agent_body.global_transform.basis.z.length_squared() > 0.01
-					else Vector3.FORWARD
-				)
-			movement_system.apply_rotation(direction_away, delta)
-			movement_system.apply_acceleration(direction_away, delta)
-
-		CommandType.ALIGN_TO:
-			var target_dir = _current_command.target_dir
-			movement_system.apply_rotation(target_dir, delta)
-			movement_system.apply_deceleration(delta)
-			var current_fwd = -agent_body.global_transform.basis.z
-			if current_fwd.dot(target_dir) > 0.999:
-				set_command_idle()
+	if _command_handlers.has(cmd_type):
+		var handler = _command_handlers[cmd_type]
+		if handler.has_method("execute"):
+			handler.execute(delta)
+	else:
+		_command_handlers[CommandType.IDLE].execute(delta)
 
 
-# --- PID Correction Logic (Called by AgentBody._physics_process AFTER move_and_slide) ---
+# --- PID Correction & Helper Functions (Unchanged) ---
 func apply_orbit_pid_correction(delta: float):
-	# Only apply ORBIT PID correction here
 	if _current_command.get("type") != CommandType.ORBIT:
 		return
-	# Check validity again
-	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
-		return
-	# Ensure the PID controller specifically needed is valid
-	if not is_instance_valid(_orbit_pid):
+	if (
+		not is_instance_valid(agent_body)
+		or not is_instance_valid(movement_system)
+		or not is_instance_valid(_pid_orbit)
+	):
 		return
 
 	var target_node = _current_command.get("target_node", null)
 	if is_instance_valid(target_node):
 		var desired_orbit_dist = _current_command.get("distance", 100.0)
-		var target_pos = target_node.global_transform.origin
-		var current_pos = agent_body.global_transform.origin
-		var vector_to_target = target_pos - current_pos
+		var vector_to_target = (
+			target_node.global_transform.origin
+			- agent_body.global_transform.origin
+		)
 		var current_distance = vector_to_target.length()
-
 		if current_distance < 0.01:
-			return  # Avoid division by zero
+			return
 
-		# Error is how far we are from the desired orbit distance
 		var distance_error = current_distance - desired_orbit_dist
+		var pid_output = _pid_orbit.update(distance_error, delta)
 
-		#print(desired_orbit_dist, " ", current_distance)
-
-		var pid_output = _orbit_pid.update(distance_error, delta)
-
-		# Dampen outward push for intentionally close orbits
 		var close_orbit_threshold = APPROACH_MIN_DISTANCE * CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
 		if distance_error < 0 and desired_orbit_dist < close_orbit_threshold:
 			var max_outward_push_speed = movement_system.max_move_speed * 0.05
 			pid_output = max(pid_output, -max_outward_push_speed)
 
-		# Calculate the radial direction (points from agent towards target)
 		var radial_direction = vector_to_target.normalized()
-
-		# Apply correction velocity based on PID output
 		var velocity_correction = radial_direction * pid_output
-
-		# Apply the correction directly to the velocity
 		agent_body.current_velocity += velocity_correction
 
 
-# --- Helper Functions ---
-# Calculates the effective radius of the target for interaction distances.
 func _get_target_effective_size(target_node: Spatial) -> float:
-	var calculated_size = 1.0  # Represents radius
-	var default_radius = 10.0  # Fallback radius if nothing else works
-	var found_source = "Default"  # Track where the size came from for debugging
+	var calculated_size = 1.0
+	var default_radius = 10.0
 
 	if not is_instance_valid(target_node):
 		return default_radius
 
-	# --- Priority 1: Explicit Interaction Radius Method ---
 	if target_node.has_method("get_interaction_radius"):
 		var explicit_radius = target_node.get_interaction_radius()
 		if (explicit_radius is float or explicit_radius is int) and explicit_radius > 0:
-			calculated_size = float(explicit_radius)  # Ensure it's a float
-			found_source = "Method(get_interaction_radius)"
-			# print("DEBUG Size Source: ", found_source, " | Value: ", calculated_size)
-			return max(calculated_size, 1.0)  # Return early if found
+			return max(float(explicit_radius), 1.0)
 
-	# --- Priority 2: Combined AABB of Visual Children under "Model" ---
 	var model_node = target_node.get_node_or_null("Model")
 	if is_instance_valid(model_node) and model_node is Spatial:
-		var combined_aabb: AABB = AABB()  # Start with an empty AABB
+		var combined_aabb: AABB = AABB()
 		var first_visual_found = false
-
-		# Iterate through all children of the "Model" node
 		for child in model_node.get_children():
-			if child is VisualInstance:  # Check if the child is renderable
-				# Get the AABB in WORLD space
+			if child is VisualInstance:
 				var child_global_aabb = child.get_transformed_aabb()
-
 				if not first_visual_found:
-					# Initialize the combined AABB with the first visual child's AABB
 					combined_aabb = child_global_aabb
 					first_visual_found = true
 				else:
-					# Merge the current child's AABB with the combined AABB
 					combined_aabb = combined_aabb.merge(child_global_aabb)
 
-		# If we found at least one visual child and calculated a combined AABB
 		if first_visual_found:
-			# Calculate size based on the longest axis of the combined AABB
 			var longest_axis_size = combined_aabb.get_longest_axis_size()
-			# Divide by 2 to get the effective radius from the center
 			calculated_size = longest_axis_size / 2.0
 			if calculated_size > 0.01:
-				found_source = "Combined Model AABB Radius"
-				# print("DEBUG Size Source: ", found_source, " | Value: ", calculated_size)
-				return max(calculated_size, 1.0)  # Return early if valid size found
+				return max(calculated_size, 1.0)
 
-	# --- Priority 3: Fallback to Target Node's Own Scale (if no method or valid Model AABB) ---
 	var node_scale = target_node.global_transform.basis.get_scale()
-	# Use the largest scale component as a rough radius estimate
-	calculated_size = max(node_scale.x, max(node_scale.y, node_scale.z)) / 2.0  # Divide by 2 for radius
-	if calculated_size <= 0.01:  # Check for zero or negative scale
-		calculated_size = 1.0  # Use minimum radius if scale is invalid
-	found_source = "Target Node Scale Radius"
-	# print("DEBUG Size Source: ", found_source, " | Value: ", calculated_size)
-	# Don't return early here, let final fallback check happen
+	calculated_size = max(node_scale.x, max(node_scale.y, node_scale.z)) / 2.0
+	if calculated_size <= 0.01:
+		return default_radius
 
-	# --- Final Fallback: Default Radius ---
-	if calculated_size < 1.0:  # If scale was tiny or zero
-		calculated_size = default_radius
-		found_source = "Default Fallback Radius"
-		# print("DEBUG Size Source: ", found_source, " | Value: ", calculated_size)
-
-	# Ensure radius is at least 1.0 before returning
 	return max(calculated_size, 1.0)
+
+--- Start of ./core/systems/agent_spawner.gd ---
+
+# File: core/systems/agent_spawner.gd
+# New script dedicated to agent spawning logic.
+
+extends Node
+
+var _player_agent_body: KinematicBody = null
+
+
+func _ready():
+	# Listen for the zone_loaded signal to know when it's safe to spawn.
+	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
+
+
+func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
+	if is_instance_valid(agent_container_node):
+		if not is_instance_valid(_player_agent_body):
+			spawn_player()
+	else:
+		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn player.")
+
+
+func spawn_player():
+	var container = GlobalRefs.agent_container
+	if not is_instance_valid(container):
+		printerr("AgentSpawner Error: GlobalRefs.agent_container invalid.")
+		return
+
+	var player_template = load(Constants.PLAYER_DEFAULT_TEMPLATE_PATH)
+	if not player_template is AgentTemplate:
+		printerr("AgentSpawner Error: Failed to load Player AgentTemplate.")
+		return
+
+	var player_spawn_pos = Vector3.ZERO
+	if is_instance_valid(GlobalRefs.current_zone):
+		var entry_node = null
+		if Constants.ENTRY_POINT_NAMES.size() > 0:
+			entry_node = GlobalRefs.current_zone.find_node(
+				Constants.ENTRY_POINT_NAMES[0], true, false
+			)
+		if entry_node is Spatial:
+			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
+
+	var player_overrides = {"name": "PlayerShip", "faction": "Player"}
+	_player_agent_body = spawn_agent(
+		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides
+	)
+
+	if is_instance_valid(_player_agent_body):
+		GlobalRefs.player_agent_body = _player_agent_body
+		EventBus.emit_signal("camera_set_target_requested", _player_agent_body)
+		EventBus.emit_signal("player_spawned", _player_agent_body)
+	else:
+		printerr("AgentSpawner Error: Failed to spawn player agent body!")
+
+
+func spawn_agent(
+	agent_scene_path: String,
+	position: Vector3,
+	agent_template: Resource,
+	overrides: Dictionary = {}
+) -> KinematicBody:
+	var container = GlobalRefs.agent_container
+	if not is_instance_valid(container):
+		printerr("AgentSpawner Spawn Error: Invalid GlobalRefs.agent_container.")
+		return null
+	if not agent_template is AgentTemplate:
+		printerr("AgentSpawner Spawn Error: Invalid AgentTemplate Resource.")
+		return null
+
+	var agent_scene = load(agent_scene_path)
+	if not agent_scene:
+		printerr("AgentSpawner Spawn Error: Failed to load agent scene: ", agent_scene_path)
+		return null
+
+	var agent_root_instance = agent_scene.instance()
+	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
+	if not (agent_node and agent_node is KinematicBody):
+		printerr("AgentSpawner Spawn Error: Invalid agent body node in scene: ", agent_scene_path)
+		agent_root_instance.queue_free()
+		return null
+
+	var instance_name = overrides.get(
+		"name", agent_template.default_agent_name + "_" + str(agent_root_instance.get_instance_id())
+	)
+	agent_root_instance.name = instance_name
+
+	container.add_child(agent_root_instance)
+	agent_node.global_transform.origin = position
+
+	if agent_node.has_method("initialize"):
+		agent_node.initialize(agent_template, overrides)
+
+	EventBus.emit_signal(
+		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides}
+	)
+
+	var controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	if controller and controller.has_method("initialize"):
+		controller.initialize(overrides)
+
+	return agent_node
 
 --- Start of ./core/systems/asset_system.gd ---
 
@@ -1772,6 +1819,7 @@ const AUTO_GROUP_NAME = "centered_growing_labels"
 # --- Internal ---
 var _is_ready_for_recenter = false
 
+
 func _enter_tree():
 	if not is_in_group(AUTO_GROUP_NAME):
 		add_to_group(AUTO_GROUP_NAME)
@@ -1779,10 +1827,12 @@ func _enter_tree():
 		connect("resized", self, "_on_self_resized")
 	call_deferred("_initial_setup_and_recenter")
 
+
 func _initial_setup_and_recenter():
 	_is_ready_for_recenter = true
 	_recenter_in_parent()
 	self.focus_mode = Control.FOCUS_NONE
+
 
 func _exit_tree():
 	if is_in_group(AUTO_GROUP_NAME):
@@ -1790,8 +1840,10 @@ func _exit_tree():
 	if is_connected("resized", self, "_on_self_resized"):
 		disconnect("resized", self, "_on_self_resized")
 
+
 func _on_self_resized():
 	_recenter_in_parent()
+
 
 func _recenter_in_parent():
 	if not _is_ready_for_recenter:
@@ -1802,9 +1854,12 @@ func _recenter_in_parent():
 		var parent_size = parent_control.rect_size
 		var new_pos_x = (parent_size.x - current_label_size.x) / 2.0
 		var new_pos_y = (parent_size.y - current_label_size.y) / 2.0
-		if not is_equal_approx(rect_position.x, new_pos_x) or \
-		   not is_equal_approx(rect_position.y, new_pos_y):
+		if (
+			not is_equal_approx(rect_position.x, new_pos_x)
+			or not is_equal_approx(rect_position.y, new_pos_y)
+		):
 			self.rect_position = Vector2(new_pos_x, new_pos_y)
+
 
 func get_parent_control() -> Control:
 	var p = get_parent()
@@ -1993,6 +2048,7 @@ func _on_SliderControlRight_value_changed(value):
 
 extends MeshInstance
 
+
 func _ready():
 	self.hide()
 
@@ -2095,336 +2151,201 @@ extends MeshInstance
 
 export var rotation_speed = 0.01
 
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
-	self.rotate(Vector3(0,1,0), delta * rotation_speed)
+	self.rotate(Vector3(0, 1, 0), delta * rotation_speed)
 
 --- Start of ./modules/piloting/scripts/player_controller_ship.gd ---
 
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version 3.8 - Speed control refactored for keyboard and slider synchronization.
+# Version: 4.1 - Corrected get_world() call for Godot 3 syntax.
+
 extends Node
 
 # --- References ---
-var agent_script: Node = null  # Parent AgentBody (KinematicBody with agent.gd)
-var agent_body: KinematicBody = null  # Same as agent_script in this context
-var movement_system: Node = null  # Agent's MovementSystem component
+var agent_script: Node = null
+var agent_body: KinematicBody = null
+var movement_system: Node = null
 var _main_camera: Camera = null
 var _speed_slider: Slider = null
 
-# --- Speed Control Values ---
-var template_min_speed_actual: float = 0.0  # Ship's absolute minimum speed capability
-var template_max_speed_actual: float = 300.0  # Ship's absolute maximum speed capability (from template)
-var current_target_speed_normalized: float = 1.0  # Player's desired speed percentage (0.0 to 1.0)
-const KEY_SPEED_INCREMENT_NORMALIZED: float = 0.05  # 5% change per key press
+# --- Speed Control ---
+var template_max_speed_actual: float = 300.0
+var current_target_speed_normalized: float = 1.0
+const KEY_SPEED_INCREMENT_NORMALIZED: float = 0.05
 
 # --- State ---
+var _current_input_state: InputState = null
+var _states = {}
 var _target_under_cursor: Spatial = null
 var _selected_target: Spatial = null setget _set_selected_target
-var _is_free_flight_mode: bool = false
-var _is_programmatically_setting_slider: bool = false
 
-# --- Input Tracking State ---
-var _lmb_pressed: bool = false
-var _lmb_press_pos: Vector2 = Vector2.ZERO
-var _lmb_press_time: int = 0
-var _is_dragging: bool = false
-var _last_tap_time: int = 0
-
-# --- Constants ---
-const DEFAULT_MOVE_TO_PROJECTION_DIST = 1e6
-const DRAG_THRESHOLD_PX_SQ = 10 * 10
-const DOUBLE_CLICK_TIME_MS = 400
+# --- Preload States ---
+const StateBase = preload("res://modules/piloting/scripts/player_input_states/state_base.gd")
+const StateDefault = preload("res://modules/piloting/scripts/player_input_states/state_default.gd")
+const StateFreeFlight = preload(
+	"res://modules/piloting/scripts/player_input_states/state_free_flight.gd"
+)
 
 
 func _ready():
-	var parent = get_parent()
-	if parent is KinematicBody and parent.has_method("command_stop"):
-		agent_body = parent
-		agent_script = parent  # agent.gd is on AgentBody
-
-		# Attempt to get MovementSystem. Agent.gd should make this accessible.
-		if agent_script.has_node("MovementSystem"):
-			movement_system = agent_script.get_node("MovementSystem")
-
-		if (
-			not is_instance_valid(movement_system)
-			or not movement_system.has_method("initialize_movement_params")
-		):
-			printerr(
-				"PlayerController Error: Valid MovementSystem not found on agent: ",
-				agent_script.name
-			)
-			set_physics_process(false)
-			set_process_input(false)
-			return
-
-		print("Player Controller ready for: ", agent_script.agent_name)
-		call_deferred("_deferred_ready_setup")
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	else:
-		printerr("Player Controller Error: Parent invalid or missing command methods!")
-		set_physics_process(false)
-		set_process_input(false)
+	agent_body = get_parent()
+	if not (agent_body is KinematicBody and agent_body.has_method("command_stop")):
+		printerr("PlayerController Error: Parent is not a valid agent.")
+		set_process(false)
 		return
+
+	agent_script = agent_body
+	movement_system = agent_body.get_node_or_null("MovementSystem")
+	if not is_instance_valid(movement_system):
+		printerr("PlayerController Error: MovementSystem not found on agent.")
+		set_process(false)
+		return
+
+	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
+
+	call_deferred("_deferred_ready_setup")
+	_change_state("default")
 
 
 func _deferred_ready_setup():
-	# Ensure GlobalRefs and HUD are ready
 	if not is_instance_valid(GlobalRefs.main_hud):
-		yield(GlobalRefs, "main_hud_ready")  # Assuming GlobalRefs could emit such a signal if needed
-		if not is_instance_valid(GlobalRefs.main_hud):  # Check again
-			printerr("PlayerController Error: Main HUD not available in GlobalRefs after wait.")
-			return
-
+		yield(get_tree().create_timer(0.1), "timeout")
 	_speed_slider = GlobalRefs.main_hud.get_node_or_null(
 		"ScreenControls/CenterRightZone/SliderControlRight"
 	)
-	if not is_instance_valid(_speed_slider):
-		printerr("PlayerController Error: Speed slider not found in MainHUD.")
-		# Potentially disable speed control features or log error further
 
-	# Initialize speed capabilities from the agent's movement system
-	# This assumes movement_system.max_move_speed holds the ship's template max speed at this point.
 	template_max_speed_actual = movement_system.max_move_speed
-	template_min_speed_actual = 0.0  # Or a game-defined minimum if ships don't fully stop
-
-	current_target_speed_normalized = 1.0  # Start at 100% speed
+	current_target_speed_normalized = 1.0
 	_update_agent_speed_cap_and_slider_visuals()
 
-	# Connect to EventBus signals
-	if EventBus:
-		if not EventBus.is_connected(
-			"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
-		):
-			EventBus.connect("player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled")
-		if not EventBus.is_connected("player_stop_pressed", self, "_on_Player_Stop_Pressed"):
-			EventBus.connect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
-		if not EventBus.is_connected("player_orbit_pressed", self, "_on_Player_Orbit_Pressed"):
-			EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
-		if not EventBus.is_connected(
-			"player_approach_pressed", self, "_on_Player_Approach_Pressed"
-		):
-			EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
-		if not EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
-			EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
-		# This connection is for when the SLIDER's value is changed by the user via main_hud.gd
-		if not EventBus.is_connected(
-			"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
-		):
-			EventBus.connect(
-				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
-			)
-	else:
-		printerr("PlayerController Error: EventBus not available for signal connections.")
-
+	_connect_eventbus_signals()
 	call_deferred("_get_camera_reference")
 
 
 func _get_camera_reference():
-	yield(get_tree(), "idle_frame")  # Wait for scene tree to be fully ready
-	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera is Camera:
-		_main_camera = GlobalRefs.main_camera
-		print("Player Controller obtained camera reference.")
+	yield(get_tree(), "idle_frame")
+	_main_camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else null
+	if not is_instance_valid(_main_camera):
+		printerr("PlayerController Error: Could not find valid Main Camera.")
+
+
+func _change_state(new_state_name: String):
+	if _current_input_state and _current_input_state.has_method("exit"):
+		_current_input_state.exit()
+
+	if _states.has(new_state_name):
+		_current_input_state = _states[new_state_name]
+		if _current_input_state.has_method("enter"):
+			_current_input_state.enter(self)
 	else:
-		printerr("Player Controller Error: Could not find valid Main Camera in GlobalRefs.")
+		printerr("PlayerController Error: Attempted to change to unknown state: ", new_state_name)
 
 
-func _physics_process(delta):
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-		_update_target_under_cursor()
-	else:
-		_target_under_cursor = null
-
-	if _is_free_flight_mode:
-		if is_instance_valid(_main_camera) and is_instance_valid(agent_script):
-			var move_dir = -_main_camera.global_transform.basis.z.normalized()
-			agent_script.command_move_direction(move_dir)
-		elif is_instance_valid(agent_script):
-			agent_script.command_stop()
+func _physics_process(delta: float):
+	if _current_input_state and _current_input_state.has_method("physics_update"):
+		_current_input_state.physics_update(delta)
 
 
+func _unhandled_input(event: InputEvent):
+	# Global inputs that work in any state
+	if Input.is_action_just_pressed("toggle_free_flight"):
+		var new_state = "default" if _current_input_state is StateFreeFlight else "free_flight"
+		_change_state(new_state)
+		get_viewport().set_input_as_handled()
+		return
+
+	if Input.is_action_pressed("command_speed_up"):
+		var change = KEY_SPEED_INCREMENT_NORMALIZED * event.get_action_strength("command_speed_up")
+		current_target_speed_normalized = clamp(current_target_speed_normalized + change, 0.0, 1.0)
+		_update_agent_speed_cap_and_slider_visuals()
+		get_viewport().set_input_as_handled()
+		return
+
+	if Input.is_action_pressed("command_speed_down"):
+		var change = (
+			KEY_SPEED_INCREMENT_NORMALIZED
+			* event.get_action_strength("command_speed_down")
+		)
+		current_target_speed_normalized = clamp(current_target_speed_normalized - change, 0.0, 1.0)
+		_update_agent_speed_cap_and_slider_visuals()
+		get_viewport().set_input_as_handled()
+		return
+
+	if Input.is_action_just_pressed("command_stop"):
+		_issue_stop_command()
+		get_viewport().set_input_as_handled()
+		return
+
+	# Delegate other inputs to the current state
+	if _current_input_state and _current_input_state.has_method("handle_input"):
+		_current_input_state.handle_input(event)
+
+
+# --- Helper & Command Functions (Publicly callable by states) ---
 func _update_target_under_cursor():
-	_target_under_cursor = null
-	if not is_instance_valid(agent_body):
-		return
-	var camera = get_viewport().get_camera()
-	if not is_instance_valid(camera):
-		return
-
-	var mouse_pos = get_viewport().get_mouse_position()
-	var ray_origin = camera.project_ray_origin(mouse_pos)
-	var ray_normal = camera.project_ray_normal(mouse_pos)
-	var ray_end = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
-
-	var space_state = agent_body.get_world().direct_space_state
-	var result = space_state.intersect_ray(ray_origin, ray_end, [agent_body], 1)
-
-	if result and result.collider is Spatial:
-		_target_under_cursor = result.collider
+	_target_under_cursor = _raycast_for_target(get_viewport().get_mouse_position())
 
 
 func _set_selected_target(new_target: Spatial):
 	if _selected_target == new_target:
 		return
-
 	_selected_target = new_target
-	if EventBus:
-		if is_instance_valid(_selected_target):
-			EventBus.emit_signal("player_target_selected", _selected_target)
-			print("Player selected target: ", _selected_target.name)
-		else:
-			EventBus.emit_signal("player_target_deselected")
-			print("Player de-selected target.")
-
-
-func deselect_current_target():
 	if is_instance_valid(_selected_target):
-		self._selected_target = null
-
-
-func _unhandled_input(event):
-	var input_handled = false
-
-	if Input.is_action_just_pressed("toggle_free_flight"):
-		_toggle_free_flight_mode()
-		input_handled = true
-
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
-		if event.pressed:
-			_lmb_pressed = true
-			_is_dragging = false
-			_lmb_press_pos = event.position
-			_lmb_press_time = OS.get_ticks_msec()
-		else:  # Released
-			if _lmb_pressed:
-				_lmb_pressed = false
-				var time_now = OS.get_ticks_msec()
-				if _is_dragging:
-					if (
-						is_instance_valid(_main_camera)
-						and _main_camera.has_method("set_is_rotating")
-					):
-						_main_camera.set_is_rotating(false)
-					input_handled = true
-				else:  # Tap/Click
-					if time_now - _last_tap_time <= DOUBLE_CLICK_TIME_MS:
-						_handle_double_click(event.position)
-						_last_tap_time = 0  # Reset double click timer
-					else:
-						_handle_single_click(event.position)
-						_last_tap_time = time_now
-					input_handled = true
-				_is_dragging = false
-
-	elif event is InputEventMouseMotion and _lmb_pressed and not _is_dragging:
-		if event.position.distance_squared_to(_lmb_press_pos) > DRAG_THRESHOLD_PX_SQ:
-			_is_dragging = true
-			_last_tap_time = 0  # Cancel potential double click
-			if not _is_free_flight_mode:
-				if is_instance_valid(_main_camera) and _main_camera.has_method("set_is_rotating"):
-					_main_camera.set_is_rotating(true)
-
-	# Keyboard commands (not consumed by mouse/touch release)
-	if not input_handled:
-		if not _is_free_flight_mode and is_instance_valid(agent_script):
-			var command_action_key = ""
-			if Input.is_action_just_pressed("command_approach"):
-				command_action_key = "approach"
-			elif Input.is_action_just_pressed("command_orbit"):
-				command_action_key = "orbit"
-			elif Input.is_action_just_pressed("command_flee"):
-				command_action_key = "flee"
-
-			if command_action_key != "":
-				input_handled = true
-				if is_instance_valid(_selected_target):
-					match command_action_key:
-						"approach":
-							agent_script.command_approach(_selected_target)
-						"orbit":
-							agent_script.command_orbit(_selected_target)
-						"flee":
-							agent_script.command_flee(_selected_target)
-					print(
-						"Command Input: ", command_action_key.to_upper(), " ", _selected_target.name
-					)
-				else:
-					print("Command Input: ", command_action_key, " failed - no target.")
-					input_handled = false  # Don't consume if command failed
-
-		# Speed adjustment keys (work in both modes)
-		if Input.is_action_pressed("command_speed_up"):  # Use is_action_pressed for holding down
-			current_target_speed_normalized = clamp(
-				(
-					current_target_speed_normalized
-					+ KEY_SPEED_INCREMENT_NORMALIZED * event.get_action_strength("command_speed_up")
-				),
-				0.0,
-				1.0
-			)
-			_update_agent_speed_cap_and_slider_visuals()
-			input_handled = true
-		elif Input.is_action_pressed("command_speed_down"):
-			current_target_speed_normalized = clamp(
-				(
-					current_target_speed_normalized
-					- (
-						KEY_SPEED_INCREMENT_NORMALIZED
-						* event.get_action_strength("command_speed_down")
-					)
-				),
-				0.0,
-				1.0
-			)
-			_update_agent_speed_cap_and_slider_visuals()
-			input_handled = true
-
-		if Input.is_action_just_pressed("command_stop"):
-			_issue_stop_command()
-			input_handled = true
-
-	if input_handled:
-		get_viewport().set_input_as_handled()
-
-
-func _handle_single_click(click_pos: Vector2):
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-		var target = _raycast_for_target(click_pos)
-		self._selected_target = target
-
-
-# --- Helper Raycast Function ---
-func _raycast_for_target(screen_pos: Vector2) -> Spatial:
-	if not is_instance_valid(agent_body):
-		return null
-	var camera = get_viewport().get_camera()
-	if not is_instance_valid(camera):
-		return null
-	var ray_origin = camera.project_ray_origin(screen_pos)
-	var ray_normal = camera.project_ray_normal(screen_pos)
-	var ray_end = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
-	var space_state = agent_body.get_world().direct_space_state
-	var result = space_state.intersect_ray(ray_origin, ray_end, [agent_body], 1)
-	if result and result.collider is Spatial:
-		return result.collider
+		EventBus.emit_signal("player_target_selected", _selected_target)
 	else:
-		return null
+		EventBus.emit_signal("player_target_deselected")
+
+
+func _handle_single_click(_click_pos: Vector2):
+	self._selected_target = _target_under_cursor
 
 
 func _handle_double_click(click_pos: Vector2):
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-		if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
-			var ray_origin = _main_camera.project_ray_origin(click_pos)
-			var ray_normal = _main_camera.project_ray_normal(click_pos)
-			var target_point = ray_origin + ray_normal * DEFAULT_MOVE_TO_PROJECTION_DIST
-			print("Input: Double-Click Move To ", target_point)
-			agent_script.command_move_to(target_point)
+	if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
+		var ray_origin = _main_camera.project_ray_origin(click_pos)
+		var ray_normal = _main_camera.project_ray_normal(click_pos)
+		var target_point = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
+		agent_script.command_move_to(target_point)
 
 
-# --- Signal Handlers for UI Button Presses via EventBus ---
+func _issue_stop_command():
+	if not is_instance_valid(agent_script):
+		return
+	agent_script.command_stop()
+	if _current_input_state is StateFreeFlight:
+		_change_state("default")
+
+
+func _update_agent_speed_cap_and_slider_visuals():
+	if not is_instance_valid(movement_system):
+		return
+	var new_cap = lerp(0.0, template_max_speed_actual, current_target_speed_normalized)
+	movement_system.max_move_speed = new_cap
+
+	if is_instance_valid(_speed_slider):
+		var slider_val = 100.0 - (current_target_speed_normalized * 100.0)
+		if not is_equal_approx(_speed_slider.value, slider_val):
+			_speed_slider.value = slider_val
+
+
+func _raycast_for_target(screen_pos: Vector2) -> Spatial:
+	if not is_instance_valid(agent_body) or not is_instance_valid(_main_camera):
+		return null
+	var ray_origin = _main_camera.project_ray_origin(screen_pos)
+	var ray_normal = _main_camera.project_ray_normal(screen_pos)
+	var ray_end = ray_origin + ray_normal * Constants.TARGETING_RAY_LENGTH
+	# --- FIX: Call get_world() from the agent_body node ---
+	var space_state = agent_body.get_world().direct_space_state
+	var result = space_state.intersect_ray(ray_origin, ray_end, [agent_body], 1)
+	return result.collider if result else null
+
+
+# --- Signal Handlers ---
 func _on_Player_Free_Flight_Toggled():
-	_toggle_free_flight_mode()
+	var new_state = "default" if _current_input_state is StateFreeFlight else "free_flight"
+	_change_state(new_state)
 
 
 func _on_Player_Stop_Pressed():
@@ -2432,128 +2353,193 @@ func _on_Player_Stop_Pressed():
 
 
 func _on_Player_Orbit_Pressed():
-	if is_instance_valid(_selected_target) and is_instance_valid(agent_script):
+	if is_instance_valid(_selected_target):
 		agent_script.command_orbit(_selected_target)
-	else:
-		print("PlayerController: Cannot Orbit - invalid target or agent.")
 
 
 func _on_Player_Approach_Pressed():
-	if is_instance_valid(_selected_target) and is_instance_valid(agent_script):
+	if is_instance_valid(_selected_target):
 		agent_script.command_approach(_selected_target)
-	else:
-		print("PlayerController: Cannot Approach - invalid target or agent.")
 
 
 func _on_Player_Flee_Pressed():
-	if is_instance_valid(_selected_target) and is_instance_valid(agent_script):
+	if is_instance_valid(_selected_target):
 		agent_script.command_flee(_selected_target)
-	else:
-		print("PlayerController: Cannot Flee - invalid target or agent.")
 
 
-# --- Speed Control Logic ---
-# Called when the MainHUD's speed slider is changed by the USER.
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
-	if _is_programmatically_setting_slider:
-		return  # Avoid loop if we set the slider from code
-
-	# Slider value is 0-100, 0=max speed, 100=min speed (inverted UI)
 	current_target_speed_normalized = (100.0 - slider_ui_value) / 100.0
-	current_target_speed_normalized = clamp(current_target_speed_normalized, 0.0, 1.0)
-	_update_agent_speed_cap_and_slider_visuals()  # Update agent and ensure slider reflects clamped value
+	_update_agent_speed_cap_and_slider_visuals()
 
 
-# Central function to update agent's speed cap and the UI slider's visual state
-func _update_agent_speed_cap_and_slider_visuals():
-	if not is_instance_valid(movement_system):
-		printerr("PlayerController: MovementSystem invalid, cannot update speed.")
-		return
-
-	# 1. Calculate the new actual speed cap for the movement system
-	var new_actual_speed_cap = lerp(
-		template_min_speed_actual, template_max_speed_actual, current_target_speed_normalized
+# --- Connections & Cleanup ---
+func _connect_eventbus_signals():
+	EventBus.connect("player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled")
+	EventBus.connect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
+	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
+	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
+	EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
+	EventBus.connect(
+		"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 	)
-	movement_system.max_move_speed = new_actual_speed_cap
-	# print("Player Speed Cap set to: ", movement_system.max_move_speed, " (Normalized: ", current_target_speed_normalized, ")")
-
-	# 2. Update the UI Slider's visual position
-	if is_instance_valid(_speed_slider):
-		_is_programmatically_setting_slider = true
-		var slider_display_value = current_target_speed_normalized * 100.0
-		# The slider is inverted (0 means full speed, 100 means min speed)
-		_speed_slider.value = 100.0 - clamp(slider_display_value, 0.0, 100.0)
-		_is_programmatically_setting_slider = false
-	# else:
-	# print("PlayerController: Speed slider instance is not valid for UI update.")
-
-
-func _issue_stop_command():
-	if not is_instance_valid(agent_script):
-		printerr("PlayerController Error: AgentScript invalid, cannot issue stop command.")
-		return
-
-	print("Command Input: STOP")
-	agent_script.command_stop()
-
-	if _is_free_flight_mode:
-		_exit_free_flight_mode_common()  # Common exit logic
-
-
-func _toggle_free_flight_mode():
-	_is_free_flight_mode = not _is_free_flight_mode
-	print("Toggling Free Flight Mode to: ", "ON" if _is_free_flight_mode else "OFF")
-
-	if _is_free_flight_mode:  # Entering Free Flight
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		if is_instance_valid(_main_camera) and _main_camera.has_method("set_rotation_input_active"):
-			_main_camera.set_rotation_input_active(true)
-		_is_dragging = false
-		if is_instance_valid(_main_camera) and _main_camera.has_method("set_is_rotating"):
-			_main_camera.set_is_rotating(false)  # Ensure external drag rotation is off
-	else:  # Exiting Free Flight (not via stop command, but by toggle)
-		_exit_free_flight_mode_common()
-		if is_instance_valid(agent_script):  # Issue stop if exiting via toggle
-			agent_script.command_stop()
-
-
-func _exit_free_flight_mode_common():
-	_is_free_flight_mode = false  # Ensure state is OFF
-	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	if is_instance_valid(_main_camera):
-		if _main_camera.has_method("set_rotation_input_active"):
-			_main_camera.set_rotation_input_active(false)
-		if _main_camera.has_method("set_is_rotating"):
-			_main_camera.set_is_rotating(false)
-	_lmb_pressed = false
-	_is_dragging = false
 
 
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
-		if EventBus:
-			if EventBus.is_connected(
+		if EventBus.is_connected(
+			"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
+		):
+			EventBus.disconnect(
 				"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
-			):
-				EventBus.disconnect(
-					"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
-				)
-			if EventBus.is_connected("player_stop_pressed", self, "_on_Player_Stop_Pressed"):
-				EventBus.disconnect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
-			if EventBus.is_connected("player_orbit_pressed", self, "_on_Player_Orbit_Pressed"):
-				EventBus.disconnect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
-			if EventBus.is_connected(
-				"player_approach_pressed", self, "_on_Player_Approach_Pressed"
-			):
-				EventBus.disconnect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
-			if EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
-				EventBus.disconnect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
-			if EventBus.is_connected(
+			)
+		if EventBus.is_connected("player_stop_pressed", self, "_on_Player_Stop_Pressed"):
+			EventBus.disconnect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
+		if EventBus.is_connected("player_orbit_pressed", self, "_on_Player_Orbit_Pressed"):
+			EventBus.disconnect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
+		if EventBus.is_connected("player_approach_pressed", self, "_on_Player_Approach_Pressed"):
+			EventBus.disconnect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
+		if EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
+			EventBus.disconnect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
+		if EventBus.is_connected(
+			"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
+		):
+			EventBus.disconnect(
 				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
+			)
+
+--- Start of ./modules/piloting/scripts/player_input_states/state_base.gd ---
+
+# File: modules/piloting/scripts/player_input_states/state_base.gd
+# Base class for all player input states.
+
+class_name InputState
+extends Node
+
+var _controller: Node  # Reference to the main player_controller_ship.gd
+
+
+func enter(controller: Node):
+	"""Called when entering this state."""
+	_controller = controller
+
+
+func exit():
+	"""Called when exiting this state."""
+	pass
+
+
+func handle_input(_event: InputEvent):
+	"""Handles unhandled input events."""
+	pass
+
+
+func physics_update(_delta: float):
+	"""Handles physics process logic for this state."""
+	pass
+
+--- Start of ./modules/piloting/scripts/player_input_states/state_default.gd ---
+
+# File: modules/piloting/scripts/player_input_states/state_default.gd
+# Handles standard flight, targeting, and camera drag input.
+
+extends "res://modules/piloting/scripts/player_input_states/state_base.gd"
+
+# --- Input Tracking State for this mode ---
+var _lmb_pressed: bool = false
+var _lmb_press_pos: Vector2 = Vector2.ZERO
+var _last_tap_time: int = 0
+var _is_dragging: bool = false
+
+const DRAG_THRESHOLD_PX_SQ = 10 * 10
+const DOUBLE_CLICK_TIME_MS = 400
+
+
+func enter(controller: Node):
+	.enter(controller)
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if (
+		is_instance_valid(_controller._main_camera)
+		and _controller._main_camera.has_method("set_is_rotating")
+	):
+		_controller._main_camera.set_is_rotating(false)
+	_lmb_pressed = false
+	_is_dragging = false
+
+
+func physics_update(_delta: float):
+	_controller._update_target_under_cursor()
+
+
+func handle_input(event: InputEvent):
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+		if event.pressed:
+			_lmb_pressed = true
+			_is_dragging = false
+			_lmb_press_pos = event.position
+		else:  # Released
+			if _lmb_pressed:
+				if _is_dragging:
+					# Stop camera rotation when drag is released
+					if (
+						is_instance_valid(_controller._main_camera)
+						and _controller._main_camera.has_method("set_is_rotating")
+					):
+						_controller._main_camera.set_is_rotating(false)
+				else:  # Tap/Click
+					var time_now = OS.get_ticks_msec()
+					if time_now - _last_tap_time <= DOUBLE_CLICK_TIME_MS:
+						_controller._handle_double_click(event.position)
+						_last_tap_time = 0
+					else:
+						_controller._handle_single_click(event.position)
+						_last_tap_time = time_now
+				_lmb_pressed = false
+				_is_dragging = false
+				_controller.get_viewport().set_input_as_handled()
+
+	elif event is InputEventMouseMotion and _lmb_pressed and not _is_dragging:
+		if event.position.distance_squared_to(_lmb_press_pos) > DRAG_THRESHOLD_PX_SQ:
+			_is_dragging = true
+			if (
+				is_instance_valid(_controller._main_camera)
+				and _controller._main_camera.has_method("set_is_rotating")
 			):
-				EventBus.disconnect(
-					"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
-				)
+				_controller._main_camera.set_is_rotating(true)
+			_controller.get_viewport().set_input_as_handled()
+
+--- Start of ./modules/piloting/scripts/player_input_states/state_free_flight.gd ---
+
+# File: modules/piloting/scripts/player_input_states/state_free_flight.gd
+# Handles direct ship orientation and movement input.
+
+extends "res://modules/piloting/scripts/player_input_states/state_base.gd"
+
+
+func enter(controller: Node):
+	.enter(controller)
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	if (
+		is_instance_valid(_controller._main_camera)
+		and _controller._main_camera.has_method("set_rotation_input_active")
+	):
+		_controller._main_camera.set_rotation_input_active(true)
+
+
+func exit():
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if (
+		is_instance_valid(_controller._main_camera)
+		and _controller._main_camera.has_method("set_rotation_input_active")
+	):
+		_controller._main_camera.set_rotation_input_active(false)
+
+
+func physics_update(_delta: float):
+	if is_instance_valid(_controller._main_camera) and is_instance_valid(_controller.agent_script):
+		var move_dir = -_controller._main_camera.global_transform.basis.z.normalized()
+		_controller.agent_script.command_move_direction(move_dir)
+	elif is_instance_valid(_controller.agent_script):
+		_controller.agent_script.command_stop()
 
 --- Start of ./modules/piloting/scripts/ship_controller_ai.gd ---
 
@@ -3271,49 +3257,28 @@ func _notification(what):
 --- Start of ./scenes/game_world/world_manager.gd ---
 
 # File: scenes/game_world/world_manager.gd
-# Version 2.3 - Code style cleanup (Tabs, Line Length, If/Else)
+# Version: 3.0 (Refactored) - Handles zone management only. Agent spawning is delegated.
 
 extends Node
 
-# --- NodePaths ---
-const ACTIVE_MODULE_CONTAINER_PATH = "../" + Constants.CURRENT_ZONE_CONTAINER_NAME
-
 # --- State ---
 var current_zone_instance: Node = null
-var _spawned_agent_bodies = []
-var _player_agent_body: KinematicBody = null
+var _spawned_agent_bodies = []  # This list can now be managed by a future system if needed.
 
 
 # --- Initialization ---
 func _ready():
 	GlobalRefs.world_manager = self
-	if EventBus:
-		var err1 = EventBus.connect(
-			"agent_reached_destination", self, "_on_Agent_Reached_Destination"
-		)
-		var err2 = EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
-		var err3 = EventBus.connect("zone_loaded", self, "_on_Zone_Loaded_WorldManager")
-		if err1 != OK or err2 != OK or err3 != OK:
-			printerr("WM _ready Error: Failed connect EventBus signals!")
-	else:
-		printerr("WM _ready Error: EventBus not available!")
+	# Connect to agent signals to keep the local list clean.
+	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
+	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
 
 	randomize()
-	print("WM: 1/13 - _ready started.")
-	print("WM _ready Debug: Checking Constant value...")
-	print("- Constants.INITIAL_ZONE_SCENE_PATH = '", Constants.INITIAL_ZONE_SCENE_PATH, "'")
-	print("- Type = ", typeof(Constants.INITIAL_ZONE_SCENE_PATH))
-
-	print("WM: 2/13 - Attempting load_zone...")
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
-	print("WM: 9/13 - Returned from initial load_zone call.")
-	print("WM: 10/13 - _ready finished (Player spawn handled by signal).")
 
 
 # --- Zone Management ---
 func load_zone(zone_scene_path: String):
-	print("WM: 3/13 - load_zone starting for path: ", zone_scene_path)
-
 	if not zone_scene_path or zone_scene_path.empty():
 		printerr("WM Error: Invalid zone path provided.")
 		return
@@ -3321,8 +3286,8 @@ func load_zone(zone_scene_path: String):
 	# 1. Cleanup Previous Zone
 	if is_instance_valid(current_zone_instance):
 		EventBus.emit_signal("zone_unloading", current_zone_instance)
+		# Clear references that will be repopulated on new zone load
 		_spawned_agent_bodies.clear()
-		_player_agent_body = null
 		GlobalRefs.player_agent_body = null
 		GlobalRefs.current_zone = null
 		GlobalRefs.agent_container = null
@@ -3330,227 +3295,49 @@ func load_zone(zone_scene_path: String):
 		current_zone_instance = null
 
 	# 2. Find Parent Container Node
-	var parent_node = get_parent()
-	if not is_instance_valid(parent_node):
-		printerr("WM Error: Could not get valid parent node!")
+	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
+	if not is_instance_valid(zone_holder):
+		printerr("WM Error: Could not find valid zone holder node!")
 		return
-	var zone_holder = parent_node.get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
-
-	if not zone_holder:
-		printerr(
-			"WM Error: Node '",
-			Constants.CURRENT_ZONE_CONTAINER_NAME,
-			"' missing as child of parent '",
-			parent_node.name,
-			"'"
-		)
-		return
-	print("WM: 4/13 - Found zone holder: ", zone_holder.name)
 
 	# 3. Load and Instance the Zone Scene
 	var zone_scene = load(zone_scene_path)
 	if not zone_scene:
-		printerr("WM Error: Failed load Zone Scene Resource: ", zone_scene_path)
+		printerr("WM Error: Failed to load Zone Scene Resource: ", zone_scene_path)
 		return
 
 	current_zone_instance = zone_scene.instance()
-	if not current_zone_instance:
-		printerr("WM Error: Failed instance Zone Scene: ", zone_scene_path)
-		return
-
-	print("WM: 5/13 - Instanced Zone Scene: ", current_zone_instance.name)
-
-	# 4. Add Zone to Tree & Update GlobalRefs for Zone
 	zone_holder.add_child(current_zone_instance)
 	GlobalRefs.current_zone = current_zone_instance
 
-	# 5. Find Agent Container *within* the Zone & Update GlobalRef
-	if not is_instance_valid(current_zone_instance):
-		printerr("WM Error: current_zone_instance invalid after add_child?")
-		return
-
-	var agent_cont_ref = current_zone_instance.find_node(
+	# 4. Find Agent Container and emit signal that the zone is ready
+	var agent_container = current_zone_instance.find_node(
 		Constants.AGENT_CONTAINER_NAME, true, false
 	)
-	GlobalRefs.agent_container = agent_cont_ref
-	print("WM: 6/13 - Found Agent Container: ", agent_cont_ref)
-	if not agent_cont_ref:
-		printerr(
-			"WM Warning: Agent container '", Constants.AGENT_CONTAINER_NAME, "' not found in zone."
-		)
+	GlobalRefs.agent_container = agent_container
 
-	# 6. Emit Loaded Signal
-	print("WM: 7/13 - Emitting zone_loaded signal.")
-	EventBus.emit_signal(
-		"zone_loaded", current_zone_instance, zone_scene_path, GlobalRefs.agent_container
-	)
-	print("WM: 8/13 - load_zone finished.")
+	EventBus.emit_signal("zone_loaded", current_zone_instance, zone_scene_path, agent_container)
 
 
-# --- Agent Spawning & Management ---
-# Called by handler for zone_loaded signal
-func spawn_player():
-	print("WM: 12/13 - spawn_player called.")
-	var container = GlobalRefs.agent_container
-	if not is_instance_valid(container):
-		printerr("WM spawn_player Error: GlobalRefs.agent_container invalid.")
-		return
-
-	var player_template = load(Constants.PLAYER_DEFAULT_TEMPLATE_PATH)
-	if not player_template is AgentTemplate:
-		printerr("WM Error: Failed load Player AgentTemplate")
-		return
-
-	var player_spawn_pos = Vector3.ZERO
-	var env_instance = GlobalRefs.current_zone
-	if is_instance_valid(env_instance):
-		var entry_node = null
-		if Constants.ENTRY_POINT_NAMES.size() > 0:
-			entry_node = env_instance.find_node(Constants.ENTRY_POINT_NAMES[0], true, false)
-		if entry_node is Spatial:
-			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
-
-	var player_overrides = {"name": "PlayerShip", "faction": "Player"}
-	_player_agent_body = spawn_agent(
-		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides
-	)
-
-	if is_instance_valid(_player_agent_body):
-		GlobalRefs.player_agent_body = _player_agent_body
-		EventBus.emit_signal("camera_set_target_requested", _player_agent_body)
-		EventBus.emit_signal("player_spawned", _player_agent_body)
-	else:
-		printerr("WorldManager Error: Failed to spawn player agent body!")
-	print("WM: 13/13 - spawn_player finished.")
-
-
-# Generic function CALLED BY EXTERNAL systems
-func spawn_agent(
-	agent_scene_path: String,
-	position: Vector3,
-	agent_template: Resource,
-	overrides: Dictionary = {}
-) -> KinematicBody:
-	var container = GlobalRefs.agent_container
-	if not is_instance_valid(container):
-		printerr("WM Spawn Error: Invalid GlobalRefs.agent_container.")
-		return null
-	if not agent_template is AgentTemplate:
-		printerr("WM Spawn Error: Invalid AgentTemplate Resource.")
-		return null
-	if not agent_scene_path or agent_scene_path.empty():
-		printerr("WM Spawn Error: Invalid scene path.")
-		return null
-
-	var agent_scene = load(agent_scene_path)
-	if not agent_scene:
-		printerr("WM Spawn Error: Failed load agent scene: ", agent_scene_path)
-		return null
-	var agent_root_instance = agent_scene.instance()
-	if not agent_root_instance:
-		printerr("WM Spawn Error: Failed instance agent scene!")
-		return null
-
-	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
-	if not agent_node or not agent_node is KinematicBody:
-		var error_msg = str(
-			"WM Spawn Error: Invalid node '",
-			Constants.AGENT_BODY_NODE_NAME,
-			"' in scene: ",
-			agent_scene_path
-		)
-		printerr(error_msg)
-		agent_root_instance.queue_free()
-		return null
-
-	var instance_name = overrides.get(
-		"name", agent_template.default_agent_name + "_" + str(agent_root_instance.get_instance_id())
-	)
-	agent_root_instance.name = instance_name
-
-	container.add_child(agent_root_instance)
-	agent_node.global_transform.origin = position
-
-	if agent_node.has_method("initialize"):
-		agent_node.initialize(agent_template, overrides)
-
-	_spawned_agent_bodies.append(agent_node)
-	var name_to_print = instance_name
-	# Expanded check using 'in' for property existence
-	if "agent_name" in agent_node:
-		name_to_print = agent_node.agent_name
-	print("Spawned agent '", name_to_print, "' core node.")
-
-	EventBus.emit_signal(
-		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides}
-	)
-
-	var controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-	if controller and controller.has_method("initialize"):
-		controller.initialize(overrides)
-	elif controller and controller.has_method("set_target") and ("initial_target" in overrides):
-		controller.set_target(overrides.initial_target)
-
-	return agent_node
-
-
-# --- Signal Handlers ---
-func _on_Agent_Reached_Destination(agent_body):
-	if is_instance_valid(agent_body) and agent_body != _player_agent_body:
-		if agent_body.has_method("despawn"):
-			agent_body.despawn()
-		else:
-			agent_body.queue_free()  # Fallback
-	elif is_instance_valid(agent_body) and agent_body == _player_agent_body:
-		pass  # Player reached destination, do nothing here
+# --- Signal Handlers to maintain agent list ---
+func _on_Agent_Spawned(agent_body, _init_data):
+	if not _spawned_agent_bodies.has(agent_body):
+		_spawned_agent_bodies.append(agent_body)
 
 
 func _on_Agent_Despawning(agent_body):
-	call_deferred("_cleanup_despawned_agent_from_list", agent_body)
+	if _spawned_agent_bodies.has(agent_body):
+		_spawned_agent_bodies.erase(agent_body)
 
 
-func _cleanup_despawned_agent_from_list(agent_instance):
-	if _spawned_agent_bodies.has(agent_instance):
-		_spawned_agent_bodies.erase(agent_instance)
-	# Expanded check
-	if _player_agent_body == agent_instance:
-		print("Player agent reference cleared during cleanup.")
-		_player_agent_body = null
-		GlobalRefs.player_agent_body = null
-
-
-func _on_Zone_Loaded_WorldManager(_zone_instance, _zone_path, agent_container_node):
-	print("WM: 11/13 - Reacting to zone_loaded signal.")
-	if is_instance_valid(agent_container_node):
-		if not is_instance_valid(_player_agent_body):
-			# Try direct call again now that other issues might be fixed
-			spawn_player()
-	else:
-		printerr("WM _on_Zone_Loaded Error: Agent container invalid. Cannot spawn player.")
-
-
-# --- Cleanup ---
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
-		print("!!! WM: RECEIVED NOTIFICATION_PREDELETE !!!")
-		if EventBus:
-			# Expanded disconnect checks
-			if EventBus.is_connected(
-				"agent_reached_destination", self, "_on_Agent_Reached_Destination"
-			):
-				EventBus.disconnect(
-					"agent_reached_destination", self, "_on_Agent_Reached_Destination"
-				)
-			if EventBus.is_connected("agent_despawning", self, "_on_Agent_Despawning"):
-				EventBus.disconnect("agent_despawning", self, "_on_Agent_Despawning")
-			if EventBus.is_connected("zone_loaded", self, "_on_Zone_Loaded_WorldManager"):
-				EventBus.disconnect("zone_loaded", self, "_on_Zone_Loaded_WorldManager")
-		# Expanded GlobalRefs check
 		if GlobalRefs and GlobalRefs.world_manager == self:
 			GlobalRefs.world_manager = null
-		# Expanded instance check
-		if is_instance_valid(current_zone_instance):
-			current_zone_instance.queue_free()
+		if EventBus.is_connected("agent_spawned", self, "_on_Agent_Spawned"):
+			EventBus.disconnect("agent_spawned", self, "_on_Agent_Spawned")
+		if EventBus.is_connected("agent_despawning", self, "_on_Agent_Despawning"):
+			EventBus.disconnect("agent_despawning", self, "_on_Agent_Despawning")
 
 --- Start of ./scenes/main_menu/SettingsRendering.gd ---
 
@@ -3558,10 +3345,10 @@ extends Control
 
 var _viewport_size = Vector2(1920, 1080)
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_viewport_size = get_viewport().size
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

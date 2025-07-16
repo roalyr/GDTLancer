@@ -5,8 +5,12 @@
 │   │   │   ├── particle_dust_material.tres
 │   │   │   └── particle_quad.tres
 │   │   ├── shaders
+│   │   │   ├── cloud_solid.gdshader
+│   │   │   ├── cloud_solid_inside.gdshader
+│   │   │   ├── cloud_transparent.gdshader
 │   │   │   ├── solid.gdshader
 │   │   │   ├── star_corona.gdshader
+│   │   │   ├── star_sprite.gdshader
 │   │   │   └── star_surface.gdshader
 │   │   ├── textures
 │   │   │   └── sbs-noise_texture_pack-512x512
@@ -128,8 +132,19 @@
 │   │           ├── RobotoCondensed-Light.ttf
 │   │           └── RobotoCondensed-Regular.ttf
 │   ├── models
-│   │   └── ships
-│   │       └── Phoenix.glb
+│   │   ├── nebulas
+│   │   │   ├── nebula_1.blend
+│   │   │   └── nebula_1.glb
+│   │   ├── ships
+│   │   │   └── Phoenix.glb
+│   │   └── sprites
+│   │       ├── Solar_sprite.glb
+│   │       ├── Star_sprite_double.glb
+│   │       ├── Star_sprite_double_large.glb
+│   │       ├── Star_sprite_double_wide.glb
+│   │       ├── Star_sprite_simple.glb
+│   │       ├── Star_sprite_square.glb
+│   │       └── Star_sprite_square_wide.glb
 │   └── themes
 │       └── main_theme.tres
 ├── autoload
@@ -145,10 +160,20 @@
 │   │   ├── agent.tscn
 │   │   ├── components
 │   │   │   ├── movement_system.gd
+│   │   │   ├── navigation_system
+│   │   │   │   ├── command_align_to.gd
+│   │   │   │   ├── command_approach.gd
+│   │   │   │   ├── command_flee.gd
+│   │   │   │   ├── command_idle.gd
+│   │   │   │   ├── command_move_direction.gd
+│   │   │   │   ├── command_move_to.gd
+│   │   │   │   ├── command_orbit.gd
+│   │   │   │   └── command_stop.gd
 │   │   │   └── navigation_system.gd
 │   │   ├── npc_agent.tscn
 │   │   └── player_agent.tscn
 │   ├── systems
+│   │   ├── agent_spawner.gd
 │   │   ├── asset_system.gd
 │   │   ├── character_system.gd
 │   │   ├── chronicle_system.gd
@@ -172,6 +197,10 @@
 │   └── piloting
 │       └── scripts
 │           ├── player_controller_ship.gd
+│           ├── player_input_states
+│           │   ├── state_base.gd
+│           │   ├── state_default.gd
+│           │   └── state_free_flight.gd
 │           └── ship_controller_ai.gd
 ├── project.godot
 ├── scenes
@@ -186,7 +215,13 @@
 │   │   ├── main_menu.tscn
 │   │   └── SettingsRendering.gd
 │   └── zones
-│       └── basic_flight_zone.tscn
+│       ├── basic_flight_zone.tscn
+│       ├── nebula_1_inside.tres
+│       ├── nebula_1.tres
+│       ├── nebula_transparent_1.tres
+│       ├── star_1_corona.tres
+│       ├── star_1_sprite.tres
+│       └── star_1_surface.tres
 ├── Splash.png
 └── tests
     ├── autoload
@@ -198,6 +233,6 @@
     └── helpers
         └── signal_catcher.gd
 
-39 directories, 160 files
+43 directories, 191 files
 
-39 directories, 160 files
+43 directories, 191 files
