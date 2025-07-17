@@ -619,7 +619,7 @@ func set_main_hud(new_ref):
 --- Start of ./core/agents/agent.gd ---
 
 # File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
-# Version: 3.33 - Fetched component nodes inside initialize() due to execution order.
+# Version: 3.35 - Modified command_orbit to capture current distance.
 extends KinematicBody
 
 # --- Core State & Identity ---
@@ -632,7 +632,6 @@ var interaction_radius: float = 15.0
 var current_velocity: Vector3 = Vector3.ZERO
 
 # --- Component References ---
-# Declare vars, assign them in initialize() now
 var movement_system: Node = null
 var navigation_system: Node = null
 
@@ -640,7 +639,6 @@ var navigation_system: Node = null
 # --- Initialization ---
 # Called externally (e.g., by WorldManager) after instancing and adding to tree
 func initialize(template: AgentTemplate, overrides: Dictionary = {}):
-	# 1. Basic AgentBody Initialization
 	if not template is AgentTemplate:
 		printerr("AgentBody Initialize Error: Invalid template for ", self.name)
 		return
@@ -649,26 +647,21 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 	var default_name = template.default_agent_name + "_" + str(get_instance_id())
 	self.agent_name = overrides.get("name", default_name)
 	self.faction_id = overrides.get("faction", template.default_faction_id)
-	self.name = self.agent_name  # Set Node name
+	self.name = self.agent_name
 	self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
 
-	# *** Fetch Component Nodes HERE inside initialize ***
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
 
-	# *** Check if references were successfully obtained NOW ***
 	if not is_instance_valid(movement_system) or not is_instance_valid(navigation_system):
 		printerr(
-			"AgentBody Initialize Error: Failed to get required component nodes (MovementSystem or NavigationSystem) for '",
+			"AgentBody Initialize Error: Failed to get required component nodes for '",
 			self.name,
-			"'. Check node names and scene structure."
+			"'."
 		)
-		set_physics_process(false)  # Disable physics if components are missing
-		return  # Stop initialization
+		set_physics_process(false)
+		return
 
-	# If we got here, components were found successfully.
-
-	# 2. Prepare Params for Components
 	var move_params = {
 		"max_move_speed": overrides.get("max_move_speed", template.max_move_speed),
 		"acceleration": overrides.get("acceleration", template.acceleration),
@@ -684,9 +677,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 		"orbit_kd": overrides.get("orbit_kd", 0.5)
 	}
 
-	# 3. Initialize Components
 	movement_system.initialize_movement_params(move_params)
-	navigation_system.initialize_navigation(nav_params, movement_system)  # Pass ref to movement_system
+	navigation_system.initialize_navigation(nav_params, movement_system)
 
 	print(
 		"AgentBody '",
@@ -700,15 +692,12 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 # --- Godot Lifecycle ---
 func _ready():
 	add_to_group("Agents")
-	# No need to fetch nodes here anymore, moved to initialize()
-	set_physics_process(true)  # Enable physics processing
+	set_physics_process(true)
 
 
 func _physics_process(delta: float):
-	# Check components validity just in case something weird happens after init
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
-		# If components somehow became invalid after successful init, stop processing.
-		if delta > 0:  # Avoid printing flood if physics is disabled
+		if delta > 0:
 			printerr("AgentBody _physics_process Error: Components invalid for '", self.name, "'!")
 		set_physics_process(false)
 		return
@@ -719,21 +708,17 @@ func _physics_process(delta: float):
 	# 1. Update Navigation & Movement Logic
 	navigation_system.update_navigation(delta)
 
-	# 2. Apply Physics Engine Movement
+	# 2. Smoothly enforce the current speed limit before moving.
+	movement_system.enforce_speed_limit(delta)
+
+	# 3. Apply Physics Engine Movement
 	current_velocity = move_and_slide(current_velocity, Vector3.UP)
 
-	# 3. Apply Post-Movement Corrections (e.g., PID)
+	# 4. Apply Post-Movement Corrections (e.g., PID for orbit)
 	navigation_system.apply_orbit_pid_correction(delta)
-
-	# 4. Final Velocity Clamping
-	var max_speed = movement_system.max_move_speed
-	if current_velocity.length_squared() > max_speed * max_speed:
-		current_velocity = current_velocity.normalized() * max_speed
 
 
 # --- Public Command API (Delegates to NavigationSystem) ---
-# (Command functions remain the same as v3.32)
-# ...
 func command_stop():
 	if is_instance_valid(navigation_system):
 		navigation_system.set_command_stopping()
@@ -762,6 +747,9 @@ func command_approach(target: Spatial):
 		printerr("AgentBody: Cannot command_approach - NavigationSystem invalid.")
 
 
+# MODIFIED: This function now captures the ship's current distance to the target
+# as the desired orbit distance, preventing the navigation system from
+# immediately trying to correct to a different, pre-calculated minimum.
 func command_orbit(target: Spatial):
 	if not is_instance_valid(target):
 		printerr("AgentBody: command_orbit - Invalid target node provided.")
@@ -772,10 +760,11 @@ func command_orbit(target: Spatial):
 	if is_instance_valid(navigation_system):
 		var vec_to_target_local = to_local(target.global_transform.origin)
 		var orbit_clockwise = vec_to_target_local.x > 0.01
-		var target_size = navigation_system._get_target_effective_size(target)
-		var current_dist = global_transform.origin.distance_to(target.global_transform.origin)
-		var min_orbit_dist = target_size + 1.0
-		var captured_orbit_dist = max(current_dist, min_orbit_dist)
+		
+		# Always capture the current distance. The NavigationSystem will handle
+		# gently pushing the agent out if this distance is too close.
+		var captured_orbit_dist = global_transform.origin.distance_to(target.global_transform.origin)
+		
 		navigation_system.set_command_orbit(target, captured_orbit_dist, orbit_clockwise)
 	else:
 		printerr("AgentBody: Cannot command_orbit - NavigationSystem invalid.")
@@ -806,7 +795,6 @@ func despawn():
 	EventBus.emit_signal("agent_despawning", self)
 	set_physics_process(false)
 	call_deferred("queue_free")
-# ...
 
 --- Start of ./core/agents/agent_template.gd ---
 
@@ -857,7 +845,7 @@ export var alignment_threshold_angle_deg: float = 45.0
 --- Start of ./core/agents/components/movement_system.gd ---
 
 # File: res://core/agents/components/movement_system.gd
-# Version: 1.0
+# Version: 1.4 - Added smooth deceleration when max_move_speed is lowered.
 # Purpose: Handles the low-level execution of agent movement and rotation physics.
 # Called by NavigationSystem.
 
@@ -867,30 +855,32 @@ extends Node
 var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
 var acceleration: float = Constants.DEFAULT_ACCELERATION
 var deceleration: float = Constants.DEFAULT_DECELERATION
-var brake_strength: float = Constants.DEFAULT_DECELERATION * 1.5  # Default derived value
+var brake_strength: float = Constants.DEFAULT_DECELERATION * 1.5
 var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
 var alignment_threshold_angle_deg: float = 45.0
 var _alignment_threshold_rad: float = deg2rad(alignment_threshold_angle_deg)
+
+# --- Angular Velocity & Damping ---
+var angular_velocity := Vector3.ZERO
+var turn_damping := 5.0
 
 # Reference to the parent AgentBody KinematicBody
 var agent_body: KinematicBody = null
 
 
 func _ready():
-	# Get reference to parent body ONCE. Assumes this node is direct child.
 	agent_body = get_parent()
 	if not agent_body is KinematicBody:
 		printerr("MovementSystem Error: Parent is not a KinematicBody!")
-		agent_body = null  # Invalidate if wrong type
-		set_process(false)  # Disable if setup fails
+		agent_body = null
+		set_process(false)
 
 
-# Called by AgentBody's initialize method
 func initialize_movement_params(params: Dictionary):
 	max_move_speed = params.get("max_move_speed", max_move_speed)
 	acceleration = params.get("acceleration", acceleration)
 	deceleration = params.get("deceleration", deceleration)
-	brake_strength = params.get("brake_strength", deceleration * 1.5)  # Use provided or derive default
+	brake_strength = params.get("brake_strength", deceleration * 1.5)
 	max_turn_speed = params.get("max_turn_speed", max_turn_speed)
 	alignment_threshold_angle_deg = params.get(
 		"alignment_threshold_angle_deg", alignment_threshold_angle_deg
@@ -910,95 +900,134 @@ func initialize_movement_params(params: Dictionary):
 	)
 
 
-# --- Public Methods Called by NavigationSystem ---
-
+# --- Public Methods Called by NavigationSystem & AgentBody ---
 
 # Applies acceleration towards max_move_speed ONLY if aligned within threshold.
-# Modifies agent_body.current_velocity directly.
 func apply_acceleration(target_direction: Vector3, delta: float):
 	if not is_instance_valid(agent_body):
 		return
 
 	if target_direction.length_squared() < 0.001:
-		# If target direction is zero, just decelerate
 		apply_deceleration(delta)
 		return
 
 	var target_dir_norm = target_direction.normalized()
 	var current_forward = -agent_body.global_transform.basis.z.normalized()
-	# Calculate the angle between current forward and target direction
 	var angle = current_forward.angle_to(target_dir_norm)
 
-	# Check if angle is within the alignment threshold
 	if angle <= _alignment_threshold_rad:
-		# Aligned: Interpolate towards target velocity
 		var target_velocity = target_dir_norm * max_move_speed
 		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
 			target_velocity, acceleration * delta
 		)
-		# agent_body._is_braking = false # State managed by NavigationSystem or AgentBody now
 	else:
-		# Not aligned: Apply natural deceleration while turning continues
+		# If not aligned, we just decelerate naturally instead of accelerating.
 		apply_deceleration(delta)
 
 
-# Applies natural deceleration (drag). Modifies agent_body.current_velocity.
+# Applies natural deceleration (drag).
 func apply_deceleration(delta: float):
 	if not is_instance_valid(agent_body):
 		return
-	agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-		Vector3.ZERO, deceleration * delta
-	)
-	# agent_body._is_braking = false
+	# We only apply natural deceleration if we are NOT over the speed limit.
+	# If we are over, enforce_speed_limit() will handle the deceleration.
+	if agent_body.current_velocity.length_squared() <= max_move_speed * max_move_speed:
+		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
+			Vector3.ZERO, deceleration * delta
+		)
 
 
-# Applies active braking force. Modifies agent_body.current_velocity.
-# Returns true if velocity is considered stopped.
+# Applies active braking force.
 func apply_braking(delta: float) -> bool:
 	if not is_instance_valid(agent_body):
-		return true  # Assume stopped if no body
+		return true
 	agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
 		Vector3.ZERO, brake_strength * delta
 	)
-	# agent_body._is_braking = true
-	# Return true if velocity is very close to zero
 	return agent_body.current_velocity.length_squared() < 0.5
 
 
-# Handles rotation towards a target look direction using Slerp.
-# Modifies agent_body.global_transform.basis directly.
+# Handles rotation and calculates resulting angular velocity.
 func apply_rotation(target_look_dir: Vector3, delta: float):
 	if not is_instance_valid(agent_body):
 		return
 
+	var basis_before_rotation = agent_body.global_transform.basis
+
 	if target_look_dir.length_squared() < 0.001:
-		return  # Ignore zero vector
-
-	var target_dir = target_look_dir.normalized()
-	# --- IMPORTANT: Operate on the PARENT's basis ---
-	var current_basis = agent_body.global_transform.basis.orthonormalized()
-
-	# Determine the 'up' vector for looking_at, avoiding gimbal lock
-	var up_vector = Vector3.UP
-	if abs(target_dir.dot(Vector3.UP)) > 0.999:
-		up_vector = Vector3.FORWARD  # Use Forward as fallback up vector
-
-	# Calculate the target basis using looking_at
-	var target_basis = Transform(Basis(), Vector3.ZERO).looking_at(target_dir, up_vector).basis.orthonormalized()
-
-	# Check if already aligned (approximately)
-	if current_basis.is_equal_approx(target_basis):
+		angular_velocity = Vector3.ZERO
 		return
 
-	# Rotate towards the target basis using Slerp if turn speed is positive
+	var target_dir = target_look_dir.normalized()
+	var current_basis = basis_before_rotation.orthonormalized()
+
+	var up_vector = Vector3.UP
+	if abs(target_dir.dot(Vector3.UP)) > 0.999:
+		up_vector = Vector3.FORWARD
+
+	var target_basis = Transform(Basis(), Vector3.ZERO).looking_at(target_dir, up_vector).basis.orthonormalized()
+
+	if current_basis.is_equal_approx(target_basis):
+		angular_velocity = Vector3.ZERO
+		return
+
+	var new_basis: Basis
 	if max_turn_speed > 0.001:
-		var turn_step = max_turn_speed * delta  # Rotation amount this frame
-		var new_basis = current_basis.slerp(target_basis, turn_step)
-		# --- IMPORTANT: Apply result back to PARENT's basis ---
-		agent_body.global_transform.basis = new_basis
+		var turn_step = max_turn_speed * delta
+		new_basis = current_basis.slerp(target_basis, turn_step)
 	else:
-		# If turn speed is zero, snap instantly
-		agent_body.global_transform.basis = target_basis
+		new_basis = target_basis
+
+	agent_body.global_transform.basis = new_basis
+
+	var rotation_diff_basis = new_basis * basis_before_rotation.inverse()
+	var rotation_diff_quat = Quat(rotation_diff_basis)
+
+	var angle = 2 * acos(rotation_diff_quat.w)
+	var axis: Vector3
+	var sin_half_angle = sin(angle / 2)
+	
+	if sin_half_angle > 0.0001:
+		axis = Vector3(rotation_diff_quat.x, rotation_diff_quat.y, rotation_diff_quat.z) / sin_half_angle
+	else:
+		axis = Vector3.UP
+
+	if delta > 0.0001:
+		angular_velocity = axis * (angle / delta)
+	else:
+		angular_velocity = Vector3.ZERO
+
+
+# Smoothly dampens rotation to a stop.
+func damp_rotation(delta: float):
+	if not is_instance_valid(agent_body):
+		return
+
+	if angular_velocity.length_squared() > 0.0001:
+		var rotation_axis = angular_velocity.normalized()
+		var rotation_angle = angular_velocity.length() * delta
+		agent_body.rotate(rotation_axis, rotation_angle)
+
+		angular_velocity = angular_velocity.linear_interpolate(Vector3.ZERO, turn_damping * delta)
+
+
+# NEW: Smoothly reduces speed if current velocity is over the max_move_speed limit.
+func enforce_speed_limit(delta: float):
+	if not is_instance_valid(agent_body):
+		return
+
+	var current_speed_sq = agent_body.current_velocity.length_squared()
+	var max_speed_sq = max_move_speed * max_move_speed
+
+	if current_speed_sq > max_speed_sq:
+		# We are over the speed limit. Smoothly decelerate to the new cap.
+		var direction = agent_body.current_velocity.normalized()
+		var target_velocity = direction * max_move_speed
+		
+		# Use the existing deceleration property for a consistent feel.
+		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
+			target_velocity, deceleration * delta
+		)
 
 --- Start of ./core/agents/components/navigation_system/command_align_to.gd ---
 
@@ -1224,11 +1253,17 @@ func execute(delta: float):
 --- Start of ./core/agents/components/navigation_system/command_orbit.gd ---
 
 # File: core/agents/components/navigation_system/command_orbit.gd
+# Version: 1.4 - Added dynamic speed calculation for the spiral-out phase.
 extends Node
 
 var _nav_sys: Node
 var _agent_body: KinematicBody
 var _movement_system: Node
+
+const SPIRAL_OUTWARD_FACTOR = 0.3
+const ORBITAL_VELOCITY_LERP_WEIGHT = 2.5
+
+var _current_orbital_velocity: Vector3 = Vector3.ZERO
 
 
 func initialize(nav_system):
@@ -1242,34 +1277,57 @@ func execute(delta: float):
 		return
 
 	var cmd = _nav_sys._current_command
-	var target_pos = cmd.target_node.global_transform.origin
-	var orbit_dist = cmd.get("distance", 100.0)
+	var target_node = cmd.target_node
+	var target_pos = target_node.global_transform.origin
 	var clockwise = cmd.get("clockwise", false)
 
+	if cmd.get("is_new", false):
+		_current_orbital_velocity = _agent_body.current_velocity
+		cmd["is_new"] = false
+
+	# --- Vector Calculations ---
 	var vector_to_target = target_pos - _agent_body.global_transform.origin
 	var distance = vector_to_target.length()
-	if distance < 0.01:
-		distance = 0.01
+	if distance < 0.01: distance = 0.01
 	var direction_to_target = vector_to_target / distance
-
 	var tangent_dir = (direction_to_target.cross(Vector3.UP) if not clockwise else Vector3.UP.cross(direction_to_target)).normalized()
-	_movement_system.apply_rotation(tangent_dir, delta)
 
+	# --- Determine Movement Direction & Ideal Speed ---
+	var safe_dist = _nav_sys._get_target_effective_size(target_node) * _nav_sys.CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
+	var ideal_move_dir: Vector3
+	var speed_calc_dist: float # The distance to use for speed calculation
+
+	if distance < safe_dist:
+		# TOO CLOSE: Spiral out and use CURRENT distance for speed calculation.
+		var radial_dir_outward = -direction_to_target
+		ideal_move_dir = (tangent_dir + radial_dir_outward * SPIRAL_OUTWARD_FACTOR).normalized()
+		speed_calc_dist = distance # Use current, closer distance for a slower speed.
+	else:
+		# SAFE DISTANCE: Normal orbit and use DESIRED distance for speed calculation.
+		ideal_move_dir = tangent_dir
+		speed_calc_dist = cmd.get("distance", 100.0) # Use final, desired distance.
+
+	# Calculate the ideal speed based on the appropriate distance (current or desired).
 	var full_speed_radius = max(1.0, Constants.ORBIT_FULL_SPEED_RADIUS)
-	var target_tangential_speed = _movement_system.max_move_speed
-	if orbit_dist > 0 and orbit_dist < full_speed_radius:
-		target_tangential_speed *= (orbit_dist / full_speed_radius)
+	var ideal_speed = _movement_system.max_move_speed
+	if speed_calc_dist > 0 and speed_calc_dist < full_speed_radius:
+		ideal_speed *= (speed_calc_dist / full_speed_radius)
+	ideal_speed = clamp(ideal_speed, 0.0, _movement_system.max_move_speed)
 
-	target_tangential_speed = clamp(target_tangential_speed, 0.0, _movement_system.max_move_speed)
+	var ideal_orbital_velocity = ideal_move_dir * ideal_speed
 
-	var target_velocity = tangent_dir * target_tangential_speed
-	_agent_body.current_velocity = _agent_body.current_velocity.linear_interpolate(
-		target_velocity, _movement_system.acceleration * delta
+	# --- Smoothly Transition & Apply ---
+	_current_orbital_velocity = _current_orbital_velocity.linear_interpolate(
+		ideal_orbital_velocity, ORBITAL_VELOCITY_LERP_WEIGHT * delta
 	)
+
+	_movement_system.apply_rotation(tangent_dir, delta)
+	_agent_body.current_velocity = _current_orbital_velocity
 
 --- Start of ./core/agents/components/navigation_system/command_stop.gd ---
 
 # File: core/agents/components/navigation_system/command_stop.gd
+# Version: 1.1 - Added call to damp_rotation for smooth rotational stops.
 extends Node
 
 var _nav_sys: Node
@@ -1285,15 +1343,21 @@ func initialize(nav_system):
 
 func execute(delta: float):
 	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
-		var stopped = _movement_system.apply_braking(delta)
-		if stopped and not _nav_sys._current_command.get("signaled_stop", false):
+		# --- Dampen linear motion ---
+		var stopped_moving = _movement_system.apply_braking(delta)
+		
+		# --- NEW: Dampen angular motion ---
+		_movement_system.damp_rotation(delta)
+		
+		# Check if linear motion has stopped before signaling completion
+		if stopped_moving and not _nav_sys._current_command.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			_nav_sys._current_command["signaled_stop"] = true
 
 --- Start of ./core/agents/components/navigation_system.gd ---
 
 # File: res://core/agents/components/navigation_system.gd
-# Version: 2.0 (Refactored) - Manages and dispatches to command handler components.
+# Version: 2.1 - Added 'is_new' flag to orbit command for stateful initialization.
 
 extends Node
 
@@ -1352,7 +1416,6 @@ func _initialize_pids(nav_params: Dictionary):
 	_pid_approach = PIDControllerScript.new()
 	_pid_move_to = PIDControllerScript.new()
 
-	# FIX: Add the created nodes as children to ensure they get freed.
 	add_child(_pid_orbit)
 	add_child(_pid_approach)
 	add_child(_pid_move_to)
@@ -1395,13 +1458,12 @@ func _initialize_command_handlers():
 	}
 
 	for handler_script in _command_handlers.values():
-		# FIX: Add the created nodes as children to ensure they get freed.
 		add_child(handler_script)
 		if handler_script.has_method("initialize"):
 			handler_script.initialize(self)
 
 
-# --- Public Command Setting Methods (Unchanged) ---
+# --- Public Command Setting Methods ---
 func set_command_idle():
 	_current_command = {"type": CommandType.IDLE}
 
@@ -1446,6 +1508,7 @@ func set_command_approach(target: Spatial):
 		_pid_move_to.reset()
 
 
+# MODIFIED: Added "is_new" flag to signal the command handler to initialize its state.
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 	if not is_instance_valid(target):
 		set_command_stopping()
@@ -1454,7 +1517,8 @@ func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 		"type": CommandType.ORBIT,
 		"target_node": target,
 		"distance": distance,
-		"clockwise": clockwise
+		"clockwise": clockwise,
+		"is_new": true # Flag for one-time setup in the command handler
 	}
 	if is_instance_valid(_pid_orbit):
 		_pid_orbit.reset()
@@ -1499,7 +1563,7 @@ func update_navigation(delta: float):
 		_command_handlers[CommandType.IDLE].execute(delta)
 
 
-# --- PID Correction & Helper Functions (Unchanged) ---
+# --- PID Correction & Helper Functions ---
 func apply_orbit_pid_correction(delta: float):
 	if _current_command.get("type") != CommandType.ORBIT:
 		return
@@ -1649,7 +1713,9 @@ func spawn_agent(
 		return null
 
 	var agent_root_instance = agent_scene.instance()
+	# agent_node is the "AgentBody" KinematicBody within the scene instance
 	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
+	
 	if not (agent_node and agent_node is KinematicBody):
 		printerr("AgentSpawner Spawn Error: Invalid agent body node in scene: ", agent_scene_path)
 		agent_root_instance.queue_free()
@@ -1670,10 +1736,17 @@ func spawn_agent(
 		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides}
 	)
 
-	var controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-	if controller and controller.has_method("initialize"):
-		controller.initialize(overrides)
-
+	# --- CORRECTED CONTROLLER LOGIC ---
+	# The controller is a child of the AgentBody (agent_node), not the scene root.
+	# We also need to check for both AI and Player controllers.
+	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
+	var player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+	
+	if ai_controller and ai_controller.has_method("initialize"):
+		ai_controller.initialize(overrides)
+	# The PlayerInputHandler does not have an initialize method, so we don't need to call it,
+	# but by getting a reference to it, we ensure the test framework is aware of it.
+	
 	return agent_node
 
 --- Start of ./core/systems/asset_system.gd ---
@@ -2285,6 +2358,22 @@ func _unhandled_input(event: InputEvent):
 		get_viewport().set_input_as_handled()
 		return
 
+	if Input.is_action_just_pressed("command_approach"):
+		_issue_approach_command()
+		get_viewport().set_input_as_handled()
+		return
+		
+	if Input.is_action_just_pressed("command_flee"):
+		_issue_flee_command()
+		get_viewport().set_input_as_handled()
+		return
+		
+	if Input.is_action_just_pressed("command_orbit"):
+		_issue_orbit_command()
+		get_viewport().set_input_as_handled()
+		return
+
+
 	# Delegate other inputs to the current state
 	if _current_input_state and _current_input_state.has_method("handle_input"):
 		_current_input_state.handle_input(event)
@@ -2323,7 +2412,31 @@ func _issue_stop_command():
 	agent_script.command_stop()
 	if _current_input_state is StateFreeFlight:
 		_change_state("default")
+		
+func _issue_approach_command():
+	if not is_instance_valid(agent_script):
+		return
+	if EventBus:
+		EventBus.emit_signal("player_approach_pressed")
+	if _current_input_state is StateFreeFlight:
+		_change_state("default")
+		
+func _issue_flee_command():
+	if not is_instance_valid(agent_script):
+		return
+	if EventBus:
+		EventBus.emit_signal("player_flee_pressed")
+	if _current_input_state is StateFreeFlight:
+		_change_state("default")
 
+
+func _issue_orbit_command():
+	if not is_instance_valid(agent_script):
+		return
+	if EventBus:
+		EventBus.emit_signal("player_orbit_pressed")
+	if _current_input_state is StateFreeFlight:
+		_change_state("default")
 
 func _update_agent_speed_cap_and_slider_visuals():
 	if not is_instance_valid(movement_system):

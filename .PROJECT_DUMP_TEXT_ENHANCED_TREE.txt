@@ -235,13 +235,17 @@
     │   │   └── components
     │   │       ├── test_movement_system.gd
     │   │       └── test_navigation_system.gd
+    │   ├── systems
+    │   │   └── test_agent_spawner.gd
     │   └── utils
     │       └── test_pid_controller.gd
     └── helpers
+        ├── mock_agent_body.gd
+        ├── mock_agent.tscn
         ├── mock_event_bus.gd
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-47 directories, 196 files
+48 directories, 199 files
 
-47 directories, 196 files
+48 directories, 199 files

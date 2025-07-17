@@ -1,5 +1,5 @@
 # File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
-# Version: 3.33 - Fetched component nodes inside initialize() due to execution order.
+# Version: 3.35 - Modified command_orbit to capture current distance.
 extends KinematicBody
 
 # --- Core State & Identity ---
@@ -12,7 +12,6 @@ var interaction_radius: float = 15.0
 var current_velocity: Vector3 = Vector3.ZERO
 
 # --- Component References ---
-# Declare vars, assign them in initialize() now
 var movement_system: Node = null
 var navigation_system: Node = null
 
@@ -20,7 +19,6 @@ var navigation_system: Node = null
 # --- Initialization ---
 # Called externally (e.g., by WorldManager) after instancing and adding to tree
 func initialize(template: AgentTemplate, overrides: Dictionary = {}):
-	# 1. Basic AgentBody Initialization
 	if not template is AgentTemplate:
 		printerr("AgentBody Initialize Error: Invalid template for ", self.name)
 		return
@@ -29,26 +27,21 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 	var default_name = template.default_agent_name + "_" + str(get_instance_id())
 	self.agent_name = overrides.get("name", default_name)
 	self.faction_id = overrides.get("faction", template.default_faction_id)
-	self.name = self.agent_name  # Set Node name
+	self.name = self.agent_name
 	self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
 
-	# *** Fetch Component Nodes HERE inside initialize ***
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
 
-	# *** Check if references were successfully obtained NOW ***
 	if not is_instance_valid(movement_system) or not is_instance_valid(navigation_system):
 		printerr(
-			"AgentBody Initialize Error: Failed to get required component nodes (MovementSystem or NavigationSystem) for '",
+			"AgentBody Initialize Error: Failed to get required component nodes for '",
 			self.name,
-			"'. Check node names and scene structure."
+			"'."
 		)
-		set_physics_process(false)  # Disable physics if components are missing
-		return  # Stop initialization
+		set_physics_process(false)
+		return
 
-	# If we got here, components were found successfully.
-
-	# 2. Prepare Params for Components
 	var move_params = {
 		"max_move_speed": overrides.get("max_move_speed", template.max_move_speed),
 		"acceleration": overrides.get("acceleration", template.acceleration),
@@ -64,9 +57,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 		"orbit_kd": overrides.get("orbit_kd", 0.5)
 	}
 
-	# 3. Initialize Components
 	movement_system.initialize_movement_params(move_params)
-	navigation_system.initialize_navigation(nav_params, movement_system)  # Pass ref to movement_system
+	navigation_system.initialize_navigation(nav_params, movement_system)
 
 	print(
 		"AgentBody '",
@@ -80,15 +72,12 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 # --- Godot Lifecycle ---
 func _ready():
 	add_to_group("Agents")
-	# No need to fetch nodes here anymore, moved to initialize()
-	set_physics_process(true)  # Enable physics processing
+	set_physics_process(true)
 
 
 func _physics_process(delta: float):
-	# Check components validity just in case something weird happens after init
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
-		# If components somehow became invalid after successful init, stop processing.
-		if delta > 0:  # Avoid printing flood if physics is disabled
+		if delta > 0:
 			printerr("AgentBody _physics_process Error: Components invalid for '", self.name, "'!")
 		set_physics_process(false)
 		return
@@ -99,21 +88,17 @@ func _physics_process(delta: float):
 	# 1. Update Navigation & Movement Logic
 	navigation_system.update_navigation(delta)
 
-	# 2. Apply Physics Engine Movement
+	# 2. Smoothly enforce the current speed limit before moving.
+	movement_system.enforce_speed_limit(delta)
+
+	# 3. Apply Physics Engine Movement
 	current_velocity = move_and_slide(current_velocity, Vector3.UP)
 
-	# 3. Apply Post-Movement Corrections (e.g., PID)
+	# 4. Apply Post-Movement Corrections (e.g., PID for orbit)
 	navigation_system.apply_orbit_pid_correction(delta)
-
-	# 4. Final Velocity Clamping
-	var max_speed = movement_system.max_move_speed
-	if current_velocity.length_squared() > max_speed * max_speed:
-		current_velocity = current_velocity.normalized() * max_speed
 
 
 # --- Public Command API (Delegates to NavigationSystem) ---
-# (Command functions remain the same as v3.32)
-# ...
 func command_stop():
 	if is_instance_valid(navigation_system):
 		navigation_system.set_command_stopping()
@@ -142,6 +127,9 @@ func command_approach(target: Spatial):
 		printerr("AgentBody: Cannot command_approach - NavigationSystem invalid.")
 
 
+# MODIFIED: This function now captures the ship's current distance to the target
+# as the desired orbit distance, preventing the navigation system from
+# immediately trying to correct to a different, pre-calculated minimum.
 func command_orbit(target: Spatial):
 	if not is_instance_valid(target):
 		printerr("AgentBody: command_orbit - Invalid target node provided.")
@@ -152,10 +140,11 @@ func command_orbit(target: Spatial):
 	if is_instance_valid(navigation_system):
 		var vec_to_target_local = to_local(target.global_transform.origin)
 		var orbit_clockwise = vec_to_target_local.x > 0.01
-		var target_size = navigation_system._get_target_effective_size(target)
-		var current_dist = global_transform.origin.distance_to(target.global_transform.origin)
-		var min_orbit_dist = target_size + 1.0
-		var captured_orbit_dist = max(current_dist, min_orbit_dist)
+		
+		# Always capture the current distance. The NavigationSystem will handle
+		# gently pushing the agent out if this distance is too close.
+		var captured_orbit_dist = global_transform.origin.distance_to(target.global_transform.origin)
+		
 		navigation_system.set_command_orbit(target, captured_orbit_dist, orbit_clockwise)
 	else:
 		printerr("AgentBody: Cannot command_orbit - NavigationSystem invalid.")
@@ -186,4 +175,3 @@ func despawn():
 	EventBus.emit_signal("agent_despawning", self)
 	set_physics_process(false)
 	call_deferred("queue_free")
-# ...

@@ -1,5 +1,5 @@
 # File: res://core/agents/components/navigation_system.gd
-# Version: 2.0 (Refactored) - Manages and dispatches to command handler components.
+# Version: 2.1 - Added 'is_new' flag to orbit command for stateful initialization.
 
 extends Node
 
@@ -58,7 +58,6 @@ func _initialize_pids(nav_params: Dictionary):
 	_pid_approach = PIDControllerScript.new()
 	_pid_move_to = PIDControllerScript.new()
 
-	# FIX: Add the created nodes as children to ensure they get freed.
 	add_child(_pid_orbit)
 	add_child(_pid_approach)
 	add_child(_pid_move_to)
@@ -101,13 +100,12 @@ func _initialize_command_handlers():
 	}
 
 	for handler_script in _command_handlers.values():
-		# FIX: Add the created nodes as children to ensure they get freed.
 		add_child(handler_script)
 		if handler_script.has_method("initialize"):
 			handler_script.initialize(self)
 
 
-# --- Public Command Setting Methods (Unchanged) ---
+# --- Public Command Setting Methods ---
 func set_command_idle():
 	_current_command = {"type": CommandType.IDLE}
 
@@ -152,6 +150,7 @@ func set_command_approach(target: Spatial):
 		_pid_move_to.reset()
 
 
+# MODIFIED: Added "is_new" flag to signal the command handler to initialize its state.
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 	if not is_instance_valid(target):
 		set_command_stopping()
@@ -160,7 +159,8 @@ func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 		"type": CommandType.ORBIT,
 		"target_node": target,
 		"distance": distance,
-		"clockwise": clockwise
+		"clockwise": clockwise,
+		"is_new": true # Flag for one-time setup in the command handler
 	}
 	if is_instance_valid(_pid_orbit):
 		_pid_orbit.reset()
@@ -205,7 +205,7 @@ func update_navigation(delta: float):
 		_command_handlers[CommandType.IDLE].execute(delta)
 
 
-# --- PID Correction & Helper Functions (Unchanged) ---
+# --- PID Correction & Helper Functions ---
 func apply_orbit_pid_correction(delta: float):
 	if _current_command.get("type") != CommandType.ORBIT:
 		return
