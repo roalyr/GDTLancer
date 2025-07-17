@@ -206,6 +206,10 @@
 ├── scenes
 │   ├── camera
 │   │   ├── camera_particles_controller.gd
+│   │   ├── components
+│   │   │   ├── camera_position_controller.gd
+│   │   │   ├── camera_rotation_controller.gd
+│   │   │   └── camera_zoom_controller.gd
 │   │   ├── orbit_camera.gd
 │   │   └── orbit_camera.tscn
 │   ├── game_world
@@ -246,6 +250,6 @@
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-48 directories, 199 files
+49 directories, 202 files
 
-48 directories, 199 files
+49 directories, 202 files
