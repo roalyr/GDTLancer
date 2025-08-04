@@ -14813,6 +14813,35 @@ export var base_attribute: String = "INT"
 # The associated skill for the check (e.g., "Piloting", "Mechanics").
 export var associated_skill: String = "Computers"
 
+--- Start of ./core/resource/character_resource.gd ---
+
+# File: core/resource/character_resource.gd
+# Purpose: Defines the data structure for a single character agent.
+# Version: 1.0
+
+extends Resource
+class_name CharacterResource
+
+# --- Narrative & Identity ---
+export var character_name: String = "Unnamed"
+export var faction: String = "unaligned" # Should match a key in FactionSystem
+
+# --- Core Stats ---
+export var wealth_points: int = 0
+export var focus_points: int = 0
+
+# --- Skills ---
+# Stored in a dictionary for easy lookup.
+export var skills: Dictionary = {
+	"piloting": 1,
+	"tactics": 1,
+	"trading": 1
+}
+
+# --- Narrative Stubs ---
+export var reputation: int = 0
+export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
+
 --- Start of ./core/resource/commodity.gd ---
 
 # File: core/resource/commodity.gd
@@ -15159,94 +15188,67 @@ func get_player_ship_stat(stat_name: String):
 --- Start of ./core/systems/character_system.gd ---
 
 # File: core/systems/character_system.gd
-# Purpose: Manages all character agents, their data, and world interactions.
-# Version: 0.2 - Corrected is_connected() signature.
+# Purpose: Manages the player's core stats, skills, and narrative data.
+# Version: 1.1
 
 extends Node
 
 # --- Data Structures ---
-# We will store all spawned characters in a dictionary, keyed by their
-# unique instance ID. This provides fast lookups.
-var _characters: Dictionary = {}
+var _player_character_data: Dictionary = {
+	"wealth_points": 0,
+	"focus_points": 0,
+	"skills": {
+		"piloting": 1,
+		"tactics": 1,
+		"trading": 1
+	},
+	"reputation": 0,
+	"faction_standings": {} # e.g., {"pirates": -10, "corp": 5}
+}
 
-# A data structure to track which character is currently controlled by the player.
-var _player_character_id = null
-
-
-# --- System Ready ---
 func _ready():
 	GlobalRefs.set_character_system(self)
-	
-	# Connect to the EventBus to listen for when new agents are spawned.
-	if not EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
-		EventBus.connect("agent_spawned", self, "_on_agent_spawned")
 	print("CharacterSystem Ready.")
-
 
 # --- Public API ---
 
+func get_player_character() -> Dictionary:
+	# Return a copy to prevent direct modification of the internal state.
+	return _player_character_data.duplicate(true)
 
-# Returns the Node representing the player's character, or null if not set.
-func get_player_character() -> Node:
-	if _player_character_id and _characters.has(_player_character_id):
-		return _characters[_player_character_id]
-	return null
+func add_wp(amount: int):
+	_player_character_data.wealth_points += amount
 
+func subtract_wp(amount: int):
+	_player_character_data.wealth_points -= amount
 
-# Returns a dictionary of all characters managed by the system.
-func get_all_characters() -> Dictionary:
-	return _characters
+func get_wp() -> int:
+	return _player_character_data.wealth_points
 
+func add_fp(amount: int):
+	_player_character_data.focus_points += amount
+	_player_character_data.focus_points = clamp(_player_character_data.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-# Placeholder for the function called by the TimeSystem's world tick.
-# This will eventually deduct Willpower Points (WP) from all characters.
-func apply_upkeep_cost():
-	# print("CharacterSystem: Applying upkeep cost...")
-	# In a future version, this would iterate through all characters in _characters
-	# and call a method on them like 'deduct_wp(UPKEEP_COST)'.
-	pass
+func subtract_fp(amount: int):
+	_player_character_data.focus_points -= amount
+	_player_character_data.focus_points = clamp(_player_character_data.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
+func get_fp() -> int:
+	return _player_character_data.focus_points
 
-# --- EventBus Signal Handlers ---
+func get_skill_level(skill_name: String) -> int:
+	if _player_character_data.skills.has(skill_name):
+		return _player_character_data.skills[skill_name]
+	return 0
 
+func apply_upkeep_cost(cost: int):
+	subtract_wp(cost)
 
-# Listens for the 'agent_spawned' signal from the EventBus.
-# If the spawned agent is a character, it's registered with this system.
-# - agent: The Node that was just spawned.
-# - agent_data: A dictionary of data associated with the agent.
-func _on_agent_spawned(agent: Node, agent_data: Dictionary):
-	# The GDD specifies that character agents will have an 'agent_type' of 'character'.
-	if agent_data.get("agent_type") == "character":
-		var instance_id = agent.get_instance_id()
-		if not _characters.has(instance_id):
-			_characters[instance_id] = agent
-			print("CharacterSystem: Registered character with ID: %s" % instance_id)
+func get_player_save_data() -> Dictionary:
+	return _player_character_data.duplicate(true)
 
-			# If the 'is_player' flag is set, designate this as the player character.
-			if agent_data.get("is_player") == true:
-				_player_character_id = instance_id
-				print("CharacterSystem: Agent %s designated as player character." % instance_id)
-
-		# This is a good place to handle agent destruction to prevent memory leaks.
-		# The is_connected check correctly uses 3 arguments.
-		if not agent.is_connected("tree_exiting", self, "_on_agent_tree_exiting"):
-			# The connect call correctly uses 4 arguments to bind the instance_id.
-			agent.connect("tree_exiting", self, "_on_agent_tree_exiting", [instance_id])
-
-
-# --- Internal Logic ---
-
-
-# Triggered when a character node is about to be removed from the scene tree.
-# This ensures we don't keep references to destroyed objects.
-func _on_agent_tree_exiting(instance_id: int):
-	if _characters.has(instance_id):
-		_characters.erase(instance_id)
-		print("CharacterSystem: Unregistered destroyed character with ID: %s" % instance_id)
-		# If the player character is destroyed, clear the reference.
-		if _player_character_id == instance_id:
-			_player_character_id = null
-			print("CharacterSystem: Player character was destroyed.")
+func load_player_save_data(data: Dictionary):
+	_player_character_data = data
 
 --- Start of ./core/systems/chronicle_system.gd ---
 
@@ -17116,7 +17118,7 @@ func _on_Time_Clock_Timer_timeout():
 	if is_instance_valid(GlobalRefs.time_system):
 		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
 		GlobalRefs.time_system.add_time_units(1)
-		print(GlobalRefs.time_system._current_tu)
+		#print(GlobalRefs.time_system._current_tu)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 
@@ -18295,149 +18297,72 @@ func test_get_stat_from_template():
 
 # File: tests/core/systems/test_character_system.gd
 # GUT Test Script for CharacterSystem
-# Version: 1.0
+# Version: 1.1
 
 extends GutTest
 
-# --- Test Subject ---
 var CharacterSystem = load("res://core/systems/character_system.gd")
 var character_system_instance = null
 
-
-# --- Test Setup & Teardown ---
 func before_each():
-	# Create a fresh instance of the system for each test.
 	character_system_instance = CharacterSystem.new()
 	add_child_autofree(character_system_instance)
-	# The system's _ready() function connects to the EventBus.
-
-	assert_not_null(EventBus, "EventBus must be available for this test.")
-
+	# Assuming GlobalRefs and Constants are autoloads as per project structure
+	GlobalRefs.set_character_system(character_system_instance)
 
 func after_each():
 	character_system_instance = null
-
-
-# --- Tests ---
-
+	GlobalRefs.set_character_system(null)
 
 func test_initial_state():
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		0,
-		"Character list should be empty initially."
-	)
-	assert_null(
-		character_system_instance.get_player_character(),
-		"Player character should be null initially."
-	)
+	var player_data = character_system_instance.get_player_character()
+	assert_eq(player_data.wealth_points, 0, "Initial WP should be 0.")
+	assert_eq(player_data.focus_points, 0, "Initial FP should be 0.")
+	assert_eq(player_data.skills.piloting, 1, "Initial piloting skill should be 1.")
+	assert_true(player_data.faction_standings.empty(), "Initial faction standings should be empty.")
 
+func test_wp_management():
+	character_system_instance.add_wp(100)
+	assert_eq(character_system_instance.get_wp(), 100, "WP should be 100 after adding.")
+	character_system_instance.subtract_wp(25)
+	assert_eq(character_system_instance.get_wp(), 75, "WP should be 75 after subtracting.")
 
-func test_register_character_agent():
-	# Create a mock agent node to be "spawned"
-	var mock_agent = Node.new()
-	add_child_autofree(mock_agent)  # GUT will clean it up
-	var agent_id = mock_agent.get_instance_id()
+func test_fp_management():
+	character_system_instance.add_fp(2)
+	assert_eq(character_system_instance.get_fp(), 2, "FP should be 2 after adding.")
+	character_system_instance.subtract_fp(1)
+	assert_eq(character_system_instance.get_fp(), 1, "FP should be 1 after subtracting.")
+	character_system_instance.add_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Adding more than max
+	assert_eq(character_system_instance.get_fp(), Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
+	character_system_instance.subtract_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Subtracting more than available
+	assert_eq(character_system_instance.get_fp(), 0, "FP should be clamped to 0.")
 
-	# Emit the signal that the system listens for.
-	EventBus.emit_signal("agent_spawned", mock_agent, {"agent_type": "character"})
+func test_skill_retrieval():
+	assert_eq(character_system_instance.get_skill_level("piloting"), 1, "Default piloting skill should be 1.")
+	assert_eq(character_system_instance.get_skill_level("non_existent_skill"), 0, "Non-existent skill should return 0.")
 
-	var all_chars = character_system_instance.get_all_characters()
-	assert_eq(all_chars.size(), 1, "There should be one character registered.")
-	assert_true(
-		all_chars.has(agent_id), "The registered character should have the correct instance ID."
-	)
-	assert_eq(all_chars[agent_id], mock_agent, "The registered node should be the mock agent.")
+func test_upkeep_cost():
+	character_system_instance.add_wp(50)
+	character_system_instance.apply_upkeep_cost(10)
+	assert_eq(character_system_instance.get_wp(), 40, "WP should be 40 after upkeep.")
 
-
-func test_ignores_non_character_agent():
-	var mock_agent = Node.new()
-	add_child_autofree(mock_agent)
-
-	# Emit the signal with a different agent_type.
-	EventBus.emit_signal("agent_spawned", mock_agent, {"agent_type": "scenery"})
-
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		0,
-		"Non-character agents should be ignored."
-	)
-
-
-func test_register_player_character():
-	var mock_player = Node.new()
-	add_child_autofree(mock_player)
-
-	# Emit the signal with the is_player flag.
-	EventBus.emit_signal(
-		"agent_spawned", mock_player, {"agent_type": "character", "is_player": true}
-	)
-
-	assert_eq(
-		character_system_instance.get_player_character(),
-		mock_player,
-		"The player character should be set correctly."
-	)
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		1,
-		"The player should also be in the main character list."
-	)
-
-
-func test_unregister_on_destroy():
-	var mock_agent = Node.new()
-	add_child_autofree(mock_agent)
-	EventBus.emit_signal("agent_spawned", mock_agent, {"agent_type": "character"})
-
-	# Verify it was registered
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		1,
-		"Character should be registered initially."
-	)
-
-	# Now, "destroy" the node. This will emit the 'tree_exiting' signal the system connects to.
-	mock_agent.queue_free()
-	# We must wait for the signal to be processed.
-	yield(get_tree(), "idle_frame")
-
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		0,
-		"Character should be unregistered after being destroyed."
-	)
-
-
-func test_player_character_is_cleared_on_destroy():
-	var mock_player = Node.new()
-	add_child_autofree(mock_player)
-	EventBus.emit_signal(
-		"agent_spawned", mock_player, {"agent_type": "character", "is_player": true}
-	)
-
-	# Verify it was registered as the player
-	assert_eq(
-		character_system_instance.get_player_character(),
-		mock_player,
-		"Player should be set initially."
-	)
-
-	# Destroy the player node
-	mock_player.queue_free()
-	yield(get_tree(), "idle_frame")
-
-	assert_null(
-		character_system_instance.get_player_character(),
-		"Player character reference should be null after being destroyed."
-	)
-
-
-func test_apply_upkeep_cost_does_not_crash():
-	# This function is currently empty. We just call it to ensure it exists and
-	# doesn't cause an error, completing the code coverage.
-	character_system_instance.apply_upkeep_cost()
-	assert_true(true, "apply_upkeep_cost() should run without error.")
+func test_save_and_load():
+	# Setup initial data
+	character_system_instance.add_wp(200)
+	character_system_instance.add_fp(3)
+	
+	# Get save data
+	var save_data = character_system_instance.get_player_save_data()
+	
+	# Create a new instance to load into
+	var new_character_system = CharacterSystem.new()
+	add_child_autofree(new_character_system)
+	
+	# Load data and verify
+	new_character_system.load_player_save_data(save_data)
+	assert_eq(new_character_system.get_wp(), 200, "Loaded WP should be 200.")
+	assert_eq(new_character_system.get_fp(), 3, "Loaded FP should be 3.")
+	assert_eq(new_character_system.get_skill_level("tactics"), 1, "Loaded tactics skill should be 1.")
 
 --- Start of ./tests/core/systems/test_inventory_system.gd ---
 

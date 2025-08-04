@@ -175,6 +175,7 @@
 │   │   └── player_agent.tscn
 │   ├── resource
 │   │   ├── action_resource.gd
+│   │   ├── character_resource.gd
 │   │   ├── commodity.gd
 │   │   ├── ship_agent_data.gd
 │   │   └── ship_asset.gd
@@ -266,6 +267,6 @@
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-51 directories, 216 files
+51 directories, 217 files
 
-51 directories, 216 files
+51 directories, 217 files

@@ -40,6 +40,11 @@ _global_script_classes=[ {
 "path": "res://core/ui/CenteredGrowingLabel.gd"
 }, {
 "base": "Resource",
+"class": "CharacterResource",
+"language": "GDScript",
+"path": "res://core/resource/character_resource.gd"
+}, {
+"base": "Resource",
 "class": "Commodity",
 "language": "GDScript",
 "path": "res://core/resource/commodity.gd"
@@ -81,6 +86,7 @@ _global_script_class_icons={
 "CameraRotationController": "",
 "CameraZoomController": "",
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
+"CharacterResource": "",
 "Commodity": "",
 "GutHookScript": "",
 "GutTest": "",

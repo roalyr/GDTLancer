@@ -1,145 +1,68 @@
 # File: tests/core/systems/test_character_system.gd
 # GUT Test Script for CharacterSystem
-# Version: 1.0
+# Version: 1.1
 
 extends GutTest
 
-# --- Test Subject ---
 var CharacterSystem = load("res://core/systems/character_system.gd")
 var character_system_instance = null
 
-
-# --- Test Setup & Teardown ---
 func before_each():
-	# Create a fresh instance of the system for each test.
 	character_system_instance = CharacterSystem.new()
 	add_child_autofree(character_system_instance)
-	# The system's _ready() function connects to the EventBus.
-
-	assert_not_null(EventBus, "EventBus must be available for this test.")
-
+	# Assuming GlobalRefs and Constants are autoloads as per project structure
+	GlobalRefs.set_character_system(character_system_instance)
 
 func after_each():
 	character_system_instance = null
-
-
-# --- Tests ---
-
+	GlobalRefs.set_character_system(null)
 
 func test_initial_state():
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		0,
-		"Character list should be empty initially."
-	)
-	assert_null(
-		character_system_instance.get_player_character(),
-		"Player character should be null initially."
-	)
+	var player_data = character_system_instance.get_player_character()
+	assert_eq(player_data.wealth_points, 0, "Initial WP should be 0.")
+	assert_eq(player_data.focus_points, 0, "Initial FP should be 0.")
+	assert_eq(player_data.skills.piloting, 1, "Initial piloting skill should be 1.")
+	assert_true(player_data.faction_standings.empty(), "Initial faction standings should be empty.")
 
+func test_wp_management():
+	character_system_instance.add_wp(100)
+	assert_eq(character_system_instance.get_wp(), 100, "WP should be 100 after adding.")
+	character_system_instance.subtract_wp(25)
+	assert_eq(character_system_instance.get_wp(), 75, "WP should be 75 after subtracting.")
 
-func test_register_character_agent():
-	# Create a mock agent node to be "spawned"
-	var mock_agent = Node.new()
-	add_child_autofree(mock_agent)  # GUT will clean it up
-	var agent_id = mock_agent.get_instance_id()
+func test_fp_management():
+	character_system_instance.add_fp(2)
+	assert_eq(character_system_instance.get_fp(), 2, "FP should be 2 after adding.")
+	character_system_instance.subtract_fp(1)
+	assert_eq(character_system_instance.get_fp(), 1, "FP should be 1 after subtracting.")
+	character_system_instance.add_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Adding more than max
+	assert_eq(character_system_instance.get_fp(), Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
+	character_system_instance.subtract_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Subtracting more than available
+	assert_eq(character_system_instance.get_fp(), 0, "FP should be clamped to 0.")
 
-	# Emit the signal that the system listens for.
-	EventBus.emit_signal("agent_spawned", mock_agent, {"agent_type": "character"})
+func test_skill_retrieval():
+	assert_eq(character_system_instance.get_skill_level("piloting"), 1, "Default piloting skill should be 1.")
+	assert_eq(character_system_instance.get_skill_level("non_existent_skill"), 0, "Non-existent skill should return 0.")
 
-	var all_chars = character_system_instance.get_all_characters()
-	assert_eq(all_chars.size(), 1, "There should be one character registered.")
-	assert_true(
-		all_chars.has(agent_id), "The registered character should have the correct instance ID."
-	)
-	assert_eq(all_chars[agent_id], mock_agent, "The registered node should be the mock agent.")
+func test_upkeep_cost():
+	character_system_instance.add_wp(50)
+	character_system_instance.apply_upkeep_cost(10)
+	assert_eq(character_system_instance.get_wp(), 40, "WP should be 40 after upkeep.")
 
-
-func test_ignores_non_character_agent():
-	var mock_agent = Node.new()
-	add_child_autofree(mock_agent)
-
-	# Emit the signal with a different agent_type.
-	EventBus.emit_signal("agent_spawned", mock_agent, {"agent_type": "scenery"})
-
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		0,
-		"Non-character agents should be ignored."
-	)
-
-
-func test_register_player_character():
-	var mock_player = Node.new()
-	add_child_autofree(mock_player)
-
-	# Emit the signal with the is_player flag.
-	EventBus.emit_signal(
-		"agent_spawned", mock_player, {"agent_type": "character", "is_player": true}
-	)
-
-	assert_eq(
-		character_system_instance.get_player_character(),
-		mock_player,
-		"The player character should be set correctly."
-	)
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		1,
-		"The player should also be in the main character list."
-	)
-
-
-func test_unregister_on_destroy():
-	var mock_agent = Node.new()
-	add_child_autofree(mock_agent)
-	EventBus.emit_signal("agent_spawned", mock_agent, {"agent_type": "character"})
-
-	# Verify it was registered
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		1,
-		"Character should be registered initially."
-	)
-
-	# Now, "destroy" the node. This will emit the 'tree_exiting' signal the system connects to.
-	mock_agent.queue_free()
-	# We must wait for the signal to be processed.
-	yield(get_tree(), "idle_frame")
-
-	assert_eq(
-		character_system_instance.get_all_characters().size(),
-		0,
-		"Character should be unregistered after being destroyed."
-	)
-
-
-func test_player_character_is_cleared_on_destroy():
-	var mock_player = Node.new()
-	add_child_autofree(mock_player)
-	EventBus.emit_signal(
-		"agent_spawned", mock_player, {"agent_type": "character", "is_player": true}
-	)
-
-	# Verify it was registered as the player
-	assert_eq(
-		character_system_instance.get_player_character(),
-		mock_player,
-		"Player should be set initially."
-	)
-
-	# Destroy the player node
-	mock_player.queue_free()
-	yield(get_tree(), "idle_frame")
-
-	assert_null(
-		character_system_instance.get_player_character(),
-		"Player character reference should be null after being destroyed."
-	)
-
-
-func test_apply_upkeep_cost_does_not_crash():
-	# This function is currently empty. We just call it to ensure it exists and
-	# doesn't cause an error, completing the code coverage.
-	character_system_instance.apply_upkeep_cost()
-	assert_true(true, "apply_upkeep_cost() should run without error.")
+func test_save_and_load():
+	# Setup initial data
+	character_system_instance.add_wp(200)
+	character_system_instance.add_fp(3)
+	
+	# Get save data
+	var save_data = character_system_instance.get_player_save_data()
+	
+	# Create a new instance to load into
+	var new_character_system = CharacterSystem.new()
+	add_child_autofree(new_character_system)
+	
+	# Load data and verify
+	new_character_system.load_player_save_data(save_data)
+	assert_eq(new_character_system.get_wp(), 200, "Loaded WP should be 200.")
+	assert_eq(new_character_system.get_fp(), 3, "Loaded FP should be 3.")
+	assert_eq(new_character_system.get_skill_level("tactics"), 1, "Loaded tactics skill should be 1.")
