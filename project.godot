@@ -39,6 +39,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://core/ui/CenteredGrowingLabel.gd"
 }, {
+"base": "Resource",
+"class": "Commodity",
+"language": "GDScript",
+"path": "res://core/resource/commodity.gd"
+}, {
 "base": "Reference",
 "class": "GutHookScript",
 "language": "GDScript",
@@ -58,6 +63,16 @@ _global_script_classes=[ {
 "class": "PIDController",
 "language": "GDScript",
 "path": "res://core/utils/pid_controller.gd"
+}, {
+"base": "Resource",
+"class": "ShipAgentData",
+"language": "GDScript",
+"path": "res://core/resource/ship_agent_data.gd"
+}, {
+"base": "Resource",
+"class": "ShipAsset",
+"language": "GDScript",
+"path": "res://core/resource/ship_asset.gd"
 } ]
 _global_script_class_icons={
 "ActionResource": "",
@@ -66,10 +81,13 @@ _global_script_class_icons={
 "CameraRotationController": "",
 "CameraZoomController": "",
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
+"Commodity": "",
 "GutHookScript": "",
 "GutTest": "",
 "InputState": "",
-"PIDController": ""
+"PIDController": "",
+"ShipAgentData": "",
+"ShipAsset": ""
 }
 
 [application]
