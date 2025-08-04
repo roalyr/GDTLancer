@@ -72,6 +72,29 @@ max_turn_speed = 0.75
 interaction_radius = 15.0
 alignment_threshold_angle_deg = 45.0
 
+--- Start of ./assets/data/templates/agents/player_ship.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/ship_agent_data.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "default_template"
+default_agent_name = "Agent"
+default_faction_id = "Neutral"
+max_move_speed = 300.0
+acceleration = 0.5
+deceleration = 0.5
+max_turn_speed = 0.75
+interaction_radius = 15.0
+alignment_threshold_angle_deg = 45.0
+ship_class_name = "Default Ship Class"
+description = "A standard vessel."
+base_hull_integrity = 100
+base_shields = 50
+base_cargo_capacity = 50
+
 --- Start of ./assets/themes/main_theme.tres ---
 
 [gd_resource type="Theme" load_steps=8 format=2]

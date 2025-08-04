@@ -14755,6 +14755,71 @@ export var base_attribute: String = "INT"
 # The associated skill for the check (e.g., "Piloting", "Mechanics").
 export var associated_skill: String = "Computers"
 
+--- Start of ./core/resource/commodity.gd ---
+
+# File: core/resource/commodity.gd
+# Purpose: Defines the data structure for a tradable commodity.
+# Version: 1.0
+
+extends Resource
+class_name Commodity
+
+# --- Commodity Stats from GDD ---
+export var item_id: String = "default_item"
+export var name: String = "Unnamed Commodity"
+export var base_value: int = 10 # Base value in WP for one unit
+
+--- Start of ./core/resource/ship_agent_data.gd ---
+
+# File: core/resource/agent/ship_agent_data.gd
+# Purpose: Defines the template for a class of ship, specializing the base AgentTemplate.
+# Version: 1.3 - Using direct path for extends to improve test stability
+
+extends "res://core/agents/agent_template.gd" # <-- THE FIX: Use the direct file path.
+class_name ShipAgentData
+
+# --- Ship-Specific Identity & Description ---
+export var ship_class_name: String = "Default Ship Class"
+export var description: String = "A standard vessel."
+
+# --- Ship-Specific Base Stats (Blueprint Values) ---
+export var base_hull_integrity: int = 100
+export var base_shields: int = 50
+export var base_cargo_capacity: int = 50
+
+# --- NOTE ---
+# All other stats are still inherited from AgentTemplate. This change only affects
+# how the script is loaded by the engine, not its functionality.
+
+--- Start of ./core/resource/ship_asset.gd ---
+
+# File: core/resource/ship_asset.gd
+# Purpose: Defines a **specific instance** of a ship owned by an agent.
+# Version: 1.1
+
+extends Resource
+class_name ShipAsset
+
+# --- Link to Blueprint ---
+# This is the single source of truth for base stats.
+var template: ShipAgentData
+
+# --- Instance-Specific State ---
+export var ship_name: String = "Unnamed Ship" # Player can rename their specific ship
+export var current_hull_integrity: int = 100
+
+# --- Modifications & Quirks ---
+# These store deltas or additions to the base template.
+export var ship_quirks: Array = []
+# export var installed_upgrades: Array = [] # Future-proofing
+
+func _ready():
+	# When a new asset is created, initialize its state from the template.
+	if is_instance_valid(template):
+		current_hull_integrity = template.base_hull_integrity
+	else:
+		printerr("ShipAsset Error: Template not assigned for '", ship_name, "'!")
+
 --- Start of ./core/systems/action_system.gd ---
 
 # File: core/systems/action_system.gd
@@ -14981,20 +15046,52 @@ func spawn_agent(
 
 --- Start of ./core/systems/asset_system.gd ---
 
+# File: core/systems/asset_system.gd
+# Purpose: Manages an agent's major assets, primarily the player's ship.
+# Version: 1.2 - Corrected property checking for Resources
+
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+# --- State ---
+var _player_ship_asset: ShipAsset = null
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.asset_system = self
+	print("AssetSystem Ready.")
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+
+func initialize_player_ship(ship_asset: ShipAsset):
+	if ship_asset is ShipAsset and is_instance_valid(ship_asset.template):
+		_player_ship_asset = ship_asset
+		print("AssetSystem: Player ship '", _player_ship_asset.ship_name, "' initialized from template '", _player_ship_asset.template.ship_class_name, "'.")
+	else:
+		printerr("AssetSystem Error: Invalid asset or template passed to initialize_player_ship.")
+
+
+# Provides ship stats to other systems by reading from the template.
+func get_player_ship_stat(stat_name: String):
+	if not is_instance_valid(_player_ship_asset):
+		printerr("AssetSystem Error: Player ship not initialized.")
+		return null
+
+	# --- THE FIX (Part 1) ---
+	# Priority 1: Check the instance for current state using the 'in' keyword.
+	if stat_name in _player_ship_asset:
+		return _player_ship_asset.get(stat_name)
+
+	# Priority 2: Check the linked template for base stats.
+	var template_stat_name = "base_" + stat_name
+	
+	# --- THE FIX (Part 2) ---
+	# Also check the template using the 'in' keyword.
+	if is_instance_valid(_player_ship_asset.template) and template_stat_name in _player_ship_asset.template:
+		var base_value = _player_ship_asset.template.get(template_stat_name)
+		# In the future, we could apply modifiers from upgrades here.
+		return base_value
+
+	printerr("AssetSystem Warning: Could not find stat '", stat_name, "' on ship asset or its template.")
+	return null
 
 --- Start of ./core/systems/character_system.gd ---
 
@@ -15136,6 +15233,74 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
+
+--- Start of ./core/systems/inventory_system.gd ---
+
+# File: core/systems/inventory_system.gd
+# Purpose: Manages an agent's cargo hold.
+# Version: 1.0
+
+extends Node
+
+# --- State ---
+# Key: Commodity Resource (or item_id), Value: quantity
+var _player_cargo: Dictionary = {}
+
+
+func _ready():
+	# GlobalRefs.inventory_system = self # Assuming you'll add this to GlobalRefs.gd
+	print("InventorySystem Ready.")
+
+
+# --- Public API ---
+
+# Adds an item to the player's cargo if space is available.
+func add_item(commodity: Commodity, quantity: int) -> bool:
+	if not is_instance_valid(commodity) or quantity <= 0:
+		return false
+
+	var current_cargo = get_total_cargo_amount()
+	var cargo_capacity = GlobalRefs.asset_system.get_player_ship_stat("cargo_capacity")
+
+	if current_cargo + quantity > cargo_capacity:
+		printerr("InventorySystem: Not enough cargo space.")
+		return false
+
+	if not _player_cargo.has(commodity.item_id):
+		_player_cargo[commodity.item_id] = {"item": commodity, "quantity": 0}
+
+	_player_cargo[commodity.item_id].quantity += quantity
+	print("InventorySystem: Added %d x %s. New total: %d" % [quantity, commodity.name, _player_cargo[commodity.item_id].quantity])
+	return true
+
+
+# Removes an item from the player's cargo if available.
+func remove_item(item_id: String, quantity: int) -> bool:
+	if not _player_cargo.has(item_id) or quantity <= 0:
+		return false
+
+	if _player_cargo[item_id].quantity < quantity:
+		printerr("InventorySystem: Not enough items to remove.")
+		return false
+
+	_player_cargo[item_id].quantity -= quantity
+	print("InventorySystem: Removed %d x %s. New total: %d" % [quantity, _player_cargo[item_id].item.name, _player_cargo[item_id].quantity])
+
+	if _player_cargo[item_id].quantity == 0:
+		_player_cargo.erase(item_id)
+
+	return true
+
+
+func get_total_cargo_amount() -> int:
+	var total = 0
+	for item_data in _player_cargo.values():
+		total += item_data.quantity
+	return total
+
+
+func get_player_cargo() -> Dictionary:
+	return _player_cargo
 
 --- Start of ./core/systems/progression_system.gd ---
 
@@ -17927,6 +18092,87 @@ func test_spawn_player_finds_entry_point():
 		"Player spawn Z position should be correct."
 	)
 
+--- Start of ./tests/core/systems/test_asset_system.gd ---
+
+# File: tests/core/systems/test_asset_system.gd
+# GUT Test for AssetSystem
+# Version: 1.3 - Mocks the Constants autoload for stable loading
+
+extends "res://addons/gut/test.gd"
+
+# --- Test Subjects ---
+# Declare as null. We will load them AFTER setting up the mock dependency.
+var AssetSystem = null
+var ShipAsset = null
+var ShipAgentData = null
+
+# --- Test State ---
+var asset_system_inst
+var test_ship_asset
+var mock_constants # To hold our fake autoload
+
+# This runs ONCE before any tests. It's our setup phase.
+func before_all():
+	# --- THE FIX: Create and inject a fake Constants node ---
+	mock_constants = Node.new()
+	# Add the properties that agent_template.gd needs to parse successfully.
+	# The actual values don't matter, only that they exist.
+	mock_constants.set("DEFAULT_MAX_MOVE_SPEED", 0.0)
+	mock_constants.set("DEFAULT_ACCELERATION", 0.0)
+	mock_constants.set("DEFAULT_DECELERATION", 0.0)
+	mock_constants.set("DEFAULT_MAX_TURN_SPEED", 0.0)
+
+	# Add the mock to the scene tree and give it the global name.
+	get_tree().get_root().add_child(mock_constants)
+	mock_constants.set_name("Constants")
+
+	# --- Load Game Scripts ---
+	# Now that "Constants" exists in the tree, these load operations will succeed.
+	AssetSystem = load("res://core/systems/asset_system.gd")
+	ShipAsset = load("res://core/resource/ship_asset.gd")
+	ShipAgentData = load("res://core/resource/ship_agent_data.gd")
+
+# This runs after all tests are done. It's our cleanup phase.
+func after_all():
+	if is_instance_valid(mock_constants):
+		mock_constants.free()
+
+func before_each():
+	# This line will now work because ShipAgentData loaded correctly.
+	var test_template = ShipAgentData.new()
+	test_template.ship_class_name = "Test Freighter"
+	test_template.base_cargo_capacity = 100
+	test_template.base_hull_integrity = 150
+
+	test_ship_asset = ShipAsset.new()
+	test_ship_asset.template = test_template
+	test_ship_asset.ship_name = "My Test Ship"
+	test_ship_asset.current_hull_integrity = 88
+
+	asset_system_inst = AssetSystem.new()
+	add_child(asset_system_inst)
+	asset_system_inst.initialize_player_ship(test_ship_asset)
+
+func after_each():
+	if is_instance_valid(asset_system_inst):
+		asset_system_inst.free()
+
+
+# --- Tests (Unchanged) ---
+
+func test_initialization_successful():
+	assert_not_null(asset_system_inst, "AssetSystem should be instantiated.")
+	var internal_asset = asset_system_inst.get("_player_ship_asset")
+	assert_eq(internal_asset.ship_name, "My Test Ship", "System should hold the correct ship asset.")
+
+func test_get_stat_from_instance():
+	var hull = asset_system_inst.get_player_ship_stat("current_hull_integrity")
+	assert_eq(hull, 88, "Should return the instance-specific value for 'current_hull_integrity'.")
+
+func test_get_stat_from_template():
+	var capacity = asset_system_inst.get_player_ship_stat("cargo_capacity")
+	assert_eq(capacity, 100, "Should fall back to the template and return 'base_cargo_capacity'.")
+
 --- Start of ./tests/core/systems/test_character_system.gd ---
 
 # File: tests/core/systems/test_character_system.gd
@@ -18074,6 +18320,88 @@ func test_apply_upkeep_cost_does_not_crash():
 	# doesn't cause an error, completing the code coverage.
 	character_system_instance.apply_upkeep_cost()
 	assert_true(true, "apply_upkeep_cost() should run without error.")
+
+--- Start of ./tests/core/systems/test_inventory_system.gd ---
+
+# File: tests/core/systems/test_inventory_system.gd
+# GUT Test for InventorySystem using a mocked AssetSystem
+# Version: 1.1 - Corrected for GUT 7.2.0 compatibility
+
+extends "res://addons/gut/test.gd"
+
+# --- Test Subjects ---
+var InventorySystem = load("res://core/systems/inventory_system.gd")
+var Commodity = load("res://core/resource/commodity.gd")
+
+# --- Mock Dependencies ---
+var AssetSystem = load("res://core/systems/asset_system.gd")
+
+# --- Test State ---
+var inventory_system_inst
+var mock_asset_system
+var test_commodity_ore
+var test_commodity_parts
+
+const MOCK_CARGO_CAPACITY = 50
+
+func before_each():
+	mock_asset_system = double(AssetSystem).new()
+	
+	# --- THE FIX ---
+	# The .with_args() method does not exist in GUT 7.2.0.
+	# This simpler syntax tells the stub to always return 50 when the function is called,
+	# regardless of its arguments. This is sufficient for our test.
+	stub(mock_asset_system, "get_player_ship_stat").to_return(MOCK_CARGO_CAPACITY)
+	
+	GlobalRefs.asset_system = mock_asset_system
+	inventory_system_inst = InventorySystem.new()
+	add_child(inventory_system_inst)
+	
+	test_commodity_ore = Commodity.new()
+	test_commodity_ore.item_id = "iron_ore"
+	test_commodity_ore.name = "Iron Ore"
+	
+	test_commodity_parts = Commodity.new()
+	test_commodity_parts.item_id = "machine_parts"
+	test_commodity_parts.name = "Machine Parts"
+
+func after_each():
+	inventory_system_inst.free()
+	mock_asset_system.free()
+	GlobalRefs.asset_system = null
+
+
+# --- Tests (Unchanged) ---
+
+func test_add_item_success():
+	assert_true(inventory_system_inst.add_item(test_commodity_ore, 20), "Should be able to add 20 items.")
+	assert_eq(inventory_system_inst.get_total_cargo_amount(), 20, "Total cargo amount should be 20.")
+
+func test_add_item_exceeds_capacity():
+	assert_false(inventory_system_inst.add_item(test_commodity_ore, MOCK_CARGO_CAPACITY + 1), "Should fail to add 51 items.")
+	assert_eq(inventory_system_inst.get_total_cargo_amount(), 0, "Cargo should still be empty after a failed add.")
+
+func test_fill_capacity_and_fail_to_add_more():
+	inventory_system_inst.add_item(test_commodity_ore, 30)
+	inventory_system_inst.add_item(test_commodity_parts, 20)
+	assert_eq(inventory_system_inst.get_total_cargo_amount(), 50, "Cargo should be exactly full.")
+	assert_false(inventory_system_inst.add_item(test_commodity_ore, 1), "Should fail to add one more item to a full cargo hold.")
+
+func test_remove_item_success():
+	inventory_system_inst.add_item(test_commodity_ore, 30)
+	assert_true(inventory_system_inst.remove_item("iron_ore", 10), "Should successfully remove 10 items.")
+	assert_eq(inventory_system_inst.get_total_cargo_amount(), 20, "Total cargo should be 20 after removal.")
+
+func test_remove_more_items_than_exist():
+	inventory_system_inst.add_item(test_commodity_ore, 10)
+	assert_false(inventory_system_inst.remove_item("iron_ore", 15), "Should fail to remove 15 items if only 10 exist.")
+	assert_eq(inventory_system_inst.get_total_cargo_amount(), 10, "Total cargo should not have changed.")
+
+func test_remove_item_removes_entry_when_zero():
+	inventory_system_inst.add_item(test_commodity_ore, 10)
+	assert_true(inventory_system_inst.remove_item("iron_ore", 10), "Should successfully remove all 10 items.")
+	var cargo_dict = inventory_system_inst.get_player_cargo()
+	assert_false(cargo_dict.has("iron_ore"), "The 'iron_ore' key should be removed when quantity is zero.")
 
 --- Start of ./tests/core/systems/test_time_system.gd ---
 

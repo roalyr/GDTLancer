@@ -124,7 +124,8 @@
 │   │   └── templates
 │   │       └── agents
 │   │           ├── npc_traffic.tres
-│   │           └── player_default.tres
+│   │           ├── player_default.tres
+│   │           └── player_ship.tres
 │   ├── fonts
 │   │   └── Roboto_Condensed
 │   │       └── static
@@ -173,7 +174,10 @@
 │   │   ├── npc_agent.tscn
 │   │   └── player_agent.tscn
 │   ├── resource
-│   │   └── action_resource.gd
+│   │   ├── action_resource.gd
+│   │   ├── commodity.gd
+│   │   ├── ship_agent_data.gd
+│   │   └── ship_asset.gd
 │   ├── systems
 │   │   ├── action_system.gd
 │   │   ├── agent_spawner.gd
@@ -182,6 +186,7 @@
 │   │   ├── chronicle_system.gd
 │   │   ├── event_system.gd
 │   │   ├── goal_system.gd
+│   │   ├── inventory_system.gd
 │   │   ├── progression_system.gd
 │   │   ├── time_system.gd
 │   │   ├── traffic_system_placeholder.gd
@@ -246,7 +251,9 @@
     │   ├── systems
     │   │   ├── test_action_system.gd
     │   │   ├── test_agent_spawner.gd
+    │   │   ├── test_asset_system.gd
     │   │   ├── test_character_system.gd
+    │   │   ├── test_inventory_system.gd
     │   │   └── test_time_system.gd
     │   └── utils
     │       └── test_pid_controller.gd
@@ -259,6 +266,6 @@
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-51 directories, 209 files
+51 directories, 216 files
 
-51 directories, 209 files
+51 directories, 216 files
