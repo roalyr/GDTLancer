@@ -189,7 +189,7 @@
 │   │   ├── inventory_system.gd
 │   │   ├── progression_system.gd
 │   │   ├── time_system.gd
-│   │   ├── traffic_system_placeholder.gd
+│   │   ├── traffic_system.gd
 │   │   └── world_map_system.gd
 │   ├── ui
 │   │   ├── CenteredGrowingLabel.gd

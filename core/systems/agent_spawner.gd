@@ -7,8 +7,11 @@ var _player_agent_body: KinematicBody = null
 
 
 func _ready():
+	GlobalRefs.set_agent_spawner(self)
+	
 	# Listen for the zone_loaded signal to know when it's safe to spawn.
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
+	print("AgentSpawner Ready.")
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):

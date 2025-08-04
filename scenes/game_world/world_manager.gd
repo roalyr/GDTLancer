@@ -1,20 +1,33 @@
 # File: scenes/game_world/world_manager.gd
-# Version: 3.0 (Refactored) - Handles zone management only. Agent spawning is delegated.
+# Version: 3.1 - Added a timer to drive the global TimeSystem.
 
 extends Node
 
 # --- State ---
 var current_zone_instance: Node = null
-var _spawned_agent_bodies = []  # This list can now be managed by a future system if needed.
+var _spawned_agent_bodies = []
+
+# --- Nodes ---
+var _time_clock_timer: Timer = null
 
 
 # --- Initialization ---
 func _ready():
-	GlobalRefs.world_manager = self
+	GlobalRefs.set_world_manager(self)
+	
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
 
+	# --- NEW: Setup the Time Clock Timer ---
+	_time_clock_timer = Timer.new()
+	_time_clock_timer.name = "TimeClockTimer"
+	_time_clock_timer.wait_time = Constants.TIME_TICK_INTERVAL_SECONDS
+	_time_clock_timer.autostart = true
+	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
+	add_child(_time_clock_timer)
+	# --- END NEW ---
+	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 
@@ -59,6 +72,18 @@ func load_zone(zone_scene_path: String):
 	GlobalRefs.agent_container = agent_container
 
 	EventBus.emit_signal("zone_loaded", current_zone_instance, zone_scene_path, agent_container)
+
+
+# --- Time System Driver ---
+func _on_Time_Clock_Timer_timeout():
+	# This function is now called every TIME_TICK_INTERVAL_SECONDS.
+	# It drives the core time-based loop of the game.
+	if is_instance_valid(GlobalRefs.time_system):
+		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
+		GlobalRefs.time_system.add_time_units(1)
+		#print(GlobalRefs.time_system._current_tu)
+	else:
+		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 
 
 # --- Signal Handlers to maintain agent list ---

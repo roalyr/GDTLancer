@@ -15,6 +15,7 @@ var _character_system: Node = null
 
 
 func _ready():
+	GlobalRefs.set_time_system(self)
 	print("TimeSystem Ready.")
 
 

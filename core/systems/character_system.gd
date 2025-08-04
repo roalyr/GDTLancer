@@ -15,6 +15,8 @@ var _player_character_id = null
 
 # --- System Ready ---
 func _ready():
+	GlobalRefs.set_character_system(self)
+	
 	# Connect to the EventBus to listen for when new agents are spawned.
 	if not EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
 		EventBus.connect("agent_spawned", self, "_on_agent_spawned")

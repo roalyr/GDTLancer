@@ -9,7 +9,7 @@ var _player_ship_asset: ShipAsset = null
 
 
 func _ready():
-	GlobalRefs.asset_system = self
+	GlobalRefs.set_asset_system(self)
 	print("AssetSystem Ready.")
 
 

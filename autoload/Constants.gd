@@ -48,6 +48,8 @@ const DEFAULT_ACCELERATION = 0.5
 const DEFAULT_DECELERATION = 0.5
 const DEFAULT_MAX_TURN_SPEED = 0.75
 
+const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
+
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
 

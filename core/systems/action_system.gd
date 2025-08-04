@@ -16,6 +16,8 @@ var _next_action_id: int = 1
 
 # --- System Ready ---
 func _ready():
+	GlobalRefs.set_action_system(self)
+	
 	if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick"):
 		EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick")
 	print("ActionSystem Ready.")

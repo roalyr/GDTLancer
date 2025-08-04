@@ -13140,6 +13140,8 @@ const DEFAULT_ACCELERATION = 0.5
 const DEFAULT_DECELERATION = 0.5
 const DEFAULT_MAX_TURN_SPEED = 0.75
 
+const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
+
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
 
@@ -13562,145 +13564,201 @@ func get_save_metadata(slot_id: int) -> Dictionary:
 
 --- Start of ./autoload/GlobalRefs.gd ---
 
-# File: autoload/GlobalRefs.gd
+# File: core/autoload/global_refs.gd
 # Autoload Singleton: GlobalRefs
 # Purpose: Holds easily accessible references to unique global nodes/managers.
 # Nodes register themselves here via setter functions during their _ready() phase.
-# Version: 1.0
+# Version: 1.1
 
 extends Node
 
-# --- Key Node References ---
+# --- Key Node & UI References ---
 # Other scripts access these directly (e.g., GlobalRefs.player_agent_body)
 # but should ALWAYS check if is_instance_valid() first!
 
-var player_agent_body = null setget set_player_agent_body  #KinematicBody, spawned by WM
+var player_agent_body = null setget set_player_agent_body
 var main_camera = null setget set_main_camera
 var world_manager = null setget set_world_manager
-var event_system = null setget set_event_system  # If EventSystem is a Node, not Autoload
-var goal_system = null setget set_goal_system  # If GoalSystem is a Node
-var character_system = null setget set_character_system  # If CharacterSystem is a Node
-var asset_system = null setget set_asset_system  # If AssetSystem is a Node
-
-# Add other core system node references as needed...
-var current_zone = null setget set_current_zone  # Reference to the root node of the loaded zone scene
-var agent_container = null setget set_agent_container  # Reference to the node *within* the zone where agents are parented
 var main_hud = null setget set_main_hud
+var current_zone = null setget set_current_zone
+var agent_container = null setget set_agent_container
+var game_state_manager = null setget set_game_state_manager
+
+# --- Core System References ---
+var action_system = null setget set_action_system
+var agent_spawner = null setget set_agent_spawner
+var asset_system = null setget set_asset_system
+var character_system = null setget set_character_system
+var chronicle_system = null setget set_chronicle_system
+var goal_system = null setget set_goal_system
+var inventory_system = null setget set_inventory_system
+var progression_system = null setget set_progression_system
+var time_system = null setget set_time_system
+var traffic_system = null setget set_traffic_system
+var world_map_system = null setget set_world_map_system
+var event_system = null setget set_event_system
 
 
 func _ready():
 	print("GlobalRefs Ready.")
-	# This script typically doesn't do much itself, it just holds references set by others.
+	# This script is a passive container; references are set by other nodes.
 
 
 # --- Setters (Provide controlled way to update references & add validation) ---
-# Using setget ensures these are called automatically on assignment.
-
 
 func set_player_agent_body(new_ref):
-	if new_ref == player_agent_body:
-		return  # No change
+	if new_ref == player_agent_body: return
 	if new_ref == null or is_instance_valid(new_ref):
 		player_agent_body = new_ref
-		print("GlobalRefs: Player Agent reference ", "set to ", new_ref.name if new_ref else "null")
+		print("GlobalRefs: Player Agent ref set to ", new_ref.name if new_ref else "null")
 	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Player Agent reference: ", new_ref)
-
+		printerr("GlobalRefs Error: Invalid Player Agent ref: ", new_ref)
 
 func set_main_camera(new_ref):
-	if new_ref == main_camera:
-		return
+	if new_ref == main_camera: return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_camera = new_ref
-		print("GlobalRefs: Main Camera reference ", "set." if new_ref else "cleared.")
+		print("GlobalRefs: Main Camera ref ", "set." if new_ref else "cleared.")
 	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Main Camera reference: ", new_ref)
-
+		printerr("GlobalRefs Error: Invalid Main Camera ref: ", new_ref)
 
 func set_world_manager(new_ref):
-	if new_ref == world_manager:
-		return
+	if new_ref == world_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		world_manager = new_ref
-		print("GlobalRefs: World Manager reference ", "set." if new_ref else "cleared.")
+		print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
 	else:
-		printerr("GlobalRefs Error: Attempted to set invalid World Manager reference: ", new_ref)
-
-
-func set_event_system(new_ref):
-	if new_ref == event_system:
-		return
-	if new_ref == null or is_instance_valid(new_ref):
-		event_system = new_ref
-		print("GlobalRefs: Event System reference ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Event System reference: ", new_ref)
-
-
-func set_goal_system(new_ref):
-	if new_ref == goal_system:
-		return
-	if new_ref == null or is_instance_valid(new_ref):
-		goal_system = new_ref
-		print("GlobalRefs: Goal System reference ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Goal System reference: ", new_ref)
-
-
-func set_character_system(new_ref):
-	if new_ref == character_system:
-		return
-	if new_ref == null or is_instance_valid(new_ref):
-		character_system = new_ref
-		print("GlobalRefs: Character System reference ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Character System reference: ", new_ref)
-
-
-func set_asset_system(new_ref):
-	if new_ref == asset_system:
-		return
-	if new_ref == null or is_instance_valid(new_ref):
-		asset_system = new_ref
-		print("GlobalRefs: Asset System reference ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Asset System reference: ", new_ref)
-
-
-func set_current_zone(new_ref):
-	if new_ref == current_zone:
-		return
-	if new_ref == null or is_instance_valid(new_ref):
-		current_zone = new_ref
-		print("GlobalRefs: Current Zone reference ", "set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Current Zone reference: ", new_ref)
-
-
-func set_agent_container(new_ref):
-	if new_ref == agent_container:
-		return
-	if new_ref == null or is_instance_valid(new_ref):
-		agent_container = new_ref
-		print(
-			"GlobalRefs: Agent Container reference ", "set to ", new_ref.name if new_ref else "null"
-		)
-	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Agent Container reference: ", new_ref)
-
+		printerr("GlobalRefs Error: Invalid World Manager ref: ", new_ref)
 
 func set_main_hud(new_ref):
-	if new_ref == main_hud:
-		return
+	if new_ref == main_hud: return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_hud = new_ref
-		print("GlobalRefs: Main HUD reference ", "set to ", new_ref.name if new_ref else "null")
+		print("GlobalRefs: Main HUD ref set to ", new_ref.name if new_ref else "null")
 	else:
-		printerr("GlobalRefs Error: Attempted to set invalid Main HUD reference: ", new_ref)
+		printerr("GlobalRefs Error: Invalid Main HUD ref: ", new_ref)
 
-# --- Optional: Add simple getter functions if needed ---
-# func get_player() -> KinematicBody:
-#     return player_agent_body if is_instance_valid(player_agent_body) else null
+func set_current_zone(new_ref):
+	if new_ref == current_zone: return
+	if new_ref == null or is_instance_valid(new_ref):
+		current_zone = new_ref
+		print("GlobalRefs: Current Zone ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Current Zone ref: ", new_ref)
+
+func set_agent_container(new_ref):
+	if new_ref == agent_container: return
+	if new_ref == null or is_instance_valid(new_ref):
+		agent_container = new_ref
+		print("GlobalRefs: Agent Container ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Agent Container ref: ", new_ref)
+
+func set_game_state_manager(new_ref):
+	if new_ref == game_state_manager: return
+	if new_ref == null or is_instance_valid(new_ref):
+		game_state_manager = new_ref
+		print("GlobalRefs: GameStateManager ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid GameStateManager ref: ", new_ref)
+
+# --- System Setters ---
+
+func set_action_system(new_ref):
+	if new_ref == action_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		action_system = new_ref
+		print("GlobalRefs: ActionSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid ActionSystem ref: ", new_ref)
+
+func set_agent_spawner(new_ref):
+	if new_ref == agent_spawner: return
+	if new_ref == null or is_instance_valid(new_ref):
+		agent_spawner = new_ref
+		print("GlobalRefs: AgentSpawner ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid AgentSpawner ref: ", new_ref)
+
+func set_asset_system(new_ref):
+	if new_ref == asset_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		asset_system = new_ref
+		print("GlobalRefs: AssetSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid AssetSystem ref: ", new_ref)
+
+func set_character_system(new_ref):
+	if new_ref == character_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		character_system = new_ref
+		print("GlobalRefs: CharacterSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid CharacterSystem ref: ", new_ref)
+
+func set_chronicle_system(new_ref):
+	if new_ref == chronicle_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		chronicle_system = new_ref
+		print("GlobalRefs: ChronicleSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid ChronicleSystem ref: ", new_ref)
+
+func set_goal_system(new_ref):
+	if new_ref == goal_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		goal_system = new_ref
+		print("GlobalRefs: GoalSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid GoalSystem ref: ", new_ref)
+
+func set_inventory_system(new_ref):
+	if new_ref == inventory_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		inventory_system = new_ref
+		print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid InventorySystem ref: ", new_ref)
+
+func set_progression_system(new_ref):
+	if new_ref == progression_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		progression_system = new_ref
+		print("GlobalRefs: ProgressionSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid ProgressionSystem ref: ", new_ref)
+
+func set_time_system(new_ref):
+	if new_ref == time_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		time_system = new_ref
+		print("GlobalRefs: TimeSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid TimeSystem ref: ", new_ref)
+
+func set_traffic_system(new_ref):
+	if new_ref == traffic_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		traffic_system = new_ref
+		print("GlobalRefs: TrafficSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid TrafficSystem ref: ", new_ref)
+
+func set_world_map_system(new_ref):
+	if new_ref == world_map_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		world_map_system = new_ref
+		print("GlobalRefs: WorldMapSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid WorldMapSystem ref: ", new_ref)
+
+func set_event_system(new_ref):
+	if new_ref == event_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		event_system = new_ref
+		print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
 
 --- Start of ./core/agents/agent.gd ---
 
@@ -14840,6 +14898,8 @@ var _next_action_id: int = 1
 
 # --- System Ready ---
 func _ready():
+	GlobalRefs.set_action_system(self)
+	
 	if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick"):
 		EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick")
 	print("ActionSystem Ready.")
@@ -14942,8 +15002,11 @@ var _player_agent_body: KinematicBody = null
 
 
 func _ready():
+	GlobalRefs.set_agent_spawner(self)
+	
 	# Listen for the zone_loaded signal to know when it's safe to spawn.
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
+	print("AgentSpawner Ready.")
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
@@ -15057,7 +15120,7 @@ var _player_ship_asset: ShipAsset = null
 
 
 func _ready():
-	GlobalRefs.asset_system = self
+	GlobalRefs.set_asset_system(self)
 	print("AssetSystem Ready.")
 
 
@@ -15112,6 +15175,8 @@ var _player_character_id = null
 
 # --- System Ready ---
 func _ready():
+	GlobalRefs.set_character_system(self)
+	
 	# Connect to the EventBus to listen for when new agents are spawned.
 	if not EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
 		EventBus.connect("agent_spawned", self, "_on_agent_spawned")
@@ -15194,7 +15259,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.set_chronicle_system(self)
+	print("ChronicleSystem Ready.")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
@@ -15211,7 +15277,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.set_event_system(self)
+	print("EventSystem Ready.")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
@@ -15228,7 +15295,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.set_goal_system(self)
+	print("GoalSystem Ready.")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
@@ -15248,7 +15316,7 @@ var _player_cargo: Dictionary = {}
 
 
 func _ready():
-	# GlobalRefs.inventory_system = self # Assuming you'll add this to GlobalRefs.gd
+	GlobalRefs.set_inventory_system(self)
 	print("InventorySystem Ready.")
 
 
@@ -15313,7 +15381,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.set_progression_system(self)
+	print("ProgressionSystem Ready.")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
@@ -15338,6 +15407,7 @@ var _character_system: Node = null
 
 
 func _ready():
+	GlobalRefs.set_time_system(self)
 	print("TimeSystem Ready.")
 
 
@@ -15373,7 +15443,7 @@ func _trigger_world_event_tick():
 	else:
 		print("TimeSystem: Placeholder - Would call CharacterSystem to apply WP upkeep cost.")
 
---- Start of ./core/systems/traffic_system_placeholder.gd ---
+--- Start of ./core/systems/traffic_system.gd ---
 
 extends Node
 
@@ -15384,7 +15454,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.set_traffic_system(self)
+	print("TrafficSystem Ready.")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
@@ -15401,7 +15472,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass  # Replace with function body.
+	GlobalRefs.set_world_map_system(self)
+	print("WorldMapSystem Ready.")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
@@ -16962,22 +17034,35 @@ func _notification(what):
 --- Start of ./scenes/game_world/world_manager.gd ---
 
 # File: scenes/game_world/world_manager.gd
-# Version: 3.0 (Refactored) - Handles zone management only. Agent spawning is delegated.
+# Version: 3.1 - Added a timer to drive the global TimeSystem.
 
 extends Node
 
 # --- State ---
 var current_zone_instance: Node = null
-var _spawned_agent_bodies = []  # This list can now be managed by a future system if needed.
+var _spawned_agent_bodies = []
+
+# --- Nodes ---
+var _time_clock_timer: Timer = null
 
 
 # --- Initialization ---
 func _ready():
-	GlobalRefs.world_manager = self
+	GlobalRefs.set_world_manager(self)
+	
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
 
+	# --- NEW: Setup the Time Clock Timer ---
+	_time_clock_timer = Timer.new()
+	_time_clock_timer.name = "TimeClockTimer"
+	_time_clock_timer.wait_time = Constants.TIME_TICK_INTERVAL_SECONDS
+	_time_clock_timer.autostart = true
+	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
+	add_child(_time_clock_timer)
+	# --- END NEW ---
+	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 
@@ -17022,6 +17107,18 @@ func load_zone(zone_scene_path: String):
 	GlobalRefs.agent_container = agent_container
 
 	EventBus.emit_signal("zone_loaded", current_zone_instance, zone_scene_path, agent_container)
+
+
+# --- Time System Driver ---
+func _on_Time_Clock_Timer_timeout():
+	# This function is now called every TIME_TICK_INTERVAL_SECONDS.
+	# It drives the core time-based loop of the game.
+	if is_instance_valid(GlobalRefs.time_system):
+		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
+		GlobalRefs.time_system.add_time_units(1)
+		print(GlobalRefs.time_system._current_tu)
+	else:
+		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 
 
 # --- Signal Handlers to maintain agent list ---
@@ -17470,6 +17567,7 @@ func test_get_metadata_returns_empty_for_non_existent_file():
 
 # File: tests/autoload/test_global_refs.gd
 # GUT Test Script for GlobalRefs.gd Autoload
+# Version: 1.2
 
 extends GutTest
 
@@ -17477,39 +17575,57 @@ extends GutTest
 var test_node_player = null
 var test_node_camera = null
 var test_node_other = null
+var test_system_node = null
 
 
 # Setup before each test method
 func before_each():
 	# Create fresh dummy nodes for isolation
 	test_node_player = Node.new()
-	test_node_player.name = "DummyPlayer"  # For identifiable print messages
-	test_node_camera = Camera.new()  # Use correct type if setter checks type
+	test_node_player.name = "DummyPlayer"
+	test_node_camera = Camera.new()
 	test_node_camera.name = "DummyCamera"
 	test_node_other = Node.new()
 	test_node_other.name = "DummyOther"
+	test_system_node = Node.new()
+	test_system_node.name = "DummySystem"
 
-	# Add to tree temporarily so is_instance_valid works reliably after potential free()
-	# GUT's autofree will handle removal and freeing IF the test doesn't free them itself
+	# GUT's autofree will handle removal and freeing
 	add_child_autofree(test_node_player)
 	add_child_autofree(test_node_camera)
 	add_child_autofree(test_node_other)
+	add_child_autofree(test_system_node)
 
-	# Reset global refs to a known null state before each test
-	GlobalRefs.player_agent_body = null
-	GlobalRefs.main_camera = null
-	GlobalRefs.world_manager = null  # Example of another ref
-	# Add resets for any other GlobalRefs variables as needed
+	# Reset all global refs to a known null state before each test
+	reset_all_global_refs()
 
 
 func after_each():
 	# Reset global refs after test completion to avoid interfering with other tests
+	reset_all_global_refs()
+	# Dummy nodes are freed by autofree
+
+
+# Helper function to reset all references
+func reset_all_global_refs():
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.main_camera = null
 	GlobalRefs.world_manager = null
-	# Add resets for any other GlobalRefs variables as needed
-
-	# Dummy nodes are freed by autofree if not freed manually in a test
+	GlobalRefs.main_hud = null
+	GlobalRefs.current_zone = null
+	GlobalRefs.agent_container = null
+	GlobalRefs.game_state_manager = null
+	GlobalRefs.action_system = null
+	GlobalRefs.agent_spawner = null
+	GlobalRefs.asset_system = null
+	GlobalRefs.character_system = null
+	GlobalRefs.chronicle_system = null
+	GlobalRefs.goal_system = null
+	GlobalRefs.inventory_system = null
+	GlobalRefs.progression_system = null
+	GlobalRefs.time_system = null
+	GlobalRefs.traffic_system = null
+	GlobalRefs.world_map_system = null
 
 
 # --- Test Methods ---
@@ -17519,6 +17635,9 @@ func test_initial_references_are_null():
 	assert_null(GlobalRefs.player_agent_body, "Player ref should start null.")
 	assert_null(GlobalRefs.main_camera, "Camera ref should start null.")
 	assert_null(GlobalRefs.world_manager, "World Manager ref should start null.")
+	assert_null(GlobalRefs.action_system, "Action System ref should start null.")
+	assert_null(GlobalRefs.time_system, "Time System ref should start null.")
+	assert_null(GlobalRefs.character_system, "Character System ref should start null.")
 	prints("Tested GlobalRefs: Initial Null State")
 
 
@@ -17537,6 +17656,14 @@ func test_can_set_and_get_valid_reference():
 	prints("Tested GlobalRefs: Set/Get Valid Reference")
 
 
+func test_can_set_and_get_system_references():
+	assert_null(GlobalRefs.time_system, "Pre-check: TimeSystem ref is null.")
+	GlobalRefs.time_system = test_system_node
+	assert_true(is_instance_valid(GlobalRefs.time_system), "TimeSystem ref should be valid.")
+	assert_eq(GlobalRefs.time_system, test_system_node, "TimeSystem ref holds the correct node.")
+	prints("Tested GlobalRefs: Set/Get System References")
+
+
 func test_setting_null_clears_reference():
 	# Set a valid reference first
 	GlobalRefs.main_camera = test_node_camera
@@ -17548,7 +17675,7 @@ func test_setting_null_clears_reference():
 
 
 func test_overwriting_reference_with_valid_node():
-	GlobalRefs.world_manager = test_node_player  # Assign Node type to Node var
+	GlobalRefs.world_manager = test_node_player # Assign Node type to Node var
 	assert_eq(GlobalRefs.world_manager, test_node_player, "Check initial assignment.")
 	# Assign a different valid node
 	GlobalRefs.world_manager = test_node_other
@@ -17571,7 +17698,7 @@ func test_setting_invalid_freed_reference_is_handled():
 
 	# Create and free a temporary node *before* assigning it
 	var freed_node = Node.new()
-	freed_node.free()  # Free it immediately
+	freed_node.free() # Free it immediately
 
 	# Attempt to assign the freed node via the setter (setget triggers this)
 	GlobalRefs.player_agent_body = freed_node
@@ -17592,15 +17719,6 @@ func test_setting_invalid_freed_reference_is_handled():
 		"Player ref should not be the freed node instance."
 	)
 	prints("Tested GlobalRefs: Ignore Setting Freed Reference")
-
-# Add similar tests for other important global references (event_system, goal_system, etc.)
-# Example:
-# func test_setting_world_manager_ref():
-#     assert_null(GlobalRefs.world_manager)
-#     GlobalRefs.world_manager = test_node_other
-#     assert_eq(GlobalRefs.world_manager, test_node_other)
-#     GlobalRefs.world_manager = null
-#     assert_null(GlobalRefs.world_manager)
 
 --- Start of ./tests/core/agents/components/test_movement_system.gd ---
 

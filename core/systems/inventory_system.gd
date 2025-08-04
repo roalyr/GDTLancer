@@ -10,7 +10,7 @@ var _player_cargo: Dictionary = {}
 
 
 func _ready():
-	# GlobalRefs.inventory_system = self # Assuming you'll add this to GlobalRefs.gd
+	GlobalRefs.set_inventory_system(self)
 	print("InventorySystem Ready.")
 
 

@@ -1,5 +1,6 @@
 # File: tests/autoload/test_global_refs.gd
 # GUT Test Script for GlobalRefs.gd Autoload
+# Version: 1.2
 
 extends GutTest
 
@@ -7,39 +8,57 @@ extends GutTest
 var test_node_player = null
 var test_node_camera = null
 var test_node_other = null
+var test_system_node = null
 
 
 # Setup before each test method
 func before_each():
 	# Create fresh dummy nodes for isolation
 	test_node_player = Node.new()
-	test_node_player.name = "DummyPlayer"  # For identifiable print messages
-	test_node_camera = Camera.new()  # Use correct type if setter checks type
+	test_node_player.name = "DummyPlayer"
+	test_node_camera = Camera.new()
 	test_node_camera.name = "DummyCamera"
 	test_node_other = Node.new()
 	test_node_other.name = "DummyOther"
+	test_system_node = Node.new()
+	test_system_node.name = "DummySystem"
 
-	# Add to tree temporarily so is_instance_valid works reliably after potential free()
-	# GUT's autofree will handle removal and freeing IF the test doesn't free them itself
+	# GUT's autofree will handle removal and freeing
 	add_child_autofree(test_node_player)
 	add_child_autofree(test_node_camera)
 	add_child_autofree(test_node_other)
+	add_child_autofree(test_system_node)
 
-	# Reset global refs to a known null state before each test
-	GlobalRefs.player_agent_body = null
-	GlobalRefs.main_camera = null
-	GlobalRefs.world_manager = null  # Example of another ref
-	# Add resets for any other GlobalRefs variables as needed
+	# Reset all global refs to a known null state before each test
+	reset_all_global_refs()
 
 
 func after_each():
 	# Reset global refs after test completion to avoid interfering with other tests
+	reset_all_global_refs()
+	# Dummy nodes are freed by autofree
+
+
+# Helper function to reset all references
+func reset_all_global_refs():
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.main_camera = null
 	GlobalRefs.world_manager = null
-	# Add resets for any other GlobalRefs variables as needed
-
-	# Dummy nodes are freed by autofree if not freed manually in a test
+	GlobalRefs.main_hud = null
+	GlobalRefs.current_zone = null
+	GlobalRefs.agent_container = null
+	GlobalRefs.game_state_manager = null
+	GlobalRefs.action_system = null
+	GlobalRefs.agent_spawner = null
+	GlobalRefs.asset_system = null
+	GlobalRefs.character_system = null
+	GlobalRefs.chronicle_system = null
+	GlobalRefs.goal_system = null
+	GlobalRefs.inventory_system = null
+	GlobalRefs.progression_system = null
+	GlobalRefs.time_system = null
+	GlobalRefs.traffic_system = null
+	GlobalRefs.world_map_system = null
 
 
 # --- Test Methods ---
@@ -49,6 +68,9 @@ func test_initial_references_are_null():
 	assert_null(GlobalRefs.player_agent_body, "Player ref should start null.")
 	assert_null(GlobalRefs.main_camera, "Camera ref should start null.")
 	assert_null(GlobalRefs.world_manager, "World Manager ref should start null.")
+	assert_null(GlobalRefs.action_system, "Action System ref should start null.")
+	assert_null(GlobalRefs.time_system, "Time System ref should start null.")
+	assert_null(GlobalRefs.character_system, "Character System ref should start null.")
 	prints("Tested GlobalRefs: Initial Null State")
 
 
@@ -67,6 +89,14 @@ func test_can_set_and_get_valid_reference():
 	prints("Tested GlobalRefs: Set/Get Valid Reference")
 
 
+func test_can_set_and_get_system_references():
+	assert_null(GlobalRefs.time_system, "Pre-check: TimeSystem ref is null.")
+	GlobalRefs.time_system = test_system_node
+	assert_true(is_instance_valid(GlobalRefs.time_system), "TimeSystem ref should be valid.")
+	assert_eq(GlobalRefs.time_system, test_system_node, "TimeSystem ref holds the correct node.")
+	prints("Tested GlobalRefs: Set/Get System References")
+
+
 func test_setting_null_clears_reference():
 	# Set a valid reference first
 	GlobalRefs.main_camera = test_node_camera
@@ -78,7 +108,7 @@ func test_setting_null_clears_reference():
 
 
 func test_overwriting_reference_with_valid_node():
-	GlobalRefs.world_manager = test_node_player  # Assign Node type to Node var
+	GlobalRefs.world_manager = test_node_player # Assign Node type to Node var
 	assert_eq(GlobalRefs.world_manager, test_node_player, "Check initial assignment.")
 	# Assign a different valid node
 	GlobalRefs.world_manager = test_node_other
@@ -101,7 +131,7 @@ func test_setting_invalid_freed_reference_is_handled():
 
 	# Create and free a temporary node *before* assigning it
 	var freed_node = Node.new()
-	freed_node.free()  # Free it immediately
+	freed_node.free() # Free it immediately
 
 	# Attempt to assign the freed node via the setter (setget triggers this)
 	GlobalRefs.player_agent_body = freed_node
@@ -122,12 +152,3 @@ func test_setting_invalid_freed_reference_is_handled():
 		"Player ref should not be the freed node instance."
 	)
 	prints("Tested GlobalRefs: Ignore Setting Freed Reference")
-
-# Add similar tests for other important global references (event_system, goal_system, etc.)
-# Example:
-# func test_setting_world_manager_ref():
-#     assert_null(GlobalRefs.world_manager)
-#     GlobalRefs.world_manager = test_node_other
-#     assert_eq(GlobalRefs.world_manager, test_node_other)
-#     GlobalRefs.world_manager = null
-#     assert_null(GlobalRefs.world_manager)
