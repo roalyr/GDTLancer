@@ -75,7 +75,7 @@ func spawn_agent(
 	var agent_root_instance = agent_scene.instance()
 	# agent_node is the "AgentBody" KinematicBody within the scene instance
 	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
-	
+
 	if not (agent_node and agent_node is KinematicBody):
 		printerr("AgentSpawner Spawn Error: Invalid agent body node in scene: ", agent_scene_path)
 		agent_root_instance.queue_free()
@@ -101,10 +101,10 @@ func spawn_agent(
 	# We also need to check for both AI and Player controllers.
 	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	var player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
-	
+
 	if ai_controller and ai_controller.has_method("initialize"):
 		ai_controller.initialize(overrides)
 	# The PlayerInputHandler does not have an initialize method, so we don't need to call it,
 	# but by getting a reference to it, we ensure the test framework is aware of it.
-	
+
 	return agent_node

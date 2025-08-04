@@ -1,3 +1,17 @@
+--- Start of ./addons/gut/gui/GutSceneTheme.tres ---
+
+[gd_resource type="Theme" load_steps=3 format=2]
+
+[sub_resource type="DynamicFontData" id=9]
+font_path = "res://addons/gut/fonts/AnonymousPro-Regular.ttf"
+
+[sub_resource type="DynamicFont" id=10]
+size = 14
+font_data = SubResource( 9 )
+
+[resource]
+default_font = SubResource( 10 )
+
 --- Start of ./assets/art/effects/particle_dust_material.tres ---
 
 [gd_resource type="SpatialMaterial" format=2]
@@ -51,7 +65,7 @@ script = ExtResource( 1 )
 template_id = "default_template"
 default_agent_name = "Agent"
 default_faction_id = "Neutral"
-max_move_speed = 300.0
+max_move_speed = 1000.0
 acceleration = 0.5
 deceleration = 0.5
 max_turn_speed = 0.75
@@ -305,3 +319,16 @@ shader_param/scale_end_mul = 25.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.25
 shader_param/major_detail_noise = ExtResource( 1 )
+
+--- Start of ./tests/data/test_action.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/action_resource.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+action_name = "Unnamed Action"
+tu_cost = 1
+base_attribute = "INT"
+associated_skill = "Computers"

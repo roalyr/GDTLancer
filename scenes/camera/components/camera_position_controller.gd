@@ -17,7 +17,7 @@ var rotation_smoothing_speed: float = 18.0
 var bob_frequency: float = 0.1
 var bob_amplitude: float = 0.2
 # NEW: How quickly the camera's anchor point follows the ship. Lower values are smoother.
-var target_smoothing_speed: float = 15.0 
+var target_smoothing_speed: float = 15.0
 
 # --- State ---
 var _bob_timer: float = 0.0
@@ -30,7 +30,7 @@ func initialize(camera_node: Camera, rot_ctrl: Node, zoom_ctrl: Node, config: Di
 	_camera = camera_node
 	_rotation_controller = rot_ctrl
 	_zoom_controller = zoom_ctrl
-	
+
 	# Set configuration from the main camera script
 	position_smoothing_speed = config.get("position_smoothing_speed", position_smoothing_speed)
 	rotation_smoothing_speed = config.get("rotation_smoothing_speed", rotation_smoothing_speed)
@@ -46,9 +46,10 @@ func set_target(new_target: Spatial):
 	if is_instance_valid(_target):
 		_smoothed_target_pos = _target.global_transform.origin
 
+
 func physics_update(delta: float):
 	_bob_timer += delta
-	
+
 	if not is_instance_valid(_target):
 		# Detached Mode
 		var new_basis = Basis().rotated(Vector3.UP, _rotation_controller.yaw).rotated(
@@ -59,7 +60,7 @@ func physics_update(delta: float):
 
 	# --- Attached Mode ---
 	var actual_target_pos = _target.global_transform.origin
-	
+
 	# --- SMOOTHING LOGIC ---
 	# Instead of using the actual target position directly, we lerp our
 	# internal "smoothed" position towards it. This dampens any sudden jumps.
@@ -88,7 +89,9 @@ func physics_update(delta: float):
 	)
 
 	# Interpolate Look At to point towards the SMOOTHED target position
-	var target_look_transform = _camera.global_transform.looking_at(_smoothed_target_pos, Vector3.UP)
+	var target_look_transform = _camera.global_transform.looking_at(
+		_smoothed_target_pos, Vector3.UP
+	)
 	_camera.global_transform.basis = _camera.global_transform.basis.slerp(
 		target_look_transform.basis.orthonormalized(), rotation_smoothing_speed * delta
 	)

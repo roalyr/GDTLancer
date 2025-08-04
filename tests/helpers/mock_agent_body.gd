@@ -4,6 +4,7 @@ extends KinematicBody
 
 var init_data = null
 
+
 # We will spy on this method to confirm the spawner called it.
 func initialize(template, overrides):
 	init_data = {"template": template, "overrides": overrides}

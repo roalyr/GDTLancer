@@ -160,7 +160,7 @@ func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 		"target_node": target,
 		"distance": distance,
 		"clockwise": clockwise,
-		"is_new": true # Flag for one-time setup in the command handler
+		"is_new": true  # Flag for one-time setup in the command handler
 	}
 	if is_instance_valid(_pid_orbit):
 		_pid_orbit.reset()

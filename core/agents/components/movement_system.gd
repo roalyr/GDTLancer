@@ -56,6 +56,7 @@ func initialize_movement_params(params: Dictionary):
 
 # --- Public Methods Called by NavigationSystem & AgentBody ---
 
+
 # Applies acceleration towards max_move_speed ONLY if aligned within threshold.
 func apply_acceleration(target_direction: Vector3, delta: float):
 	if not is_instance_valid(agent_body):
@@ -140,9 +141,12 @@ func apply_rotation(target_look_dir: Vector3, delta: float):
 	var angle = 2 * acos(rotation_diff_quat.w)
 	var axis: Vector3
 	var sin_half_angle = sin(angle / 2)
-	
+
 	if sin_half_angle > 0.0001:
-		axis = Vector3(rotation_diff_quat.x, rotation_diff_quat.y, rotation_diff_quat.z) / sin_half_angle
+		axis = (
+			Vector3(rotation_diff_quat.x, rotation_diff_quat.y, rotation_diff_quat.z)
+			/ sin_half_angle
+		)
 	else:
 		axis = Vector3.UP
 
@@ -177,7 +181,7 @@ func enforce_speed_limit(delta: float):
 		# We are over the speed limit. Smoothly decelerate to the new cap.
 		var direction = agent_body.current_velocity.normalized()
 		var target_velocity = direction * max_move_speed
-		
+
 		# Use the existing deceleration property for a consistent feel.
 		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
 			target_velocity, deceleration * delta

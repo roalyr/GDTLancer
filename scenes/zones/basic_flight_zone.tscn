@@ -133,7 +133,6 @@ background_mode = 1
 background_sky = SubResource( 5 )
 background_color = Color( 0.0313726, 0, 0.0431373, 1 )
 dof_blur_far_quality = 0
-glow_enabled = true
 glow_intensity = 1.5
 glow_strength = 1.3
 glow_hdr_threshold = 0.9

@@ -37,9 +37,13 @@ var pid_integral_limit: float = 10.0
 var pid_output_limit_multiplier: float = 100.0
 
 # --- Component Script Paths ---
-const RotationControllerScript = preload("res://scenes/camera/components/camera_rotation_controller.gd")
+const RotationControllerScript = preload(
+	"res://scenes/camera/components/camera_rotation_controller.gd"
+)
 const ZoomControllerScript = preload("res://scenes/camera/components/camera_zoom_controller.gd")
-const PositionControllerScript = preload("res://scenes/camera/components/camera_position_controller.gd")
+const PositionControllerScript = preload(
+	"res://scenes/camera/components/camera_position_controller.gd"
+)
 
 # --- Component Instances ---
 var _rotation_controller: Node = null
@@ -51,16 +55,16 @@ var _position_controller: Node = null
 func _ready():
 	set_as_toplevel(true)
 	GlobalRefs.main_camera = self
-	
+
 	# --- Instantiate and Initialize Components ---
 	_rotation_controller = RotationControllerScript.new()
 	_zoom_controller = ZoomControllerScript.new()
 	_position_controller = PositionControllerScript.new()
-	
+
 	_rotation_controller.name = "RotationController"
 	_zoom_controller.name = "ZoomController"
 	_position_controller.name = "PositionController"
-	
+
 	add_child(_rotation_controller)
 	add_child(_zoom_controller)
 	add_child(_position_controller)
@@ -94,15 +98,20 @@ func _ready():
 		"initial_yaw": PI,
 		"initial_pitch": 0.25
 	}
-	
+
 	_rotation_controller.initialize(self, config)
 	_zoom_controller.initialize(self, config)
 	_position_controller.initialize(self, _rotation_controller, _zoom_controller, config)
-	
+
 	# --- Connect Signals ---
-	if EventBus and not EventBus.is_connected("camera_set_target_requested", self, "_on_camera_set_target_requested"):
+	if (
+		EventBus
+		and not EventBus.is_connected(
+			"camera_set_target_requested", self, "_on_camera_set_target_requested"
+		)
+	):
 		EventBus.connect("camera_set_target_requested", self, "_on_camera_set_target_requested")
-	
+
 	# Proactive player check
 	if is_instance_valid(GlobalRefs.player_agent_body):
 		set_target_node(GlobalRefs.player_agent_body)
@@ -112,6 +121,7 @@ func _ready():
 func _unhandled_input(event):
 	_rotation_controller.handle_input(event)
 	_zoom_controller.handle_input(event)
+
 
 func _physics_process(delta):
 	_rotation_controller.physics_update(delta)
@@ -133,6 +143,7 @@ func set_rotation_input_active(is_active: bool):
 	if is_instance_valid(_rotation_controller):
 		_rotation_controller.set_rotation_input_active(is_active)
 
+
 func set_is_rotating(rotating: bool):
 	if is_instance_valid(_rotation_controller):
 		_rotation_controller.set_is_rotating(rotating)
@@ -146,7 +157,14 @@ func _on_camera_set_target_requested(target_node):
 # --- Cleanup ---
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
-		if EventBus and EventBus.is_connected("camera_set_target_requested", self, "_on_camera_set_target_requested"):
-			EventBus.disconnect("camera_set_target_requested", self, "_on_camera_set_target_requested")
+		if (
+			EventBus
+			and EventBus.is_connected(
+				"camera_set_target_requested", self, "_on_camera_set_target_requested"
+			)
+		):
+			EventBus.disconnect(
+				"camera_set_target_requested", self, "_on_camera_set_target_requested"
+			)
 		if GlobalRefs and GlobalRefs.main_camera == self:
 			GlobalRefs.main_camera = null

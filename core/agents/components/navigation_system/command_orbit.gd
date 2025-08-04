@@ -34,24 +34,28 @@ func execute(delta: float):
 	# --- Vector Calculations ---
 	var vector_to_target = target_pos - _agent_body.global_transform.origin
 	var distance = vector_to_target.length()
-	if distance < 0.01: distance = 0.01
+	if distance < 0.01:
+		distance = 0.01
 	var direction_to_target = vector_to_target / distance
 	var tangent_dir = (direction_to_target.cross(Vector3.UP) if not clockwise else Vector3.UP.cross(direction_to_target)).normalized()
 
 	# --- Determine Movement Direction & Ideal Speed ---
-	var safe_dist = _nav_sys._get_target_effective_size(target_node) * _nav_sys.CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
+	var safe_dist = (
+		_nav_sys._get_target_effective_size(target_node)
+		* _nav_sys.CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
+	)
 	var ideal_move_dir: Vector3
-	var speed_calc_dist: float # The distance to use for speed calculation
+	var speed_calc_dist: float  # The distance to use for speed calculation
 
 	if distance < safe_dist:
 		# TOO CLOSE: Spiral out and use CURRENT distance for speed calculation.
 		var radial_dir_outward = -direction_to_target
 		ideal_move_dir = (tangent_dir + radial_dir_outward * SPIRAL_OUTWARD_FACTOR).normalized()
-		speed_calc_dist = distance # Use current, closer distance for a slower speed.
+		speed_calc_dist = distance  # Use current, closer distance for a slower speed.
 	else:
 		# SAFE DISTANCE: Normal orbit and use DESIRED distance for speed calculation.
 		ideal_move_dir = tangent_dir
-		speed_calc_dist = cmd.get("distance", 100.0) # Use final, desired distance.
+		speed_calc_dist = cmd.get("distance", 100.0)  # Use final, desired distance.
 
 	# Calculate the ideal speed based on the appropriate distance (current or desired).
 	var full_speed_radius = max(1.0, Constants.ORBIT_FULL_SPEED_RADIUS)

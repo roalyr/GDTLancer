@@ -8,7 +8,7 @@ INPUT_DIR="."
 OUTPUT_FILE=".PROJECT_DUMP_TEXT_TRES.txt" # Default output, will be excluded
 FILE_EXTENSION="tres" # Default file extension
 EXCLUDE_WORDS=()
-EXCLUDE_DIRS=(".git" "addons" "tests") # Exclude .git by default
+EXCLUDE_DIRS=(".git") # Exclude .git by default
 ADD_SEPARATOR=true
 EXTRACTION_METHOD="cat" # Auto-detect: pandoc -> lynx -> cat
 

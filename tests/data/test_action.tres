@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/action_resource.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+action_name = "Unnamed Action"
+tu_cost = 1
+base_attribute = "INT"
+associated_skill = "Computers"

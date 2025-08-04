@@ -140,11 +140,13 @@ func command_orbit(target: Spatial):
 	if is_instance_valid(navigation_system):
 		var vec_to_target_local = to_local(target.global_transform.origin)
 		var orbit_clockwise = vec_to_target_local.x > 0.01
-		
+
 		# Always capture the current distance. The NavigationSystem will handle
 		# gently pushing the agent out if this distance is too close.
-		var captured_orbit_dist = global_transform.origin.distance_to(target.global_transform.origin)
-		
+		var captured_orbit_dist = global_transform.origin.distance_to(
+			target.global_transform.origin
+		)
+
 		navigation_system.set_command_orbit(target, captured_orbit_dist, orbit_clockwise)
 	else:
 		printerr("AgentBody: Cannot command_orbit - NavigationSystem invalid.")

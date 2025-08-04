@@ -122,17 +122,16 @@ func _unhandled_input(event: InputEvent):
 		_issue_approach_command()
 		get_viewport().set_input_as_handled()
 		return
-		
+
 	if Input.is_action_just_pressed("command_flee"):
 		_issue_flee_command()
 		get_viewport().set_input_as_handled()
 		return
-		
+
 	if Input.is_action_just_pressed("command_orbit"):
 		_issue_orbit_command()
 		get_viewport().set_input_as_handled()
 		return
-
 
 	# Delegate other inputs to the current state
 	if _current_input_state and _current_input_state.has_method("handle_input"):
@@ -172,7 +171,8 @@ func _issue_stop_command():
 	agent_script.command_stop()
 	if _current_input_state is StateFreeFlight:
 		_change_state("default")
-		
+
+
 func _issue_approach_command():
 	if not is_instance_valid(agent_script):
 		return
@@ -180,7 +180,8 @@ func _issue_approach_command():
 		EventBus.emit_signal("player_approach_pressed")
 	if _current_input_state is StateFreeFlight:
 		_change_state("default")
-		
+
+
 func _issue_flee_command():
 	if not is_instance_valid(agent_script):
 		return
@@ -197,6 +198,7 @@ func _issue_orbit_command():
 		EventBus.emit_signal("player_orbit_pressed")
 	if _current_input_state is StateFreeFlight:
 		_change_state("default")
+
 
 func _update_agent_speed_cap_and_slider_visuals():
 	if not is_instance_valid(movement_system):

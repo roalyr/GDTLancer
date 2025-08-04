@@ -49,7 +49,7 @@ signal zone_loaded(zone_node, zone_path, agent_container_node)
 # signal action_check_resolved(agent_body, result_dictionary, action_approach)
 # signal focus_changed(agent_body, new_focus_value)
 # signal wealth_changed(agent_body, new_wealth_value)
-# signal world_event_tick_triggered()
+signal world_event_tick_triggered
 
 # --- Goal System Events (Placeholders) ---
 # signal goal_progress_updated(agent_body, goal_id, new_progress)

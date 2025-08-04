@@ -39,7 +39,7 @@ var _current_pitch_speed: float = 0.0
 # --- Initialization ---
 func initialize(camera_node: Camera, config: Dictionary):
 	_camera = camera_node
-	
+
 	# Set configuration from the main camera script
 	pitch_min = config.get("pitch_min", pitch_min)
 	pitch_max = config.get("pitch_max", pitch_max)
@@ -50,10 +50,12 @@ func initialize(camera_node: Camera, config: Dictionary):
 	pid_pitch_ki = config.get("pid_pitch_ki", pid_pitch_ki)
 	pid_pitch_kd = config.get("pid_pitch_kd", pid_pitch_kd)
 	pid_integral_limit = config.get("pid_integral_limit", pid_integral_limit)
-	pid_output_limit_multiplier = config.get("pid_output_limit_multiplier", pid_output_limit_multiplier)
+	pid_output_limit_multiplier = config.get(
+		"pid_output_limit_multiplier", pid_output_limit_multiplier
+	)
 	_rotation_max_speed = config.get("_rotation_max_speed", _rotation_max_speed)
 	_rotation_input_curve = config.get("_rotation_input_curve", _rotation_input_curve)
-	
+
 	yaw = config.get("initial_yaw", PI)
 	pitch = config.get("initial_pitch", 0.25)
 
@@ -61,12 +63,14 @@ func initialize(camera_node: Camera, config: Dictionary):
 	if PIDControllerScript:
 		_yaw_pid = PIDControllerScript.new()
 		_pitch_pid = PIDControllerScript.new()
-		add_child(_yaw_pid) # Ensure it's freed with the node
+		add_child(_yaw_pid)  # Ensure it's freed with the node
 		add_child(_pitch_pid)
 
 		var output_limit = _rotation_max_speed * pid_output_limit_multiplier
 		_yaw_pid.initialize(pid_yaw_kp, pid_yaw_ki, pid_yaw_kd, pid_integral_limit, output_limit)
-		_pitch_pid.initialize(pid_pitch_kp, pid_pitch_ki, pid_pitch_kd, pid_integral_limit, output_limit)
+		_pitch_pid.initialize(
+			pid_pitch_kp, pid_pitch_ki, pid_pitch_kd, pid_integral_limit, output_limit
+		)
 	else:
 		printerr("CameraRotationController Error: Failed to preload PIDController script!")
 
@@ -86,9 +90,12 @@ func handle_input(event: InputEvent):
 			_target_pitch_speed = -strength_y * input_scale_factor * _rotation_max_speed
 
 			_target_yaw_speed = clamp(_target_yaw_speed, -_rotation_max_speed, _rotation_max_speed)
-			_target_pitch_speed = clamp(_target_pitch_speed, -_rotation_max_speed, _rotation_max_speed)
+			_target_pitch_speed = clamp(
+				_target_pitch_speed, -_rotation_max_speed, _rotation_max_speed
+			)
 
 			get_viewport().set_input_as_handled()
+
 
 func physics_update(delta: float):
 	if not is_instance_valid(_yaw_pid) or not is_instance_valid(_pitch_pid):
@@ -115,19 +122,24 @@ func physics_update(delta: float):
 	_target_yaw_speed = 0.0
 	_target_pitch_speed = 0.0
 
+
 func set_rotation_input_active(is_active: bool):
 	_rotation_input_active = is_active
 	if is_active:
 		_is_externally_rotating = false
 	reset_pids()
 
+
 func set_is_rotating(rotating: bool):
 	if not _rotation_input_active:
 		_is_externally_rotating = rotating
 	reset_pids()
 
+
 func reset_pids():
-	if is_instance_valid(_yaw_pid): _yaw_pid.reset()
-	if is_instance_valid(_pitch_pid): _pitch_pid.reset()
+	if is_instance_valid(_yaw_pid):
+		_yaw_pid.reset()
+	if is_instance_valid(_pitch_pid):
+		_pitch_pid.reset()
 	_current_yaw_speed = 0.0
 	_current_pitch_speed = 0.0
