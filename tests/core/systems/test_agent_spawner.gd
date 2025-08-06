@@ -1,8 +1,8 @@
 # tests/core/systems/test_agent_spawner.gd
 extends GutTest
 
-const AgentSpawnerScript = preload("res://core/systems/agent_spawner.gd")
-const AgentTemplate = preload("res://core/agents/agent_template.gd")
+const AgentSpawnerScript = preload("res://core/systems/agent_system.gd")
+const AgentTemplate = preload("res://core/resource/agent_template.gd")
 const MOCK_AGENT_SCENE = "res://tests/helpers/mock_agent.tscn"
 const SignalCatcher = preload("res://tests/helpers/signal_catcher.gd")
 const TestAgentBodyScript = preload("res://tests/helpers/test_agent_body.gd")

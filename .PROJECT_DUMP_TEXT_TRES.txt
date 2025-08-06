@@ -36,64 +36,119 @@ particles_anim_loop = false
 material = ExtResource( 1 )
 size = Vector2( 0.002, 0.002 )
 
---- Start of ./assets/data/templates/agents/npc_traffic.tres ---
+--- Start of ./assets/data/actions/action_default.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
-[ext_resource path="res://core/agents/agent_template.gd" type="Script" id=1]
+[ext_resource path="res://core/resource/action_template.gd" type="Script" id=1]
 
 [resource]
 script = ExtResource( 1 )
-template_id = "default_template"
-default_agent_name = "Agent"
-default_faction_id = "Neutral"
+template_id = "action_default"
+action_name = "Unnamed Action"
+tu_cost = 1
+base_attribute = "int"
+associated_skill = "computers"
+
+--- Start of ./assets/data/agents/npc_default.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_npc_default"
+agent_type = "npc"
+
+--- Start of ./assets/data/agents/player_default.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "agent_player_default"
+agent_type = "player"
+
+--- Start of ./assets/data/assets/commodities/commodity_default.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/asset_commodity_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "commodity_default"
+asset_type = "commodity"
+asset_icon_id = "asset_default"
+commodity_name = "Unnamed Commodity"
+base_value = 10
+
+--- Start of ./assets/data/assets/modules/module_default.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_default"
+asset_type = "module"
+asset_icon_id = "asset_default"
+module_name = "Unnamed Module"
+base_value = 10
+
+--- Start of ./assets/data/assets/ships/ship_default.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/asset_ship_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "ship_default"
+asset_type = "ship"
+asset_icon_id = "asset_default"
+ship_model_name = "Default Ship Model"
+hull_integrity = 100
+armor_integrity = 100
+cargo_capacity = 100
+interaction_radius = 15.0
+ship_quirks = [  ]
+ship_upgrades = [  ]
 max_move_speed = 300.0
 acceleration = 0.5
 deceleration = 0.5
 max_turn_speed = 0.75
-interaction_radius = 15.0
 alignment_threshold_angle_deg = 45.0
 
---- Start of ./assets/data/templates/agents/player_default.tres ---
+--- Start of ./assets/data/characters/character_default.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
-[ext_resource path="res://core/agents/agent_template.gd" type="Script" id=1]
+[ext_resource path="res://core/resource/character_template.gd" type="Script" id=1]
 
 [resource]
 script = ExtResource( 1 )
-template_id = "default_template"
-default_agent_name = "Agent"
-default_faction_id = "Neutral"
-max_move_speed = 1000.0
-acceleration = 0.5
-deceleration = 0.5
-max_turn_speed = 0.75
-interaction_radius = 15.0
-alignment_threshold_angle_deg = 45.0
-
---- Start of ./assets/data/templates/agents/player_ship.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://core/resource/ship_agent_data.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "default_template"
-default_agent_name = "Agent"
-default_faction_id = "Neutral"
-max_move_speed = 300.0
-acceleration = 0.5
-deceleration = 0.5
-max_turn_speed = 0.75
-interaction_radius = 15.0
-alignment_threshold_angle_deg = 45.0
-ship_class_name = "Default Ship Class"
-description = "A standard vessel."
-base_hull_integrity = 100
-base_shields = 50
-base_cargo_capacity = 50
+template_id = "character_default"
+character_name = "Unnamed"
+character_icon_id = "character_default_icon"
+faction_id = "faction_default"
+wealth_points = 0
+focus_points = 0
+skills = {
+"combat": 1,
+"piloting": 1,
+"trading": 1
+}
+age = 30
+reputation = 0
+faction_standings = {
+}
+character_standings = {
+}
 
 --- Start of ./assets/themes/main_theme.tres ---
 
@@ -347,7 +402,7 @@ shader_param/major_detail_noise = ExtResource( 1 )
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
-[ext_resource path="res://core/resource/action_resource.gd" type="Script" id=1]
+[ext_resource path="res://core/resource/action_template.gd" type="Script" id=1]
 
 [resource]
 script = ExtResource( 1 )

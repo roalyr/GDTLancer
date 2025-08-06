@@ -18,6 +18,13 @@ func _ready():
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
+	
+	
+	# TODO: somewhere here must be the code block that handles new
+	# game, load game, character (player and NPCs) generation, assets instancing
+	# inventories filling with assets, assignment of thereof to characters, etc.
+	
+	
 
 	# --- NEW: Setup the Time Clock Timer ---
 	_time_clock_timer = Timer.new()
@@ -27,6 +34,8 @@ func _ready():
 	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
 	add_child(_time_clock_timer)
 	# --- END NEW ---
+	
+	
 	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
@@ -81,7 +90,7 @@ func _on_Time_Clock_Timer_timeout():
 	if is_instance_valid(GlobalRefs.time_system):
 		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
 		GlobalRefs.time_system.add_time_units(1)
-		#print(GlobalRefs.time_system._current_tu)
+		print("Current TU: ", GlobalRefs.time_system._current_tu)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 

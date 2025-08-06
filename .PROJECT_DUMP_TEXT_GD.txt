@@ -13114,8 +13114,8 @@ const NPC_AGENT_SCENE_PATH = "res://core/agents/npc_agent.tscn"
 const INITIAL_ZONE_SCENE_PATH = "res://scenes/zones/basic_flight_zone.tscn"
 
 # Agent Template Resource Paths
-const PLAYER_DEFAULT_TEMPLATE_PATH = "res://assets/data/templates/agents/player_default.tres"
-const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/templates/agents/npc_traffic.tres"
+const PLAYER_DEFAULT_TEMPLATE_PATH = "res://assets/data/agents/player_default.tres"
+const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/agents/npc_default.tres"
 
 # Base UI Scenes
 const MAIN_HUD_SCENE_PATH = "res://core/ui/main_hud.tscn"
@@ -13125,7 +13125,7 @@ const MAIN_MENU_SCENE_PATH = "res://scenes/main_menu/main_menu.tscn"
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
 const AGENT_CONTAINER_NAME = "AgentContainer"
 const AGENT_MODEL_CONTAINER_NAME = "Model"
-const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"]
+const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"] # Placeholders
 const AGENT_BODY_NODE_NAME = "AgentBody"
 const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
@@ -13139,6 +13139,7 @@ const DEFAULT_MAX_MOVE_SPEED = 300.0
 const DEFAULT_ACCELERATION = 0.5
 const DEFAULT_DECELERATION = 0.5
 const DEFAULT_MAX_TURN_SPEED = 0.75
+const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45 # Degrees
 
 const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
 
@@ -13764,12 +13765,15 @@ func set_event_system(new_ref):
 
 # File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
 # Version: 3.35 - Modified command_orbit to capture current distance.
+
+# Agent - this is a physical space vessel that exists in simulation space (ship).
+
 extends KinematicBody
 
 # --- Core State & Identity ---
-var agent_name: String = "Default Agent"
-var faction_id: String = "Neutral"
-var template_id: String = "default"
+var agent_type: String = ""
+var template_id: String = ""
+var agent_uid = -1
 var interaction_radius: float = 15.0
 
 # --- Physics State ---
@@ -13782,17 +13786,17 @@ var navigation_system: Node = null
 
 # --- Initialization ---
 # Called externally (e.g., by WorldManager) after instancing and adding to tree
-func initialize(template: AgentTemplate, overrides: Dictionary = {}):
+func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: int = -1):
 	if not template is AgentTemplate:
 		printerr("AgentBody Initialize Error: Invalid template for ", self.name)
 		return
 
-	self.template_id = template.template_id
-	var default_name = template.default_agent_name + "_" + str(get_instance_id())
-	self.agent_name = overrides.get("name", default_name)
-	self.faction_id = overrides.get("faction", template.default_faction_id)
-	self.name = self.agent_name
-	self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
+	self.template_id = overrides.get("template_id")
+	self.agent_type = overrides.get("agent_type")
+	self.agent_uid = agent_uid
+	# self.name = self.agent_name - rework to make it informative.
+	# This should be linked like this: agent -> character -> ship inventory -> active ship
+	# self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -13806,14 +13810,15 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 		set_physics_process(false)
 		return
 
+	# Also link from owned ship.
+	# For now placeholder values.
 	var move_params = {
-		"max_move_speed": overrides.get("max_move_speed", template.max_move_speed),
-		"acceleration": overrides.get("acceleration", template.acceleration),
-		"deceleration": overrides.get("deceleration", template.deceleration),
-		"max_turn_speed": overrides.get("max_turn_speed", template.max_turn_speed),
-		"brake_strength": overrides.get("brake_strength", template.deceleration * 1.5),
-		"alignment_threshold_angle_deg":
-		overrides.get("alignment_threshold_angle_deg", template.alignment_threshold_angle_deg)
+		"max_move_speed": 300,
+		"acceleration": 0.5,
+		"deceleration": 0.5,
+		"max_turn_speed": 0.75,
+		"brake_strength":0.75,
+		"alignment_threshold_angle_deg": 45
 	}
 	var nav_params = {
 		"orbit_kp": overrides.get("orbit_kp", 3.0),
@@ -13941,52 +13946,6 @@ func despawn():
 	EventBus.emit_signal("agent_despawning", self)
 	set_physics_process(false)
 	call_deferred("queue_free")
-
---- Start of ./core/agents/agent_template.gd ---
-
-# File: core/agents/agent_template.gd
-# Resource Definition for Agent Stats/Config
-# Version: 1.1 - Added alignment threshold export
-
-extends Resource
-class_name AgentTemplate  # Allows type hinting and creating this resource type in editor
-
-# --- Identification ---
-export var template_id: String = "default_template"  # Unique ID for this template type
-export var default_agent_name: String = "Agent"  # Base name for agents using this
-export var default_faction_id: String = "Neutral"  # Default faction
-
-# --- Base Movement Capabilities (Reads defaults from Constants) ---
-export var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
-export var acceleration: float = Constants.DEFAULT_ACCELERATION
-export var deceleration: float = Constants.DEFAULT_DECELERATION
-export var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
-
-# --- Interaction Size ---
-# Used by camera targeting, docking, etc. Represents effective size.
-export var interaction_radius: float = 15.0  # Default reasonable size
-
-# --- NEW: Alignment Threshold ---
-# Agent will only accelerate forward if facing within this angle (degrees) of the target direction.
-# Relevant for MOVE_TO, MOVE_DIRECTION, APPROACH, FLEE commands.
-export var alignment_threshold_angle_deg: float = 45.0
-
-# --- Base Combat Stats (Placeholders - Link to Combat Module/Character System later) ---
-# export var base_hull : int = 100
-# export var base_shields : int = 0
-
-# --- Base Skills (Placeholders - Link to Character System later) ---
-# These represent the inherent skill level associated with this *type* of agent
-# export var base_piloting_skill : int = 0
-# export var base_tech_skill : int = 0
-# export var base_social_skill : int = 0
-
-# --- AI Behavior Hint (Optional) ---
-# export var default_ai_behavior : String = "idle" # Hint for AI controller selection/init
-
-# --- Visuals / Asset Links (Placeholders) ---
-# Optional: Could link to default ship model path, visual effects, etc.
-# export (String, FILE, "*.tscn,*.glb,*.gltf") var default_model_path = ""
 
 --- Start of ./core/agents/components/movement_system.gd ---
 
@@ -14790,142 +14749,155 @@ func _get_target_effective_size(target_node: Spatial) -> float:
 
 	return max(calculated_size, 1.0)
 
---- Start of ./core/resource/action_resource.gd ---
+--- Start of ./core/resource/action_template.gd ---
 
-# File: core/resources/action_resource.gd
-# Purpose: Defines the data structure for a character action.
+# File: core/resources/action_template.gd
+# Purpose: Defines the data structure for an agent action.
 # Version: 1.1 - Added properties for Action Checks.
 
-extends Resource
-class_name ActionResource
+extends Template
+class_name ActionTemplate
 
-# The user-facing name of the action.
 export var action_name: String = "Unnamed Action"
-
-# The amount of Time Units (TU) required to complete the action.
 export var tu_cost: int = 1
+export var base_attribute: String = "int" # stub
+export var associated_skill: String = "computers" # stub
 
-# --- Action Check Properties ---
+--- Start of ./core/resource/agent_template.gd ---
 
-# The base attribute for the check (e.g., "INT", "DEX", "SOC").
-export var base_attribute: String = "INT"
+# File: core/resource/agent_template.gd
+# Resource Definition for Agent.
+# Version: 2.0 - Reworked Agent to be a more abstract entity.
+# Only needed for in-game simulation, not related to character or ship directly.
 
-# The associated skill for the check (e.g., "Piloting", "Mechanics").
-export var associated_skill: String = "Computers"
+extends Template
+class_name AgentTemplate 
 
---- Start of ./core/resource/character_resource.gd ---
+export var agent_type: String = "npc" # Defines whether it is controlled by AI or player.
+var agent_uid: int = 0 # Assigned dynamically by agent spawner to link characters, ships, assets to specific agent in space.
 
-# File: core/resource/character_resource.gd
-# Purpose: Defines the data structure for a single character agent.
+--- Start of ./core/resource/asset_commodity_template.gd ---
+
+# File: core/resource/commodity_template.gd
+# Purpose: Defines commodity.
 # Version: 1.0
 
-extends Resource
-class_name CharacterResource
+extends AssetTemplate
+class_name CommodityTemplate
 
-# --- Narrative & Identity ---
+export var commodity_name: String = "Unnamed Commodity"
+export var base_value: int = 10 # Base value in WP for one unit
+
+--- Start of ./core/resource/asset_module_template.gd ---
+
+# File: core/resource/module_template.gd
+# Purpose: Defines equipment.
+# Version: 1.0
+
+extends AssetTemplate
+class_name ModuleTemplate
+
+export var module_name: String = "Unnamed Module"
+export var base_value: int = 10 # Base value in WP for one unit
+
+--- Start of ./core/resource/asset_ship_template.gd ---
+
+# File: core/resource/ship_template.gd
+# Purpose: Defines ships.
+# Version: 1.0
+
+extends AssetTemplate
+class_name ShipTemplate
+
+export var ship_model_name: String = "Default Ship Model" 
+export var hull_integrity: int = 100
+export var armor_integrity: int = 100
+export var cargo_capacity: int = 100
+export var interaction_radius: float = 15.0
+
+export var ship_quirks: Array = [] # De-buffs or narrative elements
+export var ship_upgrades: Array = [] # Buffs
+
+export var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
+export var acceleration: float = Constants.DEFAULT_ACCELERATION
+export var deceleration: float = Constants.DEFAULT_DECELERATION
+export var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
+export var alignment_threshold_angle_deg: float = Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
+
+# TODO: add fields which link to specific scenes that define each ship model?
+
+--- Start of ./core/resource/asset_template.gd ---
+
+# File: core/resource/asset_template.gd
+# Purpose: Defines a asset-wide fields.
+# Is not meant to be standalone, acts as a base for differnt asset types.
+# Version: 1.0
+
+extends Template
+class_name AssetTemplate
+
+export var asset_type: String = "asset_type" # For categorization
+export var asset_icon_id: String = "asset_default"
+
+--- Start of ./core/resource/character_template.gd ---
+
+# File: core/resource/character_template.gd
+# Purpose: Defines the data structure for a single character linked to an agent.
+# Version: 1.0
+
+extends Template
+class_name CharacterTemplate
+
 export var character_name: String = "Unnamed"
-export var faction: String = "unaligned" # Should match a key in FactionSystem
+export var character_icon_id: String = "character_default_icon"
+export var faction_id: String = "faction_default" # Affiliation
 
-# --- Core Stats ---
 export var wealth_points: int = 0
 export var focus_points: int = 0
 
-# --- Skills ---
-# Stored in a dictionary for easy lookup.
 export var skills: Dictionary = {
 	"piloting": 1,
-	"tactics": 1,
+	"combat": 1,
 	"trading": 1
 }
 
 # --- Narrative Stubs ---
+export var age: int = 30
 export var reputation: int = 0
 export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
+export var character_standings: Dictionary = {} # For relationships
 
---- Start of ./core/resource/commodity.gd ---
+# Initiate those by agent spawner sub-system (TBD)
+var _inventory_ships: Dictionary = {}
+var _inventory_modules: Dictionary = {}
+var _inventory_commodities: Dictionary = {}
 
-# File: core/resource/commodity.gd
-# Purpose: Defines the data structure for a tradable commodity.
+--- Start of ./core/resource/template.gd ---
+
+# File: core/resources/template.gd
+# Purpose: Defines top-most template data.
 # Version: 1.0
 
 extends Resource
-class_name Commodity
+class_name Template
 
-# --- Commodity Stats from GDD ---
-export var item_id: String = "default_item"
-export var name: String = "Unnamed Commodity"
-export var base_value: int = 10 # Base value in WP for one unit
-
---- Start of ./core/resource/ship_agent_data.gd ---
-
-# File: core/resource/agent/ship_agent_data.gd
-# Purpose: Defines the template for a class of ship, specializing the base AgentTemplate.
-# Version: 1.3 - Using direct path for extends to improve test stability
-
-extends "res://core/agents/agent_template.gd" # <-- THE FIX: Use the direct file path.
-class_name ShipAgentData
-
-# --- Ship-Specific Identity & Description ---
-export var ship_class_name: String = "Default Ship Class"
-export var description: String = "A standard vessel."
-
-# --- Ship-Specific Base Stats (Blueprint Values) ---
-export var base_hull_integrity: int = 100
-export var base_shields: int = 50
-export var base_cargo_capacity: int = 50
-
-# --- NOTE ---
-# All other stats are still inherited from AgentTemplate. This change only affects
-# how the script is loaded by the engine, not its functionality.
-
---- Start of ./core/resource/ship_asset.gd ---
-
-# File: core/resource/ship_asset.gd
-# Purpose: Defines a **specific instance** of a ship owned by an agent.
-# Version: 1.1
-
-extends Resource
-class_name ShipAsset
-
-# --- Link to Blueprint ---
-# This is the single source of truth for base stats.
-var template: ShipAgentData
-
-# --- Instance-Specific State ---
-export var ship_name: String = "Unnamed Ship" # Player can rename their specific ship
-export var current_hull_integrity: int = 100
-
-# --- Modifications & Quirks ---
-# These store deltas or additions to the base template.
-export var ship_quirks: Array = []
-# export var installed_upgrades: Array = [] # Future-proofing
-
-func _ready():
-	# When a new asset is created, initialize its state from the template.
-	if is_instance_valid(template):
-		current_hull_integrity = template.base_hull_integrity
-	else:
-		printerr("ShipAsset Error: Template not assigned for '", ship_name, "'!")
+export var template_id: String = "" # Is set manually for each new resource in assets/data/.
 
 --- Start of ./core/systems/action_system.gd ---
 
 # File: core/systems/action_system.gd
 # Purpose: Manages the queueing, execution, and completion of character actions.
-# Version: 1.1 - Integrated with CoreMechanicsAPI.
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
-# --- Signals ---
 # Emitted when an action is completed, broadcasting the result.
 # payload: The result dictionary from CoreMechanicsAPI.perform_action_check().
 signal action_completed(character, action_resource, payload)
 
-# --- Data Structures ---
 var _active_actions: Dictionary = {}
 var _next_action_id: int = 1
 
-
-# --- System Ready ---
 func _ready():
 	GlobalRefs.set_action_system(self)
 	
@@ -14936,24 +14908,23 @@ func _ready():
 
 # --- Public API ---
 
-
 # Queues an action for a character.
 # - action_approach: From Constants.ActionApproach (e.g., CAUTIOUS, RISKY).
 func request_action(
-	character: Node, action_resource: Resource, action_approach: int, target: Node = null
+	character_instance: CharacterTemplate, action_template: ActionTemplate, action_approach: int, target: Node = null
 ) -> bool:
-	if not is_instance_valid(character) or not action_resource:
+	if not is_instance_valid(character_instance) or not action_template:
 		return false
 
 	var action_id = _get_new_action_id()
 
 	_active_actions[action_id] = {
-		"character": character,
-		"action_resource": action_resource,
+		"character_instance": character_instance, 
+		"action_template": action_template,
 		"action_approach": action_approach,  # Store the approach for later.
 		"target": target,
 		"tu_progress": 0,
-		"tu_cost": action_resource.tu_cost
+		"tu_cost": action_template.tu_cost
 	}
 
 	var approach_str = (
@@ -14964,7 +14935,7 @@ func request_action(
 	print(
 		(
 			"ActionSystem: Queued action '%s' for %s (Approach: %s)"
-			% [action_resource.action_name, character.name, approach_str]
+			% [action_template.action_name, character_instance.name, approach_str]
 		)
 	)
 
@@ -14987,8 +14958,8 @@ func _process_action_completion(action_id: int):
 		return
 
 	var action_data = _active_actions[action_id]
-	var character = action_data.character
-	var action_resource = action_data.action_resource
+	var character_instance = action_data.character_instance
+	var action_template = action_data.action_template
 	var action_approach = action_data.action_approach
 
 	# Perform the action check to get the result.
@@ -15005,12 +14976,12 @@ func _process_action_completion(action_id: int):
 	print(
 		(
 			"ActionSystem: Completed action '%s'. Result: %s"
-			% [action_resource.action_name, result_payload.tier_name]
+			% [action_template.action_name, result_payload.tier_name]
 		)
 	)
 
 	# Emit the signal with all relevant data.
-	emit_signal("action_completed", character, action_resource, result_payload)
+	emit_signal("action_completed", character_instance, action_template, result_payload)
 
 	_active_actions.erase(action_id)
 
@@ -15020,10 +14991,12 @@ func _get_new_action_id() -> int:
 	_next_action_id += 1
 	return id
 
---- Start of ./core/systems/agent_spawner.gd ---
+--- Start of ./core/systems/agent_system.gd ---
 
-# File: core/systems/agent_spawner.gd
-# New script dedicated to agent spawning logic.
+# File: core/systems/agent_system.gd
+# Purpose: Manages agent spawning in virtual space (ships). Assembles agents from
+# character data and their inventory of assets.
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
@@ -15043,9 +15016,11 @@ func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
 	else:
-		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn player.")
+		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn agents.")
 
 
+# Important: player's character and inventory of assets must exist and upon spawining an
+# agent they should get linked to it.
 func spawn_player():
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
@@ -15067,9 +15042,14 @@ func spawn_player():
 		if entry_node is Spatial:
 			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
 
-	var player_overrides = {"name": "PlayerShip", "faction": "Player"}
+	# Those are agent type flags (player or npc) and assign an UID. For player UID is 0.
+	# For NPCs UID will be incremented.
+	# From AgentTemplate.
+	var player_overrides = {"agent_type": "player", "template_id": "player"}
+	var agent_uid = 0
+	
 	_player_agent_body = spawn_agent(
-		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides
+		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides, agent_uid
 	)
 
 	if is_instance_valid(_player_agent_body):
@@ -15079,12 +15059,16 @@ func spawn_player():
 	else:
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
 
+# TODO: spawn NPC with proper overrides.
+# Important: NPC's characters and their inventories of assets must exist and upon spawining an
+# agent they should get linked to it.
 
 func spawn_agent(
 	agent_scene_path: String,
 	position: Vector3,
-	agent_template: Resource,
-	overrides: Dictionary = {}
+	agent_template: AgentTemplate,
+	overrides: Dictionary = {},
+	agent_uid: int = -1
 ) -> KinematicBody:
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
@@ -15108,29 +15092,27 @@ func spawn_agent(
 		agent_root_instance.queue_free()
 		return null
 
-	var instance_name = overrides.get(
-		"name", agent_template.default_agent_name + "_" + str(agent_root_instance.get_instance_id())
-	)
+	var instance_name = agent_template.agent_type + "_" + str(agent_root_instance.get_instance_id())
+	
 	agent_root_instance.name = instance_name
 
 	container.add_child(agent_root_instance)
 	agent_node.global_transform.origin = position
 
 	if agent_node.has_method("initialize"):
-		agent_node.initialize(agent_template, overrides)
+		agent_node.initialize(agent_template, overrides, agent_uid)
 
 	EventBus.emit_signal(
-		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides}
+		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides, "agent_uid": agent_uid}
 	)
 
-	# --- CORRECTED CONTROLLER LOGIC ---
 	# The controller is a child of the AgentBody (agent_node), not the scene root.
 	# We also need to check for both AI and Player controllers.
 	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	var player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
 
 	if ai_controller and ai_controller.has_method("initialize"):
-		ai_controller.initialize(overrides)
+		ai_controller.initialize(overrides) # Pass agent_uid?
 	# The PlayerInputHandler does not have an initialize method, so we don't need to call it,
 	# but by getting a reference to it, we ensure the test framework is aware of it.
 
@@ -15139,13 +15121,19 @@ func spawn_agent(
 --- Start of ./core/systems/asset_system.gd ---
 
 # File: core/systems/asset_system.gd
-# Purpose: Manages an agent's major assets, primarily the player's ship.
-# Version: 1.2 - Corrected property checking for Resources
+# Purpose: Manages dictionaries of different asset types globally (unique instances).
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
-# --- State ---
-var _player_ship_asset: ShipAsset = null
+var _asset_ship_template: ShipTemplate = null
+var _asset_module_template: ModuleTemplate = null
+var _asset_commodity_template: CommodityTemplate = null
+
+# Global dictionaries of instances.
+var _assets_ships: Dictionary = {}
+var _assets_modules: Dictionary = {}
+var _assets_commodieties: Dictionary = {}
 
 
 func _ready():
@@ -15153,58 +15141,26 @@ func _ready():
 	print("AssetSystem Ready.")
 
 
-func initialize_player_ship(ship_asset: ShipAsset):
-	if ship_asset is ShipAsset and is_instance_valid(ship_asset.template):
-		_player_ship_asset = ship_asset
-		print("AssetSystem: Player ship '", _player_ship_asset.ship_name, "' initialized from template '", _player_ship_asset.template.ship_class_name, "'.")
-	else:
-		printerr("AssetSystem Error: Invalid asset or template passed to initialize_player_ship.")
-
-
-# Provides ship stats to other systems by reading from the template.
-func get_player_ship_stat(stat_name: String):
-	if not is_instance_valid(_player_ship_asset):
-		printerr("AssetSystem Error: Player ship not initialized.")
-		return null
-
-	# --- THE FIX (Part 1) ---
-	# Priority 1: Check the instance for current state using the 'in' keyword.
-	if stat_name in _player_ship_asset:
-		return _player_ship_asset.get(stat_name)
-
-	# Priority 2: Check the linked template for base stats.
-	var template_stat_name = "base_" + stat_name
-	
-	# --- THE FIX (Part 2) ---
-	# Also check the template using the 'in' keyword.
-	if is_instance_valid(_player_ship_asset.template) and template_stat_name in _player_ship_asset.template:
-		var base_value = _player_ship_asset.template.get(template_stat_name)
-		# In the future, we could apply modifiers from upgrades here.
-		return base_value
-
-	printerr("AssetSystem Warning: Could not find stat '", stat_name, "' on ship asset or its template.")
-	return null
+# Functionality is TBD. 
+# This system has to manage dictionaries of assets of different types, each
+# instance of thereof should have its UID, template and data overrides (for unique ships
+# or modules / commodities (if needed)).
 
 --- Start of ./core/systems/character_system.gd ---
 
 # File: core/systems/character_system.gd
-# Purpose: Manages the player's core stats, skills, and narrative data.
-# Version: 1.1
+# Purpose: Manages the gloabl dictionary of characters (both player and NPCs).
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
-# --- Data Structures ---
-var _player_character_data: Dictionary = {
-	"wealth_points": 0,
-	"focus_points": 0,
-	"skills": {
-		"piloting": 1,
-		"tactics": 1,
-		"trading": 1
-	},
-	"reputation": 0,
-	"faction_standings": {} # e.g., {"pirates": -10, "corp": 5}
-}
+# TODO: instantiate CharacterTemplate resource directly and put instances into this dictionary?
+# Global dictionary of _character_data instances.
+var _characters: Dictionary = {}
+
+# Derive dictionary fields from CharacterTemplate class for consistency!
+# TODO: Link fields from character_template.gd
+var _character_data: Dictionary = {} # Or CharacterTemplate instance?
 
 func _ready():
 	GlobalRefs.set_character_system(self)
@@ -15212,183 +15168,103 @@ func _ready():
 
 # --- Public API ---
 
-func get_player_character() -> Dictionary:
+# func get_character() -> Dictionary:
 	# Return a copy to prevent direct modification of the internal state.
-	return _player_character_data.duplicate(true)
+	
 
 func add_wp(amount: int):
-	_player_character_data.wealth_points += amount
+	# Iterate over all characters
+	for i in _characters.size():
+		_characters[i].wealth_points += amount
 
 func subtract_wp(amount: int):
-	_player_character_data.wealth_points -= amount
+	# Iterate over all characters
+	for i in _characters.size():
+		_characters[i].wealth_points -= amount
 
-func get_wp() -> int:
-	return _player_character_data.wealth_points
+func get_wp(character: String) -> int:
+	return _characters[character].wealth_points
 
-func add_fp(amount: int):
-	_player_character_data.focus_points += amount
-	_player_character_data.focus_points = clamp(_player_character_data.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func add_fp(character: String, amount: int):
+	_characters[character].focus_points += amount
+	_characters[character].focus_points = clamp(_characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func subtract_fp(amount: int):
-	_player_character_data.focus_points -= amount
-	_player_character_data.focus_points = clamp(_player_character_data.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func subtract_fp(character: String, amount: int):
+	_characters[character].focus_points -= amount
+	_characters[character].focus_points = clamp(_characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func get_fp() -> int:
-	return _player_character_data.focus_points
+func get_fp(character: String) -> int:
+	return _characters[character].focus_points
 
-func get_skill_level(skill_name: String) -> int:
-	if _player_character_data.skills.has(skill_name):
-		return _player_character_data.skills[skill_name]
+func get_skill_level(character: String, skill_name: String) -> int:
+	if _characters[character].skills.has(skill_name):
+		return _characters[character].skills[skill_name]
 	return 0
 
 func apply_upkeep_cost(cost: int):
 	subtract_wp(cost)
 
-func get_player_save_data() -> Dictionary:
-	return _player_character_data.duplicate(true)
+func get_player_save_data() -> Dictionary: # Return proper type
+	# Placeholder. Should be in _characters dictionary
+	_characters["player"] = {}
+	return _characters["player"].duplicate(true)
 
-func load_player_save_data(data: Dictionary):
-	_player_character_data = data
+func load_player_save_data(data: Dictionary): # Return proper type
+	_characters["player"] = data
 
 --- Start of ./core/systems/chronicle_system.gd ---
 
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	GlobalRefs.set_chronicle_system(self)
 	print("ChronicleSystem Ready.")
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
 --- Start of ./core/systems/event_system.gd ---
 
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	GlobalRefs.set_event_system(self)
 	print("EventSystem Ready.")
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
 --- Start of ./core/systems/goal_system.gd ---
 
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	GlobalRefs.set_goal_system(self)
 	print("GoalSystem Ready.")
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
 --- Start of ./core/systems/inventory_system.gd ---
 
 # File: core/systems/inventory_system.gd
-# Purpose: Manages an agent's cargo hold.
-# Version: 1.0
+# Purpose: Manages a global dictionary of inventories by type of asset.
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
-# --- State ---
-# Key: Commodity Resource (or item_id), Value: quantity
-var _player_cargo: Dictionary = {}
+var _inventories_ships: Dictionary = {}
+var _inventories_modules: Dictionary = {}
+var _inventories_commodieties: Dictionary = {}
 
 
 func _ready():
-	GlobalRefs.set_inventory_system(self)
-	print("InventorySystem Ready.")
+	GlobalRefs.set_asset_system(self)
+	print("AssetSystem Ready.")
 
 
-# --- Public API ---
-
-# Adds an item to the player's cargo if space is available.
-func add_item(commodity: Commodity, quantity: int) -> bool:
-	if not is_instance_valid(commodity) or quantity <= 0:
-		return false
-
-	var current_cargo = get_total_cargo_amount()
-	var cargo_capacity = GlobalRefs.asset_system.get_player_ship_stat("cargo_capacity")
-
-	if current_cargo + quantity > cargo_capacity:
-		printerr("InventorySystem: Not enough cargo space.")
-		return false
-
-	if not _player_cargo.has(commodity.item_id):
-		_player_cargo[commodity.item_id] = {"item": commodity, "quantity": 0}
-
-	_player_cargo[commodity.item_id].quantity += quantity
-	print("InventorySystem: Added %d x %s. New total: %d" % [quantity, commodity.name, _player_cargo[commodity.item_id].quantity])
-	return true
-
-
-# Removes an item from the player's cargo if available.
-func remove_item(item_id: String, quantity: int) -> bool:
-	if not _player_cargo.has(item_id) or quantity <= 0:
-		return false
-
-	if _player_cargo[item_id].quantity < quantity:
-		printerr("InventorySystem: Not enough items to remove.")
-		return false
-
-	_player_cargo[item_id].quantity -= quantity
-	print("InventorySystem: Removed %d x %s. New total: %d" % [quantity, _player_cargo[item_id].item.name, _player_cargo[item_id].quantity])
-
-	if _player_cargo[item_id].quantity == 0:
-		_player_cargo.erase(item_id)
-
-	return true
-
-
-func get_total_cargo_amount() -> int:
-	var total = 0
-	for item_data in _player_cargo.values():
-		total += item_data.quantity
-	return total
-
-
-func get_player_cargo() -> Dictionary:
-	return _player_cargo
+# Functionality is TBD. 
+# This system has to manage dictionaries of inventories of assets of different types, each
+# instance of thereof should have its inventory UID, and should be linked to a character (not agent).
 
 --- Start of ./core/systems/progression_system.gd ---
 
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	GlobalRefs.set_progression_system(self)
 	print("ProgressionSystem Ready.")
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
 --- Start of ./core/systems/time_system.gd ---
 
@@ -15399,7 +15275,7 @@ func _ready():
 extends Node
 
 # --- Configuration ---
-const TIME_CLOCK_MAX_TU = 100
+const TIME_CLOCK_MAX_TU = 10
 
 # --- State ---
 var _current_tu: int = 0 setget , get_current_tu
@@ -15437,49 +15313,27 @@ func _trigger_world_event_tick():
 
 	# 2. Emit the global signal with the amount of TU that this tick represents.
 	if EventBus:
-		EventBus.emit_signal("world_event_tick_triggered", TIME_CLOCK_MAX_TU)  #MODIFIED
+		EventBus.emit_signal("world_event_tick_triggered", TIME_CLOCK_MAX_TU)
 
-	# 3. Call the Character System to apply the WP Upkeep cost.
+	# 3. Call the Character System to apply the WP Upkeep cost for every character in the game.
 	if is_instance_valid(_character_system):
 		_character_system.apply_upkeep_cost()
-	else:
-		print("TimeSystem: Placeholder - Would call CharacterSystem to apply WP upkeep cost.")
 
 --- Start of ./core/systems/traffic_system.gd ---
 
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	GlobalRefs.set_traffic_system(self)
 	print("TrafficSystem Ready.")
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
 --- Start of ./core/systems/world_map_system.gd ---
 
 extends Node
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	GlobalRefs.set_world_map_system(self)
 	print("WorldMapSystem Ready.")
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
 --- Start of ./core/ui/CenteredGrowingLabel.gd ---
 
@@ -17055,6 +16909,13 @@ func _ready():
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
+	
+	
+	# TODO: somewhere here must be the code block that handles new
+	# game, load game, character (player and NPCs) generation, assets instancing
+	# inventories filling with assets, assignment of thereof to characters, etc.
+	
+	
 
 	# --- NEW: Setup the Time Clock Timer ---
 	_time_clock_timer = Timer.new()
@@ -17064,6 +16925,8 @@ func _ready():
 	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
 	add_child(_time_clock_timer)
 	# --- END NEW ---
+	
+	
 	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
@@ -17118,7 +16981,7 @@ func _on_Time_Clock_Timer_timeout():
 	if is_instance_valid(GlobalRefs.time_system):
 		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
 		GlobalRefs.time_system.add_time_units(1)
-		#print(GlobalRefs.time_system._current_tu)
+		print("Current TU: ", GlobalRefs.time_system._current_tu)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 
@@ -18098,8 +17961,8 @@ func test_action_completion_emits_signal_with_payload():
 # tests/core/systems/test_agent_spawner.gd
 extends GutTest
 
-const AgentSpawnerScript = preload("res://core/systems/agent_spawner.gd")
-const AgentTemplate = preload("res://core/agents/agent_template.gd")
+const AgentSpawnerScript = preload("res://core/systems/agent_system.gd")
+const AgentTemplate = preload("res://core/resource/agent_template.gd")
 const MOCK_AGENT_SCENE = "res://tests/helpers/mock_agent.tscn"
 const SignalCatcher = preload("res://tests/helpers/signal_catcher.gd")
 const TestAgentBodyScript = preload("res://tests/helpers/test_agent_body.gd")

@@ -5,7 +5,7 @@
 extends Node
 
 # --- Configuration ---
-const TIME_CLOCK_MAX_TU = 100
+const TIME_CLOCK_MAX_TU = 10
 
 # --- State ---
 var _current_tu: int = 0 setget , get_current_tu
@@ -43,10 +43,8 @@ func _trigger_world_event_tick():
 
 	# 2. Emit the global signal with the amount of TU that this tick represents.
 	if EventBus:
-		EventBus.emit_signal("world_event_tick_triggered", TIME_CLOCK_MAX_TU)  #MODIFIED
+		EventBus.emit_signal("world_event_tick_triggered", TIME_CLOCK_MAX_TU)
 
-	# 3. Call the Character System to apply the WP Upkeep cost.
+	# 3. Call the Character System to apply the WP Upkeep cost for every character in the game.
 	if is_instance_valid(_character_system):
 		_character_system.apply_upkeep_cost()
-	else:
-		print("TimeSystem: Placeholder - Would call CharacterSystem to apply WP upkeep cost.")

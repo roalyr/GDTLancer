@@ -1,5 +1,7 @@
-# File: core/systems/agent_spawner.gd
-# New script dedicated to agent spawning logic.
+# File: core/systems/agent_system.gd
+# Purpose: Manages agent spawning in virtual space (ships). Assembles agents from
+# character data and their inventory of assets.
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
@@ -19,9 +21,11 @@ func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
 	else:
-		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn player.")
+		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn agents.")
 
 
+# Important: player's character and inventory of assets must exist and upon spawining an
+# agent they should get linked to it.
 func spawn_player():
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
@@ -43,9 +47,14 @@ func spawn_player():
 		if entry_node is Spatial:
 			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
 
-	var player_overrides = {"name": "PlayerShip", "faction": "Player"}
+	# Those are agent type flags (player or npc) and assign an UID. For player UID is 0.
+	# For NPCs UID will be incremented.
+	# From AgentTemplate.
+	var player_overrides = {"agent_type": "player", "template_id": "player"}
+	var agent_uid = 0
+	
 	_player_agent_body = spawn_agent(
-		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides
+		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides, agent_uid
 	)
 
 	if is_instance_valid(_player_agent_body):
@@ -55,12 +64,16 @@ func spawn_player():
 	else:
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
 
+# TODO: spawn NPC with proper overrides.
+# Important: NPC's characters and their inventories of assets must exist and upon spawining an
+# agent they should get linked to it.
 
 func spawn_agent(
 	agent_scene_path: String,
 	position: Vector3,
-	agent_template: Resource,
-	overrides: Dictionary = {}
+	agent_template: AgentTemplate,
+	overrides: Dictionary = {},
+	agent_uid: int = -1
 ) -> KinematicBody:
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
@@ -84,29 +97,27 @@ func spawn_agent(
 		agent_root_instance.queue_free()
 		return null
 
-	var instance_name = overrides.get(
-		"name", agent_template.default_agent_name + "_" + str(agent_root_instance.get_instance_id())
-	)
+	var instance_name = agent_template.agent_type + "_" + str(agent_root_instance.get_instance_id())
+	
 	agent_root_instance.name = instance_name
 
 	container.add_child(agent_root_instance)
 	agent_node.global_transform.origin = position
 
 	if agent_node.has_method("initialize"):
-		agent_node.initialize(agent_template, overrides)
+		agent_node.initialize(agent_template, overrides, agent_uid)
 
 	EventBus.emit_signal(
-		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides}
+		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides, "agent_uid": agent_uid}
 	)
 
-	# --- CORRECTED CONTROLLER LOGIC ---
 	# The controller is a child of the AgentBody (agent_node), not the scene root.
 	# We also need to check for both AI and Player controllers.
 	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	var player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
 
 	if ai_controller and ai_controller.has_method("initialize"):
-		ai_controller.initialize(overrides)
+		ai_controller.initialize(overrides) # Pass agent_uid?
 	# The PlayerInputHandler does not have an initialize method, so we don't need to call it,
 	# but by getting a reference to it, we ensure the test framework is aware of it.
 

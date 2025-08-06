@@ -1,21 +1,16 @@
 # File: core/systems/character_system.gd
-# Purpose: Manages the player's core stats, skills, and narrative data.
-# Version: 1.1
+# Purpose: Manages the gloabl dictionary of characters (both player and NPCs).
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
-# --- Data Structures ---
-var _player_character_data: Dictionary = {
-	"wealth_points": 0,
-	"focus_points": 0,
-	"skills": {
-		"piloting": 1,
-		"tactics": 1,
-		"trading": 1
-	},
-	"reputation": 0,
-	"faction_standings": {} # e.g., {"pirates": -10, "corp": 5}
-}
+# TODO: instantiate CharacterTemplate resource directly and put instances into this dictionary?
+# Global dictionary of _character_data instances.
+var _characters: Dictionary = {}
+
+# Derive dictionary fields from CharacterTemplate class for consistency!
+# TODO: Link fields from character_template.gd
+var _character_data: Dictionary = {} # Or CharacterTemplate instance?
 
 func _ready():
 	GlobalRefs.set_character_system(self)
@@ -23,40 +18,46 @@ func _ready():
 
 # --- Public API ---
 
-func get_player_character() -> Dictionary:
+# func get_character() -> Dictionary:
 	# Return a copy to prevent direct modification of the internal state.
-	return _player_character_data.duplicate(true)
+	
 
 func add_wp(amount: int):
-	_player_character_data.wealth_points += amount
+	# Iterate over all characters
+	for i in _characters.size():
+		_characters[i].wealth_points += amount
 
 func subtract_wp(amount: int):
-	_player_character_data.wealth_points -= amount
+	# Iterate over all characters
+	for i in _characters.size():
+		_characters[i].wealth_points -= amount
 
-func get_wp() -> int:
-	return _player_character_data.wealth_points
+func get_wp(character: String) -> int:
+	return _characters[character].wealth_points
 
-func add_fp(amount: int):
-	_player_character_data.focus_points += amount
-	_player_character_data.focus_points = clamp(_player_character_data.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func add_fp(character: String, amount: int):
+	_characters[character].focus_points += amount
+	_characters[character].focus_points = clamp(_characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func subtract_fp(amount: int):
-	_player_character_data.focus_points -= amount
-	_player_character_data.focus_points = clamp(_player_character_data.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func subtract_fp(character: String, amount: int):
+	_characters[character].focus_points -= amount
+	_characters[character].focus_points = clamp(_characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func get_fp() -> int:
-	return _player_character_data.focus_points
+func get_fp(character: String) -> int:
+	return _characters[character].focus_points
 
-func get_skill_level(skill_name: String) -> int:
-	if _player_character_data.skills.has(skill_name):
-		return _player_character_data.skills[skill_name]
+func get_skill_level(character: String, skill_name: String) -> int:
+	if _characters[character].skills.has(skill_name):
+		return _characters[character].skills[skill_name]
 	return 0
 
 func apply_upkeep_cost(cost: int):
 	subtract_wp(cost)
 
-func get_player_save_data() -> Dictionary:
-	return _player_character_data.duplicate(true)
+func get_player_save_data() -> Dictionary: # Return proper type
+	# Placeholder. Should be in _characters dictionary
+	_characters["player"] = {}
+	return _characters["player"].duplicate(true)
 
-func load_player_save_data(data: Dictionary):
-	_player_character_data = data
+func load_player_save_data(data: Dictionary): # Return proper type
+	_characters["player"] = data

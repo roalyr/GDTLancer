@@ -1,20 +1,16 @@
 # File: core/systems/action_system.gd
 # Purpose: Manages the queueing, execution, and completion of character actions.
-# Version: 1.1 - Integrated with CoreMechanicsAPI.
+# Version: 2.0 - Reworked to match new templates.
 
 extends Node
 
-# --- Signals ---
 # Emitted when an action is completed, broadcasting the result.
 # payload: The result dictionary from CoreMechanicsAPI.perform_action_check().
 signal action_completed(character, action_resource, payload)
 
-# --- Data Structures ---
 var _active_actions: Dictionary = {}
 var _next_action_id: int = 1
 
-
-# --- System Ready ---
 func _ready():
 	GlobalRefs.set_action_system(self)
 	
@@ -25,24 +21,23 @@ func _ready():
 
 # --- Public API ---
 
-
 # Queues an action for a character.
 # - action_approach: From Constants.ActionApproach (e.g., CAUTIOUS, RISKY).
 func request_action(
-	character: Node, action_resource: Resource, action_approach: int, target: Node = null
+	character_instance: CharacterTemplate, action_template: ActionTemplate, action_approach: int, target: Node = null
 ) -> bool:
-	if not is_instance_valid(character) or not action_resource:
+	if not is_instance_valid(character_instance) or not action_template:
 		return false
 
 	var action_id = _get_new_action_id()
 
 	_active_actions[action_id] = {
-		"character": character,
-		"action_resource": action_resource,
+		"character_instance": character_instance, 
+		"action_template": action_template,
 		"action_approach": action_approach,  # Store the approach for later.
 		"target": target,
 		"tu_progress": 0,
-		"tu_cost": action_resource.tu_cost
+		"tu_cost": action_template.tu_cost
 	}
 
 	var approach_str = (
@@ -53,7 +48,7 @@ func request_action(
 	print(
 		(
 			"ActionSystem: Queued action '%s' for %s (Approach: %s)"
-			% [action_resource.action_name, character.name, approach_str]
+			% [action_template.action_name, character_instance.name, approach_str]
 		)
 	)
 
@@ -76,8 +71,8 @@ func _process_action_completion(action_id: int):
 		return
 
 	var action_data = _active_actions[action_id]
-	var character = action_data.character
-	var action_resource = action_data.action_resource
+	var character_instance = action_data.character_instance
+	var action_template = action_data.action_template
 	var action_approach = action_data.action_approach
 
 	# Perform the action check to get the result.
@@ -94,12 +89,12 @@ func _process_action_completion(action_id: int):
 	print(
 		(
 			"ActionSystem: Completed action '%s'. Result: %s"
-			% [action_resource.action_name, result_payload.tier_name]
+			% [action_template.action_name, result_payload.tier_name]
 		)
 	)
 
 	# Emit the signal with all relevant data.
-	emit_signal("action_completed", character, action_resource, result_payload)
+	emit_signal("action_completed", character_instance, action_template, result_payload)
 
 	_active_actions.erase(action_id)
 

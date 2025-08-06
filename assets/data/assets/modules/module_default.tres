@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/asset_module_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "module_default"
+asset_type = "module"
+asset_icon_id = "asset_default"
+module_name = "Unnamed Module"
+base_value = 10

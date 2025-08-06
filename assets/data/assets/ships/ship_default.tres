@@ -1,0 +1,21 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/asset_ship_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "ship_default"
+asset_type = "ship"
+asset_icon_id = "asset_default"
+ship_model_name = "Default Ship Model"
+hull_integrity = 100
+armor_integrity = 100
+cargo_capacity = 100
+interaction_radius = 15.0
+ship_quirks = [  ]
+ship_upgrades = [  ]
+max_move_speed = 300.0
+acceleration = 0.5
+deceleration = 0.5
+max_turn_speed = 0.75
+alignment_threshold_angle_deg = 45.0

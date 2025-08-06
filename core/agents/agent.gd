@@ -1,11 +1,14 @@
 # File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
 # Version: 3.35 - Modified command_orbit to capture current distance.
+
+# Agent - this is a physical space vessel that exists in simulation space (ship).
+
 extends KinematicBody
 
 # --- Core State & Identity ---
-var agent_name: String = "Default Agent"
-var faction_id: String = "Neutral"
-var template_id: String = "default"
+var agent_type: String = ""
+var template_id: String = ""
+var agent_uid = -1
 var interaction_radius: float = 15.0
 
 # --- Physics State ---
@@ -18,17 +21,17 @@ var navigation_system: Node = null
 
 # --- Initialization ---
 # Called externally (e.g., by WorldManager) after instancing and adding to tree
-func initialize(template: AgentTemplate, overrides: Dictionary = {}):
+func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: int = -1):
 	if not template is AgentTemplate:
 		printerr("AgentBody Initialize Error: Invalid template for ", self.name)
 		return
 
-	self.template_id = template.template_id
-	var default_name = template.default_agent_name + "_" + str(get_instance_id())
-	self.agent_name = overrides.get("name", default_name)
-	self.faction_id = overrides.get("faction", template.default_faction_id)
-	self.name = self.agent_name
-	self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
+	self.template_id = overrides.get("template_id")
+	self.agent_type = overrides.get("agent_type")
+	self.agent_uid = agent_uid
+	# self.name = self.agent_name - rework to make it informative.
+	# This should be linked like this: agent -> character -> ship inventory -> active ship
+	# self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -42,14 +45,15 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}):
 		set_physics_process(false)
 		return
 
+	# Also link from owned ship.
+	# For now placeholder values.
 	var move_params = {
-		"max_move_speed": overrides.get("max_move_speed", template.max_move_speed),
-		"acceleration": overrides.get("acceleration", template.acceleration),
-		"deceleration": overrides.get("deceleration", template.deceleration),
-		"max_turn_speed": overrides.get("max_turn_speed", template.max_turn_speed),
-		"brake_strength": overrides.get("brake_strength", template.deceleration * 1.5),
-		"alignment_threshold_angle_deg":
-		overrides.get("alignment_threshold_angle_deg", template.alignment_threshold_angle_deg)
+		"max_move_speed": 300,
+		"acceleration": 0.5,
+		"deceleration": 0.5,
+		"max_turn_speed": 0.75,
+		"brake_strength":0.75,
+		"alignment_threshold_angle_deg": 45
 	}
 	var nav_params = {
 		"orbit_kp": overrides.get("orbit_kp", 3.0),

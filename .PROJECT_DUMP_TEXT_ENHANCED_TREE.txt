@@ -121,11 +121,20 @@
 │   │           ├── slider_vert.dxf
 │   │           └── slider_vert.png
 │   ├── data
-│   │   └── templates
-│   │       └── agents
-│   │           ├── npc_traffic.tres
-│   │           ├── player_default.tres
-│   │           └── player_ship.tres
+│   │   ├── actions
+│   │   │   └── action_default.tres
+│   │   ├── agents
+│   │   │   ├── npc_default.tres
+│   │   │   └── player_default.tres
+│   │   ├── assets
+│   │   │   ├── commodities
+│   │   │   │   └── commodity_default.tres
+│   │   │   ├── modules
+│   │   │   │   └── module_default.tres
+│   │   │   └── ships
+│   │   │       └── ship_default.tres
+│   │   └── characters
+│   │       └── character_default.tres
 │   ├── fonts
 │   │   └── Roboto_Condensed
 │   │       └── static
@@ -157,7 +166,6 @@
 ├── core
 │   ├── agents
 │   │   ├── agent.gd
-│   │   ├── agent_template.gd
 │   │   ├── agent.tscn
 │   │   ├── components
 │   │   │   ├── movement_system.gd
@@ -174,14 +182,17 @@
 │   │   ├── npc_agent.tscn
 │   │   └── player_agent.tscn
 │   ├── resource
-│   │   ├── action_resource.gd
-│   │   ├── character_resource.gd
-│   │   ├── commodity.gd
-│   │   ├── ship_agent_data.gd
-│   │   └── ship_asset.gd
+│   │   ├── action_template.gd
+│   │   ├── agent_template.gd
+│   │   ├── asset_commodity_template.gd
+│   │   ├── asset_module_template.gd
+│   │   ├── asset_ship_template.gd
+│   │   ├── asset_template.gd
+│   │   ├── character_template.gd
+│   │   └── template.gd
 │   ├── systems
 │   │   ├── action_system.gd
-│   │   ├── agent_spawner.gd
+│   │   ├── agent_system.gd
 │   │   ├── asset_system.gd
 │   │   ├── character_system.gd
 │   │   ├── chronicle_system.gd
@@ -267,6 +278,6 @@
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-51 directories, 217 files
+56 directories, 223 files
 
-51 directories, 217 files
+56 directories, 223 files

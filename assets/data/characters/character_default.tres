@@ -1,0 +1,23 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_default"
+character_name = "Unnamed"
+character_icon_id = "character_default_icon"
+faction_id = "faction_default"
+wealth_points = 0
+focus_points = 0
+skills = {
+"combat": 1,
+"piloting": 1,
+"trading": 1
+}
+age = 30
+reputation = 0
+faction_standings = {
+}
+character_standings = {
+}

@@ -4,7 +4,8 @@
 
 [resource]
 script = ExtResource( 1 )
+template_id = "action_default"
 action_name = "Unnamed Action"
 tu_cost = 1
-base_attribute = "INT"
-associated_skill = "Computers"
+base_attribute = "int"
+associated_skill = "computers"

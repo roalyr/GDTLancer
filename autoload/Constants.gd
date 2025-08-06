@@ -22,8 +22,8 @@ const NPC_AGENT_SCENE_PATH = "res://core/agents/npc_agent.tscn"
 const INITIAL_ZONE_SCENE_PATH = "res://scenes/zones/basic_flight_zone.tscn"
 
 # Agent Template Resource Paths
-const PLAYER_DEFAULT_TEMPLATE_PATH = "res://assets/data/templates/agents/player_default.tres"
-const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/templates/agents/npc_traffic.tres"
+const PLAYER_DEFAULT_TEMPLATE_PATH = "res://assets/data/agents/player_default.tres"
+const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/agents/npc_default.tres"
 
 # Base UI Scenes
 const MAIN_HUD_SCENE_PATH = "res://core/ui/main_hud.tscn"
@@ -33,7 +33,7 @@ const MAIN_MENU_SCENE_PATH = "res://scenes/main_menu/main_menu.tscn"
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
 const AGENT_CONTAINER_NAME = "AgentContainer"
 const AGENT_MODEL_CONTAINER_NAME = "Model"
-const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"]
+const ENTRY_POINT_NAMES = ["EntryPointA", "EntryPointB", "EntryPointC"] # Placeholders
 const AGENT_BODY_NODE_NAME = "AgentBody"
 const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
@@ -47,6 +47,7 @@ const DEFAULT_MAX_MOVE_SPEED = 300.0
 const DEFAULT_ACCELERATION = 0.5
 const DEFAULT_DECELERATION = 0.5
 const DEFAULT_MAX_TURN_SPEED = 0.75
+const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45 # Degrees
 
 const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
 
