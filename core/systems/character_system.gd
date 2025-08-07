@@ -1,14 +1,9 @@
 # File: core/systems/character_system.gd
-# Purpose: Manages the gloabl dictionary of characters (both player and NPCs).
-# Version: 2.0 - Reworked to match new templates.
+# Purpose: Provides a logical API for manipulating character data stored in GameState.
+# This system is STATELESS. All data is read from and written to the GameState autoload.
+# Version: 3.0 - Refactored to be stateless.
 
 extends Node
-
-# TODO: instantiate CharacterTemplate resource directly and put instances into this dictionary?
-
-# Derive dictionary fields from CharacterTemplate class for consistency!
-# TODO: Link fields from character_template.gd
-var _character_data: Dictionary = {} # Or CharacterTemplate instance?
 
 func _ready():
 	GlobalRefs.set_character_system(self)
@@ -16,46 +11,61 @@ func _ready():
 
 # --- Public API ---
 
-# func get_character() -> Dictionary:
-	# Return a copy to prevent direct modification of the internal state.
-	
+# Retrieves a character instance from the GameState.
+func get_character(character_uid: int) -> CharacterTemplate:
+	return GameState.characters.get(character_uid)
 
-func add_wp(amount: int):
-	# Iterate over all characters
-	for i in GameState.characters.size():
-		GameState.characters[i].wealth_points += amount
+# Convenience function to get the player's character instance.
+func get_player_character() -> CharacterTemplate:
+	if GameState.player_character_uid != -1:
+		return GameState.characters.get(GameState.player_character_uid)
+	return null
 
-func subtract_wp(amount: int):
-	# Iterate over all characters
-	for i in GameState.characters.size():
-		GameState.characters[i].wealth_points -= amount
+# Convenience function to get the player's UID.
+func get_player_character_uid() -> int:
+	return GameState.player_character_uid
 
-func get_wp(character: String) -> int:
-	return GameState.characters[character].wealth_points
+# --- Stat Modification API (Operates on GameState) ---
 
-func add_fp(character: String, amount: int):
-	GameState.characters[character].focus_points += amount
-	GameState.characters[character].focus_points = clamp(GameState.characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func add_wp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		GameState.characters[character_uid].wealth_points += amount
 
-func subtract_fp(character: String, amount: int):
-	GameState.characters[character].focus_points -= amount
-	GameState.characters[character].focus_points = clamp(GameState.characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func subtract_wp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		GameState.characters[character_uid].wealth_points -= amount
 
-func get_fp(character: String) -> int:
-	return GameState.characters[character].focus_points
-
-func get_skill_level(character: String, skill_name: String) -> int:
-	if GameState.characters[character].skills.has(skill_name):
-		return GameState.characters[character].skills[skill_name]
+func get_wp(character_uid: int) -> int:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].wealth_points
 	return 0
 
-func apply_upkeep_cost(cost: int):
-	subtract_wp(cost)
+func add_fp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		var character = GameState.characters[character_uid]
+		character.focus_points += amount
+		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func get_player_save_data() -> Dictionary: # Return proper type
-	# Placeholder. Should be in _characters dictionary
-	GameState.characters["player"] = {}
-	return GameState.characters["player"].duplicate(true)
+func subtract_fp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		var character = GameState.characters[character_uid]
+		character.focus_points -= amount
+		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func load_player_save_data(data: Dictionary): # Return proper type
-	GameState.characters["player"] = data
+func get_fp(character_uid: int) -> int:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].focus_points
+	return 0
+
+func get_skill_level(character_uid: int, skill_name: String) -> int:
+	if GameState.characters.has(character_uid):
+		if GameState.characters[character_uid].skills.has(skill_name):
+			return GameState.characters[character_uid].skills[skill_name]
+	return 0
+
+func apply_upkeep_cost(character_uid: int, cost: int):
+	subtract_wp(character_uid, cost)
+
+# NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.
+# This responsibility is now handled by the GameStateManager, which will serialize and
+# deserialize the entire GameState.characters dictionary directly.

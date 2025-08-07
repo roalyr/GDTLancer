@@ -15189,16 +15189,11 @@ func _ready():
 --- Start of ./core/systems/character_system.gd ---
 
 # File: core/systems/character_system.gd
-# Purpose: Manages the gloabl dictionary of characters (both player and NPCs).
-# Version: 2.0 - Reworked to match new templates.
+# Purpose: Provides a logical API for manipulating character data stored in GameState.
+# This system is STATELESS. All data is read from and written to the GameState autoload.
+# Version: 3.0 - Refactored to be stateless.
 
 extends Node
-
-# TODO: instantiate CharacterTemplate resource directly and put instances into this dictionary?
-
-# Derive dictionary fields from CharacterTemplate class for consistency!
-# TODO: Link fields from character_template.gd
-var _character_data: Dictionary = {} # Or CharacterTemplate instance?
 
 func _ready():
 	GlobalRefs.set_character_system(self)
@@ -15206,49 +15201,64 @@ func _ready():
 
 # --- Public API ---
 
-# func get_character() -> Dictionary:
-	# Return a copy to prevent direct modification of the internal state.
-	
+# Retrieves a character instance from the GameState.
+func get_character(character_uid: int) -> CharacterTemplate:
+	return GameState.characters.get(character_uid)
 
-func add_wp(amount: int):
-	# Iterate over all characters
-	for i in GameState.characters.size():
-		GameState.characters[i].wealth_points += amount
+# Convenience function to get the player's character instance.
+func get_player_character() -> CharacterTemplate:
+	if GameState.player_character_uid != -1:
+		return GameState.characters.get(GameState.player_character_uid)
+	return null
 
-func subtract_wp(amount: int):
-	# Iterate over all characters
-	for i in GameState.characters.size():
-		GameState.characters[i].wealth_points -= amount
+# Convenience function to get the player's UID.
+func get_player_character_uid() -> int:
+	return GameState.player_character_uid
 
-func get_wp(character: String) -> int:
-	return GameState.characters[character].wealth_points
+# --- Stat Modification API (Operates on GameState) ---
 
-func add_fp(character: String, amount: int):
-	GameState.characters[character].focus_points += amount
-	GameState.characters[character].focus_points = clamp(GameState.characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func add_wp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		GameState.characters[character_uid].wealth_points += amount
 
-func subtract_fp(character: String, amount: int):
-	GameState.characters[character].focus_points -= amount
-	GameState.characters[character].focus_points = clamp(GameState.characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+func subtract_wp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		GameState.characters[character_uid].wealth_points -= amount
 
-func get_fp(character: String) -> int:
-	return GameState.characters[character].focus_points
-
-func get_skill_level(character: String, skill_name: String) -> int:
-	if GameState.characters[character].skills.has(skill_name):
-		return GameState.characters[character].skills[skill_name]
+func get_wp(character_uid: int) -> int:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].wealth_points
 	return 0
 
-func apply_upkeep_cost(cost: int):
-	subtract_wp(cost)
+func add_fp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		var character = GameState.characters[character_uid]
+		character.focus_points += amount
+		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func get_player_save_data() -> Dictionary: # Return proper type
-	# Placeholder. Should be in _characters dictionary
-	GameState.characters["player"] = {}
-	return GameState.characters["player"].duplicate(true)
+func subtract_fp(character_uid: int, amount: int):
+	if GameState.characters.has(character_uid):
+		var character = GameState.characters[character_uid]
+		character.focus_points -= amount
+		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
-func load_player_save_data(data: Dictionary): # Return proper type
-	GameState.characters["player"] = data
+func get_fp(character_uid: int) -> int:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].focus_points
+	return 0
+
+func get_skill_level(character_uid: int, skill_name: String) -> int:
+	if GameState.characters.has(character_uid):
+		if GameState.characters[character_uid].skills.has(skill_name):
+			return GameState.characters[character_uid].skills[skill_name]
+	return 0
+
+func apply_upkeep_cost(character_uid: int, cost: int):
+	subtract_wp(character_uid, cost)
+
+# NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.
+# This responsibility is now handled by the GameStateManager, which will serialize and
+# deserialize the entire GameState.characters dictionary directly.
 
 --- Start of ./core/systems/chronicle_system.gd ---
 
@@ -16924,7 +16934,7 @@ extends Node
 
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
-
+const WorldGenerator = preload("res://scenes/game_world/world_manager/world_generator.gd")
 
 # --- State ---
 var _spawned_agent_bodies = []
@@ -16932,27 +16942,24 @@ var _spawned_agent_bodies = []
 # --- Nodes ---
 var _time_clock_timer: Timer = null
 var _template_indexer: Node = null
+var _world_generator: Node = null
 
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_world_manager(self)
 	
-	# --- Instantiate and run the template indexer ---
+	# Step 1: Index all data templates into the TemplateDatabase.
 	_template_indexer = TemplateIndexer.new()
 	_template_indexer.name = "TemplateIndexer"
-
 	add_child(_template_indexer)
 	_template_indexer.index_all_templates()
+
+	# Step 2: Initialize the game state (will handle New vs. Load).
+	_initialize_game_state()
 	
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
-	
-	
-	# TODO: somewhere here must be the code block that handles new
-	# game, load game, character (player and NPCs) generation, assets instancing
-	# inventories filling with assets, assignment of thereof to characters, etc.
-	
 	
 
 	# --- NEW: Setup the Time Clock Timer ---
@@ -16962,12 +16969,25 @@ func _ready():
 	_time_clock_timer.autostart = true
 	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
 	add_child(_time_clock_timer)
-	# --- END NEW ---
-	
-	
 	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	
+	
+# --- Game State Setup ---
+func _initialize_game_state():
+	print("WorldManager: Initializing game state...")
+	# This is where the logic for choosing "New Game" vs "Load Game" will go.
+	# For now, we default to creating a new game.
+	_setup_new_game()
+
+
+func _setup_new_game():
+	# Instantiate and run the world generator to populate GameState.
+	_world_generator = WorldGenerator.new()
+	_world_generator.name = "WorldGenerator"
+	add_child(_world_generator)
+	_world_generator.generate_new_world()
 
 
 # --- Zone Management ---
@@ -17112,6 +17132,64 @@ func _register_template(template: Template):
 		TemplateDatabase.assets_commodities[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
+
+--- Start of ./scenes/game_world/world_manager/world_generator.gd ---
+
+# File: scenes/game_world/world_manager/world_generator.gd
+# Purpose: Uses indexed templates to procedurally generate the initial game state
+#          for a new game, populating the GameState autoload.
+# Version: 1.0
+
+extends Node
+
+var _next_character_uid: int = 0
+
+# --- Public API ---
+
+# Main entry point. Generates all necessary data for a new game.
+func generate_new_world():
+	print("WorldGenerator: Generating new world state...")
+
+	# For this initial implementation, we create one instance of each character
+	# template found in the TemplateDatabase.
+	for template_id in TemplateDatabase.characters:
+		var template = TemplateDatabase.characters[template_id]
+		_create_character_from_template(template)
+
+	# TODO: This is where we would generate starting assets, inventories,
+	# faction standings, etc., and populate the GameState object.
+	# For example:
+	# _generate_starting_assets()
+	# _assign_assets_to_characters()
+
+	print("WorldGenerator: New world state generated.")
+
+
+# --- Private Logic ---
+
+# Creates a unique instance of a character from a template and registers it
+# in the global GameState.
+func _create_character_from_template(template: CharacterTemplate):
+	var new_character_instance = template.duplicate()
+	var uid = _get_new_character_uid()
+
+	# Populate the GameState directly.
+	GameState.characters[uid] = new_character_instance
+
+	# Designate the player character based on a property in the template.
+	# We assume a boolean `is_player_character` or a specific template_id.
+	if template.template_id == "character_default": # This is a placeholder check
+		GameState.player_character_uid = uid
+		print("... Player character created with UID: ", uid)
+	else:
+		print("... NPC character created with UID: ", uid)
+
+
+# Generates a new, unique ID for a character.
+func _get_new_character_uid() -> int:
+	var id = _next_character_uid
+	_next_character_uid += 1
+	return id
 
 --- Start of ./scenes/main_menu/SettingsRendering.gd ---
 

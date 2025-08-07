@@ -5,7 +5,7 @@ extends Node
 
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
-
+const WorldGenerator = preload("res://scenes/game_world/world_manager/world_generator.gd")
 
 # --- State ---
 var _spawned_agent_bodies = []
@@ -13,27 +13,24 @@ var _spawned_agent_bodies = []
 # --- Nodes ---
 var _time_clock_timer: Timer = null
 var _template_indexer: Node = null
+var _world_generator: Node = null
 
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_world_manager(self)
 	
-	# --- Instantiate and run the template indexer ---
+	# Step 1: Index all data templates into the TemplateDatabase.
 	_template_indexer = TemplateIndexer.new()
 	_template_indexer.name = "TemplateIndexer"
-
 	add_child(_template_indexer)
 	_template_indexer.index_all_templates()
+
+	# Step 2: Initialize the game state (will handle New vs. Load).
+	_initialize_game_state()
 	
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
-	
-	
-	# TODO: somewhere here must be the code block that handles new
-	# game, load game, character (player and NPCs) generation, assets instancing
-	# inventories filling with assets, assignment of thereof to characters, etc.
-	
 	
 
 	# --- NEW: Setup the Time Clock Timer ---
@@ -43,12 +40,25 @@ func _ready():
 	_time_clock_timer.autostart = true
 	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
 	add_child(_time_clock_timer)
-	# --- END NEW ---
-	
-	
 	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	
+	
+# --- Game State Setup ---
+func _initialize_game_state():
+	print("WorldManager: Initializing game state...")
+	# This is where the logic for choosing "New Game" vs "Load Game" will go.
+	# For now, we default to creating a new game.
+	_setup_new_game()
+
+
+func _setup_new_game():
+	# Instantiate and run the world generator to populate GameState.
+	_world_generator = WorldGenerator.new()
+	_world_generator.name = "WorldGenerator"
+	add_child(_world_generator)
+	_world_generator.generate_new_world()
 
 
 # --- Zone Management ---

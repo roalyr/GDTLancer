@@ -238,7 +238,8 @@
 │   ├── game_world
 │   │   ├── main_game_scene.tscn
 │   │   ├── world_manager
-│   │   │   └── template_indexer.gd
+│   │   │   ├── template_indexer.gd
+│   │   │   └── world_generator.gd
 │   │   └── world_manager.gd
 │   ├── main_menu
 │   │   ├── main_menu.tscn
@@ -282,6 +283,6 @@
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-57 directories, 226 files
+57 directories, 227 files
 
-57 directories, 226 files
+57 directories, 227 files
