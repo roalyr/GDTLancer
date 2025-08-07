@@ -8,11 +8,6 @@ var _asset_ship_template: ShipTemplate = null
 var _asset_module_template: ModuleTemplate = null
 var _asset_commodity_template: CommodityTemplate = null
 
-# Global dictionaries of instances.
-var _assets_ships: Dictionary = {}
-var _assets_modules: Dictionary = {}
-var _assets_commodieties: Dictionary = {}
-
 
 func _ready():
 	GlobalRefs.set_asset_system(self)

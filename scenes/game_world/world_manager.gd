@@ -1,19 +1,29 @@
 # File: scenes/game_world/world_manager.gd
-# Version: 3.1 - Added a timer to drive the global TimeSystem.
+# Version: 5.0 - Abstracted template indexing to a component script.
 
 extends Node
 
+# --- Component Scripts ---
+const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
+
+
 # --- State ---
-var current_zone_instance: Node = null
 var _spawned_agent_bodies = []
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
-
+var _template_indexer: Node = null
 
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_world_manager(self)
+	
+	# --- Instantiate and run the template indexer ---
+	_template_indexer = TemplateIndexer.new()
+	_template_indexer.name = "TemplateIndexer"
+
+	add_child(_template_indexer)
+	_template_indexer.index_all_templates()
 	
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
@@ -48,15 +58,15 @@ func load_zone(zone_scene_path: String):
 		return
 
 	# 1. Cleanup Previous Zone
-	if is_instance_valid(current_zone_instance):
-		EventBus.emit_signal("zone_unloading", current_zone_instance)
+	if is_instance_valid(GameState.current_zone_instance):
+		EventBus.emit_signal("zone_unloading", GameState.current_zone_instance)
 		# Clear references that will be repopulated on new zone load
 		_spawned_agent_bodies.clear()
 		GlobalRefs.player_agent_body = null
 		GlobalRefs.current_zone = null
 		GlobalRefs.agent_container = null
-		current_zone_instance.queue_free()
-		current_zone_instance = null
+		GameState.current_zone_instance.queue_free()
+		GameState.current_zone_instance = null
 
 	# 2. Find Parent Container Node
 	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
@@ -70,17 +80,17 @@ func load_zone(zone_scene_path: String):
 		printerr("WM Error: Failed to load Zone Scene Resource: ", zone_scene_path)
 		return
 
-	current_zone_instance = zone_scene.instance()
-	zone_holder.add_child(current_zone_instance)
-	GlobalRefs.current_zone = current_zone_instance
+	GameState.current_zone_instance = zone_scene.instance()
+	zone_holder.add_child(GameState.current_zone_instance)
+	GlobalRefs.current_zone = GameState.current_zone_instance
 
 	# 4. Find Agent Container and emit signal that the zone is ready
-	var agent_container = current_zone_instance.find_node(
+	var agent_container = GameState.current_zone_instance.find_node(
 		Constants.AGENT_CONTAINER_NAME, true, false
 	)
 	GlobalRefs.agent_container = agent_container
 
-	EventBus.emit_signal("zone_loaded", current_zone_instance, zone_scene_path, agent_container)
+	EventBus.emit_signal("zone_loaded", GameState.current_zone_instance, zone_scene_path, agent_container)
 
 
 # --- Time System Driver ---
@@ -90,7 +100,7 @@ func _on_Time_Clock_Timer_timeout():
 	if is_instance_valid(GlobalRefs.time_system):
 		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
 		GlobalRefs.time_system.add_time_units(1)
-		print("Current TU: ", GlobalRefs.time_system._current_tu)
+		print("Current TU: ", GameState.current_tu)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 

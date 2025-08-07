@@ -8,7 +8,6 @@ extends Node
 # payload: The result dictionary from CoreMechanicsAPI.perform_action_check().
 signal action_completed(character, action_resource, payload)
 
-var _active_actions: Dictionary = {}
 var _next_action_id: int = 1
 
 func _ready():
@@ -31,7 +30,7 @@ func request_action(
 
 	var action_id = _get_new_action_id()
 
-	_active_actions[action_id] = {
+	GameState.active_actions[action_id] = {
 		"character_instance": character_instance, 
 		"action_template": action_template,
 		"action_approach": action_approach,  # Store the approach for later.
@@ -57,8 +56,8 @@ func request_action(
 
 # --- Signal Handlers ---
 func _on_world_event_tick(tu_passed: int):
-	for action_id in _active_actions.keys().duplicate():
-		var action = _active_actions[action_id]
+	for action_id in GameState.active_actions.keys().duplicate():
+		var action = GameState.active_actions[action_id]
 		action.tu_progress += tu_passed
 
 		if action.tu_progress >= action.tu_cost:
@@ -67,10 +66,10 @@ func _on_world_event_tick(tu_passed: int):
 
 # --- Private Logic ---
 func _process_action_completion(action_id: int):
-	if not _active_actions.has(action_id):
+	if not GameState.active_actions.has(action_id):
 		return
 
-	var action_data = _active_actions[action_id]
+	var action_data = GameState.active_actions[action_id]
 	var character_instance = action_data.character_instance
 	var action_template = action_data.action_template
 	var action_approach = action_data.action_approach
@@ -96,7 +95,7 @@ func _process_action_completion(action_id: int):
 	# Emit the signal with all relevant data.
 	emit_signal("action_completed", character_instance, action_template, result_payload)
 
-	_active_actions.erase(action_id)
+	GameState.active_actions.erase(action_id)
 
 
 func _get_new_action_id() -> int:

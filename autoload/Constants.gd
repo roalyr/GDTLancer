@@ -1,6 +1,6 @@
 # File: autoload/Constants.gd
 # Autoload Singleton: Constants
-# Version: 1.4 - Added ActionApproach and thresholds
+# Version: 1.5 - Updated with new and removed the old.
 
 extends Node
 
@@ -49,13 +49,10 @@ const DEFAULT_DECELERATION = 0.5
 const DEFAULT_MAX_TURN_SPEED = 0.75
 const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45 # Degrees
 
+# Time units to trigger world tick
+const TIME_CLOCK_MAX_TU = 10
 const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
-
-# --- System Defaults ---
-const MAX_NPCS_DEFAULT = 10
-const SPAWN_INTERVAL_DEFAULT = 2.0
-const TRAFFIC_SPEED_MULT_DEFAULT = 0.2
 const TARGETING_RAY_LENGTH = 1e7

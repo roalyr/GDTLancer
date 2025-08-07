@@ -122,6 +122,8 @@ config/windows_native_icon="res://Icon.ico"
 Constants="*res://autoload/Constants.gd"
 EventBus="*res://autoload/EventBus.gd"
 GlobalRefs="*res://autoload/GlobalRefs.gd"
+TemplateDatabase="*res://autoload/TemplateDatabase.gd"
+GameState="*res://autoload/GameState.gd"
 CoreMechanicsAPI="*res://autoload/CoreMechanicsAPI.gd"
 GameStateManager="*res://autoload/GameStateManager.gd"
 

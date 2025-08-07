@@ -4,10 +4,6 @@
 
 extends Node
 
-var _inventories_ships: Dictionary = {}
-var _inventories_modules: Dictionary = {}
-var _inventories_commodieties: Dictionary = {}
-
 
 func _ready():
 	GlobalRefs.set_asset_system(self)

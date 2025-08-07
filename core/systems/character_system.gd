@@ -5,8 +5,6 @@
 extends Node
 
 # TODO: instantiate CharacterTemplate resource directly and put instances into this dictionary?
-# Global dictionary of _character_data instances.
-var _characters: Dictionary = {}
 
 # Derive dictionary fields from CharacterTemplate class for consistency!
 # TODO: Link fields from character_template.gd
@@ -24,31 +22,31 @@ func _ready():
 
 func add_wp(amount: int):
 	# Iterate over all characters
-	for i in _characters.size():
-		_characters[i].wealth_points += amount
+	for i in GameState.characters.size():
+		GameState.characters[i].wealth_points += amount
 
 func subtract_wp(amount: int):
 	# Iterate over all characters
-	for i in _characters.size():
-		_characters[i].wealth_points -= amount
+	for i in GameState.characters.size():
+		GameState.characters[i].wealth_points -= amount
 
 func get_wp(character: String) -> int:
-	return _characters[character].wealth_points
+	return GameState.characters[character].wealth_points
 
 func add_fp(character: String, amount: int):
-	_characters[character].focus_points += amount
-	_characters[character].focus_points = clamp(_characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+	GameState.characters[character].focus_points += amount
+	GameState.characters[character].focus_points = clamp(GameState.characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
 func subtract_fp(character: String, amount: int):
-	_characters[character].focus_points -= amount
-	_characters[character].focus_points = clamp(_characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+	GameState.characters[character].focus_points -= amount
+	GameState.characters[character].focus_points = clamp(GameState.characters[character].focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 
 func get_fp(character: String) -> int:
-	return _characters[character].focus_points
+	return GameState.characters[character].focus_points
 
 func get_skill_level(character: String, skill_name: String) -> int:
-	if _characters[character].skills.has(skill_name):
-		return _characters[character].skills[skill_name]
+	if GameState.characters[character].skills.has(skill_name):
+		return GameState.characters[character].skills[skill_name]
 	return 0
 
 func apply_upkeep_cost(cost: int):
@@ -56,8 +54,8 @@ func apply_upkeep_cost(cost: int):
 
 func get_player_save_data() -> Dictionary: # Return proper type
 	# Placeholder. Should be in _characters dictionary
-	_characters["player"] = {}
-	return _characters["player"].duplicate(true)
+	GameState.characters["player"] = {}
+	return GameState.characters["player"].duplicate(true)
 
 func load_player_save_data(data: Dictionary): # Return proper type
-	_characters["player"] = data
+	GameState.characters["player"] = data

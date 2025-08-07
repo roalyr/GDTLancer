@@ -161,8 +161,10 @@
 │   ├── Constants.gd
 │   ├── CoreMechanicsAPI.gd
 │   ├── EventBus.gd
+│   ├── GameState.gd
 │   ├── GameStateManager.gd
-│   └── GlobalRefs.gd
+│   ├── GlobalRefs.gd
+│   └── TemplateDatabase.gd
 ├── core
 │   ├── agents
 │   │   ├── agent.gd
@@ -235,6 +237,8 @@
 │   │   └── orbit_camera.tscn
 │   ├── game_world
 │   │   ├── main_game_scene.tscn
+│   │   ├── world_manager
+│   │   │   └── template_indexer.gd
 │   │   └── world_manager.gd
 │   ├── main_menu
 │   │   ├── main_menu.tscn
@@ -278,6 +282,6 @@
         ├── signal_catcher.gd
         └── test_agent_body.gd
 
-56 directories, 223 files
+57 directories, 226 files
 
-56 directories, 223 files
+57 directories, 226 files
