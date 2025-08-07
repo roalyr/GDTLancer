@@ -1,12 +1,8 @@
 # File: core/systems/time_system.gd
 # Purpose: Manages the passage of abstract game time (TU) and triggers world events.
-# Version: 1.2 - Moved current_tu to GameState and constant to Constants.
+# Version: 2.0 - Refactored to be stateless and correctly apply player upkeep.
 
 extends Node
-
-# --- System References ---
-var _character_system: Node = null
-
 
 func _ready():
 	GlobalRefs.set_time_system(self)
@@ -39,6 +35,8 @@ func _trigger_world_event_tick():
 	if EventBus:
 		EventBus.emit_signal("world_event_tick_triggered", Constants.TIME_CLOCK_MAX_TU)
 
-	# 3. Call the Character System to apply the WP Upkeep cost for every character in the game.
-	if is_instance_valid(_character_system):
-		_character_system.apply_upkeep_cost()
+	# 3. Call the Character System to apply the WP Upkeep cost for the player character.
+	if is_instance_valid(GlobalRefs.character_system):
+		var player_uid = GlobalRefs.character_system.get_player_character_uid()
+		if player_uid != -1:
+			GlobalRefs.character_system.apply_upkeep_cost(player_uid, Constants.DEFAULT_UPKEEP_COST)

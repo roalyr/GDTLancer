@@ -1,78 +1,78 @@
 # File: tests/core/systems/test_asset_system.gd
-# GUT Test for AssetSystem
-# Version: 1.3 - Mocks the Constants autoload for stable loading
+# GUT Test for the stateless AssetSystem.
+# Version: 2.1 - Corrected dependency mocking.
 
-extends "res://addons/gut/test.gd"
+extends GutTest
 
 # --- Test Subjects ---
-# Declare as null. We will load them AFTER setting up the mock dependency.
-var AssetSystem = null
-var ShipAsset = null
-var ShipAgentData = null
+const AssetSystem = preload("res://core/systems/asset_system.gd")
+const CharacterSystem = preload("res://core/systems/character_system.gd") # To create a double
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
+const ShipTemplate = preload("res://core/resource/asset_ship_template.gd")
 
 # --- Test State ---
-var asset_system_inst
-var test_ship_asset
-var mock_constants # To hold our fake autoload
-
-# This runs ONCE before any tests. It's our setup phase.
-func before_all():
-	# --- THE FIX: Create and inject a fake Constants node ---
-	mock_constants = Node.new()
-	# Add the properties that agent_template.gd needs to parse successfully.
-	# The actual values don't matter, only that they exist.
-	mock_constants.set("DEFAULT_MAX_MOVE_SPEED", 0.0)
-	mock_constants.set("DEFAULT_ACCELERATION", 0.0)
-	mock_constants.set("DEFAULT_DECELERATION", 0.0)
-	mock_constants.set("DEFAULT_MAX_TURN_SPEED", 0.0)
-
-	# Add the mock to the scene tree and give it the global name.
-	get_tree().get_root().add_child(mock_constants)
-	mock_constants.set_name("Constants")
-
-	# --- Load Game Scripts ---
-	# Now that "Constants" exists in the tree, these load operations will succeed.
-	AssetSystem = load("res://core/systems/asset_system.gd")
-	ShipAsset = load("res://core/resource/ship_asset.gd")
-	ShipAgentData = load("res://core/resource/ship_agent_data.gd")
-
-# This runs after all tests are done. It's our cleanup phase.
-func after_all():
-	if is_instance_valid(mock_constants):
-		mock_constants.free()
+var asset_system_instance = null
+var mock_character_system = null
+const PLAYER_UID = 0
+const SHIP_UID = 100
 
 func before_each():
-	# This line will now work because ShipAgentData loaded correctly.
-	var test_template = ShipAgentData.new()
-	test_template.ship_class_name = "Test Freighter"
-	test_template.base_cargo_capacity = 100
-	test_template.base_hull_integrity = 150
+	# 1. Clean the global state
+	GameState.characters.clear()
+	GameState.assets_ships.clear()
+	GameState.player_character_uid = -1
 
-	test_ship_asset = ShipAsset.new()
-	test_ship_asset.template = test_template
-	test_ship_asset.ship_name = "My Test Ship"
-	test_ship_asset.current_hull_integrity = 88
+	# 2. Create a mock CharacterSystem and stub its methods
+	mock_character_system = double(CharacterSystem).new()
+	add_child_autofree(mock_character_system)
 
-	asset_system_inst = AssetSystem.new()
-	add_child(asset_system_inst)
-	asset_system_inst.initialize_player_ship(test_ship_asset)
+	var player_char = CharacterTemplate.new()
+	player_char.active_ship_uid = SHIP_UID # Link character to the ship
+	stub(mock_character_system, "get_player_character").to_return(player_char)
+	
+	# 3. Set the mock system in GlobalRefs so AssetSystem can find it
+	GlobalRefs.character_system = mock_character_system
+
+	# 4. Create and register a mock ship asset directly in GameState
+	var ship_asset = ShipTemplate.new()
+	ship_asset.ship_model_name = "Test Vessel"
+	GameState.assets_ships[SHIP_UID] = ship_asset
+
+	# 5. Instantiate the system we are testing
+	asset_system_instance = AssetSystem.new()
+	add_child_autofree(asset_system_instance)
 
 func after_each():
-	if is_instance_valid(asset_system_inst):
-		asset_system_inst.free()
+	# Clean up global state to ensure test isolation
+	GameState.characters.clear()
+	GameState.assets_ships.clear()
+	GameState.player_character_uid = -1
+	GlobalRefs.character_system = null
+	asset_system_instance = null
 
+# --- Test Cases ---
 
-# --- Tests (Unchanged) ---
+func test_get_ship_by_uid():
+	var ship = asset_system_instance.get_ship(SHIP_UID)
+	assert_not_null(ship, "Should return a valid ship object for a valid UID.")
+	assert_eq(ship.ship_model_name, "Test Vessel", "Should return the correct ship instance from GameState.")
 
-func test_initialization_successful():
-	assert_not_null(asset_system_inst, "AssetSystem should be instantiated.")
-	var internal_asset = asset_system_inst.get("_player_ship_asset")
-	assert_eq(internal_asset.ship_name, "My Test Ship", "System should hold the correct ship asset.")
+	var non_existent_ship = asset_system_instance.get_ship(999)
+	assert_null(non_existent_ship, "Should return null for a non-existent UID.")
 
-func test_get_stat_from_instance():
-	var hull = asset_system_inst.get_player_ship_stat("current_hull_integrity")
-	assert_eq(hull, 88, "Should return the instance-specific value for 'current_hull_integrity'.")
+func test_get_player_ship():
+	var player_ship = asset_system_instance.get_player_ship()
+	assert_not_null(player_ship, "Should find the player's active ship.")
+	assert_eq(player_ship, GameState.assets_ships[SHIP_UID], "Should return the correct ship linked to the player.")
 
-func test_get_stat_from_template():
-	var capacity = asset_system_inst.get_player_ship_stat("cargo_capacity")
-	assert_eq(capacity, 100, "Should fall back to the template and return 'base_cargo_capacity'.")
+func test_get_player_ship_returns_null_if_no_player():
+	stub(mock_character_system, "get_player_character").to_return(null) # Simulate no player
+	var player_ship = asset_system_instance.get_player_ship()
+	assert_null(player_ship, "Should return null if there is no player character.")
+
+func test_get_player_ship_returns_null_if_no_ship_assigned():
+	var player_char_no_ship = CharacterTemplate.new()
+	player_char_no_ship.active_ship_uid = -1 # Simulate no assigned ship
+	stub(mock_character_system, "get_player_character").to_return(player_char_no_ship)
+	var player_ship = asset_system_instance.get_player_ship()
+	assert_null(player_ship, "Should return null if the player has no active ship assigned.")

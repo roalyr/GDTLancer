@@ -41,6 +41,7 @@ const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 # --- Core Mechanics Parameters ---
 const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
+const DEFAULT_UPKEEP_COST = 5
 
 # --- Default Simulation Values ---
 const DEFAULT_MAX_MOVE_SPEED = 300.0

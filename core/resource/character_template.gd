@@ -11,6 +11,7 @@ export var faction_id: String = "faction_default" # Affiliation
 
 export var wealth_points: int = 0
 export var focus_points: int = 0
+var active_ship_uid: int = -1
 
 export var skills: Dictionary = {
 	"piloting": 1,
@@ -24,7 +25,5 @@ export var reputation: int = 0
 export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
 export var character_standings: Dictionary = {} # For relationships
 
-# Initiate those by agent spawner sub-system (TBD)
-var _inventory_ships: Dictionary = {}
-var _inventory_modules: Dictionary = {}
-var _inventory_commodities: Dictionary = {}
+export var inventory_modules: Dictionary = {}
+export var inventory_commodities: Dictionary = {}

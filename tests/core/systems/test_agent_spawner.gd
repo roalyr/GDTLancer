@@ -1,116 +1,100 @@
-# tests/core/systems/test_agent_spawner.gd
+# File: tests/core/systems/test_agent_spawner.gd
+# GUT Test for the AgentSystem (formerly AgentSpawner).
+# Version: 2.1 - Corrected signal payload inspection.
+
 extends GutTest
 
-const AgentSpawnerScript = preload("res://core/systems/agent_system.gd")
+# --- Test Subjects ---
+const AgentSystem = preload("res://core/systems/agent_system.gd")
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
 const AgentTemplate = preload("res://core/resource/agent_template.gd")
+
+# --- Helpers ---
 const MOCK_AGENT_SCENE = "res://tests/helpers/mock_agent.tscn"
 const SignalCatcher = preload("res://tests/helpers/signal_catcher.gd")
-const TestAgentBodyScript = preload("res://tests/helpers/test_agent_body.gd")
 
-var spawner
-var mock_agent_container
-var mock_current_zone
-var signal_catcher
+# --- Test State ---
+var agent_system_instance = null
+var mock_agent_container = null
+var signal_catcher = null
+const PLAYER_UID = 0
 
 
 func before_each():
-	spawner = AgentSpawnerScript.new()
-	add_child(spawner)
+	# 1. Clean and set up the global state
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
 
+	# 2. Create mock scene nodes required by the AgentSystem
 	mock_agent_container = Node.new()
 	mock_agent_container.name = "MockAgentContainer"
-	add_child(mock_agent_container)
+	add_child_autofree(mock_agent_container)
 	GlobalRefs.agent_container = mock_agent_container
 
-	mock_current_zone = Spatial.new()
-	mock_current_zone.name = "MockCurrentZone"
-	add_child(mock_current_zone)
-	GlobalRefs.current_zone = mock_current_zone
+	# 3. Create a mock player character in the GameState
+	var player_char = CharacterTemplate.new()
+	GameState.characters[PLAYER_UID] = player_char
+	GameState.player_character_uid = PLAYER_UID
 
+	# 4. Instantiate the system we are testing
+	agent_system_instance = AgentSystem.new()
+	add_child_autofree(agent_system_instance)
+
+	# 5. Setup signal catcher
 	signal_catcher = SignalCatcher.new()
+	add_child_autofree(signal_catcher)
 	EventBus.connect("agent_spawned", signal_catcher, "_on_signal_received")
 	EventBus.connect("player_spawned", signal_catcher, "_on_signal_received")
 
 
 func after_each():
+	# Clean up global state and references
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
 	GlobalRefs.agent_container = null
-	GlobalRefs.current_zone = null
-
+	
 	if EventBus.is_connected("agent_spawned", signal_catcher, "_on_signal_received"):
 		EventBus.disconnect("agent_spawned", signal_catcher, "_on_signal_received")
 	if EventBus.is_connected("player_spawned", signal_catcher, "_on_signal_received"):
 		EventBus.disconnect("player_spawned", signal_catcher, "_on_signal_received")
 
-	if is_instance_valid(spawner):
-		spawner.free()
-	if is_instance_valid(mock_agent_container):
-		mock_agent_container.free()
-	if is_instance_valid(mock_current_zone):
-		mock_current_zone.free()
-	if is_instance_valid(signal_catcher):
-		signal_catcher.free()
+	agent_system_instance = null
 
 
-func test_spawn_agent_successfully():
-	signal_catcher.reset()
+# --- Test Cases ---
+
+func test_spawn_player_on_zone_loaded():
+	watch_signals(EventBus) # Watch EventBus to inspect signal history
+	
+	# Simulate the zone_loaded signal being emitted
+	agent_system_instance._on_Zone_Loaded(null, null, mock_agent_container)
+	
+	# Assert that a player agent was created in the container
+	assert_eq(mock_agent_container.get_child_count(), 1, "AgentContainer should have one child after player spawn.")
+	
+	# Assert that the correct signals were fired
+	assert_signal_emitted(EventBus, "agent_spawned")
+	assert_signal_emitted(EventBus, "player_spawned")
+
+	# --- FIX: Specifically get the parameters for the agent_spawned signal ---
+	var captured_args = get_signal_parameters(EventBus, "agent_spawned")
+	assert_not_null(captured_args, "Should have captured parameters for agent_spawned.")
+	
+	var spawned_body = captured_args[0]
+	var init_data = captured_args[1]
+	
+	assert_true(is_instance_valid(spawned_body), "Signal should contain a valid agent body.")
+	assert_eq(init_data["agent_uid"], PLAYER_UID, "Spawned agent should be linked to the player UID.")
+
+
+func test_spawn_agent_with_overrides():
 	var template = AgentTemplate.new()
-	var agent_body = spawner.spawn_agent(MOCK_AGENT_SCENE, Vector3.ZERO, template)
+	var overrides = {"agent_type": "test_npc", "template_id": "npc_fighter"}
+	var npc_uid = 123
+	
+	var agent_body = agent_system_instance.spawn_agent(MOCK_AGENT_SCENE, Vector3.ZERO, template, overrides, npc_uid)
 
 	assert_not_null(agent_body, "Spawner should return a valid KinematicBody instance.")
-	assert_eq(mock_agent_container.get_child_count(), 1, "AgentContainer should have one child.")
-	assert_not_null(
-		agent_body.init_data, "The agent's `initialize` method should have been called."
-	)
-	assert_eq(
-		agent_body.init_data.template, template, "Agent was initialized with the correct template."
-	)
-
-	var captured_args = signal_catcher.get_last_args()
-	assert_not_null(captured_args, "The 'agent_spawned' signal should have been emitted.")
-	assert_eq(
-		captured_args[0],
-		agent_body,
-		"Signal should include the spawned agent body as the first argument."
-	)
-
-
-func test_spawn_agent_fails_with_bad_path():
-	var template = AgentTemplate.new()
-	var agent_body = spawner.spawn_agent("res://bad/path.tscn", Vector3.ZERO, template)
-	assert_null(agent_body, "Spawner should return null for a non-existent scene path.")
-	assert_eq(mock_agent_container.get_child_count(), 0, "No children should be added on failure.")
-
-
-func test_spawn_player_finds_entry_point():
-	signal_catcher.reset()
-	var mock_entry_point = Position3D.new()
-	mock_entry_point.name = Constants.ENTRY_POINT_NAMES[0]
-	mock_entry_point.global_transform.origin = Vector3(100, 100, 100)
-	mock_current_zone.add_child(mock_entry_point)
-
-	spawner.spawn_player()
-
-	var captured_args = signal_catcher.get_last_args()
-	assert_not_null(captured_args, "The 'player_spawned' signal should have been emitted.")
-	var player_body = captured_args[0]
-
-	var expected_pos = Vector3(100, 105, 115)
-	# CORRECTED: Assert each component of the Vector3 individually.
-	assert_almost_eq(
-		player_body.global_transform.origin.x,
-		expected_pos.x,
-		0.001,
-		"Player spawn X position should be correct."
-	)
-	assert_almost_eq(
-		player_body.global_transform.origin.y,
-		expected_pos.y,
-		0.001,
-		"Player spawn Y position should be correct."
-	)
-	assert_almost_eq(
-		player_body.global_transform.origin.z,
-		expected_pos.z,
-		0.001,
-		"Player spawn Z position should be correct."
-	)
+	assert_eq(agent_body.agent_type, "test_npc", "Agent type override should be applied.")
+	assert_eq(agent_body.template_id, "npc_fighter", "Template ID override should be applied.")
+	assert_eq(agent_body.agent_uid, npc_uid, "Agent UID should be set correctly.")

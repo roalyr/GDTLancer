@@ -47,7 +47,7 @@ func request_action(
 	print(
 		(
 			"ActionSystem: Queued action '%s' for %s (Approach: %s)"
-			% [action_template.action_name, character_instance.name, approach_str]
+			% [action_template.action_name, character_instance.character_name, approach_str]
 		)
 	)
 

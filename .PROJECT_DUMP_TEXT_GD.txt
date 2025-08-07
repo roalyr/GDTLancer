@@ -13133,6 +13133,7 @@ const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 # --- Core Mechanics Parameters ---
 const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
+const DEFAULT_UPKEEP_COST = 5
 
 # --- Default Simulation Values ---
 const DEFAULT_MAX_MOVE_SPEED = 300.0
@@ -13342,7 +13343,7 @@ var active_actions: Dictionary = {}
 
 var assets_ships: Dictionary = {}
 var assets_modules: Dictionary = {}
-var assets_commodieties: Dictionary = {}
+var assets_commodities: Dictionary = {}
 
 var inventories_ships: Dictionary = {}
 var inventories_modules: Dictionary = {}
@@ -14900,6 +14901,7 @@ export var faction_id: String = "faction_default" # Affiliation
 
 export var wealth_points: int = 0
 export var focus_points: int = 0
+var active_ship_uid: int = -1
 
 export var skills: Dictionary = {
 	"piloting": 1,
@@ -14913,10 +14915,8 @@ export var reputation: int = 0
 export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
 export var character_standings: Dictionary = {} # For relationships
 
-# Initiate those by agent spawner sub-system (TBD)
-var _inventory_ships: Dictionary = {}
-var _inventory_modules: Dictionary = {}
-var _inventory_commodities: Dictionary = {}
+export var inventory_modules: Dictionary = {}
+export var inventory_commodities: Dictionary = {}
 
 --- Start of ./core/resource/template.gd ---
 
@@ -14980,7 +14980,7 @@ func request_action(
 	print(
 		(
 			"ActionSystem: Queued action '%s' for %s (Approach: %s)"
-			% [action_template.action_name, character_instance.name, approach_str]
+			% [action_template.action_name, character_instance.character_name, approach_str]
 		)
 	)
 
@@ -15166,25 +15166,31 @@ func spawn_agent(
 --- Start of ./core/systems/asset_system.gd ---
 
 # File: core/systems/asset_system.gd
-# Purpose: Manages dictionaries of different asset types globally (unique instances).
-# Version: 2.0 - Reworked to match new templates.
+# Purpose: Provides a logical API for accessing asset data stored in GameState.
+# This system is STATELESS. All data is read from the GameState autoload.
+# Version: 3.0 - Refactored to be stateless.
 
 extends Node
-
-var _asset_ship_template: ShipTemplate = null
-var _asset_module_template: ModuleTemplate = null
-var _asset_commodity_template: CommodityTemplate = null
-
 
 func _ready():
 	GlobalRefs.set_asset_system(self)
 	print("AssetSystem Ready.")
 
+# --- Public API ---
 
-# Functionality is TBD. 
-# This system has to manage dictionaries of assets of different types, each
-# instance of thereof should have its UID, template and data overrides (for unique ships
-# or modules / commodities (if needed)).
+func get_ship(ship_uid: int) -> ShipTemplate:
+	return GameState.assets_ships.get(ship_uid)
+
+# Convenience function to get the player's currently active ship.
+func get_player_ship() -> ShipTemplate:
+	var player_char = GlobalRefs.character_system.get_player_character()
+	if not is_instance_valid(player_char):
+		return null
+
+	if player_char.active_ship_uid != -1:
+		return get_ship(player_char.active_ship_uid)
+
+	return null
 
 --- Start of ./core/systems/character_system.gd ---
 
@@ -15287,20 +15293,68 @@ func _ready():
 --- Start of ./core/systems/inventory_system.gd ---
 
 # File: core/systems/inventory_system.gd
-# Purpose: Manages a global dictionary of inventories by type of asset.
-# Version: 2.0 - Reworked to match new templates.
+# Purpose: Provides a logical API for manipulating character inventories in GameState.
+# This system is STATELESS.
+# Version: 3.0 - Refactored for new asset types.
 
 extends Node
 
-
 func _ready():
-	GlobalRefs.set_asset_system(self)
-	print("AssetSystem Ready.")
+	GlobalRefs.set_inventory_system(self)
+	print("InventorySystem Ready.")
 
+# --- Public API for Commodities ---
 
-# Functionality is TBD. 
-# This system has to manage dictionaries of inventories of assets of different types, each
-# instance of thereof should have its inventory UID, and should be linked to a character (not agent).
+func add_commodity(character_uid: int, commodity_template_id: String, quantity: int):
+	if not GameState.characters.has(character_uid):
+		printerr("InventorySystem: Character UID not found: ", character_uid)
+		return
+
+	var character = GameState.characters[character_uid]
+	if character.inventory_commodities.has(commodity_template_id):
+		character.inventory_commodities[commodity_template_id] += quantity
+	else:
+		character.inventory_commodities[commodity_template_id] = quantity
+
+func remove_commodity(character_uid: int, commodity_template_id: String, quantity: int) -> bool:
+	if not GameState.characters.has(character_uid):
+		return false
+
+	var character = GameState.characters[character_uid]
+	if character.inventory_commodities.has(commodity_template_id):
+		var current_amount = character.inventory_commodities[commodity_template_id]
+		if quantity > current_amount:
+			return false # Cannot remove more than they have
+
+		character.inventory_commodities[commodity_template_id] -= quantity
+		if character.inventory_commodities[commodity_template_id] <= 0:
+			character.inventory_commodities.erase(commodity_template_id)
+		return true
+	return false # Did not have any of that commodity
+
+func get_commodity_count(character_uid: int, commodity_template_id: String) -> int:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].inventory_commodities.get(commodity_template_id, 0)
+	return 0
+
+# --- Public API for Modules ---
+
+func add_module(character_uid: int, module_uid: int):
+	if not GameState.characters.has(character_uid) or not GameState.assets_modules.has(module_uid):
+		return
+
+	var character = GameState.characters[character_uid]
+	var module_instance = GameState.assets_modules[module_uid]
+	character.inventory_modules[module_uid] = module_instance
+
+func remove_module(character_uid: int, module_uid: int):
+	if GameState.characters.has(character_uid):
+		GameState.characters[character_uid].inventory_modules.erase(module_uid)
+
+func get_character_modules(character_uid: int) -> Dictionary:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].inventory_modules.duplicate(true)
+	return {}
 
 --- Start of ./core/systems/progression_system.gd ---
 
@@ -15314,13 +15368,9 @@ func _ready():
 
 # File: core/systems/time_system.gd
 # Purpose: Manages the passage of abstract game time (TU) and triggers world events.
-# Version: 1.2 - Moved current_tu to GameState and constant to Constants.
+# Version: 2.0 - Refactored to be stateless and correctly apply player upkeep.
 
 extends Node
-
-# --- System References ---
-var _character_system: Node = null
-
 
 func _ready():
 	GlobalRefs.set_time_system(self)
@@ -15353,9 +15403,11 @@ func _trigger_world_event_tick():
 	if EventBus:
 		EventBus.emit_signal("world_event_tick_triggered", Constants.TIME_CLOCK_MAX_TU)
 
-	# 3. Call the Character System to apply the WP Upkeep cost for every character in the game.
-	if is_instance_valid(_character_system):
-		_character_system.apply_upkeep_cost()
+	# 3. Call the Character System to apply the WP Upkeep cost for the player character.
+	if is_instance_valid(GlobalRefs.character_system):
+		var player_uid = GlobalRefs.character_system.get_player_character_uid()
+		if player_uid != -1:
+			GlobalRefs.character_system.apply_upkeep_cost(player_uid, Constants.DEFAULT_UPKEEP_COST)
 
 --- Start of ./core/systems/traffic_system.gd ---
 
@@ -17143,6 +17195,9 @@ func _register_template(template: Template):
 extends Node
 
 var _next_character_uid: int = 0
+var _next_ship_uid: int = 0
+var _next_module_uid: int = 0
+var _next_commodity_uid: int = 0
 
 # --- Public API ---
 
@@ -17156,11 +17211,7 @@ func generate_new_world():
 		var template = TemplateDatabase.characters[template_id]
 		_create_character_from_template(template)
 
-	# TODO: This is where we would generate starting assets, inventories,
-	# faction standings, etc., and populate the GameState object.
-	# For example:
-	# _generate_starting_assets()
-	# _assign_assets_to_characters()
+	_generate_and_assign_assets()
 
 	print("WorldGenerator: New world state generated.")
 
@@ -17189,6 +17240,77 @@ func _create_character_from_template(template: CharacterTemplate):
 func _get_new_character_uid() -> int:
 	var id = _next_character_uid
 	_next_character_uid += 1
+	return id
+	
+# This should be called from generate_new_world() after characters are created.
+func _generate_and_assign_assets():
+	print("WorldGenerator: Generating and assigning starting assets...")
+	for char_uid in GameState.characters:
+		var character = GameState.characters[char_uid]
+		# For now, every character gets a default ship.
+		# A more complex generator could use faction_id or character_name to decide.
+		_create_and_assign_ship(character, "ship_default")
+		_create_and_assign_modules(character)
+		_create_and_assign_commodities(character)
+
+# Creates a unique instance of a ship and assigns it to a character.
+func _create_and_assign_ship(character: CharacterTemplate, ship_template_id: String):
+	if not TemplateDatabase.assets_ships.has(ship_template_id):
+		printerr("WorldGenerator Error: Cannot find ship template with id: ", ship_template_id)
+		return
+
+	var template = TemplateDatabase.assets_ships[ship_template_id]
+	var new_ship_instance = template.duplicate()
+	var uid = _get_new_ship_uid()
+
+	# Add the unique ship instance to the global state.
+	GameState.assets_ships[uid] = new_ship_instance
+
+	# Link the character to their new ship.
+	# NOTE: We need to add `active_ship_uid` to character_template.gd
+	character.active_ship_uid = uid
+	print("... Assigned ship (UID: %d) to character %s" % [uid, character.character_name])
+
+
+func _get_new_ship_uid() -> int:
+	var id = _next_ship_uid
+	_next_ship_uid += 1
+	return id
+
+func _create_and_assign_modules(character: CharacterTemplate):
+	# For now, every character gets one default module.
+	var template = TemplateDatabase.assets_modules["module_default"]
+	var new_module_instance = template.duplicate()
+	var uid = _get_new_module_uid()
+
+	GameState.assets_modules[uid] = new_module_instance
+	# NOTE: We need to add `inventory_modules` to character_template.gd
+	character.inventory_modules[uid] = new_module_instance # Store the instance directly for now
+	print("... Assigned module (UID: %d) to character %s" % [uid, character.character_name])
+
+
+func _create_and_assign_commodities(character: CharacterTemplate):
+	# For now, every character gets 10 units of the default commodity.
+	var template = TemplateDatabase.assets_commodities["commodity_default"]
+	var new_commodity_instance = template.duplicate()
+	var uid = _get_new_commodity_uid()
+
+	GameState.assets_commodities[uid] = new_commodity_instance
+	# NOTE: We need to add `inventory_commodities` to character_template.gd
+	# We store the quantity against the template_id, as commodities are fungible.
+	character.inventory_commodities[template.template_id] = 10
+	print("... Assigned 10 units of %s to character %s" % [template.template_id, character.character_name])
+
+
+func _get_new_module_uid() -> int:
+	var id = _next_module_uid
+	_next_module_uid += 1
+	return id
+
+
+func _get_new_commodity_uid() -> int:
+	var id = _next_commodity_uid
+	_next_commodity_uid += 1
 	return id
 
 --- Start of ./scenes/main_menu/SettingsRendering.gd ---
@@ -18084,489 +18206,560 @@ func test_invalid_target_in_update_switches_to_stopping():
 --- Start of ./tests/core/systems/test_action_system.gd ---
 
 # File: tests/core/systems/test_action_system.gd
-# Version: 2.3 - Validates action check integration.
+# GUT Test for the stateless ActionSystem.
+# Version: 3.0 - Rewritten for GameState architecture.
 
 extends GutTest
 
-var ActionSystem = load("res://core/systems/action_system.gd")
+# --- Test Subjects ---
+const ActionSystem = preload("res://core/systems/action_system.gd")
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
+const ActionTemplate = preload("res://core/resource/action_template.gd")
+
+# --- Test State ---
 var action_system_instance = null
-var mock_action_resource = load("res://tests/data/test_action.tres")
-const TICK_TU_VALUE = 100
+var mock_character: CharacterTemplate = null
+var mock_action: ActionTemplate = null
+const PLAYER_UID = 0
 
 
 func before_each():
+	# 1. Clean the global state
+	GameState.characters.clear()
+	GameState.active_actions.clear()
+	GameState.player_character_uid = -1
+
+	# 2. Create mock character and action data
+	mock_character = CharacterTemplate.new()
+	mock_character.character_name = "Test Character"
+	GameState.characters[PLAYER_UID] = mock_character
+	GameState.player_character_uid = PLAYER_UID
+
+	mock_action = ActionTemplate.new()
+	mock_action.action_name = "Test Action"
+	mock_action.tu_cost = 5
+
+	# 3. Instantiate the system we are testing
 	action_system_instance = ActionSystem.new()
 	add_child_autofree(action_system_instance)
-	assert_not_null(mock_action_resource)
-	assert_not_null(EventBus)
+	# Manually call _ready to connect signals for the test
+	action_system_instance._ready()
 
 
 func after_each():
+	GameState.characters.clear()
+	GameState.active_actions.clear()
+	GameState.player_character_uid = -1
 	action_system_instance = null
 
 
-func test_request_action_requires_approach():
-	var mock_character = Node.new()
-	add_child_autofree(mock_character)
+# --- Test Cases ---
+
+func test_request_action_populates_game_state():
+	assert_eq(GameState.active_actions.size(), 0, "Active actions should be empty initially.")
 
 	var result = action_system_instance.request_action(
-		mock_character, mock_action_resource, Constants.ActionApproach.CAUTIOUS
+		mock_character, mock_action, Constants.ActionApproach.CAUTIOUS
 	)
-	assert_true(result)
-	assert_eq(action_system_instance._active_actions.size(), 1)
 
-	var action_data = action_system_instance._active_actions.values()[0]
-	assert_eq(action_data.action_approach, Constants.ActionApproach.CAUTIOUS)
+	assert_true(result, "request_action should return true on success.")
+	assert_eq(GameState.active_actions.size(), 1, "There should be one active action in GameState.")
+
+	var action_data = GameState.active_actions.values()[0]
+	assert_eq(action_data.character_instance, mock_character, "Action data should store the correct character.")
+	assert_eq(action_data.action_template, mock_action, "Action data should store the correct action template.")
 
 
-func test_action_completion_emits_signal_with_payload():
-	var mock_character = Node.new()
-	add_child_autofree(mock_character)
-
-	# Watch the ActionSystem instance itself for the new signal.
-	watch_signals(action_system_instance)
-
+func test_action_progresses_on_world_tick():
 	action_system_instance.request_action(
-		mock_character, mock_action_resource, Constants.ActionApproach.RISKY
+		mock_character, mock_action, Constants.ActionApproach.CAUTIOUS
 	)
+	var action_id = GameState.active_actions.keys()[0]
 
-	# Simulate a world tick to complete the action.
-	EventBus.emit_signal("world_event_tick_triggered", TICK_TU_VALUE)
+	# Simulate a world tick that does NOT complete the action
+	EventBus.emit_signal("world_event_tick_triggered", 2) # 2 TU passed
 
-	assert_signal_emitted(action_system_instance, "action_completed")
+	assert_eq(GameState.active_actions[action_id].tu_progress, 2, "Action progress should be 2 TU.")
 
-	# Check the payload of the emitted signal.
-	var payload = get_signal_parameters(action_system_instance, "action_completed")[2]
-	assert_not_null(payload)
-	assert_has(payload, "result_tier")
-	assert_has(payload, "roll_total")
+
+func test_action_completes_and_emits_signal():
+	watch_signals(action_system_instance)
+	action_system_instance.request_action(
+		mock_character, mock_action, Constants.ActionApproach.RISKY
+	)
+	assert_eq(GameState.active_actions.size(), 1, "Pre-check: Action should be queued.")
+
+	# Simulate a world tick that completes the action (action costs 5 TU)
+	EventBus.emit_signal("world_event_tick_triggered", 10)
+
+	assert_signal_emitted(action_system_instance, "action_completed", "action_completed signal should be emitted.")
+	assert_eq(GameState.active_actions.size(), 0, "Action should be removed from GameState after completion.")
+
+	# Verify the signal payload
+	var params = get_signal_parameters(action_system_instance, "action_completed")
+	assert_eq(params[0], mock_character, "Payload should contain the correct character.")
+	assert_eq(params[1], mock_action, "Payload should contain the correct action template.")
+	assert_has(params[2], "result_tier", "Payload should contain the result dictionary.")
 
 --- Start of ./tests/core/systems/test_agent_spawner.gd ---
 
-# tests/core/systems/test_agent_spawner.gd
+# File: tests/core/systems/test_agent_spawner.gd
+# GUT Test for the AgentSystem (formerly AgentSpawner).
+# Version: 2.1 - Corrected signal payload inspection.
+
 extends GutTest
 
-const AgentSpawnerScript = preload("res://core/systems/agent_system.gd")
+# --- Test Subjects ---
+const AgentSystem = preload("res://core/systems/agent_system.gd")
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
 const AgentTemplate = preload("res://core/resource/agent_template.gd")
+
+# --- Helpers ---
 const MOCK_AGENT_SCENE = "res://tests/helpers/mock_agent.tscn"
 const SignalCatcher = preload("res://tests/helpers/signal_catcher.gd")
-const TestAgentBodyScript = preload("res://tests/helpers/test_agent_body.gd")
 
-var spawner
-var mock_agent_container
-var mock_current_zone
-var signal_catcher
+# --- Test State ---
+var agent_system_instance = null
+var mock_agent_container = null
+var signal_catcher = null
+const PLAYER_UID = 0
 
 
 func before_each():
-	spawner = AgentSpawnerScript.new()
-	add_child(spawner)
+	# 1. Clean and set up the global state
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
 
+	# 2. Create mock scene nodes required by the AgentSystem
 	mock_agent_container = Node.new()
 	mock_agent_container.name = "MockAgentContainer"
-	add_child(mock_agent_container)
+	add_child_autofree(mock_agent_container)
 	GlobalRefs.agent_container = mock_agent_container
 
-	mock_current_zone = Spatial.new()
-	mock_current_zone.name = "MockCurrentZone"
-	add_child(mock_current_zone)
-	GlobalRefs.current_zone = mock_current_zone
+	# 3. Create a mock player character in the GameState
+	var player_char = CharacterTemplate.new()
+	GameState.characters[PLAYER_UID] = player_char
+	GameState.player_character_uid = PLAYER_UID
 
+	# 4. Instantiate the system we are testing
+	agent_system_instance = AgentSystem.new()
+	add_child_autofree(agent_system_instance)
+
+	# 5. Setup signal catcher
 	signal_catcher = SignalCatcher.new()
+	add_child_autofree(signal_catcher)
 	EventBus.connect("agent_spawned", signal_catcher, "_on_signal_received")
 	EventBus.connect("player_spawned", signal_catcher, "_on_signal_received")
 
 
 func after_each():
+	# Clean up global state and references
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
 	GlobalRefs.agent_container = null
-	GlobalRefs.current_zone = null
-
+	
 	if EventBus.is_connected("agent_spawned", signal_catcher, "_on_signal_received"):
 		EventBus.disconnect("agent_spawned", signal_catcher, "_on_signal_received")
 	if EventBus.is_connected("player_spawned", signal_catcher, "_on_signal_received"):
 		EventBus.disconnect("player_spawned", signal_catcher, "_on_signal_received")
 
-	if is_instance_valid(spawner):
-		spawner.free()
-	if is_instance_valid(mock_agent_container):
-		mock_agent_container.free()
-	if is_instance_valid(mock_current_zone):
-		mock_current_zone.free()
-	if is_instance_valid(signal_catcher):
-		signal_catcher.free()
+	agent_system_instance = null
 
 
-func test_spawn_agent_successfully():
-	signal_catcher.reset()
+# --- Test Cases ---
+
+func test_spawn_player_on_zone_loaded():
+	watch_signals(EventBus) # Watch EventBus to inspect signal history
+	
+	# Simulate the zone_loaded signal being emitted
+	agent_system_instance._on_Zone_Loaded(null, null, mock_agent_container)
+	
+	# Assert that a player agent was created in the container
+	assert_eq(mock_agent_container.get_child_count(), 1, "AgentContainer should have one child after player spawn.")
+	
+	# Assert that the correct signals were fired
+	assert_signal_emitted(EventBus, "agent_spawned")
+	assert_signal_emitted(EventBus, "player_spawned")
+
+	# --- FIX: Specifically get the parameters for the agent_spawned signal ---
+	var captured_args = get_signal_parameters(EventBus, "agent_spawned")
+	assert_not_null(captured_args, "Should have captured parameters for agent_spawned.")
+	
+	var spawned_body = captured_args[0]
+	var init_data = captured_args[1]
+	
+	assert_true(is_instance_valid(spawned_body), "Signal should contain a valid agent body.")
+	assert_eq(init_data["agent_uid"], PLAYER_UID, "Spawned agent should be linked to the player UID.")
+
+
+func test_spawn_agent_with_overrides():
 	var template = AgentTemplate.new()
-	var agent_body = spawner.spawn_agent(MOCK_AGENT_SCENE, Vector3.ZERO, template)
+	var overrides = {"agent_type": "test_npc", "template_id": "npc_fighter"}
+	var npc_uid = 123
+	
+	var agent_body = agent_system_instance.spawn_agent(MOCK_AGENT_SCENE, Vector3.ZERO, template, overrides, npc_uid)
 
 	assert_not_null(agent_body, "Spawner should return a valid KinematicBody instance.")
-	assert_eq(mock_agent_container.get_child_count(), 1, "AgentContainer should have one child.")
-	assert_not_null(
-		agent_body.init_data, "The agent's `initialize` method should have been called."
-	)
-	assert_eq(
-		agent_body.init_data.template, template, "Agent was initialized with the correct template."
-	)
-
-	var captured_args = signal_catcher.get_last_args()
-	assert_not_null(captured_args, "The 'agent_spawned' signal should have been emitted.")
-	assert_eq(
-		captured_args[0],
-		agent_body,
-		"Signal should include the spawned agent body as the first argument."
-	)
-
-
-func test_spawn_agent_fails_with_bad_path():
-	var template = AgentTemplate.new()
-	var agent_body = spawner.spawn_agent("res://bad/path.tscn", Vector3.ZERO, template)
-	assert_null(agent_body, "Spawner should return null for a non-existent scene path.")
-	assert_eq(mock_agent_container.get_child_count(), 0, "No children should be added on failure.")
-
-
-func test_spawn_player_finds_entry_point():
-	signal_catcher.reset()
-	var mock_entry_point = Position3D.new()
-	mock_entry_point.name = Constants.ENTRY_POINT_NAMES[0]
-	mock_entry_point.global_transform.origin = Vector3(100, 100, 100)
-	mock_current_zone.add_child(mock_entry_point)
-
-	spawner.spawn_player()
-
-	var captured_args = signal_catcher.get_last_args()
-	assert_not_null(captured_args, "The 'player_spawned' signal should have been emitted.")
-	var player_body = captured_args[0]
-
-	var expected_pos = Vector3(100, 105, 115)
-	# CORRECTED: Assert each component of the Vector3 individually.
-	assert_almost_eq(
-		player_body.global_transform.origin.x,
-		expected_pos.x,
-		0.001,
-		"Player spawn X position should be correct."
-	)
-	assert_almost_eq(
-		player_body.global_transform.origin.y,
-		expected_pos.y,
-		0.001,
-		"Player spawn Y position should be correct."
-	)
-	assert_almost_eq(
-		player_body.global_transform.origin.z,
-		expected_pos.z,
-		0.001,
-		"Player spawn Z position should be correct."
-	)
+	assert_eq(agent_body.agent_type, "test_npc", "Agent type override should be applied.")
+	assert_eq(agent_body.template_id, "npc_fighter", "Template ID override should be applied.")
+	assert_eq(agent_body.agent_uid, npc_uid, "Agent UID should be set correctly.")
 
 --- Start of ./tests/core/systems/test_asset_system.gd ---
 
 # File: tests/core/systems/test_asset_system.gd
-# GUT Test for AssetSystem
-# Version: 1.3 - Mocks the Constants autoload for stable loading
+# GUT Test for the stateless AssetSystem.
+# Version: 2.1 - Corrected dependency mocking.
 
-extends "res://addons/gut/test.gd"
+extends GutTest
 
 # --- Test Subjects ---
-# Declare as null. We will load them AFTER setting up the mock dependency.
-var AssetSystem = null
-var ShipAsset = null
-var ShipAgentData = null
+const AssetSystem = preload("res://core/systems/asset_system.gd")
+const CharacterSystem = preload("res://core/systems/character_system.gd") # To create a double
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
+const ShipTemplate = preload("res://core/resource/asset_ship_template.gd")
 
 # --- Test State ---
-var asset_system_inst
-var test_ship_asset
-var mock_constants # To hold our fake autoload
-
-# This runs ONCE before any tests. It's our setup phase.
-func before_all():
-	# --- THE FIX: Create and inject a fake Constants node ---
-	mock_constants = Node.new()
-	# Add the properties that agent_template.gd needs to parse successfully.
-	# The actual values don't matter, only that they exist.
-	mock_constants.set("DEFAULT_MAX_MOVE_SPEED", 0.0)
-	mock_constants.set("DEFAULT_ACCELERATION", 0.0)
-	mock_constants.set("DEFAULT_DECELERATION", 0.0)
-	mock_constants.set("DEFAULT_MAX_TURN_SPEED", 0.0)
-
-	# Add the mock to the scene tree and give it the global name.
-	get_tree().get_root().add_child(mock_constants)
-	mock_constants.set_name("Constants")
-
-	# --- Load Game Scripts ---
-	# Now that "Constants" exists in the tree, these load operations will succeed.
-	AssetSystem = load("res://core/systems/asset_system.gd")
-	ShipAsset = load("res://core/resource/ship_asset.gd")
-	ShipAgentData = load("res://core/resource/ship_agent_data.gd")
-
-# This runs after all tests are done. It's our cleanup phase.
-func after_all():
-	if is_instance_valid(mock_constants):
-		mock_constants.free()
+var asset_system_instance = null
+var mock_character_system = null
+const PLAYER_UID = 0
+const SHIP_UID = 100
 
 func before_each():
-	# This line will now work because ShipAgentData loaded correctly.
-	var test_template = ShipAgentData.new()
-	test_template.ship_class_name = "Test Freighter"
-	test_template.base_cargo_capacity = 100
-	test_template.base_hull_integrity = 150
+	# 1. Clean the global state
+	GameState.characters.clear()
+	GameState.assets_ships.clear()
+	GameState.player_character_uid = -1
 
-	test_ship_asset = ShipAsset.new()
-	test_ship_asset.template = test_template
-	test_ship_asset.ship_name = "My Test Ship"
-	test_ship_asset.current_hull_integrity = 88
+	# 2. Create a mock CharacterSystem and stub its methods
+	mock_character_system = double(CharacterSystem).new()
+	add_child_autofree(mock_character_system)
 
-	asset_system_inst = AssetSystem.new()
-	add_child(asset_system_inst)
-	asset_system_inst.initialize_player_ship(test_ship_asset)
+	var player_char = CharacterTemplate.new()
+	player_char.active_ship_uid = SHIP_UID # Link character to the ship
+	stub(mock_character_system, "get_player_character").to_return(player_char)
+	
+	# 3. Set the mock system in GlobalRefs so AssetSystem can find it
+	GlobalRefs.character_system = mock_character_system
+
+	# 4. Create and register a mock ship asset directly in GameState
+	var ship_asset = ShipTemplate.new()
+	ship_asset.ship_model_name = "Test Vessel"
+	GameState.assets_ships[SHIP_UID] = ship_asset
+
+	# 5. Instantiate the system we are testing
+	asset_system_instance = AssetSystem.new()
+	add_child_autofree(asset_system_instance)
 
 func after_each():
-	if is_instance_valid(asset_system_inst):
-		asset_system_inst.free()
+	# Clean up global state to ensure test isolation
+	GameState.characters.clear()
+	GameState.assets_ships.clear()
+	GameState.player_character_uid = -1
+	GlobalRefs.character_system = null
+	asset_system_instance = null
 
+# --- Test Cases ---
 
-# --- Tests (Unchanged) ---
+func test_get_ship_by_uid():
+	var ship = asset_system_instance.get_ship(SHIP_UID)
+	assert_not_null(ship, "Should return a valid ship object for a valid UID.")
+	assert_eq(ship.ship_model_name, "Test Vessel", "Should return the correct ship instance from GameState.")
 
-func test_initialization_successful():
-	assert_not_null(asset_system_inst, "AssetSystem should be instantiated.")
-	var internal_asset = asset_system_inst.get("_player_ship_asset")
-	assert_eq(internal_asset.ship_name, "My Test Ship", "System should hold the correct ship asset.")
+	var non_existent_ship = asset_system_instance.get_ship(999)
+	assert_null(non_existent_ship, "Should return null for a non-existent UID.")
 
-func test_get_stat_from_instance():
-	var hull = asset_system_inst.get_player_ship_stat("current_hull_integrity")
-	assert_eq(hull, 88, "Should return the instance-specific value for 'current_hull_integrity'.")
+func test_get_player_ship():
+	var player_ship = asset_system_instance.get_player_ship()
+	assert_not_null(player_ship, "Should find the player's active ship.")
+	assert_eq(player_ship, GameState.assets_ships[SHIP_UID], "Should return the correct ship linked to the player.")
 
-func test_get_stat_from_template():
-	var capacity = asset_system_inst.get_player_ship_stat("cargo_capacity")
-	assert_eq(capacity, 100, "Should fall back to the template and return 'base_cargo_capacity'.")
+func test_get_player_ship_returns_null_if_no_player():
+	stub(mock_character_system, "get_player_character").to_return(null) # Simulate no player
+	var player_ship = asset_system_instance.get_player_ship()
+	assert_null(player_ship, "Should return null if there is no player character.")
+
+func test_get_player_ship_returns_null_if_no_ship_assigned():
+	var player_char_no_ship = CharacterTemplate.new()
+	player_char_no_ship.active_ship_uid = -1 # Simulate no assigned ship
+	stub(mock_character_system, "get_player_character").to_return(player_char_no_ship)
+	var player_ship = asset_system_instance.get_player_ship()
+	assert_null(player_ship, "Should return null if the player has no active ship assigned.")
 
 --- Start of ./tests/core/systems/test_character_system.gd ---
 
 # File: tests/core/systems/test_character_system.gd
-# GUT Test Script for CharacterSystem
-# Version: 1.1
+# GUT Test Script for the stateless CharacterSystem.
+# Version: 2.0 - Rewritten for GameState architecture.
 
 extends GutTest
 
-var CharacterSystem = load("res://core/systems/character_system.gd")
-var character_system_instance = null
+# --- Test Subjects ---
+const CharacterSystem = preload("res://core/systems/character_system.gd")
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
 
+# --- Test State ---
+var character_system_instance = null
+var default_char_template: CharacterTemplate = null
+const PLAYER_UID = 0
+const NPC_UID = 1
+
+
+# Runs before each test. Sets up a clean GameState with known characters.
 func before_each():
+	# 1. Clean the global state
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
+
+	# 2. Load the base template resource
+	default_char_template = load("res://assets/data/characters/character_default.tres")
+	assert_true(is_instance_valid(default_char_template), "Pre-check: Default character template must load.")
+
+	# 3. Create and register a player character instance in GameState
+	var player_char_instance = default_char_template.duplicate()
+	player_char_instance.wealth_points = 100 # Start with some money for tests
+	GameState.characters[PLAYER_UID] = player_char_instance
+	GameState.player_character_uid = PLAYER_UID
+
+	# 4. Create and register an NPC character instance for multi-character tests
+	var npc_char_instance = default_char_template.duplicate()
+	npc_char_instance.character_name = "Test NPC"
+	GameState.characters[NPC_UID] = npc_char_instance
+
+	# 5. Instantiate the system we are testing
 	character_system_instance = CharacterSystem.new()
 	add_child_autofree(character_system_instance)
-	# Assuming GlobalRefs and Constants are autoloads as per project structure
-	GlobalRefs.set_character_system(character_system_instance)
 
+
+# Runs after each test to ensure a clean environment.
 func after_each():
-	character_system_instance = null
-	GlobalRefs.set_character_system(null)
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
+	character_system_instance = null # autofree handles the instance
 
-func test_initial_state():
-	var player_data = character_system_instance.get_player_character()
-	assert_eq(player_data.wealth_points, 0, "Initial WP should be 0.")
-	assert_eq(player_data.focus_points, 0, "Initial FP should be 0.")
-	assert_eq(player_data.skills.piloting, 1, "Initial piloting skill should be 1.")
-	assert_true(player_data.faction_standings.empty(), "Initial faction standings should be empty.")
+
+# --- Test Cases ---
+
+func test_get_player_character():
+	var player_char = character_system_instance.get_player_character()
+	assert_not_null(player_char, "Should return a valid character object for the player.")
+	assert_eq(player_char, GameState.characters[PLAYER_UID], "Should return the correct player character instance from GameState.")
+
 
 func test_wp_management():
-	character_system_instance.add_wp(100)
-	assert_eq(character_system_instance.get_wp(), 100, "WP should be 100 after adding.")
-	character_system_instance.subtract_wp(25)
-	assert_eq(character_system_instance.get_wp(), 75, "WP should be 75 after subtracting.")
+	# Test adding WP
+	character_system_instance.add_wp(PLAYER_UID, 50)
+	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 150, "WP should be 150 after adding 50.")
+
+	# Test subtracting WP
+	character_system_instance.subtract_wp(PLAYER_UID, 25)
+	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 125, "WP should be 125 after subtracting 25.")
+
+	# Test getting WP
+	assert_eq(character_system_instance.get_wp(PLAYER_UID), 125, "get_wp should return the correct value.")
+
 
 func test_fp_management():
-	character_system_instance.add_fp(2)
-	assert_eq(character_system_instance.get_fp(), 2, "FP should be 2 after adding.")
-	character_system_instance.subtract_fp(1)
-	assert_eq(character_system_instance.get_fp(), 1, "FP should be 1 after subtracting.")
-	character_system_instance.add_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Adding more than max
-	assert_eq(character_system_instance.get_fp(), Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
-	character_system_instance.subtract_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Subtracting more than available
-	assert_eq(character_system_instance.get_fp(), 0, "FP should be clamped to 0.")
+	# Test adding FP
+	character_system_instance.add_fp(PLAYER_UID, 2)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, 2, "FP should be 2 after adding.")
+
+	# Test subtracting FP
+	character_system_instance.subtract_fp(PLAYER_UID, 1)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, 1, "FP should be 1 after subtracting.")
+
+	# Test clamping when adding too much
+	character_system_instance.add_fp(PLAYER_UID, Constants.FOCUS_MAX_DEFAULT + 5)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
+
+	# Test clamping when subtracting too much
+	character_system_instance.subtract_fp(PLAYER_UID, Constants.FOCUS_MAX_DEFAULT + 5)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, 0, "FP should be clamped to 0.")
+
 
 func test_skill_retrieval():
-	assert_eq(character_system_instance.get_skill_level("piloting"), 1, "Default piloting skill should be 1.")
-	assert_eq(character_system_instance.get_skill_level("non_existent_skill"), 0, "Non-existent skill should return 0.")
+	var piloting_level = character_system_instance.get_skill_level(PLAYER_UID, "piloting")
+	assert_eq(piloting_level, 1, "Default piloting skill should be 1.")
 
-func test_upkeep_cost():
-	character_system_instance.add_wp(50)
-	character_system_instance.apply_upkeep_cost(10)
-	assert_eq(character_system_instance.get_wp(), 40, "WP should be 40 after upkeep.")
+	var non_existent_skill = character_system_instance.get_skill_level(PLAYER_UID, "basket_weaving")
+	assert_eq(non_existent_skill, 0, "A non-existent skill should return 0.")
 
-func test_save_and_load():
-	# Setup initial data
-	character_system_instance.add_wp(200)
-	character_system_instance.add_fp(3)
-	
-	# Get save data
-	var save_data = character_system_instance.get_player_save_data()
-	
-	# Create a new instance to load into
-	var new_character_system = CharacterSystem.new()
-	add_child_autofree(new_character_system)
-	
-	# Load data and verify
-	new_character_system.load_player_save_data(save_data)
-	assert_eq(new_character_system.get_wp(), 200, "Loaded WP should be 200.")
-	assert_eq(new_character_system.get_fp(), 3, "Loaded FP should be 3.")
-	assert_eq(new_character_system.get_skill_level("tactics"), 1, "Loaded tactics skill should be 1.")
+
+func test_apply_upkeep_cost():
+	var initial_wp = character_system_instance.get_wp(PLAYER_UID)
+	character_system_instance.apply_upkeep_cost(PLAYER_UID, 10)
+	var final_wp = character_system_instance.get_wp(PLAYER_UID)
+	assert_eq(final_wp, initial_wp - 10, "Upkeep cost should correctly subtract WP.")
 
 --- Start of ./tests/core/systems/test_inventory_system.gd ---
 
 # File: tests/core/systems/test_inventory_system.gd
-# GUT Test for InventorySystem using a mocked AssetSystem
-# Version: 1.1 - Corrected for GUT 7.2.0 compatibility
+# GUT Test for the stateless InventorySystem.
+# Version: 2.0 - Rewritten for GameState architecture and new asset types.
 
-extends "res://addons/gut/test.gd"
+extends GutTest
 
 # --- Test Subjects ---
-var InventorySystem = load("res://core/systems/inventory_system.gd")
-var Commodity = load("res://core/resource/commodity.gd")
-
-# --- Mock Dependencies ---
-var AssetSystem = load("res://core/systems/asset_system.gd")
+const InventorySystem = preload("res://core/systems/inventory_system.gd")
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
+const ModuleTemplate = preload("res://core/resource/asset_module_template.gd")
 
 # --- Test State ---
-var inventory_system_inst
-var mock_asset_system
-var test_commodity_ore
-var test_commodity_parts
-
-const MOCK_CARGO_CAPACITY = 50
+var inventory_system_instance = null
+const PLAYER_UID = 0
+const MODULE_UID = 200
+const COMMODITY_ID = "commodity_default"
 
 func before_each():
-	mock_asset_system = double(AssetSystem).new()
-	
-	# --- THE FIX ---
-	# The .with_args() method does not exist in GUT 7.2.0.
-	# This simpler syntax tells the stub to always return 50 when the function is called,
-	# regardless of its arguments. This is sufficient for our test.
-	stub(mock_asset_system, "get_player_ship_stat").to_return(MOCK_CARGO_CAPACITY)
-	
-	GlobalRefs.asset_system = mock_asset_system
-	inventory_system_inst = InventorySystem.new()
-	add_child(inventory_system_inst)
-	
-	test_commodity_ore = Commodity.new()
-	test_commodity_ore.item_id = "iron_ore"
-	test_commodity_ore.name = "Iron Ore"
-	
-	test_commodity_parts = Commodity.new()
-	test_commodity_parts.item_id = "machine_parts"
-	test_commodity_parts.name = "Machine Parts"
+	# 1. Clean the global state
+	GameState.characters.clear()
+	GameState.assets_modules.clear()
+	GameState.player_character_uid = -1
+
+	# 2. Create and register a mock player character with some starting inventory
+	var player_char = CharacterTemplate.new()
+	player_char.inventory_commodities = { (COMMODITY_ID): 20 } # Start with 20 default commodities
+	GameState.characters[PLAYER_UID] = player_char
+	GameState.player_character_uid = PLAYER_UID
+
+	# 3. Create and register a mock module asset that can be added/removed
+	var module_asset = ModuleTemplate.new()
+	module_asset.module_name = "Test Module"
+	GameState.assets_modules[MODULE_UID] = module_asset
+
+	# 4. Instantiate the system we are testing
+	inventory_system_instance = InventorySystem.new()
+	add_child_autofree(inventory_system_instance)
 
 func after_each():
-	inventory_system_inst.free()
-	mock_asset_system.free()
-	GlobalRefs.asset_system = null
+	GameState.characters.clear()
+	GameState.assets_modules.clear()
+	GameState.player_character_uid = -1
+	inventory_system_instance = null
 
+# --- Commodity Test Cases ---
 
-# --- Tests (Unchanged) ---
+func test_add_commodity_to_existing_stack():
+	inventory_system_instance.add_commodity(PLAYER_UID, COMMODITY_ID, 10)
+	var final_count = GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID]
+	assert_eq(final_count, 30, "Should add 10 to the existing stack of 20.")
 
-func test_add_item_success():
-	assert_true(inventory_system_inst.add_item(test_commodity_ore, 20), "Should be able to add 20 items.")
-	assert_eq(inventory_system_inst.get_total_cargo_amount(), 20, "Total cargo amount should be 20.")
+func test_add_new_commodity():
+	var new_commodity_id = "new_parts"
+	inventory_system_instance.add_commodity(PLAYER_UID, new_commodity_id, 5)
+	assert_has(GameState.characters[PLAYER_UID].inventory_commodities, new_commodity_id, "New commodity should be added to inventory.")
+	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[new_commodity_id], 5, "New commodity should have a quantity of 5.")
 
-func test_add_item_exceeds_capacity():
-	assert_false(inventory_system_inst.add_item(test_commodity_ore, MOCK_CARGO_CAPACITY + 1), "Should fail to add 51 items.")
-	assert_eq(inventory_system_inst.get_total_cargo_amount(), 0, "Cargo should still be empty after a failed add.")
+func test_remove_commodity_successfully():
+	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 5)
+	assert_true(result, "Should return true when removing a valid amount.")
+	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID], 15, "Quantity should be 15 after removing 5.")
 
-func test_fill_capacity_and_fail_to_add_more():
-	inventory_system_inst.add_item(test_commodity_ore, 30)
-	inventory_system_inst.add_item(test_commodity_parts, 20)
-	assert_eq(inventory_system_inst.get_total_cargo_amount(), 50, "Cargo should be exactly full.")
-	assert_false(inventory_system_inst.add_item(test_commodity_ore, 1), "Should fail to add one more item to a full cargo hold.")
+func test_remove_commodity_fully_deletes_entry():
+	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 20)
+	assert_true(result, "Should return true when removing the full stack.")
+	assert_false(GameState.characters[PLAYER_UID].inventory_commodities.has(COMMODITY_ID), "Commodity entry should be removed when quantity is zero.")
 
-func test_remove_item_success():
-	inventory_system_inst.add_item(test_commodity_ore, 30)
-	assert_true(inventory_system_inst.remove_item("iron_ore", 10), "Should successfully remove 10 items.")
-	assert_eq(inventory_system_inst.get_total_cargo_amount(), 20, "Total cargo should be 20 after removal.")
+func test_remove_more_commodities_than_exist_fails():
+	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 25)
+	assert_false(result, "Should return false when trying to remove more than available.")
+	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID], 20, "Quantity should not change on a failed removal.")
 
-func test_remove_more_items_than_exist():
-	inventory_system_inst.add_item(test_commodity_ore, 10)
-	assert_false(inventory_system_inst.remove_item("iron_ore", 15), "Should fail to remove 15 items if only 10 exist.")
-	assert_eq(inventory_system_inst.get_total_cargo_amount(), 10, "Total cargo should not have changed.")
+func test_get_commodity_count():
+	var count = inventory_system_instance.get_commodity_count(PLAYER_UID, COMMODITY_ID)
+	assert_eq(count, 20, "Should return the correct count for an existing commodity.")
+	var non_existent_count = inventory_system_instance.get_commodity_count(PLAYER_UID, "non_existent")
+	assert_eq(non_existent_count, 0, "Should return 0 for a non-existent commodity.")
 
-func test_remove_item_removes_entry_when_zero():
-	inventory_system_inst.add_item(test_commodity_ore, 10)
-	assert_true(inventory_system_inst.remove_item("iron_ore", 10), "Should successfully remove all 10 items.")
-	var cargo_dict = inventory_system_inst.get_player_cargo()
-	assert_false(cargo_dict.has("iron_ore"), "The 'iron_ore' key should be removed when quantity is zero.")
+# --- Module Test Cases ---
+
+func test_add_and_get_module():
+	inventory_system_instance.add_module(PLAYER_UID, MODULE_UID)
+	var modules = inventory_system_instance.get_character_modules(PLAYER_UID)
+	assert_has(modules, MODULE_UID, "Character's module inventory should contain the new module UID.")
+	assert_eq(modules[MODULE_UID], GameState.assets_modules[MODULE_UID], "The correct module instance should be in the inventory.")
+
+func test_remove_module():
+	# Add it first to ensure it's there
+	inventory_system_instance.add_module(PLAYER_UID, MODULE_UID)
+	assert_has(GameState.characters[PLAYER_UID].inventory_modules, MODULE_UID, "Pre-check: Module should be in inventory.")
+
+	# Now remove it
+	inventory_system_instance.remove_module(PLAYER_UID, MODULE_UID)
+	assert_false(GameState.characters[PLAYER_UID].inventory_modules.has(MODULE_UID), "Module should be removed from inventory.")
 
 --- Start of ./tests/core/systems/test_time_system.gd ---
 
 # File: tests/core/systems/test_time_system.gd
-# Version: 5.1 - Corrected assert_not_null syntax.
+# Version: 2.1 - Corrected GUT assertion syntax.
 
 extends GutTest
 
-var TimeSystem = load("res://core/systems/time_system.gd")
+# --- Test Subjects ---
+const TimeSystem = preload("res://core/systems/time_system.gd")
+const CharacterSystem = preload("res://core/systems/character_system.gd") # For mocking
+
+# --- Test State ---
 var time_system_instance = null
 var mock_character_system = null
-
+const PLAYER_UID = 0
 
 func before_each():
+	# 1. Clean and set up the global state for the test
+	GameState.current_tu = 0
+	GameState.player_character_uid = PLAYER_UID
+
+	# 2. Create a mock CharacterSystem and set it in GlobalRefs
+	mock_character_system = double(CharacterSystem).new()
+	add_child_autofree(mock_character_system)
+	GlobalRefs.character_system = mock_character_system
+
+	# 3. Stub the methods that TimeSystem will call
+	stub(mock_character_system, "get_player_character_uid").to_return(PLAYER_UID)
+	stub(mock_character_system, "apply_upkeep_cost").to_do_nothing()
+
+	# 4. Instantiate the system we are testing
 	time_system_instance = TimeSystem.new()
 	add_child_autofree(time_system_instance)
 
-	mock_character_system = double("res://core/systems/character_system.gd").new()
-	stub(mock_character_system, "apply_upkeep_cost").to_do_nothing()
-	add_child_autofree(mock_character_system)
-
-	time_system_instance._character_system = mock_character_system
-	# Corrected assertion for this version of GUT
-	assert_not_null(EventBus, "EventBus autoload must be present.")
-
-
 func after_each():
+	# Clean up global state to ensure test isolation
+	GameState.current_tu = 0
+	GameState.player_character_uid = -1
+	GlobalRefs.character_system = null
 	time_system_instance = null
-	mock_character_system = null
 
+# --- Test Cases ---
 
 func test_initialization():
-	assert_eq(time_system_instance.get_current_tu(), 0)
-
+	assert_eq(time_system_instance.get_current_tu(), 0, "Initial TU should be 0 from GameState.")
 
 func test_add_time_units_below_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(50)
-	assert_eq(time_system_instance.get_current_tu(), 50)
+	time_system_instance.add_time_units(5)
+	assert_eq(GameState.current_tu, 5, "GameState.current_tu should be 5.")
 	assert_signal_not_emitted(EventBus, "world_event_tick_triggered")
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 0, [])
-
+	assert_not_called(mock_character_system, "apply_upkeep_cost")
 
 func test_add_time_units_exactly_at_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(100)
-	assert_eq(time_system_instance.get_current_tu(), 0)
+	time_system_instance.add_time_units(Constants.TIME_CLOCK_MAX_TU)
+	assert_eq(GameState.current_tu, 0, "TU should reset to 0 after a tick.")
 	assert_signal_emitted(EventBus, "world_event_tick_triggered")
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 1, [])
-
+	assert_called(mock_character_system, "apply_upkeep_cost", [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
 func test_add_time_units_above_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(120)
-	assert_eq(time_system_instance.get_current_tu(), 20)
+	time_system_instance.add_time_units(Constants.TIME_CLOCK_MAX_TU + 5)
+	assert_eq(GameState.current_tu, 5, "TU should be 5 after one tick.")
 	assert_signal_emitted(EventBus, "world_event_tick_triggered")
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 1, [])
-
+	assert_call_count(mock_character_system, "apply_upkeep_cost", 1, [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
 func test_add_time_units_triggers_multiple_ticks():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(250)
-	assert_eq(time_system_instance.get_current_tu(), 50)
+	time_system_instance.add_time_units((Constants.TIME_CLOCK_MAX_TU * 2) + 5)
+	assert_eq(GameState.current_tu, 5, "TU should be 5 after two ticks.")
 	assert_signal_emit_count(EventBus, "world_event_tick_triggered", 2)
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 2, [])
-
-
-func test_add_zero_or_negative_time_units():
-	watch_signals(EventBus)
-	time_system_instance.add_time_units(0)
-	time_system_instance.add_time_units(-10)
-	assert_eq(time_system_instance.get_current_tu(), 0)
-	assert_signal_not_emitted(EventBus, "world_event_tick_triggered")
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 0, [])
+	assert_call_count(mock_character_system, "apply_upkeep_cost", 2, [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
 --- Start of ./tests/core/utils/test_pid_controller.gd ---
 
@@ -18660,16 +18853,36 @@ func test_zero_delta_returns_zero():
 
 --- Start of ./tests/helpers/mock_agent_body.gd ---
 
-# tests/helpers/mock_agent_body.gd
+# File: tests/helpers/mock_agent_body.gd
 # A minimal agent body for the spawner to instantiate in tests.
+# Version: 2.0 - Updated to match agent.gd's properties and initialize signature.
+
 extends KinematicBody
 
+# --- Core State & Identity (to match agent.gd) ---
+var agent_type: String = ""
+var template_id: String = ""
+var agent_uid = -1
+
+# --- Test-specific variable ---
+# This will be populated when initialize is called, so tests can inspect it.
 var init_data = null
 
 
+# This signature now exactly matches the one in `core/agents/agent.gd`.
 # We will spy on this method to confirm the spawner called it.
-func initialize(template, overrides):
-	init_data = {"template": template, "overrides": overrides}
+func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: int = -1):
+	# Store the received data so tests can assert it's correct.
+	init_data = {
+		"template": template,
+		"overrides": overrides,
+		"agent_uid": agent_uid
+	}
+
+	# Also set the properties just like the real agent.gd does.
+	self.template_id = overrides.get("template_id")
+	self.agent_type = overrides.get("agent_type")
+	self.agent_uid = agent_uid
 
 --- Start of ./tests/helpers/mock_event_bus.gd ---
 
@@ -18732,3 +18945,107 @@ var current_velocity = Vector3.ZERO
 # The NavigationSystem's approach/orbit commands use this.
 func get_interaction_radius():
 	return 10.0
+
+--- Start of ./tests/scenes/game_world/world_manager/test_template_indexer.gd ---
+
+# File: tests/scenes/game_world/world_manager/test_template_indexer.gd
+# GUT Test Script for the TemplateIndexer component.
+# Version: 1.0
+
+extends GutTest
+
+const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
+var indexer_instance = null
+
+func before_each():
+	# Ensure a clean slate before each test by clearing the database.
+	TemplateDatabase.characters.clear()
+	TemplateDatabase.assets_ships.clear()
+	# ... clear other template dictionaries as they are added ...
+
+	indexer_instance = TemplateIndexer.new()
+	add_child_autofree(indexer_instance)
+
+func test_indexing_populates_template_database():
+	# Pre-check: Ensure the database is empty before the test.
+	assert_eq(TemplateDatabase.characters.size(), 0, "Character templates should be empty initially.")
+	assert_eq(TemplateDatabase.assets_ships.size(), 0, "Ship templates should be empty initially.")
+
+	# Run the indexing process.
+	indexer_instance.index_all_templates()
+
+	# Post-check: Assert that the database now contains data.
+	assert_gt(TemplateDatabase.characters.size(), 0, "Character templates should be populated after indexing.")
+	assert_gt(TemplateDatabase.assets_ships.size(), 0, "Ship templates should be populated after indexing.")
+
+func test_indexing_loads_known_templates_correctly():
+	# Run the indexing process.
+	indexer_instance.index_all_templates()
+
+	# Check for a specific, known character template.
+	var default_char_id = "character_default"
+	assert_has(TemplateDatabase.characters, default_char_id, "Database should contain 'character_default'.")
+	var char_template = TemplateDatabase.characters[default_char_id]
+	assert_true(is_instance_valid(char_template), "'character_default' should be a valid instance.")
+	assert_true(char_template is CharacterTemplate, "'character_default' should be of type CharacterTemplate.")
+
+	# Check for a specific, known ship template.
+	var default_ship_id = "ship_default"
+	assert_has(TemplateDatabase.assets_ships, default_ship_id, "Database should contain 'ship_default'.")
+	var ship_template = TemplateDatabase.assets_ships[default_ship_id]
+	assert_true(is_instance_valid(ship_template), "'ship_default' should be a valid instance.")
+	assert_true(ship_template is ShipTemplate, "'ship_default' should be of type ShipTemplate.")
+
+--- Start of ./tests/scenes/game_world/world_manager/test_world_generator.gd ---
+
+# File: tests/scenes/game_world/world_manager/test_world_generator.gd
+# GUT Test Script for the WorldGenerator component.
+# Version: 1.0
+
+extends GutTest
+
+const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
+const WorldGenerator = preload("res://scenes/game_world/world_manager/world_generator.gd")
+
+var indexer_instance = null
+var generator_instance = null
+
+func before_each():
+	# The generator depends on the indexer having run first.
+	indexer_instance = TemplateIndexer.new()
+	add_child_autofree(indexer_instance)
+	indexer_instance.index_all_templates()
+
+	generator_instance = WorldGenerator.new()
+	add_child_autofree(generator_instance)
+
+	# Ensure a clean GameState for every test.
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
+
+func test_generates_characters_in_game_state():
+	# Pre-check: GameState should be empty.
+	assert_eq(GameState.characters.size(), 0, "GameState.characters should be empty before generation.")
+
+	# Run the world generation.
+	generator_instance.generate_new_world()
+
+	# Post-check: GameState should now be populated.
+	assert_gt(GameState.characters.size(), 0, "GameState.characters should be populated after generation.")
+	# It should create one instance for each template found.
+	assert_eq(GameState.characters.size(), TemplateDatabase.characters.size(), "Should create one character instance per template.")
+
+func test_assigns_player_character_uid():
+	# Pre-check: Player UID should be invalid.
+	assert_eq(GameState.player_character_uid, -1, "Player UID should be -1 before generation.")
+
+	# Run the world generation.
+	generator_instance.generate_new_world()
+
+	# Post-check: A valid player UID should be set.
+	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set after generation.")
+	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must exist as a key in the characters dictionary.")
+
+	# Verify the correct character was assigned as the player.
+	var player_char_instance = GameState.characters[GameState.player_character_uid]
+	assert_eq(player_char_instance.template_id, "character_default", "The player character should have the 'character_default' template_id.")

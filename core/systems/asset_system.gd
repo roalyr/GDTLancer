@@ -1,20 +1,26 @@
 # File: core/systems/asset_system.gd
-# Purpose: Manages dictionaries of different asset types globally (unique instances).
-# Version: 2.0 - Reworked to match new templates.
+# Purpose: Provides a logical API for accessing asset data stored in GameState.
+# This system is STATELESS. All data is read from the GameState autoload.
+# Version: 3.0 - Refactored to be stateless.
 
 extends Node
-
-var _asset_ship_template: ShipTemplate = null
-var _asset_module_template: ModuleTemplate = null
-var _asset_commodity_template: CommodityTemplate = null
-
 
 func _ready():
 	GlobalRefs.set_asset_system(self)
 	print("AssetSystem Ready.")
 
+# --- Public API ---
 
-# Functionality is TBD. 
-# This system has to manage dictionaries of assets of different types, each
-# instance of thereof should have its UID, template and data overrides (for unique ships
-# or modules / commodities (if needed)).
+func get_ship(ship_uid: int) -> ShipTemplate:
+	return GameState.assets_ships.get(ship_uid)
+
+# Convenience function to get the player's currently active ship.
+func get_player_ship() -> ShipTemplate:
+	var player_char = GlobalRefs.character_system.get_player_character()
+	if not is_instance_valid(player_char):
+		return null
+
+	if player_char.active_ship_uid != -1:
+		return get_ship(player_char.active_ship_uid)
+
+	return null

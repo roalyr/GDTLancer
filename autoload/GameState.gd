@@ -17,7 +17,7 @@ var active_actions: Dictionary = {}
 
 var assets_ships: Dictionary = {}
 var assets_modules: Dictionary = {}
-var assets_commodieties: Dictionary = {}
+var assets_commodities: Dictionary = {}
 
 var inventories_ships: Dictionary = {}
 var inventories_modules: Dictionary = {}

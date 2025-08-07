@@ -276,13 +276,18 @@
     │       └── test_pid_controller.gd
     ├── data
     │   └── test_action.tres
-    └── helpers
-        ├── mock_agent_body.gd
-        ├── mock_agent.tscn
-        ├── mock_event_bus.gd
-        ├── signal_catcher.gd
-        └── test_agent_body.gd
+    ├── helpers
+    │   ├── mock_agent_body.gd
+    │   ├── mock_agent.tscn
+    │   ├── mock_event_bus.gd
+    │   ├── signal_catcher.gd
+    │   └── test_agent_body.gd
+    └── scenes
+        └── game_world
+            └── world_manager
+                ├── test_template_indexer.gd
+                └── test_world_generator.gd
 
-57 directories, 227 files
+60 directories, 229 files
 
-57 directories, 227 files
+60 directories, 229 files

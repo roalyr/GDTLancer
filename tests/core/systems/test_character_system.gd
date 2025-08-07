@@ -1,68 +1,102 @@
 # File: tests/core/systems/test_character_system.gd
-# GUT Test Script for CharacterSystem
-# Version: 1.1
+# GUT Test Script for the stateless CharacterSystem.
+# Version: 2.0 - Rewritten for GameState architecture.
 
 extends GutTest
 
-var CharacterSystem = load("res://core/systems/character_system.gd")
-var character_system_instance = null
+# --- Test Subjects ---
+const CharacterSystem = preload("res://core/systems/character_system.gd")
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
 
+# --- Test State ---
+var character_system_instance = null
+var default_char_template: CharacterTemplate = null
+const PLAYER_UID = 0
+const NPC_UID = 1
+
+
+# Runs before each test. Sets up a clean GameState with known characters.
 func before_each():
+	# 1. Clean the global state
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
+
+	# 2. Load the base template resource
+	default_char_template = load("res://assets/data/characters/character_default.tres")
+	assert_true(is_instance_valid(default_char_template), "Pre-check: Default character template must load.")
+
+	# 3. Create and register a player character instance in GameState
+	var player_char_instance = default_char_template.duplicate()
+	player_char_instance.wealth_points = 100 # Start with some money for tests
+	GameState.characters[PLAYER_UID] = player_char_instance
+	GameState.player_character_uid = PLAYER_UID
+
+	# 4. Create and register an NPC character instance for multi-character tests
+	var npc_char_instance = default_char_template.duplicate()
+	npc_char_instance.character_name = "Test NPC"
+	GameState.characters[NPC_UID] = npc_char_instance
+
+	# 5. Instantiate the system we are testing
 	character_system_instance = CharacterSystem.new()
 	add_child_autofree(character_system_instance)
-	# Assuming GlobalRefs and Constants are autoloads as per project structure
-	GlobalRefs.set_character_system(character_system_instance)
 
+
+# Runs after each test to ensure a clean environment.
 func after_each():
-	character_system_instance = null
-	GlobalRefs.set_character_system(null)
+	GameState.characters.clear()
+	GameState.player_character_uid = -1
+	character_system_instance = null # autofree handles the instance
 
-func test_initial_state():
-	var player_data = character_system_instance.get_player_character()
-	assert_eq(player_data.wealth_points, 0, "Initial WP should be 0.")
-	assert_eq(player_data.focus_points, 0, "Initial FP should be 0.")
-	assert_eq(player_data.skills.piloting, 1, "Initial piloting skill should be 1.")
-	assert_true(player_data.faction_standings.empty(), "Initial faction standings should be empty.")
+
+# --- Test Cases ---
+
+func test_get_player_character():
+	var player_char = character_system_instance.get_player_character()
+	assert_not_null(player_char, "Should return a valid character object for the player.")
+	assert_eq(player_char, GameState.characters[PLAYER_UID], "Should return the correct player character instance from GameState.")
+
 
 func test_wp_management():
-	character_system_instance.add_wp(100)
-	assert_eq(character_system_instance.get_wp(), 100, "WP should be 100 after adding.")
-	character_system_instance.subtract_wp(25)
-	assert_eq(character_system_instance.get_wp(), 75, "WP should be 75 after subtracting.")
+	# Test adding WP
+	character_system_instance.add_wp(PLAYER_UID, 50)
+	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 150, "WP should be 150 after adding 50.")
+
+	# Test subtracting WP
+	character_system_instance.subtract_wp(PLAYER_UID, 25)
+	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 125, "WP should be 125 after subtracting 25.")
+
+	# Test getting WP
+	assert_eq(character_system_instance.get_wp(PLAYER_UID), 125, "get_wp should return the correct value.")
+
 
 func test_fp_management():
-	character_system_instance.add_fp(2)
-	assert_eq(character_system_instance.get_fp(), 2, "FP should be 2 after adding.")
-	character_system_instance.subtract_fp(1)
-	assert_eq(character_system_instance.get_fp(), 1, "FP should be 1 after subtracting.")
-	character_system_instance.add_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Adding more than max
-	assert_eq(character_system_instance.get_fp(), Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
-	character_system_instance.subtract_fp(Constants.FOCUS_MAX_DEFAULT + 1) # Subtracting more than available
-	assert_eq(character_system_instance.get_fp(), 0, "FP should be clamped to 0.")
+	# Test adding FP
+	character_system_instance.add_fp(PLAYER_UID, 2)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, 2, "FP should be 2 after adding.")
+
+	# Test subtracting FP
+	character_system_instance.subtract_fp(PLAYER_UID, 1)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, 1, "FP should be 1 after subtracting.")
+
+	# Test clamping when adding too much
+	character_system_instance.add_fp(PLAYER_UID, Constants.FOCUS_MAX_DEFAULT + 5)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
+
+	# Test clamping when subtracting too much
+	character_system_instance.subtract_fp(PLAYER_UID, Constants.FOCUS_MAX_DEFAULT + 5)
+	assert_eq(GameState.characters[PLAYER_UID].focus_points, 0, "FP should be clamped to 0.")
+
 
 func test_skill_retrieval():
-	assert_eq(character_system_instance.get_skill_level("piloting"), 1, "Default piloting skill should be 1.")
-	assert_eq(character_system_instance.get_skill_level("non_existent_skill"), 0, "Non-existent skill should return 0.")
+	var piloting_level = character_system_instance.get_skill_level(PLAYER_UID, "piloting")
+	assert_eq(piloting_level, 1, "Default piloting skill should be 1.")
 
-func test_upkeep_cost():
-	character_system_instance.add_wp(50)
-	character_system_instance.apply_upkeep_cost(10)
-	assert_eq(character_system_instance.get_wp(), 40, "WP should be 40 after upkeep.")
+	var non_existent_skill = character_system_instance.get_skill_level(PLAYER_UID, "basket_weaving")
+	assert_eq(non_existent_skill, 0, "A non-existent skill should return 0.")
 
-func test_save_and_load():
-	# Setup initial data
-	character_system_instance.add_wp(200)
-	character_system_instance.add_fp(3)
-	
-	# Get save data
-	var save_data = character_system_instance.get_player_save_data()
-	
-	# Create a new instance to load into
-	var new_character_system = CharacterSystem.new()
-	add_child_autofree(new_character_system)
-	
-	# Load data and verify
-	new_character_system.load_player_save_data(save_data)
-	assert_eq(new_character_system.get_wp(), 200, "Loaded WP should be 200.")
-	assert_eq(new_character_system.get_fp(), 3, "Loaded FP should be 3.")
-	assert_eq(new_character_system.get_skill_level("tactics"), 1, "Loaded tactics skill should be 1.")
+
+func test_apply_upkeep_cost():
+	var initial_wp = character_system_instance.get_wp(PLAYER_UID)
+	character_system_instance.apply_upkeep_cost(PLAYER_UID, 10)
+	var final_wp = character_system_instance.get_wp(PLAYER_UID)
+	assert_eq(final_wp, initial_wp - 10, "Upkeep cost should correctly subtract WP.")
