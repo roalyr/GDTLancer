@@ -13345,9 +13345,8 @@ var assets_ships: Dictionary = {}
 var assets_modules: Dictionary = {}
 var assets_commodities: Dictionary = {}
 
-var inventories_ships: Dictionary = {}
-var inventories_modules: Dictionary = {}
-var inventories_commodieties: Dictionary = {}
+# Key: Character UID, Value: An Inventory object/dictionary for that character.
+var inventories: Dictionary = {}
 
 # Defines which character is controlled by player.
 var player_character_uid: int = -1
@@ -13359,240 +13358,182 @@ var current_zone_instance: Node = null
 
 # File: autoload/GameStateManager.gd
 # Autoload Singleton: GameStateManager
-# Purpose: Handles saving and loading game state.
-# Version: 1.1 - Corrected ProjectSettings.get_setting for Godot 3
+# Version: 2.2 - Corrected inventory deserialization and removed GlobalRefs dependency.
 
 extends Node
 
 const SAVE_DIR = "user://savegames/"
 const SAVE_FILE_PREFIX = "save_"
-const SAVE_FILE_EXT = ".sav"  # Godot's variant storage format
+const SAVE_FILE_EXT = ".sav"
+
+# Preload the script to safely access its enums without relying on a live node.
+const InventorySystem = preload("res://core/systems/inventory_system.gd")
 
 
-func _ready():
-	print("GameStateManager Ready.")
-	# Ensure save directory exists on startup
-	var dir = Directory.new()
-	if not dir.dir_exists(SAVE_DIR):
-		var err = dir.make_dir_recursive(SAVE_DIR)
-		if err != OK:
-			printerr(
-				"GameStateManager Error: Could not create save directory: ",
-				SAVE_DIR,
-				" Error: ",
-				err
-			)
+# --- Public API ---
 
-
-# --- Save Game ---
-# Returns true on success, false on failure
 func save_game(slot_id: int) -> bool:
-	print("Attempting to save game to slot ", slot_id)
-	var save_data = {}  # Dictionary to hold all save data
-
-	# --- (Gathering Data) ---
-	# 1. Player Data
-	if is_instance_valid(GlobalRefs.player_agent_body):
-		var player_data = {}
-		player_data["scene_path"] = Constants.PLAYER_AGENT_SCENE_PATH
-		player_data["position_x"] = GlobalRefs.player_agent_body.global_transform.origin.x
-		player_data["position_y"] = GlobalRefs.player_agent_body.global_transform.origin.y
-		player_data["position_z"] = GlobalRefs.player_agent_body.global_transform.origin.z
-		player_data["rotation_basis_cols"] = [
-			GlobalRefs.player_agent_body.global_transform.basis.x,
-			GlobalRefs.player_agent_body.global_transform.basis.y,
-			GlobalRefs.player_agent_body.global_transform.basis.z
-		]
-		player_data["position_z"] = GlobalRefs.player_agent_body.global_transform.origin.z
-		save_data["player_state"] = player_data
-	else:
-		printerr("Save Error: Player agent body not valid!")
+	var save_data = _serialize_game_state()
+	if save_data.empty():
+		printerr("GameStateManager Error: Failed to serialize game state.")
 		return false
 
-	# 2. Character System Data (FP, WP, Skills, etc.) - Assumed Placeholder
-	if (
-		is_instance_valid(GlobalRefs.character_system)
-		and GlobalRefs.character_system.has_method("get_player_save_data")
-	):
-		save_data["character_state"] = GlobalRefs.character_system.get_player_save_data()
-	else:
-		print("Save Warning: CharacterSystem missing or no save method. FP/WP/Skills NOT saved.")
-
-	# 3. World State
-	var world_data = {}
-	if is_instance_valid(GlobalRefs.current_zone):
-		world_data["current_zone_path"] = GlobalRefs.current_zone.filename
-	else:
-		printerr("Save Error: Current zone reference invalid!")
-		return false
-	# TODO: Add Time Clock Value - Requires Time System/Manager reference
-	# world_data["time_clock_tu"] = GlobalRefs.time_manager.get_current_tu()
-	save_data["world_state"] = world_data
-
-	# 4. Goal System State - Assumed Placeholder
-	# if is_instance_valid(GlobalRefs.goal_system) and GlobalRefs.goal_system.has_method("get_save_data"):
-	#     save_data["goal_system_state"] = GlobalRefs.goal_system.get_save_data()
-
-	# 5. Add Metadata
-	# *** CORRECTED for Godot 3 ***
-	var game_version_setting = ProjectSettings.get_setting("application/config/version")
-	var game_version = "0.0.1"  # Default version
-	if game_version_setting != null:
-		game_version = str(game_version_setting)  # Ensure it's a string if found
-	# *** END CORRECTION ***
-
-	save_data["metadata"] = {"save_time": OS.get_unix_time(), "game_version": game_version}
-
-	# --- Writing File ---
 	var file = File.new()
 	var path = SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
 	var err = file.open(path, File.WRITE)
 
 	if err == OK:
-		# Use true for share/compression - valid in Godot 3
 		file.store_var(save_data, true)
 		file.close()
 		print("Game saved successfully to: ", path)
 		return true
 	else:
 		printerr("Error saving game to path: ", path, " Error code: ", err)
-		file.close()  # Ensure file is closed even on error
+		file.close()
 		return false
 
-
-# --- Load Game ---
-# Returns true on success, false on failure
 func load_game(slot_id: int) -> bool:
-	print("Load attempt for slot ", slot_id)
-	var path = get_save_slot_path(slot_id)
-	print("Load path: ", path)
-
+	var path = SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
 	var file = File.new()
+
 	if not file.file_exists(path):
-		printerr("Load Error: Save file not found at path!")
+		printerr("Load Error: Save file not found at path: ", path)
 		return false
 
-	print("Load Debug: File exists. Attempting to open...")
 	var err = file.open(path, File.READ)
 	if err != OK:
-		printerr("Load Error: Failed to open file for reading! Error code: ", err)
+		printerr("Load Error: Failed to open file! Error code: ", err)
 		return false
 
-	print("Load Debug: File opened. Attempting to get var...")
-	# Use true if store_var used true
 	var save_data = file.get_var(true)
-	var file_err = file.get_error()  # Check error *after* operation
-	file.close()  # Close file immediately
-
-	if file_err != OK:
-		printerr("Load Error: Error reading var from file! File Error code: ", file_err)
-		return false
-
-	print("Load Debug: Got var. Checking type...")
-	if not save_data is Dictionary:
-		printerr("Load Error: Save file data is not a Dictionary! Type is: ", typeof(save_data))
-		return false
-
-	print("Save file loaded successfully. Applying state...")
-	# ... (Placeholder apply logic) ...
-	EventBus.emit_signal("game_loaded", save_data)
-	return true
-
-	# --- Apply Loaded State ---
-	# This section requires careful coordination with scene loading and initialization.
-	# It might need to emit signals or use call_deferred extensively.
-	# Placeholder logic - assumes this is called from a state where loading is safe (e.g., main menu)
-
-	# 1. Request Zone Load (WorldManager listens for this?) - NEEDS A ROBUST WORKFLOW
-	if save_data.has("world_state") and save_data.world_state.has("current_zone_path"):
-		var zone_path = save_data.world_state.current_zone_path
-		if (
-			is_instance_valid(GlobalRefs.world_manager)
-			and GlobalRefs.world_manager.has_method("load_zone")
-		):
-			# Ideally, loading should happen via scene transition, not direct call here.
-			# For now, just logging. Actual loading needs proper handling.
-			print("Load Request: Need to load zone: ", zone_path)
-			# GlobalRefs.world_manager.load_zone(zone_path) # Direct call here is usually problematic
-			# Need a system to handle scene transition THEN player spawn/restore
-			# Emit signal instead? EventBus.emit_signal("load_zone_requested", zone_path, save_data)
-		else:
-			printerr("Load Error: Cannot request zone load, WorldManager invalid/missing method.")
-			return false
-	else:
-		printerr("Load Error: Save data missing world state or zone path.")
-		return false
-
-	# 2. Restore Player State (Should happen AFTER zone is loaded)
-	# This logic needs to be triggered *after* the scene transition and player spawn.
-	# Placeholder - This should be handled by CharacterSystem reacting to load event or player spawn
-	if save_data.has("player_state"):
-		var p_state = save_data.player_state
-		var p_pos = Vector3(
-			p_state.get("position_x", 0), p_state.get("position_y", 0), p_state.get("position_z", 0)
-		)
-		var p_basis_cols = p_state.get(
-			"rotation_basis_cols", [Vector3.RIGHT, Vector3.UP, Vector3.BACK]
-		)
-		var p_basis = Basis(p_basis_cols[0], p_basis_cols[1], p_basis_cols[2])
-		# Need to apply pos/rot AFTER player is spawned in the new zone.
-		print("Load Request: Player should spawn at ", p_pos, " with rotation")
-
-	if save_data.has("character_state"):
-		# CharacterSystem should listen for game_loaded or player_spawned signal
-		# and apply this data to the player agent
-		print("Load Request: Character state needs restore: ", save_data.character_state)
-		# GlobalRefs.character_system.load_save_data(save_data.character_state)
-
-	# 3. Restore Time Clock
-	# print("Load Request: Time clock needs restore")
-	# GlobalRefs.time_manager.load_save_data(...)
-
-	# 4. Restore Goal System State
-	# print("Load Request: Goals need restore")
-	# GlobalRefs.goal_system.load_save_data(...)
-
-	# 5. Restore Persistent NPCs (Later Phase)
-
-	# 6. Emit signal that load data is ready (systems should listen and apply)
-	print("Load Process: Emitting game_loaded signal...")
-	EventBus.emit_signal("game_loaded", save_data)  # Pass full data
-
-	# IMPORTANT: Returning true here only means the file was read.
-	# Actual game state restoration is asynchronous and depends on listeners.
-	return true
-
-
-# --- Helper Functions ---
-func get_save_slot_path(slot_id: int) -> String:
-	return SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
-
-
-func save_exists(slot_id: int) -> bool:
-	var file = File.new()
-	return file.file_exists(get_save_slot_path(slot_id))
-
-
-# Gets only the metadata part of a save file, if possible
-func get_save_metadata(slot_id: int) -> Dictionary:
-	var path = get_save_slot_path(slot_id)
-	var file = File.new()
-	if not file.file_exists(path):
-		return {}
-	var err = file.open(path, File.READ)
-	if err != OK:
-		return {}
-	# Use false here if we ONLY want the top-level dict, not full object parsing
-	# Depends if metadata is stored simply at top level
-	var data = file.get_var(true)
 	file.close()
-	if data is Dictionary and data.has("metadata"):
-		return data.metadata
-	# Try parsing non-shared if metadata is simple? Might fail on complex saves.
-	# var file2 = File.new(); file2.open(path, File.READ); var data2 = file2.get_var(false); file2.close()
-	# if data2 is Dictionary and data2.has("metadata"): return data2.metadata
-	print("Warning: Could not read metadata from save slot ", slot_id)
-	return {}
+
+	if not save_data is Dictionary:
+		printerr("Load Error: Save data is not a Dictionary.")
+		return false
+	
+	_deserialize_and_apply_game_state(save_data)
+	
+	EventBus.emit_signal("game_state_loaded")
+	print("Game state loaded successfully. Emitted game_state_loaded signal.")
+	return true
+
+# --- Serialization (Live State -> Dictionary) ---
+
+func _serialize_game_state() -> Dictionary:
+	var state_dict = {}
+	
+	state_dict["player_character_uid"] = GameState.player_character_uid
+	state_dict["current_tu"] = GameState.current_tu
+	
+	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
+	state_dict["assets_ships"] = _serialize_resource_dict(GameState.assets_ships)
+	state_dict["assets_modules"] = _serialize_resource_dict(GameState.assets_modules)
+	state_dict["inventories"] = _serialize_inventories(GameState.inventories)
+	
+	return state_dict
+
+func _serialize_resource(res: Resource) -> Dictionary:
+	var dict = {}
+	if not is_instance_valid(res):
+		return dict
+		
+	dict["template_id"] = res.template_id
+	
+	for prop in res.get_script().get_script_property_list():
+		if prop.usage & PROPERTY_USAGE_STORAGE:
+			dict[prop.name] = res.get(prop.name)
+			
+	return dict
+
+func _serialize_resource_dict(res_dict: Dictionary) -> Dictionary:
+	var serialized_dict = {}
+	for uid in res_dict:
+		serialized_dict[uid] = _serialize_resource(res_dict[uid])
+	return serialized_dict
+
+func _serialize_inventories(inv_dict: Dictionary) -> Dictionary:
+	var serialized_inventories = {}
+	for char_uid in inv_dict:
+		var original_inv = inv_dict[char_uid]
+		serialized_inventories[char_uid] = {
+			InventorySystem.InventoryType.SHIP: _serialize_resource_dict(original_inv[InventorySystem.InventoryType.SHIP]),
+			InventorySystem.InventoryType.MODULE: _serialize_resource_dict(original_inv[InventorySystem.InventoryType.MODULE]),
+			InventorySystem.InventoryType.COMMODITY: original_inv[InventorySystem.InventoryType.COMMODITY].duplicate(true)
+		}
+	return serialized_inventories
+
+# --- Deserialization (Dictionary -> Live State) ---
+
+func _deserialize_and_apply_game_state(save_data: Dictionary):
+	# Clear current state
+	GameState.characters.clear()
+	GameState.assets_ships.clear()
+	GameState.assets_modules.clear()
+	GameState.inventories.clear()
+	
+	GameState.player_character_uid = save_data.get("player_character_uid", -1)
+	GameState.current_tu = save_data.get("current_tu", 0)
+
+	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
+	GameState.assets_modules = _deserialize_resource_dict(save_data.get("assets_modules", {}))
+	GameState.characters = _deserialize_resource_dict(save_data.get("characters", {}))
+	GameState.inventories = _deserialize_inventories(save_data.get("inventories", {}))
+
+func _deserialize_resource(res_data: Dictionary) -> Resource:
+	if not res_data.has("template_id"):
+		return null
+	
+	var template_id = res_data["template_id"]
+	var template = _find_template_in_database(template_id)
+	
+	if not is_instance_valid(template):
+		printerr("Deserialize Error: Could not find template with id '", template_id, "' in TemplateDatabase.")
+		return null
+		
+	var instance = template.duplicate()
+	for key in res_data:
+		if key != "template_id":
+			instance.set(key, res_data[key])
+			
+	return instance
+
+func _deserialize_resource_dict(serialized_dict: Dictionary) -> Dictionary:
+	var res_dict = {}
+	for uid_str in serialized_dict:
+		var uid = int(uid_str)
+		res_dict[uid] = _deserialize_resource(serialized_dict[uid_str])
+	return res_dict
+
+func _deserialize_inventories(serialized_inv: Dictionary) -> Dictionary:
+	var inv_dict = {}
+	for char_uid_str in serialized_inv:
+		var char_uid = int(char_uid_str)
+		var original_inv = serialized_inv[char_uid_str]
+		
+		# --- FIX: Access the loaded dictionary using STRING keys ---
+		var ship_key = String(InventorySystem.InventoryType.SHIP)
+		var module_key = String(InventorySystem.InventoryType.MODULE)
+		var commodity_key = String(InventorySystem.InventoryType.COMMODITY)
+		
+		inv_dict[char_uid] = {
+			InventorySystem.InventoryType.SHIP: _deserialize_resource_dict(original_inv.get(ship_key, {})),
+			InventorySystem.InventoryType.MODULE: _deserialize_resource_dict(original_inv.get(module_key, {})),
+			InventorySystem.InventoryType.COMMODITY: original_inv.get(commodity_key, {}).duplicate(true)
+		}
+		# --- END FIX ---
+	return inv_dict
+
+# Helper to find a template by its ID across all categories in the database.
+func _find_template_in_database(template_id: String) -> Resource:
+	if TemplateDatabase.characters.has(template_id):
+		return TemplateDatabase.characters[template_id]
+	if TemplateDatabase.assets_ships.has(template_id):
+		return TemplateDatabase.assets_ships[template_id]
+	if TemplateDatabase.assets_modules.has(template_id):
+		return TemplateDatabase.assets_modules[template_id]
+	# Add other template types here as needed...
+	return null
 
 --- Start of ./autoload/GlobalRefs.gd ---
 
@@ -14901,7 +14842,7 @@ export var faction_id: String = "faction_default" # Affiliation
 
 export var wealth_points: int = 0
 export var focus_points: int = 0
-var active_ship_uid: int = -1
+export var active_ship_uid: int = -1
 
 export var skills: Dictionary = {
 	"piloting": 1,
@@ -14914,9 +14855,6 @@ export var age: int = 30
 export var reputation: int = 0
 export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
 export var character_standings: Dictionary = {} # For relationships
-
-export var inventory_modules: Dictionary = {}
-export var inventory_commodities: Dictionary = {}
 
 --- Start of ./core/resource/template.gd ---
 
@@ -15293,68 +15231,102 @@ func _ready():
 --- Start of ./core/systems/inventory_system.gd ---
 
 # File: core/systems/inventory_system.gd
-# Purpose: Provides a logical API for manipulating character inventories in GameState.
-# This system is STATELESS.
-# Version: 3.0 - Refactored for new asset types.
+# Purpose: Provides a unified, stateless API for managing all character inventories.
+# Version: 4.0 - Reworked for a unified, asset-agnostic architecture.
 
 extends Node
+
+# Enum to define the different types of asset inventories a character can have.
+enum InventoryType { SHIP, MODULE, COMMODITY }
+
 
 func _ready():
 	GlobalRefs.set_inventory_system(self)
 	print("InventorySystem Ready.")
 
-# --- Public API for Commodities ---
 
-func add_commodity(character_uid: int, commodity_template_id: String, quantity: int):
-	if not GameState.characters.has(character_uid):
-		printerr("InventorySystem: Character UID not found: ", character_uid)
+# --- Public API ---
+
+# Ensures an inventory record exists for a character in the GameState.
+# This should be called by the WorldGenerator when a character is created.
+func create_inventory_for_character(character_uid: int):
+	if not GameState.inventories.has(character_uid):
+		GameState.inventories[character_uid] = {
+			InventoryType.SHIP: {},      # Key: Asset UID, Value: Asset Instance
+			InventoryType.MODULE: {},    # Key: Asset UID, Value: Asset Instance
+			InventoryType.COMMODITY: {}  # Key: Template ID, Value: Quantity
+		}
+
+# Adds any type of asset to a character's inventory.
+func add_asset(character_uid: int, inventory_type: int, asset_id, quantity: int = 1):
+	if not GameState.inventories.has(character_uid):
+		printerr("InventorySystem: No inventory for character UID: ", character_uid)
 		return
 
-	var character = GameState.characters[character_uid]
-	if character.inventory_commodities.has(commodity_template_id):
-		character.inventory_commodities[commodity_template_id] += quantity
-	else:
-		character.inventory_commodities[commodity_template_id] = quantity
+	var inventory = GameState.inventories[character_uid]
 
-func remove_commodity(character_uid: int, commodity_template_id: String, quantity: int) -> bool:
-	if not GameState.characters.has(character_uid):
+	if inventory_type == InventoryType.COMMODITY:
+		# Commodities are stored by template ID and quantity.
+		if inventory[inventory_type].has(asset_id):
+			inventory[inventory_type][asset_id] += quantity
+		else:
+			inventory[inventory_type][asset_id] = quantity
+	else:
+		# Ships and Modules are unique instances stored by their UID.
+		var asset_instance = _get_master_asset_instance(inventory_type, asset_id)
+		if is_instance_valid(asset_instance):
+			inventory[inventory_type][asset_id] = asset_instance
+		else:
+			printerr("InventorySystem: Invalid asset UID provided: ", asset_id)
+
+# Removes any type of asset from a character's inventory.
+func remove_asset(character_uid: int, inventory_type: int, asset_id, quantity: int = 1) -> bool:
+	if not GameState.inventories.has(character_uid):
 		return false
 
-	var character = GameState.characters[character_uid]
-	if character.inventory_commodities.has(commodity_template_id):
-		var current_amount = character.inventory_commodities[commodity_template_id]
-		if quantity > current_amount:
-			return false # Cannot remove more than they have
+	var inventory = GameState.inventories[character_uid]
 
-		character.inventory_commodities[commodity_template_id] -= quantity
-		if character.inventory_commodities[commodity_template_id] <= 0:
-			character.inventory_commodities.erase(commodity_template_id)
-		return true
-	return false # Did not have any of that commodity
+	if not inventory[inventory_type].has(asset_id):
+		return false # They don't have the asset.
 
-func get_commodity_count(character_uid: int, commodity_template_id: String) -> int:
-	if GameState.characters.has(character_uid):
-		return GameState.characters[character_uid].inventory_commodities.get(commodity_template_id, 0)
-	return 0
+	if inventory_type == InventoryType.COMMODITY:
+		if inventory[inventory_type][asset_id] < quantity:
+			return false # Not enough to remove.
+		inventory[inventory_type][asset_id] -= quantity
+		if inventory[inventory_type][asset_id] <= 0:
+			inventory[inventory_type].erase(asset_id)
+	else:
+		# For unique assets, quantity doesn't matter; we just remove the entry.
+		inventory[inventory_type].erase(asset_id)
 
-# --- Public API for Modules ---
+	return true
 
-func add_module(character_uid: int, module_uid: int):
-	if not GameState.characters.has(character_uid) or not GameState.assets_modules.has(module_uid):
-		return
+# Gets the count of a specific asset.
+func get_asset_count(character_uid: int, inventory_type: int, asset_id) -> int:
+	if not GameState.inventories.has(character_uid):
+		return 0
+	
+	if inventory_type == InventoryType.COMMODITY:
+		return GameState.inventories[character_uid][inventory_type].get(asset_id, 0)
+	else:
+		return 1 if GameState.inventories[character_uid][inventory_type].has(asset_id) else 0
 
-	var character = GameState.characters[character_uid]
-	var module_instance = GameState.assets_modules[module_uid]
-	character.inventory_modules[module_uid] = module_instance
-
-func remove_module(character_uid: int, module_uid: int):
-	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].inventory_modules.erase(module_uid)
-
-func get_character_modules(character_uid: int) -> Dictionary:
-	if GameState.characters.has(character_uid):
-		return GameState.characters[character_uid].inventory_modules.duplicate(true)
+# Returns a dictionary of a specific type of asset from a character's inventory.
+func get_inventory_by_type(character_uid: int, inventory_type: int) -> Dictionary:
+	if GameState.inventories.has(character_uid):
+		return GameState.inventories[character_uid][inventory_type].duplicate(true)
 	return {}
+
+
+# --- Private Helper ---
+
+# Finds the master asset instance from the correct dictionary in GameState.
+func _get_master_asset_instance(inventory_type: int, asset_uid: int) -> Resource:
+	if inventory_type == InventoryType.SHIP:
+		return GameState.assets_ships.get(asset_uid)
+	elif inventory_type == InventoryType.MODULE:
+		return GameState.assets_modules.get(asset_uid)
+	return null
 
 --- Start of ./core/systems/progression_system.gd ---
 
@@ -17190,14 +17162,14 @@ func _register_template(template: Template):
 # File: scenes/game_world/world_manager/world_generator.gd
 # Purpose: Uses indexed templates to procedurally generate the initial game state
 #          for a new game, populating the GameState autoload.
-# Version: 1.0
+# Version: 2.0 - Updated to use the unified InventorySystem.
 
 extends Node
 
 var _next_character_uid: int = 0
 var _next_ship_uid: int = 0
 var _next_module_uid: int = 0
-var _next_commodity_uid: int = 0
+# Commodity UIDs are no longer needed as they are not unique instances.
 
 # --- Public API ---
 
@@ -17205,12 +17177,12 @@ var _next_commodity_uid: int = 0
 func generate_new_world():
 	print("WorldGenerator: Generating new world state...")
 
-	# For this initial implementation, we create one instance of each character
-	# template found in the TemplateDatabase.
+	# Create characters first.
 	for template_id in TemplateDatabase.characters:
 		var template = TemplateDatabase.characters[template_id]
 		_create_character_from_template(template)
 
+	# Then, generate and assign their starting assets and inventories.
 	_generate_and_assign_assets()
 
 	print("WorldGenerator: New world state generated.")
@@ -17219,98 +17191,93 @@ func generate_new_world():
 # --- Private Logic ---
 
 # Creates a unique instance of a character from a template and registers it
-# in the global GameState.
+# in the global GameState. It also creates their inventory.
 func _create_character_from_template(template: CharacterTemplate):
 	var new_character_instance = template.duplicate()
 	var uid = _get_new_character_uid()
 
-	# Populate the GameState directly.
+	# Populate the GameState with the new character.
 	GameState.characters[uid] = new_character_instance
 
-	# Designate the player character based on a property in the template.
-	# We assume a boolean `is_player_character` or a specific template_id.
-	if template.template_id == "character_default": # This is a placeholder check
+	# --- NEW: Create an inventory record for this character ---
+	if is_instance_valid(GlobalRefs.inventory_system):
+		GlobalRefs.inventory_system.create_inventory_for_character(uid)
+	# --- END NEW ---
+
+	# Designate the player character.
+	if template.template_id == "character_default":
 		GameState.player_character_uid = uid
 		print("... Player character created with UID: ", uid)
 	else:
 		print("... NPC character created with UID: ", uid)
 
 
-# Generates a new, unique ID for a character.
-func _get_new_character_uid() -> int:
-	var id = _next_character_uid
-	_next_character_uid += 1
-	return id
-	
-# This should be called from generate_new_world() after characters are created.
+# Generates starting assets and assigns them to characters using the InventorySystem.
 func _generate_and_assign_assets():
 	print("WorldGenerator: Generating and assigning starting assets...")
 	for char_uid in GameState.characters:
 		var character = GameState.characters[char_uid]
-		# For now, every character gets a default ship.
-		# A more complex generator could use faction_id or character_name to decide.
-		_create_and_assign_ship(character, "ship_default")
-		_create_and_assign_modules(character)
-		_create_and_assign_commodities(character)
+		
+		# Create and assign a starting ship.
+		var ship_uid = _create_ship_instance("ship_default")
+		if ship_uid != -1:
+			# Add the ship to the character's inventory.
+			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.SHIP, ship_uid)
+			# Set this ship as the character's active vessel.
+			character.active_ship_uid = ship_uid
+			print("... Assigned ship (UID: %d) to character %s" % [ship_uid, character.character_name])
 
-# Creates a unique instance of a ship and assigns it to a character.
-func _create_and_assign_ship(character: CharacterTemplate, ship_template_id: String):
+		# Create and assign a starting module.
+		var module_uid = _create_module_instance("module_default")
+		if module_uid != -1:
+			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.MODULE, module_uid)
+			print("... Assigned module (UID: %d) to character %s" % [module_uid, character.character_name])
+			
+		# Assign starting commodities.
+		GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY, "commodity_default", 10)
+		print("... Assigned 10 units of commodity_default to character %s" % character.character_name)
+
+
+# Creates a unique instance of a ship and returns its UID.
+func _create_ship_instance(ship_template_id: String) -> int:
 	if not TemplateDatabase.assets_ships.has(ship_template_id):
 		printerr("WorldGenerator Error: Cannot find ship template with id: ", ship_template_id)
-		return
+		return -1
 
 	var template = TemplateDatabase.assets_ships[ship_template_id]
 	var new_ship_instance = template.duplicate()
 	var uid = _get_new_ship_uid()
-
-	# Add the unique ship instance to the global state.
 	GameState.assets_ships[uid] = new_ship_instance
+	return uid
 
-	# Link the character to their new ship.
-	# NOTE: We need to add `active_ship_uid` to character_template.gd
-	character.active_ship_uid = uid
-	print("... Assigned ship (UID: %d) to character %s" % [uid, character.character_name])
 
+# Creates a unique instance of a module and returns its UID.
+func _create_module_instance(module_template_id: String) -> int:
+	if not TemplateDatabase.assets_modules.has(module_template_id):
+		printerr("WorldGenerator Error: Cannot find module template with id: ", module_template_id)
+		return -1
+		
+	var template = TemplateDatabase.assets_modules[module_template_id]
+	var new_module_instance = template.duplicate()
+	var uid = _get_new_module_uid()
+	GameState.assets_modules[uid] = new_module_instance
+	return uid
+
+
+# --- UID Generation ---
+func _get_new_character_uid() -> int:
+	var id = _next_character_uid
+	_next_character_uid += 1
+	return id
 
 func _get_new_ship_uid() -> int:
 	var id = _next_ship_uid
 	_next_ship_uid += 1
 	return id
 
-func _create_and_assign_modules(character: CharacterTemplate):
-	# For now, every character gets one default module.
-	var template = TemplateDatabase.assets_modules["module_default"]
-	var new_module_instance = template.duplicate()
-	var uid = _get_new_module_uid()
-
-	GameState.assets_modules[uid] = new_module_instance
-	# NOTE: We need to add `inventory_modules` to character_template.gd
-	character.inventory_modules[uid] = new_module_instance # Store the instance directly for now
-	print("... Assigned module (UID: %d) to character %s" % [uid, character.character_name])
-
-
-func _create_and_assign_commodities(character: CharacterTemplate):
-	# For now, every character gets 10 units of the default commodity.
-	var template = TemplateDatabase.assets_commodities["commodity_default"]
-	var new_commodity_instance = template.duplicate()
-	var uid = _get_new_commodity_uid()
-
-	GameState.assets_commodities[uid] = new_commodity_instance
-	# NOTE: We need to add `inventory_commodities` to character_template.gd
-	# We store the quantity against the template_id, as commodities are fungible.
-	character.inventory_commodities[template.template_id] = 10
-	print("... Assigned 10 units of %s to character %s" % [template.template_id, character.character_name])
-
-
 func _get_new_module_uid() -> int:
 	var id = _next_module_uid
 	_next_module_uid += 1
-	return id
-
-
-func _get_new_commodity_uid() -> int:
-	var id = _next_commodity_uid
-	_next_commodity_uid += 1
 	return id
 
 --- Start of ./scenes/main_menu/SettingsRendering.gd ---
@@ -17581,159 +17548,88 @@ func test_signal_emit_count():
 --- Start of ./tests/autoload/test_game_state_manager.gd ---
 
 # File: tests/autoload/test_game_state_manager.gd
-# Version 1.2 - Modified cleanup strategy
+# GUT Test for the streamlined GameStateManager.
+# Version: 2.1 - Corrected for private serialization methods.
 
 extends GutTest
 
-const TEST_SLOT_ID = 999
-var test_save_path = ""
-var _dummy_player = null
-var _dummy_zone = null
+# --- Component Preloads ---
+const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
+const WorldGenerator = preload("res://scenes/game_world/world_manager/world_generator.gd")
+const InventorySystem = preload("res://core/systems/inventory_system.gd")
 
-
-# Helper to setup dummy nodes and refs needed for save_game
-func setup_dummy_refs():
-	cleanup_dummy_refs()  # Ensure clean slate first
-	_dummy_player = KinematicBody.new()
-	add_child_autofree(_dummy_player)
-	_dummy_player.name = "DummyPlayer"
-	_dummy_zone = Node.new()
-	add_child_autofree(_dummy_zone)
-	_dummy_zone.filename = "res://dummy_zone.tscn"
-	_dummy_zone.name = "DummyZone"
-	GlobalRefs.player_agent_body = _dummy_player
-	GlobalRefs.current_zone = _dummy_zone
-	assert_true(is_instance_valid(GlobalRefs.player_agent_body), "Check dummy player valid")
-	assert_true(is_instance_valid(GlobalRefs.current_zone), "Check dummy zone valid")
-
-
-# Helper to clear refs
-func cleanup_dummy_refs():
-	GlobalRefs.player_agent_body = null
-	GlobalRefs.current_zone = null
-	# Nodes added with add_child_autofree are handled by GUT
-
-
-# Helper to clean the test save file
-func _cleanup_test_save():
-	var file = File.new()
-	if file.file_exists(test_save_path):
-		var dir = Directory.new()
-		var err = dir.remove(test_save_path)
-		# if err != OK: printerr("Cleanup Warning: Could not remove test save: ", test_save_path)
+# --- Test State ---
+const TEST_SLOT = 999
+var _initial_game_state_copy = {}
 
 
 func before_all():
-	test_save_path = GameStateManager.get_save_slot_path(TEST_SLOT_ID)
-	var dir = Directory.new()
-	if not dir.dir_exists(GameStateManager.SAVE_DIR):
-		dir.make_dir_recursive(GameStateManager.SAVE_DIR)
-
+	# Index templates once for all tests in this file.
+	var indexer = TemplateIndexer.new()
+	add_child_autofree(indexer)
+	indexer.index_all_templates()
 
 func before_each():
-	# Clean file and refs *before* each test run ensures isolation
-	_cleanup_test_save()
-	cleanup_dummy_refs()
+	# Set up a complete, known game state before each test.
+	_clear_game_state()
+	
+	# The generator needs an inventory system to exist in GlobalRefs.
+	var inv_sys = InventorySystem.new()
+	add_child_autofree(inv_sys)
+	GlobalRefs.inventory_system = inv_sys
+	
+	var generator = WorldGenerator.new()
+	add_child_autofree(generator)
+	generator.generate_new_world()
+	
+	# Take a deep copy of the freshly generated state for comparison later.
+	_initial_game_state_copy = _deep_copy_game_state()
 
-
-# --- REMOVED after_each ---
-# func after_each():
-#	_cleanup_test_save() # This was causing interference
-#	cleanup_dummy_refs()
-
-# --- Test Methods ---
-
-
-func test_save_directory_exists_after_init():
+func after_each():
+	_clear_game_state()
+	GlobalRefs.inventory_system = null # Clean up the global ref
+	var save_path = GameStateManager.SAVE_DIR + GameStateManager.SAVE_FILE_PREFIX + str(TEST_SLOT) + ".sav"
 	var dir = Directory.new()
-	assert_true(dir.dir_exists(GameStateManager.SAVE_DIR), "Save directory check.")
-	prints("Tested GSM: Save Directory Creation")
+	if dir.file_exists(save_path):
+		dir.remove(save_path)
 
+# --- Test Cases ---
 
-func test_get_save_slot_path_format():
-	var expected_path = "user://savegames/save_" + str(TEST_SLOT_ID) + ".sav"
-	assert_eq(
-		GameStateManager.get_save_slot_path(TEST_SLOT_ID), expected_path, "Save path format check."
-	)
-	prints("Tested GSM: get_save_slot_path format")
+func test_save_and_load_restores_identical_state():
+	# 1. Save the game
+	var save_success = GameStateManager.save_game(TEST_SLOT)
+	assert_true(save_success, "Game should save successfully.")
 
+	# 2. Clear the live GameState to simulate a restart
+	_clear_game_state()
+	assert_eq(GameState.characters.size(), 0, "Pre-load check: GameState should be empty.")
 
-func test_save_exists_functionality():
-	assert_false(GameStateManager.save_exists(TEST_SLOT_ID), "Save should not exist initially.")
-	# Create dummy file manually
-	var file = File.new()
-	var err = file.open(test_save_path, File.WRITE)
-	assert_eq(err, OK, "Setup: Open dummy")
-	if err == OK:
-		file.store_string("d")
-		file.close()
-	assert_true(GameStateManager.save_exists(TEST_SLOT_ID), "Save should exist after creating.")
-	# No cleanup needed here, before_each handles next test
-	prints("Tested GSM: save_exists functionality")
+	# 3. Load the game
+	var load_success = GameStateManager.load_game(TEST_SLOT)
+	assert_true(load_success, "Game should load successfully.")
+	
+	# 4. Compare the loaded state to the original state
+	var loaded_state_copy = _deep_copy_game_state()
 
+	# Use GUT's deep compare for detailed comparison
+	var result = compare_deep(_initial_game_state_copy, loaded_state_copy)
+	assert_true(result.are_equal(), "Loaded GameState should be identical to the pre-save state.\n" + result.summary)
 
-func test_basic_save_game_creates_file():
-	setup_dummy_refs()  # Setup required refs
-	var success = GameStateManager.save_game(TEST_SLOT_ID)
-	assert_true(success, "save_game should return true.")
-	var file = File.new()
-	assert_true(file.file_exists(test_save_path), "Save file should be created.")
-	# No cleanup needed here, before_each handles next test
-	prints("Tested GSM: Basic Save Creates File")
+# --- Helper Functions ---
 
+func _clear_game_state():
+	GameState.characters.clear()
+	GameState.assets_ships.clear()
+	GameState.assets_modules.clear()
+	GameState.inventories.clear()
+	GameState.player_character_uid = -1
+	GameState.current_tu = 0
 
-func test_basic_load_game_returns_true_for_existing_file():
-	# 1. Setup and Save *within this test*
-	setup_dummy_refs()
-	var save_success = GameStateManager.save_game(TEST_SLOT_ID)
-	assert_true(save_success, "Test Setup: save_game call needed for load.")
-	# Clear refs *after* saving to ensure load doesn't rely on existing state
-	cleanup_dummy_refs()
-
-	# 2. Attempt to load the file just created in step 1
-	var load_success = GameStateManager.load_game(TEST_SLOT_ID)
-	# Re-add debug prints to GameStateManager.load_game if this still fails
-	assert_true(load_success, "load_game should return true for file created in this test.")
-	prints("Tested GSM: Basic Load Reads File")
-
-
-func test_load_game_fails_for_non_existent_file():
-	# before_each cleaned any old file
-	assert_false(GameStateManager.save_exists(TEST_SLOT_ID), "Pre-check: File shouldn't exist.")
-	var load_success = GameStateManager.load_game(TEST_SLOT_ID)
-	assert_false(load_success, "load_game should return false for non-existent file.")
-	prints("Tested GSM: Load Fails Non-Existent File")
-
-
-func test_save_and_get_metadata():
-	# Setup and save
-	setup_dummy_refs()
-	assert_true(GameStateManager.save_game(TEST_SLOT_ID), "Test Setup: save_game for metadata.")
-	# Clear refs after save
-	cleanup_dummy_refs()
-
-	# Test metadata retrieval
-	var metadata = GameStateManager.get_save_metadata(TEST_SLOT_ID)
-	assert_typeof(metadata, TYPE_DICTIONARY, "Metadata type check.")
-	assert_has(metadata, "save_time", "Metadata has 'save_time'.")
-	assert_has(metadata, "game_version", "Metadata has 'game_version'.")
-	# ... (rest of metadata value checks) ...
-	assert_typeof(metadata.save_time, TYPE_INT, "Save time type check.")
-	assert_gt(metadata.save_time, 0, "Save time positive check.")
-	var expected_version = ProjectSettings.get_setting("application/config/version")
-	if expected_version == null:
-		expected_version = "0.0.1"
-	assert_eq(metadata.game_version, str(expected_version), "Game version value check.")
-
-	prints("Tested GSM: Save and Get Metadata")
-
-
-func test_get_metadata_returns_empty_for_non_existent_file():
-	assert_false(GameStateManager.save_exists(TEST_SLOT_ID), "Pre-check: File shouldn't exist.")
-	var metadata = GameStateManager.get_save_metadata(TEST_SLOT_ID)
-	assert_typeof(metadata, TYPE_DICTIONARY, "Metadata empty dict type check.")
-	assert_eq(metadata.size(), 0, "Metadata should be empty for non-existent file.")
-	prints("Tested GSM: Get Metadata Fails Non-Existent")
+# Creates a serializable copy of the GameState for comparison.
+func _deep_copy_game_state() -> Dictionary:
+	# We now call the private methods on the GameStateManager itself to get the
+	# serialized copy, since it's the authority on serialization.
+	return GameStateManager._serialize_game_state()
 
 --- Start of ./tests/autoload/test_global_refs.gd ---
 
@@ -18593,99 +18489,113 @@ func test_apply_upkeep_cost():
 --- Start of ./tests/core/systems/test_inventory_system.gd ---
 
 # File: tests/core/systems/test_inventory_system.gd
-# GUT Test for the stateless InventorySystem.
-# Version: 2.0 - Rewritten for GameState architecture and new asset types.
+# GUT Test for the unified, stateless InventorySystem.
+# Version: 3.0 - Rewritten for unified GameState architecture.
 
 extends GutTest
 
 # --- Test Subjects ---
 const InventorySystem = preload("res://core/systems/inventory_system.gd")
-const CharacterTemplate = preload("res://core/resource/character_template.gd")
+const ShipTemplate = preload("res://core/resource/asset_ship_template.gd")
 const ModuleTemplate = preload("res://core/resource/asset_module_template.gd")
 
 # --- Test State ---
 var inventory_system_instance = null
 const PLAYER_UID = 0
+const SHIP_UID = 100
 const MODULE_UID = 200
 const COMMODITY_ID = "commodity_default"
+
 
 func before_each():
 	# 1. Clean the global state
 	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
 	GameState.assets_modules.clear()
-	GameState.player_character_uid = -1
-
-	# 2. Create and register a mock player character with some starting inventory
-	var player_char = CharacterTemplate.new()
-	player_char.inventory_commodities = { (COMMODITY_ID): 20 } # Start with 20 default commodities
-	GameState.characters[PLAYER_UID] = player_char
 	GameState.player_character_uid = PLAYER_UID
 
-	# 3. Create and register a mock module asset that can be added/removed
-	var module_asset = ModuleTemplate.new()
-	module_asset.module_name = "Test Module"
-	GameState.assets_modules[MODULE_UID] = module_asset
+	# 2. Create mock assets in the master asset lists
+	GameState.assets_ships[SHIP_UID] = ShipTemplate.new()
+	GameState.assets_modules[MODULE_UID] = ModuleTemplate.new()
 
-	# 4. Instantiate the system we are testing
+	# 3. Instantiate the system we are testing
 	inventory_system_instance = InventorySystem.new()
 	add_child_autofree(inventory_system_instance)
 
+	# 4. Create an inventory for our test character
+	inventory_system_instance.create_inventory_for_character(PLAYER_UID)
+
+
 func after_each():
+	# Clean up global state to ensure test isolation
 	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
 	GameState.assets_modules.clear()
 	GameState.player_character_uid = -1
 	inventory_system_instance = null
 
-# --- Commodity Test Cases ---
 
-func test_add_commodity_to_existing_stack():
-	inventory_system_instance.add_commodity(PLAYER_UID, COMMODITY_ID, 10)
-	var final_count = GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID]
-	assert_eq(final_count, 30, "Should add 10 to the existing stack of 20.")
+# --- Test Cases ---
 
-func test_add_new_commodity():
-	var new_commodity_id = "new_parts"
-	inventory_system_instance.add_commodity(PLAYER_UID, new_commodity_id, 5)
-	assert_has(GameState.characters[PLAYER_UID].inventory_commodities, new_commodity_id, "New commodity should be added to inventory.")
-	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[new_commodity_id], 5, "New commodity should have a quantity of 5.")
+func test_create_inventory_for_character():
+	assert_has(GameState.inventories, PLAYER_UID, "An inventory should be created for the character UID.")
+	var inventory = GameState.inventories[PLAYER_UID]
+	assert_has(inventory, inventory_system_instance.InventoryType.SHIP, "Inventory should have a SHIP dictionary.")
+	assert_has(inventory, inventory_system_instance.InventoryType.MODULE, "Inventory should have a MODULE dictionary.")
+	assert_has(inventory, inventory_system_instance.InventoryType.COMMODITY, "Inventory should have a COMMODITY dictionary.")
 
-func test_remove_commodity_successfully():
-	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 5)
-	assert_true(result, "Should return true when removing a valid amount.")
-	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID], 15, "Quantity should be 15 after removing 5.")
 
-func test_remove_commodity_fully_deletes_entry():
-	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 20)
-	assert_true(result, "Should return true when removing the full stack.")
-	assert_false(GameState.characters[PLAYER_UID].inventory_commodities.has(COMMODITY_ID), "Commodity entry should be removed when quantity is zero.")
+func test_add_and_remove_unique_asset():
+	# Test adding a unique asset (ship)
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID)
+	var player_inventory = GameState.inventories[PLAYER_UID]
+	assert_has(player_inventory[inventory_system_instance.InventoryType.SHIP], SHIP_UID, "Player's ship inventory should contain the ship UID.")
+	assert_eq(inventory_system_instance.get_asset_count(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID), 1, "Ship count should be 1.")
 
-func test_remove_more_commodities_than_exist_fails():
-	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 25)
-	assert_false(result, "Should return false when trying to remove more than available.")
-	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID], 20, "Quantity should not change on a failed removal.")
+	# Test removing the unique asset
+	var result = inventory_system_instance.remove_asset(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID)
+	assert_true(result, "Removing a unique asset should return true.")
+	assert_false(player_inventory[inventory_system_instance.InventoryType.SHIP].has(SHIP_UID), "Ship should be removed from inventory.")
+	assert_eq(inventory_system_instance.get_asset_count(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID), 0, "Ship count should be 0 after removal.")
 
-func test_get_commodity_count():
-	var count = inventory_system_instance.get_commodity_count(PLAYER_UID, COMMODITY_ID)
-	assert_eq(count, 20, "Should return the correct count for an existing commodity.")
-	var non_existent_count = inventory_system_instance.get_commodity_count(PLAYER_UID, "non_existent")
-	assert_eq(non_existent_count, 0, "Should return 0 for a non-existent commodity.")
 
-# --- Module Test Cases ---
+func test_add_and_remove_commodity():
+	# Test adding a new commodity
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 10)
+	var player_inventory = GameState.inventories[PLAYER_UID]
+	assert_eq(player_inventory[inventory_system_instance.InventoryType.COMMODITY][COMMODITY_ID], 10, "Commodity count should be 10.")
 
-func test_add_and_get_module():
-	inventory_system_instance.add_module(PLAYER_UID, MODULE_UID)
-	var modules = inventory_system_instance.get_character_modules(PLAYER_UID)
-	assert_has(modules, MODULE_UID, "Character's module inventory should contain the new module UID.")
-	assert_eq(modules[MODULE_UID], GameState.assets_modules[MODULE_UID], "The correct module instance should be in the inventory.")
+	# Test adding to an existing stack
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 5)
+	assert_eq(player_inventory[inventory_system_instance.InventoryType.COMMODITY][COMMODITY_ID], 15, "Commodity count should be 15 after adding more.")
 
-func test_remove_module():
-	# Add it first to ensure it's there
-	inventory_system_instance.add_module(PLAYER_UID, MODULE_UID)
-	assert_has(GameState.characters[PLAYER_UID].inventory_modules, MODULE_UID, "Pre-check: Module should be in inventory.")
+	# Test removing some
+	var result = inventory_system_instance.remove_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 3)
+	assert_true(result, "Removing a partial stack should return true.")
+	assert_eq(player_inventory[inventory_system_instance.InventoryType.COMMODITY][COMMODITY_ID], 12, "Commodity count should be 12 after removing some.")
 
-	# Now remove it
-	inventory_system_instance.remove_module(PLAYER_UID, MODULE_UID)
-	assert_false(GameState.characters[PLAYER_UID].inventory_modules.has(MODULE_UID), "Module should be removed from inventory.")
+	# Test removing all
+	result = inventory_system_instance.remove_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 12)
+	assert_true(result, "Removing the rest of the stack should return true.")
+	assert_false(player_inventory[inventory_system_instance.InventoryType.COMMODITY].has(COMMODITY_ID), "Commodity should be removed from inventory when count is zero.")
+
+
+func test_get_inventory_by_type():
+	# Add some assets to test with
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.MODULE, MODULE_UID)
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 50)
+
+	# Get the module inventory
+	var module_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.MODULE)
+	assert_eq(module_inventory.size(), 1, "Should return a dictionary with one module.")
+	assert_has(module_inventory, MODULE_UID, "The returned dictionary should contain the correct module UID.")
+
+	# Get the commodity inventory
+	var commodity_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY)
+	assert_eq(commodity_inventory.size(), 1, "Should return a dictionary with one commodity type.")
+	assert_eq(commodity_inventory[COMMODITY_ID], 50, "The returned dictionary should have the correct quantity.")
 
 --- Start of ./tests/core/systems/test_time_system.gd ---
 
@@ -19000,52 +18910,78 @@ func test_indexing_loads_known_templates_correctly():
 
 # File: tests/scenes/game_world/world_manager/test_world_generator.gd
 # GUT Test Script for the WorldGenerator component.
-# Version: 1.0
+# Version: 2.0 - Corrected to handle system dependencies properly.
 
 extends GutTest
 
 const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
 const WorldGenerator = preload("res://scenes/game_world/world_manager/world_generator.gd")
+const InventorySystem = preload("res://core/systems/inventory_system.gd")
 
 var indexer_instance = null
 var generator_instance = null
+var inventory_system_instance = null # We need an instance for the generator to use
 
 func before_each():
-	# The generator depends on the indexer having run first.
+	# 1. Index templates first, as this is a dependency.
 	indexer_instance = TemplateIndexer.new()
 	add_child_autofree(indexer_instance)
 	indexer_instance.index_all_templates()
 
+	# 2. Instantiate the InventorySystem and set it in GlobalRefs.
+	# The WorldGenerator depends on this being valid.
+	inventory_system_instance = InventorySystem.new()
+	add_child_autofree(inventory_system_instance)
+	GlobalRefs.inventory_system = inventory_system_instance
+
+	# 3. Now, instantiate the WorldGenerator we are testing.
 	generator_instance = WorldGenerator.new()
 	add_child_autofree(generator_instance)
 
-	# Ensure a clean GameState for every test.
+	# 4. Ensure a clean GameState for every test.
 	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.assets_modules.clear()
 	GameState.player_character_uid = -1
 
-func test_generates_characters_in_game_state():
-	# Pre-check: GameState should be empty.
-	assert_eq(GameState.characters.size(), 0, "GameState.characters should be empty before generation.")
+func after_each():
+	# Clean up the global reference to prevent test bleed.
+	GlobalRefs.inventory_system = null
 
-	# Run the world generation.
+func test_generates_characters_and_inventories():
+	assert_eq(GameState.characters.size(), 0, "Characters should be empty before generation.")
+	assert_eq(GameState.inventories.size(), 0, "Inventories should be empty before generation.")
+
 	generator_instance.generate_new_world()
 
-	# Post-check: GameState should now be populated.
-	assert_gt(GameState.characters.size(), 0, "GameState.characters should be populated after generation.")
-	# It should create one instance for each template found.
-	assert_eq(GameState.characters.size(), TemplateDatabase.characters.size(), "Should create one character instance per template.")
+	assert_gt(GameState.characters.size(), 0, "Characters should be populated after generation.")
+	assert_eq(GameState.inventories.size(), GameState.characters.size(), "Should create one inventory per character.")
 
 func test_assigns_player_character_uid():
-	# Pre-check: Player UID should be invalid.
 	assert_eq(GameState.player_character_uid, -1, "Player UID should be -1 before generation.")
 
-	# Run the world generation.
 	generator_instance.generate_new_world()
 
-	# Post-check: A valid player UID should be set.
-	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set after generation.")
-	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must exist as a key in the characters dictionary.")
+	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set.")
+	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must be a valid key.")
 
-	# Verify the correct character was assigned as the player.
-	var player_char_instance = GameState.characters[GameState.player_character_uid]
-	assert_eq(player_char_instance.template_id, "character_default", "The player character should have the 'character_default' template_id.")
+func test_generated_characters_have_assets():
+	generator_instance.generate_new_world()
+	
+	var player_uid = GameState.player_character_uid
+	var player_char = GameState.characters[player_uid]
+
+	# Check for active ship assignment
+	assert_ne(player_char.active_ship_uid, -1, "Player should have an active ship UID assigned.")
+	assert_has(GameState.assets_ships, player_char.active_ship_uid, "The active ship should exist in the master asset list.")
+
+	# Check inventory contents using the system
+	var ship_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.SHIP, player_char.active_ship_uid)
+	assert_eq(ship_count, 1, "Player inventory should contain 1 ship.")
+	
+	var module_inventory = inventory_system_instance.get_inventory_by_type(player_uid, inventory_system_instance.InventoryType.MODULE)
+	assert_eq(module_inventory.size(), 1, "Player inventory should contain 1 module.")
+	
+	var commodity_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_default")
+	assert_eq(commodity_count, 10, "Player inventory should contain 10 units of the default commodity.")
