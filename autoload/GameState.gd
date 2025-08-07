@@ -19,9 +19,8 @@ var assets_ships: Dictionary = {}
 var assets_modules: Dictionary = {}
 var assets_commodities: Dictionary = {}
 
-var inventories_ships: Dictionary = {}
-var inventories_modules: Dictionary = {}
-var inventories_commodieties: Dictionary = {}
+# Key: Character UID, Value: An Inventory object/dictionary for that character.
+var inventories: Dictionary = {}
 
 # Defines which character is controlled by player.
 var player_character_uid: int = -1

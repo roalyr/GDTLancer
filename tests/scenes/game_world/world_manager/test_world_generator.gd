@@ -1,51 +1,77 @@
 # File: tests/scenes/game_world/world_manager/test_world_generator.gd
 # GUT Test Script for the WorldGenerator component.
-# Version: 1.0
+# Version: 2.0 - Corrected to handle system dependencies properly.
 
 extends GutTest
 
 const TemplateIndexer = preload("res://scenes/game_world/world_manager/template_indexer.gd")
 const WorldGenerator = preload("res://scenes/game_world/world_manager/world_generator.gd")
+const InventorySystem = preload("res://core/systems/inventory_system.gd")
 
 var indexer_instance = null
 var generator_instance = null
+var inventory_system_instance = null # We need an instance for the generator to use
 
 func before_each():
-	# The generator depends on the indexer having run first.
+	# 1. Index templates first, as this is a dependency.
 	indexer_instance = TemplateIndexer.new()
 	add_child_autofree(indexer_instance)
 	indexer_instance.index_all_templates()
 
+	# 2. Instantiate the InventorySystem and set it in GlobalRefs.
+	# The WorldGenerator depends on this being valid.
+	inventory_system_instance = InventorySystem.new()
+	add_child_autofree(inventory_system_instance)
+	GlobalRefs.inventory_system = inventory_system_instance
+
+	# 3. Now, instantiate the WorldGenerator we are testing.
 	generator_instance = WorldGenerator.new()
 	add_child_autofree(generator_instance)
 
-	# Ensure a clean GameState for every test.
+	# 4. Ensure a clean GameState for every test.
 	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.assets_modules.clear()
 	GameState.player_character_uid = -1
 
-func test_generates_characters_in_game_state():
-	# Pre-check: GameState should be empty.
-	assert_eq(GameState.characters.size(), 0, "GameState.characters should be empty before generation.")
+func after_each():
+	# Clean up the global reference to prevent test bleed.
+	GlobalRefs.inventory_system = null
 
-	# Run the world generation.
+func test_generates_characters_and_inventories():
+	assert_eq(GameState.characters.size(), 0, "Characters should be empty before generation.")
+	assert_eq(GameState.inventories.size(), 0, "Inventories should be empty before generation.")
+
 	generator_instance.generate_new_world()
 
-	# Post-check: GameState should now be populated.
-	assert_gt(GameState.characters.size(), 0, "GameState.characters should be populated after generation.")
-	# It should create one instance for each template found.
-	assert_eq(GameState.characters.size(), TemplateDatabase.characters.size(), "Should create one character instance per template.")
+	assert_gt(GameState.characters.size(), 0, "Characters should be populated after generation.")
+	assert_eq(GameState.inventories.size(), GameState.characters.size(), "Should create one inventory per character.")
 
 func test_assigns_player_character_uid():
-	# Pre-check: Player UID should be invalid.
 	assert_eq(GameState.player_character_uid, -1, "Player UID should be -1 before generation.")
 
-	# Run the world generation.
 	generator_instance.generate_new_world()
 
-	# Post-check: A valid player UID should be set.
-	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set after generation.")
-	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must exist as a key in the characters dictionary.")
+	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set.")
+	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must be a valid key.")
 
-	# Verify the correct character was assigned as the player.
-	var player_char_instance = GameState.characters[GameState.player_character_uid]
-	assert_eq(player_char_instance.template_id, "character_default", "The player character should have the 'character_default' template_id.")
+func test_generated_characters_have_assets():
+	generator_instance.generate_new_world()
+	
+	var player_uid = GameState.player_character_uid
+	var player_char = GameState.characters[player_uid]
+
+	# Check for active ship assignment
+	assert_ne(player_char.active_ship_uid, -1, "Player should have an active ship UID assigned.")
+	assert_has(GameState.assets_ships, player_char.active_ship_uid, "The active ship should exist in the master asset list.")
+
+	# Check inventory contents using the system
+	var ship_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.SHIP, player_char.active_ship_uid)
+	assert_eq(ship_count, 1, "Player inventory should contain 1 ship.")
+	
+	var module_inventory = inventory_system_instance.get_inventory_by_type(player_uid, inventory_system_instance.InventoryType.MODULE)
+	assert_eq(module_inventory.size(), 1, "Player inventory should contain 1 module.")
+	
+	var commodity_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_default")
+	assert_eq(commodity_count, 10, "Player inventory should contain 10 units of the default commodity.")

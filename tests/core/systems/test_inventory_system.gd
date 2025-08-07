@@ -1,94 +1,108 @@
 # File: tests/core/systems/test_inventory_system.gd
-# GUT Test for the stateless InventorySystem.
-# Version: 2.0 - Rewritten for GameState architecture and new asset types.
+# GUT Test for the unified, stateless InventorySystem.
+# Version: 3.0 - Rewritten for unified GameState architecture.
 
 extends GutTest
 
 # --- Test Subjects ---
 const InventorySystem = preload("res://core/systems/inventory_system.gd")
-const CharacterTemplate = preload("res://core/resource/character_template.gd")
+const ShipTemplate = preload("res://core/resource/asset_ship_template.gd")
 const ModuleTemplate = preload("res://core/resource/asset_module_template.gd")
 
 # --- Test State ---
 var inventory_system_instance = null
 const PLAYER_UID = 0
+const SHIP_UID = 100
 const MODULE_UID = 200
 const COMMODITY_ID = "commodity_default"
+
 
 func before_each():
 	# 1. Clean the global state
 	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
 	GameState.assets_modules.clear()
-	GameState.player_character_uid = -1
-
-	# 2. Create and register a mock player character with some starting inventory
-	var player_char = CharacterTemplate.new()
-	player_char.inventory_commodities = { (COMMODITY_ID): 20 } # Start with 20 default commodities
-	GameState.characters[PLAYER_UID] = player_char
 	GameState.player_character_uid = PLAYER_UID
 
-	# 3. Create and register a mock module asset that can be added/removed
-	var module_asset = ModuleTemplate.new()
-	module_asset.module_name = "Test Module"
-	GameState.assets_modules[MODULE_UID] = module_asset
+	# 2. Create mock assets in the master asset lists
+	GameState.assets_ships[SHIP_UID] = ShipTemplate.new()
+	GameState.assets_modules[MODULE_UID] = ModuleTemplate.new()
 
-	# 4. Instantiate the system we are testing
+	# 3. Instantiate the system we are testing
 	inventory_system_instance = InventorySystem.new()
 	add_child_autofree(inventory_system_instance)
 
+	# 4. Create an inventory for our test character
+	inventory_system_instance.create_inventory_for_character(PLAYER_UID)
+
+
 func after_each():
+	# Clean up global state to ensure test isolation
 	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
 	GameState.assets_modules.clear()
 	GameState.player_character_uid = -1
 	inventory_system_instance = null
 
-# --- Commodity Test Cases ---
 
-func test_add_commodity_to_existing_stack():
-	inventory_system_instance.add_commodity(PLAYER_UID, COMMODITY_ID, 10)
-	var final_count = GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID]
-	assert_eq(final_count, 30, "Should add 10 to the existing stack of 20.")
+# --- Test Cases ---
 
-func test_add_new_commodity():
-	var new_commodity_id = "new_parts"
-	inventory_system_instance.add_commodity(PLAYER_UID, new_commodity_id, 5)
-	assert_has(GameState.characters[PLAYER_UID].inventory_commodities, new_commodity_id, "New commodity should be added to inventory.")
-	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[new_commodity_id], 5, "New commodity should have a quantity of 5.")
+func test_create_inventory_for_character():
+	assert_has(GameState.inventories, PLAYER_UID, "An inventory should be created for the character UID.")
+	var inventory = GameState.inventories[PLAYER_UID]
+	assert_has(inventory, inventory_system_instance.InventoryType.SHIP, "Inventory should have a SHIP dictionary.")
+	assert_has(inventory, inventory_system_instance.InventoryType.MODULE, "Inventory should have a MODULE dictionary.")
+	assert_has(inventory, inventory_system_instance.InventoryType.COMMODITY, "Inventory should have a COMMODITY dictionary.")
 
-func test_remove_commodity_successfully():
-	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 5)
-	assert_true(result, "Should return true when removing a valid amount.")
-	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID], 15, "Quantity should be 15 after removing 5.")
 
-func test_remove_commodity_fully_deletes_entry():
-	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 20)
-	assert_true(result, "Should return true when removing the full stack.")
-	assert_false(GameState.characters[PLAYER_UID].inventory_commodities.has(COMMODITY_ID), "Commodity entry should be removed when quantity is zero.")
+func test_add_and_remove_unique_asset():
+	# Test adding a unique asset (ship)
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID)
+	var player_inventory = GameState.inventories[PLAYER_UID]
+	assert_has(player_inventory[inventory_system_instance.InventoryType.SHIP], SHIP_UID, "Player's ship inventory should contain the ship UID.")
+	assert_eq(inventory_system_instance.get_asset_count(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID), 1, "Ship count should be 1.")
 
-func test_remove_more_commodities_than_exist_fails():
-	var result = inventory_system_instance.remove_commodity(PLAYER_UID, COMMODITY_ID, 25)
-	assert_false(result, "Should return false when trying to remove more than available.")
-	assert_eq(GameState.characters[PLAYER_UID].inventory_commodities[COMMODITY_ID], 20, "Quantity should not change on a failed removal.")
+	# Test removing the unique asset
+	var result = inventory_system_instance.remove_asset(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID)
+	assert_true(result, "Removing a unique asset should return true.")
+	assert_false(player_inventory[inventory_system_instance.InventoryType.SHIP].has(SHIP_UID), "Ship should be removed from inventory.")
+	assert_eq(inventory_system_instance.get_asset_count(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID), 0, "Ship count should be 0 after removal.")
 
-func test_get_commodity_count():
-	var count = inventory_system_instance.get_commodity_count(PLAYER_UID, COMMODITY_ID)
-	assert_eq(count, 20, "Should return the correct count for an existing commodity.")
-	var non_existent_count = inventory_system_instance.get_commodity_count(PLAYER_UID, "non_existent")
-	assert_eq(non_existent_count, 0, "Should return 0 for a non-existent commodity.")
 
-# --- Module Test Cases ---
+func test_add_and_remove_commodity():
+	# Test adding a new commodity
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 10)
+	var player_inventory = GameState.inventories[PLAYER_UID]
+	assert_eq(player_inventory[inventory_system_instance.InventoryType.COMMODITY][COMMODITY_ID], 10, "Commodity count should be 10.")
 
-func test_add_and_get_module():
-	inventory_system_instance.add_module(PLAYER_UID, MODULE_UID)
-	var modules = inventory_system_instance.get_character_modules(PLAYER_UID)
-	assert_has(modules, MODULE_UID, "Character's module inventory should contain the new module UID.")
-	assert_eq(modules[MODULE_UID], GameState.assets_modules[MODULE_UID], "The correct module instance should be in the inventory.")
+	# Test adding to an existing stack
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 5)
+	assert_eq(player_inventory[inventory_system_instance.InventoryType.COMMODITY][COMMODITY_ID], 15, "Commodity count should be 15 after adding more.")
 
-func test_remove_module():
-	# Add it first to ensure it's there
-	inventory_system_instance.add_module(PLAYER_UID, MODULE_UID)
-	assert_has(GameState.characters[PLAYER_UID].inventory_modules, MODULE_UID, "Pre-check: Module should be in inventory.")
+	# Test removing some
+	var result = inventory_system_instance.remove_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 3)
+	assert_true(result, "Removing a partial stack should return true.")
+	assert_eq(player_inventory[inventory_system_instance.InventoryType.COMMODITY][COMMODITY_ID], 12, "Commodity count should be 12 after removing some.")
 
-	# Now remove it
-	inventory_system_instance.remove_module(PLAYER_UID, MODULE_UID)
-	assert_false(GameState.characters[PLAYER_UID].inventory_modules.has(MODULE_UID), "Module should be removed from inventory.")
+	# Test removing all
+	result = inventory_system_instance.remove_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 12)
+	assert_true(result, "Removing the rest of the stack should return true.")
+	assert_false(player_inventory[inventory_system_instance.InventoryType.COMMODITY].has(COMMODITY_ID), "Commodity should be removed from inventory when count is zero.")
+
+
+func test_get_inventory_by_type():
+	# Add some assets to test with
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.MODULE, MODULE_UID)
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 50)
+
+	# Get the module inventory
+	var module_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.MODULE)
+	assert_eq(module_inventory.size(), 1, "Should return a dictionary with one module.")
+	assert_has(module_inventory, MODULE_UID, "The returned dictionary should contain the correct module UID.")
+
+	# Get the commodity inventory
+	var commodity_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY)
+	assert_eq(commodity_inventory.size(), 1, "Should return a dictionary with one commodity type.")
+	assert_eq(commodity_inventory[COMMODITY_ID], 50, "The returned dictionary should have the correct quantity.")
