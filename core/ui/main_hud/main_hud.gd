@@ -1,4 +1,4 @@
-# File: res://core/ui/main_hud.gd
+# File: res://core/ui/main_hud/main_hud.gd
 # Script for the main HUD container. Handles displaying targeting info, etc.
 # Version: 1.1 - Fixed targeting indicator visibility restoration
 

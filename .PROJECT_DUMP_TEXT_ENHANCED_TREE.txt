@@ -206,9 +206,14 @@
 │   │   ├── traffic_system.gd
 │   │   └── world_map_system.gd
 │   ├── ui
-│   │   ├── CenteredGrowingLabel.gd
-│   │   ├── main_hud.gd
-│   │   └── main_hud.tscn
+│   │   ├── main_hud
+│   │   │   ├── main_hud.gd
+│   │   │   └── main_hud.tscn
+│   │   ├── main_menu
+│   │   │   ├── main_menu.gd
+│   │   │   └── main_menu.tscn
+│   │   └── ui_helper_classes
+│   │       └── CenteredGrowingLabel.gd
 │   └── utils
 │       ├── editor_object.gd
 │       ├── pid_controller.gd
@@ -228,8 +233,8 @@
 ├── project.godot
 ├── scenes
 │   ├── camera
-│   │   ├── camera_particles_controller.gd
 │   │   ├── components
+│   │   │   ├── camera_particles_controller.gd
 │   │   │   ├── camera_position_controller.gd
 │   │   │   ├── camera_rotation_controller.gd
 │   │   │   └── camera_zoom_controller.gd
@@ -240,10 +245,8 @@
 │   │   ├── world_manager
 │   │   │   ├── template_indexer.gd
 │   │   │   └── world_generator.gd
-│   │   └── world_manager.gd
-│   ├── main_menu
-│   │   ├── main_menu.tscn
-│   │   └── SettingsRendering.gd
+│   │   ├── world_manager.gd
+│   │   └── world_rendering.gd
 │   └── zones
 │       ├── basic_flight_zone.tscn
 │       ├── nebula_1_inside.tres
@@ -288,6 +291,6 @@
                 ├── test_template_indexer.gd
                 └── test_world_generator.gd
 
-60 directories, 229 files
+62 directories, 230 files
 
-60 directories, 229 files
+62 directories, 230 files

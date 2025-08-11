@@ -1984,11 +1984,11 @@ __meta__ = {
 [node name="PlayerInputHandler" type="Node" parent="AgentBody"]
 script = ExtResource( 2 )
 
---- Start of ./core/ui/main_hud.tscn ---
+--- Start of ./core/ui/main_hud/main_hud.tscn ---
 
 [gd_scene load_steps=15 format=2]
 
-[ext_resource path="res://core/ui/main_hud.gd" type="Script" id=1]
+[ext_resource path="res://core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
 [ext_resource path="res://assets/art/ui/controls/button_orbit.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/ui/controls/_placeholder_map.png" type="Texture" id=4]
@@ -2001,10 +2001,9 @@ script = ExtResource( 2 )
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
 [ext_resource path="res://assets/art/ui/controls/button_interaction.png" type="Texture" id=13]
-[ext_resource path="res://core/ui/CenteredGrowingLabel.gd" type="Script" id=14]
+[ext_resource path="res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd" type="Script" id=14]
 
 [node name="MainHUD" type="Control"]
-modulate = Color( 1, 1, 1, 0.168627 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
@@ -2473,13 +2472,59 @@ expand = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 
+--- Start of ./core/ui/main_menu/main_menu.tscn ---
+
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://core/ui/main_menu/main_menu.gd" type="Script" id=3]
+
+[node name="MainMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ScreenControls" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
+
 --- Start of ./scenes/camera/orbit_camera.tscn ---
 
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scenes/camera/orbit_camera.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/effects/particle_quad.tres" type="QuadMesh" id=2]
-[ext_resource path="res://scenes/camera/camera_particles_controller.gd" type="Script" id=3]
+[ext_resource path="res://scenes/camera/components/camera_particles_controller.gd" type="Script" id=3]
 
 [sub_resource type="Gradient" id=1]
 offsets = PoolRealArray( 0, 0.5, 1 )
@@ -2577,10 +2622,10 @@ max_camera_speed_for_effect = 1.0
 
 --- Start of ./scenes/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://scenes/game_world/world_manager.gd" type="Script" id=1]
-[ext_resource path="res://core/ui/main_hud.tscn" type="PackedScene" id=2]
+[ext_resource path="res://core/ui/main_hud/main_hud.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/camera/orbit_camera.tscn" type="PackedScene" id=3]
 [ext_resource path="res://core/systems/agent_system.gd" type="Script" id=4]
 [ext_resource path="res://core/systems/time_system.gd" type="Script" id=5]
@@ -2594,6 +2639,7 @@ max_camera_speed_for_effect = 1.0
 [ext_resource path="res://core/systems/traffic_system.gd" type="Script" id=13]
 [ext_resource path="res://core/systems/world_map_system.gd" type="Script" id=14]
 [ext_resource path="res://core/systems/inventory_system.gd" type="Script" id=15]
+[ext_resource path="res://scenes/game_world/world_rendering.gd" type="Script" id=16]
 
 [node name="MainGameScene" type="Node"]
 
@@ -2636,6 +2682,9 @@ script = ExtResource( 13 )
 [node name="WorldMapSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 14 )
 
+[node name="WorldRendering" type="Node" parent="."]
+script = ExtResource( 16 )
+
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
 
 [node name="CurrentZoneContainer" type="Spatial" parent="."]
@@ -2644,27 +2693,6 @@ __meta__ = {
 }
 
 [node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
-
---- Start of ./scenes/main_menu/main_menu.tscn ---
-
-[gd_scene load_steps=2 format=2]
-
-[ext_resource path="res://scenes/main_menu/SettingsRendering.gd" type="Script" id=1]
-
-[node name="MainMenu" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="SettingsRendering" type="Control" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_lock_": true
-}
 
 --- Start of ./scenes/zones/basic_flight_zone.tscn ---
 

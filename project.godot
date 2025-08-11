@@ -42,7 +42,7 @@ _global_script_classes=[ {
 "base": "Label",
 "class": "CenteredGrowingLabel",
 "language": "GDScript",
-"path": "res://core/ui/CenteredGrowingLabel.gd"
+"path": "res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd"
 }, {
 "base": "Template",
 "class": "CharacterTemplate",

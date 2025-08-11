@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=2]
 
-[ext_resource path="res://core/ui/main_hud.gd" type="Script" id=1]
+[ext_resource path="res://core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
 [ext_resource path="res://assets/art/ui/controls/button_orbit.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/ui/controls/_placeholder_map.png" type="Texture" id=4]
@@ -13,10 +13,9 @@
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
 [ext_resource path="res://assets/art/ui/controls/button_interaction.png" type="Texture" id=13]
-[ext_resource path="res://core/ui/CenteredGrowingLabel.gd" type="Script" id=14]
+[ext_resource path="res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd" type="Script" id=14]
 
 [node name="MainHUD" type="Control"]
-modulate = Color( 1, 1, 1, 0.168627 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2

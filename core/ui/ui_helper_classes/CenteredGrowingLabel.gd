@@ -1,6 +1,7 @@
-# File: res://ui_elements/CenteredGrowingLabel.gd (or your preferred path)
+# File: res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd
+# Makes labels center-aligned in parent at runtime.
+# Version: 1.0
 
-# class_name ClassName, path/to/icon.svg
 class_name CenteredGrowingLabel, "res://assets/art/ui/class_labels/class_centered_growing_label.svg"
 extends Label
 

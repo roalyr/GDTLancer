@@ -13511,10 +13511,10 @@ func _deserialize_inventories(serialized_inv: Dictionary) -> Dictionary:
 		var char_uid = int(char_uid_str)
 		var original_inv = serialized_inv[char_uid_str]
 		
-		# --- FIX: Access the loaded dictionary using STRING keys ---
-		var ship_key = String(InventorySystem.InventoryType.SHIP)
-		var module_key = String(InventorySystem.InventoryType.MODULE)
-		var commodity_key = String(InventorySystem.InventoryType.COMMODITY)
+		# --- FIX: Use integer enum values directly as keys for lookup ---
+		var ship_key = InventorySystem.InventoryType.SHIP
+		var module_key = InventorySystem.InventoryType.MODULE
+		var commodity_key = InventorySystem.InventoryType.COMMODITY
 		
 		inv_dict[char_uid] = {
 			InventorySystem.InventoryType.SHIP: _deserialize_resource_dict(original_inv.get(ship_key, {})),
@@ -15397,71 +15397,9 @@ func _ready():
 	GlobalRefs.set_world_map_system(self)
 	print("WorldMapSystem Ready.")
 
---- Start of ./core/ui/CenteredGrowingLabel.gd ---
+--- Start of ./core/ui/main_hud/main_hud.gd ---
 
-# File: res://ui_elements/CenteredGrowingLabel.gd (or your preferred path)
-
-# class_name ClassName, path/to/icon.svg
-class_name CenteredGrowingLabel, "res://assets/art/ui/class_labels/class_centered_growing_label.svg"
-extends Label
-
-# --- Static Group Name ---
-const AUTO_GROUP_NAME = "centered_growing_labels"
-
-# --- Internal ---
-var _is_ready_for_recenter = false
-
-
-func _enter_tree():
-	if not is_in_group(AUTO_GROUP_NAME):
-		add_to_group(AUTO_GROUP_NAME)
-	if not is_connected("resized", self, "_on_self_resized"):
-		connect("resized", self, "_on_self_resized")
-	call_deferred("_initial_setup_and_recenter")
-
-
-func _initial_setup_and_recenter():
-	_is_ready_for_recenter = true
-	_recenter_in_parent()
-	self.focus_mode = Control.FOCUS_NONE
-
-
-func _exit_tree():
-	if is_in_group(AUTO_GROUP_NAME):
-		remove_from_group(AUTO_GROUP_NAME)
-	if is_connected("resized", self, "_on_self_resized"):
-		disconnect("resized", self, "_on_self_resized")
-
-
-func _on_self_resized():
-	_recenter_in_parent()
-
-
-func _recenter_in_parent():
-	if not _is_ready_for_recenter:
-		return
-	var parent_control = get_parent_control()
-	if parent_control:
-		var current_label_size = self.rect_size
-		var parent_size = parent_control.rect_size
-		var new_pos_x = (parent_size.x - current_label_size.x) / 2.0
-		var new_pos_y = (parent_size.y - current_label_size.y) / 2.0
-		if (
-			not is_equal_approx(rect_position.x, new_pos_x)
-			or not is_equal_approx(rect_position.y, new_pos_y)
-		):
-			self.rect_position = Vector2(new_pos_x, new_pos_y)
-
-
-func get_parent_control() -> Control:
-	var p = get_parent()
-	if p is Control:
-		return p
-	return null
-
---- Start of ./core/ui/main_hud.gd ---
-
-# File: res://core/ui/main_hud.gd
+# File: res://core/ui/main_hud/main_hud.gd
 # Script for the main HUD container. Handles displaying targeting info, etc.
 # Version: 1.1 - Fixed targeting indicator visibility restoration
 
@@ -15635,6 +15573,77 @@ func _on_SliderControlRight_value_changed(value):
 	# This slider is inverted (rotated by 180) for the sake of appearance.
 	if EventBus:
 		EventBus.emit_signal("player_ship_speed_changed", value)
+
+--- Start of ./core/ui/main_menu/main_menu.gd ---
+
+# File: res://core/ui/main_menu/main_menu.gd
+# Script for the main menu.
+# Version: 1.0
+
+extends Control
+
+--- Start of ./core/ui/ui_helper_classes/CenteredGrowingLabel.gd ---
+
+# File: res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd
+# Makes labels center-aligned in parent at runtime.
+# Version: 1.0
+
+class_name CenteredGrowingLabel, "res://assets/art/ui/class_labels/class_centered_growing_label.svg"
+extends Label
+
+# --- Static Group Name ---
+const AUTO_GROUP_NAME = "centered_growing_labels"
+
+# --- Internal ---
+var _is_ready_for_recenter = false
+
+
+func _enter_tree():
+	if not is_in_group(AUTO_GROUP_NAME):
+		add_to_group(AUTO_GROUP_NAME)
+	if not is_connected("resized", self, "_on_self_resized"):
+		connect("resized", self, "_on_self_resized")
+	call_deferred("_initial_setup_and_recenter")
+
+
+func _initial_setup_and_recenter():
+	_is_ready_for_recenter = true
+	_recenter_in_parent()
+	self.focus_mode = Control.FOCUS_NONE
+
+
+func _exit_tree():
+	if is_in_group(AUTO_GROUP_NAME):
+		remove_from_group(AUTO_GROUP_NAME)
+	if is_connected("resized", self, "_on_self_resized"):
+		disconnect("resized", self, "_on_self_resized")
+
+
+func _on_self_resized():
+	_recenter_in_parent()
+
+
+func _recenter_in_parent():
+	if not _is_ready_for_recenter:
+		return
+	var parent_control = get_parent_control()
+	if parent_control:
+		var current_label_size = self.rect_size
+		var parent_size = parent_control.rect_size
+		var new_pos_x = (parent_size.x - current_label_size.x) / 2.0
+		var new_pos_y = (parent_size.y - current_label_size.y) / 2.0
+		if (
+			not is_equal_approx(rect_position.x, new_pos_x)
+			or not is_equal_approx(rect_position.y, new_pos_y)
+		):
+			self.rect_position = Vector2(new_pos_x, new_pos_y)
+
+
+func get_parent_control() -> Control:
+	var p = get_parent()
+	if p is Control:
+		return p
+	return null
 
 --- Start of ./core/utils/editor_object.gd ---
 
@@ -16252,7 +16261,7 @@ func initialize(config: Dictionary):
 # --- No Public Functions Needed Here ---
 # func set_target(new_target: Vector3): # Removed - command issued once at init
 
---- Start of ./scenes/camera/camera_particles_controller.gd ---
+--- Start of ./scenes/camera/components/camera_particles_controller.gd ---
 
 # File: res://scenes/camera/camera_particles_controller.gd
 # Purpose: Controls the space dust (CPUParticles) effect attached to the camera,
@@ -16979,6 +16988,8 @@ func _ready():
 	_template_indexer.index_all_templates()
 
 	# Step 2: Initialize the game state (will handle New vs. Load).
+	# _initialize_main_menu()
+	# Let the main menu emit signal to _initialize_new_game() insteaad.
 	_initialize_game_state()
 	
 	# Connect to agent signals to keep the local list clean.
@@ -17280,20 +17291,36 @@ func _get_new_module_uid() -> int:
 	_next_module_uid += 1
 	return id
 
---- Start of ./scenes/main_menu/SettingsRendering.gd ---
+--- Start of ./scenes/game_world/world_rendering.gd ---
 
-extends Control
+# File: scenes/game_world/world_rendering.gd
+# Version: 1.0 - Handles rendering options for viewport as a whole.
+
+extends Node
+
+var viewport_downscale_factor = 1
+var viewport_msaa = Viewport.MSAA_DISABLED
+var viewport_fxaa = true
+var viewport_disable_3d = false
+
 
 var _viewport_size = Vector2(1920, 1080)
+var _prev_viewport_size = Vector2(1920, 1080)
 
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	_viewport_size = get_viewport().size
+	get_viewport().msaa = viewport_msaa
+	get_viewport().fxaa = viewport_fxaa
+	get_viewport().disable_3d = viewport_disable_3d
+	print("Viewport: Is ready")
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func _process(delta):
+	# Handle each option via signal instead maybe.
+	
+	_viewport_size = get_viewport().size 
+	if _viewport_size != _prev_viewport_size:
+		get_viewport().size = _viewport_size / viewport_downscale_factor
+		_prev_viewport_size = get_viewport().size
+		print(_viewport_size)
 
 --- Start of ./tests/autoload/test_constants.gd ---
 

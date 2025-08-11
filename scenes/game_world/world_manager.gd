@@ -26,6 +26,8 @@ func _ready():
 	_template_indexer.index_all_templates()
 
 	# Step 2: Initialize the game state (will handle New vs. Load).
+	# _initialize_main_menu()
+	# Let the main menu emit signal to _initialize_new_game() insteaad.
 	_initialize_game_state()
 	
 	# Connect to agent signals to keep the local list clean.

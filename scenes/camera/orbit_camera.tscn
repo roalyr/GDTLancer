@@ -2,7 +2,7 @@
 
 [ext_resource path="res://scenes/camera/orbit_camera.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/effects/particle_quad.tres" type="QuadMesh" id=2]
-[ext_resource path="res://scenes/camera/camera_particles_controller.gd" type="Script" id=3]
+[ext_resource path="res://scenes/camera/components/camera_particles_controller.gd" type="Script" id=3]
 
 [sub_resource type="Gradient" id=1]
 offsets = PoolRealArray( 0, 0.5, 1 )
