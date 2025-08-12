@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://core/ui/main_hud/main_hud.tscn" type="PackedScene" id=2]
@@ -16,6 +16,7 @@
 [ext_resource path="res://core/systems/world_map_system.gd" type="Script" id=14]
 [ext_resource path="res://core/systems/inventory_system.gd" type="Script" id=15]
 [ext_resource path="res://scenes/game_world/world_rendering.gd" type="Script" id=16]
+[ext_resource path="res://core/ui/main_menu/main_menu.tscn" type="PackedScene" id=17]
 
 [node name="MainGameScene" type="Node"]
 
@@ -60,6 +61,9 @@ script = ExtResource( 14 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
+
+[node name="MainMenu" parent="." instance=ExtResource( 17 )]
+visible = false
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
 

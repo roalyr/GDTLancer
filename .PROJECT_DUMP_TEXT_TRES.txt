@@ -176,6 +176,7 @@ border_width_right = 50
 border_color = Color( 0, 0, 0, 0 )
 
 [resource]
+HBoxContainer/constants/separation = 40
 Label/fonts/font = SubResource( 7 )
 VSlider/icons/grabber = ExtResource( 1 )
 VSlider/icons/grabber_disabled = ExtResource( 1 )

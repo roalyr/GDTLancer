@@ -80,46 +80,57 @@
 │   │       ├── class_labels
 │   │       │   ├── class_centered_growing_label.odg
 │   │       │   └── class_centered_growing_label.svg
-│   │       └── controls
-│   │           ├── bracket_autopilot.dxf
-│   │           ├── bracket_autopilot.png
-│   │           ├── bracket_targeting.dxf
-│   │           ├── bracket_targeting.png
-│   │           ├── button_approach.dxf
-│   │           ├── button_approach.png
-│   │           ├── button_camera.dxf
-│   │           ├── button_camera.png
-│   │           ├── button_flee.dxf
-│   │           ├── button_flee.png
-│   │           ├── button_free_flight.dxf
-│   │           ├── button_free_flight.png
-│   │           ├── button_info.dxf
-│   │           ├── button_info.png
-│   │           ├── button_interaction.dxf
-│   │           ├── button_interaction.png
-│   │           ├── button_options.dxf
-│   │           ├── button_options.png
-│   │           ├── button_orbit.dxf
-│   │           ├── button_orbit.png
-│   │           ├── button_placeholder.png
-│   │           ├── button_planet.dxf
-│   │           ├── button_planet.png
-│   │           ├── button_ship.dxf
-│   │           ├── button_ship.png
-│   │           ├── button_stop.dxf
-│   │           ├── button_stop.png
-│   │           ├── button_structure.dxf
-│   │           ├── button_structure.png
-│   │           ├── button_system.dxf
-│   │           ├── button_system.png
-│   │           ├── button_ui_opacity.dxf
-│   │           ├── button_ui_opacity.png
-│   │           ├── _placeholder_map.png
-│   │           ├── slider_horizontal.dxf
-│   │           ├── slider_tick.dxf
-│   │           ├── slider_tick.png
-│   │           ├── slider_vert.dxf
-│   │           └── slider_vert.png
+│   │       ├── controls
+│   │       │   ├── bracket_autopilot.dxf
+│   │       │   ├── bracket_autopilot.png
+│   │       │   ├── bracket_targeting.dxf
+│   │       │   ├── bracket_targeting.png
+│   │       │   ├── button_approach.dxf
+│   │       │   ├── button_approach.png
+│   │       │   ├── button_camera.dxf
+│   │       │   ├── button_camera.png
+│   │       │   ├── button_flee.dxf
+│   │       │   ├── button_flee.png
+│   │       │   ├── button_free_flight.dxf
+│   │       │   ├── button_free_flight.png
+│   │       │   ├── button_info.dxf
+│   │       │   ├── button_info.png
+│   │       │   ├── button_interaction.dxf
+│   │       │   ├── button_interaction.png
+│   │       │   ├── button_options.dxf
+│   │       │   ├── button_options.png
+│   │       │   ├── button_orbit.dxf
+│   │       │   ├── button_orbit.png
+│   │       │   ├── button_placeholder.png
+│   │       │   ├── button_planet.dxf
+│   │       │   ├── button_planet.png
+│   │       │   ├── button_ship.dxf
+│   │       │   ├── button_ship.png
+│   │       │   ├── button_stop.dxf
+│   │       │   ├── button_stop.png
+│   │       │   ├── button_structure.dxf
+│   │       │   ├── button_structure.png
+│   │       │   ├── button_system.dxf
+│   │       │   ├── button_system.png
+│   │       │   ├── button_ui_opacity.dxf
+│   │       │   ├── button_ui_opacity.png
+│   │       │   ├── _placeholder_map.png
+│   │       │   ├── slider_horizontal.dxf
+│   │       │   ├── slider_tick.dxf
+│   │       │   ├── slider_tick.png
+│   │       │   ├── slider_vert.dxf
+│   │       │   └── slider_vert.png
+│   │       └── main_menu
+│   │           ├── button_exit_game.dxf
+│   │           ├── button_exit_game.png
+│   │           ├── button_load_game.dxf
+│   │           ├── button_load_game.png
+│   │           ├── button_save_game.dxf
+│   │           ├── button_save_game.png
+│   │           ├── button_settings.dxf
+│   │           ├── button_settings.png
+│   │           ├── button_start_new_game.dxf
+│   │           └── button_start_new_game.png
 │   ├── data
 │   │   ├── actions
 │   │   │   └── action_default.tres
@@ -291,6 +302,6 @@
                 ├── test_template_indexer.gd
                 └── test_world_generator.gd
 
-62 directories, 230 files
+63 directories, 240 files
 
-62 directories, 230 files
+63 directories, 240 files
