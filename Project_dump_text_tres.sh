@@ -5,7 +5,7 @@ SCRIPT_NAME=$(basename "$0")
 
 # Default values
 INPUT_DIR="."
-OUTPUT_FILE=".PROJECT_DUMP_TEXT_TRES.txt" # Default output, will be excluded
+OUTPUT_FILE="PROJECT_DUMP_TEXT_TRES.md" # Default output, will be excluded
 FILE_EXTENSION="tres" # Default file extension
 EXCLUDE_WORDS=()
 EXCLUDE_DIRS=(".git") # Exclude .git by default

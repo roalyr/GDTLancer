@@ -5,7 +5,7 @@ SCRIPT_NAME=$(basename "$0")
 
 # Default values
 INPUT_DIR="."
-OUTPUT_FILE=".PROJECT_DUMP_TEXT_TSCN.txt" # Default output, will be excluded
+OUTPUT_FILE="PROJECT_DUMP_TEXT_TSCN.md" # Default output, will be excluded
 FILE_EXTENSION="tscn" # Default file extension
 EXCLUDE_WORDS=()
 EXCLUDE_DIRS=(".git" ) # Exclude .git by default

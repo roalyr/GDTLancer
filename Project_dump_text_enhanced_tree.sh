@@ -3,7 +3,7 @@
 # --- Configuration ---
 DEFAULT_EXCLUDE_DIRS=(".git") # Directories to exclude by default
 TARGET_PATH="."                  # Default directory to run tree on
-OUTPUT_FILE=".PROJECT_DUMP_TEXT_ENHANCED_TREE.txt"                   # Default: print to stdout
+OUTPUT_FILE="PROJECT_DUMP_TEXT_ENHANCED_TREE.md"                   # Default: print to stdout
 
 # --- Arrays for User Exclusions ---
 USER_EXCLUDE_DIRS=(".import" "addons")
