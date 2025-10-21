@@ -442,10 +442,29 @@ align = 1
 script = ExtResource( 14 )
 
 [node name="TopLeftZone" type="Control" parent="ScreenControls"]
-visible = false
 margin_right = 470.0
 margin_bottom = 470.0
 mouse_filter = 2
+
+[node name="LabelWP" type="Label" parent="ScreenControls/TopLeftZone"]
+margin_right = 40.0
+margin_bottom = 14.0
+theme = ExtResource( 9 )
+text = "Current WP:"
+
+[node name="LabelFP" type="Label" parent="ScreenControls/TopLeftZone"]
+margin_top = 39.0
+margin_right = 103.0
+margin_bottom = 66.0
+theme = ExtResource( 9 )
+text = "Current FP: "
+
+[node name="ButtonCharacter" type="Button" parent="ScreenControls/TopLeftZone"]
+margin_top = 82.0
+margin_right = 111.0
+margin_bottom = 132.0
+theme = ExtResource( 9 )
+text = "CHARACTER"
 
 [node name="TopCenterZone" type="Control" parent="ScreenControls"]
 visible = false
@@ -483,3 +502,4 @@ expand = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
+[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]

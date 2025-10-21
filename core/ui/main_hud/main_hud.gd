@@ -6,6 +6,9 @@ extends Control
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
+onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
+onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
+onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
 
 # --- State ---
 var _current_target: Spatial = null
@@ -32,10 +35,18 @@ func _ready():
 	if EventBus:
 		if not EventBus.is_connected("player_target_selected", self, "_on_Player_Target_Selected"):
 			EventBus.connect("player_target_selected", self, "_on_Player_Target_Selected")
+
 		if not EventBus.is_connected(
 			"player_target_deselected", self, "_on_Player_Target_Deselected"
 		):
 			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
+
+		if not EventBus.is_connected("player_wp_changed", self, "_on_player_wp_changed"):
+			EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
+
+		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
+			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
+
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
@@ -89,6 +100,20 @@ func _on_Player_Target_Deselected():
 	_current_target = null
 	targeting_indicator.visible = false
 	set_process(false)  # Can disable processing if target is deselected
+
+
+func _on_player_wp_changed():
+	label_wp.text = (
+		"Current WP: "
+		+ str(GlobalRefs.character_system.get_player_character().wealth_points)
+	)
+
+
+func _on_player_fp_changed():
+	label_fp.text = (
+		"Current FP: "
+		+ str(GlobalRefs.character_system.get_player_character().focus_points)
+	)
 
 
 # --- Custom Drawing (Optional but Recommended) ---
@@ -172,3 +197,8 @@ func _on_SliderControlRight_value_changed(value):
 	# This slider is inverted (rotated by 180) for the sake of appearance.
 	if EventBus:
 		EventBus.emit_signal("player_ship_speed_changed", value)
+
+
+func _on_ButtonCharacter_pressed():
+	GlobalRefs.character_status.update_display()
+	GlobalRefs.character_status.show()

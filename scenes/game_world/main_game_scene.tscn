@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://core/ui/main_hud/main_hud.tscn" type="PackedScene" id=2]
@@ -17,6 +17,7 @@
 [ext_resource path="res://core/systems/inventory_system.gd" type="Script" id=15]
 [ext_resource path="res://scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://core/ui/main_menu/main_menu.tscn" type="PackedScene" id=17]
+[ext_resource path="res://core/ui/character_status/character_status.tscn" type="PackedScene" id=18]
 
 [node name="MainGameScene" type="Node"]
 
@@ -62,10 +63,16 @@ script = ExtResource( 14 )
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
 
+[node name="MainHUD" parent="." instance=ExtResource( 2 )]
+
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 visible = false
 
-[node name="MainHUD" parent="." instance=ExtResource( 2 )]
+[node name="CharacterStatus" parent="." instance=ExtResource( 18 )]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="CurrentZoneContainer" type="Spatial" parent="."]
 __meta__ = {

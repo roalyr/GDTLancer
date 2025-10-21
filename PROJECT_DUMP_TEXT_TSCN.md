@@ -1984,6 +1984,67 @@ __meta__ = {
 [node name="PlayerInputHandler" type="Node" parent="AgentBody"]
 script = ExtResource( 2 )
 
+--- Start of ./core/ui/character_status/character_status.tscn ---
+
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://core/ui/character_status/character_status.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="CharacterStatus" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.298039 )
+
+[node name="LabelSkillPiloting" type="Label" parent="."]
+margin_left = 317.0
+margin_top = 244.0
+margin_right = 458.0
+margin_bottom = 281.0
+theme = ExtResource( 2 )
+text = "Skill Piloting: "
+
+[node name="LabelSkillTrading" type="Label" parent="."]
+margin_left = 317.0
+margin_top = 292.0
+margin_right = 458.0
+margin_bottom = 329.0
+theme = ExtResource( 2 )
+text = "Skill Trading: "
+
+[node name="ButtonClose" type="Button" parent="."]
+margin_left = 352.0
+margin_top = 432.0
+margin_right = 529.0
+margin_bottom = 538.0
+theme = ExtResource( 2 )
+text = "Close"
+
+[node name="ButtonAddWP" type="Button" parent="."]
+margin_left = 766.0
+margin_top = 368.0
+margin_right = 943.0
+margin_bottom = 474.0
+theme = ExtResource( 2 )
+text = "ADD WP"
+
+[node name="ButtonAddFP" type="Button" parent="."]
+margin_left = 763.0
+margin_top = 220.0
+margin_right = 940.0
+margin_bottom = 326.0
+theme = ExtResource( 2 )
+text = "Add FP"
+
+[connection signal="pressed" from="ButtonClose" to="." method="_on_ButtonClose_pressed"]
+[connection signal="pressed" from="ButtonAddWP" to="." method="_on_ButtonAddWP_pressed"]
+[connection signal="pressed" from="ButtonAddFP" to="." method="_on_ButtonAddFP_pressed"]
+
 --- Start of ./core/ui/main_hud/main_hud.tscn ---
 
 [gd_scene load_steps=15 format=2]
@@ -2430,10 +2491,29 @@ align = 1
 script = ExtResource( 14 )
 
 [node name="TopLeftZone" type="Control" parent="ScreenControls"]
-visible = false
 margin_right = 470.0
 margin_bottom = 470.0
 mouse_filter = 2
+
+[node name="LabelWP" type="Label" parent="ScreenControls/TopLeftZone"]
+margin_right = 40.0
+margin_bottom = 14.0
+theme = ExtResource( 9 )
+text = "Current WP:"
+
+[node name="LabelFP" type="Label" parent="ScreenControls/TopLeftZone"]
+margin_top = 39.0
+margin_right = 103.0
+margin_bottom = 66.0
+theme = ExtResource( 9 )
+text = "Current FP: "
+
+[node name="ButtonCharacter" type="Button" parent="ScreenControls/TopLeftZone"]
+margin_top = 82.0
+margin_right = 111.0
+margin_bottom = 132.0
+theme = ExtResource( 9 )
+text = "CHARACTER"
 
 [node name="TopCenterZone" type="Control" parent="ScreenControls"]
 visible = false
@@ -2471,6 +2551,7 @@ expand = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
+[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 
 --- Start of ./core/ui/main_menu/main_menu.tscn ---
 
@@ -2850,7 +2931,7 @@ max_camera_speed_for_effect = 1.0
 
 --- Start of ./scenes/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://core/ui/main_hud/main_hud.tscn" type="PackedScene" id=2]
@@ -2869,6 +2950,7 @@ max_camera_speed_for_effect = 1.0
 [ext_resource path="res://core/systems/inventory_system.gd" type="Script" id=15]
 [ext_resource path="res://scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://core/ui/main_menu/main_menu.tscn" type="PackedScene" id=17]
+[ext_resource path="res://core/ui/character_status/character_status.tscn" type="PackedScene" id=18]
 
 [node name="MainGameScene" type="Node"]
 
@@ -2914,10 +2996,16 @@ script = ExtResource( 14 )
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
 
+[node name="MainHUD" parent="." instance=ExtResource( 2 )]
+
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 visible = false
 
-[node name="MainHUD" parent="." instance=ExtResource( 2 )]
+[node name="CharacterStatus" parent="." instance=ExtResource( 18 )]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="CurrentZoneContainer" type="Spatial" parent="."]
 __meta__ = {

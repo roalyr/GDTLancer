@@ -38,8 +38,8 @@ func initialize(camera_node: Camera, config: Dictionary):
 		"preferred_distance_multiplier", preferred_distance_multiplier
 	)
 	zoom_speed = config.get("zoom_speed", zoom_speed)
-	_min_fov_deg = config.get("_min_fov_deg", _min_fov_deg)
-	_max_fov_deg = config.get("_max_fov_deg", _max_fov_deg)
+	_min_fov_deg = config.get("min_fov_deg", _min_fov_deg)
+	_max_fov_deg = config.get("max_fov_deg", _max_fov_deg)
 
 	current_distance = distance
 

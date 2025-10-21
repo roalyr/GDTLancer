@@ -35,6 +35,8 @@ signal player_approach_pressed
 signal player_flee_pressed
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
+signal player_wp_changed(new_wp_value)
+signal player_fp_changed(new_fp_value)
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance
@@ -55,8 +57,6 @@ signal world_event_tick_triggered
 # signal goal_progress_updated(agent_body, goal_id, new_progress)
 # signal goal_completed(agent_body, goal_id, success_level)
 
-# --- Module Specific Signals (Placeholders - Use sparingly) ---
-# signal major_discovery_made(discovery_data)
 
 
 func _ready():

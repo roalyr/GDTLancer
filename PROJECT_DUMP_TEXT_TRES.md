@@ -138,10 +138,11 @@ character_icon_id = "character_default_icon"
 faction_id = "faction_default"
 wealth_points = 0
 focus_points = 0
+active_ship_uid = -1
 skills = {
 "combat": 1,
-"piloting": 1,
-"trading": 1
+"piloting": 2,
+"trading": 3
 }
 age = 30
 reputation = 0

@@ -46,6 +46,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 		return
 
 	# Also link from owned ship.
+	
+	# TODO
 	# For now placeholder values.
 	var move_params = {
 		"max_move_speed": 300,

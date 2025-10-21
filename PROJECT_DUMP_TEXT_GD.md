@@ -13295,6 +13295,8 @@ signal player_approach_pressed
 signal player_flee_pressed
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
+signal player_wp_changed(new_wp_value)
+signal player_fp_changed(new_fp_value)
 
 # --- Zone Loading Signals ---
 # Emitted by WorldManager before unloading current zone instance
@@ -13315,8 +13317,6 @@ signal world_event_tick_triggered
 # signal goal_progress_updated(agent_body, goal_id, new_progress)
 # signal goal_completed(agent_body, goal_id, success_level)
 
-# --- Module Specific Signals (Placeholders - Use sparingly) ---
-# signal major_discovery_made(discovery_data)
 
 
 func _ready():
@@ -13552,10 +13552,13 @@ extends Node
 var player_agent_body = null setget set_player_agent_body
 var main_camera = null setget set_main_camera
 var world_manager = null setget set_world_manager
-var main_hud = null setget set_main_hud
 var current_zone = null setget set_current_zone
 var agent_container = null setget set_agent_container
 var game_state_manager = null setget set_game_state_manager
+
+# --- UI elements ---
+var main_hud = null setget set_main_hud
+var character_status = null setget set_character_status
 
 # --- Core System References ---
 var action_system = null setget set_action_system
@@ -13602,14 +13605,6 @@ func set_world_manager(new_ref):
 		print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid World Manager ref: ", new_ref)
-
-func set_main_hud(new_ref):
-	if new_ref == main_hud: return
-	if new_ref == null or is_instance_valid(new_ref):
-		main_hud = new_ref
-		print("GlobalRefs: Main HUD ref set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Invalid Main HUD ref: ", new_ref)
 
 func set_current_zone(new_ref):
 	if new_ref == current_zone: return
@@ -13733,6 +13728,26 @@ func set_event_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
 
+
+
+# --- UI ELEMENTS ---
+
+func set_main_hud(new_ref):
+	if new_ref == main_hud: return
+	if new_ref == null or is_instance_valid(new_ref):
+		main_hud = new_ref
+		print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
+		
+func set_character_status(new_ref):
+	if new_ref == character_status: return
+	if new_ref == null or is_instance_valid(new_ref):
+		character_status = new_ref
+		print("GlobalRefs: Character Status UI window ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Character Status UI window ref: ", new_ref)
+
 --- Start of ./autoload/TemplateDatabase.gd ---
 
 # File: autoload/TemplateDatabase.gd
@@ -13799,6 +13814,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 		return
 
 	# Also link from owned ship.
+	
+	# TODO
 	# For now placeholder values.
 	var move_params = {
 		"max_move_speed": 300,
@@ -15139,15 +15156,19 @@ func get_player_ship() -> ShipTemplate:
 
 extends Node
 
+
 func _ready():
 	GlobalRefs.set_character_system(self)
 	print("CharacterSystem Ready.")
 
+
 # --- Public API ---
+
 
 # Retrieves a character instance from the GameState.
 func get_character(character_uid: int) -> CharacterTemplate:
 	return GameState.characters.get(character_uid)
+
 
 # Convenience function to get the player's character instance.
 func get_player_character() -> CharacterTemplate:
@@ -15155,47 +15176,69 @@ func get_player_character() -> CharacterTemplate:
 		return GameState.characters.get(GameState.player_character_uid)
 	return null
 
+
 # Convenience function to get the player's UID.
 func get_player_character_uid() -> int:
 	return GameState.player_character_uid
 
+
 # --- Stat Modification API (Operates on GameState) ---
+
 
 func add_wp(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].wealth_points += amount
+		# If this change was for the player, announce it.
+		if character_uid == GameState.player_character_uid:
+			EventBus.emit_signal("player_wp_changed")
+
 
 func subtract_wp(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].wealth_points -= amount
+		# If this change was for the player, announce it.
+		if character_uid == GameState.player_character_uid:
+			EventBus.emit_signal("player_wp_changed")
+
 
 func get_wp(character_uid: int) -> int:
 	if GameState.characters.has(character_uid):
 		return GameState.characters[character_uid].wealth_points
 	return 0
 
+
 func add_fp(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
 		var character = GameState.characters[character_uid]
 		character.focus_points += amount
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+		# If this change was for the player, announce it.
+		if character_uid == GameState.player_character_uid:
+			EventBus.emit_signal("player_fp_changed")
+
 
 func subtract_fp(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
 		var character = GameState.characters[character_uid]
 		character.focus_points -= amount
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
+		# If this change was for the player, announce it.
+		if character_uid == GameState.player_character_uid:
+			EventBus.emit_signal("player_fp_changed")
+
 
 func get_fp(character_uid: int) -> int:
 	if GameState.characters.has(character_uid):
 		return GameState.characters[character_uid].focus_points
 	return 0
 
+
 func get_skill_level(character_uid: int, skill_name: String) -> int:
 	if GameState.characters.has(character_uid):
 		if GameState.characters[character_uid].skills.has(skill_name):
 			return GameState.characters[character_uid].skills[skill_name]
 	return 0
+
 
 func apply_upkeep_cost(character_uid: int, cost: int):
 	subtract_wp(character_uid, cost)
@@ -15397,6 +15440,45 @@ func _ready():
 	GlobalRefs.set_world_map_system(self)
 	print("WorldMapSystem Ready.")
 
+--- Start of ./core/ui/character_status/character_status.gd ---
+
+extends Control
+
+onready var label_skill_piloting: Label = $LabelSkillPiloting
+onready var label_skill_trading: Label = $LabelSkillTrading
+
+
+# --- Initialization ---
+func _ready():
+	GlobalRefs.set_character_status(self)
+
+
+func _draw():
+	update_display()
+
+
+func update_display():
+	var piloting_skill = GlobalRefs.character_system.get_player_character().skills["piloting"]
+	var trading_skill = GlobalRefs.character_system.get_player_character().skills["trading"]
+	label_skill_piloting.text = "Skill Piloting: " + str(piloting_skill)
+	label_skill_trading.text = "Skill Trading: " + str(trading_skill)
+
+
+func _on_ButtonClose_pressed():
+	self.hide()
+
+
+func _on_ButtonAddWP_pressed():
+	# For testing
+	GlobalRefs.character_system.add_wp(GlobalRefs.character_system.get_player_character_uid(), 10)
+	EventBus.emit_signal("player_wp_changed")
+
+
+func _on_ButtonAddFP_pressed():
+	# For testing
+	GlobalRefs.character_system.add_fp(GlobalRefs.character_system.get_player_character_uid(), 1)
+	EventBus.emit_signal("player_fp_changed")
+
 --- Start of ./core/ui/main_hud/main_hud.gd ---
 
 # File: res://core/ui/main_hud/main_hud.gd
@@ -15407,6 +15489,9 @@ extends Control
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
+onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
+onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
+onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
 
 # --- State ---
 var _current_target: Spatial = null
@@ -15433,10 +15518,18 @@ func _ready():
 	if EventBus:
 		if not EventBus.is_connected("player_target_selected", self, "_on_Player_Target_Selected"):
 			EventBus.connect("player_target_selected", self, "_on_Player_Target_Selected")
+
 		if not EventBus.is_connected(
 			"player_target_deselected", self, "_on_Player_Target_Deselected"
 		):
 			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
+
+		if not EventBus.is_connected("player_wp_changed", self, "_on_player_wp_changed"):
+			EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
+
+		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
+			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
+
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
@@ -15490,6 +15583,20 @@ func _on_Player_Target_Deselected():
 	_current_target = null
 	targeting_indicator.visible = false
 	set_process(false)  # Can disable processing if target is deselected
+
+
+func _on_player_wp_changed():
+	label_wp.text = (
+		"Current WP: "
+		+ str(GlobalRefs.character_system.get_player_character().wealth_points)
+	)
+
+
+func _on_player_fp_changed():
+	label_fp.text = (
+		"Current FP: "
+		+ str(GlobalRefs.character_system.get_player_character().focus_points)
+	)
 
 
 # --- Custom Drawing (Optional but Recommended) ---
@@ -15573,6 +15680,11 @@ func _on_SliderControlRight_value_changed(value):
 	# This slider is inverted (rotated by 180) for the sake of appearance.
 	if EventBus:
 		EventBus.emit_signal("player_ship_speed_changed", value)
+
+
+func _on_ButtonCharacter_pressed():
+	GlobalRefs.character_status.update_display()
+	GlobalRefs.character_status.show()
 
 --- Start of ./core/ui/main_menu/main_menu.gd ---
 
@@ -16647,8 +16759,8 @@ func initialize(camera_node: Camera, config: Dictionary):
 		"preferred_distance_multiplier", preferred_distance_multiplier
 	)
 	zoom_speed = config.get("zoom_speed", zoom_speed)
-	_min_fov_deg = config.get("_min_fov_deg", _min_fov_deg)
-	_max_fov_deg = config.get("_max_fov_deg", _max_fov_deg)
+	_min_fov_deg = config.get("min_fov_deg", _min_fov_deg)
+	_max_fov_deg = config.get("max_fov_deg", _max_fov_deg)
 
 	current_distance = distance
 
@@ -16797,7 +16909,7 @@ extends Camera
 
 # --- General ---
 var distance: float = 55.0
-var position_smoothing_speed: float = 18.0
+var position_smoothing_speed: float = 25.0
 var rotation_smoothing_speed: float = 18.0
 var target_smoothing_speed: float = 20.0
 var bob_frequency: float = 0.1
@@ -16808,8 +16920,8 @@ var zoom_speed: float = 0.5
 var min_distance_multiplier: float = 3.0
 var max_distance_multiplier: float = 30.0
 var preferred_distance_multiplier: float = 3.0
-var min_fov_deg: float = 70.0
-var max_fov_deg: float = 80.0
+var min_fov_deg: float = 50.0
+var max_fov_deg: float = 100.0
 
 # --- Rotation & PID ---
 var pitch_min_deg: float = -83.0

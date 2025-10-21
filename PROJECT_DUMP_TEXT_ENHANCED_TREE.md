@@ -217,6 +217,9 @@
 │   │   ├── traffic_system.gd
 │   │   └── world_map_system.gd
 │   ├── ui
+│   │   ├── character_status
+│   │   │   ├── character_status.gd
+│   │   │   └── character_status.tscn
 │   │   ├── main_hud
 │   │   │   ├── main_hud.gd
 │   │   │   └── main_hud.tscn
@@ -302,6 +305,6 @@
                 ├── test_template_indexer.gd
                 └── test_world_generator.gd
 
-63 directories, 240 files
+64 directories, 242 files
 
-63 directories, 240 files
+64 directories, 242 files

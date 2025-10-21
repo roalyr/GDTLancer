@@ -13,10 +13,13 @@ extends Node
 var player_agent_body = null setget set_player_agent_body
 var main_camera = null setget set_main_camera
 var world_manager = null setget set_world_manager
-var main_hud = null setget set_main_hud
 var current_zone = null setget set_current_zone
 var agent_container = null setget set_agent_container
 var game_state_manager = null setget set_game_state_manager
+
+# --- UI elements ---
+var main_hud = null setget set_main_hud
+var character_status = null setget set_character_status
 
 # --- Core System References ---
 var action_system = null setget set_action_system
@@ -63,14 +66,6 @@ func set_world_manager(new_ref):
 		print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid World Manager ref: ", new_ref)
-
-func set_main_hud(new_ref):
-	if new_ref == main_hud: return
-	if new_ref == null or is_instance_valid(new_ref):
-		main_hud = new_ref
-		print("GlobalRefs: Main HUD ref set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Invalid Main HUD ref: ", new_ref)
 
 func set_current_zone(new_ref):
 	if new_ref == current_zone: return
@@ -193,3 +188,23 @@ func set_event_system(new_ref):
 		print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
+
+
+
+# --- UI ELEMENTS ---
+
+func set_main_hud(new_ref):
+	if new_ref == main_hud: return
+	if new_ref == null or is_instance_valid(new_ref):
+		main_hud = new_ref
+		print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
+		
+func set_character_status(new_ref):
+	if new_ref == character_status: return
+	if new_ref == null or is_instance_valid(new_ref):
+		character_status = new_ref
+		print("GlobalRefs: Character Status UI window ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Character Status UI window ref: ", new_ref)
