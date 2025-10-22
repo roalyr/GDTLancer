@@ -1,7 +1,7 @@
 # File: core/systems/character_system.gd
 # Purpose: Provides a logical API for manipulating character data stored in GameState.
 # This system is STATELESS. All data is read from and written to the GameState autoload.
-# Version: 3.0 - Refactored to be stateless.
+# Version: 3.1 - Integrated character screen UI signals.
 
 extends Node
 

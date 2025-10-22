@@ -20,6 +20,7 @@ var game_state_manager = null setget set_game_state_manager
 # --- UI elements ---
 var main_hud = null setget set_main_hud
 var character_status = null setget set_character_status
+var inventory_screen = null setget set_inventory_screen
 
 # --- Core System References ---
 var action_system = null setget set_action_system
@@ -208,3 +209,11 @@ func set_character_status(new_ref):
 		print("GlobalRefs: Character Status UI window ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Character Status UI window ref: ", new_ref)
+
+func set_inventory_screen(new_ref):
+	if new_ref == inventory_screen: return
+	if new_ref == null or is_instance_valid(new_ref):
+		inventory_screen = new_ref
+		print("GlobalRefs: Inventory Screen UI window ref set to ", new_ref.name if new_ref else "null")
+	else:
+		printerr("GlobalRefs Error: Invalid Inventory Screen UI window ref: ", new_ref)

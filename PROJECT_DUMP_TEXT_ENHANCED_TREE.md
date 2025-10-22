@@ -220,6 +220,9 @@
 │   │   ├── character_status
 │   │   │   ├── character_status.gd
 │   │   │   └── character_status.tscn
+│   │   ├── inventory_screen
+│   │   │   ├── inventory_screen.gd
+│   │   │   └── inventory_screen.tscn
 │   │   ├── main_hud
 │   │   │   ├── main_hud.gd
 │   │   │   └── main_hud.tscn
@@ -305,6 +308,6 @@
                 ├── test_template_indexer.gd
                 └── test_world_generator.gd
 
-64 directories, 242 files
+65 directories, 244 files
 
-64 directories, 242 files
+65 directories, 244 files

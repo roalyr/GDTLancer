@@ -2045,6 +2045,120 @@ text = "Add FP"
 [connection signal="pressed" from="ButtonAddWP" to="." method="_on_ButtonAddWP_pressed"]
 [connection signal="pressed" from="ButtonAddFP" to="." method="_on_ButtonAddFP_pressed"]
 
+--- Start of ./core/ui/inventory_screen/inventory_screen.tscn ---
+
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://core/ui/inventory_screen/inventory_screen.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="InventoryScreen" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="CategoryTabs" type="TabContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 0.498
+margin_bottom = 0.159973
+
+[node name="Ships" type="Control" parent="CategoryTabs"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="ShipList" type="ItemList" parent="CategoryTabs/Ships"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Modules" type="Control" parent="CategoryTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="ModuleList" type="ItemList" parent="CategoryTabs/Modules"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Commodities" type="Control" parent="CategoryTabs"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="CommodityList" type="ItemList" parent="CategoryTabs/Commodities"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="DetailsPanel" type="Panel" parent="."]
+anchor_top = 0.511
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 0.119934
+
+[node name="LabelName" type="Label" parent="DetailsPanel"]
+margin_left = 96.0
+margin_top = 32.0
+margin_right = 785.0
+margin_bottom = 88.0
+theme = ExtResource( 2 )
+text = "NAME"
+
+[node name="LabelStat1" type="Label" parent="DetailsPanel"]
+margin_left = 96.0
+margin_top = 111.0
+margin_right = 785.0
+margin_bottom = 181.0
+theme = ExtResource( 2 )
+text = "STAT 1"
+
+[node name="LabelStat2" type="Label" parent="DetailsPanel"]
+margin_left = 96.0
+margin_top = 188.0
+margin_right = 785.0
+margin_bottom = 258.0
+theme = ExtResource( 2 )
+text = "STAT 2"
+
+[node name="LabelStat3" type="Label" parent="DetailsPanel"]
+margin_left = 96.0
+margin_top = 272.0
+margin_right = 785.0
+margin_bottom = 345.0
+theme = ExtResource( 2 )
+text = "STAT 3"
+
+[node name="LabelDescription" type="Label" parent="DetailsPanel"]
+margin_left = 880.0
+margin_top = 32.0
+margin_right = 1569.0
+margin_bottom = 484.0
+theme = ExtResource( 2 )
+text = "DESCRIPTION"
+
+[node name="ButtonClose" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -256.0
+margin_top = -118.0
+margin_right = -101.0
+margin_bottom = -62.0
+text = "CLOSE"
+
+[connection signal="pressed" from="ButtonClose" to="." method="_on_ButtonClose_pressed"]
+
 --- Start of ./core/ui/main_hud/main_hud.tscn ---
 
 [gd_scene load_steps=15 format=2]
@@ -2515,6 +2629,13 @@ margin_bottom = 132.0
 theme = ExtResource( 9 )
 text = "CHARACTER"
 
+[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
+margin_top = 146.0
+margin_right = 111.0
+margin_bottom = 196.0
+theme = ExtResource( 9 )
+text = "INVENTORY"
+
 [node name="TopCenterZone" type="Control" parent="ScreenControls"]
 visible = false
 anchor_left = 0.5
@@ -2552,6 +2673,7 @@ expand = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
+[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]
 
 --- Start of ./core/ui/main_menu/main_menu.tscn ---
 
@@ -2931,7 +3053,7 @@ max_camera_speed_for_effect = 1.0
 
 --- Start of ./scenes/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://core/ui/main_hud/main_hud.tscn" type="PackedScene" id=2]
@@ -2951,6 +3073,7 @@ max_camera_speed_for_effect = 1.0
 [ext_resource path="res://scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://core/ui/main_menu/main_menu.tscn" type="PackedScene" id=17]
 [ext_resource path="res://core/ui/character_status/character_status.tscn" type="PackedScene" id=18]
+[ext_resource path="res://core/ui/inventory_screen/inventory_screen.tscn" type="PackedScene" id=19]
 
 [node name="MainGameScene" type="Node"]
 
@@ -3002,6 +3125,12 @@ script = ExtResource( 16 )
 visible = false
 
 [node name="CharacterStatus" parent="." instance=ExtResource( 18 )]
+visible = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="InventoryScreen" parent="." instance=ExtResource( 19 )]
 visible = false
 __meta__ = {
 "_edit_lock_": true

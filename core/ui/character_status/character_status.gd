@@ -1,3 +1,7 @@
+# File: res://core/ui/character_status/character_status.gd
+# Script for the player character UI.
+# Version: 1.0 - Initial.
+
 extends Control
 
 onready var label_skill_piloting: Label = $LabelSkillPiloting
@@ -9,8 +13,9 @@ func _ready():
 	GlobalRefs.set_character_status(self)
 
 
-func _draw():
+func open_screen():
 	update_display()
+	self.show()
 
 
 func update_display():

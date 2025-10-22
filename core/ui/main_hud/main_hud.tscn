@@ -466,6 +466,13 @@ margin_bottom = 132.0
 theme = ExtResource( 9 )
 text = "CHARACTER"
 
+[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
+margin_top = 146.0
+margin_right = 111.0
+margin_bottom = 196.0
+theme = ExtResource( 9 )
+text = "INVENTORY"
+
 [node name="TopCenterZone" type="Control" parent="ScreenControls"]
 visible = false
 anchor_left = 0.5
@@ -503,3 +510,4 @@ expand = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
+[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]

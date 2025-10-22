@@ -1,6 +1,6 @@
 # File: res://core/ui/main_hud/main_hud.gd
 # Script for the main HUD container. Handles displaying targeting info, etc.
-# Version: 1.1 - Fixed targeting indicator visibility restoration
+# Version: 1.2 - Integrating systems.
 
 extends Control
 
@@ -200,5 +200,8 @@ func _on_SliderControlRight_value_changed(value):
 
 
 func _on_ButtonCharacter_pressed():
-	GlobalRefs.character_status.update_display()
-	GlobalRefs.character_status.show()
+	GlobalRefs.character_status.open_screen()
+
+
+func _on_ButtonInventory_pressed():
+	GlobalRefs.inventory_screen.open_screen()
