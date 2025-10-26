@@ -8,18 +8,18 @@ extends Camera
 
 # --- General ---
 var distance: float = 55.0
-var position_smoothing_speed: float = 25.0
+var position_smoothing_speed: float = 30.0
 var rotation_smoothing_speed: float = 18.0
-var target_smoothing_speed: float = 20.0
+var target_smoothing_speed: float = 50.0
 var bob_frequency: float = 0.1
 var bob_amplitude: float = 0.2
 
 # --- Zoom & FoV ---
 var zoom_speed: float = 0.5
-var min_distance_multiplier: float = 3.0
-var max_distance_multiplier: float = 30.0
-var preferred_distance_multiplier: float = 3.0
-var min_fov_deg: float = 50.0
+var min_distance_multiplier: float = 1.0
+var max_distance_multiplier: float = 5.0
+var preferred_distance_multiplier: float = 1.0
+var min_fov_deg: float = 25.0
 var max_fov_deg: float = 100.0
 
 # --- Rotation & PID ---

@@ -11,13 +11,13 @@ var _target: Spatial = null
 var _rotation_controller: CameraRotationController = null
 var _zoom_controller: CameraZoomController = null
 
-# --- Configuration ---
-var position_smoothing_speed: float = 18.0
-var rotation_smoothing_speed: float = 18.0
-var bob_frequency: float = 0.1
-var bob_amplitude: float = 0.2
+# --- From Configuration ---
+var position_smoothing_speed: float = 0
+var rotation_smoothing_speed: float = 0
+var bob_frequency: float = 0
+var bob_amplitude: float = 0
 # NEW: How quickly the camera's anchor point follows the ship. Lower values are smoother.
-var target_smoothing_speed: float = 15.0
+var target_smoothing_speed: float = 0
 
 # --- State ---
 var _bob_timer: float = 0.0

@@ -1,20 +1,17 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
-[ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
+[ext_resource path="res://assets/models/ships/Ship modules.glb" type="PackedScene" id=2]
 [ext_resource path="res://core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://core/agents/components/navigation_system.gd" type="Script" id=4]
+[ext_resource path="res://assets/art/shaders/simple_solid_glow.tres" type="Shader" id=5]
 
-[sub_resource type="ConvexPolygonShape" id=5]
-points = PoolVector3Array( -10.9166, -0.389525, -15.3443, -10.9358, 0.313817, -15.3719, -25.8894, 5.06679, 14.3659, 25.8894, -5.14312, 14.3659, -25.8894, -5.14312, 14.3659, 25.8894, 5.06679, 14.3659, 10.9376, -3.31821, -9.69745, 10.5988, 1.02132, -15.3957, -4.3791, 4.33723, -6.78126, -4.3791, -4.41355, -6.78126, 9.85272, 0.665061, 15.9902, 10.9376, 3.24288, -10.0628, -10.5727, 2.14953, -14.437, -10.9326, -3.31821, -9.69745, 10.4267, -1.42723, -14.7922, -9.11615, -1.43968, 15.9353, 14.8866, -0.0381632, -8.35361, 4.36897, 4.33723, -6.78126, 4.36897, -4.41355, -6.78126, 10.5727, 2.14953, -14.437, -14.8855, -0.0381632, -8.35603, -10.4244, -1.42756, -14.7957, -10.9326, 3.24288, -10.0628, -9.85272, 0.665061, 15.9902, 10.667, -0.748703, -15.4969, 9.11615, -1.43968, 15.9353, -10.5965, 1.02158, -15.3995, 12.4083, -0.0381632, -12.962, 0.332242, -2.39384, -12.2951, -12.4065, -0.0381632, -12.9653, -9.83696, -0.740263, 15.9652, 10.9358, 0.313817, -15.3719, 9.83696, -0.740263, 15.9652 )
-
-[sub_resource type="SpatialMaterial" id=2]
-albedo_color = Color( 0.431373, 0.572549, 0.623529, 1 )
-metallic = 0.5
-roughness = 0.5
-
-[sub_resource type="SpatialMaterial" id=3]
-flags_unshaded = true
+[sub_resource type="ShaderMaterial" id=5]
+shader = ExtResource( 5 )
+shader_param/color = Color( 0.529412, 0.698039, 0.94902, 1 )
+shader_param/strength = 2.097
+shader_param/exponent = 2.046
+shader_param/exponent_rim = 0.517
 
 [sub_resource type="SphereMesh" id=4]
 
@@ -24,23 +21,14 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
-shape = SubResource( 5 )
-
 [node name="Model" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Phoenix" parent="Model" instance=ExtResource( 2 )]
-
-[node name="Hull joined" parent="Model/Phoenix" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-material_override = SubResource( 2 )
-
 [node name="OmniLight" type="OmniLight" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.027317, 18.9933 )
-light_color = Color( 0.215686, 1, 0.890196, 1 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 11.607 )
+light_color = Color( 0.776471, 0.905882, 0.890196, 1 )
 light_specular = 3.0
 shadow_bias = 0.2
 shadow_reverse_cull_face = true
@@ -48,29 +36,15 @@ omni_range = 18.6615
 omni_attenuation = 0.683023
 
 [node name="MeshInstance" type="MeshInstance" parent="Model/OmniLight"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11.1453 )
-material_override = SubResource( 3 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.6099, 0, 0, -0.440221 )
+material_override = SubResource( 5 )
 cast_shadow = 0
 mesh = SubResource( 4 )
 
-[node name="MeshInstance2" type="MeshInstance" parent="Model/OmniLight"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.59038, 0, -3.17599 )
-material_override = SubResource( 3 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
-
-[node name="MeshInstance3" type="MeshInstance" parent="Model/OmniLight"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.47897, 0, -3.17599 )
-material_override = SubResource( 3 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
+[node name="Ship modules" parent="Model" instance=ExtResource( 2 )]
 
 [node name="MovementSystem" type="Node" parent="."]
 script = ExtResource( 3 )
 
 [node name="NavigationSystem" type="Node" parent="."]
 script = ExtResource( 4 )
-
-[editable path="Model/Phoenix"]

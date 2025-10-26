@@ -9,20 +9,22 @@ class_name CameraZoomController
 var _camera: Camera = null
 var _target: Spatial = null
 
-# --- Configuration ---
-var distance: float = 55.0
-var min_distance_multiplier: float = 3.0
-var max_distance_multiplier: float = 30.0
-var preferred_distance_multiplier: float = 3.0
+# --- From Configuration ---
+var distance: float = 0.0
+var min_distance_multiplier: float = 0.0
+var max_distance_multiplier: float = 0.0
+var preferred_distance_multiplier: float = 0.0
+var zoom_speed: float = 0.0
+var _min_fov_deg: float = 0.0
+var _max_fov_deg: float = 0.0
+
+# --- Constants ---
 const MIN_ABSOLUTE_DISTANCE = 1.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
-var zoom_speed: float = 0.5
-var _min_fov_deg: float = 70.0
-var _max_fov_deg: float = 80.0
 
 # --- State ---
-var current_distance: float = 55.0
-var _target_radius: float = 15.0
+var current_distance: float = 0.0
+var _target_radius: float = 0.0
 var _is_programmatically_setting_slider: bool = false
 
 
@@ -107,7 +109,7 @@ func _on_player_camera_zoom_changed(value):
 
 # --- Private Helper Methods ---
 func _set_and_update_zoom_distance(new_distance: float, from_slider_event: bool = false):
-	var dyn_min_dist = _get_dynamic_min_distance()
+	var dyn_min_dist = _get_dynamic_min_distance() + 10 # Take into account near plane
 	var dyn_max_dist = _get_dynamic_max_distance()
 
 	current_distance = clamp(new_distance, dyn_min_dist, dyn_max_dist)

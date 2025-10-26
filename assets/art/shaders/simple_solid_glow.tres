@@ -1,0 +1,33 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type spatial;
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+
+	// Blending and culling.
+	blend_add,
+	cull_front,
+
+	unshaded,
+	//diffuse_lambert,
+	specular_disabled,
+
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
+
+uniform vec4 color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
+uniform float strength : hint_range(0.0, 1e2, 5e-4) = 40;
+uniform float exponent = 2;
+uniform float exponent_rim = 2;
+
+void fragment()
+{
+	float dt = clamp(abs(dot(NORMAL,VIEW)), 1e-9, 0.99999);
+	float corona = pow(dt, exp(exponent))*pow(1.1,strength);
+
+	ALBEDO = pow(corona,exponent_rim)*color.rgb;
+}
+"
