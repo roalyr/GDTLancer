@@ -50,12 +50,12 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 	# TODO
 	# For now placeholder values.
 	var move_params = {
-		"max_move_speed": 300,
-		"acceleration": 0.5,
-		"deceleration": 0.5,
-		"max_turn_speed": 0.75,
-		"brake_strength":0.75,
-		"alignment_threshold_angle_deg": 45
+		"max_move_speed": 500,
+		"acceleration": 0.1,
+		"deceleration": 0.1,
+		"max_turn_speed": 0.25,
+		"brake_strength":0.1,
+		"alignment_threshold_angle_deg": 15
 	}
 	var nav_params = {
 		"orbit_kp": overrides.get("orbit_kp", 3.0),
