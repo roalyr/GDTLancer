@@ -9,7 +9,7 @@ extends Node
 var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
 var acceleration: float = Constants.DEFAULT_ACCELERATION
 var deceleration: float = Constants.DEFAULT_DECELERATION
-var brake_strength: float = Constants.DEFAULT_DECELERATION * 1.5
+var brake_strength: float = Constants.DEFAULT_DECELERATION
 var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
 var alignment_threshold_angle_deg: float = 45.0
 var _alignment_threshold_rad: float = deg2rad(alignment_threshold_angle_deg)
@@ -34,7 +34,7 @@ func initialize_movement_params(params: Dictionary):
 	max_move_speed = params.get("max_move_speed", max_move_speed)
 	acceleration = params.get("acceleration", acceleration)
 	deceleration = params.get("deceleration", deceleration)
-	brake_strength = params.get("brake_strength", deceleration * 1.5)
+	brake_strength = params.get("brake_strength", deceleration)
 	max_turn_speed = params.get("max_turn_speed", max_turn_speed)
 	alignment_threshold_angle_deg = params.get(
 		"alignment_threshold_angle_deg", alignment_threshold_angle_deg

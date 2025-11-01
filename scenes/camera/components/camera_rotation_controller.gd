@@ -11,19 +11,19 @@ var _yaw_pid: PIDController = null
 var _pitch_pid: PIDController = null
 const PIDControllerScript = preload("res://core/utils/pid_controller.gd")
 
-# --- Configuration (Copied from OrbitCamera) ---
-var pitch_min: float = -1.45
-var pitch_max: float = 1.45
-var pid_yaw_kp: float = 10.0
-var pid_yaw_ki: float = 0.01
-var pid_yaw_kd: float = 0.1
-var pid_pitch_kp: float = 10.0
-var pid_pitch_ki: float = 0.01
-var pid_pitch_kd: float = 0.1
-var pid_integral_limit: float = 10.0
-var pid_output_limit_multiplier: float = 100.0
-var _rotation_max_speed: float = 15.0
-var _rotation_input_curve: float = 1.1
+# --- From Configuration ---
+var pitch_min: float = 0.0
+var pitch_max: float = 0.0
+var pid_yaw_kp: float = 0.0
+var pid_yaw_ki: float = 0.0
+var pid_yaw_kd: float = 0.0
+var pid_pitch_kp: float = 0.0
+var pid_pitch_ki: float = 0.0
+var pid_pitch_kd: float = 0.0
+var pid_integral_limit: float = 0.0
+var pid_output_limit_multiplier: float = 0.0
+var _rotation_max_speed: float = 0.0
+var _rotation_input_curve: float = 0.0
 
 # --- State ---
 var yaw: float = PI
