@@ -3,9 +3,9 @@
 
 extends Node
 
-var viewport_downscale_factor = 1.5
-var viewport_msaa = Viewport.MSAA_8X
-var viewport_fxaa = true
+var viewport_downscale_factor = 1.0
+var viewport_msaa = Viewport.MSAA_DISABLED
+var viewport_fxaa = false
 var viewport_disable_3d = false
 var viewport_sharpen_intensity = 0.5
 var viewport_keep_3d_linear = false

@@ -36,6 +36,150 @@ particles_anim_loop = false
 material = ExtResource( 1 )
 size = Vector2( 0.002, 0.002 )
 
+--- Start of ./assets/art/materials/test_solid_frame.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.752941, 0.764706, 0.8, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/normal_strength = 0.0
+shader_param/albedo_detail_strength = 0.0
+shader_param/albedo_detail_power = 1.0
+shader_param/specular = 3.0
+shader_param/roughness = 0.314
+shader_param/metallic = 0.0
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/uv_blend_sharpness = 10.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/normal_scale = 1.0
+shader_param/albedo_detail_scale = 1.0
+
+--- Start of ./assets/art/materials/test_solid_panel_2.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Grainy 12 - 512x512.png" type="Texture" id=2]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/normal_strength = 0.047
+shader_param/albedo_detail_strength = 0.0
+shader_param/albedo_detail_power = 1.0
+shader_param/specular = -4.249
+shader_param/roughness = 0.554
+shader_param/metallic = 0.559
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/uv_blend_sharpness = 10.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/normal_scale = 0.338
+shader_param/albedo_detail_scale = 1.0
+shader_param/texture_normal = ExtResource( 2 )
+
+--- Start of ./assets/art/materials/test_solid_panel_3.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.941176, 0.67451, 0.647059, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/normal_strength = 0.0
+shader_param/albedo_detail_strength = 0.0
+shader_param/albedo_detail_power = 1.0
+shader_param/specular = 0.5
+shader_param/roughness = 0.9
+shader_param/metallic = 0.0
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/uv_blend_sharpness = 10.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/normal_scale = 1.0
+shader_param/albedo_detail_scale = 1.0
+
+--- Start of ./assets/art/materials/test_solid_panel.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Manifold 11 - 512x512.png" type="Texture" id=2]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 0.729412, 0.803922, 1, 1 )
+shader_param/emission = Color( 0, 0, 0, 1 )
+shader_param/normal_strength = 0.059
+shader_param/albedo_detail_strength = 0.0
+shader_param/albedo_detail_power = 1.0
+shader_param/specular = 0.5
+shader_param/roughness = 0.364
+shader_param/metallic = 0.2
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/uv_blend_sharpness = 10.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0, 0, 0 )
+shader_param/normal_scale = 0.154
+shader_param/albedo_detail_scale = 1.0
+shader_param/texture_normal = ExtResource( 2 )
+
+--- Start of ./assets/art/shaders/simple_solid_glow.tres ---
+
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type spatial;
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+
+	// Blending and culling.
+	blend_add,
+	cull_front,
+
+	unshaded,
+	//diffuse_lambert,
+	specular_disabled,
+
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
+
+uniform vec4 color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
+uniform float strength : hint_range(0.0, 1e2, 5e-4) = 40;
+uniform float exponent = 2;
+uniform float exponent_rim = 2;
+
+void fragment()
+{
+	float dt = clamp(abs(dot(NORMAL,VIEW)), 1e-9, 0.99999);
+	float corona = pow(dt, exp(exponent))*pow(1.1,strength);
+
+	ALBEDO = pow(corona,exponent_rim)*color.rgb;
+}
+"
+
 --- Start of ./assets/data/actions/action_default.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]

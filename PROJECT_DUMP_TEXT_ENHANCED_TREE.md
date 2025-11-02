@@ -4,10 +4,16 @@
 │   │   ├── effects
 │   │   │   ├── particle_dust_material.tres
 │   │   │   └── particle_quad.tres
+│   │   ├── materials
+│   │   │   ├── test_solid_frame.tres
+│   │   │   ├── test_solid_panel_2.tres
+│   │   │   ├── test_solid_panel_3.tres
+│   │   │   └── test_solid_panel.tres
 │   │   ├── shaders
 │   │   │   ├── cloud_solid.gdshader
 │   │   │   ├── cloud_solid_inside.gdshader
 │   │   │   ├── cloud_transparent.gdshader
+│   │   │   ├── simple_solid_glow.tres
 │   │   │   ├── solid.gdshader
 │   │   │   ├── star_corona.gdshader
 │   │   │   ├── star_sprite.gdshader
@@ -157,7 +163,8 @@
 │   │   │   ├── nebula_1.blend
 │   │   │   └── nebula_1.glb
 │   │   ├── ships
-│   │   │   └── Phoenix.glb
+│   │   │   ├── Phoenix.glb
+│   │   │   └── Ship modules.glb
 │   │   └── sprites
 │   │       ├── Solar_sprite.glb
 │   │       ├── Star_sprite_double.glb
@@ -308,6 +315,6 @@
                 ├── test_template_indexer.gd
                 └── test_world_generator.gd
 
-65 directories, 244 files
+66 directories, 250 files
 
-65 directories, 244 files
+66 directories, 250 files

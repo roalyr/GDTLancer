@@ -1873,23 +1873,24 @@ text = "Close"
 
 --- Start of ./core/agents/agent.tscn ---
 
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
-[ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
+[ext_resource path="res://assets/models/ships/Ship modules.glb" type="PackedScene" id=2]
 [ext_resource path="res://core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://core/agents/components/navigation_system.gd" type="Script" id=4]
+[ext_resource path="res://assets/art/shaders/simple_solid_glow.tres" type="Shader" id=5]
+[ext_resource path="res://assets/art/materials/test_solid_panel.tres" type="Material" id=6]
+[ext_resource path="res://assets/art/materials/test_solid_frame.tres" type="Material" id=7]
+[ext_resource path="res://assets/art/materials/test_solid_panel_2.tres" type="Material" id=8]
+[ext_resource path="res://assets/art/materials/test_solid_panel_3.tres" type="Material" id=9]
 
-[sub_resource type="ConvexPolygonShape" id=5]
-points = PoolVector3Array( -10.9166, -0.389525, -15.3443, -10.9358, 0.313817, -15.3719, -25.8894, 5.06679, 14.3659, 25.8894, -5.14312, 14.3659, -25.8894, -5.14312, 14.3659, 25.8894, 5.06679, 14.3659, 10.9376, -3.31821, -9.69745, 10.5988, 1.02132, -15.3957, -4.3791, 4.33723, -6.78126, -4.3791, -4.41355, -6.78126, 9.85272, 0.665061, 15.9902, 10.9376, 3.24288, -10.0628, -10.5727, 2.14953, -14.437, -10.9326, -3.31821, -9.69745, 10.4267, -1.42723, -14.7922, -9.11615, -1.43968, 15.9353, 14.8866, -0.0381632, -8.35361, 4.36897, 4.33723, -6.78126, 4.36897, -4.41355, -6.78126, 10.5727, 2.14953, -14.437, -14.8855, -0.0381632, -8.35603, -10.4244, -1.42756, -14.7957, -10.9326, 3.24288, -10.0628, -9.85272, 0.665061, 15.9902, 10.667, -0.748703, -15.4969, 9.11615, -1.43968, 15.9353, -10.5965, 1.02158, -15.3995, 12.4083, -0.0381632, -12.962, 0.332242, -2.39384, -12.2951, -12.4065, -0.0381632, -12.9653, -9.83696, -0.740263, 15.9652, 10.9358, 0.313817, -15.3719, 9.83696, -0.740263, 15.9652 )
-
-[sub_resource type="SpatialMaterial" id=2]
-albedo_color = Color( 0.431373, 0.572549, 0.623529, 1 )
-metallic = 0.5
-roughness = 0.5
-
-[sub_resource type="SpatialMaterial" id=3]
-flags_unshaded = true
+[sub_resource type="ShaderMaterial" id=5]
+shader = ExtResource( 5 )
+shader_param/color = Color( 0.529412, 0.698039, 0.94902, 1 )
+shader_param/strength = 2.097
+shader_param/exponent = 2.046
+shader_param/exponent_rim = 0.517
 
 [sub_resource type="SphereMesh" id=4]
 
@@ -1899,48 +1900,107 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
-shape = SubResource( 5 )
-
 [node name="Model" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Phoenix" parent="Model" instance=ExtResource( 2 )]
-
-[node name="Hull joined" parent="Model/Phoenix" index="0"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )
-material_override = SubResource( 2 )
-
-[node name="OmniLight" type="OmniLight" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.027317, 18.9933 )
-light_color = Color( 0.215686, 1, 0.890196, 1 )
-light_specular = 3.0
-shadow_bias = 0.2
-shadow_reverse_cull_face = true
-omni_range = 18.6615
-omni_attenuation = 0.683023
-
-[node name="MeshInstance" type="MeshInstance" parent="Model/OmniLight"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11.1453 )
-material_override = SubResource( 3 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-
-[node name="MeshInstance2" type="MeshInstance" parent="Model/OmniLight"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.59038, 0, -3.17599 )
-material_override = SubResource( 3 )
+[node name="Exhaust" type="MeshInstance" parent="Model"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 0, 0, 21.2404 )
+material_override = SubResource( 5 )
 cast_shadow = 0
 mesh = SubResource( 4 )
 skeleton = NodePath("")
 
-[node name="MeshInstance3" type="MeshInstance" parent="Model/OmniLight"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.47897, 0, -3.17599 )
-material_override = SubResource( 3 )
-cast_shadow = 0
-mesh = SubResource( 4 )
-skeleton = NodePath("")
+[node name="OmniLight" type="OmniLight" parent="Model/Exhaust"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 0.536553, 0, 0, -0.352051 )
+light_color = Color( 0.0745098, 0.396078, 0.509804, 1 )
+light_energy = 3.669
+omni_range = 1.46591
+omni_attenuation = 0.784584
+
+[node name="Ship modules" parent="Model" instance=ExtResource( 2 )]
+
+[node name="Panels mid rear" parent="Model/Ship modules" index="1"]
+material_override = ExtResource( 6 )
+
+[node name="Panels frame rear" parent="Model/Ship modules" index="2"]
+material_override = ExtResource( 6 )
+
+[node name="Panels mid " parent="Model/Ship modules" index="3"]
+material_override = ExtResource( 6 )
+
+[node name="Cone" parent="Model/Ship modules" index="4"]
+material_override = ExtResource( 8 )
+
+[node name="Panel Frame mid" parent="Model/Ship modules" index="5"]
+material_override = ExtResource( 6 )
+
+[node name="Panel Frame mid001" parent="Model/Ship modules" index="6"]
+material_override = ExtResource( 6 )
+
+[node name="Frame Rings" parent="Model/Ship modules" index="7"]
+material_override = ExtResource( 7 )
+
+[node name="Frame Ring fittings" parent="Model/Ship modules" index="8"]
+material_override = ExtResource( 7 )
+
+[node name="Frame frontal cone" parent="Model/Ship modules" index="9"]
+material_override = ExtResource( 7 )
+
+[node name="Frame mid002" parent="Model/Ship modules" index="10"]
+material_override = ExtResource( 7 )
+
+[node name="Frame mid001" parent="Model/Ship modules" index="11"]
+material_override = ExtResource( 7 )
+
+[node name="Frame rear" parent="Model/Ship modules" index="12"]
+material_override = ExtResource( 7 )
+
+[node name="Frame rear strut front fixtures" parent="Model/Ship modules" index="13"]
+material_override = ExtResource( 7 )
+
+[node name="Frame rear strut rear fixtures" parent="Model/Ship modules" index="14"]
+material_override = ExtResource( 7 )
+
+[node name="Frame rear strut rear fixtures001" parent="Model/Ship modules" index="15"]
+material_override = ExtResource( 7 )
+
+[node name="Frame rear strut front fixtures001" parent="Model/Ship modules" index="16"]
+material_override = ExtResource( 7 )
+
+[node name="Engine Cruise Chamber" parent="Model/Ship modules" index="37"]
+material_override = ExtResource( 9 )
+
+[node name="Engine Cruise Nozzle" parent="Model/Ship modules" index="38"]
+material_override = ExtResource( 7 )
+
+[node name="Engine Cruise Nozzle neck inner" parent="Model/Ship modules" index="40"]
+material_override = ExtResource( 7 )
+
+[node name="LOX tank" parent="Model/Ship modules" index="48"]
+material_override = ExtResource( 9 )
+
+[node name="LOX tank001" parent="Model/Ship modules" index="49"]
+material_override = ExtResource( 9 )
+
+[node name="LOX manifold bulkhead" parent="Model/Ship modules" index="54"]
+material_override = ExtResource( 7 )
+
+[node name="LOX system bulkhead" parent="Model/Ship modules" index="55"]
+material_override = ExtResource( 7 )
+
+[node name="PP LH2 tank001" parent="Model/Ship modules" index="56"]
+material_override = ExtResource( 9 )
+
+[node name="PP LH2 tank frame001" parent="Model/Ship modules/PP LH2 tank001" index="0"]
+material_override = ExtResource( 7 )
+
+[node name="PP fuel cell frame" parent="Model/Ship modules" index="59"]
+material_override = ExtResource( 7 )
+
+[node name="PP fuel cell frame001" parent="Model/Ship modules" index="62"]
+material_override = ExtResource( 7 )
 
 [node name="MovementSystem" type="Node" parent="."]
 script = ExtResource( 3 )
@@ -1948,7 +2008,12 @@ script = ExtResource( 3 )
 [node name="NavigationSystem" type="Node" parent="."]
 script = ExtResource( 4 )
 
-[editable path="Model/Phoenix"]
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.94983, -0.0541661, 0.30804, -0.312766, -0.164495, 0.935478, 0, -0.984889, -0.173184, 0, 0, 0 )
+light_energy = 0.5
+editor_only = true
+
+[editable path="Model/Ship modules"]
 
 --- Start of ./core/agents/npc_agent.tscn ---
 
@@ -3120,6 +3185,7 @@ script = ExtResource( 14 )
 script = ExtResource( 16 )
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
+modulate = Color( 1, 1, 1, 0.258824 )
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 visible = false
@@ -3345,8 +3411,8 @@ mesh = SubResource( 28 )
 skeleton = NodePath("../../Model")
 
 [node name="OmniLight" type="OmniLight" parent="SceneAssets/System_1/Star_1"]
-light_color = Color( 0.901961, 0.796078, 0.564706, 1 )
-light_energy = 2.0
+light_color = Color( 0.921569, 0.894118, 0.835294, 1 )
+light_energy = 1.5
 omni_range = 100000.0
 
 [node name="Planet_a" type="StaticBody" parent="SceneAssets/System_1/Star_1"]

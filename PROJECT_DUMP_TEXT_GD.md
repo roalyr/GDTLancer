@@ -13827,12 +13827,12 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 	# TODO
 	# For now placeholder values.
 	var move_params = {
-		"max_move_speed": 300,
-		"acceleration": 0.5,
-		"deceleration": 0.5,
-		"max_turn_speed": 0.75,
-		"brake_strength":0.75,
-		"alignment_threshold_angle_deg": 45
+		"max_move_speed": 500,
+		"acceleration": 0.1,
+		"deceleration": 0.1,
+		"max_turn_speed": 0.25,
+		"brake_strength":0.1,
+		"alignment_threshold_angle_deg": 15
 	}
 	var nav_params = {
 		"orbit_kp": overrides.get("orbit_kp", 3.0),
@@ -13974,7 +13974,7 @@ extends Node
 var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
 var acceleration: float = Constants.DEFAULT_ACCELERATION
 var deceleration: float = Constants.DEFAULT_DECELERATION
-var brake_strength: float = Constants.DEFAULT_DECELERATION * 1.5
+var brake_strength: float = Constants.DEFAULT_DECELERATION
 var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
 var alignment_threshold_angle_deg: float = 45.0
 var _alignment_threshold_rad: float = deg2rad(alignment_threshold_angle_deg)
@@ -13999,7 +13999,7 @@ func initialize_movement_params(params: Dictionary):
 	max_move_speed = params.get("max_move_speed", max_move_speed)
 	acceleration = params.get("acceleration", acceleration)
 	deceleration = params.get("deceleration", deceleration)
-	brake_strength = params.get("brake_strength", deceleration * 1.5)
+	brake_strength = params.get("brake_strength", deceleration)
 	max_turn_speed = params.get("max_turn_speed", max_turn_speed)
 	alignment_threshold_angle_deg = params.get(
 		"alignment_threshold_angle_deg", alignment_threshold_angle_deg
@@ -16672,13 +16672,13 @@ var _target: Spatial = null
 var _rotation_controller: CameraRotationController = null
 var _zoom_controller: CameraZoomController = null
 
-# --- Configuration ---
-var position_smoothing_speed: float = 18.0
-var rotation_smoothing_speed: float = 18.0
-var bob_frequency: float = 0.1
-var bob_amplitude: float = 0.2
+# --- From Configuration ---
+var position_smoothing_speed: float = 0
+var rotation_smoothing_speed: float = 0
+var bob_frequency: float = 0
+var bob_amplitude: float = 0
 # NEW: How quickly the camera's anchor point follows the ship. Lower values are smoother.
-var target_smoothing_speed: float = 15.0
+var target_smoothing_speed: float = 0
 
 # --- State ---
 var _bob_timer: float = 0.0
@@ -16772,19 +16772,19 @@ var _yaw_pid: PIDController = null
 var _pitch_pid: PIDController = null
 const PIDControllerScript = preload("res://core/utils/pid_controller.gd")
 
-# --- Configuration (Copied from OrbitCamera) ---
-var pitch_min: float = -1.45
-var pitch_max: float = 1.45
-var pid_yaw_kp: float = 10.0
-var pid_yaw_ki: float = 0.01
-var pid_yaw_kd: float = 0.1
-var pid_pitch_kp: float = 10.0
-var pid_pitch_ki: float = 0.01
-var pid_pitch_kd: float = 0.1
-var pid_integral_limit: float = 10.0
-var pid_output_limit_multiplier: float = 100.0
-var _rotation_max_speed: float = 15.0
-var _rotation_input_curve: float = 1.1
+# --- From Configuration ---
+var pitch_min: float = 0.0
+var pitch_max: float = 0.0
+var pid_yaw_kp: float = 0.0
+var pid_yaw_ki: float = 0.0
+var pid_yaw_kd: float = 0.0
+var pid_pitch_kp: float = 0.0
+var pid_pitch_ki: float = 0.0
+var pid_pitch_kd: float = 0.0
+var pid_integral_limit: float = 0.0
+var pid_output_limit_multiplier: float = 0.0
+var _rotation_max_speed: float = 0.0
+var _rotation_input_curve: float = 0.0
 
 # --- State ---
 var yaw: float = PI
@@ -16918,20 +16918,22 @@ class_name CameraZoomController
 var _camera: Camera = null
 var _target: Spatial = null
 
-# --- Configuration ---
-var distance: float = 55.0
-var min_distance_multiplier: float = 3.0
-var max_distance_multiplier: float = 30.0
-var preferred_distance_multiplier: float = 3.0
+# --- From Configuration ---
+var distance: float = 0.0
+var min_distance_multiplier: float = 0.0
+var max_distance_multiplier: float = 0.0
+var preferred_distance_multiplier: float = 0.0
+var zoom_speed: float = 0.0
+var _min_fov_deg: float = 0.0
+var _max_fov_deg: float = 0.0
+
+# --- Constants ---
 const MIN_ABSOLUTE_DISTANCE = 1.0
 const MAX_ABSOLUTE_DISTANCE = 500.0
-var zoom_speed: float = 0.5
-var _min_fov_deg: float = 70.0
-var _max_fov_deg: float = 80.0
 
 # --- State ---
-var current_distance: float = 55.0
-var _target_radius: float = 15.0
+var current_distance: float = 0.0
+var _target_radius: float = 0.0
 var _is_programmatically_setting_slider: bool = false
 
 
@@ -17016,7 +17018,7 @@ func _on_player_camera_zoom_changed(value):
 
 # --- Private Helper Methods ---
 func _set_and_update_zoom_distance(new_distance: float, from_slider_event: bool = false):
-	var dyn_min_dist = _get_dynamic_min_distance()
+	var dyn_min_dist = _get_dynamic_min_distance() + 10 # Take into account near plane
 	var dyn_max_dist = _get_dynamic_max_distance()
 
 	current_distance = clamp(new_distance, dyn_min_dist, dyn_max_dist)
@@ -17097,18 +17099,18 @@ extends Camera
 
 # --- General ---
 var distance: float = 55.0
-var position_smoothing_speed: float = 25.0
+var position_smoothing_speed: float = 30.0
 var rotation_smoothing_speed: float = 18.0
-var target_smoothing_speed: float = 20.0
+var target_smoothing_speed: float = 50.0
 var bob_frequency: float = 0.1
 var bob_amplitude: float = 0.2
 
 # --- Zoom & FoV ---
 var zoom_speed: float = 0.5
-var min_distance_multiplier: float = 3.0
-var max_distance_multiplier: float = 30.0
-var preferred_distance_multiplier: float = 3.0
-var min_fov_deg: float = 50.0
+var min_distance_multiplier: float = 1.0
+var max_distance_multiplier: float = 5.0
+var preferred_distance_multiplier: float = 1.0
+var min_fov_deg: float = 25.0
 var max_fov_deg: float = 100.0
 
 # --- Rotation & PID ---
@@ -17598,10 +17600,12 @@ func _get_new_module_uid() -> int:
 
 extends Node
 
-var viewport_downscale_factor = 1
+var viewport_downscale_factor = 1.0
 var viewport_msaa = Viewport.MSAA_DISABLED
-var viewport_fxaa = true
+var viewport_fxaa = false
 var viewport_disable_3d = false
+var viewport_sharpen_intensity = 0.5
+var viewport_keep_3d_linear = false
 
 
 var _viewport_size = Vector2(1920, 1080)
@@ -17611,6 +17615,8 @@ func _ready():
 	get_viewport().msaa = viewport_msaa
 	get_viewport().fxaa = viewport_fxaa
 	get_viewport().disable_3d = viewport_disable_3d
+	get_viewport().sharpen_intensity = viewport_sharpen_intensity
+	get_viewport().keep_3d_linear = viewport_keep_3d_linear
 	print("Viewport: Is ready")
 
 func _process(delta):

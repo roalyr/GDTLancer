@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
 [ext_resource path="res://assets/models/ships/Ship modules.glb" type="PackedScene" id=2]
@@ -7,6 +7,8 @@
 [ext_resource path="res://assets/art/shaders/simple_solid_glow.tres" type="Shader" id=5]
 [ext_resource path="res://assets/art/materials/test_solid_panel.tres" type="Material" id=6]
 [ext_resource path="res://assets/art/materials/test_solid_frame.tres" type="Material" id=7]
+[ext_resource path="res://assets/art/materials/test_solid_panel_2.tres" type="Material" id=8]
+[ext_resource path="res://assets/art/materials/test_solid_panel_3.tres" type="Material" id=9]
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 5 )
@@ -29,86 +31,100 @@ __meta__ = {
 }
 
 [node name="Exhaust" type="MeshInstance" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 0, 0, 21.064 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1.86375, 0, 0, 21.2404 )
 material_override = SubResource( 5 )
 cast_shadow = 0
 mesh = SubResource( 4 )
 skeleton = NodePath("")
 
 [node name="OmniLight" type="OmniLight" parent="Model/Exhaust"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 0.536551, 0, 0, -0.30292 )
-light_energy = 3.0
-omni_range = 1.58663
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 0.536553, 0, 0, -0.352051 )
+light_color = Color( 0.0745098, 0.396078, 0.509804, 1 )
+light_energy = 3.669
+omni_range = 1.46591
+omni_attenuation = 0.784584
 
 [node name="Ship modules" parent="Model" instance=ExtResource( 2 )]
 
-[node name="Panels mid cylinder" parent="Model/Ship modules" index="0"]
+[node name="Panels mid rear" parent="Model/Ship modules" index="1"]
 material_override = ExtResource( 6 )
 
-[node name="Panels frame rear" parent="Model/Ship modules" index="1"]
+[node name="Panels frame rear" parent="Model/Ship modules" index="2"]
 material_override = ExtResource( 6 )
 
-[node name="Panels mid frame" parent="Model/Ship modules" index="2"]
+[node name="Panels mid " parent="Model/Ship modules" index="3"]
 material_override = ExtResource( 6 )
 
-[node name="Panels mid frame001" parent="Model/Ship modules" index="3"]
+[node name="Cone" parent="Model/Ship modules" index="4"]
+material_override = ExtResource( 8 )
+
+[node name="Panel Frame mid" parent="Model/Ship modules" index="5"]
 material_override = ExtResource( 6 )
 
-[node name="Frame mid001" parent="Model/Ship modules" index="4"]
-material_override = ExtResource( 7 )
-
-[node name="Frame mid002" parent="Model/Ship modules" index="5"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear" parent="Model/Ship modules" index="6"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut front fixtures" parent="Model/Ship modules" index="7"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut rear fixtures" parent="Model/Ship modules" index="8"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut rear fixtures001" parent="Model/Ship modules" index="9"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut front fixtures001" parent="Model/Ship modules" index="10"]
-material_override = ExtResource( 7 )
-
-[node name="Frame front001" parent="Model/Ship modules" index="31"]
-material_override = ExtResource( 7 )
-
-[node name="Frame front002" parent="Model/Ship modules" index="32"]
-material_override = ExtResource( 7 )
-
-[node name="Engine Cruise Chamber" parent="Model/Ship modules" index="33"]
+[node name="Panel Frame mid001" parent="Model/Ship modules" index="6"]
 material_override = ExtResource( 6 )
 
-[node name="Engine Cruise Nozzle" parent="Model/Ship modules" index="34"]
+[node name="Frame Rings" parent="Model/Ship modules" index="7"]
 material_override = ExtResource( 7 )
 
-[node name="LOX tank frame" parent="Model/Ship modules/LOX tank ring fitting" index="1"]
+[node name="Frame Ring fittings" parent="Model/Ship modules" index="8"]
 material_override = ExtResource( 7 )
 
-[node name="LOX tank ring fixture" parent="Model/Ship modules/LOX tank ring fitting" index="4"]
+[node name="Frame frontal cone" parent="Model/Ship modules" index="9"]
 material_override = ExtResource( 7 )
 
-[node name="LOX tank frame001" parent="Model/Ship modules/LOX tank ring fitting001" index="0"]
+[node name="Frame mid002" parent="Model/Ship modules" index="10"]
 material_override = ExtResource( 7 )
 
-[node name="LOX tank ring fixture001" parent="Model/Ship modules/LOX tank ring fitting001" index="3"]
+[node name="Frame mid001" parent="Model/Ship modules" index="11"]
 material_override = ExtResource( 7 )
 
-[node name="PP LH2 tank frame" parent="Model/Ship modules" index="53"]
+[node name="Frame rear" parent="Model/Ship modules" index="12"]
 material_override = ExtResource( 7 )
 
-[node name="PP LH2 tank ring fixture" parent="Model/Ship modules/PP LH2 tank frame" index="7"]
+[node name="Frame rear strut front fixtures" parent="Model/Ship modules" index="13"]
 material_override = ExtResource( 7 )
 
-[node name="PP LH2 tank frame001" parent="Model/Ship modules" index="54"]
+[node name="Frame rear strut rear fixtures" parent="Model/Ship modules" index="14"]
 material_override = ExtResource( 7 )
 
-[node name="PP LH2 tank ring fixture001" parent="Model/Ship modules/PP LH2 tank frame001" index="6"]
+[node name="Frame rear strut rear fixtures001" parent="Model/Ship modules" index="15"]
+material_override = ExtResource( 7 )
+
+[node name="Frame rear strut front fixtures001" parent="Model/Ship modules" index="16"]
+material_override = ExtResource( 7 )
+
+[node name="Engine Cruise Chamber" parent="Model/Ship modules" index="37"]
+material_override = ExtResource( 9 )
+
+[node name="Engine Cruise Nozzle" parent="Model/Ship modules" index="38"]
+material_override = ExtResource( 7 )
+
+[node name="Engine Cruise Nozzle neck inner" parent="Model/Ship modules" index="40"]
+material_override = ExtResource( 7 )
+
+[node name="LOX tank" parent="Model/Ship modules" index="48"]
+material_override = ExtResource( 9 )
+
+[node name="LOX tank001" parent="Model/Ship modules" index="49"]
+material_override = ExtResource( 9 )
+
+[node name="LOX manifold bulkhead" parent="Model/Ship modules" index="54"]
+material_override = ExtResource( 7 )
+
+[node name="LOX system bulkhead" parent="Model/Ship modules" index="55"]
+material_override = ExtResource( 7 )
+
+[node name="PP LH2 tank001" parent="Model/Ship modules" index="56"]
+material_override = ExtResource( 9 )
+
+[node name="PP LH2 tank frame001" parent="Model/Ship modules/PP LH2 tank001" index="0"]
+material_override = ExtResource( 7 )
+
+[node name="PP fuel cell frame" parent="Model/Ship modules" index="59"]
+material_override = ExtResource( 7 )
+
+[node name="PP fuel cell frame001" parent="Model/Ship modules" index="62"]
 material_override = ExtResource( 7 )
 
 [node name="MovementSystem" type="Node" parent="."]
@@ -119,6 +135,7 @@ script = ExtResource( 4 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.94983, -0.0541661, 0.30804, -0.312766, -0.164495, 0.935478, 0, -0.984889, -0.173184, 0, 0, 0 )
+light_energy = 0.5
 editor_only = true
 
 [editable path="Model/Ship modules"]
