@@ -37,6 +37,7 @@ var world_map_system = null setget set_world_map_system
 var event_system = null setget set_event_system
 var trading_system = null setget set_trading_system
 var contract_system = null setget set_contract_system
+var narrative_action_system = null setget set_narrative_action_system
 
 
 func _ready():
@@ -207,6 +208,15 @@ func set_contract_system(new_ref):
 		print("GlobalRefs: ContractSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid ContractSystem ref: ", new_ref)
+
+
+func set_narrative_action_system(new_ref):
+	if new_ref == narrative_action_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		narrative_action_system = new_ref
+		print("GlobalRefs: NarrativeActionSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid NarrativeActionSystem ref: ", new_ref)
 
 
 

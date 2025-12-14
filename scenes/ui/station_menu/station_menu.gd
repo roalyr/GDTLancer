@@ -19,10 +19,13 @@ var current_location_id: String = ""
 var completable_contract_id: String = ""
 var completable_contract_title: String = ""
 
+var _pending_contract_completion: String = ""
+
 func _ready():
 	visible = false
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
+	EventBus.connect("narrative_action_resolved", self, "_on_narrative_resolved")
 	
 	btn_undock.connect("pressed", self, "_on_undock_pressed")
 	btn_trade.connect("pressed", self, "_on_trade_pressed")
@@ -96,9 +99,41 @@ func _on_popup_ok_pressed():
 func _on_complete_contract_pressed():
 	if completable_contract_id == "":
 		return
-	
+
+	_pending_contract_completion = completable_contract_id
+
+	# Request narrative action instead of completing directly.
+	var narrative_system = GlobalRefs.get("narrative_action_system")
+	if is_instance_valid(narrative_system) and narrative_system.has_method("request_action"):
+		narrative_system.request_action(
+			"contract_complete",
+			{
+				"char_uid": GameState.player_character_uid,
+				"contract_id": completable_contract_id,
+				"description": "Finalize delivery of '%s'. How do you approach the handoff?" % completable_contract_title
+			}
+		)
+	else:
+		# Fallback: complete without narrative check.
+		_finalize_contract_completion()
+		_pending_contract_completion = ""
+
+
+func _on_narrative_resolved(result: Dictionary):
+	if _pending_contract_completion == "":
+		return
+	if str(result.get("action_type", "")) != "contract_complete":
+		return
+	_finalize_contract_completion()
+	_pending_contract_completion = ""
+
+
+func _finalize_contract_completion():
 	if GlobalRefs.contract_system:
-		var result = GlobalRefs.contract_system.complete_contract(GameState.player_character_uid, completable_contract_id)
+		var result = GlobalRefs.contract_system.complete_contract(
+			GameState.player_character_uid,
+			completable_contract_id
+		)
 		if result.success:
 			print("Contract Completed: ", completable_contract_id)
 			# Show completion popup
@@ -114,6 +149,7 @@ func _on_complete_contract_pressed():
 func _on_player_undocked():
 	visible = false
 	current_location_id = ""
+	_pending_contract_completion = ""
 	if trade_interface_instance:
 		trade_interface_instance.visible = false
 	if contract_interface_instance:

@@ -1,0 +1,149 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://core/ui/action_check/action_check.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="ActionCheckUI" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0, 0, 0, 0.6 )
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -320.0
+margin_top = -220.0
+margin_right = 320.0
+margin_bottom = 220.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+custom_constants/separation = 12
+
+[node name="LabelTitle" type="Label" parent="Panel/VBoxContainer"]
+margin_right = 600.0
+margin_bottom = 27.0
+text = "Resolve Action"
+align = 1
+
+[node name="LabelDescription" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 39.0
+margin_right = 600.0
+margin_bottom = 79.0
+text = "Resolve this action."
+autowrap = true
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+margin_top = 91.0
+margin_right = 600.0
+margin_bottom = 95.0
+
+[node name="HBoxApproach" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 107.0
+margin_right = 600.0
+margin_bottom = 147.0
+custom_constants/separation = 12
+
+[node name="BtnCautious" type="Button" parent="Panel/VBoxContainer/HBoxApproach"]
+margin_right = 294.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+rect_min_size = Vector2( 0, 40 )
+text = "Act Cautiously"
+
+[node name="BtnRisky" type="Button" parent="Panel/VBoxContainer/HBoxApproach"]
+margin_left = 306.0
+margin_right = 600.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+rect_min_size = Vector2( 0, 40 )
+text = "Act Risky"
+
+[node name="HBoxFP" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 159.0
+margin_right = 600.0
+margin_bottom = 193.0
+custom_constants/separation = 12
+
+[node name="LabelFP" type="Label" parent="Panel/VBoxContainer/HBoxFP"]
+margin_top = 3.0
+margin_right = 104.0
+margin_bottom = 30.0
+text = "Focus Points:"
+
+[node name="SpinBoxFP" type="SpinBox" parent="Panel/VBoxContainer/HBoxFP"]
+margin_left = 116.0
+margin_right = 600.0
+margin_bottom = 33.0
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 3.0
+step = 1.0
+value = 0.0
+rounded = true
+
+[node name="LabelCurrentFP" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 205.0
+margin_right = 600.0
+margin_bottom = 232.0
+text = "Available: 0 FP"
+
+[node name="BtnConfirm" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 244.0
+margin_right = 600.0
+margin_bottom = 294.0
+rect_min_size = Vector2( 0, 50 )
+text = "Confirm"
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
+margin_top = 306.0
+margin_right = 600.0
+margin_bottom = 310.0
+
+[node name="VBoxResult" type="VBoxContainer" parent="Panel/VBoxContainer"]
+visible = false
+margin_top = 322.0
+margin_right = 600.0
+margin_bottom = 400.0
+custom_constants/separation = 8
+
+[node name="LabelRollResult" type="Label" parent="Panel/VBoxContainer/VBoxResult"]
+margin_right = 600.0
+margin_bottom = 27.0
+text = "Roll: 0 → Failure"
+align = 1
+
+[node name="LabelOutcomeDesc" type="RichTextLabel" parent="Panel/VBoxContainer/VBoxResult"]
+margin_top = 35.0
+margin_right = 600.0
+margin_bottom = 77.0
+bbcode_enabled = true
+text = "[i]Outcome description[/i]"
+
+[node name="LabelEffects" type="Label" parent="Panel/VBoxContainer/VBoxResult"]
+margin_top = 85.0
+margin_right = 600.0
+margin_bottom = 112.0
+text = "Effects:"
+autowrap = true
+
+[node name="BtnContinue" type="Button" parent="Panel/VBoxContainer/VBoxResult"]
+margin_top = 120.0
+margin_right = 600.0
+margin_bottom = 170.0
+rect_min_size = Vector2( 0, 50 )
+text = "Continue"

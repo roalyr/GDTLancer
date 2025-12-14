@@ -15,6 +15,9 @@ onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/L
 const StationMenuScene = preload("res://scenes/ui/station_menu/StationMenu.tscn")
 var station_menu_instance = null
 
+const ActionCheckScene = preload("res://core/ui/action_check/action_check.tscn")
+var action_check_instance = null
+
 # --- State ---
 var _current_target: Spatial = null
 var _main_camera: Camera = null
@@ -28,6 +31,10 @@ func _ready():
 	station_menu_instance = StationMenuScene.instance()
 	add_child(station_menu_instance)
 	# It starts hidden by default in its own _ready
+
+	# Instantiate Action Check UI (hidden by default; shown via EventBus)
+	action_check_instance = ActionCheckScene.instance()
+	add_child(action_check_instance)
 
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
@@ -69,7 +76,7 @@ func _ready():
 
 
 # --- Process Update ---
-func _process(delta):
+func _process(_delta):
 	# Only update position if a target is selected and valid
 	if is_instance_valid(_current_target) and is_instance_valid(_main_camera):
 		# Project the target's 3D origin position to 2D screen coordinates
@@ -133,9 +140,9 @@ func _on_player_fp_changed():
 # --- Custom Drawing (Optional but Recommended) ---
 func _draw_targeting_indicator():
 	# Example: Draw a simple white rectangle outline
-	var rect = Rect2(Vector2.ZERO, targeting_indicator.rect_size)
-	var line_color = Color.white
-	var line_width = 1.0  # Adjust thickness as needed
+	var _rect = Rect2(Vector2.ZERO, targeting_indicator.rect_size)
+	var _line_color = Color.white
+	var _line_width = 1.0  # Adjust thickness as needed
 	#targeting_indicator.draw_rect(rect, line_color, false, line_width)
 
 	# Example: Draw simple corner brackets
@@ -221,7 +228,7 @@ func _on_dock_unavailable():
 	if docking_prompt:
 		docking_prompt.visible = false
 
-func _on_player_docked(location_id):
+func _on_player_docked(_location_id):
 	if docking_prompt:
 		docking_prompt.visible = false
 

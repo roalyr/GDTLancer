@@ -16,7 +16,6 @@
 
 ### PROMPT FOR OPUS
 ```
-@workspace
 ROLE: Technical Architect & Lead Developer
 CONTEXT: We are developing GDTLancer based on the frozen 'GDD-COMBINED-TEXT' and the high-level 'DEVELOPMENT-PLAN'.
 CURRENT STATUS: Review 'SESSION-LOG.md' (if it exists) and the current file structure to understand what has been recently implemented.
@@ -30,7 +29,7 @@ Overwrite the content of 'IMMEDIATE-TODO.md' with a strict, implementation-ready
 STRICT OUTPUT FORMAT for 'IMMEDIATE-TODO.md':
 1. CONTEXT: A 2-sentence summary of what we are building right now and why.
 2. FILE MANIFEST: List strictly which files need to be created or modified.
-3. ATOMIC TASKS: Break the work down into numbered steps (Task 1, Task 2, etc.).
+3. ATOMIC TASKS: Break the work down into a Markdown Checklist using the format "- [ ] Task Name".
    - For each task, define the TARGET FILE.
    - Define the DEPENDENCIES (files the AI must read to understand the context).
    - Provide PSEUDO-CODE SIGNATURES for key functions (define inputs/outputs exactly).
@@ -50,23 +49,27 @@ DO NOT write the full implementation code. Write the "Ticket" that ensures the S
 
 ### PROMPT FOR GPT-5.2
 ```
-@workspace
 ROLE: Senior Python/Godot Developer
 CONTEXT: You are executing the plan defined in 'IMMEDIATE-TODO.md'.
-TASK: We are tackling [INSERT TASK NUMBER/NAME HERE] from the immediate todo list.
+TASK: **Identify, execute, and mark complete the NEXT logical step.**
 
 INSTRUCTIONS:
-1. Read 'IMMEDIATE-TODO.md' to understand the specific requirements, signatures, and constraints for this task.
-2. Read the DEPENDENCY files listed in the task to understand the existing APIs you must connect to.
-3. Implement the solution for the TARGET FILE. 
+1. Read 'IMMEDIATE-TODO.md'.
+2. Scan for the **first unfinished task** (look for the first unchecked box "- [ ]" or the first item under a "Current Sprint" header).
+3. **Implicitly select that task.** (Do not ask me for confirmation).
+4. Identify the target file associated with that task.
+5. Read the DEPENDENCY files listed for that task.
+6. Implement the solution for the target file.
+7. **CRITICAL FINAL STEP:** Update 'IMMEDIATE-TODO.md' by marking the task as checked ("- [x]") and append a brief line to 'SESSION-LOG.md' (e.g., "- [Date] Implemented [Task Name]").
 
 CONSTRAINTS:
 - Follow the signatures defined in the Todo file exactly.
 - Do not hallucinate new architectural patterns; stick to the plan.
-- Focus on the implementation logic. Do not worry about docstrings or extensive unit testing yet (the Junior Dev will handle that).
-- If the file is large, implement it in logical chunks (e.g., "Properties and Init", then "Core Methods").
+- Focus on the implementation logic. Do not worry about docstrings or extensive unit testing yet.
+- If the file is large, implement it in logical chunks.
+- **NEVER** leave the task unchecked if you have successfully generated the code.
 
-Output the code for: [INSERT TARGET FILE NAME]
+Rewrite the code for the target file AND update markdown files.
 
 ```
 
@@ -79,26 +82,26 @@ Output the code for: [INSERT TARGET FILE NAME]
 
 ### PROMPT FOR GPT-4.1
 ```
-@workspace
 ROLE: QA Engineer & Junior Developer
-CONTEXT: The Senior Dev has just implemented code in [INSERT FILE NAME].
-TASK: Polish, Test, and Log.
+CONTEXT: The Senior Developer has just finished a task. Your job is to polish, test, and verify.
+TASK: **Identify the most recent work and secure it.**
 
-ACTION 1: CODE POLISH
-- Review the new code. Add Pythonic/GDScript docstrings to all functions explaining arguments and returns.
-- Check for obvious syntax errors or unused imports.
-- Fix minor formatting issues (indentation, naming conventions).
+INSTRUCTIONS:
+1. Read 'SESSION-LOG.md'. Look at the **last entry** to identify the file or feature that was just implemented.
+2. Open and read that target file.
+3. **Action 1 - Polish:** Add strict static typing (if missing) and Pythonic/GDScript docstrings to all functions. Fix any minor formatting issues.
+4. **Action 2 - Test:** Check if a test file exists for this feature (e.g., `tests/unit/test_[filename].gd`).
+   - If YES: Update it to cover the new logic.
+   - If NO: Create it from scratch using the project's testing conventions.
+   - **Crucial:** Ensure all tests use `autofree` or proper teardown to prevent memory leaks.
+5. **Action 3 - Verify:** Append a confirmation line to 'SESSION-LOG.md' (e.g., "  - [QA] Added [N] tests and docstrings.").
 
-ACTION 2: UNIT TESTS
-- Create or update the corresponding test file (e.g., 'tests/unit/test_[filename].gd').
-- Write comprehensive tests covering success paths, edge cases, and failure states based on the logic you see.
-- Ensure all tests use the 'autofree' utility to prevent memory leaks.
+CONSTRAINTS:
+- Do not change the core logic written by the Senior Dev unless it is clearly broken.
+- Your tests must be exhaustive (success paths, failure paths, edge cases).
+- Keep the logging brief.
 
-ACTION 3: LOGGING
-- Append a brief summary of what was completed to 'SESSION-LOG.md'. Format it as:
-  "- [Date] [Sprint X] Implemented [Feature]. Passed [N] tests."
-
-Output the polished code and the new test file.
+Rewrite the polished source code, the test file, and update markdown log.
 
 ```
 
@@ -110,15 +113,25 @@ Output the polished code and the new test file.
 
 ### PROMPT FOR RECOVERY
 ```
-@workspace
-ROLE: Senior Developer (Debug Mode)
-CONTEXT: We attempted to implement Task [X] from 'IMMEDIATE-TODO.md', but encountered issues.
+ROLE: Senior Developer (Debug & Recovery Mode)
+CONTEXT: We attempted to execute a task from 'IMMEDIATE-TODO.md', but encountered a critical failure.
 ERROR/ISSUE: [PASTE ERROR LOG OR DESCRIBE UNEXPECTED BEHAVIOR]
 
-TASK:
-1. Analyze the 'IMMEDIATE-TODO.md' again to ensure we didn't miss a constraint.
-2. Analyze the current code in [FILE NAME].
-3. Identify the logical flaw or syntax error.
-4. Rewrite the specific function or section causing the issue. DO NOT refactor the whole file if not necessary.
+TASK: **Analyze, Fix, and Re-align.**
+
+INSTRUCTIONS:
+1. **Analyze:** specific error against the code in [TARGET FILE] and the plan in 'IMMEDIATE-TODO.md'.
+2. **Diagnose:** Determine if this is a simple syntax/logic error OR a fundamental flaw in the plan (e.g., impossible dependency).
+3. **Fix:** Rewrite the specific section of code causing the issue.
+   - *Condition A:* If it's a code error, fix it directly.
+   - *Condition B:* If the PLAN was wrong, **update 'IMMEDIATE-TODO.md'** to reflect the necessary change in strategy.
+4. **Log:** Append a line to 'SESSION-LOG.md' describing the fix (e.g., "  - [FIX] Resolved circular dependency in [File].").
+
+CONSTRAINTS:
+- Do NOT refactor unrelated parts of the file.
+- If the task is now actually complete and working, ensure 'IMMEDIATE-TODO.md' is marked with "- [x]".
+- If the task is blocked by this error, mark it as "- [ ]" and add a "**BLOCKED:**" note next to it in the Todo file.
+
+Write the fixed code and update markdown files.
 
 ```

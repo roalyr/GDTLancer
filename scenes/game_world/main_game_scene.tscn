@@ -21,6 +21,7 @@
 [ext_resource path="res://core/ui/inventory_screen/inventory_screen.tscn" type="PackedScene" id=19]
 [ext_resource path="res://core/systems/trading_system.gd" type="Script" id=20]
 [ext_resource path="res://core/systems/contract_system.gd" type="Script" id=21]
+[ext_resource path="res://core/systems/narrative_action_system.gd" type="Script" id=22]
 
 [node name="MainGameScene" type="Node"]
 
@@ -68,6 +69,9 @@ script = ExtResource( 20 )
 
 [node name="ContractSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 21 )
+
+[node name="NarrativeActionSystem" type="Node" parent="WorldManager"]
+script = ExtResource( 22 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
