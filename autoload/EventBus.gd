@@ -34,6 +34,7 @@ signal player_stop_pressed
 signal player_orbit_pressed
 signal player_approach_pressed
 signal player_flee_pressed
+signal player_interact_pressed
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
 signal player_wp_changed(new_wp_value)

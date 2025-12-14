@@ -5,6 +5,11 @@ onready var btn_trade = $Panel/VBoxContainer/BtnTrade
 onready var btn_contracts = $Panel/VBoxContainer/BtnContracts
 onready var btn_undock = $Panel/VBoxContainer/BtnUndock
 
+const TradeInterfaceScene = preload("res://scenes/ui/station_menu/TradeInterface.tscn")
+const ContractInterfaceScene = preload("res://scenes/ui/station_menu/ContractInterface.tscn")
+var trade_interface_instance = null
+var contract_interface_instance = null
+
 var current_location_id: String = ""
 
 func _ready():
@@ -15,6 +20,14 @@ func _ready():
 	btn_undock.connect("pressed", self, "_on_undock_pressed")
 	btn_trade.connect("pressed", self, "_on_trade_pressed")
 	btn_contracts.connect("pressed", self, "_on_contracts_pressed")
+	
+	trade_interface_instance = TradeInterfaceScene.instance()
+	add_child(trade_interface_instance)
+	trade_interface_instance.visible = false
+	
+	contract_interface_instance = ContractInterfaceScene.instance()
+	add_child(contract_interface_instance)
+	contract_interface_instance.visible = false
 
 func _on_player_docked(location_id):
 	current_location_id = location_id
@@ -30,6 +43,10 @@ func _on_player_docked(location_id):
 func _on_player_undocked():
 	visible = false
 	current_location_id = ""
+	if trade_interface_instance:
+		trade_interface_instance.visible = false
+	if contract_interface_instance:
+		contract_interface_instance.visible = false
 	print("Station Menu Closed")
 
 func _on_undock_pressed():
@@ -37,7 +54,9 @@ func _on_undock_pressed():
 	EventBus.emit_signal("player_undocked")
 
 func _on_trade_pressed():
-	print("Trade button pressed (Not implemented yet)")
+	if trade_interface_instance:
+		trade_interface_instance.open(current_location_id)
 
 func _on_contracts_pressed():
-	print("Contracts button pressed (Not implemented yet)")
+	if contract_interface_instance:
+		contract_interface_instance.open(current_location_id)

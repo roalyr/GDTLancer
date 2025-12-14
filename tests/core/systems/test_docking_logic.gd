@@ -4,9 +4,14 @@ var DockableStationScript = load("res://scenes/game_world/station/dockable_stati
 var PlayerControllerScript = load("res://modules/piloting/scripts/player_controller_ship.gd")
 
 func test_docking_signals():
-	var station = Area.new()
+	var station = StaticBody.new()
 	station.set_script(DockableStationScript)
 	station.location_id = "test_station"
+	
+	var docking_zone = Area.new()
+	docking_zone.name = "DockingZone"
+	station.add_child(docking_zone)
+	
 	add_child(station)
 	
 	var player = KinematicBody.new()

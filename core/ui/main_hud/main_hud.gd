@@ -199,6 +199,9 @@ func _on_ButtonFlee_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_flee_pressed")
 
+func _on_ButtonInteract_pressed():
+	if EventBus:
+		EventBus.emit_signal("player_interact_pressed")
 
 func _on_SliderControlLeft_value_changed(value):
 	# ZOOM camera slider

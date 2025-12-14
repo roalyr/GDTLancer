@@ -522,7 +522,7 @@ expand = true
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonManualFlight" to="." method="_on_ButtonFreeFlight_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonApproach" to="." method="_on_ButtonApproach_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
-[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonStop_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonInteract_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]

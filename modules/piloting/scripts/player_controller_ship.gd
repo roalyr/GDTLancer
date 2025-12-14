@@ -265,6 +265,12 @@ func _on_Player_Flee_Pressed():
 	if is_instance_valid(_selected_target):
 		agent_script.command_flee(_selected_target)
 
+func _on_Player_Interact_Pressed():
+	if _can_dock_at != "":
+		print("PlayerController: Interact button pressed. Attempting to dock at ", _can_dock_at)
+		EventBus.emit_signal("player_docked", _can_dock_at)
+	else:
+		print("PlayerController: Interact button pressed but no dock available.")
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_target_speed_normalized = (100.0 - slider_ui_value) / 100.0
@@ -278,6 +284,7 @@ func _connect_eventbus_signals():
 	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
 	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 	EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
+	EventBus.connect("player_interact_pressed", self, "_on_Player_Interact_Pressed")
 	EventBus.connect(
 		"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 	)
@@ -299,6 +306,8 @@ func _notification(what):
 			EventBus.disconnect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 		if EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
 			EventBus.disconnect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
+		if EventBus.is_connected("player_interact_pressed", self, "_on_Player_Interact_Pressed"):
+			EventBus.disconnect("player_interact_pressed", self, "_on_Player_Interact_Pressed")
 		if EventBus.is_connected(
 			"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 		):
