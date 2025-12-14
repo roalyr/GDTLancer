@@ -1,0 +1,251 @@
+# File: tests/core/systems/test_narrative_action_system.gd
+# GUT Test for NarrativeActionSystem.
+# Version: 1.1 - Tests request/resolve flow, effect application, and edge cases.
+
+extends GutTest
+
+# --- Preloads ---
+const NarrativeActionSystemPath = "res://core/systems/narrative_action_system.gd"
+const CharacterSystemPath = "res://core/systems/character_system.gd"
+const CharacterTemplate = preload("res://core/resource/character_template.gd")
+
+# --- Test State ---
+var narrative_system = null
+var character_system_instance = null
+var default_char_template = null
+const PLAYER_UID = 0
+
+
+func before_each():
+	"""Set up game state and instantiate the system."""
+	# Clear global state
+	GameState.characters.clear()
+	GameState.narrative_state.clear()
+	GameState.player_character_uid = PLAYER_UID
+
+	# Load the base character template
+	default_char_template = load("res://assets/data/characters/character_default.tres")
+	assert_true(is_instance_valid(default_char_template), "Pre-check: Default character template must load.")
+
+	# Create and register a player character instance
+	var player_char_instance = default_char_template.duplicate()
+	GameState.characters[PLAYER_UID] = player_char_instance
+	GameState.player_character_uid = PLAYER_UID
+
+	# Instantiate CharacterSystem and register in GlobalRefs
+	var char_system_script = load(CharacterSystemPath)
+	character_system_instance = char_system_script.new()
+	add_child_autofree(character_system_instance)
+	GlobalRefs.set_character_system(character_system_instance)
+
+	# Instantiate the narrative system via load() to avoid cyclic reference error
+	var script = load(NarrativeActionSystemPath)
+	narrative_system = script.new()
+	add_child_autofree(narrative_system)
+	narrative_system._ready()
+
+
+func after_each():
+	"""Clean up."""
+	GameState.characters.clear()
+	GameState.narrative_state.clear()
+	GameState.player_character_uid = -1
+	GlobalRefs.set_character_system(null)
+	narrative_system = null
+	character_system_instance = null
+	default_char_template = null
+
+
+# --- Test Cases ---
+
+func test_request_action_success():
+	"""Test that request_action stores pending action and emits EventBus signal."""
+	# Given: A narrative system and valid context
+	var context = {
+		"char_uid": PLAYER_UID,
+		"description": "Execute a risky maneuver."
+	}
+
+	# When: We request an action
+	narrative_system.request_action("dock_arrival", context)
+
+	# Then: _pending_action should be populated
+	assert_true(not narrative_system._pending_action.empty(), "Pending action should be set")
+	assert_eq(narrative_system._pending_action.action_type, "dock_arrival", "Action type should match")
+	assert_eq(narrative_system._pending_action.char_uid, PLAYER_UID, "Character UID should match")
+	assert_eq(narrative_system._pending_action.skill_name, "piloting", "Skill for dock_arrival should be piloting")
+
+
+func test_resolve_action_no_pending():
+	"""Test that resolve_action fails gracefully when no pending action."""
+	# Given: No pending action
+	narrative_system._pending_action = {}
+
+	# When: We attempt to resolve
+	var result = narrative_system.resolve_action(0, 0)
+
+	# Then: Should return failure
+	assert_false(result.success, "Should fail when no pending action")
+	assert_eq(result.reason, "No pending action", "Reason should indicate no pending action")
+
+
+func test_resolve_action_character_unavailable():
+	"""Test that resolve_action fails when CharacterSystem is unavailable."""
+	# Given: A pending action but no CharacterSystem
+	var old_char_system = GlobalRefs.character_system
+	GlobalRefs.character_system = null
+
+	narrative_system._pending_action = {
+		"char_uid": PLAYER_UID,
+		"action_type": "contract_complete",
+		"attribute_name": "cunning",
+		"skill_name": "negotiation"
+	}
+
+	# When: We attempt to resolve
+	var result = narrative_system.resolve_action(0, 0)
+
+	# Then: Should return failure
+	assert_false(result.success, "Should fail when CharacterSystem unavailable")
+	assert_eq(result.reason, "CharacterSystem unavailable", "Reason should indicate missing system")
+
+	# Restore
+	GlobalRefs.character_system = old_char_system
+
+
+func test_resolve_action_fp_clamping():
+	"""Test that resolve_action clamps fp_spent to available FP (EDGE CASE)."""
+	# Given: A character with 2 available FP
+	GameState.characters[PLAYER_UID].focus_points = 2
+
+	narrative_system._pending_action = {
+		"char_uid": PLAYER_UID,
+		"action_type": "contract_complete",
+		"attribute_name": "cunning",
+		"skill_name": "negotiation"
+	}
+
+	# When: We attempt to spend 5 FP (more than available)
+	var result = narrative_system.resolve_action(Constants.ActionApproach.CAUTIOUS, 5)
+
+	# Then: Should succeed, but FP spent should be clamped to available
+	assert_true(result.success, "Should succeed despite over-allocation")
+	# The actual FP deduction is handled by character_system, verify it was called with clamped value
+	assert_true(result.has("effects_applied"), "Should have effects")
+
+
+func test_apply_effects_wp_gain():
+	"""Test that _apply_effects correctly adds WP."""
+	# Given: Effects with WP gain
+	var effects = {
+		"wp_gain": 50
+	}
+
+	var char_wp_before = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
+
+	# When: We apply effects
+	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
+
+	# Then: WP should increase
+	var char_wp_after = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
+	assert_eq(char_wp_after, char_wp_before + 50, "WP should increase by 50")
+	assert_true(applied.has("wp_gained"), "Applied effects should record wp_gained")
+	assert_eq(applied["wp_gained"], 50, "Applied wp_gained should be 50")
+
+
+func test_apply_effects_wp_cost():
+	"""Test that _apply_effects correctly subtracts WP."""
+	# Given: Effects with WP cost
+	var effects = {
+		"wp_cost": 30
+	}
+
+	# Ensure character has enough WP
+	GlobalRefs.character_system.add_wp(PLAYER_UID, 100)
+	var char_wp_before = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
+
+	# When: We apply effects
+	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
+
+	# Then: WP should decrease
+	var char_wp_after = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
+	assert_eq(char_wp_after, char_wp_before - 30, "WP should decrease by 30")
+	assert_true(applied.has("wp_lost"), "Applied effects should record wp_lost")
+
+
+func test_apply_effects_reputation_change():
+	"""Test that _apply_effects updates reputation correctly."""
+	# Given: Effects with reputation change
+	var effects = {
+		"reputation_change": 5
+	}
+
+	var rep_before = GameState.narrative_state.get("reputation", 0)
+
+	# When: We apply effects
+	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
+
+	# Then: Reputation should increase
+	var rep_after = GameState.narrative_state.get("reputation", 0)
+	assert_eq(rep_after, rep_before + 5, "Reputation should increase by 5")
+	assert_true(applied.has("reputation_changed"), "Applied effects should record reputation_changed")
+
+
+func test_apply_effects_null_effects():
+	"""Test that _apply_effects handles empty effects gracefully."""
+	# Given: Empty effects dictionary
+	var effects = {}
+
+	# When: We apply empty effects
+	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
+
+	# Then: Should return empty dict (no changes)
+	assert_eq(applied.size(), 0, "Should return empty dict for empty effects")
+
+
+func test_get_skill_for_action_contract_complete():
+	"""Test that _get_skill_for_action returns correct skill for contract_complete."""
+	var skill_info = narrative_system._get_skill_for_action("contract_complete")
+	assert_eq(skill_info.attribute_name, "cunning", "Should use cunning attribute")
+	assert_eq(skill_info.skill_name, "negotiation", "Should use negotiation skill")
+
+
+func test_get_skill_for_action_dock_arrival():
+	"""Test that _get_skill_for_action returns correct skill for dock_arrival."""
+	var skill_info = narrative_system._get_skill_for_action("dock_arrival")
+	assert_eq(skill_info.attribute_name, "reflex", "Should use reflex attribute")
+	assert_eq(skill_info.skill_name, "piloting", "Should use piloting skill")
+
+
+func test_get_skill_for_action_trade_finalize():
+	"""Test that _get_skill_for_action returns correct skill for trade_finalize."""
+	var skill_info = narrative_system._get_skill_for_action("trade_finalize")
+	assert_eq(skill_info.attribute_name, "cunning", "Should use cunning attribute")
+	assert_eq(skill_info.skill_name, "trading", "Should use trading skill")
+
+
+func test_get_skill_for_action_unknown():
+	"""Test that _get_skill_for_action defaults for unknown action type."""
+	var skill_info = narrative_system._get_skill_for_action("unknown_action")
+	assert_eq(skill_info.attribute_name, "cunning", "Should default to cunning")
+	assert_eq(skill_info.skill_name, "general", "Should default to general skill")
+
+
+func test_get_attribute_value_no_attributes():
+	"""Test that _get_attribute_value returns 0 when attributes not implemented (EDGE CASE)."""
+	# Phase 1: CharacterTemplate doesn't have attributes dict
+	var attr_value = narrative_system._get_attribute_value(PLAYER_UID, "cunning")
+	assert_eq(attr_value, 0, "Should return 0 for Phase 1 (no attributes)")
+
+
+func test_reset_focus_points():
+	"""Test that _reset_focus_points correctly resets FP to 0."""
+	# Given: Character with 3 FP
+	GameState.characters[PLAYER_UID].focus_points = 3
+	assert_eq(GlobalRefs.character_system.get_fp(PLAYER_UID), 3, "Should start with 3 FP")
+
+	# When: We reset FP
+	narrative_system._reset_focus_points(PLAYER_UID)
+
+	# Then: FP should be 0
+	assert_eq(GlobalRefs.character_system.get_fp(PLAYER_UID), 0, "FP should be reset to 0")

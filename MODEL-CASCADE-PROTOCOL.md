@@ -80,28 +80,27 @@ Rewrite the code for the target file AND update markdown files.
 **Input:** The newly created/modified file.
 **Goal:** Cleanup, Documentation, Unit Tests, and Logging.
 
-### PROMPT FOR GPT-4.1
+### PROMPT FOR HAIKU
 ```
-ROLE: QA Engineer & Junior Developer
-CONTEXT: The Senior Developer has just finished a task. Your job is to polish, test, and verify.
-TASK: **Identify the most recent work and secure it.**
+ROLE: QA Intern (Model: Haiku/Mini)
+CONTEXT: Senior Dev just finished [TARGET FILE] (Check SESSION-LOG.md for name).
+TASK: Polish and Test.
 
 INSTRUCTIONS:
-1. Read 'SESSION-LOG.md'. Look at the **last entry** to identify the file or feature that was just implemented.
-2. Open and read that target file.
-3. **Action 1 - Polish:** Add strict static typing (if missing) and Pythonic/GDScript docstrings to all functions. Fix any minor formatting issues.
-4. **Action 2 - Test:** Check if a test file exists for this feature (e.g., `tests/unit/test_[filename].gd`).
-   - If YES: Update it to cover the new logic.
-   - If NO: Create it from scratch using the project's testing conventions.
-   - **Crucial:** Ensure all tests use `autofree` or proper teardown to prevent memory leaks.
-5. **Action 3 - Verify:** Append a confirmation line to 'SESSION-LOG.md' (e.g., "  - [QA] Added [N] tests and docstrings.").
+1. **Read & Polish:** Open [TARGET FILE]. Add strict types and docstrings. Fix format.
+2. **Write Tests:** Update/Create `tests/unit/test_[filename].gd`.
+   - MUST cover success paths + 1 edge case.
+   - MUST use `autofree(node)` for cleanup.
+3. **Log:** Append 1 line to 'SESSION-LOG.md'.
 
-CONSTRAINTS:
-- Do not change the core logic written by the Senior Dev unless it is clearly broken.
-- Your tests must be exhaustive (success paths, failure paths, edge cases).
-- Keep the logging brief.
+CRITICAL SYNTAX RULES (GODOT 3.x):
+- NO `@export`, `@onready`. Use `export(int) var`, `onready var`.
+- NO `await`. Use `yield(obj, "sig")`.
+- NO `super()`. Use `.func()`.
+- NO f-strings. Use `"%s" % var`.
+- NO Typed Arrays `Array[int]`. Use `Array`.
 
-Rewrite the polished source code, the test file, and update markdown log.
+Output the POLISHED CODE and the TEST FILE.
 
 ```
 
