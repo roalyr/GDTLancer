@@ -328,6 +328,7 @@ func _on_dock_unavailable():
 
 func _on_player_docked(location_id):
 	print("Player docked at: ", location_id)
+	GameState.player_docked_at = location_id
 	set_process_unhandled_input(false)
 	set_physics_process(false)
 	# Stop the ship
@@ -336,6 +337,7 @@ func _on_player_docked(location_id):
 
 func _on_player_undocked():
 	print("Player undocked")
+	GameState.player_docked_at = ""
 	set_process_unhandled_input(true)
 	set_physics_process(true)
 

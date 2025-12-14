@@ -166,6 +166,18 @@ transform = Transform( -0.342756, 0.715632, 0.608596, -0.356834, -0.698464, 0.62
 
 [node name="Station_Alpha" parent="SceneAssets/System_1" instance=ExtResource( 30 )]
 transform = Transform( 1, 5.6345e-08, 5.96046e-08, -4.19095e-09, 1, -4.58676e-08, 2.98023e-08, 4.44707e-08, 1, 48041.9, 233.477, -673.418 )
+location_id = "station_alpha"
+station_name = "Station Alpha"
+
+[node name="Station_Beta" parent="SceneAssets/System_1" instance=ExtResource( 30 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 49500, 100, 1500 )
+location_id = "station_beta"
+station_name = "Station Beta"
+
+[node name="Station_Gamma" parent="SceneAssets/System_1" instance=ExtResource( 30 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 46000, -200, 500 )
+location_id = "station_gamma"
+station_name = "Freeport Gamma"
 
 [node name="Star_1" type="StaticBody" parent="SceneAssets/System_1"]
 

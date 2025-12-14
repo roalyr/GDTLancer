@@ -8,17 +8,16 @@ extends Control
 const InventorySystem = preload("res://core/systems/inventory_system.gd")
 
 # --- Node References ---
-onready var ShipList = $CategoryTabs/Ships/ShipList
-onready var ModuleList = $CategoryTabs/Modules/ModuleList
-onready var CommodityList = $CategoryTabs/Commodities/CommodityList
+onready var ShipList = $Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Ships/ShipList
+onready var ModuleList = $Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Modules/ModuleList
+onready var CommodityList = $Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Commodities/CommodityList
 
 # --- Detail Panel Node References ---
-# (Assuming these are the children of $DetailsPanel)
-onready var LabelName = $DetailsPanel/LabelName
-onready var LabelDescription = $DetailsPanel/LabelDescription
-onready var LabelStat1 = $DetailsPanel/LabelStat1
-onready var LabelStat2 = $DetailsPanel/LabelStat2
-onready var LabelStat3 = $DetailsPanel/LabelStat3
+onready var LabelName = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelName
+onready var LabelDescription = $Panel/VBoxMain/HBoxContent/VBoxDetails/ScrollContainer/LabelDescription
+onready var LabelStat1 = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelStat1
+onready var LabelStat2 = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelStat2
+onready var LabelStat3 = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelStat3
 
 
 func _ready():

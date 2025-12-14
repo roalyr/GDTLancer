@@ -1,0 +1,42 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "station_gamma"
+location_name = "Freeport Gamma"
+location_type = "station"
+position_in_zone = Vector3( 46000, -200, 500 )
+interaction_radius = 150.0
+market_inventory = {
+"commodity_ore": {
+"buy_price": 12,
+"sell_price": 10,
+"quantity": 80
+},
+"commodity_food": {
+"buy_price": 25,
+"sell_price": 20,
+"quantity": 60
+},
+"commodity_tech": {
+"buy_price": 55,
+"sell_price": 45,
+"quantity": 30
+},
+"commodity_fuel": {
+"buy_price": 20,
+"sell_price": 15,
+"quantity": 150
+},
+"commodity_luxury": {
+"buy_price": 120,
+"sell_price": 100,
+"quantity": 10
+}
+}
+available_services = [ "trade", "contracts", "black_market" ]
+controlling_faction_id = "faction_independents"
+danger_level = 4
+available_contract_ids = [ "delivery_05", "delivery_06" ]

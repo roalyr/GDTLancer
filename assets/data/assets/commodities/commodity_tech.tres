@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/asset_commodity_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "commodity_tech"
+asset_type = "commodity"
+asset_icon_id = "icon_tech"
+commodity_name = "Tech Components"
+base_value = 60

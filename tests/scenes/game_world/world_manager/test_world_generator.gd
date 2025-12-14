@@ -73,5 +73,9 @@ func test_generated_characters_have_assets():
 	var module_inventory = inventory_system_instance.get_inventory_by_type(player_uid, inventory_system_instance.InventoryType.MODULE)
 	assert_eq(module_inventory.size(), 1, "Player inventory should contain 1 module.")
 	
-	var commodity_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_default")
-	assert_eq(commodity_count, 10, "Player inventory should contain 10 units of the default commodity.")
+	# Player starts with ore and fuel for trading
+	var ore_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_ore")
+	assert_eq(ore_count, 15, "Player inventory should contain 15 units of ore.")
+	
+	var fuel_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_fuel")
+	assert_eq(fuel_count, 5, "Player inventory should contain 5 units of fuel.")

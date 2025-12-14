@@ -4,23 +4,23 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "delivery_01"
+template_id = "delivery_06"
 template_type = "contract"
 contract_type = "delivery"
-title = "Ore Shipment to Beta"
-description = "The Mining Guild needs 10 units of mineral ore transported to Station Beta. Standard freight rates apply. Payment on delivery."
-issuer_id = "mining_guild_rep"
+title = "Ore to Mining Hub"
+description = "The Mining Guild at Alpha is short on refined ore for processing. Deliver 20 units of mineral ore. Bulk contract."
+issuer_id = "freeport_broker"
 faction_id = "faction_miners"
-origin_location_id = "station_alpha"
-destination_location_id = "station_beta"
+origin_location_id = "station_gamma"
+destination_location_id = "station_alpha"
 required_commodity_id = "commodity_ore"
-required_quantity = 10
+required_quantity = 20
 target_type = ""
 target_count = 0
-reward_wp = 80
-reward_reputation = 3
+reward_wp = 120
+reward_reputation = 4
 reward_items = {}
 time_limit_tu = -1
-difficulty = 1
+difficulty = 2
 accepted_at_tu = -1
 progress = {}

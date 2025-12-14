@@ -4,23 +4,23 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "delivery_02"
+template_id = "delivery_04"
 template_type = "contract"
 contract_type = "delivery"
-title = "Food Run to Gamma"
-description = "Freeport Gamma is running low on supplies. Deliver 5 units of food supplies from our stores. Bonus for quick delivery."
-issuer_id = "station_quartermaster"
-faction_id = "faction_independents"
-origin_location_id = "station_alpha"
+title = "Luxury Goods to Gamma"
+description = "A wealthy client at Freeport Gamma is expecting a shipment. Deliver 3 units of luxury goods discretely. Premium payment."
+issuer_id = "private_broker"
+faction_id = "faction_traders"
+origin_location_id = "station_beta"
 destination_location_id = "station_gamma"
-required_commodity_id = "commodity_food"
-required_quantity = 5
+required_commodity_id = "commodity_luxury"
+required_quantity = 3
 target_type = ""
 target_count = 0
-reward_wp = 100
+reward_wp = 150
 reward_reputation = 2
 reward_items = {}
 time_limit_tu = -1
-difficulty = 1
+difficulty = 2
 accepted_at_tu = -1
 progress = {}

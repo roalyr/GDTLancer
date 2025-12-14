@@ -98,6 +98,11 @@ _global_script_classes=[ {
 "class": "Template",
 "language": "GDScript",
 "path": "res://core/resource/template.gd"
+}, {
+"base": "Resource",
+"class": "UtilityToolTemplate",
+"language": "GDScript",
+"path": "res://core/resource/utility_tool_template.gd"
 } ]
 _global_script_class_icons={
 "ActionTemplate": "",
@@ -117,7 +122,8 @@ _global_script_class_icons={
 "ModuleTemplate": "",
 "PIDController": "",
 "ShipTemplate": "",
-"Template": ""
+"Template": "",
+"UtilityToolTemplate": ""
 }
 
 [application]

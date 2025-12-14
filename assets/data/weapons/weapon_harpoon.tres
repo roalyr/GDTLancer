@@ -1,0 +1,33 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/utility_tool_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "weapon_harpoon"
+tool_name = "Tether Harpoon"
+description = "Fires a magnetic harpoon that tethers to targets. Useful for salvage operations and immobilizing smaller craft."
+tool_type = "grapple"
+damage = 5.0
+range_effective = 60.0
+range_max = 100.0
+fire_rate = 0.25
+projectile_speed = 150.0
+accuracy = 0.75
+hull_damage_multiplier = 0.5
+armor_damage_multiplier = 0.3
+energy_per_shot = 20.0
+ammo_type = ""
+ammo_per_shot = 0
+cooldown_time = 2.0
+charge_time = 0.5
+warmup_time = 0.0
+effect_type = "grapple"
+effect_strength = 1.0
+effect_duration = 10.0
+mount_size = "small"
+power_draw = 10.0
+projectile_scene = ""
+muzzle_effect = ""
+impact_effect = ""
+fire_sound = ""

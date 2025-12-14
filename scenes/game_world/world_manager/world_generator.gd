@@ -100,9 +100,13 @@ func _generate_and_assign_assets():
 			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.MODULE, module_uid)
 			print("... Assigned module (UID: %d) to character %s" % [module_uid, character.character_name])
 			
-		# Assign starting commodities.
-		GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY, "commodity_default", 10)
-		print("... Assigned 10 units of commodity_default to character %s" % character.character_name)
+		# Assign starting commodities (ore is useful for trading and contracts).
+		GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY, "commodity_ore", 15)
+		print("... Assigned 15 units of commodity_ore to character %s" % character.character_name)
+		
+		# Give player some starting fuel as well
+		GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY, "commodity_fuel", 5)
+		print("... Assigned 5 units of commodity_fuel to character %s" % character.character_name)
 
 
 # Creates a unique instance of a ship and returns its UID.

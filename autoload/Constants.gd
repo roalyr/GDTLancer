@@ -52,7 +52,7 @@ const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45 # Degrees
 
 # Time units to trigger world tick
 const TIME_CLOCK_MAX_TU = 10
-const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
+const TIME_TICK_INTERVAL_SECONDS = 60.0 # How often (in real seconds) to add a Time Unit.
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0

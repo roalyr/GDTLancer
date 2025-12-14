@@ -5,25 +5,38 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "station_beta"
-location_name = "Station Beta"
+location_name = "Station Beta - Trade Post"
 location_type = "station"
-position_in_zone = Vector3( 500, 0, 500 )
+position_in_zone = Vector3( 49500, 100, 1500 )
 interaction_radius = 150.0
 market_inventory = {
 "commodity_ore": {
-"price": 15,
+"buy_price": 15,
+"sell_price": 12,
 "quantity": 30
 },
 "commodity_food": {
-"price": 20,
+"buy_price": 22,
+"sell_price": 18,
 "quantity": 80
 },
 "commodity_tech": {
-"price": 60,
-"quantity": 40
+"buy_price": 70,
+"sell_price": 55,
+"quantity": 50
+},
+"commodity_fuel": {
+"buy_price": 30,
+"sell_price": 25,
+"quantity": 60
+},
+"commodity_luxury": {
+"buy_price": 90,
+"sell_price": 75,
+"quantity": 20
 }
 }
 available_services = [ "trade", "contracts" ]
-controlling_faction_id = "faction_independent"
-danger_level = 3
-available_contract_ids = [ "delivery_03" ]
+controlling_faction_id = "faction_traders"
+danger_level = 2
+available_contract_ids = [ "delivery_03", "delivery_04" ]

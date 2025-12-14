@@ -6,6 +6,11 @@ const InventorySystem = preload("res://core/systems/inventory_system.gd")
 const MAX_ACTIVE_CONTRACTS = 3  # Phase 1 limit
 
 
+func _ready():
+	GlobalRefs.set_contract_system(self)
+	print("ContractSystem Ready.")
+
+
 # Get all contracts available at a specific location
 func get_available_contracts(location_id: String) -> Array:
 	var available = []
