@@ -89,7 +89,7 @@ func test_fp_management():
 
 func test_skill_retrieval():
 	var piloting_level = character_system_instance.get_skill_level(PLAYER_UID, "piloting")
-	assert_eq(piloting_level, 1, "Default piloting skill should be 1.")
+	assert_eq(piloting_level, 2, "Default piloting skill should be 2 (from character_default.tres).")
 
 	var non_existent_skill = character_system_instance.get_skill_level(PLAYER_UID, "basket_weaving")
 	assert_eq(non_existent_skill, 0, "A non-existent skill should return 0.")

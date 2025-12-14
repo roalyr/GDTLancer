@@ -1,10 +1,11 @@
 # File: autoload/EventBus.gd
-# Version: 1.1 Added target picking.
+# Version: 1.2 - Added Phase 1 signals for combat, contracts, trading, docking, narrative.
 
 extends Node
 
 # --- Game State Signals ---
 signal game_loaded(save_data)
+signal game_state_loaded  # Emitted after GameStateManager restores state
 # signal game_saving(slot_id)
 # signal save_complete(slot_id, success)
 
@@ -47,16 +48,37 @@ signal zone_loading(zone_path)  # zone_path is path to the complete zone scene
 # zone_node is root of the new zone instance, agent_container_node is ref inside it
 signal zone_loaded(zone_node, zone_path, agent_container_node)
 
-# --- Core Mechanics / Gameplay Events (Placeholders) ---
-# signal action_check_resolved(agent_body, result_dictionary, action_approach)
-# signal focus_changed(agent_body, new_focus_value)
-# signal wealth_changed(agent_body, new_wealth_value)
-signal world_event_tick_triggered
+# --- Core Mechanics / Gameplay Events ---
+signal world_event_tick_triggered(tu_amount)
 
-# --- Goal System Events (Placeholders) ---
+# --- Combat Signals ---
+signal combat_initiated(player_agent, enemy_agents)
+signal combat_ended(result_dict)  # result_dict: {outcome: "victory"/"defeat"/"flee", ...}
+signal agent_damaged(agent_body, damage_amount, source_agent)
+signal agent_disabled(agent_body)  # When hull <= 0
+
+# --- Contract Signals ---
+signal contract_accepted(contract_id)
+signal contract_completed(contract_id, success)  # success: bool
+signal contract_abandoned(contract_id)
+signal contract_failed(contract_id)  # e.g., time limit exceeded
+
+# --- Trading Signals ---
+signal trade_transaction_completed(transaction_dict)  # {type, commodity_id, quantity, price, ...}
+
+# --- Docking Signals ---
+signal dock_available(location_id)  # Player near dockable station
+signal dock_unavailable
+signal player_docked(location_id)
+signal player_undocked
+
+# --- Narrative Action Signals ---
+signal narrative_action_requested(action_type, context)  # Shows Action Check UI
+signal narrative_action_resolved(result_dict)  # Contains outcome, effects applied
+
+# --- Goal System Events (Placeholders for Phase 2+) ---
 # signal goal_progress_updated(agent_body, goal_id, new_progress)
 # signal goal_completed(agent_body, goal_id, success_level)
-
 
 
 func _ready():

@@ -1,6 +1,6 @@
 # File: tests/core/systems/test_asset_system.gd
 # GUT Test for the stateless AssetSystem.
-# Version: 2.1 - Corrected dependency mocking.
+# Version: 2.2 - Added tests for get_ship_for_character().
 
 extends GutTest
 
@@ -14,7 +14,9 @@ const ShipTemplate = preload("res://core/resource/asset_ship_template.gd")
 var asset_system_instance = null
 var mock_character_system = null
 const PLAYER_UID = 0
+const NPC_UID = 1
 const SHIP_UID = 100
+const NPC_SHIP_UID = 101
 
 func before_each():
 	# 1. Clean the global state
@@ -33,12 +35,25 @@ func before_each():
 	# 3. Set the mock system in GlobalRefs so AssetSystem can find it
 	GlobalRefs.character_system = mock_character_system
 
-	# 4. Create and register a mock ship asset directly in GameState
+	# 4. Create and register mock ship assets directly in GameState
 	var ship_asset = ShipTemplate.new()
 	ship_asset.ship_model_name = "Test Vessel"
 	GameState.assets_ships[SHIP_UID] = ship_asset
+	
+	var npc_ship_asset = ShipTemplate.new()
+	npc_ship_asset.ship_model_name = "NPC Vessel"
+	npc_ship_asset.max_move_speed = 200.0
+	GameState.assets_ships[NPC_SHIP_UID] = npc_ship_asset
 
-	# 5. Instantiate the system we are testing
+	# 5. Create characters in GameState for get_ship_for_character tests
+	GameState.characters[PLAYER_UID] = player_char
+	GameState.player_character_uid = PLAYER_UID
+	
+	var npc_char = CharacterTemplate.new()
+	npc_char.active_ship_uid = NPC_SHIP_UID
+	GameState.characters[NPC_UID] = npc_char
+
+	# 6. Instantiate the system we are testing
 	asset_system_instance = AssetSystem.new()
 	add_child_autofree(asset_system_instance)
 
@@ -76,3 +91,29 @@ func test_get_player_ship_returns_null_if_no_ship_assigned():
 	stub(mock_character_system, "get_player_character").to_return(player_char_no_ship)
 	var player_ship = asset_system_instance.get_player_ship()
 	assert_null(player_ship, "Should return null if the player has no active ship assigned.")
+
+
+# --- Tests for get_ship_for_character() ---
+
+func test_get_ship_for_character_valid():
+	var ship = asset_system_instance.get_ship_for_character(NPC_UID)
+	assert_not_null(ship, "Should return a valid ship for a valid character UID.")
+	assert_eq(ship.ship_model_name, "NPC Vessel", "Should return the correct ship for the character.")
+	assert_eq(ship.max_move_speed, 200.0, "Ship should have the correct stats.")
+
+func test_get_ship_for_character_player():
+	var ship = asset_system_instance.get_ship_for_character(PLAYER_UID)
+	assert_not_null(ship, "Should return a valid ship for the player character.")
+	assert_eq(ship.ship_model_name, "Test Vessel", "Should return the player's ship.")
+
+func test_get_ship_for_character_invalid_uid():
+	var ship = asset_system_instance.get_ship_for_character(999)
+	assert_null(ship, "Should return null for non-existent character UID.")
+
+func test_get_ship_for_character_no_active_ship():
+	var char_no_ship = CharacterTemplate.new()
+	char_no_ship.active_ship_uid = -1
+	GameState.characters[99] = char_no_ship
+	
+	var ship = asset_system_instance.get_ship_for_character(99)
+	assert_null(ship, "Should return null if character has no active ship.")

@@ -1,6 +1,6 @@
 # File: autoload/GameStateManager.gd
 # Autoload Singleton: GameStateManager
-# Version: 2.2 - Corrected inventory deserialization and removed GlobalRefs dependency.
+# Version: 2.3 - Added serialization for contracts, locations, narrative_state, session_stats.
 
 extends Node
 
@@ -73,6 +73,13 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["assets_modules"] = _serialize_resource_dict(GameState.assets_modules)
 	state_dict["inventories"] = _serialize_inventories(GameState.inventories)
 	
+	# Phase 1 additions
+	state_dict["locations"] = GameState.locations.duplicate(true)
+	state_dict["contracts"] = GameState.contracts.duplicate(true)
+	state_dict["active_contracts"] = GameState.active_contracts.duplicate(true)
+	state_dict["narrative_state"] = GameState.narrative_state.duplicate(true)
+	state_dict["session_stats"] = GameState.session_stats.duplicate(true)
+	
 	return state_dict
 
 func _serialize_resource(res: Resource) -> Dictionary:
@@ -113,6 +120,9 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.assets_ships.clear()
 	GameState.assets_modules.clear()
 	GameState.inventories.clear()
+	GameState.locations.clear()
+	GameState.contracts.clear()
+	GameState.active_contracts.clear()
 	
 	GameState.player_character_uid = save_data.get("player_character_uid", -1)
 	GameState.current_tu = save_data.get("current_tu", 0)
@@ -121,6 +131,34 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.assets_modules = _deserialize_resource_dict(save_data.get("assets_modules", {}))
 	GameState.characters = _deserialize_resource_dict(save_data.get("characters", {}))
 	GameState.inventories = _deserialize_inventories(save_data.get("inventories", {}))
+	
+	# Phase 1 additions
+	GameState.locations = save_data.get("locations", {}).duplicate(true)
+	GameState.contracts = save_data.get("contracts", {}).duplicate(true)
+	GameState.active_contracts = save_data.get("active_contracts", {}).duplicate(true)
+	
+	# Restore narrative state with defaults if not present
+	var default_narrative = {
+		"reputation": 0,
+		"faction_standings": {},
+		"known_contacts": [],
+		"chronicle_entries": []
+	}
+	var saved_narrative = save_data.get("narrative_state", {})
+	for key in default_narrative:
+		GameState.narrative_state[key] = saved_narrative.get(key, default_narrative[key])
+	
+	# Restore session stats with defaults if not present
+	var default_stats = {
+		"contracts_completed": 0,
+		"total_wp_earned": 0,
+		"total_wp_spent": 0,
+		"enemies_disabled": 0,
+		"time_played_tu": 0
+	}
+	var saved_stats = save_data.get("session_stats", {})
+	for key in default_stats:
+		GameState.session_stats[key] = saved_stats.get(key, default_stats[key])
 
 func _deserialize_resource(res_data: Dictionary) -> Resource:
 	if not res_data.has("template_id"):

@@ -1,11 +1,12 @@
 # File: core/systems/agent_system.gd
 # Purpose: Manages agent spawning in virtual space (ships). Assembles agents from
 # character data and their inventory of assets.
-# Version: 2.0 - Reworked to match new templates.
+# Version: 2.1 - Added character_uid linking for ship stats integration.
 
 extends Node
 
 var _player_agent_body: KinematicBody = null
+var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 
 
 func _ready():
@@ -47,11 +48,16 @@ func spawn_player():
 		if entry_node is Spatial:
 			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
 
-	# Those are agent type flags (player or npc) and assign an UID. For player UID is 0.
-	# For NPCs UID will be incremented.
-	# From AgentTemplate.
-	var player_overrides = {"agent_type": "player", "template_id": "player"}
-	var agent_uid = 0
+	# Get the player character UID from GameState
+	var player_char_uid = GameState.player_character_uid
+	
+	# Overrides include agent_type, template_id, and character_uid for ship stats lookup
+	var player_overrides = {
+		"agent_type": "player", 
+		"template_id": "player",
+		"character_uid": player_char_uid
+	}
+	var agent_uid = _get_next_agent_uid()
 	
 	_player_agent_body = spawn_agent(
 		Constants.PLAYER_AGENT_SCENE_PATH, player_spawn_pos, player_template, player_overrides, agent_uid
@@ -63,6 +69,40 @@ func spawn_player():
 		EventBus.emit_signal("player_spawned", _player_agent_body)
 	else:
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
+
+
+# Spawns an NPC agent linked to a specific character.
+# character_uid: The UID of the character this NPC represents.
+func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> KinematicBody:
+	if not GameState.characters.has(character_uid):
+		printerr("AgentSpawner Error: No character found with UID: ", character_uid)
+		return null
+	
+	var npc_template = load(Constants.NPC_TRAFFIC_TEMPLATE_PATH)
+	if not npc_template is AgentTemplate:
+		printerr("AgentSpawner Error: Failed to load NPC AgentTemplate.")
+		return null
+	
+	var npc_overrides = {
+		"agent_type": "npc",
+		"template_id": "npc_default",
+		"character_uid": character_uid
+	}
+	var agent_uid = _get_next_agent_uid()
+	
+	var npc_body = spawn_agent(
+		Constants.NPC_AGENT_SCENE_PATH, position, npc_template, npc_overrides, agent_uid
+	)
+	
+	return npc_body
+
+
+# --- UID Generation ---
+func _get_next_agent_uid() -> int:
+	var uid = _next_agent_uid
+	_next_agent_uid += 1
+	return uid
+
 
 # TODO: spawn NPC with proper overrides.
 # Important: NPC's characters and their inventories of assets must exist and upon spawining an

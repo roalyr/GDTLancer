@@ -1,5 +1,5 @@
 # File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
-# Version: 3.35 - Modified command_orbit to capture current distance.
+# Version: 3.40 - Ship stats now loaded from ShipTemplate via AssetSystem.
 
 # Agent - this is a physical space vessel that exists in simulation space (ship).
 
@@ -9,6 +9,7 @@ extends KinematicBody
 var agent_type: String = ""
 var template_id: String = ""
 var agent_uid = -1
+var character_uid: int = -1  # Links this agent to a character in GameState
 var interaction_radius: float = 15.0
 
 # --- Physics State ---
@@ -29,9 +30,7 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 	self.template_id = overrides.get("template_id")
 	self.agent_type = overrides.get("agent_type")
 	self.agent_uid = agent_uid
-	# self.name = self.agent_name - rework to make it informative.
-	# This should be linked like this: agent -> character -> ship inventory -> active ship
-	# self.interaction_radius = overrides.get("interaction_radius", template.interaction_radius)
+	self.character_uid = overrides.get("character_uid", -1)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -45,18 +44,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 		set_physics_process(false)
 		return
 
-	# Also link from owned ship.
-	
-	# TODO
-	# For now placeholder values.
-	var move_params = {
-		"max_move_speed": 500,
-		"acceleration": 0.1,
-		"deceleration": 0.1,
-		"max_turn_speed": 0.25,
-		"brake_strength":0.1,
-		"alignment_threshold_angle_deg": 15
-	}
+	# Get movement parameters from the character's active ship
+	var move_params = _get_movement_params_from_ship()
 	var nav_params = {
 		"orbit_kp": overrides.get("orbit_kp", 3.0),
 		"orbit_ki": overrides.get("orbit_ki", 0.1),
@@ -69,10 +58,44 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 	print(
 		"AgentBody '",
 		self.name,
-		"' initialized WITH COMPONENTS successfully using template '",
+		"' initialized with character_uid=",
+		self.character_uid,
+		" using template '",
 		self.template_id,
 		"'."
 	)
+
+
+# Retrieves movement parameters from the character's active ship template.
+# Falls back to Constants defaults if ship data is unavailable.
+func _get_movement_params_from_ship() -> Dictionary:
+	var ship: ShipTemplate = null
+	
+	# Try to get ship via AssetSystem if character_uid is valid
+	if character_uid != -1 and is_instance_valid(GlobalRefs.asset_system):
+		ship = GlobalRefs.asset_system.get_ship_for_character(character_uid)
+	
+	if is_instance_valid(ship):
+		interaction_radius = ship.interaction_radius
+		return {
+			"max_move_speed": ship.max_move_speed,
+			"acceleration": ship.acceleration,
+			"deceleration": ship.deceleration,
+			"max_turn_speed": ship.max_turn_speed,
+			"brake_strength": ship.deceleration,
+			"alignment_threshold_angle_deg": ship.alignment_threshold_angle_deg
+		}
+	else:
+		# Fallback to Constants defaults if no ship found
+		printerr("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
+		return {
+			"max_move_speed": Constants.DEFAULT_MAX_MOVE_SPEED,
+			"acceleration": Constants.DEFAULT_ACCELERATION,
+			"deceleration": Constants.DEFAULT_DECELERATION,
+			"max_turn_speed": Constants.DEFAULT_MAX_TURN_SPEED,
+			"brake_strength": Constants.DEFAULT_DECELERATION,
+			"alignment_threshold_angle_deg": Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
+		}
 
 
 # --- Godot Lifecycle ---
