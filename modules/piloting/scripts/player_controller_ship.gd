@@ -20,6 +20,7 @@ var _current_input_state: InputState = null
 var _states = {}
 var _target_under_cursor: Spatial = null
 var _selected_target: Spatial = null setget _set_selected_target
+var _can_dock_at: String = ""
 
 # --- Preload States ---
 const StateBase = preload("res://modules/piloting/scripts/player_input_states/state_base.gd")
@@ -44,6 +45,11 @@ func _ready():
 		return
 
 	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
+
+	EventBus.connect("dock_available", self, "_on_dock_available")
+	EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
+	EventBus.connect("player_docked", self, "_on_player_docked")
+	EventBus.connect("player_undocked", self, "_on_player_undocked")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -90,6 +96,17 @@ func _physics_process(delta: float):
 
 func _unhandled_input(event: InputEvent):
 	# Global inputs that work in any state
+	if event.is_action_pressed("ui_accept"):
+		if _can_dock_at != "":
+			print("PlayerController: Attempting to dock at ", _can_dock_at)
+			EventBus.emit_signal("player_docked", _can_dock_at)
+			get_viewport().set_input_as_handled()
+			return
+		else:
+			# Debug print to see if input is working but dock is not available
+			# print("PlayerController: Interact pressed but no dock available.")
+			pass
+
 	if Input.is_action_just_pressed("toggle_free_flight"):
 		var new_state = "default" if _current_input_state is StateFreeFlight else "free_flight"
 		_change_state(new_state)
@@ -288,3 +305,28 @@ func _notification(what):
 			EventBus.disconnect(
 				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 			)
+
+# --- Docking Handlers ---
+func _on_dock_available(location_id):
+	_can_dock_at = location_id
+	print("PlayerController: Docking available at: ", location_id, ". Press Interact (Space/Enter) to dock.")
+	# TODO: Show UI prompt
+
+func _on_dock_unavailable():
+	_can_dock_at = ""
+	print("PlayerController: Docking unavailable.")
+	# TODO: Hide UI prompt
+
+func _on_player_docked(location_id):
+	print("Player docked at: ", location_id)
+	set_process_unhandled_input(false)
+	set_physics_process(false)
+	# Stop the ship
+	if agent_script.has_method("command_stop"):
+		agent_script.command_stop()
+
+func _on_player_undocked():
+	print("Player undocked")
+	set_process_unhandled_input(true)
+	set_physics_process(true)
+

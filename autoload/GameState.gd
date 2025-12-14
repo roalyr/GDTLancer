@@ -28,6 +28,9 @@ var player_character_uid: int = -1
 # Currently loaded zone.
 var current_zone_instance: Node = null
 
+# --- Player State ---
+var player_docked_at: String = "" # Empty if in space, location_id if docked
+
 # --- Locations (Stations, Points of Interest) ---
 # Key: location_id (String), Value: LocationTemplate instance or Dictionary
 var locations: Dictionary = {}

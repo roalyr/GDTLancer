@@ -474,13 +474,28 @@ theme = ExtResource( 9 )
 text = "INVENTORY"
 
 [node name="TopCenterZone" type="Control" parent="ScreenControls"]
-visible = false
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -450.0
 margin_right = 450.0
 margin_bottom = 200.0
 mouse_filter = 2
+
+[node name="DockingPrompt" type="Panel" parent="ScreenControls/TopCenterZone"]
+visible = false
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -200.0
+margin_top = 20.0
+margin_right = 200.0
+margin_bottom = 60.0
+
+[node name="Label" type="Label" parent="ScreenControls/TopCenterZone/DockingPrompt"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Docking Available - Press Interact"
+align = 1
+valign = 1
 
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 visible = false

@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 7 - 512x512.png" type="Texture" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://assets/models/nebulas/nebula_1.glb" type="PackedScene" id=10]
 [ext_resource path="res://scenes/zones/nebula_1.tres" type="Material" id=11]
 [ext_resource path="res://scenes/zones/nebula_transparent_1.tres" type="Material" id=12]
+[ext_resource path="res://scenes/game_world/station/DockableStation.tscn" type="PackedScene" id=30]
 
 [sub_resource type="SpatialMaterial" id=10]
 flags_unshaded = true
@@ -162,6 +163,9 @@ __meta__ = {
 
 [node name="System_1" type="Position3D" parent="SceneAssets"]
 transform = Transform( -0.342756, 0.715632, 0.608596, -0.356834, -0.698464, 0.620338, 0.869015, -0.0045431, 0.494764, -36546.2, 68389.7, 54508.9 )
+
+[node name="Station_Alpha" parent="SceneAssets/System_1" instance=ExtResource( 30 )]
+transform = Transform( 1, 5.6345e-08, 5.96046e-08, -4.19095e-09, 1, -4.58676e-08, 2.98023e-08, 4.44707e-08, 1, 48041.9, 233.477, -673.418 )
 
 [node name="Star_1" type="StaticBody" parent="SceneAssets/System_1"]
 

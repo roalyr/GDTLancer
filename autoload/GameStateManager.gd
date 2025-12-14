@@ -67,6 +67,7 @@ func _serialize_game_state() -> Dictionary:
 	
 	state_dict["player_character_uid"] = GameState.player_character_uid
 	state_dict["current_tu"] = GameState.current_tu
+	state_dict["player_docked_at"] = GameState.player_docked_at
 	
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
 	state_dict["assets_ships"] = _serialize_resource_dict(GameState.assets_ships)
@@ -138,6 +139,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	
 	GameState.player_character_uid = save_data.get("player_character_uid", -1)
 	GameState.current_tu = save_data.get("current_tu", 0)
+	GameState.player_docked_at = save_data.get("player_docked_at", "")
 
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
 	GameState.assets_modules = _deserialize_resource_dict(save_data.get("assets_modules", {}))

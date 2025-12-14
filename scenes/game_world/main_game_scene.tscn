@@ -65,7 +65,6 @@ script = ExtResource( 14 )
 script = ExtResource( 16 )
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
-modulate = Color( 1, 1, 1, 0.258824 )
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 visible = false

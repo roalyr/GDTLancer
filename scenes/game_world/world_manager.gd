@@ -112,7 +112,7 @@ func _on_Time_Clock_Timer_timeout():
 	if is_instance_valid(GlobalRefs.time_system):
 		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
 		GlobalRefs.time_system.add_time_units(1)
-		print("Current TU: ", GameState.current_tu)
+		#print("Current TU: ", GameState.current_tu)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 

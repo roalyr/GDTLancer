@@ -12,6 +12,9 @@ var agent_uid = -1
 var character_uid: int = -1  # Links this agent to a character in GameState
 var interaction_radius: float = 15.0
 
+func is_player() -> bool:
+	return character_uid == GameState.player_character_uid and character_uid != -1
+
 # --- Physics State ---
 var current_velocity: Vector3 = Vector3.ZERO
 
@@ -31,6 +34,11 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 	self.agent_type = overrides.get("agent_type")
 	self.agent_uid = agent_uid
 	self.character_uid = overrides.get("character_uid", -1)
+	
+	if is_player():
+		print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
+	else:
+		print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")

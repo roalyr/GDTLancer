@@ -29,7 +29,7 @@ func _trigger_world_event_tick():
 	# 1. Decrement the clock by the max amount for one tick.
 	GameState.current_tu -= Constants.TIME_CLOCK_MAX_TU
 
-	print("--- WORLD EVENT TICK TRIGGERED ---")
+	#print("--- WORLD EVENT TICK TRIGGERED ---")
 
 	# 2. Emit the global signal with the amount of TU that this tick represents.
 	if EventBus:

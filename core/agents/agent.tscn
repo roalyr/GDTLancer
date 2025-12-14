@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://core/agents/agent.gd" type="Script" id=1]
 [ext_resource path="res://assets/models/ships/Ship modules.glb" type="PackedScene" id=2]
@@ -9,6 +9,10 @@
 [ext_resource path="res://assets/art/materials/test_solid_frame.tres" type="Material" id=7]
 [ext_resource path="res://assets/art/materials/test_solid_panel_2.tres" type="Material" id=8]
 [ext_resource path="res://assets/art/materials/test_solid_panel_3.tres" type="Material" id=9]
+
+[sub_resource type="CapsuleShape" id=6]
+radius = 2.0
+height = 29.9198
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 5 )
@@ -24,6 +28,9 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 6 )
 
 [node name="Model" type="Spatial" parent="."]
 __meta__ = {

@@ -9,6 +9,11 @@ onready var targeting_indicator: Control = $TargetingIndicator
 onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
+onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
+onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
+
+const StationMenuScene = preload("res://scenes/ui/station_menu/StationMenu.tscn")
+var station_menu_instance = null
 
 # --- State ---
 var _current_target: Spatial = null
@@ -18,6 +23,11 @@ var _main_camera: Camera = null
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_main_hud(self)
+	
+	# Instantiate Station Menu
+	station_menu_instance = StationMenuScene.instance()
+	add_child(station_menu_instance)
+	# It starts hidden by default in its own _ready
 
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
@@ -46,6 +56,10 @@ func _ready():
 
 		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
 			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
+			
+		EventBus.connect("dock_available", self, "_on_dock_available")
+		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
+		EventBus.connect("player_docked", self, "_on_player_docked")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
@@ -190,6 +204,24 @@ func _on_SliderControlLeft_value_changed(value):
 	# ZOOM camera slider
 	if EventBus:
 		EventBus.emit_signal("player_camera_zoom_changed", value)
+
+# --- Docking UI Handlers ---
+func _on_dock_available(location_id):
+	print("MainHUD: Dock available signal received for ", location_id)
+	if docking_prompt:
+		docking_prompt.visible = true
+		if docking_label:
+			docking_label.text = "Docking Available - Press Interact"
+
+func _on_dock_unavailable():
+	print("MainHUD: Dock unavailable signal received")
+	if docking_prompt:
+		docking_prompt.visible = false
+
+func _on_player_docked(location_id):
+	if docking_prompt:
+		docking_prompt.visible = false
+
 
 
 func _on_SliderControlRight_value_changed(value):
