@@ -1,0 +1,26 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/contract_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "delivery_02"
+template_type = "contract"
+contract_type = "delivery"
+title = "Urgent Fuel Delivery"
+description = "Station Beta needs emergency fuel supplies. Time is of the essence - bonus for quick delivery."
+issuer_id = "contact_station_manager"
+faction_id = "station_authority"
+origin_location_id = "station_alpha"
+destination_location_id = "station_beta"
+required_commodity_id = "commodity_fuel"
+required_quantity = 5
+target_type = ""
+target_count = 0
+reward_wp = 200
+reward_reputation = 10
+reward_items = {}
+time_limit_tu = 100
+difficulty = 2
+accepted_at_tu = -1
+progress = {}

@@ -73,6 +73,23 @@ func _clear_game_state():
 	GameState.assets_ships.clear()
 	GameState.assets_modules.clear()
 	GameState.inventories.clear()
+	GameState.locations.clear()
+	GameState.contracts.clear()
+	GameState.active_contracts.clear()
+	# Reinitialize with defaults instead of just clearing
+	GameState.narrative_state = {
+		"reputation": 0,
+		"faction_standings": {},
+		"known_contacts": [],
+		"chronicle_entries": []
+	}
+	GameState.session_stats = {
+		"contracts_completed": 0,
+		"total_wp_earned": 0,
+		"total_wp_spent": 0,
+		"enemies_disabled": 0,
+		"time_played_tu": 0
+	}
 	GameState.player_character_uid = -1
 	GameState.current_tu = 0
 

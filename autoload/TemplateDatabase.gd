@@ -1,6 +1,6 @@
 # File: autoload/TemplateDatabase.gd
 # Autoload Singleton: Scanned templates from /data/ are indexed and stored here
-# Version: 1.0 
+# Version: 1.2 - Added contracts dictionary for ContractTemplate
 
 extends Node
 
@@ -11,3 +11,5 @@ var characters: Dictionary = {}
 var assets_ships: Dictionary = {}
 var assets_modules: Dictionary = {}
 var assets_commodities: Dictionary = {}
+var locations: Dictionary = {}
+var contracts: Dictionary = {}

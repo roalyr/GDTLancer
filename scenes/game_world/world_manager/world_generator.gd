@@ -1,7 +1,7 @@
 # File: scenes/game_world/world_manager/world_generator.gd
 # Purpose: Uses indexed templates to procedurally generate the initial game state
 #          for a new game, populating the GameState autoload.
-# Version: 2.0 - Updated to use the unified InventorySystem.
+# Version: 2.2 - Added contract loading into GameState.contracts.
 
 extends Node
 
@@ -16,6 +16,12 @@ var _next_module_uid: int = 0
 func generate_new_world():
 	print("WorldGenerator: Generating new world state...")
 
+	# Load all locations into GameState first (they are keyed by template_id).
+	_load_locations()
+	
+	# Load all contracts into GameState.
+	_load_contracts()
+
 	# Create characters first.
 	for template_id in TemplateDatabase.characters:
 		var template = TemplateDatabase.characters[template_id]
@@ -28,6 +34,28 @@ func generate_new_world():
 
 
 # --- Private Logic ---
+
+# Loads all location templates into GameState.locations.
+# Locations are stored directly by their template_id (they don't have UIDs).
+func _load_locations():
+	print("WorldGenerator: Loading locations...")
+	for template_id in TemplateDatabase.locations:
+		var template = TemplateDatabase.locations[template_id]
+		# Duplicate to allow runtime modifications (e.g., market price fluctuation).
+		GameState.locations[template_id] = template.duplicate()
+		print("... Loaded location: ", template.location_name)
+
+
+# Loads all contract templates into GameState.contracts.
+# Contracts are stored by their template_id (available pool).
+func _load_contracts():
+	print("WorldGenerator: Loading contracts...")
+	for template_id in TemplateDatabase.contracts:
+		var template = TemplateDatabase.contracts[template_id]
+		# Duplicate to allow runtime state tracking.
+		GameState.contracts[template_id] = template.duplicate()
+		print("... Loaded contract: ", template.title)
+
 
 # Creates a unique instance of a character from a template and registers it
 # in the global GameState. It also creates their inventory.

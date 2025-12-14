@@ -1,6 +1,6 @@
 # File: autoload/GameStateManager.gd
 # Autoload Singleton: GameStateManager
-# Version: 2.3 - Added serialization for contracts, locations, narrative_state, session_stats.
+# Version: 2.4 - Fixed location serialization (Resources not plain dicts).
 
 extends Node
 
@@ -73,10 +73,10 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["assets_modules"] = _serialize_resource_dict(GameState.assets_modules)
 	state_dict["inventories"] = _serialize_inventories(GameState.inventories)
 	
-	# Phase 1 additions
-	state_dict["locations"] = GameState.locations.duplicate(true)
-	state_dict["contracts"] = GameState.contracts.duplicate(true)
-	state_dict["active_contracts"] = GameState.active_contracts.duplicate(true)
+	# Phase 1 additions - locations are Resources, need proper serialization
+	state_dict["locations"] = _serialize_resource_dict_by_string_key(GameState.locations)
+	state_dict["contracts"] = _serialize_resource_dict_by_string_key(GameState.contracts)
+	state_dict["active_contracts"] = _serialize_resource_dict_by_string_key(GameState.active_contracts)
 	state_dict["narrative_state"] = GameState.narrative_state.duplicate(true)
 	state_dict["session_stats"] = GameState.session_stats.duplicate(true)
 	
@@ -99,6 +99,18 @@ func _serialize_resource_dict(res_dict: Dictionary) -> Dictionary:
 	var serialized_dict = {}
 	for uid in res_dict:
 		serialized_dict[uid] = _serialize_resource(res_dict[uid])
+	return serialized_dict
+
+# Same as above but for dictionaries with String keys (like locations)
+func _serialize_resource_dict_by_string_key(res_dict: Dictionary) -> Dictionary:
+	var serialized_dict = {}
+	for key in res_dict:
+		var res = res_dict[key]
+		if res is Resource:
+			serialized_dict[key] = _serialize_resource(res)
+		else:
+			# Already a plain dict
+			serialized_dict[key] = res.duplicate(true) if res is Dictionary else res
 	return serialized_dict
 
 func _serialize_inventories(inv_dict: Dictionary) -> Dictionary:
@@ -132,10 +144,10 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.characters = _deserialize_resource_dict(save_data.get("characters", {}))
 	GameState.inventories = _deserialize_inventories(save_data.get("inventories", {}))
 	
-	# Phase 1 additions
-	GameState.locations = save_data.get("locations", {}).duplicate(true)
-	GameState.contracts = save_data.get("contracts", {}).duplicate(true)
-	GameState.active_contracts = save_data.get("active_contracts", {}).duplicate(true)
+	# Phase 1 additions - locations need to be deserialized back to Resources
+	GameState.locations = _deserialize_resource_dict_by_string_key(save_data.get("locations", {}))
+	GameState.contracts = _deserialize_resource_dict_by_string_key(save_data.get("contracts", {}))
+	GameState.active_contracts = _deserialize_resource_dict_by_string_key(save_data.get("active_contracts", {}))
 	
 	# Restore narrative state with defaults if not present
 	var default_narrative = {
@@ -185,6 +197,18 @@ func _deserialize_resource_dict(serialized_dict: Dictionary) -> Dictionary:
 		res_dict[uid] = _deserialize_resource(serialized_dict[uid_str])
 	return res_dict
 
+# Same but for string-keyed dicts (like locations)
+func _deserialize_resource_dict_by_string_key(serialized_dict: Dictionary) -> Dictionary:
+	var res_dict = {}
+	for key in serialized_dict:
+		var data = serialized_dict[key]
+		if data is Dictionary and data.has("template_id"):
+			res_dict[key] = _deserialize_resource(data)
+		else:
+			# Plain dict, just duplicate
+			res_dict[key] = data.duplicate(true) if data is Dictionary else data
+	return res_dict
+
 func _deserialize_inventories(serialized_inv: Dictionary) -> Dictionary:
 	var inv_dict = {}
 	for char_uid_str in serialized_inv:
@@ -212,5 +236,9 @@ func _find_template_in_database(template_id: String) -> Resource:
 		return TemplateDatabase.assets_ships[template_id]
 	if TemplateDatabase.assets_modules.has(template_id):
 		return TemplateDatabase.assets_modules[template_id]
+	if TemplateDatabase.locations.has(template_id):
+		return TemplateDatabase.locations[template_id]
+	if TemplateDatabase.contracts.has(template_id):
+		return TemplateDatabase.contracts[template_id]
 	# Add other template types here as needed...
 	return null

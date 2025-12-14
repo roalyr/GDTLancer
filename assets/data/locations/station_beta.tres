@@ -1,0 +1,29 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "station_beta"
+location_name = "Station Beta"
+location_type = "station"
+position_in_zone = Vector3( 500, 0, 500 )
+interaction_radius = 150.0
+market_inventory = {
+"commodity_ore": {
+"price": 15,
+"quantity": 30
+},
+"commodity_food": {
+"price": 20,
+"quantity": 80
+},
+"commodity_tech": {
+"price": 60,
+"quantity": 40
+}
+}
+available_services = [ "trade", "contracts" ]
+controlling_faction_id = "faction_independent"
+danger_level = 3
+available_contract_ids = [ "delivery_03" ]

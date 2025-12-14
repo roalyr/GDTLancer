@@ -1,7 +1,7 @@
 # File: scenes/game_world/world_manager/template_indexer.gd
 # Purpose: Scans the project's data directories to find and register all
 #          .tres template files into the TemplateDatabase autoload.
-# Version: 1.1 - Fixed infinite recursion by skipping "." and ".." directories.
+# Version: 1.3 - Added ContractTemplate support.
 
 extends Node
 
@@ -62,5 +62,9 @@ func _register_template(template: Template):
 		TemplateDatabase.assets_modules[template.template_id] = template
 	elif template is CommodityTemplate:
 		TemplateDatabase.assets_commodities[template.template_id] = template
+	elif template is LocationTemplate:
+		TemplateDatabase.locations[template.template_id] = template
+	elif template is ContractTemplate:
+		TemplateDatabase.contracts[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)

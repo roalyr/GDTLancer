@@ -1,0 +1,26 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/contract_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "delivery_03"
+template_type = "contract"
+contract_type = "delivery"
+title = "Return Shipment - Ore to Alpha"
+description = "Bring ore back to Station Alpha. The mining consortium pays well for reliable haulers."
+issuer_id = "contact_mining_foreman"
+faction_id = "mining_consortium"
+origin_location_id = "station_beta"
+destination_location_id = "station_alpha"
+required_commodity_id = "commodity_ore"
+required_quantity = 15
+target_type = ""
+target_count = 0
+reward_wp = 225
+reward_reputation = 8
+reward_items = {}
+time_limit_tu = -1
+difficulty = 2
+accepted_at_tu = -1
+progress = {}

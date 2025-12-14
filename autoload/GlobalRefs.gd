@@ -35,6 +35,8 @@ var time_system = null setget set_time_system
 var traffic_system = null setget set_traffic_system
 var world_map_system = null setget set_world_map_system
 var event_system = null setget set_event_system
+var trading_system = null setget set_trading_system
+var contract_system = null setget set_contract_system
 
 
 func _ready():
@@ -189,6 +191,22 @@ func set_event_system(new_ref):
 		print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
+
+func set_trading_system(new_ref):
+	if new_ref == trading_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		trading_system = new_ref
+		print("GlobalRefs: TradingSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid TradingSystem ref: ", new_ref)
+
+func set_contract_system(new_ref):
+	if new_ref == contract_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		contract_system = new_ref
+		print("GlobalRefs: ContractSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid ContractSystem ref: ", new_ref)
 
 
 

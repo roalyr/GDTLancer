@@ -1,0 +1,26 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://core/resource/contract_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "delivery_01"
+template_type = "contract"
+contract_type = "delivery"
+title = "Ore Shipment to Beta Station"
+description = "Transport 10 units of ore from Station Alpha to Station Beta. Standard freight rates apply."
+issuer_id = "contact_freight_master"
+faction_id = "traders_guild"
+origin_location_id = "station_alpha"
+destination_location_id = "station_beta"
+required_commodity_id = "commodity_ore"
+required_quantity = 10
+target_type = ""
+target_count = 0
+reward_wp = 150
+reward_reputation = 5
+reward_items = {}
+time_limit_tu = -1
+difficulty = 1
+accepted_at_tu = -1
+progress = {}
