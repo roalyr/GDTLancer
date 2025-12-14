@@ -237,8 +237,11 @@ func _count_active_contracts_for_character(char_uid: int) -> int:
 
 func _check_delivery_completion(char_uid: int, contract) -> Dictionary:
 	# Check player is at destination
-	# For now, we check via a player_location field in GameState or skip location check
-	# TODO: Implement proper location tracking in Sprint 4
+	if GameState.player_docked_at != contract.destination_location_id:
+		return {
+			"can_complete": false,
+			"reason": "Not at destination: " + contract.destination_location_id
+		}
 	
 	# Check player has required cargo
 	var inventory_system = GlobalRefs.inventory_system

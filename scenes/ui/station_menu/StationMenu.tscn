@@ -48,7 +48,12 @@ margin_top = 68.0
 margin_right = 360.0
 margin_bottom = 88.0
 text = "Contracts"
-
+[node name="BtnCompleteContract" type="Button" parent="Panel/VBoxContainer"]
+visible = false
+margin_top = 98.0
+margin_right = 360.0
+margin_bottom = 118.0
+text = "Complete Contract"
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
 margin_top = 98.0
 margin_right = 360.0

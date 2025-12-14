@@ -84,6 +84,7 @@ func after_each():
 		"known_contacts": [],
 		"chronicle_entries": []
 	}
+	GameState.player_docked_at = ""
 
 
 func _create_test_contract() -> ContractTemplate:
@@ -191,6 +192,7 @@ func test_check_completion_not_active():
 
 func test_check_completion_missing_cargo():
 	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
+	GameState.player_docked_at = "station_beta"
 	
 	var result = _contract_system.check_contract_completion(_test_character_uid, _test_contract_id)
 	
@@ -200,6 +202,7 @@ func test_check_completion_missing_cargo():
 
 func test_check_completion_with_cargo():
 	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
+	GameState.player_docked_at = "station_beta"
 	
 	# Add required cargo
 	_inventory_system.add_asset(
@@ -216,6 +219,7 @@ func test_check_completion_with_cargo():
 
 func test_check_completion_partial_cargo():
 	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
+	GameState.player_docked_at = "station_beta"
 	
 	# Add less than required
 	_inventory_system.add_asset(
@@ -240,6 +244,9 @@ func test_complete_contract_success():
 		"commodity_ore",
 		10
 	)
+	
+	# Set player at destination
+	GameState.player_docked_at = "station_beta"
 	
 	var initial_wp = _character_system.get_wp(_test_character_uid)
 	var result = _contract_system.complete_contract(_test_character_uid, _test_contract_id)
@@ -271,6 +278,8 @@ func test_complete_contract_applies_reputation():
 		10
 	)
 	
+	# Must be at destination for delivery completion
+	GameState.player_docked_at = "station_beta"
 	_contract_system.complete_contract(_test_character_uid, _test_contract_id)
 	
 	assert_eq(GameState.narrative_state.reputation, 5, "Reputation should increase")

@@ -4,6 +4,7 @@ var ZoneScene = load("res://scenes/zones/basic_flight_zone.tscn")
 var StationMenuScene = load("res://scenes/ui/station_menu/StationMenu.tscn")
 var PlayerControllerScript = load("res://modules/piloting/scripts/player_controller_ship.gd")
 var ContractSystemScript = load("res://core/systems/contract_system.gd")
+var InventorySystemScript = load("res://core/systems/inventory_system.gd")
 
 func test_full_docking_loop():
 	# Clear GameState to ensure clean slate
@@ -20,6 +21,10 @@ func test_full_docking_loop():
 	add_child(contract_system)
 	GlobalRefs.contract_system = contract_system
 	
+	var inventory_system = InventorySystemScript.new()
+	add_child(inventory_system)
+	GlobalRefs.inventory_system = inventory_system
+	
 	# Ensure GameState has the station location loaded (WorldGenerator usually does this)
 	if not GameState.locations.has("station_alpha"):
 		var loc_template = LocationTemplate.new()
@@ -34,8 +39,20 @@ func test_full_docking_loop():
 		contract.template_id = "delivery_01"
 		contract.title = "Test Contract"
 		contract.origin_location_id = "station_alpha"
+		contract.destination_location_id = "station_beta"
 		contract.contract_type = "delivery"
+		contract.required_commodity_id = "commodity_ore"
+		contract.required_quantity = 10
+		contract.reward_wp = 100
+		contract.time_limit_tu = -1
 		GameState.contracts["delivery_01"] = contract
+	
+	# Also add station_beta location for delivery destination
+	if not GameState.locations.has("station_beta"):
+		var loc_beta = LocationTemplate.new()
+		loc_beta.template_id = "station_beta"
+		loc_beta.location_name = "Station Beta"
+		GameState.locations["station_beta"] = loc_beta
 	
 	# 2. Setup Player & HUD
 	var hud = load("res://core/ui/main_hud/main_hud.tscn").instance()
@@ -93,8 +110,31 @@ func test_full_docking_loop():
 	yield(yield_for(0.1), YIELD)
 	assert_false(station_menu.visible, "Station Menu should be hidden after undock")
 	
+	# 8. Simulate Travel & Completion
+	# Add required cargo
+	var inv_sys = GlobalRefs.inventory_system
+	inv_sys.add_asset(GameState.player_character_uid, inv_sys.InventoryType.COMMODITY, "commodity_ore", 10)
+	
+	# Dock at destination
+	# We need to update GameState.player_docked_at manually as the signal usually does it via PlayerController
+	GameState.player_docked_at = "station_beta"
+	EventBus.emit_signal("player_docked", "station_beta")
+	yield(yield_for(0.1), YIELD)
+	
+	# Verify Complete Button
+	assert_true(station_menu.visible, "Station Menu should be visible at dest")
+	assert_true(station_menu.btn_complete_contract.visible, "Complete Contract button should be visible")
+	
+	# Complete
+	station_menu._on_complete_contract_pressed()
+	
+	# Verify
+	assert_false(GameState.active_contracts.has(contract_id), "Contract should be removed from active")
+	
 	# Cleanup
 	GlobalRefs.contract_system = null
+	GlobalRefs.inventory_system = null
 	contract_system.free()
+	inventory_system.free()
 	zone.free()
 	hud.free()
