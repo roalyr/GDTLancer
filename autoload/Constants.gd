@@ -24,6 +24,7 @@ const INITIAL_ZONE_SCENE_PATH = "res://scenes/zones/basic_flight_zone.tscn"
 # Agent Template Resource Paths
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://assets/data/agents/player_default.tres"
 const NPC_TRAFFIC_TEMPLATE_PATH = "res://assets/data/agents/npc_default.tres"
+const NPC_HOSTILE_TEMPLATE_PATH = "res://assets/data/agents/npc_hostile_default.tres"
 
 # Base UI Scenes
 const MAIN_HUD_SCENE_PATH = "res://core/ui/main_hud.tscn"

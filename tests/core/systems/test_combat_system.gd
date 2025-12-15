@@ -4,16 +4,30 @@ extends "res://addons/gut/test.gd"
 
 const CombatSystem = preload("res://core/systems/combat_system.gd")
 const UtilityToolTemplate = preload("res://core/resource/utility_tool_template.gd")
+const MockAgentBody = preload("res://tests/helpers/mock_agent_body.gd")
 
 var _combat_system: Node
 var _test_weapon: UtilityToolTemplate
 var _attacker_uid: int = 0
 var _defender_uid: int = 1
+var _attacker_body: KinematicBody
+var _defender_body: KinematicBody
 
 
 func before_each():
+	# Create dummy AgentBody nodes so CombatSystem can resolve uid -> body for EventBus signals.
+	_attacker_body = MockAgentBody.new()
+	_attacker_body.agent_uid = _attacker_uid
+	_attacker_body.add_to_group("Agents")
+	add_child_autofree(_attacker_body)
+
+	_defender_body = MockAgentBody.new()
+	_defender_body.agent_uid = _defender_uid
+	_defender_body.add_to_group("Agents")
+	add_child_autofree(_defender_body)
+
 	_combat_system = CombatSystem.new()
-	add_child(_combat_system)
+	add_child_autofree(_combat_system)
 	
 	# Create test weapon
 	_test_weapon = UtilityToolTemplate.new()
@@ -36,8 +50,10 @@ func before_each():
 	_combat_system.register_combatant(_defender_uid, defender_ship)
 
 
-func after_each():
-	_combat_system.queue_free()
+func after_each() -> void:
+	_attacker_body = null
+	_defender_body = null
+	_combat_system = null
 
 
 func _create_mock_ship(hull: int, armor: int) -> Resource:
@@ -246,6 +262,18 @@ func test_ship_disabled_signal():
 	_combat_system.apply_damage(_defender_uid, 100.0)
 	
 	assert_signal_emitted(_combat_system, "ship_disabled", "ship_disabled signal should emit")
+
+
+func test_eventbus_agent_damaged_emits_for_damage():
+	watch_signals(EventBus)
+	_combat_system.apply_damage(_defender_uid, 10.0, 0.0, _attacker_uid)
+	assert_signal_emitted(EventBus, "agent_damaged")
+
+
+func test_eventbus_agent_disabled_emits_on_disable():
+	watch_signals(EventBus)
+	_combat_system.apply_damage(_defender_uid, 100.0, 0.0, _attacker_uid)
+	assert_signal_emitted(EventBus, "agent_disabled")
 
 
 func test_weapon_fired_signal():

@@ -19,3 +19,15 @@
 - [2025-12-15] Implemented TASK 6: Write WeaponController Unit Tests (20 test cases)
 - [2025-12-15] Completed TASK 7: Integration Verification - GUT test suite (173 passed, 0 failed) + manual check
 - [2025-12-15] **SPRINT 8 COMPLETE**: Combat Module Integration
+
+- [2025-12-15] Implemented TASK 1: Extend AI Controller with Combat State Machine
+- [2025-12-15] Implemented TASK 2: Implement AI Weapon Firing
+- [2025-12-15] Implemented TASK 6: Create Hostile NPC Template
+- [2025-12-15] Implemented TASK 3: Implement Event System Encounter Triggering
+- [2025-12-15] Implemented TASK 4: Add Combat End Detection to CombatSystem
+- [2025-12-15] Implemented TASK 5: Wire Combat Flow Signals to HUD
+- [2025-12-15] Implemented TASK 7: Write AI Combat Unit Tests
+- [2025-12-15] Implemented TASK 8: Write Event System Unit Tests
+- [2025-12-15] QA Polish: event_system.gd v2.0 (strict types, docstrings) + test suite (13 test cases - success paths + edge cases)
+- [2025-12-15] - [FIX] CombatSystem _get_agent_body() now falls back to Agents group when WorldManager lookup returns null (unblocked EventBus signal tests).
+- [2025-12-15] - [FIX] Updated test_combat_system.gd to use tests/helpers/mock_agent_body.gd so EventBus agent_damaged/agent_disabled signals emit in tests.

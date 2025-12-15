@@ -47,6 +47,10 @@ func is_in_combat(agent_uid: int) -> bool:
 	return _active_combatants.has(agent_uid) and not _active_combatants[agent_uid].is_disabled
 
 
+func is_combat_active() -> bool:
+	return _combat_active
+
+
 func get_combat_state(agent_uid: int) -> Dictionary:
 	return _active_combatants.get(agent_uid, {})
 
@@ -160,6 +164,13 @@ func apply_damage(target_uid: int, hull_damage: float, armor_damage: float = 0.0
 	state.current_hull -= hull_dealt
 	
 	emit_signal("damage_dealt", target_uid, hull_dealt, source_uid)
+
+	# Mirror gameplay-facing damage signals onto EventBus (HUD, AI, encounter logic).
+	if EventBus:
+		var target_body = _get_agent_body(target_uid)
+		var source_body = _get_agent_body(source_uid)
+		if is_instance_valid(target_body):
+			EventBus.emit_signal("agent_damaged", target_body, hull_dealt, source_body)
 	
 	# Check for disable
 	var disabled = state.current_hull <= 0
@@ -167,6 +178,10 @@ func apply_damage(target_uid: int, hull_damage: float, armor_damage: float = 0.0
 		state.is_disabled = true
 		state.current_hull = 0
 		emit_signal("ship_disabled", target_uid)
+		if EventBus:
+			var disabled_body = _get_agent_body(target_uid)
+			if is_instance_valid(disabled_body):
+				EventBus.emit_signal("agent_disabled", disabled_body)
 	
 	return {
 		"success": true,
@@ -225,10 +240,29 @@ func end_combat(result: String = "ended") -> void:
 	emit_signal("combat_ended", result)
 
 
+func _get_agent_body(agent_uid: int):
+	if agent_uid < 0:
+		return null
+
+	if is_instance_valid(GlobalRefs.world_manager) and GlobalRefs.world_manager.has_method("get_agent_by_uid"):
+		var from_world_manager = GlobalRefs.world_manager.get_agent_by_uid(agent_uid)
+		if is_instance_valid(from_world_manager):
+			return from_world_manager
+
+	# Fallback: scan nodes in the Agents group.
+	var tree = get_tree()
+	if tree:
+		for node in tree.get_nodes_in_group("Agents"):
+			if is_instance_valid(node) and node.get("agent_uid") != null and int(node.get("agent_uid")) == agent_uid:
+				return node
+
+	return null
+
+
 # --- Targeting Helpers ---
 
 # Get closest enemy in range
-func get_closest_target(from_pos: Vector3, agent_uid: int, max_range: float = -1.0) -> Dictionary:
+func get_closest_target(_from_pos: Vector3, agent_uid: int, _max_range: float = -1.0) -> Dictionary:
 	var closest_uid = -1
 	var closest_dist = INF
 	
@@ -247,7 +281,7 @@ func get_closest_target(from_pos: Vector3, agent_uid: int, max_range: float = -1
 # --- Combat Resolution (Narrative Actions) ---
 
 # Assess aftermath - Phase 1 narrative action after combat
-func assess_aftermath(char_uid: int, tactics_skill: int) -> Dictionary:
+func assess_aftermath(_char_uid: int, tactics_skill: int) -> Dictionary:
 	# Uses CoreMechanicsAPI for action check
 	var approach = Constants.ActionApproach.CAUTIOUS
 	var result = CoreMechanicsAPI.perform_action_check(tactics_skill, 0, 0, approach)
@@ -273,7 +307,7 @@ func assess_aftermath(char_uid: int, tactics_skill: int) -> Dictionary:
 
 
 # Claim wreckage - Phase 1 narrative action
-func claim_wreckage(char_uid: int, tactics_skill: int, approach: int) -> Dictionary:
+func claim_wreckage(_char_uid: int, tactics_skill: int, approach: int) -> Dictionary:
 	var result = CoreMechanicsAPI.perform_action_check(tactics_skill, 0, 0, approach)
 	
 	var success = result.result_tier in ["CritSuccess", "SuccessWithCost", "Success"]

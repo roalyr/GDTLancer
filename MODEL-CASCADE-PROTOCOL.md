@@ -24,19 +24,28 @@ TASK:
 Critically analyze the current state of the codebase against the design documents. Your goal is to prepare the work for the Senior Developer (GPT-5.2) for the NEXT logical step (e.g., the current incomplete Sprint).
 
 ACTION:
-Overwrite the content of 'IMMEDIATE-TODO.md' with a strict, implementation-ready plan. 
+Overwrite the content of 'IMMEDIATE-TODO.md' with a strict, implementation-ready plan.
 
 STRICT OUTPUT FORMAT for 'IMMEDIATE-TODO.md':
 1. CONTEXT: A 2-sentence summary of what we are building right now and why.
 2. FILE MANIFEST: List strictly which files need to be created or modified.
 3. ATOMIC TASKS: Break the work down into a Markdown Checklist using the format "- [ ] Task Name".
-   - For each task, define the TARGET FILE.
+   - **GROUPING:** If files are tightly coupled (e.g., UI scene + Script, or System + Resource), group them into a single Task Item (e.g., "- [ ] Implement Combat Cluster").
+   - For each task (or cluster), define the TARGET FILE(S).
    - Define the DEPENDENCIES (files the AI must read to understand the context).
    - Provide PSEUDO-CODE SIGNATURES for key functions (define inputs/outputs exactly).
-   - Define SUCCESS CRITERIA (e.g., "Must pass test_trading.gd").
+   - Define SUCCESS CRITERIA (e.g., "Must pass test_trading.gd" - Note: User runs tests manually).
 4. CONSTRAINTS: Specific architectural rules (e.g., "Do not use Resources here, use Nodes", "Connect to SignalBus").
 
-DO NOT write the full implementation code. Write the "Ticket" that ensures the Senior Dev cannot misunderstand the architecture.
+OUTPUT BEHAVIOR:
+- **FILE ONLY:** Use the file writing tool to overwrite 'IMMEDIATE-TODO.md'.
+- **SILENCE:** Do NOT print the plan or the file content in the chat.
+- **CONFIRMATION:** Your only chat response should be: "Plan updated in IMMEDIATE-TODO.md."
+
+OUTPUT BEHAVIOR:
+- **FILE ONLY:** Use the file writing tool to overwrite 'IMMEDIATE-TODO.md'.
+- **SILENCE:** Do NOT print the plan or the file content in the chat.
+- **CONFIRMATION:** Your only chat response should be: "Plan updated in IMMEDIATE-TODO.md."
 
 ```
 
@@ -69,13 +78,16 @@ CONSTRAINTS:
 - If the file is large, implement it in logical chunks.
 - **NEVER** leave the task unchecked if you have successfully generated the code.
 
-Rewrite the code for the target file AND update markdown files.
+OUTPUT BEHAVIOR:
+- **FILE ONLY:** Apply all changes to the target source code, 'IMMEDIATE-TODO.md', and 'SESSION-LOG.md' using file writing tools.
+- **SILENCE:** Do NOT paste the code blocks in the chat.
+- **CONFIRMATION:** Your only chat response should be: "Task [Task Name] completed and logged."
 
 ```
 
 ---
 
-##LEVEL 3: THE INTERN (GPT-4.1 / GPT-4o)
+##LEVEL 3: THE INTERN (HAIKU)
 **Trigger:** After GPT-5.2 outputs code.
 **Input:** The newly created/modified file.
 **Goal:** Cleanup, Documentation, Unit Tests, and Logging.
@@ -91,16 +103,20 @@ INSTRUCTIONS:
 2. **Write Tests:** Update/Create `tests/unit/test_[filename].gd`.
    - MUST cover success paths + 1 edge case.
    - MUST use `autofree(node)` for cleanup.
+   - **NOTE:** I run these tests manually via the GUT addon. Ensure they inherit from `res://addons/gut/test.gd` and are strictly compliant.
 3. **Log:** Append 1 line to 'SESSION-LOG.md'.
 
 CRITICAL SYNTAX RULES (GODOT 3.x):
 - NO `@export`, `@onready`. Use `export(int) var`, `onready var`.
-- NO `await`. Use `yield(obj, "sig")`.
+- NO `await`. Use `yield(obj, "signal")`.
 - NO `super()`. Use `.func()`.
 - NO f-strings. Use `"%s" % var`.
 - NO Typed Arrays `Array[int]`. Use `Array`.
 
-Output the POLISHED CODE and the TEST FILE.
+OUTPUT BEHAVIOR:
+- **FILE ONLY:** Write the polished code and test file using the file tools.
+- **SILENCE:** Do NOT paste the code blocks in the chat.
+- **CONFIRMATION:** Your only chat response should be: "Polished [File] and created [TestFile]."
 
 ```
 
@@ -114,7 +130,7 @@ Output the POLISHED CODE and the TEST FILE.
 ```
 ROLE: Senior Developer (Debug & Recovery Mode)
 CONTEXT: We attempted to execute a task from 'IMMEDIATE-TODO.md', but encountered a critical failure.
-ERROR/ISSUE: [PASTE ERROR LOG OR DESCRIBE UNEXPECTED BEHAVIOR]
+ERROR/ISSUE: [PASTE GUT ERROR LOG OR DESCRIBE UNEXPECTED BEHAVIOR]
 
 TASK: **Analyze, Fix, and Re-align.**
 
@@ -131,6 +147,9 @@ CONSTRAINTS:
 - If the task is now actually complete and working, ensure 'IMMEDIATE-TODO.md' is marked with "- [x]".
 - If the task is blocked by this error, mark it as "- [ ]" and add a "**BLOCKED:**" note next to it in the Todo file.
 
-Write the fixed code and update markdown files.
+OUTPUT BEHAVIOR:
+- **FILE ONLY:** Apply fixes directly to files.
+- **SILENCE:** Do not explain the bug in depth.
+- **CONFIRMATION:** Your only chat response should be: "Fix applied to [File]."
 
 ```

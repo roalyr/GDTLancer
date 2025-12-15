@@ -97,6 +97,30 @@ func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> Kinemati
 	return npc_body
 
 
+# Spawns an NPC using a specific AgentTemplate resource path.
+# This is used for encounter-driven spawns where a fixed template is desired.
+func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Vector3.ZERO, overrides: Dictionary = {}) -> KinematicBody:
+	if not agent_template_path or agent_template_path.empty():
+		printerr("AgentSpawner Error: spawn_npc_from_template invalid template path.")
+		return null
+
+	var npc_template = load(agent_template_path)
+	if not npc_template is AgentTemplate:
+		printerr("AgentSpawner Error: Failed to load AgentTemplate at: ", agent_template_path)
+		return null
+
+	var npc_overrides := overrides.duplicate(true)
+	if not npc_overrides.has("agent_type"):
+		npc_overrides["agent_type"] = "npc"
+	if not npc_overrides.has("template_id"):
+		npc_overrides["template_id"] = "npc"
+	if not npc_overrides.has("character_uid"):
+		npc_overrides["character_uid"] = -1
+
+	var agent_uid = _get_next_agent_uid()
+	return spawn_agent(Constants.NPC_AGENT_SCENE_PATH, position, npc_template, npc_overrides, agent_uid)
+
+
 # --- UID Generation ---
 func _get_next_agent_uid() -> int:
 	var uid = _next_agent_uid
@@ -154,7 +178,7 @@ func spawn_agent(
 	# The controller is a child of the AgentBody (agent_node), not the scene root.
 	# We also need to check for both AI and Player controllers.
 	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
-	var player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+	var _player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
 
 	if ai_controller and ai_controller.has_method("initialize"):
 		ai_controller.initialize(overrides) # Pass agent_uid?

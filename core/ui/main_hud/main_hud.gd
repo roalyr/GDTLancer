@@ -74,6 +74,14 @@ func _ready():
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
 
+		# Combat flow (Phase 1: debug feedback)
+		if not EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
+			EventBus.connect("combat_initiated", self, "_on_combat_initiated")
+		if not EventBus.is_connected("combat_ended", self, "_on_combat_ended"):
+			EventBus.connect("combat_ended", self, "_on_combat_ended")
+		if not EventBus.is_connected("agent_damaged", self, "_on_agent_damaged"):
+			EventBus.connect("agent_damaged", self, "_on_agent_damaged")
+
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
@@ -199,6 +207,26 @@ func _notification(what):
 				EventBus.disconnect(
 					"player_target_deselected", self, "_on_Player_Target_Deselected"
 				)
+			if EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
+				EventBus.disconnect("combat_initiated", self, "_on_combat_initiated")
+			if EventBus.is_connected("combat_ended", self, "_on_combat_ended"):
+				EventBus.disconnect("combat_ended", self, "_on_combat_ended")
+			if EventBus.is_connected("agent_damaged", self, "_on_agent_damaged"):
+				EventBus.disconnect("agent_damaged", self, "_on_agent_damaged")
+
+
+func _on_combat_initiated(_player_agent, enemy_agents: Array) -> void:
+	print("[HUD] Combat initiated with ", enemy_agents.size(), " hostiles")
+
+
+func _on_combat_ended(result_dict: Dictionary) -> void:
+	var outcome = result_dict.get("outcome", "unknown")
+	print("[HUD] Combat ended: ", outcome)
+
+
+func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
+	if agent_body == GlobalRefs.player_agent_body:
+		print("[HUD] Player took ", damage_amount, " damage")
 
 
 func _on_ButtonFreeFlight_pressed():

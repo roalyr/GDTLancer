@@ -128,6 +128,15 @@ func _on_Agent_Despawning(agent_body):
 		_spawned_agent_bodies.erase(agent_body)
 
 
+func get_agent_by_uid(agent_uid: int):
+	for agent_body in _spawned_agent_bodies:
+		if not is_instance_valid(agent_body):
+			continue
+		if agent_body.get("agent_uid") != null and int(agent_body.get("agent_uid")) == agent_uid:
+			return agent_body
+	return null
+
+
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
 		if GlobalRefs and GlobalRefs.world_manager == self:

@@ -1,74 +1,317 @@
+
 # File: modules/piloting/scripts/ship_controller_ai.gd
 # Attach to Node child of AgentBody in npc_agent.tscn
-# Version 2.1 - Simplified for agent command execution model
+# Version 3.0 - Sprint 9: Combat encounter AI state machine
 
 extends Node
 
+enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
+
+# --- Configuration ---
+export var aggro_range: float = 800.0
+export var weapon_range: float = 500.0
+export var flee_hull_threshold: float = 0.2
+export var patrol_radius: float = 200.0
+export var is_hostile: bool = false
+
 # --- References ---
-# Set in _ready()
-var agent_script: Node = null  # Reference to the parent agent.gd script instance
+var agent_script: Node = null
+
+# --- State ---
+var _current_state: int = AIState.IDLE
+var _target_agent: KinematicBody = null
+var _home_position: Vector3 = Vector3.ZERO
+var _weapon_controller: Node = null
+
+var _patrol_destination: Vector3 = Vector3.ZERO
+var _has_patrol_destination: bool = false
+
+var _repath_timer: float = 0.0
+const _REPATH_INTERVAL: float = 0.5
+
+var _halted_in_range: bool = false
+
+var _fire_timer: float = 0.0
+const AI_FIRE_INTERVAL: float = 1.5  # Seconds between fire attempts
 
 
-# --- Initialization ---
-func _ready():
-	# Get reference to parent agent script
+func _ready() -> void:
 	var parent = get_parent()
-	# Check if parent is the correct type and has the command methods
 	if parent is KinematicBody and parent.has_method("command_move_to"):
 		agent_script = parent
-		# print("AI Controller ready for: ", agent_script.agent_name) # Optional Debug
+		_weapon_controller = parent.get_node_or_null("WeaponController")
+		_home_position = parent.global_transform.origin
+		set_physics_process(true)
 	else:
 		printerr(
 			"AI Controller Error: Parent node is not an Agent KinematicBody with command methods!"
 		)
-		# If setup fails, this controller can't function.
-		# We can disable physics process (though it's empty now)
-		# or even detach the script to prevent errors.
 		set_physics_process(false)
-		set_script(null)  # Detach script if parent is wrong
-
-
-# Called by WorldManager's spawn_agent function (via initialize dictionary in agent.gd)
-# The 'config' dictionary here is the 'overrides' passed to spawn_agent
-func initialize(config: Dictionary):
-	# Ensure agent script reference is valid before issuing command
-	if not is_instance_valid(agent_script):
-		printerr("AI Initialize Error: Agent script invalid. Cannot issue command.")
+		set_script(null)
 		return
 
-	# Read necessary parameters from config dictionary if present
-	var stopping_dist = config.get("stopping_distance", 10.0)  # May not be needed by AI now
-	# TODO: Agent's MOVE_TO command should probably use its own internal stopping distance logic
+	if is_instance_valid(EventBus):
+		if not EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
+			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 
-	# Immediately issue the initial command based on 'initial_target' in config
-	if config.has("initial_target") and config.initial_target is Vector3:
-		var target_pos = config.initial_target
-		print(agent_script.agent_name, " AI issuing command: MOVE_TO ", target_pos)
-		# Call the command method on the agent script
-		agent_script.command_move_to(target_pos)
+
+func initialize(config: Dictionary) -> void:
+	if not is_instance_valid(agent_script):
+		printerr("AI Initialize Error: Agent script invalid. Cannot configure AI.")
+		return
+
+	if config.has("patrol_center") and config.patrol_center is Vector3:
+		_home_position = config.patrol_center
+	elif config.has("initial_target") and config.initial_target is Vector3:
+		_home_position = config.initial_target
 	else:
-		# If no target, the agent remains IDLE (its default state)
-		if is_instance_valid(agent_script):  # Check again just in case
-			print(
-				"AI Controller Warning: No initial target provided for ",
-				agent_script.agent_name,
-				". Agent will remain idle."
-			)
+		_home_position = agent_script.global_transform.origin
 
-# --- No Physics Update Needed ---
-# For this simple "go-to" AI, the agent itself executes the command issued
-# during initialize. This controller doesn't need to do anything frame-by-frame.
-# More complex AI would have state machines here, checking conditions and
-# issuing different commands (approach, orbit, flee, etc.) as needed.
-# func _physics_process(delta):
-#     pass
+	is_hostile = bool(config.get("hostile", is_hostile))
 
-# --- No Event Handling Needed Here ---
-# The agent itself now emits "agent_reached_destination" via EventBus
-# when its relevant command (MOVE_TO -> STOPPING -> IDLE) completes.
-# WorldManager listens for that signal to trigger the despawn.
-# func _handle_target_reached(): # Removed
-# func _on_Agent_Reached_Destination(agent_body): # Removed
+	# If hostile: start patrolling/scanning immediately.
+	if is_hostile:
+		_change_state(AIState.PATROL)
+		return
 
-# --- No Public Functions Needed Here ---
-# func set_target(new_target: Vector3): # Removed - command issued once at init
+	# Preserve prior behavior for non-hostile NPCs: optionally move once.
+	if config.has("initial_target") and config.initial_target is Vector3:
+		agent_script.command_move_to(config.initial_target)
+
+
+func _physics_process(delta: float) -> void:
+	match _current_state:
+		AIState.IDLE:
+			_process_idle(delta)
+		AIState.PATROL:
+			_process_patrol(delta)
+		AIState.COMBAT:
+			_process_combat(delta)
+		AIState.FLEE:
+			_process_flee(delta)
+		AIState.DISABLED:
+			pass
+
+
+func _change_state(new_state: int) -> void:
+	if _current_state == new_state:
+		return
+
+	_current_state = new_state
+	_halted_in_range = false
+	_repath_timer = 0.0
+	_fire_timer = 0.0
+
+	match _current_state:
+		AIState.IDLE:
+			_target_agent = null
+			_has_patrol_destination = false
+			if is_instance_valid(agent_script) and agent_script.has_method("command_stop"):
+				agent_script.command_stop()
+		AIState.PATROL:
+			_target_agent = null
+			_has_patrol_destination = false
+		AIState.COMBAT:
+			# Entry action: start approaching target if possible.
+			if is_instance_valid(agent_script) and is_instance_valid(_target_agent):
+				if agent_script.has_method("command_approach"):
+					agent_script.command_approach(_target_agent)
+				else:
+					agent_script.command_move_to(_target_agent.global_transform.origin)
+		AIState.FLEE:
+			# Entry action: flee from target if possible.
+			if is_instance_valid(agent_script) and is_instance_valid(_target_agent):
+				if agent_script.has_method("command_flee"):
+					agent_script.command_flee(_target_agent)
+				else:
+					var flee_pos = _calculate_flee_position()
+					agent_script.command_move_to(flee_pos)
+		AIState.DISABLED:
+			if is_instance_valid(agent_script) and agent_script.has_method("command_stop"):
+				agent_script.command_stop()
+			_target_agent = null
+			_has_patrol_destination = false
+
+
+func _process_idle(_delta: float) -> void:
+	if not is_hostile:
+		return
+	var target = _scan_for_target()
+	if is_instance_valid(target):
+		_target_agent = target
+		_change_state(AIState.COMBAT)
+
+
+func _process_patrol(_delta: float) -> void:
+	if not is_hostile:
+		_change_state(AIState.IDLE)
+		return
+
+	var target = _scan_for_target()
+	if is_instance_valid(target):
+		_target_agent = target
+		_change_state(AIState.COMBAT)
+		return
+
+	if not is_instance_valid(agent_script):
+		return
+
+	var current_pos = agent_script.global_transform.origin
+	if not _has_patrol_destination or current_pos.distance_to(_patrol_destination) <= 10.0:
+		_patrol_destination = _pick_patrol_destination()
+		_has_patrol_destination = true
+		agent_script.command_move_to(_patrol_destination)
+
+
+func _process_combat(delta: float) -> void:
+	if not is_hostile:
+		_change_state(AIState.IDLE)
+		return
+
+	if not is_instance_valid(agent_script):
+		_change_state(AIState.IDLE)
+		return
+
+	if not is_instance_valid(_target_agent):
+		_change_state(AIState.PATROL)
+		return
+
+	var self_pos: Vector3 = agent_script.global_transform.origin
+	var target_pos: Vector3 = _target_agent.global_transform.origin
+	var distance: float = self_pos.distance_to(target_pos)
+
+	# Drop combat if target out of aggro range.
+	if distance > aggro_range:
+		_target_agent = null
+		_change_state(AIState.PATROL)
+		return
+
+	# Hull check only valid if CombatSystem has state for this agent.
+	if is_instance_valid(GlobalRefs.combat_system) and GlobalRefs.combat_system.has_method("is_in_combat"):
+		if GlobalRefs.combat_system.is_in_combat(int(agent_script.agent_uid)):
+			var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(int(agent_script.agent_uid))
+			if hull_pct > 0.0 and hull_pct < flee_hull_threshold:
+				_change_state(AIState.FLEE)
+				return
+
+	# Approach target until within weapon range.
+	_repath_timer = max(0.0, _repath_timer - delta)
+	if distance > weapon_range:
+		_halted_in_range = false
+		if _repath_timer <= 0.0:
+			_repath_timer = _REPATH_INTERVAL
+			if agent_script.has_method("command_approach"):
+				agent_script.command_approach(_target_agent)
+			else:
+				agent_script.command_move_to(target_pos)
+	else:
+		# Hold position when in range (weapon firing is TASK 2).
+		if not _halted_in_range and agent_script.has_method("command_stop"):
+			_halted_in_range = true
+			agent_script.command_stop()
+
+		_fire_timer = max(0.0, _fire_timer - delta)
+		if _fire_timer <= 0.0 and _is_in_weapon_range():
+			_try_fire_weapon()
+
+
+func _try_fire_weapon() -> void:
+	if not is_instance_valid(_weapon_controller) and is_instance_valid(agent_script):
+		_weapon_controller = agent_script.get_node_or_null("WeaponController")
+
+	if not is_instance_valid(_weapon_controller):
+		return
+	if not is_instance_valid(_target_agent):
+		return
+
+	var target_pos: Vector3 = _target_agent.global_transform.origin
+	var raw_target_uid = _target_agent.get("agent_uid")
+	var target_uid: int = -1
+	if raw_target_uid != null:
+		target_uid = int(raw_target_uid)
+
+	var result: Dictionary = _weapon_controller.fire_at_target(0, target_uid, target_pos)
+
+	if result.get("success", false):
+		_fire_timer = AI_FIRE_INTERVAL
+	elif result.get("reason") == "Weapon on cooldown":
+		_fire_timer = float(result.get("cooldown", 0.5))
+
+
+func _is_in_weapon_range() -> bool:
+	if not is_instance_valid(_target_agent) or not is_instance_valid(agent_script):
+		return false
+	var distance = agent_script.global_transform.origin.distance_to(_target_agent.global_transform.origin)
+	return distance <= weapon_range
+
+
+func _process_flee(delta: float) -> void:
+	if not is_instance_valid(agent_script):
+		_change_state(AIState.IDLE)
+		return
+
+	if not is_instance_valid(_target_agent):
+		_change_state(AIState.PATROL)
+		return
+
+	var self_pos: Vector3 = agent_script.global_transform.origin
+	var target_pos: Vector3 = _target_agent.global_transform.origin
+	var distance: float = self_pos.distance_to(target_pos)
+
+	if distance > aggro_range * 2.0:
+		if agent_script.has_method("despawn"):
+			agent_script.despawn()
+		else:
+			_change_state(AIState.PATROL)
+		return
+
+	_repath_timer = max(0.0, _repath_timer - delta)
+	if _repath_timer <= 0.0:
+		_repath_timer = _REPATH_INTERVAL
+		if agent_script.has_method("command_flee"):
+			agent_script.command_flee(_target_agent)
+		else:
+			var flee_pos = _calculate_flee_position()
+			agent_script.command_move_to(flee_pos)
+
+
+func _scan_for_target() -> KinematicBody:
+	if not is_hostile:
+		return null
+	var player = GlobalRefs.player_agent_body
+	if not is_instance_valid(player) and is_instance_valid(GlobalRefs.world_manager):
+		player = GlobalRefs.world_manager.get("player_agent")
+	if not is_instance_valid(player):
+		return null
+	if not is_instance_valid(agent_script):
+		return null
+
+	var distance = agent_script.global_transform.origin.distance_to(player.global_transform.origin)
+	if distance <= aggro_range:
+		return player
+	return null
+
+
+func _pick_patrol_destination() -> Vector3:
+	# Simple random offset within patrol_radius on XZ plane.
+	var angle: float = randf() * TAU
+	var radius: float = randf() * patrol_radius
+	var offset: Vector3 = Vector3(cos(angle), 0.0, sin(angle)) * radius
+	return _home_position + offset
+
+
+func _calculate_flee_position() -> Vector3:
+	if not is_instance_valid(agent_script) or not is_instance_valid(_target_agent):
+		return _home_position
+	var self_pos: Vector3 = agent_script.global_transform.origin
+	var target_pos: Vector3 = _target_agent.global_transform.origin
+	var away: Vector3 = (self_pos - target_pos)
+	if away.length() <= 0.001:
+		away = Vector3(1, 0, 0)
+	away = away.normalized()
+	return self_pos + away * aggro_range
+
+
+func _on_agent_disabled(agent_body) -> void:
+	if is_instance_valid(agent_script) and agent_body == agent_script:
+		_change_state(AIState.DISABLED)
