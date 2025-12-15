@@ -6,6 +6,9 @@ extends Node
 # --- Game State Signals ---
 signal game_loaded(save_data)
 signal game_state_loaded  # Emitted after GameStateManager restores state
+# Sprint 10 integration signals
+signal new_game_requested
+signal main_menu_requested
 # signal game_saving(slot_id)
 # signal save_complete(slot_id, success)
 

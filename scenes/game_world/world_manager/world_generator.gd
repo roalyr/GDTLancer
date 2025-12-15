@@ -5,6 +5,8 @@
 
 extends Node
 
+const InventorySystem = preload("res://core/systems/inventory_system.gd")
+
 var _next_character_uid: int = 0
 var _next_ship_uid: int = 0
 var _next_module_uid: int = 0
@@ -30,7 +32,52 @@ func generate_new_world():
 	# Then, generate and assign their starting assets and inventories.
 	_generate_and_assign_assets()
 
+	# Sprint 10: Start player docked at Station Alpha, with defined starting resources.
+	GameState.player_docked_at = "station_alpha"
+	_apply_player_starting_state()
+	call_deferred("_emit_initial_dock_signal")
+
 	print("WorldGenerator: New world state generated.")
+
+
+func _apply_player_starting_state() -> void:
+	var player_uid: int = int(GameState.player_character_uid)
+	if player_uid < 0:
+		return
+	if GameState.characters.has(player_uid):
+		var player_char = GameState.characters[player_uid]
+		player_char.wealth_points = 50
+		player_char.focus_points = 3
+
+	# Starting cargo should be empty for the player.
+	if GameState.inventories.has(player_uid):
+		var inv = GameState.inventories[player_uid]
+		if inv is Dictionary and inv.has(InventorySystem.InventoryType.COMMODITY):
+			inv[InventorySystem.InventoryType.COMMODITY] = {}
+
+
+func _emit_initial_dock_signal() -> void:
+	# Wait until the player agent exists and the zone is loaded, then dock.
+	var retries := 0
+	while retries < 30 and (not is_instance_valid(GlobalRefs.current_zone) or not is_instance_valid(GlobalRefs.player_agent_body)):
+		yield(get_tree().create_timer(0.1), "timeout")
+		retries += 1
+
+	if GameState.player_docked_at == "":
+		return
+
+	# Move the player agent to the docked station position (so they truly spawn there).
+	var dock_id: String = GameState.player_docked_at
+	if is_instance_valid(GlobalRefs.player_agent_body) and GameState.locations.has(dock_id):
+		var loc = GameState.locations[dock_id]
+		if loc and loc.get("position_in_zone") is Vector3:
+			var spawn_pos: Vector3 = loc.position_in_zone + Vector3(0, 5, 15)
+			var t: Transform = GlobalRefs.player_agent_body.global_transform
+			t.origin = spawn_pos
+			GlobalRefs.player_agent_body.global_transform = t
+
+	if EventBus:
+		EventBus.emit_signal("player_docked", GameState.player_docked_at)
 
 
 # --- Private Logic ---
@@ -100,13 +147,8 @@ func _generate_and_assign_assets():
 			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.MODULE, module_uid)
 			print("... Assigned module (UID: %d) to character %s" % [module_uid, character.character_name])
 			
-		# Assign starting commodities (ore is useful for trading and contracts).
-		GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY, "commodity_ore", 15)
-		print("... Assigned 15 units of commodity_ore to character %s" % character.character_name)
-		
-		# Give player some starting fuel as well
-		GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY, "commodity_fuel", 5)
-		print("... Assigned 5 units of commodity_fuel to character %s" % character.character_name)
+		# Sprint 10: Player starting cargo should be empty.
+		# (NPC starting cargo can be added later if needed for simulation.)
 
 
 # Creates a unique instance of a ship and returns its UID.

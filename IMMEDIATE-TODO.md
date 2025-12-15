@@ -1,15 +1,15 @@
 # IMMEDIATE-TODO.md
 **Generated:** December 15, 2025  
-**Target Sprint:** Sprint 9 - Enemy AI & Combat Encounters  
-**Previous Sprint Status:** Sprint 8 (Combat Module Integration) COMPLETE — 173 tests passing
+**Target Sprint:** Sprint 10 - Full Game Loop Integration  
+**Previous Sprint Status:** Sprint 9 (Enemy AI & Combat Encounters) COMPLETE — Tests passing
 
 ---
 
 ## 1. CONTEXT
 
-We are implementing **Sprint 9: Enemy AI & Combat Encounters**, which makes NPCs fight back and triggers combat encounters dynamically. The WeaponController component and CombatSystem are operational for the player; this sprint adds **AI combat states** to `ship_controller_ai.gd` and **encounter generation** to `event_system.gd`, completing the "combat loop" where enemies can spawn, attack, and be defeated.
+We are implementing **Sprint 10: Full Game Loop Integration**, which connects all existing systems (Trading, Contracts, Combat, Narrative Actions, Docking) into a playable vertical slice. Sprint 9 delivered functional AI combat and encounter spawning; this sprint validates the **complete player journey**: start docked → accept contract → trade for cargo → undock → travel (potential combat) → dock at destination → complete contract with narrative action → receive reward.
 
-This sprint is a **critical prerequisite** for Sprint 10 (Full Game Loop Integration), as the complete contract delivery → potential combat → arrival flow cannot be tested until NPCs can initiate combat.
+This sprint is the **final integration milestone** before Definition of Done for Phase 1. It does not add new systems—it ensures existing systems work together seamlessly and the Main Menu properly initializes a new game.
 
 ---
 
@@ -18,786 +18,629 @@ This sprint is a **critical prerequisite** for Sprint 10 (Full Game Loop Integra
 ### Files to CREATE:
 | File | Purpose |
 |------|---------|
-| `tests/modules/piloting/test_ship_controller_ai.gd` | GUT tests for AI combat behavior |
-| `tests/core/systems/test_event_system.gd` | GUT tests for encounter triggering |
-| `assets/data/agents/npc_hostile_default.tres` | Hostile NPC agent template |
+| `tests/scenes/test_full_game_loop.gd` | GUT integration tests for complete player journey |
 
 ### Files to MODIFY:
 | File | Change |
 |------|--------|
-| `modules/piloting/scripts/ship_controller_ai.gd` | Add state machine: IDLE, PATROL, COMBAT, FLEE; weapon firing logic |
-| `core/systems/event_system.gd` | Implement encounter triggering on `world_event_tick_triggered` |
-| `core/systems/combat_system.gd` | Add `end_combat()` cleanup + victory/defeat detection |
-| `core/ui/main_hud/main_hud.gd` | Connect to combat signals for UI feedback |
+| `core/ui/main_menu/main_menu.gd` | Implement New Game / Load Game / Exit button logic |
+| `scenes/game_world/world_manager.gd` | Wire main menu signals, start player docked at station |
+| `scenes/game_world/world_manager/world_generator.gd` | Ensure player spawns docked, initial WP=50, contracts available |
+| `autoload/GameStateManager.gd` | Verify save/load covers all new state fields (narrative, contracts, quirks) |
 
 ### Files to READ for Context (Dependencies):
 | File | Reason |
 |------|--------|
-| `core/agents/components/weapon_controller.gd` | `fire_at_target()` API for AI to use |
-| `core/systems/combat_system.gd` | `register_combatant()`, `fire_weapon()`, `apply_damage()` |
-| `core/systems/agent_system.gd` | `spawn_npc()` API for encounter spawning |
-| `core/agents/agent.gd` | Agent state commands: `command_move_to()`, state machine |
-| `autoload/EventBus.gd` | `combat_initiated`, `combat_ended`, `agent_disabled` signals |
-| `autoload/GameState.gd` | `current_tu`, player reference |
-| `core/systems/time_system.gd` | `world_event_tick_triggered` signal pattern |
+| `core/ui/main_menu/main_menu.tscn` | Understand existing button structure |
+| `scenes/ui/station_menu/station_menu.gd` | Docked state UI flow |
+| `core/systems/contract_system.gd` | `accept_contract()`, `complete_contract()` API |
+| `core/systems/trading_system.gd` | `execute_buy()`, `execute_sell()` API |
+| `autoload/GameState.gd` | All state containers |
+| `autoload/EventBus.gd` | Required signals for flow |
+| `core/systems/time_system.gd` | Upkeep mechanics |
 
 ---
 
 ## 3. ATOMIC TASKS
 
-### Sprint 9 Checklist
+### Sprint 10 Checklist
 
-- [x] **TASK 1:** Extend AI Controller with Combat State Machine
-- [x] **TASK 2:** Implement AI Weapon Firing
-- [x] **TASK 3:** Implement Event System Encounter Triggering
-- [x] **TASK 4:** Add Combat End Detection to CombatSystem
-- [x] **TASK 5:** Wire Combat Flow Signals to HUD
-- [x] **TASK 6:** Create Hostile NPC Template
-- [x] **TASK 7:** Write AI Combat Unit Tests
-- [x] **TASK 8:** Write Event System Unit Tests
-- [ ] **TASK 9:** Integration Verification
+- [x] **TASK 1:** Implement Main Menu Button Logic
+- [x] **TASK 2:** Implement Player Spawn Docked Flow
+- [x] **TASK 3:** Verify Save/Load Serialization Completeness
+- [x] **TASK 4:** Implement Game Over / Win Conditions UI
+- [x] **TASK 5:** Write Full Game Loop Integration Tests
+- [ ] **TASK 6:** Manual Integration Verification
 
 ---
 
-### TASK 1: Extend AI Controller with Combat State Machine
+### TASK 1: Implement Main Menu Button Logic
 
-**TARGET FILE:** `modules/piloting/scripts/ship_controller_ai.gd`
+**TARGET FILE:** `core/ui/main_menu/main_menu.gd`
 
 **DEPENDENCIES:**
-- Read `core/agents/agent.gd` (lines 1-150) — Agent command interface
-- Read `core/systems/combat_system.gd` (lines 50-80) — `is_in_combat()`, `get_hull_percent()`
-- Read `autoload/EventBus.gd` — `combat_initiated`, `agent_damaged`
+- Read `core/ui/main_menu/main_menu.tscn` (lines 1-100) — Button node paths
+- Read `scenes/game_world/world_manager.gd` (lines 40-70) — `_setup_new_game()` flow
+- Read `autoload/GameStateManager.gd` — `save_game()`, `load_game()` API
 
 **CHANGES:**
-Replace the current passive "command once at init" controller with a state-driven AI:
+Implement button handlers for New Game, Load Game, Save Game, and Exit:
 
 **PSEUDO-CODE SIGNATURES:**
 ```gdscript
-# File: modules/piloting/scripts/ship_controller_ai.gd
-extends Node
+# File: core/ui/main_menu/main_menu.gd
+extends Control
 
-enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
-
-# --- Configuration ---
-export var aggro_range: float = 800.0          # Distance to detect player
-export var weapon_range: float = 500.0         # Optimal firing distance
-export var flee_hull_threshold: float = 0.2    # Flee when hull < 20%
-export var patrol_radius: float = 200.0        # Random patrol area
-export var is_hostile: bool = false            # Determines if NPC attacks player
-
-# --- State ---
-var _current_state: int = AIState.IDLE
-var _target_agent: KinematicBody = null
-var _home_position: Vector3 = Vector3.ZERO
-var _weapon_controller: Node = null
-
-# --- Initialization ---
-func _ready() -> void:
-    """Cache references, connect signals, set initial state."""
-    # Get parent AgentBody, find WeaponController sibling
-    # Connect to EventBus.agent_disabled for self-disable handling
-
-func initialize(config: Dictionary) -> void:
-    """Called by WorldManager. config may contain 'hostile': bool, 'patrol_center': Vector3."""
-    # Store home_position from config.get("patrol_center", global_transform.origin)
-    # Set is_hostile from config.get("hostile", false)
-    # If hostile: immediately set state to PATROL to start scanning
-
-# --- State Machine ---
-func _physics_process(delta: float) -> void:
-    """Run state logic each frame."""
-    match _current_state:
-        AIState.IDLE:
-            _process_idle(delta)
-        AIState.PATROL:
-            _process_patrol(delta)
-        AIState.COMBAT:
-            _process_combat(delta)
-        AIState.FLEE:
-            _process_flee(delta)
-        AIState.DISABLED:
-            pass  # No processing
-
-func _change_state(new_state: int) -> void:
-    """Transition to new state, handle entry actions."""
-    # On enter COMBAT: call agent_script.command_approach(_target_agent) if method exists
-    # On enter FLEE: call agent_script.command_flee(_target_agent) if method exists
-    # On enter DISABLED: stop all movement
-
-# --- State Processors ---
-func _process_idle(delta: float) -> void:
-    """Check for targets within aggro_range, transition to COMBAT or PATROL."""
-    # Find player via GlobalRefs.world_manager.player_agent
-    # If player within aggro_range and self is hostile → _change_state(COMBAT)
-
-func _process_patrol(delta: float) -> void:
-    """Move randomly near home_position, scan for targets."""
-    # If no current destination, pick random point near _home_position
-    # Continue scanning for player
-
-func _process_combat(delta: float) -> void:
-    """Approach target, fire weapons when in range, flee if hull critical."""
-    # 1. Check if target still valid + in range
-    # 2. Check own hull: if < flee_hull_threshold → _change_state(FLEE)
-    # 3. If distance > weapon_range: continue approach
-    # 4. If in range: attempt to fire (see TASK 2)
-
-func _process_flee(delta: float) -> void:
-    """Move away from threat, despawn when safe."""
-    # If distance to target > aggro_range * 2: despawn self via agent_script.despawn()
-    # Keep fleeing otherwise
-
-func _scan_for_target() -> KinematicBody:
-    """Find valid target (player) within aggro range."""
-    # Return player agent if hostile and within range, else null
-```
-
-**SUCCESS CRITERIA:**
-- AI transitions from IDLE → COMBAT when player enters aggro_range
-- AI transitions COMBAT → FLEE when hull < 20%
-- AI approaches player during COMBAT state
-- State changes emit no errors in console
-- Non-hostile NPCs remain IDLE
-
----
-
-### TASK 2: Implement AI Weapon Firing
-
-**TARGET FILE:** `modules/piloting/scripts/ship_controller_ai.gd`
-
-**DEPENDENCIES:**
-- Read `core/agents/components/weapon_controller.gd` (lines 80-157) — `fire_at_target()` API
-- Read `core/systems/combat_system.gd` (lines 82-130) — `fire_weapon()` return dict
-
-**CHANGES:**
-Add weapon firing logic within `_process_combat()`:
-
-**PSEUDO-CODE SIGNATURES:**
-```gdscript
-# --- Weapon Firing (inside ship_controller_ai.gd) ---
-
-var _fire_timer: float = 0.0
-const AI_FIRE_INTERVAL: float = 1.5  # Seconds between fire attempts
-
-func _try_fire_weapon() -> void:
-    """Attempt to fire primary weapon at current target."""
-    if not is_instance_valid(_weapon_controller):
-        return
-    if not is_instance_valid(_target_agent):
-        return
-    
-    # Get target position
-    var target_pos: Vector3 = _target_agent.global_transform.origin
-    var target_uid: int = _target_agent.agent_uid if _target_agent.get("agent_uid") else -1
-    
-    # Fire weapon index 0 (primary)
-    var result: Dictionary = _weapon_controller.fire_at_target(0, target_uid, target_pos)
-    
-    # React to result
-    if result.get("success", false):
-        _fire_timer = AI_FIRE_INTERVAL
-    elif result.get("reason") == "Weapon on cooldown":
-        _fire_timer = result.get("cooldown", 0.5)
-
-func _is_in_weapon_range() -> bool:
-    """Check if target is within weapon's effective range."""
-    if not is_instance_valid(_target_agent) or not is_instance_valid(agent_script):
-        return false
-    var distance = agent_script.global_transform.origin.distance_to(
-        _target_agent.global_transform.origin
-    )
-    return distance <= weapon_range
-
-# Called in _process_combat:
-func _process_combat(delta: float) -> void:
-    # ... state checks ...
-    _fire_timer = max(0.0, _fire_timer - delta)
-    if _fire_timer <= 0 and _is_in_weapon_range():
-        _try_fire_weapon()
-    # ... hull checks ...
-```
-
-**SUCCESS CRITERIA:**
-- AI fires at player when within weapon_range
-- Player takes damage when AI hits (verify via `agent_damaged` signal)
-- AI respects weapon cooldown (does not spam fire)
-- AI respects its own fire interval timer
-
----
-
-### TASK 3: Implement Event System Encounter Triggering
-
-**TARGET FILE:** `core/systems/event_system.gd`
-
-**DEPENDENCIES:**
-- Read `core/systems/agent_system.gd` — `spawn_npc()` API
-- Read `autoload/EventBus.gd` (line 52) — `world_event_tick_triggered` signal
-- Read `autoload/GameState.gd` — Zone/location info, player state
-
-**CHANGES:**
-Implement encounter logic triggered by time passage:
-
-**PSEUDO-CODE SIGNATURES:**
-```gdscript
-# File: core/systems/event_system.gd
-extends Node
-
-# --- Configuration ---
-const ENCOUNTER_COOLDOWN_TU: int = 5           # Minimum TU between encounters
-const BASE_ENCOUNTER_CHANCE: float = 0.3       # 30% base chance per tick
-const SPAWN_DISTANCE_MIN: float = 600.0        # Min spawn distance from player
-const SPAWN_DISTANCE_MAX: float = 1000.0       # Max spawn distance from player
-
-# --- State ---
-var _encounter_cooldown: int = 0
-var _active_hostiles: Array = []
+onready var btn_new_game = $ScreenControls/MainButtonsHBoxContainer/ButtonStartNewGame
+onready var btn_load_game = $ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame
+onready var btn_save_game = $ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame
+onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitGame
 
 func _ready() -> void:
-    GlobalRefs.set_event_system(self)
-    EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick")
-    EventBus.connect("agent_disabled", self, "_on_agent_disabled")
-    EventBus.connect("agent_despawning", self, "_on_agent_despawning")
-    print("EventSystem Ready.")
-
-# --- Event Handlers ---
-func _on_world_event_tick(tu_amount: int) -> void:
-    """Called each world tick. Check for random encounter."""
-    _encounter_cooldown = max(0, _encounter_cooldown - tu_amount)
-    if _encounter_cooldown <= 0 and _active_hostiles.empty():
-        _maybe_trigger_encounter()
-
-func _on_agent_disabled(agent_body) -> void:
-    """Remove from active hostiles when disabled."""
-    _active_hostiles.erase(agent_body)
-    _check_combat_end()
-
-func _on_agent_despawning(agent_body) -> void:
-    """Remove from active hostiles when despawning."""
-    _active_hostiles.erase(agent_body)
-    _check_combat_end()
-
-# --- Encounter Logic ---
-func _maybe_trigger_encounter() -> void:
-    """Roll for encounter, spawn hostile if triggered."""
-    var danger_level: float = _get_current_danger_level()
-    var chance: float = BASE_ENCOUNTER_CHANCE * danger_level
+    """Connect button signals, check for existing save file to enable/disable load."""
+    btn_new_game.connect("pressed", self, "_on_new_game_pressed")
+    btn_load_game.connect("pressed", self, "_on_load_game_pressed")
+    btn_save_game.connect("pressed", self, "_on_save_game_pressed")
+    btn_exit_game.connect("pressed", self, "_on_exit_game_pressed")
     
-    if randf() > chance:
-        _encounter_cooldown = ENCOUNTER_COOLDOWN_TU
-        return  # No encounter this tick
+    # Connect to EventBus for menu toggling
+    EventBus.connect("main_menu_requested", self, "_show_menu")
     
-    _spawn_hostile_encounter()
-    _encounter_cooldown = ENCOUNTER_COOLDOWN_TU * 2  # Longer cooldown after spawn
+    # Disable Load if no save exists
+    _update_load_button_state()
 
-func _spawn_hostile_encounter() -> void:
-    """Spawn 1-2 hostile NPCs near player."""
-    var player = null
-    if GlobalRefs.world_manager and GlobalRefs.world_manager.get("player_agent"):
-        player = GlobalRefs.world_manager.player_agent
-    if not is_instance_valid(player):
-        return
-    
-    var player_pos: Vector3 = player.global_transform.origin
-    var spawn_count: int = 1 + (randi() % 2)  # 1 or 2 enemies
-    
-    for i in range(spawn_count):
-        var spawn_pos: Vector3 = _calculate_spawn_position(player_pos)
-        var overrides: Dictionary = {
-            "hostile": true,
-            "patrol_center": spawn_pos,
-            "initial_target": player_pos
-        }
-        
-        # Spawn hostile NPC using agent_system
-        var npc = null
-        if GlobalRefs.agent_system and GlobalRefs.agent_system.has_method("spawn_npc"):
-            npc = GlobalRefs.agent_system.spawn_npc(
-                "npc_hostile_default",  # Template ID from assets/data/agents/
-                spawn_pos,
-                overrides
-            )
-        
-        if is_instance_valid(npc):
-            _active_hostiles.append(npc)
-    
-    # Emit combat initiated signal
-    if not _active_hostiles.empty():
-        EventBus.emit_signal("combat_initiated", player, _active_hostiles.duplicate())
+func _on_new_game_pressed() -> void:
+    """Emit signal to WorldManager to reset and initialize fresh game state."""
+    # Hide menu
+    visible = false
+    # Emit signal for WorldManager to handle
+    EventBus.emit_signal("new_game_requested")
 
-func _calculate_spawn_position(player_pos: Vector3) -> Vector3:
-    """Calculate random position at distance from player."""
-    var angle: float = randf() * TAU  # Random angle in radians
-    var distance: float = rand_range(SPAWN_DISTANCE_MIN, SPAWN_DISTANCE_MAX)
-    var offset: Vector3 = Vector3(cos(angle), 0, sin(angle)) * distance
-    return player_pos + offset
+func _on_load_game_pressed() -> void:
+    """Load saved game state via GameStateManager."""
+    if GameStateManager.has_save_file():
+        visible = false
+        GameStateManager.load_game()
+        EventBus.emit_signal("game_state_loaded")
 
-func _get_current_danger_level() -> float:
-    """Return danger multiplier for current zone. Phase 1: hardcoded."""
-    # TODO: Read from LocationTemplate or zone metadata
-    return 1.0
+func _on_save_game_pressed() -> void:
+    """Save current game state via GameStateManager."""
+    GameStateManager.save_game()
+    # Show brief confirmation (optional popup or toast)
 
-func _check_combat_end() -> void:
-    """Check if all hostiles defeated, emit combat_ended."""
-    if _active_hostiles.empty():
-        EventBus.emit_signal("combat_ended", {"outcome": "victory", "hostiles_defeated": true})
+func _on_exit_game_pressed() -> void:
+    """Quit the application."""
+    get_tree().quit()
 
-# --- Public API ---
-func get_active_hostiles() -> Array:
-    """Return array of currently active hostile agents."""
-    return _active_hostiles.duplicate()
+func _update_load_button_state() -> void:
+    """Enable/disable load button based on save file existence."""
+    btn_load_game.disabled = not GameStateManager.has_save_file()
 
-func force_encounter() -> void:
-    """Debug/testing: Force spawn encounter immediately."""
-    _spawn_hostile_encounter()
-
-func clear_hostiles() -> void:
-    """Debug/testing: Clear hostile tracking."""
-    _active_hostiles.clear()
+func _show_menu() -> void:
+    """Show the main menu (called when ESC pressed in-game)."""
+    visible = true
+    _update_load_button_state()
 ```
 
 **SUCCESS CRITERIA:**
-- `world_event_tick_triggered` signal triggers encounter check
-- Encounter spawns 1-2 hostile NPCs at correct distance from player
-- `combat_initiated` signal emitted with correct parameters
-- Encounter cooldown prevents immediate re-spawn
-- Hostiles tracked in `_active_hostiles` array
+- New Game button hides menu and emits `new_game_requested` signal
+- Load button disabled if no save file exists
+- Save button calls `GameStateManager.save_game()` without errors
+- Exit button quits application
+- ESC key shows menu during gameplay
 
 ---
 
-### TASK 4: Add Combat End Detection to CombatSystem
+### TASK 2: Implement Player Spawn Docked Flow
 
-**TARGET FILE:** `core/systems/combat_system.gd`
-
-**DEPENDENCIES:**
-- Read current `combat_system.gd` (lines 130-end) — Understand current damage flow
-- Read `autoload/EventBus.gd` — `combat_ended`, `agent_disabled` signals
-
-**CHANGES:**
-Add proper combat lifecycle management:
-
-**PSEUDO-CODE SIGNATURES:**
-```gdscript
-# Add to combat_system.gd
-
-# --- Combat Lifecycle ---
-func start_combat(attacker_uid: int, defender_uid: int) -> void:
-    """Mark combat as active between two parties."""
-    _combat_active = true
-    emit_signal("combat_started", attacker_uid, defender_uid)
-
-func end_combat(result: String) -> void:
-    """Clean up combat state. result: 'victory', 'defeat', 'flee'"""
-    _combat_active = false
-    
-    # Clear disabled combatants from tracking
-    var to_remove: Array = []
-    for uid in _active_combatants.keys():
-        if _active_combatants[uid].get("is_disabled", false):
-            to_remove.append(uid)
-    for uid in to_remove:
-        _active_combatants.erase(uid)
-    
-    emit_signal("combat_ended", {"outcome": result})
-
-func is_combat_active() -> bool:
-    """Return whether combat is currently ongoing."""
-    return _combat_active
-
-# --- Modify apply_damage to emit agent_disabled on EventBus ---
-# In apply_damage(), after setting is_disabled = true, add:
-#     EventBus.emit_signal("agent_disabled", _get_agent_body(target_uid))
-
-func _get_agent_body(agent_uid: int):
-    """Helper to find agent body by UID from WorldManager."""
-    if GlobalRefs.world_manager and GlobalRefs.world_manager.has_method("get_agent_by_uid"):
-        return GlobalRefs.world_manager.get_agent_by_uid(agent_uid)
-    return null
-```
-
-**SUCCESS CRITERIA:**
-- `agent_disabled` signal emitted on EventBus when hull reaches 0
-- `end_combat()` cleans up `_active_combatants`
-- `is_combat_active()` correctly reflects state
-
----
-
-### TASK 5: Wire Combat Flow Signals to HUD
-
-**TARGET FILE:** `core/ui/main_hud/main_hud.gd`
+**TARGET FILE(S):** 
+- `scenes/game_world/world_manager.gd`
+- `scenes/game_world/world_manager/world_generator.gd`
 
 **DEPENDENCIES:**
-- Read `autoload/EventBus.gd` — All combat-related signals
-- Read `core/ui/main_hud/main_hud.gd` — Existing HUD structure
+- Read `autoload/GameState.gd` — `player_docked_at` field
+- Read `autoload/EventBus.gd` — `player_docked`, `new_game_requested` signals
+- Read `scenes/ui/station_menu/station_menu.gd` — Expects `player_docked` signal
 
 **CHANGES:**
-Connect to combat events for UI feedback:
+Modify world initialization to start player docked at Station Alpha:
 
-**PSEUDO-CODE:**
+**PSEUDO-CODE SIGNATURES (world_manager.gd):**
 ```gdscript
-# In main_hud.gd — Add in _ready() or appropriate init:
-
-func _ready():
+func _ready() -> void:
     # ... existing code ...
-    EventBus.connect("combat_initiated", self, "_on_combat_initiated")
-    EventBus.connect("combat_ended", self, "_on_combat_ended")
-    EventBus.connect("agent_damaged", self, "_on_agent_damaged")
+    EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 
-func _on_combat_initiated(player_agent, enemy_agents: Array) -> void:
-    """Show combat indicator."""
-    # Option 1: Show a "COMBAT" label
-    # Option 2: Flash the screen border red briefly
-    # For now, just print debug
-    print("[HUD] Combat initiated with ", enemy_agents.size(), " hostiles")
+func _on_new_game_requested() -> void:
+    """Reset GameState and start fresh game with player docked."""
+    # Clear existing agents
+    _cleanup_all_agents()
+    # Reset GameState to defaults
+    GameStateManager.reset_to_defaults()
+    # Re-run world generator
+    _setup_new_game()
+    # Load the initial zone
+    load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 
-func _on_combat_ended(result_dict: Dictionary) -> void:
-    """Show victory/defeat message."""
-    var outcome = result_dict.get("outcome", "unknown")
-    print("[HUD] Combat ended: ", outcome)
-    # Could show a brief "VICTORY" or "DEFEAT" label
-    # Could trigger narrative action "Assess the Aftermath" here
+func _cleanup_all_agents() -> void:
+    """Remove all spawned agent bodies."""
+    for agent in _spawned_agent_bodies:
+        if is_instance_valid(agent):
+            agent.queue_free()
+    _spawned_agent_bodies.clear()
+```
 
-func _on_agent_damaged(agent_body, damage_amount: float, source_agent) -> void:
-    """Flash damage indicator if player hit."""
-    var player = null
-    if GlobalRefs.world_manager:
-        player = GlobalRefs.world_manager.get("player_agent")
-    if agent_body == player:
-        print("[HUD] Player took ", damage_amount, " damage!")
-        # Flash screen red or show damage number
-        # Could call a _flash_damage() method
+**PSEUDO-CODE SIGNATURES (world_generator.gd):**
+```gdscript
+func generate_new_world() -> void:
+    # ... existing character/ship/inventory creation ...
+    
+    # Set player starting state
+    GameState.player_docked_at = "station_alpha"
+    
+    # Ensure player starts with 50 WP (per GDD)
+    var player_char = GameState.characters.get(GameState.player_character_uid)
+    if player_char:
+        player_char.wealth_points = 50
+        player_char.focus_points = 3
+    
+    # Emit docked signal AFTER zone loads (use call_deferred)
+    call_deferred("_emit_initial_dock_signal")
+
+func _emit_initial_dock_signal() -> void:
+    """Emit player_docked after zone is ready so StationMenu opens."""
+    yield(get_tree(), "idle_frame")
+    if GameState.player_docked_at != "":
+        EventBus.emit_signal("player_docked", GameState.player_docked_at)
 ```
 
 **SUCCESS CRITERIA:**
-- HUD prints/shows feedback on combat_initiated
-- HUD prints/shows message on combat_ended
-- Player damage shows debug output (visual flash optional for Phase 1)
+- On New Game: Player spawns at Station Alpha position
+- On New Game: `player_docked` signal emits → Station Menu opens automatically
+- On New Game: Player has 50 WP and 3 FP
+- On New Game: Trade and Contract interfaces accessible immediately
+- Player movement disabled while docked (existing logic in player_controller_ship.gd)
 
 ---
 
-### TASK 6: Create Hostile NPC Template
+### TASK 3: Verify Save/Load Serialization Completeness
 
-**TARGET FILE:** `assets/data/agents/npc_hostile_default.tres`
+**TARGET FILE:** `autoload/GameStateManager.gd`
 
 **DEPENDENCIES:**
-- Read existing agent templates in `assets/data/agents/` for format
-- Read `core/resource/agent_template.gd` for structure
+- Read `autoload/GameState.gd` — All Dictionary fields that need persistence
+- Read `core/systems/contract_system.gd` — `active_contracts` structure
+- Read `core/resource/asset_ship_template.gd` — `ship_quirks` array
 
 **CHANGES:**
-Create a hostile NPC template resource:
+Audit and ensure all Phase 1 state is serialized:
 
-**RESOURCE CONTENT:**
+**REQUIRED STATE FIELDS:**
 ```gdscript
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://core/resource/agent_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "npc_hostile_default"
-template_name = "Hostile Raider"
-agent_name = "Raider"
-agent_faction = "pirates"
-character_template_id = "character_hostile_default"
-ship_template_id = "ship_default"  # Uses same ship as player for now
-is_player = false
-
-# AI Configuration (read by ship_controller_ai.gd)
-# These may need to be added to agent_template.gd if not present:
-# hostile = true
-# aggro_range = 800.0
-# weapon_range = 500.0
+# GameState fields that MUST persist:
+- characters: Dictionary          # Character stats, WP, FP
+- inventories: Dictionary         # Player cargo
+- assets_ships: Dictionary        # Ship data including ship_quirks
+- contracts: Dictionary           # Available contracts
+- active_contracts: Dictionary    # Player's accepted contracts
+- locations: Dictionary           # Market inventory state (quantities change)
+- narrative_state: Dictionary     # Reputation, faction standings
+- current_tu: int                 # Time progress
+- player_character_uid: int
+- player_docked_at: String
+- session_stats: Dictionary
 ```
 
-**SUCCESS CRITERIA:**
-- Template loads via `TemplateDatabase.get_template("agents", "npc_hostile_default")`
-- Template has valid references to character and ship templates
-- AgentSystem can spawn NPC using this template ID
-
----
-
-### TASK 7: Write AI Combat Unit Tests
-
-**TARGET FILE:** `tests/modules/piloting/test_ship_controller_ai.gd`
-
-**DEPENDENCIES:**
-- Read `addons/gut/test.gd` — GUT test patterns
-- Read existing tests in `tests/core/` for patterns
-
-**PSEUDO-CODE:**
+**PSEUDO-CODE (verification test):**
 ```gdscript
-# File: tests/modules/piloting/test_ship_controller_ai.gd
-extends "res://addons/gut/test.gd"
-
-const ShipControllerAI = preload("res://modules/piloting/scripts/ship_controller_ai.gd")
-
-var _ai_controller = null
-var _mock_agent = null
-
-func before_each():
-    # Create minimal mock agent
-    _mock_agent = KinematicBody.new()
-    _mock_agent.agent_uid = 999
-    add_child_autofree(_mock_agent)
+# In test_game_state_manager.gd or manual verification:
+func test_save_load_preserves_all_state() -> void:
+    # Setup: Create known state
+    GameState.contracts["test_contract"] = {...}
+    GameState.active_contracts["test_contract"] = {...}
+    GameState.locations["station_alpha"].market_inventory["commodity_ore"].quantity = 50
+    GameState.assets_ships["ship_001"].ship_quirks = ["scratched_hull"]
+    GameState.narrative_state["reputation"] = "Dependable"
+    GameState.player_docked_at = "station_beta"
     
-    _ai_controller = ShipControllerAI.new()
-    _mock_agent.add_child(_ai_controller)
-    _ai_controller.agent_script = _mock_agent
-
-func after_each():
-    _ai_controller = null
-    _mock_agent = null
-
-# --- State Transition Tests ---
-func test_initial_state_is_idle():
-    assert_eq(_ai_controller._current_state, ShipControllerAI.AIState.IDLE)
-
-func test_hostile_flag_enables_scanning():
-    _ai_controller.is_hostile = true
-    _ai_controller.initialize({"hostile": true})
-    # Should transition to PATROL when hostile
-    assert_eq(_ai_controller._current_state, ShipControllerAI.AIState.PATROL)
-
-func test_remains_idle_when_not_hostile():
-    _ai_controller.is_hostile = false
-    _ai_controller._physics_process(0.1)
-    assert_eq(_ai_controller._current_state, ShipControllerAI.AIState.IDLE)
-
-func test_transitions_to_flee_when_hull_critical():
-    # Setup: Simulate low hull
-    _ai_controller._current_state = ShipControllerAI.AIState.COMBAT
-    _ai_controller._check_hull_status(0.1)  # 10% hull
-    assert_eq(_ai_controller._current_state, ShipControllerAI.AIState.FLEE)
-
-# --- Weapon Firing Tests ---
-func test_fire_timer_decrements():
-    _ai_controller._fire_timer = 1.0
-    _ai_controller._process_combat(0.5)
-    assert_lt(_ai_controller._fire_timer, 1.0)
-
-func test_respects_fire_interval():
-    _ai_controller._fire_timer = 0.5
-    # Should not fire while timer > 0
-    var fired = _ai_controller._try_fire_weapon()
-    assert_false(fired, "Should not fire during cooldown")
+    # Act: Save then reset then load
+    GameStateManager.save_game()
+    GameStateManager.reset_to_defaults()
+    GameStateManager.load_game()
+    
+    # Assert: All state restored
+    assert_eq(GameState.contracts.has("test_contract"), true)
+    assert_eq(GameState.active_contracts.has("test_contract"), true)
+    assert_eq(GameState.locations["station_alpha"].market_inventory["commodity_ore"].quantity, 50)
+    assert_eq(GameState.assets_ships["ship_001"].ship_quirks, ["scratched_hull"])
+    assert_eq(GameState.narrative_state["reputation"], "Dependable")
+    assert_eq(GameState.player_docked_at, "station_beta")
 ```
 
 **SUCCESS CRITERIA:**
-- Tests cover state transitions (IDLE→PATROL→COMBAT→FLEE)
-- Tests verify fire timer logic
-- All tests pass: `godot --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/modules/piloting/ -gexit`
+- Save file includes ALL required fields
+- Load restores exact state
+- Market inventory changes persist (if player bought items, quantities reduced)
+- Ship quirks array persists
+- Active contracts persist with progress data
 
 ---
 
-### TASK 8: Write Event System Unit Tests
+### TASK 4: Implement Game Over / Win Conditions UI
 
-**TARGET FILE:** `tests/core/systems/test_event_system.gd`
+**TARGET FILE(S):**
+- `core/ui/main_hud/main_hud.gd` (or new `game_over_popup.gd`)
+- `core/ui/main_hud/main_hud.tscn` (add popup node)
 
 **DEPENDENCIES:**
-- Read existing system tests for patterns
-- Read `core/systems/event_system.gd` after modifications
+- Read `autoload/EventBus.gd` — `agent_disabled` signal
+- Read `core/systems/combat_system.gd` — Player hull tracking
+- Read `autoload/GlobalRefs.gd` — `player_agent_body` reference
 
-**PSEUDO-CODE:**
+**CHANGES:**
+Detect player ship destruction and show Game Over popup:
+
+**PSEUDO-CODE SIGNATURES:**
 ```gdscript
-# File: tests/core/systems/test_event_system.gd
-extends "res://addons/gut/test.gd"
+# In main_hud.gd (or separate game_over handler)
 
-var _event_system = null
-var _combat_initiated_count: int = 0
-var _combat_ended_count: int = 0
+func _ready() -> void:
+    # ... existing ...
+    EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 
-func before_each():
-    _event_system = preload("res://core/systems/event_system.gd").new()
-    add_child_autofree(_event_system)
-    _combat_initiated_count = 0
-    _combat_ended_count = 0
-    EventBus.connect("combat_initiated", self, "_on_combat_initiated")
-    EventBus.connect("combat_ended", self, "_on_combat_ended")
+func _on_agent_disabled(agent_body: Node) -> void:
+    """Check if disabled agent is player; show Game Over if so."""
+    if not is_instance_valid(agent_body):
+        return
+    if agent_body == GlobalRefs.player_agent_body:
+        _show_game_over_popup()
 
-func after_each():
-    if EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
-        EventBus.disconnect("combat_initiated", self, "_on_combat_initiated")
-    if EventBus.is_connected("combat_ended", self, "_on_combat_ended"):
-        EventBus.disconnect("combat_ended", self, "_on_combat_ended")
+func _show_game_over_popup() -> void:
+    """Display Game Over screen with Return to Menu button."""
+    # Pause game tree (optional)
+    get_tree().paused = true
+    
+    # Show popup (either existing node or dynamically created)
+    var popup = $GameOverPopup  # Add this node to main_hud.tscn
+    popup.visible = true
 
-func _on_combat_initiated(_a, _b):
-    _combat_initiated_count += 1
-
-func _on_combat_ended(_d):
-    _combat_ended_count += 1
-
-# --- Encounter Tests ---
-func test_encounter_respects_cooldown():
-    _event_system._encounter_cooldown = 10
-    _event_system._on_world_event_tick(1)
-    assert_eq(_combat_initiated_count, 0, "Should not trigger during cooldown")
-
-func test_encounter_decrements_cooldown():
-    _event_system._encounter_cooldown = 5
-    _event_system._on_world_event_tick(2)
-    assert_eq(_event_system._encounter_cooldown, 3)
-
-func test_cooldown_does_not_go_negative():
-    _event_system._encounter_cooldown = 2
-    _event_system._on_world_event_tick(10)
-    assert_eq(_event_system._encounter_cooldown, 0)
-
-# --- Combat End Tests ---
-func test_emits_combat_ended_when_hostiles_cleared():
-    var mock_hostile = Node.new()
-    add_child_autofree(mock_hostile)
-    _event_system._active_hostiles = [mock_hostile]
-    _event_system._on_agent_disabled(mock_hostile)
-    assert_eq(_combat_ended_count, 1)
-
-func test_tracks_multiple_hostiles():
-    var hostile1 = Node.new()
-    var hostile2 = Node.new()
-    add_child_autofree(hostile1)
-    add_child_autofree(hostile2)
-    _event_system._active_hostiles = [hostile1, hostile2]
-    _event_system._on_agent_disabled(hostile1)
-    assert_eq(_combat_ended_count, 0, "Should not end with hostiles remaining")
-    _event_system._on_agent_disabled(hostile2)
-    assert_eq(_combat_ended_count, 1, "Should end when all hostiles gone")
-
-func test_get_active_hostiles_returns_copy():
-    var hostile = Node.new()
-    add_child_autofree(hostile)
-    _event_system._active_hostiles = [hostile]
-    var result = _event_system.get_active_hostiles()
-    result.clear()
-    assert_eq(_event_system._active_hostiles.size(), 1, "Original array should be unchanged")
+func _on_return_to_menu_pressed() -> void:
+    """Return to main menu from Game Over state."""
+    get_tree().paused = false
+    # Hide game over popup
+    $GameOverPopup.visible = false
+    # Show main menu
+    EventBus.emit_signal("main_menu_requested")
 ```
 
 **SUCCESS CRITERIA:**
-- Tests cover cooldown logic
-- Tests verify hostile tracking
-- Tests verify combat_ended emission
-- All tests pass
+- Player hull reaching 0 triggers `agent_disabled` signal
+- Game Over popup appears immediately
+- Game pauses while popup visible
+- "Return to Menu" button shows Main Menu
+- No crash on player death
 
 ---
 
-### TASK 9: Integration Verification
+### TASK 5: Write Full Game Loop Integration Tests
 
-**TARGET FILE:** N/A (Manual + Automated testing)
+**TARGET FILE:** `tests/scenes/test_full_game_loop.gd`
 
 **DEPENDENCIES:**
-- All previous tasks complete
-- GUT test suite
+- Read all system files for API signatures
+- Read `tests/helpers/` for test utilities
 
-**VERIFICATION STEPS:**
+**CHANGES:**
+Create comprehensive integration test covering complete player journey:
 
-1. **Run Full GUT Suite:**
-   ```bash
-   godot --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/ -gexit
-   ```
-   - Expected: All tests pass (185+ tests)
+**PSEUDO-CODE TEST STRUCTURE:**
+```gdscript
+# File: tests/scenes/test_full_game_loop.gd
+extends GutTest
 
-2. **Manual Combat Flow Test:**
-   - [ ] Start game in flight zone
-   - [ ] Wait for time to pass OR call `GlobalRefs.event_system.force_encounter()` in debugger
-   - [ ] Verify hostile NPC spawns at appropriate distance (600-1000 units)
-   - [ ] Verify hostile NPC approaches player (state: COMBAT)
-   - [ ] Verify hostile NPC fires weapons (player takes damage)
-   - [ ] Fire back at hostile → verify damage applied
-   - [ ] Destroy hostile → verify `combat_ended` signal fires
-   - [ ] Verify hostile marked as disabled (stops moving)
-   - [ ] Verify HUD shows combat feedback (debug prints at minimum)
+var _player_uid: int = -1
 
-3. **Edge Case Tests:**
-   - [ ] Spawn multiple hostiles → defeat all → verify single `combat_ended`
-   - [ ] AI hull critical → verify AI enters FLEE state and moves away
-   - [ ] AI flees beyond range → verify AI despawns
-   - [ ] No player in scene → encounter spawn fails gracefully (no crash)
+func before_each() -> void:
+    # Initialize minimal game state for testing
+    GameStateManager.reset_to_defaults()
+    _setup_test_world()
+
+func after_each() -> void:
+    # Cleanup
+    pass
+
+func _setup_test_world() -> void:
+    """Create minimal world state for integration testing."""
+    # Create player character with 50 WP
+    # Create test ship
+    # Create test locations with market inventory
+    # Create test contracts
+
+# --- Test Cases ---
+
+func test_accept_contract_flow() -> void:
+    """Player can accept a delivery contract."""
+    var contracts = GlobalRefs.contract_system.get_available_contracts("station_alpha")
+    assert_gt(contracts.size(), 0, "Contracts should be available")
+    
+    var result = GlobalRefs.contract_system.accept_contract(_player_uid, contracts[0].template_id)
+    assert_true(result.success, "Contract acceptance should succeed")
+
+func test_buy_cargo_for_contract() -> void:
+    """Player can buy required cargo for contract."""
+    # Accept contract that requires commodity_ore
+    # Execute buy for required quantity
+    # Verify WP deducted, inventory updated
+
+func test_complete_contract_at_destination() -> void:
+    """Player can complete contract when at destination with cargo."""
+    # Setup: Player at destination with required cargo
+    GameState.player_docked_at = "station_beta"  # Contract destination
+    # Add cargo to inventory
+    GlobalRefs.inventory_system.add_asset(_player_uid, InventoryType.COMMODITY, "commodity_ore", 10)
+    
+    # Accept contract
+    var result = GlobalRefs.contract_system.accept_contract(_player_uid, "delivery_01")
+    
+    # Check completion
+    var check = GlobalRefs.contract_system.check_contract_completion(_player_uid, "delivery_01")
+    assert_true(check.can_complete, "Contract should be completable")
+    
+    # Complete
+    var complete_result = GlobalRefs.contract_system.complete_contract(_player_uid, "delivery_01")
+    assert_true(complete_result.success, "Contract completion should succeed")
+
+func test_upkeep_deduction_on_time_tick() -> void:
+    """Time clock overflow triggers WP upkeep deduction."""
+    var initial_wp = GlobalRefs.character_system.get_wp(_player_uid)
+    
+    # Advance time to trigger tick
+    GlobalRefs.time_system.add_time_units(Constants.TIME_CLOCK_MAX_TU)
+    
+    var final_wp = GlobalRefs.character_system.get_wp(_player_uid)
+    assert_lt(final_wp, initial_wp, "WP should decrease after upkeep")
+
+func test_full_contract_journey() -> void:
+    """Complete journey: accept → buy cargo → travel → deliver → reward."""
+    # 1. Start at Station Alpha, docked
+    GameState.player_docked_at = "station_alpha"
+    var initial_wp = GlobalRefs.character_system.get_wp(_player_uid)
+    
+    # 2. Accept delivery contract (destination: station_beta, cargo: ore x10)
+    GlobalRefs.contract_system.accept_contract(_player_uid, "delivery_01")
+    
+    # 3. Buy required cargo
+    GlobalRefs.trading_system.execute_buy(_player_uid, "station_alpha", "commodity_ore", 10)
+    var wp_after_buy = GlobalRefs.character_system.get_wp(_player_uid)
+    assert_lt(wp_after_buy, initial_wp, "WP should decrease after purchase")
+    
+    # 4. Simulate arrival at destination
+    GameState.player_docked_at = "station_beta"
+    
+    # 5. Complete contract
+    var result = GlobalRefs.contract_system.complete_contract(_player_uid, "delivery_01")
+    assert_true(result.success, "Contract should complete successfully")
+    
+    # 6. Verify reward
+    var final_wp = GlobalRefs.character_system.get_wp(_player_uid)
+    assert_gt(final_wp, wp_after_buy, "WP should increase after contract reward")
+```
 
 **SUCCESS CRITERIA:**
-- Zero test failures
-- Complete combat loop playable: Encounter spawn → AI attacks → Player defeats AI → Victory
-- No console errors during combat
-- SESSION-LOG.md updated with "SPRINT 9 COMPLETE"
+- All integration tests pass
+- Tests cover: contract accept, trading, contract completion, time/upkeep, full journey
+- Tests run in isolation without requiring full scene tree
+- Tests complete in < 5 seconds total
+
+---
+
+### TASK 6: Manual Integration Verification
+
+**TARGET:** Full playthrough validation  
+**NO CODE CHANGES** — Manual testing checklist  
+**Instructions:** Complete each step in order. Report PASS/FAIL + any console errors or unexpected behavior.
+
+---
+
+#### FLOW 1: New Game Initialization
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 1.1 | Launch game from editor (F5) or exported build | Main Menu appears with title "GDTLancer" | [ ] |
+| 1.2 | Observe "Load" button state | "Load" button should be DISABLED (grayed out) if no save file exists | [ ] |
+| 1.3 | Click "New" button | Main Menu hides; Station Menu opens automatically | [ ] |
+| 1.4 | Observe Station Menu header | Should display "Station Alpha - Mining Hub" (or similar) | [ ] |
+| 1.5 | Look at HUD top-left WP display | Should show "Current WP: 50" | [ ] |
+| 1.6 | Look at HUD top-left FP display | Should show "Current FP: 3" | [ ] |
+| 1.7 | Check console output | Should see "WorldGenerator: Player starting docked at station_alpha" or similar, NO red errors | [ ] |
+
+---
+
+#### FLOW 2: Contract Acceptance
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 2.1 | In Station Menu, click "Contracts" button | Contract Interface panel opens | [ ] |
+| 2.2 | Observe contract list | At least 1-2 delivery contracts listed (e.g., "Deliver Ore to Station Beta") | [ ] |
+| 2.3 | Click on a delivery contract in the list | Contract details appear: destination, required cargo type & quantity, reward WP | [ ] |
+| 2.4 | Click "Accept" button | Contract moves to "Active" section; Accept button disables or list refreshes | [ ] |
+| 2.5 | Check console output | Should see "contract_accepted" signal or similar log, NO errors | [ ] |
+| 2.6 | Click "Close" to return to Station Menu | Contract Interface closes; Station Menu visible again | [ ] |
+
+---
+
+#### FLOW 3: Trading (Buy Cargo)
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 3.1 | In Station Menu, click "Trade" button | Trade Interface opens showing Station inventory and Player cargo | [ ] |
+| 3.2 | Observe Station inventory list | Should show commodities: Ore, Food, Tech, Fuel with prices and quantities | [ ] |
+| 3.3 | Observe Player cargo section | Should be EMPTY (0 items) at game start | [ ] |
+| 3.4 | Select "Ore" (or required contract cargo) in Station list | Item highlights; Buy button enables | [ ] |
+| 3.5 | Set quantity to 10 (or contract requirement) | Quantity field shows 10; total cost displays (e.g., "Cost: 80 WP") | [ ] |
+| 3.6 | Click "Buy" button | Transaction executes | [ ] |
+| 3.7 | Observe WP display in HUD | WP should decrease (e.g., 50 → 42 if ore costs 8/unit) | [ ] |
+| 3.8 | Observe Player cargo in Trade Interface | Should now show "Ore: 10" (or purchased quantity) | [ ] |
+| 3.9 | Check console output | Should see "trade_transaction_completed" signal, NO errors | [ ] |
+| 3.10 | Click "Close" to return to Station Menu | Trade Interface closes | [ ] |
+
+---
+
+#### FLOW 4: Undock and Flight
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 4.1 | In Station Menu, click "Undock" button | Station Menu closes; player ship visible in 3D space | [ ] |
+| 4.2 | Observe console output | Should see "player_undocked" signal emitted | [ ] |
+| 4.3 | Try moving ship (WASD or click "Manual Flight") | Ship responds to input; can rotate and thrust | [ ] |
+| 4.4 | Look for Station Beta in the zone | Should see another station marker/model in distance | [ ] |
+| 4.5 | Fly toward Station Beta (use Approach or manual) | Ship moves toward destination | [ ] |
+| 4.6 | Observe time passing (clock in HUD if present) | Time ticks should increment as you fly | [ ] |
+| 4.7 | (Optional) Wait for random encounter | Hostile NPC may spawn; combat_initiated signal in console | [ ] |
+| 4.8 | Approach Station Beta until "Dock Available" prompt | HUD shows docking prompt near station | [ ] |
+
+---
+
+#### FLOW 5: Docking at Destination
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 5.1 | When "Dock Available" shows, press Interact/Dock key | Player docks; Station Menu opens for Station Beta | [ ] |
+| 5.2 | Observe Station Menu header | Should display "Station Beta" (or destination name) | [ ] |
+| 5.3 | Observe "Complete Contract" button | Should be VISIBLE if you have the required cargo and active contract for this destination | [ ] |
+| 5.4 | Check console output | Should see "player_docked" signal with "station_beta" | [ ] |
+
+---
+
+#### FLOW 6: Contract Completion
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 6.1 | Click "Complete Contract" button (or "✓ Complete: [title]") | Narrative Action UI appears OR contract completes directly | [ ] |
+| 6.2 | If Narrative Action UI appears: select approach (Cautious/Balanced/Risky) | Options visible with FP cost | [ ] |
+| 6.3 | Click "Confirm" on Narrative Action | Action resolves; outcome popup shows success/complication | [ ] |
+| 6.4 | Observe WP display after completion | WP should INCREASE by contract reward (e.g., +100 WP) | [ ] |
+| 6.5 | Observe cargo after completion | Delivered cargo should be REMOVED from inventory | [ ] |
+| 6.6 | Check "Contracts" → Active list | Completed contract should be GONE from active contracts | [ ] |
+| 6.7 | Check console output | Should see "contract_completed" signal, session_stats.contracts_completed incremented | [ ] |
+
+---
+
+#### FLOW 7: Save Game
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 7.1 | Press ESC key (or click Menu button) | Main Menu appears over game | [ ] |
+| 7.2 | Click "Save" button | Save executes; brief confirmation or no visible error | [ ] |
+| 7.3 | Check console output | Should see "Game saved to slot 0" or similar, NO errors | [ ] |
+| 7.4 | Note current state: WP value, location, active contracts | Write down for comparison after load | [ ] |
+| 7.5 | Click "Exit" button | Game closes cleanly | [ ] |
+
+---
+
+#### FLOW 8: Load Game
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 8.1 | Relaunch game | Main Menu appears | [ ] |
+| 8.2 | Observe "Load" button state | Should now be ENABLED (not grayed out) | [ ] |
+| 8.3 | Click "Load" button | Game loads; Main Menu hides | [ ] |
+| 8.4 | Observe current location | Should be at the station where you saved (Station Beta or wherever) | [ ] |
+| 8.5 | Check WP display | Should match the WP value when you saved | [ ] |
+| 8.6 | Open "Contracts" → check active list | Should show same active contracts (or none if completed) | [ ] |
+| 8.7 | Open "Trade" → check player cargo | Should match cargo when you saved | [ ] |
+| 8.8 | Check console output | Should see "Game loaded from slot 0", NO errors | [ ] |
+
+---
+
+#### FLOW 9: Game Over (Player Death)
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 9.1 | Undock and find/trigger a hostile encounter | Combat initiates; enemy NPC attacks | [ ] |
+| 9.2 | Let enemy destroy your ship (don't fight back or flee) | Player hull reaches 0 | [ ] |
+| 9.3 | Observe screen when hull = 0 | "GAME OVER" overlay appears; game PAUSES | [ ] |
+| 9.4 | Observe "Return to Menu" button | Button should be visible and clickable | [ ] |
+| 9.5 | Click "Return to Menu" | Overlay hides; Main Menu appears; game UNPAUSES | [ ] |
+| 9.6 | Check console output | Should see "agent_disabled" for player, then "main_menu_requested" | [ ] |
+
+---
+
+#### FLOW 10: Edge Cases (Optional)
+
+| # | Action | Expected Result | Status |
+|---|--------|-----------------|--------|
+| 10.1 | Try to buy more cargo than you can afford | Buy should FAIL; error message or disabled button | [ ] |
+| 10.2 | Try to complete contract without required cargo | Complete button should be HIDDEN or disabled | [ ] |
+| 10.3 | Accept 3 contracts, then try to accept a 4th | Should FAIL with "Maximum active contracts reached" | [ ] |
+| 10.4 | Save game, modify WP via console, then Load | WP should restore to saved value, not modified value | [ ] |
+
+---
+
+**SUMMARY CHECKLIST:**
+
+| Flow | Description | Result |
+|------|-------------|--------|
+| 1 | New Game Initialization | [ ] PASS / [ ] FAIL |
+| 2 | Contract Acceptance | [ ] PASS / [ ] FAIL |
+| 3 | Trading (Buy Cargo) | [ ] PASS / [ ] FAIL |
+| 4 | Undock and Flight | [ ] PASS / [ ] FAIL |
+| 5 | Docking at Destination | [ ] PASS / [ ] FAIL |
+| 6 | Contract Completion | [ ] PASS / [ ] FAIL |
+| 7 | Save Game | [ ] PASS / [ ] FAIL |
+| 8 | Load Game | [ ] PASS / [ ] FAIL |
+| 9 | Game Over (Player Death) | [ ] PASS / [ ] FAIL |
+| 10 | Edge Cases (Optional) | [ ] PASS / [ ] FAIL |
+
+**SUCCESS CRITERIA:**
+- Flows 1-9 all PASS
+- No red errors in console during entire playtest
+- Save/Load preserves all player state correctly
+- Game Over → Return to Menu works without crash
 
 ---
 
 ## 4. CONSTRAINTS
 
-### Architectural Rules
+1. **No New Systems:** Sprint 10 integrates existing systems only. Do not create new gameplay systems.
 
-1. **State Machine Pattern:** AI must use explicit state enum (`AIState`), not boolean flags. Use `match` statement for state processing.
+2. **Preserve Existing APIs:** Do not change function signatures in TradingSystem, ContractSystem, CombatSystem, etc. Add only connecting logic.
 
-2. **Signal-Driven Communication:** 
-   - AI Controller → WeaponController: Direct method calls (same agent hierarchy)
-   - EventSystem → Global: Use EventBus signals only
-   - Combat state changes → EventBus: Always emit for UI/logging
+3. **Signal-Driven Flow:** All major state transitions (dock, undock, contract complete, game over) must emit EventBus signals. UI components react to signals, not direct function calls.
 
-3. **No Direct Player Reference Storage:** AI must query `GlobalRefs.world_manager.player_agent` each frame or cache with validity checks using `is_instance_valid()`. Player reference can become invalid.
+4. **Pause Mode:** Game Over state should use `get_tree().paused = true`. Ensure Main Menu and popups have `pause_mode = PAUSE_MODE_PROCESS`.
 
-4. **Stateless Systems:** EventSystem must not rely on scene tree state for core logic. Track hostiles by reference but verify validity before use.
+5. **Starting State:**
+   - Player starts DOCKED at Station Alpha
+   - Starting WP: 50 (per GDD)
+   - Starting FP: 3 (per GDD)
+   - 3+ delivery contracts available at Station Alpha
+   - Player cargo: Empty
 
-5. **Combat Registration:** All agents entering combat MUST call `CombatSystem.register_combatant()` before firing. WeaponController handles this for player; AI Controller must ensure NPC is registered.
+6. **Save File Location:** Use `user://savegame.json` or similar. Do not hardcode absolute paths.
 
-6. **Template-Driven Spawning:** Hostile NPCs must spawn via `AgentSystem.spawn_npc()` using template IDs, not hardcoded instantiation.
-
-### Testing Rules
-
-1. **Autofree Pattern:** All test-created nodes must use `add_child_autofree()` to prevent orphans.
-
-2. **Signal Cleanup:** Tests connecting to EventBus MUST disconnect in `after_each()`.
-
-3. **Null Safety:** All GlobalRefs access must check validity before use.
-
-### DO NOT
-
-- Do NOT implement player death/game-over (Sprint 10)
-- Do NOT add new weapon types (use existing `ablative_laser.tres`)
-- Do NOT modify agent.gd's command interface (stable API)
-- Do NOT add complex UI for enemy indicators (debug prints sufficient for Phase 1)
-- Do NOT implement flee despawn animation (instant despawn is acceptable)
-- Do NOT add loot/salvage system (Sprint 10)
+7. **Test Independence:** Integration tests must not depend on full scene tree. Mock or stub missing systems as needed.
 
 ---
 
-## 5. DEPENDENCY GRAPH
+## 5. DEFINITION OF DONE CHECKLIST (Phase 1)
 
-```
-TASK 6 (Hostile Template) ←── needed for spawning
-    ↓
-TASK 1 (AI State Machine) ←── core AI behavior
-    ↓
-TASK 2 (AI Firing) ←── depends on TASK 1
-    ↓
-TASK 3 (Event System) ←── depends on TASK 6 for spawn
-    ↓
-TASK 4 (Combat End) ←── integrates with TASK 3
-    ↓
-TASK 5 (HUD Wiring) ←── depends on TASK 3, 4 signals
-    ↓
-TASK 7 (AI Tests) ←── depends on TASK 1, 2
-    ↓
-TASK 8 (Event Tests) ←── depends on TASK 3, 4
-    ↓
-TASK 9 (Integration) ←── depends on ALL
-```
+After Sprint 10, verify all Phase 1 requirements:
 
-**Recommended Execution Order:**
-1. TASK 6 (template first - blocks spawning)
-2. TASK 1 (AI state machine)
-3. TASK 2 (AI firing)
-4. TASK 3 (Event System)
-5. TASK 4 (Combat End)
-6. TASK 5 (HUD)
-7. TASK 7 + TASK 8 (tests - can parallel)
-8. TASK 9 (integration)
+- [ ] Player can start new game and spawn at station
+- [ ] Player can view and accept contracts
+- [ ] Player can buy/sell commodities at stations
+- [ ] Player can fly between two stations
+- [ ] Player can complete delivery contracts and receive rewards
+- [ ] Combat encounters can trigger during flight
+- [ ] Player can fight and disable enemy ships
+- [ ] Narrative Actions resolve with visible outcomes
+- [ ] Time system triggers upkeep costs
+- [ ] Ship quirks can be gained from failures
+- [ ] Game state can be saved and loaded
+- [ ] No critical bugs or crashes during 15-minute play session
+- [ ] All unit tests pass (target: 180+ tests)
 
 ---
 
-## 6. OPEN QUESTIONS FOR FUTURE SPRINTS
-
-1. **Danger Levels:** Zone-based danger levels not implemented. Hardcode `1.0` for now; revisit in Sprint 10 with LocationTemplate integration.
-
-2. **Loot/Salvage:** Combat victory should eventually trigger salvage narrative action. Defer to Sprint 10.
-
-3. **Multiple Enemy Types:** Phase 1 uses single hostile type. Template system supports multiple; defer to post-Phase 1.
-
-4. **Visual Combat Feedback:** Screen flash on damage, combat music trigger, etc. Defer to Sprint 11 (Polish).
-
-5. **AI Weapon Selection:** Currently fires weapon index 0. Multi-weapon AI logic deferred to Phase 2.
+**END OF IMMEDIATE-TODO.md**

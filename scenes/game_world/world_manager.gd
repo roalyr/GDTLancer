@@ -33,6 +33,9 @@ func _ready():
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
+	if EventBus.has_signal("new_game_requested"):
+		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
+			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 	
 
 	# --- NEW: Setup the Time Clock Timer ---
@@ -45,6 +48,16 @@ func _ready():
 	
 	randomize()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+
+
+func _on_new_game_requested() -> void:
+	_cleanup_all_agents()
+	if is_instance_valid(GameStateManager) and GameStateManager.has_method("reset_to_defaults"):
+		GameStateManager.reset_to_defaults()
+	else:
+		printerr("WorldManager: GameStateManager.reset_to_defaults() unavailable.")
+	_setup_new_game()
+	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 	
 	
 # --- Game State Setup ---
@@ -56,11 +69,21 @@ func _initialize_game_state():
 
 
 func _setup_new_game():
+	if is_instance_valid(_world_generator):
+		_world_generator.queue_free()
+		_world_generator = null
 	# Instantiate and run the world generator to populate GameState.
 	_world_generator = WorldGenerator.new()
 	_world_generator.name = "WorldGenerator"
 	add_child(_world_generator)
 	_world_generator.generate_new_world()
+
+
+func _cleanup_all_agents() -> void:
+	for agent in _spawned_agent_bodies:
+		if is_instance_valid(agent):
+			agent.queue_free()
+	_spawned_agent_bodies.clear()
 
 
 # --- Zone Management ---

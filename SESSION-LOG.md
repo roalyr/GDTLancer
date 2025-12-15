@@ -31,3 +31,9 @@
 - [2025-12-15] QA Polish: event_system.gd v2.0 (strict types, docstrings) + test suite (13 test cases - success paths + edge cases)
 - [2025-12-15] - [FIX] CombatSystem _get_agent_body() now falls back to Agents group when WorldManager lookup returns null (unblocked EventBus signal tests).
 - [2025-12-15] - [FIX] Updated test_combat_system.gd to use tests/helpers/mock_agent_body.gd so EventBus agent_damaged/agent_disabled signals emit in tests.
+
+- [2025-12-15] Implemented TASK 1: Main Menu Button Logic
+- [2025-12-15] Implemented TASK 2: Player Spawn Docked Flow
+- [2025-12-15] Implemented TASK 3: Verify Save/Load Serialization Completeness
+- [2025-12-15] Implemented TASK 4: Game Over / Win Conditions UI
+- [2025-12-15] Implemented TASK 5: Full Game Loop Integration Tests

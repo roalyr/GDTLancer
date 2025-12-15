@@ -12,6 +12,10 @@ onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharact
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
 onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
+# --- Game Over UI ---
+onready var game_over_overlay: Control = $GameOverOverlay
+onready var button_return_to_menu: Button = $GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu
+
 # --- Combat HUD Nodes ---
 onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/TargetInfoPanel
 onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
@@ -27,6 +31,7 @@ var action_check_instance = null
 var _current_target: Spatial = null
 var _main_camera: Camera = null
 var _current_target_uid: int = -1  # UID of current combat target for hull tracking
+var _is_game_over: bool = false
 
 
 # --- Initialization ---
@@ -81,6 +86,8 @@ func _ready():
 			EventBus.connect("combat_ended", self, "_on_combat_ended")
 		if not EventBus.is_connected("agent_damaged", self, "_on_agent_damaged"):
 			EventBus.connect("agent_damaged", self, "_on_agent_damaged")
+		if not EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
+			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
@@ -213,6 +220,8 @@ func _notification(what):
 				EventBus.disconnect("combat_ended", self, "_on_combat_ended")
 			if EventBus.is_connected("agent_damaged", self, "_on_agent_damaged"):
 				EventBus.disconnect("agent_damaged", self, "_on_agent_damaged")
+			if EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
+				EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
 
 
 func _on_combat_initiated(_player_agent, enemy_agents: Array) -> void:
@@ -227,6 +236,39 @@ func _on_combat_ended(result_dict: Dictionary) -> void:
 func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 	if agent_body == GlobalRefs.player_agent_body:
 		print("[HUD] Player took ", damage_amount, " damage")
+
+
+func _on_agent_disabled(agent_body) -> void:
+	if _is_game_over:
+		return
+	if not is_instance_valid(agent_body):
+		return
+	if not is_instance_valid(GlobalRefs.player_agent_body):
+		return
+	if agent_body != GlobalRefs.player_agent_body:
+		return
+	_show_game_over_overlay()
+
+
+func _show_game_over_overlay() -> void:
+	_is_game_over = true
+	if is_instance_valid(game_over_overlay):
+		game_over_overlay.visible = true
+		game_over_overlay.raise()
+		if is_instance_valid(button_return_to_menu):
+			button_return_to_menu.grab_focus()
+	# Pause gameplay while the overlay is visible.
+	get_tree().paused = true
+
+
+func _on_ButtonReturnToMenu_pressed() -> void:
+	# Unpause first so the menu and world manager can react normally.
+	get_tree().paused = false
+	_is_game_over = false
+	if is_instance_valid(game_over_overlay):
+		game_over_overlay.visible = false
+	if EventBus:
+		EventBus.emit_signal("main_menu_requested")
 
 
 func _on_ButtonFreeFlight_pressed():

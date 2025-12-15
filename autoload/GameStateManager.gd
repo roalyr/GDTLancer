@@ -14,7 +14,38 @@ const InventorySystem = preload("res://core/systems/inventory_system.gd")
 
 # --- Public API ---
 
-func save_game(slot_id: int) -> bool:
+func reset_to_defaults() -> void:
+	GameState.world_seed = ""
+	GameState.current_tu = 0
+	GameState.player_character_uid = -1
+	GameState.player_docked_at = ""
+
+	GameState.characters.clear()
+	GameState.active_actions.clear()
+	GameState.assets_ships.clear()
+	GameState.assets_modules.clear()
+	GameState.assets_commodities.clear()
+	GameState.inventories.clear()
+	GameState.locations.clear()
+	GameState.contracts.clear()
+	GameState.active_contracts.clear()
+
+	GameState.narrative_state = {
+		"reputation": 0,
+		"faction_standings": {},
+		"known_contacts": [],
+		"chronicle_entries": []
+	}
+	GameState.session_stats = {
+		"contracts_completed": 0,
+		"total_wp_earned": 0,
+		"total_wp_spent": 0,
+		"enemies_disabled": 0,
+		"time_played_tu": 0
+	}
+
+func save_game(slot_id: int = 0) -> bool:
+	_ensure_save_dir_exists()
 	var save_data = _serialize_game_state()
 	if save_data.empty():
 		printerr("GameStateManager Error: Failed to serialize game state.")
@@ -34,7 +65,7 @@ func save_game(slot_id: int) -> bool:
 		file.close()
 		return false
 
-func load_game(slot_id: int) -> bool:
+func load_game(slot_id: int = 0) -> bool:
 	var path = SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
 	var file = File.new()
 
@@ -59,6 +90,20 @@ func load_game(slot_id: int) -> bool:
 	EventBus.emit_signal("game_state_loaded")
 	print("Game state loaded successfully. Emitted game_state_loaded signal.")
 	return true
+
+
+func has_save_file(slot_id: int = 0) -> bool:
+	var path = SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
+	var file = File.new()
+	return file.file_exists(path)
+
+
+func _ensure_save_dir_exists() -> void:
+	var dir = Directory.new()
+	if not dir.dir_exists(SAVE_DIR):
+		var err = dir.make_dir_recursive(SAVE_DIR)
+		if err != OK:
+			printerr("GameStateManager Error: Could not create save dir: ", SAVE_DIR, " (", err, ")")
 
 # --- Serialization (Live State -> Dictionary) ---
 

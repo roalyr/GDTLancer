@@ -543,6 +543,44 @@ margin_bottom = -10.0
 texture = ExtResource( 4 )
 expand = true
 
+[node name="GameOverOverlay" type="Control" parent="."]
+visible = false
+pause_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="GameOverOverlay"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PanelContainer" type="PanelContainer" parent="GameOverOverlay/CenterContainer"]
+margin_left = 840.0
+margin_top = 500.0
+margin_right = 1080.0
+margin_bottom = 580.0
+theme = ExtResource( 9 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay/CenterContainer/PanelContainer"]
+margin_left = 16.0
+margin_top = 16.0
+margin_right = 224.0
+margin_bottom = 64.0
+
+[node name="LabelGameOver" type="Label" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
+margin_right = 208.0
+margin_bottom = 14.0
+theme = ExtResource( 9 )
+text = "GAME OVER"
+align = 1
+
+[node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
+margin_top = 18.0
+margin_right = 208.0
+margin_bottom = 38.0
+theme = ExtResource( 9 )
+text = "Return to Menu"
+
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
@@ -553,3 +591,4 @@ expand = true
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]
+[connection signal="pressed" from="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]
