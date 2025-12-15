@@ -311,7 +311,7 @@ text = "FLEE"
 align = 1
 script = ExtResource( 14 )
 
-[node name="ButtonInteract" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+[node name="ButtonDock" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = 350.0
@@ -320,7 +320,7 @@ margin_right = 500.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 13 )
 
-[node name="LabelButtonApproach" type="Label" parent="ScreenControls/BottomCenterZone/ButtonInteract"]
+[node name="LabelButtonDock" type="Label" parent="ScreenControls/BottomCenterZone/ButtonDock"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -331,7 +331,31 @@ margin_right = 35.0
 margin_bottom = 13.5
 grow_horizontal = 2
 theme = ExtResource( 9 )
-text = "INTERACT"
+text = "DOCK"
+align = 1
+script = ExtResource( 14 )
+
+[node name="ButtonAttack" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = 518.0
+margin_top = 20.0
+margin_right = 668.0
+margin_bottom = 170.0
+texture_normal = ExtResource( 13 )
+
+[node name="LabelButtonAttack" type="Label" parent="ScreenControls/BottomCenterZone/ButtonAttack"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -35.0
+margin_top = -13.5
+margin_right = 35.0
+margin_bottom = 13.5
+grow_horizontal = 2
+theme = ExtResource( 9 )
+text = "ATTACK"
 align = 1
 script = ExtResource( 14 )
 
@@ -459,17 +483,24 @@ margin_bottom = 66.0
 theme = ExtResource( 9 )
 text = "Current FP: "
 
+[node name="LabelTU" type="Label" parent="ScreenControls/TopLeftZone"]
+margin_top = 78.0
+margin_right = 103.0
+margin_bottom = 105.0
+theme = ExtResource( 9 )
+text = "Time (TU): 0"
+
 [node name="ButtonCharacter" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 82.0
+margin_top = 121.0
 margin_right = 111.0
-margin_bottom = 132.0
+margin_bottom = 171.0
 theme = ExtResource( 9 )
 text = "CHARACTER"
 
 [node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 146.0
+margin_top = 185.0
 margin_right = 111.0
-margin_bottom = 196.0
+margin_bottom = 235.0
 theme = ExtResource( 9 )
 text = "INVENTORY"
 
@@ -544,8 +575,8 @@ texture = ExtResource( 4 )
 expand = true
 
 [node name="GameOverOverlay" type="Control" parent="."]
-visible = false
 pause_mode = 2
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 1
@@ -555,10 +586,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="PanelContainer" type="PanelContainer" parent="GameOverOverlay/CenterContainer"]
-margin_left = 840.0
-margin_top = 500.0
-margin_right = 1080.0
-margin_bottom = 580.0
+margin_left = 953.0
+margin_top = 533.0
+margin_right = 967.0
+margin_bottom = 547.0
 theme = ExtResource( 9 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay/CenterContainer/PanelContainer"]
@@ -587,7 +618,8 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonManualFlight" to="." method="_on_ButtonFreeFlight_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonApproach" to="." method="_on_ButtonApproach_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
-[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonInteract" to="." method="_on_ButtonInteract_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonDock" to="." method="_on_ButtonDock_pressed"]
+[connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonAttack" to="." method="_on_ButtonAttack_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]

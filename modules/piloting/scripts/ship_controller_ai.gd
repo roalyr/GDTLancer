@@ -205,10 +205,11 @@ func _process_combat(delta: float) -> void:
 			else:
 				agent_script.command_move_to(target_pos)
 	else:
-		# Hold position when in range (weapon firing is TASK 2).
-		if not _halted_in_range and agent_script.has_method("command_stop"):
+		# In weapon range: orbit the player instead of just stopping
+		if not _halted_in_range:
 			_halted_in_range = true
-			agent_script.command_stop()
+			if agent_script.has_method("command_orbit"):
+				agent_script.command_orbit(_target_agent)
 
 		_fire_timer = max(0.0, _fire_timer - delta)
 		if _fire_timer <= 0.0 and _is_in_weapon_range():

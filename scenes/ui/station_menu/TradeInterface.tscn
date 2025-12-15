@@ -158,9 +158,21 @@ rect_min_size = Vector2( 120, 50 )
 disabled = true
 text = "SELL"
 
-[node name="BtnClose" type="Button" parent="Panel/VBoxMain/HBoxControls"]
+[node name="SpinQuantity" type="SpinBox" parent="Panel/VBoxMain/HBoxControls"]
 margin_left = 545.0
-margin_right = 605.0
+margin_right = 675.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 130, 50 )
+min_value = 1.0
+max_value = 1.0
+step = 1.0
+value = 1.0
+editable = false
+prefix = "Qty: "
+
+[node name="BtnClose" type="Button" parent="Panel/VBoxMain/HBoxControls"]
+margin_left = 695.0
+margin_right = 755.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 60, 50 )
 text = "X"

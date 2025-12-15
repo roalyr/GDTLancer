@@ -96,6 +96,12 @@ margin_right = 200.0
 margin_bottom = 169.0
 text = "Debug: Add FP"
 
+[node name="ButtonTriggerEncounter" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
+margin_top = 173.0
+margin_right = 200.0
+margin_bottom = 193.0
+text = "Debug: Trigger Encounter"
+
 [node name="VSeparator" type="VSeparator" parent="Panel/VBoxContainer/HBoxContent"]
 margin_left = 220.0
 margin_right = 224.0

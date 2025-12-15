@@ -38,6 +38,8 @@ signal player_orbit_pressed
 signal player_approach_pressed
 signal player_flee_pressed
 signal player_interact_pressed
+signal player_dock_pressed  # Explicit dock button
+signal player_attack_pressed  # Explicit attack button
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
 signal player_wp_changed(new_wp_value)
@@ -54,6 +56,7 @@ signal zone_loaded(zone_node, zone_path, agent_container_node)
 
 # --- Core Mechanics / Gameplay Events ---
 signal world_event_tick_triggered(tu_amount)
+signal time_units_added(tu_added)  # Emitted every time TU increments (for UI updates)
 
 # --- Combat Signals ---
 signal combat_initiated(player_agent, enemy_agents)
@@ -75,6 +78,8 @@ signal dock_available(location_id)  # Player near dockable station
 signal dock_unavailable
 signal player_docked(location_id)
 signal player_undocked
+signal dock_action_feedback(success, message)  # Feedback from dock button press
+signal attack_action_feedback(success, message)  # Feedback from attack button press
 
 # --- Narrative Action Signals ---
 signal narrative_action_requested(action_type, context)  # Shows Action Check UI

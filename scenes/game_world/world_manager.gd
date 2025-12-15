@@ -57,15 +57,24 @@ func _on_new_game_requested() -> void:
 	# Leaving the Main Menu; resume gameplay.
 	get_tree().paused = false
 	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.start()
+		_time_clock_timer.stop()  # Stop timer during cleanup
 
 	_cleanup_all_agents()
+	_cleanup_current_zone()
+	
 	if is_instance_valid(GameStateManager) and GameStateManager.has_method("reset_to_defaults"):
 		GameStateManager.reset_to_defaults()
 	else:
 		printerr("WorldManager: GameStateManager.reset_to_defaults() unavailable.")
+	
+	# Wait a frame for cleanup to complete before loading new zone
+	yield(get_tree(), "idle_frame")
+	
 	_setup_new_game()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	
+	if is_instance_valid(_time_clock_timer):
+		_time_clock_timer.start()
 
 
 func _on_game_state_loaded() -> void:
@@ -73,10 +82,20 @@ func _on_game_state_loaded() -> void:
 	# spawn the player from the restored GameState.
 	get_tree().paused = false
 	if is_instance_valid(_time_clock_timer):
-		_time_clock_timer.start()
+		_time_clock_timer.stop()  # Stop timer during cleanup
+
+	_cleanup_all_agents()
+	_cleanup_current_zone()
+	
+	# Wait a frame for cleanup to complete before loading new zone
+	yield(get_tree(), "idle_frame")
+	
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 	call_deferred("_emit_loaded_dock_signal")
 	call_deferred("_emit_loaded_resource_signals")
+	
+	if is_instance_valid(_time_clock_timer):
+		_time_clock_timer.start()
 
 
 func _emit_loaded_resource_signals() -> void:
@@ -136,22 +155,29 @@ func _cleanup_all_agents() -> void:
 	_spawned_agent_bodies.clear()
 
 
+func _cleanup_current_zone() -> void:
+	"""Clean up the current zone and all its children properly."""
+	if is_instance_valid(GameState.current_zone_instance):
+		EventBus.emit_signal("zone_unloading", GameState.current_zone_instance)
+		GameState.current_zone_instance.queue_free()
+		GameState.current_zone_instance = null
+	
+	GlobalRefs.player_agent_body = null
+	GlobalRefs.current_zone = null
+	GlobalRefs.agent_container = null
+	# Note: main_camera is NOT part of the zone - it's in main_game_scene, so don't clear it
+
+
 # --- Zone Management ---
 func load_zone(zone_scene_path: String):
 	if not zone_scene_path or zone_scene_path.empty():
 		printerr("WM Error: Invalid zone path provided.")
 		return
 
-	# 1. Cleanup Previous Zone
+	# 1. Cleanup Previous Zone (if not already cleaned up)
 	if is_instance_valid(GameState.current_zone_instance):
-		EventBus.emit_signal("zone_unloading", GameState.current_zone_instance)
-		# Clear references that will be repopulated on new zone load
-		_spawned_agent_bodies.clear()
-		GlobalRefs.player_agent_body = null
-		GlobalRefs.current_zone = null
-		GlobalRefs.agent_container = null
-		GameState.current_zone_instance.queue_free()
-		GameState.current_zone_instance = null
+		_cleanup_current_zone()
+		yield(get_tree(), "idle_frame")
 
 	# 2. Find Parent Container Node
 	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)

@@ -7,12 +7,14 @@ onready var text_details: RichTextLabel = $Panel/VBoxContainer/HBoxContent/VBoxC
 onready var btn_close: Button = $Panel/VBoxContainer/ButtonClose
 onready var btn_add_wp: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddWP
 onready var btn_add_fp: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddFP
+onready var btn_trigger_encounter: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonTriggerEncounter
 
 func _ready():
 	GlobalRefs.set_character_status(self)
 	btn_close.connect("pressed", self, "_on_ButtonClose_pressed")
 	btn_add_wp.connect("pressed", self, "_on_ButtonAddWP_pressed")
 	btn_add_fp.connect("pressed", self, "_on_ButtonAddFP_pressed")
+	btn_trigger_encounter.connect("pressed", self, "_on_ButtonTriggerEncounter_pressed")
 	list_contracts.connect("item_selected", self, "_on_contract_selected")
 	
 	# Listen for contract updates to refresh if open
@@ -87,7 +89,7 @@ func _display_contract_details(contract):
 	
 	text_details.text = details
 
-func _on_contract_update(_a, _b):
+func _on_contract_update(_a = null, _b = null):
 	if visible:
 		refresh_contracts()
 
@@ -101,3 +103,12 @@ func _on_ButtonAddWP_pressed():
 func _on_ButtonAddFP_pressed():
 	if GlobalRefs.character_system:
 		GlobalRefs.character_system.add_fp(GameState.player_character_uid, 1)
+
+
+func _on_ButtonTriggerEncounter_pressed():
+	"""Debug button: Forces an immediate combat encounter spawn."""
+	if GlobalRefs.event_system and GlobalRefs.event_system.has_method("force_encounter"):
+		GlobalRefs.event_system.force_encounter()
+		print("[CharacterStatus] Debug: Forced encounter triggered")
+	else:
+		printerr("[CharacterStatus] EventSystem not available or missing force_encounter method")

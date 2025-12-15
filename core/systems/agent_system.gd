@@ -39,7 +39,19 @@ func spawn_player():
 		return
 
 	var player_spawn_pos = Vector3.ZERO
-	if is_instance_valid(GlobalRefs.current_zone):
+	var player_spawn_rot = Vector3.ZERO
+	
+	# Priority 1: Use saved position if it's not zero (loaded game)
+	if GameState.player_position != Vector3.ZERO:
+		player_spawn_pos = GameState.player_position
+		player_spawn_rot = GameState.player_rotation
+	# Priority 2: If docked, spawn at station
+	elif GameState.player_docked_at != "":
+		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
+		if dock_pos != null:
+			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
+	# Priority 3: Use zone entry point (new game)
+	elif is_instance_valid(GlobalRefs.current_zone):
 		var entry_node = null
 		if Constants.ENTRY_POINT_NAMES.size() > 0:
 			entry_node = GlobalRefs.current_zone.find_node(
@@ -47,12 +59,6 @@ func spawn_player():
 			)
 		if entry_node is Spatial:
 			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
-
-	# If the player is marked as docked, spawn them at that station's position.
-	if GameState.player_docked_at != "":
-		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
-		if dock_pos != null:
-			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
 
 	# Get the player character UID from GameState
 	var player_char_uid = GameState.player_character_uid
@@ -70,6 +76,10 @@ func spawn_player():
 	)
 
 	if is_instance_valid(_player_agent_body):
+		# Apply saved rotation if available
+		if player_spawn_rot != Vector3.ZERO:
+			_player_agent_body.rotation_degrees = player_spawn_rot
+		
 		GlobalRefs.player_agent_body = _player_agent_body
 		EventBus.emit_signal("camera_set_target_requested", _player_agent_body)
 		EventBus.emit_signal("player_spawned", _player_agent_body)

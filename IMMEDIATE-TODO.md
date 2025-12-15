@@ -50,7 +50,7 @@ This sprint is the **final integration milestone** before Definition of Done for
 - [x] **TASK 3:** Verify Save/Load Serialization Completeness
 - [x] **TASK 4:** Implement Game Over / Win Conditions UI
 - [x] **TASK 5:** Write Full Game Loop Integration Tests
-- [ ] **TASK 6:** Manual Integration Verification
+- [x] **TASK 6:** Manual Integration Verification (PARTIAL - Combat damage issues remain)
 
 ---
 
@@ -467,7 +467,7 @@ Complete each test section in order. After each step, provide feedback:
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
 | 2.1 | Launch game, click "New Game" | Main Menu hides | PASS |
-| 2.2 | Observe screen after New Game | Station Menu appears (you are docked at "Station Alpha - Mining Hub") | FIX IMPLEMENTED — needs retest: docked spawn now snaps to in-scene DockableStation position (spawn-point source of truth), not template `position_in_zone`. |
+| 2.2 | Observe screen after New Game | Station Menu appears (you are docked at "Station Alpha - Mining Hub") | PASS |
 | 2.3 | Check station name label | Shows "Station Alpha - Mining Hub" or similar | PASS |
 | 2.4 | Check HUD WP display | Shows "Current WP: 50" (top-left area) | PASS |
 | 2.5 | Check HUD FP display | Shows "Current FP: 3" (top-left area) | PASS |
@@ -479,13 +479,13 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 3.1 | Click "Contracts" button | Contract Interface opens (modal/popup) | |
-| 3.2 | Observe contract list | At least 1-2 delivery contracts visible (e.g., "Deliver Ore") | |
-| 3.3 | Click on a contract in the list | Contract details panel shows: Title, Type, Destination, Required Cargo, Reward WP | |
-| 3.4 | Note contract details | Record: destination station, required commodity, quantity, reward amount | |
-| 3.5 | Click "Accept" button | Contract moves to "Active Contracts" section (or list updates) | |
-| 3.6 | Try to accept same contract again | Should NOT allow duplicate acceptance (button disabled or error) | |
-| 3.7 | Close Contract Interface | Contract Interface closes, Station Menu still visible | |
+| 3.1 | Click "Contracts" button | Contract Interface opens (modal/popup) | PASS |
+| 3.2 | Observe contract list | At least 1-2 delivery contracts visible (e.g., "Deliver Ore") | PASS |
+| 3.3 | Click on a contract in the list | Contract details panel shows: Title, Type, Destination, Required Cargo, Reward WP | PASS |
+| 3.4 | Note contract details | Record: destination station, required commodity, quantity, reward amount | PASS |
+| 3.5 | Click "Accept" button | Contract moves to "Active Contracts" section (or list updates) | PASS |
+| 3.6 | Try to accept same contract again | Should NOT allow duplicate acceptance (button disabled or error) | PASS |
+| 3.7 | Close Contract Interface | Contract Interface closes, Station Menu still visible | PASS |
 
 ---
 
@@ -493,18 +493,18 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 4.1 | Click "Trade" button | Trade Interface opens | |
-| 4.2 | Observe station inventory | Left panel shows commodities station sells (e.g., Ore, Food, Tech, Fuel) with prices and quantities | |
-| 4.3 | Observe player cargo | Right panel shows "Your Cargo" — should be EMPTY at game start | |
-| 4.4 | Select a commodity to buy | Commodity row highlights or becomes selected | |
-| 4.5 | Set quantity (e.g., 10) | Quantity selector accepts input | |
-| 4.6 | Note WP before purchase | Record current WP value | |
-| 4.7 | Click "Buy" button | Transaction executes | |
-| 4.8 | Check WP after purchase | WP decreased by (quantity × buy_price) | |
-| 4.9 | Check player cargo | Purchased commodity now appears in player cargo with correct quantity | |
-| 4.10 | Check station inventory | Station's quantity of that commodity decreased | |
-| 4.11 | Buy cargo needed for contract | Purchase the commodity + quantity required by your accepted contract | |
-| 4.12 | Close Trade Interface | Trade Interface closes | |
+| 4.1 | Click "Trade" button | Trade Interface opens | PASS |
+| 4.2 | Observe station inventory | Left panel shows commodities station sells (e.g., Ore, Food, Tech, Fuel) with prices and quantities | PASS |
+| 4.3 | Observe player cargo | Right panel shows "Your Cargo" — should be EMPTY at game start | PASS |
+| 4.4 | Select a commodity to buy | Commodity row highlights or becomes selected | PASS |
+| 4.5 | Set quantity (e.g., 10) | Quantity selector accepts input | PASS |
+| 4.6 | Note WP before purchase | Record current WP value | PASS |
+| 4.7 | Click "Buy" button | Transaction executes | PASS |
+| 4.8 | Check WP after purchase | WP decreased by (quantity × buy_price) | PASS |
+| 4.9 | Check player cargo | Purchased commodity now appears in player cargo with correct quantity | PASS |
+| 4.10 | Check station inventory | Station's quantity of that commodity decreased | PASS |
+| 4.11 | Buy cargo needed for contract | Purchase the commodity + quantity required by your accepted contract | PASS |
+| 4.12 | Close Trade Interface | Trade Interface closes | PASS |
 
 ---
 
@@ -512,10 +512,10 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 5.1 | Click "Undock" button | Station Menu closes | |
-| 5.2 | Observe game view | 3D flight view visible, ship can be controlled | |
-| 5.3 | Test ship movement | WASD/Arrow keys or flight controls move the ship | |
-| 5.4 | Observe surroundings | Station Alpha visible nearby; other objects (Station Beta) in distance | |
+| 5.1 | Click "Undock" button | Station Menu closes | PASS |
+| 5.2 | Observe game view | 3D flight view visible, ship can be controlled | PASS |
+| 5.3 | Test ship movement | WASD/Arrow keys or flight controls move the ship | PASS |
+| 5.4 | Observe surroundings | Station Alpha visible nearby; other objects (Station Beta) in distance | PASS |
 
 ---
 
@@ -523,11 +523,11 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 6.1 | Locate Station Beta | Another station visible in the zone (may need to fly/look around) | |
-| 6.2 | Click on Station Beta to target | Target indicator appears on Station Beta | |
-| 6.3 | Use "Approach" button | Ship automatically flies toward Station Beta | |
-| 6.4 | Monitor flight progress | Ship moves toward target; distance decreases | |
-| 6.5 | Observe time passage | Time Clock in HUD advances as you fly | |
+| 6.1 | Locate Station Beta | Another station visible in the zone (may need to fly/look around) | PASS |
+| 6.2 | Click on Station Beta to target | Target indicator appears on Station Beta | PASS |
+| 6.3 | Use "Approach" button | Ship automatically flies toward Station Beta | PASS |
+| 6.4 | Monitor flight progress | Ship moves toward target; distance decreases | PASS |
+| 6.5 | Observe time passage | Time Clock in HUD advances as you fly | PASS |
 
 ---
 
@@ -535,14 +535,14 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 7.1 | Continue flying until encounter | Hostile NPC may spawn (red ship) — depends on danger level and RNG | |
-| 7.2 | If hostile spawns: observe behavior | Enemy approaches player and attempts to fire | |
-| 7.3 | Target the enemy | Click enemy ship to select as target | |
-| 7.4 | Fire weapon (LMB or fire key) | Weapon fires at target (if in range) | |
-| 7.5 | Observe damage dealt | Target's hull decreases (visible in Target Info panel) | |
-| 7.6 | Continue combat until victory or flee | Either destroy enemy (hull = 0) or use Flee button | |
-| 7.7 | Combat end | "Combat ended" state; you can continue flying | |
-| 7.8 | (If skipped) Note if no encounter | Combat encounters are probabilistic; may not trigger every flight | |
+| 7.1 | Continue flying until encounter | Hostile NPC may spawn (red ship) — depends on danger level and RNG | PASS |
+| 7.2 | If hostile spawns: observe behavior | Enemy approaches player and attempts to fire | PASS (no recieved attack indication for now implemented)|
+| 7.3 | Target the enemy | Click enemy ship to select as target | PASS |
+| 7.4 | Fire weapon (LMB or fire key) | Weapon fires at target (if in range) | PASS |
+| 7.5 | Observe damage dealt | Target's hull decreases (visible in Target Info panel) | FAIL |
+| 7.6 | Continue combat until victory or flee | Either destroy enemy (hull = 0) or use Flee button | ISSUE (enemy doesn't die) |
+| 7.7 | Combat end | "Combat ended" state; you can continue flying | ??? |
+| 7.8 | (If skipped) Note if no encounter | Combat encounters are probabilistic; may not trigger every flight | PASS |
 
 ---
 
@@ -550,10 +550,10 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 8.1 | Approach Station Beta | Fly close to Station Beta | |
-| 8.2 | Enter docking range | "Dock Available" prompt appears on HUD | |
-| 8.3 | Press dock key (F or interact) | Player docks at Station Beta | |
-| 8.4 | Observe Station Menu | Station Menu opens showing "Station Beta" name | |
+| 8.1 | Approach Station Beta | Fly close to Station Beta | PASS |
+| 8.2 | Enter docking range | "Dock Available" prompt appears on HUD | PASS |
+| 8.3 | Press dock key (F or interact) | Player docks at Station Beta | PASS |
+| 8.4 | Observe Station Menu | Station Menu opens showing "Station Beta" name | PASS |
 
 ---
 
@@ -561,18 +561,18 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 9.1 | Check Station Menu buttons | "✓ Complete: [Contract Name]" button visible (if you have cargo + at destination) | |
-| 9.2 | Note WP before completion | Record current WP | |
-| 9.3 | Click "Complete Contract" button | Narrative Action UI appears (Action Check popup) | |
-| 9.4 | Observe Action Check UI | Shows action description, Cautious/Risky buttons, FP selector | |
-| 9.5 | Select approach (Cautious or Risky) | Button highlights/selects | |
-| 9.6 | Set FP to spend (0-3) | FP selector accepts value | |
-| 9.7 | Click "Confirm" | Roll resolves; outcome displayed | |
-| 9.8 | Observe outcome | Result tier shown (CritSuccess/SwC/Failure/etc.) with description | |
-| 9.9 | Acknowledge result | UI closes (click OK or auto-close) | |
-| 9.10 | Check WP after completion | WP increased by contract reward amount | |
-| 9.11 | Check cargo | Delivered commodity removed from player cargo | |
-| 9.12 | Check active contracts | Completed contract no longer in active list | |
+| 9.1 | Check Station Menu buttons | "✓ Complete: [Contract Name]" button visible (if you have cargo + at destination) | PASS (Will rework UI further on my own, placeholders are satisfactory) |
+| 9.2 | Note WP before completion | Record current WP | PASS |
+| 9.3 | Click "Complete Contract" button | Narrative Action UI appears (Action Check popup) | PASS |
+| 9.4 | Observe Action Check UI | Shows action description, Cautious/Risky buttons, FP selector | PASS |
+| 9.5 | Select approach (Cautious or Risky) | Button highlights/selects | PASS |
+| 9.6 | Set FP to spend (0-3) | FP selector accepts value | PASS |
+| 9.7 | Click "Confirm" | Roll resolves; outcome displayed | PASS |
+| 9.8 | Observe outcome | Result tier shown (CritSuccess/SwC/Failure/etc.) with description | PASS |
+| 9.9 | Acknowledge result | UI closes (click OK or auto-close) | PASS |
+| 9.10 | Check WP after completion | WP increased by contract reward amount | PASS |
+| 9.11 | Check cargo | Delivered commodity removed from player cargo | PASS |
+| 9.12 | Check active contracts | Completed contract no longer in active list | PASS |
 
 ---
 
@@ -580,10 +580,10 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 10.1 | Press ESC key | Main Menu appears (overlay on game) | |
-| 10.2 | Click "Save" button | Game saves (no error popup or console error) | |
-| 10.3 | Note current state | Record: current WP, FP, location, active contracts, cargo | |
-| 10.4 | Click anywhere or press ESC | Menu closes (if applicable) or stays open | |
+| 10.1 | Press ESC key | Main Menu appears (overlay on game) | PASS |
+| 10.2 | Click "Save" button | Game saves (no error popup or console error) | PASS |
+| 10.3 | Note current state | Record: current WP, FP, location, active contracts, cargo | PASS |
+| 10.4 | Click anywhere or press ESC | Menu closes (if applicable) or stays open | PASS (Will rework on my own) |
 
 ---
 
@@ -591,14 +591,14 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 11.1 | Continue playing: spend some WP | Make a purchase or change state somehow | |
-| 11.2 | Press ESC → Main Menu | Menu appears | |
-| 11.3 | Check "Load" button | Load button should now be ENABLED | |
-| 11.4 | Click "Load" button | Game loads saved state | |
-| 11.5 | Verify WP restored | WP matches what you recorded in TEST 10.3 | |
-| 11.6 | Verify location restored | Docked at same station as when saved | |
-| 11.7 | Verify cargo restored | Cargo matches saved state | |
-| 11.8 | Verify active contracts | Same contracts active as when saved | |
+| 11.1 | Continue playing: spend some WP | Make a purchase or change state somehow | PASS |
+| 11.2 | Press ESC → Main Menu | Menu appears | PASS |
+| 11.3 | Check "Load" button | Load button should now be ENABLED | PASS |
+| 11.4 | Click "Load" button | Game loads saved state | PASS |
+| 11.5 | Verify WP restored | WP matches what you recorded in TEST 10.3 | PASS |
+| 11.6 | Verify location restored | Docked at same station as when saved | PASS |
+| 11.7 | Verify cargo restored | Cargo matches saved state | PASS |
+| 11.8 | Verify active contracts | Same contracts active as when saved | PASS |
 
 ---
 
@@ -606,11 +606,11 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 12.1 | Undock and find/trigger combat | Get into combat with a hostile | |
-| 12.2 | Let enemy damage you | Stop fighting back; let enemy shoot you | |
-| 12.3 | Observe hull decreasing | Player hull drops toward 0 | |
-| 12.4 | Hull reaches 0 | "GAME OVER" overlay appears | |
-| 12.5 | Observe Game Over UI | Shows "GAME OVER" text and "Return to Menu" button | |
+| 12.1 | Undock and find/trigger combat | Get into combat with a hostile | PASS |
+| 12.2 | Let enemy damage you | Stop fighting back; let enemy shoot you | FAIL - enemy does not attack or does not deal damage or player agent does not receive damage (should be a notification for that) |
+| 12.3 | Observe hull decreasing | Player hull drops toward 0 | FAIL - not impemented? |
+| 12.4 | Hull reaches 0 | "GAME OVER" overlay appears | FAIL - never triggered |
+| 12.5 | Observe Game Over UI | Shows "GAME OVER" text and "Return to Menu" button | FAIL - never triggered |
 | 12.6 | Game is paused | Background gameplay frozen while overlay visible | |
 | 12.7 | Click "Return to Menu" | Main Menu appears; Game Over overlay closes | |
 | 12.8 | Start New Game from menu | Can start fresh game after Game Over | |
@@ -621,12 +621,12 @@ Complete each test section in order. After each step, provide feedback:
 
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
-| 13.1 | Try to buy with insufficient WP | Error message or transaction blocked | |
-| 13.2 | Try to complete contract without cargo | "Complete Contract" button not visible or disabled | |
-| 13.3 | Try to dock while already docked | No crash; action ignored or not available | |
-| 13.4 | Rapid button clicking | No crash; UI handles gracefully | |
-| 13.5 | Play for 5+ minutes continuously | No crashes, memory leaks, or performance degradation | |
-| 13.6 | Check console for errors | Note any red error messages during session | |
+| 13.1 | Try to buy with insufficient WP | Error message or transaction blocked | PASS |
+| 13.2 | Try to complete contract without cargo | "Complete Contract" button not visible or disabled | PASS |
+| 13.3 | Try to dock while already docked | No crash; action ignored or not available | PASS |
+| 13.4 | Rapid button clicking | No crash; UI handles gracefully | PASS |
+| 13.5 | Play for 5+ minutes continuously | No crashes, memory leaks, or performance degradation | PASS |
+| 13.6 | Check console for errors | Note any red error messages during session | PASS |
 
 ---
 
@@ -635,22 +635,26 @@ Complete each test section in order. After each step, provide feedback:
 After completing all tests, fill in:
 
 ```
-PLAYTEST SUMMARY — [DATE]
+PLAYTEST SUMMARY — 2025-12-15
 
-Tests Passed: __/50
-Tests with Issues: __
-Tests Failed: __
+Tests Passed: 45/50
+Tests with Issues: 2
+Tests Failed: 3
 
 BLOCKERS (must fix):
-- 
+- TEST 7.5-7.6: Enemy hull doesn't decrease when hit / enemy doesn't die
+- TEST 12.2-12.4: Player doesn't receive damage from enemy attacks
+- TEST 12.4-12.7: Game Over never triggers (depends on above)
 
 ISSUES (should fix):
-- 
+- TEST 7.2: No received attack indication for player (HUD feedback)
 
 OBSERVATIONS (nice to fix):
-- 
+- Dock/Attack buttons now separated and functional
+- Save/Load position and rotation working
+- Hostile NPCs spawn and orbit player correctly
 
-OVERALL VERDICT: [ ] READY FOR PHASE 1 DOD / [ ] NEEDS FIXES
+OVERALL VERDICT: [ ] READY FOR PHASE 1 DOD / [x] NEEDS FIXES
 ```
 
 1. **No New Systems:** Sprint 10 integrates existing systems only. Do not create new gameplay systems.

@@ -24,7 +24,7 @@ func get_available_contracts(location_id: String) -> Array:
 
 
 # Get all contracts available at a location, filtered by player's active contracts
-func get_available_contracts_for_character(char_uid: int, location_id: String) -> Array:
+func get_available_contracts_for_character(_char_uid: int, location_id: String) -> Array:
 	var available = get_available_contracts(location_id)
 	# Filter out any that player already has active
 	var result = []
@@ -68,7 +68,7 @@ func accept_contract(char_uid: int, contract_id: String) -> Dictionary:
 	GameState.active_contracts[contract_id] = contract_copy
 	
 	# Emit signal
-	EventBus.emit_signal("contract_accepted", char_uid, contract_copy)
+	EventBus.emit_signal("contract_accepted", contract_id)
 	
 	return {
 		"success": true,
@@ -162,13 +162,18 @@ func complete_contract(char_uid: int, contract_id: String) -> Dictionary:
 	GameState.session_stats.contracts_completed += 1
 	
 	# Emit signal
-	EventBus.emit_signal("contract_completed", char_uid, contract)
+	EventBus.emit_signal("contract_completed", contract_id, true)
+	
+	# Calculate total WP earned including cargo sale
+	var cargo_sale_value: int = completion_result.get("cargo_sale_value", 0)
 	
 	return {
 		"success": true,
 		"contract": contract,
 		"rewards": {
 			"wp": contract.reward_wp,
+			"cargo_sale_wp": cargo_sale_value,
+			"total_wp": contract.reward_wp + cargo_sale_value,
 			"reputation": contract.reward_reputation,
 			"items": contract.reward_items
 		}
@@ -196,7 +201,7 @@ func abandon_contract(char_uid: int, contract_id: String) -> Dictionary:
 	GameState.active_contracts.erase(contract_id)
 	
 	# Emit signal
-	EventBus.emit_signal("contract_abandoned", char_uid, contract)
+	EventBus.emit_signal("contract_abandoned", contract_id)
 	
 	return {
 		"success": true,
@@ -271,7 +276,7 @@ func _check_delivery_completion(char_uid: int, contract) -> Dictionary:
 	}
 
 
-func _check_combat_completion(char_uid: int, contract) -> Dictionary:
+func _check_combat_completion(_char_uid: int, contract) -> Dictionary:
 	# Check kill count in progress
 	var kills = contract.progress.get("kills", 0)
 	if kills < contract.target_count:
@@ -295,6 +300,15 @@ func _complete_delivery(char_uid: int, contract) -> Dictionary:
 			"reason": "Inventory system not available"
 		}
 	
+	# Calculate cargo sale value at destination before removing
+	var cargo_sale_value: int = 0
+	var dest_location_id: String = contract.destination_location_id
+	if GameState.locations.has(dest_location_id):
+		var location = GameState.locations[dest_location_id]
+		if location.market_inventory.has(contract.required_commodity_id):
+			var sell_price: int = location.market_inventory[contract.required_commodity_id].get("sell_price", 0)
+			cargo_sale_value = sell_price * contract.required_quantity
+	
 	var removed = inventory_system.remove_asset(
 		char_uid,
 		InventorySystem.InventoryType.COMMODITY,
@@ -308,10 +322,17 @@ func _complete_delivery(char_uid: int, contract) -> Dictionary:
 			"reason": "Failed to remove cargo from inventory"
 		}
 	
-	return {"success": true}
+	# Pay player for the delivered cargo at local sell price
+	if cargo_sale_value > 0:
+		var character_system = GlobalRefs.character_system
+		if character_system:
+			character_system.add_wp(char_uid, cargo_sale_value)
+			GameState.session_stats.total_wp_earned += cargo_sale_value
+	
+	return {"success": true, "cargo_sale_value": cargo_sale_value}
 
 
-func _complete_combat(char_uid: int, contract) -> Dictionary:
+func _complete_combat(_char_uid: int, _contract) -> Dictionary:
 	# Combat contracts just need kill count met, no additional action
 	return {"success": true}
 
@@ -349,7 +370,7 @@ func _apply_rewards(char_uid: int, contract) -> void:
 				inventory_system.add_asset(char_uid, asset_type, item_id, qty)
 
 
-func _fail_contract(char_uid: int, contract_id: String) -> void:
+func _fail_contract(_char_uid: int, contract_id: String) -> void:
 	var contract = GameState.active_contracts.get(contract_id)
 	if not contract:
 		return
@@ -358,4 +379,4 @@ func _fail_contract(char_uid: int, contract_id: String) -> void:
 	GameState.active_contracts.erase(contract_id)
 	
 	# Emit failure signal
-	EventBus.emit_signal("contract_failed", char_uid, contract)
+	EventBus.emit_signal("contract_failed", contract_id)

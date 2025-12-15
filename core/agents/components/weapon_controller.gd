@@ -22,7 +22,8 @@ func _ready() -> void:
 	if not _agent_body is KinematicBody:
 		printerr("WeaponController: Parent must be KinematicBody")
 		return
-	_load_weapons_from_ship()
+	# Defer weapon loading to allow agent initialization to complete first
+	call_deferred("_load_weapons_from_ship")
 
 
 func _load_weapons_from_ship() -> void:
@@ -31,15 +32,19 @@ func _load_weapons_from_ship() -> void:
 	var raw_char_uid = _agent_body.get("character_uid")
 	if raw_char_uid != null:
 		char_uid = int(raw_char_uid)
-	if char_uid < 0:
-		return  # No character linked, no weapons
-
-	if not is_instance_valid(GlobalRefs.asset_system):
-		return
-
-	_ship_template = GlobalRefs.asset_system.get_ship_for_character(char_uid)
+	
+	# First try to get ship from character
+	if char_uid >= 0 and is_instance_valid(GlobalRefs.asset_system):
+		_ship_template = GlobalRefs.asset_system.get_ship_for_character(char_uid)
+	
+	# If no ship via character, try to get cached ship_template from agent body (for hostile NPCs)
 	if not is_instance_valid(_ship_template):
-		return
+		var agent_ship = _agent_body.get("ship_template")
+		if is_instance_valid(agent_ship):
+			_ship_template = agent_ship
+	
+	if not is_instance_valid(_ship_template):
+		return  # No ship available
 
 	# Load each equipped tool template
 	var equipped_list = _ship_template.get("equipped_tools")
@@ -56,6 +61,9 @@ func _load_weapons_from_ship() -> void:
 		if tool_template and tool_template.get("tool_type") == "weapon":
 			_weapons.append(tool_template)
 			_cooldowns[_weapons.size() - 1] = 0.0
+	
+	if _weapons.size() > 0:
+		print("WeaponController: Loaded ", _weapons.size(), " weapon(s) for agent")
 
 
 func _physics_process(delta: float) -> void:

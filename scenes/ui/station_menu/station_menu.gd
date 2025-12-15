@@ -7,6 +7,7 @@ onready var btn_complete_contract = $Panel/VBoxContainer/BtnCompleteContract
 onready var btn_undock = $Panel/VBoxContainer/BtnUndock
 
 onready var contract_popup = $ContractCompletePopup
+onready var label_popup_title = $ContractCompletePopup/VBoxContainer/LabelPopupTitle
 onready var label_popup_info = $ContractCompletePopup/VBoxContainer/LabelPopupInfo
 onready var btn_popup_ok = $ContractCompletePopup/VBoxContainer/BtnPopupOK
 
@@ -20,12 +21,16 @@ var completable_contract_id: String = ""
 var completable_contract_title: String = ""
 
 var _pending_contract_completion: String = ""
+var _last_ready_popup_contract_id: String = ""
 
 func _ready():
 	visible = false
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("narrative_action_resolved", self, "_on_narrative_resolved")
+	EventBus.connect("contract_accepted", self, "_on_contract_accepted")
+	EventBus.connect("contract_completed", self, "_on_contract_completed")
+	EventBus.connect("trade_transaction_completed", self, "_on_trade_transaction_completed")
 	
 	btn_undock.connect("pressed", self, "_on_undock_pressed")
 	btn_trade.connect("pressed", self, "_on_trade_pressed")
@@ -42,6 +47,9 @@ func _ready():
 	contract_interface_instance.visible = false
 
 func _on_player_docked(location_id):
+	# Ensure docked location is updated before we check contract completion.
+	# PlayerController also sets this, but signal handler order is not guaranteed.
+	GameState.player_docked_at = location_id
 	current_location_id = location_id
 	visible = true
 	
@@ -84,13 +92,56 @@ func _check_completable_contracts():
 			btn_complete_contract.visible = true
 			
 			# Show a popup to notify player they can complete the contract
-			_show_contract_ready_popup(contract)
+			if completable_contract_id != _last_ready_popup_contract_id:
+				_last_ready_popup_contract_id = completable_contract_id
+				_show_contract_ready_popup(contract)
 			break
 
 func _show_contract_ready_popup(contract):
 	if contract_popup and label_popup_info:
+		if label_popup_title:
+			label_popup_title.text = "CONTRACT READY"
 		label_popup_info.text = "You can complete:\n\n[%s]\n\nReward: %d WP" % [contract.title, contract.reward_wp]
 		contract_popup.popup_centered()
+
+
+func _show_contract_accepted_popup(contract_id: String) -> void:
+	if not (contract_popup and label_popup_info):
+		return
+	if label_popup_title:
+		label_popup_title.text = "CONTRACT ACCEPTED"
+	var contract = GameState.active_contracts.get(contract_id, null)
+	if contract:
+		var info: String = "[%s]" % contract.title
+		if contract.contract_type == "delivery":
+			info += "\n\nDeliver: %s x%d" % [contract.required_commodity_id, contract.required_quantity]
+			info += "\nTo: %s" % contract.destination_location_id
+			info += "\n\nReward: %d WP" % contract.reward_wp
+		label_popup_info.text = info
+	else:
+		label_popup_info.text = "Contract accepted: %s" % contract_id
+	contract_popup.popup_centered()
+
+
+func _on_contract_accepted(contract_id):
+	# Only show a popup if we're currently docked (StationMenu is on screen).
+	if not visible:
+		return
+	_show_contract_accepted_popup(str(contract_id))
+	_check_completable_contracts()
+
+
+func _on_contract_completed(_contract_id, _success = null):
+	# After completion, clear ready-popup guard so other contracts can prompt.
+	_last_ready_popup_contract_id = ""
+	if visible:
+		_check_completable_contracts()
+
+
+func _on_trade_transaction_completed(_tx: Dictionary):
+	# Cargo changes while docked can make a contract completable.
+	if visible:
+		_check_completable_contracts()
 
 func _on_popup_ok_pressed():
 	if contract_popup:
@@ -138,6 +189,8 @@ func _finalize_contract_completion():
 			print("Contract Completed: ", completable_contract_id)
 			# Show completion popup
 			if contract_popup and label_popup_info:
+				if label_popup_title:
+					label_popup_title.text = "CONTRACT COMPLETE!"
 				var rewards = result.get("rewards", {})
 				var wp_earned = rewards.get("wp", 0)
 				label_popup_info.text = "Contract Complete!\n\n[%s]\n\nEarned: %d WP" % [completable_contract_title, wp_earned]
@@ -150,6 +203,7 @@ func _on_player_undocked():
 	visible = false
 	current_location_id = ""
 	_pending_contract_completion = ""
+	_last_ready_popup_contract_id = ""
 	if trade_interface_instance:
 		trade_interface_instance.visible = false
 	if contract_interface_instance:

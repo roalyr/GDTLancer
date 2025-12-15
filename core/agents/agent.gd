@@ -11,6 +11,8 @@ var template_id: String = ""
 var agent_uid = -1
 var character_uid: int = -1  # Links this agent to a character in GameState
 var interaction_radius: float = 15.0
+var is_hostile: bool = false  # True if this is a hostile NPC
+var ship_template = null  # Cached ship template for combat registration
 
 func is_player() -> bool:
 	return character_uid == GameState.player_character_uid and character_uid != -1
@@ -25,20 +27,21 @@ var navigation_system: Node = null
 
 # --- Initialization ---
 # Called externally (e.g., by WorldManager) after instancing and adding to tree
-func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: int = -1):
+func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid: int = -1):
 	if not template is AgentTemplate:
 		printerr("AgentBody Initialize Error: Invalid template for ", self.name)
 		return
 
 	self.template_id = overrides.get("template_id")
 	self.agent_type = overrides.get("agent_type")
-	self.agent_uid = agent_uid
+	self.agent_uid = p_agent_uid
 	self.character_uid = overrides.get("character_uid", -1)
+	self.is_hostile = overrides.get("hostile", false)
 	
 	if is_player():
 		print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
 	else:
-		print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
+		print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid, " Hostile: ", self.is_hostile)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -62,6 +65,9 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
+	
+	# Register with combat system if we have a ship template
+	_register_with_combat_system()
 
 	print(
 		"AgentBody '",
@@ -76,26 +82,32 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, agent_uid: 
 
 # Retrieves movement parameters from the character's active ship template.
 # Falls back to Constants defaults if ship data is unavailable.
+# Also caches the ship_template for combat registration.
 func _get_movement_params_from_ship() -> Dictionary:
-	var ship: ShipTemplate = null
+	ship_template = null
 	
 	# Try to get ship via AssetSystem if character_uid is valid
 	if character_uid != -1 and is_instance_valid(GlobalRefs.asset_system):
-		ship = GlobalRefs.asset_system.get_ship_for_character(character_uid)
+		ship_template = GlobalRefs.asset_system.get_ship_for_character(character_uid)
 	
-	if is_instance_valid(ship):
-		interaction_radius = ship.interaction_radius
+	# For hostile NPCs without character, load the default hostile ship
+	if not is_instance_valid(ship_template) and is_hostile:
+		ship_template = load("res://assets/data/assets/ships/ship_hostile_default.tres")
+	
+	if is_instance_valid(ship_template):
+		interaction_radius = ship_template.interaction_radius
 		return {
-			"max_move_speed": ship.max_move_speed,
-			"acceleration": ship.acceleration,
-			"deceleration": ship.deceleration,
-			"max_turn_speed": ship.max_turn_speed,
-			"brake_strength": ship.deceleration,
-			"alignment_threshold_angle_deg": ship.alignment_threshold_angle_deg
+			"max_move_speed": ship_template.max_move_speed,
+			"acceleration": ship_template.acceleration,
+			"deceleration": ship_template.deceleration,
+			"max_turn_speed": ship_template.max_turn_speed,
+			"brake_strength": ship_template.deceleration,
+			"alignment_threshold_angle_deg": ship_template.alignment_threshold_angle_deg
 		}
 	else:
-		# Fallback to Constants defaults if no ship found
-		printerr("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
+		# Fallback to Constants defaults if no ship found (normal for hostile NPCs)
+		if character_uid >= 0:
+			printerr("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
 		return {
 			"max_move_speed": Constants.DEFAULT_MAX_MOVE_SPEED,
 			"acceleration": Constants.DEFAULT_ACCELERATION,
@@ -104,6 +116,19 @@ func _get_movement_params_from_ship() -> Dictionary:
 			"brake_strength": Constants.DEFAULT_DECELERATION,
 			"alignment_threshold_angle_deg": Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 		}
+
+
+# Registers this agent with the combat system using its ship template.
+func _register_with_combat_system() -> void:
+	if not is_instance_valid(GlobalRefs.combat_system):
+		return
+	if agent_uid < 0:
+		return
+	if not is_instance_valid(ship_template):
+		return
+	
+	GlobalRefs.combat_system.register_combatant(agent_uid, ship_template)
+	print("AgentBody '", self.name, "' registered with CombatSystem. Hull: ", ship_template.hull_integrity)
 
 
 # --- Godot Lifecycle ---

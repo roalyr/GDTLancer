@@ -4,6 +4,7 @@ onready var list_station = $Panel/VBoxMain/HBoxContent/VBoxStation/ItemListStati
 onready var list_player = $Panel/VBoxMain/HBoxContent/VBoxPlayer/ItemListPlayer
 onready var btn_buy = $Panel/VBoxMain/HBoxControls/BtnBuy
 onready var btn_sell = $Panel/VBoxMain/HBoxControls/BtnSell
+onready var spin_quantity = $Panel/VBoxMain/HBoxControls/SpinQuantity
 onready var btn_close = $Panel/VBoxMain/HBoxControls/BtnClose
 onready var label_wp = $Panel/VBoxMain/HBoxHeader/LabelWP
 onready var label_status = $Panel/VBoxMain/LabelStatus
@@ -13,10 +14,15 @@ var current_location_id: String = ""
 var selected_station_item_idx: int = -1
 var selected_player_item_idx: int = -1
 
+var _selected_comm_id: String = ""
+var _trade_mode: String = "" # "buy" | "sell" | ""
+
 func _ready():
 	btn_close.connect("pressed", self, "_on_close_pressed")
 	btn_buy.connect("pressed", self, "_on_buy_pressed")
 	btn_sell.connect("pressed", self, "_on_sell_pressed")
+	if spin_quantity:
+		spin_quantity.connect("value_changed", self, "_on_quantity_changed")
 	
 	list_station.connect("item_selected", self, "_on_station_item_selected")
 	list_player.connect("item_selected", self, "_on_player_item_selected")
@@ -27,6 +33,7 @@ func open(location_id: String):
 	refresh_lists()
 	_update_wp_display()
 	_clear_price_comparison()
+	_reset_quantity_selector()
 
 func _update_wp_display():
 	if label_wp and GlobalRefs.character_system:
@@ -42,8 +49,11 @@ func refresh_lists():
 	list_player.clear()
 	selected_station_item_idx = -1
 	selected_player_item_idx = -1
+	_selected_comm_id = ""
+	_trade_mode = ""
 	btn_buy.disabled = true
 	btn_sell.disabled = true
+	_reset_quantity_selector()
 	if label_status:
 		label_status.text = "Select an item to trade"
 	
@@ -136,13 +146,11 @@ func _on_station_item_selected(index):
 	btn_sell.disabled = true
 	
 	var comm_id = list_station.get_item_metadata(index)
+	_selected_comm_id = str(comm_id)
+	_trade_mode = "buy"
 	_generate_price_comparison(comm_id)
-	
-	if label_status and GameState.locations.has(current_location_id):
-		var loc = GameState.locations[current_location_id]
-		var item = loc.market_inventory.get(comm_id, {})
-		var buy_price = item.get("buy_price", item.get("price", 0))
-		label_status.text = "Buy 1 %s for %d WP" % [_get_commodity_display_name(comm_id), buy_price]
+	_configure_quantity_for_buy(_selected_comm_id)
+	_update_trade_status_text()
 
 func _on_player_item_selected(index):
 	selected_player_item_idx = index
@@ -152,26 +160,95 @@ func _on_player_item_selected(index):
 	btn_sell.disabled = false
 	
 	var comm_id = list_player.get_item_metadata(index)
+	_selected_comm_id = str(comm_id)
+	_trade_mode = "sell"
 	_generate_price_comparison(comm_id)
-	
-	if label_status and GameState.locations.has(current_location_id):
+	_configure_quantity_for_sell(_selected_comm_id)
+	_update_trade_status_text()
+
+
+func _reset_quantity_selector() -> void:
+	if not spin_quantity:
+		return
+	spin_quantity.editable = false
+	spin_quantity.min_value = 1
+	spin_quantity.max_value = 1
+	spin_quantity.value = 1
+
+
+func _configure_quantity_for_buy(comm_id: String) -> void:
+	if not spin_quantity:
+		return
+	var max_qty := 1
+	if GameState.locations.has(current_location_id):
 		var loc = GameState.locations[current_location_id]
 		var item = loc.market_inventory.get(comm_id, {})
-		var sell_price = item.get("sell_price", item.get("price", 0))
-		label_status.text = "Sell 1 %s for %d WP" % [_get_commodity_display_name(comm_id), sell_price]
+		max_qty = int(item.get("quantity", 1))
+	spin_quantity.min_value = 1
+	spin_quantity.max_value = max(1, max_qty)
+	spin_quantity.value = 1
+	spin_quantity.editable = true
+
+
+func _configure_quantity_for_sell(comm_id: String) -> void:
+	if not spin_quantity:
+		return
+	var max_qty := 1
+	if is_instance_valid(GlobalRefs.inventory_system):
+		max_qty = int(GlobalRefs.inventory_system.get_asset_count(
+			GameState.player_character_uid,
+			GlobalRefs.inventory_system.InventoryType.COMMODITY,
+			comm_id
+		))
+	spin_quantity.min_value = 1
+	spin_quantity.max_value = max(1, max_qty)
+	spin_quantity.value = 1
+	spin_quantity.editable = true
+
+
+func _on_quantity_changed(_value) -> void:
+	_update_trade_status_text()
+
+
+func _get_selected_quantity() -> int:
+	if spin_quantity:
+		return int(spin_quantity.value)
+	return 1
+
+
+func _update_trade_status_text() -> void:
+	if not label_status:
+		return
+	if _selected_comm_id == "" or _trade_mode == "":
+		label_status.text = "Select an item to trade"
+		return
+	if not GameState.locations.has(current_location_id):
+		label_status.text = "Location not found"
+		return
+
+	var loc = GameState.locations[current_location_id]
+	var item = loc.market_inventory.get(_selected_comm_id, {})
+	var qty := _get_selected_quantity()
+	if _trade_mode == "buy":
+		var unit_price = int(item.get("buy_price", item.get("price", 0)))
+		label_status.text = "Buy %d %s for %d WP" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
+	elif _trade_mode == "sell":
+		var unit_price = int(item.get("sell_price", item.get("price", 0)))
+		label_status.text = "Sell %d %s for %d WP" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
 
 func _on_buy_pressed():
 	if selected_station_item_idx == -1:
 		return
 	var comm_id = list_station.get_item_metadata(selected_station_item_idx)
+	var qty := _get_selected_quantity()
 	
 	if GlobalRefs.trading_system:
-		var result = GlobalRefs.trading_system.execute_buy(GameState.player_character_uid, current_location_id, comm_id, 1)
+		var result = GlobalRefs.trading_system.execute_buy(GameState.player_character_uid, current_location_id, comm_id, qty)
 		if result.success:
 			refresh_lists()
 			_update_wp_display()
 			_generate_price_comparison(comm_id)
-			label_status.text = "Bought 1 %s" % _get_commodity_display_name(comm_id)
+			label_status.text = "Bought %d %s" % [qty, _get_commodity_display_name(comm_id)]
 		else:
 			if label_status:
 				label_status.text = result.reason
@@ -180,14 +257,15 @@ func _on_sell_pressed():
 	if selected_player_item_idx == -1:
 		return
 	var comm_id = list_player.get_item_metadata(selected_player_item_idx)
+	var qty := _get_selected_quantity()
 	
 	if GlobalRefs.trading_system:
-		var result = GlobalRefs.trading_system.execute_sell(GameState.player_character_uid, current_location_id, comm_id, 1)
+		var result = GlobalRefs.trading_system.execute_sell(GameState.player_character_uid, current_location_id, comm_id, qty)
 		if result.success:
 			refresh_lists()
 			_update_wp_display()
 			_generate_price_comparison(comm_id)
-			label_status.text = "Sold 1 %s" % _get_commodity_display_name(comm_id)
+			label_status.text = "Sold %d %s" % [qty, _get_commodity_display_name(comm_id)]
 		else:
 			if label_status:
 				label_status.text = result.reason

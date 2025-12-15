@@ -8,7 +8,9 @@ extends Control
 onready var targeting_indicator: Control = $TargetingIndicator
 onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
+onready var label_tu: Label = $ScreenControls/TopLeftZone/LabelTU
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
+onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
 onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
@@ -32,6 +34,7 @@ var _current_target: Spatial = null
 var _main_camera: Camera = null
 var _current_target_uid: int = -1  # UID of current combat target for hull tracking
 var _is_game_over: bool = false
+var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
 
 
 # --- Initialization ---
@@ -74,10 +77,20 @@ func _ready():
 
 		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
 			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
+
+		if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
+			EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
+
+		if EventBus.has_signal("time_units_added") and not EventBus.is_connected("time_units_added", self, "_on_time_units_added"):
+			EventBus.connect("time_units_added", self, "_on_time_units_added")
 			
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
+		
+		# Dock/Attack feedback signals
+		EventBus.connect("dock_action_feedback", self, "_on_dock_action_feedback")
+		EventBus.connect("attack_action_feedback", self, "_on_attack_action_feedback")
 
 		# Combat flow (Phase 1: debug feedback)
 		if not EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
@@ -102,6 +115,14 @@ func _ready():
 
 	# Connect draw signal for custom drawing (optional, but good for style)
 	targeting_indicator.connect("draw", self, "_draw_targeting_indicator")
+
+	# Connect ButtonMenu to open main menu
+	if is_instance_valid(button_menu):
+		if not button_menu.is_connected("pressed", self, "_on_ButtonMenu_pressed"):
+			button_menu.connect("pressed", self, "_on_ButtonMenu_pressed")
+
+	# Initialize TU display
+	_refresh_tu_display()
 
 
 # --- Process Update ---
@@ -176,6 +197,34 @@ func _refresh_player_resources() -> void:
 		return
 	label_wp.text = "Current WP: " + str(player_char.wealth_points)
 	label_fp.text = "Current FP: " + str(player_char.focus_points)
+
+
+func _refresh_tu_display() -> void:
+	if not is_instance_valid(label_tu):
+		return
+	label_tu.text = "Time (TU): " + str(GameState.current_tu)
+
+
+func _on_world_event_tick_triggered(_tu_amount: int = 0) -> void:
+	_refresh_tu_display()
+	_refresh_player_resources()
+
+
+func _on_time_units_added(_tu_added: int = 0) -> void:
+	_refresh_tu_display()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		if EventBus:
+			EventBus.emit_signal("main_menu_requested")
+			get_tree().set_input_as_handled()
+
+
+func _on_ButtonMenu_pressed() -> void:
+	"""Handle menu button press - opens main menu."""
+	if EventBus:
+		EventBus.emit_signal("main_menu_requested")
 
 
 # --- Custom Drawing (Optional but Recommended) ---
@@ -306,6 +355,16 @@ func _on_ButtonInteract_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_interact_pressed")
 
+
+func _on_ButtonDock_pressed():
+	if EventBus:
+		EventBus.emit_signal("player_dock_pressed")
+
+
+func _on_ButtonAttack_pressed():
+	if EventBus:
+		EventBus.emit_signal("player_attack_pressed")
+
 func _on_SliderControlLeft_value_changed(value):
 	# ZOOM camera slider
 	if EventBus:
@@ -329,7 +388,28 @@ func _on_player_docked(_location_id):
 		docking_prompt.visible = false
 
 
+# --- Dock/Attack Feedback Handlers ---
+func _on_dock_action_feedback(success: bool, message: String) -> void:
+	_show_action_feedback_popup("Dock", success, message)
 
+
+func _on_attack_action_feedback(success: bool, message: String) -> void:
+	_show_action_feedback_popup("Attack", success, message)
+
+
+func _show_action_feedback_popup(action_type: String, success: bool, message: String) -> void:
+	if not is_instance_valid(_action_feedback_popup):
+		_action_feedback_popup = AcceptDialog.new()
+		_action_feedback_popup.pause_mode = Node.PAUSE_MODE_PROCESS
+		add_child(_action_feedback_popup)
+	
+	if success:
+		_action_feedback_popup.window_title = action_type
+	else:
+		_action_feedback_popup.window_title = action_type + " Failed"
+	
+	_action_feedback_popup.dialog_text = message
+	_action_feedback_popup.popup_centered()
 func _on_SliderControlRight_value_changed(value):
 	# SPEED (maximum) limiter.
 	# This slider is inverted (rotated by 180) for the sake of appearance.

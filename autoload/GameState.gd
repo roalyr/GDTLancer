@@ -30,6 +30,9 @@ var current_zone_instance: Node = null
 
 # --- Player State ---
 var player_docked_at: String = "" # Empty if in space, location_id if docked
+var player_position: Vector3 = Vector3.ZERO  # Player position in zone
+var player_rotation: Vector3 = Vector3.ZERO  # Player rotation (degrees)
+
 
 # --- Locations (Stations, Points of Interest) ---
 # Key: location_id (String), Value: LocationTemplate instance or Dictionary

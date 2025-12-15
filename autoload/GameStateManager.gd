@@ -19,6 +19,8 @@ func reset_to_defaults() -> void:
 	GameState.current_tu = 0
 	GameState.player_character_uid = -1
 	GameState.player_docked_at = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
 
 	GameState.characters.clear()
 	GameState.active_actions.clear()
@@ -46,6 +48,10 @@ func reset_to_defaults() -> void:
 
 func save_game(slot_id: int = 0) -> bool:
 	_ensure_save_dir_exists()
+	
+	# Capture current player position and rotation before serializing
+	_capture_player_transform()
+	
 	var save_data = _serialize_game_state()
 	if save_data.empty():
 		printerr("GameStateManager Error: Failed to serialize game state.")
@@ -64,6 +70,14 @@ func save_game(slot_id: int = 0) -> bool:
 		printerr("Error saving game to path: ", path, " Error code: ", err)
 		file.close()
 		return false
+
+
+func _capture_player_transform() -> void:
+	var player_body = GlobalRefs.player_agent_body
+	if is_instance_valid(player_body):
+		GameState.player_position = player_body.global_transform.origin
+		GameState.player_rotation = player_body.rotation_degrees
+
 
 func load_game(slot_id: int = 0) -> bool:
 	var path = SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
@@ -140,6 +154,10 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["current_tu"] = GameState.current_tu
 	state_dict["player_docked_at"] = GameState.player_docked_at
 	
+	# Save player position and rotation
+	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
+	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
+	
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
 	state_dict["assets_ships"] = _serialize_resource_dict(GameState.assets_ships)
 	state_dict["assets_modules"] = _serialize_resource_dict(GameState.assets_modules)
@@ -211,6 +229,10 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.player_character_uid = save_data.get("player_character_uid", -1)
 	GameState.current_tu = save_data.get("current_tu", 0)
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
+	
+	# Restore player position and rotation
+	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
+	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
 	GameState.assets_modules = _deserialize_resource_dict(save_data.get("assets_modules", {}))
@@ -315,3 +337,17 @@ func _find_template_in_database(template_id: String) -> Resource:
 		return TemplateDatabase.contracts[template_id]
 	# Add other template types here as needed...
 	return null
+
+
+# --- Vector3 Serialization Helpers ---
+func _serialize_vector3(vec: Vector3) -> Dictionary:
+	return {"x": vec.x, "y": vec.y, "z": vec.z}
+
+func _deserialize_vector3(data) -> Vector3:
+	if data is Dictionary:
+		return Vector3(
+			float(data.get("x", 0.0)),
+			float(data.get("y", 0.0)),
+			float(data.get("z", 0.0))
+		)
+	return Vector3.ZERO

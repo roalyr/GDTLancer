@@ -9,6 +9,30 @@
 - [2025-12-15] [FIX] Boot now shows Main Menu first (paused) and defers world generation/zone load until New Game/Load
 - [2025-12-15] [FIX] Docked starts now spawn player at station position; HUD WP/FP initialize immediately (signals fixed)
 - [2025-12-15] [FIX] Docked spawn now uses in-scene DockableStation transform (spawn point source of truth) instead of LocationTemplate.position_in_zone
+- [2025-12-15] [PLAYTEST] TEST 2 and TEST 3 PASS; TEST 4 partial (quantity selector / multi-buy missing)
+- [2025-12-15] [FIX] Implemented TradeInterface Qty selector and multi-buy/sell (uses TradingSystem quantity) for TEST 4.5/4.8
+- [2025-12-15] [FIX] Contracts UI: fixed EventBus contract signal payloads + StationMenu now updates docked state before completion checks and shows contract accepted popup
+- [2025-12-15] [FIX] Added LabelTU to MainHUD for time display (TEST 6.5)
+- [2025-12-15] [FIX] Added "Debug: Trigger Encounter" button to CharacterStatus screen (TEST 7.1)
+- [2025-12-15] [FIX] Wired ButtonMenu in MainHUD to emit main_menu_requested signal (TEST 10.1)
+- [2025-12-15] [FIX] Made ContractCompletePopup exclusive (popup_exclusive=true) to block mouse events (TEST 9.1/9.8)
+- [2025-12-15] [FIX] TU display now updates every tick via new time_units_added signal (not just world_event_tick)
+- [2025-12-15] [FIX] Added ESC key binding (_unhandled_input ui_cancel) to open main menu
+- [2025-12-15] [FIX] Hostile NPCs now orbit player when in weapon range instead of stopping
+- [2025-12-15] [FIX] Suppressed character_uid=-1 warning for hostile NPCs (expected behavior)
+- [2025-12-15] [FIX] Added save notification popup (AcceptDialog) on save success/failure
+- [2025-12-15] [FIX] Zone corruption on multiple New Game/Load: added yield(idle_frame) between cleanup and load, created _cleanup_current_zone()
+- [2025-12-15] [FIX] Popup OK button: added focus_mode=2 and mouse_filter=0 to BtnPopupOK
+- [2025-12-15] [FIX] Contract completion now also pays cargo sale value at destination sell price
+- [2025-12-15] [FIX] Player position/rotation now saved and restored on load (GameState + GameStateManager)
+- [2025-12-15] [FIX] Hostile NPCs now get ship_hostile_default.tres with weapons; register with CombatSystem on spawn
+- [2025-12-15] [FIX] WeaponController deferred loading to work after agent initialization
+- [2025-12-15] [FIX] TemplateDatabase now indexes UtilityToolTemplate (weapons) via template_indexer
+- [2025-12-15] [FIX] Player ship (ship_default.tres) now has equipped_tools with weapon_ablative_laser
+- [2025-12-15] [FIX] Separated Dock and Attack buttons on HUD with distinct signals and feedback popups
+- [2025-12-15] [PLAYTEST] Sprint 10 Manual Verification: 45/50 tests pass
+- [2025-12-15] [BLOCKER] Combat damage not being dealt: enemy hull doesn't decrease, player doesn't receive damage
+- [2025-12-15] [BLOCKER] Game Over UI never triggers (depends on combat damage fix)
 
 ## Sprint 9 (2025-12-15) — Enemy AI & Combat Encounters
 - [2025-12-15] Implemented TASK 1: Extend AI Controller with Combat State Machine

@@ -1,5 +1,5 @@
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version: 4.1 - Corrected get_world() call for Godot 3 syntax.
+# Version: 4.2 - Added contextual interact popup for dock vs attack choice.
 
 extends Node
 
@@ -53,6 +53,8 @@ func _ready():
 	EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
+	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
+	EventBus.connect("player_attack_pressed", self, "_on_attack_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -77,7 +79,13 @@ func _get_camera_reference():
 	yield(get_tree(), "idle_frame")
 	_main_camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else null
 	if not is_instance_valid(_main_camera):
-		printerr("PlayerController Error: Could not find valid Main Camera.")
+		# Camera may not be ready yet, retry a few times
+		for _i in range(10):
+			yield(get_tree().create_timer(0.1), "timeout")
+			_main_camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else null
+			if is_instance_valid(_main_camera):
+				return
+		printerr("PlayerController Error: Could not find valid Main Camera after retries.")
 
 
 func _change_state(new_state_name: String):
@@ -100,15 +108,9 @@ func _physics_process(delta: float):
 func _unhandled_input(event: InputEvent):
 	# Global inputs that work in any state
 	if event.is_action_pressed("ui_accept"):
-		if _can_dock_at != "":
-			print("PlayerController: Attempting to dock at ", _can_dock_at)
-			EventBus.emit_signal("player_docked", _can_dock_at)
-			get_viewport().set_input_as_handled()
-			return
-		else:
-			# Debug print to see if input is working but dock is not available
-			# print("PlayerController: Interact pressed but no dock available.")
-			pass
+		_handle_interact_input()
+		get_viewport().set_input_as_handled()
+		return
 
 	# Combat input (key-based to avoid interfering with LMB targeting/drag)
 	if event is InputEventKey and event.is_action_pressed("fire_weapon"):
@@ -198,6 +200,39 @@ func _get_current_target() -> KinematicBody:
 	if is_instance_valid(_selected_target) and _selected_target is KinematicBody:
 		return _selected_target as KinematicBody
 	return null
+
+
+# --- Contextual Interact ---
+func _handle_interact_input() -> void:
+	# Legacy keyboard interact - just dock if available
+	if _can_dock_at != "":
+		print("PlayerController: Attempting to dock at ", _can_dock_at)
+		EventBus.emit_signal("player_docked", _can_dock_at)
+
+
+# --- Dock/Attack Button Handlers ---
+func _on_dock_button_pressed() -> void:
+	if _can_dock_at != "":
+		print("PlayerController: Dock button pressed, docking at ", _can_dock_at)
+		EventBus.emit_signal("player_docked", _can_dock_at)
+	else:
+		# Emit signal to show "no dock available" popup on HUD
+		if EventBus:
+			EventBus.emit_signal("dock_action_feedback", false, "No station in range")
+
+
+func _on_attack_button_pressed() -> void:
+	var target = _get_current_target()
+	if is_instance_valid(target):
+		print("PlayerController: Attack button pressed, attacking target")
+		_handle_combat_input()
+		# Emit signal to show "attacking" popup on HUD
+		if EventBus:
+			EventBus.emit_signal("attack_action_feedback", true, "Attacking!")
+	else:
+		# Emit signal to show "no target" popup on HUD
+		if EventBus:
+			EventBus.emit_signal("attack_action_feedback", false, "No target selected")
 
 
 # --- Helper & Command Functions (Publicly callable by states) ---

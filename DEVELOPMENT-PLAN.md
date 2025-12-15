@@ -673,8 +673,10 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 10: Full Game Loop Integration ✅ COMPLETE
+### SPRINT 10: Full Game Loop Integration ⚠️ PARTIAL (Combat blockers)
 **Goal:** Connect all systems into playable demo flow.
+
+> **Playtest Status (2025-12-15):** 45/50 tests pass. Combat damage not being dealt (enemy hull doesn't decrease, player doesn't receive damage). Game Over UI never triggers. See SESSION-LOG.md for blockers.
 
 #### 10.1 New Game Flow
 **Tasks:**

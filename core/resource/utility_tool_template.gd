@@ -1,12 +1,12 @@
 # File: core/resource/utility_tool_template.gd
 # Purpose: Defines utility tools (weapons/industrial tools) for ships
-# Version: 1.0
+# Version: 1.1 - Now extends Template for proper indexing
 
-extends Resource
+extends Template
 class_name UtilityToolTemplate
 
 # --- Identity ---
-export var template_id: String = ""
+# template_id is inherited from Template
 export var tool_name: String = "Unknown Tool"
 export var description: String = ""
 export var tool_type: String = "weapon"  # "weapon", "mining", "utility", "grapple"

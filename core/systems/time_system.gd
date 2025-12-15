@@ -16,6 +16,10 @@ func add_time_units(tu_to_add: int):
 
 	GameState.current_tu += tu_to_add
 
+	# Emit signal for UI updates every time TU is added
+	if EventBus and EventBus.has_signal("time_units_added"):
+		EventBus.emit_signal("time_units_added", tu_to_add)
+
 	while GameState.current_tu >= Constants.TIME_CLOCK_MAX_TU:
 		_trigger_world_event_tick()
 
