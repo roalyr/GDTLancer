@@ -83,7 +83,6 @@ script = ExtResource( 16 )
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
-visible = false
 
 [node name="CharacterStatus" parent="." instance=ExtResource( 18 )]
 visible = false

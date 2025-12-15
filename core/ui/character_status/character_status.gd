@@ -97,9 +97,7 @@ func _on_ButtonClose_pressed():
 func _on_ButtonAddWP_pressed():
 	if GlobalRefs.character_system:
 		GlobalRefs.character_system.add_wp(GameState.player_character_uid, 10)
-		EventBus.emit_signal("player_wp_changed")
 
 func _on_ButtonAddFP_pressed():
 	if GlobalRefs.character_system:
 		GlobalRefs.character_system.add_fp(GameState.player_character_uid, 1)
-		EventBus.emit_signal("player_fp_changed")

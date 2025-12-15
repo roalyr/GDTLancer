@@ -39,7 +39,7 @@ func add_wp(character_uid: int, amount: int):
 		GameState.characters[character_uid].wealth_points += amount
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_wp_changed")
+			EventBus.emit_signal("player_wp_changed", GameState.characters[character_uid].wealth_points)
 
 
 func subtract_wp(character_uid: int, amount: int):
@@ -47,7 +47,7 @@ func subtract_wp(character_uid: int, amount: int):
 		GameState.characters[character_uid].wealth_points -= amount
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_wp_changed")
+			EventBus.emit_signal("player_wp_changed", GameState.characters[character_uid].wealth_points)
 
 
 func get_wp(character_uid: int) -> int:
@@ -63,7 +63,7 @@ func add_fp(character_uid: int, amount: int):
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_fp_changed")
+			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
 func subtract_fp(character_uid: int, amount: int):
@@ -73,7 +73,7 @@ func subtract_fp(character_uid: int, amount: int):
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_fp_changed")
+			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
 func get_fp(character_uid: int) -> int:

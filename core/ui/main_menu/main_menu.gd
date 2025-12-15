@@ -7,6 +7,8 @@ onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitg
 
 
 func _ready() -> void:
+	pause_mode = Node.PAUSE_MODE_PROCESS
+
 	if is_instance_valid(btn_new_game) and not btn_new_game.is_connected("pressed", self, "_on_new_game_pressed"):
 		btn_new_game.connect("pressed", self, "_on_new_game_pressed")
 	if is_instance_valid(btn_load_game) and not btn_load_game.is_connected("pressed", self, "_on_load_game_pressed"):
@@ -21,6 +23,8 @@ func _ready() -> void:
 			EventBus.connect("main_menu_requested", self, "_show_menu")
 
 	_update_load_button_state()
+	# If nothing else requests it, show menu on boot.
+	call_deferred("_show_menu")
 
 
 func _on_new_game_pressed() -> void:
@@ -37,8 +41,11 @@ func _on_load_game_pressed() -> void:
 		return
 
 	if GameStateManager.has_method("has_save_file") and GameStateManager.has_save_file():
-		visible = false
-		GameStateManager.load_game(0)
+		var ok: bool = GameStateManager.load_game(0)
+		if ok:
+			visible = false
+		else:
+			_show_menu()
 	else:
 		_update_load_button_state()
 
@@ -66,5 +73,6 @@ func _update_load_button_state() -> void:
 
 func _show_menu() -> void:
 	visible = true
+	get_tree().paused = true
 	_update_load_button_state()
 

@@ -6,6 +6,7 @@ export var station_name: String = "Station Alpha"
 onready var docking_zone = $DockingZone
 
 func _ready():
+	add_to_group("dockable_station")
 	print("DockableStation ready: ", station_name, " at ", global_transform.origin)
 	if docking_zone:
 		docking_zone.monitoring = true

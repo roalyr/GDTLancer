@@ -95,7 +95,33 @@ func load_game(slot_id: int = 0) -> bool:
 func has_save_file(slot_id: int = 0) -> bool:
 	var path = SAVE_DIR + SAVE_FILE_PREFIX + str(slot_id) + SAVE_FILE_EXT
 	var file = File.new()
-	return file.file_exists(path)
+	if not file.file_exists(path):
+		return false
+
+	# Treat corrupt/empty saves as non-existent for UI purposes.
+	var err = file.open(path, File.READ)
+	if err != OK:
+		file.close()
+		return false
+	var save_data = file.get_var(true)
+	file.close()
+	if not (save_data is Dictionary):
+		return false
+	return _is_save_data_valid(save_data)
+
+
+func _is_save_data_valid(save_data: Dictionary) -> bool:
+	# Minimal validity checks so we don't offer "Load" when it can't restore a playable state.
+	var player_uid := int(save_data.get("player_character_uid", -1))
+	if player_uid < 0:
+		return false
+	var characters = save_data.get("characters", null)
+	if not (characters is Dictionary) or characters.empty():
+		return false
+	var locations = save_data.get("locations", null)
+	if not (locations is Dictionary) or locations.empty():
+		return false
+	return true
 
 
 func _ensure_save_dir_exists() -> void:

@@ -51,7 +51,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ## 3. Sprint Schedule
 
-### SPRINT 1: Foundation Fixes (Critical Path)
+### SPRINT 1: Foundation Fixes (Critical Path) ✅ COMPLETE
 **Goal:** Wire existing systems together properly before adding new features.
 
 #### 1.1 Ship Stats Integration
@@ -115,12 +115,12 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 2: Trading Module Core
+### SPRINT 2: Trading Module Core ✅ COMPLETE
 **Goal:** Implement buy/sell mechanics without UI.
 
 #### 2.1 Location Data Structure
 **Tasks:**
-- [ ] Create `LocationTemplate` resource (`core/resource/location_template.gd`):
+- [x] Create `LocationTemplate` resource (`core/resource/location_template.gd`):
   ```gdscript
   extends Template
   class_name LocationTemplate
@@ -131,8 +131,8 @@ Each sprint is **1-2 weeks** and follows this pattern:
   export var market_inventory: Dictionary = {}  # template_id -> {price, quantity}
   export var available_services: Array = ["trade", "repair", "contracts"]
   ```
-- [ ] Create placeholder location data file: `assets/data/locations/station_alpha.tres`
-- [ ] Extend `WorldGenerator` to load locations into `GameState.locations`
+- [x] Create placeholder location data file: `assets/data/locations/station_alpha.tres`
+- [x] Extend `WorldGenerator` to load locations into `GameState.locations`
 
 **Files to create:**
 - `core/resource/location_template.gd`
@@ -143,7 +143,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 2.2 Trading System
 **Tasks:**
-- [ ] Create `core/systems/trading_system.gd`:
+- [x] Create `core/systems/trading_system.gd`:
   ```gdscript
   extends Node
   
@@ -153,9 +153,9 @@ Each sprint is **1-2 weeks** and follows this pattern:
   func execute_sell(char_uid, location_id, commodity_id, quantity) -> Dictionary
   func get_market_prices(location_id) -> Dictionary
   ```
-- [ ] Implement cargo capacity checks (query AssetSystem for ship's cargo_capacity)
-- [ ] Implement WP transactions via CharacterSystem
-- [ ] Emit `trade_transaction_completed` signal on success
+- [x] Implement cargo capacity checks (query AssetSystem for ship's cargo_capacity)
+- [x] Implement WP transactions via CharacterSystem
+- [x] Emit `trade_transaction_completed` signal on success
 
 **Files to create:**
 - `core/systems/trading_system.gd`
@@ -167,7 +167,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 2.3 Trading System Tests
 **Tasks:**
-- [ ] Create `tests/core/systems/test_trading_system.gd`:
+- [x] Create `tests/core/systems/test_trading_system.gd`:
   - Test: Buy commodity within budget → success, WP decreases, inventory increases
   - Test: Buy commodity over budget → failure, no state change
   - Test: Buy commodity exceeds cargo → failure, no state change
@@ -186,12 +186,12 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 3: Contract System Core
+### SPRINT 3: Contract System Core ✅ COMPLETE
 **Goal:** Create contract data structures and completion logic.
 
 #### 3.1 Contract Data Structure
 **Tasks:**
-- [ ] Create `ContractTemplate` resource (`core/resource/contract_template.gd`):
+- [x] Create `ContractTemplate` resource (`core/resource/contract_template.gd`):
   ```gdscript
   extends Template
   class_name ContractTemplate
@@ -210,7 +210,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
   export var time_limit_tu: int = -1             # -1 = no limit
   export var difficulty: int = 1                 # For matching/filtering
   ```
-- [ ] Create 3 placeholder contracts in `assets/data/contracts/`
+- [x] Create 3 placeholder contracts in `assets/data/contracts/`
 
 **Files to create:**
 - `core/resource/contract_template.gd`
@@ -222,7 +222,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 3.2 Contract System
 **Tasks:**
-- [ ] Create `core/systems/contract_system.gd`:
+- [x] Create `core/systems/contract_system.gd`:
   ```gdscript
   extends Node
   
@@ -248,7 +248,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 3.3 Contract System Tests
 **Tasks:**
-- [ ] Create `tests/core/systems/test_contract_system.gd`:
+- [x] Create `tests/core/systems/test_contract_system.gd`:
   - Test: Accept contract → added to active_contracts
   - Test: Accept already-active contract → failure
   - Test: Check completion when not at destination → incomplete
@@ -268,18 +268,18 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 4: Docking & Location Interaction
+### SPRINT 4: Docking & Location Interaction ✅ COMPLETE
 **Goal:** Player can dock at stations and access services.
 
 #### 4.1 Dockable Zone Objects
 **Tasks:**
-- [ ] Create `DockableStation` scene (`scenes/zones/objects/dockable_station.tscn`):
+- [x] Create `DockableStation` scene (`scenes/zones/objects/dockable_station.tscn`):
   - Area node for dock trigger detection
   - Collision shape (sphere, radius = interaction_radius from location template)
   - Visual: Placeholder mesh (cube or sphere with distinct color)
   - Script that emits `station_dock_available` when player enters area
-- [ ] Modify `basic_flight_zone.tscn` to include 2 station instances
-- [ ] Add `location_id` export var to link station to LocationTemplate
+- [x] Modify `basic_flight_zone.tscn` to include 2 station instances
+- [x] Add `location_id` export var to link station to LocationTemplate
 
 **Files to create:**
 - `scenes/zones/objects/dockable_station.tscn`
@@ -295,18 +295,18 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 4.2 Docking State Machine
 **Tasks:**
-- [ ] Add to EventBus:
+- [x] Add to EventBus:
   ```gdscript
   signal dock_available(location_id)
   signal dock_unavailable
   signal player_docked(location_id)
   signal player_undocked
   ```
-- [ ] Add docking state to player agent or create `DockingController` component:
+- [x] Add docking state to player agent or create `DockingController` component:
   - Track `is_docked: bool` and `current_location_id: String`
   - When docked: disable movement, show station UI
   - When undocked: enable movement, hide station UI
-- [ ] Add dock/undock input actions to `project.godot`
+- [x] Add dock/undock input actions to `project.godot`
 
 **Files to modify:**
 - `autoload/EventBus.gd`
@@ -317,11 +317,11 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 4.3 Station Menu UI (Placeholder)
 **Tasks:**
-- [ ] Create `StationMenuUI` scene (`core/ui/station_menu/station_menu.tscn`):
+- [x] Create `StationMenuUI` scene (`core/ui/station_menu/station_menu.tscn`):
   - Panel container with buttons: [Trade] [Contracts] [Undock]
   - Label showing station name
   - Initially hidden, shown when `player_docked` signal received
-- [ ] Connect buttons to emit navigation signals (actual screens built in later sprints)
+- [x] Connect buttons to emit navigation signals (actual screens built in later sprints)
 
 **Files to create:**
 - `core/ui/station_menu/station_menu.tscn`
@@ -339,12 +339,12 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 5: Trade UI & Integration
+### SPRINT 5: Trade UI & Integration ✅ COMPLETE
 **Goal:** Functional trade interface using TradingSystem.
 
 #### 5.1 Trade Screen UI (Placeholder)
 **Tasks:**
-- [ ] Create `TradeScreenUI` scene (`core/ui/trade_screen/trade_screen.tscn`):
+- [x] Create `TradeScreenUI` scene (`core/ui/trade_screen/trade_screen.tscn`):
   - Left panel: Station inventory (ItemList or VBoxContainer with commodity rows)
   - Right panel: Player cargo (ItemList or VBoxContainer)
   - Center: Transaction controls (Buy/Sell buttons, quantity selector)
@@ -363,7 +363,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 5.2 Trade Screen Logic
 **Tasks:**
-- [ ] Implement in `trade_screen.gd`:
+- [x] Implement in `trade_screen.gd`:
   - `_on_open(location_id)`: Populate station inventory from `TradingSystem.get_market_prices()`
   - `_on_buy_pressed()`: Call `TradingSystem.execute_buy()`, refresh displays
   - `_on_sell_pressed()`: Call `TradingSystem.execute_sell()`, refresh displays
@@ -382,12 +382,12 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 6: Contract UI & Integration
+### SPRINT 6: Contract UI & Integration ✅ COMPLETE
 **Goal:** Functional contract board and active contracts display.
 
 #### 6.1 Contract Board UI (Placeholder)
 **Tasks:**
-- [ ] Create `ContractBoardUI` scene (`core/ui/contract_board/contract_board.tscn`):
+- [x] Create `ContractBoardUI` scene (`core/ui/contract_board/contract_board.tscn`):
   - List of available contracts at current location
   - Each row: Title, Type, Reward, Destination
   - [Accept] button per contract or for selected contract
@@ -402,7 +402,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 6.2 Active Contracts Panel
 **Tasks:**
-- [ ] Add to Main HUD or create separate panel:
+- [x] Add to Main HUD or create separate panel:
   - List of player's active contracts (max 3 for Phase 1)
   - Each entry: Title, Objective summary, Destination
   - Visual indicator when at correct destination with required cargo
@@ -416,11 +416,11 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 6.3 Contract Completion Flow
 **Tasks:**
-- [ ] When player docks at destination:
+- [x] When player docks at destination:
   - Check active contracts for completability via `ContractSystem.check_contract_completion()`
   - If completable, show [Complete Contract] button in station menu
   - On press: call `ContractSystem.complete_contract()`, show reward popup
-- [ ] Create simple reward popup (Label with WP gain, auto-hide after 2s)
+- [x] Create simple reward popup (Label with WP gain, auto-hide after 2s)
 
 **Test Checklist (Sprint 6):**
 - [ ] Open contract board at station → shows available contracts
@@ -435,12 +435,12 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 7: Narrative Actions - Core
+### SPRINT 7: Narrative Actions - Core ✅ COMPLETE
 **Goal:** Implement Action Check resolution with Risky/Cautious choice.
 
 #### 7.1 Narrative Action System
 **Tasks:**
-- [ ] Create `core/systems/narrative_action_system.gd`:
+- [x] Create `core/systems/narrative_action_system.gd`:
   ```gdscript
   extends Node
   
@@ -463,7 +463,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 7.2 Action Check UI (Placeholder)
 **Tasks:**
-- [ ] Create `ActionCheckUI` scene (`core/ui/action_check/action_check.tscn`):
+- [x] Create `ActionCheckUI` scene (`core/ui/action_check/action_check.tscn`):
   - Title: Action being resolved (e.g., "Execute Precision Arrival")
   - Description: Context text
   - Two large buttons: [Act Cautiously] [Act Risky]
@@ -487,7 +487,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 7.3 Outcome Application
 **Tasks:**
-- [ ] Define outcome tables in `Constants.gd` or separate data file:
+- [x] Define outcome tables in `Constants.gd` or separate data file:
   ```gdscript
   const NARRATIVE_OUTCOMES = {
       "dock_arrival": {
@@ -498,7 +498,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
       # ... more action types
   }
   ```
-- [ ] Implement effect application:
+- [x] Implement effect application:
   - `add_quirk`: Add string to ship's `ship_quirks` array
   - `wp_cost`: Subtract WP via CharacterSystem
   - `reputation_change`: Modify `GameState.narrative_state.reputation`
@@ -515,12 +515,12 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 8: Combat Module - Core
+### SPRINT 8: Combat Module - Core ✅ COMPLETE
 **Goal:** Basic ship-to-ship combat with hull damage.
 
 #### 8.1 Weapon/Tool Data
 **Tasks:**
-- [ ] Create `UtilityToolTemplate` resource (`core/resource/utility_tool_template.gd`):
+- [x] Create `UtilityToolTemplate` resource (`core/resource/utility_tool_template.gd`):
   ```gdscript
   extends Template
   class_name UtilityToolTemplate
@@ -532,8 +532,8 @@ Each sprint is **1-2 weeks** and follows this pattern:
   export var cooldown_seconds: float = 1.0
   export var projectile_speed: float = 1000.0  # 0 = hitscan
   ```
-- [ ] Create placeholder weapon: `assets/data/tools/ablative_laser.tres`
-- [ ] Add `equipped_tools: Array` to `ShipTemplate` (list of tool template IDs)
+- [x] Create placeholder weapon: `assets/data/tools/ablative_laser.tres`
+- [x] Add `equipped_tools: Array` to `ShipTemplate` (list of tool template IDs)
 
 **Files to create:**
 - `core/resource/utility_tool_template.gd`
@@ -546,7 +546,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 8.2 Combat System
 **Tasks:**
-- [ ] Create `core/systems/combat_system.gd`:
+- [x] Create `core/systems/combat_system.gd`:
   ```gdscript
   extends Node
   
@@ -569,7 +569,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 8.3 Weapon Firing Component
 **Tasks:**
-- [ ] Create `WeaponController` component (`core/agents/components/weapon_controller.gd`):
+- [x] Create `WeaponController` component (`core/agents/components/weapon_controller.gd`):
   - Handles cooldowns per equipped tool
   - `fire_weapon(tool_index, target)` - Check range, apply damage
   - For Phase 1: Hitscan only (instant hit if in range and aimed)
@@ -585,8 +585,8 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 8.4 Combat Input & Targeting
 **Tasks:**
-- [ ] Add input action `fire_weapon` to `project.godot` (left mouse button or key)
-- [ ] Modify player input handler:
+- [x] Add input action `fire_weapon` to `project.godot` (left mouse button or key)
+- [x] Modify player input handler:
   - When fire pressed and target selected: call WeaponController.fire_weapon()
   - Visual/audio feedback (placeholder: print statement or simple particle)
 
@@ -608,17 +608,17 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 9: Enemy AI & Combat Encounters
+### SPRINT 9: Enemy AI & Combat Encounters ✅ COMPLETE
 **Goal:** NPCs that fight back, encounters triggered by Event System.
 
 #### 9.1 Enemy AI Combat Behavior
 **Tasks:**
-- [ ] Extend `ship_controller_ai.gd` with combat states:
+- [x] Extend `ship_controller_ai.gd` with combat states:
   - `STATE_IDLE`, `STATE_PATROL`, `STATE_COMBAT`, `STATE_FLEE`
   - In COMBAT: Approach player, fire weapons when in range
   - Switch to FLEE if hull below threshold (e.g., 20%)
-- [ ] AI weapon firing with cooldowns
-- [ ] AI target selection (for Phase 1: always target player if hostile)
+- [x] AI weapon firing with cooldowns
+- [x] AI target selection (for Phase 1: always target player if hostile)
 
 **Files to modify:**
 - `modules/piloting/scripts/ship_controller_ai.gd`
@@ -627,7 +627,7 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 9.2 Event System - Combat Encounters
 **Tasks:**
-- [ ] Implement `event_system.gd` with basic functionality:
+- [x] Implement `event_system.gd` with basic functionality:
   ```gdscript
   extends Node
   
@@ -642,8 +642,8 @@ Each sprint is **1-2 weeks** and follows this pattern:
       # Roll chance based on location danger level
       # If triggered, spawn hostile NPC and emit combat_initiated
   ```
-- [ ] Connect to `world_event_tick_triggered` signal
-- [ ] Spawn hostile agent at distance from player, initiate combat
+- [x] Connect to `world_event_tick_triggered` signal
+- [x] Spawn hostile agent at distance from player, initiate combat
 
 **Files to modify:**
 - `core/systems/event_system.gd`
@@ -652,11 +652,11 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 9.3 Combat Flow Integration
 **Tasks:**
-- [ ] When combat ends (all enemies disabled or player flees):
+- [x] When combat ends (all enemies disabled or player flees):
   - Call `CombatSystem.end_combat(result)`
   - Trigger Narrative Action for aftermath (e.g., "Assess the Aftermath")
   - Apply outcomes (WP from salvage, reputation changes)
-- [ ] If player ship destroyed: Game Over state (simple for Phase 1)
+- [x] If player ship destroyed: Game Over state (simple for Phase 1)
 
 **Placeholder Asset Needed:**
 - **Enemy ship visual:** Use the same ship mesh as player but with different color material (red/orange). I will create distinct enemy models later.
@@ -673,15 +673,15 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 10: Full Game Loop Integration
+### SPRINT 10: Full Game Loop Integration ✅ COMPLETE
 **Goal:** Connect all systems into playable demo flow.
 
 #### 10.1 New Game Flow
 **Tasks:**
-- [ ] Create proper main menu (`core/ui/main_menu/main_menu.tscn`):
+- [x] Create proper main menu (`core/ui/main_menu/main_menu.tscn`):
   - [New Game] - Initialize fresh GameState, load zone
   - [Quit] - Exit application
-- [ ] New game initialization:
+- [x] New game initialization:
   - Player starts docked at Station Alpha
   - Starting WP: 50
   - Starting cargo: Empty
@@ -694,26 +694,26 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 #### 10.2 Game Session Flow
 **Tasks:**
-- [ ] Verify complete loop works:
+- [x] Verify complete loop works:
   1. Start at station → Open contracts → Accept delivery contract
   2. Open trade → Buy required commodity
   3. Undock → Fly to destination (maybe encounter combat)
   4. Dock at destination → Complete contract (narrative action)
   5. Receive reward → Repeat
-- [ ] Time passes during flight → Upkeep costs deducted
-- [ ] Track session with debug logging
+- [x] Time passes during flight → Upkeep costs deducted
+- [x] Track session with debug logging
 
 ---
 
 #### 10.3 Win/Lose Conditions
 **Tasks:**
-- [ ] Lose condition: Player hull <= 0
+- [x] Lose condition: Player hull <= 0
   - Show "Ship Destroyed" screen
   - [Return to Menu] button
-- [ ] "Soft lose": WP drops below 0
+- [x] "Soft lose": WP drops below 0
   - For Phase 1: Just show warning, allow continued play
   - (Full game would have debt mechanics)
-- [ ] No explicit "win" for Phase 1 (sandbox demo)
+- [x] No explicit "win" for Phase 1 (sandbox demo)
 
 **Test Checklist (Sprint 10):**
 - [ ] New Game → player spawns docked at station

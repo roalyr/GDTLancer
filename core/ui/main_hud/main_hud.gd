@@ -94,6 +94,7 @@ func _ready():
 
 	# Connect to CombatSystem signals for hull updates (deferred to allow system init)
 	call_deferred("_connect_combat_signals")
+	call_deferred("_refresh_player_resources")
 	
 	# Ensure target info panel starts hidden
 	if target_info_panel:
@@ -157,18 +158,24 @@ func _on_Player_Target_Deselected():
 	set_process(false)  # Can disable processing if target is deselected
 
 
-func _on_player_wp_changed():
-	label_wp.text = (
-		"Current WP: "
-		+ str(GlobalRefs.character_system.get_player_character().wealth_points)
-	)
+func _on_player_wp_changed(_new_wp_value = null):
+	_refresh_player_resources()
 
 
-func _on_player_fp_changed():
-	label_fp.text = (
-		"Current FP: "
-		+ str(GlobalRefs.character_system.get_player_character().focus_points)
-	)
+func _on_player_fp_changed(_new_fp_value = null):
+	_refresh_player_resources()
+
+
+func _refresh_player_resources() -> void:
+	if not is_instance_valid(label_wp) or not is_instance_valid(label_fp):
+		return
+	if not is_instance_valid(GlobalRefs.character_system):
+		return
+	var player_char = GlobalRefs.character_system.get_player_character()
+	if not is_instance_valid(player_char):
+		return
+	label_wp.text = "Current WP: " + str(player_char.wealth_points)
+	label_fp.text = "Current FP: " + str(player_char.focus_points)
 
 
 # --- Custom Drawing (Optional but Recommended) ---

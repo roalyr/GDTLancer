@@ -48,6 +48,9 @@ func _apply_player_starting_state() -> void:
 		var player_char = GameState.characters[player_uid]
 		player_char.wealth_points = 50
 		player_char.focus_points = 3
+		if EventBus:
+			EventBus.emit_signal("player_wp_changed", player_char.wealth_points)
+			EventBus.emit_signal("player_fp_changed", player_char.focus_points)
 
 	# Starting cargo should be empty for the player.
 	if GameState.inventories.has(player_uid):
@@ -68,16 +71,39 @@ func _emit_initial_dock_signal() -> void:
 
 	# Move the player agent to the docked station position (so they truly spawn there).
 	var dock_id: String = GameState.player_docked_at
-	if is_instance_valid(GlobalRefs.player_agent_body) and GameState.locations.has(dock_id):
-		var loc = GameState.locations[dock_id]
-		if loc and loc.get("position_in_zone") is Vector3:
-			var spawn_pos: Vector3 = loc.position_in_zone + Vector3(0, 5, 15)
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		var dock_pos = _get_dock_position_in_zone(dock_id)
+		if dock_pos != null:
+			var spawn_pos: Vector3 = dock_pos + Vector3(0, 5, 15)
 			var t: Transform = GlobalRefs.player_agent_body.global_transform
 			t.origin = spawn_pos
 			GlobalRefs.player_agent_body.global_transform = t
 
 	if EventBus:
 		EventBus.emit_signal("player_docked", GameState.player_docked_at)
+
+
+func _get_dock_position_in_zone(location_id: String):
+	if location_id == "":
+		return null
+	if is_instance_valid(GlobalRefs.current_zone):
+		var stations = get_tree().get_nodes_in_group("dockable_station")
+		for station in stations:
+			if not is_instance_valid(station):
+				continue
+			if not (station is Spatial):
+				continue
+			if not GlobalRefs.current_zone.is_a_parent_of(station):
+				continue
+			if station.get("location_id") == location_id:
+				return station.global_transform.origin
+
+	if GameState.locations.has(location_id):
+		var loc = GameState.locations[location_id]
+		if loc and loc.get("position_in_zone") is Vector3:
+			return loc.position_in_zone
+
+	return null
 
 
 # --- Private Logic ---

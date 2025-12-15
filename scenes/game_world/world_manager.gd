@@ -17,6 +17,7 @@ var _world_generator: Node = null
 
 # --- Initialization ---
 func _ready():
+	pause_mode = Node.PAUSE_MODE_PROCESS
 	GlobalRefs.set_world_manager(self)
 	
 	# Step 1: Index all data templates into the TemplateDatabase.
@@ -25,14 +26,16 @@ func _ready():
 	add_child(_template_indexer)
 	_template_indexer.index_all_templates()
 
-	# Step 2: Initialize the game state (will handle New vs. Load).
-	# _initialize_main_menu()
-	# Let the main menu emit signal to _initialize_new_game() insteaad.
-	_initialize_game_state()
+	# Step 2: Boot to Main Menu. World generation/zone load happens only after
+	# the player chooses New Game / Load Game.
+	_show_boot_main_menu()
 	
 	# Connect to agent signals to keep the local list clean.
 	EventBus.connect("agent_spawned", self, "_on_Agent_Spawned")
 	EventBus.connect("agent_despawning", self, "_on_Agent_Despawning")
+	if EventBus.has_signal("game_state_loaded"):
+		if not EventBus.is_connected("game_state_loaded", self, "_on_game_state_loaded"):
+			EventBus.connect("game_state_loaded", self, "_on_game_state_loaded")
 	if EventBus.has_signal("new_game_requested"):
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
@@ -42,15 +45,20 @@ func _ready():
 	_time_clock_timer = Timer.new()
 	_time_clock_timer.name = "TimeClockTimer"
 	_time_clock_timer.wait_time = Constants.TIME_TICK_INTERVAL_SECONDS
-	_time_clock_timer.autostart = true
+	_time_clock_timer.autostart = false
 	_time_clock_timer.connect("timeout", self, "_on_Time_Clock_Timer_timeout")
 	add_child(_time_clock_timer)
 	
 	randomize()
-	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	# Do not load a zone at boot; wait for New Game / Load.
 
 
 func _on_new_game_requested() -> void:
+	# Leaving the Main Menu; resume gameplay.
+	get_tree().paused = false
+	if is_instance_valid(_time_clock_timer):
+		_time_clock_timer.start()
+
 	_cleanup_all_agents()
 	if is_instance_valid(GameStateManager) and GameStateManager.has_method("reset_to_defaults"):
 		GameStateManager.reset_to_defaults()
@@ -58,6 +66,40 @@ func _on_new_game_requested() -> void:
 		printerr("WorldManager: GameStateManager.reset_to_defaults() unavailable.")
 	_setup_new_game()
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+
+
+func _on_game_state_loaded() -> void:
+	# A saved state has been applied; we now need to load a zone so AgentSpawner can
+	# spawn the player from the restored GameState.
+	get_tree().paused = false
+	if is_instance_valid(_time_clock_timer):
+		_time_clock_timer.start()
+	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	call_deferred("_emit_loaded_dock_signal")
+	call_deferred("_emit_loaded_resource_signals")
+
+
+func _emit_loaded_resource_signals() -> void:
+	if not EventBus:
+		return
+	if not is_instance_valid(GlobalRefs.character_system):
+		return
+	var player_char = GlobalRefs.character_system.get_player_character()
+	if not is_instance_valid(player_char):
+		return
+	EventBus.emit_signal("player_wp_changed", player_char.wealth_points)
+	EventBus.emit_signal("player_fp_changed", player_char.focus_points)
+
+
+func _emit_loaded_dock_signal() -> void:
+	var retries := 0
+	while retries < 30 and (not is_instance_valid(GlobalRefs.current_zone) or not is_instance_valid(GlobalRefs.player_agent_body)):
+		yield(get_tree().create_timer(0.1), "timeout")
+		retries += 1
+
+	if GameState.player_docked_at == "":
+		return
+	EventBus.emit_signal("player_docked", GameState.player_docked_at)
 	
 	
 # --- Game State Setup ---
@@ -66,6 +108,14 @@ func _initialize_game_state():
 	# This is where the logic for choosing "New Game" vs "Load Game" will go.
 	# For now, we default to creating a new game.
 	_setup_new_game()
+
+
+func _show_boot_main_menu() -> void:
+	# Pause the game at boot so no simulation/UI actions occur until New Game.
+	get_tree().paused = true
+	# Ask the MainMenu UI to show itself.
+	if is_instance_valid(EventBus) and EventBus.has_signal("main_menu_requested"):
+		EventBus.emit_signal("main_menu_requested")
 
 
 func _setup_new_game():

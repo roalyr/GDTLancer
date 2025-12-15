@@ -48,6 +48,12 @@ func spawn_player():
 		if entry_node is Spatial:
 			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
 
+	# If the player is marked as docked, spawn them at that station's position.
+	if GameState.player_docked_at != "":
+		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
+		if dock_pos != null:
+			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
+
 	# Get the player character UID from GameState
 	var player_char_uid = GameState.player_character_uid
 	
@@ -69,6 +75,34 @@ func spawn_player():
 		EventBus.emit_signal("player_spawned", _player_agent_body)
 	else:
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
+
+
+func _get_dock_position_in_zone(location_id: String):
+	# Prefer the actual station instance position in the current zone.
+	if location_id == "":
+		return null
+	if is_instance_valid(GlobalRefs.current_zone):
+		var stations = get_tree().get_nodes_in_group("dockable_station")
+		for station in stations:
+			if not is_instance_valid(station):
+				continue
+			if not (station is Spatial):
+				continue
+			# Ensure this station belongs to the currently loaded zone.
+			if not GlobalRefs.current_zone.is_a_parent_of(station):
+				continue
+			if station.get("location_id") == location_id:
+				return station.global_transform.origin
+
+	# Fallback: use template data if present.
+	if GameState.locations.has(location_id):
+		var loc = GameState.locations[location_id]
+		if loc is Resource and loc.get("position_in_zone") is Vector3:
+			return loc.position_in_zone
+		if loc is Dictionary and loc.get("position_in_zone") is Vector3:
+			return loc["position_in_zone"]
+
+	return null
 
 
 # Spawns an NPC agent linked to a specific character.
