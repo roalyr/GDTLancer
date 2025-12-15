@@ -497,6 +497,33 @@ text = "Docking Available - Press Interact"
 align = 1
 valign = 1
 
+[node name="TargetInfoPanel" type="PanelContainer" parent="ScreenControls/TopCenterZone"]
+visible = false
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -150.0
+margin_top = 70.0
+margin_right = 150.0
+margin_bottom = 130.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScreenControls/TopCenterZone/TargetInfoPanel"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 293.0
+margin_bottom = 53.0
+
+[node name="LabelTargetName" type="Label" parent="ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer"]
+margin_right = 286.0
+margin_bottom = 14.0
+text = "Target Name"
+align = 1
+
+[node name="TargetHullBar" type="ProgressBar" parent="ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer"]
+margin_top = 18.0
+margin_right = 286.0
+margin_bottom = 32.0
+value = 100.0
+
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 visible = false
 anchor_left = 1.0

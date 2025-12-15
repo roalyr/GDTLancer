@@ -10,3 +10,12 @@
 - [2025-12-14] Implemented TASK 8: Register NarrativeActionSystem in Scene Tree
 - [2025-12-14] Completed TASK 9: Verification - GUT test suite run (141 passed, 0 failed)
 - [2025-12-15] QA Polish: narrative_action_system.gd v2.0 (strict types, docstrings) + test suite (16 test cases)
+- [2025-12-15] Implemented TASK 1: Add Fire Weapon Input Action
+- [2025-12-15] Implemented TASK 2: Create WeaponController Component
+- [2025-12-15] Implemented TASK 3: Integrate WeaponController into Agent Scenes
+- [2025-12-15] Implemented TASK 4: Add Fire Input to Player Controller
+- [2025-12-15] BLOCKER FIX: Added CombatSystem to GlobalRefs + main_game_scene.tscn (was missing)
+- [2025-12-15] Implemented TASK 5: Add Combat HUD Elements (Target Hull Bar)
+- [2025-12-15] Implemented TASK 6: Write WeaponController Unit Tests (20 test cases)
+- [2025-12-15] Completed TASK 7: Integration Verification - GUT test suite (173 passed, 0 failed) + manual check
+- [2025-12-15] **SPRINT 8 COMPLETE**: Combat Module Integration

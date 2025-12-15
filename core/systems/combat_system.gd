@@ -16,6 +16,11 @@ var _active_combatants: Dictionary = {}  # uid -> combat_state dict
 var _combat_active: bool = false
 
 
+func _ready():
+	GlobalRefs.set_combat_system(self)
+	print("CombatSystem Ready.")
+
+
 # --- Public API ---
 
 # Initialize combat state for an agent

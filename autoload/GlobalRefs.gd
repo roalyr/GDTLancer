@@ -38,6 +38,7 @@ var event_system = null setget set_event_system
 var trading_system = null setget set_trading_system
 var contract_system = null setget set_contract_system
 var narrative_action_system = null setget set_narrative_action_system
+var combat_system = null setget set_combat_system
 
 
 func _ready():
@@ -218,6 +219,13 @@ func set_narrative_action_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid NarrativeActionSystem ref: ", new_ref)
 
+func set_combat_system(new_ref):
+	if new_ref == combat_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		combat_system = new_ref
+		print("GlobalRefs: CombatSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid CombatSystem ref: ", new_ref)
 
 
 # --- UI ELEMENTS ---

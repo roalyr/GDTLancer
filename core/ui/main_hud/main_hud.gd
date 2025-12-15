@@ -12,6 +12,11 @@ onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharact
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
 onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
+# --- Combat HUD Nodes ---
+onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/TargetInfoPanel
+onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
+onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
+
 const StationMenuScene = preload("res://scenes/ui/station_menu/StationMenu.tscn")
 var station_menu_instance = null
 
@@ -21,6 +26,7 @@ var action_check_instance = null
 # --- State ---
 var _current_target: Spatial = null
 var _main_camera: Camera = null
+var _current_target_uid: int = -1  # UID of current combat target for hull tracking
 
 
 # --- Initialization ---
@@ -71,6 +77,13 @@ func _ready():
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
+	# Connect to CombatSystem signals for hull updates (deferred to allow system init)
+	call_deferred("_connect_combat_signals")
+	
+	# Ensure target info panel starts hidden
+	if target_info_panel:
+		target_info_panel.visible = false
+
 	# Connect draw signal for custom drawing (optional, but good for style)
 	targeting_indicator.connect("draw", self, "_draw_targeting_indicator")
 
@@ -113,13 +126,19 @@ func _on_Player_Target_Selected(target_node: Spatial):
 		# but we still need to ensure _process runs.
 		# targeting_indicator.visible = true # This line can be removed or kept, _process will override
 		set_process(true)  # Ensure _process runs
+		
+		# Update combat target info panel
+		_update_target_info_panel(target_node)
 	else:
 		_on_Player_Target_Deselected()
 
 
 func _on_Player_Target_Deselected():
 	_current_target = null
+	_current_target_uid = -1
 	targeting_indicator.visible = false
+	if target_info_panel:
+		target_info_panel.visible = false
 	set_process(false)  # Can disable processing if target is deselected
 
 
@@ -247,3 +266,72 @@ func _on_ButtonCharacter_pressed():
 
 func _on_ButtonInventory_pressed():
 	GlobalRefs.inventory_screen.open_screen()
+
+
+# --- Combat HUD Functions ---
+
+func _connect_combat_signals() -> void:
+	"""Connect to CombatSystem signals for hull updates."""
+	if is_instance_valid(GlobalRefs.combat_system):
+		if not GlobalRefs.combat_system.is_connected("damage_dealt", self, "_on_damage_dealt"):
+			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_damage_dealt")
+		if not GlobalRefs.combat_system.is_connected("ship_disabled", self, "_on_ship_disabled"):
+			GlobalRefs.combat_system.connect("ship_disabled", self, "_on_ship_disabled")
+
+
+func _update_target_info_panel(target_node: Spatial) -> void:
+	"""Update the target info panel with the selected target's info."""
+	if not target_info_panel:
+		return
+	
+	# Get target's agent_uid if available
+	if target_node.get("agent_uid") != null:
+		_current_target_uid = target_node.agent_uid
+	else:
+		_current_target_uid = -1
+		target_info_panel.visible = false
+		return
+	
+	# Set target name
+	var target_name: String = "Unknown"
+	if target_node.get("agent_name") != null:
+		target_name = target_node.agent_name
+	elif target_node.name:
+		target_name = target_node.name
+	
+	if label_target_name:
+		label_target_name.text = target_name
+	
+	# Update hull bar
+	_update_target_hull_bar()
+	
+	target_info_panel.visible = true
+
+
+func _update_target_hull_bar() -> void:
+	"""Update the target hull progress bar from CombatSystem."""
+	if not target_hull_bar or _current_target_uid < 0:
+		return
+	
+	if is_instance_valid(GlobalRefs.combat_system):
+		var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(_current_target_uid)
+		target_hull_bar.value = hull_pct * 100.0
+	else:
+		# CombatSystem not available, show full hull as fallback
+		target_hull_bar.value = 100.0
+
+
+func _on_damage_dealt(target_uid: int, _amount: float, _source_uid: int) -> void:
+	"""Handle damage_dealt signal from CombatSystem to update hull bar."""
+	if target_uid == _current_target_uid:
+		_update_target_hull_bar()
+
+
+func _on_ship_disabled(ship_uid: int) -> void:
+	"""Handle ship_disabled signal - target destroyed."""
+	if ship_uid == _current_target_uid:
+		if target_hull_bar:
+			target_hull_bar.value = 0.0
+		# Optionally change display to show "DISABLED" or similar
+		if label_target_name:
+			label_target_name.text = label_target_name.text + " [DISABLED]"

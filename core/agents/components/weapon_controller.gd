@@ -1,0 +1,156 @@
+# File: core/agents/components/weapon_controller.gd
+# Purpose: Manages weapon firing and cooldowns for an agent.
+# Attaches as child of AgentBody (KinematicBody).
+extends Node
+
+const UtilityToolTemplate = preload("res://core/resource/utility_tool_template.gd")
+
+signal weapon_fired(weapon_index, target_position)
+signal weapon_cooldown_started(weapon_index, duration)
+signal weapon_ready(weapon_index)
+
+# --- References (set in _ready) ---
+var _agent_body: KinematicBody = null  # Parent AgentBody
+var _ship_template = null  # Linked ShipTemplate (via AssetSystem)
+var _weapons: Array = []  # Loaded UtilityToolTemplate instances
+var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
+
+
+# --- Initialization ---
+func _ready() -> void:
+	_agent_body = get_parent()
+	if not _agent_body is KinematicBody:
+		printerr("WeaponController: Parent must be KinematicBody")
+		return
+	_load_weapons_from_ship()
+
+
+func _load_weapons_from_ship() -> void:
+	# Get character_uid from agent, then ship from AssetSystem
+	var char_uid: int = -1
+	var raw_char_uid = _agent_body.get("character_uid")
+	if raw_char_uid != null:
+		char_uid = int(raw_char_uid)
+	if char_uid < 0:
+		return  # No character linked, no weapons
+
+	if not is_instance_valid(GlobalRefs.asset_system):
+		return
+
+	_ship_template = GlobalRefs.asset_system.get_ship_for_character(char_uid)
+	if not is_instance_valid(_ship_template):
+		return
+
+	# Load each equipped tool template
+	var equipped_list = _ship_template.get("equipped_tools")
+	if equipped_list == null:
+		equipped_list = _ship_template.get("equipped_weapons")
+	if equipped_list == null:
+		equipped_list = []
+
+	for tool_id in equipped_list:
+		var tool_template = null
+		if TemplateDatabase and TemplateDatabase.has_method("get_template"):
+			tool_template = TemplateDatabase.callv("get_template", [tool_id])
+
+		if tool_template and tool_template.get("tool_type") == "weapon":
+			_weapons.append(tool_template)
+			_cooldowns[_weapons.size() - 1] = 0.0
+
+
+func _physics_process(delta: float) -> void:
+	# Keep CombatSystem cooldowns ticking (CombatSystem stores cooldowns per combatant).
+	if is_instance_valid(GlobalRefs.combat_system) and GlobalRefs.combat_system.has_method("update_cooldowns"):
+		GlobalRefs.combat_system.update_cooldowns(delta)
+
+	# Update local cooldown timers.
+	for idx in _cooldowns.keys():
+		if _cooldowns[idx] > 0:
+			_cooldowns[idx] -= delta
+			if _cooldowns[idx] <= 0:
+				_cooldowns[idx] = 0
+				emit_signal("weapon_ready", idx)
+
+
+# --- Public API ---
+
+func get_weapon_count() -> int:
+	return _weapons.size()
+
+
+func get_weapon(index: int) -> Resource:
+	if index >= 0 and index < _weapons.size():
+		return _weapons[index]
+	return null
+
+
+func is_weapon_ready(index: int) -> bool:
+	return _cooldowns.get(index, 0.0) <= 0.0
+
+
+func get_cooldown_remaining(index: int) -> float:
+	return _cooldowns.get(index, 0.0)
+
+
+func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3) -> Dictionary:
+	if weapon_index < 0 or weapon_index >= _weapons.size():
+		return {"success": false, "reason": "Invalid weapon index"}
+
+	if not is_weapon_ready(weapon_index):
+		return {"success": false, "reason": "Weapon on cooldown", "cooldown": _cooldowns[weapon_index]}
+
+	var weapon = _weapons[weapon_index]
+	var shooter_uid: int = int(_agent_body.get("agent_uid"))
+	var shooter_pos: Vector3 = _agent_body.global_transform.origin
+
+	if not is_instance_valid(GlobalRefs.combat_system):
+		return {"success": false, "reason": "CombatSystem unavailable"}
+
+	# Ensure both combatants registered
+	_ensure_combatant_registered(shooter_uid)
+	_ensure_combatant_registered(target_uid)
+
+	# Fire via CombatSystem
+	var result = GlobalRefs.combat_system.fire_weapon(
+		shooter_uid,
+		target_uid,
+		weapon,
+		shooter_pos,
+		target_position
+	)
+
+	if result.get("success", false):
+		# Start cooldown
+		var cooldown_seconds: float = 0.0
+		if weapon and weapon is UtilityToolTemplate:
+			var fire_rate: float = float(max(weapon.fire_rate, 0.0001))
+			cooldown_seconds = (1.0 / fire_rate) + float(weapon.cooldown_time)
+		_cooldowns[weapon_index] = cooldown_seconds
+		emit_signal("weapon_cooldown_started", weapon_index, cooldown_seconds)
+		emit_signal("weapon_fired", weapon_index, target_position)
+
+	return result
+
+
+func _ensure_combatant_registered(uid: int) -> void:
+	if not is_instance_valid(GlobalRefs.combat_system):
+		return
+	if GlobalRefs.combat_system.is_in_combat(uid):
+		return
+
+	var ship = null
+
+	# Prefer current ship if this is the local agent.
+	if _agent_body and int(_agent_body.get("agent_uid")) == uid and is_instance_valid(_ship_template):
+		ship = _ship_template
+
+	# Try to interpret uid as character_uid.
+	if not is_instance_valid(ship) and is_instance_valid(GlobalRefs.asset_system):
+		ship = GlobalRefs.asset_system.get_ship_for_character(uid)
+
+	# Fallback: interpret uid as ship_uid.
+	if not is_instance_valid(ship) and is_instance_valid(GlobalRefs.asset_system):
+		ship = GlobalRefs.asset_system.get_ship(uid)
+
+	if is_instance_valid(ship):
+		GlobalRefs.combat_system.register_combatant(uid, ship)

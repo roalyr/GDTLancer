@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://core/ui/main_hud/main_hud.tscn" type="PackedScene" id=2]
@@ -22,6 +22,7 @@
 [ext_resource path="res://core/systems/trading_system.gd" type="Script" id=20]
 [ext_resource path="res://core/systems/contract_system.gd" type="Script" id=21]
 [ext_resource path="res://core/systems/narrative_action_system.gd" type="Script" id=22]
+[ext_resource path="res://core/systems/combat_system.gd" type="Script" id=23]
 
 [node name="MainGameScene" type="Node"]
 
@@ -72,6 +73,9 @@ script = ExtResource( 21 )
 
 [node name="NarrativeActionSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 22 )
+
+[node name="CombatSystem" type="Node" parent="WorldManager"]
+script = ExtResource( 23 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )

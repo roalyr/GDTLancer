@@ -9,6 +9,7 @@ var agent_body: KinematicBody = null
 var movement_system: Node = null
 var _main_camera: Camera = null
 var _speed_slider: Slider = null
+var _weapon_controller: Node = null
 
 # --- Speed Control ---
 var template_max_speed_actual: float = 300.0
@@ -43,6 +44,8 @@ func _ready():
 		printerr("PlayerController Error: MovementSystem not found on agent.")
 		set_process(false)
 		return
+
+	_weapon_controller = agent_body.get_node_or_null("WeaponController")
 
 	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
 
@@ -107,6 +110,12 @@ func _unhandled_input(event: InputEvent):
 			# print("PlayerController: Interact pressed but no dock available.")
 			pass
 
+	# Combat input (key-based to avoid interfering with LMB targeting/drag)
+	if event is InputEventKey and event.is_action_pressed("fire_weapon"):
+		_handle_combat_input()
+		get_viewport().set_input_as_handled()
+		return
+
 	if Input.is_action_just_pressed("toggle_free_flight"):
 		var new_state = "default" if _current_input_state is StateFreeFlight else "free_flight"
 		_change_state(new_state)
@@ -153,6 +162,42 @@ func _unhandled_input(event: InputEvent):
 	# Delegate other inputs to the current state
 	if _current_input_state and _current_input_state.has_method("handle_input"):
 		_current_input_state.handle_input(event)
+
+
+func _handle_combat_input() -> void:
+	if not is_instance_valid(_weapon_controller):
+		return
+	if not _weapon_controller.has_method("fire_at_target"):
+		return
+	if not Input.is_action_just_pressed("fire_weapon"):
+		return
+
+	var target_body: KinematicBody = _get_current_target()
+	if not is_instance_valid(target_body):
+		return
+
+	var raw_uid = target_body.get("agent_uid")
+	if raw_uid == null:
+		return
+	var target_uid: int = int(raw_uid)
+	if target_uid < 0:
+		return
+
+	var target_pos: Vector3 = target_body.global_transform.origin
+	var result: Dictionary = _weapon_controller.call("fire_at_target", 0, target_uid, target_pos)
+	if not result.get("success", false):
+		print("Fire failed: ", result.get("reason", "Unknown"))
+	else:
+		if result.get("hit", true):
+			print("Hit!")
+		else:
+			print("Missed")
+
+
+func _get_current_target() -> KinematicBody:
+	if is_instance_valid(_selected_target) and _selected_target is KinematicBody:
+		return _selected_target as KinematicBody
+	return null
 
 
 # --- Helper & Command Functions (Publicly callable by states) ---

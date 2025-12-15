@@ -1,15 +1,15 @@
 # IMMEDIATE-TODO.md
-**Generated:** December 14, 2025  
-**Target Sprint:** Sprint 7 - Narrative Actions Core  
-**Previous Sprints Status:** Sprints 1-6 COMPLETE (verified in codebase)
+**Generated:** December 15, 2025  
+**Target Sprint:** Sprint 8 - Combat Module Integration  
+**Previous Sprints Status:** Sprints 1-7 COMPLETE (verified in codebase + tests)
 
 ---
 
 ## 1. CONTEXT
 
-We are implementing the **Narrative Action System** (Sprint 7), which allows players to make Risky/Cautious decisions during key gameplay moments with dice-roll resolution. This is a **core differentiator** of GDTLancer's gameplay loop—every significant action (docking, trading, contract completion) triggers a narrative check that can result in bonuses, penalties, or ship quirks.
+We are implementing **Combat Module Integration** (Sprint 8), which wires the existing CombatSystem into actual gameplay—agents can fire weapons and take damage. CombatSystem already handles damage application, hull tracking, and victory conditions; what's missing is the **WeaponController component** (to fire weapons from agents) and **input/targeting integration** (so the player can actually shoot).
 
-The foundation systems (Trading, Contracts, Docking, Station UI) are complete and tested. The next step integrates narrative outcomes into these existing flows.
+This sprint is a **critical prerequisite** for Sprint 9 (Enemy AI & Encounters), as enemies cannot fight back until weapon firing works.
 
 ---
 
@@ -18,26 +18,27 @@ The foundation systems (Trading, Contracts, Docking, Station UI) are complete an
 ### Files to CREATE:
 | File | Purpose |
 |------|---------|
-| `core/systems/narrative_action_system.gd` | API for requesting/resolving narrative actions |
-| `core/ui/action_check/action_check.tscn` | Modal UI for Risky/Cautious selection + result |
-| `core/ui/action_check/action_check.gd` | UI logic, FP allocation, result display |
-| `autoload/NarrativeOutcomes.gd` | Outcome tables (effects per action type + tier) |
+| `core/agents/components/weapon_controller.gd` | Agent component: handles cooldowns, fires weapons via CombatSystem |
+| `tests/core/agents/components/test_weapon_controller.gd` | GUT tests for WeaponController |
 
 ### Files to MODIFY:
 | File | Change |
 |------|--------|
-| `autoload/GlobalRefs.gd` | Add `narrative_action_system` reference + setter |
-| `scenes/game_world/main_game_scene.tscn` | Add `NarrativeActionSystem` node under WorldManager |
-| `core/ui/main_hud/main_hud.gd` | Instantiate `ActionCheckUI`, connect to `narrative_action_requested` |
-| `scenes/ui/station_menu/station_menu.gd` | Trigger narrative action on contract completion |
-| `core/systems/trading_system.gd` | Emit `narrative_action_requested` after large trades (optional Phase 1) |
+| `core/agents/player_agent.tscn` | Add WeaponController node |
+| `core/agents/npc_agent.tscn` | Add WeaponController node |
+| `modules/piloting/scripts/player_controller_ship.gd` | Add fire input handling, call WeaponController |
+| `project.godot` | Add `fire_weapon` input action |
+| `core/ui/main_hud/main_hud.gd` | Display target's hull bar when in combat |
 
 ### Files to READ for Context (Dependencies):
-- `autoload/CoreMechanicsAPI.gd` — `perform_action_check()` signature
-- `autoload/EventBus.gd` — Signal patterns, existing `narrative_action_*` signals
-- `autoload/GameState.gd` — `narrative_state`, `session_stats` structure
-- `core/systems/character_system.gd` — `get_skill_level()`, `subtract_fp()`, `add_fp()`
-- `core/resource/asset_ship_template.gd` — `ship_quirks` array structure
+| File | Reason |
+|------|--------|
+| `core/systems/combat_system.gd` | `fire_weapon()`, `register_combatant()`, `is_in_range()` API |
+| `core/resource/utility_tool_template.gd` | Weapon data structure (damage, range, cooldown) |
+| `core/resource/asset_ship_template.gd` | `equipped_tools` array, `hull_integrity` |
+| `core/agents/agent.gd` | Agent structure, `character_uid`, signal patterns |
+| `autoload/GlobalRefs.gd` | `combat_system` reference |
+| `autoload/EventBus.gd` | `combat_started`, `damage_dealt`, `ship_disabled` signals |
 
 ---
 
@@ -45,505 +46,463 @@ The foundation systems (Trading, Contracts, Docking, Station UI) are complete an
 
 ### Current Sprint Checklist
 
-- [x] TASK 1: Create NarrativeOutcomes Data Autoload
-- [x] TASK 2: Create NarrativeActionSystem
-- [x] TASK 3: Create ActionCheckUI Scene
-- [x] TASK 4: Create ActionCheckUI Script
-- [x] TASK 5: Integrate ActionCheckUI into MainHUD
-- [x] TASK 6: Integrate Narrative Action into Contract Completion
-- [x] TASK 7: Add GlobalRefs Entry for NarrativeActionSystem
-- [x] TASK 8: Register NarrativeActionSystem in Scene Tree
-- [x] TASK 9: Verification - Run GUT Test Suite (All Passing)
+- [x] TASK 1: Add Fire Weapon Input Action
+- [x] TASK 2: Create WeaponController Component
+- [x] TASK 3: Integrate WeaponController into Agent Scenes
+- [x] TASK 4: Add Fire Input to Player Controller
+- [x] TASK 5: Add Combat HUD Elements (Target Hull Bar)
+- [x] TASK 6: Write WeaponController Unit Tests
+- [x] TASK 7: Integration Verification
 
 ---
 
-### TASK 1: Create NarrativeOutcomes Data Autoload
+### TASK 1: Add Fire Weapon Input Action
 
-**TARGET FILE:** `autoload/NarrativeOutcomes.gd`
+**TARGET FILE:** `project.godot`
 
 **DEPENDENCIES:**
-- Read `autoload/Constants.gd` for tier names (CritSuccess, SwC, Failure)
-- Read `GDD-COMBINED-TEXT-frozen-2025-10-31.md` sections on narrative outcomes (if available)
+- None
 
-**PSEUDO-CODE SIGNATURES:**
-```gdscript
-extends Node
+**CHANGES:**
+Add input action `fire_weapon` mapped to:
+- Primary: Left Mouse Button (BUTTON_LEFT)
+- Secondary: Space bar (KEY_SPACE)
 
-# Outcome structure per action_type + tier
-# Returns: {description: String, effects: Dictionary}
-# effects keys: "add_quirk", "wp_cost", "wp_gain", "fp_gain", "reputation_change"
-
-const OUTCOMES: Dictionary = {
-    "contract_complete": {
-        "CritSuccess": {
-            "description": "Flawless delivery - client impressed",
-            "effects": {"wp_gain": 5, "reputation_change": 1}
-        },
-        "SwC": {
-            "description": "Delivery complete with minor issues",
-            "effects": {}
-        },
-        "Failure": {
-            "description": "Cargo damaged in transit",
-            "effects": {"wp_cost": 10, "add_quirk": "reputation_tarnished"}
-        }
-    },
-    "dock_arrival": {
-        "CritSuccess": {...},
-        "SwC": {...},
-        "Failure": {...}
-    },
-    "trade_finalize": {
-        "CritSuccess": {...},
-        "SwC": {...},
-        "Failure": {...}
-    }
+**PSEUDO-CODE (INI format):**
+```ini
+[input]
+fire_weapon={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"button_index":1,"pressed":false,"doubleclick":false),
+Object(InputEventKey,"resource_local_to_scene":false,"scancode":32,"pressed":false,"echo":false) ]
 }
-
-func get_outcome(action_type: String, tier_name: String) -> Dictionary
-func get_available_action_types() -> Array
 ```
 
 **SUCCESS CRITERIA:**
-- Can retrieve outcome data for all three action types
-- Effects dictionary is well-structured for downstream application
-- File loads without error as autoload
+- `Input.is_action_just_pressed("fire_weapon")` returns true on left-click/space
 
 ---
 
-### TASK 2: Create NarrativeActionSystem
+### TASK 2: Create WeaponController Component
 
-**TARGET FILE:** `core/systems/narrative_action_system.gd`
+**TARGET FILE:** `core/agents/components/weapon_controller.gd`
 
 **DEPENDENCIES:**
-- Read `autoload/CoreMechanicsAPI.gd` — lines 1-80, specifically `perform_action_check()`
-- Read `autoload/EventBus.gd` — signals `narrative_action_requested`, `narrative_action_resolved`
-- Read `core/systems/character_system.gd` — `get_skill_level()`, FP methods
-- Read `autoload/NarrativeOutcomes.gd` (Task 1)
+- Read `core/systems/combat_system.gd` (lines 70-150) for `fire_weapon()` API
+- Read `core/resource/utility_tool_template.gd` for weapon data structure
+- Read `core/resource/asset_ship_template.gd` for `equipped_tools` array
 
 **PSEUDO-CODE SIGNATURES:**
 ```gdscript
+# File: core/agents/components/weapon_controller.gd
+# Purpose: Manages weapon firing and cooldowns for an agent.
+# Attaches as child of AgentBody (KinematicBody).
 extends Node
 
-signal action_ui_requested(action_data)  # Internal: tells UI to show
-signal action_resolved(result_data)       # Internal: tells UI result is ready
+signal weapon_fired(weapon_index: int, target_position: Vector3)
+signal weapon_cooldown_started(weapon_index: int, duration: float)
+signal weapon_ready(weapon_index: int)
 
-var _pending_action: Dictionary = {}  # Stores context while waiting for player input
+# --- References (set in _ready) ---
+var _agent_body: KinematicBody = null  # Parent AgentBody
+var _ship_template = null               # Linked ShipTemplate (via AssetSystem)
+var _weapons: Array = []                # Loaded UtilityToolTemplate instances
+var _cooldowns: Dictionary = {}         # weapon_index -> remaining_time
 
-func _ready():
-    GlobalRefs.set_narrative_action_system(self)
+# --- Initialization ---
+func _ready() -> void:
+    """Get parent AgentBody, load weapons from ship template."""
+    _agent_body = get_parent()
+    if not _agent_body is KinematicBody:
+        printerr("WeaponController: Parent must be KinematicBody")
+        return
+    _load_weapons_from_ship()
 
-# Called by game systems (ContractSystem, TradingSystem) to initiate
-# Emits EventBus.narrative_action_requested to trigger UI display
-# context: {char_uid, action_type, description, related_ids...}
-func request_action(action_type: String, context: Dictionary) -> void:
-    _pending_action = {
-        "action_type": action_type,
-        "context": context,
-        "char_uid": context.get("char_uid", GameState.player_character_uid)
-    }
-    # Determine which skill/attribute applies
-    var skill_info = _get_skill_for_action(action_type)
-    _pending_action.merge(skill_info)
-    EventBus.emit_signal("narrative_action_requested", _pending_action)
-
-# Called by ActionCheckUI when player confirms selection
-# approach: Constants.ActionApproach (RISKY or CAUTIOUS)
-# fp_spent: int (0-3 typically)
-func resolve_action(approach: int, fp_spent: int) -> Dictionary:
-    var char_uid = _pending_action.char_uid
-    var attr = GlobalRefs.character_system.get_attribute(char_uid, _pending_action.attribute_name)
-    var skill = GlobalRefs.character_system.get_skill_level(char_uid, _pending_action.skill_name)
+func _load_weapons_from_ship() -> void:
+    """Load equipped_tools from the agent's ShipTemplate."""
+    # Get character_uid from agent, then ship from AssetSystem
+    var char_uid: int = _agent_body.get("character_uid") if _agent_body.get("character_uid") != null else -1
+    if char_uid < 0:
+        return  # No character linked, no weapons
     
-    # Perform the roll via CoreMechanicsAPI
-    var roll_result = CoreMechanicsAPI.perform_action_check(attr, skill, fp_spent, approach)
-    
-    # Get narrative outcome from tier
-    var tier_name = roll_result.tier_name
-    var outcome = NarrativeOutcomes.get_outcome(_pending_action.action_type, tier_name)
-    
-    # Apply effects
-    var applied = _apply_effects(char_uid, outcome.effects)
-    
-    # Deduct FP spent
-    if fp_spent > 0:
-        GlobalRefs.character_system.subtract_fp(char_uid, fp_spent)
-    
-    # Handle FP gain/loss from result
-    if roll_result.focus_gain > 0:
-        GlobalRefs.character_system.add_fp(char_uid, roll_result.focus_gain)
-    if roll_result.focus_loss_reset:
-        # Reset FP to base (implementation detail)
-        pass
-    
-    var result = {
-        "roll_result": roll_result,
-        "outcome": outcome,
-        "effects_applied": applied,
-        "action_type": _pending_action.action_type
-    }
-    
-    EventBus.emit_signal("narrative_action_resolved", result)
-    _pending_action = {}
-    return result
-
-# Internal: maps action_type to skill/attribute used
-func _get_skill_for_action(action_type: String) -> Dictionary:
-    match action_type:
-        "contract_complete":
-            return {"attribute_name": "cunning", "skill_name": "negotiation"}
-        "dock_arrival":
-            return {"attribute_name": "reflex", "skill_name": "piloting"}
-        "trade_finalize":
-            return {"attribute_name": "cunning", "skill_name": "trading"}
-        _:
-            return {"attribute_name": "cunning", "skill_name": "general"}
-
-# Internal: applies effects from outcome
-func _apply_effects(char_uid: int, effects: Dictionary) -> Dictionary:
-    var applied = {}
-    if effects.has("add_quirk"):
-        var ship = GlobalRefs.asset_system.get_player_ship()
-        if ship:
-            ship.ship_quirks.append(effects.add_quirk)
-            applied["quirk_added"] = effects.add_quirk
-    if effects.has("wp_cost"):
-        GlobalRefs.character_system.subtract_wp(char_uid, effects.wp_cost)
-        applied["wp_lost"] = effects.wp_cost
-    if effects.has("wp_gain"):
-        GlobalRefs.character_system.add_wp(char_uid, effects.wp_gain)
-        applied["wp_gained"] = effects.wp_gain
-    if effects.has("reputation_change"):
-        GameState.narrative_state.reputation += effects.reputation_change
-        applied["reputation_changed"] = effects.reputation_change
-    return applied
-```
-
-**SUCCESS CRITERIA:**
-- `request_action()` emits `narrative_action_requested` with complete data
-- `resolve_action()` returns valid roll result + outcome data
-- Effects correctly modify GameState (quirks, WP, reputation)
-- FP spending and gain/loss handled correctly
-
----
-
-### TASK 3: Create ActionCheckUI Scene
-
-**TARGET FILE:** `core/ui/action_check/action_check.tscn`
-
-**DEPENDENCIES:**
-- Read `scenes/ui/station_menu/StationMenu.tscn` — for UI structure patterns
-- Read `core/ui/main_hud/main_hud.tscn` — for theming/layout reference
-
-**SCENE STRUCTURE:**
-```
-ActionCheckUI (Control, anchors full rect)
-├── Overlay (ColorRect, semi-transparent black, full rect)
-├── Panel (PanelContainer, centered)
-│   └── VBoxContainer
-│       ├── LabelTitle (Label) — "Resolve Action"
-│       ├── LabelDescription (Label, autowrap) — Context text
-│       ├── HSeparator
-│       ├── HBoxApproach (HBoxContainer)
-│       │   ├── BtnCautious (Button) — "Act Cautiously"
-│       │   └── BtnRisky (Button) — "Act Risky"
-│       ├── HBoxFP (HBoxContainer)
-│       │   ├── LabelFP (Label) — "Focus Points:"
-│       │   └── SpinBoxFP (SpinBox, min=0, max=3, step=1)
-│       ├── LabelCurrentFP (Label) — "Available: X FP"
-│       ├── BtnConfirm (Button) — "Confirm"
-│       ├── HSeparator
-│       └── VBoxResult (VBoxContainer, initially hidden)
-│           ├── LabelRollResult (Label) — "Roll: 14 → Success with Cost"
-│           ├── LabelOutcomeDesc (RichTextLabel) — Narrative description
-│           ├── LabelEffects (Label) — "Effects: -10 WP, Quirk Added"
-│           └── BtnContinue (Button) — "Continue"
-```
-
-**SUCCESS CRITERIA:**
-- Scene loads without errors
-- All node paths in script match scene structure
-- Centered modal over game view
-- Result section starts hidden
-
----
-
-### TASK 4: Create ActionCheckUI Script
-
-**TARGET FILE:** `core/ui/action_check/action_check.gd`
-
-**DEPENDENCIES:**
-- Read `core/systems/narrative_action_system.gd` (Task 2)
-- Read `autoload/Constants.gd` — `ActionApproach` enum
-- Read `scenes/ui/station_menu/station_menu.gd` — UI pattern reference
-
-**PSEUDO-CODE SIGNATURES:**
-```gdscript
-extends Control
-
-onready var label_title = $Panel/VBoxContainer/LabelTitle
-onready var label_description = $Panel/VBoxContainer/LabelDescription
-onready var btn_cautious = $Panel/VBoxContainer/HBoxApproach/BtnCautious
-onready var btn_risky = $Panel/VBoxContainer/HBoxApproach/BtnRisky
-onready var spinbox_fp = $Panel/VBoxContainer/HBoxFP/SpinBoxFP
-onready var label_current_fp = $Panel/VBoxContainer/LabelCurrentFP
-onready var btn_confirm = $Panel/VBoxContainer/BtnConfirm
-onready var vbox_result = $Panel/VBoxContainer/VBoxResult
-onready var label_roll_result = $Panel/VBoxContainer/VBoxResult/LabelRollResult
-onready var label_outcome_desc = $Panel/VBoxContainer/VBoxResult/LabelOutcomeDesc
-onready var label_effects = $Panel/VBoxContainer/VBoxResult/LabelEffects
-onready var btn_continue = $Panel/VBoxContainer/VBoxResult/BtnContinue
-
-var _selected_approach: int = Constants.ActionApproach.CAUTIOUS
-var _action_data: Dictionary = {}
-
-func _ready():
-    visible = false
-    vbox_result.visible = false
-    btn_cautious.connect("pressed", self, "_on_cautious_pressed")
-    btn_risky.connect("pressed", self, "_on_risky_pressed")
-    btn_confirm.connect("pressed", self, "_on_confirm_pressed")
-    btn_continue.connect("pressed", self, "_on_continue_pressed")
-    EventBus.connect("narrative_action_requested", self, "_on_action_requested")
-
-func _on_action_requested(action_data: Dictionary):
-    _action_data = action_data
-    _show_selection_ui()
-
-func _show_selection_ui():
-    visible = true
-    vbox_result.visible = false
-    btn_confirm.visible = true
-    
-    label_title.text = _get_action_title(_action_data.action_type)
-    label_description.text = _action_data.context.get("description", "Resolve this action.")
-    
-    var current_fp = GlobalRefs.character_system.get_fp(_action_data.char_uid)
-    label_current_fp.text = "Available: %d FP" % current_fp
-    spinbox_fp.max_value = min(3, current_fp)
-    spinbox_fp.value = 0
-    
-    _select_approach(Constants.ActionApproach.CAUTIOUS)
-
-func _select_approach(approach: int):
-    _selected_approach = approach
-    btn_cautious.pressed = (approach == Constants.ActionApproach.CAUTIOUS)
-    btn_risky.pressed = (approach == Constants.ActionApproach.RISKY)
-
-func _on_cautious_pressed():
-    _select_approach(Constants.ActionApproach.CAUTIOUS)
-
-func _on_risky_pressed():
-    _select_approach(Constants.ActionApproach.RISKY)
-
-func _on_confirm_pressed():
-    var fp_spent = int(spinbox_fp.value)
-    var result = GlobalRefs.narrative_action_system.resolve_action(_selected_approach, fp_spent)
-    _show_result(result)
-
-func _show_result(result: Dictionary):
-    btn_confirm.visible = false
-    vbox_result.visible = true
-    
-    var roll = result.roll_result
-    label_roll_result.text = "Roll: %d → %s" % [roll.roll_total, roll.tier_name]
-    label_outcome_desc.bbcode_text = "[i]%s[/i]" % result.outcome.description
-    
-    var effects_text = _format_effects(result.effects_applied)
-    label_effects.text = effects_text if effects_text != "" else "No additional effects."
-
-func _format_effects(effects: Dictionary) -> String:
-    var parts = []
-    if effects.has("wp_lost"):
-        parts.append("-%d WP" % effects.wp_lost)
-    if effects.has("wp_gained"):
-        parts.append("+%d WP" % effects.wp_gained)
-    if effects.has("quirk_added"):
-        parts.append("Quirk: %s" % effects.quirk_added)
-    if effects.has("reputation_changed"):
-        var rep = effects.reputation_changed
-        parts.append("%+d Reputation" % rep)
-    return PoolStringArray(parts).join(", ")
-
-func _on_continue_pressed():
-    visible = false
-    _action_data = {}
-
-func _get_action_title(action_type: String) -> String:
-    match action_type:
-        "contract_complete": return "Finalize Delivery"
-        "dock_arrival": return "Execute Approach"
-        "trade_finalize": return "Seal the Deal"
-        _: return "Resolve Action"
-```
-
-**SUCCESS CRITERIA:**
-- UI shows when `narrative_action_requested` emitted
-- Player can select Risky/Cautious approach
-- Player can allocate FP (capped by available FP)
-- Confirm triggers `resolve_action()` and shows result
-- Continue closes UI
-
----
-
-### TASK 5: Integrate ActionCheckUI into MainHUD
-
-**TARGET FILE:** `core/ui/main_hud/main_hud.gd`
-
-**DEPENDENCIES:**
-- Read current `core/ui/main_hud/main_hud.gd` — lines 1-50
-- Task 3 + Task 4 complete
-
-**CHANGES:**
-```gdscript
-# Add near line 15 (after StationMenuScene):
-const ActionCheckScene = preload("res://core/ui/action_check/action_check.tscn")
-var action_check_instance = null
-
-# Add in _ready() after station_menu_instance setup:
-action_check_instance = ActionCheckScene.instance()
-add_child(action_check_instance)
-# ActionCheckUI handles its own visibility via EventBus
-```
-
-**SUCCESS CRITERIA:**
-- ActionCheckUI instance exists in HUD hierarchy
-- UI appears when `narrative_action_requested` signal fires
-
----
-
-### TASK 6: Integrate Narrative Action into Contract Completion
-
-**TARGET FILE:** `scenes/ui/station_menu/station_menu.gd`
-
-**DEPENDENCIES:**
-- Read current file — `_on_complete_contract_pressed()` method
-- Task 2 complete (NarrativeActionSystem exists)
-
-**CHANGES:**
-Modify `_on_complete_contract_pressed()` to:
-1. Instead of calling `complete_contract()` directly, call `request_action()`
-2. Listen for `narrative_action_resolved` to then call `complete_contract()` with modifiers
-
-**PSEUDO-CODE:**
-```gdscript
-# Add to _ready():
-EventBus.connect("narrative_action_resolved", self, "_on_narrative_resolved")
-
-var _pending_contract_completion: String = ""
-
-func _on_complete_contract_pressed():
-    if completable_contract_id == "":
+    _ship_template = GlobalRefs.asset_system.get_ship_for_character(char_uid)
+    if not _ship_template:
         return
     
-    _pending_contract_completion = completable_contract_id
+    # Load each equipped tool template
+    for tool_id in _ship_template.equipped_tools:
+        var tool_template = TemplateDatabase.get_template("tools", tool_id)
+        if tool_template and tool_template.tool_type == "weapon":
+            _weapons.append(tool_template)
+            _cooldowns[_weapons.size() - 1] = 0.0
+
+func _physics_process(delta: float) -> void:
+    """Update cooldown timers."""
+    for idx in _cooldowns.keys():
+        if _cooldowns[idx] > 0:
+            _cooldowns[idx] -= delta
+            if _cooldowns[idx] <= 0:
+                _cooldowns[idx] = 0
+                emit_signal("weapon_ready", idx)
+
+# --- Public API ---
+
+func get_weapon_count() -> int:
+    """Return number of equipped weapons."""
+    return _weapons.size()
+
+func get_weapon(index: int) -> Resource:
+    """Return weapon template at index, or null."""
+    if index >= 0 and index < _weapons.size():
+        return _weapons[index]
+    return null
+
+func is_weapon_ready(index: int) -> bool:
+    """Return true if weapon cooldown is complete."""
+    return _cooldowns.get(index, 0.0) <= 0.0
+
+func get_cooldown_remaining(index: int) -> float:
+    """Return remaining cooldown time for weapon."""
+    return _cooldowns.get(index, 0.0)
+
+func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3) -> Dictionary:
+    """Attempt to fire weapon at target. Returns result dict from CombatSystem.
     
-    # Request narrative action instead of completing directly
-    if GlobalRefs.narrative_action_system:
-        GlobalRefs.narrative_action_system.request_action("contract_complete", {
-            "char_uid": GameState.player_character_uid,
-            "contract_id": completable_contract_id,
-            "description": "Finalize delivery of '%s'. How do you approach the handoff?" % completable_contract_title
-        })
-    else:
-        # Fallback: complete without narrative check
-        _finalize_contract_completion()
+    Args:
+        weapon_index: Index into equipped weapons array
+        target_uid: Target agent's UID for combat system
+        target_position: Target's global position
+        
+    Returns:
+        {success: bool, reason: String, damage: float, hit: bool, ...}
+    """
+    if weapon_index < 0 or weapon_index >= _weapons.size():
+        return {"success": false, "reason": "Invalid weapon index"}
+    
+    if not is_weapon_ready(weapon_index):
+        return {"success": false, "reason": "Weapon on cooldown", "cooldown": _cooldowns[weapon_index]}
+    
+    var weapon = _weapons[weapon_index]
+    var shooter_uid = _agent_body.agent_uid
+    var shooter_pos = _agent_body.global_transform.origin
+    
+    # Ensure both combatants registered
+    _ensure_combatant_registered(shooter_uid)
+    _ensure_combatant_registered(target_uid)
+    
+    # Fire via CombatSystem
+    var result = GlobalRefs.combat_system.fire_weapon(
+        shooter_uid, target_uid, weapon, shooter_pos, target_position
+    )
+    
+    if result.success:
+        # Start cooldown
+        _cooldowns[weapon_index] = weapon.cooldown_seconds
+        emit_signal("weapon_cooldown_started", weapon_index, weapon.cooldown_seconds)
+        emit_signal("weapon_fired", weapon_index, target_position)
+    
+    return result
 
-func _on_narrative_resolved(result: Dictionary):
-    if result.action_type == "contract_complete" and _pending_contract_completion != "":
-        _finalize_contract_completion()
-        _pending_contract_completion = ""
-
-func _finalize_contract_completion():
-    if GlobalRefs.contract_system:
-        var result = GlobalRefs.contract_system.complete_contract(
-            GameState.player_character_uid, 
-            completable_contract_id
-        )
-        # ... existing reward popup logic ...
+func _ensure_combatant_registered(uid: int) -> void:
+    """Register combatant if not already in CombatSystem."""
+    if GlobalRefs.combat_system.is_in_combat(uid):
+        return
+    # Need ship template for registration
+    var ship = GlobalRefs.asset_system.get_ship_by_uid(uid)  # or by character
+    if ship:
+        GlobalRefs.combat_system.register_combatant(uid, ship)
 ```
 
 **SUCCESS CRITERIA:**
-- Clicking "Complete Contract" opens ActionCheckUI
-- After resolving action, contract actually completes
-- Narrative effects (quirks, WP changes) apply before contract reward
+- WeaponController loads weapons from ShipTemplate
+- `fire_at_target()` calls CombatSystem and manages cooldowns
+- Cooldowns decrement each frame and emit `weapon_ready` when done
 
 ---
 
-### TASK 7: Add GlobalRefs Entry for NarrativeActionSystem
+### TASK 3: Integrate WeaponController into Agent Scenes
 
-**TARGET FILE:** `autoload/GlobalRefs.gd`
+**TARGET FILES:**
+- `core/agents/player_agent.tscn`
+- `core/agents/npc_agent.tscn`
 
 **DEPENDENCIES:**
-- Read current `autoload/GlobalRefs.gd` structure
+- Task 2 complete
 
 **CHANGES:**
+Add `WeaponController` node as child of root `AgentBody`:
+```
+AgentBody (KinematicBody)
+├── NavigationSystem
+├── MovementSystem
+├── WeaponController  <-- NEW
+└── ...
+```
+
+**SCENE EDIT (for both scenes):**
+```
+[node name="WeaponController" type="Node" parent="."]
+script = ExtResource( "res://core/agents/components/weapon_controller.gd" )
+```
+
+**SUCCESS CRITERIA:**
+- Both agent scenes load without error
+- WeaponController `_ready()` finds parent AgentBody
+
+---
+
+### TASK 4: Add Fire Input to Player Controller
+
+**TARGET FILE:** `modules/piloting/scripts/player_controller_ship.gd`
+
+**DEPENDENCIES:**
+- Read current file structure (input handling pattern)
+- Task 1 (input action exists)
+- Task 3 (WeaponController exists on agent)
+
+**CHANGES:**
+Add in `_physics_process()` or `_unhandled_input()`:
 ```gdscript
-# Add variable:
-var narrative_action_system: Node = null
+# --- Combat Input ---
+var _weapon_controller: Node = null  # Cached reference
 
-# Add setter:
-func set_narrative_action_system(system: Node):
-    narrative_action_system = system
+func _ready():
+    # ... existing code ...
+    _weapon_controller = get_node_or_null("WeaponController")
+
+func _physics_process(delta):
+    # ... existing movement code ...
+    _handle_combat_input()
+
+func _handle_combat_input() -> void:
+    """Handle weapon firing input."""
+    if not _weapon_controller:
+        return
+    if not Input.is_action_just_pressed("fire_weapon"):
+        return
+    
+    # Get current target from targeting system
+    var target_body = _get_current_target()
+    if not target_body:
+        return  # No target selected
+    
+    # Fire primary weapon (index 0)
+    var target_uid = target_body.agent_uid if target_body.has("agent_uid") else -1
+    var target_pos = target_body.global_transform.origin
+    
+    var result = _weapon_controller.fire_at_target(0, target_uid, target_pos)
+    if not result.success:
+        print("Fire failed: ", result.reason)
+    else:
+        print("Hit! Damage: ", result.get("damage", 0))
+
+func _get_current_target() -> KinematicBody:
+    """Return currently targeted agent body, or null."""
+    # Check if there's a targeting system or use GlobalRefs
+    if GlobalRefs.player and GlobalRefs.player.has_method("get_target"):
+        return GlobalRefs.player.get_target()
+    return null
 ```
 
 **SUCCESS CRITERIA:**
-- `GlobalRefs.narrative_action_system` accessible from any script
-- Setter follows existing pattern (e.g., `set_trading_system`)
+- Press fire key with target selected → weapon fires
+- Press fire key without target → nothing happens
+- Press fire during cooldown → "Weapon on cooldown" feedback
 
 ---
 
-### TASK 8: Register NarrativeActionSystem in Scene Tree
+### TASK 5: Add Combat HUD Elements (Target Hull Bar)
 
-**TARGET FILE:** `scenes/game_world/main_game_scene.tscn`
+**TARGET FILE:** `core/ui/main_hud/main_hud.gd` (and `.tscn`)
 
 **DEPENDENCIES:**
-- Examine current scene structure for node placement pattern
+- Read current HUD structure
+- CombatSystem `get_hull_percent()` API
 
 **CHANGES:**
-- Add `NarrativeActionSystem` node under `WorldManager` (or similar parent)
-- Attach `core/systems/narrative_action_system.gd` script
+1. Add UI elements (scene):
+```
+TargetInfoPanel (PanelContainer) - positioned top-center or near target indicator
+├── VBoxContainer
+│   ├── LabelTargetName (Label)
+│   └── TargetHullBar (ProgressBar)
+```
+
+2. Add script logic:
+```gdscript
+onready var target_info_panel = $TargetInfoPanel
+onready var label_target_name = $TargetInfoPanel/VBoxContainer/LabelTargetName
+onready var target_hull_bar = $TargetInfoPanel/VBoxContainer/TargetHullBar
+
+var _current_target_uid: int = -1
+
+func _ready():
+    # ... existing code ...
+    target_info_panel.visible = false
+    EventBus.connect("target_changed", self, "_on_target_changed")
+    EventBus.connect("damage_dealt", self, "_on_damage_dealt")
+
+func _on_target_changed(new_target):
+    if new_target and new_target.has("agent_uid"):
+        _current_target_uid = new_target.agent_uid
+        _update_target_display(new_target)
+        target_info_panel.visible = true
+    else:
+        _current_target_uid = -1
+        target_info_panel.visible = false
+
+func _update_target_display(target):
+    label_target_name.text = target.agent_name if target.has("agent_name") else "Unknown"
+    var hull_pct = GlobalRefs.combat_system.get_hull_percent(_current_target_uid)
+    target_hull_bar.value = hull_pct * 100
+
+func _on_damage_dealt(target_uid, amount, source_uid):
+    if target_uid == _current_target_uid:
+        var hull_pct = GlobalRefs.combat_system.get_hull_percent(target_uid)
+        target_hull_bar.value = hull_pct * 100
+```
 
 **SUCCESS CRITERIA:**
-- System initializes when game scene loads
-- `GlobalRefs.narrative_action_system` populated in `_ready()`
+- Target hull bar shows when target selected
+- Hull bar updates when damage dealt
+- Hull bar hides when no target
+
+---
+
+### TASK 6: Write WeaponController Unit Tests
+
+**TARGET FILE:** `tests/core/agents/components/test_weapon_controller.gd`
+
+**DEPENDENCIES:**
+- Task 2 complete
+- Reference existing tests: `tests/core/agents/components/test_movement_system.gd`
+
+**PSEUDO-CODE TEST CASES:**
+```gdscript
+extends GutTest
+
+const WeaponController = preload("res://core/agents/components/weapon_controller.gd")
+
+var weapon_controller = null
+var mock_agent_body = null
+var mock_ship = null
+
+func before_each():
+    # Setup mock agent body with agent_uid and character_uid
+    # Setup mock ship with equipped_tools
+    # Instance WeaponController as child of mock agent
+    pass
+
+func after_each():
+    # Cleanup
+    pass
+
+# --- Test Cases ---
+
+func test_loads_weapons_from_ship_template():
+    """WeaponController should load equipped weapons from ship."""
+    assert_eq(weapon_controller.get_weapon_count(), 1, "Should have 1 weapon")
+    assert_not_null(weapon_controller.get_weapon(0), "Weapon 0 should exist")
+
+func test_fire_weapon_success():
+    """Fire weapon at valid target should succeed."""
+    var result = weapon_controller.fire_at_target(0, TARGET_UID, Vector3.ZERO)
+    assert_true(result.success, "Fire should succeed")
+    assert_signal_emitted(weapon_controller, "weapon_fired")
+
+func test_fire_weapon_starts_cooldown():
+    """Firing weapon should start cooldown."""
+    weapon_controller.fire_at_target(0, TARGET_UID, Vector3.ZERO)
+    assert_false(weapon_controller.is_weapon_ready(0), "Weapon should be on cooldown")
+
+func test_fire_weapon_during_cooldown_fails():
+    """Firing during cooldown should fail."""
+    weapon_controller.fire_at_target(0, TARGET_UID, Vector3.ZERO)
+    var result = weapon_controller.fire_at_target(0, TARGET_UID, Vector3.ZERO)
+    assert_false(result.success, "Second fire should fail")
+    assert_eq(result.reason, "Weapon on cooldown")
+
+func test_cooldown_decrements_over_time():
+    """Cooldown should decrement each physics frame."""
+    weapon_controller.fire_at_target(0, TARGET_UID, Vector3.ZERO)
+    var initial_cd = weapon_controller.get_cooldown_remaining(0)
+    weapon_controller._physics_process(0.5)
+    var new_cd = weapon_controller.get_cooldown_remaining(0)
+    assert_lt(new_cd, initial_cd, "Cooldown should decrease")
+
+func test_weapon_ready_signal_emitted():
+    """weapon_ready signal should emit when cooldown ends."""
+    weapon_controller.fire_at_target(0, TARGET_UID, Vector3.ZERO)
+    # Simulate time passing equal to cooldown
+    weapon_controller._physics_process(5.0)  # Assume 1s cooldown
+    assert_signal_emitted(weapon_controller, "weapon_ready")
+
+func test_invalid_weapon_index_returns_error():
+    """Invalid weapon index should return error dict."""
+    var result = weapon_controller.fire_at_target(99, TARGET_UID, Vector3.ZERO)
+    assert_false(result.success)
+    assert_eq(result.reason, "Invalid weapon index")
+```
+
+**SUCCESS CRITERIA:**
+- All 7 tests pass
+- Uses `autofree()` for cleanup
+- Properly mocks agent body and ship template
+
+---
+
+### TASK 7: Integration Verification
+
+**TARGET:** Manual testing checklist
+
+**DEPENDENCIES:**
+- Tasks 1-6 complete
+
+**TEST CHECKLIST:**
+- [ ] Spawn player with `ship_default.tres` (has `ablative_laser` equipped)
+- [ ] Spawn NPC target agent
+- [ ] Select NPC as target
+- [ ] Press fire key → damage appears in console, NPC hull decreases
+- [ ] Press fire again immediately → "Weapon on cooldown" message
+- [ ] Wait for cooldown → fire again successfully
+- [ ] Reduce NPC hull to 0 → `ship_disabled` signal emitted
+- [ ] Target hull bar updates in real-time
+- [ ] No target selected → fire does nothing
 
 ---
 
 ## 4. CONSTRAINTS
 
 ### Architectural Rules:
-1. **NarrativeActionSystem MUST be a Node** — Not a Resource. It needs `_ready()` lifecycle and signal connections.
-2. **All state changes go through existing systems** — Use `CharacterSystem.add_wp()`, not direct `GameState` mutation.
-3. **EventBus for cross-system communication** — `narrative_action_requested` and `narrative_action_resolved` signals.
-4. **UI is modal and blocking** — Player cannot interact with game while ActionCheckUI is visible.
-5. **NarrativeOutcomes is data-only** — Pure data lookup, no game logic. Keep outcome tables easily editable.
+1. **WeaponController is a Node COMPONENT** — Attaches to AgentBody, not a singleton/system
+2. **CombatSystem remains stateless logic** — WeaponController handles per-agent state (cooldowns)
+3. **Use GlobalRefs for system access** — `GlobalRefs.combat_system`, `GlobalRefs.asset_system`
+4. **EventBus for cross-system signals** — `damage_dealt`, `ship_disabled` already exist
+5. **TemplateDatabase for resource loading** — `TemplateDatabase.get_template("tools", id)`
 
 ### Signal Flow:
 ```
-ContractSystem._on_complete_contract_pressed()
-    → NarrativeActionSystem.request_action()
-        → EventBus.emit("narrative_action_requested")
-            → ActionCheckUI._on_action_requested()
-                [Player makes selection]
-            → NarrativeActionSystem.resolve_action()
-                → CoreMechanicsAPI.perform_action_check()
-                → _apply_effects()
-                → EventBus.emit("narrative_action_resolved")
-                    → StationMenu._on_narrative_resolved()
-                        → ContractSystem.complete_contract()
+Player presses fire_weapon
+    → PlayerControllerShip._handle_combat_input()
+        → WeaponController.fire_at_target(0, target_uid, target_pos)
+            → CombatSystem.fire_weapon(...)
+                → CombatSystem.apply_damage(...)
+                    → EventBus.emit("damage_dealt", ...)
+                        → MainHUD._on_damage_dealt() updates hull bar
+            → WeaponController emits "weapon_fired"
+            → WeaponController starts cooldown timer
 ```
 
 ### DO NOT:
-- Create new autoloads without updating `project.godot`
-- Modify `CoreMechanicsAPI.perform_action_check()` signature
-- Add UI elements to scenes outside MainHUD hierarchy
-- Store persistent state in NarrativeActionSystem (it's stateless between actions)
+- Add weapon cooldown tracking to CombatSystem (it's per-agent, belongs in WeaponController)
+- Create a new autoload for weapons
+- Modify `combat_system.gd` public API (it's already complete)
+- Add visual effects yet (defer to Sprint 11 polish)
 
-### Testing Notes:
-- Manual test: Accept contract → travel → dock at destination → click Complete → verify ActionCheckUI appears
-- Manual test: Select Risky + 2 FP → Confirm → verify roll result shows → Continue → verify contract completes
-- Manual test: Trigger Failure outcome → verify quirk added to ship in GameState
+### Phase 1 Simplifications:
+- **Hitscan only** — No projectiles, instant hit if in range
+- **Primary weapon only** — Fire index 0, no weapon switching UI
+- **No accuracy roll** — 100% hit rate within range (accuracy added in Phase 2)
 
 ---
 
@@ -551,16 +510,17 @@ ContractSystem._on_complete_contract_pressed()
 
 After implementation, verify:
 
-- [ ] `NarrativeOutcomes.get_outcome("contract_complete", "CritSuccess")` returns valid data
-- [ ] `GlobalRefs.narrative_action_system` is not null after scene load
-- [ ] Pressing Complete Contract at destination station opens ActionCheckUI
-- [ ] Selecting approach visually highlights correct button
-- [ ] FP spinbox max is capped at player's available FP
-- [ ] Confirm button triggers roll and shows result panel
-- [ ] Continue button closes UI and completes contract
-- [ ] WP changes from effects reflected in HUD
-- [ ] Ship quirks added on Failure visible in `GameState.assets_ships[uid].ship_quirks`
-- [ ] System works when `narrative_action_system` is null (graceful fallback)
+- [ ] `Input.is_action_just_pressed("fire_weapon")` works in-game
+- [ ] WeaponController loads 1 weapon from `ship_default.tres`
+- [ ] `fire_at_target()` returns `{success: true}` with valid target
+- [ ] Cooldown prevents immediate re-fire
+- [ ] Cooldown timer decrements correctly
+- [ ] `weapon_ready` signal emits after cooldown ends
+- [ ] Target hull bar appears when target selected
+- [ ] Target hull bar updates on `damage_dealt` signal
+- [ ] Target hull bar hides when target deselected
+- [ ] NPC hull reaches 0 → `ship_disabled` signal fires
+- [ ] All GUT tests pass (existing + new)
 
 ---
 
@@ -568,14 +528,13 @@ After implementation, verify:
 
 | Task | Difficulty | Lines of Code | Dependencies |
 |------|------------|---------------|--------------|
-| Task 1 | Low | ~80 | None |
-| Task 2 | Medium | ~150 | Task 1, CoreMechanicsAPI |
-| Task 3 | Low | Scene only | Theme reference |
-| Task 4 | Medium | ~120 | Task 2, Task 3 |
-| Task 5 | Low | ~10 | Task 3, Task 4 |
-| Task 6 | Medium | ~40 | Task 2 |
-| Task 7 | Low | ~5 | None |
-| Task 8 | Low | Scene edit | Task 2 |
+| Task 1 | Low | ~5 (config) | None |
+| Task 2 | Medium | ~120 | CombatSystem, AssetSystem |
+| Task 3 | Low | Scene edit | Task 2 |
+| Task 4 | Medium | ~50 | Task 1, Task 3 |
+| Task 5 | Medium | ~60 | CombatSystem |
+| Task 6 | Medium | ~100 | Task 2 |
+| Task 7 | N/A | Manual test | All |
 
-**Total estimated new code:** ~400 lines  
-**Recommended order:** 7 → 1 → 2 → 8 → 3 → 4 → 5 → 6
+**Total estimated new code:** ~330 lines  
+**Recommended order:** 1 → 2 → 6 → 3 → 4 → 5 → 7
