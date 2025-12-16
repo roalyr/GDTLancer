@@ -490,17 +490,30 @@ margin_bottom = 105.0
 theme = ExtResource( 9 )
 text = "Time (TU): 0"
 
+[node name="LabelPlayerHull" type="Label" parent="ScreenControls/TopLeftZone"]
+margin_top = 110.0
+margin_right = 103.0
+margin_bottom = 137.0
+theme = ExtResource( 9 )
+text = "Hull: --"
+
+[node name="PlayerHullBar" type="ProgressBar" parent="ScreenControls/TopLeftZone"]
+margin_top = 140.0
+margin_right = 150.0
+margin_bottom = 154.0
+value = 100.0
+
 [node name="ButtonCharacter" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 121.0
+margin_top = 165.0
 margin_right = 111.0
-margin_bottom = 171.0
+margin_bottom = 215.0
 theme = ExtResource( 9 )
 text = "CHARACTER"
 
 [node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 185.0
+margin_top = 229.0
 margin_right = 111.0
-margin_bottom = 235.0
+margin_bottom = 279.0
 theme = ExtResource( 9 )
 text = "INVENTORY"
 

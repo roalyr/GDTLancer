@@ -114,7 +114,7 @@ func _unhandled_input(event: InputEvent):
 
 	# Combat input (key-based to avoid interfering with LMB targeting/drag)
 	if event is InputEventKey and event.is_action_pressed("fire_weapon"):
-		_handle_combat_input()
+		_fire_weapon_at_selected_target(false, "key")
 		get_viewport().set_input_as_handled()
 		return
 
@@ -166,34 +166,63 @@ func _unhandled_input(event: InputEvent):
 		_current_input_state.handle_input(event)
 
 
-func _handle_combat_input() -> void:
+func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 	if not is_instance_valid(_weapon_controller):
+		print("PlayerController: Fire skipped (no WeaponController)")
 		return
 	if not _weapon_controller.has_method("fire_at_target"):
+		print("PlayerController: Fire skipped (WeaponController missing fire_at_target)")
 		return
-	if not Input.is_action_just_pressed("fire_weapon"):
+	if not force and not Input.is_action_just_pressed("fire_weapon"):
 		return
 
 	var target_body: KinematicBody = _get_current_target()
 	if not is_instance_valid(target_body):
+		print("PlayerController: Fire skipped (no selected target)")
 		return
 
 	var raw_uid = target_body.get("agent_uid")
 	if raw_uid == null:
+		print("PlayerController: Fire skipped (target has no agent_uid)")
 		return
 	var target_uid: int = int(raw_uid)
 	if target_uid < 0:
+		print("PlayerController: Fire skipped (invalid target uid)")
 		return
 
 	var target_pos: Vector3 = target_body.global_transform.origin
 	var result: Dictionary = _weapon_controller.call("fire_at_target", 0, target_uid, target_pos)
 	if not result.get("success", false):
-		print("Fire failed: ", result.get("reason", "Unknown"))
+		print("PlayerController: Fire failed[", source, "]: ", result.get("reason", "Unknown"), " details=", result)
+		return
+
+	# Debug for manual verification
+	var hit: bool = bool(result.get("hit", true))
+	if hit:
+		var damage_dict = result.get("damage_dealt", {})
+		print(
+			"PlayerController: Hit[",
+			source,
+			"] target_uid=",
+			target_uid,
+			" damage=",
+			damage_dict,
+			" hull_remaining=",
+			result.get("target_hull_remaining", "?"),
+			" disabled=",
+			result.get("target_disabled", false)
+		)
 	else:
-		if result.get("hit", true):
-			print("Hit!")
-		else:
-			print("Missed")
+		print(
+			"PlayerController: Miss[",
+			source,
+			"] target_uid=",
+			target_uid,
+			" accuracy=",
+			result.get("accuracy", "?"),
+			" roll=",
+			result.get("roll", "?")
+		)
 
 
 func _get_current_target() -> KinematicBody:
@@ -225,7 +254,7 @@ func _on_attack_button_pressed() -> void:
 	var target = _get_current_target()
 	if is_instance_valid(target):
 		print("PlayerController: Attack button pressed, attacking target")
-		_handle_combat_input()
+		_fire_weapon_at_selected_target(true, "button")
 		# Emit signal to show "attacking" popup on HUD
 		if EventBus:
 			EventBus.emit_signal("attack_action_feedback", true, "Attacking!")

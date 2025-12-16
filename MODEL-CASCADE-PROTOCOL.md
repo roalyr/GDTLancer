@@ -1,20 +1,24 @@
-#MODEL-CASCADE-PROTOCOL.md**Protocol for AI-Assisted Development Cascading**
-**Context:** GDTLancer Project
-**Files Required:**
+MODEL-CASCADE-PROTOCOL.md
 
-1. `GDD-COMBINED-TEXT-frozen-*.md` (Read Only - Source of Truth)
-2. `DEVELOPMENT-PLAN.md` (Read Only - High-level Roadmap)
-3. `IMMEDIATE-TODO.md` (Read/Write - The Bridge / Task Ticket)
-4. `SESSION-LOG.md` (Append Only - History of completion)
+Protocol for AI-Assisted Development Cascading Context: GDTLancer Project Status: Active Production / Refactoring Phase
 
+Files Required:
+
+    GDD-COMBINED-TEXT-frozen-*.md (Read Only - Source of Truth)
+
+    DEVELOPMENT-PLAN.md (Read Only - High-level Roadmap)
+
+    IMMEDIATE-TODO.md (Read/Write - The Bridge / Task Ticket)
+
+    SESSION-LOG.md (Append Only - History of completion)
+    
 ---
 
-##LEVEL 1: THE ARCHITECT (Claude Opus 3.5/4.5)
-**Trigger:** Start of a new Sprint, after a major feature completion, or when stuck on architectural direction.
-**Input:** All documentation files + current file structure.
-**Goal:** Update `IMMEDIATE-TODO.md` with precise, machine-readable instructions.
+LEVEL 1: THE ARCHITECT (Claude Opus 3.5/4.5)
 
-### PROMPT FOR OPUS
+Trigger: Start of a new Sprint, after a major feature completion, or when stuck on architectural direction. Input: All documentation files + current file structure. Goal: Update IMMEDIATE-TODO.md with precise, machine-readable instructions.
+PROMPT FOR OPUS
+
 ```
 ROLE: Technical Architect & Lead Developer
 CONTEXT: We are developing GDTLancer based on the frozen 'GDD-COMBINED-TEXT' and the high-level 'DEVELOPMENT-PLAN'.
@@ -41,22 +45,15 @@ OUTPUT BEHAVIOR:
 - **FILE ONLY:** Use the file writing tool to overwrite 'IMMEDIATE-TODO.md'.
 - **SILENCE:** Do NOT print the plan or the file content in the chat.
 - **CONFIRMATION:** Your only chat response should be: "Plan updated in IMMEDIATE-TODO.md."
-
-OUTPUT BEHAVIOR:
-- **FILE ONLY:** Use the file writing tool to overwrite 'IMMEDIATE-TODO.md'.
-- **SILENCE:** Do NOT print the plan or the file content in the chat.
-- **CONFIRMATION:** Your only chat response should be: "Plan updated in IMMEDIATE-TODO.md."
-
 ```
 
 ---
 
-##LEVEL 2: THE BUILDER (GPT-5.2 / GPT-5-preview)
-**Trigger:** Once `IMMEDIATE-TODO.md` is populated.
-**Input:** The Todo list and the specific files mentioned in it.
-**Goal:** Write the heavy logic and core implementation.
+LEVEL 2: THE BUILDER (GPT-5.2 / GPT-5-preview)
 
-### PROMPT FOR GPT-5.2
+Trigger: Once IMMEDIATE-TODO.md is populated. Input: The Todo list and the specific files mentioned in it. Goal: Write the heavy logic and core implementation.
+PROMPT FOR GPT-5.2
+
 ```
 ROLE: Senior Python/Godot Developer
 CONTEXT: You are executing the plan defined in 'IMMEDIATE-TODO.md'.
@@ -82,17 +79,15 @@ OUTPUT BEHAVIOR:
 - **FILE ONLY:** Apply all changes to the target source code, 'IMMEDIATE-TODO.md', and 'SESSION-LOG.md' using file writing tools.
 - **SILENCE:** Do NOT paste the code blocks in the chat.
 - **CONFIRMATION:** Your only chat response should be: "Task [Task Name] completed and logged."
-
 ```
 
 ---
 
-##LEVEL 3: THE INTERN (HAIKU)
-**Trigger:** After GPT-5.2 outputs code.
-**Input:** The newly created/modified file.
-**Goal:** Cleanup, Documentation, Unit Tests, and Logging.
+LEVEL 3: THE INTERN (HAIKU)
 
-### PROMPT FOR HAIKU
+Trigger: After GPT-5.2 outputs code. Input: The newly created/modified file. Goal: Cleanup, Documentation, Unit Tests, and Logging.
+PROMPT FOR HAIKU
+
 ```
 ROLE: QA Intern (Model: Haiku/Mini)
 CONTEXT: Senior Dev just finished [TARGET FILE] (Check SESSION-LOG.md for name).
@@ -117,16 +112,88 @@ OUTPUT BEHAVIOR:
 - **FILE ONLY:** Write the polished code and test file using the file tools.
 - **SILENCE:** Do NOT paste the code blocks in the chat.
 - **CONFIRMATION:** Your only chat response should be: "Polished [File] and created [TestFile]."
-
 ```
 
 ---
 
-## RECOVERY LOOP (If things break)
-**Trigger:** If GPT-5.2 gets stuck or the code fails to run.
-**Model:** GPT-5.2 (Deep Reasoning)
+LEVEL 4: MANUAL VERIFICATION (GPT-5.2)
 
-### PROMPT FOR RECOVERY
+Trigger: When a Checklisted Flow in IMMEDIATE-TODO.md requires manual playtesting. Input: The checklist from the TODO file. Goal: Fix integration bugs based on human report.
+PROMPT FOR PLAYTEST
+
+```
+ROLE: Senior Developer (Integration & Testing Mode)
+CONTEXT: We are performing Manual Integration Verification.
+checklist_file: [See IMMEDIATE_TODO.md]
+
+INSTRUCTIONS:
+1. I will perform the testing flows manually.
+2. I will report the status of each Flow to you (e.g., "Flow 1 passed" or "Flow 2 Failed at step 2.3 with error...").
+3. **IF A STEP FAILS:**
+   - Analyze the failure based on the expected result vs. my report.
+   - Identify the specific file/logic responsible.
+   - **Immediately generate the fix** for that file.
+   - Ask me to re-test that specific flow.
+4. **IF A FLOW PASSES:**
+   - Acknowledge it and wait for the next report.
+```
+
+---
+
+LEVEL 5: THE GARDENER (Opus)
+
+Trigger: Transition from Prototype to Production (e.g., after Phase 1 "Golden Master"). Input: File Structure + GDD. Goal: Architectural Refactoring & Workspace Organization.
+PROMPT FOR REFACTORING
+
+```
+ROLE: Principal Software Architect & Content Pipeline Manager
+CONTEXT: The project is transitioning from Prototype to Production. The developer wants to separate "Engine Code" from "Game Content" to facilitate a modder-like workflow.
+CURRENT STATE: Deeply nested, mixed asset/logic structure (e.g., `core/resource` contains script definitions, `modules` contains scripts).
+
+TASK:
+Design a "Workspace-Based" file structure and a Migration Plan.
+
+GOAL STRUCTURE (The "Modder" Standard):
+1. `/src`: logic only (.gd).
+2. `/assets`: raw art only (.png, .glb, .shader).
+3. `/database`: game data only (.tres, .json, curve resources).
+   - `/database/definitions`: The script files that define resources (e.g., `ship_def.gd`).
+   - `/database/registry`: The actual .tres files (e.g., `phoenix_ship.tres`).
+   - `/database/config`: Tuning values (PID values, Constants).
+4. `/scenes`: composed scenes (.tscn).
+   - `/scenes/prefabs`: Reusable objects (Ships, Stations).
+   - `/scenes/ui`: UI layouts.
+   - `/scenes/levels`: World chunks.
+
+ACTION 1: THE MIGRATION MANIFEST
+Create a file `MIGRATION-PLAN.md`.
+- List every folder in the current project and where it must move.
+- Identify "Split Targets" (e.g., if `core/agents` has both `.gd` and `.tscn`, specify splitting them into `/src/agents` and `/scenes/prefabs/agents`).
+- **CRITICAL:** Flag any `load("res://...")` hardcoded paths that will break and need string replacement.
+
+ACTION 2: THE CONTENT MANUAL (The "API")
+Create a file `CONTENT-CREATION-MANUAL.md`.
+- This is for the "Designer/Artist" persona.
+- Create a section "How to Add a New Item":
+  1. ART: Place mesh in `/assets/models/...`
+  2. DEFS: Duplicate template in `/database/registry/...`
+  3. PREFAB: Inherit `base_item.tscn` in `/scenes/prefabs/...`
+- Create a section "Tuning & Balance":
+  - List where the global PID controllers and Constants live.
+
+OUTPUT BEHAVIOR:
+- **FILE ONLY:** Write `MIGRATION-PLAN.md` and `CONTENT-CREATION-MANUAL.md`.
+- **SILENCE:** Do not output the files in chat.
+- **CONFIRMATION:** "Migration Plan and Designer Manual generated. Please review `MIGRATION-PLAN.md` before we start moving files."
+```
+
+---
+
+RECOVERY LOOP (If things break)
+
+Trigger: If GPT-5.2 gets stuck or the code fails to run during Level 2 or 4. Model: GPT-5.2 (Deep Reasoning)
+PROMPT FOR RECOVERY
+
 ```
 ROLE: Senior Developer (Debug & Recovery Mode)
 CONTEXT: We attempted to execute a task from 'IMMEDIATE-TODO.md', but encountered a critical failure.
@@ -151,30 +218,4 @@ OUTPUT BEHAVIOR:
 - **FILE ONLY:** Apply fixes directly to files.
 - **SILENCE:** Do not explain the bug in depth.
 - **CONFIRMATION:** Your only chat response should be: "Fix applied to [File]."
-
-```
-
-
----
-
-
-For playtest (GPT-5.2)
-
-```
-ROLE: Senior Developer (Integration & Testing Mode)
-CONTEXT: We are performing Manual Integration Verification.
-checklist_file: [See IMMEDIATE_TODO.md]
-
-INSTRUCTIONS:
-1. I will perform the testing flows manually.
-2. I will report the status of each Flow to you (e.g., "Flow 1 passed" or "Flow 2 Failed at step 2.3 with error...").
-3. **IF A STEP FAILS:**
-   - Analyze the failure based on the expected result vs. my report.
-   - Identify the specific file/logic responsible.
-   - **Immediately generate the fix** for that file.
-   - Ask me to re-test that specific flow.
-4. **IF A FLOW PASSES:**
-   - Acknowledge it and wait for the next report.
-
-Status: Ready for Flow 1 report.
 ```

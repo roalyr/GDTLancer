@@ -536,12 +536,12 @@ Complete each test section in order. After each step, provide feedback:
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
 | 7.1 | Continue flying until encounter | Hostile NPC may spawn (red ship) — depends on danger level and RNG | PASS |
-| 7.2 | If hostile spawns: observe behavior | Enemy approaches player and attempts to fire | PASS (no recieved attack indication for now implemented)|
+| 7.2 | If hostile spawns: observe behavior | Enemy approaches player and attempts to fire | PASS |
 | 7.3 | Target the enemy | Click enemy ship to select as target | PASS |
 | 7.4 | Fire weapon (LMB or fire key) | Weapon fires at target (if in range) | PASS |
-| 7.5 | Observe damage dealt | Target's hull decreases (visible in Target Info panel) | FAIL |
-| 7.6 | Continue combat until victory or flee | Either destroy enemy (hull = 0) or use Flee button | ISSUE (enemy doesn't die) |
-| 7.7 | Combat end | "Combat ended" state; you can continue flying | ??? |
+| 7.5 | Observe damage dealt | Target's hull decreases (visible in Target Info panel) | PASS |
+| 7.6 | Continue combat until victory or flee | Either destroy enemy (hull = 0) or use Flee button | PASS |
+| 7.7 | Combat end | "Combat ended" state; you can continue flying | PASS |
 | 7.8 | (If skipped) Note if no encounter | Combat encounters are probabilistic; may not trigger every flight | PASS |
 
 ---
@@ -607,13 +607,13 @@ Complete each test section in order. After each step, provide feedback:
 | # | Step | Expected Result | Status |
 |---|------|-----------------|--------|
 | 12.1 | Undock and find/trigger combat | Get into combat with a hostile | PASS |
-| 12.2 | Let enemy damage you | Stop fighting back; let enemy shoot you | FAIL - enemy does not attack or does not deal damage or player agent does not receive damage (should be a notification for that) |
-| 12.3 | Observe hull decreasing | Player hull drops toward 0 | FAIL - not impemented? |
-| 12.4 | Hull reaches 0 | "GAME OVER" overlay appears | FAIL - never triggered |
-| 12.5 | Observe Game Over UI | Shows "GAME OVER" text and "Return to Menu" button | FAIL - never triggered |
-| 12.6 | Game is paused | Background gameplay frozen while overlay visible | |
-| 12.7 | Click "Return to Menu" | Main Menu appears; Game Over overlay closes | |
-| 12.8 | Start New Game from menu | Can start fresh game after Game Over | |
+| 12.2 | Let enemy damage you | Stop fighting back; let enemy shoot you | PASS |
+| 12.3 | Observe hull decreasing | Player hull drops toward 0 | PASS |
+| 12.4 | Hull reaches 0 | "GAME OVER" overlay appears | PASS |
+| 12.5 | Observe Game Over UI | Shows "GAME OVER" text and "Return to Menu" button | PASS |
+| 12.6 | Game is paused | Background gameplay frozen while overlay visible | PASS |
+| 12.7 | Click "Return to Menu" | Main Menu appears; Game Over overlay closes | PASS |
+| 12.8 | Start New Game from menu | Can start fresh game after Game Over | PASS |
 
 ---
 

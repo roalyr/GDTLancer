@@ -131,13 +131,25 @@ func fire_weapon(shooter_uid: int, target_uid: int, weapon: UtilityToolTemplate,
 	# Calculate and apply damage
 	var damage = calculate_damage(weapon, distance)
 	var damage_result = apply_damage(target_uid, damage.hull_damage, damage.armor_damage, shooter_uid)
+
+	# If the target is already disabled (or otherwise invalid), avoid crashing and report cleanly.
+	if not damage_result.get("success", false):
+		var already_disabled: bool = (damage_result.get("reason", "") == "Target already disabled")
+		return {
+			"success": true,
+			"hit": true,
+			"damage_dealt": damage,
+			"target_disabled": already_disabled,
+			"target_hull_remaining": 0,
+			"warning": damage_result.get("reason", "Damage not applied")
+		}
 	
 	return {
 		"success": true,
 		"hit": true,
 		"damage_dealt": damage,
-		"target_disabled": damage_result.disabled,
-		"target_hull_remaining": damage_result.hull_remaining
+		"target_disabled": bool(damage_result.get("disabled", false)),
+		"target_hull_remaining": damage_result.get("hull_remaining", 0)
 	}
 
 

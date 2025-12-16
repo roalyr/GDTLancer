@@ -54,6 +54,8 @@ func _ready():
 
 
 func _on_new_game_requested() -> void:
+	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
+	_reset_camera_input_state()
 	# Leaving the Main Menu; resume gameplay.
 	get_tree().paused = false
 	if is_instance_valid(_time_clock_timer):
@@ -78,6 +80,8 @@ func _on_new_game_requested() -> void:
 
 
 func _on_game_state_loaded() -> void:
+	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
+	_reset_camera_input_state()
 	# A saved state has been applied; we now need to load a zone so AgentSpawner can
 	# spawn the player from the restored GameState.
 	get_tree().paused = false
@@ -166,6 +170,17 @@ func _cleanup_current_zone() -> void:
 	GlobalRefs.current_zone = null
 	GlobalRefs.agent_container = null
 	# Note: main_camera is NOT part of the zone - it's in main_game_scene, so don't clear it
+
+
+func _reset_camera_input_state() -> void:
+	# If the previous session ended while free-flight was active or the mouse was held,
+	# the PlayerController may not get a clean state exit during cleanup.
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if is_instance_valid(GlobalRefs.main_camera):
+		if GlobalRefs.main_camera.has_method("set_rotation_input_active"):
+			GlobalRefs.main_camera.set_rotation_input_active(false)
+		if GlobalRefs.main_camera.has_method("set_is_rotating"):
+			GlobalRefs.main_camera.set_is_rotating(false)
 
 
 # --- Zone Management ---

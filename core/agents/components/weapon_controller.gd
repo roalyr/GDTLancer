@@ -44,6 +44,7 @@ func _load_weapons_from_ship() -> void:
 			_ship_template = agent_ship
 	
 	if not is_instance_valid(_ship_template):
+		print("WeaponController: No ship template available for agent, cannot load weapons.")
 		return  # No ship available
 
 	# Load each equipped tool template
@@ -64,6 +65,18 @@ func _load_weapons_from_ship() -> void:
 	
 	if _weapons.size() > 0:
 		print("WeaponController: Loaded ", _weapons.size(), " weapon(s) for agent")
+	else:
+		# Helpful during manual integration verification.
+		print(
+			"WeaponController: No weapons loaded for agent_uid=",
+			_agent_body.get("agent_uid"),
+			" ship=",
+			_ship_template.get("template_id"),
+			" equipped_weapons=",
+			_ship_template.get("equipped_weapons"),
+			" equipped_tools=",
+			_ship_template.get("equipped_tools")
+		)
 
 
 func _physics_process(delta: float) -> void:
@@ -143,14 +156,50 @@ func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3
 func _ensure_combatant_registered(uid: int) -> void:
 	if not is_instance_valid(GlobalRefs.combat_system):
 		return
-	if GlobalRefs.combat_system.is_in_combat(uid):
-		return
+	# Don't confuse "in combat" (alive/active) with "registered" (has hull state).
+	# We need registration even when combat hasn't started yet.
+	if GlobalRefs.combat_system.has_method("get_combat_state"):
+		var existing_state: Dictionary = GlobalRefs.combat_system.get_combat_state(uid)
+		if not existing_state.empty():
+			return
+	else:
+		# Fallback for older CombatSystem API.
+		if GlobalRefs.combat_system.is_in_combat(uid):
+			return
 
 	var ship = null
 
 	# Prefer current ship if this is the local agent.
 	if _agent_body and int(_agent_body.get("agent_uid")) == uid and is_instance_valid(_ship_template):
 		ship = _ship_template
+
+	# Resolve uid -> AgentBody and use its cached ship_template.
+	if not is_instance_valid(ship):
+		var agent_body = null
+		if is_instance_valid(GlobalRefs.world_manager) and GlobalRefs.world_manager.has_method("get_agent_by_uid"):
+			agent_body = GlobalRefs.world_manager.get_agent_by_uid(uid)
+
+		if not is_instance_valid(agent_body):
+			var tree = get_tree()
+			if tree:
+				for node in tree.get_nodes_in_group("Agents"):
+					if (
+						is_instance_valid(node)
+						and node.get("agent_uid") != null
+						and int(node.get("agent_uid")) == uid
+					):
+						agent_body = node
+						break
+
+		if is_instance_valid(agent_body):
+			var cached_ship = agent_body.get("ship_template")
+			if is_instance_valid(cached_ship):
+				ship = cached_ship
+			else:
+				# If this body has a character_uid, use AssetSystem mapping.
+				var raw_char_uid = agent_body.get("character_uid")
+				if raw_char_uid != null and int(raw_char_uid) >= 0 and is_instance_valid(GlobalRefs.asset_system):
+					ship = GlobalRefs.asset_system.get_ship_for_character(int(raw_char_uid))
 
 	# Try to interpret uid as character_uid.
 	if not is_instance_valid(ship) and is_instance_valid(GlobalRefs.asset_system):

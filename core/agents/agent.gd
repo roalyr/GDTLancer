@@ -67,7 +67,8 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	navigation_system.initialize_navigation(nav_params, movement_system)
 	
 	# Register with combat system if we have a ship template
-	_register_with_combat_system()
+	# Defer to ensure CombatSystem is initialized in the scene tree.
+	call_deferred("_register_with_combat_system")
 
 	print(
 		"AgentBody '",

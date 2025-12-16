@@ -19,4 +19,4 @@ acceleration = 0.5
 deceleration = 0.5
 max_turn_speed = 0.75
 alignment_threshold_angle_deg = 45.0
-equipped_tools = ["weapon_ablative_laser"]
+equipped_weapons = ["weapon_ablative_laser"]

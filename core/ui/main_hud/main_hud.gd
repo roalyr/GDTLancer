@@ -9,6 +9,8 @@ onready var targeting_indicator: Control = $TargetingIndicator
 onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
 onready var label_tu: Label = $ScreenControls/TopLeftZone/LabelTU
+onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
+onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
@@ -33,6 +35,7 @@ var action_check_instance = null
 var _current_target: Spatial = null
 var _main_camera: Camera = null
 var _current_target_uid: int = -1  # UID of current combat target for hull tracking
+var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
 
@@ -101,6 +104,12 @@ func _ready():
 			EventBus.connect("agent_damaged", self, "_on_agent_damaged")
 		if not EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
+		if not EventBus.is_connected("agent_despawning", self, "_on_agent_despawning"):
+			EventBus.connect("agent_despawning", self, "_on_agent_despawning")
+		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
+			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
+		if not EventBus.is_connected("game_state_loaded", self, "_on_game_state_loaded"):
+			EventBus.connect("game_state_loaded", self, "_on_game_state_loaded")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
@@ -108,6 +117,7 @@ func _ready():
 	# Connect to CombatSystem signals for hull updates (deferred to allow system init)
 	call_deferred("_connect_combat_signals")
 	call_deferred("_refresh_player_resources")
+	call_deferred("_deferred_refresh_player_hull")
 	
 	# Ensure target info panel starts hidden
 	if target_info_panel:
@@ -127,6 +137,11 @@ func _ready():
 
 # --- Process Update ---
 func _process(_delta):
+	# If the selected target is gone, clear the UI state.
+	if _current_target != null and not is_instance_valid(_current_target):
+		_on_Player_Target_Deselected()
+		return
+
 	# Only update position if a target is selected and valid
 	if is_instance_valid(_current_target) and is_instance_valid(_main_camera):
 		# Project the target's 3D origin position to 2D screen coordinates
@@ -152,6 +167,8 @@ func _process(_delta):
 		# Ensure indicator is hidden if target becomes invalid or camera is invalid
 		if targeting_indicator.visible:
 			targeting_indicator.visible = false
+		if target_info_panel and target_info_panel.visible:
+			target_info_panel.visible = false
 
 
 # --- Signal Handlers ---
@@ -177,6 +194,25 @@ func _on_Player_Target_Deselected():
 	if target_info_panel:
 		target_info_panel.visible = false
 	set_process(false)  # Can disable processing if target is deselected
+	_refresh_player_hull()
+
+
+func _on_agent_despawning(agent_body) -> void:
+	# If our selected target is being removed, clear target UI.
+	if is_instance_valid(_current_target) and agent_body == _current_target:
+		_on_Player_Target_Deselected()
+
+
+func _on_new_game_requested() -> void:
+	# World is about to be reset; clear any stale targeting UI.
+	_on_Player_Target_Deselected()
+	call_deferred("_deferred_refresh_player_hull")
+
+
+func _on_game_state_loaded() -> void:
+	# After load, clear stale UI and refresh player hull label/bar.
+	_on_Player_Target_Deselected()
+	call_deferred("_deferred_refresh_player_hull")
 
 
 func _on_player_wp_changed(_new_wp_value = null):
@@ -292,6 +328,7 @@ func _on_combat_ended(result_dict: Dictionary) -> void:
 func _on_agent_damaged(agent_body, damage_amount: float, _source_agent) -> void:
 	if agent_body == GlobalRefs.player_agent_body:
 		print("[HUD] Player took ", damage_amount, " damage")
+		_refresh_player_hull()
 
 
 func _on_agent_disabled(agent_body) -> void:
@@ -434,6 +471,58 @@ func _connect_combat_signals() -> void:
 			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_damage_dealt")
 		if not GlobalRefs.combat_system.is_connected("ship_disabled", self, "_on_ship_disabled"):
 			GlobalRefs.combat_system.connect("ship_disabled", self, "_on_ship_disabled")
+		# If the player is involved, refresh the player hull display on damage events.
+		if not GlobalRefs.combat_system.is_connected("damage_dealt", self, "_on_any_damage_dealt_refresh_player"):
+			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_any_damage_dealt_refresh_player")
+
+
+func _refresh_player_hull() -> void:
+	if not is_instance_valid(label_player_hull) or not is_instance_valid(player_hull_bar):
+		return
+	if not is_instance_valid(GlobalRefs.player_agent_body):
+		label_player_hull.text = "Hull: --"
+		player_hull_bar.value = 100.0
+		return
+	var raw_uid = GlobalRefs.player_agent_body.get("agent_uid")
+	if raw_uid == null:
+		label_player_hull.text = "Hull: --"
+		player_hull_bar.value = 100.0
+		return
+	_player_uid = int(raw_uid)
+	if _player_uid < 0:
+		label_player_hull.text = "Hull: --"
+		player_hull_bar.value = 100.0
+		return
+	if not is_instance_valid(GlobalRefs.combat_system):
+		label_player_hull.text = "Hull: --"
+		player_hull_bar.value = 100.0
+		return
+
+	# Avoid showing 0% when CombatSystem hasn't registered the player yet.
+	var state: Dictionary = {}
+	if GlobalRefs.combat_system.has_method("get_combat_state"):
+		state = GlobalRefs.combat_system.get_combat_state(_player_uid)
+	if state.empty():
+		label_player_hull.text = "Hull: --"
+		player_hull_bar.value = 100.0
+		return
+
+	var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(_player_uid)
+	player_hull_bar.value = hull_pct * 100.0
+	label_player_hull.text = "Hull: " + str(int(round(hull_pct * 100.0))) + "%"
+
+
+func _deferred_refresh_player_hull() -> void:
+	# CombatSystem registration happens deferred from Agent initialization.
+	# Retry briefly so we show player hull without requiring damage.
+	for _i in range(20):
+		_refresh_player_hull()
+		yield(get_tree().create_timer(0.1), "timeout")
+
+
+func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _source_uid: int) -> void:
+	# Keep player hull display current even if damage events come through CombatSystem only.
+	_refresh_player_hull()
 
 
 func _update_target_info_panel(target_node: Spatial) -> void:
