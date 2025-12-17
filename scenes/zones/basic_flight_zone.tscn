@@ -1,8 +1,8 @@
 [gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://core/utils/editor_object.gd" type="Script" id=1]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 7 - 512x512.png" type="Texture" id=2]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Melt 5 - 512x512.png" type="Texture" id=3]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=2]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Craters 14 - 512x512.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=4]
 [ext_resource path="res://scenes/zones/star_1_surface.tres" type="Material" id=5]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=6]
@@ -86,26 +86,34 @@ radius = 1000.0
 
 [sub_resource type="ShaderMaterial" id=17]
 shader = ExtResource( 4 )
-shader_param/albedo = Color( 1, 1, 1, 1 )
-shader_param/normal_strength = -0.637
-shader_param/normal_scale = 1.0
-shader_param/albedo_detail_scale = 0.688
-shader_param/albedo_detail_strength = -0.441
-shader_param/albedo_detail_power = 0.997
-shader_param/triplanar_sharpness = 100.0
+shader_param/paint_color = Color( 1, 1, 1, 1 )
+shader_param/light_tint = Color( 0.803922, 0.72549, 0.556863, 1 )
+shader_param/shadow_tint = Color( 0.14902, 0.172549, 0.152941, 1 )
+shader_param/shadow_bias = 0.193
+shader_param/shadow_softness = 0.292
+shader_param/shadow_normal_blend = 0.317
+shader_param/spec_tint = Color( 0.843137, 0.92549, 0.92549, 0.501961 )
+shader_param/spec_intensity = 0.155
+shader_param/spec_glossiness = 8.243
+shader_param/spec_softness = 1.0
+shader_param/rim_color = Color( 0.121569, 0.027451, 0.101961, 1 )
+shader_param/rim_width = 3.0
+shader_param/rim_power = 2.0
+shader_param/rim_mask_on_shadow = false
+shader_param/detail_paint_scale = 0.222
+shader_param/detail_paint_strength = 0.442
+shader_param/detail_paint_contrast = 0.468
+shader_param/detail_normal_scale = 3.507
+shader_param/detail_normal_strength = 0.224
+shader_param/uv_triplanar_sharpness = 100.0
 shader_param/uv_scale = Vector3( 1, 1, 1 )
-shader_param/uv_offset = Vector3( 0.57, -0.822, -0.794 )
-shader_param/lit_tint = Color( 0.933333, 0.603922, 0.27451, 1 )
-shader_param/shadow_tint = Color( 0.105882, 0.262745, 0.321569, 1 )
-shader_param/shadow_softness = 0.51
-shader_param/shadow_bias = 0.516
-shader_param/lit_normal_softness = 0.936
-shader_param/rim_color = Color( 0.207843, 0.137255, 0.172549, 1 )
-shader_param/rim_width = 2.537
-shader_param/rim_power = 1.777
-shader_param/rim_on_shadow_only = true
-shader_param/texture_albedo = ExtResource( 3 )
-shader_param/texture_normal = ExtResource( 2 )
+shader_param/uv_offset = Vector3( 0.636, 0.795, -0.423 )
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/detail_texture = ExtResource( 3 )
+shader_param/normal_texture = ExtResource( 2 )
 
 [sub_resource type="BoxShape" id=14]
 
@@ -134,7 +142,6 @@ sun_energy = 0.0
 background_mode = 1
 background_sky = SubResource( 5 )
 background_color = Color( 0.145098, 0.12549, 0.196078, 1 )
-ambient_light_color = Color( 0.145098, 0.12549, 0.196078, 1 )
 dof_blur_far_quality = 0
 glow_intensity = 1.5
 glow_strength = 1.3
