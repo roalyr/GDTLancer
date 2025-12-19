@@ -1,9 +1,9 @@
 # GDTLancer Development Plan - Phase 1 Implementation
 
-**Version:** 1.0  
-**Date:** December 14, 2025  
-**Status:** Active Development  
-**Scope:** Phase 1 - "The First Contract" Demo
+**Version:** 1.1  
+**Date:** December 19, 2025  
+**Status:** Active Development — Sprint 11 Next  
+**Scope:** Phase 1 - "The First Contract" Demo + World Persistence Foundation
 
 ---
 
@@ -19,23 +19,23 @@
 
 ## 1. Current State Assessment
 
-### ✅ IMPLEMENTED & WORKING
+### ✅ IMPLEMENTED & WORKING (Sprints 1-10 Complete)
 - **Autoloads:** Constants, EventBus, GlobalRefs, GameState, CoreMechanicsAPI, TemplateDatabase, GameStateManager
-- **Core Systems:** TimeSystem, CharacterSystem, AssetSystem, InventorySystem (all stateless, API-based)
-- **Agent Architecture:** KinematicBody agents with MovementSystem + NavigationSystem components
+- **Core Systems:** TimeSystem, CharacterSystem, AssetSystem, InventorySystem, TradingSystem, ContractSystem, CombatSystem, NarrativeActionSystem, EventSystem (all stateless, API-based)
+- **Agent Architecture:** KinematicBody agents with MovementSystem + NavigationSystem + WeaponController components
 - **Piloting (Free Flight):** Ship movement, targeting, orbital mechanics, approach/flee/stop commands
-- **World Management:** Zone loading, agent spawning, template indexing, world generation
-- **Main HUD:** Target indicator, WP/FP display, flight control buttons, zoom/speed sliders
-- **Unit Tests:** TimeSystem, CharacterSystem, AssetSystem, InventorySystem
+- **Combat:** Weapon firing, damage application, hull destruction, AI combat states (pursue/flee)
+- **World Management:** Zone loading, agent spawning, template indexing, world generation, docking system
+- **Trading:** Buy/sell commodities, cargo capacity checks, market prices
+- **Contracts:** Accept/complete delivery contracts, rewards, active contract tracking
+- **Narrative Actions:** Action Check UI, Risky/Cautious selection, outcome resolution, effect application
+- **Main HUD:** Target indicator, WP/FP display, flight control buttons, zoom/speed sliders, contract panel
+- **UI Screens:** Main menu, station menu, trade screen, contract board, action check modal
+- **Unit Tests:** 180+ tests across all systems
 
-### ❌ NOT IMPLEMENTED (Required for Phase 1)
-- **Trading Module:** Buy/sell commodities, cargo capacity checks
-- **Combat Module:** Weapon firing, damage application, hull destruction
-- **Event System:** Encounter triggering, combat initiation
-- **Narrative Actions:** Action Check UI, Risky/Cautious selection, outcome resolution
-- **Contract System:** Contract data, acceptance, completion, rewards
-- **Ship Stats Integration:** Agent movement not reading from ShipTemplate
-- **UI Screens:** Trade interface, Contract board, Character screen, Hangar/Progression
+### ⚠️ REMAINING (Phase 1 Completion)
+- **Ship Quirks System (Sprint 11):** Quirk templates, QuirkSystem API, quirk triggers from combat/narrative
+- **Global Agent Persistency (Sprint 12):** Persistent NPC population, patrol behavior, HUD markers, full serialization
 
 ---
 
@@ -673,10 +673,10 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 10: Full Game Loop Integration ⚠️ PARTIAL (Combat blockers)
+### SPRINT 10: Full Game Loop Integration ✅ COMPLETE
 **Goal:** Connect all systems into playable demo flow.
 
-> **Playtest Status (2025-12-15):** 45/50 tests pass. Combat damage not being dealt (enemy hull doesn't decrease, player doesn't receive damage). Game Over UI never triggers. See SESSION-LOG.md for blockers.
+> **Playtest Status (2025-12-19):** All manual tests pass. Full game loop functional: New Game → Accept Contract → Trade → Fly → Combat → Complete Contract → Save/Load.
 
 #### 10.1 New Game Flow
 **Tasks:**
@@ -729,47 +729,105 @@ Each sprint is **1-2 weeks** and follows this pattern:
 
 ---
 
-### SPRINT 11: Polish & Edge Cases
-**Goal:** Stability, edge case handling, save/load verification.
+### SPRINT 11: Ship Quirks System 🎯 CURRENT
+**Goal:** Complete final Phase 1 Definition of Done item: "Ship quirks can be gained from failures."
 
-#### 11.1 Save/Load Verification
+> **See IMMEDIATE-TODO.md for detailed task breakdown**
+
+#### 11.1 Quirk Template & Registry
 **Tasks:**
-- [ ] Verify `GameStateManager` serializes all new data:
-  - `contracts`, `active_contracts`
-  - `locations` (market state changes)
-  - `narrative_state`
-  - Ship `ship_quirks` array
-- [ ] Test save during various states:
-  - Mid-flight
-  - Docked at station
-  - With active contracts
-  - After combat (with quirks)
-- [ ] Test load restores exact state
+- [ ] Create `QuirkTemplate` resource class (`database/definitions/quirk_template.gd`)
+- [ ] Create Phase 1 quirk instances: scratched_hull, jammed_landing_gear, damaged_radiator, reputation_tarnished
+- [ ] Add quirk templates to TemplateDatabase loading
 
----
-
-#### 11.2 Error Handling
+#### 11.2 Quirk System API
 **Tasks:**
-- [ ] Add null checks to all system API functions
-- [ ] Add fallback behaviors:
-  - Missing template → use default
-  - Invalid location_id → log error, no crash
-  - Combat with no enemies → auto-end
-- [ ] Ensure no orphan nodes (use `add_child_autofree` in tests)
+- [ ] Create `QuirkSystem` (`src/core/systems/quirk_system.gd`) with stateless API
+- [ ] API: `add_quirk_to_ship()`, `remove_quirk_from_ship()`, `get_quirks_for_ship()`
+- [ ] API: `get_total_modifier()`, `repair_quirk()`
+- [ ] Add EventBus signals: `quirk_added`, `quirk_removed`
 
----
-
-#### 11.3 Performance Check
+#### 11.3 Integration
 **Tasks:**
-- [ ] Profile with 10+ NPC agents in zone
-- [ ] Check for memory leaks after zone transitions
-- [ ] Verify no physics errors in console during extended play
+- [ ] Update NarrativeActionSystem to use QuirkSystem API
+- [ ] Add quirk triggers to CombatSystem on hull damage thresholds
+- [ ] Add quirk display to Main HUD
+
+#### 11.4 Testing
+**Tasks:**
+- [ ] Write GUT unit tests for QuirkSystem
+- [ ] Manual playtest checklist
 
 **Test Checklist (Sprint 11):**
-- [ ] Play for 10 minutes continuously → no crashes
+- [ ] Risky dock_arrival failure → quirk added to ship, displayed on HUD
+- [ ] Heavy combat damage → quirk trigger chance
+- [ ] Quirk modifier affects narrative action rolls
+- [ ] Repair quirk at station → WP deducted, quirk removed
+- [ ] Save/Load preserves ship quirks
+
+---
+
+### SPRINT 12: Global Agent Persistency 📋 PLANNED
+**Goal:** Foundation for "Living World" — persistent NPC population.
+
+> **See IMMEDIATE-TODO.md for detailed task breakdown**
+
+#### 12.1 World Population System
+**Tasks:**
+- [ ] Add `GameState.world_agents` dictionary for persistent NPC state
+- [ ] Create `WorldPopulationSystem` to manage ~100 NPCs across 300,000 unit zone
+- [ ] Generate anchor points for NPC patrol orbits
+
+#### 12.2 NPC Behavior
+**Tasks:**
+- [ ] Add `STATE_PATROL` to AI controller (orbit anchor point)
+- [ ] Hostile response when attacked, return to anchor when target lost
+- [ ] Sync agent state to GameState.world_agents periodically
+
+#### 12.3 HUD Indicators
+**Tasks:**
+- [ ] Create `AgentMarkerOverlay` showing all NPC positions
+- [ ] Faint X bracket markers, color-coded by state (neutral/hostile/disabled)
+
+#### 12.4 Serialization
+**Tasks:**
+- [ ] Full agent state serialization: position, rotation, hull, cargo, quirks
+- [ ] Disabled agents persist (not despawned)
+
+**Test Checklist (Sprint 12):**
+- [ ] New Game spawns ~100 NPCs distributed across zone
+- [ ] NPCs orbit anchor points, don't attack unprovoked
+- [ ] Attack NPC → becomes hostile, pursues, returns to patrol when disengaged
+- [ ] HUD shows faint markers for all agents
+- [ ] Save/Load preserves all agent states exactly
+
+---
+
+### SPRINT 13: Polish & Edge Cases 📋 PLANNED
+**Goal:** Stability, edge case handling, performance validation.
+
+#### 13.1 Save/Load Verification
+**Tasks:**
+- [ ] Verify all new data serializes: quirks, world_agents, anchor states
+- [ ] Test save during various states (mid-flight, docked, combat, etc.)
+- [ ] Test load restores exact state
+
+#### 13.2 Error Handling
+**Tasks:**
+- [ ] Add null checks to all system API functions
+- [ ] Add fallback behaviors for missing templates
+- [ ] Ensure no orphan nodes
+
+#### 13.3 Performance Check
+**Tasks:**
+- [ ] Profile with 100 NPC agents in zone
+- [ ] Check for memory leaks after extended play
+- [ ] Verify no physics errors in console
+
+**Test Checklist (Sprint 13):**
+- [ ] Play for 15 minutes continuously → no crashes
 - [ ] Save mid-mission → load → continue exactly where left off
 - [ ] Trigger every error condition intentionally → graceful handling
-- [ ] Zone transition → no orphan nodes or errors
 - [ ] Complete 5 contracts in one session → stable performance
 
 ---
@@ -818,19 +876,30 @@ godot --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/ -gexit
 
 Phase 1 is complete when:
 
-- [ ] Player can start new game and spawn at station
-- [ ] Player can view and accept contracts
-- [ ] Player can buy/sell commodities at stations
-- [ ] Player can fly between two stations
-- [ ] Player can complete delivery contracts and receive rewards
-- [ ] Combat encounters can trigger during flight
-- [ ] Player can fight and disable enemy ships
-- [ ] Narrative Actions resolve with visible outcomes
-- [ ] Time system triggers upkeep costs
-- [ ] Ship quirks can be gained from failures
-- [ ] Game state can be saved and loaded
+- [x] Player can start new game and spawn at station
+- [x] Player can view and accept contracts
+- [x] Player can buy/sell commodities at stations
+- [x] Player can fly between two stations
+- [x] Player can complete delivery contracts and receive rewards
+- [x] Combat encounters can trigger during flight
+- [x] Player can fight and disable enemy ships
+- [x] Narrative Actions resolve with visible outcomes
+- [x] Time system triggers upkeep costs
+- [ ] **Ship quirks can be gained from failures** ← Sprint 11
+- [x] Game state can be saved and loaded
 - [ ] No critical bugs or crashes during 15-minute play session
-- [ ] All unit tests pass
+- [ ] All unit tests pass (target: 190+)
+
+### Phase 1+ (World Persistence Foundation)
+
+After Sprint 12, additional criteria:
+
+- [ ] World contains persistent NPC population (~100 agents)
+- [ ] NPCs patrol/orbit anchor points when neutral
+- [ ] NPCs become hostile when attacked, return to patrol when disengaged
+- [ ] All NPC positions visible on HUD as markers
+- [ ] Full agent state serializes in save files
+- [ ] Disabled agents persist (not despawned)
 
 ---
 
@@ -851,6 +920,33 @@ Then proceed to Phase 2 (Mining/Industrial module, deeper narrative systems).
 ## Appendix A: File Structure (New Files)
 
 ```
+database/
+  definitions/
+    quirk_template.gd           [Sprint 11]
+    anchor_template.gd          [Sprint 12]
+  registry/
+    quirks/
+      quirk_scratched_hull.tres        [Sprint 11]
+      quirk_jammed_landing_gear.tres   [Sprint 11]
+      quirk_damaged_radiator.tres      [Sprint 11]
+      quirk_reputation_tarnished.tres  [Sprint 11]
+
+src/
+  core/
+    systems/
+      quirk_system.gd               [Sprint 11]
+      world_population_system.gd    [Sprint 12]
+    ui/
+      main_hud/
+        agent_marker_overlay.gd     [Sprint 12]
+
+tests/
+  core/
+    systems/
+      test_quirk_system.gd              [Sprint 11]
+      test_world_population_system.gd   [Sprint 12]
+
+# Previously created (Sprints 1-10):
 core/
   resource/
     location_template.gd        [Sprint 2]
@@ -895,12 +991,6 @@ assets/
       delivery_03.tres          [Sprint 3]
     tools/
       ablative_laser.tres       [Sprint 8]
-
-tests/
-  core/
-    systems/
-      test_trading_system.gd    [Sprint 2]
-      test_contract_system.gd   [Sprint 3]
 ```
 
 ---

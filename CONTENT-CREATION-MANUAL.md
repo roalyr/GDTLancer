@@ -1,8 +1,8 @@
 # Content Creation Manual
 
 **GDTLancer Designer & Artist Guide**  
-**Version:** 1.0  
-**Date:** 2025-12-16  
+**Version:** 1.1  
+**Date:** 2025-12-19  
 
 ---
 
@@ -50,6 +50,7 @@ database/
 │   ├── template.gd                    # Base template class
 │   ├── action_template.gd             # Action definitions
 │   ├── agent_template.gd              # NPC/Player agent definitions
+│   ├── anchor_template.gd             # Patrol anchor points (Sprint 12)
 │   ├── asset_template.gd              # Base asset class
 │   ├── asset_commodity_template.gd    # Tradeable goods
 │   ├── asset_module_template.gd       # Ship modules
@@ -57,6 +58,7 @@ database/
 │   ├── character_template.gd          # Character stats
 │   ├── contract_template.gd           # Mission/contract definitions
 │   ├── location_template.gd           # Stations, planets, etc.
+│   ├── quirk_template.gd              # Ship quirks (Sprint 11)
 │   └── utility_tool_template.gd       # Weapons and tools
 │
 ├── registry/             # DATA INSTANCES (.tres files you create)
@@ -69,6 +71,7 @@ database/
 │   ├── characters/       # character_*.tres
 │   ├── contracts/        # delivery_*.tres, combat_*.tres, etc.
 │   ├── locations/        # station_*.tres
+│   ├── quirks/           # quirk_*.tres (Sprint 11)
 │   ├── weapons/          # weapon_*.tres
 │   └── zones/            # Zone configuration data
 │

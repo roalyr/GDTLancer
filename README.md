@@ -8,7 +8,7 @@
 
 This project aims to create a unique experience blending the freedom of classic space sims with the deep, player-driven stories found in tabletop roleplaying games, all presented in a distinct neo-retro 3D visual style.
 
-**Current Status:** Undergoing refactoring.
+**Current Status:** Phase 1 Implementation (Sprint 11 - Ship Quirks System)
 
 ### Core Concepts & Features (Based on Design):
 
