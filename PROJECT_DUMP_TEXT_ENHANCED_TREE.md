@@ -6,6 +6,7 @@
 │   │   │   └── particle_quad.tres
 │   │   ├── materials
 │   │   │   ├── test_solid_frame.tres
+│   │   │   ├── test_solid_glow.tres
 │   │   │   ├── test_solid_panel_2.tres
 │   │   │   ├── test_solid_panel_3.tres
 │   │   │   └── test_solid_panel.tres
@@ -137,21 +138,6 @@
 │   │           ├── button_settings.png
 │   │           ├── button_start_new_game.dxf
 │   │           └── button_start_new_game.png
-│   ├── data
-│   │   ├── actions
-│   │   │   └── action_default.tres
-│   │   ├── agents
-│   │   │   ├── npc_default.tres
-│   │   │   └── player_default.tres
-│   │   ├── assets
-│   │   │   ├── commodities
-│   │   │   │   └── commodity_default.tres
-│   │   │   ├── modules
-│   │   │   │   └── module_default.tres
-│   │   │   └── ships
-│   │   │       └── ship_default.tres
-│   │   └── characters
-│   │       └── character_default.tres
 │   ├── fonts
 │   │   └── Roboto_Condensed
 │   │       └── static
@@ -175,33 +161,8 @@
 │   │       └── Star_sprite_square_wide.glb
 │   └── themes
 │       └── main_theme.tres
-├── autoload
-│   ├── Constants.gd
-│   ├── CoreMechanicsAPI.gd
-│   ├── EventBus.gd
-│   ├── GameState.gd
-│   ├── GameStateManager.gd
-│   ├── GlobalRefs.gd
-│   └── TemplateDatabase.gd
-├── core
-│   ├── agents
-│   │   ├── agent.gd
-│   │   ├── agent.tscn
-│   │   ├── components
-│   │   │   ├── movement_system.gd
-│   │   │   ├── navigation_system
-│   │   │   │   ├── command_align_to.gd
-│   │   │   │   ├── command_approach.gd
-│   │   │   │   ├── command_flee.gd
-│   │   │   │   ├── command_idle.gd
-│   │   │   │   ├── command_move_direction.gd
-│   │   │   │   ├── command_move_to.gd
-│   │   │   │   ├── command_orbit.gd
-│   │   │   │   └── command_stop.gd
-│   │   │   └── navigation_system.gd
-│   │   ├── npc_agent.tscn
-│   │   └── player_agent.tscn
-│   ├── resource
+├── database
+│   ├── definitions
 │   │   ├── action_template.gd
 │   │   ├── agent_template.gd
 │   │   ├── asset_commodity_template.gd
@@ -209,112 +170,232 @@
 │   │   ├── asset_ship_template.gd
 │   │   ├── asset_template.gd
 │   │   ├── character_template.gd
-│   │   └── template.gd
-│   ├── systems
-│   │   ├── action_system.gd
-│   │   ├── agent_system.gd
-│   │   ├── asset_system.gd
-│   │   ├── character_system.gd
-│   │   ├── chronicle_system.gd
-│   │   ├── event_system.gd
-│   │   ├── goal_system.gd
-│   │   ├── inventory_system.gd
-│   │   ├── progression_system.gd
-│   │   ├── time_system.gd
-│   │   ├── traffic_system.gd
-│   │   └── world_map_system.gd
-│   ├── ui
-│   │   ├── character_status
-│   │   │   ├── character_status.gd
-│   │   │   └── character_status.tscn
-│   │   ├── inventory_screen
-│   │   │   ├── inventory_screen.gd
-│   │   │   └── inventory_screen.tscn
-│   │   ├── main_hud
-│   │   │   ├── main_hud.gd
-│   │   │   └── main_hud.tscn
-│   │   ├── main_menu
-│   │   │   ├── main_menu.gd
-│   │   │   └── main_menu.tscn
-│   │   └── ui_helper_classes
-│   │       └── CenteredGrowingLabel.gd
-│   └── utils
-│       ├── editor_object.gd
-│       ├── pid_controller.gd
-│       └── rotating_object.gd
+│   │   ├── contract_template.gd
+│   │   ├── location_template.gd
+│   │   ├── template.gd
+│   │   └── utility_tool_template.gd
+│   └── registry
+│       ├── actions
+│       │   └── action_default.tres
+│       ├── agents
+│       │   ├── npc_default.tres
+│       │   ├── npc_hostile_default.tres
+│       │   └── player_default.tres
+│       ├── assets
+│       │   ├── commodities
+│       │   │   ├── commodity_default.tres
+│       │   │   ├── commodity_food.tres
+│       │   │   ├── commodity_fuel.tres
+│       │   │   ├── commodity_luxury.tres
+│       │   │   ├── commodity_ore.tres
+│       │   │   └── commodity_tech.tres
+│       │   ├── modules
+│       │   │   └── module_default.tres
+│       │   └── ships
+│       │       ├── ship_default.tres
+│       │       └── ship_hostile_default.tres
+│       ├── characters
+│       │   └── character_default.tres
+│       ├── contracts
+│       │   ├── delivery_01.tres
+│       │   ├── delivery_02.tres
+│       │   ├── delivery_03.tres
+│       │   ├── delivery_04.tres
+│       │   ├── delivery_05.tres
+│       │   └── delivery_06.tres
+│       ├── locations
+│       │   ├── station_alpha.tres
+│       │   ├── station_beta.tres
+│       │   └── station_gamma.tres
+│       └── weapons
+│           ├── weapon_ablative_laser.tres
+│           ├── weapon_harpoon.tres
+│           └── weapon_rotary_drill.tres
 ├── default_env.tres
 ├── export_presets.cfg
 ├── Icon.png
-├── modules
-│   └── piloting
-│       └── scripts
-│           ├── player_controller_ship.gd
-│           ├── player_input_states
-│           │   ├── state_base.gd
-│           │   ├── state_default.gd
-│           │   └── state_free_flight.gd
-│           └── ship_controller_ai.gd
 ├── project.godot
+├── references
+│   ├── CanvasItem shaders — Godot Engine (3.6) documentation in English.pdf
+│   ├── Particle shaders — Godot Engine (3.6) documentation in English.pdf
+│   ├── Shading language — Godot Engine (3.6) documentation in English.pdf
+│   └── Spatial shaders — Godot Engine (3.6) documentation in English.pdf
 ├── scenes
-│   ├── camera
-│   │   ├── components
-│   │   │   ├── camera_particles_controller.gd
-│   │   │   ├── camera_position_controller.gd
-│   │   │   ├── camera_rotation_controller.gd
-│   │   │   └── camera_zoom_controller.gd
-│   │   ├── orbit_camera.gd
-│   │   └── orbit_camera.tscn
-│   ├── game_world
-│   │   ├── main_game_scene.tscn
-│   │   ├── world_manager
-│   │   │   ├── template_indexer.gd
-│   │   │   └── world_generator.gd
-│   │   ├── world_manager.gd
-│   │   └── world_rendering.gd
-│   └── zones
-│       ├── basic_flight_zone.tscn
-│       ├── nebula_1_inside.tres
-│       ├── nebula_1.tres
-│       ├── nebula_transparent_1.tres
-│       ├── star_1_corona.tres
-│       ├── star_1_sprite.tres
-│       └── star_1_surface.tres
+│   ├── levels
+│   │   ├── game_world
+│   │   │   └── main_game_scene.tscn
+│   │   └── zones
+│   │       └── zone1
+│   │           ├── basic_flight_zone.tscn
+│   │           └── scene_materials
+│   │               ├── nebula_1_inside.tres
+│   │               ├── nebula_1.tres
+│   │               ├── nebula_transparent_1.tres
+│   │               ├── star_1_corona.tres
+│   │               ├── star_1_sprite.tres
+│   │               └── star_1_surface.tres
+│   ├── prefabs
+│   │   ├── agents
+│   │   │   ├── agent.tscn
+│   │   │   ├── npc_agent.tscn
+│   │   │   └── player_agent.tscn
+│   │   ├── camera
+│   │   │   └── orbit_camera.tscn
+│   │   └── station
+│   │       └── DockableStation.tscn
+│   └── ui
+│       ├── hud
+│       │   └── main_hud.tscn
+│       ├── menus
+│       │   ├── main_menu.tscn
+│       │   └── station_menu
+│       │       ├── ContractInterface.tscn
+│       │       ├── StationMenu.tscn
+│       │       └── TradeInterface.tscn
+│       └── screens
+│           ├── action_check.tscn
+│           ├── character_status.tscn
+│           └── inventory_screen.tscn
 ├── Splash.png
+├── src
+│   ├── autoload
+│   │   ├── Constants.gd
+│   │   ├── CoreMechanicsAPI.gd
+│   │   ├── EventBus.gd
+│   │   ├── GameState.gd
+│   │   ├── GameStateManager.gd
+│   │   ├── GlobalRefs.gd
+│   │   ├── NarrativeOutcomes.gd
+│   │   └── TemplateDatabase.gd
+│   ├── core
+│   │   ├── agents
+│   │   │   ├── agent.gd
+│   │   │   └── components
+│   │   │       ├── movement_system.gd
+│   │   │       ├── navigation_system
+│   │   │       │   ├── command_align_to.gd
+│   │   │       │   ├── command_approach.gd
+│   │   │       │   ├── command_flee.gd
+│   │   │       │   ├── command_idle.gd
+│   │   │       │   ├── command_move_direction.gd
+│   │   │       │   ├── command_move_to.gd
+│   │   │       │   ├── command_orbit.gd
+│   │   │       │   └── command_stop.gd
+│   │   │       ├── navigation_system.gd
+│   │   │       └── weapon_controller.gd
+│   │   ├── systems
+│   │   │   ├── action_system.gd
+│   │   │   ├── agent_system.gd
+│   │   │   ├── asset_system.gd
+│   │   │   ├── character_system.gd
+│   │   │   ├── chronicle_system.gd
+│   │   │   ├── combat_system.gd
+│   │   │   ├── contract_system.gd
+│   │   │   ├── event_system.gd
+│   │   │   ├── goal_system.gd
+│   │   │   ├── inventory_system.gd
+│   │   │   ├── narrative_action_system.gd
+│   │   │   ├── progression_system.gd
+│   │   │   ├── time_system.gd
+│   │   │   ├── trading_system.gd
+│   │   │   ├── traffic_system.gd
+│   │   │   └── world_map_system.gd
+│   │   ├── ui
+│   │   │   ├── action_check
+│   │   │   │   └── action_check.gd
+│   │   │   ├── character_status
+│   │   │   │   └── character_status.gd
+│   │   │   ├── helpers
+│   │   │   │   └── CenteredGrowingLabel.gd
+│   │   │   ├── inventory_screen
+│   │   │   │   └── inventory_screen.gd
+│   │   │   ├── main_hud
+│   │   │   │   └── main_hud.gd
+│   │   │   └── main_menu
+│   │   │       └── main_menu.gd
+│   │   └── utils
+│   │       ├── editor_object.gd
+│   │       ├── pid_controller.gd
+│   │       └── rotating_object.gd
+│   ├── modules
+│   │   └── piloting
+│   │       ├── player_controller_ship.gd
+│   │       ├── player_input_states
+│   │       │   ├── state_base.gd
+│   │       │   ├── state_default.gd
+│   │       │   └── state_free_flight.gd
+│   │       └── ship_controller_ai.gd
+│   ├── scenes
+│   │   ├── camera
+│   │   │   ├── components
+│   │   │   │   ├── camera_particles_controller.gd
+│   │   │   │   ├── camera_position_controller.gd
+│   │   │   │   ├── camera_rotation_controller.gd
+│   │   │   │   └── camera_zoom_controller.gd
+│   │   │   └── orbit_camera.gd
+│   │   ├── game_world
+│   │   │   ├── station
+│   │   │   │   └── dockable_station.gd
+│   │   │   ├── world_manager
+│   │   │   │   ├── template_indexer.gd
+│   │   │   │   └── world_generator.gd
+│   │   │   ├── world_manager.gd
+│   │   │   └── world_rendering.gd
+│   │   └── ui
+│   │       └── station_menu
+│   │           ├── contract_interface.gd
+│   │           ├── station_menu.gd
+│   │           └── trade_interface.gd
+│   └── tests
+│       ├── autoload
+│       │   ├── test_constants.gd
+│       │   ├── test_core_mechanics_api.gd
+│       │   ├── test_event_bus.gd
+│       │   ├── test_game_state_manager.gd
+│       │   └── test_global_refs.gd
+│       ├── core
+│       │   ├── agents
+│       │   │   └── components
+│       │   │       ├── test_movement_system.gd
+│       │   │       ├── test_navigation_system.gd
+│       │   │       └── test_weapon_controller.gd
+│       │   ├── systems
+│       │   │   ├── test_action_system.gd
+│       │   │   ├── test_agent_spawner.gd
+│       │   │   ├── test_asset_system.gd
+│       │   │   ├── test_character_system.gd
+│       │   │   ├── test_combat_system.gd
+│       │   │   ├── test_contract_system.gd
+│       │   │   ├── test_docking_logic.gd
+│       │   │   ├── test_event_system.gd
+│       │   │   ├── test_inventory_system.gd
+│       │   │   ├── test_narrative_action_system.gd
+│       │   │   ├── test_time_system.gd
+│       │   │   └── test_trading_system.gd
+│       │   └── utils
+│       │       └── test_pid_controller.gd
+│       ├── helpers
+│       │   ├── mock_agent_body.gd
+│       │   ├── mock_agent.tscn
+│       │   ├── mock_event_bus.gd
+│       │   ├── mock_ship_template.gd
+│       │   ├── signal_catcher.gd
+│       │   └── test_agent_body.gd
+│       ├── modules
+│       │   └── piloting
+│       │       └── test_ship_controller_ai.gd
+│       └── scenes
+│           ├── game_world
+│           │   └── world_manager
+│           │       ├── test_template_indexer.gd
+│           │       └── test_world_generator.gd
+│           ├── test_basic_flight_zone_docking.gd
+│           ├── test_docking_integration.gd
+│           └── test_full_game_loop.gd
 └── tests
-    ├── autoload
-    │   ├── test_constants.gd
-    │   ├── test_core_mechanics_api.gd
-    │   ├── test_event_bus.gd
-    │   ├── test_game_state_manager.gd
-    │   └── test_global_refs.gd
-    ├── core
-    │   ├── agents
-    │   │   └── components
-    │   │       ├── test_movement_system.gd
-    │   │       └── test_navigation_system.gd
-    │   ├── systems
-    │   │   ├── test_action_system.gd
-    │   │   ├── test_agent_spawner.gd
-    │   │   ├── test_asset_system.gd
-    │   │   ├── test_character_system.gd
-    │   │   ├── test_inventory_system.gd
-    │   │   └── test_time_system.gd
-    │   └── utils
-    │       └── test_pid_controller.gd
-    ├── data
-    │   └── test_action.tres
-    ├── helpers
-    │   ├── mock_agent_body.gd
-    │   ├── mock_agent.tscn
-    │   ├── mock_event_bus.gd
-    │   ├── signal_catcher.gd
-    │   └── test_agent_body.gd
-    └── scenes
-        └── game_world
-            └── world_manager
-                ├── test_template_indexer.gd
-                └── test_world_generator.gd
+    └── data
+        └── test_action.tres
 
-66 directories, 250 files
+92 directories, 305 files
 
-66 directories, 250 files
+92 directories, 305 files
