@@ -12,52 +12,52 @@ _global_script_classes=[ {
 "base": "Template",
 "class": "ActionTemplate",
 "language": "GDScript",
-"path": "res://core/resource/action_template.gd"
+"path": "res://database/definitions/action_template.gd"
 }, {
 "base": "Template",
 "class": "AgentTemplate",
 "language": "GDScript",
-"path": "res://core/resource/agent_template.gd"
+"path": "res://database/definitions/agent_template.gd"
 }, {
 "base": "Template",
 "class": "AssetTemplate",
 "language": "GDScript",
-"path": "res://core/resource/asset_template.gd"
+"path": "res://database/definitions/asset_template.gd"
 }, {
 "base": "Node",
 "class": "CameraPositionController",
 "language": "GDScript",
-"path": "res://scenes/camera/components/camera_position_controller.gd"
+"path": "res://src/scenes/camera/components/camera_position_controller.gd"
 }, {
 "base": "Node",
 "class": "CameraRotationController",
 "language": "GDScript",
-"path": "res://scenes/camera/components/camera_rotation_controller.gd"
+"path": "res://src/scenes/camera/components/camera_rotation_controller.gd"
 }, {
 "base": "Node",
 "class": "CameraZoomController",
 "language": "GDScript",
-"path": "res://scenes/camera/components/camera_zoom_controller.gd"
+"path": "res://src/scenes/camera/components/camera_zoom_controller.gd"
 }, {
-"base": "Label",
+"base": "Reference",
 "class": "CenteredGrowingLabel",
 "language": "GDScript",
-"path": "res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd"
+"path": "res://src/core/ui/helpers/CenteredGrowingLabel.gd"
 }, {
 "base": "Template",
 "class": "CharacterTemplate",
 "language": "GDScript",
-"path": "res://core/resource/character_template.gd"
+"path": "res://database/definitions/character_template.gd"
 }, {
 "base": "AssetTemplate",
 "class": "CommodityTemplate",
 "language": "GDScript",
-"path": "res://core/resource/asset_commodity_template.gd"
+"path": "res://database/definitions/asset_commodity_template.gd"
 }, {
 "base": "Resource",
 "class": "ContractTemplate",
 "language": "GDScript",
-"path": "res://core/resource/contract_template.gd"
+"path": "res://database/definitions/contract_template.gd"
 }, {
 "base": "Reference",
 "class": "GutHookScript",
@@ -72,37 +72,37 @@ _global_script_classes=[ {
 "base": "Node",
 "class": "InputState",
 "language": "GDScript",
-"path": "res://modules/piloting/scripts/player_input_states/state_base.gd"
+"path": "res://src/modules/piloting/player_input_states/state_base.gd"
 }, {
 "base": "Template",
 "class": "LocationTemplate",
 "language": "GDScript",
-"path": "res://core/resource/location_template.gd"
+"path": "res://database/definitions/location_template.gd"
 }, {
 "base": "AssetTemplate",
 "class": "ModuleTemplate",
 "language": "GDScript",
-"path": "res://core/resource/asset_module_template.gd"
+"path": "res://database/definitions/asset_module_template.gd"
 }, {
 "base": "Node",
 "class": "PIDController",
 "language": "GDScript",
-"path": "res://core/utils/pid_controller.gd"
+"path": "res://src/core/utils/pid_controller.gd"
 }, {
 "base": "AssetTemplate",
 "class": "ShipTemplate",
 "language": "GDScript",
-"path": "res://core/resource/asset_ship_template.gd"
+"path": "res://database/definitions/asset_ship_template.gd"
 }, {
 "base": "Resource",
 "class": "Template",
 "language": "GDScript",
-"path": "res://core/resource/template.gd"
+"path": "res://database/definitions/template.gd"
 }, {
 "base": "Template",
 "class": "UtilityToolTemplate",
 "language": "GDScript",
-"path": "res://core/resource/utility_tool_template.gd"
+"path": "res://database/definitions/utility_tool_template.gd"
 } ]
 _global_script_class_icons={
 "ActionTemplate": "",
@@ -111,7 +111,7 @@ _global_script_class_icons={
 "CameraPositionController": "",
 "CameraRotationController": "",
 "CameraZoomController": "",
-"CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
+"CenteredGrowingLabel": "",
 "CharacterTemplate": "",
 "CommodityTemplate": "",
 "ContractTemplate": "",
@@ -130,21 +130,21 @@ _global_script_class_icons={
 
 config/name="GDTLancer-rev"
 config/description="GDTLancer revised"
-run/main_scene="res://scenes/game_world/main_game_scene.tscn"
+run/main_scene="res://scenes/levels/game_world/main_game_scene.tscn"
 boot_splash/image="res://Splash.png"
 config/icon="res://Icon.png"
 config/windows_native_icon="res://Icon.ico"
 
 [autoload]
 
-Constants="*res://autoload/Constants.gd"
-EventBus="*res://autoload/EventBus.gd"
-GlobalRefs="*res://autoload/GlobalRefs.gd"
-TemplateDatabase="*res://autoload/TemplateDatabase.gd"
-GameState="*res://autoload/GameState.gd"
-CoreMechanicsAPI="*res://autoload/CoreMechanicsAPI.gd"
-GameStateManager="*res://autoload/GameStateManager.gd"
-NarrativeOutcomes="*res://autoload/NarrativeOutcomes.gd"
+Constants="*res://src/autoload/Constants.gd"
+EventBus="*res://src/autoload/EventBus.gd"
+GlobalRefs="*res://src/autoload/GlobalRefs.gd"
+TemplateDatabase="*res://src/autoload/TemplateDatabase.gd"
+GameState="*res://src/autoload/GameState.gd"
+CoreMechanicsAPI="*res://src/autoload/CoreMechanicsAPI.gd"
+GameStateManager="*res://src/autoload/GameStateManager.gd"
+NarrativeOutcomes="*res://src/autoload/NarrativeOutcomes.gd"
 
 [display]
 

@@ -1,0 +1,99 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://src/scenes/camera/orbit_camera.gd" type="Script" id=1]
+[ext_resource path="res://assets/art/effects/particle_quad.tres" type="QuadMesh" id=2]
+[ext_resource path="res://src/scenes/camera/components/camera_particles_controller.gd" type="Script" id=3]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.5, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 0.501961, 1, 1, 1, 0 )
+
+[node name="OrbitCamera" type="Camera"]
+near = 10.0
+far = 2e+06
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="NearDustParticles" type="CPUParticles" parent="."]
+amount = 50
+lifetime = 3.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 20, 20, 50 )
+direction = Vector3( 0, 0, 1 )
+spread = 10.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 1.1
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 5.0
+max_camera_speed_for_effect = 300.0
+velocity_offset_scale = -100.0
+
+[node name="FarDustParticles" type="CPUParticles" parent="."]
+amount = 200
+lifetime = 10.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 500, 500, 1000 )
+direction = Vector3( 0, 0, 1 )
+spread = 100.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 1.2
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 0.0
+max_camera_speed_for_effect = 10.0
+velocity_offset_scale = -300.0
+
+[node name="FarDustParticles2" type="CPUParticles" parent="."]
+visible = false
+amount = 100
+lifetime = 30.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 1500, 1500, 2500 )
+direction = Vector3( 0, 0, 1 )
+spread = 100.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 0.9
+color_ramp = SubResource( 1 )
+script = ExtResource( 3 )
+min_camera_speed_threshold = 0.0
+max_camera_speed_for_effect = 10.0
+velocity_offset_scale = -1200.0
+
+[node name="VeryFarDustParticles" type="CPUParticles" parent="."]
+amount = 512
+lifetime = 60.0
+local_coords = false
+mesh = ExtResource( 2 )
+emission_shape = 2
+emission_box_extents = Vector3( 500000, 500000, 500000 )
+direction = Vector3( 0, 0, 1 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 1.8
+color_ramp = SubResource( 1 )
+hue_variation = 0.19
+hue_variation_random = 1.0
+script = ExtResource( 3 )
+min_camera_speed_threshold = 0.0
+max_camera_speed_for_effect = 1.0

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/tests/helpers/mock_agent_body.gd" type="Script" id=1]
+
+[node name="MockAgent" type="Spatial"]
+
+[node name="AgentBody" type="KinematicBody" parent="."]
+script = ExtResource( 1 )

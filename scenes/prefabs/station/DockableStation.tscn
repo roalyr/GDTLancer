@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://src/scenes/game_world/station/dockable_station.gd" type="Script" id=1]
+[ext_resource path="res://assets/art/materials/test_solid_glow.tres" type="Material" id=2]
+
+[sub_resource type="SphereShape" id=1]
+radius = 20.0
+
+[sub_resource type="CubeMesh" id=2]
+size = Vector3( 10, 10, 10 )
+
+[sub_resource type="SphereShape" id=3]
+radius = 279.495
+
+[node name="DockableStation" type="StaticBody"]
+script = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 1 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 2.97317, 0, 0, 0, 2.97317, 0, 0, 0, 2.97317, 0, 0, 0 )
+material_override = ExtResource( 2 )
+mesh = SubResource( 2 )
+
+[node name="DockingZone" type="Area" parent="."]
+
+[node name="CollisionShape" type="CollisionShape" parent="DockingZone"]
+shape = SubResource( 3 )
