@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -23,6 +23,7 @@
 [ext_resource path="res://src/core/systems/contract_system.gd" type="Script" id=21]
 [ext_resource path="res://src/core/systems/narrative_action_system.gd" type="Script" id=22]
 [ext_resource path="res://src/core/systems/combat_system.gd" type="Script" id=23]
+[ext_resource path="res://src/core/systems/quirk_system.gd" type="Script" id=24]
 
 [node name="MainGameScene" type="Node"]
 
@@ -76,6 +77,9 @@ script = ExtResource( 22 )
 
 [node name="CombatSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 23 )
+
+[node name="QuirkSystem" type="Node" parent="WorldManager"]
+script = ExtResource( 24 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )

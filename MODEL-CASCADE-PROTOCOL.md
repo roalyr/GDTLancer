@@ -41,14 +41,14 @@ STRICT RULES:
 2. Do not deviate from the signatures defined by the Architect.
 3. Update 'SESSION_LOG.md' immediately after applying changes.
 
-UNIVERSAL HEADER:
-/*
- * PROJECT: {{Project_Name}}
- * MODULE: [Filename]
- * STATUS: [Level 2 - Implementation]
- * TRUTH_LINK: [Section of Truth Doc]
- * LOG_REF: [Last Log Timestamp]
- */
+UNIVERSAL HEADER (GODOT):
+#
+# PROJECT: {{Project_Name}}
+# MODULE: [Filename]
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: [Section of Truth Doc]
+# LOG_REF: [Last Log Timestamp]
+#
 
 OUTPUT BEHAVIOR:
 1. Apply file changes.

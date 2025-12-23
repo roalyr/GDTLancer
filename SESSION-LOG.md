@@ -15,3 +15,9 @@
 | 2025-12-05 | L2-Builder | Sprint 3: Contract System Core | SUCCESS | Reward logic and contract template indexing established. |
 | 2025-12-03 | L2-Builder | Sprint 2: Trading Module Core | SUCCESS | Buy/sell logic and WP transaction handling implemented. |
 | 2025-12-01 | L2-Builder | Sprint 1: Foundation Fixes | SUCCESS | Ship stats integration and EventBus signal audit complete. |
+| 2025-12-23 | L2-Builder | Implemented QuirkTemplate definition | SUCCESS | Created database/definitions/quirk_template.gd matching TACTICAL_TODO specs. |
+| 2025-12-23 | L2-Builder | Implemented Starter Quirk Instances | SUCCESS | Created 3 .tres files in database/registry/quirks/. |
+| 2025-12-23 | L2-Builder | Extended GameState for Quirks | SUCCESS | Added get_ship_quirks helper to GameState.gd. |
+| 2025-12-23 | L2-Builder | Implemented QuirkSystem | SUCCESS | Created system, updated GlobalRefs and EventBus. |
+| 2025-12-23 | L2-Builder | Wired QuirkSystem to Scene | SUCCESS | Added QuirkSystem node to main_game_scene.tscn. |
+| 2025-12-23 | L3-Intern | Verified Quirk System | SUCCESS | Polished quirk_template.gd, quirk_system.gd, GameState.gd. Created test_quirk_system.gd. |

@@ -39,6 +39,7 @@ var trading_system = null setget set_trading_system
 var contract_system = null setget set_contract_system
 var narrative_action_system = null setget set_narrative_action_system
 var combat_system = null setget set_combat_system
+var quirk_system = null setget set_quirk_system
 
 
 func _ready():
@@ -226,6 +227,14 @@ func set_combat_system(new_ref):
 		print("GlobalRefs: CombatSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid CombatSystem ref: ", new_ref)
+
+func set_quirk_system(new_ref):
+	if new_ref == quirk_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		quirk_system = new_ref
+		print("GlobalRefs: QuirkSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid QuirkSystem ref: ", new_ref)
 
 
 # --- UI ELEMENTS ---

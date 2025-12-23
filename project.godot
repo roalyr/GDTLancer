@@ -39,7 +39,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/scenes/camera/components/camera_zoom_controller.gd"
 }, {
-"base": "Reference",
+"base": "Label",
 "class": "CenteredGrowingLabel",
 "language": "GDScript",
 "path": "res://src/core/ui/helpers/CenteredGrowingLabel.gd"
@@ -89,6 +89,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/core/utils/pid_controller.gd"
 }, {
+"base": "Resource",
+"class": "QuirkTemplate",
+"language": "GDScript",
+"path": "res://database/definitions/quirk_template.gd"
+}, {
 "base": "AssetTemplate",
 "class": "ShipTemplate",
 "language": "GDScript",
@@ -111,7 +116,7 @@ _global_script_class_icons={
 "CameraPositionController": "",
 "CameraRotationController": "",
 "CameraZoomController": "",
-"CenteredGrowingLabel": "",
+"CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
 "CharacterTemplate": "",
 "CommodityTemplate": "",
 "ContractTemplate": "",
@@ -121,6 +126,7 @@ _global_script_class_icons={
 "LocationTemplate": "",
 "ModuleTemplate": "",
 "PIDController": "",
+"QuirkTemplate": "",
 "ShipTemplate": "",
 "Template": "",
 "UtilityToolTemplate": ""

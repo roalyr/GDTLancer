@@ -1,1 +1,42 @@
-TODO: must be initiated according to GDD, Session-log and current project codebase.
+## CURRENT GOAL: Ship Quirks System Implementation
+
+- TARGET_FILE: `database/definitions/quirk_template.gd` (NEW), `src/core/systems/quirk_system.gd` (NEW)
+- TRUTH_RELIANCE:
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 2.1 Milestone 1: "Implement the data structures for all narrative stubs (e.g., dictionaries for Reputation, Faction Standing; list for Ship Quirks)."
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 2.1 Milestone 4: "Implement the trigger logic for adding Ship Quirks based on combat damage or failed pilot actions."
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 5.1 Mode 3 (Narrative Action): "adding a negative 'Ship Quirk' to the player's vessel on a failure"
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 0.1 Glossary: "Ship Quirk: A negative trait an asset can acquire due to damage or failed actions, often imposing a mechanical penalty."
+- TECHNICAL_CONSTRAINTS:
+  - Godot 3.x / GLES2 only
+  - Use `export var` only in template Resource files
+  - No `@export`, `@onready`, `await` syntax (Godot 4 syntax forbidden per TRUTH_CONSTRAINTS.md)
+  - Systems must be stateless APIs operating on GameState (per Architecture-Coding.md Section 8)
+  - QuirkTemplate must extend Resource and use `class_name`
+  - QuirkSystem registered in GlobalRefs, parented under WorldManager
+  - Emit signals on EventBus for quirk changes
+  - ShipTemplate already has `export var ship_quirks: Array = []` field
+
+- ATOMIC_TASKS:
+  - [x] TASK_1: Create `database/definitions/quirk_template.gd`
+    - Signature: `extends Resource`, `class_name QuirkTemplate`
+    - Fields: `export var template_id: String`, `export var display_name: String`, `export var description: String`, `export var effect_type: String`, `export var effect_value: float`, `export var source_category: String` (combat/piloting/trading)
+  - [x] TASK_2: Create 3-5 starter QuirkTemplate `.tres` files in `database/registry/quirks/`
+    - Required: `quirk_jammed_landing_gear.tres`, `quirk_hull_stress_fracture.tres`, `quirk_damaged_sensor_array.tres`
+  - [x] TASK_3: Extend `GameState.gd` to track active ship quirks per ship_uid
+    - Add under `assets_ships` section: method to access ship quirks via ship uid
+  - [x] TASK_4: Create `src/core/systems/quirk_system.gd`
+    - Signature: `extends Node`
+    - Required methods: `add_quirk(ship_uid: int, quirk_id: String) -> bool`, `remove_quirk(ship_uid: int, quirk_id: String) -> bool`, `get_quirks(ship_uid: int) -> Array`, `has_quirk(ship_uid: int, quirk_id: String) -> bool`
+    - Must register with GlobalRefs in `_ready()`
+    - Must emit `EventBus.ship_quirk_added(ship_uid, quirk_id)` and `EventBus.ship_quirk_removed(ship_uid, quirk_id)`
+  - [x] TASK_5: Add new signals to `EventBus.gd`
+    - Signals: `signal ship_quirk_added(ship_uid, quirk_id)`, `signal ship_quirk_removed(ship_uid, quirk_id)`
+  - [x] TASK_6: Add QuirkSystem node to `main_game_scene.tscn` under WorldManager
+  - [x] TASK_7: Wire trigger in NarrativeActionSystem for applying quirks on failure outcomes
+    - Location: `src/core/systems/narrative_action_system.gd`
+    - On `FAILURE` outcome for piloting/combat actions, call `QuirkSystem.add_quirk()` with appropriate quirk_id
+  - [x] VERIFICATION: GUT unit tests + manual test
+    - Create `src/tests/core/systems/test_quirk_system.gd`
+    - Test cases: `test_add_quirk_success`, `test_add_duplicate_quirk_fails`, `test_remove_quirk`, `test_get_quirks_returns_copy`, `test_has_quirk`
+    - Run: `godot --path . -s addons/gut/gut_cmdln.gd -gtest=res://src/tests/core/systems/test_quirk_system.gd`
+    - Manual: Trigger a failed Narrative Action in-game; verify quirk appears in ship state

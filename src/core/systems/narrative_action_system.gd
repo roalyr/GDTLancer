@@ -176,17 +176,21 @@ func _apply_effects(char_uid: int, effects: Dictionary) -> Dictionary:
 	if effects == null:
 		return applied
 
-	# Ship quirks (best-effort: char ship if available, else player ship).
-	if effects.has("add_quirk") and is_instance_valid(GlobalRefs.asset_system):
+	# Ship quirks (integrated with QuirkSystem).
+	if effects.has("add_quirk") and is_instance_valid(GlobalRefs.quirk_system):
 		var quirk_id: String = str(effects.get("add_quirk"))
-		var ship: Object = null
-		if GlobalRefs.asset_system.has_method("get_ship_for_character"):
-			ship = GlobalRefs.asset_system.get_ship_for_character(char_uid)
-		if ship == null and GlobalRefs.asset_system.has_method("get_player_ship"):
-			ship = GlobalRefs.asset_system.get_player_ship()
-		if is_instance_valid(ship):
-			ship.ship_quirks.append(quirk_id)
-			applied["quirk_added"] = quirk_id
+		var ship_uid: int = -1
+		
+		# Resolve ship UID from character data
+		if GameState.characters.has(char_uid):
+			var character: Object = GameState.characters[char_uid]
+			if is_instance_valid(character):
+				# Assuming CharacterTemplate has active_ship_uid
+				ship_uid = int(character.active_ship_uid)
+
+		if ship_uid != -1:
+			if GlobalRefs.quirk_system.add_quirk(ship_uid, quirk_id):
+				applied["quirk_added"] = quirk_id
 
 	# WP adjustments.
 	if effects.has("wp_cost"):

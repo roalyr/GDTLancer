@@ -1,8 +1,15 @@
-# File: autoload/GameState.gd
-# Autoload Singleton: Game state
-# Version: 1.1 - Extended with contracts, locations, and narrative state for Phase 1.
+#
+# PROJECT: GDTLancer
+# MODULE: src/autoload/GameState.gd
+# STATUS: [Level 3 - Verified]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1
+# LOG_REF: 2025-12-23
+#
 
 extends Node
+
+## Global Game State singleton.
+## Stores all runtime data for the current session.
 
 # Global world seed
 var world_seed: String = ""
@@ -18,6 +25,13 @@ var active_actions: Dictionary = {}
 var assets_ships: Dictionary = {}       # Key: ship_uid, Value: ShipTemplate instance
 var assets_modules: Dictionary = {}     # Key: module_uid, Value: ModuleTemplate instance
 var assets_commodities: Dictionary = {} # Key: commodity_id, Value: CommodityTemplate (master data)
+
+# --- Ship Quirks Helper ---
+## Returns the array of quirk IDs for a given ship.
+func get_ship_quirks(ship_uid: int) -> Array:
+	if assets_ships.has(ship_uid):
+		return assets_ships[ship_uid].ship_quirks
+	return []
 
 # Key: Character UID, Value: An Inventory object/dictionary for that character.
 var inventories: Dictionary = {}

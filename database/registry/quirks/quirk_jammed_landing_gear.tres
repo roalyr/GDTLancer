@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "quirk_jammed_landing_gear"
+display_name = "Jammed Landing Gear"
+description = "The landing gear deployment mechanism is damaged. Docking maneuvers are riskier."
+effect_type = "maneuver_penalty"
+effect_value = 0.2
+source_category = "piloting"

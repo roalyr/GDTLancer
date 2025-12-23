@@ -90,5 +90,10 @@ signal narrative_action_resolved(result_dict)  # Contains outcome, effects appli
 # signal goal_completed(agent_body, goal_id, success_level)
 
 
+# --- Ship Quirk Signals ---
+signal ship_quirk_added(ship_uid, quirk_id)
+signal ship_quirk_removed(ship_uid, quirk_id)
+
+
 func _ready():
 	print("EventBus Ready.")
