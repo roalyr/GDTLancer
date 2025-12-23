@@ -215,11 +215,6 @@
 ├── export_presets.cfg
 ├── Icon.png
 ├── project.godot
-├── references
-│   ├── CanvasItem shaders — Godot Engine (3.6) documentation in English.pdf
-│   ├── Particle shaders — Godot Engine (3.6) documentation in English.pdf
-│   ├── Shading language — Godot Engine (3.6) documentation in English.pdf
-│   └── Spatial shaders — Godot Engine (3.6) documentation in English.pdf
 ├── scenes
 │   ├── levels
 │   │   ├── game_world
@@ -396,6 +391,6 @@
     └── data
         └── test_action.tres
 
-92 directories, 305 files
+91 directories, 301 files
 
-92 directories, 305 files
+91 directories, 301 files
