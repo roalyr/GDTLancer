@@ -1,42 +1,42 @@
-## CURRENT GOAL: Ship Quirks System Implementation
+## CURRENT GOAL: Narrative Status UI Implementation
 
-- TARGET_FILE: `database/definitions/quirk_template.gd` (NEW), `src/core/systems/quirk_system.gd` (NEW)
+- TARGET_FILE: `src/core/ui/narrative_status/narrative_status_panel.gd` (NEW), `src/core/ui/narrative_status/narrative_status_panel.tscn` (NEW)
 - TRUTH_RELIANCE:
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 2.1 Milestone 1: "Implement the data structures for all narrative stubs (e.g., dictionaries for Reputation, Faction Standing; list for Ship Quirks)."
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 2.1 Milestone 4: "Implement the trigger logic for adding Ship Quirks based on combat damage or failed pilot actions."
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 5.1 Mode 3 (Narrative Action): "adding a negative 'Ship Quirk' to the player's vessel on a failure"
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 0.1 Glossary: "Ship Quirk: A negative trait an asset can acquire due to damage or failed actions, often imposing a mechanical penalty."
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 2.1 Milestone 2: "Implement basic UI screens to display narrative stub info (Reputation, Sector Stats, Contact Dossier, Faction Standing)."
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 0.1 Glossary: "Reputation: A narrative stat tracking the player's professional standing", "Faction: A distinct political or corporate entity in the game world with which the player can gain or lose standing."
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md` Section 2.1 Phase 1 Vision: "building their Relationship score with Contacts" and "affect their Faction Standing"
 - TECHNICAL_CONSTRAINTS:
   - Godot 3.x / GLES2 only
-  - Use `export var` only in template Resource files
   - No `@export`, `@onready`, `await` syntax (Godot 4 syntax forbidden per TRUTH_CONSTRAINTS.md)
-  - Systems must be stateless APIs operating on GameState (per Architecture-Coding.md Section 8)
-  - QuirkTemplate must extend Resource and use `class_name`
-  - QuirkSystem registered in GlobalRefs, parented under WorldManager
-  - Emit signals on EventBus for quirk changes
-  - ShipTemplate already has `export var ship_quirks: Array = []` field
+  - Use `export var` only in Resource template files, not UI scripts
+  - UI scripts do not require unit tests (per Architecture-Coding.md Section 7)
+  - Access data via stateless system APIs (CharacterSystem, etc.) or directly from GameState.narrative_state
+  - Listen for relevant EventBus signals to update display reactively
+  - Follow existing UI patterns in `src/core/ui/` directory
 
 - ATOMIC_TASKS:
-  - [x] TASK_1: Create `database/definitions/quirk_template.gd`
-    - Signature: `extends Resource`, `class_name QuirkTemplate`
-    - Fields: `export var template_id: String`, `export var display_name: String`, `export var description: String`, `export var effect_type: String`, `export var effect_value: float`, `export var source_category: String` (combat/piloting/trading)
-  - [x] TASK_2: Create 3-5 starter QuirkTemplate `.tres` files in `database/registry/quirks/`
-    - Required: `quirk_jammed_landing_gear.tres`, `quirk_hull_stress_fracture.tres`, `quirk_damaged_sensor_array.tres`
-  - [x] TASK_3: Extend `GameState.gd` to track active ship quirks per ship_uid
-    - Add under `assets_ships` section: method to access ship quirks via ship uid
-  - [x] TASK_4: Create `src/core/systems/quirk_system.gd`
-    - Signature: `extends Node`
-    - Required methods: `add_quirk(ship_uid: int, quirk_id: String) -> bool`, `remove_quirk(ship_uid: int, quirk_id: String) -> bool`, `get_quirks(ship_uid: int) -> Array`, `has_quirk(ship_uid: int, quirk_id: String) -> bool`
-    - Must register with GlobalRefs in `_ready()`
-    - Must emit `EventBus.ship_quirk_added(ship_uid, quirk_id)` and `EventBus.ship_quirk_removed(ship_uid, quirk_id)`
-  - [x] TASK_5: Add new signals to `EventBus.gd`
-    - Signals: `signal ship_quirk_added(ship_uid, quirk_id)`, `signal ship_quirk_removed(ship_uid, quirk_id)`
-  - [x] TASK_6: Add QuirkSystem node to `main_game_scene.tscn` under WorldManager
-  - [x] TASK_7: Wire trigger in NarrativeActionSystem for applying quirks on failure outcomes
-    - Location: `src/core/systems/narrative_action_system.gd`
-    - On `FAILURE` outcome for piloting/combat actions, call `QuirkSystem.add_quirk()` with appropriate quirk_id
-  - [x] VERIFICATION: GUT unit tests + manual test
-    - Create `src/tests/core/systems/test_quirk_system.gd`
-    - Test cases: `test_add_quirk_success`, `test_add_duplicate_quirk_fails`, `test_remove_quirk`, `test_get_quirks_returns_copy`, `test_has_quirk`
-    - Run: `godot --path . -s addons/gut/gut_cmdln.gd -gtest=res://src/tests/core/systems/test_quirk_system.gd`
-    - Manual: Trigger a failed Narrative Action in-game; verify quirk appears in ship state
+  - [ ] TASK_1: Create `src/core/ui/narrative_status/narrative_status_panel.tscn`
+    - Scene structure: Panel with VBoxContainer containing Label nodes for each stat
+    - Required nodes: `ReputationLabel`, `FactionContainer` (VBoxContainer for dynamic faction entries), `QuirksContainer` (VBoxContainer for active ship quirks)
+    - Toggle visibility via key input or HUD button
+  - [ ] TASK_2: Create `src/core/ui/narrative_status/narrative_status_panel.gd`
+    - Signature: `extends Panel`
+    - Required methods: `_ready()`, `update_display()`, `_on_visibility_toggled()`
+    - Must read from `GameState.narrative_state.reputation`, `GameState.narrative_state.faction_standings`, and `QuirkSystem.get_quirks(ship_uid)`
+    - Must connect to EventBus signals: `ship_quirk_added`, `ship_quirk_removed`, `player_wp_changed` (as proxy for state changes)
+  - [ ] TASK_3: Add toggle keybind for Narrative Status panel
+    - Location: Player input handling or MainHUD
+    - Key: `Tab` or designated UI key (check existing keybinds for conflicts)
+    - Action: Toggle visibility of NarrativeStatusPanel
+  - [ ] TASK_4: Wire NarrativeStatusPanel into main game scene
+    - Add as child of CanvasLayer UI hierarchy in `main_game_scene.tscn`
+    - Initialize as hidden, toggled visible by player input
+  - [ ] TASK_5: Display Sector Stats (Chronicle stub)
+    - Add section to panel showing: Contracts Completed, Total WP Earned, Combat Encounters Survived
+    - Data source: Add tracking counters to `GameState.narrative_state` if not present
+  - [ ] VERIFICATION: Manual test in-game
+    - Start game, press Tab (or assigned key) to toggle panel
+    - Verify Reputation value displays correctly
+    - Verify Faction Standings display (even if empty initially)
+    - Verify Ship Quirks section shows active quirks (test by triggering failed Narrative Action(Edit: add debug button in character status window to trigger failed Narrative Action))
+    - Verify panel updates reactively when state changes
