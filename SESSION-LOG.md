@@ -21,3 +21,15 @@
 | 2025-12-23 | L2-Builder | Implemented QuirkSystem | SUCCESS | Created system, updated GlobalRefs and EventBus. |
 | 2025-12-23 | L2-Builder | Wired QuirkSystem to Scene | SUCCESS | Added QuirkSystem node to main_game_scene.tscn. |
 | 2025-12-23 | L3-Intern | Verified Quirk System | SUCCESS | Polished quirk_template.gd, quirk_system.gd, GameState.gd. Created test_quirk_system.gd. |
+| 2025-12-26 | L2-Builder | Implemented Narrative Status UI Scene | SUCCESS | Created narrative_status_panel.tscn and placeholder script. |
+| 2025-12-26 | L2-Builder | Implemented Narrative Status UI Script | SUCCESS | Implemented full logic connecting to GameState and QuirkSystem. |
+| 2025-12-26 | L2-Builder | Wired Narrative Status UI | SUCCESS | Added toggle logic (Tab key) and scene instantiation in MainHUD. |
+| 2025-12-26 | L2-Builder | Revised Narrative Status UI Inputs | SUCCESS | Replaced keybind with HUD buttons. Added Close button. |
+| 2025-12-26 | L2-Builder | Implemented Sector Stats | SUCCESS | Displaying Contracts, WP, and Combat Victories in Narrative Panel. |
+| 2025-12-26 | QA-Intern | Verified narrative_status_panel.gd | SUCCESS | Added strict types, docstrings, and status Level 3. Tests created. |
+| 2025-12-26 | QA-Intern | Fixed NarrativeStatusPanel bugs | SUCCESS | Hidden by default, close button works, unified style, debug quirk button added. |
+| 2025-12-26 | L2-Builder | Implemented Combat Victories count | SUCCESS | Incremented enemies_disabled in combat_system.gd on non-player ship disable. |
+| 2025-12-26 | **FEATURE FREEZE** | Sprint Complete | SUCCESS | All Narrative Status UI tasks verified. Ready for next milestone. |
+| 2025-12-26 | L2-Builder | Fixed Enemy Flee Behavior | SUCCESS | Ships now decelerate during turn, preventing impossible-to-catch fleeing enemies. |
+| 2025-12-26 | L2-Builder | Consistent Flight Mechanics | SUCCESS | Applied alignment-before-acceleration to approach, orbit, move_to, flee. All ships now use consistent physics. |
+| 2025-12-26 | L2-Builder | Redesigned Approach Deceleration | SUCCESS | Implemented closing-speed-based braking. Ships now pursue at full speed and only brake when collision is imminent. |

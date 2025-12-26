@@ -15,28 +15,36 @@
   - Follow existing UI patterns in `src/core/ui/` directory
 
 - ATOMIC_TASKS:
-  - [ ] TASK_1: Create `src/core/ui/narrative_status/narrative_status_panel.tscn`
-    - Scene structure: Panel with VBoxContainer containing Label nodes for each stat
-    - Required nodes: `ReputationLabel`, `FactionContainer` (VBoxContainer for dynamic faction entries), `QuirksContainer` (VBoxContainer for active ship quirks)
-    - Toggle visibility via key input or HUD button
-  - [ ] TASK_2: Create `src/core/ui/narrative_status/narrative_status_panel.gd`
-    - Signature: `extends Panel`
-    - Required methods: `_ready()`, `update_display()`, `_on_visibility_toggled()`
-    - Must read from `GameState.narrative_state.reputation`, `GameState.narrative_state.faction_standings`, and `QuirkSystem.get_quirks(ship_uid)`
-    - Must connect to EventBus signals: `ship_quirk_added`, `ship_quirk_removed`, `player_wp_changed` (as proxy for state changes)
-  - [ ] TASK_3: Add toggle keybind for Narrative Status panel
-    - Location: Player input handling or MainHUD
-    - Key: `Tab` or designated UI key (check existing keybinds for conflicts)
-    - Action: Toggle visibility of NarrativeStatusPanel
-  - [ ] TASK_4: Wire NarrativeStatusPanel into main game scene
-    - Add as child of CanvasLayer UI hierarchy in `main_game_scene.tscn`
-    - Initialize as hidden, toggled visible by player input
-  - [ ] TASK_5: Display Sector Stats (Chronicle stub)
-    - Add section to panel showing: Contracts Completed, Total WP Earned, Combat Encounters Survived
-    - Data source: Add tracking counters to `GameState.narrative_state` if not present
-  - [ ] VERIFICATION: Manual test in-game
+  - [x] TASK_1: Create `src/core/ui/narrative_status/narrative_status_panel.tscn`
+    - [x] Scene structure: Panel with VBoxContainer containing Label nodes for each stat
+    - [x] Required nodes: `ReputationLabel`, `FactionContainer` (VBoxContainer for dynamic faction entries), `QuirksContainer` (VBoxContainer for active ship quirks)
+    - [x] Toggle visibility via key input or HUD button
+  - [x] TASK_2: Create `src/core/ui/narrative_status/narrative_status_panel.gd`
+    - [x] Signature: `extends Panel`
+    - [x] Required methods: `_ready()`, `update_display()`, `_on_visibility_toggled()`
+    - [x] Must read from `GameState.narrative_state.reputation`, `GameState.narrative_state.faction_standings`, and `QuirkSystem.get_quirks(ship_uid)`
+    - [x] Must connect to EventBus signals: `ship_quirk_added`, `ship_quirk_removed`, `player_wp_changed` (as proxy for state changes)
+  - [x] TASK_3: Add toggle keybind for Narrative Status panel
+    - [x] Location: Player input handling or MainHUD
+    - [x] Key: `Tab` or designated UI key (check existing keybinds for conflicts)
+    - [x] Action: Toggle visibility of NarrativeStatusPanel
+  - [x] TASK_4: Wire NarrativeStatusPanel into main game scene
+    - [x] Add as child of CanvasLayer UI hierarchy in `main_game_scene.tscn`
+    - [x] Initialize as hidden, toggled visible by player input
+  - [x] TASK_5: Display Sector Stats (Chronicle stub)
+    - [x] Add section to panel showing: Contracts Completed, Total WP Earned, Combat Encounters Survived
+    - [x] Data source: Add tracking counters to `GameState.narrative_state` if not present
+  - [x] VERIFICATION: Manual test in-game
     - Start game, press Tab (or assigned key) to toggle panel
     - Verify Reputation value displays correctly
     - Verify Faction Standings display (even if empty initially)
     - Verify Ship Quirks section shows active quirks (test by triggering failed Narrative Action(Edit: add debug button in character status window to trigger failed Narrative Action))
     - Verify panel updates reactively when state changes
+
+---
+## SPRINT COMPLETE - FEATURE FREEZE (2025-12-26)
+All tasks verified. Narrative Status UI implemented with:
+- Reputation, Faction Standings, Ship Quirks, and Sector Stats display
+- Combat Victories count incremented on enemy disable
+- Debug button for adding quirks
+- Unified styling with Character and Inventory screens

@@ -190,6 +190,11 @@ func apply_damage(target_uid: int, hull_damage: float, armor_damage: float = 0.0
 		state.is_disabled = true
 		state.current_hull = 0
 		emit_signal("ship_disabled", target_uid)
+		
+		# Increment combat victories stat if this was an enemy (not the player)
+		if target_uid != GameState.player_character_uid:
+			GameState.session_stats["enemies_disabled"] += 1
+		
 		if EventBus:
 			var disabled_body = _get_agent_body(target_uid)
 			if is_instance_valid(disabled_body):

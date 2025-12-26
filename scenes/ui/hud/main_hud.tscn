@@ -510,10 +510,17 @@ margin_bottom = 215.0
 theme = ExtResource( 9 )
 text = "CHARACTER"
 
-[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
+[node name="ButtonNarrativeStatus" type="Button" parent="ScreenControls/TopLeftZone"]
 margin_top = 229.0
 margin_right = 111.0
 margin_bottom = 279.0
+theme = ExtResource( 9 )
+text = "NAR STATS"
+
+[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
+margin_top = 293.0
+margin_right = 111.0
+margin_bottom = 343.0
 theme = ExtResource( 9 )
 text = "INVENTORY"
 

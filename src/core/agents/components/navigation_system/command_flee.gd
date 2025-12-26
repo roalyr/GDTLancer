@@ -5,6 +5,9 @@ var _nav_sys: Node
 var _agent_body: KinematicBody
 var _movement_system: Node
 
+# Alignment threshold for fleeing (same as movement_system default)
+const FLEE_ALIGNMENT_THRESHOLD_DEG: float = 45.0
+
 
 func initialize(nav_system):
 	_nav_sys = nav_system
@@ -21,5 +24,18 @@ func execute(delta: float):
 			if vector_away.length_squared() > 0.01
 			else -_agent_body.global_transform.basis.z
 		)
+		
+		# Always rotate toward the flee direction
 		_movement_system.apply_rotation(direction_away, delta)
-		_movement_system.apply_acceleration(direction_away, delta)
+		
+		# Only accelerate if reasonably aligned with flee direction
+		# Otherwise decelerate to prevent sideways velocity steering
+		var current_forward = -_agent_body.global_transform.basis.z.normalized()
+		var alignment_angle = current_forward.angle_to(direction_away)
+		
+		if alignment_angle <= deg2rad(FLEE_ALIGNMENT_THRESHOLD_DEG):
+			# Aligned - accelerate in our forward direction
+			_movement_system.apply_acceleration(current_forward, delta)
+		else:
+			# Not aligned - decelerate while turning
+			_movement_system.apply_deceleration(delta)

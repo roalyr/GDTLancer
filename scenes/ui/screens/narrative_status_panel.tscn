@@ -1,0 +1,138 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/core/ui/narrative_status/narrative_status_panel.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="NarrativeStatusPanel" type="Control"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.7 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -450.0
+margin_top = -300.0
+margin_right = 450.0
+margin_bottom = 300.0
+theme = ExtResource( 2 )
+
+[node name="VBoxMain" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+custom_constants/separation = 10
+
+[node name="HeaderLabel" type="Label" parent="Panel/VBoxMain"]
+margin_right = 860.0
+margin_bottom = 27.0
+text = "NARRATIVE STATUS"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxMain"]
+margin_top = 37.0
+margin_right = 860.0
+margin_bottom = 41.0
+
+[node name="ReputationLabel" type="Label" parent="Panel/VBoxMain"]
+margin_top = 51.0
+margin_right = 860.0
+margin_bottom = 78.0
+text = "Reputation: 0"
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxMain"]
+margin_top = 88.0
+margin_right = 860.0
+margin_bottom = 92.0
+
+[node name="SectionsContainer" type="HBoxContainer" parent="Panel/VBoxMain"]
+margin_top = 102.0
+margin_right = 860.0
+margin_bottom = 490.0
+size_flags_vertical = 3
+custom_constants/separation = 20
+
+[node name="FactionsColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
+margin_right = 270.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+
+[node name="LabelFactions" type="Label" parent="Panel/VBoxMain/SectionsContainer/FactionsColumn"]
+margin_right = 270.0
+margin_bottom = 27.0
+text = "FACTION STANDING"
+align = 1
+
+[node name="FactionContainer" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer/FactionsColumn"]
+margin_top = 31.0
+margin_right = 270.0
+margin_bottom = 31.0
+
+[node name="StatsColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
+margin_left = 290.0
+margin_right = 560.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+
+[node name="LabelStats" type="Label" parent="Panel/VBoxMain/SectionsContainer/StatsColumn"]
+margin_right = 270.0
+margin_bottom = 27.0
+text = "SECTOR STATISTICS"
+align = 1
+
+[node name="ContractsLabel" type="Label" parent="Panel/VBoxMain/SectionsContainer/StatsColumn"]
+margin_top = 31.0
+margin_right = 270.0
+margin_bottom = 58.0
+text = "Contracts Completed: 0"
+
+[node name="QuirksColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
+margin_left = 580.0
+margin_right = 860.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+
+[node name="LabelQuirks" type="Label" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
+margin_right = 280.0
+margin_bottom = 27.0
+text = "SHIP QUIRKS"
+align = 1
+
+[node name="QuirksContainer" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
+margin_top = 31.0
+margin_right = 280.0
+margin_bottom = 31.0
+
+[node name="ButtonDebugAddQuirk" type="Button" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
+margin_top = 35.0
+margin_right = 280.0
+margin_bottom = 55.0
+text = "Debug: Add Quirk"
+
+[node name="HBoxButtons" type="HBoxContainer" parent="Panel/VBoxMain"]
+margin_top = 500.0
+margin_right = 860.0
+margin_bottom = 540.0
+custom_constants/separation = 20
+alignment = 2
+
+[node name="ButtonClose" type="Button" parent="Panel/VBoxMain/HBoxButtons"]
+margin_left = 760.0
+margin_right = 860.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 100, 40 )
+text = "CLOSE"
+
+[connection signal="pressed" from="Panel/VBoxMain/HBoxButtons/ButtonClose" to="." method="_on_ButtonClose_pressed"]
+[connection signal="pressed" from="Panel/VBoxMain/SectionsContainer/QuirksColumn/ButtonDebugAddQuirk" to="." method="_on_ButtonDebugAddQuirk_pressed"]

@@ -12,6 +12,7 @@ onready var label_tu: Label = $ScreenControls/TopLeftZone/LabelTU
 onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
 onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
+onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
 onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
@@ -30,6 +31,9 @@ var station_menu_instance = null
 
 const ActionCheckScene = preload("res://scenes/ui/screens/action_check.tscn")
 var action_check_instance = null
+
+const NarrativeStatusScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
+var narrative_status_instance = null
 
 # --- State ---
 var _current_target: Spatial = null
@@ -51,8 +55,13 @@ func _ready():
 
 	# Instantiate Action Check UI (hidden by default; shown via EventBus)
 	action_check_instance = ActionCheckScene.instance()
+	action_check_instance = ActionCheckScene.instance()
 	add_child(action_check_instance)
 
+	# Instantiate Narrative Status Panel (hidden by default)
+	narrative_status_instance = NarrativeStatusScene.instance()
+	add_child(narrative_status_instance)
+	
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 
@@ -130,6 +139,9 @@ func _ready():
 	if is_instance_valid(button_menu):
 		if not button_menu.is_connected("pressed", self, "_on_ButtonMenu_pressed"):
 			button_menu.connect("pressed", self, "_on_ButtonMenu_pressed")
+
+	if is_instance_valid(button_narrative_status):
+		button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
 
 	# Initialize TU display
 	_refresh_tu_display()
@@ -253,6 +265,7 @@ func _on_time_units_added(_tu_added: int = 0) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if EventBus:
+			EventBus.emit_signal("main_menu_requested")
 			EventBus.emit_signal("main_menu_requested")
 			get_tree().set_input_as_handled()
 
@@ -460,6 +473,11 @@ func _on_ButtonCharacter_pressed():
 
 func _on_ButtonInventory_pressed():
 	GlobalRefs.inventory_screen.open_screen()
+
+
+func _on_ButtonNarrativeStatus_pressed():
+	if is_instance_valid(narrative_status_instance):
+		narrative_status_instance.open_screen()
 
 
 # --- Combat HUD Functions ---
