@@ -33,3 +33,4 @@
 | 2025-12-26 | L2-Builder | Fixed Enemy Flee Behavior | SUCCESS | Ships now decelerate during turn, preventing impossible-to-catch fleeing enemies. |
 | 2025-12-26 | L2-Builder | Consistent Flight Mechanics | SUCCESS | Applied alignment-before-acceleration to approach, orbit, move_to, flee. All ships now use consistent physics. |
 | 2025-12-26 | L2-Builder | Redesigned Approach Deceleration | SUCCESS | Implemented closing-speed-based braking. Ships now pursue at full speed and only brake when collision is imminent. |
+| 2025-12-26 | **MAJOR CHANGE** | Switched to physics-based RigidBody flight model | SUCCESS | Some tests fail, need further work. |
