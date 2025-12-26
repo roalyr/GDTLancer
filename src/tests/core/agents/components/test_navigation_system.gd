@@ -1,9 +1,9 @@
 extends GutTest
+# Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 
 var NavigationSystem = load("res://src/core/agents/components/navigation_system.gd")
 var MovementSystem = load("res://src/core/agents/components/movement_system.gd")
 const SignalCatcher = preload("res://src/tests/helpers/signal_catcher.gd")
-const TestAgentBodyScript = preload("res://src/tests/helpers/test_agent_body.gd")
 
 var agent_body
 var nav_system
@@ -11,21 +11,37 @@ var mock_movement_system
 var signal_catcher
 
 
+# Test helper class that extends RigidBody
+class TestAgentBody:
+	extends RigidBody
+	var interaction_radius: float = 10.0
+	func get_interaction_radius() -> float:
+		return interaction_radius
+
+
 func before_each():
 	signal_catcher = SignalCatcher.new()
 	EventBus.connect("agent_reached_destination", signal_catcher, "_on_signal_received")
 
-	agent_body = partial_double(TestAgentBodyScript).new()
+	agent_body = TestAgentBody.new()
 	agent_body.name = "TestAgent"
+	agent_body.mode = RigidBody.MODE_RIGID
+	agent_body.gravity_scale = 0.0
 
 	mock_movement_system = double(MovementSystem).new()
-	# CORRECTED: Stub methods to silence GUT warnings and provide default return values.
+	# Stub methods for the new RigidBody-based API
 	stub(mock_movement_system, "_ready").to_return(null)
-	stub(mock_movement_system, "apply_deceleration").to_return(null)
-	stub(mock_movement_system, "apply_braking").to_return(false)
-	stub(mock_movement_system, "apply_rotation").to_return(null)
-	stub(mock_movement_system, "apply_acceleration").to_return(null)
-	stub(mock_movement_system, "max_move_speed").to_return(100.0)
+	stub(mock_movement_system, "request_thrust_forward").to_return(null)
+	stub(mock_movement_system, "request_thrust_brake").to_return(null)
+	stub(mock_movement_system, "request_thrust_direction").to_return(null)
+	stub(mock_movement_system, "request_rotation_to").to_return(null)
+	stub(mock_movement_system, "request_rotation_damping").to_return(null)
+	stub(mock_movement_system, "is_aligned_to").to_return(true)
+	stub(mock_movement_system, "is_stopped").to_return(false)
+	stub(mock_movement_system, "is_rotation_stopped").to_return(false)
+	stub(mock_movement_system, "get_current_speed").to_return(0.0)
+	stub(mock_movement_system, "get_velocity").to_return(Vector3.ZERO)
+	stub(mock_movement_system, "linear_thrust").to_return(5000.0)
 
 	nav_system = NavigationSystem.new()
 	nav_system.name = "NavigationSystem"
@@ -56,8 +72,8 @@ func test_initial_state_is_idle():
 		nav_system.CommandType.IDLE,
 		"Default command should be IDLE."
 	)
+	# Idle state does nothing (drag handles deceleration)
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_deceleration", [0.1])
 
 
 func test_set_command_stopping():
@@ -65,13 +81,15 @@ func test_set_command_stopping():
 	nav_system.set_command_stopping()
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_braking", [0.1])
+	assert_called(mock_movement_system, "request_thrust_brake")
+	assert_called(mock_movement_system, "request_rotation_damping")
 
 
 func test_stop_command_emits_reached_destination_signal():
 	signal_catcher.reset()
-	# This time we need apply_braking to return true to trigger the signal
-	stub(mock_movement_system, "apply_braking").to_return(true)
+	# Make the movement system report stopped
+	stub(mock_movement_system, "is_stopped").to_return(true)
+	stub(mock_movement_system, "is_rotation_stopped").to_return(true)
 
 	nav_system.set_command_stopping()
 	nav_system.update_navigation(0.1)
@@ -92,14 +110,14 @@ func test_set_command_move_to():
 	assert_eq(nav_system._current_command.target_pos, target_pos)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_set_command_approach():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 	agent_body.add_child(target_node)
-	# CORRECTED: Move the target so the distance isn't zero.
+	# Move the target so the distance isn't zero.
 	target_node.global_transform.origin = Vector3(0, 0, -1000)
 
 	nav_system.set_command_approach(target_node)
@@ -107,13 +125,12 @@ func test_set_command_approach():
 	assert_eq(nav_system._current_command.target_node, target_node)
 
 	nav_system.update_navigation(0.1)
-	# This assertion will now pass because the distance is > arrival threshold.
-	assert_called(mock_movement_system, "apply_rotation")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_set_command_orbit():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 	agent_body.add_child(target_node)
 	# Move the target so the distance isn't zero.
 	target_node.global_transform.origin = Vector3(0, 0, -1000)
@@ -122,12 +139,12 @@ func test_set_command_orbit():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ORBIT)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_set_command_flee():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 	agent_body.add_child(target_node)
 	# Move the target so there is a direction to flee from.
 	target_node.global_transform.origin = Vector3(0, 0, -1000)
@@ -136,8 +153,8 @@ func test_set_command_flee():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.FLEE)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
-	assert_called(mock_movement_system, "apply_acceleration")
+	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_thrust_forward")
 
 
 func test_set_command_align_to():
@@ -147,13 +164,12 @@ func test_set_command_align_to():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
-	assert_called(mock_movement_system, "apply_deceleration")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_invalid_target_in_update_switches_to_stopping():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 
 	nav_system.set_command_approach(target_node)
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.APPROACH)
@@ -164,4 +180,4 @@ func test_invalid_target_in_update_switches_to_stopping():
 	nav_system.update_navigation(0.1)
 
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
-	assert_called(mock_movement_system, "apply_braking")
+	assert_called(mock_movement_system, "request_thrust_brake")

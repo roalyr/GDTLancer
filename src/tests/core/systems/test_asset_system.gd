@@ -42,7 +42,7 @@ func before_each():
 	
 	var npc_ship_asset = ShipTemplate.new()
 	npc_ship_asset.ship_model_name = "NPC Vessel"
-	npc_ship_asset.max_move_speed = 200.0
+	npc_ship_asset.linear_thrust = 4000.0
 	GameState.assets_ships[NPC_SHIP_UID] = npc_ship_asset
 
 	# 5. Create characters in GameState for get_ship_for_character tests
@@ -99,7 +99,7 @@ func test_get_ship_for_character_valid():
 	var ship = asset_system_instance.get_ship_for_character(NPC_UID)
 	assert_not_null(ship, "Should return a valid ship for a valid character UID.")
 	assert_eq(ship.ship_model_name, "NPC Vessel", "Should return the correct ship for the character.")
-	assert_eq(ship.max_move_speed, 200.0, "Ship should have the correct stats.")
+	assert_eq(ship.linear_thrust, 4000.0, "Ship should have the correct stats.")
 
 func test_get_ship_for_character_player():
 	var ship = asset_system_instance.get_ship_for_character(PLAYER_UID)

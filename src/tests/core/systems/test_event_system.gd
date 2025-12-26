@@ -12,9 +12,10 @@ class DummySpawner:
 	extends Node
 	var spawn_count: int = 0
 
-	func spawn_npc_from_template(_template_path: String, position: Vector3, _overrides: Dictionary = {}) -> KinematicBody:
+	func spawn_npc_from_template(_template_path: String, position: Vector3, _overrides: Dictionary = {}) -> RigidBody:
 		spawn_count += 1
-		var npc: KinematicBody = KinematicBody.new()
+		var npc: RigidBody = RigidBody.new()
+		npc.gravity_scale = 0.0
 		npc.set("agent_uid", 1000 + spawn_count)
 		npc.translation = position
 		return npc
@@ -22,8 +23,11 @@ class DummySpawner:
 
 ## Mock player agent.
 class DummyPlayer:
-	extends KinematicBody
+	extends RigidBody
 	var agent_uid: int = 1
+	
+	func _ready():
+		gravity_scale = 0.0
 
 
 var _event_system: Node

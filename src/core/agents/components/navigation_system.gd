@@ -1,5 +1,5 @@
 # File: res://core/agents/components/navigation_system.gd
-# Version: 2.1 - Added 'is_new' flag to orbit command for stateful initialization.
+# Version: 3.0 - RigidBody physics with thrust-based 6DOF flight.
 
 extends Node
 
@@ -7,24 +7,19 @@ extends Node
 enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO }
 const APPROACH_DISTANCE_MULTIPLIER = 1.3
 const APPROACH_MIN_DISTANCE = 50.0
-const APPROACH_DECELERATION_START_DISTANCE_FACTOR = 50.0
-const ARRIVAL_DISTANCE_THRESHOLD = 5.0
-const ARRIVAL_SPEED_THRESHOLD_SQ = 1.0
+const ARRIVAL_DISTANCE_THRESHOLD = 20.0
+const ARRIVAL_SPEED_THRESHOLD = 5.0
 const CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR = 1.5
 
 # --- References ---
-var agent_body: KinematicBody = null
+var agent_body: RigidBody = null
 var movement_system: Node = null
 
 # --- State ---
 var _current_command = {}
 
 # --- Child Components ---
-var _pid_orbit: PIDController = null
-var _pid_approach: PIDController = null
-var _pid_move_to: PIDController = null
 var _command_handlers = {}
-const PIDControllerScript = preload("res://src/core/utils/pid_controller.gd")
 
 
 # --- Initialization ---
@@ -39,51 +34,12 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 
 	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
 		printerr("NavigationSystem Error: Invalid parent or movement system reference!")
-		set_process(false)
 		return
 
-	_initialize_pids(nav_params)
 	_initialize_command_handlers()
 
 	print("NavigationSystem Initialized.")
 	set_command_idle()
-
-
-func _initialize_pids(nav_params: Dictionary):
-	if not PIDControllerScript:
-		printerr("NavigationSystem Error: Failed to load PIDController script!")
-		return
-
-	_pid_orbit = PIDControllerScript.new()
-	_pid_approach = PIDControllerScript.new()
-	_pid_move_to = PIDControllerScript.new()
-
-	add_child(_pid_orbit)
-	add_child(_pid_approach)
-	add_child(_pid_move_to)
-
-	var o_limit = movement_system.max_move_speed
-	_pid_orbit.initialize(
-		nav_params.get("orbit_kp", 0.5),
-		nav_params.get("orbit_ki", 0.001),
-		nav_params.get("orbit_kd", 1.0),
-		1000.0,
-		75.0
-	)
-	_pid_approach.initialize(
-		nav_params.get("approach_kp", 0.5),
-		nav_params.get("approach_ki", 0.001),
-		nav_params.get("approach_kd", 1.0),
-		1000.0,
-		o_limit
-	)
-	_pid_move_to.initialize(
-		nav_params.get("move_to_kp", 0.5),
-		nav_params.get("move_to_ki", 0.001),
-		nav_params.get("move_to_kd", 1.0),
-		1000.0,
-		o_limit
-	)
 
 
 func _initialize_command_handlers():
@@ -112,22 +68,10 @@ func set_command_idle():
 
 func set_command_stopping():
 	_current_command = {"type": CommandType.STOPPING}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
 
 
 func set_command_move_to(position: Vector3):
 	_current_command = {"type": CommandType.MOVE_TO, "target_pos": position}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
 
 
 func set_command_move_direction(direction: Vector3):
@@ -141,16 +85,9 @@ func set_command_approach(target: Spatial):
 	if not is_instance_valid(target):
 		set_command_stopping()
 		return
-	_current_command = {"type": CommandType.APPROACH, "target_node": target}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
+	_current_command = {"type": CommandType.APPROACH, "target_node": target, "is_new": true}
 
 
-# MODIFIED: Added "is_new" flag to signal the command handler to initialize its state.
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 	if not is_instance_valid(target):
 		set_command_stopping()
@@ -160,14 +97,8 @@ func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 		"target_node": target,
 		"distance": distance,
 		"clockwise": clockwise,
-		"is_new": true  # Flag for one-time setup in the command handler
+		"is_new": true
 	}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
 
 
 func set_command_flee(target: Spatial):
@@ -184,7 +115,7 @@ func set_command_align_to(direction: Vector3):
 	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
 
 
-# --- Main Update Logic ---
+# --- Main Update Logic (Called from AgentBody._integrate_forces) ---
 func update_navigation(delta: float):
 	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
 		return
@@ -205,41 +136,7 @@ func update_navigation(delta: float):
 		_command_handlers[CommandType.IDLE].execute(delta)
 
 
-# --- PID Correction & Helper Functions ---
-func apply_orbit_pid_correction(delta: float):
-	if _current_command.get("type") != CommandType.ORBIT:
-		return
-	if (
-		not is_instance_valid(agent_body)
-		or not is_instance_valid(movement_system)
-		or not is_instance_valid(_pid_orbit)
-	):
-		return
-
-	var target_node = _current_command.get("target_node", null)
-	if is_instance_valid(target_node):
-		var desired_orbit_dist = _current_command.get("distance", 100.0)
-		var vector_to_target = (
-			target_node.global_transform.origin
-			- agent_body.global_transform.origin
-		)
-		var current_distance = vector_to_target.length()
-		if current_distance < 0.01:
-			return
-
-		var distance_error = current_distance - desired_orbit_dist
-		var pid_output = _pid_orbit.update(distance_error, delta)
-
-		var close_orbit_threshold = APPROACH_MIN_DISTANCE * CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
-		if distance_error < 0 and desired_orbit_dist < close_orbit_threshold:
-			var max_outward_push_speed = movement_system.max_move_speed * 0.05
-			pid_output = max(pid_output, -max_outward_push_speed)
-
-		var radial_direction = vector_to_target.normalized()
-		var velocity_correction = radial_direction * pid_output
-		agent_body.current_velocity += velocity_correction
-
-
+# --- Helper Functions ---
 func _get_target_effective_size(target_node: Spatial) -> float:
 	var calculated_size = 1.0
 	var default_radius = 10.0

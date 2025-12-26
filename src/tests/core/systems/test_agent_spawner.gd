@@ -94,7 +94,7 @@ func test_spawn_agent_with_overrides():
 	
 	var agent_body = agent_system_instance.spawn_agent(MOCK_AGENT_SCENE, Vector3.ZERO, template, overrides, npc_uid)
 
-	assert_not_null(agent_body, "Spawner should return a valid KinematicBody instance.")
+	assert_not_null(agent_body, "Spawner should return a valid RigidBody instance.")
 	assert_eq(agent_body.agent_type, "test_npc", "Agent type override should be applied.")
 	assert_eq(agent_body.template_id, "npc_fighter", "Template ID override should be applied.")
 	assert_eq(agent_body.agent_uid, npc_uid, "Agent UID should be set correctly.")

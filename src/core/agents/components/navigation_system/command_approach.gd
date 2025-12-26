@@ -1,15 +1,10 @@
 # File: core/agents/components/navigation_system/command_approach.gd
-# Version: 2.0 - Closing-speed-based deceleration for pursuit capability
+# Version: 4.0 - RigidBody physics with PID-controlled pursuit capability.
 extends Node
 
 var _nav_sys: Node
-var _agent_body: KinematicBody
+var _agent_body: RigidBody
 var _movement_system: Node
-
-# Alignment threshold for approaching
-const APPROACH_ALIGNMENT_THRESHOLD_DEG: float = 45.0
-# Safety margin for brake timing (higher = earlier braking)
-const BRAKE_SAFETY_MARGIN: float = 1.5
 
 # State for tracking target motion
 var _prev_target_pos: Vector3 = Vector3.ZERO
@@ -24,8 +19,6 @@ func initialize(nav_system):
 
 func execute(delta: float):
 	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
-		return
-	if delta <= 0.0001:
 		return
 
 	var cmd = _nav_sys._current_command
@@ -44,68 +37,65 @@ func execute(delta: float):
 		_target_velocity = Vector3.ZERO
 		cmd["is_new"] = false
 	else:
-		_target_velocity = (target_pos - _prev_target_pos) / delta
+		if delta > 0.001:
+			_target_velocity = (target_pos - _prev_target_pos) / delta
 		_prev_target_pos = target_pos
 
 	var vector_to_target = target_pos - _agent_body.global_transform.origin
 	var distance = vector_to_target.length()
 
 	# Arrival check
+	var current_speed = _movement_system.get_current_speed()
 	if distance < (safe_distance + _nav_sys.ARRIVAL_DISTANCE_THRESHOLD):
 		if not cmd.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			cmd["signaled_stop"] = true
 		_nav_sys.set_command_idle()
-		_movement_system.apply_braking(delta)
+		_movement_system.request_thrust_brake()
 		return
 
 	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
 	
-	# Always rotate toward target
-	_movement_system.apply_rotation(direction, delta)
+	# Use PID for rotation control
+	_movement_system.request_rotation_to_pid(direction, delta)
 	
 	# Check alignment
-	var current_forward = -_agent_body.global_transform.basis.z.normalized()
-	var alignment_angle = current_forward.angle_to(direction)
-	var is_aligned = alignment_angle <= deg2rad(APPROACH_ALIGNMENT_THRESHOLD_DEG)
-	
-	if not is_aligned:
-		# Not aligned - decelerate while turning
-		_movement_system.apply_deceleration(delta)
+	if not _movement_system.is_aligned_to(direction):
+		# Not aligned - use backward thrust if facing away, or brake
+		var forward = _movement_system.get_forward()
+		if forward.dot(direction) < -0.5:
+			_movement_system.request_thrust_backward(0.3)
+		else:
+			_movement_system.request_thrust_brake()
 		cmd["signaled_stop"] = false
 		return
 	
-	# === Closing-Speed-Based Deceleration ===
-	# Calculate relative velocity toward target
-	var our_velocity = _agent_body.current_velocity
+	# Calculate relative velocity and closing speed
+	var our_velocity = _movement_system.get_velocity()
 	var relative_velocity = our_velocity - _target_velocity
-	var closing_speed = relative_velocity.dot(direction)  # Positive = approaching
+	var closing_speed = relative_velocity.dot(direction)
 	
 	# Distance remaining to safe zone
 	var distance_to_safe = distance - safe_distance
 	
-	# Time to collision (if approaching)
-	var time_to_collision = INF
-	if closing_speed > 0.1:  # Only if we're actually approaching
-		time_to_collision = distance_to_safe / closing_speed
-	
-	# Time needed to brake from current speed to zero
-	# Using v = v0 * (1 - decel * t)^n approximation, solve for t
-	# Simplified: brake_time ≈ current_speed / (decel_rate * average_speed)
-	var current_speed = our_velocity.length()
-	var brake_time = 0.0
-	if _movement_system.brake_strength > 0.01 and current_speed > 0.1:
-		# Approximate brake time using exponential decay model
-		# For linear_interpolate with weight w, time to reach 10% is roughly -ln(0.1)/w
-		brake_time = 2.3 / _movement_system.brake_strength  # ln(10) ≈ 2.3
+	# Estimate stopping distance
+	var mass = _agent_body.mass
+	var effective_decel = (_movement_system.linear_thrust / mass) + Constants.LINEAR_DRAG * current_speed
+	var brake_distance = (closing_speed * closing_speed) / (2.0 * effective_decel) if effective_decel > 0.1 else 0.0
 	
 	# Decision: brake or accelerate?
-	var should_brake = time_to_collision < (brake_time * BRAKE_SAFETY_MARGIN)
+	var should_brake = distance_to_safe < brake_distance * 1.5 and closing_speed > 0
 	
 	if should_brake and distance_to_safe > 0:
-		# Close to collision - brake
-		_movement_system.apply_braking(delta)
+		# Rotate retrograde for efficient braking
+		var retrograde = -our_velocity.normalized() if our_velocity.length() > 1.0 else -direction
+		_movement_system.request_rotation_to_pid(retrograde, delta)
+		
+		var forward = _movement_system.get_forward()
+		if forward.dot(retrograde) > 0.7:
+			_movement_system.request_thrust_forward()
+		else:
+			_movement_system.request_thrust_brake()
 	else:
-		# Safe to pursue at full speed
-		_movement_system.apply_acceleration(current_forward, delta)
+		_movement_system.request_thrust_forward()
 		cmd["signaled_stop"] = false

@@ -1,6 +1,6 @@
 # File: autoload/Constants.gd
 # Autoload Singleton: Constants
-# Version: 1.5 - Updated with new and removed the old.
+# Version: 2.0 - RigidBody physics with 6DOF flight system.
 
 extends Node
 
@@ -44,12 +44,31 @@ const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
 const DEFAULT_UPKEEP_COST = 5
 
-# --- Default Simulation Values ---
-const DEFAULT_MAX_MOVE_SPEED = 300.0
-const DEFAULT_ACCELERATION = 0.5
-const DEFAULT_DECELERATION = 0.5
-const DEFAULT_MAX_TURN_SPEED = 0.75
-const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45 # Degrees
+# --- RigidBody Physics Parameters (6DOF Flight) ---
+# Global drag coefficients - prevent endless acceleration in space
+const LINEAR_DRAG = 0.5  # Linear velocity damping factor
+const ANGULAR_DRAG = 2.0  # Angular velocity damping factor (reduced for responsiveness)
+
+# Default ship thrust/torque limits (can be overridden per-ship)
+const DEFAULT_LINEAR_THRUST = 5000.0  # Force in Newtons
+const DEFAULT_ANGULAR_THRUST = 2000.0  # Torque in Newton-meters
+const DEFAULT_SHIP_MASS = 100.0  # kg
+const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45.0  # Degrees
+
+# PID Controller Gains for Autopilot
+# Rotation PID - controls angular velocity to achieve target orientation
+const PID_ROTATION_KP = 8.0   # Proportional gain
+const PID_ROTATION_KI = 0.1   # Integral gain (low to prevent windup)
+const PID_ROTATION_KD = 4.0   # Derivative gain (damping)
+
+# Position/Velocity PID - for orbit radius and stopping precision
+const PID_POSITION_KP = 0.5   # Proportional gain for position error
+const PID_POSITION_KI = 0.01  # Integral gain
+const PID_POSITION_KD = 0.8   # Derivative gain
+
+# Thrust throttle range for player control (0.0 to 1.0)
+const MIN_THRUST_THROTTLE = 0.0
+const MAX_THRUST_THROTTLE = 1.0
 
 # Time units to trigger world tick
 const TIME_CLOCK_MAX_TU = 60

@@ -5,7 +5,7 @@
 
 extends Node
 
-var _player_agent_body: KinematicBody = null
+var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 
 
@@ -117,7 +117,7 @@ func _get_dock_position_in_zone(location_id: String):
 
 # Spawns an NPC agent linked to a specific character.
 # character_uid: The UID of the character this NPC represents.
-func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> KinematicBody:
+func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> RigidBody:
 	if not GameState.characters.has(character_uid):
 		printerr("AgentSpawner Error: No character found with UID: ", character_uid)
 		return null
@@ -143,7 +143,7 @@ func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> Kinemati
 
 # Spawns an NPC using a specific AgentTemplate resource path.
 # This is used for encounter-driven spawns where a fixed template is desired.
-func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Vector3.ZERO, overrides: Dictionary = {}) -> KinematicBody:
+func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Vector3.ZERO, overrides: Dictionary = {}) -> RigidBody:
 	if not agent_template_path or agent_template_path.empty():
 		printerr("AgentSpawner Error: spawn_npc_from_template invalid template path.")
 		return null
@@ -182,7 +182,7 @@ func spawn_agent(
 	agent_template: AgentTemplate,
 	overrides: Dictionary = {},
 	agent_uid: int = -1
-) -> KinematicBody:
+) -> RigidBody:
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
 		printerr("AgentSpawner Spawn Error: Invalid GlobalRefs.agent_container.")
@@ -197,10 +197,10 @@ func spawn_agent(
 		return null
 
 	var agent_root_instance = agent_scene.instance()
-	# agent_node is the "AgentBody" KinematicBody within the scene instance
+	# agent_node is the "AgentBody" RigidBody within the scene instance
 	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
 
-	if not (agent_node and agent_node is KinematicBody):
+	if not (agent_node and agent_node is RigidBody):
 		printerr("AgentSpawner Spawn Error: Invalid agent body node in scene: ", agent_scene_path)
 		agent_root_instance.queue_free()
 		return null

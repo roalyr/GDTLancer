@@ -1,20 +1,19 @@
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version: 4.2 - Added contextual interact popup for dock vs attack choice.
+# Version: 5.0 - RigidBody physics with thrust throttle control.
 
 extends Node
 
 # --- References ---
 var agent_script: Node = null
-var agent_body: KinematicBody = null
+var agent_body: RigidBody = null
 var movement_system: Node = null
 var _main_camera: Camera = null
 var _speed_slider: Slider = null
 var _weapon_controller: Node = null
 
-# --- Speed Control ---
-var template_max_speed_actual: float = 300.0
-var current_target_speed_normalized: float = 1.0
-const KEY_SPEED_INCREMENT_NORMALIZED: float = 0.05
+# --- Thrust Throttle Control (0.0 to 1.0) ---
+var current_thrust_throttle: float = 1.0
+const KEY_THROTTLE_INCREMENT: float = 0.05
 
 # --- State ---
 var _current_input_state: InputState = null
@@ -33,7 +32,7 @@ const StateFreeFlight = preload(
 
 func _ready():
 	agent_body = get_parent()
-	if not (agent_body is KinematicBody and agent_body.has_method("command_stop")):
+	if not (agent_body is RigidBody and agent_body.has_method("command_stop")):
 		printerr("PlayerController Error: Parent is not a valid agent.")
 		set_process(false)
 		return
@@ -67,9 +66,8 @@ func _deferred_ready_setup():
 		"ScreenControls/CenterRightZone/SliderControlRight"
 	)
 
-	template_max_speed_actual = movement_system.max_move_speed
-	current_target_speed_normalized = 1.0
-	_update_agent_speed_cap_and_slider_visuals()
+	current_thrust_throttle = 1.0
+	_update_throttle_and_slider_visuals()
 
 	_connect_eventbus_signals()
 	call_deferred("_get_camera_reference")
@@ -125,19 +123,19 @@ func _unhandled_input(event: InputEvent):
 		return
 
 	if Input.is_action_pressed("command_speed_up"):
-		var change = KEY_SPEED_INCREMENT_NORMALIZED * event.get_action_strength("command_speed_up")
-		current_target_speed_normalized = clamp(current_target_speed_normalized + change, 0.0, 1.0)
-		_update_agent_speed_cap_and_slider_visuals()
+		var change = KEY_THROTTLE_INCREMENT * event.get_action_strength("command_speed_up")
+		current_thrust_throttle = clamp(current_thrust_throttle + change, 0.0, 1.0)
+		_update_throttle_and_slider_visuals()
 		get_viewport().set_input_as_handled()
 		return
 
 	if Input.is_action_pressed("command_speed_down"):
 		var change = (
-			KEY_SPEED_INCREMENT_NORMALIZED
+			KEY_THROTTLE_INCREMENT
 			* event.get_action_strength("command_speed_down")
 		)
-		current_target_speed_normalized = clamp(current_target_speed_normalized - change, 0.0, 1.0)
-		_update_agent_speed_cap_and_slider_visuals()
+		current_thrust_throttle = clamp(current_thrust_throttle - change, 0.0, 1.0)
+		_update_throttle_and_slider_visuals()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -176,7 +174,7 @@ func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 	if not force and not Input.is_action_just_pressed("fire_weapon"):
 		return
 
-	var target_body: KinematicBody = _get_current_target()
+	var target_body: RigidBody = _get_current_target()
 	if not is_instance_valid(target_body):
 		print("PlayerController: Fire skipped (no selected target)")
 		return
@@ -225,9 +223,9 @@ func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 		)
 
 
-func _get_current_target() -> KinematicBody:
-	if is_instance_valid(_selected_target) and _selected_target is KinematicBody:
-		return _selected_target as KinematicBody
+func _get_current_target() -> RigidBody:
+	if is_instance_valid(_selected_target) and _selected_target is RigidBody:
+		return _selected_target as RigidBody
 	return null
 
 
@@ -326,14 +324,14 @@ func _issue_orbit_command():
 		_change_state("default")
 
 
-func _update_agent_speed_cap_and_slider_visuals():
+func _update_throttle_and_slider_visuals():
 	if not is_instance_valid(movement_system):
 		return
-	var new_cap = lerp(0.0, template_max_speed_actual, current_target_speed_normalized)
-	movement_system.max_move_speed = new_cap
+	# Update the movement system's thrust throttle
+	movement_system.thrust_throttle = current_thrust_throttle
 
 	if is_instance_valid(_speed_slider):
-		var slider_val = 100.0 - (current_target_speed_normalized * 100.0)
+		var slider_val = 100.0 - (current_thrust_throttle * 100.0)
 		if not is_equal_approx(_speed_slider.value, slider_val):
 			_speed_slider.value = slider_val
 
@@ -382,8 +380,8 @@ func _on_Player_Interact_Pressed():
 		print("PlayerController: Interact button pressed but no dock available.")
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
-	current_target_speed_normalized = (100.0 - slider_ui_value) / 100.0
-	_update_agent_speed_cap_and_slider_visuals()
+	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
+	_update_throttle_and_slider_visuals()
 
 
 # --- Connections & Cleanup ---

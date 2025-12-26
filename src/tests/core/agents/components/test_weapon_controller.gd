@@ -7,7 +7,7 @@ const CombatSystem = preload("res://src/core/systems/combat_system.gd")
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
 
 var _weapon_controller: Node
-var _mock_agent_body: KinematicBody
+var _mock_agent_body: RigidBody
 var _mock_combat_system: Node
 var _test_weapon: UtilityToolTemplate
 
@@ -17,7 +17,7 @@ const TARGET_UID: int = 200
 
 # --- Test Agent Body with required properties ---
 class TestAgentBody:
-	extends KinematicBody
+	extends RigidBody
 	var agent_uid: int = 100
 	var character_uid: int = 1
 
@@ -28,6 +28,7 @@ func before_each():
 	_mock_agent_body.name = "TestAgentBody"
 	_mock_agent_body.agent_uid = SHOOTER_UID
 	_mock_agent_body.character_uid = 1
+	_mock_agent_body.gravity_scale = 0.0
 	add_child(_mock_agent_body)
 	
 	# Create and register mock combat system

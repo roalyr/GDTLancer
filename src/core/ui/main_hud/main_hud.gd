@@ -1,6 +1,6 @@
 # File: res://core/ui/main_hud/main_hud.gd
 # Script for the main HUD container. Handles displaying targeting info, etc.
-# Version: 1.2 - Integrating systems.
+# Version: 1.3 - Added camera mode toggle.
 
 extends Control
 
@@ -14,6 +14,7 @@ onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHul
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
 onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
+onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
 onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
@@ -143,6 +144,11 @@ func _ready():
 	if is_instance_valid(button_narrative_status):
 		button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
 
+	# Connect ButtonCamera to toggle camera mode
+	if is_instance_valid(button_camera):
+		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
+			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
+
 	# Initialize TU display
 	_refresh_tu_display()
 
@@ -195,6 +201,11 @@ func _on_Player_Target_Selected(target_node: Spatial):
 		
 		# Update combat target info panel
 		_update_target_info_panel(target_node)
+		
+		# Update camera look_at_target if in target tracking mode
+		var camera = GlobalRefs.main_camera
+		if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+			camera.set_look_at_target(target_node)
 	else:
 		_on_Player_Target_Deselected()
 
@@ -207,6 +218,11 @@ func _on_Player_Target_Deselected():
 		target_info_panel.visible = false
 	set_process(false)  # Can disable processing if target is deselected
 	_refresh_player_hull()
+	
+	# If camera is in target tracking mode, switch back to orbit mode
+	var camera = GlobalRefs.main_camera
+	if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+		camera.set_camera_mode(0)  # ORBIT
 
 
 func _on_agent_despawning(agent_body) -> void:
@@ -274,6 +290,25 @@ func _on_ButtonMenu_pressed() -> void:
 	"""Handle menu button press - opens main menu."""
 	if EventBus:
 		EventBus.emit_signal("main_menu_requested")
+
+
+func _on_ButtonCamera_pressed() -> void:
+	"""Handle camera button press - toggles between orbit and target-tracking mode."""
+	var camera = GlobalRefs.main_camera
+	if not is_instance_valid(camera):
+		return
+	
+	# Toggle camera mode
+	camera.toggle_camera_mode()
+	
+	# If switching to target tracking mode, set the look_at_target
+	if camera.get_camera_mode() == 1:  # TARGET_TRACKING = 1
+		if is_instance_valid(_current_target):
+			camera.set_look_at_target(_current_target)
+		else:
+			# No target selected, switch back to orbit mode
+			camera.set_camera_mode(0)  # ORBIT = 0
+			print("Camera: No target selected for tracking mode.")
 
 
 # --- Custom Drawing (Optional but Recommended) ---

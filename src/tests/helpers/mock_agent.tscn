@@ -4,5 +4,6 @@
 
 [node name="MockAgent" type="Spatial"]
 
-[node name="AgentBody" type="KinematicBody" parent="."]
+[node name="AgentBody" type="RigidBody" parent="."]
 script = ExtResource( 1 )
+gravity_scale = 0.0

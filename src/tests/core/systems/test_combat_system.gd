@@ -10,8 +10,8 @@ var _combat_system: Node
 var _test_weapon: UtilityToolTemplate
 var _attacker_uid: int = 0
 var _defender_uid: int = 1
-var _attacker_body: KinematicBody
-var _defender_body: KinematicBody
+var _attacker_body: RigidBody
+var _defender_body: RigidBody
 
 
 func before_each():

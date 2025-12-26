@@ -1,9 +1,9 @@
-# File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
-# Version: 3.40 - Ship stats now loaded from ShipTemplate via AssetSystem.
+# File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
+# Version: 4.0 - RigidBody 6DOF physics with thrust-based flight.
 
 # Agent - this is a physical space vessel that exists in simulation space (ship).
 
-extends KinematicBody
+extends RigidBody
 
 # --- Core State & Identity ---
 var agent_type: String = ""
@@ -16,9 +16,6 @@ var ship_template = null  # Cached ship template for combat registration
 
 func is_player() -> bool:
 	return character_uid == GameState.player_character_uid and character_uid != -1
-
-# --- Physics State ---
-var current_velocity: Vector3 = Vector3.ZERO
 
 # --- Component References ---
 var movement_system: Node = null
@@ -52,7 +49,6 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			self.name,
 			"'."
 		)
-		set_physics_process(false)
 		return
 
 	# Get movement parameters from the character's active ship
@@ -98,11 +94,9 @@ func _get_movement_params_from_ship() -> Dictionary:
 	if is_instance_valid(ship_template):
 		interaction_radius = ship_template.interaction_radius
 		return {
-			"max_move_speed": ship_template.max_move_speed,
-			"acceleration": ship_template.acceleration,
-			"deceleration": ship_template.deceleration,
-			"max_turn_speed": ship_template.max_turn_speed,
-			"brake_strength": ship_template.deceleration,
+			"mass": ship_template.mass,
+			"linear_thrust": ship_template.linear_thrust,
+			"angular_thrust": ship_template.angular_thrust,
 			"alignment_threshold_angle_deg": ship_template.alignment_threshold_angle_deg
 		}
 	else:
@@ -110,11 +104,9 @@ func _get_movement_params_from_ship() -> Dictionary:
 		if character_uid >= 0:
 			printerr("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
 		return {
-			"max_move_speed": Constants.DEFAULT_MAX_MOVE_SPEED,
-			"acceleration": Constants.DEFAULT_ACCELERATION,
-			"deceleration": Constants.DEFAULT_DECELERATION,
-			"max_turn_speed": Constants.DEFAULT_MAX_TURN_SPEED,
-			"brake_strength": Constants.DEFAULT_DECELERATION,
+			"mass": Constants.DEFAULT_SHIP_MASS,
+			"linear_thrust": Constants.DEFAULT_LINEAR_THRUST,
+			"angular_thrust": Constants.DEFAULT_ANGULAR_THRUST,
 			"alignment_threshold_angle_deg": Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 		}
 
@@ -135,30 +127,22 @@ func _register_with_combat_system() -> void:
 # --- Godot Lifecycle ---
 func _ready():
 	add_to_group("Agents")
-	set_physics_process(true)
+	# RigidBody settings for 6DOF space flight
+	mode = RigidBody.MODE_RIGID
+	gravity_scale = 0.0  # No gravity in space
+	can_sleep = false  # Always active
 
 
-func _physics_process(delta: float):
+# --- RigidBody Physics Integration ---
+func _integrate_forces(state: PhysicsDirectBodyState):
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
-		if delta > 0:
-			printerr("AgentBody _physics_process Error: Components invalid for '", self.name, "'!")
-		set_physics_process(false)
 		return
 
-	if delta <= 0.0001:
-		return
-
-	# 1. Update Navigation & Movement Logic
-	navigation_system.update_navigation(delta)
-
-	# 2. Smoothly enforce the current speed limit before moving.
-	movement_system.enforce_speed_limit(delta)
-
-	# 3. Apply Physics Engine Movement
-	current_velocity = move_and_slide(current_velocity, Vector3.UP)
-
-	# 4. Apply Post-Movement Corrections (e.g., PID for orbit)
-	navigation_system.apply_orbit_pid_correction(delta)
+	# Update navigation logic (determines what forces/torques to apply)
+	navigation_system.update_navigation(state.step)
+	
+	# Apply forces and drag via movement system
+	movement_system.integrate_forces(state)
 
 
 # --- Public Command API (Delegates to NavigationSystem) ---
@@ -238,5 +222,4 @@ func get_interaction_radius() -> float:
 func despawn():
 	print("AgentBody '", self.name, "' despawning...")
 	EventBus.emit_signal("agent_despawning", self)
-	set_physics_process(false)
 	call_deferred("queue_free")

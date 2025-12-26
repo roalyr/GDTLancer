@@ -19,7 +19,7 @@ var agent_script: Node = null
 
 # --- State ---
 var _current_state: int = AIState.IDLE
-var _target_agent: KinematicBody = null
+var _target_agent: RigidBody = null
 var _home_position: Vector3 = Vector3.ZERO
 var _weapon_controller: Node = null
 
@@ -39,14 +39,14 @@ var _weapon_range_initialized: bool = false
 
 func _ready() -> void:
 	var parent = get_parent()
-	if parent is KinematicBody and parent.has_method("command_move_to"):
+	if parent is RigidBody and parent.has_method("command_move_to"):
 		agent_script = parent
 		_weapon_controller = parent.get_node_or_null("WeaponController")
 		_home_position = parent.global_transform.origin
 		set_physics_process(true)
 	else:
 		printerr(
-			"AI Controller Error: Parent node is not an Agent KinematicBody with command methods!"
+			"AI Controller Error: Parent node is not an Agent RigidBody with command methods!"
 		)
 		set_physics_process(false)
 		set_script(null)
@@ -315,7 +315,7 @@ func _process_flee(delta: float) -> void:
 			agent_script.command_move_to(flee_pos)
 
 
-func _scan_for_target() -> KinematicBody:
+func _scan_for_target() -> RigidBody:
 	if not is_hostile:
 		return null
 	var player = GlobalRefs.player_agent_body

@@ -1,6 +1,6 @@
 # File: core/agents/components/weapon_controller.gd
 # Purpose: Manages weapon firing and cooldowns for an agent.
-# Attaches as child of AgentBody (KinematicBody).
+# Attaches as child of AgentBody (RigidBody).
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
@@ -10,7 +10,7 @@ signal weapon_cooldown_started(weapon_index, duration)
 signal weapon_ready(weapon_index)
 
 # --- References (set in _ready) ---
-var _agent_body: KinematicBody = null  # Parent AgentBody
+var _agent_body: RigidBody = null  # Parent AgentBody
 var _ship_template = null  # Linked ShipTemplate (via AssetSystem)
 var _weapons: Array = []  # Loaded UtilityToolTemplate instances
 var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
@@ -19,8 +19,8 @@ var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
 # --- Initialization ---
 func _ready() -> void:
 	_agent_body = get_parent()
-	if not _agent_body is KinematicBody:
-		printerr("WeaponController: Parent must be KinematicBody")
+	if not _agent_body is RigidBody:
+		printerr("WeaponController: Parent must be RigidBody")
 		return
 	# Defer weapon loading to allow agent initialization to complete first
 	call_deferred("_load_weapons_from_ship")

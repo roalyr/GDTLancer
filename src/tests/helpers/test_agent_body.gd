@@ -1,8 +1,7 @@
 # tests/helpers/test_agent_body.gd
-# A simple KinematicBody for use in tests that require an agent.
-extends KinematicBody
-
-var current_velocity = Vector3.ZERO
+# A simple RigidBody for use in tests that require an agent.
+# Version: 2.0 - Updated for RigidBody physics.
+extends RigidBody
 
 
 # The NavigationSystem's approach/orbit commands use this.

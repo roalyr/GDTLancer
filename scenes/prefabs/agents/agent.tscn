@@ -23,8 +23,9 @@ shader_param/exponent_rim = 0.517
 
 [sub_resource type="SphereMesh" id=4]
 
-[node name="AgentBody" type="KinematicBody"]
+[node name="AgentBody" type="RigidBody"]
 script = ExtResource( 1 )
+gravity_scale = 0.0
 __meta__ = {
 "_edit_lock_": true
 }

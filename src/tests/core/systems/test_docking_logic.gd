@@ -14,11 +14,12 @@ func test_docking_signals():
 	
 	add_child(station)
 	
-	var player = KinematicBody.new()
+	var player = RigidBody.new()
 	player.name = "Player"
+	player.gravity_scale = 0.0
 	# Mock is_player method
 	var script = GDScript.new()
-	script.source_code = "extends KinematicBody\nfunc is_player(): return true"
+	script.source_code = "extends RigidBody\nfunc is_player(): return true"
 	script.reload()
 	player.set_script(script)
 	add_child(player)
@@ -37,10 +38,11 @@ func test_docking_signals():
 	player.free()
 
 func test_player_controller_docking():
-	var agent = KinematicBody.new()
+	var agent = RigidBody.new()
+	agent.gravity_scale = 0.0
 	# Mock command_stop
 	var agent_script = GDScript.new()
-	agent_script.source_code = "extends KinematicBody\nfunc command_stop(): pass"
+	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass"
 	agent_script.reload()
 	agent.set_script(agent_script)
 	

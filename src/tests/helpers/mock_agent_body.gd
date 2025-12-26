@@ -1,8 +1,8 @@
 # File: tests/helpers/mock_agent_body.gd
 # A minimal agent body for the spawner to instantiate in tests.
-# Version: 2.0 - Updated to match agent.gd's properties and initialize signature.
+# Version: 3.0 - Updated to RigidBody for physics-based flight.
 
-extends KinematicBody
+extends RigidBody
 
 # --- Core State & Identity (to match agent.gd) ---
 var agent_type: String = ""
@@ -12,6 +12,13 @@ var agent_uid = -1
 # --- Test-specific variable ---
 # This will be populated when initialize is called, so tests can inspect it.
 var init_data = null
+
+
+func _ready():
+	# RigidBody settings for 6DOF space flight
+	mode = RigidBody.MODE_RIGID
+	gravity_scale = 0.0
+	can_sleep = false
 
 
 # This signature now exactly matches the one in `core/agents/agent.gd`.

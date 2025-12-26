@@ -1,4 +1,5 @@
 # tests/core/agents/components/test_movement_system.gd
+# Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 extends GutTest
 
 var MovementSystem = load("res://src/core/agents/components/movement_system.gd")
@@ -6,16 +7,12 @@ var agent_body
 var movement_system
 
 
-# Use a test-specific KinematicBody to add the `current_velocity` var
-class TestAgentBody:
-	extends KinematicBody
-	var current_velocity = Vector3.ZERO
-
-
 func before_each():
-	# Create a mock agent body scene for the test
-	agent_body = TestAgentBody.new()
+	# Create a RigidBody as the agent body
+	agent_body = RigidBody.new()
 	agent_body.name = "TestAgentBody"
+	agent_body.mode = RigidBody.MODE_RIGID
+	agent_body.gravity_scale = 0.0
 
 	# The movement system must be a child of the body to work
 	movement_system = MovementSystem.new()
@@ -30,11 +27,9 @@ func before_each():
 
 	# Initialize with known test parameters
 	var move_params = {
-		"max_move_speed": 100.0,
-		"acceleration": 0.5,
-		"deceleration": 0.5,
-		"max_turn_speed": 1.0,  # rad/s
-		"brake_strength": 1.0,
+		"mass": 100.0,
+		"linear_thrust": 5000.0,
+		"angular_thrust": 2000.0,
 		"alignment_threshold_angle_deg": 30.0
 	}
 	movement_system.initialize_movement_params(move_params)
@@ -46,93 +41,99 @@ func after_each():
 
 
 func test_initialization():
-	assert_eq(movement_system.max_move_speed, 100.0)
-	assert_eq(movement_system.acceleration, 0.5)
+	assert_eq(movement_system.linear_thrust, 5000.0)
+	assert_eq(movement_system.angular_thrust, 2000.0)
 	assert_almost_eq(movement_system._alignment_threshold_rad, deg2rad(30.0), 0.001)
 	assert_true(
 		is_instance_valid(movement_system.agent_body),
 		"It should have a valid reference to its parent agent body."
 	)
+	assert_eq(agent_body.mass, 100.0, "Mass should be set on the RigidBody.")
 
 
-func test_accelerates_when_aligned():
-	agent_body.current_velocity = Vector3.ZERO
-	agent_body.transform = agent_body.transform.looking_at(Vector3.FORWARD, Vector3.UP)
-
-	movement_system.apply_acceleration(Vector3.FORWARD, 0.1)
-
-	assert_true(
-		agent_body.current_velocity.length() > 0.0,
-		"Velocity should increase when accelerating while aligned."
-	)
-	assert_true(
-		agent_body.current_velocity.z < 0,
-		"Velocity should be in the local forward direction (negative Z)."
-	)
-
-
-func test_does_not_accelerate_when_not_aligned():
-	agent_body.current_velocity = Vector3.ZERO
-	# Agent looks forward, but tries to accelerate to the right (90 deg diff > 30 deg threshold)
-	agent_body.transform = agent_body.transform.looking_at(Vector3.FORWARD, Vector3.UP)
-
-	movement_system.apply_acceleration(Vector3.RIGHT, 0.1)
-
-	assert_almost_eq(
-		agent_body.current_velocity.length(),
-		0.0,
-		0.001,
-		"Velocity should not increase when not aligned."
-	)
-
-
-func test_deceleration_reduces_speed():
-	agent_body.current_velocity = Vector3(0, 0, -100)
-	var initial_speed = agent_body.current_velocity.length()
-
-	movement_system.apply_deceleration(0.1)
-	var final_speed = agent_body.current_velocity.length()
-
-	assert_true(final_speed < initial_speed, "Deceleration should reduce the agent's speed.")
-
-
-func test_braking_reduces_speed_faster_than_deceleration():
-	agent_body.current_velocity = Vector3(0, 0, -100)
-	movement_system.apply_deceleration(0.1)
-	var speed_after_decel = agent_body.current_velocity.length()
-
-	agent_body.current_velocity = Vector3(0, 0, -100)
-	movement_system.apply_braking(0.1)
-	var speed_after_brake = agent_body.current_velocity.length()
-
-	assert_true(
-		speed_after_brake < speed_after_decel,
-		"Braking should be stronger than natural deceleration."
-	)
-
-
-func test_braking_reports_stopped():
-	agent_body.current_velocity = Vector3(0, 0, -0.1)
-	var stopped = movement_system.apply_braking(1.0)
-	assert_true(stopped, "Braking should return true when velocity is near zero.")
-
-	agent_body.current_velocity = Vector3(0, 0, -50)
-	stopped = movement_system.apply_braking(0.01)
-	assert_false(stopped, "Braking should return false when velocity is still high.")
-
-
-func test_rotation_turns_towards_target():
-	var target_dir = Vector3.RIGHT
+func test_request_thrust_forward_accumulates_force():
+	movement_system._accumulated_force = Vector3.ZERO
 	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
-
-	var initial_forward_vec = -agent_body.global_transform.basis.z
-	var initial_dot = initial_forward_vec.dot(target_dir)
-
-	movement_system.apply_rotation(target_dir, 0.1)
-
-	var final_forward_vec = -agent_body.global_transform.basis.z
-	var final_dot = final_forward_vec.dot(target_dir)
-
+	
+	movement_system.request_thrust_forward()
+	
 	assert_true(
-		final_dot > initial_dot, "Agent should turn to be more aligned with the target direction."
+		movement_system._accumulated_force.length() > 0.0,
+		"Forward thrust should accumulate force."
 	)
+	assert_true(
+		movement_system._accumulated_force.z < 0,
+		"Force should be in the forward direction (negative Z)."
+	)
+
+
+func test_request_thrust_brake_opposes_velocity():
+	movement_system._accumulated_force = Vector3.ZERO
+	agent_body.linear_velocity = Vector3(0, 0, -50)
+	
+	movement_system.request_thrust_brake()
+	
+	assert_true(
+		movement_system._accumulated_force.z > 0,
+		"Brake thrust should oppose current velocity direction."
+	)
+
+
+func test_request_thrust_direction():
+	movement_system._accumulated_force = Vector3.ZERO
+	
+	movement_system.request_thrust_direction(Vector3.RIGHT)
+	
+	assert_true(
+		movement_system._accumulated_force.x > 0,
+		"Thrust should be applied in the requested direction."
+	)
+
+
+func test_request_rotation_accumulates_torque():
+	movement_system._accumulated_torque = Vector3.ZERO
+	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
+	
+	movement_system.request_rotation_to(Vector3.RIGHT)
+	
+	assert_true(
+		movement_system._accumulated_torque.length() > 0.0,
+		"Rotation request should accumulate torque."
+	)
+
+
+func test_is_aligned_to():
+	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
+	
+	# Should be aligned to forward (within threshold)
+	assert_true(
+		movement_system.is_aligned_to(Vector3.FORWARD),
+		"Should be aligned when looking at target."
+	)
+	
+	# Should not be aligned to right (90 deg > 30 deg threshold)
+	assert_false(
+		movement_system.is_aligned_to(Vector3.RIGHT),
+		"Should not be aligned when target is outside threshold."
+	)
+
+
+func test_is_stopped():
+	agent_body.linear_velocity = Vector3.ZERO
+	assert_true(movement_system.is_stopped(), "Should report stopped when velocity is zero.")
+	
+	agent_body.linear_velocity = Vector3(0, 0, -50)
+	assert_false(movement_system.is_stopped(), "Should not report stopped when moving.")
+
+
+func test_throttle_affects_force():
+	movement_system._accumulated_force = Vector3.ZERO
+	movement_system.thrust_throttle = 0.5
+	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
+	
+	movement_system.request_thrust_forward()
+	var full_force = movement_system._accumulated_force.length()
+	
+	# The throttle is applied during integrate_forces, not during request
+	# So the accumulated force should be full thrust
+	assert_almost_eq(full_force, 5000.0, 1.0, "Accumulated force should be full thrust.")

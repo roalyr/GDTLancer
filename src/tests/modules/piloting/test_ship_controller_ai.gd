@@ -6,7 +6,7 @@ extends "res://addons/gut/test.gd"
 const ShipControllerAI = preload("res://src/modules/piloting/ship_controller_ai.gd")
 
 class DummyAgentBody:
-	extends KinematicBody
+	extends RigidBody
 	var agent_uid: int = 1
 	var last_command: Dictionary = {}
 

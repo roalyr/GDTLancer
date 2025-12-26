@@ -1,5 +1,5 @@
 # File: scenes/camera/orbit_camera.gd
-# Version: 2.2 - Removed all export variables to internalize configuration.
+# Version: 2.3 - Added target-tracking camera mode.
 
 extends Camera
 
@@ -35,6 +35,11 @@ var pid_pitch_ki: float = 0.01
 var pid_pitch_kd: float = 0.1
 var pid_integral_limit: float = 10.0
 var pid_output_limit_multiplier: float = 100.0
+
+# --- Camera Mode ---
+enum CameraMode { ORBIT, TARGET_TRACKING }
+var _camera_mode: int = CameraMode.ORBIT
+var _look_at_target: Spatial = null  # Secondary target to look at
 
 # --- Component Script Paths ---
 const RotationControllerScript = preload(
@@ -147,6 +152,36 @@ func set_rotation_input_active(is_active: bool):
 func set_is_rotating(rotating: bool):
 	if is_instance_valid(_rotation_controller):
 		_rotation_controller.set_is_rotating(rotating)
+
+
+# --- Camera Mode Methods ---
+func get_camera_mode() -> int:
+	return _camera_mode
+
+
+func set_camera_mode(mode: int):
+	_camera_mode = mode
+	if is_instance_valid(_position_controller):
+		_position_controller.set_camera_mode(mode)
+	if mode == CameraMode.ORBIT:
+		_look_at_target = null
+
+
+func toggle_camera_mode():
+	if _camera_mode == CameraMode.ORBIT:
+		set_camera_mode(CameraMode.TARGET_TRACKING)
+	else:
+		set_camera_mode(CameraMode.ORBIT)
+
+
+func set_look_at_target(target: Spatial):
+	_look_at_target = target
+	if is_instance_valid(_position_controller):
+		_position_controller.set_look_at_target(target)
+
+
+func get_look_at_target() -> Spatial:
+	return _look_at_target
 
 
 # --- Signal Handlers ---

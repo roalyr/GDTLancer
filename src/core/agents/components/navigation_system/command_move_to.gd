@@ -1,15 +1,10 @@
 # File: core/agents/components/navigation_system/command_move_to.gd
-# Version: 2.0 - Closing-speed-based deceleration
+# Version: 4.0 - RigidBody physics with PID-controlled thrust-based flight.
 extends Node
 
 var _nav_sys: Node
-var _agent_body: KinematicBody
+var _agent_body: RigidBody
 var _movement_system: Node
-
-# Alignment threshold for move_to
-const MOVE_TO_ALIGNMENT_THRESHOLD_DEG: float = 45.0
-# Safety margin for brake timing
-const BRAKE_SAFETY_MARGIN: float = 1.5
 
 
 func initialize(nav_system):
@@ -21,8 +16,6 @@ func initialize(nav_system):
 func execute(delta: float):
 	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
 		return
-	if delta <= 0.0001:
-		return
 
 	var cmd = _nav_sys._current_command
 	var target_pos = cmd.target_pos
@@ -31,51 +24,58 @@ func execute(delta: float):
 
 	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
 	
-	# Always rotate toward target
-	_movement_system.apply_rotation(direction, delta)
-	
-	# Check alignment before accelerating
-	var current_forward = -_agent_body.global_transform.basis.z.normalized()
-	var alignment_angle = current_forward.angle_to(direction) if direction.length_squared() > 0.001 else 0.0
-	var is_aligned = alignment_angle <= deg2rad(MOVE_TO_ALIGNMENT_THRESHOLD_DEG)
-	
 	# Arrival check
-	if (
-		distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD
-		and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ
-	):
+	var current_speed = _movement_system.get_current_speed()
+	if distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD and current_speed < _nav_sys.ARRIVAL_SPEED_THRESHOLD:
 		if not cmd.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			cmd["signaled_stop"] = true
-		_movement_system.apply_braking(delta)
+		# Final stop - rotate retrograde and brake
+		var velocity = _movement_system.get_velocity()
+		if velocity.length() > 0.5:
+			_movement_system.request_rotation_to_pid(-velocity.normalized(), delta)
+		_movement_system.request_thrust_brake()
+		_movement_system.request_rotation_damping_pid(delta)
 		return
 	else:
 		cmd["signaled_stop"] = false
 	
-	if not is_aligned:
-		# Not aligned - decelerate while turning
-		_movement_system.apply_deceleration(delta)
+	# Always try to rotate toward target using PID
+	_movement_system.request_rotation_to_pid(direction, delta)
+	
+	# Check alignment before thrusting forward
+	if not _movement_system.is_aligned_to(direction):
+		# Not aligned - use backward thrust if facing away, or brake
+		var forward = _movement_system.get_forward()
+		if forward.dot(direction) < -0.5:
+			# Facing away - can use backward thrust toward target
+			_movement_system.request_thrust_backward(0.3)
+		else:
+			# Perpendicular - just brake while turning
+			_movement_system.request_thrust_brake()
 		return
 	
-	# === Closing-Speed-Based Deceleration (for static target) ===
-	var our_velocity = _agent_body.current_velocity
-	var closing_speed = our_velocity.dot(direction)  # Speed toward target
+	# Calculate if we need to start braking
+	var velocity = _movement_system.get_velocity()
+	var closing_speed = velocity.dot(direction)
 	
-	# Time to arrival
-	var time_to_arrival = INF
-	if closing_speed > 0.1:
-		time_to_arrival = distance / closing_speed
+	# Simple brake distance estimate: v^2 / (2 * deceleration)
+	var mass = _agent_body.mass
+	var effective_decel = (_movement_system.linear_thrust / mass) + Constants.LINEAR_DRAG * current_speed
+	var brake_distance = (closing_speed * closing_speed) / (2.0 * effective_decel) if effective_decel > 0.1 else 0.0
 	
-	# Brake time estimate
-	var current_speed = our_velocity.length()
-	var brake_time = 0.0
-	if _movement_system.brake_strength > 0.01 and current_speed > 0.1:
-		brake_time = 2.3 / _movement_system.brake_strength
+	# Add safety margin
+	var should_brake = distance < brake_distance * 1.5 and closing_speed > 0
 	
-	# Decision
-	var should_brake = time_to_arrival < (brake_time * BRAKE_SAFETY_MARGIN)
-	
-	if should_brake and distance > _nav_sys.ARRIVAL_DISTANCE_THRESHOLD:
-		_movement_system.apply_braking(delta)
+	if should_brake:
+		# Rotate retrograde for efficient braking
+		var retrograde = -velocity.normalized() if velocity.length() > 1.0 else -direction
+		_movement_system.request_rotation_to_pid(retrograde, delta)
+		
+		var forward = _movement_system.get_forward()
+		if forward.dot(retrograde) > 0.7:
+			_movement_system.request_thrust_forward()  # Retrograde burn
+		else:
+			_movement_system.request_thrust_brake()  # Generic brake while rotating
 	else:
-		_movement_system.apply_acceleration(current_forward, delta)
+		_movement_system.request_thrust_forward()

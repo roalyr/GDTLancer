@@ -27,8 +27,8 @@ func _on_body_entered(body):
 	# Ignore self (the station's own StaticBody)
 	if body == self:
 		return
-	# Only care about KinematicBody (ships)
-	if not body is KinematicBody:
+	# Only care about RigidBody (ships)
+	if not body is RigidBody:
 		return
 		
 	print("Body entered docking zone: ", body.name)
@@ -43,7 +43,7 @@ func _on_body_entered(body):
 func _on_body_exited(body):
 	if body == self:
 		return
-	if not body is KinematicBody:
+	if not body is RigidBody:
 		return
 	if body.has_method("is_player") and body.is_player():
 		EventBus.emit_signal("dock_unavailable")

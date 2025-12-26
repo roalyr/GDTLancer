@@ -23,10 +23,11 @@ func test_docking_in_zone():
 	var station = zone.get_node("SceneAssets/System_1/Station_Alpha")
 	
 	# Create a player mock
-	var player = KinematicBody.new()
+	var player = RigidBody.new()
 	player.name = "PlayerMock"
+	player.gravity_scale = 0.0
 	var script = GDScript.new()
-	script.source_code = "extends KinematicBody\nfunc is_player(): return true"
+	script.source_code = "extends RigidBody\nfunc is_player(): return true"
 	script.reload()
 	player.set_script(script)
 	
