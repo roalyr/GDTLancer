@@ -50,9 +50,9 @@ const LINEAR_DRAG = 0.5  # Linear velocity damping factor
 const ANGULAR_DRAG = 2.0  # Angular velocity damping factor (reduced for responsiveness)
 
 # Default ship thrust/torque limits (can be overridden per-ship)
-const DEFAULT_LINEAR_THRUST = 5000.0  # Force in Newtons
-const DEFAULT_ANGULAR_THRUST = 2000.0  # Torque in Newton-meters
-const DEFAULT_SHIP_MASS = 100.0  # kg
+const DEFAULT_LINEAR_THRUST = 5e6  # Force in Newtons
+const DEFAULT_ANGULAR_THRUST = 5e6  # Torque in Newton-meters
+const DEFAULT_SHIP_MASS = 6e4  # kg
 const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45.0  # Degrees
 
 # PID Controller Gains for Autopilot
@@ -71,8 +71,9 @@ const MIN_THRUST_THROTTLE = 0.0
 const MAX_THRUST_THROTTLE = 1.0
 
 # Time units to trigger world tick
+# 1 TU = 1 min?
 const TIME_CLOCK_MAX_TU = 60
-const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
+const TIME_TICK_INTERVAL_SECONDS = 60.0 # How often (in real seconds) to add a Time Unit.
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
