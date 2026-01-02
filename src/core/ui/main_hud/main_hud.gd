@@ -43,7 +43,7 @@ var _current_target_uid: int = -1  # UID of current combat target for hull track
 var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
-
+var _hud_alpha = 1.0
 
 # --- Initialization ---
 func _ready():
@@ -634,3 +634,11 @@ func _on_ship_disabled(ship_uid: int) -> void:
 		# Optionally change display to show "DISABLED" or similar
 		if label_target_name:
 			label_target_name.text = label_target_name.text + " [DISABLED]"
+
+
+func _on_ButtonUIOpacity_pressed() -> void:
+	"""Handle main HUD transparency (cycle)."""
+	_hud_alpha -= 0.25
+	self.set_modulate(Color(1, 1, 1, _hud_alpha))
+	if _hud_alpha <= 0.0:
+		_hud_alpha = 1.0

@@ -34,3 +34,5 @@
 | 2025-12-26 | L2-Builder | Consistent Flight Mechanics | SUCCESS | Applied alignment-before-acceleration to approach, orbit, move_to, flee. All ships now use consistent physics. |
 | 2025-12-26 | L2-Builder | Redesigned Approach Deceleration | SUCCESS | Implemented closing-speed-based braking. Ships now pursue at full speed and only brake when collision is imminent. |
 | 2025-12-26 | **MAJOR CHANGE** | Switched to physics-based RigidBody flight model | SUCCESS | Some tests fail, need further work. |
+| 2025-12-28 | Tweak | Flight model | SUCCESS | Ship flight parameters are adjusted around the ship mass |
+| 2026-01-02 | UI | Main HUD | SUCCESS | Re-arranged bottom key row and added icons for character window, commands attack and dock |

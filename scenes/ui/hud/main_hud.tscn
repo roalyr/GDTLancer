@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -12,8 +12,9 @@
 [ext_resource path="res://assets/art/ui/controls/button_info.png" type="Texture" id=10]
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
-[ext_resource path="res://assets/art/ui/controls/button_interaction.png" type="Texture" id=13]
+[ext_resource path="res://assets/art/ui/controls/button_attack.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
+[ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -198,9 +199,9 @@ color = Color( 1, 1, 1, 0.12549 )
 [node name="ButtonOrbit" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -160.0
+margin_left = -235.0
 margin_top = 20.0
-margin_right = -10.0
+margin_right = -85.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 3 )
 
@@ -221,9 +222,9 @@ script = ExtResource( 14 )
 [node name="ButtonStop" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 180.0
+margin_left = 85.0
 margin_top = 20.0
-margin_right = 330.0
+margin_right = 235.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 6 )
 
@@ -244,9 +245,9 @@ script = ExtResource( 14 )
 [node name="ButtonManualFlight" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 10.0
+margin_left = -75.0
 margin_top = 20.0
-margin_right = 160.0
+margin_right = 75.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 7 )
 
@@ -267,9 +268,9 @@ script = ExtResource( 14 )
 [node name="ButtonApproach" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -500.0
+margin_left = -555.0
 margin_top = 20.0
-margin_right = -350.0
+margin_right = -405.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 2 )
 
@@ -291,9 +292,9 @@ script = ExtResource( 14 )
 [node name="ButtonFlee" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -330.0
+margin_left = -395.0
 margin_top = 20.0
-margin_right = -180.0
+margin_right = -245.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 5 )
 
@@ -314,11 +315,11 @@ script = ExtResource( 14 )
 [node name="ButtonDock" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 350.0
+margin_left = 245.0
 margin_top = 20.0
-margin_right = 500.0
+margin_right = 395.0
 margin_bottom = 170.0
-texture_normal = ExtResource( 13 )
+texture_normal = ExtResource( 15 )
 
 [node name="LabelButtonDock" type="Label" parent="ScreenControls/BottomCenterZone/ButtonDock"]
 anchor_left = 0.5
@@ -338,9 +339,9 @@ script = ExtResource( 14 )
 [node name="ButtonAttack" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 518.0
+margin_left = 405.0
 margin_top = 20.0
-margin_right = 668.0
+margin_right = 555.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 13 )
 
@@ -451,7 +452,7 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="LabelSpeedSlider" type="Label" parent="ScreenControls/CenterRightZone/LabelContainer"]
+[node name="LabelThrustSlider" type="Label" parent="ScreenControls/CenterRightZone/LabelContainer"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -461,7 +462,7 @@ margin_top = -13.5
 margin_right = 32.5
 margin_bottom = 13.5
 theme = ExtResource( 9 )
-text = "SPEED"
+text = "THRUST"
 align = 1
 script = ExtResource( 14 )
 
@@ -613,25 +614,26 @@ margin_bottom = 547.0
 theme = ExtResource( 9 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay/CenterContainer/PanelContainer"]
-margin_left = 16.0
-margin_top = 16.0
-margin_right = 224.0
-margin_bottom = 64.0
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 146.0
+margin_bottom = 69.0
 
 [node name="LabelGameOver" type="Label" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
-margin_right = 208.0
-margin_bottom = 14.0
+margin_right = 139.0
+margin_bottom = 27.0
 theme = ExtResource( 9 )
 text = "GAME OVER"
 align = 1
 
 [node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
-margin_top = 18.0
-margin_right = 208.0
-margin_bottom = 38.0
+margin_top = 31.0
+margin_right = 139.0
+margin_bottom = 62.0
 theme = ExtResource( 9 )
 text = "Return to Menu"
 
+[connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
@@ -640,6 +642,7 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonDock" to="." method="_on_ButtonDock_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonAttack" to="." method="_on_ButtonAttack_pressed"]
+[connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]
