@@ -2,8 +2,8 @@
 
 # 0.0 GDTLancer - Internal GDD Rules and Conventions
 
-**Version:** 1.0
-**Date:** October 26, 2025
+**Version:** 1.1
+**Date:** January 26, 2026
 **Related Documents:** `0.1-GDD-Main.md`, `README.md`
 
 ---
@@ -54,6 +54,7 @@ To support the project's goal of eventual separation into Digital (Godot) and An
 5.  **Section 4: Part 3: Analogue Implementation**
     * **Purpose:** Describes how the element is represented and functions within the tabletop RPG ruleset.
     * **Content:** Defines abstracted stats, `Asset Difficulty` modifiers, special rules, interactions with core TTRPG mechanics like `Action Checks`, `TU`, `WP`, `FP`, and provides formatting guidance for physical components.
+    * **Note:** Some mechanics exist only in Analogue (e.g., `FP`) or use different abstractions (e.g., `TU` vs real-time, `WP` vs Credits). See `0.1-GDD-Main.md` Section 7 for the Platform Mechanics Divergence table.
 
 * **Note:** Pages defining high-level concepts (like `0.1-GDD-Main.md`) or purely organizational documents (like this one) may omit the strict Part 1/2/3 structure where it doesn't apply.
 
@@ -76,8 +77,8 @@ This strict separation serves a critical long-term goal:
 
 # GDTLancer - Main GDD
 
-**Version:** 1.9
-**Date:** October 31, 2025
+**Version:** 2.0
+**Date:** January 26, 2026
 **Author:** Roal-Yr
 
 ## 0. Introduction
@@ -100,15 +101,17 @@ This strict separation serves a critical long-term goal:
 
 ## 1. Glossary
 
-* **Action Approach:** Player's stance (`Act Risky` or `Act Cautiously`) that influences an action's outcome.
+* **Action Approach:** Player's stance (`Act Risky` or `Act Cautiously`) that influences an action's outcome. In Digital, only used for High-Stakes checks; other checks use Neutral thresholds.
 * **Action Check:** The core dice roll: `3d6 + Modifier`.
+* **Action Stakes:** Classification of action importance: `High-Stakes` (full UI, approach choice, visible dice), `Narrative` (brief roll display, auto-neutral), `Mundane` (silent resolution). Digital only.
 * **Agent:** An active entity pursuing goals (Player or NPC).
 * **Asset:** A significant non-consumable item (ship, module, gear).
 * **Asset Progression:** A meta-progression system where players invest resources (WP, TU) and complete objectives to acquire new assets.
 * **Chronicle:** The system that logs major world events and actions.
 * **Contact:** An abstract NPC the player interacts with via menus to gain missions, information, and build relationships.
+* **Credits:** Currency unit in Digital version. See `WP` for Analogue equivalent.
 * **Faction:** A distinct political or corporate entity in the game world with which the player can gain or lose standing.
-* **Focus Points (FP):** A resource spent to improve an Action Check result.
+* **Focus Points (FP):** *(Analogue only)* A resource spent to improve an Action Check result.
 * **G-Stasis Cradle:** In-lore tech that allows pilots to survive high-G maneuvers (e.g., rapid acceleration, high-thrust industrial actions).
 * **Goal System:** System for tracking Agent objectives.
 * **Module:** A set of mechanics for a specific activity (e.g., Combat, Mining).
@@ -117,9 +120,9 @@ This strict separation serves a critical long-term goal:
 * **Reputation:** A narrative stat tracking the player's professional standing (e.g., "Dependable," "Opportunist").
 * **Ship Perk:** A positive trait an asset can acquire as achievements.
 * **Ship Quirk:** A negative trait an asset can acquire due to damage or failed actions, often imposing a mechanical penalty.
-* **Time Clock:** Tracks time. When full, it triggers a World Event Tick.
-* **Time Unit (TU):** An abstract unit of time. Actions cost TUs.
-* **Wealth Points (WP):** Abstract resource for major purchases, representing an agent's economic power.
+* **Time Clock:** *(Analogue)* Tracks time via TU. When full, triggers a World Event Tick. *(Digital)* Real-time clock; World Event Ticks occur at fixed intervals.
+* **Time Unit (TU):** *(Analogue only)* An abstract unit of time. Actions cost TUs.
+* **Wealth Points (WP):** *(Analogue)* Abstract resource for major purchases, representing an agent's economic power. *(Digital)* See `Credits`.
 * **World Event Tick:** Triggered by the Time Clock; advances the world simulation state.
 * **World State:** All data representing the current status of the game world.
 
@@ -141,7 +144,7 @@ This strict separation serves a critical long-term goal:
     * Interaction (Social)
     * Mining & Industrial
     * Investigation & Exploration
-* **3.3. Core Loop:** Players use modules for activities. Key actions require a check, influenced by the player's chosen risk level (`Risky` / `Cautious`). The outcome affects the world and the player's resources (FP, WP, TU).
+* **3.3. Core Loop:** Players use modules for activities. Key actions require a check. In Analogue, the player chooses risk level (`Risky` / `Cautious`) and may spend FP. In Digital, only High-Stakes checks prompt for approach choice; other checks resolve with Neutral thresholds. The outcome affects the world and the player's resources.
 
 ## 4. Development Framework
 
@@ -164,17 +167,47 @@ This strict separation serves a critical long-term goal:
 
 ## 6. Technical
 
-* **Engine:** Godot 3 (Primary), potentially other platforms implementing Analogue verison digitally (j2me).
-* **Analogue:** A parallel tabletop RPG design using the same core mechanics.
+* **Engine:** Godot 3 (Primary), potentially other platforms implementing Analogue version digitally (j2me).
+* **Analogue:** A parallel tabletop RPG design. Shares lore and narrative themes but uses platform-appropriate mechanical abstractions.
 * **Modularity:** A modular architecture to ensure systems are independent and maintainable.
+
+## 7. Platform Mechanics Divergence
+
+Transmedia design means **thematic and narrative consistency**, not mechanical parity. Each platform uses mechanics suited to its medium.
+
+| Concept | Digital | Analogue |
+|---------|---------|----------|
+| **Time** | Real-time clock; World Event Ticks at fixed intervals | Time Units (TU); Time Clock track |
+| **Currency** | Credits (granular) | Wealth Points (WP, abstract) |
+| **Player Focus** | Implicit (player skill/dexterity) | Focus Points (FP) spent on checks |
+| **Action Approach** | High-Stakes checks only; others use Neutral thresholds | Always choose Risky/Cautious |
+| **Dice Visibility** | High-Stakes: visible roll; Narrative: brief toast; Mundane: silent | Always roll and narrate |
+
+### 7.1. Action Stakes Classification (Digital)
+
+Actions are classified by stakes tier, hardcoded in `action_*.tres` templates:
+
+| Stakes | UI Behavior | Approach Choice | Dice Display | Examples |
+|--------|-------------|-----------------|--------------|----------|
+| **High-Stakes** | Full action modal | Yes (Risky/Cautious) | Animated roll | Contract completion, combat aftermath, critical story decisions |
+| **Narrative** | Brief notification | No (Neutral thresholds) | Quick toast | Docking arrival, trade finalization |
+| **Mundane** | None (log only) | No (Neutral thresholds) | Hidden | Routine background checks |
+
+### 7.2. Action Check Thresholds (Digital)
+
+| Approach | Success With Complication | Critical Success |
+|----------|---------------------------|------------------|
+| Cautious | ≥10 | ≥14 |
+| **Neutral** | **≥11** | **≥15** |
+| Risky | ≥12 | ≥16 |
 
 --- Start of ./0.2-GDD-Main-Sayings.md ---
 
 # GDTLancer - Mottos & Sayings
 
-**Version:** 1.5
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9)
+**Version:** 1.6
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0)
 
 ## 1. Purpose
 
@@ -214,9 +247,9 @@ These phrases reflect the pragmatic, resilient, and resourceful culture of the p
 
 # GDTLancer - Core Systems (Phase 1)
 
-**Version:** 1.5
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 5.1-GDD-Module-Piloting.md (v1.6), 5.2-GDD-Module-Combat.md (v1.4), 5.3-GDD-Module-Trading.md (v1.1)
+**Version:** 2.0
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0), 5.1-GDD-Module-Piloting.md, 5.2-GDD-Module-Combat.md, 5.3-GDD-Module-Trading.md
 
 ## 1. Overview
 
@@ -228,23 +261,27 @@ This document defines the core, cross-cutting gameplay systems required to suppo
 
 ### System 1: Event System
 * **Code Reference:** `core/systems/event_system.gd`
-* **Core Responsibility:** To act as a narrative and world event "oracle." It generates and triggers in-game events based on the passage of Time Units (TU), player actions, and other dynamic world states. These are high-level gameplay events (e.g., an ambush, a market opportunity, a distress call), not to be confused with low-level engine signals handled by the `EventBus`.
+* **Core Responsibility:** To act as a narrative and world event "oracle." It generates and triggers in-game events based on the passage of time, player actions, and other dynamic world states. These are high-level gameplay events (e.g., an ambush, a market opportunity, a distress call), not to be confused with low-level engine signals handled by the `EventBus`.
+* **Action Stakes (Digital):** Action templates (`action_*.tres`) include a `stakes` property (`HIGH_STAKES`, `NARRATIVE`, `MUNDANE`) that determines UI behavior and approach prompting. See `0.1-GDD-Main.md` Section 7.1.
 
 ### System 2: Time System
 * **Code Reference:** `core/systems/time_system.gd`
-* **Core Responsibility:** To manage the passage of abstract game time (`Time Units` or `TU`) and its consequences.
+* **Core Responsibility:** To manage the passage of game time and its consequences.
+* **Platform Differences:**
+    * **Analogue:** Manages abstract Time Units (`TU`). Actions have explicit TU costs.
+    * **Digital:** Operates on real-time intervals. World Event Ticks fire at `Constants.TIME_TICK_INTERVAL_SECONDS`.
 * **Phase 1 Functionality:**
-    * Operates on the global `GameState.current_tu` variable.
-    * Must provide a function `add_time_units(tu_to_add: int)`.
-    * When `GameState.current_tu` reaches `Constants.TIME_CLOCK_MAX_TU`, it must:
+    * Operates on the global `GameState.current_tu` variable (Digital: may represent elapsed seconds).
+    * Must provide a function `add_time_units(tu_to_add: int)` (Analogue) or rely on real-time delta (Digital).
+    * When the time threshold is reached (`Constants.TIME_CLOCK_MAX_TU` or real-time interval), it must:
         1.  Emit a `world_event_tick_triggered` signal on the `EventBus`.
-        2.  Call the `Character System` to deduct the periodic `WP` Upkeep cost.
-        3.  Decrement `GameState.current_tu` (handling multiple ticks if necessary).
+        2.  Call the `Character System` to deduct the periodic Upkeep cost (WP/Credits).
+        3.  Reset the time counter (handling multiple ticks if necessary).
 * **Interactions:**
     * **Interacts With:**
-        * `Piloting Module`: Free Flight mode will call the function to add `TU`.
-        * `Trading Module`: Actions like `Seek Rare Goods` will add `TU`.
-        * `Character System`: To apply the `WP` Upkeep cost.
+        * `Piloting Module`: Free Flight mode will call the function to add time (Analogue: `TU`).
+        * `Trading Module`: Actions like `Seek Rare Goods` will add time.
+        * `Character System`: To apply the Upkeep cost.
         * `EventBus`: To announce the `World Event Tick`.
 
 ### System 3: Character System
@@ -252,14 +289,16 @@ This document defines the core, cross-cutting gameplay systems required to suppo
 * **Core Responsibility:** To track and manage the core narrative stats, skills, and social standing for all character agents by providing a stateless API to access `GameState.characters`.
 * **Phase 1 Functionality:**
     * Must provide functions to get character data (e.g., `get_player_character()`).
-    * Must provide functions to safely add or subtract `WP` and `FP` from a character's data in `GameState` (e.g., `add_wp(uid, amount)`, `get_fp(uid)`).
+    * Must provide functions to safely add or subtract currency from a character's data in `GameState`:
+        * `add_wp(uid, amount)`, `subtract_wp(uid, amount)`, `get_wp(uid)` — WP/Credits.
+        * `add_fp(uid, amount)`, `subtract_fp(uid, amount)`, `get_fp(uid)` — *Analogue only; may be stubbed/removed in Digital build.*
     * Must provide a function to retrieve skill values (e.g., `get_skill_level(uid, skill_name)`).
     * Must provide a function to handle the `Upkeep Cost` deduction (e.g., `apply_upkeep_cost(uid, cost)`) when called by the `Time System`.
 * **Interactions:**
     * **Interacts With:**
-        * `Trading Module`: To modify a character's `WP` total.
+        * `Trading Module`: To modify a character's currency total.
         * `Combat/Piloting Modules`: To retrieve skill values for `Module Modifiers`.
-        * `Time System`: Receives the call to deduct `WP` for upkeep.
+        * `Time System`: Receives the call to deduct currency for upkeep.
         * `GameStateManager`: Provides character data for saving and loading.
 
 ### System 4: Inventory System
@@ -294,9 +333,9 @@ This document defines the core, cross-cutting gameplay systems required to suppo
 
 # GDTLancer - Cellular Automata Implementation
 
-**Version:** 1.2
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1.1-GDD-Core-Systems.md (v1.5), 6.1-GDD-Lore-Background.md (v1.5), 6.3-GDD-Narrative-Borders.md (v1.0)
+**Version:** 1.3
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1.1-GDD-Core-Systems.md (v2.0), 6.1-GDD-Lore-Background.md
 
 ## 1. Overview & Philosophy
 
@@ -329,8 +368,8 @@ For the Phase 1 demo, all CA implementations will be lightweight "stubs" designe
 
 #### 3. System Surveying (Anomaly Mapping)
 * **Description:** A temporary, mini-CA that simulates the exploration and analysis of a volatile, uncharted cosmic anomaly, reflecting the dangers of exploring uncharted space.
-* **Phase 1 Stub:** Unlocked by an "Explorer-class" ship. The `Chart Anomaly` Narrative Action triggers a fire-and-forget simulation that runs for a set amount of Time Units.
-* **Player Access / Feedback:** A stylized **"Probe Data Report"** received as an in-game message. It displays a static, graphical snapshot of the anomaly's final state, accompanied by a narrative summary: *"Survey complete. The anomaly contains a high concentration of stable exotic particles. Data sold for +15 WP."*
+* **Phase 1 Stub:** Unlocked by an "Explorer-class" ship. The `Chart Anomaly` Narrative Action triggers a fire-and-forget simulation that runs for a set duration (Analogue: Time Units; Digital: real-time seconds).
+* **Player Access / Feedback:** A stylized **"Probe Data Report"** received as an in-game message. It displays a static, graphical snapshot of the anomaly's final state, accompanied by a narrative summary: *"Survey complete. The anomaly contains a high concentration of stable exotic particles. Data sold for +15 Credits."*
 
 #### 4. Salvage Analysis
 * **Description:** A temporary mini-CA representing the complex process of sifting through salvaged wreckage for usable technology, reinforcing the setting's theme of iterative engineering.
@@ -346,7 +385,7 @@ For the Phase 1 demo, all CA implementations will be lightweight "stubs" designe
 
 #### 6. Ideological Alignment
 * **Description:** A location-based CA where social cliques shift their ideological stance (e.g., Procedural vs. Pragmatic) based on world events and the player's actions.
-* **Phase 1 Stub:** The player's `Risky` vs. `Cautious` action approaches push the alignment of relevant cliques.
+* **Phase 1 Stub:** The player's action outcomes and approach choices (when applicable) push the alignment of relevant cliques. In Analogue, every action has an explicit `Risky`/`Cautious` choice; in Digital, only High-Stakes actions offer this choice.
 * **Player Access / Feedback:** Environmental storytelling through the **type of contracts available**. A pragmatically-aligned station will offer more legally-gray but high-paying jobs, while a procedurally-aligned one will offer lawful but less lucrative contracts. The player feels their influence through the opportunities presented to them.
 
 #### 7. Rivalry & Alliance Network
@@ -373,9 +412,9 @@ For the Phase 1 demo, all CA implementations will be lightweight "stubs" designe
 
 # GDTLancer - Core Mechanics
 
-**Version:** 1.6
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9)
+**Version:** 2.0
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0)
 
 ## 1. Purpose
 
@@ -387,10 +426,11 @@ Used for any action where the outcome is uncertain.
 
 * **Core Mechanic:** `3d6 + Module Modifier`
 * **Module Modifier:** `Relevant Skill + Asset Modifier +/- Situational Modifiers`
-* **Thresholds:** The roll's total determines the quality of the outcome.
-    * **Critical Success (14+):** The action succeeds exceptionally well, providing a bonus.
-    * **Success (10-13):** The action succeeds as intended.
-    * **Failure (<10):** The action fails, often with a complication.
+* **Thresholds (Neutral):** The roll's total determines the quality of the outcome.
+    * **Critical Success (15+):** The action succeeds exceptionally well, providing a bonus.
+    * **Success with Complication (11-14):** The action succeeds as intended, possibly with a minor complication.
+    * **Failure (<11):** The action fails, often with a complication.
+* **Note:** Thresholds vary by Action Approach. See Section 3.
 
 ## 3. Action Approach
 
@@ -399,35 +439,55 @@ A choice the player makes *before* rolling to influence the nature of the outcom
 * **Act Cautiously:** Prioritizes safety. A failure is less severe (e.g., lost time instead of damage), but a success offers no special bonus.
 * **Act Risky:** Aims for a greater reward. A success is more effective or profitable, but a failure is more severe (e.g., critical damage instead of minor trouble).
 
+### 3.1. Approach Thresholds
+
+| Approach | Success With Complication | Critical Success |
+|----------|---------------------------|------------------|
+| Cautious | ≥10 | ≥14 |
+| Neutral | ≥11 | ≥15 |
+| Risky | ≥12 | ≥16 |
+
+### 3.2. Platform Differences
+
+* **Analogue:** Player always chooses Risky or Cautious before every Action Check.
+* **Digital:** Approach choice is only prompted for **High-Stakes** actions. Narrative and Mundane actions use **Neutral** thresholds automatically. See `0.1-GDD-Main.md` Section 7 for Action Stakes classification.
+
 ## 4. Core Resources
 
 These are the primary abstract resources players manage throughout the game.
 
-### 4.1. Focus Points (FP)
+### 4.1. Focus Points (FP) — *Analogue Only*
 
 * **What it is:** Represents an agent's mental energy, luck, or willpower.
 * **How it works:** Spend FP *before* an Action Check to add a +1 bonus to the roll per point spent.
 * **How to gain:** Earned by completing goals, roleplaying well, or through specific actions and outcomes.
+* **Digital Note:** FP is not used in the digital version. Dynamic gameplay and player skill/dexterity implicitly represent focus and engagement.
 
-### 4.2. Wealth Points (WP)
+### 4.2. Wealth Points (WP) / Credits
 
 * **What it is:** An abstract resource representing significant economic power. It is not granular cash, but a measure of major purchasing power.
 * **How it works:** Used to buy ships and modules, pay for major repairs, and cover the periodic Upkeep cost.
 * **How to gain:** Earned from completing jobs, selling valuable assets (salvage, data), and achieving major goals.
+* **Platform Differences:**
+    * **Analogue:** Uses abstract Wealth Points (WP).
+    * **Digital:** Uses **Credits** (more granular currency). Internally may use conversion factor (e.g., 1 WP ≈ 1000 Credits) for design consistency.
 
-### 4.3. Time Units (TU)
+### 4.3. Time Units (TU) / Real-Time Clock
 
-* **What it is:** An abstract measure of time. Most significant actions, like traveling, repairing, or undertaking a mission, cost TUs.
-* **How it works:** Spending TU advances the **Time Clock**. When the clock fills, a **World Event Tick** occurs, advancing the world simulation.
+* **What it is:** A measure of time for significant actions like traveling, repairing, or undertaking a mission.
+* **How it works:** Spending time advances the **Time Clock**. When the clock fills, a **World Event Tick** occurs, advancing the world simulation.
 * **Significance:** Time is a critical resource. The world changes and evolves independently of the player. Spending time on one opportunity means others may be lost.
+* **Platform Differences:**
+    * **Analogue:** Uses abstract Time Units (TU). Actions have explicit TU costs. Time Clock is a physical track.
+    * **Digital:** Uses **real-time clock**. World Event Ticks occur at fixed real-time intervals (configurable, e.g., every 60 seconds of gameplay).
 
 --- Start of ./2.1-GDD-Development-Phase1-Scope.md ---
 
 # GDTLancer - Phase 1 Scope & Goals
 
-**Version:** 1.3
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1.1-GDD-Core-Systems.md (v1.5), 4.3-GDD-Analogue-Phase1-Scope.md (v1.1), 5.1-GDD-Module-Piloting.md (v1.6), 5.2-GDD-Module-Combat.md (v1.4), 5.3-GDD-Module-Trading.md (v1.1)
+**Version:** 1.4
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1.1-GDD-Core-Systems.md (v2.0), 4.3-GDD-Analogue-Phase1-Scope.md, 5.1-GDD-Module-Piloting.md, 5.2-GDD-Module-Combat.md, 5.3-GDD-Module-Trading.md
 
 ## 1. Phase 1 Vision: "The First Contract" Demo
 
@@ -437,15 +497,17 @@ This initial build will focus on creating a complete and compelling, if small, p
 
 ## 2. Core Player Experience
 
+*Note: This describes the Digital (PC) version. See `4.3-GDD-Analogue-Phase1-Scope.md` for the Analogue equivalent.*
+
 In the Phase 1 demo, the player will:
-* Start the game with a standard, pre-owned ship and a small amount of starting capital (WP).
+* Start the game with a standard, pre-owned ship and a small amount of starting capital (Credits).
 * Engage with a small cast of named **Contacts** at stations to acquire contracts, building their **Relationship** score with them.
 * Take on contracts from different **Factions**, which will affect their **Faction Standing**.
 * Execute contracts by using the **Trading Module** to buy and sell a limited variety of commodities.
-* Fly their ship in a `Free Flight` mode using the **Piloting Module**, spending **Time Units (TU)** and paying periodic `Upkeep` costs.
+* Fly their ship in a `Free Flight` mode using the **Piloting Module**, with time passing in real-time and periodic `Upkeep` costs deducted at World Event Ticks.
 * Potentially face hostile NPCs in skill-based **Combat Challenges**, where victory or defeat has consequences.
-* Resolve key moments—finalizing a trade, escaping a battle, docking at a station—by making **Narrative Actions** whose outcomes can grant rewards, affect their **Reputation**, or even add negative **Ship Quirks** to their vessel.
-* Use their earned WP to invest in the **Asset Progression** system, working towards the tangible, long-term goal of acquiring a new, more capable ship that may unlock new gameplay opportunities.
+* Resolve key moments—finalizing a trade, escaping a battle, docking at a station—by making **Narrative Actions**. High-Stakes actions prompt for a Risky/Cautious approach choice and display dice rolls; other actions resolve automatically with Neutral thresholds.
+* Use their earned Credits to invest in the **Asset Progression** system, working towards the tangible, long-term goal of acquiring a new, more capable ship that may unlock new gameplay opportunities.
 
 ## 3. Scope of Work: Included Components
 
@@ -495,7 +557,7 @@ In the Phase 1 demo, the player will:
 * [**Done**] The player can be spawned into the Zone Scene in their starting ship.
 * [**Done**] The **Piloting Module**'s `Free Flight` mode is fully functional.
 * [**Done**] The Main HUD is implemented, displaying basic ship status.
-* [**Done**] The **Time System** is connected to flight, consuming TU and triggering WP Upkeep.
+* [**Done**] The **Time System** is connected to flight, with real-time ticks triggering Upkeep cost deduction.
 * [ ] Implement basic UI screens to display narrative stub info (Reputation, Sector Stats, Contact Dossier, Faction Standing).
 
 ### Milestone 3: The Economic Loop
@@ -508,21 +570,21 @@ In the Phase 1 demo, the player will:
 * [ ] The **Combat Module**'s `Combat Challenge` is functional (targeting, weapons, damage).
 * [ ] Implement the trigger logic for adding **Ship Quirks** based on combat damage or failed pilot actions.
 * [ ] Combat narrative actions are implemented, correctly affecting **Reputation** and **Faction Standing**.
-* [ ] The **Asset Progression** "Hangar" UI is implemented, allowing players to invest WP toward acquiring the second ship.
+* [ ] The **Asset Progression** "Hangar" UI is implemented, allowing players to invest Credits toward acquiring the second ship.
 
 ### Milestone 5: Cohesion & "First Contract" Polish
 * [ ] Create a simple, guided "first contract" that introduces the player to all core loops (Trade, Fly, Fight, Narrative Actions).
 * [ ] Ensure a clean gameplay flow from the Main Menu to the end of the first contract.
-* [ ] Perform a final balancing pass on WP rewards, upkeep costs, and Action Check difficulties.
+* [ ] Perform a final balancing pass on Credit rewards, upkeep costs, and Action Check difficulties.
 * [ ] Final bug fixing to ensure a stable and playable demo experience.
 
 --- Start of ./2-GDD-Development-Challenges.md ---
 
 # GDTLancer - Development Challenges
 
-**Version:** 1.4
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9)
+**Version:** 1.5
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0)
 
 ## 1. Overview
 
@@ -548,11 +610,12 @@ The game needs to let players feel impactful without allowing them to easily bre
 ## 3. Mechanical Challenges
 
 ### Challenge: Meaningful Risky/Cautious Outcomes
-The `Act Risky` / `Act Cautiously` mechanic needs many unique and interesting outcomes to be effective. This is a large content creation task.
+The `Act Risky` / `Act Cautiously` mechanic needs many unique and interesting outcomes to be effective. This is a large content creation task. In Digital, this is mitigated by limiting approach choice to High-Stakes actions only (see `0.1-GDD-Main.md` Section 7.1); in Analogue, every action requires this choice.
 
 * **Mitigation Strategies:**
     * **Systemic Outcomes:** Focus on outcomes that affect game systems (e.g., damaging a component and adding a Ship Quirk, gaining a contact, alerting a faction) instead of just static text results.
     * **Templated Outcomes:** Create templates for outcomes that can be easily adapted to different situations.
+    * **Digital: Action Stakes:** Reduce content burden by only requiring distinct Risky/Cautious outcomes for High-Stakes actions.
 
 ## 4. Technical Challenges
 
@@ -568,15 +631,16 @@ Keeping the PC, mobile, and tabletop versions consistent requires significant de
 
 * **Mitigation Strategies:**
     * **Single Source of Truth:** The GDDs will serve as the master design source for all versions of the game.
-    * **Focus on the Core Experience:** Each version should capture the core gameplay loop and feel, even if specific features differ. The mobile version will naturally be the most simplified.
+    * **Thematic, Not Mechanical Parity:** Transmedia design means shared lore, narrative, and core experience—not identical mechanics. Each platform uses mechanics suited to its medium (see `0.1-GDD-Main.md` Section 7).
+    * **Platform-Specific Abstractions:** Digital uses real-time and Credits; Analogue uses TU, WP, and FP. The mobile version will be the most simplified.
 
 --- Start of ./3-GDD-Architecture-Coding.md ---
 
 # GDTLancer - Coding Standards & Architecture Guide
 
-**Version:** 1.8
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9)
+**Version:** 1.9
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0)
 
 ## 1. Purpose
 
@@ -597,7 +661,7 @@ This document outlines the agreed-upon coding style conventions and core archite
     * **Gameplay Layers (Vertical):** Functional implementations across modules (Simulation, Narrative, etc.).
     * **Gameplay Systems (Depth):** Cross-cutting rulesets managing specific domains (Events, Goals, Assets, etc.).
     * **Refactor for Clarity:** Proactively refactor large scripts that handle multiple responsibilities. Aim to split scripts when they significantly exceed approximately **300 lines** of code, breaking them down into smaller, focused components.
-* **Simulation Foundation + Narrative Layer:** Build core gameplay around simulation within modules. Layer narrative mechanics (Action Checks, Focus, Events, Goals) on top to handle uncertainty, abstraction, and story progression.
+* **Simulation Foundation + Narrative Layer:** Build core gameplay around simulation within modules. Layer narrative mechanics (Action Checks, Events, Goals) on top to handle uncertainty, abstraction, and story progression. Note: Focus Points (FP) are Analogue-only; see `0.1-GDD-Main.md` Section 7 for platform mechanics divergence.
 * **Player Agency:** Empower players with choices regarding risk vs. reward, engagement level, and resource management.
 * **Reusability:** Design core components to be reusable across different contexts. Leverage Godot's scene instancing and Resource system.
 * **Decoupling:** Minimize hard dependencies between different systems and modules. Utilize the global `EventBus` for signaling events and state changes. Use `GlobalRefs` only for accessing essential, unique managers or nodes.
@@ -629,6 +693,7 @@ This document outlines the agreed-upon coding style conventions and core archite
     * `TemplateDatabase`: Caches all loaded `.tres` templates on startup.
 * **Component Pattern:** Use child Nodes with attached scripts to encapsulate distinct functionalities (e.g., `MovementSystem`, `NavigationSystem`).
 * **Resource Templates (`.tres`):** Use custom `Resource` scripts (`extends Resource`, `class_name`) to define data structures (e.g., `AgentTemplate`). Initialize objects using these loaded Resource objects.
+    * **Action Templates:** `action_*.tres` files include a `stakes` property (`HIGH_STAKES`, `NARRATIVE`, `MUNDANE`) that determines UI behavior and approach prompting in Digital. See `0.1-GDD-Main.md` Section 7.1.
 * **Scene Instancing:** Leverage Godot's scene instancing for creating Agents, loading Zones, and assembling UI.
 * **Initialization:** Prefer initializing node properties via an `initialize(config)` method called *after* the node is added to the tree.
 
@@ -668,6 +733,7 @@ This section defines the project's core data flow, which is based on **stateless
 * **Systems are Stateless APIs:** Core systems (e.g., `CharacterSystem`, `InventorySystem`, `TimeSystem`) are `Node` scripts located in `core/systems/` and parented under `WorldManager`. They are **stateless**. They do not hold their own data.
 * **Systems Provide Logic:** A system's job is to provide a clean, logical API (a set of functions) that reads from and writes to the `GameState`.
     * **Example:** `CharacterSystem.add_wp(uid, amount)` is a function that retrieves the correct character from `GameState.characters`, modifies its `wealth_points` property, and (if it's the player) emits a signal on the `EventBus`. The `CharacterSystem` itself does not store the `wealth_points`.
+    * **Note:** FP-related functions (`add_fp`, `subtract_fp`, `get_fp`) exist for Analogue support but may be stubbed or removed in Digital builds.
 * **Event-Driven Communication:** Systems should react to game events by listening to signals on the `EventBus` (e.g., `_on_world_event_tick`). They announce significant state changes by emitting signals on the `EventBus` (e.g., `player_wp_changed`).
 
 ### 8.2. System Script Checklist (Stateless)
@@ -727,9 +793,11 @@ The `GameStateManager.gd` autoload handles all save/load logic. It directly seri
 
 # GDTLancer Analogue Version Setup
 
-**Version:** 1.4
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1-GDD-Core-Mechanics.md (v1.6)
+**Version:** 1.5
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0)
+
+> **ℹ️ Analogue-Specific Document:** This document describes mechanics and components for the Tabletop RPG version only. The Digital version uses different abstractions (real-time, Credits, no FP). See `0.1-GDD-Main.md` Section 7 for the Platform Mechanics Divergence table.
 
 ## 1. Overview & Philosophy
 
@@ -800,9 +868,11 @@ A typical solo or group session requires the following physical components per p
 
 # GDTLancer Analogue Version - Setup & Formatting Guide
 
-**Version:** 1.3
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1-GDD-Core-Mechanics.md (v1.6), 4.1-GDD-Analogue-Setup.md (v1.4)
+**Version:** 1.4
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0), 4.1-GDD-Analogue-Setup.md (v1.5)
+
+> **ℹ️ Analogue-Specific Document:** This document describes layout and formatting for the Tabletop RPG printed materials only. Digital UI is handled separately.
 
 ## 1. Purpose
 
@@ -875,9 +945,11 @@ Player decides to `Undertake Journey`. They grab their **Ship Asset Sheet**, loo
 
 # GDTLancer - Analogue Version: Phase 1 Scope & Goals
 
-**Version:** 1.3
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1-GDD-Core-Mechanics.md (v1.6), 1.1-GDD-Core-Systems.md (v1.5), 4.1-GDD-Analogue-Setup.md (v1.4), 4.2-GDD-Analogue-Setup-Formatting.md (v1.3)
+**Version:** 1.4
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0), 1.1-GDD-Core-Systems.md (v2.0), 4.1-GDD-Analogue-Setup.md (v1.5), 4.2-GDD-Analogue-Setup-Formatting.md (v1.4)
+
+> **ℹ️ Analogue-Specific Document:** This document describes the Phase 1 scope for the Tabletop RPG version. For the Digital (PC) Phase 1 scope, see `2.1-GDD-Development-Phase1-Scope.md`.
 
 ## 1. Phase 1 Vision: "The First Contract" Quickstart PDF
 
@@ -949,9 +1021,9 @@ The final PDF product must contain the following printable materials:
 
 # 5.1 GDTLancer - Piloting Module
 
-**Version:** 1.9
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `2.1-GDD-Development-Phase1-Scope.md` (v1.3), `3-GDD-Architecture-Coding.md` (v1.8), `5.2-GDD-Module-Combat.md` (v1.4), `7.2-GDD-Assets-Ship-Engines.md` (v1.3), `7.3-GDTLancer-Ship-Chassis.md` (v1.1)
+**Version:** 2.0
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `2.1-GDD-Development-Phase1-Scope.md`, `3-GDD-Architecture-Coding.md`, `5.2-GDD-Module-Combat.md`, `7.2-GDD-Assets-Ship-Engines.md`, `7.3-GDTLancer-Ship-Chassis.md`
 
 ---
 
@@ -975,8 +1047,9 @@ This is the default mode for intra-system travel, acting as the connective tissu
 * **Mechanics:**
     * **Control Scheme:** Player has direct control over their ship using the core "boost and drift" flight model implemented via the `MovementSystem` and `NavigationSystem`.
     * **Resource Costs:**
-        * This mode continuously advances the **Time Clock** at a standard rate, consuming **Time Units (TU)**.
-        * It does not have a direct **Wealth Point (WP)** cost, but the time spent contributes to the periodic **Upkeep Cost** in `WP`.
+        * **Digital:** This mode continuously advances real-time, triggering periodic **World Event Ticks**.
+        * **Analogue:** This mode consumes **Time Units (TU)**, advancing the **Time Clock**.
+        * It does not have a direct currency cost, but the time spent contributes to the periodic **Upkeep Cost**.
     * **Event Triggering:** While in Free Flight, the **Event System** can trigger encounters (e.g., distress call, pirate ambush). A triggered event will seamlessly transition the player into a **Flight Challenge**.
 
 ---
@@ -1005,10 +1078,12 @@ This mode is the TTRPG-style resolution step that occurs *after* a Flight Challe
 * **Mechanics:**
     * **Trigger:** Player-initiated command selected from a menu after the "CHALLENGE COMPLETE" condition is met.
     * **Core Mechanic:** Utilizes the standard `3d6 + Module Modifier` **Action Check** to determine the outcome.
-    * **Consequences:** The result of the roll determines the strategic consequences. These outcomes can directly interact with narrative stub systems, such as adding a negative **"Ship Quirk"** to the player's vessel on a failure, or affecting their **"Reputation"** based on their chosen `Action Approach` (`Risky`/`Cautious`).
+    * **Action Stakes (Digital):** Each action has a `stakes` tier defined in its template. High-Stakes actions prompt for `Risky`/`Cautious` approach and show dice rolls; Narrative-tier actions use Neutral thresholds with brief feedback; Mundane actions resolve silently. See `0.1-GDD-Main.md` Section 7.1.
+    * **Action Approach (Analogue):** Player always chooses `Risky` or `Cautious` before rolling.
+    * **Consequences:** The result of the roll determines the strategic consequences. These outcomes can directly interact with narrative stub systems, such as adding a negative **"Ship Quirk"** to the player's vessel on a failure, or affecting their **"Reputation"** based on their chosen approach.
     * **Essential Phase 1 Actions:**
-        * **Perform Evasive Departure:** Used after winning a combat encounter to determine if the getaway was clean. Failure could result in being tracked or damaging a component, potentially adding a "Ship Quirk".
-        * **Execute Precision Arrival:** Used after reaching a destination coordinate to determine the quality of the docking/approach. Failure could result in minor ship damage and add a Quirk like "Jammed Landing Gear".
+        * **Perform Evasive Departure:** *(Stakes: Narrative)* Used after winning a combat encounter to determine if the getaway was clean. Failure could result in being tracked or damaging a component, potentially adding a "Ship Quirk".
+        * **Execute Precision Arrival:** *(Stakes: Narrative)* Used after reaching a destination coordinate to determine the quality of the docking/approach. Failure could result in minor ship damage and add a Quirk like "Jammed Landing Gear".
 
 ---
 
@@ -1031,9 +1106,9 @@ This mode is the TTRPG-style resolution step that occurs *after* a Flight Challe
 
 # 5.2 GDTLancer - Combat Module
 
-**Version:** 1.7
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `5.1-GDD-Module-Piloting.md` (v1.9), `6.1-GDD-Lore-Background.md`, `6-GDD-Lore-Narrative-Borders.md`, `7.1-GDD-Assets-Ship-Design.md` (v2.2), `7.3-GDD-Assets-Ship-Chassis.md` (v1.1), `7.9-GDD-Assets-Utility-Tools.md` (v1.1)
+**Version:** 1.8
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `5.1-GDD-Module-Piloting.md` (v2.0), `6.1-GDD-Lore-Background.md`, `6-GDD-Lore-Narrative-Borders.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.3-GDD-Assets-Ship-Chassis.md`, `7.9-GDD-Assets-Utility-Tools.md`
 
 ---
 
@@ -1074,10 +1149,12 @@ This is the resolution step that occurs after the Combat Challenge is successful
 * **Mechanics:**
     * **Trigger:** Player-initiated command selected from a menu after the last enemy ship is neutralized.
     * **Core Mechanic:** Utilizes the standard `3d6 + Module Modifier` **Action Check** to determine the outcome.
+    * **Action Stakes (Digital):** Each action has a `stakes` tier defined in its template. High-Stakes actions prompt for `Risky`/`Cautious` approach and show dice rolls; Narrative-tier actions use Neutral thresholds with brief feedback. See `0.1-GDD-Main.md` Section 7.1.
+    * **Action Approach (Analogue):** Player always chooses `Risky` or `Cautious` before rolling.
     * **Consequences:** Outcomes directly modify narrative stubs like "Reputation," "Faction Standing," and sector "World Stats". Successful disablement/capture should yield better rewards than simple destruction.
     * **Essential Phase 1 Actions:**
-        * **Assess the Aftermath:** A general-purpose action to evaluate the battlefield context. Success might reveal faction affiliations or recoverable intel. Failure might mean misidentifying the wreck or attracting unwanted attention.
-        * **Claim Wreckage:** A specific attempt to salvage components from a **disabled** ship. Success yields a valuable asset or adds to `WP`. A `Risky` approach might yield more `WP` but damage `Repation` ("Opportunist"). Failure could mean the wreckage is too unstable.
+        * **Assess the Aftermath:** *(Stakes: Narrative)* A general-purpose action to evaluate the battlefield context. Success might reveal faction affiliations or recoverable intel. Failure might mean misidentifying the wreck or attracting unwanted attention.
+        * **Claim Wreckage:** *(Stakes: High-Stakes)* A specific attempt to salvage components from a **disabled** ship. Success yields a valuable asset or adds to Credits/WP. In Analogue or when prompted in Digital, a `Risky` approach might yield more currency but damage Reputation ("Opportunist"). Failure could mean the wreckage is too unstable.
 
 ---
 
@@ -1090,7 +1167,7 @@ This is the resolution step that occurs after the Combat Challenge is successful
     * Equipped **`Utility Tools`**: These define the ship's offensive capabilities (damage output, range, special effects like grappling).
 * **Core System Integration:**
     * **Event System:** To initiate combat encounters.
-    * **Time System:** Combat Challenges and subsequent actions consume **Time Units (TU)**.
+    * **Time System:** Combat Challenges and subsequent actions consume time (Digital: real-time; Analogue: **TU**).
     * **Core Mechanics API:** To resolve Narrative Actions.
     * **Asset System:** Provides the ship's `Hull Integrity` and tracks equipped `Utility Tools`.
     * **Character System:** Provides the `Tactics Skill` for Narrative Action checks.
@@ -1099,13 +1176,13 @@ This is the resolution step that occurs after the Combat Challenge is successful
 
 # 5.B GDTLancer - Trading Module
 
-**Version:** 1.3
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1.1-GDD-Core-Systems.md (v1.5)
+**Version:** 1.4
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1.1-GDD-Core-Systems.md (v2.0)
 
 ## 1. Overview
 
-This document defines the mechanics for all economic activities, including the buying and selling of commodities and the management of contracts. The primary function of this module is to provide the core loop for accumulating **Wealth Points (WP)**.
+This document defines the mechanics for all economic activities, including the buying and selling of commodities and the management of contracts. The primary function of this module is to provide the core loop for accumulating currency (Digital: **Credits**; Analogue: **Wealth Points (WP)**).
 
 ## 2. Development Phase 1 Focus
 
@@ -1120,7 +1197,7 @@ The primary interaction in the Trading Module is UI-based. This interface is the
     * **Trigger:** Player docks at a location with a market and selects the "Market" or "Contracts" option.
     * **Market Gameplay:** A menu-driven interface displays the player's cargo, the station's inventory, and the current buy/sell prices for commodities. The player can execute buy and sell orders.
     * **Contract Gameplay:** A separate tab on the interface lists available contracts. For Phase 1, these are simple delivery contracts. Contracts will be flagged with a Faction owner.
-    * **Economic Loop:** The goal is to buy commodities at a low price and sell them for a higher price, or to complete contracts, generating a net profit in `WP`.
+    * **Economic Loop:** The goal is to buy commodities at a low price and sell them for a higher price, or to complete contracts, generating a net profit in Credits/WP.
 
 ## 4. Narrative Actions in Trading
 
@@ -1130,10 +1207,13 @@ These actions introduce skill, chance, and social interaction into trading, maki
 * **Mechanics:**
     * **Trigger:** Player-initiated special commands available within the Trade Interface.
     * **Core Mechanic:** Utilizes the standard `3d6 + Module Modifier` **Action Check** to resolve the outcome.
+    * **Action Stakes (Digital):** Each action has a `stakes` tier. See `0.1-GDD-Main.md` Section 7.1.
+    * **Action Approach (Analogue):** Player always chooses `Risky` or `Cautious` before rolling.
     * **Consequences:** Outcomes directly affect the player's relationships and standing. A successful negotiation might improve your relationship with a `Contact`, while failing a contract can damage your `Faction Standing` and `Reputation`.
     * **Essential Phase 1 Actions:**
-        * **Negotiate Bulk Deal:** When buying or selling a large quantity of goods, perform this check to get a better price. This is framed as an interaction with a specific `Contact`. A success provides a `WP` bonus and may increase your `Relationship` with them. A failure can result in a worse price and a damaged relationship.
-        * **Seek Rare Goods:** Perform this check to find unlisted opportunities. A success might reveal a rare commodity, offered as a "tip-off" from a friendly `Contact`. A failure consumes **Time Units (TU)** with no result.
+        * **Negotiate Bulk Deal:** *(Stakes: Narrative)* When buying or selling a large quantity of goods, perform this check to get a better price. This is framed as an interaction with a specific `Contact`. A success provides a currency bonus and may increase your `Relationship` with them. A failure can result in a worse price and a damaged relationship.
+        * **Seek Rare Goods:** *(Stakes: Mundane)* Perform this check to find unlisted opportunities. A success might reveal a rare commodity, offered as a "tip-off" from a friendly `Contact`. A failure consumes time with no result.
+        * **Finalize Contract:** *(Stakes: High-Stakes)* Used when completing a delivery contract. Success affects Faction Standing and Reputation. In Analogue or when prompted in Digital, approach choice affects outcome severity.
 
 ## 5. Required Phase 1 Systems & Stats
 
@@ -1146,10 +1226,10 @@ These actions introduce skill, chance, and social interaction into trading, maki
     * `Name`: The display name of the commodity.
     * `Base Value`: The baseline price used for market calculations.
 * **Core System Integration:**
-    * **Character System:** Manages the player's `WP` total and `Trading Skill`. It is also the hub for `Reputation` and `Faction Standing` stubs.
+    * **Character System:** Manages the player's currency total and `Trading Skill`. It is also the hub for `Reputation` and `Faction Standing` stubs.
     * **Inventory System:** Stores and manages player-owned commodities.
     * **Asset System:** Provides the ship's `Cargo Capacity`.
-    * **Time System:** Actions like `Seek Rare Goods` consume `TU`.
+    * **Time System:** Actions like `Seek Rare Goods` consume time (Digital: real-time; Analogue: `TU`).
     * **Core Mechanics API:** Resolves all Narrative Actions.
     * **Contact System:** The trading interface will be a primary point of interaction with Contacts.
 
@@ -1157,9 +1237,9 @@ These actions introduce skill, chance, and social interaction into trading, maki
 
 # GDTLancer - Lore & Background
 
-**Version:** 1.7
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1-GDD-Core-Mechanics.md (v1.6)
+**Version:** 1.8
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0)
 
 ## 1. Overview
 
@@ -1186,7 +1266,7 @@ This cultural and economic reality has led to a widespread social norm known as 
 
 * **Technological Baseline:** Technology is grounded and functional, iterating on known, reliable systems. The aesthetic is function-first, emphasizing reliability and modularity.
 * **G-Stasis Cradle:** A key piece of in-lore technology standard in all high-performance ships. It is a bio-support system that allows a pilot to survive the extreme G-forces (e.g., up to 15G) generated by aggressive maneuvering or the use of high-thrust industrial tools in combat.
-* **Travel:** Common Faster-Than-Light travel does not exist. Travel *within* a sector is done via in-system engines. Travel *between* sectors is a significant strategic undertaking, abstracted as a high cost in **Wealth Points (WP)** and **Time Units (TU)**.
+* **Travel:** Common Faster-Than-Light travel does not exist. Travel *within* a sector is done via in-system engines. Travel *between* sectors is a significant strategic undertaking, abstracted as a high cost in currency and time.
 
 ## 6. Naming Conventions (Outline)
 
@@ -1201,15 +1281,15 @@ The player experiences this setting through its consequences on game mechanics (
 
 # GDTLancer - Player Onboarding
 
-**Version:** 1.3
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 1-GDD-Core-Mechanics.md (v1.6), 6.1-GDD-Lore-Background.md (v1.7)
+**Version:** 1.4
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0), 6.1-GDD-Lore-Background.md
 
 ## 1. Purpose and Goals
 
 This document outlines the player's first 30-60 minutes of gameplay. The goal is to introduce core systems smoothly without being overwhelming.
 
-* **Teach Core Mechanics:** Introduce Action Checks, the `Risky`/`Cautious` system, and core resources (FP, WP, TU).
+* **Teach Core Mechanics:** Introduce Action Checks and the concept of Action Stakes. For High-Stakes actions, introduce the `Risky`/`Cautious` choice.
 * **Show the Gameplay Loop:** Demonstrate how to accept a goal, travel, perform actions, and receive a reward.
 * **Introduce the Setting:** Convey the pragmatic culture, resource scarcity, and the "Preservation Convention" mindset through action.
 * **Provide a Clear Next Step:** End the tutorial with a clear, player-driven objective.
@@ -1232,11 +1312,12 @@ This scenario introduces the player to the game's core loop and establishes thei
 
 * **Step 2: Travel & Time**
     * The mentor instructs the player to fly to the drone's coordinates. The flight is short and direct.
-    * **Introduces:** Basic Piloting controls, the concept of spending Time Units (TU), and the Time Clock.
+    * **Introduces:** Basic Piloting controls and the concept of time passing (real-time in Digital, triggering World Event Ticks).
 
 * **Step 3: The First Action Check**
     * Upon arriving, the player finds the drone, but its data port is damaged. The player must use their ship's tools to carefully access the core. This is their first **Action Check**.
-    * **Introduces:** The Action Check mechanic, the `Risky`/`Cautious` choice, and how tools are used to solve problems.
+    * This is a **Narrative-tier** action, so it resolves with Neutral thresholds and a brief roll toast. The mentor explains the outcome.
+    * **Introduces:** The Action Check mechanic and how tools are used to solve problems.
 
 * **Step 4: Controlled Conflict**
     * Just as the player secures the core, the rival salvage ship (a lone scavenger) that originally disabled the drone returns and demands the core. This is a controlled combat tutorial.
@@ -1246,22 +1327,23 @@ This scenario introduces the player to the game's core loop and establishes thei
 * **Step 5: The Narrative Resolution (The Payoff)**
     * After the rival ship is neutralized (Hull Integrity at 0), the **Narrative Action** menu appears. The mentor explains this is where the "real work" is done.
     * The player is presented with options like **"Assess the Aftermath"** and **"Claim Wreckage"**.
-    * The mentor guides them to **"Assess the Aftermath"**. The player makes an Action Check (using their `Tactics Skill`).
+    * **"Claim Wreckage"** is a **High-Stakes** action—this introduces the `Risky`/`Cautious` choice with full dice animation. The mentor explains the tradeoff.
+    * The mentor guides them to try **"Assess the Aftermath"** first (a Narrative-tier action). The player sees a quick roll result.
     * **Outcome (example):** On a Success, the mentor says, "Good. You scanned their ship data. They're small-time, no faction. As per convention, activate their distress beacon. We have what we came for."
-    * **Introduces:** The core TTRPG loop: **Skill-based play followed by TTRPG-style narrative resolution.** It shows *how* you handle a disabled vessel (assess it and leave it for recovery, as per the Convention).
+    * **Introduces:** The core TTRPG loop: **Skill-based play followed by TTRPG-style narrative resolution.** It shows *how* you handle a disabled vessel (assess it and leave it for recovery, as per the Convention). It also demonstrates the difference between Narrative-tier and High-Stakes actions.
 
 * **Step 6: The Reward & Next Steps**
-    * The player returns the data core to the mentor. They receive their first **Wealth Point (WP)** as payment.
+    * The player returns the data core to the mentor. They receive their first payment in **Credits**.
     * The mentor congratulates them and points them to the station's job board, explaining how to find new contracts.
-    * **Introduces:** The Wealth (WP) resource and the systems for finding new, player-driven goals. The tutorial is now complete.
+    * **Introduces:** The Credits resource and the systems for finding new, player-driven goals. The tutorial is now complete.
 
 --- Start of ./6-GDD-Lore-Narrative-Borders.md ---
 
 # GDTLancer - Narrative Borders of the Simulation
 
-**Version:** 1.2
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 6.1-GDD-Lore-Background.md (v1.7)
+**Version:** 1.3
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 6.1-GDD-Lore-Background.md
 
 ## 1. Purpose & Philosophy
 
@@ -1277,7 +1359,7 @@ These principles must be applied to the design of all game systems, from agent A
 
 * **Lore Justification:** The culture of the sector's colonists was forged by the scarcity of complex materials and skilled personnel. Every ship is a significant investment, and every skilled pilot is a nearly irreplaceable resource. This led to the creation of the **Preservation Convention**, which prizes neutralization and capture over outright destruction.
 * **Mechanical Implementation:**
-    * **High Cost of Destruction:** Systems must be designed so that the total destruction of a ship is the least profitable and most consequence-heavy outcome of combat. It should result in minimal WP gain, significant Reputation loss, and potential negative Faction Standing changes.
+    * **High Cost of Destruction:** Systems must be designed so that the total destruction of a ship is the least profitable and most consequence-heavy outcome of combat. It should result in minimal currency gain, significant Reputation loss, and potential negative Faction Standing changes.
     * **Rewarding Disablement:** Conversely, disabling a ship to allow for salvage (`Claim Wreckage`) or compelling a surrender must always be the most mechanically and narratively rewarding path.
     * **NPC Behavior:** The logic for NPC agents must reflect this. Most NPCs will default to disabling tactics. Only specific, defined groups (e.g., fanatical outlaws, sociopaths) would ever favor wanton destruction, making them feel truly alien to the setting's culture.
 
@@ -1306,9 +1388,9 @@ These principles must be applied to the design of all game systems, from agent A
 
 # 7.10 GDTLancer - Energy Storage
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.4-GDD-Assets-Power-Plants.md` (v1.1), `7.9 GDTLancer - Utility Tools` (v1.2)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.4-GDD-Assets-Power-Plants.md`, `7.9-GDD-Assets-Utility-Tools.md`
 
 ---
 
@@ -1373,9 +1455,9 @@ For the TTRPG, energy storage provides a buffer or enables peak power actions.
 
 # 7.11 GDTLancer - Propellant Storage
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.2-GDD-Assets-Ship-Engines.md` (v1.4)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.2-GDD-Assets-Ship-Engines.md`
 
 ---
 
@@ -1444,9 +1526,9 @@ For the tabletop TTRPG, the mechanical difference is abstracted into a simple ru
 
 # 7.1 GDTLancer - Ship Design Philosophy
 
-**Version:** 2.3
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `6.1-GDD-Lore-Background.md` (v1.7), `6-GDD-Lore-Narrative-Borders.md` (v1.2), `7-GDD-Assets-Style.md` (v1.1), `7.2-GDD-Assets-Ship-Engines.md` (v1.3), `7.3-GDD-Assets-Ship-Chassis.md` (v1.1)
+**Version:** 2.4
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `6.1-GDD-Lore-Background.md`, `6-GDD-Lore-Narrative-Borders.md`, `7-GDD-Assets-Style.md`, `7.2-GDD-Assets-Ship-Engines.md`, `7.3-GDD-Assets-Ship-Chassis.md`
 
 ---
 
@@ -1596,9 +1678,9 @@ Tools often serve dual purposes for industry and combat, per the **Preservation 
 
 # 7.2 GDTLancer Ship Engines
 
-**Version:** 1.4
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `2.1-GDD-Development-Phase1-Scope.md` (v1.3)
+**Version:** 1.5
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `7.1-GDD-Assets-Ship-Design.md`, `2.1-GDD-Development-Phase1-Scope.md`
 
 ---
 
@@ -1685,9 +1767,9 @@ These stats are for the tabletop TTRPG, aligning with the core rules for `Action
 
 # 7.3 GDTLancer Ship Chassis
 
-**Version:** 1.2
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1.1-GDD-Core-Systems.md` (v1.5), `2.1-GDD-Development-Phase1-Scope.md` (v1.3), `6.1-GDD-Lore-Background.md` (v1.7), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.2-GDD-Assets-Ship-Engines.md` (v1.4), `4.1-GDD-Analogue-Setup.md` (v1.4)
+**Version:** 1.3
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `2.1-GDD-Development-Phase1-Scope.md`, `6.1-GDD-Lore-Background.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.2-GDD-Assets-Ship-Engines.md`, `4.1-GDD-Analogue-Setup.md`
 
 ---
 
@@ -1762,9 +1844,9 @@ For the tabletop TTRPG, the hull provides base stats (like Hull Integrity) and, 
 
 # 7.4 GDTLancer - Power Plants
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.2-GDD-Assets-Ship-Engines.md` (v1.4), `7.3-GDD-Assets-Ship-Chassis.md` (v1.2), `7.11-GDD-Assets-Propellant-Storage.md` (v1.0)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.2-GDD-Assets-Ship-Engines.md`, `7.3-GDD-Assets-Ship-Chassis.md`, `7.11-GDD-Assets-Propellant-Storage.md`
 
 ---
 
@@ -1835,9 +1917,9 @@ For the TTRPG, power is abstracted into "Power Slots," which represent how many 
 
 # 7.5 GDTLancer - Cooling Systems
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.2-GDD-Assets-Ship-Engines.md` (v1.4), `7.4-GDD-Assets-Power-Plants.md` (v1.1)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.2-GDD-Assets-Ship-Engines.md`, `7.4-GDD-Assets-Power-Plants.md`
 
 ---
 
@@ -1904,9 +1986,9 @@ For the TTRPG, cooling is abstracted. The primary effect is enabling high-perfor
 
 # 7.6 GDTLancer - Life Support Systems
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `6.1-GDD-Lore-Background.md` (v1.7), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.3-GDTLancer-Ship-Chassis.md` (v1.2)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `6.1-GDD-Lore-Background.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.3-GDTLancer-Ship-Chassis.md`
 
 ---
 
@@ -1973,9 +2055,9 @@ For the TTRPG, life support impacts mission endurance abstractly, while the G-St
 
 # 7.7 GDTLancer - Radiation Protection
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `6.1-GDD-Lore-Background.md` (v1.7), `7.1-GDD-Assets-Ship-Design.md` (v2.3)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `6.1-GDD-Lore-Background.md`, `7.1-GDD-Assets-Ship-Design.md`
 
 ---
 
@@ -2039,9 +2121,9 @@ In the TTRPG, radiation protection primarily acts as a gate for certain types of
 
 # 7.8 GDTLancer - Turbomachinery
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.2-GDD-Assets-Ship-Engines.md` (v1.4), `7.11-GDD-Assets-Propellant-Storage.md` (v1.0)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.2-GDD-Assets-Ship-Engines.md`, `7.11-GDD-Assets-Propellant-Storage.md`
 
 ---
 
@@ -2106,9 +2188,9 @@ In the TTRPG, pump quality is abstracted into reliability and efficiency modifie
 
 # 7.9 GDTLancer - Utility Tools
 
-**Version:** 1.2
-**Date:** October 31, 2025
-**Related Documents:** `0.1-GDD-Main.md` (v1.9), `1-GDD-Core-Mechanics.md` (v1.6), `1.1-GDD-Core-Systems.md` (v1.5), `3-GDD-Architecture-Coding.md` (v1.8), `4.1-GDD-Analogue-Setup.md` (v1.4), `5.2-GDD-Module-Combat.md` (v1.7), `6.1-GDD-Lore-Background.md` (v1.7), `7.1-GDD-Assets-Ship-Design.md` (v2.3), `7.3-GDD-Assets-Ship-Chassis.md` (v1.2), `7.4-GDD-Assets-Power-Plants.md` (v1.1)
+**Version:** 1.3
+**Date:** January 26, 2026
+**Related Documents:** `0.1-GDD-Main.md` (v2.0), `1-GDD-Core-Mechanics.md` (v2.0), `1.1-GDD-Core-Systems.md` (v2.0), `3-GDD-Architecture-Coding.md`, `4.1-GDD-Analogue-Setup.md`, `5.2-GDD-Module-Combat.md`, `6.1-GDD-Lore-Background.md`, `7.1-GDD-Assets-Ship-Design.md`, `7.3-GDD-Assets-Ship-Chassis.md`, `7.4-GDD-Assets-Power-Plants.md`
 
 ---
 
@@ -2188,9 +2270,9 @@ For the TTRPG, tools grant new `Action Check` options or provide modifiers to ex
 
 # GDTLancer - General Asset & Style Guide
 
-**Version:** 1.1
-**Date:** October 31, 2025
-**Related Documents:** 0.1-GDD-Main.md (v1.9), 6.1-GDD-Lore-Background.md (v1.7), 7.1-GDD-Assets-Ship-Design.md (v1.4)
+**Version:** 1.2
+**Date:** January 26, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.0), 6.1-GDD-Lore-Background.md, 7.1-GDD-Assets-Ship-Design.md
 
 ## 1. Overview & Core Philosophy
 

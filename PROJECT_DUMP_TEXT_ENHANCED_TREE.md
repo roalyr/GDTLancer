@@ -94,8 +94,12 @@
 │   │       │   ├── bracket_targeting.png
 │   │       │   ├── button_approach.dxf
 │   │       │   ├── button_approach.png
+│   │       │   ├── button_attack.dxf
+│   │       │   ├── button_attack.png
 │   │       │   ├── button_camera.dxf
 │   │       │   ├── button_camera.png
+│   │       │   ├── button_dock.dxf
+│   │       │   ├── button_dock.png
 │   │       │   ├── button_flee.dxf
 │   │       │   ├── button_flee.png
 │   │       │   ├── button_free_flight.dxf
@@ -150,7 +154,8 @@
 │   │   │   └── nebula_1.glb
 │   │   ├── ships
 │   │   │   ├── Phoenix.glb
-│   │   │   └── Ship modules.glb
+│   │   │   ├── Ship modules.glb
+│   │   │   └── Spinal-ortho.glb
 │   │   └── sprites
 │   │       ├── Solar_sprite.glb
 │   │       ├── Star_sprite_double.glb
@@ -172,6 +177,7 @@
 │   │   ├── character_template.gd
 │   │   ├── contract_template.gd
 │   │   ├── location_template.gd
+│   │   ├── quirk_template.gd
 │   │   ├── template.gd
 │   │   └── utility_tool_template.gd
 │   └── registry
@@ -207,6 +213,10 @@
 │       │   ├── station_alpha.tres
 │       │   ├── station_beta.tres
 │       │   └── station_gamma.tres
+│       ├── quirks
+│       │   ├── quirk_damaged_sensor_array.tres
+│       │   ├── quirk_hull_stress_fracture.tres
+│       │   └── quirk_jammed_landing_gear.tres
 │       └── weapons
 │           ├── weapon_ablative_laser.tres
 │           ├── weapon_harpoon.tres
@@ -250,7 +260,8 @@
 │       └── screens
 │           ├── action_check.tscn
 │           ├── character_status.tscn
-│           └── inventory_screen.tscn
+│           ├── inventory_screen.tscn
+│           └── narrative_status_panel.tscn
 ├── Splash.png
 ├── src
 │   ├── autoload
@@ -291,6 +302,7 @@
 │   │   │   ├── inventory_system.gd
 │   │   │   ├── narrative_action_system.gd
 │   │   │   ├── progression_system.gd
+│   │   │   ├── quirk_system.gd
 │   │   │   ├── time_system.gd
 │   │   │   ├── trading_system.gd
 │   │   │   ├── traffic_system.gd
@@ -306,8 +318,10 @@
 │   │   │   │   └── inventory_screen.gd
 │   │   │   ├── main_hud
 │   │   │   │   └── main_hud.gd
-│   │   │   └── main_menu
-│   │   │       └── main_menu.gd
+│   │   │   ├── main_menu
+│   │   │   │   └── main_menu.gd
+│   │   │   └── narrative_status
+│   │   │       └── narrative_status_panel.gd
 │   │   └── utils
 │   │       ├── editor_object.gd
 │   │       ├── pid_controller.gd
@@ -365,6 +379,7 @@
 │       │   │   ├── test_event_system.gd
 │       │   │   ├── test_inventory_system.gd
 │       │   │   ├── test_narrative_action_system.gd
+│       │   │   ├── test_quirk_system.gd
 │       │   │   ├── test_time_system.gd
 │       │   │   └── test_trading_system.gd
 │       │   └── utils
@@ -388,9 +403,14 @@
 │           ├── test_docking_integration.gd
 │           └── test_full_game_loop.gd
 └── tests
-    └── data
-        └── test_action.tres
+    ├── data
+    │   └── test_action.tres
+    └── src
+        └── core
+            └── ui
+                └── narrative_status
+                    └── test_narrative_status_panel.gd
 
-91 directories, 301 files
+97 directories, 315 files
 
-91 directories, 301 files
+97 directories, 315 files

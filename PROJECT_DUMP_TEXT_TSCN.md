@@ -1873,7 +1873,7 @@ text = "Close"
 
 --- Start of ./scenes/levels/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -1898,6 +1898,7 @@ text = "Close"
 [ext_resource path="res://src/core/systems/contract_system.gd" type="Script" id=21]
 [ext_resource path="res://src/core/systems/narrative_action_system.gd" type="Script" id=22]
 [ext_resource path="res://src/core/systems/combat_system.gd" type="Script" id=23]
+[ext_resource path="res://src/core/systems/quirk_system.gd" type="Script" id=24]
 
 [node name="MainGameScene" type="Node"]
 
@@ -1951,6 +1952,9 @@ script = ExtResource( 22 )
 
 [node name="CombatSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 23 )
+
+[node name="QuirkSystem" type="Node" parent="WorldManager"]
+script = ExtResource( 24 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
@@ -2272,17 +2276,13 @@ material_override = ExtResource( 12 )
 
 --- Start of ./scenes/prefabs/agents/agent.tscn ---
 
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://src/core/agents/agent.gd" type="Script" id=1]
-[ext_resource path="res://assets/models/ships/Ship modules.glb" type="PackedScene" id=2]
+[ext_resource path="res://assets/models/ships/Spinal-ortho.glb" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://src/core/agents/components/navigation_system.gd" type="Script" id=4]
 [ext_resource path="res://assets/art/shaders/simple_solid_glow.tres" type="Shader" id=5]
-[ext_resource path="res://assets/art/materials/test_solid_panel.tres" type="Material" id=6]
-[ext_resource path="res://assets/art/materials/test_solid_frame.tres" type="Material" id=7]
-[ext_resource path="res://assets/art/materials/test_solid_panel_2.tres" type="Material" id=8]
-[ext_resource path="res://assets/art/materials/test_solid_panel_3.tres" type="Material" id=9]
 
 [sub_resource type="CapsuleShape" id=6]
 radius = 2.0
@@ -2297,7 +2297,8 @@ shader_param/exponent_rim = 0.517
 
 [sub_resource type="SphereMesh" id=4]
 
-[node name="AgentBody" type="KinematicBody"]
+[node name="AgentBody" type="RigidBody"]
+gravity_scale = 0.0
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_lock_": true
@@ -2325,88 +2326,8 @@ light_energy = 3.669
 omni_range = 1.46591
 omni_attenuation = 0.784584
 
-[node name="Ship modules" parent="Model" instance=ExtResource( 2 )]
-
-[node name="Panels mid rear" parent="Model/Ship modules" index="1"]
-material_override = ExtResource( 6 )
-
-[node name="Panels frame rear" parent="Model/Ship modules" index="2"]
-material_override = ExtResource( 6 )
-
-[node name="Panels mid " parent="Model/Ship modules" index="3"]
-material_override = ExtResource( 6 )
-
-[node name="Cone" parent="Model/Ship modules" index="4"]
-material_override = ExtResource( 8 )
-
-[node name="Panel Frame mid" parent="Model/Ship modules" index="5"]
-material_override = ExtResource( 6 )
-
-[node name="Panel Frame mid001" parent="Model/Ship modules" index="6"]
-material_override = ExtResource( 6 )
-
-[node name="Frame Rings" parent="Model/Ship modules" index="7"]
-material_override = ExtResource( 7 )
-
-[node name="Frame Ring fittings" parent="Model/Ship modules" index="8"]
-material_override = ExtResource( 7 )
-
-[node name="Frame frontal cone" parent="Model/Ship modules" index="9"]
-material_override = ExtResource( 7 )
-
-[node name="Frame mid002" parent="Model/Ship modules" index="10"]
-material_override = ExtResource( 7 )
-
-[node name="Frame mid001" parent="Model/Ship modules" index="11"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear" parent="Model/Ship modules" index="12"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut front fixtures" parent="Model/Ship modules" index="13"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut rear fixtures" parent="Model/Ship modules" index="14"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut rear fixtures001" parent="Model/Ship modules" index="15"]
-material_override = ExtResource( 7 )
-
-[node name="Frame rear strut front fixtures001" parent="Model/Ship modules" index="16"]
-material_override = ExtResource( 7 )
-
-[node name="Engine Cruise Chamber" parent="Model/Ship modules" index="37"]
-material_override = ExtResource( 9 )
-
-[node name="Engine Cruise Nozzle" parent="Model/Ship modules" index="38"]
-material_override = ExtResource( 7 )
-
-[node name="Engine Cruise Nozzle neck inner" parent="Model/Ship modules" index="40"]
-material_override = ExtResource( 7 )
-
-[node name="LOX tank" parent="Model/Ship modules" index="48"]
-material_override = ExtResource( 9 )
-
-[node name="LOX tank001" parent="Model/Ship modules" index="49"]
-material_override = ExtResource( 9 )
-
-[node name="LOX manifold bulkhead" parent="Model/Ship modules" index="54"]
-material_override = ExtResource( 7 )
-
-[node name="LOX system bulkhead" parent="Model/Ship modules" index="55"]
-material_override = ExtResource( 7 )
-
-[node name="PP LH2 tank001" parent="Model/Ship modules" index="56"]
-material_override = ExtResource( 9 )
-
-[node name="PP LH2 tank frame001" parent="Model/Ship modules/PP LH2 tank001" index="0"]
-material_override = ExtResource( 7 )
-
-[node name="PP fuel cell frame" parent="Model/Ship modules" index="59"]
-material_override = ExtResource( 7 )
-
-[node name="PP fuel cell frame001" parent="Model/Ship modules" index="62"]
-material_override = ExtResource( 7 )
+[node name="Spinal-ortho" parent="Model" instance=ExtResource( 2 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, -4.78332 )
 
 [node name="MovementSystem" type="Node" parent="."]
 script = ExtResource( 3 )
@@ -2418,8 +2339,6 @@ script = ExtResource( 4 )
 transform = Transform( 0.94983, -0.0541661, 0.30804, -0.312766, -0.164495, 0.935478, 0, -0.984889, -0.173184, 0, 0, 0 )
 light_energy = 0.5
 editor_only = true
-
-[editable path="Model/Ship modules"]
 
 --- Start of ./scenes/prefabs/agents/npc_agent.tscn ---
 
@@ -2599,7 +2518,7 @@ shape = SubResource( 3 )
 
 --- Start of ./scenes/ui/hud/main_hud.tscn ---
 
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -2613,8 +2532,9 @@ shape = SubResource( 3 )
 [ext_resource path="res://assets/art/ui/controls/button_info.png" type="Texture" id=10]
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
-[ext_resource path="res://assets/art/ui/controls/button_interaction.png" type="Texture" id=13]
+[ext_resource path="res://assets/art/ui/controls/button_attack.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
+[ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -2799,9 +2719,9 @@ color = Color( 1, 1, 1, 0.12549 )
 [node name="ButtonOrbit" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -160.0
+margin_left = -235.0
 margin_top = 20.0
-margin_right = -10.0
+margin_right = -85.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 3 )
 
@@ -2822,9 +2742,9 @@ script = ExtResource( 14 )
 [node name="ButtonStop" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 180.0
+margin_left = 85.0
 margin_top = 20.0
-margin_right = 330.0
+margin_right = 235.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 6 )
 
@@ -2845,9 +2765,9 @@ script = ExtResource( 14 )
 [node name="ButtonManualFlight" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 10.0
+margin_left = -75.0
 margin_top = 20.0
-margin_right = 160.0
+margin_right = 75.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 7 )
 
@@ -2868,9 +2788,9 @@ script = ExtResource( 14 )
 [node name="ButtonApproach" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -500.0
+margin_left = -555.0
 margin_top = 20.0
-margin_right = -350.0
+margin_right = -405.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 2 )
 
@@ -2892,9 +2812,9 @@ script = ExtResource( 14 )
 [node name="ButtonFlee" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = -330.0
+margin_left = -395.0
 margin_top = 20.0
-margin_right = -180.0
+margin_right = -245.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 5 )
 
@@ -2915,11 +2835,11 @@ script = ExtResource( 14 )
 [node name="ButtonDock" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 350.0
+margin_left = 245.0
 margin_top = 20.0
-margin_right = 500.0
+margin_right = 395.0
 margin_bottom = 170.0
-texture_normal = ExtResource( 13 )
+texture_normal = ExtResource( 15 )
 
 [node name="LabelButtonDock" type="Label" parent="ScreenControls/BottomCenterZone/ButtonDock"]
 anchor_left = 0.5
@@ -2939,9 +2859,9 @@ script = ExtResource( 14 )
 [node name="ButtonAttack" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
 anchor_right = 0.5
-margin_left = 518.0
+margin_left = 405.0
 margin_top = 20.0
-margin_right = 668.0
+margin_right = 555.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 13 )
 
@@ -3052,7 +2972,7 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="LabelSpeedSlider" type="Label" parent="ScreenControls/CenterRightZone/LabelContainer"]
+[node name="LabelThrustSlider" type="Label" parent="ScreenControls/CenterRightZone/LabelContainer"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -3062,7 +2982,7 @@ margin_top = -13.5
 margin_right = 32.5
 margin_bottom = 13.5
 theme = ExtResource( 9 )
-text = "SPEED"
+text = "THRUST"
 align = 1
 script = ExtResource( 14 )
 
@@ -3111,10 +3031,17 @@ margin_bottom = 215.0
 theme = ExtResource( 9 )
 text = "CHARACTER"
 
-[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
+[node name="ButtonNarrativeStatus" type="Button" parent="ScreenControls/TopLeftZone"]
 margin_top = 229.0
 margin_right = 111.0
 margin_bottom = 279.0
+theme = ExtResource( 9 )
+text = "NAR STATS"
+
+[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
+margin_top = 293.0
+margin_right = 111.0
+margin_bottom = 343.0
 theme = ExtResource( 9 )
 text = "INVENTORY"
 
@@ -3207,25 +3134,26 @@ margin_bottom = 547.0
 theme = ExtResource( 9 )
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay/CenterContainer/PanelContainer"]
-margin_left = 16.0
-margin_top = 16.0
-margin_right = 224.0
-margin_bottom = 64.0
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 146.0
+margin_bottom = 69.0
 
 [node name="LabelGameOver" type="Label" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
-margin_right = 208.0
-margin_bottom = 14.0
+margin_right = 139.0
+margin_bottom = 27.0
 theme = ExtResource( 9 )
 text = "GAME OVER"
 align = 1
 
 [node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
-margin_top = 18.0
-margin_right = 208.0
-margin_bottom = 38.0
+margin_top = 31.0
+margin_right = 139.0
+margin_bottom = 62.0
 theme = ExtResource( 9 )
 text = "Return to Menu"
 
+[connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
@@ -3234,6 +3162,7 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonFlee" to="." method="_on_ButtonFlee_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonDock" to="." method="_on_ButtonDock_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonAttack" to="." method="_on_ButtonAttack_pressed"]
+[connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]
@@ -4143,81 +4072,81 @@ size_flags_vertical = 3
 custom_constants/separation = 20
 
 [node name="VBoxStats" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContent"]
-margin_right = 200.0
+margin_right = 226.0
 margin_bottom = 459.0
 rect_min_size = Vector2( 200, 0 )
 
 [node name="LabelSkills" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_right = 200.0
+margin_right = 226.0
 margin_bottom = 27.0
 text = "Skills & Stats"
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 31.0
-margin_right = 200.0
+margin_right = 226.0
 margin_bottom = 35.0
 
 [node name="LabelSkillPiloting" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 39.0
-margin_right = 200.0
+margin_right = 226.0
 margin_bottom = 66.0
 text = "Piloting: 0"
 
 [node name="LabelSkillTrading" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 70.0
-margin_right = 200.0
+margin_right = 226.0
 margin_bottom = 97.0
 text = "Trading: 0"
 
 [node name="Control" type="Control" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 101.0
-margin_right = 200.0
+margin_right = 226.0
 margin_bottom = 121.0
 rect_min_size = Vector2( 0, 20 )
 
 [node name="ButtonAddWP" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 125.0
-margin_right = 200.0
-margin_bottom = 145.0
+margin_right = 226.0
+margin_bottom = 156.0
 text = "Debug: Add WP"
 
 [node name="ButtonAddFP" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 149.0
-margin_right = 200.0
-margin_bottom = 169.0
+margin_top = 160.0
+margin_right = 226.0
+margin_bottom = 191.0
 text = "Debug: Add FP"
 
 [node name="ButtonTriggerEncounter" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 173.0
-margin_right = 200.0
-margin_bottom = 193.0
+margin_top = 195.0
+margin_right = 226.0
+margin_bottom = 226.0
 text = "Debug: Trigger Encounter"
 
 [node name="VSeparator" type="VSeparator" parent="Panel/VBoxContainer/HBoxContent"]
-margin_left = 220.0
-margin_right = 224.0
+margin_left = 246.0
+margin_right = 250.0
 margin_bottom = 459.0
 
 [node name="VBoxContracts" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContent"]
-margin_left = 244.0
+margin_left = 270.0
 margin_right = 760.0
 margin_bottom = 459.0
 size_flags_horizontal = 3
 
 [node name="LabelContracts" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxContracts"]
-margin_right = 516.0
+margin_right = 490.0
 margin_bottom = 27.0
 text = "Active Contracts"
 
 [node name="ItemListContracts" type="ItemList" parent="Panel/VBoxContainer/HBoxContent/VBoxContracts"]
 margin_top = 31.0
-margin_right = 516.0
+margin_right = 490.0
 margin_bottom = 231.0
 rect_min_size = Vector2( 0, 200 )
 
 [node name="RichTextLabelDetails" type="RichTextLabel" parent="Panel/VBoxContainer/HBoxContent/VBoxContracts"]
 margin_top = 235.0
-margin_right = 516.0
+margin_right = 490.0
 margin_bottom = 459.0
 size_flags_vertical = 3
 text = "Select a contract to view details."
@@ -4423,6 +4352,147 @@ text = "CLOSE"
 
 [connection signal="pressed" from="Panel/VBoxMain/HBoxButtons/ButtonClose" to="." method="_on_ButtonClose_pressed"]
 
+--- Start of ./scenes/ui/screens/narrative_status_panel.tscn ---
+
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/core/ui/narrative_status/narrative_status_panel.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="NarrativeStatusPanel" type="Control"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.7 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -450.0
+margin_top = -300.0
+margin_right = 450.0
+margin_bottom = 300.0
+theme = ExtResource( 2 )
+
+[node name="VBoxMain" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+custom_constants/separation = 10
+
+[node name="HeaderLabel" type="Label" parent="Panel/VBoxMain"]
+margin_right = 860.0
+margin_bottom = 27.0
+text = "NARRATIVE STATUS"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxMain"]
+margin_top = 37.0
+margin_right = 860.0
+margin_bottom = 41.0
+
+[node name="ReputationLabel" type="Label" parent="Panel/VBoxMain"]
+margin_top = 51.0
+margin_right = 860.0
+margin_bottom = 78.0
+text = "Reputation: 0"
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxMain"]
+margin_top = 88.0
+margin_right = 860.0
+margin_bottom = 92.0
+
+[node name="SectionsContainer" type="HBoxContainer" parent="Panel/VBoxMain"]
+margin_top = 102.0
+margin_right = 860.0
+margin_bottom = 490.0
+size_flags_vertical = 3
+custom_constants/separation = 20
+
+[node name="FactionsColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
+margin_right = 270.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+
+[node name="LabelFactions" type="Label" parent="Panel/VBoxMain/SectionsContainer/FactionsColumn"]
+margin_right = 270.0
+margin_bottom = 27.0
+text = "FACTION STANDING"
+align = 1
+
+[node name="FactionContainer" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer/FactionsColumn"]
+margin_top = 31.0
+margin_right = 270.0
+margin_bottom = 31.0
+
+[node name="StatsColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
+margin_left = 290.0
+margin_right = 560.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+
+[node name="LabelStats" type="Label" parent="Panel/VBoxMain/SectionsContainer/StatsColumn"]
+margin_right = 270.0
+margin_bottom = 27.0
+text = "SECTOR STATISTICS"
+align = 1
+
+[node name="ContractsLabel" type="Label" parent="Panel/VBoxMain/SectionsContainer/StatsColumn"]
+margin_top = 31.0
+margin_right = 270.0
+margin_bottom = 58.0
+text = "Contracts Completed: 0"
+
+[node name="QuirksColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
+margin_left = 580.0
+margin_right = 860.0
+margin_bottom = 388.0
+size_flags_horizontal = 3
+
+[node name="LabelQuirks" type="Label" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
+margin_right = 280.0
+margin_bottom = 27.0
+text = "SHIP QUIRKS"
+align = 1
+
+[node name="QuirksContainer" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
+margin_top = 31.0
+margin_right = 280.0
+margin_bottom = 31.0
+
+[node name="ButtonDebugAddQuirk" type="Button" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
+margin_top = 35.0
+margin_right = 280.0
+margin_bottom = 55.0
+text = "Debug: Add Quirk"
+
+[node name="HBoxButtons" type="HBoxContainer" parent="Panel/VBoxMain"]
+margin_top = 500.0
+margin_right = 860.0
+margin_bottom = 540.0
+custom_constants/separation = 20
+alignment = 2
+
+[node name="ButtonClose" type="Button" parent="Panel/VBoxMain/HBoxButtons"]
+margin_left = 760.0
+margin_right = 860.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 100, 40 )
+text = "CLOSE"
+
+[connection signal="pressed" from="Panel/VBoxMain/HBoxButtons/ButtonClose" to="." method="_on_ButtonClose_pressed"]
+[connection signal="pressed" from="Panel/VBoxMain/SectionsContainer/QuirksColumn/ButtonDebugAddQuirk" to="." method="_on_ButtonDebugAddQuirk_pressed"]
+
 --- Start of ./src/tests/helpers/mock_agent.tscn ---
 
 [gd_scene load_steps=2 format=2]
@@ -4431,5 +4501,6 @@ text = "CLOSE"
 
 [node name="MockAgent" type="Spatial"]
 
-[node name="AgentBody" type="KinematicBody" parent="."]
+[node name="AgentBody" type="RigidBody" parent="."]
 script = ExtResource( 1 )
+gravity_scale = 0.0

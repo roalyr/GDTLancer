@@ -482,14 +482,18 @@ hull_integrity = 100
 armor_integrity = 100
 cargo_capacity = 100
 interaction_radius = 15.0
-ship_quirks = []
-ship_upgrades = []
-max_move_speed = 300.0
-acceleration = 0.5
-deceleration = 0.5
-max_turn_speed = 0.75
+ship_quirks = [  ]
+ship_upgrades = [  ]
+weapon_slots_small = 2
+weapon_slots_medium = 0
+weapon_slots_large = 0
+equipped_weapons = [ "weapon_ablative_laser" ]
+power_capacity = 100.0
+power_regen = 10.0
+mass = 60000.0
+linear_thrust = 5e+06
+angular_thrust = 5e+06
 alignment_threshold_angle_deg = 45.0
-equipped_weapons = ["weapon_ablative_laser"]
 
 --- Start of ./database/registry/assets/ships/ship_hostile_default.tres ---
 
@@ -507,14 +511,18 @@ hull_integrity = 50
 armor_integrity = 25
 cargo_capacity = 10
 interaction_radius = 15.0
-ship_quirks = []
-ship_upgrades = []
-max_move_speed = 280.0
-acceleration = 0.55
-deceleration = 0.55
-max_turn_speed = 1.0
-alignment_threshold_angle_deg = 30.0
-equipped_weapons = ["weapon_ablative_laser"]
+ship_quirks = [  ]
+ship_upgrades = [  ]
+weapon_slots_small = 2
+weapon_slots_medium = 0
+weapon_slots_large = 0
+equipped_weapons = [ "weapon_ablative_laser" ]
+power_capacity = 100.0
+power_regen = 10.0
+mass = 60000.0
+linear_thrust = 5e+06
+angular_thrust = 5e+06
+alignment_threshold_angle_deg = 45.0
 
 --- Start of ./database/registry/characters/character_default.tres ---
 
@@ -846,6 +854,51 @@ available_services = [ "trade", "contracts", "black_market" ]
 controlling_faction_id = "faction_independents"
 danger_level = 4
 available_contract_ids = [ "delivery_05", "delivery_06" ]
+
+--- Start of ./database/registry/quirks/quirk_damaged_sensor_array.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "quirk_damaged_sensor_array"
+display_name = "Damaged Sensor Array"
+description = "Sensors are miscalibrated or damaged. Scan range and accuracy reduced."
+effect_type = "sensor_range_penalty"
+effect_value = 0.5
+source_category = "combat"
+
+--- Start of ./database/registry/quirks/quirk_hull_stress_fracture.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "quirk_hull_stress_fracture"
+display_name = "Hull Stress Fracture"
+description = "Micro-fractures in the hull integrity. Maximum hull integrity reduced."
+effect_type = "max_hull_reduction"
+effect_value = 20.0
+source_category = "combat"
+
+--- Start of ./database/registry/quirks/quirk_jammed_landing_gear.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "quirk_jammed_landing_gear"
+display_name = "Jammed Landing Gear"
+description = "The landing gear deployment mechanism is damaged. Docking maneuvers are riskier."
+effect_type = "maneuver_penalty"
+effect_value = 0.2
+source_category = "piloting"
 
 --- Start of ./database/registry/weapons/weapon_ablative_laser.tres ---
 

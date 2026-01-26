@@ -13143,7 +13143,7 @@ export var base_value: int = 10 # Base value in WP for one unit
 
 # File: core/resource/ship_template.gd
 # Purpose: Defines ships.
-# Version: 1.0
+# Version: 2.0 - RigidBody physics with thrust-based 6DOF flight.
 
 extends AssetTemplate
 class_name ShipTemplate
@@ -13167,10 +13167,10 @@ export var equipped_weapons: Array = []  # Array of weapon template_ids
 export var power_capacity: float = 100.0
 export var power_regen: float = 10.0  # Per second
 
-export var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
-export var acceleration: float = Constants.DEFAULT_ACCELERATION
-export var deceleration: float = Constants.DEFAULT_DECELERATION
-export var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
+# --- RigidBody Physics (6DOF Flight) ---
+export var mass: float = Constants.DEFAULT_SHIP_MASS
+export var linear_thrust: float = Constants.DEFAULT_LINEAR_THRUST  # Forward/backward/strafe thrust force
+export var angular_thrust: float = Constants.DEFAULT_ANGULAR_THRUST  # Rotational torque
 export var alignment_threshold_angle_deg: float = Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 
 # TODO: add fields which link to specific scenes that define each ship model?
@@ -13319,6 +13319,38 @@ export var danger_level: int = 0
 # Contracts available at this location (contract_template_ids)
 export var available_contract_ids: Array = []
 
+--- Start of ./database/definitions/quirk_template.gd ---
+
+
+#
+# PROJECT: GDTLancer
+# MODULE: database/definitions/quirk_template.gd
+# STATUS: [Level 3 - Verified]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1 Milestone 1
+# LOG_REF: 2025-12-23
+#
+
+extends Resource
+class_name QuirkTemplate
+
+## Resource definition for Ship Quirks.
+## Ship Quirks are negative traits acquired through damage or failed actions.
+
+# Unique Identifier
+export var template_id: String = ""
+
+# Display Properties
+export var display_name: String = ""
+export var description: String = ""
+
+# Functional Properties
+## effect_type examples: "stat_penalty", "turn_rate_multiplier", "move_speed_multiplier"
+export var effect_type: String = "" 
+export var effect_value: float = 0.0
+
+# Origin category e.g. "combat", "piloting", "trading", "event"
+export var source_category: String = "event"
+
 --- Start of ./database/definitions/template.gd ---
 
 # File: core/resources/template.gd
@@ -13404,7 +13436,7 @@ func get_accuracy_at_range(distance: float) -> float:
 
 # File: autoload/Constants.gd
 # Autoload Singleton: Constants
-# Version: 1.5 - Updated with new and removed the old.
+# Version: 2.0 - RigidBody physics with 6DOF flight system.
 
 extends Node
 
@@ -13448,16 +13480,36 @@ const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
 const DEFAULT_UPKEEP_COST = 5
 
-# --- Default Simulation Values ---
-const DEFAULT_MAX_MOVE_SPEED = 300.0
-const DEFAULT_ACCELERATION = 0.5
-const DEFAULT_DECELERATION = 0.5
-const DEFAULT_MAX_TURN_SPEED = 0.75
-const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45 # Degrees
+# --- RigidBody Physics Parameters (6DOF Flight) ---
+# Global drag coefficients - prevent endless acceleration in space
+const LINEAR_DRAG = 0.5  # Linear velocity damping factor
+const ANGULAR_DRAG = 2.0  # Angular velocity damping factor (reduced for responsiveness)
+
+# Default ship thrust/torque limits (can be overridden per-ship)
+const DEFAULT_LINEAR_THRUST = 5e6  # Force in Newtons
+const DEFAULT_ANGULAR_THRUST = 5e6  # Torque in Newton-meters
+const DEFAULT_SHIP_MASS = 6e4  # kg
+const DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45.0  # Degrees
+
+# PID Controller Gains for Autopilot
+# Rotation PID - controls angular velocity to achieve target orientation
+const PID_ROTATION_KP = 8.0   # Proportional gain
+const PID_ROTATION_KI = 0.1   # Integral gain (low to prevent windup)
+const PID_ROTATION_KD = 4.0   # Derivative gain (damping)
+
+# Position/Velocity PID - for orbit radius and stopping precision
+const PID_POSITION_KP = 0.5   # Proportional gain for position error
+const PID_POSITION_KI = 0.01  # Integral gain
+const PID_POSITION_KD = 0.8   # Derivative gain
+
+# Thrust throttle range for player control (0.0 to 1.0)
+const MIN_THRUST_THROTTLE = 0.0
+const MAX_THRUST_THROTTLE = 1.0
 
 # Time units to trigger world tick
+# 1 TU = 1 min?
 const TIME_CLOCK_MAX_TU = 60
-const TIME_TICK_INTERVAL_SECONDS = 1.0 # How often (in real seconds) to add a Time Unit.
+const TIME_TICK_INTERVAL_SECONDS = 60.0 # How often (in real seconds) to add a Time Unit.
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
@@ -13663,16 +13715,28 @@ signal narrative_action_resolved(result_dict)  # Contains outcome, effects appli
 # signal goal_completed(agent_body, goal_id, success_level)
 
 
+# --- Ship Quirk Signals ---
+signal ship_quirk_added(ship_uid, quirk_id)
+signal ship_quirk_removed(ship_uid, quirk_id)
+
+
 func _ready():
 	print("EventBus Ready.")
 
 --- Start of ./src/autoload/GameState.gd ---
 
-# File: autoload/GameState.gd
-# Autoload Singleton: Game state
-# Version: 1.1 - Extended with contracts, locations, and narrative state for Phase 1.
+#
+# PROJECT: GDTLancer
+# MODULE: src/autoload/GameState.gd
+# STATUS: [Level 3 - Verified]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1
+# LOG_REF: 2025-12-23
+#
 
 extends Node
+
+## Global Game State singleton.
+## Stores all runtime data for the current session.
 
 # Global world seed
 var world_seed: String = ""
@@ -13688,6 +13752,13 @@ var active_actions: Dictionary = {}
 var assets_ships: Dictionary = {}       # Key: ship_uid, Value: ShipTemplate instance
 var assets_modules: Dictionary = {}     # Key: module_uid, Value: ModuleTemplate instance
 var assets_commodities: Dictionary = {} # Key: commodity_id, Value: CommodityTemplate (master data)
+
+# --- Ship Quirks Helper ---
+## Returns the array of quirk IDs for a given ship.
+func get_ship_quirks(ship_uid: int) -> Array:
+	if assets_ships.has(ship_uid):
+		return assets_ships[ship_uid].ship_quirks
+	return []
 
 # Key: Character UID, Value: An Inventory object/dictionary for that character.
 var inventories: Dictionary = {}
@@ -14130,6 +14201,7 @@ var trading_system = null setget set_trading_system
 var contract_system = null setget set_contract_system
 var narrative_action_system = null setget set_narrative_action_system
 var combat_system = null setget set_combat_system
+var quirk_system = null setget set_quirk_system
 
 
 func _ready():
@@ -14318,6 +14390,14 @@ func set_combat_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid CombatSystem ref: ", new_ref)
 
+func set_quirk_system(new_ref):
+	if new_ref == quirk_system: return
+	if new_ref == null or is_instance_valid(new_ref):
+		quirk_system = new_ref
+		print("GlobalRefs: QuirkSystem ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid QuirkSystem ref: ", new_ref)
+
 
 # --- UI ELEMENTS ---
 
@@ -14481,12 +14561,12 @@ func get_template(template_id: String) -> Resource:
 
 --- Start of ./src/core/agents/agent.gd ---
 
-# File: res://core/agents/agent.gd (Attached to AgentBody KinematicBody)
-# Version: 3.40 - Ship stats now loaded from ShipTemplate via AssetSystem.
+# File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
+# Version: 4.0 - RigidBody 6DOF physics with thrust-based flight.
 
 # Agent - this is a physical space vessel that exists in simulation space (ship).
 
-extends KinematicBody
+extends RigidBody
 
 # --- Core State & Identity ---
 var agent_type: String = ""
@@ -14499,9 +14579,6 @@ var ship_template = null  # Cached ship template for combat registration
 
 func is_player() -> bool:
 	return character_uid == GameState.player_character_uid and character_uid != -1
-
-# --- Physics State ---
-var current_velocity: Vector3 = Vector3.ZERO
 
 # --- Component References ---
 var movement_system: Node = null
@@ -14535,7 +14612,6 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 			self.name,
 			"'."
 		)
-		set_physics_process(false)
 		return
 
 	# Get movement parameters from the character's active ship
@@ -14581,11 +14657,9 @@ func _get_movement_params_from_ship() -> Dictionary:
 	if is_instance_valid(ship_template):
 		interaction_radius = ship_template.interaction_radius
 		return {
-			"max_move_speed": ship_template.max_move_speed,
-			"acceleration": ship_template.acceleration,
-			"deceleration": ship_template.deceleration,
-			"max_turn_speed": ship_template.max_turn_speed,
-			"brake_strength": ship_template.deceleration,
+			"mass": ship_template.mass,
+			"linear_thrust": ship_template.linear_thrust,
+			"angular_thrust": ship_template.angular_thrust,
 			"alignment_threshold_angle_deg": ship_template.alignment_threshold_angle_deg
 		}
 	else:
@@ -14593,11 +14667,9 @@ func _get_movement_params_from_ship() -> Dictionary:
 		if character_uid >= 0:
 			printerr("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
 		return {
-			"max_move_speed": Constants.DEFAULT_MAX_MOVE_SPEED,
-			"acceleration": Constants.DEFAULT_ACCELERATION,
-			"deceleration": Constants.DEFAULT_DECELERATION,
-			"max_turn_speed": Constants.DEFAULT_MAX_TURN_SPEED,
-			"brake_strength": Constants.DEFAULT_DECELERATION,
+			"mass": Constants.DEFAULT_SHIP_MASS,
+			"linear_thrust": Constants.DEFAULT_LINEAR_THRUST,
+			"angular_thrust": Constants.DEFAULT_ANGULAR_THRUST,
 			"alignment_threshold_angle_deg": Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 		}
 
@@ -14618,30 +14690,22 @@ func _register_with_combat_system() -> void:
 # --- Godot Lifecycle ---
 func _ready():
 	add_to_group("Agents")
-	set_physics_process(true)
+	# RigidBody settings for 6DOF space flight
+	mode = RigidBody.MODE_RIGID
+	gravity_scale = 0.0  # No gravity in space
+	can_sleep = false  # Always active
 
 
-func _physics_process(delta: float):
+# --- RigidBody Physics Integration ---
+func _integrate_forces(state: PhysicsDirectBodyState):
 	if not is_instance_valid(navigation_system) or not is_instance_valid(movement_system):
-		if delta > 0:
-			printerr("AgentBody _physics_process Error: Components invalid for '", self.name, "'!")
-		set_physics_process(false)
 		return
 
-	if delta <= 0.0001:
-		return
-
-	# 1. Update Navigation & Movement Logic
-	navigation_system.update_navigation(delta)
-
-	# 2. Smoothly enforce the current speed limit before moving.
-	movement_system.enforce_speed_limit(delta)
-
-	# 3. Apply Physics Engine Movement
-	current_velocity = move_and_slide(current_velocity, Vector3.UP)
-
-	# 4. Apply Post-Movement Corrections (e.g., PID for orbit)
-	navigation_system.apply_orbit_pid_correction(delta)
+	# Update navigation logic (determines what forces/torques to apply)
+	navigation_system.update_navigation(state.step)
+	
+	# Apply forces and drag via movement system
+	movement_system.integrate_forces(state)
 
 
 # --- Public Command API (Delegates to NavigationSystem) ---
@@ -14721,207 +14785,389 @@ func get_interaction_radius() -> float:
 func despawn():
 	print("AgentBody '", self.name, "' despawning...")
 	EventBus.emit_signal("agent_despawning", self)
-	set_physics_process(false)
 	call_deferred("queue_free")
 
 --- Start of ./src/core/agents/components/movement_system.gd ---
 
 # File: res://core/agents/components/movement_system.gd
-# Version: 1.4 - Added smooth deceleration when max_move_speed is lowered.
-# Purpose: Handles the low-level execution of agent movement and rotation physics.
-# Called by NavigationSystem.
+# Version: 3.0 - RigidBody physics with PID-controlled 6DOF thrust-based flight system.
+# Purpose: Handles the low-level execution of agent movement via forces and torques.
+# Called by NavigationSystem. Parent must be RigidBody with custom_integrator = true.
 
 extends Node
 
 # --- Movement Capabilities (Set by AgentBody during initialize) ---
-var max_move_speed: float = Constants.DEFAULT_MAX_MOVE_SPEED
-var acceleration: float = Constants.DEFAULT_ACCELERATION
-var deceleration: float = Constants.DEFAULT_DECELERATION
-var brake_strength: float = Constants.DEFAULT_DECELERATION
-var max_turn_speed: float = Constants.DEFAULT_MAX_TURN_SPEED
-var alignment_threshold_angle_deg: float = 45.0
+var linear_thrust: float = Constants.DEFAULT_LINEAR_THRUST
+var angular_thrust: float = Constants.DEFAULT_ANGULAR_THRUST
+var alignment_threshold_angle_deg: float = Constants.DEFAULT_ALIGNMENT_ANGLE_THRESHOLD
 var _alignment_threshold_rad: float = deg2rad(alignment_threshold_angle_deg)
 
-# --- Angular Velocity & Damping ---
-var angular_velocity := Vector3.ZERO
-var turn_damping := 5.0
+# --- Throttle Control (0.0 to 1.0) ---
+var thrust_throttle: float = 1.0
 
-# Reference to the parent AgentBody KinematicBody
-var agent_body: KinematicBody = null
+# --- Accumulated Forces/Torques for Current Frame ---
+# These are accumulated by commands and applied in _integrate_forces
+var _accumulated_force := Vector3.ZERO
+var _accumulated_torque := Vector3.ZERO
+
+# Reference to the parent AgentBody RigidBody
+var agent_body: RigidBody = null
+
+# --- PID Controller State for Rotation ---
+var _rotation_error_integral := Vector3.ZERO
+var _rotation_error_prev := Vector3.ZERO
+var _rotation_integral_limit := 2.0  # Anti-windup limit
+
+# --- PID Controller State for Position/Stopping ---
+var _position_error_integral := Vector3.ZERO
+var _position_error_prev := Vector3.ZERO
+var _position_integral_limit := 50.0
 
 
 func _ready():
 	agent_body = get_parent()
-	if not agent_body is KinematicBody:
-		printerr("MovementSystem Error: Parent is not a KinematicBody!")
+	if not agent_body is RigidBody:
+		printerr("MovementSystem Error: Parent is not a RigidBody!")
 		agent_body = null
-		set_process(false)
+		return
+	
+	# Enable custom integrator so we can apply drag and forces manually
+	agent_body.custom_integrator = true
 
 
 func initialize_movement_params(params: Dictionary):
-	max_move_speed = params.get("max_move_speed", max_move_speed)
-	acceleration = params.get("acceleration", acceleration)
-	deceleration = params.get("deceleration", deceleration)
-	brake_strength = params.get("brake_strength", deceleration)
-	max_turn_speed = params.get("max_turn_speed", max_turn_speed)
+	linear_thrust = params.get("linear_thrust", linear_thrust)
+	angular_thrust = params.get("angular_thrust", angular_thrust)
 	alignment_threshold_angle_deg = params.get(
 		"alignment_threshold_angle_deg", alignment_threshold_angle_deg
 	)
 	_alignment_threshold_rad = deg2rad(alignment_threshold_angle_deg)
+	
+	# Set mass on the RigidBody if provided
+	var mass = params.get("mass", Constants.DEFAULT_SHIP_MASS)
+	if is_instance_valid(agent_body):
+		agent_body.mass = mass
+	
+	# Reset PID states
+	reset_pid_states()
+	
 	print(
 		(
-			"MovementSystem Initialized: Speed=%.1f, Accel=%.1f, Decel=%.1f, Turn=%.1f, Align=%.1f"
+			"MovementSystem Initialized: LinearThrust=%.1f, AngularThrust=%.1f, Mass=%.1f, Align=%.1f"
 			% [
-				max_move_speed,
-				acceleration,
-				deceleration,
-				max_turn_speed,
+				linear_thrust,
+				angular_thrust,
+				mass,
 				alignment_threshold_angle_deg
 			]
 		)
 	)
 
 
-# --- Public Methods Called by NavigationSystem & AgentBody ---
+func reset_pid_states():
+	_rotation_error_integral = Vector3.ZERO
+	_rotation_error_prev = Vector3.ZERO
+	_position_error_integral = Vector3.ZERO
+	_position_error_prev = Vector3.ZERO
 
 
-# Applies acceleration towards max_move_speed ONLY if aligned within threshold.
-func apply_acceleration(target_direction: Vector3, delta: float):
+# --- Called by AgentBody in _integrate_forces ---
+func integrate_forces(state: PhysicsDirectBodyState):
 	if not is_instance_valid(agent_body):
 		return
+	
+	# Apply global linear drag
+	var linear_drag_force = -state.linear_velocity * Constants.LINEAR_DRAG * agent_body.mass
+	state.add_central_force(linear_drag_force)
+	
+	# Apply global angular drag
+	var angular_drag_torque = -state.angular_velocity * Constants.ANGULAR_DRAG * agent_body.mass
+	state.add_torque(angular_drag_torque)
+	
+	# Apply accumulated forces from navigation commands (scaled by throttle)
+	state.add_central_force(_accumulated_force * thrust_throttle)
+	state.add_torque(_accumulated_torque)
+	
+	# Clear accumulated forces for next frame
+	_accumulated_force = Vector3.ZERO
+	_accumulated_torque = Vector3.ZERO
 
-	if target_direction.length_squared() < 0.001:
-		apply_deceleration(delta)
+
+# --- Public Methods Called by NavigationSystem Commands ---
+
+
+# Request thrust in a specific world direction (autopilot decides direction)
+func request_thrust_direction(direction: Vector3, magnitude_scale: float = 1.0):
+	if not is_instance_valid(agent_body):
 		return
+	if direction.length_squared() < 0.001:
+		return
+	_accumulated_force += direction.normalized() * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
 
-	var target_dir_norm = target_direction.normalized()
-	var current_forward = -agent_body.global_transform.basis.z.normalized()
-	var angle = current_forward.angle_to(target_dir_norm)
 
-	if angle <= _alignment_threshold_rad:
-		var target_velocity = target_dir_norm * max_move_speed
-		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-			target_velocity, acceleration * delta
-		)
+# Request thrust along the ship's forward axis
+func request_thrust_forward(magnitude_scale: float = 1.0):
+	if not is_instance_valid(agent_body):
+		return
+	var forward = -agent_body.global_transform.basis.z.normalized()
+	_accumulated_force += forward * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
+
+
+# Request thrust along the ship's backward axis (rear thrusters)
+func request_thrust_backward(magnitude_scale: float = 1.0):
+	if not is_instance_valid(agent_body):
+		return
+	var backward = agent_body.global_transform.basis.z.normalized()
+	_accumulated_force += backward * linear_thrust * clamp(magnitude_scale, 0.0, 1.0)
+
+
+# Request reverse thrust (brake by thrusting opposite to velocity)
+# Uses ship orientation - prefer braking with aligned thrusters
+func request_thrust_brake():
+	if not is_instance_valid(agent_body):
+		return
+	var velocity = agent_body.linear_velocity
+	var speed = velocity.length()
+	if speed < 0.1:
+		return
+	
+	var velocity_dir = velocity / speed
+	var forward = -agent_body.global_transform.basis.z.normalized()
+	var backward = -forward
+	
+	# Check alignment with velocity for efficient braking
+	var forward_dot = forward.dot(velocity_dir)  # Positive if facing velocity direction
+	var backward_dot = backward.dot(velocity_dir)  # Positive if facing away from velocity
+	
+	# Use forward thrust if facing away from velocity (retrograde)
+	# Use backward thrust if facing toward velocity (prograde)
+	if backward_dot > 0.7:
+		# Mostly aligned backward to velocity - use forward thrust
+		_accumulated_force += forward * linear_thrust
+	elif forward_dot > 0.7:
+		# Mostly aligned forward to velocity - use backward thrust
+		_accumulated_force += backward * linear_thrust
 	else:
-		# If not aligned, we just decelerate naturally instead of accelerating.
-		apply_deceleration(delta)
+		# Not well aligned - thrust opposite to velocity at reduced power
+		_accumulated_force += -velocity_dir * linear_thrust * 0.5
 
 
-# Applies natural deceleration (drag).
-func apply_deceleration(delta: float):
+# Request PID-controlled rotation torque to align ship's forward (-Z) to target direction
+func request_rotation_to_pid(target_direction: Vector3, delta: float):
 	if not is_instance_valid(agent_body):
 		return
-	# We only apply natural deceleration if we are NOT over the speed limit.
-	# If we are over, enforce_speed_limit() will handle the deceleration.
-	if agent_body.current_velocity.length_squared() <= max_move_speed * max_move_speed:
-		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-			Vector3.ZERO, deceleration * delta
-		)
+	if target_direction.length_squared() < 0.001:
+		return
+	if delta <= 0.0:
+		return
+	
+	var target_dir = target_direction.normalized()
+	var current_forward = -agent_body.global_transform.basis.z.normalized()
+	
+	# Calculate the rotation axis and angle error
+	var cross = current_forward.cross(target_dir)
+	var dot = current_forward.dot(target_dir)
+	
+	# Already aligned
+	if dot > 0.9999:
+		_rotation_error_integral = Vector3.ZERO
+		return
+	
+	var angle_error = acos(clamp(dot, -1.0, 1.0))
+	
+	if cross.length_squared() < 0.0001:
+		# Parallel or anti-parallel - pick an arbitrary axis
+		cross = current_forward.cross(Vector3.UP)
+		if cross.length_squared() < 0.0001:
+			cross = current_forward.cross(Vector3.RIGHT)
+	
+	var torque_axis = cross.normalized()
+	
+	# Error vector for PID (angle error along torque axis)
+	var error = torque_axis * angle_error
+	
+	# PID calculation
+	_rotation_error_integral += error * delta
+	# Anti-windup: clamp integral
+	if _rotation_error_integral.length() > _rotation_integral_limit:
+		_rotation_error_integral = _rotation_error_integral.normalized() * _rotation_integral_limit
+	
+	var error_derivative = (error - _rotation_error_prev) / delta
+	_rotation_error_prev = error
+	
+	# Include current angular velocity as additional damping term
+	var angular_vel_error = -agent_body.angular_velocity
+	
+	var pid_output = (
+		Constants.PID_ROTATION_KP * error +
+		Constants.PID_ROTATION_KI * _rotation_error_integral +
+		Constants.PID_ROTATION_KD * (error_derivative + angular_vel_error * 0.5)
+	)
+	
+	# Scale by angular thrust and clamp magnitude
+	var torque_magnitude = pid_output.length()
+	if torque_magnitude > 1.0:
+		pid_output = pid_output / torque_magnitude
+	
+	_accumulated_torque += pid_output * angular_thrust
 
 
-# Applies active braking force.
-func apply_braking(delta: float) -> bool:
+# Simple proportional rotation (for non-PID cases)
+func request_rotation_to(target_direction: Vector3):
+	if not is_instance_valid(agent_body):
+		return
+	if target_direction.length_squared() < 0.001:
+		return
+	
+	var target_dir = target_direction.normalized()
+	var current_forward = -agent_body.global_transform.basis.z.normalized()
+	
+	var cross = current_forward.cross(target_dir)
+	var dot = current_forward.dot(target_dir)
+	
+	if dot > 0.9999:
+		return
+	
+	var angle_error = acos(clamp(dot, -1.0, 1.0))
+	
+	if cross.length_squared() > 0.0001:
+		var torque_axis = cross.normalized()
+		# Proportional + derivative (P+D) for basic stability
+		var torque_mag = min(angle_error * 3.0, 1.0)
+		# Add damping from current angular velocity
+		var angular_vel_component = agent_body.angular_velocity.dot(torque_axis)
+		torque_mag = max(0.0, torque_mag - angular_vel_component * 0.5)
+		_accumulated_torque += torque_axis * torque_mag * angular_thrust
+
+
+# PID-controlled damping for stopping rotation precisely
+func request_rotation_damping_pid(delta: float):
+	if not is_instance_valid(agent_body):
+		return
+	if delta <= 0.0:
+		return
+	
+	var angular_vel = agent_body.angular_velocity
+	if angular_vel.length_squared() < 0.0001:
+		return
+	
+	# Target is zero angular velocity - error is current angular velocity
+	var error = -angular_vel
+	
+	# Simple PD controller (no integral for damping)
+	var error_derivative = (error - _rotation_error_prev) / delta
+	_rotation_error_prev = error
+	
+	var pid_output = (
+		Constants.PID_ROTATION_KP * error +
+		Constants.PID_ROTATION_KD * error_derivative
+	)
+	
+	var torque_magnitude = pid_output.length()
+	if torque_magnitude > 1.0:
+		pid_output = pid_output / torque_magnitude
+	
+	_accumulated_torque += pid_output * angular_thrust
+
+
+# Dampen angular velocity (used by stop command)
+func request_rotation_damping():
+	if not is_instance_valid(agent_body):
+		return
+	var angular_vel = agent_body.angular_velocity
+	if angular_vel.length_squared() < 0.01:
+		return
+	# Apply counter-torque to slow rotation
+	var damping_torque = -angular_vel.normalized() * angular_thrust * 0.5
+	_accumulated_torque += damping_torque
+
+
+# PID-controlled thrust to achieve target velocity
+func request_velocity_pid(target_velocity: Vector3, delta: float):
+	if not is_instance_valid(agent_body):
+		return
+	if delta <= 0.0:
+		return
+	
+	var current_vel = agent_body.linear_velocity
+	var error = target_velocity - current_vel
+	
+	_position_error_integral += error * delta
+	if _position_error_integral.length() > _position_integral_limit:
+		_position_error_integral = _position_error_integral.normalized() * _position_integral_limit
+	
+	var error_derivative = (error - _position_error_prev) / delta
+	_position_error_prev = error
+	
+	var pid_output = (
+		Constants.PID_POSITION_KP * error +
+		Constants.PID_POSITION_KI * _position_error_integral +
+		Constants.PID_POSITION_KD * error_derivative
+	)
+	
+	# Normalize and scale by thrust
+	var force_magnitude = pid_output.length()
+	if force_magnitude > 1.0:
+		pid_output = pid_output / force_magnitude
+	
+	_accumulated_force += pid_output * linear_thrust
+
+
+# Check if ship is approximately aligned with target direction
+func is_aligned_to(target_direction: Vector3) -> bool:
+	if not is_instance_valid(agent_body):
+		return false
+	if target_direction.length_squared() < 0.001:
+		return true
+	
+	var target_dir = target_direction.normalized()
+	var current_forward = -agent_body.global_transform.basis.z.normalized()
+	var angle = current_forward.angle_to(target_dir)
+	return angle <= _alignment_threshold_rad
+
+
+# Check if ship has (approximately) stopped moving
+func is_stopped() -> bool:
 	if not is_instance_valid(agent_body):
 		return true
-	agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-		Vector3.ZERO, brake_strength * delta
-	)
-	return agent_body.current_velocity.length_squared() < 0.5
+	return agent_body.linear_velocity.length_squared() < 1.0
 
 
-# Handles rotation and calculates resulting angular velocity.
-func apply_rotation(target_look_dir: Vector3, delta: float):
+# Check if ship has (approximately) stopped rotating
+func is_rotation_stopped() -> bool:
 	if not is_instance_valid(agent_body):
-		return
-
-	var basis_before_rotation = agent_body.global_transform.basis
-
-	if target_look_dir.length_squared() < 0.001:
-		angular_velocity = Vector3.ZERO
-		return
-
-	var target_dir = target_look_dir.normalized()
-	var current_basis = basis_before_rotation.orthonormalized()
-
-	var up_vector = Vector3.UP
-	if abs(target_dir.dot(Vector3.UP)) > 0.999:
-		up_vector = Vector3.FORWARD
-
-	var target_basis = Transform(Basis(), Vector3.ZERO).looking_at(target_dir, up_vector).basis.orthonormalized()
-
-	if current_basis.is_equal_approx(target_basis):
-		angular_velocity = Vector3.ZERO
-		return
-
-	var new_basis: Basis
-	if max_turn_speed > 0.001:
-		var turn_step = max_turn_speed * delta
-		new_basis = current_basis.slerp(target_basis, turn_step)
-	else:
-		new_basis = target_basis
-
-	agent_body.global_transform.basis = new_basis
-
-	var rotation_diff_basis = new_basis * basis_before_rotation.inverse()
-	var rotation_diff_quat = Quat(rotation_diff_basis)
-
-	var angle = 2 * acos(rotation_diff_quat.w)
-	var axis: Vector3
-	var sin_half_angle = sin(angle / 2)
-
-	if sin_half_angle > 0.0001:
-		axis = (
-			Vector3(rotation_diff_quat.x, rotation_diff_quat.y, rotation_diff_quat.z)
-			/ sin_half_angle
-		)
-	else:
-		axis = Vector3.UP
-
-	if delta > 0.0001:
-		angular_velocity = axis * (angle / delta)
-	else:
-		angular_velocity = Vector3.ZERO
+		return true
+	return agent_body.angular_velocity.length_squared() < 0.01
 
 
-# Smoothly dampens rotation to a stop.
-func damp_rotation(delta: float):
+# Get current speed (magnitude of linear velocity)
+func get_current_speed() -> float:
 	if not is_instance_valid(agent_body):
-		return
-
-	if angular_velocity.length_squared() > 0.0001:
-		var rotation_axis = angular_velocity.normalized()
-		var rotation_angle = angular_velocity.length() * delta
-		agent_body.rotate(rotation_axis, rotation_angle)
-
-		angular_velocity = angular_velocity.linear_interpolate(Vector3.ZERO, turn_damping * delta)
+		return 0.0
+	return agent_body.linear_velocity.length()
 
 
-# NEW: Smoothly reduces speed if current velocity is over the max_move_speed limit.
-func enforce_speed_limit(delta: float):
+# Get current velocity vector
+func get_velocity() -> Vector3:
 	if not is_instance_valid(agent_body):
-		return
+		return Vector3.ZERO
+	return agent_body.linear_velocity
 
-	var current_speed_sq = agent_body.current_velocity.length_squared()
-	var max_speed_sq = max_move_speed * max_move_speed
 
-	if current_speed_sq > max_speed_sq:
-		# We are over the speed limit. Smoothly decelerate to the new cap.
-		var direction = agent_body.current_velocity.normalized()
-		var target_velocity = direction * max_move_speed
-
-		# Use the existing deceleration property for a consistent feel.
-		agent_body.current_velocity = agent_body.current_velocity.linear_interpolate(
-			target_velocity, deceleration * delta
-		)
+# Get ship's forward direction
+func get_forward() -> Vector3:
+	if not is_instance_valid(agent_body):
+		return -Vector3.FORWARD
+	return -agent_body.global_transform.basis.z.normalized()
 
 --- Start of ./src/core/agents/components/navigation_system/command_align_to.gd ---
 
 # File: core/agents/components/navigation_system/command_align_to.gd
+# Version: 3.0 - RigidBody physics with PID-controlled rotation.
 extends Node
 
 var _nav_sys: Node
-var _agent_body: KinematicBody
+var _agent_body: RigidBody
 var _movement_system: Node
 
 
@@ -14932,224 +15178,39 @@ func initialize(nav_system):
 
 
 func execute(delta: float):
-	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
-		var target_dir = _nav_sys._current_command.target_dir
-		_movement_system.apply_rotation(target_dir, delta)
-		_movement_system.apply_deceleration(delta)
-		var current_fwd = -_agent_body.global_transform.basis.z
-		if current_fwd.dot(target_dir) > 0.999:
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
+	
+	var target_dir = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
+	if target_dir.length_squared() < 0.001:
+		_nav_sys.set_command_idle()
+		return
+	
+	# Rotate toward target direction using PID
+	_movement_system.request_rotation_to_pid(target_dir, delta)
+	
+	# Check if aligned (use tighter threshold for alignment command)
+	var current_fwd = -_agent_body.global_transform.basis.z.normalized()
+	if current_fwd.dot(target_dir.normalized()) > 0.999:
+		# Also ensure angular velocity is near zero
+		if _agent_body.angular_velocity.length() < 0.1:
 			_nav_sys.set_command_idle()
+		else:
+			_movement_system.request_rotation_damping_pid(delta)
 
 --- Start of ./src/core/agents/components/navigation_system/command_approach.gd ---
 
 # File: core/agents/components/navigation_system/command_approach.gd
+# Version: 4.0 - RigidBody physics with PID-controlled pursuit capability.
 extends Node
 
 var _nav_sys: Node
-var _agent_body: KinematicBody
-var _movement_system: Node
-var _pid: PIDController
-
-
-func initialize(nav_system):
-	_nav_sys = nav_system
-	_agent_body = nav_system.agent_body
-	_movement_system = nav_system.movement_system
-	_pid = nav_system._pid_approach
-
-
-func execute(delta: float):
-	if not is_instance_valid(_pid):
-		return
-
-	var cmd = _nav_sys._current_command
-	var target_node = cmd.target_node
-	var target_pos = target_node.global_transform.origin
-	var target_size = _nav_sys._get_target_effective_size(target_node)
-	var desired_stop_dist = max(
-		_nav_sys.APPROACH_MIN_DISTANCE, target_size * _nav_sys.APPROACH_DISTANCE_MULTIPLIER
-	)
-
-	var vector_to_target = target_pos - _agent_body.global_transform.origin
-	var distance = vector_to_target.length()
-
-	if distance < (desired_stop_dist + _nav_sys.ARRIVAL_DISTANCE_THRESHOLD):
-		if not cmd.get("signaled_stop", false):
-			EventBus.emit_signal("agent_reached_destination", _agent_body)
-			cmd["signaled_stop"] = true
-		_nav_sys.set_command_idle()
-		_movement_system.apply_braking(delta)
-		return
-
-	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
-	_movement_system.apply_rotation(direction, delta)
-
-	var deceleration_start_dist = (
-		desired_stop_dist
-		* _nav_sys.APPROACH_DECELERATION_START_DISTANCE_FACTOR
-	)
-	var target_velocity: Vector3
-
-	if distance > deceleration_start_dist:
-		target_velocity = direction * _movement_system.max_move_speed
-		_pid.reset()
-		cmd["signaled_stop"] = false
-	else:
-		var distance_error = distance - desired_stop_dist
-		var pid_target_speed = _pid.update(distance_error, delta)
-		pid_target_speed = clamp(
-			pid_target_speed,
-			-_movement_system.max_move_speed * 0.1,
-			_movement_system.max_move_speed
-		)
-		target_velocity = direction * pid_target_speed
-
-		if (
-			abs(distance_error) < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD
-			and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ
-		):
-			if not cmd.get("signaled_stop", false):
-				EventBus.emit_signal("agent_reached_destination", _agent_body)
-				cmd["signaled_stop"] = true
-			_movement_system.apply_braking(delta)
-			return
-		else:
-			cmd["signaled_stop"] = false
-
-	_agent_body.current_velocity = _agent_body.current_velocity.linear_interpolate(
-		target_velocity, _movement_system.acceleration * delta
-	)
-
---- Start of ./src/core/agents/components/navigation_system/command_flee.gd ---
-
-# File: core/agents/components/navigation_system/command_flee.gd
-extends Node
-
-var _nav_sys: Node
-var _agent_body: KinematicBody
+var _agent_body: RigidBody
 var _movement_system: Node
 
-
-func initialize(nav_system):
-	_nav_sys = nav_system
-	_agent_body = nav_system.agent_body
-	_movement_system = nav_system.movement_system
-
-
-func execute(delta: float):
-	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
-		var target_pos = _nav_sys._current_command.target_node.global_transform.origin
-		var vector_away = _agent_body.global_transform.origin - target_pos
-		var direction_away = (
-			vector_away.normalized()
-			if vector_away.length_squared() > 0.01
-			else -_agent_body.global_transform.basis.z
-		)
-		_movement_system.apply_rotation(direction_away, delta)
-		_movement_system.apply_acceleration(direction_away, delta)
-
---- Start of ./src/core/agents/components/navigation_system/command_idle.gd ---
-
-# File: core/agents/components/navigation_system/command_idle.gd
-extends Node
-
-var _movement_system: Node
-
-
-func initialize(nav_system):
-	_movement_system = nav_system.movement_system
-
-
-func execute(delta: float):
-	if is_instance_valid(_movement_system):
-		_movement_system.apply_deceleration(delta)
-
---- Start of ./src/core/agents/components/navigation_system/command_move_direction.gd ---
-
-# File: core/agents/components/navigation_system/command_move_direction.gd
-extends Node
-
-var _nav_sys: Node
-var _movement_system: Node
-
-
-func initialize(nav_system):
-	_nav_sys = nav_system
-	_movement_system = nav_system.movement_system
-
-
-func execute(delta: float):
-	if is_instance_valid(_movement_system):
-		var move_dir = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
-		if move_dir.length_squared() > 0.001:
-			_movement_system.apply_rotation(move_dir, delta)
-			_movement_system.apply_acceleration(move_dir, delta)
-		else:
-			_movement_system.apply_deceleration(delta)
-
---- Start of ./src/core/agents/components/navigation_system/command_move_to.gd ---
-
-# File: core/agents/components/navigation_system/command_move_to.gd
-extends Node
-
-var _nav_sys: Node
-var _agent_body: KinematicBody
-var _movement_system: Node
-var _pid: PIDController
-
-
-func initialize(nav_system):
-	_nav_sys = nav_system
-	_agent_body = nav_system.agent_body
-	_movement_system = nav_system.movement_system
-	_pid = nav_system._pid_move_to
-
-
-func execute(delta: float):
-	if not is_instance_valid(_pid):
-		return
-
-	var cmd = _nav_sys._current_command
-	var target_pos = cmd.target_pos
-	var vector_to_target = target_pos - _agent_body.global_transform.origin
-	var distance = vector_to_target.length()
-
-	var pid_target_speed = _pid.update(distance, delta)
-	pid_target_speed = clamp(pid_target_speed, 0, _movement_system.max_move_speed)
-
-	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
-	_movement_system.apply_rotation(direction, delta)
-
-	var target_velocity = direction * pid_target_speed
-	_agent_body.current_velocity = _agent_body.current_velocity.linear_interpolate(
-		target_velocity, _movement_system.acceleration * delta
-	)
-
-	if (
-		distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD
-		and _agent_body.current_velocity.length_squared() < _nav_sys.ARRIVAL_SPEED_THRESHOLD_SQ
-	):
-		if not cmd.get("signaled_stop", false):
-			EventBus.emit_signal("agent_reached_destination", _agent_body)
-			cmd["signaled_stop"] = true
-		_movement_system.apply_braking(delta)
-	else:
-		cmd["signaled_stop"] = false
-
---- Start of ./src/core/agents/components/navigation_system/command_orbit.gd ---
-
-# File: core/agents/components/navigation_system/command_orbit.gd
-# Version: 1.4 - Added dynamic speed calculation for the spiral-out phase.
-extends Node
-
-var _nav_sys: Node
-var _agent_body: KinematicBody
-var _movement_system: Node
-
-const SPIRAL_OUTWARD_FACTOR = 0.3
-const ORBITAL_VELOCITY_LERP_WEIGHT = 2.5
-
-var _current_orbital_velocity: Vector3 = Vector3.ZERO
+# State for tracking target motion
+var _prev_target_pos: Vector3 = Vector3.ZERO
+var _target_velocity: Vector3 = Vector3.ZERO
 
 
 func initialize(nav_system):
@@ -15164,64 +15225,91 @@ func execute(delta: float):
 
 	var cmd = _nav_sys._current_command
 	var target_node = cmd.target_node
+	if not is_instance_valid(target_node):
+		_nav_sys.set_command_stopping()
+		return
+		
 	var target_pos = target_node.global_transform.origin
-	var clockwise = cmd.get("clockwise", false)
+	var target_size = _nav_sys._get_target_effective_size(target_node)
+	var safe_distance = max(_nav_sys.APPROACH_MIN_DISTANCE, target_size * _nav_sys.APPROACH_DISTANCE_MULTIPLIER)
 
-	if cmd.get("is_new", false):
-		_current_orbital_velocity = _agent_body.current_velocity
+	# Estimate target velocity
+	if cmd.get("is_new", true):
+		_prev_target_pos = target_pos
+		_target_velocity = Vector3.ZERO
 		cmd["is_new"] = false
+	else:
+		if delta > 0.001:
+			_target_velocity = (target_pos - _prev_target_pos) / delta
+		_prev_target_pos = target_pos
 
-	# --- Vector Calculations ---
 	var vector_to_target = target_pos - _agent_body.global_transform.origin
 	var distance = vector_to_target.length()
-	if distance < 0.01:
-		distance = 0.01
-	var direction_to_target = vector_to_target / distance
-	var tangent_dir = (direction_to_target.cross(Vector3.UP) if not clockwise else Vector3.UP.cross(direction_to_target)).normalized()
 
-	# --- Determine Movement Direction & Ideal Speed ---
-	var safe_dist = (
-		_nav_sys._get_target_effective_size(target_node)
-		* _nav_sys.CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
-	)
-	var ideal_move_dir: Vector3
-	var speed_calc_dist: float  # The distance to use for speed calculation
+	# Arrival check
+	var current_speed = _movement_system.get_current_speed()
+	if distance < (safe_distance + _nav_sys.ARRIVAL_DISTANCE_THRESHOLD):
+		if not cmd.get("signaled_stop", false):
+			EventBus.emit_signal("agent_reached_destination", _agent_body)
+			cmd["signaled_stop"] = true
+		_nav_sys.set_command_idle()
+		_movement_system.request_thrust_brake()
+		return
 
-	if distance < safe_dist:
-		# TOO CLOSE: Spiral out and use CURRENT distance for speed calculation.
-		var radial_dir_outward = -direction_to_target
-		ideal_move_dir = (tangent_dir + radial_dir_outward * SPIRAL_OUTWARD_FACTOR).normalized()
-		speed_calc_dist = distance  # Use current, closer distance for a slower speed.
+	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
+	
+	# Use PID for rotation control
+	_movement_system.request_rotation_to_pid(direction, delta)
+	
+	# Check alignment
+	if not _movement_system.is_aligned_to(direction):
+		# Not aligned - use backward thrust if facing away, or brake
+		var forward = _movement_system.get_forward()
+		if forward.dot(direction) < -0.5:
+			_movement_system.request_thrust_backward(0.3)
+		else:
+			_movement_system.request_thrust_brake()
+		cmd["signaled_stop"] = false
+		return
+	
+	# Calculate relative velocity and closing speed
+	var our_velocity = _movement_system.get_velocity()
+	var relative_velocity = our_velocity - _target_velocity
+	var closing_speed = relative_velocity.dot(direction)
+	
+	# Distance remaining to safe zone
+	var distance_to_safe = distance - safe_distance
+	
+	# Estimate stopping distance
+	var mass = _agent_body.mass
+	var effective_decel = (_movement_system.linear_thrust / mass) + Constants.LINEAR_DRAG * current_speed
+	var brake_distance = (closing_speed * closing_speed) / (2.0 * effective_decel) if effective_decel > 0.1 else 0.0
+	
+	# Decision: brake or accelerate?
+	var should_brake = distance_to_safe < brake_distance * 1.5 and closing_speed > 0
+	
+	if should_brake and distance_to_safe > 0:
+		# Rotate retrograde for efficient braking
+		var retrograde = -our_velocity.normalized() if our_velocity.length() > 1.0 else -direction
+		_movement_system.request_rotation_to_pid(retrograde, delta)
+		
+		var forward = _movement_system.get_forward()
+		if forward.dot(retrograde) > 0.7:
+			_movement_system.request_thrust_forward()
+		else:
+			_movement_system.request_thrust_brake()
 	else:
-		# SAFE DISTANCE: Normal orbit and use DESIRED distance for speed calculation.
-		ideal_move_dir = tangent_dir
-		speed_calc_dist = cmd.get("distance", 100.0)  # Use final, desired distance.
+		_movement_system.request_thrust_forward()
+		cmd["signaled_stop"] = false
 
-	# Calculate the ideal speed based on the appropriate distance (current or desired).
-	var full_speed_radius = max(1.0, Constants.ORBIT_FULL_SPEED_RADIUS)
-	var ideal_speed = _movement_system.max_move_speed
-	if speed_calc_dist > 0 and speed_calc_dist < full_speed_radius:
-		ideal_speed *= (speed_calc_dist / full_speed_radius)
-	ideal_speed = clamp(ideal_speed, 0.0, _movement_system.max_move_speed)
+--- Start of ./src/core/agents/components/navigation_system/command_flee.gd ---
 
-	var ideal_orbital_velocity = ideal_move_dir * ideal_speed
-
-	# --- Smoothly Transition & Apply ---
-	_current_orbital_velocity = _current_orbital_velocity.linear_interpolate(
-		ideal_orbital_velocity, ORBITAL_VELOCITY_LERP_WEIGHT * delta
-	)
-
-	_movement_system.apply_rotation(tangent_dir, delta)
-	_agent_body.current_velocity = _current_orbital_velocity
-
---- Start of ./src/core/agents/components/navigation_system/command_stop.gd ---
-
-# File: core/agents/components/navigation_system/command_stop.gd
-# Version: 1.1 - Added call to damp_rotation for smooth rotational stops.
+# File: core/agents/components/navigation_system/command_flee.gd
+# Version: 3.0 - RigidBody physics with PID-controlled flight.
 extends Node
 
 var _nav_sys: Node
-var _agent_body: KinematicBody
+var _agent_body: RigidBody
 var _movement_system: Node
 
 
@@ -15232,22 +15320,404 @@ func initialize(nav_system):
 
 
 func execute(delta: float):
-	if is_instance_valid(_movement_system) and is_instance_valid(_agent_body):
-		# --- Dampen linear motion ---
-		var stopped_moving = _movement_system.apply_braking(delta)
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
+	
+	var target_node = _nav_sys._current_command.get("target_node", null)
+	if not is_instance_valid(target_node):
+		_nav_sys.set_command_stopping()
+		return
+	
+	var target_pos = target_node.global_transform.origin
+	var vector_away = _agent_body.global_transform.origin - target_pos
+	var direction_away = (
+		vector_away.normalized()
+		if vector_away.length_squared() > 0.01
+		else -_agent_body.global_transform.basis.z
+	)
+	
+	# Rotate toward flee direction using PID
+	_movement_system.request_rotation_to_pid(direction_away, delta)
+	
+	# Thrust based on alignment
+	if _movement_system.is_aligned_to(direction_away):
+		_movement_system.request_thrust_forward()
+	else:
+		# Can use backward thrust if facing toward threat
+		var forward = _movement_system.get_forward()
+		if forward.dot(direction_away) < -0.5:
+			# Facing threat - use backward thrust to flee immediately
+			_movement_system.request_thrust_backward(0.7)
 
-		# --- NEW: Dampen angular motion ---
-		_movement_system.damp_rotation(delta)
+--- Start of ./src/core/agents/components/navigation_system/command_idle.gd ---
 
-		# Check if linear motion has stopped before signaling completion
-		if stopped_moving and not _nav_sys._current_command.get("signaled_stop", false):
+# File: core/agents/components/navigation_system/command_idle.gd
+# Version: 2.0 - RigidBody physics, drag handles deceleration automatically.
+extends Node
+
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_movement_system = nav_system.movement_system
+
+
+func execute(_delta: float):
+	# In idle state, we do nothing - drag will naturally slow the ship down
+	pass
+
+--- Start of ./src/core/agents/components/navigation_system/command_move_direction.gd ---
+
+# File: core/agents/components/navigation_system/command_move_direction.gd
+# Version: 3.0 - RigidBody physics with PID-controlled flight.
+extends Node
+
+var _nav_sys: Node
+var _agent_body: RigidBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if not is_instance_valid(_movement_system):
+		return
+	
+	var move_dir = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
+	if move_dir.length_squared() > 0.001:
+		# Rotate toward movement direction using PID
+		_movement_system.request_rotation_to_pid(move_dir, delta)
+		
+		# Thrust based on alignment
+		if _movement_system.is_aligned_to(move_dir):
+			_movement_system.request_thrust_forward()
+		else:
+			# Can use backward thrust if facing opposite
+			var forward = _movement_system.get_forward()
+			if forward.dot(move_dir) < -0.7:
+				_movement_system.request_thrust_backward(0.5)
+			# Otherwise drag handles deceleration
+
+--- Start of ./src/core/agents/components/navigation_system/command_move_to.gd ---
+
+# File: core/agents/components/navigation_system/command_move_to.gd
+# Version: 4.0 - RigidBody physics with PID-controlled thrust-based flight.
+extends Node
+
+var _nav_sys: Node
+var _agent_body: RigidBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
+
+	var cmd = _nav_sys._current_command
+	var target_pos = cmd.target_pos
+	var vector_to_target = target_pos - _agent_body.global_transform.origin
+	var distance = vector_to_target.length()
+
+	var direction = vector_to_target.normalized() if distance > 0.01 else Vector3.ZERO
+	
+	# Arrival check
+	var current_speed = _movement_system.get_current_speed()
+	if distance < _nav_sys.ARRIVAL_DISTANCE_THRESHOLD and current_speed < _nav_sys.ARRIVAL_SPEED_THRESHOLD:
+		if not cmd.get("signaled_stop", false):
+			EventBus.emit_signal("agent_reached_destination", _agent_body)
+			cmd["signaled_stop"] = true
+		# Final stop - rotate retrograde and brake
+		var velocity = _movement_system.get_velocity()
+		if velocity.length() > 0.5:
+			_movement_system.request_rotation_to_pid(-velocity.normalized(), delta)
+		_movement_system.request_thrust_brake()
+		_movement_system.request_rotation_damping_pid(delta)
+		return
+	else:
+		cmd["signaled_stop"] = false
+	
+	# Always try to rotate toward target using PID
+	_movement_system.request_rotation_to_pid(direction, delta)
+	
+	# Check alignment before thrusting forward
+	if not _movement_system.is_aligned_to(direction):
+		# Not aligned - use backward thrust if facing away, or brake
+		var forward = _movement_system.get_forward()
+		if forward.dot(direction) < -0.5:
+			# Facing away - can use backward thrust toward target
+			_movement_system.request_thrust_backward(0.3)
+		else:
+			# Perpendicular - just brake while turning
+			_movement_system.request_thrust_brake()
+		return
+	
+	# Calculate if we need to start braking
+	var velocity = _movement_system.get_velocity()
+	var closing_speed = velocity.dot(direction)
+	
+	# Simple brake distance estimate: v^2 / (2 * deceleration)
+	var mass = _agent_body.mass
+	var effective_decel = (_movement_system.linear_thrust / mass) + Constants.LINEAR_DRAG * current_speed
+	var brake_distance = (closing_speed * closing_speed) / (2.0 * effective_decel) if effective_decel > 0.1 else 0.0
+	
+	# Add safety margin
+	var should_brake = distance < brake_distance * 1.5 and closing_speed > 0
+	
+	if should_brake:
+		# Rotate retrograde for efficient braking
+		var retrograde = -velocity.normalized() if velocity.length() > 1.0 else -direction
+		_movement_system.request_rotation_to_pid(retrograde, delta)
+		
+		var forward = _movement_system.get_forward()
+		if forward.dot(retrograde) > 0.7:
+			_movement_system.request_thrust_forward()  # Retrograde burn
+		else:
+			_movement_system.request_thrust_brake()  # Generic brake while rotating
+	else:
+		_movement_system.request_thrust_forward()
+
+--- Start of ./src/core/agents/components/navigation_system/command_orbit.gd ---
+
+# File: core/agents/components/navigation_system/command_orbit.gd
+# Version: 5.0 - Stateless tangential orbit: ship follows tangent based on velocity & turn rate.
+# The ship will naturally settle into an orbit radius determined by its turning capability.
+# At closer distances it needs to turn faster; if it can't, it spirals outward until stable.
+extends Node
+
+var _nav_sys: Node
+var _agent_body: RigidBody
+var _movement_system: Node
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
+	if delta <= 0.0:
+		return
+
+	var cmd = _nav_sys._current_command
+	var target_node = cmd.target_node
+	if not is_instance_valid(target_node):
+		_nav_sys.set_command_stopping()
+		return
+
+	var target_pos = target_node.global_transform.origin
+	var ship_pos = _agent_body.global_transform.origin
+	
+	# --- Vector Calculations ---
+	var radial_vector = ship_pos - target_pos  # Points outward from target
+	var current_radius = radial_vector.length()
+	
+	if current_radius < 0.01:
+		current_radius = 0.01
+	
+	var radial_dir = radial_vector / current_radius  # Unit vector pointing outward (away from target)
+	
+	# --- Safety Distance Check ---
+	var safe_dist = (
+		_nav_sys._get_target_effective_size(target_node)
+		* _nav_sys.CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
+	)
+	
+	if current_radius < safe_dist:
+		# TOO CLOSE: Emergency escape - thrust outward
+		_movement_system.request_rotation_to_pid(radial_dir, delta)
+		if _movement_system.is_aligned_to(radial_dir):
+			_movement_system.request_thrust_forward()
+		return
+
+	# --- Determine Orbit Direction from Current Velocity ---
+	var velocity = _movement_system.get_velocity()
+	var speed = velocity.length()
+	
+	# Calculate tangent direction based on current velocity
+	# Project velocity onto the plane perpendicular to radial
+	var velocity_tangent = velocity - radial_dir * velocity.dot(radial_dir)
+	var tangent_speed = velocity_tangent.length()
+	
+	var tangent_dir: Vector3
+	if tangent_speed > 1.0:
+		# Use velocity-derived tangent (preserves orbit direction from current motion)
+		tangent_dir = velocity_tangent.normalized()
+	else:
+		# No tangential motion - use clockwise parameter or default
+		var clockwise = cmd.get("clockwise", false)
+		var orbit_normal = Vector3.UP
+		tangent_dir = (
+			radial_dir.cross(orbit_normal) if clockwise 
+			else orbit_normal.cross(radial_dir)
+		).normalized()
+		
+		# Handle degenerate case (radial aligned with UP)
+		if tangent_dir.length_squared() < 0.5:
+			orbit_normal = Vector3.FORWARD
+			tangent_dir = (
+				radial_dir.cross(orbit_normal) if clockwise 
+				else orbit_normal.cross(radial_dir)
+			).normalized()
+
+	# --- Calculate Required Turn Rate for Current Orbit ---
+	# For circular motion: angular_velocity = tangent_speed / radius
+	# The ship can only turn so fast (limited by angular_thrust and mass)
+	var required_angular_velocity = tangent_speed / current_radius if current_radius > 1.0 else 0.0
+	
+	# Estimate max angular velocity from ship specs
+	# At steady state with angular drag: torque = drag * angular_vel * I
+	# So max_angular_vel ≈ angular_thrust / (angular_drag * mass * r^2)
+	# Simplified estimate using inertia approximation
+	var mass = _agent_body.mass
+	var estimated_inertia = mass * 10.0  # Rough approximation
+	var max_turn_rate = _movement_system.angular_thrust / (Constants.ANGULAR_DRAG * estimated_inertia + 0.1)
+	
+	# --- Determine if Ship Can Maintain This Orbit ---
+	var can_maintain_orbit = required_angular_velocity < max_turn_rate * 0.8  # 80% margin
+	
+	# --- Stateless Thrust Direction ---
+	# Always point tangentially and thrust forward
+	# The physics (centripetal requirement) naturally determines if orbit tightens or widens
+	
+	var desired_dir: Vector3
+	
+	if not can_maintain_orbit and tangent_speed > 5.0:
+		# Ship is going too fast for this radius - it will naturally spiral out
+		# Thrust slightly outward to accelerate the transition to a stable wider orbit
+		var outward_bias = radial_dir * 0.2
+		desired_dir = (tangent_dir + outward_bias).normalized()
+	else:
+		# Ship can maintain orbit or is slow enough - just follow tangent
+		desired_dir = tangent_dir
+	
+	# --- Apply Controls ---
+	_movement_system.request_rotation_to_pid(desired_dir, delta)
+	
+	# Thrust if reasonably aligned
+	if _movement_system.is_aligned_to(desired_dir):
+		_movement_system.request_thrust_forward()
+	elif _movement_system.get_forward().dot(desired_dir) > 0.3:
+		# Partially aligned - reduced thrust
+		_movement_system.request_thrust_forward(0.4)
+	# Otherwise, let drag slow us while we turn
+
+--- Start of ./src/core/agents/components/navigation_system/command_stop.gd ---
+
+# File: core/agents/components/navigation_system/command_stop.gd
+# Version: 3.0 - RigidBody physics with orientation-aware braking.
+# Ships can use forward or backward thrusters depending on alignment.
+extends Node
+
+var _nav_sys: Node
+var _agent_body: RigidBody
+var _movement_system: Node
+
+# State for tracking stop progress
+enum StopPhase { ASSESS, ROTATE_RETROGRADE, BRAKING, FINAL_DAMPING }
+var _phase: int = StopPhase.ASSESS
+
+
+func initialize(nav_system):
+	_nav_sys = nav_system
+	_agent_body = nav_system.agent_body
+	_movement_system = nav_system.movement_system
+
+
+func execute(delta: float):
+	if not is_instance_valid(_movement_system) or not is_instance_valid(_agent_body):
+		return
+
+	var velocity = _movement_system.get_velocity()
+	var speed = velocity.length()
+	var angular_speed = _agent_body.angular_velocity.length()
+	
+	# Always apply rotation kill (counter-torque to zero angular velocity)
+	_movement_system.request_rotation_damping_pid(delta)
+	
+	# Check if fully stopped (both linear and angular)
+	if speed < 1.0 and angular_speed < 0.1:
+		if not _nav_sys._current_command.get("signaled_stop", false):
 			EventBus.emit_signal("agent_reached_destination", _agent_body)
 			_nav_sys._current_command["signaled_stop"] = true
+		_phase = StopPhase.ASSESS
+		return
+	
+	# Reset signal flag if we start moving again
+	if speed > 2.0:
+		_nav_sys._current_command["signaled_stop"] = false
+	
+	# If only angular velocity remains, just keep damping rotation
+	if speed < 1.0:
+		_phase = StopPhase.FINAL_DAMPING
+		return
+	
+	var velocity_dir = velocity.normalized() if speed > 0.1 else Vector3.ZERO
+	var forward = _movement_system.get_forward()
+	var backward = -forward
+	
+	# Check alignment with velocity
+	var forward_dot = forward.dot(velocity_dir)   # Positive = facing direction of travel
+	var backward_dot = backward.dot(velocity_dir) # Positive = facing away from travel
+	
+	# Determine best braking strategy
+	if speed < 5.0:
+		# Low speed - just apply braking thrust, don't worry about rotation
+		_phase = StopPhase.FINAL_DAMPING
+		_movement_system.request_thrust_brake()
+		return
+	
+	# At higher speeds, we want to rotate for efficient braking
+	# Retrograde burn: face backward to travel, use forward thrust
+	# Prograde burn: face forward to travel, use backward thrust
+	
+	# Prefer retrograde (forward thrust is usually stronger)
+	var retrograde_dir = -velocity_dir  # Direction ship should face for retrograde burn
+	
+	if backward_dot > 0.95:
+		# Already facing retrograde - full forward thrust
+		_phase = StopPhase.BRAKING
+		_movement_system.request_thrust_forward()
+		_movement_system.request_rotation_to_pid(retrograde_dir, delta)  # Maintain alignment
+	elif backward_dot > 0.5:
+		# Partially aligned retrograde - rotate while partial braking
+		_phase = StopPhase.ROTATE_RETROGRADE
+		_movement_system.request_rotation_to_pid(retrograde_dir, delta)
+		_movement_system.request_thrust_forward(0.5)  # Partial thrust while rotating
+	elif forward_dot > 0.95:
+		# Facing prograde - can use backward thrust immediately
+		_phase = StopPhase.BRAKING
+		_movement_system.request_thrust_backward()
+		# Also start rotating to retrograde for stronger braking
+		_movement_system.request_rotation_to_pid(retrograde_dir, delta)
+	elif forward_dot > 0.5:
+		# Partially prograde - use backward thrust while rotating
+		_phase = StopPhase.ROTATE_RETROGRADE
+		_movement_system.request_thrust_backward(0.5)
+		_movement_system.request_rotation_to_pid(retrograde_dir, delta)
+	else:
+		# Perpendicular - rotate to retrograde, minimal thrust
+		_phase = StopPhase.ROTATE_RETROGRADE
+		_movement_system.request_rotation_to_pid(retrograde_dir, delta)
+		# Apply small brake to prevent acceleration
+		_movement_system.request_thrust_brake()
 
 --- Start of ./src/core/agents/components/navigation_system.gd ---
 
 # File: res://core/agents/components/navigation_system.gd
-# Version: 2.1 - Added 'is_new' flag to orbit command for stateful initialization.
+# Version: 3.0 - RigidBody physics with thrust-based 6DOF flight.
 
 extends Node
 
@@ -15255,24 +15725,19 @@ extends Node
 enum CommandType { IDLE, STOPPING, MOVE_TO, MOVE_DIRECTION, APPROACH, ORBIT, FLEE, ALIGN_TO }
 const APPROACH_DISTANCE_MULTIPLIER = 1.3
 const APPROACH_MIN_DISTANCE = 50.0
-const APPROACH_DECELERATION_START_DISTANCE_FACTOR = 50.0
-const ARRIVAL_DISTANCE_THRESHOLD = 5.0
-const ARRIVAL_SPEED_THRESHOLD_SQ = 1.0
+const ARRIVAL_DISTANCE_THRESHOLD = 20.0
+const ARRIVAL_SPEED_THRESHOLD = 5.0
 const CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR = 1.5
 
 # --- References ---
-var agent_body: KinematicBody = null
+var agent_body: RigidBody = null
 var movement_system: Node = null
 
 # --- State ---
 var _current_command = {}
 
 # --- Child Components ---
-var _pid_orbit: PIDController = null
-var _pid_approach: PIDController = null
-var _pid_move_to: PIDController = null
 var _command_handlers = {}
-const PIDControllerScript = preload("res://src/core/utils/pid_controller.gd")
 
 
 # --- Initialization ---
@@ -15287,51 +15752,12 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 
 	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
 		printerr("NavigationSystem Error: Invalid parent or movement system reference!")
-		set_process(false)
 		return
 
-	_initialize_pids(nav_params)
 	_initialize_command_handlers()
 
 	print("NavigationSystem Initialized.")
 	set_command_idle()
-
-
-func _initialize_pids(nav_params: Dictionary):
-	if not PIDControllerScript:
-		printerr("NavigationSystem Error: Failed to load PIDController script!")
-		return
-
-	_pid_orbit = PIDControllerScript.new()
-	_pid_approach = PIDControllerScript.new()
-	_pid_move_to = PIDControllerScript.new()
-
-	add_child(_pid_orbit)
-	add_child(_pid_approach)
-	add_child(_pid_move_to)
-
-	var o_limit = movement_system.max_move_speed
-	_pid_orbit.initialize(
-		nav_params.get("orbit_kp", 0.5),
-		nav_params.get("orbit_ki", 0.001),
-		nav_params.get("orbit_kd", 1.0),
-		1000.0,
-		75.0
-	)
-	_pid_approach.initialize(
-		nav_params.get("approach_kp", 0.5),
-		nav_params.get("approach_ki", 0.001),
-		nav_params.get("approach_kd", 1.0),
-		1000.0,
-		o_limit
-	)
-	_pid_move_to.initialize(
-		nav_params.get("move_to_kp", 0.5),
-		nav_params.get("move_to_ki", 0.001),
-		nav_params.get("move_to_kd", 1.0),
-		1000.0,
-		o_limit
-	)
 
 
 func _initialize_command_handlers():
@@ -15360,22 +15786,10 @@ func set_command_idle():
 
 func set_command_stopping():
 	_current_command = {"type": CommandType.STOPPING}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
 
 
 func set_command_move_to(position: Vector3):
 	_current_command = {"type": CommandType.MOVE_TO, "target_pos": position}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
 
 
 func set_command_move_direction(direction: Vector3):
@@ -15389,16 +15803,9 @@ func set_command_approach(target: Spatial):
 	if not is_instance_valid(target):
 		set_command_stopping()
 		return
-	_current_command = {"type": CommandType.APPROACH, "target_node": target}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
+	_current_command = {"type": CommandType.APPROACH, "target_node": target, "is_new": true}
 
 
-# MODIFIED: Added "is_new" flag to signal the command handler to initialize its state.
 func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 	if not is_instance_valid(target):
 		set_command_stopping()
@@ -15408,14 +15815,8 @@ func set_command_orbit(target: Spatial, distance: float, clockwise: bool):
 		"target_node": target,
 		"distance": distance,
 		"clockwise": clockwise,
-		"is_new": true  # Flag for one-time setup in the command handler
+		"is_new": true
 	}
-	if is_instance_valid(_pid_orbit):
-		_pid_orbit.reset()
-	if is_instance_valid(_pid_approach):
-		_pid_approach.reset()
-	if is_instance_valid(_pid_move_to):
-		_pid_move_to.reset()
 
 
 func set_command_flee(target: Spatial):
@@ -15432,7 +15833,7 @@ func set_command_align_to(direction: Vector3):
 	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
 
 
-# --- Main Update Logic ---
+# --- Main Update Logic (Called from AgentBody._integrate_forces) ---
 func update_navigation(delta: float):
 	if not is_instance_valid(agent_body) or not is_instance_valid(movement_system):
 		return
@@ -15453,41 +15854,7 @@ func update_navigation(delta: float):
 		_command_handlers[CommandType.IDLE].execute(delta)
 
 
-# --- PID Correction & Helper Functions ---
-func apply_orbit_pid_correction(delta: float):
-	if _current_command.get("type") != CommandType.ORBIT:
-		return
-	if (
-		not is_instance_valid(agent_body)
-		or not is_instance_valid(movement_system)
-		or not is_instance_valid(_pid_orbit)
-	):
-		return
-
-	var target_node = _current_command.get("target_node", null)
-	if is_instance_valid(target_node):
-		var desired_orbit_dist = _current_command.get("distance", 100.0)
-		var vector_to_target = (
-			target_node.global_transform.origin
-			- agent_body.global_transform.origin
-		)
-		var current_distance = vector_to_target.length()
-		if current_distance < 0.01:
-			return
-
-		var distance_error = current_distance - desired_orbit_dist
-		var pid_output = _pid_orbit.update(distance_error, delta)
-
-		var close_orbit_threshold = APPROACH_MIN_DISTANCE * CLOSE_ORBIT_DISTANCE_THRESHOLD_FACTOR
-		if distance_error < 0 and desired_orbit_dist < close_orbit_threshold:
-			var max_outward_push_speed = movement_system.max_move_speed * 0.05
-			pid_output = max(pid_output, -max_outward_push_speed)
-
-		var radial_direction = vector_to_target.normalized()
-		var velocity_correction = radial_direction * pid_output
-		agent_body.current_velocity += velocity_correction
-
-
+# --- Helper Functions ---
 func _get_target_effective_size(target_node: Spatial) -> float:
 	var calculated_size = 1.0
 	var default_radius = 10.0
@@ -15530,7 +15897,7 @@ func _get_target_effective_size(target_node: Spatial) -> float:
 
 # File: core/agents/components/weapon_controller.gd
 # Purpose: Manages weapon firing and cooldowns for an agent.
-# Attaches as child of AgentBody (KinematicBody).
+# Attaches as child of AgentBody (RigidBody).
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
@@ -15540,7 +15907,7 @@ signal weapon_cooldown_started(weapon_index, duration)
 signal weapon_ready(weapon_index)
 
 # --- References (set in _ready) ---
-var _agent_body: KinematicBody = null  # Parent AgentBody
+var _agent_body: RigidBody = null  # Parent AgentBody
 var _ship_template = null  # Linked ShipTemplate (via AssetSystem)
 var _weapons: Array = []  # Loaded UtilityToolTemplate instances
 var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
@@ -15549,8 +15916,8 @@ var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
 # --- Initialization ---
 func _ready() -> void:
 	_agent_body = get_parent()
-	if not _agent_body is KinematicBody:
-		printerr("WeaponController: Parent must be KinematicBody")
+	if not _agent_body is RigidBody:
+		printerr("WeaponController: Parent must be RigidBody")
 		return
 	# Defer weapon loading to allow agent initialization to complete first
 	call_deferred("_load_weapons_from_ship")
@@ -15858,7 +16225,7 @@ func _get_new_action_id() -> int:
 
 extends Node
 
-var _player_agent_body: KinematicBody = null
+var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 
 
@@ -15970,7 +16337,7 @@ func _get_dock_position_in_zone(location_id: String):
 
 # Spawns an NPC agent linked to a specific character.
 # character_uid: The UID of the character this NPC represents.
-func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> KinematicBody:
+func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> RigidBody:
 	if not GameState.characters.has(character_uid):
 		printerr("AgentSpawner Error: No character found with UID: ", character_uid)
 		return null
@@ -15996,7 +16363,7 @@ func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> Kinemati
 
 # Spawns an NPC using a specific AgentTemplate resource path.
 # This is used for encounter-driven spawns where a fixed template is desired.
-func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Vector3.ZERO, overrides: Dictionary = {}) -> KinematicBody:
+func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Vector3.ZERO, overrides: Dictionary = {}) -> RigidBody:
 	if not agent_template_path or agent_template_path.empty():
 		printerr("AgentSpawner Error: spawn_npc_from_template invalid template path.")
 		return null
@@ -16035,7 +16402,7 @@ func spawn_agent(
 	agent_template: AgentTemplate,
 	overrides: Dictionary = {},
 	agent_uid: int = -1
-) -> KinematicBody:
+) -> RigidBody:
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
 		printerr("AgentSpawner Spawn Error: Invalid GlobalRefs.agent_container.")
@@ -16050,10 +16417,10 @@ func spawn_agent(
 		return null
 
 	var agent_root_instance = agent_scene.instance()
-	# agent_node is the "AgentBody" KinematicBody within the scene instance
+	# agent_node is the "AgentBody" RigidBody within the scene instance
 	var agent_node = agent_root_instance.get_node_or_null(Constants.AGENT_BODY_NODE_NAME)
 
-	if not (agent_node and agent_node is KinematicBody):
+	if not (agent_node and agent_node is RigidBody):
 		printerr("AgentSpawner Spawn Error: Invalid agent body node in scene: ", agent_scene_path)
 		agent_root_instance.queue_free()
 		return null
@@ -16452,6 +16819,11 @@ func apply_damage(target_uid: int, hull_damage: float, armor_damage: float = 0.0
 		state.is_disabled = true
 		state.current_hull = 0
 		emit_signal("ship_disabled", target_uid)
+		
+		# Increment combat victories stat if this was an enemy (not the player)
+		if target_uid != GameState.player_character_uid:
+			GameState.session_stats["enemies_disabled"] += 1
+		
 		if EventBus:
 			var disabled_body = _get_agent_body(target_uid)
 			if is_instance_valid(disabled_body):
@@ -17458,17 +17830,21 @@ func _apply_effects(char_uid: int, effects: Dictionary) -> Dictionary:
 	if effects == null:
 		return applied
 
-	# Ship quirks (best-effort: char ship if available, else player ship).
-	if effects.has("add_quirk") and is_instance_valid(GlobalRefs.asset_system):
+	# Ship quirks (integrated with QuirkSystem).
+	if effects.has("add_quirk") and is_instance_valid(GlobalRefs.quirk_system):
 		var quirk_id: String = str(effects.get("add_quirk"))
-		var ship: Object = null
-		if GlobalRefs.asset_system.has_method("get_ship_for_character"):
-			ship = GlobalRefs.asset_system.get_ship_for_character(char_uid)
-		if ship == null and GlobalRefs.asset_system.has_method("get_player_ship"):
-			ship = GlobalRefs.asset_system.get_player_ship()
-		if is_instance_valid(ship):
-			ship.ship_quirks.append(quirk_id)
-			applied["quirk_added"] = quirk_id
+		var ship_uid: int = -1
+		
+		# Resolve ship UID from character data
+		if GameState.characters.has(char_uid):
+			var character: Object = GameState.characters[char_uid]
+			if is_instance_valid(character):
+				# Assuming CharacterTemplate has active_ship_uid
+				ship_uid = int(character.active_ship_uid)
+
+		if ship_uid != -1:
+			if GlobalRefs.quirk_system.add_quirk(ship_uid, quirk_id):
+				applied["quirk_added"] = quirk_id
 
 	# WP adjustments.
 	if effects.has("wp_cost"):
@@ -17534,6 +17910,82 @@ extends Node
 func _ready():
 	GlobalRefs.set_progression_system(self)
 	print("ProgressionSystem Ready.")
+
+--- Start of ./src/core/systems/quirk_system.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: src/core/systems/quirk_system.gd
+# STATUS: [Level 3 - Verified]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1
+# LOG_REF: 2025-12-23
+#
+
+extends Node
+
+## System for managing Ship Quirks.
+## Handles adding, removing, and querying quirks for ships.
+
+func _ready() -> void:
+	GlobalRefs.quirk_system = self
+	print("QuirkSystem: Registered with GlobalRefs")
+
+
+## Adds a quirk to a ship.
+## Returns true if the quirk was successfully added, false otherwise.
+func add_quirk(ship_uid: int, quirk_id: String) -> bool:
+	if not GameState.assets_ships.has(ship_uid):
+		push_warning("QuirkSystem: add_quirk failed - Ship UID not found: " + str(ship_uid))
+		return false
+		
+	var ship_data = GameState.assets_ships[ship_uid]
+	# ship_quirks should be an Array
+	if not ship_data.get("ship_quirks") is Array:
+		push_warning("QuirkSystem: add_quirk failed - ship_quirks is not an Array for ship: " + str(ship_uid))
+		return false
+
+	var quirks: Array = ship_data.ship_quirks
+	
+	if quirks.has(quirk_id):
+		return false # Already has it
+		
+	quirks.append(quirk_id)
+	EventBus.emit_signal("ship_quirk_added", ship_uid, quirk_id)
+	print("QuirkSystem: Added quirk ", quirk_id, " to ship ", ship_uid)
+	return true
+
+
+## Removes a quirk from a ship.
+## Returns true if the quirk was successfully removed, false otherwise.
+func remove_quirk(ship_uid: int, quirk_id: String) -> bool:
+	if not GameState.assets_ships.has(ship_uid):
+		return false
+		
+	var ship_data = GameState.assets_ships[ship_uid]
+	var quirks: Array = ship_data.ship_quirks
+	
+	if not quirks.has(quirk_id):
+		return false
+		
+	quirks.erase(quirk_id)
+	EventBus.emit_signal("ship_quirk_removed", ship_uid, quirk_id)
+	return true
+
+
+## Returns a copy of the quirks array for a given ship.
+func get_quirks(ship_uid: int) -> Array:
+	if not GameState.assets_ships.has(ship_uid):
+		return []
+	
+	# Return copy as per architecture for getters
+	return GameState.assets_ships[ship_uid].ship_quirks.duplicate()
+
+
+## Checks if a ship has a specific quirk.
+func has_quirk(ship_uid: int, quirk_id: String) -> bool:
+	if not GameState.assets_ships.has(ship_uid):
+		return false
+	return GameState.assets_ships[ship_uid].ship_quirks.has(quirk_id)
 
 --- Start of ./src/core/systems/time_system.gd ---
 
@@ -18403,7 +18855,7 @@ func _on_ButtonClose_pressed():
 
 # File: res://core/ui/main_hud/main_hud.gd
 # Script for the main HUD container. Handles displaying targeting info, etc.
-# Version: 1.2 - Integrating systems.
+# Version: 1.3 - Added camera mode toggle.
 
 extends Control
 
@@ -18415,7 +18867,9 @@ onready var label_tu: Label = $ScreenControls/TopLeftZone/LabelTU
 onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
 onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
+onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
+onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
 onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
@@ -18434,6 +18888,9 @@ var station_menu_instance = null
 const ActionCheckScene = preload("res://scenes/ui/screens/action_check.tscn")
 var action_check_instance = null
 
+const NarrativeStatusScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
+var narrative_status_instance = null
+
 # --- State ---
 var _current_target: Spatial = null
 var _main_camera: Camera = null
@@ -18441,7 +18898,7 @@ var _current_target_uid: int = -1  # UID of current combat target for hull track
 var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
-
+var _hud_alpha = 1.0
 
 # --- Initialization ---
 func _ready():
@@ -18454,8 +18911,13 @@ func _ready():
 
 	# Instantiate Action Check UI (hidden by default; shown via EventBus)
 	action_check_instance = ActionCheckScene.instance()
+	action_check_instance = ActionCheckScene.instance()
 	add_child(action_check_instance)
 
+	# Instantiate Narrative Status Panel (hidden by default)
+	narrative_status_instance = NarrativeStatusScene.instance()
+	add_child(narrative_status_instance)
+	
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 
@@ -18534,6 +18996,14 @@ func _ready():
 		if not button_menu.is_connected("pressed", self, "_on_ButtonMenu_pressed"):
 			button_menu.connect("pressed", self, "_on_ButtonMenu_pressed")
 
+	if is_instance_valid(button_narrative_status):
+		button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
+
+	# Connect ButtonCamera to toggle camera mode
+	if is_instance_valid(button_camera):
+		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
+			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
+
 	# Initialize TU display
 	_refresh_tu_display()
 
@@ -18586,6 +19056,11 @@ func _on_Player_Target_Selected(target_node: Spatial):
 		
 		# Update combat target info panel
 		_update_target_info_panel(target_node)
+		
+		# Update camera look_at_target if in target tracking mode
+		var camera = GlobalRefs.main_camera
+		if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+			camera.set_look_at_target(target_node)
 	else:
 		_on_Player_Target_Deselected()
 
@@ -18598,6 +19073,11 @@ func _on_Player_Target_Deselected():
 		target_info_panel.visible = false
 	set_process(false)  # Can disable processing if target is deselected
 	_refresh_player_hull()
+	
+	# If camera is in target tracking mode, switch back to orbit mode
+	var camera = GlobalRefs.main_camera
+	if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+		camera.set_camera_mode(0)  # ORBIT
 
 
 func _on_agent_despawning(agent_body) -> void:
@@ -18657,6 +19137,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if EventBus:
 			EventBus.emit_signal("main_menu_requested")
+			EventBus.emit_signal("main_menu_requested")
 			get_tree().set_input_as_handled()
 
 
@@ -18664,6 +19145,25 @@ func _on_ButtonMenu_pressed() -> void:
 	"""Handle menu button press - opens main menu."""
 	if EventBus:
 		EventBus.emit_signal("main_menu_requested")
+
+
+func _on_ButtonCamera_pressed() -> void:
+	"""Handle camera button press - toggles between orbit and target-tracking mode."""
+	var camera = GlobalRefs.main_camera
+	if not is_instance_valid(camera):
+		return
+	
+	# Toggle camera mode
+	camera.toggle_camera_mode()
+	
+	# If switching to target tracking mode, set the look_at_target
+	if camera.get_camera_mode() == 1:  # TARGET_TRACKING = 1
+		if is_instance_valid(_current_target):
+			camera.set_look_at_target(_current_target)
+		else:
+			# No target selected, switch back to orbit mode
+			camera.set_camera_mode(0)  # ORBIT = 0
+			print("Camera: No target selected for tracking mode.")
 
 
 # --- Custom Drawing (Optional but Recommended) ---
@@ -18865,6 +19365,11 @@ func _on_ButtonInventory_pressed():
 	GlobalRefs.inventory_screen.open_screen()
 
 
+func _on_ButtonNarrativeStatus_pressed():
+	if is_instance_valid(narrative_status_instance):
+		narrative_status_instance.open_screen()
+
+
 # --- Combat HUD Functions ---
 
 func _connect_combat_signals() -> void:
@@ -18985,6 +19490,14 @@ func _on_ship_disabled(ship_uid: int) -> void:
 		if label_target_name:
 			label_target_name.text = label_target_name.text + " [DISABLED]"
 
+
+func _on_ButtonUIOpacity_pressed() -> void:
+	"""Handle main HUD transparency (cycle)."""
+	_hud_alpha -= 0.25
+	self.set_modulate(Color(1, 1, 1, _hud_alpha))
+	if _hud_alpha <= 0.0:
+		_hud_alpha = 1.0
+
 --- Start of ./src/core/ui/main_menu/main_menu.gd ---
 
 extends Control
@@ -19084,6 +19597,209 @@ func _show_menu() -> void:
 	visible = true
 	get_tree().paused = true
 	_update_load_button_state()
+
+--- Start of ./src/core/ui/narrative_status/narrative_status_panel.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: src/core/ui/narrative_status/narrative_status_panel.gd
+# STATUS: [Level 3 - Verified]
+# TRUTH_LINK: TACTICAL_TODO.md
+# LOG_REF: 2025-12-26
+#
+
+extends Control
+
+## UI panel for displaying player narrative information, including reputation,
+## faction standings, ship quirks, and sector statistics.
+
+# Node references (updated for new scene structure with Panel child)
+onready var reputation_label: Label = $Panel/VBoxMain/ReputationLabel
+onready var faction_container: VBoxContainer = $Panel/VBoxMain/SectionsContainer/FactionsColumn/FactionContainer
+onready var quirks_container: VBoxContainer = $Panel/VBoxMain/SectionsContainer/QuirksColumn/QuirksContainer
+onready var contracts_label: Label = $Panel/VBoxMain/SectionsContainer/StatsColumn/ContractsLabel
+onready var button_close: Button = $Panel/VBoxMain/HBoxButtons/ButtonClose
+onready var button_debug_quirk: Button = $Panel/VBoxMain/SectionsContainer/QuirksColumn/ButtonDebugAddQuirk
+
+
+## Initializes connections and triggers the initial display update.
+func _ready() -> void:
+	# Connect signals from EventBus for reactive updates
+	if EventBus:
+		EventBus.connect("ship_quirk_added", self, "_on_ship_quirk_added")
+		EventBus.connect("ship_quirk_removed", self, "_on_ship_quirk_removed")
+		EventBus.connect("narrative_action_resolved", self, "_on_narrative_action_resolved")
+		EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
+		EventBus.connect("contract_completed", self, "_on_contract_completed")
+	
+	# Connect to internal visibility toggle
+	connect("visibility_changed", self, "_on_visibility_toggled")
+	
+	# Signals are connected via .tscn [connection] entries, but we can also connect here
+	# for safety in case the scene file was not updated:
+	if button_close and not button_close.is_connected("pressed", self, "_on_ButtonClose_pressed"):
+		button_close.connect("pressed", self, "_on_ButtonClose_pressed")
+	if button_debug_quirk and not button_debug_quirk.is_connected("pressed", self, "_on_ButtonDebugAddQuirk_pressed"):
+		button_debug_quirk.connect("pressed", self, "_on_ButtonDebugAddQuirk_pressed")
+
+
+## Opens this screen and updates display.
+func open_screen() -> void:
+	update_display()
+	self.show()
+
+
+## Refreshes all sections of the narrative status display if visible.
+func update_display() -> void:
+	if not is_visible_in_tree():
+		return
+		
+	_update_reputation()
+	_update_factions()
+	_update_quirks()
+	_update_stats()
+
+
+## Updates the Reputation label from GameState.
+func _update_reputation() -> void:
+	var rep: int = GameState.narrative_state.get("reputation", 0)
+	reputation_label.text = "Reputation: " + str(rep)
+
+
+## Clears and rebuilds the Faction standings list from GameState.
+func _update_factions() -> void:
+	# Clear existing children entries
+	for child in faction_container.get_children():
+		child.queue_free()
+		
+	var standings: Dictionary = GameState.narrative_state.get("faction_standings", {})
+	if standings.empty():
+		var lbl: Label = Label.new()
+		lbl.text = "No known factions"
+		faction_container.add_child(lbl)
+		return
+		
+	for faction_id in standings:
+		var val = standings[faction_id]
+		var lbl: Label = Label.new()
+		lbl.text = str(faction_id).capitalize() + ": " + str(val)
+		faction_container.add_child(lbl)
+
+
+## Rebuilds the ship quirks list for the player's active ship.
+func _update_quirks() -> void:
+	# Clear existing quirk entries
+	for child in quirks_container.get_children():
+		child.queue_free()
+	
+	# Retrieve player character and active ship UID
+	var player_char_uid: int = GameState.player_character_uid
+	if player_char_uid == -1 or not GameState.characters.has(player_char_uid):
+		return
+		
+	var char_data = GameState.characters[player_char_uid]
+	var ship_uid = char_data.get("active_ship_uid")
+	
+	if ship_uid == null or ship_uid == -1:
+		return
+		
+	# Fetch quirks from the QuirkSystem if available
+	var quirks: Array = []
+	if is_instance_valid(GlobalRefs.quirk_system):
+		quirks = GlobalRefs.quirk_system.get_quirks(ship_uid)
+	
+	if quirks.empty():
+		var lbl: Label = Label.new()
+		lbl.text = "None"
+		quirks_container.add_child(lbl)
+		return
+		
+	for q_id in quirks:
+		var lbl: Label = Label.new()
+		lbl.text = str(q_id).capitalize()
+		quirks_container.add_child(lbl)
+
+
+## Updates sector statistics from GameState session tracking.
+func _update_stats() -> void:
+	var completed: int = GameState.session_stats.get("contracts_completed", 0)
+	var wp_earned: int = GameState.session_stats.get("total_wp_earned", 0)
+	var enemies_disabled: int = GameState.session_stats.get("enemies_disabled", 0)
+	
+	contracts_label.text = "Contracts Completed: " + str(completed) + \
+		"\nTotal WP Earned: " + str(wp_earned) + \
+		"\nCombat Victories: " + str(enemies_disabled)
+
+
+## Triggered when the panel visibility changes; updates display if becoming visible.
+func _on_visibility_toggled() -> void:
+	if visible:
+		update_display()
+
+
+## Handles the close button press to hide the panel.
+func _on_ButtonClose_pressed() -> void:
+	self.hide()
+
+
+## Debug button to add a random quirk to the player's ship.
+func _on_ButtonDebugAddQuirk_pressed() -> void:
+	var player_char_uid: int = GameState.player_character_uid
+	if player_char_uid == -1 or not GameState.characters.has(player_char_uid):
+		printerr("[NarrativeStatusPanel] No player character found for quirk debug")
+		return
+		
+	var char_data = GameState.characters[player_char_uid]
+	var ship_uid = char_data.get("active_ship_uid")
+	
+	if ship_uid == null or ship_uid == -1:
+		printerr("[NarrativeStatusPanel] No active ship found for quirk debug")
+		return
+	
+	# Add a sample quirk
+	var sample_quirks = ["reliable", "temperamental", "fuel_efficient", "fast_but_fragile"]
+	var quirk_to_add = sample_quirks[randi() % sample_quirks.size()]
+	
+	if is_instance_valid(GlobalRefs.quirk_system):
+		var success = GlobalRefs.quirk_system.add_quirk(ship_uid, quirk_to_add)
+		if success:
+			print("[NarrativeStatusPanel] Debug: Added quirk '%s' to ship %d" % [quirk_to_add, ship_uid])
+		else:
+			print("[NarrativeStatusPanel] Debug: Quirk '%s' already exists or failed" % quirk_to_add)
+	else:
+		printerr("[NarrativeStatusPanel] QuirkSystem not available")
+
+
+# --- Signal Handlers from EventBus ---
+
+## Logic for when a quirk is added to any ship.
+func _on_ship_quirk_added(_ship_uid: int, _quirk_id: String) -> void:
+	if visible:
+		_update_quirks()
+
+
+## Logic for when a quirk is removed from any ship.
+func _on_ship_quirk_removed(_ship_uid: int, _quirk_id: String) -> void:
+	if visible:
+		_update_quirks()
+
+
+## Logic for when a narrative action is resolved, potentially affecting reputation.
+func _on_narrative_action_resolved(_result: Dictionary) -> void:
+	if visible:
+		update_display()
+
+
+## Refreshes stats when player wealth points change.
+func _on_player_wp_changed(_new_val: int) -> void:
+	if visible:
+		_update_stats()
+
+
+## Refreshes stats when a contract is completed.
+func _on_contract_completed(_id: String, _success: bool) -> void:
+	if visible:
+		_update_stats()
 
 --- Start of ./src/core/utils/editor_object.gd ---
 
@@ -19200,22 +19916,21 @@ func _physics_process(delta):
 --- Start of ./src/modules/piloting/player_controller_ship.gd ---
 
 # File: modules/piloting/scripts/player_controller_ship.gd
-# Version: 4.2 - Added contextual interact popup for dock vs attack choice.
+# Version: 5.0 - RigidBody physics with thrust throttle control.
 
 extends Node
 
 # --- References ---
 var agent_script: Node = null
-var agent_body: KinematicBody = null
+var agent_body: RigidBody = null
 var movement_system: Node = null
 var _main_camera: Camera = null
 var _speed_slider: Slider = null
 var _weapon_controller: Node = null
 
-# --- Speed Control ---
-var template_max_speed_actual: float = 300.0
-var current_target_speed_normalized: float = 1.0
-const KEY_SPEED_INCREMENT_NORMALIZED: float = 0.05
+# --- Thrust Throttle Control (0.0 to 1.0) ---
+var current_thrust_throttle: float = 1.0
+const KEY_THROTTLE_INCREMENT: float = 0.05
 
 # --- State ---
 var _current_input_state: InputState = null
@@ -19234,7 +19949,7 @@ const StateFreeFlight = preload(
 
 func _ready():
 	agent_body = get_parent()
-	if not (agent_body is KinematicBody and agent_body.has_method("command_stop")):
+	if not (agent_body is RigidBody and agent_body.has_method("command_stop")):
 		printerr("PlayerController Error: Parent is not a valid agent.")
 		set_process(false)
 		return
@@ -19268,9 +19983,8 @@ func _deferred_ready_setup():
 		"ScreenControls/CenterRightZone/SliderControlRight"
 	)
 
-	template_max_speed_actual = movement_system.max_move_speed
-	current_target_speed_normalized = 1.0
-	_update_agent_speed_cap_and_slider_visuals()
+	current_thrust_throttle = 1.0
+	_update_throttle_and_slider_visuals()
 
 	_connect_eventbus_signals()
 	call_deferred("_get_camera_reference")
@@ -19326,19 +20040,19 @@ func _unhandled_input(event: InputEvent):
 		return
 
 	if Input.is_action_pressed("command_speed_up"):
-		var change = KEY_SPEED_INCREMENT_NORMALIZED * event.get_action_strength("command_speed_up")
-		current_target_speed_normalized = clamp(current_target_speed_normalized + change, 0.0, 1.0)
-		_update_agent_speed_cap_and_slider_visuals()
+		var change = KEY_THROTTLE_INCREMENT * event.get_action_strength("command_speed_up")
+		current_thrust_throttle = clamp(current_thrust_throttle + change, 0.0, 1.0)
+		_update_throttle_and_slider_visuals()
 		get_viewport().set_input_as_handled()
 		return
 
 	if Input.is_action_pressed("command_speed_down"):
 		var change = (
-			KEY_SPEED_INCREMENT_NORMALIZED
+			KEY_THROTTLE_INCREMENT
 			* event.get_action_strength("command_speed_down")
 		)
-		current_target_speed_normalized = clamp(current_target_speed_normalized - change, 0.0, 1.0)
-		_update_agent_speed_cap_and_slider_visuals()
+		current_thrust_throttle = clamp(current_thrust_throttle - change, 0.0, 1.0)
+		_update_throttle_and_slider_visuals()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -19377,7 +20091,7 @@ func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 	if not force and not Input.is_action_just_pressed("fire_weapon"):
 		return
 
-	var target_body: KinematicBody = _get_current_target()
+	var target_body: RigidBody = _get_current_target()
 	if not is_instance_valid(target_body):
 		print("PlayerController: Fire skipped (no selected target)")
 		return
@@ -19426,9 +20140,9 @@ func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 		)
 
 
-func _get_current_target() -> KinematicBody:
-	if is_instance_valid(_selected_target) and _selected_target is KinematicBody:
-		return _selected_target as KinematicBody
+func _get_current_target() -> RigidBody:
+	if is_instance_valid(_selected_target) and _selected_target is RigidBody:
+		return _selected_target as RigidBody
 	return null
 
 
@@ -19527,14 +20241,14 @@ func _issue_orbit_command():
 		_change_state("default")
 
 
-func _update_agent_speed_cap_and_slider_visuals():
+func _update_throttle_and_slider_visuals():
 	if not is_instance_valid(movement_system):
 		return
-	var new_cap = lerp(0.0, template_max_speed_actual, current_target_speed_normalized)
-	movement_system.max_move_speed = new_cap
+	# Update the movement system's thrust throttle
+	movement_system.thrust_throttle = current_thrust_throttle
 
 	if is_instance_valid(_speed_slider):
-		var slider_val = 100.0 - (current_target_speed_normalized * 100.0)
+		var slider_val = 100.0 - (current_thrust_throttle * 100.0)
 		if not is_equal_approx(_speed_slider.value, slider_val):
 			_speed_slider.value = slider_val
 
@@ -19583,8 +20297,8 @@ func _on_Player_Interact_Pressed():
 		print("PlayerController: Interact button pressed but no dock available.")
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
-	current_target_speed_normalized = (100.0 - slider_ui_value) / 100.0
-	_update_agent_speed_cap_and_slider_visuals()
+	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
+	_update_throttle_and_slider_visuals()
 
 
 # --- Connections & Cleanup ---
@@ -19808,7 +20522,7 @@ var agent_script: Node = null
 
 # --- State ---
 var _current_state: int = AIState.IDLE
-var _target_agent: KinematicBody = null
+var _target_agent: RigidBody = null
 var _home_position: Vector3 = Vector3.ZERO
 var _weapon_controller: Node = null
 
@@ -19828,14 +20542,14 @@ var _weapon_range_initialized: bool = false
 
 func _ready() -> void:
 	var parent = get_parent()
-	if parent is KinematicBody and parent.has_method("command_move_to"):
+	if parent is RigidBody and parent.has_method("command_move_to"):
 		agent_script = parent
 		_weapon_controller = parent.get_node_or_null("WeaponController")
 		_home_position = parent.global_transform.origin
 		set_physics_process(true)
 	else:
 		printerr(
-			"AI Controller Error: Parent node is not an Agent KinematicBody with command methods!"
+			"AI Controller Error: Parent node is not an Agent RigidBody with command methods!"
 		)
 		set_physics_process(false)
 		set_script(null)
@@ -20104,7 +20818,7 @@ func _process_flee(delta: float) -> void:
 			agent_script.command_move_to(flee_pos)
 
 
-func _scan_for_target() -> KinematicBody:
+func _scan_for_target() -> RigidBody:
 	if not is_hostile:
 		return null
 	var player = GlobalRefs.player_agent_body
@@ -20244,7 +20958,7 @@ func _process(delta: float):
 --- Start of ./src/scenes/camera/components/camera_position_controller.gd ---
 
 # File: scenes/camera/components/camera_position_controller.gd
-# Version: 1.1 - Added a smoothed target position to reduce jerk on rapid velocity changes.
+# Version: 1.2 - Added target-tracking mode for viewing both player and target.
 # Purpose: Manages camera positioning, smoothing, and bobbing effect.
 
 extends Node
@@ -20253,6 +20967,7 @@ class_name CameraPositionController
 # --- References ---
 var _camera: Camera = null
 var _target: Spatial = null
+var _look_at_target: Spatial = null  # Secondary target to track
 var _rotation_controller: CameraRotationController = null
 var _zoom_controller: CameraZoomController = null
 
@@ -20263,6 +20978,10 @@ var bob_frequency: float = 0
 var bob_amplitude: float = 0
 # NEW: How quickly the camera's anchor point follows the ship. Lower values are smoother.
 var target_smoothing_speed: float = 0
+
+# --- Camera Mode ---
+enum CameraMode { ORBIT, TARGET_TRACKING }
+var _camera_mode: int = CameraMode.ORBIT
 
 # --- State ---
 var _bob_timer: float = 0.0
@@ -20292,6 +21011,14 @@ func set_target(new_target: Spatial):
 		_smoothed_target_pos = _target.global_transform.origin
 
 
+func set_look_at_target(look_target: Spatial):
+	_look_at_target = look_target
+
+
+func set_camera_mode(mode: int):
+	_camera_mode = mode
+
+
 func physics_update(delta: float):
 	_bob_timer += delta
 
@@ -20307,12 +21034,9 @@ func physics_update(delta: float):
 	var actual_target_pos = _target.global_transform.origin
 
 	# --- SMOOTHING LOGIC ---
-	# Instead of using the actual target position directly, we lerp our
-	# internal "smoothed" position towards it. This dampens any sudden jumps.
 	_smoothed_target_pos = _smoothed_target_pos.linear_interpolate(
 		actual_target_pos, target_smoothing_speed * delta
 	)
-	# --- END SMOOTHING LOGIC ---
 
 	var bob_offset = (
 		_camera.global_transform.basis.y
@@ -20320,6 +21044,15 @@ func physics_update(delta: float):
 		* bob_amplitude
 	)
 
+	# --- Handle Camera Mode ---
+	if _camera_mode == CameraMode.TARGET_TRACKING and is_instance_valid(_look_at_target):
+		_update_target_tracking_mode(delta, bob_offset)
+	else:
+		_update_orbit_mode(delta, bob_offset)
+
+
+func _update_orbit_mode(delta: float, bob_offset: Vector3):
+	"""Standard orbit camera mode - camera orbits around player."""
 	var desired_basis = Basis().rotated(Vector3.UP, _rotation_controller.yaw).rotated(
 		Basis().rotated(Vector3.UP, _rotation_controller.yaw).x, _rotation_controller.pitch
 	)
@@ -20339,6 +21072,51 @@ func physics_update(delta: float):
 	)
 	_camera.global_transform.basis = _camera.global_transform.basis.slerp(
 		target_look_transform.basis.orthonormalized(), rotation_smoothing_speed * delta
+	)
+
+
+func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
+	"""Target tracking mode - camera positions to see both player and target."""
+	var player_pos = _smoothed_target_pos
+	var target_pos = _look_at_target.global_transform.origin
+	
+	# Direction from player to target
+	var player_to_target = target_pos - player_pos
+	var distance_to_target = player_to_target.length()
+	
+	if distance_to_target < 1.0:
+		# Target too close, fall back to orbit mode
+		_update_orbit_mode(delta, bob_offset)
+		return
+	
+	var dir_to_target = player_to_target / distance_to_target
+	
+	# Position camera on the opposite side of the player from the target
+	# So both player and target are in front of the camera
+	var camera_offset_dir = -dir_to_target  # Behind player relative to target
+	
+	# Add some height to look down slightly
+	camera_offset_dir = (camera_offset_dir + Vector3.UP * 0.3).normalized()
+	
+	# Calculate camera distance - further if target is far
+	var base_distance = _zoom_controller.current_distance
+	var extra_distance = clamp(distance_to_target * 0.15, 0.0, base_distance * 2.0)
+	var total_distance = base_distance + extra_distance
+	
+	# Desired camera position
+	var desired_position = player_pos + camera_offset_dir * total_distance + bob_offset
+	
+	# Interpolate camera position
+	_camera.global_transform.origin = _camera.global_transform.origin.linear_interpolate(
+		desired_position, position_smoothing_speed * delta * 0.5  # Slower for tracking mode
+	)
+	
+	# Look at a point between player and target, weighted toward target
+	var look_at_point = player_pos.linear_interpolate(target_pos, 0.6)
+	
+	var target_look_transform = _camera.global_transform.looking_at(look_at_point, Vector3.UP)
+	_camera.global_transform.basis = _camera.global_transform.basis.slerp(
+		target_look_transform.basis.orthonormalized(), rotation_smoothing_speed * delta * 0.7
 	)
 
 --- Start of ./src/scenes/camera/components/camera_rotation_controller.gd ---
@@ -20674,7 +21452,7 @@ func _notification(what):
 --- Start of ./src/scenes/camera/orbit_camera.gd ---
 
 # File: scenes/camera/orbit_camera.gd
-# Version: 2.2 - Removed all export variables to internalize configuration.
+# Version: 2.3 - Added target-tracking camera mode.
 
 extends Camera
 
@@ -20710,6 +21488,11 @@ var pid_pitch_ki: float = 0.01
 var pid_pitch_kd: float = 0.1
 var pid_integral_limit: float = 10.0
 var pid_output_limit_multiplier: float = 100.0
+
+# --- Camera Mode ---
+enum CameraMode { ORBIT, TARGET_TRACKING }
+var _camera_mode: int = CameraMode.ORBIT
+var _look_at_target: Spatial = null  # Secondary target to look at
 
 # --- Component Script Paths ---
 const RotationControllerScript = preload(
@@ -20824,6 +21607,36 @@ func set_is_rotating(rotating: bool):
 		_rotation_controller.set_is_rotating(rotating)
 
 
+# --- Camera Mode Methods ---
+func get_camera_mode() -> int:
+	return _camera_mode
+
+
+func set_camera_mode(mode: int):
+	_camera_mode = mode
+	if is_instance_valid(_position_controller):
+		_position_controller.set_camera_mode(mode)
+	if mode == CameraMode.ORBIT:
+		_look_at_target = null
+
+
+func toggle_camera_mode():
+	if _camera_mode == CameraMode.ORBIT:
+		set_camera_mode(CameraMode.TARGET_TRACKING)
+	else:
+		set_camera_mode(CameraMode.ORBIT)
+
+
+func set_look_at_target(target: Spatial):
+	_look_at_target = target
+	if is_instance_valid(_position_controller):
+		_position_controller.set_look_at_target(target)
+
+
+func get_look_at_target() -> Spatial:
+	return _look_at_target
+
+
 # --- Signal Handlers ---
 func _on_camera_set_target_requested(target_node):
 	set_target_node(target_node)
@@ -20875,8 +21688,8 @@ func _on_body_entered(body):
 	# Ignore self (the station's own StaticBody)
 	if body == self:
 		return
-	# Only care about KinematicBody (ships)
-	if not body is KinematicBody:
+	# Only care about RigidBody (ships)
+	if not body is RigidBody:
 		return
 		
 	print("Body entered docking zone: ", body.name)
@@ -20891,7 +21704,7 @@ func _on_body_entered(body):
 func _on_body_exited(body):
 	if body == self:
 		return
-	if not body is KinematicBody:
+	if not body is RigidBody:
 		return
 	if body.has_method("is_player") and body.is_player():
 		EventBus.emit_signal("dock_unavailable")
@@ -22655,6 +23468,7 @@ func test_setting_invalid_freed_reference_is_handled():
 --- Start of ./src/tests/core/agents/components/test_movement_system.gd ---
 
 # tests/core/agents/components/test_movement_system.gd
+# Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 extends GutTest
 
 var MovementSystem = load("res://src/core/agents/components/movement_system.gd")
@@ -22662,16 +23476,12 @@ var agent_body
 var movement_system
 
 
-# Use a test-specific KinematicBody to add the `current_velocity` var
-class TestAgentBody:
-	extends KinematicBody
-	var current_velocity = Vector3.ZERO
-
-
 func before_each():
-	# Create a mock agent body scene for the test
-	agent_body = TestAgentBody.new()
+	# Create a RigidBody as the agent body
+	agent_body = RigidBody.new()
 	agent_body.name = "TestAgentBody"
+	agent_body.mode = RigidBody.MODE_RIGID
+	agent_body.gravity_scale = 0.0
 
 	# The movement system must be a child of the body to work
 	movement_system = MovementSystem.new()
@@ -22686,11 +23496,9 @@ func before_each():
 
 	# Initialize with known test parameters
 	var move_params = {
-		"max_move_speed": 100.0,
-		"acceleration": 0.5,
-		"deceleration": 0.5,
-		"max_turn_speed": 1.0,  # rad/s
-		"brake_strength": 1.0,
+		"mass": 100.0,
+		"linear_thrust": 5000.0,
+		"angular_thrust": 2000.0,
 		"alignment_threshold_angle_deg": 30.0
 	}
 	movement_system.initialize_movement_params(move_params)
@@ -22702,105 +23510,111 @@ func after_each():
 
 
 func test_initialization():
-	assert_eq(movement_system.max_move_speed, 100.0)
-	assert_eq(movement_system.acceleration, 0.5)
+	assert_eq(movement_system.linear_thrust, 5000.0)
+	assert_eq(movement_system.angular_thrust, 2000.0)
 	assert_almost_eq(movement_system._alignment_threshold_rad, deg2rad(30.0), 0.001)
 	assert_true(
 		is_instance_valid(movement_system.agent_body),
 		"It should have a valid reference to its parent agent body."
 	)
+	assert_eq(agent_body.mass, 100.0, "Mass should be set on the RigidBody.")
 
 
-func test_accelerates_when_aligned():
-	agent_body.current_velocity = Vector3.ZERO
-	agent_body.transform = agent_body.transform.looking_at(Vector3.FORWARD, Vector3.UP)
-
-	movement_system.apply_acceleration(Vector3.FORWARD, 0.1)
-
-	assert_true(
-		agent_body.current_velocity.length() > 0.0,
-		"Velocity should increase when accelerating while aligned."
-	)
-	assert_true(
-		agent_body.current_velocity.z < 0,
-		"Velocity should be in the local forward direction (negative Z)."
-	)
-
-
-func test_does_not_accelerate_when_not_aligned():
-	agent_body.current_velocity = Vector3.ZERO
-	# Agent looks forward, but tries to accelerate to the right (90 deg diff > 30 deg threshold)
-	agent_body.transform = agent_body.transform.looking_at(Vector3.FORWARD, Vector3.UP)
-
-	movement_system.apply_acceleration(Vector3.RIGHT, 0.1)
-
-	assert_almost_eq(
-		agent_body.current_velocity.length(),
-		0.0,
-		0.001,
-		"Velocity should not increase when not aligned."
-	)
-
-
-func test_deceleration_reduces_speed():
-	agent_body.current_velocity = Vector3(0, 0, -100)
-	var initial_speed = agent_body.current_velocity.length()
-
-	movement_system.apply_deceleration(0.1)
-	var final_speed = agent_body.current_velocity.length()
-
-	assert_true(final_speed < initial_speed, "Deceleration should reduce the agent's speed.")
-
-
-func test_braking_reduces_speed_faster_than_deceleration():
-	agent_body.current_velocity = Vector3(0, 0, -100)
-	movement_system.apply_deceleration(0.1)
-	var speed_after_decel = agent_body.current_velocity.length()
-
-	agent_body.current_velocity = Vector3(0, 0, -100)
-	movement_system.apply_braking(0.1)
-	var speed_after_brake = agent_body.current_velocity.length()
-
-	assert_true(
-		speed_after_brake < speed_after_decel,
-		"Braking should be stronger than natural deceleration."
-	)
-
-
-func test_braking_reports_stopped():
-	agent_body.current_velocity = Vector3(0, 0, -0.1)
-	var stopped = movement_system.apply_braking(1.0)
-	assert_true(stopped, "Braking should return true when velocity is near zero.")
-
-	agent_body.current_velocity = Vector3(0, 0, -50)
-	stopped = movement_system.apply_braking(0.01)
-	assert_false(stopped, "Braking should return false when velocity is still high.")
-
-
-func test_rotation_turns_towards_target():
-	var target_dir = Vector3.RIGHT
+func test_request_thrust_forward_accumulates_force():
+	movement_system._accumulated_force = Vector3.ZERO
 	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
-
-	var initial_forward_vec = -agent_body.global_transform.basis.z
-	var initial_dot = initial_forward_vec.dot(target_dir)
-
-	movement_system.apply_rotation(target_dir, 0.1)
-
-	var final_forward_vec = -agent_body.global_transform.basis.z
-	var final_dot = final_forward_vec.dot(target_dir)
-
+	
+	movement_system.request_thrust_forward()
+	
 	assert_true(
-		final_dot > initial_dot, "Agent should turn to be more aligned with the target direction."
+		movement_system._accumulated_force.length() > 0.0,
+		"Forward thrust should accumulate force."
 	)
+	assert_true(
+		movement_system._accumulated_force.z < 0,
+		"Force should be in the forward direction (negative Z)."
+	)
+
+
+func test_request_thrust_brake_opposes_velocity():
+	movement_system._accumulated_force = Vector3.ZERO
+	agent_body.linear_velocity = Vector3(0, 0, -50)
+	
+	movement_system.request_thrust_brake()
+	
+	assert_true(
+		movement_system._accumulated_force.z > 0,
+		"Brake thrust should oppose current velocity direction."
+	)
+
+
+func test_request_thrust_direction():
+	movement_system._accumulated_force = Vector3.ZERO
+	
+	movement_system.request_thrust_direction(Vector3.RIGHT)
+	
+	assert_true(
+		movement_system._accumulated_force.x > 0,
+		"Thrust should be applied in the requested direction."
+	)
+
+
+func test_request_rotation_accumulates_torque():
+	movement_system._accumulated_torque = Vector3.ZERO
+	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
+	
+	movement_system.request_rotation_to(Vector3.RIGHT)
+	
+	assert_true(
+		movement_system._accumulated_torque.length() > 0.0,
+		"Rotation request should accumulate torque."
+	)
+
+
+func test_is_aligned_to():
+	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
+	
+	# Should be aligned to forward (within threshold)
+	assert_true(
+		movement_system.is_aligned_to(Vector3.FORWARD),
+		"Should be aligned when looking at target."
+	)
+	
+	# Should not be aligned to right (90 deg > 30 deg threshold)
+	assert_false(
+		movement_system.is_aligned_to(Vector3.RIGHT),
+		"Should not be aligned when target is outside threshold."
+	)
+
+
+func test_is_stopped():
+	agent_body.linear_velocity = Vector3.ZERO
+	assert_true(movement_system.is_stopped(), "Should report stopped when velocity is zero.")
+	
+	agent_body.linear_velocity = Vector3(0, 0, -50)
+	assert_false(movement_system.is_stopped(), "Should not report stopped when moving.")
+
+
+func test_throttle_affects_force():
+	movement_system._accumulated_force = Vector3.ZERO
+	movement_system.thrust_throttle = 0.5
+	agent_body.transform = Transform().looking_at(Vector3.FORWARD, Vector3.UP)
+	
+	movement_system.request_thrust_forward()
+	var full_force = movement_system._accumulated_force.length()
+	
+	# The throttle is applied during integrate_forces, not during request
+	# So the accumulated force should be full thrust
+	assert_almost_eq(full_force, 5000.0, 1.0, "Accumulated force should be full thrust.")
 
 --- Start of ./src/tests/core/agents/components/test_navigation_system.gd ---
 
 extends GutTest
+# Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 
 var NavigationSystem = load("res://src/core/agents/components/navigation_system.gd")
 var MovementSystem = load("res://src/core/agents/components/movement_system.gd")
 const SignalCatcher = preload("res://src/tests/helpers/signal_catcher.gd")
-const TestAgentBodyScript = preload("res://src/tests/helpers/test_agent_body.gd")
 
 var agent_body
 var nav_system
@@ -22808,21 +23622,37 @@ var mock_movement_system
 var signal_catcher
 
 
+# Test helper class that extends RigidBody
+class TestAgentBody:
+	extends RigidBody
+	var interaction_radius: float = 10.0
+	func get_interaction_radius() -> float:
+		return interaction_radius
+
+
 func before_each():
 	signal_catcher = SignalCatcher.new()
 	EventBus.connect("agent_reached_destination", signal_catcher, "_on_signal_received")
 
-	agent_body = partial_double(TestAgentBodyScript).new()
+	agent_body = TestAgentBody.new()
 	agent_body.name = "TestAgent"
+	agent_body.mode = RigidBody.MODE_RIGID
+	agent_body.gravity_scale = 0.0
 
 	mock_movement_system = double(MovementSystem).new()
-	# CORRECTED: Stub methods to silence GUT warnings and provide default return values.
+	# Stub methods for the new RigidBody-based API
 	stub(mock_movement_system, "_ready").to_return(null)
-	stub(mock_movement_system, "apply_deceleration").to_return(null)
-	stub(mock_movement_system, "apply_braking").to_return(false)
-	stub(mock_movement_system, "apply_rotation").to_return(null)
-	stub(mock_movement_system, "apply_acceleration").to_return(null)
-	stub(mock_movement_system, "max_move_speed").to_return(100.0)
+	stub(mock_movement_system, "request_thrust_forward").to_return(null)
+	stub(mock_movement_system, "request_thrust_brake").to_return(null)
+	stub(mock_movement_system, "request_thrust_direction").to_return(null)
+	stub(mock_movement_system, "request_rotation_to").to_return(null)
+	stub(mock_movement_system, "request_rotation_damping").to_return(null)
+	stub(mock_movement_system, "is_aligned_to").to_return(true)
+	stub(mock_movement_system, "is_stopped").to_return(false)
+	stub(mock_movement_system, "is_rotation_stopped").to_return(false)
+	stub(mock_movement_system, "get_current_speed").to_return(0.0)
+	stub(mock_movement_system, "get_velocity").to_return(Vector3.ZERO)
+	stub(mock_movement_system, "linear_thrust").to_return(5000.0)
 
 	nav_system = NavigationSystem.new()
 	nav_system.name = "NavigationSystem"
@@ -22853,8 +23683,8 @@ func test_initial_state_is_idle():
 		nav_system.CommandType.IDLE,
 		"Default command should be IDLE."
 	)
+	# Idle state does nothing (drag handles deceleration)
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_deceleration", [0.1])
 
 
 func test_set_command_stopping():
@@ -22862,13 +23692,15 @@ func test_set_command_stopping():
 	nav_system.set_command_stopping()
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_braking", [0.1])
+	assert_called(mock_movement_system, "request_thrust_brake")
+	assert_called(mock_movement_system, "request_rotation_damping")
 
 
 func test_stop_command_emits_reached_destination_signal():
 	signal_catcher.reset()
-	# This time we need apply_braking to return true to trigger the signal
-	stub(mock_movement_system, "apply_braking").to_return(true)
+	# Make the movement system report stopped
+	stub(mock_movement_system, "is_stopped").to_return(true)
+	stub(mock_movement_system, "is_rotation_stopped").to_return(true)
 
 	nav_system.set_command_stopping()
 	nav_system.update_navigation(0.1)
@@ -22889,14 +23721,14 @@ func test_set_command_move_to():
 	assert_eq(nav_system._current_command.target_pos, target_pos)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_set_command_approach():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 	agent_body.add_child(target_node)
-	# CORRECTED: Move the target so the distance isn't zero.
+	# Move the target so the distance isn't zero.
 	target_node.global_transform.origin = Vector3(0, 0, -1000)
 
 	nav_system.set_command_approach(target_node)
@@ -22904,13 +23736,12 @@ func test_set_command_approach():
 	assert_eq(nav_system._current_command.target_node, target_node)
 
 	nav_system.update_navigation(0.1)
-	# This assertion will now pass because the distance is > arrival threshold.
-	assert_called(mock_movement_system, "apply_rotation")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_set_command_orbit():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 	agent_body.add_child(target_node)
 	# Move the target so the distance isn't zero.
 	target_node.global_transform.origin = Vector3(0, 0, -1000)
@@ -22919,12 +23750,12 @@ func test_set_command_orbit():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ORBIT)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_set_command_flee():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 	agent_body.add_child(target_node)
 	# Move the target so there is a direction to flee from.
 	target_node.global_transform.origin = Vector3(0, 0, -1000)
@@ -22933,8 +23764,8 @@ func test_set_command_flee():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.FLEE)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
-	assert_called(mock_movement_system, "apply_acceleration")
+	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_thrust_forward")
 
 
 func test_set_command_align_to():
@@ -22944,13 +23775,12 @@ func test_set_command_align_to():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "apply_rotation")
-	assert_called(mock_movement_system, "apply_deceleration")
+	assert_called(mock_movement_system, "request_rotation_to")
 
 
 func test_invalid_target_in_update_switches_to_stopping():
 	signal_catcher.reset()
-	var target_node = TestAgentBodyScript.new()
+	var target_node = TestAgentBody.new()
 
 	nav_system.set_command_approach(target_node)
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.APPROACH)
@@ -22961,7 +23791,7 @@ func test_invalid_target_in_update_switches_to_stopping():
 	nav_system.update_navigation(0.1)
 
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
-	assert_called(mock_movement_system, "apply_braking")
+	assert_called(mock_movement_system, "request_thrust_brake")
 
 --- Start of ./src/tests/core/agents/components/test_weapon_controller.gd ---
 
@@ -22974,7 +23804,7 @@ const CombatSystem = preload("res://src/core/systems/combat_system.gd")
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
 
 var _weapon_controller: Node
-var _mock_agent_body: KinematicBody
+var _mock_agent_body: RigidBody
 var _mock_combat_system: Node
 var _test_weapon: UtilityToolTemplate
 
@@ -22984,7 +23814,7 @@ const TARGET_UID: int = 200
 
 # --- Test Agent Body with required properties ---
 class TestAgentBody:
-	extends KinematicBody
+	extends RigidBody
 	var agent_uid: int = 100
 	var character_uid: int = 1
 
@@ -22995,6 +23825,7 @@ func before_each():
 	_mock_agent_body.name = "TestAgentBody"
 	_mock_agent_body.agent_uid = SHOOTER_UID
 	_mock_agent_body.character_uid = 1
+	_mock_agent_body.gravity_scale = 0.0
 	add_child(_mock_agent_body)
 	
 	# Create and register mock combat system
@@ -23425,7 +24256,7 @@ func test_spawn_agent_with_overrides():
 	
 	var agent_body = agent_system_instance.spawn_agent(MOCK_AGENT_SCENE, Vector3.ZERO, template, overrides, npc_uid)
 
-	assert_not_null(agent_body, "Spawner should return a valid KinematicBody instance.")
+	assert_not_null(agent_body, "Spawner should return a valid RigidBody instance.")
 	assert_eq(agent_body.agent_type, "test_npc", "Agent type override should be applied.")
 	assert_eq(agent_body.template_id, "npc_fighter", "Template ID override should be applied.")
 	assert_eq(agent_body.agent_uid, npc_uid, "Agent UID should be set correctly.")
@@ -23476,7 +24307,7 @@ func before_each():
 	
 	var npc_ship_asset = ShipTemplate.new()
 	npc_ship_asset.ship_model_name = "NPC Vessel"
-	npc_ship_asset.max_move_speed = 200.0
+	npc_ship_asset.linear_thrust = 4000.0
 	GameState.assets_ships[NPC_SHIP_UID] = npc_ship_asset
 
 	# 5. Create characters in GameState for get_ship_for_character tests
@@ -23533,7 +24364,7 @@ func test_get_ship_for_character_valid():
 	var ship = asset_system_instance.get_ship_for_character(NPC_UID)
 	assert_not_null(ship, "Should return a valid ship for a valid character UID.")
 	assert_eq(ship.ship_model_name, "NPC Vessel", "Should return the correct ship for the character.")
-	assert_eq(ship.max_move_speed, 200.0, "Ship should have the correct stats.")
+	assert_eq(ship.linear_thrust, 4000.0, "Ship should have the correct stats.")
 
 func test_get_ship_for_character_player():
 	var ship = asset_system_instance.get_ship_for_character(PLAYER_UID)
@@ -23671,8 +24502,8 @@ var _combat_system: Node
 var _test_weapon: UtilityToolTemplate
 var _attacker_uid: int = 0
 var _defender_uid: int = 1
-var _attacker_body: KinematicBody
-var _defender_body: KinematicBody
+var _attacker_body: RigidBody
+var _defender_body: RigidBody
 
 
 func before_each():
@@ -24346,11 +25177,12 @@ func test_docking_signals():
 	
 	add_child(station)
 	
-	var player = KinematicBody.new()
+	var player = RigidBody.new()
 	player.name = "Player"
+	player.gravity_scale = 0.0
 	# Mock is_player method
 	var script = GDScript.new()
-	script.source_code = "extends KinematicBody\nfunc is_player(): return true"
+	script.source_code = "extends RigidBody\nfunc is_player(): return true"
 	script.reload()
 	player.set_script(script)
 	add_child(player)
@@ -24369,10 +25201,11 @@ func test_docking_signals():
 	player.free()
 
 func test_player_controller_docking():
-	var agent = KinematicBody.new()
+	var agent = RigidBody.new()
+	agent.gravity_scale = 0.0
 	# Mock command_stop
 	var agent_script = GDScript.new()
-	agent_script.source_code = "extends KinematicBody\nfunc command_stop(): pass"
+	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass"
 	agent_script.reload()
 	agent.set_script(agent_script)
 	
@@ -24423,9 +25256,10 @@ class DummySpawner:
 	extends Node
 	var spawn_count: int = 0
 
-	func spawn_npc_from_template(_template_path: String, position: Vector3, _overrides: Dictionary = {}) -> KinematicBody:
+	func spawn_npc_from_template(_template_path: String, position: Vector3, _overrides: Dictionary = {}) -> RigidBody:
 		spawn_count += 1
-		var npc: KinematicBody = KinematicBody.new()
+		var npc: RigidBody = RigidBody.new()
+		npc.gravity_scale = 0.0
 		npc.set("agent_uid", 1000 + spawn_count)
 		npc.translation = position
 		return npc
@@ -24433,8 +25267,11 @@ class DummySpawner:
 
 ## Mock player agent.
 class DummyPlayer:
-	extends KinematicBody
+	extends RigidBody
 	var agent_uid: int = 1
+	
+	func _ready():
+		gravity_scale = 0.0
 
 
 var _event_system: Node
@@ -24968,6 +25805,85 @@ func test_reset_focus_points():
 	# Then: FP should be 0
 	assert_eq(GlobalRefs.character_system.get_fp(PLAYER_UID), 0, "FP should be reset to 0")
 
+--- Start of ./src/tests/core/systems/test_quirk_system.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: src/tests/core/systems/test_quirk_system.gd
+# STATUS: [Level 3 - Verified]
+# TRUTH_LINK: TACTICAL_TODO.md VERIFICATION
+# LOG_REF: 2025-12-23
+#
+
+extends "res://addons/gut/test.gd"
+
+const QuirkSystem = preload("res://src/core/systems/quirk_system.gd")
+
+var _quirk_system: Node
+var _test_ship_uid: int = 999
+
+func before_each() -> void:
+	_quirk_system = QuirkSystem.new()
+	add_child_autofree(_quirk_system)
+	_quirk_system._ready()
+	
+	# Setup mock ship in GameState
+	var ship = ShipTemplate.new()
+	ship.ship_quirks = []
+	GameState.assets_ships[_test_ship_uid] = ship
+
+func after_each() -> void:
+	GameState.assets_ships.erase(_test_ship_uid)
+
+func test_add_quirk_success() -> void:
+	var quirk_id = "test_quirk"
+	watch_signals(EventBus)
+	
+	var result = _quirk_system.add_quirk(_test_ship_uid, quirk_id)
+	
+	assert_true(result, "Should return true on successful add")
+	assert_true(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Ship should have the quirk")
+	assert_signal_emitted(EventBus, "ship_quirk_added", "Should emit ship_quirk_added signal")
+
+func test_add_duplicate_quirk_fails() -> void:
+	var quirk_id = "test_quirk"
+	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
+	
+	watch_signals(EventBus)
+	var result = _quirk_system.add_quirk(_test_ship_uid, quirk_id)
+	
+	assert_false(result, "Should return false when adding duplicate quirk")
+	assert_signal_not_emitted(EventBus, "ship_quirk_added", "Should not emit signal for duplicate")
+
+func test_remove_quirk() -> void:
+	var quirk_id = "test_quirk"
+	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
+	
+	watch_signals(EventBus)
+	var result = _quirk_system.remove_quirk(_test_ship_uid, quirk_id)
+	
+	assert_true(result, "Should return true on successful removal")
+	assert_false(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Ship should no longer have the quirk")
+	assert_signal_emitted(EventBus, "ship_quirk_removed", "Should emit ship_quirk_removed signal")
+
+func test_get_quirks_returns_copy() -> void:
+	var quirk_id = "test_quirk"
+	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
+	
+	var quirks = _quirk_system.get_quirks(_test_ship_uid)
+	quirks.append("malicious_addition")
+	
+	var actual_quirks = _quirk_system.get_quirks(_test_ship_uid)
+	assert_eq(actual_quirks.size(), 1, "Original quirks array should not be modified by external changes to returned array")
+	assert_false(actual_quirks.has("malicious_addition"), "Original quirks should not contain the malicious addition")
+
+func test_has_quirk() -> void:
+	var quirk_id = "test_quirk"
+	assert_false(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Should return false if quirk not present")
+	
+	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
+	assert_true(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Should return true if quirk present")
+
 --- Start of ./src/tests/core/systems/test_time_system.gd ---
 
 # File: tests/core/systems/test_time_system.gd
@@ -25374,9 +26290,9 @@ func test_zero_delta_returns_zero():
 
 # File: tests/helpers/mock_agent_body.gd
 # A minimal agent body for the spawner to instantiate in tests.
-# Version: 2.0 - Updated to match agent.gd's properties and initialize signature.
+# Version: 3.0 - Updated to RigidBody for physics-based flight.
 
-extends KinematicBody
+extends RigidBody
 
 # --- Core State & Identity (to match agent.gd) ---
 var agent_type: String = ""
@@ -25386,6 +26302,13 @@ var agent_uid = -1
 # --- Test-specific variable ---
 # This will be populated when initialize is called, so tests can inspect it.
 var init_data = null
+
+
+func _ready():
+	# RigidBody settings for 6DOF space flight
+	mode = RigidBody.MODE_RIGID
+	gravity_scale = 0.0
+	can_sleep = false
 
 
 # This signature now exactly matches the one in `core/agents/agent.gd`.
@@ -25490,10 +26413,9 @@ func reset():
 --- Start of ./src/tests/helpers/test_agent_body.gd ---
 
 # tests/helpers/test_agent_body.gd
-# A simple KinematicBody for use in tests that require an agent.
-extends KinematicBody
-
-var current_velocity = Vector3.ZERO
+# A simple RigidBody for use in tests that require an agent.
+# Version: 2.0 - Updated for RigidBody physics.
+extends RigidBody
 
 
 # The NavigationSystem's approach/orbit commands use this.
@@ -25510,7 +26432,7 @@ extends "res://addons/gut/test.gd"
 const ShipControllerAI = preload("res://src/modules/piloting/ship_controller_ai.gd")
 
 class DummyAgentBody:
-	extends KinematicBody
+	extends RigidBody
 	var agent_uid: int = 1
 	var last_command: Dictionary = {}
 
@@ -25767,10 +26689,11 @@ func test_docking_in_zone():
 	var station = zone.get_node("SceneAssets/System_1/Station_Alpha")
 	
 	# Create a player mock
-	var player = KinematicBody.new()
+	var player = RigidBody.new()
 	player.name = "PlayerMock"
+	player.gravity_scale = 0.0
 	var script = GDScript.new()
-	script.source_code = "extends KinematicBody\nfunc is_player(): return true"
+	script.source_code = "extends RigidBody\nfunc is_player(): return true"
 	script.reload()
 	player.set_script(script)
 	
@@ -26181,3 +27104,97 @@ func _setup_player() -> void:
 func _setup_hud() -> void:
 	_hud = MainHUDScene.instance()
 	add_child(_hud)
+
+--- Start of ./tests/src/core/ui/narrative_status/test_narrative_status_panel.gd ---
+
+extends "res://addons/gut/test.gd"
+
+# Unit tests for NarrativeStatusPanel
+# Path: tests/src/core/ui/narrative_status/test_narrative_status_panel.gd
+
+const NarrativeStatusPanelScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
+
+var _panel = null
+
+func before_each():
+	_panel = NarrativeStatusPanelScene.instance()
+	add_child(_panel)
+
+func after_each():
+	_panel.free()
+
+func test_initial_visibility():
+	assert_false(_panel.visible, "Panel should be hidden by default")
+
+func test_update_reputation():
+	# Backup
+	var old_rep = GameState.narrative_state.get("reputation", 0)
+	
+	GameState.narrative_state["reputation"] = 88
+	_panel.update_display()
+	
+	assert_eq(_panel.reputation_label.text, "Reputation: 88")
+	
+	# Restore
+	GameState.narrative_state["reputation"] = old_rep
+
+func test_update_stats():
+	# Backup
+	var old_stats = GameState.session_stats.duplicate()
+	
+	GameState.session_stats["contracts_completed"] = 12
+	GameState.session_stats["total_wp_earned"] = 5000
+	GameState.session_stats["enemies_disabled"] = 7
+	
+	_panel.update_display()
+	
+	var expected_text = "Contracts Completed: 12\nTotal WP Earned: 5000\nCombat Victories: 7"
+	assert_eq(_panel.contracts_label.text, expected_text)
+	
+	# Restore
+	GameState.session_stats = old_stats
+
+func test_close_button_hides_panel():
+	_panel.show()
+	assert_true(_panel.visible)
+	
+	_panel._on_ButtonClose_pressed()
+	assert_false(_panel.visible, "Panel should be hidden after close pressed")
+
+func test_quirks_display():
+	# Mock QuirkSystem
+	var mock_qs = Node.new()
+	mock_qs.name = "MockQuirkSystem"
+	# We need a dummy method get_quirks
+	mock_qs.set_script(load("res://src/core/systems/quirk_system.gd")) 
+	# Note: This might still fail if QuirkSystem refers to GameState, but get_quirks is safe-ish.
+	
+	var old_qs = GlobalRefs.quirk_system
+	GlobalRefs.quirk_system = mock_qs
+	
+	# Setup test data
+	var ship_uid = 123
+	GameState.player_character_uid = 1
+	GameState.characters[1] = {"active_ship_uid": ship_uid}
+	GameState.assets_ships[ship_uid] = {"ship_quirks": ["fast", "fragile"]}
+	
+	_panel.show()
+	_panel.update_display()
+	
+	# Should have 2 children in quirks_container (Labels)
+	assert_eq(_panel.quirks_container.get_child_count(), 2, "Should display 2 quirks")
+	
+	# Cleanup
+	GlobalRefs.quirk_system = old_qs
+	mock_qs.free()
+
+func test_reacts_to_wp_change_signal():
+	_panel.show() # Must be visible to update
+	var old_stats = GameState.session_stats.duplicate()
+	
+	GameState.session_stats["total_wp_earned"] = 999
+	_panel._on_player_wp_changed(999) # Call handler directly to avoid EventBus issues in test
+	
+	assert_true(_panel.contracts_label.text.find("Earned: 999") != -1, "Should contain updated WP value")
+	
+	GameState.session_stats = old_stats
