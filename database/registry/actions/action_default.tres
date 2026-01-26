@@ -9,3 +9,4 @@ action_name = "Unnamed Action"
 tu_cost = 1
 base_attribute = "int"
 associated_skill = "computers"
+stakes = 1

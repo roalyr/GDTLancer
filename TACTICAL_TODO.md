@@ -21,44 +21,44 @@
   - All persistent enums must be in Constants.gd autoload
 
 - ATOMIC_TASKS:
-  - [ ] TASK_1: Add `ActionStakes` enum to Constants.gd
+  - [x] TASK_1: Add `ActionStakes` enum to Constants.gd
     - Signature: `enum ActionStakes { HIGH_STAKES, NARRATIVE, MUNDANE }`
     - Add after existing `ActionApproach` enum
 
-  - [ ] TASK_2: Add `NEUTRAL` to `ActionApproach` enum in Constants.gd
+  - [x] TASK_2: Add `NEUTRAL` to `ActionApproach` enum in Constants.gd
     - Signature: `enum ActionApproach { CAUTIOUS, NEUTRAL, RISKY }`
     - Value order: CAUTIOUS=0, NEUTRAL=1, RISKY=2
 
-  - [ ] TASK_3: Add Neutral threshold constants to Constants.gd
+  - [x] TASK_3: Add Neutral threshold constants to Constants.gd
     - Signature: `const ACTION_CHECK_CRIT_THRESHOLD_NEUTRAL = 15`
     - Signature: `const ACTION_CHECK_SWC_THRESHOLD_NEUTRAL = 11`
     - Add after CAUTIOUS thresholds, before RISKY thresholds
 
-  - [ ] TASK_4: Update `action_template.gd` with `stakes` property
+  - [x] TASK_4: Update `action_template.gd` with `stakes` property
     - Signature: `export(int, "HIGH_STAKES", "NARRATIVE", "MUNDANE") var stakes: int = 1`
     - Default to NARRATIVE (1) for backward compatibility
     - Add descriptive comment referencing GDD Section 7.1
 
-  - [ ] TASK_5: Update `action_default.tres` with stakes property
+  - [x] TASK_5: Update `action_default.tres` with stakes property
     - Add `stakes = 1` (NARRATIVE default)
 
-  - [ ] TASK_6: Update `CoreMechanicsAPI.perform_action_check()` to handle NEUTRAL approach
+  - [x] TASK_6: Update `CoreMechanicsAPI.perform_action_check()` to handle NEUTRAL approach
     - Add `elif action_approach == Constants.ActionApproach.NEUTRAL:` branch
     - Use `ACTION_CHECK_CRIT_THRESHOLD_NEUTRAL` and `ACTION_CHECK_SWC_THRESHOLD_NEUTRAL`
 
-  - [ ] TASK_7: Update `narrative_action_system.gd` to use stakes-based approach
+  - [x] TASK_7: Update `narrative_action_system.gd` to use stakes-based approach
     - Modify `resolve_action()` to accept optional ActionTemplate
     - If stakes != HIGH_STAKES, force approach to NEUTRAL
     - Add helper `_get_effective_approach(stakes: int, player_approach: int) -> int`
 
-  - [ ] TASK_8: Create/Update unit tests for new mechanics
+  - [x] TASK_8: Create/Update unit tests for new mechanics
     - Test NEUTRAL approach thresholds in CoreMechanicsAPI
     - Test stakes-based approach override in NarrativeActionSystem
     - Location: `tests/autoload/test_core_mechanics_api.gd`
 
-  - [ ] VERIFICATION:
-    - Run GUT tests: `res://tests/autoload/test_core_mechanics_api.gd`
-    - Run GUT tests: `res://tests/core/systems/test_narrative_action_system.gd`
+  - [x] VERIFICATION:
+    - Run GUT tests: `res://tests/src/autoload/test_core_mechanics_api.gd`
+    - Run GUT tests: `res://tests/src/core/systems/test_narrative_action_system.gd`
     - Manual test: Verify action_default.tres loads without errors
     - Confirm Constants.ActionApproach.NEUTRAL == 1
     - Confirm Constants.ActionStakes.HIGH_STAKES == 0

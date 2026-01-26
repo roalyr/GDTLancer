@@ -8,6 +8,7 @@ extends GutTest
 const NarrativeActionSystemPath = "res://src/core/systems/narrative_action_system.gd"
 const CharacterSystemPath = "res://src/core/systems/character_system.gd"
 const CharacterTemplate = preload("res://database/definitions/character_template.gd")
+const ActionTemplate = preload("res://database/definitions/action_template.gd")
 
 # --- Test State ---
 var narrative_system = null
@@ -249,3 +250,42 @@ func test_reset_focus_points():
 
 	# Then: FP should be 0
 	assert_eq(GlobalRefs.character_system.get_fp(PLAYER_UID), 0, "FP should be reset to 0")
+
+
+func test_effective_approach_neutral_override():
+	"""Test that NARRATIVE stakes force the approach to NEUTRAL."""
+	# Given: An action template with NARRATIVE stakes
+	var template = ActionTemplate.new()
+	template.stakes = Constants.ActionStakes.NARRATIVE
+
+	# When: We determine effective approach with RISKY player input
+	var effective = narrative_system._get_effective_approach(template.stakes, Constants.ActionApproach.RISKY)
+
+	# Then: Approach should be NEUTRAL
+	assert_eq(effective, Constants.ActionApproach.NEUTRAL, "NARRATIVE stakes should force NEUTRAL approach")
+
+
+func test_effective_approach_high_stakes_preserved():
+	"""Test that HIGH_STAKES preserve the player's chosen approach."""
+	# Given: An action template with HIGH_STAKES
+	var template = ActionTemplate.new()
+	template.stakes = Constants.ActionStakes.HIGH_STAKES
+
+	# When: We determine effective approach with RISKY player input
+	var effective = narrative_system._get_effective_approach(template.stakes, Constants.ActionApproach.RISKY)
+
+	# Then: Approach should remain RISKY
+	assert_eq(effective, Constants.ActionApproach.RISKY, "HIGH_STAKES should preserve player approach")
+
+
+func test_default_approach_neutral():
+	"""Test that MUNDANE stakes force the approach to NEUTRAL."""
+	# Given: An action template with MUNDANE stakes
+	var template = ActionTemplate.new()
+	template.stakes = Constants.ActionStakes.MUNDANE
+
+	# When: We determine effective approach with CAUTIOUS player input
+	var effective = narrative_system._get_effective_approach(template.stakes, Constants.ActionApproach.CAUTIOUS)
+
+	# Then: Approach should be NEUTRAL
+	assert_eq(effective, Constants.ActionApproach.NEUTRAL, "MUNDANE stakes should force NEUTRAL approach")

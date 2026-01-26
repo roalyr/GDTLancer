@@ -10,7 +10,27 @@ const ATTR = 4
 const SKILL = 2
 const FOCUS = 1
 const CAUTIOUS = Constants.ActionApproach.CAUTIOUS
+const NEUTRAL = Constants.ActionApproach.NEUTRAL
 const RISKY = Constants.ActionApproach.RISKY
+
+
+func test_neutral_approach_thresholds():
+	# Test Neutral thresholds via perform_action_check
+	# To guarantee failure: 18 + mod < 11 => mod < -7. We use -8.
+	var result_fail = CoreMechanicsAPI.perform_action_check(-8, 0, 0, NEUTRAL)
+	assert_eq(result_fail.result_tier, "Failure", "[Neutral] Guaranteed failure check.")
+
+	# To guarantee critical success: 3 + mod >= 15 => mod >= 12. We use 12.
+	var result_crit = CoreMechanicsAPI.perform_action_check(12, 0, 0, NEUTRAL)
+	assert_eq(result_crit.result_tier, "CritSuccess", "[Neutral] Guaranteed critical success check.")
+	prints("Tested Action Check: Neutral Tier Boundaries")
+
+
+func test_stakes_constants():
+	assert_eq(Constants.ActionStakes.HIGH_STAKES, 0)
+	assert_eq(Constants.ActionStakes.NARRATIVE, 1)
+	assert_eq(Constants.ActionStakes.MUNDANE, 2)
+	prints("Tested Action Stakes Enum Values")
 
 
 func test_perform_action_check_return_structure():

@@ -5,12 +5,17 @@
 extends Node
 
 # --- Action Approach Enum ---
-enum ActionApproach { CAUTIOUS, RISKY }
+enum ActionApproach { CAUTIOUS, NEUTRAL, RISKY }
+enum ActionStakes { HIGH_STAKES, NARRATIVE, MUNDANE }
 
 # --- Core Mechanics Thresholds ---
 # Cautious approach has a wider success band.
 const ACTION_CHECK_CRIT_THRESHOLD_CAUTIOUS = 14
 const ACTION_CHECK_SWC_THRESHOLD_CAUTIOUS = 10
+
+# Neutral approach (Standard difficulty)
+const ACTION_CHECK_CRIT_THRESHOLD_NEUTRAL = 15
+const ACTION_CHECK_SWC_THRESHOLD_NEUTRAL = 11
 
 # Risky approach has a narrower success band but a higher critical chance.
 const ACTION_CHECK_CRIT_THRESHOLD_RISKY = 16

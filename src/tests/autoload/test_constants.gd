@@ -24,7 +24,8 @@ func test_action_approach_enum_exists():
 	# Test that the enum and its values exist and are correct.
 	assert_not_null(Constants.ActionApproach, "ActionApproach enum should exist.")
 	assert_eq(Constants.ActionApproach.CAUTIOUS, 0, "CAUTIOUS should be enum value 0.")
-	assert_eq(Constants.ActionApproach.RISKY, 1, "RISKY should be enum value 1.")
+	assert_eq(Constants.ActionApproach.NEUTRAL, 1, "NEUTRAL should be enum value 1.")
+	assert_eq(Constants.ActionApproach.RISKY, 2, "RISKY should be enum value 2.")
 	prints("Tested ActionApproach Enum")
 
 

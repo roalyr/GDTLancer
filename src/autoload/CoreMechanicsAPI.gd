@@ -38,6 +38,9 @@ func perform_action_check(
 	if action_approach == Constants.ActionApproach.RISKY:
 		crit_threshold = Constants.ACTION_CHECK_CRIT_THRESHOLD_RISKY
 		swc_threshold = Constants.ACTION_CHECK_SWC_THRESHOLD_RISKY
+	elif action_approach == Constants.ActionApproach.NEUTRAL:
+		crit_threshold = Constants.ACTION_CHECK_CRIT_THRESHOLD_NEUTRAL
+		swc_threshold = Constants.ACTION_CHECK_SWC_THRESHOLD_NEUTRAL
 	else:  # Default to CAUTIOUS
 		crit_threshold = Constants.ACTION_CHECK_CRIT_THRESHOLD_CAUTIOUS
 		swc_threshold = Constants.ACTION_CHECK_SWC_THRESHOLD_CAUTIOUS

@@ -45,12 +45,13 @@ func request_action(action_type: String, context: Dictionary) -> void:
 		EventBus.emit_signal("narrative_action_requested", action_type, _pending_action)
 
 
-func resolve_action(approach: int, fp_spent: int) -> Dictionary:
+func resolve_action(approach: int, fp_spent: int, action_template: ActionTemplate = null) -> Dictionary:
 	"""Resolve pending action: roll, lookup outcome, apply effects.
 	
 	Args:
 		approach: Constants.ActionApproach (CAUTIOUS=0 or RISKY=1).
 		fp_spent: Focus Points player allocated (0-3 typically).
+		action_template: Optional ActionTemplate to determine stakes.
 	
 	Returns:
 		{success: bool, roll_result: Dictionary, outcome: Dictionary, effects_applied: Dictionary}
@@ -59,11 +60,12 @@ func resolve_action(approach: int, fp_spent: int) -> Dictionary:
 		1. Validates pending action exists.
 		2. Gets character attribute & skill.
 		3. Clamps fp_spent to available FP.
-		4. Calls CoreMechanicsAPI.perform_action_check().
-		5. Looks up narrative outcome by action_type + tier.
-		6. Applies all effects (WP, FP, quirks, reputation).
-		7. Emits EventBus.narrative_action_resolved.
-		8. Clears _pending_action.
+		4. Determines effective approach based on stakes (if template provided).
+		5. Calls CoreMechanicsAPI.perform_action_check().
+		6. Looks up narrative outcome by action_type + tier.
+		7. Applies all effects (WP, FP, quirks, reputation).
+		8. Emits EventBus.narrative_action_resolved.
+		9. Clears _pending_action.
 	"""
 	if _pending_action.empty():
 		return {"success": false, "reason": "No pending action"}
@@ -85,8 +87,13 @@ func resolve_action(approach: int, fp_spent: int) -> Dictionary:
 	if fp_spent > available_fp:
 		fp_spent = available_fp
 
+	# Determine effective approach based on stakes
+	var effective_approach: int = approach
+	if action_template:
+		effective_approach = _get_effective_approach(action_template.stakes, approach)
+
 	# Perform the roll via CoreMechanicsAPI.
-	var roll_result: Dictionary = CoreMechanicsAPI.perform_action_check(attr_value, skill_value, fp_spent, approach)
+	var roll_result: Dictionary = CoreMechanicsAPI.perform_action_check(attr_value, skill_value, fp_spent, effective_approach)
 
 	# Get narrative outcome from tier.
 	# CoreMechanicsAPI returns both result_tier ("CritSuccess"/"SwC"/"Failure") and tier_name.
@@ -248,3 +255,23 @@ func _get_attribute_value(char_uid: int, attribute_name: String) -> int:
 	if character.has_method("get") and character.get("attributes") is Dictionary:
 		return int(character.attributes.get(attribute_name, 0))
 	return 0
+
+
+func _get_effective_approach(stakes: int, player_approach: int) -> int:
+	"""Determine the effective approach based on action stakes.
+	
+	Unless the stakes are HIGH_STAKES, the approach is forced to NEUTRAL.
+	This reflects the GDD rule that only high-stakes actions allow Cautious/Risky variance.
+	
+	Args:
+		stakes: From ActionTemplate.stakes (HIGH_STAKES, NARRATIVE, MUNDANE).
+		player_approach: The approach chosen by the player (CAUTIOUS/RISKY).
+		
+	Returns:
+		The actual approach to use for the check.
+	"""
+	if stakes == Constants.ActionStakes.HIGH_STAKES:
+		return player_approach
+	
+	# For Narrative and Mundane stakes, the approach is always NEUTRAL
+	return Constants.ActionApproach.NEUTRAL

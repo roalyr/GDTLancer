@@ -36,3 +36,9 @@
 | 2025-12-26 | **MAJOR CHANGE** | Switched to physics-based RigidBody flight model | SUCCESS | Some tests fail, need further work. |
 | 2025-12-28 | Tweak | Flight model | SUCCESS | Ship flight parameters are adjusted around the ship mass |
 | 2026-01-02 | UI | Main HUD | SUCCESS | Re-arranged bottom key row and added icons for character window, commands attack and dock |
+| 2026-01-26 | L2-Builder | Implemented ActionStakes Enum | SUCCESS | Added ActionStakes { HIGH_STAKES, NARRATIVE, MUNDANE } to Constants.gd. |
+| 2026-01-26 | L2-Builder | Implemented NEUTRAL Approach | SUCCESS | Added NEUTRAL to ActionApproach and thresholds (CRIT=15, SWC=11) in Constants.gd. |
+| 2026-01-26 | L2-Builder | Updated Action Template | SUCCESS | Added stakes property to action_template.gd and action_default.tres. |
+| 2026-01-26 | L2-Builder | Updated CoreMechanicsAPI | SUCCESS | Added NEUTRAL approach logic to perform_action_check. |
+| 2026-01-26 | L2-Builder | Updated NarrativeActionSystem | SUCCESS | Implemented stakes-based approach determination in resolve_action. |
+| 2026-01-26 | L2-Builder | Added Unit Tests | SUCCESS | Created tests for CoreMechanicsAPI and NarrativeActionSystem in tests/src/. |

@@ -35,7 +35,9 @@ func before_each():
 	stub(mock_movement_system, "request_thrust_brake").to_return(null)
 	stub(mock_movement_system, "request_thrust_direction").to_return(null)
 	stub(mock_movement_system, "request_rotation_to").to_return(null)
+	stub(mock_movement_system, "request_rotation_to_pid").to_return(null)
 	stub(mock_movement_system, "request_rotation_damping").to_return(null)
+	stub(mock_movement_system, "request_rotation_damping_pid").to_return(null)
 	stub(mock_movement_system, "is_aligned_to").to_return(true)
 	stub(mock_movement_system, "is_stopped").to_return(false)
 	stub(mock_movement_system, "is_rotation_stopped").to_return(false)
@@ -81,8 +83,7 @@ func test_set_command_stopping():
 	nav_system.set_command_stopping()
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_thrust_brake")
-	assert_called(mock_movement_system, "request_rotation_damping")
+	assert_called(mock_movement_system, "request_rotation_damping_pid")
 
 
 func test_stop_command_emits_reached_destination_signal():
@@ -110,7 +111,7 @@ func test_set_command_move_to():
 	assert_eq(nav_system._current_command.target_pos, target_pos)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_set_command_approach():
@@ -125,7 +126,7 @@ func test_set_command_approach():
 	assert_eq(nav_system._current_command.target_node, target_node)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_set_command_orbit():
@@ -139,7 +140,7 @@ func test_set_command_orbit():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ORBIT)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_set_command_flee():
@@ -153,7 +154,7 @@ func test_set_command_flee():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.FLEE)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 	assert_called(mock_movement_system, "request_thrust_forward")
 
 
@@ -164,7 +165,7 @@ func test_set_command_align_to():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_invalid_target_in_update_switches_to_stopping():
@@ -180,4 +181,4 @@ func test_invalid_target_in_update_switches_to_stopping():
 	nav_system.update_navigation(0.1)
 
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
-	assert_called(mock_movement_system, "request_thrust_brake")
+	assert_called(mock_movement_system, "request_rotation_damping_pid")
