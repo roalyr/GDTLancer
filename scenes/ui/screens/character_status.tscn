@@ -84,11 +84,11 @@ margin_right = 226.0
 margin_bottom = 121.0
 rect_min_size = Vector2( 0, 20 )
 
-[node name="ButtonAddWP" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
+[node name="ButtonAddCredits" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 125.0
 margin_right = 226.0
 margin_bottom = 156.0
-text = "Debug: Add WP"
+text = "Debug: Add Credits"
 
 [node name="ButtonAddFP" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
 margin_top = 160.0

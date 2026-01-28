@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: character_status.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends Control
 
 onready var label_skill_piloting: Label = $Panel/VBoxContainer/HBoxContent/VBoxStats/LabelSkillPiloting
@@ -5,14 +13,14 @@ onready var label_skill_trading: Label = $Panel/VBoxContainer/HBoxContent/VBoxSt
 onready var list_contracts: ItemList = $Panel/VBoxContainer/HBoxContent/VBoxContracts/ItemListContracts
 onready var text_details: RichTextLabel = $Panel/VBoxContainer/HBoxContent/VBoxContracts/RichTextLabelDetails
 onready var btn_close: Button = $Panel/VBoxContainer/ButtonClose
-onready var btn_add_wp: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddWP
+onready var btn_add_credits: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddCredits
 onready var btn_add_fp: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddFP
 onready var btn_trigger_encounter: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonTriggerEncounter
 
 func _ready():
 	GlobalRefs.set_character_status(self)
 	btn_close.connect("pressed", self, "_on_ButtonClose_pressed")
-	btn_add_wp.connect("pressed", self, "_on_ButtonAddWP_pressed")
+	btn_add_credits.connect("pressed", self, "_on_ButtonAddCredits_pressed")
 	btn_add_fp.connect("pressed", self, "_on_ButtonAddFP_pressed")
 	btn_trigger_encounter.connect("pressed", self, "_on_ButtonTriggerEncounter_pressed")
 	list_contracts.connect("item_selected", self, "_on_contract_selected")
@@ -62,14 +70,14 @@ func _on_contract_selected(index):
 func _display_contract_details(contract):
 	var details = "Title: %s\n" % contract.title
 	details += "Type: %s\n" % contract.contract_type
-	details += "Reward: %d WP\n" % contract.reward_wp
-	details += "Time Limit: %d TU\n" % contract.time_limit_tu
+	details += "Reward: %d Credits\n" % contract.reward_credits
+	details += "Time Limit: %d seconds\n" % contract.time_limit_seconds
 	
 	# Calculate remaining time
-	if contract.time_limit_tu > 0 and contract.accepted_at_tu >= 0:
-		var elapsed = GameState.current_tu - contract.accepted_at_tu
-		var remaining = contract.time_limit_tu - elapsed
-		details += "Time Remaining: %d TU\n" % remaining
+	if contract.time_limit_seconds > 0 and contract.accepted_at_seconds >= 0:
+		var elapsed = GameState.game_time_seconds - contract.accepted_at_seconds
+		var remaining = contract.time_limit_seconds - elapsed
+		details += "Time Remaining: %d seconds\n" % remaining
 	
 	details += "\nDescription:\n%s\n\n" % contract.description
 	
@@ -96,9 +104,9 @@ func _on_contract_update(_a = null, _b = null):
 func _on_ButtonClose_pressed():
 	self.hide()
 
-func _on_ButtonAddWP_pressed():
+func _on_ButtonAddCredits_pressed():
 	if GlobalRefs.character_system:
-		GlobalRefs.character_system.add_wp(GameState.player_character_uid, 10)
+		GlobalRefs.character_system.add_credits(GameState.player_character_uid, 10)
 
 func _on_ButtonAddFP_pressed():
 	if GlobalRefs.character_system:

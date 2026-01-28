@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
-# MODULE: src/autoload/GameState.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1
-# LOG_REF: 2025-12-23
+# MODULE: GameState.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
 #
 
 extends Node
@@ -14,8 +14,8 @@ extends Node
 # Global world seed
 var world_seed: String = ""
 
-# Global time counter
-var current_tu: int = 0
+# Global time counter (seconds)
+var game_time_seconds: int = 0
 
 # --- Character & Asset Instances ---
 var characters: Dictionary = {}  # Key: character_uid, Value: CharacterTemplate instance
@@ -52,6 +52,12 @@ var player_rotation: Vector3 = Vector3.ZERO  # Player rotation (degrees)
 # Key: location_id (String), Value: LocationTemplate instance or Dictionary
 var locations: Dictionary = {}
 
+# --- Factions & Contacts (World Data) ---
+# Key: faction_id, Value: FactionTemplate
+var factions: Dictionary = {}
+# Key: contact_id, Value: ContactTemplate
+var contacts: Dictionary = {}
+
 # --- Contract System ---
 # Available contracts at locations. Key: contract_id, Value: ContractTemplate instance
 var contracts: Dictionary = {}
@@ -63,14 +69,15 @@ var narrative_state: Dictionary = {
 	"reputation": 0,           # Overall professional standing (-100 to 100)
 	"faction_standings": {},    # Key: faction_id, Value: standing int
 	"known_contacts": [],       # Array of contact_ids the player has met
+	"contact_relationships": {}, # Key: contact_id, Value: relationship int (0-100)
 	"chronicle_entries": []     # Log of significant events
 }
 
 # --- Session Tracking ---
 var session_stats: Dictionary = {
 	"contracts_completed": 0,
-	"total_wp_earned": 0,
-	"total_wp_spent": 0,
+	"total_credits_earned": 0,
+	"total_credits_spent": 0,
 	"enemies_disabled": 0,
-	"time_played_tu": 0
+	"time_played_seconds": 0
 }

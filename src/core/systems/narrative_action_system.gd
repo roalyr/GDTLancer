@@ -1,8 +1,10 @@
-# File: core/systems/narrative_action_system.gd
-# Purpose: Orchestrates Narrative Actions: request → resolve → apply effects.
-#          Bridges game events (contract completion, docking, trading) with
-#          CoreMechanicsAPI (dice rolls) and NarrativeOutcomes (effect lookup).
-# Version: 2.0 - Strict types, comprehensive docstrings, safe null checks.
+#
+# PROJECT: GDTLancer
+# MODULE: narrative_action_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -63,7 +65,7 @@ func resolve_action(approach: int, fp_spent: int, action_template: ActionTemplat
 		4. Determines effective approach based on stakes (if template provided).
 		5. Calls CoreMechanicsAPI.perform_action_check().
 		6. Looks up narrative outcome by action_type + tier.
-		7. Applies all effects (WP, FP, quirks, reputation).
+		# Applying all effects (credits, FP, quirks, reputation).
 		8. Emits EventBus.narrative_action_resolved.
 		9. Clears _pending_action.
 	"""
@@ -169,14 +171,14 @@ func _get_skill_for_action(action_type: String) -> Dictionary:
 
 
 func _apply_effects(char_uid: int, effects: Dictionary) -> Dictionary:
-	"""Apply all outcome effects (WP, FP, quirks, reputation) to game state.
+	"""Apply all outcome effects (credits, FP, quirks, reputation) to game state.
 	
 	Args:
 		char_uid: Character UID.
-		effects: {"wp_cost": int, "wp_gain": int, "fp_gain": int, "add_quirk": str, "reputation_change": int}.
+		effects: {"credits_cost": int, "credits_gain": int, "fp_gain": int, "add_quirk": str, "reputation_change": int}.
 		
 	Returns:
-		{"wp_lost": int, "wp_gained": int, "quirk_added": str, "reputation_changed": int}.
+		{"credits_lost": int, "credits_gained": int, "quirk_added": str, "reputation_changed": int}.
 		Only includes effects that were actually applied.
 	"""
 	var applied: Dictionary = {}
@@ -199,18 +201,18 @@ func _apply_effects(char_uid: int, effects: Dictionary) -> Dictionary:
 			if GlobalRefs.quirk_system.add_quirk(ship_uid, quirk_id):
 				applied["quirk_added"] = quirk_id
 
-	# WP adjustments.
-	if effects.has("wp_cost"):
-		var wp_cost: int = int(effects.get("wp_cost", 0))
-		if wp_cost != 0 and is_instance_valid(GlobalRefs.character_system):
-			GlobalRefs.character_system.subtract_wp(char_uid, wp_cost)
-			applied["wp_lost"] = wp_cost
+	# credit adjustments.
+	if effects.has("credits_cost"):
+		var credits_cost: int = int(effects.get("credits_cost", 0))
+		if credits_cost != 0 and is_instance_valid(GlobalRefs.character_system):
+			GlobalRefs.character_system.subtract_credits(char_uid, credits_cost)
+			applied["credits_lost"] = credits_cost
 
-	if effects.has("wp_gain"):
-		var wp_gain: int = int(effects.get("wp_gain", 0))
-		if wp_gain != 0 and is_instance_valid(GlobalRefs.character_system):
-			GlobalRefs.character_system.add_wp(char_uid, wp_gain)
-			applied["wp_gained"] = wp_gain
+	if effects.has("credits_gain"):
+		var credits_gain: int = int(effects.get("credits_gain", 0))
+		if credits_gain != 0 and is_instance_valid(GlobalRefs.character_system):
+			GlobalRefs.character_system.add_credits(char_uid, credits_gain)
+			applied["credits_gained"] = credits_gain
 
 	# FP gains from outcomes (separate from CoreMechanicsAPI focus_gain).
 	if effects.has("fp_gain"):

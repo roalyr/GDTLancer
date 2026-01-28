@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "weapon_harpoon"
+template_id = "tool_harpoon"
 tool_name = "Tether Harpoon"
 description = "Fires a magnetic harpoon that tethers to targets. Useful for salvage operations and immobilizing smaller craft."
 tool_type = "grapple"

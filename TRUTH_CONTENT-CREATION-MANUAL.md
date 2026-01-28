@@ -1,8 +1,8 @@
 # Content Creation Manual
 
 **GDTLancer Designer & Artist Guide**  
-**Version:** 1.1  
-**Date:** 2025-12-19  
+**Version:** 1.2
+**Date:** 2026-01-28
 
 ---
 
@@ -13,7 +13,7 @@
 3. [How to Add New Content](#3-how-to-add-new-content)
    - [Adding a New Ship](#31-adding-a-new-ship)
    - [Adding a New Commodity](#32-adding-a-new-commodity)
-   - [Adding a New Weapon/Tool](#33-adding-a-new-weapontool)
+   - [Adding a New Tool](#33-adding-a-new-tool)
    - [Adding a New Location](#34-adding-a-new-location)
    - [Adding a New Contract](#35-adding-a-new-contract)
    - [Adding a New Character](#36-adding-a-new-character)
@@ -72,7 +72,7 @@ database/
 │   ├── contracts/        # delivery_*.tres, combat_*.tres, etc.
 │   ├── locations/        # station_*.tres
 │   ├── quirks/           # quirk_*.tres (Sprint 11)
-│   ├── weapons/          # weapon_*.tres
+│   ├── tools/            # tool_*.tres
 │   └── zones/            # Zone configuration data
 │
 └── config/               # Global tuning values
@@ -207,19 +207,19 @@ var corsair = TemplateDatabase.get_template("ship_corsair")
 
 ---
 
-### 3.3 Adding a New Weapon/Tool
+### 3.3 Adding a New Tool
 
 **Example: Creating "Plasma Cutter" - mining tool**
 
-#### Step 1: DATA - Create Weapon Definition
+#### Step 1: DATA - Create Tool Definition
 
-1. Navigate to `/database/registry/weapons/`
-2. Duplicate `weapon_ablative_laser.tres` → `weapon_plasma_cutter.tres`
+1. Navigate to `/database/registry/tools/`
+2. Duplicate `tool_ablative_laser.tres` → `tool_plasma_cutter.tres`
 3. Edit:
 
 ```
 [Resource - UtilityToolTemplate]
-├── id: "weapon_plasma_cutter"
+├── id: "tool_plasma_cutter"
 ├── display_name: "Plasma Cutter"
 ├── description: "Industrial cutting tool, useful for mining"
 ├── tool_type: "mining"  # or "weapon", "utility"
@@ -285,7 +285,7 @@ var corsair = TemplateDatabase.get_template("ship_corsair")
 ├── cargo_amount: 10
 ├── origin_location: "station_alpha"
 ├── destination_location: "station_nexus"
-├── time_limit_tu: 500  # Time Units
+├── time_limit_seconds: 500  # Seconds
 ├── reward_credits: 25000
 ├── reputation_reward: 50
 ├── danger_level: 1
@@ -376,7 +376,7 @@ DEFAULT_MAX_TURN_SPEED = 0.75
 DEFAULT_ALIGNMENT_ANGLE_THRESHOLD = 45  # degrees
 
 # Time System
-TIME_CLOCK_MAX_TU = 60
+WORLD_TICK_INTERVAL_SECONDS = 60
 TIME_TICK_INTERVAL_SECONDS = 1.0
 ```
 
@@ -407,7 +407,7 @@ Commodity prices are set per-item in their `.tres` files. Market dynamics:
 
 ### 4.4 Combat Balance
 
-Weapon stats in `/database/registry/weapons/`:
+Tool stats in `/database/registry/tools/`:
 - `damage`: Hull damage per hit
 - `fire_rate`: Shots per second
 - `energy_cost`: Power drain per shot
@@ -525,7 +525,7 @@ For programmers: Add tests in `/src/tests/data/` to validate template loading.
 |--------------|-------------------|---------------------|
 | Add a ship | `/database/registry/assets/ships/` | `ship_default.tres` |
 | Add a commodity | `/database/registry/assets/commodities/` | `commodity_default.tres` |
-| Add a weapon | `/database/registry/weapons/` | `weapon_ablative_laser.tres` |
+| Add a tool | `/database/registry/tools/` | `tool_ablative_laser.tres` |
 | Add a station | `/database/registry/locations/` | `station_alpha.tres` |
 | Add a contract | `/database/registry/contracts/` | `delivery_01.tres` |
 | Add a character | `/database/registry/characters/` | `character_default.tres` |

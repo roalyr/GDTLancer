@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "weapon_ablative_laser"
+template_id = "tool_ablative_laser"
 tool_name = "Ablative Laser"
 description = "A standard mining laser repurposed for combat. Continuous beam gradually ablates hull material."
 tool_type = "weapon"

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "weapon_rotary_drill"
+template_id = "tool_rotary_drill"
 tool_name = "Rotary Drill"
 description = "An industrial drill designed for asteroid mining. At close range, it can breach hull plating."
 tool_type = "weapon"

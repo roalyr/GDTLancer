@@ -48,7 +48,7 @@ margin_right = 660.0
 margin_bottom = 27.0
 size_flags_horizontal = 3
 
-[node name="LabelWP" type="Label" parent="Panel/VBoxMain/HBoxHeader"]
+[node name="LabelCredits" type="Label" parent="Panel/VBoxMain/HBoxHeader"]
 margin_left = 664.0
 margin_right = 870.0
 margin_bottom = 27.0

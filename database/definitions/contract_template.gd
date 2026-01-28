@@ -1,5 +1,11 @@
-# contract_template.gd
-# Data structure for contracts - delivery, combat, exploration missions
+#
+# PROJECT: GDTLancer
+# MODULE: contract_template.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends "res://database/definitions/template.gd"
 class_name ContractTemplate
 
@@ -25,36 +31,36 @@ export var target_type: String = ""    # e.g., "pirate", "hostile"
 export var target_count: int = 0
 
 # Rewards
-export var reward_wp: int = 0
+export var reward_credits: int = 0
 export var reward_reputation: int = 0
 export var reward_items: Dictionary = {}  # template_id -> quantity
 
 # Constraints
-export var time_limit_tu: int = -1     # -1 = no limit
+export var time_limit_seconds: int = -1  # -1 = no limit
 export var difficulty: int = 1         # 1-5 scale for filtering/matching
 
 # Runtime state (set when contract is active)
-export var accepted_at_tu: int = -1    # When player accepted
+export var accepted_at_seconds: int = -1 # When player accepted
 export var progress: Dictionary = {}   # Track partial completion
 
 
 # Check if contract has expired based on current time
-func is_expired(current_tu: int) -> bool:
-	if time_limit_tu < 0:
+func is_expired(game_time_seconds: int) -> bool:
+	if time_limit_seconds < 0:
 		return false
-	if accepted_at_tu < 0:
+	if accepted_at_seconds < 0:
 		return false
-	return (current_tu - accepted_at_tu) >= time_limit_tu
+	return (game_time_seconds - accepted_at_seconds) >= time_limit_seconds
 
 
-# Get remaining time in TU, -1 if no limit
-func get_remaining_time(current_tu: int) -> int:
-	if time_limit_tu < 0:
+# Get remaining time in seconds, -1 if no limit
+func get_remaining_time(game_time_seconds: int) -> int:
+	if time_limit_seconds < 0:
 		return -1
-	if accepted_at_tu < 0:
-		return time_limit_tu
-	var elapsed = current_tu - accepted_at_tu
-	return int(max(0, time_limit_tu - elapsed))
+	if accepted_at_seconds < 0:
+		return time_limit_seconds
+	var elapsed = game_time_seconds - accepted_at_seconds
+	return int(max(0, time_limit_seconds - elapsed))
 
 
 # Create a summary for UI display
@@ -63,7 +69,7 @@ func get_summary() -> Dictionary:
 		"title": title,
 		"type": contract_type,
 		"destination": destination_location_id,
-		"reward_wp": reward_wp,
+		"reward_credits": reward_credits,
 		"difficulty": difficulty,
-		"has_time_limit": time_limit_tu > 0
+		"has_time_limit": time_limit_seconds > 0
 	}

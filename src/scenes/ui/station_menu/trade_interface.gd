@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: trade_interface.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends Control
 
 onready var list_station = $Panel/VBoxMain/HBoxContent/VBoxStation/ItemListStation
@@ -6,7 +14,7 @@ onready var btn_buy = $Panel/VBoxMain/HBoxControls/BtnBuy
 onready var btn_sell = $Panel/VBoxMain/HBoxControls/BtnSell
 onready var spin_quantity = $Panel/VBoxMain/HBoxControls/SpinQuantity
 onready var btn_close = $Panel/VBoxMain/HBoxControls/BtnClose
-onready var label_wp = $Panel/VBoxMain/HBoxHeader/LabelWP
+onready var label_credits = $Panel/VBoxMain/HBoxHeader/LabelCredits
 onready var label_status = $Panel/VBoxMain/LabelStatus
 onready var rich_text_prices = $Panel/VBoxMain/HBoxContent/VBoxInfo/ScrollContainer/RichTextLabelPrices
 
@@ -31,14 +39,14 @@ func open(location_id: String):
 	current_location_id = location_id
 	visible = true
 	refresh_lists()
-	_update_wp_display()
+	_update_credits_display()
 	_clear_price_comparison()
 	_reset_quantity_selector()
 
-func _update_wp_display():
-	if label_wp and GlobalRefs.character_system:
-		var wp = GlobalRefs.character_system.get_wp(GameState.player_character_uid)
-		label_wp.text = "Wealth Points: %d WP" % wp
+func _update_credits_display():
+	if label_credits and GlobalRefs.character_system:
+		var credits = GlobalRefs.character_system.get_credits(GameState.player_character_uid)
+		label_credits.text = "Credits: %d" % credits
 
 func _clear_price_comparison():
 	if rich_text_prices:
@@ -68,7 +76,7 @@ func refresh_lists():
 				var buy_price = item.get("buy_price", item.get("price", 0))
 				var qty = item.get("quantity", 0)
 				var display_name = _get_commodity_display_name(comm_id)
-				var text = "%s x%d - %d WP" % [display_name, qty, buy_price]
+				var text = "%s x%d - %d Credits" % [display_name, qty, buy_price]
 				list_station.add_item(text)
 				list_station.set_item_metadata(list_station.get_item_count() - 1, comm_id)
 	
@@ -88,7 +96,7 @@ func refresh_lists():
 					sell_price = loc_market[comm_id].get("sell_price", loc_market[comm_id].get("price", 0))
 			
 			var display_name = _get_commodity_display_name(comm_id)
-			var text = "%s x%d - %d WP" % [display_name, qty, sell_price]
+			var text = "%s x%d - %d Credits" % [display_name, qty, sell_price]
 			list_player.add_item(text)
 			list_player.set_item_metadata(list_player.get_item_count() - 1, comm_id)
 
@@ -126,8 +134,8 @@ func _generate_price_comparison(comm_id: String):
 			else:
 				text += "%s\n" % loc_name
 			
-			text += "  Buy: [color=red]%d WP[/color]\n" % buy_price
-			text += "  Sell: [color=green]%d WP[/color]\n" % sell_price
+			text += "  Buy: [color=red]%d Credits[/color]\n" % buy_price
+			text += "  Sell: [color=green]%d Credits[/color]\n" % sell_price
 			text += "  Stock: %d\n\n" % qty
 		else:
 			if loc_id == current_location_id:
@@ -231,10 +239,10 @@ func _update_trade_status_text() -> void:
 	var qty := _get_selected_quantity()
 	if _trade_mode == "buy":
 		var unit_price = int(item.get("buy_price", item.get("price", 0)))
-		label_status.text = "Buy %d %s for %d WP" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
+		label_status.text = "Buy %d %s for %d Credits" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
 	elif _trade_mode == "sell":
 		var unit_price = int(item.get("sell_price", item.get("price", 0)))
-		label_status.text = "Sell %d %s for %d WP" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
+		label_status.text = "Sell %d %s for %d Credits" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
 
 func _on_buy_pressed():
 	if selected_station_item_idx == -1:
@@ -246,7 +254,7 @@ func _on_buy_pressed():
 		var result = GlobalRefs.trading_system.execute_buy(GameState.player_character_uid, current_location_id, comm_id, qty)
 		if result.success:
 			refresh_lists()
-			_update_wp_display()
+			_update_credits_display()
 			_generate_price_comparison(comm_id)
 			label_status.text = "Bought %d %s" % [qty, _get_commodity_display_name(comm_id)]
 		else:
@@ -263,7 +271,7 @@ func _on_sell_pressed():
 		var result = GlobalRefs.trading_system.execute_sell(GameState.player_character_uid, current_location_id, comm_id, qty)
 		if result.success:
 			refresh_lists()
-			_update_wp_display()
+			_update_credits_display()
 			_generate_price_comparison(comm_id)
 			label_status.text = "Sold %d %s" % [qty, _get_commodity_display_name(comm_id)]
 		else:

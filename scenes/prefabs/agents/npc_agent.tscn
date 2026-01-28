@@ -2,7 +2,7 @@
 
 [ext_resource path="res://src/modules/piloting/ship_controller_ai.gd" type="Script" id=1]
 [ext_resource path="res://scenes/prefabs/agents/agent.tscn" type="PackedScene" id=2]
-[ext_resource path="res://src/core/agents/components/weapon_controller.gd" type="Script" id=3]
+[ext_resource path="res://src/core/agents/components/tool_controller.gd" type="Script" id=3]
 
 [node name="NPCAgent" type="Spatial"]
 __meta__ = {
@@ -14,5 +14,5 @@ __meta__ = {
 [node name="AIController" type="Node" parent="AgentBody"]
 script = ExtResource( 1 )
 
-[node name="WeaponController" type="Node" parent="AgentBody"]
+[node name="ToolController" type="Node" parent="AgentBody"]
 script = ExtResource( 3 )

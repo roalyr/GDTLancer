@@ -1,6 +1,10 @@
-# File: autoload/Constants.gd
-# Autoload Singleton: Constants
-# Version: 2.0 - RigidBody physics with 6DOF flight system.
+#
+# PROJECT: GDTLancer
+# MODULE: Constants.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -76,9 +80,9 @@ const MIN_THRUST_THROTTLE = 0.0
 const MAX_THRUST_THROTTLE = 1.0
 
 # Time units to trigger world tick
-# 1 TU = 1 min?
-const TIME_CLOCK_MAX_TU = 60
-const TIME_TICK_INTERVAL_SECONDS = 60.0 # How often (in real seconds) to add a Time Unit.
+# 60 seconds = 1 minute tick? Or longer? Keeping 60 for now.
+const WORLD_TICK_INTERVAL_SECONDS = 60
+const TIME_TICK_INTERVAL_SECONDS = 1.0 # Real-time seconds per game-time update (simulation speed)
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0

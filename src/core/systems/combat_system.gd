@@ -1,6 +1,10 @@
-# combat_system.gd
-# Stateless API for combat mechanics - targeting, damage, disabling
-# Phase 1: Hull-only targeting, basic weapon firing
+#
+# PROJECT: GDTLancer
+# MODULE: combat_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 extends Node
 
 signal combat_started(attacker_uid, defender_uid)
@@ -328,29 +332,29 @@ func claim_wreckage(_char_uid: int, tactics_skill: int, approach: int) -> Dictio
 	var result = CoreMechanicsAPI.perform_action_check(tactics_skill, 0, 0, approach)
 	
 	var success = result.result_tier in ["CritSuccess", "SuccessWithCost", "Success"]
-	var base_salvage = 50  # Base WP value
+	var base_salvage = 50  # Base Credits value
 	
 	if result.result_tier == "CritSuccess":
 		return {
 			"success": true,
 			"result": result,
-			"wp_gained": base_salvage * 2,
+			"credits_gained": base_salvage * 2,
 			"item_found": true
 		}
 	elif success:
-		var wp = base_salvage
+		var credits = base_salvage
 		if approach == Constants.ActionApproach.RISKY:
-			wp = int(wp * 1.5)
+			credits = int(credits * 1.5)
 		return {
 			"success": true,
 			"result": result,
-			"wp_gained": wp,
+			"credits_gained": credits,
 			"item_found": false
 		}
 	else:
 		return {
 			"success": false,
 			"result": result,
-			"wp_gained": 0,
+			"credits_gained": 0,
 			"consequence": "Wreckage too unstable to salvage"
 		}

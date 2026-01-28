@@ -1,5 +1,13 @@
-# File: core/agents/components/weapon_controller.gd
-# Purpose: Manages weapon firing and cooldowns for an agent.
+#
+# PROJECT: GDTLancer
+# MODULE: tool_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
+# LOG_REF: 2026-01-28
+#
+
+# File: core/agents/components/tool_controller.gd
+# Purpose: Manages tool (weapon) firing and cooldowns for an agent.
 # Attaches as child of AgentBody (RigidBody).
 extends Node
 
@@ -20,7 +28,7 @@ var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
 func _ready() -> void:
 	_agent_body = get_parent()
 	if not _agent_body is RigidBody:
-		printerr("WeaponController: Parent must be RigidBody")
+		printerr("ToolController: Parent must be RigidBody")
 		return
 	# Defer weapon loading to allow agent initialization to complete first
 	call_deferred("_load_weapons_from_ship")
@@ -44,7 +52,7 @@ func _load_weapons_from_ship() -> void:
 			_ship_template = agent_ship
 	
 	if not is_instance_valid(_ship_template):
-		print("WeaponController: No ship template available for agent, cannot load weapons.")
+		print("ToolController: No ship template available for agent, cannot load weapons.")
 		return  # No ship available
 
 	# Load each equipped tool template
@@ -64,11 +72,11 @@ func _load_weapons_from_ship() -> void:
 			_cooldowns[_weapons.size() - 1] = 0.0
 	
 	if _weapons.size() > 0:
-		print("WeaponController: Loaded ", _weapons.size(), " weapon(s) for agent")
+		print("ToolController: Loaded ", _weapons.size(), " weapon(s) for agent")
 	else:
 		# Helpful during manual integration verification.
 		print(
-			"WeaponController: No weapons loaded for agent_uid=",
+			"ToolController: No weapons loaded for agent_uid=",
 			_agent_body.get("agent_uid"),
 			" ship=",
 			_ship_template.get("template_id"),

@@ -1,6 +1,10 @@
-# File: core/resource/character_template.gd
-# Purpose: Defines the data structure for a single character linked to an agent.
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: character_template.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Template
 class_name CharacterTemplate
@@ -9,7 +13,7 @@ export var character_name: String = "Unnamed"
 export var character_icon_id: String = "character_default_icon"
 export var faction_id: String = "faction_default" # Affiliation
 
-export var wealth_points: int = 0
+export var credits: int = 0
 export var focus_points: int = 0
 export var active_ship_uid: int = -1
 

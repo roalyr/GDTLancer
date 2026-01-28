@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: contract_interface.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends Control
 
 onready var list_contracts = $Panel/HBoxContainer/VBoxList/ItemListContracts
@@ -46,8 +54,8 @@ func _display_contract_details(contract):
 	var details = "Title: %s\n" % contract.title
 	details += "Type: %s\n" % contract.contract_type
 	details += "Difficulty: %d\n" % contract.difficulty
-	details += "Reward: %d WP\n" % contract.reward_wp
-	details += "Time Limit: %d TU\n\n" % contract.time_limit_tu
+	details += "Reward: %d Credits\n" % contract.reward_credits
+	details += "Time Limit: %d seconds\n\n" % contract.time_limit_seconds
 	details += "Description:\n%s\n\n" % contract.description
 	
 	if contract.contract_type == "delivery":

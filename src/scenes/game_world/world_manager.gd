@@ -1,5 +1,10 @@
-# File: src/scenes/game_world/world_manager.gd
-# Version: 5.0 - Abstracted template indexing to a component script.
+#
+# PROJECT: GDTLancer
+# MODULE: world_manager.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -110,7 +115,7 @@ func _emit_loaded_resource_signals() -> void:
 	var player_char = GlobalRefs.character_system.get_player_character()
 	if not is_instance_valid(player_char):
 		return
-	EventBus.emit_signal("player_wp_changed", player_char.wealth_points)
+	EventBus.emit_signal("player_credits_changed", player_char.credits)
 	EventBus.emit_signal("player_fp_changed", player_char.focus_points)
 
 
@@ -224,9 +229,8 @@ func _on_Time_Clock_Timer_timeout():
 	# This function is now called every TIME_TICK_INTERVAL_SECONDS.
 	# It drives the core time-based loop of the game.
 	if is_instance_valid(GlobalRefs.time_system):
-		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
-		GlobalRefs.time_system.add_time_units(1)
-		#print("Current TU: ", GameState.current_tu)
+		# For now, each tick adds 1 second.
+		GlobalRefs.time_system.advance_game_time(1)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 

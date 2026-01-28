@@ -1,6 +1,10 @@
-# File: tests/scenes/test_full_game_loop.gd
-# Purpose: GUT integration test for the Phase 1 player journey.
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: test_full_game_loop.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends "res://addons/gut/test.gd"
 
@@ -116,7 +120,7 @@ func test_full_game_loop_delivery_trade_and_complete():
 	assert_true(station_menu.btn_complete_contract.visible, "Complete Contract button should be visible")
 
 	# Complete contract via station menu (falls back to direct completion if narrative system missing).
-	var wp_before: int = int(_character_system.get_wp(PLAYER_UID))
+	var credits_before: int = int(_character_system.get_credits(PLAYER_UID))
 	station_menu._on_complete_contract_pressed()
 	yield(yield_for(0.05), YIELD)
 
@@ -127,9 +131,9 @@ func test_full_game_loop_delivery_trade_and_complete():
 		"Contract completion should remove delivery cargo"
 	)
 	assert_eq(
-		_character_system.get_wp(PLAYER_UID),
-		wp_before + 100,
-		"Contract completion should reward WP"
+		_character_system.get_credits(PLAYER_UID),
+		credits_before + 100,
+		"Contract completion should reward Credits"
 	)
 
 
@@ -143,21 +147,22 @@ func _reset_game_state() -> void:
 	GameState.locations.clear()
 	GameState.contracts.clear()
 	GameState.active_contracts.clear()
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 	GameState.player_character_uid = PLAYER_UID
 	GameState.player_docked_at = ""
 	GameState.narrative_state = {
 		"reputation": 0,
 		"faction_standings": {},
 		"known_contacts": [],
+		"contact_relationships": {},
 		"chronicle_entries": []
 	}
 	GameState.session_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 
 
@@ -209,10 +214,10 @@ func _setup_world_data() -> void:
 	contract.destination_location_id = LOCATION_BETA
 	contract.required_commodity_id = "commodity_ore"
 	contract.required_quantity = 10
-	contract.reward_wp = 100
+	contract.reward_credits = 100
 	contract.reward_reputation = 0
 	contract.reward_items = {}
-	contract.time_limit_tu = -1
+	contract.time_limit_seconds = -1
 	GameState.contracts[CONTRACT_ID] = contract
 
 
@@ -220,7 +225,7 @@ func _setup_player() -> void:
 	var player = CharacterTemplate.new()
 	player.template_id = "player_test"
 	player.character_name = "Player"
-	player.wealth_points = 1000
+	player.credits = 1000
 	player.focus_points = 3
 	player.active_ship_uid = PLAYER_SHIP_UID
 	GameState.characters[PLAYER_UID] = player

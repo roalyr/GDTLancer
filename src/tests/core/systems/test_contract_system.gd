@@ -1,5 +1,10 @@
-# test_contract_system.gd
-# Unit tests for ContractSystem - contract acceptance, completion, abandonment
+#
+# PROJECT: GDTLancer
+# MODULE: test_contract_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 extends "res://addons/gut/test.gd"
 
 const ContractSystem = preload("res://src/core/systems/contract_system.gd")
@@ -19,20 +24,21 @@ func before_each():
 	GameState.inventories.clear()
 	GameState.contracts.clear()
 	GameState.active_contracts.clear()
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 	GameState.player_character_uid = _test_character_uid
 	GameState.narrative_state = {
 		"reputation": 0,
 		"faction_standings": {},
 		"known_contacts": [],
+		"contact_relationships": {},
 		"chronicle_entries": []
 	}
 	GameState.session_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 	
 	# Create systems
@@ -48,10 +54,10 @@ func before_each():
 	GlobalRefs.inventory_system = _inventory_system
 	GlobalRefs.character_system = _character_system
 	
-	# Create test character with WP
+	# Create test character with credits
 	var char_template = CharacterTemplate.new()
 	char_template.template_id = "test_character"
-	char_template.wealth_points = 500
+	char_template.credits = 500
 	GameState.characters[_test_character_uid] = char_template
 	
 	# Create inventory for character
@@ -73,15 +79,16 @@ func after_each():
 	# Reset session stats with defaults (avoid "Invalid get index" errors)
 	GameState.session_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 	GameState.narrative_state = {
 		"reputation": 0,
 		"faction_standings": {},
 		"known_contacts": [],
+		"contact_relationships": {},
 		"chronicle_entries": []
 	}
 	GameState.player_docked_at = ""
@@ -97,10 +104,10 @@ func _create_test_contract() -> ContractTemplate:
 	contract.destination_location_id = "station_beta"
 	contract.required_commodity_id = "commodity_ore"
 	contract.required_quantity = 10
-	contract.reward_wp = 100
+	contract.reward_credits = 100
 	contract.reward_reputation = 5
 	contract.faction_id = "test_faction"
-	contract.time_limit_tu = -1  # No time limit
+	contract.time_limit_seconds = -1  # No time limit
 	contract.difficulty = 1
 	return contract
 
@@ -133,7 +140,7 @@ func test_accept_contract_success():
 	
 	assert_true(result.success, "Accept should succeed")
 	assert_true(GameState.active_contracts.has(_test_contract_id), "Contract should be in active_contracts")
-	assert_eq(GameState.active_contracts[_test_contract_id].accepted_at_tu, 0, "Should record accepted time")
+	assert_eq(GameState.active_contracts[_test_contract_id].accepted_at_seconds, 0, "Should record accepted time")
 
 
 func test_accept_contract_not_found():
@@ -248,15 +255,15 @@ func test_complete_contract_success():
 	# Set player at destination
 	GameState.player_docked_at = "station_beta"
 	
-	var initial_wp = _character_system.get_wp(_test_character_uid)
+	var initial_credits = _character_system.get_credits(_test_character_uid)
 	var result = _contract_system.complete_contract(_test_character_uid, _test_contract_id)
 	
 	assert_true(result.success, "Complete should succeed")
-	assert_eq(result.rewards.wp, 100, "Should report correct reward")
+	assert_eq(result.rewards.credits, 100, "Should report correct reward")
 	
-	# Check WP increased
-	var final_wp = _character_system.get_wp(_test_character_uid)
-	assert_eq(final_wp, initial_wp + 100, "WP should increase by reward amount")
+	# Check credits increased
+	var final_credits = _character_system.get_credits(_test_character_uid)
+	assert_eq(final_credits, initial_credits + 100, "Credits should increase by reward amount")
 	
 	# Check cargo removed
 	var cargo = _inventory_system.get_inventory_by_type(_test_character_uid, InventorySystem.InventoryType.COMMODITY)
@@ -318,13 +325,13 @@ func test_contract_expiration_check():
 	# Create time-limited contract
 	var limited_contract = _create_test_contract()
 	limited_contract.template_id = "limited_contract"
-	limited_contract.time_limit_tu = 50
+	limited_contract.time_limit_seconds = 50
 	GameState.contracts["limited_contract"] = limited_contract
 	
 	_contract_system.accept_contract(_test_character_uid, "limited_contract")
 	
 	# Advance time past limit
-	GameState.current_tu = 60
+	GameState.game_time_seconds = 60
 	
 	var expired = _contract_system.check_expired_contracts(_test_character_uid)
 	
@@ -335,13 +342,13 @@ func test_contract_expiration_check():
 func test_contract_not_expired_within_limit():
 	var limited_contract = _create_test_contract()
 	limited_contract.template_id = "limited_contract"
-	limited_contract.time_limit_tu = 50
+	limited_contract.time_limit_seconds = 50
 	GameState.contracts["limited_contract"] = limited_contract
 	
 	_contract_system.accept_contract(_test_character_uid, "limited_contract")
 	
 	# Advance time but within limit
-	GameState.current_tu = 30
+	GameState.game_time_seconds = 30
 	
 	var check = _contract_system.check_contract_completion(_test_character_uid, "limited_contract")
 	

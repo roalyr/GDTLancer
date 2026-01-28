@@ -3,13 +3,13 @@
 extends Node
 
 # --- Configuration ---
-const ENCOUNTER_COOLDOWN_TU: int = 5
+const ENCOUNTER_COOLDOWN_SECONDS: int = 5
 const BASE_ENCOUNTER_CHANCE: float = 0.30
 const SPAWN_DISTANCE_MIN: float = 600.0
 const SPAWN_DISTANCE_MAX: float = 1000.0
 
 # --- State ---
-var _encounter_cooldown_tu: int = 0
+var _encounter_cooldown_seconds: int = 0
 var _active_hostiles: Array = []
 
 
@@ -26,14 +26,14 @@ func _ready() -> void:
 
 ## Processes world event ticks and manages encounter cooldown.
 ## Decrements cooldown, potentially triggers encounters if conditions are met.
-func _on_world_event_tick_triggered(tu_amount: int) -> void:
-	if tu_amount <= 0:
+func _on_world_event_tick_triggered(delta_seconds: int) -> void:
+	if delta_seconds <= 0:
 		return
 
-	_encounter_cooldown_tu = int(max(0, _encounter_cooldown_tu - tu_amount))
+	_encounter_cooldown_seconds = int(max(0, _encounter_cooldown_seconds - delta_seconds))
 	_prune_invalid_hostiles()
 
-	if _encounter_cooldown_tu > 0:
+	if _encounter_cooldown_seconds > 0:
 		return
 	if not _active_hostiles.empty():
 		return
@@ -63,11 +63,11 @@ func _maybe_trigger_encounter() -> void:
 	var chance: float = clamp(BASE_ENCOUNTER_CHANCE * danger_level, 0.0, 1.0)
 
 	if randf() > chance:
-		_encounter_cooldown_tu = ENCOUNTER_COOLDOWN_TU
+		_encounter_cooldown_seconds = ENCOUNTER_COOLDOWN_SECONDS
 		return
 
 	_spawn_hostile_encounter()
-	_encounter_cooldown_tu = ENCOUNTER_COOLDOWN_TU * 2
+	_encounter_cooldown_seconds = ENCOUNTER_COOLDOWN_SECONDS * 2
 
 
 ## Spawns hostile NPCs at calculated positions and emits combat_initiated signal.
@@ -147,7 +147,7 @@ func get_active_hostiles() -> Array:
 
 ## Immediately forces an encounter to spawn (for testing/debugging).
 func force_encounter() -> void:
-	_encounter_cooldown_tu = 0
+	_encounter_cooldown_seconds = 0
 	_spawn_hostile_encounter()
 
 

@@ -1,8 +1,10 @@
-# File: autoload/CoreMechanicsAPI.gd
-# Autoload Singleton: CoreMechanicsAPI
-# Purpose: Provides globally accessible functions for core mechanic resolutions,
-#          ensuring consistency across the game.
-# Version: 1.1 - Updated to support ActionApproach and new signature.
+#
+# PROJECT: GDTLancer
+# MODULE: CoreMechanicsAPI.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -98,8 +100,8 @@ func perform_action_check(
 #       pass
 
 # func calculate_upkeep_cost(agent_assets_ref):
-#       # Central logic for determining periodic WP upkeep cost
-#       return 0 # Placeholder WP cost
+#       # Central logic for determining periodic Credits upkeep cost
+#       return 0 # Placeholder Credits cost
 
 # func advance_time_clock(agent_stats_ref_or_global, tu_amount: int):
 #       # Central logic for adding TU and checking for World Event Tick trigger

@@ -1,6 +1,10 @@
-# File: core/systems/trading_system.gd
-# Purpose: Provides a stateless API for trading commodities between characters and locations.
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: trading_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -47,14 +51,14 @@ func can_buy(char_uid: int, location_id: String, commodity_id: String, quantity:
 	var total_cost = unit_price * quantity
 	result.total_cost = total_cost
 	
-	# Check character has enough WP
+	# Check character has enough credits
 	if not is_instance_valid(GlobalRefs.character_system):
 		result.reason = "Character system unavailable"
 		return result
 	
-	var current_wp = GlobalRefs.character_system.get_wp(char_uid)
-	if current_wp < total_cost:
-		result.reason = "Insufficient funds (need: %d WP, have: %d WP)" % [total_cost, current_wp]
+	var current_credits = GlobalRefs.character_system.get_credits(char_uid)
+	if current_credits < total_cost:
+		result.reason = "Insufficient funds (need: %d Credits, have: %d Credits)" % [total_cost, current_credits]
 		return result
 	
 	# Check cargo capacity
@@ -69,9 +73,9 @@ func can_buy(char_uid: int, location_id: String, commodity_id: String, quantity:
 
 
 # Executes a buy transaction.
-# Returns: {success: bool, reason: String, wp_spent: int, quantity_bought: int}
+# Returns: {success: bool, reason: String, credits_spent: int, quantity_bought: int}
 func execute_buy(char_uid: int, location_id: String, commodity_id: String, quantity: int) -> Dictionary:
-	var result = {"success": false, "reason": "", "wp_spent": 0, "quantity_bought": 0}
+	var result = {"success": false, "reason": "", "credits_spent": 0, "quantity_bought": 0}
 	
 	# First check if we can buy
 	var can_buy_result = can_buy(char_uid, location_id, commodity_id, quantity)
@@ -83,8 +87,8 @@ func execute_buy(char_uid: int, location_id: String, commodity_id: String, quant
 	var location = GameState.locations[location_id]
 	
 	# Execute transaction
-	# 1. Deduct WP from character
-	GlobalRefs.character_system.subtract_wp(char_uid, total_cost)
+	# 1. Deduct credits from character
+	GlobalRefs.character_system.subtract_credits(char_uid, total_cost)
 	
 	# 2. Add commodity to character inventory
 	GlobalRefs.inventory_system.add_asset(
@@ -98,7 +102,7 @@ func execute_buy(char_uid: int, location_id: String, commodity_id: String, quant
 	location.market_inventory[commodity_id].quantity -= quantity
 	
 	# 4. Track session stats
-	GameState.session_stats.total_wp_spent += total_cost
+	GameState.session_stats.total_credits_spent += total_cost
 	
 	# 5. Emit signal
 	EventBus.emit_signal("trade_transaction_completed", {
@@ -112,7 +116,7 @@ func execute_buy(char_uid: int, location_id: String, commodity_id: String, quant
 	
 	result.success = true
 	result.reason = "OK"
-	result.wp_spent = total_cost
+	result.credits_spent = total_cost
 	result.quantity_bought = quantity
 	return result
 
@@ -166,9 +170,9 @@ func can_sell(char_uid: int, location_id: String, commodity_id: String, quantity
 
 
 # Executes a sell transaction.
-# Returns: {success: bool, reason: String, wp_earned: int, quantity_sold: int}
+# Returns: {success: bool, reason: String, credits_earned: int, quantity_sold: int}
 func execute_sell(char_uid: int, location_id: String, commodity_id: String, quantity: int) -> Dictionary:
-	var result = {"success": false, "reason": "", "wp_earned": 0, "quantity_sold": 0}
+	var result = {"success": false, "reason": "", "credits_earned": 0, "quantity_sold": 0}
 	
 	# First check if we can sell
 	var can_sell_result = can_sell(char_uid, location_id, commodity_id, quantity)
@@ -192,14 +196,14 @@ func execute_sell(char_uid: int, location_id: String, commodity_id: String, quan
 		result.reason = "Failed to remove commodity from inventory"
 		return result
 	
-	# 2. Add WP to character
-	GlobalRefs.character_system.add_wp(char_uid, total_value)
+	# 2. Add credits to character
+	GlobalRefs.character_system.add_credits(char_uid, total_value)
 	
 	# 3. Increase market inventory
 	location.market_inventory[commodity_id].quantity += quantity
 	
 	# 4. Track session stats
-	GameState.session_stats.total_wp_earned += total_value
+	GameState.session_stats.total_credits_earned += total_value
 	
 	# 5. Emit signal
 	EventBus.emit_signal("trade_transaction_completed", {
@@ -213,7 +217,7 @@ func execute_sell(char_uid: int, location_id: String, commodity_id: String, quan
 	
 	result.success = true
 	result.reason = "OK"
-	result.wp_earned = total_value
+	result.credits_earned = total_value
 	result.quantity_sold = quantity
 	return result
 

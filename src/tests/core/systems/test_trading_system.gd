@@ -1,6 +1,10 @@
-# File: tests/core/systems/test_trading_system.gd
-# Purpose: Tests for TradingSystem buy/sell API and validation logic.
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: test_trading_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends GutTest
 
@@ -25,7 +29,7 @@ func before_each():
 	GlobalRefs.inventory_system = inventory_system
 	GlobalRefs.trading_system = trading_system
 	
-	# Create CharacterSystem (needed for WP operations).
+	# Create CharacterSystem (needed for credits operations).
 	character_system = Node.new()
 	character_system.set_script(load("res://src/core/systems/character_system.gd"))
 	add_child(character_system)
@@ -37,10 +41,10 @@ func before_each():
 	add_child(asset_system)
 	GlobalRefs.asset_system = asset_system
 	
-	# Set up test character with wealth_points and cargo capacity.
+	# Set up test character with credits and cargo capacity.
 	var character = CharacterTemplate.new()
 	character.character_name = "Test Trader"
-	character.wealth_points = 1000
+	character.credits = 1000
 	GameState.characters[TEST_CHARACTER_UID] = character
 	GameState.player_character_uid = TEST_CHARACTER_UID
 	
@@ -79,10 +83,10 @@ func after_each():
 	# Reset session_stats with defaults (TradingSystem expects these keys)
 	GameState.session_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 	
 	if is_instance_valid(trading_system):
@@ -104,10 +108,10 @@ func test_can_buy_within_budget():
 
 
 func test_can_buy_insufficient_funds():
-	# Try to buy 40 ore at 10 each = 400 WP. Set character to only have 100 WP.
-	GameState.characters[TEST_CHARACTER_UID].wealth_points = 100
+	# Try to buy 40 ore at 10 each = 400 credits. Set character to only have 100 credits.
+	GameState.characters[TEST_CHARACTER_UID].credits = 100
 	var result = trading_system.can_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 40)
-	assert_false(result.success, "Should not be able to afford 40 ore with only 100 WP")
+	assert_false(result.success, "Should not be able to afford 40 ore with only 100 Credits")
 	assert_true("Insufficient funds" in result.reason, "Reason should mention insufficient funds")
 
 
@@ -127,14 +131,14 @@ func test_can_buy_exceeds_cargo():
 
 
 func test_execute_buy_success():
-	var initial_wp = GameState.characters[TEST_CHARACTER_UID].wealth_points
+	var initial_credits = GameState.characters[TEST_CHARACTER_UID].credits
 	var result = trading_system.execute_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
 	
 	assert_true(result.success, "Buy should succeed")
 	
-	# Check WP deducted.
-	var expected_wp = initial_wp - (5 * 10) # 5 ore at 10 each.
-	assert_eq(GameState.characters[TEST_CHARACTER_UID].wealth_points, expected_wp, "WP should be deducted")
+	# Check credits deducted.
+	var expected_credits = initial_credits - (5 * 10) # 5 ore at 10 each.
+	assert_eq(GameState.characters[TEST_CHARACTER_UID].credits, expected_credits, "Credits should be deducted")
 	
 	# Check commodity added to inventory.
 	var cargo = inventory_system.get_inventory_by_type(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY)
@@ -147,8 +151,8 @@ func test_execute_buy_success():
 
 
 func test_execute_buy_fails_validation():
-	# Try to buy with insufficient WP: 40 ore at 10 each = 400 WP, but set to only 100.
-	GameState.characters[TEST_CHARACTER_UID].wealth_points = 100
+	# Try to buy with insufficient credits: 40 ore at 10 each = 400 credits, but set to only 100.
+	GameState.characters[TEST_CHARACTER_UID].credits = 100
 	var result = trading_system.execute_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 40)
 	assert_false(result.success, "Buy should fail validation")
 	assert_true("Insufficient funds" in result.reason, "Reason should mention insufficient funds")
@@ -183,15 +187,15 @@ func test_can_sell_more_than_owned():
 func test_execute_sell_success():
 	# Give player ore.
 	inventory_system.add_asset(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY, "commodity_ore", 10)
-	var initial_wp = GameState.characters[TEST_CHARACTER_UID].wealth_points
+	var initial_credits = GameState.characters[TEST_CHARACTER_UID].credits
 	
 	var result = trading_system.execute_sell(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
 	
 	assert_true(result.success, "Sell should succeed")
 	
-	# Check WP added (sell price is 8 for ore).
-	var expected_wp = initial_wp + (5 * 8)
-	assert_eq(GameState.characters[TEST_CHARACTER_UID].wealth_points, expected_wp, "WP should be added")
+	# Check credits added (sell price is 8 for ore).
+	var expected_credits = initial_credits + (5 * 8)
+	assert_eq(GameState.characters[TEST_CHARACTER_UID].credits, expected_credits, "Credits should be added")
 	
 	# Check commodity removed from inventory.
 	var cargo = inventory_system.get_inventory_by_type(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY)

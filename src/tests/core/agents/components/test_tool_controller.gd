@@ -1,12 +1,20 @@
-# test_weapon_controller.gd
-# Unit tests for WeaponController - weapon firing, cooldowns, signal emissions
+#
+# PROJECT: GDTLancer
+# MODULE: test_tool_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
+# LOG_REF: 2026-01-28
+#
+
+# test_tool_controller.gd
+# Unit tests for ToolController - tool (weapon) firing, cooldowns, signal emissions
 extends "res://addons/gut/test.gd"
 
-const WeaponController = preload("res://src/core/agents/components/weapon_controller.gd")
+const ToolController = preload("res://src/core/agents/components/tool_controller.gd")
 const CombatSystem = preload("res://src/core/systems/combat_system.gd")
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
 
-var _weapon_controller: Node
+var _tool_controller: Node
 var _mock_agent_body: RigidBody
 var _mock_combat_system: Node
 var _test_weapon: UtilityToolTemplate
@@ -51,13 +59,13 @@ func before_each():
 	_test_weapon.cooldown_time = 0.5  # Additional cooldown
 	
 	# Create weapon controller and add as child of agent body
-	_weapon_controller = WeaponController.new()
-	_weapon_controller.name = "WeaponController"
-	_mock_agent_body.add_child(_weapon_controller)
+	_tool_controller = ToolController.new()
+	_tool_controller.name = "ToolController"
+	_mock_agent_body.add_child(_tool_controller)
 	
 	# Manually inject a weapon (bypassing asset system loading)
-	_weapon_controller._weapons = [_test_weapon]
-	_weapon_controller._cooldowns = {0: 0.0}
+	_tool_controller._weapons = [_test_weapon]
+	_tool_controller._cooldowns = {0: 0.0}
 	
 	# Register combatants for fire tests
 	var shooter_ship = _create_mock_ship(100, 50)
@@ -85,38 +93,38 @@ func _create_mock_ship(hull: int, armor: int) -> Resource:
 # --- Weapon Loading Tests ---
 
 func test_get_weapon_count():
-	assert_eq(_weapon_controller.get_weapon_count(), 1, "Should have 1 weapon loaded")
+	assert_eq(_tool_controller.get_weapon_count(), 1, "Should have 1 weapon loaded")
 
 
 func test_get_weapon_valid_index():
-	var weapon = _weapon_controller.get_weapon(0)
+	var weapon = _tool_controller.get_weapon(0)
 	assert_not_null(weapon, "Weapon at index 0 should exist")
 	assert_eq(weapon.template_id, "test_laser", "Should return correct weapon")
 
 
 func test_get_weapon_invalid_index():
-	var weapon = _weapon_controller.get_weapon(99)
+	var weapon = _tool_controller.get_weapon(99)
 	assert_null(weapon, "Invalid index should return null")
 	
-	weapon = _weapon_controller.get_weapon(-1)
+	weapon = _tool_controller.get_weapon(-1)
 	assert_null(weapon, "Negative index should return null")
 
 
 # --- Weapon Ready State Tests ---
 
 func test_is_weapon_ready_initially():
-	assert_true(_weapon_controller.is_weapon_ready(0), "Weapon should be ready initially")
+	assert_true(_tool_controller.is_weapon_ready(0), "Weapon should be ready initially")
 
 
 func test_is_weapon_ready_after_fire():
 	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
-	assert_false(_weapon_controller.is_weapon_ready(0), "Weapon should not be ready after firing")
+	assert_false(_tool_controller.is_weapon_ready(0), "Weapon should not be ready after firing")
 
 
 func test_get_cooldown_remaining_initially():
-	var cooldown = _weapon_controller.get_cooldown_remaining(0)
+	var cooldown = _tool_controller.get_cooldown_remaining(0)
 	assert_eq(cooldown, 0.0, "Initial cooldown should be 0")
 
 
@@ -125,43 +133,43 @@ func test_get_cooldown_remaining_initially():
 func test_fire_weapon_success():
 	var target_pos = Vector3(10, 0, 0)  # Within range
 	
-	var result = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	var result = _tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
 	assert_true(result.get("success", false), "Fire should succeed")
 
 
 func test_fire_weapon_emits_weapon_fired_signal():
-	watch_signals(_weapon_controller)
+	watch_signals(_tool_controller)
 	var target_pos = Vector3(10, 0, 0)
 	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
-	assert_signal_emitted(_weapon_controller, "weapon_fired", "weapon_fired signal should emit")
+	assert_signal_emitted(_tool_controller, "weapon_fired", "weapon_fired signal should emit")
 
 
 func test_fire_weapon_emits_cooldown_started_signal():
-	watch_signals(_weapon_controller)
+	watch_signals(_tool_controller)
 	var target_pos = Vector3(10, 0, 0)
 	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
-	assert_signal_emitted(_weapon_controller, "weapon_cooldown_started", 
+	assert_signal_emitted(_tool_controller, "weapon_cooldown_started", 
 		"weapon_cooldown_started signal should emit")
 
 
 func test_fire_weapon_starts_cooldown():
 	var target_pos = Vector3(10, 0, 0)
 	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
-	var cooldown = _weapon_controller.get_cooldown_remaining(0)
+	var cooldown = _tool_controller.get_cooldown_remaining(0)
 	assert_gt(cooldown, 0.0, "Cooldown should be > 0 after firing")
 
 
 func test_fire_weapon_invalid_index():
 	var target_pos = Vector3(10, 0, 0)
 	
-	var result = _weapon_controller.fire_at_target(99, TARGET_UID, target_pos)
+	var result = _tool_controller.fire_at_target(99, TARGET_UID, target_pos)
 	
 	assert_false(result.get("success", true), "Fire with invalid index should fail")
 	assert_eq(result.get("reason"), "Invalid weapon index", "Should return correct error reason")
@@ -171,11 +179,11 @@ func test_fire_weapon_during_cooldown_fails():
 	var target_pos = Vector3(10, 0, 0)
 	
 	# First fire should succeed
-	var result1 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	var result1 = _tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	assert_true(result1.get("success", false), "First fire should succeed")
 	
 	# Second immediate fire should fail
-	var result2 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	var result2 = _tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	assert_false(result2.get("success", true), "Second fire should fail due to cooldown")
 	assert_eq(result2.get("reason"), "Weapon on cooldown", "Should report cooldown as reason")
 
@@ -184,39 +192,39 @@ func test_fire_weapon_during_cooldown_fails():
 
 func test_cooldown_decrements_over_time():
 	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
-	var initial_cooldown = _weapon_controller.get_cooldown_remaining(0)
+	var initial_cooldown = _tool_controller.get_cooldown_remaining(0)
 	
 	# Simulate physics frame
-	_weapon_controller._physics_process(0.25)
+	_tool_controller._physics_process(0.25)
 	
-	var new_cooldown = _weapon_controller.get_cooldown_remaining(0)
+	var new_cooldown = _tool_controller.get_cooldown_remaining(0)
 	assert_lt(new_cooldown, initial_cooldown, "Cooldown should decrease after physics process")
 
 
 func test_cooldown_reaches_zero():
 	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
 	# Simulate enough time to complete cooldown (fire_rate=2 -> 0.5s + cooldown_time=0.5s = 1.0s)
-	_weapon_controller._physics_process(2.0)
+	_tool_controller._physics_process(2.0)
 	
-	var final_cooldown = _weapon_controller.get_cooldown_remaining(0)
+	var final_cooldown = _tool_controller.get_cooldown_remaining(0)
 	assert_eq(final_cooldown, 0.0, "Cooldown should reach 0")
-	assert_true(_weapon_controller.is_weapon_ready(0), "Weapon should be ready after cooldown")
+	assert_true(_tool_controller.is_weapon_ready(0), "Weapon should be ready after cooldown")
 
 
 func test_weapon_ready_signal_emitted_after_cooldown():
-	watch_signals(_weapon_controller)
+	watch_signals(_tool_controller)
 	var target_pos = Vector3(10, 0, 0)
 	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
 	# Simulate time to complete cooldown
-	_weapon_controller._physics_process(2.0)
+	_tool_controller._physics_process(2.0)
 	
-	assert_signal_emitted(_weapon_controller, "weapon_ready", 
+	assert_signal_emitted(_tool_controller, "weapon_ready", 
 		"weapon_ready signal should emit when cooldown ends")
 
 
@@ -226,7 +234,7 @@ func test_fire_without_combat_system():
 	GlobalRefs.combat_system = null
 	var target_pos = Vector3(10, 0, 0)
 	
-	var result = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	var result = _tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
 	assert_false(result.get("success", true), "Fire should fail without combat system")
 	assert_eq(result.get("reason"), "CombatSystem unavailable", "Should report system unavailable")
@@ -234,14 +242,14 @@ func test_fire_without_combat_system():
 
 func test_multiple_physics_frames_decrement_cooldown():
 	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	_tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	
 	var cooldowns = []
-	cooldowns.append(_weapon_controller.get_cooldown_remaining(0))
+	cooldowns.append(_tool_controller.get_cooldown_remaining(0))
 	
 	for _i in range(4):
-		_weapon_controller._physics_process(0.1)
-		cooldowns.append(_weapon_controller.get_cooldown_remaining(0))
+		_tool_controller._physics_process(0.1)
+		cooldowns.append(_tool_controller.get_cooldown_remaining(0))
 	
 	# Verify strictly decreasing
 	for i in range(1, cooldowns.size()):
@@ -253,12 +261,12 @@ func test_can_fire_again_after_cooldown_complete():
 	var target_pos = Vector3(10, 0, 0)
 	
 	# First fire
-	var result1 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	var result1 = _tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	assert_true(result1.get("success", false), "First fire should succeed")
 	
 	# Wait for cooldown
-	_weapon_controller._physics_process(2.0)
+	_tool_controller._physics_process(2.0)
 	
 	# Second fire after cooldown
-	var result2 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
+	var result2 = _tool_controller.fire_at_target(0, TARGET_UID, target_pos)
 	assert_true(result2.get("success", false), "Fire after cooldown should succeed")

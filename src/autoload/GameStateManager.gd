@@ -1,6 +1,10 @@
-# File: autoload/GameStateManager.gd
-# Autoload Singleton: GameStateManager
-# Version: 2.4 - Fixed location serialization (Resources not plain dicts).
+#
+# PROJECT: GDTLancer
+# MODULE: GameStateManager.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -16,7 +20,7 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 
 func reset_to_defaults() -> void:
 	GameState.world_seed = ""
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 	GameState.player_character_uid = -1
 	GameState.player_docked_at = ""
 	GameState.player_position = Vector3.ZERO
@@ -36,14 +40,15 @@ func reset_to_defaults() -> void:
 		"reputation": 0,
 		"faction_standings": {},
 		"known_contacts": [],
+		"contact_relationships": {},
 		"chronicle_entries": []
 	}
 	GameState.session_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 
 func save_game(slot_id: int = 0) -> bool:
@@ -151,7 +156,7 @@ func _serialize_game_state() -> Dictionary:
 	var state_dict = {}
 	
 	state_dict["player_character_uid"] = GameState.player_character_uid
-	state_dict["current_tu"] = GameState.current_tu
+	state_dict["game_time_seconds"] = GameState.game_time_seconds
 	state_dict["player_docked_at"] = GameState.player_docked_at
 	
 	# Save player position and rotation
@@ -227,7 +232,8 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.active_contracts.clear()
 	
 	GameState.player_character_uid = save_data.get("player_character_uid", -1)
-	GameState.current_tu = save_data.get("current_tu", 0)
+	# Support legacy current_tu if present
+	GameState.game_time_seconds = save_data.get("game_time_seconds", save_data.get("current_tu", 0))
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
 	
 	# Restore player position and rotation
@@ -249,6 +255,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 		"reputation": 0,
 		"faction_standings": {},
 		"known_contacts": [],
+		"contact_relationships": {},
 		"chronicle_entries": []
 	}
 	var saved_narrative = save_data.get("narrative_state", {})
@@ -258,14 +265,18 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	# Restore session stats with defaults if not present
 	var default_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 	var saved_stats = save_data.get("session_stats", {})
 	for key in default_stats:
 		GameState.session_stats[key] = saved_stats.get(key, default_stats[key])
+	
+	# Migrate legacy stats if needed
+	if saved_stats.has("time_played_tu") and GameState.session_stats.time_played_seconds == 0:
+		GameState.session_stats.time_played_seconds = saved_stats.get("time_played_tu", 0)
 
 func _deserialize_resource(res_data: Dictionary) -> Resource:
 	if not res_data.has("template_id"):

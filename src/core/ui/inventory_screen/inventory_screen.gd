@@ -1,6 +1,10 @@
-# File: src/core/ui/inventory_screen/inventory_screen.gd
-# Script for the player inventory UI.
-# Version: 1.0 - Initial.
+#
+# PROJECT: GDTLancer
+# MODULE: inventory_screen.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Control
 
@@ -137,7 +141,7 @@ func _on_ModuleList_item_selected(index):
 		_clear_details()
 		LabelName.text = module_resource.module_name
 		LabelDescription.text = "Ship Module"  # Placeholder description
-		LabelStat1.text = "Base Value: %d WP" % module_resource.base_value
+		LabelStat1.text = "Base Value: %d Credits" % module_resource.base_value
 	else:
 		_clear_details()
 		LabelName.text = "Error: Module not found"
@@ -157,7 +161,7 @@ func _on_CommodityList_item_selected(index):
 		LabelName.text = commodity_template.commodity_name
 		LabelDescription.text = "Trade Good"  # Placeholder description
 		LabelStat1.text = "Quantity: %d" % quantity
-		LabelStat2.text = "Base Value: %d WP" % commodity_template.base_value
+		LabelStat2.text = "Base Value: %d Credits" % commodity_template.base_value
 	else:
 		_clear_details()
 		LabelName.text = "Error: Commodity not found"

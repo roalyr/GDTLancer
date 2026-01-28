@@ -14,12 +14,18 @@ var assets_commodities: Dictionary = {}
 var locations: Dictionary = {}
 var contracts: Dictionary = {}
 var utility_tools: Dictionary = {}  # Weapons and other utility tools
+var factions: Dictionary = {}
+var contacts: Dictionary = {}
 
 
 # Generic getter that searches all template categories
 func get_template(template_id: String) -> Resource:
 	if characters.has(template_id):
 		return characters[template_id]
+	if factions.has(template_id):
+		return factions[template_id]
+	if contacts.has(template_id):
+		return contacts[template_id]
 	if assets_ships.has(template_id):
 		return assets_ships[template_id]
 	if assets_modules.has(template_id):

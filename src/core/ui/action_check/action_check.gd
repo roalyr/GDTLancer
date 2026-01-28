@@ -1,6 +1,10 @@
-# File: core/ui/action_check/action_check.gd
-# Purpose: Modal UI for resolving Narrative Actions (Risky/Cautious + FP spend).
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: action_check.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Control
 
@@ -124,10 +128,10 @@ func _show_result(result: Dictionary):
 
 func _format_effects(effects: Dictionary) -> String:
 	var parts = []
-	if effects.has("wp_lost"):
-		parts.append("-%d WP" % int(effects.get("wp_lost", 0)))
-	if effects.has("wp_gained"):
-		parts.append("+%d WP" % int(effects.get("wp_gained", 0)))
+	if effects.has("credits_lost"):
+		parts.append("-%d Credits" % int(effects.get("credits_lost", 0)))
+	if effects.has("credits_gained"):
+		parts.append("+%d Credits" % int(effects.get("credits_gained", 0)))
 	if effects.has("fp_gained"):
 		parts.append("+%d FP" % int(effects.get("fp_gained", 0)))
 	if effects.has("quirk_added"):

@@ -1,5 +1,11 @@
-# contract_system.gd
-# Stateless API for contract management - accept, track, complete, abandon
+#
+# PROJECT: GDTLancer
+# MODULE: contract_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends Node
 
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
@@ -61,7 +67,7 @@ func accept_contract(char_uid: int, contract_id: String) -> Dictionary:
 	# Get contract and mark as accepted
 	var contract = GameState.contracts[contract_id]
 	var contract_copy = contract.duplicate(true)
-	contract_copy.accepted_at_tu = GameState.current_tu
+	contract_copy.accepted_at_seconds = GameState.game_time_seconds
 	contract_copy.progress = {"character_uid": char_uid}
 	
 	# Add to active contracts
@@ -105,7 +111,7 @@ func check_contract_completion(char_uid: int, contract_id: String) -> Dictionary
 		}
 	
 	# Check expiration
-	if contract.is_expired(GameState.current_tu):
+	if contract.is_expired(GameState.game_time_seconds):
 		return {
 			"can_complete": false,
 			"reason": "Contract has expired"
@@ -164,16 +170,16 @@ func complete_contract(char_uid: int, contract_id: String) -> Dictionary:
 	# Emit signal
 	EventBus.emit_signal("contract_completed", contract_id, true)
 	
-	# Calculate total WP earned including cargo sale
+	# Calculate total credits earned including cargo sale
 	var cargo_sale_value: int = completion_result.get("cargo_sale_value", 0)
 	
 	return {
 		"success": true,
 		"contract": contract,
 		"rewards": {
-			"wp": contract.reward_wp,
-			"cargo_sale_wp": cargo_sale_value,
-			"total_wp": contract.reward_wp + cargo_sale_value,
+			"credits": contract.reward_credits,
+			"cargo_sale_credits": cargo_sale_value,
+			"total_credits": contract.reward_credits + cargo_sale_value,
 			"reputation": contract.reward_reputation,
 			"items": contract.reward_items
 		}
@@ -218,7 +224,7 @@ func check_expired_contracts(char_uid: int) -> Array:
 		var contract = GameState.active_contracts[contract_id]
 		if contract.progress.get("character_uid", -1) != char_uid:
 			continue
-		if contract.is_expired(GameState.current_tu):
+		if contract.is_expired(GameState.game_time_seconds):
 			to_fail.append(contract_id)
 			expired.append(contract)
 	
@@ -326,8 +332,8 @@ func _complete_delivery(char_uid: int, contract) -> Dictionary:
 	if cargo_sale_value > 0:
 		var character_system = GlobalRefs.character_system
 		if character_system:
-			character_system.add_wp(char_uid, cargo_sale_value)
-			GameState.session_stats.total_wp_earned += cargo_sale_value
+			character_system.add_credits(char_uid, cargo_sale_value)
+			GameState.session_stats.total_credits_earned += cargo_sale_value
 	
 	return {"success": true, "cargo_sale_value": cargo_sale_value}
 
@@ -338,11 +344,11 @@ func _complete_combat(_char_uid: int, _contract) -> Dictionary:
 
 
 func _apply_rewards(char_uid: int, contract) -> void:
-	# Apply WP reward
+	# Apply credits reward
 	var character_system = GlobalRefs.character_system
-	if character_system and contract.reward_wp > 0:
-		character_system.add_wp(char_uid, contract.reward_wp)
-		GameState.session_stats.total_wp_earned += contract.reward_wp
+	if character_system and contract.reward_credits > 0:
+		character_system.add_credits(char_uid, contract.reward_credits)
+		GameState.session_stats.total_credits_earned += contract.reward_credits
 	
 	# Apply reputation
 	if contract.reward_reputation != 0:

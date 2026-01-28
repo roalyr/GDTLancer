@@ -1,14 +1,18 @@
-# File: res://core/ui/main_hud/main_hud.gd
-# Script for the main HUD container. Handles displaying targeting info, etc.
-# Version: 1.3 - Added camera mode toggle.
+#
+# PROJECT: GDTLancer
+# MODULE: main_hud.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Control
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
-onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
+onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
-onready var label_tu: Label = $ScreenControls/TopLeftZone/LabelTU
+onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
 onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
 onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
@@ -85,8 +89,8 @@ func _ready():
 		):
 			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
 
-		if not EventBus.is_connected("player_wp_changed", self, "_on_player_wp_changed"):
-			EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
+		if not EventBus.is_connected("player_credits_changed", self, "_on_player_credits_changed"):
+			EventBus.connect("player_credits_changed", self, "_on_player_credits_changed")
 
 		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
 			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
@@ -94,8 +98,8 @@ func _ready():
 		if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
 			EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
 
-		if EventBus.has_signal("time_units_added") and not EventBus.is_connected("time_units_added", self, "_on_time_units_added"):
-			EventBus.connect("time_units_added", self, "_on_time_units_added")
+		if EventBus.has_signal("game_time_advanced") and not EventBus.is_connected("game_time_advanced", self, "_on_game_time_advanced"):
+			EventBus.connect("game_time_advanced", self, "_on_game_time_advanced")
 			
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
@@ -150,7 +154,7 @@ func _ready():
 			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
 
 	# Initialize TU display
-	_refresh_tu_display()
+	_refresh_time_display()
 
 
 # --- Process Update ---
@@ -243,7 +247,7 @@ func _on_game_state_loaded() -> void:
 	call_deferred("_deferred_refresh_player_hull")
 
 
-func _on_player_wp_changed(_new_wp_value = null):
+func _on_player_credits_changed(_new_credits_value = null):
 	_refresh_player_resources()
 
 
@@ -252,30 +256,31 @@ func _on_player_fp_changed(_new_fp_value = null):
 
 
 func _refresh_player_resources() -> void:
-	if not is_instance_valid(label_wp) or not is_instance_valid(label_fp):
+	if not is_instance_valid(label_credits) or not is_instance_valid(label_fp):
 		return
 	if not is_instance_valid(GlobalRefs.character_system):
 		return
 	var player_char = GlobalRefs.character_system.get_player_character()
 	if not is_instance_valid(player_char):
 		return
-	label_wp.text = "Current WP: " + str(player_char.wealth_points)
+	label_credits.text = "Credits: " + str(player_char.credits)
 	label_fp.text = "Current FP: " + str(player_char.focus_points)
 
 
-func _refresh_tu_display() -> void:
-	if not is_instance_valid(label_tu):
+func _refresh_time_display() -> void:
+	if not is_instance_valid(label_time):
 		return
-	label_tu.text = "Time (TU): " + str(GameState.current_tu)
+	var time_str = "%02d:%02d" % [GameState.game_time_seconds / 60, GameState.game_time_seconds % 60]
+	label_time.text = "Time: " + time_str
 
 
-func _on_world_event_tick_triggered(_tu_amount: int = 0) -> void:
-	_refresh_tu_display()
+func _on_world_event_tick_triggered(_seconds_amount: int = 0) -> void:
+	_refresh_time_display()
 	_refresh_player_resources()
 
 
-func _on_time_units_added(_tu_added: int = 0) -> void:
-	_refresh_tu_display()
+func _on_game_time_advanced(_seconds_added: int = 0) -> void:
+	_refresh_time_display()
 
 
 func _unhandled_input(event: InputEvent) -> void:

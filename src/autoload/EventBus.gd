@@ -1,5 +1,10 @@
-# File: autoload/EventBus.gd
-# Version: 1.2 - Added Phase 1 signals for combat, contracts, trading, docking, narrative.
+#
+# PROJECT: GDTLancer
+# MODULE: EventBus.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -42,7 +47,7 @@ signal player_dock_pressed  # Explicit dock button
 signal player_attack_pressed  # Explicit attack button
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
-signal player_wp_changed(new_wp_value)
+signal player_credits_changed(new_credits_value)
 signal player_fp_changed(new_fp_value)
 
 # --- Zone Loading Signals ---
@@ -55,8 +60,8 @@ signal zone_loading(zone_path)  # zone_path is path to the complete zone scene
 signal zone_loaded(zone_node, zone_path, agent_container_node)
 
 # --- Core Mechanics / Gameplay Events ---
-signal world_event_tick_triggered(tu_amount)
-signal time_units_added(tu_added)  # Emitted every time TU increments (for UI updates)
+signal world_event_tick_triggered(seconds_amount)
+signal game_time_advanced(seconds_added)  # Emitted every time game time increments (for UI updates)
 
 # --- Combat Signals ---
 signal combat_initiated(player_agent, enemy_agents)

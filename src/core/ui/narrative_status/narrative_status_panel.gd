@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
-# MODULE: src/core/ui/narrative_status/narrative_status_panel.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TACTICAL_TODO.md
-# LOG_REF: 2025-12-26
+# MODULE: narrative_status_panel.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
 #
 
 extends Control
@@ -27,7 +27,7 @@ func _ready() -> void:
 		EventBus.connect("ship_quirk_added", self, "_on_ship_quirk_added")
 		EventBus.connect("ship_quirk_removed", self, "_on_ship_quirk_removed")
 		EventBus.connect("narrative_action_resolved", self, "_on_narrative_action_resolved")
-		EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
+		EventBus.connect("player_credits_changed", self, "_on_player_credits_changed")
 		EventBus.connect("contract_completed", self, "_on_contract_completed")
 	
 	# Connect to internal visibility toggle
@@ -80,7 +80,12 @@ func _update_factions() -> void:
 	for faction_id in standings:
 		var val = standings[faction_id]
 		var lbl: Label = Label.new()
-		lbl.text = str(faction_id).capitalize() + ": " + str(val)
+		
+		var display_name: String = str(faction_id).capitalize()
+		if GameState.factions.has(faction_id):
+			display_name = GameState.factions[faction_id].display_name
+			
+		lbl.text = display_name + ": " + str(val)
 		faction_container.add_child(lbl)
 
 
@@ -121,11 +126,11 @@ func _update_quirks() -> void:
 ## Updates sector statistics from GameState session tracking.
 func _update_stats() -> void:
 	var completed: int = GameState.session_stats.get("contracts_completed", 0)
-	var wp_earned: int = GameState.session_stats.get("total_wp_earned", 0)
+	var credits_earned: int = GameState.session_stats.get("total_credits_earned", 0)
 	var enemies_disabled: int = GameState.session_stats.get("enemies_disabled", 0)
 	
 	contracts_label.text = "Contracts Completed: " + str(completed) + \
-		"\nTotal WP Earned: " + str(wp_earned) + \
+		"\nTotal Credits Earned: " + str(credits_earned) + \
 		"\nCombat Victories: " + str(enemies_disabled)
 
 
@@ -188,8 +193,8 @@ func _on_narrative_action_resolved(_result: Dictionary) -> void:
 		update_display()
 
 
-## Refreshes stats when player wealth points change.
-func _on_player_wp_changed(_new_val: int) -> void:
+## Refreshes stats when player credits change.
+func _on_player_credits_changed(_new_val: int) -> void:
 	if visible:
 		_update_stats()
 

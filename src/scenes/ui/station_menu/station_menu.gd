@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: station_menu.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends Control
 
 onready var label_station_name = $Panel/VBoxContainer/LabelStationName
@@ -101,7 +109,7 @@ func _show_contract_ready_popup(contract):
 	if contract_popup and label_popup_info:
 		if label_popup_title:
 			label_popup_title.text = "CONTRACT READY"
-		label_popup_info.text = "You can complete:\n\n[%s]\n\nReward: %d WP" % [contract.title, contract.reward_wp]
+		label_popup_info.text = "You can complete:\n\n[%s]\n\nReward: %d Credits" % [contract.title, contract.reward_credits]
 		contract_popup.popup_centered()
 
 
@@ -116,7 +124,7 @@ func _show_contract_accepted_popup(contract_id: String) -> void:
 		if contract.contract_type == "delivery":
 			info += "\n\nDeliver: %s x%d" % [contract.required_commodity_id, contract.required_quantity]
 			info += "\nTo: %s" % contract.destination_location_id
-			info += "\n\nReward: %d WP" % contract.reward_wp
+			info += "\n\nReward: %d Credits" % contract.reward_credits
 		label_popup_info.text = info
 	else:
 		label_popup_info.text = "Contract accepted: %s" % contract_id
@@ -192,8 +200,8 @@ func _finalize_contract_completion():
 				if label_popup_title:
 					label_popup_title.text = "CONTRACT COMPLETE!"
 				var rewards = result.get("rewards", {})
-				var wp_earned = rewards.get("wp", 0)
-				label_popup_info.text = "Contract Complete!\n\n[%s]\n\nEarned: %d WP" % [completable_contract_title, wp_earned]
+				var credits_earned = rewards.get("credits", 0)
+				label_popup_info.text = "Contract Complete!\n\n[%s]\n\nEarned: %d Credits" % [completable_contract_title, credits_earned]
 				contract_popup.popup_centered()
 			_check_completable_contracts()
 		else:

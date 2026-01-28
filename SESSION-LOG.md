@@ -42,3 +42,10 @@
 | 2026-01-26 | L2-Builder | Updated CoreMechanicsAPI | SUCCESS | Added NEUTRAL approach logic to perform_action_check. |
 | 2026-01-26 | L2-Builder | Updated NarrativeActionSystem | SUCCESS | Implemented stakes-based approach determination in resolve_action. |
 | 2026-01-26 | L2-Builder | Added Unit Tests | SUCCESS | Created tests for CoreMechanicsAPI and NarrativeActionSystem in tests/src/. |
+| 2026-01-27 | L2-Builder | Renamed Currency to Credits | SUCCESS | Comprehensive rename of WP/wealth_points to Credits across codebase, including definitions, systems, UI, and tests. Updated .tres files. |
+| 2026-01-28 | L2-Builder | Renamed Time Units to Seconds | SUCCESS | Comprehensive rename of TU/current_tu to game_time_seconds across codebase. Updated systems, UI, tests, and GameStateManager for legacy support. |
+| 2026-01-28 | L2-Builder | Rename Weapons to Tools | SUCCESS | Renamed folder/files, updated template_ids, refactored ToolController, updated scene refs. |
+| 2026-01-28 | L2-Builder | Refactor ToolController Tests | SUCCESS | Updated test_tool_controller.gd and referencing scripts (AI/Player controllers) to usage of ToolController. |
+| 2026-01-28 | L2-Builder | Update UI Display Strings | SUCCESS | Renamed LabelWP/ButtonAddWP to ...Credits, updated texts in main_hud.tscn, character_status.tscn. |
+| 2026-01-28 | L2-Builder | Implemented Faction & Contact Data Layer | SUCCESS | Created templates, registered resources, updated GameState and NarrativeStatusPanel. Tasks 1-8 complete. |
+| 2026-01-28 | L2-Builder | Verified Data Layer Tests | SUCCESS | Fixed invalid index in test_faction_loading.gd. All 207 tests passed. |

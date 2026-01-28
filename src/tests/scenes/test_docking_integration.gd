@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: test_docking_integration.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
+
 extends "res://addons/gut/test.gd"
 
 var ZoneScene = load("res://scenes/levels/zones/zone1/basic_flight_zone.tscn")
@@ -43,8 +51,8 @@ func test_full_docking_loop():
 		contract.contract_type = "delivery"
 		contract.required_commodity_id = "commodity_ore"
 		contract.required_quantity = 10
-		contract.reward_wp = 100
-		contract.time_limit_tu = -1
+		contract.reward_credits = 100
+		contract.time_limit_seconds = -1
 		GameState.contracts["delivery_01"] = contract
 	
 	# Also add station_beta location for delivery destination

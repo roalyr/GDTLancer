@@ -21,7 +21,7 @@ var agent_script: Node = null
 var _current_state: int = AIState.IDLE
 var _target_agent: RigidBody = null
 var _home_position: Vector3 = Vector3.ZERO
-var _weapon_controller: Node = null
+var _tool_controller: Node = null
 
 var _patrol_destination: Vector3 = Vector3.ZERO
 var _has_patrol_destination: bool = false
@@ -41,7 +41,7 @@ func _ready() -> void:
 	var parent = get_parent()
 	if parent is RigidBody and parent.has_method("command_move_to"):
 		agent_script = parent
-		_weapon_controller = parent.get_node_or_null("WeaponController")
+		_tool_controller = parent.get_node_or_null("ToolController")
 		_home_position = parent.global_transform.origin
 		set_physics_process(true)
 	else:
@@ -56,31 +56,31 @@ func _ready() -> void:
 		if not EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 
-	# WeaponController loads weapons deferred; retry a few times to sync AI weapon_range.
+	# ToolController loads weapons deferred; retry a few times to sync AI weapon_range.
 	call_deferred("_deferred_init_weapon_range")
 
 
 func _deferred_init_weapon_range() -> void:
 	for _i in range(20):
-		if _try_init_weapon_range_from_weapon_controller():
+		if _try_init_weapon_range_from_tool_controller():
 			_weapon_range_initialized = true
 			return
 		yield(get_tree().create_timer(0.1), "timeout")
 
 
-func _try_init_weapon_range_from_weapon_controller() -> bool:
-	if not is_instance_valid(_weapon_controller) and is_instance_valid(agent_script):
-		_weapon_controller = agent_script.get_node_or_null("WeaponController")
-	if not is_instance_valid(_weapon_controller):
+func _try_init_weapon_range_from_tool_controller() -> bool:
+	if not is_instance_valid(_tool_controller) and is_instance_valid(agent_script):
+		_tool_controller = agent_script.get_node_or_null("ToolController")
+	if not is_instance_valid(_tool_controller):
 		return false
-	if not _weapon_controller.has_method("get_weapon_count"):
+	if not _tool_controller.has_method("get_weapon_count"):
 		return false
-	var count = int(_weapon_controller.call("get_weapon_count"))
+	var count = int(_tool_controller.call("get_weapon_count"))
 	if count <= 0:
 		return false
-	if not _weapon_controller.has_method("get_weapon"):
+	if not _tool_controller.has_method("get_weapon"):
 		return false
-	var weapon = _weapon_controller.call("get_weapon", 0)
+	var weapon = _tool_controller.call("get_weapon", 0)
 	if not weapon:
 		return false
 	var raw_max = weapon.get("range_max")
@@ -256,10 +256,10 @@ func _process_combat(delta: float) -> void:
 
 
 func _try_fire_weapon() -> void:
-	if not is_instance_valid(_weapon_controller) and is_instance_valid(agent_script):
-		_weapon_controller = agent_script.get_node_or_null("WeaponController")
+	if not is_instance_valid(_tool_controller) and is_instance_valid(agent_script):
+		_tool_controller = agent_script.get_node_or_null("ToolController")
 
-	if not is_instance_valid(_weapon_controller):
+	if not is_instance_valid(_tool_controller):
 		return
 	if not is_instance_valid(_target_agent):
 		return
@@ -270,7 +270,7 @@ func _try_fire_weapon() -> void:
 	if raw_target_uid != null:
 		target_uid = int(raw_target_uid)
 
-	var result: Dictionary = _weapon_controller.fire_at_target(0, target_uid, target_pos)
+	var result: Dictionary = _tool_controller.fire_at_target(0, target_uid, target_pos)
 
 	if result.get("success", false):
 		_fire_timer = AI_FIRE_INTERVAL

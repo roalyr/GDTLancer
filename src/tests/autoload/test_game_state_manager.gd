@@ -1,6 +1,10 @@
-# File: tests/autoload/test_game_state_manager.gd
-# GUT Test for the streamlined GameStateManager.
-# Version: 2.1 - Corrected for private serialization methods.
+#
+# PROJECT: GDTLancer
+# MODULE: test_game_state_manager.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends GutTest
 
@@ -69,7 +73,7 @@ func test_save_and_load_restores_identical_state():
 
 func test_save_and_load_preserves_mutated_phase1_fields():
 	# Mutate Phase 1 fields that change during gameplay and must persist.
-	GameState.current_tu = 42
+	GameState.game_time_seconds = 42
 	GameState.player_docked_at = "station_beta"
 	GameState.narrative_state["reputation"] = 7
 	GameState.session_stats["contracts_completed"] = 2
@@ -99,7 +103,7 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 	if contract_ids.size() > 0:
 		var contract_id: String = contract_ids[0]
 		var active_contract = GameState.contracts[contract_id].duplicate(true)
-		active_contract.accepted_at_tu = GameState.current_tu
+		active_contract.accepted_at_seconds = GameState.game_time_seconds
 		active_contract.progress = {"character_uid": player_uid, "test_flag": true}
 		GameState.active_contracts[contract_id] = active_contract
 
@@ -111,7 +115,7 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 	assert_true(load_success, "Game should load successfully.")
 
 	# Assertions
-	assert_eq(GameState.current_tu, 42, "current_tu should persist.")
+	assert_eq(GameState.game_time_seconds, 42, "game_time_seconds should persist.")
 	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
 	assert_eq(GameState.narrative_state.get("reputation", null), 7, "narrative_state.reputation should persist.")
 	assert_eq(GameState.session_stats.get("contracts_completed", null), 2, "session_stats.contracts_completed should persist.")
@@ -143,18 +147,19 @@ func _clear_game_state():
 		"reputation": 0,
 		"faction_standings": {},
 		"known_contacts": [],
+		"contact_relationships": {},
 		"chronicle_entries": []
 	}
 	GameState.session_stats = {
 		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
+		"total_credits_earned": 0,
+		"total_credits_spent": 0,
 		"enemies_disabled": 0,
-		"time_played_tu": 0
+		"time_played_seconds": 0
 	}
 	GameState.player_character_uid = -1
 	GameState.player_docked_at = ""
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 
 # Creates a serializable copy of the GameState for comparison.
 func _deep_copy_game_state() -> Dictionary:

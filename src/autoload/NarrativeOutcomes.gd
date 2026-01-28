@@ -1,19 +1,22 @@
-# File: autoload/NarrativeOutcomes.gd
-# Autoload Singleton: NarrativeOutcomes
-# Purpose: Centralized narrative outcome lookup tables for Narrative Actions.
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: NarrativeOutcomes.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
 # Outcome structure per action_type + tier
 # Returns: {description: String, effects: Dictionary}
-# effects keys: "add_quirk", "wp_cost", "wp_gain", "fp_gain", "reputation_change"
+# effects keys: "add_quirk", "credits_cost", "credits_gain", "fp_gain", "reputation_change"
 
 const OUTCOMES: Dictionary = {
 	"contract_complete": {
 		"CritSuccess": {
 			"description": "Flawless delivery - client impressed.",
-			"effects": {"wp_gain": 5, "reputation_change": 1}
+			"effects": {"credits_gain": 5, "reputation_change": 1}
 		},
 		"SwC": {
 			"description": "Delivery complete with minor issues.",
@@ -21,7 +24,7 @@ const OUTCOMES: Dictionary = {
 		},
 		"Failure": {
 			"description": "Cargo damaged in transit.",
-			"effects": {"wp_cost": 10, "add_quirk": "reputation_tarnished"}
+			"effects": {"credits_cost": 10, "add_quirk": "reputation_tarnished"}
 		}
 	},
 
@@ -36,22 +39,22 @@ const OUTCOMES: Dictionary = {
 		},
 		"Failure": {
 			"description": "Rough landing. Repairs and paperwork cost you.",
-			"effects": {"wp_cost": 2, "add_quirk": "jammed_landing_gear"}
+			"effects": {"credits_cost": 2, "add_quirk": "jammed_landing_gear"}
 		}
 	},
 
 	"trade_finalize": {
 		"CritSuccess": {
 			"description": "You spot a favorable clause and close the deal above market.",
-			"effects": {"wp_gain": 2}
+			"effects": {"credits_gain": 2}
 		},
 		"SwC": {
 			"description": "Deal goes through, but the station broker takes a cut.",
-			"effects": {"wp_cost": 1}
+			"effects": {"credits_cost": 1}
 		},
 		"Failure": {
 			"description": "You misread the market and take a loss finalizing the trade.",
-			"effects": {"wp_cost": 3}
+			"effects": {"credits_cost": 3}
 		}
 	}
 }

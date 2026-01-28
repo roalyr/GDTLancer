@@ -9,7 +9,7 @@ var agent_body: RigidBody = null
 var movement_system: Node = null
 var _main_camera: Camera = null
 var _speed_slider: Slider = null
-var _weapon_controller: Node = null
+var _tool_controller: Node = null
 
 # --- Thrust Throttle Control (0.0 to 1.0) ---
 var current_thrust_throttle: float = 1.0
@@ -44,7 +44,7 @@ func _ready():
 		set_process(false)
 		return
 
-	_weapon_controller = agent_body.get_node_or_null("WeaponController")
+	_tool_controller = agent_body.get_node_or_null("ToolController")
 
 	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
 
@@ -165,11 +165,11 @@ func _unhandled_input(event: InputEvent):
 
 
 func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
-	if not is_instance_valid(_weapon_controller):
-		print("PlayerController: Fire skipped (no WeaponController)")
+	if not is_instance_valid(_tool_controller):
+		print("PlayerController: Fire skipped (no ToolController)")
 		return
-	if not _weapon_controller.has_method("fire_at_target"):
-		print("PlayerController: Fire skipped (WeaponController missing fire_at_target)")
+	if not _tool_controller.has_method("fire_at_target"):
+		print("PlayerController: Fire skipped (ToolController missing fire_at_target)")
 		return
 	if not force and not Input.is_action_just_pressed("fire_weapon"):
 		return
@@ -189,7 +189,7 @@ func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 		return
 
 	var target_pos: Vector3 = target_body.global_transform.origin
-	var result: Dictionary = _weapon_controller.call("fire_at_target", 0, target_uid, target_pos)
+	var result: Dictionary = _tool_controller.call("fire_at_target", 0, target_uid, target_pos)
 	if not result.get("success", false):
 		print("PlayerController: Fire failed[", source, "]: ", result.get("reason", "Unknown"), " details=", result)
 		return

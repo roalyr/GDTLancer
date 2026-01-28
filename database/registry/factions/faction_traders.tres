@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "faction_traders"
+faction_id = "faction_traders"
+display_name = "Trade Alliance"
+description = "The dominant commercial entity in the sector."
+faction_color = Color( 0.0, 0.6, 0.8, 1 )
+default_standing = 0

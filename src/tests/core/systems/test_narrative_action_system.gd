@@ -1,6 +1,10 @@
-# File: tests/core/systems/test_narrative_action_system.gd
-# GUT Test for NarrativeActionSystem.
-# Version: 1.1 - Tests request/resolve flow, effect application, and edge cases.
+#
+# PROJECT: GDTLancer
+# MODULE: test_narrative_action_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends GutTest
 
@@ -135,43 +139,43 @@ func test_resolve_action_fp_clamping():
 	assert_true(result.has("effects_applied"), "Should have effects")
 
 
-func test_apply_effects_wp_gain():
-	"""Test that _apply_effects correctly adds WP."""
-	# Given: Effects with WP gain
+func test_apply_effects_credits_gain():
+	"""Test that _apply_effects correctly adds credits."""
+	# Given: Effects with credits gain
 	var effects = {
-		"wp_gain": 50
+		"credits_gain": 50
 	}
 
-	var char_wp_before = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
+	var char_credits_before = int(GlobalRefs.character_system.get_credits(PLAYER_UID))
 
 	# When: We apply effects
 	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
 
-	# Then: WP should increase
-	var char_wp_after = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
-	assert_eq(char_wp_after, char_wp_before + 50, "WP should increase by 50")
-	assert_true(applied.has("wp_gained"), "Applied effects should record wp_gained")
-	assert_eq(applied["wp_gained"], 50, "Applied wp_gained should be 50")
+	# Then: credits should increase
+	var char_credits_after = int(GlobalRefs.character_system.get_credits(PLAYER_UID))
+	assert_eq(char_credits_after, char_credits_before + 50, "credits should increase by 50")
+	assert_true(applied.has("credits_gained"), "Applied effects should record credits_gained")
+	assert_eq(applied["credits_gained"], 50, "Applied credits_gained should be 50")
 
 
-func test_apply_effects_wp_cost():
-	"""Test that _apply_effects correctly subtracts WP."""
-	# Given: Effects with WP cost
+func test_apply_effects_credits_cost():
+	"""Test that _apply_effects correctly subtracts credits."""
+	# Given: Effects with credits cost
 	var effects = {
-		"wp_cost": 30
+		"credits_cost": 30
 	}
 
-	# Ensure character has enough WP
-	GlobalRefs.character_system.add_wp(PLAYER_UID, 100)
-	var char_wp_before = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
+	# Ensure character has enough credits
+	GlobalRefs.character_system.add_credits(PLAYER_UID, 100)
+	var char_credits_before = int(GlobalRefs.character_system.get_credits(PLAYER_UID))
 
 	# When: We apply effects
 	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
 
-	# Then: WP should decrease
-	var char_wp_after = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
-	assert_eq(char_wp_after, char_wp_before - 30, "WP should decrease by 30")
-	assert_true(applied.has("wp_lost"), "Applied effects should record wp_lost")
+	# Then: credits should decrease
+	var char_credits_after = int(GlobalRefs.character_system.get_credits(PLAYER_UID))
+	assert_eq(char_credits_after, char_credits_before - 30, "credits should decrease by 30")
+	assert_true(applied.has("credits_lost"), "Applied effects should record credits_lost")
 
 
 func test_apply_effects_reputation_change():

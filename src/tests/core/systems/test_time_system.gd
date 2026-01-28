@@ -1,5 +1,10 @@
-# File: tests/core/systems/test_time_system.gd
-# Version: 2.1 - Corrected GUT assertion syntax.
+#
+# PROJECT: GDTLancer
+# MODULE: test_time_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends GutTest
 
@@ -14,7 +19,7 @@ const PLAYER_UID = 0
 
 func before_each():
 	# 1. Clean and set up the global state for the test
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 	GameState.player_character_uid = PLAYER_UID
 
 	# 2. Create a mock CharacterSystem and set it in GlobalRefs
@@ -32,7 +37,7 @@ func before_each():
 
 func after_each():
 	# Clean up global state to ensure test isolation
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 	GameState.player_character_uid = -1
 	GlobalRefs.character_system = null
 	time_system_instance = null
@@ -40,32 +45,32 @@ func after_each():
 # --- Test Cases ---
 
 func test_initialization():
-	assert_eq(time_system_instance.get_current_tu(), 0, "Initial TU should be 0 from GameState.")
+	assert_eq(time_system_instance.get_current_game_time(), 0, "Initial game time should be 0.")
 
-func test_add_time_units_below_threshold():
+func test_advance_game_time_below_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(5)
-	assert_eq(GameState.current_tu, 5, "GameState.current_tu should be 5.")
+	time_system_instance.advance_game_time(5)
+	assert_eq(GameState.game_time_seconds, 5, "GameState.game_time_seconds should be 5.")
 	assert_signal_not_emitted(EventBus, "world_event_tick_triggered")
 	assert_not_called(mock_character_system, "apply_upkeep_cost")
 
-func test_add_time_units_exactly_at_threshold():
+func test_advance_game_time_exactly_at_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(Constants.TIME_CLOCK_MAX_TU)
-	assert_eq(GameState.current_tu, 0, "TU should reset to 0 after a tick.")
+	time_system_instance.advance_game_time(Constants.WORLD_TICK_INTERVAL_SECONDS)
+	assert_eq(GameState.game_time_seconds, Constants.WORLD_TICK_INTERVAL_SECONDS, "Game time should be equal to tick interval.")
 	assert_signal_emitted(EventBus, "world_event_tick_triggered")
 	assert_called(mock_character_system, "apply_upkeep_cost", [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
-func test_add_time_units_above_threshold():
+func test_advance_game_time_above_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(Constants.TIME_CLOCK_MAX_TU + 5)
-	assert_eq(GameState.current_tu, 5, "TU should be 5 after one tick.")
+	time_system_instance.advance_game_time(Constants.WORLD_TICK_INTERVAL_SECONDS + 5)
+	assert_eq(GameState.game_time_seconds, Constants.WORLD_TICK_INTERVAL_SECONDS + 5, "Game time should include overflow.")
 	assert_signal_emitted(EventBus, "world_event_tick_triggered")
 	assert_call_count(mock_character_system, "apply_upkeep_cost", 1, [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
-func test_add_time_units_triggers_multiple_ticks():
+func test_advance_game_time_triggers_multiple_ticks():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units((Constants.TIME_CLOCK_MAX_TU * 2) + 5)
-	assert_eq(GameState.current_tu, 5, "TU should be 5 after two ticks.")
+	time_system_instance.advance_game_time((Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5)
+	assert_eq(GameState.game_time_seconds, (Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5, "Game time should accumulate.")
 	assert_signal_emit_count(EventBus, "world_event_tick_triggered", 2)
 	assert_call_count(mock_character_system, "apply_upkeep_cost", 2, [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])

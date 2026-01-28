@@ -471,11 +471,11 @@ margin_right = 470.0
 margin_bottom = 470.0
 mouse_filter = 2
 
-[node name="LabelWP" type="Label" parent="ScreenControls/TopLeftZone"]
+[node name="LabelCredits" type="Label" parent="ScreenControls/TopLeftZone"]
 margin_right = 40.0
 margin_bottom = 14.0
 theme = ExtResource( 9 )
-text = "Current WP:"
+text = "Credits:"
 
 [node name="LabelFP" type="Label" parent="ScreenControls/TopLeftZone"]
 margin_top = 39.0
@@ -484,7 +484,7 @@ margin_bottom = 66.0
 theme = ExtResource( 9 )
 text = "Current FP: "
 
-[node name="LabelTU" type="Label" parent="ScreenControls/TopLeftZone"]
+[node name="LabelTime" type="Label" parent="ScreenControls/TopLeftZone"]
 margin_top = 78.0
 margin_right = 103.0
 margin_bottom = 105.0

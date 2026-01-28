@@ -1,7 +1,10 @@
-# File: src/scenes/game_world/world_manager/world_generator.gd
-# Purpose: Uses indexed templates to procedurally generate the initial game state
-#          for a new game, populating the GameState autoload.
-# Version: 2.2 - Added contract loading into GameState.contracts.
+#
+# PROJECT: GDTLancer
+# MODULE: world_generator.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -23,6 +26,9 @@ func generate_new_world():
 	
 	# Load all contracts into GameState.
 	_load_contracts()
+
+	_load_factions()
+	_load_contacts()
 
 	# Create characters first.
 	for template_id in TemplateDatabase.characters:
@@ -46,10 +52,10 @@ func _apply_player_starting_state() -> void:
 		return
 	if GameState.characters.has(player_uid):
 		var player_char = GameState.characters[player_uid]
-		player_char.wealth_points = 50
+		player_char.credits = 50
 		player_char.focus_points = 3
 		if EventBus:
-			EventBus.emit_signal("player_wp_changed", player_char.wealth_points)
+			EventBus.emit_signal("player_credits_changed", player_char.credits)
 			EventBus.emit_signal("player_fp_changed", player_char.focus_points)
 
 	# Starting cargo should be empty for the player.
@@ -128,6 +134,28 @@ func _load_contracts():
 		# Duplicate to allow runtime state tracking.
 		GameState.contracts[template_id] = template.duplicate()
 		print("... Loaded contract: ", template.title)
+
+
+func _load_factions():
+	print("WorldGenerator: Loading factions...")
+	for template_id in TemplateDatabase.factions:
+		var template = TemplateDatabase.factions[template_id]
+		GameState.factions[template_id] = template.duplicate()
+		
+		# Seed initial standing
+		if not GameState.narrative_state.faction_standings.has(template.faction_id):
+			GameState.narrative_state.faction_standings[template.faction_id] = template.default_standing
+
+
+func _load_contacts():
+	print("WorldGenerator: Loading contacts...")
+	for template_id in TemplateDatabase.contacts:
+		var template = TemplateDatabase.contacts[template_id]
+		GameState.contacts[template_id] = template.duplicate()
+		
+		# Seed initial relationship
+		if not GameState.narrative_state.contact_relationships.has(template.contact_id):
+			GameState.narrative_state.contact_relationships[template.contact_id] = template.initial_relationship
 
 
 # Creates a unique instance of a character from a template and registers it

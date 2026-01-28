@@ -1,6 +1,10 @@
-# File: tests/core/systems/test_character_system.gd
-# GUT Test Script for the stateless CharacterSystem.
-# Version: 2.0 - Rewritten for GameState architecture.
+#
+# PROJECT: GDTLancer
+# MODULE: test_character_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends GutTest
 
@@ -27,7 +31,7 @@ func before_each():
 
 	# 3. Create and register a player character instance in GameState
 	var player_char_instance = default_char_template.duplicate()
-	player_char_instance.wealth_points = 100 # Start with some money for tests
+	player_char_instance.credits = 100 # Start with some money for tests
 	GameState.characters[PLAYER_UID] = player_char_instance
 	GameState.player_character_uid = PLAYER_UID
 
@@ -56,17 +60,17 @@ func test_get_player_character():
 	assert_eq(player_char, GameState.characters[PLAYER_UID], "Should return the correct player character instance from GameState.")
 
 
-func test_wp_management():
-	# Test adding WP
-	character_system_instance.add_wp(PLAYER_UID, 50)
-	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 150, "WP should be 150 after adding 50.")
+func test_credits_management():
+	# Test adding credits
+	character_system_instance.add_credits(PLAYER_UID, 50)
+	assert_eq(GameState.characters[PLAYER_UID].credits, 150, "Credits should be 150 after adding 50.")
 
-	# Test subtracting WP
-	character_system_instance.subtract_wp(PLAYER_UID, 25)
-	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 125, "WP should be 125 after subtracting 25.")
+	# Test subtracting credits
+	character_system_instance.subtract_credits(PLAYER_UID, 25)
+	assert_eq(GameState.characters[PLAYER_UID].credits, 125, "Credits should be 125 after subtracting 25.")
 
-	# Test getting WP
-	assert_eq(character_system_instance.get_wp(PLAYER_UID), 125, "get_wp should return the correct value.")
+	# Test getting credits
+	assert_eq(character_system_instance.get_credits(PLAYER_UID), 125, "get_credits should return the correct value.")
 
 
 func test_fp_management():
@@ -96,7 +100,7 @@ func test_skill_retrieval():
 
 
 func test_apply_upkeep_cost():
-	var initial_wp = character_system_instance.get_wp(PLAYER_UID)
+	var initial_credits = character_system_instance.get_credits(PLAYER_UID)
 	character_system_instance.apply_upkeep_cost(PLAYER_UID, 10)
-	var final_wp = character_system_instance.get_wp(PLAYER_UID)
-	assert_eq(final_wp, initial_wp - 10, "Upkeep cost should correctly subtract WP.")
+	var final_credits = character_system_instance.get_credits(PLAYER_UID)
+	assert_eq(final_credits, initial_credits - 10, "Upkeep cost should correctly subtract Credits.")

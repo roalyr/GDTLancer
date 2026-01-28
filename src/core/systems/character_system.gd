@@ -1,7 +1,10 @@
-# File: core/systems/character_system.gd
-# Purpose: Provides a logical API for manipulating character data stored in GameState.
-# This system is STATELESS. All data is read from and written to the GameState autoload.
-# Version: 3.1 - Integrated character screen UI signals.
+#
+# PROJECT: GDTLancer
+# MODULE: character_system.gd
+# STATUS: Level 2 - Implementation
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-27-Senior-Dev
+#
 
 extends Node
 
@@ -34,25 +37,25 @@ func get_player_character_uid() -> int:
 # --- Stat Modification API (Operates on GameState) ---
 
 
-func add_wp(character_uid: int, amount: int):
+func add_credits(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].wealth_points += amount
+		GameState.characters[character_uid].credits += amount
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_wp_changed", GameState.characters[character_uid].wealth_points)
+			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
-func subtract_wp(character_uid: int, amount: int):
+func subtract_credits(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].wealth_points -= amount
+		GameState.characters[character_uid].credits -= amount
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_wp_changed", GameState.characters[character_uid].wealth_points)
+			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
-func get_wp(character_uid: int) -> int:
+func get_credits(character_uid: int) -> int:
 	if GameState.characters.has(character_uid):
-		return GameState.characters[character_uid].wealth_points
+		return GameState.characters[character_uid].credits
 	return 0
 
 
@@ -90,7 +93,7 @@ func get_skill_level(character_uid: int, skill_name: String) -> int:
 
 
 func apply_upkeep_cost(character_uid: int, cost: int):
-	subtract_wp(character_uid, cost)
+	subtract_credits(character_uid, cost)
 
 # NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.
 # This responsibility is now handled by the GameStateManager, which will serialize and

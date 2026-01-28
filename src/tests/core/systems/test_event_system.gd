@@ -65,9 +65,9 @@ func after_each() -> void:
 ## Test: Tick decrements cooldown without triggering encounter.
 func test_tick_decrements_cooldown_without_triggering() -> void:
 	watch_signals(EventBus)
-	_event_system._encounter_cooldown_tu = 5
+	_event_system._encounter_cooldown_seconds = 5
 	_event_system._on_world_event_tick_triggered(2)
-	assert_eq(_event_system._encounter_cooldown_tu, 3, "Cooldown should decrement by tick amount")
+	assert_eq(_event_system._encounter_cooldown_seconds, 3, "Cooldown should decrement by tick amount")
 	assert_signal_not_emitted(EventBus, "combat_initiated", "Should not trigger with active cooldown")
 
 
@@ -75,9 +75,9 @@ func test_tick_decrements_cooldown_without_triggering() -> void:
 func test_cooldown_does_not_go_negative() -> void:
 	_event_system._active_hostiles = [Node.new()]
 	add_child_autofree(_event_system._active_hostiles[0])
-	_event_system._encounter_cooldown_tu = 2
+	_event_system._encounter_cooldown_seconds = 2
 	_event_system._on_world_event_tick_triggered(10)
-	assert_eq(_event_system._encounter_cooldown_tu, 0, "Cooldown should clamp at zero")
+	assert_eq(_event_system._encounter_cooldown_seconds, 0, "Cooldown should clamp at zero")
 
 
 ## Test: Force encounter emits combat_initiated signal.
@@ -138,16 +138,16 @@ func test_multiple_hostiles_all_removed_for_combat_end() -> void:
 
 ## Edge Case: Negative tick amount ignored.
 func test_negative_tick_amount_ignored() -> void:
-	var initial_cooldown: int = _event_system._encounter_cooldown_tu
+	var initial_cooldown: int = _event_system._encounter_cooldown_seconds
 	_event_system._on_world_event_tick_triggered(-5)
-	assert_eq(_event_system._encounter_cooldown_tu, initial_cooldown, "Negative ticks should be ignored")
+	assert_eq(_event_system._encounter_cooldown_seconds, initial_cooldown, "Negative ticks should be ignored")
 
 
 ## Edge Case: Zero tick amount ignored.
 func test_zero_tick_amount_ignored() -> void:
-	var initial_cooldown: int = _event_system._encounter_cooldown_tu
+	var initial_cooldown: int = _event_system._encounter_cooldown_seconds
 	_event_system._on_world_event_tick_triggered(0)
-	assert_eq(_event_system._encounter_cooldown_tu, initial_cooldown, "Zero ticks should be ignored")
+	assert_eq(_event_system._encounter_cooldown_seconds, initial_cooldown, "Zero ticks should be ignored")
 
 
 ## Edge Case: Pruning removes freed nodes from hostiles.
@@ -181,9 +181,9 @@ func test_remove_nonexistent_hostile_safe() -> void:
 ## Edge Case: Force encounter with no active hostiles spawns immediately.
 func test_force_encounter_with_no_hostiles() -> void:
 	_event_system._active_hostiles.clear()
-	_event_system._encounter_cooldown_tu = 100
+	_event_system._encounter_cooldown_seconds = 100
 	_event_system.force_encounter()
-	assert_eq(_event_system._encounter_cooldown_tu, 0, "Force should reset cooldown")
+	assert_eq(_event_system._encounter_cooldown_seconds, 0, "Force should reset cooldown")
 	assert_true(_event_system._active_hostiles.size() > 0, "Should spawn hostiles")
 
 
