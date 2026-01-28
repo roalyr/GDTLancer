@@ -1,14 +1,13 @@
 #
 # PROJECT: GDTLancer
 # MODULE: tool_controller.gd
-# STATUS: [Level 2 - Implementation]
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
-# LOG_REF: 2026-01-28
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
-# File: core/agents/components/tool_controller.gd
-# Purpose: Manages tool (weapon) firing and cooldowns for an agent.
-# Attaches as child of AgentBody (RigidBody).
+## ToolController: Manages tool (weapon) firing and cooldowns for an agent.
+## Attaches as child of AgentBody (RigidBody), interfaces with CombatSystem for damage.
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")

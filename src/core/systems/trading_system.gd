@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: trading_system.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Node
+
+## TradingSystem: Stateless API for commodity trading operations.
+## Validates and executes buy/sell transactions between characters and locations.
 
 
 func _ready():

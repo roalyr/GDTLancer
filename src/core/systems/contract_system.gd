@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: contract_system.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Node
+
+## ContractSystem: Stateless API for contract lifecycle management.
+## Handles contract acceptance, validation, completion, and reward distribution.
 
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 const MAX_ACTIVE_CONTRACTS = 3  # Phase 1 limit

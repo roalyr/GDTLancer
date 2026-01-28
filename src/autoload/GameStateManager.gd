@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Node
+
+## GameStateManager: Handles save/load operations for the entire GameState.
+## Serializes and deserializes all game data to/from user savegame files.
 
 const SAVE_DIR = "user://savegames/"
 const SAVE_FILE_PREFIX = "save_"

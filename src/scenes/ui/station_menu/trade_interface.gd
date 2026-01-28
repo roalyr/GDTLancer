@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: trade_interface.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Control
+
+## TradeInterface: UI for buying and selling commodities at a station.
+## Displays market inventory, player cargo, and handles transaction execution.
 
 onready var list_station = $Panel/VBoxMain/HBoxContent/VBoxStation/ItemListStation
 onready var list_player = $Panel/VBoxMain/HBoxContent/VBoxPlayer/ItemListPlayer

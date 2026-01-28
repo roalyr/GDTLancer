@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Node
+
+## Constants: Global game constants, thresholds, and configuration values.
+## Centralizes magic numbers for balance tuning and consistency.
 
 # --- Action Approach Enum ---
 enum ActionApproach { CAUTIOUS, NEUTRAL, RISKY }

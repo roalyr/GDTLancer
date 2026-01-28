@@ -1,11 +1,13 @@
 #
 # PROJECT: GDTLancer
 # MODULE: test_contract_system.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 extends "res://addons/gut/test.gd"
+
+## Unit tests for ContractSystem: contract acceptance, completion, and reward distribution.
 
 const ContractSystem = preload("res://src/core/systems/contract_system.gd")
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")

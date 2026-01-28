@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: action_check.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Control
+
+## ActionCheck: UI popup for narrative action resolution.
+## Allows player to select approach (Cautious/Risky), allocate FP, and view roll results.
 
 onready var label_title = $Panel/VBoxContainer/LabelTitle
 onready var label_description = $Panel/VBoxContainer/LabelDescription

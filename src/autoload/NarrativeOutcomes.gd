@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: NarrativeOutcomes.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Node
+
+## NarrativeOutcomes: Data-driven narrative outcome descriptions and effects.
+## Maps action_type + result_tier to descriptions and effect dictionaries.
 
 # Outcome structure per action_type + tier
 # Returns: {description: String, effects: Dictionary}

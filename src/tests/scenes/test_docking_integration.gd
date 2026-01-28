@@ -1,12 +1,14 @@
 #
 # PROJECT: GDTLancer
 # MODULE: test_docking_integration.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends "res://addons/gut/test.gd"
+
+## Integration test: Docking workflow including station menu interaction.
 
 var ZoneScene = load("res://scenes/levels/zones/zone1/basic_flight_zone.tscn")
 var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")

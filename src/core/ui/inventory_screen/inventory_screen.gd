@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: inventory_screen.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Control
+
+## InventoryScreen: UI for displaying player's owned ships, modules, and commodities.
+## Provides detailed stats view for selected inventory items.
 
 # Preload the InventorySystem script to access its enums
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")

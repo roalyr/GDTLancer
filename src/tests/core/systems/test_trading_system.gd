@@ -1,12 +1,14 @@
 #
 # PROJECT: GDTLancer
 # MODULE: test_trading_system.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends GutTest
+
+## Unit tests for TradingSystem: buy/sell validation and transaction execution.
 
 var trading_system: Node
 var inventory_system: Node

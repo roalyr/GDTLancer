@@ -1,11 +1,14 @@
 #
 # PROJECT: GDTLancer
 # MODULE: combat_system.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 extends Node
+
+## CombatSystem: Manages combat state, weapon firing, and damage application.
+## Tracks combatant hull/armor, cooldowns, and emits combat-related signals.
 
 signal combat_started(attacker_uid, defender_uid)
 signal combat_ended(result)

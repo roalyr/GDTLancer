@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: world_generator.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Node
+
+## WorldGenerator: Creates initial game state including characters, ships, locations, and contracts.
+## Populates GameState dictionaries from TemplateDatabase resources.
 
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 

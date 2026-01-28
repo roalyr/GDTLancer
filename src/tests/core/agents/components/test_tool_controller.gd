@@ -1,13 +1,12 @@
 #
 # PROJECT: GDTLancer
 # MODULE: test_tool_controller.gd
-# STATUS: [Level 2 - Implementation]
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
-# LOG_REF: 2026-01-28
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
-# test_tool_controller.gd
-# Unit tests for ToolController - tool (weapon) firing, cooldowns, signal emissions
+## Unit tests for ToolController: weapon firing, cooldowns, and signal emissions.
 extends "res://addons/gut/test.gd"
 
 const ToolController = preload("res://src/core/agents/components/tool_controller.gd")

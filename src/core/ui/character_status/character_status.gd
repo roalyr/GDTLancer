@@ -1,12 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: character_status.gd
-# STATUS: Level 2 - Implementation
+# STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-27-Senior-Dev
+# LOG_REF: 2026-01-28-QA-Intern
 #
 
 extends Control
+
+## CharacterStatus: UI screen displaying player skills, active contracts, and debug controls.
+## Provides contract detail view and debug buttons for testing.
 
 onready var label_skill_piloting: Label = $Panel/VBoxContainer/HBoxContent/VBoxStats/LabelSkillPiloting
 onready var label_skill_trading: Label = $Panel/VBoxContainer/HBoxContent/VBoxStats/LabelSkillTrading
