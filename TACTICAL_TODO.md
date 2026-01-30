@@ -1,151 +1,155 @@
-## PREREQUISITE: Project-Wide Naming Standardization
-
-Per GDD Section 7 (Platform Mechanics Divergence), the Digital version uses specific terminology that differs from Analogue. The codebase currently mixes terms. This must be resolved before new features.
-
-### NAMING AUDIT FINDINGS:
-
-| Category | GDD Digital Term | Current Code Term | Status |
-|----------|------------------|-------------------|--------|
-| Currency | `credits` | `wealth_points`, `wp`, `WP` | RENAME |
-| Currency signals | `player_credits_changed` | `player_wp_changed` | RENAME |
-| Time | `game_time` (real seconds) | `tu`, `TU`, `current_tu` | RENAME |
-| Equipment folder | `tools/` | `weapons/` | RENAME |
-| Equipment files | `tool_*.tres` | `weapon_*.tres` | RENAME |
-| Equipment component | `tool_controller.gd` | `weapon_controller.gd` | RENAME |
-| Focus Points | (stub/remove for Digital) | `focus_points`, `fp` | KEEP (Analogue compat) |
-
-### NAMING STANDARDIZATION TASKS:
-
-- [x] NAMING_1: Rename currency from WP to Credits (Section 7 Platform Mechanics Divergence)
-  - Files: `database/definitions/character_template.gd`
-    - `wealth_points` → `credits`
-  - Files: `database/definitions/contract_template.gd`
-    - `reward_wp` → `reward_credits`
-  - Files: `src/core/systems/character_system.gd`
-    - `add_wp()` → `add_credits()`
-    - `subtract_wp()` → `subtract_credits()`
-    - `get_wp()` → `get_credits()`
-  - Files: `src/autoload/EventBus.gd`
-    - `player_wp_changed` → `player_credits_changed`
-  - Files: All UI scripts referencing WP signals/labels
-  - Files: `src/autoload/GameState.gd`
-    - `total_wp_earned` → `total_credits_earned`
-    - `total_wp_spent` → `total_credits_spent`
-
-- [x] NAMING_2: Rename time units from TU to game_time (seconds)
-  - Files: `src/autoload/GameState.gd`
-    - `current_tu` → `game_time_seconds`
-  - Files: `src/autoload/Constants.gd`
-    - `TIME_CLOCK_MAX_TU` → `WORLD_TICK_INTERVAL_SECONDS`
-  - Files: `database/definitions/contract_template.gd`
-    - `time_limit_tu` → `time_limit_seconds`
-    - `accepted_at_tu` → `accepted_at_seconds`
-  - Files: `src/autoload/EventBus.gd`
-    - `time_units_added` → `game_time_advanced`
-  - Files: `src/core/systems/time_system.gd` - update all TU references
-
-- [x] NAMING_3: Rename weapons folder/files to tools
-  - Folder: `database/registry/weapons/` → `database/registry/tools/`
-  - Files: `weapon_ablative_laser.tres` → `tool_ablative_laser.tres`
-  - Files: `weapon_harpoon.tres` → `tool_harpoon.tres`
-  - Files: `weapon_rotary_drill.tres` → `tool_rotary_drill.tres`
-  - Files: `src/core/agents/components/weapon_controller.gd` → `tool_controller.gd`
-  - Update all scene references to WeaponController → ToolController
-  - Update TemplateDatabase scan paths
-
-- [x] NAMING_4: Update UI display strings
-  - Files: `src/core/ui/narrative_status/narrative_status_panel.gd`
-    - "Total WP Earned" → "Total Credits Earned"
-  - Files: `scenes/ui/screens/*.tscn` - label text updates
-    - "Current WP:" → "Credits:"
-    - "Current FP:" → (keep for Analogue, or hide in Digital)
-
-- [x] NAMING_5: Update TRUTH_CONTENT-CREATION-MANUAL.md
-  - Update all references to match new naming conventions
-  - Update directory structure references
-
-- [x] NAMING_VERIFICATION:
-  - Run `grep -r "wealth_points\|_wp\|WP" src/` - should return 0 hits (except FP)
-  - Run `grep -r "current_tu\|_tu\b" src/` - should return 0 hits
-  - Run `grep -r "weapon_" database/registry/` - should return 0 hits
-  - Run all GUT tests to ensure no regressions
-  - Manual test: Launch game, check UI labels show "Credits" not "WP"
-
----
-
-## CURRENT GOAL: Implement Contact & Faction Data Layer
+## CURRENT GOAL: Implement Persistent Agent System & Contacts Panel
 
 - TARGET_FILES:
-  - `database/definitions/faction_template.gd`
-  - `database/definitions/contact_template.gd`
-  - `database/registry/factions/faction_miners.tres`
-  - `database/registry/factions/faction_traders.tres`
-  - `database/registry/factions/faction_independents.tres`
-  - `database/registry/contacts/contact_kai.tres`
-  - `database/registry/contacts/contact_vera.tres`
-  - `src/autoload/GameState.gd`
-  - `src/core/systems/world_generator.gd` (or equivalent initialization)
-  - `src/core/ui/narrative_status/narrative_status_panel.gd`
+  - `database/definitions/agent_template.gd` (extend with persistence flag)
+  - `database/definitions/character_template.gd` (extend with personality properties)
+  - `database/registry/agents/persistent_*.tres` (new - 2 Persistent Agents per faction)
+  - `database/registry/characters/character_*.tres` (new - CharacterTemplates for all persistent agents)
+  - `src/autoload/GameState.gd` (add persistent_agents tracking)
+  - `src/autoload/EventBus.gd` (add contact_met signal)
+  - `src/core/systems/agent_system.gd` (add persistent agent spawning/respawn logic)
+  - `src/core/ui/contacts_panel/contacts_panel.gd` (new - UI for viewing known contacts)
+  - `src/core/ui/contacts_panel/contacts_panel.tscn` (new)
+  - `src/core/ui/main_hud/main_hud.gd` (wire toggle button)
+  - `src/tests/core/systems/test_persistent_agents.gd` (new)
 
 - TRUTH_RELIANCE:
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md` Section 0.1 Glossary (Contact, Faction definitions)
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md` Section 2.1 Phase 1 Scope: "Interact with named Contacts... building Relationship score"
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md` Section 2.1 Phase 1 Scope: "Take on contracts from different Factions, affecting Faction Standing"
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md` Section 2.1 Milestone 2: "Implement basic UI screens to display narrative stub info (Contact Dossier, Faction Standing)"
-  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md` Section 3 (Architecture): Stateless system pattern, Resource templates
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md` Section 1 Glossary: Agent, Persistent Agent, Temporary Agent, Contact, Home Base definitions
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md` Section 2.5: World Design Philosophy (Finite Resource Sandbox)
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md` Section 1.1 System 6: Agent System (Persistent Agent Management)
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md` Section 2.1 Phase 1 Scope: Persistent Agent System, Demo Character Roster
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md` Section 3 (Architecture): CharacterTemplate & AgentTemplate property definitions
+  - `TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md` Section 1.2: Personal Goal Progression CA uses "Contacts Panel" UI
+
+- DESIGN_PHILOSOPHY (Finite Resource Sandbox — per GDD Section 2.5):
+  - **Depth over Breadth**: Small, contained world with deep interactions between systems
+  - **Dwarf Fortress / Mount & Blade Inspiration**: Few actors with full agency, emergent stories
+  - **Demo Scope** (per GDD):
+    - 3 Factions: Miners, Traders, Independents
+    - 2-3 Bases per Faction (6-9 locations total)
+    - 2 Persistent Agents per Faction (6 named NPCs total for demo)
+    - All handcrafted with in-depth templates (personality, goals, relationships)
+  - **Agent Categories** (per GDD Section 1.1 System 6):
+    - **Persistent Agents**: Named characters with full agency, personality-driven decisions, respawn at home base when disabled, ARE the Contacts, finite in number
+    - **Temporary Agents**: Generic encounters (drones, hostiles), resource-like, spawn/despawn, no personality
+  - **Emergent Lore**: Minimal starting lore, world develops as player plays
+  - **Controlled Expansion**: Procedural generation added sparingly
 
 - TECHNICAL_CONSTRAINTS:
-  - Godot 3.x, GLES2 - use `export var` NOT `@export`
-  - All templates must extend `Template` base class (see `database/definitions/template.gd`)
-  - Faction IDs must match existing references: `faction_miners`, `faction_traders`, `faction_independents`
-  - GameState is Source of Truth; systems are stateless APIs
-  - Follow established naming: `snake_case` for variables, `PascalCase` for class_name
-  - No `@onready` or `await` syntax (Godot 3)
+  - Godot 3.x, GLES2 - use `export var` NOT `@export`, use `onready` NOT `@onready`
+  - No `await` syntax (Godot 3)
+  - GameState is Source of Truth (per GDD Section 3 Architecture)
+  - Contact = Persistent Agent (synonymous per GDD Glossary)
+  - ContactTemplate is DEPRECATED — CharacterTemplate holds all contact data
+  - Follow existing UI patterns from `narrative_status_panel.gd`
+  - Use Theme from `assets/themes/main_theme.tres`
 
 - ATOMIC_TASKS:
-  - [x] TASK_1: Create `faction_template.gd` definition
-    - Location: `database/definitions/faction_template.gd`
-    - Signature: `extends Template`, `class_name FactionTemplate`
-    - Properties: `export var faction_id: String`, `export var display_name: String`, `export var description: String`, `export var faction_color: Color`
+  - [ ] TASK_1: Extend AgentTemplate with persistence properties
+    - Location: `database/definitions/agent_template.gd`
+    - Add: `export var is_persistent: bool = false`
+    - Add: `export var home_location_id: String = ""` — base for respawn
+    - Add: `export var character_template_id: String = ""` — links to CharacterTemplate
+    - Add: `export var respawn_timeout_seconds: float = 300.0` — time before respawn after disable
+    - Reference: GDD Section 3 Architecture (AgentTemplate Properties)
 
-  - [x] TASK_2: Create `contact_template.gd` definition
-    - Location: `database/definitions/contact_template.gd`
-    - Signature: `extends Template`, `class_name ContactTemplate`
-    - Properties: `export var contact_id: String`, `export var display_name: String`, `export var description: String`, `export var faction_id: String`, `export var location_id: String`
-    - Reference: GDD Glossary - "Contact: An abstract NPC the player interacts with via menus"
+  - [ ] TASK_2: Extend CharacterTemplate with personality properties
+    - Location: `database/definitions/character_template.gd`
+    - Add: `export var personality_traits: Dictionary = {}` — e.g., {"risk_tolerance": 0.7, "greed": 0.5, "loyalty": 0.6, "aggression": 0.3}
+    - Add: `export var description: String = ""` — Lore/bio text
+    - Add: `export var goals: Array = []` — Current goals (for future Goal System integration)
+    - Reference: GDD Section 3 Architecture (CharacterTemplate Properties)
 
-  - [x] TASK_3: Create faction .tres registry files
-    - Location: `database/registry/factions/`
-    - Files: `faction_miners.tres`, `faction_traders.tres`, `faction_independents.tres`
-    - Must match existing `faction_id` references in contracts and locations
+  - [ ] TASK_3: Create CharacterTemplates for 6 named NPCs (per GDD Section 2.1 Demo Roster)
+    - Location: `database/registry/characters/`
+    - Miners Faction:
+      - `character_kai.tres` — Veteran miner, pragmatic (risk_tolerance: 0.3, loyalty: 0.8)
+      - `character_juno.tres` — Young prospector, ambitious (risk_tolerance: 0.8, greed: 0.7)
+    - Traders Faction:
+      - `character_vera.tres` — Merchant captain, cautious (risk_tolerance: 0.2, greed: 0.5)
+      - `character_milo.tres` — Cargo hauler, opportunistic (greed: 0.7, aggression: 0.2)
+    - Independents Faction:
+      - `character_rex.tres` — Freelancer pilot, risky (risk_tolerance: 0.9, loyalty: 0.2)
+      - `character_ada.tres` — Salvager, resourceful (risk_tolerance: 0.5, aggression: 0.1)
 
-  - [x] TASK_4: Create starter Contact .tres files
-    - Location: `database/registry/contacts/`
-    - Files: `contact_kai.tres` (faction_miners), `contact_vera.tres` (faction_traders)
-    - Minimum 2 contacts per GDD Section 2.1 ("2-3 named Contacts")
+  - [ ] TASK_4: Create Persistent Agent .tres files (6 total)
+    - Location: `database/registry/agents/`
+    - Files: `persistent_kai.tres`, `persistent_juno.tres`, `persistent_vera.tres`, `persistent_milo.tres`, `persistent_rex.tres`, `persistent_ada.tres`
+    - Set `is_persistent = true`, link `home_location_id` and `character_template_id`
+    - Reference: `npc_default.tres` pattern but with persistence enabled
 
-  - [x] TASK_5: Add `factions` and `contacts` dictionaries to GameState.gd
-    - Signature: `var factions: Dictionary = {}` (Key: faction_id, Value: FactionTemplate)
-    - Signature: `var contacts: Dictionary = {}` (Key: contact_id, Value: ContactTemplate)
-    - Initialize `narrative_state.faction_standings` with known faction_ids on game start
+  - [ ] TASK_5: Update GameState for Persistent Agents
+    - Location: `src/autoload/GameState.gd`
+    - Add: `var persistent_agents: Dictionary = {}` — Key: agent_id, Value: state dict
+    - State dict structure: `{ "character_uid": int, "current_location": String, "is_disabled": bool, "disabled_at_time": float, "relationship": int, "is_known": bool }`
+    - Deprecate: `narrative_state.known_contacts` and `narrative_state.contact_relationships` (migrate to persistent_agents)
+    - Keep `var contacts: Dictionary` temporarily for backward compatibility, mark deprecated
 
-  - [x] TASK_6: Update world initialization to seed faction standings
-    - Location: World generator or GameStateManager initialization flow
-    - Logic: On new game, iterate registered factions and set `narrative_state.faction_standings[faction_id] = 0`
-    - Ensure `known_contacts` is populated when player visits a location with a Contact
+  - [ ] TASK_6: Update AgentSystem for Persistent Agent lifecycle
+    - Location: `src/core/systems/agent_system.gd`
+    - Add: `func spawn_persistent_agents() -> void` — called on world init, spawns all 6 at home locations
+    - Add: `func _handle_persistent_agent_disable(agent_uid: int) -> void` — marks disabled, records timestamp
+    - Add: `func _check_persistent_agent_respawns() -> void` — called on world tick, respawns ready agents
+    - Add: `func get_persistent_agent_state(agent_id: String) -> Dictionary` — returns state from GameState
+    - Connect to EventBus `world_event_tick_triggered` for respawn checks
+    - On disable: store timestamp in GameState.persistent_agents, remove body, agent respawns after timeout
 
-  - [x] TASK_7: Update NarrativeStatusPanel to display faction data properly
-    - Location: `src/core/ui/narrative_status/narrative_status_panel.gd`
-    - Update `_update_factions()` to lookup FactionTemplate for display_name
-    - Format: "Miners Guild: +5" instead of "faction_miners: 5"
+  - [ ] TASK_7: Add EventBus signal for contact discovery
+    - Location: `src/autoload/EventBus.gd`
+    - Add: `signal contact_met(agent_id)` — emitted when player first meets a Persistent Agent
 
-  - [x] TASK_8: Register factions/contacts in TemplateDatabase
-    - Ensure TemplateDatabase scans `database/registry/factions/` and `database/registry/contacts/`
-    - Or add manual loading to existing initialization
+  - [ ] TASK_8: Create `contacts_panel.tscn` scene
+    - Location: `src/core/ui/contacts_panel/contacts_panel.tscn`
+    - Structure: Control (root) → Panel → VBoxContainer → [HeaderLabel, ScrollContainer → VBoxContainer (ContactList), ButtonClose]
+    - Pattern: Mirror structure of `narrative_status_panel.tscn`
+    - Required elements: Title "Known Contacts", scrollable list, close button
 
-  - [x] VERIFICATION:
-    - Launch game, open Narrative Status Panel (Tab or HUD button)
-    - Confirm Faction Standing section shows all 3 factions with display names
-    - Confirm no "No known factions" message when factions are registered
-    - Run existing tests: `res://tests/` - ensure no regressions
-    - Manual test: Complete a contract, verify faction_standings updates for contract's faction_id
+  - [ ] TASK_9: Create `contacts_panel.gd` script
+    - Location: `src/core/ui/contacts_panel/contacts_panel.gd`
+    - Signature: `extends Control`, with UNIVERSAL HEADER (STATUS: Level 2 - Implementation)
+    - Key functions:
+      - `func open_screen() -> void` — shows panel and calls update_display()
+      - `func update_display() -> void` — clears list, iterates persistent_agents where is_known=true
+      - `func _build_contact_entry(agent_id: String) -> Control` — creates single contact row
+      - `func _on_ButtonClose_pressed() -> void` — hides panel
+    - Display per contact: Name, Faction (resolved display_name), Home Location, Relationship score, Status (Active/Disabled), Description
+    - Connect to EventBus `contact_met` for reactive updates
+
+  - [ ] TASK_10: Wire Contacts Panel to MainHUD
+    - Location: `src/core/ui/main_hud/main_hud.gd`
+    - Add button or use existing character button to open Contacts Panel
+    - Pattern: Follow how NarrativeStatusPanel is toggled (instantiate scene, connect button)
+    - Instantiate `contacts_panel.tscn` as child of HUD CanvasLayer
+
+  - [ ] TASK_11: Add contact discovery on docking
+    - Location: Docking handler (likely in piloting module or station menu)
+    - Logic: When player docks at location, iterate GameState.persistent_agents
+    - Check if any agent's `home_location_id` matches docked location AND `is_known == false`
+    - If match: set `is_known = true`, emit `EventBus.contact_met(agent_id)`
+
+  - [ ] TASK_12: Deprecate ContactTemplate artifacts
+    - Location: `database/definitions/contact_template.gd` — add deprecation comment at top
+    - Location: `database/registry/contacts/` — keep files but add deprecation note (remove in future cleanup)
+    - Location: `src/autoload/GameState.gd` — mark `var contacts: Dictionary` as deprecated
+    - Location: `src/scenes/game_world/world_manager/world_generator.gd` — comment out contact loading, add migration note
+    - Rationale: Contacts ARE Persistent Agents; CharacterTemplate now holds all contact data
+
+  - [ ] TASK_13: Create unit tests
+    - Location: `src/tests/core/systems/test_persistent_agents.gd`
+    - Test cases:
+      - `test_persistent_agents_spawn_on_world_init` — Verify all 6 agents spawn at home locations
+      - `test_persistent_agent_disable_records_state` — Disable agent, verify GameState updated
+      - `test_persistent_agent_respawns_after_timeout` — Advance time past timeout, verify respawn
+      - `test_persistent_agent_state_persists_across_save_load` — Save/load, verify state preserved
+      - `test_contacts_panel_displays_known_agents_only` — Set is_known on some agents, verify UI
+      - `test_contact_discovered_on_dock` — Simulate dock, verify is_known set and signal emitted
+
+  - [ ] VERIFICATION:
+    - Run all GUT tests: `godot -s addons/gut/gut_cmdln.gd -gdir=res://src/tests` - ensure no regressions (target: 200+ tests pass)
+    - Launch game, verify all 6 persistent agents spawn at their home locations
+    - Dock at a station with a persistent agent's home, verify contact becomes "known"
+    - Open Contacts Panel (via HUD button), verify known contacts display: Name, Faction, Location, Relationship, Status, Description
+    - Disable a persistent agent in combat, verify they respawn at home after ~300 seconds (or adjusted timeout)
+    - Save game, reload, verify persistent agent state preserved (is_known, relationship, disabled status)
+    - Verify no runtime errors from deprecated ContactTemplate references
+    - Manual test: UI styling matches existing panels (NarrativeStatusPanel)

@@ -77,8 +77,8 @@ This strict separation serves a critical long-term goal:
 
 # GDTLancer - Main GDD
 
-**Version:** 2.0
-**Date:** January 26, 2026
+**Version:** 2.1
+**Date:** January 30, 2026
 **Author:** Roal-Yr
 
 ## 0. Introduction
@@ -104,23 +104,26 @@ This strict separation serves a critical long-term goal:
 * **Action Approach:** Player's stance (`Act Risky` or `Act Cautiously`) that influences an action's outcome. In Digital, only used for High-Stakes checks; other checks use Neutral thresholds.
 * **Action Check:** The core dice roll: `3d6 + Modifier`.
 * **Action Stakes:** Classification of action importance: `High-Stakes` (full UI, approach choice, visible dice), `Narrative` (brief roll display, auto-neutral), `Mundane` (silent resolution). Digital only.
-* **Agent:** An active entity pursuing goals (Player or NPC).
+* **Agent:** An active entity pursuing goals in the game world. Classified as either Persistent (named characters) or Temporary (generic encounters).
 * **Asset:** A significant non-consumable item (ship, module, gear).
 * **Asset Progression:** A meta-progression system where players invest resources (WP, TU) and complete objectives to acquire new assets.
 * **Chronicle:** The system that logs major world events and actions.
-* **Contact:** An abstract NPC the player interacts with via menus to gain missions, information, and build relationships.
+* **Contact:** A Persistent Agent the player has met. The player interacts with Contacts via menus to gain missions, information, and build relationships. Contact = Persistent Agent (synonymous).
 * **Credits:** Currency unit in Digital version. See `WP` for Analogue equivalent.
 * **Faction:** A distinct political or corporate entity in the game world with which the player can gain or lose standing.
 * **Focus Points (FP):** *(Analogue only)* A resource spent to improve an Action Check result.
 * **G-Stasis Cradle:** In-lore tech that allows pilots to survive high-G maneuvers (e.g., rapid acceleration, high-thrust industrial actions).
 * **Goal System:** System for tracking Agent objectives.
+* **Home Base:** The location where a Persistent Agent resides and respawns after being disabled.
 * **Module:** A set of mechanics for a specific activity (e.g., Combat, Mining).
+* **Persistent Agent:** A named, handcrafted character that exists permanently in the world. Persistent Agents have full agency, unique personalities, and respawn at their home base when disabled. All Persistent Agents are Contacts.
 * **Pragmatic Aesthetics:** Function-first ship design philosophy.
 * **Preservation Convention:** The widespread cultural and economic norm of valuing ships and skilled pilots, prioritizing disablement and capture over destruction.
 * **Reputation:** A narrative stat tracking the player's professional standing (e.g., "Dependable," "Opportunist").
 * **Ship Perk:** A positive trait an asset can acquire as achievements.
 * **Ship Quirk:** A negative trait an asset can acquire due to damage or failed actions, often imposing a mechanical penalty.
 * **Time Clock:** *(Analogue)* Tracks time via TU. When full, triggers a World Event Tick. *(Digital)* Real-time clock; World Event Ticks occur at fixed intervals.
+* **Temporary Agent:** A generic, expendable entity spawned dynamically for encounters. Temporary Agents have simple behavior, no personality, and are permanently removed when disabled.
 * **Time Unit (TU):** *(Analogue only)* An abstract unit of time. Actions cost TUs.
 * **Wealth Points (WP):** *(Analogue)* Abstract resource for major purchases, representing an agent's economic power. *(Digital)* See `Credits`.
 * **World Event Tick:** Triggered by the Time Clock; advances the world simulation state.
@@ -133,6 +136,37 @@ This strict separation serves a critical long-term goal:
 * **Meaningful Progression:** Progress by improving skills, completing goals, acquiring assets, and building wealth.
 * **Simple, Consistent Rules:** Core mechanics are unified and easy to learn.
 * **Player Driven:** Players direct the experience by managing risks, time, and resources.
+
+### 2.5. World Design Philosophy: Finite Resource Sandbox
+
+GDTLancer's world is designed as a **finite resource sandbox** — a small, tightly-scoped universe where every element is handcrafted, countable, and meaningful. This philosophy prioritizes **depth of interaction over breadth of content**.
+
+**Design Tenets:**
+
+* **Comprehensible Scale:** The player can fully understand the world's actors, factions, and locations within a short play session. No overwhelming pre-generated lore; the world is small enough to "know everyone."
+
+* **Emergent Lore:** Minimal starting lore. World history develops as the player plays, as NPCs take actions, and as the game receives content updates. Players discover and create lore through gameplay rather than consuming it beforehand.
+
+* **Depth Before Breadth:** Perfect core systems, interactions, and content quality before expanding quantity. Each character, location, and faction should be polished and deeply interactive.
+
+* **Dwarf Fortress / Mount & Blade Inspiration:** Named characters with full agency operate alongside the player. The world feels like a small community multiplayer server — sometimes cooperative, sometimes competitive, sometimes parallel.
+
+* **Controlled Expansion:** Procedural generation and random events are added sparingly and deliberately. Content expands in focused updates rather than infinite procedural sprawl.
+
+**Demo Scope Definition:**
+
+The Phase 1 demo establishes a tight, contained sandbox:
+
+| Element | Demo Quantity | Notes |
+|---------|---------------|-------|
+| **Factions** | 3 | Miners, Traders, Independents |
+| **Locations per Faction** | 2-3 | 6-9 total locations in the sector |
+| **Persistent Agents per Faction** | 2 | 6 named NPCs total |
+| **Player Ships** | 2 | Starting ship + 1 unlockable |
+| **Commodities** | 3-5 | Core trading goods |
+| **Temporary Agent Types** | 1-2 | Generic encounters (drones, hostiles) |
+
+This scope allows every element to be deeply polished: unique dialogue, meaningful relationships, handcrafted personalities, and interlocking goals.
 
 ## 3. Core Gameplay Design
 
@@ -247,9 +281,9 @@ These phrases reflect the pragmatic, resilient, and resourceful culture of the p
 
 # GDTLancer - Core Systems (Phase 1)
 
-**Version:** 2.0
-**Date:** January 26, 2026
-**Related Documents:** 0.1-GDD-Main.md (v2.0), 1-GDD-Core-Mechanics.md (v2.0), 5.1-GDD-Module-Piloting.md, 5.2-GDD-Module-Combat.md, 5.3-GDD-Module-Trading.md
+**Version:** 2.1
+**Date:** January 30, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.1), 1-GDD-Core-Mechanics.md (v2.0), 5.1-GDD-Module-Piloting.md, 5.2-GDD-Module-Combat.md, 5.3-GDD-Module-Trading.md
 
 ## 1. Overview
 
@@ -327,15 +361,65 @@ This document defines the core, cross-cutting gameplay systems required to suppo
         * `Combat Module`: Provides stats like `hull_integrity` from the `ShipTemplate`.
         * `Piloting Module`: Provides stats like `max_move_speed` from the `ShipTemplate`.
 
+### System 6: Agent System (Persistent Agent Management)
+* **Code Reference:** `core/systems/agent_system.gd`
+* **Core Responsibility:** To manage the lifecycle and state of all named characters (Persistent Agents) in the world. Tracks their current location, disabled status, respawn timers, and relationships with the player and other agents.
+
+**Agent Categories:**
+
+All active entities in the game world are classified as **Agents**. Agents are further categorized based on their persistence and significance:
+
+#### Persistent Agents
+
+Persistent Agents are named, handcrafted characters that exist permanently in the game world. They are the primary actors alongside the player.
+
+| Property | Description |
+|----------|-------------|
+| **Creation** | Pre-generated from templates at world initialization |
+| **Lifespan** | Permanent — never truly removed from the world |
+| **On Disable** | Respawn at home base after timeout (Mount & Blade style) |
+| **Agency** | Full goal-driven behavior equal to player capability |
+| **Personality** | Unique traits affecting decision-making (risk tolerance, greed, loyalty, etc.) |
+| **Relationships** | Track relationship scores with player and other Persistent Agents |
+| **Contact Status** | All Persistent Agents ARE Contacts — the terms are synonymous |
+
+**Examples:** Kai (Miners), Vera (Traders), Rex (Independents)
+
+#### Temporary Agents
+
+Temporary Agents are generic, expendable entities that serve as dynamic content and resource streams rather than characters.
+
+| Property | Description |
+|----------|-------------|
+| **Creation** | Spawned dynamically by Event System or encounters |
+| **Lifespan** | Transient — despawn when disabled or out of scope |
+| **On Disable** | Removed permanently (may yield salvage/loot) |
+| **Agency** | Simple reactive behavior (patrol, attack, flee) |
+| **Personality** | None — behavior is type-based, not individual |
+| **Relationships** | None — generic hostility or neutrality |
+
+**Examples:** Pirate drones, alien creatures, automated defense systems, generic patrol ships
+
+* **Phase 1 Functionality:**
+    * Must provide functions to get/set Persistent Agent state (location, disabled status, respawn timer).
+    * Must provide functions to access and modify relationship scores between agents.
+    * Must handle respawn logic when a Persistent Agent's respawn timer expires.
+* **Interactions:**
+    * **Interacts With:**
+        * `Character System`: To access character data for Persistent Agents.
+        * `Time System`: To process respawn timers on World Event Ticks.
+        * `Event System`: To trigger encounters involving Temporary Agents.
+        * `EventBus`: To announce agent state changes (e.g., `persistent_agent_disabled`, `persistent_agent_respawned`).
+
 *Note on Core Mechanics API: The foundational dice roll logic is located in the `autoload/CoreMechanicsAPI.gd` autoload, which provides the `perform_action_check()` function.*
 
 --- Start of ./1.2-GDD-Core-Cellular-Automata.md ---
 
 # GDTLancer - Cellular Automata Implementation
 
-**Version:** 1.3
-**Date:** January 26, 2026
-**Related Documents:** 0.1-GDD-Main.md (v2.0), 1.1-GDD-Core-Systems.md (v2.0), 6.1-GDD-Lore-Background.md
+**Version:** 1.4
+**Date:** January 30, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.1), 1.1-GDD-Core-Systems.md (v2.1), 6.1-GDD-Lore-Background.md
 
 ## 1. Overview & Philosophy
 
@@ -401,7 +485,7 @@ For the Phase 1 demo, all CA implementations will be lightweight "stubs" designe
 #### 9. Personal Goal Progression
 * **Description:** A CA that tracks an individual NPC Contact's progress towards a personal ambition.
 * **Phase 1 Stub:** The CA slowly ticks an NPC's `GoalProgress` variable. The player's actions can provide large boosts to this progress.
-* **Player Access / Feedback:** The **"Contact Dossier" UI**. After discovering a goal, the player sees it listed with a simple progress bar. The completion of the goal is communicated via a direct, personal message from the NPC, which provides a clear narrative conclusion and a unique reward.
+* **Player Access / Feedback:** The **"Contacts Panel" UI**. After discovering a goal, the player sees it listed with a simple progress bar. The completion of the goal is communicated via a direct, personal message from the NPC, which provides a clear narrative conclusion and a unique reward.
 
 #### 10. Favor & Obligation Network
 * **Description:** A CA that tracks a social currency of favors and debts between the player and NPCs.
@@ -485,9 +569,9 @@ These are the primary abstract resources players manage throughout the game.
 
 # GDTLancer - Phase 1 Scope & Goals
 
-**Version:** 1.4
-**Date:** January 26, 2026
-**Related Documents:** 0.1-GDD-Main.md (v2.0), 1.1-GDD-Core-Systems.md (v2.0), 4.3-GDD-Analogue-Phase1-Scope.md, 5.1-GDD-Module-Piloting.md, 5.2-GDD-Module-Combat.md, 5.3-GDD-Module-Trading.md
+**Version:** 1.5
+**Date:** January 30, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.1), 1.1-GDD-Core-Systems.md (v2.1), 4.3-GDD-Analogue-Phase1-Scope.md, 5.1-GDD-Module-Piloting.md, 5.2-GDD-Module-Combat.md, 5.3-GDD-Module-Trading.md
 
 ## 1. Phase 1 Vision: "The First Contract" Demo
 
@@ -527,7 +611,7 @@ In the Phase 1 demo, the player will:
 
 ### Narrative Stubs (Phase 1 Implementation)
 * **Chronicle Stub ("Sector Stats"):** Tracks and displays the player's statistical impact on the game world.
-* **Contact System:** Manages the player's relationships with a small cast of abstract NPCs.
+* **Persistent Agent System:** Manages the lifecycle and state of all named characters in the world. Tracks their current location, disabled status, respawn timers, and relationship with the player. Persistent Agents operate with full agency — pursuing goals, trading, traveling, and potentially coming into conflict with the player or each other.
 * **Reputation Ledger:** A single stat tracking the player's professional standing.
 * **Faction Standing:** A simple system tracking the player's standing with two distinct factions.
 * **Ship Quirks:** A system for adding negative traits to a ship based on gameplay events.
@@ -543,14 +627,16 @@ In the Phase 1 demo, the player will:
     * **NPC Ship:** One hostile ship type for combat encounters.
     * **Commodities:** 3-5 unique commodity types.
     * **UI:** A functional Main HUD and menu-based interfaces for Trade, Contracts, Hangar/Asset Progression, and Contact/Faction info.
-    * **Narrative:** 2-3 named Contacts and 2 named Factions for the player to interact with.
+    * **Persistent Agents:** 6 named characters (2 per faction), each with unique personality, goals, and home location. These ARE the Contacts.
+    * **Factions:** 3 distinct factions (Miners, Traders, Independents) with 2-3 bases each.
+    * **Temporary Agents:** 1-2 generic hostile types for combat encounters.
 
 ## 5. Phase 1 Development Milestones
 
 ### Milestone 1: Foundational Systems
 * [**Done**] Implement the **Time System** to its required Phase 1 functionality.
 * [**Done**] Implement the **Character, Asset, and Inventory Systems**.
-* [ ] Implement the data structures for all narrative stubs (e.g., dictionaries for Reputation, Faction Standing; list for Ship Quirks).
+* [**Done**] Implement the data structures for all narrative stubs (e.g., dictionaries for Reputation, Faction Standing; list for Ship Quirks).
 * [**Done**] Ensure the **Core Mechanics API** (`autoload/CoreMechanicsAPI.gd`) is functional and accessible.
 
 ### Milestone 2: The Player in the World
@@ -558,17 +644,17 @@ In the Phase 1 demo, the player will:
 * [**Done**] The **Piloting Module**'s `Free Flight` mode is fully functional.
 * [**Done**] The Main HUD is implemented, displaying basic ship status.
 * [**Done**] The **Time System** is connected to flight, with real-time ticks triggering Upkeep cost deduction.
-* [ ] Implement basic UI screens to display narrative stub info (Reputation, Sector Stats, Contact Dossier, Faction Standing).
+* [**Done**] Implement basic UI screens to display narrative stub info (Reputation, Sector Stats, Contacts Panel, Faction Standing).
 
 ### Milestone 3: The Economic Loop
-* [ ] The **Trading Module** is implemented, allowing the player to buy and sell commodities.
-* [ ] The contract board is functional, allowing players to accept and complete simple delivery contracts.
+* [**Done**] The **Trading Module** is implemented, allowing the player to buy and sell commodities.
+* [**Done**] The contract board is functional, allowing players to accept and complete simple delivery contracts.
 * [ ] Trading narrative actions are implemented, correctly affecting the **Contact System** and **Faction Standing**.
 
 ### Milestone 4: The Combat Loop & Asset Progression
-* [ ] The **Event System** can successfully trigger a combat encounter.
-* [ ] The **Combat Module**'s `Combat Challenge` is functional (targeting, weapons, damage).
-* [ ] Implement the trigger logic for adding **Ship Quirks** based on combat damage or failed pilot actions.
+* [**Done**] The **Event System** can successfully trigger a combat encounter.
+* [**Done**] The **Combat Module**'s `Combat Challenge` is functional (targeting, weapons, damage).
+* [**Done**] Implement the trigger logic for adding **Ship Quirks** based on combat damage or failed pilot actions.
 * [ ] Combat narrative actions are implemented, correctly affecting **Reputation** and **Faction Standing**.
 * [ ] The **Asset Progression** "Hangar" UI is implemented, allowing players to invest Credits toward acquiring the second ship.
 
@@ -577,6 +663,30 @@ In the Phase 1 demo, the player will:
 * [ ] Ensure a clean gameplay flow from the Main Menu to the end of the first contract.
 * [ ] Perform a final balancing pass on Credit rewards, upkeep costs, and Action Check difficulties.
 * [ ] Final bug fixing to ensure a stable and playable demo experience.
+
+## 6. Demo Character Roster (Persistent Agents)
+
+### 6.1. Persistent Agent Roster (Phase 1 Demo)
+
+| Agent ID | Name | Faction | Home Base | Personality | Description |
+|----------|------|---------|-----------|-------------|-------------|
+| `kai` | Kai | Miners | mining_outpost_alpha | Pragmatic, experienced | Veteran miner, values reliability over flash. Knows every rock in the sector. |
+| `juno` | Juno | Miners | mining_outpost_beta | Ambitious, impatient | Young prospector eager to make a name. Takes risks others won't. |
+| `vera` | Vera | Traders | trade_hub_central | Cautious, calculating | Merchant captain who never makes a deal without knowing the angles. |
+| `milo` | Milo | Traders | trade_hub_rim | Opportunistic, friendly | Cargo hauler who treats everyone like a potential customer. |
+| `rex` | Rex | Independents | freeport_station | Risky, independent | Freelance pilot who answers to no one. Lives for the thrill. |
+| `ada` | Ada | Independents | salvage_yard | Resourceful, quiet | Salvager who can make anything work. Says little, observes much. |
+
+### 6.2. Personality Trait Ranges
+
+Personality traits are normalized floats (0.0 to 1.0):
+
+| Trait | Low (0.0-0.3) | Mid (0.4-0.6) | High (0.7-1.0) |
+|-------|---------------|---------------|----------------|
+| **risk_tolerance** | Cautious, avoids danger | Balanced assessment | Thrill-seeker, takes chances |
+| **greed** | Generous, fair deals | Practical profit-seeking | Exploitative, maximizes gain |
+| **loyalty** | Self-interested, opportunistic | Reciprocal loyalty | Devoted to faction/allies |
+| **aggression** | Passive, conflict-averse | Defensive when needed | Proactive, confrontational |
 
 --- Start of ./2-GDD-Development-Challenges.md ---
 
@@ -638,9 +748,9 @@ Keeping the PC, mobile, and tabletop versions consistent requires significant de
 
 # GDTLancer - Coding Standards & Architecture Guide
 
-**Version:** 1.9
-**Date:** January 26, 2026
-**Related Documents:** 0.1-GDD-Main.md (v2.0)
+**Version:** 2.0
+**Date:** January 30, 2026
+**Related Documents:** 0.1-GDD-Main.md (v2.1)
 
 ## 1. Purpose
 
@@ -694,6 +804,56 @@ This document outlines the agreed-upon coding style conventions and core archite
 * **Component Pattern:** Use child Nodes with attached scripts to encapsulate distinct functionalities (e.g., `MovementSystem`, `NavigationSystem`).
 * **Resource Templates (`.tres`):** Use custom `Resource` scripts (`extends Resource`, `class_name`) to define data structures (e.g., `AgentTemplate`). Initialize objects using these loaded Resource objects.
     * **Action Templates:** `action_*.tres` files include a `stakes` property (`HIGH_STAKES`, `NARRATIVE`, `MUNDANE`) that determines UI behavior and approach prompting in Digital. See `0.1-GDD-Main.md` Section 7.1.
+
+### 5.1. Core Template Property Definitions
+
+#### CharacterTemplate Properties
+
+The `CharacterTemplate` resource includes personality and narrative properties to support Persistent Agent behavior:
+
+```
+CharacterTemplate Properties:
+├── Core Identity
+│   ├── character_name: String
+│   ├── description: String (lore/bio text)
+│   ├── faction_id: String
+│   └── character_icon_id: String
+├── Resources
+│   ├── credits: int
+│   ├── focus_points: int (Analogue only)
+│   └── active_ship_uid: int
+├── Skills
+│   ├── piloting: int
+│   ├── combat: int
+│   └── trading: int
+├── Personality
+│   ├── personality_traits: Dictionary
+│   │   ├── risk_tolerance: float (0.0-1.0)
+│   │   ├── greed: float (0.0-1.0)
+│   │   ├── loyalty: float (0.0-1.0)
+│   │   └── aggression: float (0.0-1.0)
+│   └── goals: Array (for Goal System integration)
+└── Standing
+    ├── reputation: int
+    ├── faction_standings: Dictionary
+    └── character_standings: Dictionary
+```
+
+#### AgentTemplate Properties
+
+The `AgentTemplate` resource includes persistence properties for managing Persistent vs Temporary agents:
+
+```
+AgentTemplate Properties:
+├── agent_type: String ("player", "npc", "hostile")
+├── agent_uid: int (assigned dynamically)
+├── Persistence
+│   ├── is_persistent: bool
+│   ├── home_location_id: String
+│   ├── character_template_id: String
+│   └── respawn_timeout_seconds: float
+```
+
 * **Scene Instancing:** Leverage Godot's scene instancing for creating Agents, loading Zones, and assembling UI.
 * **Initialization:** Prefer initializing node properties via an `initialize(config)` method called *after* the node is added to the tree.
 
