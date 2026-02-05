@@ -1,15 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.2
+# LOG_REF: 2026-01-30
 #
 
 extends Control
 
 ## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.
-## Manages sub-screens (Station Menu, Action Check, Narrative Status) and docking prompts.
+## Manages sub-screens (Station Menu, Action Check, Narrative Status, Contacts Panel) and docking prompts.
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
@@ -20,6 +20,7 @@ onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHu
 onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
 onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
+onready var button_contacts: Button = $ScreenControls/TopLeftZone/ButtonContacts # New button
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
@@ -42,6 +43,9 @@ var action_check_instance = null
 
 const NarrativeStatusScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
 var narrative_status_instance = null
+
+const ContactsPanelScene = preload("res://src/core/ui/contacts_panel/contacts_panel.tscn")
+var contacts_panel_instance = null
 
 # --- State ---
 var _current_target: Spatial = null
@@ -70,6 +74,18 @@ func _ready():
 	narrative_status_instance = NarrativeStatusScene.instance()
 	add_child(narrative_status_instance)
 	
+	# Instantiate Contacts Panel (Task 10)
+	contacts_panel_instance = ContactsPanelScene.instance()
+	add_child(contacts_panel_instance)
+	
+	# Initial button wiring - reusing existing button if possible, but adding specific connection
+	if is_instance_valid(button_contacts):
+		button_contacts.connect("pressed", self, "_on_ButtonContacts_pressed")
+	elif is_instance_valid(button_narrative_status):
+		# Fallback: if HUD scene isn't updated with a new button, we can wire the character button or similar
+		# For now, we assume the user will update the scene or we use existing Narrative Status button as entry
+		pass
+
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 
@@ -650,3 +666,8 @@ func _on_ButtonUIOpacity_pressed() -> void:
 	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
+
+# --- Contacts Panel ---
+func _on_ButtonContacts_pressed() -> void:
+    if is_instance_valid(contacts_panel_instance):
+        contacts_panel_instance.open_screen()

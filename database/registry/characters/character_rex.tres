@@ -1,0 +1,30 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_rex"
+character_name = "Rex"
+character_icon_id = "character_rex_icon"
+faction_id = "faction_independents"
+credits = 800
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 4,
+"piloting": 5,
+"trading": 1
+}
+age = 28
+reputation = 20
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.9,
+"loyalty": 0.2
+}
+description = "Freelancer pilot, risky."
+goals = [ ]

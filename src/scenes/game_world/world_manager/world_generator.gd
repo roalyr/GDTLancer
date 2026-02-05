@@ -31,7 +31,8 @@ func generate_new_world():
 	_load_contracts()
 
 	_load_factions()
-	_load_contacts()
+	# DEPRECATED: ContactTemplate system replaced by Persistent Agents.
+	# _load_contacts() (See TACTICAL_TODO Task 12)
 
 	# Create characters first.
 	for template_id in TemplateDatabase.characters:

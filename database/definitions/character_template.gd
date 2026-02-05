@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
-# MODULE: character_template.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# MODULE: database/definitions/character_template.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 3 (Architecture)
+# LOG_REF: 2026-01-30
 #
 
 extends Template
@@ -31,4 +31,9 @@ export var age: int = 30
 export var reputation: int = 0
 export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
 export var character_standings: Dictionary = {} # For relationships
+
+# Personality & Goals (Task 2)
+export var personality_traits: Dictionary = {} # e.g., {"risk_tolerance": 0.7, "greed": 0.5, "loyalty": 0.6, "aggression": 0.3}
+export var description: String = "" # Lore/bio text
+export var goals: Array = [] # Current goals (for future Goal System integration)
 

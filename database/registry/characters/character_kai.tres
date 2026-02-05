@@ -1,0 +1,30 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_kai"
+character_name = "Kai"
+character_icon_id = "character_kai_icon"
+faction_id = "faction_miners"
+credits = 1500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 2,
+"piloting": 4,
+"trading": 1
+}
+age = 45
+reputation = 50
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.3,
+"loyalty": 0.8
+}
+description = "Veteran miner, pragmatic."
+goals = [ ]

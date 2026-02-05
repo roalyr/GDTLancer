@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
-# MODULE: EventBus.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# MODULE: src/autoload/EventBus.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
+# LOG_REF: 2026-01-30
 #
 
 extends Node
@@ -92,6 +92,9 @@ signal attack_action_feedback(success, message)  # Feedback from attack button p
 # --- Narrative Action Signals ---
 signal narrative_action_requested(action_type, context)  # Shows Action Check UI
 signal narrative_action_resolved(result_dict)  # Contains outcome, effects applied
+
+# --- Contact System Signals ---
+signal contact_met(agent_id) # Emitted when player first meets a Persistent Agent
 
 # --- Goal System Events (Placeholders for Phase 2+) ---
 # signal goal_progress_updated(agent_body, goal_id, new_progress)

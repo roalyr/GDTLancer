@@ -1,0 +1,30 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_ada"
+character_name = "Ada"
+character_icon_id = "character_ada_icon"
+faction_id = "faction_independents"
+credits = 1200
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 2,
+"piloting": 3,
+"trading": 2
+}
+age = 32
+reputation = 40
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.5,
+"aggression": 0.1
+}
+description = "Salvager, resourceful."
+goals = [ ]

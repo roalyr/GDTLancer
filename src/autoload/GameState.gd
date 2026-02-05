@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 3 (Architecture)
+# LOG_REF: 2026-01-30
 #
 
 extends Node
@@ -56,7 +56,21 @@ var locations: Dictionary = {}
 # Key: faction_id, Value: FactionTemplate
 var factions: Dictionary = {}
 # Key: contact_id, Value: ContactTemplate
+# DEPRECATED: Use persistent_agents instead (ContactTemplate is now synonymous with persistent AgentTemplate/CharacterTemplate)
 var contacts: Dictionary = {}
+
+# --- Persistent Agents (New System) ---
+# Key: agent_id (String), Value: Dictionary (State)
+# State Structure:
+# { 
+#   "character_uid": int,         # Runtime Character Instance ID
+#   "current_location": String,   # location_id where currently present/spawned
+#   "is_disabled": bool,          # True if defeated/out of commisson
+#   "disabled_at_time": float,    # Timestamp of disablement for respawn logic
+#   "relationship": int,          # 0-100 Relationship with player
+#   "is_known": bool              # True if player has met this agent (Contact Discovery)
+# }
+var persistent_agents: Dictionary = {}
 
 # --- Contract System ---
 # Available contracts at locations. Key: contract_id, Value: ContractTemplate instance
@@ -68,8 +82,8 @@ var active_contracts: Dictionary = {}
 var narrative_state: Dictionary = {
 	"reputation": 0,           # Overall professional standing (-100 to 100)
 	"faction_standings": {},    # Key: faction_id, Value: standing int
-	"known_contacts": [],       # Array of contact_ids the player has met
-	"contact_relationships": {}, # Key: contact_id, Value: relationship int (0-100)
+	"known_contacts": [],       # DEPRECATED: Migrated to persistent_agents[agent_id].is_known
+	"contact_relationships": {}, # DEPRECATED: Migrated to persistent_agents[agent_id].relationship
 	"chronicle_entries": []     # Log of significant events
 }
 

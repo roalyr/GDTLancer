@@ -1,9 +1,11 @@
 #
 # PROJECT: GDTLancer
-# MODULE: contact_template.gd
-# STATUS: Level 1 - Prototype
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 2.1)
-# LOG_REF: 2026-03-01-Impl
+# MODULE: database/definitions/contact_template.gd
+# STATUS: [DEPRECATED]
+# DEPRECATION_NOTE: Replaced by AgentTemplate + CharacterTemplate system (See TACTICAL_TODO Task 12)
+#                   Contacts are now Persistent Agents.
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
+# LOG_REF: 2026-01-30
 #
 
 extends Template

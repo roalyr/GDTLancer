@@ -1,0 +1,30 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_juno"
+character_name = "Juno"
+character_icon_id = "character_juno_icon"
+faction_id = "faction_miners"
+credits = 500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 1,
+"piloting": 2,
+"trading": 1
+}
+age = 22
+reputation = 10
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.8,
+"greed": 0.7
+}
+description = "Young prospector, ambitious."
+goals = [ ]

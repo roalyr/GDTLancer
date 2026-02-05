@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_milo"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_beta"
+character_template_id = "character_milo"
+respawn_timeout_seconds = 300.0
