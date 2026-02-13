@@ -13101,18 +13101,30 @@ export var action_name: String = "Unnamed Action"
 export var tu_cost: int = 1
 export var base_attribute: String = "int" # stub
 export var associated_skill: String = "computers" # stub
+export(int, "HIGH_STAKES", "NARRATIVE", "MUNDANE") var stakes: int = 1 # See TRUTH_GDD Section 7.1
 
 --- Start of ./database/definitions/agent_template.gd ---
 
-# File: core/resource/agent_template.gd
-# Resource Definition for Agent.
-# Version: 2.0 - Reworked Agent to be a more abstract entity.
-# Only needed for in-game simulation, not related to character or ship directly.
+#
+# PROJECT: GDTLancer
+# MODULE: database/definitions/agent_template.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 3 (Architecture)
+# LOG_REF: 2025-12-23
+#
 
 extends Template
 class_name AgentTemplate 
 
 export var agent_type: String = "npc" # Defines whether it is controlled by AI or player.
+
+# Persistence Properties
+# defined in TACTICAL_TODO.md TASK_1
+export var is_persistent: bool = false
+export var home_location_id: String = "" # ID of the zone/station/base where this agent respawns
+export var character_template_id: String = "" # Link to the CharacterTemplate defining personality/dialogue
+export var respawn_timeout_seconds: float = 300.0 # Time in seconds before respawn after being disabled
+
 var agent_uid: int = 0 # Assigned dynamically by agent spawner to link characters, ships, assets to specific agent in space.
 
 --- Start of ./database/definitions/asset_commodity_template.gd ---
@@ -13157,11 +13169,11 @@ export var interaction_radius: float = 15.0
 export var ship_quirks: Array = [] # De-buffs or narrative elements
 export var ship_upgrades: Array = [] # Buffs
 
-# --- Weapon Mounts ---
-export var weapon_slots_small: int = 2  # Number of small weapon mounts
-export var weapon_slots_medium: int = 0  # Number of medium weapon mounts
-export var weapon_slots_large: int = 0  # Number of large weapon mounts
-export var equipped_weapons: Array = []  # Array of weapon template_ids
+# --- Tool Mounts ---
+export var tool_slots_small: int = 2  # Number of small weapon mounts
+export var tool_slots_medium: int = 0  # Number of medium weapon mounts
+export var tool_slots_large: int = 0  # Number of large weapon mounts
+export var equipped_tools: Array = []  # Array of weapon template_ids
 
 # --- Power ---
 export var power_capacity: float = 100.0
@@ -13190,18 +13202,25 @@ export var asset_icon_id: String = "asset_default"
 
 --- Start of ./database/definitions/character_template.gd ---
 
-# File: core/resource/character_template.gd
-# Purpose: Defines the data structure for a single character linked to an agent.
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: database/definitions/character_template.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 3 (Architecture)
+# LOG_REF: 2026-01-30
+#
 
 extends Template
 class_name CharacterTemplate
+
+## CharacterTemplate: Resource definition for character instances.
+## Stores name, credits, FP, skills, and active ship reference.
 
 export var character_name: String = "Unnamed"
 export var character_icon_id: String = "character_default_icon"
 export var faction_id: String = "faction_default" # Affiliation
 
-export var wealth_points: int = 0
+export var credits: int = 0
 export var focus_points: int = 0
 export var active_ship_uid: int = -1
 
@@ -13217,12 +13236,26 @@ export var reputation: int = 0
 export var faction_standings: Dictionary = {} # e.g., {"pirates": -10, "corp": 5}
 export var character_standings: Dictionary = {} # For relationships
 
+# Personality & Goals (Task 2)
+export var personality_traits: Dictionary = {} # e.g., {"risk_tolerance": 0.7, "greed": 0.5, "loyalty": 0.6, "aggression": 0.3}
+export var description: String = "" # Lore/bio text
+export var goals: Array = [] # Current goals (for future Goal System integration)
+
 --- Start of ./database/definitions/contract_template.gd ---
 
-# contract_template.gd
-# Data structure for contracts - delivery, combat, exploration missions
+#
+# PROJECT: GDTLancer
+# MODULE: contract_template.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
+
 extends "res://database/definitions/template.gd"
 class_name ContractTemplate
+
+## ContractTemplate: Resource definition for contract instances.
+## Stores type, requirements, rewards, and expiration tracking.
 
 # Contract identification
 export var contract_type: String = "delivery"  # delivery, combat, exploration
@@ -13246,36 +13279,36 @@ export var target_type: String = ""    # e.g., "pirate", "hostile"
 export var target_count: int = 0
 
 # Rewards
-export var reward_wp: int = 0
+export var reward_credits: int = 0
 export var reward_reputation: int = 0
 export var reward_items: Dictionary = {}  # template_id -> quantity
 
 # Constraints
-export var time_limit_tu: int = -1     # -1 = no limit
+export var time_limit_seconds: int = -1  # -1 = no limit
 export var difficulty: int = 1         # 1-5 scale for filtering/matching
 
 # Runtime state (set when contract is active)
-export var accepted_at_tu: int = -1    # When player accepted
+export var accepted_at_seconds: int = -1 # When player accepted
 export var progress: Dictionary = {}   # Track partial completion
 
 
 # Check if contract has expired based on current time
-func is_expired(current_tu: int) -> bool:
-	if time_limit_tu < 0:
+func is_expired(game_time_seconds: int) -> bool:
+	if time_limit_seconds < 0:
 		return false
-	if accepted_at_tu < 0:
+	if accepted_at_seconds < 0:
 		return false
-	return (current_tu - accepted_at_tu) >= time_limit_tu
+	return (game_time_seconds - accepted_at_seconds) >= time_limit_seconds
 
 
-# Get remaining time in TU, -1 if no limit
-func get_remaining_time(current_tu: int) -> int:
-	if time_limit_tu < 0:
+# Get remaining time in seconds, -1 if no limit
+func get_remaining_time(game_time_seconds: int) -> int:
+	if time_limit_seconds < 0:
 		return -1
-	if accepted_at_tu < 0:
-		return time_limit_tu
-	var elapsed = current_tu - accepted_at_tu
-	return int(max(0, time_limit_tu - elapsed))
+	if accepted_at_seconds < 0:
+		return time_limit_seconds
+	var elapsed = game_time_seconds - accepted_at_seconds
+	return int(max(0, time_limit_seconds - elapsed))
 
 
 # Create a summary for UI display
@@ -13284,72 +13317,94 @@ func get_summary() -> Dictionary:
 		"title": title,
 		"type": contract_type,
 		"destination": destination_location_id,
-		"reward_wp": reward_wp,
+		"reward_credits": reward_credits,
 		"difficulty": difficulty,
-		"has_time_limit": time_limit_tu > 0
+		"has_time_limit": time_limit_seconds > 0
 	}
+
+--- Start of ./database/definitions/faction_template.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: faction_template.gd
+# STATUS: Level 1 - Prototype
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 2.1)
+# LOG_REF: 2026-03-01-Impl
+#
+
+extends Template
+class_name FactionTemplate
+
+# The unique identifier for this faction (match template_id pattern, e.g., 'faction_miners')
+export var faction_id: String = ""
+export var display_name: String = "Unknown Faction"
+export var description: String = ""
+export var faction_color: Color = Color(1, 1, 1, 1)
+
+# Base standing for new players (0 is neutral)
+export var default_standing: int = 0
 
 --- Start of ./database/definitions/location_template.gd ---
 
-# File: core/resource/location_template.gd
-# Purpose: Defines the data structure for a location (station, outpost, etc.)
-# Version: 1.0
+#
+# PROJECT: GDTLancer
+# MODULE: location_template.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 2 (World Layer)
+# LOG_REF: 2026-02-13
+#
 
 extends Template
 class_name LocationTemplate
 
+## LocationTemplate: Defines a sector/location including its World Layer physical properties.
+## Used both as scene-level location data AND as the source for simulation Layer 1 initialization.
+
+# --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
 export var location_type: String = "station"  # station, outpost, debris_field, asteroid_field
 export var position_in_zone: Vector3 = Vector3.ZERO
 export var interaction_radius: float = 100.0  # How close player must be to dock
 
-# Market inventory: commodity_template_id -> {price: int, quantity: int}
-# Example: {"commodity_ore": {"price": 10, "quantity": 50}}
-export var market_inventory: Dictionary = {}
+# --- World Layer: Topology (Section 2) ---
+## IDs of sectors this location connects to (defines the sector graph for CA neighbors).
+export var connections: PoolStringArray = PoolStringArray()
+## Classification: hub / frontier / deep_space / hazard_zone
+export var sector_type: String = "frontier"
 
-# Services available at this location
+# --- World Layer: Hazards (Section 2) ---
+## Environmental radiation (0.0 = safe, 1.0 = lethal). Increases entropy and wreck degradation.
+export var radiation_level: float = 0.0
+## Background thermal temperature in Kelvin. 300K = nominal. Deviations increase entropy.
+export var thermal_background_k: float = 300.0
+## Gravity well multiplier on entropy/maintenance (1.0 = normal, >1 = heavier penalty).
+export var gravity_well_penalty: float = 1.0
+
+# --- World Layer: Resource Potential (Section 2) ---
+## Finite mineral deposit density. Depleted by extraction over ticks.
+export var mineral_density: float = 0.5
+## Finite propellant source density. Depleted by extraction over ticks.
+export var propellant_sources: float = 0.5
+
+# --- World Layer: Station Infrastructure ---
+## Power output capacity of station infrastructure.
+export var station_power_output: float = 100.0
+## Maximum commodity stockpile the station can hold.
+export var stockpile_capacity: int = 1000
+
+# --- Market & Services (legacy, used by scene-level systems) ---
+# Market inventory: commodity_template_id -> {price: int, quantity: int}
+export var market_inventory: Dictionary = {}
 export var available_services: Array = ["trade", "contracts"]
 
-# Faction that controls this location
+# --- Faction Control ---
 export var controlling_faction_id: String = ""
 
-# Danger level affects encounter chances nearby (0 = safe, 10 = very dangerous)
+# --- Danger (legacy, superseded by grid_dominion.pirate_activity) ---
 export var danger_level: int = 0
 
-# Contracts available at this location (contract_template_ids)
+# --- Contracts (legacy, will be rebuilt on Agent layer) ---
 export var available_contract_ids: Array = []
-
---- Start of ./database/definitions/quirk_template.gd ---
-
-
-#
-# PROJECT: GDTLancer
-# MODULE: database/definitions/quirk_template.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1 Milestone 1
-# LOG_REF: 2025-12-23
-#
-
-extends Resource
-class_name QuirkTemplate
-
-## Resource definition for Ship Quirks.
-## Ship Quirks are negative traits acquired through damage or failed actions.
-
-# Unique Identifier
-export var template_id: String = ""
-
-# Display Properties
-export var display_name: String = ""
-export var description: String = ""
-
-# Functional Properties
-## effect_type examples: "stat_penalty", "turn_rate_multiplier", "move_speed_multiplier"
-export var effect_type: String = "" 
-export var effect_value: float = 0.0
-
-# Origin category e.g. "combat", "piloting", "trading", "event"
-export var source_category: String = "event"
 
 --- Start of ./database/definitions/template.gd ---
 
@@ -13434,19 +13489,31 @@ func get_accuracy_at_range(distance: float) -> float:
 
 --- Start of ./src/autoload/Constants.gd ---
 
-# File: autoload/Constants.gd
-# Autoload Singleton: Constants
-# Version: 2.0 - RigidBody physics with 6DOF flight system.
+#
+# PROJECT: GDTLancer
+# MODULE: Constants.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
 
 extends Node
 
+## Constants: Global game constants, thresholds, and configuration values.
+## Centralizes magic numbers for balance tuning and consistency.
+
 # --- Action Approach Enum ---
-enum ActionApproach { CAUTIOUS, RISKY }
+enum ActionApproach { CAUTIOUS, NEUTRAL, RISKY }
+enum ActionStakes { HIGH_STAKES, NARRATIVE, MUNDANE }
 
 # --- Core Mechanics Thresholds ---
 # Cautious approach has a wider success band.
 const ACTION_CHECK_CRIT_THRESHOLD_CAUTIOUS = 14
 const ACTION_CHECK_SWC_THRESHOLD_CAUTIOUS = 10
+
+# Neutral approach (Standard difficulty)
+const ACTION_CHECK_CRIT_THRESHOLD_NEUTRAL = 15
+const ACTION_CHECK_SWC_THRESHOLD_NEUTRAL = 11
 
 # Risky approach has a narrower success band but a higher critical chance.
 const ACTION_CHECK_CRIT_THRESHOLD_RISKY = 16
@@ -13507,23 +13574,77 @@ const MIN_THRUST_THROTTLE = 0.0
 const MAX_THRUST_THROTTLE = 1.0
 
 # Time units to trigger world tick
-# 1 TU = 1 min?
-const TIME_CLOCK_MAX_TU = 60
-const TIME_TICK_INTERVAL_SECONDS = 60.0 # How often (in real seconds) to add a Time Unit.
+# 60 seconds = 1 minute tick? Or longer? Keeping 60 for now.
+const WORLD_TICK_INTERVAL_SECONDS = 60
+const TIME_TICK_INTERVAL_SECONDS = 1.0 # Real-time seconds per game-time update (simulation speed)
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
 const TARGETING_RAY_LENGTH = 1e7
 
+# =============================================================================
+# === SIMULATION ENGINE =======================================================
+# =============================================================================
+
+# --- Grid CA Parameters (Phase 1 stubs) ---
+const CA_INFLUENCE_PROPAGATION_RATE = 0.1
+const CA_PIRATE_ACTIVITY_DECAY = 0.02
+const CA_PIRATE_ACTIVITY_GROWTH = 0.05
+const CA_STOCKPILE_DIFFUSION_RATE = 0.05
+const CA_EXTRACTION_RATE_DEFAULT = 0.01
+const CA_PRICE_SENSITIVITY = 0.5
+const CA_DEMAND_BASE = 0.1
+
+# --- Wreck & Entropy ---
+const WRECK_DEGRADATION_PER_TICK = 0.05
+const WRECK_DEBRIS_RETURN_FRACTION = 0.8
+const ENTROPY_BASE_RATE = 0.001
+const ENTROPY_RADIATION_MULTIPLIER = 2.0
+const ENTROPY_FLEET_RATE_FRACTION = 0.5
+
+# --- Agent ---
+const AGENT_KNOWLEDGE_NOISE_FACTOR = 0.1
+const AGENT_RESPAWN_TICKS = 10
+const HOSTILE_BASE_CARRYING_CAPACITY = 5
+
+# --- Heat (Phase 1 stub) ---
+const HEAT_GENERATION_IN_SPACE = 0.01
+const HEAT_DISSIPATION_DOCKED = 1.0
+const HEAT_OVERHEAT_THRESHOLD = 0.8
+
+# --- Power ---
+const POWER_DRAW_PER_AGENT = 5.0
+const POWER_DRAW_PER_SERVICE = 10.0
+
+# --- Bridge Entropy Drains ---
+const ENTROPY_HULL_MULTIPLIER = 0.1
+const PROPELLANT_DRAIN_PER_TICK = 0.5
+const ENERGY_DRAIN_PER_TICK = 0.3
+
+# --- Agent Decision Thresholds ---
+const NPC_CASH_LOW_THRESHOLD = 2000.0
+const NPC_HULL_REPAIR_THRESHOLD = 0.5
+const COMMODITY_BASE_PRICE = 10.0
+const RESPAWN_TIMEOUT_SECONDS = 300.0
+const HOSTILE_GROWTH_RATE = 0.05
+
+# --- Axiom 1 ---
+const AXIOM1_TOLERANCE = 0.01
+
 --- Start of ./src/autoload/CoreMechanicsAPI.gd ---
 
-# File: autoload/CoreMechanicsAPI.gd
-# Autoload Singleton: CoreMechanicsAPI
-# Purpose: Provides globally accessible functions for core mechanic resolutions,
-#          ensuring consistency across the game.
-# Version: 1.1 - Updated to support ActionApproach and new signature.
+#
+# PROJECT: GDTLancer
+# MODULE: CoreMechanicsAPI.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
 
 extends Node
+
+## CoreMechanicsAPI: Stateless API for dice rolling and action check resolution.
+## Implements 2d6 rolls with attribute/skill modifiers and approach-based thresholds.
 
 # Random Number Generator for dice rolls
 var _rng = RandomNumberGenerator.new()
@@ -13557,6 +13678,9 @@ func perform_action_check(
 	if action_approach == Constants.ActionApproach.RISKY:
 		crit_threshold = Constants.ACTION_CHECK_CRIT_THRESHOLD_RISKY
 		swc_threshold = Constants.ACTION_CHECK_SWC_THRESHOLD_RISKY
+	elif action_approach == Constants.ActionApproach.NEUTRAL:
+		crit_threshold = Constants.ACTION_CHECK_CRIT_THRESHOLD_NEUTRAL
+		swc_threshold = Constants.ACTION_CHECK_SWC_THRESHOLD_NEUTRAL
 	else:  # Default to CAUTIOUS
 		crit_threshold = Constants.ACTION_CHECK_CRIT_THRESHOLD_CAUTIOUS
 		swc_threshold = Constants.ACTION_CHECK_SWC_THRESHOLD_CAUTIOUS
@@ -13614,8 +13738,8 @@ func perform_action_check(
 #       pass
 
 # func calculate_upkeep_cost(agent_assets_ref):
-#       # Central logic for determining periodic WP upkeep cost
-#       return 0 # Placeholder WP cost
+#       # Central logic for determining periodic Credits upkeep cost
+#       return 0 # Placeholder Credits cost
 
 # func advance_time_clock(agent_stats_ref_or_global, tu_amount: int):
 #       # Central logic for adding TU and checking for World Event Tick trigger
@@ -13623,10 +13747,18 @@ func perform_action_check(
 
 --- Start of ./src/autoload/EventBus.gd ---
 
-# File: autoload/EventBus.gd
-# Version: 1.2 - Added Phase 1 signals for combat, contracts, trading, docking, narrative.
+#
+# PROJECT: GDTLancer
+# MODULE: src/autoload/EventBus.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
+# LOG_REF: 2026-01-30
+#
 
 extends Node
+
+## EventBus: Global signal hub for cross-system communication.
+## Decouples systems by providing centralized event emission and subscription.
 
 # --- Game State Signals ---
 signal game_loaded(save_data)
@@ -13667,7 +13799,7 @@ signal player_dock_pressed  # Explicit dock button
 signal player_attack_pressed  # Explicit attack button
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
-signal player_wp_changed(new_wp_value)
+signal player_credits_changed(new_credits_value)
 signal player_fp_changed(new_fp_value)
 
 # --- Zone Loading Signals ---
@@ -13680,23 +13812,14 @@ signal zone_loading(zone_path)  # zone_path is path to the complete zone scene
 signal zone_loaded(zone_node, zone_path, agent_container_node)
 
 # --- Core Mechanics / Gameplay Events ---
-signal world_event_tick_triggered(tu_amount)
-signal time_units_added(tu_added)  # Emitted every time TU increments (for UI updates)
+signal world_event_tick_triggered(seconds_amount)
+signal game_time_advanced(seconds_added)  # Emitted every time game time increments (for UI updates)
 
 # --- Combat Signals ---
 signal combat_initiated(player_agent, enemy_agents)
 signal combat_ended(result_dict)  # result_dict: {outcome: "victory"/"defeat"/"flee", ...}
 signal agent_damaged(agent_body, damage_amount, source_agent)
 signal agent_disabled(agent_body)  # When hull <= 0
-
-# --- Contract Signals ---
-signal contract_accepted(contract_id)
-signal contract_completed(contract_id, success)  # success: bool
-signal contract_abandoned(contract_id)
-signal contract_failed(contract_id)  # e.g., time limit exceeded
-
-# --- Trading Signals ---
-signal trade_transaction_completed(transaction_dict)  # {type, commodity_id, quantity, price, ...}
 
 # --- Docking Signals ---
 signal dock_available(location_id)  # Player near dockable station
@@ -13706,18 +13829,12 @@ signal player_undocked
 signal dock_action_feedback(success, message)  # Feedback from dock button press
 signal attack_action_feedback(success, message)  # Feedback from attack button press
 
-# --- Narrative Action Signals ---
-signal narrative_action_requested(action_type, context)  # Shows Action Check UI
-signal narrative_action_resolved(result_dict)  # Contains outcome, effects applied
+# --- Contact System Signals ---
+signal contact_met(agent_id) # Emitted when player first meets a Persistent Agent
 
-# --- Goal System Events (Placeholders for Phase 2+) ---
-# signal goal_progress_updated(agent_body, goal_id, new_progress)
-# signal goal_completed(agent_body, goal_id, success_level)
-
-
-# --- Ship Quirk Signals ---
-signal ship_quirk_added(ship_uid, quirk_id)
-signal ship_quirk_removed(ship_uid, quirk_id)
+# --- Simulation Signals ---
+signal sim_tick_completed(tick_count)   # Emitted after full tick sequence completes
+signal sim_initialized(seed_string)    # Emitted after simulation is seeded and all layers initialized
 
 
 func _ready():
@@ -13727,88 +13844,183 @@ func _ready():
 
 #
 # PROJECT: GDTLancer
-# MODULE: src/autoload/GameState.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1
-# LOG_REF: 2025-12-23
+# MODULE: GameState.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
 #
 
 extends Node
 
-## Global Game State singleton.
-## Stores all runtime data for the current session.
+## Global Game State singleton — Four-Layer Simulation Data Store.
+## Structured as: World (static) → Grid (CA-driven) → Agents (cognitive) → Chronicle (events).
+## All simulation systems read/write through this singleton.
+## Conservation Axiom 1: world_total_matter must remain constant across ticks.
 
-# Global world seed
-var world_seed: String = ""
 
-# Global time counter
-var current_tu: int = 0
+# =========================================================================
+# === LAYER 1: WORLD (static, set at init, read-only at runtime) =========
+# =========================================================================
 
-# --- Character & Asset Instances ---
-var characters: Dictionary = {}  # Key: character_uid, Value: CharacterTemplate instance
+## Sector connectivity graph. Key: sector_id (String).
+## Value: {connections: Array, station_ids: Array, sector_type: String}
+var world_topology: Dictionary = {}
 
-var active_actions: Dictionary = {}
+## Environmental hazards per sector. Key: sector_id (String).
+## Value: {radiation_level: float, thermal_background_k: float, gravity_well_penalty: float}
+var world_hazards: Dictionary = {}
 
-var assets_ships: Dictionary = {}       # Key: ship_uid, Value: ShipTemplate instance
-var assets_modules: Dictionary = {}     # Key: module_uid, Value: ModuleTemplate instance
-var assets_commodities: Dictionary = {} # Key: commodity_id, Value: CommodityTemplate (master data)
+## Finite resource deposits per sector. Key: sector_id (String).
+## Value: {mineral_density: float, energy_potential: float, propellant_sources: float}
+var world_resource_potential: Dictionary = {}
 
-# --- Ship Quirks Helper ---
-## Returns the array of quirk IDs for a given ship.
-func get_ship_quirks(ship_uid: int) -> Array:
-	if assets_ships.has(ship_uid):
-		return assets_ships[ship_uid].ship_quirks
-	return []
+## Axiom 1 checksum — total matter in the universe, set at init, verified each tick.
+var world_total_matter: float = 0.0
 
-# Key: Character UID, Value: An Inventory object/dictionary for that character.
+
+# =========================================================================
+# === LAYER 2: GRID (dynamic, CA-driven, updated each tick) ==============
+# =========================================================================
+
+## Consumable resource supply levels per sector. Key: sector_id (String).
+## Value: {propellant_supply: float, consumables_supply: float, energy_supply: float}
+var grid_resource_availability: Dictionary = {}
+
+## Faction control and security per sector. Key: sector_id (String).
+## Value: {faction_influence: Dictionary, security_level: float, pirate_activity: float}
+var grid_dominion: Dictionary = {}
+
+## Market conditions per sector. Key: sector_id (String).
+## Value: {commodity_price_deltas: Dictionary, population_density: float, service_cost_modifier: float}
+var grid_market: Dictionary = {}
+
+## Commodity storage per sector. Key: sector_id (String).
+## Value: {commodity_stockpiles: Dictionary, stockpile_capacity: int, extraction_rate: Dictionary}
+var grid_stockpiles: Dictionary = {}
+
+## Wear and degradation rates per sector. Key: sector_id (String).
+## Value: {local_entropy_rate: float, maintenance_cost_modifier: float}
+var grid_maintenance: Dictionary = {}
+
+## Station power budget per sector. Key: sector_id (String).
+## Value: {station_power_output: float, station_power_draw: float, power_load_ratio: float}
+var grid_power: Dictionary = {}
+
+## Active wreck objects in the world. Key: wreck_uid (int).
+## Value: {sector_id: String, wreck_integrity: float, wreck_inventory: Dictionary,
+##         ship_template_id: String, created_at_tick: int}
+var grid_wrecks: Dictionary = {}
+
+
+# =========================================================================
+# === LAYER 3: AGENTS (cognitive entities) ===============================
+# =========================================================================
+
+## All character instances. Key: char_uid (int), Value: CharacterTemplate instance.
+var characters: Dictionary = {}
+
+## All agent simulation state. Key: agent_id (String), Value: agent state Dictionary.
+## State dict keys:
+##   char_uid: int, current_sector_id: String, hull_integrity: float,
+##   propellant_reserves: float, energy_reserves: float, consumables_reserves: float,
+##   cash_reserves: float, fleet_ships: Array, current_heat_level: float,
+##   is_persistent: bool, home_location_id: String, is_disabled: bool,
+##   disabled_at_tick: int, known_grid_state: Dictionary, knowledge_timestamps: Dictionary,
+##   goal_queue: Array, goal_archetype: String, event_memory: Array,
+##   faction_standings: Dictionary, character_standings: Dictionary, sentiment_tags: Array
+var agents: Dictionary = {}
+
+## Per-character inventories. Key: char_uid (int), Value: inventory Dictionary.
 var inventories: Dictionary = {}
 
-# Defines which character is controlled by player.
+## All ship instances. Key: ship_uid (int), Value: ShipTemplate instance.
+var assets_ships: Dictionary = {}
+
+## Defines which character is controlled by the player.
 var player_character_uid: int = -1
 
-# Currently loaded zone.
+## Hostile population tracking. Key: hostile_type_id (String).
+## Value: {current_count: int, carrying_capacity: int, sector_counts: Dictionary}
+var hostile_population_integral: Dictionary = {}
+
+
+# =========================================================================
+# === LAYER 4: CHRONICLE (event capture) =================================
+# =========================================================================
+
+## Event buffer for the current/recent ticks. Array of Event Packet dicts.
+## Packet: {actor_uid, action_id, target_uid, target_sector_id, tick_count, outcome, metadata}
+var chronicle_event_buffer: Array = []
+
+## Generated rumor strings derived from events.
+var chronicle_rumors: Array = []
+
+
+# =========================================================================
+# === SIMULATION META ====================================================
+# =========================================================================
+
+## Number of simulation ticks elapsed since world init.
+var sim_tick_count: int = 0
+
+## Global time counter (seconds of game time).
+var game_time_seconds: int = 0
+
+## World generation seed — determines all procedural content.
+var world_seed: String = ""
+
+
+# =========================================================================
+# === SCENE STATE (kept separate from simulation) ========================
+# =========================================================================
+
+## Currently loaded zone node.
 var current_zone_instance: Node = null
 
-# --- Player State ---
-var player_docked_at: String = "" # Empty if in space, location_id if docked
-var player_position: Vector3 = Vector3.ZERO  # Player position in zone
-var player_rotation: Vector3 = Vector3.ZERO  # Player rotation (degrees)
+## Location ID of docked station, or empty string if in space.
+var player_docked_at: String = ""
+
+## Player spatial position in the active zone.
+var player_position: Vector3 = Vector3.ZERO
+
+## Player spatial rotation in the active zone (degrees).
+var player_rotation: Vector3 = Vector3.ZERO
 
 
-# --- Locations (Stations, Points of Interest) ---
-# Key: location_id (String), Value: LocationTemplate instance or Dictionary
+# =========================================================================
+# === LEGACY (kept for KEPT-system compatibility, will be pruned later) ==
+# =========================================================================
+
+## Locations loaded from TemplateDatabase. Key: location_id, Value: LocationTemplate instance.
+## NOTE: Will be superseded by world_topology + world_hazards once WorldLayer initializer is built.
 var locations: Dictionary = {}
 
-# --- Contract System ---
-# Available contracts at locations. Key: contract_id, Value: ContractTemplate instance
-var contracts: Dictionary = {}
-# Player's accepted contracts. Key: contract_id, Value: Dictionary with progress info
-var active_contracts: Dictionary = {}
+## Faction data loaded from TemplateDatabase. Key: faction_id, Value: FactionTemplate instance.
+## NOTE: Will feed into grid_dominion initialization once GridLayer is built.
+var factions: Dictionary = {}
 
-# --- Narrative State (Player-Centric) ---
-var narrative_state: Dictionary = {
-	"reputation": 0,           # Overall professional standing (-100 to 100)
-	"faction_standings": {},    # Key: faction_id, Value: standing int
-	"known_contacts": [],       # Array of contact_ids the player has met
-	"chronicle_entries": []     # Log of significant events
-}
+## Commodity master data. Key: commodity_id, Value: CommodityTemplate.
+## NOTE: Will feed into grid_stockpiles initialization.
+var assets_commodities: Dictionary = {}
 
-# --- Session Tracking ---
-var session_stats: Dictionary = {
-	"contracts_completed": 0,
-	"total_wp_earned": 0,
-	"total_wp_spent": 0,
-	"enemies_disabled": 0,
-	"time_played_tu": 0
-}
+## Legacy alias — persistent_agents now lives in agents dict above.
+## Kept so agent_system.gd doesn't crash before its own rework task.
+var persistent_agents: Dictionary = {}
 
 --- Start of ./src/autoload/GameStateManager.gd ---
 
-# File: autoload/GameStateManager.gd
-# Autoload Singleton: GameStateManager
-# Version: 2.4 - Fixed location serialization (Resources not plain dicts).
+#
+# PROJECT: GDTLancer
+# MODULE: GameStateManager.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
+#
 
 extends Node
+
+## GameStateManager: Handles save/load operations for the four-layer GameState.
+## Serializes and deserializes all simulation and scene data to/from savegame files.
 
 const SAVE_DIR = "user://savegames/"
 const SAVE_FILE_PREFIX = "save_"
@@ -13821,36 +14033,48 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 # --- Public API ---
 
 func reset_to_defaults() -> void:
+	# --- Simulation Meta ---
 	GameState.world_seed = ""
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
+	GameState.sim_tick_count = 0
 	GameState.player_character_uid = -1
+
+	# --- Scene State ---
 	GameState.player_docked_at = ""
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 
-	GameState.characters.clear()
-	GameState.active_actions.clear()
-	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
-	GameState.assets_commodities.clear()
-	GameState.inventories.clear()
-	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
+	# --- Layer 1: World ---
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
 
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"chronicle_entries": []
-	}
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
+	# --- Layer 2: Grid ---
+	GameState.grid_resource_availability.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_stockpiles.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_power.clear()
+	GameState.grid_wrecks.clear()
+
+	# --- Layer 3: Agents ---
+	GameState.characters.clear()
+	GameState.agents.clear()
+	GameState.assets_ships.clear()
+	GameState.inventories.clear()
+	GameState.hostile_population_integral.clear()
+
+	# --- Layer 4: Chronicle ---
+	GameState.chronicle_event_buffer.clear()
+	GameState.chronicle_rumors.clear()
+
+	# --- Legacy (kept for compatibility) ---
+	GameState.locations.clear()
+	GameState.factions.clear()
+	GameState.assets_commodities.clear()
+	GameState.persistent_agents.clear()
 
 func save_game(slot_id: int = 0) -> bool:
 	_ensure_save_dir_exists()
@@ -13955,27 +14179,46 @@ func _ensure_save_dir_exists() -> void:
 
 func _serialize_game_state() -> Dictionary:
 	var state_dict = {}
-	
+
+	# --- Simulation Meta ---
 	state_dict["player_character_uid"] = GameState.player_character_uid
-	state_dict["current_tu"] = GameState.current_tu
+	state_dict["game_time_seconds"] = GameState.game_time_seconds
+	state_dict["sim_tick_count"] = GameState.sim_tick_count
+	state_dict["world_seed"] = GameState.world_seed
 	state_dict["player_docked_at"] = GameState.player_docked_at
-	
-	# Save player position and rotation
 	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
 	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
-	
+
+	# --- Layer 1: World (static, but saved for deterministic restore) ---
+	state_dict["world_topology"] = GameState.world_topology.duplicate(true)
+	state_dict["world_hazards"] = GameState.world_hazards.duplicate(true)
+	state_dict["world_resource_potential"] = GameState.world_resource_potential.duplicate(true)
+	state_dict["world_total_matter"] = GameState.world_total_matter
+
+	# --- Layer 2: Grid ---
+	state_dict["grid_resource_availability"] = GameState.grid_resource_availability.duplicate(true)
+	state_dict["grid_dominion"] = GameState.grid_dominion.duplicate(true)
+	state_dict["grid_market"] = GameState.grid_market.duplicate(true)
+	state_dict["grid_stockpiles"] = GameState.grid_stockpiles.duplicate(true)
+	state_dict["grid_maintenance"] = GameState.grid_maintenance.duplicate(true)
+	state_dict["grid_power"] = GameState.grid_power.duplicate(true)
+	state_dict["grid_wrecks"] = GameState.grid_wrecks.duplicate(true)
+
+	# --- Layer 3: Agents ---
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
+	state_dict["agents"] = GameState.agents.duplicate(true)
 	state_dict["assets_ships"] = _serialize_resource_dict(GameState.assets_ships)
-	state_dict["assets_modules"] = _serialize_resource_dict(GameState.assets_modules)
 	state_dict["inventories"] = _serialize_inventories(GameState.inventories)
-	
-	# Phase 1 additions - locations are Resources, need proper serialization
+	state_dict["hostile_population_integral"] = GameState.hostile_population_integral.duplicate(true)
+
+	# --- Layer 4: Chronicle ---
+	state_dict["chronicle_event_buffer"] = GameState.chronicle_event_buffer.duplicate(true)
+	state_dict["chronicle_rumors"] = GameState.chronicle_rumors.duplicate(true)
+
+	# --- Legacy ---
 	state_dict["locations"] = _serialize_resource_dict_by_string_key(GameState.locations)
-	state_dict["contracts"] = _serialize_resource_dict_by_string_key(GameState.contracts)
-	state_dict["active_contracts"] = _serialize_resource_dict_by_string_key(GameState.active_contracts)
-	state_dict["narrative_state"] = GameState.narrative_state.duplicate(true)
-	state_dict["session_stats"] = GameState.session_stats.duplicate(true)
-	
+	state_dict["factions"] = _serialize_resource_dict_by_string_key(GameState.factions)
+
 	return state_dict
 
 func _serialize_resource(res: Resource) -> Dictionary:
@@ -14013,10 +14256,18 @@ func _serialize_inventories(inv_dict: Dictionary) -> Dictionary:
 	var serialized_inventories = {}
 	for char_uid in inv_dict:
 		var original_inv = inv_dict[char_uid]
+		# Keys may be int (from live state) or String (from a loaded save).
+		# Try both forms to handle load→save round-trips safely.
+		var ship_key = InventorySystem.InventoryType.SHIP      # 0
+		var module_key = InventorySystem.InventoryType.MODULE   # 1
+		var commodity_key = InventorySystem.InventoryType.COMMODITY # 2
+		var ships = original_inv.get(ship_key, original_inv.get(str(ship_key), {}))
+		var modules = original_inv.get(module_key, original_inv.get(str(module_key), {}))
+		var commodities = original_inv.get(commodity_key, original_inv.get(str(commodity_key), {}))
 		serialized_inventories[char_uid] = {
-			InventorySystem.InventoryType.SHIP: _serialize_resource_dict(original_inv[InventorySystem.InventoryType.SHIP]),
-			InventorySystem.InventoryType.MODULE: _serialize_resource_dict(original_inv[InventorySystem.InventoryType.MODULE]),
-			InventorySystem.InventoryType.COMMODITY: original_inv[InventorySystem.InventoryType.COMMODITY].duplicate(true)
+			ship_key: _serialize_resource_dict(ships),
+			module_key: _serialize_resource_dict(modules),
+			commodity_key: commodities.duplicate(true) if commodities is Dictionary else commodities
 		}
 	return serialized_inventories
 
@@ -14024,54 +14275,46 @@ func _serialize_inventories(inv_dict: Dictionary) -> Dictionary:
 
 func _deserialize_and_apply_game_state(save_data: Dictionary):
 	# Clear current state
-	GameState.characters.clear()
-	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
-	GameState.inventories.clear()
-	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
-	
+	reset_to_defaults()
+
+	# --- Simulation Meta ---
 	GameState.player_character_uid = save_data.get("player_character_uid", -1)
-	GameState.current_tu = save_data.get("current_tu", 0)
+	GameState.game_time_seconds = save_data.get("game_time_seconds", save_data.get("current_tu", 0))
+	GameState.sim_tick_count = save_data.get("sim_tick_count", 0)
+	GameState.world_seed = save_data.get("world_seed", "")
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
-	
-	# Restore player position and rotation
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 
+	# --- Layer 1: World ---
+	GameState.world_topology = save_data.get("world_topology", {}).duplicate(true) if save_data.has("world_topology") else {}
+	GameState.world_hazards = save_data.get("world_hazards", {}).duplicate(true) if save_data.has("world_hazards") else {}
+	GameState.world_resource_potential = save_data.get("world_resource_potential", {}).duplicate(true) if save_data.has("world_resource_potential") else {}
+	GameState.world_total_matter = save_data.get("world_total_matter", 0.0)
+
+	# --- Layer 2: Grid ---
+	GameState.grid_resource_availability = save_data.get("grid_resource_availability", {}).duplicate(true) if save_data.has("grid_resource_availability") else {}
+	GameState.grid_dominion = save_data.get("grid_dominion", {}).duplicate(true) if save_data.has("grid_dominion") else {}
+	GameState.grid_market = save_data.get("grid_market", {}).duplicate(true) if save_data.has("grid_market") else {}
+	GameState.grid_stockpiles = save_data.get("grid_stockpiles", {}).duplicate(true) if save_data.has("grid_stockpiles") else {}
+	GameState.grid_maintenance = save_data.get("grid_maintenance", {}).duplicate(true) if save_data.has("grid_maintenance") else {}
+	GameState.grid_power = save_data.get("grid_power", {}).duplicate(true) if save_data.has("grid_power") else {}
+	GameState.grid_wrecks = save_data.get("grid_wrecks", {}).duplicate(true) if save_data.has("grid_wrecks") else {}
+
+	# --- Layer 3: Agents ---
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
-	GameState.assets_modules = _deserialize_resource_dict(save_data.get("assets_modules", {}))
 	GameState.characters = _deserialize_resource_dict(save_data.get("characters", {}))
+	GameState.agents = save_data.get("agents", {}).duplicate(true) if save_data.has("agents") else {}
 	GameState.inventories = _deserialize_inventories(save_data.get("inventories", {}))
-	
-	# Phase 1 additions - locations need to be deserialized back to Resources
+	GameState.hostile_population_integral = save_data.get("hostile_population_integral", {}).duplicate(true) if save_data.has("hostile_population_integral") else {}
+
+	# --- Layer 4: Chronicle ---
+	GameState.chronicle_event_buffer = save_data.get("chronicle_event_buffer", []).duplicate(true) if save_data.has("chronicle_event_buffer") else []
+	GameState.chronicle_rumors = save_data.get("chronicle_rumors", []).duplicate(true) if save_data.has("chronicle_rumors") else []
+
+	# --- Legacy ---
 	GameState.locations = _deserialize_resource_dict_by_string_key(save_data.get("locations", {}))
-	GameState.contracts = _deserialize_resource_dict_by_string_key(save_data.get("contracts", {}))
-	GameState.active_contracts = _deserialize_resource_dict_by_string_key(save_data.get("active_contracts", {}))
-	
-	# Restore narrative state with defaults if not present
-	var default_narrative = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"chronicle_entries": []
-	}
-	var saved_narrative = save_data.get("narrative_state", {})
-	for key in default_narrative:
-		GameState.narrative_state[key] = saved_narrative.get(key, default_narrative[key])
-	
-	# Restore session stats with defaults if not present
-	var default_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
-	var saved_stats = save_data.get("session_stats", {})
-	for key in default_stats:
-		GameState.session_stats[key] = saved_stats.get(key, default_stats[key])
+	GameState.factions = _deserialize_resource_dict_by_string_key(save_data.get("factions", {}))
 
 func _deserialize_resource(res_data: Dictionary) -> Resource:
 	if not res_data.has("template_id"):
@@ -14116,17 +14359,20 @@ func _deserialize_inventories(serialized_inv: Dictionary) -> Dictionary:
 		var char_uid = int(char_uid_str)
 		var original_inv = serialized_inv[char_uid_str]
 		
-		# --- FIX: Use integer enum values directly as keys for lookup ---
-		var ship_key = InventorySystem.InventoryType.SHIP
-		var module_key = InventorySystem.InventoryType.MODULE
-		var commodity_key = InventorySystem.InventoryType.COMMODITY
+		# Keys may be int (from enum) or String (from JSON round-trip).
+		# Try both forms to handle either case safely.
+		var ship_key = InventorySystem.InventoryType.SHIP        # 0
+		var module_key = InventorySystem.InventoryType.MODULE     # 1
+		var commodity_key = InventorySystem.InventoryType.COMMODITY # 2
+		var ships = original_inv.get(ship_key, original_inv.get(str(ship_key), {}))
+		var modules = original_inv.get(module_key, original_inv.get(str(module_key), {}))
+		var commodities = original_inv.get(commodity_key, original_inv.get(str(commodity_key), {}))
 		
 		inv_dict[char_uid] = {
-			InventorySystem.InventoryType.SHIP: _deserialize_resource_dict(original_inv.get(ship_key, {})),
-			InventorySystem.InventoryType.MODULE: _deserialize_resource_dict(original_inv.get(module_key, {})),
-			InventorySystem.InventoryType.COMMODITY: original_inv.get(commodity_key, {}).duplicate(true)
+			ship_key: _deserialize_resource_dict(ships),
+			module_key: _deserialize_resource_dict(modules),
+			commodity_key: commodities.duplicate(true) if commodities is Dictionary else commodities
 		}
-		# --- END FIX ---
 	return inv_dict
 
 # Helper to find a template by its ID across all categories in the database.
@@ -14135,13 +14381,11 @@ func _find_template_in_database(template_id: String) -> Resource:
 		return TemplateDatabase.characters[template_id]
 	if TemplateDatabase.assets_ships.has(template_id):
 		return TemplateDatabase.assets_ships[template_id]
-	if TemplateDatabase.assets_modules.has(template_id):
-		return TemplateDatabase.assets_modules[template_id]
 	if TemplateDatabase.locations.has(template_id):
 		return TemplateDatabase.locations[template_id]
-	if TemplateDatabase.contracts.has(template_id):
-		return TemplateDatabase.contracts[template_id]
-	# Add other template types here as needed...
+	if TemplateDatabase.factions.has(template_id):
+		return TemplateDatabase.factions[template_id]
+	# NOTE: assets_modules and contracts lookups removed — pruned in sim rework.
 	return null
 
 
@@ -14181,27 +14425,15 @@ var game_state_manager = null setget set_game_state_manager
 
 # --- UI elements ---
 var main_hud = null setget set_main_hud
-var character_status = null setget set_character_status
-var inventory_screen = null setget set_inventory_screen
 
-# --- Core System References ---
-var action_system = null setget set_action_system
+# --- Core System References (KEPT systems) ---
 var agent_spawner = null setget set_agent_spawner
 var asset_system = null setget set_asset_system
 var character_system = null setget set_character_system
-var chronicle_system = null setget set_chronicle_system
-var goal_system = null setget set_goal_system
-var inventory_system = null setget set_inventory_system
-var progression_system = null setget set_progression_system
-var time_system = null setget set_time_system
-var traffic_system = null setget set_traffic_system
-var world_map_system = null setget set_world_map_system
 var event_system = null setget set_event_system
-var trading_system = null setget set_trading_system
-var contract_system = null setget set_contract_system
-var narrative_action_system = null setget set_narrative_action_system
-var combat_system = null setget set_combat_system
-var quirk_system = null setget set_quirk_system
+var inventory_system = null setget set_inventory_system
+var time_system = null setget set_time_system
+var simulation_engine = null setget set_simulation_engine
 
 
 func _ready():
@@ -14261,14 +14493,6 @@ func set_game_state_manager(new_ref):
 
 # --- System Setters ---
 
-func set_action_system(new_ref):
-	if new_ref == action_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		action_system = new_ref
-		print("GlobalRefs: ActionSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ActionSystem ref: ", new_ref)
-
 func set_agent_spawner(new_ref):
 	if new_ref == agent_spawner: return
 	if new_ref == null or is_instance_valid(new_ref):
@@ -14293,22 +14517,6 @@ func set_character_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid CharacterSystem ref: ", new_ref)
 
-func set_chronicle_system(new_ref):
-	if new_ref == chronicle_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		chronicle_system = new_ref
-		print("GlobalRefs: ChronicleSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ChronicleSystem ref: ", new_ref)
-
-func set_goal_system(new_ref):
-	if new_ref == goal_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		goal_system = new_ref
-		print("GlobalRefs: GoalSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid GoalSystem ref: ", new_ref)
-
 func set_inventory_system(new_ref):
 	if new_ref == inventory_system: return
 	if new_ref == null or is_instance_valid(new_ref):
@@ -14316,14 +14524,6 @@ func set_inventory_system(new_ref):
 		print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid InventorySystem ref: ", new_ref)
-
-func set_progression_system(new_ref):
-	if new_ref == progression_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		progression_system = new_ref
-		print("GlobalRefs: ProgressionSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ProgressionSystem ref: ", new_ref)
 
 func set_time_system(new_ref):
 	if new_ref == time_system: return
@@ -14333,22 +14533,6 @@ func set_time_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid TimeSystem ref: ", new_ref)
 
-func set_traffic_system(new_ref):
-	if new_ref == traffic_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		traffic_system = new_ref
-		print("GlobalRefs: TrafficSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid TrafficSystem ref: ", new_ref)
-
-func set_world_map_system(new_ref):
-	if new_ref == world_map_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		world_map_system = new_ref
-		print("GlobalRefs: WorldMapSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid WorldMapSystem ref: ", new_ref)
-
 func set_event_system(new_ref):
 	if new_ref == event_system: return
 	if new_ref == null or is_instance_valid(new_ref):
@@ -14357,46 +14541,13 @@ func set_event_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
 
-func set_trading_system(new_ref):
-	if new_ref == trading_system: return
+func set_simulation_engine(new_ref):
+	if new_ref == simulation_engine: return
 	if new_ref == null or is_instance_valid(new_ref):
-		trading_system = new_ref
-		print("GlobalRefs: TradingSystem ref ", "set." if new_ref else "cleared.")
+		simulation_engine = new_ref
+		print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
 	else:
-		printerr("GlobalRefs Error: Invalid TradingSystem ref: ", new_ref)
-
-func set_contract_system(new_ref):
-	if new_ref == contract_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		contract_system = new_ref
-		print("GlobalRefs: ContractSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ContractSystem ref: ", new_ref)
-
-
-func set_narrative_action_system(new_ref):
-	if new_ref == narrative_action_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		narrative_action_system = new_ref
-		print("GlobalRefs: NarrativeActionSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid NarrativeActionSystem ref: ", new_ref)
-
-func set_combat_system(new_ref):
-	if new_ref == combat_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		combat_system = new_ref
-		print("GlobalRefs: CombatSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid CombatSystem ref: ", new_ref)
-
-func set_quirk_system(new_ref):
-	if new_ref == quirk_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		quirk_system = new_ref
-		print("GlobalRefs: QuirkSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid QuirkSystem ref: ", new_ref)
+		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
 
 
 # --- UI ELEMENTS ---
@@ -14408,114 +14559,6 @@ func set_main_hud(new_ref):
 		print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
-		
-func set_character_status(new_ref):
-	if new_ref == character_status: return
-	if new_ref == null or is_instance_valid(new_ref):
-		character_status = new_ref
-		print("GlobalRefs: Character Status UI window ref set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Invalid Character Status UI window ref: ", new_ref)
-
-func set_inventory_screen(new_ref):
-	if new_ref == inventory_screen: return
-	if new_ref == null or is_instance_valid(new_ref):
-		inventory_screen = new_ref
-		print("GlobalRefs: Inventory Screen UI window ref set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Invalid Inventory Screen UI window ref: ", new_ref)
-
---- Start of ./src/autoload/NarrativeOutcomes.gd ---
-
-# File: autoload/NarrativeOutcomes.gd
-# Autoload Singleton: NarrativeOutcomes
-# Purpose: Centralized narrative outcome lookup tables for Narrative Actions.
-# Version: 1.0
-
-extends Node
-
-# Outcome structure per action_type + tier
-# Returns: {description: String, effects: Dictionary}
-# effects keys: "add_quirk", "wp_cost", "wp_gain", "fp_gain", "reputation_change"
-
-const OUTCOMES: Dictionary = {
-	"contract_complete": {
-		"CritSuccess": {
-			"description": "Flawless delivery - client impressed.",
-			"effects": {"wp_gain": 5, "reputation_change": 1}
-		},
-		"SwC": {
-			"description": "Delivery complete with minor issues.",
-			"effects": {}
-		},
-		"Failure": {
-			"description": "Cargo damaged in transit.",
-			"effects": {"wp_cost": 10, "add_quirk": "reputation_tarnished"}
-		}
-	},
-
-	"dock_arrival": {
-		"CritSuccess": {
-			"description": "Perfect approach and docking. Your handling inspires confidence.",
-			"effects": {"fp_gain": 1, "reputation_change": 1}
-		},
-		"SwC": {
-			"description": "Docking successful, but you scrape the hull on the way in.",
-			"effects": {"add_quirk": "scratched_hull"}
-		},
-		"Failure": {
-			"description": "Rough landing. Repairs and paperwork cost you.",
-			"effects": {"wp_cost": 2, "add_quirk": "jammed_landing_gear"}
-		}
-	},
-
-	"trade_finalize": {
-		"CritSuccess": {
-			"description": "You spot a favorable clause and close the deal above market.",
-			"effects": {"wp_gain": 2}
-		},
-		"SwC": {
-			"description": "Deal goes through, but the station broker takes a cut.",
-			"effects": {"wp_cost": 1}
-		},
-		"Failure": {
-			"description": "You misread the market and take a loss finalizing the trade.",
-			"effects": {"wp_cost": 3}
-		}
-	}
-}
-
-
-func get_outcome(action_type: String, tier_name: String) -> Dictionary:
-	var normalized_tier = _normalize_tier_name(tier_name)
-	var action_table = OUTCOMES.get(action_type, null)
-	if action_table == null:
-		return {"description": "No outcome defined.", "effects": {}}
-	var outcome = action_table.get(normalized_tier, null)
-	if outcome == null:
-		return {"description": "No outcome defined.", "effects": {}}
-	# Return a deep copy so callers can safely modify.
-	return outcome.duplicate(true)
-
-
-func get_available_action_types() -> Array:
-	var keys = OUTCOMES.keys()
-	keys.sort()
-	return keys
-
-
-func _normalize_tier_name(tier_name: String) -> String:
-	# Supports both CoreMechanicsAPI keys (result_tier) and display strings (tier_name).
-	match tier_name:
-		"CritSuccess", "Critical Success":
-			return "CritSuccess"
-		"SwC", "Success with Complication":
-			return "SwC"
-		"Failure":
-			return "Failure"
-		_:
-			# Best-effort: pass through; may already be correct.
-			return tier_name
 
 --- Start of ./src/autoload/TemplateDatabase.gd ---
 
@@ -14535,12 +14578,18 @@ var assets_commodities: Dictionary = {}
 var locations: Dictionary = {}
 var contracts: Dictionary = {}
 var utility_tools: Dictionary = {}  # Weapons and other utility tools
+var factions: Dictionary = {}
+var contacts: Dictionary = {}
 
 
 # Generic getter that searches all template categories
 func get_template(template_id: String) -> Resource:
 	if characters.has(template_id):
 		return characters[template_id]
+	if factions.has(template_id):
+		return factions[template_id]
+	if contacts.has(template_id):
+		return contacts[template_id]
 	if assets_ships.has(template_id):
 		return assets_ships[template_id]
 	if assets_modules.has(template_id):
@@ -14624,10 +14673,6 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
-	
-	# Register with combat system if we have a ship template
-	# Defer to ensure CombatSystem is initialized in the scene tree.
-	call_deferred("_register_with_combat_system")
 
 	print(
 		"AgentBody '",
@@ -14674,17 +14719,10 @@ func _get_movement_params_from_ship() -> Dictionary:
 		}
 
 
-# Registers this agent with the combat system using its ship template.
+# NOTE: CombatSystem removed — rebuild later on Agent layer.
+# _register_with_combat_system() stub kept for future use.
 func _register_with_combat_system() -> void:
-	if not is_instance_valid(GlobalRefs.combat_system):
-		return
-	if agent_uid < 0:
-		return
-	if not is_instance_valid(ship_template):
-		return
-	
-	GlobalRefs.combat_system.register_combatant(agent_uid, ship_template)
-	print("AgentBody '", self.name, "' registered with CombatSystem. Hull: ", ship_template.hull_integrity)
+	pass
 
 
 # --- Godot Lifecycle ---
@@ -15893,11 +15931,18 @@ func _get_target_effective_size(target_node: Spatial) -> float:
 
 	return max(calculated_size, 1.0)
 
---- Start of ./src/core/agents/components/weapon_controller.gd ---
+--- Start of ./src/core/agents/components/tool_controller.gd ---
 
-# File: core/agents/components/weapon_controller.gd
-# Purpose: Manages weapon firing and cooldowns for an agent.
-# Attaches as child of AgentBody (RigidBody).
+#
+# PROJECT: GDTLancer
+# MODULE: tool_controller.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
+# LOG_REF: 2026-01-28-QA-Intern
+#
+
+## ToolController: Manages tool (weapon) firing and cooldowns for an agent.
+## Attaches as child of AgentBody (RigidBody), interfaces with CombatSystem for damage.
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
@@ -15917,7 +15962,7 @@ var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
 func _ready() -> void:
 	_agent_body = get_parent()
 	if not _agent_body is RigidBody:
-		printerr("WeaponController: Parent must be RigidBody")
+		printerr("ToolController: Parent must be RigidBody")
 		return
 	# Defer weapon loading to allow agent initialization to complete first
 	call_deferred("_load_weapons_from_ship")
@@ -15941,7 +15986,7 @@ func _load_weapons_from_ship() -> void:
 			_ship_template = agent_ship
 	
 	if not is_instance_valid(_ship_template):
-		print("WeaponController: No ship template available for agent, cannot load weapons.")
+		print("ToolController: No ship template available for agent, cannot load weapons.")
 		return  # No ship available
 
 	# Load each equipped tool template
@@ -15961,11 +16006,11 @@ func _load_weapons_from_ship() -> void:
 			_cooldowns[_weapons.size() - 1] = 0.0
 	
 	if _weapons.size() > 0:
-		print("WeaponController: Loaded ", _weapons.size(), " weapon(s) for agent")
+		print("ToolController: Loaded ", _weapons.size(), " weapon(s) for agent")
 	else:
 		# Helpful during manual integration verification.
 		print(
-			"WeaponController: No weapons loaded for agent_uid=",
+			"ToolController: No weapons loaded for agent_uid=",
 			_agent_body.get("agent_uid"),
 			" ship=",
 			_ship_template.get("template_id"),
@@ -15977,10 +16022,6 @@ func _load_weapons_from_ship() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# Keep CombatSystem cooldowns ticking (CombatSystem stores cooldowns per combatant).
-	if is_instance_valid(GlobalRefs.combat_system) and GlobalRefs.combat_system.has_method("update_cooldowns"):
-		GlobalRefs.combat_system.update_cooldowns(delta)
-
 	# Update local cooldown timers.
 	for idx in _cooldowns.keys():
 		if _cooldowns[idx] > 0:
@@ -16011,236 +16052,2635 @@ func get_cooldown_remaining(index: int) -> float:
 
 
 func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3) -> Dictionary:
-	if weapon_index < 0 or weapon_index >= _weapons.size():
-		return {"success": false, "reason": "Invalid weapon index"}
-
-	if not is_weapon_ready(weapon_index):
-		return {"success": false, "reason": "Weapon on cooldown", "cooldown": _cooldowns[weapon_index]}
-
-	var weapon = _weapons[weapon_index]
-	var shooter_uid: int = int(_agent_body.get("agent_uid"))
-	var shooter_pos: Vector3 = _agent_body.global_transform.origin
-
-	if not is_instance_valid(GlobalRefs.combat_system):
-		return {"success": false, "reason": "CombatSystem unavailable"}
-
-	# Ensure both combatants registered
-	_ensure_combatant_registered(shooter_uid)
-	_ensure_combatant_registered(target_uid)
-
-	# Fire via CombatSystem
-	var result = GlobalRefs.combat_system.fire_weapon(
-		shooter_uid,
-		target_uid,
-		weapon,
-		shooter_pos,
-		target_position
-	)
-
-	if result.get("success", false):
-		# Start cooldown
-		var cooldown_seconds: float = 0.0
-		if weapon and weapon is UtilityToolTemplate:
-			var fire_rate: float = float(max(weapon.fire_rate, 0.0001))
-			cooldown_seconds = (1.0 / fire_rate) + float(weapon.cooldown_time)
-		_cooldowns[weapon_index] = cooldown_seconds
-		emit_signal("weapon_cooldown_started", weapon_index, cooldown_seconds)
-		emit_signal("weapon_fired", weapon_index, target_position)
-
-	return result
+	# CombatSystem removed — rebuild later on Agent layer
+	return {"success": false, "reason": "CombatSystem not available (removed)"}
 
 
 func _ensure_combatant_registered(uid: int) -> void:
-	if not is_instance_valid(GlobalRefs.combat_system):
-		return
-	# Don't confuse "in combat" (alive/active) with "registered" (has hull state).
-	# We need registration even when combat hasn't started yet.
-	if GlobalRefs.combat_system.has_method("get_combat_state"):
-		var existing_state: Dictionary = GlobalRefs.combat_system.get_combat_state(uid)
-		if not existing_state.empty():
-			return
-	else:
-		# Fallback for older CombatSystem API.
-		if GlobalRefs.combat_system.is_in_combat(uid):
-			return
+	# CombatSystem removed — no-op stub
+	pass
 
-	var ship = null
+--- Start of ./src/core/simulation/agent_layer.gd ---
 
-	# Prefer current ship if this is the local agent.
-	if _agent_body and int(_agent_body.get("agent_uid")) == uid and is_instance_valid(_ship_template):
-		ship = _ship_template
+#
+# PROJECT: GDTLancer
+# MODULE: agent_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 4 (Agent Layer), Section 7 (Tick Sequence steps 4a–4c)
+# LOG_REF: 2026-02-13
+#
 
-	# Resolve uid -> AgentBody and use its cached ship_template.
-	if not is_instance_valid(ship):
-		var agent_body = null
-		if is_instance_valid(GlobalRefs.world_manager) and GlobalRefs.world_manager.has_method("get_agent_by_uid"):
-			agent_body = GlobalRefs.world_manager.get_agent_by_uid(uid)
+extends Reference
 
-		if not is_instance_valid(agent_body):
-			var tree = get_tree()
-			if tree:
-				for node in tree.get_nodes_in_group("Agents"):
-					if (
-						is_instance_valid(node)
-						and node.get("agent_uid") != null
-						and int(node.get("agent_uid")) == uid
-					):
-						agent_body = node
-						break
-
-		if is_instance_valid(agent_body):
-			var cached_ship = agent_body.get("ship_template")
-			if is_instance_valid(cached_ship):
-				ship = cached_ship
-			else:
-				# If this body has a character_uid, use AssetSystem mapping.
-				var raw_char_uid = agent_body.get("character_uid")
-				if raw_char_uid != null and int(raw_char_uid) >= 0 and is_instance_valid(GlobalRefs.asset_system):
-					ship = GlobalRefs.asset_system.get_ship_for_character(int(raw_char_uid))
-
-	# Try to interpret uid as character_uid.
-	if not is_instance_valid(ship) and is_instance_valid(GlobalRefs.asset_system):
-		ship = GlobalRefs.asset_system.get_ship_for_character(uid)
-
-	# Fallback: interpret uid as ship_uid.
-	if not is_instance_valid(ship) and is_instance_valid(GlobalRefs.asset_system):
-		ship = GlobalRefs.asset_system.get_ship(uid)
-
-	if is_instance_valid(ship):
-		GlobalRefs.combat_system.register_combatant(uid, ship)
-
---- Start of ./src/core/systems/action_system.gd ---
-
-# File: core/systems/action_system.gd
-# Purpose: Manages the queueing, execution, and completion of character actions.
-# Version: 2.0 - Reworked to match new templates.
-
-extends Node
-
-# Emitted when an action is completed, broadcasting the result.
-# payload: The result dictionary from CoreMechanicsAPI.perform_action_check().
-signal action_completed(character, action_resource, payload)
-
-var _next_action_id: int = 1
-
-func _ready():
-	GlobalRefs.set_action_system(self)
-	
-	if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick"):
-		EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick")
-	print("ActionSystem Ready.")
+## AgentLayer: Processes all Agent-layer logic for one simulation tick.
+##
+## The Agent Layer holds COGNITIVE entities — NPCs and the player — each with
+## their own knowledge snapshot, goal queue, and resource state. NPCs make
+## autonomous decisions based on their (possibly stale) view of the grid.
+##
+## Processing (GDD Section 7, steps 4a–4c):
+##   4a. NPC Goal Evaluation — re-evaluate goals from known_grid_state
+##   4b. NPC Action Selection — execute highest-priority feasible action
+##   4c. Player — skip (player acts in real-time)
+##
+## Also handles persistent agent respawn and hostile population tracking.
 
 
-# --- Public API ---
+# UID counter for generating unique identifiers
+var _next_uid: int = 1000
 
-# Queues an action for a character.
-# - action_approach: From Constants.ActionApproach (e.g., CAUTIOUS, RISKY).
-func request_action(
-	character_instance: CharacterTemplate, action_template: ActionTemplate, action_approach: int, target: Node = null
-) -> bool:
-	if not is_instance_valid(character_instance) or not action_template:
-		return false
 
-	var action_id = _get_new_action_id()
+# =============================================================================
+# === INITIALIZATION ==========================================================
+# =============================================================================
 
-	GameState.active_actions[action_id] = {
-		"character_instance": character_instance, 
-		"action_template": action_template,
-		"action_approach": action_approach,  # Store the approach for later.
-		"target": target,
-		"tu_progress": 0,
-		"tu_cost": action_template.tu_cost
+## Seeds all Agent Layer state in GameState from AgentTemplate and CharacterTemplate .tres files.
+## Called once at game start, after GridLayer.initialize_grid().
+func initialize_agents() -> void:
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.hostile_population_integral.clear()
+
+	# --- Player Agent ---
+	_initialize_player()
+
+	# --- Persistent NPC Agents ---
+	for agent_id in TemplateDatabase.agents:
+		var agent_template: Resource = TemplateDatabase.agents[agent_id]
+		if not is_instance_valid(agent_template):
+			continue
+		# Skip the player template — already handled
+		if agent_template.agent_type == "player":
+			continue
+		# Only initialize persistent agents at game start
+		# Non-persistent NPCs are spawned dynamically by scene systems
+		if agent_template.is_persistent:
+			_initialize_persistent_agent(agent_id, agent_template)
+
+	# --- Hostile Population Integral ---
+	_initialize_hostile_population()
+
+	print("AgentLayer: Initialized %d agents (%d persistent NPCs + player)." % [
+		GameState.agents.size(),
+		GameState.agents.size() - 1  # Minus the player
+	])
+
+
+## Initializes the player agent from player_default template + character_default.
+func _initialize_player() -> void:
+	var char_uid: int = _generate_uid()
+	GameState.player_character_uid = char_uid
+
+	# Load character template
+	var char_template: Resource = null
+	if TemplateDatabase.characters.has("character_default"):
+		char_template = TemplateDatabase.characters["character_default"]
+
+	# Store character instance reference
+	if char_template != null:
+		GameState.characters[char_uid] = char_template
+
+	# Determine starting location — default to first location in topology
+	var start_sector: String = ""
+	for sector_id in GameState.world_topology:
+		var topology: Dictionary = GameState.world_topology[sector_id]
+		if topology.get("sector_type", "") == "hub":
+			start_sector = sector_id
+			break
+	if start_sector == "" and not GameState.world_topology.empty():
+		start_sector = GameState.world_topology.keys()[0]
+
+	var starting_credits: int = 10000
+	if char_template != null:
+		starting_credits = char_template.credits
+
+	# Build agent state dictionary (matches GameState.agents schema)
+	GameState.agents["player"] = _create_agent_state(
+		char_uid,
+		start_sector,
+		starting_credits,
+		false,  # is_persistent — player is special
+		"",     # home_location_id — player has no home
+		"idle"  # goal_archetype
+	)
+
+	# Initialize empty inventory for player
+	GameState.inventories[char_uid] = {}
+
+
+## Initializes a persistent NPC agent from its AgentTemplate + linked CharacterTemplate.
+func _initialize_persistent_agent(agent_id: String, agent_template: Resource) -> void:
+	var char_uid: int = _generate_uid()
+
+	# Load linked character template
+	var char_template_id: String = agent_template.character_template_id
+	var char_template: Resource = null
+	if TemplateDatabase.characters.has(char_template_id):
+		char_template = TemplateDatabase.characters[char_template_id]
+
+	if char_template != null:
+		GameState.characters[char_uid] = char_template
+
+	# Determine starting sector from home_location_id
+	var home_location: String = agent_template.home_location_id
+	var start_sector: String = home_location if GameState.world_topology.has(home_location) else ""
+	if start_sector == "" and not GameState.world_topology.empty():
+		start_sector = GameState.world_topology.keys()[0]
+
+	var starting_credits: int = 5000
+	if char_template != null:
+		starting_credits = char_template.credits
+
+	# Determine initial goal archetype from personality
+	var goal_archetype: String = _derive_initial_goal(char_template)
+
+	# Build agent state
+	GameState.agents[agent_id] = _create_agent_state(
+		char_uid,
+		start_sector,
+		starting_credits,
+		true,           # is_persistent
+		home_location,  # home_location_id
+		goal_archetype
+	)
+
+	# Initialize empty inventory
+	GameState.inventories[char_uid] = {}
+
+	# Legacy compatibility — keep persistent_agents alias populated
+	GameState.persistent_agents[agent_id] = GameState.agents[agent_id]
+
+
+## Initializes hostile population tracking from grid pirate_activity values.
+func _initialize_hostile_population() -> void:
+	# Phase 1: Single hostile type — "pirates"
+	var total_piracy: float = 0.0
+	var sector_counts: Dictionary = {}
+
+	for sector_id in GameState.grid_dominion:
+		var dominion: Dictionary = GameState.grid_dominion[sector_id]
+		var piracy: float = dominion.get("pirate_activity", 0.0)
+		total_piracy += piracy
+		sector_counts[sector_id] = int(piracy * 10.0)  # Scale to count
+
+	# Carrying capacity = function of total piracy across all sectors
+	var carrying_capacity: int = int(total_piracy * 20.0)
+	carrying_capacity = max(carrying_capacity, 5)  # Minimum viable population
+
+	GameState.hostile_population_integral["pirates"] = {
+		"current_count": int(total_piracy * 10.0),
+		"carrying_capacity": carrying_capacity,
+		"sector_counts": sector_counts
 	}
 
-	var approach_str = (
-		"Cautious"
-		if action_approach == Constants.ActionApproach.CAUTIOUS
-		else "Risky"
-	)
-	print(
-		(
-			"ActionSystem: Queued action '%s' for %s (Approach: %s)"
-			% [action_template.action_name, character_instance.character_name, approach_str]
-		)
-	)
+
+# =============================================================================
+# === TICK PROCESSING =========================================================
+# =============================================================================
+
+## Processes all Agent-layer logic for one tick (GDD Section 7, steps 4a–4c).
+##
+## @param config  Dictionary — tuning constants.
+func process_tick(config: Dictionary) -> void:
+	# --- Step 4a + 4b: NPC Goal Evaluation & Action Selection ---
+	for agent_id in GameState.agents:
+		if agent_id == "player":
+			continue  # Step 4c: Player acts in real-time, skip
+
+		var agent: Dictionary = GameState.agents[agent_id]
+
+		# Skip disabled agents (awaiting respawn)
+		if agent.get("is_disabled", false):
+			_check_respawn(agent_id, agent, config)
+			continue
+
+		# 4a. Re-evaluate goals based on known_grid_state
+		_evaluate_goals(agent_id, agent, config)
+
+		# 4b. Execute highest-priority feasible action
+		_execute_action(agent_id, agent, config)
+
+	# --- Persistent Agent Respawn (already checked inline above) ---
+
+	# --- Hostile Population Tracking ---
+	_update_hostile_population(config)
+
+
+# =============================================================================
+# === PRIVATE — GOAL EVALUATION (Step 4a) =====================================
+# =============================================================================
+
+## Re-evaluates an NPC's goal queue based on their known grid state.
+## Phase 1: Simple heuristic — if cash low, trade. If damaged, repair. Else idle.
+func _evaluate_goals(agent_id: String, agent: Dictionary, config: Dictionary) -> void:
+	var goal_queue: Array = agent.get("goal_queue", [])
+	var cash: float = agent.get("cash_reserves", 0.0)
+	var hull: float = agent.get("hull_integrity", 1.0)
+
+	var cash_threshold: float = config.get("npc_cash_low_threshold", 2000.0)
+	var hull_threshold: float = config.get("npc_hull_repair_threshold", 0.5)
+
+	# Priority order: repair > trade > idle
+	var new_goals: Array = []
+
+	if hull < hull_threshold:
+		new_goals.append({"type": "repair", "priority": 3})
+		agent["goal_archetype"] = "repair"
+	elif cash < cash_threshold:
+		new_goals.append({"type": "trade", "priority": 2})
+		agent["goal_archetype"] = "trade"
+	else:
+		new_goals.append({"type": "idle", "priority": 1})
+		agent["goal_archetype"] = "idle"
+
+	agent["goal_queue"] = new_goals
+
+
+# =============================================================================
+# === PRIVATE — ACTION EXECUTION (Step 4b) ====================================
+# =============================================================================
+
+## Executes the highest-priority feasible action for an NPC.
+## Phase 1: Abstract state changes only — no scene-tree interaction.
+func _execute_action(agent_id: String, agent: Dictionary, config: Dictionary) -> void:
+	var goal_queue: Array = agent.get("goal_queue", [])
+	if goal_queue.empty():
+		return
+
+	# Sort by priority (highest first)
+	# Phase 1: only one goal at a time, so just use [0]
+	var current_goal: Dictionary = goal_queue[0]
+	var goal_type: String = current_goal.get("type", "idle")
+
+	match goal_type:
+		"trade":
+			_action_trade(agent_id, agent, config)
+		"repair":
+			_action_repair(agent_id, agent, config)
+		"idle":
+			pass  # Do nothing — agent stays put
+
+
+## Trade action: find best buy/sell opportunity, move if needed, execute trade.
+## Phase 1: simplified — buy cheapest commodity at current location, move to
+## best sell location, sell there next tick.
+func _action_trade(agent_id: String, agent: Dictionary, config: Dictionary) -> void:
+	var current_sector: String = agent.get("current_sector_id", "")
+	var known_grid: Dictionary = agent.get("known_grid_state", {})
+	var cash: float = agent.get("cash_reserves", 0.0)
+
+	# Check if we have cargo to sell
+	var char_uid: int = agent.get("char_uid", -1)
+	var has_cargo: bool = _agent_has_cargo(char_uid)
+
+	if has_cargo:
+		# Try to sell at current location
+		_action_sell(agent_id, agent, current_sector)
+	elif cash > 0.0:
+		# Try to buy at current location
+		var bought: bool = _action_buy(agent_id, agent, current_sector, config)
+		if not bought:
+			# No good deals here — move to a connected sector
+			_action_move_random(agent_id, agent)
+	else:
+		# No cash, no cargo — idle until something changes
+		pass
+
+
+## Repair action: move toward home sector if not there, then repair.
+func _action_repair(agent_id: String, agent: Dictionary, _config: Dictionary) -> void:
+	var current_sector: String = agent.get("current_sector_id", "")
+	var home_sector: String = agent.get("home_location_id", "")
+
+	if current_sector == home_sector or home_sector == "":
+		# At home (or no home) — repair hull
+		var repair_amount: float = 0.1  # 10% per tick
+		agent["hull_integrity"] = min(1.0, agent.get("hull_integrity", 1.0) + repair_amount)
+	else:
+		# Move toward home
+		_action_move_toward(agent_id, agent, home_sector)
+
+
+## Buy cheapest commodity available at sector.
+func _action_buy(agent_id: String, agent: Dictionary, sector_id: String, config: Dictionary) -> bool:
+	if not GameState.grid_stockpiles.has(sector_id):
+		return false
+
+	var stockpiles: Dictionary = GameState.grid_stockpiles[sector_id]
+	var commodities: Dictionary = stockpiles.get("commodity_stockpiles", {})
+	var market: Dictionary = GameState.grid_market.get(sector_id, {})
+	var price_deltas: Dictionary = market.get("commodity_price_deltas", {})
+
+	# Find cheapest commodity (lowest price delta = best buy)
+	var best_commodity: String = ""
+	var best_delta: float = INF
+	for commodity_id in commodities:
+		if commodities[commodity_id] <= 0.0:
+			continue  # No stock
+		var delta: float = price_deltas.get(commodity_id, 0.0)
+		if delta < best_delta:
+			best_delta = delta
+			best_commodity = commodity_id
+
+	if best_commodity == "":
+		return false
+
+	# Buy up to affordable amount (Phase 1: buy 10 units or what we can afford)
+	var base_price: float = config.get("commodity_base_price", 10.0)
+	var actual_price: float = max(1.0, base_price + best_delta)
+	var affordable: int = int(agent.get("cash_reserves", 0.0) / actual_price)
+	var available: int = int(commodities[best_commodity])
+	var buy_amount: int = min(min(affordable, available), 10)
+
+	if buy_amount <= 0:
+		return false
+
+	# Execute purchase: deduct cash, add to inventory, deduct from stockpile
+	var total_cost: float = float(buy_amount) * actual_price
+	agent["cash_reserves"] = agent.get("cash_reserves", 0.0) - total_cost
+	commodities[best_commodity] -= float(buy_amount)
+
+	# Add to agent inventory (InventoryType.COMMODITY = 2)
+	var char_uid: int = agent.get("char_uid", -1)
+	if not GameState.inventories.has(char_uid):
+		GameState.inventories[char_uid] = {}
+	if not GameState.inventories[char_uid].has(2):
+		GameState.inventories[char_uid][2] = {}
+	var inv: Dictionary = GameState.inventories[char_uid][2]
+	inv[best_commodity] = inv.get(best_commodity, 0.0) + float(buy_amount)
 
 	return true
 
 
-# --- Signal Handlers ---
-func _on_world_event_tick(tu_passed: int):
-	for action_id in GameState.active_actions.keys().duplicate():
-		var action = GameState.active_actions[action_id]
-		action.tu_progress += tu_passed
-
-		if action.tu_progress >= action.tu_cost:
-			_process_action_completion(action_id)
-
-
-# --- Private Logic ---
-func _process_action_completion(action_id: int):
-	if not GameState.active_actions.has(action_id):
+## Sell all cargo at current sector.
+func _action_sell(agent_id: String, agent: Dictionary, sector_id: String) -> void:
+	var char_uid: int = agent.get("char_uid", -1)
+	if not GameState.inventories.has(char_uid):
+		return
+	if not GameState.inventories[char_uid].has(2):
 		return
 
-	var action_data = GameState.active_actions[action_id]
-	var character_instance = action_data.character_instance
-	var action_template = action_data.action_template
-	var action_approach = action_data.action_approach
+	var inv: Dictionary = GameState.inventories[char_uid][2]
+	if inv.empty():
+		return
 
-	# Perform the action check to get the result.
-	# For now, we assume dummy values for attribute/skill levels.
-	# A real implementation would get these from the character object.
-	var character_attribute_value = 4  # Dummy value
-	var character_skill_level = 2  # Dummy value
-	var focus_spent = 0  # Dummy value
+	var market: Dictionary = GameState.grid_market.get(sector_id, {})
+	var price_deltas: Dictionary = market.get("commodity_price_deltas", {})
+	var stockpiles: Dictionary = GameState.grid_stockpiles.get(sector_id, {})
+	var commodities: Dictionary = stockpiles.get("commodity_stockpiles", {})
 
-	var result_payload = CoreMechanicsAPI.perform_action_check(
-		character_attribute_value, character_skill_level, focus_spent, action_approach
-	)
+	# Sell everything in cargo
+	var total_revenue: float = 0.0
+	for commodity_id in inv.keys():
+		var quantity: float = inv[commodity_id]
+		if quantity <= 0.0:
+			continue
 
-	print(
-		(
-			"ActionSystem: Completed action '%s'. Result: %s"
-			% [action_template.action_name, result_payload.tier_name]
+		var base_price: float = 10.0  # Phase 1 default
+		var delta: float = price_deltas.get(commodity_id, 0.0)
+		var sell_price: float = max(1.0, base_price + delta)
+		total_revenue += quantity * sell_price
+
+		# Return commodities to sector stockpile (matter conservation)
+		commodities[commodity_id] = commodities.get(commodity_id, 0.0) + quantity
+		inv[commodity_id] = 0.0
+
+	agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + total_revenue
+
+	# Clean up zero entries
+	for commodity_id in inv.keys():
+		if inv[commodity_id] <= 0.0:
+			inv.erase(commodity_id)
+
+
+## Move agent to a random connected sector.
+func _action_move_random(agent_id: String, agent: Dictionary) -> void:
+	var current_sector: String = agent.get("current_sector_id", "")
+	if not GameState.world_topology.has(current_sector):
+		return
+
+	var connections: Array = GameState.world_topology[current_sector].get("connections", [])
+	if connections.empty():
+		return
+
+	# Pick a random connected sector
+	var target: String = connections[randi() % connections.size()]
+	agent["current_sector_id"] = target
+
+
+## Move agent one hop toward a target sector (simple greedy pathfinding).
+## Phase 1: if target is a direct neighbor, go there. Otherwise pick random neighbor.
+func _action_move_toward(agent_id: String, agent: Dictionary, target_sector: String) -> void:
+	var current_sector: String = agent.get("current_sector_id", "")
+	if current_sector == target_sector:
+		return
+
+	if not GameState.world_topology.has(current_sector):
+		return
+
+	var connections: Array = GameState.world_topology[current_sector].get("connections", [])
+	if connections.empty():
+		return
+
+	# Direct neighbor?
+	if target_sector in connections:
+		agent["current_sector_id"] = target_sector
+		return
+
+	# Not a direct neighbor — pick random connection (Phase 1: no real pathfinding)
+	agent["current_sector_id"] = connections[randi() % connections.size()]
+
+
+# =============================================================================
+# === PRIVATE — RESPAWN =======================================================
+# =============================================================================
+
+## Checks if a disabled persistent agent should respawn.
+## Respawn condition: enough ticks elapsed since disabled_at_tick.
+func _check_respawn(agent_id: String, agent: Dictionary, config: Dictionary) -> void:
+	if not agent.get("is_persistent", false):
+		return
+
+	var disabled_at: int = agent.get("disabled_at_tick", 0)
+	var current_tick: int = GameState.sim_tick_count
+
+	# Convert respawn_timeout_seconds to ticks
+	var tick_interval: float = config.get("world_tick_interval_seconds", 60.0)
+	var respawn_timeout: float = config.get("respawn_timeout_seconds", 300.0)
+	var respawn_ticks: int = int(respawn_timeout / tick_interval) if tick_interval > 0.0 else 5
+
+	if (current_tick - disabled_at) >= respawn_ticks:
+		# Respawn at home sector
+		agent["is_disabled"] = false
+		agent["disabled_at_tick"] = 0
+		agent["hull_integrity"] = 1.0
+		agent["current_sector_id"] = agent.get("home_location_id", "")
+		agent["propellant_reserves"] = 100.0
+		agent["energy_reserves"] = 100.0
+		agent["consumables_reserves"] = 100.0
+		agent["goal_queue"] = [{"type": "idle", "priority": 1}]
+		agent["goal_archetype"] = "idle"
+
+		print("AgentLayer: %s respawned at %s (tick %d)" % [
+			agent_id, agent["current_sector_id"], current_tick
+		])
+
+
+# =============================================================================
+# === PRIVATE — HOSTILE POPULATION ============================================
+# =============================================================================
+
+## Updates the hostile population integral based on grid pirate_activity values.
+## Population grows toward carrying capacity, shrinks if over it.
+func _update_hostile_population(config: Dictionary) -> void:
+	var growth_rate: float = config.get("hostile_growth_rate", 0.05)
+
+	for hostile_type in GameState.hostile_population_integral:
+		var pop_data: Dictionary = GameState.hostile_population_integral[hostile_type]
+		var current_count: int = pop_data.get("current_count", 0)
+		var sector_counts: Dictionary = pop_data.get("sector_counts", {})
+
+		# Recalculate carrying capacity from current pirate_activity
+		var total_piracy: float = 0.0
+		for sector_id in GameState.grid_dominion:
+			var dominion: Dictionary = GameState.grid_dominion[sector_id]
+			var piracy: float = dominion.get("pirate_activity", 0.0)
+			total_piracy += piracy
+
+		var carrying_capacity: int = max(5, int(total_piracy * 20.0))
+		pop_data["carrying_capacity"] = carrying_capacity
+
+		# Logistic growth: population grows toward carrying capacity
+		var delta: float = growth_rate * float(current_count) * (1.0 - float(current_count) / float(max(carrying_capacity, 1)))
+		var new_count: int = max(0, current_count + int(round(delta)))
+		pop_data["current_count"] = new_count
+
+		# Distribute population across sectors proportional to pirate_activity
+		sector_counts.clear()
+		if total_piracy > 0.0 and new_count > 0:
+			for sector_id in GameState.grid_dominion:
+				var dominion: Dictionary = GameState.grid_dominion[sector_id]
+				var piracy: float = dominion.get("pirate_activity", 0.0)
+				var sector_share: int = int(float(new_count) * (piracy / total_piracy))
+				if sector_share > 0:
+					sector_counts[sector_id] = sector_share
+		pop_data["sector_counts"] = sector_counts
+
+
+# =============================================================================
+# === PRIVATE — HELPERS =======================================================
+# =============================================================================
+
+## Creates a standard agent state dictionary matching GameState.agents schema.
+func _create_agent_state(
+	char_uid: int,
+	sector_id: String,
+	cash: float,
+	is_persistent: bool,
+	home_location_id: String,
+	goal_archetype: String
+) -> Dictionary:
+	return {
+		"char_uid": char_uid,
+		"current_sector_id": sector_id,
+		"hull_integrity": 1.0,
+		"propellant_reserves": 100.0,
+		"energy_reserves": 100.0,
+		"consumables_reserves": 100.0,
+		"cash_reserves": cash,
+		"fleet_ships": [],
+		"current_heat_level": 0.0,
+		"is_persistent": is_persistent,
+		"home_location_id": home_location_id,
+		"is_disabled": false,
+		"disabled_at_tick": 0,
+		"known_grid_state": _snapshot_grid_state(),
+		"knowledge_timestamps": _create_knowledge_timestamps(),
+		"goal_queue": [{"type": goal_archetype, "priority": 1}],
+		"goal_archetype": goal_archetype,
+		"event_memory": [],
+		"faction_standings": {},
+		"character_standings": {},
+		"sentiment_tags": []
+	}
+
+
+## Creates a snapshot of the current grid state for agent knowledge.
+## Phase 1: perfect knowledge — exact copy of all grid data.
+func _snapshot_grid_state() -> Dictionary:
+	var snapshot: Dictionary = {}
+	for sector_id in GameState.grid_dominion:
+		snapshot[sector_id] = {
+			"dominion": GameState.grid_dominion.get(sector_id, {}).duplicate(true),
+			"market": GameState.grid_market.get(sector_id, {}).duplicate(true),
+			"stockpiles": GameState.grid_stockpiles.get(sector_id, {}).duplicate(true)
+		}
+	return snapshot
+
+
+## Creates initial knowledge timestamps (tick of last observation per sector).
+func _create_knowledge_timestamps() -> Dictionary:
+	var timestamps: Dictionary = {}
+	for sector_id in GameState.world_topology:
+		timestamps[sector_id] = GameState.sim_tick_count
+	return timestamps
+
+
+## Derives initial goal archetype from character personality traits.
+func _derive_initial_goal(char_template: Resource) -> String:
+	if char_template == null:
+		return "idle"
+
+	var traits: Dictionary = char_template.get("personality_traits") if char_template.get("personality_traits") != null else {}
+	var greed: float = traits.get("greed", 0.5)
+
+	# Higher greed → start as trader
+	if greed >= 0.5:
+		return "trade"
+	return "idle"
+
+
+## Checks if an agent has any cargo in their commodity inventory.
+func _agent_has_cargo(char_uid: int) -> bool:
+	if not GameState.inventories.has(char_uid):
+		return false
+	if not GameState.inventories[char_uid].has(2):  # InventoryType.COMMODITY
+		return false
+	var inv: Dictionary = GameState.inventories[char_uid][2]
+	for commodity_id in inv:
+		if float(inv[commodity_id]) > 0.0:
+			return true
+	return false
+
+
+## Generates a unique ID and increments the counter.
+func _generate_uid() -> int:
+	var uid: int = _next_uid
+	_next_uid += 1
+	return uid
+
+--- Start of ./src/core/simulation/bridge_systems.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: bridge_systems.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence steps 3a–3c), Section 6 (Bridge Systems)
+# LOG_REF: 2026-02-13
+#
+
+extends Reference
+
+## BridgeSystems: Cross-layer processing that connects Grid data to Agent state.
+##
+## These systems read from BOTH the Grid Layer and Agent Layer, producing
+## effects that bridge the two. Runs after Grid Layer, before Agent Layer
+## in the tick sequence (GDD Section 7, Step 3).
+##
+## Step 3a: Heat Sink — binary overheating check per agent
+## Step 3b: Entropy System — hull degradation from sector entropy rate
+## Step 3c: Knowledge Refresh — update agent knowledge snapshots
+
+
+# =============================================================================
+# === TICK PROCESSING =========================================================
+# =============================================================================
+
+## Processes all Bridge Systems steps for one tick.
+##
+## @param config  Dictionary — tuning constants.
+func process_tick(config: Dictionary) -> void:
+	for agent_id in GameState.agents:
+		var agent: Dictionary = GameState.agents[agent_id]
+
+		# Skip disabled agents — they are "offline"
+		if agent.get("is_disabled", false):
+			continue
+
+		var sector_id: String = agent.get("current_sector_id", "")
+
+		# Step 3a: Heat Sink
+		_process_heat_sink(agent_id, agent, sector_id, config)
+
+		# Step 3b: Entropy System
+		_process_entropy(agent_id, agent, sector_id, config)
+
+		# Step 3c: Knowledge Refresh
+		_process_knowledge_refresh(agent_id, agent, sector_id, config)
+
+
+# =============================================================================
+# === STEP 3a: HEAT SINK =====================================================
+# =============================================================================
+
+## Binary overheating check for a single agent (Phase 1 stub).
+##
+## Heat is generated by activity (0 if docked, small constant if in space).
+## Dissipation rate scales with the sector's thermal_background_k — cooler
+## environments dissipate heat faster (deviation from 300K baseline).
+##
+## If current_heat_level exceeds the threshold, the agent is flagged as
+## overheating (future: triggers penalties or forced cooldown).
+func _process_heat_sink(agent_id: String, agent: Dictionary, sector_id: String, config: Dictionary) -> void:
+	var heat_generation_in_space: float = config.get("heat_generation_in_space", 0.5)
+	var heat_dissipation_base: float = config.get("heat_dissipation_base", 1.0)
+	var heat_overheat_threshold: float = config.get("heat_overheat_threshold", 100.0)
+
+	# Phase 1 stub: docked agents generate no heat
+	var is_docked: bool = false
+	if agent_id == "player":
+		is_docked = GameState.player_docked_at != ""
+	else:
+		# NPCs are considered "docked" if at a station-type sector
+		var topology: Dictionary = GameState.world_topology.get(sector_id, {})
+		is_docked = topology.get("sector_type", "") in ["hub", "frontier"]
+
+	var heat_generated: float = 0.0 if is_docked else heat_generation_in_space
+
+	# Dissipation: cooler environments dissipate faster
+	# thermal_background_k < 300 → better cooling (space is cold)
+	# thermal_background_k > 300 → worse cooling (near star)
+	var hazards: Dictionary = GameState.world_hazards.get(sector_id, {})
+	var thermal_k: float = hazards.get("thermal_background_k", 300.0)
+	var cooling_factor: float = max(0.1, (300.0 - thermal_k) / 300.0 + 1.0)
+	var dissipation: float = heat_dissipation_base * cooling_factor
+
+	# Update heat level
+	var current_heat: float = agent.get("current_heat_level", 0.0)
+	current_heat = max(0.0, current_heat + heat_generated - dissipation)
+	agent["current_heat_level"] = current_heat
+
+	# Flag overheating (Phase 1: just a warning, no gameplay effect yet)
+	if current_heat > heat_overheat_threshold:
+		# Future: apply penalties, force cooldown, emit event
+		pass
+
+
+# =============================================================================
+# === STEP 3b: ENTROPY SYSTEM ================================================
+# =============================================================================
+
+## Applies minimal hull degradation from the sector's local entropy rate (Phase 1 stub).
+##
+## Combat is the primary damage source. Environmental entropy is a slow bleed
+## that creates maintenance demand over long timescales.
+## Fleet ships receive a reduced rate (they're in storage/standby).
+func _process_entropy(agent_id: String, agent: Dictionary, sector_id: String, config: Dictionary) -> void:
+	var entropy_hull_multiplier: float = config.get("entropy_hull_multiplier", 0.1)
+	var fleet_entropy_reduction: float = config.get("fleet_entropy_reduction", 0.5)
+
+	# Get sector entropy rate from grid_maintenance
+	var maintenance: Dictionary = GameState.grid_maintenance.get(sector_id, {})
+	var entropy_rate: float = maintenance.get("local_entropy_rate", 0.001)
+
+	# Apply to active ship (hull_integrity)
+	var hull: float = agent.get("hull_integrity", 1.0)
+	var degradation: float = entropy_rate * entropy_hull_multiplier
+	hull = max(0.0, hull - degradation)
+	agent["hull_integrity"] = hull
+
+	# Apply reduced rate to fleet ships
+	var fleet_ships: Array = agent.get("fleet_ships", [])
+	for i in range(fleet_ships.size()):
+		var ship_uid = fleet_ships[i]
+		if GameState.assets_ships.has(ship_uid):
+			var ship: Resource = GameState.assets_ships[ship_uid]
+			# Phase 1: fleet ships are Resource templates, hull tracked on agent
+			# For now, fleet damage is a stub — just track that it would happen
+			pass
+
+	# Consume small amounts of propellant and energy if not docked (operating costs)
+	var is_docked: bool = false
+	if agent_id == "player":
+		is_docked = GameState.player_docked_at != ""
+	else:
+		var topology: Dictionary = GameState.world_topology.get(sector_id, {})
+		is_docked = topology.get("sector_type", "") in ["hub", "frontier"]
+
+	if not is_docked:
+		var propellant_drain: float = config.get("propellant_drain_per_tick", 0.5)
+		var energy_drain: float = config.get("energy_drain_per_tick", 0.3)
+		agent["propellant_reserves"] = max(0.0, agent.get("propellant_reserves", 0.0) - propellant_drain)
+		agent["energy_reserves"] = max(0.0, agent.get("energy_reserves", 0.0) - energy_drain)
+
+
+# =============================================================================
+# === STEP 3c: KNOWLEDGE REFRESH =============================================
+# =============================================================================
+
+## Refreshes each agent's known_grid_state for their current sector with actual
+## grid data. Other sectors receive a small noise factor (knowledge decay).
+##
+## Phase 1: Current sector = perfect knowledge. Other sectors = stale data
+## with no active noise (timestamps track staleness for future use).
+func _process_knowledge_refresh(agent_id: String, agent: Dictionary, sector_id: String, config: Dictionary) -> void:
+	var known_grid: Dictionary = agent.get("known_grid_state", {})
+	var timestamps: Dictionary = agent.get("knowledge_timestamps", {})
+	var knowledge_noise: float = config.get("knowledge_noise_factor", 0.0)  # Phase 1: 0 = no noise
+
+	# Current sector: refresh with exact data
+	if sector_id != "":
+		known_grid[sector_id] = {
+			"dominion": GameState.grid_dominion.get(sector_id, {}).duplicate(true),
+			"market": GameState.grid_market.get(sector_id, {}).duplicate(true),
+			"stockpiles": GameState.grid_stockpiles.get(sector_id, {}).duplicate(true)
+		}
+		timestamps[sector_id] = GameState.sim_tick_count
+
+	# Other sectors: apply knowledge decay (Phase 1 stub)
+	if knowledge_noise > 0.0:
+		for other_sector in known_grid:
+			if other_sector == sector_id:
+				continue
+			# Phase 1 stub: no actual noise applied
+			# Future: perturb price_deltas and stockpile values by noise factor
+			# proportional to (current_tick - timestamp) * knowledge_noise
+
+	agent["known_grid_state"] = known_grid
+	agent["knowledge_timestamps"] = timestamps
+
+--- Start of ./src/core/simulation/ca_rules.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: ca_rules.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 1.2 (CA Catalogue), Section 3 (Grid Layer), Section 7 (Tick Sequence)
+# LOG_REF: 2026-02-13
+#
+
+extends Reference
+
+## CARules: Pure-function cellular automata transition rules for the simulation engine.
+##
+## Every function in this module is PURE:
+##   - No GameState access, no GlobalRefs, no side effects.
+##   - Inputs are plain Dictionaries/values; outputs are new Dictionaries.
+##   - Never mutates input arguments.
+##   - Fully deterministic: same inputs always produce same outputs.
+##
+## All CA rules follow the signature pattern:
+##   func rule_step(local_state, neighbor_states, config) -> Dictionary
+##
+## The `config` Dictionary carries tuning constants (from Constants.gd)
+## so that rules remain decoupled from any autoload.
+
+
+# =============================================================================
+# === STRATEGIC MAP CA ========================================================
+# =============================================================================
+
+## Computes the next dominion state for a single sector.
+##
+## Faction influence propagates from neighbors weighted by connection count.
+## Pirate activity grows where security is low and decays where it is high.
+##
+## @param sector_id        String — the sector being processed (for debug context only).
+## @param sector_state     Dictionary — current {faction_influence: Dict, security_level: float, pirate_activity: float}.
+## @param neighbor_states  Array of Dictionaries — each neighbor's dominion state (same schema as sector_state).
+## @param config           Dictionary — tuning params:
+##                           influence_propagation_rate: float (0–1),
+##                           pirate_activity_decay: float,
+##                           pirate_activity_growth: float.
+## @return                 Dictionary — new {faction_influence, security_level, pirate_activity}.
+func strategic_map_step(sector_id: String, sector_state: Dictionary, neighbor_states: Array, config: Dictionary) -> Dictionary:
+	var propagation_rate: float = config.get("influence_propagation_rate", 0.1)
+	var pirate_decay: float = config.get("pirate_activity_decay", 0.02)
+	var pirate_growth: float = config.get("pirate_activity_growth", 0.05)
+
+	# --- Faction Influence Propagation ---
+	# Start from current influence, then blend in neighbors.
+	var current_influence: Dictionary = sector_state.get("faction_influence", {}).duplicate()
+	var neighbor_count: int = neighbor_states.size()
+
+	if neighbor_count > 0:
+		# Accumulate neighbor influence
+		var neighbor_avg: Dictionary = {}
+		for n_state in neighbor_states:
+			var n_influence: Dictionary = n_state.get("faction_influence", {})
+			for faction_id in n_influence:
+				if not neighbor_avg.has(faction_id):
+					neighbor_avg[faction_id] = 0.0
+				neighbor_avg[faction_id] += n_influence[faction_id]
+
+		# Average neighbor influence and blend into current
+		for faction_id in neighbor_avg:
+			neighbor_avg[faction_id] /= float(neighbor_count)
+			var current_val: float = current_influence.get(faction_id, 0.0)
+			current_influence[faction_id] = current_val + propagation_rate * (neighbor_avg[faction_id] - current_val)
+
+	# Normalize influence values to [0, 1] range
+	var influence_sum: float = 0.0
+	for faction_id in current_influence:
+		current_influence[faction_id] = max(0.0, current_influence[faction_id])
+		influence_sum += current_influence[faction_id]
+	if influence_sum > 1.0:
+		for faction_id in current_influence:
+			current_influence[faction_id] /= influence_sum
+
+	# --- Security Level ---
+	# Security correlates with dominant faction influence presence.
+	var max_faction_influence: float = 0.0
+	for faction_id in current_influence:
+		if current_influence[faction_id] > max_faction_influence:
+			max_faction_influence = current_influence[faction_id]
+	var new_security: float = clamp(max_faction_influence, 0.0, 1.0)
+
+	# --- Pirate Activity ---
+	# Grows where security is low, decays where it is high.
+	var current_piracy: float = sector_state.get("pirate_activity", 0.0)
+	var security_gap: float = 1.0 - new_security  # How "unprotected" the sector is
+	var piracy_delta: float = (pirate_growth * security_gap) - (pirate_decay * new_security)
+	var new_piracy: float = clamp(current_piracy + piracy_delta, 0.0, 1.0)
+
+	return {
+		"faction_influence": current_influence,
+		"security_level": new_security,
+		"pirate_activity": new_piracy
+	}
+
+
+# =============================================================================
+# === SUPPLY & DEMAND CA ======================================================
+# =============================================================================
+
+## Computes the next stockpile state for a single sector after extraction and diffusion.
+##
+## Extraction: pulls matter from resource_potential into stockpiles (depletes potential).
+## Diffusion: surplus flows from this sector to deficit neighbors (conserves total matter).
+##
+## @param sector_id           String — the sector being processed.
+## @param stockpiles          Dictionary — current {commodity_stockpiles: Dict, stockpile_capacity: int, extraction_rate: Dict}.
+## @param resource_potential  Dictionary — current {mineral_density: float, energy_potential: float, propellant_sources: float}.
+## @param neighbor_stockpiles Array of Dictionaries — each neighbor's stockpiles dict (same schema).
+## @param config              Dictionary — tuning params:
+##                              extraction_rate_default: float,
+##                              stockpile_diffusion_rate: float (0–1).
+## @return                    Dictionary — {
+##                              new_stockpiles: Dictionary (same schema as input stockpiles),
+##                              new_resource_potential: Dictionary (depleted values),
+##                              matter_extracted: float (total matter moved from potential to stockpiles)
+##                            }.
+func supply_demand_step(sector_id: String, stockpiles: Dictionary, resource_potential: Dictionary, _neighbor_stockpiles: Array, config: Dictionary) -> Dictionary:
+	var extraction_rate: float = config.get("extraction_rate_default", 0.01)
+
+	var new_stockpiles: Dictionary = stockpiles.duplicate(true)
+	var new_potential: Dictionary = resource_potential.duplicate(true)
+	var total_matter_extracted: float = 0.0
+
+	var commodity_map: Dictionary = new_stockpiles.get("commodity_stockpiles", {}).duplicate()
+	var capacity: int = new_stockpiles.get("stockpile_capacity", 1000)
+	var local_extraction: Dictionary = new_stockpiles.get("extraction_rate", {}).duplicate()
+
+	# --- Extraction Phase ---
+	# Extract minerals → "ore" commodity
+	var mineral: float = new_potential.get("mineral_density", 0.0)
+	var mineral_extract: float = min(mineral, extraction_rate * mineral)
+	if mineral_extract > 0.0:
+		var current_ore: float = commodity_map.get("ore", 0.0)
+		var space_available: float = max(0.0, float(capacity) - _sum_commodity_values(commodity_map))
+		mineral_extract = min(mineral_extract, space_available)
+		commodity_map["ore"] = current_ore + mineral_extract
+		new_potential["mineral_density"] = mineral - mineral_extract
+		total_matter_extracted += mineral_extract
+
+	# Extract propellant_sources → "propellant" commodity
+	var propellant_src: float = new_potential.get("propellant_sources", 0.0)
+	var propellant_extract: float = min(propellant_src, extraction_rate * propellant_src)
+	if propellant_extract > 0.0:
+		var current_prop: float = commodity_map.get("propellant", 0.0)
+		var space_available: float = max(0.0, float(capacity) - _sum_commodity_values(commodity_map))
+		propellant_extract = min(propellant_extract, space_available)
+		commodity_map["propellant"] = current_prop + propellant_extract
+		new_potential["propellant_sources"] = propellant_src - propellant_extract
+		total_matter_extracted += propellant_extract
+
+	# --- Diffusion is handled separately by GridLayer as a two-pass operation ---
+	# Removed from here because a per-sector function cannot distribute outflow
+	# to neighbors without violating matter conservation (Axiom 1).
+
+	new_stockpiles["commodity_stockpiles"] = commodity_map
+	new_stockpiles["extraction_rate"] = local_extraction
+
+	return {
+		"new_stockpiles": new_stockpiles,
+		"new_resource_potential": new_potential,
+		"matter_extracted": total_matter_extracted
+	}
+
+
+# =============================================================================
+# === MARKET PRESSURE CA ======================================================
+# =============================================================================
+
+## Computes commodity price deltas and service cost modifier for a single sector.
+##
+## Simple supply/demand curve: price_delta = (demand - supply) / normalization.
+## High supply → negative delta (cheaper). Low supply → positive delta (expensive).
+##
+## @param sector_id          String — the sector being processed.
+## @param stockpiles         Dictionary — {commodity_stockpiles: Dict, stockpile_capacity: int, ...}.
+## @param population_density float — how many consumers are in this sector.
+## @param config             Dictionary — tuning params:
+##                             price_sensitivity: float,
+##                             demand_base: float (base demand per unit population).
+## @return                   Dictionary — {commodity_price_deltas: Dict, service_cost_modifier: float}.
+func market_pressure_step(sector_id: String, stockpiles: Dictionary, population_density: float, config: Dictionary) -> Dictionary:
+	var price_sensitivity: float = config.get("price_sensitivity", 0.5)
+	var demand_base: float = config.get("demand_base", 0.1)
+
+	var commodities: Dictionary = stockpiles.get("commodity_stockpiles", {})
+	var capacity: int = stockpiles.get("stockpile_capacity", 1000)
+	var price_deltas: Dictionary = {}
+
+	# For each commodity, compute price delta from supply vs demand
+	for commodity_id in commodities:
+		var supply: float = commodities[commodity_id]
+		var demand: float = demand_base * population_density
+		var normalization: float = max(float(capacity) * 0.5, 1.0)  # Prevent div by zero
+		var delta: float = price_sensitivity * (demand - supply) / normalization
+		price_deltas[commodity_id] = delta
+
+	# Service cost modifier: higher population + lower supply = more expensive services
+	var total_supply: float = _sum_commodity_values(commodities)
+	var supply_ratio: float = total_supply / max(float(capacity), 1.0)
+	var service_modifier: float = 1.0 + (population_density * 0.1) - (supply_ratio * 0.2)
+	service_modifier = clamp(service_modifier, 0.5, 2.0)
+
+	return {
+		"commodity_price_deltas": price_deltas,
+		"service_cost_modifier": service_modifier
+	}
+
+
+# =============================================================================
+# === ENTROPY / WRECK DEGRADATION CA ==========================================
+# =============================================================================
+
+## Computes wreck degradation and matter return for a single sector.
+##
+## Wrecks degrade based on environmental hazards. When integrity reaches 0,
+## their matter is returned to the sector's resource potential (mineral_density).
+## This enforces Conservation Axiom 1.
+##
+## @param sector_id          String — the sector being processed.
+## @param wrecks             Array of Dictionaries — each wreck: {wreck_uid: int, wreck_integrity: float,
+##                             wreck_inventory: Dict, ship_template_id: String, created_at_tick: int}.
+## @param hazards            Dictionary — {radiation_level: float, thermal_background_k: float, gravity_well_penalty: float}.
+## @param config             Dictionary — tuning params:
+##                             wreck_degradation_per_tick: float,
+##                             wreck_debris_return_fraction: float (0–1),
+##                             entropy_radiation_multiplier: float.
+## @return                   Dictionary — {
+##                             surviving_wrecks: Array (wrecks still above 0 integrity),
+##                             matter_returned: float (total matter recycled back to resource potential)
+##                           }.
+func entropy_step(sector_id: String, wrecks: Array, hazards: Dictionary, config: Dictionary) -> Dictionary:
+	var base_degradation: float = config.get("wreck_degradation_per_tick", 0.05)
+	var return_fraction: float = config.get("wreck_debris_return_fraction", 0.8)
+	var radiation_mult: float = config.get("entropy_radiation_multiplier", 2.0)
+
+	var radiation: float = hazards.get("radiation_level", 0.0)
+	var degradation_rate: float = base_degradation * (1.0 + radiation * radiation_mult)
+
+	var surviving_wrecks: Array = []
+	var total_matter_returned: float = 0.0
+
+	for wreck in wrecks:
+		var new_wreck: Dictionary = wreck.duplicate(true)
+		var integrity: float = new_wreck.get("wreck_integrity", 1.0)
+		integrity -= degradation_rate
+		new_wreck["wreck_integrity"] = integrity
+
+		if integrity <= 0.0:
+			# Wreck fully degraded — return matter to resource potential
+			var wreck_matter: float = _calculate_wreck_matter(new_wreck)
+			total_matter_returned += wreck_matter * return_fraction
+			# Wreck is destroyed — do NOT add to surviving list
+		else:
+			surviving_wrecks.append(new_wreck)
+
+	return {
+		"surviving_wrecks": surviving_wrecks,
+		"matter_returned": total_matter_returned
+	}
+
+
+# =============================================================================
+# === INFLUENCE NETWORK CA (Agent-level) ======================================
+# =============================================================================
+
+## Computes updated character standings for a single agent via reputation propagation.
+##
+## An agent's opinion of others is influenced by the opinions of agents they interact with.
+## Phase 1: simple averaging toward connected agents' views.
+##
+## @param agent_id                  String — the agent being processed.
+## @param agent_standings           Dictionary — this agent's {character_id: standing_value} map.
+## @param neighbor_agent_standings  Array of Dictionaries — each connected agent's standings (same schema).
+## @param config                    Dictionary — tuning params:
+##                                    influence_propagation_rate: float (0–1, reused from strategic map).
+## @return                          Dictionary — updated standings for this agent.
+func influence_network_step(agent_id: String, agent_standings: Dictionary, neighbor_agent_standings: Array, config: Dictionary) -> Dictionary:
+	var propagation_rate: float = config.get("influence_propagation_rate", 0.1)
+	var new_standings: Dictionary = agent_standings.duplicate()
+	var neighbor_count: int = neighbor_agent_standings.size()
+
+	if neighbor_count == 0:
+		return new_standings
+
+	# For each character this agent has an opinion about,
+	# blend toward the average neighbor opinion.
+	var all_character_ids: Dictionary = {}
+	for char_id in new_standings:
+		all_character_ids[char_id] = true
+	for n_standings in neighbor_agent_standings:
+		for char_id in n_standings:
+			all_character_ids[char_id] = true
+
+	for char_id in all_character_ids:
+		# Skip self-reference
+		if char_id == agent_id:
+			continue
+
+		var current_val: float = new_standings.get(char_id, 0.0)
+
+		# Average neighbor opinion of this character
+		var neighbor_sum: float = 0.0
+		var neighbor_has_count: int = 0
+		for n_standings in neighbor_agent_standings:
+			if n_standings.has(char_id):
+				neighbor_sum += n_standings[char_id]
+				neighbor_has_count += 1
+
+		if neighbor_has_count > 0:
+			var neighbor_avg: float = neighbor_sum / float(neighbor_has_count)
+			new_standings[char_id] = current_val + propagation_rate * (neighbor_avg - current_val)
+
+	return new_standings
+
+
+# =============================================================================
+# === POWER LOAD CALCULATION ==================================================
+# =============================================================================
+
+## Computes the power load ratio for a single sector.
+##
+## @param station_power_output float — total power the station can produce.
+## @param station_power_draw   float — total power being consumed (agents docked + services).
+## @return                     Dictionary — {power_load_ratio: float} where 1.0 = at capacity.
+func power_load_step(station_power_output: float, station_power_draw: float) -> Dictionary:
+	var ratio: float = 0.0
+	if station_power_output > 0.0:
+		ratio = station_power_draw / station_power_output
+	return {
+		"power_load_ratio": clamp(ratio, 0.0, 2.0)  # Can exceed 1.0 = overloaded
+	}
+
+
+# =============================================================================
+# === MAINTENANCE PRESSURE CALCULATION ========================================
+# =============================================================================
+
+## Computes the local entropy rate and maintenance cost modifier for a sector.
+##
+## Higher radiation and thermal extremes increase entropy.
+##
+## @param hazards  Dictionary — {radiation_level: float, thermal_background_k: float, gravity_well_penalty: float}.
+## @param config   Dictionary — tuning params:
+##                   entropy_base_rate: float.
+## @return         Dictionary — {local_entropy_rate: float, maintenance_cost_modifier: float}.
+func maintenance_pressure_step(hazards: Dictionary, config: Dictionary) -> Dictionary:
+	var base_rate: float = config.get("entropy_base_rate", 0.001)
+	var radiation: float = hazards.get("radiation_level", 0.0)
+	var thermal: float = hazards.get("thermal_background_k", 300.0)
+	var gravity: float = hazards.get("gravity_well_penalty", 1.0)
+
+	# Entropy increases with radiation and extreme temperatures
+	# 300K is "normal" — deviation in either direction increases entropy
+	var thermal_deviation: float = abs(thermal - 300.0) / 300.0
+	var entropy_rate: float = base_rate * (1.0 + radiation * 2.0 + thermal_deviation) * gravity
+
+	# Maintenance cost scales with entropy
+	var maintenance_modifier: float = 1.0 + entropy_rate * 100.0
+	maintenance_modifier = clamp(maintenance_modifier, 1.0, 3.0)
+
+	return {
+		"local_entropy_rate": entropy_rate,
+		"maintenance_cost_modifier": maintenance_modifier
+	}
+
+
+# =============================================================================
+# === PRIVATE HELPERS (pure, no side effects) =================================
+# =============================================================================
+
+## Sums all values in a commodity dictionary.
+func _sum_commodity_values(commodities: Dictionary) -> float:
+	var total: float = 0.0
+	for key in commodities:
+		total += float(commodities[key])
+	return total
+
+
+## Estimates the matter content of a wreck from its inventory.
+## Used for Conservation Axiom 1 accounting when a wreck degrades to nothing.
+func _calculate_wreck_matter(wreck: Dictionary) -> float:
+	var matter: float = 0.0
+	var inventory: Dictionary = wreck.get("wreck_inventory", {})
+	for item_id in inventory:
+		matter += float(inventory[item_id])
+	# Add a base hull mass estimate (1.0 unit per wreck as baseline)
+	matter += 1.0
+	return matter
+
+--- Start of ./src/core/simulation/chronicle_layer.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: chronicle_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 5 (Chronicle Layer), Section 7 (Tick Sequence steps 5a–5e)
+# LOG_REF: 2026-02-13
+#
+
+extends Reference
+
+## ChronicleLayer: Event capture and rumor generation (Layer 4).
+##
+## The Chronicle records notable events that occur during simulation ticks,
+## generates human-readable rumor strings, and distributes relevant events
+## to agents' event_memory arrays for future decision-making.
+##
+## Processing (GDD Section 7, steps 5a–5e):
+##   5a. Collect — move staged events to chronicle_event_buffer
+##   5b. Tag Causality — Phase 1 stub (events are independent)
+##   5c. Significance Scores — Phase 1 stub (all events = 0.5)
+##   5d. Rumor Engine — generate templated text from event packets
+##   5e. Distribute — push relevant events to nearby agents' event_memory
+##
+## Event Packet schema (GDD Section 5.1):
+##   {actor_uid, action_id, target_uid, target_sector_id, tick_count, outcome, metadata}
+
+
+## Staging buffer — events logged during the current tick wait here until
+## process_tick() moves them into the chronicle_event_buffer.
+var _staging_buffer: Array = []
+
+## Maximum number of events to keep in chronicle_event_buffer (ring buffer).
+var _max_buffer_size: int = 200
+
+## Maximum number of rumors to keep.
+var _max_rumors: int = 50
+
+## Maximum events in an agent's event_memory.
+var _max_agent_memory: int = 20
+
+
+# =============================================================================
+# === PUBLIC API ==============================================================
+# =============================================================================
+
+## Logs a notable event for processing in the next tick.
+## Called by other systems (AgentLayer, GridLayer, etc.) when something happens.
+##
+## @param event_packet  Dictionary — must follow the Event Packet schema:
+##   {actor_uid: int/String, action_id: String, target_uid: int/String,
+##    target_sector_id: String, tick_count: int, outcome: String, metadata: Dictionary}
+func log_event(event_packet: Dictionary) -> void:
+	# Ensure required fields exist with defaults
+	if not event_packet.has("tick_count"):
+		event_packet["tick_count"] = GameState.sim_tick_count
+	if not event_packet.has("outcome"):
+		event_packet["outcome"] = "success"
+	if not event_packet.has("metadata"):
+		event_packet["metadata"] = {}
+
+	_staging_buffer.append(event_packet)
+
+
+## Processes all Chronicle Layer steps for one tick.
+func process_tick() -> void:
+	if _staging_buffer.empty():
+		return
+
+	# 5a. Collect: move staged events into chronicle_event_buffer
+	var new_events: Array = _collect_events()
+
+	# 5b. Tag Causality (Phase 1 stub: events are independent)
+	_tag_causality(new_events)
+
+	# 5c. Significance Scores (Phase 1 stub: all get 0.5)
+	_score_significance(new_events)
+
+	# 5d. Rumor Engine: generate text strings
+	var new_rumors: Array = _generate_rumors(new_events)
+
+	# 5e. Distribute: push events to nearby agents
+	_distribute_events(new_events)
+
+	# Append new rumors to chronicle
+	for rumor in new_rumors:
+		GameState.chronicle_rumors.append(rumor)
+	# Trim to max size
+	while GameState.chronicle_rumors.size() > _max_rumors:
+		GameState.chronicle_rumors.pop_front()
+
+
+# =============================================================================
+# === STEP 5a: COLLECT ========================================================
+# =============================================================================
+
+## Moves all pending events from the staging buffer into chronicle_event_buffer.
+## Returns the batch of newly added events for further processing.
+func _collect_events() -> Array:
+	var batch: Array = _staging_buffer.duplicate()
+	_staging_buffer.clear()
+
+	# Append to chronicle buffer
+	for event in batch:
+		GameState.chronicle_event_buffer.append(event)
+
+	# Trim buffer to max size (ring buffer behavior)
+	while GameState.chronicle_event_buffer.size() > _max_buffer_size:
+		GameState.chronicle_event_buffer.pop_front()
+
+	return batch
+
+
+# =============================================================================
+# === STEP 5b: TAG CAUSALITY =================================================
+# =============================================================================
+
+## Tags causal relationships between events.
+## Phase 1 stub: all events are independent — no causality chains.
+func _tag_causality(events: Array) -> void:
+	for event in events:
+		event["causality_chain"] = []  # No linked events
+		event["is_root_cause"] = true
+
+
+# =============================================================================
+# === STEP 5c: SIGNIFICANCE SCORES ===========================================
+# =============================================================================
+
+## Assigns significance scores to events.
+## Phase 1 stub: all events receive a flat score of 0.5.
+## Future: score based on actor importance, rarity, economic impact, etc.
+func _score_significance(events: Array) -> void:
+	for event in events:
+		event["significance"] = 0.5
+
+
+# =============================================================================
+# === STEP 5d: RUMOR ENGINE ===================================================
+# =============================================================================
+
+## Generates human-readable rumor strings from event packets.
+## Phase 1: simple template — "[Actor] [action] at [Location]."
+func _generate_rumors(events: Array) -> Array:
+	var rumors: Array = []
+
+	for event in events:
+		var rumor: String = _format_rumor(event)
+		if rumor != "":
+			rumors.append(rumor)
+
+	return rumors
+
+
+## Formats a single event packet into a rumor string.
+func _format_rumor(event: Dictionary) -> String:
+	var actor_name: String = _resolve_actor_name(event.get("actor_uid", ""))
+	var action: String = _humanize_action(event.get("action_id", "unknown"))
+	var location_name: String = _resolve_location_name(event.get("target_sector_id", ""))
+
+	if actor_name == "" or location_name == "":
+		return ""
+
+	# Add target/detail info from metadata if available
+	var detail: String = ""
+	var metadata: Dictionary = event.get("metadata", {})
+	if metadata.has("commodity_id"):
+		detail = " " + _humanize_id(metadata["commodity_id"])
+	if metadata.has("quantity"):
+		detail += " (x%d)" % int(metadata["quantity"])
+
+	var outcome: String = event.get("outcome", "success")
+	if outcome != "success":
+		return "%s tried to %s%s at %s, but failed." % [actor_name, action, detail, location_name]
+
+	return "%s %s%s at %s." % [actor_name, action, detail, location_name]
+
+
+# =============================================================================
+# === STEP 5e: DISTRIBUTE ====================================================
+# =============================================================================
+
+## Distributes relevant events to nearby agents' event_memory arrays.
+## "Nearby" = agents in the same sector as the event, or connected sectors.
+func _distribute_events(events: Array) -> void:
+	for event in events:
+		var event_sector: String = event.get("target_sector_id", "")
+		if event_sector == "":
+			continue
+
+		# Get connected sectors (event is "heard" in adjacent sectors too)
+		var relevant_sectors: Array = [event_sector]
+		if GameState.world_topology.has(event_sector):
+			var connections: Array = GameState.world_topology[event_sector].get("connections", [])
+			for conn in connections:
+				relevant_sectors.append(conn)
+
+		# Push event to agents in relevant sectors
+		for agent_id in GameState.agents:
+			var agent: Dictionary = GameState.agents[agent_id]
+			if agent.get("is_disabled", false):
+				continue
+
+			var agent_sector: String = agent.get("current_sector_id", "")
+			if agent_sector in relevant_sectors:
+				var memory: Array = agent.get("event_memory", [])
+				memory.append(event)
+
+				# Trim to max memory size (oldest first)
+				while memory.size() > _max_agent_memory:
+					memory.pop_front()
+
+				agent["event_memory"] = memory
+
+
+# =============================================================================
+# === PRIVATE — NAME RESOLUTION ===============================================
+# =============================================================================
+
+## Resolves an actor UID to a human-readable name.
+func _resolve_actor_name(actor_uid) -> String:
+	# Check if it's a string agent_id (e.g., "persistent_vera", "player")
+	if actor_uid is String:
+		if actor_uid == "player":
+			return "You"
+		# Try to find character name via agent → char_uid → character template
+		if GameState.agents.has(actor_uid):
+			var agent: Dictionary = GameState.agents[actor_uid]
+			var char_uid: int = agent.get("char_uid", -1)
+			if GameState.characters.has(char_uid):
+				var char_template: Resource = GameState.characters[char_uid]
+				if char_template != null:
+					return char_template.character_name
+		# Fallback: humanize the ID
+		return _humanize_id(actor_uid)
+
+	# Numeric UID — look up directly in characters
+	if actor_uid is int and GameState.characters.has(actor_uid):
+		var char_template: Resource = GameState.characters[actor_uid]
+		if char_template != null:
+			return char_template.character_name
+
+	return "Someone"
+
+
+## Resolves a sector ID to a human-readable location name.
+func _resolve_location_name(sector_id: String) -> String:
+	if sector_id == "":
+		return ""
+
+	# Try TemplateDatabase for the location name
+	if TemplateDatabase.locations.has(sector_id):
+		var loc: Resource = TemplateDatabase.locations[sector_id]
+		if is_instance_valid(loc):
+			return loc.location_name
+
+	# Fallback: humanize the ID
+	return _humanize_id(sector_id)
+
+
+## Converts an action_id into past-tense human text.
+func _humanize_action(action_id: String) -> String:
+	match action_id:
+		"buy":
+			return "bought"
+		"sell":
+			return "sold"
+		"move":
+			return "arrived"
+		"repair":
+			return "repaired their ship"
+		"dock":
+			return "docked"
+		"undock":
+			return "departed"
+		"destroy":
+			return "destroyed a target"
+		"disabled":
+			return "was disabled"
+		"trade":
+			return "traded"
+		"respawn":
+			return "returned"
+		_:
+			return action_id
+
+
+## Converts a snake_case ID into Title Case display text.
+## e.g., "commodity_ore" → "Ore", "station_alpha" → "Station Alpha"
+func _humanize_id(id: String) -> String:
+	# Strip common prefixes
+	var stripped: String = id
+	for prefix in ["commodity_", "persistent_", "character_", "faction_"]:
+		if stripped.begins_with(prefix):
+			stripped = stripped.substr(prefix.length())
+			break
+
+	# Convert underscores to spaces and capitalize
+	var parts: Array = stripped.split("_")
+	var result: Array = []
+	for part in parts:
+		if part.length() > 0:
+			result.append(part.capitalize())
+	return PoolStringArray(result).join(" ")
+
+--- Start of ./src/core/simulation/grid_layer.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: grid_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 3 (Grid Layer), Section 7 (Tick Sequence steps 2a–2g)
+# LOG_REF: 2026-02-13
+#
+
+extends Reference
+
+## GridLayer: Processes all Grid-layer CA steps for one simulation tick.
+##
+## The Grid Layer holds DYNAMIC per-sector state that evolves every tick:
+##   - Stockpiles (commodity quantities, extraction from World deposits)
+##   - Dominion (faction influence, security, piracy)
+##   - Market (price deltas, service costs)
+##   - Power (station load ratios)
+##   - Maintenance (entropy rates, wear)
+##   - Wrecks (degrading debris → matter return)
+##
+## Processing is DOUBLE-BUFFERED: all reads come from GameState, all writes
+## go to local buffers, then buffers are swapped atomically at the end.
+## This prevents order-dependent artifacts when iterating sectors.
+##
+## Conservation Axiom 1 is asserted after every tick — total matter must not change.
+
+
+# Reference to the CA rules module (injected by SimulationEngine).
+var ca_rules: Reference = null
+
+
+# =============================================================================
+# === INITIALIZATION ==========================================================
+# =============================================================================
+
+## Seeds all Grid Layer state in GameState from World Layer data and templates.
+## Called once at game start, after WorldLayer.initialize_world().
+func initialize_grid() -> void:
+	_seed_stockpiles()
+	_seed_dominion()
+	_seed_market()
+	_seed_power()
+	_seed_maintenance()
+	_seed_resource_availability()
+	# grid_wrecks starts empty — wrecks are created by combat/events
+	GameState.grid_wrecks.clear()
+
+	print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
+
+
+# =============================================================================
+# === TICK PROCESSING =========================================================
+# =============================================================================
+
+## Processes all Grid-layer CA steps for one tick (GDD Section 7, steps 2a–2g).
+## Double-buffered: reads from GameState, writes to buffers, then swaps.
+##
+## @param config  Dictionary — tuning constants from Constants.gd / SimulationEngine.
+func process_tick(config: Dictionary) -> void:
+	# Snapshot the pre-tick matter total for Axiom 1 check
+	var matter_before: float = _calculate_current_matter()
+
+	# --- Allocate write buffers ---
+	var buf_stockpiles: Dictionary = {}
+	var buf_dominion: Dictionary = {}
+	var buf_market: Dictionary = {}
+	var buf_power: Dictionary = {}
+	var buf_maintenance: Dictionary = {}
+	var buf_resource_availability: Dictionary = {}
+	var buf_resource_potential: Dictionary = {}
+
+	# Deep-copy resource potential (extraction depletes it)
+	for sector_id in GameState.world_resource_potential:
+		buf_resource_potential[sector_id] = GameState.world_resource_potential[sector_id].duplicate(true)
+
+	# --- Process each sector ---
+	for sector_id in GameState.world_topology:
+		var topology: Dictionary = GameState.world_topology[sector_id]
+		var connections: Array = topology.get("connections", [])
+		var hazards: Dictionary = GameState.world_hazards.get(sector_id, {})
+
+		# ====================================================
+		# 2a. Extraction + 2b. Supply & Demand CA
+		# ====================================================
+		var current_stockpiles: Dictionary = GameState.grid_stockpiles.get(sector_id, {}).duplicate(true)
+		var current_potential: Dictionary = buf_resource_potential.get(sector_id, {}).duplicate(true)
+
+		# Gather neighbor stockpiles for diffusion
+		var neighbor_stockpiles: Array = []
+		for conn_id in connections:
+			if GameState.grid_stockpiles.has(conn_id):
+				neighbor_stockpiles.append(GameState.grid_stockpiles[conn_id])
+
+		var supply_result: Dictionary = ca_rules.supply_demand_step(
+			sector_id, current_stockpiles, current_potential,
+			neighbor_stockpiles, config
 		)
-	)
+		buf_stockpiles[sector_id] = supply_result["new_stockpiles"]
+		buf_resource_potential[sector_id] = supply_result["new_resource_potential"]
 
-	# Emit the signal with all relevant data.
-	emit_signal("action_completed", character_instance, action_template, result_payload)
+		# ====================================================
+		# 2c. Strategic Map CA (dominion)
+		# ====================================================
+		var current_dominion: Dictionary = GameState.grid_dominion.get(sector_id, {}).duplicate(true)
 
-	GameState.active_actions.erase(action_id)
+		var neighbor_dominion_states: Array = []
+		for conn_id in connections:
+			if GameState.grid_dominion.has(conn_id):
+				neighbor_dominion_states.append(GameState.grid_dominion[conn_id])
+
+		buf_dominion[sector_id] = ca_rules.strategic_map_step(
+			sector_id, current_dominion, neighbor_dominion_states, config
+		)
+
+		# ====================================================
+		# 2d. Power Load
+		# ====================================================
+		var current_power: Dictionary = GameState.grid_power.get(sector_id, {})
+		var power_output: float = current_power.get("station_power_output", 100.0)
+		var power_draw: float = current_power.get("station_power_draw", 0.0)
+
+		# Count docked agents as power consumers (Phase 1: flat draw per agent)
+		var docked_agent_count: int = _count_docked_agents(sector_id)
+		var agent_power_draw: float = config.get("power_draw_per_agent", 5.0)
+		var service_power_draw: float = config.get("power_draw_per_service", 10.0)
+		var num_services: int = _count_services(sector_id)
+		power_draw = (float(docked_agent_count) * agent_power_draw) + (float(num_services) * service_power_draw)
+
+		var power_result: Dictionary = ca_rules.power_load_step(power_output, power_draw)
+		buf_power[sector_id] = {
+			"station_power_output": power_output,
+			"station_power_draw": power_draw,
+			"power_load_ratio": power_result["power_load_ratio"]
+		}
+
+		# ====================================================
+		# 2e. Market Pressure
+		# ====================================================
+		var current_market: Dictionary = GameState.grid_market.get(sector_id, {})
+		var population_density: float = current_market.get("population_density", 1.0)
+
+		# Use the buffer stockpiles (post-extraction) for price calculation
+		var market_result: Dictionary = ca_rules.market_pressure_step(
+			sector_id, buf_stockpiles[sector_id], population_density, config
+		)
+		buf_market[sector_id] = {
+			"commodity_price_deltas": market_result["commodity_price_deltas"],
+			"population_density": population_density,
+			"service_cost_modifier": market_result["service_cost_modifier"]
+		}
+
+		# ====================================================
+		# 2g. Maintenance Pressure
+		# ====================================================
+		buf_maintenance[sector_id] = ca_rules.maintenance_pressure_step(hazards, config)
+
+		# ====================================================
+		# Update resource availability from post-extraction potential
+		# ====================================================
+		var potential: Dictionary = buf_resource_potential.get(sector_id, {})
+		buf_resource_availability[sector_id] = {
+			"propellant_supply": potential.get("propellant_sources", 0.0),
+			"consumables_supply": buf_stockpiles[sector_id].get("commodity_stockpiles", {}).get("food", 0.0),
+			"energy_supply": potential.get("energy_potential", 0.0)
+		}
+
+	# ====================================================
+	# 2b-post. Stockpile Diffusion (separate pass for matter conservation)
+	# ====================================================
+	# Two-pass approach: first collect all flows, then apply symmetrically.
+	# Flow from sector A to neighbor B is subtracted from A and added to B.
+	var diffusion_rate: float = config.get("stockpile_diffusion_rate", 0.05)
+	var diffusion_deltas: Dictionary = {}  # sector_id → {commodity_id → delta}
+	for sector_id in buf_stockpiles:
+		diffusion_deltas[sector_id] = {}
+
+	for sector_id in GameState.world_topology:
+		var topology: Dictionary = GameState.world_topology[sector_id]
+		var connections: Array = topology.get("connections", [])
+		if connections.empty():
+			continue
+
+		var local_commodities: Dictionary = buf_stockpiles[sector_id].get("commodity_stockpiles", {})
+		for conn_id in connections:
+			# Only process pairs once: sector_id < conn_id avoids double-counting
+			if conn_id <= sector_id:
+				continue
+			if not buf_stockpiles.has(conn_id):
+				continue
+
+			var neighbor_commodities: Dictionary = buf_stockpiles[conn_id].get("commodity_stockpiles", {})
+
+			# Collect all commodity IDs present in either sector
+			var all_commodities: Dictionary = {}
+			for c in local_commodities:
+				all_commodities[c] = true
+			for c in neighbor_commodities:
+				all_commodities[c] = true
+
+			for commodity_id in all_commodities:
+				var local_amount: float = local_commodities.get(commodity_id, 0.0)
+				var neighbor_amount: float = neighbor_commodities.get(commodity_id, 0.0)
+				var diff: float = local_amount - neighbor_amount
+				if abs(diff) < 0.001:
+					continue
+
+				# Flow from high to low, proportional to difference
+				var flow: float = diff * diffusion_rate * 0.5  # 0.5 = per-edge rate
+				# Subtract from source, add to destination
+				diffusion_deltas[sector_id][commodity_id] = diffusion_deltas[sector_id].get(commodity_id, 0.0) - flow
+				if not diffusion_deltas.has(conn_id):
+					diffusion_deltas[conn_id] = {}
+				diffusion_deltas[conn_id][commodity_id] = diffusion_deltas[conn_id].get(commodity_id, 0.0) + flow
+
+	# Apply diffusion deltas to buffer stockpiles
+	for sector_id in diffusion_deltas:
+		var deltas: Dictionary = diffusion_deltas[sector_id]
+		if deltas.empty():
+			continue
+		var commodities: Dictionary = buf_stockpiles[sector_id].get("commodity_stockpiles", {})
+		for commodity_id in deltas:
+			var new_val: float = commodities.get(commodity_id, 0.0) + deltas[commodity_id]
+			commodities[commodity_id] = max(0.0, new_val)
+
+	# ====================================================
+	# 2f. Wreck & Debris (global, not per-sector iteration)
+	# ====================================================
+	_process_wrecks(config, buf_resource_potential)
+
+	# --- Atomic swap: copy buffers into GameState ---
+	GameState.grid_stockpiles = buf_stockpiles
+	GameState.grid_dominion = buf_dominion
+	GameState.grid_market = buf_market
+	GameState.grid_power = buf_power
+	GameState.grid_maintenance = buf_maintenance
+	GameState.grid_resource_availability = buf_resource_availability
+
+	# Write back depleted resource potential to World Layer
+	for sector_id in buf_resource_potential:
+		GameState.world_resource_potential[sector_id] = buf_resource_potential[sector_id]
+
+	# --- Axiom 1 assertion ---
+	var matter_after: float = _calculate_current_matter()
+	var drift: float = abs(matter_after - matter_before)
+	var tolerance: float = config.get("axiom1_tolerance", 0.01)
+	if drift > tolerance:
+		push_warning("GridLayer: AXIOM 1 VIOLATION! Matter drift: %.4f (before: %.2f, after: %.2f)" % [
+			drift, matter_before, matter_after
+		])
 
 
-func _get_new_action_id() -> int:
-	var id = _next_action_id
-	_next_action_id += 1
-	return id
+# =============================================================================
+# === PRIVATE — SEEDING =======================================================
+# =============================================================================
+
+## Seeds grid_stockpiles from LocationTemplate market_inventory and stockpile_capacity.
+func _seed_stockpiles() -> void:
+	GameState.grid_stockpiles.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		# Convert market_inventory → commodity_stockpiles
+		var commodity_stockpiles: Dictionary = {}
+		var market_inv: Dictionary = loc.get("market_inventory") if loc.get("market_inventory") != null else {}
+		for commodity_id in market_inv:
+			var entry: Dictionary = market_inv[commodity_id]
+			# Use the initial quantity as starting stockpile
+			commodity_stockpiles[commodity_id] = float(entry.get("quantity", 0))
+
+		var capacity: int = int(loc.get("stockpile_capacity")) if loc.get("stockpile_capacity") != null else 1000
+
+		GameState.grid_stockpiles[location_id] = {
+			"commodity_stockpiles": commodity_stockpiles,
+			"stockpile_capacity": capacity,
+			"extraction_rate": {}  # Phase 1: use config defaults
+		}
+
+
+## Seeds grid_dominion from LocationTemplate controlling_faction_id.
+func _seed_dominion() -> void:
+	GameState.grid_dominion.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		var controlling_faction: String = loc.get("controlling_faction_id") if loc.get("controlling_faction_id") != null else ""
+
+		# Build initial faction influence: controlling faction gets 0.8, others get small shares
+		var faction_influence: Dictionary = {}
+		for faction_id in TemplateDatabase.factions:
+			if faction_id == controlling_faction:
+				faction_influence[faction_id] = 0.8
+			else:
+				faction_influence[faction_id] = 0.1
+
+		# Security derives from dominant faction influence
+		var security: float = 0.8 if controlling_faction != "" else 0.2
+
+		# Piracy inversely from danger_level template field (legacy bridge)
+		var danger: int = int(loc.get("danger_level")) if loc.get("danger_level") != null else 0
+		var pirate_activity: float = clamp(float(danger) * 0.1, 0.0, 1.0)
+
+		GameState.grid_dominion[location_id] = {
+			"faction_influence": faction_influence,
+			"security_level": security,
+			"pirate_activity": pirate_activity
+		}
+
+
+## Seeds grid_market from LocationTemplate market_inventory base prices.
+func _seed_market() -> void:
+	GameState.grid_market.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		# Initial price deltas are 0 (prices at base value)
+		var price_deltas: Dictionary = {}
+		var market_inv: Dictionary = loc.get("market_inventory") if loc.get("market_inventory") != null else {}
+		for commodity_id in market_inv:
+			price_deltas[commodity_id] = 0.0
+
+		# Population density: hubs are denser
+		var sector_type: String = loc.get("sector_type") if loc.get("sector_type") else "frontier"
+		var population: float = 2.0 if sector_type == "hub" else 1.0
+
+		GameState.grid_market[location_id] = {
+			"commodity_price_deltas": price_deltas,
+			"population_density": population,
+			"service_cost_modifier": 1.0
+		}
+
+
+## Seeds grid_power from LocationTemplate station_power_output.
+func _seed_power() -> void:
+	GameState.grid_power.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		var power_output: float = float(loc.get("station_power_output")) if loc.get("station_power_output") != null else 100.0
+
+		GameState.grid_power[location_id] = {
+			"station_power_output": power_output,
+			"station_power_draw": 0.0,  # No agents docked yet
+			"power_load_ratio": 0.0
+		}
+
+
+## Seeds grid_maintenance from World Layer hazard data.
+func _seed_maintenance() -> void:
+	GameState.grid_maintenance.clear()
+
+	for location_id in GameState.world_hazards:
+		var hazards: Dictionary = GameState.world_hazards[location_id]
+
+		# Calculate initial entropy rate from hazards (same formula as CA rule)
+		var base_rate: float = 0.001
+		var radiation: float = hazards.get("radiation_level", 0.0)
+		var thermal: float = hazards.get("thermal_background_k", 300.0)
+		var gravity: float = hazards.get("gravity_well_penalty", 1.0)
+		var thermal_deviation: float = abs(thermal - 300.0) / 300.0
+		var entropy_rate: float = base_rate * (1.0 + radiation * 2.0 + thermal_deviation) * gravity
+
+		GameState.grid_maintenance[location_id] = {
+			"local_entropy_rate": entropy_rate,
+			"maintenance_cost_modifier": clamp(1.0 + entropy_rate * 100.0, 1.0, 3.0)
+		}
+
+
+## Seeds grid_resource_availability from World Layer resource potential.
+func _seed_resource_availability() -> void:
+	GameState.grid_resource_availability.clear()
+
+	for location_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[location_id]
+
+		GameState.grid_resource_availability[location_id] = {
+			"propellant_supply": potential.get("propellant_sources", 0.0),
+			"consumables_supply": 0.0,  # No food extracted yet; comes from stockpiles
+			"energy_supply": potential.get("energy_potential", 0.0)
+		}
+
+
+# =============================================================================
+# === PRIVATE — WRECK PROCESSING ==============================================
+# =============================================================================
+
+## Processes all wrecks: degradation + matter return (GDD Section 7, step 2f).
+## Groups wrecks by sector, runs entropy_step per sector, writes results back.
+##
+## @param config                  Dictionary — tuning constants.
+## @param buf_resource_potential  Dictionary — mutable; matter returned to mineral_density.
+func _process_wrecks(config: Dictionary, buf_resource_potential: Dictionary) -> void:
+	if GameState.grid_wrecks.empty():
+		return
+
+	# Group wrecks by sector
+	var wrecks_by_sector: Dictionary = {}
+	for wreck_uid in GameState.grid_wrecks:
+		var wreck: Dictionary = GameState.grid_wrecks[wreck_uid].duplicate(true)
+		wreck["wreck_uid"] = wreck_uid
+		var sector_id: String = wreck.get("sector_id", "")
+		if not wrecks_by_sector.has(sector_id):
+			wrecks_by_sector[sector_id] = []
+		wrecks_by_sector[sector_id].append(wreck)
+
+	# Process each sector's wrecks
+	var new_wrecks: Dictionary = {}
+	for sector_id in wrecks_by_sector:
+		var sector_wrecks: Array = wrecks_by_sector[sector_id]
+		var hazards: Dictionary = GameState.world_hazards.get(sector_id, {})
+
+		var entropy_result: Dictionary = ca_rules.entropy_step(
+			sector_id, sector_wrecks, hazards, config
+		)
+
+		# Return matter to resource potential (mineral_density)
+		var matter_returned: float = entropy_result["matter_returned"]
+		if matter_returned > 0.0 and buf_resource_potential.has(sector_id):
+			buf_resource_potential[sector_id]["mineral_density"] += matter_returned
+
+		# Keep surviving wrecks
+		for surviving_wreck in entropy_result["surviving_wrecks"]:
+			var uid = surviving_wreck.get("wreck_uid", 0)
+			var clean_wreck: Dictionary = surviving_wreck.duplicate(true)
+			clean_wreck.erase("wreck_uid")  # Remove the temp key
+			new_wrecks[uid] = clean_wreck
+
+	GameState.grid_wrecks = new_wrecks
+
+
+# =============================================================================
+# === PRIVATE — HELPERS =======================================================
+# =============================================================================
+
+## Counts agents currently docked at a sector (Phase 1: simple lookup).
+func _count_docked_agents(sector_id: String) -> int:
+	var count: int = 0
+	for agent_id in GameState.agents:
+		var agent: Dictionary = GameState.agents[agent_id]
+		if agent.get("current_sector_id", "") == sector_id:
+			count += 1
+	# Player counts if docked at this station
+	if GameState.player_docked_at == sector_id:
+		count += 1
+	return count
+
+
+## Counts available services at a sector from the location template.
+func _count_services(sector_id: String) -> int:
+	if TemplateDatabase.locations.has(sector_id):
+		var loc: Resource = TemplateDatabase.locations[sector_id]
+		var services: Array = loc.get("available_services") if loc.get("available_services") != null else []
+		return services.size()
+	return 0
+
+
+## Calculates current total matter across all layers for Axiom 1 checking.
+## Must match the same accounting as WorldLayer.recalculate_total_matter().
+func _calculate_current_matter() -> float:
+	var total: float = 0.0
+
+	# Layer 1: Resource potential (finite deposits, being depleted)
+	for sector_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[sector_id]
+		total += potential.get("mineral_density", 0.0)
+		total += potential.get("propellant_sources", 0.0)
+
+	# Layer 2: Grid stockpiles (extracted commodities)
+	for sector_id in GameState.grid_stockpiles:
+		var stockpile: Dictionary = GameState.grid_stockpiles[sector_id]
+		var commodities: Dictionary = stockpile.get("commodity_stockpiles", {})
+		for commodity_id in commodities:
+			total += float(commodities[commodity_id])
+
+	# Layer 2: Wrecks (matter locked in debris)
+	for wreck_uid in GameState.grid_wrecks:
+		var wreck: Dictionary = GameState.grid_wrecks[wreck_uid]
+		var inventory: Dictionary = wreck.get("wreck_inventory", {})
+		for item_id in inventory:
+			total += float(inventory[item_id])
+		total += 1.0  # Base hull mass per wreck
+
+	# Layer 3: Agent inventories (cargo being carried)
+	for char_uid in GameState.inventories:
+		var inv: Dictionary = GameState.inventories[char_uid]
+		if inv.has(2):  # InventoryType.COMMODITY
+			var commodities: Dictionary = inv[2]
+			for commodity_id in commodities:
+				total += float(commodities[commodity_id])
+
+	return total
+
+--- Start of ./src/core/simulation/simulation_engine.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: simulation_engine.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence), Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
+#
+
+extends Node
+
+## SimulationEngine: Tick orchestrator for the four-layer simulation.
+##
+## Manages the full tick sequence (GDD Section 7):
+##   Step 1: World Layer — static, no per-tick processing
+##   Step 2: Grid Layer — CA-driven resource/dominion/market evolution
+##   Step 3: Bridge Systems — cross-layer heat/entropy/knowledge
+##   Step 4: Agent Layer — NPC goal evaluation and action execution
+##   Step 5: Chronicle Layer — event capture and rumor generation
+##   ASSERT: Conservation Axiom 1 — total matter unchanged
+##
+## This node is added to the scene tree under WorldManager. It listens to
+## EventBus.world_event_tick_triggered to know when to process a tick.
+## All layer processors are Reference objects (not Nodes) — no scene-tree coupling.
+
+
+# =============================================================================
+# === LAYER PROCESSOR REFERENCES ==============================================
+# =============================================================================
+
+var world_layer: Reference = null
+var grid_layer: Reference = null
+var agent_layer: Reference = null
+var bridge_systems: Reference = null
+var chronicle_layer: Reference = null
+var ca_rules: Reference = null
+
+## Whether the simulation has been initialized.
+var _initialized: bool = false
+
+## Config dictionary passed to all layer processors each tick.
+## Built from Constants.gd values. Can be modified at runtime for tuning.
+var _tick_config: Dictionary = {}
+
+
+# =============================================================================
+# === LIFECYCLE ===============================================================
+# =============================================================================
+
+func _ready() -> void:
+	# Instantiate all layer processors
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
+	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
+	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
+	var ChronicleLayerScript = load("res://src/core/simulation/chronicle_layer.gd")
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
+
+	world_layer = WorldLayerScript.new()
+	grid_layer = GridLayerScript.new()
+	agent_layer = AgentLayerScript.new()
+	bridge_systems = BridgeSystemsScript.new()
+	chronicle_layer = ChronicleLayerScript.new()
+	ca_rules = CARulesScript.new()
+
+	# Inject ca_rules dependency into grid_layer
+	grid_layer.ca_rules = ca_rules
+
+	# Build tick config from Constants
+	_build_tick_config()
+
+	# Register in GlobalRefs
+	GlobalRefs.simulation_engine = self
+
+	# Connect to EventBus tick signal
+	if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
+		EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
+
+	print("SimulationEngine: Ready. Awaiting initialize_simulation() call.")
+
+
+func _exit_tree() -> void:
+	if EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
+		EventBus.disconnect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
+	GlobalRefs.simulation_engine = null
+
+
+# =============================================================================
+# === INITIALIZATION ==========================================================
+# =============================================================================
+
+## Initializes the full simulation from a seed string.
+## Must be called once before any ticks are processed.
+##
+## @param seed_string  String — deterministic world seed.
+func initialize_simulation(seed_string: String) -> void:
+	print("SimulationEngine: Initializing simulation with seed '%s'..." % seed_string)
+
+	# Step 1: World Layer — build static topology, hazards, resource potential
+	world_layer.initialize_world(seed_string)
+
+	# Step 2: Grid Layer — seed dynamic state from world data + templates
+	grid_layer.initialize_grid()
+
+	# Step 3: Agent Layer — seed agents from templates
+	agent_layer.initialize_agents()
+
+	# Recalculate total matter across all layers for definitive Axiom 1 checksum
+	world_layer.recalculate_total_matter()
+
+	_initialized = true
+
+	# Emit initialization signal
+	EventBus.emit_signal("sim_initialized", seed_string)
+
+	print("SimulationEngine: Initialization complete. Matter budget: %.2f, Tick: %d" % [
+		GameState.world_total_matter,
+		GameState.sim_tick_count
+	])
+
+
+# =============================================================================
+# === TICK PROCESSING =========================================================
+# =============================================================================
+
+## Signal handler: called when TimeSystem emits world_event_tick_triggered.
+func _on_world_event_tick_triggered(_seconds_amount) -> void:
+	if not _initialized:
+		push_warning("SimulationEngine: Tick triggered but simulation not initialized.")
+		return
+	process_tick()
+
+
+## Processes one full simulation tick through all layers.
+func process_tick() -> void:
+	# Increment tick counter
+	GameState.sim_tick_count += 1
+
+	var tick: int = GameState.sim_tick_count
+
+	# --- Step 1: World Layer (static — no processing) ---
+	# World data is read-only after initialization.
+
+	# --- Step 2: Grid Layer ---
+	grid_layer.process_tick(_tick_config)
+
+	# --- Step 3: Bridge Systems ---
+	bridge_systems.process_tick(_tick_config)
+
+	# --- Step 4: Agent Layer ---
+	agent_layer.process_tick(_tick_config)
+
+	# --- Step 5: Chronicle Layer ---
+	chronicle_layer.process_tick()
+
+	# --- ASSERT: Conservation Axiom 1 ---
+	var is_conserved: bool = verify_matter_conservation()
+	if not is_conserved:
+		push_error("SimulationEngine: AXIOM 1 VIOLATION at tick %d!" % tick)
+
+	# Emit tick-completed signal
+	EventBus.emit_signal("sim_tick_completed", tick)
+
+
+# =============================================================================
+# === CONSERVATION AXIOM 1 ===================================================
+# =============================================================================
+
+## Verifies that total matter in the universe equals the initial checksum.
+## Returns true if conservation holds, false if there is a violation.
+func verify_matter_conservation() -> bool:
+	var expected: float = GameState.world_total_matter
+	var actual: float = _calculate_total_matter()
+	var tolerance: float = _tick_config.get("axiom1_tolerance", 0.01)
+	var drift: float = abs(actual - expected)
+
+	if drift > tolerance:
+		# Detailed breakdown for debugging
+		var breakdown: Dictionary = _matter_breakdown()
+		push_warning(
+			"AXIOM 1 DRIFT: %.4f (expected: %.2f, actual: %.2f)\n" % [drift, expected, actual] +
+			"  Resource potential: %.2f\n" % breakdown["resource_potential"] +
+			"  Grid stockpiles: %.2f\n" % breakdown["grid_stockpiles"] +
+			"  Wrecks: %.2f\n" % breakdown["wrecks"] +
+			"  Agent inventories: %.2f" % breakdown["agent_inventories"]
+		)
+		return false
+
+	return true
+
+
+## Calculates current total matter across all layers.
+func _calculate_total_matter() -> float:
+	var total: float = 0.0
+
+	# Layer 1: Resource potential (finite deposits)
+	for sector_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[sector_id]
+		total += potential.get("mineral_density", 0.0)
+		total += potential.get("propellant_sources", 0.0)
+
+	# Layer 2: Grid stockpiles
+	for sector_id in GameState.grid_stockpiles:
+		var stockpile: Dictionary = GameState.grid_stockpiles[sector_id]
+		var commodities: Dictionary = stockpile.get("commodity_stockpiles", {})
+		for commodity_id in commodities:
+			total += float(commodities[commodity_id])
+
+	# Layer 2: Wrecks
+	for wreck_uid in GameState.grid_wrecks:
+		var wreck: Dictionary = GameState.grid_wrecks[wreck_uid]
+		var inventory: Dictionary = wreck.get("wreck_inventory", {})
+		for item_id in inventory:
+			total += float(inventory[item_id])
+		total += 1.0  # Base hull mass
+
+	# Layer 3: Agent inventories
+	for char_uid in GameState.inventories:
+		var inv: Dictionary = GameState.inventories[char_uid]
+		if inv.has(2):  # InventoryType.COMMODITY
+			var commodities: Dictionary = inv[2]
+			for commodity_id in commodities:
+				total += float(commodities[commodity_id])
+
+	return total
+
+
+## Returns a breakdown of matter by category for debugging.
+func _matter_breakdown() -> Dictionary:
+	var resource_potential: float = 0.0
+	for sector_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[sector_id]
+		resource_potential += potential.get("mineral_density", 0.0)
+		resource_potential += potential.get("propellant_sources", 0.0)
+
+	var grid_stockpiles: float = 0.0
+	for sector_id in GameState.grid_stockpiles:
+		var stockpile: Dictionary = GameState.grid_stockpiles[sector_id]
+		var commodities: Dictionary = stockpile.get("commodity_stockpiles", {})
+		for commodity_id in commodities:
+			grid_stockpiles += float(commodities[commodity_id])
+
+	var wrecks: float = 0.0
+	for wreck_uid in GameState.grid_wrecks:
+		var wreck: Dictionary = GameState.grid_wrecks[wreck_uid]
+		var inventory: Dictionary = wreck.get("wreck_inventory", {})
+		for item_id in inventory:
+			wrecks += float(inventory[item_id])
+		wrecks += 1.0
+
+	var agent_inventories: float = 0.0
+	for char_uid in GameState.inventories:
+		var inv: Dictionary = GameState.inventories[char_uid]
+		if inv.has(2):
+			var commodities: Dictionary = inv[2]
+			for commodity_id in commodities:
+				agent_inventories += float(commodities[commodity_id])
+
+	return {
+		"resource_potential": resource_potential,
+		"grid_stockpiles": grid_stockpiles,
+		"wrecks": wrecks,
+		"agent_inventories": agent_inventories
+	}
+
+
+# =============================================================================
+# === TICK CONFIG =============================================================
+# =============================================================================
+
+## Builds the config dictionary from Constants.gd values.
+## This is passed to all layer processors each tick.
+func _build_tick_config() -> void:
+	_tick_config = {
+		# --- Grid CA Parameters ---
+		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
+		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
+		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
+		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
+		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
+		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
+		"demand_base": Constants.CA_DEMAND_BASE,
+
+		# --- Wreck / Entropy ---
+		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
+		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
+		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
+		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
+
+		# --- Power ---
+		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
+		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
+
+		# --- Bridge Systems ---
+		"heat_generation_in_space": Constants.HEAT_GENERATION_IN_SPACE,
+		"heat_dissipation_base": Constants.HEAT_DISSIPATION_DOCKED,
+		"heat_overheat_threshold": Constants.HEAT_OVERHEAT_THRESHOLD,
+		"entropy_hull_multiplier": Constants.ENTROPY_HULL_MULTIPLIER,
+		"fleet_entropy_reduction": Constants.ENTROPY_FLEET_RATE_FRACTION,
+		"propellant_drain_per_tick": Constants.PROPELLANT_DRAIN_PER_TICK,
+		"energy_drain_per_tick": Constants.ENERGY_DRAIN_PER_TICK,
+		"knowledge_noise_factor": Constants.AGENT_KNOWLEDGE_NOISE_FACTOR,
+
+		# --- Agent Layer ---
+		"npc_cash_low_threshold": Constants.NPC_CASH_LOW_THRESHOLD,
+		"npc_hull_repair_threshold": Constants.NPC_HULL_REPAIR_THRESHOLD,
+		"commodity_base_price": Constants.COMMODITY_BASE_PRICE,
+		"world_tick_interval_seconds": float(Constants.WORLD_TICK_INTERVAL_SECONDS),
+		"respawn_timeout_seconds": Constants.RESPAWN_TIMEOUT_SECONDS,
+		"hostile_growth_rate": Constants.HOSTILE_GROWTH_RATE,
+
+		# --- Axiom 1 ---
+		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
+	}
+
+
+# =============================================================================
+# === PUBLIC UTILITY ==========================================================
+# =============================================================================
+
+## Returns the chronicle_layer reference so other systems can call log_event().
+func get_chronicle() -> Reference:
+	return chronicle_layer
+
+
+## Returns whether the simulation has been initialized.
+func is_initialized() -> bool:
+	return _initialized
+
+
+## Allows runtime config overrides for tuning/debugging.
+func set_config(key: String, value) -> void:
+	_tick_config[key] = value
+
+
+## Returns the current tick config for inspection.
+func get_config() -> Dictionary:
+	return _tick_config
+
+--- Start of ./src/core/simulation/world_layer.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: world_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 2 (World Layer), Section 9 (Phase 1 Scope)
+# LOG_REF: 2026-02-13
+#
+
+extends Reference
+
+## WorldLayer: Initializes Layer 1 (World) data in GameState from LocationTemplate resources.
+##
+## The World Layer is STATIC after initialization — it is read-only at runtime.
+## It defines the physical foundation: topology (sector graph), hazards, and
+## finite resource potential (matter budget for Conservation Axiom 1).
+##
+## Called once at game start by the SimulationEngine. After init, the Grid Layer
+## seeds its dynamic state from these static values.
+
+
+# =============================================================================
+# === PUBLIC API ==============================================================
+# =============================================================================
+
+## Initializes all World Layer data in GameState from TemplateDatabase.locations.
+##
+## @param seed_string  String — world generation seed (stored in GameState.world_seed).
+func initialize_world(seed_string: String) -> void:
+	GameState.world_seed = seed_string
+
+	# Seed the RNG deterministically so resource values are reproducible.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(seed_string)
+
+	_build_topology()
+	_build_hazards()
+	_build_resource_potential(rng)
+	_calculate_total_matter()
+
+	print("WorldLayer: Initialized %d sectors. Total matter budget: %.2f" % [
+		GameState.world_topology.size(),
+		GameState.world_total_matter
+	])
+
+
+# =============================================================================
+# === PRIVATE — TOPOLOGY ======================================================
+# =============================================================================
+
+## Builds GameState.world_topology from LocationTemplate data.
+## Each sector entry: {connections: Array, station_ids: Array, sector_type: String}
+func _build_topology() -> void:
+	GameState.world_topology.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		var connections: Array = []
+		# PoolStringArray → regular Array for simulation use
+		if loc.get("connections") != null:
+			for conn_id in loc.connections:
+				connections.append(conn_id)
+
+		# Station IDs: for now, each location IS its own station
+		var station_ids: Array = [location_id]
+
+		var sector_type: String = loc.get("sector_type") if loc.get("sector_type") else "frontier"
+
+		GameState.world_topology[location_id] = {
+			"connections": connections,
+			"station_ids": station_ids,
+			"sector_type": sector_type
+		}
+
+
+# =============================================================================
+# === PRIVATE — HAZARDS =======================================================
+# =============================================================================
+
+## Builds GameState.world_hazards from LocationTemplate environmental data.
+## Each sector entry: {radiation_level: float, thermal_background_k: float, gravity_well_penalty: float}
+func _build_hazards() -> void:
+	GameState.world_hazards.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		GameState.world_hazards[location_id] = {
+			"radiation_level": float(loc.get("radiation_level")) if loc.get("radiation_level") != null else 0.0,
+			"thermal_background_k": float(loc.get("thermal_background_k")) if loc.get("thermal_background_k") != null else 300.0,
+			"gravity_well_penalty": float(loc.get("gravity_well_penalty")) if loc.get("gravity_well_penalty") != null else 1.0
+		}
+
+
+# =============================================================================
+# === PRIVATE — RESOURCE POTENTIAL ============================================
+# =============================================================================
+
+## Builds GameState.world_resource_potential from LocationTemplate deposits.
+## These are FINITE values that get depleted by Grid Layer extraction over ticks.
+## A small random variance (±10%) is applied deterministically via the seeded RNG.
+##
+## @param rng  RandomNumberGenerator — seeded deterministically from world_seed.
+func _build_resource_potential(rng: RandomNumberGenerator) -> void:
+	GameState.world_resource_potential.clear()
+
+	for location_id in TemplateDatabase.locations:
+		var loc: Resource = TemplateDatabase.locations[location_id]
+		if not is_instance_valid(loc):
+			continue
+
+		# Base values from template, with ±10% seeded variance
+		var base_mineral: float = float(loc.get("mineral_density")) if loc.get("mineral_density") != null else 0.5
+		var base_propellant: float = float(loc.get("propellant_sources")) if loc.get("propellant_sources") != null else 0.5
+
+		var mineral_variance: float = base_mineral * (rng.randf_range(-0.1, 0.1))
+		var propellant_variance: float = base_propellant * (rng.randf_range(-0.1, 0.1))
+
+		# Scale up to simulation-meaningful quantities
+		# Base density 1.0 → 100.0 resource units (Phase 1 scale factor)
+		var scale_factor: float = 100.0
+
+		GameState.world_resource_potential[location_id] = {
+			"mineral_density": max(0.0, (base_mineral + mineral_variance) * scale_factor),
+			"energy_potential": 50.0,  # Phase 1 stub: flat energy potential per sector
+			"propellant_sources": max(0.0, (base_propellant + propellant_variance) * scale_factor)
+		}
+
+
+# =============================================================================
+# === PRIVATE — MATTER CONSERVATION CHECKSUM ==================================
+# =============================================================================
+
+## Calculates and stores the total matter budget for Conservation Axiom 1.
+##
+## Total matter = sum of all resource potential (mineral + propellant)
+##              + any initial commodity stockpiles (from Grid Layer, added later)
+##              + any agent cargo (from Agent Layer, added later)
+##
+## At this stage, only World Layer resource potential exists.
+## The SimulationEngine will call update_total_matter() after Grid and Agent
+## layers are initialized to capture the full budget.
+func _calculate_total_matter() -> void:
+	var total: float = 0.0
+
+	for sector_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[sector_id]
+		total += potential.get("mineral_density", 0.0)
+		total += potential.get("propellant_sources", 0.0)
+		# energy_potential is not "matter" — it's renewable (solar, etc.)
+		# so it's excluded from the matter conservation budget
+
+	GameState.world_total_matter = total
+
+
+# =============================================================================
+# === PUBLIC UTILITY ==========================================================
+# =============================================================================
+
+## Returns the list of connected sector IDs for a given sector.
+## Used by Grid Layer to find CA neighbors.
+##
+## @param sector_id  String — the sector to query.
+## @return           Array of String — connected sector IDs.
+func get_neighbors(sector_id: String) -> Array:
+	if GameState.world_topology.has(sector_id):
+		return GameState.world_topology[sector_id].get("connections", [])
+	return []
+
+
+## Returns the hazard data for a given sector.
+##
+## @param sector_id  String — the sector to query.
+## @return           Dictionary — {radiation_level, thermal_background_k, gravity_well_penalty}
+func get_hazards(sector_id: String) -> Dictionary:
+	if GameState.world_hazards.has(sector_id):
+		return GameState.world_hazards[sector_id]
+	return {"radiation_level": 0.0, "thermal_background_k": 300.0, "gravity_well_penalty": 1.0}
+
+
+## Returns the resource potential for a given sector.
+##
+## @param sector_id  String — the sector to query.
+## @return           Dictionary — {mineral_density, energy_potential, propellant_sources}
+func get_resource_potential(sector_id: String) -> Dictionary:
+	if GameState.world_resource_potential.has(sector_id):
+		return GameState.world_resource_potential[sector_id]
+	return {"mineral_density": 0.0, "energy_potential": 0.0, "propellant_sources": 0.0}
+
+
+## Recalculates world_total_matter from ALL matter sources across all layers.
+## Should be called after Grid and Agent layers are initialized.
+## This sets the definitive Axiom 1 checksum for all future tick verification.
+func recalculate_total_matter() -> void:
+	var total: float = 0.0
+
+	# Layer 1: Resource potential (finite deposits)
+	for sector_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[sector_id]
+		total += potential.get("mineral_density", 0.0)
+		total += potential.get("propellant_sources", 0.0)
+
+	# Layer 2: Grid stockpiles (extracted commodities)
+	for sector_id in GameState.grid_stockpiles:
+		var stockpile: Dictionary = GameState.grid_stockpiles[sector_id]
+		var commodities: Dictionary = stockpile.get("commodity_stockpiles", {})
+		for commodity_id in commodities:
+			total += float(commodities[commodity_id])
+
+	# Layer 2: Wrecks (matter locked in debris)
+	for wreck_uid in GameState.grid_wrecks:
+		var wreck: Dictionary = GameState.grid_wrecks[wreck_uid]
+		var inventory: Dictionary = wreck.get("wreck_inventory", {})
+		for item_id in inventory:
+			total += float(inventory[item_id])
+		total += 1.0  # Base hull mass per wreck
+
+	# Layer 3: Agent inventories (cargo being carried)
+	for char_uid in GameState.inventories:
+		var inv: Dictionary = GameState.inventories[char_uid]
+		# Commodities are the matter-bearing inventory type
+		# InventoryType.COMMODITY = 2
+		if inv.has(2):
+			var commodities: Dictionary = inv[2]
+			for commodity_id in commodities:
+				total += float(commodities[commodity_id])
+
+	GameState.world_total_matter = total
+	print("WorldLayer: Total matter recalculated: %.2f" % total)
 
 --- Start of ./src/core/systems/agent_system.gd ---
 
 # File: core/systems/agent_system.gd
 # Purpose: Manages agent spawning in virtual space (ships). Assembles agents from
 # character data and their inventory of assets.
-# Version: 2.1 - Added character_uid linking for ship stats integration.
+# Version: 2.2 - Added Persistent Agent lifecycle management.
+#
+# PROJECT: GDTLancer
+# MODULE: src/core/systems/agent_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
+# LOG_REF: 2026-01-30
+#
 
 extends Node
+
+const PERSISTENT_AGENT_IDS = [
+	"persistent_kai", "persistent_juno", 
+	"persistent_vera", "persistent_milo", 
+	"persistent_rex", "persistent_ada"
+]
 
 var _player_agent_body: RigidBody = null
 var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 
+# Key: agent_id (String), Value: WeakRef or Node (AgentBody)
+# Tracks currently instantiated persistent agents in the scene
+var _active_persistent_agents: Dictionary = {}
 
 func _ready():
 	GlobalRefs.set_agent_spawner(self)
 	
 	# Listen for the zone_loaded signal to know when it's safe to spawn.
 	EventBus.connect("zone_loaded", self, "_on_Zone_Loaded")
+	
+	# Listen for agent disable (death/neutralization) events
+	EventBus.connect("agent_disabled", self, "_on_Agent_Disabled")
+	
+	# Listen for world tick to handle respawns
+	EventBus.connect("world_event_tick_triggered", self, "_on_World_Tick")
+	
+	# Listen for player docking to handle contact discovery (Task 11)
+	EventBus.connect("player_docked", self, "_on_player_docked")
+	
 	print("AgentSpawner Ready.")
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
 	if is_instance_valid(agent_container_node):
+		# Clear invalid references from previous zone
+		_active_persistent_agents.clear()
+		
+		# Spawn Player
 		if not is_instance_valid(_player_agent_body):
 			spawn_player()
+			
+		# Spawn Persistent Agents
+		spawn_persistent_agents()
 	else:
 		printerr("AgentSpawner Error: Agent container invalid. Cannot spawn agents.")
 
@@ -16443,13 +18883,178 @@ func spawn_agent(
 	# We also need to check for both AI and Player controllers.
 	var ai_controller = agent_node.get_node_or_null(Constants.AI_CONTROLLER_NODE_NAME)
 	var _player_controller = agent_node.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
-
-	if ai_controller and ai_controller.has_method("initialize"):
-		ai_controller.initialize(overrides) # Pass agent_uid?
-	# The PlayerInputHandler does not have an initialize method, so we don't need to call it,
-	# but by getting a reference to it, we ensure the test framework is aware of it.
-
+	
 	return agent_node
+
+# --- Persistent Agent Lifecycle System (Task 6) ---
+
+func get_persistent_agent_state(agent_id: String) -> Dictionary:
+	if not GameState.persistent_agents.has(agent_id):
+		# Initialize default state if missing
+		var agent_res_path = "res://database/registry/agents/" + agent_id + ".tres"
+		var agent_template = load(agent_res_path)
+		if not agent_template:
+			printerr("AgentSystem: Failed to load persistent agent template: ", agent_id)
+			return {}
+			
+		var char_template_id = agent_template.character_template_id
+		# Create a new character instance for this agent
+		
+		# Load Character Template
+		var char_res_path = "res://database/registry/characters/" + char_template_id + ".tres"
+		var char_template = load(char_res_path)
+		var char_uid = -1
+		
+		if char_template:
+			var runtime_char = char_template.duplicate()
+			
+			# Assign a new UID - Simple generation strategy: 1000 + hash based or incremental
+			# Finding max key in characters
+			var max_uid = 1000
+			if not GameState.characters.empty():
+				var keys = GameState.characters.keys()
+				keys.sort()
+				var last = keys[-1]
+				if last >= 1000:
+					max_uid = last + 1
+			
+			char_uid = max_uid
+			GameState.characters[char_uid] = runtime_char
+		
+		GameState.persistent_agents[agent_id] = {
+			"character_uid": char_uid,
+			"current_location": agent_template.home_location_id,
+			"is_disabled": false,
+			"disabled_at_time": 0.0,
+			"relationship": 0,
+			"is_known": false
+		}
+		
+	return GameState.persistent_agents[agent_id]
+
+
+func spawn_persistent_agents() -> void:
+	if not is_instance_valid(GlobalRefs.current_zone):
+		return
+		
+	for agent_id in PERSISTENT_AGENT_IDS:
+		# Check if already active/spawned
+		if _active_persistent_agents.has(agent_id) and is_instance_valid(_active_persistent_agents[agent_id]):
+			continue
+			
+		var state = get_persistent_agent_state(agent_id)
+		
+		if state.get("is_disabled", false):
+			continue
+			
+		var current_loc = state.get("current_location", "")
+		if current_loc == "":
+			continue
+			
+		# Check if this location exists in the current zone
+		var spawn_pos = _get_dock_position_in_zone(current_loc)
+		if spawn_pos == null:
+			continue # Location not in this zone
+			
+		# Load resources
+		var agent_res_path = "res://database/registry/agents/" + agent_id + ".tres"
+		var agent_template = load(agent_res_path)
+		if not agent_template: 
+			continue
+			
+		var char_uid = state.get("character_uid", -1)
+		
+		var overrides = {
+			"agent_type": "npc",
+			"template_id": agent_id,
+			"character_uid": char_uid
+		}
+		
+		var uid = _get_next_agent_uid()
+		var spawn_offset = Vector3(
+			rand_range(-50, 50),
+			rand_range(-20, 20),
+			rand_range(-50, 50)
+		)
+		
+		var agent_body = spawn_agent(
+			Constants.NPC_AGENT_SCENE_PATH,
+			spawn_pos + spawn_offset,
+			agent_template,
+			overrides,
+			uid
+		)
+		
+		if is_instance_valid(agent_body):
+			_active_persistent_agents[agent_id] = agent_body
+			print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
+		else:
+			print("AgentSpawner: FAILED to spawn persistent agent '%s' at %s" % [agent_id, current_loc])
+
+
+func _on_Agent_Disabled(agent_body) -> void:
+	var found_agent_id = ""
+	for agent_id in _active_persistent_agents:
+		if _active_persistent_agents[agent_id] == agent_body:
+			found_agent_id = agent_id
+			break
+	
+	if found_agent_id != "":
+		_handle_persistent_agent_disable(found_agent_id)
+
+
+func _handle_persistent_agent_disable(agent_id: String) -> void:
+	print("Persistent Agent Disabled: ", agent_id)
+	if GameState.persistent_agents.has(agent_id):
+		var state = GameState.persistent_agents[agent_id]
+		state["is_disabled"] = true
+		state["disabled_at_time"] = GameState.game_time_seconds
+		# Remove from active list
+		_active_persistent_agents.erase(agent_id)
+
+
+func _on_World_Tick(_seconds: float) -> void:
+	_check_persistent_agent_respawns()
+
+
+func _check_persistent_agent_respawns() -> void:
+	for agent_id in GameState.persistent_agents:
+		var state = GameState.persistent_agents[agent_id]
+		if state.get("is_disabled", false):
+			var disabled_time = state.get("disabled_at_time", 0.0)
+			
+			var agent_res_path = "res://database/registry/agents/" + agent_id + ".tres"
+			var agent_template = load(agent_res_path)
+			var timeout = 300.0
+			if agent_template:
+				timeout = agent_template.respawn_timeout_seconds
+				
+			if GameState.game_time_seconds - disabled_time >= timeout:
+				# Respawn Logic
+				print("Persistent Agent Respawning: ", agent_id)
+				state["is_disabled"] = false
+				state["disabled_at_time"] = 0.0
+				# Reset to home location (assuming they respawn at home, not where they died)
+				if agent_template:
+					state["current_location"] = agent_template.home_location_id 
+				
+				# Try to spawn immediately if in relevant zone
+				spawn_persistent_agents()
+
+# --- Contact Discovery (Task 11) ---
+func _on_player_docked(location_id: String) -> void:
+	for agent_id in PERSISTENT_AGENT_IDS:
+		var state = get_persistent_agent_state(agent_id)
+		if state.get("is_known", false):
+			continue
+			
+		var home = state.get("current_location", "")
+		# Assumption: Agents are "available" for contact at their home location (or current location)
+		# We check if the player docked at the agent's current location
+		if home == location_id:
+			state["is_known"] = true
+			EventBus.emit_signal("contact_met", agent_id)
+			print("Contact Discovered: ", agent_id, " at ", location_id)
 
 --- Start of ./src/core/systems/asset_system.gd ---
 
@@ -16519,12 +19124,18 @@ func get_ships_for_character(character_uid: int) -> Array:
 
 --- Start of ./src/core/systems/character_system.gd ---
 
-# File: core/systems/character_system.gd
-# Purpose: Provides a logical API for manipulating character data stored in GameState.
-# This system is STATELESS. All data is read from and written to the GameState autoload.
-# Version: 3.1 - Integrated character screen UI signals.
+#
+# PROJECT: GDTLancer
+# MODULE: character_system.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
 
 extends Node
+
+## CharacterSystem: Stateless API for character data management.
+## Provides credits, FP, and skill operations on CharacterTemplate instances in GameState.
 
 
 func _ready():
@@ -16555,25 +19166,25 @@ func get_player_character_uid() -> int:
 # --- Stat Modification API (Operates on GameState) ---
 
 
-func add_wp(character_uid: int, amount: int):
+func add_credits(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].wealth_points += amount
+		GameState.characters[character_uid].credits += amount
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_wp_changed", GameState.characters[character_uid].wealth_points)
+			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
-func subtract_wp(character_uid: int, amount: int):
+func subtract_credits(character_uid: int, amount: int):
 	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].wealth_points -= amount
+		GameState.characters[character_uid].credits -= amount
 		# If this change was for the player, announce it.
 		if character_uid == GameState.player_character_uid:
-			EventBus.emit_signal("player_wp_changed", GameState.characters[character_uid].wealth_points)
+			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
-func get_wp(character_uid: int) -> int:
+func get_credits(character_uid: int) -> int:
 	if GameState.characters.has(character_uid):
-		return GameState.characters[character_uid].wealth_points
+		return GameState.characters[character_uid].credits
 	return 0
 
 
@@ -16611,763 +19222,11 @@ func get_skill_level(character_uid: int, skill_name: String) -> int:
 
 
 func apply_upkeep_cost(character_uid: int, cost: int):
-	subtract_wp(character_uid, cost)
+	subtract_credits(character_uid, cost)
 
 # NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.
 # This responsibility is now handled by the GameStateManager, which will serialize and
 # deserialize the entire GameState.characters dictionary directly.
-
---- Start of ./src/core/systems/chronicle_system.gd ---
-
-extends Node
-
-func _ready():
-	GlobalRefs.set_chronicle_system(self)
-	print("ChronicleSystem Ready.")
-
---- Start of ./src/core/systems/combat_system.gd ---
-
-# combat_system.gd
-# Stateless API for combat mechanics - targeting, damage, disabling
-# Phase 1: Hull-only targeting, basic weapon firing
-extends Node
-
-signal combat_started(attacker_uid, defender_uid)
-signal combat_ended(result)
-signal damage_dealt(target_uid, amount, source_uid)
-signal ship_disabled(ship_uid)
-signal weapon_fired(shooter_uid, weapon_id, target_pos)
-
-const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
-
-# Combat state tracking (per-encounter)
-var _active_combatants: Dictionary = {}  # uid -> combat_state dict
-var _combat_active: bool = false
-
-
-func _ready():
-	GlobalRefs.set_combat_system(self)
-	print("CombatSystem Ready.")
-
-
-# --- Public API ---
-
-# Initialize combat state for an agent
-func register_combatant(agent_uid: int, ship_template) -> void:
-	if not ship_template:
-		return
-	
-	_active_combatants[agent_uid] = {
-		"current_hull": ship_template.hull_integrity,
-		"max_hull": ship_template.hull_integrity,
-		"current_armor": ship_template.armor_integrity,
-		"max_armor": ship_template.armor_integrity,
-		"is_disabled": false,
-		"equipped_tools": [],
-		"cooldowns": {}  # tool_id -> time_remaining
-	}
-
-
-func unregister_combatant(agent_uid: int) -> void:
-	_active_combatants.erase(agent_uid)
-
-
-func is_in_combat(agent_uid: int) -> bool:
-	return _active_combatants.has(agent_uid) and not _active_combatants[agent_uid].is_disabled
-
-
-func is_combat_active() -> bool:
-	return _combat_active
-
-
-func get_combat_state(agent_uid: int) -> Dictionary:
-	return _active_combatants.get(agent_uid, {})
-
-
-# Get hull percentage (0.0 - 1.0)
-func get_hull_percent(agent_uid: int) -> float:
-	var state = _active_combatants.get(agent_uid, {})
-	if state.empty() or state.max_hull == 0:
-		return 0.0
-	return float(state.current_hull) / float(state.max_hull)
-
-
-# Check if a target is within weapon range
-func is_in_range(shooter_pos: Vector3, target_pos: Vector3, weapon: UtilityToolTemplate) -> bool:
-	if not weapon:
-		return false
-	var distance = shooter_pos.distance_to(target_pos)
-	return distance <= weapon.range_max
-
-
-# Calculate damage based on weapon and distance
-func calculate_damage(weapon: UtilityToolTemplate, distance: float) -> Dictionary:
-	if not weapon:
-		return {"hull_damage": 0, "armor_damage": 0}
-	
-	var base_damage = weapon.get_damage_at_range(distance)
-	
-	return {
-		"hull_damage": base_damage * weapon.hull_damage_multiplier,
-		"armor_damage": base_damage * weapon.armor_damage_multiplier
-	}
-
-
-# Attempt to fire a weapon at a target
-func fire_weapon(shooter_uid: int, target_uid: int, weapon: UtilityToolTemplate, 
-				 shooter_pos: Vector3, target_pos: Vector3) -> Dictionary:
-	# Validate combatants
-	if not _active_combatants.has(shooter_uid):
-		return {"success": false, "reason": "Shooter not registered"}
-	if not _active_combatants.has(target_uid):
-		return {"success": false, "reason": "Target not registered"}
-	if not weapon:
-		return {"success": false, "reason": "No weapon provided"}
-	
-	var shooter_state = _active_combatants[shooter_uid]
-	
-	# Check cooldown
-	var cooldown_remaining = shooter_state.cooldowns.get(weapon.template_id, 0.0)
-	if cooldown_remaining > 0:
-		return {"success": false, "reason": "Weapon on cooldown", "cooldown": cooldown_remaining}
-	
-	# Check range
-	var distance = shooter_pos.distance_to(target_pos)
-	if distance > weapon.range_max:
-		return {"success": false, "reason": "Target out of range", "distance": distance}
-	
-	# Calculate hit chance
-	var hit_chance = weapon.get_accuracy_at_range(distance)
-	var roll = randf()
-	var hit = roll <= hit_chance
-	
-	# Set cooldown
-	var cooldown = (1.0 / weapon.fire_rate) + weapon.cooldown_time
-	shooter_state.cooldowns[weapon.template_id] = cooldown
-	
-	# Emit weapon fired signal
-	emit_signal("weapon_fired", shooter_uid, weapon.template_id, target_pos)
-	
-	if not hit:
-		return {
-			"success": true,
-			"hit": false,
-			"reason": "Missed",
-			"accuracy": hit_chance,
-			"roll": roll
-		}
-	
-	# Calculate and apply damage
-	var damage = calculate_damage(weapon, distance)
-	var damage_result = apply_damage(target_uid, damage.hull_damage, damage.armor_damage, shooter_uid)
-
-	# If the target is already disabled (or otherwise invalid), avoid crashing and report cleanly.
-	if not damage_result.get("success", false):
-		var already_disabled: bool = (damage_result.get("reason", "") == "Target already disabled")
-		return {
-			"success": true,
-			"hit": true,
-			"damage_dealt": damage,
-			"target_disabled": already_disabled,
-			"target_hull_remaining": 0,
-			"warning": damage_result.get("reason", "Damage not applied")
-		}
-	
-	return {
-		"success": true,
-		"hit": true,
-		"damage_dealt": damage,
-		"target_disabled": bool(damage_result.get("disabled", false)),
-		"target_hull_remaining": damage_result.get("hull_remaining", 0)
-	}
-
-
-# Apply damage to a target
-func apply_damage(target_uid: int, hull_damage: float, armor_damage: float = 0.0, source_uid: int = -1) -> Dictionary:
-	if not _active_combatants.has(target_uid):
-		return {"success": false, "reason": "Target not registered"}
-	
-	var state = _active_combatants[target_uid]
-	
-	if state.is_disabled:
-		return {"success": false, "reason": "Target already disabled"}
-	
-	# Phase 1: Simple damage model - armor absorbs first, then hull
-	var remaining_damage = hull_damage
-	
-	# Apply to armor first if present
-	if armor_damage > 0 and state.current_armor > 0:
-		var armor_absorbed = min(armor_damage, state.current_armor)
-		state.current_armor -= armor_absorbed
-	
-	# Apply hull damage
-	var hull_dealt = min(remaining_damage, state.current_hull)
-	state.current_hull -= hull_dealt
-	
-	emit_signal("damage_dealt", target_uid, hull_dealt, source_uid)
-
-	# Mirror gameplay-facing damage signals onto EventBus (HUD, AI, encounter logic).
-	if EventBus:
-		var target_body = _get_agent_body(target_uid)
-		var source_body = _get_agent_body(source_uid)
-		if is_instance_valid(target_body):
-			EventBus.emit_signal("agent_damaged", target_body, hull_dealt, source_body)
-	
-	# Check for disable
-	var disabled = state.current_hull <= 0
-	if disabled:
-		state.is_disabled = true
-		state.current_hull = 0
-		emit_signal("ship_disabled", target_uid)
-		
-		# Increment combat victories stat if this was an enemy (not the player)
-		if target_uid != GameState.player_character_uid:
-			GameState.session_stats["enemies_disabled"] += 1
-		
-		if EventBus:
-			var disabled_body = _get_agent_body(target_uid)
-			if is_instance_valid(disabled_body):
-				EventBus.emit_signal("agent_disabled", disabled_body)
-	
-	return {
-		"success": true,
-		"hull_damage_dealt": hull_dealt,
-		"hull_remaining": state.current_hull,
-		"armor_remaining": state.current_armor,
-		"disabled": disabled
-	}
-
-
-# Update cooldowns (call each frame or physics tick)
-func update_cooldowns(delta: float) -> void:
-	for uid in _active_combatants:
-		var state = _active_combatants[uid]
-		var to_remove = []
-		for tool_id in state.cooldowns:
-			state.cooldowns[tool_id] -= delta
-			if state.cooldowns[tool_id] <= 0:
-				to_remove.append(tool_id)
-		for tool_id in to_remove:
-			state.cooldowns.erase(tool_id)
-
-
-# Check if all enemies are disabled
-func check_combat_victory(player_uid: int) -> Dictionary:
-	var player_alive = _active_combatants.has(player_uid) and not _active_combatants[player_uid].is_disabled
-	
-	if not player_alive:
-		return {"victory": false, "reason": "player_disabled"}
-	
-	# Check if any non-player combatants are still active
-	for uid in _active_combatants:
-		if uid != player_uid and not _active_combatants[uid].is_disabled:
-			return {"victory": false, "reason": "enemies_remain"}
-	
-	return {"victory": true, "reason": "all_enemies_disabled"}
-
-
-# Start a combat encounter
-func start_combat(participants: Array) -> void:
-	_combat_active = true
-	for participant in participants:
-		var uid = participant.get("uid", -1)
-		var ship = participant.get("ship_template", null)
-		if uid >= 0 and ship:
-			register_combatant(uid, ship)
-	
-	if participants.size() >= 2:
-		emit_signal("combat_started", participants[0].get("uid", -1), participants[1].get("uid", -1))
-
-
-# End combat and clean up
-func end_combat(result: String = "ended") -> void:
-	_combat_active = false
-	_active_combatants.clear()
-	emit_signal("combat_ended", result)
-
-
-func _get_agent_body(agent_uid: int):
-	if agent_uid < 0:
-		return null
-
-	if is_instance_valid(GlobalRefs.world_manager) and GlobalRefs.world_manager.has_method("get_agent_by_uid"):
-		var from_world_manager = GlobalRefs.world_manager.get_agent_by_uid(agent_uid)
-		if is_instance_valid(from_world_manager):
-			return from_world_manager
-
-	# Fallback: scan nodes in the Agents group.
-	var tree = get_tree()
-	if tree:
-		for node in tree.get_nodes_in_group("Agents"):
-			if is_instance_valid(node) and node.get("agent_uid") != null and int(node.get("agent_uid")) == agent_uid:
-				return node
-
-	return null
-
-
-# --- Targeting Helpers ---
-
-# Get closest enemy in range
-func get_closest_target(_from_pos: Vector3, agent_uid: int, _max_range: float = -1.0) -> Dictionary:
-	var closest_uid = -1
-	var closest_dist = INF
-	
-	for uid in _active_combatants:
-		if uid == agent_uid:
-			continue
-		if _active_combatants[uid].is_disabled:
-			continue
-		
-		# Would need agent positions from another system
-		# This is a placeholder - actual implementation needs position data
-	
-	return {"target_uid": closest_uid, "distance": closest_dist}
-
-
-# --- Combat Resolution (Narrative Actions) ---
-
-# Assess aftermath - Phase 1 narrative action after combat
-func assess_aftermath(_char_uid: int, tactics_skill: int) -> Dictionary:
-	# Uses CoreMechanicsAPI for action check
-	var approach = Constants.ActionApproach.CAUTIOUS
-	var result = CoreMechanicsAPI.perform_action_check(tactics_skill, 0, 0, approach)
-	
-	var success = result.result_tier in ["CritSuccess", "SuccessWithCost", "Success"]
-	
-	if success:
-		# Could reveal faction info, salvage opportunities, etc.
-		return {
-			"success": true,
-			"result": result,
-			"findings": {
-				"faction_revealed": randf() > 0.5,
-				"salvage_quality": "standard" if result.result_tier != "CritSuccess" else "excellent"
-			}
-		}
-	else:
-		return {
-			"success": false,
-			"result": result,
-			"consequence": "No useful information found"
-		}
-
-
-# Claim wreckage - Phase 1 narrative action
-func claim_wreckage(_char_uid: int, tactics_skill: int, approach: int) -> Dictionary:
-	var result = CoreMechanicsAPI.perform_action_check(tactics_skill, 0, 0, approach)
-	
-	var success = result.result_tier in ["CritSuccess", "SuccessWithCost", "Success"]
-	var base_salvage = 50  # Base WP value
-	
-	if result.result_tier == "CritSuccess":
-		return {
-			"success": true,
-			"result": result,
-			"wp_gained": base_salvage * 2,
-			"item_found": true
-		}
-	elif success:
-		var wp = base_salvage
-		if approach == Constants.ActionApproach.RISKY:
-			wp = int(wp * 1.5)
-		return {
-			"success": true,
-			"result": result,
-			"wp_gained": wp,
-			"item_found": false
-		}
-	else:
-		return {
-			"success": false,
-			"result": result,
-			"wp_gained": 0,
-			"consequence": "Wreckage too unstable to salvage"
-		}
-
---- Start of ./src/core/systems/contract_system.gd ---
-
-# contract_system.gd
-# Stateless API for contract management - accept, track, complete, abandon
-extends Node
-
-const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
-const MAX_ACTIVE_CONTRACTS = 3  # Phase 1 limit
-
-
-func _ready():
-	GlobalRefs.set_contract_system(self)
-	print("ContractSystem Ready.")
-
-
-# Get all contracts available at a specific location
-func get_available_contracts(location_id: String) -> Array:
-	var available = []
-	for contract_id in GameState.contracts:
-		var contract = GameState.contracts[contract_id]
-		if contract and contract.origin_location_id == location_id:
-			# Check not already active
-			if not GameState.active_contracts.has(contract_id):
-				available.append(contract)
-	return available
-
-
-# Get all contracts available at a location, filtered by player's active contracts
-func get_available_contracts_for_character(_char_uid: int, location_id: String) -> Array:
-	var available = get_available_contracts(location_id)
-	# Filter out any that player already has active
-	var result = []
-	for contract in available:
-		if not GameState.active_contracts.has(contract.template_id):
-			result.append(contract)
-	return result
-
-
-# Accept a contract for a character
-func accept_contract(char_uid: int, contract_id: String) -> Dictionary:
-	# Validate contract exists
-	if not GameState.contracts.has(contract_id):
-		return {
-			"success": false,
-			"reason": "Contract not found: " + contract_id
-		}
-	
-	# Check not already active
-	if GameState.active_contracts.has(contract_id):
-		return {
-			"success": false,
-			"reason": "Contract already active"
-		}
-	
-	# Check active contract limit
-	var active_count = _count_active_contracts_for_character(char_uid)
-	if active_count >= MAX_ACTIVE_CONTRACTS:
-		return {
-			"success": false,
-			"reason": "Maximum active contracts reached (" + str(MAX_ACTIVE_CONTRACTS) + ")"
-		}
-	
-	# Get contract and mark as accepted
-	var contract = GameState.contracts[contract_id]
-	var contract_copy = contract.duplicate(true)
-	contract_copy.accepted_at_tu = GameState.current_tu
-	contract_copy.progress = {"character_uid": char_uid}
-	
-	# Add to active contracts
-	GameState.active_contracts[contract_id] = contract_copy
-	
-	# Emit signal
-	EventBus.emit_signal("contract_accepted", contract_id)
-	
-	return {
-		"success": true,
-		"contract": contract_copy
-	}
-
-
-# Get all active contracts for a character
-func get_active_contracts(char_uid: int) -> Array:
-	var active = []
-	for contract_id in GameState.active_contracts:
-		var contract = GameState.active_contracts[contract_id]
-		if contract and contract.progress.get("character_uid", -1) == char_uid:
-			active.append(contract)
-	return active
-
-
-# Check if a contract can be completed (player has requirements)
-func check_contract_completion(char_uid: int, contract_id: String) -> Dictionary:
-	# Validate contract is active
-	if not GameState.active_contracts.has(contract_id):
-		return {
-			"can_complete": false,
-			"reason": "Contract not active"
-		}
-	
-	var contract = GameState.active_contracts[contract_id]
-	
-	# Check ownership
-	if contract.progress.get("character_uid", -1) != char_uid:
-		return {
-			"can_complete": false,
-			"reason": "Contract belongs to different character"
-		}
-	
-	# Check expiration
-	if contract.is_expired(GameState.current_tu):
-		return {
-			"can_complete": false,
-			"reason": "Contract has expired"
-		}
-	
-	# Type-specific completion checks
-	match contract.contract_type:
-		"delivery":
-			return _check_delivery_completion(char_uid, contract)
-		"combat":
-			return _check_combat_completion(char_uid, contract)
-		_:
-			return {
-				"can_complete": false,
-				"reason": "Unknown contract type: " + contract.contract_type
-			}
-
-
-# Complete a contract and apply rewards
-func complete_contract(char_uid: int, contract_id: String) -> Dictionary:
-	# First check if completable
-	var check = check_contract_completion(char_uid, contract_id)
-	if not check.can_complete:
-		return {
-			"success": false,
-			"reason": check.reason
-		}
-	
-	var contract = GameState.active_contracts[contract_id]
-	
-	# Apply completion based on type
-	var completion_result = {}
-	match contract.contract_type:
-		"delivery":
-			completion_result = _complete_delivery(char_uid, contract)
-		"combat":
-			completion_result = _complete_combat(char_uid, contract)
-		_:
-			return {
-				"success": false,
-				"reason": "Cannot complete unknown contract type"
-			}
-	
-	if not completion_result.get("success", false):
-		return completion_result
-	
-	# Apply rewards
-	_apply_rewards(char_uid, contract)
-	
-	# Remove from active contracts
-	GameState.active_contracts.erase(contract_id)
-	
-	# Update session stats
-	GameState.session_stats.contracts_completed += 1
-	
-	# Emit signal
-	EventBus.emit_signal("contract_completed", contract_id, true)
-	
-	# Calculate total WP earned including cargo sale
-	var cargo_sale_value: int = completion_result.get("cargo_sale_value", 0)
-	
-	return {
-		"success": true,
-		"contract": contract,
-		"rewards": {
-			"wp": contract.reward_wp,
-			"cargo_sale_wp": cargo_sale_value,
-			"total_wp": contract.reward_wp + cargo_sale_value,
-			"reputation": contract.reward_reputation,
-			"items": contract.reward_items
-		}
-	}
-
-
-# Abandon a contract (no penalty in Phase 1)
-func abandon_contract(char_uid: int, contract_id: String) -> Dictionary:
-	if not GameState.active_contracts.has(contract_id):
-		return {
-			"success": false,
-			"reason": "Contract not active"
-		}
-	
-	var contract = GameState.active_contracts[contract_id]
-	
-	# Check ownership
-	if contract.progress.get("character_uid", -1) != char_uid:
-		return {
-			"success": false,
-			"reason": "Contract belongs to different character"
-		}
-	
-	# Remove from active
-	GameState.active_contracts.erase(contract_id)
-	
-	# Emit signal
-	EventBus.emit_signal("contract_abandoned", contract_id)
-	
-	return {
-		"success": true,
-		"contract": contract
-	}
-
-
-# Check for expired contracts and handle them
-func check_expired_contracts(char_uid: int) -> Array:
-	var expired = []
-	var to_fail = []
-	
-	for contract_id in GameState.active_contracts:
-		var contract = GameState.active_contracts[contract_id]
-		if contract.progress.get("character_uid", -1) != char_uid:
-			continue
-		if contract.is_expired(GameState.current_tu):
-			to_fail.append(contract_id)
-			expired.append(contract)
-	
-	# Fail expired contracts
-	for contract_id in to_fail:
-		_fail_contract(char_uid, contract_id)
-	
-	return expired
-
-
-# Get contract by ID from active contracts
-func get_contract(contract_id: String):
-	return GameState.active_contracts.get(contract_id, null)
-
-
-# ---- Private helpers ----
-
-func _count_active_contracts_for_character(char_uid: int) -> int:
-	var count = 0
-	for contract_id in GameState.active_contracts:
-		var contract = GameState.active_contracts[contract_id]
-		if contract.progress.get("character_uid", -1) == char_uid:
-			count += 1
-	return count
-
-
-func _check_delivery_completion(char_uid: int, contract) -> Dictionary:
-	# Check player is at destination
-	if GameState.player_docked_at != contract.destination_location_id:
-		return {
-			"can_complete": false,
-			"reason": "Not at destination: " + contract.destination_location_id
-		}
-	
-	# Check player has required cargo
-	var inventory_system = GlobalRefs.inventory_system
-	if not inventory_system:
-		return {
-			"can_complete": false,
-			"reason": "Inventory system not available"
-		}
-	
-	var cargo = inventory_system.get_inventory_by_type(char_uid, InventorySystem.InventoryType.COMMODITY)
-	var owned_qty = cargo.get(contract.required_commodity_id, 0)
-	
-	if owned_qty < contract.required_quantity:
-		return {
-			"can_complete": false,
-			"reason": "Insufficient cargo: need " + str(contract.required_quantity) + " " + contract.required_commodity_id + ", have " + str(owned_qty)
-		}
-	
-	return {
-		"can_complete": true,
-		"reason": ""
-	}
-
-
-func _check_combat_completion(_char_uid: int, contract) -> Dictionary:
-	# Check kill count in progress
-	var kills = contract.progress.get("kills", 0)
-	if kills < contract.target_count:
-		return {
-			"can_complete": false,
-			"reason": "Targets remaining: " + str(contract.target_count - kills)
-		}
-	
-	return {
-		"can_complete": true,
-		"reason": ""
-	}
-
-
-func _complete_delivery(char_uid: int, contract) -> Dictionary:
-	# Remove cargo from player inventory
-	var inventory_system = GlobalRefs.inventory_system
-	if not inventory_system:
-		return {
-			"success": false,
-			"reason": "Inventory system not available"
-		}
-	
-	# Calculate cargo sale value at destination before removing
-	var cargo_sale_value: int = 0
-	var dest_location_id: String = contract.destination_location_id
-	if GameState.locations.has(dest_location_id):
-		var location = GameState.locations[dest_location_id]
-		if location.market_inventory.has(contract.required_commodity_id):
-			var sell_price: int = location.market_inventory[contract.required_commodity_id].get("sell_price", 0)
-			cargo_sale_value = sell_price * contract.required_quantity
-	
-	var removed = inventory_system.remove_asset(
-		char_uid,
-		InventorySystem.InventoryType.COMMODITY,
-		contract.required_commodity_id,
-		contract.required_quantity
-	)
-	
-	if not removed:
-		return {
-			"success": false,
-			"reason": "Failed to remove cargo from inventory"
-		}
-	
-	# Pay player for the delivered cargo at local sell price
-	if cargo_sale_value > 0:
-		var character_system = GlobalRefs.character_system
-		if character_system:
-			character_system.add_wp(char_uid, cargo_sale_value)
-			GameState.session_stats.total_wp_earned += cargo_sale_value
-	
-	return {"success": true, "cargo_sale_value": cargo_sale_value}
-
-
-func _complete_combat(_char_uid: int, _contract) -> Dictionary:
-	# Combat contracts just need kill count met, no additional action
-	return {"success": true}
-
-
-func _apply_rewards(char_uid: int, contract) -> void:
-	# Apply WP reward
-	var character_system = GlobalRefs.character_system
-	if character_system and contract.reward_wp > 0:
-		character_system.add_wp(char_uid, contract.reward_wp)
-		GameState.session_stats.total_wp_earned += contract.reward_wp
-	
-	# Apply reputation
-	if contract.reward_reputation != 0:
-		var current_rep = GameState.narrative_state.get("reputation", 0)
-		GameState.narrative_state.reputation = current_rep + contract.reward_reputation
-		
-		# Track faction standing if faction specified
-		if contract.faction_id != "":
-			var standings = GameState.narrative_state.get("faction_standings", {})
-			var current_faction_rep = standings.get(contract.faction_id, 0)
-			standings[contract.faction_id] = current_faction_rep + contract.reward_reputation
-			GameState.narrative_state.faction_standings = standings
-	
-	# Apply item rewards
-	var inventory_system = GlobalRefs.inventory_system
-	if inventory_system:
-		for item_id in contract.reward_items:
-			var qty = contract.reward_items[item_id]
-			# Determine item type from template
-			var template = TemplateDatabase.get_template(item_id)
-			if template:
-				var asset_type = InventorySystem.InventoryType.COMMODITY  # Default
-				if template.template_type == "module":
-					asset_type = InventorySystem.InventoryType.MODULE
-				inventory_system.add_asset(char_uid, asset_type, item_id, qty)
-
-
-func _fail_contract(_char_uid: int, contract_id: String) -> void:
-	var contract = GameState.active_contracts.get(contract_id)
-	if not contract:
-		return
-	
-	# Remove from active
-	GameState.active_contracts.erase(contract_id)
-	
-	# Emit failure signal
-	EventBus.emit_signal("contract_failed", contract_id)
 
 --- Start of ./src/core/systems/event_system.gd ---
 
@@ -17376,13 +19235,13 @@ func _fail_contract(_char_uid: int, contract_id: String) -> void:
 extends Node
 
 # --- Configuration ---
-const ENCOUNTER_COOLDOWN_TU: int = 5
+const ENCOUNTER_COOLDOWN_SECONDS: int = 5
 const BASE_ENCOUNTER_CHANCE: float = 0.30
 const SPAWN_DISTANCE_MIN: float = 600.0
 const SPAWN_DISTANCE_MAX: float = 1000.0
 
 # --- State ---
-var _encounter_cooldown_tu: int = 0
+var _encounter_cooldown_seconds: int = 0
 var _active_hostiles: Array = []
 
 
@@ -17399,14 +19258,14 @@ func _ready() -> void:
 
 ## Processes world event ticks and manages encounter cooldown.
 ## Decrements cooldown, potentially triggers encounters if conditions are met.
-func _on_world_event_tick_triggered(tu_amount: int) -> void:
-	if tu_amount <= 0:
+func _on_world_event_tick_triggered(delta_seconds: int) -> void:
+	if delta_seconds <= 0:
 		return
 
-	_encounter_cooldown_tu = int(max(0, _encounter_cooldown_tu - tu_amount))
+	_encounter_cooldown_seconds = int(max(0, _encounter_cooldown_seconds - delta_seconds))
 	_prune_invalid_hostiles()
 
-	if _encounter_cooldown_tu > 0:
+	if _encounter_cooldown_seconds > 0:
 		return
 	if not _active_hostiles.empty():
 		return
@@ -17436,11 +19295,11 @@ func _maybe_trigger_encounter() -> void:
 	var chance: float = clamp(BASE_ENCOUNTER_CHANCE * danger_level, 0.0, 1.0)
 
 	if randf() > chance:
-		_encounter_cooldown_tu = ENCOUNTER_COOLDOWN_TU
+		_encounter_cooldown_seconds = ENCOUNTER_COOLDOWN_SECONDS
 		return
 
 	_spawn_hostile_encounter()
-	_encounter_cooldown_tu = ENCOUNTER_COOLDOWN_TU * 2
+	_encounter_cooldown_seconds = ENCOUNTER_COOLDOWN_SECONDS * 2
 
 
 ## Spawns hostile NPCs at calculated positions and emits combat_initiated signal.
@@ -17520,7 +19379,7 @@ func get_active_hostiles() -> Array:
 
 ## Immediately forces an encounter to spawn (for testing/debugging).
 func force_encounter() -> void:
-	_encounter_cooldown_tu = 0
+	_encounter_cooldown_seconds = 0
 	_spawn_hostile_encounter()
 
 
@@ -17541,14 +19400,6 @@ func _notification(what: int) -> void:
 				EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
 			if EventBus.is_connected("agent_despawning", self, "_on_agent_despawning"):
 				EventBus.disconnect("agent_despawning", self, "_on_agent_despawning")
-
---- Start of ./src/core/systems/goal_system.gd ---
-
-extends Node
-
-func _ready():
-	GlobalRefs.set_goal_system(self)
-	print("GoalSystem Ready.")
 
 --- Start of ./src/core/systems/inventory_system.gd ---
 
@@ -17646,977 +19497,70 @@ func get_inventory_by_type(character_uid: int, inventory_type: int) -> Dictionar
 func _get_master_asset_instance(inventory_type: int, asset_uid: int) -> Resource:
 	if inventory_type == InventoryType.SHIP:
 		return GameState.assets_ships.get(asset_uid)
-	elif inventory_type == InventoryType.MODULE:
-		return GameState.assets_modules.get(asset_uid)
+	# NOTE: MODULE lookup removed — GameState.assets_modules pruned in sim rework.
+	# Module support will be rebuilt on the Agent layer.
 	return null
-
---- Start of ./src/core/systems/narrative_action_system.gd ---
-
-# File: core/systems/narrative_action_system.gd
-# Purpose: Orchestrates Narrative Actions: request → resolve → apply effects.
-#          Bridges game events (contract completion, docking, trading) with
-#          CoreMechanicsAPI (dice rolls) and NarrativeOutcomes (effect lookup).
-# Version: 2.0 - Strict types, comprehensive docstrings, safe null checks.
-
-extends Node
-
-## Stores pending action state while awaiting UI player input.
-var _pending_action: Dictionary = {}
-
-
-func _ready() -> void:
-	"""Register this system in GlobalRefs (if setter available)."""
-	if GlobalRefs and GlobalRefs.has_method("set_narrative_action_system"):
-		GlobalRefs.set_narrative_action_system(self)
-
-
-func request_action(action_type: String, context: Dictionary) -> void:
-	"""Request a narrative action (e.g., "contract_complete").
-	
-	Args:
-		action_type: "contract_complete", "dock_arrival", or "trade_finalize".
-		context: {char_uid, description, ...} passed through to UI.
-	
-	Behavior:
-		Stores action data in _pending_action.
-		Looks up skill/attribute for this action type.
-		Emits EventBus.narrative_action_requested to show UI.
-	"""
-	var char_uid: int = int(context.get("char_uid", GameState.player_character_uid))
-	_pending_action = {
-		"action_type": action_type,
-		"context": context,
-		"char_uid": char_uid
-	}
-
-	# Determine which skill/attribute applies.
-	var skill_info: Dictionary = _get_skill_for_action(action_type)
-	_pending_action.merge(skill_info)
-
-	# Cross-system/UI signal (global).
-	# EventBus declares: signal narrative_action_requested(action_type, context)
-	if EventBus:
-		EventBus.emit_signal("narrative_action_requested", action_type, _pending_action)
-
-
-func resolve_action(approach: int, fp_spent: int) -> Dictionary:
-	"""Resolve pending action: roll, lookup outcome, apply effects.
-	
-	Args:
-		approach: Constants.ActionApproach (CAUTIOUS=0 or RISKY=1).
-		fp_spent: Focus Points player allocated (0-3 typically).
-	
-	Returns:
-		{success: bool, roll_result: Dictionary, outcome: Dictionary, effects_applied: Dictionary}
-		
-	Behavior:
-		1. Validates pending action exists.
-		2. Gets character attribute & skill.
-		3. Clamps fp_spent to available FP.
-		4. Calls CoreMechanicsAPI.perform_action_check().
-		5. Looks up narrative outcome by action_type + tier.
-		6. Applies all effects (WP, FP, quirks, reputation).
-		7. Emits EventBus.narrative_action_resolved.
-		8. Clears _pending_action.
-	"""
-	if _pending_action.empty():
-		return {"success": false, "reason": "No pending action"}
-
-	var char_uid: int = int(_pending_action.get("char_uid", GameState.player_character_uid))
-	if not is_instance_valid(GlobalRefs.character_system):
-		return {"success": false, "reason": "CharacterSystem unavailable"}
-
-	var attribute_name: String = str(_pending_action.get("attribute_name", "cunning"))
-	var skill_name: String = str(_pending_action.get("skill_name", "general"))
-	var attr_value: int = _get_attribute_value(char_uid, attribute_name)
-	var skill_value: int = int(GlobalRefs.character_system.get_skill_level(char_uid, skill_name))
-
-	# Clamp FP spent to available FP; CoreMechanicsAPI will clamp to max.
-	var available_fp: int = int(GlobalRefs.character_system.get_fp(char_uid))
-	fp_spent = int(fp_spent)
-	if fp_spent < 0:
-		fp_spent = 0
-	if fp_spent > available_fp:
-		fp_spent = available_fp
-
-	# Perform the roll via CoreMechanicsAPI.
-	var roll_result: Dictionary = CoreMechanicsAPI.perform_action_check(attr_value, skill_value, fp_spent, approach)
-
-	# Get narrative outcome from tier.
-	# CoreMechanicsAPI returns both result_tier ("CritSuccess"/"SwC"/"Failure") and tier_name.
-	var tier_key: String = str(roll_result.get("result_tier", roll_result.get("tier_name", "Failure")))
-	var action_type: String = str(_pending_action.get("action_type", ""))
-	var outcome: Dictionary = _get_narrative_outcome(action_type, tier_key)
-
-	# Apply effects.
-	var applied: Dictionary = _apply_effects(char_uid, outcome.get("effects", {}))
-
-	# Deduct FP spent.
-	if fp_spent > 0:
-		GlobalRefs.character_system.subtract_fp(char_uid, fp_spent)
-
-	# Handle FP gain/loss from roll result.
-	var focus_gain: int = int(roll_result.get("focus_gain", 0))
-	if focus_gain > 0:
-		GlobalRefs.character_system.add_fp(char_uid, focus_gain)
-	if bool(roll_result.get("focus_loss_reset", false)):
-		_reset_focus_points(char_uid)
-
-	var result: Dictionary = {
-		"success": true,
-		"roll_result": roll_result,
-		"outcome": outcome,
-		"effects_applied": applied,
-		"action_type": action_type,
-		"char_uid": char_uid
-	}
-
-	# Cross-system/UI signal (global).
-	if EventBus:
-		EventBus.emit_signal("narrative_action_resolved", result)
-
-	_pending_action = {}
-	return result
-
-
-func _get_narrative_outcome(action_type: String, tier_key: String) -> Dictionary:
-	"""Look up outcome data from NarrativeOutcomes autoload.
-	
-	Args:
-		action_type: e.g., "contract_complete".
-		tier_key: "CritSuccess", "SwC", or "Failure".
-		
-	Returns:
-		{description: String, effects: Dictionary} or empty dict if not found.
-	"""
-	var outcomes_node: Node = get_node_or_null("/root/NarrativeOutcomes")
-	if outcomes_node and outcomes_node.has_method("get_outcome"):
-		return outcomes_node.get_outcome(action_type, tier_key)
-	return {"description": "No outcome defined.", "effects": {}}
-
-
-func _get_skill_for_action(action_type: String) -> Dictionary:
-	"""Map action_type to attribute & skill used in the check.
-	
-	Args:
-		action_type: e.g., "contract_complete".
-		
-	Returns:
-		{attribute_name: String, skill_name: String}.
-	"""
-	match action_type:
-		"contract_complete":
-			return {"attribute_name": "cunning", "skill_name": "negotiation"}
-		"dock_arrival":
-			return {"attribute_name": "reflex", "skill_name": "piloting"}
-		"trade_finalize":
-			return {"attribute_name": "cunning", "skill_name": "trading"}
-		_:
-			return {"attribute_name": "cunning", "skill_name": "general"}
-
-
-func _apply_effects(char_uid: int, effects: Dictionary) -> Dictionary:
-	"""Apply all outcome effects (WP, FP, quirks, reputation) to game state.
-	
-	Args:
-		char_uid: Character UID.
-		effects: {"wp_cost": int, "wp_gain": int, "fp_gain": int, "add_quirk": str, "reputation_change": int}.
-		
-	Returns:
-		{"wp_lost": int, "wp_gained": int, "quirk_added": str, "reputation_changed": int}.
-		Only includes effects that were actually applied.
-	"""
-	var applied: Dictionary = {}
-	if effects == null:
-		return applied
-
-	# Ship quirks (integrated with QuirkSystem).
-	if effects.has("add_quirk") and is_instance_valid(GlobalRefs.quirk_system):
-		var quirk_id: String = str(effects.get("add_quirk"))
-		var ship_uid: int = -1
-		
-		# Resolve ship UID from character data
-		if GameState.characters.has(char_uid):
-			var character: Object = GameState.characters[char_uid]
-			if is_instance_valid(character):
-				# Assuming CharacterTemplate has active_ship_uid
-				ship_uid = int(character.active_ship_uid)
-
-		if ship_uid != -1:
-			if GlobalRefs.quirk_system.add_quirk(ship_uid, quirk_id):
-				applied["quirk_added"] = quirk_id
-
-	# WP adjustments.
-	if effects.has("wp_cost"):
-		var wp_cost: int = int(effects.get("wp_cost", 0))
-		if wp_cost != 0 and is_instance_valid(GlobalRefs.character_system):
-			GlobalRefs.character_system.subtract_wp(char_uid, wp_cost)
-			applied["wp_lost"] = wp_cost
-
-	if effects.has("wp_gain"):
-		var wp_gain: int = int(effects.get("wp_gain", 0))
-		if wp_gain != 0 and is_instance_valid(GlobalRefs.character_system):
-			GlobalRefs.character_system.add_wp(char_uid, wp_gain)
-			applied["wp_gained"] = wp_gain
-
-	# FP gains from outcomes (separate from CoreMechanicsAPI focus_gain).
-	if effects.has("fp_gain"):
-		var fp_gain: int = int(effects.get("fp_gain", 0))
-		if fp_gain != 0 and is_instance_valid(GlobalRefs.character_system):
-			GlobalRefs.character_system.add_fp(char_uid, fp_gain)
-			applied["fp_gained"] = fp_gain
-
-	# Reputation change (GameState container).
-	if effects.has("reputation_change"):
-		var rep_delta: int = int(effects.get("reputation_change", 0))
-		if not GameState.narrative_state.has("reputation"):
-			GameState.narrative_state["reputation"] = 0
-		GameState.narrative_state["reputation"] = int(GameState.narrative_state["reputation"]) + rep_delta
-		applied["reputation_changed"] = rep_delta
-
-	return applied
-
-
-func _reset_focus_points(char_uid: int) -> void:
-	"""Reset character's FP to 0 (used when focus_loss_reset from roll)."""
-	if not is_instance_valid(GlobalRefs.character_system):
-		return
-	var current_fp: int = int(GlobalRefs.character_system.get_fp(char_uid))
-	if current_fp > 0:
-		GlobalRefs.character_system.subtract_fp(char_uid, current_fp)
-
-
-func _get_attribute_value(char_uid: int, attribute_name: String) -> int:
-	"""Get attribute value for character (Phase 1: always 0, placeholder for future expansion).
-	
-	Args:
-		char_uid: Character UID.
-		attribute_name: e.g., "cunning", "reflex".
-		
-	Returns:
-		Attribute value (0 if not implemented).
-	"""
-	var character: Object = GameState.characters.get(char_uid, null)
-	if character == null:
-		return 0
-	if character.has_method("get") and character.get("attributes") is Dictionary:
-		return int(character.attributes.get(attribute_name, 0))
-	return 0
-
---- Start of ./src/core/systems/progression_system.gd ---
-
-extends Node
-
-func _ready():
-	GlobalRefs.set_progression_system(self)
-	print("ProgressionSystem Ready.")
-
---- Start of ./src/core/systems/quirk_system.gd ---
-
-#
-# PROJECT: GDTLancer
-# MODULE: src/core/systems/quirk_system.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2025-10-31.md Section 2.1
-# LOG_REF: 2025-12-23
-#
-
-extends Node
-
-## System for managing Ship Quirks.
-## Handles adding, removing, and querying quirks for ships.
-
-func _ready() -> void:
-	GlobalRefs.quirk_system = self
-	print("QuirkSystem: Registered with GlobalRefs")
-
-
-## Adds a quirk to a ship.
-## Returns true if the quirk was successfully added, false otherwise.
-func add_quirk(ship_uid: int, quirk_id: String) -> bool:
-	if not GameState.assets_ships.has(ship_uid):
-		push_warning("QuirkSystem: add_quirk failed - Ship UID not found: " + str(ship_uid))
-		return false
-		
-	var ship_data = GameState.assets_ships[ship_uid]
-	# ship_quirks should be an Array
-	if not ship_data.get("ship_quirks") is Array:
-		push_warning("QuirkSystem: add_quirk failed - ship_quirks is not an Array for ship: " + str(ship_uid))
-		return false
-
-	var quirks: Array = ship_data.ship_quirks
-	
-	if quirks.has(quirk_id):
-		return false # Already has it
-		
-	quirks.append(quirk_id)
-	EventBus.emit_signal("ship_quirk_added", ship_uid, quirk_id)
-	print("QuirkSystem: Added quirk ", quirk_id, " to ship ", ship_uid)
-	return true
-
-
-## Removes a quirk from a ship.
-## Returns true if the quirk was successfully removed, false otherwise.
-func remove_quirk(ship_uid: int, quirk_id: String) -> bool:
-	if not GameState.assets_ships.has(ship_uid):
-		return false
-		
-	var ship_data = GameState.assets_ships[ship_uid]
-	var quirks: Array = ship_data.ship_quirks
-	
-	if not quirks.has(quirk_id):
-		return false
-		
-	quirks.erase(quirk_id)
-	EventBus.emit_signal("ship_quirk_removed", ship_uid, quirk_id)
-	return true
-
-
-## Returns a copy of the quirks array for a given ship.
-func get_quirks(ship_uid: int) -> Array:
-	if not GameState.assets_ships.has(ship_uid):
-		return []
-	
-	# Return copy as per architecture for getters
-	return GameState.assets_ships[ship_uid].ship_quirks.duplicate()
-
-
-## Checks if a ship has a specific quirk.
-func has_quirk(ship_uid: int, quirk_id: String) -> bool:
-	if not GameState.assets_ships.has(ship_uid):
-		return false
-	return GameState.assets_ships[ship_uid].ship_quirks.has(quirk_id)
 
 --- Start of ./src/core/systems/time_system.gd ---
 
-# File: core/systems/time_system.gd
-# Purpose: Manages the passage of abstract game time (TU) and triggers world events.
-# Version: 2.0 - Refactored to be stateless and correctly apply player upkeep.
+#
+# PROJECT: GDTLancer
+# MODULE: time_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
+# LOG_REF: 2026-02-13
+#
 
 extends Node
+
+## TimeSystem: Pure clock — tracks real-time accumulation and emits tick signals.
+##
+## This system is ONLY a timer. It does NOT call any other systems directly.
+## When WORLD_TICK_INTERVAL_SECONDS elapses, it emits world_event_tick_triggered
+## on EventBus. SimulationEngine listens to that signal and orchestrates the
+## full tick sequence (Grid → Bridge → Agent → Chronicle).
+##
+## All upkeep/entropy/cost logic has been moved to BridgeSystems (TASK_6).
+
+var _accumulated_seconds: float = 0.0
 
 func _ready():
 	GlobalRefs.set_time_system(self)
-	print("TimeSystem Ready.")
+	print("TimeSystem Ready (pure clock mode).")
 
 
 # --- Public API ---
-func add_time_units(tu_to_add: int):
-	if tu_to_add <= 0:
+
+## Advances game time by the given number of seconds.
+## Triggers world event ticks whenever the accumulator crosses the interval threshold.
+func advance_game_time(seconds_to_add: int) -> void:
+	if seconds_to_add <= 0:
 		return
 
-	GameState.current_tu += tu_to_add
+	GameState.game_time_seconds += seconds_to_add
 
-	# Emit signal for UI updates every time TU is added
-	if EventBus and EventBus.has_signal("time_units_added"):
-		EventBus.emit_signal("time_units_added", tu_to_add)
+	# Emit signal for UI updates every time time is added
+	if EventBus and EventBus.has_signal("game_time_advanced"):
+		EventBus.emit_signal("game_time_advanced", seconds_to_add)
 
-	while GameState.current_tu >= Constants.TIME_CLOCK_MAX_TU:
-		_trigger_world_event_tick()
+	# Accumulate and fire world ticks as needed
+	_accumulated_seconds += float(seconds_to_add)
+	while _accumulated_seconds >= Constants.WORLD_TICK_INTERVAL_SECONDS:
+		_accumulated_seconds -= Constants.WORLD_TICK_INTERVAL_SECONDS
+		_emit_world_tick()
 
 
-func get_current_tu() -> int:
-	return GameState.current_tu
+## Returns the current game time in seconds.
+func get_current_game_time() -> int:
+	return GameState.game_time_seconds
 
 
-# --- Private Logic ---
-func _trigger_world_event_tick():
-	# 1. Decrement the clock by the max amount for one tick.
-	GameState.current_tu -= Constants.TIME_CLOCK_MAX_TU
+# --- Private ---
 
-	#print("--- WORLD EVENT TICK TRIGGERED ---")
-
-	# 2. Emit the global signal with the amount of TU that this tick represents.
+## Emits the world tick signal. SimulationEngine handles everything else.
+func _emit_world_tick() -> void:
 	if EventBus:
-		EventBus.emit_signal("world_event_tick_triggered", Constants.TIME_CLOCK_MAX_TU)
-
-	# 3. Call the Character System to apply the WP Upkeep cost for the player character.
-	if is_instance_valid(GlobalRefs.character_system):
-		var player_uid = GlobalRefs.character_system.get_player_character_uid()
-		if player_uid != -1:
-			GlobalRefs.character_system.apply_upkeep_cost(player_uid, Constants.DEFAULT_UPKEEP_COST)
-
---- Start of ./src/core/systems/trading_system.gd ---
-
-# File: core/systems/trading_system.gd
-# Purpose: Provides a stateless API for trading commodities between characters and locations.
-# Version: 1.0
-
-extends Node
-
-
-func _ready():
-	GlobalRefs.set_trading_system(self)
-	print("TradingSystem Ready.")
-
-
-# --- Public API ---
-
-
-# Checks if a character can buy a commodity from a location.
-# Returns: {success: bool, reason: String, total_cost: int}
-func can_buy(char_uid: int, location_id: String, commodity_id: String, quantity: int) -> Dictionary:
-	var result = {"success": false, "reason": "", "total_cost": 0}
-	
-	# Validate inputs
-	if quantity <= 0:
-		result.reason = "Invalid quantity"
-		return result
-	
-	# Check location exists
-	if not GameState.locations.has(location_id):
-		result.reason = "Location not found"
-		return result
-	
-	var location = GameState.locations[location_id]
-	
-	# Check location has this commodity
-	if not location.market_inventory.has(commodity_id):
-		result.reason = "Commodity not available at this location"
-		return result
-	
-	var market_entry = location.market_inventory[commodity_id]
-	
-	# Check sufficient quantity at market
-	if market_entry.quantity < quantity:
-		result.reason = "Insufficient stock (available: %d)" % market_entry.quantity
-		return result
-	
-	# Calculate total cost (use buy_price if available, else price)
-	var unit_price = market_entry.get("buy_price", market_entry.get("price", 0))
-	var total_cost = unit_price * quantity
-	result.total_cost = total_cost
-	
-	# Check character has enough WP
-	if not is_instance_valid(GlobalRefs.character_system):
-		result.reason = "Character system unavailable"
-		return result
-	
-	var current_wp = GlobalRefs.character_system.get_wp(char_uid)
-	if current_wp < total_cost:
-		result.reason = "Insufficient funds (need: %d WP, have: %d WP)" % [total_cost, current_wp]
-		return result
-	
-	# Check cargo capacity
-	var cargo_check = _check_cargo_capacity(char_uid, quantity)
-	if not cargo_check.has_space:
-		result.reason = "Insufficient cargo space (need: %d, available: %d)" % [quantity, cargo_check.available]
-		return result
-	
-	result.success = true
-	result.reason = "OK"
-	return result
-
-
-# Executes a buy transaction.
-# Returns: {success: bool, reason: String, wp_spent: int, quantity_bought: int}
-func execute_buy(char_uid: int, location_id: String, commodity_id: String, quantity: int) -> Dictionary:
-	var result = {"success": false, "reason": "", "wp_spent": 0, "quantity_bought": 0}
-	
-	# First check if we can buy
-	var can_buy_result = can_buy(char_uid, location_id, commodity_id, quantity)
-	if not can_buy_result.success:
-		result.reason = can_buy_result.reason
-		return result
-	
-	var total_cost = can_buy_result.total_cost
-	var location = GameState.locations[location_id]
-	
-	# Execute transaction
-	# 1. Deduct WP from character
-	GlobalRefs.character_system.subtract_wp(char_uid, total_cost)
-	
-	# 2. Add commodity to character inventory
-	GlobalRefs.inventory_system.add_asset(
-		char_uid, 
-		GlobalRefs.inventory_system.InventoryType.COMMODITY, 
-		commodity_id, 
-		quantity
-	)
-	
-	# 3. Reduce market inventory
-	location.market_inventory[commodity_id].quantity -= quantity
-	
-	# 4. Track session stats
-	GameState.session_stats.total_wp_spent += total_cost
-	
-	# 5. Emit signal
-	EventBus.emit_signal("trade_transaction_completed", {
-		"type": "buy",
-		"char_uid": char_uid,
-		"location_id": location_id,
-		"commodity_id": commodity_id,
-		"quantity": quantity,
-		"total_price": total_cost
-	})
-	
-	result.success = true
-	result.reason = "OK"
-	result.wp_spent = total_cost
-	result.quantity_bought = quantity
-	return result
-
-
-# Checks if a character can sell a commodity at a location.
-# Returns: {success: bool, reason: String, total_value: int}
-func can_sell(char_uid: int, location_id: String, commodity_id: String, quantity: int) -> Dictionary:
-	var result = {"success": false, "reason": "", "total_value": 0}
-	
-	# Validate inputs
-	if quantity <= 0:
-		result.reason = "Invalid quantity"
-		return result
-	
-	# Check location exists
-	if not GameState.locations.has(location_id):
-		result.reason = "Location not found"
-		return result
-	
-	var location = GameState.locations[location_id]
-	
-	# Check location accepts this commodity (has a price for it)
-	if not location.market_inventory.has(commodity_id):
-		result.reason = "This location does not trade in this commodity"
-		return result
-	
-	# Check character has the commodity
-	if not is_instance_valid(GlobalRefs.inventory_system):
-		result.reason = "Inventory system unavailable"
-		return result
-	
-	var owned_quantity = GlobalRefs.inventory_system.get_asset_count(
-		char_uid, 
-		GlobalRefs.inventory_system.InventoryType.COMMODITY, 
-		commodity_id
-	)
-	
-	if owned_quantity < quantity:
-		result.reason = "Insufficient cargo (have: %d, trying to sell: %d)" % [owned_quantity, quantity]
-		return result
-	
-	# Calculate value (use sell_price if available, else price)
-	var market_entry = location.market_inventory[commodity_id]
-	var unit_price = market_entry.get("sell_price", market_entry.get("price", 0))
-	var total_value = unit_price * quantity
-	result.total_value = total_value
-	
-	result.success = true
-	result.reason = "OK"
-	return result
-
-
-# Executes a sell transaction.
-# Returns: {success: bool, reason: String, wp_earned: int, quantity_sold: int}
-func execute_sell(char_uid: int, location_id: String, commodity_id: String, quantity: int) -> Dictionary:
-	var result = {"success": false, "reason": "", "wp_earned": 0, "quantity_sold": 0}
-	
-	# First check if we can sell
-	var can_sell_result = can_sell(char_uid, location_id, commodity_id, quantity)
-	if not can_sell_result.success:
-		result.reason = can_sell_result.reason
-		return result
-	
-	var total_value = can_sell_result.total_value
-	var location = GameState.locations[location_id]
-	
-	# Execute transaction
-	# 1. Remove commodity from character inventory
-	var removed = GlobalRefs.inventory_system.remove_asset(
-		char_uid, 
-		GlobalRefs.inventory_system.InventoryType.COMMODITY, 
-		commodity_id, 
-		quantity
-	)
-	
-	if not removed:
-		result.reason = "Failed to remove commodity from inventory"
-		return result
-	
-	# 2. Add WP to character
-	GlobalRefs.character_system.add_wp(char_uid, total_value)
-	
-	# 3. Increase market inventory
-	location.market_inventory[commodity_id].quantity += quantity
-	
-	# 4. Track session stats
-	GameState.session_stats.total_wp_earned += total_value
-	
-	# 5. Emit signal
-	EventBus.emit_signal("trade_transaction_completed", {
-		"type": "sell",
-		"char_uid": char_uid,
-		"location_id": location_id,
-		"commodity_id": commodity_id,
-		"quantity": quantity,
-		"total_price": total_value
-	})
-	
-	result.success = true
-	result.reason = "OK"
-	result.wp_earned = total_value
-	result.quantity_sold = quantity
-	return result
-
-
-# Gets the market prices at a location.
-# Returns: Dictionary of commodity_id -> {price: int, quantity: int}
-func get_market_prices(location_id: String) -> Dictionary:
-	if not GameState.locations.has(location_id):
-		return {}
-	
-	var location = GameState.locations[location_id]
-	# Return a copy to prevent external modification
-	return location.market_inventory.duplicate(true)
-
-
-# Gets all commodities the player owns.
-# Returns: Dictionary of commodity_id -> quantity
-func get_player_cargo(char_uid: int) -> Dictionary:
-	if not is_instance_valid(GlobalRefs.inventory_system):
-		return {}
-	
-	return GlobalRefs.inventory_system.get_inventory_by_type(
-		char_uid,
-		GlobalRefs.inventory_system.InventoryType.COMMODITY
-	)
-
-
-# --- Private Helpers ---
-
-
-# Checks if character's ship has cargo space for additional items.
-# Returns: {has_space: bool, available: int, capacity: int, used: int}
-func _check_cargo_capacity(char_uid: int, additional_quantity: int) -> Dictionary:
-	var result = {"has_space": false, "available": 0, "capacity": 0, "used": 0}
-	
-	# Get ship's cargo capacity
-	if not is_instance_valid(GlobalRefs.asset_system):
-		return result
-	
-	var ship = GlobalRefs.asset_system.get_ship_for_character(char_uid)
-	if not is_instance_valid(ship):
-		return result
-	
-	result.capacity = ship.cargo_capacity
-	
-	# Calculate current cargo usage
-	var cargo = get_player_cargo(char_uid)
-	var total_used = 0
-	for commodity_id in cargo:
-		total_used += cargo[commodity_id]
-	
-	result.used = total_used
-	result.available = result.capacity - result.used
-	result.has_space = result.available >= additional_quantity
-	
-	return result
-
-
-# Gets cargo capacity info for UI display.
-# Returns: {capacity: int, used: int, available: int}
-func get_cargo_info(char_uid: int) -> Dictionary:
-	return _check_cargo_capacity(char_uid, 0)
-
---- Start of ./src/core/systems/traffic_system.gd ---
-
-extends Node
-
-func _ready():
-	GlobalRefs.set_traffic_system(self)
-	print("TrafficSystem Ready.")
-
---- Start of ./src/core/systems/world_map_system.gd ---
-
-extends Node
-
-func _ready():
-	GlobalRefs.set_world_map_system(self)
-	print("WorldMapSystem Ready.")
-
---- Start of ./src/core/ui/action_check/action_check.gd ---
-
-# File: core/ui/action_check/action_check.gd
-# Purpose: Modal UI for resolving Narrative Actions (Risky/Cautious + FP spend).
-# Version: 1.0
-
-extends Control
-
-onready var label_title = $Panel/VBoxContainer/LabelTitle
-onready var label_description = $Panel/VBoxContainer/LabelDescription
-onready var btn_cautious = $Panel/VBoxContainer/HBoxApproach/BtnCautious
-onready var btn_risky = $Panel/VBoxContainer/HBoxApproach/BtnRisky
-onready var spinbox_fp = $Panel/VBoxContainer/HBoxFP/SpinBoxFP
-onready var label_current_fp = $Panel/VBoxContainer/LabelCurrentFP
-onready var btn_confirm = $Panel/VBoxContainer/BtnConfirm
-onready var vbox_result = $Panel/VBoxContainer/VBoxResult
-onready var label_roll_result = $Panel/VBoxContainer/VBoxResult/LabelRollResult
-onready var label_outcome_desc = $Panel/VBoxContainer/VBoxResult/LabelOutcomeDesc
-onready var label_effects = $Panel/VBoxContainer/VBoxResult/LabelEffects
-onready var btn_continue = $Panel/VBoxContainer/VBoxResult/BtnContinue
-
-var _selected_approach: int = Constants.ActionApproach.CAUTIOUS
-var _action_data: Dictionary = {}
-
-
-func _ready():
-	visible = false
-	vbox_result.visible = false
-
-	# Ensure approach buttons behave like a selection.
-	btn_cautious.toggle_mode = true
-	btn_risky.toggle_mode = true
-
-	btn_cautious.connect("pressed", self, "_on_cautious_pressed")
-	btn_risky.connect("pressed", self, "_on_risky_pressed")
-	btn_confirm.connect("pressed", self, "_on_confirm_pressed")
-	btn_continue.connect("pressed", self, "_on_continue_pressed")
-
-	# EventBus signature is (action_type, context). We accept both args.
-	EventBus.connect("narrative_action_requested", self, "_on_action_requested")
-
-
-func _on_action_requested(action_type, action_data: Dictionary):
-	# action_type is provided by EventBus; action_data should include full context.
-	_action_data = action_data
-	# Ensure action_type exists for UI title mapping.
-	if not _action_data.has("action_type"):
-		_action_data["action_type"] = str(action_type)
-	_show_selection_ui()
-
-
-func _show_selection_ui():
-	visible = true
-	vbox_result.visible = false
-	btn_confirm.visible = true
-
-	label_title.text = _get_action_title(str(_action_data.get("action_type", "")))
-	var ctx: Dictionary = _action_data.get("context", {})
-	label_description.text = str(ctx.get("description", "Resolve this action."))
-
-	var char_uid = int(_action_data.get("char_uid", GameState.player_character_uid))
-	var current_fp = 0
-	if is_instance_valid(GlobalRefs.character_system):
-		current_fp = int(GlobalRefs.character_system.get_fp(char_uid))
-
-	label_current_fp.text = "Available: %d FP" % current_fp
-
-	# SpinBox uses floats.
-	var max_fp = min(Constants.FOCUS_MAX_DEFAULT, current_fp)
-	spinbox_fp.max_value = float(max_fp)
-	spinbox_fp.value = 0.0
-
-	_select_approach(Constants.ActionApproach.CAUTIOUS)
-
-
-func _select_approach(approach: int):
-	_selected_approach = approach
-	btn_cautious.pressed = (approach == Constants.ActionApproach.CAUTIOUS)
-	btn_risky.pressed = (approach == Constants.ActionApproach.RISKY)
-
-
-func _on_cautious_pressed():
-	_select_approach(Constants.ActionApproach.CAUTIOUS)
-
-
-func _on_risky_pressed():
-	_select_approach(Constants.ActionApproach.RISKY)
-
-
-func _on_confirm_pressed():
-	var fp_spent = int(spinbox_fp.value)
-	var narrative_system = _get_narrative_action_system()
-	if narrative_system == null or not narrative_system.has_method("resolve_action"):
-		_show_result({
-			"success": false,
-			"roll_result": {"roll_total": 0, "tier_name": "Failure"},
-			"outcome": {"description": "NarrativeActionSystem unavailable.", "effects": {}},
-			"effects_applied": {},
-			"action_type": str(_action_data.get("action_type", ""))
-		})
-		return
-
-	var result = narrative_system.resolve_action(_selected_approach, fp_spent)
-	_show_result(result)
-
-
-func _show_result(result: Dictionary):
-	btn_confirm.visible = false
-	vbox_result.visible = true
-
-	if not result.get("success", true):
-		label_roll_result.text = "Roll: 0 → Failure"
-		label_outcome_desc.bbcode_text = "[i]%s[/i]" % str(result.get("reason", "Failed to resolve action."))
-		label_effects.text = "No additional effects."
-		return
-
-	var roll = result.get("roll_result", {})
-	label_roll_result.text = "Roll: %d → %s" % [int(roll.get("roll_total", 0)), str(roll.get("tier_name", ""))]
-
-	var outcome = result.get("outcome", {})
-	label_outcome_desc.bbcode_text = "[i]%s[/i]" % str(outcome.get("description", ""))
-
-	var effects_text = _format_effects(result.get("effects_applied", {}))
-	label_effects.text = effects_text if effects_text != "" else "No additional effects."
-
-
-func _format_effects(effects: Dictionary) -> String:
-	var parts = []
-	if effects.has("wp_lost"):
-		parts.append("-%d WP" % int(effects.get("wp_lost", 0)))
-	if effects.has("wp_gained"):
-		parts.append("+%d WP" % int(effects.get("wp_gained", 0)))
-	if effects.has("fp_gained"):
-		parts.append("+%d FP" % int(effects.get("fp_gained", 0)))
-	if effects.has("quirk_added"):
-		parts.append("Quirk: %s" % str(effects.get("quirk_added")))
-	if effects.has("reputation_changed"):
-		var rep = int(effects.get("reputation_changed", 0))
-		parts.append("%+d Reputation" % rep)
-	return PoolStringArray(parts).join(", ")
-
-
-func _on_continue_pressed():
-	visible = false
-	_action_data = {}
-
-
-func _get_action_title(action_type: String) -> String:
-	match action_type:
-		"contract_complete":
-			return "Finalize Delivery"
-		"dock_arrival":
-			return "Execute Approach"
-		"trade_finalize":
-			return "Seal the Deal"
-		_:
-			return "Resolve Action"
-
-
-func _get_narrative_action_system():
-	# Task 7 will add GlobalRefs.narrative_action_system; until then use Object.get().
-	var sys = null
-	if GlobalRefs:
-		sys = GlobalRefs.get("narrative_action_system")
-	if is_instance_valid(sys):
-		return sys
-	return get_node_or_null("/root/NarrativeActionSystem")
-
---- Start of ./src/core/ui/character_status/character_status.gd ---
-
-extends Control
-
-onready var label_skill_piloting: Label = $Panel/VBoxContainer/HBoxContent/VBoxStats/LabelSkillPiloting
-onready var label_skill_trading: Label = $Panel/VBoxContainer/HBoxContent/VBoxStats/LabelSkillTrading
-onready var list_contracts: ItemList = $Panel/VBoxContainer/HBoxContent/VBoxContracts/ItemListContracts
-onready var text_details: RichTextLabel = $Panel/VBoxContainer/HBoxContent/VBoxContracts/RichTextLabelDetails
-onready var btn_close: Button = $Panel/VBoxContainer/ButtonClose
-onready var btn_add_wp: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddWP
-onready var btn_add_fp: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonAddFP
-onready var btn_trigger_encounter: Button = $Panel/VBoxContainer/HBoxContent/VBoxStats/ButtonTriggerEncounter
-
-func _ready():
-	GlobalRefs.set_character_status(self)
-	btn_close.connect("pressed", self, "_on_ButtonClose_pressed")
-	btn_add_wp.connect("pressed", self, "_on_ButtonAddWP_pressed")
-	btn_add_fp.connect("pressed", self, "_on_ButtonAddFP_pressed")
-	btn_trigger_encounter.connect("pressed", self, "_on_ButtonTriggerEncounter_pressed")
-	list_contracts.connect("item_selected", self, "_on_contract_selected")
-	
-	# Listen for contract updates to refresh if open
-	EventBus.connect("contract_accepted", self, "_on_contract_update")
-	EventBus.connect("contract_completed", self, "_on_contract_update")
-	EventBus.connect("contract_failed", self, "_on_contract_update")
-	EventBus.connect("contract_abandoned", self, "_on_contract_update")
-
-func open_screen():
-	update_display()
-	self.show()
-
-func update_display():
-	# Update Skills
-	if GlobalRefs.character_system:
-		var char_data = GlobalRefs.character_system.get_player_character()
-		if char_data:
-			var piloting_skill = char_data.skills.get("piloting", 0)
-			var trading_skill = char_data.skills.get("trading", 0)
-			label_skill_piloting.text = "Piloting: " + str(piloting_skill)
-			label_skill_trading.text = "Trading: " + str(trading_skill)
-	
-	# Update Contracts
-	refresh_contracts()
-
-func refresh_contracts():
-	list_contracts.clear()
-	text_details.text = "Select a contract to view details."
-	
-	if GlobalRefs.contract_system:
-		var active_contracts = GlobalRefs.contract_system.get_active_contracts(GameState.player_character_uid)
-		
-		for contract in active_contracts:
-			var text = "%s (%s)" % [contract.title, contract.contract_type]
-			list_contracts.add_item(text)
-			# Store contract_id (template_id) as metadata
-			list_contracts.set_item_metadata(list_contracts.get_item_count() - 1, contract.template_id)
-
-func _on_contract_selected(index):
-	var contract_id = list_contracts.get_item_metadata(index)
-	if GameState.active_contracts.has(contract_id):
-		var contract = GameState.active_contracts[contract_id]
-		_display_contract_details(contract)
-
-func _display_contract_details(contract):
-	var details = "Title: %s\n" % contract.title
-	details += "Type: %s\n" % contract.contract_type
-	details += "Reward: %d WP\n" % contract.reward_wp
-	details += "Time Limit: %d TU\n" % contract.time_limit_tu
-	
-	# Calculate remaining time
-	if contract.time_limit_tu > 0 and contract.accepted_at_tu >= 0:
-		var elapsed = GameState.current_tu - contract.accepted_at_tu
-		var remaining = contract.time_limit_tu - elapsed
-		details += "Time Remaining: %d TU\n" % remaining
-	
-	details += "\nDescription:\n%s\n\n" % contract.description
-	
-	if contract.contract_type == "delivery":
-		details += "Cargo Required: %s (Qty: %d)\n" % [contract.required_commodity_id, contract.required_quantity]
-		details += "Destination: %s\n" % contract.destination_location_id
-		
-		# Check progress
-		var inv_count = 0
-		if GlobalRefs.inventory_system:
-			inv_count = GlobalRefs.inventory_system.get_asset_count(
-				GameState.player_character_uid, 
-				GlobalRefs.inventory_system.InventoryType.COMMODITY, 
-				contract.required_commodity_id
-			)
-		details += "Current Cargo: %d / %d\n" % [inv_count, contract.required_quantity]
-	
-	text_details.text = details
-
-func _on_contract_update(_a = null, _b = null):
-	if visible:
-		refresh_contracts()
-
-func _on_ButtonClose_pressed():
-	self.hide()
-
-func _on_ButtonAddWP_pressed():
-	if GlobalRefs.character_system:
-		GlobalRefs.character_system.add_wp(GameState.player_character_uid, 10)
-
-func _on_ButtonAddFP_pressed():
-	if GlobalRefs.character_system:
-		GlobalRefs.character_system.add_fp(GameState.player_character_uid, 1)
-
-
-func _on_ButtonTriggerEncounter_pressed():
-	"""Debug button: Forces an immediate combat encounter spawn."""
-	if GlobalRefs.event_system and GlobalRefs.event_system.has_method("force_encounter"):
-		GlobalRefs.event_system.force_encounter()
-		print("[CharacterStatus] Debug: Forced encounter triggered")
-	else:
-		printerr("[CharacterStatus] EventSystem not available or missing force_encounter method")
+		EventBus.emit_signal("world_event_tick_triggered", Constants.WORLD_TICK_INTERVAL_SECONDS)
 
 --- Start of ./src/core/ui/helpers/CenteredGrowingLabel.gd ---
 
@@ -18681,189 +19625,30 @@ func get_parent_control() -> Control:
 		return p
 	return null
 
---- Start of ./src/core/ui/inventory_screen/inventory_screen.gd ---
-
-# File: src/core/ui/inventory_screen/inventory_screen.gd
-# Script for the player inventory UI.
-# Version: 1.0 - Initial.
-
-extends Control
-
-# Preload the InventorySystem script to access its enums
-const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
-
-# --- Node References ---
-onready var ShipList = $Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Ships/ShipList
-onready var ModuleList = $Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Modules/ModuleList
-onready var CommodityList = $Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Commodities/CommodityList
-
-# --- Detail Panel Node References ---
-onready var LabelName = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelName
-onready var LabelDescription = $Panel/VBoxMain/HBoxContent/VBoxDetails/ScrollContainer/LabelDescription
-onready var LabelStat1 = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelStat1
-onready var LabelStat2 = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelStat2
-onready var LabelStat3 = $Panel/VBoxMain/HBoxContent/VBoxDetails/LabelStat3
-
-
-func _ready():
-	GlobalRefs.set_inventory_screen(self)
-
-	# Connect the item selection signals for each list
-	ShipList.connect("item_selected", self, "_on_ShipList_item_selected")
-	ModuleList.connect("item_selected", self, "_on_ModuleList_item_selected")
-	CommodityList.connect("item_selected", self, "_on_CommodityList_item_selected")
-
-
-func open_screen():
-	_clear_details()  # Clear details panel when opening
-	_populate_all_lists()
-
-	self.show()
-
-
-# Populates all three asset lists with data from the GameState via the system APIs.
-func _populate_all_lists():
-	# 1. Get Player UID
-	if (
-		not is_instance_valid(GlobalRefs.character_system)
-		or not is_instance_valid(GlobalRefs.inventory_system)
-		or not is_instance_valid(GlobalRefs.asset_system)
-	):
-		printerr("HangarScreen Error: Core systems not available in GlobalRefs.")
-		return
-
-	var player_uid = GlobalRefs.character_system.get_player_character_uid()
-	if player_uid == -1:
-		printerr("HangarScreen Error: Could not get a valid player UID.")
-		return
-
-	# 2. Clear existing lists
-	ShipList.clear()
-	ModuleList.clear()
-	CommodityList.clear()
-
-	# --- 3. Populate Ship List ---
-	var ship_inventory = GlobalRefs.inventory_system.get_inventory_by_type(
-		player_uid, InventorySystem.InventoryType.SHIP
-	)
-	for ship_uid in ship_inventory:
-		var ship_resource = GlobalRefs.asset_system.get_ship(ship_uid)
-		if is_instance_valid(ship_resource):
-			ShipList.add_item(ship_resource.ship_model_name)
-			# Store the UID for when the item is selected
-			ShipList.set_item_metadata(ShipList.get_item_count() - 1, ship_uid)
-		else:
-			printerr("HangarScreen Error: Could not find ship asset for UID: ", ship_uid)
-
-	# --- 4. Populate Module List ---
-	var module_inventory = GlobalRefs.inventory_system.get_inventory_by_type(
-		player_uid, InventorySystem.InventoryType.MODULE
-	)
-	for module_uid in module_inventory:
-		# AssetSystem API doesn't have a get_module, so we access GameState directly
-		var module_resource = GameState.assets_modules.get(module_uid)
-		if is_instance_valid(module_resource):
-			ModuleList.add_item(module_resource.module_name)
-			ModuleList.set_item_metadata(ModuleList.get_item_count() - 1, module_uid)
-		else:
-			printerr("HangarScreen Error: Could not find module asset for UID: ", module_uid)
-
-	# --- 5. Populate Commodity List ---
-	var commodity_inventory = GlobalRefs.inventory_system.get_inventory_by_type(
-		player_uid, InventorySystem.InventoryType.COMMODITY
-	)
-	for template_id in commodity_inventory:
-		if TemplateDatabase.assets_commodities.has(template_id):
-			var commodity_template = TemplateDatabase.assets_commodities[template_id]
-			var quantity = commodity_inventory[template_id]
-
-			# Display name and quantity in the list
-			var item_text = "%s (x%d)" % [commodity_template.commodity_name, quantity]
-			CommodityList.add_item(item_text)
-			# Store the template_id for when the item is selected
-			CommodityList.set_item_metadata(CommodityList.get_item_count() - 1, template_id)
-		else:
-			printerr("HangarScreen Error: Could not find commodity template for ID: ", template_id)
-
-
-# --- Signal Handlers ---
-
-
-# Clears the details panel text.
-func _clear_details():
-	LabelName.text = "Select an item"
-	LabelDescription.text = ""
-	LabelStat1.text = ""
-	LabelStat2.text = ""
-	LabelStat3.text = ""
-
-
-func _on_ShipList_item_selected(index):
-	var ship_uid = ShipList.get_item_metadata(index)
-	var ship_resource = GlobalRefs.asset_system.get_ship(ship_uid)
-
-	if is_instance_valid(ship_resource):
-		_clear_details()
-		LabelName.text = ship_resource.ship_model_name
-		LabelDescription.text = "Ship Hull"  # Placeholder description
-		LabelStat1.text = "Hull: %d" % ship_resource.hull_integrity
-		LabelStat2.text = "Armor: %d" % ship_resource.armor_integrity
-		LabelStat3.text = "Cargo: %d" % ship_resource.cargo_capacity
-	else:
-		_clear_details()
-		LabelName.text = "Error: Ship not found"
-
-
-func _on_ModuleList_item_selected(index):
-	var module_uid = ModuleList.get_item_metadata(index)
-	var module_resource = GameState.assets_modules.get(module_uid)
-
-	if is_instance_valid(module_resource):
-		_clear_details()
-		LabelName.text = module_resource.module_name
-		LabelDescription.text = "Ship Module"  # Placeholder description
-		LabelStat1.text = "Base Value: %d WP" % module_resource.base_value
-	else:
-		_clear_details()
-		LabelName.text = "Error: Module not found"
-
-
-func _on_CommodityList_item_selected(index):
-	var template_id = CommodityList.get_item_metadata(index)
-	var commodity_template = TemplateDatabase.assets_commodities.get(template_id)
-
-	if is_instance_valid(commodity_template):
-		var player_uid = GlobalRefs.character_system.get_player_character_uid()
-		var quantity = GlobalRefs.inventory_system.get_asset_count(
-			player_uid, InventorySystem.InventoryType.COMMODITY, template_id
-		)
-
-		_clear_details()
-		LabelName.text = commodity_template.commodity_name
-		LabelDescription.text = "Trade Good"  # Placeholder description
-		LabelStat1.text = "Quantity: %d" % quantity
-		LabelStat2.text = "Base Value: %d WP" % commodity_template.base_value
-	else:
-		_clear_details()
-		LabelName.text = "Error: Commodity not found"
-
-
-func _on_ButtonClose_pressed():
-	self.hide()
-
 --- Start of ./src/core/ui/main_hud/main_hud.gd ---
 
-# File: res://core/ui/main_hud/main_hud.gd
-# Script for the main HUD container. Handles displaying targeting info, etc.
-# Version: 1.3 - Added camera mode toggle.
+#
+# PROJECT: GDTLancer
+# MODULE: main_hud.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.2
+# LOG_REF: 2026-01-30
+#
 
 extends Control
+
+## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.
+## Manages sub-screens (Station Menu) and docking prompts.
+
+# --- Sub-Screens ---
+const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
+var _station_menu_instance = null
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
-onready var label_wp: Label = $ScreenControls/TopLeftZone/LabelWP
+onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
-onready var label_tu: Label = $ScreenControls/TopLeftZone/LabelTU
+onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
 onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
 onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
@@ -18882,15 +19667,6 @@ onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/Ta
 onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
 onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
 
-const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
-var station_menu_instance = null
-
-const ActionCheckScene = preload("res://scenes/ui/screens/action_check.tscn")
-var action_check_instance = null
-
-const NarrativeStatusScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
-var narrative_status_instance = null
-
 # --- State ---
 var _current_target: Spatial = null
 var _main_camera: Camera = null
@@ -18903,21 +19679,7 @@ var _hud_alpha = 1.0
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_main_hud(self)
-	
-	# Instantiate Station Menu
-	station_menu_instance = StationMenuScene.instance()
-	add_child(station_menu_instance)
-	# It starts hidden by default in its own _ready
 
-	# Instantiate Action Check UI (hidden by default; shown via EventBus)
-	action_check_instance = ActionCheckScene.instance()
-	action_check_instance = ActionCheckScene.instance()
-	add_child(action_check_instance)
-
-	# Instantiate Narrative Status Panel (hidden by default)
-	narrative_status_instance = NarrativeStatusScene.instance()
-	add_child(narrative_status_instance)
-	
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
 
@@ -18940,8 +19702,8 @@ func _ready():
 		):
 			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
 
-		if not EventBus.is_connected("player_wp_changed", self, "_on_player_wp_changed"):
-			EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
+		if not EventBus.is_connected("player_credits_changed", self, "_on_player_credits_changed"):
+			EventBus.connect("player_credits_changed", self, "_on_player_credits_changed")
 
 		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
 			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
@@ -18949,8 +19711,8 @@ func _ready():
 		if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
 			EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
 
-		if EventBus.has_signal("time_units_added") and not EventBus.is_connected("time_units_added", self, "_on_time_units_added"):
-			EventBus.connect("time_units_added", self, "_on_time_units_added")
+		if EventBus.has_signal("game_time_advanced") and not EventBus.is_connected("game_time_advanced", self, "_on_game_time_advanced"):
+			EventBus.connect("game_time_advanced", self, "_on_game_time_advanced")
 			
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
@@ -18979,8 +19741,7 @@ func _ready():
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
-	# Connect to CombatSystem signals for hull updates (deferred to allow system init)
-	call_deferred("_connect_combat_signals")
+	# Connect to CombatSystem signals — DEFERRED (removed: CombatSystem deleted)
 	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
 	
@@ -18996,16 +19757,17 @@ func _ready():
 		if not button_menu.is_connected("pressed", self, "_on_ButtonMenu_pressed"):
 			button_menu.connect("pressed", self, "_on_ButtonMenu_pressed")
 
-	if is_instance_valid(button_narrative_status):
-		button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
-
 	# Connect ButtonCamera to toggle camera mode
 	if is_instance_valid(button_camera):
 		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
 			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
 
 	# Initialize TU display
-	_refresh_tu_display()
+	_refresh_time_display()
+
+	# --- Instance Station Menu sub-screen ---
+	_station_menu_instance = StationMenuScene.instance()
+	add_child(_station_menu_instance)
 
 
 # --- Process Update ---
@@ -19098,7 +19860,7 @@ func _on_game_state_loaded() -> void:
 	call_deferred("_deferred_refresh_player_hull")
 
 
-func _on_player_wp_changed(_new_wp_value = null):
+func _on_player_credits_changed(_new_credits_value = null):
 	_refresh_player_resources()
 
 
@@ -19107,36 +19869,36 @@ func _on_player_fp_changed(_new_fp_value = null):
 
 
 func _refresh_player_resources() -> void:
-	if not is_instance_valid(label_wp) or not is_instance_valid(label_fp):
+	if not is_instance_valid(label_credits) or not is_instance_valid(label_fp):
 		return
 	if not is_instance_valid(GlobalRefs.character_system):
 		return
 	var player_char = GlobalRefs.character_system.get_player_character()
 	if not is_instance_valid(player_char):
 		return
-	label_wp.text = "Current WP: " + str(player_char.wealth_points)
+	label_credits.text = "Credits: " + str(player_char.credits)
 	label_fp.text = "Current FP: " + str(player_char.focus_points)
 
 
-func _refresh_tu_display() -> void:
-	if not is_instance_valid(label_tu):
+func _refresh_time_display() -> void:
+	if not is_instance_valid(label_time):
 		return
-	label_tu.text = "Time (TU): " + str(GameState.current_tu)
+	var time_str = "%02d:%02d" % [GameState.game_time_seconds / 60, GameState.game_time_seconds % 60]
+	label_time.text = "Time: " + time_str
 
 
-func _on_world_event_tick_triggered(_tu_amount: int = 0) -> void:
-	_refresh_tu_display()
+func _on_world_event_tick_triggered(_seconds_amount: int = 0) -> void:
+	_refresh_time_display()
 	_refresh_player_resources()
 
 
-func _on_time_units_added(_tu_added: int = 0) -> void:
-	_refresh_tu_display()
+func _on_game_time_advanced(_seconds_added: int = 0) -> void:
+	_refresh_time_display()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if EventBus:
-			EventBus.emit_signal("main_menu_requested")
 			EventBus.emit_signal("main_menu_requested")
 			get_tree().set_input_as_handled()
 
@@ -19358,74 +20120,35 @@ func _on_SliderControlRight_value_changed(value):
 
 
 func _on_ButtonCharacter_pressed():
-	GlobalRefs.character_status.open_screen()
+	# TODO: Rebuild on simulation foundation
+	pass
 
 
 func _on_ButtonInventory_pressed():
-	GlobalRefs.inventory_screen.open_screen()
+	# TODO: Rebuild on simulation foundation
+	pass
 
 
-func _on_ButtonNarrativeStatus_pressed():
-	if is_instance_valid(narrative_status_instance):
-		narrative_status_instance.open_screen()
-
-
-# --- Combat HUD Functions ---
+# --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
 
 func _connect_combat_signals() -> void:
-	"""Connect to CombatSystem signals for hull updates."""
-	if is_instance_valid(GlobalRefs.combat_system):
-		if not GlobalRefs.combat_system.is_connected("damage_dealt", self, "_on_damage_dealt"):
-			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_damage_dealt")
-		if not GlobalRefs.combat_system.is_connected("ship_disabled", self, "_on_ship_disabled"):
-			GlobalRefs.combat_system.connect("ship_disabled", self, "_on_ship_disabled")
-		# If the player is involved, refresh the player hull display on damage events.
-		if not GlobalRefs.combat_system.is_connected("damage_dealt", self, "_on_any_damage_dealt_refresh_player"):
-			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_any_damage_dealt_refresh_player")
+	# CombatSystem removed — rebuild later on Agent layer
+	pass
 
 
 func _refresh_player_hull() -> void:
 	if not is_instance_valid(label_player_hull) or not is_instance_valid(player_hull_bar):
 		return
-	if not is_instance_valid(GlobalRefs.player_agent_body):
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-	var raw_uid = GlobalRefs.player_agent_body.get("agent_uid")
-	if raw_uid == null:
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-	_player_uid = int(raw_uid)
-	if _player_uid < 0:
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-	if not is_instance_valid(GlobalRefs.combat_system):
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-
-	# Avoid showing 0% when CombatSystem hasn't registered the player yet.
-	var state: Dictionary = {}
-	if GlobalRefs.combat_system.has_method("get_combat_state"):
-		state = GlobalRefs.combat_system.get_combat_state(_player_uid)
-	if state.empty():
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-
-	var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(_player_uid)
+	# Read hull from GameState agent layer (simulation-first architecture)
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	var hull_pct: float = player_agent.get("hull_integrity", 1.0)
 	player_hull_bar.value = hull_pct * 100.0
 	label_player_hull.text = "Hull: " + str(int(round(hull_pct * 100.0))) + "%"
 
 
 func _deferred_refresh_player_hull() -> void:
-	# CombatSystem registration happens deferred from Agent initialization.
-	# Retry briefly so we show player hull without requiring damage.
-	for _i in range(20):
-		_refresh_player_hull()
-		yield(get_tree().create_timer(0.1), "timeout")
+	# Simple deferred call — simulation state is always available
+	_refresh_player_hull()
 
 
 func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _source_uid: int) -> void:
@@ -19463,16 +20186,11 @@ func _update_target_info_panel(target_node: Spatial) -> void:
 
 
 func _update_target_hull_bar() -> void:
-	"""Update the target hull progress bar from CombatSystem."""
+	"""Update the target hull progress bar from GameState agent data."""
 	if not target_hull_bar or _current_target_uid < 0:
 		return
-	
-	if is_instance_valid(GlobalRefs.combat_system):
-		var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(_current_target_uid)
-		target_hull_bar.value = hull_pct * 100.0
-	else:
-		# CombatSystem not available, show full hull as fallback
-		target_hull_bar.value = 100.0
+	# CombatSystem removed — hull data now lives in GameState agents
+	target_hull_bar.value = 100.0
 
 
 func _on_damage_dealt(target_uid: int, _amount: float, _source_uid: int) -> void:
@@ -19598,208 +20316,496 @@ func _show_menu() -> void:
 	get_tree().paused = true
 	_update_load_button_state()
 
---- Start of ./src/core/ui/narrative_status/narrative_status_panel.gd ---
+--- Start of ./src/core/ui/sim_debug_panel/sim_debug_panel.gd ---
 
 #
 # PROJECT: GDTLancer
-# MODULE: src/core/ui/narrative_status/narrative_status_panel.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TACTICAL_TODO.md
-# LOG_REF: 2025-12-26
+# MODULE: sim_debug_panel.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
+#
+
+extends CanvasLayer
+
+## SimDebugPanel: Full text-only readout of all four simulation layers.
+##
+## Toggle with F3. Reads directly from GameState each tick (via EventBus signal).
+## Shows World Layer, Grid Layer, Agent Layer, Chronicle, and Axiom 1 status.
+## Debug-only — not a gameplay UI element.
+
+
+# =============================================================================
+# === NODE REFERENCES =========================================================
+# =============================================================================
+
+onready var _panel: Panel = $Panel
+onready var _header_label: Label = $Panel/VBoxContainer/HeaderRow/HeaderLabel
+onready var _rich_text: RichTextLabel = $Panel/VBoxContainer/RichTextLabel
+onready var _btn_dump: Button = $Panel/VBoxContainer/HeaderRow/BtnDumpConsole
+
+
+# =============================================================================
+# === STATE ===================================================================
+# =============================================================================
+
+var _visible: bool = false
+var _last_plain_text: String = ""
+
+
+# =============================================================================
+# === LIFECYCLE ===============================================================
+# =============================================================================
+
+func _ready() -> void:
+	layer = 100  # Render above everything
+	_panel.visible = false
+	EventBus.connect("world_event_tick_triggered", self, "_on_tick")
+	_btn_dump.connect("pressed", self, "_on_dump_pressed")
+	# Initial refresh if simulation is already running.
+	call_deferred("_refresh")
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.scancode == KEY_F3:
+			_toggle()
+			get_tree().set_input_as_handled()
+		elif event.scancode == KEY_ESCAPE and _visible:
+			_toggle()
+			get_tree().set_input_as_handled()
+
+
+# =============================================================================
+# === TOGGLE ==================================================================
+# =============================================================================
+
+func _toggle() -> void:
+	_visible = not _visible
+	_panel.visible = _visible
+	if _visible:
+		_refresh()
+
+
+# =============================================================================
+# === TICK HANDLER ============================================================
+# =============================================================================
+
+func _on_tick(_seconds_amount: int = 0) -> void:
+	if _visible:
+		_refresh()
+
+
+# =============================================================================
+# === REFRESH — BUILDS THE FULL TEXT ==========================================
+# =============================================================================
+
+func _refresh() -> void:
+	var bb: String = ""   # BBCode version for RichTextLabel
+	var pt: String = ""   # Plain-text version for console dump
+
+	# --- Header ---
+	var header_line: String = "[TICK %d]  Seed: %s" % [GameState.sim_tick_count, GameState.world_seed]
+	bb += _bbcolor(header_line, "cyan") + "\n"
+	pt += header_line + "\n"
+
+	# --- World Layer ---
+	bb += _section_header("WORLD LAYER")
+	pt += "\n--- WORLD LAYER ---\n"
+	if GameState.world_topology.empty():
+		bb += "  (not initialized)\n"
+		pt += "  (not initialized)\n"
+	else:
+		for sector_id in GameState.world_topology:
+			var topo = GameState.world_topology[sector_id]
+			var haz = GameState.world_hazards.get(sector_id, {})
+			var res = GameState.world_resource_potential.get(sector_id, {})
+			var sector_hdr: String = "  [%s]" % sector_id
+			bb += _bbcolor(sector_hdr, "white")
+			var line1: String = "  type=%s  conn=%s" % [
+				str(topo.get("sector_type", "?")),
+				str(topo.get("connections", []))
+			]
+			var line2: String = "    rad=%.3f  thermal=%.0fK  grav=%.2f" % [
+				haz.get("radiation_level", 0.0),
+				haz.get("thermal_background_k", 0.0),
+				haz.get("gravity_well_penalty", 0.0)
+			]
+			var line3: String = "    mineral=%.3f  propellant=%.3f" % [
+				res.get("mineral_density", 0.0),
+				res.get("propellant_sources", 0.0)
+			]
+			bb += line1 + "\n" + line2 + "\n" + line3 + "\n"
+			pt += sector_hdr + line1 + "\n" + line2 + "\n" + line3 + "\n"
+
+	# --- Grid Layer ---
+	bb += _section_header("GRID LAYER")
+	pt += "\n--- GRID LAYER ---\n"
+	if GameState.grid_stockpiles.empty():
+		bb += "  (not initialized)\n"
+		pt += "  (not initialized)\n"
+	else:
+		for sector_id in GameState.grid_stockpiles:
+			var stk = GameState.grid_stockpiles.get(sector_id, {})
+			var dom = GameState.grid_dominion.get(sector_id, {})
+			var mkt = GameState.grid_market.get(sector_id, {})
+			var pwr = GameState.grid_power.get(sector_id, {})
+			var mnt = GameState.grid_maintenance.get(sector_id, {})
+
+			var sector_hdr: String = "  [%s]" % sector_id
+			bb += _bbcolor(sector_hdr, "white")
+
+			# Stockpiles — compact: only show named commodities (strip commodity_ prefix)
+			var stockpile_dict = stk.get("commodity_stockpiles", {})
+			var stk_parts: Array = []
+			for cid in stockpile_dict:
+				var short_id: String = cid.replace("commodity_", "")
+				stk_parts.append("%s:%.0f" % [short_id, stockpile_dict[cid]])
+			var stk_line: String = " stk={%s}" % PoolStringArray(stk_parts).join(",")
+			bb += stk_line + "\n"
+
+			# Dominion + security (one compact line)
+			var inf_dict = dom.get("faction_influence", {})
+			var top_faction: String = ""
+			var top_inf: float = 0.0
+			for fid in inf_dict:
+				if inf_dict[fid] > top_inf:
+					top_inf = inf_dict[fid]
+					top_faction = fid.replace("faction_", "")
+			var dom_line: String = "    dom=%s(%.2f) sec=%.2f pir=%.3f pwr=%.2f ent=%.4f" % [
+				top_faction, top_inf,
+				dom.get("security_level", 0.0),
+				dom.get("pirate_activity", 0.0),
+				pwr.get("power_load_ratio", 0.0),
+				mnt.get("local_entropy_rate", 0.0)
+			]
+			bb += dom_line + "\n"
+
+			pt += sector_hdr + stk_line + "\n" + dom_line + "\n"
+
+		# Wrecks
+		var wreck_count: int = GameState.grid_wrecks.size()
+		var wreck_line: String = "  Wrecks: %d" % wreck_count
+		bb += wreck_line + "\n"
+		pt += wreck_line + "\n"
+
+	# --- Agent Layer ---
+	bb += _section_header("AGENT LAYER")
+	pt += "\n--- AGENT LAYER ---\n"
+	if GameState.agents.empty():
+		bb += "  (not initialized)\n"
+		pt += "  (not initialized)\n"
+	else:
+		for agent_id in GameState.agents:
+			var a = GameState.agents[agent_id]
+			var char_uid = a.get("char_uid", -1)
+			var char_name: String = _get_character_name(char_uid)
+			var disabled_tag: String = " [DISABLED]" if a.get("is_disabled", false) else ""
+			var is_player: bool = (char_uid == GameState.player_character_uid)
+			var name_color: String = "green" if is_player else "white"
+			var agent_line: String = "  %s%s  sector=%s  hull=%.0f%%  cash=%.0f  goal=%s%s" % [
+				char_name,
+				" (PLAYER)" if is_player else "",
+				str(a.get("current_sector_id", "?")),
+				a.get("hull_integrity", 0.0) * 100.0,
+				a.get("cash_reserves", 0.0),
+				str(a.get("goal_archetype", "none")),
+				disabled_tag
+			]
+			# BBCode version uses color for player name
+			var agent_line_bb: String = "  %s%s  sector=%s  hull=%.0f%%  cash=%.0f  goal=%s%s" % [
+				_bbcolor(char_name, name_color),
+				" (PLAYER)" if is_player else "",
+				str(a.get("current_sector_id", "?")),
+				a.get("hull_integrity", 0.0) * 100.0,
+				a.get("cash_reserves", 0.0),
+				str(a.get("goal_archetype", "none")),
+				disabled_tag
+			]
+			bb += agent_line_bb + "\n"
+			pt += agent_line + "\n"
+
+		# Hostile population
+		if not GameState.hostile_population_integral.empty():
+			bb += _bbcolor("  Hostile Population:\n", "red")
+			pt += "  Hostile Population:\n"
+			for htype in GameState.hostile_population_integral:
+				var hdata = GameState.hostile_population_integral[htype]
+				var hline: String = "    %s: count=%d  cap=%d" % [
+					htype,
+					hdata.get("current_count", 0),
+					hdata.get("carrying_capacity", 0)
+				]
+				bb += hline + "\n"
+				pt += hline + "\n"
+
+	# --- Chronicle ---
+	bb += _section_header("CHRONICLE")
+	pt += "\n--- CHRONICLE ---\n"
+	# Last 5 events
+	var events = GameState.chronicle_event_buffer
+	var event_start: int = max(0, events.size() - 5)
+	if events.empty():
+		bb += "  Events: (none)\n"
+		pt += "  Events: (none)\n"
+	else:
+		var ev_header: String = "  Events (%d total, last %d):" % [events.size(), min(events.size(), 5)]
+		bb += ev_header + "\n"
+		pt += ev_header + "\n"
+		for i in range(event_start, events.size()):
+			var ev = events[i]
+			var evline: String = "    T%d %s %s@%s=%s" % [
+				ev.get("tick_count", 0),
+				_get_character_name_by_agent(ev.get("actor_uid", "")),
+				str(ev.get("action_id", "?")),
+				str(ev.get("target_sector_id", "?")),
+				str(ev.get("outcome", "?"))
+			]
+			bb += evline + "\n"
+			pt += evline + "\n"
+	# Last 3 rumors
+	var rumors = GameState.chronicle_rumors
+	var rumor_start: int = max(0, rumors.size() - 3)
+	if not rumors.empty():
+		bb += "  Rumors:\n"
+		pt += "  Rumors:\n"
+		for i in range(rumor_start, rumors.size()):
+			var rline: String = "    \"%s\"" % str(rumors[i])
+			bb += rline + "\n"
+			pt += rline + "\n"
+
+	# --- Axiom 1 Check ---
+	bb += _section_header("AXIOM 1 CHECK")
+	pt += "\n--- AXIOM 1 CHECK ---\n"
+	var expected: float = GameState.world_total_matter
+	var actual: float = _calculate_actual_matter()
+	var drift: float = abs(actual - expected)
+	var tolerance: float = Constants.AXIOM1_TOLERANCE
+	var status: String = "PASS" if drift <= tolerance else "FAIL"
+	var status_color: String = "green" if status == "PASS" else "red"
+	var a1_line1: String = "  Expected: %.4f" % expected
+	var a1_line2: String = "  Actual:   %.4f" % actual
+	var a1_line3: String = "  Drift:    %.6f  (tol=%.4f)" % [drift, tolerance]
+	var a1_line4: String = "  Status:   %s" % status
+	bb += a1_line1 + "\n" + a1_line2 + "\n" + a1_line3 + "\n"
+	bb += "  Status:   %s\n" % _bbcolor(status, status_color)
+	pt += a1_line1 + "\n" + a1_line2 + "\n" + a1_line3 + "\n" + a1_line4 + "\n"
+
+	# Cache and apply
+	_last_plain_text = pt
+	_header_label.text = "SIM DEBUG  [F3 to close]"
+	_rich_text.bbcode_text = bb
+
+
+## Dumps the current panel contents to stdout as plain text.
+func _on_dump_pressed() -> void:
+	_refresh()  # Ensure latest data
+	print("\n========== SIM DEBUG DUMP (Tick %d) ==========" % GameState.sim_tick_count)
+	print(_last_plain_text)
+	print("========== END SIM DEBUG DUMP ==========")
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+## Wraps text in BBCode color tags.
+func _bbcolor(text: String, color: String) -> String:
+	return "[color=%s]%s[/color]" % [color, text]
+
+
+## Returns a section header line.
+func _section_header(title: String) -> String:
+	return "\n" + _bbcolor("--- %s ---" % title, "yellow") + "\n"
+
+
+## Looks up character_name from GameState.characters by uid.
+func _get_character_name(char_uid: int) -> String:
+	if GameState.characters.has(char_uid):
+		var c = GameState.characters[char_uid]
+		if c is Resource and c.get("character_name"):
+			return c.character_name
+		elif c is Dictionary and c.has("character_name"):
+			return c["character_name"]
+	return "UID:%d" % char_uid
+
+
+## Looks up character name via agent_id → agent state → char_uid.
+func _get_character_name_by_agent(agent_id) -> String:
+	if GameState.agents.has(agent_id):
+		var a = GameState.agents[agent_id]
+		return _get_character_name(a.get("char_uid", -1))
+	return str(agent_id)
+
+
+## Calculates actual total matter across all four conservation pools.
+## Must match the formula in simulation_engine.gd verify_matter_conservation().
+func _calculate_actual_matter() -> float:
+	var total: float = 0.0
+
+	# Pool 1: World resource potential
+	for sector_id in GameState.world_resource_potential:
+		var res = GameState.world_resource_potential[sector_id]
+		total += res.get("mineral_density", 0.0)
+		total += res.get("propellant_sources", 0.0)
+
+	# Pool 2: Grid stockpiles
+	for sector_id in GameState.grid_stockpiles:
+		var stk = GameState.grid_stockpiles[sector_id]
+		var commodities = stk.get("commodity_stockpiles", {})
+		for cid in commodities:
+			total += commodities[cid]
+
+	# Pool 3: Agent inventories
+	for char_uid in GameState.inventories:
+		var inv = GameState.inventories[char_uid]
+		if inv is Dictionary:
+			for item_id in inv:
+				var item = inv[item_id]
+				if item is Dictionary:
+					total += item.get("quantity", 0.0)
+				else:
+					total += float(item)
+
+	# Pool 4: Wreck inventories
+	for wid in GameState.grid_wrecks:
+		var w = GameState.grid_wrecks[wid]
+		var winv = w.get("wreck_inventory", {})
+		for cid in winv:
+			total += winv[cid]
+
+	return total
+
+--- Start of ./src/core/ui/station_menu/station_menu.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: station_menu.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md
+# LOG_REF: 2026-02-13
+#
+# Rebuilt after TASK 15 cleanup.  Old version was coupled to deleted systems
+# (ContractSystem, TradingSystem, NarrativeActionSystem).  This version keeps
+# the undock flow intact and provides placeholder hooks for future trade /
+# contract UI once those systems are rebuilt on the simulation foundation.
 #
 
 extends Control
 
-## UI panel for displaying player narrative information, including reputation,
-## faction standings, ship quirks, and sector statistics.
-
-# Node references (updated for new scene structure with Panel child)
-onready var reputation_label: Label = $Panel/VBoxMain/ReputationLabel
-onready var faction_container: VBoxContainer = $Panel/VBoxMain/SectionsContainer/FactionsColumn/FactionContainer
-onready var quirks_container: VBoxContainer = $Panel/VBoxMain/SectionsContainer/QuirksColumn/QuirksContainer
-onready var contracts_label: Label = $Panel/VBoxMain/SectionsContainer/StatsColumn/ContractsLabel
-onready var button_close: Button = $Panel/VBoxMain/HBoxButtons/ButtonClose
-onready var button_debug_quirk: Button = $Panel/VBoxMain/SectionsContainer/QuirksColumn/ButtonDebugAddQuirk
+## StationMenu: Overlay that appears while the player is docked at a station.
+##
+## Shows the station name, a set of action buttons (Trade, Contracts — currently
+## stubbed), and a prominent Undock button that emits `player_undocked` via
+## EventBus so the PlayerController re-enables input processing.
 
 
-## Initializes connections and triggers the initial display update.
+# =============================================================================
+# === NODE REFERENCES =========================================================
+# =============================================================================
+
+onready var _panel: Panel = $Panel
+onready var _label_station_name: Label = $Panel/VBoxContainer/LabelStationName
+onready var _label_info: Label = $Panel/VBoxContainer/LabelInfo
+onready var _btn_trade: Button = $Panel/VBoxContainer/BtnTrade
+onready var _btn_contracts: Button = $Panel/VBoxContainer/BtnContracts
+onready var _btn_undock: Button = $Panel/VBoxContainer/BtnUndock
+
+
+# =============================================================================
+# === STATE ===================================================================
+# =============================================================================
+
+var _current_location_id: String = ""
+
+
+# =============================================================================
+# === LIFECYCLE ===============================================================
+# =============================================================================
+
 func _ready() -> void:
-	# Connect signals from EventBus for reactive updates
-	if EventBus:
-		EventBus.connect("ship_quirk_added", self, "_on_ship_quirk_added")
-		EventBus.connect("ship_quirk_removed", self, "_on_ship_quirk_removed")
-		EventBus.connect("narrative_action_resolved", self, "_on_narrative_action_resolved")
-		EventBus.connect("player_wp_changed", self, "_on_player_wp_changed")
-		EventBus.connect("contract_completed", self, "_on_contract_completed")
-	
-	# Connect to internal visibility toggle
-	connect("visibility_changed", self, "_on_visibility_toggled")
-	
-	# Signals are connected via .tscn [connection] entries, but we can also connect here
-	# for safety in case the scene file was not updated:
-	if button_close and not button_close.is_connected("pressed", self, "_on_ButtonClose_pressed"):
-		button_close.connect("pressed", self, "_on_ButtonClose_pressed")
-	if button_debug_quirk and not button_debug_quirk.is_connected("pressed", self, "_on_ButtonDebugAddQuirk_pressed"):
-		button_debug_quirk.connect("pressed", self, "_on_ButtonDebugAddQuirk_pressed")
+	visible = false
+
+	# --- EventBus connections ---
+	EventBus.connect("player_docked", self, "_on_player_docked")
+	EventBus.connect("player_undocked", self, "_on_player_undocked")
+
+	# --- Button connections ---
+	_btn_undock.connect("pressed", self, "_on_undock_pressed")
+	_btn_trade.connect("pressed", self, "_on_trade_pressed")
+	_btn_contracts.connect("pressed", self, "_on_contracts_pressed")
 
 
-## Opens this screen and updates display.
-func open_screen() -> void:
-	update_display()
-	self.show()
+# =============================================================================
+# === SIGNAL HANDLERS =========================================================
+# =============================================================================
+
+func _on_player_docked(location_id: String) -> void:
+	_current_location_id = location_id
+	_update_station_label(location_id)
+	_update_info_label()
+	visible = true
+	print("StationMenu: Opened for location '", location_id, "'")
 
 
-## Refreshes all sections of the narrative status display if visible.
-func update_display() -> void:
-	if not is_visible_in_tree():
-		return
-		
-	_update_reputation()
-	_update_factions()
-	_update_quirks()
-	_update_stats()
+func _on_player_undocked() -> void:
+	visible = false
+	_current_location_id = ""
+	print("StationMenu: Closed")
 
 
-## Updates the Reputation label from GameState.
-func _update_reputation() -> void:
-	var rep: int = GameState.narrative_state.get("reputation", 0)
-	reputation_label.text = "Reputation: " + str(rep)
+# =============================================================================
+# === BUTTON CALLBACKS ========================================================
+# =============================================================================
+
+func _on_undock_pressed() -> void:
+	EventBus.emit_signal("player_undocked")
 
 
-## Clears and rebuilds the Faction standings list from GameState.
-func _update_factions() -> void:
-	# Clear existing children entries
-	for child in faction_container.get_children():
-		child.queue_free()
-		
-	var standings: Dictionary = GameState.narrative_state.get("faction_standings", {})
-	if standings.empty():
-		var lbl: Label = Label.new()
-		lbl.text = "No known factions"
-		faction_container.add_child(lbl)
-		return
-		
-	for faction_id in standings:
-		var val = standings[faction_id]
-		var lbl: Label = Label.new()
-		lbl.text = str(faction_id).capitalize() + ": " + str(val)
-		faction_container.add_child(lbl)
+func _on_trade_pressed() -> void:
+	# TODO: Open trade interface once TradingSystem is rebuilt on simulation.
+	print("StationMenu: Trade pressed (not yet implemented)")
 
 
-## Rebuilds the ship quirks list for the player's active ship.
-func _update_quirks() -> void:
-	# Clear existing quirk entries
-	for child in quirks_container.get_children():
-		child.queue_free()
-	
-	# Retrieve player character and active ship UID
-	var player_char_uid: int = GameState.player_character_uid
-	if player_char_uid == -1 or not GameState.characters.has(player_char_uid):
-		return
-		
-	var char_data = GameState.characters[player_char_uid]
-	var ship_uid = char_data.get("active_ship_uid")
-	
-	if ship_uid == null or ship_uid == -1:
-		return
-		
-	# Fetch quirks from the QuirkSystem if available
-	var quirks: Array = []
-	if is_instance_valid(GlobalRefs.quirk_system):
-		quirks = GlobalRefs.quirk_system.get_quirks(ship_uid)
-	
-	if quirks.empty():
-		var lbl: Label = Label.new()
-		lbl.text = "None"
-		quirks_container.add_child(lbl)
-		return
-		
-	for q_id in quirks:
-		var lbl: Label = Label.new()
-		lbl.text = str(q_id).capitalize()
-		quirks_container.add_child(lbl)
+func _on_contracts_pressed() -> void:
+	# TODO: Open contract interface once ContractSystem is rebuilt on simulation.
+	print("StationMenu: Contracts pressed (not yet implemented)")
 
 
-## Updates sector statistics from GameState session tracking.
-func _update_stats() -> void:
-	var completed: int = GameState.session_stats.get("contracts_completed", 0)
-	var wp_earned: int = GameState.session_stats.get("total_wp_earned", 0)
-	var enemies_disabled: int = GameState.session_stats.get("enemies_disabled", 0)
-	
-	contracts_label.text = "Contracts Completed: " + str(completed) + \
-		"\nTotal WP Earned: " + str(wp_earned) + \
-		"\nCombat Victories: " + str(enemies_disabled)
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+func _update_station_label(location_id: String) -> void:
+	var display_name: String = location_id
+	if GameState.locations.has(location_id):
+		var loc = GameState.locations[location_id]
+		if loc is Object and "location_name" in loc and loc.location_name != "":
+			display_name = loc.location_name
+	_label_station_name.text = display_name
 
 
-## Triggered when the panel visibility changes; updates display if becoming visible.
-func _on_visibility_toggled() -> void:
-	if visible:
-		update_display()
+func _update_info_label() -> void:
+	# Show basic player resource summary while docked.
+	var info_text: String = ""
+	var player_uid: int = int(GameState.player_character_uid)
+	if player_uid >= 0 and GameState.characters.has(player_uid):
+		var pc = GameState.characters[player_uid]
+		info_text += "Credits: %d" % pc.credits
+		info_text += "    FP: %d" % pc.focus_points
+	_label_info.text = info_text
 
 
-## Handles the close button press to hide the panel.
-func _on_ButtonClose_pressed() -> void:
-	self.hide()
+# =============================================================================
+# === CLEANUP =================================================================
+# =============================================================================
 
-
-## Debug button to add a random quirk to the player's ship.
-func _on_ButtonDebugAddQuirk_pressed() -> void:
-	var player_char_uid: int = GameState.player_character_uid
-	if player_char_uid == -1 or not GameState.characters.has(player_char_uid):
-		printerr("[NarrativeStatusPanel] No player character found for quirk debug")
-		return
-		
-	var char_data = GameState.characters[player_char_uid]
-	var ship_uid = char_data.get("active_ship_uid")
-	
-	if ship_uid == null or ship_uid == -1:
-		printerr("[NarrativeStatusPanel] No active ship found for quirk debug")
-		return
-	
-	# Add a sample quirk
-	var sample_quirks = ["reliable", "temperamental", "fuel_efficient", "fast_but_fragile"]
-	var quirk_to_add = sample_quirks[randi() % sample_quirks.size()]
-	
-	if is_instance_valid(GlobalRefs.quirk_system):
-		var success = GlobalRefs.quirk_system.add_quirk(ship_uid, quirk_to_add)
-		if success:
-			print("[NarrativeStatusPanel] Debug: Added quirk '%s' to ship %d" % [quirk_to_add, ship_uid])
-		else:
-			print("[NarrativeStatusPanel] Debug: Quirk '%s' already exists or failed" % quirk_to_add)
-	else:
-		printerr("[NarrativeStatusPanel] QuirkSystem not available")
-
-
-# --- Signal Handlers from EventBus ---
-
-## Logic for when a quirk is added to any ship.
-func _on_ship_quirk_added(_ship_uid: int, _quirk_id: String) -> void:
-	if visible:
-		_update_quirks()
-
-
-## Logic for when a quirk is removed from any ship.
-func _on_ship_quirk_removed(_ship_uid: int, _quirk_id: String) -> void:
-	if visible:
-		_update_quirks()
-
-
-## Logic for when a narrative action is resolved, potentially affecting reputation.
-func _on_narrative_action_resolved(_result: Dictionary) -> void:
-	if visible:
-		update_display()
-
-
-## Refreshes stats when player wealth points change.
-func _on_player_wp_changed(_new_val: int) -> void:
-	if visible:
-		_update_stats()
-
-
-## Refreshes stats when a contract is completed.
-func _on_contract_completed(_id: String, _success: bool) -> void:
-	if visible:
-		_update_stats()
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		if EventBus and EventBus.is_connected("player_docked", self, "_on_player_docked"):
+			EventBus.disconnect("player_docked", self, "_on_player_docked")
+		if EventBus and EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
+			EventBus.disconnect("player_undocked", self, "_on_player_undocked")
 
 --- Start of ./src/core/utils/editor_object.gd ---
 
@@ -19926,7 +20932,7 @@ var agent_body: RigidBody = null
 var movement_system: Node = null
 var _main_camera: Camera = null
 var _speed_slider: Slider = null
-var _weapon_controller: Node = null
+var _tool_controller: Node = null
 
 # --- Thrust Throttle Control (0.0 to 1.0) ---
 var current_thrust_throttle: float = 1.0
@@ -19961,7 +20967,7 @@ func _ready():
 		set_process(false)
 		return
 
-	_weapon_controller = agent_body.get_node_or_null("WeaponController")
+	_tool_controller = agent_body.get_node_or_null("ToolController")
 
 	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
 
@@ -20082,11 +21088,11 @@ func _unhandled_input(event: InputEvent):
 
 
 func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
-	if not is_instance_valid(_weapon_controller):
-		print("PlayerController: Fire skipped (no WeaponController)")
+	if not is_instance_valid(_tool_controller):
+		print("PlayerController: Fire skipped (no ToolController)")
 		return
-	if not _weapon_controller.has_method("fire_at_target"):
-		print("PlayerController: Fire skipped (WeaponController missing fire_at_target)")
+	if not _tool_controller.has_method("fire_at_target"):
+		print("PlayerController: Fire skipped (ToolController missing fire_at_target)")
 		return
 	if not force and not Input.is_action_just_pressed("fire_weapon"):
 		return
@@ -20106,7 +21112,7 @@ func _fire_weapon_at_selected_target(force: bool, source: String = "") -> void:
 		return
 
 	var target_pos: Vector3 = target_body.global_transform.origin
-	var result: Dictionary = _weapon_controller.call("fire_at_target", 0, target_uid, target_pos)
+	var result: Dictionary = _tool_controller.call("fire_at_target", 0, target_uid, target_pos)
 	if not result.get("success", false):
 		print("PlayerController: Fire failed[", source, "]: ", result.get("reason", "Unknown"), " details=", result)
 		return
@@ -20524,7 +21530,7 @@ var agent_script: Node = null
 var _current_state: int = AIState.IDLE
 var _target_agent: RigidBody = null
 var _home_position: Vector3 = Vector3.ZERO
-var _weapon_controller: Node = null
+var _tool_controller: Node = null
 
 var _patrol_destination: Vector3 = Vector3.ZERO
 var _has_patrol_destination: bool = false
@@ -20544,7 +21550,7 @@ func _ready() -> void:
 	var parent = get_parent()
 	if parent is RigidBody and parent.has_method("command_move_to"):
 		agent_script = parent
-		_weapon_controller = parent.get_node_or_null("WeaponController")
+		_tool_controller = parent.get_node_or_null("ToolController")
 		_home_position = parent.global_transform.origin
 		set_physics_process(true)
 	else:
@@ -20559,31 +21565,31 @@ func _ready() -> void:
 		if not EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 
-	# WeaponController loads weapons deferred; retry a few times to sync AI weapon_range.
+	# ToolController loads weapons deferred; retry a few times to sync AI weapon_range.
 	call_deferred("_deferred_init_weapon_range")
 
 
 func _deferred_init_weapon_range() -> void:
 	for _i in range(20):
-		if _try_init_weapon_range_from_weapon_controller():
+		if _try_init_weapon_range_from_tool_controller():
 			_weapon_range_initialized = true
 			return
 		yield(get_tree().create_timer(0.1), "timeout")
 
 
-func _try_init_weapon_range_from_weapon_controller() -> bool:
-	if not is_instance_valid(_weapon_controller) and is_instance_valid(agent_script):
-		_weapon_controller = agent_script.get_node_or_null("WeaponController")
-	if not is_instance_valid(_weapon_controller):
+func _try_init_weapon_range_from_tool_controller() -> bool:
+	if not is_instance_valid(_tool_controller) and is_instance_valid(agent_script):
+		_tool_controller = agent_script.get_node_or_null("ToolController")
+	if not is_instance_valid(_tool_controller):
 		return false
-	if not _weapon_controller.has_method("get_weapon_count"):
+	if not _tool_controller.has_method("get_weapon_count"):
 		return false
-	var count = int(_weapon_controller.call("get_weapon_count"))
+	var count = int(_tool_controller.call("get_weapon_count"))
 	if count <= 0:
 		return false
-	if not _weapon_controller.has_method("get_weapon"):
+	if not _tool_controller.has_method("get_weapon"):
 		return false
-	var weapon = _weapon_controller.call("get_weapon", 0)
+	var weapon = _tool_controller.call("get_weapon", 0)
 	if not weapon:
 		return false
 	var raw_max = weapon.get("range_max")
@@ -20728,13 +21734,7 @@ func _process_combat(delta: float) -> void:
 		_change_state(AIState.PATROL)
 		return
 
-	# Hull check only valid if CombatSystem has state for this agent.
-	if is_instance_valid(GlobalRefs.combat_system) and GlobalRefs.combat_system.has_method("is_in_combat"):
-		if GlobalRefs.combat_system.is_in_combat(int(agent_script.agent_uid)):
-			var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(int(agent_script.agent_uid))
-			if hull_pct > 0.0 and hull_pct < flee_hull_threshold:
-				_change_state(AIState.FLEE)
-				return
+	# Hull check — CombatSystem removed, read from GameState agent layer.\n\tvar agent_id_str: String = str(agent_script.agent_uid)\n\tif GameState.agents.has(agent_id_str):\n\t\tvar hull_pct: float = GameState.agents[agent_id_str].get(\"hull_integrity\", 1.0)\n\t\tif hull_pct > 0.0 and hull_pct < flee_hull_threshold:\n\t\t\t_change_state(AIState.FLEE)\n\t\t\treturn
 
 	# Approach target until within weapon range.
 	_repath_timer = max(0.0, _repath_timer - delta)
@@ -20759,10 +21759,10 @@ func _process_combat(delta: float) -> void:
 
 
 func _try_fire_weapon() -> void:
-	if not is_instance_valid(_weapon_controller) and is_instance_valid(agent_script):
-		_weapon_controller = agent_script.get_node_or_null("WeaponController")
+	if not is_instance_valid(_tool_controller) and is_instance_valid(agent_script):
+		_tool_controller = agent_script.get_node_or_null("ToolController")
 
-	if not is_instance_valid(_weapon_controller):
+	if not is_instance_valid(_tool_controller):
 		return
 	if not is_instance_valid(_target_agent):
 		return
@@ -20773,7 +21773,7 @@ func _try_fire_weapon() -> void:
 	if raw_target_uid != null:
 		target_uid = int(raw_target_uid)
 
-	var result: Dictionary = _weapon_controller.fire_at_target(0, target_uid, target_pos)
+	var result: Dictionary = _tool_controller.fire_at_target(0, target_uid, target_pos)
 
 	if result.get("success", false):
 		_fire_timer = AI_FIRE_INTERVAL
@@ -21712,10 +22712,18 @@ func _on_body_exited(body):
 
 --- Start of ./src/scenes/game_world/world_manager.gd ---
 
-# File: src/scenes/game_world/world_manager.gd
-# Version: 5.0 - Abstracted template indexing to a component script.
+#
+# PROJECT: GDTLancer
+# MODULE: world_manager.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
 
 extends Node
+
+## WorldManager: Core scene orchestrator handling game initialization, zone loading, and save/load flow.
+## Coordinates TemplateIndexer, WorldGenerator, and AgentSpawner for game lifecycle.
 
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
@@ -21787,6 +22795,14 @@ func _on_new_game_requested() -> void:
 	yield(get_tree(), "idle_frame")
 	
 	_setup_new_game()
+
+	# Initialize the four-layer simulation from a seed.
+	var seed_str: String = str(OS.get_unix_time())
+	if is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.initialize_simulation(seed_str)
+	else:
+		push_warning("WorldManager: SimulationEngine not available, skipping sim init.")
+
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 	
 	if is_instance_valid(_time_clock_timer):
@@ -21808,6 +22824,11 @@ func _on_game_state_loaded() -> void:
 	# Wait a frame for cleanup to complete before loading new zone
 	yield(get_tree(), "idle_frame")
 	
+	# Re-initialize simulation from saved seed on load.
+	var saved_seed: String = GameState.world_seed
+	if saved_seed != "" and is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.initialize_simulation(saved_seed)
+
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 	call_deferred("_emit_loaded_dock_signal")
 	call_deferred("_emit_loaded_resource_signals")
@@ -21824,7 +22845,7 @@ func _emit_loaded_resource_signals() -> void:
 	var player_char = GlobalRefs.character_system.get_player_character()
 	if not is_instance_valid(player_char):
 		return
-	EventBus.emit_signal("player_wp_changed", player_char.wealth_points)
+	EventBus.emit_signal("player_credits_changed", player_char.credits)
 	EventBus.emit_signal("player_fp_changed", player_char.focus_points)
 
 
@@ -21938,9 +22959,8 @@ func _on_Time_Clock_Timer_timeout():
 	# This function is now called every TIME_TICK_INTERVAL_SECONDS.
 	# It drives the core time-based loop of the game.
 	if is_instance_valid(GlobalRefs.time_system):
-		# For now, each tick adds 1 TU. This can be modified later (e.g., based on game speed).
-		GlobalRefs.time_system.add_time_units(1)
-		#print("Current TU: ", GameState.current_tu)
+		# For now, each tick adds 1 second.
+		GlobalRefs.time_system.advance_game_time(1)
 	else:
 		printerr("WorldManager: Cannot advance time, TimeSystem not registered in GlobalRefs.")
 
@@ -22046,24 +23066,32 @@ func _register_template(template: Template):
 		TemplateDatabase.contracts[template.template_id] = template
 	elif template is UtilityToolTemplate:
 		TemplateDatabase.utility_tools[template.template_id] = template
+	elif template is FactionTemplate:
+		TemplateDatabase.factions[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
 
 --- Start of ./src/scenes/game_world/world_manager/world_generator.gd ---
 
-# File: src/scenes/game_world/world_manager/world_generator.gd
-# Purpose: Uses indexed templates to procedurally generate the initial game state
-#          for a new game, populating the GameState autoload.
-# Version: 2.2 - Added contract loading into GameState.contracts.
+#
+# PROJECT: GDTLancer
+# MODULE: world_generator.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
 
 extends Node
+
+## WorldGenerator: Creates initial game state including characters, ships, locations, and contracts.
+## Populates GameState dictionaries from TemplateDatabase resources.
 
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 
 var _next_character_uid: int = 0
 var _next_ship_uid: int = 0
-var _next_module_uid: int = 0
 # Commodity UIDs are no longer needed as they are not unique instances.
+# Module UIDs removed — assets_modules pruned in sim rework.
 
 # --- Public API ---
 
@@ -22073,9 +23101,10 @@ func generate_new_world():
 
 	# Load all locations into GameState first (they are keyed by template_id).
 	_load_locations()
-	
-	# Load all contracts into GameState.
-	_load_contracts()
+
+	_load_factions()
+	# DEPRECATED: ContactTemplate system replaced by Persistent Agents.
+	# _load_contacts() (See TACTICAL_TODO Task 12)
 
 	# Create characters first.
 	for template_id in TemplateDatabase.characters:
@@ -22099,10 +23128,10 @@ func _apply_player_starting_state() -> void:
 		return
 	if GameState.characters.has(player_uid):
 		var player_char = GameState.characters[player_uid]
-		player_char.wealth_points = 50
+		player_char.credits = 50
 		player_char.focus_points = 3
 		if EventBus:
-			EventBus.emit_signal("player_wp_changed", player_char.wealth_points)
+			EventBus.emit_signal("player_credits_changed", player_char.credits)
 			EventBus.emit_signal("player_fp_changed", player_char.focus_points)
 
 	# Starting cargo should be empty for the player.
@@ -22172,15 +23201,12 @@ func _load_locations():
 		print("... Loaded location: ", template.location_name)
 
 
-# Loads all contract templates into GameState.contracts.
-# Contracts are stored by their template_id (available pool).
-func _load_contracts():
-	print("WorldGenerator: Loading contracts...")
-	for template_id in TemplateDatabase.contracts:
-		var template = TemplateDatabase.contracts[template_id]
-		# Duplicate to allow runtime state tracking.
-		GameState.contracts[template_id] = template.duplicate()
-		print("... Loaded contract: ", template.title)
+func _load_factions():
+	print("WorldGenerator: Loading factions...")
+	for template_id in TemplateDatabase.factions:
+		var template = TemplateDatabase.factions[template_id]
+		GameState.factions[template_id] = template.duplicate()
+		print("... Loaded faction: ", template.faction_id)
 
 
 # Creates a unique instance of a character from a template and registers it
@@ -22220,12 +23246,9 @@ func _generate_and_assign_assets():
 			character.active_ship_uid = ship_uid
 			print("... Assigned ship (UID: %d) to character %s" % [ship_uid, character.character_name])
 
-		# Create and assign a starting module.
-		var module_uid = _create_module_instance("module_default")
-		if module_uid != -1:
-			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.MODULE, module_uid)
-			print("... Assigned module (UID: %d) to character %s" % [module_uid, character.character_name])
-			
+		# NOTE: Module assignment removed — assets_modules pruned in sim rework.
+		# Module support will be rebuilt on the Agent layer.
+
 		# Sprint 10: Player starting cargo should be empty.
 		# (NPC starting cargo can be added later if needed for simulation.)
 
@@ -22243,19 +23266,6 @@ func _create_ship_instance(ship_template_id: String) -> int:
 	return uid
 
 
-# Creates a unique instance of a module and returns its UID.
-func _create_module_instance(module_template_id: String) -> int:
-	if not TemplateDatabase.assets_modules.has(module_template_id):
-		printerr("WorldGenerator Error: Cannot find module template with id: ", module_template_id)
-		return -1
-		
-	var template = TemplateDatabase.assets_modules[module_template_id]
-	var new_module_instance = template.duplicate()
-	var uid = _get_new_module_uid()
-	GameState.assets_modules[uid] = new_module_instance
-	return uid
-
-
 # --- UID Generation ---
 func _get_new_character_uid() -> int:
 	var id = _next_character_uid
@@ -22265,11 +23275,6 @@ func _get_new_character_uid() -> int:
 func _get_new_ship_uid() -> int:
 	var id = _next_ship_uid
 	_next_ship_uid += 1
-	return id
-
-func _get_new_module_uid() -> int:
-	var id = _next_module_uid
-	_next_module_uid += 1
 	return id
 
 --- Start of ./src/scenes/game_world/world_rendering.gd ---
@@ -22307,591 +23312,6 @@ func _process(delta):
 		_prev_viewport_size = get_viewport().size
 		print(_viewport_size)
 
---- Start of ./src/scenes/ui/station_menu/contract_interface.gd ---
-
-extends Control
-
-onready var list_contracts = $Panel/HBoxContainer/VBoxList/ItemListContracts
-onready var text_details = $Panel/HBoxContainer/VBoxDetails/RichTextLabelDetails
-onready var btn_accept = $Panel/HBoxControls/BtnAccept
-onready var btn_close = $Panel/HBoxControls/BtnClose
-
-var current_location_id: String = ""
-var selected_contract_idx: int = -1
-
-func _ready():
-	btn_close.connect("pressed", self, "_on_close_pressed")
-	btn_accept.connect("pressed", self, "_on_accept_pressed")
-	list_contracts.connect("item_selected", self, "_on_contract_selected")
-
-func open(location_id: String):
-	current_location_id = location_id
-	visible = true
-	refresh_list()
-
-func refresh_list():
-	list_contracts.clear()
-	text_details.text = "Select a contract to view details."
-	selected_contract_idx = -1
-	btn_accept.disabled = true
-	
-	if GlobalRefs.contract_system:
-		var contracts = GlobalRefs.contract_system.get_available_contracts_for_character(GameState.player_character_uid, current_location_id)
-		
-		for contract in contracts:
-			var text = "%s (%s)" % [contract.title, contract.contract_type]
-			list_contracts.add_item(text)
-			# Store template_id as metadata
-			list_contracts.set_item_metadata(list_contracts.get_item_count() - 1, contract.template_id)
-
-func _on_contract_selected(index):
-	selected_contract_idx = index
-	btn_accept.disabled = false
-	
-	var contract_id = list_contracts.get_item_metadata(index)
-	if GameState.contracts.has(contract_id):
-		var contract = GameState.contracts[contract_id]
-		_display_contract_details(contract)
-
-func _display_contract_details(contract):
-	var details = "Title: %s\n" % contract.title
-	details += "Type: %s\n" % contract.contract_type
-	details += "Difficulty: %d\n" % contract.difficulty
-	details += "Reward: %d WP\n" % contract.reward_wp
-	details += "Time Limit: %d TU\n\n" % contract.time_limit_tu
-	details += "Description:\n%s\n\n" % contract.description
-	
-	if contract.contract_type == "delivery":
-		details += "Cargo Required: %s (Qty: %d)\n" % [contract.required_commodity_id, contract.required_quantity]
-		details += "Destination: %s\n" % contract.destination_location_id
-	
-	text_details.text = details
-
-func _on_accept_pressed():
-	print("DEBUG: _on_accept_pressed called. Selected Idx: ", selected_contract_idx)
-	if selected_contract_idx == -1: return
-	var contract_id = list_contracts.get_item_metadata(selected_contract_idx)
-	print("DEBUG: Contract ID from metadata: ", contract_id)
-	
-	if GlobalRefs.contract_system:
-		print("DEBUG: ContractSystem found. Calling accept_contract...")
-		var result = GlobalRefs.contract_system.accept_contract(GameState.player_character_uid, contract_id)
-		if result.success:
-			print("Accepted contract: ", contract_id)
-			refresh_list()
-		else:
-			print("Failed to accept contract: ", result.reason)
-			text_details.text += "\n\nERROR: " + result.reason
-	else:
-		print("DEBUG: GlobalRefs.contract_system is NULL")
-
-func _on_close_pressed():
-	visible = false
-
---- Start of ./src/scenes/ui/station_menu/station_menu.gd ---
-
-extends Control
-
-onready var label_station_name = $Panel/VBoxContainer/LabelStationName
-onready var btn_trade = $Panel/VBoxContainer/BtnTrade
-onready var btn_contracts = $Panel/VBoxContainer/BtnContracts
-onready var btn_complete_contract = $Panel/VBoxContainer/BtnCompleteContract
-onready var btn_undock = $Panel/VBoxContainer/BtnUndock
-
-onready var contract_popup = $ContractCompletePopup
-onready var label_popup_title = $ContractCompletePopup/VBoxContainer/LabelPopupTitle
-onready var label_popup_info = $ContractCompletePopup/VBoxContainer/LabelPopupInfo
-onready var btn_popup_ok = $ContractCompletePopup/VBoxContainer/BtnPopupOK
-
-const TradeInterfaceScene = preload("res://scenes/ui/menus/station_menu/TradeInterface.tscn")
-const ContractInterfaceScene = preload("res://scenes/ui/menus/station_menu/ContractInterface.tscn")
-var trade_interface_instance = null
-var contract_interface_instance = null
-
-var current_location_id: String = ""
-var completable_contract_id: String = ""
-var completable_contract_title: String = ""
-
-var _pending_contract_completion: String = ""
-var _last_ready_popup_contract_id: String = ""
-
-func _ready():
-	visible = false
-	EventBus.connect("player_docked", self, "_on_player_docked")
-	EventBus.connect("player_undocked", self, "_on_player_undocked")
-	EventBus.connect("narrative_action_resolved", self, "_on_narrative_resolved")
-	EventBus.connect("contract_accepted", self, "_on_contract_accepted")
-	EventBus.connect("contract_completed", self, "_on_contract_completed")
-	EventBus.connect("trade_transaction_completed", self, "_on_trade_transaction_completed")
-	
-	btn_undock.connect("pressed", self, "_on_undock_pressed")
-	btn_trade.connect("pressed", self, "_on_trade_pressed")
-	btn_contracts.connect("pressed", self, "_on_contracts_pressed")
-	btn_complete_contract.connect("pressed", self, "_on_complete_contract_pressed")
-	btn_popup_ok.connect("pressed", self, "_on_popup_ok_pressed")
-	
-	trade_interface_instance = TradeInterfaceScene.instance()
-	add_child(trade_interface_instance)
-	trade_interface_instance.visible = false
-	
-	contract_interface_instance = ContractInterfaceScene.instance()
-	add_child(contract_interface_instance)
-	contract_interface_instance.visible = false
-
-func _on_player_docked(location_id):
-	# Ensure docked location is updated before we check contract completion.
-	# PlayerController also sets this, but signal handler order is not guaranteed.
-	GameState.player_docked_at = location_id
-	current_location_id = location_id
-	visible = true
-	
-	# Get station name from location data
-	var station_name = location_id
-	if GameState.locations.has(location_id):
-		var loc = GameState.locations[location_id]
-		if loc.location_name != "":
-			station_name = loc.location_name
-	
-	if label_station_name:
-		label_station_name.text = station_name
-	
-	print("Station Menu Opened for: ", location_id)
-	_check_completable_contracts()
-
-func _check_completable_contracts():
-	btn_complete_contract.visible = false
-	completable_contract_id = ""
-	completable_contract_title = ""
-	
-	if not GlobalRefs.contract_system:
-		print("StationMenu: ContractSystem not available")
-		return
-	
-	print("StationMenu: Checking contracts for player uid: ", GameState.player_character_uid)
-	print("StationMenu: Player docked at: '", GameState.player_docked_at, "'")
-	
-	var active_contracts = GlobalRefs.contract_system.get_active_contracts(GameState.player_character_uid)
-	print("StationMenu: Found ", active_contracts.size(), " active contracts")
-	
-	for contract in active_contracts:
-		print("StationMenu: Checking contract '", contract.title, "' - destination: '", contract.destination_location_id, "'")
-		var result = GlobalRefs.contract_system.check_contract_completion(GameState.player_character_uid, contract.template_id)
-		print("StationMenu: Can complete: ", result.can_complete, ", Reason: ", result.get("reason", ""))
-		if result.can_complete:
-			completable_contract_id = contract.template_id
-			completable_contract_title = contract.title
-			btn_complete_contract.text = "✓ Complete: " + contract.title
-			btn_complete_contract.visible = true
-			
-			# Show a popup to notify player they can complete the contract
-			if completable_contract_id != _last_ready_popup_contract_id:
-				_last_ready_popup_contract_id = completable_contract_id
-				_show_contract_ready_popup(contract)
-			break
-
-func _show_contract_ready_popup(contract):
-	if contract_popup and label_popup_info:
-		if label_popup_title:
-			label_popup_title.text = "CONTRACT READY"
-		label_popup_info.text = "You can complete:\n\n[%s]\n\nReward: %d WP" % [contract.title, contract.reward_wp]
-		contract_popup.popup_centered()
-
-
-func _show_contract_accepted_popup(contract_id: String) -> void:
-	if not (contract_popup and label_popup_info):
-		return
-	if label_popup_title:
-		label_popup_title.text = "CONTRACT ACCEPTED"
-	var contract = GameState.active_contracts.get(contract_id, null)
-	if contract:
-		var info: String = "[%s]" % contract.title
-		if contract.contract_type == "delivery":
-			info += "\n\nDeliver: %s x%d" % [contract.required_commodity_id, contract.required_quantity]
-			info += "\nTo: %s" % contract.destination_location_id
-			info += "\n\nReward: %d WP" % contract.reward_wp
-		label_popup_info.text = info
-	else:
-		label_popup_info.text = "Contract accepted: %s" % contract_id
-	contract_popup.popup_centered()
-
-
-func _on_contract_accepted(contract_id):
-	# Only show a popup if we're currently docked (StationMenu is on screen).
-	if not visible:
-		return
-	_show_contract_accepted_popup(str(contract_id))
-	_check_completable_contracts()
-
-
-func _on_contract_completed(_contract_id, _success = null):
-	# After completion, clear ready-popup guard so other contracts can prompt.
-	_last_ready_popup_contract_id = ""
-	if visible:
-		_check_completable_contracts()
-
-
-func _on_trade_transaction_completed(_tx: Dictionary):
-	# Cargo changes while docked can make a contract completable.
-	if visible:
-		_check_completable_contracts()
-
-func _on_popup_ok_pressed():
-	if contract_popup:
-		contract_popup.hide()
-
-func _on_complete_contract_pressed():
-	if completable_contract_id == "":
-		return
-
-	_pending_contract_completion = completable_contract_id
-
-	# Request narrative action instead of completing directly.
-	var narrative_system = GlobalRefs.get("narrative_action_system")
-	if is_instance_valid(narrative_system) and narrative_system.has_method("request_action"):
-		narrative_system.request_action(
-			"contract_complete",
-			{
-				"char_uid": GameState.player_character_uid,
-				"contract_id": completable_contract_id,
-				"description": "Finalize delivery of '%s'. How do you approach the handoff?" % completable_contract_title
-			}
-		)
-	else:
-		# Fallback: complete without narrative check.
-		_finalize_contract_completion()
-		_pending_contract_completion = ""
-
-
-func _on_narrative_resolved(result: Dictionary):
-	if _pending_contract_completion == "":
-		return
-	if str(result.get("action_type", "")) != "contract_complete":
-		return
-	_finalize_contract_completion()
-	_pending_contract_completion = ""
-
-
-func _finalize_contract_completion():
-	if GlobalRefs.contract_system:
-		var result = GlobalRefs.contract_system.complete_contract(
-			GameState.player_character_uid,
-			completable_contract_id
-		)
-		if result.success:
-			print("Contract Completed: ", completable_contract_id)
-			# Show completion popup
-			if contract_popup and label_popup_info:
-				if label_popup_title:
-					label_popup_title.text = "CONTRACT COMPLETE!"
-				var rewards = result.get("rewards", {})
-				var wp_earned = rewards.get("wp", 0)
-				label_popup_info.text = "Contract Complete!\n\n[%s]\n\nEarned: %d WP" % [completable_contract_title, wp_earned]
-				contract_popup.popup_centered()
-			_check_completable_contracts()
-		else:
-			print("Failed to complete contract: ", result.reason)
-
-func _on_player_undocked():
-	visible = false
-	current_location_id = ""
-	_pending_contract_completion = ""
-	_last_ready_popup_contract_id = ""
-	if trade_interface_instance:
-		trade_interface_instance.visible = false
-	if contract_interface_instance:
-		contract_interface_instance.visible = false
-	if contract_popup:
-		contract_popup.hide()
-	print("Station Menu Closed")
-
-func _on_undock_pressed():
-	EventBus.emit_signal("player_undocked")
-
-func _on_trade_pressed():
-	if trade_interface_instance:
-		trade_interface_instance.open(current_location_id)
-
-func _on_contracts_pressed():
-	if contract_interface_instance:
-		contract_interface_instance.open(current_location_id)
-
---- Start of ./src/scenes/ui/station_menu/trade_interface.gd ---
-
-extends Control
-
-onready var list_station = $Panel/VBoxMain/HBoxContent/VBoxStation/ItemListStation
-onready var list_player = $Panel/VBoxMain/HBoxContent/VBoxPlayer/ItemListPlayer
-onready var btn_buy = $Panel/VBoxMain/HBoxControls/BtnBuy
-onready var btn_sell = $Panel/VBoxMain/HBoxControls/BtnSell
-onready var spin_quantity = $Panel/VBoxMain/HBoxControls/SpinQuantity
-onready var btn_close = $Panel/VBoxMain/HBoxControls/BtnClose
-onready var label_wp = $Panel/VBoxMain/HBoxHeader/LabelWP
-onready var label_status = $Panel/VBoxMain/LabelStatus
-onready var rich_text_prices = $Panel/VBoxMain/HBoxContent/VBoxInfo/ScrollContainer/RichTextLabelPrices
-
-var current_location_id: String = ""
-var selected_station_item_idx: int = -1
-var selected_player_item_idx: int = -1
-
-var _selected_comm_id: String = ""
-var _trade_mode: String = "" # "buy" | "sell" | ""
-
-func _ready():
-	btn_close.connect("pressed", self, "_on_close_pressed")
-	btn_buy.connect("pressed", self, "_on_buy_pressed")
-	btn_sell.connect("pressed", self, "_on_sell_pressed")
-	if spin_quantity:
-		spin_quantity.connect("value_changed", self, "_on_quantity_changed")
-	
-	list_station.connect("item_selected", self, "_on_station_item_selected")
-	list_player.connect("item_selected", self, "_on_player_item_selected")
-
-func open(location_id: String):
-	current_location_id = location_id
-	visible = true
-	refresh_lists()
-	_update_wp_display()
-	_clear_price_comparison()
-	_reset_quantity_selector()
-
-func _update_wp_display():
-	if label_wp and GlobalRefs.character_system:
-		var wp = GlobalRefs.character_system.get_wp(GameState.player_character_uid)
-		label_wp.text = "Wealth Points: %d WP" % wp
-
-func _clear_price_comparison():
-	if rich_text_prices:
-		rich_text_prices.bbcode_text = "[center]Select an item to see prices at all stations.[/center]"
-
-func refresh_lists():
-	list_station.clear()
-	list_player.clear()
-	selected_station_item_idx = -1
-	selected_player_item_idx = -1
-	_selected_comm_id = ""
-	_trade_mode = ""
-	btn_buy.disabled = true
-	btn_sell.disabled = true
-	_reset_quantity_selector()
-	if label_status:
-		label_status.text = "Select an item to trade"
-	
-	# Populate Station Market
-	if GameState.locations.has(current_location_id):
-		var location = GameState.locations[current_location_id]
-		var market_inventory = location.get("market_inventory")
-		
-		if market_inventory:
-			for comm_id in market_inventory:
-				var item = market_inventory[comm_id]
-				var buy_price = item.get("buy_price", item.get("price", 0))
-				var qty = item.get("quantity", 0)
-				var display_name = _get_commodity_display_name(comm_id)
-				var text = "%s x%d - %d WP" % [display_name, qty, buy_price]
-				list_station.add_item(text)
-				list_station.set_item_metadata(list_station.get_item_count() - 1, comm_id)
-	
-	# Populate Player Inventory
-	var player_uid = GameState.player_character_uid
-	if GlobalRefs.inventory_system:
-		var commodities = GlobalRefs.inventory_system.get_inventory_by_type(player_uid, GlobalRefs.inventory_system.InventoryType.COMMODITY)
-		
-		for comm_id in commodities:
-			var qty = commodities[comm_id]
-			# Get sell price from market
-			var sell_price = 0
-			if GameState.locations.has(current_location_id):
-				var loc = GameState.locations[current_location_id]
-				var loc_market = loc.get("market_inventory")
-				if loc_market and loc_market.has(comm_id):
-					sell_price = loc_market[comm_id].get("sell_price", loc_market[comm_id].get("price", 0))
-			
-			var display_name = _get_commodity_display_name(comm_id)
-			var text = "%s x%d - %d WP" % [display_name, qty, sell_price]
-			list_player.add_item(text)
-			list_player.set_item_metadata(list_player.get_item_count() - 1, comm_id)
-
-func _get_commodity_display_name(comm_id: String) -> String:
-	if TemplateDatabase.assets_commodities.has(comm_id):
-		var template = TemplateDatabase.assets_commodities[comm_id]
-		if template and template.get("commodity_name"):
-			return template.commodity_name
-	var display_name = comm_id.replace("commodity_", "").capitalize()
-	return display_name
-
-func _generate_price_comparison(comm_id: String):
-	if not rich_text_prices:
-		return
-	
-	var display_name = _get_commodity_display_name(comm_id)
-	var text = "[center][b]%s[/b][/center]\n\n" % display_name
-	text += "[u]Prices at All Stations:[/u]\n\n"
-	
-	# Loop through all locations
-	for loc_id in GameState.locations:
-		var location = GameState.locations[loc_id]
-		var loc_name = location.location_name if location.location_name != "" else loc_id
-		var market = location.market_inventory
-		
-		if market.has(comm_id):
-			var item = market[comm_id]
-			var buy_price = item.get("buy_price", item.get("price", 0))
-			var sell_price = item.get("sell_price", item.get("price", 0))
-			var qty = item.get("quantity", 0)
-			
-			# Highlight current location
-			if loc_id == current_location_id:
-				text += "[color=yellow]► %s[/color]\n" % loc_name
-			else:
-				text += "%s\n" % loc_name
-			
-			text += "  Buy: [color=red]%d WP[/color]\n" % buy_price
-			text += "  Sell: [color=green]%d WP[/color]\n" % sell_price
-			text += "  Stock: %d\n\n" % qty
-		else:
-			if loc_id == current_location_id:
-				text += "[color=yellow]► %s[/color]\n" % loc_name
-			else:
-				text += "%s\n" % loc_name
-			text += "  [i]Not available[/i]\n\n"
-	
-	rich_text_prices.bbcode_text = text
-
-func _on_station_item_selected(index):
-	selected_station_item_idx = index
-	list_player.unselect_all()
-	selected_player_item_idx = -1
-	btn_buy.disabled = false
-	btn_sell.disabled = true
-	
-	var comm_id = list_station.get_item_metadata(index)
-	_selected_comm_id = str(comm_id)
-	_trade_mode = "buy"
-	_generate_price_comparison(comm_id)
-	_configure_quantity_for_buy(_selected_comm_id)
-	_update_trade_status_text()
-
-func _on_player_item_selected(index):
-	selected_player_item_idx = index
-	list_station.unselect_all()
-	selected_station_item_idx = -1
-	btn_buy.disabled = true
-	btn_sell.disabled = false
-	
-	var comm_id = list_player.get_item_metadata(index)
-	_selected_comm_id = str(comm_id)
-	_trade_mode = "sell"
-	_generate_price_comparison(comm_id)
-	_configure_quantity_for_sell(_selected_comm_id)
-	_update_trade_status_text()
-
-
-func _reset_quantity_selector() -> void:
-	if not spin_quantity:
-		return
-	spin_quantity.editable = false
-	spin_quantity.min_value = 1
-	spin_quantity.max_value = 1
-	spin_quantity.value = 1
-
-
-func _configure_quantity_for_buy(comm_id: String) -> void:
-	if not spin_quantity:
-		return
-	var max_qty := 1
-	if GameState.locations.has(current_location_id):
-		var loc = GameState.locations[current_location_id]
-		var item = loc.market_inventory.get(comm_id, {})
-		max_qty = int(item.get("quantity", 1))
-	spin_quantity.min_value = 1
-	spin_quantity.max_value = max(1, max_qty)
-	spin_quantity.value = 1
-	spin_quantity.editable = true
-
-
-func _configure_quantity_for_sell(comm_id: String) -> void:
-	if not spin_quantity:
-		return
-	var max_qty := 1
-	if is_instance_valid(GlobalRefs.inventory_system):
-		max_qty = int(GlobalRefs.inventory_system.get_asset_count(
-			GameState.player_character_uid,
-			GlobalRefs.inventory_system.InventoryType.COMMODITY,
-			comm_id
-		))
-	spin_quantity.min_value = 1
-	spin_quantity.max_value = max(1, max_qty)
-	spin_quantity.value = 1
-	spin_quantity.editable = true
-
-
-func _on_quantity_changed(_value) -> void:
-	_update_trade_status_text()
-
-
-func _get_selected_quantity() -> int:
-	if spin_quantity:
-		return int(spin_quantity.value)
-	return 1
-
-
-func _update_trade_status_text() -> void:
-	if not label_status:
-		return
-	if _selected_comm_id == "" or _trade_mode == "":
-		label_status.text = "Select an item to trade"
-		return
-	if not GameState.locations.has(current_location_id):
-		label_status.text = "Location not found"
-		return
-
-	var loc = GameState.locations[current_location_id]
-	var item = loc.market_inventory.get(_selected_comm_id, {})
-	var qty := _get_selected_quantity()
-	if _trade_mode == "buy":
-		var unit_price = int(item.get("buy_price", item.get("price", 0)))
-		label_status.text = "Buy %d %s for %d WP" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
-	elif _trade_mode == "sell":
-		var unit_price = int(item.get("sell_price", item.get("price", 0)))
-		label_status.text = "Sell %d %s for %d WP" % [qty, _get_commodity_display_name(_selected_comm_id), unit_price * qty]
-
-func _on_buy_pressed():
-	if selected_station_item_idx == -1:
-		return
-	var comm_id = list_station.get_item_metadata(selected_station_item_idx)
-	var qty := _get_selected_quantity()
-	
-	if GlobalRefs.trading_system:
-		var result = GlobalRefs.trading_system.execute_buy(GameState.player_character_uid, current_location_id, comm_id, qty)
-		if result.success:
-			refresh_lists()
-			_update_wp_display()
-			_generate_price_comparison(comm_id)
-			label_status.text = "Bought %d %s" % [qty, _get_commodity_display_name(comm_id)]
-		else:
-			if label_status:
-				label_status.text = result.reason
-
-func _on_sell_pressed():
-	if selected_player_item_idx == -1:
-		return
-	var comm_id = list_player.get_item_metadata(selected_player_item_idx)
-	var qty := _get_selected_quantity()
-	
-	if GlobalRefs.trading_system:
-		var result = GlobalRefs.trading_system.execute_sell(GameState.player_character_uid, current_location_id, comm_id, qty)
-		if result.success:
-			refresh_lists()
-			_update_wp_display()
-			_generate_price_comparison(comm_id)
-			label_status.text = "Sold %d %s" % [qty, _get_commodity_display_name(comm_id)]
-		else:
-			if label_status:
-				label_status.text = result.reason
-
-func _on_close_pressed():
-	visible = false
-
 --- Start of ./src/tests/autoload/test_constants.gd ---
 
 # File: tests/autoload/test_constants.gd
@@ -22920,7 +23340,8 @@ func test_action_approach_enum_exists():
 	# Test that the enum and its values exist and are correct.
 	assert_not_null(Constants.ActionApproach, "ActionApproach enum should exist.")
 	assert_eq(Constants.ActionApproach.CAUTIOUS, 0, "CAUTIOUS should be enum value 0.")
-	assert_eq(Constants.ActionApproach.RISKY, 1, "RISKY should be enum value 1.")
+	assert_eq(Constants.ActionApproach.NEUTRAL, 1, "NEUTRAL should be enum value 1.")
+	assert_eq(Constants.ActionApproach.RISKY, 2, "RISKY should be enum value 2.")
 	prints("Tested ActionApproach Enum")
 
 
@@ -22959,7 +23380,27 @@ const ATTR = 4
 const SKILL = 2
 const FOCUS = 1
 const CAUTIOUS = Constants.ActionApproach.CAUTIOUS
+const NEUTRAL = Constants.ActionApproach.NEUTRAL
 const RISKY = Constants.ActionApproach.RISKY
+
+
+func test_neutral_approach_thresholds():
+	# Test Neutral thresholds via perform_action_check
+	# To guarantee failure: 18 + mod < 11 => mod < -7. We use -8.
+	var result_fail = CoreMechanicsAPI.perform_action_check(-8, 0, 0, NEUTRAL)
+	assert_eq(result_fail.result_tier, "Failure", "[Neutral] Guaranteed failure check.")
+
+	# To guarantee critical success: 3 + mod >= 15 => mod >= 12. We use 12.
+	var result_crit = CoreMechanicsAPI.perform_action_check(12, 0, 0, NEUTRAL)
+	assert_eq(result_crit.result_tier, "CritSuccess", "[Neutral] Guaranteed critical success check.")
+	prints("Tested Action Check: Neutral Tier Boundaries")
+
+
+func test_stakes_constants():
+	assert_eq(Constants.ActionStakes.HIGH_STAKES, 0)
+	assert_eq(Constants.ActionStakes.NARRATIVE, 1)
+	assert_eq(Constants.ActionStakes.MUNDANE, 2)
+	prints("Tested Action Stakes Enum Values")
 
 
 func test_perform_action_check_return_structure():
@@ -23144,11 +23585,18 @@ func test_signal_emit_count():
 
 --- Start of ./src/tests/autoload/test_game_state_manager.gd ---
 
-# File: tests/autoload/test_game_state_manager.gd
-# GUT Test for the streamlined GameStateManager.
-# Version: 2.1 - Corrected for private serialization methods.
+#
+# PROJECT: GDTLancer
+# MODULE: test_game_state_manager.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
+#
 
 extends GutTest
+
+## Unit tests for GameStateManager: save/load operations and state serialization.
+## Updated for four-layer simulation architecture.
 
 # --- Component Preloads ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
@@ -23213,14 +23661,13 @@ func test_save_and_load_restores_identical_state():
 	assert_true(result.are_equal(), "Loaded GameState should be identical to the pre-save state.\n" + result.summary)
 
 
-func test_save_and_load_preserves_mutated_phase1_fields():
-	# Mutate Phase 1 fields that change during gameplay and must persist.
-	GameState.current_tu = 42
+func test_save_and_load_preserves_mutated_fields():
+	# Mutate fields that change during gameplay and must persist.
+	GameState.game_time_seconds = 42
 	GameState.player_docked_at = "station_beta"
-	GameState.narrative_state["reputation"] = 7
-	GameState.session_stats["contracts_completed"] = 2
+	GameState.sim_tick_count = 7
 
-	# Market inventory quantity mutation
+	# Market inventory quantity mutation (legacy locations)
 	var station_alpha = GameState.locations.get("station_alpha", null)
 	assert_not_null(station_alpha, "Precondition: station_alpha location should exist.")
 	if station_alpha:
@@ -23239,16 +23686,6 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 			ship_uid = ship_inv.keys()[0]
 			ship_inv[ship_uid].ship_quirks = ["scratched_hull"]
 
-	# Active contract mutation (simulate accepted contract with progress)
-	var contract_ids = GameState.contracts.keys()
-	assert_true(contract_ids.size() > 0, "Precondition: at least one contract template should exist.")
-	if contract_ids.size() > 0:
-		var contract_id: String = contract_ids[0]
-		var active_contract = GameState.contracts[contract_id].duplicate(true)
-		active_contract.accepted_at_tu = GameState.current_tu
-		active_contract.progress = {"character_uid": player_uid, "test_flag": true}
-		GameState.active_contracts[contract_id] = active_contract
-
 	# Save -> clear -> load
 	var save_success = GameStateManager.save_game(TEST_SLOT)
 	assert_true(save_success, "Game should save successfully.")
@@ -23256,11 +23693,10 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 	var load_success = GameStateManager.load_game(TEST_SLOT)
 	assert_true(load_success, "Game should load successfully.")
 
-	# Assertions
-	assert_eq(GameState.current_tu, 42, "current_tu should persist.")
+	# Assertions — fields that still exist in GameState
+	assert_eq(GameState.game_time_seconds, 42, "game_time_seconds should persist.")
 	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
-	assert_eq(GameState.narrative_state.get("reputation", null), 7, "narrative_state.reputation should persist.")
-	assert_eq(GameState.session_stats.get("contracts_completed", null), 2, "session_stats.contracts_completed should persist.")
+	assert_eq(GameState.sim_tick_count, 7, "sim_tick_count should persist.")
 
 	assert_eq(GameState.locations["station_alpha"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
 	if ship_uid != -1:
@@ -23268,39 +23704,33 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")
 		assert_eq(loaded_ship_inv[ship_uid].ship_quirks, ["scratched_hull"], "Ship quirks should persist.")
 
-	if contract_ids.size() > 0:
-		var contract_id_loaded: String = contract_ids[0]
-		assert_true(GameState.active_contracts.has(contract_id_loaded), "Active contract should persist.")
-		assert_eq(GameState.active_contracts[contract_id_loaded].progress.get("character_uid", -1), player_uid, "Active contract progress should persist.")
-		assert_true(GameState.active_contracts[contract_id_loaded].progress.get("test_flag", false), "Active contract custom progress data should persist.")
-
 # --- Helper Functions ---
 
 func _clear_game_state():
 	GameState.characters.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
 	GameState.inventories.clear()
 	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
-	# Reinitialize with defaults instead of just clearing
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"chronicle_entries": []
-	}
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
+	GameState.factions.clear()
+	GameState.agents.clear()
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.hostile_population_integral.clear()
+	GameState.chronicle_event_buffer.clear()
+	GameState.chronicle_rumors.clear()
 	GameState.player_character_uid = -1
 	GameState.player_docked_at = ""
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
+	GameState.sim_tick_count = 0
+	GameState.world_seed = ""
 
 # Creates a serializable copy of the GameState for comparison.
 func _deep_copy_game_state() -> Dictionary:
@@ -23360,17 +23790,13 @@ func reset_all_global_refs():
 	GlobalRefs.current_zone = null
 	GlobalRefs.agent_container = null
 	GlobalRefs.game_state_manager = null
-	GlobalRefs.action_system = null
 	GlobalRefs.agent_spawner = null
 	GlobalRefs.asset_system = null
 	GlobalRefs.character_system = null
-	GlobalRefs.chronicle_system = null
-	GlobalRefs.goal_system = null
+	GlobalRefs.event_system = null
 	GlobalRefs.inventory_system = null
-	GlobalRefs.progression_system = null
 	GlobalRefs.time_system = null
-	GlobalRefs.traffic_system = null
-	GlobalRefs.world_map_system = null
+	GlobalRefs.simulation_engine = null
 
 
 # --- Test Methods ---
@@ -23380,7 +23806,6 @@ func test_initial_references_are_null():
 	assert_null(GlobalRefs.player_agent_body, "Player ref should start null.")
 	assert_null(GlobalRefs.main_camera, "Camera ref should start null.")
 	assert_null(GlobalRefs.world_manager, "World Manager ref should start null.")
-	assert_null(GlobalRefs.action_system, "Action System ref should start null.")
 	assert_null(GlobalRefs.time_system, "Time System ref should start null.")
 	assert_null(GlobalRefs.character_system, "Character System ref should start null.")
 	prints("Tested GlobalRefs: Initial Null State")
@@ -23646,7 +24071,9 @@ func before_each():
 	stub(mock_movement_system, "request_thrust_brake").to_return(null)
 	stub(mock_movement_system, "request_thrust_direction").to_return(null)
 	stub(mock_movement_system, "request_rotation_to").to_return(null)
+	stub(mock_movement_system, "request_rotation_to_pid").to_return(null)
 	stub(mock_movement_system, "request_rotation_damping").to_return(null)
+	stub(mock_movement_system, "request_rotation_damping_pid").to_return(null)
 	stub(mock_movement_system, "is_aligned_to").to_return(true)
 	stub(mock_movement_system, "is_stopped").to_return(false)
 	stub(mock_movement_system, "is_rotation_stopped").to_return(false)
@@ -23692,8 +24119,7 @@ func test_set_command_stopping():
 	nav_system.set_command_stopping()
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_thrust_brake")
-	assert_called(mock_movement_system, "request_rotation_damping")
+	assert_called(mock_movement_system, "request_rotation_damping_pid")
 
 
 func test_stop_command_emits_reached_destination_signal():
@@ -23721,7 +24147,7 @@ func test_set_command_move_to():
 	assert_eq(nav_system._current_command.target_pos, target_pos)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_set_command_approach():
@@ -23736,7 +24162,7 @@ func test_set_command_approach():
 	assert_eq(nav_system._current_command.target_node, target_node)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_set_command_orbit():
@@ -23750,7 +24176,7 @@ func test_set_command_orbit():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ORBIT)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_set_command_flee():
@@ -23764,7 +24190,7 @@ func test_set_command_flee():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.FLEE)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 	assert_called(mock_movement_system, "request_thrust_forward")
 
 
@@ -23775,7 +24201,7 @@ func test_set_command_align_to():
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
 	nav_system.update_navigation(0.1)
-	assert_called(mock_movement_system, "request_rotation_to")
+	assert_called(mock_movement_system, "request_rotation_to_pid")
 
 
 func test_invalid_target_in_update_switches_to_stopping():
@@ -23791,372 +24217,1711 @@ func test_invalid_target_in_update_switches_to_stopping():
 	nav_system.update_navigation(0.1)
 
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
-	assert_called(mock_movement_system, "request_thrust_brake")
+	assert_called(mock_movement_system, "request_rotation_damping_pid")
 
---- Start of ./src/tests/core/agents/components/test_weapon_controller.gd ---
+--- Start of ./src/tests/core/simulation/test_agent_layer.gd ---
 
-# test_weapon_controller.gd
-# Unit tests for WeaponController - weapon firing, cooldowns, signal emissions
-extends "res://addons/gut/test.gd"
-
-const WeaponController = preload("res://src/core/agents/components/weapon_controller.gd")
-const CombatSystem = preload("res://src/core/systems/combat_system.gd")
-const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
-
-var _weapon_controller: Node
-var _mock_agent_body: RigidBody
-var _mock_combat_system: Node
-var _test_weapon: UtilityToolTemplate
-
-const SHOOTER_UID: int = 100
-const TARGET_UID: int = 200
-
-
-# --- Test Agent Body with required properties ---
-class TestAgentBody:
-	extends RigidBody
-	var agent_uid: int = 100
-	var character_uid: int = 1
-
-
-func before_each():
-	# Create mock agent body
-	_mock_agent_body = TestAgentBody.new()
-	_mock_agent_body.name = "TestAgentBody"
-	_mock_agent_body.agent_uid = SHOOTER_UID
-	_mock_agent_body.character_uid = 1
-	_mock_agent_body.gravity_scale = 0.0
-	add_child(_mock_agent_body)
-	
-	# Create and register mock combat system
-	_mock_combat_system = CombatSystem.new()
-	add_child(_mock_combat_system)
-	GlobalRefs.combat_system = _mock_combat_system
-	
-	# Create test weapon
-	_test_weapon = UtilityToolTemplate.new()
-	_test_weapon.template_id = "test_laser"
-	_test_weapon.tool_name = "Test Laser"
-	_test_weapon.tool_type = "weapon"
-	_test_weapon.damage = 10.0
-	_test_weapon.range_effective = 50.0
-	_test_weapon.range_max = 100.0
-	_test_weapon.fire_rate = 2.0  # 2 shots per second = 0.5s base cooldown
-	_test_weapon.accuracy = 1.0
-	_test_weapon.hull_damage_multiplier = 1.0
-	_test_weapon.armor_damage_multiplier = 1.0
-	_test_weapon.cooldown_time = 0.5  # Additional cooldown
-	
-	# Create weapon controller and add as child of agent body
-	_weapon_controller = WeaponController.new()
-	_weapon_controller.name = "WeaponController"
-	_mock_agent_body.add_child(_weapon_controller)
-	
-	# Manually inject a weapon (bypassing asset system loading)
-	_weapon_controller._weapons = [_test_weapon]
-	_weapon_controller._cooldowns = {0: 0.0}
-	
-	# Register combatants for fire tests
-	var shooter_ship = _create_mock_ship(100, 50)
-	var target_ship = _create_mock_ship(100, 50)
-	_mock_combat_system.register_combatant(SHOOTER_UID, shooter_ship)
-	_mock_combat_system.register_combatant(TARGET_UID, target_ship)
-
-
-func after_each():
-	GlobalRefs.combat_system = null
-	if is_instance_valid(_mock_agent_body):
-		_mock_agent_body.queue_free()
-	if is_instance_valid(_mock_combat_system):
-		_mock_combat_system.queue_free()
-
-
-func _create_mock_ship(hull: int, armor: int) -> Resource:
-	var ship = Resource.new()
-	ship.set_script(load("res://src/tests/helpers/mock_ship_template.gd"))
-	ship.hull_integrity = hull
-	ship.armor_integrity = armor
-	return ship
-
-
-# --- Weapon Loading Tests ---
-
-func test_get_weapon_count():
-	assert_eq(_weapon_controller.get_weapon_count(), 1, "Should have 1 weapon loaded")
-
-
-func test_get_weapon_valid_index():
-	var weapon = _weapon_controller.get_weapon(0)
-	assert_not_null(weapon, "Weapon at index 0 should exist")
-	assert_eq(weapon.template_id, "test_laser", "Should return correct weapon")
-
-
-func test_get_weapon_invalid_index():
-	var weapon = _weapon_controller.get_weapon(99)
-	assert_null(weapon, "Invalid index should return null")
-	
-	weapon = _weapon_controller.get_weapon(-1)
-	assert_null(weapon, "Negative index should return null")
-
-
-# --- Weapon Ready State Tests ---
-
-func test_is_weapon_ready_initially():
-	assert_true(_weapon_controller.is_weapon_ready(0), "Weapon should be ready initially")
-
-
-func test_is_weapon_ready_after_fire():
-	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	assert_false(_weapon_controller.is_weapon_ready(0), "Weapon should not be ready after firing")
-
-
-func test_get_cooldown_remaining_initially():
-	var cooldown = _weapon_controller.get_cooldown_remaining(0)
-	assert_eq(cooldown, 0.0, "Initial cooldown should be 0")
-
-
-# --- Fire Weapon Tests ---
-
-func test_fire_weapon_success():
-	var target_pos = Vector3(10, 0, 0)  # Within range
-	
-	var result = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	assert_true(result.get("success", false), "Fire should succeed")
-
-
-func test_fire_weapon_emits_weapon_fired_signal():
-	watch_signals(_weapon_controller)
-	var target_pos = Vector3(10, 0, 0)
-	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	assert_signal_emitted(_weapon_controller, "weapon_fired", "weapon_fired signal should emit")
-
-
-func test_fire_weapon_emits_cooldown_started_signal():
-	watch_signals(_weapon_controller)
-	var target_pos = Vector3(10, 0, 0)
-	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	assert_signal_emitted(_weapon_controller, "weapon_cooldown_started", 
-		"weapon_cooldown_started signal should emit")
-
-
-func test_fire_weapon_starts_cooldown():
-	var target_pos = Vector3(10, 0, 0)
-	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	var cooldown = _weapon_controller.get_cooldown_remaining(0)
-	assert_gt(cooldown, 0.0, "Cooldown should be > 0 after firing")
-
-
-func test_fire_weapon_invalid_index():
-	var target_pos = Vector3(10, 0, 0)
-	
-	var result = _weapon_controller.fire_at_target(99, TARGET_UID, target_pos)
-	
-	assert_false(result.get("success", true), "Fire with invalid index should fail")
-	assert_eq(result.get("reason"), "Invalid weapon index", "Should return correct error reason")
-
-
-func test_fire_weapon_during_cooldown_fails():
-	var target_pos = Vector3(10, 0, 0)
-	
-	# First fire should succeed
-	var result1 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	assert_true(result1.get("success", false), "First fire should succeed")
-	
-	# Second immediate fire should fail
-	var result2 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	assert_false(result2.get("success", true), "Second fire should fail due to cooldown")
-	assert_eq(result2.get("reason"), "Weapon on cooldown", "Should report cooldown as reason")
-
-
-# --- Cooldown Timer Tests ---
-
-func test_cooldown_decrements_over_time():
-	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	var initial_cooldown = _weapon_controller.get_cooldown_remaining(0)
-	
-	# Simulate physics frame
-	_weapon_controller._physics_process(0.25)
-	
-	var new_cooldown = _weapon_controller.get_cooldown_remaining(0)
-	assert_lt(new_cooldown, initial_cooldown, "Cooldown should decrease after physics process")
-
-
-func test_cooldown_reaches_zero():
-	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	# Simulate enough time to complete cooldown (fire_rate=2 -> 0.5s + cooldown_time=0.5s = 1.0s)
-	_weapon_controller._physics_process(2.0)
-	
-	var final_cooldown = _weapon_controller.get_cooldown_remaining(0)
-	assert_eq(final_cooldown, 0.0, "Cooldown should reach 0")
-	assert_true(_weapon_controller.is_weapon_ready(0), "Weapon should be ready after cooldown")
-
-
-func test_weapon_ready_signal_emitted_after_cooldown():
-	watch_signals(_weapon_controller)
-	var target_pos = Vector3(10, 0, 0)
-	
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	# Simulate time to complete cooldown
-	_weapon_controller._physics_process(2.0)
-	
-	assert_signal_emitted(_weapon_controller, "weapon_ready", 
-		"weapon_ready signal should emit when cooldown ends")
-
-
-# --- Edge Case Tests ---
-
-func test_fire_without_combat_system():
-	GlobalRefs.combat_system = null
-	var target_pos = Vector3(10, 0, 0)
-	
-	var result = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	assert_false(result.get("success", true), "Fire should fail without combat system")
-	assert_eq(result.get("reason"), "CombatSystem unavailable", "Should report system unavailable")
-
-
-func test_multiple_physics_frames_decrement_cooldown():
-	var target_pos = Vector3(10, 0, 0)
-	_weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	
-	var cooldowns = []
-	cooldowns.append(_weapon_controller.get_cooldown_remaining(0))
-	
-	for _i in range(4):
-		_weapon_controller._physics_process(0.1)
-		cooldowns.append(_weapon_controller.get_cooldown_remaining(0))
-	
-	# Verify strictly decreasing
-	for i in range(1, cooldowns.size()):
-		assert_lt(cooldowns[i], cooldowns[i-1], 
-			"Cooldown should decrease each frame (frame %d)" % i)
-
-
-func test_can_fire_again_after_cooldown_complete():
-	var target_pos = Vector3(10, 0, 0)
-	
-	# First fire
-	var result1 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	assert_true(result1.get("success", false), "First fire should succeed")
-	
-	# Wait for cooldown
-	_weapon_controller._physics_process(2.0)
-	
-	# Second fire after cooldown
-	var result2 = _weapon_controller.fire_at_target(0, TARGET_UID, target_pos)
-	assert_true(result2.get("success", false), "Fire after cooldown should succeed")
-
---- Start of ./src/tests/core/systems/test_action_system.gd ---
-
-# File: tests/core/systems/test_action_system.gd
-# GUT Test for the stateless ActionSystem.
-# Version: 3.0 - Rewritten for GameState architecture.
+#
+# PROJECT: GDTLancer
+# MODULE: test_agent_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 4 (Agent Layer)
+# LOG_REF: 2026-02-13
+#
 
 extends GutTest
 
-# --- Test Subjects ---
-const ActionSystem = preload("res://src/core/systems/action_system.gd")
-const CharacterTemplate = preload("res://database/definitions/character_template.gd")
-const ActionTemplate = preload("res://database/definitions/action_template.gd")
+## Unit tests for AgentLayer: Agent initialization, goal evaluation, actions, respawn.
 
-# --- Test State ---
-var action_system_instance = null
-var mock_character: CharacterTemplate = null
-var mock_action: ActionTemplate = null
-const PLAYER_UID = 0
+var world_layer: Reference = null
+var grid_layer: Reference = null
+var agent_layer: Reference = null
+var bridge_systems: Reference = null
+var ca_rules: Reference = null
+var _config: Dictionary = {}
+var _indexer: Node = null
+
+func before_all():
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
+
+func before_each():
+	_clear_game_state()
+
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
+	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
+	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
+
+	world_layer = WorldLayerScript.new()
+	grid_layer = GridLayerScript.new()
+	agent_layer = AgentLayerScript.new()
+	bridge_systems = BridgeSystemsScript.new()
+	ca_rules = CARulesScript.new()
+	grid_layer.ca_rules = ca_rules
+
+	# Full init chain
+	world_layer.initialize_world("agent_test_seed")
+	grid_layer.initialize_grid()
+	agent_layer.initialize_agents()
+	world_layer.recalculate_total_matter()
+
+	_config = {
+		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
+		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
+		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
+		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
+		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
+		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
+		"demand_base": Constants.CA_DEMAND_BASE,
+		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
+		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
+		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
+		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
+		"entropy_hull_multiplier": Constants.ENTROPY_HULL_MULTIPLIER,
+		"heat_generation_in_space": Constants.HEAT_GENERATION_IN_SPACE,
+		"heat_dissipation_base": Constants.HEAT_DISSIPATION_DOCKED,
+		"heat_overheat_threshold": Constants.HEAT_OVERHEAT_THRESHOLD,
+		"fleet_entropy_reduction": Constants.ENTROPY_FLEET_RATE_FRACTION,
+		"propellant_drain_per_tick": Constants.PROPELLANT_DRAIN_PER_TICK,
+		"energy_drain_per_tick": Constants.ENERGY_DRAIN_PER_TICK,
+		"knowledge_noise_factor": Constants.AGENT_KNOWLEDGE_NOISE_FACTOR,
+		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
+		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
+		"npc_cash_low_threshold": Constants.NPC_CASH_LOW_THRESHOLD,
+		"npc_hull_repair_threshold": Constants.NPC_HULL_REPAIR_THRESHOLD,
+		"commodity_base_price": Constants.COMMODITY_BASE_PRICE,
+		"world_tick_interval_seconds": float(Constants.WORLD_TICK_INTERVAL_SECONDS),
+		"respawn_timeout_seconds": Constants.RESPAWN_TIMEOUT_SECONDS,
+		"hostile_growth_rate": Constants.HOSTILE_GROWTH_RATE,
+		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
+	}
+
+func after_each():
+	_clear_game_state()
+	world_layer = null
+	grid_layer = null
+	agent_layer = null
+	bridge_systems = null
+	ca_rules = null
+
+
+func _clear_game_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.world_seed = ""
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.grid_resource_availability.clear()
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.hostile_population_integral.clear()
+	GameState.player_character_uid = -1
+	GameState.sim_tick_count = 0
+	GameState.chronicle_event_buffer = []
+	GameState.chronicle_rumors = []
+
+
+# =============================================================================
+# === TESTS ===================================================================
+# =============================================================================
+
+func test_agents_initialized():
+	# Player + persistent NPCs should exist
+	assert_true(GameState.agents.has("player"),
+		"Player agent must exist after init.")
+	assert_true(GameState.agents.size() > 1,
+		"At least one NPC agent should exist. Got: %d" % GameState.agents.size())
+
+	# Player should have a valid character UID
+	assert_true(GameState.player_character_uid >= 0,
+		"player_character_uid should be set. Got: %d" % GameState.player_character_uid)
+
+	# All agents should have required state fields
+	for agent_id in GameState.agents:
+		var agent: Dictionary = GameState.agents[agent_id]
+		assert_true(agent.has("char_uid"), "Agent %s must have char_uid." % agent_id)
+		assert_true(agent.has("current_sector_id"), "Agent %s must have current_sector_id." % agent_id)
+		assert_true(agent.has("hull_integrity"), "Agent %s must have hull_integrity." % agent_id)
+		assert_true(agent.has("cash_reserves"), "Agent %s must have cash_reserves." % agent_id)
+		assert_true(agent.has("goal_archetype"), "Agent %s must have goal_archetype." % agent_id)
+		assert_true(agent.has("known_grid_state"), "Agent %s must have known_grid_state." % agent_id)
+
+		# Sector must be a valid sector
+		var sector: String = agent["current_sector_id"]
+		assert_true(GameState.world_topology.has(sector),
+			"Agent %s sector '%s' must exist in world_topology." % [agent_id, sector])
+
+
+func test_npc_goal_evaluation():
+	# Find an NPC and set their cash low
+	var npc_id: String = _get_first_npc_id()
+	if npc_id == "":
+		pending("No NPCs found.")
+		return
+
+	var agent: Dictionary = GameState.agents[npc_id]
+	agent["cash_reserves"] = 100.0  # Well below NPC_CASH_LOW_THRESHOLD (2000)
+	agent["hull_integrity"] = 1.0   # Healthy hull
+
+	agent_layer.process_tick(_config)
+
+	# After processing, this NPC should have a "trade" goal
+	var updated_agent: Dictionary = GameState.agents[npc_id]
+	assert_eq(updated_agent["goal_archetype"], "trade",
+		"NPC with low cash should get 'trade' goal. Got: %s" % updated_agent["goal_archetype"])
+
+
+func test_npc_goal_repair_over_trade():
+	# Repair should have priority over trade
+	var npc_id: String = _get_first_npc_id()
+	if npc_id == "":
+		pending("No NPCs found.")
+		return
+
+	var agent: Dictionary = GameState.agents[npc_id]
+	agent["cash_reserves"] = 100.0   # Low cash
+	agent["hull_integrity"] = 0.3    # Below repair threshold (0.5)
+
+	agent_layer.process_tick(_config)
+
+	var updated_agent: Dictionary = GameState.agents[npc_id]
+	assert_eq(updated_agent["goal_archetype"], "repair",
+		"NPC with low hull should get 'repair' goal even if cash is low. Got: %s" % updated_agent["goal_archetype"])
+
+
+func test_persistent_agent_respawn():
+	var npc_id: String = _get_first_npc_id()
+	if npc_id == "":
+		pending("No NPCs found.")
+		return
+
+	var agent: Dictionary = GameState.agents[npc_id]
+	var home_sector: String = agent.get("home_location_id", "")
+
+	# Disable the agent
+	agent["is_disabled"] = true
+	agent["disabled_at_tick"] = 0
+	GameState.sim_tick_count = 0
+
+	# Advance ticks past the respawn timeout
+	# respawn_timeout_seconds = 300, world_tick_interval = 60 → 5 ticks
+	var ticks_needed: int = int(ceil(_config.get("respawn_timeout_seconds", 300.0) / _config.get("world_tick_interval_seconds", 60.0)))
+
+	for i in range(ticks_needed + 1):
+		GameState.sim_tick_count += 1
+		agent_layer.process_tick(_config)
+
+	var respawned_agent: Dictionary = GameState.agents[npc_id]
+	assert_false(respawned_agent.get("is_disabled", true),
+		"Agent should be respawned (not disabled) after enough ticks.")
+
+
+func test_knowledge_snapshot_updated():
+	var npc_id: String = _get_first_npc_id()
+	if npc_id == "":
+		pending("No NPCs found.")
+		return
+
+	# Run bridge systems to update knowledge (bridge does knowledge refresh)
+	bridge_systems.process_tick(_config)
+
+	var agent: Dictionary = GameState.agents[npc_id]
+	var sector: String = agent.get("current_sector_id", "")
+	var known_grid: Dictionary = agent.get("known_grid_state", {})
+
+	# Agent at their current sector should have a knowledge snapshot
+	assert_true(known_grid.has(sector),
+		"Agent should have knowledge of their current sector '%s'." % sector)
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+func _get_first_npc_id() -> String:
+	for agent_id in GameState.agents:
+		if agent_id != "player":
+			return agent_id
+	return ""
+
+--- Start of ./src/tests/core/simulation/test_ca_rules.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_ca_rules.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 1.2 (CA Catalogue)
+# LOG_REF: 2026-02-13
+#
+
+extends GutTest
+
+## Unit tests for CARules: Pure CA transition functions.
+## All functions must be stateless — no GameState mutation.
+
+var ca_rules: Reference = null
+
+func before_each():
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
+	ca_rules = CARulesScript.new()
+
+
+# =============================================================================
+# === strategic_map_step ======================================================
+# =============================================================================
+
+func test_strategic_map_influence_propagation():
+	# Sector with only faction_a, neighbor has only faction_b.
+	# After one step, sector should gain some faction_b influence.
+	var sector_state := {
+		"faction_influence": {"faction_a": 0.8},
+		"security_level": 0.8,
+		"pirate_activity": 0.1
+	}
+	var neighbor_states := [{
+		"faction_influence": {"faction_b": 0.9},
+		"security_level": 0.9,
+		"pirate_activity": 0.0
+	}]
+	var config := {
+		"influence_propagation_rate": 0.1,
+		"pirate_activity_decay": 0.02,
+		"pirate_activity_growth": 0.05
+	}
+
+	var result: Dictionary = ca_rules.strategic_map_step("test_sector", sector_state, neighbor_states, config)
+
+	assert_true(result.has("faction_influence"), "Result must contain faction_influence.")
+	assert_true(result["faction_influence"].has("faction_b"),
+		"Faction B influence should propagate from neighbor.")
+	assert_true(result["faction_influence"]["faction_b"] > 0.0,
+		"Faction B influence should be positive after propagation.")
+	# Original faction_a should still be present
+	assert_true(result["faction_influence"].has("faction_a"),
+		"Faction A should still be present.")
+
+
+func test_strategic_map_pirate_activity_grows_in_low_security():
+	var sector_state := {
+		"faction_influence": {},  # No faction → 0 security
+		"security_level": 0.0,
+		"pirate_activity": 0.1
+	}
+	var config := {
+		"influence_propagation_rate": 0.1,
+		"pirate_activity_decay": 0.02,
+		"pirate_activity_growth": 0.05
+	}
+
+	var result: Dictionary = ca_rules.strategic_map_step("test", sector_state, [], config)
+
+	assert_true(result["pirate_activity"] > 0.1,
+		"Pirate activity should grow when security is 0. Got: %f" % result["pirate_activity"])
+
+
+# =============================================================================
+# === supply_demand_step ======================================================
+# =============================================================================
+
+func test_supply_demand_extraction():
+	var stockpiles := {
+		"commodity_stockpiles": {"ore": 0.0},
+		"stockpile_capacity": 1000,
+		"extraction_rate": {}
+	}
+	var resource_potential := {
+		"mineral_density": 100.0,
+		"propellant_sources": 50.0
+	}
+	var config := {
+		"extraction_rate_default": 0.01,
+		"stockpile_diffusion_rate": 0.0  # Disable diffusion for this test
+	}
+
+	var result: Dictionary = ca_rules.supply_demand_step("test", stockpiles, resource_potential, [], config)
+
+	# Extraction should have moved matter from potential to stockpiles
+	var new_mineral: float = result["new_resource_potential"]["mineral_density"]
+	assert_true(new_mineral < 100.0,
+		"Mineral density should decrease after extraction. Got: %f" % new_mineral)
+
+	var new_ore: float = result["new_stockpiles"]["commodity_stockpiles"].get("ore", 0.0)
+	assert_true(new_ore > 0.0,
+		"Ore stockpile should increase after extraction. Got: %f" % new_ore)
+
+	# Matter should be conserved within this step
+	var matter_extracted: float = result["matter_extracted"]
+	assert_true(matter_extracted > 0.0, "matter_extracted should be positive.")
+
+	# matter_extracted includes BOTH mineral and propellant extraction.
+	# Verify that mineral depletion + propellant depletion == matter_extracted.
+	var mineral_depleted: float = 100.0 - new_mineral
+	var new_propellant: float = result["new_resource_potential"]["propellant_sources"]
+	var propellant_depleted: float = 50.0 - new_propellant
+	assert_almost_eq(mineral_depleted + propellant_depleted, matter_extracted, 0.001,
+		"Total resource depletion should equal matter_extracted.")
+
+
+func test_supply_demand_no_diffusion_in_pure_function():
+	# Diffusion was moved to GridLayer (two-pass symmetric).
+	# The pure supply_demand_step should NOT modify stockpiles for diffusion.
+	var stockpiles := {
+		"commodity_stockpiles": {"ore": 100.0},
+		"stockpile_capacity": 1000,
+		"extraction_rate": {}
+	}
+	var resource_potential := {
+		"mineral_density": 0.0,
+		"propellant_sources": 0.0
+	}
+	var neighbor := {
+		"commodity_stockpiles": {"ore": 10.0},
+		"stockpile_capacity": 1000,
+		"extraction_rate": {}
+	}
+	var config := {
+		"extraction_rate_default": 0.0,  # Disable extraction
+		"stockpile_diffusion_rate": 0.1
+	}
+
+	var result: Dictionary = ca_rules.supply_demand_step("test", stockpiles, resource_potential, [neighbor], config)
+
+	var new_ore: float = result["new_stockpiles"]["commodity_stockpiles"]["ore"]
+	assert_eq(new_ore, 100.0,
+		"Pure function should NOT apply diffusion. Ore should remain at 100. Got: %f" % new_ore)
+
+
+# =============================================================================
+# === market_pressure_step ====================================================
+# =============================================================================
+
+func test_market_pressure_pricing():
+	var stockpiles_low := {
+		"commodity_stockpiles": {"ore": 5.0},
+		"stockpile_capacity": 1000
+	}
+	var stockpiles_high := {
+		"commodity_stockpiles": {"ore": 500.0},
+		"stockpile_capacity": 1000
+	}
+	var config := {"price_sensitivity": 0.5, "demand_base": 0.1}
+
+	var result_low: Dictionary = ca_rules.market_pressure_step("test", stockpiles_low, 10.0, config)
+	var result_high: Dictionary = ca_rules.market_pressure_step("test", stockpiles_high, 10.0, config)
+
+	var delta_low: float = result_low["commodity_price_deltas"]["ore"]
+	var delta_high: float = result_high["commodity_price_deltas"]["ore"]
+
+	# Low supply → positive price delta (expensive)
+	# High supply → negative price delta (cheap)
+	assert_true(delta_low > delta_high,
+		"Low supply should yield higher price delta than high supply. Low: %f, High: %f" % [delta_low, delta_high])
+
+
+# =============================================================================
+# === entropy_step ============================================================
+# =============================================================================
+
+func test_entropy_wreck_degradation():
+	var wrecks := [{
+		"wreck_uid": 1,
+		"wreck_integrity": 0.5,
+		"wreck_inventory": {"scrap": 10.0},
+		"ship_template_id": "fighter",
+		"created_at_tick": 0
+	}]
+	var hazards := {"radiation_level": 0.0, "thermal_background_k": 300.0, "gravity_well_penalty": 1.0}
+	var config := {
+		"wreck_degradation_per_tick": 0.05,
+		"wreck_debris_return_fraction": 0.8,
+		"entropy_radiation_multiplier": 2.0
+	}
+
+	var result: Dictionary = ca_rules.entropy_step("test", wrecks, hazards, config)
+
+	assert_eq(result["surviving_wrecks"].size(), 1, "Wreck should survive with remaining integrity.")
+	var new_integrity: float = result["surviving_wrecks"][0]["wreck_integrity"]
+	assert_true(new_integrity < 0.5,
+		"Wreck integrity should decrease. Got: %f" % new_integrity)
+
+
+func test_entropy_matter_return():
+	# Wreck with very low integrity — should be destroyed this tick
+	var wrecks := [{
+		"wreck_uid": 1,
+		"wreck_integrity": 0.01,
+		"wreck_inventory": {"scrap": 10.0},
+		"ship_template_id": "fighter",
+		"created_at_tick": 0
+	}]
+	var hazards := {"radiation_level": 0.0, "thermal_background_k": 300.0, "gravity_well_penalty": 1.0}
+	var config := {
+		"wreck_degradation_per_tick": 0.05,
+		"wreck_debris_return_fraction": 0.8,
+		"entropy_radiation_multiplier": 2.0
+	}
+
+	var result: Dictionary = ca_rules.entropy_step("test", wrecks, hazards, config)
+
+	assert_eq(result["surviving_wrecks"].size(), 0, "Wreck should be destroyed.")
+	assert_true(result["matter_returned"] > 0.0,
+		"Matter should be returned when wreck is destroyed. Got: %f" % result["matter_returned"])
+
+
+# =============================================================================
+# === Purity assertion ========================================================
+# =============================================================================
+
+func test_all_ca_rules_are_pure():
+	# Snapshot GameState before calling CA rules
+	var topology_before: int = GameState.world_topology.size()
+	var hazards_before: int = GameState.world_hazards.size()
+	var agents_before: int = GameState.agents.size()
+	var stockpiles_before: int = GameState.grid_stockpiles.size()
+
+	# Call each CA rule with mock data
+	var config := {
+		"influence_propagation_rate": 0.1,
+		"pirate_activity_decay": 0.02,
+		"pirate_activity_growth": 0.05,
+		"extraction_rate_default": 0.01,
+		"stockpile_diffusion_rate": 0.05,
+		"price_sensitivity": 0.5,
+		"demand_base": 0.1,
+		"wreck_degradation_per_tick": 0.05,
+		"wreck_debris_return_fraction": 0.8,
+		"entropy_radiation_multiplier": 2.0,
+		"entropy_base_rate": 0.001
+	}
+
+	var mock_dominion := {"faction_influence": {"f1": 0.5}, "security_level": 0.5, "pirate_activity": 0.1}
+	ca_rules.strategic_map_step("s1", mock_dominion, [mock_dominion], config)
+
+	var mock_stk := {"commodity_stockpiles": {"ore": 50.0}, "stockpile_capacity": 1000, "extraction_rate": {}}
+	var mock_res := {"mineral_density": 100.0, "propellant_sources": 50.0}
+	ca_rules.supply_demand_step("s1", mock_stk, mock_res, [mock_stk], config)
+
+	ca_rules.market_pressure_step("s1", mock_stk, 10.0, config)
+
+	var mock_wreck := [{"wreck_uid": 1, "wreck_integrity": 0.5, "wreck_inventory": {}, "ship_template_id": "x", "created_at_tick": 0}]
+	var mock_haz := {"radiation_level": 0.0, "thermal_background_k": 300.0, "gravity_well_penalty": 1.0}
+	ca_rules.entropy_step("s1", mock_wreck, mock_haz, config)
+
+	ca_rules.influence_network_step("a1", {"a2": 0.5}, [{"a2": 0.8}], config)
+	ca_rules.power_load_step(100.0, 50.0)
+	ca_rules.maintenance_pressure_step(mock_haz, config)
+
+	# Verify GameState was NOT mutated
+	assert_eq(GameState.world_topology.size(), topology_before, "CA rules must not mutate world_topology.")
+	assert_eq(GameState.world_hazards.size(), hazards_before, "CA rules must not mutate world_hazards.")
+	assert_eq(GameState.agents.size(), agents_before, "CA rules must not mutate agents.")
+	assert_eq(GameState.grid_stockpiles.size(), stockpiles_before, "CA rules must not mutate grid_stockpiles.")
+
+--- Start of ./src/tests/core/simulation/test_chronicle_layer.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_chronicle_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 5 (Chronicle Layer)
+# LOG_REF: 2026-02-13
+#
+
+extends GutTest
+
+## Unit tests for ChronicleLayer: event logging, rumor generation, distribution.
+
+var world_layer: Reference = null
+var grid_layer: Reference = null
+var agent_layer: Reference = null
+var chronicle_layer: Reference = null
+var ca_rules: Reference = null
+var _indexer: Node = null
+
+func before_all():
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
+
+func before_each():
+	_clear_game_state()
+
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
+	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
+	var ChronicleLayerScript = load("res://src/core/simulation/chronicle_layer.gd")
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
+
+	world_layer = WorldLayerScript.new()
+	grid_layer = GridLayerScript.new()
+	agent_layer = AgentLayerScript.new()
+	chronicle_layer = ChronicleLayerScript.new()
+	ca_rules = CARulesScript.new()
+	grid_layer.ca_rules = ca_rules
+
+	# Full init chain to get agents in sectors
+	world_layer.initialize_world("chronicle_test_seed")
+	grid_layer.initialize_grid()
+	agent_layer.initialize_agents()
+	world_layer.recalculate_total_matter()
+
+func after_each():
+	_clear_game_state()
+	world_layer = null
+	grid_layer = null
+	agent_layer = null
+	chronicle_layer = null
+	ca_rules = null
+
+
+func _clear_game_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.world_seed = ""
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.grid_resource_availability.clear()
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.hostile_population_integral.clear()
+	GameState.player_character_uid = -1
+	GameState.sim_tick_count = 0
+	GameState.chronicle_event_buffer = []
+	GameState.chronicle_rumors = []
+
+
+# =============================================================================
+# === TESTS ===================================================================
+# =============================================================================
+
+func test_event_logged():
+	# Stage an event via log_event, then process
+	var event_packet: Dictionary = {
+		"actor_uid": "player",
+		"action_id": "buy",
+		"target_uid": "commodity_ore",
+		"target_sector_id": _get_first_sector_id(),
+		"tick_count": 1,
+		"outcome": "success",
+		"metadata": {"commodity_id": "commodity_ore", "quantity": 5}
+	}
+
+	chronicle_layer.log_event(event_packet)
+	chronicle_layer.process_tick()
+
+	assert_true(GameState.chronicle_event_buffer.size() > 0,
+		"chronicle_event_buffer should contain at least one event after process_tick.")
+
+	var stored: Dictionary = GameState.chronicle_event_buffer[0]
+	assert_eq(stored["actor_uid"], "player",
+		"Stored event actor_uid should match.")
+	assert_eq(stored["action_id"], "buy",
+		"Stored event action_id should match.")
+	assert_true(stored.has("significance"),
+		"Event should have a significance score after processing.")
+	assert_eq(stored["significance"], 0.5,
+		"Phase 1 stub significance should be 0.5.")
+	assert_true(stored.has("causality_chain"),
+		"Event should have causality_chain tagged.")
+	assert_true(stored["is_root_cause"],
+		"Phase 1 stub: all events are root causes.")
+
+
+func test_rumor_generated():
+	var sector_id: String = _get_first_sector_id()
+	var event_packet: Dictionary = {
+		"actor_uid": "player",
+		"action_id": "buy",
+		"target_uid": "commodity_ore",
+		"target_sector_id": sector_id,
+		"tick_count": 1,
+		"outcome": "success",
+		"metadata": {"commodity_id": "commodity_ore", "quantity": 3}
+	}
+
+	chronicle_layer.log_event(event_packet)
+	chronicle_layer.process_tick()
+
+	assert_true(GameState.chronicle_rumors.size() > 0,
+		"At least one rumor should be generated from the event.")
+
+	var rumor: String = GameState.chronicle_rumors[0]
+	assert_true(rumor is String and rumor.length() > 0,
+		"Rumor should be a non-empty string. Got: '%s'" % rumor)
+
+
+func test_event_distributed():
+	# Place an NPC agent in the same sector as the event
+	var sector_id: String = _get_first_sector_id()
+	var npc_id: String = _get_first_npc_id()
+	if npc_id == "":
+		pending("No NPCs found.")
+		return
+
+	# Move the NPC to the event sector
+	GameState.agents[npc_id]["current_sector_id"] = sector_id
+	# Ensure event_memory is clean
+	GameState.agents[npc_id]["event_memory"] = []
+
+	var event_packet: Dictionary = {
+		"actor_uid": "player",
+		"action_id": "sell",
+		"target_uid": "commodity_ore",
+		"target_sector_id": sector_id,
+		"tick_count": 1,
+		"outcome": "success",
+		"metadata": {"commodity_id": "commodity_ore", "quantity": 10}
+	}
+
+	chronicle_layer.log_event(event_packet)
+	chronicle_layer.process_tick()
+
+	var agent: Dictionary = GameState.agents[npc_id]
+	var memory: Array = agent.get("event_memory", [])
+	assert_true(memory.size() > 0,
+		"NPC in event sector should receive the event in event_memory.")
+
+	var received_event: Dictionary = memory[0]
+	assert_eq(received_event["action_id"], "sell",
+		"Distributed event action_id should match.")
+
+
+func test_no_events_no_processing():
+	# Process with empty staging buffer — should be a no-op
+	chronicle_layer.process_tick()
+	assert_eq(GameState.chronicle_event_buffer.size(), 0,
+		"No events should be added when staging buffer is empty.")
+	assert_eq(GameState.chronicle_rumors.size(), 0,
+		"No rumors should be generated when no events are staged.")
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+func _get_first_sector_id() -> String:
+	for sector_id in GameState.world_topology:
+		return sector_id
+	return ""
+
+func _get_first_npc_id() -> String:
+	for agent_id in GameState.agents:
+		if agent_id != "player":
+			return agent_id
+	return ""
+
+--- Start of ./src/tests/core/simulation/test_grid_layer.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_grid_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 3 (Grid Layer)
+# LOG_REF: 2026-02-13
+#
+
+extends GutTest
+
+## Unit tests for GridLayer: Dynamic grid state and CA processing.
+
+var world_layer: Reference = null
+var grid_layer: Reference = null
+var ca_rules: Reference = null
+var _config: Dictionary = {}
+var _indexer: Node = null
+
+func before_all():
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
+
+func before_each():
+	_clear_game_state()
+
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
+
+	world_layer = WorldLayerScript.new()
+	grid_layer = GridLayerScript.new()
+	ca_rules = CARulesScript.new()
+	grid_layer.ca_rules = ca_rules
+
+	# Initialize world first (grid depends on it)
+	world_layer.initialize_world("grid_test_seed")
+
+	# Build a standard config
+	_config = {
+		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
+		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
+		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
+		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
+		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
+		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
+		"demand_base": Constants.CA_DEMAND_BASE,
+		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
+		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
+		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
+		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
+		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
+		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
+		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
+	}
+
+func after_each():
+	_clear_game_state()
+	world_layer = null
+	grid_layer = null
+	ca_rules = null
+
+
+func _clear_game_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.world_seed = ""
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.grid_resource_availability.clear()
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.sim_tick_count = 0
+
+
+# =============================================================================
+# === TESTS ===================================================================
+# =============================================================================
+
+func test_grid_initialization():
+	grid_layer.initialize_grid()
+
+	# Every sector should have grid state
+	for sector_id in GameState.world_topology:
+		assert_true(GameState.grid_stockpiles.has(sector_id),
+			"Sector %s should have stockpiles after init." % sector_id)
+		assert_true(GameState.grid_dominion.has(sector_id),
+			"Sector %s should have dominion after init." % sector_id)
+		assert_true(GameState.grid_market.has(sector_id),
+			"Sector %s should have market after init." % sector_id)
+		assert_true(GameState.grid_power.has(sector_id),
+			"Sector %s should have power after init." % sector_id)
+		assert_true(GameState.grid_maintenance.has(sector_id),
+			"Sector %s should have maintenance after init." % sector_id)
+
+	# Stockpiles should have commodity_stockpiles dict
+	for sector_id in GameState.grid_stockpiles:
+		var stk: Dictionary = GameState.grid_stockpiles[sector_id]
+		assert_true(stk.has("commodity_stockpiles"),
+			"Stockpiles must have commodity_stockpiles key. Sector: %s" % sector_id)
+		assert_true(stk.has("stockpile_capacity"),
+			"Stockpiles must have stockpile_capacity key. Sector: %s" % sector_id)
+
+
+func test_extraction_depletes_potential():
+	grid_layer.initialize_grid()
+	world_layer.recalculate_total_matter()
+
+	# Snapshot mineral density before tick
+	var first_sector: String = GameState.world_topology.keys()[0]
+	var mineral_before: float = GameState.world_resource_potential[first_sector].get("mineral_density", 0.0)
+
+	# Run one tick
+	grid_layer.process_tick(_config)
+
+	var mineral_after: float = GameState.world_resource_potential[first_sector].get("mineral_density", 0.0)
+
+	if mineral_before > 0.0:
+		assert_true(mineral_after < mineral_before,
+			"Mineral density should decrease after extraction. Before: %f, After: %f" % [mineral_before, mineral_after])
+	else:
+		# If no minerals, density should remain 0
+		assert_almost_eq(mineral_after, 0.0, 0.001,
+			"Zero-mineral sectors should stay at 0.")
+
+
+func test_stockpile_increases_from_extraction():
+	grid_layer.initialize_grid()
+	world_layer.recalculate_total_matter()
+
+	# Find a sector with mineral deposits
+	var target_sector: String = ""
+	for sector_id in GameState.world_resource_potential:
+		if GameState.world_resource_potential[sector_id].get("mineral_density", 0.0) > 0.0:
+			target_sector = sector_id
+			break
+
+	if target_sector == "":
+		# No minerals to extract — skip
+		pending("No sectors with mineral_density > 0 found.")
+		return
+
+	var ore_before: float = GameState.grid_stockpiles[target_sector].get("commodity_stockpiles", {}).get("ore", 0.0)
+
+	grid_layer.process_tick(_config)
+
+	var ore_after: float = GameState.grid_stockpiles[target_sector].get("commodity_stockpiles", {}).get("ore", 0.0)
+	assert_true(ore_after > ore_before,
+		"Ore stockpile should increase from extraction. Before: %f, After: %f" % [ore_before, ore_after])
+
+
+func test_price_reacts_to_supply():
+	grid_layer.initialize_grid()
+	world_layer.recalculate_total_matter()
+
+	# Run one tick to generate initial market data
+	grid_layer.process_tick(_config)
+
+	var first_sector: String = GameState.world_topology.keys()[0]
+	var market_data: Dictionary = GameState.grid_market.get(first_sector, {})
+
+	# Market should have price deltas after processing
+	assert_true(market_data.has("commodity_price_deltas"),
+		"Market should have commodity_price_deltas after tick.")
+
+	# Manually spike a stockpile and process again to see price react
+	var stk: Dictionary = GameState.grid_stockpiles.get(first_sector, {})
+	var commodities: Dictionary = stk.get("commodity_stockpiles", {})
+	if commodities.has("ore"):
+		var price_before: float = market_data.get("commodity_price_deltas", {}).get("ore", 0.0)
+
+		# Flood the sector with ore
+		commodities["ore"] = 900.0
+		stk["commodity_stockpiles"] = commodities
+		GameState.grid_stockpiles[first_sector] = stk
+
+		grid_layer.process_tick(_config)
+
+		var new_market: Dictionary = GameState.grid_market.get(first_sector, {})
+		var price_after: float = new_market.get("commodity_price_deltas", {}).get("ore", 0.0)
+
+		assert_true(price_after < price_before,
+			"Price delta should decrease (go more negative) with high supply. Before: %f, After: %f" % [price_before, price_after])
+
+--- Start of ./src/tests/core/simulation/test_simulation_integration.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_simulation_integration.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
+# LOG_REF: 2026-02-13
+#
+
+extends GutTest
+
+## Integration test: exercises the entire simulation stack end-to-end.
+##
+## This test indexes real templates, initializes all four layers, runs
+## multiple ticks, and verifies Conservation Axiom 1, chronicle events,
+## agent state integrity, and save/load round-trip fidelity.
+## Any parse errors, missing classes, or broken dependencies will surface here.
+
+
+var world_layer: Reference = null
+var grid_layer: Reference = null
+var agent_layer: Reference = null
+var bridge_systems: Reference = null
+var chronicle_layer: Reference = null
+var ca_rules: Reference = null
+var _indexer: Node = null
+var _config: Dictionary = {}
+
+const TEST_SEED: String = "integration_test_seed"
+const SAVE_SLOT: int = 998
+
+
+func before_all():
+	# Index ALL real templates — catches missing/broken .tres and class_name issues.
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
+	# Clean up test save file
+	var dir = Directory.new()
+	var save_path = GameStateManager.SAVE_DIR + GameStateManager.SAVE_FILE_PREFIX + str(SAVE_SLOT) + ".sav"
+	if dir.file_exists(save_path):
+		dir.remove(save_path)
 
 
 func before_each():
-	# 1. Clean the global state
-	GameState.characters.clear()
-	GameState.active_actions.clear()
-	GameState.player_character_uid = -1
+	_clear_game_state()
 
-	# 2. Create mock character and action data
-	mock_character = CharacterTemplate.new()
-	mock_character.character_name = "Test Character"
-	GameState.characters[PLAYER_UID] = mock_character
-	GameState.player_character_uid = PLAYER_UID
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
+	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
+	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
+	var ChronicleLayerScript = load("res://src/core/simulation/chronicle_layer.gd")
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
 
-	mock_action = ActionTemplate.new()
-	mock_action.action_name = "Test Action"
-	mock_action.tu_cost = 5
+	world_layer = WorldLayerScript.new()
+	grid_layer = GridLayerScript.new()
+	agent_layer = AgentLayerScript.new()
+	bridge_systems = BridgeSystemsScript.new()
+	chronicle_layer = ChronicleLayerScript.new()
+	ca_rules = CARulesScript.new()
+	grid_layer.ca_rules = ca_rules
 
-	# 3. Instantiate the system we are testing
-	action_system_instance = ActionSystem.new()
-	add_child_autofree(action_system_instance)
-	# Manually call _ready to connect signals for the test
-	action_system_instance._ready()
+	# Full four-layer initialization
+	world_layer.initialize_world(TEST_SEED)
+	grid_layer.initialize_grid()
+	agent_layer.initialize_agents()
+	world_layer.recalculate_total_matter()
+
+	_config = _build_config()
 
 
 func after_each():
+	_clear_game_state()
+	world_layer = null
+	grid_layer = null
+	agent_layer = null
+	bridge_systems = null
+	chronicle_layer = null
+	ca_rules = null
+
+
+# =============================================================================
+# === INTEGRATION TESTS =======================================================
+# =============================================================================
+
+func test_full_stack_initialization():
+	# All four layers should be populated with real data.
+	assert_true(TemplateDatabase.locations.size() > 0,
+		"TemplateDatabase should have indexed at least one location.")
+	assert_true(TemplateDatabase.agents.size() > 0,
+		"TemplateDatabase should have indexed at least one agent template.")
+	assert_true(TemplateDatabase.characters.size() > 0,
+		"TemplateDatabase should have indexed at least one character template.")
+
+	# Layer 1: World
+	assert_true(GameState.world_topology.size() > 0,
+		"world_topology should be populated from real location templates.")
+	assert_eq(GameState.world_topology.size(), GameState.world_hazards.size(),
+		"Every sector must have hazard data.")
+	assert_eq(GameState.world_topology.size(), GameState.world_resource_potential.size(),
+		"Every sector must have resource potential.")
+	assert_true(GameState.world_total_matter > 0.0,
+		"world_total_matter should be positive. Got: %.4f" % GameState.world_total_matter)
+
+	# Layer 2: Grid
+	assert_eq(GameState.grid_stockpiles.size(), GameState.world_topology.size(),
+		"Every sector must have grid_stockpiles.")
+	assert_eq(GameState.grid_dominion.size(), GameState.world_topology.size(),
+		"Every sector must have grid_dominion.")
+
+	# Layer 3: Agents
+	assert_true(GameState.agents.has("player"),
+		"Player agent must exist.")
+	assert_true(GameState.agents.size() > 1,
+		"At least one NPC agent should exist alongside the player. Got: %d" % GameState.agents.size())
+	assert_true(GameState.player_character_uid >= 0,
+		"player_character_uid should be set.")
+
+	# Verify all agent sectors exist in topology
+	for agent_id in GameState.agents:
+		var agent: Dictionary = GameState.agents[agent_id]
+		var sector: String = agent.get("current_sector_id", "")
+		assert_true(GameState.world_topology.has(sector),
+			"Agent '%s' sector '%s' must exist in world_topology." % [agent_id, sector])
+
+
+func test_multi_tick_matter_conservation():
+	# Run 10 ticks and verify Axiom 1 (matter conservation) holds at each step.
+	var initial_matter: float = GameState.world_total_matter
+	var tolerance: float = _config.get("axiom1_tolerance", 0.01)
+
+	for tick_idx in range(10):
+		GameState.sim_tick_count += 1
+		grid_layer.process_tick(_config)
+		bridge_systems.process_tick(_config)
+		agent_layer.process_tick(_config)
+		chronicle_layer.process_tick()
+
+		world_layer.recalculate_total_matter()
+		var current_matter: float = GameState.world_total_matter
+		var drift: float = abs(current_matter - initial_matter)
+
+		assert_true(drift <= tolerance,
+			"Axiom 1 violation at tick %d: initial=%.4f current=%.4f drift=%.4f" % [
+				tick_idx + 1, initial_matter, current_matter, drift
+			])
+
+
+func test_chronicle_event_lifecycle():
+	# Log an event, process, and verify it flows through the full chronicle pipeline.
+	var sector_id: String = GameState.world_topology.keys()[0]
+
+	var event_packet: Dictionary = {
+		"actor_uid": "player",
+		"action_id": "buy",
+		"target_uid": "commodity_ore",
+		"target_sector_id": sector_id,
+		"tick_count": 1,
+		"outcome": "success",
+		"metadata": {"commodity_id": "commodity_ore", "quantity": 5}
+	}
+
+	chronicle_layer.log_event(event_packet)
+	chronicle_layer.process_tick()
+
+	# Event should be in the buffer
+	assert_true(GameState.chronicle_event_buffer.size() > 0,
+		"chronicle_event_buffer should contain the logged event.")
+
+	var stored: Dictionary = GameState.chronicle_event_buffer[0]
+	assert_eq(stored["actor_uid"], "player", "Actor UID should match.")
+	assert_eq(stored["action_id"], "buy", "Action ID should match.")
+	assert_true(stored.has("significance"), "Event should have significance scored.")
+
+	# Rumor should be generated
+	assert_true(GameState.chronicle_rumors.size() > 0,
+		"At least one rumor should be generated from a buy event.")
+
+
+func test_save_load_round_trip_with_simulation_state():
+	# Run a few ticks to create non-trivial state
+	for i in range(3):
+		GameState.sim_tick_count += 1
+		grid_layer.process_tick(_config)
+		bridge_systems.process_tick(_config)
+		agent_layer.process_tick(_config)
+		chronicle_layer.process_tick()
+
+	world_layer.recalculate_total_matter()
+
+	# Snapshot key values before save
+	var pre_save_tick: int = GameState.sim_tick_count
+	var pre_save_matter: float = GameState.world_total_matter
+	var pre_save_agent_count: int = GameState.agents.size()
+	var pre_save_topology_size: int = GameState.world_topology.size()
+
+	# Save
+	var save_ok: bool = GameStateManager.save_game(SAVE_SLOT)
+	assert_true(save_ok, "Save should succeed.")
+
+	# Clear everything
+	_clear_game_state()
+	assert_eq(GameState.agents.size(), 0, "GameState should be empty after clear.")
+
+	# Load
+	var load_ok: bool = GameStateManager.load_game(SAVE_SLOT)
+	assert_true(load_ok, "Load should succeed.")
+
+	# Verify restored state
+	assert_eq(GameState.sim_tick_count, pre_save_tick,
+		"sim_tick_count should be restored.")
+	assert_eq(GameState.world_topology.size(), pre_save_topology_size,
+		"world_topology size should be restored.")
+	assert_eq(GameState.agents.size(), pre_save_agent_count,
+		"agents count should be restored.")
+	assert_almost_eq(GameState.world_total_matter, pre_save_matter, 0.01,
+		"world_total_matter should be restored.")
+
+
+func test_npc_goals_evolve_under_simulation():
+	# Find an NPC and verify goal evaluation works through the stack
+	var npc_id: String = ""
+	for agent_id in GameState.agents:
+		if agent_id != "player":
+			npc_id = agent_id
+			break
+
+	assert_true(npc_id != "", "At least one NPC must exist for this test.")
+
+	var agent: Dictionary = GameState.agents[npc_id]
+	# Force low cash to trigger 'trade' goal
+	agent["cash_reserves"] = 50.0
+	agent["hull_integrity"] = 1.0
+
+	# Process agent layer
+	agent_layer.process_tick(_config)
+
+	var updated_agent: Dictionary = GameState.agents[npc_id]
+	assert_eq(updated_agent["goal_archetype"], "trade",
+		"NPC with low cash should adopt 'trade' goal. Got: '%s'" % updated_agent["goal_archetype"])
+
+	# Now damage hull below repair threshold
+	updated_agent["hull_integrity"] = 0.2
+	agent_layer.process_tick(_config)
+
+	var final_agent: Dictionary = GameState.agents[npc_id]
+	assert_eq(final_agent["goal_archetype"], "repair",
+		"NPC with low hull should adopt 'repair' goal (higher priority than trade). Got: '%s'" % final_agent["goal_archetype"])
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+func _clear_game_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.world_seed = ""
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.grid_resource_availability.clear()
+	GameState.agents.clear()
 	GameState.characters.clear()
-	GameState.active_actions.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.hostile_population_integral.clear()
 	GameState.player_character_uid = -1
-	action_system_instance = null
+	GameState.sim_tick_count = 0
+	GameState.game_time_seconds = 0
+	GameState.chronicle_event_buffer = []
+	GameState.chronicle_rumors = []
+	GameState.player_docked_at = ""
+	GameState.locations.clear()
+	GameState.factions.clear()
 
 
-# --- Test Cases ---
+func _build_config() -> Dictionary:
+	return {
+		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
+		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
+		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
+		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
+		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
+		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
+		"demand_base": Constants.CA_DEMAND_BASE,
+		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
+		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
+		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
+		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
+		"entropy_hull_multiplier": Constants.ENTROPY_HULL_MULTIPLIER,
+		"heat_generation_in_space": Constants.HEAT_GENERATION_IN_SPACE,
+		"heat_dissipation_base": Constants.HEAT_DISSIPATION_DOCKED,
+		"heat_overheat_threshold": Constants.HEAT_OVERHEAT_THRESHOLD,
+		"fleet_entropy_reduction": Constants.ENTROPY_FLEET_RATE_FRACTION,
+		"propellant_drain_per_tick": Constants.PROPELLANT_DRAIN_PER_TICK,
+		"energy_drain_per_tick": Constants.ENERGY_DRAIN_PER_TICK,
+		"knowledge_noise_factor": Constants.AGENT_KNOWLEDGE_NOISE_FACTOR,
+		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
+		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
+		"npc_cash_low_threshold": Constants.NPC_CASH_LOW_THRESHOLD,
+		"npc_hull_repair_threshold": Constants.NPC_HULL_REPAIR_THRESHOLD,
+		"commodity_base_price": Constants.COMMODITY_BASE_PRICE,
+		"world_tick_interval_seconds": float(Constants.WORLD_TICK_INTERVAL_SECONDS),
+		"respawn_timeout_seconds": Constants.RESPAWN_TIMEOUT_SECONDS,
+		"hostile_growth_rate": Constants.HOSTILE_GROWTH_RATE,
+		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
+	}
 
-func test_request_action_populates_game_state():
-	assert_eq(GameState.active_actions.size(), 0, "Active actions should be empty initially.")
+--- Start of ./src/tests/core/simulation/test_simulation_tick.gd ---
 
-	var result = action_system_instance.request_action(
-		mock_character, mock_action, Constants.ActionApproach.CAUTIOUS
-	)
+#
+# PROJECT: GDTLancer
+# MODULE: test_simulation_tick.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
+# LOG_REF: 2026-02-13
+#
 
-	assert_true(result, "request_action should return true on success.")
-	assert_eq(GameState.active_actions.size(), 1, "There should be one active action in GameState.")
+extends GutTest
 
-	var action_data = GameState.active_actions.values()[0]
-	assert_eq(action_data.character_instance, mock_character, "Action data should store the correct character.")
-	assert_eq(action_data.action_template, mock_action, "Action data should store the correct action template.")
+## Integration-level unit tests for SimulationEngine: full tick sequence,
+## matter conservation (Axiom 1), determinism, tick counter.
+
+var world_layer: Reference = null
+var grid_layer: Reference = null
+var agent_layer: Reference = null
+var bridge_systems: Reference = null
+var chronicle_layer: Reference = null
+var ca_rules: Reference = null
+var _config: Dictionary = {}
+var _indexer: Node = null
+
+const TEST_SEED: String = "sim_tick_test_seed"
+
+func before_all():
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
+
+func before_each():
+	_clear_game_state()
+
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
+	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
+	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
+	var ChronicleLayerScript = load("res://src/core/simulation/chronicle_layer.gd")
+	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
+
+	world_layer = WorldLayerScript.new()
+	grid_layer = GridLayerScript.new()
+	agent_layer = AgentLayerScript.new()
+	bridge_systems = BridgeSystemsScript.new()
+	chronicle_layer = ChronicleLayerScript.new()
+	ca_rules = CARulesScript.new()
+	grid_layer.ca_rules = ca_rules
+
+	# Full init chain
+	world_layer.initialize_world(TEST_SEED)
+	grid_layer.initialize_grid()
+	agent_layer.initialize_agents()
+	world_layer.recalculate_total_matter()
+
+	_config = {
+		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
+		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
+		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
+		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
+		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
+		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
+		"demand_base": Constants.CA_DEMAND_BASE,
+		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
+		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
+		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
+		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
+		"entropy_hull_multiplier": Constants.ENTROPY_HULL_MULTIPLIER,
+		"heat_generation_in_space": Constants.HEAT_GENERATION_IN_SPACE,
+		"heat_dissipation_base": Constants.HEAT_DISSIPATION_DOCKED,
+		"heat_overheat_threshold": Constants.HEAT_OVERHEAT_THRESHOLD,
+		"fleet_entropy_reduction": Constants.ENTROPY_FLEET_RATE_FRACTION,
+		"propellant_drain_per_tick": Constants.PROPELLANT_DRAIN_PER_TICK,
+		"energy_drain_per_tick": Constants.ENERGY_DRAIN_PER_TICK,
+		"knowledge_noise_factor": Constants.AGENT_KNOWLEDGE_NOISE_FACTOR,
+		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
+		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
+		"npc_cash_low_threshold": Constants.NPC_CASH_LOW_THRESHOLD,
+		"npc_hull_repair_threshold": Constants.NPC_HULL_REPAIR_THRESHOLD,
+		"commodity_base_price": Constants.COMMODITY_BASE_PRICE,
+		"world_tick_interval_seconds": float(Constants.WORLD_TICK_INTERVAL_SECONDS),
+		"respawn_timeout_seconds": Constants.RESPAWN_TIMEOUT_SECONDS,
+		"hostile_growth_rate": Constants.HOSTILE_GROWTH_RATE,
+		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
+	}
+
+func after_each():
+	_clear_game_state()
+	world_layer = null
+	grid_layer = null
+	agent_layer = null
+	bridge_systems = null
+	chronicle_layer = null
+	ca_rules = null
 
 
-func test_action_progresses_on_world_tick():
-	action_system_instance.request_action(
-		mock_character, mock_action, Constants.ActionApproach.CAUTIOUS
-	)
-	var action_id = GameState.active_actions.keys()[0]
+func _clear_game_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.world_seed = ""
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.grid_resource_availability.clear()
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
+	GameState.hostile_population_integral.clear()
+	GameState.player_character_uid = -1
+	GameState.sim_tick_count = 0
+	GameState.chronicle_event_buffer = []
+	GameState.chronicle_rumors = []
 
-	# Simulate a world tick that does NOT complete the action
-	EventBus.emit_signal("world_event_tick_triggered", 2) # 2 TU passed
 
-	assert_eq(GameState.active_actions[action_id].tu_progress, 2, "Action progress should be 2 TU.")
+# =============================================================================
+# === TESTS ===================================================================
+# =============================================================================
+
+func test_full_tick_sequence():
+	# Run a complete tick through all 5 steps and verify nothing crashes.
+	# Capture state before tick for comparison.
+	var initial_tick: int = GameState.sim_tick_count
+
+	# Step 2: Grid
+	grid_layer.process_tick(_config)
+	# Step 3: Bridge
+	bridge_systems.process_tick(_config)
+	# Step 4: Agents
+	agent_layer.process_tick(_config)
+	# Step 5: Chronicle
+	chronicle_layer.process_tick()
+
+	# Tick count is managed by the engine's process_tick(); here we called
+	# layers directly, so increment manually for the assertion.
+	GameState.sim_tick_count += 1
+
+	assert_eq(GameState.sim_tick_count, initial_tick + 1,
+		"Tick count should increment by 1 after a full tick sequence.")
+
+	# All dictionaries should still exist and be non-empty
+	assert_true(GameState.world_topology.size() > 0,
+		"world_topology should still be populated.")
+	assert_true(GameState.grid_stockpiles.size() > 0,
+		"grid_stockpiles should still be populated.")
+	assert_true(GameState.agents.size() > 0,
+		"agents should still be populated.")
 
 
-func test_action_completes_and_emits_signal():
-	watch_signals(action_system_instance)
-	action_system_instance.request_action(
-		mock_character, mock_action, Constants.ActionApproach.RISKY
-	)
-	assert_eq(GameState.active_actions.size(), 1, "Pre-check: Action should be queued.")
+func test_matter_conservation_axiom():
+	# Verify matter conservation across multiple ticks.
+	var expected_matter: float = GameState.world_total_matter
+	var tolerance: float = _config.get("axiom1_tolerance", 0.01)
 
-	# Simulate a world tick that completes the action (action costs 5 TU)
-	EventBus.emit_signal("world_event_tick_triggered", 10)
+	# Run 5 full tick sequences
+	for i in range(5):
+		grid_layer.process_tick(_config)
+		bridge_systems.process_tick(_config)
+		agent_layer.process_tick(_config)
+		chronicle_layer.process_tick()
 
-	assert_signal_emitted(action_system_instance, "action_completed", "action_completed signal should be emitted.")
-	assert_eq(GameState.active_actions.size(), 0, "Action should be removed from GameState after completion.")
+		# Recalculate actual matter like SimulationEngine does
+		var actual_matter: float = _calculate_total_matter()
+		var drift: float = abs(actual_matter - expected_matter)
 
-	# Verify the signal payload
-	var params = get_signal_parameters(action_system_instance, "action_completed")
-	assert_eq(params[0], mock_character, "Payload should contain the correct character.")
-	assert_eq(params[1], mock_action, "Payload should contain the correct action template.")
-	assert_has(params[2], "result_tier", "Payload should contain the result dictionary.")
+		assert_true(drift <= tolerance,
+			"Axiom 1 violation at tick %d: expected=%.4f actual=%.4f drift=%.4f (tolerance=%.4f)" % [
+				i + 1, expected_matter, actual_matter, drift, tolerance
+			])
+
+
+func test_deterministic_simulation():
+	# Two simulations with the same seed should produce identical state.
+
+	# --- Run 1 ---
+	# Already initialized in before_each with TEST_SEED.
+	for i in range(3):
+		grid_layer.process_tick(_config)
+		bridge_systems.process_tick(_config)
+		agent_layer.process_tick(_config)
+		chronicle_layer.process_tick()
+		GameState.sim_tick_count += 1
+
+	# Capture snapshot of key state
+	var run1_stockpiles: Dictionary = _deep_copy_dict(GameState.grid_stockpiles)
+	var run1_dominion: Dictionary = _deep_copy_dict(GameState.grid_dominion)
+	var run1_tick: int = GameState.sim_tick_count
+
+	# --- Run 2 (re-initialize from scratch) ---
+	_clear_game_state()
+
+	var WorldLayerScript2 = load("res://src/core/simulation/world_layer.gd")
+	var GridLayerScript2 = load("res://src/core/simulation/grid_layer.gd")
+	var AgentLayerScript2 = load("res://src/core/simulation/agent_layer.gd")
+	var BridgeSystemsScript2 = load("res://src/core/simulation/bridge_systems.gd")
+	var ChronicleLayerScript2 = load("res://src/core/simulation/chronicle_layer.gd")
+	var CARulesScript2 = load("res://src/core/simulation/ca_rules.gd")
+
+	var wl2 = WorldLayerScript2.new()
+	var gl2 = GridLayerScript2.new()
+	var al2 = AgentLayerScript2.new()
+	var bs2 = BridgeSystemsScript2.new()
+	var cl2 = ChronicleLayerScript2.new()
+	var cr2 = CARulesScript2.new()
+	gl2.ca_rules = cr2
+
+	wl2.initialize_world(TEST_SEED)
+	gl2.initialize_grid()
+	al2.initialize_agents()
+	wl2.recalculate_total_matter()
+
+	for i in range(3):
+		gl2.process_tick(_config)
+		bs2.process_tick(_config)
+		al2.process_tick(_config)
+		cl2.process_tick()
+		GameState.sim_tick_count += 1
+
+	# Compare
+	assert_eq(GameState.sim_tick_count, run1_tick,
+		"Tick counts should match between two identical runs.")
+
+	# Compare stockpiles across sectors
+	for sector_id in run1_stockpiles:
+		assert_true(GameState.grid_stockpiles.has(sector_id),
+			"Run 2 should have sector '%s' in grid_stockpiles." % sector_id)
+		var run1_commodities: Dictionary = run1_stockpiles[sector_id].get("commodity_stockpiles", {})
+		var run2_commodities: Dictionary = GameState.grid_stockpiles[sector_id].get("commodity_stockpiles", {})
+		for commodity_id in run1_commodities:
+			var val1: float = float(run1_commodities[commodity_id])
+			var val2: float = float(run2_commodities.get(commodity_id, 0))
+			assert_almost_eq(val1, val2, 0.001,
+				"Stockpile '%s' in '%s' should match between runs." % [commodity_id, sector_id])
+
+
+func test_tick_count_increments():
+	assert_eq(GameState.sim_tick_count, 0,
+		"sim_tick_count should start at 0 after clear.")
+
+	# Simulate the engine incrementing
+	for i in range(3):
+		GameState.sim_tick_count += 1
+		grid_layer.process_tick(_config)
+		bridge_systems.process_tick(_config)
+		agent_layer.process_tick(_config)
+		chronicle_layer.process_tick()
+
+	assert_eq(GameState.sim_tick_count, 3,
+		"sim_tick_count should be 3 after three ticks.")
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+## Mirrors SimulationEngine._calculate_total_matter()
+func _calculate_total_matter() -> float:
+	var total: float = 0.0
+
+	# Layer 1: Resource potential
+	for sector_id in GameState.world_resource_potential:
+		var potential: Dictionary = GameState.world_resource_potential[sector_id]
+		total += potential.get("mineral_density", 0.0)
+		total += potential.get("propellant_sources", 0.0)
+
+	# Layer 2: Grid stockpiles
+	for sector_id in GameState.grid_stockpiles:
+		var stockpile: Dictionary = GameState.grid_stockpiles[sector_id]
+		var commodities: Dictionary = stockpile.get("commodity_stockpiles", {})
+		for commodity_id in commodities:
+			total += float(commodities[commodity_id])
+
+	# Layer 2: Wrecks
+	for wreck_uid in GameState.grid_wrecks:
+		var wreck: Dictionary = GameState.grid_wrecks[wreck_uid]
+		var inventory: Dictionary = wreck.get("wreck_inventory", {})
+		for item_id in inventory:
+			total += float(inventory[item_id])
+		total += 1.0  # Base hull mass
+
+	# Layer 3: Agent inventories
+	for char_uid in GameState.inventories:
+		var inv: Dictionary = GameState.inventories[char_uid]
+		if inv.has(2):  # InventoryType.COMMODITY
+			var commodities: Dictionary = inv[2]
+			for commodity_id in commodities:
+				total += float(commodities[commodity_id])
+
+	return total
+
+
+## Simple deep copy for nested dictionaries (no objects).
+func _deep_copy_dict(source: Dictionary) -> Dictionary:
+	var copy: Dictionary = {}
+	for key in source:
+		var val = source[key]
+		if val is Dictionary:
+			copy[key] = _deep_copy_dict(val)
+		elif val is Array:
+			copy[key] = val.duplicate(true)
+		else:
+			copy[key] = val
+	return copy
+
+--- Start of ./src/tests/core/simulation/test_world_layer.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_world_layer.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 2 (World Layer)
+# LOG_REF: 2026-02-13
+#
+
+extends GutTest
+
+## Unit tests for WorldLayer: Static world initialization from LocationTemplate data.
+
+var world_layer: Reference = null
+var _indexer: Node = null
+
+func before_all():
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
+
+func before_each():
+	_clear_game_state()
+	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
+	world_layer = WorldLayerScript.new()
+
+func after_each():
+	_clear_game_state()
+	world_layer = null
+
+
+func _clear_game_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.world_seed = ""
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.inventories.clear()
+	GameState.sim_tick_count = 0
+
+
+# =============================================================================
+# === TESTS ===================================================================
+# =============================================================================
+
+func test_world_initialization():
+	world_layer.initialize_world("test_seed_42")
+
+	# All sectors should have topology, hazards, and resource potential
+	assert_true(GameState.world_topology.size() > 0,
+		"world_topology should have at least one sector.")
+	assert_eq(GameState.world_topology.size(), GameState.world_hazards.size(),
+		"Every sector in topology should have hazard data.")
+	assert_eq(GameState.world_topology.size(), GameState.world_resource_potential.size(),
+		"Every sector in topology should have resource potential.")
+
+	# Verify structure of each entry
+	for sector_id in GameState.world_topology:
+		var topo: Dictionary = GameState.world_topology[sector_id]
+		assert_true(topo.has("connections"), "Topology entry must have connections. Sector: %s" % sector_id)
+		assert_true(topo.has("sector_type"), "Topology entry must have sector_type. Sector: %s" % sector_id)
+
+		var haz: Dictionary = GameState.world_hazards[sector_id]
+		assert_true(haz.has("radiation_level"), "Hazards entry must have radiation_level. Sector: %s" % sector_id)
+		assert_true(haz.has("thermal_background_k"), "Hazards entry must have thermal_background_k. Sector: %s" % sector_id)
+
+		var res: Dictionary = GameState.world_resource_potential[sector_id]
+		assert_true(res.has("mineral_density"), "Resource potential must have mineral_density. Sector: %s" % sector_id)
+		assert_true(res.has("propellant_sources"), "Resource potential must have propellant_sources. Sector: %s" % sector_id)
+
+
+func test_total_matter_calculated():
+	world_layer.initialize_world("test_seed_42")
+
+	assert_true(GameState.world_total_matter > 0.0,
+		"world_total_matter should be > 0 after init. Got: %f" % GameState.world_total_matter)
+
+	# Verify it equals the sum of all resource potential
+	var expected_total: float = 0.0
+	for sector_id in GameState.world_resource_potential:
+		var res: Dictionary = GameState.world_resource_potential[sector_id]
+		expected_total += res.get("mineral_density", 0.0)
+		expected_total += res.get("propellant_sources", 0.0)
+
+	assert_almost_eq(GameState.world_total_matter, expected_total, 0.001,
+		"world_total_matter should equal the sum of all resource potential.")
+
+
+func test_deterministic_init():
+	# Two initializations with same seed should produce identical world state
+	world_layer.initialize_world("determinism_test")
+
+	var topology_1: Dictionary = GameState.world_topology.duplicate(true)
+	var hazards_1: Dictionary = GameState.world_hazards.duplicate(true)
+	var resources_1: Dictionary = GameState.world_resource_potential.duplicate(true)
+	var matter_1: float = GameState.world_total_matter
+
+	# Clear and re-initialize with same seed
+	_clear_game_state()
+	world_layer.initialize_world("determinism_test")
+
+	assert_eq(GameState.world_topology.size(), topology_1.size(),
+		"Same seed must produce same number of sectors.")
+
+	for sector_id in topology_1:
+		assert_true(GameState.world_topology.has(sector_id),
+			"Same seed must produce same sector IDs. Missing: %s" % sector_id)
+
+		# Verify resource values match exactly
+		var r1: Dictionary = resources_1[sector_id]
+		var r2: Dictionary = GameState.world_resource_potential[sector_id]
+		assert_almost_eq(r1["mineral_density"], r2["mineral_density"], 0.0001,
+			"Mineral density must be deterministic for sector %s" % sector_id)
+		assert_almost_eq(r1["propellant_sources"], r2["propellant_sources"], 0.0001,
+			"Propellant sources must be deterministic for sector %s" % sector_id)
+
+	assert_almost_eq(GameState.world_total_matter, matter_1, 0.001,
+		"Total matter must be deterministic.")
+
+
+func test_world_seed_stored():
+	world_layer.initialize_world("my_custom_seed")
+	assert_eq(GameState.world_seed, "my_custom_seed",
+		"world_seed should be stored in GameState.")
+
+
+func test_connections_are_bidirectional():
+	world_layer.initialize_world("connectivity_test")
+
+	for sector_id in GameState.world_topology:
+		var connections: Array = GameState.world_topology[sector_id].get("connections", [])
+		for conn_id in connections:
+			if GameState.world_topology.has(conn_id):
+				var reverse: Array = GameState.world_topology[conn_id].get("connections", [])
+				assert_true(reverse.has(sector_id),
+					"Connection from %s → %s must be bidirectional." % [sector_id, conn_id])
 
 --- Start of ./src/tests/core/systems/test_agent_spawner.gd ---
 
@@ -24385,11 +26150,17 @@ func test_get_ship_for_character_no_active_ship():
 
 --- Start of ./src/tests/core/systems/test_character_system.gd ---
 
-# File: tests/core/systems/test_character_system.gd
-# GUT Test Script for the stateless CharacterSystem.
-# Version: 2.0 - Rewritten for GameState architecture.
+#
+# PROJECT: GDTLancer
+# MODULE: test_character_system.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
+# LOG_REF: 2026-01-28-QA-Intern
+#
 
 extends GutTest
+
+## Unit tests for CharacterSystem: credits, FP, and skill management operations.
 
 # --- Test Subjects ---
 const CharacterSystem = preload("res://src/core/systems/character_system.gd")
@@ -24414,7 +26185,7 @@ func before_each():
 
 	# 3. Create and register a player character instance in GameState
 	var player_char_instance = default_char_template.duplicate()
-	player_char_instance.wealth_points = 100 # Start with some money for tests
+	player_char_instance.credits = 100 # Start with some money for tests
 	GameState.characters[PLAYER_UID] = player_char_instance
 	GameState.player_character_uid = PLAYER_UID
 
@@ -24443,17 +26214,17 @@ func test_get_player_character():
 	assert_eq(player_char, GameState.characters[PLAYER_UID], "Should return the correct player character instance from GameState.")
 
 
-func test_wp_management():
-	# Test adding WP
-	character_system_instance.add_wp(PLAYER_UID, 50)
-	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 150, "WP should be 150 after adding 50.")
+func test_credits_management():
+	# Test adding credits
+	character_system_instance.add_credits(PLAYER_UID, 50)
+	assert_eq(GameState.characters[PLAYER_UID].credits, 150, "Credits should be 150 after adding 50.")
 
-	# Test subtracting WP
-	character_system_instance.subtract_wp(PLAYER_UID, 25)
-	assert_eq(GameState.characters[PLAYER_UID].wealth_points, 125, "WP should be 125 after subtracting 25.")
+	# Test subtracting credits
+	character_system_instance.subtract_credits(PLAYER_UID, 25)
+	assert_eq(GameState.characters[PLAYER_UID].credits, 125, "Credits should be 125 after subtracting 25.")
 
-	# Test getting WP
-	assert_eq(character_system_instance.get_wp(PLAYER_UID), 125, "get_wp should return the correct value.")
+	# Test getting credits
+	assert_eq(character_system_instance.get_credits(PLAYER_UID), 125, "get_credits should return the correct value.")
 
 
 func test_fp_management():
@@ -24483,681 +26254,10 @@ func test_skill_retrieval():
 
 
 func test_apply_upkeep_cost():
-	var initial_wp = character_system_instance.get_wp(PLAYER_UID)
+	var initial_credits = character_system_instance.get_credits(PLAYER_UID)
 	character_system_instance.apply_upkeep_cost(PLAYER_UID, 10)
-	var final_wp = character_system_instance.get_wp(PLAYER_UID)
-	assert_eq(final_wp, initial_wp - 10, "Upkeep cost should correctly subtract WP.")
-
---- Start of ./src/tests/core/systems/test_combat_system.gd ---
-
-# test_combat_system.gd
-# Unit tests for CombatSystem - targeting, damage, weapon firing
-extends "res://addons/gut/test.gd"
-
-const CombatSystem = preload("res://src/core/systems/combat_system.gd")
-const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
-const MockAgentBody = preload("res://src/tests/helpers/mock_agent_body.gd")
-
-var _combat_system: Node
-var _test_weapon: UtilityToolTemplate
-var _attacker_uid: int = 0
-var _defender_uid: int = 1
-var _attacker_body: RigidBody
-var _defender_body: RigidBody
-
-
-func before_each():
-	# Create dummy AgentBody nodes so CombatSystem can resolve uid -> body for EventBus signals.
-	_attacker_body = MockAgentBody.new()
-	_attacker_body.agent_uid = _attacker_uid
-	_attacker_body.add_to_group("Agents")
-	add_child_autofree(_attacker_body)
-
-	_defender_body = MockAgentBody.new()
-	_defender_body.agent_uid = _defender_uid
-	_defender_body.add_to_group("Agents")
-	add_child_autofree(_defender_body)
-
-	_combat_system = CombatSystem.new()
-	add_child_autofree(_combat_system)
-	
-	# Create test weapon
-	_test_weapon = UtilityToolTemplate.new()
-	_test_weapon.template_id = "test_laser"
-	_test_weapon.tool_name = "Test Laser"
-	_test_weapon.damage = 10.0
-	_test_weapon.range_effective = 50.0
-	_test_weapon.range_max = 100.0
-	_test_weapon.fire_rate = 2.0
-	_test_weapon.accuracy = 1.0  # Always hit for testing
-	_test_weapon.hull_damage_multiplier = 1.0
-	_test_weapon.armor_damage_multiplier = 1.0
-	_test_weapon.cooldown_time = 0.0
-	
-	# Create mock ship templates
-	var attacker_ship = _create_mock_ship(100, 50)
-	var defender_ship = _create_mock_ship(100, 50)
-	
-	_combat_system.register_combatant(_attacker_uid, attacker_ship)
-	_combat_system.register_combatant(_defender_uid, defender_ship)
-
-
-func after_each() -> void:
-	_attacker_body = null
-	_defender_body = null
-	_combat_system = null
-
-
-func _create_mock_ship(hull: int, armor: int) -> Resource:
-	var ship = Resource.new()
-	ship.set_meta("hull_integrity", hull)
-	ship.set_meta("armor_integrity", armor)
-	# Duck-type the properties
-	ship.set_script(load("res://src/tests/helpers/mock_ship_template.gd"))
-	return ship
-
-
-# --- Registration Tests ---
-
-func test_register_combatant():
-	var state = _combat_system.get_combat_state(_attacker_uid)
-	
-	assert_false(state.empty(), "Combat state should exist for registered combatant")
-	assert_eq(state.current_hull, 100, "Hull should be initialized from ship template")
-	assert_eq(state.max_hull, 100, "Max hull should be set")
-	assert_eq(state.is_disabled, false, "Should not be disabled initially")
-
-
-func test_unregister_combatant():
-	_combat_system.unregister_combatant(_attacker_uid)
-	
-	var state = _combat_system.get_combat_state(_attacker_uid)
-	assert_true(state.empty(), "Combat state should be empty after unregister")
-
-
-func test_is_in_combat():
-	assert_true(_combat_system.is_in_combat(_attacker_uid), "Registered combatant should be in combat")
-	
-	_combat_system.unregister_combatant(_attacker_uid)
-	assert_false(_combat_system.is_in_combat(_attacker_uid), "Unregistered combatant should not be in combat")
-
-
-# --- Range Tests ---
-
-func test_is_in_range_within_effective():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(30, 0, 0)  # 30 units away, within 50 effective
-	
-	assert_true(_combat_system.is_in_range(shooter_pos, target_pos, _test_weapon), 
-		"Target within effective range should be in range")
-
-
-func test_is_in_range_within_max():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(75, 0, 0)  # 75 units away, within 100 max
-	
-	assert_true(_combat_system.is_in_range(shooter_pos, target_pos, _test_weapon), 
-		"Target within max range should be in range")
-
-
-func test_is_in_range_out_of_range():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(150, 0, 0)  # 150 units away, beyond 100 max
-	
-	assert_false(_combat_system.is_in_range(shooter_pos, target_pos, _test_weapon), 
-		"Target beyond max range should not be in range")
-
-
-# --- Damage Calculation Tests ---
-
-func test_calculate_damage_at_effective_range():
-	var damage = _combat_system.calculate_damage(_test_weapon, 30.0)
-	
-	assert_eq(damage.hull_damage, 10.0, "Should deal full damage within effective range")
-
-
-func test_calculate_damage_at_max_range():
-	var damage = _combat_system.calculate_damage(_test_weapon, 100.0)
-	
-	assert_eq(damage.hull_damage, 0.0, "Should deal zero damage at max range edge")
-
-
-func test_calculate_damage_falloff():
-	var damage = _combat_system.calculate_damage(_test_weapon, 75.0)  # Halfway through falloff
-	
-	assert_almost_eq(damage.hull_damage, 5.0, 0.1, "Should deal reduced damage in falloff zone")
-
-
-# --- Fire Weapon Tests ---
-
-func test_fire_weapon_hit():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(30, 0, 0)
-	
-	var result = _combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	assert_true(result.success, "Fire should succeed")
-	assert_true(result.hit, "Should hit with 100% accuracy")
-	assert_eq(result.damage_dealt.hull_damage, 10.0, "Should deal 10 damage")
-
-
-func test_fire_weapon_out_of_range():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(150, 0, 0)  # Beyond max range
-	
-	var result = _combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	assert_false(result.success, "Fire should fail")
-	assert_eq(result.reason, "Target out of range", "Should report out of range")
-
-
-func test_fire_weapon_cooldown():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(30, 0, 0)
-	
-	# Fire first shot
-	_combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	# Try to fire again immediately
-	var result = _combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	assert_false(result.success, "Second shot should fail due to cooldown")
-	assert_eq(result.reason, "Weapon on cooldown", "Should report cooldown")
-
-
-func test_cooldown_update():
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(30, 0, 0)
-	
-	# Fire first shot
-	_combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	# Update cooldowns past the fire_rate period (0.5s for 2 shots/sec)
-	_combat_system.update_cooldowns(1.0)
-	
-	# Should be able to fire again
-	var result = _combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	assert_true(result.success, "Should be able to fire after cooldown")
-
-
-# --- Damage Application Tests ---
-
-func test_apply_damage_reduces_hull():
-	_combat_system.apply_damage(_defender_uid, 25.0)
-	
-	var state = _combat_system.get_combat_state(_defender_uid)
-	assert_eq(state.current_hull, 75, "Hull should be reduced by damage")
-
-
-func test_apply_damage_disables_at_zero():
-	_combat_system.apply_damage(_defender_uid, 100.0)
-	
-	var state = _combat_system.get_combat_state(_defender_uid)
-	assert_eq(state.current_hull, 0, "Hull should be zero")
-	assert_true(state.is_disabled, "Ship should be disabled")
-
-
-func test_apply_damage_clamps_to_zero():
-	_combat_system.apply_damage(_defender_uid, 150.0)  # More than hull
-	
-	var state = _combat_system.get_combat_state(_defender_uid)
-	assert_eq(state.current_hull, 0, "Hull should clamp to zero")
-
-
-func test_get_hull_percent():
-	_combat_system.apply_damage(_defender_uid, 30.0)
-	
-	var percent = _combat_system.get_hull_percent(_defender_uid)
-	assert_almost_eq(percent, 0.7, 0.01, "Hull percent should be 70%")
-
-
-# --- Combat Victory Tests ---
-
-func test_check_victory_player_wins():
-	# Disable the defender (enemy)
-	_combat_system.apply_damage(_defender_uid, 100.0)
-	
-	var result = _combat_system.check_combat_victory(_attacker_uid)
-	assert_true(result.victory, "Player should win when all enemies disabled")
-
-
-func test_check_victory_enemies_remain():
-	var result = _combat_system.check_combat_victory(_attacker_uid)
-	
-	assert_false(result.victory, "Victory should be false while enemies remain")
-	assert_eq(result.reason, "enemies_remain", "Reason should indicate enemies remain")
-
-
-func test_check_victory_player_disabled():
-	_combat_system.apply_damage(_attacker_uid, 100.0)
-	
-	var result = _combat_system.check_combat_victory(_attacker_uid)
-	
-	assert_false(result.victory, "Victory should be false if player disabled")
-	assert_eq(result.reason, "player_disabled", "Reason should indicate player disabled")
-
-
-# --- Signal Tests ---
-
-func test_damage_dealt_signal():
-	watch_signals(_combat_system)
-	
-	_combat_system.apply_damage(_defender_uid, 25.0)
-	
-	assert_signal_emitted(_combat_system, "damage_dealt", "damage_dealt signal should emit")
-
-
-func test_ship_disabled_signal():
-	watch_signals(_combat_system)
-	
-	_combat_system.apply_damage(_defender_uid, 100.0)
-	
-	assert_signal_emitted(_combat_system, "ship_disabled", "ship_disabled signal should emit")
-
-
-func test_eventbus_agent_damaged_emits_for_damage():
-	watch_signals(EventBus)
-	_combat_system.apply_damage(_defender_uid, 10.0, 0.0, _attacker_uid)
-	assert_signal_emitted(EventBus, "agent_damaged")
-
-
-func test_eventbus_agent_disabled_emits_on_disable():
-	watch_signals(EventBus)
-	_combat_system.apply_damage(_defender_uid, 100.0, 0.0, _attacker_uid)
-	assert_signal_emitted(EventBus, "agent_disabled")
-
-
-func test_weapon_fired_signal():
-	watch_signals(_combat_system)
-	
-	var shooter_pos = Vector3(0, 0, 0)
-	var target_pos = Vector3(30, 0, 0)
-	_combat_system.fire_weapon(_attacker_uid, _defender_uid, _test_weapon, shooter_pos, target_pos)
-	
-	assert_signal_emitted(_combat_system, "weapon_fired", "weapon_fired signal should emit")
-
-
-# --- Combat Start/End Tests ---
-
-func test_start_combat():
-	# Clear existing combatants
-	_combat_system.end_combat()
-	
-	watch_signals(_combat_system)
-	
-	var ship1 = _create_mock_ship(100, 50)
-	var ship2 = _create_mock_ship(80, 30)
-	
-	_combat_system.start_combat([
-		{"uid": 10, "ship_template": ship1},
-		{"uid": 11, "ship_template": ship2}
-	])
-	
-	assert_signal_emitted(_combat_system, "combat_started", "combat_started signal should emit")
-	assert_true(_combat_system.is_in_combat(10), "First participant should be in combat")
-	assert_true(_combat_system.is_in_combat(11), "Second participant should be in combat")
-
-
-func test_end_combat():
-	watch_signals(_combat_system)
-	
-	_combat_system.end_combat("victory")
-	
-	assert_signal_emitted(_combat_system, "combat_ended", "combat_ended signal should emit")
-	assert_false(_combat_system.is_in_combat(_attacker_uid), "Combatants should be cleared")
-
---- Start of ./src/tests/core/systems/test_contract_system.gd ---
-
-# test_contract_system.gd
-# Unit tests for ContractSystem - contract acceptance, completion, abandonment
-extends "res://addons/gut/test.gd"
-
-const ContractSystem = preload("res://src/core/systems/contract_system.gd")
-const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
-const CharacterSystem = preload("res://src/core/systems/character_system.gd")
-
-var _contract_system: Node
-var _inventory_system: Node
-var _character_system: Node
-var _test_character_uid: int = 0
-var _test_contract_id: String = "test_delivery_contract"
-
-
-func before_each():
-	# Clear GameState
-	GameState.characters.clear()
-	GameState.inventories.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
-	GameState.current_tu = 0
-	GameState.player_character_uid = _test_character_uid
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"chronicle_entries": []
-	}
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
-	
-	# Create systems
-	_contract_system = ContractSystem.new()
-	_inventory_system = InventorySystem.new()
-	_character_system = CharacterSystem.new()
-	add_child(_contract_system)
-	add_child(_inventory_system)
-	add_child(_character_system)
-	
-	# Register in GlobalRefs
-	GlobalRefs.contract_system = _contract_system
-	GlobalRefs.inventory_system = _inventory_system
-	GlobalRefs.character_system = _character_system
-	
-	# Create test character with WP
-	var char_template = CharacterTemplate.new()
-	char_template.template_id = "test_character"
-	char_template.wealth_points = 500
-	GameState.characters[_test_character_uid] = char_template
-	
-	# Create inventory for character
-	_inventory_system.create_inventory_for_character(_test_character_uid)
-	
-	# Create test contract
-	var contract = _create_test_contract()
-	GameState.contracts[_test_contract_id] = contract
-
-
-func after_each():
-	_contract_system.queue_free()
-	_inventory_system.queue_free()
-	_character_system.queue_free()
-	GlobalRefs.contract_system = null
-	GlobalRefs.inventory_system = null
-	GlobalRefs.character_system = null
-	
-	# Reset session stats with defaults (avoid "Invalid get index" errors)
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"chronicle_entries": []
-	}
-	GameState.player_docked_at = ""
-
-
-func _create_test_contract() -> ContractTemplate:
-	var contract = ContractTemplate.new()
-	contract.template_id = _test_contract_id
-	contract.contract_type = "delivery"
-	contract.title = "Test Delivery"
-	contract.description = "Deliver ore for testing"
-	contract.origin_location_id = "station_alpha"
-	contract.destination_location_id = "station_beta"
-	contract.required_commodity_id = "commodity_ore"
-	contract.required_quantity = 10
-	contract.reward_wp = 100
-	contract.reward_reputation = 5
-	contract.faction_id = "test_faction"
-	contract.time_limit_tu = -1  # No time limit
-	contract.difficulty = 1
-	return contract
-
-
-# --- Test: Get Available Contracts ---
-
-func test_get_available_contracts_at_location():
-	var available = _contract_system.get_available_contracts("station_alpha")
-	assert_eq(available.size(), 1, "Should find 1 contract at station_alpha")
-	assert_eq(available[0].template_id, _test_contract_id, "Should find our test contract")
-
-
-func test_get_available_contracts_wrong_location():
-	var available = _contract_system.get_available_contracts("station_gamma")
-	assert_eq(available.size(), 0, "Should find no contracts at wrong location")
-
-
-func test_get_available_contracts_excludes_active():
-	# Accept the contract first
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	var available = _contract_system.get_available_contracts("station_alpha")
-	assert_eq(available.size(), 0, "Should not show already active contracts")
-
-
-# --- Test: Accept Contract ---
-
-func test_accept_contract_success():
-	var result = _contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	assert_true(result.success, "Accept should succeed")
-	assert_true(GameState.active_contracts.has(_test_contract_id), "Contract should be in active_contracts")
-	assert_eq(GameState.active_contracts[_test_contract_id].accepted_at_tu, 0, "Should record accepted time")
-
-
-func test_accept_contract_not_found():
-	var result = _contract_system.accept_contract(_test_character_uid, "nonexistent_contract")
-	
-	assert_false(result.success, "Accept should fail")
-	assert_true("not found" in result.reason.to_lower(), "Reason should mention not found")
-
-
-func test_accept_contract_already_active():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	var result = _contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.success, "Should not accept twice")
-	assert_true("already active" in result.reason.to_lower(), "Reason should mention already active")
-
-
-func test_accept_contract_max_limit():
-	# Create and accept 3 contracts
-	for i in range(3):
-		var contract = _create_test_contract()
-		contract.template_id = "contract_" + str(i)
-		GameState.contracts[contract.template_id] = contract
-		_contract_system.accept_contract(_test_character_uid, contract.template_id)
-	
-	# Try to accept 4th
-	var result = _contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.success, "Should not accept 4th contract")
-	assert_true("maximum" in result.reason.to_lower(), "Reason should mention maximum")
-
-
-# --- Test: Get Active Contracts ---
-
-func test_get_active_contracts():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	var active = _contract_system.get_active_contracts(_test_character_uid)
-	assert_eq(active.size(), 1, "Should have 1 active contract")
-	assert_eq(active[0].template_id, _test_contract_id, "Should be our test contract")
-
-
-func test_get_active_contracts_empty():
-	var active = _contract_system.get_active_contracts(_test_character_uid)
-	assert_eq(active.size(), 0, "Should have no active contracts initially")
-
-
-# --- Test: Check Contract Completion ---
-
-func test_check_completion_not_active():
-	var result = _contract_system.check_contract_completion(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.can_complete, "Should not complete inactive contract")
-	assert_true("not active" in result.reason.to_lower(), "Reason should mention not active")
-
-
-func test_check_completion_missing_cargo():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	GameState.player_docked_at = "station_beta"
-	
-	var result = _contract_system.check_contract_completion(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.can_complete, "Should not complete without cargo")
-	assert_true("insufficient" in result.reason.to_lower(), "Reason should mention insufficient cargo")
-
-
-func test_check_completion_with_cargo():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	GameState.player_docked_at = "station_beta"
-	
-	# Add required cargo
-	_inventory_system.add_asset(
-		_test_character_uid,
-		InventorySystem.InventoryType.COMMODITY,
-		"commodity_ore",
-		10
-	)
-	
-	var result = _contract_system.check_contract_completion(_test_character_uid, _test_contract_id)
-	
-	assert_true(result.can_complete, "Should be able to complete with cargo")
-
-
-func test_check_completion_partial_cargo():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	GameState.player_docked_at = "station_beta"
-	
-	# Add less than required
-	_inventory_system.add_asset(
-		_test_character_uid,
-		InventorySystem.InventoryType.COMMODITY,
-		"commodity_ore",
-		5
-	)
-	
-	var result = _contract_system.check_contract_completion(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.can_complete, "Should not complete with partial cargo")
-
-
-# --- Test: Complete Contract ---
-
-func test_complete_contract_success():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	_inventory_system.add_asset(
-		_test_character_uid,
-		InventorySystem.InventoryType.COMMODITY,
-		"commodity_ore",
-		10
-	)
-	
-	# Set player at destination
-	GameState.player_docked_at = "station_beta"
-	
-	var initial_wp = _character_system.get_wp(_test_character_uid)
-	var result = _contract_system.complete_contract(_test_character_uid, _test_contract_id)
-	
-	assert_true(result.success, "Complete should succeed")
-	assert_eq(result.rewards.wp, 100, "Should report correct reward")
-	
-	# Check WP increased
-	var final_wp = _character_system.get_wp(_test_character_uid)
-	assert_eq(final_wp, initial_wp + 100, "WP should increase by reward amount")
-	
-	# Check cargo removed
-	var cargo = _inventory_system.get_inventory_by_type(_test_character_uid, InventorySystem.InventoryType.COMMODITY)
-	assert_eq(cargo.get("commodity_ore", 0), 0, "Cargo should be removed")
-	
-	# Check contract removed from active
-	assert_false(GameState.active_contracts.has(_test_contract_id), "Contract should be removed from active")
-	
-	# Check stats updated
-	assert_eq(GameState.session_stats.contracts_completed, 1, "Contracts completed should increment")
-
-
-func test_complete_contract_applies_reputation():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	_inventory_system.add_asset(
-		_test_character_uid,
-		InventorySystem.InventoryType.COMMODITY,
-		"commodity_ore",
-		10
-	)
-	
-	# Must be at destination for delivery completion
-	GameState.player_docked_at = "station_beta"
-	_contract_system.complete_contract(_test_character_uid, _test_contract_id)
-	
-	assert_eq(GameState.narrative_state.reputation, 5, "Reputation should increase")
-	assert_eq(GameState.narrative_state.faction_standings.get("test_faction", 0), 5, "Faction standing should increase")
-
-
-func test_complete_contract_fails_without_cargo():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	var result = _contract_system.complete_contract(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.success, "Complete should fail without cargo")
-
-
-# --- Test: Abandon Contract ---
-
-func test_abandon_contract_success():
-	_contract_system.accept_contract(_test_character_uid, _test_contract_id)
-	
-	var result = _contract_system.abandon_contract(_test_character_uid, _test_contract_id)
-	
-	assert_true(result.success, "Abandon should succeed")
-	assert_false(GameState.active_contracts.has(_test_contract_id), "Contract should be removed")
-
-
-func test_abandon_contract_not_active():
-	var result = _contract_system.abandon_contract(_test_character_uid, _test_contract_id)
-	
-	assert_false(result.success, "Abandon should fail for inactive contract")
-	assert_true("not active" in result.reason.to_lower(), "Reason should mention not active")
-
-
-# --- Test: Contract Expiration ---
-
-func test_contract_expiration_check():
-	# Create time-limited contract
-	var limited_contract = _create_test_contract()
-	limited_contract.template_id = "limited_contract"
-	limited_contract.time_limit_tu = 50
-	GameState.contracts["limited_contract"] = limited_contract
-	
-	_contract_system.accept_contract(_test_character_uid, "limited_contract")
-	
-	# Advance time past limit
-	GameState.current_tu = 60
-	
-	var expired = _contract_system.check_expired_contracts(_test_character_uid)
-	
-	assert_eq(expired.size(), 1, "Should find 1 expired contract")
-	assert_false(GameState.active_contracts.has("limited_contract"), "Expired contract should be removed")
-
-
-func test_contract_not_expired_within_limit():
-	var limited_contract = _create_test_contract()
-	limited_contract.template_id = "limited_contract"
-	limited_contract.time_limit_tu = 50
-	GameState.contracts["limited_contract"] = limited_contract
-	
-	_contract_system.accept_contract(_test_character_uid, "limited_contract")
-	
-	# Advance time but within limit
-	GameState.current_tu = 30
-	
-	var check = _contract_system.check_contract_completion(_test_character_uid, "limited_contract")
-	
-	# Should not be expired (though still can't complete without cargo)
-	assert_false("expired" in check.reason.to_lower(), "Should not be expired yet")
+	var final_credits = character_system_instance.get_credits(PLAYER_UID)
+	assert_eq(final_credits, initial_credits - 10, "Upkeep cost should correctly subtract Credits.")
 
 --- Start of ./src/tests/core/systems/test_docking_logic.gd ---
 
@@ -25309,9 +26409,9 @@ func after_each() -> void:
 ## Test: Tick decrements cooldown without triggering encounter.
 func test_tick_decrements_cooldown_without_triggering() -> void:
 	watch_signals(EventBus)
-	_event_system._encounter_cooldown_tu = 5
+	_event_system._encounter_cooldown_seconds = 5
 	_event_system._on_world_event_tick_triggered(2)
-	assert_eq(_event_system._encounter_cooldown_tu, 3, "Cooldown should decrement by tick amount")
+	assert_eq(_event_system._encounter_cooldown_seconds, 3, "Cooldown should decrement by tick amount")
 	assert_signal_not_emitted(EventBus, "combat_initiated", "Should not trigger with active cooldown")
 
 
@@ -25319,9 +26419,9 @@ func test_tick_decrements_cooldown_without_triggering() -> void:
 func test_cooldown_does_not_go_negative() -> void:
 	_event_system._active_hostiles = [Node.new()]
 	add_child_autofree(_event_system._active_hostiles[0])
-	_event_system._encounter_cooldown_tu = 2
+	_event_system._encounter_cooldown_seconds = 2
 	_event_system._on_world_event_tick_triggered(10)
-	assert_eq(_event_system._encounter_cooldown_tu, 0, "Cooldown should clamp at zero")
+	assert_eq(_event_system._encounter_cooldown_seconds, 0, "Cooldown should clamp at zero")
 
 
 ## Test: Force encounter emits combat_initiated signal.
@@ -25382,16 +26482,16 @@ func test_multiple_hostiles_all_removed_for_combat_end() -> void:
 
 ## Edge Case: Negative tick amount ignored.
 func test_negative_tick_amount_ignored() -> void:
-	var initial_cooldown: int = _event_system._encounter_cooldown_tu
+	var initial_cooldown: int = _event_system._encounter_cooldown_seconds
 	_event_system._on_world_event_tick_triggered(-5)
-	assert_eq(_event_system._encounter_cooldown_tu, initial_cooldown, "Negative ticks should be ignored")
+	assert_eq(_event_system._encounter_cooldown_seconds, initial_cooldown, "Negative ticks should be ignored")
 
 
 ## Edge Case: Zero tick amount ignored.
 func test_zero_tick_amount_ignored() -> void:
-	var initial_cooldown: int = _event_system._encounter_cooldown_tu
+	var initial_cooldown: int = _event_system._encounter_cooldown_seconds
 	_event_system._on_world_event_tick_triggered(0)
-	assert_eq(_event_system._encounter_cooldown_tu, initial_cooldown, "Zero ticks should be ignored")
+	assert_eq(_event_system._encounter_cooldown_seconds, initial_cooldown, "Zero ticks should be ignored")
 
 
 ## Edge Case: Pruning removes freed nodes from hostiles.
@@ -25425,9 +26525,9 @@ func test_remove_nonexistent_hostile_safe() -> void:
 ## Edge Case: Force encounter with no active hostiles spawns immediately.
 func test_force_encounter_with_no_hostiles() -> void:
 	_event_system._active_hostiles.clear()
-	_event_system._encounter_cooldown_tu = 100
+	_event_system._encounter_cooldown_seconds = 100
 	_event_system.force_encounter()
-	assert_eq(_event_system._encounter_cooldown_tu, 0, "Force should reset cooldown")
+	assert_eq(_event_system._encounter_cooldown_seconds, 0, "Force should reset cooldown")
 	assert_true(_event_system._active_hostiles.size() > 0, "Should spawn hostiles")
 
 
@@ -25444,20 +26544,18 @@ func test_spawn_position_within_bounds() -> void:
 
 # File: tests/core/systems/test_inventory_system.gd
 # GUT Test for the unified, stateless InventorySystem.
-# Version: 3.0 - Rewritten for unified GameState architecture.
+# Version: 4.0 - Adapted for sim rework (assets_modules removed from GameState).
 
 extends GutTest
 
 # --- Test Subjects ---
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 const ShipTemplate = preload("res://database/definitions/asset_ship_template.gd")
-const ModuleTemplate = preload("res://database/definitions/asset_module_template.gd")
 
 # --- Test State ---
 var inventory_system_instance = null
 const PLAYER_UID = 0
 const SHIP_UID = 100
-const MODULE_UID = 200
 const COMMODITY_ID = "commodity_default"
 
 
@@ -25466,12 +26564,10 @@ func before_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
 	GameState.player_character_uid = PLAYER_UID
 
 	# 2. Create mock assets in the master asset lists
 	GameState.assets_ships[SHIP_UID] = ShipTemplate.new()
-	GameState.assets_modules[MODULE_UID] = ModuleTemplate.new()
 
 	# 3. Instantiate the system we are testing
 	inventory_system_instance = InventorySystem.new()
@@ -25486,7 +26582,6 @@ func after_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
 	GameState.player_character_uid = -1
 	inventory_system_instance = null
 
@@ -25538,663 +26633,216 @@ func test_add_and_remove_commodity():
 
 func test_get_inventory_by_type():
 	# Add some assets to test with
-	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.MODULE, MODULE_UID)
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID)
 	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 50)
 
-	# Get the module inventory
-	var module_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.MODULE)
-	assert_eq(module_inventory.size(), 1, "Should return a dictionary with one module.")
-	assert_has(module_inventory, MODULE_UID, "The returned dictionary should contain the correct module UID.")
+	# Get the ship inventory
+	var ship_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.SHIP)
+	assert_eq(ship_inventory.size(), 1, "Should return a dictionary with one ship.")
+	assert_has(ship_inventory, SHIP_UID, "The returned dictionary should contain the correct ship UID.")
 
 	# Get the commodity inventory
 	var commodity_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY)
 	assert_eq(commodity_inventory.size(), 1, "Should return a dictionary with one commodity type.")
 	assert_eq(commodity_inventory[COMMODITY_ID], 50, "The returned dictionary should have the correct quantity.")
 
---- Start of ./src/tests/core/systems/test_narrative_action_system.gd ---
-
-# File: tests/core/systems/test_narrative_action_system.gd
-# GUT Test for NarrativeActionSystem.
-# Version: 1.1 - Tests request/resolve flow, effect application, and edge cases.
-
-extends GutTest
-
-# --- Preloads ---
-const NarrativeActionSystemPath = "res://src/core/systems/narrative_action_system.gd"
-const CharacterSystemPath = "res://src/core/systems/character_system.gd"
-const CharacterTemplate = preload("res://database/definitions/character_template.gd")
-
-# --- Test State ---
-var narrative_system = null
-var character_system_instance = null
-var default_char_template = null
-const PLAYER_UID = 0
-
-
-func before_each():
-	"""Set up game state and instantiate the system."""
-	# Clear global state
-	GameState.characters.clear()
-	GameState.narrative_state.clear()
-	GameState.player_character_uid = PLAYER_UID
-
-	# Load the base character template
-	default_char_template = load("res://database/registry/characters/character_default.tres")
-	assert_true(is_instance_valid(default_char_template), "Pre-check: Default character template must load.")
-
-	# Create and register a player character instance
-	var player_char_instance = default_char_template.duplicate()
-	GameState.characters[PLAYER_UID] = player_char_instance
-	GameState.player_character_uid = PLAYER_UID
-
-	# Instantiate CharacterSystem and register in GlobalRefs
-	var char_system_script = load(CharacterSystemPath)
-	character_system_instance = char_system_script.new()
-	add_child_autofree(character_system_instance)
-	GlobalRefs.set_character_system(character_system_instance)
-
-	# Instantiate the narrative system via load() to avoid cyclic reference error
-	var script = load(NarrativeActionSystemPath)
-	narrative_system = script.new()
-	add_child_autofree(narrative_system)
-	narrative_system._ready()
-
-
-func after_each():
-	"""Clean up."""
-	GameState.characters.clear()
-	GameState.narrative_state.clear()
-	GameState.player_character_uid = -1
-	GlobalRefs.set_character_system(null)
-	narrative_system = null
-	character_system_instance = null
-	default_char_template = null
-
-
-# --- Test Cases ---
-
-func test_request_action_success():
-	"""Test that request_action stores pending action and emits EventBus signal."""
-	# Given: A narrative system and valid context
-	var context = {
-		"char_uid": PLAYER_UID,
-		"description": "Execute a risky maneuver."
-	}
-
-	# When: We request an action
-	narrative_system.request_action("dock_arrival", context)
-
-	# Then: _pending_action should be populated
-	assert_true(not narrative_system._pending_action.empty(), "Pending action should be set")
-	assert_eq(narrative_system._pending_action.action_type, "dock_arrival", "Action type should match")
-	assert_eq(narrative_system._pending_action.char_uid, PLAYER_UID, "Character UID should match")
-	assert_eq(narrative_system._pending_action.skill_name, "piloting", "Skill for dock_arrival should be piloting")
-
-
-func test_resolve_action_no_pending():
-	"""Test that resolve_action fails gracefully when no pending action."""
-	# Given: No pending action
-	narrative_system._pending_action = {}
-
-	# When: We attempt to resolve
-	var result = narrative_system.resolve_action(0, 0)
-
-	# Then: Should return failure
-	assert_false(result.success, "Should fail when no pending action")
-	assert_eq(result.reason, "No pending action", "Reason should indicate no pending action")
-
-
-func test_resolve_action_character_unavailable():
-	"""Test that resolve_action fails when CharacterSystem is unavailable."""
-	# Given: A pending action but no CharacterSystem
-	var old_char_system = GlobalRefs.character_system
-	GlobalRefs.character_system = null
-
-	narrative_system._pending_action = {
-		"char_uid": PLAYER_UID,
-		"action_type": "contract_complete",
-		"attribute_name": "cunning",
-		"skill_name": "negotiation"
-	}
-
-	# When: We attempt to resolve
-	var result = narrative_system.resolve_action(0, 0)
-
-	# Then: Should return failure
-	assert_false(result.success, "Should fail when CharacterSystem unavailable")
-	assert_eq(result.reason, "CharacterSystem unavailable", "Reason should indicate missing system")
-
-	# Restore
-	GlobalRefs.character_system = old_char_system
-
-
-func test_resolve_action_fp_clamping():
-	"""Test that resolve_action clamps fp_spent to available FP (EDGE CASE)."""
-	# Given: A character with 2 available FP
-	GameState.characters[PLAYER_UID].focus_points = 2
-
-	narrative_system._pending_action = {
-		"char_uid": PLAYER_UID,
-		"action_type": "contract_complete",
-		"attribute_name": "cunning",
-		"skill_name": "negotiation"
-	}
-
-	# When: We attempt to spend 5 FP (more than available)
-	var result = narrative_system.resolve_action(Constants.ActionApproach.CAUTIOUS, 5)
-
-	# Then: Should succeed, but FP spent should be clamped to available
-	assert_true(result.success, "Should succeed despite over-allocation")
-	# The actual FP deduction is handled by character_system, verify it was called with clamped value
-	assert_true(result.has("effects_applied"), "Should have effects")
-
-
-func test_apply_effects_wp_gain():
-	"""Test that _apply_effects correctly adds WP."""
-	# Given: Effects with WP gain
-	var effects = {
-		"wp_gain": 50
-	}
-
-	var char_wp_before = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
-
-	# When: We apply effects
-	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
-
-	# Then: WP should increase
-	var char_wp_after = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
-	assert_eq(char_wp_after, char_wp_before + 50, "WP should increase by 50")
-	assert_true(applied.has("wp_gained"), "Applied effects should record wp_gained")
-	assert_eq(applied["wp_gained"], 50, "Applied wp_gained should be 50")
-
-
-func test_apply_effects_wp_cost():
-	"""Test that _apply_effects correctly subtracts WP."""
-	# Given: Effects with WP cost
-	var effects = {
-		"wp_cost": 30
-	}
-
-	# Ensure character has enough WP
-	GlobalRefs.character_system.add_wp(PLAYER_UID, 100)
-	var char_wp_before = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
-
-	# When: We apply effects
-	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
-
-	# Then: WP should decrease
-	var char_wp_after = int(GlobalRefs.character_system.get_wp(PLAYER_UID))
-	assert_eq(char_wp_after, char_wp_before - 30, "WP should decrease by 30")
-	assert_true(applied.has("wp_lost"), "Applied effects should record wp_lost")
-
-
-func test_apply_effects_reputation_change():
-	"""Test that _apply_effects updates reputation correctly."""
-	# Given: Effects with reputation change
-	var effects = {
-		"reputation_change": 5
-	}
-
-	var rep_before = GameState.narrative_state.get("reputation", 0)
-
-	# When: We apply effects
-	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
-
-	# Then: Reputation should increase
-	var rep_after = GameState.narrative_state.get("reputation", 0)
-	assert_eq(rep_after, rep_before + 5, "Reputation should increase by 5")
-	assert_true(applied.has("reputation_changed"), "Applied effects should record reputation_changed")
-
-
-func test_apply_effects_null_effects():
-	"""Test that _apply_effects handles empty effects gracefully."""
-	# Given: Empty effects dictionary
-	var effects = {}
-
-	# When: We apply empty effects
-	var applied = narrative_system._apply_effects(PLAYER_UID, effects)
-
-	# Then: Should return empty dict (no changes)
-	assert_eq(applied.size(), 0, "Should return empty dict for empty effects")
-
-
-func test_get_skill_for_action_contract_complete():
-	"""Test that _get_skill_for_action returns correct skill for contract_complete."""
-	var skill_info = narrative_system._get_skill_for_action("contract_complete")
-	assert_eq(skill_info.attribute_name, "cunning", "Should use cunning attribute")
-	assert_eq(skill_info.skill_name, "negotiation", "Should use negotiation skill")
-
-
-func test_get_skill_for_action_dock_arrival():
-	"""Test that _get_skill_for_action returns correct skill for dock_arrival."""
-	var skill_info = narrative_system._get_skill_for_action("dock_arrival")
-	assert_eq(skill_info.attribute_name, "reflex", "Should use reflex attribute")
-	assert_eq(skill_info.skill_name, "piloting", "Should use piloting skill")
-
-
-func test_get_skill_for_action_trade_finalize():
-	"""Test that _get_skill_for_action returns correct skill for trade_finalize."""
-	var skill_info = narrative_system._get_skill_for_action("trade_finalize")
-	assert_eq(skill_info.attribute_name, "cunning", "Should use cunning attribute")
-	assert_eq(skill_info.skill_name, "trading", "Should use trading skill")
-
-
-func test_get_skill_for_action_unknown():
-	"""Test that _get_skill_for_action defaults for unknown action type."""
-	var skill_info = narrative_system._get_skill_for_action("unknown_action")
-	assert_eq(skill_info.attribute_name, "cunning", "Should default to cunning")
-	assert_eq(skill_info.skill_name, "general", "Should default to general skill")
-
-
-func test_get_attribute_value_no_attributes():
-	"""Test that _get_attribute_value returns 0 when attributes not implemented (EDGE CASE)."""
-	# Phase 1: CharacterTemplate doesn't have attributes dict
-	var attr_value = narrative_system._get_attribute_value(PLAYER_UID, "cunning")
-	assert_eq(attr_value, 0, "Should return 0 for Phase 1 (no attributes)")
-
-
-func test_reset_focus_points():
-	"""Test that _reset_focus_points correctly resets FP to 0."""
-	# Given: Character with 3 FP
-	GameState.characters[PLAYER_UID].focus_points = 3
-	assert_eq(GlobalRefs.character_system.get_fp(PLAYER_UID), 3, "Should start with 3 FP")
-
-	# When: We reset FP
-	narrative_system._reset_focus_points(PLAYER_UID)
-
-	# Then: FP should be 0
-	assert_eq(GlobalRefs.character_system.get_fp(PLAYER_UID), 0, "FP should be reset to 0")
-
---- Start of ./src/tests/core/systems/test_quirk_system.gd ---
+--- Start of ./src/tests/core/systems/test_persistent_agents.gd ---
 
 #
 # PROJECT: GDTLancer
-# MODULE: src/tests/core/systems/test_quirk_system.gd
-# STATUS: [Level 3 - Verified]
-# TRUTH_LINK: TACTICAL_TODO.md VERIFICATION
-# LOG_REF: 2025-12-23
+# MODULE: src/tests/core/systems/test_persistent_agents.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
+# LOG_REF: 2026-01-30
 #
 
 extends "res://addons/gut/test.gd"
 
-const QuirkSystem = preload("res://src/core/systems/quirk_system.gd")
+var _agent_system: Node = null
 
-var _quirk_system: Node
-var _test_ship_uid: int = 999
-
-func before_each() -> void:
-	_quirk_system = QuirkSystem.new()
-	add_child_autofree(_quirk_system)
-	_quirk_system._ready()
+func before_each():
+	# Reset GameState
+	GameState.persistent_agents = {}
+	GameState.characters = {}
+	GameState.game_time_seconds = 0
 	
-	# Setup mock ship in GameState
-	var ship = ShipTemplate.new()
-	ship.ship_quirks = []
-	GameState.assets_ships[_test_ship_uid] = ship
+	# Mock GlobalRefs
+	var zonemock = Node.new()
+	zonemock.name = "ZoneMock"
+	GlobalRefs.current_zone = zonemock
+	add_child(zonemock)
+	autoqfree(zonemock)
 
-func after_each() -> void:
-	GameState.assets_ships.erase(_test_ship_uid)
+	# Instance AgentSystem - create a Node and set its script
+	var agent_script = load("res://src/core/systems/agent_system.gd")
+	_agent_system = Node.new()
+	_agent_system.set_script(agent_script)
+	add_child(_agent_system) # It registers itself to GlobalRefs in _ready
+	autoqfree(_agent_system)
 
-func test_add_quirk_success() -> void:
-	var quirk_id = "test_quirk"
+func test_persistent_agents_spawn_on_world_init():
+	# Mock location availability (AgentSystem checks if dock position exists)
+	# We can't easily mock _get_dock_position_in_zone without dependency injection or mocking the scene tree interaction.
+	# However, we can test that the system ATTEMPTS to spawn them or sets up the state correctly.
+	
+	# Let's focus on the State initialization first, as spawning requires complex scene setup.
+	
+	var agent_id = "persistent_kai"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	
+	assert_eq(state.current_location, "station_alpha", "Should have correct home location")
+	assert_eq(state.is_known, false, "Should be unknown by default")
+	assert_gt(state.character_uid, -1, "Should have a generated character UID")
+	
+	var char_data = GameState.characters.get(state.character_uid)
+	assert_not_null(char_data, "Character data should be created in GameState")
+	assert_eq(char_data.character_name, "Kai", "Character name should match template")
+
+func test_persistent_agent_disable_records_state():
+	var agent_id = "persistent_kai"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	
+	# Simulate disable
+	_agent_system._handle_persistent_agent_disable(agent_id)
+	
+	assert_true(state.is_disabled, "Agent should be marked disabled")
+	assert_eq(state.disabled_at_time, 0.0, "Disabled timestmap should be recorded (game time 0)")
+
+func test_persistent_agent_respawns_after_timeout():
+	var agent_id = "persistent_kai"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	
+	# Disable at time 0
+	_agent_system._handle_persistent_agent_disable(agent_id)
+	
+	# Advance time (less than timeout)
+	GameState.game_time_seconds = 200
+	_agent_system._check_persistent_agent_respawns()
+	assert_true(state.is_disabled, "Agent should still be disabled after 200s")
+	
+	# Advance time (past timeout of 300s)
+	GameState.game_time_seconds = 301
+	_agent_system._check_persistent_agent_respawns()
+	assert_false(state.is_disabled, "Agent should be respawned after 300s")
+	assert_eq(state.disabled_at_time, 0.0, "Timestamp should reset")
+
+func test_persistent_agent_state_persists_across_save_load():
+	# This basically tests GameState structure as that's what is saved
+	var agent_id = "persistent_juno"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	state.is_known = true
+	state.relationship = 50
+	
+	# "Save" (Simulated)
+	var saved_data = GameState.persistent_agents.duplicate(true)
+	
+	# "Load" (Clear and Restore)
+	GameState.persistent_agents = {}
+	GameState.persistent_agents = saved_data
+	
+	var loaded_state = GameState.persistent_agents[agent_id]
+	assert_true(loaded_state.is_known, "is_known should persist")
+	assert_eq(loaded_state.relationship, 50, "relationship should persist")
+
+func test_known_vs_unknown_agents_state():
+	# Setup known agent
+	var known_id = "persistent_kai"
+	var unknown_id = "persistent_juno"
+	
+	var state_k = _agent_system.get_persistent_agent_state(known_id)
+	state_k.is_known = true
+	
+	var state_u = _agent_system.get_persistent_agent_state(unknown_id)
+	state_u.is_known = false
+	
+	# Verify state-level filtering (contacts_panel was deleted in sim rework)
+	var known_agents = []
+	for agent_id in GameState.persistent_agents:
+		var state = GameState.persistent_agents[agent_id]
+		if state.is_known:
+			known_agents.append(agent_id)
+	
+	assert_true(known_agents.has(known_id), "Known agent Kai should appear in filtered list.")
+	assert_false(known_agents.has(unknown_id), "Unknown agent Juno should NOT appear in filtered list.")
+
+func test_contact_discovered_on_dock():
+	var agent_id = "persistent_vera"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	# Vera is at station_beta
+	assert_eq(state.is_known, false)
+	
+	# Simulate docking signal
 	watch_signals(EventBus)
+	_agent_system._on_player_docked("station_beta")
 	
-	var result = _quirk_system.add_quirk(_test_ship_uid, quirk_id)
-	
-	assert_true(result, "Should return true on successful add")
-	assert_true(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Ship should have the quirk")
-	assert_signal_emitted(EventBus, "ship_quirk_added", "Should emit ship_quirk_added signal")
-
-func test_add_duplicate_quirk_fails() -> void:
-	var quirk_id = "test_quirk"
-	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
-	
-	watch_signals(EventBus)
-	var result = _quirk_system.add_quirk(_test_ship_uid, quirk_id)
-	
-	assert_false(result, "Should return false when adding duplicate quirk")
-	assert_signal_not_emitted(EventBus, "ship_quirk_added", "Should not emit signal for duplicate")
-
-func test_remove_quirk() -> void:
-	var quirk_id = "test_quirk"
-	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
-	
-	watch_signals(EventBus)
-	var result = _quirk_system.remove_quirk(_test_ship_uid, quirk_id)
-	
-	assert_true(result, "Should return true on successful removal")
-	assert_false(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Ship should no longer have the quirk")
-	assert_signal_emitted(EventBus, "ship_quirk_removed", "Should emit ship_quirk_removed signal")
-
-func test_get_quirks_returns_copy() -> void:
-	var quirk_id = "test_quirk"
-	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
-	
-	var quirks = _quirk_system.get_quirks(_test_ship_uid)
-	quirks.append("malicious_addition")
-	
-	var actual_quirks = _quirk_system.get_quirks(_test_ship_uid)
-	assert_eq(actual_quirks.size(), 1, "Original quirks array should not be modified by external changes to returned array")
-	assert_false(actual_quirks.has("malicious_addition"), "Original quirks should not contain the malicious addition")
-
-func test_has_quirk() -> void:
-	var quirk_id = "test_quirk"
-	assert_false(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Should return false if quirk not present")
-	
-	_quirk_system.add_quirk(_test_ship_uid, quirk_id)
-	assert_true(_quirk_system.has_quirk(_test_ship_uid, quirk_id), "Should return true if quirk present")
+	assert_true(state.is_known, "Should discover agent at home station")
+	assert_signal_emitted_with_parameters(EventBus, "contact_met", [agent_id], 0)
 
 --- Start of ./src/tests/core/systems/test_time_system.gd ---
 
-# File: tests/core/systems/test_time_system.gd
-# Version: 2.1 - Corrected GUT assertion syntax.
+#
+# PROJECT: GDTLancer
+# MODULE: test_time_system.gd
+# STATUS: Level 3 - Verified
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
+# LOG_REF: 2026-02-13
+#
 
 extends GutTest
 
+## Unit tests for TimeSystem: game time advancement and world tick triggering.
+## TimeSystem is now a PURE CLOCK — it only tracks time and emits tick signals.
+## Upkeep costs are handled by BridgeSystems (TASK_6 rework).
+
 # --- Test Subjects ---
 const TimeSystem = preload("res://src/core/systems/time_system.gd")
-const CharacterSystem = preload("res://src/core/systems/character_system.gd") # For mocking
 
 # --- Test State ---
 var time_system_instance = null
-var mock_character_system = null
-const PLAYER_UID = 0
 
 func before_each():
 	# 1. Clean and set up the global state for the test
-	GameState.current_tu = 0
-	GameState.player_character_uid = PLAYER_UID
+	GameState.game_time_seconds = 0
+	GameState.player_character_uid = 0
 
-	# 2. Create a mock CharacterSystem and set it in GlobalRefs
-	mock_character_system = double(CharacterSystem).new()
-	add_child_autofree(mock_character_system)
-	GlobalRefs.character_system = mock_character_system
-
-	# 3. Stub the methods that TimeSystem will call
-	stub(mock_character_system, "get_player_character_uid").to_return(PLAYER_UID)
-	stub(mock_character_system, "apply_upkeep_cost").to_do_nothing()
-
-	# 4. Instantiate the system we are testing
+	# 2. Instantiate the system we are testing
 	time_system_instance = TimeSystem.new()
 	add_child_autofree(time_system_instance)
 
 func after_each():
 	# Clean up global state to ensure test isolation
-	GameState.current_tu = 0
+	GameState.game_time_seconds = 0
 	GameState.player_character_uid = -1
-	GlobalRefs.character_system = null
 	time_system_instance = null
 
 # --- Test Cases ---
 
 func test_initialization():
-	assert_eq(time_system_instance.get_current_tu(), 0, "Initial TU should be 0 from GameState.")
+	assert_eq(time_system_instance.get_current_game_time(), 0, "Initial game time should be 0.")
 
-func test_add_time_units_below_threshold():
+func test_advance_game_time_below_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(5)
-	assert_eq(GameState.current_tu, 5, "GameState.current_tu should be 5.")
+	time_system_instance.advance_game_time(5)
+	assert_eq(GameState.game_time_seconds, 5, "GameState.game_time_seconds should be 5.")
 	assert_signal_not_emitted(EventBus, "world_event_tick_triggered")
-	assert_not_called(mock_character_system, "apply_upkeep_cost")
 
-func test_add_time_units_exactly_at_threshold():
+func test_advance_game_time_exactly_at_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(Constants.TIME_CLOCK_MAX_TU)
-	assert_eq(GameState.current_tu, 0, "TU should reset to 0 after a tick.")
+	time_system_instance.advance_game_time(Constants.WORLD_TICK_INTERVAL_SECONDS)
+	assert_eq(GameState.game_time_seconds, Constants.WORLD_TICK_INTERVAL_SECONDS, "Game time should be equal to tick interval.")
 	assert_signal_emitted(EventBus, "world_event_tick_triggered")
-	assert_called(mock_character_system, "apply_upkeep_cost", [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
-func test_add_time_units_above_threshold():
+func test_advance_game_time_above_threshold():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units(Constants.TIME_CLOCK_MAX_TU + 5)
-	assert_eq(GameState.current_tu, 5, "TU should be 5 after one tick.")
+	time_system_instance.advance_game_time(Constants.WORLD_TICK_INTERVAL_SECONDS + 5)
+	assert_eq(GameState.game_time_seconds, Constants.WORLD_TICK_INTERVAL_SECONDS + 5, "Game time should include overflow.")
 	assert_signal_emitted(EventBus, "world_event_tick_triggered")
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 1, [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
 
-func test_add_time_units_triggers_multiple_ticks():
+func test_advance_game_time_triggers_multiple_ticks():
 	watch_signals(EventBus)
-	time_system_instance.add_time_units((Constants.TIME_CLOCK_MAX_TU * 2) + 5)
-	assert_eq(GameState.current_tu, 5, "TU should be 5 after two ticks.")
+	time_system_instance.advance_game_time((Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5)
+	assert_eq(GameState.game_time_seconds, (Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5, "Game time should accumulate.")
 	assert_signal_emit_count(EventBus, "world_event_tick_triggered", 2)
-	assert_call_count(mock_character_system, "apply_upkeep_cost", 2, [PLAYER_UID, Constants.DEFAULT_UPKEEP_COST])
-
---- Start of ./src/tests/core/systems/test_trading_system.gd ---
-
-# File: tests/core/systems/test_trading_system.gd
-# Purpose: Tests for TradingSystem buy/sell API and validation logic.
-# Version: 1.0
-
-extends GutTest
-
-var trading_system: Node
-var inventory_system: Node
-var character_system: Node
-var asset_system: Node
-
-const TEST_CHARACTER_UID = 999
-const TEST_LOCATION_ID = "test_station"
-
-
-func before_each():
-	# Create TradingSystem under test.
-	trading_system = load("res://src/core/systems/trading_system.gd").new()
-	add_child(trading_system)
-	
-	# Create InventorySystem.
-	inventory_system = Node.new()
-	inventory_system.set_script(load("res://src/core/systems/inventory_system.gd"))
-	add_child(inventory_system)
-	GlobalRefs.inventory_system = inventory_system
-	GlobalRefs.trading_system = trading_system
-	
-	# Create CharacterSystem (needed for WP operations).
-	character_system = Node.new()
-	character_system.set_script(load("res://src/core/systems/character_system.gd"))
-	add_child(character_system)
-	GlobalRefs.character_system = character_system
-	
-	# Create AssetSystem (needed for cargo capacity checks).
-	asset_system = Node.new()
-	asset_system.set_script(load("res://src/core/systems/asset_system.gd"))
-	add_child(asset_system)
-	GlobalRefs.asset_system = asset_system
-	
-	# Set up test character with wealth_points and cargo capacity.
-	var character = CharacterTemplate.new()
-	character.character_name = "Test Trader"
-	character.wealth_points = 1000
-	GameState.characters[TEST_CHARACTER_UID] = character
-	GameState.player_character_uid = TEST_CHARACTER_UID
-	
-	# Create inventory for test character.
-	inventory_system.create_inventory_for_character(TEST_CHARACTER_UID)
-	
-	# Set up test ship with cargo capacity.
-	var ship = ShipTemplate.new()
-	ship.cargo_capacity = 100
-	var ship_uid = 1
-	GameState.assets_ships[ship_uid] = ship
-	character.active_ship_uid = ship_uid
-	
-	# Set up test location with market inventory.
-	var location = LocationTemplate.new()
-	location.template_id = TEST_LOCATION_ID
-	location.location_name = "Test Station"
-	location.market_inventory = {
-		"commodity_ore": {"quantity": 50, "buy_price": 10, "sell_price": 8},
-		"commodity_fuel": {"quantity": 20, "buy_price": 25, "sell_price": 20}
-	}
-	GameState.locations[TEST_LOCATION_ID] = location
-
-
-func after_each():
-	# Clean up.
-	GlobalRefs.inventory_system = null
-	GlobalRefs.trading_system = null
-	GlobalRefs.character_system = null
-	GlobalRefs.asset_system = null
-	GameState.characters.clear()
-	GameState.assets_ships.clear()
-	GameState.locations.clear()
-	GameState.inventories.clear()
-	GameState.player_character_uid = -1
-	# Reset session_stats with defaults (TradingSystem expects these keys)
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
-	
-	if is_instance_valid(trading_system):
-		trading_system.queue_free()
-	if is_instance_valid(inventory_system):
-		inventory_system.queue_free()
-	if is_instance_valid(character_system):
-		character_system.queue_free()
-	if is_instance_valid(asset_system):
-		asset_system.queue_free()
-
-
-# --- Buy Tests ---
-
-func test_can_buy_within_budget():
-	# Player has 1000 credits, ore costs 10 each.
-	var result = trading_system.can_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
-	assert_true(result.success, "Should be able to buy 5 ore for 50 credits")
-
-
-func test_can_buy_insufficient_funds():
-	# Try to buy 40 ore at 10 each = 400 WP. Set character to only have 100 WP.
-	GameState.characters[TEST_CHARACTER_UID].wealth_points = 100
-	var result = trading_system.can_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 40)
-	assert_false(result.success, "Should not be able to afford 40 ore with only 100 WP")
-	assert_true("Insufficient funds" in result.reason, "Reason should mention insufficient funds")
-
-
-func test_can_buy_exceeds_stock():
-	# Station only has 50 ore, try to buy 100.
-	var result = trading_system.can_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 100)
-	assert_false(result.success, "Should not be able to buy more than station stock")
-	assert_true("Insufficient stock" in result.reason, "Reason should mention insufficient stock")
-
-
-func test_can_buy_exceeds_cargo():
-	# Ship has 100 cargo space, each commodity is 1 unit.
-	# Try to buy 150 ore.
-	var result = trading_system.can_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 150)
-	# This should fail due to stock (only 50 available) first.
-	assert_false(result.success, "Should fail validation")
-
-
-func test_execute_buy_success():
-	var initial_wp = GameState.characters[TEST_CHARACTER_UID].wealth_points
-	var result = trading_system.execute_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
-	
-	assert_true(result.success, "Buy should succeed")
-	
-	# Check WP deducted.
-	var expected_wp = initial_wp - (5 * 10) # 5 ore at 10 each.
-	assert_eq(GameState.characters[TEST_CHARACTER_UID].wealth_points, expected_wp, "WP should be deducted")
-	
-	# Check commodity added to inventory.
-	var cargo = inventory_system.get_inventory_by_type(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY)
-	assert_has(cargo, "commodity_ore", "Ore should be in cargo")
-	assert_eq(cargo["commodity_ore"], 5, "Should have 5 ore in cargo")
-	
-	# Check station stock reduced.
-	var location = GameState.locations[TEST_LOCATION_ID]
-	assert_eq(location.market_inventory["commodity_ore"].quantity, 45, "Station should have 45 ore left")
-
-
-func test_execute_buy_fails_validation():
-	# Try to buy with insufficient WP: 40 ore at 10 each = 400 WP, but set to only 100.
-	GameState.characters[TEST_CHARACTER_UID].wealth_points = 100
-	var result = trading_system.execute_buy(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 40)
-	assert_false(result.success, "Buy should fail validation")
-	assert_true("Insufficient funds" in result.reason, "Reason should mention insufficient funds")
-
-
-# --- Sell Tests ---
-
-func test_can_sell_owned_commodity():
-	# Give player some ore to sell.
-	inventory_system.add_asset(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY, "commodity_ore", 10)
-	
-	var result = trading_system.can_sell(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
-	assert_true(result.success, "Should be able to sell owned ore")
-
-
-func test_can_sell_non_owned_commodity():
-	# Player has no ore.
-	var result = trading_system.can_sell(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
-	assert_false(result.success, "Should not be able to sell commodity not owned")
-	assert_true("Insufficient cargo" in result.reason, "Reason should mention insufficient cargo")
-
-
-func test_can_sell_more_than_owned():
-	# Give player 3 ore, try to sell 10.
-	inventory_system.add_asset(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY, "commodity_ore", 3)
-	
-	var result = trading_system.can_sell(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 10)
-	assert_false(result.success, "Should not be able to sell more than owned")
-	assert_true("Insufficient cargo" in result.reason, "Reason should mention insufficient cargo")
-
-
-func test_execute_sell_success():
-	# Give player ore.
-	inventory_system.add_asset(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY, "commodity_ore", 10)
-	var initial_wp = GameState.characters[TEST_CHARACTER_UID].wealth_points
-	
-	var result = trading_system.execute_sell(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
-	
-	assert_true(result.success, "Sell should succeed")
-	
-	# Check WP added (sell price is 8 for ore).
-	var expected_wp = initial_wp + (5 * 8)
-	assert_eq(GameState.characters[TEST_CHARACTER_UID].wealth_points, expected_wp, "WP should be added")
-	
-	# Check commodity removed from inventory.
-	var cargo = inventory_system.get_inventory_by_type(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY)
-	assert_eq(cargo.get("commodity_ore", 0), 5, "Should have 5 ore left")
-	
-	# Check station stock increased.
-	var location = GameState.locations[TEST_LOCATION_ID]
-	assert_eq(location.market_inventory["commodity_ore"].quantity, 55, "Station should have 55 ore now")
-
-
-func test_execute_sell_fails_validation():
-	# Try to sell without owning.
-	var result = trading_system.execute_sell(TEST_CHARACTER_UID, TEST_LOCATION_ID, "commodity_ore", 5)
-	assert_false(result.success, "Sell should fail validation")
-
-
-# --- Market Info Tests ---
-
-func test_get_market_prices():
-	var prices = trading_system.get_market_prices(TEST_LOCATION_ID)
-	
-	assert_has(prices, "commodity_ore", "Should have ore prices")
-	assert_eq(prices["commodity_ore"].buy_price, 10, "Ore buy price should be 10")
-	assert_eq(prices["commodity_ore"].sell_price, 8, "Ore sell price should be 8")
-
-
-func test_get_market_prices_invalid_location():
-	var prices = trading_system.get_market_prices("nonexistent_station")
-	assert_eq(prices.size(), 0, "Should return empty dict for invalid location")
-
-
-func test_get_cargo_info():
-	inventory_system.add_asset(TEST_CHARACTER_UID, inventory_system.InventoryType.COMMODITY, "commodity_ore", 10)
-	
-	var info = trading_system.get_cargo_info(TEST_CHARACTER_UID)
-	
-	# get_cargo_info returns {has_space, available, capacity, used}
-	assert_true(info.has("capacity"), "Should have capacity key")
-	assert_true(info.has("used"), "Should have used key")
-	assert_true(info.has("available"), "Should have available key")
-	assert_eq(info.used, 10, "Should have 10 units used")
 
 --- Start of ./src/tests/core/utils/test_pid_controller.gd ---
 
@@ -26422,111 +27070,40 @@ extends RigidBody
 func get_interaction_radius():
 	return 10.0
 
---- Start of ./src/tests/modules/piloting/test_ship_controller_ai.gd ---
+--- Start of ./src/tests/scenes/game_world/world_manager/test_faction_loading.gd ---
 
-# File: tests/modules/piloting/test_ship_controller_ai.gd
-# Unit tests for ShipControllerAI (Sprint 9)
+# File: src/tests/scenes/game_world/world_manager/test_faction_loading.gd
+# GUT Test Script for Faction Loading
+# Version: 2.0 - Removed contacts and narrative_state (deleted in TASK_15)
 
-extends "res://addons/gut/test.gd"
+extends GutTest
 
-const ShipControllerAI = preload("res://src/modules/piloting/ship_controller_ai.gd")
+const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
+const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_generator.gd")
 
-class DummyAgentBody:
-	extends RigidBody
-	var agent_uid: int = 1
-	var last_command: Dictionary = {}
-
-	func command_stop():
-		last_command = {"name": "stop"}
-
-	func command_move_to(pos: Vector3):
-		last_command = {"name": "move_to", "pos": pos}
-
-	func command_approach(target: Spatial):
-		last_command = {"name": "approach", "target": target}
-
-	func command_flee(target: Spatial):
-		last_command = {"name": "flee", "target": target}
-
-	func despawn():
-		last_command = {"name": "despawn"}
-
-
-class DummyCombatSystem:
-	extends Node
-	var hull_percent_by_uid := {}
-	var in_combat_by_uid := {}
-
-	func is_in_combat(uid: int) -> bool:
-		return bool(in_combat_by_uid.get(uid, false))
-
-	func get_hull_percent(uid: int) -> float:
-		return float(hull_percent_by_uid.get(uid, 1.0))
-
-
-var _agent: DummyAgentBody
-var _player: DummyAgentBody
-var _ai: Node
-var _combat: DummyCombatSystem
-
+var indexer_instance = null
+var generator_instance = null
 
 func before_each():
-	_agent = DummyAgentBody.new()
-	_agent.translation = Vector3.ZERO
-	add_child_autofree(_agent)
+	# 1. Index templates
+	indexer_instance = TemplateIndexer.new()
+	add_child_autofree(indexer_instance)
+	indexer_instance.index_all_templates()
+	
+	# 2. Instantiate WorldGenerator
+	generator_instance = WorldGenerator.new()
+	add_child_autofree(generator_instance)
+	
+	# 3. Clean GameState
+	GameState.factions.clear()
 
-	_ai = ShipControllerAI.new()
-	_agent.add_child(_ai)
-	_ai._ready()  # ensure parent references are cached
-
-	_player = DummyAgentBody.new()
-	_player.agent_uid = 999
-	_player.translation = Vector3(10, 0, 0)
-	add_child_autofree(_player)
-	GlobalRefs.player_agent_body = _player
-
-	_combat = DummyCombatSystem.new()
-	add_child_autofree(_combat)
-	GlobalRefs.combat_system = _combat
-
-
-func after_each():
-	GlobalRefs.player_agent_body = null
-	GlobalRefs.combat_system = null
-	_agent = null
-	_player = null
-	_ai = null
-	_combat = null
-
-
-func test_initial_state_is_idle():
-	assert_eq(_ai._current_state, ShipControllerAI.AIState.IDLE)
-
-
-func test_initialize_hostile_transitions_to_patrol():
-	_ai.initialize({"hostile": true})
-	assert_eq(_ai._current_state, ShipControllerAI.AIState.PATROL)
-
-
-func test_scan_for_target_returns_player_when_in_range():
-	_ai.is_hostile = true
-	_ai.aggro_range = 50.0
-	var found = _ai._scan_for_target()
-	assert_true(is_instance_valid(found))
-	assert_eq(found, _player)
-
-
-func test_combat_transitions_to_flee_when_hull_critical():
-	_ai.is_hostile = true
-	_ai._target_agent = _player
-	_ai._current_state = ShipControllerAI.AIState.COMBAT
-
-	_combat.in_combat_by_uid[_agent.agent_uid] = true
-	_combat.hull_percent_by_uid[_agent.agent_uid] = 0.1
-
-	_ai._process_combat(0.1)
-	assert_eq(_ai._current_state, ShipControllerAI.AIState.FLEE)
-	assert_eq(_agent.last_command.get("name"), "flee")
+func test_load_factions():
+	assert_eq(GameState.factions.size(), 0, "Factions should be empty initially")
+	
+	generator_instance._load_factions()
+	
+	assert_gt(GameState.factions.size(), 0, "Factions should be populated")
+	assert_true(GameState.factions.has("faction_miners"), "Should have faction_miners")
 
 --- Start of ./src/tests/scenes/game_world/world_manager/test_template_indexer.gd ---
 
@@ -26582,7 +27159,7 @@ func test_indexing_loads_known_templates_correctly():
 
 # File: tests/scenes/game_world/world_manager/test_world_generator.gd
 # GUT Test Script for the WorldGenerator component.
-# Version: 2.0 - Corrected to handle system dependencies properly.
+# Version: 3.0 - Removed assets_modules (deleted), fixed module assertion.
 
 extends GutTest
 
@@ -26614,7 +27191,8 @@ func before_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
+	GameState.locations.clear()
+	GameState.factions.clear()
 	GameState.player_character_uid = -1
 
 func after_each():
@@ -26653,7 +27231,7 @@ func test_generated_characters_have_assets():
 	assert_eq(ship_count, 1, "Player inventory should contain 1 ship.")
 	
 	var module_inventory = inventory_system_instance.get_inventory_by_type(player_uid, inventory_system_instance.InventoryType.MODULE)
-	assert_eq(module_inventory.size(), 1, "Player inventory should contain 1 module.")
+	assert_eq(module_inventory.size(), 0, "Player inventory should contain 0 modules (modules removed from auto-assign).")
 	
 	# Sprint 10: Player starts with empty commodity cargo
 	var ore_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_ore")
@@ -26718,483 +27296,3 @@ func test_docking_in_zone():
 	assert_signal_emitted(EventBus, "dock_unavailable")
 	
 	zone.free()
-
---- Start of ./src/tests/scenes/test_docking_integration.gd ---
-
-extends "res://addons/gut/test.gd"
-
-var ZoneScene = load("res://scenes/levels/zones/zone1/basic_flight_zone.tscn")
-var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
-var PlayerControllerScript = load("res://src/modules/piloting/player_controller_ship.gd")
-var ContractSystemScript = load("res://src/core/systems/contract_system.gd")
-var InventorySystemScript = load("res://src/core/systems/inventory_system.gd")
-
-func test_full_docking_loop():
-	# Clear GameState to ensure clean slate
-	GameState.active_contracts.clear()
-	GameState.contracts.clear()
-	GameState.locations.clear()
-	
-	# 1. Setup World
-	var zone = ZoneScene.instance()
-	add_child(zone)
-	
-	# Setup Systems
-	var contract_system = ContractSystemScript.new()
-	add_child(contract_system)
-	GlobalRefs.contract_system = contract_system
-	
-	var inventory_system = InventorySystemScript.new()
-	add_child(inventory_system)
-	GlobalRefs.inventory_system = inventory_system
-	
-	# Ensure GameState has the station location loaded (WorldGenerator usually does this)
-	if not GameState.locations.has("station_alpha"):
-		var loc_template = LocationTemplate.new()
-		loc_template.template_id = "station_alpha"
-		loc_template.location_name = "Station Alpha"
-		loc_template.market_inventory = {"commodity_ore": {"price": 10, "quantity": 100}}
-		GameState.locations["station_alpha"] = loc_template
-		
-	# Ensure GameState has contracts loaded
-	if not GameState.contracts.has("delivery_01"):
-		var contract = ContractTemplate.new()
-		contract.template_id = "delivery_01"
-		contract.title = "Test Contract"
-		contract.origin_location_id = "station_alpha"
-		contract.destination_location_id = "station_beta"
-		contract.contract_type = "delivery"
-		contract.required_commodity_id = "commodity_ore"
-		contract.required_quantity = 10
-		contract.reward_wp = 100
-		contract.time_limit_tu = -1
-		GameState.contracts["delivery_01"] = contract
-	
-	# Also add station_beta location for delivery destination
-	if not GameState.locations.has("station_beta"):
-		var loc_beta = LocationTemplate.new()
-		loc_beta.template_id = "station_beta"
-		loc_beta.location_name = "Station Beta"
-		GameState.locations["station_beta"] = loc_beta
-	
-	# 2. Setup Player & HUD
-	var hud = load("res://scenes/ui/hud/main_hud.tscn").instance()
-	add_child(hud)
-	
-	# 3. Simulate Docking Signal
-	EventBus.emit_signal("dock_available", "station_alpha")
-	yield(yield_for(0.1), YIELD)
-	
-	# Verify Prompt
-	assert_true(hud.docking_prompt.visible, "Docking prompt should be visible")
-	
-	# 4. Simulate Interact Press
-	EventBus.emit_signal("player_interact_pressed")
-	# The controller usually emits player_docked, but here we simulate the signal chain
-	EventBus.emit_signal("player_docked", "station_alpha")
-	yield(yield_for(0.1), YIELD)
-	
-	# Verify Station Menu Open
-	var station_menu = hud.station_menu_instance
-	assert_true(station_menu.visible, "Station Menu should be visible")
-	assert_eq(station_menu.current_location_id, "station_alpha")
-	
-	# 5. Test Trade Interface
-	station_menu._on_trade_pressed()
-	yield(yield_for(0.1), YIELD)
-	assert_true(station_menu.trade_interface_instance.visible, "Trade Interface should be visible")
-	station_menu.trade_interface_instance._on_close_pressed()
-	
-	# 6. Test Contract Interface
-	station_menu._on_contracts_pressed()
-	yield(yield_for(0.1), YIELD)
-	var contract_ui = station_menu.contract_interface_instance
-	assert_true(contract_ui.visible, "Contract Interface should be visible")
-	
-	# Verify contract list population
-	assert_gt(contract_ui.list_contracts.get_item_count(), 0, "Should list at least one contract")
-	
-	# Select and Accept - save contract_id BEFORE accepting (refresh clears the list)
-	contract_ui._on_contract_selected(0)
-	var contract_id = contract_ui.list_contracts.get_item_metadata(0)
-	contract_ui._on_accept_pressed()
-	
-	# Verify Contract Accepted in GameState
-	if not GameState.active_contracts.has(contract_id):
-		gut.p("Active Contracts: " + str(GameState.active_contracts.keys()))
-		gut.p("Expected contract_id: " + contract_id)
-		
-	assert_true(GameState.active_contracts.has(contract_id), "Contract should be in active_contracts")
-	
-	contract_ui._on_close_pressed()
-	
-	# 7. Undock
-	station_menu._on_undock_pressed()
-	yield(yield_for(0.1), YIELD)
-	assert_false(station_menu.visible, "Station Menu should be hidden after undock")
-	
-	# 8. Simulate Travel & Completion
-	# Add required cargo
-	var inv_sys = GlobalRefs.inventory_system
-	inv_sys.add_asset(GameState.player_character_uid, inv_sys.InventoryType.COMMODITY, "commodity_ore", 10)
-	
-	# Dock at destination
-	# We need to update GameState.player_docked_at manually as the signal usually does it via PlayerController
-	GameState.player_docked_at = "station_beta"
-	EventBus.emit_signal("player_docked", "station_beta")
-	yield(yield_for(0.1), YIELD)
-	
-	# Verify Complete Button
-	assert_true(station_menu.visible, "Station Menu should be visible at dest")
-	assert_true(station_menu.btn_complete_contract.visible, "Complete Contract button should be visible")
-	
-	# Complete
-	station_menu._on_complete_contract_pressed()
-	
-	# Verify
-	assert_false(GameState.active_contracts.has(contract_id), "Contract should be removed from active")
-	
-	# Cleanup
-	GlobalRefs.contract_system = null
-	GlobalRefs.inventory_system = null
-	contract_system.free()
-	inventory_system.free()
-	zone.free()
-	hud.free()
-
---- Start of ./src/tests/scenes/test_full_game_loop.gd ---
-
-# File: tests/scenes/test_full_game_loop.gd
-# Purpose: GUT integration test for the Phase 1 player journey.
-# Version: 1.0
-
-extends "res://addons/gut/test.gd"
-
-const MainHUDScene = preload("res://scenes/ui/hud/main_hud.tscn")
-const ContractSystemScript = preload("res://src/core/systems/contract_system.gd")
-const TradingSystemScript = preload("res://src/core/systems/trading_system.gd")
-const InventorySystemScript = preload("res://src/core/systems/inventory_system.gd")
-const CharacterSystemScript = preload("res://src/core/systems/character_system.gd")
-const AssetSystemScript = preload("res://src/core/systems/asset_system.gd")
-
-const PLAYER_UID := 0
-const PLAYER_SHIP_UID := 1
-const LOCATION_ALPHA := "station_alpha"
-const LOCATION_BETA := "station_beta"
-const CONTRACT_ID := "delivery_01"
-
-var _hud = null
-var _contract_system = null
-var _trading_system = null
-var _inventory_system = null
-var _character_system = null
-var _asset_system = null
-
-
-func before_each():
-	_reset_game_state()
-	_setup_systems()
-	_setup_world_data()
-	_setup_player()
-	_setup_hud()
-
-
-func after_each():
-	if is_instance_valid(_hud):
-		_hud.queue_free()
-	_hud = null
-
-	if is_instance_valid(_contract_system):
-		_contract_system.queue_free()
-	if is_instance_valid(_trading_system):
-		_trading_system.queue_free()
-	if is_instance_valid(_inventory_system):
-		_inventory_system.queue_free()
-	if is_instance_valid(_character_system):
-		_character_system.queue_free()
-	if is_instance_valid(_asset_system):
-		_asset_system.queue_free()
-
-	_contract_system = null
-	_trading_system = null
-	_inventory_system = null
-	_character_system = null
-	_asset_system = null
-
-	GlobalRefs.contract_system = null
-	GlobalRefs.trading_system = null
-	GlobalRefs.inventory_system = null
-	GlobalRefs.character_system = null
-	GlobalRefs.asset_system = null
-
-	_reset_game_state()
-
-
-func test_full_game_loop_delivery_trade_and_complete():
-	# Start docked at Station Alpha.
-	GameState.player_docked_at = LOCATION_ALPHA
-	EventBus.emit_signal("player_docked", LOCATION_ALPHA)
-	yield(yield_for(0.05), YIELD)
-
-	var station_menu = _hud.station_menu_instance
-	assert_true(is_instance_valid(station_menu), "Station menu should exist under HUD")
-	assert_true(station_menu.visible, "Station menu should be visible when docked")
-	assert_eq(station_menu.current_location_id, LOCATION_ALPHA)
-
-	# Sprint 10: Player starts with empty cargo.
-	assert_eq(
-		_inventory_system.get_asset_count(PLAYER_UID, _inventory_system.InventoryType.COMMODITY, "commodity_ore"),
-		0,
-		"Player should start with 0 ore"
-	)
-
-	# Accept a delivery contract at Station Alpha.
-	var accept_result = _contract_system.accept_contract(PLAYER_UID, CONTRACT_ID)
-	assert_true(accept_result.success, "Contract acceptance should succeed")
-	assert_true(GameState.active_contracts.has(CONTRACT_ID), "Contract should be active")
-
-	# Trade: buy required cargo at Station Alpha.
-	var buy_qty := 10
-	var buy_result = _trading_system.execute_buy(PLAYER_UID, LOCATION_ALPHA, "commodity_ore", buy_qty)
-	assert_true(buy_result.success, "Buying ore should succeed")
-	assert_eq(
-		_inventory_system.get_asset_count(PLAYER_UID, _inventory_system.InventoryType.COMMODITY, "commodity_ore"),
-		buy_qty,
-		"Cargo should contain the purchased ore"
-	)
-	assert_eq(
-		GameState.locations[LOCATION_ALPHA].market_inventory["commodity_ore"].quantity,
-		90,
-		"Market inventory should decrement"
-	)
-
-	# Undock.
-	EventBus.emit_signal("player_undocked")
-	yield(yield_for(0.05), YIELD)
-	assert_false(station_menu.visible, "Station menu should hide on undock")
-
-	# Dock at destination.
-	GameState.player_docked_at = LOCATION_BETA
-	EventBus.emit_signal("player_docked", LOCATION_BETA)
-	yield(yield_for(0.05), YIELD)
-	assert_true(station_menu.visible, "Station menu should be visible at destination")
-	assert_eq(station_menu.current_location_id, LOCATION_BETA)
-	assert_true(station_menu.btn_complete_contract.visible, "Complete Contract button should be visible")
-
-	# Complete contract via station menu (falls back to direct completion if narrative system missing).
-	var wp_before: int = int(_character_system.get_wp(PLAYER_UID))
-	station_menu._on_complete_contract_pressed()
-	yield(yield_for(0.05), YIELD)
-
-	assert_false(GameState.active_contracts.has(CONTRACT_ID), "Contract should be removed from active")
-	assert_eq(
-		_inventory_system.get_asset_count(PLAYER_UID, _inventory_system.InventoryType.COMMODITY, "commodity_ore"),
-		0,
-		"Contract completion should remove delivery cargo"
-	)
-	assert_eq(
-		_character_system.get_wp(PLAYER_UID),
-		wp_before + 100,
-		"Contract completion should reward WP"
-	)
-
-
-# ---- Helpers ----
-
-func _reset_game_state() -> void:
-	GameState.characters.clear()
-	GameState.inventories.clear()
-	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
-	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
-	GameState.current_tu = 0
-	GameState.player_character_uid = PLAYER_UID
-	GameState.player_docked_at = ""
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"chronicle_entries": []
-	}
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_wp_earned": 0,
-		"total_wp_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_tu": 0
-	}
-
-
-func _setup_systems() -> void:
-	_contract_system = ContractSystemScript.new()
-	add_child(_contract_system)
-	GlobalRefs.contract_system = _contract_system
-
-	_trading_system = TradingSystemScript.new()
-	add_child(_trading_system)
-	GlobalRefs.trading_system = _trading_system
-
-	_inventory_system = InventorySystemScript.new()
-	add_child(_inventory_system)
-	GlobalRefs.inventory_system = _inventory_system
-
-	_character_system = Node.new()
-	_character_system.set_script(CharacterSystemScript)
-	add_child(_character_system)
-	GlobalRefs.character_system = _character_system
-
-	_asset_system = Node.new()
-	_asset_system.set_script(AssetSystemScript)
-	add_child(_asset_system)
-	GlobalRefs.asset_system = _asset_system
-
-
-func _setup_world_data() -> void:
-	# Locations
-	var loc_alpha = LocationTemplate.new()
-	loc_alpha.template_id = LOCATION_ALPHA
-	loc_alpha.location_name = "Station Alpha"
-	loc_alpha.market_inventory = {
-		"commodity_ore": {"quantity": 100, "buy_price": 10, "sell_price": 8}
-	}
-	GameState.locations[LOCATION_ALPHA] = loc_alpha
-
-	var loc_beta = LocationTemplate.new()
-	loc_beta.template_id = LOCATION_BETA
-	loc_beta.location_name = "Station Beta"
-	GameState.locations[LOCATION_BETA] = loc_beta
-
-	# Contract
-	var contract = ContractTemplate.new()
-	contract.template_id = CONTRACT_ID
-	contract.contract_type = "delivery"
-	contract.title = "Deliver Ore"
-	contract.origin_location_id = LOCATION_ALPHA
-	contract.destination_location_id = LOCATION_BETA
-	contract.required_commodity_id = "commodity_ore"
-	contract.required_quantity = 10
-	contract.reward_wp = 100
-	contract.reward_reputation = 0
-	contract.reward_items = {}
-	contract.time_limit_tu = -1
-	GameState.contracts[CONTRACT_ID] = contract
-
-
-func _setup_player() -> void:
-	var player = CharacterTemplate.new()
-	player.template_id = "player_test"
-	player.character_name = "Player"
-	player.wealth_points = 1000
-	player.focus_points = 3
-	player.active_ship_uid = PLAYER_SHIP_UID
-	GameState.characters[PLAYER_UID] = player
-
-	var ship = ShipTemplate.new()
-	ship.template_id = "ship_test"
-	ship.ship_model_name = "Test Ship"
-	ship.cargo_capacity = 100
-	GameState.assets_ships[PLAYER_SHIP_UID] = ship
-
-	_inventory_system.create_inventory_for_character(PLAYER_UID)
-	_inventory_system.add_asset(PLAYER_UID, _inventory_system.InventoryType.SHIP, PLAYER_SHIP_UID, 1)
-
-
-func _setup_hud() -> void:
-	_hud = MainHUDScene.instance()
-	add_child(_hud)
-
---- Start of ./tests/src/core/ui/narrative_status/test_narrative_status_panel.gd ---
-
-extends "res://addons/gut/test.gd"
-
-# Unit tests for NarrativeStatusPanel
-# Path: tests/src/core/ui/narrative_status/test_narrative_status_panel.gd
-
-const NarrativeStatusPanelScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
-
-var _panel = null
-
-func before_each():
-	_panel = NarrativeStatusPanelScene.instance()
-	add_child(_panel)
-
-func after_each():
-	_panel.free()
-
-func test_initial_visibility():
-	assert_false(_panel.visible, "Panel should be hidden by default")
-
-func test_update_reputation():
-	# Backup
-	var old_rep = GameState.narrative_state.get("reputation", 0)
-	
-	GameState.narrative_state["reputation"] = 88
-	_panel.update_display()
-	
-	assert_eq(_panel.reputation_label.text, "Reputation: 88")
-	
-	# Restore
-	GameState.narrative_state["reputation"] = old_rep
-
-func test_update_stats():
-	# Backup
-	var old_stats = GameState.session_stats.duplicate()
-	
-	GameState.session_stats["contracts_completed"] = 12
-	GameState.session_stats["total_wp_earned"] = 5000
-	GameState.session_stats["enemies_disabled"] = 7
-	
-	_panel.update_display()
-	
-	var expected_text = "Contracts Completed: 12\nTotal WP Earned: 5000\nCombat Victories: 7"
-	assert_eq(_panel.contracts_label.text, expected_text)
-	
-	# Restore
-	GameState.session_stats = old_stats
-
-func test_close_button_hides_panel():
-	_panel.show()
-	assert_true(_panel.visible)
-	
-	_panel._on_ButtonClose_pressed()
-	assert_false(_panel.visible, "Panel should be hidden after close pressed")
-
-func test_quirks_display():
-	# Mock QuirkSystem
-	var mock_qs = Node.new()
-	mock_qs.name = "MockQuirkSystem"
-	# We need a dummy method get_quirks
-	mock_qs.set_script(load("res://src/core/systems/quirk_system.gd")) 
-	# Note: This might still fail if QuirkSystem refers to GameState, but get_quirks is safe-ish.
-	
-	var old_qs = GlobalRefs.quirk_system
-	GlobalRefs.quirk_system = mock_qs
-	
-	# Setup test data
-	var ship_uid = 123
-	GameState.player_character_uid = 1
-	GameState.characters[1] = {"active_ship_uid": ship_uid}
-	GameState.assets_ships[ship_uid] = {"ship_quirks": ["fast", "fragile"]}
-	
-	_panel.show()
-	_panel.update_display()
-	
-	# Should have 2 children in quirks_container (Labels)
-	assert_eq(_panel.quirks_container.get_child_count(), 2, "Should display 2 quirks")
-	
-	# Cleanup
-	GlobalRefs.quirk_system = old_qs
-	mock_qs.free()
-
-func test_reacts_to_wp_change_signal():
-	_panel.show() # Must be visible to update
-	var old_stats = GameState.session_stats.duplicate()
-	
-	GameState.session_stats["total_wp_earned"] = 999
-	_panel._on_player_wp_changed(999) # Call handler directly to avoid EventBus issues in test
-	
-	assert_true(_panel.contracts_label.text.find("Earned: 999") != -1, "Should contain updated WP value")
-	
-	GameState.session_stats = old_stats

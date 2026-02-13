@@ -1873,32 +1873,21 @@ text = "Close"
 
 --- Start of ./scenes/levels/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/prefabs/camera/orbit_camera.tscn" type="PackedScene" id=3]
 [ext_resource path="res://src/core/systems/agent_system.gd" type="Script" id=4]
 [ext_resource path="res://src/core/systems/time_system.gd" type="Script" id=5]
-[ext_resource path="res://src/core/systems/action_system.gd" type="Script" id=6]
 [ext_resource path="res://src/core/systems/asset_system.gd" type="Script" id=7]
 [ext_resource path="res://src/core/systems/character_system.gd" type="Script" id=8]
-[ext_resource path="res://src/core/systems/chronicle_system.gd" type="Script" id=9]
 [ext_resource path="res://src/core/systems/event_system.gd" type="Script" id=10]
-[ext_resource path="res://src/core/systems/goal_system.gd" type="Script" id=11]
-[ext_resource path="res://src/core/systems/progression_system.gd" type="Script" id=12]
-[ext_resource path="res://src/core/systems/traffic_system.gd" type="Script" id=13]
-[ext_resource path="res://src/core/systems/world_map_system.gd" type="Script" id=14]
 [ext_resource path="res://src/core/systems/inventory_system.gd" type="Script" id=15]
 [ext_resource path="res://src/scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
-[ext_resource path="res://scenes/ui/screens/character_status.tscn" type="PackedScene" id=18]
-[ext_resource path="res://scenes/ui/screens/inventory_screen.tscn" type="PackedScene" id=19]
-[ext_resource path="res://src/core/systems/trading_system.gd" type="Script" id=20]
-[ext_resource path="res://src/core/systems/contract_system.gd" type="Script" id=21]
-[ext_resource path="res://src/core/systems/narrative_action_system.gd" type="Script" id=22]
-[ext_resource path="res://src/core/systems/combat_system.gd" type="Script" id=23]
-[ext_resource path="res://src/core/systems/quirk_system.gd" type="Script" id=24]
+[ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
+[ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
 
 [node name="MainGameScene" type="Node"]
 
@@ -1908,53 +1897,23 @@ script = ExtResource( 1 )
 [node name="AgentSpawner" type="Node" parent="WorldManager"]
 script = ExtResource( 4 )
 
-[node name="ActionSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 6 )
-
 [node name="AssetSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 7 )
 
 [node name="CharacterSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 8 )
 
-[node name="ChronicleSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 9 )
-
 [node name="EventSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 10 )
-
-[node name="GoalSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 11 )
 
 [node name="InventorySystem" type="Node" parent="WorldManager"]
 script = ExtResource( 15 )
 
-[node name="ProgressionSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 12 )
-
 [node name="TimeSystem" type="Node" parent="WorldManager"]
 script = ExtResource( 5 )
 
-[node name="TrafficSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 13 )
-
-[node name="WorldMapSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 14 )
-
-[node name="TradingSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 20 )
-
-[node name="ContractSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 21 )
-
-[node name="NarrativeActionSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 22 )
-
-[node name="CombatSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 23 )
-
-[node name="QuirkSystem" type="Node" parent="WorldManager"]
-script = ExtResource( 24 )
+[node name="SimulationEngine" type="Node" parent="WorldManager"]
+script = ExtResource( 26 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )
@@ -1963,24 +1922,14 @@ script = ExtResource( 16 )
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 
-[node name="CharacterStatus" parent="." instance=ExtResource( 18 )]
-visible = false
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="InventoryScreen" parent="." instance=ExtResource( 19 )]
-visible = false
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="CurrentZoneContainer" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
+
+[node name="SimDebugPanel" parent="." instance=ExtResource( 25 )]
 
 --- Start of ./scenes/levels/zones/zone1/basic_flight_zone.tscn ---
 
@@ -2346,7 +2295,7 @@ editor_only = true
 
 [ext_resource path="res://src/modules/piloting/ship_controller_ai.gd" type="Script" id=1]
 [ext_resource path="res://scenes/prefabs/agents/agent.tscn" type="PackedScene" id=2]
-[ext_resource path="res://src/core/agents/components/weapon_controller.gd" type="Script" id=3]
+[ext_resource path="res://src/core/agents/components/tool_controller.gd" type="Script" id=3]
 
 [node name="NPCAgent" type="Spatial"]
 __meta__ = {
@@ -2358,7 +2307,7 @@ __meta__ = {
 [node name="AIController" type="Node" parent="AgentBody"]
 script = ExtResource( 1 )
 
-[node name="WeaponController" type="Node" parent="AgentBody"]
+[node name="ToolController" type="Node" parent="AgentBody"]
 script = ExtResource( 3 )
 
 --- Start of ./scenes/prefabs/agents/player_agent.tscn ---
@@ -2367,7 +2316,7 @@ script = ExtResource( 3 )
 
 [ext_resource path="res://scenes/prefabs/agents/agent.tscn" type="PackedScene" id=1]
 [ext_resource path="res://src/modules/piloting/player_controller_ship.gd" type="Script" id=2]
-[ext_resource path="res://src/core/agents/components/weapon_controller.gd" type="Script" id=3]
+[ext_resource path="res://src/core/agents/components/tool_controller.gd" type="Script" id=3]
 
 [node name="PlayerAgent" type="Spatial"]
 __meta__ = {
@@ -2379,7 +2328,7 @@ __meta__ = {
 [node name="PlayerInputHandler" type="Node" parent="AgentBody"]
 script = ExtResource( 2 )
 
-[node name="WeaponController" type="Node" parent="AgentBody"]
+[node name="ToolController" type="Node" parent="AgentBody"]
 script = ExtResource( 3 )
 
 --- Start of ./scenes/prefabs/camera/orbit_camera.tscn ---
@@ -2991,11 +2940,11 @@ margin_right = 470.0
 margin_bottom = 470.0
 mouse_filter = 2
 
-[node name="LabelWP" type="Label" parent="ScreenControls/TopLeftZone"]
+[node name="LabelCredits" type="Label" parent="ScreenControls/TopLeftZone"]
 margin_right = 40.0
 margin_bottom = 14.0
 theme = ExtResource( 9 )
-text = "Current WP:"
+text = "Credits:"
 
 [node name="LabelFP" type="Label" parent="ScreenControls/TopLeftZone"]
 margin_top = 39.0
@@ -3004,7 +2953,7 @@ margin_bottom = 66.0
 theme = ExtResource( 9 )
 text = "Current FP: "
 
-[node name="LabelTU" type="Label" parent="ScreenControls/TopLeftZone"]
+[node name="LabelTime" type="Label" parent="ScreenControls/TopLeftZone"]
 margin_top = 78.0
 margin_right = 103.0
 margin_bottom = 105.0
@@ -3167,6 +3116,63 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
 [connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]
 [connection signal="pressed" from="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]
+
+--- Start of ./scenes/ui/hud/sim_debug_panel.tscn ---
+
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://src/core/ui/sim_debug_panel/sim_debug_panel.gd" type="Script" id=1]
+[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=3]
+
+[sub_resource type="DynamicFont" id=1]
+size = 22
+font_data = ExtResource( 2 )
+
+[node name="SimDebugPanel" type="CanvasLayer"]
+script = ExtResource( 1 )
+
+[node name="Panel" type="Panel" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+self_modulate = Color( 0.0, 0.0, 0.0, 0.85 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_right = 1884.0
+margin_bottom = 36.0
+
+[node name="HeaderLabel" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+size_flags_horizontal = 3
+custom_fonts/font = SubResource( 1 )
+text = "SIM DEBUG  [F3 to close]"
+
+[node name="BtnDumpConsole" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 220, 0 )
+theme = ExtResource( 3 )
+text = "Dump to Console"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
+margin_top = 40.0
+margin_right = 1884.0
+margin_bottom = 1044.0
+custom_fonts/normal_font = SubResource( 1 )
+custom_fonts/bold_font = SubResource( 1 )
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = true
 
 --- Start of ./scenes/ui/menus/main_menu.tscn ---
 
@@ -3442,122 +3448,24 @@ theme = ExtResource( 9 )
 custom_fonts/font = SubResource( 3 )
 text = "version 0.1"
 
---- Start of ./scenes/ui/menus/station_menu/ContractInterface.tscn ---
-
-[gd_scene load_steps=3 format=2]
-
-[ext_resource path="res://src/scenes/ui/station_menu/contract_interface.gd" type="Script" id=1]
-[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
-
-[node name="ContractInterface" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 2 )
-script = ExtResource( 1 )
-
-[node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -350.0
-margin_top = -250.0
-margin_right = 350.0
-margin_bottom = 250.0
-
-[node name="LabelTitle" type="Label" parent="Panel"]
-anchor_right = 1.0
-margin_bottom = 30.0
-text = "AVAILABLE CONTRACTS"
-align = 1
-valign = 1
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 40.0
-margin_right = -20.0
-margin_bottom = -60.0
-custom_constants/separation = 20
-
-[node name="VBoxList" type="VBoxContainer" parent="Panel/HBoxContainer"]
-margin_right = 300.0
-margin_bottom = 400.0
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="Panel/HBoxContainer/VBoxList"]
-margin_right = 300.0
-margin_bottom = 14.0
-text = "Offers"
-align = 1
-
-[node name="ItemListContracts" type="ItemList" parent="Panel/HBoxContainer/VBoxList"]
-margin_top = 18.0
-margin_right = 300.0
-margin_bottom = 400.0
-size_flags_vertical = 3
-
-[node name="VBoxDetails" type="VBoxContainer" parent="Panel/HBoxContainer"]
-margin_left = 320.0
-margin_right = 660.0
-margin_bottom = 400.0
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="Panel/HBoxContainer/VBoxDetails"]
-margin_right = 340.0
-margin_bottom = 14.0
-text = "Contract Details"
-align = 1
-
-[node name="RichTextLabelDetails" type="RichTextLabel" parent="Panel/HBoxContainer/VBoxDetails"]
-margin_top = 18.0
-margin_right = 340.0
-margin_bottom = 400.0
-size_flags_vertical = 3
-text = "Select a contract to view details."
-
-[node name="HBoxControls" type="HBoxContainer" parent="Panel"]
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = -50.0
-margin_right = -20.0
-margin_bottom = -10.0
-custom_constants/separation = 20
-alignment = 1
-
-[node name="BtnAccept" type="Button" parent="Panel/HBoxControls"]
-margin_left = 255.0
-margin_right = 335.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 80, 0 )
-text = "ACCEPT"
-
-[node name="BtnClose" type="Button" parent="Panel/HBoxControls"]
-margin_left = 355.0
-margin_right = 405.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 50, 0 )
-text = "Close"
-
 --- Start of ./scenes/ui/menus/station_menu/StationMenu.tscn ---
 
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://src/scenes/ui/station_menu/station_menu.gd" type="Script" id=1]
+[ext_resource path="res://src/core/ui/station_menu/station_menu.gd" type="Script" id=1]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
 
 [node name="StationMenu" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 2
 theme = ExtResource( 2 )
 script = ExtResource( 1 )
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 1
 color = Color( 0, 0, 0, 0.5 )
 
 [node name="Panel" type="Panel" parent="."]
@@ -3566,9 +3474,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 margin_left = -200.0
-margin_top = -180.0
+margin_top = -200.0
 margin_right = 200.0
-margin_bottom = 180.0
+margin_bottom = 200.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 anchor_right = 1.0
@@ -3590,908 +3498,38 @@ margin_top = 42.0
 margin_right = 360.0
 margin_bottom = 46.0
 
-[node name="BtnTrade" type="Button" parent="Panel/VBoxContainer"]
+[node name="LabelInfo" type="Label" parent="Panel/VBoxContainer"]
 margin_top = 61.0
 margin_right = 360.0
-margin_bottom = 111.0
+margin_bottom = 88.0
+text = ""
+align = 1
+
+[node name="BtnTrade" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 103.0
+margin_right = 360.0
+margin_bottom = 153.0
 rect_min_size = Vector2( 0, 50 )
-text = "Trade"
+text = "Trade (coming soon)"
 
 [node name="BtnContracts" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 126.0
+margin_top = 168.0
 margin_right = 360.0
-margin_bottom = 176.0
+margin_bottom = 218.0
 rect_min_size = Vector2( 0, 50 )
-text = "Contracts"
-
-[node name="BtnCompleteContract" type="Button" parent="Panel/VBoxContainer"]
-visible = false
-margin_top = 191.0
-margin_right = 360.0
-margin_bottom = 241.0
-rect_min_size = Vector2( 0, 50 )
-custom_colors/font_color = Color( 0.3, 1, 0.3, 1 )
-text = "Complete Contract"
+text = "Contracts (coming soon)"
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 191.0
+margin_top = 233.0
 margin_right = 360.0
-margin_bottom = 195.0
+margin_bottom = 237.0
 
 [node name="BtnUndock" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 210.0
+margin_top = 252.0
 margin_right = 360.0
-margin_bottom = 260.0
+margin_bottom = 302.0
 rect_min_size = Vector2( 0, 50 )
 text = "Undock"
-
-[node name="ContractCompletePopup" type="PopupDialog" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -200.0
-margin_top = -100.0
-margin_right = 200.0
-margin_bottom = 100.0
-popup_exclusive = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ContractCompletePopup"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 15
-
-[node name="LabelPopupTitle" type="Label" parent="ContractCompletePopup/VBoxContainer"]
-margin_right = 360.0
-margin_bottom = 27.0
-custom_colors/font_color = Color( 0.3, 1, 0.3, 1 )
-text = "CONTRACT COMPLETE!"
-align = 1
-
-[node name="LabelPopupInfo" type="Label" parent="ContractCompletePopup/VBoxContainer"]
-margin_top = 42.0
-margin_right = 360.0
-margin_bottom = 96.0
-text = "Contract details here"
-align = 1
-autowrap = true
-
-[node name="Control" type="Control" parent="ContractCompletePopup/VBoxContainer"]
-margin_top = 111.0
-margin_right = 360.0
-margin_bottom = 111.0
-size_flags_vertical = 3
-
-[node name="BtnPopupOK" type="Button" parent="ContractCompletePopup/VBoxContainer"]
-margin_top = 111.0
-margin_right = 360.0
-margin_bottom = 161.0
-rect_min_size = Vector2( 0, 50 )
-focus_mode = 2
-mouse_filter = 0
-text = "OK"
-
---- Start of ./scenes/ui/menus/station_menu/TradeInterface.tscn ---
-
-[gd_scene load_steps=3 format=2]
-
-[ext_resource path="res://src/scenes/ui/station_menu/trade_interface.gd" type="Script" id=1]
-[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
-
-[node name="TradeInterface" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 2 )
-script = ExtResource( 1 )
-
-[node name="ColorRect" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.7 )
-
-[node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -450.0
-margin_top = -300.0
-margin_right = 450.0
-margin_bottom = 300.0
-
-[node name="VBoxMain" type="VBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 15.0
-margin_top = 15.0
-margin_right = -15.0
-margin_bottom = -15.0
-custom_constants/separation = 10
-
-[node name="HBoxHeader" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_right = 870.0
-margin_bottom = 27.0
-
-[node name="LabelTitle" type="Label" parent="Panel/VBoxMain/HBoxHeader"]
-margin_right = 107.0
-margin_bottom = 27.0
-text = "MARKET"
-
-[node name="Control" type="Control" parent="Panel/VBoxMain/HBoxHeader"]
-margin_left = 111.0
-margin_right = 660.0
-margin_bottom = 27.0
-size_flags_horizontal = 3
-
-[node name="LabelWP" type="Label" parent="Panel/VBoxMain/HBoxHeader"]
-margin_left = 664.0
-margin_right = 870.0
-margin_bottom = 27.0
-text = "Wealth Points: 0 WP"
-align = 2
-
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxMain"]
-margin_top = 37.0
-margin_right = 870.0
-margin_bottom = 41.0
-
-[node name="HBoxContent" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_top = 51.0
-margin_right = 870.0
-margin_bottom = 451.0
-size_flags_vertical = 3
-custom_constants/separation = 15
-
-[node name="VBoxStation" type="VBoxContainer" parent="Panel/VBoxMain/HBoxContent"]
-margin_right = 280.0
-margin_bottom = 400.0
-size_flags_horizontal = 3
-
-[node name="LabelStation" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxStation"]
-margin_right = 280.0
-margin_bottom = 27.0
-text = "Station Inventory"
-align = 1
-
-[node name="ItemListStation" type="ItemList" parent="Panel/VBoxMain/HBoxContent/VBoxStation"]
-margin_top = 31.0
-margin_right = 280.0
-margin_bottom = 400.0
-size_flags_vertical = 3
-
-[node name="VBoxPlayer" type="VBoxContainer" parent="Panel/VBoxMain/HBoxContent"]
-margin_left = 295.0
-margin_right = 575.0
-margin_bottom = 400.0
-size_flags_horizontal = 3
-
-[node name="LabelPlayer" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxPlayer"]
-margin_right = 280.0
-margin_bottom = 27.0
-text = "Your Cargo"
-align = 1
-
-[node name="ItemListPlayer" type="ItemList" parent="Panel/VBoxMain/HBoxContent/VBoxPlayer"]
-margin_top = 31.0
-margin_right = 280.0
-margin_bottom = 400.0
-size_flags_vertical = 3
-
-[node name="VBoxInfo" type="VBoxContainer" parent="Panel/VBoxMain/HBoxContent"]
-margin_left = 590.0
-margin_right = 870.0
-margin_bottom = 400.0
-size_flags_horizontal = 3
-
-[node name="LabelInfoTitle" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxInfo"]
-margin_right = 280.0
-margin_bottom = 27.0
-text = "Price Comparison"
-align = 1
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxMain/HBoxContent/VBoxInfo"]
-margin_top = 31.0
-margin_right = 280.0
-margin_bottom = 400.0
-size_flags_vertical = 3
-
-[node name="RichTextLabelPrices" type="RichTextLabel" parent="Panel/VBoxMain/HBoxContent/VBoxInfo/ScrollContainer"]
-margin_right = 280.0
-margin_bottom = 369.0
-rect_min_size = Vector2( 280, 0 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-bbcode_enabled = true
-text = "Select an item to see prices at all stations."
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxMain"]
-margin_top = 461.0
-margin_right = 870.0
-margin_bottom = 465.0
-
-[node name="HBoxControls" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_top = 475.0
-margin_right = 870.0
-margin_bottom = 545.0
-rect_min_size = Vector2( 0, 70 )
-custom_constants/separation = 20
-alignment = 1
-
-[node name="BtnBuy" type="Button" parent="Panel/VBoxMain/HBoxControls"]
-margin_left = 265.0
-margin_right = 385.0
-margin_bottom = 70.0
-rect_min_size = Vector2( 120, 50 )
-disabled = true
-text = "BUY"
-
-[node name="BtnSell" type="Button" parent="Panel/VBoxMain/HBoxControls"]
-margin_left = 405.0
-margin_right = 525.0
-margin_bottom = 70.0
-rect_min_size = Vector2( 120, 50 )
-disabled = true
-text = "SELL"
-
-[node name="SpinQuantity" type="SpinBox" parent="Panel/VBoxMain/HBoxControls"]
-margin_left = 545.0
-margin_right = 675.0
-margin_bottom = 70.0
-rect_min_size = Vector2( 130, 50 )
-min_value = 1.0
-max_value = 1.0
-step = 1.0
-value = 1.0
-editable = false
-prefix = "Qty: "
-
-[node name="BtnClose" type="Button" parent="Panel/VBoxMain/HBoxControls"]
-margin_left = 695.0
-margin_right = 755.0
-margin_bottom = 70.0
-rect_min_size = Vector2( 60, 50 )
-text = "X"
-
-[node name="LabelStatus" type="Label" parent="Panel/VBoxMain"]
-margin_top = 555.0
-margin_right = 870.0
-margin_bottom = 570.0
-custom_colors/font_color = Color( 0.8, 0.8, 0.5, 1 )
-text = "Select an item to trade"
-align = 1
-
---- Start of ./scenes/ui/screens/action_check.tscn ---
-
-[gd_scene load_steps=3 format=2]
-
-[ext_resource path="res://src/core/ui/action_check/action_check.gd" type="Script" id=1]
-[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
-
-[node name="ActionCheckUI" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 2 )
-script = ExtResource( 1 )
-
-[node name="Overlay" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-color = Color( 0, 0, 0, 0.6 )
-
-[node name="Panel" type="PanelContainer" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -320.0
-margin_top = -220.0
-margin_right = 320.0
-margin_bottom = 220.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 12
-
-[node name="LabelTitle" type="Label" parent="Panel/VBoxContainer"]
-margin_right = 600.0
-margin_bottom = 27.0
-text = "Resolve Action"
-align = 1
-
-[node name="LabelDescription" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 39.0
-margin_right = 600.0
-margin_bottom = 79.0
-text = "Resolve this action."
-autowrap = true
-
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 91.0
-margin_right = 600.0
-margin_bottom = 95.0
-
-[node name="HBoxApproach" type="HBoxContainer" parent="Panel/VBoxContainer"]
-margin_top = 107.0
-margin_right = 600.0
-margin_bottom = 147.0
-custom_constants/separation = 12
-
-[node name="BtnCautious" type="Button" parent="Panel/VBoxContainer/HBoxApproach"]
-margin_right = 294.0
-margin_bottom = 40.0
-size_flags_horizontal = 3
-rect_min_size = Vector2( 0, 40 )
-text = "Act Cautiously"
-
-[node name="BtnRisky" type="Button" parent="Panel/VBoxContainer/HBoxApproach"]
-margin_left = 306.0
-margin_right = 600.0
-margin_bottom = 40.0
-size_flags_horizontal = 3
-rect_min_size = Vector2( 0, 40 )
-text = "Act Risky"
-
-[node name="HBoxFP" type="HBoxContainer" parent="Panel/VBoxContainer"]
-margin_top = 159.0
-margin_right = 600.0
-margin_bottom = 193.0
-custom_constants/separation = 12
-
-[node name="LabelFP" type="Label" parent="Panel/VBoxContainer/HBoxFP"]
-margin_top = 3.0
-margin_right = 104.0
-margin_bottom = 30.0
-text = "Focus Points:"
-
-[node name="SpinBoxFP" type="SpinBox" parent="Panel/VBoxContainer/HBoxFP"]
-margin_left = 116.0
-margin_right = 600.0
-margin_bottom = 33.0
-size_flags_horizontal = 3
-min_value = 0.0
-max_value = 3.0
-step = 1.0
-value = 0.0
-rounded = true
-
-[node name="LabelCurrentFP" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 205.0
-margin_right = 600.0
-margin_bottom = 232.0
-text = "Available: 0 FP"
-
-[node name="BtnConfirm" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 244.0
-margin_right = 600.0
-margin_bottom = 294.0
-rect_min_size = Vector2( 0, 50 )
-text = "Confirm"
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 306.0
-margin_right = 600.0
-margin_bottom = 310.0
-
-[node name="VBoxResult" type="VBoxContainer" parent="Panel/VBoxContainer"]
-visible = false
-margin_top = 322.0
-margin_right = 600.0
-margin_bottom = 400.0
-custom_constants/separation = 8
-
-[node name="LabelRollResult" type="Label" parent="Panel/VBoxContainer/VBoxResult"]
-margin_right = 600.0
-margin_bottom = 27.0
-text = "Roll: 0 → Failure"
-align = 1
-
-[node name="LabelOutcomeDesc" type="RichTextLabel" parent="Panel/VBoxContainer/VBoxResult"]
-margin_top = 35.0
-margin_right = 600.0
-margin_bottom = 77.0
-bbcode_enabled = true
-text = "[i]Outcome description[/i]"
-
-[node name="LabelEffects" type="Label" parent="Panel/VBoxContainer/VBoxResult"]
-margin_top = 85.0
-margin_right = 600.0
-margin_bottom = 112.0
-text = "Effects:"
-autowrap = true
-
-[node name="BtnContinue" type="Button" parent="Panel/VBoxContainer/VBoxResult"]
-margin_top = 120.0
-margin_right = 600.0
-margin_bottom = 170.0
-rect_min_size = Vector2( 0, 50 )
-text = "Continue"
-
---- Start of ./scenes/ui/screens/character_status.tscn ---
-
-[gd_scene load_steps=3 format=2]
-
-[ext_resource path="res://src/core/ui/character_status/character_status.gd" type="Script" id=1]
-[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
-
-[node name="CharacterStatus" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 1 )
-
-[node name="ColorRect" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.5 )
-
-[node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -400.0
-margin_top = -300.0
-margin_right = 400.0
-margin_bottom = 300.0
-theme = ExtResource( 2 )
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 10
-
-[node name="LabelTitle" type="Label" parent="Panel/VBoxContainer"]
-margin_right = 760.0
-margin_bottom = 27.0
-text = "CHARACTER STATUS"
-align = 1
-
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 37.0
-margin_right = 760.0
-margin_bottom = 41.0
-
-[node name="HBoxContent" type="HBoxContainer" parent="Panel/VBoxContainer"]
-margin_top = 51.0
-margin_right = 760.0
-margin_bottom = 510.0
-size_flags_vertical = 3
-custom_constants/separation = 20
-
-[node name="VBoxStats" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContent"]
-margin_right = 226.0
-margin_bottom = 459.0
-rect_min_size = Vector2( 200, 0 )
-
-[node name="LabelSkills" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_right = 226.0
-margin_bottom = 27.0
-text = "Skills & Stats"
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 31.0
-margin_right = 226.0
-margin_bottom = 35.0
-
-[node name="LabelSkillPiloting" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 39.0
-margin_right = 226.0
-margin_bottom = 66.0
-text = "Piloting: 0"
-
-[node name="LabelSkillTrading" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 70.0
-margin_right = 226.0
-margin_bottom = 97.0
-text = "Trading: 0"
-
-[node name="Control" type="Control" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 101.0
-margin_right = 226.0
-margin_bottom = 121.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="ButtonAddWP" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 125.0
-margin_right = 226.0
-margin_bottom = 156.0
-text = "Debug: Add WP"
-
-[node name="ButtonAddFP" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 160.0
-margin_right = 226.0
-margin_bottom = 191.0
-text = "Debug: Add FP"
-
-[node name="ButtonTriggerEncounter" type="Button" parent="Panel/VBoxContainer/HBoxContent/VBoxStats"]
-margin_top = 195.0
-margin_right = 226.0
-margin_bottom = 226.0
-text = "Debug: Trigger Encounter"
-
-[node name="VSeparator" type="VSeparator" parent="Panel/VBoxContainer/HBoxContent"]
-margin_left = 246.0
-margin_right = 250.0
-margin_bottom = 459.0
-
-[node name="VBoxContracts" type="VBoxContainer" parent="Panel/VBoxContainer/HBoxContent"]
-margin_left = 270.0
-margin_right = 760.0
-margin_bottom = 459.0
-size_flags_horizontal = 3
-
-[node name="LabelContracts" type="Label" parent="Panel/VBoxContainer/HBoxContent/VBoxContracts"]
-margin_right = 490.0
-margin_bottom = 27.0
-text = "Active Contracts"
-
-[node name="ItemListContracts" type="ItemList" parent="Panel/VBoxContainer/HBoxContent/VBoxContracts"]
-margin_top = 31.0
-margin_right = 490.0
-margin_bottom = 231.0
-rect_min_size = Vector2( 0, 200 )
-
-[node name="RichTextLabelDetails" type="RichTextLabel" parent="Panel/VBoxContainer/HBoxContent/VBoxContracts"]
-margin_top = 235.0
-margin_right = 490.0
-margin_bottom = 459.0
-size_flags_vertical = 3
-text = "Select a contract to view details."
-
-[node name="ButtonClose" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 520.0
-margin_right = 760.0
-margin_bottom = 560.0
-rect_min_size = Vector2( 0, 40 )
-text = "Close"
-
---- Start of ./scenes/ui/screens/inventory_screen.tscn ---
-
-[gd_scene load_steps=3 format=2]
-
-[ext_resource path="res://src/core/ui/inventory_screen/inventory_screen.gd" type="Script" id=1]
-[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
-
-[node name="InventoryScreen" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme = ExtResource( 2 )
-script = ExtResource( 1 )
-
-[node name="ColorRect" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.7 )
-
-[node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -500.0
-margin_top = -350.0
-margin_right = 500.0
-margin_bottom = 350.0
-
-[node name="VBoxMain" type="VBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 15
-
-[node name="LabelTitle" type="Label" parent="Panel/VBoxMain"]
-margin_right = 960.0
-margin_bottom = 27.0
-text = "INVENTORY"
-align = 1
-
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxMain"]
-margin_top = 42.0
-margin_right = 960.0
-margin_bottom = 46.0
-
-[node name="HBoxContent" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_top = 61.0
-margin_right = 960.0
-margin_bottom = 614.0
-size_flags_vertical = 3
-custom_constants/separation = 20
-
-[node name="VBoxCategories" type="VBoxContainer" parent="Panel/VBoxMain/HBoxContent"]
-margin_right = 350.0
-margin_bottom = 553.0
-rect_min_size = Vector2( 350, 0 )
-custom_constants/separation = 10
-
-[node name="CategoryTabs" type="TabContainer" parent="Panel/VBoxMain/HBoxContent/VBoxCategories"]
-margin_right = 350.0
-margin_bottom = 553.0
-size_flags_vertical = 3
-
-[node name="Ships" type="Control" parent="Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 45.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="ShipList" type="ItemList" parent="Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Ships"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Modules" type="Control" parent="Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 36.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="ModuleList" type="ItemList" parent="Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Modules"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Commodities" type="Control" parent="Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 36.0
-margin_right = -4.0
-margin_bottom = -4.0
-
-[node name="CommodityList" type="ItemList" parent="Panel/VBoxMain/HBoxContent/VBoxCategories/CategoryTabs/Commodities"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="VSeparator" type="VSeparator" parent="Panel/VBoxMain/HBoxContent"]
-margin_left = 370.0
-margin_right = 374.0
-margin_bottom = 553.0
-
-[node name="VBoxDetails" type="VBoxContainer" parent="Panel/VBoxMain/HBoxContent"]
-margin_left = 394.0
-margin_right = 960.0
-margin_bottom = 553.0
-size_flags_horizontal = 3
-custom_constants/separation = 15
-
-[node name="LabelDetailsHeader" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_right = 566.0
-margin_bottom = 27.0
-text = "Item Details"
-align = 1
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 42.0
-margin_right = 566.0
-margin_bottom = 46.0
-
-[node name="LabelName" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 61.0
-margin_right = 566.0
-margin_bottom = 88.0
-text = "Select an item"
-
-[node name="Control" type="Control" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 103.0
-margin_right = 566.0
-margin_bottom = 113.0
-rect_min_size = Vector2( 0, 10 )
-
-[node name="LabelStat1" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 128.0
-margin_right = 566.0
-margin_bottom = 155.0
-
-[node name="LabelStat2" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 170.0
-margin_right = 566.0
-margin_bottom = 197.0
-
-[node name="LabelStat3" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 212.0
-margin_right = 566.0
-margin_bottom = 239.0
-
-[node name="Control2" type="Control" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 254.0
-margin_right = 566.0
-margin_bottom = 274.0
-rect_min_size = Vector2( 0, 20 )
-
-[node name="LabelDescHeader" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 289.0
-margin_right = 566.0
-margin_bottom = 316.0
-text = "Description"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxMain/HBoxContent/VBoxDetails"]
-margin_top = 331.0
-margin_right = 566.0
-margin_bottom = 553.0
-size_flags_vertical = 3
-
-[node name="LabelDescription" type="Label" parent="Panel/VBoxMain/HBoxContent/VBoxDetails/ScrollContainer"]
-margin_right = 566.0
-margin_bottom = 27.0
-size_flags_horizontal = 3
-autowrap = true
-
-[node name="HBoxButtons" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_top = 629.0
-margin_right = 960.0
-margin_bottom = 660.0
-custom_constants/separation = 20
-alignment = 2
-
-[node name="ButtonClose" type="Button" parent="Panel/VBoxMain/HBoxButtons"]
-margin_left = 860.0
-margin_right = 960.0
-margin_bottom = 31.0
-rect_min_size = Vector2( 100, 0 )
-text = "CLOSE"
-
-[connection signal="pressed" from="Panel/VBoxMain/HBoxButtons/ButtonClose" to="." method="_on_ButtonClose_pressed"]
-
---- Start of ./scenes/ui/screens/narrative_status_panel.tscn ---
-
-[gd_scene load_steps=3 format=2]
-
-[ext_resource path="res://src/core/ui/narrative_status/narrative_status_panel.gd" type="Script" id=1]
-[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
-
-[node name="NarrativeStatusPanel" type="Control"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 1 )
-
-[node name="ColorRect" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.7 )
-
-[node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -450.0
-margin_top = -300.0
-margin_right = 450.0
-margin_bottom = 300.0
-theme = ExtResource( 2 )
-
-[node name="VBoxMain" type="VBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 10
-
-[node name="HeaderLabel" type="Label" parent="Panel/VBoxMain"]
-margin_right = 860.0
-margin_bottom = 27.0
-text = "NARRATIVE STATUS"
-align = 1
-
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxMain"]
-margin_top = 37.0
-margin_right = 860.0
-margin_bottom = 41.0
-
-[node name="ReputationLabel" type="Label" parent="Panel/VBoxMain"]
-margin_top = 51.0
-margin_right = 860.0
-margin_bottom = 78.0
-text = "Reputation: 0"
-
-[node name="HSeparator2" type="HSeparator" parent="Panel/VBoxMain"]
-margin_top = 88.0
-margin_right = 860.0
-margin_bottom = 92.0
-
-[node name="SectionsContainer" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_top = 102.0
-margin_right = 860.0
-margin_bottom = 490.0
-size_flags_vertical = 3
-custom_constants/separation = 20
-
-[node name="FactionsColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
-margin_right = 270.0
-margin_bottom = 388.0
-size_flags_horizontal = 3
-
-[node name="LabelFactions" type="Label" parent="Panel/VBoxMain/SectionsContainer/FactionsColumn"]
-margin_right = 270.0
-margin_bottom = 27.0
-text = "FACTION STANDING"
-align = 1
-
-[node name="FactionContainer" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer/FactionsColumn"]
-margin_top = 31.0
-margin_right = 270.0
-margin_bottom = 31.0
-
-[node name="StatsColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
-margin_left = 290.0
-margin_right = 560.0
-margin_bottom = 388.0
-size_flags_horizontal = 3
-
-[node name="LabelStats" type="Label" parent="Panel/VBoxMain/SectionsContainer/StatsColumn"]
-margin_right = 270.0
-margin_bottom = 27.0
-text = "SECTOR STATISTICS"
-align = 1
-
-[node name="ContractsLabel" type="Label" parent="Panel/VBoxMain/SectionsContainer/StatsColumn"]
-margin_top = 31.0
-margin_right = 270.0
-margin_bottom = 58.0
-text = "Contracts Completed: 0"
-
-[node name="QuirksColumn" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer"]
-margin_left = 580.0
-margin_right = 860.0
-margin_bottom = 388.0
-size_flags_horizontal = 3
-
-[node name="LabelQuirks" type="Label" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
-margin_right = 280.0
-margin_bottom = 27.0
-text = "SHIP QUIRKS"
-align = 1
-
-[node name="QuirksContainer" type="VBoxContainer" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
-margin_top = 31.0
-margin_right = 280.0
-margin_bottom = 31.0
-
-[node name="ButtonDebugAddQuirk" type="Button" parent="Panel/VBoxMain/SectionsContainer/QuirksColumn"]
-margin_top = 35.0
-margin_right = 280.0
-margin_bottom = 55.0
-text = "Debug: Add Quirk"
-
-[node name="HBoxButtons" type="HBoxContainer" parent="Panel/VBoxMain"]
-margin_top = 500.0
-margin_right = 860.0
-margin_bottom = 540.0
-custom_constants/separation = 20
-alignment = 2
-
-[node name="ButtonClose" type="Button" parent="Panel/VBoxMain/HBoxButtons"]
-margin_left = 760.0
-margin_right = 860.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 100, 40 )
-text = "CLOSE"
-
-[connection signal="pressed" from="Panel/VBoxMain/HBoxButtons/ButtonClose" to="." method="_on_ButtonClose_pressed"]
-[connection signal="pressed" from="Panel/VBoxMain/SectionsContainer/QuirksColumn/ButtonDebugAddQuirk" to="." method="_on_ButtonDebugAddQuirk_pressed"]
 
 --- Start of ./src/tests/helpers/mock_agent.tscn ---
 

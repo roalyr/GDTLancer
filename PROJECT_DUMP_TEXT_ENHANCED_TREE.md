@@ -176,8 +176,8 @@
 │   │   ├── asset_template.gd
 │   │   ├── character_template.gd
 │   │   ├── contract_template.gd
+│   │   ├── faction_template.gd
 │   │   ├── location_template.gd
-│   │   ├── quirk_template.gd
 │   │   ├── template.gd
 │   │   └── utility_tool_template.gd
 │   └── registry
@@ -186,6 +186,12 @@
 │       ├── agents
 │       │   ├── npc_default.tres
 │       │   ├── npc_hostile_default.tres
+│       │   ├── persistent_ada.tres
+│       │   ├── persistent_juno.tres
+│       │   ├── persistent_kai.tres
+│       │   ├── persistent_milo.tres
+│       │   ├── persistent_rex.tres
+│       │   ├── persistent_vera.tres
 │       │   └── player_default.tres
 │       ├── assets
 │       │   ├── commodities
@@ -201,7 +207,13 @@
 │       │       ├── ship_default.tres
 │       │       └── ship_hostile_default.tres
 │       ├── characters
-│       │   └── character_default.tres
+│       │   ├── character_ada.tres
+│       │   ├── character_default.tres
+│       │   ├── character_juno.tres
+│       │   ├── character_kai.tres
+│       │   ├── character_milo.tres
+│       │   ├── character_rex.tres
+│       │   └── character_vera.tres
 │       ├── contracts
 │       │   ├── delivery_01.tres
 │       │   ├── delivery_02.tres
@@ -209,22 +221,46 @@
 │       │   ├── delivery_04.tres
 │       │   ├── delivery_05.tres
 │       │   └── delivery_06.tres
+│       ├── factions
+│       │   ├── faction_independents.tres
+│       │   ├── faction_miners.tres
+│       │   └── faction_traders.tres
 │       ├── locations
 │       │   ├── station_alpha.tres
 │       │   ├── station_beta.tres
 │       │   └── station_gamma.tres
-│       ├── quirks
-│       │   ├── quirk_damaged_sensor_array.tres
-│       │   ├── quirk_hull_stress_fracture.tres
-│       │   └── quirk_jammed_landing_gear.tres
-│       └── weapons
-│           ├── weapon_ablative_laser.tres
-│           ├── weapon_harpoon.tres
-│           └── weapon_rotary_drill.tres
+│       └── tools
+│           ├── tool_ablative_laser.tres
+│           ├── tool_harpoon.tres
+│           └── tool_rotary_drill.tres
 ├── default_env.tres
 ├── export_presets.cfg
 ├── Icon.png
 ├── project.godot
+├── python_sandbox
+│   ├── agent_layer.py
+│   ├── bridge_systems.py
+│   ├── ca_rules.py
+│   ├── chronicle_layer.py
+│   ├── constants.py
+│   ├── game_state.py
+│   ├── grid_layer.py
+│   ├── __init__.py
+│   ├── main.py
+│   ├── __pycache__
+│   │   ├── agent_layer.cpython-311.pyc
+│   │   ├── bridge_systems.cpython-311.pyc
+│   │   ├── ca_rules.cpython-311.pyc
+│   │   ├── chronicle_layer.cpython-311.pyc
+│   │   ├── constants.cpython-311.pyc
+│   │   ├── game_state.cpython-311.pyc
+│   │   ├── grid_layer.cpython-311.pyc
+│   │   ├── simulation_engine.cpython-311.pyc
+│   │   ├── template_data.cpython-311.pyc
+│   │   └── world_layer.cpython-311.pyc
+│   ├── simulation_engine.py
+│   ├── template_data.py
+│   └── world_layer.py
 ├── scenes
 │   ├── levels
 │   │   ├── game_world
@@ -250,18 +286,12 @@
 │   │       └── DockableStation.tscn
 │   └── ui
 │       ├── hud
-│       │   └── main_hud.tscn
-│       ├── menus
-│       │   ├── main_menu.tscn
-│       │   └── station_menu
-│       │       ├── ContractInterface.tscn
-│       │       ├── StationMenu.tscn
-│       │       └── TradeInterface.tscn
-│       └── screens
-│           ├── action_check.tscn
-│           ├── character_status.tscn
-│           ├── inventory_screen.tscn
-│           └── narrative_status_panel.tscn
+│       │   ├── main_hud.tscn
+│       │   └── sim_debug_panel.tscn
+│       └── menus
+│           ├── main_menu.tscn
+│           └── station_menu
+│               └── StationMenu.tscn
 ├── Splash.png
 ├── src
 │   ├── autoload
@@ -271,7 +301,6 @@
 │   │   ├── GameState.gd
 │   │   ├── GameStateManager.gd
 │   │   ├── GlobalRefs.gd
-│   │   ├── NarrativeOutcomes.gd
 │   │   └── TemplateDatabase.gd
 │   ├── core
 │   │   ├── agents
@@ -288,40 +317,33 @@
 │   │   │       │   ├── command_orbit.gd
 │   │   │       │   └── command_stop.gd
 │   │   │       ├── navigation_system.gd
-│   │   │       └── weapon_controller.gd
+│   │   │       └── tool_controller.gd
+│   │   ├── simulation
+│   │   │   ├── agent_layer.gd
+│   │   │   ├── bridge_systems.gd
+│   │   │   ├── ca_rules.gd
+│   │   │   ├── chronicle_layer.gd
+│   │   │   ├── grid_layer.gd
+│   │   │   ├── simulation_engine.gd
+│   │   │   └── world_layer.gd
 │   │   ├── systems
-│   │   │   ├── action_system.gd
 │   │   │   ├── agent_system.gd
 │   │   │   ├── asset_system.gd
 │   │   │   ├── character_system.gd
-│   │   │   ├── chronicle_system.gd
-│   │   │   ├── combat_system.gd
-│   │   │   ├── contract_system.gd
 │   │   │   ├── event_system.gd
-│   │   │   ├── goal_system.gd
 │   │   │   ├── inventory_system.gd
-│   │   │   ├── narrative_action_system.gd
-│   │   │   ├── progression_system.gd
-│   │   │   ├── quirk_system.gd
-│   │   │   ├── time_system.gd
-│   │   │   ├── trading_system.gd
-│   │   │   ├── traffic_system.gd
-│   │   │   └── world_map_system.gd
+│   │   │   └── time_system.gd
 │   │   ├── ui
-│   │   │   ├── action_check
-│   │   │   │   └── action_check.gd
-│   │   │   ├── character_status
-│   │   │   │   └── character_status.gd
 │   │   │   ├── helpers
 │   │   │   │   └── CenteredGrowingLabel.gd
-│   │   │   ├── inventory_screen
-│   │   │   │   └── inventory_screen.gd
 │   │   │   ├── main_hud
 │   │   │   │   └── main_hud.gd
 │   │   │   ├── main_menu
 │   │   │   │   └── main_menu.gd
-│   │   │   └── narrative_status
-│   │   │       └── narrative_status_panel.gd
+│   │   │   ├── sim_debug_panel
+│   │   │   │   └── sim_debug_panel.gd
+│   │   │   └── station_menu
+│   │   │       └── station_menu.gd
 │   │   └── utils
 │   │       ├── editor_object.gd
 │   │       ├── pid_controller.gd
@@ -342,19 +364,14 @@
 │   │   │   │   ├── camera_rotation_controller.gd
 │   │   │   │   └── camera_zoom_controller.gd
 │   │   │   └── orbit_camera.gd
-│   │   ├── game_world
-│   │   │   ├── station
-│   │   │   │   └── dockable_station.gd
-│   │   │   ├── world_manager
-│   │   │   │   ├── template_indexer.gd
-│   │   │   │   └── world_generator.gd
-│   │   │   ├── world_manager.gd
-│   │   │   └── world_rendering.gd
-│   │   └── ui
-│   │       └── station_menu
-│   │           ├── contract_interface.gd
-│   │           ├── station_menu.gd
-│   │           └── trade_interface.gd
+│   │   └── game_world
+│   │       ├── station
+│   │       │   └── dockable_station.gd
+│   │       ├── world_manager
+│   │       │   ├── template_indexer.gd
+│   │       │   └── world_generator.gd
+│   │       ├── world_manager.gd
+│   │       └── world_rendering.gd
 │   └── tests
 │       ├── autoload
 │       │   ├── test_constants.gd
@@ -366,22 +383,24 @@
 │       │   ├── agents
 │       │   │   └── components
 │       │   │       ├── test_movement_system.gd
-│       │   │       ├── test_navigation_system.gd
-│       │   │       └── test_weapon_controller.gd
+│       │   │       └── test_navigation_system.gd
+│       │   ├── simulation
+│       │   │   ├── test_agent_layer.gd
+│       │   │   ├── test_ca_rules.gd
+│       │   │   ├── test_chronicle_layer.gd
+│       │   │   ├── test_grid_layer.gd
+│       │   │   ├── test_simulation_integration.gd
+│       │   │   ├── test_simulation_tick.gd
+│       │   │   └── test_world_layer.gd
 │       │   ├── systems
-│       │   │   ├── test_action_system.gd
 │       │   │   ├── test_agent_spawner.gd
 │       │   │   ├── test_asset_system.gd
 │       │   │   ├── test_character_system.gd
-│       │   │   ├── test_combat_system.gd
-│       │   │   ├── test_contract_system.gd
 │       │   │   ├── test_docking_logic.gd
 │       │   │   ├── test_event_system.gd
 │       │   │   ├── test_inventory_system.gd
-│       │   │   ├── test_narrative_action_system.gd
-│       │   │   ├── test_quirk_system.gd
-│       │   │   ├── test_time_system.gd
-│       │   │   └── test_trading_system.gd
+│       │   │   ├── test_persistent_agents.gd
+│       │   │   └── test_time_system.gd
 │       │   └── utils
 │       │       └── test_pid_controller.gd
 │       ├── helpers
@@ -391,26 +410,17 @@
 │       │   ├── mock_ship_template.gd
 │       │   ├── signal_catcher.gd
 │       │   └── test_agent_body.gd
-│       ├── modules
-│       │   └── piloting
-│       │       └── test_ship_controller_ai.gd
 │       └── scenes
 │           ├── game_world
 │           │   └── world_manager
+│           │       ├── test_faction_loading.gd
 │           │       ├── test_template_indexer.gd
 │           │       └── test_world_generator.gd
-│           ├── test_basic_flight_zone_docking.gd
-│           ├── test_docking_integration.gd
-│           └── test_full_game_loop.gd
+│           └── test_basic_flight_zone_docking.gd
 └── tests
-    ├── data
-    │   └── test_action.tres
-    └── src
-        └── core
-            └── ui
-                └── narrative_status
-                    └── test_narrative_status_panel.gd
+    └── data
+        └── test_action.tres
 
-97 directories, 315 files
+90 directories, 332 files
 
-97 directories, 315 files
+90 directories, 332 files

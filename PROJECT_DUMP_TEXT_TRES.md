@@ -334,6 +334,7 @@ action_name = "Unnamed Action"
 tu_cost = 1
 base_attribute = "int"
 associated_skill = "computers"
+stakes = 1
 
 --- Start of ./database/registry/agents/npc_default.tres ---
 
@@ -356,6 +357,96 @@ agent_type = "npc"
 script = ExtResource( 1 )
 template_id = "agent_npc_hostile_default"
 agent_type = "npc"
+
+--- Start of ./database/registry/agents/persistent_ada.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_ada"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_gamma"
+character_template_id = "character_ada"
+respawn_timeout_seconds = 300.0
+
+--- Start of ./database/registry/agents/persistent_juno.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_juno"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_alpha"
+character_template_id = "character_juno"
+respawn_timeout_seconds = 300.0
+
+--- Start of ./database/registry/agents/persistent_kai.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_kai"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_alpha"
+character_template_id = "character_kai"
+respawn_timeout_seconds = 300.0
+
+--- Start of ./database/registry/agents/persistent_milo.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_milo"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_beta"
+character_template_id = "character_milo"
+respawn_timeout_seconds = 300.0
+
+--- Start of ./database/registry/agents/persistent_rex.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_rex"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_gamma"
+character_template_id = "character_rex"
+respawn_timeout_seconds = 300.0
+
+--- Start of ./database/registry/agents/persistent_vera.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_vera"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_beta"
+character_template_id = "character_vera"
+respawn_timeout_seconds = 300.0
 
 --- Start of ./database/registry/agents/player_default.tres ---
 
@@ -484,10 +575,10 @@ cargo_capacity = 100
 interaction_radius = 15.0
 ship_quirks = [  ]
 ship_upgrades = [  ]
-weapon_slots_small = 2
-weapon_slots_medium = 0
-weapon_slots_large = 0
-equipped_weapons = [ "weapon_ablative_laser" ]
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+equipped_tools = [ "tool_ablative_laser" ]
 power_capacity = 100.0
 power_regen = 10.0
 mass = 60000.0
@@ -513,16 +604,49 @@ cargo_capacity = 10
 interaction_radius = 15.0
 ship_quirks = [  ]
 ship_upgrades = [  ]
-weapon_slots_small = 2
-weapon_slots_medium = 0
-weapon_slots_large = 0
-equipped_weapons = [ "weapon_ablative_laser" ]
+tool_slots_small = 2
+tool_slots_medium = 0
+tool_slots_large = 0
+equipped_tools = [ "tool_ablative_laser" ]
 power_capacity = 100.0
 power_regen = 10.0
 mass = 60000.0
 linear_thrust = 5e+06
 angular_thrust = 5e+06
 alignment_threshold_angle_deg = 45.0
+
+--- Start of ./database/registry/characters/character_ada.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_ada"
+character_name = "Ada"
+character_icon_id = "character_ada_icon"
+faction_id = "faction_independents"
+credits = 1200
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 2,
+"piloting": 3,
+"trading": 2
+}
+age = 32
+reputation = 40
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.5,
+"aggression": 0.1
+}
+description = "Salvager, resourceful."
+goals = [ ]
 
 --- Start of ./database/registry/characters/character_default.tres ---
 
@@ -536,7 +660,7 @@ template_id = "character_default"
 character_name = "Unnamed"
 character_icon_id = "character_default_icon"
 faction_id = "faction_default"
-wealth_points = 10000
+credits = 10000
 focus_points = 0
 active_ship_uid = -1
 skills = {
@@ -550,6 +674,171 @@ faction_standings = {
 }
 character_standings = {
 }
+
+--- Start of ./database/registry/characters/character_juno.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_juno"
+character_name = "Juno"
+character_icon_id = "character_juno_icon"
+faction_id = "faction_miners"
+credits = 500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 1,
+"piloting": 2,
+"trading": 1
+}
+age = 22
+reputation = 10
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.8,
+"greed": 0.7
+}
+description = "Young prospector, ambitious."
+goals = [ ]
+
+--- Start of ./database/registry/characters/character_kai.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_kai"
+character_name = "Kai"
+character_icon_id = "character_kai_icon"
+faction_id = "faction_miners"
+credits = 1500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 2,
+"piloting": 4,
+"trading": 1
+}
+age = 45
+reputation = 50
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.3,
+"loyalty": 0.8
+}
+description = "Veteran miner, pragmatic."
+goals = [ ]
+
+--- Start of ./database/registry/characters/character_milo.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_milo"
+character_name = "Milo"
+character_icon_id = "character_milo_icon"
+faction_id = "faction_traders"
+credits = 2000
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 2,
+"piloting": 3,
+"trading": 3
+}
+age = 35
+reputation = 30
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"greed": 0.7,
+"aggression": 0.2
+}
+description = "Cargo hauler, opportunistic."
+goals = [ ]
+
+--- Start of ./database/registry/characters/character_rex.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_rex"
+character_name = "Rex"
+character_icon_id = "character_rex_icon"
+faction_id = "faction_independents"
+credits = 800
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 4,
+"piloting": 5,
+"trading": 1
+}
+age = 28
+reputation = 20
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.9,
+"loyalty": 0.2
+}
+description = "Freelancer pilot, risky."
+goals = [ ]
+
+--- Start of ./database/registry/characters/character_vera.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_vera"
+character_name = "Vera"
+character_icon_id = "character_vera_icon"
+faction_id = "faction_traders"
+credits = 5000
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 1,
+"piloting": 3,
+"trading": 5
+}
+age = 40
+reputation = 60
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.2,
+"greed": 0.5
+}
+description = "Merchant captain, cautious."
+goals = [ ]
 
 --- Start of ./database/registry/contracts/delivery_01.tres ---
 
@@ -572,7 +861,7 @@ required_commodity_id = "commodity_ore"
 required_quantity = 10
 target_type = ""
 target_count = 0
-reward_wp = 80
+reward_credits = 80
 reward_reputation = 3
 reward_items = {}
 time_limit_tu = -1
@@ -601,7 +890,7 @@ required_commodity_id = "commodity_food"
 required_quantity = 5
 target_type = ""
 target_count = 0
-reward_wp = 100
+reward_credits = 100
 reward_reputation = 2
 reward_items = {}
 time_limit_tu = -1
@@ -630,7 +919,7 @@ required_commodity_id = "commodity_tech"
 required_quantity = 8
 target_type = ""
 target_count = 0
-reward_wp = 200
+reward_credits = 200
 reward_reputation = 4
 reward_items = {}
 time_limit_tu = -1
@@ -659,7 +948,7 @@ required_commodity_id = "commodity_luxury"
 required_quantity = 3
 target_type = ""
 target_count = 0
-reward_wp = 150
+reward_credits = 150
 reward_reputation = 2
 reward_items = {}
 time_limit_tu = -1
@@ -688,7 +977,7 @@ required_commodity_id = "commodity_fuel"
 required_quantity = 15
 target_type = ""
 target_count = 0
-reward_wp = 180
+reward_credits = 180
 reward_reputation = 5
 reward_items = {}
 time_limit_tu = -1
@@ -717,13 +1006,58 @@ required_commodity_id = "commodity_ore"
 required_quantity = 20
 target_type = ""
 target_count = 0
-reward_wp = 120
+reward_credits = 120
 reward_reputation = 4
 reward_items = {}
 time_limit_tu = -1
 difficulty = 2
 accepted_at_tu = -1
 progress = {}
+
+--- Start of ./database/registry/factions/faction_independents.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "faction_independents"
+faction_id = "faction_independents"
+display_name = "Independent Captains"
+description = "Unaffiliated pilots operating on their own terms."
+faction_color = Color( 0.5, 0.5, 0.5, 1 )
+default_standing = 0
+
+--- Start of ./database/registry/factions/faction_miners.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "faction_miners"
+faction_id = "faction_miners"
+display_name = "Miners Guild"
+description = "A collective of independent miners and ore processors."
+faction_color = Color( 0.8, 0.4, 0.0, 1 )
+default_standing = 0
+
+--- Start of ./database/registry/factions/faction_traders.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/faction_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "faction_traders"
+faction_id = "faction_traders"
+display_name = "Trade Alliance"
+description = "The dominant commercial entity in the sector."
+faction_color = Color( 0.0, 0.6, 0.8, 1 )
+default_standing = 0
 
 --- Start of ./database/registry/locations/station_alpha.tres ---
 
@@ -738,6 +1072,15 @@ location_name = "Station Alpha - Mining Hub"
 location_type = "station"
 position_in_zone = Vector3( 48042, 233, -673 )
 interaction_radius = 150.0
+connections = PoolStringArray( "station_beta", "station_gamma" )
+sector_type = "hub"
+radiation_level = 0.05
+thermal_background_k = 280.0
+gravity_well_penalty = 1.2
+mineral_density = 2.0
+propellant_sources = 0.3
+station_power_output = 150.0
+stockpile_capacity = 1500
 market_inventory = {
 "commodity_ore": {
 "buy_price": 8,
@@ -778,6 +1121,15 @@ location_name = "Station Beta - Trade Post"
 location_type = "station"
 position_in_zone = Vector3( 49500, 100, 1500 )
 interaction_radius = 150.0
+connections = PoolStringArray( "station_alpha", "station_gamma" )
+sector_type = "hub"
+radiation_level = 0.01
+thermal_background_k = 310.0
+gravity_well_penalty = 1.0
+mineral_density = 0.3
+propellant_sources = 0.8
+station_power_output = 120.0
+stockpile_capacity = 1200
 market_inventory = {
 "commodity_ore": {
 "buy_price": 15,
@@ -823,6 +1175,15 @@ location_name = "Freeport Gamma"
 location_type = "station"
 position_in_zone = Vector3( 46000, -200, 500 )
 interaction_radius = 150.0
+connections = PoolStringArray( "station_alpha", "station_beta" )
+sector_type = "frontier"
+radiation_level = 0.15
+thermal_background_k = 250.0
+gravity_well_penalty = 1.5
+mineral_density = 0.8
+propellant_sources = 1.2
+station_power_output = 80.0
+stockpile_capacity = 800
 market_inventory = {
 "commodity_ore": {
 "buy_price": 12,
@@ -855,52 +1216,7 @@ controlling_faction_id = "faction_independents"
 danger_level = 4
 available_contract_ids = [ "delivery_05", "delivery_06" ]
 
---- Start of ./database/registry/quirks/quirk_damaged_sensor_array.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "quirk_damaged_sensor_array"
-display_name = "Damaged Sensor Array"
-description = "Sensors are miscalibrated or damaged. Scan range and accuracy reduced."
-effect_type = "sensor_range_penalty"
-effect_value = 0.5
-source_category = "combat"
-
---- Start of ./database/registry/quirks/quirk_hull_stress_fracture.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "quirk_hull_stress_fracture"
-display_name = "Hull Stress Fracture"
-description = "Micro-fractures in the hull integrity. Maximum hull integrity reduced."
-effect_type = "max_hull_reduction"
-effect_value = 20.0
-source_category = "combat"
-
---- Start of ./database/registry/quirks/quirk_jammed_landing_gear.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/quirk_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "quirk_jammed_landing_gear"
-display_name = "Jammed Landing Gear"
-description = "The landing gear deployment mechanism is damaged. Docking maneuvers are riskier."
-effect_type = "maneuver_penalty"
-effect_value = 0.2
-source_category = "piloting"
-
---- Start of ./database/registry/weapons/weapon_ablative_laser.tres ---
+--- Start of ./database/registry/tools/tool_ablative_laser.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
@@ -908,7 +1224,7 @@ source_category = "piloting"
 
 [resource]
 script = ExtResource( 1 )
-template_id = "weapon_ablative_laser"
+template_id = "tool_ablative_laser"
 tool_name = "Ablative Laser"
 description = "A standard mining laser repurposed for combat. Continuous beam gradually ablates hull material."
 tool_type = "weapon"
@@ -936,7 +1252,7 @@ muzzle_effect = ""
 impact_effect = ""
 fire_sound = ""
 
---- Start of ./database/registry/weapons/weapon_harpoon.tres ---
+--- Start of ./database/registry/tools/tool_harpoon.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
@@ -944,7 +1260,7 @@ fire_sound = ""
 
 [resource]
 script = ExtResource( 1 )
-template_id = "weapon_harpoon"
+template_id = "tool_harpoon"
 tool_name = "Tether Harpoon"
 description = "Fires a magnetic harpoon that tethers to targets. Useful for salvage operations and immobilizing smaller craft."
 tool_type = "grapple"
@@ -972,7 +1288,7 @@ muzzle_effect = ""
 impact_effect = ""
 fire_sound = ""
 
---- Start of ./database/registry/weapons/weapon_rotary_drill.tres ---
+--- Start of ./database/registry/tools/tool_rotary_drill.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
@@ -980,7 +1296,7 @@ fire_sound = ""
 
 [resource]
 script = ExtResource( 1 )
-template_id = "weapon_rotary_drill"
+template_id = "tool_rotary_drill"
 tool_name = "Rotary Drill"
 description = "An industrial drill designed for asteroid mining. At close range, it can breach hull plating."
 tool_type = "weapon"
