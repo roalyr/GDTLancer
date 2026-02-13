@@ -1,15 +1,15 @@
 #
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
 #
 
 extends Node
 
-## GameStateManager: Handles save/load operations for the entire GameState.
-## Serializes and deserializes all game data to/from user savegame files.
+## GameStateManager: Handles save/load operations for the four-layer GameState.
+## Serializes and deserializes all simulation and scene data to/from savegame files.
 
 const SAVE_DIR = "user://savegames/"
 const SAVE_FILE_PREFIX = "save_"
@@ -22,37 +22,48 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 # --- Public API ---
 
 func reset_to_defaults() -> void:
+	# --- Simulation Meta ---
 	GameState.world_seed = ""
 	GameState.game_time_seconds = 0
+	GameState.sim_tick_count = 0
 	GameState.player_character_uid = -1
+
+	# --- Scene State ---
 	GameState.player_docked_at = ""
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 
-	GameState.characters.clear()
-	GameState.active_actions.clear()
-	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
-	GameState.assets_commodities.clear()
-	GameState.inventories.clear()
-	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
+	# --- Layer 1: World ---
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
 
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"contact_relationships": {},
-		"chronicle_entries": []
-	}
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_credits_earned": 0,
-		"total_credits_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_seconds": 0
-	}
+	# --- Layer 2: Grid ---
+	GameState.grid_resource_availability.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_stockpiles.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_power.clear()
+	GameState.grid_wrecks.clear()
+
+	# --- Layer 3: Agents ---
+	GameState.characters.clear()
+	GameState.agents.clear()
+	GameState.assets_ships.clear()
+	GameState.inventories.clear()
+	GameState.hostile_population_integral.clear()
+
+	# --- Layer 4: Chronicle ---
+	GameState.chronicle_event_buffer.clear()
+	GameState.chronicle_rumors.clear()
+
+	# --- Legacy (kept for compatibility) ---
+	GameState.locations.clear()
+	GameState.factions.clear()
+	GameState.assets_commodities.clear()
+	GameState.persistent_agents.clear()
 
 func save_game(slot_id: int = 0) -> bool:
 	_ensure_save_dir_exists()
@@ -157,27 +168,46 @@ func _ensure_save_dir_exists() -> void:
 
 func _serialize_game_state() -> Dictionary:
 	var state_dict = {}
-	
+
+	# --- Simulation Meta ---
 	state_dict["player_character_uid"] = GameState.player_character_uid
 	state_dict["game_time_seconds"] = GameState.game_time_seconds
+	state_dict["sim_tick_count"] = GameState.sim_tick_count
+	state_dict["world_seed"] = GameState.world_seed
 	state_dict["player_docked_at"] = GameState.player_docked_at
-	
-	# Save player position and rotation
 	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
 	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
-	
+
+	# --- Layer 1: World (static, but saved for deterministic restore) ---
+	state_dict["world_topology"] = GameState.world_topology.duplicate(true)
+	state_dict["world_hazards"] = GameState.world_hazards.duplicate(true)
+	state_dict["world_resource_potential"] = GameState.world_resource_potential.duplicate(true)
+	state_dict["world_total_matter"] = GameState.world_total_matter
+
+	# --- Layer 2: Grid ---
+	state_dict["grid_resource_availability"] = GameState.grid_resource_availability.duplicate(true)
+	state_dict["grid_dominion"] = GameState.grid_dominion.duplicate(true)
+	state_dict["grid_market"] = GameState.grid_market.duplicate(true)
+	state_dict["grid_stockpiles"] = GameState.grid_stockpiles.duplicate(true)
+	state_dict["grid_maintenance"] = GameState.grid_maintenance.duplicate(true)
+	state_dict["grid_power"] = GameState.grid_power.duplicate(true)
+	state_dict["grid_wrecks"] = GameState.grid_wrecks.duplicate(true)
+
+	# --- Layer 3: Agents ---
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
+	state_dict["agents"] = GameState.agents.duplicate(true)
 	state_dict["assets_ships"] = _serialize_resource_dict(GameState.assets_ships)
-	state_dict["assets_modules"] = _serialize_resource_dict(GameState.assets_modules)
 	state_dict["inventories"] = _serialize_inventories(GameState.inventories)
-	
-	# Phase 1 additions - locations are Resources, need proper serialization
+	state_dict["hostile_population_integral"] = GameState.hostile_population_integral.duplicate(true)
+
+	# --- Layer 4: Chronicle ---
+	state_dict["chronicle_event_buffer"] = GameState.chronicle_event_buffer.duplicate(true)
+	state_dict["chronicle_rumors"] = GameState.chronicle_rumors.duplicate(true)
+
+	# --- Legacy ---
 	state_dict["locations"] = _serialize_resource_dict_by_string_key(GameState.locations)
-	state_dict["contracts"] = _serialize_resource_dict_by_string_key(GameState.contracts)
-	state_dict["active_contracts"] = _serialize_resource_dict_by_string_key(GameState.active_contracts)
-	state_dict["narrative_state"] = GameState.narrative_state.duplicate(true)
-	state_dict["session_stats"] = GameState.session_stats.duplicate(true)
-	
+	state_dict["factions"] = _serialize_resource_dict_by_string_key(GameState.factions)
+
 	return state_dict
 
 func _serialize_resource(res: Resource) -> Dictionary:
@@ -226,60 +256,46 @@ func _serialize_inventories(inv_dict: Dictionary) -> Dictionary:
 
 func _deserialize_and_apply_game_state(save_data: Dictionary):
 	# Clear current state
-	GameState.characters.clear()
-	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
-	GameState.inventories.clear()
-	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
-	
+	reset_to_defaults()
+
+	# --- Simulation Meta ---
 	GameState.player_character_uid = save_data.get("player_character_uid", -1)
-	# Support legacy current_tu if present
 	GameState.game_time_seconds = save_data.get("game_time_seconds", save_data.get("current_tu", 0))
+	GameState.sim_tick_count = save_data.get("sim_tick_count", 0)
+	GameState.world_seed = save_data.get("world_seed", "")
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
-	
-	# Restore player position and rotation
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 
+	# --- Layer 1: World ---
+	GameState.world_topology = save_data.get("world_topology", {}).duplicate(true) if save_data.has("world_topology") else {}
+	GameState.world_hazards = save_data.get("world_hazards", {}).duplicate(true) if save_data.has("world_hazards") else {}
+	GameState.world_resource_potential = save_data.get("world_resource_potential", {}).duplicate(true) if save_data.has("world_resource_potential") else {}
+	GameState.world_total_matter = save_data.get("world_total_matter", 0.0)
+
+	# --- Layer 2: Grid ---
+	GameState.grid_resource_availability = save_data.get("grid_resource_availability", {}).duplicate(true) if save_data.has("grid_resource_availability") else {}
+	GameState.grid_dominion = save_data.get("grid_dominion", {}).duplicate(true) if save_data.has("grid_dominion") else {}
+	GameState.grid_market = save_data.get("grid_market", {}).duplicate(true) if save_data.has("grid_market") else {}
+	GameState.grid_stockpiles = save_data.get("grid_stockpiles", {}).duplicate(true) if save_data.has("grid_stockpiles") else {}
+	GameState.grid_maintenance = save_data.get("grid_maintenance", {}).duplicate(true) if save_data.has("grid_maintenance") else {}
+	GameState.grid_power = save_data.get("grid_power", {}).duplicate(true) if save_data.has("grid_power") else {}
+	GameState.grid_wrecks = save_data.get("grid_wrecks", {}).duplicate(true) if save_data.has("grid_wrecks") else {}
+
+	# --- Layer 3: Agents ---
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
-	GameState.assets_modules = _deserialize_resource_dict(save_data.get("assets_modules", {}))
 	GameState.characters = _deserialize_resource_dict(save_data.get("characters", {}))
+	GameState.agents = save_data.get("agents", {}).duplicate(true) if save_data.has("agents") else {}
 	GameState.inventories = _deserialize_inventories(save_data.get("inventories", {}))
-	
-	# Phase 1 additions - locations need to be deserialized back to Resources
+	GameState.hostile_population_integral = save_data.get("hostile_population_integral", {}).duplicate(true) if save_data.has("hostile_population_integral") else {}
+
+	# --- Layer 4: Chronicle ---
+	GameState.chronicle_event_buffer = save_data.get("chronicle_event_buffer", []).duplicate(true) if save_data.has("chronicle_event_buffer") else []
+	GameState.chronicle_rumors = save_data.get("chronicle_rumors", []).duplicate(true) if save_data.has("chronicle_rumors") else []
+
+	# --- Legacy ---
 	GameState.locations = _deserialize_resource_dict_by_string_key(save_data.get("locations", {}))
-	GameState.contracts = _deserialize_resource_dict_by_string_key(save_data.get("contracts", {}))
-	GameState.active_contracts = _deserialize_resource_dict_by_string_key(save_data.get("active_contracts", {}))
-	
-	# Restore narrative state with defaults if not present
-	var default_narrative = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"contact_relationships": {},
-		"chronicle_entries": []
-	}
-	var saved_narrative = save_data.get("narrative_state", {})
-	for key in default_narrative:
-		GameState.narrative_state[key] = saved_narrative.get(key, default_narrative[key])
-	
-	# Restore session stats with defaults if not present
-	var default_stats = {
-		"contracts_completed": 0,
-		"total_credits_earned": 0,
-		"total_credits_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_seconds": 0
-	}
-	var saved_stats = save_data.get("session_stats", {})
-	for key in default_stats:
-		GameState.session_stats[key] = saved_stats.get(key, default_stats[key])
-	
-	# Migrate legacy stats if needed
-	if saved_stats.has("time_played_tu") and GameState.session_stats.time_played_seconds == 0:
-		GameState.session_stats.time_played_seconds = saved_stats.get("time_played_tu", 0)
+	GameState.factions = _deserialize_resource_dict_by_string_key(save_data.get("factions", {}))
 
 func _deserialize_resource(res_data: Dictionary) -> Resource:
 	if not res_data.has("template_id"):
@@ -343,13 +359,11 @@ func _find_template_in_database(template_id: String) -> Resource:
 		return TemplateDatabase.characters[template_id]
 	if TemplateDatabase.assets_ships.has(template_id):
 		return TemplateDatabase.assets_ships[template_id]
-	if TemplateDatabase.assets_modules.has(template_id):
-		return TemplateDatabase.assets_modules[template_id]
 	if TemplateDatabase.locations.has(template_id):
 		return TemplateDatabase.locations[template_id]
-	if TemplateDatabase.contracts.has(template_id):
-		return TemplateDatabase.contracts[template_id]
-	# Add other template types here as needed...
+	if TemplateDatabase.factions.has(template_id):
+		return TemplateDatabase.factions[template_id]
+	# NOTE: assets_modules and contracts lookups removed — pruned in sim rework.
 	return null
 
 

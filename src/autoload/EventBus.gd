@@ -72,15 +72,6 @@ signal combat_ended(result_dict)  # result_dict: {outcome: "victory"/"defeat"/"f
 signal agent_damaged(agent_body, damage_amount, source_agent)
 signal agent_disabled(agent_body)  # When hull <= 0
 
-# --- Contract Signals ---
-signal contract_accepted(contract_id)
-signal contract_completed(contract_id, success)  # success: bool
-signal contract_abandoned(contract_id)
-signal contract_failed(contract_id)  # e.g., time limit exceeded
-
-# --- Trading Signals ---
-signal trade_transaction_completed(transaction_dict)  # {type, commodity_id, quantity, price, ...}
-
 # --- Docking Signals ---
 signal dock_available(location_id)  # Player near dockable station
 signal dock_unavailable
@@ -89,21 +80,12 @@ signal player_undocked
 signal dock_action_feedback(success, message)  # Feedback from dock button press
 signal attack_action_feedback(success, message)  # Feedback from attack button press
 
-# --- Narrative Action Signals ---
-signal narrative_action_requested(action_type, context)  # Shows Action Check UI
-signal narrative_action_resolved(result_dict)  # Contains outcome, effects applied
-
 # --- Contact System Signals ---
 signal contact_met(agent_id) # Emitted when player first meets a Persistent Agent
 
-# --- Goal System Events (Placeholders for Phase 2+) ---
-# signal goal_progress_updated(agent_body, goal_id, new_progress)
-# signal goal_completed(agent_body, goal_id, success_level)
-
-
-# --- Ship Quirk Signals ---
-signal ship_quirk_added(ship_uid, quirk_id)
-signal ship_quirk_removed(ship_uid, quirk_id)
+# --- Simulation Signals ---
+signal sim_tick_completed(tick_count)   # Emitted after full tick sequence completes
+signal sim_initialized(seed_string)    # Emitted after simulation is seeded and all layers initialized
 
 
 func _ready():

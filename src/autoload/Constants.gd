@@ -90,3 +90,52 @@ const TIME_TICK_INTERVAL_SECONDS = 1.0 # Real-time seconds per game-time update 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
 const TARGETING_RAY_LENGTH = 1e7
+
+# =============================================================================
+# === SIMULATION ENGINE =======================================================
+# =============================================================================
+
+# --- Grid CA Parameters (Phase 1 stubs) ---
+const CA_INFLUENCE_PROPAGATION_RATE = 0.1
+const CA_PIRATE_ACTIVITY_DECAY = 0.02
+const CA_PIRATE_ACTIVITY_GROWTH = 0.05
+const CA_STOCKPILE_DIFFUSION_RATE = 0.05
+const CA_EXTRACTION_RATE_DEFAULT = 0.01
+const CA_PRICE_SENSITIVITY = 0.5
+const CA_DEMAND_BASE = 0.1
+
+# --- Wreck & Entropy ---
+const WRECK_DEGRADATION_PER_TICK = 0.05
+const WRECK_DEBRIS_RETURN_FRACTION = 0.8
+const ENTROPY_BASE_RATE = 0.001
+const ENTROPY_RADIATION_MULTIPLIER = 2.0
+const ENTROPY_FLEET_RATE_FRACTION = 0.5
+
+# --- Agent ---
+const AGENT_KNOWLEDGE_NOISE_FACTOR = 0.1
+const AGENT_RESPAWN_TICKS = 10
+const HOSTILE_BASE_CARRYING_CAPACITY = 5
+
+# --- Heat (Phase 1 stub) ---
+const HEAT_GENERATION_IN_SPACE = 0.01
+const HEAT_DISSIPATION_DOCKED = 1.0
+const HEAT_OVERHEAT_THRESHOLD = 0.8
+
+# --- Power ---
+const POWER_DRAW_PER_AGENT = 5.0
+const POWER_DRAW_PER_SERVICE = 10.0
+
+# --- Bridge Entropy Drains ---
+const ENTROPY_HULL_MULTIPLIER = 0.1
+const PROPELLANT_DRAIN_PER_TICK = 0.5
+const ENERGY_DRAIN_PER_TICK = 0.3
+
+# --- Agent Decision Thresholds ---
+const NPC_CASH_LOW_THRESHOLD = 2000.0
+const NPC_HULL_REPAIR_THRESHOLD = 0.5
+const COMMODITY_BASE_PRICE = 10.0
+const RESPAWN_TIMEOUT_SECONDS = 300.0
+const HOSTILE_GROWTH_RATE = 0.05
+
+# --- Axiom 1 ---
+const AXIOM1_TOLERANCE = 0.01

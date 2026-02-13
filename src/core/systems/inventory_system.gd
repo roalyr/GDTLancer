@@ -92,6 +92,6 @@ func get_inventory_by_type(character_uid: int, inventory_type: int) -> Dictionar
 func _get_master_asset_instance(inventory_type: int, asset_uid: int) -> Resource:
 	if inventory_type == InventoryType.SHIP:
 		return GameState.assets_ships.get(asset_uid)
-	elif inventory_type == InventoryType.MODULE:
-		return GameState.assets_modules.get(asset_uid)
+	# NOTE: MODULE lookup removed — GameState.assets_modules pruned in sim rework.
+	# Module support will be rebuilt on the Agent layer.
 	return null

@@ -1,59 +1,58 @@
 #
 # PROJECT: GDTLancer
 # MODULE: time_system.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
+# LOG_REF: 2026-02-13
 #
 
 extends Node
 
-## TimeSystem: Manages game time progression and world event ticks.
-## Advances game_time_seconds in GameState and triggers periodic world events.
+## TimeSystem: Pure clock — tracks real-time accumulation and emits tick signals.
+##
+## This system is ONLY a timer. It does NOT call any other systems directly.
+## When WORLD_TICK_INTERVAL_SECONDS elapses, it emits world_event_tick_triggered
+## on EventBus. SimulationEngine listens to that signal and orchestrates the
+## full tick sequence (Grid → Bridge → Agent → Chronicle).
+##
+## All upkeep/entropy/cost logic has been moved to BridgeSystems (TASK_6).
 
 var _accumulated_seconds: float = 0.0
 
 func _ready():
 	GlobalRefs.set_time_system(self)
-	print("TimeSystem Ready.")
+	print("TimeSystem Ready (pure clock mode).")
 
 
 # --- Public API ---
-func advance_game_time(seconds_to_add: int):
+
+## Advances game time by the given number of seconds.
+## Triggers world event ticks whenever the accumulator crosses the interval threshold.
+func advance_game_time(seconds_to_add: int) -> void:
 	if seconds_to_add <= 0:
 		return
 
 	GameState.game_time_seconds += seconds_to_add
-	
-	# Update session stats
-	if GameState.session_stats:
-		GameState.session_stats.time_played_seconds += seconds_to_add
 
 	# Emit signal for UI updates every time time is added
 	if EventBus and EventBus.has_signal("game_time_advanced"):
 		EventBus.emit_signal("game_time_advanced", seconds_to_add)
 
-	# Handle world ticks
+	# Accumulate and fire world ticks as needed
 	_accumulated_seconds += float(seconds_to_add)
 	while _accumulated_seconds >= Constants.WORLD_TICK_INTERVAL_SECONDS:
 		_accumulated_seconds -= Constants.WORLD_TICK_INTERVAL_SECONDS
-		_trigger_world_event_tick()
+		_emit_world_tick()
 
 
+## Returns the current game time in seconds.
 func get_current_game_time() -> int:
 	return GameState.game_time_seconds
 
 
-# --- Private Logic ---
-func _trigger_world_event_tick():
-	#print("--- WORLD EVENT TICK TRIGGERED ---")
+# --- Private ---
 
-	# Emit the global signal with the amount of time that this tick represents.
+## Emits the world tick signal. SimulationEngine handles everything else.
+func _emit_world_tick() -> void:
 	if EventBus:
 		EventBus.emit_signal("world_event_tick_triggered", Constants.WORLD_TICK_INTERVAL_SECONDS)
-
-	# Call the Character System to apply the Credits Upkeep cost for the player character.
-	if is_instance_valid(GlobalRefs.character_system):
-		var player_uid = GlobalRefs.character_system.get_player_character_uid()
-		if player_uid != -1:
-			GlobalRefs.character_system.apply_upkeep_cost(player_uid, Constants.DEFAULT_UPKEEP_COST)

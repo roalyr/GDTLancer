@@ -35,18 +35,6 @@ onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/Ta
 onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
 onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
 
-const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
-var station_menu_instance = null
-
-const ActionCheckScene = preload("res://scenes/ui/screens/action_check.tscn")
-var action_check_instance = null
-
-const NarrativeStatusScene = preload("res://scenes/ui/screens/narrative_status_panel.tscn")
-var narrative_status_instance = null
-
-const ContactsPanelScene = preload("res://src/core/ui/contacts_panel/contacts_panel.tscn")
-var contacts_panel_instance = null
-
 # --- State ---
 var _current_target: Spatial = null
 var _main_camera: Camera = null
@@ -59,32 +47,6 @@ var _hud_alpha = 1.0
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_main_hud(self)
-	
-	# Instantiate Station Menu
-	station_menu_instance = StationMenuScene.instance()
-	add_child(station_menu_instance)
-	# It starts hidden by default in its own _ready
-
-	# Instantiate Action Check UI (hidden by default; shown via EventBus)
-	action_check_instance = ActionCheckScene.instance()
-	action_check_instance = ActionCheckScene.instance()
-	add_child(action_check_instance)
-
-	# Instantiate Narrative Status Panel (hidden by default)
-	narrative_status_instance = NarrativeStatusScene.instance()
-	add_child(narrative_status_instance)
-	
-	# Instantiate Contacts Panel (Task 10)
-	contacts_panel_instance = ContactsPanelScene.instance()
-	add_child(contacts_panel_instance)
-	
-	# Initial button wiring - reusing existing button if possible, but adding specific connection
-	if is_instance_valid(button_contacts):
-		button_contacts.connect("pressed", self, "_on_ButtonContacts_pressed")
-	elif is_instance_valid(button_narrative_status):
-		# Fallback: if HUD scene isn't updated with a new button, we can wire the character button or similar
-		# For now, we assume the user will update the scene or we use existing Narrative Status button as entry
-		pass
 
 	# Ensure indicator starts hidden
 	targeting_indicator.visible = false
@@ -147,8 +109,7 @@ func _ready():
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
-	# Connect to CombatSystem signals for hull updates (deferred to allow system init)
-	call_deferred("_connect_combat_signals")
+	# Connect to CombatSystem signals — DEFERRED (removed: CombatSystem deleted)
 	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
 	
@@ -163,9 +124,6 @@ func _ready():
 	if is_instance_valid(button_menu):
 		if not button_menu.is_connected("pressed", self, "_on_ButtonMenu_pressed"):
 			button_menu.connect("pressed", self, "_on_ButtonMenu_pressed")
-
-	if is_instance_valid(button_narrative_status):
-		button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
 
 	# Connect ButtonCamera to toggle camera mode
 	if is_instance_valid(button_camera):
@@ -527,74 +485,35 @@ func _on_SliderControlRight_value_changed(value):
 
 
 func _on_ButtonCharacter_pressed():
-	GlobalRefs.character_status.open_screen()
+	# TODO: Rebuild on simulation foundation
+	pass
 
 
 func _on_ButtonInventory_pressed():
-	GlobalRefs.inventory_screen.open_screen()
+	# TODO: Rebuild on simulation foundation
+	pass
 
 
-func _on_ButtonNarrativeStatus_pressed():
-	if is_instance_valid(narrative_status_instance):
-		narrative_status_instance.open_screen()
-
-
-# --- Combat HUD Functions ---
+# --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
 
 func _connect_combat_signals() -> void:
-	"""Connect to CombatSystem signals for hull updates."""
-	if is_instance_valid(GlobalRefs.combat_system):
-		if not GlobalRefs.combat_system.is_connected("damage_dealt", self, "_on_damage_dealt"):
-			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_damage_dealt")
-		if not GlobalRefs.combat_system.is_connected("ship_disabled", self, "_on_ship_disabled"):
-			GlobalRefs.combat_system.connect("ship_disabled", self, "_on_ship_disabled")
-		# If the player is involved, refresh the player hull display on damage events.
-		if not GlobalRefs.combat_system.is_connected("damage_dealt", self, "_on_any_damage_dealt_refresh_player"):
-			GlobalRefs.combat_system.connect("damage_dealt", self, "_on_any_damage_dealt_refresh_player")
+	# CombatSystem removed — rebuild later on Agent layer
+	pass
 
 
 func _refresh_player_hull() -> void:
 	if not is_instance_valid(label_player_hull) or not is_instance_valid(player_hull_bar):
 		return
-	if not is_instance_valid(GlobalRefs.player_agent_body):
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-	var raw_uid = GlobalRefs.player_agent_body.get("agent_uid")
-	if raw_uid == null:
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-	_player_uid = int(raw_uid)
-	if _player_uid < 0:
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-	if not is_instance_valid(GlobalRefs.combat_system):
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-
-	# Avoid showing 0% when CombatSystem hasn't registered the player yet.
-	var state: Dictionary = {}
-	if GlobalRefs.combat_system.has_method("get_combat_state"):
-		state = GlobalRefs.combat_system.get_combat_state(_player_uid)
-	if state.empty():
-		label_player_hull.text = "Hull: --"
-		player_hull_bar.value = 100.0
-		return
-
-	var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(_player_uid)
+	# Read hull from GameState agent layer (simulation-first architecture)
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	var hull_pct: float = player_agent.get("hull_integrity", 1.0)
 	player_hull_bar.value = hull_pct * 100.0
 	label_player_hull.text = "Hull: " + str(int(round(hull_pct * 100.0))) + "%"
 
 
 func _deferred_refresh_player_hull() -> void:
-	# CombatSystem registration happens deferred from Agent initialization.
-	# Retry briefly so we show player hull without requiring damage.
-	for _i in range(20):
-		_refresh_player_hull()
-		yield(get_tree().create_timer(0.1), "timeout")
+	# Simple deferred call — simulation state is always available
+	_refresh_player_hull()
 
 
 func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _source_uid: int) -> void:
@@ -632,16 +551,11 @@ func _update_target_info_panel(target_node: Spatial) -> void:
 
 
 func _update_target_hull_bar() -> void:
-	"""Update the target hull progress bar from CombatSystem."""
+	"""Update the target hull progress bar from GameState agent data."""
 	if not target_hull_bar or _current_target_uid < 0:
 		return
-	
-	if is_instance_valid(GlobalRefs.combat_system):
-		var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(_current_target_uid)
-		target_hull_bar.value = hull_pct * 100.0
-	else:
-		# CombatSystem not available, show full hull as fallback
-		target_hull_bar.value = 100.0
+	# CombatSystem removed — hull data now lives in GameState agents
+	target_hull_bar.value = 100.0
 
 
 func _on_damage_dealt(target_uid: int, _amount: float, _source_uid: int) -> void:
@@ -666,8 +580,3 @@ func _on_ButtonUIOpacity_pressed() -> void:
 	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
-
-# --- Contacts Panel ---
-func _on_ButtonContacts_pressed() -> void:
-    if is_instance_valid(contacts_panel_instance):
-        contacts_panel_instance.open_screen()

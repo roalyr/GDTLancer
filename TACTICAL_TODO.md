@@ -121,7 +121,7 @@ faction dominion, resource flow, entropy.
 
 - ATOMIC_TASKS:
 
-  - [ ] TASK_1: Gut GameState — Rebuild as Four-Layer Data Store
+  - [x] TASK_1: Gut GameState — Rebuild as Four-Layer Data Store
     - Location: `src/autoload/GameState.gd`
     - REMOVE: `active_actions`, `assets_modules`, `contacts` (deprecated), `narrative_state.known_contacts`, `narrative_state.contact_relationships`, `contracts`, `active_contracts`, `session_stats`
     - RESTRUCTURE into four clear sections:
@@ -181,7 +181,7 @@ faction dominion, resource flow, entropy.
     var player_rotation: Vector3 = Vector3.ZERO
     ```
 
-  - [ ] TASK_2: Create CA Rules Module — Pure Functions
+  - [x] TASK_2: Create CA Rules Module — Pure Functions
     - Location: `src/core/simulation/ca_rules.gd` (new file)
     - Extends: Reference (pure static utility, no Node, no state)
     - Contains ALL CA transition logic as static-style functions:
@@ -208,7 +208,7 @@ faction dominion, resource flow, entropy.
     - All functions return new state — never mutate inputs.
     - Reference: GDD Section 1.2 (CA Catalogue), Section 3 (Grid Layer), Section 7 (Tick Sequence)
 
-  - [ ] TASK_3: Create World Layer Initializer
+  - [x] TASK_3: Create World Layer Initializer
     - Location: `src/core/simulation/world_layer.gd` (new file)
     - Extends: Reference
     - Purpose: Initialize Layer 1 data in GameState from LocationTemplate .tres files and seed values.
@@ -226,7 +226,7 @@ faction dominion, resource flow, entropy.
       - Add `station_power_output: float`, `stockpile_capacity: int`
     - Reference: GDD Section 2 (World Layer), Section 9 (Phase 1 scope)
 
-  - [ ] TASK_4: Create Grid Layer Processor
+  - [x] TASK_4: Create Grid Layer Processor
     - Location: `src/core/simulation/grid_layer.gd` (new file)
     - Extends: Reference
     - Purpose: Process all Grid-layer CA steps for one tick. Double-buffered.
@@ -244,7 +244,7 @@ faction dominion, resource flow, entropy.
     - Double-buffering: read from `GameState.grid_*`, write to local buffer, then copy buffer to GameState atomically at end of process_tick.
     - After processing: assert Axiom 1 (total matter unchanged).
 
-  - [ ] TASK_5: Create Agent Layer Processor
+  - [x] TASK_5: Create Agent Layer Processor
     - Location: `src/core/simulation/agent_layer.gd` (new file)
     - Extends: Reference
     - Purpose: Process all Agent-layer logic for one tick.
@@ -264,7 +264,7 @@ faction dominion, resource flow, entropy.
     - Persistent agent respawn: if disabled and enough ticks elapsed, set is_disabled = false, move to home sector
     - Hostile population: track global integral, adjust based on carrying capacity derived from pirate_activity grid values
 
-  - [ ] TASK_6: Create Bridge Systems Processor
+  - [x] TASK_6: Create Bridge Systems Processor
     - Location: `src/core/simulation/bridge_systems.gd` (new file)
     - Extends: Reference
     - Purpose: Cross-layer processing (GDD Section 7, steps 3a–3c).
@@ -281,7 +281,7 @@ faction dominion, resource flow, entropy.
         - Each agent: refresh known_grid_state for current_sector_id with actual grid data
         - Other sectors: apply small noise factor (Phase 1 stub for knowledge decay)
 
-  - [ ] TASK_7: Create Chronicle Layer Processor
+  - [x] TASK_7: Create Chronicle Layer Processor
     - Location: `src/core/simulation/chronicle_layer.gd` (new file)
     - Extends: Reference
     - Purpose: Event capture and rumor generation (GDD Section 7, steps 5a–5e).
@@ -298,7 +298,7 @@ faction dominion, resource flow, entropy.
     - Event Packet schema (per GDD Section 5.1):
       - {actor_uid, action_id, target_uid, target_sector_id, tick_count, outcome, metadata}
 
-  - [ ] TASK_8: Create Simulation Engine — Tick Orchestrator
+  - [x] TASK_8: Create Simulation Engine — Tick Orchestrator
     - Location: `src/core/simulation/simulation_engine.gd` (new file)
     - Extends: Node (added to scene tree under WorldManager)
     - Purpose: Orchestrate the full tick sequence (GDD Section 7).
@@ -325,7 +325,7 @@ faction dominion, resource flow, entropy.
       - If mismatch: push_error with detailed breakdown
     - Connect to EventBus.world_event_tick_triggered (from TimeSystem)
 
-  - [ ] TASK_9: Rewire TimeSystem to Drive SimulationEngine
+  - [x] TASK_9: Rewire TimeSystem to Drive SimulationEngine
     - Location: `src/core/systems/time_system.gd`
     - Simplify to ONLY:
       - Track real-time accumulation
@@ -334,7 +334,7 @@ faction dominion, resource flow, entropy.
     - Remove any upkeep cost logic (moved to bridge_systems entropy)
     - Remove any direct system calls — TimeSystem is just a clock
 
-  - [ ] TASK_10: Add Simulation Constants
+  - [x] TASK_10: Add Simulation Constants
     - Location: `src/autoload/Constants.gd`
     - Add new section `# === SIMULATION ENGINE ===`:
     ```
@@ -368,7 +368,7 @@ faction dominion, resource flow, entropy.
     const HEAT_OVERHEAT_THRESHOLD: float = 0.8
     ```
 
-  - [ ] TASK_11: Extend LocationTemplate for World Layer Data
+  - [x] TASK_11: Extend LocationTemplate for World Layer Data
     - Location: `database/definitions/location_template.gd`
     - Add exports (these are the World Layer's physical foundation data):
     ```
@@ -390,7 +390,7 @@ faction dominion, resource flow, entropy.
     - Create 3-6 additional location .tres files to reach the GDD's 6-9 sector target:
       - 2-3 per faction, each with distinct resource profiles
 
-  - [ ] TASK_12: Create Sim Debug Panel
+  - [x] TASK_12: Create Sim Debug Panel
     - Location: `src/core/ui/sim_debug_panel/sim_debug_panel.gd` + `.tscn` (new)
     - Purpose: Text-only readout of ALL simulation state. The Python demo's `display()` method, but in Godot.
     - Scene structure: Control → Panel → VBoxContainer → [HeaderLabel, RichTextLabel (scrollable, monospace)]
@@ -415,7 +415,7 @@ faction dominion, resource flow, entropy.
     - Toggle with a single key (F3 or similar) — debug only, not gameplay UI
     - Wire into MainHUD or as a separate CanvasLayer
 
-  - [ ] TASK_13: Prune Dead Systems and Signals
+  - [x] TASK_13: Prune Dead Systems and Signals
     - Location: Multiple files
     - EventBus: Remove signals that no longer have consumers/emitters after pruning:
       - `contract_accepted`, `contract_completed`, `contract_abandoned`, `contract_failed` (contract system removed)
@@ -432,7 +432,7 @@ faction dominion, resource flow, entropy.
     - Update `main_game_scene.tscn`: remove deleted system nodes, add SimulationEngine node
     - DO NOT remove signals/refs used by kept systems (event_system, agent_system, time_system, character_system, inventory_system, asset_system)
 
-  - [ ] TASK_14: Create Unit Tests for Simulation Engine
+  - [x] TASK_14: Create Unit Tests for Simulation Engine
     - Location: `src/tests/core/simulation/`
     - `test_ca_rules.gd`:
       - test_strategic_map_influence_propagation — influence flows to neighbors
@@ -467,7 +467,7 @@ faction dominion, resource flow, entropy.
       - test_deterministic_simulation — same seed + same ticks = same state
       - test_tick_count_increments — sim_tick_count increases
 
-  - [ ] TASK_15: Cleanup and Verify
+  - [x] TASK_15: Cleanup and Verify
     - Delete all files listed in the DELETE section above
     - Ensure project loads without errors (no missing references)
     - Update `project.godot` autoload list if any autoloads were removed

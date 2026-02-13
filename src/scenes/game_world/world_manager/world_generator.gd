@@ -15,8 +15,8 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 
 var _next_character_uid: int = 0
 var _next_ship_uid: int = 0
-var _next_module_uid: int = 0
 # Commodity UIDs are no longer needed as they are not unique instances.
+# Module UIDs removed — assets_modules pruned in sim rework.
 
 # --- Public API ---
 
@@ -26,9 +26,6 @@ func generate_new_world():
 
 	# Load all locations into GameState first (they are keyed by template_id).
 	_load_locations()
-	
-	# Load all contracts into GameState.
-	_load_contracts()
 
 	_load_factions()
 	# DEPRECATED: ContactTemplate system replaced by Persistent Agents.
@@ -129,37 +126,12 @@ func _load_locations():
 		print("... Loaded location: ", template.location_name)
 
 
-# Loads all contract templates into GameState.contracts.
-# Contracts are stored by their template_id (available pool).
-func _load_contracts():
-	print("WorldGenerator: Loading contracts...")
-	for template_id in TemplateDatabase.contracts:
-		var template = TemplateDatabase.contracts[template_id]
-		# Duplicate to allow runtime state tracking.
-		GameState.contracts[template_id] = template.duplicate()
-		print("... Loaded contract: ", template.title)
-
-
 func _load_factions():
 	print("WorldGenerator: Loading factions...")
 	for template_id in TemplateDatabase.factions:
 		var template = TemplateDatabase.factions[template_id]
 		GameState.factions[template_id] = template.duplicate()
-		
-		# Seed initial standing
-		if not GameState.narrative_state.faction_standings.has(template.faction_id):
-			GameState.narrative_state.faction_standings[template.faction_id] = template.default_standing
-
-
-func _load_contacts():
-	print("WorldGenerator: Loading contacts...")
-	for template_id in TemplateDatabase.contacts:
-		var template = TemplateDatabase.contacts[template_id]
-		GameState.contacts[template_id] = template.duplicate()
-		
-		# Seed initial relationship
-		if not GameState.narrative_state.contact_relationships.has(template.contact_id):
-			GameState.narrative_state.contact_relationships[template.contact_id] = template.initial_relationship
+		print("... Loaded faction: ", template.faction_id)
 
 
 # Creates a unique instance of a character from a template and registers it
@@ -199,12 +171,9 @@ func _generate_and_assign_assets():
 			character.active_ship_uid = ship_uid
 			print("... Assigned ship (UID: %d) to character %s" % [ship_uid, character.character_name])
 
-		# Create and assign a starting module.
-		var module_uid = _create_module_instance("module_default")
-		if module_uid != -1:
-			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.MODULE, module_uid)
-			print("... Assigned module (UID: %d) to character %s" % [module_uid, character.character_name])
-			
+		# NOTE: Module assignment removed — assets_modules pruned in sim rework.
+		# Module support will be rebuilt on the Agent layer.
+
 		# Sprint 10: Player starting cargo should be empty.
 		# (NPC starting cargo can be added later if needed for simulation.)
 
@@ -222,19 +191,6 @@ func _create_ship_instance(ship_template_id: String) -> int:
 	return uid
 
 
-# Creates a unique instance of a module and returns its UID.
-func _create_module_instance(module_template_id: String) -> int:
-	if not TemplateDatabase.assets_modules.has(module_template_id):
-		printerr("WorldGenerator Error: Cannot find module template with id: ", module_template_id)
-		return -1
-		
-	var template = TemplateDatabase.assets_modules[module_template_id]
-	var new_module_instance = template.duplicate()
-	var uid = _get_new_module_uid()
-	GameState.assets_modules[uid] = new_module_instance
-	return uid
-
-
 # --- UID Generation ---
 func _get_new_character_uid() -> int:
 	var id = _next_character_uid
@@ -244,9 +200,4 @@ func _get_new_character_uid() -> int:
 func _get_new_ship_uid() -> int:
 	var id = _next_ship_uid
 	_next_ship_uid += 1
-	return id
-
-func _get_new_module_uid() -> int:
-	var id = _next_module_uid
-	_next_module_uid += 1
 	return id

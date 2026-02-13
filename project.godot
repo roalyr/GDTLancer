@@ -162,7 +162,6 @@ TemplateDatabase="*res://src/autoload/TemplateDatabase.gd"
 GameState="*res://src/autoload/GameState.gd"
 CoreMechanicsAPI="*res://src/autoload/CoreMechanicsAPI.gd"
 GameStateManager="*res://src/autoload/GameStateManager.gd"
-NarrativeOutcomes="*res://src/autoload/NarrativeOutcomes.gd"
 
 [display]
 

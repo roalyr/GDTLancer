@@ -9,6 +9,15 @@ location_name = "Station Beta - Trade Post"
 location_type = "station"
 position_in_zone = Vector3( 49500, 100, 1500 )
 interaction_radius = 150.0
+connections = PoolStringArray( "station_alpha", "station_gamma" )
+sector_type = "hub"
+radiation_level = 0.01
+thermal_background_k = 310.0
+gravity_well_penalty = 1.0
+mineral_density = 0.3
+propellant_sources = 0.8
+station_power_output = 120.0
+stockpile_capacity = 1200
 market_inventory = {
 "commodity_ore": {
 "buy_price": 15,

@@ -9,6 +9,15 @@ location_name = "Station Alpha - Mining Hub"
 location_type = "station"
 position_in_zone = Vector3( 48042, 233, -673 )
 interaction_radius = 150.0
+connections = PoolStringArray( "station_beta", "station_gamma" )
+sector_type = "hub"
+radiation_level = 0.05
+thermal_background_k = 280.0
+gravity_well_penalty = 1.2
+mineral_density = 2.0
+propellant_sources = 0.3
+station_power_output = 150.0
+stockpile_capacity = 1500
 market_inventory = {
 "commodity_ore": {
 "buy_price": 8,

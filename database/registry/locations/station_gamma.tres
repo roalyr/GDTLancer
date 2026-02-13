@@ -9,6 +9,15 @@ location_name = "Freeport Gamma"
 location_type = "station"
 position_in_zone = Vector3( 46000, -200, 500 )
 interaction_radius = 150.0
+connections = PoolStringArray( "station_alpha", "station_beta" )
+sector_type = "frontier"
+radiation_level = 0.15
+thermal_background_k = 250.0
+gravity_well_penalty = 1.5
+mineral_density = 0.8
+propellant_sources = 1.2
+station_power_output = 80.0
+stockpile_capacity = 800
 market_inventory = {
 "commodity_ore": {
 "buy_price": 12,

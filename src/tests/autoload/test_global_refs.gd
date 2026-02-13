@@ -48,17 +48,13 @@ func reset_all_global_refs():
 	GlobalRefs.current_zone = null
 	GlobalRefs.agent_container = null
 	GlobalRefs.game_state_manager = null
-	GlobalRefs.action_system = null
 	GlobalRefs.agent_spawner = null
 	GlobalRefs.asset_system = null
 	GlobalRefs.character_system = null
-	GlobalRefs.chronicle_system = null
-	GlobalRefs.goal_system = null
+	GlobalRefs.event_system = null
 	GlobalRefs.inventory_system = null
-	GlobalRefs.progression_system = null
 	GlobalRefs.time_system = null
-	GlobalRefs.traffic_system = null
-	GlobalRefs.world_map_system = null
+	GlobalRefs.simulation_engine = null
 
 
 # --- Test Methods ---
@@ -68,7 +64,6 @@ func test_initial_references_are_null():
 	assert_null(GlobalRefs.player_agent_body, "Player ref should start null.")
 	assert_null(GlobalRefs.main_camera, "Camera ref should start null.")
 	assert_null(GlobalRefs.world_manager, "World Manager ref should start null.")
-	assert_null(GlobalRefs.action_system, "Action System ref should start null.")
 	assert_null(GlobalRefs.time_system, "Time System ref should start null.")
 	assert_null(GlobalRefs.character_system, "Character System ref should start null.")
 	prints("Tested GlobalRefs: Initial Null State")

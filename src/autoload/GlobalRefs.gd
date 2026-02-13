@@ -19,27 +19,15 @@ var game_state_manager = null setget set_game_state_manager
 
 # --- UI elements ---
 var main_hud = null setget set_main_hud
-var character_status = null setget set_character_status
-var inventory_screen = null setget set_inventory_screen
 
-# --- Core System References ---
-var action_system = null setget set_action_system
+# --- Core System References (KEPT systems) ---
 var agent_spawner = null setget set_agent_spawner
 var asset_system = null setget set_asset_system
 var character_system = null setget set_character_system
-var chronicle_system = null setget set_chronicle_system
-var goal_system = null setget set_goal_system
-var inventory_system = null setget set_inventory_system
-var progression_system = null setget set_progression_system
-var time_system = null setget set_time_system
-var traffic_system = null setget set_traffic_system
-var world_map_system = null setget set_world_map_system
 var event_system = null setget set_event_system
-var trading_system = null setget set_trading_system
-var contract_system = null setget set_contract_system
-var narrative_action_system = null setget set_narrative_action_system
-var combat_system = null setget set_combat_system
-var quirk_system = null setget set_quirk_system
+var inventory_system = null setget set_inventory_system
+var time_system = null setget set_time_system
+var simulation_engine = null setget set_simulation_engine
 
 
 func _ready():
@@ -99,14 +87,6 @@ func set_game_state_manager(new_ref):
 
 # --- System Setters ---
 
-func set_action_system(new_ref):
-	if new_ref == action_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		action_system = new_ref
-		print("GlobalRefs: ActionSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ActionSystem ref: ", new_ref)
-
 func set_agent_spawner(new_ref):
 	if new_ref == agent_spawner: return
 	if new_ref == null or is_instance_valid(new_ref):
@@ -131,22 +111,6 @@ func set_character_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid CharacterSystem ref: ", new_ref)
 
-func set_chronicle_system(new_ref):
-	if new_ref == chronicle_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		chronicle_system = new_ref
-		print("GlobalRefs: ChronicleSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ChronicleSystem ref: ", new_ref)
-
-func set_goal_system(new_ref):
-	if new_ref == goal_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		goal_system = new_ref
-		print("GlobalRefs: GoalSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid GoalSystem ref: ", new_ref)
-
 func set_inventory_system(new_ref):
 	if new_ref == inventory_system: return
 	if new_ref == null or is_instance_valid(new_ref):
@@ -154,14 +118,6 @@ func set_inventory_system(new_ref):
 		print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid InventorySystem ref: ", new_ref)
-
-func set_progression_system(new_ref):
-	if new_ref == progression_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		progression_system = new_ref
-		print("GlobalRefs: ProgressionSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ProgressionSystem ref: ", new_ref)
 
 func set_time_system(new_ref):
 	if new_ref == time_system: return
@@ -171,22 +127,6 @@ func set_time_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid TimeSystem ref: ", new_ref)
 
-func set_traffic_system(new_ref):
-	if new_ref == traffic_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		traffic_system = new_ref
-		print("GlobalRefs: TrafficSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid TrafficSystem ref: ", new_ref)
-
-func set_world_map_system(new_ref):
-	if new_ref == world_map_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		world_map_system = new_ref
-		print("GlobalRefs: WorldMapSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid WorldMapSystem ref: ", new_ref)
-
 func set_event_system(new_ref):
 	if new_ref == event_system: return
 	if new_ref == null or is_instance_valid(new_ref):
@@ -195,46 +135,13 @@ func set_event_system(new_ref):
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
 
-func set_trading_system(new_ref):
-	if new_ref == trading_system: return
+func set_simulation_engine(new_ref):
+	if new_ref == simulation_engine: return
 	if new_ref == null or is_instance_valid(new_ref):
-		trading_system = new_ref
-		print("GlobalRefs: TradingSystem ref ", "set." if new_ref else "cleared.")
+		simulation_engine = new_ref
+		print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
 	else:
-		printerr("GlobalRefs Error: Invalid TradingSystem ref: ", new_ref)
-
-func set_contract_system(new_ref):
-	if new_ref == contract_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		contract_system = new_ref
-		print("GlobalRefs: ContractSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid ContractSystem ref: ", new_ref)
-
-
-func set_narrative_action_system(new_ref):
-	if new_ref == narrative_action_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		narrative_action_system = new_ref
-		print("GlobalRefs: NarrativeActionSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid NarrativeActionSystem ref: ", new_ref)
-
-func set_combat_system(new_ref):
-	if new_ref == combat_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		combat_system = new_ref
-		print("GlobalRefs: CombatSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid CombatSystem ref: ", new_ref)
-
-func set_quirk_system(new_ref):
-	if new_ref == quirk_system: return
-	if new_ref == null or is_instance_valid(new_ref):
-		quirk_system = new_ref
-		print("GlobalRefs: QuirkSystem ref ", "set." if new_ref else "cleared.")
-	else:
-		printerr("GlobalRefs Error: Invalid QuirkSystem ref: ", new_ref)
+		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
 
 
 # --- UI ELEMENTS ---
@@ -246,19 +153,4 @@ func set_main_hud(new_ref):
 		print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
-		
-func set_character_status(new_ref):
-	if new_ref == character_status: return
-	if new_ref == null or is_instance_valid(new_ref):
-		character_status = new_ref
-		print("GlobalRefs: Character Status UI window ref set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Invalid Character Status UI window ref: ", new_ref)
 
-func set_inventory_screen(new_ref):
-	if new_ref == inventory_screen: return
-	if new_ref == null or is_instance_valid(new_ref):
-		inventory_screen = new_ref
-		print("GlobalRefs: Inventory Screen UI window ref set to ", new_ref.name if new_ref else "null")
-	else:
-		printerr("GlobalRefs Error: Invalid Inventory Screen UI window ref: ", new_ref)

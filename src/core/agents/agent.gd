@@ -111,17 +111,7 @@ func _get_movement_params_from_ship() -> Dictionary:
 		}
 
 
-# Registers this agent with the combat system using its ship template.
-func _register_with_combat_system() -> void:
-	if not is_instance_valid(GlobalRefs.combat_system):
-		return
-	if agent_uid < 0:
-		return
-	if not is_instance_valid(ship_template):
-		return
-	
-	GlobalRefs.combat_system.register_combatant(agent_uid, ship_template)
-	print("AgentBody '", self.name, "' registered with CombatSystem. Hull: ", ship_template.hull_integrity)
+# Registers this agent with the combat system using its ship template.\n# NOTE: CombatSystem removed — rebuild later on Agent layer.\nfunc _register_with_combat_system() -> void:\n\tpass
 
 
 # --- Godot Lifecycle ---

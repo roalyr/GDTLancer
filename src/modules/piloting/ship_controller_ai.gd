@@ -225,13 +225,7 @@ func _process_combat(delta: float) -> void:
 		_change_state(AIState.PATROL)
 		return
 
-	# Hull check only valid if CombatSystem has state for this agent.
-	if is_instance_valid(GlobalRefs.combat_system) and GlobalRefs.combat_system.has_method("is_in_combat"):
-		if GlobalRefs.combat_system.is_in_combat(int(agent_script.agent_uid)):
-			var hull_pct: float = GlobalRefs.combat_system.get_hull_percent(int(agent_script.agent_uid))
-			if hull_pct > 0.0 and hull_pct < flee_hull_threshold:
-				_change_state(AIState.FLEE)
-				return
+	# Hull check — CombatSystem removed, read from GameState agent layer.\n\tvar agent_id_str: String = str(agent_script.agent_uid)\n\tif GameState.agents.has(agent_id_str):\n\t\tvar hull_pct: float = GameState.agents[agent_id_str].get(\"hull_integrity\", 1.0)\n\t\tif hull_pct > 0.0 and hull_pct < flee_hull_threshold:\n\t\t\t_change_state(AIState.FLEE)\n\t\t\treturn
 
 	# Approach target until within weapon range.
 	_repath_timer = max(0.0, _repath_timer - delta)
