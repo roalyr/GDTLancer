@@ -1,19 +1,17 @@
 # File: tests/core/systems/test_inventory_system.gd
 # GUT Test for the unified, stateless InventorySystem.
-# Version: 3.0 - Rewritten for unified GameState architecture.
+# Version: 4.0 - Adapted for sim rework (assets_modules removed from GameState).
 
 extends GutTest
 
 # --- Test Subjects ---
 const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 const ShipTemplate = preload("res://database/definitions/asset_ship_template.gd")
-const ModuleTemplate = preload("res://database/definitions/asset_module_template.gd")
 
 # --- Test State ---
 var inventory_system_instance = null
 const PLAYER_UID = 0
 const SHIP_UID = 100
-const MODULE_UID = 200
 const COMMODITY_ID = "commodity_default"
 
 
@@ -22,12 +20,10 @@ func before_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
 	GameState.player_character_uid = PLAYER_UID
 
 	# 2. Create mock assets in the master asset lists
 	GameState.assets_ships[SHIP_UID] = ShipTemplate.new()
-	GameState.assets_modules[MODULE_UID] = ModuleTemplate.new()
 
 	# 3. Instantiate the system we are testing
 	inventory_system_instance = InventorySystem.new()
@@ -42,7 +38,6 @@ func after_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
 	GameState.player_character_uid = -1
 	inventory_system_instance = null
 
@@ -94,13 +89,13 @@ func test_add_and_remove_commodity():
 
 func test_get_inventory_by_type():
 	# Add some assets to test with
-	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.MODULE, MODULE_UID)
+	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.SHIP, SHIP_UID)
 	inventory_system_instance.add_asset(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY, COMMODITY_ID, 50)
 
-	# Get the module inventory
-	var module_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.MODULE)
-	assert_eq(module_inventory.size(), 1, "Should return a dictionary with one module.")
-	assert_has(module_inventory, MODULE_UID, "The returned dictionary should contain the correct module UID.")
+	# Get the ship inventory
+	var ship_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.SHIP)
+	assert_eq(ship_inventory.size(), 1, "Should return a dictionary with one ship.")
+	assert_has(ship_inventory, SHIP_UID, "The returned dictionary should contain the correct ship UID.")
 
 	# Get the commodity inventory
 	var commodity_inventory = inventory_system_instance.get_inventory_by_type(PLAYER_UID, inventory_system_instance.InventoryType.COMMODITY)

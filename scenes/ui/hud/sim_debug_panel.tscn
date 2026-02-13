@@ -1,6 +1,12 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://src/core/ui/sim_debug_panel/sim_debug_panel.gd" type="Script" id=1]
+[ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=3]
+
+[sub_resource type="DynamicFont" id=1]
+size = 22
+font_data = ExtResource( 2 )
 
 [node name="SimDebugPanel" type="CanvasLayer"]
 script = ExtResource( 1 )
@@ -23,15 +29,26 @@ margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -8.0
 
-[node name="HeaderLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
 margin_right = 1884.0
-margin_bottom = 14.0
+margin_bottom = 36.0
+
+[node name="HeaderLabel" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+size_flags_horizontal = 3
+custom_fonts/font = SubResource( 1 )
 text = "SIM DEBUG  [F3 to close]"
 
+[node name="BtnDumpConsole" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 220, 0 )
+theme = ExtResource( 3 )
+text = "Dump to Console"
+
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
-margin_top = 18.0
+margin_top = 40.0
 margin_right = 1884.0
 margin_bottom = 1044.0
+custom_fonts/normal_font = SubResource( 1 )
+custom_fonts/bold_font = SubResource( 1 )
 size_flags_vertical = 3
 bbcode_enabled = true
 scroll_active = true

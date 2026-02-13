@@ -54,11 +54,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://database/definitions/asset_commodity_template.gd"
 }, {
-"base": "Template",
-"class": "ContactTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/contact_template.gd"
-}, {
 "base": "Resource",
 "class": "ContractTemplate",
 "language": "GDScript",
@@ -99,11 +94,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/core/utils/pid_controller.gd"
 }, {
-"base": "Resource",
-"class": "QuirkTemplate",
-"language": "GDScript",
-"path": "res://database/definitions/quirk_template.gd"
-}, {
 "base": "AssetTemplate",
 "class": "ShipTemplate",
 "language": "GDScript",
@@ -129,7 +119,6 @@ _global_script_class_icons={
 "CenteredGrowingLabel": "res://assets/art/ui/class_labels/class_centered_growing_label.svg",
 "CharacterTemplate": "",
 "CommodityTemplate": "",
-"ContactTemplate": "",
 "ContractTemplate": "",
 "FactionTemplate": "",
 "GutHookScript": "",
@@ -138,7 +127,6 @@ _global_script_class_icons={
 "LocationTemplate": "",
 "ModuleTemplate": "",
 "PIDController": "",
-"QuirkTemplate": "",
 "ShipTemplate": "",
 "Template": "",
 "UtilityToolTemplate": ""

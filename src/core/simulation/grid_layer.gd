@@ -165,6 +165,64 @@ func process_tick(config: Dictionary) -> void:
 		}
 
 	# ====================================================
+	# 2b-post. Stockpile Diffusion (separate pass for matter conservation)
+	# ====================================================
+	# Two-pass approach: first collect all flows, then apply symmetrically.
+	# Flow from sector A to neighbor B is subtracted from A and added to B.
+	var diffusion_rate: float = config.get("stockpile_diffusion_rate", 0.05)
+	var diffusion_deltas: Dictionary = {}  # sector_id → {commodity_id → delta}
+	for sector_id in buf_stockpiles:
+		diffusion_deltas[sector_id] = {}
+
+	for sector_id in GameState.world_topology:
+		var topology: Dictionary = GameState.world_topology[sector_id]
+		var connections: Array = topology.get("connections", [])
+		if connections.empty():
+			continue
+
+		var local_commodities: Dictionary = buf_stockpiles[sector_id].get("commodity_stockpiles", {})
+		for conn_id in connections:
+			# Only process pairs once: sector_id < conn_id avoids double-counting
+			if conn_id <= sector_id:
+				continue
+			if not buf_stockpiles.has(conn_id):
+				continue
+
+			var neighbor_commodities: Dictionary = buf_stockpiles[conn_id].get("commodity_stockpiles", {})
+
+			# Collect all commodity IDs present in either sector
+			var all_commodities: Dictionary = {}
+			for c in local_commodities:
+				all_commodities[c] = true
+			for c in neighbor_commodities:
+				all_commodities[c] = true
+
+			for commodity_id in all_commodities:
+				var local_amount: float = local_commodities.get(commodity_id, 0.0)
+				var neighbor_amount: float = neighbor_commodities.get(commodity_id, 0.0)
+				var diff: float = local_amount - neighbor_amount
+				if abs(diff) < 0.001:
+					continue
+
+				# Flow from high to low, proportional to difference
+				var flow: float = diff * diffusion_rate * 0.5  # 0.5 = per-edge rate
+				# Subtract from source, add to destination
+				diffusion_deltas[sector_id][commodity_id] = diffusion_deltas[sector_id].get(commodity_id, 0.0) - flow
+				if not diffusion_deltas.has(conn_id):
+					diffusion_deltas[conn_id] = {}
+				diffusion_deltas[conn_id][commodity_id] = diffusion_deltas[conn_id].get(commodity_id, 0.0) + flow
+
+	# Apply diffusion deltas to buffer stockpiles
+	for sector_id in diffusion_deltas:
+		var deltas: Dictionary = diffusion_deltas[sector_id]
+		if deltas.empty():
+			continue
+		var commodities: Dictionary = buf_stockpiles[sector_id].get("commodity_stockpiles", {})
+		for commodity_id in deltas:
+			var new_val: float = commodities.get(commodity_id, 0.0) + deltas[commodity_id]
+			commodities[commodity_id] = max(0.0, new_val)
+
+	# ====================================================
 	# 2f. Wreck & Debris (global, not per-sector iteration)
 	# ====================================================
 	_process_wrecks(config, buf_resource_potential)

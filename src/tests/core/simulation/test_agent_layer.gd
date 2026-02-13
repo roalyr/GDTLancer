@@ -16,6 +16,17 @@ var agent_layer: Reference = null
 var bridge_systems: Reference = null
 var ca_rules: Reference = null
 var _config: Dictionary = {}
+var _indexer: Node = null
+
+func before_all():
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	_indexer = TemplateIndexer.new()
+	add_child(_indexer)
+	_indexer.index_all_templates()
+
+func after_all():
+	if is_instance_valid(_indexer):
+		_indexer.queue_free()
 
 func before_each():
 	_clear_game_state()

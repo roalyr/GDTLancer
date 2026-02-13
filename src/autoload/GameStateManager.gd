@@ -245,10 +245,18 @@ func _serialize_inventories(inv_dict: Dictionary) -> Dictionary:
 	var serialized_inventories = {}
 	for char_uid in inv_dict:
 		var original_inv = inv_dict[char_uid]
+		# Keys may be int (from live state) or String (from a loaded save).
+		# Try both forms to handle load→save round-trips safely.
+		var ship_key = InventorySystem.InventoryType.SHIP      # 0
+		var module_key = InventorySystem.InventoryType.MODULE   # 1
+		var commodity_key = InventorySystem.InventoryType.COMMODITY # 2
+		var ships = original_inv.get(ship_key, original_inv.get(str(ship_key), {}))
+		var modules = original_inv.get(module_key, original_inv.get(str(module_key), {}))
+		var commodities = original_inv.get(commodity_key, original_inv.get(str(commodity_key), {}))
 		serialized_inventories[char_uid] = {
-			InventorySystem.InventoryType.SHIP: _serialize_resource_dict(original_inv[InventorySystem.InventoryType.SHIP]),
-			InventorySystem.InventoryType.MODULE: _serialize_resource_dict(original_inv[InventorySystem.InventoryType.MODULE]),
-			InventorySystem.InventoryType.COMMODITY: original_inv[InventorySystem.InventoryType.COMMODITY].duplicate(true)
+			ship_key: _serialize_resource_dict(ships),
+			module_key: _serialize_resource_dict(modules),
+			commodity_key: commodities.duplicate(true) if commodities is Dictionary else commodities
 		}
 	return serialized_inventories
 
@@ -340,17 +348,20 @@ func _deserialize_inventories(serialized_inv: Dictionary) -> Dictionary:
 		var char_uid = int(char_uid_str)
 		var original_inv = serialized_inv[char_uid_str]
 		
-		# --- FIX: Use integer enum values directly as keys for lookup ---
-		var ship_key = InventorySystem.InventoryType.SHIP
-		var module_key = InventorySystem.InventoryType.MODULE
-		var commodity_key = InventorySystem.InventoryType.COMMODITY
+		# Keys may be int (from enum) or String (from JSON round-trip).
+		# Try both forms to handle either case safely.
+		var ship_key = InventorySystem.InventoryType.SHIP        # 0
+		var module_key = InventorySystem.InventoryType.MODULE     # 1
+		var commodity_key = InventorySystem.InventoryType.COMMODITY # 2
+		var ships = original_inv.get(ship_key, original_inv.get(str(ship_key), {}))
+		var modules = original_inv.get(module_key, original_inv.get(str(module_key), {}))
+		var commodities = original_inv.get(commodity_key, original_inv.get(str(commodity_key), {}))
 		
 		inv_dict[char_uid] = {
-			InventorySystem.InventoryType.SHIP: _deserialize_resource_dict(original_inv.get(ship_key, {})),
-			InventorySystem.InventoryType.MODULE: _deserialize_resource_dict(original_inv.get(module_key, {})),
-			InventorySystem.InventoryType.COMMODITY: original_inv.get(commodity_key, {}).duplicate(true)
+			ship_key: _deserialize_resource_dict(ships),
+			module_key: _deserialize_resource_dict(modules),
+			commodity_key: commodities.duplicate(true) if commodities is Dictionary else commodities
 		}
-		# --- END FIX ---
 	return inv_dict
 
 # Helper to find a template by its ID across all categories in the database.

@@ -61,10 +61,6 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
-	
-	# Register with combat system if we have a ship template
-	# Defer to ensure CombatSystem is initialized in the scene tree.
-	call_deferred("_register_with_combat_system")
 
 	print(
 		"AgentBody '",
@@ -111,7 +107,10 @@ func _get_movement_params_from_ship() -> Dictionary:
 		}
 
 
-# Registers this agent with the combat system using its ship template.\n# NOTE: CombatSystem removed — rebuild later on Agent layer.\nfunc _register_with_combat_system() -> void:\n\tpass
+# NOTE: CombatSystem removed — rebuild later on Agent layer.
+# _register_with_combat_system() stub kept for future use.
+func _register_with_combat_system() -> void:
+	pass
 
 
 # --- Godot Lifecycle ---

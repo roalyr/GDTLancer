@@ -9,7 +9,6 @@
 extends "res://addons/gut/test.gd"
 
 var _agent_system: Node = null
-var _contacts_panel = null
 
 func before_each():
 	# Reset GameState
@@ -30,11 +29,6 @@ func before_each():
 	_agent_system.set_script(agent_script)
 	add_child(_agent_system) # It registers itself to GlobalRefs in _ready
 	autoqfree(_agent_system)
-	
-	# Mock HUD for contacts panel
-	_contacts_panel = load("res://src/core/ui/contacts_panel/contacts_panel.tscn").instance()
-	add_child(_contacts_panel)
-	autoqfree(_contacts_panel)
 
 func test_persistent_agents_spawn_on_world_init():
 	# Mock location availability (AgentSystem checks if dock position exists)
@@ -100,7 +94,7 @@ func test_persistent_agent_state_persists_across_save_load():
 	assert_true(loaded_state.is_known, "is_known should persist")
 	assert_eq(loaded_state.relationship, 50, "relationship should persist")
 
-func test_contacts_panel_displays_known_agents_only():
+func test_known_vs_unknown_agents_state():
 	# Setup known agent
 	var known_id = "persistent_kai"
 	var unknown_id = "persistent_juno"
@@ -111,34 +105,15 @@ func test_contacts_panel_displays_known_agents_only():
 	var state_u = _agent_system.get_persistent_agent_state(unknown_id)
 	state_u.is_known = false
 	
-	# Update UI
-	_contacts_panel.update_display()
+	# Verify state-level filtering (contacts_panel was deleted in sim rework)
+	var known_agents = []
+	for agent_id in GameState.persistent_agents:
+		var state = GameState.persistent_agents[agent_id]
+		if state.is_known:
+			known_agents.append(agent_id)
 	
-	var list = _contacts_panel.contact_list
-	# Should have 1 entry (Kai) + 0 for unknown
-	# Note: If list is empty it adds a label "No known contacts", need to check child count and content
-	
-	# Logic check: We expect 6 persistent agents total. 
-	# If we only set 1 as known, we should see 1 entry.
-	# However, verify implementation of update_display clears list.
-	
-	var children = list.get_children()
-	var found_kai = false
-	var found_juno = false
-	
-	for child in children:
-		if child is VBoxContainer: # The entry structure
-			# We can try to find label text
-			var labels = []
-			_collect_labels(child, labels)
-			for l in labels:
-				if "Name: Kai" in l.text:
-					found_kai = true
-				if "Name: Juno" in l.text:
-					found_juno = true
-	
-	assert_true(found_kai, "Should display known agent Kai")
-	assert_false(found_juno, "Should NOT display unknown agent Juno")
+	assert_true(known_agents.has(known_id), "Known agent Kai should appear in filtered list.")
+	assert_false(known_agents.has(unknown_id), "Unknown agent Juno should NOT appear in filtered list.")
 
 func test_contact_discovered_on_dock():
 	var agent_id = "persistent_vera"
@@ -151,10 +126,4 @@ func test_contact_discovered_on_dock():
 	_agent_system._on_player_docked("station_beta")
 	
 	assert_true(state.is_known, "Should discover agent at home station")
-	assert_signal_emitted_with_parameters(EventBus, "contact_met", [agent_id], "Should emit contact_met")
-
-func _collect_labels(node, list):
-	if node is Label:
-		list.append(node)
-	for c in node.get_children():
-		_collect_labels(c, list)
+	assert_signal_emitted_with_parameters(EventBus, "contact_met", [agent_id], 0)

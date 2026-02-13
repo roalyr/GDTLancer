@@ -81,6 +81,14 @@ func _on_new_game_requested() -> void:
 	yield(get_tree(), "idle_frame")
 	
 	_setup_new_game()
+
+	# Initialize the four-layer simulation from a seed.
+	var seed_str: String = str(OS.get_unix_time())
+	if is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.initialize_simulation(seed_str)
+	else:
+		push_warning("WorldManager: SimulationEngine not available, skipping sim init.")
+
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 	
 	if is_instance_valid(_time_clock_timer):
@@ -102,6 +110,11 @@ func _on_game_state_loaded() -> void:
 	# Wait a frame for cleanup to complete before loading new zone
 	yield(get_tree(), "idle_frame")
 	
+	# Re-initialize simulation from saved seed on load.
+	var saved_seed: String = GameState.world_seed
+	if saved_seed != "" and is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.initialize_simulation(saved_seed)
+
 	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
 	call_deferred("_emit_loaded_dock_signal")
 	call_deferred("_emit_loaded_resource_signals")

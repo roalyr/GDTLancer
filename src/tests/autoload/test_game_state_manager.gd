@@ -2,13 +2,14 @@
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
 # STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
+# LOG_REF: 2026-02-13
 #
 
 extends GutTest
 
 ## Unit tests for GameStateManager: save/load operations and state serialization.
+## Updated for four-layer simulation architecture.
 
 # --- Component Preloads ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
@@ -73,14 +74,13 @@ func test_save_and_load_restores_identical_state():
 	assert_true(result.are_equal(), "Loaded GameState should be identical to the pre-save state.\n" + result.summary)
 
 
-func test_save_and_load_preserves_mutated_phase1_fields():
-	# Mutate Phase 1 fields that change during gameplay and must persist.
+func test_save_and_load_preserves_mutated_fields():
+	# Mutate fields that change during gameplay and must persist.
 	GameState.game_time_seconds = 42
 	GameState.player_docked_at = "station_beta"
-	GameState.narrative_state["reputation"] = 7
-	GameState.session_stats["contracts_completed"] = 2
+	GameState.sim_tick_count = 7
 
-	# Market inventory quantity mutation
+	# Market inventory quantity mutation (legacy locations)
 	var station_alpha = GameState.locations.get("station_alpha", null)
 	assert_not_null(station_alpha, "Precondition: station_alpha location should exist.")
 	if station_alpha:
@@ -99,16 +99,6 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 			ship_uid = ship_inv.keys()[0]
 			ship_inv[ship_uid].ship_quirks = ["scratched_hull"]
 
-	# Active contract mutation (simulate accepted contract with progress)
-	var contract_ids = GameState.contracts.keys()
-	assert_true(contract_ids.size() > 0, "Precondition: at least one contract template should exist.")
-	if contract_ids.size() > 0:
-		var contract_id: String = contract_ids[0]
-		var active_contract = GameState.contracts[contract_id].duplicate(true)
-		active_contract.accepted_at_seconds = GameState.game_time_seconds
-		active_contract.progress = {"character_uid": player_uid, "test_flag": true}
-		GameState.active_contracts[contract_id] = active_contract
-
 	# Save -> clear -> load
 	var save_success = GameStateManager.save_game(TEST_SLOT)
 	assert_true(save_success, "Game should save successfully.")
@@ -116,11 +106,10 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 	var load_success = GameStateManager.load_game(TEST_SLOT)
 	assert_true(load_success, "Game should load successfully.")
 
-	# Assertions
+	# Assertions — fields that still exist in GameState
 	assert_eq(GameState.game_time_seconds, 42, "game_time_seconds should persist.")
 	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
-	assert_eq(GameState.narrative_state.get("reputation", null), 7, "narrative_state.reputation should persist.")
-	assert_eq(GameState.session_stats.get("contracts_completed", null), 2, "session_stats.contracts_completed should persist.")
+	assert_eq(GameState.sim_tick_count, 7, "sim_tick_count should persist.")
 
 	assert_eq(GameState.locations["station_alpha"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
 	if ship_uid != -1:
@@ -128,40 +117,33 @@ func test_save_and_load_preserves_mutated_phase1_fields():
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")
 		assert_eq(loaded_ship_inv[ship_uid].ship_quirks, ["scratched_hull"], "Ship quirks should persist.")
 
-	if contract_ids.size() > 0:
-		var contract_id_loaded: String = contract_ids[0]
-		assert_true(GameState.active_contracts.has(contract_id_loaded), "Active contract should persist.")
-		assert_eq(GameState.active_contracts[contract_id_loaded].progress.get("character_uid", -1), player_uid, "Active contract progress should persist.")
-		assert_true(GameState.active_contracts[contract_id_loaded].progress.get("test_flag", false), "Active contract custom progress data should persist.")
-
 # --- Helper Functions ---
 
 func _clear_game_state():
 	GameState.characters.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
 	GameState.inventories.clear()
 	GameState.locations.clear()
-	GameState.contracts.clear()
-	GameState.active_contracts.clear()
-	# Reinitialize with defaults instead of just clearing
-	GameState.narrative_state = {
-		"reputation": 0,
-		"faction_standings": {},
-		"known_contacts": [],
-		"contact_relationships": {},
-		"chronicle_entries": []
-	}
-	GameState.session_stats = {
-		"contracts_completed": 0,
-		"total_credits_earned": 0,
-		"total_credits_spent": 0,
-		"enemies_disabled": 0,
-		"time_played_seconds": 0
-	}
+	GameState.factions.clear()
+	GameState.agents.clear()
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.world_resource_potential.clear()
+	GameState.world_total_matter = 0.0
+	GameState.grid_stockpiles.clear()
+	GameState.grid_dominion.clear()
+	GameState.grid_market.clear()
+	GameState.grid_power.clear()
+	GameState.grid_maintenance.clear()
+	GameState.grid_wrecks.clear()
+	GameState.hostile_population_integral.clear()
+	GameState.chronicle_event_buffer.clear()
+	GameState.chronicle_rumors.clear()
 	GameState.player_character_uid = -1
 	GameState.player_docked_at = ""
 	GameState.game_time_seconds = 0
+	GameState.sim_tick_count = 0
+	GameState.world_seed = ""
 
 # Creates a serializable copy of the GameState for comparison.
 func _deep_copy_game_state() -> Dictionary:

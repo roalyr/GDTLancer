@@ -104,12 +104,19 @@ func test_supply_demand_extraction():
 	# Matter should be conserved within this step
 	var matter_extracted: float = result["matter_extracted"]
 	assert_true(matter_extracted > 0.0, "matter_extracted should be positive.")
-	assert_almost_eq(100.0 - new_mineral, matter_extracted, 0.001,
-		"Mineral decrease should equal matter_extracted for minerals.")
+
+	# matter_extracted includes BOTH mineral and propellant extraction.
+	# Verify that mineral depletion + propellant depletion == matter_extracted.
+	var mineral_depleted: float = 100.0 - new_mineral
+	var new_propellant: float = result["new_resource_potential"]["propellant_sources"]
+	var propellant_depleted: float = 50.0 - new_propellant
+	assert_almost_eq(mineral_depleted + propellant_depleted, matter_extracted, 0.001,
+		"Total resource depletion should equal matter_extracted.")
 
 
-func test_supply_demand_diffusion():
-	# Sector with surplus, neighbor with deficit
+func test_supply_demand_no_diffusion_in_pure_function():
+	# Diffusion was moved to GridLayer (two-pass symmetric).
+	# The pure supply_demand_step should NOT modify stockpiles for diffusion.
 	var stockpiles := {
 		"commodity_stockpiles": {"ore": 100.0},
 		"stockpile_capacity": 1000,
@@ -132,8 +139,8 @@ func test_supply_demand_diffusion():
 	var result: Dictionary = ca_rules.supply_demand_step("test", stockpiles, resource_potential, [neighbor], config)
 
 	var new_ore: float = result["new_stockpiles"]["commodity_stockpiles"]["ore"]
-	assert_true(new_ore < 100.0,
-		"Surplus sector should lose ore via diffusion. Got: %f" % new_ore)
+	assert_eq(new_ore, 100.0,
+		"Pure function should NOT apply diffusion. Ore should remain at 100. Got: %f" % new_ore)
 
 
 # =============================================================================

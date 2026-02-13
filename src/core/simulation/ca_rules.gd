@@ -118,9 +118,8 @@ func strategic_map_step(sector_id: String, sector_state: Dictionary, neighbor_st
 ##                              new_resource_potential: Dictionary (depleted values),
 ##                              matter_extracted: float (total matter moved from potential to stockpiles)
 ##                            }.
-func supply_demand_step(sector_id: String, stockpiles: Dictionary, resource_potential: Dictionary, neighbor_stockpiles: Array, config: Dictionary) -> Dictionary:
+func supply_demand_step(sector_id: String, stockpiles: Dictionary, resource_potential: Dictionary, _neighbor_stockpiles: Array, config: Dictionary) -> Dictionary:
 	var extraction_rate: float = config.get("extraction_rate_default", 0.01)
-	var diffusion_rate: float = config.get("stockpile_diffusion_rate", 0.05)
 
 	var new_stockpiles: Dictionary = stockpiles.duplicate(true)
 	var new_potential: Dictionary = resource_potential.duplicate(true)
@@ -153,30 +152,9 @@ func supply_demand_step(sector_id: String, stockpiles: Dictionary, resource_pote
 		new_potential["propellant_sources"] = propellant_src - propellant_extract
 		total_matter_extracted += propellant_extract
 
-	# --- Diffusion Phase ---
-	# For each commodity, if this sector has surplus relative to neighbors, push some out.
-	# Returns delta dict: positive = this sector gains, negative = this sector loses.
-	var neighbor_count: int = neighbor_stockpiles.size()
-	if neighbor_count > 0:
-		for commodity_id in commodity_map:
-			var local_amount: float = commodity_map[commodity_id]
-			# Compute average neighbor amount for this commodity
-			var neighbor_sum: float = 0.0
-			for n_stock in neighbor_stockpiles:
-				var n_commodities: Dictionary = n_stock.get("commodity_stockpiles", {})
-				neighbor_sum += n_commodities.get(commodity_id, 0.0)
-			var neighbor_avg: float = neighbor_sum / float(neighbor_count)
-
-			# Diffuse: flow from high to low
-			var diff: float = local_amount - neighbor_avg
-			if diff > 0.0:
-				# This sector has surplus — push out
-				var outflow: float = diff * diffusion_rate
-				commodity_map[commodity_id] = local_amount - outflow
-				# NOTE: The outflow goes to neighbors. The caller (GridLayer) must
-				# collect these outflows and distribute them to neighbor sectors.
-				# For simplicity in the pure function, we only adjust the local side.
-				# Total system matter is conserved because outflow from one = inflow to others.
+	# --- Diffusion is handled separately by GridLayer as a two-pass operation ---
+	# Removed from here because a per-sector function cannot distribute outflow
+	# to neighbors without violating matter conservation (Axiom 1).
 
 	new_stockpiles["commodity_stockpiles"] = commodity_map
 	new_stockpiles["extraction_rate"] = local_extraction

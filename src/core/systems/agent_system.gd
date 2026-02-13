@@ -360,7 +360,9 @@ func spawn_persistent_agents() -> void:
 		
 		if is_instance_valid(agent_body):
 			_active_persistent_agents[agent_id] = agent_body
-			# print("Spawned persistent agent: ", agent_id, " in zone.")
+			print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
+		else:
+			print("AgentSpawner: FAILED to spawn persistent agent '%s' at %s" % [agent_id, current_loc])
 
 
 func _on_Agent_Disabled(agent_body) -> void:

@@ -9,7 +9,11 @@
 extends Control
 
 ## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.
-## Manages sub-screens (Station Menu, Action Check, Narrative Status, Contacts Panel) and docking prompts.
+## Manages sub-screens (Station Menu) and docking prompts.
+
+# --- Sub-Screens ---
+const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
+var _station_menu_instance = null
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
@@ -20,7 +24,6 @@ onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHu
 onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
 onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
 onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
-onready var button_contacts: Button = $ScreenControls/TopLeftZone/ButtonContacts # New button
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
@@ -132,6 +135,10 @@ func _ready():
 
 	# Initialize TU display
 	_refresh_time_display()
+
+	# --- Instance Station Menu sub-screen ---
+	_station_menu_instance = StationMenuScene.instance()
+	add_child(_station_menu_instance)
 
 
 # --- Process Update ---
@@ -263,7 +270,6 @@ func _on_game_time_advanced(_seconds_added: int = 0) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if EventBus:
-			EventBus.emit_signal("main_menu_requested")
 			EventBus.emit_signal("main_menu_requested")
 			get_tree().set_input_as_handled()
 

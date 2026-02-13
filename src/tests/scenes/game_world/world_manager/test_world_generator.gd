@@ -1,6 +1,6 @@
 # File: tests/scenes/game_world/world_manager/test_world_generator.gd
 # GUT Test Script for the WorldGenerator component.
-# Version: 2.0 - Corrected to handle system dependencies properly.
+# Version: 3.0 - Removed assets_modules (deleted), fixed module assertion.
 
 extends GutTest
 
@@ -32,7 +32,8 @@ func before_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.assets_modules.clear()
+	GameState.locations.clear()
+	GameState.factions.clear()
 	GameState.player_character_uid = -1
 
 func after_each():
@@ -71,7 +72,7 @@ func test_generated_characters_have_assets():
 	assert_eq(ship_count, 1, "Player inventory should contain 1 ship.")
 	
 	var module_inventory = inventory_system_instance.get_inventory_by_type(player_uid, inventory_system_instance.InventoryType.MODULE)
-	assert_eq(module_inventory.size(), 1, "Player inventory should contain 1 module.")
+	assert_eq(module_inventory.size(), 0, "Player inventory should contain 0 modules (modules removed from auto-assign).")
 	
 	# Sprint 10: Player starts with empty commodity cargo
 	var ore_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_ore")
