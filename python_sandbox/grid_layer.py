@@ -7,6 +7,7 @@ go to local buffers, then buffers are swapped atomically at the end.
 """
 
 import copy
+import random
 from game_state import GameState
 from template_data import LOCATIONS, FACTIONS
 import ca_rules
@@ -45,10 +46,21 @@ class GridLayer:
         buf_maintenance: dict = {}
         buf_resource_availability: dict = {}
         buf_resource_potential: dict = {}
+        buf_hidden_resources: dict = {}
 
         # Deep-copy resource potential
         for sector_id, pot in state.world_resource_potential.items():
             buf_resource_potential[sector_id] = copy.deepcopy(pot)
+
+        # Deep-copy hidden resources
+        for sector_id, hid in state.world_hidden_resources.items():
+            buf_hidden_resources[sector_id] = copy.deepcopy(hid)
+
+        # Deterministic RNG for prospecting variance (seeded per tick)
+        tick_rng = random.Random(hash((state.world_seed, state.sim_tick_count)))
+
+        # Sorted sector list for stable sector_index in hazard drift
+        sorted_sectors = sorted(state.world_topology.keys())
 
         # --- Process each sector ---
         for sector_id in state.world_topology:
@@ -118,6 +130,31 @@ class GridLayer:
                 "population_density": population_density,
                 "service_cost_modifier": market_result["service_cost_modifier"],
             }
+
+            # 2f. Hazard Drift (space weather)
+            sector_index = sorted_sectors.index(sector_id)
+            base_hazards = state.world_hazards_base.get(sector_id, hazards)
+            drifted_hazards = ca_rules.hazard_drift_step(
+                sector_id, base_hazards, state.sim_tick_count,
+                sector_index, config,
+            )
+            # Use drifted hazards for maintenance calculation below
+            hazards = drifted_hazards
+
+            # 2f-b. Prospecting (hidden → discovered resource transfer)
+            current_hidden = copy.deepcopy(buf_hidden_resources.get(sector_id, {}))
+            current_market = buf_market[sector_id]
+            current_dominion = buf_dominion[sector_id]
+            rng_value = tick_rng.random()
+
+            prospect_result = ca_rules.prospecting_step(
+                sector_id, current_hidden,
+                buf_resource_potential[sector_id],
+                current_market, current_dominion,
+                hazards, config, rng_value,
+            )
+            buf_hidden_resources[sector_id] = prospect_result["new_hidden"]
+            buf_resource_potential[sector_id] = prospect_result["new_potential"]
 
             # 2g. Maintenance Pressure
             buf_maintenance[sector_id] = ca_rules.maintenance_pressure_step(hazards, config)
@@ -193,6 +230,19 @@ class GridLayer:
         # Write back depleted resource potential
         for sector_id, pot in buf_resource_potential.items():
             state.world_resource_potential[sector_id] = pot
+
+        # Write back hidden resources (depleted by prospecting)
+        for sector_id, hid in buf_hidden_resources.items():
+            state.world_hidden_resources[sector_id] = hid
+
+        # Write back drifted hazards
+        for sector_id in sorted_sectors:
+            sector_index = sorted_sectors.index(sector_id)
+            base_hazards = state.world_hazards_base.get(sector_id, {})
+            state.world_hazards[sector_id] = ca_rules.hazard_drift_step(
+                sector_id, base_hazards, state.sim_tick_count,
+                sector_index, config,
+            )
 
         # Axiom 1 assertion
         matter_after = self._calculate_current_matter(state)
@@ -352,6 +402,10 @@ class GridLayer:
         for sector_id, potential in state.world_resource_potential.items():
             total += potential.get("mineral_density", 0.0)
             total += potential.get("propellant_sources", 0.0)
+
+        for sector_id, hidden in state.world_hidden_resources.items():
+            total += hidden.get("mineral_density", 0.0)
+            total += hidden.get("propellant_sources", 0.0)
 
         for sector_id, stockpile in state.grid_stockpiles.items():
             commodities = stockpile.get("commodity_stockpiles", {})

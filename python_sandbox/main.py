@@ -2,264 +2,355 @@
 """
 GDTLancer Simulation Sandbox — CLI runner.
 
+Outputs structured plain text optimized for LLM analysis.
+All visualization code has been removed in favor of compact,
+machine-readable state dumps.
+
 Usage:
-    python main.py                  # 10 ticks, default seed
-    python main.py --ticks 50       # 50 ticks
-    python main.py --seed hello     # custom seed
-    python main.py --verbose        # print every tick
-    python main.py --dump-every 5   # dump state every 5 ticks
+    python main.py                      # 10 ticks, default seed
+    python main.py --ticks 50000        # 50k ticks
+    python main.py --seed hello         # custom seed
+    python main.py --sample-every 500   # sample metrics every N ticks
+    python main.py --quiet              # final report only (no progress dots)
 """
 
 import argparse
+import math
 import sys
 import os
 
-# Ensure the sandbox directory is on the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from simulation_engine import SimulationEngine
-import cli_viz
-import ncurses_viz
 
 
-def dump_state(engine: SimulationEngine, label: str = "") -> None:
-    """Print a comprehensive state dump, similar to F3 SimDebugPanel."""
+# -----------------------------------------------------------------
+# Suppress noisy layer prints
+# -----------------------------------------------------------------
+_original_print = print
+
+def _quiet_print(*a, **kw):
+    msg = " ".join(str(x) for x in a)
+    prefixes = (
+        "WorldLayer:", "GridLayer:", "AgentLayer:",
+        "SimulationEngine:", "BridgeSystems:", "ChronicleLayer:",
+    )
+    if any(msg.startswith(p) for p in prefixes):
+        return
+    _original_print(*a, **kw)
+
+
+# -----------------------------------------------------------------
+# Report generation
+# -----------------------------------------------------------------
+def generate_report(engine, ticks_run, sample_data, age_transitions):
+    """Produce a single structured report after the run completes."""
     s = engine.state
-    tick = s.sim_tick_count
-    matter_actual = engine._calculate_total_matter()
-    matter_expected = s.world_total_matter
-    drift = abs(matter_actual - matter_expected)
-    axiom_ok = drift <= engine._tick_config.get("axiom1_tolerance", 0.01)
+    sectors = sorted(s.world_topology.keys())
+    init_matter = s.world_total_matter
+    actual_matter = engine._calculate_total_matter()
+    drift = abs(actual_matter - init_matter)
 
-    lines = []
-    lines.append("=" * 70)
-    if label:
-        lines.append(f"  {label}")
-    lines.append(f"  Tick: {tick}  |  Seed: {s.world_seed}")
-    lines.append(
-        f"  Axiom 1: {'PASS' if axiom_ok else 'FAIL'}  "
-        f"(expected: {matter_expected:.2f}, actual: {matter_actual:.2f}, "
-        f"drift: {drift:.4f})"
-    )
-    lines.append("=" * 70)
+    out = []
+    out.append(f"=== Simulation Report: {ticks_run} ticks, seed='{s.world_seed}' ===")
+    out.append("")
 
-    # --- Matter Breakdown ---
+    # -- Axiom 1 --
+    drifts = sample_data["axiom1_drifts"]
+    max_d = max(drifts) if drifts else drift
+    avg_d = sum(drifts) / len(drifts) if drifts else drift
+    out.append(f"AXIOM_1: max_drift={max_d:.8f} avg_drift={avg_d:.8f} "
+               f"budget={init_matter:.2f} final={actual_matter:.2f}")
+
+    # -- World Age --
+    out.append(f"WORLD_AGE: current={s.world_age} cycles_completed={s.world_age_cycle_count} "
+               f"transitions={len(age_transitions)}")
+    if age_transitions:
+        out.append(f"  first_3: {age_transitions[:3]}")
+        out.append(f"  last_3:  {age_transitions[-3:]}")
+    out.append("")
+
+    # -- Per-sector table --
+    out.append("SECTOR_STATE:")
+    out.append("  sector     | type     | disc_M    disc_P   | hidden_M  hidden_P | "
+               "stock_tot | sec   piracy | dominant    | rad     therm_K")
+    out.append("  " + "-" * 115)
+    for sid in sectors:
+        short = sid.replace("station_", "").upper()
+        topo = s.world_topology[sid]
+        stype = topo.get("sector_type", "?")[:8]
+        pot = s.world_resource_potential.get(sid, {})
+        hid = s.world_hidden_resources.get(sid, {})
+        stock = s.grid_stockpiles.get(sid, {})
+        dom = s.grid_dominion.get(sid, {})
+        hazards = s.world_hazards.get(sid, {})
+
+        disc_m = pot.get("mineral_density", 0.0)
+        disc_p = pot.get("propellant_sources", 0.0)
+        hid_m = hid.get("mineral_density", 0.0)
+        hid_p = hid.get("propellant_sources", 0.0)
+        stot = sum(float(v) for v in stock.get("commodity_stockpiles", {}).values())
+        sec = dom.get("security_level", 0.0)
+        pir = dom.get("pirate_activity", 0.0)
+        fi = dom.get("faction_influence", {})
+        dominant = max(fi, key=fi.get).replace("faction_", "") if fi else "none"
+        rad = hazards.get("radiation_level", 0.0)
+        therm = hazards.get("thermal_background_k", 0.0)
+
+        out.append(f"  {short:<10} {stype:<8}  {disc_m:>8.1f} {disc_p:>8.1f}   "
+                   f"{hid_m:>8.1f} {hid_p:>8.1f}   {stot:>8.1f}   "
+                   f"{sec:.2f}  {pir:.4f}   {dominant:<12} {rad:.4f}  {therm:.0f}")
+    out.append("")
+
+    # -- Matter breakdown --
     bd = engine._matter_breakdown()
-    lines.append(
-        f"  Matter breakdown: resource_potential={bd['resource_potential']:.2f}  "
-        f"grid_stockpiles={bd['grid_stockpiles']:.2f}  "
-        f"wrecks={bd['wrecks']:.2f}  "
-        f"agent_inv={bd['agent_inventories']:.2f}"
-    )
+    total = sum(bd.values())
+    out.append("MATTER_BREAKDOWN:")
+    for k, v in bd.items():
+        pct = v / total * 100 if total > 0 else 0
+        out.append(f"  {k}: {v:.2f} ({pct:.1f}%)")
+    out.append("")
 
-    # --- Grid Layer per sector ---
-    lines.append("")
-    lines.append("  --- GRID LAYER (per sector) ---")
-    for sector_id in sorted(s.world_topology.keys()):
-        topology = s.world_topology[sector_id]
-        sector_type = topology.get("sector_type", "?")
+    # -- Hidden resource depletion timeline --
+    init_hidden = sample_data.get("init_hidden", {})
+    out.append("HIDDEN_DEPLETION:")
+    total_h_ts = sample_data.get("total_hidden_ts", [])
+    total_d_ts = sample_data.get("total_disc_ts", [])
+    total_s_ts = sample_data.get("total_stock_ts", [])
+    se = sample_data.get("sample_every", 1)
 
-        # Stockpiles
-        stockpile = s.grid_stockpiles.get(sector_id, {})
-        commodities = stockpile.get("commodity_stockpiles", {})
-        commodity_str = "  ".join(
-            f"{_strip_prefix(k)}={v:.0f}" for k, v in sorted(commodities.items())
-        )
+    if total_h_ts:
+        def _at_tick(ts, tick):
+            idx = tick // se - 1
+            if idx < 0: idx = 0
+            if idx >= len(ts): idx = len(ts) - 1
+            return ts[idx]
 
-        # Resource potential
-        potential = s.world_resource_potential.get(sector_id, {})
-        mineral = potential.get("mineral_density", 0.0)
-        propellant = potential.get("propellant_sources", 0.0)
+        markers = [se, 1000, 5000, 10000, 25000, ticks_run]
+        markers = sorted(set(t for t in markers if t <= ticks_run))
+        parts_h = " ".join(f"t{t}={_at_tick(total_h_ts, t):.0f}" for t in markers)
+        parts_d = " ".join(f"t{t}={_at_tick(total_d_ts, t):.0f}" for t in markers)
+        parts_s = " ".join(f"t{t}={_at_tick(total_s_ts, t):.0f}" for t in markers)
+        out.append(f"  hidden_total:     {parts_h}")
+        out.append(f"  discovered_total: {parts_d}")
+        out.append(f"  stockpile_total:  {parts_s}")
+    out.append("")
 
-        # Dominion
-        dominion = s.grid_dominion.get(sector_id, {})
-        faction_inf = dominion.get("faction_influence", {})
-        dominant = max(faction_inf, key=faction_inf.get) if faction_inf else "none"
-        dominant = _strip_prefix(dominant)
-        security = dominion.get("security_level", 0.0)
-        piracy = dominion.get("pirate_activity", 0.0)
+    # -- Depletion milestones --
+    hidden_m_ts = sample_data.get("hidden_mineral_ts", {})
+    hidden_p_ts = sample_data.get("hidden_propellant_ts", {})
+    if hidden_m_ts:
+        out.append("DEPLETION_MILESTONES (<1% hidden remaining):")
+        for sid in sectors:
+            short = sid.replace("station_", "").upper()
+            ih = init_hidden.get(sid, {"m": 0, "p": 0})
+            m_dep = p_dep = None
+            hm_list = hidden_m_ts.get(sid, [])
+            hp_list = hidden_p_ts.get(sid, [])
+            for i, hm in enumerate(hm_list):
+                if m_dep is None and ih["m"] > 0 and hm / ih["m"] < 0.01:
+                    m_dep = (i + 1) * se
+            for i, hp in enumerate(hp_list):
+                if p_dep is None and ih["p"] > 0 and hp / ih["p"] < 0.01:
+                    p_dep = (i + 1) * se
+            out.append(f"  {short}: mineral_<1%={m_dep or 'never'}  propellant_<1%={p_dep or 'never'}")
+        out.append("")
 
-        # Market
-        market = s.grid_market.get(sector_id, {})
-        price_deltas = market.get("commodity_price_deltas", {})
-        price_str = "  ".join(
-            f"{_strip_prefix(k)}={v:+.3f}" for k, v in sorted(price_deltas.items())
-        )
+    # -- Stockpile dynamics --
+    out.append("STOCKPILE_DYNAMICS:")
+    for sid in sectors:
+        short = sid.replace("station_", "").upper()
+        ts = sample_data.get("stockpile_ts", {}).get(sid, [])
+        if ts:
+            mn, mx = min(ts), max(ts)
+            avg = sum(ts) / len(ts)
+            std = math.sqrt(sum((x - avg) ** 2 for x in ts) / len(ts))
+            out.append(f"  {short}: min={mn:.1f} max={mx:.1f} avg={avg:.1f} std={std:.1f}")
+    out.append("")
 
-        lines.append(
-            f"  [{sector_id}] ({sector_type})  "
-            f"dominant={dominant}  sec={security:.2f}  piracy={piracy:.2f}"
-        )
-        lines.append(
-            f"    stockpiles: {commodity_str}"
-        )
-        lines.append(
-            f"    potential: mineral={mineral:.1f}  propellant={propellant:.1f}"
-        )
-        lines.append(
-            f"    prices: {price_str}"
-        )
+    # -- Hazard drift --
+    if s.world_hazards_base:
+        out.append("HAZARD_DRIFT:")
+        for sid in sectors:
+            short = sid.replace("station_", "").upper()
+            base_r = s.world_hazards_base[sid]["radiation_level"]
+            base_t = s.world_hazards_base[sid]["thermal_background_k"]
+            r_ts = sample_data.get("radiation_ts", {}).get(sid, [])
+            t_ts = sample_data.get("thermal_ts", {}).get(sid, [])
+            if r_ts:
+                out.append(f"  {short}: rad_base={base_r:.4f} range=[{min(r_ts):.4f},{max(r_ts):.4f}]  "
+                           f"therm_base={base_t:.0f} range=[{min(t_ts):.0f},{max(t_ts):.0f}]")
+        out.append("")
 
-    # --- Agent Layer ---
-    lines.append("")
-    lines.append("  --- AGENTS ---")
+    # -- Agent summary --
+    out.append("AGENTS:")
     for agent_id in sorted(s.agents.keys()):
         agent = s.agents[agent_id]
         char_uid = agent.get("char_uid", -1)
         char_data = s.characters.get(char_uid, {})
         name = char_data.get("character_name", f"UID:{char_uid}")
-        sector = agent.get("current_sector_id", "?")
+        sector = agent.get("current_sector_id", "?").replace("station_", "")
         hull = agent.get("hull_integrity", 0.0)
         cash = agent.get("cash_reserves", 0.0)
         goal = agent.get("goal_archetype", "?")
         disabled = agent.get("is_disabled", False)
-
-        # Inventory
-        inv_str = ""
-        if char_uid in s.inventories and 2 in s.inventories[char_uid]:
-            inv = s.inventories[char_uid][2]
-            if inv:
-                inv_str = "  cargo: " + ", ".join(
-                    f"{_strip_prefix(k)}={v:.0f}" for k, v in inv.items() if v > 0
-                )
-
         status = "DISABLED" if disabled else f"hull={hull:.2f}"
-        lines.append(
-            f"  {agent_id} ({name}): sector={sector}  {status}  "
-            f"cash={cash:.0f}  goal={goal}{inv_str}"
-        )
+        out.append(f"  {name}: sector={sector} {status} cash={cash:.0f} goal={goal}")
+    out.append("")
 
-    # --- Hostile Population ---
-    lines.append("")
-    lines.append("  --- HOSTILE POPULATION ---")
-    for hostile_type, pop_data in s.hostile_population_integral.items():
-        count = pop_data.get("current_count", 0)
-        capacity = pop_data.get("carrying_capacity", 0)
-        sector_counts = pop_data.get("sector_counts", {})
-        dist_str = "  ".join(
-            f"{sid}={c}" for sid, c in sorted(sector_counts.items())
-        )
-        lines.append(
-            f"  {hostile_type}: {count}/{capacity}  [{dist_str}]"
-        )
+    # -- Hostile population --
+    out.append("HOSTILES:")
+    for htype, pop in s.hostile_population_integral.items():
+        count = pop.get("current_count", 0)
+        cap = pop.get("carrying_capacity", 0)
+        dist = pop.get("sector_counts", {})
+        dist_str = " ".join(f"{k.replace('station_','')}={v}" for k, v in sorted(dist.items()))
+        out.append(f"  {htype}: {count}/{cap}  [{dist_str}]")
+    out.append("")
 
-    # --- Chronicle ---
-    lines.append("")
-    lines.append(f"  --- CHRONICLE (last 5 rumors of {len(s.chronicle_rumors)}) ---")
-    for rumor in s.chronicle_rumors[-5:]:
-        lines.append(f"    {rumor}")
+    # -- Market prices (final) --
+    out.append("MARKET_PRICES (delta from base):")
+    for sid in sectors:
+        short = sid.replace("station_", "").upper()
+        mkt = s.grid_market.get(sid, {})
+        deltas = mkt.get("commodity_price_deltas", {})
+        parts = " ".join(f"{k.replace('commodity_','')}{v:+.3f}" for k, v in sorted(deltas.items()))
+        out.append(f"  {short}: {parts}")
+    out.append("")
 
-    lines.append("=" * 70)
-    print("\n".join(lines))
+    # -- Chronicle (last 5) --
+    out.append(f"CHRONICLE: {len(s.chronicle_rumors)} total rumors, last 5:")
+    for r in s.chronicle_rumors[-5:]:
+        out.append(f"  {r}")
 
-
-def _strip_prefix(s: str) -> str:
-    """Strip common prefixes for compact display."""
-    for prefix in ("commodity_", "faction_", "persistent_"):
-        if s.startswith(prefix):
-            return s[len(prefix):]
-    return s
+    out.append("")
+    out.append("=== END REPORT ===")
+    return "\n".join(out)
 
 
+# -----------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(
-        description="GDTLancer Simulation Sandbox"
-    )
-    parser.add_argument(
-        "--ticks", type=int, default=10,
-        help="Number of simulation ticks to run (default: 10)"
-    )
-    parser.add_argument(
-        "--seed", type=str, default="default_seed",
-        help="World generation seed (default: 'default_seed')"
-    )
-    parser.add_argument(
-        "--verbose", action="store_true",
-        help="Print init messages from each layer"
-    )
-    parser.add_argument(
-        "--dump-every", type=int, default=0,
-        help="Dump full state every N ticks (0 = only at end)"
-    )
-    parser.add_argument(
-        "--viz", action="store_true",
-        help="Show colored CLI dashboard at start and end"
-    )
-    parser.add_argument(
-        "--viz-every", type=int, default=0,
-        help="Show full colored dashboard every N ticks (0 = only start/end)"
-    )
-    parser.add_argument(
-        "--viz-stream", action="store_true",
-        help="Print compact colored tick summary every tick"
-    )
-    parser.add_argument(
-        "--tui", action="store_true",
-        help="Launch interactive ncurses dashboard (1 tick/sec, real-time)"
-    )
+    parser = argparse.ArgumentParser(description="GDTLancer Simulation Sandbox")
+    parser.add_argument("--ticks", type=int, default=10,
+                        help="Number of simulation ticks (default: 10)")
+    parser.add_argument("--seed", type=str, default="default_seed",
+                        help="World generation seed (default: 'default_seed')")
+    parser.add_argument("--sample-every", type=int, default=0,
+                        help="Sample metrics every N ticks (default: auto)")
+    parser.add_argument("--quiet", action="store_true",
+                        help="Suppress progress dots, print only final report")
     args = parser.parse_args()
 
-    # --- ncurses TUI mode: launch and exit ---
-    if args.tui:
-        ncurses_viz.run_tui(seed=args.seed, max_ticks=args.ticks)
-        return
+    # Auto sample interval: ~1000 data points max
+    sample_every = args.sample_every if args.sample_every > 0 else max(1, args.ticks // 1000)
 
-    # Suppress layer prints unless verbose
-    if not args.verbose:
-        import builtins
-        _original_print = builtins.print
-
-        def _quiet_print(*a, **kw):
-            # Only suppress lines starting with known layer prefixes
-            msg = " ".join(str(x) for x in a)
-            prefixes = (
-                "WorldLayer:", "GridLayer:", "AgentLayer:",
-                "SimulationEngine:", "BridgeSystems:", "ChronicleLayer:",
-            )
-            if any(msg.startswith(p) for p in prefixes):
-                return
-            _original_print(*a, **kw)
-
-        builtins.print = _quiet_print
+    # Suppress layer spam
+    import builtins
+    builtins.print = _quiet_print
 
     engine = SimulationEngine()
     engine.initialize_simulation(args.seed)
 
-    # Restore print for dumps
-    if not args.verbose:
-        import builtins
-        builtins.print = _original_print  # type: ignore
+    builtins.print = _original_print
 
-    # Show initial state
-    if args.viz or args.viz_every:
-        cli_viz.print_dashboard(engine, tick_label="POST-INITIALIZATION")
-    else:
-        dump_state(engine, label="POST-INITIALIZATION (Tick 0)")
+    sectors = sorted(engine.state.world_topology.keys())
 
-    for i in range(1, args.ticks + 1):
-        if not args.verbose:
-            import builtins
-            builtins.print = _quiet_print  # type: ignore
+    # Snapshot initial hidden resources
+    init_hidden = {}
+    for sid in sectors:
+        h = engine.state.world_hidden_resources.get(sid, {})
+        init_hidden[sid] = {
+            "m": h.get("mineral_density", 0.0),
+            "p": h.get("propellant_sources", 0.0),
+        }
 
+    # Tracking arrays
+    axiom1_drifts = []
+    hidden_mineral_ts = {sid: [] for sid in sectors}
+    hidden_propellant_ts = {sid: [] for sid in sectors}
+    total_hidden_ts = []
+    total_disc_ts = []
+    total_stock_ts = []
+    stockpile_ts = {sid: [] for sid in sectors}
+    radiation_ts = {sid: [] for sid in sectors}
+    thermal_ts = {sid: [] for sid in sectors}
+    age_transitions = []
+    prev_age = engine.state.world_age
+    init_matter = engine.state.world_total_matter
+
+    if not args.quiet:
+        _original_print(f"Running {args.ticks} ticks (sample every {sample_every})...", end="", flush=True)
+
+    # Suppress layer spam during tick loop
+    builtins.print = _quiet_print
+
+    for tick in range(1, args.ticks + 1):
         engine.process_tick()
 
-        if not args.verbose:
-            import builtins
-            builtins.print = _original_print  # type: ignore
+        # Track age transitions
+        if engine.state.world_age != prev_age:
+            age_transitions.append((tick, prev_age, engine.state.world_age))
+            prev_age = engine.state.world_age
 
-        if args.dump_every and i % args.dump_every == 0:
-            dump_state(engine, label=f"TICK {i}")
+        # Sample
+        if tick % sample_every == 0:
+            actual = engine._calculate_total_matter()
+            axiom1_drifts.append(abs(actual - init_matter))
 
-        if args.viz_every and i % args.viz_every == 0:
-            cli_viz.print_dashboard(engine, tick_label=f"TICK {i}")
-        elif args.viz_stream:
-            cli_viz.print_tick_summary(engine)
+            total_h = total_d = total_s = 0.0
+            for sid in sectors:
+                h = engine.state.world_hidden_resources.get(sid, {})
+                p = engine.state.world_resource_potential.get(sid, {})
+                hm = h.get("mineral_density", 0.0)
+                hp = h.get("propellant_sources", 0.0)
+                dm = p.get("mineral_density", 0.0)
+                dp = p.get("propellant_sources", 0.0)
+                hidden_mineral_ts[sid].append(hm)
+                hidden_propellant_ts[sid].append(hp)
+                total_h += hm + hp
+                total_d += dm + dp
 
-    # Show final state
-    if args.viz or args.viz_every:
-        cli_viz.print_dashboard(engine, tick_label=f"FINAL ({args.ticks} ticks)")
-    else:
-        dump_state(engine, label=f"FINAL STATE (after {args.ticks} ticks)")
+                stock = engine.state.grid_stockpiles.get(sid, {})
+                stot = sum(float(v) for v in stock.get("commodity_stockpiles", {}).values())
+                stockpile_ts[sid].append(stot)
+                total_s += stot
+
+                hazards = engine.state.world_hazards.get(sid, {})
+                radiation_ts[sid].append(hazards.get("radiation_level", 0.0))
+                thermal_ts[sid].append(hazards.get("thermal_background_k", 300.0))
+
+            total_hidden_ts.append(total_h)
+            total_disc_ts.append(total_d)
+            total_stock_ts.append(total_s)
+
+            # Progress dot every 10%
+            if not args.quiet and tick % max(1, args.ticks // 10) < sample_every:
+                builtins.print = _original_print
+                _original_print(".", end="", flush=True)
+                builtins.print = _quiet_print
+
+    builtins.print = _original_print
+    if not args.quiet:
+        _original_print(" done.")
+
+    sample_data = {
+        "axiom1_drifts": axiom1_drifts,
+        "init_hidden": init_hidden,
+        "total_hidden_ts": total_hidden_ts,
+        "total_disc_ts": total_disc_ts,
+        "total_stock_ts": total_stock_ts,
+        "stockpile_ts": stockpile_ts,
+        "hidden_mineral_ts": hidden_mineral_ts,
+        "hidden_propellant_ts": hidden_propellant_ts,
+        "radiation_ts": radiation_ts,
+        "thermal_ts": thermal_ts,
+        "sample_every": sample_every,
+    }
+
+    report = generate_report(engine, args.ticks, sample_data, age_transitions)
+    _original_print(report)
 
 
 if __name__ == "__main__":

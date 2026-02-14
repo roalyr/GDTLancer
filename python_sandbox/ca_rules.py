@@ -10,6 +10,7 @@ Every function is PURE:
 """
 
 import copy
+import math
 
 
 # =========================================================================
@@ -256,6 +257,137 @@ def maintenance_pressure_step(hazards: dict, config: dict) -> dict:
     return {
         "local_entropy_rate": entropy_rate,
         "maintenance_cost_modifier": maintenance_modifier,
+    }
+
+
+# =========================================================================
+# === PROSPECTING (hidden → discovered resource transfer) =================
+# =========================================================================
+
+def prospecting_step(
+    sector_id: str,
+    hidden_resources: dict,
+    resource_potential: dict,
+    market_data: dict,
+    dominion_data: dict,
+    hazards: dict,
+    config: dict,
+    rng_value: float,
+) -> dict:
+    """Compute resource discovery from hidden pool into discovered potential.
+
+    Prospecting intensity depends on:
+      - Market scarcity: positive price deltas → higher demand → more prospecting
+      - Security: high security → safer prospecting → more discovery
+      - Hazards: high radiation → dangerous conditions → less prospecting
+
+    Args:
+        rng_value: A pre-generated random float in [0, 1] for deterministic
+                   variance.  Passed in by the caller (seeded RNG).
+
+    Returns dict with:
+        new_hidden:      updated hidden resource dict
+        new_potential:    updated discovered resource dict
+        matter_discovered: total matter transferred (for bookkeeping)
+    """
+    base_rate = config.get("prospecting_base_rate", 0.002)
+    scarcity_boost = config.get("prospecting_scarcity_boost", 2.0)
+    security_factor_max = config.get("prospecting_security_factor", 1.0)
+    hazard_penalty = config.get("prospecting_hazard_penalty", 0.5)
+    randomness = config.get("prospecting_randomness", 0.3)
+
+    new_hidden = copy.deepcopy(hidden_resources)
+    new_potential = copy.deepcopy(resource_potential)
+    total_discovered = 0.0
+
+    # --- Scarcity signal: average of positive price deltas ---
+    price_deltas = market_data.get("commodity_price_deltas", {})
+    positive_deltas = [d for d in price_deltas.values() if d > 0.0]
+    scarcity_signal = 0.0
+    if positive_deltas:
+        scarcity_signal = sum(positive_deltas) / len(positive_deltas)
+    # Map scarcity to [1.0, 1.0 + scarcity_boost] range
+    scarcity_mult = 1.0 + min(scarcity_signal * 10.0, 1.0) * scarcity_boost
+
+    # --- Security factor: [0.5, 1.0] based on security_level ---
+    security = dominion_data.get("security_level", 0.5)
+    sec_mult = 0.5 + 0.5 * security * security_factor_max
+
+    # --- Hazard factor: [1 - penalty, 1.0] based on radiation ---
+    radiation = hazards.get("radiation_level", 0.0)
+    haz_mult = max(0.1, 1.0 - radiation * hazard_penalty)
+
+    # --- Randomness: map rng_value from [0,1] to [1-randomness, 1+randomness] ---
+    rng_mult = 1.0 + (rng_value * 2.0 - 1.0) * randomness
+
+    # --- Combined prospecting rate ---
+    effective_rate = base_rate * scarcity_mult * sec_mult * haz_mult * rng_mult
+    effective_rate = max(0.0, effective_rate)
+
+    # --- Discover minerals ---
+    hidden_mineral = new_hidden.get("mineral_density", 0.0)
+    if hidden_mineral > 0.0:
+        discover_mineral = min(hidden_mineral, effective_rate * hidden_mineral)
+        new_hidden["mineral_density"] = hidden_mineral - discover_mineral
+        new_potential["mineral_density"] = new_potential.get("mineral_density", 0.0) + discover_mineral
+        total_discovered += discover_mineral
+
+    # --- Discover propellant ---
+    hidden_propellant = new_hidden.get("propellant_sources", 0.0)
+    if hidden_propellant > 0.0:
+        discover_propellant = min(hidden_propellant, effective_rate * hidden_propellant)
+        new_hidden["propellant_sources"] = hidden_propellant - discover_propellant
+        new_potential["propellant_sources"] = new_potential.get("propellant_sources", 0.0) + discover_propellant
+        total_discovered += discover_propellant
+
+    return {
+        "new_hidden": new_hidden,
+        "new_potential": new_potential,
+        "matter_discovered": total_discovered,
+    }
+
+
+# =========================================================================
+# === HAZARD DRIFT (space weather) ========================================
+# =========================================================================
+
+def hazard_drift_step(
+    sector_id: str,
+    base_hazards: dict,
+    tick: int,
+    sector_index: int,
+    config: dict,
+) -> dict:
+    """Compute drifted hazard values using slow sinusoidal modulation.
+
+    Each sector has a phase offset (sector_index * 2π/4) so sectors
+    experience space weather at different times.  Gravity is NOT drifted
+    (structural, not weather).
+
+    Returns new hazards dict (does not mutate base_hazards).
+    """
+    period = config.get("hazard_drift_period", 200)
+    rad_amp = config.get("hazard_radiation_amplitude", 0.04)
+    thermal_amp = config.get("hazard_thermal_amplitude", 15.0)
+
+    # Phase offset per sector (spread evenly across cycle)
+    num_sectors = 4  # safe default
+    phase_offset = (2.0 * math.pi * sector_index) / num_sectors
+    theta = (2.0 * math.pi * tick / max(period, 1)) + phase_offset
+
+    sin_val = math.sin(theta)
+
+    base_radiation = base_hazards.get("radiation_level", 0.0)
+    base_thermal = base_hazards.get("thermal_background_k", 300.0)
+    base_gravity = base_hazards.get("gravity_well_penalty", 1.0)
+
+    new_radiation = max(0.0, base_radiation + rad_amp * sin_val)
+    new_thermal = max(50.0, base_thermal + thermal_amp * sin_val)
+
+    return {
+        "radiation_level": new_radiation,
+        "thermal_background_k": new_thermal,
+        "gravity_well_penalty": base_gravity,  # unchanged
     }
 
 

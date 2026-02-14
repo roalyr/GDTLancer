@@ -64,6 +64,33 @@ WORLD_TICK_INTERVAL_SECONDS = 60
 AXIOM1_TOLERANCE = 0.01
 
 # ═══════════════════════════════════════════════════════════════════
+# === Hidden Resources & Prospecting ===
+# Hidden resources are undiscovered deposits ~10× the initial discovered
+# potential.  Prospectors convert hidden → discovered based on market
+# scarcity, security, and hazard conditions.
+# ═══════════════════════════════════════════════════════════════════
+
+HIDDEN_RESOURCE_MULTIPLIER = 10.0   # initial hidden = discovered * this
+
+# Prospecting: discovery_amount = base_rate * hidden_remaining
+#              * scarcity_factor * security_factor * hazard_factor
+PROSPECTING_BASE_RATE = 0.002       # fraction of hidden pool per tick
+PROSPECTING_SCARCITY_BOOST = 2.0    # multiplier at max scarcity (positive price deltas)
+PROSPECTING_SECURITY_FACTOR = 1.0   # full prospecting at security=1, halved at 0
+PROSPECTING_HAZARD_PENALTY = 0.5    # at radiation=1 prospecting drops to (1 - penalty)
+PROSPECTING_RANDOMNESS = 0.3        # ±30% variance per discovery event
+
+# ═══════════════════════════════════════════════════════════════════
+# === Hazard Map Morphing (Space Weather) ===
+# Slow sinusoidal drift of radiation and thermal background across
+# all sectors.  Each sector has a different phase offset.
+# ═══════════════════════════════════════════════════════════════════
+
+HAZARD_DRIFT_PERIOD = 200           # ticks for one full sine cycle
+HAZARD_RADIATION_AMPLITUDE = 0.04   # max ± shift to radiation_level
+HAZARD_THERMAL_AMPLITUDE = 15.0     # max ± shift to thermal_background_k (Kelvin)
+
+# ═══════════════════════════════════════════════════════════════════
 # === World Age Cycle ===
 # Inspired by GROWTH → CHAOS → RENEWAL oscillation pattern.
 # Each age modulates CA parameters to prevent the system from settling.
@@ -90,6 +117,8 @@ WORLD_AGE_CONFIGS = {
         "piracy_encounter_chance":      0.15,    # Rare attacks
         "docking_fee_base":             15.0,    # Cheap docking
         "stockpile_diffusion_rate":     0.08,    # Active trade diffusion
+        "prospecting_base_rate":        0.003,   # Active prospecting
+        "hazard_radiation_amplitude":   0.02,    # Mild space weather
     },
     "DISRUPTION": {
         "extraction_rate_default":      0.004,   # Extraction collapses
@@ -101,6 +130,8 @@ WORLD_AGE_CONFIGS = {
         "piracy_encounter_chance":      0.50,    # Frequent attacks
         "docking_fee_base":             40.0,    # Crisis pricing
         "stockpile_diffusion_rate":     0.02,    # Trade routes disrupted
+        "prospecting_base_rate":        0.0005,  # Almost no prospecting
+        "hazard_radiation_amplitude":   0.08,    # Severe space weather
     },
     "RECOVERY": {
         "extraction_rate_default":      0.008,   # Slow rebuilding
@@ -112,5 +143,7 @@ WORLD_AGE_CONFIGS = {
         "piracy_encounter_chance":      0.30,    # Normal risk
         "docking_fee_base":             25.0,    # Recovering fees
         "stockpile_diffusion_rate":     0.05,    # Normal diffusion
+        "prospecting_base_rate":        0.002,   # Normal prospecting
+        "hazard_radiation_amplitude":   0.05,    # Moderate space weather
     },
 }

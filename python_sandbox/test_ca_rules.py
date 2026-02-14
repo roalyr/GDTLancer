@@ -437,5 +437,274 @@ class TestMaintenancePressureStep(unittest.TestCase):
         self.assertAlmostEqual(result["maintenance_cost_modifier"], 1.1, places=1)
 
 
+class TestProspectingStep(unittest.TestCase):
+    """Tests for ca_rules.prospecting_step()."""
+
+    def _make_hidden(self, mineral=1000.0, propellant=500.0):
+        return {"mineral_density": mineral, "propellant_sources": propellant}
+
+    def _make_potential(self, mineral=50.0, propellant=30.0):
+        return {"mineral_density": mineral, "propellant_sources": propellant}
+
+    def _make_market(self, deltas=None):
+        return {"commodity_price_deltas": deltas or {}}
+
+    def _make_dominion(self, security=0.8):
+        return {"security_level": security}
+
+    def _make_hazards(self, radiation=0.05):
+        return {"radiation_level": radiation}
+
+    def _default_config(self, **overrides):
+        cfg = {
+            "prospecting_base_rate": 0.002,
+            "prospecting_scarcity_boost": 2.0,
+            "prospecting_security_factor": 1.0,
+            "prospecting_hazard_penalty": 0.5,
+            "prospecting_randomness": 0.3,
+        }
+        cfg.update(overrides)
+        return cfg
+
+    def test_returns_required_keys(self):
+        result = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        self.assertIn("new_hidden", result)
+        self.assertIn("new_potential", result)
+        self.assertIn("matter_discovered", result)
+
+    def test_matter_conservation(self):
+        """Hidden → discovered transfer must conserve matter."""
+        hidden = self._make_hidden(1000.0, 500.0)
+        potential = self._make_potential(50.0, 30.0)
+        before = 1000.0 + 500.0 + 50.0 + 30.0
+
+        result = ca_rules.prospecting_step(
+            "s1", hidden, potential,
+            self._make_market({"ore": 0.1}), self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        nh = result["new_hidden"]
+        np_ = result["new_potential"]
+        after = (nh["mineral_density"] + nh["propellant_sources"]
+                 + np_["mineral_density"] + np_["propellant_sources"])
+        self.assertAlmostEqual(before, after, places=8,
+                               msg="Prospecting must conserve matter")
+
+    def test_no_mutation_of_inputs(self):
+        hidden = self._make_hidden()
+        potential = self._make_potential()
+        orig_h = copy.deepcopy(hidden)
+        orig_p = copy.deepcopy(potential)
+        ca_rules.prospecting_step(
+            "s1", hidden, potential,
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        self.assertEqual(hidden, orig_h)
+        self.assertEqual(potential, orig_p)
+
+    def test_discovery_increases_potential(self):
+        result = ca_rules.prospecting_step(
+            "s1", self._make_hidden(1000.0, 500.0), self._make_potential(50.0, 30.0),
+            self._make_market({"ore": 0.1}), self._make_dominion(0.8),
+            self._make_hazards(0.05), self._default_config(), 0.5,
+        )
+        self.assertGreater(result["new_potential"]["mineral_density"], 50.0)
+        self.assertGreater(result["new_potential"]["propellant_sources"], 30.0)
+
+    def test_discovery_decreases_hidden(self):
+        result = ca_rules.prospecting_step(
+            "s1", self._make_hidden(1000.0, 500.0), self._make_potential(50.0, 30.0),
+            self._make_market({"ore": 0.1}), self._make_dominion(0.8),
+            self._make_hazards(0.05), self._default_config(), 0.5,
+        )
+        self.assertLess(result["new_hidden"]["mineral_density"], 1000.0)
+        self.assertLess(result["new_hidden"]["propellant_sources"], 500.0)
+
+    def test_no_hidden_no_discovery(self):
+        result = ca_rules.prospecting_step(
+            "s1", self._make_hidden(0.0, 0.0), self._make_potential(50.0, 30.0),
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        self.assertEqual(result["matter_discovered"], 0.0)
+
+    def test_scarcity_boosts_discovery(self):
+        """Higher scarcity (positive price deltas) should increase discovery rate."""
+        market_low = self._make_market({})
+        market_high = self._make_market({"ore": 0.5, "fuel": 0.3})
+
+        result_low = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            market_low, self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        result_high = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            market_high, self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        self.assertGreater(
+            result_high["matter_discovered"],
+            result_low["matter_discovered"],
+        )
+
+    def test_high_security_boosts_discovery(self):
+        result_low = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(0.1),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        result_high = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(1.0),
+            self._make_hazards(), self._default_config(), 0.5,
+        )
+        self.assertGreater(
+            result_high["matter_discovered"],
+            result_low["matter_discovered"],
+        )
+
+    def test_high_radiation_reduces_discovery(self):
+        result_low = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(0.0), self._default_config(), 0.5,
+        )
+        result_high = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(1.0), self._default_config(), 0.5,
+        )
+        self.assertGreater(
+            result_low["matter_discovered"],
+            result_high["matter_discovered"],
+        )
+
+    def test_randomness_variance(self):
+        """Different rng values should produce different amounts."""
+        r1 = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(), self._default_config(), 0.0,
+        )
+        r2 = ca_rules.prospecting_step(
+            "s1", self._make_hidden(), self._make_potential(),
+            self._make_market(), self._make_dominion(),
+            self._make_hazards(), self._default_config(), 1.0,
+        )
+        self.assertNotAlmostEqual(
+            r1["matter_discovered"], r2["matter_discovered"], places=6,
+        )
+
+
+class TestHazardDriftStep(unittest.TestCase):
+    """Tests for ca_rules.hazard_drift_step()."""
+
+    def _base_hazards(self, rad=0.05, thermal=280.0, gravity=1.2):
+        return {
+            "radiation_level": rad,
+            "thermal_background_k": thermal,
+            "gravity_well_penalty": gravity,
+        }
+
+    def _default_config(self, **overrides):
+        cfg = {
+            "hazard_drift_period": 200,
+            "hazard_radiation_amplitude": 0.04,
+            "hazard_thermal_amplitude": 15.0,
+        }
+        cfg.update(overrides)
+        return cfg
+
+    def test_returns_required_keys(self):
+        result = ca_rules.hazard_drift_step(
+            "s1", self._base_hazards(), 0, 0, self._default_config(),
+        )
+        self.assertIn("radiation_level", result)
+        self.assertIn("thermal_background_k", result)
+        self.assertIn("gravity_well_penalty", result)
+
+    def test_gravity_unchanged(self):
+        """Gravity should never be affected by space weather."""
+        base = self._base_hazards(gravity=1.5)
+        result = ca_rules.hazard_drift_step(
+            "s1", base, 100, 0, self._default_config(),
+        )
+        self.assertEqual(result["gravity_well_penalty"], 1.5)
+
+    def test_no_mutation_of_input(self):
+        base = self._base_hazards()
+        original = copy.deepcopy(base)
+        ca_rules.hazard_drift_step("s1", base, 50, 0, self._default_config())
+        self.assertEqual(base, original)
+
+    def test_radiation_drifts_from_base(self):
+        """At non-zero tick, radiation should differ from base (unless at sin=0)."""
+        base = self._base_hazards(rad=0.1)
+        # tick 50 with period 200 → θ = π/2 → sin = 1.0, so drift = amplitude
+        result = ca_rules.hazard_drift_step(
+            "s1", base, 50, 0, self._default_config(),
+        )
+        self.assertNotAlmostEqual(result["radiation_level"], 0.1, places=3)
+
+    def test_thermal_drifts_from_base(self):
+        base = self._base_hazards(thermal=300.0)
+        result = ca_rules.hazard_drift_step(
+            "s1", base, 50, 0, self._default_config(),
+        )
+        self.assertNotAlmostEqual(result["thermal_background_k"], 300.0, places=0)
+
+    def test_radiation_clamped_non_negative(self):
+        """Even with large amplitude, radiation should never go negative."""
+        base = self._base_hazards(rad=0.01)
+        cfg = self._default_config(hazard_radiation_amplitude=1.0)
+        # Test many ticks
+        for tick in range(300):
+            result = ca_rules.hazard_drift_step("s1", base, tick, 0, cfg)
+            self.assertGreaterEqual(result["radiation_level"], 0.0)
+
+    def test_thermal_clamped_above_minimum(self):
+        """Thermal should never drop below 50K."""
+        base = self._base_hazards(thermal=60.0)
+        cfg = self._default_config(hazard_thermal_amplitude=100.0)
+        for tick in range(300):
+            result = ca_rules.hazard_drift_step("s1", base, tick, 0, cfg)
+            self.assertGreaterEqual(result["thermal_background_k"], 50.0)
+
+    def test_different_sectors_different_phase(self):
+        """Different sector indices should produce different hazard values at same tick."""
+        base = self._base_hazards()
+        # Use tick 50 where sin values diverge clearly across phase offsets
+        r0 = ca_rules.hazard_drift_step("s1", base, 50, 0, self._default_config())
+        r1 = ca_rules.hazard_drift_step("s2", base, 50, 1, self._default_config())
+        # At least one value should differ
+        self.assertNotAlmostEqual(
+            r0["radiation_level"], r1["radiation_level"], places=4
+        )
+
+    def test_periodic_returns_to_base(self):
+        """After one full period, values should return close to base."""
+        base = self._base_hazards(rad=0.1, thermal=300.0)
+        period = 200
+        result = ca_rules.hazard_drift_step(
+            "s1", base, period, 0, self._default_config(hazard_drift_period=period),
+        )
+        # sin(2π) = 0 → drift = 0
+        self.assertAlmostEqual(result["radiation_level"], 0.1, places=6)
+        self.assertAlmostEqual(result["thermal_background_k"], 300.0, places=4)
+
+    def test_zero_amplitude_no_drift(self):
+        base = self._base_hazards(rad=0.1, thermal=300.0)
+        cfg = self._default_config(hazard_radiation_amplitude=0.0, hazard_thermal_amplitude=0.0)
+        result = ca_rules.hazard_drift_step("s1", base, 99, 2, cfg)
+        self.assertAlmostEqual(result["radiation_level"], 0.1, places=8)
+        self.assertAlmostEqual(result["thermal_background_k"], 300.0, places=8)
+
+
 if __name__ == "__main__":
     unittest.main()

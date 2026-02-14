@@ -17,7 +17,9 @@ class GameState:
         # === Layer 1: World (static after init) ===
         self.world_topology: dict = {}          # sector_id → {connections, station_ids, sector_type}
         self.world_hazards: dict = {}           # sector_id → {radiation_level, thermal_background_k, gravity_well_penalty}
+        self.world_hazards_base: dict = {}      # sector_id → original hazards (before drift)
         self.world_resource_potential: dict = {} # sector_id → {mineral_density, energy_potential, propellant_sources}
+        self.world_hidden_resources: dict = {}  # sector_id → {mineral_density, propellant_sources}  (undiscovered)
         self.world_total_matter: float = 0.0    # Axiom 1 checksum
         self.world_seed: str = ""
 

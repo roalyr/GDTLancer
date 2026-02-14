@@ -10,6 +10,7 @@ import random
 import copy
 from game_state import GameState
 from template_data import LOCATIONS, FACTIONS
+import constants
 
 
 class WorldLayer:
@@ -25,6 +26,7 @@ class WorldLayer:
         self._build_topology(state)
         self._build_hazards(state)
         self._build_resource_potential(state, rng)
+        self._build_hidden_resources(state, rng)
         self._calculate_total_matter(state)
 
         print(
@@ -62,6 +64,9 @@ class WorldLayer:
                 "gravity_well_penalty": float(loc.get("gravity_well_penalty", 1.0)),
             }
 
+        # Store an immutable copy of base hazards for drift calculations
+        state.world_hazards_base = copy.deepcopy(state.world_hazards)
+
     # -----------------------------------------------------------------
     # Resource Potential
     # -----------------------------------------------------------------
@@ -84,6 +89,27 @@ class WorldLayer:
             }
 
     # -----------------------------------------------------------------
+    # Hidden Resources (undiscovered deposits, ~10× discovered)
+    # -----------------------------------------------------------------
+    def _build_hidden_resources(self, state: GameState, rng: random.Random) -> None:
+        """Initialize hidden resource pools from discovered potential × multiplier."""
+        state.world_hidden_resources.clear()
+        multiplier = constants.HIDDEN_RESOURCE_MULTIPLIER
+
+        for location_id, potential in state.world_resource_potential.items():
+            discovered_mineral = potential.get("mineral_density", 0.0)
+            discovered_propellant = potential.get("propellant_sources", 0.0)
+
+            # Apply ±20% variance so hidden deposits aren't perfectly proportional
+            mineral_var = rng.uniform(0.8, 1.2)
+            propellant_var = rng.uniform(0.8, 1.2)
+
+            state.world_hidden_resources[location_id] = {
+                "mineral_density": discovered_mineral * multiplier * mineral_var,
+                "propellant_sources": discovered_propellant * multiplier * propellant_var,
+            }
+
+    # -----------------------------------------------------------------
     # Matter conservation checksum
     # -----------------------------------------------------------------
     def _calculate_total_matter(self, state: GameState) -> None:
@@ -91,6 +117,10 @@ class WorldLayer:
         for sector_id, potential in state.world_resource_potential.items():
             total += potential.get("mineral_density", 0.0)
             total += potential.get("propellant_sources", 0.0)
+        # Hidden resources are also matter
+        for sector_id, hidden in state.world_hidden_resources.items():
+            total += hidden.get("mineral_density", 0.0)
+            total += hidden.get("propellant_sources", 0.0)
         state.world_total_matter = total
 
     # -----------------------------------------------------------------
@@ -123,6 +153,11 @@ class WorldLayer:
         for sector_id, potential in state.world_resource_potential.items():
             total += potential.get("mineral_density", 0.0)
             total += potential.get("propellant_sources", 0.0)
+
+        # Layer 1: Hidden resources (undiscovered matter)
+        for sector_id, hidden in state.world_hidden_resources.items():
+            total += hidden.get("mineral_density", 0.0)
+            total += hidden.get("propellant_sources", 0.0)
 
         # Layer 2: Grid stockpiles
         for sector_id, stockpile in state.grid_stockpiles.items():

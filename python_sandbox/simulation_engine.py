@@ -118,6 +118,7 @@ class SimulationEngine:
             print(
                 f"AXIOM 1 DRIFT: {drift:.4f} (expected: {expected:.2f}, actual: {actual:.2f})\n"
                 f"  Resource potential: {breakdown['resource_potential']:.2f}\n"
+                f"  Hidden resources: {breakdown['hidden_resources']:.2f}\n"
                 f"  Grid stockpiles: {breakdown['grid_stockpiles']:.2f}\n"
                 f"  Wrecks: {breakdown['wrecks']:.2f}\n"
                 f"  Agent inventories: {breakdown['agent_inventories']:.2f}"
@@ -132,6 +133,11 @@ class SimulationEngine:
         for sector_id, potential in self.state.world_resource_potential.items():
             total += potential.get("mineral_density", 0.0)
             total += potential.get("propellant_sources", 0.0)
+
+        # Layer 1: Hidden resources
+        for sector_id, hidden in self.state.world_hidden_resources.items():
+            total += hidden.get("mineral_density", 0.0)
+            total += hidden.get("propellant_sources", 0.0)
 
         # Layer 2: Grid stockpiles
         for sector_id, stockpile in self.state.grid_stockpiles.items():
@@ -161,6 +167,11 @@ class SimulationEngine:
             resource_potential += potential.get("mineral_density", 0.0)
             resource_potential += potential.get("propellant_sources", 0.0)
 
+        hidden_resources = 0.0
+        for sector_id, hidden in self.state.world_hidden_resources.items():
+            hidden_resources += hidden.get("mineral_density", 0.0)
+            hidden_resources += hidden.get("propellant_sources", 0.0)
+
         grid_stockpiles = 0.0
         for sector_id, stockpile in self.state.grid_stockpiles.items():
             commodities = stockpile.get("commodity_stockpiles", {})
@@ -183,6 +194,7 @@ class SimulationEngine:
 
         return {
             "resource_potential": resource_potential,
+            "hidden_resources": hidden_resources,
             "grid_stockpiles": grid_stockpiles,
             "wrecks": wrecks,
             "agent_inventories": agent_inventories,
@@ -277,6 +289,16 @@ class SimulationEngine:
             "faction_anchor_strength": constants.CA_FACTION_ANCHOR_STRENGTH,
             # Axiom 1
             "axiom1_tolerance": constants.AXIOM1_TOLERANCE,
+            # Prospecting
+            "prospecting_base_rate": constants.PROSPECTING_BASE_RATE,
+            "prospecting_scarcity_boost": constants.PROSPECTING_SCARCITY_BOOST,
+            "prospecting_security_factor": constants.PROSPECTING_SECURITY_FACTOR,
+            "prospecting_hazard_penalty": constants.PROSPECTING_HAZARD_PENALTY,
+            "prospecting_randomness": constants.PROSPECTING_RANDOMNESS,
+            # Hazard drift (space weather)
+            "hazard_drift_period": constants.HAZARD_DRIFT_PERIOD,
+            "hazard_radiation_amplitude": constants.HAZARD_RADIATION_AMPLITUDE,
+            "hazard_thermal_amplitude": constants.HAZARD_THERMAL_AMPLITUDE,
         }
 
     # -----------------------------------------------------------------
