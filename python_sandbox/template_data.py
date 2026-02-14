@@ -12,13 +12,13 @@ LOCATIONS = {
     "station_alpha": {
         "location_name": "Station Alpha - Mining Hub",
         "location_type": "station",
-        "connections": ["station_beta", "station_gamma"],
+        "connections": ["station_beta", "station_gamma", "station_delta"],
         "sector_type": "hub",
         "radiation_level": 0.05,
         "thermal_background_k": 280.0,
         "gravity_well_penalty": 1.2,
-        "mineral_density": 2.0,
-        "propellant_sources": 0.3,
+        "mineral_density": 20.0,
+        "propellant_sources": 10.3,
         "station_power_output": 150.0,
         "stockpile_capacity": 1500,
         "market_inventory": {
@@ -34,7 +34,7 @@ LOCATIONS = {
     "station_beta": {
         "location_name": "Station Beta - Trade Post",
         "location_type": "station",
-        "connections": ["station_alpha", "station_gamma"],
+        "connections": ["station_alpha", "station_delta"],
         "sector_type": "hub",
         "radiation_level": 0.01,
         "thermal_background_k": 310.0,
@@ -57,7 +57,7 @@ LOCATIONS = {
     "station_gamma": {
         "location_name": "Freeport Gamma",
         "location_type": "station",
-        "connections": ["station_alpha", "station_beta"],
+        "connections": ["station_alpha", "station_delta"],
         "sector_type": "frontier",
         "radiation_level": 0.15,
         "thermal_background_k": 250.0,
@@ -76,6 +76,28 @@ LOCATIONS = {
         "available_services": ["trade", "contracts", "black_market"],
         "controlling_faction_id": "faction_independents",
         "danger_level": 4,
+    },
+    "station_delta": {
+        "location_name": "Outpost Delta - Military Garrison",
+        "location_type": "station",
+        "connections": ["station_beta", "station_gamma", "station_alpha"],
+        "sector_type": "hub",
+        "radiation_level": 0.02,
+        "thermal_background_k": 295.0,
+        "gravity_well_penalty": 1.1,
+        "mineral_density": 5.0,
+        "propellant_sources": 15.0,
+        "station_power_output": 200.0,
+        "stockpile_capacity": 1000,
+        "market_inventory": {
+            "commodity_ore":    {"buy_price": 18, "sell_price": 14, "quantity": 50},
+            "commodity_food":   {"buy_price": 20, "sell_price": 16, "quantity": 100},
+            "commodity_tech":   {"buy_price": 60, "sell_price": 50, "quantity": 80},
+            "commodity_fuel":   {"buy_price": 15, "sell_price": 12, "quantity": 120},
+        },
+        "available_services": ["trade", "repair", "contracts"],
+        "controlling_faction_id": "faction_military",
+        "danger_level": 1,
     },
 }
 
@@ -98,6 +120,11 @@ FACTIONS = {
     "faction_independents": {
         "display_name": "Independent Captains",
         "description": "Unaffiliated pilots operating on their own terms.",
+        "default_standing": 0,
+    },
+    "faction_military": {
+        "display_name": "Military Corps",
+        "description": "A disciplined military force maintaining order.",
         "default_standing": 0,
     },
 }
@@ -178,6 +205,16 @@ CHARACTERS = {
         "personality_traits": {"risk_tolerance": 0.9, "loyalty": 0.2},
         "description": "Freelancer pilot, risky.",
     },
+    "character_siv": {
+        "character_name": "Siv",
+        "faction_id": "faction_military",
+        "credits": 3000,
+        "skills": {"piloting": 4, "combat": 5, "trading": 2},
+        "age": 38,
+        "reputation": 70,
+        "personality_traits": {"risk_tolerance": 0.4, "loyalty": 0.9, "greed": 0.6},
+        "description": "Military supply officer, disciplined.",
+    },
 }
 
 
@@ -233,6 +270,13 @@ AGENTS = {
         "is_persistent": True,
         "home_location_id": "station_gamma",
         "character_template_id": "character_rex",
+        "respawn_timeout_seconds": 300.0,
+    },
+    "persistent_siv": {
+        "agent_type": "npc",
+        "is_persistent": True,
+        "home_location_id": "station_delta",
+        "character_template_id": "character_siv",
         "respawn_timeout_seconds": 300.0,
     },
 }

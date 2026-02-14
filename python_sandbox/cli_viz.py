@@ -165,12 +165,14 @@ FACTION_COLORS = {
     "faction_miners":       fg256(208),   # orange
     "faction_traders":      fg256(39),    # blue
     "faction_independents": fg256(82),    # green
+    "faction_military":     fg256(196),   # red
 }
 
 FACTION_SHORT = {
     "faction_miners":       "MIN",
     "faction_traders":      "TRD",
     "faction_independents": "IND",
+    "faction_military":     "MIL",
 }
 
 SECTOR_TYPE_COLORS = {
@@ -206,79 +208,104 @@ def render_sector_map(state) -> list:
     lines = []
     sectors = sorted(state.world_topology.keys())
 
-    if len(sectors) == 3:
-        # Hardcoded triangle layout for 3 sectors
-        # (alpha) ---- (beta)
-        #      \      /
-        #      (gamma)
-        names = {}
-        types = {}
-        for sid in sectors:
-            loc_name = sid.replace("station_", "").upper()
-            stype = state.world_topology[sid].get("sector_type", "?")
-            tc = SECTOR_TYPE_COLORS.get(stype, WHITE)
-            names[sid] = f"{tc}{BOLD}{loc_name}{RESET}"
-            types[sid] = f"{DIM}({stype}){RESET}"
-
-        # Count agents per sector
-        agent_counts = {}
-        for sid in sectors:
-            agent_counts[sid] = []
-        for aid, agent in state.agents.items():
-            sec = agent.get("current_sector_id", "")
-            if sec in agent_counts:
-                disabled = agent.get("is_disabled", False)
-                char_uid = agent.get("char_uid", -1)
-                char_data = state.characters.get(char_uid, {})
-                name = char_data.get("character_name", aid)[:4]
-                if disabled:
-                    agent_counts[sec].append(f"{RED}✖{name}{RESET}")
-                elif aid == "player":
-                    agent_counts[sec].append(f"{BGREEN}▶{name}{RESET}")
-                else:
-                    agent_counts[sec].append(f"{CYAN}●{name}{RESET}")
-
-        # Hostile counts
-        hostile_counts = {}
-        for htype, hdata in state.hostile_population_integral.items():
-            for sid, cnt in hdata.get("sector_counts", {}).items():
-                hostile_counts[sid] = hostile_counts.get(sid, 0) + cnt
-
-        s0, s1, s2 = sectors[0], sectors[1], sectors[2]
-
-        w = 28  # box width
-
-        def sector_box(sid):
-            box_lines = []
-            stype = state.world_topology[sid].get("sector_type", "?")
-            tc = SECTOR_TYPE_COLORS.get(stype, WHITE)
-            loc_name = sid.replace("station_", "").upper()
-
-            header = f" {tc}{BOLD}{loc_name}{RESET} {DIM}({stype}){RESET}"
-            box_lines.append(header)
-
-            # Agents in this sector
-            agents_here = agent_counts.get(sid, [])
-            if agents_here:
-                box_lines.append(f"  {DIM}agents:{RESET} " + " ".join(agents_here))
+    # Build common data
+    agent_counts = {sid: [] for sid in sectors}
+    for aid, agent in state.agents.items():
+        sec = agent.get("current_sector_id", "")
+        if sec in agent_counts:
+            disabled = agent.get("is_disabled", False)
+            char_uid = agent.get("char_uid", -1)
+            char_data = state.characters.get(char_uid, {})
+            name = char_data.get("character_name", aid)[:4]
+            if disabled:
+                agent_counts[sec].append(f"{RED}✖{name}{RESET}")
+            elif aid == "player":
+                agent_counts[sec].append(f"{BGREEN}▶{name}{RESET}")
             else:
-                box_lines.append(f"  {DIM}agents: (none){RESET}")
+                agent_counts[sec].append(f"{CYAN}●{name}{RESET}")
 
-            # Hostiles
-            hc = hostile_counts.get(sid, 0)
-            if hc > 0:
-                box_lines.append(f"  {RED}hostiles: {hc}{RESET}")
+    hostile_counts = {}
+    for htype, hdata in state.hostile_population_integral.items():
+        for sid, cnt in hdata.get("sector_counts", {}).items():
+            hostile_counts[sid] = hostile_counts.get(sid, 0) + cnt
 
-            return box_lines
+    def sector_box(sid):
+        box_lines = []
+        stype = state.world_topology[sid].get("sector_type", "?")
+        tc = SECTOR_TYPE_COLORS.get(stype, WHITE)
+        loc_name = sid.replace("station_", "").upper()
+        header = f" {tc}{BOLD}{loc_name}{RESET} {DIM}({stype}){RESET}"
+        box_lines.append(header)
+        agents_here = agent_counts.get(sid, [])
+        if agents_here:
+            box_lines.append(f"  {DIM}agents:{RESET} " + " ".join(agents_here))
+        else:
+            box_lines.append(f"  {DIM}agents: (none){RESET}")
+        hc = hostile_counts.get(sid, 0)
+        if hc > 0:
+            box_lines.append(f"  {RED}hostiles: {hc}{RESET}")
+        return box_lines
 
+    # --- World Age banner ---
+    age = getattr(state, "world_age", "")
+    age_timer = getattr(state, "world_age_timer", 0)
+    age_cycle = getattr(state, "world_age_cycle_count", 0)
+    if age:
+        age_colors = {"PROSPERITY": BGREEN, "DISRUPTION": BRED, "RECOVERY": BCYAN}
+        ac = age_colors.get(age, WHITE)
+        lines.append(f"  {BOLD}{UNDERLINE}SECTOR MAP{RESET}  "
+                     f"{ac}{BOLD}⬤ {age}{RESET} "
+                     f"{DIM}({age_timer} ticks left · cycle #{age_cycle}){RESET}")
+    else:
+        lines.append(f"  {BOLD}{UNDERLINE}SECTOR MAP{RESET}")
+    lines.append("")
+
+    if len(sectors) == 4:
+        # Diamond layout:
+        #            ALPHA
+        #           / | \
+        #       GAMMA  |  BETA
+        #           \ | /
+        #            DELTA
+        s0, s1, s2, s3 = sectors[0], sectors[1], sectors[2], sectors[3]
+        box0 = sector_box(s0)  # alpha — top
+        box1 = sector_box(s1)  # beta — right
+        box2 = sector_box(s2)  # gamma — left
+        box3 = sector_box(s3)  # delta — bottom
+
+        # Top sector (alpha) — centered
+        for bline in box0:
+            lines.append(f"                  {bline}")
+
+        # Connection lines from top to middle
+        lines.append(f"  {DIM}               /  |  \\{RESET}")
+        lines.append(f"  {DIM}              /   |   \\{RESET}")
+
+        # Middle sectors (gamma left, beta right) side by side
+        max_height = max(len(box2), len(box1))
+        for i in range(max_height):
+            left = box2[i] if i < len(box2) else ""
+            right = box1[i] if i < len(box1) else ""
+            left_padded = pad_right(left, 35)
+            conn_str = f"{DIM}|{RESET}" if i == 0 else " "
+            lines.append(f"  {left_padded} {conn_str}  {right}")
+
+        # Connection lines from middle to bottom
+        lines.append(f"  {DIM}              \\   |   /{RESET}")
+        lines.append(f"  {DIM}               \\  |  /{RESET}")
+
+        # Bottom sector (delta) — centered
+        for bline in box3:
+            lines.append(f"                  {bline}")
+        lines.append("")
+
+    elif len(sectors) == 3:
+        # Triangle layout (original)
+        s0, s1, s2 = sectors[0], sectors[1], sectors[2]
         box0 = sector_box(s0)
         box1 = sector_box(s1)
         box2 = sector_box(s2)
 
-        lines.append(f"  {BOLD}{UNDERLINE}SECTOR MAP{RESET}")
-        lines.append("")
-
-        # Render side by side: s0 and s1
         max_height = max(len(box0), len(box1))
         for i in range(max_height):
             left = box0[i] if i < len(box0) else ""
@@ -287,19 +314,16 @@ def render_sector_map(state) -> list:
             conn_str = f"{DIM}────{RESET}" if i == 0 else "    "
             lines.append(f"  {left_padded} {conn_str}  {right}")
 
-        # Connection lines down to s2
         lines.append(f"  {DIM}    \\                             /{RESET}")
         lines.append(f"  {DIM}     \\                           /{RESET}")
         lines.append(f"  {DIM}      \\                         /{RESET}")
 
-        # Center box for s2
         for bline in box2:
             lines.append(f"                  {bline}")
         lines.append("")
 
     else:
         # Generic list fallback
-        lines.append(f"  {BOLD}{UNDERLINE}SECTOR MAP{RESET}")
         for sid in sectors:
             topology = state.world_topology[sid]
             stype = topology.get("sector_type", "?")
@@ -693,6 +717,10 @@ def render_dashboard(engine, tick_label: str = "") -> str:
     title = f"GDTLancer Simulation — Tick {state.sim_tick_count}"
     if tick_label:
         title += f"  ({tick_label})"
+    # Add world age to title
+    age = getattr(state, "world_age", "")
+    if age:
+        title += f"  │ Age: {age}"
     title_padded = title.center(term_width - 2)
     lines.append(f"{BOLD}{CYAN}║{RESET}{BOLD}{title_padded}{RESET}{BOLD}{CYAN}║{RESET}")
 
@@ -766,9 +794,17 @@ def render_tick_summary(engine) -> str:
 
     axiom_str = f"{BGREEN}✓{RESET}" if axiom_ok else f"{BRED}✗{RESET}"
 
+    # World age indicator
+    age = getattr(state, "world_age", "")
+    age_timer = getattr(state, "world_age_timer", 0)
+    age_colors = {"PROSPERITY": BGREEN, "DISRUPTION": BRED, "RECOVERY": BCYAN}
+    ac = age_colors.get(age, WHITE)
+    age_str = f"{ac}{age[:4]}{RESET}:{age_timer}" if age else ""
+
     parts = [
         f"{BOLD}T{tick:>5}{RESET}",
         f"{axiom_str}",
+        f"{age_str}",
         f"{DIM}stk:{RESET}{total_stock:>7.0f}",
         f"{DIM}agt:{RESET}{CYAN}{active}{RESET}/{RED}{disabled}{RESET}",
         f"{DIM}hos:{RESET}{RED}{total_hostiles}{RESET}",

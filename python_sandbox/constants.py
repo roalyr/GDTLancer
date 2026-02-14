@@ -54,7 +54,7 @@ PIRACY_CARGO_LOSS_FRACTION = 0.2 # Fraction of cargo lost to pirate raid
 
 # === Cash Sinks ===
 REPAIR_COST_PER_POINT = 500.0    # Cash per 0.1 hull repaired
-DOCKING_FEE_BASE = 50.0          # Base docking fee per tick while docked
+DOCKING_FEE_BASE = 20.0          # Base docking fee per tick while docked
 FUEL_COST_PER_UNIT = 5.0         # Cost to refuel per unit of propellant
 
 # === Timing ===
@@ -62,3 +62,55 @@ WORLD_TICK_INTERVAL_SECONDS = 60
 
 # === Axiom 1 ===
 AXIOM1_TOLERANCE = 0.01
+
+# ═══════════════════════════════════════════════════════════════════
+# === World Age Cycle ===
+# Inspired by GROWTH → CHAOS → RENEWAL oscillation pattern.
+# Each age modulates CA parameters to prevent the system from settling.
+# ═══════════════════════════════════════════════════════════════════
+
+# Age cycle definition: order and duration (in ticks)
+WORLD_AGE_CYCLE = ["PROSPERITY", "DISRUPTION", "RECOVERY"]
+WORLD_AGE_DURATIONS = {
+    "PROSPERITY": 40,    # Stable growth — factions consolidate, trade thrives
+    "DISRUPTION":  20,   # Crisis — piracy surges, factions weaken, extraction stalls
+    "RECOVERY":    25,   # Rebuilding — moderate piracy, resources slowly replenish
+}
+
+# Per-age config overrides (applied on top of base constants)
+# Only keys that change per age are listed.
+WORLD_AGE_CONFIGS = {
+    "PROSPERITY": {
+        "extraction_rate_default":      0.015,   # Rich extraction
+        "pirate_activity_growth":       0.02,    # Low pirate pressure
+        "pirate_activity_decay":        0.06,    # Security suppresses piracy
+        "influence_propagation_rate":   0.08,    # Slow influence change
+        "faction_anchor_strength":      0.4,     # Strong faction anchoring
+        "hostile_growth_rate":          0.02,    # Few new hostiles
+        "piracy_encounter_chance":      0.15,    # Rare attacks
+        "docking_fee_base":             15.0,    # Cheap docking
+        "stockpile_diffusion_rate":     0.08,    # Active trade diffusion
+    },
+    "DISRUPTION": {
+        "extraction_rate_default":      0.004,   # Extraction collapses
+        "pirate_activity_growth":       0.12,    # Piracy surges
+        "pirate_activity_decay":        0.01,    # Security barely holds
+        "influence_propagation_rate":   0.20,    # Factions destabilize fast
+        "faction_anchor_strength":      0.1,     # Weak anchoring — chaos
+        "hostile_growth_rate":          0.15,    # Hostile boom
+        "piracy_encounter_chance":      0.50,    # Frequent attacks
+        "docking_fee_base":             40.0,    # Crisis pricing
+        "stockpile_diffusion_rate":     0.02,    # Trade routes disrupted
+    },
+    "RECOVERY": {
+        "extraction_rate_default":      0.008,   # Slow rebuilding
+        "pirate_activity_growth":       0.04,    # Moderate piracy
+        "pirate_activity_decay":        0.04,    # Gradual cleanup
+        "influence_propagation_rate":   0.12,    # Moderate influence shift
+        "faction_anchor_strength":      0.25,    # Rebuilding control
+        "hostile_growth_rate":          0.06,    # Some hostiles remain
+        "piracy_encounter_chance":      0.30,    # Normal risk
+        "docking_fee_base":             25.0,    # Recovering fees
+        "stockpile_diffusion_rate":     0.05,    # Normal diffusion
+    },
+}

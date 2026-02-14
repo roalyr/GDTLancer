@@ -1,2 +1,4 @@
 .import/
 *.blend1
+*.pyc
+__pycache__/

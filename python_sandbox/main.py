@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from simulation_engine import SimulationEngine
 import cli_viz
+import ncurses_viz
 
 
 def dump_state(engine: SimulationEngine, label: str = "") -> None:
@@ -192,7 +193,16 @@ def main():
         "--viz-stream", action="store_true",
         help="Print compact colored tick summary every tick"
     )
+    parser.add_argument(
+        "--tui", action="store_true",
+        help="Launch interactive ncurses dashboard (1 tick/sec, real-time)"
+    )
     args = parser.parse_args()
+
+    # --- ncurses TUI mode: launch and exit ---
+    if args.tui:
+        ncurses_viz.run_tui(seed=args.seed, max_ticks=args.ticks)
+        return
 
     # Suppress layer prints unless verbose
     if not args.verbose:

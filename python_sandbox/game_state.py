@@ -47,6 +47,11 @@ class GameState:
         self.sim_tick_count: int = 0
         self.game_time_seconds: int = 0
 
+        # === World Age Cycle ===
+        self.world_age: str = ""          # Current age name (PROSPERITY, DISRUPTION, RECOVERY)
+        self.world_age_timer: int = 0     # Ticks remaining in current age
+        self.world_age_cycle_count: int = 0  # How many full cycles completed
+
         # === Scene State (stub for Python — no real scene) ===
         self.player_docked_at: str = ""
 

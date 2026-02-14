@@ -55,6 +55,14 @@ class SimulationEngine:
         # Give agent layer a reference to chronicle for event logging
         self.agent_layer.set_chronicle(self.chronicle_layer)
 
+        # Initialize World Age Cycle
+        self.state.world_age = constants.WORLD_AGE_CYCLE[0]
+        self.state.world_age_timer = constants.WORLD_AGE_DURATIONS[
+            self.state.world_age
+        ]
+        self.state.world_age_cycle_count = 0
+        self._apply_age_config()  # Apply initial age overrides
+
         # Recalculate total matter for definitive Axiom 1 checksum
         self.world_layer.recalculate_total_matter(self.state)
 
@@ -73,6 +81,9 @@ class SimulationEngine:
         """Process one full simulation tick through all layers."""
         self.state.sim_tick_count += 1
         tick = self.state.sim_tick_count
+
+        # World Age Cycle — advance age timer, transition on expiry
+        self._advance_world_age()
 
         # Step 1: World Layer (static — no processing)
         # Step 2: Grid Layer
@@ -176,6 +187,45 @@ class SimulationEngine:
             "wrecks": wrecks,
             "agent_inventories": agent_inventories,
         }
+
+    # -----------------------------------------------------------------
+    # World Age Cycle
+    # -----------------------------------------------------------------
+    def _advance_world_age(self) -> None:
+        """Cycle through world ages: PROSPERITY → DISRUPTION → RECOVERY → ..."""
+        self.state.world_age_timer -= 1
+        if self.state.world_age_timer <= 0:
+            cycle = constants.WORLD_AGE_CYCLE
+            current_idx = cycle.index(self.state.world_age)
+            next_idx = (current_idx + 1) % len(cycle)
+
+            if next_idx == 0:
+                self.state.world_age_cycle_count += 1
+
+            self.state.world_age = cycle[next_idx]
+            self.state.world_age_timer = constants.WORLD_AGE_DURATIONS[
+                self.state.world_age
+            ]
+            self._apply_age_config()
+
+            # Log the transition as a chronicle event
+            if self.chronicle_layer:
+                event = {
+                    "actor_uid": "world",
+                    "action_id": "age_change",
+                    "target_uid": "",
+                    "target_sector_id": "",
+                    "tick_count": self.state.sim_tick_count,
+                    "outcome": "success",
+                    "metadata": {"new_age": self.state.world_age},
+                }
+                self.chronicle_layer.log_event(self.state, event)
+
+    def _apply_age_config(self) -> None:
+        """Rebuild tick config with base values, then overlay current age overrides."""
+        self._build_tick_config()  # Reset to base
+        age_overrides = constants.WORLD_AGE_CONFIGS.get(self.state.world_age, {})
+        self._tick_config.update(age_overrides)
 
     # -----------------------------------------------------------------
     # Config
