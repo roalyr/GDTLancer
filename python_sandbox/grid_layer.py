@@ -82,6 +82,10 @@ class GridLayer:
             buf_dominion[sector_id] = ca_rules.strategic_map_step(
                 sector_id, current_dominion, neighbor_dominion_states, config,
             )
+            # Preserve controlling_faction_id through ticks
+            buf_dominion[sector_id]["controlling_faction_id"] = current_dominion.get(
+                "controlling_faction_id", ""
+            )
 
             # 2d. Power Load
             current_power = state.grid_power.get(sector_id, {})
@@ -237,6 +241,7 @@ class GridLayer:
                 "faction_influence": faction_influence,
                 "security_level": security,
                 "pirate_activity": pirate_activity,
+                "controlling_faction_id": controlling_faction,
             }
 
     def _seed_market(self, state: GameState) -> None:

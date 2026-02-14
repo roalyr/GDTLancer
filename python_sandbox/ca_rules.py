@@ -25,14 +25,17 @@ def strategic_map_step(
     """Compute next dominion state for a single sector.
 
     Faction influence propagates from neighbors.
+    Controlling faction gets an anchor bonus that resists blending.
     Pirate activity grows where security is low, decays where high.
     """
     propagation_rate = config.get("influence_propagation_rate", 0.1)
     pirate_decay = config.get("pirate_activity_decay", 0.02)
     pirate_growth = config.get("pirate_activity_growth", 0.05)
+    anchor_strength = config.get("faction_anchor_strength", 0.3)
 
     # --- Faction Influence Propagation ---
     current_influence = dict(sector_state.get("faction_influence", {}))
+    controlling_faction = sector_state.get("controlling_faction_id", "")
     neighbor_count = len(neighbor_states)
 
     if neighbor_count > 0:
@@ -49,11 +52,17 @@ def strategic_map_step(
                 neighbor_avg[faction_id] - current_val
             )
 
-    # Normalize to [0, 1]
+    # --- Faction Anchor: controlling faction gets a boost each tick ---
+    if controlling_faction and controlling_faction in current_influence:
+        current_influence[controlling_faction] += anchor_strength
+    elif controlling_faction:
+        current_influence[controlling_faction] = anchor_strength
+
+    # Normalize so sum = 1.0
     for fid in current_influence:
         current_influence[fid] = max(0.0, current_influence[fid])
     influence_sum = sum(current_influence.values())
-    if influence_sum > 1.0:
+    if influence_sum > 0.0:
         for fid in current_influence:
             current_influence[fid] /= influence_sum
 

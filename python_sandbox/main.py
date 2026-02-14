@@ -18,6 +18,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from simulation_engine import SimulationEngine
+import cli_viz
 
 
 def dump_state(engine: SimulationEngine, label: str = "") -> None:
@@ -179,6 +180,18 @@ def main():
         "--dump-every", type=int, default=0,
         help="Dump full state every N ticks (0 = only at end)"
     )
+    parser.add_argument(
+        "--viz", action="store_true",
+        help="Show colored CLI dashboard at start and end"
+    )
+    parser.add_argument(
+        "--viz-every", type=int, default=0,
+        help="Show full colored dashboard every N ticks (0 = only start/end)"
+    )
+    parser.add_argument(
+        "--viz-stream", action="store_true",
+        help="Print compact colored tick summary every tick"
+    )
     args = parser.parse_args()
 
     # Suppress layer prints unless verbose
@@ -207,7 +220,11 @@ def main():
         import builtins
         builtins.print = _original_print  # type: ignore
 
-    dump_state(engine, label="POST-INITIALIZATION (Tick 0)")
+    # Show initial state
+    if args.viz or args.viz_every:
+        cli_viz.print_dashboard(engine, tick_label="POST-INITIALIZATION")
+    else:
+        dump_state(engine, label="POST-INITIALIZATION (Tick 0)")
 
     for i in range(1, args.ticks + 1):
         if not args.verbose:
@@ -223,7 +240,16 @@ def main():
         if args.dump_every and i % args.dump_every == 0:
             dump_state(engine, label=f"TICK {i}")
 
-    dump_state(engine, label=f"FINAL STATE (after {args.ticks} ticks)")
+        if args.viz_every and i % args.viz_every == 0:
+            cli_viz.print_dashboard(engine, tick_label=f"TICK {i}")
+        elif args.viz_stream:
+            cli_viz.print_tick_summary(engine)
+
+    # Show final state
+    if args.viz or args.viz_every:
+        cli_viz.print_dashboard(engine, tick_label=f"FINAL ({args.ticks} ticks)")
+    else:
+        dump_state(engine, label=f"FINAL STATE (after {args.ticks} ticks)")
 
 
 if __name__ == "__main__":

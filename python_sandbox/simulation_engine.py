@@ -52,6 +52,9 @@ class SimulationEngine:
         # Step 3: Agent Layer
         self.agent_layer.initialize_agents(self.state)
 
+        # Give agent layer a reference to chronicle for event logging
+        self.agent_layer.set_chronicle(self.chronicle_layer)
+
         # Recalculate total matter for definitive Axiom 1 checksum
         self.world_layer.recalculate_total_matter(self.state)
 
@@ -211,6 +214,17 @@ class SimulationEngine:
             "world_tick_interval_seconds": float(constants.WORLD_TICK_INTERVAL_SECONDS),
             "respawn_timeout_seconds": constants.RESPAWN_TIMEOUT_SECONDS,
             "hostile_growth_rate": constants.HOSTILE_GROWTH_RATE,
+            # Hostile encounters
+            "piracy_encounter_chance": constants.PIRACY_ENCOUNTER_CHANCE,
+            "piracy_damage_min": constants.PIRACY_DAMAGE_MIN,
+            "piracy_damage_max": constants.PIRACY_DAMAGE_MAX,
+            "piracy_cargo_loss_fraction": constants.PIRACY_CARGO_LOSS_FRACTION,
+            # Cash sinks
+            "repair_cost_per_point": constants.REPAIR_COST_PER_POINT,
+            "docking_fee_base": constants.DOCKING_FEE_BASE,
+            "fuel_cost_per_unit": constants.FUEL_COST_PER_UNIT,
+            # Faction anchoring
+            "faction_anchor_strength": constants.CA_FACTION_ANCHOR_STRENGTH,
             # Axiom 1
             "axiom1_tolerance": constants.AXIOM1_TOLERANCE,
         }

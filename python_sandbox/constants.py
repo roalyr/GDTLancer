@@ -11,6 +11,7 @@ CA_STOCKPILE_DIFFUSION_RATE = 0.05
 CA_EXTRACTION_RATE_DEFAULT = 0.01
 CA_PRICE_SENSITIVITY = 0.5
 CA_DEMAND_BASE = 0.1
+CA_FACTION_ANCHOR_STRENGTH = 0.3  # How strongly controlling faction resists blending
 
 # === Wreck & Entropy ===
 WRECK_DEGRADATION_PER_TICK = 0.05
@@ -44,6 +45,17 @@ NPC_HULL_REPAIR_THRESHOLD = 0.5
 COMMODITY_BASE_PRICE = 10.0
 RESPAWN_TIMEOUT_SECONDS = 300.0
 HOSTILE_GROWTH_RATE = 0.05
+
+# === Hostile Encounters ===
+PIRACY_ENCOUNTER_CHANCE = 0.3    # Base probability per tick in a pirate sector
+PIRACY_DAMAGE_MIN = 0.05         # Min hull damage from a pirate encounter
+PIRACY_DAMAGE_MAX = 0.25         # Max hull damage from a pirate encounter
+PIRACY_CARGO_LOSS_FRACTION = 0.2 # Fraction of cargo lost to pirate raid
+
+# === Cash Sinks ===
+REPAIR_COST_PER_POINT = 500.0    # Cash per 0.1 hull repaired
+DOCKING_FEE_BASE = 50.0          # Base docking fee per tick while docked
+FUEL_COST_PER_UNIT = 5.0         # Cost to refuel per unit of propellant
 
 # === Timing ===
 WORLD_TICK_INTERVAL_SECONDS = 60
