@@ -190,10 +190,17 @@ def entropy_step(
     hazards: dict,
     config: dict,
 ) -> dict:
-    """Compute wreck degradation and matter return for a sector.
+    """Compute wreck degradation and matter redistribution for a sector.
 
-    Wrecks degrade based on environmental hazards. When integrity <= 0,
-    matter is returned to resource potential (Axiom 1).
+    Wrecks degrade based on environmental hazards.  All matter is conserved
+    (Axiom 1) via two output channels:
+      * matter_salvaged  – recoverable debris from destroyed wrecks.
+                           Returned to resource_potential (accessible ore).
+      * matter_to_dust   – hull erosion each tick + non-salvageable fraction
+                           of destroyed wreck inventory.  Returned to
+                           hidden_resources (needs prospecting to rediscover).
+
+    salvaged + dust always equals 100 % of lost wreck mass.
     """
     base_degradation = config.get("wreck_degradation_per_tick", 0.05)
     return_fraction = config.get("wreck_debris_return_fraction", 0.8)
@@ -203,23 +210,30 @@ def entropy_step(
     degradation_rate = base_degradation * (1.0 + radiation * radiation_mult)
 
     surviving_wrecks = []
-    total_matter_returned = 0.0
+    total_matter_salvaged = 0.0
+    total_matter_to_dust = 0.0
 
     for wreck in wrecks:
         new_wreck = copy.deepcopy(wreck)
-        integrity = new_wreck.get("wreck_integrity", 1.0)
-        integrity -= degradation_rate
-        new_wreck["wreck_integrity"] = integrity
+        old_integrity = max(0.0, new_wreck.get("wreck_integrity", 0.0))
+        new_integrity = old_integrity - degradation_rate
+        # Hull mass lost this tick (clamped: can't lose more than existed).
+        hull_lost = old_integrity - max(0.0, new_integrity)
+        total_matter_to_dust += hull_lost  # eroded hull → hidden resources
+        new_wreck["wreck_integrity"] = max(0.0, new_integrity)
 
-        if integrity <= 0.0:
-            wreck_matter = _calculate_wreck_matter(new_wreck)
-            total_matter_returned += wreck_matter * return_fraction
+        if new_integrity <= 0.0:
+            # Wreck destroyed — split remaining inventory.
+            wreck_matter = _calculate_wreck_matter(new_wreck)  # hull is 0 here
+            total_matter_salvaged += wreck_matter * return_fraction
+            total_matter_to_dust += wreck_matter * (1.0 - return_fraction)
         else:
             surviving_wrecks.append(new_wreck)
 
     return {
         "surviving_wrecks": surviving_wrecks,
-        "matter_returned": total_matter_returned,
+        "matter_salvaged": total_matter_salvaged,
+        "matter_to_dust": total_matter_to_dust,
     }
 
 
@@ -401,10 +415,10 @@ def _sum_commodity_values(commodities: dict) -> float:
 
 
 def _calculate_wreck_matter(wreck: dict) -> float:
-    """Estimate matter content of a wreck from its inventory."""
+    """Estimate matter content of a wreck from its inventory + hull."""
     matter = 0.0
     inventory = wreck.get("wreck_inventory", {})
     for val in inventory.values():
         matter += float(val)
-    matter += 1.0  # base hull mass
+    matter += max(0.0, wreck.get("wreck_integrity", 0.0))  # hull mass = integrity
     return matter

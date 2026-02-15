@@ -40,6 +40,9 @@ class GameState:
         self.player_character_uid: int = -1
         self.hostile_population_integral: dict = {}  # hostile_type → {current_count, carrying_capacity, sector_counts}
         self.persistent_agents: dict = {}       # legacy alias
+        self.sector_disabled_until: dict = {}   # sector_id → tick when hub re-enables
+        self.catastrophe_log: list = []         # list of {sector_id, tick, type} for chronicle
+        self.hostile_matter_pool: float = 0.0   # matter consumed by hostiles from wrecks (Axiom 1)
 
         # === Layer 4: Chronicle ===
         self.chronicle_event_buffer: list = []

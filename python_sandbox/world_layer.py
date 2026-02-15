@@ -170,7 +170,7 @@ class WorldLayer:
             inventory = wreck.get("wreck_inventory", {})
             for item_id, qty in inventory.items():
                 total += float(qty)
-            total += 1.0  # base hull mass
+            total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
         # Layer 3: Agent inventories
         for char_uid, inv in state.inventories.items():

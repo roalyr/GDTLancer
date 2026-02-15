@@ -110,6 +110,7 @@ def generate_report(engine, ticks_run, sample_data, age_transitions):
     for k, v in bd.items():
         pct = v / total * 100 if total > 0 else 0
         out.append(f"  {k}: {v:.2f} ({pct:.1f}%)")
+    out.append(f"  TOTAL: {total:.2f}")
     out.append("")
 
     # -- Hidden resource depletion timeline --
@@ -209,6 +210,27 @@ def generate_report(engine, ticks_run, sample_data, age_transitions):
         dist_str = " ".join(f"{k.replace('station_','')}={v}" for k, v in sorted(dist.items()))
         out.append(f"  {htype}: {count}/{cap}  [{dist_str}]")
     out.append("")
+
+    # -- Catastrophe log --
+    out.append(f"CATASTROPHES: {len(s.catastrophe_log)} total events")
+    if s.catastrophe_log:
+        for cat in s.catastrophe_log[-5:]:
+            sector_short = cat.get("sector_id", "?").replace("station_", "").upper()
+            tick = cat.get("tick", 0)
+            matter = cat.get("matter_converted", 0.0)
+            until = cat.get("disable_until", 0)
+            out.append(f"  tick={tick} sector={sector_short} matter_to_wrecks={matter:.1f} disabled_until={until}")
+    out.append("")
+
+    # -- Disabled sectors --
+    active_disabled = {sid: until for sid, until in s.sector_disabled_until.items()
+                       if until > s.sim_tick_count}
+    if active_disabled:
+        out.append("DISABLED_SECTORS:")
+        for sid, until in sorted(active_disabled.items()):
+            short = sid.replace("station_", "").upper()
+            out.append(f"  {short}: disabled until tick {until}")
+        out.append("")
 
     # -- Market prices (final) --
     out.append("MARKET_PRICES (delta from base):")

@@ -103,20 +103,34 @@ class AgentLayer:
         state.persistent_agents[agent_id] = state.agents[agent_id]
 
     def _initialize_hostile_population(self, state: GameState) -> None:
+        """Seed drone and alien hostile populations from pirate_activity levels.
+
+        Drones and aliens are hive creatures that roam low-security space.
+        Their population is fed by wreck salvage (see grid_layer wreck processing).
+        """
         total_piracy = 0.0
-        sector_counts = {}
+        sector_counts_drones = {}
+        sector_counts_aliens = {}
 
         for sector_id, dominion in state.grid_dominion.items():
             piracy = dominion.get("pirate_activity", 0.0)
             total_piracy += piracy
-            sector_counts[sector_id] = int(piracy * 10.0)
+            # Drones are more common, aliens are rarer
+            sector_counts_drones[sector_id] = int(piracy * 8.0)
+            sector_counts_aliens[sector_id] = int(piracy * 3.0)
 
-        carrying_capacity = max(5, int(total_piracy * 20.0))
+        drone_capacity = max(5, int(total_piracy * 15.0))
+        alien_capacity = max(3, int(total_piracy * 8.0))
 
-        state.hostile_population_integral["pirates"] = {
-            "current_count": int(total_piracy * 10.0),
-            "carrying_capacity": carrying_capacity,
-            "sector_counts": sector_counts,
+        state.hostile_population_integral["drones"] = {
+            "current_count": int(total_piracy * 8.0),
+            "carrying_capacity": drone_capacity,
+            "sector_counts": sector_counts_drones,
+        }
+        state.hostile_population_integral["aliens"] = {
+            "current_count": int(total_piracy * 3.0),
+            "carrying_capacity": alien_capacity,
+            "sector_counts": sector_counts_aliens,
         }
 
     # -----------------------------------------------------------------
@@ -150,6 +164,7 @@ class AgentLayer:
             self._execute_action(state, agent_id, agent, config)
 
         self._update_hostile_population(state, config)
+        self._check_catastrophe(state, config)
 
     # -----------------------------------------------------------------
     # Step 4a: Goal Evaluation (role-aware)
@@ -195,6 +210,10 @@ class AgentLayer:
             new_goals.append({"type": "haul", "priority": 5})
             agent["goal_archetype"] = "haul"
 
+        elif role == "pirate":
+            new_goals.append({"type": "raid", "priority": 5})
+            agent["goal_archetype"] = "raid"
+
         else:
             new_goals.append({"type": "idle", "priority": 1})
             agent["goal_archetype"] = "idle"
@@ -224,6 +243,8 @@ class AgentLayer:
             self._action_patrol(state, agent_id, agent, config)
         elif goal_type == "haul":
             self._action_haul(state, agent_id, agent, config)
+        elif goal_type == "raid":
+            self._action_pirate(state, agent_id, agent, config)
         # idle: do nothing
 
     def _action_trade(
@@ -419,7 +440,8 @@ class AgentLayer:
     def _action_prospect(
         self, state: GameState, agent_id: str, agent: dict, config: dict
     ) -> None:
-        """Prospectors travel to resource-rich sectors and boost discovery."""
+        """Prospectors travel to resource-rich sectors, boost discovery,
+        and salvage wrecks in high-security sectors → matter to stockpiles (Axiom 1)."""
         current_sector = agent.get("current_sector_id", "")
         tick = state.sim_tick_count
         move_interval = config.get("prospector_move_interval", 5)
@@ -427,6 +449,51 @@ class AgentLayer:
         # Prospect at current location (presence boosts discovery via grid_layer)
         # Prospectors earn a small wage to stay alive
         agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + 10.0
+
+        # --- Wreck salvage in high-security sectors ---
+        security_threshold = config.get(
+            "prospector_wreck_security_threshold", 0.6
+        )
+        salvage_rate = config.get("prospector_wreck_salvage_rate", 0.15)
+        dominion = state.grid_dominion.get(current_sector, {})
+        security = dominion.get("security_level", 0.0)
+
+        if security >= security_threshold and state.grid_wrecks:
+            # Find wrecks in this sector and salvage them
+            sector_wrecks = [
+                (uid, w) for uid, w in state.grid_wrecks.items()
+                if w.get("sector_id", "") == current_sector
+            ]
+            for wreck_uid, wreck in sector_wrecks:
+                inventory = wreck.get("wreck_inventory", {})
+                stockpiles = state.grid_stockpiles.get(current_sector, {})
+                commodities = stockpiles.get("commodity_stockpiles", {})
+
+                # Salvage a fraction of each inventory item → stockpiles
+                salvaged_total = 0.0
+                for item_id in list(inventory.keys()):
+                    qty = inventory[item_id]
+                    if qty <= 0.0:
+                        continue
+                    salvaged = qty * salvage_rate
+                    inventory[item_id] = qty - salvaged
+                    # Map wreck items to commodity stockpile
+                    # Use commodity_ore as default for generic wreck matter
+                    target_commodity = item_id if item_id.startswith("commodity_") else "commodity_ore"
+                    commodities[target_commodity] = commodities.get(target_commodity, 0.0) + salvaged
+                    salvaged_total += salvaged
+
+                # Salvage hull mass fraction too (integrity IS the hull mass now)
+                integrity = wreck.get("wreck_integrity", 0.0)
+                hull_salvage = min(integrity, salvage_rate * integrity)
+                if hull_salvage > 0.0:
+                    wreck["wreck_integrity"] = integrity - hull_salvage
+                    commodities["commodity_ore"] = commodities.get("commodity_ore", 0.0) + hull_salvage
+                    salvaged_total += hull_salvage
+
+                if salvaged_total > 0.0:
+                    self._log_event(state, agent_id, "wreck_salvage", current_sector,
+                                    metadata={"wreck_uid": wreck_uid, "matter": salvaged_total})
 
         # Periodically move toward sector with most hidden resources
         if tick % move_interval == 0:
@@ -656,6 +723,172 @@ class AgentLayer:
                 del inv[cid]
 
     # -----------------------------------------------------------------
+    # Role: Pirate — raid cargo from other agents, exploit disruption
+    # -----------------------------------------------------------------
+    def _action_pirate(
+        self, state: GameState, agent_id: str, agent: dict, config: dict
+    ) -> None:
+        """Pirates travel to vulnerable sectors and steal cargo from agents."""
+        current_sector = agent.get("current_sector_id", "")
+        tick = state.sim_tick_count
+        move_interval = config.get("pirate_move_interval", 6)
+        raid_chance = config.get("pirate_raid_chance", 0.25)
+        steal_fraction = config.get("pirate_raid_cargo_steal", 0.3)
+        home_advantage = config.get("pirate_home_advantage", 0.15)
+
+        # Pirates boost piracy wherever they are
+        dominion = state.grid_dominion.get(current_sector, {})
+        old_piracy = dominion.get("pirate_activity", 0.0)
+        dominion["pirate_activity"] = min(1.0, old_piracy + home_advantage)
+
+        # Try to raid another agent in the same sector
+        if self._rng.random() < raid_chance:
+            self._pirate_raid(state, agent_id, agent, current_sector, steal_fraction)
+
+        # Periodically move toward most vulnerable (low-security, high-stockpile) sector
+        if tick % move_interval == 0:
+            target_sector = self._find_vulnerable_sector(state, agent)
+            if target_sector and target_sector != current_sector:
+                old_sector = current_sector
+                self._action_move_toward(state, agent_id, agent, target_sector)
+                new_sector = agent.get("current_sector_id", "")
+                if new_sector != old_sector:
+                    self._log_event(state, agent_id, "pirate_move", new_sector)
+
+    def _pirate_raid(
+        self, state: GameState, pirate_agent_id: str, pirate_agent: dict,
+        sector_id: str, steal_fraction: float,
+    ) -> None:
+        """Pirate steals cargo from a random non-pirate agent in sector.
+
+        Stolen cargo goes to pirate's inventory (matter-conserving).
+        """
+        # Find targets: non-pirate, non-disabled agents in same sector
+        targets = []
+        for agent_id, agent in state.agents.items():
+            if agent_id == pirate_agent_id:
+                continue
+            if agent.get("is_disabled", False):
+                continue
+            if agent.get("current_sector_id", "") != sector_id:
+                continue
+            if agent.get("agent_role", "") == "pirate":
+                continue
+            char_uid = agent.get("char_uid", -1)
+            if self._agent_has_cargo(state, char_uid):
+                targets.append((agent_id, agent))
+
+        if not targets:
+            return
+
+        # Pick a random target
+        target_agent_id, target_agent = self._rng.choice(targets)
+        target_char_uid = target_agent.get("char_uid", -1)
+        pirate_char_uid = pirate_agent.get("char_uid", -1)
+
+        if target_char_uid not in state.inventories or 2 not in state.inventories[target_char_uid]:
+            return
+
+        target_inv = state.inventories[target_char_uid][2]
+        if pirate_char_uid not in state.inventories:
+            state.inventories[pirate_char_uid] = {}
+        if 2 not in state.inventories[pirate_char_uid]:
+            state.inventories[pirate_char_uid][2] = {}
+        pirate_inv = state.inventories[pirate_char_uid][2]
+
+        total_stolen = 0.0
+        for commodity_id in list(target_inv.keys()):
+            qty = target_inv[commodity_id]
+            if qty <= 0.0:
+                continue
+            stolen = qty * steal_fraction
+            target_inv[commodity_id] = qty - stolen
+            pirate_inv[commodity_id] = pirate_inv.get(commodity_id, 0.0) + stolen
+            total_stolen += stolen
+
+        # Clean up dust
+        for commodity_id in list(target_inv.keys()):
+            if target_inv[commodity_id] <= 0.001:
+                dust = target_inv[commodity_id]
+                if dust > 0.0:
+                    pirate_inv[commodity_id] = pirate_inv.get(commodity_id, 0.0) + dust
+                del target_inv[commodity_id]
+
+        if total_stolen > 0.0:
+            # Pirate earns cash equivalent
+            pirate_agent["cash_reserves"] = pirate_agent.get("cash_reserves", 0.0) + total_stolen * 5.0
+            self._log_event(state, pirate_agent_id, "pirate_raid", sector_id,
+                            metadata={"target": target_agent_id, "stolen": total_stolen})
+
+    def _find_vulnerable_sector(
+        self, state: GameState, agent: dict,
+    ) -> str:
+        """Find sector with lowest security and highest stockpiles — pirate target."""
+        best_sector = ""
+        best_score = -float("inf")
+        for sector_id, dominion in state.grid_dominion.items():
+            security = dominion.get("security_level", 1.0)
+            stockpiles = state.grid_stockpiles.get(sector_id, {})
+            total_stock = sum(float(v) for v in stockpiles.get("commodity_stockpiles", {}).values())
+            # Pirates prefer low security + high stockpiles
+            score = total_stock * (1.0 - security)
+            if score > best_score:
+                best_score = score
+                best_sector = sector_id
+        return best_sector
+
+    # -----------------------------------------------------------------
+    # Hostile Management Helpers
+    # -----------------------------------------------------------------
+    def _kill_hostile_in_sector(
+        self, state: GameState, sector_id: str, kill_count: int,
+    ) -> None:
+        """Remove hostiles from a sector (combat kills). Drones first, then aliens."""
+        remaining = kill_count
+        for htype in ["drones", "aliens"]:
+            if remaining <= 0:
+                break
+            pop_data = state.hostile_population_integral.get(htype, {})
+            sector_counts = pop_data.get("sector_counts", {})
+            count_here = sector_counts.get(sector_id, 0)
+            if count_here <= 0:
+                continue
+            killed = min(count_here, remaining)
+            sector_counts[sector_id] = count_here - killed
+            pop_data["current_count"] = max(0, pop_data.get("current_count", 0) - killed)
+            remaining -= killed
+
+    def _create_wreck_from_agent(
+        self, state: GameState, agent: dict, sector_id: str,
+    ) -> None:
+        """When an agent is destroyed, create a wreck from remaining cargo (Axiom 1).
+
+        Cargo is transferred from agent inventory → wreck inventory.
+        """
+        char_uid = agent.get("char_uid", -1)
+        wreck_inventory = {}
+
+        if char_uid in state.inventories and 2 in state.inventories[char_uid]:
+            inv = state.inventories[char_uid][2]
+            for commodity_id, qty in list(inv.items()):
+                if qty > 0.0:
+                    wreck_inventory[commodity_id] = qty
+                    inv[commodity_id] = 0.0
+            # Clean up
+            for cid in list(inv.keys()):
+                if inv[cid] <= 0.0:
+                    del inv[cid]
+
+        # Only create wreck if there's something in it
+        if wreck_inventory:
+            wreck_uid = f"wreck_{state.sim_tick_count}_{char_uid}"
+            state.grid_wrecks[wreck_uid] = {
+                "sector_id": sector_id,
+                "wreck_integrity": 0.0,  # cargo debris, no hull mass (Axiom 1)
+                "wreck_inventory": wreck_inventory,
+            }
+
+    # -----------------------------------------------------------------
     # Smart Trade Route Helpers
     # -----------------------------------------------------------------
     def _find_best_sell_sector(
@@ -761,6 +994,11 @@ class AgentLayer:
         topology = state.world_topology.get(sector_id, {})
         is_docked = topology.get("sector_type", "") in ("hub", "frontier")
 
+        # Disabled sectors have no services
+        if sector_id in state.sector_disabled_until:
+            if state.sim_tick_count < state.sector_disabled_until[sector_id]:
+                is_docked = False
+
         if is_docked:
             docking_fee = config.get("docking_fee_base", 50.0)
             maintenance = state.grid_maintenance.get(sector_id, {})
@@ -774,15 +1012,19 @@ class AgentLayer:
     def _check_hostile_encounter(
         self, state: GameState, agent_id: str, agent: dict, config: dict,
     ) -> None:
-        """Check if agent encounters pirates in their sector."""
-        sector_id = agent.get("current_sector_id", "")
-        dominion = state.grid_dominion.get(sector_id, {})
-        piracy = dominion.get("pirate_activity", 0.0)
+        """Check if agent encounters hostile drones/aliens in their sector.
 
-        if piracy <= 0.0:
+        Encounter chance scales with hostile count in sector.
+        Combat skill reduces chance. Pirate-role agents are not attacked
+        by hostiles (they coexist in the chaos).
+        """
+        # Pirates coexist with hostiles — they are not attacked
+        if agent.get("agent_role", "") == "pirate":
             return
 
-        # Hostile count in this sector
+        sector_id = agent.get("current_sector_id", "")
+
+        # Count hostiles (drones + aliens) in this sector
         hostile_count = 0
         for htype, hdata in state.hostile_population_integral.items():
             hostile_count += hdata.get("sector_counts", {}).get(sector_id, 0)
@@ -790,9 +1032,11 @@ class AgentLayer:
         if hostile_count <= 0:
             return
 
-        # Encounter chance scales with piracy level
-        base_chance = config.get("piracy_encounter_chance", 0.3)
-        encounter_chance = base_chance * piracy
+        # Encounter chance scales with hostile density
+        base_chance = config.get("hostile_encounter_chance", 0.3)
+        # Normalize by a reasonable hostile density
+        density_factor = min(1.0, hostile_count / 10.0)
+        encounter_chance = base_chance * density_factor
 
         # Character combat skill reduces chance
         char_uid = agent.get("char_uid", -1)
@@ -804,8 +1048,8 @@ class AgentLayer:
             return
 
         # --- Encounter happens ---
-        damage_min = config.get("piracy_damage_min", 0.05)
-        damage_max = config.get("piracy_damage_max", 0.25)
+        damage_min = config.get("hostile_damage_min", 0.05)
+        damage_max = config.get("hostile_damage_max", 0.25)
         damage = self._rng.uniform(damage_min, damage_max)
 
         hull = agent.get("hull_integrity", 1.0)
@@ -813,20 +1057,25 @@ class AgentLayer:
         agent["hull_integrity"] = max(0.0, hull)
 
         # Cargo loss (matter returns to sector stockpile — Axiom 1)
-        cargo_loss_frac = config.get("piracy_cargo_loss_fraction", 0.2)
+        cargo_loss_frac = config.get("hostile_cargo_loss_fraction", 0.2)
         self._lose_cargo_to_piracy(state, agent, sector_id, cargo_loss_frac)
 
+        # Hostiles take casualties in the encounter too (1 killed per encounter)
+        self._kill_hostile_in_sector(state, sector_id, 1)
+
         if hull <= 0.0:
-            # Agent disabled
+            # Agent disabled — create wreck from remaining inventory
             agent["is_disabled"] = True
             agent["disabled_at_tick"] = state.sim_tick_count
             agent["hull_integrity"] = 0.0
+            self._create_wreck_from_agent(state, agent, sector_id)
             self._log_event(state, agent_id, "disabled", sector_id,
-                            metadata={"cause": "piracy", "damage": damage})
+                            metadata={"cause": "hostile_attack", "damage": damage})
         else:
-            self._log_event(state, agent_id, "pirate_attack", sector_id,
+            self._log_event(state, agent_id, "hostile_attack", sector_id,
                             metadata={"damage": damage,
-                                      "hull_remaining": agent["hull_integrity"]})
+                                      "hull_remaining": agent["hull_integrity"],
+                                      "hostiles_in_sector": hostile_count})
 
     def _lose_cargo_to_piracy(
         self, state: GameState, agent: dict, sector_id: str, loss_fraction: float,
@@ -919,36 +1168,237 @@ class AgentLayer:
     # Hostile Population
     # -----------------------------------------------------------------
     def _update_hostile_population(self, state: GameState, config: dict) -> None:
-        growth_rate = config.get("hostile_growth_rate", 0.05)
+        """Update drone/alien populations.
 
-        for hostile_type, pop_data in state.hostile_population_integral.items():
+        Population ecology:
+        - Hostiles in low-security sectors consume wreck matter to spawn new units
+        - Military agents kill hostiles directly
+        - Population distributes toward low-security, wreck-rich sectors
+        """
+        low_sec_threshold = config.get("hostile_low_security_threshold", 0.4)
+        wreck_salvage_rate = config.get("hostile_wreck_salvage_rate", 0.1)
+        spawn_cost = config.get("hostile_spawn_cost", 5.0)
+        kill_per_military = config.get("hostile_kill_per_military", 0.5)
+
+        # Count military agents per sector
+        military_counts = {}
+        for agent_id, agent in state.agents.items():
+            if agent.get("is_disabled", False):
+                continue
+            if agent.get("agent_role", "") == "military":
+                sid = agent.get("current_sector_id", "")
+                military_counts[sid] = military_counts.get(sid, 0) + 1
+
+        # Military kills
+        for sector_id, mil_count in military_counts.items():
+            kills = int(mil_count * kill_per_military)
+            if kills > 0:
+                self._kill_hostile_in_sector(state, sector_id, kills)
+
+        # Hostile wreck salvage in low-security sectors → spawn new hostiles
+        total_spawned = {"drones": 0, "aliens": 0}
+        matter_consumed_total = 0.0
+
+        for wreck_uid in list(state.grid_wrecks.keys()):
+            wreck = state.grid_wrecks[wreck_uid]
+            sector_id = wreck.get("sector_id", "")
+            dominion = state.grid_dominion.get(sector_id, {})
+            security = dominion.get("security_level", 1.0)
+
+            if security >= low_sec_threshold:
+                continue  # Only salvage in low-security sectors
+
+            # Count hostiles present in this sector
+            hostiles_here = 0
+            for htype in ["drones", "aliens"]:
+                pop_data = state.hostile_population_integral.get(htype, {})
+                hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
+
+            if hostiles_here <= 0:
+                continue  # No hostiles here to salvage
+
+            # Salvage wreck matter
+            inventory = wreck.get("wreck_inventory", {})
+            matter_consumed = 0.0
+
+            for item_id in list(inventory.keys()):
+                qty = inventory[item_id]
+                if qty <= 0.0:
+                    continue
+                consumed = qty * wreck_salvage_rate
+                inventory[item_id] = qty - consumed
+                matter_consumed += consumed
+
+            # Also consume hull integrity (hull mass)
+            integrity = wreck.get("wreck_integrity", 0.0)
+            hull_consumed = min(integrity, wreck_salvage_rate)
+            wreck["wreck_integrity"] = integrity - hull_consumed
+            matter_consumed += hull_consumed
+
+            # Track consumed matter in hostile_matter_pool (Axiom 1)
+            state.hostile_matter_pool += matter_consumed
+            matter_consumed_total += matter_consumed
+
+            # Spawn new hostiles from consumed matter
+            if matter_consumed >= spawn_cost:
+                spawns = int(matter_consumed / spawn_cost)
+                # 70% drones, 30% aliens
+                drone_spawns = max(1, int(spawns * 0.7))
+                alien_spawns = spawns - drone_spawns
+
+                for htype, count in [("drones", drone_spawns), ("aliens", alien_spawns)]:
+                    if count <= 0:
+                        continue
+                    pop_data = state.hostile_population_integral.get(htype, {})
+                    pop_data["current_count"] = pop_data.get("current_count", 0) + count
+                    sector_counts = pop_data.get("sector_counts", {})
+                    sector_counts[sector_id] = sector_counts.get(sector_id, 0) + count
+                    total_spawned[htype] += count
+
+            # Clean up empty inventory items
+            for item_id in list(inventory.keys()):
+                if inventory[item_id] <= 0.001:
+                    del inventory[item_id]
+
+        # Update carrying capacity based on available wrecks in low-sec sectors
+        total_wreck_matter_low_sec = 0.0
+        for wreck_uid, wreck in state.grid_wrecks.items():
+            sector_id = wreck.get("sector_id", "")
+            dominion = state.grid_dominion.get(sector_id, {})
+            security = dominion.get("security_level", 1.0)
+            if security < low_sec_threshold:
+                inventory = wreck.get("wreck_inventory", {})
+                for qty in inventory.values():
+                    total_wreck_matter_low_sec += float(qty)
+                total_wreck_matter_low_sec += 1.0  # hull mass
+
+        for htype in ["drones", "aliens"]:
+            pop_data = state.hostile_population_integral.get(htype, {})
+            base_cap = 5 if htype == "drones" else 3
+            wreck_cap = int(total_wreck_matter_low_sec / spawn_cost)
+            pop_data["carrying_capacity"] = max(base_cap, wreck_cap)
+
+        # Redistribute hostiles toward low-security sectors with wrecks
+        for htype in ["drones", "aliens"]:
+            pop_data = state.hostile_population_integral.get(htype, {})
             current_count = pop_data.get("current_count", 0)
-            sector_counts = pop_data.get("sector_counts", {})
+            if current_count <= 0:
+                pop_data["sector_counts"] = {}
+                continue
 
-            total_piracy = 0.0
-            for sector_id, dominion in state.grid_dominion.items():
+            # Weight sectors by (1 - security) * wreck_presence
+            sector_weights = {}
+            total_weight = 0.0
+            for sector_id in state.grid_dominion:
+                dominion = state.grid_dominion[sector_id]
+                security = dominion.get("security_level", 1.0)
                 piracy = dominion.get("pirate_activity", 0.0)
-                total_piracy += piracy
+                # Wreck count in this sector
+                wreck_count = sum(
+                    1 for w in state.grid_wrecks.values()
+                    if w.get("sector_id", "") == sector_id
+                )
+                weight = (1.0 - security) * (1.0 + wreck_count) + piracy * 0.5
+                sector_weights[sector_id] = max(0.0, weight)
+                total_weight += max(0.0, weight)
 
-            carrying_capacity = max(5, int(total_piracy * 20.0))
-            pop_data["carrying_capacity"] = carrying_capacity
-
-            # Logistic growth
-            delta = growth_rate * float(current_count) * (
-                1.0 - float(current_count) / float(max(carrying_capacity, 1))
-            )
-            new_count = max(0, current_count + int(round(delta)))
-            pop_data["current_count"] = new_count
-
-            # Distribute across sectors
-            sector_counts.clear()
-            if total_piracy > 0.0 and new_count > 0:
-                for sector_id, dominion in state.grid_dominion.items():
-                    piracy = dominion.get("pirate_activity", 0.0)
-                    sector_share = int(float(new_count) * (piracy / total_piracy))
-                    if sector_share > 0:
-                        sector_counts[sector_id] = sector_share
+            sector_counts = {}
+            if total_weight > 0.0:
+                assigned = 0
+                sorted_sectors = sorted(sector_weights.keys())
+                for i, sector_id in enumerate(sorted_sectors):
+                    if i == len(sorted_sectors) - 1:
+                        # Last sector gets remainder
+                        sector_counts[sector_id] = current_count - assigned
+                    else:
+                        share = int(float(current_count) * (sector_weights[sector_id] / total_weight))
+                        if share > 0:
+                            sector_counts[sector_id] = share
+                            assigned += share
             pop_data["sector_counts"] = sector_counts
+
+    # -----------------------------------------------------------------
+    # Catastrophic Events
+    # -----------------------------------------------------------------
+    def _check_catastrophe(self, state: GameState, config: dict) -> None:
+        """Check for random catastrophic events that disrupt a sector.
+
+        Effects:
+        - A fraction of stockpiles → wrecks
+        - Hub disabled for N ticks
+        - Security drops, hazard spikes
+        """
+        chance = config.get("catastrophe_chance_per_tick", 0.0005)
+        if self._rng.random() > chance:
+            return
+
+        sectors = list(state.world_topology.keys())
+        if not sectors:
+            return
+
+        # Pick a random sector
+        target_sector = self._rng.choice(sectors)
+
+        # Check if already disabled
+        if target_sector in state.sector_disabled_until:
+            if state.sim_tick_count < state.sector_disabled_until[target_sector]:
+                return  # Already under catastrophe
+
+        disable_duration = config.get("catastrophe_disable_duration", 50)
+        stockpile_to_wreck = config.get("catastrophe_stockpile_to_wreck", 0.6)
+        hazard_boost = config.get("catastrophe_hazard_boost", 0.15)
+        security_drop = config.get("catastrophe_security_drop", 0.4)
+
+        # 1. Convert stockpiles → wrecks (Axiom 1: matter moves stockpile → wreck)
+        stockpiles = state.grid_stockpiles.get(target_sector, {})
+        commodities = stockpiles.get("commodity_stockpiles", {})
+        wreck_inventory = {}
+        total_converted = 0.0
+
+        for commodity_id in list(commodities.keys()):
+            qty = commodities[commodity_id]
+            if qty <= 0.0:
+                continue
+            converted = qty * stockpile_to_wreck
+            commodities[commodity_id] = qty - converted
+            wreck_inventory[commodity_id] = converted
+            total_converted += converted
+
+        if wreck_inventory:
+            wreck_uid = f"catastrophe_wreck_{state.sim_tick_count}_{target_sector}"
+            state.grid_wrecks[wreck_uid] = {
+                "sector_id": target_sector,
+                "wreck_integrity": 0.0,  # debris, no hull mass (Axiom 1)
+                "wreck_inventory": wreck_inventory,
+            }
+
+        # 2. Disable hub
+        state.sector_disabled_until[target_sector] = (
+            state.sim_tick_count + disable_duration
+        )
+
+        # 3. Drop security, spike hazard
+        dominion = state.grid_dominion.get(target_sector, {})
+        old_security = dominion.get("security_level", 0.0)
+        dominion["security_level"] = max(0.0, old_security - security_drop)
+
+        hazards = state.world_hazards.get(target_sector, {})
+        old_radiation = hazards.get("radiation_level", 0.0)
+        hazards["radiation_level"] = min(1.0, old_radiation + hazard_boost)
+
+        # 4. Log catastrophe
+        state.catastrophe_log.append({
+            "sector_id": target_sector,
+            "tick": state.sim_tick_count,
+            "matter_converted": total_converted,
+            "disable_until": state.sector_disabled_until[target_sector],
+        })
+
+        self._log_event(state, "world", "catastrophe", target_sector,
+                        metadata={
+                            "matter_to_wrecks": total_converted,
+                            "disable_duration": disable_duration,
+                        })
 
     # -----------------------------------------------------------------
     # Helpers
@@ -1009,6 +1459,7 @@ class AgentLayer:
             "prospector": "prospect",
             "military": "patrol",
             "hauler": "haul",
+            "pirate": "raid",
             "idle": "idle",
         }
         return role_to_goal.get(role, "idle")

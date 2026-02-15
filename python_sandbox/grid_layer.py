@@ -244,16 +244,29 @@ class GridLayer:
                                  and diffusion_deltas[c].get(commodity_id, 0.0) > 0]
                     if receivers:
                         per_recv = overflow / len(receivers)
+                        remaining_overflow = 0.0
                         for recv_id in receivers:
                             recv_commodities = buf_stockpiles[recv_id].get("commodity_stockpiles", {})
-                            recv_commodities[commodity_id] = max(
-                                0.0, recv_commodities.get(commodity_id, 0.0) - per_recv
-                            )
+                            recv_current = recv_commodities.get(commodity_id, 0.0)
+                            recv_new = recv_current - per_recv
+                            if recv_new < 0.0:
+                                remaining_overflow += -recv_new
+                                recv_commodities[commodity_id] = 0.0
+                            else:
+                                recv_commodities[commodity_id] = recv_new
+                        # Any remaining overflow → hidden resources (Axiom 1)
+                        if remaining_overflow > 0.0:
+                            hidden = buf_hidden_resources.get(sector_id, {})
+                            hidden["mineral_density"] = hidden.get("mineral_density", 0.0) + remaining_overflow
+                    else:
+                        # No receivers found — route overflow to hidden resources (Axiom 1)
+                        hidden = buf_hidden_resources.get(sector_id, {})
+                        hidden["mineral_density"] = hidden.get("mineral_density", 0.0) + overflow
                 else:
                     commodities[commodity_id] = new_val
 
         # 2f. Wreck & Debris
-        self._process_wrecks(state, config, buf_resource_potential)
+        self._process_wrecks(state, config, buf_resource_potential, buf_hidden_resources)
 
         # Atomic swap
         state.grid_stockpiles = buf_stockpiles
@@ -316,6 +329,9 @@ class GridLayer:
             for faction_id in FACTIONS:
                 if faction_id == controlling_faction:
                     faction_influence[faction_id] = 0.8
+                elif faction_id == "faction_pirates":
+                    # Pirates start with very low influence everywhere
+                    faction_influence[faction_id] = 0.02
                 else:
                     faction_influence[faction_id] = 0.1
 
@@ -385,7 +401,8 @@ class GridLayer:
     # Wreck processing
     # -----------------------------------------------------------------
     def _process_wrecks(
-        self, state: GameState, config: dict, buf_resource_potential: dict
+        self, state: GameState, config: dict, buf_resource_potential: dict,
+        buf_hidden_resources: dict = None,
     ) -> None:
         if not state.grid_wrecks:
             return
@@ -402,9 +419,30 @@ class GridLayer:
             hazards = state.world_hazards.get(sector_id, {})
             entropy_result = ca_rules.entropy_step(sector_id, sector_wrecks, hazards, config)
 
-            matter_returned = entropy_result["matter_returned"]
-            if matter_returned > 0.0 and sector_id in buf_resource_potential:
-                buf_resource_potential[sector_id]["mineral_density"] += matter_returned
+            # Salvageable debris → accessible resource potential.
+            matter_salvaged = entropy_result.get("matter_salvaged", 0.0)
+            if matter_salvaged > 0.0:
+                if sector_id in buf_resource_potential:
+                    buf_resource_potential[sector_id]["mineral_density"] += matter_salvaged
+                else:
+                    buf_resource_potential[sector_id] = {
+                        "mineral_density": matter_salvaged,
+                        "energy_potential": 0.0,
+                        "propellant_sources": 0.0,
+                    }
+
+            # Eroded hull + unsalvageable dust → hidden resources.
+            matter_dust = entropy_result.get("matter_to_dust", 0.0)
+            if matter_dust > 0.0:
+                # Write to buffer (not state) so the atomic swap preserves the dust
+                target = buf_hidden_resources if buf_hidden_resources is not None else state.world_hidden_resources
+                if sector_id in target:
+                    target[sector_id]["mineral_density"] = (
+                        target[sector_id].get("mineral_density", 0.0)
+                        + matter_dust
+                    )
+                else:
+                    target[sector_id] = {"mineral_density": matter_dust, "propellant_sources": 0.0}
 
             for surviving_wreck in entropy_result["surviving_wrecks"]:
                 uid = surviving_wreck.get("wreck_uid", 0)
@@ -452,7 +490,9 @@ class GridLayer:
             inventory = wreck.get("wreck_inventory", {})
             for item_id, qty in inventory.items():
                 total += float(qty)
-            total += 1.0
+            total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
+
+        total += state.hostile_matter_pool
 
         for char_uid, inv in state.inventories.items():
             if 2 in inv:

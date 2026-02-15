@@ -15,7 +15,7 @@ CA_FACTION_ANCHOR_STRENGTH = 0.3  # How strongly controlling faction resists ble
 
 # === Wreck & Entropy ===
 WRECK_DEGRADATION_PER_TICK = 0.05
-WRECK_DEBRIS_RETURN_FRACTION = 0.8
+WRECK_DEBRIS_RETURN_FRACTION = 0.7  # Salvageable fraction; remainder → dust → hidden resources
 ENTROPY_BASE_RATE = 0.001
 ENTROPY_RADIATION_MULTIPLIER = 2.0
 ENTROPY_FLEET_RATE_FRACTION = 0.5
@@ -46,11 +46,25 @@ COMMODITY_BASE_PRICE = 10.0
 RESPAWN_TIMEOUT_SECONDS = 300.0
 HOSTILE_GROWTH_RATE = 0.05
 
-# === Hostile Encounters ===
-PIRACY_ENCOUNTER_CHANCE = 0.3    # Base probability per tick in a pirate sector
-PIRACY_DAMAGE_MIN = 0.05         # Min hull damage from a pirate encounter
-PIRACY_DAMAGE_MAX = 0.25         # Max hull damage from a pirate encounter
-PIRACY_CARGO_LOSS_FRACTION = 0.2 # Fraction of cargo lost to pirate raid
+# === Hostile Encounters (drones & aliens — hive creatures, not pirates) ===
+HOSTILE_ENCOUNTER_CHANCE = 0.3   # Base probability per tick in a hostile sector
+HOSTILE_DAMAGE_MIN = 0.05        # Min hull damage from a hostile encounter
+HOSTILE_DAMAGE_MAX = 0.25        # Max hull damage from a hostile encounter
+HOSTILE_CARGO_LOSS_FRACTION = 0.2  # Fraction of cargo lost to hostile attack
+
+# === Hostile Spawning (wreck-based ecology) ===
+# Hostiles salvage wrecks in low-security sectors to spawn more units.
+# spawn_rate: wreck matter consumed per tick per hostile unit → new units
+HOSTILE_WRECK_SALVAGE_RATE = 0.1     # fraction of a wreck's matter consumed/tick by hostiles
+HOSTILE_SPAWN_COST = 5.0             # matter cost to spawn one hostile unit
+HOSTILE_LOW_SECURITY_THRESHOLD = 0.4 # security_level below this = "low security"
+HOSTILE_KILL_PER_MILITARY = 0.5      # hostiles killed per military agent per tick in sector
+
+# === Pirate Agent Role ===
+PIRATE_RAID_CHANCE = 0.25        # chance per tick a pirate raids a target in same sector
+PIRATE_RAID_CARGO_STEAL = 0.3   # fraction of target's cargo stolen per raid
+PIRATE_MOVE_INTERVAL = 6        # ticks between pirate sector moves
+PIRATE_HOME_ADVANTAGE = 0.15    # piracy_activity boost when pirate is present
 
 # === Cash Sinks ===
 REPAIR_COST_PER_POINT = 500.0    # Cash per 0.1 hull repaired
@@ -89,6 +103,22 @@ PROSPECTING_RANDOMNESS = 0.3        # ±30% variance per discovery event
 HAZARD_DRIFT_PERIOD = 200           # ticks for one full sine cycle
 HAZARD_RADIATION_AMPLITUDE = 0.04   # max ± shift to radiation_level
 HAZARD_THERMAL_AMPLITUDE = 15.0     # max ± shift to thermal_background_k (Kelvin)
+
+# ═══════════════════════════════════════════════════════════════════
+# === Catastrophic Events ===
+# Random sector-wide disasters that break monotonous cycles.
+# When triggered: stockpiles → wrecks, hub disabled, hazard spike, security drop.
+# ═══════════════════════════════════════════════════════════════════
+
+CATASTROPHE_CHANCE_PER_TICK = 0.0005   # ~1 per 2000 ticks (~23 world-age cycles)
+CATASTROPHE_DISABLE_DURATION = 50      # ticks the hub is disabled (no docking/trade)
+CATASTROPHE_STOCKPILE_TO_WRECK = 0.6   # fraction of stockpiles converted to wrecks
+CATASTROPHE_HAZARD_BOOST = 0.15        # added to radiation_level during catastrophe
+CATASTROPHE_SECURITY_DROP = 0.4        # security_level -= this on catastrophe
+
+# === Wreck Salvage by Prospectors (high-security sectors) ===
+PROSPECTOR_WRECK_SALVAGE_RATE = 0.15   # fraction of a wreck's matter salvaged per tick per prospector
+PROSPECTOR_WRECK_SECURITY_THRESHOLD = 0.6  # security must be above this for prospector salvage
 
 # ═══════════════════════════════════════════════════════════════════
 # === Agent Roles ===
@@ -134,11 +164,12 @@ WORLD_AGE_CONFIGS = {
         "influence_propagation_rate":   0.08,    # Slow influence change
         "faction_anchor_strength":      0.4,     # Strong faction anchoring
         "hostile_growth_rate":          0.02,    # Few new hostiles
-        "piracy_encounter_chance":      0.15,    # Rare attacks
+        "hostile_encounter_chance":     0.15,    # Rare attacks
         "docking_fee_base":             15.0,    # Cheap docking
         "stockpile_diffusion_rate":     0.08,    # Active trade diffusion
         "prospecting_base_rate":        0.003,   # Active prospecting
         "hazard_radiation_amplitude":   0.02,    # Mild space weather
+        "catastrophe_chance_per_tick":  0.0002,  # Very rare catastrophes
     },
     "DISRUPTION": {
         "extraction_rate_default":      0.004,   # Extraction collapses
@@ -147,11 +178,12 @@ WORLD_AGE_CONFIGS = {
         "influence_propagation_rate":   0.20,    # Factions destabilize fast
         "faction_anchor_strength":      0.1,     # Weak anchoring — chaos
         "hostile_growth_rate":          0.15,    # Hostile boom
-        "piracy_encounter_chance":      0.50,    # Frequent attacks
+        "hostile_encounter_chance":     0.50,    # Frequent attacks
         "docking_fee_base":             40.0,    # Crisis pricing
         "stockpile_diffusion_rate":     0.02,    # Trade routes disrupted
         "prospecting_base_rate":        0.0005,  # Almost no prospecting
         "hazard_radiation_amplitude":   0.08,    # Severe space weather
+        "catastrophe_chance_per_tick":  0.001,   # More frequent catastrophes
     },
     "RECOVERY": {
         "extraction_rate_default":      0.008,   # Slow rebuilding
@@ -160,10 +192,11 @@ WORLD_AGE_CONFIGS = {
         "influence_propagation_rate":   0.12,    # Moderate influence shift
         "faction_anchor_strength":      0.25,    # Rebuilding control
         "hostile_growth_rate":          0.06,    # Some hostiles remain
-        "piracy_encounter_chance":      0.30,    # Normal risk
+        "hostile_encounter_chance":     0.30,    # Normal risk
         "docking_fee_base":             25.0,    # Recovering fees
         "stockpile_diffusion_rate":     0.05,    # Normal diffusion
         "prospecting_base_rate":        0.002,   # Normal prospecting
         "hazard_radiation_amplitude":   0.05,    # Moderate space weather
+        "catastrophe_chance_per_tick":  0.0005,  # Normal catastrophe rate
     },
 }

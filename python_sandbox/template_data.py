@@ -150,6 +150,11 @@ FACTIONS = {
         "description": "A disciplined military force maintaining order.",
         "default_standing": 0,
     },
+    "faction_pirates": {
+        "display_name": "Pirate Syndicate",
+        "description": "Opportunistic raiders who thrive in chaos and lawless sectors.",
+        "default_standing": -50,
+    },
 }
 
 
@@ -268,6 +273,26 @@ CHARACTERS = {
         "personality_traits": {"risk_tolerance": 0.2, "greed": 0.3, "loyalty": 0.6},
         "description": "Bulk cargo hauler, reliable.",
     },
+    "character_crow": {
+        "character_name": "Crow",
+        "faction_id": "faction_pirates",
+        "credits": 2200,
+        "skills": {"piloting": 4, "combat": 4, "trading": 2},
+        "age": 36,
+        "reputation": -30,
+        "personality_traits": {"risk_tolerance": 0.9, "greed": 0.8, "aggression": 0.7},
+        "description": "Ruthless raider, exploits disruption.",
+    },
+    "character_vex": {
+        "character_name": "Vex",
+        "faction_id": "faction_pirates",
+        "credits": 1600,
+        "skills": {"piloting": 5, "combat": 3, "trading": 3},
+        "age": 27,
+        "reputation": -20,
+        "personality_traits": {"risk_tolerance": 0.8, "greed": 0.9, "aggression": 0.5},
+        "description": "Cunning smuggler turned pirate.",
+    },
 }
 
 
@@ -367,6 +392,23 @@ AGENTS = {
         "home_location_id": "station_gamma",
         "character_template_id": "character_rex",
         "agent_role": "hauler",
+        "respawn_timeout_seconds": 300.0,
+    },
+    # --- Pirates (raid cargo, exploit disruption) ---
+    "persistent_crow": {
+        "agent_type": "npc",
+        "is_persistent": True,
+        "home_location_id": "station_gamma",
+        "character_template_id": "character_crow",
+        "agent_role": "pirate",
+        "respawn_timeout_seconds": 300.0,
+    },
+    "persistent_vex": {
+        "agent_type": "npc",
+        "is_persistent": True,
+        "home_location_id": "station_gamma",
+        "character_template_id": "character_vex",
+        "agent_role": "pirate",
         "respawn_timeout_seconds": 300.0,
     },
 }

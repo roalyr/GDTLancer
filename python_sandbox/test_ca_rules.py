@@ -338,17 +338,40 @@ class TestEntropyStep(unittest.TestCase):
             result["surviving_wrecks"][0]["wreck_integrity"], 0.5
         )
 
+    def test_surviving_wreck_hull_dust_conserved(self):
+        """Hull erosion on a surviving wreck must appear as dust (Axiom 1)."""
+        wrecks = [{"wreck_integrity": 0.5, "wreck_inventory": {"ore": 3.0}}]
+        result = ca_rules.entropy_step("s1", wrecks, {}, self._default_config())
+        surviving = result["surviving_wrecks"]
+        self.assertEqual(len(surviving), 1)
+        new_integrity = surviving[0]["wreck_integrity"]
+        hull_lost = 0.5 - new_integrity
+        # Dust must equal the hull mass lost (inventory untouched on surviving wrecks).
+        self.assertAlmostEqual(result["matter_to_dust"], hull_lost, places=6)
+        # Salvaged is 0 — wreck didn't die.
+        self.assertEqual(result["matter_salvaged"], 0.0)
+        # Total matter = surviving hull + inventory + dust = original 3.5
+        total = new_integrity + 3.0 + result["matter_to_dust"]
+        self.assertAlmostEqual(total, 3.5, places=6)
+
     def test_wreck_destroyed_when_integrity_zero(self):
         wrecks = [{"wreck_integrity": 0.01, "wreck_inventory": {"ore": 10.0}}]
         result = ca_rules.entropy_step("s1", wrecks, {}, self._default_config())
         self.assertEqual(len(result["surviving_wrecks"]), 0)
-        self.assertGreater(result["matter_returned"], 0.0)
+        total = result["matter_salvaged"] + result["matter_to_dust"]
+        self.assertGreater(total, 0.0)
 
     def test_matter_returned_fraction(self):
         wrecks = [{"wreck_integrity": 0.01, "wreck_inventory": {"ore": 10.0}}]
         result = ca_rules.entropy_step("s1", wrecks, {}, self._default_config())
-        # Wreck matter = inventory (10) + hull mass (1) = 11. Return = 11 * 0.8 = 8.8
-        self.assertAlmostEqual(result["matter_returned"], 8.8, places=2)
+        # Hull 0.01 degrades fully → 0.01 dust.
+        # Inventory 10.0: salvaged = 10.0 * 0.8 = 8.0, dust = 10.0 * 0.2 = 2.0.
+        # Total dust = 0.01 + 2.0 = 2.01.
+        self.assertAlmostEqual(result["matter_salvaged"], 8.0, places=2)
+        self.assertAlmostEqual(result["matter_to_dust"], 2.01, places=2)
+        # Axiom 1: salvaged + dust = original wreck matter (10.01)
+        total = result["matter_salvaged"] + result["matter_to_dust"]
+        self.assertAlmostEqual(total, 10.01, places=2)
 
     def test_radiation_increases_degradation(self):
         wrecks = [{"wreck_integrity": 0.5, "wreck_inventory": {}}]
@@ -367,7 +390,8 @@ class TestEntropyStep(unittest.TestCase):
     def test_no_wrecks_returns_empty(self):
         result = ca_rules.entropy_step("s1", [], {}, self._default_config())
         self.assertEqual(result["surviving_wrecks"], [])
-        self.assertEqual(result["matter_returned"], 0.0)
+        self.assertEqual(result["matter_salvaged"], 0.0)
+        self.assertEqual(result["matter_to_dust"], 0.0)
 
     def test_no_mutation_of_input(self):
         wrecks = [{"wreck_integrity": 0.5, "wreck_inventory": {"ore": 5.0}}]

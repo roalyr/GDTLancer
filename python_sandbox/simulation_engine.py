@@ -124,6 +124,7 @@ class SimulationEngine:
                 f"  Hidden resources: {breakdown['hidden_resources']:.2f}\n"
                 f"  Grid stockpiles: {breakdown['grid_stockpiles']:.2f}\n"
                 f"  Wrecks: {breakdown['wrecks']:.2f}\n"
+                f"  Hostile pool: {breakdown['hostile_pool']:.2f}\n"
                 f"  Agent inventories: {breakdown['agent_inventories']:.2f}"
             )
             return False
@@ -153,7 +154,10 @@ class SimulationEngine:
             inventory = wreck.get("wreck_inventory", {})
             for item_id, qty in inventory.items():
                 total += float(qty)
-            total += 1.0
+            total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
+
+        # Hostile matter pool (matter consumed by hostiles from wrecks)
+        total += self.state.hostile_matter_pool
 
         # Layer 3: Agent inventories
         for char_uid, inv in self.state.inventories.items():
@@ -186,7 +190,9 @@ class SimulationEngine:
             inventory = wreck.get("wreck_inventory", {})
             for item_id, qty in inventory.items():
                 wrecks += float(qty)
-            wrecks += 1.0
+            wrecks += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
+
+        hostile_pool = self.state.hostile_matter_pool
 
         agent_inventories = 0.0
         for char_uid, inv in self.state.inventories.items():
@@ -200,6 +206,7 @@ class SimulationEngine:
             "hidden_resources": hidden_resources,
             "grid_stockpiles": grid_stockpiles,
             "wrecks": wrecks,
+            "hostile_pool": hostile_pool,
             "agent_inventories": agent_inventories,
         }
 
@@ -279,11 +286,30 @@ class SimulationEngine:
             "world_tick_interval_seconds": float(constants.WORLD_TICK_INTERVAL_SECONDS),
             "respawn_timeout_seconds": constants.RESPAWN_TIMEOUT_SECONDS,
             "hostile_growth_rate": constants.HOSTILE_GROWTH_RATE,
-            # Hostile encounters
-            "piracy_encounter_chance": constants.PIRACY_ENCOUNTER_CHANCE,
-            "piracy_damage_min": constants.PIRACY_DAMAGE_MIN,
-            "piracy_damage_max": constants.PIRACY_DAMAGE_MAX,
-            "piracy_cargo_loss_fraction": constants.PIRACY_CARGO_LOSS_FRACTION,
+            # Hostile encounters (drones & aliens)
+            "hostile_encounter_chance": constants.HOSTILE_ENCOUNTER_CHANCE,
+            "hostile_damage_min": constants.HOSTILE_DAMAGE_MIN,
+            "hostile_damage_max": constants.HOSTILE_DAMAGE_MAX,
+            "hostile_cargo_loss_fraction": constants.HOSTILE_CARGO_LOSS_FRACTION,
+            # Hostile spawning ecology
+            "hostile_wreck_salvage_rate": constants.HOSTILE_WRECK_SALVAGE_RATE,
+            "hostile_spawn_cost": constants.HOSTILE_SPAWN_COST,
+            "hostile_low_security_threshold": constants.HOSTILE_LOW_SECURITY_THRESHOLD,
+            "hostile_kill_per_military": constants.HOSTILE_KILL_PER_MILITARY,
+            # Pirate role
+            "pirate_raid_chance": constants.PIRATE_RAID_CHANCE,
+            "pirate_raid_cargo_steal": constants.PIRATE_RAID_CARGO_STEAL,
+            "pirate_move_interval": constants.PIRATE_MOVE_INTERVAL,
+            "pirate_home_advantage": constants.PIRATE_HOME_ADVANTAGE,
+            # Catastrophic events
+            "catastrophe_chance_per_tick": constants.CATASTROPHE_CHANCE_PER_TICK,
+            "catastrophe_disable_duration": constants.CATASTROPHE_DISABLE_DURATION,
+            "catastrophe_stockpile_to_wreck": constants.CATASTROPHE_STOCKPILE_TO_WRECK,
+            "catastrophe_hazard_boost": constants.CATASTROPHE_HAZARD_BOOST,
+            "catastrophe_security_drop": constants.CATASTROPHE_SECURITY_DROP,
+            # Prospector wreck salvage
+            "prospector_wreck_salvage_rate": constants.PROSPECTOR_WRECK_SALVAGE_RATE,
+            "prospector_wreck_security_threshold": constants.PROSPECTOR_WRECK_SECURITY_THRESHOLD,
             # Cash sinks
             "repair_cost_per_point": constants.REPAIR_COST_PER_POINT,
             "docking_fee_base": constants.DOCKING_FEE_BASE,
