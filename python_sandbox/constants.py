@@ -23,7 +23,6 @@ ENTROPY_FLEET_RATE_FRACTION = 0.5
 # === Agent ===
 AGENT_KNOWLEDGE_NOISE_FACTOR = 0.1
 AGENT_RESPAWN_TICKS = 10
-HOSTILE_BASE_CARRYING_CAPACITY = 5
 
 # === Heat ===
 HEAT_GENERATION_IN_SPACE = 0.01
@@ -44,7 +43,6 @@ NPC_CASH_LOW_THRESHOLD = 2000.0
 NPC_HULL_REPAIR_THRESHOLD = 0.5
 COMMODITY_BASE_PRICE = 10.0
 RESPAWN_TIMEOUT_SECONDS = 300.0
-HOSTILE_GROWTH_RATE = 0.05
 
 # === Hostile Encounters (drones & aliens — hive creatures, not pirates) ===
 HOSTILE_ENCOUNTER_CHANCE = 0.3   # Base probability per tick in a hostile sector
@@ -52,11 +50,12 @@ HOSTILE_DAMAGE_MIN = 0.05        # Min hull damage from a hostile encounter
 HOSTILE_DAMAGE_MAX = 0.25        # Max hull damage from a hostile encounter
 HOSTILE_CARGO_LOSS_FRACTION = 0.2  # Fraction of cargo lost to hostile attack
 
-# === Hostile Spawning (wreck-based ecology) ===
-# Hostiles salvage wrecks in low-security sectors to spawn more units.
-# spawn_rate: wreck matter consumed per tick per hostile unit → new units
+# === Hostile Spawning (strict pool-in / pool-out ecology) ===
+# All hostile spawns are funded from per-type matter pools (drone_pool, alien_pool).
+# Pools are fed by: consumption entropy tax, wreck salvage in low-sec sectors.
+# NO passive/free spawning — if a pool is empty, no hostiles spawn.
 HOSTILE_WRECK_SALVAGE_RATE = 0.1     # fraction of a wreck's matter consumed/tick by hostiles
-HOSTILE_SPAWN_COST = 5.0             # matter cost to spawn one hostile unit
+HOSTILE_SPAWN_COST = 10.0            # matter from pool per hostile spawned (pool → body_mass)
 HOSTILE_LOW_SECURITY_THRESHOLD = 0.4 # security_level below this = "low security"
 HOSTILE_KILL_PER_MILITARY = 0.5      # hostiles killed per military agent per tick in sector
 
@@ -131,20 +130,16 @@ RESPAWN_DEBT_PENALTY = 500.0  # debt added on respawn
 ENTROPY_DEATH_HULL_THRESHOLD = 0.0  # hull at or below this → disabled
 ENTROPY_DEATH_TICK_GRACE = 20  # ticks at hull=0 before death
 
-# === Hostile Global Threat Pressure (decoupled from piracy) ===
-# Hostiles spawn passively in frontier sectors + from wrecks in low-sec.
+# === Hostile Global Threat (decoupled from piracy) ===
 # hostility_level is DRIVEN by hostile presence, not by piracy.
-HOSTILE_PASSIVE_SPAWN_CHANCE = 0.02  # chance per tick per frontier sector to spawn 1 hostile
-HOSTILE_MIN_FRONTIER_COUNT = 2  # minimum hostiles always present in frontier sectors
-HOSTILE_GLOBAL_CAP = 50  # absolute max hostiles across all sectors
+# All spawning is pool-funded. No passive/free spawning.
+HOSTILE_GLOBAL_CAP = 100  # sanity cap per type (memory safety, not simulation constraint)
 
-# === Hostile Pressure Valve (budget-driven spawning from pool) ===
-# When the hostile pool exceeds a threshold, hostiles spawn directly from
-# the pool (not just from wreck salvage). This prevents the pool from
-# becoming a black hole. Spawned hostiles carry mass → wrecks on death.
-HOSTILE_POOL_PRESSURE_THRESHOLD = 500.0   # pool must exceed this to trigger pressure spawning
-HOSTILE_POOL_SPAWN_COST = 10.0            # matter from pool per hostile spawned
-HOSTILE_POOL_SPAWN_RATE = 0.02            # fraction of pool above threshold spent per tick on spawns
+# === Hostile Pool Spawning (pool → body_mass → wrecks → salvage cycle) ===
+# Both wreck-salvage AND pressure-valve spawns use the same cost.
+# Pressure valve: when reserve > threshold, accelerate spawning.
+HOSTILE_POOL_PRESSURE_THRESHOLD = 500.0   # reserve must exceed this to trigger pressure spawning
+HOSTILE_POOL_SPAWN_RATE = 0.02            # fraction of reserve above threshold spent per tick
 HOSTILE_POOL_MAX_SPAWNS_PER_TICK = 5      # cap on pressure spawns per tick
 
 # === Hostile Raids (large groups attack stockpiles) ===
@@ -159,7 +154,7 @@ HOSTILE_RAID_CASUALTIES = 2               # hostiles killed in the raid (defende
 # Stations consume a fraction of stockpiles each tick, simulating
 # population usage. Prevents "Full Warehouse" market crashes.
 CONSUMPTION_RATE_PER_TICK = 0.001  # fraction of each commodity consumed/tick (scaled by pop density)
-CONSUMPTION_ENTROPY_TAX = 0.03     # fraction of consumed matter → hostile_matter_pool ("crime tax")
+CONSUMPTION_ENTROPY_TAX = 0.03     # fraction of consumed matter → per-type hostile pools ("crime tax")
 # Remaining (1 - tax) → hidden_resources (waste → ground recycling)
 
 # === Debt Zombie Prevention ===
@@ -276,7 +271,6 @@ WORLD_AGE_CONFIGS = {
         "pirate_activity_decay":        0.06,    # Security suppresses piracy
         "influence_propagation_rate":   0.08,    # Slow influence change
         "faction_anchor_strength":      0.4,     # Strong faction anchoring
-        "hostile_growth_rate":          0.02,    # Few new hostiles
         "hostile_encounter_chance":     0.15,    # Rare attacks
         "docking_fee_base":             15.0,    # Cheap docking
         "stockpile_diffusion_rate":     0.08,    # Active trade diffusion
@@ -290,7 +284,6 @@ WORLD_AGE_CONFIGS = {
         "pirate_activity_decay":        0.01,    # Security barely holds
         "influence_propagation_rate":   0.20,    # Factions destabilize fast
         "faction_anchor_strength":      0.1,     # Weak anchoring — chaos
-        "hostile_growth_rate":          0.15,    # Hostile boom
         "hostile_encounter_chance":     0.50,    # Frequent attacks
         "docking_fee_base":             40.0,    # Crisis pricing
         "stockpile_diffusion_rate":     0.02,    # Trade routes disrupted
@@ -304,7 +297,6 @@ WORLD_AGE_CONFIGS = {
         "pirate_activity_decay":        0.04,    # Gradual cleanup
         "influence_propagation_rate":   0.12,    # Moderate influence shift
         "faction_anchor_strength":      0.25,    # Rebuilding control
-        "hostile_growth_rate":          0.06,    # Some hostiles remain
         "hostile_encounter_chance":     0.30,    # Normal risk
         "docking_fee_base":             25.0,    # Recovering fees
         "stockpile_diffusion_rate":     0.05,    # Normal diffusion

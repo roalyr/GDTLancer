@@ -106,45 +106,18 @@ class AgentLayer:
         state.persistent_agents[agent_id] = state.agents[agent_id]
 
     def _initialize_hostile_population(self, state: GameState) -> None:
-        """Seed drone and alien hostile populations from sector type.
+        """Initialize hostile population tracking structures (empty).
 
         Hostiles (drones and aliens) are hive creatures — NOT pirates.
-        They roam all sectors but concentrate in frontier/low-security areas.
-        Their population is fed by wreck salvage and passive frontier spawning.
-        Piracy is a separate system driven by pirate faction agents.
+        They emerge ONLY when per-type matter pools can fund them.
+        Pools are fed by consumption entropy tax and wreck salvage.
+        No free spawning — strict pool-in / pool-out (Axiom 1).
         """
-        sector_counts_drones = {}
-        sector_counts_aliens = {}
-        total_drones = 0
-        total_aliens = 0
-
-        for sector_id, topology in state.world_topology.items():
-            sector_type = topology.get("sector_type", "hub")
-            # Frontier sectors start with more hostiles
-            if sector_type == "frontier":
-                drones_here = 3
-                aliens_here = 1
-            else:
-                drones_here = 1
-                aliens_here = 0
-
-            sector_counts_drones[sector_id] = drones_here
-            sector_counts_aliens[sector_id] = aliens_here
-            total_drones += drones_here
-            total_aliens += aliens_here
-
-        global_cap = 50  # will be overridden from config at runtime
-
-        state.hostile_population_integral["drones"] = {
-            "current_count": total_drones,
-            "carrying_capacity": global_cap,
-            "sector_counts": sector_counts_drones,
-        }
-        state.hostile_population_integral["aliens"] = {
-            "current_count": total_aliens,
-            "carrying_capacity": global_cap,
-            "sector_counts": sector_counts_aliens,
-        }
+        for htype in ["drones", "aliens"]:
+            state.hostile_population_integral[htype] = {
+                "current_count": 0,
+                "sector_counts": {},
+            }
 
     # -----------------------------------------------------------------
     # Tick processing
@@ -1209,12 +1182,15 @@ class AgentLayer:
     ) -> None:
         """Remove hostiles from a sector (combat kills). Drones first, then aliens.
 
-        When hostiles die, their body mass (pool_spawn_cost per unit) becomes
-        wreck matter, closing the matter cycle:
-           hostile_pool → hostile body → wreck → salvage/hidden_resources
+        Per-type pool accounting (strict pool-in / pool-out, Axiom 1):
+        When a hostile dies, its share of body_mass (spawn_cost per unit)
+        is released from that type's pool → wreck matter.
+           hostile_pool[type].body_mass → wreck → salvage/hidden_resources
         """
+        spawn_cost = constants.HOSTILE_SPAWN_COST
         remaining = kill_count
-        actually_killed = 0
+        total_body_mass_released = 0.0
+
         for htype in ["drones", "aliens"]:
             if remaining <= 0:
                 break
@@ -1227,30 +1203,26 @@ class AgentLayer:
             sector_counts[sector_id] = count_here - killed
             pop_data["current_count"] = max(0, pop_data.get("current_count", 0) - killed)
             remaining -= killed
-            actually_killed += killed
 
-        # Create wreck from hostile body mass (Axiom 1: body_mass → wreck).
-        # Only create wreck from body mass that was actually funded from the pool.
-        # Passively-spawned hostiles (frontier/wreck-salvage) have no body mass.
-        if create_wreck and actually_killed > 0 and state.hostile_body_mass > 0:
-            # Clamp to available body mass (can't create matter from nothing)
-            body_mass_per_unit = constants.HOSTILE_POOL_SPAWN_COST
-            max_body_mass = actually_killed * body_mass_per_unit
-            body_mass = min(max_body_mass, state.hostile_body_mass)
-            state.hostile_body_mass -= body_mass
-            # The wreck now holds the body mass as generic "hull debris"
-            if body_mass > 0.01:
-                wreck_uid = f"hostile_wreck_{state.sim_tick_count}_{sector_id[-3:]}"
-                # If wreck already exists at same key, merge
-                if wreck_uid in state.grid_wrecks:
-                    existing = state.grid_wrecks[wreck_uid]
-                    existing["wreck_integrity"] = existing.get("wreck_integrity", 0) + body_mass
-                else:
-                    state.grid_wrecks[wreck_uid] = {
-                        "sector_id": sector_id,
-                        "wreck_integrity": body_mass,
-                        "wreck_inventory": {},  # Body mass is hull, not cargo
-                    }
+            # Release body mass: each hostile holds spawn_cost worth of matter.
+            # Clamp to what's actually in the pool (safety).
+            pool = state.hostile_pools.get(htype, {"reserve": 0.0, "body_mass": 0.0})
+            body_release = min(killed * spawn_cost, pool["body_mass"])
+            pool["body_mass"] -= body_release
+            total_body_mass_released += body_release
+
+        # Create wreck from released body mass (Axiom 1: body_mass → wreck)
+        if create_wreck and total_body_mass_released > 0.01:
+            wreck_uid = f"hostile_wreck_{state.sim_tick_count}_{sector_id[-3:]}"
+            if wreck_uid in state.grid_wrecks:
+                existing = state.grid_wrecks[wreck_uid]
+                existing["wreck_integrity"] = existing.get("wreck_integrity", 0) + total_body_mass_released
+            else:
+                state.grid_wrecks[wreck_uid] = {
+                    "sector_id": sector_id,
+                    "wreck_integrity": total_body_mass_released,
+                    "wreck_inventory": {},  # Body mass is hull, not cargo
+                }
 
     def _create_wreck_from_agent(
         self, state: GameState, agent: dict, sector_id: str,
@@ -1609,29 +1581,27 @@ class AgentLayer:
     # Hostile Population
     # -----------------------------------------------------------------
     def _update_hostile_population(self, state: GameState, config: dict) -> None:
-        """Update drone/alien populations.
+        """Update drone/alien populations — strict pool-in / pool-out (Axiom 1).
 
         Hostiles are decoupled from piracy — they are hive creatures, not pirates.
         Population ecology:
-        - Passive spawning in frontier sectors (always-on baseline)
-        - PRESSURE VALVE: hostile_pool funds spawns when pool gets large
-        - Hostiles in low-security sectors consume wreck matter to spawn more
+        - Per-type pools (drones, aliens) fund ALL spawning
+        - Pools fed by: consumption entropy tax (grid_layer) + wreck salvage
+        - PRESSURE VALVE: when reserve > threshold, accelerate spawning
         - RAIDS: large hostile groups attack sector stockpiles → wrecks
         - Military agents kill hostiles directly
         - Hostile death → wreck (matter returns to circulation)
         - hostility_level is DRIVEN by hostile presence (updates dominion)
+        - NO passive/free spawning — if pool is empty, nothing spawns
         """
         low_sec_threshold = config.get("hostile_low_security_threshold", 0.4)
         wreck_salvage_rate = config.get("hostile_wreck_salvage_rate", 0.1)
-        spawn_cost = config.get("hostile_spawn_cost", 5.0)
+        spawn_cost = config.get("hostile_spawn_cost", 10.0)
         kill_per_military = config.get("hostile_kill_per_military", 0.5)
-        passive_spawn_chance = config.get("hostile_passive_spawn_chance", 0.02)
-        min_frontier_count = config.get("hostile_min_frontier_count", 2)
-        global_cap = config.get("hostile_global_cap", 50)
+        global_cap = config.get("hostile_global_cap", 100)
 
         # Pressure valve constants
         pool_pressure_threshold = config.get("hostile_pool_pressure_threshold", 500.0)
-        pool_spawn_cost = config.get("hostile_pool_spawn_cost", 10.0)
         pool_spawn_rate = config.get("hostile_pool_spawn_rate", 0.02)
         pool_max_spawns = config.get("hostile_pool_max_spawns_per_tick", 5)
 
@@ -1641,94 +1611,61 @@ class AgentLayer:
         raid_stockpile_frac = config.get("hostile_raid_stockpile_fraction", 0.05)
         raid_casualties = config.get("hostile_raid_casualties", 2)
 
-        # --- Total hostile count across all types ---
-        total_hostiles = sum(
-            hdata.get("current_count", 0)
-            for hdata in state.hostile_population_integral.values()
-        )
-
-        # --- Passive frontier spawning (always-on, regardless of wrecks) ---
-        for sector_id, topology in state.world_topology.items():
-            sector_type = topology.get("sector_type", "hub")
-            if sector_type != "frontier":
-                continue
-            if total_hostiles >= global_cap:
-                break
-
-            # Ensure minimum hostile presence in frontier sectors
-            hostiles_here = 0
-            for htype in ["drones", "aliens"]:
-                pop_data = state.hostile_population_integral.get(htype, {})
-                hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
-
-            if hostiles_here < min_frontier_count:
-                # Force spawn to reach minimum
-                shortfall = min_frontier_count - hostiles_here
-                pop_data = state.hostile_population_integral.get("drones", {})
-                pop_data["current_count"] = pop_data.get("current_count", 0) + shortfall
-                sector_counts = pop_data.get("sector_counts", {})
-                sector_counts[sector_id] = sector_counts.get(sector_id, 0) + shortfall
-                total_hostiles += shortfall
-
-            # Random passive spawn (space fauna wanders in)
-            elif self._rng.random() < passive_spawn_chance:
-                htype = "drones" if self._rng.random() < 0.7 else "aliens"
-                pop_data = state.hostile_population_integral.get(htype, {})
-                pop_data["current_count"] = pop_data.get("current_count", 0) + 1
-                sector_counts = pop_data.get("sector_counts", {})
-                sector_counts[sector_id] = sector_counts.get(sector_id, 0) + 1
-                total_hostiles += 1
-
         # ---------------------------------------------------------------
-        # PRESSURE VALVE: spawn hostiles from the pool when it overflows.
-        # This is the critical fix — the pool must drain back into ships
-        # that can die and drop wrecks, closing the matter cycle.
-        # Pool matter → hostile body mass (tracked per-unit).
+        # PRESSURE VALVE: per-type pool → body_mass → living hostiles.
+        # When a type's reserve exceeds threshold, spawn hostiles of that type.
+        # Axiom 1: reserve -= cost, body_mass += cost.
         # ---------------------------------------------------------------
-        pool = state.hostile_matter_pool
-        if pool > pool_pressure_threshold and total_hostiles < global_cap:
-            excess = pool - pool_pressure_threshold
+        for htype in ["drones", "aliens"]:
+            pool = state.hostile_pools.get(htype, {"reserve": 0.0, "body_mass": 0.0})
+            pop_data = state.hostile_population_integral.get(htype, {})
+            current_count = pop_data.get("current_count", 0)
+
+            if current_count >= global_cap:
+                continue  # sanity cap per type
+
+            reserve = pool["reserve"]
+            if reserve <= pool_pressure_threshold:
+                continue  # not enough pressure
+
+            excess = reserve - pool_pressure_threshold
             budget_this_tick = excess * pool_spawn_rate
-            max_from_budget = int(budget_this_tick / pool_spawn_cost) if pool_spawn_cost > 0 else 0
-            num_spawns = min(max_from_budget, pool_max_spawns, global_cap - total_hostiles)
+            max_from_budget = int(budget_this_tick / spawn_cost) if spawn_cost > 0 else 0
+            num_spawns = min(max_from_budget, pool_max_spawns, global_cap - current_count)
 
-            if num_spawns > 0:
-                cost = num_spawns * pool_spawn_cost
-                state.hostile_matter_pool -= cost
-                state.hostile_body_mass += cost  # Axiom 1: pool → body mass
+            if num_spawns <= 0:
+                continue
 
-                # Find target sectors: weight by (1 - security) and stockpile richness
-                sector_scores = {}
-                for sid in state.grid_dominion:
-                    sec = state.grid_dominion[sid].get("security_level", 1.0)
-                    stk = state.grid_stockpiles.get(sid, {})
-                    stock_total = sum(float(v) for v in
-                                      stk.get("commodity_stockpiles", {}).values())
-                    # Prefer low-security, resource-rich sectors
-                    sector_scores[sid] = max(0.01, (1.0 - sec) * (1.0 + stock_total / 500.0))
-                total_score = sum(sector_scores.values())
+            cost = num_spawns * spawn_cost
+            pool["reserve"] -= cost
+            pool["body_mass"] += cost  # Axiom 1: reserve → body_mass
 
-                # Distribute spawns proportionally
-                sorted_sids = sorted(sector_scores.keys())
-                spawns_left = num_spawns
-                for sid in sorted_sids:
-                    if spawns_left <= 0:
-                        break
-                    share = max(1, int(num_spawns * sector_scores[sid] / total_score))
-                    share = min(share, spawns_left)
-                    htype = "drones" if self._rng.random() < 0.7 else "aliens"
-                    pop_data = state.hostile_population_integral.get(htype, {})
-                    pop_data["current_count"] = pop_data.get("current_count", 0) + share
-                    sc = pop_data.get("sector_counts", {})
-                    sc[sid] = sc.get(sid, 0) + share
-                    total_hostiles += share
-                    spawns_left -= share
+            # Distribute spawns to sectors weighted by (1 - security) and resources
+            sector_scores = {}
+            for sid in state.grid_dominion:
+                sec = state.grid_dominion[sid].get("security_level", 1.0)
+                stk = state.grid_stockpiles.get(sid, {})
+                stock_total = sum(float(v) for v in
+                                  stk.get("commodity_stockpiles", {}).values())
+                sector_scores[sid] = max(0.01, (1.0 - sec) * (1.0 + stock_total / 500.0))
+            total_score = sum(sector_scores.values())
+
+            sorted_sids = sorted(sector_scores.keys())
+            spawns_left = num_spawns
+            for sid in sorted_sids:
+                if spawns_left <= 0:
+                    break
+                share = max(1, int(num_spawns * sector_scores[sid] / total_score))
+                share = min(share, spawns_left)
+                sc = pop_data.get("sector_counts", {})
+                sc[sid] = sc.get(sid, 0) + share
+                pop_data["sector_counts"] = sc
+                pop_data["current_count"] = pop_data.get("current_count", 0) + share
+                spawns_left -= share
 
         # ---------------------------------------------------------------
         # HOSTILE RAIDS: large hostile groups attack sector stockpiles.
         # Stockpile matter → wrecks (matter returns to circulation).
-        # This is the second half of the cycle: hostiles SPEND their
-        # presence by raiding, which creates wrecks for prospectors.
         # ---------------------------------------------------------------
         for sector_id in list(state.grid_dominion.keys()):
             hostiles_here = 0
@@ -1778,11 +1715,10 @@ class AgentLayer:
             for htype in ["drones", "aliens"]:
                 pop_data = state.hostile_population_integral.get(htype, {})
                 hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
-            # hostility_level: 0.0 = peaceful, 1.0 = swarming
             hostility = min(1.0, hostiles_here / 10.0)
             state.grid_dominion[sector_id]["hostility_level"] = hostility
 
-        # --- Count military agents per sector ---
+        # --- Military kills ---
         military_counts = {}
         for agent_id, agent in state.agents.items():
             if agent.get("is_disabled", False):
@@ -1791,16 +1727,17 @@ class AgentLayer:
                 sid = agent.get("current_sector_id", "")
                 military_counts[sid] = military_counts.get(sid, 0) + 1
 
-        # Military kills
         for sector_id, mil_count in military_counts.items():
             kills = int(mil_count * kill_per_military)
             if kills > 0:
                 self._kill_hostile_in_sector(state, sector_id, kills)
 
-        # Hostile wreck salvage in low-security sectors → spawn new hostiles
-        total_spawned = {"drones": 0, "aliens": 0}
-        matter_consumed_total = 0.0
-
+        # ---------------------------------------------------------------
+        # Wreck salvage in low-security sectors → per-type pool reserves.
+        # Hostiles present in a sector consume wreck matter and deposit it
+        # into their type's reserve pool. Spawning then happens via the
+        # pressure valve above on the NEXT tick (clean separation).
+        # ---------------------------------------------------------------
         for wreck_uid in list(state.grid_wrecks.keys()):
             wreck = state.grid_wrecks[wreck_uid]
             sector_id = wreck.get("sector_id", "")
@@ -1810,13 +1747,16 @@ class AgentLayer:
             if security >= low_sec_threshold:
                 continue  # Only salvage in low-security sectors
 
-            # Count hostiles present in this sector
-            hostiles_here = 0
+            # Count hostiles per type in this sector
+            type_counts = {}
+            total_here = 0
             for htype in ["drones", "aliens"]:
                 pop_data = state.hostile_population_integral.get(htype, {})
-                hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
+                c = pop_data.get("sector_counts", {}).get(sector_id, 0)
+                type_counts[htype] = c
+                total_here += c
 
-            if hostiles_here <= 0:
+            if total_here <= 0:
                 continue  # No hostiles here to salvage
 
             # Salvage wreck matter
@@ -1837,37 +1777,19 @@ class AgentLayer:
             wreck["wreck_integrity"] = integrity - hull_consumed
             matter_consumed += hull_consumed
 
-            # Track consumed matter in hostile_matter_pool (Axiom 1)
-            state.hostile_matter_pool += matter_consumed
-            matter_consumed_total += matter_consumed
-
-            # Spawn new hostiles from consumed matter
-            if matter_consumed >= spawn_cost:
-                spawns = int(matter_consumed / spawn_cost)
-                # 70% drones, 30% aliens
-                drone_spawns = max(1, int(spawns * 0.7))
-                alien_spawns = spawns - drone_spawns
-
-                for htype, count in [("drones", drone_spawns), ("aliens", alien_spawns)]:
-                    if count <= 0:
-                        continue
-                    pop_data = state.hostile_population_integral.get(htype, {})
-                    pop_data["current_count"] = pop_data.get("current_count", 0) + count
-                    sector_counts = pop_data.get("sector_counts", {})
-                    sector_counts[sector_id] = sector_counts.get(sector_id, 0) + count
-                    total_spawned[htype] += count
+            # Split consumed matter into per-type reserves proportionally
+            # to the type counts present in this sector (Axiom 1)
+            if matter_consumed > 0.0:
+                for htype in ["drones", "aliens"]:
+                    share = matter_consumed * (type_counts[htype] / total_here)
+                    state.hostile_pools[htype]["reserve"] += share
 
             # Clean up empty inventory items
             for item_id in list(inventory.keys()):
                 if inventory[item_id] <= 0.001:
                     del inventory[item_id]
 
-        # Update carrying capacity based on global cap
-        for htype in ["drones", "aliens"]:
-            pop_data = state.hostile_population_integral.get(htype, {})
-            pop_data["carrying_capacity"] = global_cap
-
-        # Redistribute hostiles toward low-security sectors with wrecks
+        # --- Redistribute hostiles toward low-security sectors with wrecks ---
         for htype in ["drones", "aliens"]:
             pop_data = state.hostile_population_integral.get(htype, {})
             current_count = pop_data.get("current_count", 0)
@@ -1887,10 +1809,9 @@ class AgentLayer:
                     1 for w in state.grid_wrecks.values()
                     if w.get("sector_id", "") == sector_id
                 )
-                # Frontier bonus + wreck attraction, NOT piracy-driven
                 frontier_bonus = 2.0 if is_frontier else 0.0
                 weight = (1.0 - security) * (1.0 + wreck_count + frontier_bonus)
-                sector_weights[sector_id] = max(0.01, weight)  # min weight so all sectors accessible
+                sector_weights[sector_id] = max(0.01, weight)
                 total_weight += sector_weights[sector_id]
 
             sector_counts = {}
@@ -1899,7 +1820,6 @@ class AgentLayer:
                 sorted_sectors = sorted(sector_weights.keys())
                 for i, sector_id in enumerate(sorted_sectors):
                     if i == len(sorted_sectors) - 1:
-                        # Last sector gets remainder
                         sector_counts[sector_id] = current_count - assigned
                     else:
                         share = int(float(current_count) * (sector_weights[sector_id] / total_weight))
@@ -2687,7 +2607,7 @@ def stockpile_consumption_step(
     and prices crash to the floor.
 
     The consumed matter is split:
-      * entropy_tax_fraction → hostile_matter_pool (funds hostile ecology)
+      * entropy_tax_fraction → hostile pools (funds hostile ecology)
       * remainder → hidden_resources (waste recycled into the ground)
 
     Axiom 1: total consumed = matter_to_hostile_pool + matter_to_hidden.
@@ -2958,7 +2878,6 @@ ENTROPY_FLEET_RATE_FRACTION = 0.5
 # === Agent ===
 AGENT_KNOWLEDGE_NOISE_FACTOR = 0.1
 AGENT_RESPAWN_TICKS = 10
-HOSTILE_BASE_CARRYING_CAPACITY = 5
 
 # === Heat ===
 HEAT_GENERATION_IN_SPACE = 0.01
@@ -2979,7 +2898,6 @@ NPC_CASH_LOW_THRESHOLD = 2000.0
 NPC_HULL_REPAIR_THRESHOLD = 0.5
 COMMODITY_BASE_PRICE = 10.0
 RESPAWN_TIMEOUT_SECONDS = 300.0
-HOSTILE_GROWTH_RATE = 0.05
 
 # === Hostile Encounters (drones & aliens — hive creatures, not pirates) ===
 HOSTILE_ENCOUNTER_CHANCE = 0.3   # Base probability per tick in a hostile sector
@@ -2987,11 +2905,12 @@ HOSTILE_DAMAGE_MIN = 0.05        # Min hull damage from a hostile encounter
 HOSTILE_DAMAGE_MAX = 0.25        # Max hull damage from a hostile encounter
 HOSTILE_CARGO_LOSS_FRACTION = 0.2  # Fraction of cargo lost to hostile attack
 
-# === Hostile Spawning (wreck-based ecology) ===
-# Hostiles salvage wrecks in low-security sectors to spawn more units.
-# spawn_rate: wreck matter consumed per tick per hostile unit → new units
+# === Hostile Spawning (strict pool-in / pool-out ecology) ===
+# All hostile spawns are funded from per-type matter pools (drone_pool, alien_pool).
+# Pools are fed by: consumption entropy tax, wreck salvage in low-sec sectors.
+# NO passive/free spawning — if a pool is empty, no hostiles spawn.
 HOSTILE_WRECK_SALVAGE_RATE = 0.1     # fraction of a wreck's matter consumed/tick by hostiles
-HOSTILE_SPAWN_COST = 5.0             # matter cost to spawn one hostile unit
+HOSTILE_SPAWN_COST = 10.0            # matter from pool per hostile spawned (pool → body_mass)
 HOSTILE_LOW_SECURITY_THRESHOLD = 0.4 # security_level below this = "low security"
 HOSTILE_KILL_PER_MILITARY = 0.5      # hostiles killed per military agent per tick in sector
 
@@ -3066,20 +2985,16 @@ RESPAWN_DEBT_PENALTY = 500.0  # debt added on respawn
 ENTROPY_DEATH_HULL_THRESHOLD = 0.0  # hull at or below this → disabled
 ENTROPY_DEATH_TICK_GRACE = 20  # ticks at hull=0 before death
 
-# === Hostile Global Threat Pressure (decoupled from piracy) ===
-# Hostiles spawn passively in frontier sectors + from wrecks in low-sec.
+# === Hostile Global Threat (decoupled from piracy) ===
 # hostility_level is DRIVEN by hostile presence, not by piracy.
-HOSTILE_PASSIVE_SPAWN_CHANCE = 0.02  # chance per tick per frontier sector to spawn 1 hostile
-HOSTILE_MIN_FRONTIER_COUNT = 2  # minimum hostiles always present in frontier sectors
-HOSTILE_GLOBAL_CAP = 50  # absolute max hostiles across all sectors
+# All spawning is pool-funded. No passive/free spawning.
+HOSTILE_GLOBAL_CAP = 100  # sanity cap per type (memory safety, not simulation constraint)
 
-# === Hostile Pressure Valve (budget-driven spawning from pool) ===
-# When the hostile pool exceeds a threshold, hostiles spawn directly from
-# the pool (not just from wreck salvage). This prevents the pool from
-# becoming a black hole. Spawned hostiles carry mass → wrecks on death.
-HOSTILE_POOL_PRESSURE_THRESHOLD = 500.0   # pool must exceed this to trigger pressure spawning
-HOSTILE_POOL_SPAWN_COST = 10.0            # matter from pool per hostile spawned
-HOSTILE_POOL_SPAWN_RATE = 0.02            # fraction of pool above threshold spent per tick on spawns
+# === Hostile Pool Spawning (pool → body_mass → wrecks → salvage cycle) ===
+# Both wreck-salvage AND pressure-valve spawns use the same cost.
+# Pressure valve: when reserve > threshold, accelerate spawning.
+HOSTILE_POOL_PRESSURE_THRESHOLD = 500.0   # reserve must exceed this to trigger pressure spawning
+HOSTILE_POOL_SPAWN_RATE = 0.02            # fraction of reserve above threshold spent per tick
 HOSTILE_POOL_MAX_SPAWNS_PER_TICK = 5      # cap on pressure spawns per tick
 
 # === Hostile Raids (large groups attack stockpiles) ===
@@ -3094,7 +3009,7 @@ HOSTILE_RAID_CASUALTIES = 2               # hostiles killed in the raid (defende
 # Stations consume a fraction of stockpiles each tick, simulating
 # population usage. Prevents "Full Warehouse" market crashes.
 CONSUMPTION_RATE_PER_TICK = 0.001  # fraction of each commodity consumed/tick (scaled by pop density)
-CONSUMPTION_ENTROPY_TAX = 0.03     # fraction of consumed matter → hostile_matter_pool ("crime tax")
+CONSUMPTION_ENTROPY_TAX = 0.03     # fraction of consumed matter → per-type hostile pools ("crime tax")
 # Remaining (1 - tax) → hidden_resources (waste → ground recycling)
 
 # === Debt Zombie Prevention ===
@@ -3211,7 +3126,6 @@ WORLD_AGE_CONFIGS = {
         "pirate_activity_decay":        0.06,    # Security suppresses piracy
         "influence_propagation_rate":   0.08,    # Slow influence change
         "faction_anchor_strength":      0.4,     # Strong faction anchoring
-        "hostile_growth_rate":          0.02,    # Few new hostiles
         "hostile_encounter_chance":     0.15,    # Rare attacks
         "docking_fee_base":             15.0,    # Cheap docking
         "stockpile_diffusion_rate":     0.08,    # Active trade diffusion
@@ -3225,7 +3139,6 @@ WORLD_AGE_CONFIGS = {
         "pirate_activity_decay":        0.01,    # Security barely holds
         "influence_propagation_rate":   0.20,    # Factions destabilize fast
         "faction_anchor_strength":      0.1,     # Weak anchoring — chaos
-        "hostile_growth_rate":          0.15,    # Hostile boom
         "hostile_encounter_chance":     0.50,    # Frequent attacks
         "docking_fee_base":             40.0,    # Crisis pricing
         "stockpile_diffusion_rate":     0.02,    # Trade routes disrupted
@@ -3239,7 +3152,6 @@ WORLD_AGE_CONFIGS = {
         "pirate_activity_decay":        0.04,    # Gradual cleanup
         "influence_propagation_rate":   0.12,    # Moderate influence shift
         "faction_anchor_strength":      0.25,    # Rebuilding control
-        "hostile_growth_rate":          0.06,    # Some hostiles remain
         "hostile_encounter_chance":     0.30,    # Normal risk
         "docking_fee_base":             25.0,    # Recovering fees
         "stockpile_diffusion_rate":     0.05,    # Normal diffusion
@@ -3291,12 +3203,16 @@ class GameState:
         self.inventories: dict = {}             # char_uid → {2: {commodity_id: qty}}  (2 = COMMODITY type)
         self.assets_ships: dict = {}            # ship_uid → ship data
         self.player_character_uid: int = -1
-        self.hostile_population_integral: dict = {}  # hostile_type → {current_count, carrying_capacity, sector_counts}
+        self.hostile_population_integral: dict = {}  # hostile_type → {current_count, sector_counts}
         self.persistent_agents: dict = {}       # legacy alias
         self.sector_disabled_until: dict = {}   # sector_id → tick when hub re-enables
         self.catastrophe_log: list = []         # list of {sector_id, tick, type} for chronicle
-        self.hostile_matter_pool: float = 0.0   # matter consumed by hostiles from wrecks (Axiom 1)
-        self.hostile_body_mass: float = 0.0     # matter locked in living hostile bodies (Axiom 1)
+        # Per-type hostile matter pools (strict pool-in / pool-out, Axiom 1)
+        # Each pool has: reserve (unspent matter) + body_mass (locked in living bodies)
+        self.hostile_pools: dict = {
+            "drones": {"reserve": 0.0, "body_mass": 0.0},
+            "aliens": {"reserve": 0.0, "body_mass": 0.0},
+        }
 
         # === Colony Level Progression ===
         self.colony_levels: dict = {}           # sector_id → "frontier"/"outpost"/"colony"/"hub"
@@ -3608,7 +3524,7 @@ class GridLayer:
 
         # 2h. Stockpile Consumption (population sink)
         # Population consumes commodities. Consumed matter splits:
-        #   entropy_tax → hostile_matter_pool (funds hostile ecology)
+        #   entropy_tax → per-type hostile pools (funds hostile ecology)
         #   remainder → hidden_resources (waste recycling, Axiom 1)
         for sector_id in state.world_topology:
             market = buf_market.get(sector_id, {})
@@ -3619,8 +3535,11 @@ class GridLayer:
             )
             buf_stockpiles[sector_id] = consumption_result["new_stockpiles"]
 
-            # Entropy tax → hostile_matter_pool (Axiom 1)
-            state.hostile_matter_pool += consumption_result["matter_to_hostile_pool"]
+            # Entropy tax → per-type hostile pools (Axiom 1)
+            # Split 70% drones / 30% aliens (matches spawn ratio convention)
+            entropy_matter = consumption_result["matter_to_hostile_pool"]
+            state.hostile_pools["drones"]["reserve"] += entropy_matter * 0.7
+            state.hostile_pools["aliens"]["reserve"] += entropy_matter * 0.3
 
             # Waste → hidden_resources (Axiom 1)
             matter_hidden = consumption_result["matter_to_hidden"]
@@ -3960,8 +3879,9 @@ class GridLayer:
                 total += float(qty)
             total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
-        total += state.hostile_matter_pool
-        total += state.hostile_body_mass
+        for htype_pool in state.hostile_pools.values():
+            total += htype_pool.get("reserve", 0.0)
+            total += htype_pool.get("body_mass", 0.0)
 
         for char_uid, inv in state.inventories.items():
             if 2 in inv:
@@ -4209,20 +4129,21 @@ def generate_report(engine, ticks_run, sample_data, age_transitions,
     total_hostiles = 0
     for htype, pop in s.hostile_population_integral.items():
         count = pop.get("current_count", 0)
-        cap = pop.get("carrying_capacity", 0)
         dist = pop.get("sector_counts", {})
         dist_str = " ".join(f"{k.replace('station_','')[:3]}={v}" for k, v in sorted(dist.items()))
-        out.append(f"  {htype}: {count}/{cap}  [{dist_str}]")
+        pool_data = s.hostile_pools.get(htype, {"reserve": 0.0, "body_mass": 0.0})
+        out.append(f"  {htype}: count={count}  reserve={pool_data['reserve']:.1f}  body_mass={pool_data['body_mass']:.1f}  [{dist_str}]")
         total_hostiles += count
-    pool = s.hostile_matter_pool
+    total_hostile_reserve = sum(p["reserve"] for p in s.hostile_pools.values())
+    total_hostile_body = sum(p["body_mass"] for p in s.hostile_pools.values())
     budget = sum(engine._matter_breakdown().values())
-    pool_pct = (pool / budget * 100) if budget > 0 else 0.0
+    pool_pct = ((total_hostile_reserve + total_hostile_body) / budget * 100) if budget > 0 else 0.0
     wreck_count = len(s.grid_wrecks)
     wreck_matter = sum(
         sum(float(v) for v in w.get("wreck_inventory", {}).values()) + w.get("wreck_integrity", 0.0)
         for w in s.grid_wrecks.values()
     )
-    out.append(f"  hostile_matter_pool={pool:.2f} ({pool_pct:.1f}% of budget)")
+    out.append(f"  hostile_pools_total={total_hostile_reserve + total_hostile_body:.2f} ({pool_pct:.1f}% of budget)")
     out.append(f"  total_hostiles={total_hostiles}  wrecks={wreck_count} wreck_matter={wreck_matter:.1f}")
     out.append("")
 
@@ -4969,11 +4890,10 @@ class SimulationEngine:
                 total += float(qty)
             total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
-        # Hostile matter pool (matter consumed by hostiles from wrecks)
-        total += self.state.hostile_matter_pool
-
-        # Hostile body mass (matter locked in living hostile bodies)
-        total += self.state.hostile_body_mass
+        # Hostile matter pools (per-type: reserve + body_mass)
+        for htype_pool in self.state.hostile_pools.values():
+            total += htype_pool.get("reserve", 0.0)
+            total += htype_pool.get("body_mass", 0.0)
 
         # Layer 3: Agent inventories
         for char_uid, inv in self.state.inventories.items():
@@ -5008,7 +4928,7 @@ class SimulationEngine:
                 wrecks += float(qty)
             wrecks += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
-        hostile_pool = self.state.hostile_matter_pool
+        hostile_pool = sum(p.get("reserve", 0.0) for p in self.state.hostile_pools.values())
 
         agent_inventories = 0.0
         for char_uid, inv in self.state.inventories.items():
@@ -5017,7 +4937,7 @@ class SimulationEngine:
                 for commodity_id, qty in commodities.items():
                     agent_inventories += float(qty)
 
-        hostile_bodies = self.state.hostile_body_mass
+        hostile_bodies = sum(p.get("body_mass", 0.0) for p in self.state.hostile_pools.values())
 
         return {
             "resource_potential": resource_potential,
@@ -5104,7 +5024,6 @@ class SimulationEngine:
             "commodity_base_price": constants.COMMODITY_BASE_PRICE,
             "world_tick_interval_seconds": float(constants.WORLD_TICK_INTERVAL_SECONDS),
             "respawn_timeout_seconds": constants.RESPAWN_TIMEOUT_SECONDS,
-            "hostile_growth_rate": constants.HOSTILE_GROWTH_RATE,
             # Hostile encounters (drones & aliens)
             "hostile_encounter_chance": constants.HOSTILE_ENCOUNTER_CHANCE,
             "hostile_damage_min": constants.HOSTILE_DAMAGE_MIN,
@@ -5166,12 +5085,10 @@ class SimulationEngine:
             "entropy_death_hull_threshold": constants.ENTROPY_DEATH_HULL_THRESHOLD,
             "entropy_death_tick_grace": constants.ENTROPY_DEATH_TICK_GRACE,
             # Hostile global threat (decoupled from piracy)
-            "hostile_passive_spawn_chance": constants.HOSTILE_PASSIVE_SPAWN_CHANCE,
-            "hostile_min_frontier_count": constants.HOSTILE_MIN_FRONTIER_COUNT,
             "hostile_global_cap": constants.HOSTILE_GLOBAL_CAP,
-            # Hostile pressure valve (pool → hostiles → wrecks)
+            # Hostile pool spawning (pool → body_mass → wrecks → salvage cycle)
+            "hostile_spawn_cost": constants.HOSTILE_SPAWN_COST,
             "hostile_pool_pressure_threshold": constants.HOSTILE_POOL_PRESSURE_THRESHOLD,
-            "hostile_pool_spawn_cost": constants.HOSTILE_POOL_SPAWN_COST,
             "hostile_pool_spawn_rate": constants.HOSTILE_POOL_SPAWN_RATE,
             "hostile_pool_max_spawns_per_tick": constants.HOSTILE_POOL_MAX_SPAWNS_PER_TICK,
             # Hostile raids on stockpiles

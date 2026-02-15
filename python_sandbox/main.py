@@ -230,20 +230,21 @@ def generate_report(engine, ticks_run, sample_data, age_transitions,
     total_hostiles = 0
     for htype, pop in s.hostile_population_integral.items():
         count = pop.get("current_count", 0)
-        cap = pop.get("carrying_capacity", 0)
         dist = pop.get("sector_counts", {})
         dist_str = " ".join(f"{k.replace('station_','')[:3]}={v}" for k, v in sorted(dist.items()))
-        out.append(f"  {htype}: {count}/{cap}  [{dist_str}]")
+        pool_data = s.hostile_pools.get(htype, {"reserve": 0.0, "body_mass": 0.0})
+        out.append(f"  {htype}: count={count}  reserve={pool_data['reserve']:.1f}  body_mass={pool_data['body_mass']:.1f}  [{dist_str}]")
         total_hostiles += count
-    pool = s.hostile_matter_pool
+    total_hostile_reserve = sum(p["reserve"] for p in s.hostile_pools.values())
+    total_hostile_body = sum(p["body_mass"] for p in s.hostile_pools.values())
     budget = sum(engine._matter_breakdown().values())
-    pool_pct = (pool / budget * 100) if budget > 0 else 0.0
+    pool_pct = ((total_hostile_reserve + total_hostile_body) / budget * 100) if budget > 0 else 0.0
     wreck_count = len(s.grid_wrecks)
     wreck_matter = sum(
         sum(float(v) for v in w.get("wreck_inventory", {}).values()) + w.get("wreck_integrity", 0.0)
         for w in s.grid_wrecks.values()
     )
-    out.append(f"  hostile_matter_pool={pool:.2f} ({pool_pct:.1f}% of budget)")
+    out.append(f"  hostile_pools_total={total_hostile_reserve + total_hostile_body:.2f} ({pool_pct:.1f}% of budget)")
     out.append(f"  total_hostiles={total_hostiles}  wrecks={wreck_count} wreck_matter={wreck_matter:.1f}")
     out.append("")
 

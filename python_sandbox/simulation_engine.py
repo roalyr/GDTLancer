@@ -160,11 +160,10 @@ class SimulationEngine:
                 total += float(qty)
             total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
-        # Hostile matter pool (matter consumed by hostiles from wrecks)
-        total += self.state.hostile_matter_pool
-
-        # Hostile body mass (matter locked in living hostile bodies)
-        total += self.state.hostile_body_mass
+        # Hostile matter pools (per-type: reserve + body_mass)
+        for htype_pool in self.state.hostile_pools.values():
+            total += htype_pool.get("reserve", 0.0)
+            total += htype_pool.get("body_mass", 0.0)
 
         # Layer 3: Agent inventories
         for char_uid, inv in self.state.inventories.items():
@@ -199,7 +198,7 @@ class SimulationEngine:
                 wrecks += float(qty)
             wrecks += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
-        hostile_pool = self.state.hostile_matter_pool
+        hostile_pool = sum(p.get("reserve", 0.0) for p in self.state.hostile_pools.values())
 
         agent_inventories = 0.0
         for char_uid, inv in self.state.inventories.items():
@@ -208,7 +207,7 @@ class SimulationEngine:
                 for commodity_id, qty in commodities.items():
                     agent_inventories += float(qty)
 
-        hostile_bodies = self.state.hostile_body_mass
+        hostile_bodies = sum(p.get("body_mass", 0.0) for p in self.state.hostile_pools.values())
 
         return {
             "resource_potential": resource_potential,
@@ -295,7 +294,6 @@ class SimulationEngine:
             "commodity_base_price": constants.COMMODITY_BASE_PRICE,
             "world_tick_interval_seconds": float(constants.WORLD_TICK_INTERVAL_SECONDS),
             "respawn_timeout_seconds": constants.RESPAWN_TIMEOUT_SECONDS,
-            "hostile_growth_rate": constants.HOSTILE_GROWTH_RATE,
             # Hostile encounters (drones & aliens)
             "hostile_encounter_chance": constants.HOSTILE_ENCOUNTER_CHANCE,
             "hostile_damage_min": constants.HOSTILE_DAMAGE_MIN,
@@ -357,12 +355,10 @@ class SimulationEngine:
             "entropy_death_hull_threshold": constants.ENTROPY_DEATH_HULL_THRESHOLD,
             "entropy_death_tick_grace": constants.ENTROPY_DEATH_TICK_GRACE,
             # Hostile global threat (decoupled from piracy)
-            "hostile_passive_spawn_chance": constants.HOSTILE_PASSIVE_SPAWN_CHANCE,
-            "hostile_min_frontier_count": constants.HOSTILE_MIN_FRONTIER_COUNT,
             "hostile_global_cap": constants.HOSTILE_GLOBAL_CAP,
-            # Hostile pressure valve (pool → hostiles → wrecks)
+            # Hostile pool spawning (pool → body_mass → wrecks → salvage cycle)
+            "hostile_spawn_cost": constants.HOSTILE_SPAWN_COST,
             "hostile_pool_pressure_threshold": constants.HOSTILE_POOL_PRESSURE_THRESHOLD,
-            "hostile_pool_spawn_cost": constants.HOSTILE_POOL_SPAWN_COST,
             "hostile_pool_spawn_rate": constants.HOSTILE_POOL_SPAWN_RATE,
             "hostile_pool_max_spawns_per_tick": constants.HOSTILE_POOL_MAX_SPAWNS_PER_TICK,
             # Hostile raids on stockpiles

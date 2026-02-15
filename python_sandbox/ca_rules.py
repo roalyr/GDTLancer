@@ -479,7 +479,7 @@ def stockpile_consumption_step(
     and prices crash to the floor.
 
     The consumed matter is split:
-      * entropy_tax_fraction → hostile_matter_pool (funds hostile ecology)
+      * entropy_tax_fraction → hostile pools (funds hostile ecology)
       * remainder → hidden_resources (waste recycled into the ground)
 
     Axiom 1: total consumed = matter_to_hostile_pool + matter_to_hidden.

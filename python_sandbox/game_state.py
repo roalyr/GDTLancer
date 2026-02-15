@@ -38,12 +38,16 @@ class GameState:
         self.inventories: dict = {}             # char_uid → {2: {commodity_id: qty}}  (2 = COMMODITY type)
         self.assets_ships: dict = {}            # ship_uid → ship data
         self.player_character_uid: int = -1
-        self.hostile_population_integral: dict = {}  # hostile_type → {current_count, carrying_capacity, sector_counts}
+        self.hostile_population_integral: dict = {}  # hostile_type → {current_count, sector_counts}
         self.persistent_agents: dict = {}       # legacy alias
         self.sector_disabled_until: dict = {}   # sector_id → tick when hub re-enables
         self.catastrophe_log: list = []         # list of {sector_id, tick, type} for chronicle
-        self.hostile_matter_pool: float = 0.0   # matter consumed by hostiles from wrecks (Axiom 1)
-        self.hostile_body_mass: float = 0.0     # matter locked in living hostile bodies (Axiom 1)
+        # Per-type hostile matter pools (strict pool-in / pool-out, Axiom 1)
+        # Each pool has: reserve (unspent matter) + body_mass (locked in living bodies)
+        self.hostile_pools: dict = {
+            "drones": {"reserve": 0.0, "body_mass": 0.0},
+            "aliens": {"reserve": 0.0, "body_mass": 0.0},
+        }
 
         # === Colony Level Progression ===
         self.colony_levels: dict = {}           # sector_id → "frontier"/"outpost"/"colony"/"hub"

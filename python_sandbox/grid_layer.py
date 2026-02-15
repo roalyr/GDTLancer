@@ -272,7 +272,7 @@ class GridLayer:
 
         # 2h. Stockpile Consumption (population sink)
         # Population consumes commodities. Consumed matter splits:
-        #   entropy_tax → hostile_matter_pool (funds hostile ecology)
+        #   entropy_tax → per-type hostile pools (funds hostile ecology)
         #   remainder → hidden_resources (waste recycling, Axiom 1)
         for sector_id in state.world_topology:
             market = buf_market.get(sector_id, {})
@@ -283,8 +283,11 @@ class GridLayer:
             )
             buf_stockpiles[sector_id] = consumption_result["new_stockpiles"]
 
-            # Entropy tax → hostile_matter_pool (Axiom 1)
-            state.hostile_matter_pool += consumption_result["matter_to_hostile_pool"]
+            # Entropy tax → per-type hostile pools (Axiom 1)
+            # Split 70% drones / 30% aliens (matches spawn ratio convention)
+            entropy_matter = consumption_result["matter_to_hostile_pool"]
+            state.hostile_pools["drones"]["reserve"] += entropy_matter * 0.7
+            state.hostile_pools["aliens"]["reserve"] += entropy_matter * 0.3
 
             # Waste → hidden_resources (Axiom 1)
             matter_hidden = consumption_result["matter_to_hidden"]
@@ -624,8 +627,9 @@ class GridLayer:
                 total += float(qty)
             total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
-        total += state.hostile_matter_pool
-        total += state.hostile_body_mass
+        for htype_pool in state.hostile_pools.values():
+            total += htype_pool.get("reserve", 0.0)
+            total += htype_pool.get("body_mass", 0.0)
 
         for char_uid, inv in state.inventories.items():
             if 2 in inv:
