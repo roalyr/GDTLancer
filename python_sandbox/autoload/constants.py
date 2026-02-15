@@ -13,10 +13,10 @@ CA_INFLUENCE_PROPAGATION_RATE = 0.1
 CA_PIRATE_ACTIVITY_DECAY = 0.02
 CA_PIRATE_ACTIVITY_GROWTH = 0.05
 CA_STOCKPILE_DIFFUSION_RATE = 0.05
-CA_EXTRACTION_RATE_DEFAULT = 0.01
+CA_EXTRACTION_RATE_DEFAULT = 0.003
 CA_PRICE_SENSITIVITY = 0.5
 CA_DEMAND_BASE = 0.1
-CA_FACTION_ANCHOR_STRENGTH = 0.3
+CA_FACTION_ANCHOR_STRENGTH = 0.05
 
 # === Wreck & Entropy ===
 WRECK_DEGRADATION_PER_TICK = 0.05
@@ -41,7 +41,7 @@ POWER_DRAW_PER_SERVICE = 10.0
 
 # === Bridge Entropy Drains (Mass Displacement — TRUTH_SIMULATION-GRAPH §1 Law 4) ===
 ENTROPY_HULL_MULTIPLIER = 0.1
-PROPELLANT_DRAIN_PER_TICK = 0.5
+PROPELLANT_DRAIN_PER_TICK = 0.2
 ENERGY_DRAIN_PER_TICK = 0.3
 
 # === Agent Decision Thresholds ===
@@ -58,7 +58,7 @@ HOSTILE_CARGO_LOSS_FRACTION = 0.2
 
 # === Hostile Spawning (strict pool-in / pool-out ecology) ===
 HOSTILE_WRECK_SALVAGE_RATE = 0.1
-HOSTILE_SPAWN_COST = 10.0
+HOSTILE_SPAWN_COST = 5.0
 HOSTILE_LOW_SECURITY_THRESHOLD = 0.4
 HOSTILE_KILL_PER_MILITARY = 0.5
 
@@ -138,7 +138,7 @@ ENTROPY_DEATH_TICK_GRACE = 20
 HOSTILE_GLOBAL_CAP = 100
 
 # === Hostile Pool Spawning ===
-HOSTILE_POOL_PRESSURE_THRESHOLD = 500.0
+HOSTILE_POOL_PRESSURE_THRESHOLD = 200.0
 HOSTILE_POOL_SPAWN_RATE = 0.02
 HOSTILE_POOL_MAX_SPAWNS_PER_TICK = 5
 
@@ -149,7 +149,7 @@ HOSTILE_RAID_STOCKPILE_FRACTION = 0.05
 HOSTILE_RAID_CASUALTIES = 2
 
 # === Stockpile Consumption (population sink) ===
-CONSUMPTION_RATE_PER_TICK = 0.001
+CONSUMPTION_RATE_PER_TICK = 0.003
 CONSUMPTION_ENTROPY_TAX = 0.03
 
 # === Debt Zombie Prevention ===
@@ -168,10 +168,10 @@ COLONY_LEVEL_MODIFIERS = {
 
 COLONY_UPGRADE_STOCKPILE_FRACTION = 0.6
 COLONY_UPGRADE_SECURITY_MIN = 0.5
-COLONY_UPGRADE_TICKS_REQUIRED = 200
-COLONY_DOWNGRADE_STOCKPILE_FRACTION = 0.1
-COLONY_DOWNGRADE_SECURITY_MIN = 0.2
-COLONY_DOWNGRADE_TICKS_REQUIRED = 300
+COLONY_UPGRADE_TICKS_REQUIRED = 250
+COLONY_DOWNGRADE_STOCKPILE_FRACTION = 0.30
+COLONY_DOWNGRADE_SECURITY_MIN = 0.4
+COLONY_DOWNGRADE_TICKS_REQUIRED = 150
 
 # === Non-Named Mortal Agents ===
 MORTAL_SPAWN_CHANCE_PER_TICK = 0.005
@@ -179,15 +179,21 @@ MORTAL_SPAWN_MIN_STOCKPILE = 500.0
 MORTAL_SPAWN_MIN_SECURITY = 0.5
 MORTAL_SPAWN_CASH = 800.0
 MORTAL_GLOBAL_CAP = 20
-MORTAL_ROLES = ["trader", "hauler", "prospector"]
-MORTAL_ROLE_WEIGHTS = [0.5, 0.3, 0.2]
+MORTAL_ROLES = ["trader", "hauler", "prospector", "explorer", "pirate"]
+MORTAL_ROLE_WEIGHTS = [0.35, 0.25, 0.15, 0.10, 0.15]
+
+# === Agent Wages (per-tick income by role) ===
+TRADER_WAGE = 20.0
+HAULER_WAGE = 30.0
+PROSPECTOR_WAGE = 35.0
+MILITARY_SALARY = 35.0
 
 # === Explorer Role ===
 EXPLORER_EXPEDITION_COST = 500.0
 EXPLORER_EXPEDITION_FUEL = 30.0
-EXPLORER_DISCOVERY_CHANCE = 0.15
+EXPLORER_DISCOVERY_CHANCE = 0.04
 EXPLORER_MOVE_INTERVAL = 8
-EXPLORER_WAGE = 12.0
+EXPLORER_WAGE = 40.0
 EXPLORER_MAX_DISCOVERED_SECTORS = 10
 NEW_SECTOR_BASE_MINERALS = 1.5
 NEW_SECTOR_BASE_PROPELLANT = 0.8
@@ -216,18 +222,18 @@ EXPLORER_DISCOVERY_MULTIPLIER = 1.5
 # === World Age Cycle ===
 WORLD_AGE_CYCLE = ["PROSPERITY", "DISRUPTION", "RECOVERY"]
 WORLD_AGE_DURATIONS = {
-    "PROSPERITY": 40,
-    "DISRUPTION":  20,
-    "RECOVERY":    25,
+    "PROSPERITY": 420,
+    "DISRUPTION":  210,
+    "RECOVERY":    270,
 }
 
 WORLD_AGE_CONFIGS = {
     "PROSPERITY": {
-        "extraction_rate_default":      0.015,
+        "extraction_rate_default":      0.005,
         "pirate_activity_growth":       0.02,
         "pirate_activity_decay":        0.06,
         "influence_propagation_rate":   0.08,
-        "faction_anchor_strength":      0.4,
+        "faction_anchor_strength":      0.08,
         "hostile_encounter_chance":     0.15,
         "docking_fee_base":             15.0,
         "stockpile_diffusion_rate":     0.08,
@@ -236,11 +242,11 @@ WORLD_AGE_CONFIGS = {
         "catastrophe_chance_per_tick":  0.0002,
     },
     "DISRUPTION": {
-        "extraction_rate_default":      0.004,
+        "extraction_rate_default":      0.0013,
         "pirate_activity_growth":       0.12,
         "pirate_activity_decay":        0.01,
         "influence_propagation_rate":   0.20,
-        "faction_anchor_strength":      0.1,
+        "faction_anchor_strength":      0.02,
         "hostile_encounter_chance":     0.50,
         "docking_fee_base":             40.0,
         "stockpile_diffusion_rate":     0.02,
@@ -249,11 +255,11 @@ WORLD_AGE_CONFIGS = {
         "catastrophe_chance_per_tick":  0.001,
     },
     "RECOVERY": {
-        "extraction_rate_default":      0.008,
+        "extraction_rate_default":      0.0027,
         "pirate_activity_growth":       0.04,
         "pirate_activity_decay":        0.04,
         "influence_propagation_rate":   0.12,
-        "faction_anchor_strength":      0.25,
+        "faction_anchor_strength":      0.05,
         "hostile_encounter_chance":     0.30,
         "docking_fee_base":             25.0,
         "stockpile_diffusion_rate":     0.05,

@@ -177,6 +177,11 @@ class WorldLayer:
                 total += float(qty)
             total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
+        # Hostile matter pools (per-type: reserve + body_mass)
+        for htype_pool in state.hostile_pools.values():
+            total += htype_pool.get("reserve", 0.0)
+            total += htype_pool.get("body_mass", 0.0)
+
         # Layer 3: Agent inventories
         for char_uid, inv in state.inventories.items():
             if 2 in inv:  # InventoryType.COMMODITY

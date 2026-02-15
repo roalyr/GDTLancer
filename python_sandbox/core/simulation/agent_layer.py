@@ -260,6 +260,10 @@ class AgentLayer:
         char_uid = agent.get("char_uid", -1)
         has_cargo = self._agent_has_cargo(state, char_uid)
 
+        # Traders receive a subsistence wage (trade guild stipend)
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.TRADER_WAGE
+        cash = agent["cash_reserves"]
+
         if has_cargo:
             # Find the best sector to sell in (highest price delta for our cargo)
             best_sell_sector = self._find_best_sell_sector(state, agent, config)
@@ -544,7 +548,7 @@ class AgentLayer:
         dominion["pirate_activity"] = max(0.0, old_piracy - piracy_suppress)
 
         # Military agents earn a salary
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + 15.0
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.MILITARY_SALARY
 
         # Periodically move toward highest-piracy sector
         if tick % patrol_interval == 0:
@@ -582,7 +586,7 @@ class AgentLayer:
         cargo_capacity = config.get("hauler_cargo_capacity", 20)
 
         # Haulers earn a small wage
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + 8.0
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.HAULER_WAGE
 
         if has_cargo:
             # Deliver to deficit sector
@@ -946,7 +950,7 @@ class AgentLayer:
 
         state.world_resource_potential[new_sector_id] = {
             "mineral_density": disc_mineral,
-            "energy_potential": 50.0,
+            "energy_potential": 0.0,  # Not tracked by Axiom 1 — must be zero
             "propellant_sources": disc_propellant,
         }
         state.world_hidden_resources[new_sector_id] = {
@@ -1523,7 +1527,7 @@ class AgentLayer:
 
             excess = reserve - pool_pressure_threshold
             budget_this_tick = excess * pool_spawn_rate
-            max_from_budget = int(budget_this_tick / spawn_cost) if spawn_cost > 0 else 0
+            max_from_budget = round(budget_this_tick / spawn_cost) if spawn_cost > 0 else 0
             num_spawns = min(max_from_budget, pool_max_spawns, global_cap - current_count)
 
             if num_spawns <= 0:
@@ -1585,7 +1589,7 @@ class AgentLayer:
                 wreck_uid = f"raid_wreck_{state.sim_tick_count}_{sector_id[-3:]}"
                 state.grid_wrecks[wreck_uid] = {
                     "sector_id": sector_id,
-                    "wreck_integrity": min(total_raided * 0.1, 5.0),
+                    "wreck_integrity": 0.0,  # No free hull mass — Axiom 1
                     "wreck_inventory": raid_inventory,
                 }
 
@@ -1614,7 +1618,7 @@ class AgentLayer:
                 military_counts[sid] = military_counts.get(sid, 0) + 1
 
         for sector_id, mil_count in military_counts.items():
-            kills = int(mil_count * kill_per_military)
+            kills = round(mil_count * kill_per_military)
             if kills > 0:
                 self._kill_hostile_in_sector(state, sector_id, kills)
 

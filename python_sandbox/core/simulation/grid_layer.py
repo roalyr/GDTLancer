@@ -99,9 +99,18 @@ class GridLayer:
                 if conn_id in state.grid_stockpiles:
                     neighbor_stockpiles.append(state.grid_stockpiles[conn_id])
 
+            # Apply colony-level extraction_mult to extraction rate
+            colony_level = state.colony_levels.get(sector_id, "frontier")
+            level_mods = constants.COLONY_LEVEL_MODIFIERS.get(colony_level, {})
+            extraction_mult = level_mods.get("extraction_mult", 1.0)
+            extraction_config = dict(config)
+            extraction_config["extraction_rate_default"] = (
+                config.get("extraction_rate_default", 0.003) * extraction_mult
+            )
+
             supply_result = ca_rules.supply_demand_step(
                 sector_id, current_stockpiles, current_potential,
-                neighbor_stockpiles, config,
+                neighbor_stockpiles, extraction_config,
             )
             buf_stockpiles[sector_id] = supply_result["new_stockpiles"]
             buf_resource_potential[sector_id] = supply_result["new_resource_potential"]
@@ -281,8 +290,17 @@ class GridLayer:
             market = buf_market.get(sector_id, {})
             pop_density = market.get("population_density", 1.0)
 
+            # Apply colony-level consumption_mult to consumption rate
+            colony_level = state.colony_levels.get(sector_id, "frontier")
+            level_mods = constants.COLONY_LEVEL_MODIFIERS.get(colony_level, {})
+            consumption_mult = level_mods.get("consumption_mult", 1.0)
+            consumption_config = dict(config)
+            consumption_config["consumption_rate_per_tick"] = (
+                config.get("consumption_rate_per_tick", 0.003) * consumption_mult
+            )
+
             consumption_result = ca_rules.stockpile_consumption_step(
-                sector_id, buf_stockpiles[sector_id], pop_density, config,
+                sector_id, buf_stockpiles[sector_id], pop_density, consumption_config,
             )
             buf_stockpiles[sector_id] = consumption_result["new_stockpiles"]
 

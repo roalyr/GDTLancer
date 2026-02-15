@@ -72,9 +72,10 @@ def strategic_map_step(
         for fid in current_influence:
             current_influence[fid] /= influence_sum
 
-    # --- Security Level ---
+    # --- Security Level (suppressed by hostility) ---
     max_faction_influence = max(current_influence.values()) if current_influence else 0.0
-    new_security = max(0.0, min(1.0, max_faction_influence))
+    hostility_level = sector_state.get("hostility_level", 0.0)
+    new_security = max(0.0, min(1.0, max_faction_influence - hostility_level))
 
     # --- Pirate Activity ---
     current_piracy = sector_state.get("pirate_activity", 0.0)
@@ -137,6 +138,36 @@ def supply_demand_step(
         commodity_map[fuel_key] = current_prop + propellant_extract
         new_potential["propellant_sources"] = propellant_src - propellant_extract
         total_matter_extracted += propellant_extract
+
+    # --- Synthesize commodity_food from mineral_density ---
+    # Civilizations convert a small fraction of minerals into food (hydroponics).
+    # Uses half the extraction rate (food synthesis is slower than raw mining).
+    food_synth_rate = extraction_rate * 0.5
+    food_source = new_potential.get("mineral_density", 0.0)
+    food_synth = min(food_source, food_synth_rate * food_source)
+    if food_synth > 0.0:
+        food_key = "commodity_food"
+        current_food = commodity_map.get(food_key, 0.0)
+        space_available = max(0.0, float(capacity) - _sum_commodity_values(commodity_map))
+        food_synth = min(food_synth, space_available)
+        commodity_map[food_key] = current_food + food_synth
+        new_potential["mineral_density"] = new_potential.get("mineral_density", 0.0) - food_synth
+        total_matter_extracted += food_synth
+
+    # --- Synthesize commodity_tech from propellant_sources ---
+    # High-tech manufacturing: tiny fraction of refined propellant → tech goods.
+    # Uses one-fifth the extraction rate (tech is scarce and slow to produce).
+    tech_synth_rate = extraction_rate * 0.2
+    tech_source = new_potential.get("propellant_sources", 0.0)
+    tech_synth = min(tech_source, tech_synth_rate * tech_source)
+    if tech_synth > 0.0:
+        tech_key = "commodity_tech"
+        current_tech = commodity_map.get(tech_key, 0.0)
+        space_available = max(0.0, float(capacity) - _sum_commodity_values(commodity_map))
+        tech_synth = min(tech_synth, space_available)
+        commodity_map[tech_key] = current_tech + tech_synth
+        new_potential["propellant_sources"] = new_potential.get("propellant_sources", 0.0) - tech_synth
+        total_matter_extracted += tech_synth
 
     new_stockpiles["commodity_stockpiles"] = commodity_map
     new_stockpiles["extraction_rate"] = dict(new_stockpiles.get("extraction_rate", {}))
