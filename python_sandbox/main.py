@@ -23,7 +23,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from simulation_engine import SimulationEngine
+from core.simulation.simulation_engine import SimulationEngine
 
 
 # -----------------------------------------------------------------

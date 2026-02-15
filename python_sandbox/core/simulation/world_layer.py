@@ -4,13 +4,18 @@ Mirror of src/core/simulation/world_layer.gd.
 
 The World Layer is STATIC after initialization — read-only at runtime.
 Defines: topology (sector graph), hazards, finite resource potential.
+
+PROJECT: GDTLancer
+MODULE: core/simulation/world_layer.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 2: Entity Graph — World Layer)
 """
 
 import random
 import copy
-from game_state import GameState
-from template_data import LOCATIONS, FACTIONS
-import constants
+from autoload.game_state import GameState
+from database.registry.template_data import LOCATIONS, FACTIONS
+from autoload import constants
 
 
 class WorldLayer:

@@ -9,15 +9,20 @@ Manages the full tick sequence:
   Step 4: Agent Layer — NPC goal evaluation and action execution
   Step 5: Chronicle Layer — event capture and rumor generation
   ASSERT: Conservation Axiom 1 — total matter unchanged
+
+PROJECT: GDTLancer
+MODULE: core/simulation/simulation_engine.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 1: Tick Orchestration)
 """
 
-from game_state import GameState
-from world_layer import WorldLayer
-from grid_layer import GridLayer
-from agent_layer import AgentLayer
-from bridge_systems import BridgeSystems
-from chronicle_layer import ChronicleLayer
-import constants
+from autoload.game_state import GameState
+from core.simulation.world_layer import WorldLayer
+from core.simulation.grid_layer import GridLayer
+from core.simulation.agent_layer import AgentLayer
+from core.simulation.bridge_systems import BridgeSystems
+from core.simulation.chronicle_layer import ChronicleLayer
+from autoload import constants
 
 
 class SimulationEngine:

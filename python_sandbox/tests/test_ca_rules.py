@@ -8,11 +8,16 @@ Tests verify:
   - entropy_step: wreck degradation, matter return
   - power_load_step: power ratio clamping
   - maintenance_pressure_step: entropy rate, maintenance modifier
+
+PROJECT: GDTLancer
+MODULE: tests/test_ca_rules.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 2: Grid Layer CA Rules)
 """
 
 import copy
 import unittest
-import ca_rules
+from core.simulation import ca_rules
 
 
 class TestStrategicMapStep(unittest.TestCase):

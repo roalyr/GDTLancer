@@ -7,6 +7,11 @@ Every function is PURE:
   - Inputs are plain dicts/values; outputs are new dicts.
   - Never mutates input arguments.
   - Fully deterministic.
+
+PROJECT: GDTLancer
+MODULE: core/simulation/ca_rules.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 4: CA Rules)
 """
 
 import copy
@@ -110,8 +115,6 @@ def supply_demand_step(
     capacity = new_stockpiles.get("stockpile_capacity", 1000)
 
     # --- Extract minerals → "commodity_ore" ---
-    # Note: GDScript uses "ore" but templates use "commodity_ore".
-    # Use "commodity_ore" to match template commodity IDs.
     mineral = new_potential.get("mineral_density", 0.0)
     mineral_extract = min(mineral, extraction_rate * mineral)
     if mineral_extract > 0.0:
@@ -406,12 +409,9 @@ def _resource_layer_multiplier(
     # Layers are defined top-down: surface is mined first (highest fraction_remaining)
     surface_frac = layer_fractions.get("surface", 0.15)
     deep_frac = layer_fractions.get("deep", 0.35)
-    # mantle = everything else
 
-    # If more than (deep + mantle) fraction remains, we're in the surface layer
     if fraction_remaining > (1.0 - surface_frac):
         return layer_rates.get("surface", 3.0)
-    # If more than mantle fraction remains, we're in the deep layer
     elif fraction_remaining > layer_fractions.get("mantle", 0.50):
         return layer_rates.get("deep", 1.0)
     else:

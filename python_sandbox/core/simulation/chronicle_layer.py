@@ -8,11 +8,16 @@ Processing (GDD Section 7, steps 5a–5e):
   5c. Significance Scores — Phase 1 stub (all = 0.5)
   5d. Rumor Engine — generate templated text
   5e. Distribute — push events to nearby agents' event_memory
+
+PROJECT: GDTLancer
+MODULE: core/simulation/chronicle_layer.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 6: Chronicle Layer)
 """
 
 import copy
-from game_state import GameState
-from template_data import LOCATIONS
+from autoload.game_state import GameState
+from database.registry.template_data import LOCATIONS
 
 
 class ChronicleLayer:

@@ -4,14 +4,25 @@ Mirror of src/core/simulation/grid_layer.gd.
 
 Processing is DOUBLE-BUFFERED: all reads come from GameState, all writes
 go to local buffers, then buffers are swapped atomically at the end.
+
+PROJECT: GDTLancer
+MODULE: core/simulation/grid_layer.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 3: Grid Layer)
+
+SPECIE INJECTION (TRUTH_SIMULATION-GRAPH §8.1):
+  Every station spawns with STATION_INITIAL_SPECIE units of commodity_specie,
+  debited from hidden_resources (Axiom 1 safe).  This prevents the liquidity
+  deadlock where miners cannot sell ore because stations start with 0 currency.
+  Constraint: STATION_INITIAL_SPECIE > avg_cargo * avg_ore_price.
 """
 
 import copy
 import random
-from game_state import GameState
-from template_data import LOCATIONS, FACTIONS
-import ca_rules
-import constants
+from autoload.game_state import GameState
+from database.registry.template_data import LOCATIONS, FACTIONS
+from core.simulation import ca_rules
+from autoload import constants
 
 
 class GridLayer:
@@ -239,11 +250,8 @@ class GridLayer:
                 current = commodities.get(commodity_id, 0.0)
                 new_val = current + delta_val
                 if new_val < 0.0:
-                    # Clamp to zero and compensate: reduce inflow at receivers
-                    # to conserve matter exactly.
                     overflow = -new_val
                     commodities[commodity_id] = 0.0
-                    # Redistribute overflow back to connected sectors that received
                     connections = state.world_topology.get(sector_id, {}).get("connections", [])
                     receivers = [c for c in connections if c in diffusion_deltas
                                  and diffusion_deltas[c].get(commodity_id, 0.0) > 0]
@@ -259,21 +267,16 @@ class GridLayer:
                                 recv_commodities[commodity_id] = 0.0
                             else:
                                 recv_commodities[commodity_id] = recv_new
-                        # Any remaining overflow → hidden resources (Axiom 1)
                         if remaining_overflow > 0.0:
                             hidden = buf_hidden_resources.get(sector_id, {})
                             hidden["mineral_density"] = hidden.get("mineral_density", 0.0) + remaining_overflow
                     else:
-                        # No receivers found — route overflow to hidden resources (Axiom 1)
                         hidden = buf_hidden_resources.get(sector_id, {})
                         hidden["mineral_density"] = hidden.get("mineral_density", 0.0) + overflow
                 else:
                     commodities[commodity_id] = new_val
 
         # 2h. Stockpile Consumption (population sink)
-        # Population consumes commodities. Consumed matter splits:
-        #   entropy_tax → per-type hostile pools (funds hostile ecology)
-        #   remainder → hidden_resources (waste recycling, Axiom 1)
         for sector_id in state.world_topology:
             market = buf_market.get(sector_id, {})
             pop_density = market.get("population_density", 1.0)
@@ -284,7 +287,6 @@ class GridLayer:
             buf_stockpiles[sector_id] = consumption_result["new_stockpiles"]
 
             # Entropy tax → per-type hostile pools (Axiom 1)
-            # Split 70% drones / 30% aliens (matches spawn ratio convention)
             entropy_matter = consumption_result["matter_to_hostile_pool"]
             state.hostile_pools["drones"]["reserve"] += entropy_matter * 0.7
             state.hostile_pools["aliens"]["reserve"] += entropy_matter * 0.3
@@ -293,7 +295,6 @@ class GridLayer:
             matter_hidden = consumption_result["matter_to_hidden"]
             if matter_hidden > 0.0:
                 hid = buf_hidden_resources.get(sector_id, {})
-                # Split waste 50/50 to mineral and propellant hidden pools
                 hid["mineral_density"] = hid.get("mineral_density", 0.0) + matter_hidden * 0.5
                 hid["propellant_sources"] = hid.get("propellant_sources", 0.0) + matter_hidden * 0.5
 
@@ -344,12 +345,39 @@ class GridLayer:
     # Seeding helpers
     # -----------------------------------------------------------------
     def _seed_stockpiles(self, state: GameState) -> None:
+        """Seed grid stockpiles from template data.
+
+        SPECIE INJECTION (TRUTH_SIMULATION-GRAPH §8.1):
+        Each station receives STATION_INITIAL_SPECIE units of commodity_specie,
+        debited from hidden_resources (Axiom 1 safe).  This prevents the
+        liquidity deadlock where no trades can occur at tick 0.
+        """
         state.grid_stockpiles.clear()
+        specie_per_station = constants.STATION_INITIAL_SPECIE
+
         for location_id, loc in LOCATIONS.items():
             commodity_stockpiles = {}
             market_inv = loc.get("market_inventory", {})
             for commodity_id, entry in market_inv.items():
                 commodity_stockpiles[commodity_id] = float(entry.get("quantity", 0))
+
+            # --- Specie Injection (Axiom 1 safe) ---
+            # Debit from hidden_resources → stockpile commodity_specie
+            if specie_per_station > 0.0:
+                commodity_stockpiles["commodity_specie"] = (
+                    commodity_stockpiles.get("commodity_specie", 0.0) + specie_per_station
+                )
+                # Debit from hidden_resources mineral pool (Axiom 1)
+                hidden = state.world_hidden_resources.get(location_id, {})
+                current_hidden_mineral = hidden.get("mineral_density", 0.0)
+                debit = min(specie_per_station, current_hidden_mineral)
+                hidden["mineral_density"] = current_hidden_mineral - debit
+                # If hidden mineral insufficient, debit from propellant
+                remainder = specie_per_station - debit
+                if remainder > 0.0:
+                    current_hidden_prop = hidden.get("propellant_sources", 0.0)
+                    prop_debit = min(remainder, current_hidden_prop)
+                    hidden["propellant_sources"] = current_hidden_prop - prop_debit
 
             capacity = int(loc.get("stockpile_capacity", 1000))
             state.grid_stockpiles[location_id] = {
@@ -367,7 +395,6 @@ class GridLayer:
                 if faction_id == controlling_faction:
                     faction_influence[faction_id] = 0.8
                 elif faction_id == "faction_pirates":
-                    # Pirates start with very low influence everywhere
                     faction_influence[faction_id] = 0.02
                 else:
                     faction_influence[faction_id] = 0.1
@@ -390,6 +417,9 @@ class GridLayer:
             market_inv = loc.get("market_inventory", {})
             for commodity_id in market_inv:
                 price_deltas[commodity_id] = 0.0
+            # Also seed price delta for commodity_specie (always present after injection)
+            if "commodity_specie" not in price_deltas:
+                price_deltas["commodity_specie"] = 0.0
 
             sector_type = loc.get("sector_type", "frontier")
             population = 2.0 if sector_type == "hub" else 1.0
@@ -456,7 +486,6 @@ class GridLayer:
             hazards = state.world_hazards.get(sector_id, {})
             entropy_result = ca_rules.entropy_step(sector_id, sector_wrecks, hazards, config)
 
-            # Salvageable debris → accessible resource potential.
             matter_salvaged = entropy_result.get("matter_salvaged", 0.0)
             if matter_salvaged > 0.0:
                 if sector_id in buf_resource_potential:
@@ -468,15 +497,12 @@ class GridLayer:
                         "propellant_sources": 0.0,
                     }
 
-            # Eroded hull + unsalvageable dust → hidden resources.
             matter_dust = entropy_result.get("matter_to_dust", 0.0)
             if matter_dust > 0.0:
-                # Write to buffer (not state) so the atomic swap preserves the dust
                 target = buf_hidden_resources if buf_hidden_resources is not None else state.world_hidden_resources
                 if sector_id in target:
                     target[sector_id]["mineral_density"] = (
-                        target[sector_id].get("mineral_density", 0.0)
-                        + matter_dust
+                        target[sector_id].get("mineral_density", 0.0) + matter_dust
                     )
                 else:
                     target[sector_id] = {"mineral_density": matter_dust, "propellant_sources": 0.0}
@@ -525,15 +551,7 @@ class GridLayer:
         state.discovered_sector_count = len(state.world_topology)
 
     def _update_colony_levels(self, state: GameState, config: dict) -> None:
-        """Check each sector for colony level upgrade/downgrade.
-
-        Upgrade: stockpile fraction > threshold AND security > threshold
-                 for N consecutive ticks.
-        Downgrade: stockpile fraction < threshold OR security < threshold
-                   for N consecutive ticks.
-        Colony level changes population_density, capacity mult, etc.
-        NO matter is created or destroyed — only modifiers change.
-        """
+        """Check each sector for colony level upgrade/downgrade."""
         upgrade_frac = config.get("colony_upgrade_stockpile_fraction", 0.6)
         upgrade_sec = config.get("colony_upgrade_security_min", 0.5)
         upgrade_ticks = config.get("colony_upgrade_ticks_required", 200)
@@ -541,7 +559,7 @@ class GridLayer:
         downgrade_sec = config.get("colony_downgrade_security_min", 0.2)
         downgrade_ticks = config.get("colony_downgrade_ticks_required", 300)
 
-        levels = constants.COLONY_LEVELS  # ["frontier", "outpost", "colony", "hub"]
+        levels = constants.COLONY_LEVELS
 
         for sector_id in list(state.colony_levels.keys()):
             current_level = state.colony_levels[sector_id]
@@ -571,7 +589,6 @@ class GridLayer:
                     state.colony_levels[sector_id] = new_level
                     state.colony_upgrade_progress[sector_id] = 0
                     state.colony_downgrade_progress[sector_id] = 0
-                    # Update topology sector_type to match
                     if sector_id in state.world_topology:
                         state.world_topology[sector_id]["sector_type"] = new_level
                     state.colony_level_history.append({
@@ -625,7 +642,7 @@ class GridLayer:
             inventory = wreck.get("wreck_inventory", {})
             for item_id, qty in inventory.items():
                 total += float(qty)
-            total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
+            total += wreck.get("wreck_integrity", 0.0)
 
         for htype_pool in state.hostile_pools.values():
             total += htype_pool.get("reserve", 0.0)

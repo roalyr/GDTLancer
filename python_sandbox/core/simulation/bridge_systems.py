@@ -5,10 +5,15 @@ Mirror of src/core/simulation/bridge_systems.gd.
 Step 3a: Heat Sink — binary overheating check per agent
 Step 3b: Entropy System — hull degradation from sector entropy rate
 Step 3c: Knowledge Refresh — update agent knowledge snapshots
+
+PROJECT: GDTLancer
+MODULE: core/simulation/bridge_systems.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 5: Bridge Systems)
 """
 
 import copy
-from game_state import GameState
+from autoload.game_state import GameState
 
 
 class BridgeSystems:

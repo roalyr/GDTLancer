@@ -2,6 +2,11 @@
 GDTLancer Template Data.
 Hardcoded data that mirrors the .tres registry files in database/registry/.
 Replaces TemplateDatabase autoload from Godot.
+
+PROJECT: GDTLancer
+MODULE: database/registry/template_data.py
+STATUS: Level 2 - Implementation
+TRUTH_LINK: database/registry/*.tres
 """
 
 # =========================================================================
@@ -22,10 +27,11 @@ LOCATIONS = {
         "station_power_output": 150.0,
         "stockpile_capacity": 1500,
         "market_inventory": {
-            "commodity_ore":    {"buy_price": 8,  "sell_price": 6,  "quantity": 200},
-            "commodity_food":   {"buy_price": 30, "sell_price": 25, "quantity": 40},
-            "commodity_tech":   {"buy_price": 80, "sell_price": 65, "quantity": 15},
-            "commodity_fuel":   {"buy_price": 25, "sell_price": 20, "quantity": 100},
+            "commodity_ore":     {"buy_price": 8,  "sell_price": 6,  "quantity": 200},
+            "commodity_food":    {"buy_price": 30, "sell_price": 25, "quantity": 40},
+            "commodity_tech":    {"buy_price": 80, "sell_price": 65, "quantity": 15},
+            "commodity_fuel":    {"buy_price": 25, "sell_price": 20, "quantity": 100},
+            "commodity_specie":  {"buy_price": 1,  "sell_price": 1,  "quantity": 200},
         },
         "available_services": ["trade", "contracts", "repair"],
         "controlling_faction_id": "faction_miners",
@@ -44,11 +50,12 @@ LOCATIONS = {
         "station_power_output": 120.0,
         "stockpile_capacity": 1200,
         "market_inventory": {
-            "commodity_ore":    {"buy_price": 15, "sell_price": 12, "quantity": 30},
-            "commodity_food":   {"buy_price": 22, "sell_price": 18, "quantity": 80},
-            "commodity_tech":   {"buy_price": 70, "sell_price": 55, "quantity": 50},
-            "commodity_fuel":   {"buy_price": 30, "sell_price": 25, "quantity": 60},
-            "commodity_luxury": {"buy_price": 90, "sell_price": 75, "quantity": 20},
+            "commodity_ore":     {"buy_price": 15, "sell_price": 12, "quantity": 30},
+            "commodity_food":    {"buy_price": 22, "sell_price": 18, "quantity": 80},
+            "commodity_tech":    {"buy_price": 70, "sell_price": 55, "quantity": 50},
+            "commodity_fuel":    {"buy_price": 30, "sell_price": 25, "quantity": 60},
+            "commodity_luxury":  {"buy_price": 90, "sell_price": 75, "quantity": 20},
+            "commodity_specie":  {"buy_price": 1,  "sell_price": 1,  "quantity": 200},
         },
         "available_services": ["trade", "contracts"],
         "controlling_faction_id": "faction_traders",
@@ -67,11 +74,12 @@ LOCATIONS = {
         "station_power_output": 80.0,
         "stockpile_capacity": 800,
         "market_inventory": {
-            "commodity_ore":    {"buy_price": 12, "sell_price": 10, "quantity": 80},
-            "commodity_food":   {"buy_price": 25, "sell_price": 20, "quantity": 60},
-            "commodity_tech":   {"buy_price": 55, "sell_price": 45, "quantity": 30},
-            "commodity_fuel":   {"buy_price": 20, "sell_price": 15, "quantity": 150},
-            "commodity_luxury": {"buy_price": 120, "sell_price": 100, "quantity": 10},
+            "commodity_ore":     {"buy_price": 12, "sell_price": 10, "quantity": 80},
+            "commodity_food":    {"buy_price": 25, "sell_price": 20, "quantity": 60},
+            "commodity_tech":    {"buy_price": 55, "sell_price": 45, "quantity": 30},
+            "commodity_fuel":    {"buy_price": 20, "sell_price": 15, "quantity": 150},
+            "commodity_luxury":  {"buy_price": 120, "sell_price": 100, "quantity": 10},
+            "commodity_specie":  {"buy_price": 1,  "sell_price": 1,  "quantity": 200},
         },
         "available_services": ["trade", "contracts", "black_market"],
         "controlling_faction_id": "faction_independents",
@@ -90,10 +98,11 @@ LOCATIONS = {
         "station_power_output": 200.0,
         "stockpile_capacity": 1000,
         "market_inventory": {
-            "commodity_ore":    {"buy_price": 18, "sell_price": 14, "quantity": 50},
-            "commodity_food":   {"buy_price": 20, "sell_price": 16, "quantity": 100},
-            "commodity_tech":   {"buy_price": 60, "sell_price": 50, "quantity": 80},
-            "commodity_fuel":   {"buy_price": 15, "sell_price": 12, "quantity": 120},
+            "commodity_ore":     {"buy_price": 18, "sell_price": 14, "quantity": 50},
+            "commodity_food":    {"buy_price": 20, "sell_price": 16, "quantity": 100},
+            "commodity_tech":    {"buy_price": 60, "sell_price": 50, "quantity": 80},
+            "commodity_fuel":    {"buy_price": 15, "sell_price": 12, "quantity": 120},
+            "commodity_specie":  {"buy_price": 1,  "sell_price": 1,  "quantity": 200},
         },
         "available_services": ["trade", "repair", "contracts"],
         "controlling_faction_id": "faction_military",
@@ -112,11 +121,12 @@ LOCATIONS = {
         "station_power_output": 180.0,
         "stockpile_capacity": 1300,
         "market_inventory": {
-            "commodity_ore":    {"buy_price": 10, "sell_price":  8, "quantity": 120},
-            "commodity_food":   {"buy_price": 28, "sell_price": 22, "quantity":  50},
-            "commodity_tech":   {"buy_price": 75, "sell_price": 60, "quantity":  25},
-            "commodity_fuel":   {"buy_price": 22, "sell_price": 18, "quantity":  90},
-            "commodity_luxury": {"buy_price": 100, "sell_price": 85, "quantity": 15},
+            "commodity_ore":     {"buy_price": 10, "sell_price":  8, "quantity": 120},
+            "commodity_food":    {"buy_price": 28, "sell_price": 22, "quantity":  50},
+            "commodity_tech":    {"buy_price": 75, "sell_price": 60, "quantity":  25},
+            "commodity_fuel":    {"buy_price": 22, "sell_price": 18, "quantity":  90},
+            "commodity_luxury":  {"buy_price": 100, "sell_price": 85, "quantity": 15},
+            "commodity_specie":  {"buy_price": 1,  "sell_price": 1,  "quantity": 200},
         },
         "available_services": ["trade", "repair", "contracts"],
         "controlling_faction_id": "faction_miners",
