@@ -290,7 +290,15 @@ def prospecting_step(
 ) -> dict:
     """Compute resource discovery from hidden pool into discovered potential.
 
-    Prospecting intensity depends on:
+    Resource Layers (gated accessibility):
+      Hidden resources are conceptually divided into layers:
+        Surface (15%) — fast extraction (3× rate)
+        Deep    (35%) — moderate extraction (1× rate)
+        Mantle  (50%) — slow extraction (0.3× rate)
+      As the hidden pool depletes, prospecting naturally slows because
+      the remaining resources are in harder-to-reach layers.
+
+    Prospecting intensity also depends on:
       - Market scarcity: positive price deltas → higher demand → more prospecting
       - Security: high security → safer prospecting → more discovery
       - Hazards: high radiation → dangerous conditions → less prospecting
@@ -310,6 +318,12 @@ def prospecting_step(
     hazard_penalty = config.get("prospecting_hazard_penalty", 0.5)
     randomness = config.get("prospecting_randomness", 0.3)
 
+    # Resource layer definitions
+    layer_fractions = config.get("resource_layer_fractions",
+                                  {"surface": 0.15, "deep": 0.35, "mantle": 0.50})
+    layer_rates = config.get("resource_layer_rate_multipliers",
+                              {"surface": 3.0, "deep": 1.0, "mantle": 0.3})
+
     new_hidden = copy.deepcopy(hidden_resources)
     new_potential = copy.deepcopy(resource_potential)
     total_discovered = 0.0
@@ -320,7 +334,6 @@ def prospecting_step(
     scarcity_signal = 0.0
     if positive_deltas:
         scarcity_signal = sum(positive_deltas) / len(positive_deltas)
-    # Map scarcity to [1.0, 1.0 + scarcity_boost] range
     scarcity_mult = 1.0 + min(scarcity_signal * 10.0, 1.0) * scarcity_boost
 
     # --- Security factor: [0.5, 1.0] based on security_level ---
@@ -331,24 +344,30 @@ def prospecting_step(
     radiation = hazards.get("radiation_level", 0.0)
     haz_mult = max(0.1, 1.0 - radiation * hazard_penalty)
 
-    # --- Randomness: map rng_value from [0,1] to [1-randomness, 1+randomness] ---
+    # --- Randomness ---
     rng_mult = 1.0 + (rng_value * 2.0 - 1.0) * randomness
 
-    # --- Combined prospecting rate ---
-    effective_rate = base_rate * scarcity_mult * sec_mult * haz_mult * rng_mult
-    effective_rate = max(0.0, effective_rate)
+    # --- Combined base prospecting rate ---
+    rate_base = base_rate * scarcity_mult * sec_mult * haz_mult * rng_mult
+    rate_base = max(0.0, rate_base)
 
-    # --- Discover minerals ---
+    # --- Discover minerals (with depth layer penalty) ---
     hidden_mineral = new_hidden.get("mineral_density", 0.0)
     if hidden_mineral > 0.0:
+        depth_mult = _resource_layer_multiplier(hidden_mineral, resource_potential.get("mineral_density", 0.0),
+                                                 layer_fractions, layer_rates)
+        effective_rate = rate_base * depth_mult
         discover_mineral = min(hidden_mineral, effective_rate * hidden_mineral)
         new_hidden["mineral_density"] = hidden_mineral - discover_mineral
         new_potential["mineral_density"] = new_potential.get("mineral_density", 0.0) + discover_mineral
         total_discovered += discover_mineral
 
-    # --- Discover propellant ---
+    # --- Discover propellant (with depth layer penalty) ---
     hidden_propellant = new_hidden.get("propellant_sources", 0.0)
     if hidden_propellant > 0.0:
+        depth_mult = _resource_layer_multiplier(hidden_propellant, resource_potential.get("propellant_sources", 0.0),
+                                                 layer_fractions, layer_rates)
+        effective_rate = rate_base * depth_mult
         discover_propellant = min(hidden_propellant, effective_rate * hidden_propellant)
         new_hidden["propellant_sources"] = hidden_propellant - discover_propellant
         new_potential["propellant_sources"] = new_potential.get("propellant_sources", 0.0) + discover_propellant
@@ -359,6 +378,44 @@ def prospecting_step(
         "new_potential": new_potential,
         "matter_discovered": total_discovered,
     }
+
+
+def _resource_layer_multiplier(
+    hidden_remaining: float,
+    discovered_so_far: float,
+    layer_fractions: dict,
+    layer_rates: dict,
+) -> float:
+    """Compute depth-based rate multiplier for resource extraction.
+
+    Determines which 'layer' is currently being mined based on how much
+    of the original total has been extracted, and returns the corresponding
+    rate multiplier.
+
+    Layers (mined top-down):
+      Surface (first 15% of original) — rate × 3.0
+      Deep    (next 35%)              — rate × 1.0
+      Mantle  (last 50%)              — rate × 0.3
+    """
+    original_total = hidden_remaining + discovered_so_far
+    if original_total <= 0.0:
+        return 1.0
+
+    fraction_remaining = hidden_remaining / original_total
+
+    # Layers are defined top-down: surface is mined first (highest fraction_remaining)
+    surface_frac = layer_fractions.get("surface", 0.15)
+    deep_frac = layer_fractions.get("deep", 0.35)
+    # mantle = everything else
+
+    # If more than (deep + mantle) fraction remains, we're in the surface layer
+    if fraction_remaining > (1.0 - surface_frac):
+        return layer_rates.get("surface", 3.0)
+    # If more than mantle fraction remains, we're in the deep layer
+    elif fraction_remaining > layer_fractions.get("mantle", 0.50):
+        return layer_rates.get("deep", 1.0)
+    else:
+        return layer_rates.get("mantle", 0.3)
 
 
 # =========================================================================
@@ -402,6 +459,57 @@ def hazard_drift_step(
         "radiation_level": new_radiation,
         "thermal_background_k": new_thermal,
         "gravity_well_penalty": base_gravity,  # unchanged
+    }
+
+
+# =========================================================================
+# === STOCKPILE CONSUMPTION (population sink) =============================
+# =========================================================================
+
+def stockpile_consumption_step(
+    sector_id: str,
+    stockpiles: dict,
+    population_density: float,
+    config: dict,
+) -> dict:
+    """Simulate population consuming commodities from stockpiles.
+
+    Every tick, the local population burns a fraction of each commodity.
+    This prevents the "Full Warehouse" problem where stations fill up
+    and prices crash to the floor.
+
+    The consumed matter is split:
+      * entropy_tax_fraction → hostile_matter_pool (funds hostile ecology)
+      * remainder → hidden_resources (waste recycled into the ground)
+
+    Axiom 1: total consumed = matter_to_hostile_pool + matter_to_hidden.
+    """
+    base_rate = config.get("consumption_rate_per_tick", 0.001)
+    entropy_tax = config.get("consumption_entropy_tax", 0.10)
+
+    new_stockpiles = copy.deepcopy(stockpiles)
+    commodities = new_stockpiles.get("commodity_stockpiles", {})
+
+    total_consumed = 0.0
+    effective_rate = base_rate * population_density
+
+    for commodity_id in list(commodities.keys()):
+        qty = commodities[commodity_id]
+        if qty <= 0.0:
+            continue
+        consumed = qty * effective_rate
+        consumed = min(consumed, qty)  # Can't consume more than exists
+        commodities[commodity_id] = qty - consumed
+        total_consumed += consumed
+
+    matter_to_hostile = total_consumed * entropy_tax
+    matter_to_hidden = total_consumed * (1.0 - entropy_tax)
+
+    return {
+        "new_stockpiles": new_stockpiles,
+        "total_consumed": total_consumed,
+        "matter_to_hostile_pool": matter_to_hostile,
+        "matter_to_hidden": matter_to_hidden,
     }
 
 

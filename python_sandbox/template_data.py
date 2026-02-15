@@ -293,6 +293,16 @@ CHARACTERS = {
         "personality_traits": {"risk_tolerance": 0.8, "greed": 0.9, "aggression": 0.5},
         "description": "Cunning smuggler turned pirate.",
     },
+    "character_nova": {
+        "character_name": "Nova",
+        "faction_id": "faction_independents",
+        "credits": 2000,
+        "skills": {"piloting": 5, "combat": 2, "trading": 2},
+        "age": 31,
+        "reputation": 35,
+        "personality_traits": {"risk_tolerance": 0.9, "loyalty": 0.3},
+        "description": "Deep-space explorer, restless.",
+    },
 }
 
 
@@ -409,6 +419,15 @@ AGENTS = {
         "home_location_id": "station_gamma",
         "character_template_id": "character_vex",
         "agent_role": "pirate",
+        "respawn_timeout_seconds": 300.0,
+    },
+    # --- Explorers (discover new sectors from frontiers) ---
+    "persistent_nova": {
+        "agent_type": "npc",
+        "is_persistent": True,
+        "home_location_id": "station_gamma",
+        "character_template_id": "character_nova",
+        "agent_role": "explorer",
         "respawn_timeout_seconds": 300.0,
     },
 }

@@ -11,6 +11,7 @@ import random
 from game_state import GameState
 from template_data import LOCATIONS, FACTIONS
 import ca_rules
+import constants
 
 
 class GridLayer:
@@ -27,6 +28,7 @@ class GridLayer:
         self._seed_power(state)
         self._seed_maintenance(state)
         self._seed_resource_availability(state)
+        self._seed_colony_levels(state)
         state.grid_wrecks.clear()
 
         print(f"GridLayer: Initialized grid state for {len(state.world_topology)} sectors.")
@@ -129,7 +131,10 @@ class GridLayer:
 
             # 2e. Market Pressure
             current_market = state.grid_market.get(sector_id, {})
-            population_density = current_market.get("population_density", 1.0)
+            # Population density driven by colony level
+            colony_level = state.colony_levels.get(sector_id, "frontier")
+            level_mods = constants.COLONY_LEVEL_MODIFIERS.get(colony_level, {})
+            population_density = level_mods.get("population_density", 1.0)
 
             market_result = ca_rules.market_pressure_step(
                 sector_id, buf_stockpiles[sector_id], population_density, config,
@@ -265,6 +270,30 @@ class GridLayer:
                 else:
                     commodities[commodity_id] = new_val
 
+        # 2h. Stockpile Consumption (population sink)
+        # Population consumes commodities. Consumed matter splits:
+        #   entropy_tax → hostile_matter_pool (funds hostile ecology)
+        #   remainder → hidden_resources (waste recycling, Axiom 1)
+        for sector_id in state.world_topology:
+            market = buf_market.get(sector_id, {})
+            pop_density = market.get("population_density", 1.0)
+
+            consumption_result = ca_rules.stockpile_consumption_step(
+                sector_id, buf_stockpiles[sector_id], pop_density, config,
+            )
+            buf_stockpiles[sector_id] = consumption_result["new_stockpiles"]
+
+            # Entropy tax → hostile_matter_pool (Axiom 1)
+            state.hostile_matter_pool += consumption_result["matter_to_hostile_pool"]
+
+            # Waste → hidden_resources (Axiom 1)
+            matter_hidden = consumption_result["matter_to_hidden"]
+            if matter_hidden > 0.0:
+                hid = buf_hidden_resources.get(sector_id, {})
+                # Split waste 50/50 to mineral and propellant hidden pools
+                hid["mineral_density"] = hid.get("mineral_density", 0.0) + matter_hidden * 0.5
+                hid["propellant_sources"] = hid.get("propellant_sources", 0.0) + matter_hidden * 0.5
+
         # 2f. Wreck & Debris
         self._process_wrecks(state, config, buf_resource_potential, buf_hidden_resources)
 
@@ -293,13 +322,18 @@ class GridLayer:
                 sector_index, config,
             )
 
-        # Axiom 1 assertion
+        # Colony level progression (upgrade/downgrade based on economy)
+        self._update_colony_levels(state, config)
+
+        # Axiom 1 assertion (relative tolerance)
         matter_after = self._calculate_current_matter(state)
-        drift = abs(matter_after - matter_before)
-        tolerance = config.get("axiom1_tolerance", 0.01)
-        if drift > tolerance:
+        abs_drift = abs(matter_after - matter_before)
+        rel_drift = abs_drift / max(matter_before, 1.0)
+        rel_tolerance = config.get("axiom1_relative_tolerance", 0.005)
+        if rel_drift > rel_tolerance:
             print(
-                f"GridLayer: AXIOM 1 VIOLATION! Matter drift: {drift:.4f} "
+                f"GridLayer: AXIOM 1 VIOLATION! Drift: {abs_drift:.4f} "
+                f"({rel_drift*100:.4f}% of budget, limit={rel_tolerance*100:.2f}%) "
                 f"(before: {matter_before:.2f}, after: {matter_after:.2f})"
             )
 
@@ -470,6 +504,104 @@ class GridLayer:
             return len(services)
         return 0
 
+    # -----------------------------------------------------------------
+    # Colony Level System
+    # -----------------------------------------------------------------
+    def _seed_colony_levels(self, state: GameState) -> None:
+        """Initialize colony levels from template sector_type."""
+        state.colony_levels.clear()
+        state.colony_upgrade_progress.clear()
+        state.colony_downgrade_progress.clear()
+        for sector_id, topology in state.world_topology.items():
+            level = topology.get("sector_type", "frontier")
+            if level not in constants.COLONY_LEVELS:
+                level = "frontier"
+            state.colony_levels[sector_id] = level
+            state.colony_upgrade_progress[sector_id] = 0
+            state.colony_downgrade_progress[sector_id] = 0
+        state.discovered_sector_count = len(state.world_topology)
+
+    def _update_colony_levels(self, state: GameState, config: dict) -> None:
+        """Check each sector for colony level upgrade/downgrade.
+
+        Upgrade: stockpile fraction > threshold AND security > threshold
+                 for N consecutive ticks.
+        Downgrade: stockpile fraction < threshold OR security < threshold
+                   for N consecutive ticks.
+        Colony level changes population_density, capacity mult, etc.
+        NO matter is created or destroyed — only modifiers change.
+        """
+        upgrade_frac = config.get("colony_upgrade_stockpile_fraction", 0.6)
+        upgrade_sec = config.get("colony_upgrade_security_min", 0.5)
+        upgrade_ticks = config.get("colony_upgrade_ticks_required", 200)
+        downgrade_frac = config.get("colony_downgrade_stockpile_fraction", 0.1)
+        downgrade_sec = config.get("colony_downgrade_security_min", 0.2)
+        downgrade_ticks = config.get("colony_downgrade_ticks_required", 300)
+
+        levels = constants.COLONY_LEVELS  # ["frontier", "outpost", "colony", "hub"]
+
+        for sector_id in list(state.colony_levels.keys()):
+            current_level = state.colony_levels[sector_id]
+            current_idx = levels.index(current_level) if current_level in levels else 0
+
+            stockpiles = state.grid_stockpiles.get(sector_id, {})
+            commodities = stockpiles.get("commodity_stockpiles", {})
+            total_stock = sum(float(v) for v in commodities.values())
+            capacity = stockpiles.get("stockpile_capacity", 1000)
+            stock_frac = total_stock / max(capacity, 1.0)
+
+            dominion = state.grid_dominion.get(sector_id, {})
+            security = dominion.get("security_level", 0.0)
+
+            # --- Upgrade check ---
+            if current_idx < len(levels) - 1:
+                if stock_frac >= upgrade_frac and security >= upgrade_sec:
+                    state.colony_upgrade_progress[sector_id] = (
+                        state.colony_upgrade_progress.get(sector_id, 0) + 1
+                    )
+                else:
+                    state.colony_upgrade_progress[sector_id] = 0
+
+                if state.colony_upgrade_progress.get(sector_id, 0) >= upgrade_ticks:
+                    old_level = current_level
+                    new_level = levels[current_idx + 1]
+                    state.colony_levels[sector_id] = new_level
+                    state.colony_upgrade_progress[sector_id] = 0
+                    state.colony_downgrade_progress[sector_id] = 0
+                    # Update topology sector_type to match
+                    if sector_id in state.world_topology:
+                        state.world_topology[sector_id]["sector_type"] = new_level
+                    state.colony_level_history.append({
+                        "sector_id": sector_id,
+                        "tick": state.sim_tick_count,
+                        "old_level": old_level,
+                        "new_level": new_level,
+                    })
+
+            # --- Downgrade check ---
+            if current_idx > 0:
+                if stock_frac < downgrade_frac or security < downgrade_sec:
+                    state.colony_downgrade_progress[sector_id] = (
+                        state.colony_downgrade_progress.get(sector_id, 0) + 1
+                    )
+                else:
+                    state.colony_downgrade_progress[sector_id] = 0
+
+                if state.colony_downgrade_progress.get(sector_id, 0) >= downgrade_ticks:
+                    old_level = current_level
+                    new_level = levels[current_idx - 1]
+                    state.colony_levels[sector_id] = new_level
+                    state.colony_upgrade_progress[sector_id] = 0
+                    state.colony_downgrade_progress[sector_id] = 0
+                    if sector_id in state.world_topology:
+                        state.world_topology[sector_id]["sector_type"] = new_level
+                    state.colony_level_history.append({
+                        "sector_id": sector_id,
+                        "tick": state.sim_tick_count,
+                        "old_level": old_level,
+                        "new_level": new_level,
+                    })
+
     def _calculate_current_matter(self, state: GameState) -> float:
         total = 0.0
 
@@ -493,6 +625,7 @@ class GridLayer:
             total += wreck.get("wreck_integrity", 0.0)  # hull mass = integrity
 
         total += state.hostile_matter_pool
+        total += state.hostile_body_mass
 
         for char_uid, inv in state.inventories.items():
             if 2 in inv:

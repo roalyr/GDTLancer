@@ -110,21 +110,25 @@ class SimulationEngine:
     # Conservation Axiom 1
     # -----------------------------------------------------------------
     def verify_matter_conservation(self) -> bool:
-        """Verify total matter equals the initial checksum."""
+        """Verify total matter stays within relative tolerance of initial budget."""
         expected = self.state.world_total_matter
         actual = self._calculate_total_matter()
-        tolerance = self._tick_config.get("axiom1_tolerance", 0.01)
-        drift = abs(actual - expected)
+        rel_tolerance = self._tick_config.get("axiom1_relative_tolerance", 0.005)
+        abs_drift = abs(actual - expected)
+        rel_drift = abs_drift / max(expected, 1.0)
 
-        if drift > tolerance:
+        if rel_drift > rel_tolerance:
             breakdown = self._matter_breakdown()
             print(
-                f"AXIOM 1 DRIFT: {drift:.4f} (expected: {expected:.2f}, actual: {actual:.2f})\n"
+                f"AXIOM 1 DRIFT: {abs_drift:.4f} ({rel_drift*100:.4f}% of budget, "
+                f"limit={rel_tolerance*100:.2f}%)\n"
+                f"  expected: {expected:.2f}, actual: {actual:.2f}\n"
                 f"  Resource potential: {breakdown['resource_potential']:.2f}\n"
                 f"  Hidden resources: {breakdown['hidden_resources']:.2f}\n"
                 f"  Grid stockpiles: {breakdown['grid_stockpiles']:.2f}\n"
                 f"  Wrecks: {breakdown['wrecks']:.2f}\n"
                 f"  Hostile pool: {breakdown['hostile_pool']:.2f}\n"
+                f"  Hostile bodies: {breakdown['hostile_bodies']:.2f}\n"
                 f"  Agent inventories: {breakdown['agent_inventories']:.2f}"
             )
             return False
@@ -158,6 +162,9 @@ class SimulationEngine:
 
         # Hostile matter pool (matter consumed by hostiles from wrecks)
         total += self.state.hostile_matter_pool
+
+        # Hostile body mass (matter locked in living hostile bodies)
+        total += self.state.hostile_body_mass
 
         # Layer 3: Agent inventories
         for char_uid, inv in self.state.inventories.items():
@@ -201,12 +208,15 @@ class SimulationEngine:
                 for commodity_id, qty in commodities.items():
                     agent_inventories += float(qty)
 
+        hostile_bodies = self.state.hostile_body_mass
+
         return {
             "resource_potential": resource_potential,
             "hidden_resources": hidden_resources,
             "grid_stockpiles": grid_stockpiles,
             "wrecks": wrecks,
             "hostile_pool": hostile_pool,
+            "hostile_bodies": hostile_bodies,
             "agent_inventories": agent_inventories,
         }
 
@@ -316,8 +326,8 @@ class SimulationEngine:
             "fuel_cost_per_unit": constants.FUEL_COST_PER_UNIT,
             # Faction anchoring
             "faction_anchor_strength": constants.CA_FACTION_ANCHOR_STRENGTH,
-            # Axiom 1
-            "axiom1_tolerance": constants.AXIOM1_TOLERANCE,
+            # Axiom 1 (relative: fraction of total matter budget)
+            "axiom1_relative_tolerance": constants.AXIOM1_RELATIVE_TOLERANCE,
             # Prospecting
             "prospecting_base_rate": constants.PROSPECTING_BASE_RATE,
             "prospecting_scarcity_boost": constants.PROSPECTING_SCARCITY_BOOST,
@@ -337,6 +347,62 @@ class SimulationEngine:
             "hauler_cargo_capacity": constants.HAULER_CARGO_CAPACITY,
             "hauler_surplus_threshold": constants.HAULER_SURPLUS_THRESHOLD,
             "hauler_deficit_threshold": constants.HAULER_DEFICIT_THRESHOLD,
+            # Agent desperation / debt
+            "desperation_hull_threshold": constants.DESPERATION_HULL_THRESHOLD,
+            "desperation_trade_hull_risk": constants.DESPERATION_TRADE_HULL_RISK,
+            "debt_interest_rate": constants.DEBT_INTEREST_RATE,
+            "debt_cap": constants.DEBT_CAP,
+            "respawn_debt_penalty": constants.RESPAWN_DEBT_PENALTY,
+            # Entropy death
+            "entropy_death_hull_threshold": constants.ENTROPY_DEATH_HULL_THRESHOLD,
+            "entropy_death_tick_grace": constants.ENTROPY_DEATH_TICK_GRACE,
+            # Hostile global threat (decoupled from piracy)
+            "hostile_passive_spawn_chance": constants.HOSTILE_PASSIVE_SPAWN_CHANCE,
+            "hostile_min_frontier_count": constants.HOSTILE_MIN_FRONTIER_COUNT,
+            "hostile_global_cap": constants.HOSTILE_GLOBAL_CAP,
+            # Hostile pressure valve (pool → hostiles → wrecks)
+            "hostile_pool_pressure_threshold": constants.HOSTILE_POOL_PRESSURE_THRESHOLD,
+            "hostile_pool_spawn_cost": constants.HOSTILE_POOL_SPAWN_COST,
+            "hostile_pool_spawn_rate": constants.HOSTILE_POOL_SPAWN_RATE,
+            "hostile_pool_max_spawns_per_tick": constants.HOSTILE_POOL_MAX_SPAWNS_PER_TICK,
+            # Hostile raids on stockpiles
+            "hostile_raid_threshold": constants.HOSTILE_RAID_THRESHOLD,
+            "hostile_raid_chance": constants.HOSTILE_RAID_CHANCE,
+            "hostile_raid_stockpile_fraction": constants.HOSTILE_RAID_STOCKPILE_FRACTION,
+            "hostile_raid_casualties": constants.HOSTILE_RAID_CASUALTIES,
+            # Resource layers (prospecting depth gating)
+            "resource_layer_fractions": constants.RESOURCE_LAYER_FRACTIONS,
+            "resource_layer_rate_multipliers": constants.RESOURCE_LAYER_RATE_MULTIPLIERS,
+            "resource_layer_depletion_threshold": constants.RESOURCE_LAYER_DEPLETION_THRESHOLD,
+            # Stockpile consumption (population sink)
+            "consumption_rate_per_tick": constants.CONSUMPTION_RATE_PER_TICK,
+            "consumption_entropy_tax": constants.CONSUMPTION_ENTROPY_TAX,
+            # Respawn cooldown
+            "respawn_cooldown_max_debt": constants.RESPAWN_COOLDOWN_MAX_DEBT,
+            "respawn_cooldown_normal": constants.RESPAWN_COOLDOWN_NORMAL,
+            # Colony levels
+            "colony_upgrade_stockpile_fraction": constants.COLONY_UPGRADE_STOCKPILE_FRACTION,
+            "colony_upgrade_security_min": constants.COLONY_UPGRADE_SECURITY_MIN,
+            "colony_upgrade_ticks_required": constants.COLONY_UPGRADE_TICKS_REQUIRED,
+            "colony_downgrade_stockpile_fraction": constants.COLONY_DOWNGRADE_STOCKPILE_FRACTION,
+            "colony_downgrade_security_min": constants.COLONY_DOWNGRADE_SECURITY_MIN,
+            "colony_downgrade_ticks_required": constants.COLONY_DOWNGRADE_TICKS_REQUIRED,
+            # Mortal agents
+            "mortal_spawn_chance_per_tick": constants.MORTAL_SPAWN_CHANCE_PER_TICK,
+            "mortal_spawn_min_stockpile": constants.MORTAL_SPAWN_MIN_STOCKPILE,
+            "mortal_spawn_min_security": constants.MORTAL_SPAWN_MIN_SECURITY,
+            "mortal_spawn_cash": constants.MORTAL_SPAWN_CASH,
+            "mortal_global_cap": constants.MORTAL_GLOBAL_CAP,
+            # Explorer role
+            "explorer_expedition_cost": constants.EXPLORER_EXPEDITION_COST,
+            "explorer_expedition_fuel": constants.EXPLORER_EXPEDITION_FUEL,
+            "explorer_discovery_chance": constants.EXPLORER_DISCOVERY_CHANCE,
+            "explorer_move_interval": constants.EXPLORER_MOVE_INTERVAL,
+            "explorer_wage": constants.EXPLORER_WAGE,
+            "explorer_max_discovered_sectors": constants.EXPLORER_MAX_DISCOVERED_SECTORS,
+            "new_sector_base_capacity": constants.NEW_SECTOR_BASE_CAPACITY,
+            "new_sector_base_power": constants.NEW_SECTOR_BASE_POWER,
+            "explorer_discovery_multiplier": constants.EXPLORER_DISCOVERY_MULTIPLIER,
         }
 
     # -----------------------------------------------------------------

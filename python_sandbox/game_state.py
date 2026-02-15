@@ -43,6 +43,21 @@ class GameState:
         self.sector_disabled_until: dict = {}   # sector_id → tick when hub re-enables
         self.catastrophe_log: list = []         # list of {sector_id, tick, type} for chronicle
         self.hostile_matter_pool: float = 0.0   # matter consumed by hostiles from wrecks (Axiom 1)
+        self.hostile_body_mass: float = 0.0     # matter locked in living hostile bodies (Axiom 1)
+
+        # === Colony Level Progression ===
+        self.colony_levels: dict = {}           # sector_id → "frontier"/"outpost"/"colony"/"hub"
+        self.colony_upgrade_progress: dict = {} # sector_id → consecutive qualifying ticks toward upgrade
+        self.colony_downgrade_progress: dict = {} # sector_id → consecutive qualifying ticks toward downgrade
+        self.colony_level_history: list = []    # list of {sector_id, tick, old_level, new_level}
+
+        # === Mortal (non-named) Agents ===
+        self.mortal_agent_counter: int = 0      # running counter for unique mortal agent IDs
+        self.mortal_agent_deaths: list = []     # list of {agent_id, tick, sector_id, cause}
+
+        # === Sector Discovery ===
+        self.discovered_sector_count: int = 0   # how many sectors exist (including initial)
+        self.discovery_log: list = []           # list of {sector_id, tick, discovered_by, from_sector}
 
         # === Layer 4: Chronicle ===
         self.chronicle_event_buffer: list = []

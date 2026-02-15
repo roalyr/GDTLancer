@@ -3,3 +3,4 @@
 ./Project_dump_text_tres.sh
 ./Project_dump_text_tscn.sh
 ./Project_dump_text_gd.sh
+./Project_dump_text_py.sh

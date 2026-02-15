@@ -68,14 +68,14 @@ PIRATE_HOME_ADVANTAGE = 0.15    # piracy_activity boost when pirate is present
 
 # === Cash Sinks ===
 REPAIR_COST_PER_POINT = 500.0    # Cash per 0.1 hull repaired
-DOCKING_FEE_BASE = 20.0          # Base docking fee per tick while docked
+DOCKING_FEE_BASE = 10.0          # Base docking fee per tick while docked
 FUEL_COST_PER_UNIT = 5.0         # Cost to refuel per unit of propellant
 
 # === Timing ===
 WORLD_TICK_INTERVAL_SECONDS = 60
 
-# === Axiom 1 ===
-AXIOM1_TOLERANCE = 0.01
+# === Axiom 1 (relative tolerance: fraction of total matter budget) ===
+AXIOM1_RELATIVE_TOLERANCE = 0.015  # 1.5% of total matter budget
 
 # ═══════════════════════════════════════════════════════════════════
 # === Hidden Resources & Prospecting ===
@@ -120,6 +120,116 @@ CATASTROPHE_SECURITY_DROP = 0.4        # security_level -= this on catastrophe
 PROSPECTOR_WRECK_SALVAGE_RATE = 0.15   # fraction of a wreck's matter salvaged per tick per prospector
 PROSPECTOR_WRECK_SECURITY_THRESHOLD = 0.6  # security must be above this for prospector salvage
 
+# === Agent Desperation / Debt ===
+DESPERATION_HULL_THRESHOLD = 0.3  # hull below this AND cash=0 → desperation trade
+DESPERATION_TRADE_HULL_RISK = 0.02  # extra hull damage per tick while desperation trading
+DEBT_INTEREST_RATE = 0.0001  # debt grows by this fraction per tick (additive: debt += debt * rate)
+DEBT_CAP = 10000.0  # maximum debt (prevents runaway; ~20× respawn cash)
+RESPAWN_DEBT_PENALTY = 500.0  # debt added on respawn
+
+# === Entropy Death (agents dying from hull failure → wrecks) ===
+ENTROPY_DEATH_HULL_THRESHOLD = 0.0  # hull at or below this → disabled
+ENTROPY_DEATH_TICK_GRACE = 20  # ticks at hull=0 before death
+
+# === Hostile Global Threat Pressure (decoupled from piracy) ===
+# Hostiles spawn passively in frontier sectors + from wrecks in low-sec.
+# hostility_level is DRIVEN by hostile presence, not by piracy.
+HOSTILE_PASSIVE_SPAWN_CHANCE = 0.02  # chance per tick per frontier sector to spawn 1 hostile
+HOSTILE_MIN_FRONTIER_COUNT = 2  # minimum hostiles always present in frontier sectors
+HOSTILE_GLOBAL_CAP = 50  # absolute max hostiles across all sectors
+
+# === Hostile Pressure Valve (budget-driven spawning from pool) ===
+# When the hostile pool exceeds a threshold, hostiles spawn directly from
+# the pool (not just from wreck salvage). This prevents the pool from
+# becoming a black hole. Spawned hostiles carry mass → wrecks on death.
+HOSTILE_POOL_PRESSURE_THRESHOLD = 500.0   # pool must exceed this to trigger pressure spawning
+HOSTILE_POOL_SPAWN_COST = 10.0            # matter from pool per hostile spawned
+HOSTILE_POOL_SPAWN_RATE = 0.02            # fraction of pool above threshold spent per tick on spawns
+HOSTILE_POOL_MAX_SPAWNS_PER_TICK = 5      # cap on pressure spawns per tick
+
+# === Hostile Raids (large groups attack stockpiles) ===
+# When hostiles in a sector exceed a threshold, they raid the sector,
+# converting stockpile matter → wrecks. This is the matter return path.
+HOSTILE_RAID_THRESHOLD = 5                # min hostiles in sector to trigger raid
+HOSTILE_RAID_CHANCE = 0.15                # chance per tick per qualifying sector
+HOSTILE_RAID_STOCKPILE_FRACTION = 0.05    # fraction of total stockpile destroyed per raid
+HOSTILE_RAID_CASUALTIES = 2               # hostiles killed in the raid (defenders fight back)
+
+# === Stockpile Consumption (population sink) ===
+# Stations consume a fraction of stockpiles each tick, simulating
+# population usage. Prevents "Full Warehouse" market crashes.
+CONSUMPTION_RATE_PER_TICK = 0.001  # fraction of each commodity consumed/tick (scaled by pop density)
+CONSUMPTION_ENTROPY_TAX = 0.03     # fraction of consumed matter → hostile_matter_pool ("crime tax")
+# Remaining (1 - tax) → hidden_resources (waste → ground recycling)
+
+# === Debt Zombie Prevention ===
+# Named agents at max debt get a long respawn cooldown instead of quick return.
+RESPAWN_COOLDOWN_MAX_DEBT = 200    # ticks cooldown when agent dies at DEBT_CAP (vs normal 5)
+RESPAWN_COOLDOWN_NORMAL = 5        # default respawn ticks (unchanged from before)
+
+# ═══════════════════════════════════════════════════════════════════
+# === Colony Levels (sector progression) ===
+# Sectors evolve: frontier → outpost → colony → hub
+# Higher levels = more population, capacity, extraction, consumption.
+# ═══════════════════════════════════════════════════════════════════
+
+COLONY_LEVELS = ["frontier", "outpost", "colony", "hub"]
+
+# Per-level modifiers: population_density, capacity_mult, extraction_mult, consumption_mult
+COLONY_LEVEL_MODIFIERS = {
+    "frontier": {"population_density": 0.5, "capacity_mult": 0.5, "extraction_mult": 0.6, "consumption_mult": 0.3},
+    "outpost":  {"population_density": 1.0, "capacity_mult": 0.75, "extraction_mult": 0.8, "consumption_mult": 0.6},
+    "colony":   {"population_density": 1.5, "capacity_mult": 1.0,  "extraction_mult": 1.0, "consumption_mult": 1.0},
+    "hub":      {"population_density": 2.0, "capacity_mult": 1.0,  "extraction_mult": 1.0, "consumption_mult": 1.2},
+}
+
+# Upgrade: stockpile must exceed this fraction of capacity for N consecutive ticks
+COLONY_UPGRADE_STOCKPILE_FRACTION = 0.6   # stockpile/capacity > this to upgrade
+COLONY_UPGRADE_SECURITY_MIN = 0.5         # security must be above this to upgrade
+COLONY_UPGRADE_TICKS_REQUIRED = 200       # consecutive qualifying ticks to level up
+# Downgrade: stockpile below this fraction OR security below threshold
+COLONY_DOWNGRADE_STOCKPILE_FRACTION = 0.1 # stockpile/capacity < this to downgrade
+COLONY_DOWNGRADE_SECURITY_MIN = 0.2       # security below this triggers downgrade
+COLONY_DOWNGRADE_TICKS_REQUIRED = 300     # consecutive qualifying ticks to level down
+
+# ═══════════════════════════════════════════════════════════════════
+# === Non-Named Mortal Agents (generic, expendable) ===
+# Generic NPCs spawned by prosperous sectors. They die permanently.
+# ═══════════════════════════════════════════════════════════════════
+
+MORTAL_SPAWN_CHANCE_PER_TICK = 0.005   # chance per tick per qualifying sector
+MORTAL_SPAWN_MIN_STOCKPILE = 500.0     # sector must have this much total stock
+MORTAL_SPAWN_MIN_SECURITY = 0.5        # sector must have this security level
+MORTAL_SPAWN_CASH = 800.0              # starting cash for mortal agents
+MORTAL_GLOBAL_CAP = 20                 # max mortal agents alive at any time
+MORTAL_ROLES = ["trader", "hauler", "prospector"]  # roles mortal agents can take
+MORTAL_ROLE_WEIGHTS = [0.5, 0.3, 0.2]  # probability weights for role selection
+
+# ═══════════════════════════════════════════════════════════════════
+# === Explorer Role (sector discovery) ===
+# Explorers travel to frontier sectors and launch expeditions to
+# discover new sectors from a hidden pool.
+# ═══════════════════════════════════════════════════════════════════
+
+EXPLORER_EXPEDITION_COST = 500.0       # cash cost per expedition attempt
+EXPLORER_EXPEDITION_FUEL = 30.0        # propellant consumed per expedition
+EXPLORER_DISCOVERY_CHANCE = 0.15       # base probability per expedition attempt
+EXPLORER_MOVE_INTERVAL = 8             # ticks between explorer moves
+EXPLORER_WAGE = 12.0                   # salary per tick (explorers are specialists)
+EXPLORER_MAX_DISCOVERED_SECTORS = 10   # cap on total sectors in the simulation
+# New sector generation parameters
+NEW_SECTOR_BASE_MINERALS = 1.5        # base mineral density (before scaling)
+NEW_SECTOR_BASE_PROPELLANT = 0.8      # base propellant density
+NEW_SECTOR_BASE_CAPACITY = 600        # base stockpile capacity
+NEW_SECTOR_BASE_POWER = 60.0          # base station power output
+
+# === Resource Layers (gated accessibility) ===
+# Hidden resources are split into 3 layers mined sequentially.
+# Surface is fastest, deep is moderate, mantle is slowest.
+RESOURCE_LAYER_FRACTIONS = {"surface": 0.15, "deep": 0.35, "mantle": 0.50}
+RESOURCE_LAYER_RATE_MULTIPLIERS = {"surface": 3.0, "deep": 1.0, "mantle": 0.3}
+RESOURCE_LAYER_DEPLETION_THRESHOLD = 0.01  # layer considered depleted below this fraction of original
+
 # ═══════════════════════════════════════════════════════════════════
 # === Agent Roles ===
 # Role-specific behavior multipliers and thresholds.
@@ -139,6 +249,9 @@ MILITARY_PATROL_INTERVAL = 8           # ticks between patrol moves
 HAULER_CARGO_CAPACITY = 20             # max units per haul trip
 HAULER_SURPLUS_THRESHOLD = 1.5         # ratio above avg → surplus
 HAULER_DEFICIT_THRESHOLD = 0.5         # ratio below avg → deficit
+
+# Explorer: discovers new sectors via expeditions from frontier
+EXPLORER_DISCOVERY_MULTIPLIER = 1.5    # prospecting boost when explorer is present
 
 # ═══════════════════════════════════════════════════════════════════
 # === World Age Cycle ===

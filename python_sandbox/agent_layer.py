@@ -12,6 +12,7 @@ import copy
 import random
 from game_state import GameState
 from template_data import AGENTS, CHARACTERS
+import constants
 
 
 class AgentLayer:
@@ -103,33 +104,43 @@ class AgentLayer:
         state.persistent_agents[agent_id] = state.agents[agent_id]
 
     def _initialize_hostile_population(self, state: GameState) -> None:
-        """Seed drone and alien hostile populations from pirate_activity levels.
+        """Seed drone and alien hostile populations from sector type.
 
-        Drones and aliens are hive creatures that roam low-security space.
-        Their population is fed by wreck salvage (see grid_layer wreck processing).
+        Hostiles (drones and aliens) are hive creatures — NOT pirates.
+        They roam all sectors but concentrate in frontier/low-security areas.
+        Their population is fed by wreck salvage and passive frontier spawning.
+        Piracy is a separate system driven by pirate faction agents.
         """
-        total_piracy = 0.0
         sector_counts_drones = {}
         sector_counts_aliens = {}
+        total_drones = 0
+        total_aliens = 0
 
-        for sector_id, dominion in state.grid_dominion.items():
-            piracy = dominion.get("pirate_activity", 0.0)
-            total_piracy += piracy
-            # Drones are more common, aliens are rarer
-            sector_counts_drones[sector_id] = int(piracy * 8.0)
-            sector_counts_aliens[sector_id] = int(piracy * 3.0)
+        for sector_id, topology in state.world_topology.items():
+            sector_type = topology.get("sector_type", "hub")
+            # Frontier sectors start with more hostiles
+            if sector_type == "frontier":
+                drones_here = 3
+                aliens_here = 1
+            else:
+                drones_here = 1
+                aliens_here = 0
 
-        drone_capacity = max(5, int(total_piracy * 15.0))
-        alien_capacity = max(3, int(total_piracy * 8.0))
+            sector_counts_drones[sector_id] = drones_here
+            sector_counts_aliens[sector_id] = aliens_here
+            total_drones += drones_here
+            total_aliens += aliens_here
+
+        global_cap = 50  # will be overridden from config at runtime
 
         state.hostile_population_integral["drones"] = {
-            "current_count": int(total_piracy * 8.0),
-            "carrying_capacity": drone_capacity,
+            "current_count": total_drones,
+            "carrying_capacity": global_cap,
             "sector_counts": sector_counts_drones,
         }
         state.hostile_population_integral["aliens"] = {
-            "current_count": int(total_piracy * 3.0),
-            "carrying_capacity": alien_capacity,
+            "current_count": total_aliens,
+            "carrying_capacity": global_cap,
             "sector_counts": sector_counts_aliens,
         }
 
@@ -165,6 +176,8 @@ class AgentLayer:
 
         self._update_hostile_population(state, config)
         self._check_catastrophe(state, config)
+        self._spawn_mortal_agents(state, config)
+        self._cleanup_dead_mortals(state)
 
     # -----------------------------------------------------------------
     # Step 4a: Goal Evaluation (role-aware)
@@ -176,12 +189,20 @@ class AgentLayer:
 
         cash_threshold = config.get("npc_cash_low_threshold", 2000.0)
         hull_threshold = config.get("npc_hull_repair_threshold", 0.5)
+        desperation_hull = config.get("desperation_hull_threshold", 0.3)
         role = agent.get("agent_role", "trader")
 
         new_goals = []
 
-        # --- Universal survival priorities (all roles) ---
-        if hull < hull_threshold:
+        # --- Desperation check: broke AND broken → risk trade ---
+        if hull < hull_threshold and cash <= 0.0:
+            # Can't repair without cash, can't earn cash while stuck on repair.
+            # Break the deadlock: allow desperation trading at hull risk.
+            new_goals.append({"type": "trade", "priority": 15})
+            agent["goal_archetype"] = "trade"
+
+        # --- Normal survival priorities ---
+        elif hull < hull_threshold:
             new_goals.append({"type": "repair", "priority": 10})
             agent["goal_archetype"] = "repair"
         elif propellant < 10.0:
@@ -194,7 +215,6 @@ class AgentLayer:
                 new_goals.append({"type": "trade", "priority": 5})
                 agent["goal_archetype"] = "trade"
             else:
-                # Traders always trade even when rich
                 new_goals.append({"type": "trade", "priority": 3})
                 agent["goal_archetype"] = "trade"
 
@@ -213,6 +233,10 @@ class AgentLayer:
         elif role == "pirate":
             new_goals.append({"type": "raid", "priority": 5})
             agent["goal_archetype"] = "raid"
+
+        elif role == "explorer":
+            new_goals.append({"type": "explore", "priority": 5})
+            agent["goal_archetype"] = "explore"
 
         else:
             new_goals.append({"type": "idle", "priority": 1})
@@ -245,6 +269,8 @@ class AgentLayer:
             self._action_haul(state, agent_id, agent, config)
         elif goal_type == "raid":
             self._action_pirate(state, agent_id, agent, config)
+        elif goal_type == "explore":
+            self._action_explore(state, agent_id, agent, config)
         # idle: do nothing
 
     def _action_trade(
@@ -736,10 +762,14 @@ class AgentLayer:
         steal_fraction = config.get("pirate_raid_cargo_steal", 0.3)
         home_advantage = config.get("pirate_home_advantage", 0.15)
 
-        # Pirates boost piracy wherever they are
+        # Pirates boost piracy — dampened by local security
+        # In high-security hubs, pirates barely move the needle.
+        # In low-security frontiers, they dominate.
         dominion = state.grid_dominion.get(current_sector, {})
         old_piracy = dominion.get("pirate_activity", 0.0)
-        dominion["pirate_activity"] = min(1.0, old_piracy + home_advantage)
+        security = dominion.get("security_level", 0.5)
+        effective_advantage = home_advantage * (1.0 - security)  # dampened by security
+        dominion["pirate_activity"] = min(1.0, old_piracy + effective_advantage)
 
         # Try to raid another agent in the same sector
         if self._rng.random() < raid_chance:
@@ -838,13 +868,351 @@ class AgentLayer:
         return best_sector
 
     # -----------------------------------------------------------------
+    # Role: Explorer — discover new sectors via expeditions
+    # -----------------------------------------------------------------
+    def _action_explore(
+        self, state: GameState, agent_id: str, agent: dict, config: dict
+    ) -> None:
+        """Explorers travel to frontier sectors and launch discovery expeditions.
+
+        An expedition costs cash and fuel. If successful, a new sector
+        is generated and connected to the current frontier sector.
+        New sectors start as 'frontier' with low resources.
+        NO matter is created — initial resources come from exploration_matter_pool
+        (a portion of the explorer's spent fuel, Axiom 1 safe).
+        """
+        current_sector = agent.get("current_sector_id", "")
+        tick = state.sim_tick_count
+        move_interval = config.get("explorer_move_interval", 8)
+        expedition_cost = config.get("explorer_expedition_cost", 500.0)
+        expedition_fuel = config.get("explorer_expedition_fuel", 30.0)
+        discovery_chance = config.get("explorer_discovery_chance", 0.15)
+        max_sectors = config.get("explorer_max_discovered_sectors", 10)
+        wage = config.get("explorer_wage", 12.0)
+
+        # Explorers earn a wage
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + wage
+
+        # Check if current sector is frontier (exploration only from frontiers)
+        topology = state.world_topology.get(current_sector, {})
+        is_frontier = topology.get("sector_type", "") in ("frontier", "outpost")
+
+        if is_frontier:
+            cash = agent.get("cash_reserves", 0.0)
+            fuel = agent.get("propellant_reserves", 0.0)
+
+            # Can we afford an expedition?
+            if (cash >= expedition_cost and fuel >= expedition_fuel
+                    and state.discovered_sector_count < max_sectors):
+                # Pay expedition cost (cash is just a sink, no matter)
+                agent["cash_reserves"] = cash - expedition_cost
+                # Fuel consumed → hidden_resources in current sector (Axiom 1)
+                agent["propellant_reserves"] = fuel - expedition_fuel
+                # Route spent fuel to hidden resources (matter conservation)
+                hidden = state.world_hidden_resources.get(current_sector, {})
+                hidden["propellant_sources"] = (
+                    hidden.get("propellant_sources", 0.0) + expedition_fuel
+                )
+
+                # Roll for discovery
+                if self._rng.random() < discovery_chance:
+                    new_sector_id = self._discover_new_sector(
+                        state, current_sector, agent_id, config
+                    )
+                    if new_sector_id:
+                        self._log_event(state, agent_id, "sector_discovered",
+                                        current_sector,
+                                        metadata={"new_sector": new_sector_id})
+                else:
+                    self._log_event(state, agent_id, "expedition_failed",
+                                    current_sector)
+        else:
+            # Not at frontier — move toward one
+            if tick % move_interval == 0:
+                target = self._find_frontier_sector(state, agent)
+                if target and target != current_sector:
+                    old_sector = current_sector
+                    self._action_move_toward(state, agent_id, agent, target)
+                    new_sector = agent.get("current_sector_id", "")
+                    if new_sector != old_sector:
+                        self._log_event(state, agent_id, "explore_move", new_sector)
+
+    def _find_frontier_sector(self, state: GameState, agent: dict) -> str:
+        """Find a frontier/outpost sector to explore from."""
+        best = ""
+        best_hidden = -1.0
+        for sid, topology in state.world_topology.items():
+            stype = topology.get("sector_type", "")
+            if stype in ("frontier", "outpost"):
+                hidden = state.world_hidden_resources.get(sid, {})
+                total = hidden.get("mineral_density", 0.0) + hidden.get("propellant_sources", 0.0)
+                if total > best_hidden:
+                    best_hidden = total
+                    best = sid
+        return best
+
+    def _discover_new_sector(
+        self, state: GameState, from_sector: str, agent_id: str, config: dict
+    ) -> str:
+        """Generate a new frontier sector connected to from_sector.
+
+        Resources for the new sector come from the from_sector's hidden pool
+        (Axiom 1: matter is transferred, not created).
+        """
+        # Generate unique sector ID
+        sector_num = state.discovered_sector_count + 1
+        new_sector_id = f"sector_discovered_{sector_num}"
+
+        # Transfer matter from from_sector's hidden resources to new sector
+        # (Axiom 1: no matter created, just moved)
+        source_hidden = state.world_hidden_resources.get(from_sector, {})
+        source_mineral = source_hidden.get("mineral_density", 0.0)
+        source_propellant = source_hidden.get("propellant_sources", 0.0)
+
+        # Take a fraction of the source's hidden resources for the new sector
+        transfer_fraction = 0.05  # 5% of source hidden pool seeds new sector
+        new_mineral = source_mineral * transfer_fraction
+        new_propellant = source_propellant * transfer_fraction
+
+        if new_mineral + new_propellant < 1.0:
+            # Not enough matter to seed a new sector
+            return ""
+
+        # Deduct from source (Axiom 1)
+        source_hidden["mineral_density"] = source_mineral - new_mineral
+        source_hidden["propellant_sources"] = source_propellant - new_propellant
+
+        # Split new sector resources: 10% discovered, 90% hidden
+        disc_mineral = new_mineral * 0.1
+        disc_propellant = new_propellant * 0.1
+        hidden_mineral = new_mineral * 0.9
+        hidden_propellant = new_propellant * 0.9
+
+        base_capacity = config.get("new_sector_base_capacity", 600)
+        base_power = config.get("new_sector_base_power", 60.0)
+
+        # Build topology — connect bidirectionally
+        state.world_topology[new_sector_id] = {
+            "connections": [from_sector],
+            "station_ids": [new_sector_id],
+            "sector_type": "frontier",
+        }
+        # Add reverse connection
+        if from_sector in state.world_topology:
+            from_connections = state.world_topology[from_sector].get("connections", [])
+            if new_sector_id not in from_connections:
+                from_connections.append(new_sector_id)
+
+        # Build world data (Axiom 1: resources come from transferred matter)
+        state.world_resource_potential[new_sector_id] = {
+            "mineral_density": disc_mineral,
+            "energy_potential": 50.0,  # stub, not part of Axiom 1
+            "propellant_sources": disc_propellant,
+        }
+        state.world_hidden_resources[new_sector_id] = {
+            "mineral_density": hidden_mineral,
+            "propellant_sources": hidden_propellant,
+        }
+
+        # Hazards — slightly more dangerous than average
+        radiation = 0.10 + self._rng.uniform(0.0, 0.10)
+        thermal = 250.0 + self._rng.uniform(-30.0, 60.0)
+        gravity = 1.0 + self._rng.uniform(0.0, 0.5)
+
+        state.world_hazards[new_sector_id] = {
+            "radiation_level": radiation,
+            "thermal_background_k": thermal,
+            "gravity_well_penalty": gravity,
+        }
+        state.world_hazards_base[new_sector_id] = copy.deepcopy(
+            state.world_hazards[new_sector_id]
+        )
+
+        # Grid layer data for new sector
+        state.grid_stockpiles[new_sector_id] = {
+            "commodity_stockpiles": {},
+            "stockpile_capacity": base_capacity,
+            "extraction_rate": {},
+        }
+
+        # Faction: independent frontier
+        faction_influence = {}
+        for fid in state.grid_dominion.get(from_sector, {}).get("faction_influence", {}).keys():
+            faction_influence[fid] = 0.1
+        faction_influence["faction_independents"] = 0.5
+
+        state.grid_dominion[new_sector_id] = {
+            "faction_influence": faction_influence,
+            "security_level": 0.2,
+            "pirate_activity": 0.3,
+            "controlling_faction_id": "faction_independents",
+            "hostility_level": 0.3,
+        }
+        state.grid_market[new_sector_id] = {
+            "commodity_price_deltas": {},
+            "population_density": 0.5,
+            "service_cost_modifier": 1.5,
+        }
+        state.grid_power[new_sector_id] = {
+            "station_power_output": base_power,
+            "station_power_draw": 0.0,
+            "power_load_ratio": 0.0,
+        }
+        state.grid_maintenance[new_sector_id] = {
+            "local_entropy_rate": 0.002,
+            "maintenance_cost_modifier": 1.5,
+        }
+        state.grid_resource_availability[new_sector_id] = {
+            "propellant_supply": disc_propellant,
+            "consumables_supply": 0.0,
+            "energy_supply": 0.0,
+        }
+
+        # Colony level = frontier
+        state.colony_levels[new_sector_id] = "frontier"
+        state.colony_upgrade_progress[new_sector_id] = 0
+        state.colony_downgrade_progress[new_sector_id] = 0
+
+        # Hostile population in new sector
+        for htype in ["drones", "aliens"]:
+            pop_data = state.hostile_population_integral.get(htype, {})
+            sector_counts = pop_data.get("sector_counts", {})
+            sector_counts[new_sector_id] = 2 if htype == "drones" else 0
+
+        state.discovered_sector_count = len(state.world_topology)
+
+        # Log discovery
+        state.discovery_log.append({
+            "sector_id": new_sector_id,
+            "tick": state.sim_tick_count,
+            "discovered_by": agent_id,
+            "from_sector": from_sector,
+            "matter_transferred": new_mineral + new_propellant,
+        })
+
+        return new_sector_id
+
+    # -----------------------------------------------------------------
+    # Mortal (non-named) Agent System
+    # -----------------------------------------------------------------
+    def _spawn_mortal_agents(self, state: GameState, config: dict) -> None:
+        """Spawn generic, non-persistent agents in prosperous sectors.
+
+        Mortal agents are expendable — they die permanently.
+        They spawn when a sector has high stockpiles + security.
+        """
+        spawn_chance = config.get("mortal_spawn_chance_per_tick", 0.005)
+        min_stock = config.get("mortal_spawn_min_stockpile", 500.0)
+        min_sec = config.get("mortal_spawn_min_security", 0.5)
+        spawn_cash = config.get("mortal_spawn_cash", 800.0)
+        global_cap = config.get("mortal_global_cap", 20)
+
+        # Count current mortal agents
+        mortal_count = sum(
+            1 for a in state.agents.values()
+            if not a.get("is_persistent", True) and a.get("agent_role", "") != "idle"
+            and not a.get("is_disabled", False)
+        )
+        if mortal_count >= global_cap:
+            return
+
+        for sector_id in state.world_topology:
+            if mortal_count >= global_cap:
+                break
+
+            # Check sector qualifies
+            stockpiles = state.grid_stockpiles.get(sector_id, {})
+            commodities = stockpiles.get("commodity_stockpiles", {})
+            total_stock = sum(float(v) for v in commodities.values())
+            dominion = state.grid_dominion.get(sector_id, {})
+            security = dominion.get("security_level", 0.0)
+
+            if total_stock < min_stock or security < min_sec:
+                continue
+
+            if self._rng.random() >= spawn_chance:
+                continue
+
+            # Spawn a mortal agent
+            state.mortal_agent_counter += 1
+            agent_num = state.mortal_agent_counter
+            agent_id = f"mortal_{agent_num}"
+
+            # Pick role from weighted pool
+            roles = constants.MORTAL_ROLES
+            weights = constants.MORTAL_ROLE_WEIGHTS
+            role = self._rng.choices(roles, weights=weights, k=1)[0]
+
+            char_uid = self._generate_uid()
+            char_name = f"Crew-{agent_num}"
+            state.characters[char_uid] = {
+                "character_name": char_name,
+                "faction_id": "faction_independents",
+                "credits": spawn_cash,
+                "skills": {"piloting": 2, "combat": 1, "trading": 2},
+                "age": self._rng.randint(20, 50),
+                "reputation": 0,
+                "personality_traits": {},
+                "description": f"Generic {role} #{agent_num}",
+            }
+
+            goal = self._derive_initial_goal_from_role(role)
+            state.agents[agent_id] = self._create_agent_state(
+                state, char_uid, sector_id, spawn_cash,
+                is_persistent=False, home_location_id=sector_id,
+                goal_archetype=goal, agent_role=role,
+            )
+            state.inventories[char_uid] = {}
+            mortal_count += 1
+
+            self._log_event(state, agent_id, "mortal_spawn", sector_id,
+                            metadata={"role": role, "name": char_name})
+
+    def _cleanup_dead_mortals(self, state: GameState) -> None:
+        """Permanently remove disabled mortal agents (they don't respawn)."""
+        to_remove = []
+        for agent_id, agent in state.agents.items():
+            if agent_id == "player":
+                continue
+            if agent.get("is_persistent", True):
+                continue
+            if agent.get("agent_role", "") == "idle":
+                continue  # Don't clean up the default player agent
+            if agent.get("is_disabled", False):
+                to_remove.append(agent_id)
+
+        for agent_id in to_remove:
+            agent = state.agents[agent_id]
+            sector_id = agent.get("current_sector_id", "")
+            state.mortal_agent_deaths.append({
+                "agent_id": agent_id,
+                "tick": state.sim_tick_count,
+                "sector_id": sector_id,
+                "cause": "death",
+            })
+            # Clean up inventory (should be empty after wreck creation, but verify)
+            char_uid = agent.get("char_uid", -1)
+            if char_uid in state.inventories:
+                del state.inventories[char_uid]
+            if char_uid in state.characters:
+                del state.characters[char_uid]
+            del state.agents[agent_id]
+
+    # -----------------------------------------------------------------
     # Hostile Management Helpers
     # -----------------------------------------------------------------
     def _kill_hostile_in_sector(
         self, state: GameState, sector_id: str, kill_count: int,
+        create_wreck: bool = True,
     ) -> None:
-        """Remove hostiles from a sector (combat kills). Drones first, then aliens."""
+        """Remove hostiles from a sector (combat kills). Drones first, then aliens.
+
+        When hostiles die, their body mass (pool_spawn_cost per unit) becomes
+        wreck matter, closing the matter cycle:
+           hostile_pool → hostile body → wreck → salvage/hidden_resources
+        """
         remaining = kill_count
+        actually_killed = 0
         for htype in ["drones", "aliens"]:
             if remaining <= 0:
                 break
@@ -857,6 +1225,30 @@ class AgentLayer:
             sector_counts[sector_id] = count_here - killed
             pop_data["current_count"] = max(0, pop_data.get("current_count", 0) - killed)
             remaining -= killed
+            actually_killed += killed
+
+        # Create wreck from hostile body mass (Axiom 1: body_mass → wreck).
+        # Only create wreck from body mass that was actually funded from the pool.
+        # Passively-spawned hostiles (frontier/wreck-salvage) have no body mass.
+        if create_wreck and actually_killed > 0 and state.hostile_body_mass > 0:
+            # Clamp to available body mass (can't create matter from nothing)
+            body_mass_per_unit = constants.HOSTILE_POOL_SPAWN_COST
+            max_body_mass = actually_killed * body_mass_per_unit
+            body_mass = min(max_body_mass, state.hostile_body_mass)
+            state.hostile_body_mass -= body_mass
+            # The wreck now holds the body mass as generic "hull debris"
+            if body_mass > 0.01:
+                wreck_uid = f"hostile_wreck_{state.sim_tick_count}_{sector_id[-3:]}"
+                # If wreck already exists at same key, merge
+                if wreck_uid in state.grid_wrecks:
+                    existing = state.grid_wrecks[wreck_uid]
+                    existing["wreck_integrity"] = existing.get("wreck_integrity", 0) + body_mass
+                else:
+                    state.grid_wrecks[wreck_uid] = {
+                        "sector_id": sector_id,
+                        "wreck_integrity": body_mass,
+                        "wreck_inventory": {},  # Body mass is hull, not cargo
+                    }
 
     def _create_wreck_from_agent(
         self, state: GameState, agent: dict, sector_id: str,
@@ -1004,7 +1396,40 @@ class AgentLayer:
             maintenance = state.grid_maintenance.get(sector_id, {})
             maint_mod = maintenance.get("maintenance_cost_modifier", 1.0)
             fee = docking_fee * maint_mod
-            agent["cash_reserves"] = max(0.0, agent.get("cash_reserves", 0.0) - fee)
+            cash = agent.get("cash_reserves", 0.0)
+            if cash >= fee:
+                agent["cash_reserves"] = cash - fee
+            else:
+                # Can't pay → accumulate debt instead of draining to zero
+                shortfall = fee - cash
+                agent["cash_reserves"] = 0.0
+                agent["debt"] = agent.get("debt", 0.0) + shortfall
+
+        # Debt interest (debt grows passively, capped)
+        debt = agent.get("debt", 0.0)
+        if debt > 0.0:
+            interest_rate = config.get("debt_interest_rate", 0.0001)
+            debt_cap = config.get("debt_cap", 10000.0)
+            agent["debt"] = min(debt * (1.0 + interest_rate), debt_cap)
+
+        # --- Entropy death check ---
+        # Agents at hull=0 for too long become disabled and turn into wrecks.
+        hull = agent.get("hull_integrity", 0.0)
+        if hull <= 0.0:
+            grace = config.get("entropy_death_tick_grace", 20)
+            stalled_since = agent.get("hull_zero_since", 0)
+            if stalled_since == 0:
+                agent["hull_zero_since"] = state.sim_tick_count
+            elif (state.sim_tick_count - stalled_since) >= grace:
+                # Entropy death — agent is destroyed, becomes a wreck
+                agent["is_disabled"] = True
+                agent["disabled_at_tick"] = state.sim_tick_count
+                agent["hull_zero_since"] = 0
+                self._create_wreck_from_agent(state, agent, sector_id)
+                self._log_event(state, agent_id, "disabled", sector_id,
+                                metadata={"cause": "entropy_death"})
+        else:
+            agent["hull_zero_since"] = 0
 
     # -----------------------------------------------------------------
     # Hostile Encounters (piracy → damage)
@@ -1118,9 +1543,19 @@ class AgentLayer:
         disabled_at = agent.get("disabled_at_tick", 0)
         current_tick = state.sim_tick_count
 
-        tick_interval = config.get("world_tick_interval_seconds", 60.0)
-        respawn_timeout = config.get("respawn_timeout_seconds", 300.0)
-        respawn_ticks = int(respawn_timeout / tick_interval) if tick_interval > 0.0 else 5
+        # Dynamic respawn cooldown: agents at max debt wait much longer
+        debt = agent.get("debt", 0.0)
+        debt_cap = config.get("debt_cap", 10000.0)
+        cooldown_normal = config.get("respawn_cooldown_normal", 5)
+        cooldown_max_debt = config.get("respawn_cooldown_max_debt", 200)
+
+        if debt >= debt_cap * 0.9:
+            # Near or at max debt → long cooldown ("bankruptcy recovery")
+            respawn_ticks = cooldown_max_debt
+        else:
+            # Proportional: more debt = longer cooldown
+            debt_ratio = debt / max(debt_cap, 1.0)
+            respawn_ticks = int(cooldown_normal + (cooldown_max_debt - cooldown_normal) * debt_ratio)
 
         if (current_tick - disabled_at) >= respawn_ticks:
             agent["is_disabled"] = False
@@ -1130,6 +1565,10 @@ class AgentLayer:
             agent["propellant_reserves"] = 100.0
             agent["energy_reserves"] = 100.0
             agent["consumables_reserves"] = 100.0
+            agent["hull_zero_since"] = 0
+            # Respawn with minimum operating cash but debt increases
+            respawn_debt = config.get("respawn_debt_penalty", 500.0)
+            agent["debt"] = agent.get("debt", 0.0) + respawn_debt
             agent["cash_reserves"] = max(agent.get("cash_reserves", 0.0), 500.0)
             agent["goal_queue"] = [{"type": "idle", "priority": 1}]
             agent["goal_archetype"] = "idle"
@@ -1170,17 +1609,178 @@ class AgentLayer:
     def _update_hostile_population(self, state: GameState, config: dict) -> None:
         """Update drone/alien populations.
 
+        Hostiles are decoupled from piracy — they are hive creatures, not pirates.
         Population ecology:
-        - Hostiles in low-security sectors consume wreck matter to spawn new units
+        - Passive spawning in frontier sectors (always-on baseline)
+        - PRESSURE VALVE: hostile_pool funds spawns when pool gets large
+        - Hostiles in low-security sectors consume wreck matter to spawn more
+        - RAIDS: large hostile groups attack sector stockpiles → wrecks
         - Military agents kill hostiles directly
-        - Population distributes toward low-security, wreck-rich sectors
+        - Hostile death → wreck (matter returns to circulation)
+        - hostility_level is DRIVEN by hostile presence (updates dominion)
         """
         low_sec_threshold = config.get("hostile_low_security_threshold", 0.4)
         wreck_salvage_rate = config.get("hostile_wreck_salvage_rate", 0.1)
         spawn_cost = config.get("hostile_spawn_cost", 5.0)
         kill_per_military = config.get("hostile_kill_per_military", 0.5)
+        passive_spawn_chance = config.get("hostile_passive_spawn_chance", 0.02)
+        min_frontier_count = config.get("hostile_min_frontier_count", 2)
+        global_cap = config.get("hostile_global_cap", 50)
 
-        # Count military agents per sector
+        # Pressure valve constants
+        pool_pressure_threshold = config.get("hostile_pool_pressure_threshold", 500.0)
+        pool_spawn_cost = config.get("hostile_pool_spawn_cost", 10.0)
+        pool_spawn_rate = config.get("hostile_pool_spawn_rate", 0.02)
+        pool_max_spawns = config.get("hostile_pool_max_spawns_per_tick", 5)
+
+        # Raid constants
+        raid_threshold = config.get("hostile_raid_threshold", 5)
+        raid_chance = config.get("hostile_raid_chance", 0.15)
+        raid_stockpile_frac = config.get("hostile_raid_stockpile_fraction", 0.05)
+        raid_casualties = config.get("hostile_raid_casualties", 2)
+
+        # --- Total hostile count across all types ---
+        total_hostiles = sum(
+            hdata.get("current_count", 0)
+            for hdata in state.hostile_population_integral.values()
+        )
+
+        # --- Passive frontier spawning (always-on, regardless of wrecks) ---
+        for sector_id, topology in state.world_topology.items():
+            sector_type = topology.get("sector_type", "hub")
+            if sector_type != "frontier":
+                continue
+            if total_hostiles >= global_cap:
+                break
+
+            # Ensure minimum hostile presence in frontier sectors
+            hostiles_here = 0
+            for htype in ["drones", "aliens"]:
+                pop_data = state.hostile_population_integral.get(htype, {})
+                hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
+
+            if hostiles_here < min_frontier_count:
+                # Force spawn to reach minimum
+                shortfall = min_frontier_count - hostiles_here
+                pop_data = state.hostile_population_integral.get("drones", {})
+                pop_data["current_count"] = pop_data.get("current_count", 0) + shortfall
+                sector_counts = pop_data.get("sector_counts", {})
+                sector_counts[sector_id] = sector_counts.get(sector_id, 0) + shortfall
+                total_hostiles += shortfall
+
+            # Random passive spawn (space fauna wanders in)
+            elif self._rng.random() < passive_spawn_chance:
+                htype = "drones" if self._rng.random() < 0.7 else "aliens"
+                pop_data = state.hostile_population_integral.get(htype, {})
+                pop_data["current_count"] = pop_data.get("current_count", 0) + 1
+                sector_counts = pop_data.get("sector_counts", {})
+                sector_counts[sector_id] = sector_counts.get(sector_id, 0) + 1
+                total_hostiles += 1
+
+        # ---------------------------------------------------------------
+        # PRESSURE VALVE: spawn hostiles from the pool when it overflows.
+        # This is the critical fix — the pool must drain back into ships
+        # that can die and drop wrecks, closing the matter cycle.
+        # Pool matter → hostile body mass (tracked per-unit).
+        # ---------------------------------------------------------------
+        pool = state.hostile_matter_pool
+        if pool > pool_pressure_threshold and total_hostiles < global_cap:
+            excess = pool - pool_pressure_threshold
+            budget_this_tick = excess * pool_spawn_rate
+            max_from_budget = int(budget_this_tick / pool_spawn_cost) if pool_spawn_cost > 0 else 0
+            num_spawns = min(max_from_budget, pool_max_spawns, global_cap - total_hostiles)
+
+            if num_spawns > 0:
+                cost = num_spawns * pool_spawn_cost
+                state.hostile_matter_pool -= cost
+                state.hostile_body_mass += cost  # Axiom 1: pool → body mass
+
+                # Find target sectors: weight by (1 - security) and stockpile richness
+                sector_scores = {}
+                for sid in state.grid_dominion:
+                    sec = state.grid_dominion[sid].get("security_level", 1.0)
+                    stk = state.grid_stockpiles.get(sid, {})
+                    stock_total = sum(float(v) for v in
+                                      stk.get("commodity_stockpiles", {}).values())
+                    # Prefer low-security, resource-rich sectors
+                    sector_scores[sid] = max(0.01, (1.0 - sec) * (1.0 + stock_total / 500.0))
+                total_score = sum(sector_scores.values())
+
+                # Distribute spawns proportionally
+                sorted_sids = sorted(sector_scores.keys())
+                spawns_left = num_spawns
+                for sid in sorted_sids:
+                    if spawns_left <= 0:
+                        break
+                    share = max(1, int(num_spawns * sector_scores[sid] / total_score))
+                    share = min(share, spawns_left)
+                    htype = "drones" if self._rng.random() < 0.7 else "aliens"
+                    pop_data = state.hostile_population_integral.get(htype, {})
+                    pop_data["current_count"] = pop_data.get("current_count", 0) + share
+                    sc = pop_data.get("sector_counts", {})
+                    sc[sid] = sc.get(sid, 0) + share
+                    total_hostiles += share
+                    spawns_left -= share
+
+        # ---------------------------------------------------------------
+        # HOSTILE RAIDS: large hostile groups attack sector stockpiles.
+        # Stockpile matter → wrecks (matter returns to circulation).
+        # This is the second half of the cycle: hostiles SPEND their
+        # presence by raiding, which creates wrecks for prospectors.
+        # ---------------------------------------------------------------
+        for sector_id in list(state.grid_dominion.keys()):
+            hostiles_here = 0
+            for htype in ["drones", "aliens"]:
+                pop_data = state.hostile_population_integral.get(htype, {})
+                hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
+
+            if hostiles_here < raid_threshold:
+                continue
+            if self._rng.random() > raid_chance:
+                continue
+
+            # Raid! Hostiles attack sector stockpiles
+            stockpiles = state.grid_stockpiles.get(sector_id, {})
+            commodities = stockpiles.get("commodity_stockpiles", {})
+            raid_inventory = {}
+            total_raided = 0.0
+
+            for cid in list(commodities.keys()):
+                qty = commodities[cid]
+                if qty <= 0.0:
+                    continue
+                taken = qty * raid_stockpile_frac
+                commodities[cid] = qty - taken
+                raid_inventory[cid] = taken
+                total_raided += taken
+
+            # Create a wreck from raided matter (Axiom 1: stockpile → wreck)
+            if total_raided > 0.5:
+                wreck_uid = f"raid_wreck_{state.sim_tick_count}_{sector_id[-3:]}"
+                state.grid_wrecks[wreck_uid] = {
+                    "sector_id": sector_id,
+                    "wreck_integrity": min(total_raided * 0.1, 5.0),
+                    "wreck_inventory": raid_inventory,
+                }
+
+                self._log_event(state, "hostile_swarm", "raid", sector_id,
+                                metadata={"matter_raided": round(total_raided, 1),
+                                          "hostiles": hostiles_here})
+
+            # Hostiles take casualties from defenders
+            self._kill_hostile_in_sector(state, sector_id, raid_casualties)
+
+        # --- Update hostility_level in dominion (hostiles DRIVE hostility, not piracy) ---
+        for sector_id in state.grid_dominion:
+            hostiles_here = 0
+            for htype in ["drones", "aliens"]:
+                pop_data = state.hostile_population_integral.get(htype, {})
+                hostiles_here += pop_data.get("sector_counts", {}).get(sector_id, 0)
+            # hostility_level: 0.0 = peaceful, 1.0 = swarming
+            hostility = min(1.0, hostiles_here / 10.0)
+            state.grid_dominion[sector_id]["hostility_level"] = hostility
+
+        # --- Count military agents per sector ---
         military_counts = {}
         for agent_id, agent in state.agents.items():
             if agent.get("is_disabled", False):
@@ -1260,23 +1860,10 @@ class AgentLayer:
                 if inventory[item_id] <= 0.001:
                     del inventory[item_id]
 
-        # Update carrying capacity based on available wrecks in low-sec sectors
-        total_wreck_matter_low_sec = 0.0
-        for wreck_uid, wreck in state.grid_wrecks.items():
-            sector_id = wreck.get("sector_id", "")
-            dominion = state.grid_dominion.get(sector_id, {})
-            security = dominion.get("security_level", 1.0)
-            if security < low_sec_threshold:
-                inventory = wreck.get("wreck_inventory", {})
-                for qty in inventory.values():
-                    total_wreck_matter_low_sec += float(qty)
-                total_wreck_matter_low_sec += 1.0  # hull mass
-
+        # Update carrying capacity based on global cap
         for htype in ["drones", "aliens"]:
             pop_data = state.hostile_population_integral.get(htype, {})
-            base_cap = 5 if htype == "drones" else 3
-            wreck_cap = int(total_wreck_matter_low_sec / spawn_cost)
-            pop_data["carrying_capacity"] = max(base_cap, wreck_cap)
+            pop_data["carrying_capacity"] = global_cap
 
         # Redistribute hostiles toward low-security sectors with wrecks
         for htype in ["drones", "aliens"]:
@@ -1286,21 +1873,23 @@ class AgentLayer:
                 pop_data["sector_counts"] = {}
                 continue
 
-            # Weight sectors by (1 - security) * wreck_presence
+            # Weight sectors by (1 - security) * (wreck_presence + frontier_bonus)
             sector_weights = {}
             total_weight = 0.0
             for sector_id in state.grid_dominion:
                 dominion = state.grid_dominion[sector_id]
                 security = dominion.get("security_level", 1.0)
-                piracy = dominion.get("pirate_activity", 0.0)
-                # Wreck count in this sector
+                topology = state.world_topology.get(sector_id, {})
+                is_frontier = topology.get("sector_type", "") == "frontier"
                 wreck_count = sum(
                     1 for w in state.grid_wrecks.values()
                     if w.get("sector_id", "") == sector_id
                 )
-                weight = (1.0 - security) * (1.0 + wreck_count) + piracy * 0.5
-                sector_weights[sector_id] = max(0.0, weight)
-                total_weight += max(0.0, weight)
+                # Frontier bonus + wreck attraction, NOT piracy-driven
+                frontier_bonus = 2.0 if is_frontier else 0.0
+                weight = (1.0 - security) * (1.0 + wreck_count + frontier_bonus)
+                sector_weights[sector_id] = max(0.01, weight)  # min weight so all sectors accessible
+                total_weight += sector_weights[sector_id]
 
             sector_counts = {}
             if total_weight > 0.0:
@@ -1433,6 +2022,7 @@ class AgentLayer:
             "knowledge_timestamps": self._create_knowledge_timestamps(state),
             "goal_queue": [{"type": goal_archetype, "priority": 1}],
             "goal_archetype": goal_archetype,
+            "debt": 0.0,
             "event_memory": [],
             "faction_standings": {},
             "character_standings": {},
@@ -1460,6 +2050,7 @@ class AgentLayer:
             "military": "patrol",
             "hauler": "haul",
             "pirate": "raid",
+            "explorer": "explore",
             "idle": "idle",
         }
         return role_to_goal.get(role, "idle")

@@ -247,19 +247,9 @@
 │   ├── grid_layer.py
 │   ├── __init__.py
 │   ├── main.py
-│   ├── __pycache__
-│   │   ├── agent_layer.cpython-311.pyc
-│   │   ├── bridge_systems.cpython-311.pyc
-│   │   ├── ca_rules.cpython-311.pyc
-│   │   ├── chronicle_layer.cpython-311.pyc
-│   │   ├── constants.cpython-311.pyc
-│   │   ├── game_state.cpython-311.pyc
-│   │   ├── grid_layer.cpython-311.pyc
-│   │   ├── simulation_engine.cpython-311.pyc
-│   │   ├── template_data.cpython-311.pyc
-│   │   └── world_layer.cpython-311.pyc
 │   ├── simulation_engine.py
 │   ├── template_data.py
+│   ├── test_ca_rules.py
 │   └── world_layer.py
 ├── scenes
 │   ├── levels
@@ -421,6 +411,6 @@
     └── data
         └── test_action.tres
 
-90 directories, 332 files
+89 directories, 323 files
 
-90 directories, 332 files
+89 directories, 323 files

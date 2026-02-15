@@ -486,6 +486,9 @@ class TestProspectingStep(unittest.TestCase):
             "prospecting_security_factor": 1.0,
             "prospecting_hazard_penalty": 0.5,
             "prospecting_randomness": 0.3,
+            "resource_layer_fractions": {"surface": 0.15, "deep": 0.35, "mantle": 0.50},
+            "resource_layer_rate_multipliers": {"surface": 3.0, "deep": 1.0, "mantle": 0.3},
+            "resource_layer_depletion_threshold": 0.01,
         }
         cfg.update(overrides)
         return cfg

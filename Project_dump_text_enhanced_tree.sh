@@ -6,7 +6,7 @@ TARGET_PATH="."                  # Default directory to run tree on
 OUTPUT_FILE="PROJECT_DUMP_TEXT_ENHANCED_TREE.md"                   # Default: print to stdout
 
 # --- Arrays for User Exclusions ---
-USER_EXCLUDE_DIRS=(".import" "addons")
+USER_EXCLUDE_DIRS=(".import" "addons" "__pycache__")
 USER_EXCLUDE_EXTS=(".sh" ".md" ".import" ".json" ".ico" ".gitignore" ".txt")
 
 # --- Function Definitions ---
