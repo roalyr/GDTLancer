@@ -371,8 +371,8 @@ def hazard_drift_step(
     thermal_amp = config.get("hazard_thermal_amplitude", 15.0)
 
     # Phase offset per sector (spread evenly across cycle)
-    num_sectors = 4  # safe default
-    phase_offset = (2.0 * math.pi * sector_index) / num_sectors
+    num_sectors = config.get("num_sectors", 5)
+    phase_offset = (2.0 * math.pi * sector_index) / max(num_sectors, 1)
     theta = (2.0 * math.pi * tick / max(period, 1)) + phase_offset
 
     sin_val = math.sin(theta)

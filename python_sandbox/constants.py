@@ -91,6 +91,26 @@ HAZARD_RADIATION_AMPLITUDE = 0.04   # max ± shift to radiation_level
 HAZARD_THERMAL_AMPLITUDE = 15.0     # max ± shift to thermal_background_k (Kelvin)
 
 # ═══════════════════════════════════════════════════════════════════
+# === Agent Roles ===
+# Role-specific behavior multipliers and thresholds.
+# Roles: trader, prospector, military, hauler, idle
+# ═══════════════════════════════════════════════════════════════════
+
+# Prospector: boosts local prospecting discovery when present in a sector
+PROSPECTOR_DISCOVERY_MULTIPLIER = 3.0   # prospecting_base_rate × this when ≥1 prospector present
+PROSPECTOR_MOVE_INTERVAL = 5            # ticks between sector moves (exploration pace)
+
+# Military: boosts local security, suppresses piracy
+MILITARY_SECURITY_BOOST = 0.02          # security_level += this per military agent per tick
+MILITARY_PIRACY_SUPPRESS = 0.01        # pirate_activity -= this per military agent per tick
+MILITARY_PATROL_INTERVAL = 8           # ticks between patrol moves
+
+# Hauler: transfers goods from surplus to deficit sectors
+HAULER_CARGO_CAPACITY = 20             # max units per haul trip
+HAULER_SURPLUS_THRESHOLD = 1.5         # ratio above avg → surplus
+HAULER_DEFICIT_THRESHOLD = 0.5         # ratio below avg → deficit
+
+# ═══════════════════════════════════════════════════════════════════
 # === World Age Cycle ===
 # Inspired by GROWTH → CHAOS → RENEWAL oscillation pattern.
 # Each age modulates CA parameters to prevent the system from settling.

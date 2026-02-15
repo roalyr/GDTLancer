@@ -63,6 +63,9 @@ class SimulationEngine:
         self.state.world_age_cycle_count = 0
         self._apply_age_config()  # Apply initial age overrides
 
+        # Dynamic sector count for hazard phase calculation
+        self._tick_config["num_sectors"] = len(self.state.world_topology)
+
         # Recalculate total matter for definitive Axiom 1 checksum
         self.world_layer.recalculate_total_matter(self.state)
 
@@ -299,6 +302,15 @@ class SimulationEngine:
             "hazard_drift_period": constants.HAZARD_DRIFT_PERIOD,
             "hazard_radiation_amplitude": constants.HAZARD_RADIATION_AMPLITUDE,
             "hazard_thermal_amplitude": constants.HAZARD_THERMAL_AMPLITUDE,
+            # Roles
+            "prospector_discovery_multiplier": constants.PROSPECTOR_DISCOVERY_MULTIPLIER,
+            "prospector_move_interval": constants.PROSPECTOR_MOVE_INTERVAL,
+            "military_security_boost": constants.MILITARY_SECURITY_BOOST,
+            "military_piracy_suppress": constants.MILITARY_PIRACY_SUPPRESS,
+            "military_patrol_interval": constants.MILITARY_PATROL_INTERVAL,
+            "hauler_cargo_capacity": constants.HAULER_CARGO_CAPACITY,
+            "hauler_surplus_threshold": constants.HAULER_SURPLUS_THRESHOLD,
+            "hauler_deficit_threshold": constants.HAULER_DEFICIT_THRESHOLD,
         }
 
     # -----------------------------------------------------------------

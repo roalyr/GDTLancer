@@ -62,6 +62,15 @@ class GridLayer:
         # Sorted sector list for stable sector_index in hazard drift
         sorted_sectors = sorted(state.world_topology.keys())
 
+        # Count prospectors per sector for discovery boost
+        prospector_counts = {}
+        for agent_id, agent in state.agents.items():
+            if agent.get("is_disabled", False):
+                continue
+            if agent.get("agent_role", "") == "prospector":
+                sid = agent.get("current_sector_id", "")
+                prospector_counts[sid] = prospector_counts.get(sid, 0) + 1
+
         # --- Process each sector ---
         for sector_id in state.world_topology:
             topology = state.world_topology[sector_id]
@@ -147,11 +156,20 @@ class GridLayer:
             current_dominion = buf_dominion[sector_id]
             rng_value = tick_rng.random()
 
+            # Prospector presence boosts discovery rate
+            n_prospectors = prospector_counts.get(sector_id, 0)
+            prospect_config = dict(config)
+            if n_prospectors > 0:
+                boost = config.get("prospector_discovery_multiplier", 3.0)
+                prospect_config["prospecting_base_rate"] = (
+                    config.get("prospecting_base_rate", 0.002) * boost * n_prospectors
+                )
+
             prospect_result = ca_rules.prospecting_step(
                 sector_id, current_hidden,
                 buf_resource_potential[sector_id],
                 current_market, current_dominion,
-                hazards, config, rng_value,
+                hazards, prospect_config, rng_value,
             )
             buf_hidden_resources[sector_id] = prospect_result["new_hidden"]
             buf_resource_potential[sector_id] = prospect_result["new_potential"]
@@ -207,14 +225,32 @@ class GridLayer:
                         diffusion_deltas[conn_id].get(commodity_id, 0.0) + flow
                     )
 
-        # Apply diffusion deltas
+        # Apply diffusion deltas (clamp flow to available stock for Axiom 1)
         for sector_id, deltas in diffusion_deltas.items():
             if not deltas:
                 continue
             commodities = buf_stockpiles[sector_id].get("commodity_stockpiles", {})
             for commodity_id, delta_val in deltas.items():
-                new_val = commodities.get(commodity_id, 0.0) + delta_val
-                commodities[commodity_id] = max(0.0, new_val)
+                current = commodities.get(commodity_id, 0.0)
+                new_val = current + delta_val
+                if new_val < 0.0:
+                    # Clamp to zero and compensate: reduce inflow at receivers
+                    # to conserve matter exactly.
+                    overflow = -new_val
+                    commodities[commodity_id] = 0.0
+                    # Redistribute overflow back to connected sectors that received
+                    connections = state.world_topology.get(sector_id, {}).get("connections", [])
+                    receivers = [c for c in connections if c in diffusion_deltas
+                                 and diffusion_deltas[c].get(commodity_id, 0.0) > 0]
+                    if receivers:
+                        per_recv = overflow / len(receivers)
+                        for recv_id in receivers:
+                            recv_commodities = buf_stockpiles[recv_id].get("commodity_stockpiles", {})
+                            recv_commodities[commodity_id] = max(
+                                0.0, recv_commodities.get(commodity_id, 0.0) - per_recv
+                            )
+                else:
+                    commodities[commodity_id] = new_val
 
         # 2f. Wreck & Debris
         self._process_wrecks(state, config, buf_resource_potential)

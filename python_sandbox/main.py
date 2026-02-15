@@ -34,6 +34,7 @@ def _quiet_print(*a, **kw):
     prefixes = (
         "WorldLayer:", "GridLayer:", "AgentLayer:",
         "SimulationEngine:", "BridgeSystems:", "ChronicleLayer:",
+        "AXIOM 1",
     )
     if any(msg.startswith(p) for p in prefixes):
         return
@@ -193,9 +194,10 @@ def generate_report(engine, ticks_run, sample_data, age_transitions):
         hull = agent.get("hull_integrity", 0.0)
         cash = agent.get("cash_reserves", 0.0)
         goal = agent.get("goal_archetype", "?")
+        role = agent.get("agent_role", "?")
         disabled = agent.get("is_disabled", False)
         status = "DISABLED" if disabled else f"hull={hull:.2f}"
-        out.append(f"  {name}: sector={sector} {status} cash={cash:.0f} goal={goal}")
+        out.append(f"  {name}: role={role} sector={sector} {status} cash={cash:.0f} goal={goal}")
     out.append("")
 
     # -- Hostile population --
