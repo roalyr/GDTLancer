@@ -4,8 +4,8 @@
 # PROJECT: GDTLancer
 # MODULE: constants.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
-# LOG_REF: 2026-02-22 00:10:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 1 TASK_1
+# LOG_REF: 2026-02-22 01:00:00
 #
 
 """Qualitative simulation constants (Phase 1 gut of numeric model).
@@ -167,10 +167,18 @@ RUMOR_BUFFER_CAP = 200              # max rumours kept in rolling buffer
 RESPAWN_COOLDOWN_TICKS = 1          # ticks a persistent NPC waits before respawning
 RESPAWN_COOLDOWN_MAX_DEBT = 25      # max accumulated respawn debt ticks
 MAX_SECTOR_COUNT = 20               # world graph won't grow beyond this many sectors
-NEW_SECTOR_MAX_CONNECTIONS = 3      # max connections a newly discovered sector starts with
-NEW_SECTOR_EXTRA_CONNECTION_CHANCE = 0.4  # per-candidate chance to form an extra link
 EXPLORATION_COOLDOWN_TICKS = 5      # ticks an explorer must wait between discoveries
 EXPLORATION_SUCCESS_CHANCE = 0.3    # probability each attempt actually finds something
+
+# ---------------------------------------------------------------------------
+# Topology
+# ---------------------------------------------------------------------------
+# Discovery now builds filament/web structure with hard per-sector degree caps,
+# mostly-single-link expansion, and occasional loop-forming links.
+MAX_CONNECTIONS_PER_SECTOR = 4      # hard cap on total connections per sector
+EXTRA_CONNECTION_1_CHANCE = 0.20    # nearby branch link chance (after primary)
+EXTRA_CONNECTION_2_CHANCE = 0.05    # distant loop link chance (requires first extra)
+LOOP_MIN_HOPS = 3                   # minimum graph distance for loop candidate
 
 # ---------------------------------------------------------------------------
 # Catastrophe
@@ -585,8 +593,8 @@ def _unique(values: list) -> list:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
-# LOG_REF: 2026-02-22 00:10:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 2 TASK_3
+# LOG_REF: 2026-02-22 00:55:42
 #
 
 """Qualitative agent layer using affinity-driven tag transitions."""
@@ -892,14 +900,35 @@ class AgentLayer:
         # --- Generate a deterministic name ---
         new_name = self._generate_sector_name(state)
 
-        # --- Determine connections (always link to source) ---
-        connections = [sector_id]
-        source_neighbors = state.world_topology.get(sector_id, {}).get("connections", [])
-        for neighbor_id in source_neighbors:
-            if len(connections) >= constants.NEW_SECTOR_MAX_CONNECTIONS:
-                break
-            if self._rng.random() < constants.NEW_SECTOR_EXTRA_CONNECTION_CHANCE:
-                connections.append(neighbor_id)
+        # --- Determine connections (filament topology: cap + sparse branching) ---
+        source_id = sector_id
+        if self._graph_degree(state, source_id) >= constants.MAX_CONNECTIONS_PER_SECTOR:
+            fallback_candidates = []
+            for neighbor_id in state.world_topology.get(source_id, {}).get("connections", []):
+                if self._graph_degree(state, neighbor_id) < constants.MAX_CONNECTIONS_PER_SECTOR:
+                    fallback_candidates.append(neighbor_id)
+
+            if not fallback_candidates:
+                self._log_event(state, agent_id, "expedition_failed", sector_id, {"reason": "region_saturated"})
+                return
+
+            source_id = sorted(fallback_candidates, key=lambda sid: (self._graph_degree(state, sid), sid))[0]
+
+        connections = [source_id]
+
+        extra_one_added = False
+        if self._rng.random() < constants.EXTRA_CONNECTION_1_CHANCE:
+            nearby = self._nearby_candidates(state, source_id, set(connections))
+            if nearby:
+                extra_one = self._rng.choice(sorted(nearby))
+                if extra_one not in connections:
+                    connections.append(extra_one)
+                    extra_one_added = True
+
+        if extra_one_added and self._rng.random() < constants.EXTRA_CONNECTION_2_CHANCE:
+            loop_candidate = self._distant_loop_candidate(state, source_id, set(connections))
+            if loop_candidate is not None and loop_candidate not in connections:
+                connections.append(loop_candidate)
 
         # --- Pick initial tags (frontier bias: harsh, poor, contested) ---
         sec_roll = self._rng.random()
@@ -988,6 +1017,62 @@ class AgentLayer:
         prefix = rng.choice(self._FRONTIER_PREFIXES)
         suffix = rng.choice(self._FRONTIER_SUFFIXES)
         return f"{prefix} {suffix}"
+
+    def _graph_degree(self, state, sector_id: str) -> int:
+        """Return connection count for a sector in the topology graph."""
+        return len(state.world_topology.get(sector_id, {}).get("connections", []))
+
+    def _sectors_below_cap(self, state) -> list[str]:
+        """Return all sectors whose degree is below the hard connection cap."""
+        sectors = []
+        for sid in state.world_topology.keys():
+            if self._graph_degree(state, sid) < constants.MAX_CONNECTIONS_PER_SECTOR:
+                sectors.append(sid)
+        return sectors
+
+    def _nearby_candidates(self, state, source_id: str, exclude: set) -> list[str]:
+        """Return neighbors of source that can accept more links and are not excluded."""
+        candidates = []
+        neighbors = state.world_topology.get(source_id, {}).get("connections", [])
+        for sid in neighbors:
+            if sid in exclude:
+                continue
+            if self._graph_degree(state, sid) >= constants.MAX_CONNECTIONS_PER_SECTOR:
+                continue
+            candidates.append(sid)
+        return candidates
+
+    def _distant_loop_candidate(self, state, source_id: str, exclude: set):
+        """Pick a deterministic distant loop target at >= LOOP_MIN_HOPS from source."""
+        if source_id not in state.world_topology:
+            return None
+
+        queue = [(source_id, 0)]
+        visited = {source_id}
+        distant = []
+
+        while queue:
+            current_id, depth = queue.pop(0)
+            if (
+                depth >= constants.LOOP_MIN_HOPS
+                and current_id not in exclude
+                and self._graph_degree(state, current_id) < constants.MAX_CONNECTIONS_PER_SECTOR
+            ):
+                distant.append(current_id)
+
+            for neighbor_id in state.world_topology.get(current_id, {}).get("connections", []):
+                if neighbor_id in visited:
+                    continue
+                visited.add(neighbor_id)
+                queue.append((neighbor_id, depth + 1))
+
+        if not distant:
+            return None
+
+        rng = random.Random(
+            f"{state.world_seed}:loop:{source_id}:{state.discovered_sector_count}:{state.sim_tick_count}"
+        )
+        return rng.choice(sorted(distant))
 
     def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str, can_attack: bool):
         best_id = None
@@ -2095,11 +2180,22 @@ class WorldLayer:
 # -------------------------------------------------------------------------
 # Locations
 # -------------------------------------------------------------------------
+# STARTING TOPOLOGY (5 sectors, 5 edges, avg degree = 2.0)
+#
+#   beta ---- alpha
+#     \       /
+#      delta ---- gamma ---- epsilon
+#
+# Core triangle: alpha(colony), beta(colony), delta(colony)
+# Frontier tail:  delta -> gamma(frontier) -> epsilon(outpost)
+# All connections are bidirectional.
+# Degrees: alpha=2, beta=2, gamma=2, delta=3, epsilon=1
+# -------------------------------------------------------------------------
 LOCATIONS = {
     "station_alpha": {
         "location_name": "Station Alpha - Mining Hub",
         "location_type": "station",
-        "connections": ["station_beta", "station_gamma", "station_delta"],
+        "connections": ["station_beta", "station_delta"],
         "sector_type": "colony",
         "available_services": ["trade", "contracts", "repair"],
         "controlling_faction_id": "faction_miners",
@@ -2131,7 +2227,7 @@ LOCATIONS = {
     "station_gamma": {
         "location_name": "Freeport Gamma",
         "location_type": "station",
-        "connections": ["station_alpha", "station_delta"],
+        "connections": ["station_delta", "station_epsilon"],
         "sector_type": "frontier",
         "available_services": ["trade", "contracts", "black_market"],
         "controlling_faction_id": "faction_independents",
@@ -2164,7 +2260,7 @@ LOCATIONS = {
     "station_epsilon": {
         "location_name": "Epsilon Refinery Complex",
         "location_type": "station",
-        "connections": ["station_alpha", "station_beta", "station_gamma"],
+        "connections": ["station_gamma"],
         "sector_type": "outpost",
         "available_services": ["trade", "repair", "contracts"],
         "controlling_faction_id": "faction_miners",
@@ -2518,8 +2614,8 @@ for phase in ["PROSPERITY", "DISRUPTION", "RECOVERY"]:
 # PROJECT: GDTLancer
 # MODULE: main.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_12)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 3 TASK_4
+# LOG_REF: 2026-02-22 00:57:18
 #
 
 """Qualitative simulation CLI with compact tag dashboard output."""
@@ -2986,6 +3082,23 @@ def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
         conn_names = [_loc(c, state) for c in conns]
         lines.append(f"    {_loc(sid, state)} <-> {', '.join(conn_names) if conn_names else '(isolated)'}")
 
+    degree_map = {
+        sid: len(state.world_topology.get(sid, {}).get("connections", []))
+        for sid in state.sector_tags.keys()
+    }
+    degree_values = list(degree_map.values())
+    max_degree = max(degree_values) if degree_values else 0
+    avg_degree = (sum(degree_values) / float(len(degree_values))) if degree_values else 0.0
+    bottleneck_count = sum(1 for degree in degree_values if degree <= 2)
+    d1 = sum(1 for degree in degree_values if degree == 1)
+    d2 = sum(1 for degree in degree_values if degree == 2)
+    d3 = sum(1 for degree in degree_values if degree == 3)
+    d4 = sum(1 for degree in degree_values if degree == 4)
+    lines.append(
+        f"  Topology: max_degree={max_degree} avg={avg_degree:.1f} bottlenecks={bottleneck_count} "
+        f"distribution=[d1:{d1}, d2:{d2}, d3:{d3}, d4:{d4}]"
+    )
+
     # Final agent roster
     lines.append("")
     lines.append("  Active pilots:")
@@ -3345,8 +3458,8 @@ if __name__ == "__main__":
 # PROJECT: GDTLancer
 # MODULE: test_affinity.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.4, §6.3 + TACTICAL_TODO.md PHASE 3 TASK_7
-# LOG_REF: 2026-02-22 00:20:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 3 TASK_5
+# LOG_REF: 2026-02-22 00:58:31
 #
 
 """Unit tests for qualitative affinity and tag-transition CA rules.
@@ -3617,6 +3730,199 @@ class TestPopulationEquilibrium(unittest.TestCase):
         self.assertEqual(survivor["condition_tag"], "DAMAGED")
         self.assertEqual(survivor["wealth_tag"], "BROKE")
         self.assertEqual(survivor["cargo_tag"], "EMPTY")
+
+
+class TestTopologyExploration(unittest.TestCase):
+    def _build_min_state(self):
+        state = GameState()
+        state.world_seed = "topology-seed"
+        state.sim_tick_count = 100
+        state.world_topology = {
+            "source": {"connections": ["n1"], "sector_type": "frontier"},
+            "n1": {"connections": ["source"], "sector_type": "frontier"},
+        }
+        state.sector_tags = {
+            "source": ["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+            "n1": ["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+        }
+        state.world_hazards = {"source": {"environment": "HARSH"}, "n1": {"environment": "HARSH"}}
+        state.grid_dominion = {
+            "source": {"controlling_faction_id": "", "security_tag": "CONTESTED"},
+            "n1": {"controlling_faction_id": "", "security_tag": "CONTESTED"},
+        }
+        state.colony_levels = {"source": "frontier", "n1": "frontier"}
+        state.colony_upgrade_progress = {"source": 0, "n1": 0}
+        state.colony_downgrade_progress = {"source": 0, "n1": 0}
+        state.security_upgrade_progress = {"source": 0, "n1": 0}
+        state.security_downgrade_progress = {"source": 0, "n1": 0}
+        state.security_change_threshold = {"source": 3, "n1": 3}
+        state.economy_upgrade_progress = {
+            "source": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+            "n1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+        }
+        state.economy_downgrade_progress = {
+            "source": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+            "n1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+        }
+        state.economy_change_threshold = {
+            "source": {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3},
+            "n1": {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3},
+        }
+        state.hostile_infestation_progress = {"source": 0, "n1": 0}
+        state.discovery_log = []
+        state.discovered_sector_count = 0
+        state.sector_names = {}
+        return state
+
+    def _distances(self, topology: dict, source: str) -> dict:
+        dist = {source: 0}
+        queue = [source]
+        while queue:
+            current = queue.pop(0)
+            for nxt in topology.get(current, {}).get("connections", []):
+                if nxt in dist:
+                    continue
+                dist[nxt] = dist[current] + 1
+                queue.append(nxt)
+        return dist
+
+    def test_max_connections_per_sector_respected(self):
+        layer = AgentLayer()
+        layer._rng.seed(7)
+        state = self._build_min_state()
+        agent = {"wealth_tag": "COMFORTABLE", "last_discovery_tick": -999}
+
+        with patch.object(constants, "MAX_SECTOR_COUNT", 60), \
+             patch.object(constants, "EXPLORATION_COOLDOWN_TICKS", 0), \
+             patch.object(constants, "EXPLORATION_SUCCESS_CHANCE", 1.0):
+            for _ in range(50):
+                state.sim_tick_count += 1
+                layer._try_exploration(state, "explorer_1", agent, "source")
+
+        for sid, meta in state.world_topology.items():
+            self.assertLessEqual(
+                len(meta.get("connections", [])),
+                constants.MAX_CONNECTIONS_PER_SECTOR,
+                msg=f"sector {sid} exceeded connection cap",
+            )
+
+    def test_new_sector_default_single_connection(self):
+        class _MockRng:
+            def __init__(self):
+                self._calls = 0
+
+            def random(self):
+                self._calls += 1
+                return 0.0 if self._calls == 1 else 1.0
+
+            def choice(self, seq):
+                return seq[0]
+
+        layer = AgentLayer()
+        layer._rng = _MockRng()
+        state = self._build_min_state()
+        agent = {"wealth_tag": "COMFORTABLE", "last_discovery_tick": -999}
+
+        with patch.object(constants, "EXPLORATION_COOLDOWN_TICKS", 0), \
+             patch.object(constants, "EXPLORATION_SUCCESS_CHANCE", 1.0):
+            layer._try_exploration(state, "explorer_1", agent, "source")
+
+        new_id = "discovered_1"
+        self.assertIn(new_id, state.world_topology)
+        self.assertEqual(len(state.world_topology[new_id]["connections"]), 1)
+
+    def test_saturated_source_falls_back_to_neighbor(self):
+        layer = AgentLayer()
+        layer._rng.seed(1)
+        state = self._build_min_state()
+
+        state.world_topology = {
+            "source": {"connections": ["n1", "n2", "n3", "n4"], "sector_type": "frontier"},
+            "n1": {"connections": ["source"], "sector_type": "frontier"},
+            "n2": {"connections": ["source"], "sector_type": "frontier"},
+            "n3": {"connections": ["source"], "sector_type": "frontier"},
+            "n4": {"connections": ["source"], "sector_type": "frontier"},
+        }
+        for sid in ("n2", "n3", "n4"):
+            state.sector_tags[sid] = ["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+            state.world_hazards[sid] = {"environment": "HARSH"}
+            state.grid_dominion[sid] = {"controlling_faction_id": "", "security_tag": "CONTESTED"}
+            state.colony_levels[sid] = "frontier"
+            state.colony_upgrade_progress[sid] = 0
+            state.colony_downgrade_progress[sid] = 0
+            state.security_upgrade_progress[sid] = 0
+            state.security_downgrade_progress[sid] = 0
+            state.security_change_threshold[sid] = 3
+            state.economy_upgrade_progress[sid] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
+            state.economy_downgrade_progress[sid] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
+            state.economy_change_threshold[sid] = {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3}
+            state.hostile_infestation_progress[sid] = 0
+
+        agent = {"wealth_tag": "COMFORTABLE", "last_discovery_tick": -999}
+        with patch.object(constants, "EXPLORATION_COOLDOWN_TICKS", 0), \
+             patch.object(constants, "EXPLORATION_SUCCESS_CHANCE", 1.0), \
+             patch.object(constants, "EXTRA_CONNECTION_1_CHANCE", 0.0):
+            layer._try_exploration(state, "explorer_1", agent, "source")
+
+        new_id = "discovered_1"
+        self.assertIn(new_id, state.world_topology)
+        new_connections = state.world_topology[new_id]["connections"]
+        self.assertNotIn("source", new_connections)
+        self.assertIn("n1", new_connections)
+
+    def test_exploration_fails_when_region_fully_saturated(self):
+        layer = AgentLayer()
+        layer._rng.seed(2)
+        state = self._build_min_state()
+
+        nodes = ["source", "n1", "n2", "n3", "n4"]
+        state.world_topology = {
+            node: {"connections": [n for n in nodes if n != node], "sector_type": "frontier"}
+            for node in nodes
+        }
+        for sid in nodes:
+            state.sector_tags[sid] = ["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+            state.world_hazards[sid] = {"environment": "HARSH"}
+            state.grid_dominion[sid] = {"controlling_faction_id": "", "security_tag": "CONTESTED"}
+            state.colony_levels[sid] = "frontier"
+            state.colony_upgrade_progress[sid] = 0
+            state.colony_downgrade_progress[sid] = 0
+            state.security_upgrade_progress[sid] = 0
+            state.security_downgrade_progress[sid] = 0
+            state.security_change_threshold[sid] = 3
+            state.economy_upgrade_progress[sid] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
+            state.economy_downgrade_progress[sid] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
+            state.economy_change_threshold[sid] = {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3}
+            state.hostile_infestation_progress[sid] = 0
+
+        original_count = len(state.world_topology)
+        agent = {"wealth_tag": "COMFORTABLE", "last_discovery_tick": -999}
+        with patch.object(constants, "EXPLORATION_COOLDOWN_TICKS", 0), \
+             patch.object(constants, "EXPLORATION_SUCCESS_CHANCE", 1.0):
+            layer._try_exploration(state, "explorer_1", agent, "source")
+
+        self.assertEqual(len(state.world_topology), original_count)
+        self.assertNotIn("discovered_1", state.world_topology)
+
+    def test_loop_candidate_respects_min_hops(self):
+        layer = AgentLayer()
+        state = self._build_min_state()
+        state.world_seed = "loop-seed"
+        state.discovered_sector_count = 3
+        state.sim_tick_count = 40
+        state.world_topology = {
+            "s0": {"connections": ["s1"], "sector_type": "frontier"},
+            "s1": {"connections": ["s0", "s2"], "sector_type": "frontier"},
+            "s2": {"connections": ["s1", "s3"], "sector_type": "frontier"},
+            "s3": {"connections": ["s2", "s4"], "sector_type": "frontier"},
+            "s4": {"connections": ["s3"], "sector_type": "frontier"},
+        }
+
+        candidate = layer._distant_loop_candidate(state, "s0", {"s0", "s1"})
+        self.assertIsNotNone(candidate)
+
+        distances = self._distances(state.world_topology, "s0")
+        self.assertGreaterEqual(distances[candidate], constants.LOOP_MIN_HOPS)
 
 
 if __name__ == "__main__":
