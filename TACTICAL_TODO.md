@@ -1,22 +1,40 @@
-## CURRENT GOAL: Simulation Friction & Pacing — Kill Hyperactivity, Add Momentum
+## CURRENT GOAL: Economy Diversity & Population Equilibrium — Kill Homogeneous Inflation
 
 ### EXECUTIVE SUMMARY
 
-The tag-driven qualitative simulation produces emergent behavior, but runs too hot:
-agents attack every tick, sector tags flip instantly, wealth inflates monotonically,
-and the universe reads as a constant deathmatch rather than a functioning society.
+The friction mechanics (progress counters, combat cooldown, wealth drain) work:
+combat is paced (42 attacks / 90 ticks), security transitions are gradual, and
+hostile infestation builds over time. However, the **economy converges to a flat
+homogeneous state** and **population grows monotonically**. Verified data:
 
-Root cause (per external Gemini analysis of 30/300/3000-tick chronicles): the system
-is **binary and frictionless**. Fix by adding **threshold pools** (economy transitions
-need accumulated pressure, not a single delta tick), **agent cooldowns/satiation**
-(after combat, agents need recovery time), and **wealth sinks** (active drain so not
-everyone ends up wealthy). Target: 90-tick session should read as a narrative with
-momentum — trends that build, crises that develop, lulls between action.
+  t 30 [PROSPERITY]: 7/8 sectors RICH  | 0 POOR  | agents=17 | wealthy=5
+  t150 [DISRUPTION]: 18/19 sectors RICH | 0 POOR  | agents=20 | wealthy=7
+  t225 [DISRUPTION]: 0/20 sectors RICH  | 20 POOR  | agents=24 | wealthy=0
+  t300 [RECOVERY]:   20/20 sectors RICH | 0 POOR  | agents=26 | wealthy=12
 
-### PREVIOUS MILESTONE STATUS: Qualitative Simulation Rewrite — Complete ✅
+Root causes identified:
+1. **World-age economy modifier is blanket** — DISRUPTION applies -1 uniformly to
+   every sector every tick, RECOVERY applies +2 uniformly. With only 3 levels and
+   3-tick thresholds, ALL sectors simultaneously hit POOR/RICH.
+2. **No colony maintenance cost** — advanced colonies (hub/colony) don't drain economy.
+   TRUTH_SIMULATION-GRAPH.md §3.4 requires "continuous matter investment to maintain."
+3. **No population-density pressure** — a sector with 8 agents has the same economy
+   delta as one with 0 agents. No consumption concept.
+4. **Economy thresholds are identical** — all sectors use flat 3-tick thresholds,
+   causing synchronized transitions (checkerboard pattern, like security before fix).
+5. **Mortal lifecycle too generous** — survivors get COMFORTABLE, spawn in any security,
+   no economy requirements, no attrition during DISRUPTION.
 
-All 15 TASK items + 8 VERIFICATIONs completed. Tag-driven CA engine operational.
-1916 lines total (under 2000 budget). 11 tests passing. See SESSION-LOG.md.
+Fix: Add per-sector economy inertia (desync), conditional world-age modifiers (not
+blanket), colony maintenance drain, population-density pressure, and tighter mortal
+lifecycle. Target: at any tick snapshot, the economy should show a **mix** of RICH /
+ADEQUATE / POOR sectors — never all the same.
+
+### PREVIOUS MILESTONE STATUS: Friction & Pacing — Complete ✅
+
+All 8 TASK items verified. Economy progress counters, combat cooldown (5 ticks),
+wealth drain (5% upkeep + 8% wealthy drain), hostile infestation pacing (3 ticks).
+42 attacks / 90 ticks (47%, under 50% cap). See SESSION-LOG.md.
 
 ### PREVIOUS MILESTONE STATUS: Session Dynamics Tuning (Round 1) — Complete ✅
 
@@ -24,115 +42,119 @@ Security progress counters (per-sector 3–6 tick thresholds), exploration coold
 diminishing returns, mortal spawn diminishing returns, catastrophe mortal kills,
 90-tick session scale (330-tick world age cycle). Validated at 30 and 90 ticks.
 
+### PREVIOUS MILESTONE STATUS: Qualitative Simulation Rewrite — Complete ✅
+
+All 15 TASK items + 8 VERIFICATIONs completed. Tag-driven CA engine operational.
+
 ---
 
 - TARGET_FILES:
 
-  **FRICTION LAYER (Phase 1):**
-  - `python_sandbox/autoload/constants.py` — Add economy threshold, combat cooldown, wealth drain constants
-  - `python_sandbox/autoload/game_state.py` — Add economy progress counters, agent combat cooldown state
-  - `python_sandbox/core/simulation/grid_layer.py` — Economy transitions via progress counter (like security)
-  - `python_sandbox/core/simulation/agent_layer.py` — Combat cooldown/satiation, wealth drain, hostile infestation transition pacing
+  **PHASE 1 — ECONOMY DESYNC & DRAIN:**
+  - `python_sandbox/autoload/constants.py` — Per-sector economy inertia ranges, colony maintenance flags, population density threshold
+  - `python_sandbox/autoload/game_state.py` — Per-sector economy thresholds dict
+  - `python_sandbox/core/simulation/grid_layer.py` — Desync economy thresholds, conditional world-age modifiers, colony maintenance drain, population pressure
 
-  **BALANCE PASS (Phase 2):**
-  - `python_sandbox/core/simulation/agent_layer.py` — Tune affinity dispatch to reduce attack rate
-  - `python_sandbox/core/simulation/affinity_matrix.py` — Review ATTACK_THRESHOLD, add SATIATED tag interactions
+  **PHASE 2 — POPULATION EQUILIBRIUM:**
+  - `python_sandbox/autoload/constants.py` — Mortal spawn economy requirement, disruption attrition chance
+  - `python_sandbox/core/simulation/agent_layer.py` — Economy-gated mortal spawn, survivor penalty, disruption attrition
 
-  **TESTS + VALIDATION (Phase 3):**
-  - `python_sandbox/tests/test_affinity.py` — Add tests for economy progress counter, combat cooldown
-  - `python_sandbox/main.py` — Validate with 90-tick and 300-tick chronicles
+  **PHASE 3 — TESTS & VALIDATION:**
+  - `python_sandbox/tests/test_affinity.py` — Add tests for economy desync, colony maintenance, mortal spawn gating
+  - `python_sandbox/main.py` — Validate with 90-tick and 300-tick runs
 
 - TRUTH_RELIANCE:
-  - `TRUTH_SIMULATION-GRAPH.md` v1.2 §6 "Architectural Implementation Map" — Layer pipeline preserved
-  - External analysis: Gemini dynamic review (2026-02-21) — 4 systemic issues identified
-  - Design principle: Tag transitions should require **accumulated pressure**, not single-tick deltas
+  - `TRUTH_SIMULATION-GRAPH.md` v1.2 §3.4 "The Maintenance Cycle" — Colony levels require continuous matter investment; higher levels demand more. Failure to maintain → colony degrades.
+  - `TRUTH_SIMULATION-GRAPH.md` v1.2 §3.2 "The Consumption Cycle" — Station population burns matter to survive. Higher population = higher consumption.
+  - `TRUTH_SIMULATION-GRAPH.md` v1.2 §6.3 "The LifecycleSystem" — Mortal spawn requires MIN_STOCKPILE and MIN_SECURITY; permanent death on destruction.
+  - External analysis: Gemini dynamic review (2026-02-21) — Economy/population inflation identified as persisting systemic issue.
 
 - TECHNICAL_CONSTRAINTS:
   - Python 3, no external dependencies
-  - Existing progress-counter pattern (colony upgrade/downgrade, security) must be reused for consistency
-  - Total agent attacks per 100 ticks should be <50% of tick count (currently ~98%)
-  - Economy tag transitions should take 3+ ticks of sustained pressure (currently instant)
-  - Wealth distribution at tick 90 should NOT be >80% WEALTHY (currently inflates monotonically)
-  - No new numeric simulation fields — use qualitative tags and tick counters only
+  - Reuse existing progress-counter pattern (per-sector random thresholds, like security)
+  - No new numeric simulation fields — qualitative tags and tick counters only
+  - At any 90-tick snapshot: economy distribution must show ≥2 of 3 levels present (not all RICH or all POOR)
+  - At 300 ticks: population count should plateau (not monotonic growth beyond ~20–25 agents)
+  - Wealth distribution at any snapshot: no single wealth tier should exceed 60% of population
+  - Colony maintenance concept must be present (per TRUTH_SIMULATION-GRAPH.md §3.4)
 
 - DESIGN_DECISIONS:
-  - Economy progress counter: Same pattern as security — accumulate pressure ticks, only transition when threshold reached
-  - Combat satiation: After attacking, agent gains internal cooldown (N ticks). During cooldown, affinity scan skips combat targets. Simple, no new tags needed externally — just an agent dict field.
-  - Wealth drain: Per-tick passive drain chance (like AGENT_UPKEEP_CHANCE but specifically WEALTHY→COMFORTABLE). Current AGENT_UPKEEP_CHANCE=0.02 is too low to counteract wealth generation.
-  - Hostile infestation pacing: HOSTILE_INFESTED should not appear/disappear in 1 tick. Gate behind the security progress counter (infested only when sector has been LAWLESS for N ticks).
+  - **Per-sector economy inertia**: Same pattern as security thresholds. Each sector × category gets a random upgrade/downgrade tick threshold drawn from [MIN, MAX]. Breaks synchronization.
+  - **Conditional world-age modifiers**: PROSPERITY bonus requires evidence of active commerce (LOADED agent or colony≥colony). DISRUPTION penalty targets specific categories based on conditions. RECOVERY bonus reduced from +2 to +1. This prevents blanket economy shifts.
+  - **Colony maintenance drain**: hub=-1 all categories, colony=-1 RAW only, outpost/frontier=0. Maps to TRUTH §3.4 "higher colony levels demand more maintenance matter per tick."
+  - **Population density pressure**: >3 agents in sector = -1 economy delta. Maps to TRUTH §3.2 metabolism (population consumes resources).
+  - **Mortal spawn economy gate**: Require ≥1 economy axis at ADEQUATE+. Economically dead sectors don't produce new pilots. Maps to TRUTH §6.3 "requires MORTAL_SPAWN_MIN_STOCKPILE."
+  - **Mortal survivors start BROKE** (currently COMFORTABLE). Barely-survived destruction should leave agents destitute.
+  - **Disruption mortal attrition**: During DISRUPTION, mortals in HARSH/EXTREME sectors have per-tick death chance. Represents supply line collapse and exposure.
 
 ---
 
 - ATOMIC_TASKS:
 
-  ### PHASE 1: Add Friction
+  ### PHASE 1: Economy Desync & Drain
 
-  - [x] TASK_1: Economy progress counter — constants + state
-    - Files: `constants.py`, `game_state.py`
-    - Add: `ECONOMY_UPGRADE_TICKS_REQUIRED = 3` (ticks of positive delta to shift up one level)
-    - Add: `ECONOMY_DOWNGRADE_TICKS_REQUIRED = 3` (ticks of negative delta to shift down)
-    - Add to game_state: `economy_upgrade_progress: dict = {}` (sector_id → {category → tick_count})
-    - Add to game_state: `economy_downgrade_progress: dict = {}` (sector_id → {category → tick_count})
-    - Signature: Constants defined, state fields initialized in GameState.__init__().
+  - [ ] TASK_1: Per-sector economy inertia thresholds
+    - Files: `constants.py`, `game_state.py`, `grid_layer.py`, `agent_layer.py`
+    - Add to constants.py: `ECONOMY_CHANGE_TICKS_MIN = 2`, `ECONOMY_CHANGE_TICKS_MAX = 5`
+    - Add to game_state.py: `economy_change_threshold: dict = {}` (sector_id → {category → int})
+    - In grid_layer.py `initialize_grid()`: seed per-sector per-category thresholds using `random.Random(f"{state.world_seed}:econ_thresh:{sector_id}:{category}")`
+    - In grid_layer.py `_step_economy()`: replace flat `ECONOMY_UPGRADE_TICKS_REQUIRED` / `ECONOMY_DOWNGRADE_TICKS_REQUIRED` with per-sector per-category thresholds from `state.economy_change_threshold`
+    - In agent_layer.py `_try_exploration()`: initialize `economy_change_threshold` for newly discovered sectors
+    - Signature: Economy transitions desynchronize across sectors. Different sectors have 2–5 tick thresholds per category.
 
-  - [x] TASK_2: Economy progress counter — grid_layer implementation
+  - [ ] TASK_2: Conditional world-age economy modifiers
     - File: `grid_layer.py`
-    - Rewrite `_step_economy()` to use progress-counter pattern (matching _step_security).
-    - Delta still calculated same way, but only applies level change when counter reaches threshold.
-    - Initialize progress counters in `initialize_grid()` for each sector × category.
-    - Signature: Economy tags no longer flip every tick. Counter state persists in game_state.
+    - Rewrite world-age block in `_step_economy()`:
+      - PROSPERITY: +1 only if (`_loaded_trade_count_for_sector() > 0` OR `colony_level in ("colony", "hub")`); else 0
+      - DISRUPTION: -1 to RAW always; -1 to MANUFACTURED only if (pirate present OR HOSTILE_INFESTED in tags); 0 to CURRENCY
+      - RECOVERY: +1 (was +2)
+    - Signature: World age no longer blanket-shifts all sectors identically. Economy responds to local conditions.
 
-  - [x] TASK_3: Combat cooldown/satiation for agents
+  - [ ] TASK_3: Colony maintenance economy drain
+    - File: `grid_layer.py`
+    - In `_step_economy()`, after world-age block, add colony-level maintenance pressure:
+      - `hub`: delta -= 1 for ALL categories (RAW, MANUFACTURED, CURRENCY)
+      - `colony`: delta -= 1 for RAW only
+      - `outpost` / `frontier`: no additional drain
+    - Signature: Advanced colonies require active resupply to stay RICH. A hub without trade trends toward ADEQUATE/POOR.
+
+  - [ ] TASK_4: Population density economy pressure
+    - File: `grid_layer.py`
+    - In `_step_economy()`, after colony maintenance, add population density pressure:
+      - Count non-disabled, non-player agents in sector
+      - if agent_count > 3: delta -= 1 (crowded sector consumes more than it produces)
+    - Add `_active_agent_count_in_sector()` helper method to GridLayer
+    - Signature: Crowded sectors face economic strain. Agents must disperse for the economy to thrive.
+
+  ### PHASE 2: Population Equilibrium
+
+  - [ ] TASK_5: Economy-gated mortal spawn
     - Files: `constants.py`, `agent_layer.py`
-    - Add: `COMBAT_COOLDOWN_TICKS = 5` — after an attack, agent cannot initiate another for N ticks
-    - In `_resolve_agent_interaction()`: after ATTACK, set `agent["last_attack_tick"] = state.sim_tick_count`
-    - In `_action_affinity_scan()` / `_best_agent_target()`: skip combat-eligible targets if cooldown active
-    - Signature: Agent attack rate drops to max 1 per 5 ticks. Agents that just attacked switch to movement/trade/docking.
+    - Add to constants.py: `MORTAL_SPAWN_MIN_ECONOMY_TAGS = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]`
+    - In `_spawn_mortal_agents()`: add economy filter — eligible sectors must have at least 1 tag from MORTAL_SPAWN_MIN_ECONOMY_TAGS
+    - Signature: Mortal agents only spawn in economically viable sectors. All-POOR sectors produce no newcomers.
 
-  - [x] TASK_4: Wealth drain — increase upkeep pressure
-    - File: `constants.py`
-    - Increase `AGENT_UPKEEP_CHANCE` from 0.02 to 0.05 (5% per tick per agent)
-    - Add: `WEALTHY_DRAIN_CHANCE = 0.08` — additional per-tick chance for WEALTHY agents to drop to COMFORTABLE
-    - In `_apply_upkeep()`: add separate WEALTHY→COMFORTABLE drain roll
-    - Signature: Wealth distribution at tick 90 shows mix of WEALTHY/COMFORTABLE/BROKE, not all WEALTHY.
+  - [ ] TASK_6: Mortal survivor penalty and disruption attrition
+    - Files: `constants.py`, `agent_layer.py`
+    - In `_cleanup_dead_mortals()`: change survivor wealth from "COMFORTABLE" to "BROKE"
+    - Add to constants.py: `DISRUPTION_MORTAL_ATTRITION_CHANCE = 0.03` (3% per tick for exposed mortals)
+    - In `_apply_upkeep()`: if `state.world_age == "DISRUPTION"` and agent is non-persistent and sector has HARSH or EXTREME environment tag, roll `DISRUPTION_MORTAL_ATTRITION_CHANCE` for destruction (mark disabled, route through `_cleanup_dead_mortals` path)
+    - Signature: Disruption is genuinely dangerous. Mortals in harsh sectors die. Survivors are destitute.
 
-  - [x] TASK_5: Hostile infestation pacing
-    - Files: `constants.py`, `game_state.py`, `grid_layer.py`
-    - Add: `HOSTILE_INFESTATION_TICKS_REQUIRED = 3` — sector must be LAWLESS for N ticks before becoming INFESTED
-    - Add to game_state: `hostile_infestation_progress: dict = {}` (sector_id → consecutive lawless ticks)
-    - Rewrite `_step_hostile_presence()` to use progress counter.
-    - Also: HOSTILE_INFESTED should not clear instantly when security improves — require 2+ ticks of non-LAWLESS.
-    - Signature: Hostile presence builds gradually and dissipates gradually.
+  ### PHASE 3: Tests & Validation
 
-  ### PHASE 2: Balance Pass
-
-  - [x] TASK_6: Raise ATTACK_THRESHOLD to reduce combat frequency
-    - File: `affinity_matrix.py`, `constants.py`
-    - Consider raising ATTACK_THRESHOLD from 1.2 to 1.5 (fewer affinity pairs reach threshold)
-    - Add SATIATED interactions to AFFINITY_MATRIX: agent with recent combat has reduced aggression scores
-    - OR: simpler — just rely on combat cooldown from TASK_3 + threshold raise
-    - Signature: Total engagements per 100 ticks drops by ~40% from current levels.
-
-  - [x] TASK_7: Review agent movement — reduce clustering at Freeport Gamma
-    - File: `agent_layer.py`
-    - Current: Most agents congregate at Freeport Gamma (majority of combat happens there).
-    - Fix: After combat, agent should prefer moving away from current sector (post-fight dispersal).
-    - OR: `_action_move_toward_role_target()` should weigh uncrowded sectors higher.
-    - Signature: Combat spread more evenly across sectors in 90-tick run.
-
-  ### PHASE 3: Tests + Validation
-
-  - [x] TASK_8: Update tests for new mechanics
+  - [ ] TASK_7: Update tests for economy diversity and population mechanics
     - File: `tests/test_affinity.py`
-    - Add: test_economy_transitions_require_sustained_pressure (3 ticks of delta before level change)
-    - Add: test_hostile_infestation_builds_gradually
-    - Update: setUp() to include new state fields
+    - Add: `test_economy_thresholds_vary_per_sector` — verify different sectors get different thresholds after init
+    - Add: `test_colony_maintenance_drains_economy` — verify hub sector with no trade trends downward over 10 ticks
+    - Add: `test_mortal_spawn_blocked_in_poor_sector` — verify no mortal spawns when all economy axes are POOR
+    - Add: `test_mortal_survivor_starts_broke` — verify survived mortal gets BROKE wealth
+    - Update `setUp()` to include `economy_change_threshold` field
     - Signature: All tests pass with `python3 -m unittest tests.test_affinity -v`.
 
-  - [ ] VERIFICATION_1: 90-tick chronicle (seed 123) — security changes ≤3 per epoch (epoch-size 3)
-  - [ ] VERIFICATION_2: 90-tick chronicle — total engagements < 150 (currently 245)
-  - [ ] VERIFICATION_3: 90-tick chronicle — economy transitions are gradual, not every-tick
-  - [ ] VERIFICATION_4: 90-tick chronicle — hostile infestation builds/clears over 3+ ticks
-  - [ ] VERIFICATION_5: 90-tick chronicle — wealth distribution at end is mixed (not all WEALTHY)
-  - [ ] VERIFICATION_6: 300-tick chronicle (seed 123) — world age transitions occur, DISRUPTION is harsh, RECOVERY is visible
-  - [ ] VERIFICATION_7: `python3 -m unittest tests.test_affinity -v` — all tests pass
+  - [ ] VERIFICATION_1: 90-tick run (seed 123) — economy shows ≥2 levels at t30, t60, t90 (not all RICH)
+  - [ ] VERIFICATION_2: 300-tick run (seed 123) — during DISRUPTION, economy is mixed (not blanket POOR); during RECOVERY, not blanket RICH
+  - [ ] VERIFICATION_3: 300-tick run (seed 123) — population count at t300 ≤ 25 (currently 26; target: plateau near 20)
+  - [ ] VERIFICATION_4: 300-tick run (seed 123) — wealth distribution at any snapshot: no tier > 60% of agents
+  - [ ] VERIFICATION_5: 90-tick run — colony maintenance visible: hub sectors without active trade degrade economy
+  - [ ] VERIFICATION_6: `python3 -m unittest tests.test_affinity -v` — all tests pass
