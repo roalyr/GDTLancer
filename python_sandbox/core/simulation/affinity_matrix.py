@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: affinity_matrix.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-02-21 (TASK_4)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
+# LOG_REF: 2026-02-21 22:59:16
 #
 
 """Qualitative tag vocabulary and affinity scoring for the simulation."""

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: constants.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-02-21 (TASK_2)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
+# LOG_REF: 2026-02-21 22:59:16
 #
 
 """Qualitative simulation constants (Phase 1 gut of numeric model).
@@ -101,19 +101,42 @@ SECURITY_CHANGE_TICKS_MIN = 3        # minimum consecutive ticks to shift
 SECURITY_CHANGE_TICKS_MAX = 6        # maximum consecutive ticks to shift
 
 # ---------------------------------------------------------------------------
+# Economy Progression
+# ---------------------------------------------------------------------------
+# Economy tags (RAW/MANUFACTURED/CURRENCY) change only after sustained
+# pressure over multiple ticks, preventing every-tick tag flipping.
+ECONOMY_UPGRADE_TICKS_REQUIRED = 3    # consecutive positive-pressure ticks
+ECONOMY_DOWNGRADE_TICKS_REQUIRED = 3  # consecutive negative-pressure ticks
+
+# ---------------------------------------------------------------------------
+# Hostile Infestation Progression
+# ---------------------------------------------------------------------------
+# Sectors must remain LAWLESS for sustained ticks before infestation appears.
+HOSTILE_INFESTATION_TICKS_REQUIRED = 3
+
+# ---------------------------------------------------------------------------
 # Affinity Thresholds
 # ---------------------------------------------------------------------------
 # When compute_affinity(actor, target) crosses these, an interaction fires.
-ATTACK_THRESHOLD = 1.2   # score >= this → attack / harvest salvage
+ATTACK_THRESHOLD = 1.5   # score >= this → attack / harvest salvage
 TRADE_THRESHOLD = 0.5    # score >= this (< attack) → trade / dock
 FLEE_THRESHOLD = -1.0    # score <= this → flee
+
+# ---------------------------------------------------------------------------
+# Combat Cooldown
+# ---------------------------------------------------------------------------
+# After initiating an attack, an agent must wait this many ticks before it
+# can initiate another attack. Other interactions (trade/flee/move/dock)
+# remain available during cooldown.
+COMBAT_COOLDOWN_TICKS = 5
 
 # ---------------------------------------------------------------------------
 # Agent Upkeep
 # ---------------------------------------------------------------------------
 # Per-tick random wear: each agent independently rolls for condition
 # degradation (HEALTHY→DAMAGED) and wealth loss (one step down).
-AGENT_UPKEEP_CHANCE = 0.02  # probability per agent per tick
+AGENT_UPKEEP_CHANCE = 0.05  # probability per agent per tick
+WEALTHY_DRAIN_CHANCE = 0.08 # additional per-tick WEALTHY -> COMFORTABLE drain
 BROKE_RECOVERY_CHANCE = 0.15 # per-tick chance a BROKE agent at a station recovers to COMFORTABLE
 
 # ---------------------------------------------------------------------------

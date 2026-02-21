@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: game_state.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-02-21 (TASK_3)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-02-21 22:57:36
 #
 
 import copy
@@ -39,6 +39,13 @@ class GameState:
         self.security_upgrade_progress: dict = {}    # sector_id -> consecutive ticks of upgrade pressure
         self.security_downgrade_progress: dict = {}  # sector_id -> consecutive ticks of downgrade pressure
         self.security_change_threshold: dict = {}    # sector_id -> per-sector ticks required to shift
+
+        # === Economy progression ===
+        self.economy_upgrade_progress: dict = {}     # sector_id -> {category -> consecutive ticks of upgrade pressure}
+        self.economy_downgrade_progress: dict = {}   # sector_id -> {category -> consecutive ticks of downgrade pressure}
+
+        # === Hostile infestation progression ===
+        self.hostile_infestation_progress: dict = {} # sector_id -> transition progress ticks (build/clear)
 
         # === Catastrophe + lifecycle ===
         self.catastrophe_log: list = []

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: grid_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_8
-# LOG_REF: 2026-02-21 (TASK_7)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-02-21 22:57:36
 #
 
 """Tag-transition CA engine for economy, security, and environment layers."""
@@ -40,6 +40,15 @@ class GridLayer:
                     constants.SECURITY_CHANGE_TICKS_MIN,
                     constants.SECURITY_CHANGE_TICKS_MAX,
                 )
+            if sector_id not in state.economy_upgrade_progress:
+                state.economy_upgrade_progress[sector_id] = {}
+            if sector_id not in state.economy_downgrade_progress:
+                state.economy_downgrade_progress[sector_id] = {}
+            for category in self.CATEGORIES:
+                state.economy_upgrade_progress[sector_id].setdefault(category, 0)
+                state.economy_downgrade_progress[sector_id].setdefault(category, 0)
+            if sector_id not in state.hostile_infestation_progress:
+                state.hostile_infestation_progress[sector_id] = 0
 
     def process_tick(self, state, config: dict) -> None:
         new_tags = {}
@@ -63,6 +72,8 @@ class GridLayer:
         result = list(tags)
         world_age = state.world_age or "PROSPERITY"
         role_counts = self._role_counts_for_sector(state, sector_id)
+        sector_upgrade_progress = state.economy_upgrade_progress.setdefault(sector_id, {})
+        sector_downgrade_progress = state.economy_downgrade_progress.setdefault(sector_id, {})
 
         for category in self.CATEGORIES:
             level = self._economy_level(result, category)
@@ -90,10 +101,28 @@ class GridLayer:
             if role_counts.get("pirate", 0) > 0:
                 delta -= 1
 
+            up_progress = sector_upgrade_progress.get(category, 0)
+            down_progress = sector_downgrade_progress.get(category, 0)
+
             if delta >= 1:
-                idx = min(2, idx + 1)
+                up_progress += 1
+                down_progress = 0
             elif delta <= -1:
+                down_progress += 1
+                up_progress = 0
+            else:
+                up_progress = 0
+                down_progress = 0
+
+            if up_progress >= constants.ECONOMY_UPGRADE_TICKS_REQUIRED and idx < 2:
+                idx = min(2, idx + 1)
+                up_progress = 0
+            elif down_progress >= constants.ECONOMY_DOWNGRADE_TICKS_REQUIRED and idx > 0:
                 idx = max(0, idx - 1)
+                down_progress = 0
+
+            sector_upgrade_progress[category] = up_progress
+            sector_downgrade_progress[category] = down_progress
             result = self._replace_prefix(result, f"{category}_", f"{category}_{self.ECONOMY_LEVELS[idx]}")
 
         return result
@@ -189,8 +218,31 @@ class GridLayer:
         result = [tag for tag in tags if tag not in {"HOSTILE_INFESTED", "HOSTILE_THREATENED"}]
         role_counts = self._role_counts_for_sector(state, sector_id)
         security = self._security_tag(tags)
+        had_infested = "HOSTILE_INFESTED" in tags
+        progress = state.hostile_infestation_progress.get(sector_id, 0)
+        infested_now = had_infested
 
         if security == "LAWLESS" and role_counts.get("military", 0) == 0:
+            if not had_infested:
+                build_progress = max(0, progress) + 1
+                progress = build_progress
+                if build_progress >= constants.HOSTILE_INFESTATION_TICKS_REQUIRED:
+                    infested_now = True
+                    progress = 0
+            else:
+                progress = 0
+        elif had_infested:
+            clear_progress = max(0, -progress) + 1
+            progress = -clear_progress
+            if clear_progress >= 2:
+                infested_now = False
+                progress = 0
+        else:
+            progress = 0
+
+        state.hostile_infestation_progress[sector_id] = progress
+
+        if infested_now:
             result.append("HOSTILE_INFESTED")
         elif security == "CONTESTED":
             result.append("HOSTILE_THREATENED")

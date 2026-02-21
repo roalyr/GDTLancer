@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_10
-# LOG_REF: 2026-02-21 (TASK_9)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_7
+# LOG_REF: 2026-02-21 22:59:59
 #
 
 """Qualitative agent layer using affinity-driven tag transitions."""
@@ -143,8 +143,15 @@ class AgentLayer:
             return
 
         current_sector = agent.get("current_sector_id", "")
+        can_attack = not self._is_combat_cooldown_active(agent, state)
 
-        best_agent_id, best_agent_score = self._best_agent_target(state, agent_id, actor_tags, current_sector)
+        best_agent_id, best_agent_score = self._best_agent_target(
+            state,
+            agent_id,
+            actor_tags,
+            current_sector,
+            can_attack,
+        )
         if best_agent_id is not None:
             handled = self._resolve_agent_interaction(state, agent_id, best_agent_id, best_agent_score)
             if handled:
@@ -165,12 +172,14 @@ class AgentLayer:
         if score >= ATTACK_THRESHOLD:
             new_target_condition = "DESTROYED" if target.get("condition_tag") == "DAMAGED" else "DAMAGED"
             target["condition_tag"] = new_target_condition
+            actor["last_attack_tick"] = state.sim_tick_count
             if new_target_condition == "DESTROYED":
                 target["is_disabled"] = True
                 target["disabled_at_tick"] = state.sim_tick_count
                 state.sector_tags[current_sector] = self._add_tag(state.sector_tags.get(current_sector, []), "HAS_SALVAGE")
                 actor["cargo_tag"] = "LOADED"
             self._log_event(state, actor_id, "attack", current_sector, {"target": target_id})
+            self._post_combat_dispersal(state, actor_id, actor)
             return True
 
         if score >= TRADE_THRESHOLD:
@@ -352,6 +361,9 @@ class AgentLayer:
             "controlling_faction_id": "",
             "security_tag": security,
         }
+        state.economy_upgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
+        state.economy_downgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
+        state.hostile_infestation_progress[new_id] = 0
 
         # --- Record ---
         state.sector_names[new_id] = new_name
@@ -387,7 +399,7 @@ class AgentLayer:
         suffix = rng.choice(self._FRONTIER_SUFFIXES)
         return f"{prefix} {suffix}"
 
-    def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str):
+    def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str, can_attack: bool):
         best_id = None
         best_score = 0.0
         for target_id, target in state.agents.items():
@@ -397,10 +409,18 @@ class AgentLayer:
                 continue
             target_tags = target.get("sentiment_tags", [])
             score = compute_affinity(actor_tags, target_tags)
+            if not can_attack and score >= ATTACK_THRESHOLD:
+                continue
             if abs(score) > abs(best_score):
                 best_score = score
                 best_id = target_id
         return best_id, best_score
+
+    def _is_combat_cooldown_active(self, agent: dict, state) -> bool:
+        last_attack_tick = agent.get("last_attack_tick")
+        if last_attack_tick is None:
+            return False
+        return (state.sim_tick_count - int(last_attack_tick)) < constants.COMBAT_COOLDOWN_TICKS
 
     def _bilateral_trade(self, actor: dict, target: dict) -> None:
         actor_loaded = actor.get("cargo_tag") == "LOADED"
@@ -542,6 +562,8 @@ class AgentLayer:
                     agent["condition_tag"] = "DAMAGED"
             if self._rng.random() < constants.AGENT_UPKEEP_CHANCE:
                 self._wealth_step_down(agent)
+            if agent.get("wealth_tag") == "WEALTHY" and self._rng.random() < constants.WEALTHY_DRAIN_CHANCE:
+                agent["wealth_tag"] = "COMFORTABLE"
             # Subsistence recovery: broke agents at a station/outpost can
             # pick up odd jobs and slowly recover to COMFORTABLE.
             if agent.get("wealth_tag") == "BROKE":
@@ -601,6 +623,25 @@ class AgentLayer:
             self._action_move_toward(state, agent_id, agent, best_sector)
         else:
             self._action_move_random(state, agent_id, agent)
+
+    def _post_combat_dispersal(self, state, agent_id: str, agent: dict) -> None:
+        """After combat, prefer moving into a less-crowded neighboring sector."""
+        current = agent.get("current_sector_id", "")
+        neighbors = state.world_topology.get(current, {}).get("connections", [])
+        if not neighbors:
+            return
+
+        target_sector = min(neighbors, key=lambda sector_id: self._active_agent_count_in_sector(state, sector_id))
+        self._action_move_toward(state, agent_id, agent, target_sector)
+
+    def _active_agent_count_in_sector(self, state, sector_id: str) -> int:
+        count = 0
+        for agent in state.agents.values():
+            if agent.get("is_disabled"):
+                continue
+            if agent.get("current_sector_id") == sector_id:
+                count += 1
+        return count
 
     def _wealth_step_up(self, agent: dict) -> None:
         """Increase wealth by one level."""

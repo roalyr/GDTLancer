@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_affinity.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_14
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_8
+# LOG_REF: 2026-02-21 23:00:28
 #
 
 """Unit tests for qualitative affinity and tag-transition CA rules.
@@ -96,12 +96,21 @@ class TestTagTransitionCA(unittest.TestCase):
         self.state.security_upgrade_progress = {"a": 0, "b": 0}
         self.state.security_downgrade_progress = {"a": 0, "b": 0}
         self.state.security_change_threshold = {"a": 3, "b": 3}
+        self.state.economy_upgrade_progress = {
+            "a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+            "b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+        }
+        self.state.economy_downgrade_progress = {
+            "a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+            "b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+        }
+        self.state.hostile_infestation_progress = {"a": 0, "b": 0}
         self.state.agents = {
             "mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": False},
             "pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": False},
         }
 
-    def test_economy_transitions_up_from_prosperity_and_neighbors(self):
+    def test_economy_transitions_require_sustained_pressure(self):
         self.state.world_age = "RECOVERY"
         self.state.agents["trader_1"] = {
             "current_sector_id": "a",
@@ -109,6 +118,13 @@ class TestTagTransitionCA(unittest.TestCase):
             "cargo_tag": "LOADED",
             "is_disabled": False,
         }
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("RAW_POOR", self.state.sector_tags["a"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("RAW_POOR", self.state.sector_tags["a"])
+
         self.layer.process_tick(self.state, {})
         a_tags = self.state.sector_tags["a"]
         self.assertIn("RAW_ADEQUATE", a_tags)
@@ -127,10 +143,33 @@ class TestTagTransitionCA(unittest.TestCase):
         self.layer.process_tick(self.state, {})
         self.assertIn(self.state.sector_tags["a"][-1] if "MILD" in self.state.sector_tags["a"] else "HARSH", {"MILD", "HARSH", "EXTREME"})
 
-    def test_hostile_presence_tags_applied(self):
+    def test_hostile_infestation_builds_gradually(self):
+        self.state.world_age = "DISRUPTION"
+        self.state.sector_tags["a"] = ["STATION", "LAWLESS", "HARSH", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
         self.state.sector_tags["b"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+        self.state.agents["mil_1"]["is_disabled"] = True
+
         self.layer.process_tick(self.state, {})
-        self.assertTrue(any(tag in self.state.sector_tags["b"] for tag in {"HOSTILE_INFESTED", "HOSTILE_THREATENED"}))
+        self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.state.world_age = "RECOVERY"
+        self.state.agents["mil_1"] = {"current_sector_id": "b", "agent_role": "military", "is_disabled": False}
+        self.state.agents["pir_1"]["is_disabled"] = True
+        self.state.security_change_threshold["b"] = 1
+        self.state.security_upgrade_progress["b"] = 0
+        self.state.security_downgrade_progress["b"] = 0
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
 
 
 if __name__ == "__main__":

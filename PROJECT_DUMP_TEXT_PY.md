@@ -4,8 +4,8 @@
 # PROJECT: GDTLancer
 # MODULE: constants.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-02-21 (TASK_2)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
+# LOG_REF: 2026-02-21 22:59:16
 #
 
 """Qualitative simulation constants (Phase 1 gut of numeric model).
@@ -103,19 +103,42 @@ SECURITY_CHANGE_TICKS_MIN = 3        # minimum consecutive ticks to shift
 SECURITY_CHANGE_TICKS_MAX = 6        # maximum consecutive ticks to shift
 
 # ---------------------------------------------------------------------------
+# Economy Progression
+# ---------------------------------------------------------------------------
+# Economy tags (RAW/MANUFACTURED/CURRENCY) change only after sustained
+# pressure over multiple ticks, preventing every-tick tag flipping.
+ECONOMY_UPGRADE_TICKS_REQUIRED = 3    # consecutive positive-pressure ticks
+ECONOMY_DOWNGRADE_TICKS_REQUIRED = 3  # consecutive negative-pressure ticks
+
+# ---------------------------------------------------------------------------
+# Hostile Infestation Progression
+# ---------------------------------------------------------------------------
+# Sectors must remain LAWLESS for sustained ticks before infestation appears.
+HOSTILE_INFESTATION_TICKS_REQUIRED = 3
+
+# ---------------------------------------------------------------------------
 # Affinity Thresholds
 # ---------------------------------------------------------------------------
 # When compute_affinity(actor, target) crosses these, an interaction fires.
-ATTACK_THRESHOLD = 1.2   # score >= this → attack / harvest salvage
+ATTACK_THRESHOLD = 1.5   # score >= this → attack / harvest salvage
 TRADE_THRESHOLD = 0.5    # score >= this (< attack) → trade / dock
 FLEE_THRESHOLD = -1.0    # score <= this → flee
+
+# ---------------------------------------------------------------------------
+# Combat Cooldown
+# ---------------------------------------------------------------------------
+# After initiating an attack, an agent must wait this many ticks before it
+# can initiate another attack. Other interactions (trade/flee/move/dock)
+# remain available during cooldown.
+COMBAT_COOLDOWN_TICKS = 5
 
 # ---------------------------------------------------------------------------
 # Agent Upkeep
 # ---------------------------------------------------------------------------
 # Per-tick random wear: each agent independently rolls for condition
 # degradation (HEALTHY→DAMAGED) and wealth loss (one step down).
-AGENT_UPKEEP_CHANCE = 0.02  # probability per agent per tick
+AGENT_UPKEEP_CHANCE = 0.05  # probability per agent per tick
+WEALTHY_DRAIN_CHANCE = 0.08 # additional per-tick WEALTHY -> COMFORTABLE drain
 BROKE_RECOVERY_CHANCE = 0.15 # per-tick chance a BROKE agent at a station recovers to COMFORTABLE
 
 # ---------------------------------------------------------------------------
@@ -179,8 +202,8 @@ SUBTICK_COST_DEEP_SPACE_EVENT = 5  # half-tick — encounter / scan / anomaly
 # PROJECT: GDTLancer
 # MODULE: game_state.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-02-21 (TASK_3)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-02-21 22:57:36
 #
 
 import copy
@@ -216,6 +239,13 @@ class GameState:
         self.security_upgrade_progress: dict = {}    # sector_id -> consecutive ticks of upgrade pressure
         self.security_downgrade_progress: dict = {}  # sector_id -> consecutive ticks of downgrade pressure
         self.security_change_threshold: dict = {}    # sector_id -> per-sector ticks required to shift
+
+        # === Economy progression ===
+        self.economy_upgrade_progress: dict = {}     # sector_id -> {category -> consecutive ticks of upgrade pressure}
+        self.economy_downgrade_progress: dict = {}   # sector_id -> {category -> consecutive ticks of downgrade pressure}
+
+        # === Hostile infestation progression ===
+        self.hostile_infestation_progress: dict = {} # sector_id -> transition progress ticks (build/clear)
 
         # === Catastrophe + lifecycle ===
         self.catastrophe_log: list = []
@@ -260,8 +290,8 @@ class GameState:
 # PROJECT: GDTLancer
 # MODULE: affinity_matrix.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-02-21 (TASK_4)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
+# LOG_REF: 2026-02-21 22:59:16
 #
 
 """Qualitative tag vocabulary and affinity scoring for the simulation."""
@@ -550,8 +580,8 @@ def _unique(values: list) -> list:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_10
-# LOG_REF: 2026-02-21 (TASK_9)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_7
+# LOG_REF: 2026-02-21 22:59:59
 #
 
 """Qualitative agent layer using affinity-driven tag transitions."""
@@ -691,8 +721,15 @@ class AgentLayer:
             return
 
         current_sector = agent.get("current_sector_id", "")
+        can_attack = not self._is_combat_cooldown_active(agent, state)
 
-        best_agent_id, best_agent_score = self._best_agent_target(state, agent_id, actor_tags, current_sector)
+        best_agent_id, best_agent_score = self._best_agent_target(
+            state,
+            agent_id,
+            actor_tags,
+            current_sector,
+            can_attack,
+        )
         if best_agent_id is not None:
             handled = self._resolve_agent_interaction(state, agent_id, best_agent_id, best_agent_score)
             if handled:
@@ -713,12 +750,14 @@ class AgentLayer:
         if score >= ATTACK_THRESHOLD:
             new_target_condition = "DESTROYED" if target.get("condition_tag") == "DAMAGED" else "DAMAGED"
             target["condition_tag"] = new_target_condition
+            actor["last_attack_tick"] = state.sim_tick_count
             if new_target_condition == "DESTROYED":
                 target["is_disabled"] = True
                 target["disabled_at_tick"] = state.sim_tick_count
                 state.sector_tags[current_sector] = self._add_tag(state.sector_tags.get(current_sector, []), "HAS_SALVAGE")
                 actor["cargo_tag"] = "LOADED"
             self._log_event(state, actor_id, "attack", current_sector, {"target": target_id})
+            self._post_combat_dispersal(state, actor_id, actor)
             return True
 
         if score >= TRADE_THRESHOLD:
@@ -900,6 +939,9 @@ class AgentLayer:
             "controlling_faction_id": "",
             "security_tag": security,
         }
+        state.economy_upgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
+        state.economy_downgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
+        state.hostile_infestation_progress[new_id] = 0
 
         # --- Record ---
         state.sector_names[new_id] = new_name
@@ -935,7 +977,7 @@ class AgentLayer:
         suffix = rng.choice(self._FRONTIER_SUFFIXES)
         return f"{prefix} {suffix}"
 
-    def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str):
+    def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str, can_attack: bool):
         best_id = None
         best_score = 0.0
         for target_id, target in state.agents.items():
@@ -945,10 +987,18 @@ class AgentLayer:
                 continue
             target_tags = target.get("sentiment_tags", [])
             score = compute_affinity(actor_tags, target_tags)
+            if not can_attack and score >= ATTACK_THRESHOLD:
+                continue
             if abs(score) > abs(best_score):
                 best_score = score
                 best_id = target_id
         return best_id, best_score
+
+    def _is_combat_cooldown_active(self, agent: dict, state) -> bool:
+        last_attack_tick = agent.get("last_attack_tick")
+        if last_attack_tick is None:
+            return False
+        return (state.sim_tick_count - int(last_attack_tick)) < constants.COMBAT_COOLDOWN_TICKS
 
     def _bilateral_trade(self, actor: dict, target: dict) -> None:
         actor_loaded = actor.get("cargo_tag") == "LOADED"
@@ -1090,6 +1140,8 @@ class AgentLayer:
                     agent["condition_tag"] = "DAMAGED"
             if self._rng.random() < constants.AGENT_UPKEEP_CHANCE:
                 self._wealth_step_down(agent)
+            if agent.get("wealth_tag") == "WEALTHY" and self._rng.random() < constants.WEALTHY_DRAIN_CHANCE:
+                agent["wealth_tag"] = "COMFORTABLE"
             # Subsistence recovery: broke agents at a station/outpost can
             # pick up odd jobs and slowly recover to COMFORTABLE.
             if agent.get("wealth_tag") == "BROKE":
@@ -1149,6 +1201,25 @@ class AgentLayer:
             self._action_move_toward(state, agent_id, agent, best_sector)
         else:
             self._action_move_random(state, agent_id, agent)
+
+    def _post_combat_dispersal(self, state, agent_id: str, agent: dict) -> None:
+        """After combat, prefer moving into a less-crowded neighboring sector."""
+        current = agent.get("current_sector_id", "")
+        neighbors = state.world_topology.get(current, {}).get("connections", [])
+        if not neighbors:
+            return
+
+        target_sector = min(neighbors, key=lambda sector_id: self._active_agent_count_in_sector(state, sector_id))
+        self._action_move_toward(state, agent_id, agent, target_sector)
+
+    def _active_agent_count_in_sector(self, state, sector_id: str) -> int:
+        count = 0
+        for agent in state.agents.values():
+            if agent.get("is_disabled"):
+                continue
+            if agent.get("current_sector_id") == sector_id:
+                count += 1
+        return count
 
     def _wealth_step_up(self, agent: dict) -> None:
         """Increase wealth by one level."""
@@ -1382,8 +1453,8 @@ class ChronicleLayer:
 # PROJECT: GDTLancer
 # MODULE: grid_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_8
-# LOG_REF: 2026-02-21 (TASK_7)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-02-21 22:57:36
 #
 
 """Tag-transition CA engine for economy, security, and environment layers."""
@@ -1420,6 +1491,15 @@ class GridLayer:
                     constants.SECURITY_CHANGE_TICKS_MIN,
                     constants.SECURITY_CHANGE_TICKS_MAX,
                 )
+            if sector_id not in state.economy_upgrade_progress:
+                state.economy_upgrade_progress[sector_id] = {}
+            if sector_id not in state.economy_downgrade_progress:
+                state.economy_downgrade_progress[sector_id] = {}
+            for category in self.CATEGORIES:
+                state.economy_upgrade_progress[sector_id].setdefault(category, 0)
+                state.economy_downgrade_progress[sector_id].setdefault(category, 0)
+            if sector_id not in state.hostile_infestation_progress:
+                state.hostile_infestation_progress[sector_id] = 0
 
     def process_tick(self, state, config: dict) -> None:
         new_tags = {}
@@ -1443,6 +1523,8 @@ class GridLayer:
         result = list(tags)
         world_age = state.world_age or "PROSPERITY"
         role_counts = self._role_counts_for_sector(state, sector_id)
+        sector_upgrade_progress = state.economy_upgrade_progress.setdefault(sector_id, {})
+        sector_downgrade_progress = state.economy_downgrade_progress.setdefault(sector_id, {})
 
         for category in self.CATEGORIES:
             level = self._economy_level(result, category)
@@ -1470,10 +1552,28 @@ class GridLayer:
             if role_counts.get("pirate", 0) > 0:
                 delta -= 1
 
+            up_progress = sector_upgrade_progress.get(category, 0)
+            down_progress = sector_downgrade_progress.get(category, 0)
+
             if delta >= 1:
-                idx = min(2, idx + 1)
+                up_progress += 1
+                down_progress = 0
             elif delta <= -1:
+                down_progress += 1
+                up_progress = 0
+            else:
+                up_progress = 0
+                down_progress = 0
+
+            if up_progress >= constants.ECONOMY_UPGRADE_TICKS_REQUIRED and idx < 2:
+                idx = min(2, idx + 1)
+                up_progress = 0
+            elif down_progress >= constants.ECONOMY_DOWNGRADE_TICKS_REQUIRED and idx > 0:
                 idx = max(0, idx - 1)
+                down_progress = 0
+
+            sector_upgrade_progress[category] = up_progress
+            sector_downgrade_progress[category] = down_progress
             result = self._replace_prefix(result, f"{category}_", f"{category}_{self.ECONOMY_LEVELS[idx]}")
 
         return result
@@ -1569,8 +1669,31 @@ class GridLayer:
         result = [tag for tag in tags if tag not in {"HOSTILE_INFESTED", "HOSTILE_THREATENED"}]
         role_counts = self._role_counts_for_sector(state, sector_id)
         security = self._security_tag(tags)
+        had_infested = "HOSTILE_INFESTED" in tags
+        progress = state.hostile_infestation_progress.get(sector_id, 0)
+        infested_now = had_infested
 
         if security == "LAWLESS" and role_counts.get("military", 0) == 0:
+            if not had_infested:
+                build_progress = max(0, progress) + 1
+                progress = build_progress
+                if build_progress >= constants.HOSTILE_INFESTATION_TICKS_REQUIRED:
+                    infested_now = True
+                    progress = 0
+            else:
+                progress = 0
+        elif had_infested:
+            clear_progress = max(0, -progress) + 1
+            progress = -clear_progress
+            if clear_progress >= 2:
+                infested_now = False
+                progress = 0
+        else:
+            progress = 0
+
+        state.hostile_infestation_progress[sector_id] = progress
+
+        if infested_now:
             result.append("HOSTILE_INFESTED")
         elif security == "CONTESTED":
             result.append("HOSTILE_THREATENED")
@@ -3147,8 +3270,8 @@ if __name__ == "__main__":
 # PROJECT: GDTLancer
 # MODULE: test_affinity.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_14
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_8
+# LOG_REF: 2026-02-21 23:00:28
 #
 
 """Unit tests for qualitative affinity and tag-transition CA rules.
@@ -3241,12 +3364,21 @@ class TestTagTransitionCA(unittest.TestCase):
         self.state.security_upgrade_progress = {"a": 0, "b": 0}
         self.state.security_downgrade_progress = {"a": 0, "b": 0}
         self.state.security_change_threshold = {"a": 3, "b": 3}
+        self.state.economy_upgrade_progress = {
+            "a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+            "b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+        }
+        self.state.economy_downgrade_progress = {
+            "a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+            "b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+        }
+        self.state.hostile_infestation_progress = {"a": 0, "b": 0}
         self.state.agents = {
             "mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": False},
             "pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": False},
         }
 
-    def test_economy_transitions_up_from_prosperity_and_neighbors(self):
+    def test_economy_transitions_require_sustained_pressure(self):
         self.state.world_age = "RECOVERY"
         self.state.agents["trader_1"] = {
             "current_sector_id": "a",
@@ -3254,6 +3386,13 @@ class TestTagTransitionCA(unittest.TestCase):
             "cargo_tag": "LOADED",
             "is_disabled": False,
         }
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("RAW_POOR", self.state.sector_tags["a"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("RAW_POOR", self.state.sector_tags["a"])
+
         self.layer.process_tick(self.state, {})
         a_tags = self.state.sector_tags["a"]
         self.assertIn("RAW_ADEQUATE", a_tags)
@@ -3272,10 +3411,33 @@ class TestTagTransitionCA(unittest.TestCase):
         self.layer.process_tick(self.state, {})
         self.assertIn(self.state.sector_tags["a"][-1] if "MILD" in self.state.sector_tags["a"] else "HARSH", {"MILD", "HARSH", "EXTREME"})
 
-    def test_hostile_presence_tags_applied(self):
+    def test_hostile_infestation_builds_gradually(self):
+        self.state.world_age = "DISRUPTION"
+        self.state.sector_tags["a"] = ["STATION", "LAWLESS", "HARSH", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
         self.state.sector_tags["b"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+        self.state.agents["mil_1"]["is_disabled"] = True
+
         self.layer.process_tick(self.state, {})
-        self.assertTrue(any(tag in self.state.sector_tags["b"] for tag in {"HOSTILE_INFESTED", "HOSTILE_THREATENED"}))
+        self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.state.world_age = "RECOVERY"
+        self.state.agents["mil_1"] = {"current_sector_id": "b", "agent_role": "military", "is_disabled": False}
+        self.state.agents["pir_1"]["is_disabled"] = True
+        self.state.security_change_threshold["b"] = 1
+        self.state.security_upgrade_progress["b"] = 0
+        self.state.security_downgrade_progress["b"] = 0
+
+        self.layer.process_tick(self.state, {})
+        self.assertIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+        self.layer.process_tick(self.state, {})
+        self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
 
 
 if __name__ == "__main__":

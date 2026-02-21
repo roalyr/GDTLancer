@@ -67,7 +67,7 @@ diminishing returns, mortal spawn diminishing returns, catastrophe mortal kills,
 
   ### PHASE 1: Add Friction
 
-  - [ ] TASK_1: Economy progress counter — constants + state
+  - [x] TASK_1: Economy progress counter — constants + state
     - Files: `constants.py`, `game_state.py`
     - Add: `ECONOMY_UPGRADE_TICKS_REQUIRED = 3` (ticks of positive delta to shift up one level)
     - Add: `ECONOMY_DOWNGRADE_TICKS_REQUIRED = 3` (ticks of negative delta to shift down)
@@ -75,28 +75,28 @@ diminishing returns, mortal spawn diminishing returns, catastrophe mortal kills,
     - Add to game_state: `economy_downgrade_progress: dict = {}` (sector_id → {category → tick_count})
     - Signature: Constants defined, state fields initialized in GameState.__init__().
 
-  - [ ] TASK_2: Economy progress counter — grid_layer implementation
+  - [x] TASK_2: Economy progress counter — grid_layer implementation
     - File: `grid_layer.py`
     - Rewrite `_step_economy()` to use progress-counter pattern (matching _step_security).
     - Delta still calculated same way, but only applies level change when counter reaches threshold.
     - Initialize progress counters in `initialize_grid()` for each sector × category.
     - Signature: Economy tags no longer flip every tick. Counter state persists in game_state.
 
-  - [ ] TASK_3: Combat cooldown/satiation for agents
+  - [x] TASK_3: Combat cooldown/satiation for agents
     - Files: `constants.py`, `agent_layer.py`
     - Add: `COMBAT_COOLDOWN_TICKS = 5` — after an attack, agent cannot initiate another for N ticks
     - In `_resolve_agent_interaction()`: after ATTACK, set `agent["last_attack_tick"] = state.sim_tick_count`
     - In `_action_affinity_scan()` / `_best_agent_target()`: skip combat-eligible targets if cooldown active
     - Signature: Agent attack rate drops to max 1 per 5 ticks. Agents that just attacked switch to movement/trade/docking.
 
-  - [ ] TASK_4: Wealth drain — increase upkeep pressure
+  - [x] TASK_4: Wealth drain — increase upkeep pressure
     - File: `constants.py`
     - Increase `AGENT_UPKEEP_CHANCE` from 0.02 to 0.05 (5% per tick per agent)
     - Add: `WEALTHY_DRAIN_CHANCE = 0.08` — additional per-tick chance for WEALTHY agents to drop to COMFORTABLE
     - In `_apply_upkeep()`: add separate WEALTHY→COMFORTABLE drain roll
     - Signature: Wealth distribution at tick 90 shows mix of WEALTHY/COMFORTABLE/BROKE, not all WEALTHY.
 
-  - [ ] TASK_5: Hostile infestation pacing
+  - [x] TASK_5: Hostile infestation pacing
     - Files: `constants.py`, `game_state.py`, `grid_layer.py`
     - Add: `HOSTILE_INFESTATION_TICKS_REQUIRED = 3` — sector must be LAWLESS for N ticks before becoming INFESTED
     - Add to game_state: `hostile_infestation_progress: dict = {}` (sector_id → consecutive lawless ticks)
@@ -106,14 +106,14 @@ diminishing returns, mortal spawn diminishing returns, catastrophe mortal kills,
 
   ### PHASE 2: Balance Pass
 
-  - [ ] TASK_6: Raise ATTACK_THRESHOLD to reduce combat frequency
+  - [x] TASK_6: Raise ATTACK_THRESHOLD to reduce combat frequency
     - File: `affinity_matrix.py`, `constants.py`
     - Consider raising ATTACK_THRESHOLD from 1.2 to 1.5 (fewer affinity pairs reach threshold)
     - Add SATIATED interactions to AFFINITY_MATRIX: agent with recent combat has reduced aggression scores
     - OR: simpler — just rely on combat cooldown from TASK_3 + threshold raise
     - Signature: Total engagements per 100 ticks drops by ~40% from current levels.
 
-  - [ ] TASK_7: Review agent movement — reduce clustering at Freeport Gamma
+  - [x] TASK_7: Review agent movement — reduce clustering at Freeport Gamma
     - File: `agent_layer.py`
     - Current: Most agents congregate at Freeport Gamma (majority of combat happens there).
     - Fix: After combat, agent should prefer moving away from current sector (post-fight dispersal).
@@ -122,7 +122,7 @@ diminishing returns, mortal spawn diminishing returns, catastrophe mortal kills,
 
   ### PHASE 3: Tests + Validation
 
-  - [ ] TASK_8: Update tests for new mechanics
+  - [x] TASK_8: Update tests for new mechanics
     - File: `tests/test_affinity.py`
     - Add: test_economy_transitions_require_sustained_pressure (3 ticks of delta before level change)
     - Add: test_hostile_infestation_builds_gradually
