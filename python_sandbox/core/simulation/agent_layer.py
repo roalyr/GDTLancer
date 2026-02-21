@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-02-21 22:59:59
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
+# LOG_REF: 2026-02-22 00:10:00
 #
 
 """Qualitative agent layer using affinity-driven tag transitions."""
@@ -363,6 +363,13 @@ class AgentLayer:
         }
         state.economy_upgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
         state.economy_downgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
+        state.economy_change_threshold[new_id] = {}
+        for category in ("RAW", "MANUFACTURED", "CURRENCY"):
+            thresh_rng = random.Random(f"{state.world_seed}:econ_thresh:{new_id}:{category}")
+            state.economy_change_threshold[new_id][category] = thresh_rng.randint(
+                constants.ECONOMY_CHANGE_TICKS_MIN,
+                constants.ECONOMY_CHANGE_TICKS_MAX,
+            )
         state.hostile_infestation_progress[new_id] = 0
 
         # --- Record ---
@@ -481,7 +488,11 @@ class AgentLayer:
 
         eligible = []
         for sector_id, tags in state.sector_tags.items():
-            if any(tag in tags for tag in constants.MORTAL_SPAWN_REQUIRED_SECURITY) and not any(t in tags for t in constants.MORTAL_SPAWN_BLOCKED_SECTOR_TAGS):
+            if (
+                any(tag in tags for tag in constants.MORTAL_SPAWN_REQUIRED_SECURITY)
+                and not any(t in tags for t in constants.MORTAL_SPAWN_BLOCKED_SECTOR_TAGS)
+                and any(tag in tags for tag in constants.MORTAL_SPAWN_MIN_ECONOMY_TAGS)
+            ):
                 eligible.append(sector_id)
 
         if not eligible:
@@ -541,7 +552,7 @@ class AgentLayer:
             agent["is_disabled"] = False
             agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
             agent["condition_tag"] = "DAMAGED"
-            agent["wealth_tag"] = "COMFORTABLE"
+            agent["wealth_tag"] = "BROKE"
             agent["cargo_tag"] = "EMPTY"
             self._log_event(state, agent_id, "survived", agent.get("current_sector_id", ""), {})
 
@@ -556,6 +567,20 @@ class AgentLayer:
         for agent_id, agent in state.agents.items():
             if agent_id == "player" or agent.get("is_disabled"):
                 continue
+
+            if (
+                state.world_age == "DISRUPTION"
+                and not agent.get("is_persistent", False)
+            ):
+                sector_tags = state.sector_tags.get(agent.get("current_sector_id", ""), [])
+                if (
+                    ("HARSH" in sector_tags or "EXTREME" in sector_tags)
+                    and self._rng.random() < constants.DISRUPTION_MORTAL_ATTRITION_CHANCE
+                ):
+                    agent["is_disabled"] = True
+                    agent["disabled_at_tick"] = state.sim_tick_count
+                    continue
+
             # Random degradation
             if self._rng.random() < constants.AGENT_UPKEEP_CHANCE:
                 if agent.get("condition_tag") == "HEALTHY":

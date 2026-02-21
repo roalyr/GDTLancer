@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: grid_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-02-21 22:57:36
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md PHASE 1 TASK_4
+# LOG_REF: 2026-02-21 23:50:00
 #
 
 """Tag-transition CA engine for economy, security, and environment layers."""
@@ -44,9 +44,17 @@ class GridLayer:
                 state.economy_upgrade_progress[sector_id] = {}
             if sector_id not in state.economy_downgrade_progress:
                 state.economy_downgrade_progress[sector_id] = {}
+            if sector_id not in state.economy_change_threshold:
+                state.economy_change_threshold[sector_id] = {}
             for category in self.CATEGORIES:
                 state.economy_upgrade_progress[sector_id].setdefault(category, 0)
                 state.economy_downgrade_progress[sector_id].setdefault(category, 0)
+                if category not in state.economy_change_threshold[sector_id]:
+                    thresh_rng = random.Random(f"{state.world_seed}:econ_thresh:{sector_id}:{category}")
+                    state.economy_change_threshold[sector_id][category] = thresh_rng.randint(
+                        constants.ECONOMY_CHANGE_TICKS_MIN,
+                        constants.ECONOMY_CHANGE_TICKS_MAX,
+                    )
             if sector_id not in state.hostile_infestation_progress:
                 state.hostile_infestation_progress[sector_id] = 0
 
@@ -74,11 +82,24 @@ class GridLayer:
         role_counts = self._role_counts_for_sector(state, sector_id)
         sector_upgrade_progress = state.economy_upgrade_progress.setdefault(sector_id, {})
         sector_downgrade_progress = state.economy_downgrade_progress.setdefault(sector_id, {})
+        sector_thresholds = state.economy_change_threshold.setdefault(sector_id, {})
+        loaded_trade = self._loaded_trade_count_for_sector(state, sector_id)
+        colony_level = state.colony_levels.get(sector_id, "frontier")
+        has_active_commerce = loaded_trade > 0 or colony_level in ("colony", "hub")
+        has_pirate_or_infestation = role_counts.get("pirate", 0) > 0 or "HOSTILE_INFESTED" in result
 
         for category in self.CATEGORIES:
             level = self._economy_level(result, category)
             idx = self.ECONOMY_LEVELS.index(level)
             delta = 0
+            threshold = sector_thresholds.get(category)
+            if threshold is None:
+                thresh_rng = random.Random(f"{state.world_seed}:econ_thresh:{sector_id}:{category}")
+                threshold = thresh_rng.randint(
+                    constants.ECONOMY_CHANGE_TICKS_MIN,
+                    constants.ECONOMY_CHANGE_TICKS_MAX,
+                )
+                sector_thresholds[category] = threshold
 
             # Homeostatic pressure (corruption / recovery)
             if level == "RICH":
@@ -86,16 +107,29 @@ class GridLayer:
             elif level == "POOR":
                 delta += 1
 
-            # World age influence
-            if world_age == "DISRUPTION":
-                delta -= 1
+            # World age influence (category-specific, condition-aware)
+            if world_age == "PROSPERITY":
+                if has_active_commerce:
+                    delta += 1
+            elif world_age == "DISRUPTION":
+                if category == "RAW":
+                    delta -= 1
+                elif category == "MANUFACTURED" and has_pirate_or_infestation:
+                    delta -= 1
             elif world_age == "RECOVERY":
-                delta += 2
-            elif world_age == "PROSPERITY":
                 delta += 1
 
+            # Colony maintenance drain
+            if colony_level == "hub":
+                delta -= 1
+            elif colony_level == "colony" and category == "RAW":
+                delta -= 1
+
+            # Population density pressure
+            if self._active_agent_count_in_sector(state, sector_id) > 3:
+                delta -= 1
+
             # Active commerce
-            loaded_trade = self._loaded_trade_count_for_sector(state, sector_id)
             if loaded_trade > 0:
                 delta += 1
             if role_counts.get("pirate", 0) > 0:
@@ -114,10 +148,10 @@ class GridLayer:
                 up_progress = 0
                 down_progress = 0
 
-            if up_progress >= constants.ECONOMY_UPGRADE_TICKS_REQUIRED and idx < 2:
+            if up_progress >= threshold and idx < 2:
                 idx = min(2, idx + 1)
                 up_progress = 0
-            elif down_progress >= constants.ECONOMY_DOWNGRADE_TICKS_REQUIRED and idx > 0:
+            elif down_progress >= threshold and idx > 0:
                 idx = max(0, idx - 1)
                 down_progress = 0
 
@@ -310,6 +344,17 @@ class GridLayer:
             role = agent.get("agent_role", "idle")
             counts[role] = counts.get(role, 0) + 1
         return counts
+
+    def _active_agent_count_in_sector(self, state, sector_id: str) -> int:
+        count = 0
+        for agent_id, agent in state.agents.items():
+            if agent_id == "player":
+                continue
+            if agent.get("is_disabled"):
+                continue
+            if agent.get("current_sector_id") == sector_id:
+                count += 1
+        return count
 
     def _economy_level(self, tags: list, category: str) -> str:
         for level in self.ECONOMY_LEVELS:

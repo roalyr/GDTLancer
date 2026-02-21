@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: constants.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
-# LOG_REF: 2026-02-21 22:59:16
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
+# LOG_REF: 2026-02-22 00:10:00
 #
 
 """Qualitative simulation constants (Phase 1 gut of numeric model).
@@ -107,6 +107,8 @@ SECURITY_CHANGE_TICKS_MAX = 6        # maximum consecutive ticks to shift
 # pressure over multiple ticks, preventing every-tick tag flipping.
 ECONOMY_UPGRADE_TICKS_REQUIRED = 3    # consecutive positive-pressure ticks
 ECONOMY_DOWNGRADE_TICKS_REQUIRED = 3  # consecutive negative-pressure ticks
+ECONOMY_CHANGE_TICKS_MIN = 2          # per-sector/category threshold minimum
+ECONOMY_CHANGE_TICKS_MAX = 5          # per-sector/category threshold maximum
 
 # ---------------------------------------------------------------------------
 # Hostile Infestation Progression
@@ -149,9 +151,11 @@ BROKE_RECOVERY_CHANCE = 0.15 # per-tick chance a BROKE agent at a station recove
 MORTAL_GLOBAL_CAP = 200                                         # max total agents alive
 MORTAL_SPAWN_REQUIRED_SECURITY = ["SECURE", "CONTESTED", "LAWLESS"]  # any of these allows spawn
 MORTAL_SPAWN_BLOCKED_SECTOR_TAGS = ["DISABLED", "HOSTILE_INFESTED"]  # these block spawn
+MORTAL_SPAWN_MIN_ECONOMY_TAGS = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]
 MORTAL_SPAWN_CHANCE = 0.08                                      # per-tick roll if eligible
 MORTAL_ROLES = ["trader", "hauler", "prospector", "explorer", "pirate"]
 MORTAL_SURVIVAL_CHANCE = 0.4                                    # 40 % survive destruction
+DISRUPTION_MORTAL_ATTRITION_CHANCE = 0.03                       # per-tick exposed mortal death chance during DISRUPTION
 
 # ---------------------------------------------------------------------------
 # Structural Constants (caps / timeouts)
