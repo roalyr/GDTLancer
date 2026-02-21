@@ -18,6 +18,12 @@ import random
 from autoload.game_state import GameState
 from database.registry.template_data import AGENTS, CHARACTERS
 from autoload import constants
+from core.simulation.affinity_matrix import (
+    compute_affinity,
+    ATTACK_THRESHOLD,
+    TRADE_THRESHOLD,
+    FLEE_THRESHOLD,
+)
 
 
 class AgentLayer:
@@ -158,72 +164,54 @@ class AgentLayer:
         self._cleanup_dead_mortals(state)
 
     # -----------------------------------------------------------------
-    # Step 4a: Goal Evaluation (role-aware)
+    # Step 4a: Goal Evaluation (affinity-driven)
     # -----------------------------------------------------------------
     def _evaluate_goals(self, agent_id: str, agent: dict, config: dict) -> None:
-        cash = agent.get("cash_reserves", 0.0)
-        hull = agent.get("hull_integrity", 1.0)
-        propellant = agent.get("propellant_reserves", 0.0)
+        """Score all reachable sectors + co-located agents via tag affinity.
 
-        cash_threshold = config.get("npc_cash_low_threshold", 2000.0)
-        hull_threshold = config.get("npc_hull_repair_threshold", 0.5)
-        desperation_hull = config.get("desperation_hull_threshold", 0.3)
-        role = agent.get("agent_role", "trader")
-
-        new_goals = []
-
-        # --- Desperation check: broke AND broken → risk trade ---
-        if hull < hull_threshold and cash <= 0.0:
-            # Can't repair without cash, can't earn cash while stuck on repair.
-            # Break the deadlock: allow desperation trading at hull risk.
-            new_goals.append({"type": "trade", "priority": 15})
-            agent["goal_archetype"] = "trade"
-
-        # --- Normal survival priorities ---
-        elif hull < hull_threshold:
-            new_goals.append({"type": "repair", "priority": 10})
-            agent["goal_archetype"] = "repair"
-        elif propellant < 10.0:
-            new_goals.append({"type": "repair", "priority": 10})
-            agent["goal_archetype"] = "repair"
-
-        # --- Role-specific goals ---
-        elif role == "trader":
-            if cash < cash_threshold:
-                new_goals.append({"type": "trade", "priority": 5})
-                agent["goal_archetype"] = "trade"
-            else:
-                new_goals.append({"type": "trade", "priority": 3})
-                agent["goal_archetype"] = "trade"
-
-        elif role == "prospector":
-            new_goals.append({"type": "prospect", "priority": 5})
-            agent["goal_archetype"] = "prospect"
-
-        elif role == "military":
-            new_goals.append({"type": "patrol", "priority": 5})
-            agent["goal_archetype"] = "patrol"
-
-        elif role == "hauler":
-            new_goals.append({"type": "haul", "priority": 5})
-            agent["goal_archetype"] = "haul"
-
-        elif role == "pirate":
-            new_goals.append({"type": "raid", "priority": 5})
-            agent["goal_archetype"] = "raid"
-
-        elif role == "explorer":
-            new_goals.append({"type": "explore", "priority": 5})
-            agent["goal_archetype"] = "explore"
-
-        else:
-            new_goals.append({"type": "idle", "priority": 1})
+        Picks the highest-magnitude target.  Positive → approach/interact,
+        negative → flee.  Survival override: DESPERATE agents always seek
+        the safest reachable STATION sector.
+        """
+        actor_tags = agent.get("sentiment_tags", [])
+        if not actor_tags:
+            # Tags not yet derived (first tick) — fall back to idle
+            agent["goal_queue"] = [{"type": "idle", "priority": 1}]
             agent["goal_archetype"] = "idle"
+            return
 
-        agent["goal_queue"] = new_goals
+        # --- Survival override: DESPERATE → seek nearest safe station ---
+        if "DESPERATE" in actor_tags:
+            agent["goal_queue"] = [{"type": "flee_to_safety", "priority": 15}]
+            agent["goal_archetype"] = "flee_to_safety"
+            return
+
+        # --- Score all reachable sectors ---
+        current_sector = agent.get("current_sector_id", "")
+        best_sector = None
+        best_sector_score = 0.0
+
+        from autoload.game_state import GameState as _GS  # avoid circular
+        # We access state indirectly — the caller stores targets on agent
+        # But we need sector tags which live on state.grid_sector_tags
+        # So we read from the agent's known_grid_state for sector list,
+        # and store scoring results on the agent dict for _execute_action.
+
+        # Collect candidate sectors: current + connections
+        sector_tags_cache = agent.get("_sector_tags_cache", {})
+        candidate_sectors = [current_sector]
+        # We don't have direct state access here, but _execute_action does.
+        # Store actor_tags for use by _execute_action.
+        agent["_actor_tags"] = actor_tags
+
+        # The actual sector scoring happens in _execute_action where we
+        # have access to state.  Here we just set the goal type.
+        # Determine dominant intent from actor tags.
+        agent["goal_queue"] = [{"type": "affinity_scan", "priority": 5}]
+        agent["goal_archetype"] = "affinity_scan"
 
     # -----------------------------------------------------------------
-    # Step 4b: Action Execution (role-aware dispatch)
+    # Step 4b: Action Execution (affinity-driven unified dispatch)
     # -----------------------------------------------------------------
     def _execute_action(
         self, state: GameState, agent_id: str, agent: dict, config: dict
@@ -235,110 +223,512 @@ class AgentLayer:
         current_goal = goal_queue[0]
         goal_type = current_goal.get("type", "idle")
 
-        if goal_type == "trade":
-            self._action_trade(state, agent_id, agent, config)
-        elif goal_type == "repair":
-            self._action_repair(state, agent_id, agent, config)
-        elif goal_type == "prospect":
-            self._action_prospect(state, agent_id, agent, config)
-        elif goal_type == "patrol":
-            self._action_patrol(state, agent_id, agent, config)
-        elif goal_type == "haul":
-            self._action_haul(state, agent_id, agent, config)
-        elif goal_type == "raid":
-            self._action_pirate(state, agent_id, agent, config)
-        elif goal_type == "explore":
-            self._action_explore(state, agent_id, agent, config)
+        if goal_type == "flee_to_safety":
+            self._action_flee_to_safety(state, agent_id, agent, config)
+        elif goal_type == "affinity_scan":
+            self._action_affinity_scan(state, agent_id, agent, config)
         # idle: do nothing
 
-    def _action_trade(
+    # -----------------------------------------------------------------
+    # Affinity-Driven Decision: scan environment, pick best, act
+    # -----------------------------------------------------------------
+    def _action_flee_to_safety(
         self, state: GameState, agent_id: str, agent: dict, config: dict
     ) -> None:
-        """Smart trade: buy cheap locally, travel to sell where expensive."""
+        """DESPERATE agent: move toward safest reachable sector with a station."""
         current_sector = agent.get("current_sector_id", "")
-        cash = agent.get("cash_reserves", 0.0)
-        char_uid = agent.get("char_uid", -1)
-        has_cargo = self._agent_has_cargo(state, char_uid)
+        connections = state.world_topology.get(current_sector, {}).get("connections", [])
+        candidates = [current_sector] + connections
 
-        # Traders receive a subsistence wage (trade guild stipend)
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.TRADER_WAGE
-        cash = agent["cash_reserves"]
+        best_sector = current_sector
+        best_security = -1.0
+        for sid in candidates:
+            dominion = state.grid_dominion.get(sid, {})
+            security = dominion.get("security_level", 0.0)
+            if security > best_security:
+                best_security = security
+                best_sector = sid
 
-        if has_cargo:
-            # Find the best sector to sell in (highest price delta for our cargo)
-            best_sell_sector = self._find_best_sell_sector(state, agent, config)
-
-            if best_sell_sector and best_sell_sector != current_sector:
-                # Travel toward best sell location
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, best_sell_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "move", new_sector)
-            else:
-                # We're at the best place (or can't find better) — sell here
-                self._action_sell(state, agent_id, agent, current_sector, config)
-        elif cash > 0.0:
-            # Find cheapest commodity across known sectors, travel there to buy
-            best_buy_sector = self._find_best_buy_sector(state, agent, config)
-
-            if best_buy_sector and best_buy_sector != current_sector:
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, best_buy_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "move", new_sector)
-            else:
-                bought = self._action_buy(state, agent_id, agent, current_sector, config)
-                if not bought:
-                    # Can't buy here — move randomly
-                    old_sector = current_sector
-                    self._action_move_random(state, agent_id, agent)
-                    new_sector = agent.get("current_sector_id", "")
-                    if new_sector != old_sector:
-                        self._log_event(state, agent_id, "move", new_sector)
-        # else: no cash, no cargo — idle
-
-    def _action_repair(
-        self, state: GameState, agent_id: str, agent: dict, config: dict
-    ) -> None:
-        current_sector = agent.get("current_sector_id", "")
-        home_sector = agent.get("home_location_id", "")
-        repair_cost_per_point = config.get("repair_cost_per_point", 500.0)
-
-        if current_sector == home_sector or not home_sector:
-            hull = agent.get("hull_integrity", 1.0)
-            if hull < 1.0:
-                repair_amount = 0.1
-                cost = repair_amount * repair_cost_per_point
-                cash = agent.get("cash_reserves", 0.0)
-                if cash >= cost:
-                    agent["hull_integrity"] = min(1.0, hull + repair_amount)
-                    agent["cash_reserves"] = cash - cost
-                    self._log_event(state, agent_id, "repair", current_sector)
-                else:
-                    # Can't afford — partial repair with what we have
-                    affordable_repair = cash / repair_cost_per_point
-                    if affordable_repair > 0.001:
-                        agent["hull_integrity"] = min(1.0, hull + affordable_repair)
-                        agent["cash_reserves"] = 0.0
-                        self._log_event(state, agent_id, "repair", current_sector)
-            # Refuel at home
-            propellant = agent.get("propellant_reserves", 0.0)
-            if propellant < 100.0:
-                refuel_amount = 100.0 - propellant
-                fuel_cost = refuel_amount * config.get("fuel_cost_per_unit", 5.0)
-                cash = agent.get("cash_reserves", 0.0)
-                if cash >= fuel_cost:
-                    agent["propellant_reserves"] = 100.0
-                    agent["cash_reserves"] = cash - fuel_cost
-        else:
+        if best_sector != current_sector:
             old_sector = current_sector
-            self._action_move_toward(state, agent_id, agent, home_sector)
+            self._action_move_toward(state, agent_id, agent, best_sector)
             new_sector = agent.get("current_sector_id", "")
             if new_sector != old_sector:
-                self._log_event(state, agent_id, "move", new_sector)
+                self._log_event(state, agent_id, "flee", new_sector,
+                                metadata={"reason": "desperate"})
 
+        # Try to dock and repair at current location
+        self._try_dock(state, agent_id, agent, agent.get("current_sector_id", ""), config)
+
+    def _action_affinity_scan(
+        self, state: GameState, agent_id: str, agent: dict, config: dict
+    ) -> None:
+        """Core affinity decision loop:
+        1. Score all reachable sectors (current + connections)
+        2. Score all co-located agents
+        3. Pick the highest-magnitude target
+        4. Resolve: ATTACK / TRADE / DOCK / FLEE / HARVEST / IDLE
+        """
+        actor_tags = agent.get("sentiment_tags", [])
+        if not actor_tags:
+            return
+
+        current_sector = agent.get("current_sector_id", "")
+        connections = state.world_topology.get(current_sector, {}).get("connections", [])
+
+        # --- 1. Score sectors (current + connected) ---
+        best_sector = None
+        best_sector_score = 0.0
+
+        for sid in [current_sector] + connections:
+            sector_tags = state.grid_sector_tags.get(sid, [])
+            score = compute_affinity(actor_tags, sector_tags)
+            if abs(score) > abs(best_sector_score):
+                best_sector_score = score
+                best_sector = sid
+
+        # --- 2. Score co-located agents ---
+        best_agent_id = None
+        best_agent_score = 0.0
+
+        for other_id, other_agent in state.agents.items():
+            if other_id == agent_id or other_id == "player":
+                continue
+            if other_agent.get("is_disabled", False):
+                continue
+            if other_agent.get("current_sector_id", "") != current_sector:
+                continue
+            target_tags = other_agent.get("sentiment_tags", [])
+            if not target_tags:
+                continue
+            score = compute_affinity(actor_tags, target_tags)
+            if abs(score) > abs(best_agent_score):
+                best_agent_score = score
+                best_agent_id = other_id
+
+        # --- 3. Pick dominant target ---
+        # Agent interactions take priority when score is higher magnitude
+        if abs(best_agent_score) >= abs(best_sector_score) and best_agent_id:
+            self._resolve_agent_interaction(
+                state, agent_id, agent, best_agent_id, best_agent_score, config
+            )
+        elif best_sector:
+            self._resolve_sector_interaction(
+                state, agent_id, agent, best_sector, best_sector_score, config
+            )
+        else:
+            # Nothing interesting — wander
+            self._action_move_random(state, agent_id, agent)
+
+    # -----------------------------------------------------------------
+    # Unified Interaction Resolution: Agent vs Agent
+    # -----------------------------------------------------------------
+    def _resolve_agent_interaction(
+        self, state: GameState, actor_id: str, actor: dict,
+        target_id: str, score: float, config: dict,
+    ) -> None:
+        """Resolve actor→target interaction based on affinity score magnitude."""
+        target = state.agents.get(target_id)
+        if not target or target.get("is_disabled", False):
+            return
+
+        sector_id = actor.get("current_sector_id", "")
+
+        if score >= ATTACK_THRESHOLD:
+            # --- ATTACK ---
+            damage_factor = config.get(
+                "affinity_attack_damage_factor",
+                constants.AFFINITY_ATTACK_DAMAGE_FACTOR,
+            )
+            damage = score * damage_factor
+            target_hull = target.get("hull_integrity", 1.0)
+            target_hull -= damage
+            target["hull_integrity"] = max(0.0, target_hull)
+
+            # Steal cargo
+            loot_fraction = config.get(
+                "affinity_loot_fraction",
+                constants.AFFINITY_LOOT_FRACTION,
+            )
+            self._transfer_cargo(state, target, actor, loot_fraction)
+
+            # Pirate role effect: boost piracy in sector
+            actor_role = actor.get("agent_role", "")
+            if actor_role == "pirate":
+                dominion = state.grid_dominion.get(sector_id, {})
+                old_piracy = dominion.get("pirate_activity", 0.0)
+                boost = config.get(
+                    "affinity_piracy_boost",
+                    constants.AFFINITY_PIRACY_BOOST,
+                )
+                dominion["pirate_activity"] = min(1.0, old_piracy + boost)
+
+            self._log_event(state, actor_id, "attack", sector_id,
+                            metadata={"target": target_id,
+                                      "score": round(score, 2),
+                                      "damage": round(damage, 3)})
+
+            # Check if target destroyed
+            if target["hull_integrity"] <= 0.0:
+                target["is_disabled"] = True
+                target["disabled_at_tick"] = state.sim_tick_count
+                self._create_wreck_from_agent(state, target, sector_id)
+                self._log_event(state, actor_id, "destroy", sector_id,
+                                metadata={"target": target_id})
+
+        elif score >= TRADE_THRESHOLD:
+            # --- TRADE (bilateral) ---
+            # Simple: sell any cargo actor has, buy what's available
+            # For agent-to-agent, small bilateral commodity exchange
+            self._bilateral_trade(state, actor, target, config)
+            self._log_event(state, actor_id, "agent_trade", sector_id,
+                            metadata={"target": target_id,
+                                      "score": round(score, 2)})
+
+        elif score <= FLEE_THRESHOLD:
+            # --- FLEE ---
+            # Move away from target (random connection away from current sector)
+            connections = state.world_topology.get(sector_id, {}).get("connections", [])
+            if connections:
+                # Pick a random connection (away from here)
+                flee_target = self._rng.choice(connections)
+                old_sector = sector_id
+                self._action_move_toward(state, actor_id, actor, flee_target)
+                new_sector = actor.get("current_sector_id", "")
+                if new_sector != old_sector:
+                    self._log_event(state, actor_id, "flee", new_sector,
+                                    metadata={"from_threat": target_id,
+                                              "score": round(score, 2)})
+        # else: |score| < TRADE_THRESHOLD → no interaction, will fall through to sector logic
+
+    # -----------------------------------------------------------------
+    # Unified Interaction Resolution: Agent vs Sector
+    # -----------------------------------------------------------------
+    def _resolve_sector_interaction(
+        self, state: GameState, actor_id: str, actor: dict,
+        sector_id: str, score: float, config: dict,
+    ) -> None:
+        """Resolve actor→sector interaction based on affinity score."""
+        current_sector = actor.get("current_sector_id", "")
+        actor_tags = actor.get("sentiment_tags", [])
+        actor_role = actor.get("agent_role", "")
+
+        if score > 0:
+            # --- Positive affinity: move toward sector, interact ---
+            if sector_id != current_sector:
+                old_sector = current_sector
+                self._action_move_toward(state, actor_id, actor, sector_id)
+                new_sector = actor.get("current_sector_id", "")
+                if new_sector != old_sector:
+                    self._log_event(state, actor_id, "move", new_sector,
+                                    metadata={"score": round(score, 2)})
+                return  # Moved this tick, act next tick
+
+            # At the target sector — perform role-appropriate action
+            if score >= ATTACK_THRESHOLD:
+                # HARVEST: extract resources, salvage wrecks
+                self._action_harvest(state, actor_id, actor, sector_id, config)
+            elif score >= TRADE_THRESHOLD:
+                # DOCK/TRADE at station
+                self._try_dock(state, actor_id, actor, sector_id, config)
+                # Also apply role-specific sector effects
+                self._apply_sector_effects(state, actor_id, actor, sector_id, config)
+            else:
+                # Mild interest — linger, apply passive effects
+                self._apply_sector_effects(state, actor_id, actor, sector_id, config)
+
+        elif score <= FLEE_THRESHOLD:
+            # --- Negative affinity: flee sector ---
+            connections = state.world_topology.get(current_sector, {}).get("connections", [])
+            if connections:
+                # Pick the sector with best (most positive) affinity
+                best_flee = None
+                best_flee_score = -float("inf")
+                for sid in connections:
+                    s_tags = state.grid_sector_tags.get(sid, [])
+                    s_score = compute_affinity(actor_tags, s_tags)
+                    if s_score > best_flee_score:
+                        best_flee_score = s_score
+                        best_flee = sid
+                if best_flee:
+                    old_sector = current_sector
+                    self._action_move_toward(state, actor_id, actor, best_flee)
+                    new_sector = actor.get("current_sector_id", "")
+                    if new_sector != old_sector:
+                        self._log_event(state, actor_id, "flee", new_sector,
+                                        metadata={"from_sector": current_sector,
+                                                  "score": round(score, 2)})
+        else:
+            # Low magnitude — wander
+            self._action_move_random(state, actor_id, actor)
+
+    # -----------------------------------------------------------------
+    # Mechanical Action Handlers (simplified)
+    # -----------------------------------------------------------------
+    def _try_dock(
+        self, state: GameState, agent_id: str, agent: dict,
+        sector_id: str, config: dict,
+    ) -> None:
+        """Dock at sector station: sell cargo, buy goods, repair hull."""
+        char_uid = agent.get("char_uid", -1)
+
+        # --- Pay wage ---
+        wage = config.get("affinity_wage_per_tick", constants.AFFINITY_WAGE_PER_TICK)
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + wage
+
+        # --- Sell all cargo ---
+        self._action_sell(state, agent_id, agent, sector_id, config)
+
+        # --- Repair hull ---
+        hull = agent.get("hull_integrity", 1.0)
+        if hull < 1.0:
+            repair_amount = config.get(
+                "affinity_repair_amount",
+                constants.AFFINITY_REPAIR_AMOUNT,
+            )
+            repair_cost = repair_amount * config.get("repair_cost_per_point", 500.0)
+            cash = agent.get("cash_reserves", 0.0)
+            if cash >= repair_cost:
+                agent["hull_integrity"] = min(1.0, hull + repair_amount)
+                agent["cash_reserves"] = cash - repair_cost
+                self._log_event(state, agent_id, "repair", sector_id)
+            elif cash > 0:
+                affordable = cash / config.get("repair_cost_per_point", 500.0)
+                if affordable > 0.001:
+                    agent["hull_integrity"] = min(1.0, hull + affordable)
+                    agent["cash_reserves"] = 0.0
+
+        # --- Refuel ---
+        propellant = agent.get("propellant_reserves", 0.0)
+        if propellant < 100.0:
+            refuel_amount = 100.0 - propellant
+            fuel_cost = refuel_amount * config.get("fuel_cost_per_unit", 5.0)
+            cash = agent.get("cash_reserves", 0.0)
+            if cash >= fuel_cost:
+                agent["propellant_reserves"] = 100.0
+                agent["cash_reserves"] = cash - fuel_cost
+
+        # --- Buy cheapest commodity ---
+        self._action_buy(state, agent_id, agent, sector_id, config)
+
+    def _action_harvest(
+        self, state: GameState, agent_id: str, agent: dict,
+        sector_id: str, config: dict,
+    ) -> None:
+        """Harvest: prospect hidden resources + salvage wrecks in sector."""
+        # --- Wreck salvage ---
+        salvage_rate = config.get(
+            "prospector_wreck_salvage_rate",
+            constants.PROSPECTOR_WRECK_SALVAGE_RATE,
+        )
+        sector_wrecks = [
+            (uid, w) for uid, w in state.grid_wrecks.items()
+            if w.get("sector_id", "") == sector_id
+        ]
+        for wreck_uid, wreck in sector_wrecks:
+            inventory = wreck.get("wreck_inventory", {})
+            stockpiles = state.grid_stockpiles.get(sector_id, {})
+            commodities = stockpiles.get("commodity_stockpiles", {})
+
+            salvaged_total = 0.0
+            for item_id in list(inventory.keys()):
+                qty = inventory[item_id]
+                if qty <= 0.0:
+                    continue
+                salvaged = qty * salvage_rate
+                inventory[item_id] = qty - salvaged
+                target_commodity = item_id if item_id.startswith("commodity_") else "commodity_ore"
+                commodities[target_commodity] = commodities.get(target_commodity, 0.0) + salvaged
+                salvaged_total += salvaged
+
+            integrity = wreck.get("wreck_integrity", 0.0)
+            hull_salvage = min(integrity, salvage_rate * integrity)
+            if hull_salvage > 0.0:
+                wreck["wreck_integrity"] = integrity - hull_salvage
+                commodities["commodity_ore"] = commodities.get("commodity_ore", 0.0) + hull_salvage
+                salvaged_total += hull_salvage
+
+            if salvaged_total > 0.0:
+                self._log_event(state, agent_id, "harvest", sector_id,
+                                metadata={"wreck_uid": wreck_uid, "matter": round(salvaged_total, 2)})
+
+        # --- Pay wage for work ---
+        wage = config.get("affinity_wage_per_tick", constants.AFFINITY_WAGE_PER_TICK)
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + wage
+
+    def _apply_sector_effects(
+        self, state: GameState, agent_id: str, agent: dict,
+        sector_id: str, config: dict,
+    ) -> None:
+        """Apply passive role-specific sector effects (security, piracy, discovery)."""
+        actor_role = agent.get("agent_role", "")
+        dominion = state.grid_dominion.get(sector_id, {})
+
+        if actor_role == "military":
+            # Boost security, suppress piracy
+            security_boost = config.get(
+                "affinity_security_boost",
+                constants.AFFINITY_SECURITY_BOOST,
+            )
+            piracy_suppress = config.get(
+                "affinity_piracy_suppress",
+                constants.AFFINITY_PIRACY_SUPPRESS,
+            )
+            old_sec = dominion.get("security_level", 0.0)
+            dominion["security_level"] = min(1.0, old_sec + security_boost)
+            old_pir = dominion.get("pirate_activity", 0.0)
+            dominion["pirate_activity"] = max(0.0, old_pir - piracy_suppress)
+
+            # Military salary
+            agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.MILITARY_SALARY
+
+        elif actor_role == "pirate":
+            # Boost piracy (dampened by security)
+            security = dominion.get("security_level", 0.5)
+            boost = config.get(
+                "affinity_piracy_boost",
+                constants.AFFINITY_PIRACY_BOOST,
+            ) * (1.0 - security)
+            old_pir = dominion.get("pirate_activity", 0.0)
+            dominion["pirate_activity"] = min(1.0, old_pir + boost)
+
+        elif actor_role == "prospector":
+            # Prospectors earn a wage
+            agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.PROSPECTOR_WAGE
+
+        elif actor_role == "explorer":
+            # Explorers pay expedition cost, attempt discovery
+            self._try_exploration(state, agent_id, agent, sector_id, config)
+
+        elif actor_role in ("trader", "hauler"):
+            # Traders/haulers earn wage
+            wage_map = {"trader": constants.TRADER_WAGE, "hauler": constants.HAULER_WAGE}
+            agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + wage_map.get(actor_role, 20.0)
+
+    def _transfer_cargo(
+        self, state: GameState, source_agent: dict, dest_agent: dict,
+        fraction: float,
+    ) -> None:
+        """Transfer a fraction of cargo from source to destination agent."""
+        src_uid = source_agent.get("char_uid", -1)
+        dst_uid = dest_agent.get("char_uid", -1)
+
+        if src_uid not in state.inventories or 2 not in state.inventories.get(src_uid, {}):
+            return
+
+        src_inv = state.inventories[src_uid][2]
+        if dst_uid not in state.inventories:
+            state.inventories[dst_uid] = {}
+        if 2 not in state.inventories[dst_uid]:
+            state.inventories[dst_uid][2] = {}
+        dst_inv = state.inventories[dst_uid][2]
+
+        for commodity_id in list(src_inv.keys()):
+            qty = src_inv[commodity_id]
+            if qty <= 0.0:
+                continue
+            transferred = qty * fraction
+            src_inv[commodity_id] = qty - transferred
+            dst_inv[commodity_id] = dst_inv.get(commodity_id, 0.0) + transferred
+
+        # Clean up dust
+        for commodity_id in list(src_inv.keys()):
+            if src_inv[commodity_id] <= 0.001:
+                dust = src_inv[commodity_id]
+                if dust > 0.0:
+                    dst_inv[commodity_id] = dst_inv.get(commodity_id, 0.0) + dust
+                del src_inv[commodity_id]
+
+    def _bilateral_trade(
+        self, state: GameState, actor: dict, target: dict, config: dict,
+    ) -> None:
+        """Simple bilateral trade: actor sells cargo to target for cash."""
+        actor_uid = actor.get("char_uid", -1)
+        target_uid = target.get("char_uid", -1)
+
+        if actor_uid not in state.inventories or 2 not in state.inventories.get(actor_uid, {}):
+            return
+        actor_inv = state.inventories[actor_uid][2]
+        if not actor_inv:
+            return
+
+        base_price = config.get("commodity_base_price", 10.0)
+        total_revenue = 0.0
+
+        for commodity_id in list(actor_inv.keys()):
+            qty = actor_inv[commodity_id]
+            if qty <= 0.0:
+                continue
+            sell_qty = min(qty, 5.0)  # Small bilateral exchange
+            revenue = sell_qty * base_price
+            target_cash = target.get("cash_reserves", 0.0)
+            if target_cash < revenue:
+                continue
+
+            actor_inv[commodity_id] = qty - sell_qty
+            target["cash_reserves"] = target_cash - revenue
+            actor["cash_reserves"] = actor.get("cash_reserves", 0.0) + revenue
+            total_revenue += revenue
+
+            # Transfer commodity to target inventory
+            if target_uid not in state.inventories:
+                state.inventories[target_uid] = {}
+            if 2 not in state.inventories[target_uid]:
+                state.inventories[target_uid][2] = {}
+            t_inv = state.inventories[target_uid][2]
+            t_inv[commodity_id] = t_inv.get(commodity_id, 0.0) + sell_qty
+
+        # Clean up
+        for cid in list(actor_inv.keys()):
+            if actor_inv[cid] <= 0.001:
+                del actor_inv[cid]
+
+    def _try_exploration(
+        self, state: GameState, agent_id: str, agent: dict,
+        sector_id: str, config: dict,
+    ) -> None:
+        """Explorer: attempt sector discovery from frontier sectors."""
+        topology = state.world_topology.get(sector_id, {})
+        is_frontier = topology.get("sector_type", "") in ("frontier", "outpost")
+
+        # Explorer wage
+        wage = config.get("explorer_wage", constants.EXPLORER_WAGE)
+        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + wage
+
+        if not is_frontier:
+            return
+
+        expedition_cost = config.get("explorer_expedition_cost", 500.0)
+        expedition_fuel = config.get("explorer_expedition_fuel", 30.0)
+        discovery_chance = config.get("explorer_discovery_chance", 0.15)
+        max_sectors = config.get("explorer_max_discovered_sectors", 10)
+
+        cash = agent.get("cash_reserves", 0.0)
+        fuel = agent.get("propellant_reserves", 0.0)
+
+        if (cash >= expedition_cost and fuel >= expedition_fuel
+                and state.discovered_sector_count < max_sectors):
+            agent["cash_reserves"] = cash - expedition_cost
+            agent["propellant_reserves"] = fuel - expedition_fuel
+            hidden = state.world_hidden_resources.get(sector_id, {})
+            hidden["propellant_sources"] = (
+                hidden.get("propellant_sources", 0.0) + expedition_fuel
+            )
+
+            if self._rng.random() < discovery_chance:
+                new_sector_id = self._discover_new_sector(
+                    state, sector_id, agent_id, config
+                )
+                if new_sector_id:
+                    self._log_event(state, agent_id, "sector_discovered",
+                                    sector_id,
+                                    metadata={"new_sector": new_sector_id})
+            else:
+                self._log_event(state, agent_id, "expedition_failed", sector_id)
+
+    # -----------------------------------------------------------------
+    # Buy / Sell (kept for dock interactions)
+    # -----------------------------------------------------------------
     def _action_buy(
         self, state: GameState, agent_id: str, agent: dict,
         sector_id: str, config: dict,
@@ -351,7 +741,6 @@ class AgentLayer:
         market = state.grid_market.get(sector_id, {})
         price_deltas = market.get("commodity_price_deltas", {})
 
-        # Find cheapest commodity (most negative price delta = most oversupplied)
         best_commodity = ""
         best_delta = float("inf")
         for commodity_id, qty in commodities.items():
@@ -367,9 +756,13 @@ class AgentLayer:
 
         base_price = config.get("commodity_base_price", 10.0)
         actual_price = max(1.0, base_price + best_delta)
+        buy_limit = config.get(
+            "affinity_trade_buy_amount",
+            constants.AFFINITY_TRADE_BUY_AMOUNT,
+        )
         affordable = int(agent.get("cash_reserves", 0.0) / actual_price)
         available = int(commodities[best_commodity])
-        buy_amount = min(affordable, available, 10)
+        buy_amount = min(affordable, available, buy_limit)
 
         if buy_amount <= 0:
             return False
@@ -443,472 +836,8 @@ class AgentLayer:
                 del inv[commodity_id]
 
     # -----------------------------------------------------------------
-    # Role: Prospector — travel to sectors with hidden resources, stay to prospect
+    # Sector Discovery (kept — called by _try_exploration)
     # -----------------------------------------------------------------
-    def _action_prospect(
-        self, state: GameState, agent_id: str, agent: dict, config: dict
-    ) -> None:
-        """Prospectors travel to resource-rich sectors, boost discovery,
-        and salvage wrecks in high-security sectors → matter to stockpiles (Axiom 1)."""
-        current_sector = agent.get("current_sector_id", "")
-        tick = state.sim_tick_count
-        move_interval = config.get("prospector_move_interval", 5)
-
-        # Prospect at current location (presence boosts discovery via grid_layer)
-        # Prospectors earn a small wage to stay alive
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + 10.0
-
-        # --- Wreck salvage in high-security sectors ---
-        security_threshold = config.get(
-            "prospector_wreck_security_threshold", 0.6
-        )
-        salvage_rate = config.get("prospector_wreck_salvage_rate", 0.15)
-        dominion = state.grid_dominion.get(current_sector, {})
-        security = dominion.get("security_level", 0.0)
-
-        if security >= security_threshold and state.grid_wrecks:
-            # Find wrecks in this sector and salvage them
-            sector_wrecks = [
-                (uid, w) for uid, w in state.grid_wrecks.items()
-                if w.get("sector_id", "") == current_sector
-            ]
-            for wreck_uid, wreck in sector_wrecks:
-                inventory = wreck.get("wreck_inventory", {})
-                stockpiles = state.grid_stockpiles.get(current_sector, {})
-                commodities = stockpiles.get("commodity_stockpiles", {})
-
-                # Salvage a fraction of each inventory item → stockpiles
-                salvaged_total = 0.0
-                for item_id in list(inventory.keys()):
-                    qty = inventory[item_id]
-                    if qty <= 0.0:
-                        continue
-                    salvaged = qty * salvage_rate
-                    inventory[item_id] = qty - salvaged
-                    # Map wreck items to commodity stockpile
-                    # Use commodity_ore as default for generic wreck matter
-                    target_commodity = item_id if item_id.startswith("commodity_") else "commodity_ore"
-                    commodities[target_commodity] = commodities.get(target_commodity, 0.0) + salvaged
-                    salvaged_total += salvaged
-
-                # Salvage hull mass fraction too (integrity IS the hull mass now)
-                integrity = wreck.get("wreck_integrity", 0.0)
-                hull_salvage = min(integrity, salvage_rate * integrity)
-                if hull_salvage > 0.0:
-                    wreck["wreck_integrity"] = integrity - hull_salvage
-                    commodities["commodity_ore"] = commodities.get("commodity_ore", 0.0) + hull_salvage
-                    salvaged_total += hull_salvage
-
-                if salvaged_total > 0.0:
-                    self._log_event(state, agent_id, "wreck_salvage", current_sector,
-                                    metadata={"wreck_uid": wreck_uid, "matter": salvaged_total})
-
-        # Periodically move toward sector with most hidden resources
-        if tick % move_interval == 0:
-            best_sector = self._find_richest_hidden_sector(state, agent)
-            if best_sector and best_sector != current_sector:
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, best_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "prospect_move", new_sector)
-
-    def _find_richest_hidden_sector(
-        self, state: GameState, agent: dict
-    ) -> str:
-        """Find sector with the most hidden resources remaining."""
-        best_sector = ""
-        best_hidden = -1.0
-        for sector_id, hidden in state.world_hidden_resources.items():
-            total_hidden = hidden.get("mineral_density", 0.0) + hidden.get("propellant_sources", 0.0)
-            if total_hidden > best_hidden:
-                best_hidden = total_hidden
-                best_sector = sector_id
-        return best_sector
-
-    # -----------------------------------------------------------------
-    # Role: Military — patrol sectors, boost security, suppress piracy
-    # -----------------------------------------------------------------
-    def _action_patrol(
-        self, state: GameState, agent_id: str, agent: dict, config: dict
-    ) -> None:
-        """Military agents patrol and suppress piracy in their sector."""
-        current_sector = agent.get("current_sector_id", "")
-        tick = state.sim_tick_count
-        patrol_interval = config.get("military_patrol_interval", 8)
-        security_boost = config.get("military_security_boost", 0.02)
-        piracy_suppress = config.get("military_piracy_suppress", 0.01)
-
-        # Apply security effect at current sector
-        dominion = state.grid_dominion.get(current_sector, {})
-        old_security = dominion.get("security_level", 0.0)
-        dominion["security_level"] = min(1.0, old_security + security_boost)
-
-        old_piracy = dominion.get("pirate_activity", 0.0)
-        dominion["pirate_activity"] = max(0.0, old_piracy - piracy_suppress)
-
-        # Military agents earn a salary
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.MILITARY_SALARY
-
-        # Periodically move toward highest-piracy sector
-        if tick % patrol_interval == 0:
-            worst_sector = self._find_highest_piracy_sector(state, agent)
-            if worst_sector and worst_sector != current_sector:
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, worst_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "patrol_move", new_sector)
-
-    def _find_highest_piracy_sector(
-        self, state: GameState, agent: dict
-    ) -> str:
-        """Find sector with worst piracy level."""
-        best_sector = ""
-        worst_piracy = -1.0
-        for sector_id, dominion in state.grid_dominion.items():
-            piracy = dominion.get("pirate_activity", 0.0)
-            if piracy > worst_piracy:
-                worst_piracy = piracy
-                best_sector = sector_id
-        return best_sector
-
-    # -----------------------------------------------------------------
-    # Role: Hauler — balance stockpiles between surplus/deficit sectors
-    # -----------------------------------------------------------------
-    def _action_haul(
-        self, state: GameState, agent_id: str, agent: dict, config: dict
-    ) -> None:
-        """Haulers move goods from surplus to deficit sectors (matter-conserving)."""
-        current_sector = agent.get("current_sector_id", "")
-        char_uid = agent.get("char_uid", -1)
-        has_cargo = self._agent_has_cargo(state, char_uid)
-        cargo_capacity = config.get("hauler_cargo_capacity", 20)
-
-        # Haulers earn a small wage
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + constants.HAULER_WAGE
-
-        if has_cargo:
-            # Deliver to deficit sector
-            deficit_sector = self._find_deficit_sector(state, agent, config)
-            if deficit_sector and deficit_sector != current_sector:
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, deficit_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "haul_move", new_sector)
-            else:
-                # At deficit sector (or nowhere to go) — unload
-                self._haul_unload(state, agent_id, agent, current_sector)
-        else:
-            # Find surplus sector and load up
-            surplus_sector = self._find_surplus_sector(state, agent, config)
-            if surplus_sector and surplus_sector != current_sector:
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, surplus_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "haul_move", new_sector)
-            else:
-                # At surplus sector — load
-                self._haul_load(state, agent_id, agent, current_sector, cargo_capacity)
-
-    def _find_surplus_sector(
-        self, state: GameState, agent: dict, config: dict
-    ) -> str:
-        """Find sector with commodity stockpiles above average (surplus)."""
-        threshold = config.get("hauler_surplus_threshold", 1.5)
-        sector_totals = {}
-        for sid, stockpile in state.grid_stockpiles.items():
-            commodities = stockpile.get("commodity_stockpiles", {})
-            sector_totals[sid] = sum(float(v) for v in commodities.values())
-
-        if not sector_totals:
-            return ""
-        avg = sum(sector_totals.values()) / len(sector_totals)
-        if avg <= 0:
-            return ""
-
-        best_sector = ""
-        best_ratio = 0.0
-        for sid, total in sector_totals.items():
-            ratio = total / avg
-            if ratio > threshold and ratio > best_ratio:
-                best_ratio = ratio
-                best_sector = sid
-        return best_sector
-
-    def _find_deficit_sector(
-        self, state: GameState, agent: dict, config: dict
-    ) -> str:
-        """Find sector with commodity stockpiles below average (deficit)."""
-        threshold = config.get("hauler_deficit_threshold", 0.5)
-        sector_totals = {}
-        for sid, stockpile in state.grid_stockpiles.items():
-            commodities = stockpile.get("commodity_stockpiles", {})
-            sector_totals[sid] = sum(float(v) for v in commodities.values())
-
-        if not sector_totals:
-            return ""
-        avg = sum(sector_totals.values()) / len(sector_totals)
-        if avg <= 0:
-            return ""
-
-        best_sector = ""
-        worst_ratio = float("inf")
-        for sid, total in sector_totals.items():
-            ratio = total / avg
-            if ratio < threshold and ratio < worst_ratio:
-                worst_ratio = ratio
-                best_sector = sid
-        return best_sector
-
-    def _haul_load(
-        self, state: GameState, agent_id: str, agent: dict,
-        sector_id: str, capacity: int,
-    ) -> None:
-        """Load most-available commodity from sector into hauler inventory."""
-        if sector_id not in state.grid_stockpiles:
-            return
-        stockpiles = state.grid_stockpiles[sector_id]
-        commodities = stockpiles.get("commodity_stockpiles", {})
-
-        # Find most abundant commodity
-        best_cid = ""
-        best_qty = 0.0
-        for cid, qty in commodities.items():
-            if qty > best_qty:
-                best_qty = qty
-                best_cid = cid
-
-        if not best_cid or best_qty <= 1.0:
-            return
-
-        load_amount = min(capacity, int(best_qty * 0.3))  # Take up to 30% of stock
-        if load_amount <= 0:
-            return
-
-        commodities[best_cid] -= float(load_amount)
-
-        char_uid = agent.get("char_uid", -1)
-        if char_uid not in state.inventories:
-            state.inventories[char_uid] = {}
-        if 2 not in state.inventories[char_uid]:
-            state.inventories[char_uid][2] = {}
-        inv = state.inventories[char_uid][2]
-        inv[best_cid] = inv.get(best_cid, 0.0) + float(load_amount)
-
-        self._log_event(state, agent_id, "haul_load", sector_id,
-                        metadata={"commodity_id": best_cid, "quantity": load_amount})
-
-    def _haul_unload(
-        self, state: GameState, agent_id: str, agent: dict, sector_id: str,
-    ) -> None:
-        """Unload all cargo into sector stockpiles (matter-conserving)."""
-        char_uid = agent.get("char_uid", -1)
-        if char_uid not in state.inventories or 2 not in state.inventories[char_uid]:
-            return
-
-        inv = state.inventories[char_uid][2]
-        if not inv:
-            return
-
-        stockpiles = state.grid_stockpiles.get(sector_id, {})
-        commodities = stockpiles.get("commodity_stockpiles", {})
-
-        for cid in list(inv.keys()):
-            qty = inv[cid]
-            if qty <= 0.0:
-                continue
-            commodities[cid] = commodities.get(cid, 0.0) + qty
-            self._log_event(state, agent_id, "haul_unload", sector_id,
-                            metadata={"commodity_id": cid, "quantity": qty})
-            inv[cid] = 0.0
-
-        # Clean up
-        for cid in list(inv.keys()):
-            if inv[cid] <= 0.0:
-                del inv[cid]
-
-    # -----------------------------------------------------------------
-    # Role: Pirate — raid cargo from other agents, exploit disruption
-    # -----------------------------------------------------------------
-    def _action_pirate(
-        self, state: GameState, agent_id: str, agent: dict, config: dict
-    ) -> None:
-        """Pirates travel to vulnerable sectors and steal cargo from agents."""
-        current_sector = agent.get("current_sector_id", "")
-        tick = state.sim_tick_count
-        move_interval = config.get("pirate_move_interval", 6)
-        raid_chance = config.get("pirate_raid_chance", 0.25)
-        steal_fraction = config.get("pirate_raid_cargo_steal", 0.3)
-        home_advantage = config.get("pirate_home_advantage", 0.15)
-
-        # Pirates boost piracy — dampened by local security
-        dominion = state.grid_dominion.get(current_sector, {})
-        old_piracy = dominion.get("pirate_activity", 0.0)
-        security = dominion.get("security_level", 0.5)
-        effective_advantage = home_advantage * (1.0 - security)
-        dominion["pirate_activity"] = min(1.0, old_piracy + effective_advantage)
-
-        # Try to raid another agent in the same sector
-        if self._rng.random() < raid_chance:
-            self._pirate_raid(state, agent_id, agent, current_sector, steal_fraction)
-
-        # Periodically move toward most vulnerable sector
-        if tick % move_interval == 0:
-            target_sector = self._find_vulnerable_sector(state, agent)
-            if target_sector and target_sector != current_sector:
-                old_sector = current_sector
-                self._action_move_toward(state, agent_id, agent, target_sector)
-                new_sector = agent.get("current_sector_id", "")
-                if new_sector != old_sector:
-                    self._log_event(state, agent_id, "pirate_move", new_sector)
-
-    def _pirate_raid(
-        self, state: GameState, pirate_agent_id: str, pirate_agent: dict,
-        sector_id: str, steal_fraction: float,
-    ) -> None:
-        """Pirate steals cargo from a random non-pirate agent in sector."""
-        targets = []
-        for agent_id, agent in state.agents.items():
-            if agent_id == pirate_agent_id:
-                continue
-            if agent.get("is_disabled", False):
-                continue
-            if agent.get("current_sector_id", "") != sector_id:
-                continue
-            if agent.get("agent_role", "") == "pirate":
-                continue
-            char_uid = agent.get("char_uid", -1)
-            if self._agent_has_cargo(state, char_uid):
-                targets.append((agent_id, agent))
-
-        if not targets:
-            return
-
-        target_agent_id, target_agent = self._rng.choice(targets)
-        target_char_uid = target_agent.get("char_uid", -1)
-        pirate_char_uid = pirate_agent.get("char_uid", -1)
-
-        if target_char_uid not in state.inventories or 2 not in state.inventories[target_char_uid]:
-            return
-
-        target_inv = state.inventories[target_char_uid][2]
-        if pirate_char_uid not in state.inventories:
-            state.inventories[pirate_char_uid] = {}
-        if 2 not in state.inventories[pirate_char_uid]:
-            state.inventories[pirate_char_uid][2] = {}
-        pirate_inv = state.inventories[pirate_char_uid][2]
-
-        total_stolen = 0.0
-        for commodity_id in list(target_inv.keys()):
-            qty = target_inv[commodity_id]
-            if qty <= 0.0:
-                continue
-            stolen = qty * steal_fraction
-            target_inv[commodity_id] = qty - stolen
-            pirate_inv[commodity_id] = pirate_inv.get(commodity_id, 0.0) + stolen
-            total_stolen += stolen
-
-        # Clean up dust
-        for commodity_id in list(target_inv.keys()):
-            if target_inv[commodity_id] <= 0.001:
-                dust = target_inv[commodity_id]
-                if dust > 0.0:
-                    pirate_inv[commodity_id] = pirate_inv.get(commodity_id, 0.0) + dust
-                del target_inv[commodity_id]
-
-        if total_stolen > 0.0:
-            pirate_agent["cash_reserves"] = pirate_agent.get("cash_reserves", 0.0) + total_stolen * 5.0
-            self._log_event(state, pirate_agent_id, "pirate_raid", sector_id,
-                            metadata={"target": target_agent_id, "stolen": total_stolen})
-
-    def _find_vulnerable_sector(
-        self, state: GameState, agent: dict,
-    ) -> str:
-        """Find sector with lowest security and highest stockpiles."""
-        best_sector = ""
-        best_score = -float("inf")
-        for sector_id, dominion in state.grid_dominion.items():
-            security = dominion.get("security_level", 1.0)
-            stockpiles = state.grid_stockpiles.get(sector_id, {})
-            total_stock = sum(float(v) for v in stockpiles.get("commodity_stockpiles", {}).values())
-            score = total_stock * (1.0 - security)
-            if score > best_score:
-                best_score = score
-                best_sector = sector_id
-        return best_sector
-
-    # -----------------------------------------------------------------
-    # Role: Explorer — discover new sectors via expeditions
-    # -----------------------------------------------------------------
-    def _action_explore(
-        self, state: GameState, agent_id: str, agent: dict, config: dict
-    ) -> None:
-        """Explorers travel to frontier sectors and launch discovery expeditions."""
-        current_sector = agent.get("current_sector_id", "")
-        tick = state.sim_tick_count
-        move_interval = config.get("explorer_move_interval", 8)
-        expedition_cost = config.get("explorer_expedition_cost", 500.0)
-        expedition_fuel = config.get("explorer_expedition_fuel", 30.0)
-        discovery_chance = config.get("explorer_discovery_chance", 0.15)
-        max_sectors = config.get("explorer_max_discovered_sectors", 10)
-        wage = config.get("explorer_wage", 12.0)
-
-        agent["cash_reserves"] = agent.get("cash_reserves", 0.0) + wage
-
-        topology = state.world_topology.get(current_sector, {})
-        is_frontier = topology.get("sector_type", "") in ("frontier", "outpost")
-
-        if is_frontier:
-            cash = agent.get("cash_reserves", 0.0)
-            fuel = agent.get("propellant_reserves", 0.0)
-
-            if (cash >= expedition_cost and fuel >= expedition_fuel
-                    and state.discovered_sector_count < max_sectors):
-                agent["cash_reserves"] = cash - expedition_cost
-                agent["propellant_reserves"] = fuel - expedition_fuel
-                hidden = state.world_hidden_resources.get(current_sector, {})
-                hidden["propellant_sources"] = (
-                    hidden.get("propellant_sources", 0.0) + expedition_fuel
-                )
-
-                if self._rng.random() < discovery_chance:
-                    new_sector_id = self._discover_new_sector(
-                        state, current_sector, agent_id, config
-                    )
-                    if new_sector_id:
-                        self._log_event(state, agent_id, "sector_discovered",
-                                        current_sector,
-                                        metadata={"new_sector": new_sector_id})
-                else:
-                    self._log_event(state, agent_id, "expedition_failed",
-                                    current_sector)
-        else:
-            if tick % move_interval == 0:
-                target = self._find_frontier_sector(state, agent)
-                if target and target != current_sector:
-                    old_sector = current_sector
-                    self._action_move_toward(state, agent_id, agent, target)
-                    new_sector = agent.get("current_sector_id", "")
-                    if new_sector != old_sector:
-                        self._log_event(state, agent_id, "explore_move", new_sector)
-
-    def _find_frontier_sector(self, state: GameState, agent: dict) -> str:
-        """Find a frontier/outpost sector to explore from."""
-        best = ""
-        best_hidden = -1.0
-        for sid, topology in state.world_topology.items():
-            stype = topology.get("sector_type", "")
-            if stype in ("frontier", "outpost"):
-                hidden = state.world_hidden_resources.get(sid, {})
-                total = hidden.get("mineral_density", 0.0) + hidden.get("propellant_sources", 0.0)
-                if total > best_hidden:
-                    best_hidden = total
-                    best = sid
-        return best
-
     def _discover_new_sector(
         self, state: GameState, from_sector: str, agent_id: str, config: dict
     ) -> str:
@@ -1193,68 +1122,6 @@ class AgentLayer:
                 "wreck_integrity": 0.0,
                 "wreck_inventory": wreck_inventory,
             }
-
-    # -----------------------------------------------------------------
-    # Smart Trade Route Helpers
-    # -----------------------------------------------------------------
-    def _find_best_sell_sector(
-        self, state: GameState, agent: dict, config: dict,
-    ) -> str:
-        """Find sector where our cargo fetches the highest price."""
-        char_uid = agent.get("char_uid", -1)
-        if char_uid not in state.inventories or 2 not in state.inventories[char_uid]:
-            return ""
-
-        inv = state.inventories[char_uid][2]
-        cargo_commodities = [cid for cid, qty in inv.items() if qty > 0]
-        if not cargo_commodities:
-            return ""
-
-        known_grid = agent.get("known_grid_state", {})
-        base_price = config.get("commodity_base_price", 10.0)
-
-        best_sector = ""
-        best_revenue = -float("inf")
-
-        for sector_id, known in known_grid.items():
-            sector_market = known.get("market", {})
-            price_deltas = sector_market.get("commodity_price_deltas", {})
-
-            total_revenue = 0.0
-            for cid in cargo_commodities:
-                qty = inv[cid]
-                delta = price_deltas.get(cid, 0.0)
-                sell_price = max(1.0, base_price + delta)
-                total_revenue += qty * sell_price
-
-            if total_revenue > best_revenue:
-                best_revenue = total_revenue
-                best_sector = sector_id
-
-        return best_sector
-
-    def _find_best_buy_sector(
-        self, state: GameState, agent: dict, config: dict,
-    ) -> str:
-        """Find sector with cheapest commodity (most negative price delta)."""
-        known_grid = agent.get("known_grid_state", {})
-
-        best_sector = ""
-        best_delta = float("inf")
-
-        for sector_id, known in known_grid.items():
-            sector_market = known.get("market", {})
-            price_deltas = sector_market.get("commodity_price_deltas", {})
-            sector_stockpiles = known.get("stockpiles", {})
-            commodities = sector_stockpiles.get("commodity_stockpiles", {})
-
-            for cid, delta in price_deltas.items():
-                available = commodities.get(cid, 0.0)
-                if available > 1.0 and delta < best_delta:
-                    best_delta = delta
-                    best_sector = sector_id
-
-        return best_sector
 
     def _action_move_random(
         self, state: GameState, agent_id: str, agent: dict

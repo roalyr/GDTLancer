@@ -62,6 +62,7 @@ def _snapshot_agents(state):
             "d": round(a.get("debt", 0.0), 1),
             "g": a.get("goal_archetype", "?")[:5],
             "x": 1 if a.get("is_disabled", False) else 0,
+            "tags": ",".join(a.get("sentiment_tags", []))[:30],
         }
     return snap
 

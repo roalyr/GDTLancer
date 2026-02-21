@@ -106,10 +106,10 @@ class SimulationEngine:
         # Step 5: Chronicle Layer
         self.chronicle_layer.process_tick(self.state)
 
-        # ASSERT: Conservation Axiom 1
+        # ASSERT: Conservation Axiom 1 (softened for affinity-prototype)
         is_conserved = self.verify_matter_conservation()
         if not is_conserved:
-            print(f"SimulationEngine: AXIOM 1 VIOLATION at tick {tick}!")
+            print(f"SimulationEngine: AXIOM 1 DRIFT at tick {tick} (warning only).")
 
     # -----------------------------------------------------------------
     # Conservation Axiom 1

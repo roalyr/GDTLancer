@@ -181,6 +181,17 @@ class ChronicleLayer:
             "disabled": "was disabled",
             "trade": "traded",
             "respawn": "returned",
+            # Affinity-driven actions
+            "attack": "attacked",
+            "agent_trade": "bartered with another agent",
+            "flee": "fled from danger",
+            "flee_to_safety": "fled to safety",
+            "harvest": "harvested salvage",
+            "affinity_scan": "scanned surroundings",
+            "sector_effects": "influenced the sector",
+            "exploration": "launched an expedition",
+            "sector_discovered": "discovered a new sector",
+            "expedition_failed": "expedition yielded nothing",
         }
         return action_map.get(action_id, action_id)
 

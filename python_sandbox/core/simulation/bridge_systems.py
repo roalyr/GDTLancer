@@ -14,12 +14,16 @@ TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md (Section 5: Bridge Systems)
 
 import copy
 from autoload.game_state import GameState
+from core.simulation.affinity_matrix import derive_agent_tags, derive_sector_tags
 
 
 class BridgeSystems:
     """Cross-layer processing that connects Grid data to Agent state."""
 
     def process_tick(self, state: GameState, config: dict) -> None:
+        # --- Refresh sector tags (used by affinity system) ---
+        self._refresh_sector_tags(state)
+
         for agent_id, agent in state.agents.items():
             if agent.get("is_disabled", False):
                 continue
@@ -29,6 +33,7 @@ class BridgeSystems:
             self._process_heat_sink(state, agent_id, agent, sector_id, config)
             self._process_entropy(state, agent_id, agent, sector_id, config)
             self._process_knowledge_refresh(state, agent_id, agent, sector_id, config)
+            self._refresh_agent_tags(state, agent_id, agent)
 
     # -----------------------------------------------------------------
     # Step 3a: Heat Sink
@@ -127,3 +132,30 @@ class BridgeSystems:
 
         agent["known_grid_state"] = known_grid
         agent["knowledge_timestamps"] = timestamps
+
+    # -----------------------------------------------------------------
+    # Tag Refresh (Affinity System)
+    # -----------------------------------------------------------------
+    def _refresh_agent_tags(
+        self,
+        state: GameState,
+        agent_id: str,
+        agent: dict,
+    ) -> None:
+        """Derive and store agent tags from character traits + runtime state."""
+        char_uid = agent.get("char_uid", -1)
+        char_data = state.characters.get(char_uid, {})
+
+        # Check cargo
+        has_cargo = False
+        if char_uid in state.inventories and 2 in state.inventories[char_uid]:
+            inv = state.inventories[char_uid][2]
+            has_cargo = any(float(qty) > 0.0 for qty in inv.values())
+
+        tags = derive_agent_tags(char_data, agent, has_cargo=has_cargo)
+        agent["sentiment_tags"] = tags
+
+    def _refresh_sector_tags(self, state: GameState) -> None:
+        """Derive and store tags for every sector."""
+        for sector_id in state.world_topology:
+            state.grid_sector_tags[sector_id] = derive_sector_tags(sector_id, state)

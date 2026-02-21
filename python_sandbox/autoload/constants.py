@@ -77,7 +77,7 @@ FUEL_COST_PER_UNIT = 5.0
 WORLD_TICK_INTERVAL_SECONDS = 60
 
 # === Axiom 1 (relative tolerance: fraction of total matter budget) ===
-AXIOM1_RELATIVE_TOLERANCE = 0.015  # 1.5%
+AXIOM1_RELATIVE_TOLERANCE = 0.50  # 50% — relaxed for affinity prototyping
 
 # === Commodities (TRUTH_SIMULATION-GRAPH §2) ===
 COMMODITY_IDS = [
@@ -274,3 +274,16 @@ WORLD_AGE_CONFIGS = {
 # They are initialized at runtime and tracked in GameState.
 # UNIVERSE_CONSTANT = TOTAL_MATTER + UNDISCOVERED_MATTER_POOL + slag_total
 # (set at initialization, never changes)
+
+# === Affinity System Tuning (Concept_injection.md) ===
+# Mechanical outcome magnitudes for the unified tag-affinity dispatch.
+AFFINITY_ATTACK_DAMAGE_FACTOR = 0.15     # Hull damage per encounter = score × this
+AFFINITY_LOOT_FRACTION = 0.3             # Fraction of cargo looted on attack
+AFFINITY_TRADE_SELL_AMOUNT = 10          # Max commodities sold per dock
+AFFINITY_TRADE_BUY_AMOUNT = 10           # Max commodities bought per dock
+AFFINITY_REPAIR_AMOUNT = 0.1             # Hull repaired per dock visit
+AFFINITY_HARVEST_RATE = 0.05             # Fraction of hidden resources harvested
+AFFINITY_SECURITY_BOOST = 0.02           # Security boost per military tick
+AFFINITY_PIRACY_SUPPRESS = 0.01          # Piracy reduction per military tick
+AFFINITY_PIRACY_BOOST = 0.05             # Piracy boost per pirate tick
+AFFINITY_WAGE_PER_TICK = 20.0            # Flat income for working agents

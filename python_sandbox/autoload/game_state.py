@@ -36,6 +36,7 @@ class GameState:
         self.grid_maintenance: dict = {}
         self.grid_power: dict = {}
         self.grid_wrecks: dict = {}
+        self.grid_sector_tags: dict = {}  # {sector_id: [tag_str, ...]} — refreshed by BridgeSystems
 
         # === Layer 3: Agents ===
         self.characters: dict = {}
