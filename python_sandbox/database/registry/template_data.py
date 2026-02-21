@@ -11,11 +11,22 @@
 # -------------------------------------------------------------------------
 # Locations
 # -------------------------------------------------------------------------
+# STARTING TOPOLOGY (5 sectors, 5 edges, avg degree = 2.0)
+#
+#   beta ---- alpha
+#     \       /
+#      delta ---- gamma ---- epsilon
+#
+# Core triangle: alpha(colony), beta(colony), delta(colony)
+# Frontier tail:  delta -> gamma(frontier) -> epsilon(outpost)
+# All connections are bidirectional.
+# Degrees: alpha=2, beta=2, gamma=2, delta=3, epsilon=1
+# -------------------------------------------------------------------------
 LOCATIONS = {
     "station_alpha": {
         "location_name": "Station Alpha - Mining Hub",
         "location_type": "station",
-        "connections": ["station_beta", "station_gamma", "station_delta"],
+        "connections": ["station_beta", "station_delta"],
         "sector_type": "colony",
         "available_services": ["trade", "contracts", "repair"],
         "controlling_faction_id": "faction_miners",
@@ -47,7 +58,7 @@ LOCATIONS = {
     "station_gamma": {
         "location_name": "Freeport Gamma",
         "location_type": "station",
-        "connections": ["station_alpha", "station_delta"],
+        "connections": ["station_delta", "station_epsilon"],
         "sector_type": "frontier",
         "available_services": ["trade", "contracts", "black_market"],
         "controlling_faction_id": "faction_independents",
@@ -80,7 +91,7 @@ LOCATIONS = {
     "station_epsilon": {
         "location_name": "Epsilon Refinery Complex",
         "location_type": "station",
-        "connections": ["station_alpha", "station_beta", "station_gamma"],
+        "connections": ["station_gamma"],
         "sector_type": "outpost",
         "available_services": ["trade", "repair", "contracts"],
         "controlling_faction_id": "faction_miners",

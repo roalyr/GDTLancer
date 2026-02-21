@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: constants.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
-# LOG_REF: 2026-02-22 00:10:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 1 TASK_1
+# LOG_REF: 2026-02-22 01:00:00
 #
 
 """Qualitative simulation constants (Phase 1 gut of numeric model).
@@ -165,10 +165,18 @@ RUMOR_BUFFER_CAP = 200              # max rumours kept in rolling buffer
 RESPAWN_COOLDOWN_TICKS = 1          # ticks a persistent NPC waits before respawning
 RESPAWN_COOLDOWN_MAX_DEBT = 25      # max accumulated respawn debt ticks
 MAX_SECTOR_COUNT = 20               # world graph won't grow beyond this many sectors
-NEW_SECTOR_MAX_CONNECTIONS = 3      # max connections a newly discovered sector starts with
-NEW_SECTOR_EXTRA_CONNECTION_CHANCE = 0.4  # per-candidate chance to form an extra link
 EXPLORATION_COOLDOWN_TICKS = 5      # ticks an explorer must wait between discoveries
 EXPLORATION_SUCCESS_CHANCE = 0.3    # probability each attempt actually finds something
+
+# ---------------------------------------------------------------------------
+# Topology
+# ---------------------------------------------------------------------------
+# Discovery now builds filament/web structure with hard per-sector degree caps,
+# mostly-single-link expansion, and occasional loop-forming links.
+MAX_CONNECTIONS_PER_SECTOR = 4      # hard cap on total connections per sector
+EXTRA_CONNECTION_1_CHANCE = 0.20    # nearby branch link chance (after primary)
+EXTRA_CONNECTION_2_CHANCE = 0.05    # distant loop link chance (requires first extra)
+LOOP_MIN_HOPS = 3                   # minimum graph distance for loop candidate
 
 # ---------------------------------------------------------------------------
 # Catastrophe

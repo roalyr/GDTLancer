@@ -3,8 +3,8 @@
 # PROJECT: GDTLancer
 # MODULE: main.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_12)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 3 TASK_4
+# LOG_REF: 2026-02-22 00:57:18
 #
 
 """Qualitative simulation CLI with compact tag dashboard output."""
@@ -470,6 +470,23 @@ def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
         conns = state.world_topology.get(sid, {}).get("connections", [])
         conn_names = [_loc(c, state) for c in conns]
         lines.append(f"    {_loc(sid, state)} <-> {', '.join(conn_names) if conn_names else '(isolated)'}")
+
+    degree_map = {
+        sid: len(state.world_topology.get(sid, {}).get("connections", []))
+        for sid in state.sector_tags.keys()
+    }
+    degree_values = list(degree_map.values())
+    max_degree = max(degree_values) if degree_values else 0
+    avg_degree = (sum(degree_values) / float(len(degree_values))) if degree_values else 0.0
+    bottleneck_count = sum(1 for degree in degree_values if degree <= 2)
+    d1 = sum(1 for degree in degree_values if degree == 1)
+    d2 = sum(1 for degree in degree_values if degree == 2)
+    d3 = sum(1 for degree in degree_values if degree == 3)
+    d4 = sum(1 for degree in degree_values if degree == 4)
+    lines.append(
+        f"  Topology: max_degree={max_degree} avg={avg_degree:.1f} bottlenecks={bottleneck_count} "
+        f"distribution=[d1:{d1}, d2:{d2}, d3:{d3}, d4:{d4}]"
+    )
 
     # Final agent roster
     lines.append("")

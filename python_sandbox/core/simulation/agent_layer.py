@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
-# LOG_REF: 2026-02-22 00:10:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md PHASE 2 TASK_3
+# LOG_REF: 2026-02-22 00:55:42
 #
 
 """Qualitative agent layer using affinity-driven tag transitions."""
@@ -309,14 +309,35 @@ class AgentLayer:
         # --- Generate a deterministic name ---
         new_name = self._generate_sector_name(state)
 
-        # --- Determine connections (always link to source) ---
-        connections = [sector_id]
-        source_neighbors = state.world_topology.get(sector_id, {}).get("connections", [])
-        for neighbor_id in source_neighbors:
-            if len(connections) >= constants.NEW_SECTOR_MAX_CONNECTIONS:
-                break
-            if self._rng.random() < constants.NEW_SECTOR_EXTRA_CONNECTION_CHANCE:
-                connections.append(neighbor_id)
+        # --- Determine connections (filament topology: cap + sparse branching) ---
+        source_id = sector_id
+        if self._graph_degree(state, source_id) >= constants.MAX_CONNECTIONS_PER_SECTOR:
+            fallback_candidates = []
+            for neighbor_id in state.world_topology.get(source_id, {}).get("connections", []):
+                if self._graph_degree(state, neighbor_id) < constants.MAX_CONNECTIONS_PER_SECTOR:
+                    fallback_candidates.append(neighbor_id)
+
+            if not fallback_candidates:
+                self._log_event(state, agent_id, "expedition_failed", sector_id, {"reason": "region_saturated"})
+                return
+
+            source_id = sorted(fallback_candidates, key=lambda sid: (self._graph_degree(state, sid), sid))[0]
+
+        connections = [source_id]
+
+        extra_one_added = False
+        if self._rng.random() < constants.EXTRA_CONNECTION_1_CHANCE:
+            nearby = self._nearby_candidates(state, source_id, set(connections))
+            if nearby:
+                extra_one = self._rng.choice(sorted(nearby))
+                if extra_one not in connections:
+                    connections.append(extra_one)
+                    extra_one_added = True
+
+        if extra_one_added and self._rng.random() < constants.EXTRA_CONNECTION_2_CHANCE:
+            loop_candidate = self._distant_loop_candidate(state, source_id, set(connections))
+            if loop_candidate is not None and loop_candidate not in connections:
+                connections.append(loop_candidate)
 
         # --- Pick initial tags (frontier bias: harsh, poor, contested) ---
         sec_roll = self._rng.random()
@@ -405,6 +426,62 @@ class AgentLayer:
         prefix = rng.choice(self._FRONTIER_PREFIXES)
         suffix = rng.choice(self._FRONTIER_SUFFIXES)
         return f"{prefix} {suffix}"
+
+    def _graph_degree(self, state, sector_id: str) -> int:
+        """Return connection count for a sector in the topology graph."""
+        return len(state.world_topology.get(sector_id, {}).get("connections", []))
+
+    def _sectors_below_cap(self, state) -> list[str]:
+        """Return all sectors whose degree is below the hard connection cap."""
+        sectors = []
+        for sid in state.world_topology.keys():
+            if self._graph_degree(state, sid) < constants.MAX_CONNECTIONS_PER_SECTOR:
+                sectors.append(sid)
+        return sectors
+
+    def _nearby_candidates(self, state, source_id: str, exclude: set) -> list[str]:
+        """Return neighbors of source that can accept more links and are not excluded."""
+        candidates = []
+        neighbors = state.world_topology.get(source_id, {}).get("connections", [])
+        for sid in neighbors:
+            if sid in exclude:
+                continue
+            if self._graph_degree(state, sid) >= constants.MAX_CONNECTIONS_PER_SECTOR:
+                continue
+            candidates.append(sid)
+        return candidates
+
+    def _distant_loop_candidate(self, state, source_id: str, exclude: set):
+        """Pick a deterministic distant loop target at >= LOOP_MIN_HOPS from source."""
+        if source_id not in state.world_topology:
+            return None
+
+        queue = [(source_id, 0)]
+        visited = {source_id}
+        distant = []
+
+        while queue:
+            current_id, depth = queue.pop(0)
+            if (
+                depth >= constants.LOOP_MIN_HOPS
+                and current_id not in exclude
+                and self._graph_degree(state, current_id) < constants.MAX_CONNECTIONS_PER_SECTOR
+            ):
+                distant.append(current_id)
+
+            for neighbor_id in state.world_topology.get(current_id, {}).get("connections", []):
+                if neighbor_id in visited:
+                    continue
+                visited.add(neighbor_id)
+                queue.append((neighbor_id, depth + 1))
+
+        if not distant:
+            return None
+
+        rng = random.Random(
+            f"{state.world_seed}:loop:{source_id}:{state.discovered_sector_count}:{state.sim_tick_count}"
+        )
+        return rng.choice(sorted(distant))
 
     def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str, can_attack: bool):
         best_id = None
