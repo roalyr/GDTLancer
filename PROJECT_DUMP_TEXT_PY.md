@@ -4,8 +4,8 @@
 # PROJECT: GDTLancer
 # MODULE: constants.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
-# LOG_REF: 2026-02-21 22:59:16
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
+# LOG_REF: 2026-02-22 00:10:00
 #
 
 """Qualitative simulation constants (Phase 1 gut of numeric model).
@@ -109,6 +109,8 @@ SECURITY_CHANGE_TICKS_MAX = 6        # maximum consecutive ticks to shift
 # pressure over multiple ticks, preventing every-tick tag flipping.
 ECONOMY_UPGRADE_TICKS_REQUIRED = 3    # consecutive positive-pressure ticks
 ECONOMY_DOWNGRADE_TICKS_REQUIRED = 3  # consecutive negative-pressure ticks
+ECONOMY_CHANGE_TICKS_MIN = 2          # per-sector/category threshold minimum
+ECONOMY_CHANGE_TICKS_MAX = 5          # per-sector/category threshold maximum
 
 # ---------------------------------------------------------------------------
 # Hostile Infestation Progression
@@ -151,9 +153,11 @@ BROKE_RECOVERY_CHANCE = 0.15 # per-tick chance a BROKE agent at a station recove
 MORTAL_GLOBAL_CAP = 200                                         # max total agents alive
 MORTAL_SPAWN_REQUIRED_SECURITY = ["SECURE", "CONTESTED", "LAWLESS"]  # any of these allows spawn
 MORTAL_SPAWN_BLOCKED_SECTOR_TAGS = ["DISABLED", "HOSTILE_INFESTED"]  # these block spawn
+MORTAL_SPAWN_MIN_ECONOMY_TAGS = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]
 MORTAL_SPAWN_CHANCE = 0.08                                      # per-tick roll if eligible
 MORTAL_ROLES = ["trader", "hauler", "prospector", "explorer", "pirate"]
 MORTAL_SURVIVAL_CHANCE = 0.4                                    # 40 % survive destruction
+DISRUPTION_MORTAL_ATTRITION_CHANCE = 0.03                       # per-tick exposed mortal death chance during DISRUPTION
 
 # ---------------------------------------------------------------------------
 # Structural Constants (caps / timeouts)
@@ -202,8 +206,8 @@ SUBTICK_COST_DEEP_SPACE_EVENT = 5  # half-tick — encounter / scan / anomaly
 # PROJECT: GDTLancer
 # MODULE: game_state.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-02-21 22:57:36
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.4 + TACTICAL_TODO.md PHASE 1 TASK_1
+# LOG_REF: 2026-02-21 23:15:00
 #
 
 import copy
@@ -243,6 +247,7 @@ class GameState:
         # === Economy progression ===
         self.economy_upgrade_progress: dict = {}     # sector_id -> {category -> consecutive ticks of upgrade pressure}
         self.economy_downgrade_progress: dict = {}   # sector_id -> {category -> consecutive ticks of downgrade pressure}
+        self.economy_change_threshold: dict = {}     # sector_id -> {category -> per-sector ticks required to shift}
 
         # === Hostile infestation progression ===
         self.hostile_infestation_progress: dict = {} # sector_id -> transition progress ticks (build/clear)
@@ -580,8 +585,8 @@ def _unique(values: list) -> list:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-02-21 22:59:59
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.3 + TACTICAL_TODO.md PHASE 2 TASK_6
+# LOG_REF: 2026-02-22 00:10:00
 #
 
 """Qualitative agent layer using affinity-driven tag transitions."""
@@ -941,6 +946,13 @@ class AgentLayer:
         }
         state.economy_upgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
         state.economy_downgrade_progress[new_id] = {cat: 0 for cat in ("RAW", "MANUFACTURED", "CURRENCY")}
+        state.economy_change_threshold[new_id] = {}
+        for category in ("RAW", "MANUFACTURED", "CURRENCY"):
+            thresh_rng = random.Random(f"{state.world_seed}:econ_thresh:{new_id}:{category}")
+            state.economy_change_threshold[new_id][category] = thresh_rng.randint(
+                constants.ECONOMY_CHANGE_TICKS_MIN,
+                constants.ECONOMY_CHANGE_TICKS_MAX,
+            )
         state.hostile_infestation_progress[new_id] = 0
 
         # --- Record ---
@@ -1059,7 +1071,11 @@ class AgentLayer:
 
         eligible = []
         for sector_id, tags in state.sector_tags.items():
-            if any(tag in tags for tag in constants.MORTAL_SPAWN_REQUIRED_SECURITY) and not any(t in tags for t in constants.MORTAL_SPAWN_BLOCKED_SECTOR_TAGS):
+            if (
+                any(tag in tags for tag in constants.MORTAL_SPAWN_REQUIRED_SECURITY)
+                and not any(t in tags for t in constants.MORTAL_SPAWN_BLOCKED_SECTOR_TAGS)
+                and any(tag in tags for tag in constants.MORTAL_SPAWN_MIN_ECONOMY_TAGS)
+            ):
                 eligible.append(sector_id)
 
         if not eligible:
@@ -1119,7 +1135,7 @@ class AgentLayer:
             agent["is_disabled"] = False
             agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
             agent["condition_tag"] = "DAMAGED"
-            agent["wealth_tag"] = "COMFORTABLE"
+            agent["wealth_tag"] = "BROKE"
             agent["cargo_tag"] = "EMPTY"
             self._log_event(state, agent_id, "survived", agent.get("current_sector_id", ""), {})
 
@@ -1134,6 +1150,20 @@ class AgentLayer:
         for agent_id, agent in state.agents.items():
             if agent_id == "player" or agent.get("is_disabled"):
                 continue
+
+            if (
+                state.world_age == "DISRUPTION"
+                and not agent.get("is_persistent", False)
+            ):
+                sector_tags = state.sector_tags.get(agent.get("current_sector_id", ""), [])
+                if (
+                    ("HARSH" in sector_tags or "EXTREME" in sector_tags)
+                    and self._rng.random() < constants.DISRUPTION_MORTAL_ATTRITION_CHANCE
+                ):
+                    agent["is_disabled"] = True
+                    agent["disabled_at_tick"] = state.sim_tick_count
+                    continue
+
             # Random degradation
             if self._rng.random() < constants.AGENT_UPKEEP_CHANCE:
                 if agent.get("condition_tag") == "HEALTHY":
@@ -1453,8 +1483,8 @@ class ChronicleLayer:
 # PROJECT: GDTLancer
 # MODULE: grid_layer.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-02-21 22:57:36
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md PHASE 1 TASK_4
+# LOG_REF: 2026-02-21 23:50:00
 #
 
 """Tag-transition CA engine for economy, security, and environment layers."""
@@ -1495,9 +1525,17 @@ class GridLayer:
                 state.economy_upgrade_progress[sector_id] = {}
             if sector_id not in state.economy_downgrade_progress:
                 state.economy_downgrade_progress[sector_id] = {}
+            if sector_id not in state.economy_change_threshold:
+                state.economy_change_threshold[sector_id] = {}
             for category in self.CATEGORIES:
                 state.economy_upgrade_progress[sector_id].setdefault(category, 0)
                 state.economy_downgrade_progress[sector_id].setdefault(category, 0)
+                if category not in state.economy_change_threshold[sector_id]:
+                    thresh_rng = random.Random(f"{state.world_seed}:econ_thresh:{sector_id}:{category}")
+                    state.economy_change_threshold[sector_id][category] = thresh_rng.randint(
+                        constants.ECONOMY_CHANGE_TICKS_MIN,
+                        constants.ECONOMY_CHANGE_TICKS_MAX,
+                    )
             if sector_id not in state.hostile_infestation_progress:
                 state.hostile_infestation_progress[sector_id] = 0
 
@@ -1525,11 +1563,24 @@ class GridLayer:
         role_counts = self._role_counts_for_sector(state, sector_id)
         sector_upgrade_progress = state.economy_upgrade_progress.setdefault(sector_id, {})
         sector_downgrade_progress = state.economy_downgrade_progress.setdefault(sector_id, {})
+        sector_thresholds = state.economy_change_threshold.setdefault(sector_id, {})
+        loaded_trade = self._loaded_trade_count_for_sector(state, sector_id)
+        colony_level = state.colony_levels.get(sector_id, "frontier")
+        has_active_commerce = loaded_trade > 0 or colony_level in ("colony", "hub")
+        has_pirate_or_infestation = role_counts.get("pirate", 0) > 0 or "HOSTILE_INFESTED" in result
 
         for category in self.CATEGORIES:
             level = self._economy_level(result, category)
             idx = self.ECONOMY_LEVELS.index(level)
             delta = 0
+            threshold = sector_thresholds.get(category)
+            if threshold is None:
+                thresh_rng = random.Random(f"{state.world_seed}:econ_thresh:{sector_id}:{category}")
+                threshold = thresh_rng.randint(
+                    constants.ECONOMY_CHANGE_TICKS_MIN,
+                    constants.ECONOMY_CHANGE_TICKS_MAX,
+                )
+                sector_thresholds[category] = threshold
 
             # Homeostatic pressure (corruption / recovery)
             if level == "RICH":
@@ -1537,16 +1588,29 @@ class GridLayer:
             elif level == "POOR":
                 delta += 1
 
-            # World age influence
-            if world_age == "DISRUPTION":
-                delta -= 1
+            # World age influence (category-specific, condition-aware)
+            if world_age == "PROSPERITY":
+                if has_active_commerce:
+                    delta += 1
+            elif world_age == "DISRUPTION":
+                if category == "RAW":
+                    delta -= 1
+                elif category == "MANUFACTURED" and has_pirate_or_infestation:
+                    delta -= 1
             elif world_age == "RECOVERY":
-                delta += 2
-            elif world_age == "PROSPERITY":
                 delta += 1
 
+            # Colony maintenance drain
+            if colony_level == "hub":
+                delta -= 1
+            elif colony_level == "colony" and category == "RAW":
+                delta -= 1
+
+            # Population density pressure
+            if self._active_agent_count_in_sector(state, sector_id) > 3:
+                delta -= 1
+
             # Active commerce
-            loaded_trade = self._loaded_trade_count_for_sector(state, sector_id)
             if loaded_trade > 0:
                 delta += 1
             if role_counts.get("pirate", 0) > 0:
@@ -1565,10 +1629,10 @@ class GridLayer:
                 up_progress = 0
                 down_progress = 0
 
-            if up_progress >= constants.ECONOMY_UPGRADE_TICKS_REQUIRED and idx < 2:
+            if up_progress >= threshold and idx < 2:
                 idx = min(2, idx + 1)
                 up_progress = 0
-            elif down_progress >= constants.ECONOMY_DOWNGRADE_TICKS_REQUIRED and idx > 0:
+            elif down_progress >= threshold and idx > 0:
                 idx = max(0, idx - 1)
                 down_progress = 0
 
@@ -1761,6 +1825,17 @@ class GridLayer:
             role = agent.get("agent_role", "idle")
             counts[role] = counts.get(role, 0) + 1
         return counts
+
+    def _active_agent_count_in_sector(self, state, sector_id: str) -> int:
+        count = 0
+        for agent_id, agent in state.agents.items():
+            if agent_id == "player":
+                continue
+            if agent.get("is_disabled"):
+                continue
+            if agent.get("current_sector_id") == sector_id:
+                count += 1
+        return count
 
     def _economy_level(self, tags: list, category: str) -> str:
         for level in self.ECONOMY_LEVELS:
@@ -3270,8 +3345,8 @@ if __name__ == "__main__":
 # PROJECT: GDTLancer
 # MODULE: test_affinity.py
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_8
-# LOG_REF: 2026-02-21 23:00:28
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.4, §6.3 + TACTICAL_TODO.md PHASE 3 TASK_7
+# LOG_REF: 2026-02-22 00:20:00
 #
 
 """Unit tests for qualitative affinity and tag-transition CA rules.
@@ -3283,10 +3358,13 @@ Run:
 import os
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from autoload.game_state import GameState
+from autoload import constants
+from core.simulation.agent_layer import AgentLayer
 from core.simulation.affinity_matrix import (
     AFFINITY_MATRIX,
     ATTACK_THRESHOLD,
@@ -3372,11 +3450,35 @@ class TestTagTransitionCA(unittest.TestCase):
             "a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
             "b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
         }
+        self.state.economy_change_threshold = {
+            "a": {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3},
+            "b": {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3},
+        }
         self.state.hostile_infestation_progress = {"a": 0, "b": 0}
         self.state.agents = {
             "mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": False},
             "pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": False},
         }
+
+    def test_economy_thresholds_vary_per_sector(self):
+        state = GameState()
+        state.world_seed = "seed-123"
+        state.world_topology = {
+            "s1": {"connections": ["s2"], "sector_type": "colony"},
+            "s2": {"connections": ["s1"], "sector_type": "colony"},
+        }
+        state.sector_tags = {
+            "s1": ["STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+            "s2": ["STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+        }
+
+        self.layer.initialize_grid(state)
+
+        s1 = state.economy_change_threshold["s1"]
+        s2 = state.economy_change_threshold["s2"]
+        self.assertTrue(all(2 <= value <= 5 for value in s1.values()))
+        self.assertTrue(all(2 <= value <= 5 for value in s2.values()))
+        self.assertNotEqual(s1, s2)
 
     def test_economy_transitions_require_sustained_pressure(self):
         self.state.world_age = "RECOVERY"
@@ -3438,6 +3540,83 @@ class TestTagTransitionCA(unittest.TestCase):
 
         self.layer.process_tick(self.state, {})
         self.assertNotIn("HOSTILE_INFESTED", self.state.sector_tags["b"])
+
+    def test_colony_maintenance_drains_economy(self):
+        state = GameState()
+        state.world_seed = "maint-seed"
+        state.world_age = "PROSPERITY"
+        state.world_topology = {
+            "hub_sector": {"connections": [], "sector_type": "hub"},
+        }
+        state.sector_tags = {
+            "hub_sector": ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+        }
+        state.grid_dominion = {"hub_sector": {}}
+        state.colony_levels = {"hub_sector": "hub"}
+        state.colony_upgrade_progress = {"hub_sector": 0}
+        state.colony_downgrade_progress = {"hub_sector": 0}
+        state.security_upgrade_progress = {"hub_sector": 0}
+        state.security_downgrade_progress = {"hub_sector": 0}
+        state.security_change_threshold = {"hub_sector": 3}
+        state.economy_upgrade_progress = {"hub_sector": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}}
+        state.economy_downgrade_progress = {"hub_sector": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}}
+        state.economy_change_threshold = {"hub_sector": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}}
+        state.hostile_infestation_progress = {"hub_sector": 0}
+        state.agents = {}
+
+        for _ in range(10):
+            self.layer.process_tick(state, {})
+
+        tags = state.sector_tags["hub_sector"]
+        self.assertNotIn("RAW_RICH", tags)
+        self.assertNotIn("MANUFACTURED_RICH", tags)
+        self.assertNotIn("CURRENCY_RICH", tags)
+
+
+class TestPopulationEquilibrium(unittest.TestCase):
+    def test_mortal_spawn_blocked_in_poor_sector(self):
+        layer = AgentLayer()
+        layer._rng.seed(0)
+
+        state = GameState()
+        state.world_topology = {"s1": {"connections": [], "sector_type": "colony"}}
+        state.sector_tags = {
+            "s1": ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"],
+        }
+        state.agents = {}
+        state.mortal_agent_counter = 0
+
+        with patch.object(constants, "MORTAL_SPAWN_CHANCE", 1.0):
+            layer._spawn_mortal_agents(state)
+
+        self.assertEqual(state.mortal_agent_counter, 0)
+        self.assertEqual(len(state.agents), 0)
+
+    def test_mortal_survivor_starts_broke(self):
+        layer = AgentLayer()
+        layer._rng.seed(0)
+
+        state = GameState()
+        state.agents = {
+            "mortal_1": {
+                "is_persistent": False,
+                "is_disabled": True,
+                "home_location_id": "s1",
+                "current_sector_id": "s2",
+                "condition_tag": "DESTROYED",
+                "wealth_tag": "WEALTHY",
+                "cargo_tag": "LOADED",
+            }
+        }
+
+        with patch.object(constants, "MORTAL_SURVIVAL_CHANCE", 1.0):
+            layer._cleanup_dead_mortals(state)
+
+        survivor = state.agents["mortal_1"]
+        self.assertFalse(survivor["is_disabled"])
+        self.assertEqual(survivor["condition_tag"], "DAMAGED")
+        self.assertEqual(survivor["wealth_tag"], "BROKE")
+        self.assertEqual(survivor["cargo_tag"], "EMPTY")
 
 
 if __name__ == "__main__":

@@ -3,1042 +3,1014 @@ CHRONICLE OF THE SECTOR  (seed: 123)
 ================================================================
 
 --- Epoch 1: ticks 1–100 [PROSPERITY] ---
-  Station Alpha - Mining Hub: grew from colony to hub.
-  Station Beta - Trade Post: security changed from secure to contested.
-  Outpost Delta - Military Garrison: security changed from secure to contested.
-  Epsilon Refinery Complex: security changed from contested to secure; grew from outpost to hub.
-  Freeport Gamma: security changed from lawless to secure; grew from frontier to colony.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; declined from colony to outpost.
+  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from secure to contested; grew from colony to hub.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate; grew from colony to hub.
+  Epsilon Refinery Complex: grew from outpost to colony.
+  Freeport Gamma: economy shifted from adequate to poor; security changed from lawless to secure.
 
-  Combat: 47 engagements, fiercest around Station Alpha - Mining Hub (22). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 273 trades (busiest: Freeport Gamma), 377 cargo runs loaded, 3 salvage operations.
-  Danger: 10 pilots fled dangerous encounters.
-  Losses & returns: 5 pilots respawned after prior destruction; 3 were lost permanently.
-  New arrivals at Station Alpha - Mining Hub: mortal_1 (prospector).
-  New arrivals at Freeport Gamma: mortal_2.
-  New arrivals at Iron Shelf: mortal_3, mortal_4.
-  New arrivals at Void Threshold: mortal_5 (hauler), mortal_7 (explorer).
-  New arrivals at Storm Shelf: mortal_6 (pirate).
-  ** NEW SECTOR DISCOVERED: Iron Shelf (linked to Freeport Gamma, Station Alpha - Mining Hub, Outpost Delta - Military Garrison) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Void Threshold (linked to Freeport Gamma, Station Alpha - Mining Hub) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Frozen Drift (linked to Freeport Gamma, Iron Shelf) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Obsidian Frontier (linked to Freeport Gamma, Station Alpha - Mining Hub) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Crimson Depot (linked to Freeport Gamma, Outpost Delta - Military Garrison, Void Threshold) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Storm Shelf (linked to Freeport Gamma, Outpost Delta - Military Garrison) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Edge Point (linked to Freeport Gamma, Outpost Delta - Military Garrison, Obsidian Frontier) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Crimson Passage (linked to Freeport Gamma, Station Alpha - Mining Hub, Iron Shelf) by Nova (explorer) **
-  ** NEW SECTOR DISCOVERED: Silent Drift (linked to Void Threshold, Freeport Gamma, Crimson Depot) by mortal_7 (explorer) **
-  ** NEW SECTOR DISCOVERED: Crystal Frontier (linked to Void Threshold, Crimson Depot, Silent Drift) by mortal_7 (explorer) **
-  ** NEW SECTOR DISCOVERED: Obsidian Reach (linked to Freeport Gamma, Iron Shelf, Void Threshold) by Nova (explorer) **
+  Combat: 38 engagements, fiercest around Station Alpha - Mining Hub (14). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 266 trades (busiest: Station Alpha - Mining Hub), 245 cargo runs loaded, 7 salvage operations.
+  Danger: 13 pilots fled dangerous encounters.
+  Losses & returns: 7 pilots respawned after prior destruction.
+  New arrivals at Freeport Gamma: mortal_1 (hauler).
+  New arrivals at Iron Shelf: mortal_2 (prospector), mortal_3 (trader).
+  New arrivals at Outpost Delta - Military Garrison: mortal_4 (prospector), mortal_5 (explorer).
+  New arrivals at Epsilon Refinery Complex: mortal_6 (hauler).
+  ** NEW SECTOR DISCOVERED: Iron Shelf (linked to Freeport Gamma) by Nova (explorer) **
+  ** NEW SECTOR DISCOVERED: Void Threshold (linked to Freeport Gamma, Outpost Delta - Military Garrison) by Nova (explorer) **
+  ** NEW SECTOR DISCOVERED: Frozen Drift (linked to Freeport Gamma, Outpost Delta - Military Garrison) by Nova (explorer) **
+  ** NEW SECTOR DISCOVERED: Obsidian Frontier (linked to Freeport Gamma, Frozen Drift) by Nova (explorer) **
+  ** NEW SECTOR DISCOVERED: Crimson Depot (linked to Freeport Gamma) by Nova (explorer) **
+  ** NEW SECTOR DISCOVERED: Storm Shelf (linked to Freeport Gamma, Frozen Drift) by mortal_5 (explorer) **
 
 --- Epoch 2: ticks 101–200 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Crystal Frontier: economy shifted from adequate to poor; security changed from secure to lawless; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; became infested with hostiles.
-  Silent Threshold: became infested with hostiles.
-  Shadow Crossing: became infested with hostiles.
-  Dark Reach: became infested with hostiles.
-  Nebula Depot: became infested with hostiles.
-  Void Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from harsh to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; grew from frontier to outpost; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from secure to lawless; declined from colony to outpost; became infested with hostiles.
-  Crimson Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from harsh to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from secure to lawless; grew from frontier to outpost; became infested with hostiles.
-  Edge Point: economy shifted from rich to poor; security changed from secure to lawless; grew from frontier to outpost; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from contested to lawless; became infested with hostiles.
-  Station Alpha - Mining Hub: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Station Beta - Trade Post: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Outpost Delta - Military Garrison: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from secure to lawless; environment went from harsh to extreme; declined from hub to outpost; became infested with hostiles.
-  Freeport Gamma: economy shifted from adequate to poor; security changed from secure to lawless; environment went from harsh to extreme; declined from colony to outpost.
+  Iron Shelf: security changed from secure to lawless; environment went from harsh to extreme; declined from hub to outpost; became infested with hostiles.
+  Crystal Frontier: became infested with hostiles.
+  Obsidian Reach: became infested with hostiles.
+  Void Threshold: security changed from secure to lawless; environment went from harsh to extreme; became infested with hostiles.
+  Frozen Drift: security changed from secure to lawless; became infested with hostiles.
+  Obsidian Frontier: security changed from secure to lawless; environment went from harsh to extreme; grew from frontier to outpost; became infested with hostiles.
+  Crimson Depot: security changed from secure to lawless; environment went from mild to extreme; grew from frontier to outpost; became infested with hostiles.
+  Storm Shelf: security changed from contested to lawless; environment went from harsh to extreme; became infested with hostiles.
+  Edge Point: became infested with hostiles.
+  Crimson Passage: became infested with hostiles.
+  Silent Drift: became infested with hostiles.
+  Station Alpha - Mining Hub: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Outpost Delta - Military Garrison: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from contested to lawless; environment went from harsh to extreme; declined from colony to outpost; became infested with hostiles.
+  Freeport Gamma: security changed from secure to lawless; environment went from harsh to extreme; became infested with hostiles.
 
-  Combat: 40 engagements, fiercest around Station Alpha - Mining Hub (22). Crow (pirate) was most aggressive (14 attacks).
-  Commerce: 292 trades (busiest: Freeport Gamma), 261 cargo runs loaded, 4 salvage operations.
-  Danger: 80 pilots fled dangerous encounters.
-  Losses & returns: 4 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 1 were lost permanently.
-  New arrivals at Crimson Passage: mortal_8.
-  New arrivals at Epsilon Refinery Complex: mortal_9 (pirate).
-  New arrivals at Crimson Depot: mortal_10 (hauler).
-  New arrivals at Freeport Gamma: mortal_11 (pirate), mortal_12 (hauler).
-  ** NEW SECTOR DISCOVERED: Silent Threshold (linked to Void Threshold, Station Alpha - Mining Hub, Crimson Depot) by mortal_7 (explorer) **
-  ** NEW SECTOR DISCOVERED: Shadow Crossing (linked to Crimson Passage, Station Alpha - Mining Hub) by mortal_8 **
-  ** NEW SECTOR DISCOVERED: Dark Reach (linked to Void Threshold, Station Alpha - Mining Hub, Silent Drift) by mortal_7 (explorer) **
-  ** NEW SECTOR DISCOVERED: Nebula Depot (linked to Crimson Passage, Freeport Gamma, Iron Shelf) by mortal_8 **
+  Combat: 37 engagements, fiercest around Freeport Gamma (18). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 195 trades (busiest: Freeport Gamma), 347 cargo runs loaded, 8 salvage operations.
+  Danger: 71 pilots fled dangerous encounters.
+  Losses & returns: 5 pilots respawned after prior destruction; 6 mortals narrowly survived destruction; 11 were lost permanently.
+  New arrivals at Edge Point: mortal_7, mortal_10.
+  New arrivals at Epsilon Refinery Complex: mortal_8.
+  New arrivals at Station Beta - Trade Post: mortal_9.
+  New arrivals at Iron Shelf: mortal_11.
+  New arrivals at Station Alpha - Mining Hub: mortal_12, mortal_13.
+  ** NEW SECTOR DISCOVERED: Edge Point (linked to Freeport Gamma, Void Threshold, Crimson Depot) by mortal_5 **
+  ** NEW SECTOR DISCOVERED: Crimson Passage (linked to Freeport Gamma, Iron Shelf, Obsidian Frontier) by mortal_5 **
+  ** NEW SECTOR DISCOVERED: Silent Drift (linked to Freeport Gamma, Iron Shelf, Obsidian Frontier) by Nova (explorer) **
+  ** NEW SECTOR DISCOVERED: Crystal Frontier (linked to Freeport Gamma, Iron Shelf, Void Threshold) by mortal_5 **
+  ** NEW SECTOR DISCOVERED: Obsidian Reach (linked to Freeport Gamma, Station Alpha - Mining Hub, Void Threshold) by Nova (explorer) **
 
 --- Epoch 3: ticks 201–300 [RECOVERY] ---
+  >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
+
+  Iron Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Crystal Frontier: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
+  Void Threshold: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Crimson Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
+  Edge Point: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Crimson Passage: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Station Beta - Trade Post: security changed from lawless to secure; environment went from extreme to mild.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Freeport Gamma: security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+
+  Combat: 25 engagements, fiercest around Station Beta - Trade Post (9). Crow (pirate) was most aggressive (12 attacks).
+  Commerce: 225 trades (busiest: Freeport Gamma), 417 cargo runs loaded, 4 salvage operations.
+  Danger: 63 pilots fled dangerous encounters.
+  Losses & returns: 6 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 2 were lost permanently.
+  New arrivals at Station Alpha - Mining Hub: mortal_14.
+  New arrivals at Station Beta - Trade Post: mortal_15.
+  New arrivals at Edge Point: mortal_16 (hauler).
+  New arrivals at Obsidian Reach: mortal_17 (hauler).
+  New arrivals at Crimson Depot: mortal_18 (hauler).
+  New arrivals at Frozen Drift: mortal_19 (hauler), mortal_21 (explorer).
+  New arrivals at Silent Drift: mortal_20 (trader).
+  ** NEW SECTOR DISCOVERED: Silent Threshold (linked to Freeport Gamma, Outpost Delta - Military Garrison) by Nova (explorer) **
+
+--- Epoch 4: ticks 301–400 [PROSPERITY] ---
+  >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
+
+  Crystal Frontier: economy shifted from rich to adequate; security changed from contested to secure.
+  Obsidian Reach: grew from outpost to hub.
+  Silent Threshold: security changed from contested to secure; grew from outpost to colony.
+  Void Threshold: grew from outpost to colony.
+  Frozen Drift: security changed from contested to secure.
+  Obsidian Frontier: economy shifted from rich to adequate; security changed from secure to contested; grew from colony to hub.
+  Crimson Depot: economy shifted from rich to poor; grew from colony to hub.
+  Storm Shelf: economy shifted from rich to adequate; security changed from secure to contested; grew from outpost to hub.
+  Edge Point: economy shifted from rich to adequate.
+  Crimson Passage: economy shifted from rich to adequate.
+  Silent Drift: economy shifted from rich to adequate.
+  Station Beta - Trade Post: security changed from secure to contested; grew from outpost to hub.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate; security changed from secure to contested; grew from colony to hub.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from secure to contested.
+  Freeport Gamma: security changed from contested to secure; grew from frontier to outpost.
+
+  Combat: 43 engagements, fiercest around Freeport Gamma (15). Crow (pirate) was most aggressive (17 attacks).
+  Commerce: 171 trades (busiest: Freeport Gamma), 738 cargo runs loaded, 3 salvage operations.
+  Danger: 9 pilots fled dangerous encounters.
+  Losses & returns: 4 pilots respawned after prior destruction; 3 were lost permanently.
+  New arrivals at Crimson Depot: mortal_22 (trader), mortal_25.
+  4 new pilots appeared at Dark Reach.
+  New arrivals at Freeport Gamma: mortal_24 (prospector).
+  New arrivals at Obsidian Reach: mortal_26 (pirate).
+  New arrivals at Iron Shelf: mortal_27 (hauler).
+  New arrivals at Station Beta - Trade Post: mortal_31 (hauler).
+  ** NEW SECTOR DISCOVERED: Shadow Crossing (linked to Frozen Drift, Obsidian Frontier) by mortal_21 **
+  ** NEW SECTOR DISCOVERED: Dark Reach (linked to Frozen Drift) by mortal_21 **
+  ** NEW SECTOR DISCOVERED: Nebula Depot (linked to Freeport Gamma, Station Alpha - Mining Hub, Iron Shelf) by Nova (explorer) **
+
+--- Epoch 5: ticks 401–500 [DISRUPTION] ---
+  >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
+
+  Iron Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; grew from outpost to colony; became infested with hostiles.
+  Crystal Frontier: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Reach: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Silent Threshold: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Shadow Crossing: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Dark Reach: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Nebula Depot: security changed from contested to lawless; environment went from mild to extreme; grew from frontier to outpost; became infested with hostiles.
+  Void Threshold: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Frozen Drift: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Obsidian Frontier: security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Crimson Depot: economy shifted from poor to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Storm Shelf: security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Edge Point: security changed from secure to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Crimson Passage: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Silent Drift: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; grew from outpost to colony; became infested with hostiles.
+  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Outpost Delta - Military Garrison: security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Epsilon Refinery Complex: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Freeport Gamma: security changed from secure to lawless; environment went from mild to extreme.
+
+  Combat: 71 engagements, fiercest around Freeport Gamma (31). Crow (pirate) was most aggressive (16 attacks).
+  Commerce: 360 trades (busiest: Freeport Gamma), 660 cargo runs loaded, 9 salvage operations.
+  Danger: 31 pilots fled dangerous encounters.
+  Losses & returns: 6 pilots respawned after prior destruction; 4 mortals narrowly survived destruction; 9 were lost permanently.
+  New arrivals at Silent Threshold: mortal_32.
+  New arrivals at Station Alpha - Mining Hub: mortal_33.
+  New arrivals at Crimson Passage: mortal_34 (trader), mortal_38 (trader), mortal_39 (pirate).
+  New arrivals at Freeport Gamma: mortal_35.
+  New arrivals at Void Threshold: mortal_36 (explorer).
+  New arrivals at Storm Shelf: mortal_37 (trader).
+
+--- Epoch 6: ticks 501–600 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
   *** CATASTROPHE struck Obsidian Reach! The station was disabled and operations ceased. ***
 
   Iron Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from frontier to colony; was cleared of hostile infestation.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from frontier to hub; was cleared of hostile infestation.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Alpha - Mining Hub: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Beta - Trade Post: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Outpost Delta - Military Garrison: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Freeport Gamma: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub.
+  Crystal Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from colony to hub; was cleared of hostile infestation.
+  Silent Threshold: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Shadow Crossing: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Dark Reach: economy shifted from poor to adequate; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Nebula Depot: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Void Threshold: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Crimson Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Edge Point: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
+  Crimson Passage: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Freeport Gamma: economy shifted from poor to adequate; security changed from lawless to contested; environment went from extreme to mild.
 
-  Combat: 70 engagements, fiercest around Freeport Gamma (15). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 331 trades (busiest: Freeport Gamma), 484 cargo runs loaded, 14 salvage operations.
-  Danger: 58 pilots fled dangerous encounters.
-  Losses & returns: 6 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 5 were lost permanently.
-  New arrivals at Freeport Gamma: mortal_13 (prospector), mortal_14 (trader).
-  New arrivals at Shadow Crossing: mortal_15 (hauler), mortal_19 (trader).
-  New arrivals at Crystal Frontier: mortal_16 (explorer).
-  New arrivals at Nebula Depot: mortal_17.
-  New arrivals at Dark Reach: mortal_18 (trader).
-  New arrivals at Crimson Depot: mortal_20 (explorer), mortal_21 (trader).
-
---- Epoch 4: ticks 301–400 [PROSPERITY] ---
-  >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
-
-  Iron Shelf: economy shifted from rich to adequate.
-  Crystal Frontier: security changed from secure to contested.
-  Silent Threshold: grew from colony to hub.
-  Shadow Crossing: grew from frontier to outpost.
-  Dark Reach: security changed from secure to contested.
-  Nebula Depot: security changed from secure to contested.
-  Void Threshold: security changed from secure to contested.
-  Storm Shelf: security changed from secure to contested; grew from outpost to colony.
-  Crimson Passage: security changed from contested to secure.
-  Station Alpha - Mining Hub: grew from outpost to colony.
-  Station Beta - Trade Post: grew from outpost to colony.
-  Outpost Delta - Military Garrison: grew from outpost to hub.
-
-  Combat: 72 engagements, fiercest around Station Alpha - Mining Hub (22). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 314 trades (busiest: Station Alpha - Mining Hub), 649 cargo runs loaded, 11 salvage operations.
-  Danger: 12 pilots fled dangerous encounters.
-  Losses & returns: 7 pilots respawned after prior destruction; 2 mortals narrowly survived destruction; 6 were lost permanently.
-  New arrivals at Dark Reach: mortal_22 (trader).
-  New arrivals at Station Beta - Trade Post: mortal_23.
-  New arrivals at Shadow Crossing: mortal_24.
-  New arrivals at Freeport Gamma: mortal_25 (trader).
-  New arrivals at Crimson Depot: mortal_26 (prospector).
-
---- Epoch 5: ticks 401–500 [DISRUPTION] ---
-  >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
-
-  *** CATASTROPHE struck Silent Threshold! The station was disabled and operations ceased. ***
-  *** CATASTROPHE struck Frozen Drift! The station was disabled and operations ceased. ***
-  *** CATASTROPHE struck Crystal Frontier! The station was disabled and operations ceased. ***
-
-  Iron Shelf: economy shifted from adequate to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Crystal Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-  Shadow Crossing: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Dark Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-  Nebula Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Void Threshold: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-  Crimson Depot: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Edge Point: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Station Alpha - Mining Hub: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme.
-  Outpost Delta - Military Garrison: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Freeport Gamma: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
-
-  Combat: 60 engagements, fiercest around Freeport Gamma (21). Vex (pirate) was most aggressive (14 attacks).
-  Commerce: 286 trades (busiest: Freeport Gamma), 627 cargo runs loaded, 7 salvage operations.
-  Danger: 56 pilots fled dangerous encounters.
-  Losses & returns: 7 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Station Beta - Trade Post: mortal_27 (prospector).
-  New arrivals at Edge Point: mortal_28 (prospector).
-  New arrivals at Storm Shelf: mortal_29 (pirate).
-  New arrivals at Iron Shelf: mortal_30 (trader).
-  New arrivals at Dark Reach: mortal_31 (pirate).
-  New arrivals at Silent Drift: mortal_32 (trader).
-  New arrivals at Epsilon Refinery Complex: mortal_33 (trader).
-
---- Epoch 6: ticks 501–600 [RECOVERY] ---
-  >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
-
-  Iron Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Alpha - Mining Hub: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild.
-  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Freeport Gamma: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-
-  Combat: 76 engagements, fiercest around Station Alpha - Mining Hub (25). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 368 trades (busiest: Freeport Gamma), 442 cargo runs loaded, 16 salvage operations.
-  Danger: 132 pilots fled dangerous encounters.
-  Losses & returns: 7 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 5 were lost permanently.
-  New arrivals at Freeport Gamma: mortal_34 (prospector), mortal_35 (hauler), mortal_36 (pirate).
-  New arrivals at Station Alpha - Mining Hub: mortal_37 (pirate), mortal_39 (trader).
-  New arrivals at Silent Drift: mortal_38 (explorer).
+  Combat: 54 engagements, fiercest around Freeport Gamma (18). Crow (pirate) was most aggressive (17 attacks).
+  Commerce: 255 trades (busiest: Freeport Gamma), 360 cargo runs loaded, 9 salvage operations.
+  Danger: 99 pilots fled dangerous encounters.
+  Losses & returns: 11 pilots respawned after prior destruction; 12 mortals narrowly survived destruction; 11 were lost permanently.
+  5 new pilots appeared at Station Beta - Trade Post.
+  New arrivals at Station Alpha - Mining Hub: mortal_42.
+  New arrivals at Silent Drift: mortal_46 (pirate).
 
 --- Epoch 7: ticks 601–700 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  *** CATASTROPHE struck Frozen Drift! The station was disabled and operations ceased. ***
-
-  Crystal Frontier: security changed from contested to secure.
-  Silent Threshold: security changed from secure to contested; grew from outpost to hub.
-  Shadow Crossing: security changed from secure to contested.
-  Dark Reach: security changed from contested to secure; grew from colony to hub.
-  Nebula Depot: security changed from secure to contested.
-  Void Threshold: security changed from secure to contested.
-  Storm Shelf: security changed from secure to contested; grew from colony to hub.
-  Crimson Passage: security changed from contested to secure.
-  Station Alpha - Mining Hub: security changed from contested to secure.
-  Station Beta - Trade Post: security changed from secure to contested.
-  Outpost Delta - Military Garrison: security changed from secure to contested; grew from outpost to colony.
-
-  Combat: 60 engagements, fiercest around Freeport Gamma (17). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 643 trades (busiest: Freeport Gamma), 858 cargo runs loaded, 9 salvage operations.
-  Losses & returns: 7 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 7 were lost permanently.
-  New arrivals at Nebula Depot: mortal_40 (explorer).
-  New arrivals at Silent Drift: mortal_41 (prospector).
-  5 new pilots appeared at Dark Reach.
-  New arrivals at Outpost Delta - Military Garrison: mortal_44 (trader).
-  New arrivals at Shadow Crossing: mortal_45 (hauler), mortal_49 (explorer).
-  New arrivals at Crimson Passage: mortal_46 (explorer).
-  New arrivals at Crimson Depot: mortal_48 (prospector).
-  New arrivals at Void Threshold: mortal_52 (explorer).
-  New arrivals at Storm Shelf: mortal_53 (trader).
-
---- Epoch 8: ticks 701–800 [PROSPERITY] ---
-  *** CATASTROPHE struck Crystal Frontier! The station was disabled and operations ceased. ***
   *** CATASTROPHE struck Station Beta - Trade Post! The station was disabled and operations ceased. ***
 
-  Iron Shelf: security changed from secure to contested.
-  Crystal Frontier: security changed from secure to contested; environment went from mild to extreme.
-  Obsidian Reach: security changed from contested to secure.
-  Void Threshold: security changed from contested to secure.
-  Obsidian Frontier: grew from colony to hub.
-  Edge Point: security changed from contested to secure.
-  Station Beta - Trade Post: environment went from mild to extreme.
-  Outpost Delta - Military Garrison: grew from colony to hub.
-  Epsilon Refinery Complex: security changed from contested to secure.
-  Freeport Gamma: economy shifted from rich to adequate; grew from colony to hub.
+  Iron Shelf: economy shifted from rich to adequate; grew from colony to hub.
+  Crystal Frontier: security changed from secure to contested.
+  Obsidian Reach: economy shifted from rich to poor.
+  Silent Threshold: economy shifted from rich to adequate; grew from colony to hub.
+  Shadow Crossing: economy shifted from rich to adequate; grew from colony to hub.
+  Dark Reach: security changed from secure to contested.
+  Void Threshold: security changed from secure to contested; grew from outpost to colony.
+  Frozen Drift: economy shifted from rich to adequate; grew from colony to hub.
+  Obsidian Frontier: economy shifted from rich to adequate; grew from colony to hub.
+  Storm Shelf: economy shifted from rich to adequate; grew from colony to hub.
+  Silent Drift: economy shifted from rich to adequate; security changed from secure to contested; grew from colony to hub.
+  Station Alpha - Mining Hub: security changed from secure to contested; grew from outpost to hub.
+  Station Beta - Trade Post: grew from outpost to colony.
+  Outpost Delta - Military Garrison: security changed from contested to secure; grew from colony to hub.
+  Epsilon Refinery Complex: grew from outpost to colony.
 
-  Combat: 69 engagements, fiercest around Station Alpha - Mining Hub (15). Vex (pirate) was most aggressive (17 attacks).
-  Commerce: 246 trades (busiest: Outpost Delta - Military Garrison), 1008 cargo runs loaded, 8 salvage operations.
-  Danger: 8 pilots fled dangerous encounters.
-  Losses & returns: 2 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Void Threshold: mortal_54 (hauler).
-  New arrivals at Crimson Passage: mortal_55 (pirate).
-  New arrivals at Dark Reach: mortal_56 (hauler).
+  Combat: 84 engagements, fiercest around Freeport Gamma (36). Vex (pirate) was most aggressive (16 attacks).
+  Commerce: 340 trades (busiest: Freeport Gamma), 760 cargo runs loaded, 7 salvage operations.
+  Danger: 14 pilots fled dangerous encounters.
+  Losses & returns: 12 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 4 were lost permanently.
+  New arrivals at Epsilon Refinery Complex: mortal_47 (prospector), mortal_49.
+  New arrivals at Iron Shelf: mortal_48.
+  New arrivals at Frozen Drift: mortal_50 (pirate).
+  New arrivals at Silent Threshold: mortal_51 (prospector).
+  New arrivals at Edge Point: mortal_52 (hauler).
+  New arrivals at Crimson Depot: mortal_53 (pirate).
+  New arrivals at Silent Drift: mortal_54 (hauler).
+  New arrivals at Nebula Depot: mortal_55 (trader).
+  New arrivals at Dark Reach: mortal_56 (trader).
+  New arrivals at Storm Shelf: mortal_57 (prospector).
+
+--- Epoch 8: ticks 701–800 [PROSPERITY] ---
+  *** CATASTROPHE struck Station Beta - Trade Post! The station was disabled and operations ceased. ***
+
+  Crystal Frontier: security changed from contested to secure.
+  Obsidian Reach: economy shifted from poor to adequate.
+  Dark Reach: security changed from contested to secure.
+  Nebula Depot: economy shifted from rich to adequate.
+  Frozen Drift: security changed from secure to contested; declined from hub to colony.
+  Crimson Depot: grew from colony to hub.
+  Edge Point: security changed from contested to secure.
+  Crimson Passage: security changed from secure to contested.
+  Station Beta - Trade Post: security changed from contested to secure; environment went from mild to extreme.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate.
+  Epsilon Refinery Complex: security changed from secure to contested.
+
+  Combat: 86 engagements, fiercest around Freeport Gamma (45). Vex (pirate) was most aggressive (18 attacks).
+  Commerce: 334 trades (busiest: Freeport Gamma), 1024 cargo runs loaded, 5 salvage operations.
+  Danger: 24 pilots fled dangerous encounters.
+  Losses & returns: 9 pilots respawned after prior destruction; 8 mortals narrowly survived destruction; 4 were lost permanently.
+  New arrivals at Crimson Passage: mortal_58.
+  New arrivals at Dark Reach: mortal_59 (prospector).
+  New arrivals at Nebula Depot: mortal_60, mortal_63 (hauler).
+  New arrivals at Void Threshold: mortal_61 (hauler).
+  New arrivals at Storm Shelf: mortal_62 (prospector), mortal_65 (trader).
+  New arrivals at Outpost Delta - Military Garrison: mortal_64 (explorer).
 
 --- Epoch 9: ticks 801–900 [RECOVERY] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  Iron Shelf: security changed from contested to secure.
-  Crystal Frontier: security changed from contested to secure; environment went from extreme to mild.
-  Obsidian Reach: security changed from secure to contested.
-  Silent Threshold: security changed from contested to secure; declined from hub to outpost.
-  Dark Reach: declined from hub to outpost.
-  Nebula Depot: security changed from contested to secure.
-  Void Threshold: security changed from secure to contested.
-  Frozen Drift: declined from colony to outpost.
-  Obsidian Frontier: security changed from contested to secure; declined from hub to outpost.
-  Crimson Depot: security changed from secure to contested.
-  Storm Shelf: declined from hub to outpost.
-  Station Beta - Trade Post: security changed from contested to secure; environment went from extreme to mild; declined from colony to outpost.
-  Outpost Delta - Military Garrison: security changed from contested to secure; declined from hub to outpost.
-  Freeport Gamma: economy shifted from adequate to rich; declined from hub to outpost.
+  Iron Shelf: declined from hub to outpost.
+  Crystal Frontier: security changed from secure to contested.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from secure to contested; declined from hub to outpost.
+  Silent Threshold: economy shifted from adequate to rich; declined from hub to outpost.
+  Shadow Crossing: economy shifted from adequate to rich; declined from hub to outpost.
+  Dark Reach: economy shifted from adequate to rich; declined from hub to outpost.
+  Nebula Depot: economy shifted from adequate to rich.
+  Void Threshold: security changed from contested to secure; declined from colony to outpost.
+  Frozen Drift: economy shifted from adequate to rich; security changed from contested to secure; declined from colony to outpost.
+  Obsidian Frontier: economy shifted from adequate to rich; declined from hub to outpost.
+  Crimson Depot: declined from hub to outpost.
+  Storm Shelf: economy shifted from adequate to rich; declined from hub to outpost.
+  Edge Point: security changed from secure to contested.
+  Silent Drift: economy shifted from adequate to rich; security changed from contested to secure; declined from hub to outpost.
+  Station Alpha - Mining Hub: declined from hub to outpost.
+  Station Beta - Trade Post: security changed from secure to contested; environment went from extreme to mild; declined from colony to outpost.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; declined from hub to outpost.
+  Epsilon Refinery Complex: security changed from contested to secure; declined from colony to outpost.
+  Freeport Gamma: economy shifted from adequate to rich; security changed from contested to secure.
 
-  Combat: 64 engagements, fiercest around Freeport Gamma (32). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 372 trades (busiest: Freeport Gamma), 449 cargo runs loaded, 15 salvage operations.
-  Danger: 150 pilots fled dangerous encounters.
-  Losses & returns: 8 pilots respawned after prior destruction; 4 mortals narrowly survived destruction; 5 were lost permanently.
-  New arrivals at Edge Point: mortal_57.
-  New arrivals at Station Alpha - Mining Hub: mortal_58 (explorer), mortal_60 (trader).
-  New arrivals at Freeport Gamma: mortal_59 (prospector).
-  New arrivals at Outpost Delta - Military Garrison: mortal_61 (explorer).
-  New arrivals at Silent Drift: mortal_62 (prospector).
+  Combat: 45 engagements, fiercest around Freeport Gamma (11). Vex (pirate) was most aggressive (14 attacks).
+  Commerce: 371 trades (busiest: Iron Shelf), 353 cargo runs loaded, 8 salvage operations.
+  Danger: 102 pilots fled dangerous encounters.
+  Losses & returns: 6 pilots respawned after prior destruction; 6 mortals narrowly survived destruction; 18 were lost permanently.
+  New arrivals at Outpost Delta - Military Garrison: mortal_66, mortal_68 (pirate).
+  New arrivals at Station Alpha - Mining Hub: mortal_67.
+  New arrivals at Shadow Crossing: mortal_69 (explorer).
 
 --- Epoch 10: ticks 901–1000 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
+  Iron Shelf: security changed from secure to contested.
   Obsidian Reach: grew from outpost to colony.
-  Dark Reach: security changed from secure to contested; grew from outpost to colony.
-  Nebula Depot: security changed from secure to contested.
+  Silent Threshold: economy shifted from rich to adequate; grew from outpost to hub.
+  Shadow Crossing: economy shifted from rich to adequate; security changed from secure to contested; grew from outpost to hub.
+  Dark Reach: economy shifted from rich to adequate; grew from outpost to hub.
+  Nebula Depot: economy shifted from rich to adequate; security changed from contested to secure.
+  Void Threshold: security changed from secure to contested.
+  Frozen Drift: security changed from secure to contested; grew from outpost to colony.
   Obsidian Frontier: security changed from secure to contested; grew from outpost to colony.
-  Storm Shelf: grew from outpost to colony.
-  Edge Point: security changed from secure to contested; grew from outpost to colony.
-  Silent Drift: security changed from contested to secure.
-  Station Beta - Trade Post: security changed from secure to contested.
-  Outpost Delta - Military Garrison: security changed from secure to contested; grew from outpost to colony.
+  Crimson Depot: grew from outpost to colony.
+  Storm Shelf: economy shifted from rich to adequate; grew from outpost to hub.
+  Edge Point: economy shifted from rich to adequate.
+  Crimson Passage: economy shifted from rich to adequate.
+  Silent Drift: grew from outpost to colony.
+  Station Alpha - Mining Hub: security changed from contested to secure; grew from outpost to colony.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate; grew from outpost to hub.
   Epsilon Refinery Complex: security changed from secure to contested.
+  Freeport Gamma: economy shifted from rich to poor; security changed from secure to contested.
 
-  Combat: 66 engagements, fiercest around Freeport Gamma (14). Crow (pirate) was most aggressive (18 attacks).
-  Commerce: 289 trades (busiest: Freeport Gamma), 974 cargo runs loaded, 9 salvage operations.
-  Losses & returns: 7 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 2 were lost permanently.
-  New arrivals at Nebula Depot: mortal_63 (prospector).
-  New arrivals at Void Threshold: mortal_64 (trader).
-  New arrivals at Crimson Passage: mortal_65 (explorer).
-  New arrivals at Shadow Crossing: mortal_66 (pirate).
+  Combat: 47 engagements, fiercest around Freeport Gamma (30). Crow (pirate) was most aggressive (18 attacks).
+  Commerce: 269 trades (busiest: Freeport Gamma), 542 cargo runs loaded, 1 salvage operations.
+  Danger: 3 pilots fled dangerous encounters.
+  Losses & returns: 10 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 6 were lost permanently.
+  New arrivals at Iron Shelf: mortal_70 (explorer).
+  New arrivals at Void Threshold: mortal_71, mortal_72 (hauler), mortal_77 (pirate).
+  New arrivals at Crimson Depot: mortal_73.
+  New arrivals at Storm Shelf: mortal_74.
+  New arrivals at Epsilon Refinery Complex: mortal_75 (trader).
+  New arrivals at Silent Threshold: mortal_76 (hauler).
 
 --- Epoch 11: ticks 1001–1100 [PROSPERITY] ---
-  Silent Threshold: grew from outpost to hub.
-  Shadow Crossing: security changed from contested to secure.
-  Dark Reach: grew from colony to hub.
-  Nebula Depot: security changed from contested to secure.
-  Void Threshold: security changed from contested to secure.
-  Edge Point: grew from colony to hub.
-  Crimson Passage: security changed from secure to contested.
-  Station Alpha - Mining Hub: security changed from secure to contested; grew from outpost to colony.
-  Station Beta - Trade Post: grew from outpost to colony.
+  Iron Shelf: security changed from contested to secure.
+  Crystal Frontier: security changed from contested to secure.
+  Obsidian Reach: economy shifted from rich to adequate; security changed from contested to secure; grew from colony to hub.
+  Dark Reach: security changed from secure to contested.
+  Nebula Depot: security changed from secure to contested.
+  Void Threshold: security changed from contested to secure; grew from outpost to colony.
+  Frozen Drift: security changed from contested to secure.
+  Storm Shelf: security changed from secure to contested.
+  Crimson Passage: economy shifted from adequate to poor; security changed from contested to secure.
+  Silent Drift: security changed from secure to contested.
+  Station Alpha - Mining Hub: security changed from secure to contested.
+  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from contested to secure.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; declined from hub to colony.
   Epsilon Refinery Complex: security changed from contested to secure.
+  Freeport Gamma: economy shifted from poor to adequate.
 
-  Combat: 61 engagements, fiercest around Freeport Gamma (18). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 358 trades (busiest: Freeport Gamma), 1132 cargo runs loaded, 4 salvage operations.
-  Danger: 22 pilots fled dangerous encounters.
-  Losses & returns: 6 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Freeport Gamma: mortal_67 (explorer).
-  New arrivals at Outpost Delta - Military Garrison: mortal_68 (hauler), mortal_71, mortal_72 (pirate).
-  New arrivals at Crimson Passage: mortal_69 (explorer).
-  New arrivals at Storm Shelf: mortal_70 (explorer).
-  New arrivals at Station Alpha - Mining Hub: mortal_73 (prospector).
-  New arrivals at Iron Shelf: mortal_74 (prospector).
-  New arrivals at Nebula Depot: mortal_75 (trader).
+  Combat: 54 engagements, fiercest around Freeport Gamma (20). Crow (pirate) was most aggressive (19 attacks).
+  Commerce: 221 trades (busiest: Freeport Gamma), 613 cargo runs loaded, 4 salvage operations.
+  Danger: 12 pilots fled dangerous encounters.
+  Losses & returns: 6 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 3 were lost permanently.
+  New arrivals at Frozen Drift: mortal_78 (trader).
+  New arrivals at Outpost Delta - Military Garrison: mortal_79 (trader).
+  New arrivals at Iron Shelf: mortal_80 (prospector).
+  New arrivals at Dark Reach: mortal_81 (explorer), mortal_82 (explorer).
+  New arrivals at Obsidian Frontier: mortal_83 (explorer).
 
 --- Epoch 12: ticks 1101–1200 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Crystal Frontier: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Silent Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Shadow Crossing: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Dark Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Nebula Depot: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Void Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Crimson Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Edge Point: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost.
-  Station Beta - Trade Post: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Outpost Delta - Military Garrison: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Freeport Gamma: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme.
+  Iron Shelf: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Crystal Frontier: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Reach: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Silent Threshold: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Shadow Crossing: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Dark Reach: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Nebula Depot: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Void Threshold: security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Frozen Drift: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Obsidian Frontier: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Crimson Depot: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Storm Shelf: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Edge Point: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Crimson Passage: economy shifted from poor to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Silent Drift: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Station Beta - Trade Post: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Freeport Gamma: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to extreme.
 
-  Combat: 57 engagements, fiercest around Freeport Gamma (33). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 450 trades (busiest: Freeport Gamma), 790 cargo runs loaded, 13 salvage operations.
-  Danger: 94 pilots fled dangerous encounters.
-  Losses & returns: 9 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 6 were lost permanently.
-  New arrivals at Storm Shelf: mortal_76 (prospector).
-  New arrivals at Iron Shelf: mortal_77 (trader).
-  New arrivals at Silent Drift: mortal_78 (pirate).
-  New arrivals at Freeport Gamma: mortal_79 (explorer), mortal_81.
-  New arrivals at Station Alpha - Mining Hub: mortal_80 (explorer), mortal_82 (pirate).
+  Combat: 33 engagements, fiercest around Freeport Gamma (12). Crow (pirate) was most aggressive (14 attacks).
+  Commerce: 202 trades (busiest: Freeport Gamma), 409 cargo runs loaded, 4 salvage operations.
+  Danger: 86 pilots fled dangerous encounters.
+  Losses & returns: 4 pilots respawned after prior destruction; 10 mortals narrowly survived destruction; 9 were lost permanently.
+  New arrivals at Crystal Frontier: mortal_84 (explorer).
+  New arrivals at Nebula Depot: mortal_85 (trader).
 
 --- Epoch 13: ticks 1201–1300 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  Iron Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
-  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild.
-  Station Beta - Trade Post: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Iron Shelf: security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Crystal Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Silent Threshold: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Shadow Crossing: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Dark Reach: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Nebula Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Void Threshold: security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Crimson Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Edge Point: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Crimson Passage: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Outpost Delta - Military Garrison: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
   Freeport Gamma: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild.
 
-  Combat: 45 engagements, fiercest around Freeport Gamma (20). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 339 trades (busiest: Freeport Gamma), 1108 cargo runs loaded, 11 salvage operations.
-  Danger: 44 pilots fled dangerous encounters.
-  Losses & returns: 5 pilots respawned after prior destruction; 4 mortals narrowly survived destruction; 7 were lost permanently.
-  New arrivals at Freeport Gamma: mortal_83.
-  New arrivals at Station Alpha - Mining Hub: mortal_84 (hauler), mortal_87 (trader).
-  New arrivals at Dark Reach: mortal_85 (explorer).
-  New arrivals at Storm Shelf: mortal_86 (explorer), mortal_88 (trader).
-  New arrivals at Shadow Crossing: mortal_89 (trader).
+  Combat: 26 engagements, fiercest around Freeport Gamma (16). Crow (pirate) was most aggressive (12 attacks).
+  Commerce: 204 trades (busiest: Freeport Gamma), 548 cargo runs loaded.
+  Danger: 30 pilots fled dangerous encounters.
+  Losses & returns: 5 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 2 were lost permanently.
+  New arrivals at Nebula Depot: mortal_86 (prospector).
+  New arrivals at Crimson Depot: mortal_87 (prospector).
+  New arrivals at Crystal Frontier: mortal_88 (hauler), mortal_89 (explorer), mortal_92 (pirate).
+  New arrivals at Silent Drift: mortal_90 (pirate).
+  New arrivals at Shadow Crossing: mortal_91 (hauler).
 
 --- Epoch 14: ticks 1301–1400 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  *** CATASTROPHE struck Obsidian Reach! The station was disabled and operations ceased. ***
-
-  Obsidian Reach: environment went from mild to extreme.
-  Silent Threshold: grew from outpost to hub.
-  Shadow Crossing: security changed from secure to contested.
-  Dark Reach: security changed from secure to contested; grew from outpost to hub.
-  Void Threshold: security changed from secure to contested.
-  Crimson Depot: security changed from contested to secure; grew from frontier to outpost.
-  Edge Point: security changed from contested to secure.
-  Silent Drift: security changed from contested to secure.
-  Station Alpha - Mining Hub: security changed from contested to secure.
-  Station Beta - Trade Post: security changed from secure to contested.
-  Outpost Delta - Military Garrison: grew from outpost to hub.
+  Crystal Frontier: security changed from secure to contested.
+  Obsidian Reach: economy shifted from rich to adequate; security changed from contested to secure; grew from outpost to hub.
+  Silent Threshold: economy shifted from rich to adequate; grew from colony to hub.
+  Dark Reach: security changed from contested to secure.
+  Frozen Drift: security changed from secure to contested.
+  Obsidian Frontier: economy shifted from rich to adequate; grew from colony to hub.
+  Crimson Depot: economy shifted from rich to adequate.
+  Edge Point: grew from outpost to colony.
+  Crimson Passage: economy shifted from rich to adequate; security changed from secure to contested.
+  Station Alpha - Mining Hub: security changed from contested to secure; declined from colony to outpost.
+  Station Beta - Trade Post: security changed from secure to contested; grew from colony to hub.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from contested to secure.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from secure to contested.
   Freeport Gamma: economy shifted from rich to adequate.
 
-  Combat: 64 engagements, fiercest around Station Alpha - Mining Hub (27). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 220 trades (busiest: Station Alpha - Mining Hub), 1369 cargo runs loaded, 6 salvage operations.
-  Danger: 24 pilots fled dangerous encounters.
-  Losses & returns: 4 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 3 were lost permanently.
-  New arrivals at Dark Reach: mortal_90 (prospector).
-  New arrivals at Crimson Passage: mortal_91.
-  New arrivals at Void Threshold: mortal_92 (pirate).
-  New arrivals at Outpost Delta - Military Garrison: mortal_93 (trader).
+  Combat: 57 engagements, fiercest around Freeport Gamma (19). Crow (pirate) was most aggressive (18 attacks).
+  Commerce: 326 trades (busiest: Freeport Gamma), 716 cargo runs loaded.
+  Danger: 26 pilots fled dangerous encounters.
+  Losses & returns: 7 pilots respawned after prior destruction; 2 mortals narrowly survived destruction; 2 were lost permanently.
+  New arrivals at Shadow Crossing: mortal_93 (trader).
+  New arrivals at Void Threshold: mortal_94 (prospector).
+  New arrivals at Frozen Drift: mortal_95 (pirate), mortal_96 (trader).
 
 --- Epoch 15: ticks 1401–1500 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Crystal Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; security changed from contested to lawless; became infested with hostiles.
-  Silent Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Shadow Crossing: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Dark Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Nebula Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Void Threshold: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Crimson Depot: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Edge Point: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Iron Shelf: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Crystal Frontier: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Reach: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Silent Threshold: economy shifted from adequate to rich; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Shadow Crossing: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Dark Reach: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Nebula Depot: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Void Threshold: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Obsidian Frontier: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Crimson Depot: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Storm Shelf: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Edge Point: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Crimson Passage: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Silent Drift: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
   Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; grew from outpost to colony; became infested with hostiles.
-  Outpost Delta - Military Garrison: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Epsilon Refinery Complex: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
   Freeport Gamma: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
 
-  Combat: 66 engagements, fiercest around Freeport Gamma (23). Crow (pirate) was most aggressive (18 attacks).
-  Commerce: 385 trades (busiest: Freeport Gamma), 1165 cargo runs loaded, 9 salvage operations.
-  Danger: 71 pilots fled dangerous encounters.
-  Losses & returns: 7 pilots respawned after prior destruction; 2 mortals narrowly survived destruction; 3 were lost permanently.
-  New arrivals at Shadow Crossing: mortal_94 (hauler).
-  New arrivals at Outpost Delta - Military Garrison: mortal_95.
-  New arrivals at Crimson Depot: mortal_96 (explorer), mortal_97 (prospector).
+  Combat: 60 engagements, fiercest around Freeport Gamma (32). Crow (pirate) was most aggressive (16 attacks).
+  Commerce: 275 trades (busiest: Freeport Gamma), 612 cargo runs loaded, 9 salvage operations.
+  Danger: 31 pilots fled dangerous encounters.
+  Losses & returns: 7 pilots respawned after prior destruction; 4 mortals narrowly survived destruction; 7 were lost permanently.
+  New arrivals at Void Threshold: mortal_97 (trader).
+  New arrivals at Silent Threshold: mortal_98 (explorer).
+  New arrivals at Shadow Crossing: mortal_99 (prospector).
+  New arrivals at Frozen Drift: mortal_100 (explorer).
 
 --- Epoch 16: ticks 1501–1600 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  Iron Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Iron Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Crystal Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Silent Threshold: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Shadow Crossing: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Dark Reach: security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Nebula Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Void Threshold: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Crimson Depot: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Edge Point: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Crimson Passage: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony.
+  Outpost Delta - Military Garrison: security changed from lawless to secure; environment went from extreme to mild.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
   Freeport Gamma: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
 
-  Combat: 68 engagements, fiercest around Freeport Gamma (22). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 502 trades (busiest: Freeport Gamma), 954 cargo runs loaded, 13 salvage operations.
-  Danger: 152 pilots fled dangerous encounters.
-  Losses & returns: 4 pilots respawned after prior destruction; 8 mortals narrowly survived destruction; 5 were lost permanently.
-  New arrivals at Station Alpha - Mining Hub: mortal_98 (explorer), mortal_99 (pirate).
-  New arrivals at Edge Point: mortal_100 (trader).
-  New arrivals at Obsidian Frontier: mortal_101 (pirate).
-  New arrivals at Epsilon Refinery Complex: mortal_102 (pirate).
-  New arrivals at Storm Shelf: mortal_103 (explorer).
-  New arrivals at Crimson Depot: mortal_104 (trader).
-  New arrivals at Iron Shelf: mortal_105 (prospector).
+  Combat: 33 engagements, fiercest around Station Alpha - Mining Hub (7). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 243 trades (busiest: Outpost Delta - Military Garrison), 346 cargo runs loaded, 5 salvage operations.
+  Danger: 87 pilots fled dangerous encounters.
+  Losses & returns: 3 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 8 were lost permanently.
+  New arrivals at Station Alpha - Mining Hub: mortal_101 (hauler).
+  New arrivals at Crimson Depot: mortal_102.
+  New arrivals at Storm Shelf: mortal_103 (prospector).
+  New arrivals at Frozen Drift: mortal_104 (trader).
 
 --- Epoch 17: ticks 1601–1700 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  Iron Shelf: security changed from secure to contested.
-  Silent Threshold: grew from colony to hub.
-  Shadow Crossing: grew from outpost to colony.
-  Dark Reach: grew from outpost to hub.
-  Void Threshold: security changed from secure to contested; grew from outpost to colony.
+  Iron Shelf: security changed from secure to contested; grew from outpost to colony.
+  Crystal Frontier: economy shifted from rich to adequate.
+  Obsidian Reach: security changed from contested to secure; grew from colony to hub.
+  Silent Threshold: security changed from contested to secure.
+  Shadow Crossing: grew from colony to hub.
+  Dark Reach: security changed from secure to contested.
+  Nebula Depot: economy shifted from rich to adequate.
+  Void Threshold: security changed from secure to contested.
   Frozen Drift: security changed from contested to secure.
-  Obsidian Frontier: security changed from contested to secure.
-  Crimson Depot: security changed from secure to contested.
-  Silent Drift: grew from outpost to colony.
-  Station Alpha - Mining Hub: security changed from secure to contested; grew from outpost to hub.
-  Station Beta - Trade Post: grew from outpost to hub.
-  Freeport Gamma: security changed from secure to contested; grew from outpost to colony.
+  Storm Shelf: economy shifted from rich to adequate; grew from colony to hub.
+  Edge Point: economy shifted from rich to adequate; security changed from contested to secure.
+  Crimson Passage: economy shifted from rich to adequate.
+  Silent Drift: security changed from contested to secure.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from secure to contested.
+  Station Beta - Trade Post: economy shifted from rich to adequate; grew from colony to hub.
+  Outpost Delta - Military Garrison: economy shifted from adequate to poor; security changed from secure to contested; grew from outpost to hub.
+  Epsilon Refinery Complex: grew from outpost to colony.
 
-  Combat: 76 engagements, fiercest around Freeport Gamma (22). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 369 trades (busiest: Freeport Gamma), 1505 cargo runs loaded, 7 salvage operations.
-  Danger: 12 pilots fled dangerous encounters.
-  Losses & returns: 6 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 6 were lost permanently.
-  New arrivals at Void Threshold: mortal_106.
-  New arrivals at Storm Shelf: mortal_107 (explorer).
-  New arrivals at Obsidian Frontier: mortal_108 (pirate).
-  New arrivals at Outpost Delta - Military Garrison: mortal_109 (prospector).
-  New arrivals at Crimson Depot: mortal_110 (prospector).
-  New arrivals at Crimson Passage: mortal_111 (hauler).
-  New arrivals at Dark Reach: mortal_112 (explorer).
+  Combat: 42 engagements, fiercest around Station Alpha - Mining Hub (9). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 173 trades (busiest: Outpost Delta - Military Garrison), 662 cargo runs loaded.
+  Danger: 17 pilots fled dangerous encounters.
+  Losses & returns: 2 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 1 were lost permanently.
+  New arrivals at Iron Shelf: mortal_105 (hauler), mortal_107 (hauler).
+  New arrivals at Crystal Frontier: mortal_106 (prospector).
+  New arrivals at Shadow Crossing: mortal_108 (pirate), mortal_112 (pirate), mortal_113 (explorer).
+  New arrivals at Dark Reach: mortal_109 (trader).
+  New arrivals at Nebula Depot: mortal_110 (hauler), mortal_111 (pirate).
 
 --- Epoch 18: ticks 1701–1800 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: environment went from mild to harsh.
+  Iron Shelf: environment went from mild to harsh; declined from colony to outpost.
   Crystal Frontier: security changed from secure to contested; environment went from mild to harsh.
-  Obsidian Reach: security changed from contested to secure; environment went from mild to harsh.
-  Silent Threshold: security changed from contested to secure; environment went from mild to harsh.
-  Shadow Crossing: environment went from mild to harsh; grew from colony to hub.
-  Dark Reach: security changed from secure to contested; environment went from mild to harsh.
-  Nebula Depot: security changed from contested to secure; environment went from mild to harsh.
-  Void Threshold: environment went from mild to harsh.
-  Frozen Drift: environment went from mild to harsh; grew from outpost to hub.
-  Obsidian Frontier: security changed from secure to contested; environment went from mild to harsh; grew from colony to hub.
+  Obsidian Reach: economy shifted from rich to adequate; environment went from mild to harsh.
+  Silent Threshold: environment went from mild to harsh.
+  Shadow Crossing: economy shifted from adequate to rich; environment went from mild to harsh; declined from hub to colony.
+  Dark Reach: environment went from mild to harsh.
+  Nebula Depot: environment went from mild to harsh.
+  Void Threshold: economy shifted from rich to adequate; security changed from contested to secure; environment went from mild to harsh.
+  Frozen Drift: environment went from mild to harsh.
+  Obsidian Frontier: economy shifted from rich to adequate; security changed from contested to secure; environment went from mild to harsh; declined from colony to outpost.
   Crimson Depot: environment went from mild to harsh.
-  Storm Shelf: security changed from contested to secure; environment went from mild to harsh; grew from colony to hub.
-  Edge Point: security changed from contested to secure; environment went from mild to harsh; grew from colony to hub.
-  Crimson Passage: security changed from secure to contested; environment went from mild to harsh.
+  Storm Shelf: environment went from mild to harsh.
+  Edge Point: environment went from mild to harsh.
+  Crimson Passage: security changed from contested to secure; environment went from mild to harsh.
   Silent Drift: environment went from mild to harsh.
-  Station Alpha - Mining Hub: security changed from contested to secure; environment went from mild to harsh.
-  Station Beta - Trade Post: environment went from mild to harsh.
-  Outpost Delta - Military Garrison: environment went from mild to harsh; grew from outpost to colony.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; environment went from mild to harsh; declined from hub to colony.
+  Station Beta - Trade Post: security changed from secure to contested; environment went from mild to harsh.
+  Outpost Delta - Military Garrison: economy shifted from poor to adequate; environment went from mild to harsh; declined from hub to outpost.
   Epsilon Refinery Complex: environment went from mild to harsh.
-  Freeport Gamma: security changed from contested to secure; environment went from mild to harsh; grew from colony to hub.
+  Freeport Gamma: economy shifted from rich to poor; security changed from secure to contested; environment went from mild to harsh.
 
-  Combat: 63 engagements, fiercest around Station Alpha - Mining Hub (18). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 340 trades (busiest: Dark Reach), 1546 cargo runs loaded, 11 salvage operations.
-  Danger: 21 pilots fled dangerous encounters.
-  Losses & returns: 4 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 6 were lost permanently.
-  New arrivals at Shadow Crossing: mortal_113 (trader).
-  New arrivals at Silent Drift: mortal_114.
-  New arrivals at Freeport Gamma: mortal_115.
-  New arrivals at Edge Point: mortal_116 (pirate).
+  Combat: 74 engagements, fiercest around Iron Shelf (18). Crow (pirate) was most aggressive (17 attacks).
+  Commerce: 378 trades (busiest: Station Alpha - Mining Hub), 704 cargo runs loaded, 8 salvage operations.
+  Danger: 17 pilots fled dangerous encounters.
+  Losses & returns: 9 pilots respawned after prior destruction; 6 mortals narrowly survived destruction; 5 were lost permanently.
+  New arrivals at Dark Reach: mortal_114 (pirate).
+  New arrivals at Iron Shelf: mortal_115 (hauler), mortal_119 (prospector).
+  New arrivals at Nebula Depot: mortal_116 (hauler).
+  New arrivals at Frozen Drift: mortal_117 (explorer).
+  New arrivals at Storm Shelf: mortal_118 (trader).
 
 --- Epoch 19: ticks 1801–1900 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  *** CATASTROPHE struck Shadow Crossing! The station was disabled and operations ceased. ***
-  *** CATASTROPHE struck Station Beta - Trade Post! The station was disabled and operations ceased. ***
+  Iron Shelf: economy shifted from rich to adequate; environment went from harsh to mild.
+  Crystal Frontier: economy shifted from adequate to rich; environment went from harsh to mild.
+  Obsidian Reach: economy shifted from adequate to rich; environment went from harsh to mild; declined from hub to colony.
+  Silent Threshold: security changed from secure to contested; environment went from harsh to mild.
+  Shadow Crossing: environment went from harsh to mild; declined from colony to outpost.
+  Dark Reach: economy shifted from adequate to rich; environment went from harsh to mild; declined from hub to colony.
+  Nebula Depot: economy shifted from adequate to rich; security changed from secure to contested; environment went from harsh to mild.
+  Void Threshold: economy shifted from adequate to rich; environment went from harsh to mild.
+  Frozen Drift: environment went from harsh to mild; declined from colony to outpost.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from secure to contested; environment went from harsh to mild; grew from outpost to colony.
+  Crimson Depot: security changed from contested to secure; environment went from harsh to mild; declined from colony to outpost.
+  Storm Shelf: economy shifted from adequate to rich; environment went from harsh to mild; declined from hub to colony.
+  Edge Point: economy shifted from adequate to rich; environment went from harsh to mild; grew from outpost to colony.
+  Crimson Passage: economy shifted from adequate to rich; security changed from secure to contested; environment went from harsh to mild.
+  Silent Drift: environment went from harsh to mild.
+  Station Alpha - Mining Hub: security changed from contested to secure; environment went from harsh to mild; declined from colony to outpost.
+  Station Beta - Trade Post: economy shifted from adequate to rich; environment went from harsh to mild; declined from hub to colony.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; security changed from contested to secure; environment went from harsh to mild.
+  Epsilon Refinery Complex: security changed from secure to contested; environment went from harsh to mild; declined from colony to outpost.
+  Freeport Gamma: economy shifted from poor to adequate; environment went from harsh to mild; grew from outpost to colony.
 
-  Iron Shelf: environment went from harsh to mild.
-  Crystal Frontier: security changed from contested to secure; environment went from harsh to mild.
-  Obsidian Reach: environment went from harsh to mild; declined from colony to outpost.
-  Silent Threshold: environment went from harsh to mild; declined from hub to outpost.
-  Shadow Crossing: security changed from secure to contested; environment went from harsh to mild; declined from hub to outpost.
-  Dark Reach: security changed from contested to secure; environment went from harsh to mild; declined from hub to outpost.
-  Nebula Depot: security changed from secure to contested; environment went from harsh to mild.
-  Void Threshold: environment went from harsh to mild; declined from colony to outpost.
-  Frozen Drift: security changed from secure to contested; environment went from harsh to mild; declined from hub to outpost.
-  Obsidian Frontier: security changed from contested to secure; environment went from harsh to mild; declined from hub to outpost.
-  Crimson Depot: environment went from harsh to mild.
-  Storm Shelf: security changed from secure to contested; environment went from harsh to mild; declined from hub to colony.
-  Edge Point: security changed from secure to contested; environment went from harsh to mild; declined from hub to colony.
-  Crimson Passage: environment went from harsh to mild.
-  Silent Drift: environment went from harsh to mild; declined from colony to outpost.
-  Station Alpha - Mining Hub: environment went from harsh to mild; declined from hub to outpost.
-  Station Beta - Trade Post: security changed from secure to contested; environment went from harsh to mild; declined from hub to colony.
-  Outpost Delta - Military Garrison: environment went from harsh to mild.
-  Epsilon Refinery Complex: security changed from secure to contested; environment went from harsh to mild.
-  Freeport Gamma: environment went from harsh to mild; declined from hub to outpost.
-
-  Combat: 93 engagements, fiercest around Freeport Gamma (44). Vex (pirate) was most aggressive (17 attacks).
-  Commerce: 469 trades (busiest: Freeport Gamma), 576 cargo runs loaded, 21 salvage operations.
-  Danger: 111 pilots fled dangerous encounters.
-  Losses & returns: 10 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 8 were lost permanently.
-  New arrivals at Station Alpha - Mining Hub: mortal_117 (trader), mortal_118, mortal_119 (trader).
-  New arrivals at Freeport Gamma: mortal_120 (hauler).
+  Combat: 52 engagements, fiercest around Freeport Gamma (21). Crow (pirate) was most aggressive (16 attacks).
+  Commerce: 262 trades (busiest: Freeport Gamma), 180 cargo runs loaded, 11 salvage operations.
+  Danger: 93 pilots fled dangerous encounters.
+  Losses & returns: 11 pilots respawned after prior destruction; 11 mortals narrowly survived destruction; 13 were lost permanently.
 
 --- Epoch 20: ticks 1901–2000 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  Iron Shelf: security changed from contested to secure.
-  Crystal Frontier: security changed from secure to contested.
-  Silent Threshold: grew from outpost to hub.
-  Shadow Crossing: grew from outpost to hub.
-  Dark Reach: grew from outpost to hub.
-  Void Threshold: security changed from contested to secure.
-  Frozen Drift: grew from outpost to hub.
-  Obsidian Frontier: grew from outpost to hub.
-  Storm Shelf: security changed from contested to secure; grew from colony to hub.
-  Crimson Passage: security changed from contested to secure.
-  Station Alpha - Mining Hub: grew from outpost to hub.
-  Station Beta - Trade Post: grew from colony to hub.
-  Outpost Delta - Military Garrison: security changed from secure to contested; grew from colony to hub.
-  Epsilon Refinery Complex: security changed from contested to secure.
-  Freeport Gamma: grew from outpost to hub.
+  Obsidian Reach: economy shifted from rich to adequate; grew from colony to hub.
+  Silent Threshold: economy shifted from rich to adequate; security changed from contested to secure; grew from colony to hub.
+  Shadow Crossing: economy shifted from rich to adequate; security changed from contested to secure.
+  Crimson Depot: economy shifted from rich to adequate; grew from outpost to hub.
+  Edge Point: economy shifted from rich to adequate; grew from colony to hub.
+  Crimson Passage: economy shifted from rich to adequate.
+  Station Alpha - Mining Hub: grew from outpost to colony.
+  Station Beta - Trade Post: security changed from contested to secure.
+  Outpost Delta - Military Garrison: economy shifted from rich to adequate; grew from outpost to colony.
+  Epsilon Refinery Complex: security changed from contested to secure; grew from outpost to hub.
+  Freeport Gamma: economy shifted from adequate to poor; security changed from contested to secure; declined from colony to outpost.
 
-  Combat: 85 engagements, fiercest around Freeport Gamma (29). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 270 trades (busiest: Freeport Gamma), 1202 cargo runs loaded, 13 salvage operations.
-  Danger: 8 pilots fled dangerous encounters.
-  Losses & returns: 6 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 5 were lost permanently.
-  New arrivals at Void Threshold: mortal_121 (pirate).
-  New arrivals at Nebula Depot: mortal_122 (trader).
+  Combat: 37 engagements, fiercest around Freeport Gamma (9). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 214 trades (busiest: Freeport Gamma), 451 cargo runs loaded, 1 salvage operations.
+  Danger: 11 pilots fled dangerous encounters.
+  Losses & returns: 4 pilots respawned after prior destruction; 2 were lost permanently.
+  New arrivals at Station Alpha - Mining Hub: mortal_120 (prospector).
+  New arrivals at Frozen Drift: mortal_121 (trader), mortal_122 (hauler).
+  New arrivals at Obsidian Frontier: mortal_123, mortal_128 (trader).
+  New arrivals at Storm Shelf: mortal_124 (trader).
+  New arrivals at Silent Drift: mortal_125 (trader).
+  New arrivals at Freeport Gamma: mortal_126 (explorer).
+  New arrivals at Void Threshold: mortal_127 (pirate).
 
 --- Epoch 21: ticks 2001–2100 [PROSPERITY] ---
-  Iron Shelf: grew from outpost to hub.
-  Shadow Crossing: security changed from contested to secure.
+  Crystal Frontier: security changed from contested to secure.
+  Silent Threshold: security changed from secure to contested.
+  Shadow Crossing: security changed from secure to contested.
+  Dark Reach: economy shifted from rich to adequate; grew from colony to hub.
   Nebula Depot: security changed from contested to secure.
-  Void Threshold: security changed from secure to contested.
-  Obsidian Frontier: security changed from secure to contested.
-  Storm Shelf: security changed from secure to contested.
-  Edge Point: security changed from contested to secure.
-  Crimson Passage: security changed from secure to contested.
-  Station Alpha - Mining Hub: security changed from secure to contested.
-  Station Beta - Trade Post: security changed from contested to secure.
-  Outpost Delta - Military Garrison: security changed from contested to secure.
+  Void Threshold: economy shifted from rich to adequate.
+  Frozen Drift: grew from outpost to colony.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; grew from colony to hub.
+  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from secure to contested; grew from colony to hub.
+  Outpost Delta - Military Garrison: economy shifted from adequate to poor; security changed from secure to contested; grew from colony to hub.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from secure to contested.
+  Freeport Gamma: economy shifted from poor to adequate.
 
-  Combat: 79 engagements, fiercest around Station Alpha - Mining Hub (25). Crow (pirate) was most aggressive (18 attacks).
-  Commerce: 360 trades (busiest: Outpost Delta - Military Garrison), 1236 cargo runs loaded, 2 salvage operations.
+  Combat: 58 engagements, fiercest around Freeport Gamma (13). Crow (pirate) was most aggressive (18 attacks).
+  Commerce: 258 trades (busiest: Station Alpha - Mining Hub), 538 cargo runs loaded, 3 salvage operations.
   Danger: 10 pilots fled dangerous encounters.
-  Losses & returns: 3 pilots respawned after prior destruction; 1 were lost permanently.
-  New arrivals at Freeport Gamma: mortal_123 (prospector), mortal_124 (prospector), mortal_125 (pirate).
-  New arrivals at Silent Drift: mortal_126.
-  New arrivals at Void Threshold: mortal_127 (explorer).
+  Losses & returns: 4 pilots respawned after prior destruction; 3 were lost permanently.
+  New arrivals at Silent Drift: mortal_129 (explorer).
+  New arrivals at Storm Shelf: mortal_130 (trader).
+  New arrivals at Epsilon Refinery Complex: mortal_131 (trader), mortal_133.
+  New arrivals at Freeport Gamma: mortal_132 (hauler).
+  New arrivals at Iron Shelf: mortal_134 (pirate).
+  New arrivals at Nebula Depot: mortal_135 (hauler).
 
 --- Epoch 22: ticks 2101–2200 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Crystal Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Shadow Crossing: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Dark Reach: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Nebula Depot: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Void Threshold: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Crimson Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Edge Point: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Outpost Delta - Military Garrison: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Freeport Gamma: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Iron Shelf: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Crystal Frontier: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Reach: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Silent Threshold: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Shadow Crossing: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Dark Reach: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Nebula Depot: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Void Threshold: security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Frozen Drift: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Obsidian Frontier: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Crimson Depot: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Storm Shelf: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Edge Point: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Crimson Passage: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Silent Drift: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Station Alpha - Mining Hub: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Station Beta - Trade Post: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Outpost Delta - Military Garrison: economy shifted from poor to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost.
+  Epsilon Refinery Complex: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Freeport Gamma: economy shifted from adequate to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
 
-  Combat: 61 engagements, fiercest around Freeport Gamma (25). Crow (pirate) was most aggressive (20 attacks).
-  Commerce: 388 trades (busiest: Freeport Gamma), 702 cargo runs loaded, 12 salvage operations.
-  Danger: 89 pilots fled dangerous encounters.
-  Losses & returns: 8 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Outpost Delta - Military Garrison: mortal_128 (prospector), mortal_129 (hauler), mortal_130 (explorer).
-  New arrivals at Freeport Gamma: mortal_131 (trader).
+  Combat: 58 engagements, fiercest around Freeport Gamma (30). Vex (pirate) was most aggressive (17 attacks).
+  Commerce: 355 trades (busiest: Freeport Gamma), 305 cargo runs loaded, 14 salvage operations.
+  Danger: 84 pilots fled dangerous encounters.
+  Losses & returns: 8 pilots respawned after prior destruction; 12 mortals narrowly survived destruction; 15 were lost permanently.
+  New arrivals at Obsidian Frontier: mortal_136.
+  New arrivals at Storm Shelf: mortal_137.
+  New arrivals at Frozen Drift: mortal_138 (pirate).
+  New arrivals at Station Alpha - Mining Hub: mortal_139, mortal_141 (trader).
+  New arrivals at Outpost Delta - Military Garrison: mortal_140.
+  New arrivals at Iron Shelf: mortal_142 (pirate).
+  New arrivals at Crimson Passage: mortal_143 (hauler).
 
 --- Epoch 23: ticks 2201–2300 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  *** CATASTROPHE struck Obsidian Frontier! The station was disabled and operations ceased. ***
+  *** CATASTROPHE struck Crimson Passage! The station was disabled and operations ceased. ***
+  *** CATASTROPHE struck Crystal Frontier! The station was disabled and operations ceased. ***
 
-  Iron Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Outpost Delta - Military Garrison: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Freeport Gamma: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Iron Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Crystal Frontier: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Silent Threshold: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Shadow Crossing: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Dark Reach: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Nebula Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Void Threshold: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Crimson Depot: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Edge Point: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Crimson Passage: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony.
+  Outpost Delta - Military Garrison: security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Freeport Gamma: economy shifted from poor to adequate; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
 
-  Combat: 69 engagements, fiercest around Freeport Gamma (21). Crow (pirate) was most aggressive (15 attacks).
-  Commerce: 300 trades (busiest: Freeport Gamma), 1360 cargo runs loaded, 10 salvage operations.
-  Danger: 39 pilots fled dangerous encounters.
-  Losses & returns: 9 pilots respawned after prior destruction; 5 mortals narrowly survived destruction; 1 were lost permanently.
-  New arrivals at Station Alpha - Mining Hub: mortal_132 (hauler).
-  New arrivals at Crimson Depot: mortal_133 (hauler).
-  New arrivals at Nebula Depot: mortal_134 (pirate).
-  New arrivals at Crimson Passage: mortal_135 (prospector).
-  New arrivals at Storm Shelf: mortal_136 (trader).
-  New arrivals at Void Threshold: mortal_137 (pirate), mortal_138 (hauler), mortal_139 (pirate).
+  Combat: 51 engagements, fiercest around Freeport Gamma (20). Vex (pirate) was most aggressive (14 attacks).
+  Commerce: 249 trades (busiest: Station Alpha - Mining Hub), 539 cargo runs loaded, 4 salvage operations.
+  Danger: 28 pilots fled dangerous encounters.
+  Losses & returns: 7 pilots respawned after prior destruction; 2 mortals narrowly survived destruction; 3 were lost permanently.
+  New arrivals at Void Threshold: mortal_144 (hauler), mortal_146 (prospector).
+  New arrivals at Station Alpha - Mining Hub: mortal_145.
+  New arrivals at Dark Reach: mortal_147 (prospector), mortal_149 (hauler), mortal_152 (trader).
+  New arrivals at Crimson Depot: mortal_148.
+  New arrivals at Epsilon Refinery Complex: mortal_150 (hauler).
+  New arrivals at Outpost Delta - Military Garrison: mortal_151 (trader).
 
 --- Epoch 24: ticks 2301–2400 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  Crystal Frontier: security changed from secure to contested.
-  Silent Threshold: security changed from secure to contested; grew from colony to hub.
-  Dark Reach: grew from colony to hub.
-  Nebula Depot: security changed from contested to secure.
-  Void Threshold: economy shifted from rich to adequate; security changed from secure to contested.
-  Frozen Drift: grew from colony to hub.
-  Obsidian Frontier: grew from colony to hub.
-  Storm Shelf: grew from outpost to colony.
-  Edge Point: security changed from contested to secure; grew from colony to hub.
-  Crimson Passage: security changed from secure to contested.
-  Station Alpha - Mining Hub: grew from outpost to colony.
+  Iron Shelf: economy shifted from rich to adequate.
+  Obsidian Reach: security changed from secure to contested; grew from colony to hub.
+  Silent Threshold: security changed from contested to secure.
+  Shadow Crossing: security changed from contested to secure.
+  Nebula Depot: economy shifted from rich to adequate; security changed from secure to contested.
+  Void Threshold: security changed from contested to secure.
+  Frozen Drift: economy shifted from rich to adequate.
+  Station Alpha - Mining Hub: security changed from secure to contested; grew from outpost to colony.
   Station Beta - Trade Post: grew from colony to hub.
-  Freeport Gamma: economy shifted from rich to adequate; grew from outpost to colony.
+  Freeport Gamma: economy shifted from adequate to poor; security changed from secure to contested; declined from hub to outpost.
 
-  Combat: 113 engagements, fiercest around Station Alpha - Mining Hub (47). Vex (pirate) was most aggressive (15 attacks).
-  Commerce: 421 trades (busiest: Station Alpha - Mining Hub), 1519 cargo runs loaded, 13 salvage operations.
+  Combat: 42 engagements, fiercest around Freeport Gamma (12). Crow (pirate) was most aggressive (13 attacks).
+  Commerce: 276 trades (busiest: Freeport Gamma), 797 cargo runs loaded, 3 salvage operations.
   Danger: 16 pilots fled dangerous encounters.
-  Losses & returns: 3 pilots respawned after prior destruction; 9 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Storm Shelf: mortal_140.
-  New arrivals at Station Alpha - Mining Hub: mortal_141 (trader).
-  New arrivals at Freeport Gamma: mortal_142 (pirate).
-  New arrivals at Epsilon Refinery Complex: mortal_143 (hauler), mortal_149 (pirate).
-  New arrivals at Iron Shelf: mortal_144 (pirate), mortal_147 (prospector), mortal_148 (hauler).
-  New arrivals at Void Threshold: mortal_145 (trader).
-  New arrivals at Crimson Depot: mortal_146 (explorer).
-  New arrivals at Crimson Passage: mortal_150 (pirate), mortal_152 (explorer).
-  New arrivals at Silent Drift: mortal_151 (trader).
+  Losses & returns: 8 pilots respawned after prior destruction; 1 mortals narrowly survived destruction.
+  New arrivals at Storm Shelf: mortal_153 (pirate).
+  New arrivals at Edge Point: mortal_154 (explorer).
+  New arrivals at Void Threshold: mortal_155 (prospector).
 
 --- Epoch 25: ticks 2401–2500 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme.
-  Crystal Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Threshold: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Shadow Crossing: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Dark Reach: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Nebula Depot: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Void Threshold: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Crimson Depot: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Edge Point: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Station Beta - Trade Post: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
-  Outpost Delta - Military Garrison: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Freeport Gamma: economy shifted from adequate to poor; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost.
+  Iron Shelf: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Crystal Frontier: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Reach: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Silent Threshold: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Shadow Crossing: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Dark Reach: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Nebula Depot: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Void Threshold: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Frozen Drift: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Frontier: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Crimson Depot: security changed from contested to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Storm Shelf: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Edge Point: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Crimson Passage: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Silent Drift: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost; became infested with hostiles.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; declined from colony to outpost.
+  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Outpost Delta - Military Garrison: security changed from secure to lawless; environment went from mild to extreme; declined from hub to outpost; became infested with hostiles.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Freeport Gamma: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
 
-  Combat: 112 engagements, fiercest around Station Alpha - Mining Hub (37). Vex (pirate) was most aggressive (20 attacks).
-  Commerce: 592 trades (busiest: Freeport Gamma), 1137 cargo runs loaded, 18 salvage operations.
-  Danger: 76 pilots fled dangerous encounters.
-  Losses & returns: 10 pilots respawned after prior destruction; 6 mortals narrowly survived destruction; 14 were lost permanently.
-  New arrivals at Crimson Depot: mortal_153 (trader).
-  New arrivals at Nebula Depot: mortal_154 (prospector).
-  New arrivals at Iron Shelf: mortal_155 (hauler).
-  New arrivals at Station Alpha - Mining Hub: mortal_156 (pirate).
-  New arrivals at Outpost Delta - Military Garrison: mortal_157 (explorer).
-  New arrivals at Freeport Gamma: mortal_158.
+  Combat: 35 engagements, fiercest around Freeport Gamma (9). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 219 trades (busiest: Freeport Gamma), 532 cargo runs loaded, 9 salvage operations.
+  Danger: 43 pilots fled dangerous encounters.
+  Losses & returns: 2 pilots respawned after prior destruction; 2 mortals narrowly survived destruction; 16 were lost permanently.
+  New arrivals at Iron Shelf: mortal_156 (prospector).
+  4 new pilots appeared at Station Alpha - Mining Hub.
+  New arrivals at Frozen Drift: mortal_158 (prospector).
+  New arrivals at Edge Point: mortal_159.
+  New arrivals at Storm Shelf: mortal_160.
+  New arrivals at Nebula Depot: mortal_161.
 
 --- Epoch 26: ticks 2501–2600 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  Iron Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Station Beta - Trade Post: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
-  Outpost Delta - Military Garrison: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Freeport Gamma: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild.
+  Iron Shelf: security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Crystal Frontier: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Silent Threshold: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Shadow Crossing: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Dark Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Nebula Depot: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Void Threshold: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Crimson Depot: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Edge Point: security changed from lawless to contested; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Crimson Passage: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Outpost Delta - Military Garrison: security changed from lawless to secure; environment went from extreme to mild; grew from outpost to hub; was cleared of hostile infestation.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Freeport Gamma: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
 
-  Combat: 104 engagements, fiercest around Freeport Gamma (53). Crow (pirate) was most aggressive (18 attacks).
-  Commerce: 575 trades (busiest: Freeport Gamma), 1010 cargo runs loaded, 22 salvage operations.
-  Danger: 113 pilots fled dangerous encounters.
-  Losses & returns: 27 pilots respawned after prior destruction; 6 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Freeport Gamma: mortal_159 (hauler).
-  New arrivals at Outpost Delta - Military Garrison: mortal_160.
-  New arrivals at Epsilon Refinery Complex: mortal_161 (explorer).
+  Combat: 31 engagements, fiercest around Frozen Drift (9). Crow (pirate) was most aggressive (13 attacks).
+  Commerce: 240 trades (busiest: Iron Shelf), 319 cargo runs loaded, 3 salvage operations.
+  Danger: 41 pilots fled dangerous encounters.
+  Losses & returns: 2 pilots respawned after prior destruction; 2 mortals narrowly survived destruction; 7 were lost permanently.
+  New arrivals at Station Alpha - Mining Hub: mortal_165, mortal_168 (pirate).
+  New arrivals at Outpost Delta - Military Garrison: mortal_166, mortal_170 (pirate).
+  New arrivals at Nebula Depot: mortal_167 (pirate).
+  New arrivals at Crimson Depot: mortal_169 (trader).
+  New arrivals at Epsilon Refinery Complex: mortal_171 (prospector).
 
 --- Epoch 27: ticks 2601–2700 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  *** CATASTROPHE struck Obsidian Reach! The station was disabled and operations ceased. ***
-  *** CATASTROPHE struck Freeport Gamma! The station was disabled and operations ceased. ***
-
-  Iron Shelf: security changed from secure to contested.
-  Crystal Frontier: security changed from contested to secure.
-  Obsidian Reach: security changed from contested to secure; environment went from mild to extreme.
-  Silent Threshold: grew from colony to hub.
-  Shadow Crossing: grew from outpost to hub.
-  Dark Reach: security changed from contested to secure; grew from colony to hub.
-  Nebula Depot: security changed from secure to contested.
-  Void Threshold: security changed from contested to secure.
+  Iron Shelf: grew from outpost to hub.
+  Silent Threshold: security changed from contested to secure.
+  Shadow Crossing: security changed from contested to secure; grew from outpost to colony.
+  Dark Reach: security changed from contested to secure.
+  Nebula Depot: economy shifted from rich to adequate; security changed from secure to contested.
   Frozen Drift: security changed from secure to contested.
-  Obsidian Frontier: security changed from secure to contested.
-  Storm Shelf: security changed from secure to contested.
-  Crimson Passage: security changed from contested to secure.
-  Station Alpha - Mining Hub: grew from outpost to hub.
-  Station Beta - Trade Post: grew from colony to hub.
-  Outpost Delta - Military Garrison: security changed from secure to contested.
-  Epsilon Refinery Complex: security changed from contested to secure.
-  Freeport Gamma: economy shifted from rich to adequate; security changed from contested to secure; environment went from mild to extreme.
+  Obsidian Frontier: security changed from contested to secure; grew from outpost to colony.
+  Storm Shelf: security changed from contested to secure.
+  Crimson Passage: economy shifted from rich to adequate; grew from colony to hub.
+  Silent Drift: economy shifted from rich to adequate; grew from colony to hub.
+  Station Alpha - Mining Hub: security changed from contested to secure; grew from outpost to colony.
+  Station Beta - Trade Post: security changed from secure to contested; grew from outpost to colony.
+  Epsilon Refinery Complex: security changed from secure to contested.
+  Freeport Gamma: economy shifted from rich to adequate; security changed from secure to contested.
 
-  Combat: 68 engagements, fiercest around Station Alpha - Mining Hub (27). Crow (pirate) was most aggressive (13 attacks).
-  Commerce: 303 trades (busiest: Freeport Gamma), 1498 cargo runs loaded, 13 salvage operations.
-  Danger: 7 pilots fled dangerous encounters.
-  Losses & returns: 9 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 4 were lost permanently.
-  New arrivals at Storm Shelf: mortal_162.
-  New arrivals at Crimson Depot: mortal_163 (explorer).
-  New arrivals at Iron Shelf: mortal_164 (trader), mortal_171 (prospector).
-  New arrivals at Nebula Depot: mortal_165 (prospector), mortal_168 (hauler), mortal_169 (explorer).
-  New arrivals at Outpost Delta - Military Garrison: mortal_166 (prospector).
-  New arrivals at Dark Reach: mortal_167 (explorer).
-  New arrivals at Silent Drift: mortal_170 (hauler).
+  Combat: 59 engagements, fiercest around Freeport Gamma (22). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 369 trades (busiest: Freeport Gamma), 543 cargo runs loaded, 2 salvage operations.
+  Danger: 29 pilots fled dangerous encounters.
+  Losses & returns: 11 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 2 were lost permanently.
+  New arrivals at Silent Drift: mortal_172 (hauler).
+  New arrivals at Void Threshold: mortal_173 (pirate).
+  New arrivals at Nebula Depot: mortal_174 (explorer).
+  New arrivals at Silent Threshold: mortal_175 (explorer).
 
 --- Epoch 28: ticks 2701–2800 [DISRUPTION] ---
   >>> The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.
 
-  Iron Shelf: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; grew from outpost to colony.
-  Crystal Frontier: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Obsidian Reach: economy shifted from rich to poor; security changed from secure to lawless; grew from outpost to colony; became infested with hostiles.
-  Silent Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to harsh.
-  Shadow Crossing: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Dark Reach: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme.
-  Nebula Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Void Threshold: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; grew from colony to hub; became infested with hostiles.
-  Obsidian Frontier: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to harsh.
-  Crimson Depot: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Storm Shelf: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme.
-  Edge Point: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
-  Crimson Passage: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Silent Drift: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme.
-  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to harsh.
-  Station Beta - Trade Post: economy shifted from rich to adequate; security changed from secure to contested; environment went from mild to harsh.
-  Outpost Delta - Military Garrison: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme.
-  Epsilon Refinery Complex: economy shifted from rich to poor; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
-  Freeport Gamma: economy shifted from adequate to poor; security changed from secure to lawless; grew from outpost to colony.
+  *** CATASTROPHE struck Crystal Frontier! The station was disabled and operations ceased. ***
 
-  Combat: 59 engagements, fiercest around Outpost Delta - Military Garrison (14). Crow (pirate) was most aggressive (16 attacks).
-  Commerce: 288 trades (busiest: Freeport Gamma), 1649 cargo runs loaded, 5 salvage operations.
-  Danger: 16 pilots fled dangerous encounters.
-  Losses & returns: 7 pilots respawned after prior destruction; 4 mortals narrowly survived destruction; 5 were lost permanently.
-  New arrivals at Silent Drift: mortal_172 (hauler), mortal_175 (pirate).
-  New arrivals at Crimson Passage: mortal_173 (pirate).
-  New arrivals at Nebula Depot: mortal_174 (prospector).
-  New arrivals at Dark Reach: mortal_176 (prospector).
-  New arrivals at Outpost Delta - Military Garrison: mortal_177, mortal_180 (pirate).
-  New arrivals at Iron Shelf: mortal_178 (prospector).
-  New arrivals at Void Threshold: mortal_179 (trader).
+  Iron Shelf: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Crystal Frontier: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Obsidian Reach: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme.
+  Silent Threshold: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to harsh; declined from colony to outpost; became infested with hostiles.
+  Shadow Crossing: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Dark Reach: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to harsh.
+  Nebula Depot: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Void Threshold: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Frozen Drift: economy shifted from rich to poor; security changed from contested to lawless; environment went from mild to extreme.
+  Obsidian Frontier: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to harsh.
+  Crimson Depot: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to harsh.
+  Storm Shelf: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; became infested with hostiles.
+  Edge Point: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to harsh.
+  Crimson Passage: economy shifted from adequate to poor; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Silent Drift: security changed from contested to lawless; environment went from mild to extreme; declined from hub to colony; became infested with hostiles.
+  Station Alpha - Mining Hub: economy shifted from rich to adequate; security changed from secure to lawless; environment went from mild to extreme; grew from colony to hub.
+  Station Beta - Trade Post: economy shifted from rich to adequate; environment went from mild to harsh; grew from colony to hub.
+  Outpost Delta - Military Garrison: security changed from secure to lawless; environment went from mild to harsh.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+  Freeport Gamma: security changed from contested to lawless; environment went from mild to extreme; became infested with hostiles.
+
+  Combat: 60 engagements, fiercest around Freeport Gamma (31). Vex (pirate) was most aggressive (16 attacks).
+  Commerce: 212 trades (busiest: Freeport Gamma), 612 cargo runs loaded, 1 salvage operations.
+  Danger: 17 pilots fled dangerous encounters.
+  Losses & returns: 8 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 9 were lost permanently.
+  New arrivals at Silent Drift: mortal_176, mortal_182 (hauler).
+  New arrivals at Silent Threshold: mortal_177.
+  New arrivals at Edge Point: mortal_178.
+  New arrivals at Outpost Delta - Military Garrison: mortal_179 (pirate), mortal_181.
+  New arrivals at Dark Reach: mortal_180 (explorer), mortal_183 (hauler).
 
 --- Epoch 29: ticks 2801–2900 [RECOVERY] ---
   >>> Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.
 
-  *** CATASTROPHE struck Obsidian Reach! The station was disabled and operations ceased. ***
-  *** CATASTROPHE struck Storm Shelf! The station was disabled and operations ceased. ***
+  Iron Shelf: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Crystal Frontier: security changed from lawless to contested; environment went from extreme to mild; grew from frontier to outpost; was cleared of hostile infestation.
+  Obsidian Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild.
+  Silent Threshold: economy shifted from adequate to rich; security changed from lawless to secure; environment went from harsh to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Shadow Crossing: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Dark Reach: economy shifted from adequate to rich; security changed from lawless to contested; environment went from harsh to mild.
+  Nebula Depot: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Void Threshold: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony; was cleared of hostile infestation.
+  Frozen Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; grew from outpost to colony.
+  Obsidian Frontier: economy shifted from adequate to rich; security changed from lawless to contested; environment went from harsh to mild.
+  Crimson Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from harsh to mild; declined from hub to colony.
+  Storm Shelf: economy shifted from adequate to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
+  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from harsh to mild; declined from hub to colony.
+  Crimson Passage: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from hub to outpost; was cleared of hostile infestation.
+  Silent Drift: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; declined from hub to outpost.
+  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from contested to secure; environment went from harsh to mild; declined from hub to colony.
+  Outpost Delta - Military Garrison: security changed from lawless to contested; environment went from harsh to mild; declined from hub to outpost.
+  Epsilon Refinery Complex: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
+  Freeport Gamma: economy shifted from adequate to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
 
-  Iron Shelf: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost.
-  Crystal Frontier: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Obsidian Reach: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Silent Threshold: economy shifted from poor to rich; security changed from lawless to contested; environment went from harsh to mild; declined from hub to colony.
-  Shadow Crossing: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; declined from hub to outpost; was cleared of hostile infestation.
-  Dark Reach: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from hub to colony.
-  Nebula Depot: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Void Threshold: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; was cleared of hostile infestation.
-  Frozen Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; declined from hub to outpost; was cleared of hostile infestation.
-  Obsidian Frontier: economy shifted from poor to rich; security changed from lawless to secure; environment went from harsh to mild.
-  Crimson Depot: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Storm Shelf: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild.
-  Edge Point: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost; was cleared of hostile infestation.
-  Crimson Passage: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Silent Drift: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild.
-  Station Alpha - Mining Hub: economy shifted from adequate to rich; security changed from lawless to contested; environment went from harsh to mild; declined from hub to outpost.
-  Station Beta - Trade Post: economy shifted from adequate to rich; security changed from contested to secure; environment went from harsh to mild; declined from hub to outpost.
-  Outpost Delta - Military Garrison: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from hub to outpost.
-  Epsilon Refinery Complex: economy shifted from poor to rich; security changed from lawless to secure; environment went from extreme to mild; was cleared of hostile infestation.
-  Freeport Gamma: economy shifted from poor to rich; security changed from lawless to contested; environment went from extreme to mild; declined from colony to outpost.
-
-  Combat: 72 engagements, fiercest around Freeport Gamma (34). Vex (pirate) was most aggressive (19 attacks).
-  Commerce: 396 trades (busiest: Station Alpha - Mining Hub), 858 cargo runs loaded, 14 salvage operations.
-  Danger: 173 pilots fled dangerous encounters.
-  Losses & returns: 8 pilots respawned after prior destruction; 1 mortals narrowly survived destruction; 6 were lost permanently.
-  New arrivals at Station Alpha - Mining Hub: mortal_181, mortal_182 (trader).
-  New arrivals at Outpost Delta - Military Garrison: mortal_183.
+  Combat: 38 engagements, fiercest around Freeport Gamma (12). Crow (pirate) was most aggressive (15 attacks).
+  Commerce: 327 trades (busiest: Freeport Gamma), 154 cargo runs loaded, 11 salvage operations.
+  Danger: 122 pilots fled dangerous encounters.
+  Losses & returns: 12 pilots respawned after prior destruction; 3 mortals narrowly survived destruction; 8 were lost permanently.
+  New arrivals at Station Alpha - Mining Hub: mortal_184, mortal_185.
+  New arrivals at Nebula Depot: mortal_186 (pirate).
+  New arrivals at Edge Point: mortal_187 (prospector).
 
 --- Epoch 30: ticks 2901–3000 [PROSPERITY] ---
   >>> A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.
 
-  Crystal Frontier: security changed from contested to secure.
-  Obsidian Reach: grew from outpost to colony.
-  Silent Threshold: security changed from contested to secure; grew from colony to hub.
-  Shadow Crossing: security changed from secure to contested.
-  Dark Reach: security changed from contested to secure; grew from colony to hub.
-  Nebula Depot: security changed from contested to secure.
-  Void Threshold: security changed from contested to secure.
-  Frozen Drift: security changed from secure to contested; grew from outpost to colony.
-  Obsidian Frontier: security changed from secure to contested; grew from colony to hub.
-  Crimson Passage: security changed from secure to contested.
-  Silent Drift: economy shifted from rich to adequate; security changed from secure to contested.
-  Station Alpha - Mining Hub: security changed from contested to secure.
-  Station Beta - Trade Post: security changed from secure to contested.
-  Outpost Delta - Military Garrison: economy shifted from rich to adequate.
-  Freeport Gamma: security changed from contested to secure; grew from outpost to colony.
+  Crystal Frontier: economy shifted from rich to adequate.
+  Obsidian Reach: economy shifted from rich to adequate; grew from colony to hub.
+  Silent Threshold: economy shifted from rich to adequate; security changed from secure to contested; grew from colony to hub.
+  Shadow Crossing: security changed from secure to contested; grew from colony to hub.
+  Dark Reach: security changed from contested to secure.
+  Nebula Depot: economy shifted from rich to adequate; security changed from contested to secure.
+  Frozen Drift: security changed from secure to contested.
+  Obsidian Frontier: economy shifted from rich to adequate; security changed from contested to secure; grew from colony to hub.
+  Crimson Depot: economy shifted from rich to adequate; grew from colony to hub.
+  Storm Shelf: economy shifted from rich to adequate; grew from colony to hub.
+  Edge Point: economy shifted from rich to adequate; grew from colony to hub.
+  Crimson Passage: economy shifted from rich to adequate; security changed from contested to secure.
+  Silent Drift: security changed from contested to secure.
+  Outpost Delta - Military Garrison: economy shifted from adequate to rich; grew from outpost to colony.
+  Epsilon Refinery Complex: economy shifted from rich to adequate; security changed from contested to secure.
+  Freeport Gamma: economy shifted from rich to adequate; security changed from contested to secure.
 
-  Combat: 52 engagements, fiercest around Station Alpha - Mining Hub (16). Crow (pirate) was most aggressive (17 attacks).
-  Commerce: 220 trades (busiest: Station Alpha - Mining Hub), 1834 cargo runs loaded, 6 salvage operations.
-  Danger: 10 pilots fled dangerous encounters.
-  Losses & returns: 8 pilots respawned after prior destruction; 2 were lost permanently.
-  New arrivals at Crimson Depot: mortal_184 (trader), mortal_190 (hauler).
-  New arrivals at Dark Reach: mortal_185, mortal_188 (trader).
-  New arrivals at Nebula Depot: mortal_186 (pirate), mortal_189 (prospector).
-  New arrivals at Silent Drift: mortal_187 (explorer).
+  Combat: 61 engagements, fiercest around Frozen Drift (12). Crow (pirate) was most aggressive (14 attacks).
+  Commerce: 265 trades (busiest: Freeport Gamma), 428 cargo runs loaded, 5 salvage operations.
+  Danger: 15 pilots fled dangerous encounters.
+  Losses & returns: 7 pilots respawned after prior destruction; 2 mortals narrowly survived destruction.
+  New arrivals at Void Threshold: mortal_188 (pirate).
+  New arrivals at Shadow Crossing: mortal_189 (trader).
+  New arrivals at Outpost Delta - Military Garrison: mortal_190 (hauler).
 
 ================================================================
 OVERALL SUMMARY
 ================================================================
   Simulation ran for 3000 ticks (27 world-age transitions).
-  Total engagements: 2091  |  Total trades: 10959
-  Newcomers arrived: 190  |  Pilots respawned: 213
-  Permanently lost: 140  |  Narrowly survived: 107
-  Catastrophes endured: 15
+  Total engagements: 1491  |  Total trades: 8054
+  Newcomers arrived: 190  |  Pilots respawned: 203
+  Permanently lost: 183  |  Narrowly survived: 120
+  Catastrophes endured: 6
   New sectors discovered: 15  |  Total sectors: 20
 
   Final state of the sector:
-    Iron Shelf: rich economy, contested, mild environment [outpost]
-    Crystal Frontier: rich economy, secure, mild environment [frontier]
-    Obsidian Reach: rich economy, secure, mild environment [colony]
-    Silent Threshold: rich economy, secure, mild environment [hub]
-    Shadow Crossing: rich economy, contested, mild environment [outpost]
-    Dark Reach: rich economy, secure, mild environment [hub]
-    Nebula Depot: rich economy, secure, mild environment [frontier]
-    Void Threshold: rich economy, secure, mild environment [outpost]
+    Iron Shelf: rich economy, contested, mild environment [colony]
+    Crystal Frontier: adequate economy, contested, mild environment [outpost]
+    Obsidian Reach: adequate economy, contested, mild environment [hub]
+    Silent Threshold: adequate economy, contested, mild environment [hub]
+    Shadow Crossing: rich economy, contested, mild environment [hub]
+    Dark Reach: rich economy, secure, mild environment [colony]
+    Nebula Depot: adequate economy, secure, mild environment [outpost]
+    Void Threshold: rich economy, secure, mild environment [colony]
     Frozen Drift: rich economy, contested, mild environment [colony]
-    Obsidian Frontier: rich economy, contested, mild environment [hub]
-    Crimson Depot: rich economy, secure, mild environment [outpost]
-    Storm Shelf: rich economy, secure, mild environment [colony]
-    Edge Point: rich economy, contested, mild environment [outpost]
-    Crimson Passage: rich economy, contested, mild environment [frontier]
-    Silent Drift: adequate economy, contested, mild environment [outpost]
-    Station Alpha - Mining Hub: rich economy, secure, mild environment [outpost]
-    Station Beta - Trade Post: rich economy, contested, mild environment [outpost]
-    Outpost Delta - Military Garrison: adequate economy, contested, mild environment [outpost]
-    Epsilon Refinery Complex: rich economy, secure, mild environment [outpost]
-    Freeport Gamma: rich economy, secure, mild environment [colony]
+    Obsidian Frontier: adequate economy, secure, mild environment [hub]
+    Crimson Depot: adequate economy, contested, mild environment [hub]
+    Storm Shelf: adequate economy, secure, mild environment [hub]
+    Edge Point: adequate economy, contested, mild environment [hub]
+    Crimson Passage: adequate economy, secure, mild environment [outpost]
+    Silent Drift: rich economy, secure, mild environment [colony]
+    Station Alpha - Mining Hub: rich economy, contested, mild environment [outpost]
+    Station Beta - Trade Post: rich economy, secure, mild environment [colony]
+    Outpost Delta - Military Garrison: rich economy, contested, mild environment [colony]
+    Epsilon Refinery Complex: adequate economy, secure, mild environment [outpost]
+    Freeport Gamma: adequate economy, secure, mild environment [outpost]
 
   Sector connections:
-    Iron Shelf <-> Freeport Gamma, Station Alpha - Mining Hub, Outpost Delta - Military Garrison, Frozen Drift, Crimson Passage, Obsidian Reach, Nebula Depot
-    Crystal Frontier <-> Void Threshold, Crimson Depot, Silent Drift
-    Obsidian Reach <-> Freeport Gamma, Iron Shelf, Void Threshold
-    Silent Threshold <-> Void Threshold, Station Alpha - Mining Hub, Crimson Depot
-    Shadow Crossing <-> Crimson Passage, Station Alpha - Mining Hub
-    Dark Reach <-> Void Threshold, Station Alpha - Mining Hub, Silent Drift
-    Nebula Depot <-> Crimson Passage, Freeport Gamma, Iron Shelf
-    Void Threshold <-> Freeport Gamma, Station Alpha - Mining Hub, Crimson Depot, Silent Drift, Crystal Frontier, Obsidian Reach, Silent Threshold, Dark Reach
-    Frozen Drift <-> Freeport Gamma, Iron Shelf
-    Obsidian Frontier <-> Freeport Gamma, Station Alpha - Mining Hub, Edge Point
-    Crimson Depot <-> Freeport Gamma, Outpost Delta - Military Garrison, Void Threshold, Silent Drift, Crystal Frontier, Silent Threshold
-    Storm Shelf <-> Freeport Gamma, Outpost Delta - Military Garrison
-    Edge Point <-> Freeport Gamma, Outpost Delta - Military Garrison, Obsidian Frontier
-    Crimson Passage <-> Freeport Gamma, Station Alpha - Mining Hub, Iron Shelf, Shadow Crossing, Nebula Depot
-    Silent Drift <-> Void Threshold, Freeport Gamma, Crimson Depot, Crystal Frontier, Dark Reach
-    Station Alpha - Mining Hub <-> Station Beta - Trade Post, Freeport Gamma, Outpost Delta - Military Garrison, Iron Shelf, Void Threshold, Obsidian Frontier, Crimson Passage, Silent Threshold, Shadow Crossing, Dark Reach
+    Iron Shelf <-> Freeport Gamma, Crimson Passage, Silent Drift, Crystal Frontier, Nebula Depot
+    Crystal Frontier <-> Freeport Gamma, Iron Shelf, Void Threshold
+    Obsidian Reach <-> Freeport Gamma, Station Alpha - Mining Hub, Void Threshold
+    Silent Threshold <-> Freeport Gamma, Outpost Delta - Military Garrison
+    Shadow Crossing <-> Frozen Drift, Obsidian Frontier
+    Dark Reach <-> Frozen Drift
+    Nebula Depot <-> Freeport Gamma, Station Alpha - Mining Hub, Iron Shelf
+    Void Threshold <-> Freeport Gamma, Outpost Delta - Military Garrison, Edge Point, Crystal Frontier, Obsidian Reach
+    Frozen Drift <-> Freeport Gamma, Outpost Delta - Military Garrison, Obsidian Frontier, Storm Shelf, Shadow Crossing, Dark Reach
+    Obsidian Frontier <-> Freeport Gamma, Frozen Drift, Crimson Passage, Silent Drift, Shadow Crossing
+    Crimson Depot <-> Freeport Gamma, Edge Point
+    Storm Shelf <-> Freeport Gamma, Frozen Drift
+    Edge Point <-> Freeport Gamma, Void Threshold, Crimson Depot
+    Crimson Passage <-> Freeport Gamma, Iron Shelf, Obsidian Frontier
+    Silent Drift <-> Freeport Gamma, Iron Shelf, Obsidian Frontier
+    Station Alpha - Mining Hub <-> Station Beta - Trade Post, Freeport Gamma, Outpost Delta - Military Garrison, Obsidian Reach, Nebula Depot
     Station Beta - Trade Post <-> Station Alpha - Mining Hub, Outpost Delta - Military Garrison
-    Outpost Delta - Military Garrison <-> Station Beta - Trade Post, Freeport Gamma, Station Alpha - Mining Hub, Iron Shelf, Crimson Depot, Storm Shelf, Edge Point
+    Outpost Delta - Military Garrison <-> Station Beta - Trade Post, Freeport Gamma, Station Alpha - Mining Hub, Void Threshold, Frozen Drift, Silent Threshold
     Epsilon Refinery Complex <-> Station Alpha - Mining Hub, Station Beta - Trade Post, Freeport Gamma
-    Freeport Gamma <-> Station Alpha - Mining Hub, Outpost Delta - Military Garrison, Iron Shelf, Void Threshold, Frozen Drift, Obsidian Frontier, Crimson Depot, Storm Shelf, Edge Point, Crimson Passage, Silent Drift, Obsidian Reach, Nebula Depot
+    Freeport Gamma <-> Station Alpha - Mining Hub, Outpost Delta - Military Garrison, Iron Shelf, Void Threshold, Frozen Drift, Obsidian Frontier, Crimson Depot, Storm Shelf, Edge Point, Crimson Passage, Silent Drift, Crystal Frontier, Obsidian Reach, Silent Threshold, Nebula Depot
 
   Active pilots:
-    mortal_104 (trader): healthy, broke, at Station Beta - Trade Post
-    mortal_117 (trader): healthy, broke, at Station Beta - Trade Post
-    mortal_119 (trader): healthy, comfortable, at Station Alpha - Mining Hub
-    mortal_122 (trader): healthy, broke, at Station Beta - Trade Post
-    mortal_123 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_128 (prospector): healthy, comfortable, at Iron Shelf
-    mortal_132 (hauler): healthy, comfortable, at Iron Shelf
-    mortal_136 (trader): healthy, broke, at Station Alpha - Mining Hub
-    mortal_143 (hauler): healthy, wealthy, at Station Beta - Trade Post
-    mortal_147 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_148 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    mortal_15 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    mortal_153 (trader): healthy, broke, at Station Beta - Trade Post
-    mortal_154 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_159 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    mortal_164 (trader): healthy, broke, at Station Beta - Trade Post
-    mortal_165 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_168 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    mortal_170 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    mortal_171 (prospector): healthy, comfortable, at Iron Shelf
-    mortal_172 (hauler): healthy, comfortable, at Station Beta - Trade Post
-    mortal_173 (pirate): healthy, wealthy, at Iron Shelf
-    mortal_174 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_176 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_178 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_179 (trader): healthy, comfortable, at Station Alpha - Mining Hub
-    mortal_182 (trader): healthy, comfortable, at Station Beta - Trade Post
-    mortal_184 (trader): healthy, comfortable, at Station Beta - Trade Post
-    mortal_186 (pirate): healthy, wealthy, at Freeport Gamma
-    mortal_187 (explorer): damaged, comfortable, at Crystal Frontier
-    mortal_188 (trader): healthy, comfortable, at Station Alpha - Mining Hub
-    mortal_189 (prospector): healthy, wealthy, at Nebula Depot
-    mortal_190 (hauler): healthy, wealthy, at Crimson Depot
-    mortal_64 (trader): healthy, comfortable, at Station Beta - Trade Post
-    mortal_77 (trader): healthy, comfortable, at Station Beta - Trade Post
-    mortal_90 (prospector): healthy, wealthy, at Iron Shelf
-    mortal_94 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    mortal_97 (prospector): healthy, wealthy, at Iron Shelf
-    Ada (trader): healthy, broke, at Station Beta - Trade Post
-    Crow (pirate): healthy, comfortable, at Void Threshold
-    Juno (prospector): damaged, comfortable, at Crimson Depot
+    mortal_179 (pirate): healthy, comfortable, at Iron Shelf
+    mortal_182 (hauler): healthy, wealthy, at Frozen Drift
+    mortal_186 (pirate): healthy, broke, at Freeport Gamma
+    mortal_187 (prospector): healthy, broke, at Freeport Gamma
+    mortal_188 (pirate): healthy, wealthy, at Edge Point
+    mortal_189 (trader): healthy, wealthy, at Station Alpha - Mining Hub
+    mortal_190 (hauler): healthy, wealthy, at Station Alpha - Mining Hub
+    Ada (trader): healthy, broke, at Station Alpha - Mining Hub
+    Juno (prospector): healthy, wealthy, at Edge Point
     Kai (hauler): healthy, wealthy, at Station Alpha - Mining Hub
     Milo (trader): healthy, broke, at Station Beta - Trade Post
     Nova (explorer): healthy, comfortable, at Freeport Gamma
-    Nyx (military): healthy, comfortable, at Outpost Delta - Military Garrison
+    Nyx (military): healthy, comfortable, at Freeport Gamma
     Orin (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    Rex (hauler): healthy, wealthy, at Station Alpha - Mining Hub
-    Siv (military): healthy, comfortable, at Outpost Delta - Military Garrison
-    Vera (trader): healthy, broke, at Station Alpha - Mining Hub
-    Vex (pirate): healthy, broke, at Crystal Frontier
-    Zara (prospector): healthy, wealthy, at Iron Shelf
+    Rex (hauler): healthy, comfortable, at Shadow Crossing
+    Siv (military): healthy, comfortable, at Freeport Gamma
+    Vera (trader): healthy, broke, at Freeport Gamma
+    Vex (pirate): healthy, broke, at Outpost Delta - Military Garrison
+    Zara (prospector): healthy, wealthy, at Frozen Drift
