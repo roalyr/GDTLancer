@@ -1,828 +1,770 @@
 #!/usr/bin/env python3
-"""
-GDTLancer Simulation Sandbox — CLI runner.
+#
+# PROJECT: GDTLancer
+# MODULE: main.py
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
+# LOG_REF: 2026-02-21 (TASK_12)
+#
 
-Outputs structured plain text optimized for LLM analysis.
-All visualization code has been removed in favor of compact,
-machine-readable state dumps.
-
-Usage:
-    python main.py                      # 10 ticks, default seed
-    python main.py --ticks 50000        # 50k ticks
-    python main.py --seed hello         # custom seed
-    python main.py --sample-every 500   # sample metrics every N ticks
-    python main.py --quiet              # final report only (no progress dots)
-    python main.py --head 10            # show first N ticks in transient view
-    python main.py --tail 10            # show last N ticks in transient view
-"""
+"""Qualitative simulation CLI with compact tag dashboard output."""
 
 import argparse
-import math
-import sys
 import os
+import re
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core.simulation.simulation_engine import SimulationEngine
 
 
-# -----------------------------------------------------------------
-# Suppress noisy layer prints
-# -----------------------------------------------------------------
-_original_print = print
-
-def _quiet_print(*a, **kw):
-    msg = " ".join(str(x) for x in a)
-    prefixes = (
-        "WorldLayer:", "GridLayer:", "AgentLayer:",
-        "SimulationEngine:", "BridgeSystems:", "ChronicleLayer:",
-        "AXIOM 1",
-    )
-    if any(msg.startswith(p) for p in prefixes):
-        return
-    _original_print(*a, **kw)
+def _parse_args():
+    parser = argparse.ArgumentParser(description="GDTLancer qualitative simulation runner")
+    parser.add_argument("--ticks", type=int, default=50)
+    parser.add_argument("--seed", type=str, default="qualitative-default")
+    parser.add_argument("--head", type=int, default=5)
+    parser.add_argument("--tail", type=int, default=5)
+    parser.add_argument("--quiet", action="store_true")
+    parser.add_argument("--viz", action="store_true", help="Show tick-by-tick visualization timeline")
+    parser.add_argument("--viz-interval", type=int, default=10, help="Ticks between viz samples")
+    parser.add_argument("--chronicle", action="store_true", help="Narrative chronicle report mode")
+    parser.add_argument("--epoch-size", type=int, default=100, help="Ticks per chronicle epoch (default 100)")
+    return parser.parse_args()
 
 
-# -----------------------------------------------------------------
-# Snapshot helpers (captured every tick for head/tail windows)
-# -----------------------------------------------------------------
-def _snapshot_agents(state):
-    """Compact per-agent snapshot: name->(role,sector,hull,cash,debt,goal,disabled)"""
-    snap = {}
+def _agent_name(state, agent_id: str) -> str:
+    agent = state.agents.get(agent_id, {})
+    character_id = agent.get("character_id", "")
+    character = state.characters.get(character_id, {})
+    return character.get("character_name", agent_id)
+
+
+def _sector_table(state) -> list:
+    rows = ["SECTORS:", "sector | colony | economy | security | environment | special"]
+    for sector_id in sorted(state.world_topology.keys()):
+        tags = state.sector_tags.get(sector_id, [])
+        economy = [tag for tag in tags if tag.startswith(("RAW_", "MANUFACTURED_", "CURRENCY_"))]
+        security = [tag for tag in tags if tag in {"SECURE", "CONTESTED", "LAWLESS"}]
+        environment = [tag for tag in tags if tag in {"MILD", "HARSH", "EXTREME"}]
+        special = [
+            tag
+            for tag in tags
+            if tag in {"STATION", "FRONTIER", "HAS_SALVAGE", "DISABLED", "HOSTILE_INFESTED", "HOSTILE_THREATENED"}
+        ]
+        rows.append(
+            f"{sector_id} | {state.colony_levels.get(sector_id, 'frontier')} | "
+            f"{','.join(sorted(economy))} | {','.join(security) or '-'} | "
+            f"{','.join(environment) or '-'} | {','.join(sorted(special)) or '-'}"
+        )
+    return rows
+
+
+def _agent_table(state) -> list:
+    rows = ["AGENTS:", "name | role | sector | condition | wealth | cargo | personality_tags | current_goal"]
     for agent_id in sorted(state.agents.keys()):
-        a = state.agents[agent_id]
-        char_uid = a.get("char_uid", -1)
-        ch = state.characters.get(char_uid, {})
-        name = ch.get("character_name", f"U{char_uid}")
-        snap[name] = {
-            "r": a.get("agent_role", "?")[:4],
-            "s": a.get("current_sector_id", "?").replace("station_", "")[:3],
-            "h": round(a.get("hull_integrity", 0.0), 3),
-            "c": round(a.get("cash_reserves", 0.0), 1),
-            "d": round(a.get("debt", 0.0), 1),
-            "g": a.get("goal_archetype", "?")[:5],
-            "x": 1 if a.get("is_disabled", False) else 0,
-            "tags": ",".join(a.get("sentiment_tags", []))[:30],
+        agent = state.agents[agent_id]
+        name = _agent_name(state, agent_id)
+        character = state.characters.get(agent.get("character_id", ""), {})
+        traits = sorted(character.get("personality_traits", {}).keys())
+        rows.append(
+            f"{name} | {agent.get('agent_role','idle')} | {agent.get('current_sector_id','')} | "
+            f"{agent.get('condition_tag','HEALTHY')} | {agent.get('wealth_tag','COMFORTABLE')} | "
+            f"{agent.get('cargo_tag','EMPTY')} | {','.join(traits) or '-'} | {agent.get('goal_archetype','idle')}"
+        )
+    return rows
+
+
+def _chronicle_lines(state, max_items: int = 10) -> list:
+    lines = ["CHRONICLE:"]
+    rumors = state.chronicle_rumors[-max_items:]
+    if not rumors:
+        lines.append("-")
+        return lines
+    lines.extend(rumors)
+    return lines
+
+
+def _lifecycle_lines(state, max_items: int = 10) -> list:
+    lines = ["LIFECYCLE:"]
+    events = [
+        e
+        for e in state.chronicle_events
+        if e.get("action") in {"spawn", "respawn", "catastrophe"}
+    ]
+    if not events:
+        lines.append("-")
+        return lines
+    for event in events[-max_items:]:
+        lines.append(f"t{event.get('tick', 0)} {event.get('action')} {event.get('actor_id', '')} {event.get('sector_id', '')}")
+    return lines
+
+
+def _transient_snapshot(state) -> dict:
+    sector_snapshot = {}
+    for sector_id in sorted(state.sector_tags.keys()):
+        sector_snapshot[sector_id] = sorted(state.sector_tags.get(sector_id, []))
+
+    agent_snapshot = {}
+    for agent_id in sorted(state.agents.keys()):
+        agent = state.agents[agent_id]
+        agent_snapshot[agent_id] = {
+            "sector": agent.get("current_sector_id", ""),
+            "condition": agent.get("condition_tag", "HEALTHY"),
+            "wealth": agent.get("wealth_tag", "COMFORTABLE"),
+            "cargo": agent.get("cargo_tag", "EMPTY"),
         }
-    return snap
+
+    return {"sectors": sector_snapshot, "agents": agent_snapshot}
 
 
-def _snapshot_sectors(state):
-    """Compact per-sector snapshot."""
-    snap = {}
-    for sid in sorted(state.world_topology.keys()):
-        short = sid.replace("station_", "").upper()[:3]
-        pot = state.world_resource_potential.get(sid, {})
-        hid = state.world_hidden_resources.get(sid, {})
-        stock = state.grid_stockpiles.get(sid, {})
-        dom = state.grid_dominion.get(sid, {})
-        hz = state.world_hazards.get(sid, {})
+def _transient_lines(history: list, head: int, tail: int) -> list:
+    lines = ["TRANSIENT:"]
+    if not history:
+        lines.append("-")
+        return lines
 
-        stot = sum(float(v) for v in stock.get("commodity_stockpiles", {}).values())
-        fi = dom.get("faction_influence", {})
-        dominant = max(fi, key=fi.get).replace("faction_", "")[:4] if fi else "?"
-
-        snap[short] = {
-            "dM": round(pot.get("mineral_density", 0.0), 1),
-            "dP": round(pot.get("propellant_sources", 0.0), 1),
-            "hM": round(hid.get("mineral_density", 0.0), 1),
-            "hP": round(hid.get("propellant_sources", 0.0), 1),
-            "stk": round(stot, 1),
-            "sec": round(dom.get("security_level", 0.0), 3),
-            "pir": round(dom.get("pirate_activity", 0.0), 4),
-            "hos": round(dom.get("hostility_level", 0.0), 4),
-            "rad": round(hz.get("radiation_level", 0.0), 4),
-            "dom": dominant,
-        }
-    return snap
+    selected = history[:head] + ([{"sep": True}] if len(history) > head + tail else []) + history[-tail:]
+    for item in selected:
+        if item.get("sep"):
+            lines.append("...")
+            continue
+        tick = item["tick"]
+        lines.append(f"t{tick}")
+        lines.append(f"  sectors={item['snapshot']['sectors']}")
+        lines.append(f"  agents={item['snapshot']['agents']}")
+    return lines
 
 
-def _snapshot_hostiles(state):
-    """Compact hostile population snapshot."""
-    snap = {}
-    for htype, pop in state.hostile_population_integral.items():
-        counts = pop.get("sector_counts", {})
-        total = pop.get("current_count", 0)
-        dist = {k.replace("station_", "")[:3]: v for k, v in sorted(counts.items())}
-        snap[htype[:5]] = {"n": total, "d": dist}
-    return snap
+def _build_report(engine: SimulationEngine, transient_history: list, args) -> str:
+    state = engine.state
+    lines = []
 
-
-def _snapshot_wrecks(state):
-    """Wreck count and total matter in wrecks."""
-    count = len(state.grid_wrecks)
-    matter = 0.0
-    for w in state.grid_wrecks.values():
-        matter += w.get("wreck_integrity", 0.0)
-        for qty in w.get("wreck_inventory", {}).values():
-            matter += float(qty)
-    return {"count": count, "matter": round(matter, 2)}
-
-
-def _snapshot_matter(engine):
-    """Compact matter breakdown."""
-    bd = engine._matter_breakdown()
-    return {k[:6]: round(v, 2) for k, v in bd.items()}
-
-
-# -----------------------------------------------------------------
-# Report generation
-# -----------------------------------------------------------------
-def generate_report(engine, ticks_run, sample_data, age_transitions,
-                    transient_head, transient_tail, head_n, tail_n):
-    """Produce a single structured report after the run completes."""
-    s = engine.state
-    sectors = sorted(s.world_topology.keys())  # Dynamic: includes discovered sectors
-    init_matter = s.world_total_matter
-    actual_matter = engine._calculate_total_matter()
-    drift = abs(actual_matter - init_matter)
-
-    out = []
-    out.append(f"=== Simulation Report: {ticks_run} ticks, seed='{s.world_seed}' ===")
-    out.append(f"  head={head_n} tail={tail_n} sample_every={sample_data.get('sample_every', 1)}")
-    out.append("")
-
-    # == AXIOM 1 (relative drift) ==
-    drifts = sample_data["axiom1_drifts"]
-    max_d = max(drifts) if drifts else drift
-    avg_d = sum(drifts) / len(drifts) if drifts else drift
-    max_rel = max_d / max(init_matter, 1.0) * 100.0
-    avg_rel = avg_d / max(init_matter, 1.0) * 100.0
-    out.append(f"AXIOM_1: max_drift={max_d:.2f} ({max_rel:.4f}%) "
-               f"avg_drift={avg_d:.2f} ({avg_rel:.4f}%) "
-               f"budget={init_matter:.2f} final={actual_matter:.2f}")
-
-    # == WORLD AGE ==
-    out.append(f"WORLD_AGE: current={s.world_age} timer={s.world_age_timer} "
-               f"cycles={s.world_age_cycle_count} transitions={len(age_transitions)}")
-    if age_transitions:
-        out.append(f"  first_3: {age_transitions[:3]}")
-        out.append(f"  last_3:  {age_transitions[-3:]}")
-    out.append("")
-
-    # == SECTOR STATE (final) ==
-    out.append("SECTOR_STATE (final):")
-    out.append("  sector   |type    |disc_M    disc_P  |hidden_M hidden_P|stock  |"
-               "sec  pir    hos    |dom         |rad    therm")
-    out.append("  " + "-" * 110)
-    for sid in sectors:
-        sh = sid.replace("station_", "").upper()
-        tp = s.world_topology[sid]
-        stype = tp.get("sector_type", "?")[:6]
-        pot = s.world_resource_potential.get(sid, {})
-        hid = s.world_hidden_resources.get(sid, {})
-        stk = s.grid_stockpiles.get(sid, {})
-        dom = s.grid_dominion.get(sid, {})
-        hz = s.world_hazards.get(sid, {})
-
-        dm = pot.get("mineral_density", 0.0)
-        dp = pot.get("propellant_sources", 0.0)
-        hm = hid.get("mineral_density", 0.0)
-        hp = hid.get("propellant_sources", 0.0)
-        stot = sum(float(v) for v in stk.get("commodity_stockpiles", {}).values())
-        sec = dom.get("security_level", 0.0)
-        pir = dom.get("pirate_activity", 0.0)
-        hos = dom.get("hostility_level", 0.0)
-        fi = dom.get("faction_influence", {})
-        dominant = max(fi, key=fi.get).replace("faction_", "") if fi else "none"
-        rad = hz.get("radiation_level", 0.0)
-        therm = hz.get("thermal_background_k", 0.0)
-
-        out.append(f"  {sh:<8} {stype:<7} {dm:>8.1f} {dp:>7.1f}  "
-                   f"{hm:>7.1f} {hp:>7.1f}  {stot:>6.0f}  "
-                   f"{sec:.2f} {pir:.4f} {hos:.4f}  {dominant:<12} "
-                   f"{rad:.4f} {therm:.0f}")
-    out.append("")
-
-    # == MATTER BREAKDOWN (final) ==
-    bd = engine._matter_breakdown()
-    total = sum(bd.values())
-    out.append("MATTER_BREAKDOWN (final):")
-    parts = "  ".join(f"{k}={v:.1f}({v/total*100:.1f}%)" for k, v in bd.items()) if total > 0 else ""
-    out.append(f"  {parts}")
-    out.append(f"  TOTAL={total:.2f}")
-    out.append("")
-
-    # == AGENTS (final) ==
-    out.append("AGENTS (final):")
-    out.append("  name         role      sector     hull  cash      debt      goal     inv")
-    out.append("  " + "-" * 85)
-    for agent_id in sorted(s.agents.keys()):
-        a = s.agents[agent_id]
-        char_uid = a.get("char_uid", -1)
-        ch = s.characters.get(char_uid, {})
-        name = ch.get("character_name", f"UID:{char_uid}")
-        sector = a.get("current_sector_id", "?").replace("station_", "")
-        hull = a.get("hull_integrity", 0.0)
-        cash = a.get("cash_reserves", 0.0)
-        debt = a.get("debt", 0.0)
-        goal = a.get("goal_archetype", "?")
-        role = a.get("agent_role", "?")
-        disabled = a.get("is_disabled", False)
-        inv = s.inventories.get(char_uid, {}).get(2, {})
-        inv_total = sum(float(v) for v in inv.values())
-        status = "DEAD" if disabled else f"{hull:.2f}"
-        out.append(f"  {name:<12} {role:<9} {sector:<10} {status:<5} "
-                   f"{cash:>8.0f} {debt:>8.0f}  {goal:<8} {inv_total:.0f}")
-    out.append("")
-
-    # == HOSTILES (final) ==
-    out.append("HOSTILES (final):")
-    total_hostiles = 0
-    for htype, pop in s.hostile_population_integral.items():
-        count = pop.get("current_count", 0)
-        dist = pop.get("sector_counts", {})
-        dist_str = " ".join(f"{k.replace('station_','')[:3]}={v}" for k, v in sorted(dist.items()))
-        pool_data = s.hostile_pools.get(htype, {"reserve": 0.0, "body_mass": 0.0})
-        out.append(f"  {htype}: count={count}  reserve={pool_data['reserve']:.1f}  body_mass={pool_data['body_mass']:.1f}  [{dist_str}]")
-        total_hostiles += count
-    total_hostile_reserve = sum(p["reserve"] for p in s.hostile_pools.values())
-    total_hostile_body = sum(p["body_mass"] for p in s.hostile_pools.values())
-    budget = sum(engine._matter_breakdown().values())
-    pool_pct = ((total_hostile_reserve + total_hostile_body) / budget * 100) if budget > 0 else 0.0
-    wreck_count = len(s.grid_wrecks)
-    wreck_matter = sum(
-        sum(float(v) for v in w.get("wreck_inventory", {}).values()) + w.get("wreck_integrity", 0.0)
-        for w in s.grid_wrecks.values()
+    lines.append("WORLD:")
+    lines.append(
+        f"age={state.world_age} world_tags={','.join(state.world_tags)} "
+        f"cycle_count={state.world_age_cycle_count} timer={state.world_age_timer}"
     )
-    out.append(f"  hostile_pools_total={total_hostile_reserve + total_hostile_body:.2f} ({pool_pct:.1f}% of budget)")
-    out.append(f"  total_hostiles={total_hostiles}  wrecks={wreck_count} wreck_matter={wreck_matter:.1f}")
-    out.append("")
+    lines.append("")
+    lines.extend(_sector_table(state))
+    lines.append("")
+    lines.extend(_agent_table(state))
+    lines.append("")
+    lines.extend(_chronicle_lines(state))
+    lines.append("")
+    lines.extend(_lifecycle_lines(state))
+    lines.append("")
+    lines.extend(_transient_lines(transient_history, args.head, args.tail))
+    return "\n".join(lines)
 
-    # == RESOURCE FLOW TIMELINE ==
-    init_hidden = sample_data.get("init_hidden", {})
-    total_h_ts = sample_data.get("total_hidden_ts", [])
-    total_d_ts = sample_data.get("total_disc_ts", [])
-    total_s_ts = sample_data.get("total_stock_ts", [])
-    total_w_ts = sample_data.get("total_wreck_ts", [])
-    se = sample_data.get("sample_every", 1)
 
-    out.append("RESOURCE_FLOW_TIMELINE:")
-    if total_h_ts:
-        def _at_tick(ts, tick):
-            idx = tick // se - 1
-            if idx < 0: idx = 0
-            if idx >= len(ts): idx = len(ts) - 1
-            return ts[idx]
+# =========================================================================
+# Chronicle report mode
+# =========================================================================
 
-        markers = [se, 100, 500, 1000, 5000, 10000, 25000, ticks_run]
-        markers = sorted(set(t for t in markers if t <= ticks_run))
-        parts_h = " ".join(f"t{t}={_at_tick(total_h_ts, t):.0f}" for t in markers)
-        parts_d = " ".join(f"t{t}={_at_tick(total_d_ts, t):.0f}" for t in markers)
-        parts_s = " ".join(f"t{t}={_at_tick(total_s_ts, t):.0f}" for t in markers)
-        out.append(f"  hidden:     {parts_h}")
-        out.append(f"  discovered: {parts_d}")
-        out.append(f"  stockpile:  {parts_s}")
-        if total_w_ts:
-            parts_w = " ".join(f"t{t}={_at_tick(total_w_ts, t):.0f}" for t in markers)
-            out.append(f"  wrecks:     {parts_w}")
-    out.append("")
+_LOCATION_NAMES = {
+    k: v.get("location_name", k)
+    for k, v in __import__("database.registry.template_data", fromlist=["LOCATIONS"]).LOCATIONS.items()
+}
 
-    # == DEPLETION MILESTONES ==
-    hidden_m_ts = sample_data.get("hidden_mineral_ts", {})
-    hidden_p_ts = sample_data.get("hidden_propellant_ts", {})
-    if hidden_m_ts:
-        out.append("DEPLETION_MILESTONES (<10% / <1% hidden remaining):")
-        for sid in sectors:
-            sh = sid.replace("station_", "").upper()
-            ih = init_hidden.get(sid, {"m": 0, "p": 0})
-            m1 = m10 = p1 = p10 = None
-            hm_list = hidden_m_ts.get(sid, [])
-            hp_list = hidden_p_ts.get(sid, [])
-            for i, hm in enumerate(hm_list):
-                if m10 is None and ih["m"] > 0 and hm / ih["m"] < 0.10:
-                    m10 = (i + 1) * se
-                if m1 is None and ih["m"] > 0 and hm / ih["m"] < 0.01:
-                    m1 = (i + 1) * se
-            for i, hp in enumerate(hp_list):
-                if p10 is None and ih["p"] > 0 and hp / ih["p"] < 0.10:
-                    p10 = (i + 1) * se
-                if p1 is None and ih["p"] > 0 and hp / ih["p"] < 0.01:
-                    p1 = (i + 1) * se
-            out.append(f"  {sh}: mineral(<10%={m10 or 'never'} <1%={m1 or 'never'})  "
-                       f"propellant(<10%={p10 or 'never'} <1%={p1 or 'never'})")
-        out.append("")
 
-    # == STOCKPILE DYNAMICS ==
-    out.append("STOCKPILE_DYNAMICS:")
-    for sid in sectors:
-        sh = sid.replace("station_", "").upper()
-        ts = sample_data.get("stockpile_ts", {}).get(sid, [])
-        if ts:
-            mn, mx = min(ts), max(ts)
-            avg = sum(ts) / len(ts)
-            std = math.sqrt(sum((x - avg) ** 2 for x in ts) / len(ts)) if len(ts) > 1 else 0
-            out.append(f"  {sh}: min={mn:.0f} max={mx:.0f} avg={avg:.0f} std={std:.1f}")
-    out.append("")
+def _loc(sector_id: str) -> str:
+    """Resolve sector_id to short human name."""
+    return _LOCATION_NAMES.get(sector_id, sector_id or "deep space")
 
-    # == PER-COMMODITY STOCKPILE BREAKDOWN (final) ==
-    out.append("STOCKPILE_COMMODITIES (final):")
-    header_coms = set()
-    for sid in sectors:
-        cs = s.grid_stockpiles.get(sid, {}).get("commodity_stockpiles", {})
-        header_coms.update(cs.keys())
-    header_coms = sorted(header_coms)
-    if header_coms:
-        com_short = [c.replace("commodity_", "")[:4] for c in header_coms]
-        out.append("  sector   " + " ".join(f"{c:>7}" for c in com_short))
-        for sid in sectors:
-            sh = sid.replace("station_", "").upper()
-            cs = s.grid_stockpiles.get(sid, {}).get("commodity_stockpiles", {})
-            vals = " ".join(f"{cs.get(c, 0.0):>7.1f}" for c in header_coms)
-            out.append(f"  {sh:<8} {vals}")
-    out.append("")
 
-    # == HAZARD DRIFT ==
-    if s.world_hazards_base:
-        out.append("HAZARD_DRIFT:")
-        for sid in sectors:
-            sh = sid.replace("station_", "").upper()
-            br = s.world_hazards_base[sid]["radiation_level"]
-            bt = s.world_hazards_base[sid]["thermal_background_k"]
-            r_ts = sample_data.get("radiation_ts", {}).get(sid, [])
-            t_ts = sample_data.get("thermal_ts", {}).get(sid, [])
-            if r_ts:
-                out.append(f"  {sh}: rad base={br:.4f} [{min(r_ts):.4f},{max(r_ts):.4f}]  "
-                           f"therm base={bt:.0f} [{min(t_ts):.0f},{max(t_ts):.0f}]")
-        out.append("")
+def _agent_display(state, agent_id: str) -> str:
+    agent = state.agents.get(agent_id, {})
+    cid = agent.get("character_id", "")
+    char = state.characters.get(cid, {})
+    name = char.get("character_name", agent_id)
+    role = agent.get("agent_role", "")
+    return f"{name} ({role})" if role else name
 
-    # == MARKET PRICES (final) ==
-    out.append("MARKET_PRICES (delta from base):")
-    for sid in sectors:
-        sh = sid.replace("station_", "").upper()
-        mkt = s.grid_market.get(sid, {})
-        deltas = mkt.get("commodity_price_deltas", {})
-        parts = " ".join(f"{k.replace('commodity_','')[:4]}{v:+.3f}" for k, v in sorted(deltas.items()))
-        out.append(f"  {sh}: {parts}")
-    out.append("")
 
-    # == AGENT STATS (sampled aggregates) ==
-    agent_hull_ts = sample_data.get("agent_hull_ts", {})
-    agent_cash_ts = sample_data.get("agent_cash_ts", {})
-    agent_debt_ts = sample_data.get("agent_debt_ts", {})
-    if agent_hull_ts:
-        out.append("AGENT_STATS (sampled aggregates):")
-        out.append("  name         hull_avg hull_min cash_avg cash_max  debt_final")
-        out.append("  " + "-" * 65)
-        for name in sorted(agent_hull_ts.keys()):
-            hulls = agent_hull_ts[name]
-            cashes = agent_cash_ts.get(name, [0])
-            debts = agent_debt_ts.get(name, [0])
-            h_avg = sum(hulls) / len(hulls) if hulls else 0
-            h_min = min(hulls) if hulls else 0
-            c_avg = sum(cashes) / len(cashes) if cashes else 0
-            c_max = max(cashes) if cashes else 0
-            d_final = debts[-1] if debts else 0
-            out.append(f"  {name:<12} {h_avg:>8.3f} {h_min:>8.3f} "
-                       f"{c_avg:>8.0f} {c_max:>8.0f} {d_final:>10.0f}")
-        out.append("")
+def _economy_label(tags: list) -> str:
+    for level in ("RICH", "ADEQUATE", "POOR"):
+        if any(t.endswith(f"_{level}") for t in tags):
+            return level.lower()
+    return "adequate"
 
-    # == HOSTILE POPULATION TIMELINE ==
-    hostile_ts = sample_data.get("hostile_total_ts", [])
-    if hostile_ts and total_h_ts:
-        out.append("HOSTILE_POP_TIMELINE:")
-        markers2 = [se, 100, 500, 1000, 5000, 10000, 25000, ticks_run]
-        markers2 = sorted(set(t for t in markers2 if t <= ticks_run))
-        parts_hp = " ".join(f"t{t}={_at_tick(hostile_ts, t):.0f}" for t in markers2)
-        out.append(f"  total: {parts_hp}")
-        hmin = min(hostile_ts)
-        hmax = max(hostile_ts)
-        havg = sum(hostile_ts) / len(hostile_ts)
-        out.append(f"  min={hmin} max={hmax} avg={havg:.1f}")
-        out.append("")
 
-    # == AGENT LIFECYCLE EVENTS ==
-    lifecycle = sample_data.get("lifecycle_events", [])
-    out.append(f"AGENT_LIFECYCLE: {len(lifecycle)} events")
-    if lifecycle:
-        show_n = 15
-        if len(lifecycle) <= show_n * 2:
-            for ev in lifecycle:
-                out.append(f"  {ev}")
-        else:
-            for ev in lifecycle[:show_n]:
-                out.append(f"  {ev}")
-            out.append(f"  ... ({len(lifecycle) - show_n * 2} more)")
-            for ev in lifecycle[-show_n:]:
-                out.append(f"  {ev}")
-    out.append("")
+def _security_label(tags: list) -> str:
+    for t in ("SECURE", "CONTESTED", "LAWLESS"):
+        if t in tags:
+            return t.lower()
+    return "contested"
 
-    # == CATASTROPHES ==
-    out.append(f"CATASTROPHES: {len(s.catastrophe_log)} total")
-    if s.catastrophe_log:
-        show_c = min(8, len(s.catastrophe_log))
-        for cat in s.catastrophe_log[-show_c:]:
-            sh = cat.get("sector_id", "?").replace("station_", "").upper()
-            tick = cat.get("tick", 0)
-            matter = cat.get("matter_converted", 0.0)
-            until = cat.get("disable_until", 0)
-            out.append(f"  t={tick} {sh} matter={matter:.1f} disabled_until={until}")
-    out.append("")
 
-    # == DISABLED SECTORS ==
-    active_disabled = {sid: until for sid, until in s.sector_disabled_until.items()
-                       if until > s.sim_tick_count}
-    if active_disabled:
-        out.append("DISABLED_SECTORS:")
-        for sid, until in sorted(active_disabled.items()):
-            sh = sid.replace("station_", "").upper()
-            out.append(f"  {sh}: until tick {until}")
-        out.append("")
+def _environment_label(tags: list) -> str:
+    for t in ("MILD", "HARSH", "EXTREME"):
+        if t in tags:
+            return t.lower()
+    return "mild"
 
-    # == COLONY LEVELS (final) ==
-    out.append("COLONY_LEVELS (final):")
-    for sid in sectors:
-        sh = sid.replace("station_", "").upper()
-        level = s.colony_levels.get(sid, "frontier")
-        up_prog = s.colony_upgrade_progress.get(sid, 0)
-        dn_prog = s.colony_downgrade_progress.get(sid, 0)
-        out.append(f"  {sh}: {level:<10} upgrade_prog={up_prog:>4} downgrade_prog={dn_prog:>4}")
-    if s.colony_level_history:
-        out.append(f"  transitions ({len(s.colony_level_history)}):")
-        show_cl = min(10, len(s.colony_level_history))
-        for ev in s.colony_level_history[-show_cl:]:
-            out.append(f"    {ev}")
-    out.append("")
 
-    # == MORTAL AGENTS ==
-    mortal_count = sum(1 for a in s.agents.values()
-                       if not a.get("is_persistent", True))
-    mortal_alive = sum(1 for a in s.agents.values()
-                       if not a.get("is_persistent", True) and not a.get("is_disabled", False))
-    out.append(f"MORTAL_AGENTS: spawned_total={s.mortal_agent_counter} "
-               f"currently_alive={mortal_alive} currently_tracked={mortal_count} "
-               f"deaths={len(s.mortal_agent_deaths)}")
-    if s.mortal_agent_deaths:
-        show_md = min(10, len(s.mortal_agent_deaths))
-        for ev in s.mortal_agent_deaths[-show_md:]:
-            out.append(f"  {ev}")
-    out.append("")
+def _collect_epoch_events(all_events: list, start: int, end: int) -> list:
+    return [e for e in all_events if start < e.get("tick", 0) <= end]
 
-    # == SECTOR DISCOVERY ==
-    out.append(f"SECTOR_DISCOVERY: discovered={s.discovered_sector_count} "
-               f"total_sectors={len(sectors)}")
-    if s.discovery_log:
-        for ev in s.discovery_log:
-            out.append(f"  {ev}")
-    out.append("")
 
-    # == CHRONICLE ==
-    out.append(f"CHRONICLE: {len(s.chronicle_rumors)} rumors, last 8:")
-    for r in s.chronicle_rumors[-8:]:
-        out.append(f"  {r}")
-    out.append("")
+def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
+                               epoch_end: int, prev_sector_snap: dict) -> tuple:
+    """Generate narrative lines for one epoch. Returns (lines, sector_snapshot)."""
+    lines = []
+    counts = {}
+    attacker_counts = {}
+    attack_sectors = {}
+    trade_sectors = {}
+    flee_count = 0
+    spawn_names = []
+    death_ids = set()
+    catastrophe_sectors = []
+    age_changes = []
+    colony_changes = []
+    cargo_loads = 0
+    harvest_count = 0
+    explore_count = 0
 
-    # ================================================================
-    # TRANSIENT STATES  tick-by-tick snapshots for head/tail windows
-    # ================================================================
-    if transient_head or transient_tail:
-        out.append("=" * 80)
-        out.append("TRANSIENT STATES (tick-by-tick)")
-        out.append("=" * 80)
-        out.append("")
+    for e in epoch_events:
+        action = e.get("action", "")
+        counts[action] = counts.get(action, 0) + 1
+        actor = e.get("actor_id", "")
+        sector = e.get("sector_id", "")
 
-        all_blocks = []
-        if transient_head:
-            all_blocks.append(("HEAD", transient_head))
-        if transient_tail:
-            all_blocks.append(("TAIL", transient_tail))
+        if action == "attack":
+            attacker_counts[actor] = attacker_counts.get(actor, 0) + 1
+            attack_sectors[sector] = attack_sectors.get(sector, 0) + 1
+        elif action == "agent_trade":
+            trade_sectors[sector] = trade_sectors.get(sector, 0) + 1
+        elif action == "flee":
+            flee_count += 1
+        elif action == "spawn":
+            spawn_names.append((actor, sector))
+        elif action == "catastrophe":
+            catastrophe_sectors.append(sector)
+        elif action == "age_change":
+            new_age = e.get("metadata", {}).get("new_age", "")
+            age_changes.append(new_age)
+        elif action == "load_cargo":
+            cargo_loads += 1
+        elif action == "harvest":
+            harvest_count += 1
+        elif action == "exploration":
+            explore_count += 1
 
-        for label, snapshots in all_blocks:
-            if not snapshots:
-                continue
-            tick_range = f"t{snapshots[0]['tick']}..t{snapshots[-1]['tick']}"
-            out.append(f"-- {label} ({tick_range}) --")
-            out.append("")
+    # Track destroyed agents from respawn events (implies prior death)
+    respawn_count = counts.get("respawn", 0)
 
-            sec_names = sorted(snapshots[0]["sectors"].keys())
-            agent_names = sorted(snapshots[0]["agents"].keys())
+    # ---- Build narrative paragraphs ----
 
-            # -- Sector table: one row per tick, columns = per-sector key metrics --
-            out.append(f"  SECTORS ({label}):")
-            # Header: tick age | SEC1:stk/hM/sec/pir/hos | SEC2:... |
-            hdr_parts = []
-            for sn in sec_names:
-                hdr_parts.append(f"{sn}:stk hM hP sec pir hos")
-            out.append(f"  {'tick':>5} {'age':>4} | " + " | ".join(hdr_parts))
-            for snap in snapshots:
-                t = snap["tick"]
-                age = snap["age"][:4]
-                row_parts = []
-                for sn in sec_names:
-                    sd = snap["sectors"].get(sn, {})
-                    row_parts.append(
-                        f"{sn}:{sd.get('stk',0):>4.0f} "
-                        f"{sd.get('hM',0):>4.0f} "
-                        f"{sd.get('hP',0):>4.0f} "
-                        f"{sd.get('sec',0):.2f} "
-                        f"{sd.get('pir',0):.3f} "
-                        f"{sd.get('hos',0):.3f}"
-                    )
-                out.append(f"  {t:>5} {age:>4} | " + " | ".join(row_parts))
-            out.append("")
+    # Sector state transitions  
+    sector_snap = {}
+    for sid in sorted(state.sector_tags.keys()):
+        tags = state.sector_tags.get(sid, [])
+        sector_snap[sid] = {
+            "economy": _economy_label(tags),
+            "security": _security_label(tags),
+            "environment": _environment_label(tags),
+            "colony": state.colony_levels.get(sid, "frontier"),
+            "infested": "HOSTILE_INFESTED" in tags,
+            "threatened": "HOSTILE_THREATENED" in tags,
+        }
 
-            # -- Agent state table --
-            out.append(f"  AGENTS ({label}):  format= hull/cash/goal  (X=disabled)")
-            hdr = f"  {'tick':>5} |"
-            for n in agent_names:
-                hdr += f" {n[:7]:>10} |"
-            out.append(hdr)
-            for snap in snapshots:
-                t = snap["tick"]
-                row = f"  {t:>5} |"
-                for n in agent_names:
-                    ad = snap["agents"].get(n, {})
-                    if ad.get("x", 0):
-                        cell = "DEAD"
-                    else:
-                        h = ad.get("h", 0)
-                        c = ad.get("c", 0)
-                        g = ad.get("g", "?")[:3]
-                        cell = f"{h:.2f}/{c:.0f}/{g}"
-                    row += f" {cell:>10} |"
-                out.append(row)
-            out.append("")
+    # Detect sector changes
+    changed_sectors = []
+    for sid in sorted(sector_snap.keys()):
+        cur = sector_snap[sid]
+        prev = prev_sector_snap.get(sid, {})
+        changes = []
+        if prev.get("economy") and prev["economy"] != cur["economy"]:
+            changes.append(f"economy shifted from {prev['economy']} to {cur['economy']}")
+        if prev.get("security") and prev["security"] != cur["security"]:
+            changes.append(f"security changed from {prev['security']} to {cur['security']}")
+        if prev.get("environment") and prev["environment"] != cur["environment"]:
+            changes.append(f"environment went from {prev['environment']} to {cur['environment']}")
+        if prev.get("colony") and prev["colony"] != cur["colony"]:
+            changes.append(f"grew from {prev['colony']} to {cur['colony']}" if
+                          ["frontier", "outpost", "colony", "hub"].index(cur["colony"]) >
+                          ["frontier", "outpost", "colony", "hub"].index(prev["colony"])
+                          else f"declined from {prev['colony']} to {cur['colony']}")
+        if not prev.get("infested") and cur["infested"]:
+            changes.append("became infested with hostiles")
+        elif prev.get("infested") and not cur["infested"]:
+            changes.append("was cleared of hostile infestation")
+        if changes:
+            changed_sectors.append((_loc(sid), changes))
 
-            # -- Agent debt table (only if any debt exists) --
-            has_debt = any(
-                snap["agents"].get(n, {}).get("d", 0) > 0
-                for snap in snapshots for n in agent_names
+    # World age changes — major headline
+    for new_age in age_changes:
+        age_flavor = {
+            "PROSPERITY": "A new age of Prosperity dawned across the sector. Trade routes reopened and stations bustled with commerce.",
+            "DISRUPTION": "The age of Disruption began. Instability spread as pirate activity surged and supply lines faltered.",
+            "RECOVERY": "Recovery took hold. Communities began rebuilding and order slowly returned to the trade lanes.",
+        }
+        lines.append(f"  >>> {age_flavor.get(new_age, f'The world entered {new_age}.')}")
+        lines.append("")
+
+    # Catastrophes — rare, always reported (deduplicate same sector)
+    unique_catastrophes = list(dict.fromkeys(catastrophe_sectors))
+    for csec in unique_catastrophes:
+        lines.append(f"  *** CATASTROPHE struck {_loc(csec)}! The station was disabled and operations ceased. ***")
+    if unique_catastrophes:
+        lines.append("")
+
+    # Sector state overview
+    if changed_sectors:
+        for loc_name, changes in changed_sectors:
+            lines.append(f"  {loc_name}: {'; '.join(changes)}.")
+        lines.append("")
+
+    # Combat summary
+    total_attacks = counts.get("attack", 0)
+    if total_attacks > 0:
+        # Most violent sector
+        hotspot = max(attack_sectors, key=attack_sectors.get) if attack_sectors else ""
+        hotspot_n = attack_sectors.get(hotspot, 0)
+        # Most aggressive agent
+        top_attacker = max(attacker_counts, key=attacker_counts.get) if attacker_counts else ""
+        top_n = attacker_counts.get(top_attacker, 0)
+
+        combat_line = f"  Combat: {total_attacks} engagements"
+        if hotspot:
+            combat_line += f", fiercest around {_loc(hotspot)} ({hotspot_n})"
+        if top_attacker and top_n >= 3:
+            combat_line += f". {_agent_display(state, top_attacker)} was most aggressive ({top_n} attacks)"
+        combat_line += "."
+        lines.append(combat_line)
+
+    # Trade & economy
+    total_trades = counts.get("agent_trade", 0)
+    if total_trades > 0 or cargo_loads > 0:
+        econ_parts = []
+        if total_trades:
+            top_trade_loc = max(trade_sectors, key=trade_sectors.get) if trade_sectors else ""
+            trade_str = f"{total_trades} trades"
+            if top_trade_loc:
+                trade_str += f" (busiest: {_loc(top_trade_loc)})"
+            econ_parts.append(trade_str)
+        if cargo_loads:
+            econ_parts.append(f"{cargo_loads} cargo runs loaded")
+        if harvest_count:
+            econ_parts.append(f"{harvest_count} salvage operations")
+        lines.append(f"  Commerce: {', '.join(econ_parts)}.")
+
+    # Flight & danger
+    if flee_count >= 3:
+        lines.append(f"  Danger: {flee_count} pilots fled dangerous encounters.")
+
+    # Respawns
+    if respawn_count > 0:
+        lines.append(f"  Losses & returns: {respawn_count} pilots were destroyed and later returned to service.")
+
+    # New arrivals — group by sector to avoid spam
+    if spawn_names:
+        seen_spawns = set()
+        unique_spawns = []
+        for aid, sec in spawn_names:
+            key = (aid, sec)
+            if key not in seen_spawns:
+                seen_spawns.add(key)
+                unique_spawns.append((aid, sec))
+        # Group by sector
+        sector_spawns: dict = {}
+        for aid, sec in unique_spawns:
+            sector_spawns.setdefault(sec, []).append(aid)
+        for sec, aids in sector_spawns.items():
+            names = [_agent_display(state, a) for a in aids]
+            if len(names) <= 3:
+                lines.append(f"  New arrivals at {_loc(sec)}: {', '.join(names)}.")
+            else:
+                lines.append(f"  {len(names)} new pilots appeared at {_loc(sec)}.")
+
+    # Exploration
+    if explore_count:
+        lines.append(f"  Exploration: {explore_count} survey expeditions launched.")
+
+    # If absolutely nothing interesting happened
+    if not lines and total_attacks == 0 and total_trades == 0:
+        lines.append("  A quiet period. Routine patrols and cargo runs continued without incident.")
+
+    return lines, sector_snap
+
+
+def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
+    """Final summary paragraph after all epochs."""
+    lines = []
+    action_totals = {}
+    for e in all_events:
+        a = e.get("action", "")
+        action_totals[a] = action_totals.get(a, 0) + 1
+
+    total_attacks = action_totals.get("attack", 0)
+    total_trades = action_totals.get("agent_trade", 0)
+    total_spawns = action_totals.get("spawn", 0)
+    total_catastrophes = action_totals.get("catastrophe", 0)
+    total_respawns = action_totals.get("respawn", 0)
+    age_changes = action_totals.get("age_change", 0)
+
+    lines.append("=" * 64)
+    lines.append("OVERALL SUMMARY")
+    lines.append("=" * 64)
+    lines.append(f"  Simulation ran for {total_ticks} ticks ({age_changes} world-age transitions).")
+    lines.append(f"  Total engagements: {total_attacks}  |  Total trades: {total_trades}")
+    lines.append(f"  Newcomers arrived: {total_spawns}  |  Pilots lost & returned: {total_respawns}")
+    if total_catastrophes:
+        lines.append(f"  Catastrophes endured: {total_catastrophes}")
+
+    # Final world state
+    lines.append("")
+    lines.append("  Final state of the sector:")
+    for sid in sorted(state.sector_tags.keys()):
+        tags = state.sector_tags.get(sid, [])
+        econ = _economy_label(tags)
+        sec = _security_label(tags)
+        env = _environment_label(tags)
+        col = state.colony_levels.get(sid, "frontier")
+        lines.append(f"    {_loc(sid)}: {econ} economy, {sec}, {env} environment [{col}]")
+
+    # Final agent roster
+    lines.append("")
+    lines.append("  Active pilots:")
+    for aid in sorted(state.agents.keys()):
+        if aid == "player":
+            continue
+        agent = state.agents[aid]
+        if agent.get("is_disabled"):
+            continue
+        cond = agent.get("condition_tag", "HEALTHY").lower()
+        wealth = agent.get("wealth_tag", "COMFORTABLE").lower()
+        sector = _loc(agent.get("current_sector_id", ""))
+        lines.append(f"    {_agent_display(state, aid)}: {cond}, {wealth}, at {sector}")
+
+    return lines
+
+
+def _run_chronicle(engine, args):
+    """Run simulation and produce a narrative chronicle report."""
+    epoch_size = max(1, args.epoch_size)
+    total_ticks = max(0, args.ticks)
+    all_events = []
+    epoch_start = 0
+    epoch_num = 0
+    prev_sector_snap = {}
+
+    # Take initial sector snapshot
+    for sid in sorted(engine.state.sector_tags.keys()):
+        tags = engine.state.sector_tags.get(sid, [])
+        prev_sector_snap[sid] = {
+            "economy": _economy_label(tags),
+            "security": _security_label(tags),
+            "environment": _environment_label(tags),
+            "colony": engine.state.colony_levels.get(sid, "frontier"),
+            "infested": "HOSTILE_INFESTED" in tags,
+            "threatened": "HOSTILE_THREATENED" in tags,
+        }
+
+    print("=" * 64)
+    print(f"CHRONICLE OF THE SECTOR  (seed: {args.seed})")
+    print("=" * 64)
+    print()
+
+    seen_event_ids = set()
+    for tick_num in range(total_ticks):
+        engine.process_tick()
+        # Collect only new, unseen events (dedup by object identity)
+        for e in engine.state.chronicle_events:
+            eid = id(e)
+            if eid not in seen_event_ids:
+                seen_event_ids.add(eid)
+                all_events.append(e)
+
+        # End of epoch?
+        current_tick = engine.state.sim_tick_count
+        if current_tick % epoch_size == 0 or tick_num == total_ticks - 1:
+            epoch_end = current_tick
+            epoch_num += 1
+            epoch_events = _collect_epoch_events(all_events, epoch_start, epoch_end)
+
+            age = engine.state.world_age
+            header = f"--- Epoch {epoch_num}: ticks {epoch_start + 1}–{epoch_end} [{age}] ---"
+            print(header)
+
+            narrative, prev_sector_snap = _chronicle_epoch_narrative(
+                epoch_events, engine.state, epoch_start, epoch_end, prev_sector_snap
             )
-            if has_debt:
-                out.append(f"  DEBT ({label}):")
-                hdr = f"  {'tick':>5} |"
-                for n in agent_names:
-                    hdr += f" {n[:7]:>8} |"
-                out.append(hdr)
-                for snap in snapshots:
-                    t = snap["tick"]
-                    row = f"  {t:>5} |"
-                    for n in agent_names:
-                        d = snap["agents"].get(n, {}).get("d", 0)
-                        row += f" {d:>8.0f} |"
-                    out.append(row)
-                out.append("")
+            if narrative:
+                print("\n".join(narrative))
+            print()
 
-            # -- Hostiles per tick --
-            out.append(f"  HOSTILES ({label}):")
-            htypes = sorted(snapshots[0]["hostiles"].keys())
-            for snap in snapshots:
-                t = snap["tick"]
-                parts = []
-                for ht in htypes:
-                    hd = snap["hostiles"].get(ht, {})
-                    n = hd.get("n", 0)
-                    dist = hd.get("d", {})
-                    ds = " ".join(f"{k}={v}" for k, v in sorted(dist.items()))
-                    parts.append(f"{ht}={n}[{ds}]")
-                out.append(f"  {t:>5}: " + "  ".join(parts))
-            out.append("")
+            epoch_start = epoch_end
 
-            # -- Wrecks + matter per tick --
-            out.append(f"  WRECKS_MATTER ({label}):")
-            out.append(f"  {'tick':>5}  wrecks wreck_matter hostile_pool agent_inv")
-            for snap in snapshots:
-                t = snap["tick"]
-                w = snap["wrecks"]
-                m = snap["matter"]
-                out.append(f"  {t:>5}  {w['count']:>6} {w['matter']:>12.2f} "
-                           f"{m.get('hostil', 0):>12.2f} "
-                           f"{m.get('agent_', 0):>9.2f}")
-            out.append("")
-
-            # -- Axiom 1 drift per tick --
-            out.append(f"  AXIOM1 ({label}):")
-            for snap in snapshots:
-                t = snap["tick"]
-                d = snap["drift"]
-                rel = d / max(init_matter, 1.0) * 100.0
-                out.append(f"  {t:>5}: drift={d:.2f} ({rel:.4f}%)")
-            out.append("")
-
-    out.append("=== END REPORT ===")
-    return "\n".join(out)
+    # Final summary
+    summary = _chronicle_summary(all_events, total_ticks, engine.state)
+    print("\n".join(summary))
 
 
-# -----------------------------------------------------------------
-# Main
-# -----------------------------------------------------------------
+# =========================================================================
+# Visualization mode
+# =========================================================================
+
+# ANSI color codes
+_C_RESET = "\033[0m"
+_C_BOLD = "\033[1m"
+_C_DIM = "\033[2m"
+_C_RED = "\033[31m"
+_C_GREEN = "\033[32m"
+_C_YELLOW = "\033[33m"
+_C_BLUE = "\033[34m"
+_C_MAGENTA = "\033[35m"
+_C_CYAN = "\033[36m"
+_C_WHITE = "\033[37m"
+_C_BG_RED = "\033[41m"
+_C_BG_GREEN = "\033[42m"
+_C_BG_YELLOW = "\033[43m"
+
+_AGE_COLORS = {
+    "PROSPERITY": _C_GREEN,
+    "DISRUPTION": _C_RED,
+    "RECOVERY": _C_YELLOW,
+}
+
+_ECON_GLYPHS = {"RICH": f"{_C_GREEN}\u2588{_C_RESET}", "ADEQUATE": f"{_C_YELLOW}\u2592{_C_RESET}", "POOR": f"{_C_RED}\u2591{_C_RESET}"}
+_SEC_GLYPHS = {"SECURE": f"{_C_GREEN}\u25cf{_C_RESET}", "CONTESTED": f"{_C_YELLOW}\u25d0{_C_RESET}", "LAWLESS": f"{_C_RED}\u25cb{_C_RESET}"}
+_ENV_GLYPHS = {"MILD": f"{_C_CYAN}~{_C_RESET}", "HARSH": f"{_C_YELLOW}#{_C_RESET}", "EXTREME": f"{_C_RED}!{_C_RESET}"}
+_COND_GLYPHS = {"HEALTHY": f"{_C_GREEN}\u2665{_C_RESET}", "DAMAGED": f"{_C_YELLOW}\u2666{_C_RESET}", "DESTROYED": f"{_C_RED}\u2620{_C_RESET}"}
+_WEALTH_GLYPHS = {"WEALTHY": f"{_C_GREEN}${_C_RESET}", "COMFORTABLE": f"{_C_YELLOW}c{_C_RESET}", "BROKE": f"{_C_RED}_{_C_RESET}"}
+
+
+def _viz_economy_level(tags: list, category: str) -> str:
+    for level in ("RICH", "ADEQUATE", "POOR"):
+        if f"{category}_{level}" in tags:
+            return level
+    return "ADEQUATE"
+
+
+def _viz_security(tags: list) -> str:
+    for tag in ("SECURE", "CONTESTED", "LAWLESS"):
+        if tag in tags:
+            return tag
+    return "CONTESTED"
+
+
+def _viz_environment(tags: list) -> str:
+    for tag in ("MILD", "HARSH", "EXTREME"):
+        if tag in tags:
+            return tag
+    return "MILD"
+
+
+# -- ANSI-aware string helpers --
+_ANSI_RE = re.compile(r'\033\[[0-9;]*m')
+
+
+def _visible_len(s: str) -> int:
+    """Length of string excluding ANSI escape sequences."""
+    return len(_ANSI_RE.sub('', s))
+
+
+def _pad_right(s: str, width: int) -> str:
+    """Pad *s* with spaces so its visible width reaches *width*."""
+    return s + ' ' * max(0, width - _visible_len(s))
+
+
+# -- 2-D grid layout --
+# Each row is a list of (sector_id, short_label) tuples.
+_GRID_ROWS = [
+    [("station_epsilon", "EPS"), ("station_beta", "BET")],
+    [("station_alpha", "ALP"), ("station_delta", "DEL")],
+    [("station_gamma", "GAM")],
+]
+_CELL_INNER = 26          # visible-char width inside the box border
+_CELL_OUTER = _CELL_INNER + 2   # including │ on each side
+_COL_GAP = 1                     # space between columns
+
+
+def _viz_agent_glyph(agent: dict) -> str:
+    cond = _COND_GLYPHS.get(agent.get("condition_tag", "HEALTHY"), "?")
+    wealth = _WEALTH_GLYPHS.get(agent.get("wealth_tag", "COMFORTABLE"), "?")
+    cargo = f"{_C_BLUE}L{_C_RESET}" if agent.get("cargo_tag") == "LOADED" else f"{_C_DIM}.{_C_RESET}"
+    return f"{cond}{wealth}{cargo}"
+
+
+def _viz_specials(tags: list) -> str:
+    """Return coloured special-tag string."""
+    s = ""
+    if "HOSTILE_INFESTED" in tags:
+        s += f" {_C_RED}!H{_C_RESET}"
+    elif "HOSTILE_THREATENED" in tags:
+        s += f" {_C_YELLOW}?H{_C_RESET}"
+    if "HAS_SALVAGE" in tags:
+        s += f" {_C_MAGENTA}S{_C_RESET}"
+    if "DISABLED" in tags:
+        s += f" {_C_RED}X{_C_RESET}"
+    return s
+
+
+def _viz_cell_lines(sector_id: str, label: str, state) -> list:
+    """Return 4 fixed-width lines: top border, tag row, agent row, bottom border."""
+    w = _CELL_INNER
+    tags = state.sector_tags.get(sector_id, [])
+
+    # Economy / security / environment glyphs
+    raw = _ECON_GLYPHS[_viz_economy_level(tags, "RAW")]
+    mfg = _ECON_GLYPHS[_viz_economy_level(tags, "MANUFACTURED")]
+    cur = _ECON_GLYPHS[_viz_economy_level(tags, "CURRENCY")]
+    sec = _SEC_GLYPHS[_viz_security(tags)]
+    env = _ENV_GLYPHS[_viz_environment(tags)]
+    specials = _viz_specials(tags)
+    colony = state.colony_levels.get(sector_id, "fro")[:3]
+
+    tag_line = f" {_C_BOLD}{label}{_C_RESET} {raw}{mfg}{cur} {sec}{env}{specials} {_C_DIM}{colony}{_C_RESET}"
+
+    # Agents in this sector
+    agents_here = [
+        a for aid, a in state.agents.items()
+        if aid != "player" and not a.get("is_disabled")
+        and a.get("current_sector_id") == sector_id
+    ]
+    if agents_here:
+        glyphs = ""
+        for a in agents_here[:6]:
+            glyphs += _viz_agent_glyph(a)
+        leftover = len(agents_here) - 6
+        if leftover > 0:
+            glyphs += f" {_C_DIM}+{leftover}{_C_RESET}"
+        agent_line = f" {glyphs}"
+    else:
+        agent_line = f" {_C_DIM}··{_C_RESET}"
+
+    hbar = "\u2500" * w
+    top = f"\u250c{hbar}\u2510"
+    mid1 = f"\u2502{_pad_right(tag_line, w)}\u2502"
+    mid2 = f"\u2502{_pad_right(agent_line, w)}\u2502"
+    bot = f"\u2514{hbar}\u2518"
+    return [top, mid1, mid2, bot]
+
+
+def _viz_empty_cell() -> list:
+    """Return 4 blank lines the same visible width as a real cell."""
+    blank = ' ' * _CELL_OUTER
+    return [blank, blank, blank, blank]
+
+
+def _viz_event_summary(events: list) -> str:
+    """Collapse event list into a compact coloured string."""
+    counts: dict = {}
+    last_age = ""
+    for e in events:
+        action = e.get("action", "")
+        if action in ("attack", "catastrophe", "spawn", "respawn"):
+            counts[action] = counts.get(action, 0) + 1
+        elif action == "age_change":
+            last_age = e.get("metadata", {}).get("new_age", "")
+    parts = []
+    if "attack" in counts:
+        parts.append(f"{_C_RED}\u2694{counts['attack']}{_C_RESET}")
+    if "catastrophe" in counts:
+        parts.append(f"{_C_BG_RED}\u26a1{counts['catastrophe']}{_C_RESET}")
+    if "spawn" in counts:
+        parts.append(f"{_C_CYAN}+{counts['spawn']}{_C_RESET}")
+    if "respawn" in counts:
+        parts.append(f"{_C_GREEN}\u21ba{counts['respawn']}{_C_RESET}")
+    if last_age:
+        parts.append(f"{_C_BOLD}\u2192{last_age}{_C_RESET}")
+    return " ".join(parts)
+
+
+def _viz_render_frame(tick: int, state, prev_events: list) -> str:
+    """Render one 2-D grid-map frame."""
+    lines: list = []
+    age_color = _AGE_COLORS.get(state.world_age, _C_WHITE)
+    evt = _viz_event_summary(prev_events)
+    dbar_s = "\u2550" * 3
+    dbar_l = "\u2550" * 28
+    header = (
+        f"{_C_DIM}{dbar_s}{_C_RESET} "
+        f"t{tick:<5} {age_color}{_C_BOLD}{state.world_age}{_C_RESET} "
+        f"{_C_DIM}{dbar_l}{_C_RESET}"
+    )
+    if evt:
+        header += f"  {evt}"
+    lines.append(header)
+
+    max_cols = max(len(row) for row in _GRID_ROWS)
+    for row_def in _GRID_ROWS:
+        cells = []
+        for sector_id, label in row_def:
+            cells.append(_viz_cell_lines(sector_id, label, state))
+        while len(cells) < max_cols:
+            cells.append(_viz_empty_cell())
+        # Print 4 sub-lines side-by-side
+        gap = ' ' * _COL_GAP
+        for i in range(4):
+            lines.append(gap.join(cells[col][i] for col in range(max_cols)))
+
+    return "\n".join(lines)
+
+
+def _viz_legend() -> str:
+    lines = [
+        f"{_C_BOLD}=== SIMULATION MAP ==={_C_RESET}",
+        "",
+        f"  Economy:  {_ECON_GLYPHS['RICH']}RICH  {_ECON_GLYPHS['ADEQUATE']}ADEQUATE  {_ECON_GLYPHS['POOR']}POOR  (R M C)",
+        f"  Security: {_SEC_GLYPHS['SECURE']}SECURE  {_SEC_GLYPHS['CONTESTED']}CONTESTED  {_SEC_GLYPHS['LAWLESS']}LAWLESS",
+        f"  Environ:  {_ENV_GLYPHS['MILD']}MILD  {_ENV_GLYPHS['HARSH']}HARSH  {_ENV_GLYPHS['EXTREME']}EXTREME",
+        f"  Agents:   {_COND_GLYPHS['HEALTHY']}healthy {_COND_GLYPHS['DAMAGED']}damaged {_COND_GLYPHS['DESTROYED']}destroyed"
+        f"  {_WEALTH_GLYPHS['WEALTHY']}wealthy {_WEALTH_GLYPHS['COMFORTABLE']}ok {_WEALTH_GLYPHS['BROKE']}broke"
+        f"  {_C_BLUE}L{_C_RESET}loaded {_C_DIM}.{_C_RESET}empty",
+        f"  Specials: {_C_RED}!H{_C_RESET}infested  {_C_YELLOW}?H{_C_RESET}threatened  {_C_MAGENTA}S{_C_RESET}salvage  {_C_RED}X{_C_RESET}disabled",
+        f"  Events:   {_C_RED}\u2694{_C_RESET}attack  {_C_BG_RED}\u26a1{_C_RESET}catastrophe  {_C_CYAN}+{_C_RESET}spawn  {_C_GREEN}\u21ba{_C_RESET}respawn  {_C_BOLD}\u2192{_C_RESET}age_change",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def _run_viz(engine, args):
+    print(_viz_legend())
+
+    pending_events = []
+    for tick_num in range(max(0, args.ticks)):
+        engine.process_tick()
+        pending_events.extend(
+            e for e in engine.state.chronicle_events
+            if e.get("tick") == engine.state.sim_tick_count
+        )
+
+        if engine.state.sim_tick_count % args.viz_interval == 0 or tick_num == args.ticks - 1:
+            print(_viz_render_frame(engine.state.sim_tick_count, engine.state, pending_events))
+            print()
+            pending_events.clear()
+
+
 def main():
-    parser = argparse.ArgumentParser(description="GDTLancer Simulation Sandbox")
-    parser.add_argument("--ticks", type=int, default=10,
-                        help="Number of simulation ticks (default: 10)")
-    parser.add_argument("--seed", type=str, default="default_seed",
-                        help="World generation seed (default: 'default_seed')")
-    parser.add_argument("--sample-every", type=int, default=0,
-                        help="Sample metrics every N ticks (default: auto)")
-    parser.add_argument("--quiet", action="store_true",
-                        help="Suppress progress dots, print only final report")
-    parser.add_argument("--head", type=int, default=10,
-                        help="Ticks for transient head window (default: 10)")
-    parser.add_argument("--tail", type=int, default=10,
-                        help="Ticks for transient tail window (default: 10)")
-    args = parser.parse_args()
-
-    head_n = args.head
-    tail_n = args.tail
-
-    # Auto sample interval: ~1000 data points max
-    sample_every = args.sample_every if args.sample_every > 0 else max(1, args.ticks // 1000)
-
-    # Suppress layer spam
-    import builtins
-    builtins.print = _quiet_print
+    args = _parse_args()
 
     engine = SimulationEngine()
     engine.initialize_simulation(args.seed)
 
-    builtins.print = _original_print
+    if args.viz:
+        _run_viz(engine, args)
+        return
 
-    sectors = sorted(engine.state.world_topology.keys())
-    init_matter = engine.state.world_total_matter
+    if args.chronicle:
+        _run_chronicle(engine, args)
+        return
 
-    # Snapshot initial hidden resources
-    init_hidden = {}
-    for sid in sectors:
-        h = engine.state.world_hidden_resources.get(sid, {})
-        init_hidden[sid] = {
-            "m": h.get("mineral_density", 0.0),
-            "p": h.get("propellant_sources", 0.0),
-        }
-
-    # Tracking arrays (sampled at sample_every interval)
-    axiom1_drifts = []
-    hidden_mineral_ts = {sid: [] for sid in sectors}
-    hidden_propellant_ts = {sid: [] for sid in sectors}
-    total_hidden_ts = []
-    total_disc_ts = []
-    total_stock_ts = []
-    total_wreck_ts = []
-    stockpile_ts = {sid: [] for sid in sectors}
-    radiation_ts = {sid: [] for sid in sectors}
-    thermal_ts = {sid: [] for sid in sectors}
-    age_transitions = []
-    prev_age = engine.state.world_age
-
-    # Agent time series (sampled)
-    agent_hull_ts = {}
-    agent_cash_ts = {}
-    agent_debt_ts = {}
-    hostile_total_ts = []
-
-    # Lifecycle events
-    lifecycle_events = []
-
-    # Transient snapshots (tick-by-tick, step=1)
-    transient_head = []
-    transient_tail = []
-
-    if not args.quiet:
-        _original_print(f"Running {args.ticks} ticks (sample every {sample_every}, "
-                        f"head={head_n}, tail={tail_n})...", end="", flush=True)
-
-    # Suppress layer spam during tick loop
-    builtins.print = _quiet_print
-
-    for tick in range(1, args.ticks + 1):
-        # Pre-tick state for lifecycle detection
-        pre_disabled = {aid: a.get("is_disabled", False)
-                        for aid, a in engine.state.agents.items()}
-
+    transient_history = []
+    for _ in range(max(0, args.ticks)):
         engine.process_tick()
-
-        # Age transitions
-        if engine.state.world_age != prev_age:
-            age_transitions.append((tick, prev_age, engine.state.world_age))
-            prev_age = engine.state.world_age
-
-        # Lifecycle events: disabled/respawned
-        for aid, a in engine.state.agents.items():
-            if aid == "player":
-                continue
-            was_disabled = pre_disabled.get(aid, False)
-            is_disabled = a.get("is_disabled", False)
-            char_uid = a.get("char_uid", -1)
-            ch = engine.state.characters.get(char_uid, {})
-            name = ch.get("character_name", f"U{char_uid}")
-            if is_disabled and not was_disabled:
-                lifecycle_events.append(
-                    f"t={tick} {name} DISABLED hull={a.get('hull_integrity',0):.2f} "
-                    f"cash={a.get('cash_reserves',0):.0f} debt={a.get('debt',0):.0f}")
-            elif was_disabled and not is_disabled:
-                lifecycle_events.append(
-                    f"t={tick} {name} RESPAWNED cash={a.get('cash_reserves',0):.0f} "
-                    f"debt={a.get('debt',0):.0f}")
-
-        # Transient snapshot (every tick for head/tail windows)
-        in_head = tick <= head_n
-        in_tail = tick > args.ticks - tail_n
-
-        if in_head or in_tail:
-            actual = engine._calculate_total_matter()
-            snap = {
-                "tick": tick,
-                "age": engine.state.world_age,
-                "agents": _snapshot_agents(engine.state),
-                "sectors": _snapshot_sectors(engine.state),
-                "hostiles": _snapshot_hostiles(engine.state),
-                "wrecks": _snapshot_wrecks(engine.state),
-                "matter": _snapshot_matter(engine),
-                "drift": abs(actual - init_matter),
+        transient_history.append(
+            {
+                "tick": engine.state.sim_tick_count,
+                "snapshot": _transient_snapshot(engine.state),
             }
-            if in_head:
-                transient_head.append(snap)
-            if in_tail:
-                transient_tail.append(snap)
+        )
 
-        # Periodic sample
-        if tick % sample_every == 0:
-            actual = engine._calculate_total_matter()
-            axiom1_drifts.append(abs(actual - init_matter))
-
-            total_h = total_d = total_s = 0.0
-            current_sectors = sorted(engine.state.world_topology.keys())
-            for sid in current_sectors:
-                h = engine.state.world_hidden_resources.get(sid, {})
-                p = engine.state.world_resource_potential.get(sid, {})
-                hm = h.get("mineral_density", 0.0)
-                hp = h.get("propellant_sources", 0.0)
-                dm = p.get("mineral_density", 0.0)
-                dp = p.get("propellant_sources", 0.0)
-                hidden_mineral_ts.setdefault(sid, []).append(hm)
-                hidden_propellant_ts.setdefault(sid, []).append(hp)
-                total_h += hm + hp
-                total_d += dm + dp
-
-                stock = engine.state.grid_stockpiles.get(sid, {})
-                stot = sum(float(v) for v in stock.get("commodity_stockpiles", {}).values())
-                stockpile_ts.setdefault(sid, []).append(stot)
-                total_s += stot
-
-                hazards = engine.state.world_hazards.get(sid, {})
-                radiation_ts.setdefault(sid, []).append(hazards.get("radiation_level", 0.0))
-                thermal_ts.setdefault(sid, []).append(hazards.get("thermal_background_k", 300.0))
-
-            total_hidden_ts.append(total_h)
-            total_disc_ts.append(total_d)
-            total_stock_ts.append(total_s)
-
-            # Wreck matter
-            wreck_matter = 0.0
-            for w in engine.state.grid_wrecks.values():
-                wreck_matter += w.get("wreck_integrity", 0.0)
-                for qty in w.get("wreck_inventory", {}).values():
-                    wreck_matter += float(qty)
-            total_wreck_ts.append(wreck_matter)
-
-            # Hostile total
-            htot = sum(pop.get("current_count", 0)
-                       for pop in engine.state.hostile_population_integral.values())
-            hostile_total_ts.append(htot)
-
-            # Agent stats
-            for aid, a in engine.state.agents.items():
-                if aid == "player":
-                    continue
-                char_uid = a.get("char_uid", -1)
-                ch = engine.state.characters.get(char_uid, {})
-                name = ch.get("character_name", f"U{char_uid}")
-                agent_hull_ts.setdefault(name, []).append(a.get("hull_integrity", 0.0))
-                agent_cash_ts.setdefault(name, []).append(a.get("cash_reserves", 0.0))
-                agent_debt_ts.setdefault(name, []).append(a.get("debt", 0.0))
-
-            # Progress dot every 10%
-            if not args.quiet and tick % max(1, args.ticks // 10) < sample_every:
-                builtins.print = _original_print
-                _original_print(".", end="", flush=True)
-                builtins.print = _quiet_print
-
-    builtins.print = _original_print
-    if not args.quiet:
-        _original_print(" done.")
-
-    sample_data = {
-        "axiom1_drifts": axiom1_drifts,
-        "init_hidden": init_hidden,
-        "total_hidden_ts": total_hidden_ts,
-        "total_disc_ts": total_disc_ts,
-        "total_stock_ts": total_stock_ts,
-        "total_wreck_ts": total_wreck_ts,
-        "stockpile_ts": stockpile_ts,
-        "hidden_mineral_ts": hidden_mineral_ts,
-        "hidden_propellant_ts": hidden_propellant_ts,
-        "radiation_ts": radiation_ts,
-        "thermal_ts": thermal_ts,
-        "sample_every": sample_every,
-        "lifecycle_events": lifecycle_events,
-        "agent_hull_ts": agent_hull_ts,
-        "agent_cash_ts": agent_cash_ts,
-        "agent_debt_ts": agent_debt_ts,
-        "hostile_total_ts": hostile_total_ts,
-    }
-
-    report = generate_report(engine, args.ticks, sample_data, age_transitions,
-                             transient_head, transient_tail, head_n, tail_n)
-    _original_print(report)
+    report = _build_report(engine, transient_history, args)
+    print(report)
 
 
 if __name__ == "__main__":

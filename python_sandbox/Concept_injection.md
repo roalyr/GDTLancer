@@ -2,6 +2,13 @@
 **Integrated into:** `python_sandbox/core/simulation/affinity_matrix.py`, `agent_layer.py`, `bridge_systems.py`
 **Keep this file as design reference — do not delete.**
 
+**QUALITATIVE PIVOT NOTE (2026-02-21):**
+The project now extends this concept beyond decision-making into the full simulation core.
+Numeric state and arithmetic formulas were replaced by domain tags and tag-transition rules
+across economy, security, and environment layers. Conservation is now structural
+(balanced transition rules and bounded tag-state dynamics), not arithmetic matter sums.
+This document remains the conceptual origin for affinity behavior.
+
 ---
 
 Concept
