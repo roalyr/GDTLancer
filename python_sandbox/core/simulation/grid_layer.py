@@ -8,6 +8,7 @@
 
 """Tag-transition CA engine for economy, security, and environment layers."""
 
+import random
 from autoload import constants
 
 
@@ -29,6 +30,16 @@ class GridLayer:
                     "controlling_faction_id": "",
                     "security_tag": self._security_tag(state.sector_tags[sector_id]),
                 }
+            if sector_id not in state.security_upgrade_progress:
+                state.security_upgrade_progress[sector_id] = 0
+            if sector_id not in state.security_downgrade_progress:
+                state.security_downgrade_progress[sector_id] = 0
+            if sector_id not in state.security_change_threshold:
+                rng = random.Random(f"{state.world_seed}:sec_thresh:{sector_id}")
+                state.security_change_threshold[sector_id] = rng.randint(
+                    constants.SECURITY_CHANGE_TICKS_MIN,
+                    constants.SECURITY_CHANGE_TICKS_MAX,
+                )
 
     def process_tick(self, state, config: dict) -> None:
         new_tags = {}
@@ -68,6 +79,8 @@ class GridLayer:
             if world_age == "DISRUPTION":
                 delta -= 1
             elif world_age == "RECOVERY":
+                delta += 2
+            elif world_age == "PROSPERITY":
                 delta += 1
 
             # Active commerce
@@ -77,9 +90,9 @@ class GridLayer:
             if role_counts.get("pirate", 0) > 0:
                 delta -= 1
 
-            if delta > 1:
+            if delta >= 1:
                 idx = min(2, idx + 1)
-            elif delta < -1:
+            elif delta <= -1:
                 idx = max(0, idx - 1)
             result = self._replace_prefix(result, f"{category}_", f"{category}_{self.ECONOMY_LEVELS[idx]}")
 
@@ -122,10 +135,33 @@ class GridLayer:
             elif avg < idx:
                 delta -= 1
 
-        if delta > 1:
+        # Progress-counter gating (mirror of colony upgrade/downgrade pattern)
+        up_progress = state.security_upgrade_progress.get(sector_id, 0)
+        down_progress = state.security_downgrade_progress.get(sector_id, 0)
+        threshold = state.security_change_threshold.get(
+            sector_id, constants.SECURITY_CHANGE_TICKS_MIN
+        )
+
+        if delta >= 1:
+            up_progress += 1
+            down_progress = 0
+        elif delta <= -1:
+            down_progress += 1
+            up_progress = 0
+        else:
+            up_progress = 0
+            down_progress = 0
+
+        if up_progress >= threshold and idx < 2:
             idx = min(2, idx + 1)
-        elif delta < -1:
+            up_progress = 0
+        elif down_progress >= threshold and idx > 0:
             idx = max(0, idx - 1)
+            down_progress = 0
+
+        state.security_upgrade_progress[sector_id] = up_progress
+        state.security_downgrade_progress[sector_id] = down_progress
+
         result = self._replace_one_of(result, {"SECURE", "CONTESTED", "LAWLESS"}, self.SECURITY_LEVELS[idx])
         return result
 
@@ -183,11 +219,16 @@ class GridLayer:
             up_progress = 0
             down_progress = 0
 
+        min_level = constants.COLONY_MINIMUM_LEVEL
+        min_idx = levels.index(min_level) if min_level in levels else 0
+
         if up_progress >= constants.COLONY_UPGRADE_TICKS_REQUIRED and level in levels[:-1]:
             level = levels[levels.index(level) + 1]
             up_progress = 0
         elif down_progress >= constants.COLONY_DOWNGRADE_TICKS_REQUIRED and level in levels[1:]:
-            level = levels[levels.index(level) - 1]
+            new_idx = levels.index(level) - 1
+            if new_idx >= min_idx:
+                level = levels[new_idx]
             down_progress = 0
 
         state.colony_levels[sector_id] = level
@@ -196,13 +237,14 @@ class GridLayer:
         return tags
 
     def _loaded_trade_count_for_sector(self, state, sector_id: str) -> int:
+        """Count any agent carrying cargo in this sector (not just traders/haulers)."""
         count = 0
         for agent in state.agents.values():
             if agent.get("is_disabled"):
                 continue
             if agent.get("current_sector_id") != sector_id:
                 continue
-            if agent.get("agent_role") in ("trader", "hauler") and agent.get("cargo_tag") == "LOADED":
+            if agent.get("cargo_tag") == "LOADED":
                 count += 1
         return count
 

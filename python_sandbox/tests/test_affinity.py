@@ -93,6 +93,9 @@ class TestTagTransitionCA(unittest.TestCase):
         self.state.colony_levels = {"a": "outpost", "b": "outpost"}
         self.state.colony_upgrade_progress = {"a": 0, "b": 0}
         self.state.colony_downgrade_progress = {"a": 0, "b": 0}
+        self.state.security_upgrade_progress = {"a": 0, "b": 0}
+        self.state.security_downgrade_progress = {"a": 0, "b": 0}
+        self.state.security_change_threshold = {"a": 3, "b": 3}
         self.state.agents = {
             "mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": False},
             "pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": False},

@@ -40,7 +40,7 @@ class AgentLayer:
             self._initialize_agent_from_template(state, agent_id, template)
 
     def process_tick(self, state, config: dict) -> None:
-        self._rng = random.Random(state.sim_tick_count)
+        self._rng = random.Random(f"{state.world_seed}:{state.sim_tick_count}")
 
         self._apply_upkeep(state)
 
@@ -189,6 +189,11 @@ class AgentLayer:
         agent = state.agents.get(agent_id, {})
         sector_id = agent.get("current_sector_id", "")
 
+        # Explorers prioritise exploration above almost everything.
+        if "FRONTIER" in sector_tags and agent.get("agent_role") == "explorer":
+            self._try_exploration(state, agent_id, agent, sector_id)
+            return
+
         if score >= ATTACK_THRESHOLD and "HAS_SALVAGE" in sector_tags:
             self._action_harvest(state, agent_id, agent, sector_id)
             return
@@ -211,10 +216,6 @@ class AgentLayer:
         if score <= FLEE_THRESHOLD:
             self._action_move_random(state, agent_id, agent)
             self._log_event(state, agent_id, "flee", sector_id, {"reason": "sector_affinity"})
-            return
-
-        if "FRONTIER" in sector_tags and agent.get("agent_role") == "explorer":
-            self._try_exploration(state, agent_id, agent, sector_id)
             return
 
         self._action_move_toward_role_target(state, agent_id, agent)
@@ -268,7 +269,8 @@ class AgentLayer:
         self._action_move_toward(state, agent_id, agent, target)
 
     def _try_exploration(self, state, agent_id: str, agent: dict, sector_id: str) -> None:
-        if state.discovered_sector_count >= constants.SECTOR_DISCOVERY_CAP:
+        # Cap check — stop when the graph is full.
+        if len(state.world_topology) >= constants.MAX_SECTOR_COUNT:
             self._log_event(state, agent_id, "expedition_failed", sector_id, {})
             return
 
@@ -276,9 +278,114 @@ class AgentLayer:
             self._log_event(state, agent_id, "expedition_failed", sector_id, {"reason": "broke"})
             return
 
+        # Per-agent cooldown — explorer must wait between discoveries.
+        last_discovery = agent.get("last_discovery_tick", -999)
+        if state.sim_tick_count - last_discovery < constants.EXPLORATION_COOLDOWN_TICKS:
+            self._log_event(state, agent_id, "expedition_failed", sector_id, {"reason": "cooldown"})
+            return
+
+        # Probability gate — diminishing returns: more sectors → lower chance.
+        sector_count = len(state.world_topology)
+        saturation = sector_count / constants.MAX_SECTOR_COUNT  # 0..1
+        effective_chance = constants.EXPLORATION_SUCCESS_CHANCE * (1.0 - saturation)
+        if self._rng.random() > effective_chance:
+            self._log_event(state, agent_id, "expedition_failed", sector_id, {"reason": "nothing_found"})
+            return
+
+        agent["last_discovery_tick"] = state.sim_tick_count
+
         state.discovered_sector_count += 1
-        state.discovery_log.append({"tick": state.sim_tick_count, "discoverer": agent_id, "from": sector_id})
-        self._log_event(state, agent_id, "exploration", sector_id, {})
+        new_id = f"discovered_{state.discovered_sector_count}"
+
+        # --- Generate a deterministic name ---
+        new_name = self._generate_sector_name(state)
+
+        # --- Determine connections (always link to source) ---
+        connections = [sector_id]
+        source_neighbors = state.world_topology.get(sector_id, {}).get("connections", [])
+        for neighbor_id in source_neighbors:
+            if len(connections) >= constants.NEW_SECTOR_MAX_CONNECTIONS:
+                break
+            if self._rng.random() < constants.NEW_SECTOR_EXTRA_CONNECTION_CHANCE:
+                connections.append(neighbor_id)
+
+        # --- Pick initial tags (frontier bias: harsh, poor, contested) ---
+        sec_roll = self._rng.random()
+        security = "LAWLESS" if sec_roll < 0.45 else ("CONTESTED" if sec_roll < 0.85 else "SECURE")
+        env_roll = self._rng.random()
+        environment = "EXTREME" if env_roll < 0.3 else ("HARSH" if env_roll < 0.75 else "MILD")
+
+        econ_tags = []
+        econ_options = ["POOR", "POOR", "ADEQUATE", "ADEQUATE", "RICH"]
+        for prefix in ("RAW", "MANUFACTURED", "CURRENCY"):
+            level = self._rng.choice(econ_options)
+            econ_tags.append(f"{prefix}_{level}")
+
+        initial_tags = ["FRONTIER", security, environment] + econ_tags
+
+        # --- Wire into the world graph (bidirectional) ---
+        state.world_topology[new_id] = {
+            "connections": list(connections),
+            "station_ids": [new_id],
+            "sector_type": "frontier",
+        }
+        for conn_id in connections:
+            conn_data = state.world_topology.get(conn_id, {})
+            existing_conns = conn_data.get("connections", [])
+            if new_id not in existing_conns:
+                existing_conns.append(new_id)
+
+        # --- Initialize all required state dicts ---
+        state.sector_tags[new_id] = list(initial_tags)
+        state.world_hazards[new_id] = {"environment": environment}
+        state.colony_levels[new_id] = "frontier"
+        state.colony_upgrade_progress[new_id] = 0
+        state.colony_downgrade_progress[new_id] = 0
+        state.security_upgrade_progress[new_id] = 0
+        state.security_downgrade_progress[new_id] = 0
+        _thresh_rng = random.Random(f"{state.world_seed}:sec_thresh:{new_id}")
+        state.security_change_threshold[new_id] = _thresh_rng.randint(
+            constants.SECURITY_CHANGE_TICKS_MIN,
+            constants.SECURITY_CHANGE_TICKS_MAX,
+        )
+        state.grid_dominion[new_id] = {
+            "controlling_faction_id": "",
+            "security_tag": security,
+        }
+
+        # --- Record ---
+        state.sector_names[new_id] = new_name
+        state.discovery_log.append({
+            "tick": state.sim_tick_count,
+            "discoverer": agent_id,
+            "from": sector_id,
+            "new_sector": new_id,
+            "name": new_name,
+        })
+        self._log_event(state, agent_id, "sector_discovered", sector_id, {
+            "new_sector": new_id,
+            "name": new_name,
+            "connections": connections,
+        })
+
+    # Name-generation pools for discovered sectors.
+    _FRONTIER_PREFIXES = [
+        "Void", "Drift", "Nebula", "Rim", "Edge", "Shadow", "Iron",
+        "Crimson", "Amber", "Frozen", "Ashen", "Silent", "Storm",
+        "Obsidian", "Crystal", "Pale", "Dark",
+    ]
+    _FRONTIER_SUFFIXES = [
+        "Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
+        "Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
+        "Anchorage", "Waypoint", "Depot",
+    ]
+
+    def _generate_sector_name(self, state) -> str:
+        """Return a deterministic but varied name for a discovered sector."""
+        rng = random.Random(f"{state.world_seed}:discovery:{state.discovered_sector_count}")
+        prefix = rng.choice(self._FRONTIER_PREFIXES)
+        suffix = rng.choice(self._FRONTIER_SUFFIXES)
+        return f"{prefix} {suffix}"
 
     def _best_agent_target(self, state, actor_id: str, actor_tags: list, sector_id: str):
         best_id = None
@@ -334,6 +441,20 @@ class AgentLayer:
         state.catastrophe_log.append({"tick": state.sim_tick_count, "sector_id": sector_id})
         self._log_event(state, "system", "catastrophe", sector_id, {})
 
+        # Kill mortals caught in the catastrophe sector.
+        to_kill = []
+        for agent_id, agent in state.agents.items():
+            if agent.get("is_persistent", False) or agent.get("is_disabled", False):
+                continue
+            if agent.get("current_sector_id") != sector_id:
+                continue
+            if self._rng.random() < constants.CATASTROPHE_MORTAL_KILL_CHANCE:
+                to_kill.append(agent_id)
+        for agent_id in to_kill:
+            state.mortal_agent_deaths.append({"tick": state.sim_tick_count, "agent_id": agent_id})
+            self._log_event(state, agent_id, "catastrophe_death", sector_id, {})
+            del state.agents[agent_id]
+
     def _spawn_mortal_agents(self, state) -> None:
         if len(state.agents) >= constants.MORTAL_GLOBAL_CAP:
             return
@@ -346,7 +467,11 @@ class AgentLayer:
         if not eligible:
             return
 
-        if self._rng.random() > constants.MORTAL_SPAWN_CHANCE:
+        # Diminishing returns: more agents → lower spawn chance.
+        agent_count = len(state.agents)
+        saturation = agent_count / constants.MORTAL_GLOBAL_CAP  # 0..1
+        effective_chance = constants.MORTAL_SPAWN_CHANCE * (1.0 - saturation)
+        if self._rng.random() > effective_chance:
             return
 
         spawn_sector = self._rng.choice(eligible)
@@ -372,27 +497,58 @@ class AgentLayer:
         self._log_event(state, agent_id, "spawn", spawn_sector, {})
 
     def _cleanup_dead_mortals(self, state) -> None:
+        """Handle destroyed mortals: survival roll or permanent death.
+
+        Each destroyed mortal rolls against MORTAL_SURVIVAL_CHANCE.
+        Survivors respawn at their home sector after RESPAWN_COOLDOWN_TICKS
+        (handled by the normal _check_respawn path once is_persistent is
+        temporarily kept).  Those who fail the roll are permanently removed.
+        """
         to_remove = []
+        to_survive = []
         for agent_id, agent in state.agents.items():
             if agent.get("is_persistent", False):
                 continue
             if agent.get("is_disabled", False):
-                to_remove.append(agent_id)
+                if self._rng.random() < constants.MORTAL_SURVIVAL_CHANCE:
+                    to_survive.append(agent_id)
+                else:
+                    to_remove.append(agent_id)
 
+        # Survivors: reset at home with enough resources to be functional
+        for agent_id in to_survive:
+            agent = state.agents[agent_id]
+            agent["is_disabled"] = False
+            agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
+            agent["condition_tag"] = "DAMAGED"
+            agent["wealth_tag"] = "COMFORTABLE"
+            agent["cargo_tag"] = "EMPTY"
+            self._log_event(state, agent_id, "survived", agent.get("current_sector_id", ""), {})
+
+        # Permanent deaths
         for agent_id in to_remove:
             state.mortal_agent_deaths.append({"tick": state.sim_tick_count, "agent_id": agent_id})
+            self._log_event(state, agent_id, "perma_death", state.agents[agent_id].get("current_sector_id", ""), {})
             del state.agents[agent_id]
 
     def _apply_upkeep(self, state) -> None:
-        """Apply wear-and-tear to agents each tick."""
+        """Apply wear-and-tear and subsistence recovery to agents each tick."""
         for agent_id, agent in state.agents.items():
             if agent_id == "player" or agent.get("is_disabled"):
                 continue
+            # Random degradation
             if self._rng.random() < constants.AGENT_UPKEEP_CHANCE:
                 if agent.get("condition_tag") == "HEALTHY":
                     agent["condition_tag"] = "DAMAGED"
             if self._rng.random() < constants.AGENT_UPKEEP_CHANCE:
                 self._wealth_step_down(agent)
+            # Subsistence recovery: broke agents at a station/outpost can
+            # pick up odd jobs and slowly recover to COMFORTABLE.
+            if agent.get("wealth_tag") == "BROKE":
+                sector_tags = state.sector_tags.get(agent.get("current_sector_id", ""), [])
+                if "STATION" in sector_tags or "FRONTIER" in sector_tags:
+                    if self._rng.random() < constants.BROKE_RECOVERY_CHANCE:
+                        agent["wealth_tag"] = "COMFORTABLE"
 
     def _try_load_cargo(self, state, agent_id: str, agent: dict, sector_id: str) -> bool:
         """Load cargo from a resource-rich sector based on role."""
@@ -496,6 +652,10 @@ class AgentLayer:
             "sector_id": sector_id,
             "metadata": metadata,
         }
-        state.chronicle_events.append(event)
+        # Route through the chronicle layer when available (it will push
+        # into state.chronicle_events during its own process_tick).
+        # Direct append only as fallback when no chronicle is wired up.
         if self._chronicle is not None:
             self._chronicle.log_event(event)
+        else:
+            state.chronicle_events.append(event)

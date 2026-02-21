@@ -168,9 +168,16 @@ _LOCATION_NAMES = {
 }
 
 
-def _loc(sector_id: str) -> str:
+def _loc(sector_id: str, state=None) -> str:
     """Resolve sector_id to short human name."""
-    return _LOCATION_NAMES.get(sector_id, sector_id or "deep space")
+    name = _LOCATION_NAMES.get(sector_id)
+    if name:
+        return name
+    if state and hasattr(state, "sector_names"):
+        name = state.sector_names.get(sector_id)
+        if name:
+            return name
+    return sector_id or "deep space"
 
 
 def _agent_display(state, agent_id: str) -> str:
@@ -224,6 +231,7 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
     cargo_loads = 0
     harvest_count = 0
     explore_count = 0
+    discovered_sectors = []
 
     for e in epoch_events:
         action = e.get("action", "")
@@ -251,9 +259,20 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
             harvest_count += 1
         elif action == "exploration":
             explore_count += 1
+        elif action == "sector_discovered":
+            meta = e.get("metadata", {})
+            discovered_sectors.append({
+                "actor": actor,
+                "name": meta.get("name", "unknown"),
+                "new_sector": meta.get("new_sector", ""),
+                "from": sector,
+                "connections": meta.get("connections", []),
+            })
 
     # Track destroyed agents from respawn events (implies prior death)
     respawn_count = counts.get("respawn", 0)
+    perma_deaths = counts.get("perma_death", 0)
+    survived_count = counts.get("survived", 0)
 
     # ---- Build narrative paragraphs ----
 
@@ -292,7 +311,7 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
         elif prev.get("infested") and not cur["infested"]:
             changes.append("was cleared of hostile infestation")
         if changes:
-            changed_sectors.append((_loc(sid), changes))
+            changed_sectors.append((_loc(sid, state), changes))
 
     # World age changes — major headline
     for new_age in age_changes:
@@ -307,7 +326,7 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
     # Catastrophes — rare, always reported (deduplicate same sector)
     unique_catastrophes = list(dict.fromkeys(catastrophe_sectors))
     for csec in unique_catastrophes:
-        lines.append(f"  *** CATASTROPHE struck {_loc(csec)}! The station was disabled and operations ceased. ***")
+        lines.append(f"  *** CATASTROPHE struck {_loc(csec, state)}! The station was disabled and operations ceased. ***")
     if unique_catastrophes:
         lines.append("")
 
@@ -329,7 +348,7 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
 
         combat_line = f"  Combat: {total_attacks} engagements"
         if hotspot:
-            combat_line += f", fiercest around {_loc(hotspot)} ({hotspot_n})"
+            combat_line += f", fiercest around {_loc(hotspot, state)} ({hotspot_n})"
         if top_attacker and top_n >= 3:
             combat_line += f". {_agent_display(state, top_attacker)} was most aggressive ({top_n} attacks)"
         combat_line += "."
@@ -343,7 +362,7 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
             top_trade_loc = max(trade_sectors, key=trade_sectors.get) if trade_sectors else ""
             trade_str = f"{total_trades} trades"
             if top_trade_loc:
-                trade_str += f" (busiest: {_loc(top_trade_loc)})"
+                trade_str += f" (busiest: {_loc(top_trade_loc, state)})"
             econ_parts.append(trade_str)
         if cargo_loads:
             econ_parts.append(f"{cargo_loads} cargo runs loaded")
@@ -355,9 +374,16 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
     if flee_count >= 3:
         lines.append(f"  Danger: {flee_count} pilots fled dangerous encounters.")
 
-    # Respawns
+    # Respawns & losses
+    loss_parts = []
     if respawn_count > 0:
-        lines.append(f"  Losses & returns: {respawn_count} pilots were destroyed and later returned to service.")
+        loss_parts.append(f"{respawn_count} pilots respawned after prior destruction")
+    if survived_count > 0:
+        loss_parts.append(f"{survived_count} mortals narrowly survived destruction")
+    if perma_deaths > 0:
+        loss_parts.append(f"{perma_deaths} were lost permanently")
+    if loss_parts:
+        lines.append(f"  Losses & returns: {'; '.join(loss_parts)}.")
 
     # New arrivals — group by sector to avoid spam
     if spawn_names:
@@ -375,13 +401,18 @@ def _chronicle_epoch_narrative(epoch_events: list, state, epoch_start: int,
         for sec, aids in sector_spawns.items():
             names = [_agent_display(state, a) for a in aids]
             if len(names) <= 3:
-                lines.append(f"  New arrivals at {_loc(sec)}: {', '.join(names)}.")
+                lines.append(f"  New arrivals at {_loc(sec, state)}: {', '.join(names)}.")
             else:
-                lines.append(f"  {len(names)} new pilots appeared at {_loc(sec)}.")
+                lines.append(f"  {len(names)} new pilots appeared at {_loc(sec, state)}.")
 
     # Exploration
     if explore_count:
         lines.append(f"  Exploration: {explore_count} survey expeditions launched.")
+
+    # Sector discoveries
+    for disc in discovered_sectors:
+        conn_names = [_loc(c, state) for c in disc["connections"]]
+        lines.append(f"  ** NEW SECTOR DISCOVERED: {disc['name']} (linked to {', '.join(conn_names)}) by {_agent_display(state, disc['actor'])} **")
 
     # If absolutely nothing interesting happened
     if not lines and total_attacks == 0 and total_trades == 0:
@@ -403,6 +434,8 @@ def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
     total_spawns = action_totals.get("spawn", 0)
     total_catastrophes = action_totals.get("catastrophe", 0)
     total_respawns = action_totals.get("respawn", 0)
+    total_perma_deaths = action_totals.get("perma_death", 0)
+    total_survived = action_totals.get("survived", 0)
     age_changes = action_totals.get("age_change", 0)
 
     lines.append("=" * 64)
@@ -410,9 +443,14 @@ def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
     lines.append("=" * 64)
     lines.append(f"  Simulation ran for {total_ticks} ticks ({age_changes} world-age transitions).")
     lines.append(f"  Total engagements: {total_attacks}  |  Total trades: {total_trades}")
-    lines.append(f"  Newcomers arrived: {total_spawns}  |  Pilots lost & returned: {total_respawns}")
+    lines.append(f"  Newcomers arrived: {total_spawns}  |  Pilots respawned: {total_respawns}")
+    if total_perma_deaths:
+        lines.append(f"  Permanently lost: {total_perma_deaths}  |  Narrowly survived: {total_survived}")
     if total_catastrophes:
         lines.append(f"  Catastrophes endured: {total_catastrophes}")
+    total_discoveries = action_totals.get("sector_discovered", 0)
+    if total_discoveries:
+        lines.append(f"  New sectors discovered: {total_discoveries}  |  Total sectors: {len(state.sector_tags)}")
 
     # Final world state
     lines.append("")
@@ -423,7 +461,15 @@ def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
         sec = _security_label(tags)
         env = _environment_label(tags)
         col = state.colony_levels.get(sid, "frontier")
-        lines.append(f"    {_loc(sid)}: {econ} economy, {sec}, {env} environment [{col}]")
+        lines.append(f"    {_loc(sid, state)}: {econ} economy, {sec}, {env} environment [{col}]")
+
+    # Sector topology map
+    lines.append("")
+    lines.append("  Sector connections:")
+    for sid in sorted(state.sector_tags.keys()):
+        conns = state.world_topology.get(sid, {}).get("connections", [])
+        conn_names = [_loc(c, state) for c in conns]
+        lines.append(f"    {_loc(sid, state)} <-> {', '.join(conn_names) if conn_names else '(isolated)'}")
 
     # Final agent roster
     lines.append("")
@@ -436,7 +482,7 @@ def _chronicle_summary(all_events: list, total_ticks: int, state) -> list:
             continue
         cond = agent.get("condition_tag", "HEALTHY").lower()
         wealth = agent.get("wealth_tag", "COMFORTABLE").lower()
-        sector = _loc(agent.get("current_sector_id", ""))
+        sector = _loc(agent.get("current_sector_id", ""), state)
         lines.append(f"    {_agent_display(state, aid)}: {cond}, {wealth}, at {sector}")
 
     return lines
@@ -656,7 +702,7 @@ def _viz_event_summary(events: list) -> str:
     last_age = ""
     for e in events:
         action = e.get("action", "")
-        if action in ("attack", "catastrophe", "spawn", "respawn"):
+        if action in ("attack", "catastrophe", "spawn", "respawn", "perma_death", "survived"):
             counts[action] = counts.get(action, 0) + 1
         elif action == "age_change":
             last_age = e.get("metadata", {}).get("new_age", "")
@@ -669,6 +715,10 @@ def _viz_event_summary(events: list) -> str:
         parts.append(f"{_C_CYAN}+{counts['spawn']}{_C_RESET}")
     if "respawn" in counts:
         parts.append(f"{_C_GREEN}\u21ba{counts['respawn']}{_C_RESET}")
+    if "perma_death" in counts:
+        parts.append(f"{_C_RED}\u2620{counts['perma_death']}{_C_RESET}")
+    if "survived" in counts:
+        parts.append(f"{_C_YELLOW}\u2764{counts['survived']}{_C_RESET}")
     if last_age:
         parts.append(f"{_C_BOLD}\u2192{last_age}{_C_RESET}")
     return " ".join(parts)

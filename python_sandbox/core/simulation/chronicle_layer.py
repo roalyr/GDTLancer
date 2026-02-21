@@ -58,7 +58,7 @@ class ChronicleLayer:
     def _format_rumor(self, state, event: dict) -> str:
         actor = self._resolve_actor_name(state, event.get("actor_id", ""))
         action = self._humanize_action(event.get("action", "unknown"))
-        sector = self._resolve_location_name(event.get("sector_id", ""))
+        sector = self._resolve_location_name(event.get("sector_id", ""), state)
         if not actor or not sector:
             return ""
         return f"{actor} {action} at {sector}."
@@ -89,9 +89,11 @@ class ChronicleLayer:
                 return state.characters[character_id].get("character_name", actor_id)
         return str(actor_id)
 
-    def _resolve_location_name(self, sector_id: str) -> str:
+    def _resolve_location_name(self, sector_id: str, state=None) -> str:
         if sector_id in LOCATIONS:
             return LOCATIONS[sector_id].get("location_name", sector_id)
+        if state and hasattr(state, "sector_names"):
+            return state.sector_names.get(sector_id, sector_id)
         return sector_id
 
     def _humanize_action(self, action: str) -> str:
@@ -104,8 +106,11 @@ class ChronicleLayer:
             "load_cargo": "loaded cargo",
             "flee": "fled",
             "exploration": "explored",
+            "sector_discovered": "discovered a new sector",
             "spawn": "appeared",
             "respawn": "returned",
+            "survived": "narrowly survived destruction",
+            "perma_death": "was permanently lost",
             "catastrophe": "witnessed catastrophe",
             "age_change": "reported a world-age shift",
         }

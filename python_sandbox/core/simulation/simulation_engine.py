@@ -55,6 +55,31 @@ class SimulationEngine:
         self.agent_layer.process_tick(self.state, self._tick_config)
         self.chronicle_layer.process_tick(self.state)
 
+    def advance_sub_ticks(self, cost: int) -> int:
+        """Advance the simulation by *cost* sub-ticks.
+
+        Sub-ticks accumulate in ``state.sub_tick_accumulator``.  Every time
+        the accumulator reaches ``SUB_TICKS_PER_TICK`` a full simulation tick
+        fires (economy, security, agents, chronicle, etc.).
+
+        Args:
+            cost: Number of sub-ticks to add (use the SUBTICK_COST_* constants).
+
+        Returns:
+            The number of full ticks that were processed (0, 1, or more).
+        """
+        if not self._initialized:
+            raise RuntimeError("SimulationEngine is not initialized")
+
+        self.state.sub_tick_accumulator += cost
+        ticks_fired = 0
+        threshold = constants.SUB_TICKS_PER_TICK
+        while self.state.sub_tick_accumulator >= threshold:
+            self.state.sub_tick_accumulator -= threshold
+            self.process_tick()
+            ticks_fired += 1
+        return ticks_fired
+
     def _advance_world_age(self) -> None:
         self.state.world_age_timer -= 1
         if self.state.world_age_timer > 0:

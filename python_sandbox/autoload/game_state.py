@@ -35,6 +35,11 @@ class GameState:
         self.colony_downgrade_progress: dict = {}
         self.colony_level_history: list = []
 
+        # === Security progression ===
+        self.security_upgrade_progress: dict = {}    # sector_id -> consecutive ticks of upgrade pressure
+        self.security_downgrade_progress: dict = {}  # sector_id -> consecutive ticks of downgrade pressure
+        self.security_change_threshold: dict = {}    # sector_id -> per-sector ticks required to shift
+
         # === Catastrophe + lifecycle ===
         self.catastrophe_log: list = []
         self.sector_disabled_until: dict = {}
@@ -44,6 +49,7 @@ class GameState:
         # === Discovery ===
         self.discovered_sector_count: int = 0
         self.discovery_log: list = []
+        self.sector_names: dict = {}   # sector_id -> display name for discovered sectors
 
         # === Chronicle ===
         self.chronicle_events: list = []
@@ -51,6 +57,7 @@ class GameState:
 
         # === Simulation meta ===
         self.sim_tick_count: int = 0
+        self.sub_tick_accumulator: int = 0   # accumulates toward SUB_TICKS_PER_TICK
         self.world_age: str = ""
         self.world_age_timer: int = 0
         self.world_age_cycle_count: int = 0
