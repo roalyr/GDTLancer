@@ -2,40 +2,23 @@
 # PROJECT: GDTLancer
 # MODULE: chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 5 (Chronicle Layer), Section 7 (Tick Sequence steps 5a–5e)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_9
+# LOG_REF: 2026-02-21 (TASK_9)
 #
 
 extends Reference
 
-## ChronicleLayer: Event capture and rumor generation (Layer 4).
+## ChronicleLayer: Event capture, rumor generation, and memory distribution.
 ##
-## The Chronicle records notable events that occur during simulation ticks,
-## generates human-readable rumor strings, and distributes relevant events
-## to agents' event_memory arrays for future decision-making.
+## Logs events during a tick, processes them into rumors, and distributes
+## relevant events to nearby agents' event_memory arrays.
 ##
-## Processing (GDD Section 7, steps 5a–5e):
-##   5a. Collect — move staged events to chronicle_event_buffer
-##   5b. Tag Causality — Phase 1 stub (events are independent)
-##   5c. Significance Scores — Phase 1 stub (all events = 0.5)
-##   5d. Rumor Engine — generate templated text from event packets
-##   5e. Distribute — push relevant events to nearby agents' event_memory
-##
-## Event Packet schema (GDD Section 5.1):
-##   {actor_uid, action_id, target_uid, target_sector_id, tick_count, outcome, metadata}
+## Python reference: python_sandbox/core/simulation/chronicle_layer.py
 
 
-## Staging buffer — events logged during the current tick wait here until
-## process_tick() moves them into the chronicle_event_buffer.
 var _staging_buffer: Array = []
-
-## Maximum number of events to keep in chronicle_event_buffer (ring buffer).
-var _max_buffer_size: int = 200
-
-## Maximum number of rumors to keep.
+var _max_events: int = 200
 var _max_rumors: int = 50
-
-## Maximum events in an agent's event_memory.
 var _max_agent_memory: int = 20
 
 
@@ -44,21 +27,21 @@ var _max_agent_memory: int = 20
 # =============================================================================
 
 ## Logs a notable event for processing in the next tick.
-## Called by other systems (AgentLayer, GridLayer, etc.) when something happens.
 ##
-## @param event_packet  Dictionary — must follow the Event Packet schema:
-##   {actor_uid: int/String, action_id: String, target_uid: int/String,
-##    target_sector_id: String, tick_count: int, outcome: String, metadata: Dictionary}
+## @param event_packet  Dictionary — {tick, actor_id, action, sector_id, metadata}
 func log_event(event_packet: Dictionary) -> void:
-	# Ensure required fields exist with defaults
-	if not event_packet.has("tick_count"):
-		event_packet["tick_count"] = GameState.sim_tick_count
-	if not event_packet.has("outcome"):
-		event_packet["outcome"] = "success"
-	if not event_packet.has("metadata"):
-		event_packet["metadata"] = {}
-
-	_staging_buffer.append(event_packet)
+	var packet: Dictionary = event_packet.duplicate()
+	if not packet.has("tick"):
+		packet["tick"] = GameState.sim_tick_count
+	if not packet.has("actor_id"):
+		packet["actor_id"] = "unknown"
+	if not packet.has("action"):
+		packet["action"] = "unknown"
+	if not packet.has("sector_id"):
+		packet["sector_id"] = ""
+	if not packet.has("metadata"):
+		packet["metadata"] = {}
+	_staging_buffer.append(packet)
 
 
 ## Processes all Chronicle Layer steps for one tick.
@@ -66,238 +49,147 @@ func process_tick() -> void:
 	if _staging_buffer.empty():
 		return
 
-	# 5a. Collect: move staged events into chronicle_event_buffer
-	var new_events: Array = _collect_events()
+	var events: Array = _collect_events()
+	var rumors: Array = _generate_rumors(events)
+	_distribute_events(events)
 
-	# 5b. Tag Causality (Phase 1 stub: events are independent)
-	_tag_causality(new_events)
-
-	# 5c. Significance Scores (Phase 1 stub: all get 0.5)
-	_score_significance(new_events)
-
-	# 5d. Rumor Engine: generate text strings
-	var new_rumors: Array = _generate_rumors(new_events)
-
-	# 5e. Distribute: push events to nearby agents
-	_distribute_events(new_events)
-
-	# Append new rumors to chronicle
-	for rumor in new_rumors:
+	for rumor in rumors:
 		GameState.chronicle_rumors.append(rumor)
-	# Trim to max size
 	while GameState.chronicle_rumors.size() > _max_rumors:
 		GameState.chronicle_rumors.pop_front()
 
 
 # =============================================================================
-# === STEP 5a: COLLECT ========================================================
+# === PRIVATE — COLLECT =======================================================
 # =============================================================================
 
-## Moves all pending events from the staging buffer into chronicle_event_buffer.
-## Returns the batch of newly added events for further processing.
 func _collect_events() -> Array:
-	var batch: Array = _staging_buffer.duplicate()
+	var events: Array = _staging_buffer.duplicate()
 	_staging_buffer.clear()
 
-	# Append to chronicle buffer
-	for event in batch:
-		GameState.chronicle_event_buffer.append(event)
-
-	# Trim buffer to max size (ring buffer behavior)
-	while GameState.chronicle_event_buffer.size() > _max_buffer_size:
-		GameState.chronicle_event_buffer.pop_front()
-
-	return batch
-
-
-# =============================================================================
-# === STEP 5b: TAG CAUSALITY =================================================
-# =============================================================================
-
-## Tags causal relationships between events.
-## Phase 1 stub: all events are independent — no causality chains.
-func _tag_causality(events: Array) -> void:
 	for event in events:
-		event["causality_chain"] = []  # No linked events
-		event["is_root_cause"] = true
+		GameState.chronicle_events.append(event)
+	while GameState.chronicle_events.size() > _max_events:
+		GameState.chronicle_events.pop_front()
+
+	return events
 
 
 # =============================================================================
-# === STEP 5c: SIGNIFICANCE SCORES ===========================================
+# === PRIVATE — RUMOR GENERATION ==============================================
 # =============================================================================
 
-## Assigns significance scores to events.
-## Phase 1 stub: all events receive a flat score of 0.5.
-## Future: score based on actor importance, rarity, economic impact, etc.
-func _score_significance(events: Array) -> void:
-	for event in events:
-		event["significance"] = 0.5
-
-
-# =============================================================================
-# === STEP 5d: RUMOR ENGINE ===================================================
-# =============================================================================
-
-## Generates human-readable rumor strings from event packets.
-## Phase 1: simple template — "[Actor] [action] at [Location]."
-func _generate_rumors(events: Array) -> Array:
+func _generate_rumors(_events: Array) -> Array:
 	var rumors: Array = []
-
-	for event in events:
+	for event in _events:
 		var rumor: String = _format_rumor(event)
 		if rumor != "":
 			rumors.append(rumor)
-
 	return rumors
 
 
-## Formats a single event packet into a rumor string.
 func _format_rumor(event: Dictionary) -> String:
-	var actor_name: String = _resolve_actor_name(event.get("actor_uid", ""))
-	var action: String = _humanize_action(event.get("action_id", "unknown"))
-	var location_name: String = _resolve_location_name(event.get("target_sector_id", ""))
-
-	if actor_name == "" or location_name == "":
+	var actor: String = _resolve_actor_name(event.get("actor_id", ""))
+	var action: String = _humanize_action(event.get("action", "unknown"))
+	var sector: String = _resolve_location_name(event.get("sector_id", ""))
+	if actor == "" or sector == "":
 		return ""
-
-	# Add target/detail info from metadata if available
-	var detail: String = ""
-	var metadata: Dictionary = event.get("metadata", {})
-	if metadata.has("commodity_id"):
-		detail = " " + _humanize_id(metadata["commodity_id"])
-	if metadata.has("quantity"):
-		detail += " (x%d)" % int(metadata["quantity"])
-
-	var outcome: String = event.get("outcome", "success")
-	if outcome != "success":
-		return "%s tried to %s%s at %s, but failed." % [actor_name, action, detail, location_name]
-
-	return "%s %s%s at %s." % [actor_name, action, detail, location_name]
+	return "%s %s at %s." % [actor, action, sector]
 
 
 # =============================================================================
-# === STEP 5e: DISTRIBUTE ====================================================
+# === PRIVATE — EVENT DISTRIBUTION ============================================
 # =============================================================================
 
-## Distributes relevant events to nearby agents' event_memory arrays.
-## "Nearby" = agents in the same sector as the event, or connected sectors.
 func _distribute_events(events: Array) -> void:
 	for event in events:
-		var event_sector: String = event.get("target_sector_id", "")
-		if event_sector == "":
+		var sector_id: String = event.get("sector_id", "")
+		if sector_id == "":
 			continue
 
-		# Get connected sectors (event is "heard" in adjacent sectors too)
-		var relevant_sectors: Array = [event_sector]
-		if GameState.world_topology.has(event_sector):
-			var connections: Array = GameState.world_topology[event_sector].get("connections", [])
-			for conn in connections:
-				relevant_sectors.append(conn)
+		# Visible sectors: event sector + connections
+		var visible: Array = [sector_id]
+		var connections: Array = GameState.world_topology.get(sector_id, {}).get("connections", [])
+		for conn in connections:
+			visible.append(conn)
 
-		# Push event to agents in relevant sectors
 		for agent_id in GameState.agents:
 			var agent: Dictionary = GameState.agents[agent_id]
 			if agent.get("is_disabled", false):
 				continue
+			if not (agent.get("current_sector_id", "") in visible):
+				continue
 
-			var agent_sector: String = agent.get("current_sector_id", "")
-			if agent_sector in relevant_sectors:
-				var memory: Array = agent.get("event_memory", [])
-				memory.append(event)
-
-				# Trim to max memory size (oldest first)
-				while memory.size() > _max_agent_memory:
-					memory.pop_front()
-
-				agent["event_memory"] = memory
+			var memory: Array = Array(agent.get("event_memory", []))
+			memory.append(event)
+			while memory.size() > _max_agent_memory:
+				memory.pop_front()
+			agent["event_memory"] = memory
 
 
 # =============================================================================
 # === PRIVATE — NAME RESOLUTION ===============================================
 # =============================================================================
 
-## Resolves an actor UID to a human-readable name.
-func _resolve_actor_name(actor_uid) -> String:
-	# Check if it's a string agent_id (e.g., "persistent_vera", "player")
-	if actor_uid is String:
-		if actor_uid == "player":
-			return "You"
-		# Try to find character name via agent → char_uid → character template
-		if GameState.agents.has(actor_uid):
-			var agent: Dictionary = GameState.agents[actor_uid]
-			var char_uid: int = agent.get("char_uid", -1)
-			if GameState.characters.has(char_uid):
-				var char_template: Resource = GameState.characters[char_uid]
-				if char_template != null:
-					return char_template.character_name
-		# Fallback: humanize the ID
-		return _humanize_id(actor_uid)
-
-	# Numeric UID — look up directly in characters
-	if actor_uid is int and GameState.characters.has(actor_uid):
-		var char_template: Resource = GameState.characters[actor_uid]
-		if char_template != null:
-			return char_template.character_name
-
-	return "Someone"
+func _resolve_actor_name(actor_id: String) -> String:
+	if actor_id == "player":
+		return "You"
+	if GameState.agents.has(actor_id):
+		var character_id: String = GameState.agents[actor_id].get("character_id", "")
+		if GameState.characters.has(character_id):
+			var char_data = GameState.characters[character_id]
+			if char_data is Dictionary:
+				return char_data.get("character_name", str(actor_id))
+			elif char_data is Resource and char_data.get("character_name") != null:
+				return char_data.character_name
+	return str(actor_id)
 
 
-## Resolves a sector ID to a human-readable location name.
 func _resolve_location_name(sector_id: String) -> String:
 	if sector_id == "":
 		return ""
-
-	# Try TemplateDatabase for the location name
+	# Try TemplateDatabase
 	if TemplateDatabase.locations.has(sector_id):
 		var loc: Resource = TemplateDatabase.locations[sector_id]
-		if is_instance_valid(loc):
+		if is_instance_valid(loc) and loc.get("location_name") != null:
 			return loc.location_name
+	# Try sector_names in GameState
+	if GameState.sector_names.has(sector_id):
+		return GameState.sector_names[sector_id]
+	return sector_id
 
-	# Fallback: humanize the ID
-	return _humanize_id(sector_id)
 
-
-## Converts an action_id into past-tense human text.
-func _humanize_action(action_id: String) -> String:
-	match action_id:
-		"buy":
-			return "bought"
-		"sell":
-			return "sold"
+func _humanize_action(action: String) -> String:
+	match action:
 		"move":
-			return "arrived"
-		"repair":
-			return "repaired their ship"
+			return "moved"
+		"attack":
+			return "attacked"
+		"agent_trade":
+			return "traded"
 		"dock":
 			return "docked"
-		"undock":
-			return "departed"
-		"destroy":
-			return "destroyed a target"
-		"disabled":
-			return "was disabled"
-		"trade":
-			return "traded"
+		"harvest":
+			return "harvested salvage"
+		"load_cargo":
+			return "loaded cargo"
+		"flee":
+			return "fled"
+		"exploration":
+			return "explored"
+		"sector_discovered":
+			return "discovered a new sector"
+		"spawn":
+			return "appeared"
 		"respawn":
 			return "returned"
+		"survived":
+			return "narrowly survived destruction"
+		"perma_death":
+			return "was permanently lost"
+		"catastrophe":
+			return "witnessed catastrophe"
+		"age_change":
+			return "reported a world-age shift"
 		_:
-			return action_id
-
-
-## Converts a snake_case ID into Title Case display text.
-## e.g., "commodity_ore" → "Ore", "station_alpha" → "Station Alpha"
-func _humanize_id(id: String) -> String:
-	# Strip common prefixes
-	var stripped: String = id
-	for prefix in ["commodity_", "persistent_", "character_", "faction_"]:
-		if stripped.begins_with(prefix):
-			stripped = stripped.substr(prefix.length())
-			break
-
-	# Convert underscores to spaces and capitalize
-	var parts: Array = stripped.split("_")
-	var result: Array = []
-	for part in parts:
-		if part.length() > 0:
-			result.append(part.capitalize())
-	return PoolStringArray(result).join(" ")
+			return action

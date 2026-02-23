@@ -4,29 +4,30 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "character_juno"
-character_name = "Juno"
-character_icon_id = "character_juno_icon"
-faction_id = "faction_miners"
-credits = 500
+template_id = "character_siv"
+character_name = "Siv"
+character_icon_id = "character_siv_icon"
+faction_id = "faction_military"
+credits = 3000
 focus_points = 0
 active_ship_uid = -1
 skills = {
-"combat": 1,
+"combat": 3,
 "piloting": 2,
-"trading": 1
+"trading": 2
 }
-age = 22
-reputation = 10
+age = 38
+reputation = 50
 faction_standings = {
 }
 character_standings = {
 }
 personality_traits = {
-"risk_tolerance": 0.8,
-"greed": 0.7
+"risk_tolerance": 0.4,
+"loyalty": 0.9,
+"greed": 0.6
 }
-description = "Young prospector, ambitious."
+description = "Military supply officer, disciplined."
 goals = [ ]
 initial_condition_tag = "HEALTHY"
-initial_wealth_tag = "BROKE"
+initial_wealth_tag = "COMFORTABLE"

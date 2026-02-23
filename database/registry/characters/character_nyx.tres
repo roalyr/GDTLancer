@@ -4,29 +4,30 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "character_rex"
-character_name = "Rex"
-character_icon_id = "character_rex_icon"
-faction_id = "faction_independents"
-credits = 800
+template_id = "character_nyx"
+character_name = "Nyx"
+character_icon_id = "character_nyx_icon"
+faction_id = "faction_military"
+credits = 2500
 focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 4,
-"piloting": 5,
+"piloting": 3,
 "trading": 1
 }
-age = 28
-reputation = 20
+age = 34
+reputation = 55
 faction_standings = {
 }
 character_standings = {
 }
 personality_traits = {
-"risk_tolerance": 0.9,
-"loyalty": 0.2
+"risk_tolerance": 0.3,
+"loyalty": 0.8,
+"aggression": 0.4
 }
-description = "Freelancer pilot, risky."
+description = "Patrol officer, keeps order."
 goals = [ ]
 initial_condition_tag = "HEALTHY"
-initial_wealth_tag = "BROKE"
+initial_wealth_tag = "COMFORTABLE"

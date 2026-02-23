@@ -28,3 +28,5 @@ personality_traits = {
 }
 description = "Salvager, resourceful."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"

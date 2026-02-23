@@ -28,3 +28,5 @@ personality_traits = {
 }
 description = "Merchant captain, cautious."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "WEALTHY"

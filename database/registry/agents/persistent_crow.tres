@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "persistent_rex"
+template_id = "persistent_crow"
 agent_type = "npc"
 is_persistent = true
 home_location_id = "station_gamma"
-character_template_id = "character_rex"
+character_template_id = "character_crow"
 respawn_timeout_seconds = 300.0
-agent_role = "hauler"
-initial_tags = PoolStringArray( "HEALTHY", "BROKE", "EMPTY" )
+agent_role = "pirate"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )

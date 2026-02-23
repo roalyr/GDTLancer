@@ -10,3 +10,5 @@ is_persistent = true
 home_location_id = "station_alpha"
 character_template_id = "character_kai"
 respawn_timeout_seconds = 300.0
+agent_role = "hauler"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )

@@ -37,3 +37,7 @@ export var personality_traits: Dictionary = {} # e.g., {"risk_tolerance": 0.7, "
 export var description: String = "" # Lore/bio text
 export var goals: Array = [] # Current goals (for future Goal System integration)
 
+# --- Qualitative Simulation ---
+export var initial_condition_tag: String = "HEALTHY"
+export var initial_wealth_tag: String = "COMFORTABLE"
+

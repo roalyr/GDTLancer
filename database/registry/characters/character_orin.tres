@@ -4,29 +4,30 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "character_rex"
-character_name = "Rex"
-character_icon_id = "character_rex_icon"
-faction_id = "faction_independents"
-credits = 800
+template_id = "character_orin"
+character_name = "Orin"
+character_icon_id = "character_orin_icon"
+faction_id = "faction_traders"
+credits = 2000
 focus_points = 0
 active_ship_uid = -1
 skills = {
-"combat": 4,
-"piloting": 5,
-"trading": 1
+"combat": 1,
+"piloting": 3,
+"trading": 3
 }
-age = 28
-reputation = 20
+age = 45
+reputation = 40
 faction_standings = {
 }
 character_standings = {
 }
 personality_traits = {
-"risk_tolerance": 0.9,
-"loyalty": 0.2
+"risk_tolerance": 0.2,
+"greed": 0.3,
+"loyalty": 0.6
 }
-description = "Freelancer pilot, risky."
+description = "Bulk cargo hauler, reliable."
 goals = [ ]
 initial_condition_tag = "HEALTHY"
-initial_wealth_tag = "BROKE"
+initial_wealth_tag = "COMFORTABLE"

@@ -86,6 +86,7 @@ signal contact_met(agent_id) # Emitted when player first meets a Persistent Agen
 # --- Simulation Signals ---
 signal sim_tick_completed(tick_count)   # Emitted after full tick sequence completes
 signal sim_initialized(seed_string)    # Emitted after simulation is seeded and all layers initialized
+signal world_age_changed(new_age)      # Emitted when world-age transitions (PROSPERITY/DISRUPTION/RECOVERY)
 
 
 func _ready():

@@ -2,20 +2,19 @@
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.4 + TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-02-23
 #
 
 extends Node
 
-## Global Game State singleton — Four-Layer Simulation Data Store.
-## Structured as: World (static) → Grid (CA-driven) → Agents (cognitive) → Chronicle (events).
+## Global Game State singleton — Qualitative Tag Simulation Data Store.
 ## All simulation systems read/write through this singleton.
-## Conservation Axiom 1: world_total_matter must remain constant across ticks.
+## Pure data store. No logic. All fields default-initialized.
 
 
 # =========================================================================
-# === LAYER 1: WORLD (static, set at init, read-only at runtime) =========
+# === LAYER 1: WORLD (static topology, set at init) =====================
 # =========================================================================
 
 ## Sector connectivity graph. Key: sector_id (String).
@@ -23,90 +22,135 @@ extends Node
 var world_topology: Dictionary = {}
 
 ## Environmental hazards per sector. Key: sector_id (String).
-## Value: {radiation_level: float, thermal_background_k: float, gravity_well_penalty: float}
+## Value: {environment: String}
 var world_hazards: Dictionary = {}
 
-## Finite resource deposits per sector. Key: sector_id (String).
-## Value: {mineral_density: float, energy_potential: float, propellant_sources: float}
-var world_resource_potential: Dictionary = {}
+## World-level qualitative tags (derived from world_age).
+var world_tags: Array = []
 
-## Axiom 1 checksum — total matter in the universe, set at init, verified each tick.
-var world_total_matter: float = 0.0
+## World generation seed — determines all procedural content.
+var world_seed: String = ""
 
 
 # =========================================================================
-# === LAYER 2: GRID (dynamic, CA-driven, updated each tick) ==============
+# === LAYER 2: GRID (dynamic, tag-transition CA, updated each tick) ======
 # =========================================================================
-
-## Consumable resource supply levels per sector. Key: sector_id (String).
-## Value: {propellant_supply: float, consumables_supply: float, energy_supply: float}
-var grid_resource_availability: Dictionary = {}
 
 ## Faction control and security per sector. Key: sector_id (String).
-## Value: {faction_influence: Dictionary, security_level: float, pirate_activity: float}
+## Value: {controlling_faction_id: String, security_tag: String}
 var grid_dominion: Dictionary = {}
 
-## Market conditions per sector. Key: sector_id (String).
-## Value: {commodity_price_deltas: Dictionary, population_density: float, service_cost_modifier: float}
-var grid_market: Dictionary = {}
-
-## Commodity storage per sector. Key: sector_id (String).
-## Value: {commodity_stockpiles: Dictionary, stockpile_capacity: int, extraction_rate: Dictionary}
-var grid_stockpiles: Dictionary = {}
-
-## Wear and degradation rates per sector. Key: sector_id (String).
-## Value: {local_entropy_rate: float, maintenance_cost_modifier: float}
-var grid_maintenance: Dictionary = {}
-
-## Station power budget per sector. Key: sector_id (String).
-## Value: {station_power_output: float, station_power_draw: float, power_load_ratio: float}
-var grid_power: Dictionary = {}
-
-## Active wreck objects in the world. Key: wreck_uid (int).
-## Value: {sector_id: String, wreck_integrity: float, wreck_inventory: Dictionary,
-##         ship_template_id: String, created_at_tick: int}
-var grid_wrecks: Dictionary = {}
+## Qualitative tags per sector. Key: sector_id (String). Value: Array of String tags.
+var sector_tags: Dictionary = {}
 
 
 # =========================================================================
 # === LAYER 3: AGENTS (cognitive entities) ===============================
 # =========================================================================
 
-## All character instances. Key: char_uid (int), Value: CharacterTemplate instance.
+## All character data. Key: character_id (String), Value: character data Dictionary.
 var characters: Dictionary = {}
 
 ## All agent simulation state. Key: agent_id (String), Value: agent state Dictionary.
-## State dict keys:
-##   char_uid: int, current_sector_id: String, hull_integrity: float,
-##   propellant_reserves: float, energy_reserves: float, consumables_reserves: float,
-##   cash_reserves: float, fleet_ships: Array, current_heat_level: float,
-##   is_persistent: bool, home_location_id: String, is_disabled: bool,
-##   disabled_at_tick: int, known_grid_state: Dictionary, knowledge_timestamps: Dictionary,
-##   goal_queue: Array, goal_archetype: String, event_memory: Array,
-##   faction_standings: Dictionary, character_standings: Dictionary, sentiment_tags: Array
 var agents: Dictionary = {}
 
-## Per-character inventories. Key: char_uid (int), Value: inventory Dictionary.
-var inventories: Dictionary = {}
+## Derived agent tags (refreshed by BridgeSystems). Key: agent_id, Value: Array of tags.
+var agent_tags: Dictionary = {}
 
-## All ship instances. Key: ship_uid (int), Value: ShipTemplate instance.
-var assets_ships: Dictionary = {}
-
-## Defines which character is controlled by the player.
-var player_character_uid: int = -1
-
-## Hostile population tracking. Key: hostile_type_id (String).
-## Value: {current_count: int, carrying_capacity: int, sector_counts: Dictionary}
-var hostile_population_integral: Dictionary = {}
+## Player character identifier.
+var player_character_uid: String = ""
 
 
 # =========================================================================
-# === LAYER 4: CHRONICLE (event capture) =================================
+# === COLONY PROGRESSION =================================================
 # =========================================================================
 
-## Event buffer for the current/recent ticks. Array of Event Packet dicts.
-## Packet: {actor_uid, action_id, target_uid, target_sector_id, tick_count, outcome, metadata}
-var chronicle_event_buffer: Array = []
+## Colony level per sector. Key: sector_id, Value: String (frontier/outpost/colony/hub).
+var colony_levels: Dictionary = {}
+
+## Consecutive qualifying ticks toward colony upgrade. Key: sector_id, Value: int.
+var colony_upgrade_progress: Dictionary = {}
+
+## Consecutive bad ticks toward colony downgrade. Key: sector_id, Value: int.
+var colony_downgrade_progress: Dictionary = {}
+
+## History of colony level changes.
+var colony_level_history: Array = []
+
+
+# =========================================================================
+# === SECURITY PROGRESSION ===============================================
+# =========================================================================
+
+## Consecutive ticks of upgrade pressure per sector. Key: sector_id, Value: int.
+var security_upgrade_progress: Dictionary = {}
+
+## Consecutive ticks of downgrade pressure per sector. Key: sector_id, Value: int.
+var security_downgrade_progress: Dictionary = {}
+
+## Per-sector ticks required to shift security. Key: sector_id, Value: int.
+var security_change_threshold: Dictionary = {}
+
+
+# =========================================================================
+# === ECONOMY PROGRESSION ================================================
+# =========================================================================
+
+## Per-sector per-category upgrade progress. Key: sector_id, Value: {category: int}.
+var economy_upgrade_progress: Dictionary = {}
+
+## Per-sector per-category downgrade progress. Key: sector_id, Value: {category: int}.
+var economy_downgrade_progress: Dictionary = {}
+
+## Per-sector per-category change threshold. Key: sector_id, Value: {category: int}.
+var economy_change_threshold: Dictionary = {}
+
+
+# =========================================================================
+# === HOSTILE INFESTATION PROGRESSION ====================================
+# =========================================================================
+
+## Infestation build/clear progress per sector. Key: sector_id, Value: int.
+var hostile_infestation_progress: Dictionary = {}
+
+
+# =========================================================================
+# === CATASTROPHE + LIFECYCLE ============================================
+# =========================================================================
+
+## Log of catastrophe events.
+var catastrophe_log: Array = []
+
+## Sector disabled until tick N. Key: sector_id, Value: int (tick).
+var sector_disabled_until: Dictionary = {}
+
+## Counter for mortal agent IDs.
+var mortal_agent_counter: int = 0
+
+## Log of mortal agent deaths.
+var mortal_agent_deaths: Array = []
+
+
+# =========================================================================
+# === DISCOVERY ==========================================================
+# =========================================================================
+
+## Number of sectors discovered by exploration.
+var discovered_sector_count: int = 0
+
+## Log of discovery events.
+var discovery_log: Array = []
+
+## Display names for discovered sectors. Key: sector_id, Value: String.
+var sector_names: Dictionary = {}
+
+
+# =========================================================================
+# === CHRONICLE (event capture) ==========================================
+# =========================================================================
+
+## Rolling buffer of chronicle events. Array of event packet Dictionaries.
+var chronicle_events: Array = []
 
 ## Generated rumor strings derived from events.
 var chronicle_rumors: Array = []
@@ -119,11 +163,20 @@ var chronicle_rumors: Array = []
 ## Number of simulation ticks elapsed since world init.
 var sim_tick_count: int = 0
 
+## Sub-tick accumulator toward SUB_TICKS_PER_TICK.
+var sub_tick_accumulator: int = 0
+
+## Current world age (PROSPERITY / DISRUPTION / RECOVERY).
+var world_age: String = ""
+
+## Ticks remaining in current world age.
+var world_age_timer: int = 0
+
+## Number of complete world-age cycles.
+var world_age_cycle_count: int = 0
+
 ## Global time counter (seconds of game time).
 var game_time_seconds: int = 0
-
-## World generation seed — determines all procedural content.
-var world_seed: String = ""
 
 
 # =========================================================================
@@ -144,21 +197,66 @@ var player_rotation: Vector3 = Vector3.ZERO
 
 
 # =========================================================================
-# === LEGACY (kept for KEPT-system compatibility, will be pruned later) ==
+# === LEGACY (kept for KEPT-system compatibility) ========================
 # =========================================================================
 
-## Locations loaded from TemplateDatabase. Key: location_id, Value: LocationTemplate instance.
-## NOTE: Will be superseded by world_topology + world_hazards once WorldLayer initializer is built.
+## Locations loaded from TemplateDatabase.
 var locations: Dictionary = {}
 
-## Faction data loaded from TemplateDatabase. Key: faction_id, Value: FactionTemplate instance.
-## NOTE: Will feed into grid_dominion initialization once GridLayer is built.
+## Faction data loaded from TemplateDatabase.
 var factions: Dictionary = {}
 
-## Commodity master data. Key: commodity_id, Value: CommodityTemplate.
-## NOTE: Will feed into grid_stockpiles initialization.
+## Commodity master data.
 var assets_commodities: Dictionary = {}
 
-## Legacy alias — persistent_agents now lives in agents dict above.
-## Kept so agent_system.gd doesn't crash before its own rework task.
+## Legacy alias for agents dict.
 var persistent_agents: Dictionary = {}
+
+## Per-character inventories (legacy).
+var inventories: Dictionary = {}
+
+## All ship instances (legacy).
+var assets_ships: Dictionary = {}
+
+
+# =========================================================================
+# === RESET ===============================================================
+# =========================================================================
+
+## Resets all qualitative simulation fields to defaults.
+func reset_state() -> void:
+	world_topology.clear()
+	world_hazards.clear()
+	world_tags.clear()
+	world_seed = ""
+	grid_dominion.clear()
+	sector_tags.clear()
+	characters.clear()
+	agents.clear()
+	agent_tags.clear()
+	player_character_uid = ""
+	colony_levels.clear()
+	colony_upgrade_progress.clear()
+	colony_downgrade_progress.clear()
+	colony_level_history.clear()
+	security_upgrade_progress.clear()
+	security_downgrade_progress.clear()
+	security_change_threshold.clear()
+	economy_upgrade_progress.clear()
+	economy_downgrade_progress.clear()
+	economy_change_threshold.clear()
+	hostile_infestation_progress.clear()
+	catastrophe_log.clear()
+	sector_disabled_until.clear()
+	mortal_agent_counter = 0
+	mortal_agent_deaths.clear()
+	discovered_sector_count = 0
+	discovery_log.clear()
+	sector_names.clear()
+	chronicle_events.clear()
+	chronicle_rumors.clear()
+	sim_tick_count = 0
+	sub_tick_accumulator = 0
+	world_age = ""
+	world_age_timer = 0
+	world_age_cycle_count = 0

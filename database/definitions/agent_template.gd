@@ -18,4 +18,8 @@ export var home_location_id: String = "" # ID of the zone/station/base where thi
 export var character_template_id: String = "" # Link to the CharacterTemplate defining personality/dialogue
 export var respawn_timeout_seconds: float = 300.0 # Time in seconds before respawn after being disabled
 
+# --- Qualitative Simulation ---
+export var agent_role: String = "idle"
+export var initial_tags: PoolStringArray = PoolStringArray()
+
 var agent_uid: int = 0 # Assigned dynamically by agent spawner to link characters, ships, assets to specific agent in space.

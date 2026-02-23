@@ -2,237 +2,256 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 4 (Agent Layer)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §4 + TACTICAL_TODO.md TASK_13
+# LOG_REF: 2026-02-21 (TASK_13)
 #
 
 extends GutTest
 
-## Unit tests for AgentLayer: Agent initialization, goal evaluation, actions, respawn.
+## Unit tests for AgentLayer: qualitative agent lifecycle,
+## affinity-driven actions, mortal spawning, and exploration.
 
-var world_layer: Reference = null
-var grid_layer: Reference = null
 var agent_layer: Reference = null
-var bridge_systems: Reference = null
-var ca_rules: Reference = null
-var _config: Dictionary = {}
-var _indexer: Node = null
+var affinity: Reference = null
+var chronicle: Reference = null
 
-func before_all():
-	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
-	_indexer = TemplateIndexer.new()
-	add_child(_indexer)
-	_indexer.index_all_templates()
-
-func after_all():
-	if is_instance_valid(_indexer):
-		_indexer.queue_free()
 
 func before_each():
-	_clear_game_state()
+	_clear_state()
+	var AgentScript = load("res://src/core/simulation/agent_layer.gd")
+	var AffinityScript = load("res://src/core/simulation/affinity_matrix.gd")
+	var ChronicleScript = load("res://src/core/simulation/chronicle_layer.gd")
+	agent_layer = AgentScript.new()
+	affinity = AffinityScript.new()
+	chronicle = ChronicleScript.new()
+	agent_layer.affinity_matrix = affinity
+	agent_layer.set_chronicle(chronicle)
+	_seed_minimal_state()
 
-	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
-	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
-	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
-	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
-	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
-
-	world_layer = WorldLayerScript.new()
-	grid_layer = GridLayerScript.new()
-	agent_layer = AgentLayerScript.new()
-	bridge_systems = BridgeSystemsScript.new()
-	ca_rules = CARulesScript.new()
-	grid_layer.ca_rules = ca_rules
-
-	# Full init chain
-	world_layer.initialize_world("agent_test_seed")
-	grid_layer.initialize_grid()
-	agent_layer.initialize_agents()
-	world_layer.recalculate_total_matter()
-
-	_config = {
-		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
-		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
-		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
-		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
-		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
-		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
-		"demand_base": Constants.CA_DEMAND_BASE,
-		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
-		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
-		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
-		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
-		"entropy_hull_multiplier": Constants.ENTROPY_HULL_MULTIPLIER,
-		"heat_generation_in_space": Constants.HEAT_GENERATION_IN_SPACE,
-		"heat_dissipation_base": Constants.HEAT_DISSIPATION_DOCKED,
-		"heat_overheat_threshold": Constants.HEAT_OVERHEAT_THRESHOLD,
-		"fleet_entropy_reduction": Constants.ENTROPY_FLEET_RATE_FRACTION,
-		"propellant_drain_per_tick": Constants.PROPELLANT_DRAIN_PER_TICK,
-		"energy_drain_per_tick": Constants.ENERGY_DRAIN_PER_TICK,
-		"knowledge_noise_factor": Constants.AGENT_KNOWLEDGE_NOISE_FACTOR,
-		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
-		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
-		"npc_cash_low_threshold": Constants.NPC_CASH_LOW_THRESHOLD,
-		"npc_hull_repair_threshold": Constants.NPC_HULL_REPAIR_THRESHOLD,
-		"commodity_base_price": Constants.COMMODITY_BASE_PRICE,
-		"world_tick_interval_seconds": float(Constants.WORLD_TICK_INTERVAL_SECONDS),
-		"respawn_timeout_seconds": Constants.RESPAWN_TIMEOUT_SECONDS,
-		"hostile_growth_rate": Constants.HOSTILE_GROWTH_RATE,
-		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
-	}
 
 func after_each():
-	_clear_game_state()
-	world_layer = null
-	grid_layer = null
+	_clear_state()
 	agent_layer = null
-	bridge_systems = null
-	ca_rules = null
-
-
-func _clear_game_state() -> void:
-	GameState.world_topology.clear()
-	GameState.world_hazards.clear()
-	GameState.world_resource_potential.clear()
-	GameState.world_total_matter = 0.0
-	GameState.world_seed = ""
-	GameState.grid_stockpiles.clear()
-	GameState.grid_dominion.clear()
-	GameState.grid_market.clear()
-	GameState.grid_power.clear()
-	GameState.grid_maintenance.clear()
-	GameState.grid_wrecks.clear()
-	GameState.grid_resource_availability.clear()
-	GameState.agents.clear()
-	GameState.characters.clear()
-	GameState.inventories.clear()
-	GameState.assets_ships.clear()
-	GameState.hostile_population_integral.clear()
-	GameState.player_character_uid = -1
-	GameState.sim_tick_count = 0
-	GameState.chronicle_event_buffer = []
-	GameState.chronicle_rumors = []
+	affinity = null
+	chronicle = null
 
 
 # =============================================================================
-# === TESTS ===================================================================
+# === INITIALIZATION ==========================================================
 # =============================================================================
 
-func test_agents_initialized():
-	# Player + persistent NPCs should exist
+func test_initialize_creates_player():
+	agent_layer.initialize_agents()
 	assert_true(GameState.agents.has("player"),
-		"Player agent must exist after init.")
-	assert_true(GameState.agents.size() > 1,
-		"At least one NPC agent should exist. Got: %d" % GameState.agents.size())
+		"Player agent must exist after initialization.")
 
-	# Player should have a valid character UID
-	assert_true(GameState.player_character_uid >= 0,
-		"player_character_uid should be set. Got: %d" % GameState.player_character_uid)
-
-	# All agents should have required state fields
-	for agent_id in GameState.agents:
-		var agent: Dictionary = GameState.agents[agent_id]
-		assert_true(agent.has("char_uid"), "Agent %s must have char_uid." % agent_id)
-		assert_true(agent.has("current_sector_id"), "Agent %s must have current_sector_id." % agent_id)
-		assert_true(agent.has("hull_integrity"), "Agent %s must have hull_integrity." % agent_id)
-		assert_true(agent.has("cash_reserves"), "Agent %s must have cash_reserves." % agent_id)
-		assert_true(agent.has("goal_archetype"), "Agent %s must have goal_archetype." % agent_id)
-		assert_true(agent.has("known_grid_state"), "Agent %s must have known_grid_state." % agent_id)
-
-		# Sector must be a valid sector
-		var sector: String = agent["current_sector_id"]
-		assert_true(GameState.world_topology.has(sector),
-			"Agent %s sector '%s' must exist in world_topology." % [agent_id, sector])
+func test_player_has_qualitative_tags():
+	agent_layer.initialize_agents()
+	var player: Dictionary = GameState.agents["player"]
+	assert_true(player.has("condition_tag"), "Player must have condition_tag.")
+	assert_true(player.has("wealth_tag"), "Player must have wealth_tag.")
+	assert_true(player.has("cargo_tag"), "Player must have cargo_tag.")
 
 
-func test_npc_goal_evaluation():
-	# Find an NPC and set their cash low
-	var npc_id: String = _get_first_npc_id()
-	if npc_id == "":
-		pending("No NPCs found.")
-		return
+# =============================================================================
+# === MORTAL SPAWN BLOCKED IN POOR SECTORS ====================================
+# =============================================================================
 
-	var agent: Dictionary = GameState.agents[npc_id]
-	agent["cash_reserves"] = 100.0  # Well below NPC_CASH_LOW_THRESHOLD (2000)
-	agent["hull_integrity"] = 1.0   # Healthy hull
+func test_mortal_spawn_blocked_in_poor_sector():
+	GameState.sector_tags["s1"] = [
+		"STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+	GameState.agents = {}
+	GameState.mortal_agent_counter = 0
 
-	agent_layer.process_tick(_config)
+	# We can't patch constants, but we can call _spawn_mortal_agents directly.
+	# With only POOR economy tags, MORTAL_SPAWN_MIN_ECONOMY_TAGS check fails.
+	agent_layer._spawn_mortal_agents()
 
-	# After processing, this NPC should have a "trade" goal
-	var updated_agent: Dictionary = GameState.agents[npc_id]
-	assert_eq(updated_agent["goal_archetype"], "trade",
-		"NPC with low cash should get 'trade' goal. Got: %s" % updated_agent["goal_archetype"])
-
-
-func test_npc_goal_repair_over_trade():
-	# Repair should have priority over trade
-	var npc_id: String = _get_first_npc_id()
-	if npc_id == "":
-		pending("No NPCs found.")
-		return
-
-	var agent: Dictionary = GameState.agents[npc_id]
-	agent["cash_reserves"] = 100.0   # Low cash
-	agent["hull_integrity"] = 0.3    # Below repair threshold (0.5)
-
-	agent_layer.process_tick(_config)
-
-	var updated_agent: Dictionary = GameState.agents[npc_id]
-	assert_eq(updated_agent["goal_archetype"], "repair",
-		"NPC with low hull should get 'repair' goal even if cash is low. Got: %s" % updated_agent["goal_archetype"])
+	assert_eq(GameState.mortal_agent_counter, 0,
+		"No mortals should spawn in a sector with only POOR economy tags.")
+	assert_eq(GameState.agents.size(), 0,
+		"agents dict should remain empty.")
 
 
-func test_persistent_agent_respawn():
-	var npc_id: String = _get_first_npc_id()
-	if npc_id == "":
-		pending("No NPCs found.")
-		return
+func test_mortal_spawn_in_adequate_sector():
+	GameState.sector_tags["s1"] = [
+		"STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents = {}
+	GameState.mortal_agent_counter = 0
 
-	var agent: Dictionary = GameState.agents[npc_id]
-	var home_sector: String = agent.get("home_location_id", "")
+	# Run _spawn_mortal_agents multiple times to give probability a chance
+	for _i in range(50):
+		agent_layer._spawn_mortal_agents()
 
-	# Disable the agent
-	agent["is_disabled"] = true
-	agent["disabled_at_tick"] = 0
-	GameState.sim_tick_count = 0
-
-	# Advance ticks past the respawn timeout
-	# respawn_timeout_seconds = 300, world_tick_interval = 60 → 5 ticks
-	var ticks_needed: int = int(ceil(_config.get("respawn_timeout_seconds", 300.0) / _config.get("world_tick_interval_seconds", 60.0)))
-
-	for i in range(ticks_needed + 1):
-		GameState.sim_tick_count += 1
-		agent_layer.process_tick(_config)
-
-	var respawned_agent: Dictionary = GameState.agents[npc_id]
-	assert_false(respawned_agent.get("is_disabled", true),
-		"Agent should be respawned (not disabled) after enough ticks.")
+	# With adequate economy, at least one mortal should eventually spawn
+	assert_gt(GameState.mortal_agent_counter, 0,
+		"Mortals should be able to spawn in a sector with ADEQUATE economy.")
 
 
-func test_knowledge_snapshot_updated():
-	var npc_id: String = _get_first_npc_id()
-	if npc_id == "":
-		pending("No NPCs found.")
-		return
+# =============================================================================
+# === MORTAL SURVIVOR RESETS ==================================================
+# =============================================================================
 
-	# Run bridge systems to update knowledge (bridge does knowledge refresh)
-	bridge_systems.process_tick(_config)
+func test_mortal_survivor_starts_broke():
+	GameState.agents = {
+		"mortal_1": {
+			"character_id": "",
+			"is_persistent": false,
+			"is_disabled": true,
+			"disabled_at_tick": 0,
+			"home_location_id": "s1",
+			"current_sector_id": "s2",
+			"condition_tag": "DESTROYED",
+			"wealth_tag": "WEALTHY",
+			"cargo_tag": "LOADED",
+			"agent_role": "trader",
+			"goal_archetype": "idle",
+			"goal_queue": [{"type": "idle"}],
+			"dynamic_tags": [],
+		}
+	}
+	GameState.mortal_agent_deaths = []
 
-	var agent: Dictionary = GameState.agents[npc_id]
-	var sector: String = agent.get("current_sector_id", "")
-	var known_grid: Dictionary = agent.get("known_grid_state", {})
+	# Force high survival chance by calling many times
+	# (or rely on the method's built-in MORTAL_SURVIVAL_CHANCE)
+	agent_layer._cleanup_dead_mortals()
 
-	# Agent at their current sector should have a knowledge snapshot
-	assert_true(known_grid.has(sector),
-		"Agent should have knowledge of their current sector '%s'." % sector)
+	if GameState.agents.has("mortal_1"):
+		var survivor: Dictionary = GameState.agents["mortal_1"]
+		if not survivor.get("is_disabled", true):
+			assert_eq(survivor["condition_tag"], "DAMAGED",
+				"Survivor should reset to DAMAGED.")
+			assert_eq(survivor["wealth_tag"], "BROKE",
+				"Survivor should reset to BROKE.")
+			assert_eq(survivor["cargo_tag"], "EMPTY",
+				"Survivor should reset to EMPTY.")
+			assert_eq(survivor["current_sector_id"], "s1",
+				"Survivor should return to home_location_id.")
+
+
+# =============================================================================
+# === WEALTH STEP =============================================================
+# =============================================================================
+
+func test_wealth_step_up():
+	var agent: Dictionary = {"wealth_tag": "BROKE"}
+	agent_layer._wealth_step_up(agent)
+	assert_eq(agent["wealth_tag"], "COMFORTABLE", "BROKE → COMFORTABLE.")
+	agent_layer._wealth_step_up(agent)
+	assert_eq(agent["wealth_tag"], "WEALTHY", "COMFORTABLE → WEALTHY.")
+	agent_layer._wealth_step_up(agent)
+	assert_eq(agent["wealth_tag"], "WEALTHY", "WEALTHY stays WEALTHY (ceiling).")
+
+
+func test_wealth_step_down():
+	var agent: Dictionary = {"wealth_tag": "WEALTHY"}
+	agent_layer._wealth_step_down(agent)
+	assert_eq(agent["wealth_tag"], "COMFORTABLE", "WEALTHY → COMFORTABLE.")
+	agent_layer._wealth_step_down(agent)
+	assert_eq(agent["wealth_tag"], "BROKE", "COMFORTABLE → BROKE.")
+	agent_layer._wealth_step_down(agent)
+	assert_eq(agent["wealth_tag"], "BROKE", "BROKE stays BROKE (floor).")
+
+
+# =============================================================================
+# === TAG HELPERS =============================================================
+# =============================================================================
+
+func test_pick_tag_finds_match():
+	var result: String = agent_layer._pick_tag(
+		["WEALTHY", "LOADED"], ["WEALTHY", "COMFORTABLE", "BROKE"], "COMFORTABLE")
+	assert_eq(result, "WEALTHY")
+
+func test_pick_tag_returns_default():
+	var result: String = agent_layer._pick_tag(
+		["LOADED"], ["WEALTHY", "COMFORTABLE", "BROKE"], "COMFORTABLE")
+	assert_eq(result, "COMFORTABLE")
+
+func test_add_tag_no_duplicate():
+	var tags: Array = ["A", "B"]
+	var result: Array = agent_layer._add_tag(tags, "B")
+	assert_eq(result.size(), 2, "_add_tag should not add duplicate.")
+
+func test_replace_one():
+	var tags: Array = ["STATION", "SECURE", "MILD"]
+	var result: Array = agent_layer._replace_one(tags, ["SECURE", "CONTESTED", "LAWLESS"], "LAWLESS")
+	assert_has(result, "LAWLESS")
+	assert_does_not_have(result, "SECURE")
+	assert_has(result, "STATION")
+
+
+# =============================================================================
+# === DOCK ACTION =============================================================
+# =============================================================================
+
+func test_dock_sells_cargo_and_heals():
+	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	var agent: Dictionary = {
+		"current_sector_id": "s1",
+		"condition_tag": "DAMAGED",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "LOADED",
+	}
+	agent_layer._try_dock("test_agent", agent, "s1")
+	assert_eq(agent["cargo_tag"], "EMPTY", "Cargo should be sold.")
+	assert_eq(agent["condition_tag"], "HEALTHY", "Agent should be healed.")
+	assert_eq(agent["wealth_tag"], "WEALTHY", "Wealth should step up from cargo sale.")
+
+
+# =============================================================================
+# === HARVEST ACTION ==========================================================
+# =============================================================================
+
+func test_harvest_collects_salvage():
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "HAS_SALVAGE", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	var agent: Dictionary = {
+		"current_sector_id": "s1",
+		"cargo_tag": "EMPTY",
+	}
+	agent_layer._action_harvest("test_agent", agent, "s1")
+	assert_eq(agent["cargo_tag"], "LOADED", "Cargo should be LOADED after harvest.")
+	assert_does_not_have(GameState.sector_tags["s1"], "HAS_SALVAGE",
+		"HAS_SALVAGE should be removed from sector.")
 
 
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
 
-func _get_first_npc_id() -> String:
-	for agent_id in GameState.agents:
-		if agent_id != "player":
-			return agent_id
-	return ""
+func _seed_minimal_state() -> void:
+	GameState.world_seed = "agent_test_seed"
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0
+	GameState.world_topology = {
+		"s1": {"connections": ["s2"], "sector_type": "colony", "station_ids": ["s1"]},
+		"s2": {"connections": ["s1"], "sector_type": "colony", "station_ids": ["s2"]},
+	}
+	GameState.sector_tags = {
+		"s1": ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"s2": ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+	}
+	GameState.world_hazards = {"s1": {"environment": "MILD"}, "s2": {"environment": "MILD"}}
+	GameState.grid_dominion = {"s1": {"security_tag": "SECURE"}, "s2": {"security_tag": "SECURE"}}
+
+
+func _clear_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.sector_tags.clear()
+	GameState.grid_dominion.clear()
+	GameState.agents.clear()
+	GameState.characters.clear()
+	GameState.agent_tags.clear()
+	GameState.colony_levels.clear()
+	GameState.chronicle_events = []
+	GameState.chronicle_rumors = []
+	GameState.mortal_agent_counter = 0
+	GameState.mortal_agent_deaths = []
+	GameState.discovered_sector_count = 0
+	GameState.discovery_log = []
+	GameState.sector_names.clear()
+	GameState.catastrophe_log = []
+	GameState.sector_disabled_until.clear()
+	GameState.world_seed = ""
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0

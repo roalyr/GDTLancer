@@ -2,194 +2,188 @@
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 3 (Grid Layer)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_13
+# LOG_REF: 2026-02-21 (TASK_13)
 #
 
 extends GutTest
 
-## Unit tests for GridLayer: Dynamic grid state and CA processing.
+## Unit tests for GridLayer: qualitative CA tag-transition engine.
+## Ported from Python test_affinity.py::TestTagTransitionCA.
 
-var world_layer: Reference = null
-var grid_layer: Reference = null
-var ca_rules: Reference = null
-var _config: Dictionary = {}
-var _indexer: Node = null
+var grid: Reference = null
 
-func before_all():
-	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
-	_indexer = TemplateIndexer.new()
-	add_child(_indexer)
-	_indexer.index_all_templates()
-
-func after_all():
-	if is_instance_valid(_indexer):
-		_indexer.queue_free()
 
 func before_each():
-	_clear_game_state()
+	_clear_state()
+	var Script = load("res://src/core/simulation/grid_layer.gd")
+	grid = Script.new()
+	_seed_minimal_state()
 
-	var WorldLayerScript = load("res://src/core/simulation/world_layer.gd")
-	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
-	var CARulesScript = load("res://src/core/simulation/ca_rules.gd")
-
-	world_layer = WorldLayerScript.new()
-	grid_layer = GridLayerScript.new()
-	ca_rules = CARulesScript.new()
-	grid_layer.ca_rules = ca_rules
-
-	# Initialize world first (grid depends on it)
-	world_layer.initialize_world("grid_test_seed")
-
-	# Build a standard config
-	_config = {
-		"influence_propagation_rate": Constants.CA_INFLUENCE_PROPAGATION_RATE,
-		"pirate_activity_decay": Constants.CA_PIRATE_ACTIVITY_DECAY,
-		"pirate_activity_growth": Constants.CA_PIRATE_ACTIVITY_GROWTH,
-		"stockpile_diffusion_rate": Constants.CA_STOCKPILE_DIFFUSION_RATE,
-		"extraction_rate_default": Constants.CA_EXTRACTION_RATE_DEFAULT,
-		"price_sensitivity": Constants.CA_PRICE_SENSITIVITY,
-		"demand_base": Constants.CA_DEMAND_BASE,
-		"wreck_degradation_per_tick": Constants.WRECK_DEGRADATION_PER_TICK,
-		"wreck_debris_return_fraction": Constants.WRECK_DEBRIS_RETURN_FRACTION,
-		"entropy_radiation_multiplier": Constants.ENTROPY_RADIATION_MULTIPLIER,
-		"entropy_base_rate": Constants.ENTROPY_BASE_RATE,
-		"power_draw_per_agent": Constants.POWER_DRAW_PER_AGENT,
-		"power_draw_per_service": Constants.POWER_DRAW_PER_SERVICE,
-		"axiom1_tolerance": Constants.AXIOM1_TOLERANCE
-	}
 
 func after_each():
-	_clear_game_state()
-	world_layer = null
-	grid_layer = null
-	ca_rules = null
-
-
-func _clear_game_state() -> void:
-	GameState.world_topology.clear()
-	GameState.world_hazards.clear()
-	GameState.world_resource_potential.clear()
-	GameState.world_total_matter = 0.0
-	GameState.world_seed = ""
-	GameState.grid_stockpiles.clear()
-	GameState.grid_dominion.clear()
-	GameState.grid_market.clear()
-	GameState.grid_power.clear()
-	GameState.grid_maintenance.clear()
-	GameState.grid_wrecks.clear()
-	GameState.grid_resource_availability.clear()
-	GameState.agents.clear()
-	GameState.characters.clear()
-	GameState.inventories.clear()
-	GameState.sim_tick_count = 0
+	_clear_state()
+	grid = null
 
 
 # =============================================================================
 # === TESTS ===================================================================
 # =============================================================================
 
-func test_grid_initialization():
-	grid_layer.initialize_grid()
-
-	# Every sector should have grid state
+func test_initialize_grid_seeds_progress_counters():
+	grid.initialize_grid()
 	for sector_id in GameState.world_topology:
-		assert_true(GameState.grid_stockpiles.has(sector_id),
-			"Sector %s should have stockpiles after init." % sector_id)
-		assert_true(GameState.grid_dominion.has(sector_id),
-			"Sector %s should have dominion after init." % sector_id)
-		assert_true(GameState.grid_market.has(sector_id),
-			"Sector %s should have market after init." % sector_id)
-		assert_true(GameState.grid_power.has(sector_id),
-			"Sector %s should have power after init." % sector_id)
-		assert_true(GameState.grid_maintenance.has(sector_id),
-			"Sector %s should have maintenance after init." % sector_id)
-
-	# Stockpiles should have commodity_stockpiles dict
-	for sector_id in GameState.grid_stockpiles:
-		var stk: Dictionary = GameState.grid_stockpiles[sector_id]
-		assert_true(stk.has("commodity_stockpiles"),
-			"Stockpiles must have commodity_stockpiles key. Sector: %s" % sector_id)
-		assert_true(stk.has("stockpile_capacity"),
-			"Stockpiles must have stockpile_capacity key. Sector: %s" % sector_id)
+		assert_true(GameState.colony_levels.has(sector_id),
+			"colony_levels should be seeded for '%s'." % sector_id)
+		assert_true(GameState.economy_upgrade_progress.has(sector_id),
+			"economy_upgrade_progress should be seeded for '%s'." % sector_id)
+		assert_true(GameState.security_upgrade_progress.has(sector_id),
+			"security_upgrade_progress should be seeded for '%s'." % sector_id)
 
 
-func test_extraction_depletes_potential():
-	grid_layer.initialize_grid()
-	world_layer.recalculate_total_matter()
+func test_economy_transitions_require_sustained_pressure():
+	# Sector "a" is RAW_POOR. With a loaded trader present during RECOVERY,
+	# it should upgrade to RAW_ADEQUATE after threshold ticks.
+	GameState.world_age = "RECOVERY"
+	GameState.agents["trader_1"] = {
+		"current_sector_id": "a",
+		"agent_role": "trader",
+		"cargo_tag": "LOADED",
+		"is_disabled": false,
+	}
 
-	# Snapshot mineral density before tick
-	var first_sector: String = GameState.world_topology.keys()[0]
-	var mineral_before: float = GameState.world_resource_potential[first_sector].get("mineral_density", 0.0)
+	grid.initialize_grid()
 
-	# Run one tick
-	grid_layer.process_tick(_config)
+	# Force economy threshold to 3 for predictability
+	GameState.economy_change_threshold["a"] = {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3}
 
-	var mineral_after: float = GameState.world_resource_potential[first_sector].get("mineral_density", 0.0)
+	# Tick 1 & 2: should still be RAW_POOR (pressure accumulating)
+	grid.process_tick({})
+	assert_has(GameState.sector_tags["a"], "RAW_POOR",
+		"RAW_POOR should persist after 1 tick (threshold=3).")
 
-	if mineral_before > 0.0:
-		assert_true(mineral_after < mineral_before,
-			"Mineral density should decrease after extraction. Before: %f, After: %f" % [mineral_before, mineral_after])
-	else:
-		# If no minerals, density should remain 0
-		assert_almost_eq(mineral_after, 0.0, 0.001,
-			"Zero-mineral sectors should stay at 0.")
+	grid.process_tick({})
+	assert_has(GameState.sector_tags["a"], "RAW_POOR",
+		"RAW_POOR should persist after 2 ticks.")
 
-
-func test_stockpile_increases_from_extraction():
-	grid_layer.initialize_grid()
-	world_layer.recalculate_total_matter()
-
-	# Find a sector with mineral deposits
-	var target_sector: String = ""
-	for sector_id in GameState.world_resource_potential:
-		if GameState.world_resource_potential[sector_id].get("mineral_density", 0.0) > 0.0:
-			target_sector = sector_id
-			break
-
-	if target_sector == "":
-		# No minerals to extract — skip
-		pending("No sectors with mineral_density > 0 found.")
-		return
-
-	var ore_before: float = GameState.grid_stockpiles[target_sector].get("commodity_stockpiles", {}).get("ore", 0.0)
-
-	grid_layer.process_tick(_config)
-
-	var ore_after: float = GameState.grid_stockpiles[target_sector].get("commodity_stockpiles", {}).get("ore", 0.0)
-	assert_true(ore_after > ore_before,
-		"Ore stockpile should increase from extraction. Before: %f, After: %f" % [ore_before, ore_after])
+	# Tick 3: threshold reached, should upgrade
+	grid.process_tick({})
+	assert_has(GameState.sector_tags["a"], "RAW_ADEQUATE",
+		"RAW_POOR should upgrade to RAW_ADEQUATE after 3 ticks of pressure.")
+	assert_does_not_have(GameState.sector_tags["a"], "RAW_POOR",
+		"RAW_POOR tag should be removed after upgrade.")
 
 
-func test_price_reacts_to_supply():
-	grid_layer.initialize_grid()
-	world_layer.recalculate_total_matter()
+func test_security_only_one_tag_present():
+	grid.initialize_grid()
+	grid.process_tick({})
+	for sector_id in GameState.sector_tags:
+		var tags: Array = GameState.sector_tags[sector_id]
+		var security_count: int = 0
+		for tag in ["SECURE", "CONTESTED", "LAWLESS"]:
+			if tag in tags:
+				security_count += 1
+		assert_eq(security_count, 1,
+			"Sector '%s' should have exactly one security tag. Tags: %s" % [sector_id, str(tags)])
 
-	# Run one tick to generate initial market data
-	grid_layer.process_tick(_config)
 
-	var first_sector: String = GameState.world_topology.keys()[0]
-	var market_data: Dictionary = GameState.grid_market.get(first_sector, {})
+func test_hostile_infestation_builds_gradually():
+	GameState.world_age = "DISRUPTION"
+	GameState.sector_tags["a"] = ["STATION", "LAWLESS", "HARSH", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+	GameState.sector_tags["b"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+	GameState.agents["mil_1"]["is_disabled"] = true
 
-	# Market should have price deltas after processing
-	assert_true(market_data.has("commodity_price_deltas"),
-		"Market should have commodity_price_deltas after tick.")
+	grid.initialize_grid()
+	GameState.hostile_infestation_progress["b"] = 0
 
-	# Manually spike a stockpile and process again to see price react
-	var stk: Dictionary = GameState.grid_stockpiles.get(first_sector, {})
-	var commodities: Dictionary = stk.get("commodity_stockpiles", {})
-	if commodities.has("ore"):
-		var price_before: float = market_data.get("commodity_price_deltas", {}).get("ore", 0.0)
+	# Tick 1 & 2: not yet infested
+	grid.process_tick({})
+	assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
+		"HOSTILE_INFESTED should NOT appear after 1 tick.")
 
-		# Flood the sector with ore
-		commodities["ore"] = 900.0
-		stk["commodity_stockpiles"] = commodities
-		GameState.grid_stockpiles[first_sector] = stk
+	grid.process_tick({})
+	assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
+		"HOSTILE_INFESTED should NOT appear after 2 ticks.")
 
-		grid_layer.process_tick(_config)
+	# Tick 3: infestation threshold reached
+	grid.process_tick({})
+	assert_has(GameState.sector_tags["b"], "HOSTILE_INFESTED",
+		"HOSTILE_INFESTED should appear after 3 ticks of LAWLESS+HARSH.")
 
-		var new_market: Dictionary = GameState.grid_market.get(first_sector, {})
-		var price_after: float = new_market.get("commodity_price_deltas", {}).get("ore", 0.0)
 
-		assert_true(price_after < price_before,
-			"Price delta should decrease (go more negative) with high supply. Before: %f, After: %f" % [price_before, price_after])
+func test_colony_hub_maintenance_drains_economy():
+	# A hub with zero trade activity should see economy decay
+	_clear_state()
+	GameState.world_seed = "maint-seed"
+	GameState.world_age = "PROSPERITY"
+	GameState.world_topology = {
+		"hub_sector": {"connections": [], "sector_type": "hub", "station_ids": ["hub_sector"]},
+	}
+	GameState.sector_tags = {
+		"hub_sector": ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+	}
+	GameState.grid_dominion = {"hub_sector": {"security_tag": "SECURE"}}
+	GameState.world_hazards = {"hub_sector": {"environment": "MILD"}}
+	GameState.agents = {}
+
+	grid.initialize_grid()
+
+	# Force low economy thresholds
+	GameState.economy_change_threshold["hub_sector"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+	GameState.colony_levels["hub_sector"] = "hub"
+
+	for _i in range(10):
+		grid.process_tick({})
+
+	var tags: Array = GameState.sector_tags["hub_sector"]
+	assert_does_not_have(tags, "RAW_RICH",
+		"Hub with no trade should lose RAW_RICH over 10 ticks.")
+	assert_does_not_have(tags, "MANUFACTURED_RICH",
+		"Hub with no trade should lose MANUFACTURED_RICH.")
+	assert_does_not_have(tags, "CURRENCY_RICH",
+		"Hub with no trade should lose CURRENCY_RICH.")
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+func _seed_minimal_state() -> void:
+	GameState.world_seed = "grid_test_seed"
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0
+	GameState.world_topology = {
+		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
+	}
+	GameState.sector_tags = {
+		"a": ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"],
+		"b": ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+	}
+	GameState.grid_dominion = {"a": {"security_tag": "SECURE"}, "b": {"security_tag": "SECURE"}}
+	GameState.world_hazards = {"a": {"environment": "MILD"}, "b": {"environment": "MILD"}}
+	GameState.agents = {
+		"mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": false, "cargo_tag": "EMPTY"},
+		"pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": false, "cargo_tag": "EMPTY"},
+	}
+
+
+func _clear_state() -> void:
+	GameState.world_topology.clear()
+	GameState.world_hazards.clear()
+	GameState.sector_tags.clear()
+	GameState.grid_dominion.clear()
+	GameState.colony_levels.clear()
+	GameState.colony_upgrade_progress.clear()
+	GameState.colony_downgrade_progress.clear()
+	GameState.security_upgrade_progress.clear()
+	GameState.security_downgrade_progress.clear()
+	GameState.security_change_threshold.clear()
+	GameState.economy_upgrade_progress.clear()
+	GameState.economy_downgrade_progress.clear()
+	GameState.economy_change_threshold.clear()
+	GameState.hostile_infestation_progress.clear()
+	GameState.agents.clear()
+	GameState.world_seed = ""
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0

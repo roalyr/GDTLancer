@@ -92,50 +92,91 @@ const ORBIT_FULL_SPEED_RADIUS = 2000.0
 const TARGETING_RAY_LENGTH = 1e7
 
 # =============================================================================
-# === SIMULATION ENGINE =======================================================
+# === QUALITATIVE SIMULATION ==================================================
 # =============================================================================
 
-# --- Grid CA Parameters (Phase 1 stubs) ---
-const CA_INFLUENCE_PROPAGATION_RATE = 0.1
-const CA_PIRATE_ACTIVITY_DECAY = 0.02
-const CA_PIRATE_ACTIVITY_GROWTH = 0.05
-const CA_STOCKPILE_DIFFUSION_RATE = 0.05
-const CA_EXTRACTION_RATE_DEFAULT = 0.01
-const CA_PRICE_SENSITIVITY = 0.5
-const CA_DEMAND_BASE = 0.1
+# --- World Age Cycle ---
+const WORLD_AGE_CYCLE: Array = ["PROSPERITY", "DISRUPTION", "RECOVERY"]
+const WORLD_AGE_DURATIONS: Dictionary = {
+	"PROSPERITY": 150,
+	"DISRUPTION": 75,
+	"RECOVERY": 105,
+}
+const WORLD_AGE_CONFIGS: Dictionary = {
+	"PROSPERITY": {},
+	"DISRUPTION": {},
+	"RECOVERY": {},
+}
 
-# --- Wreck & Entropy ---
-const WRECK_DEGRADATION_PER_TICK = 0.05
-const WRECK_DEBRIS_RETURN_FRACTION = 0.8
-const ENTROPY_BASE_RATE = 0.001
-const ENTROPY_RADIATION_MULTIPLIER = 2.0
-const ENTROPY_FLEET_RATE_FRACTION = 0.5
+# --- Colony Structure ---
+const COLONY_LEVELS: Array = ["frontier", "outpost", "colony", "hub"]
+const COLONY_UPGRADE_TICKS_REQUIRED: int = 10
+const COLONY_DOWNGRADE_TICKS_REQUIRED: int = 12
+const COLONY_UPGRADE_REQUIRED_SECURITY: String = "SECURE"
+const COLONY_UPGRADE_REQUIRED_ECONOMY: Array = ["RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+const COLONY_DOWNGRADE_SECURITY_TRIGGER: String = "LAWLESS"
+const COLONY_DOWNGRADE_ECONOMY_TRIGGER: Array = ["RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+const COLONY_MINIMUM_LEVEL: String = "outpost"
 
-# --- Agent ---
-const AGENT_KNOWLEDGE_NOISE_FACTOR = 0.1
-const AGENT_RESPAWN_TICKS = 10
-const HOSTILE_BASE_CARRYING_CAPACITY = 5
+# --- Security Progression ---
+const SECURITY_CHANGE_TICKS_MIN: int = 3
+const SECURITY_CHANGE_TICKS_MAX: int = 6
 
-# --- Heat (Phase 1 stub) ---
-const HEAT_GENERATION_IN_SPACE = 0.01
-const HEAT_DISSIPATION_DOCKED = 1.0
-const HEAT_OVERHEAT_THRESHOLD = 0.8
+# --- Economy Progression ---
+const ECONOMY_UPGRADE_TICKS_REQUIRED: int = 3
+const ECONOMY_DOWNGRADE_TICKS_REQUIRED: int = 3
+const ECONOMY_CHANGE_TICKS_MIN: int = 2
+const ECONOMY_CHANGE_TICKS_MAX: int = 5
 
-# --- Power ---
-const POWER_DRAW_PER_AGENT = 5.0
-const POWER_DRAW_PER_SERVICE = 10.0
+# --- Hostile Infestation Progression ---
+const HOSTILE_INFESTATION_TICKS_REQUIRED: int = 3
 
-# --- Bridge Entropy Drains ---
-const ENTROPY_HULL_MULTIPLIER = 0.1
-const PROPELLANT_DRAIN_PER_TICK = 0.5
-const ENERGY_DRAIN_PER_TICK = 0.3
+# --- Affinity Thresholds ---
+const ATTACK_THRESHOLD: float = 1.5
+const TRADE_THRESHOLD: float = 0.5
+const FLEE_THRESHOLD: float = -1.0
 
-# --- Agent Decision Thresholds ---
-const NPC_CASH_LOW_THRESHOLD = 2000.0
-const NPC_HULL_REPAIR_THRESHOLD = 0.5
-const COMMODITY_BASE_PRICE = 10.0
-const RESPAWN_TIMEOUT_SECONDS = 300.0
-const HOSTILE_GROWTH_RATE = 0.05
+# --- Combat Cooldown ---
+const COMBAT_COOLDOWN_TICKS: int = 5
 
-# --- Axiom 1 ---
-const AXIOM1_TOLERANCE = 0.01
+# --- Agent Upkeep ---
+const AGENT_UPKEEP_CHANCE: float = 0.05
+const WEALTHY_DRAIN_CHANCE: float = 0.08
+const BROKE_RECOVERY_CHANCE: float = 0.15
+
+# --- Mortal Agent Lifecycle ---
+const MORTAL_GLOBAL_CAP: int = 200
+const MORTAL_SPAWN_REQUIRED_SECURITY: Array = ["SECURE", "CONTESTED", "LAWLESS"]
+const MORTAL_SPAWN_BLOCKED_SECTOR_TAGS: Array = ["DISABLED", "HOSTILE_INFESTED"]
+const MORTAL_SPAWN_MIN_ECONOMY_TAGS: Array = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]
+const MORTAL_SPAWN_CHANCE: float = 0.2
+const MORTAL_ROLES: Array = ["trader", "hauler", "prospector", "explorer", "pirate"]
+const MORTAL_SURVIVAL_CHANCE: float = 0.4
+const DISRUPTION_MORTAL_ATTRITION_CHANCE: float = 0.03
+
+# --- Structural Constants (caps / timeouts) ---
+const EVENT_BUFFER_CAP: int = 200
+const RUMOR_BUFFER_CAP: int = 200
+const RESPAWN_COOLDOWN_TICKS: int = 1
+const RESPAWN_COOLDOWN_MAX_DEBT: int = 25
+const MAX_SECTOR_COUNT: int = 20
+const EXPLORATION_COOLDOWN_TICKS: int = 10
+const EXPLORATION_SUCCESS_CHANCE: float = 0.1
+
+# --- Topology ---
+const MAX_CONNECTIONS_PER_SECTOR: int = 4
+const EXTRA_CONNECTION_1_CHANCE: float = 0.20
+const EXTRA_CONNECTION_2_CHANCE: float = 0.05
+const LOOP_MIN_HOPS: int = 3
+
+# --- Catastrophe ---
+const CATASTROPHE_CHANCE_PER_TICK: float = 0.005
+const CATASTROPHE_DISABLE_DURATION: int = 6
+const CATASTROPHE_MORTAL_KILL_CHANCE: float = 0.7
+
+# --- Sub-tick System ---
+const SUB_TICKS_PER_TICK: int = 10
+const SUBTICK_COST_SECTOR_TRAVEL: int = 10
+const SUBTICK_COST_DOCK: int = 3
+const SUBTICK_COST_UNDOCK: int = 2
+const SUBTICK_COST_DEEP_SPACE_EVENT: int = 5

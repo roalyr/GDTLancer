@@ -1,0 +1,47 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "station_delta"
+location_name = "Outpost Delta - Military Garrison"
+location_type = "station"
+position_in_zone = Vector3( 47000, 150, 800 )
+interaction_radius = 150.0
+connections = PoolStringArray( "station_beta", "station_gamma", "station_alpha" )
+sector_type = "colony"
+radiation_level = 0.02
+thermal_background_k = 295.0
+gravity_well_penalty = 1.1
+mineral_density = 0.6
+propellant_sources = 0.6
+station_power_output = 130.0
+stockpile_capacity = 1200
+market_inventory = {
+"commodity_ore": {
+"buy_price": 12,
+"sell_price": 9,
+"quantity": 100
+},
+"commodity_food": {
+"buy_price": 28,
+"sell_price": 22,
+"quantity": 60
+},
+"commodity_tech": {
+"buy_price": 75,
+"sell_price": 60,
+"quantity": 25
+},
+"commodity_fuel": {
+"buy_price": 22,
+"sell_price": 18,
+"quantity": 80
+}
+}
+available_services = [ "trade", "refuel", "repair", "contracts" ]
+controlling_faction_id = "faction_military"
+danger_level = 1
+available_contract_ids = [ ]
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )

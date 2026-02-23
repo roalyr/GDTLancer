@@ -2,16 +2,17 @@
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_12
+# LOG_REF: 2026-02-21 (TASK_12)
 #
 
 extends CanvasLayer
 
-## SimDebugPanel: Full text-only readout of all four simulation layers.
+## SimDebugPanel: Full text-only readout of qualitative simulation state.
 ##
 ## Toggle with F3. Reads directly from GameState each tick (via EventBus signal).
-## Shows World Layer, Grid Layer, Agent Layer, Chronicle, and Axiom 1 status.
+## Shows World Layer (topology + tags), Grid Layer (sector tags + colony levels),
+## Agent Layer (condition/wealth/cargo/goal tags), and Chronicle (events + rumors).
 ## Debug-only — not a gameplay UI element.
 
 
@@ -42,7 +43,6 @@ func _ready() -> void:
 	_panel.visible = false
 	EventBus.connect("world_event_tick_triggered", self, "_on_tick")
 	_btn_dump.connect("pressed", self, "_on_dump_pressed")
-	# Initial refresh if simulation is already running.
 	call_deferred("_refresh")
 
 
@@ -85,11 +85,22 @@ func _refresh() -> void:
 	var pt: String = ""   # Plain-text version for console dump
 
 	# --- Header ---
-	var header_line: String = "[TICK %d]  Seed: %s" % [GameState.sim_tick_count, GameState.world_seed]
+	var header_line: String = "[TICK %d]  Seed: %s  Age: %s (%d left)  Cycle: %d" % [
+		GameState.sim_tick_count,
+		GameState.world_seed,
+		GameState.world_age,
+		GameState.world_age_timer,
+		GameState.world_age_cycle_count,
+	]
 	bb += _bbcolor(header_line, "cyan") + "\n"
 	pt += header_line + "\n"
 
-	# --- World Layer ---
+	# World tags
+	var wt_line: String = "  World Tags: %s" % str(GameState.world_tags)
+	bb += wt_line + "\n"
+	pt += wt_line + "\n"
+
+	# --- World Layer (Topology) ---
 	bb += _section_header("WORLD LAYER")
 	pt += "\n--- WORLD LAYER ---\n"
 	if GameState.world_topology.empty():
@@ -97,77 +108,56 @@ func _refresh() -> void:
 		pt += "  (not initialized)\n"
 	else:
 		for sector_id in GameState.world_topology:
-			var topo = GameState.world_topology[sector_id]
-			var haz = GameState.world_hazards.get(sector_id, {})
-			var res = GameState.world_resource_potential.get(sector_id, {})
-			var sector_hdr: String = "  [%s]" % sector_id
-			bb += _bbcolor(sector_hdr, "white")
-			var line1: String = "  type=%s  conn=%s" % [
+			var topo: Dictionary = GameState.world_topology[sector_id]
+			var haz: Dictionary = GameState.world_hazards.get(sector_id, {})
+			var sector_name: String = GameState.sector_names.get(sector_id, sector_id)
+			var sector_hdr: String = "  [%s] %s" % [sector_id, sector_name if sector_name != sector_id else ""]
+			bb += _bbcolor(sector_hdr.strip_edges(), "white")
+			var line1: String = "  type=%s  conn=%s  env=%s" % [
 				str(topo.get("sector_type", "?")),
-				str(topo.get("connections", []))
+				str(topo.get("connections", [])),
+				str(haz.get("environment", "?"))
 			]
-			var line2: String = "    rad=%.3f  thermal=%.0fK  grav=%.2f" % [
-				haz.get("radiation_level", 0.0),
-				haz.get("thermal_background_k", 0.0),
-				haz.get("gravity_well_penalty", 0.0)
-			]
-			var line3: String = "    mineral=%.3f  propellant=%.3f" % [
-				res.get("mineral_density", 0.0),
-				res.get("propellant_sources", 0.0)
-			]
-			bb += line1 + "\n" + line2 + "\n" + line3 + "\n"
-			pt += sector_hdr + line1 + "\n" + line2 + "\n" + line3 + "\n"
+			bb += line1 + "\n"
+			pt += sector_hdr.strip_edges() + line1 + "\n"
 
-	# --- Grid Layer ---
+	# --- Grid Layer (Tags + Colony) ---
 	bb += _section_header("GRID LAYER")
 	pt += "\n--- GRID LAYER ---\n"
-	if GameState.grid_stockpiles.empty():
+	if GameState.sector_tags.empty():
 		bb += "  (not initialized)\n"
 		pt += "  (not initialized)\n"
 	else:
-		for sector_id in GameState.grid_stockpiles:
-			var stk = GameState.grid_stockpiles.get(sector_id, {})
-			var dom = GameState.grid_dominion.get(sector_id, {})
-			var mkt = GameState.grid_market.get(sector_id, {})
-			var pwr = GameState.grid_power.get(sector_id, {})
-			var mnt = GameState.grid_maintenance.get(sector_id, {})
+		for sector_id in GameState.sector_tags:
+			var tags: Array = GameState.sector_tags.get(sector_id, [])
+			var colony_level: String = GameState.colony_levels.get(sector_id, "?")
+			var dom: Dictionary = GameState.grid_dominion.get(sector_id, {})
+			var security: String = dom.get("security_tag", "?")
+			var disabled_until = GameState.sector_disabled_until.get(sector_id, 0)
+			var is_disabled: bool = disabled_until > GameState.sim_tick_count if disabled_until is int else false
 
 			var sector_hdr: String = "  [%s]" % sector_id
 			bb += _bbcolor(sector_hdr, "white")
-
-			# Stockpiles — compact: only show named commodities (strip commodity_ prefix)
-			var stockpile_dict = stk.get("commodity_stockpiles", {})
-			var stk_parts: Array = []
-			for cid in stockpile_dict:
-				var short_id: String = cid.replace("commodity_", "")
-				stk_parts.append("%s:%.0f" % [short_id, stockpile_dict[cid]])
-			var stk_line: String = " stk={%s}" % PoolStringArray(stk_parts).join(",")
-			bb += stk_line + "\n"
-
-			# Dominion + security (one compact line)
-			var inf_dict = dom.get("faction_influence", {})
-			var top_faction: String = ""
-			var top_inf: float = 0.0
-			for fid in inf_dict:
-				if inf_dict[fid] > top_inf:
-					top_inf = inf_dict[fid]
-					top_faction = fid.replace("faction_", "")
-			var dom_line: String = "    dom=%s(%.2f) sec=%.2f pir=%.3f pwr=%.2f ent=%.4f" % [
-				top_faction, top_inf,
-				dom.get("security_level", 0.0),
-				dom.get("pirate_activity", 0.0),
-				pwr.get("power_load_ratio", 0.0),
-				mnt.get("local_entropy_rate", 0.0)
+			var line1: String = " colony=%s  security=%s%s" % [
+				colony_level,
+				security,
+				"  DISABLED(until T%d)" % disabled_until if is_disabled else "",
 			]
-			bb += dom_line + "\n"
+			var line2: String = "    tags=%s" % str(tags)
+			bb += line1 + "\n" + line2 + "\n"
+			pt += sector_hdr + line1 + "\n" + line2 + "\n"
 
-			pt += sector_hdr + stk_line + "\n" + dom_line + "\n"
+		# Catastrophe log
+		if not GameState.catastrophe_log.empty():
+			var cat_header: String = "  Catastrophes: %d" % GameState.catastrophe_log.size()
+			bb += _bbcolor(cat_header, "red") + "\n"
+			pt += cat_header + "\n"
 
-		# Wrecks
-		var wreck_count: int = GameState.grid_wrecks.size()
-		var wreck_line: String = "  Wrecks: %d" % wreck_count
-		bb += wreck_line + "\n"
-		pt += wreck_line + "\n"
+		# Discovery count
+		var disc_line: String = "  Discovered sectors: %d / %d" % [
+			GameState.discovered_sector_count, Constants.MAX_SECTOR_COUNT]
+		bb += disc_line + "\n"
+		pt += disc_line + "\n"
 
 	# --- Agent Layer ---
 	bb += _section_header("AGENT LAYER")
@@ -176,54 +166,68 @@ func _refresh() -> void:
 		bb += "  (not initialized)\n"
 		pt += "  (not initialized)\n"
 	else:
+		var persistent_count: int = 0
+		var mortal_count: int = 0
+		var disabled_count: int = 0
 		for agent_id in GameState.agents:
-			var a = GameState.agents[agent_id]
-			var char_uid = a.get("char_uid", -1)
-			var char_name: String = _get_character_name(char_uid)
+			var a: Dictionary = GameState.agents[agent_id]
+			if a.get("is_persistent", false):
+				persistent_count += 1
+			else:
+				mortal_count += 1
+			if a.get("is_disabled", false):
+				disabled_count += 1
+
+		var summary_line: String = "  Total: %d  (persistent=%d, mortal=%d, disabled=%d)" % [
+			GameState.agents.size(), persistent_count, mortal_count, disabled_count]
+		bb += summary_line + "\n"
+		pt += summary_line + "\n"
+
+		for agent_id in GameState.agents:
+			var a: Dictionary = GameState.agents[agent_id]
+			var char_id: String = str(a.get("character_id", ""))
+			var char_name: String = _get_character_name(char_id)
+			var is_player: bool = (agent_id == "player")
 			var disabled_tag: String = " [DISABLED]" if a.get("is_disabled", false) else ""
-			var is_player: bool = (char_uid == GameState.player_character_uid)
 			var name_color: String = "green" if is_player else "white"
-			var agent_line: String = "  %s%s  sector=%s  hull=%.0f%%  cash=%.0f  goal=%s%s" % [
+
+			var agent_line: String = "  %s%s  role=%s  sector=%s  cond=%s  wealth=%s  cargo=%s  goal=%s%s" % [
 				char_name,
 				" (PLAYER)" if is_player else "",
+				str(a.get("agent_role", "?")),
 				str(a.get("current_sector_id", "?")),
-				a.get("hull_integrity", 0.0) * 100.0,
-				a.get("cash_reserves", 0.0),
+				str(a.get("condition_tag", "?")),
+				str(a.get("wealth_tag", "?")),
+				str(a.get("cargo_tag", "?")),
 				str(a.get("goal_archetype", "none")),
 				disabled_tag
 			]
-			# BBCode version uses color for player name
-			var agent_line_bb: String = "  %s%s  sector=%s  hull=%.0f%%  cash=%.0f  goal=%s%s" % [
+			var agent_line_bb: String = "  %s%s  role=%s  sector=%s  cond=%s  wealth=%s  cargo=%s  goal=%s%s" % [
 				_bbcolor(char_name, name_color),
 				" (PLAYER)" if is_player else "",
+				str(a.get("agent_role", "?")),
 				str(a.get("current_sector_id", "?")),
-				a.get("hull_integrity", 0.0) * 100.0,
-				a.get("cash_reserves", 0.0),
+				str(a.get("condition_tag", "?")),
+				str(a.get("wealth_tag", "?")),
+				str(a.get("cargo_tag", "?")),
 				str(a.get("goal_archetype", "none")),
 				disabled_tag
 			]
 			bb += agent_line_bb + "\n"
 			pt += agent_line + "\n"
 
-		# Hostile population
-		if not GameState.hostile_population_integral.empty():
-			bb += _bbcolor("  Hostile Population:\n", "red")
-			pt += "  Hostile Population:\n"
-			for htype in GameState.hostile_population_integral:
-				var hdata = GameState.hostile_population_integral[htype]
-				var hline: String = "    %s: count=%d  cap=%d" % [
-					htype,
-					hdata.get("current_count", 0),
-					hdata.get("carrying_capacity", 0)
-				]
-				bb += hline + "\n"
-				pt += hline + "\n"
+		# Mortal deaths summary
+		var deaths: int = GameState.mortal_agent_deaths.size()
+		if deaths > 0:
+			var death_line: String = "  Mortal deaths (total): %d" % deaths
+			bb += _bbcolor(death_line, "red") + "\n"
+			pt += death_line + "\n"
 
 	# --- Chronicle ---
 	bb += _section_header("CHRONICLE")
 	pt += "\n--- CHRONICLE ---\n"
 	# Last 5 events
-	var events = GameState.chronicle_event_buffer
+	var events: Array = GameState.chronicle_events
 	var event_start: int = max(0, events.size() - 5)
 	if events.empty():
 		bb += "  Events: (none)\n"
@@ -233,43 +237,33 @@ func _refresh() -> void:
 		bb += ev_header + "\n"
 		pt += ev_header + "\n"
 		for i in range(event_start, events.size()):
-			var ev = events[i]
-			var evline: String = "    T%d %s %s@%s=%s" % [
-				ev.get("tick_count", 0),
-				_get_character_name_by_agent(ev.get("actor_uid", "")),
-				str(ev.get("action_id", "?")),
-				str(ev.get("target_sector_id", "?")),
-				str(ev.get("outcome", "?"))
+			var ev: Dictionary = events[i]
+			var meta: Dictionary = ev.get("metadata", {})
+			var meta_str: String = ""
+			for key in meta:
+				meta_str += " %s=%s" % [key, str(meta[key])]
+			var evline: String = "    T%d %s %s@%s%s" % [
+				ev.get("tick", 0),
+				str(ev.get("actor_id", "?")),
+				str(ev.get("action", "?")),
+				str(ev.get("sector_id", "?")),
+				meta_str,
 			]
 			bb += evline + "\n"
 			pt += evline + "\n"
+
 	# Last 3 rumors
-	var rumors = GameState.chronicle_rumors
+	var rumors: Array = GameState.chronicle_rumors
 	var rumor_start: int = max(0, rumors.size() - 3)
 	if not rumors.empty():
 		bb += "  Rumors:\n"
 		pt += "  Rumors:\n"
 		for i in range(rumor_start, rumors.size()):
-			var rline: String = "    \"%s\"" % str(rumors[i])
+			var r = rumors[i]
+			var rstr: String = str(r.get("text", r)) if r is Dictionary else str(r)
+			var rline: String = "    \"%s\"" % rstr
 			bb += rline + "\n"
 			pt += rline + "\n"
-
-	# --- Axiom 1 Check ---
-	bb += _section_header("AXIOM 1 CHECK")
-	pt += "\n--- AXIOM 1 CHECK ---\n"
-	var expected: float = GameState.world_total_matter
-	var actual: float = _calculate_actual_matter()
-	var drift: float = abs(actual - expected)
-	var tolerance: float = Constants.AXIOM1_TOLERANCE
-	var status: String = "PASS" if drift <= tolerance else "FAIL"
-	var status_color: String = "green" if status == "PASS" else "red"
-	var a1_line1: String = "  Expected: %.4f" % expected
-	var a1_line2: String = "  Actual:   %.4f" % actual
-	var a1_line3: String = "  Drift:    %.6f  (tol=%.4f)" % [drift, tolerance]
-	var a1_line4: String = "  Status:   %s" % status
-	bb += a1_line1 + "\n" + a1_line2 + "\n" + a1_line3 + "\n"
-	bb += "  Status:   %s\n" % _bbcolor(status, status_color)
-	pt += a1_line1 + "\n" + a1_line2 + "\n" + a1_line3 + "\n" + a1_line4 + "\n"
 
 	# Cache and apply
 	_last_plain_text = pt
@@ -279,7 +273,7 @@ func _refresh() -> void:
 
 ## Dumps the current panel contents to stdout as plain text.
 func _on_dump_pressed() -> void:
-	_refresh()  # Ensure latest data
+	_refresh()
 	print("\n========== SIM DEBUG DUMP (Tick %d) ==========" % GameState.sim_tick_count)
 	print(_last_plain_text)
 	print("========== END SIM DEBUG DUMP ==========")
@@ -299,59 +293,14 @@ func _section_header(title: String) -> String:
 	return "\n" + _bbcolor("--- %s ---" % title, "yellow") + "\n"
 
 
-## Looks up character_name from GameState.characters by uid.
-func _get_character_name(char_uid: int) -> String:
-	if GameState.characters.has(char_uid):
-		var c = GameState.characters[char_uid]
+## Looks up character_name from GameState.characters by id.
+func _get_character_name(char_id: String) -> String:
+	if char_id == "" or char_id == "null":
+		return "(unnamed)"
+	if GameState.characters.has(char_id):
+		var c = GameState.characters[char_id]
 		if c is Resource and c.get("character_name"):
 			return c.character_name
 		elif c is Dictionary and c.has("character_name"):
 			return c["character_name"]
-	return "UID:%d" % char_uid
-
-
-## Looks up character name via agent_id → agent state → char_uid.
-func _get_character_name_by_agent(agent_id) -> String:
-	if GameState.agents.has(agent_id):
-		var a = GameState.agents[agent_id]
-		return _get_character_name(a.get("char_uid", -1))
-	return str(agent_id)
-
-
-## Calculates actual total matter across all four conservation pools.
-## Must match the formula in simulation_engine.gd verify_matter_conservation().
-func _calculate_actual_matter() -> float:
-	var total: float = 0.0
-
-	# Pool 1: World resource potential
-	for sector_id in GameState.world_resource_potential:
-		var res = GameState.world_resource_potential[sector_id]
-		total += res.get("mineral_density", 0.0)
-		total += res.get("propellant_sources", 0.0)
-
-	# Pool 2: Grid stockpiles
-	for sector_id in GameState.grid_stockpiles:
-		var stk = GameState.grid_stockpiles[sector_id]
-		var commodities = stk.get("commodity_stockpiles", {})
-		for cid in commodities:
-			total += commodities[cid]
-
-	# Pool 3: Agent inventories
-	for char_uid in GameState.inventories:
-		var inv = GameState.inventories[char_uid]
-		if inv is Dictionary:
-			for item_id in inv:
-				var item = inv[item_id]
-				if item is Dictionary:
-					total += item.get("quantity", 0.0)
-				else:
-					total += float(item)
-
-	# Pool 4: Wreck inventories
-	for wid in GameState.grid_wrecks:
-		var w = GameState.grid_wrecks[wid]
-		var winv = w.get("wreck_inventory", {})
-		for cid in winv:
-			total += winv[cid]
-
-	return total
+	return char_id

@@ -55,5 +55,12 @@ export var controlling_faction_id: String = ""
 # --- Danger (legacy, superseded by grid_dominion.pirate_activity) ---
 export var danger_level: int = 0
 
+# --- Qualitative Simulation ---
+## Initial sector tags for qualitative tag simulation.
+export var initial_sector_tags: PoolStringArray = PoolStringArray()
+
+# --- Contracts (legacy) ---
+export var available_contract_ids: Array = []
+
 # --- Contracts (legacy, will be rebuilt on Agent layer) ---
 export var available_contract_ids: Array = []
