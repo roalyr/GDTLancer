@@ -79,8 +79,8 @@ func _ready():
 		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
 			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
 
-		if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
-			EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
+		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
+			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
 
 		if EventBus.has_signal("game_time_advanced") and not EventBus.is_connected("game_time_advanced", self, "_on_game_time_advanced"):
 			EventBus.connect("game_time_advanced", self, "_on_game_time_advanced")
@@ -258,7 +258,7 @@ func _refresh_time_display() -> void:
 	label_time.text = "Time: " + time_str
 
 
-func _on_world_event_tick_triggered(_seconds_amount: int = 0) -> void:
+func _on_sim_tick_completed(_tick_count: int = 0) -> void:
 	_refresh_time_display()
 	_refresh_player_resources()
 

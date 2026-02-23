@@ -1,15 +1,15 @@
-## EventSystem manages combat encounter generation and tracking.
-## Handles encounter triggering with cooldown, hostile spawning, and combat state management.
+## EventSystem: Combat tracking and encounter management (DISABLED — random spawns removed).
+##
+## Random encounter spawning is disabled. All NPCs come from the simulation.
+## This system still tracks active hostiles and emits combat_initiated / combat_ended
+## signals. The force_encounter() debug API remains available for testing.
 extends Node
 
-# --- Configuration ---
-const ENCOUNTER_COOLDOWN_SECONDS: int = 5
-const BASE_ENCOUNTER_CHANCE: float = 0.30
+# --- Configuration (kept for future simulation-driven encounters) ---
 const SPAWN_DISTANCE_MIN: float = 600.0
 const SPAWN_DISTANCE_MAX: float = 1000.0
 
 # --- State ---
-var _encounter_cooldown_seconds: int = 0
 var _active_hostiles: Array = []
 
 
@@ -18,27 +18,10 @@ func _ready() -> void:
 	GlobalRefs.set_event_system(self)
 
 	if EventBus:
-		EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
 		EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 		EventBus.connect("agent_despawning", self, "_on_agent_despawning")
+
 	print("EventSystem Ready.")
-
-
-## Processes world event ticks and manages encounter cooldown.
-## Decrements cooldown, potentially triggers encounters if conditions are met.
-func _on_world_event_tick_triggered(delta_seconds: int) -> void:
-	if delta_seconds <= 0:
-		return
-
-	_encounter_cooldown_seconds = int(max(0, _encounter_cooldown_seconds - delta_seconds))
-	_prune_invalid_hostiles()
-
-	if _encounter_cooldown_seconds > 0:
-		return
-	if not _active_hostiles.empty():
-		return
-
-	_maybe_trigger_encounter()
 
 
 ## Handles agent disabled signal; removes from active hostiles and checks for combat end.
@@ -56,21 +39,12 @@ func _on_agent_despawning(agent_body: Node) -> void:
 
 
 
-## Determines whether to trigger an encounter based on danger level and probability.
-## Rolls against BASE_ENCOUNTER_CHANCE and spawns hostiles if successful.
-func _maybe_trigger_encounter() -> void:
-	var danger_level: float = _get_current_danger_level()
-	var chance: float = clamp(BASE_ENCOUNTER_CHANCE * danger_level, 0.0, 1.0)
-
-	if randf() > chance:
-		_encounter_cooldown_seconds = ENCOUNTER_COOLDOWN_SECONDS
-		return
-
-	_spawn_hostile_encounter()
-	_encounter_cooldown_seconds = ENCOUNTER_COOLDOWN_SECONDS * 2
-
+## NOTE: Random encounter spawning is disabled. These methods are kept for
+## future simulation-driven encounters where the simulation decides when/where
+## hostiles appear, and this system handles the physical spawning.
 
 ## Spawns hostile NPCs at calculated positions and emits combat_initiated signal.
+## Currently only callable via force_encounter() for debug.
 func _spawn_hostile_encounter() -> void:
 	var player: Node = GlobalRefs.player_agent_body
 	if not is_instance_valid(player):
@@ -112,12 +86,6 @@ func _calculate_spawn_position(player_pos: Vector3) -> Vector3:
 	return player_pos + offset
 
 
-## Gets current danger level based on game state.
-## Returns: float between 0 and 1 affecting encounter chance
-func _get_current_danger_level() -> float:
-	return 1.0
-
-
 ## Checks if all hostiles are defeated and emits combat_ended signal if so.
 func _check_combat_end() -> void:
 	_prune_invalid_hostiles()
@@ -147,7 +115,6 @@ func get_active_hostiles() -> Array:
 
 ## Immediately forces an encounter to spawn (for testing/debugging).
 func force_encounter() -> void:
-	_encounter_cooldown_seconds = 0
 	_spawn_hostile_encounter()
 
 
@@ -162,8 +129,6 @@ func _notification(what: int) -> void:
 		if GlobalRefs and GlobalRefs.event_system == self:
 			GlobalRefs.event_system = null
 		if EventBus:
-			if EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
-				EventBus.disconnect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
 			if EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 				EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
 			if EventBus.is_connected("agent_despawning", self, "_on_agent_despawning"):

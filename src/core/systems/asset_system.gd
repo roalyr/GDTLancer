@@ -30,17 +30,20 @@ func get_player_ship() -> ShipTemplate:
 
 
 # Gets the active ship for any character by their UID.
-func get_ship_for_character(character_uid: int) -> ShipTemplate:
+# Accepts both int and String character_uid (handles type coexistence
+# between WorldGenerator int-keyed and simulation String-keyed entries).
+func get_ship_for_character(character_uid) -> ShipTemplate:
 	if not GameState.characters.has(character_uid):
 		return null
-	
+
 	var character = GameState.characters[character_uid]
 	if not is_instance_valid(character):
 		return null
-	
-	if character.active_ship_uid != -1:
-		return get_ship(character.active_ship_uid)
-	
+
+	var ship_uid = character.get("active_ship_uid") if character is Dictionary else character.active_ship_uid
+	if ship_uid != null and ship_uid != -1:
+		return get_ship(ship_uid)
+
 	return null
 
 

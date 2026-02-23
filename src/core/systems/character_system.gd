@@ -21,26 +21,26 @@ func _ready():
 
 
 # Retrieves a character instance from the GameState.
-func get_character(character_uid: int) -> CharacterTemplate:
+func get_character(character_uid) -> CharacterTemplate:
 	return GameState.characters.get(character_uid)
 
 
 # Convenience function to get the player's character instance.
 func get_player_character() -> CharacterTemplate:
-	if GameState.player_character_uid != -1:
+	if GameState.player_character_uid != "":
 		return GameState.characters.get(GameState.player_character_uid)
 	return null
 
 
 # Convenience function to get the player's UID.
-func get_player_character_uid() -> int:
+func get_player_character_uid() -> String:
 	return GameState.player_character_uid
 
 
 # --- Stat Modification API (Operates on GameState) ---
 
 
-func add_credits(character_uid: int, amount: int):
+func add_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].credits += amount
 		# If this change was for the player, announce it.
@@ -48,7 +48,7 @@ func add_credits(character_uid: int, amount: int):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
-func subtract_credits(character_uid: int, amount: int):
+func subtract_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].credits -= amount
 		# If this change was for the player, announce it.
@@ -56,13 +56,13 @@ func subtract_credits(character_uid: int, amount: int):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
-func get_credits(character_uid: int) -> int:
+func get_credits(character_uid) -> int:
 	if GameState.characters.has(character_uid):
 		return GameState.characters[character_uid].credits
 	return 0
 
 
-func add_fp(character_uid: int, amount: int):
+func add_fp(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		var character = GameState.characters[character_uid]
 		character.focus_points += amount
@@ -72,7 +72,7 @@ func add_fp(character_uid: int, amount: int):
 			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
-func subtract_fp(character_uid: int, amount: int):
+func subtract_fp(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		var character = GameState.characters[character_uid]
 		character.focus_points -= amount
@@ -82,20 +82,20 @@ func subtract_fp(character_uid: int, amount: int):
 			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
-func get_fp(character_uid: int) -> int:
+func get_fp(character_uid) -> int:
 	if GameState.characters.has(character_uid):
 		return GameState.characters[character_uid].focus_points
 	return 0
 
 
-func get_skill_level(character_uid: int, skill_name: String) -> int:
+func get_skill_level(character_uid, skill_name: String) -> int:
 	if GameState.characters.has(character_uid):
 		if GameState.characters[character_uid].skills.has(skill_name):
 			return GameState.characters[character_uid].skills[skill_name]
 	return 0
 
 
-func apply_upkeep_cost(character_uid: int, cost: int):
+func apply_upkeep_cost(character_uid, cost: int):
 	subtract_credits(character_uid, cost)
 
 # NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.

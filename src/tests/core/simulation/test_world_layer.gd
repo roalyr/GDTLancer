@@ -17,6 +17,7 @@ const TEST_SEED: String = "world_test_seed"
 
 func before_each():
 	_clear_state()
+	_seed_template_database()
 	var Script = load("res://src/core/simulation/world_layer.gd")
 	world_layer = Script.new()
 
@@ -73,3 +74,19 @@ func _clear_state() -> void:
 	GameState.world_hazards.clear()
 	GameState.world_seed = ""
 	GameState.sector_tags.clear()
+
+
+func _seed_template_database() -> void:
+	## Seed TemplateDatabase.locations with real .tres files so world_layer can init.
+	var location_paths: Array = [
+		"res://database/registry/locations/station_alpha.tres",
+		"res://database/registry/locations/station_beta.tres",
+		"res://database/registry/locations/station_gamma.tres",
+		"res://database/registry/locations/station_delta.tres",
+		"res://database/registry/locations/station_epsilon.tres",
+	]
+	TemplateDatabase.locations.clear()
+	for path in location_paths:
+		var res = load(path)
+		if res != null:
+			TemplateDatabase.locations[res.template_id] = res

@@ -34,8 +34,8 @@ func _ready():
 	# Listen for agent disable (death/neutralization) events
 	EventBus.connect("agent_disabled", self, "_on_Agent_Disabled")
 	
-	# Listen for world tick to handle respawns
-	EventBus.connect("world_event_tick_triggered", self, "_on_World_Tick")
+	# Listen for simulation tick to handle respawns
+	EventBus.connect("sim_tick_completed", self, "_on_Sim_Tick")
 	
 	# Listen for player docking to handle contact discovery (Task 11)
 	EventBus.connect("player_docked", self, "_on_player_docked")
@@ -281,15 +281,14 @@ func get_persistent_agent_state(agent_id: String) -> Dictionary:
 		if char_template:
 			var runtime_char = char_template.duplicate()
 			
-			# Assign a new UID - Simple generation strategy: 1000 + hash based or incremental
-			# Finding max key in characters
+			# Assign a new UID - Simple generation strategy: 1000 + incremental
+			# Finding max numeric key in characters
 			var max_uid = 1000
 			if not GameState.characters.empty():
-				var keys = GameState.characters.keys()
-				keys.sort()
-				var last = keys[-1]
-				if last >= 1000:
-					max_uid = last + 1
+				for k in GameState.characters.keys():
+					var k_int = int(str(k))
+					if k_int >= max_uid:
+						max_uid = k_int + 1
 			
 			char_uid = max_uid
 			GameState.characters[char_uid] = runtime_char
@@ -386,7 +385,7 @@ func _handle_persistent_agent_disable(agent_id: String) -> void:
 		_active_persistent_agents.erase(agent_id)
 
 
-func _on_World_Tick(_seconds: float) -> void:
+func _on_Sim_Tick(_tick_count) -> void:
 	_check_persistent_agent_respawns()
 
 

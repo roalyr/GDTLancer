@@ -9,13 +9,13 @@ extends RigidBody
 var agent_type: String = ""
 var template_id: String = ""
 var agent_uid = -1
-var character_uid: int = -1  # Links this agent to a character in GameState
+var character_uid = -1  # Links this agent to a character in GameState
 var interaction_radius: float = 15.0
 var is_hostile: bool = false  # True if this is a hostile NPC
 var ship_template = null  # Cached ship template for combat registration
 
 func is_player() -> bool:
-	return character_uid == GameState.player_character_uid and character_uid != -1
+	return str(character_uid) == str(GameState.player_character_uid) and str(character_uid) != "" and str(character_uid) != "-1"
 
 # --- Component References ---
 var movement_system: Node = null
@@ -78,15 +78,17 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 # Also caches the ship_template for combat registration.
 func _get_movement_params_from_ship() -> Dictionary:
 	ship_template = null
-	
+	var uid_str: String = str(character_uid)
+	var uid_valid: bool = uid_str != "-1" and uid_str != ""
+
 	# Try to get ship via AssetSystem if character_uid is valid
-	if character_uid != -1 and is_instance_valid(GlobalRefs.asset_system):
+	if uid_valid and is_instance_valid(GlobalRefs.asset_system):
 		ship_template = GlobalRefs.asset_system.get_ship_for_character(character_uid)
-	
+
 	# For hostile NPCs without character, load the default hostile ship
 	if not is_instance_valid(ship_template) and is_hostile:
 		ship_template = load("res://database/registry/assets/ships/ship_hostile_default.tres")
-	
+
 	if is_instance_valid(ship_template):
 		interaction_radius = ship_template.interaction_radius
 		return {
@@ -96,9 +98,9 @@ func _get_movement_params_from_ship() -> Dictionary:
 			"alignment_threshold_angle_deg": ship_template.alignment_threshold_angle_deg
 		}
 	else:
-		# Fallback to Constants defaults if no ship found (normal for hostile NPCs)
-		if character_uid >= 0:
-			printerr("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
+		# Fallback to Constants defaults if no ship found (normal for persistent NPCs)
+		if uid_valid:
+			print("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
 		return {
 			"mass": Constants.DEFAULT_SHIP_MASS,
 			"linear_thrust": Constants.DEFAULT_LINEAR_THRUST,

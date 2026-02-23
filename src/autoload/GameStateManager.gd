@@ -26,7 +26,7 @@ func reset_to_defaults() -> void:
 	GameState.world_seed = ""
 	GameState.game_time_seconds = 0
 	GameState.sim_tick_count = 0
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 	# --- Scene State ---
 	GameState.player_docked_at = ""
@@ -36,28 +36,32 @@ func reset_to_defaults() -> void:
 	# --- Layer 1: World ---
 	GameState.world_topology.clear()
 	GameState.world_hazards.clear()
-	GameState.world_resource_potential.clear()
-	GameState.world_total_matter = 0.0
+	GameState.world_tags = []
+	GameState.sector_tags.clear()
 
 	# --- Layer 2: Grid ---
-	GameState.grid_resource_availability.clear()
 	GameState.grid_dominion.clear()
-	GameState.grid_market.clear()
-	GameState.grid_stockpiles.clear()
-	GameState.grid_maintenance.clear()
-	GameState.grid_power.clear()
-	GameState.grid_wrecks.clear()
+	GameState.colony_levels.clear()
+	GameState.colony_upgrade_progress.clear()
+	GameState.colony_downgrade_progress.clear()
+	GameState.security_upgrade_progress.clear()
+	GameState.security_downgrade_progress.clear()
+	GameState.security_change_threshold.clear()
+	GameState.economy_upgrade_progress.clear()
+	GameState.economy_downgrade_progress.clear()
+	GameState.economy_change_threshold.clear()
+	GameState.hostile_infestation_progress.clear()
 
 	# --- Layer 3: Agents ---
 	GameState.characters.clear()
 	GameState.agents.clear()
+	GameState.agent_tags.clear()
 	GameState.assets_ships.clear()
 	GameState.inventories.clear()
-	GameState.hostile_population_integral.clear()
 
 	# --- Layer 4: Chronicle ---
-	GameState.chronicle_event_buffer.clear()
-	GameState.chronicle_rumors.clear()
+	GameState.chronicle_events = []
+	GameState.chronicle_rumors = []
 
 	# --- Legacy (kept for compatibility) ---
 	GameState.locations.clear()
@@ -181,27 +185,31 @@ func _serialize_game_state() -> Dictionary:
 	# --- Layer 1: World (static, but saved for deterministic restore) ---
 	state_dict["world_topology"] = GameState.world_topology.duplicate(true)
 	state_dict["world_hazards"] = GameState.world_hazards.duplicate(true)
-	state_dict["world_resource_potential"] = GameState.world_resource_potential.duplicate(true)
-	state_dict["world_total_matter"] = GameState.world_total_matter
+	state_dict["world_tags"] = GameState.world_tags.duplicate()
+	state_dict["sector_tags"] = GameState.sector_tags.duplicate(true)
 
 	# --- Layer 2: Grid ---
-	state_dict["grid_resource_availability"] = GameState.grid_resource_availability.duplicate(true)
 	state_dict["grid_dominion"] = GameState.grid_dominion.duplicate(true)
-	state_dict["grid_market"] = GameState.grid_market.duplicate(true)
-	state_dict["grid_stockpiles"] = GameState.grid_stockpiles.duplicate(true)
-	state_dict["grid_maintenance"] = GameState.grid_maintenance.duplicate(true)
-	state_dict["grid_power"] = GameState.grid_power.duplicate(true)
-	state_dict["grid_wrecks"] = GameState.grid_wrecks.duplicate(true)
+	state_dict["colony_levels"] = GameState.colony_levels.duplicate(true)
+	state_dict["colony_upgrade_progress"] = GameState.colony_upgrade_progress.duplicate(true)
+	state_dict["colony_downgrade_progress"] = GameState.colony_downgrade_progress.duplicate(true)
+	state_dict["security_upgrade_progress"] = GameState.security_upgrade_progress.duplicate(true)
+	state_dict["security_downgrade_progress"] = GameState.security_downgrade_progress.duplicate(true)
+	state_dict["security_change_threshold"] = GameState.security_change_threshold.duplicate(true)
+	state_dict["economy_upgrade_progress"] = GameState.economy_upgrade_progress.duplicate(true)
+	state_dict["economy_downgrade_progress"] = GameState.economy_downgrade_progress.duplicate(true)
+	state_dict["economy_change_threshold"] = GameState.economy_change_threshold.duplicate(true)
+	state_dict["hostile_infestation_progress"] = GameState.hostile_infestation_progress.duplicate(true)
 
 	# --- Layer 3: Agents ---
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
 	state_dict["agents"] = GameState.agents.duplicate(true)
+	state_dict["agent_tags"] = GameState.agent_tags.duplicate(true)
 	state_dict["assets_ships"] = _serialize_resource_dict(GameState.assets_ships)
 	state_dict["inventories"] = _serialize_inventories(GameState.inventories)
-	state_dict["hostile_population_integral"] = GameState.hostile_population_integral.duplicate(true)
 
 	# --- Layer 4: Chronicle ---
-	state_dict["chronicle_event_buffer"] = GameState.chronicle_event_buffer.duplicate(true)
+	state_dict["chronicle_events"] = GameState.chronicle_events.duplicate(true)
 	state_dict["chronicle_rumors"] = GameState.chronicle_rumors.duplicate(true)
 
 	# --- Legacy ---
@@ -267,7 +275,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	reset_to_defaults()
 
 	# --- Simulation Meta ---
-	GameState.player_character_uid = save_data.get("player_character_uid", -1)
+	GameState.player_character_uid = save_data.get("player_character_uid", "")
 	GameState.game_time_seconds = save_data.get("game_time_seconds", save_data.get("current_tu", 0))
 	GameState.sim_tick_count = save_data.get("sim_tick_count", 0)
 	GameState.world_seed = save_data.get("world_seed", "")
@@ -278,27 +286,31 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	# --- Layer 1: World ---
 	GameState.world_topology = save_data.get("world_topology", {}).duplicate(true) if save_data.has("world_topology") else {}
 	GameState.world_hazards = save_data.get("world_hazards", {}).duplicate(true) if save_data.has("world_hazards") else {}
-	GameState.world_resource_potential = save_data.get("world_resource_potential", {}).duplicate(true) if save_data.has("world_resource_potential") else {}
-	GameState.world_total_matter = save_data.get("world_total_matter", 0.0)
+	GameState.world_tags = save_data.get("world_tags", []).duplicate() if save_data.has("world_tags") else []
+	GameState.sector_tags = save_data.get("sector_tags", {}).duplicate(true) if save_data.has("sector_tags") else {}
 
 	# --- Layer 2: Grid ---
-	GameState.grid_resource_availability = save_data.get("grid_resource_availability", {}).duplicate(true) if save_data.has("grid_resource_availability") else {}
 	GameState.grid_dominion = save_data.get("grid_dominion", {}).duplicate(true) if save_data.has("grid_dominion") else {}
-	GameState.grid_market = save_data.get("grid_market", {}).duplicate(true) if save_data.has("grid_market") else {}
-	GameState.grid_stockpiles = save_data.get("grid_stockpiles", {}).duplicate(true) if save_data.has("grid_stockpiles") else {}
-	GameState.grid_maintenance = save_data.get("grid_maintenance", {}).duplicate(true) if save_data.has("grid_maintenance") else {}
-	GameState.grid_power = save_data.get("grid_power", {}).duplicate(true) if save_data.has("grid_power") else {}
-	GameState.grid_wrecks = save_data.get("grid_wrecks", {}).duplicate(true) if save_data.has("grid_wrecks") else {}
+	GameState.colony_levels = save_data.get("colony_levels", {}).duplicate(true) if save_data.has("colony_levels") else {}
+	GameState.colony_upgrade_progress = save_data.get("colony_upgrade_progress", {}).duplicate(true) if save_data.has("colony_upgrade_progress") else {}
+	GameState.colony_downgrade_progress = save_data.get("colony_downgrade_progress", {}).duplicate(true) if save_data.has("colony_downgrade_progress") else {}
+	GameState.security_upgrade_progress = save_data.get("security_upgrade_progress", {}).duplicate(true) if save_data.has("security_upgrade_progress") else {}
+	GameState.security_downgrade_progress = save_data.get("security_downgrade_progress", {}).duplicate(true) if save_data.has("security_downgrade_progress") else {}
+	GameState.security_change_threshold = save_data.get("security_change_threshold", {}).duplicate(true) if save_data.has("security_change_threshold") else {}
+	GameState.economy_upgrade_progress = save_data.get("economy_upgrade_progress", {}).duplicate(true) if save_data.has("economy_upgrade_progress") else {}
+	GameState.economy_downgrade_progress = save_data.get("economy_downgrade_progress", {}).duplicate(true) if save_data.has("economy_downgrade_progress") else {}
+	GameState.economy_change_threshold = save_data.get("economy_change_threshold", {}).duplicate(true) if save_data.has("economy_change_threshold") else {}
+	GameState.hostile_infestation_progress = save_data.get("hostile_infestation_progress", {}).duplicate(true) if save_data.has("hostile_infestation_progress") else {}
 
 	# --- Layer 3: Agents ---
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
 	GameState.characters = _deserialize_resource_dict(save_data.get("characters", {}))
 	GameState.agents = save_data.get("agents", {}).duplicate(true) if save_data.has("agents") else {}
+	GameState.agent_tags = save_data.get("agent_tags", {}).duplicate(true) if save_data.has("agent_tags") else {}
 	GameState.inventories = _deserialize_inventories(save_data.get("inventories", {}))
-	GameState.hostile_population_integral = save_data.get("hostile_population_integral", {}).duplicate(true) if save_data.has("hostile_population_integral") else {}
 
 	# --- Layer 4: Chronicle ---
-	GameState.chronicle_event_buffer = save_data.get("chronicle_event_buffer", []).duplicate(true) if save_data.has("chronicle_event_buffer") else []
+	GameState.chronicle_events = save_data.get("chronicle_events", []).duplicate(true) if save_data.has("chronicle_events") else []
 	GameState.chronicle_rumors = save_data.get("chronicle_rumors", []).duplicate(true) if save_data.has("chronicle_rumors") else []
 
 	# --- Legacy ---

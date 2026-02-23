@@ -105,7 +105,7 @@ func test_derive_sector_tags_fresh_sector():
 	GameState.grid_dominion["test_sector"] = {"security_tag": "SECURE"}
 	GameState.world_hazards["test_sector"] = {"environment": "MILD"}
 
-	var tags: Array = affinity.derive_sector_tags("test_sector")
+	var tags: Array = affinity.derive_sector_tags("test_sector", GameState)
 	assert_has(tags, "SECURE", "Security tag should be present.")
 	assert_has(tags, "MILD", "Environment tag should be present.")
 	assert_has(tags, "RAW_RICH", "Economy tag RAW_RICH should be present.")

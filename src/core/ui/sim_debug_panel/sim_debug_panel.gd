@@ -24,6 +24,11 @@ onready var _panel: Panel = $Panel
 onready var _header_label: Label = $Panel/VBoxContainer/HeaderRow/HeaderLabel
 onready var _rich_text: RichTextLabel = $Panel/VBoxContainer/RichTextLabel
 onready var _btn_dump: Button = $Panel/VBoxContainer/HeaderRow/BtnDumpConsole
+onready var _btn_tick: Button = $Panel/VBoxContainer/HeaderRow/BtnTick
+onready var _btn_run_30: Button = $Panel/VBoxContainer/HeaderRow/BtnRun30
+onready var _btn_run_300: Button = $Panel/VBoxContainer/HeaderRow/BtnRun300
+onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
+onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
 
 
 # =============================================================================
@@ -33,6 +38,11 @@ onready var _btn_dump: Button = $Panel/VBoxContainer/HeaderRow/BtnDumpConsole
 var _visible: bool = false
 var _last_plain_text: String = ""
 
+## When true, panel shows a chronicle report instead of live state.
+var _showing_report: bool = false
+var _report_text: String = ""
+var _report_bbcode: String = ""
+
 
 # =============================================================================
 # === LIFECYCLE ===============================================================
@@ -41,8 +51,14 @@ var _last_plain_text: String = ""
 func _ready() -> void:
 	layer = 100  # Render above everything
 	_panel.visible = false
-	EventBus.connect("world_event_tick_triggered", self, "_on_tick")
+	EventBus.connect("sim_tick_completed", self, "_on_tick")
 	_btn_dump.connect("pressed", self, "_on_dump_pressed")
+	_btn_tick.connect("pressed", self, "_on_tick_pressed")
+	_btn_run_30.connect("pressed", self, "_on_run_batch", [30])
+	_btn_run_300.connect("pressed", self, "_on_run_batch", [300])
+	_btn_run_3000.connect("pressed", self, "_on_run_batch", [3000])
+	_btn_back.connect("pressed", self, "_on_back_pressed")
+	_btn_back.visible = false
 	call_deferred("_refresh")
 
 
@@ -71,9 +87,57 @@ func _toggle() -> void:
 # === TICK HANDLER ============================================================
 # =============================================================================
 
-func _on_tick(_seconds_amount: int = 0) -> void:
+func _on_tick(_tick_count: int = 0) -> void:
 	if _visible:
 		_refresh()
+
+
+## Manually advances one simulation tick (debug only).
+func _on_tick_pressed() -> void:
+	if _showing_report:
+		return
+	if is_instance_valid(GlobalRefs.simulation_engine) and GlobalRefs.simulation_engine.has_method("request_tick"):
+		GlobalRefs.simulation_engine.request_tick()
+		_refresh()
+
+
+## Runs a batch of N ticks and shows the chronicle report.
+func _on_run_batch(tick_count: int) -> void:
+	if not is_instance_valid(GlobalRefs.simulation_engine):
+		return
+	var engine = GlobalRefs.simulation_engine
+	if not engine.has_method("run_batch_and_report"):
+		return
+
+	# Determine epoch size based on tick count
+	var epoch_size: int = 1
+	if tick_count >= 3000:
+		epoch_size = 100
+	elif tick_count >= 300:
+		epoch_size = 10
+
+	var report: String = engine.run_batch_and_report(tick_count, epoch_size)
+
+	# Also dump to console for LLM agent consumption
+	print("\n" + report + "\n")
+
+	# Show in panel
+	_report_text = report
+	_report_bbcode = _plain_to_bbcode(report)
+	_showing_report = true
+	_btn_back.visible = true
+	_header_label.text = "CHRONICLE REPORT (%d ticks)  [Back to return]" % tick_count
+	_rich_text.bbcode_text = _report_bbcode
+	_last_plain_text = _report_text
+
+
+## Returns to the live state view from a report view.
+func _on_back_pressed() -> void:
+	_showing_report = false
+	_btn_back.visible = false
+	_report_text = ""
+	_report_bbcode = ""
+	_refresh()
 
 
 # =============================================================================
@@ -81,6 +145,10 @@ func _on_tick(_seconds_amount: int = 0) -> void:
 # =============================================================================
 
 func _refresh() -> void:
+	# If we're showing a report, don't overwrite it with live state
+	if _showing_report:
+		return
+
 	var bb: String = ""   # BBCode version for RichTextLabel
 	var pt: String = ""   # Plain-text version for console dump
 
@@ -273,7 +341,8 @@ func _refresh() -> void:
 
 ## Dumps the current panel contents to stdout as plain text.
 func _on_dump_pressed() -> void:
-	_refresh()
+	if not _showing_report:
+		_refresh()
 	print("\n========== SIM DEBUG DUMP (Tick %d) ==========" % GameState.sim_tick_count)
 	print(_last_plain_text)
 	print("========== END SIM DEBUG DUMP ==========")
@@ -304,3 +373,32 @@ func _get_character_name(char_id: String) -> String:
 		elif c is Dictionary and c.has("character_name"):
 			return c["character_name"]
 	return char_id
+
+
+## Converts plain-text chronicle report to BBCode with color highlights.
+func _plain_to_bbcode(text: String) -> String:
+	var bb: String = ""
+	var lines: Array = text.split("\n")
+	for line in lines:
+		var s: String = str(line)
+		if s.begins_with("==="):
+			bb += _bbcolor(s, "cyan") + "\n"
+		elif s.begins_with("--- Epoch") or s.begins_with("---"):
+			bb += _bbcolor(s, "yellow") + "\n"
+		elif s.find("CATASTROPHE") != -1:
+			bb += _bbcolor(s, "red") + "\n"
+		elif s.find(">>>") != -1:
+			bb += _bbcolor(s, "lime") + "\n"
+		elif s.find("NEW SECTOR DISCOVERED") != -1:
+			bb += _bbcolor(s, "aqua") + "\n"
+		elif s.find("Combat:") != -1:
+			bb += _bbcolor(s, "orange") + "\n"
+		elif s.find("Commerce:") != -1:
+			bb += _bbcolor(s, "green") + "\n"
+		elif s.find("Losses") != -1 or s.find("Danger:") != -1:
+			bb += _bbcolor(s, "salmon") + "\n"
+		elif s.begins_with("OVERALL SUMMARY") or s.begins_with("CHRONICLE OF"):
+			bb += _bbcolor(s, "white") + "\n"
+		else:
+			bb += s + "\n"
+	return bb

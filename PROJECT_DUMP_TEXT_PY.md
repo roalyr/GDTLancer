@@ -154,7 +154,7 @@ MORTAL_GLOBAL_CAP = 200                                         # max total agen
 MORTAL_SPAWN_REQUIRED_SECURITY = ["SECURE", "CONTESTED", "LAWLESS"]  # any of these allows spawn
 MORTAL_SPAWN_BLOCKED_SECTOR_TAGS = ["DISABLED", "HOSTILE_INFESTED"]  # these block spawn
 MORTAL_SPAWN_MIN_ECONOMY_TAGS = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]
-MORTAL_SPAWN_CHANCE = 0.08                                      # per-tick roll if eligible
+MORTAL_SPAWN_CHANCE = 0.2                                      # per-tick roll if eligible
 MORTAL_ROLES = ["trader", "hauler", "prospector", "explorer", "pirate"]
 MORTAL_SURVIVAL_CHANCE = 0.4                                    # 40 % survive destruction
 DISRUPTION_MORTAL_ATTRITION_CHANCE = 0.03                       # per-tick exposed mortal death chance during DISRUPTION
@@ -167,8 +167,8 @@ RUMOR_BUFFER_CAP = 200              # max rumours kept in rolling buffer
 RESPAWN_COOLDOWN_TICKS = 1          # ticks a persistent NPC waits before respawning
 RESPAWN_COOLDOWN_MAX_DEBT = 25      # max accumulated respawn debt ticks
 MAX_SECTOR_COUNT = 20               # world graph won't grow beyond this many sectors
-EXPLORATION_COOLDOWN_TICKS = 5      # ticks an explorer must wait between discoveries
-EXPLORATION_SUCCESS_CHANCE = 0.3    # probability each attempt actually finds something
+EXPLORATION_COOLDOWN_TICKS = 10     # ticks an explorer must wait between discoveries
+EXPLORATION_SUCCESS_CHANCE = 0.1    # probability each attempt actually finds something
 
 # ---------------------------------------------------------------------------
 # Topology

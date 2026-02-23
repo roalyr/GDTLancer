@@ -14,6 +14,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://database/definitions/action_template.gd"
 }, {
+"base": "Reference",
+"class": "AffinityMatrix",
+"language": "GDScript",
+"path": "res://src/core/simulation/affinity_matrix.gd"
+}, {
 "base": "Template",
 "class": "AgentTemplate",
 "language": "GDScript",
@@ -111,6 +116,7 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "ActionTemplate": "",
+"AffinityMatrix": "",
 "AgentTemplate": "",
 "AssetTemplate": "",
 "CameraPositionController": "",

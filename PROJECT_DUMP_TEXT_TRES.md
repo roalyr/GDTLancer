@@ -372,6 +372,25 @@ is_persistent = true
 home_location_id = "station_gamma"
 character_template_id = "character_ada"
 respawn_timeout_seconds = 300.0
+agent_role = "trader"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )
+
+--- Start of ./database/registry/agents/persistent_crow.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_crow"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_gamma"
+character_template_id = "character_crow"
+respawn_timeout_seconds = 300.0
+agent_role = "pirate"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )
 
 --- Start of ./database/registry/agents/persistent_juno.tres ---
 
@@ -387,6 +406,8 @@ is_persistent = true
 home_location_id = "station_alpha"
 character_template_id = "character_juno"
 respawn_timeout_seconds = 300.0
+agent_role = "prospector"
+initial_tags = PoolStringArray( "HEALTHY", "BROKE", "EMPTY" )
 
 --- Start of ./database/registry/agents/persistent_kai.tres ---
 
@@ -402,6 +423,8 @@ is_persistent = true
 home_location_id = "station_alpha"
 character_template_id = "character_kai"
 respawn_timeout_seconds = 300.0
+agent_role = "hauler"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )
 
 --- Start of ./database/registry/agents/persistent_milo.tres ---
 
@@ -417,6 +440,59 @@ is_persistent = true
 home_location_id = "station_beta"
 character_template_id = "character_milo"
 respawn_timeout_seconds = 300.0
+agent_role = "trader"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )
+
+--- Start of ./database/registry/agents/persistent_nova.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_nova"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_gamma"
+character_template_id = "character_nova"
+respawn_timeout_seconds = 300.0
+agent_role = "explorer"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )
+
+--- Start of ./database/registry/agents/persistent_nyx.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_nyx"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_delta"
+character_template_id = "character_nyx"
+respawn_timeout_seconds = 300.0
+agent_role = "military"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )
+
+--- Start of ./database/registry/agents/persistent_orin.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_orin"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_epsilon"
+character_template_id = "character_orin"
+respawn_timeout_seconds = 300.0
+agent_role = "hauler"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )
 
 --- Start of ./database/registry/agents/persistent_rex.tres ---
 
@@ -432,6 +508,25 @@ is_persistent = true
 home_location_id = "station_gamma"
 character_template_id = "character_rex"
 respawn_timeout_seconds = 300.0
+agent_role = "hauler"
+initial_tags = PoolStringArray( "HEALTHY", "BROKE", "EMPTY" )
+
+--- Start of ./database/registry/agents/persistent_siv.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_siv"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_delta"
+character_template_id = "character_siv"
+respawn_timeout_seconds = 300.0
+agent_role = "military"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )
 
 --- Start of ./database/registry/agents/persistent_vera.tres ---
 
@@ -447,6 +542,42 @@ is_persistent = true
 home_location_id = "station_beta"
 character_template_id = "character_vera"
 respawn_timeout_seconds = 300.0
+agent_role = "trader"
+initial_tags = PoolStringArray( "HEALTHY", "WEALTHY", "LOADED" )
+
+--- Start of ./database/registry/agents/persistent_vex.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_vex"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_gamma"
+character_template_id = "character_vex"
+respawn_timeout_seconds = 300.0
+agent_role = "pirate"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "LOADED" )
+
+--- Start of ./database/registry/agents/persistent_zara.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/agent_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "persistent_zara"
+agent_type = "npc"
+is_persistent = true
+home_location_id = "station_epsilon"
+character_template_id = "character_zara"
+respawn_timeout_seconds = 300.0
+agent_role = "prospector"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )
 
 --- Start of ./database/registry/agents/player_default.tres ---
 
@@ -458,6 +589,8 @@ respawn_timeout_seconds = 300.0
 script = ExtResource( 1 )
 template_id = "agent_player_default"
 agent_type = "player"
+agent_role = "idle"
+initial_tags = PoolStringArray( "HEALTHY", "COMFORTABLE", "EMPTY" )
 
 --- Start of ./database/registry/assets/commodities/commodity_default.tres ---
 
@@ -647,6 +780,44 @@ personality_traits = {
 }
 description = "Salvager, resourceful."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
+
+--- Start of ./database/registry/characters/character_crow.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_crow"
+character_name = "Crow"
+character_icon_id = "character_crow_icon"
+faction_id = "faction_pirates"
+credits = 1500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 5,
+"piloting": 4,
+"trading": 1
+}
+age = 36
+reputation = -30
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.9,
+"greed": 0.8,
+"aggression": 0.7
+}
+description = "Ruthless raider, exploits disruption."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
 
 --- Start of ./database/registry/characters/character_default.tres ---
 
@@ -707,6 +878,8 @@ personality_traits = {
 }
 description = "Young prospector, ambitious."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "BROKE"
 
 --- Start of ./database/registry/characters/character_kai.tres ---
 
@@ -740,6 +913,8 @@ personality_traits = {
 }
 description = "Veteran miner, pragmatic."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
 
 --- Start of ./database/registry/characters/character_milo.tres ---
 
@@ -773,6 +948,115 @@ personality_traits = {
 }
 description = "Cargo hauler, opportunistic."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
+
+--- Start of ./database/registry/characters/character_nova.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_nova"
+character_name = "Nova"
+character_icon_id = "character_nova_icon"
+faction_id = "faction_independents"
+credits = 1500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 2,
+"piloting": 5,
+"trading": 1
+}
+age = 27
+reputation = 25
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.9,
+"loyalty": 0.3
+}
+description = "Deep-space explorer, restless."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
+
+--- Start of ./database/registry/characters/character_nyx.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_nyx"
+character_name = "Nyx"
+character_icon_id = "character_nyx_icon"
+faction_id = "faction_military"
+credits = 2500
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 4,
+"piloting": 3,
+"trading": 1
+}
+age = 34
+reputation = 55
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.3,
+"loyalty": 0.8,
+"aggression": 0.4
+}
+description = "Patrol officer, keeps order."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
+
+--- Start of ./database/registry/characters/character_orin.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_orin"
+character_name = "Orin"
+character_icon_id = "character_orin_icon"
+faction_id = "faction_traders"
+credits = 2000
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 1,
+"piloting": 3,
+"trading": 3
+}
+age = 45
+reputation = 40
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.2,
+"greed": 0.3,
+"loyalty": 0.6
+}
+description = "Bulk cargo hauler, reliable."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
 
 --- Start of ./database/registry/characters/character_rex.tres ---
 
@@ -806,6 +1090,44 @@ personality_traits = {
 }
 description = "Freelancer pilot, risky."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "BROKE"
+
+--- Start of ./database/registry/characters/character_siv.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_siv"
+character_name = "Siv"
+character_icon_id = "character_siv_icon"
+faction_id = "faction_military"
+credits = 3000
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 3,
+"piloting": 2,
+"trading": 2
+}
+age = 38
+reputation = 50
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.4,
+"loyalty": 0.9,
+"greed": 0.6
+}
+description = "Military supply officer, disciplined."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
 
 --- Start of ./database/registry/characters/character_vera.tres ---
 
@@ -839,6 +1161,79 @@ personality_traits = {
 }
 description = "Merchant captain, cautious."
 goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "WEALTHY"
+
+--- Start of ./database/registry/characters/character_vex.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_vex"
+character_name = "Vex"
+character_icon_id = "character_vex_icon"
+faction_id = "faction_pirates"
+credits = 1800
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 3,
+"piloting": 4,
+"trading": 3
+}
+age = 31
+reputation = -20
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.8,
+"greed": 0.9,
+"aggression": 0.5
+}
+description = "Cunning smuggler turned pirate."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
+
+--- Start of ./database/registry/characters/character_zara.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/character_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "character_zara"
+character_name = "Zara"
+character_icon_id = "character_zara_icon"
+faction_id = "faction_miners"
+credits = 2000
+focus_points = 0
+active_ship_uid = -1
+skills = {
+"combat": 1,
+"piloting": 3,
+"trading": 2
+}
+age = 29
+reputation = 35
+faction_standings = {
+}
+character_standings = {
+}
+personality_traits = {
+"risk_tolerance": 0.7,
+"greed": 0.4
+}
+description = "Survey specialist, maps deposits."
+goals = [ ]
+initial_condition_tag = "HEALTHY"
+initial_wealth_tag = "COMFORTABLE"
 
 --- Start of ./database/registry/contracts/delivery_01.tres ---
 
@@ -1072,8 +1467,8 @@ location_name = "Station Alpha - Mining Hub"
 location_type = "station"
 position_in_zone = Vector3( 48042, 233, -673 )
 interaction_radius = 150.0
-connections = PoolStringArray( "station_beta", "station_gamma" )
-sector_type = "hub"
+connections = PoolStringArray( "station_beta", "station_delta" )
+sector_type = "colony"
 radiation_level = 0.05
 thermal_background_k = 280.0
 gravity_well_penalty = 1.2
@@ -1107,6 +1502,7 @@ available_services = [ "trade", "contracts", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 1
 available_contract_ids = [ "delivery_01", "delivery_02" ]
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
 
 --- Start of ./database/registry/locations/station_beta.tres ---
 
@@ -1121,8 +1517,8 @@ location_name = "Station Beta - Trade Post"
 location_type = "station"
 position_in_zone = Vector3( 49500, 100, 1500 )
 interaction_radius = 150.0
-connections = PoolStringArray( "station_alpha", "station_gamma" )
-sector_type = "hub"
+connections = PoolStringArray( "station_alpha", "station_delta" )
+sector_type = "colony"
 radiation_level = 0.01
 thermal_background_k = 310.0
 gravity_well_penalty = 1.0
@@ -1161,6 +1557,107 @@ available_services = [ "trade", "contracts" ]
 controlling_faction_id = "faction_traders"
 danger_level = 2
 available_contract_ids = [ "delivery_03", "delivery_04" ]
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH" )
+
+--- Start of ./database/registry/locations/station_delta.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "station_delta"
+location_name = "Outpost Delta - Military Garrison"
+location_type = "station"
+position_in_zone = Vector3( 47000, 150, 800 )
+interaction_radius = 150.0
+connections = PoolStringArray( "station_beta", "station_gamma", "station_alpha" )
+sector_type = "colony"
+radiation_level = 0.02
+thermal_background_k = 295.0
+gravity_well_penalty = 1.1
+mineral_density = 0.6
+propellant_sources = 0.6
+station_power_output = 130.0
+stockpile_capacity = 1200
+market_inventory = {
+"commodity_ore": {
+"buy_price": 12,
+"sell_price": 9,
+"quantity": 100
+},
+"commodity_food": {
+"buy_price": 28,
+"sell_price": 22,
+"quantity": 60
+},
+"commodity_tech": {
+"buy_price": 75,
+"sell_price": 60,
+"quantity": 25
+},
+"commodity_fuel": {
+"buy_price": 22,
+"sell_price": 18,
+"quantity": 80
+}
+}
+available_services = [ "trade", "refuel", "repair", "contracts" ]
+controlling_faction_id = "faction_military"
+danger_level = 1
+available_contract_ids = [ ]
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
+
+--- Start of ./database/registry/locations/station_epsilon.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "station_epsilon"
+location_name = "Epsilon Refinery Complex"
+location_type = "station"
+position_in_zone = Vector3( 44500, -100, 1200 )
+interaction_radius = 150.0
+connections = PoolStringArray( "station_gamma" )
+sector_type = "outpost"
+radiation_level = 0.12
+thermal_background_k = 260.0
+gravity_well_penalty = 1.3
+mineral_density = 1.5
+propellant_sources = 0.8
+station_power_output = 90.0
+stockpile_capacity = 900
+market_inventory = {
+"commodity_ore": {
+"buy_price": 10,
+"sell_price": 8,
+"quantity": 150
+},
+"commodity_food": {
+"buy_price": 26,
+"sell_price": 21,
+"quantity": 50
+},
+"commodity_tech": {
+"buy_price": 60,
+"sell_price": 48,
+"quantity": 20
+},
+"commodity_fuel": {
+"buy_price": 18,
+"sell_price": 14,
+"quantity": 120
+}
+}
+available_services = [ "trade", "refuel", "repair" ]
+controlling_faction_id = "faction_miners"
+danger_level = 3
+available_contract_ids = [ ]
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
 
 --- Start of ./database/registry/locations/station_gamma.tres ---
 
@@ -1175,7 +1672,7 @@ location_name = "Freeport Gamma"
 location_type = "station"
 position_in_zone = Vector3( 46000, -200, 500 )
 interaction_radius = 150.0
-connections = PoolStringArray( "station_alpha", "station_beta" )
+connections = PoolStringArray( "station_delta", "station_epsilon" )
 sector_type = "frontier"
 radiation_level = 0.15
 thermal_background_k = 250.0
@@ -1215,6 +1712,7 @@ available_services = [ "trade", "contracts", "black_market" ]
 controlling_faction_id = "faction_independents"
 danger_level = 4
 available_contract_ids = [ "delivery_05", "delivery_06" ]
+initial_sector_tags = PoolStringArray( "FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE", "HOSTILE_THREATENED" )
 
 --- Start of ./database/registry/tools/tool_ablative_laser.tres ---
 

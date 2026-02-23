@@ -35,14 +35,13 @@ func _ready() -> void:
 
 func _load_weapons_from_ship() -> void:
 	# Get character_uid from agent, then ship from AssetSystem
-	var char_uid: int = -1
 	var raw_char_uid = _agent_body.get("character_uid")
-	if raw_char_uid != null:
-		char_uid = int(raw_char_uid)
-	
-	# First try to get ship from character
-	if char_uid >= 0 and is_instance_valid(GlobalRefs.asset_system):
-		_ship_template = GlobalRefs.asset_system.get_ship_for_character(char_uid)
+	var uid_str: String = str(raw_char_uid) if raw_char_uid != null else "-1"
+	var uid_valid: bool = uid_str != "-1" and uid_str != ""
+
+	# First try to get ship from character (pass original type for dict key match)
+	if uid_valid and is_instance_valid(GlobalRefs.asset_system):
+		_ship_template = GlobalRefs.asset_system.get_ship_for_character(raw_char_uid)
 	
 	# If no ship via character, try to get cached ship_template from agent body (for hostile NPCs)
 	if not is_instance_valid(_ship_template):

@@ -98,7 +98,7 @@ func test_buffer_capped_at_limit():
 		})
 	chronicle.process_tick()
 
-	assert_le(GameState.chronicle_events.size(), Constants.EVENT_BUFFER_CAP,
+	assert_true(GameState.chronicle_events.size() <= Constants.EVENT_BUFFER_CAP,
 		"chronicle_events should not exceed EVENT_BUFFER_CAP.")
 
 

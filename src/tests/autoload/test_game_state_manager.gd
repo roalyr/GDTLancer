@@ -128,18 +128,22 @@ func _clear_game_state():
 	GameState.agents.clear()
 	GameState.world_topology.clear()
 	GameState.world_hazards.clear()
-	GameState.world_resource_potential.clear()
-	GameState.world_total_matter = 0.0
-	GameState.grid_stockpiles.clear()
+	GameState.world_tags = []
+	GameState.sector_tags.clear()
 	GameState.grid_dominion.clear()
-	GameState.grid_market.clear()
-	GameState.grid_power.clear()
-	GameState.grid_maintenance.clear()
-	GameState.grid_wrecks.clear()
-	GameState.hostile_population_integral.clear()
-	GameState.chronicle_event_buffer.clear()
-	GameState.chronicle_rumors.clear()
-	GameState.player_character_uid = -1
+	GameState.colony_levels.clear()
+	GameState.colony_upgrade_progress.clear()
+	GameState.colony_downgrade_progress.clear()
+	GameState.security_upgrade_progress.clear()
+	GameState.security_downgrade_progress.clear()
+	GameState.security_change_threshold.clear()
+	GameState.economy_upgrade_progress.clear()
+	GameState.economy_downgrade_progress.clear()
+	GameState.economy_change_threshold.clear()
+	GameState.hostile_infestation_progress.clear()
+	GameState.chronicle_events = []
+	GameState.chronicle_rumors = []
+	GameState.player_character_uid = ""
 	GameState.player_docked_at = ""
 	GameState.game_time_seconds = 0
 	GameState.sim_tick_count = 0

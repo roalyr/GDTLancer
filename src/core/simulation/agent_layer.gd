@@ -47,9 +47,11 @@ func set_chronicle(chronicle: Reference) -> void:
 
 
 ## Initializes all agents + characters from TemplateDatabase into GameState.
+## NOTE: Does NOT clear GameState.characters — WorldGenerator populates it with
+## int-keyed CharacterTemplate Resources used by the physical game (ships, inventory).
+## Simulation stores String-keyed character dicts alongside them without conflict.
 func initialize_agents() -> void:
 	GameState.agents.clear()
-	GameState.characters.clear()
 	GameState.agent_tags.clear()
 
 	_initialize_player()
@@ -100,9 +102,13 @@ func process_tick(config: Dictionary) -> void:
 
 func _initialize_player() -> void:
 	var character_id: String = "character_default"
-	GameState.player_character_uid = character_id
+	# NOTE: Do NOT overwrite GameState.player_character_uid here.
+	# WorldGenerator already set it to the int UID used by the physical game
+	# (ship lookups, inventory, etc.). The simulation identifies the player
+	# via GameState.agents["player"]["character_id"] = "character_default".
 
-	# Load character data from TemplateDatabase
+	# Store simulation-level character data under String key (coexists with
+	# WorldGenerator's int-keyed CharacterTemplate Resources).
 	if TemplateDatabase.characters.has(character_id):
 		var char_res: Resource = TemplateDatabase.characters[character_id]
 		var char_data: Dictionary = _resource_to_dict(char_res)

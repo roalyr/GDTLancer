@@ -8,9 +8,9 @@
 
 extends GutTest
 
-## Unit tests for TimeSystem: game time advancement and world tick triggering.
-## TimeSystem is now a PURE CLOCK — it only tracks time and emits tick signals.
-## Upkeep costs are handled by BridgeSystems (TASK_6 rework).
+## Unit tests for TimeSystem: pure gameplay clock.
+## TimeSystem is now a PURE CLOCK — it only tracks time and emits game_time_advanced.
+## It does NOT trigger simulation ticks (those are event-driven: dock, undock, etc.).
 
 # --- Test Subjects ---
 const TimeSystem = preload("res://src/core/systems/time_system.gd")
@@ -38,26 +38,23 @@ func after_each():
 func test_initialization():
 	assert_eq(time_system_instance.get_current_game_time(), 0, "Initial game time should be 0.")
 
-func test_advance_game_time_below_threshold():
+func test_advance_game_time_updates_game_state():
 	watch_signals(EventBus)
 	time_system_instance.advance_game_time(5)
 	assert_eq(GameState.game_time_seconds, 5, "GameState.game_time_seconds should be 5.")
-	assert_signal_not_emitted(EventBus, "world_event_tick_triggered")
+	assert_signal_emitted(EventBus, "game_time_advanced", "Should emit game_time_advanced.")
+	assert_signal_not_emitted(EventBus, "world_event_tick_triggered", "Clock must NOT trigger sim ticks.")
 
-func test_advance_game_time_exactly_at_threshold():
+func test_advance_game_time_at_old_threshold_does_not_tick():
 	watch_signals(EventBus)
 	time_system_instance.advance_game_time(Constants.WORLD_TICK_INTERVAL_SECONDS)
 	assert_eq(GameState.game_time_seconds, Constants.WORLD_TICK_INTERVAL_SECONDS, "Game time should be equal to tick interval.")
-	assert_signal_emitted(EventBus, "world_event_tick_triggered")
+	assert_signal_not_emitted(EventBus, "world_event_tick_triggered", "Clock must NOT trigger sim ticks even at old threshold.")
 
-func test_advance_game_time_above_threshold():
-	watch_signals(EventBus)
+func test_advance_game_time_accumulates():
 	time_system_instance.advance_game_time(Constants.WORLD_TICK_INTERVAL_SECONDS + 5)
 	assert_eq(GameState.game_time_seconds, Constants.WORLD_TICK_INTERVAL_SECONDS + 5, "Game time should include overflow.")
-	assert_signal_emitted(EventBus, "world_event_tick_triggered")
 
-func test_advance_game_time_triggers_multiple_ticks():
-	watch_signals(EventBus)
+func test_advance_game_time_large_value():
 	time_system_instance.advance_game_time((Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5)
 	assert_eq(GameState.game_time_seconds, (Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5, "Game time should accumulate.")
-	assert_signal_emit_count(EventBus, "world_event_tick_triggered", 2)

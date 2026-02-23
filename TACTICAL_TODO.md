@@ -393,7 +393,7 @@ bottleneck chains, filament web structure. 20/20 tests passing.
     - Signature: All tests pass with `gut` test runner. 0 failures.
 
   - [x] VERIFICATION_1: Project loads in Godot 3.6 editor with 0 errors — run `get_errors()` across all modified files
-  - [ ] VERIFICATION_2: GUT test suite — all simulation tests pass (0 failures, 0 errors)
+  - [x] VERIFICATION_2: GUT test suite — all simulation tests pass (0 failures, 0 errors)
   - [ ] VERIFICATION_3: Manual sim tick — launch game scene, verify F3 debug panel shows qualitative tags for all 5 sectors and 14 agents, world age displays correctly
   - [ ] VERIFICATION_4: Sub-tick system — verify `SimulationEngine.advance_sub_ticks(10)` fires exactly 1 full tick (SUB_TICKS_PER_TICK=10)
   - [ ] VERIFICATION_5: Determinism — run `initialize_simulation("test_seed")` twice, verify `GameState` is identical after 5 ticks

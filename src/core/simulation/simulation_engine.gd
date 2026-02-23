@@ -71,16 +71,21 @@ func _ready() -> void:
 	# Register in GlobalRefs
 	GlobalRefs.simulation_engine = self
 
-	# Connect to EventBus tick signal
-	if not EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
-		EventBus.connect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
+	# Simulation ticks are event-driven (dock, undock, sector travel, debug).
+	# Connect to gameplay events that trigger a tick.
+	if not EventBus.is_connected("player_docked", self, "_on_player_docked"):
+		EventBus.connect("player_docked", self, "_on_player_docked")
+	if not EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
+		EventBus.connect("player_undocked", self, "_on_player_undocked")
 
 	print("SimulationEngine: Ready. Awaiting initialize_simulation() call.")
 
 
 func _exit_tree() -> void:
-	if EventBus.is_connected("world_event_tick_triggered", self, "_on_world_event_tick_triggered"):
-		EventBus.disconnect("world_event_tick_triggered", self, "_on_world_event_tick_triggered")
+	if EventBus.is_connected("player_docked", self, "_on_player_docked"):
+		EventBus.disconnect("player_docked", self, "_on_player_docked")
+	if EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
+		EventBus.disconnect("player_undocked", self, "_on_player_undocked")
 	GlobalRefs.simulation_engine = null
 
 
@@ -123,10 +128,21 @@ func initialize_simulation(seed_string: String) -> void:
 # === TICK PROCESSING =========================================================
 # =============================================================================
 
-## Signal handler: called when TimeSystem emits world_event_tick_triggered.
-func _on_world_event_tick_triggered(_seconds_amount) -> void:
+## Signal handler: called when player docks at a station.
+func _on_player_docked(_location_id) -> void:
+	request_tick()
+
+
+## Signal handler: called when player undocks from a station.
+func _on_player_undocked() -> void:
+	request_tick()
+
+
+## Public API: Requests one simulation tick. Called by gameplay events
+## (dock, undock, sector travel, debug button) rather than a timer.
+func request_tick() -> void:
 	if not _initialized:
-		push_warning("SimulationEngine: Tick triggered but simulation not initialized.")
+		push_warning("SimulationEngine: Tick requested but simulation not initialized.")
 		return
 	process_tick()
 
@@ -250,14 +266,16 @@ func is_initialized() -> bool:
 	return _initialized
 
 
-## Sets a single key in the tick config dictionary.
-func set_config(key: String, value) -> void:
-	_tick_config[key] = value
-
-
-## Returns the current tick config dictionary.
-func get_config() -> Dictionary:
-	return _tick_config
+## Runs `tick_count` ticks and returns a chronicle-style narrative report.
+## Events are grouped into epochs of `epoch_size` ticks (default 1 for small
+## runs, increase for large runs like 300/3000).
+func run_batch_and_report(tick_count: int, epoch_size: int = 1) -> String:
+	if not _initialized:
+		push_warning("SimulationEngine: run_batch_and_report() called but not initialized.")
+		return "(simulation not initialized)"
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report: Reference = ReportScript.new()
+	return report.run_and_report(self, tick_count, epoch_size)
 
 
 ## Allows runtime config overrides for tuning/debugging.

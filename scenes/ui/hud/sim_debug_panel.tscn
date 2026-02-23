@@ -43,6 +43,31 @@ rect_min_size = Vector2( 220, 0 )
 theme = ExtResource( 3 )
 text = "Dump to Console"
 
+[node name="BtnTick" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 180, 0 )
+theme = ExtResource( 3 )
+text = "Advance 1 Tick"
+
+[node name="BtnRun30" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 120, 0 )
+theme = ExtResource( 3 )
+text = "Run 30"
+
+[node name="BtnRun300" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 120, 0 )
+theme = ExtResource( 3 )
+text = "Run 300"
+
+[node name="BtnRun3000" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 130, 0 )
+theme = ExtResource( 3 )
+text = "Run 3000"
+
+[node name="BtnBack" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 120, 0 )
+theme = ExtResource( 3 )
+text = "< Back"
+
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
 margin_top = 40.0
 margin_right = 1884.0
