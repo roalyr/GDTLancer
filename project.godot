@@ -272,4 +272,4 @@ quality/shadows/caster_culling=false
 quality/shadows/light_culling=false
 quality/lightmapping/use_bicubic_sampling=false
 quality/depth/hdr=false
-environment/default_environment="res://default_env.tres"
+environment/default_environment="res://assets/art/environments/global_environment.tres"

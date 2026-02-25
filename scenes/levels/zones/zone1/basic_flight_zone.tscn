@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=2]
@@ -9,9 +9,8 @@
 [ext_resource path="res://scenes/levels/zones/zone1/scene_materials/star_1_corona.tres" type="Material" id=7]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=8]
 [ext_resource path="res://scenes/levels/zones/zone1/scene_materials/star_1_sprite.tres" type="Material" id=9]
-[ext_resource path="res://assets/models/nebulas/nebula_1.glb" type="PackedScene" id=10]
-[ext_resource path="res://scenes/levels/zones/zone1/scene_materials/nebula_1.tres" type="Material" id=11]
-[ext_resource path="res://scenes/levels/zones/zone1/scene_materials/nebula_transparent_1.tres" type="Material" id=12]
+[ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=10]
+[ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=13]
 [ext_resource path="res://scenes/prefabs/station/DockableStation.tscn" type="PackedScene" id=30]
 
 [sub_resource type="SpatialMaterial" id=10]
@@ -88,15 +87,15 @@ radius = 1000.0
 shader = ExtResource( 4 )
 shader_param/paint_color = Color( 1, 1, 1, 1 )
 shader_param/light_tint = Color( 0.803922, 0.72549, 0.556863, 1 )
-shader_param/shadow_tint = Color( 0.14902, 0.172549, 0.152941, 1 )
-shader_param/shadow_bias = 0.193
+shader_param/shadow_tint = Color( 0.0862745, 0.0980392, 0.0901961, 1 )
+shader_param/shadow_bias = 0.169
 shader_param/shadow_softness = 0.292
 shader_param/shadow_normal_blend = 0.317
 shader_param/spec_tint = Color( 0.843137, 0.92549, 0.92549, 0.501961 )
 shader_param/spec_intensity = 0.155
 shader_param/spec_glossiness = 8.243
 shader_param/spec_softness = 1.0
-shader_param/rim_color = Color( 0.121569, 0.027451, 0.101961, 1 )
+shader_param/rim_color = Color( 0.0196078, 0.00392157, 0.0509804, 1 )
 shader_param/rim_width = 3.0
 shader_param/rim_power = 2.0
 shader_param/rim_mask_on_shadow = false
@@ -126,28 +125,6 @@ data = PoolVector3Array( -0.17, 0, -1.7257, 0, 0.0163, -1.7356, 0, 0, -1.734, -0
 inner_radius = 1.734
 outer_radius = 1.901
 
-[sub_resource type="ProceduralSky" id=5]
-radiance_size = 0
-sky_top_color = Color( 0.0693, 0.102538, 0.11, 1 )
-sky_horizon_color = Color( 0.0862745, 0.0666667, 0.172549, 1 )
-sky_curve = 0.584822
-ground_bottom_color = Color( 0.11064, 0.0768, 0.12, 1 )
-ground_horizon_color = Color( 0.0862745, 0.0666667, 0.172549, 1 )
-ground_curve = 0.710122
-sun_color = Color( 0, 0, 0, 1 )
-sun_latitude = -51.15
-sun_energy = 0.0
-
-[sub_resource type="Environment" id=1]
-background_mode = 1
-background_sky = SubResource( 5 )
-background_color = Color( 0.145098, 0.12549, 0.196078, 1 )
-dof_blur_far_quality = 0
-glow_intensity = 1.5
-glow_strength = 1.3
-glow_hdr_threshold = 0.9
-glow_high_quality = true
-
 [node name="BasicFlightZone" type="Spatial"]
 __meta__ = {
 "_edit_lock_": true
@@ -171,10 +148,10 @@ __meta__ = {
 }
 
 [node name="System_1" type="Position3D" parent="SceneAssets"]
-transform = Transform( -0.342756, 0.715632, 0.608596, -0.356834, -0.698464, 0.620338, 0.869015, -0.0045431, 0.494764, -36546.2, 68389.7, 54508.9 )
+transform = Transform( -0.342756, 0.715632, 0.608596, -0.356834, -0.698464, 0.620338, 0.869015, -0.0045431, 0.494764, 0, 0, 0 )
 
 [node name="Station_Alpha" parent="SceneAssets/System_1" instance=ExtResource( 30 )]
-transform = Transform( 1, 5.6345e-08, 5.96046e-08, -4.19095e-09, 1, -4.58676e-08, 2.98023e-08, 4.44707e-08, 1, 48041.9, 233.477, -673.418 )
+transform = Transform( 2.28983, 1.31316e-07, 2.38419e-07, 3.72529e-08, 2.28983, -9.26666e-08, 5.96046e-08, 2.17929e-07, 2.28983, 50032.2, -929.018, -1569.53 )
 
 [node name="Station_Beta" parent="SceneAssets/System_1" instance=ExtResource( 30 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 49500, 100, 1500 )
@@ -272,18 +249,16 @@ transform = Transform( 1, -2.19963e-15, 0, -2.20657e-15, 1, 0, -2.22045e-16, 0, 
 mesh = SubResource( 4 )
 skeleton = NodePath("../../..")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="SceneAssets"]
-environment = SubResource( 1 )
+[node name="nebula_2" type="Spatial" parent="SceneAssets"]
 
-[node name="nebula_1" parent="SceneAssets" instance=ExtResource( 10 )]
-transform = Transform( 277876, 80739.2, -187382, -105401, 327889, -15022.2, 174705, 69398.7, 288978, -17640.6, 68419.6, -47583.8 )
+[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/nebula_2"]
 
-[node name="Nebula1" parent="SceneAssets/nebula_1" index="0"]
-material_override = ExtResource( 11 )
+[node name="StarsphereSlot" type="Spatial" parent="."]
+script = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="Nebula_transparent1" parent="SceneAssets/nebula_1" index="1"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.146, 0 )
-material_override = ExtResource( 12 )
+[node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 10 )]
 
 [editable path="SceneAssets/System_1/Star_1/ModelAdditional/Star_sprite_square_wide"]
-[editable path="SceneAssets/nebula_1"]

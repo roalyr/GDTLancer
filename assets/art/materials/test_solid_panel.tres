@@ -4,17 +4,17 @@
 
 [resource]
 shader = ExtResource( 1 )
-shader_param/paint_color = Color( 1, 1, 1, 1 )
-shader_param/light_tint = Color( 1, 0.95, 0.9, 1 )
-shader_param/shadow_tint = Color( 0.15, 0.15, 0.25, 1 )
+shader_param/paint_color = Color( 0.411765, 0.411765, 0.415686, 1 )
+shader_param/light_tint = Color( 1, 1, 1, 1 )
+shader_param/shadow_tint = Color( 0.227451, 0.227451, 0.227451, 1 )
 shader_param/shadow_bias = 0.0
 shader_param/shadow_softness = 0.1
 shader_param/shadow_normal_blend = 0.5
-shader_param/spec_tint = Color( 1, 1, 1, 0.5 )
-shader_param/spec_intensity = 0.0
+shader_param/spec_tint = Color( 1, 1, 1, 0.501961 )
+shader_param/spec_intensity = 0.2
 shader_param/spec_glossiness = 10.0
-shader_param/spec_softness = 0.1
-shader_param/rim_color = Color( 0.5, 0.7, 1, 1 )
+shader_param/spec_softness = 0.5
+shader_param/rim_color = Color( 0.0470588, 0.192157, 0.403922, 1 )
 shader_param/rim_width = 3.0
 shader_param/rim_power = 2.0
 shader_param/rim_mask_on_shadow = true

@@ -46,8 +46,9 @@ uniform float rim_factor = 1.0;
 uniform float rim_strength = 1.0;
 uniform float rim_exponent = 1.0;
 
-uniform float fade_distance = 1e5;
-uniform float fade_power = 2.0;
+uniform float fade_distance_near = 1e5;
+uniform float fade_distance_far = 1e6;
+uniform float fade_power = .2;
 
 uniform float uv1_blend_sharpness = 10.0;
 
@@ -61,7 +62,6 @@ uniform float scale_end_mul = 100;
 uniform float scale_power = 1.0;
 uniform float scale_min = 0.5;
 
-uniform sampler2D detail_noise;
 uniform sampler2D normal_noise;
 
 const float pi = 3.1415926535;
@@ -163,8 +163,10 @@ void fragment()
 	
 	// Replace near parts with ambient color to hide polygons.
 	float dist = length(VERTEX);
-	float fade = pow(clamp(smoothstep(0.0, fade_distance, dist), 1e-6, 1.0), fade_power); // fades in
+	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
+	float fade_in = clamp(smoothstep(0.0, fade_distance_near, dist), 1e-6, 1.0); // fades in
 	vec3 current = ALBEDO;
+	float fade = pow(fade_in*fade_out, fade_power);
 	ALBEDO = (1.0-fade) * albedo_ambient.rgb + fade * current;
 
 }
