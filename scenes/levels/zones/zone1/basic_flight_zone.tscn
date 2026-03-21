@@ -235,10 +235,10 @@ transform = Transform( 5.96046e-08, -1, 0, 1, -2.23517e-07, 5.96046e-08, 1.63913
 
 [node name="StaticBody" type="StaticBody" parent="SceneAssets/System_1/EntryPointA"]
 transform = Transform( 1, -2.19963e-15, 0, -2.20657e-15, 1, 0, -2.22045e-16, 0, 1, 0, 0, 0 )
-visible = false
 
 [node name="CollisionShape2" type="CollisionShape" parent="SceneAssets/System_1/EntryPointA/StaticBody"]
 transform = Transform( 50, 0, 1.90735e-06, 0, 50, -5.72205e-06, -2.38419e-06, 7.62939e-06, 50, 0, 0, 0 )
+visible = false
 shape = SubResource( 15 )
 
 [node name="Model" type="Spatial" parent="SceneAssets/System_1/EntryPointA/StaticBody"]
@@ -248,10 +248,6 @@ transform = Transform( 50, -6.7654e-14, -1.11022e-14, 6.7654e-14, 50, 9.39855e-2
 transform = Transform( 1, -2.19963e-15, 0, -2.20657e-15, 1, 0, -2.22045e-16, 0, 1, 0, 0, 0 )
 mesh = SubResource( 4 )
 skeleton = NodePath("../../..")
-
-[node name="nebula_2" type="Spatial" parent="SceneAssets"]
-
-[node name="MeshInstance" type="MeshInstance" parent="SceneAssets/nebula_2"]
 
 [node name="StarsphereSlot" type="Spatial" parent="."]
 script = ExtResource( 13 )
