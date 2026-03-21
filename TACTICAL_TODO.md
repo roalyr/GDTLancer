@@ -119,7 +119,7 @@ functional (TimeSystem, docking, HUD, main menu).
 
   ### PHASE 1: ContactManager System
 
-  - [ ] TASK_1: Add EventBus signal + GlobalRefs variable + disposition constants
+  - [x] TASK_1: Add EventBus signal + GlobalRefs variable + disposition constants
     - File: `src/autoload/EventBus.gd` — ADD signal:
       - `signal sector_contacts_changed(sector_id)` — emitted by ContactManager after roster rebuild
     - File: `src/autoload/GlobalRefs.gd` — ADD variable + setter:
@@ -130,7 +130,7 @@ functional (TimeSystem, docking, HUD, main menu).
       - Between thresholds = neutral (yellow)
     - Signature: No behavioral changes. Pure data additions.
 
-  - [ ] TASK_2: Create `contact_manager.gd` — simulation data bridge
+  - [x] TASK_2: Create `contact_manager.gd` — simulation data bridge
     - File: `src/core/systems/contact_manager.gd` — CREATE
     - Class: `extends Node`
     - **Dependencies:** `AffinityMatrix` (instantiated locally), reads `GameState`, `TemplateDatabase`, `Constants`
@@ -165,7 +165,7 @@ functional (TimeSystem, docking, HUD, main menu).
     - **_notification(NOTIFICATION_PREDELETE):** Cleanup GlobalRefs + disconnect signals (follow EventSystem pattern)
     - Signature: ~200 lines. Pure read-only bridge. No GameState mutation. No simulation coupling.
 
-  - [ ] TASK_3: Add ContactManager node to main_game_scene.tscn
+  - [x] TASK_3: Add ContactManager node to main_game_scene.tscn
     - File: `scenes/levels/game_world/main_game_scene.tscn` — UPDATE
     - Add a new child node of WorldManager:
       - Name: `ContactManager`
@@ -176,7 +176,7 @@ functional (TimeSystem, docking, HUD, main menu).
 
   ### PHASE 2: Radar Display
 
-  - [ ] TASK_4: Create `radar_display.gd` + `radar_display.tscn` — contact roster panel
+  - [x] TASK_4: Create `radar_display.gd` + `radar_display.tscn` — contact roster panel
     - Script file: `src/core/ui/radar_display/radar_display.gd` — CREATE
     - Scene file: `scenes/ui/hud/radar_display.tscn` — CREATE
     - Class: `extends Control`
@@ -205,7 +205,7 @@ functional (TimeSystem, docking, HUD, main menu).
     - **Empty state:** When no contacts in sector, show `"No contacts detected"` label.
     - Signature: ~100 lines script. Purely presentational — reads from ContactManager, no direct GameState access.
 
-  - [ ] TASK_5: Wire radar into main_hud — scene + script integration
+  - [x] TASK_5: Wire radar into main_hud — scene + script integration
     - File: `scenes/ui/hud/main_hud.tscn` — UPDATE:
       - Set `TopRightZone` `visible = true`
       - Remove or hide `_PlaceholderMap` (set visible=false or delete node)
@@ -233,7 +233,7 @@ functional (TimeSystem, docking, HUD, main menu).
 
   ### PHASE 3: Sector Info Panel
 
-  - [ ] TASK_6: Create `sector_info_panel.gd` + `sector_info_panel.tscn` — sector status display
+  - [x] TASK_6: Create `sector_info_panel.gd` + `sector_info_panel.tscn` — sector status display
     - Script file: `src/core/ui/sector_info_panel/sector_info_panel.gd` — CREATE
     - Scene file: `scenes/ui/hud/sector_info_panel.tscn` — CREATE
     - Class: `extends Control`
@@ -260,7 +260,7 @@ functional (TimeSystem, docking, HUD, main menu).
     - **Empty state:** If no sector info available (sim not initialized), show `"Awaiting sensor data..."`.
     - Signature: ~80 lines script. Purely presentational.
 
-  - [ ] TASK_7: Wire sector info panel into main_hud — scene + script integration
+  - [x] TASK_7: Wire sector info panel into main_hud — scene + script integration
     - File: `scenes/ui/hud/main_hud.tscn` — UPDATE:
       - Add new child under `ScreenControls/TopCenterZone`:
         - Name: `SectorInfoPanel`
@@ -277,7 +277,7 @@ functional (TimeSystem, docking, HUD, main menu).
 
   ### PHASE 4: Tests
 
-  - [ ] TASK_8: Create unit tests for ContactManager
+  - [x] TASK_8: Create unit tests for ContactManager
     - File: `src/tests/core/systems/test_contact_manager.gd` — CREATE
     - Framework: GUT `extends GutTest`
     - **Setup pattern:** `before_each()` resets `GameState.reset_state()`, seeds minimal simulation state (world_topology, agents, agent_tags, sector_tags, characters), creates ContactManager instance. `after_each()` frees ContactManager.
@@ -297,8 +297,8 @@ functional (TimeSystem, docking, HUD, main menu).
 
   ### PHASE 5: Validation
 
-  - [ ] VERIFICATION_1: Project loads in Godot 3.6 with 0 errors — run `get_errors()` across all modified/new files
-  - [ ] VERIFICATION_2: GUT test suite — `test_contact_manager.gd` passes (0 failures, 0 errors). Existing simulation tests still pass.
-  - [ ] VERIFICATION_3: Manual — launch game, press F3 debug panel Tick button, verify radar display shows agents with correct disposition colors matching F3 panel agent data
-  - [ ] VERIFICATION_4: Manual — dock/undock at station, verify radar + sector panel refresh after sim tick
-  - [ ] VERIFICATION_5: Manual — Run 30 ticks via F3 batch button, verify sector info panel updates (world age timer changes, economy/security tags may shift)
+  - [x] VERIFICATION_1: Project loads in Godot 3.6 with 0 errors — run `get_errors()` across all modified/new files
+  - [x] VERIFICATION_2: GUT test suite — `test_contact_manager.gd` passes (0 failures, 0 errors). Existing simulation tests still pass.
+  - [x] VERIFICATION_3: Manual — launch game, press F3 debug panel Tick button, verify radar display shows agents with correct disposition colors matching F3 panel agent data
+  - [x] VERIFICATION_4: Manual — dock/undock at station, verify radar + sector panel refresh after sim tick
+  - [x] VERIFICATION_5: Manual — Run 30 ticks via F3 batch button, verify sector info panel updates (world age timer changes, economy/security tags may shift)

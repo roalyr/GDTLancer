@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.2
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §1.2, §7 (UI Style)
+# LOG_REF: 2026-03-21
 #
 
 extends Control
@@ -37,6 +37,10 @@ onready var button_return_to_menu: Button = $GameOverOverlay/CenterContainer/Pan
 onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/TargetInfoPanel
 onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
 onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
+
+# --- Simulation HUD Panels ---
+onready var radar_display = $ScreenControls/TopRightZone/RadarDisplay
+onready var sector_info_panel = $ScreenControls/TopCenterZone/SectorInfoPanel
 
 # --- State ---
 var _current_target: Spatial = null
@@ -108,6 +112,11 @@ func _ready():
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 		if not EventBus.is_connected("game_state_loaded", self, "_on_game_state_loaded"):
 			EventBus.connect("game_state_loaded", self, "_on_game_state_loaded")
+
+		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_for_panels"):
+			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_for_panels")
+		if not EventBus.is_connected("sim_initialized", self, "_on_sim_initialized_for_panels"):
+			EventBus.connect("sim_initialized", self, "_on_sim_initialized_for_panels")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
@@ -586,3 +595,21 @@ func _on_ButtonUIOpacity_pressed() -> void:
 	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
+
+
+# --- Simulation HUD Panel Refresh ---
+
+func _on_sim_tick_for_panels(_tick_count) -> void:
+	_refresh_hud_panels()
+
+
+func _on_sim_initialized_for_panels(_seed) -> void:
+	_refresh_hud_panels()
+
+
+func _refresh_hud_panels() -> void:
+	if is_instance_valid(GlobalRefs.contact_manager):
+		if is_instance_valid(radar_display):
+			radar_display.refresh(GlobalRefs.contact_manager)
+		if is_instance_valid(sector_info_panel):
+			sector_info_panel.refresh(GlobalRefs.contact_manager)

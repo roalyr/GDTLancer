@@ -21,7 +21,7 @@ var time_system_instance = null
 func before_each():
 	# 1. Clean and set up the global state for the test
 	GameState.game_time_seconds = 0
-	GameState.player_character_uid = 0
+	GameState.player_character_uid = "0"
 
 	# 2. Instantiate the system we are testing
 	time_system_instance = TimeSystem.new()
@@ -30,7 +30,7 @@ func before_each():
 func after_each():
 	# Clean up global state to ensure test isolation
 	GameState.game_time_seconds = 0
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	time_system_instance = null
 
 # --- Test Cases ---

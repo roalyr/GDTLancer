@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
-# MODULE: src/autoload/EventBus.gd
+# MODULE: EventBus.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
+# LOG_REF: 2026-03-21
 #
 
 extends Node
@@ -87,6 +87,9 @@ signal contact_met(agent_id) # Emitted when player first meets a Persistent Agen
 signal sim_tick_completed(tick_count)   # Emitted after full tick sequence completes
 signal sim_initialized(seed_string)    # Emitted after simulation is seeded and all layers initialized
 signal world_age_changed(new_age)      # Emitted when world-age transitions (PROSPERITY/DISRUPTION/RECOVERY)
+
+# --- Contact System Signals (HUD Bridge) ---
+signal sector_contacts_changed(sector_id)  # Emitted by ContactManager after roster rebuild
 
 
 func _ready():

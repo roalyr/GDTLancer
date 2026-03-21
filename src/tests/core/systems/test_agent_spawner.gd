@@ -23,7 +23,7 @@ const PLAYER_UID = 0
 func before_each():
 	# 1. Clean and set up the global state
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 	# 2. Create mock scene nodes required by the AgentSystem
 	mock_agent_container = Node.new()
@@ -34,7 +34,7 @@ func before_each():
 	# 3. Create a mock player character in the GameState
 	var player_char = CharacterTemplate.new()
 	GameState.characters[PLAYER_UID] = player_char
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 4. Instantiate the system we are testing
 	agent_system_instance = AgentSystem.new()
@@ -50,7 +50,7 @@ func before_each():
 func after_each():
 	# Clean up global state and references
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	GlobalRefs.agent_container = null
 	
 	if EventBus.is_connected("agent_spawned", signal_catcher, "_on_signal_received"):

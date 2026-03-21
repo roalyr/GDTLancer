@@ -89,7 +89,7 @@ func test_save_and_load_preserves_mutated_fields():
 			station_alpha.market_inventory["commodity_ore"]["quantity"] = 123
 
 	# Ship quirks mutation (grab player's first ship)
-	var player_uid = GameState.player_character_uid
+	var player_uid = int(GameState.player_character_uid)
 	assert_true(GameState.inventories.has(player_uid), "Precondition: player inventory should exist.")
 	var ship_uid := -1
 	if GameState.inventories.has(player_uid):

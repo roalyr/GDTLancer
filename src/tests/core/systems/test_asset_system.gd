@@ -22,7 +22,7 @@ func before_each():
 	# 1. Clean the global state
 	GameState.characters.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 	# 2. Create a mock CharacterSystem and stub its methods
 	mock_character_system = double(CharacterSystem).new()
@@ -47,7 +47,7 @@ func before_each():
 
 	# 5. Create characters in GameState for get_ship_for_character tests
 	GameState.characters[PLAYER_UID] = player_char
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 	
 	var npc_char = CharacterTemplate.new()
 	npc_char.active_ship_uid = NPC_SHIP_UID
@@ -61,7 +61,7 @@ func after_each():
 	# Clean up global state to ensure test isolation
 	GameState.characters.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	GlobalRefs.character_system = null
 	asset_system_instance = null
 

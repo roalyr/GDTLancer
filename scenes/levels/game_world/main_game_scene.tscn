@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -13,6 +13,7 @@
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
 [ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
 [ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
+[ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
 
 [node name="MainGameScene" type="Node"]
 
@@ -39,6 +40,9 @@ script = ExtResource( 5 )
 
 [node name="SimulationEngine" type="Node" parent="WorldManager"]
 script = ExtResource( 26 )
+
+[node name="ContactManager" type="Node" parent="WorldManager"]
+script = ExtResource( 27 )
 
 [node name="WorldRendering" type="Node" parent="."]
 script = ExtResource( 16 )

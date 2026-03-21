@@ -20,7 +20,7 @@ func before_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 2. Create mock assets in the master asset lists
 	GameState.assets_ships[SHIP_UID] = ShipTemplate.new()
@@ -38,7 +38,7 @@ func after_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	inventory_system_instance = null
 
 

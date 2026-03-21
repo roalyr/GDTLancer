@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -15,6 +15,8 @@
 [ext_resource path="res://assets/art/ui/controls/button_attack.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
 [ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
+[ext_resource path="res://scenes/ui/hud/radar_display.tscn" type="PackedScene" id=16]
+[ext_resource path="res://scenes/ui/hud/sector_info_panel.tscn" type="PackedScene" id=17]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -576,8 +578,15 @@ margin_right = 286.0
 margin_bottom = 32.0
 value = 100.0
 
+[node name="SectorInfoPanel" parent="ScreenControls/TopCenterZone" instance=ExtResource( 17 )]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -300.0
+margin_top = 140.0
+margin_right = 300.0
+margin_bottom = 190.0
+
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
-visible = false
 anchor_left = 1.0
 anchor_right = 1.0
 margin_left = -470.0
@@ -594,6 +603,10 @@ margin_right = -10.0
 margin_bottom = -10.0
 texture = ExtResource( 4 )
 expand = true
+
+[node name="RadarDisplay" parent="ScreenControls/TopRightZone" instance=ExtResource( 16 )]
+anchor_right = 1.0
+anchor_bottom = 1.0
 
 [node name="GameOverOverlay" type="Control" parent="."]
 pause_mode = 2

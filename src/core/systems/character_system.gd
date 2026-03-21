@@ -28,7 +28,13 @@ func get_character(character_uid) -> CharacterTemplate:
 # Convenience function to get the player's character instance.
 func get_player_character() -> CharacterTemplate:
 	if GameState.player_character_uid != "":
-		return GameState.characters.get(GameState.player_character_uid)
+		var uid = GameState.player_character_uid
+		if GameState.characters.has(uid):
+			return GameState.characters.get(uid)
+		# Fallback: characters dict may use int keys from WorldGenerator
+		var int_uid = int(uid)
+		if GameState.characters.has(int_uid):
+			return GameState.characters.get(int_uid)
 	return null
 
 
@@ -44,7 +50,7 @@ func add_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].credits += amount
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
@@ -52,7 +58,7 @@ func subtract_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].credits -= amount
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
@@ -68,7 +74,7 @@ func add_fp(character_uid, amount: int):
 		character.focus_points += amount
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
@@ -78,7 +84,7 @@ func subtract_fp(character_uid, amount: int):
 		character.focus_points -= amount
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 

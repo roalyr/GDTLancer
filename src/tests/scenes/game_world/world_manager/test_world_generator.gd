@@ -34,7 +34,7 @@ func before_each():
 	GameState.assets_ships.clear()
 	GameState.locations.clear()
 	GameState.factions.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 func after_each():
 	# Clean up the global reference to prevent test bleed.
@@ -50,17 +50,17 @@ func test_generates_characters_and_inventories():
 	assert_eq(GameState.inventories.size(), GameState.characters.size(), "Should create one inventory per character.")
 
 func test_assigns_player_character_uid():
-	assert_eq(GameState.player_character_uid, -1, "Player UID should be -1 before generation.")
+	assert_eq(GameState.player_character_uid, "", "Player UID should be empty before generation.")
 
 	generator_instance.generate_new_world()
 
-	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set.")
-	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must be a valid key.")
+	assert_ne(GameState.player_character_uid, "", "A valid player UID should be set.")
+	assert_has(GameState.characters, int(GameState.player_character_uid), "The player UID must be a valid key.")
 
 func test_generated_characters_have_assets():
 	generator_instance.generate_new_world()
 	
-	var player_uid = GameState.player_character_uid
+	var player_uid = int(GameState.player_character_uid)
 	var player_char = GameState.characters[player_uid]
 
 	# Check for active ship assignment

@@ -1,8 +1,10 @@
-# File: core/autoload/global_refs.gd
-# Autoload Singleton: GlobalRefs
-# Purpose: Holds easily accessible references to unique global nodes/managers.
-# Nodes register themselves here via setter functions during their _ready() phase.
-# Version: 1.1
+#
+# PROJECT: GDTLancer
+# MODULE: GlobalRefs.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
+# LOG_REF: 2026-03-21
+#
 
 extends Node
 
@@ -28,6 +30,7 @@ var event_system = null setget set_event_system
 var inventory_system = null setget set_inventory_system
 var time_system = null setget set_time_system
 var simulation_engine = null setget set_simulation_engine
+var contact_manager = null setget set_contact_manager
 
 
 func _ready():
@@ -142,6 +145,14 @@ func set_simulation_engine(new_ref):
 		print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
+
+func set_contact_manager(new_ref):
+	if new_ref == contact_manager: return
+	if new_ref == null or is_instance_valid(new_ref):
+		contact_manager = new_ref
+		print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid ContactManager ref: ", new_ref)
 
 
 # --- UI ELEMENTS ---

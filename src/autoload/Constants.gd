@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
+# LOG_REF: 2026-03-21
 #
 
 extends Node
@@ -180,3 +180,7 @@ const SUBTICK_COST_SECTOR_TRAVEL: int = 10
 const SUBTICK_COST_DOCK: int = 3
 const SUBTICK_COST_UNDOCK: int = 2
 const SUBTICK_COST_DEEP_SPACE_EVENT: int = 5
+
+# ---- CONTACT MANAGER ----
+const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5
+const DISPOSITION_HOSTILE_THRESHOLD: float = -0.5

@@ -25,7 +25,7 @@ const NPC_UID = 1
 func before_each():
 	# 1. Clean the global state
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 	# 2. Load the base template resource
 	default_char_template = load("res://database/registry/characters/character_default.tres")
@@ -35,7 +35,7 @@ func before_each():
 	var player_char_instance = default_char_template.duplicate()
 	player_char_instance.credits = 100 # Start with some money for tests
 	GameState.characters[PLAYER_UID] = player_char_instance
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 4. Create and register an NPC character instance for multi-character tests
 	var npc_char_instance = default_char_template.duplicate()
@@ -50,7 +50,7 @@ func before_each():
 # Runs after each test to ensure a clean environment.
 func after_each():
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	character_system_instance = null # autofree handles the instance
 
 
