@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT §Architecture, TACTICAL_TODO §TASK_6
+# LOG_REF: 2026-03-27
 #
 
 extends Node
@@ -17,6 +17,8 @@ const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_
 
 # --- State ---
 var _spawned_agent_bodies = []
+var _sector_loader = null
+var _pending_jump_target: String = ""
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
@@ -47,6 +49,9 @@ func _ready():
 	if EventBus.has_signal("new_game_requested"):
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
+	EventBus.connect("player_jump_requested", self, "_on_player_jump_requested")
+	EventBus.connect("jump_available", self, "_on_jump_available")
+	EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 	
 
 	# --- NEW: Setup the Time Clock Timer ---
@@ -89,7 +94,8 @@ func _on_new_game_requested() -> void:
 	else:
 		push_warning("WorldManager: SimulationEngine not available, skipping sim init.")
 
-	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	GameState.agents["player"]["current_sector_id"] = Constants.INITIAL_SECTOR_ID
+	load_sector(Constants.INITIAL_SECTOR_ID)
 	
 	if is_instance_valid(_time_clock_timer):
 		_time_clock_timer.start()
@@ -115,7 +121,9 @@ func _on_game_state_loaded() -> void:
 	if saved_seed != "" and is_instance_valid(GlobalRefs.simulation_engine):
 		GlobalRefs.simulation_engine.initialize_simulation(saved_seed)
 
-	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	var saved_sector = GameState.current_sector_id
+	if saved_sector == "": saved_sector = Constants.INITIAL_SECTOR_ID
+	load_sector(saved_sector)
 	call_deferred("_emit_loaded_dock_signal")
 	call_deferred("_emit_loaded_resource_signals")
 	
@@ -204,40 +212,62 @@ func _reset_camera_input_state() -> void:
 			GlobalRefs.main_camera.set_is_rotating(false)
 
 
-# --- Zone Management ---
-func load_zone(zone_scene_path: String):
-	if not zone_scene_path or zone_scene_path.empty():
-		printerr("WM Error: Invalid zone path provided.")
+# --- Sector Loading ---
+func load_sector(sector_id: String):
+	if not GameState.world_topology.has(sector_id):
+		printerr("WM Error: sector_id not in world_topology: ", sector_id)
 		return
 
-	# 1. Cleanup Previous Zone (if not already cleaned up)
-	if is_instance_valid(GameState.current_zone_instance):
-		_cleanup_current_zone()
-		yield(get_tree(), "idle_frame")
+	_cleanup_all_agents()
+	_cleanup_current_zone()
+	yield(get_tree(), "idle_frame")
 
-	# 2. Find Parent Container Node
+	if _sector_loader == null:
+		_sector_loader = load("res://src/core/systems/sector_loader.gd").new()
+
+	var zone_root: Spatial = _sector_loader.load_sector(sector_id)
+	if zone_root == null:
+		printerr("WM Error: SectorLoader returned null for: ", sector_id)
+		return
+
 	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
 	if not is_instance_valid(zone_holder):
 		printerr("WM Error: Could not find valid zone holder node!")
 		return
 
-	# 3. Load and Instance the Zone Scene
-	var zone_scene = load(zone_scene_path)
-	if not zone_scene:
-		printerr("WM Error: Failed to load Zone Scene Resource: ", zone_scene_path)
-		return
+	zone_holder.add_child(zone_root)
+	GameState.current_zone_instance = zone_root
+	GlobalRefs.current_zone = zone_root
 
-	GameState.current_zone_instance = zone_scene.instance()
-	zone_holder.add_child(GameState.current_zone_instance)
-	GlobalRefs.current_zone = GameState.current_zone_instance
-
-	# 4. Find Agent Container and emit signal that the zone is ready
-	var agent_container = GameState.current_zone_instance.find_node(
-		Constants.AGENT_CONTAINER_NAME, true, false
-	)
+	var agent_container = zone_root.find_node(Constants.AGENT_CONTAINER_NAME, true, false)
 	GlobalRefs.agent_container = agent_container
 
-	EventBus.emit_signal("zone_loaded", GameState.current_zone_instance, zone_scene_path, agent_container)
+	GameState.current_sector_id = sector_id
+	EventBus.emit_signal("zone_loaded", zone_root, sector_id, agent_container)
+
+
+func travel_to_sector(target_sector_id: String) -> void:
+	var old_sector = GameState.current_sector_id
+	GameState.player_docked_at = ""
+	if GameState.agents.has("player"):
+		GameState.agents["player"]["current_sector_id"] = target_sector_id
+	EventBus.emit_signal("sector_changed", target_sector_id, old_sector)
+	load_sector(target_sector_id)
+	if is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.request_tick()
+
+
+# --- Jump Signal Handlers ---
+func _on_jump_available(target_sector_id, _name):
+	_pending_jump_target = target_sector_id
+
+
+func _on_jump_unavailable():
+	_pending_jump_target = ""
+
+
+func _on_player_jump_requested(target_sector_id):
+	travel_to_sector(target_sector_id)
 
 
 # --- Time System Driver ---
@@ -279,3 +309,9 @@ func _notification(what):
 			EventBus.disconnect("agent_spawned", self, "_on_Agent_Spawned")
 		if EventBus.is_connected("agent_despawning", self, "_on_Agent_Despawning"):
 			EventBus.disconnect("agent_despawning", self, "_on_Agent_Despawning")
+		if EventBus.is_connected("player_jump_requested", self, "_on_player_jump_requested"):
+			EventBus.disconnect("player_jump_requested", self, "_on_player_jump_requested")
+		if EventBus.is_connected("jump_available", self, "_on_jump_available"):
+			EventBus.disconnect("jump_available", self, "_on_jump_available")
+		if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
+			EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")

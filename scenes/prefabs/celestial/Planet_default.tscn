@@ -1,0 +1,73 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=1]
+[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=2]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=3]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Craters 14 - 512x512.png" type="Texture" id=4]
+
+[sub_resource type="SphereShape" id=1]
+radius = 1000.0
+
+[sub_resource type="SphereMesh" id=2]
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = ExtResource( 2 )
+shader_param/paint_color = Color( 1, 1, 1, 1 )
+shader_param/light_tint = Color( 0.803922, 0.72549, 0.556863, 1 )
+shader_param/shadow_tint = Color( 0.0862745, 0.0980392, 0.0901961, 1 )
+shader_param/shadow_bias = 0.169
+shader_param/shadow_softness = 0.292
+shader_param/shadow_normal_blend = 0.317
+shader_param/spec_tint = Color( 0.843137, 0.92549, 0.92549, 0.501961 )
+shader_param/spec_intensity = 0.155
+shader_param/spec_glossiness = 8.243
+shader_param/spec_softness = 1.0
+shader_param/rim_color = Color( 0.0196078, 0.00392157, 0.0509804, 1 )
+shader_param/rim_width = 3.0
+shader_param/rim_power = 2.0
+shader_param/rim_mask_on_shadow = false
+shader_param/detail_paint_scale = 0.222
+shader_param/detail_paint_strength = 0.442
+shader_param/detail_paint_contrast = 0.468
+shader_param/detail_normal_scale = 3.507
+shader_param/detail_normal_strength = 0.224
+shader_param/uv_triplanar_sharpness = 100.0
+shader_param/uv_scale = Vector3( 1, 1, 1 )
+shader_param/uv_offset = Vector3( 0.636, 0.795, -0.423 )
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 30.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/detail_texture = ExtResource( 4 )
+shader_param/normal_texture = ExtResource( 3 )
+
+[sub_resource type="BoxShape" id=4]
+
+[sub_resource type="CubeMesh" id=5]
+
+[node name="Planet_default" type="StaticBody"]
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 1 )
+
+[node name="Model" type="Spatial" parent="."]
+transform = Transform( 1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 0, 0 )
+
+[node name="PlanetSurface" type="MeshInstance" parent="Model"]
+material_override = SubResource( 3 )
+mesh = SubResource( 2 )
+skeleton = NodePath("../..")
+script = ExtResource( 1 )
+
+[node name="StaticBody3" type="StaticBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -340.234, 61.8828, -1450.97 )
+
+[node name="CollisionShape" type="CollisionShape" parent="StaticBody3"]
+shape = SubResource( 4 )
+
+[node name="Model" type="Spatial" parent="StaticBody3"]
+
+[node name="MeshInstance" type="MeshInstance" parent="StaticBody3/Model"]
+transform = Transform( 1, 0, -1.77636e-15, 0, 1, 0, 1.77636e-15, 0, 1, 0, 0, 0 )
+mesh = SubResource( 5 )
+skeleton = NodePath("../../..")

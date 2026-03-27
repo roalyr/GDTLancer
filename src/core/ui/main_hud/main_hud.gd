@@ -92,6 +92,8 @@ func _ready():
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
+		EventBus.connect("jump_available", self, "_on_jump_available")
+		EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 		
 		# Dock/Attack feedback signals
 		EventBus.connect("dock_action_feedback", self, "_on_dock_action_feedback")
@@ -359,6 +361,10 @@ func _notification(what):
 				EventBus.disconnect("agent_damaged", self, "_on_agent_damaged")
 			if EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 				EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
+			if EventBus.is_connected("jump_available", self, "_on_jump_available"):
+				EventBus.disconnect("jump_available", self, "_on_jump_available")
+			if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
+				EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
 
 
 func _on_combat_initiated(_player_agent, enemy_agents: Array) -> void:
@@ -458,7 +464,7 @@ func _on_dock_available(location_id):
 	if docking_prompt:
 		docking_prompt.visible = true
 		if docking_label:
-			docking_label.text = "Docking Available - Press Interact"
+			docking_label.text = "Docking Available - Press Dock"
 
 func _on_dock_unavailable():
 	print("MainHUD: Dock unavailable signal received")
@@ -467,6 +473,18 @@ func _on_dock_unavailable():
 
 func _on_player_docked(_location_id):
 	if docking_prompt:
+		docking_prompt.visible = false
+
+
+# --- Jump UI Handlers ---
+func _on_jump_available(_target_id, target_name) -> void:
+	if docking_prompt and docking_label:
+		docking_prompt.visible = true
+		docking_label.text = "Jump to " + target_name + " - Press Dock"
+
+
+func _on_jump_unavailable() -> void:
+	if docking_prompt and docking_label and "Jump" in docking_label.text:
 		docking_prompt.visible = false
 
 

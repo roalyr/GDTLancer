@@ -313,7 +313,14 @@ func spawn_persistent_agents() -> void:
 		# Check if already active/spawned
 		if _active_persistent_agents.has(agent_id) and is_instance_valid(_active_persistent_agents[agent_id]):
 			continue
-			
+
+		# Sector filter: only spawn agents whose simulation says they're in the loaded sector
+		var sim_sector = ""
+		if GameState.agents.has(agent_id):
+			sim_sector = GameState.agents[agent_id].get("current_sector_id", "")
+		if sim_sector != GameState.current_sector_id:
+			continue
+
 		var state = get_persistent_agent_state(agent_id)
 		
 		if state.get("is_disabled", false):

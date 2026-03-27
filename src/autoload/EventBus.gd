@@ -91,6 +91,12 @@ signal world_age_changed(new_age)      # Emitted when world-age transitions (PRO
 # --- Contact System Signals (HUD Bridge) ---
 signal sector_contacts_changed(sector_id)  # Emitted by ContactManager after roster rebuild
 
+# --- Sector Travel Signals ---
+signal jump_available(target_sector_id, target_sector_name)
+signal jump_unavailable
+signal player_jump_requested(target_sector_id)
+signal sector_changed(new_sector_id, old_sector_id)
+
 
 func _ready():
 	print("EventBus Ready.")

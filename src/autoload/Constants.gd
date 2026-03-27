@@ -31,7 +31,6 @@ const ACTION_CHECK_SWC_THRESHOLD_RISKY = 12
 # --- Scene Paths ---
 const PLAYER_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/player_agent.tscn"
 const NPC_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/npc_agent.tscn"
-const INITIAL_ZONE_SCENE_PATH = "res://scenes/levels/zones/zone1/basic_flight_zone.tscn"
 
 # Agent Template Resource Paths
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://database/registry/agents/player_default.tres"
@@ -180,6 +179,14 @@ const SUBTICK_COST_SECTOR_TRAVEL: int = 10
 const SUBTICK_COST_DOCK: int = 3
 const SUBTICK_COST_UNDOCK: int = 2
 const SUBTICK_COST_DEEP_SPACE_EVENT: int = 5
+
+# ---- SECTOR TRAVEL ----
+const JUMP_POINT_RING_RADIUS: float = 80000.0       # Fallback distance from sector center (procedural sectors)
+const JUMP_POINT_STATION_OFFSET: float = 2000.0      # Distance from station where JumpPoints appear
+const JUMP_POINT_DETECTION_RADIUS: float = 300.0     # Area radius for player detection
+const REFERENCE_ORIGIN: Vector3 = Vector3(48042, 233, -673)  # Station Alpha global_position (nebula reference)
+const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
+const INITIAL_SECTOR_ID: String = "station_alpha"    # Starting sector for new game
 
 # ---- CONTACT MANAGER ----
 const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5

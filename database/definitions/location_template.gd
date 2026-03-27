@@ -18,6 +18,22 @@ export var location_type: String = "station"  # station, outpost, debris_field, 
 export var position_in_zone: Vector3 = Vector3.ZERO
 export var interaction_radius: float = 100.0  # How close player must be to dock
 
+# --- Sector Scene Configuration ---
+## Path to the handcrafted .tscn scene for this sector. Empty for procedural sectors.
+export var sector_scene_path: String = ""
+## Galactic position of this sector. Drives starsphere offset and JumpPoint directions.
+export var global_position: Vector3 = Vector3.ZERO
+
+# --- Procedural Generation Hints (for runtime-discovered sectors) ---
+## If true, this sector has no handcrafted .tscn and uses procedural generation.
+export var is_procedural: bool = false
+## Type hint for future procedural generator: deep_space, asteroid_field, stellar_approach, nebula_interior, etc.
+export var procedural_type: String = "deep_space"
+## Generator parameters: {density: float, hazard_type: String, celestial_count: int, etc.}
+export var procedural_hints: Dictionary = {}
+## Human-readable description of the sector for UI and generator context.
+export var sector_description: String = ""
+
 # --- World Layer: Topology (Section 2) ---
 ## IDs of sectors this location connects to (defines the sector graph for CA neighbors).
 export var connections: PoolStringArray = PoolStringArray()

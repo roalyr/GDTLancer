@@ -44,4 +44,7 @@ available_services = [ "trade", "refuel", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 3
 available_contract_ids = [ ]
+sector_scene_path = "res://scenes/levels/sectors/sector_epsilon/sector_station_epsilon.tscn"
+global_position = Vector3( 44500, -100, 1200 )
+sector_description = "Remote refinery complex. High mineral density but harsh environment."
 initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )

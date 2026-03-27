@@ -21,6 +21,7 @@ var _states = {}
 var _target_under_cursor: Spatial = null
 var _selected_target: Spatial = null setget _set_selected_target
 var _can_dock_at: String = ""
+var _pending_jump_target: String = ""
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -54,6 +55,8 @@ func _ready():
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
 	EventBus.connect("player_attack_pressed", self, "_on_attack_button_pressed")
+	EventBus.connect("jump_available", self, "_on_jump_available")
+	EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -231,10 +234,15 @@ func _get_current_target() -> RigidBody:
 
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
-	# Legacy keyboard interact - just dock if available
+	# Docking takes priority over jumping
 	if _can_dock_at != "":
 		print("PlayerController: Attempting to dock at ", _can_dock_at)
 		EventBus.emit_signal("player_docked", _can_dock_at)
+		return
+	# If a jump point is available and we're NOT in docking range, trigger jump
+	if _pending_jump_target != "":
+		EventBus.emit_signal("player_jump_requested", _pending_jump_target)
+		return
 
 
 # --- Dock/Attack Button Handlers ---
@@ -242,6 +250,8 @@ func _on_dock_button_pressed() -> void:
 	if _can_dock_at != "":
 		print("PlayerController: Dock button pressed, docking at ", _can_dock_at)
 		EventBus.emit_signal("player_docked", _can_dock_at)
+	elif _pending_jump_target != "":
+		EventBus.emit_signal("player_jump_requested", _pending_jump_target)
 	else:
 		# Emit signal to show "no dock available" popup on HUD
 		if EventBus:
@@ -373,11 +383,15 @@ func _on_Player_Flee_Pressed():
 		agent_script.command_flee(_selected_target)
 
 func _on_Player_Interact_Pressed():
+	# Docking takes priority over jumping
 	if _can_dock_at != "":
 		print("PlayerController: Interact button pressed. Attempting to dock at ", _can_dock_at)
 		EventBus.emit_signal("player_docked", _can_dock_at)
-	else:
-		print("PlayerController: Interact button pressed but no dock available.")
+		return
+	if _pending_jump_target != "":
+		EventBus.emit_signal("player_jump_requested", _pending_jump_target)
+		return
+	print("PlayerController: Interact button pressed but no dock or jump available.")
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
@@ -421,6 +435,10 @@ func _notification(what):
 			EventBus.disconnect(
 				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 			)
+		if EventBus.is_connected("jump_available", self, "_on_jump_available"):
+			EventBus.disconnect("jump_available", self, "_on_jump_available")
+		if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
+			EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
 
 # --- Docking Handlers ---
 func _on_dock_available(location_id):
@@ -432,6 +450,12 @@ func _on_dock_unavailable():
 	_can_dock_at = ""
 	print("PlayerController: Docking unavailable.")
 	# TODO: Hide UI prompt
+
+func _on_jump_available(target_id, _name):
+	_pending_jump_target = target_id
+
+func _on_jump_unavailable():
+	_pending_jump_target = ""
 
 func _on_player_docked(location_id):
 	print("Player docked at: ", location_id)

@@ -235,7 +235,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 1: Prefab Extraction + Sector Preset Structure
 
-  - [ ] TASK_1: Extract star and planet from basic_flight_zone into standalone prefab .tscn files
+  - [x] TASK_1: Extract star and planet from basic_flight_zone into standalone prefab .tscn files
     - File: `scenes/prefabs/celestial/Star_default.tscn` — CREATE
       **Node tree extracted from basic_flight_zone.tscn `SceneAssets/System_1/Star_1`:**
       ```
@@ -269,7 +269,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
       - Planet_default transform = identity. Per-sector .tscn positions it.
     - Signature: 2 new .tscn files. Pure asset extraction, no code changes.
 
-  - [ ] TASK_2: Create sector preset folders with cloned assets and sector scenes for all 5 sectors
+  - [x] TASK_2: Create sector preset folders with cloned assets and sector scenes for all 5 sectors
     - **Folder structure created:**
       ```
       scenes/levels/sectors/
@@ -322,7 +322,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 2: Template + State Updates
 
-  - [ ] TASK_3: Update LocationTemplate + .tres files + GameState + Constants
+  - [x] TASK_3: Update LocationTemplate + .tres files + GameState + Constants
     - File: `database/definitions/location_template.gd` — UPDATE
       - ADD after `position_in_zone` line:
         ```
@@ -380,7 +380,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 3: JumpPoint System
 
-  - [ ] TASK_4: Create JumpPoint script + scene + EventBus signals
+  - [x] TASK_4: Create JumpPoint script + scene + EventBus signals
     - Script file: `src/scenes/game_world/jump_point.gd` — CREATE
     - Scene file: `scenes/prefabs/navigation/JumpPoint.tscn` — CREATE
     - Class: `extends StaticBody` (follows DockableStation pattern)
@@ -412,7 +412,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 4: Sector Loading + Travel
 
-  - [ ] TASK_5: Create SectorLoader — loads preset, injects JumpPoints, offsets nebula
+  - [x] TASK_5: Create SectorLoader — loads preset, injects JumpPoints, offsets nebula
     - File: `src/core/systems/sector_loader.gd` — CREATE
     - Class: `extends Reference` (stateless builder, same pattern as WorldGenerator)
     - **Dependencies:** Reads `TemplateDatabase.locations`, `GameState.world_topology`, `Constants`
@@ -450,7 +450,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
         - Use for sectors with no sector_scene_path (future procedural discovery)
     - Signature: ~100 lines. Stateless loader. No GameState mutation (caller handles that).
 
-  - [ ] TASK_6: Update WorldManager — load_sector + travel flow
+  - [x] TASK_6: Update WorldManager — load_sector + travel flow
     - File: `src/scenes/game_world/world_manager.gd` — UPDATE
     - **New state:**
       `var _sector_loader = null` — SectorLoader Reference instance
@@ -515,7 +515,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 5: Agent Spawning + HUD
 
-  - [ ] TASK_7: Update AgentSystem for sector-filtered spawning
+  - [x] TASK_7: Update AgentSystem for sector-filtered spawning
     - File: `src/core/systems/agent_system.gd` — UPDATE
     - **Update `spawn_persistent_agents()`:**
       - Add explicit sector check before existing logic:
@@ -531,7 +531,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
     - **`spawn_player()` unchanged** — it already uses dock position or entry point logic. The sector .tscn has an EntryPoint Position3D.
     - Signature: ~10 modified lines. Core filtering logic.
 
-  - [ ] TASK_8: Add jump prompt to MainHUD (reuse docking prompt pattern)
+  - [x] TASK_8: Add jump prompt to MainHUD (reuse docking prompt pattern)
     - File: `src/core/ui/main_hud/main_hud.gd` — UPDATE
       - Connect in `_ready()`:
         `EventBus.connect("jump_available", self, "_on_jump_available")`
@@ -552,7 +552,7 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 6: Tests
 
-  - [ ] TASK_9: Create unit tests for SectorLoader
+  - [x] TASK_9: Create unit tests for SectorLoader
     - File: `src/tests/core/systems/test_sector_loader.gd` — CREATE
     - Framework: GUT `extends GutTest`
     - **Setup:** `before_each()` resets `GameState.reset_state()`, seeds minimal world_topology (2 sectors: station_alpha connected to station_beta), seeds TemplateDatabase.locations with mock LocationTemplate resources (global_position set, sector_scene_path pointing to sector presets). `after_each()` cleanup.
@@ -580,8 +580,8 @@ refresh on sim_tick_completed. 160/160 GUT tests, 536/536 asserts.
 
   ### PHASE 7: Validation
 
-  - [ ] VERIFICATION_1: Project loads in Godot 3.6 with 0 errors — run `get_errors()` across all modified/new files
-  - [ ] VERIFICATION_2: GUT test suite — test_sector_loader.gd passes (7 tests, 0 failures). All existing tests still pass.
+  - [x] VERIFICATION_1: Project loads in Godot 3.6 with 0 errors — run `get_errors()` across all modified/new files
+  - [x] VERIFICATION_2: GUT test suite — test_sector_loader.gd passes (7 tests, 0 failures). All existing tests still pass.
   - [ ] VERIFICATION_3: Manual — launch game, New Game starts at Station Alpha sector. Radar shows agents in station_alpha. Sector info panel shows station_alpha data.
   - [ ] VERIFICATION_4: Manual — fly to a JumpPoint (cyan sphere), see "Jump to [X] - Press Interact" prompt. Press Interact. Zone transitions to new sector with correct station. Radar updates to show agents in new sector.
   - [ ] VERIFICATION_5: Manual — travel to station_beta, dock. Undock. Travel back to station_alpha via jump point. Verify round-trip works. Run 30 sim ticks — agents may have moved sectors; radar reflects current sector population.

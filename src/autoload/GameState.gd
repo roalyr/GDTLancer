@@ -186,6 +186,9 @@ var game_time_seconds: int = 0
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
+## ID of the currently loaded sector (e.g. "station_alpha").
+var current_sector_id: String = ""
+
 ## Location ID of docked station, or empty string if in space.
 var player_docked_at: String = ""
 
@@ -260,3 +263,4 @@ func reset_state() -> void:
 	world_age = ""
 	world_age_timer = 0
 	world_age_cycle_count = 0
+	current_sector_id = ""

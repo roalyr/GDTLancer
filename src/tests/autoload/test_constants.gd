@@ -39,7 +39,6 @@ func test_core_scene_paths_exist():
 	# Check if the constants point to *something* - doesn't guarantee validity yet
 	assert_ne(Constants.NPC_AGENT_SCENE_PATH, "", "NPC Agent Scene Path should not be empty")
 	assert_ne(Constants.PLAYER_AGENT_SCENE_PATH, "", "Player Agent Scene Path should not be empty")
-	assert_ne(Constants.INITIAL_ZONE_SCENE_PATH, "", "Initial Zone Scene Path should not be empty")
 	prints("Tested Core Scene Paths Existence (basic check)")
 
 

@@ -44,4 +44,7 @@ available_services = [ "trade", "refuel", "repair", "contracts" ]
 controlling_faction_id = "faction_military"
 danger_level = 1
 available_contract_ids = [ ]
+sector_scene_path = "res://scenes/levels/sectors/sector_delta/sector_station_delta.tscn"
+global_position = Vector3( 47000, 150, 800 )
+sector_description = "Military garrison outpost maintaining order at a key junction. Well-defended."
 initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
