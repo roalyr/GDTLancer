@@ -198,6 +198,9 @@ var player_position: Vector3 = Vector3.ZERO
 ## Player spatial rotation in the active zone (degrees).
 var player_rotation: Vector3 = Vector3.ZERO
 
+## Sector the player just jumped from (for arrival spawn at return jump point).
+var player_arrived_from_sector: String = ""
+
 
 # =========================================================================
 # === LEGACY (kept for KEPT-system compatibility) ========================
@@ -264,3 +267,4 @@ func reset_state() -> void:
 	world_age_timer = 0
 	world_age_cycle_count = 0
 	current_sector_id = ""
+	player_arrived_from_sector = ""

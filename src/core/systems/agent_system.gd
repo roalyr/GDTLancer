@@ -83,7 +83,13 @@ func spawn_player():
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
 		if dock_pos != null:
 			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
-	# Priority 3: Use zone entry point (new game)
+	# Priority 3: If arrived via jump, spawn at the return jump point
+	elif GameState.player_arrived_from_sector != "":
+		var jp = _find_jump_point_targeting(GameState.player_arrived_from_sector)
+		if jp != null:
+			player_spawn_pos = jp.transform.origin + Vector3(0, 5, 15)
+		GameState.player_arrived_from_sector = ""
+	# Priority 4: Use zone entry point (new game)
 	elif is_instance_valid(GlobalRefs.current_zone):
 		var entry_node = null
 		if Constants.ENTRY_POINT_NAMES.size() > 0:
@@ -145,6 +151,15 @@ func _get_dock_position_in_zone(location_id: String):
 		if loc is Dictionary and loc.get("position_in_zone") is Vector3:
 			return loc["position_in_zone"]
 
+	return null
+
+
+func _find_jump_point_targeting(sector_id: String) -> Spatial:
+	if not is_instance_valid(GlobalRefs.current_zone):
+		return null
+	for child in GlobalRefs.current_zone.get_children():
+		if child.get("target_sector_id") == sector_id:
+			return child
 	return null
 
 

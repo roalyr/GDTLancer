@@ -249,6 +249,7 @@ func load_sector(sector_id: String):
 func travel_to_sector(target_sector_id: String) -> void:
 	var old_sector = GameState.current_sector_id
 	GameState.player_docked_at = ""
+	GameState.player_arrived_from_sector = old_sector
 	if GameState.agents.has("player"):
 		GameState.agents["player"]["current_sector_id"] = target_sector_id
 	EventBus.emit_signal("sector_changed", target_sector_id, old_sector)
