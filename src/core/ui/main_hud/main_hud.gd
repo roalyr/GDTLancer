@@ -17,6 +17,7 @@ var _station_menu_instance = null
 
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
+onready var target_name_label: Label = $TargetingIndicator/TargetNameLabel
 onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
 onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
@@ -50,6 +51,8 @@ var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
 var _hud_alpha = 1.0
+var _dock_location_id: String = ""  # Currently available dock location
+var _jump_target_name: String = ""  # Currently available jump target name
 
 # --- Initialization ---
 func _ready():
@@ -193,10 +196,16 @@ func _on_Player_Target_Selected(target_node: Spatial):
 	print(target_node)
 	if is_instance_valid(target_node):
 		_current_target = target_node
-		# Visibility is now primarily handled in _process,
-		# but we still need to ensure _process runs.
-		# targeting_indicator.visible = true # This line can be removed or kept, _process will override
-		set_process(true)  # Ensure _process runs
+		set_process(true)
+		
+		# Show target name label under the targeting indicator
+		var resolved_name = _resolve_target_display_name(target_node)
+		if resolved_name != "":
+			target_name_label.text = resolved_name
+			target_name_label.add_color_override("font_color", _get_target_label_color(target_node))
+			target_name_label.visible = true
+		else:
+			target_name_label.visible = false
 		
 		# Update combat target info panel
 		_update_target_info_panel(target_node)
@@ -213,6 +222,7 @@ func _on_Player_Target_Deselected():
 	_current_target = null
 	_current_target_uid = -1
 	targeting_indicator.visible = false
+	target_name_label.visible = false
 	if target_info_panel:
 		target_info_panel.visible = false
 	set_process(false)  # Can disable processing if target is deselected
@@ -341,6 +351,51 @@ func _draw_targeting_indicator():
 	)
 
 
+# --- Target Name Resolution ---
+func _resolve_target_display_name(target_node: Spatial) -> String:
+	# Jump points: show destination name
+	if target_node.is_in_group("jump_point"):
+		if "target_sector_name" in target_node and target_node.target_sector_name != "":
+			return target_node.target_sector_name
+		if "target_sector_id" in target_node:
+			return target_node.target_sector_id
+		return "Jump Point"
+	# Dockable stations: show station_name
+	if target_node.is_in_group("dockable_station"):
+		if "station_name" in target_node and target_node.station_name != "":
+			return target_node.station_name
+		return "Station"
+	# Agents (NPCs/player ships): resolve character name
+	if "character_uid" in target_node:
+		var char_uid = target_node.character_uid
+		# GameState.characters keyed by uid, values are CharacterTemplate
+		if GameState.characters.has(char_uid):
+			var char_res = GameState.characters[char_uid]
+			if char_res and "character_name" in char_res:
+				return char_res.character_name
+		# Try string/int key mismatch
+		var alt_key = int(char_uid) if typeof(char_uid) == TYPE_STRING else str(char_uid)
+		if GameState.characters.has(alt_key):
+			var char_res = GameState.characters[alt_key]
+			if char_res and "character_name" in char_res:
+				return char_res.character_name
+		return target_node.name
+	# Fallback: prettify node name (remove underscores, capitalize)
+	return target_node.name.replace("_", " ")
+
+
+func _get_target_label_color(target_node: Spatial) -> Color:
+	if target_node.is_in_group("jump_point"):
+		return Color(0.33, 1.0, 1.0, 1.0)  # cyan
+	if target_node.is_in_group("dockable_station"):
+		return Color(1.0, 0.9, 0.4, 1.0)  # warm yellow
+	if "is_hostile" in target_node and target_node.is_hostile:
+		return Color(1.0, 0.33, 0.33, 1.0)  # red
+	if "character_uid" in target_node:
+		return Color(0.5, 1.0, 0.5, 1.0)  # green for friendly agents
+	return Color(0.8, 0.8, 0.8, 1.0)  # neutral gray
+
+
 # --- Cleanup ---
 func _notification(what):
 	if what == NOTIFICATION_PREDELETE:
@@ -460,31 +515,37 @@ func _on_SliderControlLeft_value_changed(value):
 
 # --- Docking UI Handlers ---
 func _on_dock_available(location_id):
-	print("MainHUD: Dock available signal received for ", location_id)
-	if docking_prompt:
-		docking_prompt.visible = true
-		if docking_label:
-			docking_label.text = "Docking Available - Press Dock"
+	_dock_location_id = location_id
+	_update_docking_prompt()
 
 func _on_dock_unavailable():
-	print("MainHUD: Dock unavailable signal received")
-	if docking_prompt:
-		docking_prompt.visible = false
+	_dock_location_id = ""
+	_update_docking_prompt()
 
 func _on_player_docked(_location_id):
-	if docking_prompt:
-		docking_prompt.visible = false
+	_dock_location_id = ""
+	_jump_target_name = ""
+	_update_docking_prompt()
 
 
 # --- Jump UI Handlers ---
 func _on_jump_available(_target_id, target_name) -> void:
-	if docking_prompt and docking_label:
-		docking_prompt.visible = true
-		docking_label.text = "Jump to " + target_name + " - Press Dock"
+	_jump_target_name = target_name
+	_update_docking_prompt()
 
 
 func _on_jump_unavailable() -> void:
-	if docking_prompt and docking_label and "Jump" in docking_label.text:
+	_jump_target_name = ""
+	_update_docking_prompt()
+
+
+func _update_docking_prompt():
+	if not docking_prompt or not docking_label:
+		return
+	if _dock_location_id != "":
+		docking_prompt.visible = true
+		docking_label.text = "Docking Available - Press Dock"
+	else:
 		docking_prompt.visible = false
 
 

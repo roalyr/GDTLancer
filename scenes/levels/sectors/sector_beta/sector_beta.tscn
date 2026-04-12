@@ -44,7 +44,7 @@ __meta__ = {
 [node name="Star" parent="SceneAssets" instance=ExtResource( 4 )]
 
 [node name="Planet" parent="SceneAssets/Star" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50000, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40000, 2000, 10000 )
 
 [node name="Station" parent="SceneAssets" instance=ExtResource( 6 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 45000, 500, 8000 )

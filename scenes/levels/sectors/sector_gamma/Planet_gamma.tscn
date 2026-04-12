@@ -10,7 +10,7 @@ radius = 1000.0
 
 [sub_resource type="ShaderMaterial" id=3]
 shader = ExtResource( 2 )
-shader_param/paint_color = Color( 1, 1, 1, 1 )
+shader_param/paint_color = Color( 0.75, 0.35, 0.25, 1 )
 shader_param/light_tint = Color( 0.803922, 0.72549, 0.556863, 1 )
 shader_param/shadow_tint = Color( 0.0862745, 0.0980392, 0.0901961, 1 )
 shader_param/shadow_bias = 0.169
@@ -31,7 +31,7 @@ shader_param/detail_normal_scale = 3.507
 shader_param/detail_normal_strength = 0.224
 shader_param/uv_triplanar_sharpness = 100.0
 shader_param/uv_scale = Vector3( 1, 1, 1 )
-shader_param/uv_offset = Vector3( 0.636, 0.795, -0.423 )
+shader_param/uv_offset = Vector3( -0.3, 0.1, 0.7 )
 shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 30.0
 shader_param/scale_power = 1.0

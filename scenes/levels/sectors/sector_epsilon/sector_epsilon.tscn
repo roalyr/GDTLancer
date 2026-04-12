@@ -3,9 +3,9 @@
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scenes/levels/sectors/sector_delta/Star_delta.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/levels/sectors/sector_delta/Planet_delta.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scenes/levels/sectors/sector_delta/Station_delta.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/levels/sectors/sector_epsilon/Star_epsilon.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_epsilon/Planet_epsilon.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/levels/sectors/sector_epsilon/Station_epsilon.tscn" type="PackedScene" id=6]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -44,10 +44,10 @@ __meta__ = {
 [node name="Star" parent="SceneAssets" instance=ExtResource( 4 )]
 
 [node name="Planet" parent="SceneAssets/Star" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50000, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 60000, -1000, 15000 )
 
 [node name="Station" parent="SceneAssets" instance=ExtResource( 6 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40000, 200, -15000 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30000, -100, 25000 )
 
 [node name="EntryPoint" type="Position3D" parent="SceneAssets"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40200, 250, -15200 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 30200, -50, 24800 )

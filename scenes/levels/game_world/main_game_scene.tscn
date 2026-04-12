@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
 [ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
+[ext_resource path="res://src/core/ui/debug_map_panel/debug_map_panel.tscn" type="PackedScene" id=28]
 
 [node name="MainGameScene" type="Node"]
 
@@ -59,3 +60,5 @@ __meta__ = {
 [node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
 
 [node name="SimDebugPanel" parent="." instance=ExtResource( 25 )]
+
+[node name="DebugMapPanel" parent="." instance=ExtResource( 28 )]

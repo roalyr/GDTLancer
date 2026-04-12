@@ -36,6 +36,15 @@ margin_right = 20.0
 margin_bottom = 20.0
 mouse_filter = 2
 
+[node name="TargetNameLabel" type="Label" parent="TargetingIndicator"]
+visible = false
+margin_left = -80.0
+margin_top = 44.0
+margin_right = 120.0
+margin_bottom = 62.0
+align = 1
+mouse_filter = 2
+
 [node name="ScreenControls" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0

@@ -22,6 +22,8 @@ var _target_under_cursor: Spatial = null
 var _selected_target: Spatial = null setget _set_selected_target
 var _can_dock_at: String = ""
 var _pending_jump_target: String = ""
+var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
+var _nearest_dock_type: String = ""      # "station" or "jump"
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -49,14 +51,10 @@ func _ready():
 
 	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
 
-	EventBus.connect("dock_available", self, "_on_dock_available")
-	EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
 	EventBus.connect("player_attack_pressed", self, "_on_attack_button_pressed")
-	EventBus.connect("jump_available", self, "_on_jump_available")
-	EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -104,6 +102,7 @@ func _change_state(new_state_name: String):
 func _physics_process(delta: float):
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
+	_poll_docking_proximity()
 
 
 func _unhandled_input(event: InputEvent):
@@ -234,28 +233,29 @@ func _get_current_target() -> RigidBody:
 
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
-	# Docking takes priority over jumping
-	if _can_dock_at != "":
-		print("PlayerController: Attempting to dock at ", _can_dock_at)
-		EventBus.emit_signal("player_docked", _can_dock_at)
+	if not is_instance_valid(_selected_target):
+		EventBus.emit_signal("dock_action_feedback", false, "No target selected")
 		return
-	# If a jump point is available and we're NOT in docking range, trigger jump
-	if _pending_jump_target != "":
-		EventBus.emit_signal("player_jump_requested", _pending_jump_target)
+	var is_station = _selected_target.is_in_group("dockable_station")
+	var is_jump = _selected_target.is_in_group("jump_point")
+	if not is_station and not is_jump:
+		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
 		return
+	var dist = agent_body.global_transform.origin.distance_to(
+		_selected_target.global_transform.origin
+	)
+	if dist > Constants.DOCKING_ACTION_RADIUS:
+		EventBus.emit_signal("dock_action_feedback", false, "Target is too far away")
+		return
+	if is_station:
+		EventBus.emit_signal("player_docked", _selected_target.location_id)
+	else:
+		EventBus.emit_signal("player_jump_requested", _selected_target.target_sector_id)
 
 
 # --- Dock/Attack Button Handlers ---
 func _on_dock_button_pressed() -> void:
-	if _can_dock_at != "":
-		print("PlayerController: Dock button pressed, docking at ", _can_dock_at)
-		EventBus.emit_signal("player_docked", _can_dock_at)
-	elif _pending_jump_target != "":
-		EventBus.emit_signal("player_jump_requested", _pending_jump_target)
-	else:
-		# Emit signal to show "no dock available" popup on HUD
-		if EventBus:
-			EventBus.emit_signal("dock_action_feedback", false, "No station in range")
+	_handle_interact_input()
 
 
 func _on_attack_button_pressed() -> void:
@@ -383,15 +383,7 @@ func _on_Player_Flee_Pressed():
 		agent_script.command_flee(_selected_target)
 
 func _on_Player_Interact_Pressed():
-	# Docking takes priority over jumping
-	if _can_dock_at != "":
-		print("PlayerController: Interact button pressed. Attempting to dock at ", _can_dock_at)
-		EventBus.emit_signal("player_docked", _can_dock_at)
-		return
-	if _pending_jump_target != "":
-		EventBus.emit_signal("player_jump_requested", _pending_jump_target)
-		return
-	print("PlayerController: Interact button pressed but no dock or jump available.")
+	_handle_interact_input()
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
@@ -435,27 +427,59 @@ func _notification(what):
 			EventBus.disconnect(
 				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 			)
-		if EventBus.is_connected("jump_available", self, "_on_jump_available"):
-			EventBus.disconnect("jump_available", self, "_on_jump_available")
-		if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
-			EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
 
-# --- Docking Handlers ---
-func _on_dock_available(location_id):
-	_can_dock_at = location_id
-	print("PlayerController: Docking available at: ", location_id, ". Press Interact (Space/Enter) to dock.")
-	# TODO: Show UI prompt
+# --- Proximity Polling (requires active target selection) ---
+func _poll_docking_proximity():
+	if not is_instance_valid(agent_body):
+		return
+	# Only the actively selected target can trigger dock/jump prompts
+	var target = _selected_target
+	var node: Spatial = null
+	var dtype: String = ""
+	var did: String = ""
+	var dname: String = ""
 
-func _on_dock_unavailable():
-	_can_dock_at = ""
-	print("PlayerController: Docking unavailable.")
-	# TODO: Hide UI prompt
+	if is_instance_valid(target):
+		if target.is_in_group("dockable_station"):
+			node = target
+			dtype = "station"
+			did = target.location_id
+			dname = target.station_name
+		elif target.is_in_group("jump_point"):
+			node = target
+			dtype = "jump"
+			did = target.target_sector_id
+			dname = target.target_sector_name
 
-func _on_jump_available(target_id, _name):
-	_pending_jump_target = target_id
+	var in_range := false
+	if is_instance_valid(node):
+		var dist = agent_body.global_transform.origin.distance_to(node.global_transform.origin)
+		in_range = dist <= Constants.DOCKING_PROMPT_RADIUS
 
-func _on_jump_unavailable():
-	_pending_jump_target = ""
+	# Update state and emit signals only on change
+	if in_range:
+		if node != _nearest_dock_node:
+			_nearest_dock_node = node
+			_nearest_dock_type = dtype
+			if dtype == "station":
+				_can_dock_at = did
+				_pending_jump_target = ""
+				EventBus.emit_signal("dock_available", did)
+			else:
+				_pending_jump_target = did
+				_can_dock_at = ""
+				EventBus.emit_signal("jump_available", did, dname)
+	else:
+		if is_instance_valid(_nearest_dock_node):
+			var was_type = _nearest_dock_type
+			_nearest_dock_node = null
+			_nearest_dock_type = ""
+			_can_dock_at = ""
+			_pending_jump_target = ""
+			if was_type == "station":
+				EventBus.emit_signal("dock_unavailable")
+			else:
+				EventBus.emit_signal("jump_unavailable")
 
 func _on_player_docked(location_id):
 	print("Player docked at: ", location_id)

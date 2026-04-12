@@ -184,7 +184,9 @@ const SUBTICK_COST_DEEP_SPACE_EVENT: int = 5
 const JUMP_POINT_RING_RADIUS: float = 80000.0       # Fallback distance from sector center (procedural sectors)
 const JUMP_POINT_STATION_OFFSET: float = 2000.0      # Distance from station where JumpPoints appear
 const JUMP_POINT_DETECTION_RADIUS: float = 300.0     # Area radius for player detection
-const REFERENCE_ORIGIN: Vector3 = Vector3(48042, 233, -673)  # Station Alpha global_position (nebula reference)
+const DOCKING_PROMPT_RADIUS: float = 500.0           # Distance at which prompt appears
+const DOCKING_ACTION_RADIUS: float = 300.0           # Distance at which dock/jump actually works
+const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Station Alpha global_position (nebula reference)
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
 const INITIAL_SECTOR_ID: String = "station_alpha"    # Starting sector for new game
 
