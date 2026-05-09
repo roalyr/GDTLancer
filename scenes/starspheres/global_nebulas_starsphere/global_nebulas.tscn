@@ -1,9 +1,12 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=14 format=2]
 
-[ext_resource path="res://assets/models/generic_shapes/spheroid.glb" type="PackedScene" id=1]
+[ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=1]
 [ext_resource path="res://assets/art/shaders/cloud_transparent.gdshader" type="Shader" id=2]
 [ext_resource path="res://assets/art/textures/procedural_textures/normal/global_nebulas_1.tres" type="Texture" id=3]
 [ext_resource path="res://assets/models/nebulas/nebula_1.glb" type="PackedScene" id=4]
+[ext_resource path="res://assets/models/nebulas/nebula_2.glb" type="PackedScene" id=5]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=6]
+[ext_resource path="res://assets/models/nebulas/nebula_3.glb" type="PackedScene" id=7]
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )
@@ -92,13 +95,89 @@ shader_param/scale_power = 1.0
 shader_param/scale_min = 0.5
 shader_param/normal_noise = SubResource( 4 )
 
+[sub_resource type="ShaderMaterial" id=5]
+shader = ExtResource( 2 )
+shader_param/vertex_mask_power = 1.0
+shader_param/vertex_mask_overlay = 0.0
+shader_param/albedo_strength = 1.0
+shader_param/lum_weight_r = 1.0
+shader_param/lum_weight_g = 1.0
+shader_param/lum_weight_b = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 1.0
+shader_param/albedo = Color( 0, 0.164706, 0.105882, 1 )
+shader_param/albedo_rim = Color( 0, 0, 0, 1 )
+shader_param/albedo_ambient = Color( 0, 0, 0.0313726, 1 )
+shader_param/normal_intensity = 1.0
+shader_param/normal_detail_power = 2.17
+shader_param/normal_detail_factor = 0.248
+shader_param/normal_strength = -0.184
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.0
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 1.0
+shader_param/rim_ambient_exponent = 1.0
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.2
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = -0.28
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = ExtResource( 6 )
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = ExtResource( 2 )
+shader_param/vertex_mask_power = 1.0
+shader_param/vertex_mask_overlay = 0.0
+shader_param/albedo_strength = -1.242
+shader_param/lum_weight_r = -0.193
+shader_param/lum_weight_g = 1.0
+shader_param/lum_weight_b = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 0.932
+shader_param/albedo = Color( 0, 0, 0.0117647, 1 )
+shader_param/albedo_rim = Color( 0.45098, 0.45098, 0.45098, 1 )
+shader_param/albedo_ambient = Color( 0.00392157, 0.0156863, 0.0392157, 1 )
+shader_param/normal_intensity = 0.123
+shader_param/normal_detail_power = 2.208
+shader_param/normal_detail_factor = 0.83
+shader_param/normal_strength = 1.255
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.363
+shader_param/rim_strength = 2.387
+shader_param/rim_exponent = 0.463
+shader_param/rim_ambient_exponent = 1.188
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.2
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = -2.685
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = ExtResource( 3 )
+
 [node name="Globalnebulas" type="Spatial"]
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="ClusterA" type="Spatial" parent="."]
-transform = Transform( -0.0352158, -0.0386991, 0.271764, -0.262121, -0.0813132, -0.0440391, 0.0803188, -0.282334, -0.0245668, -254285, 0, -248296 )
+transform = Transform( -0.207212, 0.408861, 0.446669, -0.479269, -0.411242, 0.105134, 0.339467, -0.331031, 0.421079, 276963, -146078, -455377 )
 
 [node name="spheroid" parent="ClusterA" instance=ExtResource( 1 )]
 transform = Transform( -11468.5, 71096, 61539.7, 24198.7, -50095.1, 149348, 126577, 11236.1, -10531.7, 183591, 14648.6, -26881.8 )
@@ -154,6 +233,49 @@ transform = Transform( -107170, -58281.8, -212811, 376972, 76889.5, -260853, 120
 [node name="nebula_1" parent="ClusterB/nebula_4" index="0"]
 material_override = SubResource( 2 )
 
+[node name="ClusterC" type="Spatial" parent="."]
+transform = Transform( 0.458892, 0.0579308, -0.281655, 0.0222194, 0.521709, 0.143506, 0.286692, -0.133161, 0.439709, -482132, -4545.31, 218681 )
+
+[node name="nebula_2" parent="ClusterC" instance=ExtResource( 5 )]
+transform = Transform( 50000, 0, 0, 0, 50000, 0, 0, 0, 50000, 0, 0, 0 )
+visible = false
+
+[node name="nebula_2" parent="ClusterC/nebula_2" index="0"]
+material_override = SubResource( 5 )
+
+[node name="nebula_3" parent="ClusterC" instance=ExtResource( 5 )]
+transform = Transform( -63258.4, 164952, -54942.7, -79243.2, 24685.8, 165350, 154752, 80068.3, 62210.7, 0, 0, 0 )
+
+[node name="nebula_2" parent="ClusterC/nebula_3" index="0"]
+material_override = SubResource( 5 )
+
+[node name="nebula_4" parent="ClusterC" instance=ExtResource( 5 )]
+transform = Transform( 161317, 407884, -141316, -59683.8, 170488, 423952, 427525, -130106, 112507, 0, 0, 0 )
+
+[node name="nebula_2" parent="ClusterC/nebula_4" index="0"]
+material_override = SubResource( 5 )
+
+[node name="nebula_5" parent="ClusterC" instance=ExtResource( 5 )]
+transform = Transform( -458110, -920536, -95565.2, 861090, -463036, 332426, -339183, 67783.7, 973008, 0, 0, 0 )
+
+[node name="nebula_2" parent="ClusterC/nebula_5" index="0"]
+material_override = SubResource( 5 )
+
+[node name="Cluster D" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -737688, 373430, -364971 )
+
+[node name="nebula_3" parent="Cluster D" instance=ExtResource( 7 )]
+transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
+
+[node name="nebula_3" parent="Cluster D/nebula_3" index="0"]
+material_override = SubResource( 6 )
+
+[node name="nebula_4" parent="Cluster D" instance=ExtResource( 7 )]
+transform = Transform( -68227.9, 4023.75, 49825.2, 48033.5, -18062.9, 67233.2, 13839.2, 82530.8, 12285.6, -83770.7, 41297.6, 66914.3 )
+
+[node name="nebula_3" parent="Cluster D/nebula_4" index="0"]
+material_override = SubResource( 6 )
+
 [editable path="ClusterA/spheroid"]
 [editable path="ClusterA/spheroid2"]
 [editable path="ClusterA/spheroid3"]
@@ -162,3 +284,9 @@ material_override = SubResource( 2 )
 [editable path="ClusterB/nebula_2"]
 [editable path="ClusterB/nebula_3"]
 [editable path="ClusterB/nebula_4"]
+[editable path="ClusterC/nebula_2"]
+[editable path="ClusterC/nebula_3"]
+[editable path="ClusterC/nebula_4"]
+[editable path="ClusterC/nebula_5"]
+[editable path="Cluster D/nebula_3"]
+[editable path="Cluster D/nebula_4"]

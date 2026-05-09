@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/spheroid.glb-6b9d9683dd20a67591d6c43913c62c79.scn"
+path="res://.import/spheroid.glb-20e2a5d799655c41684f8a468592715f.scn"
 
 [deps]
 
-source_file="res://assets/models/generic_shapes/spheroid.glb"
-dest_files=[ "res://.import/spheroid.glb-6b9d9683dd20a67591d6c43913c62c79.scn" ]
+source_file="res://assets/models/nebulas/spheroid.glb"
+dest_files=[ "res://.import/spheroid.glb-20e2a5d799655c41684f8a468592715f.scn" ]
 
 [params]
 
