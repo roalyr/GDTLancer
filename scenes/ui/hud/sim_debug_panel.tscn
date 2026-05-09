@@ -68,6 +68,11 @@ rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 3 )
 text = "< Back"
 
+[node name="BtnClose" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 100, 0 )
+theme = ExtResource( 3 )
+text = "Close"
+
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
 margin_top = 40.0
 margin_right = 1884.0

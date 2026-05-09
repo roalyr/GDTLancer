@@ -65,6 +65,16 @@ rect_min_size = Vector2( 40, 0 )
 theme = ExtResource( 3 )
 text = "-"
 
+[node name="BtnCoords" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 80, 0 )
+theme = ExtResource( 3 )
+text = "Coords"
+
+[node name="BtnAxes" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+rect_min_size = Vector2( 90, 0 )
+theme = ExtResource( 3 )
+text = "Axes On"
+
 [node name="BtnPanL" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
 rect_min_size = Vector2( 55, 0 )
 theme = ExtResource( 3 )

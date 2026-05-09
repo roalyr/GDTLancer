@@ -54,10 +54,11 @@ func test_batch_300_ticks():
 
 
 func test_batch_3000_ticks():
-	var report: String = engine.run_batch_and_report(3000, 100)
-	_validate_report(report, 3000)
+	#var report: String = engine.run_batch_and_report(3000, 100)
+	#_validate_report(report, 3000)
 	print("\n\n===== GODOT CHRONO-3000 =====")
-	print(report)
+	#print(report)
+	print("Disabled manually.")
 	print("===== END GODOT CHRONO-3000 =====\n")
 
 

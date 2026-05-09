@@ -1,10 +1,10 @@
-#
-# PROJECT: GDTLancer
-# MODULE: test_debug_map_panel.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_6 — Debug Map Panel unit tests
-# LOG_REF: 2026-04-12
-#
+##
+## PROJECT: GDTLancer
+## MODULE: test_debug_map_panel.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TACTICAL_TODO.md §TASK_5 — Debug Map Panel test slice
+## LOG_REF: 2026-05-09 20:02:26
+##
 
 extends "res://addons/gut/test.gd"
 
@@ -21,18 +21,20 @@ const LOCATION_TRES_PATHS = [
 
 
 func before_each():
+	get_tree().paused = false
 	GameState.reset_state()
 	_seed_template_database()
 	_seed_topology()
 	GameState.current_sector_id = "station_alpha"
 	_panel_instance = _panel_scene.instance()
-	add_child(_panel_instance)
+	add_child_autofree(_panel_instance)
 
 
 func after_each():
 	if is_instance_valid(_panel_instance):
-		_panel_instance.queue_free()
+		_close_panel_if_open()
 		_panel_instance = null
+	get_tree().paused = false
 	GameState.reset_state()
 
 
@@ -70,6 +72,21 @@ func _seed_topology():
 		"station_ids": ["station_epsilon"],
 		"sector_type": "station",
 	}
+
+
+func _show_panel():
+	if not _panel_instance._is_visible:
+		_panel_instance._toggle_panel()
+
+
+func _close_panel_if_open():
+	if is_instance_valid(_panel_instance) and _panel_instance._is_visible:
+		_panel_instance._toggle_panel()
+
+
+func _get_map_point() -> Vector2:
+	var rect = _panel_instance._viewport_container.get_global_rect()
+	return rect.position + (rect.size * 0.5)
 
 
 func test_panel_starts_hidden():
@@ -130,3 +147,89 @@ func test_label_count_matches_sectors():
 		if child is Label:
 			label_count += 1
 	assert_gt(label_count, 4, "Should have at least 5 labels matching sectors")
+
+
+func test_mouse_wheel_zoom_changes_zoom_distance():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var initial_distance = _panel_instance._zoom_distance
+	var event = InputEventMouseButton.new()
+	event.button_index = BUTTON_WHEEL_UP
+	event.pressed = true
+	event.position = _get_map_point()
+	_panel_instance._input(event)
+	assert_true(
+		_panel_instance._zoom_distance < initial_distance,
+		"Mouse wheel up should zoom in by reducing orbit distance"
+	)
+
+
+func test_mouse_drag_rotates_camera_angles():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var initial_yaw = _panel_instance._orbit_yaw
+	var initial_pitch = _panel_instance._orbit_pitch
+	var map_point = _get_map_point()
+
+	var press = InputEventMouseButton.new()
+	press.button_index = BUTTON_LEFT
+	press.pressed = true
+	press.position = map_point
+	_panel_instance._input(press)
+
+	var drag = InputEventMouseMotion.new()
+	drag.position = map_point
+	drag.relative = Vector2(24, -18)
+	_panel_instance._input(drag)
+
+	var release = InputEventMouseButton.new()
+	release.button_index = BUTTON_LEFT
+	release.pressed = false
+	release.position = map_point
+	_panel_instance._input(release)
+
+	assert_true(
+		_panel_instance._orbit_yaw != initial_yaw or _panel_instance._orbit_pitch != initial_pitch,
+		"Mouse drag should change orbit yaw or pitch"
+	)
+	assert_false(_panel_instance._is_drag_orbiting, "Mouse release should stop drag orbit state")
+
+
+func test_populate_creates_reference_axes():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var axes = map_content.get_node_or_null("ReferenceAxes")
+	assert_not_null(axes, "Reference axes geometry should exist")
+	assert_true(axes is ImmediateGeometry, "Reference axes should be drawn with ImmediateGeometry")
+
+
+func test_axes_toggle_hides_reference_axes_and_labels():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var axes = map_content.get_node_or_null("ReferenceAxes")
+	assert_not_null(axes, "Reference axes should exist before toggle")
+	_panel_instance._on_toggle_axes()
+	assert_false(_panel_instance._show_reference_axes, "Axes toggle should disable reference axes state")
+	if axes:
+		assert_false(axes.visible, "Reference axes geometry should be hidden after toggle")
+	assert_eq(_panel_instance._btn_axes.text, "Axes Off")
+
+
+func test_coordinate_toggle_updates_label_text_format():
+	_panel_instance._populate_map()
+	var label = _panel_instance._sector_labels["station_alpha"]["label"]
+	assert_true(label.text.find("[") == -1, "Coordinates should be hidden by default")
+	_panel_instance._on_toggle_coords()
+	assert_true(_panel_instance._show_sector_coordinates, "Coordinate toggle should enable coordinate state")
+	assert_true(label.text.find("\n[") != -1, "Coordinate toggle should place coordinates on a new line")
+
+
+func test_sector_labels_use_wrapped_large_font_box():
+	_panel_instance._populate_map()
+	var label = _panel_instance._sector_labels["station_alpha"]["label"]
+	assert_true(label.autowrap, "Sector labels should wrap long text")
+	assert_eq(label.rect_min_size.x, _panel_instance.SECTOR_LABEL_MAX_WIDTH)
+	assert_eq(label.rect_min_size.y, _panel_instance.SECTOR_LABEL_BOX_HEIGHT)
+	assert_not_null(_panel_instance._sector_label_font, "Sector label font should be created")
+	if _panel_instance._sector_label_font:
+		assert_eq(_panel_instance._sector_label_font.size, _panel_instance.SECTOR_LABEL_FONT_SIZE)

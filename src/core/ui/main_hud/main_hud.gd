@@ -3,7 +3,7 @@
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §1.2, §7 (UI Style)
-# LOG_REF: 2026-03-21
+# LOG_REF: 2026-05-09 17:57:12
 #
 
 extends Control
@@ -146,6 +146,11 @@ func _ready():
 	if is_instance_valid(button_camera):
 		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
 			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
+
+	# Reuse placeholder top-left buttons for debug tools.
+	if is_instance_valid(button_narrative_status):
+		if not button_narrative_status.is_connected("pressed", self, "_on_ButtonNarrativeStatus_pressed"):
+			button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
 
 	# Initialize TU display
 	_refresh_time_display()
@@ -579,13 +584,28 @@ func _on_SliderControlRight_value_changed(value):
 
 
 func _on_ButtonCharacter_pressed():
-	# TODO: Rebuild on simulation foundation
-	pass
+	_toggle_debug_panel("SimDebugPanel", "_toggle")
+
+
+func _on_ButtonNarrativeStatus_pressed():
+	_toggle_debug_panel("DebugMapPanel", "_toggle_panel")
 
 
 func _on_ButtonInventory_pressed():
 	# TODO: Rebuild on simulation foundation
 	pass
+
+
+func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:
+	var scene_root = get_tree().current_scene
+	if not is_instance_valid(scene_root):
+		return
+	var panel = scene_root.find_node(panel_name, true, false)
+	if not is_instance_valid(panel):
+		printerr("MainHUD: Missing debug panel: %s" % panel_name)
+		return
+	if panel.has_method(toggle_method):
+		panel.call(toggle_method)
 
 
 # --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---

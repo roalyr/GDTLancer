@@ -3,7 +3,7 @@
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_12
-# LOG_REF: 2026-02-21 (TASK_12)
+# LOG_REF: 2026-05-09 18:40:25
 #
 
 extends CanvasLayer
@@ -29,6 +29,7 @@ onready var _btn_run_30: Button = $Panel/VBoxContainer/HeaderRow/BtnRun30
 onready var _btn_run_300: Button = $Panel/VBoxContainer/HeaderRow/BtnRun300
 onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
+onready var _btn_close: Button = $Panel/VBoxContainer/HeaderRow/BtnClose
 
 
 # =============================================================================
@@ -58,6 +59,7 @@ func _ready() -> void:
 	_btn_run_300.connect("pressed", self, "_on_run_batch", [300])
 	_btn_run_3000.connect("pressed", self, "_on_run_batch", [3000])
 	_btn_back.connect("pressed", self, "_on_back_pressed")
+	_btn_close.connect("pressed", self, "_on_close_pressed")
 	_btn_back.visible = false
 	call_deferred("_refresh")
 
@@ -138,6 +140,11 @@ func _on_back_pressed() -> void:
 	_report_text = ""
 	_report_bbcode = ""
 	_refresh()
+
+
+func _on_close_pressed() -> void:
+	if _visible:
+		_toggle()
 
 
 # =============================================================================
