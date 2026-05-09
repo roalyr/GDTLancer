@@ -9,14 +9,14 @@ shader = ExtResource( 2 )
 shader_param/vertex_mask_power = 1.0
 shader_param/vertex_mask_overlay = 0.0
 shader_param/albedo_strength = 1.0
-shader_param/lum_weight_r = 1.2
-shader_param/lum_weight_g = -1.2
-shader_param/lum_weight_b = 1.7
-shader_param/color_power_r = 1.1
-shader_param/color_power_g = 0.9
+shader_param/lum_weight_r = 1.0
+shader_param/lum_weight_g = 1.0
+shader_param/lum_weight_b = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
 shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.5
-shader_param/color_multiplier_g = 1.4
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
 shader_param/color_multiplier_b = 1.0
 shader_param/albedo = Color( 0.196078, 0.101961, 0, 1 )
 shader_param/albedo_rim = Color( 0, 0.2, 0.396078, 1 )
@@ -47,27 +47,27 @@ __meta__ = {
 }
 
 [node name="spheroid" parent="." instance=ExtResource( 1 )]
-transform = Transform( 363174, -3905.4, -324.364, 4635.94, 305811, -2105.39, 351.219, 1769.24, 363198, -133624, 45816.7, -451190 )
+transform = Transform( 99991.8, -1075.27, -89.3071, 1276.4, 84198.2, -579.672, 96.7003, 487.121, 99998.4, -133624, -58154.2, -264615 )
 
 [node name="Spheroid" parent="spheroid" index="0"]
 material_override = SubResource( 1 )
 
 [node name="spheroid2" parent="." instance=ExtResource( 1 )]
-transform = Transform( 19766.1, -329190, -62620, 196049, 12711.2, -63671, 70738.3, -178169, 172671, 194893, 99507.7, -296138 )
+transform = Transform( 9441.39, -157232, -43416.2, 93644, 42543.3, -23950, 33788.6, -73972.9, 78508.2, -208364, -25542.7, -268191 )
 
 [node name="Spheroid" parent="spheroid2" index="0"]
 transform = Transform( 0.829987, 0.00768842, -0.581861, 0.238535, -1.00958, 0.0232532, -0.475861, -0.377517, -0.78696, -0.134238, -0.31044, -0.475308 )
 material_override = SubResource( 1 )
 
 [node name="spheroid3" parent="." instance=ExtResource( 1 )]
-transform = Transform( 111594, -30855.3, -88745.6, 17209.1, 106196, -20584.4, 92351.4, -319.082, 106512, -277884, 802.906, -200403 )
+transform = Transform( 76502.2, -15317.4, -58754.5, 11797.5, 74100.2, -16848.4, 63310.6, 4700.85, 74136.3, -277884, 802.906, -200403 )
 
 [node name="Spheroid" parent="spheroid3" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
 [node name="spheroid4" parent="." instance=ExtResource( 1 )]
-transform = Transform( -40131.4, -79346.6, 45755.8, -33275.7, -33911.7, -87992.8, 270820, -160387, -40602.4, -431750, -57669.3, -132132 )
+transform = Transform( -14551.3, -87540.5, 46096.8, -12065.5, -44674.8, -88648.7, 98197.2, -18461.4, -4061.43, -377962, -51341.8, -171937 )
 
 [node name="Spheroid" parent="spheroid4" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )

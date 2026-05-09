@@ -82,8 +82,10 @@ func _toggle_panel():
 func _process(_delta):
 	if not _is_visible:
 		return
-	if is_instance_valid(_map_nebula_holder) and is_instance_valid(_camera):
-		_map_nebula_holder.global_transform.origin = _camera.global_transform.origin
+	# TODO: this render nebula in background, which is effectively rendering it twice.
+	# Rename to galaxy background?
+	#if is_instance_valid(_map_nebula_holder) and is_instance_valid(_camera):
+	#	_map_nebula_holder.global_transform.origin = _camera.global_transform.origin
 	_update_label_positions()
 
 
@@ -105,13 +107,14 @@ func _setup_map_environment():
 		_map_world_env = WorldEnvironment.new()
 		_map_world_env.environment = env_res
 		_viewport.add_child(_map_world_env)
+	# TODO: Use Galaxy background here instead.
 	# Instance the global nebula into the map viewport
-	var nebula_scene = load("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
-	if nebula_scene:
-		_map_nebula_holder = Spatial.new()
-		_map_nebula_holder.name = "MapNebulaHolder"
-		_map_nebula_holder.add_child(nebula_scene.instance())
-		_viewport.add_child(_map_nebula_holder)
+	#var nebula_scene = load("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+	#if nebula_scene:
+		#_map_nebula_holder = Spatial.new()
+		#_map_nebula_holder.name = "MapNebulaHolder"
+		#_map_nebula_holder.add_child(nebula_scene.instance())
+		#_viewport.add_child(_map_nebula_holder)
 
 
 func _cleanup_map_environment():
