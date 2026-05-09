@@ -45,6 +45,7 @@ uniform float normal_detail_clamp = 1.0;
 uniform float rim_factor = 1.0;
 uniform float rim_strength = 1.0;
 uniform float rim_exponent = 1.0;
+uniform float rim_ambient_exponent = 1.0;
 
 uniform float fade_distance_near = 1e5;
 uniform float fade_distance_far = 1e6;
@@ -128,6 +129,7 @@ void fragment()
 	// Attenuate the dot product.
 	float rim_normal_detail = clamp((dt_normal_detail), 1e-6, 1.0);
 	float rim = clamp(pow(dt,rim_exponent), 1e-6, 1.0);
+	float rim_ambient = clamp(pow(dt,rim_ambient_exponent), 1e-6, 1.0);
 
 	float luminosity = dot(COLOR.rgb, vec3(lum_weight_r, lum_weight_g, lum_weight_b));
 	luminosity = max(luminosity, 0.0);
@@ -158,15 +160,16 @@ void fragment()
 		pow(ALBEDO.b, color_power_b)*color_multiplier_b
 	);
 
-	// Overlay dark parts
-	ALBEDO += (1.0 - clamp(vertex_mask, 0.0, 1.0)) * albedo_ambient.rgb;
-	
-	// Replace near parts with ambient color to hide polygons.
+
+	// Fade near and far.
 	float dist = length(VERTEX);
 	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
 	float fade_in = clamp(smoothstep(0.0, fade_distance_near, dist), 1e-6, 1.0); // fades in
-	vec3 current = ALBEDO;
 	float fade = pow(fade_in*fade_out, fade_power);
-	ALBEDO = (1.0-fade) * albedo_ambient.rgb + fade * current;
+		
+	// Overlay dark parts
+	ALBEDO += fade * rim_ambient * albedo_ambient.rgb * (1.0 - rim_mask) * (1.0 - normal_mask);
+	
+	ALBEDO *= fade;
 
 }

@@ -9,6 +9,13 @@ location_name = "Epsilon Refinery Complex"
 location_type = "station"
 position_in_zone = Vector3( 44500, -100, 1200 )
 interaction_radius = 150.0
+sector_scene_path = "res://scenes/levels/sectors/sector_epsilon/sector_epsilon.tscn"
+global_position = Vector3( -290000, -10000, -270000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = "Remote refinery complex. High mineral density but harsh environment."
 connections = PoolStringArray( "station_gamma" )
 sector_type = "outpost"
 radiation_level = 0.12
@@ -19,32 +26,29 @@ propellant_sources = 0.8
 station_power_output = 90.0
 stockpile_capacity = 900
 market_inventory = {
-"commodity_ore": {
-"buy_price": 10,
-"sell_price": 8,
-"quantity": 150
-},
 "commodity_food": {
 "buy_price": 26,
-"sell_price": 21,
-"quantity": 50
-},
-"commodity_tech": {
-"buy_price": 60,
-"sell_price": 48,
-"quantity": 20
+"quantity": 50,
+"sell_price": 21
 },
 "commodity_fuel": {
 "buy_price": 18,
-"sell_price": 14,
-"quantity": 120
+"quantity": 120,
+"sell_price": 14
+},
+"commodity_ore": {
+"buy_price": 10,
+"quantity": 150,
+"sell_price": 8
+},
+"commodity_tech": {
+"buy_price": 60,
+"quantity": 20,
+"sell_price": 48
 }
 }
 available_services = [ "trade", "refuel", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 3
-available_contract_ids = [ ]
-sector_scene_path = "res://scenes/levels/sectors/sector_epsilon/sector_epsilon.tscn"
-global_position = Vector3( -190000, -10000, -70000 )
-sector_description = "Remote refinery complex. High mineral density but harsh environment."
 initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [  ]

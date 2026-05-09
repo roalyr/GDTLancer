@@ -2,25 +2,25 @@
 
 [ext_resource path="res://src/scenes/game_world/jump_point.gd" type="Script" id=1]
 
+[sub_resource type="PhysicsMaterial" id=5]
+friction = 0.0
+
 [sub_resource type="SphereShape" id=1]
 radius = 10.0
-
-[sub_resource type="SphereMesh" id=2]
-radius = 15.0
-height = 30.0
 
 [sub_resource type="SpatialMaterial" id=3]
 flags_unshaded = true
 albedo_color = Color( 0.33, 1, 1, 1 )
 
+[sub_resource type="SphereMesh" id=2]
+radius = 15.0
+height = 30.0
+
 [sub_resource type="SphereShape" id=4]
 radius = 300.0
 
-[sub_resource type="SpatialMaterial" id=5]
-flags_transparent = true
-albedo_color = Color( 0.33, 1, 1, 0.1 )
-
 [node name="JumpPoint" type="StaticBody"]
+physics_material_override = SubResource( 5 )
 script = ExtResource( 1 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
