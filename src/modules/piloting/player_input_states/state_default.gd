@@ -26,7 +26,7 @@ func enter(controller: Node):
 
 
 func physics_update(_delta: float):
-	_controller._update_target_under_cursor()
+	pass
 
 
 func handle_input(event: InputEvent):

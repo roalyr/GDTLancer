@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: world_generator.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends Node
@@ -39,8 +39,8 @@ func generate_new_world():
 	# Then, generate and assign their starting assets and inventories.
 	_generate_and_assign_assets()
 
-	# Sprint 10: Start player docked at Station Alpha, with defined starting resources.
-	GameState.player_docked_at = "station_alpha"
+	# Sprint 10: Start player docked at Elace System, with defined starting resources.
+	GameState.player_docked_at = "sector_system_elace"
 	_apply_player_starting_state()
 	call_deferred("_emit_initial_dock_signal")
 

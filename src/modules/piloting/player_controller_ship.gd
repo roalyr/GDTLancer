@@ -19,7 +19,7 @@ const KEY_THROTTLE_INCREMENT: float = 0.05
 var _current_input_state: InputState = null
 var _states = {}
 var _target_under_cursor: Spatial = null
-var _selected_target: Spatial = null setget _set_selected_target
+var _selected_target = null setget _set_selected_target
 var _can_dock_at: String = ""
 var _pending_jump_target: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
@@ -231,10 +231,23 @@ func _get_current_target() -> RigidBody:
 	return null
 
 
+func _is_route_target(target_ref) -> bool:
+	return target_ref != null and target_ref.get("target_kind") == "jump_route"
+
+
+func _is_selected_target_valid() -> bool:
+	if _is_route_target(_selected_target):
+		return true
+	return is_instance_valid(_selected_target)
+
+
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
-	if not is_instance_valid(_selected_target):
+	if not _is_selected_target_valid():
 		EventBus.emit_signal("dock_action_feedback", false, "No target selected")
+		return
+	if _is_route_target(_selected_target):
+		EventBus.emit_signal("player_jump_requested", _selected_target.target_sector_id)
 		return
 	var is_station = _selected_target.is_in_group("dockable_station")
 	var is_jump = _selected_target.is_in_group("jump_point")
@@ -274,21 +287,21 @@ func _on_attack_button_pressed() -> void:
 
 # --- Helper & Command Functions (Publicly callable by states) ---
 func _update_target_under_cursor():
-	_target_under_cursor = _raycast_for_target(get_viewport().get_mouse_position())
+	_target_under_cursor = null
 
 
-func _set_selected_target(new_target: Spatial):
+func _set_selected_target(new_target):
 	if _selected_target == new_target:
 		return
 	_selected_target = new_target
-	if is_instance_valid(_selected_target):
+	if _is_selected_target_valid():
 		EventBus.emit_signal("player_target_selected", _selected_target)
 	else:
 		EventBus.emit_signal("player_target_deselected")
 
 
 func _handle_single_click(_click_pos: Vector2):
-	self._selected_target = _target_under_cursor
+	_set_selected_target(null)
 
 
 func _handle_double_click(click_pos: Vector2):
@@ -369,21 +382,25 @@ func _on_Player_Stop_Pressed():
 
 
 func _on_Player_Orbit_Pressed():
-	if is_instance_valid(_selected_target):
+	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_orbit(_selected_target)
 
 
 func _on_Player_Approach_Pressed():
-	if is_instance_valid(_selected_target):
+	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_approach(_selected_target)
 
 
 func _on_Player_Flee_Pressed():
-	if is_instance_valid(_selected_target):
+	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_flee(_selected_target)
 
 func _on_Player_Interact_Pressed():
 	_handle_interact_input()
+
+
+func _on_player_target_selection_requested(target_ref) -> void:
+	_set_selected_target(target_ref)
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
@@ -393,6 +410,7 @@ func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 # --- Connections & Cleanup ---
 func _connect_eventbus_signals():
 	EventBus.connect("player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled")
+	EventBus.connect("player_target_selection_requested", self, "_on_player_target_selection_requested")
 	EventBus.connect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
 	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
 	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
@@ -411,6 +429,8 @@ func _notification(what):
 			EventBus.disconnect(
 				"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
 			)
+		if EventBus.is_connected("player_target_selection_requested", self, "_on_player_target_selection_requested"):
+			EventBus.disconnect("player_target_selection_requested", self, "_on_player_target_selection_requested")
 		if EventBus.is_connected("player_stop_pressed", self, "_on_Player_Stop_Pressed"):
 			EventBus.disconnect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
 		if EventBus.is_connected("player_orbit_pressed", self, "_on_Player_Orbit_Pressed"):
@@ -439,7 +459,11 @@ func _poll_docking_proximity():
 	var did: String = ""
 	var dname: String = ""
 
-	if is_instance_valid(target):
+	if _is_route_target(target):
+		dtype = "jump"
+		did = target.target_sector_id
+		dname = target.display_name
+	elif is_instance_valid(target):
 		if target.is_in_group("dockable_station"):
 			node = target
 			dtype = "station"
@@ -452,13 +476,21 @@ func _poll_docking_proximity():
 			dname = target.target_sector_name
 
 	var in_range := false
-	if is_instance_valid(node):
+	if dtype == "jump" and not is_instance_valid(node):
+		in_range = true
+	elif is_instance_valid(node):
 		var dist = agent_body.global_transform.origin.distance_to(node.global_transform.origin)
 		in_range = dist <= Constants.DOCKING_PROMPT_RADIUS
 
 	# Update state and emit signals only on change
 	if in_range:
-		if node != _nearest_dock_node:
+		var state_changed := (
+			node != _nearest_dock_node
+			or dtype != _nearest_dock_type
+			or (dtype == "station" and did != _can_dock_at)
+			or (dtype == "jump" and did != _pending_jump_target)
+		)
+		if state_changed:
 			_nearest_dock_node = node
 			_nearest_dock_type = dtype
 			if dtype == "station":
@@ -470,7 +502,7 @@ func _poll_docking_proximity():
 				_can_dock_at = ""
 				EventBus.emit_signal("jump_available", did, dname)
 	else:
-		if is_instance_valid(_nearest_dock_node):
+		if _nearest_dock_type != "":
 			var was_type = _nearest_dock_type
 			_nearest_dock_node = null
 			_nearest_dock_type = ""

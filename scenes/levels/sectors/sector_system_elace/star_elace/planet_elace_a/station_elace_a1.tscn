@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://src/scenes/game_world/station/dockable_station.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/materials/test_solid_glow.tres" type="Material" id=2]
@@ -9,12 +9,15 @@ size = Vector3( 10, 10, 10 )
 [sub_resource type="SphereShape" id=3]
 radius = 279.495
 
-[node name="Station_alpha" type="StaticBody"]
+[sub_resource type="BoxShape" id=4]
+extents = Vector3( 1.193, 1, 1 )
+
+[node name="Station Elace a1" type="StaticBody"]
 script = ExtResource( 1 )
-station_name = "Station Alpha - Mining Hub"
+station_name = "Elace System - Mining Hub"
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
-transform = Transform( 2.97317, 0, 0, 0, 2.97317, 0, 0, 0, 2.97317, 0, 0, 0 )
+transform = Transform( 0.388501, 0, 0, 0, 0.299779, 0, 0, 0, 2.97317, 0, 0, 0 )
 material_override = ExtResource( 2 )
 mesh = SubResource( 2 )
 
@@ -22,3 +25,10 @@ mesh = SubResource( 2 )
 
 [node name="CollisionShape" type="CollisionShape" parent="DockingZone"]
 shape = SubResource( 3 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+editor_only = true
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 0.838296, 0, 0, 0, 2.34779, 0, 0, 0, 15.5312, 0, 0, 0 )
+shape = SubResource( 4 )

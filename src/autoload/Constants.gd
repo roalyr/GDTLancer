@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-03-21
+# TRUTH_LINK: TRUTH_PROJECT.md, TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends Node
@@ -186,9 +186,10 @@ const JUMP_POINT_STATION_OFFSET: float = 2000.0      # Distance from station whe
 const JUMP_POINT_DETECTION_RADIUS: float = 300.0     # Area radius for player detection
 const DOCKING_PROMPT_RADIUS: float = 500.0           # Distance at which prompt appears
 const DOCKING_ACTION_RADIUS: float = 300.0           # Distance at which dock/jump actually works
-const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Station Alpha global_position (nebula reference)
+const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0   # Arrival shell radius for route-based sector jumps
+const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_position (nebula reference)
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
-const INITIAL_SECTOR_ID: String = "station_alpha"    # Starting sector for new game
+const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
 
 # ---- CONTACT MANAGER ----
 const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5

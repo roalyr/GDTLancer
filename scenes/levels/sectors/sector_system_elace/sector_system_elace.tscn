@@ -1,11 +1,12 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scenes/levels/sectors/sector_alpha/Star_alpha.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/levels/sectors/sector_alpha/Planet_alpha.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scenes/levels/sectors/sector_alpha/Station_alpha.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace/planet_elace_a.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace/planet_elace_a/station_elace_a1.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace/planet_elace_a/moon_elace_a1.tscn" type="PackedScene" id=7]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -14,7 +15,7 @@ albedo_color = Color( 0, 0.0862745, 0.0901961, 1 )
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="SectorRoot" type="Spatial"]
+[node name="Sector System Elace" type="Spatial"]
 
 [node name="_PlayableArea" type="MeshInstance" parent="."]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
@@ -35,19 +36,23 @@ __meta__ = {
 }
 
 [node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 3 )]
+visible = false
 
 [node name="SceneAssets" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star" parent="SceneAssets" instance=ExtResource( 4 )]
+[node name="Star Elace" parent="SceneAssets" instance=ExtResource( 4 )]
 
-[node name="Planet" parent="SceneAssets/Star" instance=ExtResource( 5 )]
+[node name="Planet Elace a" parent="SceneAssets/Star Elace" instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50000, 0, 0 )
 
-[node name="Station" parent="SceneAssets" instance=ExtResource( 6 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50500, -929, -1570 )
+[node name="Moon Elace a1" parent="SceneAssets/Star Elace/Planet Elace a" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5536.92, -466.164, -3921.63 )
+
+[node name="Station Elace a1" parent="SceneAssets/Star Elace/Planet Elace a" instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -929, -1570 )
 
 [node name="EntryPoint" type="Position3D" parent="SceneAssets"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 50700, 100, -1600 )

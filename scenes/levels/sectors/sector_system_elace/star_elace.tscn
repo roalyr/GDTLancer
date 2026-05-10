@@ -66,7 +66,7 @@ shader_param/rim_outer_exponent = 6.108
 radial_segments = 16
 rings = 16
 
-[node name="Star_default" type="StaticBody"]
+[node name="Star Elace" type="StaticBody"]
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )

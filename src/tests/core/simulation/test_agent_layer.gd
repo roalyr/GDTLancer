@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §4 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends GutTest
@@ -51,6 +51,34 @@ func test_player_has_qualitative_tags():
 	assert_true(player.has("condition_tag"), "Player must have condition_tag.")
 	assert_true(player.has("wealth_tag"), "Player must have wealth_tag.")
 	assert_true(player.has("cargo_tag"), "Player must have cargo_tag.")
+
+
+func test_initialize_agent_with_missing_home_location_falls_back_to_initial_sector():
+	GameState.world_topology[Constants.INITIAL_SECTOR_ID] = {
+		"connections": ["s1"],
+		"sector_type": "colony",
+		"station_ids": [Constants.INITIAL_SECTOR_ID],
+	}
+	var template: Resource = load("res://database/registry/agents/persistent_kai.tres")
+	assert_not_null(template, "Persistent Kai template should load.")
+	if template == null:
+		return
+
+	var mutated_template: Resource = template.duplicate(true)
+	mutated_template.home_location_id = "sector_missing_renamed_away"
+
+	agent_layer._initialize_agent_from_template("agent_invalid_home", mutated_template)
+
+	assert_eq(
+		GameState.agents["agent_invalid_home"]["current_sector_id"],
+		Constants.INITIAL_SECTOR_ID,
+		"Missing home locations should fall back to INITIAL_SECTOR_ID."
+	)
+	assert_eq(
+		GameState.agents["agent_invalid_home"]["home_location_id"],
+		Constants.INITIAL_SECTOR_ID,
+		"Fallback home sector should be persisted into agent state."
+	)
 
 
 # =============================================================================
@@ -135,6 +163,47 @@ func test_mortal_survivor_starts_broke():
 	else:
 		# Agent was removed (permanent death).
 		assert_true(true, "Agent permanently died — removed from agents dict (expected).")
+
+
+func test_mortal_survivor_missing_home_location_falls_back_to_initial_sector():
+	GameState.world_topology[Constants.INITIAL_SECTOR_ID] = {
+		"connections": ["s1"],
+		"sector_type": "colony",
+		"station_ids": [Constants.INITIAL_SECTOR_ID],
+	}
+	GameState.agents = {
+		"mortal_2": {
+			"character_id": "",
+			"is_persistent": false,
+			"is_disabled": true,
+			"disabled_at_tick": 0,
+			"home_location_id": "sector_missing_renamed_away",
+			"current_sector_id": "s2",
+			"condition_tag": "DESTROYED",
+			"wealth_tag": "WEALTHY",
+			"cargo_tag": "LOADED",
+			"agent_role": "trader",
+			"goal_archetype": "idle",
+			"goal_queue": [{"type": "idle"}],
+			"dynamic_tags": [],
+		}
+	}
+
+	agent_layer._cleanup_dead_mortals()
+
+	if GameState.agents.has("mortal_2"):
+		var survivor: Dictionary = GameState.agents["mortal_2"]
+		if not survivor.get("is_disabled", true):
+			assert_eq(
+				survivor["current_sector_id"],
+				Constants.INITIAL_SECTOR_ID,
+				"Missing survivor home locations should fall back to INITIAL_SECTOR_ID."
+			)
+			assert_eq(
+				survivor["home_location_id"],
+				Constants.INITIAL_SECTOR_ID,
+				"Fallback should be written back into survivor home_location_id."
+			)
 
 
 # =============================================================================
@@ -263,3 +332,5 @@ func _clear_state() -> void:
 	GameState.world_seed = ""
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 0
+	TemplateDatabase.agents.clear()
+	TemplateDatabase.characters.clear()

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md TASK_10
-# LOG_REF: 2026-02-21 (TASK_10)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends Reference
@@ -24,6 +24,7 @@ var affinity_matrix: Reference = null
 
 ## Per-tick seeded RNG for determinism.
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _reported_invalid_sectors: Dictionary = {}
 
 ## Name-generation pools for discovered sectors.
 var _FRONTIER_PREFIXES: Array = [
@@ -53,6 +54,7 @@ func set_chronicle(chronicle: Reference) -> void:
 func initialize_agents() -> void:
 	GameState.agents.clear()
 	GameState.agent_tags.clear()
+	_reported_invalid_sectors.clear()
 
 	_initialize_player()
 
@@ -116,9 +118,7 @@ func _initialize_player() -> void:
 	else:
 		GameState.characters[character_id] = {}
 
-	var start_sector: String = ""
-	if not GameState.world_topology.empty():
-		start_sector = GameState.world_topology.keys()[0]
+	var start_sector: String = _resolve_known_sector_id(Constants.INITIAL_SECTOR_ID, "player.start_sector")
 
 	GameState.agents["player"] = {
 		"character_id": character_id,
@@ -149,9 +149,7 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 			GameState.characters[character_id] = {}
 
 	var home: String = template.get("home_location_id") if template.get("home_location_id") else ""
-	var start_sector: String = home if GameState.world_topology.has(home) else ""
-	if start_sector == "" and not GameState.world_topology.empty():
-		start_sector = GameState.world_topology.keys()[0]
+	var start_sector: String = _resolve_known_sector_id(home, "%s.home_location_id" % agent_id)
 
 	var initial_tags: Array = []
 	if template.get("initial_tags") != null:
@@ -166,7 +164,7 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 		"character_id": character_id,
 		"agent_role": template.get("agent_role") if template.get("agent_role") else "idle",
 		"current_sector_id": start_sector,
-		"home_location_id": home,
+		"home_location_id": start_sector,
 		"goal_archetype": "affinity_scan",
 		"goal_queue": [{"type": "affinity_scan"}],
 		"is_disabled": false,
@@ -734,8 +732,13 @@ func _check_respawn(agent_id: String, agent: Dictionary) -> void:
 	if GameState.sim_tick_count - int(disabled_at_tick) < Constants.RESPAWN_COOLDOWN_TICKS:
 		return
 
+	var home_sector_id: String = _resolve_known_sector_id(
+		agent.get("home_location_id", ""),
+		"%s.home_location_id" % agent_id
+	)
 	agent["is_disabled"] = false
-	agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
+	agent["home_location_id"] = home_sector_id
+	agent["current_sector_id"] = home_sector_id
 	agent["condition_tag"] = "HEALTHY"
 	agent["wealth_tag"] = "COMFORTABLE"
 	agent["cargo_tag"] = "EMPTY"
@@ -811,6 +814,7 @@ func _spawn_mortal_agents() -> void:
 	var spawn_sector: String = eligible[_rng.randi() % eligible.size()]
 	GameState.mortal_agent_counter += 1
 	var agent_id: String = "mortal_" + str(GameState.mortal_agent_counter)
+	spawn_sector = _resolve_known_sector_id(spawn_sector, "%s.spawn_sector" % agent_id)
 	var role: String = Constants.MORTAL_ROLES[_rng.randi() % Constants.MORTAL_ROLES.size()]
 
 	GameState.agents[agent_id] = {
@@ -848,8 +852,13 @@ func _cleanup_dead_mortals() -> void:
 	# Survivors: reset at home with minimal resources
 	for agent_id in to_survive:
 		var agent: Dictionary = GameState.agents[agent_id]
+		var home_sector_id: String = _resolve_known_sector_id(
+			agent.get("home_location_id", ""),
+			"%s.home_location_id" % agent_id
+		)
 		agent["is_disabled"] = false
-		agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
+		agent["home_location_id"] = home_sector_id
+		agent["current_sector_id"] = home_sector_id
 		agent["condition_tag"] = "DAMAGED"
 		agent["wealth_tag"] = "BROKE"
 		agent["cargo_tag"] = "EMPTY"
@@ -895,6 +904,36 @@ func _apply_upkeep() -> void:
 			if "STATION" in s_tags or "FRONTIER" in s_tags:
 				if _rng.randf() < Constants.BROKE_RECOVERY_CHANCE:
 					agent["wealth_tag"] = "COMFORTABLE"
+
+
+func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
+	if requested_sector_id != "" and GameState.world_topology.has(requested_sector_id):
+		return requested_sector_id
+
+	_report_invalid_sector(context, requested_sector_id)
+
+	if Constants.INITIAL_SECTOR_ID != "" and GameState.world_topology.has(Constants.INITIAL_SECTOR_ID):
+		return Constants.INITIAL_SECTOR_ID
+	if not GameState.world_topology.empty():
+		return str(GameState.world_topology.keys()[0])
+
+	printerr("AgentLayer: No valid fallback sector available for %s." % context)
+	return ""
+
+
+func _report_invalid_sector(context: String, requested_sector_id: String) -> void:
+	var normalized_sector_id: String = requested_sector_id if requested_sector_id != "" else "<empty>"
+	var report_key = "%s:%s" % [context, normalized_sector_id]
+	if _reported_invalid_sectors.has(report_key):
+		return
+	_reported_invalid_sectors[report_key] = true
+	printerr(
+		"AgentLayer: Invalid sector reference for %s -> %s. Falling back to %s." % [
+			context,
+			normalized_sector_id,
+			Constants.INITIAL_SECTOR_ID,
+		]
+	)
 
 
 # =============================================================================

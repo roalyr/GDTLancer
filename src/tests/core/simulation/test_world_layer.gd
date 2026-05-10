@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends GutTest
@@ -65,6 +65,39 @@ func test_get_neighbors_returns_connections():
 	assert_eq(actual, expected, "get_neighbors should return connection list.")
 
 
+func test_invalid_connections_are_filtered_from_topology():
+	TemplateDatabase.locations.clear()
+	var starter_sector: Resource = load("res://database/registry/locations/sector_system_elace.tres")
+	var station_beta: Resource = load("res://database/registry/locations/station_beta.tres")
+	assert_not_null(starter_sector, "Starter sector template should load.")
+	assert_not_null(station_beta, "Station Beta template should load.")
+	if starter_sector == null or station_beta == null:
+		return
+
+	var mutated_starter: Resource = starter_sector.duplicate(true)
+	mutated_starter.connections = PoolStringArray(["station_beta", "sector_missing_renamed_away"])
+
+	TemplateDatabase.locations[mutated_starter.template_id] = mutated_starter
+	TemplateDatabase.locations[station_beta.template_id] = station_beta
+
+	world_layer.initialize_world(TEST_SEED)
+
+	var connections: Array = GameState.world_topology["sector_system_elace"].get("connections", [])
+	assert_has(connections, "station_beta", "Valid connections should remain in topology.")
+	assert_false(
+		"sector_missing_renamed_away" in connections,
+		"Invalid renamed-away sectors should be filtered from topology."
+	)
+
+
+func test_initial_sector_id_exists_in_topology():
+	world_layer.initialize_world(TEST_SEED)
+	assert_true(
+		GameState.world_topology.has(Constants.INITIAL_SECTOR_ID),
+		"INITIAL_SECTOR_ID should resolve to a sector that exists in world_topology."
+	)
+
+
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
@@ -74,16 +107,17 @@ func _clear_state() -> void:
 	GameState.world_hazards.clear()
 	GameState.world_seed = ""
 	GameState.sector_tags.clear()
+	TemplateDatabase.locations.clear()
 
 
 func _seed_template_database() -> void:
 	## Seed TemplateDatabase.locations with real .tres files so world_layer can init.
 	var location_paths: Array = [
-		"res://database/registry/locations/station_alpha.tres",
+		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/station_beta.tres",
-		"res://database/registry/locations/station_gamma.tres",
+		"res://database/registry/locations/sector_gamma.tres",
 		"res://database/registry/locations/station_delta.tres",
-		"res://database/registry/locations/station_epsilon.tres",
+		"res://database/registry/locations/sector_epsilon.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:

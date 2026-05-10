@@ -77,6 +77,7 @@ max_camera_speed_for_effect = 10.0
 velocity_offset_scale = -1200.0
 
 [node name="VeryFarDustParticles" type="CPUParticles" parent="."]
+visible = false
 amount = 512
 lifetime = 60.0
 local_coords = false

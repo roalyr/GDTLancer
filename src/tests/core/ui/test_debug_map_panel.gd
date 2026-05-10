@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md §TASK_5 — Debug Map Panel test slice
-## LOG_REF: 2026-05-09 20:02:26
+## TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+## LOG_REF: 2026-05-09 20:56:15
 ##
 
 extends "res://addons/gut/test.gd"
@@ -12,11 +12,11 @@ var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.ts
 var _panel_instance = null
 
 const LOCATION_TRES_PATHS = [
-	"res://database/registry/locations/station_alpha.tres",
+	"res://database/registry/locations/sector_system_elace.tres",
 	"res://database/registry/locations/station_beta.tres",
-	"res://database/registry/locations/station_gamma.tres",
+	"res://database/registry/locations/sector_gamma.tres",
 	"res://database/registry/locations/station_delta.tres",
-	"res://database/registry/locations/station_epsilon.tres",
+	"res://database/registry/locations/sector_epsilon.tres",
 ]
 
 
@@ -25,7 +25,7 @@ func before_each():
 	GameState.reset_state()
 	_seed_template_database()
 	_seed_topology()
-	GameState.current_sector_id = "station_alpha"
+	GameState.current_sector_id = "sector_system_elace"
 	_panel_instance = _panel_scene.instance()
 	add_child_autofree(_panel_instance)
 
@@ -47,13 +47,13 @@ func _seed_template_database():
 
 
 func _seed_topology():
-	GameState.world_topology["station_alpha"] = {
+	GameState.world_topology["sector_system_elace"] = {
 		"connections": ["station_beta", "station_delta"],
-		"station_ids": ["station_alpha"],
+		"station_ids": ["sector_system_elace"],
 		"sector_type": "station",
 	}
 	GameState.world_topology["station_beta"] = {
-		"connections": ["station_alpha", "station_gamma"],
+		"connections": ["sector_system_elace", "station_gamma"],
 		"station_ids": ["station_beta"],
 		"sector_type": "station",
 	}
@@ -63,7 +63,7 @@ func _seed_topology():
 		"sector_type": "station",
 	}
 	GameState.world_topology["station_delta"] = {
-		"connections": ["station_alpha", "station_epsilon"],
+		"connections": ["sector_system_elace", "station_epsilon"],
 		"station_ids": ["station_delta"],
 		"sector_type": "station",
 	}
@@ -127,7 +127,7 @@ func test_populate_creates_connection_lines():
 func test_current_sector_highlighted():
 	_panel_instance._populate_map()
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var current_marker = map_content.get_node_or_null("Sector_station_alpha")
+	var current_marker = map_content.get_node_or_null("Sector_sector_system_elace")
 	assert_not_null(current_marker, "Current sector marker should exist")
 	if current_marker:
 		var sphere = current_marker.mesh as SphereMesh
@@ -217,7 +217,7 @@ func test_axes_toggle_hides_reference_axes_and_labels():
 
 func test_coordinate_toggle_updates_label_text_format():
 	_panel_instance._populate_map()
-	var label = _panel_instance._sector_labels["station_alpha"]["label"]
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
 	assert_true(label.text.find("[") == -1, "Coordinates should be hidden by default")
 	_panel_instance._on_toggle_coords()
 	assert_true(_panel_instance._show_sector_coordinates, "Coordinate toggle should enable coordinate state")
@@ -226,7 +226,7 @@ func test_coordinate_toggle_updates_label_text_format():
 
 func test_sector_labels_use_wrapped_large_font_box():
 	_panel_instance._populate_map()
-	var label = _panel_instance._sector_labels["station_alpha"]["label"]
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
 	assert_true(label.autowrap, "Sector labels should wrap long text")
 	assert_eq(label.rect_min_size.x, _panel_instance.SECTOR_LABEL_MAX_WIDTH)
 	assert_eq(label.rect_min_size.y, _panel_instance.SECTOR_LABEL_BOX_HEIGHT)

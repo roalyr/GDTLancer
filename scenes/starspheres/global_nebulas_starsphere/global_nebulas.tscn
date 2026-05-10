@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=1]
 [ext_resource path="res://assets/art/shaders/cloud_transparent.gdshader" type="Shader" id=2]
@@ -7,6 +7,14 @@
 [ext_resource path="res://assets/models/nebulas/nebula_2.glb" type="PackedScene" id=5]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=6]
 [ext_resource path="res://assets/models/nebulas/nebula_3.glb" type="PackedScene" id=7]
+
+[sub_resource type="GDScript" id=7]
+script/source = "extends Spatial
+
+func _ready():
+	self.visible = true
+
+"
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )
@@ -172,6 +180,7 @@ shader_param/scale_min = 0.5
 shader_param/normal_noise = ExtResource( 3 )
 
 [node name="Globalnebulas" type="Spatial"]
+script = SubResource( 7 )
 __meta__ = {
 "_edit_lock_": true
 }

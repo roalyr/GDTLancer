@@ -6,8 +6,8 @@
 # PROJECT: GDTLancer
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends Node
@@ -24,6 +24,7 @@ var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 # Key: agent_id (String), Value: WeakRef or Node (AgentBody)
 # Tracks currently instantiated persistent agents in the scene
 var _active_persistent_agents: Dictionary = {}
+var _reported_invalid_locations: Dictionary = {}
 
 func _ready():
 	GlobalRefs.set_agent_spawner(self)
@@ -83,6 +84,11 @@ func spawn_player():
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
 		if dock_pos != null:
 			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
+	# Priority 3: If arrived via logical route, spawn on the configured arrival shell.
+	elif GameState.player_arrival_direction != Vector3.ZERO:
+		player_spawn_pos = _get_route_arrival_spawn_position(GameState.player_arrival_direction)
+		GameState.player_arrival_direction = Vector3.ZERO
+		GameState.player_arrived_from_sector = ""
 	# Priority 3: If arrived via jump, spawn at the return jump point
 	elif GameState.player_arrived_from_sector != "":
 		var jp = _find_jump_point_targeting(GameState.player_arrived_from_sector)
@@ -161,6 +167,13 @@ func _find_jump_point_targeting(sector_id: String) -> Spatial:
 		if child.get("target_sector_id") == sector_id:
 			return child
 	return null
+
+
+func _get_route_arrival_spawn_position(arrival_direction: Vector3) -> Vector3:
+	var normalized_direction: Vector3 = arrival_direction.normalized()
+	if normalized_direction == Vector3.ZERO:
+		return Vector3.ZERO
+	return normalized_direction * Constants.SECTOR_JUMP_ARRIVAL_RADIUS
 
 
 # Spawns an NPC agent linked to a specific character.
@@ -310,7 +323,10 @@ func get_persistent_agent_state(agent_id: String) -> Dictionary:
 		
 		GameState.persistent_agents[agent_id] = {
 			"character_uid": char_uid,
-			"current_location": agent_template.home_location_id,
+			"current_location": _resolve_known_location_id(
+				agent_template.home_location_id,
+				"%s.home_location_id" % agent_id
+			),
 			"is_disabled": false,
 			"disabled_at_time": 0.0,
 			"relationship": 0,
@@ -341,13 +357,22 @@ func spawn_persistent_agents() -> void:
 		if state.get("is_disabled", false):
 			continue
 			
-		var current_loc = state.get("current_location", "")
+		var current_loc = _resolve_known_location_id(
+			state.get("current_location", ""),
+			"%s.current_location" % agent_id
+		)
+		state["current_location"] = current_loc
 		if current_loc == "":
 			continue
 			
 		# Check if this location exists in the current zone
 		var spawn_pos = _get_dock_position_in_zone(current_loc)
 		if spawn_pos == null:
+			_report_invalid_location(
+				"%s.current_location" % agent_id,
+				current_loc,
+				"Location not found in current zone; persistent agent spawn skipped."
+			)
 			continue # Location not in this zone
 			
 		# Load resources
@@ -430,7 +455,10 @@ func _check_persistent_agent_respawns() -> void:
 				state["disabled_at_time"] = 0.0
 				# Reset to home location (assuming they respawn at home, not where they died)
 				if agent_template:
-					state["current_location"] = agent_template.home_location_id 
+					state["current_location"] = _resolve_known_location_id(
+						agent_template.home_location_id,
+						"%s.home_location_id" % agent_id
+					)
 				
 				# Try to spawn immediately if in relevant zone
 				spawn_persistent_agents()
@@ -442,10 +470,51 @@ func _on_player_docked(location_id: String) -> void:
 		if state.get("is_known", false):
 			continue
 			
-		var home = state.get("current_location", "")
+		var home = _resolve_known_location_id(
+			state.get("current_location", ""),
+			"%s.current_location" % agent_id
+		)
+		state["current_location"] = home
 		# Assumption: Agents are "available" for contact at their home location (or current location)
 		# We check if the player docked at the agent's current location
 		if home == location_id:
 			state["is_known"] = true
 			EventBus.emit_signal("contact_met", agent_id)
 			print("Contact Discovered: ", agent_id, " at ", location_id)
+
+
+func _resolve_known_location_id(requested_location_id: String, context: String) -> String:
+	if _is_known_location_id(requested_location_id):
+		return requested_location_id
+
+	_report_invalid_location(
+		context,
+		requested_location_id,
+		"Falling back to %s." % Constants.INITIAL_SECTOR_ID
+	)
+	return Constants.INITIAL_SECTOR_ID
+
+
+func _is_known_location_id(location_id: String) -> bool:
+	if location_id == "":
+		return false
+	return (
+		GameState.locations.has(location_id)
+		or TemplateDatabase.locations.has(location_id)
+		or GameState.world_topology.has(location_id)
+	)
+
+
+func _report_invalid_location(context: String, requested_location_id: String, message: String) -> void:
+	var normalized_location_id: String = requested_location_id if requested_location_id != "" else "<empty>"
+	var report_key = "%s:%s:%s" % [context, normalized_location_id, message]
+	if _reported_invalid_locations.has(report_key):
+		return
+	_reported_invalid_locations[report_key] = true
+	printerr(
+		"AgentSystem: Invalid location reference for %s -> %s. %s" % [
+			context,
+			normalized_location_id,
+			message,
+		]
+	)

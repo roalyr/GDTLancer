@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.4 + TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-02-23
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends Node
@@ -186,7 +186,7 @@ var game_time_seconds: int = 0
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
-## ID of the currently loaded sector (e.g. "station_alpha").
+## ID of the currently loaded sector (e.g. "sector_system_elace").
 var current_sector_id: String = ""
 
 ## Location ID of docked station, or empty string if in space.
@@ -200,6 +200,9 @@ var player_rotation: Vector3 = Vector3.ZERO
 
 ## Sector the player just jumped from (for arrival spawn at return jump point).
 var player_arrived_from_sector: String = ""
+
+## Direction from sector center toward the jump arrival shell spawn point.
+var player_arrival_direction: Vector3 = Vector3.ZERO
 
 
 # =========================================================================
@@ -268,3 +271,4 @@ func reset_state() -> void:
 	world_age_cycle_count = 0
 	current_sector_id = ""
 	player_arrived_from_sector = ""
+	player_arrival_direction = Vector3.ZERO

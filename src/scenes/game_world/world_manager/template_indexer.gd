@@ -5,12 +5,16 @@
 
 extends Node
 
+var _pending_contract_templates: Array = []
+
 # --- Public API ---
 
 # Main entry point. Kicks off the recursive scan of the data directory.
 func index_all_templates():
 	print("TemplateIndexer: Indexing all data templates...")
+	_pending_contract_templates.clear()
 	_scan_directory_for_templates("res://database/registry/")
+	_register_pending_contract_templates()
 	print("TemplateIndexer: Template indexing complete.")
 
 
@@ -65,10 +69,45 @@ func _register_template(template: Template):
 	elif template is LocationTemplate:
 		TemplateDatabase.locations[template.template_id] = template
 	elif template is ContractTemplate:
-		TemplateDatabase.contracts[template.template_id] = template
+		_pending_contract_templates.append(template)
 	elif template is UtilityToolTemplate:
 		TemplateDatabase.utility_tools[template.template_id] = template
 	elif template is FactionTemplate:
 		TemplateDatabase.factions[template.template_id] = template
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
+
+
+func _register_pending_contract_templates() -> void:
+	for template in _pending_contract_templates:
+		if _contract_locations_are_valid(template):
+			TemplateDatabase.contracts[template.template_id] = template
+	_pending_contract_templates.clear()
+
+
+func _contract_locations_are_valid(template: ContractTemplate) -> bool:
+	var invalid_fields: Array = []
+	var origin_location_id: String = template.get("origin_location_id") if template.get("origin_location_id") != null else ""
+	var destination_location_id: String = template.get("destination_location_id") if template.get("destination_location_id") != null else ""
+
+	if not TemplateDatabase.locations.has(origin_location_id):
+		invalid_fields.append("origin_location_id=%s" % _format_location_id(origin_location_id))
+	if not TemplateDatabase.locations.has(destination_location_id):
+		invalid_fields.append("destination_location_id=%s" % _format_location_id(destination_location_id))
+
+	if invalid_fields.empty():
+		return true
+
+	printerr(
+		"TemplateIndexer: Skipping contract '%s' with invalid locations: %s." % [
+			template.template_id,
+			", ".join(invalid_fields),
+		]
+	)
+	return false
+
+
+func _format_location_id(location_id: String) -> String:
+	if location_id == "":
+		return "<empty>"
+	return location_id

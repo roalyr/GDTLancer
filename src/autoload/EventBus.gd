@@ -38,6 +38,7 @@ signal camera_set_target_requested(target_node)
 signal camera_cycle_target_requested
 
 # --- Player Interaction Signals --- ADDED SECTION
+signal player_target_selection_requested(target_node)
 signal player_target_selected(target_node)
 signal player_target_deselected
 signal player_free_flight_toggled

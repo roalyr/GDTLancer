@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_persistent_agents.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends "res://addons/gut/test.gd"
@@ -14,6 +14,19 @@ func before_each():
 	# Reset GameState
 	GameState.persistent_agents = {}
 	GameState.characters = {}
+	GameState.agents = {}
+	GameState.locations = {
+		Constants.INITIAL_SECTOR_ID: {
+			"position_in_zone": Vector3(0, 0, 0)
+		},
+		"station_beta": {
+			"position_in_zone": Vector3(100, 0, 0)
+		},
+		"station_gamma": {
+			"position_in_zone": Vector3(200, 0, 0)
+		}
+	}
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
 	GameState.game_time_seconds = 0
 	
 	# Mock GlobalRefs
@@ -40,7 +53,7 @@ func test_persistent_agents_spawn_on_world_init():
 	var agent_id = "persistent_kai"
 	var state = _agent_system.get_persistent_agent_state(agent_id)
 	
-	assert_eq(state.current_location, "station_alpha", "Should have correct home location")
+	assert_eq(state.current_location, "sector_system_elace", "Should have correct home location")
 	assert_eq(state.is_known, false, "Should be unknown by default")
 	assert_gt(state.character_uid, -1, "Should have a generated character UID")
 	
@@ -75,6 +88,28 @@ func test_persistent_agent_respawns_after_timeout():
 	_agent_system._check_persistent_agent_respawns()
 	assert_false(state.is_disabled, "Agent should be respawned after 300s")
 	assert_eq(state.disabled_at_time, 0.0, "Timestamp should reset")
+
+
+func test_invalid_persistent_location_falls_back_to_initial_sector():
+	var agent_id = "persistent_kai"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	state.current_location = "sector_missing_renamed_away"
+	GameState.agents[agent_id] = {"current_sector_id": Constants.INITIAL_SECTOR_ID}
+	_agent_system.spawn_persistent_agents()
+	assert_eq(
+		state.current_location,
+		Constants.INITIAL_SECTOR_ID,
+		"Invalid persistent locations should be rewritten to INITIAL_SECTOR_ID."
+	)
+
+
+func test_route_arrival_spawn_position_uses_configured_arrival_radius():
+	var spawn_position = _agent_system._get_route_arrival_spawn_position(Vector3(0, 0, -1))
+	assert_eq(
+		spawn_position,
+		Vector3(0, 0, -Constants.SECTOR_JUMP_ARRIVAL_RADIUS),
+		"Route-based sector arrival should use the configured shell radius."
+	)
 
 func test_persistent_agent_state_persists_across_save_load():
 	# This basically tests GameState structure as that's what is saved

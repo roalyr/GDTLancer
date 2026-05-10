@@ -5,22 +5,23 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "delivery_05"
-template_type = "contract"
 contract_type = "delivery"
 title = "Fuel to Beta Station"
 description = "Station Beta's fuel reserves are dangerously low. Deliver 15 units of starship fuel urgently. Hazard pay included."
 issuer_id = "freeport_admin"
 faction_id = "faction_independents"
 origin_location_id = "station_gamma"
-destination_location_id = "station_beta"
+destination_location_id = "sector_system_cob"
 required_commodity_id = "commodity_fuel"
 required_quantity = 15
 target_type = ""
 target_count = 0
 reward_credits = 180
 reward_reputation = 5
-reward_items = {}
-time_limit_tu = -1
+reward_items = {
+}
+time_limit_seconds = -1
 difficulty = 2
-accepted_at_tu = -1
-progress = {}
+accepted_at_seconds = -1
+progress = {
+}

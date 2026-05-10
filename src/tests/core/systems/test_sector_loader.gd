@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_9
-# LOG_REF: 2026-03-27
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -31,14 +31,14 @@ func after_each():
 # =============================================================================
 
 func test_load_sector_returns_spatial():
-	var zone = sector_loader.load_sector("station_alpha")
+	var zone = sector_loader.load_sector("sector_system_elace")
 	assert_not_null(zone, "load_sector should return a non-null value.")
 	assert_is(zone, Spatial, "load_sector should return a Spatial node.")
 	zone.free()
 
 
 func test_zone_has_agent_container():
-	var zone = sector_loader.load_sector("station_alpha")
+	var zone = sector_loader.load_sector("sector_system_elace")
 	assert_not_null(zone)
 	var agent_container = zone.find_node("AgentContainer", true, false)
 	assert_not_null(agent_container, "Zone should have an AgentContainer node.")
@@ -47,7 +47,7 @@ func test_zone_has_agent_container():
 
 
 func test_zone_has_station_with_correct_location_id():
-	var zone = sector_loader.load_sector("station_alpha")
+	var zone = sector_loader.load_sector("sector_system_elace")
 	assert_not_null(zone)
 	# Need to add zone to tree for groups to work
 	add_child(zone)
@@ -55,21 +55,21 @@ func test_zone_has_station_with_correct_location_id():
 	assert_gt(stations.size(), 0, "Zone should have at least one dockable_station.")
 	var found = false
 	for station in stations:
-		if station.get("location_id") == "station_alpha":
+		if station.get("location_id") == "sector_system_elace":
 			found = true
 			break
-	assert_true(found, "One dockable_station should have location_id 'station_alpha'.")
+	assert_true(found, "One dockable_station should have location_id 'sector_system_elace'.")
 	zone.queue_free()
 
 
 func test_zone_has_jump_points_for_connections():
-	var zone = sector_loader.load_sector("station_alpha")
+	var zone = sector_loader.load_sector("sector_system_elace")
 	assert_not_null(zone)
 	add_child(zone)
 	var jump_points = get_tree().get_nodes_in_group("jump_point")
-	# station_alpha connects to station_beta and station_delta
+	# sector_system_elace connects to station_beta and station_delta
 	assert_gt(jump_points.size(), 1,
-		"Zone should have at least 2 JumpPoints for station_alpha connections.")
+		"Zone should have at least 2 JumpPoints for sector_system_elace connections.")
 	var target_ids = []
 	for jp in jump_points:
 		target_ids.append(jp.target_sector_id)
@@ -79,7 +79,7 @@ func test_zone_has_jump_points_for_connections():
 
 
 func test_zone_has_starsphere():
-	var zone = sector_loader.load_sector("station_alpha")
+	var zone = sector_loader.load_sector("sector_system_elace")
 	assert_not_null(zone)
 	var starsphere = zone.find_node("StarsphereSlot", true, false)
 	assert_not_null(starsphere, "Zone should have a StarsphereSlot node.")
@@ -91,8 +91,24 @@ func test_load_invalid_sector_returns_null():
 	assert_null(zone, "load_sector with invalid id should return null.")
 
 
+func test_load_sector_with_invalid_scene_path_uses_procedural_fallback():
+	var original_template = TemplateDatabase.locations["sector_system_elace"]
+	var mutated_template = original_template.duplicate(true)
+	mutated_template.sector_scene_path = "res://scenes/levels/sectors/missing_sector/missing_sector.tscn"
+	TemplateDatabase.locations["sector_system_elace"] = mutated_template
+
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone, "Missing handcrafted scene paths should fall back to a procedural zone.")
+	assert_is(zone, Spatial, "Fallback sector should still return a Spatial node.")
+	assert_not_null(
+		zone.find_node("AgentContainer", true, false),
+		"Procedural fallback should still include an AgentContainer."
+	)
+	zone.free()
+
+
 func test_nebula_offset_differs_between_sectors():
-	var zone_alpha = sector_loader.load_sector("station_alpha")
+	var zone_alpha = sector_loader.load_sector("sector_system_elace")
 	var zone_beta = sector_loader.load_sector("station_beta")
 	assert_not_null(zone_alpha)
 	assert_not_null(zone_beta)
@@ -121,7 +137,7 @@ func _clear_state() -> void:
 
 func _seed_template_database() -> void:
 	var location_paths: Array = [
-		"res://database/registry/locations/station_alpha.tres",
+		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/station_beta.tres",
 		"res://database/registry/locations/station_delta.tres",
 	]
@@ -133,10 +149,10 @@ func _seed_template_database() -> void:
 
 func _seed_world_topology() -> void:
 	GameState.world_topology = {
-		"station_alpha": {
+		"sector_system_elace": {
 			"connections": ["station_beta", "station_delta"],
 		},
 		"station_beta": {
-			"connections": ["station_alpha", "station_gamma"],
+			"connections": ["sector_system_elace", "station_gamma"],
 		},
 	}

@@ -1,11 +1,11 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scenes/levels/sectors/sector_beta/Star_beta.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/levels/sectors/sector_beta/Planet_beta.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scenes/levels/sectors/sector_beta/Station_beta.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/levels/sectors/sector_system_cob/star_cob/star_cob.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_system_cob/star_cob/planet_cob_a.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/levels/sectors/sector_system_cob/star_cob/planet_cob_a/station_cob_a1.tscn" type="PackedScene" id=6]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -14,7 +14,7 @@ albedo_color = Color( 0, 0.0862745, 0.0901961, 1 )
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="SectorRoot" type="Spatial"]
+[node name="Sector System Cob" type="Spatial"]
 
 [node name="_PlayableArea" type="MeshInstance" parent="."]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
@@ -35,19 +35,20 @@ __meta__ = {
 }
 
 [node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 3 )]
+visible = false
 
 [node name="SceneAssets" type="Spatial" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star" parent="SceneAssets" instance=ExtResource( 4 )]
+[node name="Star Cob" parent="SceneAssets" instance=ExtResource( 4 )]
 
-[node name="Planet" parent="SceneAssets/Star" instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40000, 2000, 10000 )
+[node name="Planet Cob a" parent="SceneAssets/Star Cob" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 42517.2, 17201.1, -6824.56 )
 
-[node name="Station" parent="SceneAssets" instance=ExtResource( 6 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 45000, 500, 8000 )
+[node name="Station Cob a1" parent="SceneAssets/Star Cob/Planet Cob a" instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 434.594, -2165.58, 6938.93 )
 
 [node name="EntryPoint" type="Position3D" parent="SceneAssets"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 45200, 550, 7800 )

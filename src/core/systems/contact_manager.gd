@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contact_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md v1.2 §4.5 (Social Graph), §6 (Architectural Map)
-# LOG_REF: 2026-03-21
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends Node
@@ -18,6 +18,7 @@ extends Node
 var _affinity_matrix = null  # AffinityMatrix Reference instance
 var _sector_roster_cache: Dictionary = {}  # {sector_id: [agent_id, ...]}
 var _disposition_cache: Dictionary = {}  # {agent_id: float}
+var _reported_invalid_sectors: Dictionary = {}
 
 
 # --- Lifecycle ---
@@ -124,6 +125,9 @@ func _rebuild_caches() -> void:
 	_disposition_cache.clear()
 
 	var player_sector: String = get_player_sector()
+	if player_sector != "" and not GameState.world_topology.has(player_sector):
+		_report_invalid_sector("player.current_sector_id", player_sector)
+		player_sector = ""
 
 	for agent_id in GameState.agents:
 		if agent_id == "player":
@@ -134,6 +138,9 @@ func _rebuild_caches() -> void:
 
 		var sid: String = agent.get("current_sector_id", "")
 		if sid == "":
+			continue
+		if not GameState.world_topology.has(sid):
+			_report_invalid_sector("%s.current_sector_id" % agent_id, sid)
 			continue
 
 		if not _sector_roster_cache.has(sid):
@@ -151,6 +158,20 @@ func _compute_player_disposition(agent_id: String) -> float:
 	var player_tags: Array = GameState.agent_tags.get("player", [])
 	var agent_tags: Array = GameState.agent_tags.get(agent_id, [])
 	return _affinity_matrix.compute_affinity(player_tags, agent_tags)
+
+
+func _report_invalid_sector(context: String, sector_id: String) -> void:
+	var normalized_sector_id: String = sector_id if sector_id != "" else "<empty>"
+	var report_key = "%s:%s" % [context, normalized_sector_id]
+	if _reported_invalid_sectors.has(report_key):
+		return
+	_reported_invalid_sectors[report_key] = true
+	printerr(
+		"ContactManager: Skipping invalid sector reference for %s -> %s." % [
+			context,
+			normalized_sector_id,
+		]
+	)
 
 
 # --- Private: Name Resolution ---

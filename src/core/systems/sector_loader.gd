@@ -16,6 +16,8 @@ const JumpPointScene = preload("res://scenes/prefabs/navigation/JumpPoint.tscn")
 const GlobalNebulasScene = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
 const StarsphereSlotScript = preload("res://src/scenes/game_world/starsphere_slot.gd")
 
+var _reported_invalid_scene_paths: Dictionary = {}
+
 
 func load_sector(sector_id: String) -> Spatial:
 	var template = TemplateDatabase.locations.get(sector_id)
@@ -26,19 +28,33 @@ func load_sector(sector_id: String) -> Spatial:
 		printerr("SectorLoader: sector_id not in world_topology: ", sector_id)
 		return null
 
-	var zone_root: Spatial = null
-	if template.sector_scene_path != "":
-		var scene = load(template.sector_scene_path)
-		if scene == null:
-			printerr("SectorLoader: Failed to load scene: ", template.sector_scene_path)
-			return null
-		zone_root = scene.instance()
-	else:
-		zone_root = _build_procedural_fallback(sector_id)
+	var zone_root: Spatial = _load_zone_root(template, sector_id)
 
 	_inject_jump_points(zone_root, sector_id, template)
 	_offset_nebula(zone_root, template)
 	return zone_root
+
+
+func _load_zone_root(template, sector_id: String) -> Spatial:
+	if template.sector_scene_path != "":
+		var scene = load(template.sector_scene_path)
+		if scene != null:
+			return scene.instance()
+		_report_invalid_scene_path(sector_id, template.sector_scene_path)
+	return _build_procedural_fallback(sector_id)
+
+
+func _report_invalid_scene_path(sector_id: String, scene_path: String) -> void:
+	var report_key = "%s:%s" % [sector_id, scene_path]
+	if _reported_invalid_scene_paths.has(report_key):
+		return
+	_reported_invalid_scene_paths[report_key] = true
+	printerr(
+		"SectorLoader: Failed to load handcrafted scene for %s at %s. Using procedural fallback." % [
+			sector_id,
+			scene_path,
+		]
+	)
 
 
 func _inject_jump_points(zone_root: Spatial, sector_id: String, template) -> void:

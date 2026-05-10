@@ -4,12 +4,19 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "station_alpha"
-location_name = "Station Alpha - Mining Hub"
-location_type = "station"
+template_id = "sector_system_elace"
+location_name = "Elace System"
+location_type = "system"
 position_in_zone = Vector3( 48042, 233, -673 )
 interaction_radius = 150.0
-connections = PoolStringArray( "station_beta", "station_delta" )
+sector_scene_path = "res://scenes/levels/sectors/sector_system_elace/sector_system_elace.tscn"
+global_position = Vector3( 0, 0, 0 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_cob" )
 sector_type = "colony"
 radiation_level = 0.05
 thermal_background_k = 280.0
@@ -19,32 +26,29 @@ propellant_sources = 0.3
 station_power_output = 150.0
 stockpile_capacity = 1500
 market_inventory = {
-"commodity_ore": {
-"buy_price": 8,
-"sell_price": 6,
-"quantity": 200
-},
 "commodity_food": {
 "buy_price": 30,
-"sell_price": 25,
-"quantity": 40
-},
-"commodity_tech": {
-"buy_price": 80,
-"sell_price": 65,
-"quantity": 15
+"quantity": 40,
+"sell_price": 25
 },
 "commodity_fuel": {
 "buy_price": 25,
-"sell_price": 20,
-"quantity": 100
+"quantity": 100,
+"sell_price": 20
+},
+"commodity_ore": {
+"buy_price": 8,
+"quantity": 200,
+"sell_price": 6
+},
+"commodity_tech": {
+"buy_price": 80,
+"quantity": 15,
+"sell_price": 65
 }
 }
 available_services = [ "trade", "contracts", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 1
-available_contract_ids = [ "delivery_01", "delivery_02" ]
-sector_scene_path = "res://scenes/levels/sectors/sector_alpha/sector_alpha.tscn"
-global_position = Vector3( 0, 0, 0 )
-sector_description = "Mining hub orbiting a warm star. Rich mineral deposits in the nearby asteroid belt."
 initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [ "delivery_01", "delivery_02" ]

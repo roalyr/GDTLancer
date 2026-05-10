@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
-# LOG_REF: 2026-02-13
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -81,12 +81,12 @@ func test_save_and_load_preserves_mutated_fields():
 	GameState.sim_tick_count = 7
 
 	# Market inventory quantity mutation (legacy locations)
-	var station_alpha = GameState.locations.get("station_alpha", null)
-	assert_not_null(station_alpha, "Precondition: station_alpha location should exist.")
-	if station_alpha:
-		assert_true(station_alpha.market_inventory.has("commodity_ore"), "Precondition: station_alpha should sell commodity_ore.")
-		if station_alpha.market_inventory.has("commodity_ore"):
-			station_alpha.market_inventory["commodity_ore"]["quantity"] = 123
+	var starter_sector = GameState.locations.get("sector_system_elace", null)
+	assert_not_null(starter_sector, "Precondition: sector_system_elace location should exist.")
+	if starter_sector:
+		assert_true(starter_sector.market_inventory.has("commodity_ore"), "Precondition: sector_system_elace should sell commodity_ore.")
+		if starter_sector.market_inventory.has("commodity_ore"):
+			starter_sector.market_inventory["commodity_ore"]["quantity"] = 123
 
 	# Ship quirks mutation (grab player's first ship)
 	var player_uid = int(GameState.player_character_uid)
@@ -111,7 +111,7 @@ func test_save_and_load_preserves_mutated_fields():
 	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
 	assert_eq(GameState.sim_tick_count, 7, "sim_tick_count should persist.")
 
-	assert_eq(GameState.locations["station_alpha"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
+	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
 	if ship_uid != -1:
 		var loaded_ship_inv = GameState.inventories[player_uid][InventorySystem.InventoryType.SHIP]
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -33,7 +33,7 @@ func test_log_event_stages_event():
 		"tick": 1,
 		"actor_id": "agent_vera",
 		"action": "attack",
-		"sector_id": "station_alpha",
+		"sector_id": "sector_system_elace",
 		"metadata": {"target": "agent_ada"},
 	})
 	# Event should be staged but not yet in GameState until process_tick
@@ -44,16 +44,16 @@ func test_log_event_stages_event():
 
 func test_process_tick_generates_rumors():
 	# Setup: need topology for distribution
-	GameState.world_topology["station_alpha"] = {
+	GameState.world_topology["sector_system_elace"] = {
 		"connections": ["station_beta"],
 		"sector_type": "colony",
 	}
 	GameState.world_topology["station_beta"] = {
-		"connections": ["station_alpha"],
+		"connections": ["sector_system_elace"],
 		"sector_type": "colony",
 	}
 	GameState.agents["agent_vera"] = {
-		"current_sector_id": "station_alpha",
+		"current_sector_id": "sector_system_elace",
 		"is_disabled": false,
 	}
 
@@ -61,7 +61,7 @@ func test_process_tick_generates_rumors():
 		"tick": 1,
 		"actor_id": "agent_vera",
 		"action": "dock",
-		"sector_id": "station_alpha",
+		"sector_id": "sector_system_elace",
 		"metadata": {},
 	})
 	chronicle.process_tick()

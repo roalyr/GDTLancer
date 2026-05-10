@@ -11,6 +11,9 @@ extends Control
 ## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.
 ## Manages sub-screens (Station Menu) and docking prompts.
 
+const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
+const ProjectedTargetBracketScript = preload("res://src/core/ui/main_hud/projected_target_bracket.gd")
+
 # --- Sub-Screens ---
 const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 var _station_menu_instance = null
@@ -18,6 +21,7 @@ var _station_menu_instance = null
 # --- Nodes ---
 onready var targeting_indicator: Control = $TargetingIndicator
 onready var target_name_label: Label = $TargetingIndicator/TargetNameLabel
+onready var projected_target_overlay: Control = $ProjectedTargetOverlay
 onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
 onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
@@ -44,7 +48,7 @@ onready var radar_display = $ScreenControls/TopRightZone/RadarDisplay
 onready var sector_info_panel = $ScreenControls/TopCenterZone/SectorInfoPanel
 
 # --- State ---
-var _current_target: Spatial = null
+var _current_target = null
 var _main_camera: Camera = null
 var _current_target_uid: int = -1  # UID of current combat target for hull tracking
 var _player_uid: int = -1
@@ -53,6 +57,9 @@ var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedbac
 var _hud_alpha = 1.0
 var _dock_location_id: String = ""  # Currently available dock location
 var _jump_target_name: String = ""  # Currently available jump target name
+var _route_target_provider: Reference = RouteTargetProviderScript.new()
+var _route_target_buttons: Dictionary = {}
+var _world_target_buttons: Dictionary = {}
 
 # --- Initialization ---
 func _ready():
@@ -113,10 +120,18 @@ func _ready():
 			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 		if not EventBus.is_connected("agent_despawning", self, "_on_agent_despawning"):
 			EventBus.connect("agent_despawning", self, "_on_agent_despawning")
+		if not EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
+			EventBus.connect("agent_spawned", self, "_on_agent_spawned")
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 		if not EventBus.is_connected("game_state_loaded", self, "_on_game_state_loaded"):
 			EventBus.connect("game_state_loaded", self, "_on_game_state_loaded")
+		if not EventBus.is_connected("zone_unloading", self, "_on_zone_unloading"):
+			EventBus.connect("zone_unloading", self, "_on_zone_unloading")
+		if not EventBus.is_connected("zone_loaded", self, "_on_zone_loaded"):
+			EventBus.connect("zone_loaded", self, "_on_zone_loaded")
+		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
+			EventBus.connect("sector_changed", self, "_on_sector_changed")
 
 		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_for_panels"):
 			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_for_panels")
@@ -158,24 +173,28 @@ func _ready():
 	# --- Instance Station Menu sub-screen ---
 	_station_menu_instance = StationMenuScene.instance()
 	add_child(_station_menu_instance)
+	_refresh_process_state()
+	call_deferred("_rebuild_projected_target_overlays")
 
 
 # --- Process Update ---
 func _process(_delta):
 	# If the selected target is gone, clear the UI state.
-	if _current_target != null and not is_instance_valid(_current_target):
+	if _current_target != null and not _is_target_valid(_current_target):
 		_on_Player_Target_Deselected()
 		return
 
+	_update_route_target_overlay()
+	_update_world_target_overlay()
+
 	# Only update position if a target is selected and valid
-	if is_instance_valid(_current_target) and is_instance_valid(_main_camera):
+	if _is_target_valid(_current_target) and is_instance_valid(_main_camera):
+		var target_world_position: Vector3 = _get_target_world_position(_current_target)
 		# Project the target's 3D origin position to 2D screen coordinates
-		var screen_pos: Vector2 = _main_camera.unproject_position(
-			_current_target.global_transform.origin
-		)
+		var screen_pos: Vector2 = _main_camera.unproject_position(target_world_position)
 
 		# Check if the target is behind the camera
-		var target_dir = (_current_target.global_transform.origin - _main_camera.global_transform.origin).normalized()
+		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
 		var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
 		var is_in_front = target_dir.dot(camera_fwd) >= 0  # Use >= 0 to include exactly perpendicular
 
@@ -197,11 +216,11 @@ func _process(_delta):
 
 
 # --- Signal Handlers ---
-func _on_Player_Target_Selected(target_node: Spatial):
+func _on_Player_Target_Selected(target_node):
 	print(target_node)
-	if is_instance_valid(target_node):
+	if _is_target_valid(target_node):
 		_current_target = target_node
-		set_process(true)
+		_refresh_process_state()
 		
 		# Show target name label under the targeting indicator
 		var resolved_name = _resolve_target_display_name(target_node)
@@ -214,10 +233,12 @@ func _on_Player_Target_Selected(target_node: Spatial):
 		
 		# Update combat target info panel
 		_update_target_info_panel(target_node)
+		_update_route_target_selection_state()
+		_update_world_target_selection_state()
 		
 		# Update camera look_at_target if in target tracking mode
 		var camera = GlobalRefs.main_camera
-		if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+		if is_instance_valid(camera) and camera.get_camera_mode() == 1 and target_node is Spatial:  # TARGET_TRACKING
 			camera.set_look_at_target(target_node)
 	else:
 		_on_Player_Target_Deselected()
@@ -230,7 +251,9 @@ func _on_Player_Target_Deselected():
 	target_name_label.visible = false
 	if target_info_panel:
 		target_info_panel.visible = false
-	set_process(false)  # Can disable processing if target is deselected
+	_update_route_target_selection_state()
+	_update_world_target_selection_state()
+	_refresh_process_state()
 	_refresh_player_hull()
 	
 	# If camera is in target tracking mode, switch back to orbit mode
@@ -241,8 +264,13 @@ func _on_Player_Target_Deselected():
 
 func _on_agent_despawning(agent_body) -> void:
 	# If our selected target is being removed, clear target UI.
-	if is_instance_valid(_current_target) and agent_body == _current_target:
+	if _current_target is Spatial and is_instance_valid(_current_target) and agent_body == _current_target:
 		_on_Player_Target_Deselected()
+	call_deferred("_rebuild_world_target_overlay")
+
+
+func _on_agent_spawned(_agent_body, _init_data) -> void:
+	call_deferred("_rebuild_world_target_overlay")
 
 
 func _on_new_game_requested() -> void:
@@ -317,7 +345,7 @@ func _on_ButtonCamera_pressed() -> void:
 	
 	# If switching to target tracking mode, set the look_at_target
 	if camera.get_camera_mode() == 1:  # TARGET_TRACKING = 1
-		if is_instance_valid(_current_target):
+		if _current_target is Spatial and is_instance_valid(_current_target):
 			camera.set_look_at_target(_current_target)
 		else:
 			# No target selected, switch back to orbit mode
@@ -357,7 +385,11 @@ func _draw_targeting_indicator():
 
 
 # --- Target Name Resolution ---
-func _resolve_target_display_name(target_node: Spatial) -> String:
+func _resolve_target_display_name(target_node) -> String:
+	if _is_route_target(target_node):
+		if target_node.display_name != "":
+			return target_node.display_name
+		return target_node.target_sector_id
 	# Jump points: show destination name
 	if target_node.is_in_group("jump_point"):
 		if "target_sector_name" in target_node and target_node.target_sector_name != "":
@@ -389,7 +421,9 @@ func _resolve_target_display_name(target_node: Spatial) -> String:
 	return target_node.name.replace("_", " ")
 
 
-func _get_target_label_color(target_node: Spatial) -> Color:
+func _get_target_label_color(target_node) -> Color:
+	if _is_route_target(target_node):
+		return Color(0.35, 0.95, 1.0, 1.0)
 	if target_node.is_in_group("jump_point"):
 		return Color(0.33, 1.0, 1.0, 1.0)  # cyan
 	if target_node.is_in_group("dockable_station"):
@@ -421,10 +455,18 @@ func _notification(what):
 				EventBus.disconnect("agent_damaged", self, "_on_agent_damaged")
 			if EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 				EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
+				if EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
+					EventBus.disconnect("agent_spawned", self, "_on_agent_spawned")
 			if EventBus.is_connected("jump_available", self, "_on_jump_available"):
 				EventBus.disconnect("jump_available", self, "_on_jump_available")
 			if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
 				EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
+				if EventBus.is_connected("zone_unloading", self, "_on_zone_unloading"):
+					EventBus.disconnect("zone_unloading", self, "_on_zone_unloading")
+			if EventBus.is_connected("zone_loaded", self, "_on_zone_loaded"):
+				EventBus.disconnect("zone_loaded", self, "_on_zone_loaded")
+			if EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
+				EventBus.disconnect("sector_changed", self, "_on_sector_changed")
 
 
 func _on_combat_initiated(_player_agent, enemy_agents: Array) -> void:
@@ -550,6 +592,9 @@ func _update_docking_prompt():
 	if _dock_location_id != "":
 		docking_prompt.visible = true
 		docking_label.text = "Docking Available - Press Dock"
+	elif _jump_target_name != "":
+		docking_prompt.visible = true
+		docking_label.text = "Jump Available: %s - Press Interact" % _jump_target_name
 	else:
 		docking_prompt.visible = false
 
@@ -635,9 +680,13 @@ func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _sour
 	_refresh_player_hull()
 
 
-func _update_target_info_panel(target_node: Spatial) -> void:
+func _update_target_info_panel(target_node) -> void:
 	"""Update the target info panel with the selected target's info."""
 	if not target_info_panel:
+		return
+	if _is_route_target(target_node):
+		_current_target_uid = -1
+		target_info_panel.visible = false
 		return
 	
 	# Get target's agent_uid if available
@@ -712,3 +761,231 @@ func _refresh_hud_panels() -> void:
 			radar_display.refresh(GlobalRefs.contact_manager)
 		if is_instance_valid(sector_info_panel):
 			sector_info_panel.refresh(GlobalRefs.contact_manager)
+
+
+func _on_zone_unloading(_zone_node) -> void:
+	_clear_route_target_overlay()
+	_clear_world_target_overlay()
+
+
+func _on_zone_loaded(_zone_node, _zone_path, _agent_container_node) -> void:
+	_rebuild_projected_target_overlays()
+
+
+func _on_sector_changed(_new_sector_id, _old_sector_id) -> void:
+	_rebuild_projected_target_overlays()
+
+
+func _is_route_target(target_ref) -> bool:
+	return target_ref != null and target_ref.get("target_kind") == "jump_route"
+
+
+func _is_target_valid(target_ref) -> bool:
+	if target_ref == null:
+		return false
+	if _is_route_target(target_ref):
+		return true
+	return is_instance_valid(target_ref)
+
+
+func _refresh_process_state() -> void:
+	set_process(
+		is_instance_valid(_main_camera)
+		and (
+			_is_target_valid(_current_target)
+			or _route_target_buttons.size() > 0
+			or _world_target_buttons.size() > 0
+		)
+	)
+
+
+func _get_projection_origin() -> Vector3:
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		return GlobalRefs.player_agent_body.global_transform.origin
+	if is_instance_valid(_main_camera):
+		return _main_camera.global_transform.origin
+	return Vector3.ZERO
+
+
+func _get_target_world_position(target_ref) -> Vector3:
+	if _is_route_target(target_ref):
+		return target_ref.get_projection_world_position(
+			_get_projection_origin(),
+			Constants.SECTOR_JUMP_ARRIVAL_RADIUS
+		)
+	if target_ref is Spatial and is_instance_valid(target_ref):
+		return target_ref.global_transform.origin
+	return Vector3.ZERO
+
+
+func _clear_route_target_overlay() -> void:
+	for selection_key in _route_target_buttons:
+		var button = _route_target_buttons[selection_key]
+		if is_instance_valid(button):
+			button.queue_free()
+	_route_target_buttons.clear()
+	_refresh_process_state()
+
+
+func _clear_world_target_overlay() -> void:
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if is_instance_valid(button):
+			button.queue_free()
+	_world_target_buttons.clear()
+	_refresh_process_state()
+
+
+func _rebuild_projected_target_overlays() -> void:
+	_rebuild_route_target_overlay()
+	_rebuild_world_target_overlay()
+
+
+func _rebuild_route_target_overlay() -> void:
+	_clear_route_target_overlay()
+	if not is_instance_valid(projected_target_overlay):
+		return
+	var current_sector_id: String = GameState.current_sector_id
+	if current_sector_id == "":
+		return
+	var route_targets: Array = _route_target_provider.build_targets_for_sector(current_sector_id)
+	for route_target in route_targets:
+		var button = ProjectedTargetBracketScript.new()
+		button.name = "Route_%s" % route_target.target_sector_id
+		button.configure_target(route_target)
+		button.connect("pressed", self, "_on_route_target_button_pressed", [route_target])
+		projected_target_overlay.add_child(button)
+		_route_target_buttons[route_target.selection_key] = button
+	_update_route_target_selection_state()
+	_refresh_process_state()
+
+
+func _rebuild_world_target_overlay() -> void:
+	_clear_world_target_overlay()
+	if not is_instance_valid(projected_target_overlay):
+		return
+	var world_targets: Array = _collect_world_projected_targets()
+	for target_node in world_targets:
+		var button = ProjectedTargetBracketScript.new()
+		button.name = "World_%s" % target_node.get_instance_id()
+		button.configure_target(target_node, _resolve_target_display_name(target_node))
+		button.connect("pressed", self, "_on_world_target_button_pressed", [target_node])
+		projected_target_overlay.add_child(button)
+		_world_target_buttons[target_node.get_instance_id()] = button
+	_update_world_target_selection_state()
+	_refresh_process_state()
+
+
+func _update_route_target_overlay() -> void:
+	if not is_instance_valid(_main_camera):
+		return
+	var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
+	var viewport_rect = get_viewport_rect()
+	for selection_key in _route_target_buttons:
+		var button = _route_target_buttons[selection_key]
+		if not is_instance_valid(button):
+			continue
+		var route_target = button.target_ref
+		if not _is_route_target(route_target):
+			button.visible = false
+			continue
+		var target_world_position: Vector3 = _get_target_world_position(route_target)
+		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
+		var is_in_front = target_dir.dot(camera_fwd) >= 0
+		var screen_pos = _main_camera.unproject_position(target_world_position)
+		var is_on_screen = viewport_rect.has_point(screen_pos)
+		button.visible = is_in_front and is_on_screen
+		if button.visible:
+			button.rect_position = screen_pos - (button.rect_size / 2.0)
+
+
+func _collect_world_projected_targets() -> Array:
+	var targets: Array = []
+	if not is_instance_valid(GlobalRefs.current_zone):
+		return targets
+	_append_world_projected_targets(GlobalRefs.current_zone, targets)
+	return targets
+
+
+func _append_world_projected_targets(node: Node, targets: Array) -> void:
+	if _is_world_projectable_target(node):
+		targets.append(node)
+	for child in node.get_children():
+		_append_world_projected_targets(child, targets)
+
+
+func _is_world_projectable_target(node: Node) -> bool:
+	if not (node is Spatial):
+		return false
+	if node == GlobalRefs.player_agent_body:
+		return false
+	if node.is_in_group("jump_point"):
+		return false
+	if node is RigidBody:
+		if node.has_method("is_player") and node.is_player():
+			return false
+		return true
+	if node is StaticBody:
+		return true
+	return false
+
+
+func _update_world_target_overlay() -> void:
+	if not is_instance_valid(_main_camera):
+		return
+	var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
+	var viewport_rect = get_viewport_rect()
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if not is_instance_valid(button):
+			continue
+		var target_node = button.target_ref
+		if not (target_node is Spatial and is_instance_valid(target_node)):
+			button.visible = false
+			continue
+		var target_world_position: Vector3 = _get_target_world_position(target_node)
+		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
+		var is_in_front = target_dir.dot(camera_fwd) >= 0
+		var screen_pos = _main_camera.unproject_position(target_world_position)
+		var is_on_screen = viewport_rect.has_point(screen_pos)
+		button.visible = is_in_front and is_on_screen
+		if button.visible:
+			button.rect_position = screen_pos - (button.rect_size / 2.0)
+
+
+func _get_route_target_selection_key() -> String:
+	if _is_route_target(_current_target):
+		return _current_target.selection_key
+	return ""
+
+
+func _update_route_target_selection_state() -> void:
+	var selected_key = _get_route_target_selection_key()
+	for selection_key in _route_target_buttons:
+		var button = _route_target_buttons[selection_key]
+		if is_instance_valid(button):
+			button.set_selected_state(selection_key == selected_key)
+
+
+func _get_world_target_instance_id() -> int:
+	if _current_target is Spatial and is_instance_valid(_current_target) and not _is_route_target(_current_target):
+		return _current_target.get_instance_id()
+	return -1
+
+
+func _update_world_target_selection_state() -> void:
+	var selected_instance_id = _get_world_target_instance_id()
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if is_instance_valid(button):
+			button.set_selected_state(instance_id == selected_instance_id)
+
+
+func _on_route_target_button_pressed(route_target) -> void:
+	if EventBus:
+		EventBus.emit_signal("player_target_selection_requested", route_target)
+
+
+func _on_world_target_button_pressed(target_node) -> void:
+	if EventBus:
+		EventBus.emit_signal("player_target_selection_requested", target_node)

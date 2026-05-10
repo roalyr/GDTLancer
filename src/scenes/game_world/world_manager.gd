@@ -19,6 +19,7 @@ const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_
 var _spawned_agent_bodies = []
 var _sector_loader = null
 var _pending_jump_target: String = ""
+var _reported_invalid_sectors: Dictionary = {}
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
@@ -121,8 +122,8 @@ func _on_game_state_loaded() -> void:
 	if saved_seed != "" and is_instance_valid(GlobalRefs.simulation_engine):
 		GlobalRefs.simulation_engine.initialize_simulation(saved_seed)
 
-	var saved_sector = GameState.current_sector_id
-	if saved_sector == "": saved_sector = Constants.INITIAL_SECTOR_ID
+	var saved_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	GameState.current_sector_id = saved_sector
 	load_sector(saved_sector)
 	call_deferred("_emit_loaded_dock_signal")
 	call_deferred("_emit_loaded_resource_signals")
@@ -214,8 +215,8 @@ func _reset_camera_input_state() -> void:
 
 # --- Sector Loading ---
 func load_sector(sector_id: String):
-	if not GameState.world_topology.has(sector_id):
-		printerr("WM Error: sector_id not in world_topology: ", sector_id)
+	var resolved_sector_id: String = _resolve_known_sector_id(sector_id, "load_sector")
+	if resolved_sector_id == "":
 		return
 
 	_cleanup_all_agents()
@@ -225,9 +226,9 @@ func load_sector(sector_id: String):
 	if _sector_loader == null:
 		_sector_loader = load("res://src/core/systems/sector_loader.gd").new()
 
-	var zone_root: Spatial = _sector_loader.load_sector(sector_id)
+	var zone_root: Spatial = _sector_loader.load_sector(resolved_sector_id)
 	if zone_root == null:
-		printerr("WM Error: SectorLoader returned null for: ", sector_id)
+		printerr("WM Error: SectorLoader returned null for: ", resolved_sector_id)
 		return
 
 	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
@@ -242,20 +243,70 @@ func load_sector(sector_id: String):
 	var agent_container = zone_root.find_node(Constants.AGENT_CONTAINER_NAME, true, false)
 	GlobalRefs.agent_container = agent_container
 
-	GameState.current_sector_id = sector_id
-	EventBus.emit_signal("zone_loaded", zone_root, sector_id, agent_container)
+	GameState.current_sector_id = resolved_sector_id
+	EventBus.emit_signal("zone_loaded", zone_root, resolved_sector_id, agent_container)
 
 
 func travel_to_sector(target_sector_id: String) -> void:
-	var old_sector = GameState.current_sector_id
+	var resolved_target_sector_id: String = _resolve_known_sector_id(target_sector_id, "travel_to_sector")
+	if resolved_target_sector_id == "":
+		return
+	var old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
 	GameState.player_docked_at = ""
 	GameState.player_arrived_from_sector = old_sector
+	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, resolved_target_sector_id)
 	if GameState.agents.has("player"):
-		GameState.agents["player"]["current_sector_id"] = target_sector_id
-	EventBus.emit_signal("sector_changed", target_sector_id, old_sector)
-	load_sector(target_sector_id)
+		GameState.agents["player"]["current_sector_id"] = resolved_target_sector_id
+	EventBus.emit_signal("sector_changed", resolved_target_sector_id, old_sector)
+	load_sector(resolved_target_sector_id)
 	if is_instance_valid(GlobalRefs.simulation_engine):
 		GlobalRefs.simulation_engine.request_tick()
+
+
+func _get_arrival_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:
+	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
+	var target_position: Vector3 = _get_sector_global_position(target_sector_id)
+	if source_position == target_position:
+		return Vector3.ZERO
+	return (source_position - target_position).normalized()
+
+
+func _get_sector_global_position(sector_id: String) -> Vector3:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	if sector_template == null:
+		return Vector3.ZERO
+	var global_position = sector_template.get("global_position")
+	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
+	if requested_sector_id != "" and GameState.world_topology.has(requested_sector_id):
+		return requested_sector_id
+
+	_report_invalid_sector(context, requested_sector_id)
+
+	if Constants.INITIAL_SECTOR_ID != "" and GameState.world_topology.has(Constants.INITIAL_SECTOR_ID):
+		return Constants.INITIAL_SECTOR_ID
+	if not GameState.world_topology.empty():
+		return str(GameState.world_topology.keys()[0])
+
+	printerr("WorldManager: No valid fallback sector available for %s." % context)
+	return ""
+
+
+func _report_invalid_sector(context: String, requested_sector_id: String) -> void:
+	var normalized_sector_id: String = requested_sector_id if requested_sector_id != "" else "<empty>"
+	var report_key = "%s:%s" % [context, normalized_sector_id]
+	if _reported_invalid_sectors.has(report_key):
+		return
+	_reported_invalid_sectors[report_key] = true
+	printerr(
+		"WorldManager: Invalid sector reference for %s -> %s. Falling back to %s." % [
+			context,
+			normalized_sector_id,
+			Constants.INITIAL_SECTOR_ID,
+		]
+	)
 
 
 # --- Jump Signal Handlers ---

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -172,11 +172,11 @@ func _clear_state() -> void:
 ## Seeds TemplateDatabase with real location .tres files for integration testing.
 func _seed_template_database() -> void:
 	var location_paths: Array = [
-		"res://database/registry/locations/station_alpha.tres",
+		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/station_beta.tres",
-		"res://database/registry/locations/station_gamma.tres",
+		"res://database/registry/locations/sector_gamma.tres",
 		"res://database/registry/locations/station_delta.tres",
-		"res://database/registry/locations/station_epsilon.tres",
+		"res://database/registry/locations/sector_epsilon.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:
