@@ -8,14 +8,8 @@ render_mode
     specular_disabled, 
     ambient_light_disabled; 
 
-// ==========================================
-// 1. PAINT & COLORS (The Object)
-// ==========================================
 uniform vec4 paint_color : hint_color = vec4(1.0);
 
-// ==========================================
-// 2. LIGHTING VIBE (The Environment)
-// ==========================================
 // The color of the object when LIT (e.g., Warm Cream)
 uniform vec4 light_tint : hint_color = vec4(1.0, 0.95, 0.9, 1.0); 
 // The color of the object in SHADOW (e.g., Cold Purple/Teal)
@@ -28,9 +22,6 @@ uniform float shadow_softness : hint_range(0.01, 1.0) = 0.1;
 // 1.0 = Flat Lit Area (Anime), 0.0 = Detailed 3D Lit Area
 uniform float shadow_normal_blend : hint_range(0.0, 1.0) = 0.5;
 
-// ==========================================
-// 3. SPECULAR IMITATION (The Shine)
-// ==========================================
 uniform vec4 spec_tint : hint_color = vec4(1.0, 1.0, 1.0, 0.5);
 uniform float spec_intensity : hint_range(0.0, 5.0) = 0.0;
 // Higher = Smaller, tighter highlight
@@ -38,17 +29,11 @@ uniform float spec_glossiness : hint_range(1.0, 100.0) = 10.0;
 // 0.0 = Hard Edge Dot, 1.0 = Soft Bloom
 uniform float spec_softness : hint_range(0.0, 1.0) = 0.1; 
 
-// ==========================================
-// 4. RIM EFFECT (The Edge)
-// ==========================================
 uniform vec4 rim_color : hint_color = vec4(0.5, 0.7, 1.0, 1.0);
 uniform float rim_width : hint_range(0.0, 10.0) = 3.0;
 uniform float rim_power : hint_range(0.0, 10.0) = 2.0;
 uniform bool rim_mask_on_shadow = true; 
 
-// ==========================================
-// 5. SURFACE DETAILS (Textures)
-// ==========================================
 uniform sampler2D detail_texture : hint_albedo; // Green channel used for scratches/dirt
 uniform sampler2D normal_texture : hint_normal;
 
@@ -59,26 +44,20 @@ uniform float detail_paint_contrast : hint_range(0.1, 10.0) = 1.0;
 uniform float detail_normal_scale = 1.0;
 uniform float detail_normal_strength : hint_range(-5.0, 5.0) = 1.0;
 
-// ==========================================
-// 6. MAPPING (Triplanar)
-// ==========================================
 uniform float uv_triplanar_sharpness : hint_range(0.0, 100.0) = 10.0;
 uniform vec3 uv_scale = vec3(1.0);
 uniform vec3 uv_offset = vec3(0.0);
 
 // Non-linear perspective
-uniform float scale_start = 3e3;
-uniform float scale_end_mul = 25;
+uniform float scale_start = 100000;
+uniform float scale_end_mul = 100;
 uniform float scale_power = 1.0;
-uniform float scale_min = 0.25;
+uniform float scale_min = 0.5;
 
-
-// --- INTERNAL VARYINGS ---
 varying vec3 uv_triplanar_pos;
 varying vec3 uv_power_normal;
 
 
-// --- FUNCTIONS ---
 vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_pos) {
     vec4 samp = vec4(0.0);
     samp += texture(p_sampler, p_pos.xy) * p_weights.z;
@@ -88,7 +67,7 @@ vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_pos) {
 }
 
 void vertex() {
-	// --- Non-linear perspective (based on distance) ---
+	// Non-linear perspective
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
     float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;

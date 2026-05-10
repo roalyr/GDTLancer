@@ -36,7 +36,6 @@ __meta__ = {
 }
 
 [node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 3 )]
-visible = false
 
 [node name="SceneAssets" type="Spatial" parent="."]
 __meta__ = {

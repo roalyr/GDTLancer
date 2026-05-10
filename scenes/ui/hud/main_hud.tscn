@@ -519,7 +519,6 @@ margin_top = 293.0
 margin_right = 111.0
 margin_bottom = 343.0
 theme = ExtResource( 9 )
-text = ""
 
 [node name="TopCenterZone" type="Control" parent="ScreenControls"]
 anchor_left = 0.5
@@ -573,11 +572,8 @@ margin_bottom = 32.0
 value = 100.0
 
 [node name="SectorInfoPanel" parent="ScreenControls/TopCenterZone" instance=ExtResource( 17 )]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -300.0
+visible = false
 margin_top = 140.0
-margin_right = 300.0
 margin_bottom = 190.0
 
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
@@ -599,8 +595,7 @@ texture = ExtResource( 4 )
 expand = true
 
 [node name="RadarDisplay" parent="ScreenControls/TopRightZone" instance=ExtResource( 16 )]
-anchor_right = 1.0
-anchor_bottom = 1.0
+visible = false
 
 [node name="GameOverOverlay" type="Control" parent="."]
 pause_mode = 2

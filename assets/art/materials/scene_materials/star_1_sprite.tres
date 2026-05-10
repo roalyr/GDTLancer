@@ -14,4 +14,3 @@ shader_param/exponent = 3.0
 shader_param/pulse_factor = 0.9
 shader_param/pulse_rate = 1.0
 shader_param/phase = 0.0
-shader_param/Fcoef = 0.001

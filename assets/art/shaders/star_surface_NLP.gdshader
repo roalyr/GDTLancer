@@ -20,6 +20,9 @@ uniform float major_detail_level  = 0.5;
 uniform float detail_decay_distance = 50000;
 uniform float detail_decay_power : hint_range(0.0, 5.0, 5e-4) = 2.0;
 
+uniform float fade_distance_far = 5e4;
+uniform float fade_power = 1.0;
+
 uniform sampler2D major_detail_noise : hint_albedo;
 
 uniform float major_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;
@@ -30,11 +33,11 @@ uniform float rim_strength = 1.0;
 uniform float rim_exponent = 0.03;
 uniform float rim_intensity = 10;
 
-// Non-linear perspective
-uniform float scale_start = 3e3;
-uniform float scale_end_mul = 25;
+// NLP
+uniform float scale_start = 100000;
+uniform float scale_end_mul = 100;
 uniform float scale_power = 1.0;
-uniform float scale_min = 0.25;
+uniform float scale_min = 0.5;
 
 const float pi = 3.1415926535;
 const vec3 WHITE = vec3(1.0,1.0,1.0);
@@ -59,4 +62,6 @@ void fragment()
 	ALBEDO *= surface_color.rgb ;
 	ALBEDO += fade_color.rgb * distance_factor;
 	ALBEDO += (1.0-rim) * rim_color.rgb * rim_intensity * (1.0 - distance_factor);
+	
+
 }

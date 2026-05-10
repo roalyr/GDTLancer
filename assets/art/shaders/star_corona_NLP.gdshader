@@ -1,17 +1,10 @@
 shader_type spatial;
 render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
 	vertex_lighting,
-
-	// Blending and culling.
 	blend_add,
 	cull_front,
-
 	unshaded,
-	//diffuse_lambert,
 	specular_disabled,
-
-	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
 
@@ -22,6 +15,9 @@ uniform float exponent_corona_rim = 2;
 uniform float corona_floor_power = 5.0;
 uniform float corona_floor : hint_range(0.0, 2, 5e-4) = 1.3;
 
+uniform float fade_distance_far = 5e4;
+uniform float fade_power = 1.0;
+
 uniform sampler2D displacement_texture;
 uniform float displacement_power : hint_range(-0.4, 0.4, 5e-4) = 0.05;
 uniform float displacement_scale_xz : hint_range(0.0, 2.0, 5e-4) = 0.95;
@@ -29,10 +25,10 @@ uniform float displacement_scale_y : hint_range(0.0, 2.0, 5e-4) = 0.9;
 uniform float displacement_velocity : hint_range(0.0, 2.0, 5e-4) = 0.1;
 
 // Non-linear perspective
-uniform float scale_start = 3e3;
-uniform float scale_end_mul = 27;
+uniform float scale_start = 100000;
+uniform float scale_end_mul = 100;
 uniform float scale_power = 1.0;
-uniform float scale_min = 0.25;
+uniform float scale_min = 0.5;
 
 varying float noise_val;
 
@@ -53,7 +49,7 @@ void vertex() {
 	VERTEX.xz *= displacement_scale_xz;
 	VERTEX.y *= displacement_scale_y;
 	
-	// --- Non-linear perspective (based on distance) ---
+	// Non-linear perspective
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
     float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
@@ -66,4 +62,11 @@ void fragment()
 
 	ALBEDO = pow(corona,exponent_corona_rim)*corona_color.rgb;
 	ALBEDO *= clamp((corona_floor - pow(noise_val, corona_floor_power)), 1e-9, 0.99999);
+	
+	// Fade near and far.
+	// TOFDO fade in too?
+	float dist = length(VERTEX);
+	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); 
+	float fade = pow(fade_out, fade_power);
+	ALBEDO *= fade;
 }

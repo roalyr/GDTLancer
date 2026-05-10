@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=1]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=2]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 1 - 512x512.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Craters 14 - 512x512.png" type="Texture" id=4]

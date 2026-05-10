@@ -1,42 +1,11 @@
-## CURRENT GOAL: HUD-Projected Jump Route Targeting
-- TARGET_FILES:
-  - src/core/ui/main_hud/main_hud.gd
-  - scenes/ui/hud/main_hud.tscn
-  - src/modules/piloting/player_controller_ship.gd
-  - src/core/targeting/route_target.gd
-  - src/core/targeting/route_target_provider.gd
-  - src/scenes/game_world/world_manager.gd
-  - src/core/systems/agent_system.gd
-  - src/core/systems/sector_loader.gd
-- TRUTH_RELIANCE: TRUTH_PROJECT.md, TRUTH_CONSTRAINTS.md §1, TRUTH_SIMULATION-GRAPH.md §2.1 and §3.3, TRUTH_CONTENT-CREATION-MANUAL.md §3.4 and §6
+## CURRENT GOAL: HUD Projected Target Gesture Separation
+- TARGET_FILE: src/core/ui/main_hud/projected_target_bracket.gd
+- TRUTH_RELIANCE: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2 "PID Controller Tuning", §6.1 "Quick Validation", and §6.3 "GUT Unit Tests"
 - TECHNICAL_CONSTRAINTS:
   - Platform (primary): Godot3 (3.6 stable)
-  - Graphics: GLES2 (CanvasItem/Control-safe HUD projection only)
-  - Interaction rule: jump selection must remain on the existing Interact action path
-  - Compatibility rule: keep current station/ship world targeting working while route targets migrate to HUD projection
+  - Graphics: GLES2 (for performance and compatibility)
+  - Additional: Python3 (for sandbox)
 - ATOMIC_TASKS:
-  - [x] TASK_1: Store route-based arrival metadata and spawn the player from the inbound vector instead of reverse JumpPoint lookup.
-    - Required signatures: preserve `WorldManager.travel_to_sector(target_sector_id)`, `GameState.current_sector_id`, `EventBus.player_jump_requested`, and `AgentSystem.spawn_player()`.
-    - Store `GameState.player_arrival_direction` from topology-derived sector positions and spawn at `Constants.SECTOR_JUMP_ARRIVAL_RADIUS`.
-    - Do not require a destination JumpPoint node to compute arrival placement.
-
-  - [x] TASK_2: Add logical jump-route targets plus HUD-projected route brackets that feed the existing target-selection and interact flow.
-    - Required signatures: preserve `EventBus.player_target_selected`, `EventBus.player_target_deselected`, `EventBus.jump_available`, and `EventBus.player_jump_requested` semantics.
-    - `MainHUD` owns projected route brackets and emits `player_target_selection_requested(route_target)`.
-    - `PlayerControllerShip` accepts logical route targets, highlights them, and emits `jump_available` without a distance gate.
-
-  - [ ] TASK_3: Retire player-facing physical JumpPoint dependency from sector loading and focused tests.
-    - Required files: `src/core/systems/sector_loader.gd`, `src/tests/core/systems/test_sector_loader.gd`, and any jump-point-specific fixtures that still assume `station_beta` or scene-local JumpPoint anchors.
-    - Player travel must no longer depend on scene-instanced JumpPoint nodes for prompting, selection, or arrival.
-    - Physical route markers may remain only as non-interactive decoration if they no longer control gameplay.
-
-  - [x] TASK_4: Finalize HUD-target precedence so projected route brackets own route selection instead of world-raycast clicks.
-    - Required files: `src/modules/piloting/player_input_states/state_default.gd`, `src/core/ui/main_hud/main_hud.gd`, and any follow-on targeting surfaces that still assume `Spatial`-only selection.
-    - HUD route brackets must stay clickable without world-space raycast interference.
-    - Keep existing ship/station selection behavior intact until those target classes migrate to the projected-target system.
-
-  - [ ] VERIFICATION: Confirm the HUD-projected jump slice with focused checks and one manual travel pass.
-    - [x] Run `test_route_target_provider.gd` and expect the logical route-target block to pass.
-    - [x] Run `test_docking_logic.gd` and confirm the route-target selection/interact block passes, even if unrelated fixture drift still fails elsewhere in the widened suite.
-    - [ ] Run the narrow sector-loader/jump migration slice after TASK_3 and expect no player-facing JumpPoint dependency.
-    - [ ] Manual Godot check: from any point in local space, select a HUD route bracket, press Interact, and arrive in the destination sector 100 km from center on the inbound vector.
+  - [ ] TASK_1: Separate projected HUD bracket click-release selection from click-drag camera intent inside `projected_target_bracket.gd` while preserving `configure_target(new_target_ref, new_target_label := "")`, `set_selected_state(is_selected)`, the resource-backed bracket visuals, and scene instancing through `scenes/ui/hud/projected_target_bracket.tscn`. A drag that crosses the active threshold must not emit target selection or deselection.
+  - [ ] TASK_2: Route drag gestures that begin on a projected route/world bracket into the existing camera-turn path without changing the live empty-space piloting behavior. Required signatures: preserve `MainHUD._rebuild_route_target_overlay()`, `MainHUD._rebuild_world_target_overlay()`, `MainHUD._update_route_target_overlay()`, `EventBus.player_target_selection_requested`, `EventBus.player_target_selected`, `EventBus.player_target_deselected`, `player_controller_ship.gd::_handle_single_click()`, `player_controller_ship.gd::_handle_double_click()`, and `orbit_camera.gd::set_is_rotating()`. Click-release on a bracket must still pick the target; click-drag on a bracket must only rotate the camera and keep current target state unchanged.
+  - [ ] VERIFICATION: Add or extend a narrow HUD/piloting GUT test that covers projected-bracket click versus drag semantics, then run the focused slice (`test_main_hud_projected_targeting.gd`, `test_route_target_provider.gd`, `test_docking_logic.gd`, and any new targeted HUD/piloting test added for bracket gestures). Manual Godot check: route and world projected brackets still render and keep their normal/selected visuals; click-release on a bracket selects; click-drag starting on a bracket turns the camera without selecting or deselecting; empty-space piloting and camera-turn behavior remain consistent with the current live controls.

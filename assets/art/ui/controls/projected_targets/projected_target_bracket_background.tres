@@ -1,0 +1,10 @@
+; PROJECT: GDTLancer
+; MODULE: projected_target_bracket_background.tres
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
+; LOG_REF: 2026-05-10 21:07:00
+
+[gd_resource type="StyleBoxFlat" format=2]
+
+[resource]
+bg_color = Color( 0.02, 0.05, 0.08, 0.35 )

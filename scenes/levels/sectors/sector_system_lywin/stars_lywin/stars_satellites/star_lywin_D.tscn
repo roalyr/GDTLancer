@@ -1,21 +1,21 @@
 [gd_scene load_steps=18 format=2]
 
-[ext_resource path="res://assets/art/shaders/star_surface_NLP.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/star_corona_NLP.gdshader" type="Shader" id=1]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=2]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=3]
+[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=3]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=4]
-[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=5]
-[ext_resource path="res://assets/art/shaders/star_corona_NLP.gdshader" type="Shader" id=6]
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=5]
+[ext_resource path="res://assets/art/shaders/star_surface_NLP.gdshader" type="Shader" id=6]
 
 [sub_resource type="SphereShape" id=1]
-radius = 10000.0
+radius = 5000.0
 
 [sub_resource type="ShaderMaterial" id=25]
-shader = ExtResource( 1 )
-shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0.215686, 0.615686, 0.568627, 1 )
-shader_param/surface_color = Color( 0.647059, 0.639216, 0.85098, 1 )
-shader_param/fade_color = Color( 0.662745, 0.909804, 0.803922, 1 )
+shader = ExtResource( 6 )
+shader_param/rim_color = Color( 1, 0.568627, 0.0156863, 1 )
+shader_param/overlay_color = Color( 0.87451, 0.266667, 0, 1 )
+shader_param/surface_color = Color( 0.960784, 0.505882, 0.0156863, 1 )
+shader_param/fade_color = Color( 0.972549, 0.760784, 0.556863, 1 )
 shader_param/major_phase = 0.95
 shader_param/major_detail_intensity = 1.0
 shader_param/major_detail_level = 0.5
@@ -30,7 +30,7 @@ shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 25.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.25
-shader_param/major_detail_noise = ExtResource( 3 )
+shader_param/major_detail_noise = ExtResource( 5 )
 
 [sub_resource type="SphereMesh" id=2]
 
@@ -43,8 +43,8 @@ seamless = true
 noise = SubResource( 23 )
 
 [sub_resource type="ShaderMaterial" id=26]
-shader = ExtResource( 6 )
-shader_param/corona_color = Color( 0.14902, 0.32549, 0.345098, 1 )
+shader = ExtResource( 1 )
+shader_param/corona_color = Color( 0.933333, 0.376471, 0.0666667, 1 )
 shader_param/strength_corona = 40.0
 shader_param/exponent_corona = 2.0
 shader_param/exponent_corona_rim = 2.0
@@ -64,9 +64,9 @@ shader_param/displacement_texture = SubResource( 24 )
 radial_segments = 32
 
 [sub_resource type="ShaderMaterial" id=27]
-shader = ExtResource( 5 )
-shader_param/albedo = Color( 0.435294, 1, 0.72549, 1 )
-shader_param/scale = 0.708
+shader = ExtResource( 3 )
+shader_param/albedo = Color( 1, 0.635294, 0.435294, 1 )
+shader_param/scale = 0.297
 shader_param/flare_distance = 40000.0
 shader_param/flare_size = 3.0
 shader_param/attenuation = 0.749
@@ -115,9 +115,9 @@ void fragment()
 }
 "
 
-[sub_resource type="ShaderMaterial" id=5]
+[sub_resource type="ShaderMaterial" id=28]
 shader = SubResource( 4 )
-shader_param/albedo = Color( 0.07, 0.1, 0.18, 1 )
+shader_param/albedo = Color( 0.2, 0.0509804, 0.0509804, 1 )
 shader_param/rim_strength = 2.601
 shader_param/rim_exponent = 30.0
 shader_param/rim_power = 0.556
@@ -129,13 +129,13 @@ shader_param/rim_outer_exponent = 6.108
 radial_segments = 16
 rings = 16
 
-[node name="Star Cob" type="StaticBody"]
+[node name="Star Lywin D" type="StaticBody"]
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )
 
 [node name="Model" type="Spatial" parent="."]
-transform = Transform( 9281.79, 3718.8, -137.285, -3686.4, 9137.91, -1705.51, -508.799, 1633.63, 9852.51, 0, 0, 0 )
+transform = Transform( 4640.9, 1859.4, -68.6439, -1843.2, 4568.96, -852.759, -254.4, 816.817, 4926.26, 0, 0, 0 )
 
 [node name="StarSurface" type="MeshInstance" parent="Model"]
 material_override = SubResource( 25 )
@@ -159,12 +159,12 @@ material_override = SubResource( 27 )
 
 [node name="StarHalo" type="MeshInstance" parent="ModelAdditional"]
 transform = Transform( 15346.5, 6148.67, -226.985, -6095.09, 15108.6, -2819.9, -841.251, 2701.05, 16290.2, 0, 0, 0 )
-material_override = SubResource( 5 )
+material_override = SubResource( 28 )
 mesh = SubResource( 6 )
 skeleton = NodePath("../../Model")
 
 [node name="OmniLight" type="OmniLight" parent="."]
-light_color = Color( 0.505882, 0.85098, 0.898039, 1 )
+light_color = Color( 0.8, 0.85, 1, 1 )
 light_energy = 1.5
 omni_range = 100000.0
 

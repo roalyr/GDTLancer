@@ -1,0 +1,301 @@
+[gd_scene load_steps=17 format=2]
+
+[ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
+[ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
+[ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/stars_satellites/star_lywin_B.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/stars_satellites/star_lywin_C.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/stars_satellites/star_lywin_D.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/stars_satellites/star_lywin_E.tscn" type="PackedScene" id=7]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/star_lywin_A.tscn" type="PackedScene" id=8]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/planet_lywin_A_a.tscn" type="PackedScene" id=9]
+
+[sub_resource type="SpatialMaterial" id=1]
+flags_unshaded = true
+params_cull_mode = 1
+albedo_color = Color( 0, 0.0862745, 0.0901961, 1 )
+
+[sub_resource type="SphereMesh" id=2]
+
+[sub_resource type="Shader" id=7]
+code = "shader_type spatial;
+
+render_mode
+	// Vertex or pixel shading (screen-large object can use vertex)
+	vertex_lighting,
+
+	// Blending and culling.
+	blend_add,
+	cull_front,
+
+	unshaded,
+	diffuse_lambert,
+	specular_disabled,
+
+	// Additional flags just in case.
+	ambient_light_disabled,
+	depth_draw_opaque;
+
+uniform float vertex_mask_power = 1.0;
+uniform float vertex_mask_overlay = 0.0;
+uniform float albedo_strength = 1.0;
+
+
+uniform float lum_weight_r = 1.0;
+uniform float lum_weight_g = 1.0;
+uniform float lum_weight_b = 1.0;
+
+uniform float color_power_r = 1.0;
+uniform float color_power_g = 1.0;
+uniform float color_power_b = 1.0;
+uniform float color_multiplier_r = 1.0;
+uniform float color_multiplier_g = 1.0;
+uniform float color_multiplier_b = 1.0;
+
+uniform vec4 albedo : hint_color;
+uniform vec4 albedo_rim : hint_color;
+uniform vec4 albedo_ambient : hint_color;
+
+uniform float normal_intensity = 1.0;
+uniform float normal_detail_power = 1.0;
+uniform float normal_detail_factor = 1.0;
+uniform float normal_strength = 1.0;
+uniform float normal_detail_clamp = 1.0;
+
+uniform float rim_factor = 1.0;
+uniform float rim_strength = 1.0;
+uniform float rim_exponent = 1.0;
+uniform float rim_ambient_exponent = 1.0;
+
+uniform float fade_distance_near = 1e5;
+uniform float fade_distance_far = 1e6;
+uniform float fade_power = .2;
+
+uniform float uv1_blend_sharpness = 10.0;
+
+uniform float normal_detail_uv1_scale = 1.0;
+uniform vec3 normal_detail_uv1_offset = vec3(0.0);
+
+
+// Non-linear perspective
+uniform float scale_start = 100000;
+uniform float scale_end_mul = 100;
+uniform float scale_power = 1.0;
+uniform float scale_min = 0.5;
+
+uniform sampler2D normal_noise;
+
+const float pi = 3.1415926535;
+	
+
+varying vec3 uv1_triplanar_pos;
+varying vec3 normal_detail_uv1_triplanar_pos;
+varying vec3 uv1_power_normal;
+
+
+
+void vertex() {
+	vec3 normal = NORMAL;
+	TANGENT = vec3(0.0,0.0,-1.0) * abs(normal.x);
+	TANGENT+= vec3(1.0,0.0,0.0) * abs(normal.y);
+	TANGENT+= vec3(1.0,0.0,0.0) * abs(normal.z);
+	TANGENT = normalize(TANGENT);
+	BINORMAL = vec3(0.0,1.0,0.0) * abs(normal.x);
+	BINORMAL+= vec3(0.0,0.0,-1.0) * abs(normal.y);
+	BINORMAL+= vec3(0.0,1.0,0.0) * abs(normal.z);
+	BINORMAL = normalize(BINORMAL);
+	uv1_power_normal=pow(abs(NORMAL),vec3(uv1_blend_sharpness));
+	uv1_triplanar_pos = VERTEX * pow(2.0, normal_detail_uv1_scale) + normal_detail_uv1_offset;
+	normal_detail_uv1_triplanar_pos = VERTEX * pow(2.0, normal_detail_uv1_scale) + normal_detail_uv1_offset;
+	uv1_power_normal/=dot(uv1_power_normal,vec3(1.0));
+	uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
+	normal_detail_uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
+	
+	// --- Non-linear perspective (based on distance) ---
+	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
+	float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
+	VERTEX *= scale_factor;
+}
+
+
+vec4 triplanar_texture(sampler2D p_sampler,vec3 p_weights,vec3 p_triplanar_pos) {
+	vec4 samp=vec4(0.0);
+	samp+= texture(p_sampler,p_triplanar_pos.xy) * p_weights.z;
+	samp+= texture(p_sampler,p_triplanar_pos.xz) * p_weights.y;
+	samp+= texture(p_sampler,p_triplanar_pos.zy * vec2(-1.0,1.0)) * p_weights.x;
+	return samp;
+}
+
+void fragment()
+{
+	// Get tangent, binormal and normal of the vertex.
+	vec3 N = normalize(NORMAL);
+	vec3 T = normalize(TANGENT);
+	vec3 B = normalize(BINORMAL);
+
+	// Get texture data.
+	// Normal textures.
+	vec4 nm_detail_minor_noise = triplanar_texture(
+		normal_noise,
+		uv1_power_normal,
+		normal_detail_uv1_triplanar_pos);
+	vec3 nm_detail_minor_noise_normalized = normalize(nm_detail_minor_noise.rgb * 2.0 - 1.0);
+	vec3 nm_normal_detail_view = sign(normal_intensity)*normalize(mat3(T, B, normal_intensity*N) * nm_detail_minor_noise_normalized);
+
+	// Calculate the dot product between the normal and view direction.
+	float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-6, 1.0);
+	float dt_normal_detail = clamp(abs(dot(nm_normal_detail_view, VIEW)), 1e-6, 1.0);
+
+	// Attenuate the dot product.
+	float rim_normal_detail = clamp((dt_normal_detail), 1e-6, 1.0);
+	float rim = clamp(pow(dt,rim_exponent), 1e-6, 1.0);
+	float rim_ambient = clamp(pow(dt,rim_ambient_exponent), 1e-6, 1.0);
+
+	float luminosity = dot(COLOR.rgb, vec3(lum_weight_r, lum_weight_g, lum_weight_b));
+	luminosity = max(luminosity, 0.0);
+
+	// Now use this calculated luminosity value in your original formula
+	float vertex_mask = vertex_mask_overlay + pow(luminosity, vertex_mask_power);
+	if (vertex_mask < 0.01) {
+		discard;
+	}
+	
+	ALBEDO = albedo_strength * albedo.rgb * COLOR.rgb;
+	
+	// Emulate normal map
+	float normal_mask = clamp(1.0 - pow((1.0-rim_normal_detail) * normal_detail_power, normal_detail_factor), 1e-6, normal_detail_clamp);
+	ALBEDO *= normal_strength * normal_mask;
+
+	// Apply rim
+	float rim_mask = pow((1.0 - rim)*rim, rim_factor);
+	ALBEDO += rim_strength * rim_mask * normal_mask * albedo_rim.rgb;
+	
+	// Apply vertex mask
+	ALBEDO *= vertex_mask;
+	
+	// color tweak.
+	ALBEDO = vec3(
+		pow(ALBEDO.r, color_power_r)*color_multiplier_r,
+		pow(ALBEDO.g, color_power_g)*color_multiplier_g,
+		pow(ALBEDO.b, color_power_b)*color_multiplier_b
+	);
+
+
+	// Fade near and far.
+	float dist = length(VERTEX);
+	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
+	float fade_in = clamp(smoothstep(0.0, fade_distance_near, dist), 1e-6, 1.0); // fades in
+	float fade = pow(fade_in*fade_out, fade_power);
+		
+	// Overlay dark parts
+	ALBEDO += fade * rim_ambient * albedo_ambient.rgb * (1.0 - rim_mask) * (1.0 - normal_mask);
+	
+	ALBEDO *= fade;
+
+}"
+
+[sub_resource type="OpenSimplexNoise" id=3]
+
+[sub_resource type="NoiseTexture" id=4]
+width = 1
+height = 1
+as_normalmap = true
+noise = SubResource( 3 )
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = SubResource( 7 )
+shader_param/vertex_mask_power = 1.0
+shader_param/vertex_mask_overlay = 0.0
+shader_param/albedo_strength = 1.0
+shader_param/lum_weight_r = 1.0
+shader_param/lum_weight_g = 1.0
+shader_param/lum_weight_b = 1.0
+shader_param/color_power_r = 1.0
+shader_param/color_power_g = 1.0
+shader_param/color_power_b = 1.0
+shader_param/color_multiplier_r = 1.0
+shader_param/color_multiplier_g = 1.0
+shader_param/color_multiplier_b = 1.0
+shader_param/albedo = Color( 0.2, 0.0941176, 0.0509804, 1 )
+shader_param/albedo_rim = null
+shader_param/albedo_ambient = null
+shader_param/normal_intensity = 1.0
+shader_param/normal_detail_power = 1.45
+shader_param/normal_detail_factor = 0.421
+shader_param/normal_strength = 1.128
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.0
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 1.0
+shader_param/rim_ambient_exponent = 1.0
+shader_param/fade_distance_near = 1e+06
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 1.0
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = 1.0
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = SubResource( 4 )
+
+[sub_resource type="SphereMesh" id=6]
+radial_segments = 16
+rings = 16
+
+[node name="Sector System Lywin" type="Spatial"]
+
+[node name="_PlayableArea" type="MeshInstance" parent="."]
+transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
+visible = false
+material_override = SubResource( 1 )
+mesh = SubResource( 2 )
+script = ExtResource( 1 )
+
+[node name="AgentContainer" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="StarsphereSlot" type="Spatial" parent="."]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Globalnebulas" parent="StarsphereSlot" instance=ExtResource( 3 )]
+visible = false
+
+[node name="SceneAssets" type="Spatial" parent="."]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="EntryPoint" type="Position3D" parent="SceneAssets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40200, 250, -15200 )
+
+[node name="Star Lywin A" parent="SceneAssets" instance=ExtResource( 8 )]
+
+[node name="Planet Lywin A a" parent="SceneAssets/Star Lywin A" instance=ExtResource( 9 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 43395.1, 3600.17, -12229.2 )
+
+[node name="Star Lywin B" parent="SceneAssets" instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3382.07, 20549.5, 33255.8 )
+
+[node name="Star Lywin C" parent="SceneAssets" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -54433, 21292.2, -20608.5 )
+
+[node name="_Star Lywin D" parent="SceneAssets" instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 56718.3, -523.875, -92881.4 )
+visible = false
+
+[node name="_Star Lywin E" parent="SceneAssets" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40138.7, -23678.5, 106830 )
+visible = false
+
+[node name="SystemHalo" type="MeshInstance" parent="SceneAssets"]
+transform = Transform( 185636, 74376.1, -2745.73, -73728, 182758, -34110.5, -10176, 32672.7, 197051, 0, 0, 0 )
+material_override = SubResource( 8 )
+mesh = SubResource( 6 )
+skeleton = NodePath("../../Model")

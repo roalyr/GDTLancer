@@ -1,7 +1,18 @@
+<!--
+PROJECT: GDTLancer
+MODULE: SESSION-LOG.md
+STATUS: [Level 2 - Implementation]
+TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
+LOG_REF: 2026-05-10 21:58:26
+-->
+
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
 | :--- | :--- | :--- | :--- | :--- |
+| 2026-05-10 23:36:00 | Verificator | Verified TASK_1-TASK_2: HUD asset resource externalization | SUCCESS | Passed without code corrections. Confirmed `projected_target_bracket.gd` no longer draws live line art, MainHUD now instantiates `projected_target_bracket.tscn`, file diagnostics are clean, and focused `test_route_target_provider.gd` + `test_docking_logic.gd` pass. Manual Godot verification remains pending under the contract's VERIFICATION item. |
+| 2026-05-10 21:58:26 | Developer | Implemented TASK_2: MainHUD projected overlay now instantiates bracket scene resource | SUCCESS | Replaced direct `projected_target_bracket.gd.new()` construction in `main_hud.gd` with a `projected_target_bracket.tscn` resource path under `scenes/ui/hud/`, preserving route/world target rebuild methods and pressed-signal behavior while consuming the resource-backed bracket slice. |
+| 2026-05-10 21:52:57 | Developer | Implemented TASK_1: Resource-back HUD projected target bracket ornament | SUCCESS | Replaced procedural bracket line drawing in `projected_target_bracket.gd` with resource-backed panel/stylebox assets under `assets/art/ui/controls/projected_targets/`, while preserving `configure_target()` and `set_selected_state()`. |
 | 2026-05-10 21:07:00 | Developer | Rework debug-map sector focus to content-shift model | SUCCESS | Restored the debug-map camera pivot to origin and moved graph rendering into current-sector-local coordinates. Current sector markers now land at map origin, while Elace stays aligned to `REFERENCE_ORIGIN - current_sector.global_position`, matching the starsphere reference frame instead of physically moving the map camera. |
 | 2026-05-10 20:54:26 | Developer | Fix debug-map current-sector pivot on open | SUCCESS | `debug_map_panel.gd` now resets the map pivot to `TemplateDatabase.locations[GameState.current_sector_id].global_position` when opened or reset, so jumping to another sector no longer leaves the map centered on Elace. Added focused UI test `test_debug_map_panel_focus.gd`. |
 | 2026-05-10 16:13:36 | Developer | Implemented TASK_1: Canonicalize starter sector to sector_system_elace | SUCCESS | Renamed the Elace location resource and handcrafted sector preset to `sector_system_elace`, removed legacy alpha preset asset names in the live Elace slice, updated starter docking/constants/contracts/agent home IDs, and rewired focused sector-loading/content tests to the canonical starter ID. |
@@ -40,6 +51,10 @@
 | 2026-02-13 | L2-Senior | TASK_3: Create World Layer Initializer | SUCCESS | Extended LocationTemplate with 9 World Layer exports. Updated 3 .tres files with sector topology (triangle graph), hazards, resources. Created world_layer.gd (170 lines) — initializes GameState Layer 1 from TemplateDatabase, calculates Axiom 1 matter checksum, provides get_neighbors/get_hazards/get_resource_potential/recalculate_total_matter utilities. |
 | 2026-02-13 | L2-Senior | TASK_2: Create CA Rules Module | SUCCESS | Created ca_rules.gd (320 lines) — 7 pure CA transition functions + 2 helpers. All stateless, config-driven, zero GameState coupling. |
 | 2026-02-13 | L2-Senior | TASK_1: Gut GameState — Rebuild as Four-Layer Data Store | SUCCESS | Rebuilt GameState.gd (165 lines) with 4-layer model. Fixed 4 KEPT systems (time_system, inventory_system, world_generator, GameStateManager). Legacy alias for persistent_agents. |
+
+
+=============== Reversed order below ==================
+
 | 2025-12-19 | L2-Builder | Sprint 10: Full Game Loop Integration | SUCCESS | All manual tests passed; vertical slice is playable from start to end. |
 | 2025-12-19 | L1-Architect | Phase 1 Assessment & Sprint 11 Planning | SUCCESS | Identified Ship Quirks as the final major Phase 1 requirement. |
 | 2025-12-15 | L2-Builder | Sprint 9: AI Combat State Machine & Encounters | SUCCESS | AI now manages pursue/flee states; encounters trigger correctly. |

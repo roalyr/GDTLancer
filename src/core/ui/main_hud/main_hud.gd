@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §1.2, §7 (UI Style)
-# LOG_REF: 2026-05-09 17:57:12
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
+# LOG_REF: 2026-05-10 21:52:57
 #
 
 extends Control
@@ -12,7 +12,7 @@ extends Control
 ## Manages sub-screens (Station Menu) and docking prompts.
 
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
-const ProjectedTargetBracketScript = preload("res://src/core/ui/main_hud/projected_target_bracket.gd")
+const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
 
 # --- Sub-Screens ---
 const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
@@ -756,7 +756,9 @@ func _rebuild_route_target_overlay() -> void:
 		return
 	var route_targets: Array = _route_target_provider.build_targets_for_sector(current_sector_id)
 	for route_target in route_targets:
-		var button = ProjectedTargetBracketScript.new()
+		var button = _instance_projected_target_bracket()
+		if button == null:
+			continue
 		button.name = "Route_%s" % route_target.target_sector_id
 		button.configure_target(route_target)
 		button.connect("pressed", self, "_on_route_target_button_pressed", [route_target])
@@ -772,7 +774,9 @@ func _rebuild_world_target_overlay() -> void:
 		return
 	var world_targets: Array = _collect_world_projected_targets()
 	for target_node in world_targets:
-		var button = ProjectedTargetBracketScript.new()
+		var button = _instance_projected_target_bracket()
+		if button == null:
+			continue
 		button.name = "World_%s" % target_node.get_instance_id()
 		button.configure_target(target_node, _resolve_target_display_name(target_node))
 		button.connect("pressed", self, "_on_world_target_button_pressed", [target_node])
@@ -780,6 +784,12 @@ func _rebuild_world_target_overlay() -> void:
 		_world_target_buttons[target_node.get_instance_id()] = button
 	_update_world_target_selection_state()
 	_refresh_process_state()
+
+
+func _instance_projected_target_bracket():
+	if ProjectedTargetBracketScene == null:
+		return null
+	return ProjectedTargetBracketScene.instance()
 
 
 func _update_route_target_overlay() -> void:

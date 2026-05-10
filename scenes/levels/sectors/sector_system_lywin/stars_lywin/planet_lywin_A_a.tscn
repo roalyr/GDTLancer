@@ -1,14 +1,12 @@
 [gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=1]
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=2]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=2]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=3]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Craters 14 - 512x512.png" type="Texture" id=4]
 
 [sub_resource type="SphereShape" id=1]
 radius = 1000.0
-
-[sub_resource type="SphereMesh" id=2]
 
 [sub_resource type="ShaderMaterial" id=3]
 shader = ExtResource( 2 )
@@ -41,11 +39,13 @@ shader_param/scale_min = 0.25
 shader_param/detail_texture = ExtResource( 4 )
 shader_param/normal_texture = ExtResource( 3 )
 
+[sub_resource type="SphereMesh" id=2]
+
 [sub_resource type="BoxShape" id=4]
 
 [sub_resource type="CubeMesh" id=5]
 
-[node name="Planet_default" type="StaticBody"]
+[node name="Planet Lywin A a" type="StaticBody"]
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )

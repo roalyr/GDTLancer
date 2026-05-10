@@ -4,7 +4,7 @@
 [ext_resource path="res://assets/models/ships/Phoenix.glb" type="PackedScene" id=2]
 [ext_resource path="res://src/core/agents/components/movement_system.gd" type="Script" id=3]
 [ext_resource path="res://src/core/agents/components/navigation_system.gd" type="Script" id=4]
-[ext_resource path="res://assets/art/shaders/simple_solid_glow.tres" type="Shader" id=5]
+[ext_resource path="res://assets/art/shaders/simple_glow_NLP.gdshader" type="Shader" id=5]
 [ext_resource path="res://assets/art/materials/test_solid_panel.tres" type="Material" id=6]
 
 [sub_resource type="CapsuleShape" id=6]
@@ -13,26 +13,56 @@ height = 2.14715
 
 [sub_resource type="ShaderMaterial" id=7]
 shader = ExtResource( 5 )
-shader_param/color = Color( 0, 0.00784314, 0.0117647, 1 )
-shader_param/strength = 40.0
-shader_param/exponent = 2.974
-shader_param/exponent_rim = 0.1
+shader_param/albedo = null
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 30.0
+shader_param/rim_power = 1.0
+shader_param/rim_floor = 0.1
+shader_param/rim_outer_strength = 3.0
+shader_param/rim_outer_exponent = 3.0
+shader_param/fade_distance_near = 100.0
+shader_param/fade_distance_far = 1000.0
+shader_param/fade_power = 0.2
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
 
 [sub_resource type="SphereMesh" id=4]
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 5 )
-shader_param/color = Color( 0.462745, 0.164706, 0.0313726, 1 )
-shader_param/strength = 20.1215
-shader_param/exponent = 2.0
-shader_param/exponent_rim = 1.381
+shader_param/albedo = null
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 30.0
+shader_param/rim_power = 1.0
+shader_param/rim_floor = 0.1
+shader_param/rim_outer_strength = 3.0
+shader_param/rim_outer_exponent = 3.0
+shader_param/fade_distance_near = 100.0
+shader_param/fade_distance_far = 1000.0
+shader_param/fade_power = 0.2
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
 
 [sub_resource type="ShaderMaterial" id=8]
 shader = ExtResource( 5 )
-shader_param/color = Color( 0.0431373, 0.00392157, 0, 1 )
-shader_param/strength = 40.0
-shader_param/exponent = 2.0
-shader_param/exponent_rim = 0.317
+shader_param/albedo = null
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 30.0
+shader_param/rim_power = 1.0
+shader_param/rim_floor = 0.1
+shader_param/rim_outer_strength = 3.0
+shader_param/rim_outer_exponent = 3.0
+shader_param/fade_distance_near = 100.0
+shader_param/fade_distance_far = 1000.0
+shader_param/fade_power = 0.2
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
 
 [node name="AgentBody" type="RigidBody"]
 gravity_scale = 0.0

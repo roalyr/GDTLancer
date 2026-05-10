@@ -1,17 +1,10 @@
 shader_type spatial;
 render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
 	vertex_lighting,
-	
-	// Blending and culling.
 	blend_add,
 	cull_back,
-	
 	unshaded,
-	//diffuse_lambert, 
 	specular_disabled,
-	
-	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
 	
@@ -27,17 +20,8 @@ uniform float pulse_rate = 1.0;
 uniform float phase : hint_range(0.0, 3.14) = 0.0;
 
 
-// Add this before your vertex shader.
-// Edit "Fcoef" to adjust for desirable view distance. Lesser number means further distance limit.
-uniform float Fcoef = 0.001;
-varying float gl_Position_z;
-
 void vertex() {
-	// Add this to your vertex shader.
-	vec4 gl_Position = MODELVIEW_MATRIX*vec4(VERTEX, 1.0);
-	gl_Position_z = gl_Position.z;
-
-	    // get the vector from the object to the camera
+	// get the vector from the object to the camera
     vec3 to_camera = normalize(CAMERA_MATRIX[3].xyz - WORLD_MATRIX[3].xyz);
 
     // get the forward vector of the camera
@@ -76,5 +60,4 @@ void fragment() {
 	* pow(COLOR.r, exponent / pulse) 
 	* intensity 
 	* pulse;
-	DEPTH = log2(max(1e-6, 1.0 -gl_Position_z)) * Fcoef;
 }

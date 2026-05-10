@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=4 format=2]
 
-[ext_resource path="res://assets/art/shaders/star_corona.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/star_corona_NLP.gdshader" type="Shader" id=1]
 
 [sub_resource type="OpenSimplexNoise" id=23]
 
@@ -18,6 +18,8 @@ shader_param/exponent_corona = 2.0
 shader_param/exponent_corona_rim = 2.0
 shader_param/corona_floor_power = 5.0
 shader_param/corona_floor = 1.3
+shader_param/fade_distance_far = 50000.0
+shader_param/fade_power = 1.0
 shader_param/displacement_power = 0.05
 shader_param/displacement_scale_xz = 0.95
 shader_param/displacement_scale_y = 0.9

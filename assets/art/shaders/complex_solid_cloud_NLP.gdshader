@@ -1,18 +1,12 @@
 shader_type spatial;
 
 render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
 	vertex_lighting,
-
-	// Blending and culling.
 	blend_mix,
 	cull_back,
-
 	unshaded,
 	diffuse_lambert,
 	specular_disabled,
-
-	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
 
@@ -63,7 +57,6 @@ uniform sampler2D detail_noise;
 uniform sampler2D normal_noise;
 
 const float pi = 3.1415926535;
-	
 
 varying vec3 uv1_triplanar_pos;
 varying vec3 normal_detail_uv1_triplanar_pos;
@@ -88,7 +81,7 @@ void vertex() {
 	uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
 	normal_detail_uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
 	
-	// --- Non-linear perspective (based on distance) ---
+	// Non-linear perspective
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
 	float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
@@ -119,7 +112,7 @@ void fragment()
 	vec3 nm_detail_minor_noise_normalized = normalize(nm_detail_minor_noise.rgb * 2.0 - 1.0);
 	vec3 nm_normal_detail_view = sign(normal_intensity)*normalize(mat3(T, B, normal_intensity*N) * nm_detail_minor_noise_normalized);
 
-// Calculate the dot product between the normal and view direction.
+	// Calculate the dot product between the normal and view direction.
 	float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-6, 1.0);
 	float dt_normal_detail = clamp(abs(dot(nm_normal_detail_view, VIEW)), 1e-6, 1.0);
 

@@ -1,25 +1,18 @@
 shader_type spatial;
 
 render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
 	vertex_lighting,
-
-	// Blending and culling.
 	blend_add,
 	cull_front,
-
 	unshaded,
 	diffuse_lambert,
 	specular_disabled,
-
-	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
 
 uniform float vertex_mask_power = 1.0;
 uniform float vertex_mask_overlay = 0.0;
 uniform float albedo_strength = 1.0;
-
 
 uniform float lum_weight_r = 1.0;
 uniform float lum_weight_g = 1.0;
@@ -56,7 +49,6 @@ uniform float uv1_blend_sharpness = 10.0;
 uniform float normal_detail_uv1_scale = 1.0;
 uniform vec3 normal_detail_uv1_offset = vec3(0.0);
 
-
 // Non-linear perspective
 uniform float scale_start = 100000;
 uniform float scale_end_mul = 100;
@@ -66,12 +58,10 @@ uniform float scale_min = 0.5;
 uniform sampler2D normal_noise;
 
 const float pi = 3.1415926535;
-	
 
 varying vec3 uv1_triplanar_pos;
 varying vec3 normal_detail_uv1_triplanar_pos;
 varying vec3 uv1_power_normal;
-
 
 
 void vertex() {
@@ -91,7 +81,7 @@ void vertex() {
 	uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
 	normal_detail_uv1_triplanar_pos *= vec3(1.0,-1.0, 1.0);
 	
-	// --- Non-linear perspective (based on distance) ---
+	// Non-linear perspective
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
 	float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
@@ -160,7 +150,6 @@ void fragment()
 		pow(ALBEDO.b, color_power_b)*color_multiplier_b
 	);
 
-
 	// Fade near and far.
 	float dist = length(VERTEX);
 	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); // fades out
@@ -171,5 +160,4 @@ void fragment()
 	ALBEDO += fade * rim_ambient * albedo_ambient.rgb * (1.0 - rim_mask) * (1.0 - normal_mask);
 	
 	ALBEDO *= fade;
-
 }

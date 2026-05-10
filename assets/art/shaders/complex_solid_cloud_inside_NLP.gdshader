@@ -1,18 +1,12 @@
 shader_type spatial;
 
 render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
 	vertex_lighting,
-
-	// Blending and culling.
 	blend_mix,
 	cull_front,
-
 	unshaded,
 	diffuse_lambert,
 	specular_disabled,
-
-	// Additional flags just in case.
 	ambient_light_disabled,
 	depth_draw_opaque;
 
@@ -50,7 +44,7 @@ uniform float scale_min = 0.5;
 const float pi = 3.1415926535;
 
 void vertex() {
-	// --- Non-linear perspective (based on distance) ---
+	// Non-linear perspective
 	float distance_vert = -(MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).z;
 	float scale_factor = pow(clamp((scale_end_mul*scale_start - distance_vert) / (scale_end_mul*scale_start - scale_start), scale_min, 1.0), scale_power);
 	VERTEX *= scale_factor;
@@ -59,9 +53,6 @@ void vertex() {
 
 void fragment()
 {
-	//float dt = clamp(abs(dot(NORMAL, VIEW)), 1e-6, 1.0);
-	//float rim = clamp(pow(dt,rim_exponent), 1e-6, 1.0);
-	
 	float luminosity = dot(COLOR.rgb, vec3(lum_weight_r, lum_weight_g, lum_weight_b));
 	luminosity = max(luminosity, 0.0);
 
