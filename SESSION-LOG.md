@@ -2,14 +2,17 @@
 PROJECT: GDTLancer
 MODULE: SESSION-LOG.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
-LOG_REF: 2026-05-10 21:58:26
+TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+LOG_REF: 2026-05-10 23:51:42
 -->
 
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
 | :--- | :--- | :--- | :--- | :--- |
+| 2026-05-11 00:15:49 | Verificator | Verified TASK_1-TASK_2 + VERIFICATION: HUD projected target gesture separation | SUCCESS | No gameplay deviations found. Corrected one local verification-harness issue in `test_main_hud_projected_targeting.gd` so the HUD collection test instantiates `main_hud.tscn` instead of a bare `Control`. Focused regression slice passed (`test_main_hud_projected_targeting.gd`, `test_route_target_provider.gd`, `test_docking_logic.gd`), and the user confirmed the manual Godot pass for click-release select, click-drag camera turn, and unchanged empty-space controls. |
+| 2026-05-10 23:59:35 | Developer | Implemented TASK_2: Bridge projected bracket drags into camera rotation | SUCCESS | `projected_target_bracket.gd` now starts/stops `orbit_camera.gd::set_is_rotating()` on bracket drag and forwards drag motion through the camera's existing `_unhandled_input()` path, while preserving click-release target selection semantics and leaving empty-space piloting untouched. Added a focused HUD test that asserts camera rotation bridging on bracket drags. |
+| 2026-05-10 23:51:42 | Developer | Implemented TASK_1: Separate projected HUD bracket click-release from drag intent | SUCCESS | Added drag-threshold tracking in `projected_target_bracket.gd` so bracket drags cancel the pending button click instead of emitting target selection on release, while preserving the resource-backed visuals and bracket scene instancing. Added focused projected-target HUD tests for click-release vs drag-release behavior. |
 | 2026-05-10 23:36:00 | Verificator | Verified TASK_1-TASK_2: HUD asset resource externalization | SUCCESS | Passed without code corrections. Confirmed `projected_target_bracket.gd` no longer draws live line art, MainHUD now instantiates `projected_target_bracket.tscn`, file diagnostics are clean, and focused `test_route_target_provider.gd` + `test_docking_logic.gd` pass. Manual Godot verification remains pending under the contract's VERIFICATION item. |
 | 2026-05-10 21:58:26 | Developer | Implemented TASK_2: MainHUD projected overlay now instantiates bracket scene resource | SUCCESS | Replaced direct `projected_target_bracket.gd.new()` construction in `main_hud.gd` with a `projected_target_bracket.tscn` resource path under `scenes/ui/hud/`, preserving route/world target rebuild methods and pressed-signal behavior while consuming the resource-backed bracket slice. |
 | 2026-05-10 21:52:57 | Developer | Implemented TASK_1: Resource-back HUD projected target bracket ornament | SUCCESS | Replaced procedural bracket line drawing in `projected_target_bracket.gd` with resource-backed panel/stylebox assets under `assets/art/ui/controls/projected_targets/`, while preserving `configure_target()` and `set_selected_state()`. |

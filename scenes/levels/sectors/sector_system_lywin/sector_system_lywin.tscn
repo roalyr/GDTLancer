@@ -240,7 +240,7 @@ shader_param/scale_power = 1.0
 shader_param/scale_min = 0.5
 shader_param/normal_noise = SubResource( 4 )
 
-[sub_resource type="SphereMesh" id=6]
+[sub_resource type="SphereMesh" id=9]
 radial_segments = 16
 rings = 16
 
@@ -294,8 +294,12 @@ visible = false
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40138.7, -23678.5, 106830 )
 visible = false
 
-[node name="SystemHalo" type="MeshInstance" parent="SceneAssets"]
+[node name="Spatial" type="Spatial" parent="SceneAssets"]
+
+[node name="Model" type="Spatial" parent="SceneAssets/Spatial"]
+
+[node name="SystemHalo" type="MeshInstance" parent="SceneAssets/Spatial/Model"]
 transform = Transform( 185636, 74376.1, -2745.73, -73728, 182758, -34110.5, -10176, 32672.7, 197051, 0, 0, 0 )
 material_override = SubResource( 8 )
-mesh = SubResource( 6 )
+mesh = SubResource( 9 )
 skeleton = NodePath("../../Model")

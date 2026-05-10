@@ -28,4 +28,5 @@ margin_right = -8.0
 margin_bottom = -4.0
 bbcode_enabled = true
 bbcode_text = "Awaiting sensor data..."
+text = "Awaiting sensor data..."
 scroll_active = false

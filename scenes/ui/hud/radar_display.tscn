@@ -24,14 +24,24 @@ margin_right = -10.0
 margin_bottom = -10.0
 
 [node name="HeaderLabel" type="Label" parent="PanelBg/VBoxContainer"]
+margin_right = 1900.0
+margin_bottom = 14.0
 text = "SECTOR SCAN"
 
 [node name="SectorLabel" type="Label" parent="PanelBg/VBoxContainer"]
+margin_top = 18.0
+margin_right = 1900.0
+margin_bottom = 32.0
 custom_colors/font_color = Color( 0.7, 0.7, 0.7, 1 )
-text = ""
 
 [node name="HSeparator" type="HSeparator" parent="PanelBg/VBoxContainer"]
+margin_top = 36.0
+margin_right = 1900.0
+margin_bottom = 40.0
 
 [node name="ContactList" type="VBoxContainer" parent="PanelBg/VBoxContainer"]
+margin_top = 44.0
+margin_right = 1900.0
+margin_bottom = 1060.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
