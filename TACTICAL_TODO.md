@@ -30,7 +30,7 @@
     - Player travel must no longer depend on scene-instanced JumpPoint nodes for prompting, selection, or arrival.
     - Physical route markers may remain only as non-interactive decoration if they no longer control gameplay.
 
-  - [ ] TASK_4: Finalize HUD-target precedence so projected route brackets own route selection instead of world-raycast clicks.
+  - [x] TASK_4: Finalize HUD-target precedence so projected route brackets own route selection instead of world-raycast clicks.
     - Required files: `src/modules/piloting/player_input_states/state_default.gd`, `src/core/ui/main_hud/main_hud.gd`, and any follow-on targeting surfaces that still assume `Spatial`-only selection.
     - HUD route brackets must stay clickable without world-space raycast interference.
     - Keep existing ship/station selection behavior intact until those target classes migrate to the projected-target system.

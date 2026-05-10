@@ -19,8 +19,6 @@ const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu
 var _station_menu_instance = null
 
 # --- Nodes ---
-onready var targeting_indicator: Control = $TargetingIndicator
-onready var target_name_label: Label = $TargetingIndicator/TargetNameLabel
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
 onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
@@ -64,9 +62,6 @@ var _world_target_buttons: Dictionary = {}
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_main_hud(self)
-
-	# Ensure indicator starts hidden
-	targeting_indicator.visible = false
 
 	# Get camera reference once
 	_main_camera = get_viewport().get_camera()  # Initial attempt
@@ -149,9 +144,6 @@ func _ready():
 	if target_info_panel:
 		target_info_panel.visible = false
 
-	# Connect draw signal for custom drawing (optional, but good for style)
-	targeting_indicator.connect("draw", self, "_draw_targeting_indicator")
-
 	# Connect ButtonMenu to open main menu
 	if is_instance_valid(button_menu):
 		if not button_menu.is_connected("pressed", self, "_on_ButtonMenu_pressed"):
@@ -187,49 +179,12 @@ func _process(_delta):
 	_update_route_target_overlay()
 	_update_world_target_overlay()
 
-	# Only update position if a target is selected and valid
-	if _is_target_valid(_current_target) and is_instance_valid(_main_camera):
-		var target_world_position: Vector3 = _get_target_world_position(_current_target)
-		# Project the target's 3D origin position to 2D screen coordinates
-		var screen_pos: Vector2 = _main_camera.unproject_position(target_world_position)
-
-		# Check if the target is behind the camera
-		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
-		var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
-		var is_in_front = target_dir.dot(camera_fwd) >= 0  # Use >= 0 to include exactly perpendicular
-
-		# --- MODIFIED Visibility Logic ---
-		# Set visibility based on whether the target is in front
-		targeting_indicator.visible = is_in_front
-
-		# Only update position and redraw if it's actually visible
-		if targeting_indicator.visible:
-			# Update the indicator's position
-			targeting_indicator.rect_position = screen_pos - (targeting_indicator.rect_size / 2.0)
-			targeting_indicator.update()  # Trigger redraw if using _draw
-	else:
-		# Ensure indicator is hidden if target becomes invalid or camera is invalid
-		if targeting_indicator.visible:
-			targeting_indicator.visible = false
-		if target_info_panel and target_info_panel.visible:
-			target_info_panel.visible = false
-
 
 # --- Signal Handlers ---
 func _on_Player_Target_Selected(target_node):
-	print(target_node)
 	if _is_target_valid(target_node):
 		_current_target = target_node
 		_refresh_process_state()
-		
-		# Show target name label under the targeting indicator
-		var resolved_name = _resolve_target_display_name(target_node)
-		if resolved_name != "":
-			target_name_label.text = resolved_name
-			target_name_label.add_color_override("font_color", _get_target_label_color(target_node))
-			target_name_label.visible = true
-		else:
-			target_name_label.visible = false
 		
 		# Update combat target info panel
 		_update_target_info_panel(target_node)
@@ -247,8 +202,6 @@ func _on_Player_Target_Selected(target_node):
 func _on_Player_Target_Deselected():
 	_current_target = null
 	_current_target_uid = -1
-	targeting_indicator.visible = false
-	target_name_label.visible = false
 	if target_info_panel:
 		target_info_panel.visible = false
 	_update_route_target_selection_state()
@@ -352,38 +305,6 @@ func _on_ButtonCamera_pressed() -> void:
 			camera.set_camera_mode(0)  # ORBIT = 0
 			print("Camera: No target selected for tracking mode.")
 
-
-# --- Custom Drawing (Optional but Recommended) ---
-func _draw_targeting_indicator():
-	# Example: Draw a simple white rectangle outline
-	var _rect = Rect2(Vector2.ZERO, targeting_indicator.rect_size)
-	var _line_color = Color.white
-	var _line_width = 1.0  # Adjust thickness as needed
-	#targeting_indicator.draw_rect(rect, line_color, false, line_width)
-
-	# Example: Draw simple corner brackets
-	var size = targeting_indicator.rect_size
-	var corner_len = size.x * 0.25  # Length of corner lines
-	var color = Color.cyan
-	var width = 2.0
-	# # Top-left
-	targeting_indicator.draw_line(Vector2(0, 0), Vector2(corner_len, 0), color, width)
-	targeting_indicator.draw_line(Vector2(0, 0), Vector2(0, corner_len), color, width)
-	# # Top-right
-	targeting_indicator.draw_line(Vector2(size.x, 0), Vector2(size.x - corner_len, 0), color, width)
-	targeting_indicator.draw_line(Vector2(size.x, 0), Vector2(size.x, corner_len), color, width)
-	# # Bottom-left
-	targeting_indicator.draw_line(Vector2(0, size.y), Vector2(corner_len, size.y), color, width)
-	targeting_indicator.draw_line(Vector2(0, size.y), Vector2(0, size.y - corner_len), color, width)
-	# # Bottom-right
-	targeting_indicator.draw_line(
-		Vector2(size.x, size.y), Vector2(size.x - corner_len, size.y), color, width
-	)
-	targeting_indicator.draw_line(
-		Vector2(size.x, size.y), Vector2(size.x, size.y - corner_len), color, width
-	)
-
-
 # --- Target Name Resolution ---
 func _resolve_target_display_name(target_node) -> String:
 	if _is_route_target(target_node):
@@ -419,21 +340,6 @@ func _resolve_target_display_name(target_node) -> String:
 		return target_node.name
 	# Fallback: prettify node name (remove underscores, capitalize)
 	return target_node.name.replace("_", " ")
-
-
-func _get_target_label_color(target_node) -> Color:
-	if _is_route_target(target_node):
-		return Color(0.35, 0.95, 1.0, 1.0)
-	if target_node.is_in_group("jump_point"):
-		return Color(0.33, 1.0, 1.0, 1.0)  # cyan
-	if target_node.is_in_group("dockable_station"):
-		return Color(1.0, 0.9, 0.4, 1.0)  # warm yellow
-	if "is_hostile" in target_node and target_node.is_hostile:
-		return Color(1.0, 0.33, 0.33, 1.0)  # red
-	if "character_uid" in target_node:
-		return Color(0.5, 1.0, 0.5, 1.0)  # green for friendly agents
-	return Color(0.8, 0.8, 0.8, 1.0)  # neutral gray
-
 
 # --- Cleanup ---
 func _notification(what):

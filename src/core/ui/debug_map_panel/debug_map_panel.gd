@@ -45,6 +45,7 @@ var _orbit_yaw: float = 0.0
 var _orbit_pitch: float = 0.5  # ~30 degrees
 var _zoom_distance: float = DEFAULT_ORBIT_DISTANCE
 var _pivot: Vector3 = Vector3.ZERO
+var _map_world_anchor: Vector3 = Vector3.ZERO
 
 # --- Label tracking ---
 var _sector_labels: Dictionary = {}  # sector_id -> {marker: Spatial, label: Label}
@@ -94,6 +95,7 @@ func _toggle_panel():
 		_hide_camera_particles()
 		_hide_scene_models()
 		_setup_map_environment()
+		_reset_camera()
 		_populate_map()
 		set_process(true)
 	else:
@@ -240,6 +242,7 @@ func _restore_scene_models():
 # =========================================================================
 
 func _populate_map():
+	_map_world_anchor = _get_current_sector_world_anchor()
 	_clear_map()
 	_create_sector_markers()
 	_create_connection_lines()
@@ -261,7 +264,7 @@ func _create_sector_markers():
 		var template = TemplateDatabase.locations[sector_id]
 		if not template or not ("global_position" in template):
 			continue
-		var pos: Vector3 = template.global_position
+		var pos: Vector3 = _to_map_space_position(template.global_position)
 
 		# Sector marker sphere
 		var mesh_instance = MeshInstance.new()
@@ -425,6 +428,7 @@ func _create_reference_axes():
 			"arrow_dirs": [Vector3(1, 0, 0), Vector3(0, 1, 0)],
 		},
 	]
+	var axis_origin = _to_map_space_position(Constants.REFERENCE_ORIGIN)
 	var notch_specs = [
 		{"distance": 100000.0, "text": "1e5"},
 		{"distance": 200000.0, "text": "2e5"},
@@ -440,10 +444,10 @@ func _create_reference_axes():
 		var axis_color: Color = axis_data["color"]
 		var notch_dir: Vector3 = axis_data["notch_dir"]
 		var line_offset_dir: Vector3 = axis_data["line_offset_dir"]
-		var axis_end = axis_dir * AXIS_LENGTH
+		var axis_end = axis_origin + axis_dir * AXIS_LENGTH
 
 		ig.set_color(axis_color)
-		_add_axis_trunk_lines(ig, Vector3.ZERO, axis_end, line_offset_dir)
+		_add_axis_trunk_lines(ig, axis_origin, axis_end, line_offset_dir)
 
 		for arrow_dir in axis_data["arrow_dirs"]:
 			var arrow_base = axis_end - axis_dir * AXIS_ARROW_SIZE
@@ -462,7 +466,7 @@ func _create_reference_axes():
 
 		for notch_spec in notch_specs:
 			var notch_distance = notch_spec["distance"]
-			var notch_center = axis_dir * notch_distance
+			var notch_center = axis_origin + axis_dir * notch_distance
 			ig.add_vertex(notch_center - notch_dir * AXIS_NOTCH_SIZE)
 			ig.add_vertex(notch_center + notch_dir * AXIS_NOTCH_SIZE)
 			_create_projected_overlay_label(
@@ -528,8 +532,12 @@ func _get_sector_position(sector_id: String):
 	if TemplateDatabase.locations.has(sector_id):
 		var template = TemplateDatabase.locations[sector_id]
 		if "global_position" in template:
-			return template.global_position
+			return _to_map_space_position(template.global_position)
 	return null
+
+
+func _to_map_space_position(world_position: Vector3) -> Vector3:
+	return world_position - _map_world_anchor
 
 
 # =========================================================================
@@ -614,6 +622,15 @@ func _reset_camera():
 	_zoom_distance = DEFAULT_ORBIT_DISTANCE
 	_pivot = Vector3.ZERO
 	_update_camera()
+
+
+func _get_current_sector_world_anchor() -> Vector3:
+	var current_sector_id: String = GameState.current_sector_id
+	if current_sector_id != "" and TemplateDatabase.locations.has(current_sector_id):
+		var template = TemplateDatabase.locations[current_sector_id]
+		if template and ("global_position" in template):
+			return template.global_position
+	return Vector3.ZERO
 
 
 # =========================================================================
