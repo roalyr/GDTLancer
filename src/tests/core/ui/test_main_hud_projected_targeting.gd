@@ -3,7 +3,7 @@
 # MODULE: test_main_hud_projected_targeting.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-10 23:59:35
+# LOG_REF: 2026-05-11 00:15:49
 #
 
 extends "res://addons/gut/test.gd"
@@ -113,6 +113,80 @@ func test_projected_target_bracket_drag_bridges_into_camera_rotation_path() -> v
 	assert_eq(camera.forwarded_motion[1], Vector2(18, 2), "Subsequent drag motion should continue reaching the camera.")
 
 
+func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_forwards_release() -> void:
+	var harness = yield(_create_main_hud_drag_harness(), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var bracket = hud._instance_projected_target_bracket()
+	bracket.rect_position = Vector2(120, 120)
+	bracket.rect_size = Vector2(180, 56)
+	hud.projected_target_overlay.add_child(bracket)
+	hud._track_inflight_drag_control(bracket)
+	yield(get_tree(), "idle_frame")
+	watch_signals(bracket)
+	var original_filter = bracket.mouse_filter
+	var bracket_center = _get_control_center(bracket)
+
+	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
+	yield(_dispatch_mouse_motion(bracket_center, Vector2(22, 3)), "completed")
+	yield(_dispatch_mouse_button(bracket_center, false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(22, 3)], "Crossing a projected bracket during an active world drag should forward the first blocked motion to the camera.")
+	assert_eq(controller.release_events.size(), 1, "Releasing over a projected bracket during passthrough should still reach the live player controller path.")
+	assert_signal_not_emitted(bracket, "pressed", "Crossing an already-active drag over a projected bracket must not select the target on release.")
+	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
+	assert_eq(bracket.mouse_filter, original_filter, "Projected bracket mouse filtering should restore after the drag ends.")
+
+
+func test_main_hud_button_crossing_keeps_external_camera_drag_without_pressing_button() -> void:
+	var harness = yield(_create_main_hud_drag_harness(), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var button = hud.get_node("ScreenControls/BottomCenterZone/ButtonStop")
+	watch_signals(button)
+	var original_filter = button.mouse_filter
+	var button_center = _get_control_center(button)
+
+	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
+	yield(_dispatch_mouse_motion(button_center, Vector2(24, 4)), "completed")
+	yield(_dispatch_mouse_button(button_center, false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(24, 4)], "Crossing a HUD button during an active world drag should forward the first blocked motion to the camera.")
+	assert_eq(controller.release_events.size(), 1, "Releasing over a HUD button during passthrough should still reach the live player controller path.")
+	assert_signal_not_emitted(button, "pressed", "Crossing a HUD button during an active drag must not trigger the button action.")
+	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
+	assert_eq(button.mouse_filter, original_filter, "HUD button mouse filtering should restore after the drag ends.")
+
+
+func test_main_hud_slider_crossing_keeps_external_camera_drag_without_changing_value() -> void:
+	var harness = yield(_create_main_hud_drag_harness(), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var slider = hud.get_node("ScreenControls/CenterRightZone/SliderControlRight")
+	slider.value = 45.0
+	var original_value = slider.value
+	watch_signals(slider)
+	var original_filter = slider.mouse_filter
+	var slider_center = _get_control_center(slider)
+
+	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
+	yield(_dispatch_mouse_motion(slider_center, Vector2(-18, 26)), "completed")
+	yield(_dispatch_mouse_button(slider_center, false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(-18, 26)], "Crossing a HUD slider during an active world drag should forward the first blocked motion to the camera.")
+	assert_eq(controller.release_events.size(), 1, "Releasing over a HUD slider during passthrough should still reach the live player controller path.")
+	assert_signal_not_emitted(slider, "value_changed", "Crossing a HUD slider during an active drag must not change the ship throttle slider value.")
+	assert_eq(slider.value, original_value, "HUD slider value should remain unchanged during drag passthrough.")
+	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
+	assert_eq(slider.mouse_filter, original_filter, "HUD slider mouse filtering should restore after the drag ends.")
+
+
 func _create_projected_target_bracket() -> Button:
 	var bracket = Button.new()
 	bracket.set_script(ProjectedTargetBracketScript)
@@ -132,7 +206,57 @@ func _create_mock_camera() -> Node:
 	return camera
 
 
-func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
+func _create_main_hud_drag_harness() -> Dictionary:
+	var camera = _create_external_rotation_camera()
+	GlobalRefs.main_camera = camera
+
+	var player_body = RigidBody.new()
+	player_body.name = "Player"
+	player_body.gravity_scale = 0.0
+	add_child_autofree(player_body)
+
+	var controller = _create_mock_player_input_handler()
+	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
+	player_body.add_child(controller)
+	GlobalRefs.player_agent_body = player_body
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	return {"hud": hud, "camera": camera, "controller": controller}
+
+
+func _create_external_rotation_camera() -> Camera:
+	var script = GDScript.new()
+	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
+	script.reload()
+	var camera = Camera.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_mock_player_input_handler() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
+	script.reload()
+	var controller = Node.new()
+	controller.set_script(script)
+	return controller
+
+
+func _begin_external_drag(camera: Camera, press_position: Vector2) -> void:
+	camera.externally_rotating = true
+	yield(_dispatch_mouse_button(press_position, true), "completed")
+
+
+func _get_control_center(control: Control) -> Vector2:
+	var control_rect = control.get_global_rect()
+	return control_rect.position + (control_rect.size / 2.0)
+
+
+func _dispatch_mouse_button(position: Vector2, pressed: bool) -> void:
 	var event = InputEventMouseButton.new()
 	event.button_index = BUTTON_LEFT
 	event.pressed = pressed
@@ -141,9 +265,17 @@ func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
 	yield(get_tree(), "idle_frame")
 
 
-func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
+func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
 	var event = InputEventMouseMotion.new()
 	event.position = position
 	event.relative = relative
 	Input.parse_input_event(event)
 	yield(get_tree(), "idle_frame")
+
+
+func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
+	yield(_dispatch_mouse_button(position, pressed), "completed")
+
+
+func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
+	yield(_dispatch_mouse_motion(position, relative), "completed")

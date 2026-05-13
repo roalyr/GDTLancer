@@ -1,5 +1,10 @@
-# File: modules/piloting/scripts/player_controller_ship.gd
-# Version: 5.0 - RigidBody physics with thrust throttle control.
+#
+# PROJECT: GDTLancer
+# MODULE: player_controller_ship.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:43:42
+#
 
 extends Node
 
@@ -22,8 +27,12 @@ var _target_under_cursor: Spatial = null
 var _selected_target = null setget _set_selected_target
 var _can_dock_at: String = ""
 var _pending_jump_target: String = ""
+var _queued_jump_target_id: String = ""
+var _queued_jump_direction: Vector3 = Vector3.ZERO
+var _queued_jump_selection_token: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
 var _nearest_dock_type: String = ""      # "station" or "jump"
+const JUMP_ALIGNMENT_MAX_DEVIATION_DEG: float = 5.0
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -103,6 +112,7 @@ func _physics_process(delta: float):
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
 	_poll_docking_proximity()
+	_process_queued_jump()
 
 
 func _unhandled_input(event: InputEvent):
@@ -244,26 +254,30 @@ func _is_selected_target_valid() -> bool:
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
 	if not _is_selected_target_valid():
+		_clear_queued_jump()
 		EventBus.emit_signal("dock_action_feedback", false, "No target selected")
 		return
 	if _is_route_target(_selected_target):
-		EventBus.emit_signal("player_jump_requested", _selected_target.target_sector_id)
+		_attempt_selected_jump()
 		return
 	var is_station = _selected_target.is_in_group("dockable_station")
 	var is_jump = _selected_target.is_in_group("jump_point")
 	if not is_station and not is_jump:
+		_clear_queued_jump()
 		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
 		return
 	var dist = agent_body.global_transform.origin.distance_to(
 		_selected_target.global_transform.origin
 	)
 	if dist > Constants.DOCKING_ACTION_RADIUS:
+		_clear_queued_jump()
 		EventBus.emit_signal("dock_action_feedback", false, "Target is too far away")
 		return
 	if is_station:
+		_clear_queued_jump()
 		EventBus.emit_signal("player_docked", _selected_target.location_id)
 	else:
-		EventBus.emit_signal("player_jump_requested", _selected_target.target_sector_id)
+		_attempt_selected_jump()
 
 
 # --- Dock/Attack Button Handlers ---
@@ -293,6 +307,7 @@ func _update_target_under_cursor():
 func _set_selected_target(new_target):
 	if _selected_target == new_target:
 		return
+	_clear_queued_jump()
 	_selected_target = new_target
 	if _is_selected_target_valid():
 		EventBus.emit_signal("player_target_selected", _selected_target)
@@ -305,6 +320,7 @@ func _handle_single_click(_click_pos: Vector2):
 
 
 func _handle_double_click(click_pos: Vector2):
+	_clear_queued_jump()
 	if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
 		var ray_origin = _main_camera.project_ray_origin(click_pos)
 		var ray_normal = _main_camera.project_ray_normal(click_pos)
@@ -313,6 +329,7 @@ func _handle_double_click(click_pos: Vector2):
 
 
 func _issue_stop_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	agent_script.command_stop()
@@ -321,6 +338,7 @@ func _issue_stop_command():
 
 
 func _issue_approach_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	if EventBus:
@@ -330,6 +348,7 @@ func _issue_approach_command():
 
 
 func _issue_flee_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	if EventBus:
@@ -339,6 +358,7 @@ func _issue_flee_command():
 
 
 func _issue_orbit_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	if EventBus:
@@ -369,6 +389,133 @@ func _raycast_for_target(screen_pos: Vector2) -> Spatial:
 	var space_state = agent_body.get_world().direct_space_state
 	var result = space_state.intersect_ray(ray_origin, ray_end, [agent_body], 1)
 	return result.collider if result else null
+
+
+func _attempt_selected_jump() -> void:
+	var target_sector_id = _get_jump_target_sector_id(_selected_target)
+	if target_sector_id == "":
+		_clear_queued_jump()
+		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
+		return
+	var jump_direction = _resolve_jump_direction_from_target(_selected_target)
+	if jump_direction.length_squared() < 0.001:
+		_emit_jump_request(target_sector_id)
+		return
+	if not _can_queue_jump_alignment():
+		_emit_jump_request(target_sector_id)
+		return
+	_queue_jump_alignment(target_sector_id, jump_direction)
+
+
+func _get_jump_target_sector_id(target_ref) -> String:
+	if _is_route_target(target_ref):
+		return target_ref.target_sector_id
+	if is_instance_valid(target_ref) and target_ref.is_in_group("jump_point"):
+		return target_ref.target_sector_id
+	return ""
+
+
+func _get_jump_target_selection_token(target_ref) -> String:
+	if _is_route_target(target_ref):
+		return target_ref.selection_key
+	if is_instance_valid(target_ref):
+		return "jump_point:%s" % target_ref.get_instance_id()
+	return ""
+
+
+func _resolve_jump_direction_from_target(target_ref) -> Vector3:
+	if _is_route_target(target_ref):
+		return target_ref.route_direction.normalized()
+	if is_instance_valid(target_ref) and target_ref is Spatial and is_instance_valid(agent_body):
+		var raw_direction = target_ref.global_transform.origin - agent_body.global_transform.origin
+		if raw_direction.length_squared() < 0.001:
+			return Vector3.ZERO
+		return raw_direction.normalized()
+	return Vector3.ZERO
+
+
+func _can_queue_jump_alignment() -> bool:
+	return (
+		is_instance_valid(agent_body)
+		and is_instance_valid(agent_script)
+		and is_instance_valid(movement_system)
+		and agent_script.has_method("command_align_to")
+		and movement_system.has_method("is_rotation_stopped")
+	)
+
+
+func _is_jump_alignment_ready(jump_direction: Vector3) -> bool:
+	if jump_direction.length_squared() < 0.001:
+		return true
+	if not _can_queue_jump_alignment():
+		return true
+	return _is_jump_facing_direction_ready(jump_direction) and movement_system.is_rotation_stopped()
+
+
+func _is_jump_facing_direction_ready(jump_direction: Vector3) -> bool:
+	if jump_direction.length_squared() < 0.001:
+		return true
+	if not is_instance_valid(agent_body):
+		return true
+	var target_direction = jump_direction.normalized()
+	var current_forward = -agent_body.global_transform.basis.z.normalized()
+	var deviation_angle_deg = rad2deg(current_forward.angle_to(target_direction))
+	return deviation_angle_deg < JUMP_ALIGNMENT_MAX_DEVIATION_DEG or is_equal_approx(
+		deviation_angle_deg,
+		JUMP_ALIGNMENT_MAX_DEVIATION_DEG
+	)
+
+
+func _queue_jump_alignment(target_sector_id: String, jump_direction: Vector3) -> void:
+	if not _can_queue_jump_alignment():
+		_emit_jump_request(target_sector_id)
+		return
+	_queued_jump_target_id = target_sector_id
+	_queued_jump_direction = jump_direction.normalized()
+	_queued_jump_selection_token = _get_jump_target_selection_token(_selected_target)
+	agent_script.command_align_to(_queued_jump_direction)
+
+
+func _process_queued_jump() -> void:
+	if _queued_jump_target_id == "":
+		return
+	if not _is_selected_jump_queue_still_valid():
+		_clear_queued_jump()
+		return
+	var current_jump_direction = _resolve_jump_direction_from_target(_selected_target)
+	if current_jump_direction.length_squared() >= 0.001:
+		_queued_jump_direction = current_jump_direction
+	if _queued_jump_direction.length_squared() < 0.001:
+		_emit_jump_request(_queued_jump_target_id)
+		return
+	if not _can_queue_jump_alignment():
+		_emit_jump_request(_queued_jump_target_id)
+		return
+	if not _is_jump_alignment_ready(_queued_jump_direction):
+		agent_script.command_align_to(_queued_jump_direction)
+		return
+	_emit_jump_request(_queued_jump_target_id)
+
+
+func _is_selected_jump_queue_still_valid() -> bool:
+	if _queued_jump_target_id == "":
+		return false
+	if _get_jump_target_sector_id(_selected_target) != _queued_jump_target_id:
+		return false
+	if _get_jump_target_selection_token(_selected_target) != _queued_jump_selection_token:
+		return false
+	return _nearest_dock_type == "jump" and _pending_jump_target == _queued_jump_target_id
+
+
+func _emit_jump_request(target_sector_id: String) -> void:
+	_clear_queued_jump()
+	EventBus.emit_signal("player_jump_requested", target_sector_id)
+
+
+func _clear_queued_jump() -> void:
+	_queued_jump_target_id = ""
+	_queued_jump_direction = Vector3.ZERO
+	_queued_jump_selection_token = ""
 
 
 # --- Signal Handlers ---
@@ -515,6 +662,7 @@ func _poll_docking_proximity():
 
 func _on_player_docked(location_id):
 	print("Player docked at: ", location_id)
+	_clear_queued_jump()
 	GameState.player_docked_at = location_id
 	set_process_unhandled_input(false)
 	set_physics_process(false)
@@ -524,6 +672,7 @@ func _on_player_docked(location_id):
 
 func _on_player_undocked():
 	print("Player undocked")
+	_clear_queued_jump()
 	GameState.player_docked_at = ""
 	set_process_unhandled_input(true)
 	set_physics_process(true)

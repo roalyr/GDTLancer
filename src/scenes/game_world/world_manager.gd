@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT §Architecture, TACTICAL_TODO §TASK_6
-# LOG_REF: 2026-03-27
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:32:50
 #
 
 extends Node
@@ -252,6 +252,7 @@ func travel_to_sector(target_sector_id: String) -> void:
 	if resolved_target_sector_id == "":
 		return
 	var old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	_snapshot_player_state_for_sector_travel()
 	GameState.player_docked_at = ""
 	GameState.player_arrived_from_sector = old_sector
 	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, resolved_target_sector_id)
@@ -261,6 +262,13 @@ func travel_to_sector(target_sector_id: String) -> void:
 	load_sector(resolved_target_sector_id)
 	if is_instance_valid(GlobalRefs.simulation_engine):
 		GlobalRefs.simulation_engine.request_tick()
+
+
+func _snapshot_player_state_for_sector_travel() -> void:
+	# Clear saved-position priority so sector travel always uses the arrival shell or jump point.
+	GameState.player_position = Vector3.ZERO
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		GameState.player_rotation = GlobalRefs.player_agent_body.rotation_degrees
 
 
 func _get_arrival_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:

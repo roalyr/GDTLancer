@@ -1,5 +1,10 @@
-# File: scenes/camera/orbit_camera.gd
-# Version: 2.3 - Added target-tracking camera mode.
+#
+# PROJECT: GDTLancer
+# MODULE: orbit_camera.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
+#
 
 extends Camera
 
@@ -152,6 +157,14 @@ func set_rotation_input_active(is_active: bool):
 func set_is_rotating(rotating: bool):
 	if is_instance_valid(_rotation_controller):
 		_rotation_controller.set_is_rotating(rotating)
+
+
+func is_externally_rotating() -> bool:
+	return (
+		is_instance_valid(_rotation_controller)
+		and _rotation_controller.has_method("is_externally_rotating")
+		and _rotation_controller.is_externally_rotating()
+	)
 
 
 # --- Camera Mode Methods ---

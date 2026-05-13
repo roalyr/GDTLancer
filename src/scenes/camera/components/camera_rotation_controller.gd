@@ -1,6 +1,10 @@
-# File: src/scenes/camera/components/camera_rotation_controller.gd
-# Purpose: Manages camera rotation, including PID-based smoothing and mouse input.
-# This is a component of the main OrbitCamera.
+#
+# PROJECT: GDTLancer
+# MODULE: camera_rotation_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
+#
 
 extends Node
 class_name CameraRotationController
@@ -134,6 +138,10 @@ func set_is_rotating(rotating: bool):
 	if not _rotation_input_active:
 		_is_externally_rotating = rotating
 	reset_pids()
+
+
+func is_externally_rotating() -> bool:
+	return _is_externally_rotating
 
 
 func reset_pids():

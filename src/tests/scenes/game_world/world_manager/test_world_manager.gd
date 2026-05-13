@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: test_world_manager.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:32:50
+#
+
 extends GutTest
 
 const WorldManagerScript = preload("res://src/scenes/game_world/world_manager.gd")
@@ -20,6 +28,9 @@ func before_each():
 func after_each():
 	GameState.world_topology.clear()
 	TemplateDatabase.locations.clear()
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GlobalRefs.player_agent_body = null
 	world_manager = null
 
 
@@ -53,4 +64,25 @@ func test_get_arrival_direction_for_route_returns_zero_when_positions_match():
 		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "station_beta"),
 		Vector3.ZERO,
 		"Identical sector positions should not fabricate an arrival direction."
+	)
+
+
+func test_snapshot_player_state_for_sector_travel_preserves_rotation_and_clears_saved_position():
+	var player = Spatial.new()
+	add_child_autofree(player)
+	player.rotation_degrees = Vector3(12, 34, 56)
+	GlobalRefs.player_agent_body = player
+	GameState.player_position = Vector3(10, 20, 30)
+
+	world_manager._snapshot_player_state_for_sector_travel()
+
+	assert_eq(
+		GameState.player_position,
+		Vector3.ZERO,
+		"Sector travel should clear saved-position priority so arrival spawn rules can take over."
+	)
+	assert_eq(
+		GameState.player_rotation,
+		Vector3(12, 34, 56),
+		"Sector travel should snapshot the current player orientation for the next-sector spawn."
 	)

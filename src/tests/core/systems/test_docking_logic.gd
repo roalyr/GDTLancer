@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_docking_logic.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: Current docking flow via player_controller_ship.gd proximity polling
-## LOG_REF: 2026-05-09 19:55:46
+## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+## LOG_REF: 2026-05-13 16:43:42
 ##
 
 extends "res://addons/gut/test.gd"
@@ -11,6 +11,11 @@ extends "res://addons/gut/test.gd"
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var PlayerControllerScript = load("res://src/modules/piloting/player_controller_ship.gd")
 var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
+const TEST_ROUTE_DIRECTION = Vector3(0, 0, -1)
+
+
+func after_each():
+	GameState.player_docked_at = ""
 
 func test_docking_signals():
 	var station = StaticBody.new()
@@ -18,26 +23,10 @@ func test_docking_signals():
 	station.location_id = "test_station"
 	station.station_name = "Test Station"
 	station.transform.origin = Vector3(100, 0, 0)
-	add_child(station)
-	
-	var agent = RigidBody.new()
-	agent.name = "Player"
-	agent.gravity_scale = 0.0
-	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass\nfunc is_player(): return true"
-	agent_script.reload()
-	agent.set_script(agent_script)
+	add_child_autofree(station)
 
-	var movement_system = Node.new()
-	movement_system.name = "MovementSystem"
-	agent.add_child(movement_system)
-
-	var controller = Node.new()
-	controller.set_script(PlayerControllerScript)
-	controller.name = "PlayerInputHandler"
-	agent.add_child(controller)
-
-	add_child(agent)
+	var harness = _create_player_controller_harness()
+	var controller = harness["controller"]
 	
 	watch_signals(EventBus)
 	
@@ -50,29 +39,11 @@ func test_docking_signals():
 	controller._poll_docking_proximity()
 	assert_signal_emitted(EventBus, "dock_unavailable")
 	assert_eq(controller._can_dock_at, "")
-	
-	station.free()
-	agent.free()
 
 func test_player_controller_docking():
-	var agent = RigidBody.new()
-	agent.gravity_scale = 0.0
-	# Mock command_stop
-	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass"
-	agent_script.reload()
-	agent.set_script(agent_script)
-	
-	var movement_system = Node.new()
-	movement_system.name = "MovementSystem"
-	agent.add_child(movement_system)
-	
-	var controller = Node.new()
-	controller.set_script(PlayerControllerScript)
-	controller.name = "PlayerInputHandler"
-	agent.add_child(controller)
-	
-	add_child(agent)
+	var harness = _create_player_controller_harness()
+	var agent = harness["agent"]
+	var controller = harness["controller"]
 	assert_eq(controller._can_dock_at, "")
 	
 	# Simulate docking
@@ -86,43 +57,149 @@ func test_player_controller_docking():
 	assert_eq(GameState.player_docked_at, "")
 	assert_true(controller.is_processing_unhandled_input())
 	assert_true(controller.is_physics_processing())
-	
-	agent.free()
+	assert_eq(agent.stop_calls, 1, "Docking should still stop the ship exactly once.")
 
 
-func test_route_target_selection_enables_jump_without_distance_gate():
-	var agent = RigidBody.new()
-	agent.gravity_scale = 0.0
-	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass"
-	agent_script.reload()
-	agent.set_script(agent_script)
-
-	var movement_system = Node.new()
-	movement_system.name = "MovementSystem"
-	agent.add_child(movement_system)
-
-	var controller = Node.new()
-	controller.set_script(PlayerControllerScript)
-	controller.name = "PlayerInputHandler"
-	agent.add_child(controller)
-
-	add_child(agent)
+func test_route_target_selection_always_queues_alignment_before_jump():
+	var harness = _create_player_controller_harness(true, true)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
 	watch_signals(EventBus)
 
 	var route_target = RouteTargetScript.new().configure(
 		"sector_system_elace",
 		"sector_system_cob",
 		"Cob System",
-		Vector3(1, 0, 0)
+		TEST_ROUTE_DIRECTION
 	)
 	controller._set_selected_target(route_target)
 	controller._poll_docking_proximity()
 	assert_signal_emitted_with_parameters(EventBus, "jump_available", ["sector_system_cob", "Cob System"])
 	controller._handle_interact_input()
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump interact should always enter the align-before-jump flow first.")
+	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Jump interact should always issue an align command before travelling.")
+	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Jump interact should retain the queued jump until the post-align validation tick.")
+
+	controller._physics_process(1.0 / 60.0)
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_eq(controller._queued_jump_target_id, "", "Queued aligned jumps should clear once the first post-align validation tick fires.")
+
+
+func test_route_target_interact_queues_alignment_before_jump():
+	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Misaligned route jumps should queue alignment before requesting travel.")
+	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Queued route jumps should reuse the live align command with the route direction.")
+	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Misaligned route jumps should remember the pending sector id until alignment completes.")
+	assert_eq(controller._queued_jump_selection_token, route_target.selection_key, "Queued route jumps should bind to the currently selected route target.")
+
+
+func test_queued_route_jump_auto_executes_after_alignment_completes():
+	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
+	var movement_system = harness["movement_system"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	agent.rotation_degrees = Vector3.ZERO
+	movement_system.rotation_stopped = true
+	controller._physics_process(1.0 / 60.0)
+
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_eq(controller._queued_jump_target_id, "", "Queued route jumps should clear once the auto-jump fires.")
+
+
+func test_queued_route_jump_waits_for_tight_five_degree_alignment():
+	var harness = _create_player_controller_harness(false, true)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	agent.rotation_degrees = Vector3(0, 7, 0)
+	controller._physics_process(1.0 / 60.0)
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Queued jumps should wait until the ship is within the tighter five-degree jump gate.")
+
+	agent.rotation_degrees = Vector3(0, 5, 0)
+	controller._physics_process(1.0 / 60.0)
 	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
 
-	agent.free()
+
+func test_queued_route_jump_clears_on_target_change():
+	var harness = _create_player_controller_harness(false, false)
+	var controller = harness["controller"]
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.location_id = "test_station"
+	station.station_name = "Test Station"
+	add_child_autofree(station)
+	controller._set_selected_target(station)
+
+	assert_eq(controller._queued_jump_target_id, "", "Changing targets should cancel any queued jump alignment.")
+	assert_eq(controller._queued_jump_selection_token, "", "Changing targets should clear the queued jump validity token.")
+
+
+func test_queued_route_jump_clears_on_stop_override():
+	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+	controller._issue_stop_command()
+
+	assert_eq(controller._queued_jump_target_id, "", "Explicit stop commands should cancel any queued jump alignment.")
+	assert_eq(agent.stop_calls, 1, "Cancelling a queued jump via stop should still reuse the live stop command.")
 
 
 func test_single_click_clears_selection_without_world_raycast_pick():
@@ -130,25 +207,10 @@ func test_single_click_clears_selection_without_world_raycast_pick():
 	station.set_script(DockableStationScript)
 	station.location_id = "test_station"
 	station.station_name = "Test Station"
-	add_child(station)
+	add_child_autofree(station)
 
-	var agent = RigidBody.new()
-	agent.gravity_scale = 0.0
-	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass"
-	agent_script.reload()
-	agent.set_script(agent_script)
-
-	var movement_system = Node.new()
-	movement_system.name = "MovementSystem"
-	agent.add_child(movement_system)
-
-	var controller = Node.new()
-	controller.set_script(PlayerControllerScript)
-	controller.name = "PlayerInputHandler"
-	agent.add_child(controller)
-
-	add_child(agent)
+	var harness = _create_player_controller_harness()
+	var controller = harness["controller"]
 	watch_signals(EventBus)
 
 	controller._set_selected_target(station)
@@ -157,6 +219,39 @@ func test_single_click_clears_selection_without_world_raycast_pick():
 	assert_eq(controller._selected_target, null, "Single-click fallback should now clear selection instead of picking the collider under the cursor.")
 	assert_signal_emitted(EventBus, "player_target_deselected")
 
-	agent.free()
-	station.free()
+
+func _create_player_controller_harness(aligned: bool = true, rotation_stopped: bool = true) -> Dictionary:
+	var agent_script = GDScript.new()
+	agent_script.source_code = "extends RigidBody\nvar align_calls = []\nvar stop_calls = 0\nfunc command_stop():\n\tstop_calls += 1\nfunc command_align_to(direction):\n\talign_calls.append(direction)\nfunc is_player():\n\treturn true\n"
+	agent_script.reload()
+
+	var movement_script = GDScript.new()
+	movement_script.source_code = "extends Node\nvar thrust_throttle = 1.0\nvar aligned = true\nvar rotation_stopped = true\nfunc is_aligned_to(_target_direction):\n\treturn aligned\nfunc is_rotation_stopped():\n\treturn rotation_stopped\n"
+	movement_script.reload()
+
+	var agent = RigidBody.new()
+	agent.name = "Player"
+	agent.gravity_scale = 0.0
+	agent.set_script(agent_script)
+	agent.rotation_degrees = Vector3.ZERO if aligned else Vector3(0, 45, 0)
+
+	var movement_system = Node.new()
+	movement_system.name = "MovementSystem"
+	movement_system.set_script(movement_script)
+	movement_system.aligned = aligned
+	movement_system.rotation_stopped = rotation_stopped
+	agent.add_child(movement_system)
+
+	var controller = Node.new()
+	controller.set_script(PlayerControllerScript)
+	controller.name = "PlayerInputHandler"
+	agent.add_child(controller)
+
+	add_child_autofree(agent)
+
+	return {
+		"agent": agent,
+		"controller": controller,
+		"movement_system": movement_system,
+	}
 

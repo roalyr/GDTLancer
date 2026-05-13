@@ -7,7 +7,7 @@
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-10 16:13:36
+# LOG_REF: 2026-05-13 16:32:50
 #
 
 extends Node
@@ -74,11 +74,13 @@ func spawn_player():
 
 	var player_spawn_pos = Vector3.ZERO
 	var player_spawn_rot = Vector3.ZERO
+	var should_apply_spawn_rotation = false
 	
 	# Priority 1: Use saved position if it's not zero (loaded game)
 	if GameState.player_position != Vector3.ZERO:
 		player_spawn_pos = GameState.player_position
 		player_spawn_rot = GameState.player_rotation
+		should_apply_spawn_rotation = true
 	# Priority 2: If docked, spawn at station
 	elif GameState.player_docked_at != "":
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
@@ -87,6 +89,8 @@ func spawn_player():
 	# Priority 3: If arrived via logical route, spawn on the configured arrival shell.
 	elif GameState.player_arrival_direction != Vector3.ZERO:
 		player_spawn_pos = _get_route_arrival_spawn_position(GameState.player_arrival_direction)
+		player_spawn_rot = GameState.player_rotation
+		should_apply_spawn_rotation = true
 		GameState.player_arrival_direction = Vector3.ZERO
 		GameState.player_arrived_from_sector = ""
 	# Priority 3: If arrived via jump, spawn at the return jump point
@@ -94,6 +98,8 @@ func spawn_player():
 		var jp = _find_jump_point_targeting(GameState.player_arrived_from_sector)
 		if jp != null:
 			player_spawn_pos = jp.transform.origin + Vector3(0, 5, 15)
+		player_spawn_rot = GameState.player_rotation
+		should_apply_spawn_rotation = true
 		GameState.player_arrived_from_sector = ""
 	# Priority 4: Use zone entry point (new game)
 	elif is_instance_valid(GlobalRefs.current_zone):
@@ -121,8 +127,8 @@ func spawn_player():
 	)
 
 	if is_instance_valid(_player_agent_body):
-		# Apply saved rotation if available
-		if player_spawn_rot != Vector3.ZERO:
+		# Keep the player's global orientation across saved loads and sector arrivals.
+		if should_apply_spawn_rotation:
 			_player_agent_body.rotation_degrees = player_spawn_rot
 		
 		GlobalRefs.player_agent_body = _player_agent_body

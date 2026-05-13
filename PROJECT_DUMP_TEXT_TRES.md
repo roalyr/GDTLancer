@@ -36,11 +36,104 @@ particles_anim_loop = false
 material = ExtResource( 1 )
 size = Vector2( 0.002, 0.002 )
 
+--- Start of ./assets/art/environments/global_environment.tres ---
+
+[gd_resource type="Environment" load_steps=2 format=2]
+
+[sub_resource type="ProceduralSky" id=1]
+
+[resource]
+background_mode = 1
+background_sky = SubResource( 1 )
+background_color = Color( 0.0705882, 0.0588235, 0.0980392, 1 )
+
+--- Start of ./assets/art/materials/scene_materials/star_1_corona.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=4 format=2]
+
+[ext_resource path="res://assets/art/shaders/star_corona_NLP.gdshader" type="Shader" id=1]
+
+[sub_resource type="OpenSimplexNoise" id=23]
+
+[sub_resource type="NoiseTexture" id=24]
+width = 256
+height = 256
+seamless = true
+noise = SubResource( 23 )
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/corona_color = Color( 0.345098, 0.219608, 0.14902, 1 )
+shader_param/strength_corona = 40.0
+shader_param/exponent_corona = 2.0
+shader_param/exponent_corona_rim = 2.0
+shader_param/corona_floor_power = 5.0
+shader_param/corona_floor = 1.3
+shader_param/fade_distance_far = 50000.0
+shader_param/fade_power = 1.0
+shader_param/displacement_power = 0.05
+shader_param/displacement_scale_xz = 0.95
+shader_param/displacement_scale_y = 0.9
+shader_param/displacement_velocity = 0.1
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 27.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/displacement_texture = SubResource( 24 )
+
+--- Start of ./assets/art/materials/scene_materials/star_1_sprite.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 1, 0.635294, 0.435294, 1 )
+shader_param/scale = 0.297
+shader_param/flare_distance = 40000.0
+shader_param/flare_size = 3.0
+shader_param/attenuation = 0.749
+shader_param/intensity = 1.0
+shader_param/exponent = 3.0
+shader_param/pulse_factor = 0.9
+shader_param/pulse_rate = 1.0
+shader_param/phase = 0.0
+
+--- Start of ./assets/art/materials/scene_materials/star_1_surface.tres ---
+
+[gd_resource type="ShaderMaterial" load_steps=3 format=2]
+
+[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=1]
+[ext_resource path="res://assets/art/shaders/star_surface_NLP.gdshader" type="Shader" id=2]
+
+[resource]
+shader = ExtResource( 2 )
+shader_param/rim_color = Color( 1, 1, 1, 1 )
+shader_param/overlay_color = Color( 0.615686, 0.376471, 0.215686, 1 )
+shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
+shader_param/fade_color = Color( 0.909804, 0.784314, 0.662745, 1 )
+shader_param/major_phase = 0.95
+shader_param/major_detail_intensity = 1.0
+shader_param/major_detail_level = 0.5
+shader_param/detail_decay_distance = 30000.0
+shader_param/detail_decay_power = 2.0
+shader_param/major_detail_scale = 1.0
+shader_param/major_detail_flow = 0.01
+shader_param/rim_strength = 1.0
+shader_param/rim_exponent = 0.03
+shader_param/rim_intensity = 10.0
+shader_param/scale_start = 3000.0
+shader_param/scale_end_mul = 25.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.25
+shader_param/major_detail_noise = ExtResource( 1 )
+
 --- Start of ./assets/art/materials/test_solid_frame.tres ---
 
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=1]
 
 [resource]
 shader = ExtResource( 1 )
@@ -75,7 +168,7 @@ shader_param/scale_min = 0.25
 
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=1]
 
 [resource]
 shader = ExtResource( 1 )
@@ -110,7 +203,7 @@ shader_param/scale_min = 0.25
 
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=1]
 
 [resource]
 shader = ExtResource( 1 )
@@ -145,7 +238,7 @@ shader_param/scale_min = 0.25
 
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=1]
 
 [resource]
 shader = ExtResource( 1 )
@@ -180,21 +273,21 @@ shader_param/scale_min = 0.25
 
 [gd_resource type="ShaderMaterial" load_steps=2 format=2]
 
-[ext_resource path="res://assets/art/shaders/solid.gdshader" type="Shader" id=1]
+[ext_resource path="res://assets/art/shaders/simple_solid_NLP.gdshader" type="Shader" id=1]
 
 [resource]
 shader = ExtResource( 1 )
-shader_param/paint_color = Color( 1, 1, 1, 1 )
-shader_param/light_tint = Color( 1, 0.95, 0.9, 1 )
-shader_param/shadow_tint = Color( 0.15, 0.15, 0.25, 1 )
+shader_param/paint_color = Color( 0.411765, 0.411765, 0.415686, 1 )
+shader_param/light_tint = Color( 1, 1, 1, 1 )
+shader_param/shadow_tint = Color( 0.227451, 0.227451, 0.227451, 1 )
 shader_param/shadow_bias = 0.0
 shader_param/shadow_softness = 0.1
 shader_param/shadow_normal_blend = 0.5
-shader_param/spec_tint = Color( 1, 1, 1, 0.5 )
-shader_param/spec_intensity = 0.0
+shader_param/spec_tint = Color( 1, 1, 1, 0.501961 )
+shader_param/spec_intensity = 0.2
 shader_param/spec_glossiness = 10.0
-shader_param/spec_softness = 0.1
-shader_param/rim_color = Color( 0.5, 0.7, 1, 1 )
+shader_param/spec_softness = 0.5
+shader_param/rim_color = Color( 0.0470588, 0.192157, 0.403922, 1 )
 shader_param/rim_width = 3.0
 shader_param/rim_power = 2.0
 shader_param/rim_mask_on_shadow = true
@@ -211,41 +304,77 @@ shader_param/scale_end_mul = 30.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.25
 
---- Start of ./assets/art/shaders/simple_solid_glow.tres ---
+--- Start of ./assets/art/textures/procedural_textures/normal/global_nebulas_1.tres ---
 
-[gd_resource type="Shader" format=2]
+[gd_resource type="NoiseTexture" load_steps=2 format=2]
+
+[sub_resource type="OpenSimplexNoise" id=2]
+octaves = 9
+period = 15.0
+persistence = 0.4
 
 [resource]
-code = "shader_type spatial;
-render_mode
-	// Vertex or pixel shading (screen-large object can use vertex)
-	vertex_lighting,
+width = 256
+height = 256
+seamless = true
+as_normalmap = true
+bump_strength = 1.5
+noise = SubResource( 2 )
 
-	// Blending and culling.
-	blend_add,
-	cull_front,
+--- Start of ./assets/art/ui/controls/projected_targets/projected_target_bracket_background.tres ---
 
-	unshaded,
-	//diffuse_lambert,
-	specular_disabled,
+; PROJECT: GDTLancer
+; MODULE: projected_target_bracket_background.tres
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
+; LOG_REF: 2026-05-10 21:07:00
 
-	// Additional flags just in case.
-	ambient_light_disabled,
-	depth_draw_opaque;
+[gd_resource type="StyleBoxFlat" format=2]
 
-uniform vec4 color : hint_color = vec4(1.0, 0.9, 0.4, 1.0);
-uniform float strength : hint_range(0.0, 1e2, 5e-4) = 40;
-uniform float exponent = 2;
-uniform float exponent_rim = 2;
+[resource]
+bg_color = Color( 0.02, 0.05, 0.08, 0.35 )
 
-void fragment()
-{
-	float dt = clamp(abs(dot(NORMAL,VIEW)), 1e-9, 0.99999);
-	float corona = pow(dt, exp(exponent))*pow(1.1,strength);
+--- Start of ./assets/art/ui/controls/projected_targets/projected_target_bracket_normal.tres ---
 
-	ALBEDO = pow(corona,exponent_rim)*color.rgb;
-}
-"
+; PROJECT: GDTLancer
+; MODULE: projected_target_bracket_normal.tres
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
+; LOG_REF: 2026-05-10 21:07:00
+
+[gd_resource type="StyleBoxTexture" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/ui/controls/bracket_targeting.png" type="Texture" id=1]
+
+[resource]
+texture = ExtResource( 1 )
+draw_center = false
+margin_left = 60.0
+margin_top = 60.0
+margin_right = 60.0
+margin_bottom = 60.0
+modulate_color = Color( 0.35, 0.95, 1, 0.95 )
+
+--- Start of ./assets/art/ui/controls/projected_targets/projected_target_bracket_selected.tres ---
+
+; PROJECT: GDTLancer
+; MODULE: projected_target_bracket_selected.tres
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
+; LOG_REF: 2026-05-10 21:07:00
+
+[gd_resource type="StyleBoxTexture" load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/ui/controls/bracket_targeting.png" type="Texture" id=1]
+
+[resource]
+texture = ExtResource( 1 )
+draw_center = false
+margin_left = 60.0
+margin_top = 60.0
+margin_right = 60.0
+margin_bottom = 60.0
+modulate_color = Color( 1, 0.9, 0.35, 1 )
 
 --- Start of ./assets/themes/main_theme.tres ---
 
@@ -403,7 +532,7 @@ script = ExtResource( 1 )
 template_id = "persistent_juno"
 agent_type = "npc"
 is_persistent = true
-home_location_id = "station_alpha"
+home_location_id = "sector_system_elace"
 character_template_id = "character_juno"
 respawn_timeout_seconds = 300.0
 agent_role = "prospector"
@@ -420,7 +549,7 @@ script = ExtResource( 1 )
 template_id = "persistent_kai"
 agent_type = "npc"
 is_persistent = true
-home_location_id = "station_alpha"
+home_location_id = "sector_system_elace"
 character_template_id = "character_kai"
 respawn_timeout_seconds = 300.0
 agent_role = "hauler"
@@ -437,7 +566,7 @@ script = ExtResource( 1 )
 template_id = "persistent_milo"
 agent_type = "npc"
 is_persistent = true
-home_location_id = "station_beta"
+home_location_id = "sector_system_cob"
 character_template_id = "character_milo"
 respawn_timeout_seconds = 300.0
 agent_role = "trader"
@@ -539,7 +668,7 @@ script = ExtResource( 1 )
 template_id = "persistent_vera"
 agent_type = "npc"
 is_persistent = true
-home_location_id = "station_beta"
+home_location_id = "sector_system_cob"
 character_template_id = "character_vera"
 respawn_timeout_seconds = 300.0
 agent_role = "trader"
@@ -1244,25 +1373,26 @@ initial_wealth_tag = "COMFORTABLE"
 [resource]
 script = ExtResource( 1 )
 template_id = "delivery_01"
-template_type = "contract"
 contract_type = "delivery"
 title = "Ore Shipment to Beta"
 description = "The Mining Guild needs 10 units of mineral ore transported to Station Beta. Standard freight rates apply. Payment on delivery."
 issuer_id = "mining_guild_rep"
 faction_id = "faction_miners"
-origin_location_id = "station_alpha"
-destination_location_id = "station_beta"
+origin_location_id = "sector_system_elace"
+destination_location_id = "sector_system_cob"
 required_commodity_id = "commodity_ore"
 required_quantity = 10
 target_type = ""
 target_count = 0
 reward_credits = 80
 reward_reputation = 3
-reward_items = {}
-time_limit_tu = -1
+reward_items = {
+}
+time_limit_seconds = -1
 difficulty = 1
-accepted_at_tu = -1
-progress = {}
+accepted_at_seconds = -1
+progress = {
+}
 
 --- Start of ./database/registry/contracts/delivery_02.tres ---
 
@@ -1279,7 +1409,7 @@ title = "Food Run to Gamma"
 description = "Freeport Gamma is running low on supplies. Deliver 5 units of food supplies from our stores. Bonus for quick delivery."
 issuer_id = "station_quartermaster"
 faction_id = "faction_independents"
-origin_location_id = "station_alpha"
+origin_location_id = "sector_system_elace"
 destination_location_id = "station_gamma"
 required_commodity_id = "commodity_food"
 required_quantity = 5
@@ -1302,25 +1432,26 @@ progress = {}
 [resource]
 script = ExtResource( 1 )
 template_id = "delivery_03"
-template_type = "contract"
 contract_type = "delivery"
 title = "Tech Components to Alpha"
 description = "Station Alpha needs tech components for their mining equipment. Transport 8 units of tech components. Guild rates guaranteed."
 issuer_id = "tech_merchant"
 faction_id = "faction_traders"
-origin_location_id = "station_beta"
-destination_location_id = "station_alpha"
+origin_location_id = "sector_system_cob"
+destination_location_id = "sector_system_elace"
 required_commodity_id = "commodity_tech"
 required_quantity = 8
 target_type = ""
 target_count = 0
 reward_credits = 200
 reward_reputation = 4
-reward_items = {}
-time_limit_tu = -1
+reward_items = {
+}
+time_limit_seconds = -1
 difficulty = 2
-accepted_at_tu = -1
-progress = {}
+accepted_at_seconds = -1
+progress = {
+}
 
 --- Start of ./database/registry/contracts/delivery_04.tres ---
 
@@ -1331,13 +1462,12 @@ progress = {}
 [resource]
 script = ExtResource( 1 )
 template_id = "delivery_04"
-template_type = "contract"
 contract_type = "delivery"
 title = "Luxury Goods to Gamma"
 description = "A wealthy client at Freeport Gamma is expecting a shipment. Deliver 3 units of luxury goods discretely. Premium payment."
 issuer_id = "private_broker"
 faction_id = "faction_traders"
-origin_location_id = "station_beta"
+origin_location_id = "sector_system_cob"
 destination_location_id = "station_gamma"
 required_commodity_id = "commodity_luxury"
 required_quantity = 3
@@ -1345,11 +1475,13 @@ target_type = ""
 target_count = 0
 reward_credits = 150
 reward_reputation = 2
-reward_items = {}
-time_limit_tu = -1
+reward_items = {
+}
+time_limit_seconds = -1
 difficulty = 2
-accepted_at_tu = -1
-progress = {}
+accepted_at_seconds = -1
+progress = {
+}
 
 --- Start of ./database/registry/contracts/delivery_05.tres ---
 
@@ -1360,25 +1492,26 @@ progress = {}
 [resource]
 script = ExtResource( 1 )
 template_id = "delivery_05"
-template_type = "contract"
 contract_type = "delivery"
 title = "Fuel to Beta Station"
 description = "Station Beta's fuel reserves are dangerously low. Deliver 15 units of starship fuel urgently. Hazard pay included."
 issuer_id = "freeport_admin"
 faction_id = "faction_independents"
 origin_location_id = "station_gamma"
-destination_location_id = "station_beta"
+destination_location_id = "sector_system_cob"
 required_commodity_id = "commodity_fuel"
 required_quantity = 15
 target_type = ""
 target_count = 0
 reward_credits = 180
 reward_reputation = 5
-reward_items = {}
-time_limit_tu = -1
+reward_items = {
+}
+time_limit_seconds = -1
 difficulty = 2
-accepted_at_tu = -1
-progress = {}
+accepted_at_seconds = -1
+progress = {
+}
 
 --- Start of ./database/registry/contracts/delivery_06.tres ---
 
@@ -1396,7 +1529,7 @@ description = "The Mining Guild at Alpha is short on refined ore for processing.
 issuer_id = "freeport_broker"
 faction_id = "faction_miners"
 origin_location_id = "station_gamma"
-destination_location_id = "station_alpha"
+destination_location_id = "sector_system_elace"
 required_commodity_id = "commodity_ore"
 required_quantity = 20
 target_type = ""
@@ -1454,162 +1587,7 @@ description = "The dominant commercial entity in the sector."
 faction_color = Color( 0.0, 0.6, 0.8, 1 )
 default_standing = 0
 
---- Start of ./database/registry/locations/station_alpha.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "station_alpha"
-location_name = "Station Alpha - Mining Hub"
-location_type = "station"
-position_in_zone = Vector3( 48042, 233, -673 )
-interaction_radius = 150.0
-connections = PoolStringArray( "station_beta", "station_delta" )
-sector_type = "colony"
-radiation_level = 0.05
-thermal_background_k = 280.0
-gravity_well_penalty = 1.2
-mineral_density = 2.0
-propellant_sources = 0.3
-station_power_output = 150.0
-stockpile_capacity = 1500
-market_inventory = {
-"commodity_ore": {
-"buy_price": 8,
-"sell_price": 6,
-"quantity": 200
-},
-"commodity_food": {
-"buy_price": 30,
-"sell_price": 25,
-"quantity": 40
-},
-"commodity_tech": {
-"buy_price": 80,
-"sell_price": 65,
-"quantity": 15
-},
-"commodity_fuel": {
-"buy_price": 25,
-"sell_price": 20,
-"quantity": 100
-}
-}
-available_services = [ "trade", "contracts", "repair" ]
-controlling_faction_id = "faction_miners"
-danger_level = 1
-available_contract_ids = [ "delivery_01", "delivery_02" ]
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
-
---- Start of ./database/registry/locations/station_beta.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "station_beta"
-location_name = "Station Beta - Trade Post"
-location_type = "station"
-position_in_zone = Vector3( 49500, 100, 1500 )
-interaction_radius = 150.0
-connections = PoolStringArray( "station_alpha", "station_delta" )
-sector_type = "colony"
-radiation_level = 0.01
-thermal_background_k = 310.0
-gravity_well_penalty = 1.0
-mineral_density = 0.3
-propellant_sources = 0.8
-station_power_output = 120.0
-stockpile_capacity = 1200
-market_inventory = {
-"commodity_ore": {
-"buy_price": 15,
-"sell_price": 12,
-"quantity": 30
-},
-"commodity_food": {
-"buy_price": 22,
-"sell_price": 18,
-"quantity": 80
-},
-"commodity_tech": {
-"buy_price": 70,
-"sell_price": 55,
-"quantity": 50
-},
-"commodity_fuel": {
-"buy_price": 30,
-"sell_price": 25,
-"quantity": 60
-},
-"commodity_luxury": {
-"buy_price": 90,
-"sell_price": 75,
-"quantity": 20
-}
-}
-available_services = [ "trade", "contracts" ]
-controlling_faction_id = "faction_traders"
-danger_level = 2
-available_contract_ids = [ "delivery_03", "delivery_04" ]
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH" )
-
---- Start of ./database/registry/locations/station_delta.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "station_delta"
-location_name = "Outpost Delta - Military Garrison"
-location_type = "station"
-position_in_zone = Vector3( 47000, 150, 800 )
-interaction_radius = 150.0
-connections = PoolStringArray( "station_beta", "station_gamma", "station_alpha" )
-sector_type = "colony"
-radiation_level = 0.02
-thermal_background_k = 295.0
-gravity_well_penalty = 1.1
-mineral_density = 0.6
-propellant_sources = 0.6
-station_power_output = 130.0
-stockpile_capacity = 1200
-market_inventory = {
-"commodity_ore": {
-"buy_price": 12,
-"sell_price": 9,
-"quantity": 100
-},
-"commodity_food": {
-"buy_price": 28,
-"sell_price": 22,
-"quantity": 60
-},
-"commodity_tech": {
-"buy_price": 75,
-"sell_price": 60,
-"quantity": 25
-},
-"commodity_fuel": {
-"buy_price": 22,
-"sell_price": 18,
-"quantity": 80
-}
-}
-available_services = [ "trade", "refuel", "repair", "contracts" ]
-controlling_faction_id = "faction_military"
-danger_level = 1
-available_contract_ids = [ ]
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
-
---- Start of ./database/registry/locations/station_epsilon.tres ---
+--- Start of ./database/registry/locations/sector_epsilon.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
@@ -1622,6 +1600,13 @@ location_name = "Epsilon Refinery Complex"
 location_type = "station"
 position_in_zone = Vector3( 44500, -100, 1200 )
 interaction_radius = 150.0
+sector_scene_path = "res://scenes/levels/sectors/sector_epsilon/sector_epsilon.tscn"
+global_position = Vector3( -290000, -10000, -270000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = "Remote refinery complex. High mineral density but harsh environment."
 connections = PoolStringArray( "station_gamma" )
 sector_type = "outpost"
 radiation_level = 0.12
@@ -1632,34 +1617,34 @@ propellant_sources = 0.8
 station_power_output = 90.0
 stockpile_capacity = 900
 market_inventory = {
-"commodity_ore": {
-"buy_price": 10,
-"sell_price": 8,
-"quantity": 150
-},
 "commodity_food": {
 "buy_price": 26,
-"sell_price": 21,
-"quantity": 50
-},
-"commodity_tech": {
-"buy_price": 60,
-"sell_price": 48,
-"quantity": 20
+"quantity": 50,
+"sell_price": 21
 },
 "commodity_fuel": {
 "buy_price": 18,
-"sell_price": 14,
-"quantity": 120
+"quantity": 120,
+"sell_price": 14
+},
+"commodity_ore": {
+"buy_price": 10,
+"quantity": 150,
+"sell_price": 8
+},
+"commodity_tech": {
+"buy_price": 60,
+"quantity": 20,
+"sell_price": 48
 }
 }
 available_services = [ "trade", "refuel", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 3
-available_contract_ids = [ ]
 initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [  ]
 
---- Start of ./database/registry/locations/station_gamma.tres ---
+--- Start of ./database/registry/locations/sector_gamma.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
 
@@ -1672,6 +1657,13 @@ location_name = "Freeport Gamma"
 location_type = "station"
 position_in_zone = Vector3( 46000, -200, 500 )
 interaction_radius = 150.0
+sector_scene_path = "res://scenes/levels/sectors/sector_gamma/sector_gamma.tscn"
+global_position = Vector3( -140000, -100000, -190000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = "Lawless freeport near a cold star. Rich propellant sources draw traders and pirates alike."
 connections = PoolStringArray( "station_delta", "station_epsilon" )
 sector_type = "frontier"
 radiation_level = 0.15
@@ -1682,37 +1674,213 @@ propellant_sources = 1.2
 station_power_output = 80.0
 stockpile_capacity = 800
 market_inventory = {
-"commodity_ore": {
-"buy_price": 12,
-"sell_price": 10,
-"quantity": 80
-},
 "commodity_food": {
 "buy_price": 25,
-"sell_price": 20,
-"quantity": 60
-},
-"commodity_tech": {
-"buy_price": 55,
-"sell_price": 45,
-"quantity": 30
+"quantity": 60,
+"sell_price": 20
 },
 "commodity_fuel": {
 "buy_price": 20,
-"sell_price": 15,
-"quantity": 150
+"quantity": 150,
+"sell_price": 15
 },
 "commodity_luxury": {
 "buy_price": 120,
-"sell_price": 100,
-"quantity": 10
+"quantity": 10,
+"sell_price": 100
+},
+"commodity_ore": {
+"buy_price": 12,
+"quantity": 80,
+"sell_price": 10
+},
+"commodity_tech": {
+"buy_price": 55,
+"quantity": 30,
+"sell_price": 45
 }
 }
 available_services = [ "trade", "contracts", "black_market" ]
 controlling_faction_id = "faction_independents"
 danger_level = 4
-available_contract_ids = [ "delivery_05", "delivery_06" ]
 initial_sector_tags = PoolStringArray( "FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE", "HOSTILE_THREATENED" )
+available_contract_ids = [ "delivery_05", "delivery_06" ]
+
+--- Start of ./database/registry/locations/sector_system_cob.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_system_cob"
+location_name = "Cob System"
+location_type = "system"
+position_in_zone = Vector3( 49500, 100, 1500 )
+interaction_radius = 150.0
+sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_system_cob.tscn"
+global_position = Vector3( -400000, 24000, 130000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_elace", "sector_system_lywin" )
+sector_type = "colony"
+radiation_level = 0.01
+thermal_background_k = 310.0
+gravity_well_penalty = 1.0
+mineral_density = 0.3
+propellant_sources = 0.8
+station_power_output = 120.0
+stockpile_capacity = 1200
+market_inventory = {
+"commodity_food": {
+"buy_price": 22,
+"quantity": 80,
+"sell_price": 18
+},
+"commodity_fuel": {
+"buy_price": 30,
+"quantity": 60,
+"sell_price": 25
+},
+"commodity_luxury": {
+"buy_price": 90,
+"quantity": 20,
+"sell_price": 75
+},
+"commodity_ore": {
+"buy_price": 15,
+"quantity": 30,
+"sell_price": 12
+},
+"commodity_tech": {
+"buy_price": 70,
+"quantity": 50,
+"sell_price": 55
+}
+}
+available_services = [ "trade", "contracts" ]
+controlling_faction_id = "faction_traders"
+danger_level = 2
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH" )
+available_contract_ids = [ "delivery_03", "delivery_04" ]
+
+--- Start of ./database/registry/locations/sector_system_elace.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_system_elace"
+location_name = "Elace System"
+location_type = "system"
+position_in_zone = Vector3( 48042, 233, -673 )
+interaction_radius = 150.0
+sector_scene_path = "res://scenes/levels/sectors/sector_system_elace/sector_system_elace.tscn"
+global_position = Vector3( 0, 0, 0 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_cob", "sector_system_lywin" )
+sector_type = "colony"
+radiation_level = 0.05
+thermal_background_k = 280.0
+gravity_well_penalty = 1.2
+mineral_density = 2.0
+propellant_sources = 0.3
+station_power_output = 150.0
+stockpile_capacity = 1500
+market_inventory = {
+"commodity_food": {
+"buy_price": 30,
+"quantity": 40,
+"sell_price": 25
+},
+"commodity_fuel": {
+"buy_price": 25,
+"quantity": 100,
+"sell_price": 20
+},
+"commodity_ore": {
+"buy_price": 8,
+"quantity": 200,
+"sell_price": 6
+},
+"commodity_tech": {
+"buy_price": 80,
+"quantity": 15,
+"sell_price": 65
+}
+}
+available_services = [ "trade", "contracts", "repair" ]
+controlling_faction_id = "faction_miners"
+danger_level = 1
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [ "delivery_01", "delivery_02" ]
+
+--- Start of ./database/registry/locations/sector_system_lywin.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_system_lywin"
+location_name = "Lywin System"
+location_type = "system"
+position_in_zone = Vector3( 47000, 150, 800 )
+interaction_radius = 150.0
+sector_scene_path = "res://scenes/levels/sectors/sector_system_lywin/sector_system_lywin.tscn"
+global_position = Vector3( 70000, 16000, -110000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_cob", "sector_system_elace" )
+sector_type = "colony"
+radiation_level = 0.02
+thermal_background_k = 295.0
+gravity_well_penalty = 1.1
+mineral_density = 0.6
+propellant_sources = 0.6
+station_power_output = 130.0
+stockpile_capacity = 1200
+market_inventory = {
+"commodity_food": {
+"buy_price": 28,
+"quantity": 60,
+"sell_price": 22
+},
+"commodity_fuel": {
+"buy_price": 22,
+"quantity": 80,
+"sell_price": 18
+},
+"commodity_ore": {
+"buy_price": 12,
+"quantity": 100,
+"sell_price": 9
+},
+"commodity_tech": {
+"buy_price": 75,
+"quantity": 25,
+"sell_price": 60
+}
+}
+available_services = [ "trade", "refuel", "repair", "contracts" ]
+controlling_faction_id = "faction_military"
+danger_level = 1
+initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
+available_contract_ids = [  ]
 
 --- Start of ./database/registry/tools/tool_ablative_laser.tres ---
 
@@ -1821,219 +1989,6 @@ projectile_scene = ""
 muzzle_effect = ""
 impact_effect = ""
 fire_sound = ""
-
---- Start of ./default_env.tres ---
-
-[gd_resource type="Environment" load_steps=2 format=2]
-
-[sub_resource type="ProceduralSky" id=1]
-
-[resource]
-background_sky = SubResource( 1 )
-
---- Start of ./scenes/levels/zones/zone1/scene_materials/nebula_1_inside.tres ---
-
-[gd_resource type="ShaderMaterial" load_steps=2 format=2]
-
-[ext_resource path="res://assets/art/shaders/cloud_solid_inside.gdshader" type="Shader" id=1]
-
-[resource]
-shader = ExtResource( 1 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = 1.0
-shader_param/lum_weight_r = 1.0
-shader_param/lum_weight_g = 1.0
-shader_param/lum_weight_b = 1.0
-shader_param/color_power_r = 1.0
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.0
-shader_param/color_multiplier_g = 1.0
-shader_param/color_multiplier_b = 1.0
-shader_param/albedo = Color( 1, 1, 1, 1 )
-shader_param/albedo_near = Color( 0.117647, 0.101961, 0.160784, 1 )
-shader_param/albedo_ambient = Color( 0.145098, 0.12549, 0.196078, 1 )
-shader_param/albedo_far = Color( 0.454902, 0.0509804, 0.603922, 1 )
-shader_param/fade_distance = 100000.0
-shader_param/fade_distance_far = 500000.0
-shader_param/fade_power = 2.0
-shader_param/rim_exponent = 0.5
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-
---- Start of ./scenes/levels/zones/zone1/scene_materials/nebula_1.tres ---
-
-[gd_resource type="ShaderMaterial" load_steps=5 format=2]
-
-[ext_resource path="res://assets/art/shaders/cloud_solid.gdshader" type="Shader" id=1]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/bw_noise/Manifold 11 - 512x512.png" type="Texture" id=2]
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=3]
-[ext_resource path="res://scenes/levels/zones/zone1/scene_materials/nebula_1_inside.tres" type="Material" id=4]
-
-[resource]
-next_pass = ExtResource( 4 )
-shader = ExtResource( 1 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = 1.0
-shader_param/lum_weight_r = 1.0
-shader_param/lum_weight_g = 1.0
-shader_param/lum_weight_b = 1.0
-shader_param/color_power_r = 1.0
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.0
-shader_param/color_multiplier_g = 1.0
-shader_param/color_multiplier_b = 1.0
-shader_param/albedo = Color( 0, 0.47451, 0.658824, 1 )
-shader_param/albedo_near = Color( 0.117647, 0.101961, 0.160784, 1 )
-shader_param/albedo_ambient = Color( 0.145098, 0.12549, 0.196078, 1 )
-shader_param/albedo_rim = Color( 0.960784, 0.423529, 0.164706, 1 )
-shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 1.0
-shader_param/normal_detail_strength = -0.06
-shader_param/rim_strength = 5.39
-shader_param/rim_factor = 1.671
-shader_param/rim_normal_detail_factor = 1.0
-shader_param/rim_exponent = 0.265
-shader_param/fade_distance = 100000.0
-shader_param/fade_power = 2.0
-shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -1.519
-shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/detail_noise = ExtResource( 2 )
-shader_param/normal_noise = ExtResource( 3 )
-
---- Start of ./scenes/levels/zones/zone1/scene_materials/nebula_transparent_1.tres ---
-
-[gd_resource type="ShaderMaterial" load_steps=3 format=2]
-
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=1]
-[ext_resource path="res://assets/art/shaders/cloud_transparent.gdshader" type="Shader" id=2]
-
-[resource]
-shader = ExtResource( 2 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = 1.0
-shader_param/lum_weight_r = 1.0
-shader_param/lum_weight_g = 1.0
-shader_param/lum_weight_b = 1.0
-shader_param/color_power_r = 1.0
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.0
-shader_param/color_multiplier_g = 1.0
-shader_param/color_multiplier_b = 1.0
-shader_param/albedo = Color( 0.32549, 0.0980392, 0, 1 )
-shader_param/albedo_rim = Color( 0, 0.458824, 0.447059, 1 )
-shader_param/albedo_ambient = Color( 0, 0, 0, 1 )
-shader_param/normal_intensity = -1.0
-shader_param/normal_detail_power = 1.2
-shader_param/normal_detail_factor = 0.034
-shader_param/normal_strength = 1.148
-shader_param/normal_detail_clamp = 0.141
-shader_param/rim_factor = 1.0
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 5.0
-shader_param/fade_distance = 500000.0
-shader_param/fade_power = 2.0
-shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -2.555
-shader_param/normal_detail_uv1_offset = Vector3( 1.136, 0.214, -0.719 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/normal_noise = ExtResource( 1 )
-
---- Start of ./scenes/levels/zones/zone1/scene_materials/star_1_corona.tres ---
-
-[gd_resource type="ShaderMaterial" load_steps=4 format=2]
-
-[ext_resource path="res://assets/art/shaders/star_corona.gdshader" type="Shader" id=1]
-
-[sub_resource type="OpenSimplexNoise" id=23]
-
-[sub_resource type="NoiseTexture" id=24]
-width = 256
-height = 256
-seamless = true
-noise = SubResource( 23 )
-
-[resource]
-shader = ExtResource( 1 )
-shader_param/corona_color = Color( 0.345098, 0.219608, 0.14902, 1 )
-shader_param/strength_corona = 40.0
-shader_param/exponent_corona = 2.0
-shader_param/exponent_corona_rim = 2.0
-shader_param/corona_floor_power = 5.0
-shader_param/corona_floor = 1.3
-shader_param/displacement_power = 0.05
-shader_param/displacement_scale_xz = 0.95
-shader_param/displacement_scale_y = 0.9
-shader_param/displacement_velocity = 0.1
-shader_param/scale_start = 3000.0
-shader_param/scale_end_mul = 27.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.25
-shader_param/displacement_texture = SubResource( 24 )
-
---- Start of ./scenes/levels/zones/zone1/scene_materials/star_1_sprite.tres ---
-
-[gd_resource type="ShaderMaterial" load_steps=2 format=2]
-
-[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=1]
-
-[resource]
-shader = ExtResource( 1 )
-shader_param/albedo = Color( 1, 0.635294, 0.435294, 1 )
-shader_param/scale = 0.297
-shader_param/flare_distance = 40000.0
-shader_param/flare_size = 3.0
-shader_param/attenuation = 0.749
-shader_param/intensity = 1.0
-shader_param/exponent = 3.0
-shader_param/pulse_factor = 0.9
-shader_param/pulse_rate = 1.0
-shader_param/phase = 0.0
-shader_param/Fcoef = 0.001
-
---- Start of ./scenes/levels/zones/zone1/scene_materials/star_1_surface.tres ---
-
-[gd_resource type="ShaderMaterial" load_steps=3 format=2]
-
-[ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Craters 14 - 512x512.png" type="Texture" id=1]
-[ext_resource path="res://assets/art/shaders/star_surface.gdshader" type="Shader" id=2]
-
-[resource]
-shader = ExtResource( 2 )
-shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0.615686, 0.376471, 0.215686, 1 )
-shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
-shader_param/fade_color = Color( 0.909804, 0.784314, 0.662745, 1 )
-shader_param/major_phase = 0.95
-shader_param/major_detail_intensity = 1.0
-shader_param/major_detail_level = 0.5
-shader_param/detail_decay_distance = 30000.0
-shader_param/detail_decay_power = 2.0
-shader_param/major_detail_scale = 1.0
-shader_param/major_detail_flow = 0.01
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 0.03
-shader_param/rim_intensity = 10.0
-shader_param/scale_start = 3000.0
-shader_param/scale_end_mul = 25.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.25
-shader_param/major_detail_noise = ExtResource( 1 )
 
 --- Start of ./tests/data/test_action.tres ---
 

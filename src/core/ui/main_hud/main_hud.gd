@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.3, §5.4, §6.1; TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md §2, §6
-# LOG_REF: 2026-05-10 21:52:57
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
 #
 
 extends Control
@@ -13,6 +13,24 @@ extends Control
 
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
+const INFLIGHT_DRAG_CONTROL_PATHS = [
+	"ScreenControls/CenterLeftZone/ButtonMenu",
+	"ScreenControls/CenterLeftZone/ButtonInfo",
+	"ScreenControls/CenterLeftZone/SliderControlLeft",
+	"ScreenControls/BottomCenterZone/ButtonOrbit",
+	"ScreenControls/BottomCenterZone/ButtonStop",
+	"ScreenControls/BottomCenterZone/ButtonManualFlight",
+	"ScreenControls/BottomCenterZone/ButtonApproach",
+	"ScreenControls/BottomCenterZone/ButtonFlee",
+	"ScreenControls/BottomCenterZone/ButtonDock",
+	"ScreenControls/BottomCenterZone/ButtonAttack",
+	"ScreenControls/CenterRightZone/ButtonUIOpacity",
+	"ScreenControls/CenterRightZone/ButtonCamera",
+	"ScreenControls/CenterRightZone/SliderControlRight",
+	"ScreenControls/TopLeftZone/ButtonCharacter",
+	"ScreenControls/TopLeftZone/ButtonNarrativeStatus",
+	"ScreenControls/TopLeftZone/ButtonInventory"
+]
 
 # --- Sub-Screens ---
 const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
@@ -58,6 +76,10 @@ var _jump_target_name: String = ""  # Currently available jump target name
 var _route_target_provider: Reference = RouteTargetProviderScript.new()
 var _route_target_buttons: Dictionary = {}
 var _world_target_buttons: Dictionary = {}
+var _tracked_inflight_drag_controls: Array = []
+var _tracked_inflight_drag_filters: Dictionary = {}
+var _inflight_drag_passthrough_active: bool = false
+var _inflight_drag_passthrough_sync_pending: bool = false
 
 # --- Initialization ---
 func _ready():
@@ -139,6 +161,7 @@ func _ready():
 	# Connect to CombatSystem signals — DEFERRED (removed: CombatSystem deleted)
 	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
+	set_process_input(true)
 	
 	# Ensure target info panel starts hidden
 	if target_info_panel:
@@ -159,6 +182,8 @@ func _ready():
 		if not button_narrative_status.is_connected("pressed", self, "_on_ButtonNarrativeStatus_pressed"):
 			button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
 
+	_register_inflight_drag_controls()
+
 	# Initialize TU display
 	_refresh_time_display()
 
@@ -178,6 +203,8 @@ func _process(_delta):
 
 	_update_route_target_overlay()
 	_update_world_target_overlay()
+	if _inflight_drag_passthrough_active:
+		_sync_inflight_drag_passthrough()
 
 
 # --- Signal Handlers ---
@@ -274,6 +301,16 @@ func _on_game_time_advanced(_seconds_added: int = 0) -> void:
 	_refresh_time_display()
 
 
+func _input(event: InputEvent) -> void:
+	if not _inflight_drag_passthrough_active:
+		return
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
+		_forward_inflight_drag_release(event)
+		_set_inflight_drag_passthrough(false)
+		get_tree().set_input_as_handled()
+		return
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if EventBus:
@@ -304,6 +341,100 @@ func _on_ButtonCamera_pressed() -> void:
 			# No target selected, switch back to orbit mode
 			camera.set_camera_mode(0)  # ORBIT = 0
 			print("Camera: No target selected for tracking mode.")
+
+
+func _register_inflight_drag_controls() -> void:
+	for control_path in INFLIGHT_DRAG_CONTROL_PATHS:
+		var control = get_node_or_null(control_path)
+		if control is Control:
+			_track_inflight_drag_control(control)
+
+
+func _track_inflight_drag_control(control: Control) -> void:
+	if not is_instance_valid(control):
+		return
+	if _tracked_inflight_drag_controls.has(control):
+		return
+	_tracked_inflight_drag_controls.append(control)
+	_tracked_inflight_drag_filters[control.get_instance_id()] = control.mouse_filter
+	if not control.is_connected("gui_input", self, "_on_inflight_drag_control_gui_input"):
+		control.connect("gui_input", self, "_on_inflight_drag_control_gui_input", [control])
+
+
+func _untrack_inflight_drag_control(control: Control) -> void:
+	if not is_instance_valid(control):
+		return
+	_tracked_inflight_drag_controls.erase(control)
+	_tracked_inflight_drag_filters.erase(control.get_instance_id())
+	if control.is_connected("gui_input", self, "_on_inflight_drag_control_gui_input"):
+		control.disconnect("gui_input", self, "_on_inflight_drag_control_gui_input")
+
+
+func _on_inflight_drag_control_gui_input(event: InputEvent, control: Control) -> void:
+	if not is_instance_valid(control):
+		return
+	if not (event is InputEventMouseMotion):
+		return
+	if not _is_external_camera_drag_active():
+		return
+	_set_inflight_drag_passthrough(true)
+	_forward_inflight_drag_motion(event)
+	get_tree().set_input_as_handled()
+
+
+func _is_external_camera_drag_active() -> bool:
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	return is_instance_valid(camera) and camera.has_method("is_externally_rotating") and camera.is_externally_rotating()
+
+
+func _set_inflight_drag_passthrough(is_active: bool) -> void:
+	_inflight_drag_passthrough_active = is_active
+	_compact_tracked_inflight_drag_controls()
+	for control in _tracked_inflight_drag_controls:
+		if not is_instance_valid(control):
+			continue
+		var control_id = control.get_instance_id()
+		if is_active:
+			if not _tracked_inflight_drag_filters.has(control_id):
+				_tracked_inflight_drag_filters[control_id] = control.mouse_filter
+			control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		else:
+			control.mouse_filter = _tracked_inflight_drag_filters.get(
+				control_id,
+				Control.MOUSE_FILTER_STOP
+			)
+	_refresh_process_state()
+
+
+func _compact_tracked_inflight_drag_controls() -> void:
+	var valid_controls: Array = []
+	for control in _tracked_inflight_drag_controls:
+		if is_instance_valid(control):
+			valid_controls.append(control)
+	_tracked_inflight_drag_controls = valid_controls
+
+
+func _forward_inflight_drag_motion(motion_event: InputEventMouseMotion) -> void:
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
+		camera.call("_unhandled_input", motion_event)
+
+
+func _forward_inflight_drag_release(release_event: InputEventMouseButton) -> void:
+	var player_agent = GlobalRefs.player_agent_body
+	if is_instance_valid(player_agent):
+		var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+		if is_instance_valid(player_controller) and player_controller.has_method("_unhandled_input"):
+			player_controller.call("_unhandled_input", release_event)
+			return
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
+		camera.set_is_rotating(false)
+
+
+func _sync_inflight_drag_passthrough() -> void:
+	if _inflight_drag_passthrough_active and not _is_external_camera_drag_active():
+		_set_inflight_drag_passthrough(false)
 
 # --- Target Name Resolution ---
 func _resolve_target_display_name(target_node) -> String:
@@ -701,6 +832,7 @@ func _refresh_process_state() -> void:
 			_is_target_valid(_current_target)
 			or _route_target_buttons.size() > 0
 			or _world_target_buttons.size() > 0
+			or _inflight_drag_passthrough_active
 		)
 	)
 
@@ -728,6 +860,7 @@ func _clear_route_target_overlay() -> void:
 	for selection_key in _route_target_buttons:
 		var button = _route_target_buttons[selection_key]
 		if is_instance_valid(button):
+			_untrack_inflight_drag_control(button)
 			button.queue_free()
 	_route_target_buttons.clear()
 	_refresh_process_state()
@@ -737,6 +870,7 @@ func _clear_world_target_overlay() -> void:
 	for instance_id in _world_target_buttons:
 		var button = _world_target_buttons[instance_id]
 		if is_instance_valid(button):
+			_untrack_inflight_drag_control(button)
 			button.queue_free()
 	_world_target_buttons.clear()
 	_refresh_process_state()
@@ -763,6 +897,7 @@ func _rebuild_route_target_overlay() -> void:
 		button.configure_target(route_target)
 		button.connect("pressed", self, "_on_route_target_button_pressed", [route_target])
 		projected_target_overlay.add_child(button)
+		_track_inflight_drag_control(button)
 		_route_target_buttons[route_target.selection_key] = button
 	_update_route_target_selection_state()
 	_refresh_process_state()
@@ -781,6 +916,7 @@ func _rebuild_world_target_overlay() -> void:
 		button.configure_target(target_node, _resolve_target_display_name(target_node))
 		button.connect("pressed", self, "_on_world_target_button_pressed", [target_node])
 		projected_target_overlay.add_child(button)
+		_track_inflight_drag_control(button)
 		_world_target_buttons[target_node.get_instance_id()] = button
 	_update_world_target_selection_state()
 	_refresh_process_state()

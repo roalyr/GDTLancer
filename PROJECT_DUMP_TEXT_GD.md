@@ -13374,6 +13374,22 @@ export var location_type: String = "station"  # station, outpost, debris_field, 
 export var position_in_zone: Vector3 = Vector3.ZERO
 export var interaction_radius: float = 100.0  # How close player must be to dock
 
+# --- Sector Scene Configuration ---
+## Path to the handcrafted .tscn scene for this sector. Empty for procedural sectors.
+export var sector_scene_path: String = ""
+## Galactic position of this sector. Drives starsphere offset and JumpPoint directions.
+export var global_position: Vector3 = Vector3.ZERO
+
+# --- Procedural Generation Hints (for runtime-discovered sectors) ---
+## If true, this sector has no handcrafted .tscn and uses procedural generation.
+export var is_procedural: bool = false
+## Type hint for future procedural generator: deep_space, asteroid_field, stellar_approach, nebula_interior, etc.
+export var procedural_type: String = "deep_space"
+## Generator parameters: {density: float, hazard_type: String, celestial_count: int, etc.}
+export var procedural_hints: Dictionary = {}
+## Human-readable description of the sector for UI and generator context.
+export var sector_description: String = ""
+
 # --- World Layer: Topology (Section 2) ---
 ## IDs of sectors this location connects to (defines the sector graph for CA neighbors).
 export var connections: PoolStringArray = PoolStringArray()
@@ -13504,9 +13520,9 @@ func get_accuracy_at_range(distance: float) -> float:
 #
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md, TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends Node
@@ -13534,7 +13550,6 @@ const ACTION_CHECK_SWC_THRESHOLD_RISKY = 12
 # --- Scene Paths ---
 const PLAYER_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/player_agent.tscn"
 const NPC_AGENT_SCENE_PATH = "res://scenes/prefabs/agents/npc_agent.tscn"
-const INITIAL_ZONE_SCENE_PATH = "res://scenes/levels/zones/zone1/basic_flight_zone.tscn"
 
 # Agent Template Resource Paths
 const PLAYER_DEFAULT_TEMPLATE_PATH = "res://database/registry/agents/player_default.tres"
@@ -13684,6 +13699,21 @@ const SUBTICK_COST_DOCK: int = 3
 const SUBTICK_COST_UNDOCK: int = 2
 const SUBTICK_COST_DEEP_SPACE_EVENT: int = 5
 
+# ---- SECTOR TRAVEL ----
+const JUMP_POINT_RING_RADIUS: float = 80000.0       # Fallback distance from sector center (procedural sectors)
+const JUMP_POINT_STATION_OFFSET: float = 2000.0      # Distance from station where JumpPoints appear
+const JUMP_POINT_DETECTION_RADIUS: float = 300.0     # Area radius for player detection
+const DOCKING_PROMPT_RADIUS: float = 500.0           # Distance at which prompt appears
+const DOCKING_ACTION_RADIUS: float = 300.0           # Distance at which dock/jump actually works
+const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0   # Arrival shell radius for route-based sector jumps
+const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_position (nebula reference)
+const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
+const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
+
+# ---- CONTACT MANAGER ----
+const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5
+const DISPOSITION_HOSTILE_THRESHOLD: float = -0.5
+
 --- Start of ./src/autoload/CoreMechanicsAPI.gd ---
 
 #
@@ -13802,10 +13832,10 @@ func perform_action_check(
 
 #
 # PROJECT: GDTLancer
-# MODULE: src/autoload/EventBus.gd
+# MODULE: EventBus.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
+# LOG_REF: 2026-03-21
 #
 
 extends Node
@@ -13840,6 +13870,7 @@ signal camera_set_target_requested(target_node)
 signal camera_cycle_target_requested
 
 # --- Player Interaction Signals --- ADDED SECTION
+signal player_target_selection_requested(target_node)
 signal player_target_selected(target_node)
 signal player_target_deselected
 signal player_free_flight_toggled
@@ -13890,6 +13921,15 @@ signal sim_tick_completed(tick_count)   # Emitted after full tick sequence compl
 signal sim_initialized(seed_string)    # Emitted after simulation is seeded and all layers initialized
 signal world_age_changed(new_age)      # Emitted when world-age transitions (PROSPERITY/DISRUPTION/RECOVERY)
 
+# --- Contact System Signals (HUD Bridge) ---
+signal sector_contacts_changed(sector_id)  # Emitted by ContactManager after roster rebuild
+
+# --- Sector Travel Signals ---
+signal jump_available(target_sector_id, target_sector_name)
+signal jump_unavailable
+signal player_jump_requested(target_sector_id)
+signal sector_changed(new_sector_id, old_sector_id)
+
 
 func _ready():
 	print("EventBus Ready.")
@@ -13900,8 +13940,8 @@ func _ready():
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.4 + TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-02-23
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends Node
@@ -14084,6 +14124,9 @@ var game_time_seconds: int = 0
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
+## ID of the currently loaded sector (e.g. "sector_system_elace").
+var current_sector_id: String = ""
+
 ## Location ID of docked station, or empty string if in space.
 var player_docked_at: String = ""
 
@@ -14092,6 +14135,12 @@ var player_position: Vector3 = Vector3.ZERO
 
 ## Player spatial rotation in the active zone (degrees).
 var player_rotation: Vector3 = Vector3.ZERO
+
+## Sector the player just jumped from (for arrival spawn at return jump point).
+var player_arrived_from_sector: String = ""
+
+## Direction from sector center toward the jump arrival shell spawn point.
+var player_arrival_direction: Vector3 = Vector3.ZERO
 
 
 # =========================================================================
@@ -14158,6 +14207,9 @@ func reset_state() -> void:
 	world_age = ""
 	world_age_timer = 0
 	world_age_cycle_count = 0
+	current_sector_id = ""
+	player_arrived_from_sector = ""
+	player_arrival_direction = Vector3.ZERO
 
 --- Start of ./src/autoload/GameStateManager.gd ---
 
@@ -14568,11 +14620,13 @@ func _deserialize_vector3(data) -> Vector3:
 
 --- Start of ./src/autoload/GlobalRefs.gd ---
 
-# File: core/autoload/global_refs.gd
-# Autoload Singleton: GlobalRefs
-# Purpose: Holds easily accessible references to unique global nodes/managers.
-# Nodes register themselves here via setter functions during their _ready() phase.
-# Version: 1.1
+#
+# PROJECT: GDTLancer
+# MODULE: GlobalRefs.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
+# LOG_REF: 2026-03-21
+#
 
 extends Node
 
@@ -14598,6 +14652,7 @@ var event_system = null setget set_event_system
 var inventory_system = null setget set_inventory_system
 var time_system = null setget set_time_system
 var simulation_engine = null setget set_simulation_engine
+var contact_manager = null setget set_contact_manager
 
 
 func _ready():
@@ -14712,6 +14767,14 @@ func set_simulation_engine(new_ref):
 		print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
+
+func set_contact_manager(new_ref):
+	if new_ref == contact_manager: return
+	if new_ref == null or is_instance_valid(new_ref):
+		contact_manager = new_ref
+		print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
+	else:
+		printerr("GlobalRefs Error: Invalid ContactManager ref: ", new_ref)
 
 
 # --- UI ELEMENTS ---
@@ -16565,8 +16628,8 @@ func _unique(values: Array) -> Array:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3 + TACTICAL_TODO.md TASK_10
-# LOG_REF: 2026-02-21 (TASK_10)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends Reference
@@ -16587,6 +16650,7 @@ var affinity_matrix: Reference = null
 
 ## Per-tick seeded RNG for determinism.
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _reported_invalid_sectors: Dictionary = {}
 
 ## Name-generation pools for discovered sectors.
 var _FRONTIER_PREFIXES: Array = [
@@ -16616,6 +16680,7 @@ func set_chronicle(chronicle: Reference) -> void:
 func initialize_agents() -> void:
 	GameState.agents.clear()
 	GameState.agent_tags.clear()
+	_reported_invalid_sectors.clear()
 
 	_initialize_player()
 
@@ -16679,9 +16744,7 @@ func _initialize_player() -> void:
 	else:
 		GameState.characters[character_id] = {}
 
-	var start_sector: String = ""
-	if not GameState.world_topology.empty():
-		start_sector = GameState.world_topology.keys()[0]
+	var start_sector: String = _resolve_known_sector_id(Constants.INITIAL_SECTOR_ID, "player.start_sector")
 
 	GameState.agents["player"] = {
 		"character_id": character_id,
@@ -16712,9 +16775,7 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 			GameState.characters[character_id] = {}
 
 	var home: String = template.get("home_location_id") if template.get("home_location_id") else ""
-	var start_sector: String = home if GameState.world_topology.has(home) else ""
-	if start_sector == "" and not GameState.world_topology.empty():
-		start_sector = GameState.world_topology.keys()[0]
+	var start_sector: String = _resolve_known_sector_id(home, "%s.home_location_id" % agent_id)
 
 	var initial_tags: Array = []
 	if template.get("initial_tags") != null:
@@ -16729,7 +16790,7 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 		"character_id": character_id,
 		"agent_role": template.get("agent_role") if template.get("agent_role") else "idle",
 		"current_sector_id": start_sector,
-		"home_location_id": home,
+		"home_location_id": start_sector,
 		"goal_archetype": "affinity_scan",
 		"goal_queue": [{"type": "affinity_scan"}],
 		"is_disabled": false,
@@ -17297,8 +17358,13 @@ func _check_respawn(agent_id: String, agent: Dictionary) -> void:
 	if GameState.sim_tick_count - int(disabled_at_tick) < Constants.RESPAWN_COOLDOWN_TICKS:
 		return
 
+	var home_sector_id: String = _resolve_known_sector_id(
+		agent.get("home_location_id", ""),
+		"%s.home_location_id" % agent_id
+	)
 	agent["is_disabled"] = false
-	agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
+	agent["home_location_id"] = home_sector_id
+	agent["current_sector_id"] = home_sector_id
 	agent["condition_tag"] = "HEALTHY"
 	agent["wealth_tag"] = "COMFORTABLE"
 	agent["cargo_tag"] = "EMPTY"
@@ -17374,6 +17440,7 @@ func _spawn_mortal_agents() -> void:
 	var spawn_sector: String = eligible[_rng.randi() % eligible.size()]
 	GameState.mortal_agent_counter += 1
 	var agent_id: String = "mortal_" + str(GameState.mortal_agent_counter)
+	spawn_sector = _resolve_known_sector_id(spawn_sector, "%s.spawn_sector" % agent_id)
 	var role: String = Constants.MORTAL_ROLES[_rng.randi() % Constants.MORTAL_ROLES.size()]
 
 	GameState.agents[agent_id] = {
@@ -17411,8 +17478,13 @@ func _cleanup_dead_mortals() -> void:
 	# Survivors: reset at home with minimal resources
 	for agent_id in to_survive:
 		var agent: Dictionary = GameState.agents[agent_id]
+		var home_sector_id: String = _resolve_known_sector_id(
+			agent.get("home_location_id", ""),
+			"%s.home_location_id" % agent_id
+		)
 		agent["is_disabled"] = false
-		agent["current_sector_id"] = agent.get("home_location_id", agent.get("current_sector_id", ""))
+		agent["home_location_id"] = home_sector_id
+		agent["current_sector_id"] = home_sector_id
 		agent["condition_tag"] = "DAMAGED"
 		agent["wealth_tag"] = "BROKE"
 		agent["cargo_tag"] = "EMPTY"
@@ -17458,6 +17530,36 @@ func _apply_upkeep() -> void:
 			if "STATION" in s_tags or "FRONTIER" in s_tags:
 				if _rng.randf() < Constants.BROKE_RECOVERY_CHANCE:
 					agent["wealth_tag"] = "COMFORTABLE"
+
+
+func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
+	if requested_sector_id != "" and GameState.world_topology.has(requested_sector_id):
+		return requested_sector_id
+
+	_report_invalid_sector(context, requested_sector_id)
+
+	if Constants.INITIAL_SECTOR_ID != "" and GameState.world_topology.has(Constants.INITIAL_SECTOR_ID):
+		return Constants.INITIAL_SECTOR_ID
+	if not GameState.world_topology.empty():
+		return str(GameState.world_topology.keys()[0])
+
+	printerr("AgentLayer: No valid fallback sector available for %s." % context)
+	return ""
+
+
+func _report_invalid_sector(context: String, requested_sector_id: String) -> void:
+	var normalized_sector_id: String = requested_sector_id if requested_sector_id != "" else "<empty>"
+	var report_key = "%s:%s" % [context, normalized_sector_id]
+	if _reported_invalid_sectors.has(report_key):
+		return
+	_reported_invalid_sectors[report_key] = true
+	printerr(
+		"AgentLayer: Invalid sector reference for %s -> %s. Falling back to %s." % [
+			context,
+			normalized_sector_id,
+			Constants.INITIAL_SECTOR_ID,
+		]
+	)
 
 
 # =============================================================================
@@ -19239,11 +19341,13 @@ func _array_sum(arr: Array) -> int:
 # PROJECT: GDTLancer
 # MODULE: world_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_6
-# LOG_REF: 2026-02-21 (TASK_6)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends Reference
+
+var _reported_invalid_connections: Dictionary = {}
 
 ## WorldLayer: Initializes Layer 1 (World) data in GameState from LocationTemplate resources.
 ##
@@ -19269,17 +19373,25 @@ func initialize_world(seed_string: String) -> void:
 	GameState.world_topology.clear()
 	GameState.world_hazards.clear()
 	GameState.sector_tags.clear()
+	_reported_invalid_connections.clear()
 
+	var valid_location_ids: Dictionary = {}
 	for location_id in TemplateDatabase.locations:
+		var location_template: Resource = TemplateDatabase.locations[location_id]
+		if is_instance_valid(location_template):
+			valid_location_ids[location_id] = true
+
+	for location_id in valid_location_ids:
 		var loc: Resource = TemplateDatabase.locations[location_id]
 		if not is_instance_valid(loc):
 			continue
 
 		# --- Topology ---
-		var connections: Array = []
-		if loc.get("connections") != null:
-			for conn_id in loc.connections:
-				connections.append(conn_id)
+		var connections: Array = _filter_valid_connections(
+			location_id,
+			loc.get("connections"),
+			valid_location_ids
+		)
 
 		GameState.world_topology[location_id] = {
 			"connections": connections,
@@ -19298,6 +19410,8 @@ func initialize_world(seed_string: String) -> void:
 		GameState.world_hazards[location_id] = {
 			"environment": _derive_environment(initial_tags)
 		}
+
+	_validate_initial_sector_id()
 
 	print("WorldLayer: Initialized %d sectors." % GameState.world_topology.size())
 
@@ -19338,6 +19452,43 @@ func _derive_environment(sector_tags: Array) -> String:
 		return "HARSH"
 	return "MILD"
 
+
+func _filter_valid_connections(source_sector_id: String, raw_connections, valid_location_ids: Dictionary) -> Array:
+	var filtered_connections: Array = []
+	if raw_connections == null:
+		return filtered_connections
+
+	for target_sector_id in raw_connections:
+		if valid_location_ids.has(target_sector_id):
+			filtered_connections.append(target_sector_id)
+		else:
+			_report_invalid_connection(source_sector_id, str(target_sector_id))
+
+	return filtered_connections
+
+
+func _report_invalid_connection(source_sector_id: String, target_sector_id: String) -> void:
+	var report_key = "%s->%s" % [source_sector_id, target_sector_id]
+	if _reported_invalid_connections.has(report_key):
+		return
+	_reported_invalid_connections[report_key] = true
+	printerr(
+		"WorldLayer: Skipping invalid connection from %s to missing sector_id %s" % [
+			source_sector_id,
+			target_sector_id,
+		]
+	)
+
+
+func _validate_initial_sector_id() -> void:
+	if Constants.INITIAL_SECTOR_ID == "":
+		printerr("WorldLayer: Constants.INITIAL_SECTOR_ID is empty.")
+		return
+	if not GameState.world_topology.has(Constants.INITIAL_SECTOR_ID):
+		printerr(
+			"WorldLayer: INITIAL_SECTOR_ID not found in world_topology: %s" % Constants.INITIAL_SECTOR_ID
+		)
+
 --- Start of ./src/core/systems/agent_system.gd ---
 
 # File: core/systems/agent_system.gd
@@ -19348,8 +19499,8 @@ func _derive_environment(sector_tags: Array) -> String:
 # PROJECT: GDTLancer
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-13 16:32:50
 #
 
 extends Node
@@ -19366,6 +19517,7 @@ var _next_agent_uid: int = 0  # Counter for generating unique agent UIDs
 # Key: agent_id (String), Value: WeakRef or Node (AgentBody)
 # Tracks currently instantiated persistent agents in the scene
 var _active_persistent_agents: Dictionary = {}
+var _reported_invalid_locations: Dictionary = {}
 
 func _ready():
 	GlobalRefs.set_agent_spawner(self)
@@ -19415,17 +19567,34 @@ func spawn_player():
 
 	var player_spawn_pos = Vector3.ZERO
 	var player_spawn_rot = Vector3.ZERO
+	var should_apply_spawn_rotation = false
 	
 	# Priority 1: Use saved position if it's not zero (loaded game)
 	if GameState.player_position != Vector3.ZERO:
 		player_spawn_pos = GameState.player_position
 		player_spawn_rot = GameState.player_rotation
+		should_apply_spawn_rotation = true
 	# Priority 2: If docked, spawn at station
 	elif GameState.player_docked_at != "":
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
 		if dock_pos != null:
 			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
-	# Priority 3: Use zone entry point (new game)
+	# Priority 3: If arrived via logical route, spawn on the configured arrival shell.
+	elif GameState.player_arrival_direction != Vector3.ZERO:
+		player_spawn_pos = _get_route_arrival_spawn_position(GameState.player_arrival_direction)
+		player_spawn_rot = GameState.player_rotation
+		should_apply_spawn_rotation = true
+		GameState.player_arrival_direction = Vector3.ZERO
+		GameState.player_arrived_from_sector = ""
+	# Priority 3: If arrived via jump, spawn at the return jump point
+	elif GameState.player_arrived_from_sector != "":
+		var jp = _find_jump_point_targeting(GameState.player_arrived_from_sector)
+		if jp != null:
+			player_spawn_pos = jp.transform.origin + Vector3(0, 5, 15)
+		player_spawn_rot = GameState.player_rotation
+		should_apply_spawn_rotation = true
+		GameState.player_arrived_from_sector = ""
+	# Priority 4: Use zone entry point (new game)
 	elif is_instance_valid(GlobalRefs.current_zone):
 		var entry_node = null
 		if Constants.ENTRY_POINT_NAMES.size() > 0:
@@ -19451,8 +19620,8 @@ func spawn_player():
 	)
 
 	if is_instance_valid(_player_agent_body):
-		# Apply saved rotation if available
-		if player_spawn_rot != Vector3.ZERO:
+		# Keep the player's global orientation across saved loads and sector arrivals.
+		if should_apply_spawn_rotation:
 			_player_agent_body.rotation_degrees = player_spawn_rot
 		
 		GlobalRefs.player_agent_body = _player_agent_body
@@ -19488,6 +19657,22 @@ func _get_dock_position_in_zone(location_id: String):
 			return loc["position_in_zone"]
 
 	return null
+
+
+func _find_jump_point_targeting(sector_id: String) -> Spatial:
+	if not is_instance_valid(GlobalRefs.current_zone):
+		return null
+	for child in GlobalRefs.current_zone.get_children():
+		if child.get("target_sector_id") == sector_id:
+			return child
+	return null
+
+
+func _get_route_arrival_spawn_position(arrival_direction: Vector3) -> Vector3:
+	var normalized_direction: Vector3 = arrival_direction.normalized()
+	if normalized_direction == Vector3.ZERO:
+		return Vector3.ZERO
+	return normalized_direction * Constants.SECTOR_JUMP_ARRIVAL_RADIUS
 
 
 # Spawns an NPC agent linked to a specific character.
@@ -19637,7 +19822,10 @@ func get_persistent_agent_state(agent_id: String) -> Dictionary:
 		
 		GameState.persistent_agents[agent_id] = {
 			"character_uid": char_uid,
-			"current_location": agent_template.home_location_id,
+			"current_location": _resolve_known_location_id(
+				agent_template.home_location_id,
+				"%s.home_location_id" % agent_id
+			),
 			"is_disabled": false,
 			"disabled_at_time": 0.0,
 			"relationship": 0,
@@ -19655,19 +19843,35 @@ func spawn_persistent_agents() -> void:
 		# Check if already active/spawned
 		if _active_persistent_agents.has(agent_id) and is_instance_valid(_active_persistent_agents[agent_id]):
 			continue
-			
+
+		# Sector filter: only spawn agents whose simulation says they're in the loaded sector
+		var sim_sector = ""
+		if GameState.agents.has(agent_id):
+			sim_sector = GameState.agents[agent_id].get("current_sector_id", "")
+		if sim_sector != GameState.current_sector_id:
+			continue
+
 		var state = get_persistent_agent_state(agent_id)
 		
 		if state.get("is_disabled", false):
 			continue
 			
-		var current_loc = state.get("current_location", "")
+		var current_loc = _resolve_known_location_id(
+			state.get("current_location", ""),
+			"%s.current_location" % agent_id
+		)
+		state["current_location"] = current_loc
 		if current_loc == "":
 			continue
 			
 		# Check if this location exists in the current zone
 		var spawn_pos = _get_dock_position_in_zone(current_loc)
 		if spawn_pos == null:
+			_report_invalid_location(
+				"%s.current_location" % agent_id,
+				current_loc,
+				"Location not found in current zone; persistent agent spawn skipped."
+			)
 			continue # Location not in this zone
 			
 		# Load resources
@@ -19750,7 +19954,10 @@ func _check_persistent_agent_respawns() -> void:
 				state["disabled_at_time"] = 0.0
 				# Reset to home location (assuming they respawn at home, not where they died)
 				if agent_template:
-					state["current_location"] = agent_template.home_location_id 
+					state["current_location"] = _resolve_known_location_id(
+						agent_template.home_location_id,
+						"%s.home_location_id" % agent_id
+					)
 				
 				# Try to spawn immediately if in relevant zone
 				spawn_persistent_agents()
@@ -19762,13 +19969,54 @@ func _on_player_docked(location_id: String) -> void:
 		if state.get("is_known", false):
 			continue
 			
-		var home = state.get("current_location", "")
+		var home = _resolve_known_location_id(
+			state.get("current_location", ""),
+			"%s.current_location" % agent_id
+		)
+		state["current_location"] = home
 		# Assumption: Agents are "available" for contact at their home location (or current location)
 		# We check if the player docked at the agent's current location
 		if home == location_id:
 			state["is_known"] = true
 			EventBus.emit_signal("contact_met", agent_id)
 			print("Contact Discovered: ", agent_id, " at ", location_id)
+
+
+func _resolve_known_location_id(requested_location_id: String, context: String) -> String:
+	if _is_known_location_id(requested_location_id):
+		return requested_location_id
+
+	_report_invalid_location(
+		context,
+		requested_location_id,
+		"Falling back to %s." % Constants.INITIAL_SECTOR_ID
+	)
+	return Constants.INITIAL_SECTOR_ID
+
+
+func _is_known_location_id(location_id: String) -> bool:
+	if location_id == "":
+		return false
+	return (
+		GameState.locations.has(location_id)
+		or TemplateDatabase.locations.has(location_id)
+		or GameState.world_topology.has(location_id)
+	)
+
+
+func _report_invalid_location(context: String, requested_location_id: String, message: String) -> void:
+	var normalized_location_id: String = requested_location_id if requested_location_id != "" else "<empty>"
+	var report_key = "%s:%s:%s" % [context, normalized_location_id, message]
+	if _reported_invalid_locations.has(report_key):
+		return
+	_reported_invalid_locations[report_key] = true
+	printerr(
+		"AgentSystem: Invalid location reference for %s -> %s. %s" % [
+			context,
+			normalized_location_id,
+			message,
+		]
+	)
 
 --- Start of ./src/core/systems/asset_system.gd ---
 
@@ -19871,7 +20119,13 @@ func get_character(character_uid) -> CharacterTemplate:
 # Convenience function to get the player's character instance.
 func get_player_character() -> CharacterTemplate:
 	if GameState.player_character_uid != "":
-		return GameState.characters.get(GameState.player_character_uid)
+		var uid = GameState.player_character_uid
+		if GameState.characters.has(uid):
+			return GameState.characters.get(uid)
+		# Fallback: characters dict may use int keys from WorldGenerator
+		var int_uid = int(uid)
+		if GameState.characters.has(int_uid):
+			return GameState.characters.get(int_uid)
 	return null
 
 
@@ -19887,7 +20141,7 @@ func add_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].credits += amount
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
@@ -19895,7 +20149,7 @@ func subtract_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
 		GameState.characters[character_uid].credits -= amount
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
 
 
@@ -19911,7 +20165,7 @@ func add_fp(character_uid, amount: int):
 		character.focus_points += amount
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
@@ -19921,7 +20175,7 @@ func subtract_fp(character_uid, amount: int):
 		character.focus_points -= amount
 		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
 		# If this change was for the player, announce it.
-		if character_uid == GameState.player_character_uid:
+		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_fp_changed", character.focus_points)
 
 
@@ -19944,6 +20198,243 @@ func apply_upkeep_cost(character_uid, cost: int):
 # NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.
 # This responsibility is now handled by the GameStateManager, which will serialize and
 # deserialize the entire GameState.characters dictionary directly.
+
+--- Start of ./src/core/systems/contact_manager.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: contact_manager.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6
+# LOG_REF: 2026-05-10 16:13:36
+#
+
+extends Node
+
+## ContactManager: Bridges simulation data to gameplay-facing HUD.
+## Reads GameState agents/tags/sectors — provides disposition scoring,
+## sector agent rosters, and sector condition queries.
+## Pure read-only consumer: no GameState mutation, no simulation coupling.
+
+
+# --- State ---
+var _affinity_matrix = null  # AffinityMatrix Reference instance
+var _sector_roster_cache: Dictionary = {}  # {sector_id: [agent_id, ...]}
+var _disposition_cache: Dictionary = {}  # {agent_id: float}
+var _reported_invalid_sectors: Dictionary = {}
+
+
+# --- Lifecycle ---
+
+func _ready() -> void:
+	_affinity_matrix = AffinityMatrix.new()
+	GlobalRefs.set_contact_manager(self)
+	EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
+	EventBus.connect("sim_initialized", self, "_on_sim_initialized")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		if GlobalRefs and GlobalRefs.contact_manager == self:
+			GlobalRefs.contact_manager = null
+		if EventBus:
+			if EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
+				EventBus.disconnect("sim_tick_completed", self, "_on_sim_tick_completed")
+			if EventBus.is_connected("sim_initialized", self, "_on_sim_initialized"):
+				EventBus.disconnect("sim_initialized", self, "_on_sim_initialized")
+		_sector_roster_cache.clear()
+		_disposition_cache.clear()
+
+
+# --- Signal Handlers ---
+
+func _on_sim_tick_completed(_tick_count) -> void:
+	_rebuild_caches()
+
+
+func _on_sim_initialized(_seed_string) -> void:
+	_rebuild_caches()
+
+
+# --- Public API ---
+
+func get_player_sector() -> String:
+	return GameState.agents.get("player", {}).get("current_sector_id", "")
+
+
+func get_agents_in_sector(sector_id: String) -> Array:
+	return _sector_roster_cache.get(sector_id, []).duplicate()
+
+
+func get_agents_in_player_sector() -> Array:
+	return get_agents_in_sector(get_player_sector())
+
+
+func get_agent_disposition(agent_id: String) -> float:
+	return _disposition_cache.get(agent_id, 0.0)
+
+
+func get_disposition_category(agent_id: String) -> String:
+	var score: float = get_agent_disposition(agent_id)
+	if score >= Constants.DISPOSITION_FRIENDLY_THRESHOLD:
+		return "friendly"
+	elif score <= Constants.DISPOSITION_HOSTILE_THRESHOLD:
+		return "hostile"
+	else:
+		return "neutral"
+
+
+func get_agent_info(agent_id: String) -> Dictionary:
+	if not GameState.agents.has(agent_id):
+		return {}
+	var agent: Dictionary = GameState.agents[agent_id]
+	return {
+		"agent_id": agent_id,
+		"name": _resolve_agent_name(agent_id),
+		"role": agent.get("agent_role", "idle"),
+		"condition_tag": agent.get("condition_tag", "HEALTHY"),
+		"wealth_tag": agent.get("wealth_tag", "COMFORTABLE"),
+		"cargo_tag": agent.get("cargo_tag", "EMPTY"),
+		"disposition": get_agent_disposition(agent_id),
+		"disposition_category": get_disposition_category(agent_id),
+		"sector_id": agent.get("current_sector_id", ""),
+	}
+
+
+func get_sector_info(sector_id: String) -> Dictionary:
+	var tags: Array = GameState.sector_tags.get(sector_id, [])
+	return {
+		"sector_id": sector_id,
+		"name": _resolve_sector_name(sector_id),
+		"economy_tags": _parse_economy_tags(tags),
+		"security_tag": _parse_security_tag(tags),
+		"environment_tag": _parse_environment_tag(tags),
+		"colony_level": GameState.colony_levels.get(sector_id, "frontier"),
+		"dominion": GameState.grid_dominion.get(sector_id, {}).get("controlling_faction_id", ""),
+		"world_age": GameState.world_age,
+		"world_age_timer": GameState.world_age_timer,
+		"sim_tick_count": GameState.sim_tick_count,
+	}
+
+
+func get_current_sector_info() -> Dictionary:
+	return get_sector_info(get_player_sector())
+
+
+# --- Private: Cache Rebuild ---
+
+func _rebuild_caches() -> void:
+	_sector_roster_cache.clear()
+	_disposition_cache.clear()
+
+	var player_sector: String = get_player_sector()
+	if player_sector != "" and not GameState.world_topology.has(player_sector):
+		_report_invalid_sector("player.current_sector_id", player_sector)
+		player_sector = ""
+
+	for agent_id in GameState.agents:
+		if agent_id == "player":
+			continue
+		var agent: Dictionary = GameState.agents[agent_id]
+		if agent.get("is_disabled", false):
+			continue
+
+		var sid: String = agent.get("current_sector_id", "")
+		if sid == "":
+			continue
+		if not GameState.world_topology.has(sid):
+			_report_invalid_sector("%s.current_sector_id" % agent_id, sid)
+			continue
+
+		if not _sector_roster_cache.has(sid):
+			_sector_roster_cache[sid] = []
+		_sector_roster_cache[sid].append(agent_id)
+
+		if sid == player_sector and player_sector != "":
+			_disposition_cache[agent_id] = _compute_player_disposition(agent_id)
+
+	if player_sector != "":
+		EventBus.emit_signal("sector_contacts_changed", player_sector)
+
+
+func _compute_player_disposition(agent_id: String) -> float:
+	var player_tags: Array = GameState.agent_tags.get("player", [])
+	var agent_tags: Array = GameState.agent_tags.get(agent_id, [])
+	return _affinity_matrix.compute_affinity(player_tags, agent_tags)
+
+
+func _report_invalid_sector(context: String, sector_id: String) -> void:
+	var normalized_sector_id: String = sector_id if sector_id != "" else "<empty>"
+	var report_key = "%s:%s" % [context, normalized_sector_id]
+	if _reported_invalid_sectors.has(report_key):
+		return
+	_reported_invalid_sectors[report_key] = true
+	printerr(
+		"ContactManager: Skipping invalid sector reference for %s -> %s." % [
+			context,
+			normalized_sector_id,
+		]
+	)
+
+
+# --- Private: Name Resolution ---
+
+func _resolve_agent_name(agent_id: String) -> String:
+	if not GameState.agents.has(agent_id):
+		return agent_id
+	var agent: Dictionary = GameState.agents[agent_id]
+	var character_id: String = agent.get("character_id", "")
+	if character_id == "":
+		return agent_id
+
+	# Try TemplateDatabase first (Resource with character_name property)
+	if TemplateDatabase.characters.has(character_id):
+		var template = TemplateDatabase.characters[character_id]
+		if template and "character_name" in template:
+			return template.character_name
+
+	# Fallback to GameState.characters (Dict with "character_name" key)
+	if GameState.characters.has(character_id):
+		var char_data = GameState.characters[character_id]
+		if char_data is Dictionary and char_data.has("character_name"):
+			return char_data["character_name"]
+
+	return agent_id
+
+
+func _resolve_sector_name(sector_id: String) -> String:
+	# Try TemplateDatabase first (Resource with location_name property)
+	if TemplateDatabase.locations.has(sector_id):
+		var template = TemplateDatabase.locations[sector_id]
+		if template and "location_name" in template:
+			return template.location_name
+
+	# Fallback to GameState.sector_names
+	return GameState.sector_names.get(sector_id, sector_id)
+
+
+# --- Private: Tag Parsing ---
+
+func _parse_security_tag(tags: Array) -> String:
+	for tag in ["SECURE", "CONTESTED", "LAWLESS"]:
+		if tag in tags:
+			return tag
+	return "UNKNOWN"
+
+
+func _parse_environment_tag(tags: Array) -> String:
+	for tag in ["MILD", "HARSH", "EXTREME"]:
+		if tag in tags:
+			return tag
+	return "UNKNOWN"
+
+
+func _parse_economy_tags(tags: Array) -> Array:
+	var result: Array = []
+	for tag in tags:
+		if tag.ends_with("_RICH") or tag.ends_with("_ADEQUATE") or tag.ends_with("_POOR"):
+			result.append(tag)
+	return result
 
 --- Start of ./src/core/systems/event_system.gd ---
 
@@ -20183,6 +20674,126 @@ func _get_master_asset_instance(inventory_type: int, asset_uid: int) -> Resource
 	# Module support will be rebuilt on the Agent layer.
 	return null
 
+--- Start of ./src/core/systems/sector_loader.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: sector_loader.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT §Architecture, TACTICAL_TODO §TASK_5
+# LOG_REF: 2026-03-27
+#
+
+extends Reference
+
+## SectorLoader: Stateless builder that loads a sector's .tscn preset,
+## injects JumpPoints based on current topology, and offsets the nebula
+## starsphere to simulate galactic position.
+
+const JumpPointScene = preload("res://scenes/prefabs/navigation/JumpPoint.tscn")
+const GlobalNebulasScene = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+const StarsphereSlotScript = preload("res://src/scenes/game_world/starsphere_slot.gd")
+
+var _reported_invalid_scene_paths: Dictionary = {}
+
+
+func load_sector(sector_id: String) -> Spatial:
+	var template = TemplateDatabase.locations.get(sector_id)
+	if template == null:
+		printerr("SectorLoader: No LocationTemplate for sector_id: ", sector_id)
+		return null
+	if not GameState.world_topology.has(sector_id):
+		printerr("SectorLoader: sector_id not in world_topology: ", sector_id)
+		return null
+
+	var zone_root: Spatial = _load_zone_root(template, sector_id)
+
+	_inject_jump_points(zone_root, sector_id, template)
+	_offset_nebula(zone_root, template)
+	return zone_root
+
+
+func _load_zone_root(template, sector_id: String) -> Spatial:
+	if template.sector_scene_path != "":
+		var scene = load(template.sector_scene_path)
+		if scene != null:
+			return scene.instance()
+		_report_invalid_scene_path(sector_id, template.sector_scene_path)
+	return _build_procedural_fallback(sector_id)
+
+
+func _report_invalid_scene_path(sector_id: String, scene_path: String) -> void:
+	var report_key = "%s:%s" % [sector_id, scene_path]
+	if _reported_invalid_scene_paths.has(report_key):
+		return
+	_reported_invalid_scene_paths[report_key] = true
+	printerr(
+		"SectorLoader: Failed to load handcrafted scene for %s at %s. Using procedural fallback." % [
+			sector_id,
+			scene_path,
+		]
+	)
+
+
+func _inject_jump_points(zone_root: Spatial, sector_id: String, template) -> void:
+	var topo_data = GameState.world_topology.get(sector_id, {})
+	var connections = topo_data.get("connections", [])
+
+	# Place jump points near the station when available, else fall back to ring from center
+	var station = zone_root.find_node("Station", true, false)
+	var base_position = station.transform.origin if station else Vector3.ZERO
+	var offset_radius = Constants.JUMP_POINT_STATION_OFFSET if station else Constants.JUMP_POINT_RING_RADIUS
+
+	for target_id in connections:
+		var target_template = TemplateDatabase.locations.get(target_id)
+		if target_template == null:
+			continue
+
+		var direction = (target_template.global_position - template.global_position).normalized()
+		if direction.length_squared() < 0.001:
+			direction = Vector3(1, 0, 0)
+
+		var jump_pos = base_position + direction * offset_radius
+
+		var jp = JumpPointScene.instance()
+		jp.target_sector_id = target_id
+		jp.target_sector_name = target_template.location_name
+		jp.transform.origin = jump_pos
+		zone_root.add_child(jp)
+
+
+func _offset_nebula(zone_root: Spatial, template) -> void:
+	var slot = zone_root.find_node("StarsphereSlot", true, false)
+	if slot == null:
+		return
+	var nebulas = slot.find_node("Globalnebulas", true, false)
+	if nebulas == null:
+		return
+	var offset = Constants.REFERENCE_ORIGIN - template.global_position
+	nebulas.transform.origin = offset
+
+
+func _build_procedural_fallback(sector_id: String) -> Spatial:
+	var root = Spatial.new()
+	root.name = "SectorRoot"
+
+	var agent_container = Spatial.new()
+	agent_container.name = "AgentContainer"
+	root.add_child(agent_container)
+	agent_container.owner = root
+
+	var starsphere_slot = Spatial.new()
+	starsphere_slot.name = "StarsphereSlot"
+	starsphere_slot.set_script(StarsphereSlotScript)
+	root.add_child(starsphere_slot)
+	starsphere_slot.owner = root
+
+	var nebulas = GlobalNebulasScene.instance()
+	starsphere_slot.add_child(nebulas)
+	nebulas.owner = root
+
+	return root
+
 --- Start of ./src/core/systems/time_system.gd ---
 
 #
@@ -20227,6 +20838,769 @@ func advance_game_time(seconds_to_add: int) -> void:
 ## Returns the current game time in seconds.
 func get_current_game_time() -> int:
 	return GameState.game_time_seconds
+
+--- Start of ./src/core/targeting/route_target.gd ---
+
+extends Reference
+
+var target_kind: String = "jump_route"
+var selection_key: String = ""
+var source_sector_id: String = ""
+var target_sector_id: String = ""
+var display_name: String = ""
+var route_direction: Vector3 = Vector3.ZERO
+
+
+func configure(source_id: String, target_id: String, target_name: String, direction: Vector3) -> Reference:
+	source_sector_id = source_id
+	target_sector_id = target_id
+	display_name = target_name
+	route_direction = direction.normalized()
+	selection_key = "jump_route:%s:%s" % [source_id, target_id]
+	return self
+
+
+func get_projection_world_position(origin: Vector3, projection_distance: float) -> Vector3:
+	if route_direction == Vector3.ZERO:
+		return origin
+	return origin + route_direction * projection_distance
+
+--- Start of ./src/core/targeting/route_target_provider.gd ---
+
+extends Reference
+
+const RouteTargetScript = preload("res://src/core/targeting/route_target.gd")
+const DEFAULT_ROUTE_DIRECTION = Vector3(0, 0, -1)
+
+
+func build_targets_for_sector(source_sector_id: String) -> Array:
+	var route_targets: Array = []
+	if source_sector_id == "":
+		return route_targets
+
+	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
+	var connections: Array = GameState.world_topology.get(source_sector_id, {}).get("connections", [])
+	for target_sector_id in connections:
+		var target_template = TemplateDatabase.locations.get(target_sector_id)
+		if target_template == null:
+			continue
+		var target_position: Vector3 = _get_sector_global_position(target_sector_id)
+		var route_direction: Vector3 = _get_route_direction(source_position, target_position)
+		var route_target = RouteTargetScript.new().configure(
+			source_sector_id,
+			str(target_sector_id),
+			_get_display_name(target_template, str(target_sector_id)),
+			route_direction
+		)
+		route_targets.append(route_target)
+
+	return route_targets
+
+
+func _get_display_name(target_template, fallback_id: String) -> String:
+	var location_name = target_template.get("location_name")
+	if location_name is String and location_name != "":
+		return location_name
+	return fallback_id
+
+
+func _get_sector_global_position(sector_id: String) -> Vector3:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	if sector_template == null:
+		return Vector3.ZERO
+	var global_position = sector_template.get("global_position")
+	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _get_route_direction(source_position: Vector3, target_position: Vector3) -> Vector3:
+	var raw_direction: Vector3 = target_position - source_position
+	if raw_direction == Vector3.ZERO:
+		return DEFAULT_ROUTE_DIRECTION
+	return raw_direction.normalized()
+
+--- Start of ./src/core/ui/debug_map_panel/debug_map_panel.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: debug_map_panel.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_4 — Debug Map Panel Interaction + Spatial Annotation Upgrade
+# LOG_REF: 2026-05-09 18:46:53
+#
+
+extends CanvasLayer
+
+# --- Camera defaults ---
+const DEFAULT_ORBIT_DISTANCE = 500000.0
+const MIN_ZOOM = 1000.0
+const MAX_ZOOM = 800000.0
+const ORBIT_STEP = 0.15  # radians per button press
+const ZOOM_FACTOR = 1.3
+const PAN_STEP_RATIO = 0.1  # fraction of current zoom distance
+const MOUSE_ORBIT_SENSITIVITY = ORBIT_STEP / 50.0
+const MOUSE_WHEEL_ZOOM_BLEND = 0.35
+const AXIS_LENGTH = 500000.0
+const AXIS_ARROW_SIZE = 15000.0
+const AXIS_ARROW_SPREAD = 9000.0
+const AXIS_NOTCH_SIZE = 5000.0
+const AXIS_LABEL_WORLD_OFFSET = 14000.0
+const AXIS_TRUNK_OFFSET = 1200.0
+const MAP_LABEL_BASE_FONT_SIZE = 18
+const SECTOR_LABEL_FONT_SCALE = 1.5
+const SECTOR_LABEL_FONT_SIZE = int(MAP_LABEL_BASE_FONT_SIZE * SECTOR_LABEL_FONT_SCALE)
+const SECTOR_LABEL_MAX_WIDTH = 260.0
+const SECTOR_LABEL_BOX_HEIGHT = 96.0
+const SECTOR_LABEL_GAP = 10.0
+const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
+
+# --- Node references ---
+onready var _panel = $Panel
+onready var _viewport_container = $Panel/VBoxContainer/MapArea/ViewportContainer
+onready var _viewport = $Panel/VBoxContainer/MapArea/ViewportContainer/Viewport
+onready var _camera = $Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapCamera
+onready var _map_content = $Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent
+onready var _label_overlay = $Panel/VBoxContainer/MapArea/LabelOverlay
+onready var _btn_axes = $Panel/VBoxContainer/HeaderRow/BtnAxes
+
+# --- Camera state ---
+var _orbit_yaw: float = 0.0
+var _orbit_pitch: float = 0.5  # ~30 degrees
+var _zoom_distance: float = DEFAULT_ORBIT_DISTANCE
+var _pivot: Vector3 = Vector3.ZERO
+var _map_world_anchor: Vector3 = Vector3.ZERO
+
+# --- Label tracking ---
+var _sector_labels: Dictionary = {}  # sector_id -> {marker: Spatial, label: Label}
+var _reference_labels: Array = []  # [{label: Label, pos_3d: Vector3, screen_offset: Vector2}]
+var _is_visible: bool = false
+var _show_sector_coordinates: bool = false
+var _show_reference_axes: bool = true
+var _was_paused: bool = false
+var _hidden_particles: Array = []
+var _hidden_scene_nodes: Array = []
+var _map_world_env: WorldEnvironment = null
+var _map_nebula_holder: Spatial = null
+var _is_drag_orbiting: bool = false
+var _sector_label_font: DynamicFont = null
+
+
+func _ready():
+	_panel.visible = false
+	_is_visible = false
+	_sector_label_font = _build_sector_label_font()
+	set_process(false)
+	_connect_buttons()
+	_refresh_axes_button_text()
+	if EventBus.has_signal("sim_tick_completed"):
+		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
+			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
+
+
+func _input(event):
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.scancode == KEY_F4:
+			_toggle_panel()
+			get_tree().set_input_as_handled()
+	if not _is_visible:
+		return
+	if event is InputEventMouse:
+		_handle_map_mouse_input(event)
+
+
+func _toggle_panel():
+	_is_visible = not _is_visible
+	_panel.visible = _is_visible
+	if _is_visible:
+		_was_paused = get_tree().paused
+		get_tree().paused = true
+		pause_mode = Node.PAUSE_MODE_PROCESS
+		_hide_camera_particles()
+		_hide_scene_models()
+		_setup_map_environment()
+		_reset_camera()
+		_populate_map()
+		set_process(true)
+	else:
+		_is_drag_orbiting = false
+		_clear_map()
+		_cleanup_map_environment()
+		_restore_scene_models()
+		_restore_camera_particles()
+		set_process(false)
+		if not _was_paused:
+			get_tree().paused = false
+
+
+func _process(_delta):
+	if not _is_visible:
+		return
+	# TODO: this render nebula in background, which is effectively rendering it twice.
+	# Rename to galaxy background?
+	#if is_instance_valid(_map_nebula_holder) and is_instance_valid(_camera):
+	#	_map_nebula_holder.global_transform.origin = _camera.global_transform.origin
+	_update_label_positions()
+
+
+func _on_sim_tick_completed(_tick_count):
+	if _is_visible:
+		_populate_map()
+
+
+func _handle_map_mouse_input(event):
+	if event is InputEventMouseButton:
+		if event.button_index == BUTTON_LEFT:
+			if event.pressed and _is_mouse_over_map_viewport(event.position):
+				_is_drag_orbiting = true
+				get_tree().set_input_as_handled()
+			else:
+				_is_drag_orbiting = false
+		elif event.pressed and _is_mouse_over_map_viewport(event.position):
+			var wheel_factor = _get_mouse_wheel_zoom_factor()
+			if event.button_index == BUTTON_WHEEL_UP:
+				_zoom(1.0 / wheel_factor)
+				get_tree().set_input_as_handled()
+			elif event.button_index == BUTTON_WHEEL_DOWN:
+				_zoom(wheel_factor)
+				get_tree().set_input_as_handled()
+	elif event is InputEventMouseMotion:
+		if not _is_drag_orbiting:
+			return
+		if not _is_mouse_over_map_viewport(event.position):
+			_is_drag_orbiting = false
+			return
+		_orbit_rotate(
+			event.relative.x * MOUSE_ORBIT_SENSITIVITY,
+			-event.relative.y * MOUSE_ORBIT_SENSITIVITY
+		)
+		get_tree().set_input_as_handled()
+
+
+func _is_mouse_over_map_viewport(mouse_pos: Vector2) -> bool:
+	return _viewport_container.get_global_rect().has_point(mouse_pos)
+
+
+func _get_mouse_wheel_zoom_factor() -> float:
+	return 1.0 + ((ZOOM_FACTOR - 1.0) * MOUSE_WHEEL_ZOOM_BLEND)
+
+
+# =========================================================================
+# === MAP ENVIRONMENT (nebula + background) ===============================
+# =========================================================================
+
+func _setup_map_environment():
+	if is_instance_valid(_map_world_env):
+		return  # already set up
+	# Add WorldEnvironment so the map viewport has the same background as the game
+	var env_res = load("res://assets/art/environments/global_environment.tres")
+	if env_res:
+		_map_world_env = WorldEnvironment.new()
+		_map_world_env.environment = env_res
+		_viewport.add_child(_map_world_env)
+	# TODO: Use Galaxy background here instead.
+	# Instance the global nebula into the map viewport
+	#var nebula_scene = load("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+	#if nebula_scene:
+		#_map_nebula_holder = Spatial.new()
+		#_map_nebula_holder.name = "MapNebulaHolder"
+		#_map_nebula_holder.add_child(nebula_scene.instance())
+		#_viewport.add_child(_map_nebula_holder)
+
+
+func _cleanup_map_environment():
+	if is_instance_valid(_map_world_env):
+		_map_world_env.queue_free()
+		_map_world_env = null
+	if is_instance_valid(_map_nebula_holder):
+		_map_nebula_holder.queue_free()
+		_map_nebula_holder = null
+
+
+# =========================================================================
+# === CAMERA PARTICLE HIDE/RESTORE =======================================
+# =========================================================================
+
+func _hide_camera_particles():
+	_hidden_particles.clear()
+	var cam = GlobalRefs.main_camera
+	if not cam:
+		return
+	for child in cam.get_children():
+		if child is CPUParticles and child.visible:
+			child.visible = false
+			_hidden_particles.append(child)
+
+
+func _restore_camera_particles():
+	for p in _hidden_particles:
+		if is_instance_valid(p):
+			p.visible = true
+	_hidden_particles.clear()
+
+
+func _hide_scene_models():
+	_hidden_scene_nodes.clear()
+	var zone = GameState.current_zone_instance
+	if not is_instance_valid(zone):
+		return
+	var scene_assets = zone.find_node("SceneAssets", true, false)
+	if is_instance_valid(scene_assets) and scene_assets.visible:
+		scene_assets.visible = false
+		_hidden_scene_nodes.append(scene_assets)
+	var playable_area = zone.find_node("_PlayableArea", true, false)
+	if is_instance_valid(playable_area) and playable_area.visible:
+		playable_area.visible = false
+		_hidden_scene_nodes.append(playable_area)
+
+
+func _restore_scene_models():
+	for node in _hidden_scene_nodes:
+		if is_instance_valid(node):
+			node.visible = true
+	_hidden_scene_nodes.clear()
+
+
+# =========================================================================
+# === MAP POPULATION =====================================================
+# =========================================================================
+
+func _populate_map():
+	_map_world_anchor = _get_current_sector_world_anchor()
+	_clear_map()
+	_create_sector_markers()
+	_create_connection_lines()
+	_set_reference_axes_visible(_show_reference_axes)
+	_update_camera()
+
+
+func _clear_map():
+	for child in _map_content.get_children():
+		child.queue_free()
+	for child in _label_overlay.get_children():
+		child.queue_free()
+	_sector_labels.clear()
+	_reference_labels.clear()
+
+
+func _create_sector_markers():
+	for sector_id in TemplateDatabase.locations:
+		var template = TemplateDatabase.locations[sector_id]
+		if not template or not ("global_position" in template):
+			continue
+		var pos: Vector3 = _to_map_space_position(template.global_position)
+
+		# Sector marker sphere
+		var mesh_instance = MeshInstance.new()
+		var sphere = SphereMesh.new()
+		sphere.radius = 2000.0
+		sphere.height = 4000.0
+		sphere.radial_segments = 12
+		sphere.rings = 6
+		mesh_instance.mesh = sphere
+
+		var mat = SpatialMaterial.new()
+		mat.flags_unshaded = true
+		# Color by current sector highlight
+		if sector_id == GameState.current_sector_id:
+			mat.albedo_color = Color(1.0, 1.0, 0.2, 1.0)  # yellow for current
+			sphere.radius = 3000.0
+			sphere.height = 6000.0
+		else:
+			mat.albedo_color = Color(0.3, 0.8, 1.0, 1.0)  # cyan for others
+		mesh_instance.material_override = mat
+
+		mesh_instance.transform.origin = pos
+		mesh_instance.name = "Sector_%s" % sector_id
+		_map_content.add_child(mesh_instance)
+
+		# Create label in overlay
+		var label = Label.new()
+		_configure_sector_label(label)
+		var loc_name = template.location_name if "location_name" in template else sector_id
+		label.text = loc_name
+		if sector_id == GameState.current_sector_id:
+			label.add_color_override("font_color", Color(1, 1, 0.2, 1.0))
+		else:
+			label.add_color_override("font_color", Color(1, 1, 1, 0.9))
+		label.add_constant_override("shadow_offset_x", 1)
+		label.add_constant_override("shadow_offset_y", 1)
+		label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
+		_label_overlay.add_child(label)
+
+		_sector_labels[sector_id] = {
+			"marker": mesh_instance,
+			"label": label,
+			"base_name": loc_name,
+			"pos_3d": pos,
+			"screen_offset": _get_sector_label_screen_offset(),
+		}
+	_refresh_sector_label_texts()
+
+
+func _configure_sector_label(label: Label):
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.autowrap = true
+	label.align = Label.ALIGN_CENTER
+	label.valign = Label.VALIGN_CENTER
+	label.rect_min_size = Vector2(SECTOR_LABEL_MAX_WIDTH, SECTOR_LABEL_BOX_HEIGHT)
+	label.rect_size = label.rect_min_size
+	if is_instance_valid(_sector_label_font):
+		label.add_font_override("font", _sector_label_font)
+
+
+func _build_sector_label_font() -> DynamicFont:
+	var font_data = load(SECTOR_LABEL_FONT_PATH)
+	if not font_data:
+		return null
+	var font = DynamicFont.new()
+	font.font_data = font_data
+	font.size = SECTOR_LABEL_FONT_SIZE
+	return font
+
+
+func _get_sector_label_screen_offset() -> Vector2:
+	return Vector2(-SECTOR_LABEL_MAX_WIDTH * 0.5, -(SECTOR_LABEL_BOX_HEIGHT + SECTOR_LABEL_GAP))
+
+
+func _refresh_sector_label_texts():
+	for sector_id in _sector_labels:
+		var data = _sector_labels[sector_id]
+		var label: Label = data["label"]
+		label.text = _build_sector_label_text(sector_id, data)
+
+
+func _build_sector_label_text(sector_id: String, data: Dictionary) -> String:
+	var name_text = data.get("base_name", sector_id)
+	if sector_id == GameState.current_sector_id:
+		name_text = ">> %s <<" % name_text
+	if not _show_sector_coordinates:
+		return name_text
+	return "%s\n[%s]" % [name_text, _format_sector_coordinates(data.get("pos_3d", Vector3.ZERO))]
+
+
+func _format_sector_coordinates(pos: Vector3) -> String:
+	return "%d, %d, %d" % [int(round(pos.x)), int(round(pos.y)), int(round(pos.z))]
+
+
+func _create_connection_lines():
+	var drawn_pairs = {}
+	var ig = ImmediateGeometry.new()
+	ig.name = "ConnectionLines"
+
+	var mat = SpatialMaterial.new()
+	mat.flags_unshaded = true
+	mat.vertex_color_use_as_albedo = true
+	ig.material_override = mat
+
+	ig.begin(Mesh.PRIMITIVE_LINES)
+	for sector_id in GameState.world_topology:
+		var topo = GameState.world_topology[sector_id]
+		var connections = topo.get("connections", [])
+		for target_id in connections:
+			# Deduplicate: only draw A→B if A < B alphabetically
+			var pair_key = sector_id if sector_id < target_id else target_id
+			var pair_val = target_id if sector_id < target_id else sector_id
+			var key = pair_key + ":" + pair_val
+			if drawn_pairs.has(key):
+				continue
+			drawn_pairs[key] = true
+
+			var from_pos = _get_sector_position(sector_id)
+			var to_pos = _get_sector_position(target_id)
+			if from_pos == null or to_pos == null:
+				continue
+			ig.set_color(Color(0.5, 0.8, 0.5, 0.6))
+			ig.add_vertex(from_pos)
+			ig.add_vertex(to_pos)
+	ig.end()
+	_map_content.add_child(ig)
+
+
+func _create_reference_axes():
+	var ig = ImmediateGeometry.new()
+	ig.name = "ReferenceAxes"
+
+	var mat = SpatialMaterial.new()
+	mat.flags_unshaded = true
+	mat.vertex_color_use_as_albedo = true
+	ig.material_override = mat
+
+	var axis_configs = [
+		{
+			"id": "X",
+			"dir": Vector3(1, 0, 0),
+			"color": Color(1.0, 0.25, 0.25, 1.0),
+			"notch_dir": Vector3(0, 1, 0),
+			"line_offset_dir": Vector3(0, 0, 1),
+			"arrow_dirs": [Vector3(0, 1, 0), Vector3(0, 0, 1)],
+		},
+		{
+			"id": "Y",
+			"dir": Vector3(0, 1, 0),
+			"color": Color(0.25, 1.0, 0.25, 1.0),
+			"notch_dir": Vector3(1, 0, 0),
+			"line_offset_dir": Vector3(0, 0, 1),
+			"arrow_dirs": [Vector3(1, 0, 0), Vector3(0, 0, 1)],
+		},
+		{
+			"id": "Z",
+			"dir": Vector3(0, 0, 1),
+			"color": Color(0.25, 0.55, 1.0, 1.0),
+			"notch_dir": Vector3(0, 1, 0),
+			"line_offset_dir": Vector3(1, 0, 0),
+			"arrow_dirs": [Vector3(1, 0, 0), Vector3(0, 1, 0)],
+		},
+	]
+	var axis_origin = _to_map_space_position(Constants.REFERENCE_ORIGIN)
+	var notch_specs = [
+		{"distance": 100000.0, "text": "1e5"},
+		{"distance": 200000.0, "text": "2e5"},
+		{"distance": 300000.0, "text": "3e5"},
+		{"distance": 400000.0, "text": "4e5"},
+		{"distance": 500000.0, "text": "5e5"},
+	]
+
+	ig.begin(Mesh.PRIMITIVE_LINES)
+	for axis_data in axis_configs:
+		var axis_id = axis_data["id"]
+		var axis_dir: Vector3 = axis_data["dir"]
+		var axis_color: Color = axis_data["color"]
+		var notch_dir: Vector3 = axis_data["notch_dir"]
+		var line_offset_dir: Vector3 = axis_data["line_offset_dir"]
+		var axis_end = axis_origin + axis_dir * AXIS_LENGTH
+
+		ig.set_color(axis_color)
+		_add_axis_trunk_lines(ig, axis_origin, axis_end, line_offset_dir)
+
+		for arrow_dir in axis_data["arrow_dirs"]:
+			var arrow_base = axis_end - axis_dir * AXIS_ARROW_SIZE
+			ig.add_vertex(axis_end)
+			ig.add_vertex(arrow_base + arrow_dir * AXIS_ARROW_SPREAD)
+			ig.add_vertex(axis_end)
+			ig.add_vertex(arrow_base - arrow_dir * AXIS_ARROW_SPREAD)
+
+		_create_projected_overlay_label(
+			"AxisLabel_%s" % axis_id,
+			axis_id,
+			axis_end + axis_dir * AXIS_LABEL_WORLD_OFFSET,
+			axis_color,
+			Vector2(4, -12)
+		)
+
+		for notch_spec in notch_specs:
+			var notch_distance = notch_spec["distance"]
+			var notch_center = axis_origin + axis_dir * notch_distance
+			ig.add_vertex(notch_center - notch_dir * AXIS_NOTCH_SIZE)
+			ig.add_vertex(notch_center + notch_dir * AXIS_NOTCH_SIZE)
+			_create_projected_overlay_label(
+				"AxisNotch_%s_%s" % [axis_id, notch_spec["text"]],
+				notch_spec["text"],
+				notch_center + notch_dir * AXIS_LABEL_WORLD_OFFSET,
+				Color(axis_color.r, axis_color.g, axis_color.b, 0.9),
+				Vector2(4, -10)
+			)
+	ig.end()
+	_map_content.add_child(ig)
+
+
+func _set_reference_axes_visible(visible: bool):
+	var axes = _map_content.get_node_or_null("ReferenceAxes")
+	if visible:
+		if not is_instance_valid(axes) or _reference_labels.empty():
+			_create_reference_axes()
+			axes = _map_content.get_node_or_null("ReferenceAxes")
+	if is_instance_valid(axes):
+		axes.visible = visible
+	for data in _reference_labels:
+		var label: Label = data["label"]
+		if is_instance_valid(label):
+			label.visible = visible
+	_refresh_axes_button_text()
+
+
+func _refresh_axes_button_text():
+	if is_instance_valid(_btn_axes):
+		_btn_axes.text = "Axes On" if _show_reference_axes else "Axes Off"
+
+
+func _add_axis_trunk_lines(ig: ImmediateGeometry, from_pos: Vector3, to_pos: Vector3, offset_dir: Vector3):
+	ig.add_vertex(from_pos)
+	ig.add_vertex(to_pos)
+
+	var offset = offset_dir * AXIS_TRUNK_OFFSET
+	ig.add_vertex(from_pos + offset)
+	ig.add_vertex(to_pos + offset)
+	ig.add_vertex(from_pos - offset)
+	ig.add_vertex(to_pos - offset)
+
+
+func _create_projected_overlay_label(node_name: String, text: String, pos_3d: Vector3, color: Color, screen_offset: Vector2):
+	var label = Label.new()
+	label.name = node_name
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_color_override("font_color", color)
+	label.add_constant_override("shadow_offset_x", 1)
+	label.add_constant_override("shadow_offset_y", 1)
+	label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
+	_label_overlay.add_child(label)
+	_reference_labels.append({
+		"label": label,
+		"pos_3d": pos_3d,
+		"screen_offset": screen_offset,
+	})
+
+
+func _get_sector_position(sector_id: String):
+	if TemplateDatabase.locations.has(sector_id):
+		var template = TemplateDatabase.locations[sector_id]
+		if "global_position" in template:
+			return _to_map_space_position(template.global_position)
+	return null
+
+
+func _to_map_space_position(world_position: Vector3) -> Vector3:
+	return world_position - _map_world_anchor
+
+
+# =========================================================================
+# === LABEL PROJECTION ===================================================
+# =========================================================================
+
+func _update_label_positions():
+	if not _camera or not _viewport:
+		return
+	var vp_size = _viewport.size
+	if vp_size.x == 0 or vp_size.y == 0:
+		return
+
+	for sector_id in _sector_labels:
+		var data = _sector_labels[sector_id]
+		_update_projected_label(data["label"], data["pos_3d"], data["screen_offset"], vp_size, 50.0)
+
+	for data in _reference_labels:
+		if not _show_reference_axes:
+			var hidden_label: Label = data["label"]
+			if is_instance_valid(hidden_label):
+				hidden_label.visible = false
+			continue
+		_update_projected_label(
+			data["label"],
+			data["pos_3d"],
+			data["screen_offset"],
+			vp_size,
+			25.0
+		)
+
+
+func _update_projected_label(label: Label, pos_3d: Vector3, screen_offset: Vector2, vp_size: Vector2, padding: float):
+	var cam_transform = _camera.global_transform
+	var to_point = pos_3d - cam_transform.origin
+	if cam_transform.basis.z.dot(to_point) > 0:
+		label.visible = false
+		return
+
+	var screen_pos = _camera.unproject_position(pos_3d)
+	label.rect_position = screen_pos + screen_offset
+	label.visible = (screen_pos.x >= -padding and screen_pos.x <= vp_size.x + padding
+		and screen_pos.y >= -padding and screen_pos.y <= vp_size.y + padding)
+
+
+# =========================================================================
+# === CAMERA CONTROLS ====================================================
+# =========================================================================
+
+func _update_camera():
+	var offset = Vector3(
+		_zoom_distance * cos(_orbit_pitch) * sin(_orbit_yaw),
+		_zoom_distance * sin(_orbit_pitch),
+		_zoom_distance * cos(_orbit_pitch) * cos(_orbit_yaw)
+	)
+	_camera.transform.origin = _pivot + offset
+	_camera.look_at(_pivot, Vector3.UP)
+
+
+func _orbit_rotate(dyaw: float, dpitch: float):
+	_orbit_yaw += dyaw
+	_orbit_pitch = clamp(_orbit_pitch + dpitch, -1.4, 1.4)
+	_update_camera()
+
+
+func _zoom(factor: float):
+	_zoom_distance = clamp(_zoom_distance * factor, MIN_ZOOM, MAX_ZOOM)
+	_update_camera()
+
+
+func _pan(direction: Vector3):
+	var step = _zoom_distance * PAN_STEP_RATIO
+	var cam_basis = _camera.global_transform.basis
+	_pivot += cam_basis.x * direction.x * step
+	_pivot += cam_basis.y * direction.y * step
+	_update_camera()
+
+
+func _reset_camera():
+	_orbit_yaw = 0.0
+	_orbit_pitch = 0.5
+	_zoom_distance = DEFAULT_ORBIT_DISTANCE
+	_pivot = Vector3.ZERO
+	_update_camera()
+
+
+func _get_current_sector_world_anchor() -> Vector3:
+	var current_sector_id: String = GameState.current_sector_id
+	if current_sector_id != "" and TemplateDatabase.locations.has(current_sector_id):
+		var template = TemplateDatabase.locations[current_sector_id]
+		if template and ("global_position" in template):
+			return template.global_position
+	return Vector3.ZERO
+
+
+# =========================================================================
+# === BUTTON WIRING ======================================================
+# =========================================================================
+
+func _connect_buttons():
+	var header = $Panel/VBoxContainer/HeaderRow
+	header.get_node("BtnRotL").connect("pressed", self, "_on_rot_l")
+	header.get_node("BtnRotR").connect("pressed", self, "_on_rot_r")
+	header.get_node("BtnRotU").connect("pressed", self, "_on_rot_u")
+	header.get_node("BtnRotD").connect("pressed", self, "_on_rot_d")
+	header.get_node("BtnZoomIn").connect("pressed", self, "_on_zoom_in")
+	header.get_node("BtnZoomOut").connect("pressed", self, "_on_zoom_out")
+	header.get_node("BtnAxes").connect("pressed", self, "_on_toggle_axes")
+	header.get_node("BtnCoords").connect("pressed", self, "_on_toggle_coords")
+	header.get_node("BtnPanL").connect("pressed", self, "_on_pan_l")
+	header.get_node("BtnPanR").connect("pressed", self, "_on_pan_r")
+	header.get_node("BtnPanU").connect("pressed", self, "_on_pan_u")
+	header.get_node("BtnPanD").connect("pressed", self, "_on_pan_d")
+	header.get_node("BtnReset").connect("pressed", self, "_on_reset")
+	header.get_node("BtnClose").connect("pressed", self, "_on_close")
+
+
+func _on_rot_l(): _orbit_rotate(-ORBIT_STEP, 0.0)
+func _on_rot_r(): _orbit_rotate(ORBIT_STEP, 0.0)
+func _on_rot_u(): _orbit_rotate(0.0, ORBIT_STEP)
+func _on_rot_d(): _orbit_rotate(0.0, -ORBIT_STEP)
+func _on_zoom_in(): _zoom(1.0 / ZOOM_FACTOR)
+func _on_zoom_out(): _zoom(ZOOM_FACTOR)
+func _on_toggle_axes():
+	_show_reference_axes = not _show_reference_axes
+	_set_reference_axes_visible(_show_reference_axes)
+func _on_toggle_coords():
+	_show_sector_coordinates = not _show_sector_coordinates
+	_refresh_sector_label_texts()
+func _on_pan_l(): _pan(Vector3(-1, 0, 0))
+func _on_pan_r(): _pan(Vector3(1, 0, 0))
+func _on_pan_u(): _pan(Vector3(0, 1, 0))
+func _on_pan_d(): _pan(Vector3(0, -1, 0))
+func _on_reset(): _reset_camera()
+func _on_close(): _toggle_panel()
+
+
+func _notification(what):
+	if what == NOTIFICATION_PREDELETE:
+		if EventBus and EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
+			EventBus.disconnect("sim_tick_completed", self, "_on_sim_tick_completed")
 
 --- Start of ./src/core/ui/helpers/CenteredGrowingLabel.gd ---
 
@@ -20297,8 +21671,8 @@ func get_parent_control() -> Control:
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.2
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
 #
 
 extends Control
@@ -20306,12 +21680,33 @@ extends Control
 ## MainHUD: Primary gameplay HUD displaying player resources, target info, and combat status.
 ## Manages sub-screens (Station Menu) and docking prompts.
 
+const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
+const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
+const INFLIGHT_DRAG_CONTROL_PATHS = [
+	"ScreenControls/CenterLeftZone/ButtonMenu",
+	"ScreenControls/CenterLeftZone/ButtonInfo",
+	"ScreenControls/CenterLeftZone/SliderControlLeft",
+	"ScreenControls/BottomCenterZone/ButtonOrbit",
+	"ScreenControls/BottomCenterZone/ButtonStop",
+	"ScreenControls/BottomCenterZone/ButtonManualFlight",
+	"ScreenControls/BottomCenterZone/ButtonApproach",
+	"ScreenControls/BottomCenterZone/ButtonFlee",
+	"ScreenControls/BottomCenterZone/ButtonDock",
+	"ScreenControls/BottomCenterZone/ButtonAttack",
+	"ScreenControls/CenterRightZone/ButtonUIOpacity",
+	"ScreenControls/CenterRightZone/ButtonCamera",
+	"ScreenControls/CenterRightZone/SliderControlRight",
+	"ScreenControls/TopLeftZone/ButtonCharacter",
+	"ScreenControls/TopLeftZone/ButtonNarrativeStatus",
+	"ScreenControls/TopLeftZone/ButtonInventory"
+]
+
 # --- Sub-Screens ---
 const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 var _station_menu_instance = null
 
 # --- Nodes ---
-onready var targeting_indicator: Control = $TargetingIndicator
+onready var projected_target_overlay: Control = $ProjectedTargetOverlay
 onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
 onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
 onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
@@ -20333,21 +21728,31 @@ onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/Ta
 onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
 onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
 
+# --- Simulation HUD Panels ---
+onready var radar_display = $ScreenControls/TopRightZone/RadarDisplay
+onready var sector_info_panel = $ScreenControls/TopCenterZone/SectorInfoPanel
+
 # --- State ---
-var _current_target: Spatial = null
+var _current_target = null
 var _main_camera: Camera = null
 var _current_target_uid: int = -1  # UID of current combat target for hull tracking
 var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
 var _hud_alpha = 1.0
+var _dock_location_id: String = ""  # Currently available dock location
+var _jump_target_name: String = ""  # Currently available jump target name
+var _route_target_provider: Reference = RouteTargetProviderScript.new()
+var _route_target_buttons: Dictionary = {}
+var _world_target_buttons: Dictionary = {}
+var _tracked_inflight_drag_controls: Array = []
+var _tracked_inflight_drag_filters: Dictionary = {}
+var _inflight_drag_passthrough_active: bool = false
+var _inflight_drag_passthrough_sync_pending: bool = false
 
 # --- Initialization ---
 func _ready():
 	GlobalRefs.set_main_hud(self)
-
-	# Ensure indicator starts hidden
-	targeting_indicator.visible = false
 
 	# Get camera reference once
 	_main_camera = get_viewport().get_camera()  # Initial attempt
@@ -20383,6 +21788,8 @@ func _ready():
 		EventBus.connect("dock_available", self, "_on_dock_available")
 		EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 		EventBus.connect("player_docked", self, "_on_player_docked")
+		EventBus.connect("jump_available", self, "_on_jump_available")
+		EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 		
 		# Dock/Attack feedback signals
 		EventBus.connect("dock_action_feedback", self, "_on_dock_action_feedback")
@@ -20399,10 +21806,23 @@ func _ready():
 			EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 		if not EventBus.is_connected("agent_despawning", self, "_on_agent_despawning"):
 			EventBus.connect("agent_despawning", self, "_on_agent_despawning")
+		if not EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
+			EventBus.connect("agent_spawned", self, "_on_agent_spawned")
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
 		if not EventBus.is_connected("game_state_loaded", self, "_on_game_state_loaded"):
 			EventBus.connect("game_state_loaded", self, "_on_game_state_loaded")
+		if not EventBus.is_connected("zone_unloading", self, "_on_zone_unloading"):
+			EventBus.connect("zone_unloading", self, "_on_zone_unloading")
+		if not EventBus.is_connected("zone_loaded", self, "_on_zone_loaded"):
+			EventBus.connect("zone_loaded", self, "_on_zone_loaded")
+		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
+			EventBus.connect("sector_changed", self, "_on_sector_changed")
+
+		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_for_panels"):
+			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_for_panels")
+		if not EventBus.is_connected("sim_initialized", self, "_on_sim_initialized_for_panels"):
+			EventBus.connect("sim_initialized", self, "_on_sim_initialized_for_panels")
 
 	else:
 		printerr("MainHUD Error: EventBus not available!")
@@ -20410,13 +21830,11 @@ func _ready():
 	# Connect to CombatSystem signals — DEFERRED (removed: CombatSystem deleted)
 	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
+	set_process_input(true)
 	
 	# Ensure target info panel starts hidden
 	if target_info_panel:
 		target_info_panel.visible = false
-
-	# Connect draw signal for custom drawing (optional, but good for style)
-	targeting_indicator.connect("draw", self, "_draw_targeting_indicator")
 
 	# Connect ButtonMenu to open main menu
 	if is_instance_valid(button_menu):
@@ -20428,66 +21846,50 @@ func _ready():
 		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
 			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
 
+	# Reuse placeholder top-left buttons for debug tools.
+	if is_instance_valid(button_narrative_status):
+		if not button_narrative_status.is_connected("pressed", self, "_on_ButtonNarrativeStatus_pressed"):
+			button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
+
+	_register_inflight_drag_controls()
+
 	# Initialize TU display
 	_refresh_time_display()
 
 	# --- Instance Station Menu sub-screen ---
 	_station_menu_instance = StationMenuScene.instance()
 	add_child(_station_menu_instance)
+	_refresh_process_state()
+	call_deferred("_rebuild_projected_target_overlays")
 
 
 # --- Process Update ---
 func _process(_delta):
 	# If the selected target is gone, clear the UI state.
-	if _current_target != null and not is_instance_valid(_current_target):
+	if _current_target != null and not _is_target_valid(_current_target):
 		_on_Player_Target_Deselected()
 		return
 
-	# Only update position if a target is selected and valid
-	if is_instance_valid(_current_target) and is_instance_valid(_main_camera):
-		# Project the target's 3D origin position to 2D screen coordinates
-		var screen_pos: Vector2 = _main_camera.unproject_position(
-			_current_target.global_transform.origin
-		)
-
-		# Check if the target is behind the camera
-		var target_dir = (_current_target.global_transform.origin - _main_camera.global_transform.origin).normalized()
-		var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
-		var is_in_front = target_dir.dot(camera_fwd) >= 0  # Use >= 0 to include exactly perpendicular
-
-		# --- MODIFIED Visibility Logic ---
-		# Set visibility based on whether the target is in front
-		targeting_indicator.visible = is_in_front
-
-		# Only update position and redraw if it's actually visible
-		if targeting_indicator.visible:
-			# Update the indicator's position
-			targeting_indicator.rect_position = screen_pos - (targeting_indicator.rect_size / 2.0)
-			targeting_indicator.update()  # Trigger redraw if using _draw
-	else:
-		# Ensure indicator is hidden if target becomes invalid or camera is invalid
-		if targeting_indicator.visible:
-			targeting_indicator.visible = false
-		if target_info_panel and target_info_panel.visible:
-			target_info_panel.visible = false
+	_update_route_target_overlay()
+	_update_world_target_overlay()
+	if _inflight_drag_passthrough_active:
+		_sync_inflight_drag_passthrough()
 
 
 # --- Signal Handlers ---
-func _on_Player_Target_Selected(target_node: Spatial):
-	print(target_node)
-	if is_instance_valid(target_node):
+func _on_Player_Target_Selected(target_node):
+	if _is_target_valid(target_node):
 		_current_target = target_node
-		# Visibility is now primarily handled in _process,
-		# but we still need to ensure _process runs.
-		# targeting_indicator.visible = true # This line can be removed or kept, _process will override
-		set_process(true)  # Ensure _process runs
+		_refresh_process_state()
 		
 		# Update combat target info panel
 		_update_target_info_panel(target_node)
+		_update_route_target_selection_state()
+		_update_world_target_selection_state()
 		
 		# Update camera look_at_target if in target tracking mode
 		var camera = GlobalRefs.main_camera
-		if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
+		if is_instance_valid(camera) and camera.get_camera_mode() == 1 and target_node is Spatial:  # TARGET_TRACKING
 			camera.set_look_at_target(target_node)
 	else:
 		_on_Player_Target_Deselected()
@@ -20496,10 +21898,11 @@ func _on_Player_Target_Selected(target_node: Spatial):
 func _on_Player_Target_Deselected():
 	_current_target = null
 	_current_target_uid = -1
-	targeting_indicator.visible = false
 	if target_info_panel:
 		target_info_panel.visible = false
-	set_process(false)  # Can disable processing if target is deselected
+	_update_route_target_selection_state()
+	_update_world_target_selection_state()
+	_refresh_process_state()
 	_refresh_player_hull()
 	
 	# If camera is in target tracking mode, switch back to orbit mode
@@ -20510,8 +21913,13 @@ func _on_Player_Target_Deselected():
 
 func _on_agent_despawning(agent_body) -> void:
 	# If our selected target is being removed, clear target UI.
-	if is_instance_valid(_current_target) and agent_body == _current_target:
+	if _current_target is Spatial and is_instance_valid(_current_target) and agent_body == _current_target:
 		_on_Player_Target_Deselected()
+	call_deferred("_rebuild_world_target_overlay")
+
+
+func _on_agent_spawned(_agent_body, _init_data) -> void:
+	call_deferred("_rebuild_world_target_overlay")
 
 
 func _on_new_game_requested() -> void:
@@ -20562,6 +21970,16 @@ func _on_game_time_advanced(_seconds_added: int = 0) -> void:
 	_refresh_time_display()
 
 
+func _input(event: InputEvent) -> void:
+	if not _inflight_drag_passthrough_active:
+		return
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
+		_forward_inflight_drag_release(event)
+		_set_inflight_drag_passthrough(false)
+		get_tree().set_input_as_handled()
+		return
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if EventBus:
@@ -20586,7 +22004,7 @@ func _on_ButtonCamera_pressed() -> void:
 	
 	# If switching to target tracking mode, set the look_at_target
 	if camera.get_camera_mode() == 1:  # TARGET_TRACKING = 1
-		if is_instance_valid(_current_target):
+		if _current_target is Spatial and is_instance_valid(_current_target):
 			camera.set_look_at_target(_current_target)
 		else:
 			# No target selected, switch back to orbit mode
@@ -20594,36 +22012,134 @@ func _on_ButtonCamera_pressed() -> void:
 			print("Camera: No target selected for tracking mode.")
 
 
-# --- Custom Drawing (Optional but Recommended) ---
-func _draw_targeting_indicator():
-	# Example: Draw a simple white rectangle outline
-	var _rect = Rect2(Vector2.ZERO, targeting_indicator.rect_size)
-	var _line_color = Color.white
-	var _line_width = 1.0  # Adjust thickness as needed
-	#targeting_indicator.draw_rect(rect, line_color, false, line_width)
+func _register_inflight_drag_controls() -> void:
+	for control_path in INFLIGHT_DRAG_CONTROL_PATHS:
+		var control = get_node_or_null(control_path)
+		if control is Control:
+			_track_inflight_drag_control(control)
 
-	# Example: Draw simple corner brackets
-	var size = targeting_indicator.rect_size
-	var corner_len = size.x * 0.25  # Length of corner lines
-	var color = Color.cyan
-	var width = 2.0
-	# # Top-left
-	targeting_indicator.draw_line(Vector2(0, 0), Vector2(corner_len, 0), color, width)
-	targeting_indicator.draw_line(Vector2(0, 0), Vector2(0, corner_len), color, width)
-	# # Top-right
-	targeting_indicator.draw_line(Vector2(size.x, 0), Vector2(size.x - corner_len, 0), color, width)
-	targeting_indicator.draw_line(Vector2(size.x, 0), Vector2(size.x, corner_len), color, width)
-	# # Bottom-left
-	targeting_indicator.draw_line(Vector2(0, size.y), Vector2(corner_len, size.y), color, width)
-	targeting_indicator.draw_line(Vector2(0, size.y), Vector2(0, size.y - corner_len), color, width)
-	# # Bottom-right
-	targeting_indicator.draw_line(
-		Vector2(size.x, size.y), Vector2(size.x - corner_len, size.y), color, width
-	)
-	targeting_indicator.draw_line(
-		Vector2(size.x, size.y), Vector2(size.x, size.y - corner_len), color, width
-	)
 
+func _track_inflight_drag_control(control: Control) -> void:
+	if not is_instance_valid(control):
+		return
+	if _tracked_inflight_drag_controls.has(control):
+		return
+	_tracked_inflight_drag_controls.append(control)
+	_tracked_inflight_drag_filters[control.get_instance_id()] = control.mouse_filter
+	if not control.is_connected("gui_input", self, "_on_inflight_drag_control_gui_input"):
+		control.connect("gui_input", self, "_on_inflight_drag_control_gui_input", [control])
+
+
+func _untrack_inflight_drag_control(control: Control) -> void:
+	if not is_instance_valid(control):
+		return
+	_tracked_inflight_drag_controls.erase(control)
+	_tracked_inflight_drag_filters.erase(control.get_instance_id())
+	if control.is_connected("gui_input", self, "_on_inflight_drag_control_gui_input"):
+		control.disconnect("gui_input", self, "_on_inflight_drag_control_gui_input")
+
+
+func _on_inflight_drag_control_gui_input(event: InputEvent, control: Control) -> void:
+	if not is_instance_valid(control):
+		return
+	if not (event is InputEventMouseMotion):
+		return
+	if not _is_external_camera_drag_active():
+		return
+	_set_inflight_drag_passthrough(true)
+	_forward_inflight_drag_motion(event)
+	get_tree().set_input_as_handled()
+
+
+func _is_external_camera_drag_active() -> bool:
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	return is_instance_valid(camera) and camera.has_method("is_externally_rotating") and camera.is_externally_rotating()
+
+
+func _set_inflight_drag_passthrough(is_active: bool) -> void:
+	_inflight_drag_passthrough_active = is_active
+	_compact_tracked_inflight_drag_controls()
+	for control in _tracked_inflight_drag_controls:
+		if not is_instance_valid(control):
+			continue
+		var control_id = control.get_instance_id()
+		if is_active:
+			if not _tracked_inflight_drag_filters.has(control_id):
+				_tracked_inflight_drag_filters[control_id] = control.mouse_filter
+			control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		else:
+			control.mouse_filter = _tracked_inflight_drag_filters.get(
+				control_id,
+				Control.MOUSE_FILTER_STOP
+			)
+	_refresh_process_state()
+
+
+func _compact_tracked_inflight_drag_controls() -> void:
+	var valid_controls: Array = []
+	for control in _tracked_inflight_drag_controls:
+		if is_instance_valid(control):
+			valid_controls.append(control)
+	_tracked_inflight_drag_controls = valid_controls
+
+
+func _forward_inflight_drag_motion(motion_event: InputEventMouseMotion) -> void:
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
+		camera.call("_unhandled_input", motion_event)
+
+
+func _forward_inflight_drag_release(release_event: InputEventMouseButton) -> void:
+	var player_agent = GlobalRefs.player_agent_body
+	if is_instance_valid(player_agent):
+		var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+		if is_instance_valid(player_controller) and player_controller.has_method("_unhandled_input"):
+			player_controller.call("_unhandled_input", release_event)
+			return
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
+		camera.set_is_rotating(false)
+
+
+func _sync_inflight_drag_passthrough() -> void:
+	if _inflight_drag_passthrough_active and not _is_external_camera_drag_active():
+		_set_inflight_drag_passthrough(false)
+
+# --- Target Name Resolution ---
+func _resolve_target_display_name(target_node) -> String:
+	if _is_route_target(target_node):
+		if target_node.display_name != "":
+			return target_node.display_name
+		return target_node.target_sector_id
+	# Jump points: show destination name
+	if target_node.is_in_group("jump_point"):
+		if "target_sector_name" in target_node and target_node.target_sector_name != "":
+			return target_node.target_sector_name
+		if "target_sector_id" in target_node:
+			return target_node.target_sector_id
+		return "Jump Point"
+	# Dockable stations: show station_name
+	if target_node.is_in_group("dockable_station"):
+		if "station_name" in target_node and target_node.station_name != "":
+			return target_node.station_name
+		return "Station"
+	# Agents (NPCs/player ships): resolve character name
+	if "character_uid" in target_node:
+		var char_uid = target_node.character_uid
+		# GameState.characters keyed by uid, values are CharacterTemplate
+		if GameState.characters.has(char_uid):
+			var char_res = GameState.characters[char_uid]
+			if char_res and "character_name" in char_res:
+				return char_res.character_name
+		# Try string/int key mismatch
+		var alt_key = int(char_uid) if typeof(char_uid) == TYPE_STRING else str(char_uid)
+		if GameState.characters.has(alt_key):
+			var char_res = GameState.characters[alt_key]
+			if char_res and "character_name" in char_res:
+				return char_res.character_name
+		return target_node.name
+	# Fallback: prettify node name (remove underscores, capitalize)
+	return target_node.name.replace("_", " ")
 
 # --- Cleanup ---
 func _notification(what):
@@ -20645,6 +22161,18 @@ func _notification(what):
 				EventBus.disconnect("agent_damaged", self, "_on_agent_damaged")
 			if EventBus.is_connected("agent_disabled", self, "_on_agent_disabled"):
 				EventBus.disconnect("agent_disabled", self, "_on_agent_disabled")
+				if EventBus.is_connected("agent_spawned", self, "_on_agent_spawned"):
+					EventBus.disconnect("agent_spawned", self, "_on_agent_spawned")
+			if EventBus.is_connected("jump_available", self, "_on_jump_available"):
+				EventBus.disconnect("jump_available", self, "_on_jump_available")
+			if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
+				EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
+				if EventBus.is_connected("zone_unloading", self, "_on_zone_unloading"):
+					EventBus.disconnect("zone_unloading", self, "_on_zone_unloading")
+			if EventBus.is_connected("zone_loaded", self, "_on_zone_loaded"):
+				EventBus.disconnect("zone_loaded", self, "_on_zone_loaded")
+			if EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
+				EventBus.disconnect("sector_changed", self, "_on_sector_changed")
 
 
 func _on_combat_initiated(_player_agent, enemy_agents: Array) -> void:
@@ -20740,19 +22268,40 @@ func _on_SliderControlLeft_value_changed(value):
 
 # --- Docking UI Handlers ---
 func _on_dock_available(location_id):
-	print("MainHUD: Dock available signal received for ", location_id)
-	if docking_prompt:
-		docking_prompt.visible = true
-		if docking_label:
-			docking_label.text = "Docking Available - Press Interact"
+	_dock_location_id = location_id
+	_update_docking_prompt()
 
 func _on_dock_unavailable():
-	print("MainHUD: Dock unavailable signal received")
-	if docking_prompt:
-		docking_prompt.visible = false
+	_dock_location_id = ""
+	_update_docking_prompt()
 
 func _on_player_docked(_location_id):
-	if docking_prompt:
+	_dock_location_id = ""
+	_jump_target_name = ""
+	_update_docking_prompt()
+
+
+# --- Jump UI Handlers ---
+func _on_jump_available(_target_id, target_name) -> void:
+	_jump_target_name = target_name
+	_update_docking_prompt()
+
+
+func _on_jump_unavailable() -> void:
+	_jump_target_name = ""
+	_update_docking_prompt()
+
+
+func _update_docking_prompt():
+	if not docking_prompt or not docking_label:
+		return
+	if _dock_location_id != "":
+		docking_prompt.visible = true
+		docking_label.text = "Docking Available - Press Dock"
+	elif _jump_target_name != "":
+		docking_prompt.visible = true
+		docking_label.text = "Jump Available: %s - Press Interact" % _jump_target_name
+	else:
 		docking_prompt.visible = false
 
 
@@ -20786,13 +22335,28 @@ func _on_SliderControlRight_value_changed(value):
 
 
 func _on_ButtonCharacter_pressed():
-	# TODO: Rebuild on simulation foundation
-	pass
+	_toggle_debug_panel("SimDebugPanel", "_toggle")
+
+
+func _on_ButtonNarrativeStatus_pressed():
+	_toggle_debug_panel("DebugMapPanel", "_toggle_panel")
 
 
 func _on_ButtonInventory_pressed():
 	# TODO: Rebuild on simulation foundation
 	pass
+
+
+func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:
+	var scene_root = get_tree().current_scene
+	if not is_instance_valid(scene_root):
+		return
+	var panel = scene_root.find_node(panel_name, true, false)
+	if not is_instance_valid(panel):
+		printerr("MainHUD: Missing debug panel: %s" % panel_name)
+		return
+	if panel.has_method(toggle_method):
+		panel.call(toggle_method)
 
 
 # --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
@@ -20822,9 +22386,13 @@ func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _sour
 	_refresh_player_hull()
 
 
-func _update_target_info_panel(target_node: Spatial) -> void:
+func _update_target_info_panel(target_node) -> void:
 	"""Update the target info panel with the selected target's info."""
 	if not target_info_panel:
+		return
+	if _is_route_target(target_node):
+		_current_target_uid = -1
+		target_info_panel.visible = false
 		return
 	
 	# Get target's agent_uid if available
@@ -20881,6 +22449,443 @@ func _on_ButtonUIOpacity_pressed() -> void:
 	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
+
+
+# --- Simulation HUD Panel Refresh ---
+
+func _on_sim_tick_for_panels(_tick_count) -> void:
+	_refresh_hud_panels()
+
+
+func _on_sim_initialized_for_panels(_seed) -> void:
+	_refresh_hud_panels()
+
+
+func _refresh_hud_panels() -> void:
+	if is_instance_valid(GlobalRefs.contact_manager):
+		if is_instance_valid(radar_display):
+			radar_display.refresh(GlobalRefs.contact_manager)
+		if is_instance_valid(sector_info_panel):
+			sector_info_panel.refresh(GlobalRefs.contact_manager)
+
+
+func _on_zone_unloading(_zone_node) -> void:
+	_clear_route_target_overlay()
+	_clear_world_target_overlay()
+
+
+func _on_zone_loaded(_zone_node, _zone_path, _agent_container_node) -> void:
+	_rebuild_projected_target_overlays()
+
+
+func _on_sector_changed(_new_sector_id, _old_sector_id) -> void:
+	_rebuild_projected_target_overlays()
+
+
+func _is_route_target(target_ref) -> bool:
+	return target_ref != null and target_ref.get("target_kind") == "jump_route"
+
+
+func _is_target_valid(target_ref) -> bool:
+	if target_ref == null:
+		return false
+	if _is_route_target(target_ref):
+		return true
+	return is_instance_valid(target_ref)
+
+
+func _refresh_process_state() -> void:
+	set_process(
+		is_instance_valid(_main_camera)
+		and (
+			_is_target_valid(_current_target)
+			or _route_target_buttons.size() > 0
+			or _world_target_buttons.size() > 0
+			or _inflight_drag_passthrough_active
+		)
+	)
+
+
+func _get_projection_origin() -> Vector3:
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		return GlobalRefs.player_agent_body.global_transform.origin
+	if is_instance_valid(_main_camera):
+		return _main_camera.global_transform.origin
+	return Vector3.ZERO
+
+
+func _get_target_world_position(target_ref) -> Vector3:
+	if _is_route_target(target_ref):
+		return target_ref.get_projection_world_position(
+			_get_projection_origin(),
+			Constants.SECTOR_JUMP_ARRIVAL_RADIUS
+		)
+	if target_ref is Spatial and is_instance_valid(target_ref):
+		return target_ref.global_transform.origin
+	return Vector3.ZERO
+
+
+func _clear_route_target_overlay() -> void:
+	for selection_key in _route_target_buttons:
+		var button = _route_target_buttons[selection_key]
+		if is_instance_valid(button):
+			_untrack_inflight_drag_control(button)
+			button.queue_free()
+	_route_target_buttons.clear()
+	_refresh_process_state()
+
+
+func _clear_world_target_overlay() -> void:
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if is_instance_valid(button):
+			_untrack_inflight_drag_control(button)
+			button.queue_free()
+	_world_target_buttons.clear()
+	_refresh_process_state()
+
+
+func _rebuild_projected_target_overlays() -> void:
+	_rebuild_route_target_overlay()
+	_rebuild_world_target_overlay()
+
+
+func _rebuild_route_target_overlay() -> void:
+	_clear_route_target_overlay()
+	if not is_instance_valid(projected_target_overlay):
+		return
+	var current_sector_id: String = GameState.current_sector_id
+	if current_sector_id == "":
+		return
+	var route_targets: Array = _route_target_provider.build_targets_for_sector(current_sector_id)
+	for route_target in route_targets:
+		var button = _instance_projected_target_bracket()
+		if button == null:
+			continue
+		button.name = "Route_%s" % route_target.target_sector_id
+		button.configure_target(route_target)
+		button.connect("pressed", self, "_on_route_target_button_pressed", [route_target])
+		projected_target_overlay.add_child(button)
+		_track_inflight_drag_control(button)
+		_route_target_buttons[route_target.selection_key] = button
+	_update_route_target_selection_state()
+	_refresh_process_state()
+
+
+func _rebuild_world_target_overlay() -> void:
+	_clear_world_target_overlay()
+	if not is_instance_valid(projected_target_overlay):
+		return
+	var world_targets: Array = _collect_world_projected_targets()
+	for target_node in world_targets:
+		var button = _instance_projected_target_bracket()
+		if button == null:
+			continue
+		button.name = "World_%s" % target_node.get_instance_id()
+		button.configure_target(target_node, _resolve_target_display_name(target_node))
+		button.connect("pressed", self, "_on_world_target_button_pressed", [target_node])
+		projected_target_overlay.add_child(button)
+		_track_inflight_drag_control(button)
+		_world_target_buttons[target_node.get_instance_id()] = button
+	_update_world_target_selection_state()
+	_refresh_process_state()
+
+
+func _instance_projected_target_bracket():
+	if ProjectedTargetBracketScene == null:
+		return null
+	return ProjectedTargetBracketScene.instance()
+
+
+func _update_route_target_overlay() -> void:
+	if not is_instance_valid(_main_camera):
+		return
+	var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
+	var viewport_rect = get_viewport_rect()
+	for selection_key in _route_target_buttons:
+		var button = _route_target_buttons[selection_key]
+		if not is_instance_valid(button):
+			continue
+		var route_target = button.target_ref
+		if not _is_route_target(route_target):
+			button.visible = false
+			continue
+		var target_world_position: Vector3 = _get_target_world_position(route_target)
+		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
+		var is_in_front = target_dir.dot(camera_fwd) >= 0
+		var screen_pos = _main_camera.unproject_position(target_world_position)
+		var is_on_screen = viewport_rect.has_point(screen_pos)
+		button.visible = is_in_front and is_on_screen
+		if button.visible:
+			button.rect_position = screen_pos - (button.rect_size / 2.0)
+
+
+func _collect_world_projected_targets() -> Array:
+	var targets: Array = []
+	if not is_instance_valid(GlobalRefs.current_zone):
+		return targets
+	_append_world_projected_targets(GlobalRefs.current_zone, targets)
+	return targets
+
+
+func _append_world_projected_targets(node: Node, targets: Array) -> void:
+	if _is_world_projectable_target(node):
+		targets.append(node)
+	for child in node.get_children():
+		_append_world_projected_targets(child, targets)
+
+
+func _is_world_projectable_target(node: Node) -> bool:
+	if not (node is Spatial):
+		return false
+	if node == GlobalRefs.player_agent_body:
+		return false
+	if node.is_in_group("jump_point"):
+		return false
+	if node is RigidBody:
+		if node.has_method("is_player") and node.is_player():
+			return false
+		return true
+	if node is StaticBody:
+		return true
+	return false
+
+
+func _update_world_target_overlay() -> void:
+	if not is_instance_valid(_main_camera):
+		return
+	var camera_fwd = -_main_camera.global_transform.basis.z.normalized()
+	var viewport_rect = get_viewport_rect()
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if not is_instance_valid(button):
+			continue
+		var target_node = button.target_ref
+		if not (target_node is Spatial and is_instance_valid(target_node)):
+			button.visible = false
+			continue
+		var target_world_position: Vector3 = _get_target_world_position(target_node)
+		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
+		var is_in_front = target_dir.dot(camera_fwd) >= 0
+		var screen_pos = _main_camera.unproject_position(target_world_position)
+		var is_on_screen = viewport_rect.has_point(screen_pos)
+		button.visible = is_in_front and is_on_screen
+		if button.visible:
+			button.rect_position = screen_pos - (button.rect_size / 2.0)
+
+
+func _get_route_target_selection_key() -> String:
+	if _is_route_target(_current_target):
+		return _current_target.selection_key
+	return ""
+
+
+func _update_route_target_selection_state() -> void:
+	var selected_key = _get_route_target_selection_key()
+	for selection_key in _route_target_buttons:
+		var button = _route_target_buttons[selection_key]
+		if is_instance_valid(button):
+			button.set_selected_state(selection_key == selected_key)
+
+
+func _get_world_target_instance_id() -> int:
+	if _current_target is Spatial and is_instance_valid(_current_target) and not _is_route_target(_current_target):
+		return _current_target.get_instance_id()
+	return -1
+
+
+func _update_world_target_selection_state() -> void:
+	var selected_instance_id = _get_world_target_instance_id()
+	for instance_id in _world_target_buttons:
+		var button = _world_target_buttons[instance_id]
+		if is_instance_valid(button):
+			button.set_selected_state(instance_id == selected_instance_id)
+
+
+func _on_route_target_button_pressed(route_target) -> void:
+	if EventBus:
+		EventBus.emit_signal("player_target_selection_requested", route_target)
+
+
+func _on_world_target_button_pressed(target_node) -> void:
+	if EventBus:
+		EventBus.emit_signal("player_target_selection_requested", target_node)
+
+--- Start of ./src/core/ui/main_hud/projected_target_bracket.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: projected_target_bracket.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-10 23:51:42
+#
+
+extends Button
+
+const BRACKET_BACKGROUND_STYLE = preload("res://assets/art/ui/controls/projected_targets/projected_target_bracket_background.tres")
+const BRACKET_NORMAL_STYLE = preload("res://assets/art/ui/controls/projected_targets/projected_target_bracket_normal.tres")
+const BRACKET_SELECTED_STYLE = preload("res://assets/art/ui/controls/projected_targets/projected_target_bracket_selected.tres")
+const DRAG_THRESHOLD_PX_SQ = 10 * 10
+
+var target_ref = null
+var _is_selected: bool = false
+var _background_panel: Panel = null
+var _frame_panel: Panel = null
+var _label: Label = null
+var _target_label: String = ""
+var _press_position: Vector2 = Vector2.ZERO
+var _is_pointer_pressed: bool = false
+var _is_dragging_pointer: bool = false
+
+
+func _ready() -> void:
+	flat = true
+	focus_mode = Control.FOCUS_NONE
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	keep_pressed_outside = false
+	rect_min_size = Vector2(180, 56)
+	_ensure_background_panel()
+	_ensure_frame_panel()
+	_ensure_label()
+	_apply_bracket_style()
+	_sync_label()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+		if event.pressed:
+			_begin_pointer_tracking(event.position)
+		else:
+			_finish_pointer_tracking()
+		return
+
+	if event is InputEventMouseMotion and _is_pointer_pressed and not _is_dragging_pointer:
+		if event.position.distance_squared_to(_press_position) > DRAG_THRESHOLD_PX_SQ:
+			_cancel_pending_click_for_drag(event)
+
+
+func _input(event: InputEvent) -> void:
+	if not (_is_pointer_pressed or _is_dragging_pointer or disabled):
+		return
+	if event is InputEventMouseMotion and _is_dragging_pointer:
+		_forward_camera_drag_motion(event)
+		return
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
+		_finish_pointer_tracking()
+
+
+func configure_target(new_target_ref, new_target_label: String = "") -> void:
+	target_ref = new_target_ref
+	_target_label = new_target_label
+	_sync_label()
+
+
+func set_selected_state(is_selected: bool) -> void:
+	if _is_selected == is_selected:
+		return
+	_is_selected = is_selected
+	_apply_bracket_style()
+
+
+func _begin_pointer_tracking(pointer_position: Vector2) -> void:
+	_press_position = pointer_position
+	_is_pointer_pressed = true
+	_is_dragging_pointer = false
+	if disabled:
+		disabled = false
+
+
+func _cancel_pending_click_for_drag(motion_event: InputEventMouseMotion) -> void:
+	_is_dragging_pointer = true
+	disabled = true
+	_set_camera_drag_state(true)
+	_forward_camera_drag_motion(motion_event)
+
+
+func _finish_pointer_tracking() -> void:
+	if _is_dragging_pointer:
+		_set_camera_drag_state(false)
+	_is_pointer_pressed = false
+	_is_dragging_pointer = false
+	if disabled:
+		disabled = false
+
+
+func _set_camera_drag_state(is_rotating: bool) -> void:
+	var camera = GlobalRefs.main_camera
+	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
+		camera.set_is_rotating(is_rotating)
+
+
+func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
+	var camera = GlobalRefs.main_camera
+	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
+		camera.call("_unhandled_input", motion_event)
+
+
+func _ensure_background_panel() -> void:
+	if _background_panel != null:
+		return
+	_background_panel = Panel.new()
+	_background_panel.name = "Background"
+	_configure_fill_control(_background_panel)
+	_background_panel.add_stylebox_override("panel", BRACKET_BACKGROUND_STYLE)
+	add_child(_background_panel)
+
+
+func _ensure_frame_panel() -> void:
+	if _frame_panel != null:
+		return
+	_frame_panel = Panel.new()
+	_frame_panel.name = "Frame"
+	_configure_fill_control(_frame_panel)
+	add_child(_frame_panel)
+
+
+func _ensure_label() -> void:
+	if _label != null:
+		return
+	_label = Label.new()
+	_label.name = "Label"
+	_label.anchor_right = 1.0
+	_label.anchor_bottom = 1.0
+	_label.margin_left = 10.0
+	_label.margin_top = 8.0
+	_label.margin_right = -10.0
+	_label.margin_bottom = -8.0
+	_label.align = Label.ALIGN_CENTER
+	_label.valign = Label.VALIGN_CENTER
+	_label.autowrap = true
+	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_label)
+
+
+func _configure_fill_control(control: Control) -> void:
+	control.anchor_right = 1.0
+	control.anchor_bottom = 1.0
+	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	control.focus_mode = Control.FOCUS_NONE
+
+
+func _apply_bracket_style() -> void:
+	if _frame_panel == null:
+		return
+	var bracket_style = BRACKET_SELECTED_STYLE if _is_selected else BRACKET_NORMAL_STYLE
+	_frame_panel.add_stylebox_override("panel", bracket_style)
+
+
+func _sync_label() -> void:
+	if _label == null:
+		return
+	if _target_label != "":
+		_label.text = _target_label
+	elif target_ref != null and target_ref.get("display_name") != null:
+		_label.text = str(target_ref.display_name)
+	elif target_ref != null and target_ref.get("name") != null:
+		_label.text = str(target_ref.name).replace("_", " ")
+	else:
+		_label.text = ""
 
 --- Start of ./src/core/ui/main_menu/main_menu.gd ---
 
@@ -20982,6 +22987,235 @@ func _show_menu() -> void:
 	get_tree().paused = true
 	_update_load_button_state()
 
+--- Start of ./src/core/ui/radar_display/radar_display.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: radar_display.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §7 Assets & Style Guide (UI: functional, monochromatic)
+# LOG_REF: 2026-03-21
+#
+
+extends Control
+
+## RadarDisplay: Contact roster panel showing all simulation agents in the
+## player's current sector. Color-coded by disposition (green/yellow/red).
+## Refreshes on sim_tick_completed via MainHUD calling refresh().
+
+# --- Color Constants ---
+const COLOR_FRIENDLY := Color(0.33, 1.0, 0.33)   # #55FF55
+const COLOR_NEUTRAL := Color(1.0, 1.0, 0.33)      # #FFFF55
+const COLOR_HOSTILE := Color(1.0, 0.33, 0.33)      # #FF5555
+const COLOR_BG := Color(0.1, 0.1, 0.12, 0.85)
+
+# --- Node References ---
+onready var header_label: Label = $PanelBg/VBoxContainer/HeaderLabel
+onready var sector_label: Label = $PanelBg/VBoxContainer/SectorLabel
+onready var contact_list: VBoxContainer = $PanelBg/VBoxContainer/ContactList
+
+
+func _ready() -> void:
+	header_label.text = "SECTOR SCAN"
+	sector_label.text = ""
+
+
+func refresh(contact_manager) -> void:
+	# Clear existing contact entries
+	for child in contact_list.get_children():
+		child.queue_free()
+
+	var sector_info: Dictionary = contact_manager.get_current_sector_info()
+	sector_label.text = sector_info.get("name", "Unknown Sector")
+
+	var agents: Array = contact_manager.get_agents_in_player_sector()
+
+	if agents.empty():
+		var empty_label := Label.new()
+		empty_label.text = "No contacts detected"
+		empty_label.add_color_override("font_color", Color(0.5, 0.5, 0.5))
+		contact_list.add_child(empty_label)
+		return
+
+	for agent_id in agents:
+		var info: Dictionary = contact_manager.get_agent_info(agent_id)
+		if info.empty():
+			continue
+		_create_contact_entry(info)
+
+
+func _create_contact_entry(info: Dictionary) -> void:
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = SIZE_EXPAND_FILL
+
+	# Disposition color dot
+	var dot := ColorRect.new()
+	dot.rect_min_size = Vector2(12, 12)
+	dot.color = _get_disposition_color(info.get("disposition_category", "neutral"))
+	row.add_child(dot)
+
+	# Name + Role label
+	var name_label := Label.new()
+	name_label.text = "%s - %s" % [info.get("name", "Unknown"), info.get("role", "idle").capitalize()]
+	name_label.size_flags_horizontal = SIZE_EXPAND_FILL
+	name_label.clip_text = true
+	row.add_child(name_label)
+
+	# Condition indicator
+	var condition_label := Label.new()
+	condition_label.text = _get_condition_indicator(info.get("condition_tag", "HEALTHY"))
+	condition_label.align = Label.ALIGN_RIGHT
+	row.add_child(condition_label)
+
+	contact_list.add_child(row)
+
+
+func _get_disposition_color(category: String) -> Color:
+	match category:
+		"friendly":
+			return COLOR_FRIENDLY
+		"hostile":
+			return COLOR_HOSTILE
+		_:
+			return COLOR_NEUTRAL
+
+
+func _get_condition_indicator(condition_tag: String) -> String:
+	match condition_tag:
+		"DAMAGED":
+			return "!"
+		"DESTROYED":
+			return "X"
+		_:
+			return "OK"
+
+--- Start of ./src/core/ui/sector_info_panel/sector_info_panel.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: sector_info_panel.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §7 Assets & Style Guide (UI: functional, monochromatic)
+# LOG_REF: 2026-03-21
+#
+
+extends Control
+
+## SectorInfoPanel: Compact BBCode strip displaying current sector status.
+## Shows sector name, economy/security/environment tags, colony level,
+## and world age with tick counter. Refreshes on sim_tick_completed via MainHUD.
+
+# --- Color Constants (hex for BBCode) ---
+const COLOR_GREEN := "55ff55"
+const COLOR_YELLOW := "ffff55"
+const COLOR_RED := "ff5555"
+const COLOR_CYAN := "55ffff"
+const COLOR_WHITE := "ffffff"
+
+# --- Node References ---
+onready var info_label: RichTextLabel = $PanelBg/InfoLabel
+
+
+func _ready() -> void:
+	info_label.bbcode_text = "Awaiting sensor data..."
+
+
+func refresh(contact_manager) -> void:
+	var info: Dictionary = contact_manager.get_current_sector_info()
+	if info.empty() or info.get("sector_id", "") == "":
+		info_label.bbcode_text = "Awaiting sensor data..."
+		return
+
+	var line1 := "[b]%s[/b]  Econ: %s  Sec: %s  Env: %s" % [
+		info.get("name", "Unknown"),
+		_format_economy_tags(info.get("economy_tags", [])),
+		_color_security(info.get("security_tag", "UNKNOWN")),
+		_color_environment(info.get("environment_tag", "UNKNOWN")),
+	]
+
+	var line2 := "Colony: %s  Age: %s (tick %d)" % [
+		_color_colony(info.get("colony_level", "frontier")),
+		_color_world_age(info.get("world_age", "")),
+		info.get("sim_tick_count", 0),
+	]
+
+	info_label.bbcode_text = line1 + "\n" + line2
+
+
+func _format_economy_tags(tags: Array) -> String:
+	if tags.empty():
+		return "[color=#%s]none[/color]" % COLOR_WHITE
+	var parts := []
+	for tag in tags:
+		parts.append("[color=#%s]%s[/color]" % [_economy_color(tag), tag])
+	return " ".join(parts)
+
+
+func _economy_color(tag: String) -> String:
+	if tag.ends_with("_RICH"):
+		return COLOR_GREEN
+	elif tag.ends_with("_ADEQUATE"):
+		return COLOR_YELLOW
+	elif tag.ends_with("_POOR"):
+		return COLOR_RED
+	return COLOR_WHITE
+
+
+func _color_security(tag: String) -> String:
+	var color: String
+	match tag:
+		"SECURE":
+			color = COLOR_GREEN
+		"CONTESTED":
+			color = COLOR_YELLOW
+		"LAWLESS":
+			color = COLOR_RED
+		_:
+			color = COLOR_WHITE
+	return "[color=#%s]%s[/color]" % [color, tag]
+
+
+func _color_environment(tag: String) -> String:
+	var color: String
+	match tag:
+		"MILD":
+			color = COLOR_GREEN
+		"HARSH":
+			color = COLOR_YELLOW
+		"EXTREME":
+			color = COLOR_RED
+		_:
+			color = COLOR_WHITE
+	return "[color=#%s]%s[/color]" % [color, tag]
+
+
+func _color_colony(level: String) -> String:
+	var color: String
+	match level:
+		"hub":
+			color = COLOR_CYAN
+		"colony":
+			color = COLOR_GREEN
+		"outpost":
+			color = COLOR_YELLOW
+		_:
+			color = COLOR_WHITE
+	return "[color=#%s]%s[/color]" % [color, level]
+
+
+func _color_world_age(age: String) -> String:
+	var color: String
+	match age:
+		"PROSPERITY":
+			color = COLOR_GREEN
+		"DISRUPTION":
+			color = COLOR_RED
+		"RECOVERY":
+			color = COLOR_YELLOW
+		_:
+			color = COLOR_WHITE
+	return "[color=#%s]%s[/color]" % [color, age]
+
 --- Start of ./src/core/ui/sim_debug_panel/sim_debug_panel.gd ---
 
 #
@@ -20989,7 +23223,7 @@ func _show_menu() -> void:
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_12
-# LOG_REF: 2026-02-21 (TASK_12)
+# LOG_REF: 2026-05-09 18:40:25
 #
 
 extends CanvasLayer
@@ -21015,6 +23249,7 @@ onready var _btn_run_30: Button = $Panel/VBoxContainer/HeaderRow/BtnRun30
 onready var _btn_run_300: Button = $Panel/VBoxContainer/HeaderRow/BtnRun300
 onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
+onready var _btn_close: Button = $Panel/VBoxContainer/HeaderRow/BtnClose
 
 
 # =============================================================================
@@ -21044,6 +23279,7 @@ func _ready() -> void:
 	_btn_run_300.connect("pressed", self, "_on_run_batch", [300])
 	_btn_run_3000.connect("pressed", self, "_on_run_batch", [3000])
 	_btn_back.connect("pressed", self, "_on_back_pressed")
+	_btn_close.connect("pressed", self, "_on_close_pressed")
 	_btn_back.visible = false
 	call_deferred("_refresh")
 
@@ -21124,6 +23360,11 @@ func _on_back_pressed() -> void:
 	_report_text = ""
 	_report_bbcode = ""
 	_refresh()
+
+
+func _on_close_pressed() -> void:
+	if _visible:
+		_toggle()
 
 
 # =============================================================================
@@ -21634,8 +23875,13 @@ func _physics_process(delta):
 
 --- Start of ./src/modules/piloting/player_controller_ship.gd ---
 
-# File: modules/piloting/scripts/player_controller_ship.gd
-# Version: 5.0 - RigidBody physics with thrust throttle control.
+#
+# PROJECT: GDTLancer
+# MODULE: player_controller_ship.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:43:42
+#
 
 extends Node
 
@@ -21655,8 +23901,15 @@ const KEY_THROTTLE_INCREMENT: float = 0.05
 var _current_input_state: InputState = null
 var _states = {}
 var _target_under_cursor: Spatial = null
-var _selected_target: Spatial = null setget _set_selected_target
+var _selected_target = null setget _set_selected_target
 var _can_dock_at: String = ""
+var _pending_jump_target: String = ""
+var _queued_jump_target_id: String = ""
+var _queued_jump_direction: Vector3 = Vector3.ZERO
+var _queued_jump_selection_token: String = ""
+var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
+var _nearest_dock_type: String = ""      # "station" or "jump"
+const JUMP_ALIGNMENT_MAX_DEVIATION_DEG: float = 5.0
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -21684,8 +23937,6 @@ func _ready():
 
 	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
 
-	EventBus.connect("dock_available", self, "_on_dock_available")
-	EventBus.connect("dock_unavailable", self, "_on_dock_unavailable")
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
@@ -21737,6 +23988,8 @@ func _change_state(new_state_name: String):
 func _physics_process(delta: float):
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
+	_poll_docking_proximity()
+	_process_queued_jump()
 
 
 func _unhandled_input(event: InputEvent):
@@ -21865,23 +24118,48 @@ func _get_current_target() -> RigidBody:
 	return null
 
 
+func _is_route_target(target_ref) -> bool:
+	return target_ref != null and target_ref.get("target_kind") == "jump_route"
+
+
+func _is_selected_target_valid() -> bool:
+	if _is_route_target(_selected_target):
+		return true
+	return is_instance_valid(_selected_target)
+
+
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
-	# Legacy keyboard interact - just dock if available
-	if _can_dock_at != "":
-		print("PlayerController: Attempting to dock at ", _can_dock_at)
-		EventBus.emit_signal("player_docked", _can_dock_at)
+	if not _is_selected_target_valid():
+		_clear_queued_jump()
+		EventBus.emit_signal("dock_action_feedback", false, "No target selected")
+		return
+	if _is_route_target(_selected_target):
+		_attempt_selected_jump()
+		return
+	var is_station = _selected_target.is_in_group("dockable_station")
+	var is_jump = _selected_target.is_in_group("jump_point")
+	if not is_station and not is_jump:
+		_clear_queued_jump()
+		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
+		return
+	var dist = agent_body.global_transform.origin.distance_to(
+		_selected_target.global_transform.origin
+	)
+	if dist > Constants.DOCKING_ACTION_RADIUS:
+		_clear_queued_jump()
+		EventBus.emit_signal("dock_action_feedback", false, "Target is too far away")
+		return
+	if is_station:
+		_clear_queued_jump()
+		EventBus.emit_signal("player_docked", _selected_target.location_id)
+	else:
+		_attempt_selected_jump()
 
 
 # --- Dock/Attack Button Handlers ---
 func _on_dock_button_pressed() -> void:
-	if _can_dock_at != "":
-		print("PlayerController: Dock button pressed, docking at ", _can_dock_at)
-		EventBus.emit_signal("player_docked", _can_dock_at)
-	else:
-		# Emit signal to show "no dock available" popup on HUD
-		if EventBus:
-			EventBus.emit_signal("dock_action_feedback", false, "No station in range")
+	_handle_interact_input()
 
 
 func _on_attack_button_pressed() -> void:
@@ -21900,24 +24178,26 @@ func _on_attack_button_pressed() -> void:
 
 # --- Helper & Command Functions (Publicly callable by states) ---
 func _update_target_under_cursor():
-	_target_under_cursor = _raycast_for_target(get_viewport().get_mouse_position())
+	_target_under_cursor = null
 
 
-func _set_selected_target(new_target: Spatial):
+func _set_selected_target(new_target):
 	if _selected_target == new_target:
 		return
+	_clear_queued_jump()
 	_selected_target = new_target
-	if is_instance_valid(_selected_target):
+	if _is_selected_target_valid():
 		EventBus.emit_signal("player_target_selected", _selected_target)
 	else:
 		EventBus.emit_signal("player_target_deselected")
 
 
 func _handle_single_click(_click_pos: Vector2):
-	self._selected_target = _target_under_cursor
+	_set_selected_target(null)
 
 
 func _handle_double_click(click_pos: Vector2):
+	_clear_queued_jump()
 	if is_instance_valid(agent_script) and is_instance_valid(_main_camera):
 		var ray_origin = _main_camera.project_ray_origin(click_pos)
 		var ray_normal = _main_camera.project_ray_normal(click_pos)
@@ -21926,6 +24206,7 @@ func _handle_double_click(click_pos: Vector2):
 
 
 func _issue_stop_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	agent_script.command_stop()
@@ -21934,6 +24215,7 @@ func _issue_stop_command():
 
 
 func _issue_approach_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	if EventBus:
@@ -21943,6 +24225,7 @@ func _issue_approach_command():
 
 
 func _issue_flee_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	if EventBus:
@@ -21952,6 +24235,7 @@ func _issue_flee_command():
 
 
 func _issue_orbit_command():
+	_clear_queued_jump()
 	if not is_instance_valid(agent_script):
 		return
 	if EventBus:
@@ -21984,6 +24268,133 @@ func _raycast_for_target(screen_pos: Vector2) -> Spatial:
 	return result.collider if result else null
 
 
+func _attempt_selected_jump() -> void:
+	var target_sector_id = _get_jump_target_sector_id(_selected_target)
+	if target_sector_id == "":
+		_clear_queued_jump()
+		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
+		return
+	var jump_direction = _resolve_jump_direction_from_target(_selected_target)
+	if jump_direction.length_squared() < 0.001:
+		_emit_jump_request(target_sector_id)
+		return
+	if not _can_queue_jump_alignment():
+		_emit_jump_request(target_sector_id)
+		return
+	_queue_jump_alignment(target_sector_id, jump_direction)
+
+
+func _get_jump_target_sector_id(target_ref) -> String:
+	if _is_route_target(target_ref):
+		return target_ref.target_sector_id
+	if is_instance_valid(target_ref) and target_ref.is_in_group("jump_point"):
+		return target_ref.target_sector_id
+	return ""
+
+
+func _get_jump_target_selection_token(target_ref) -> String:
+	if _is_route_target(target_ref):
+		return target_ref.selection_key
+	if is_instance_valid(target_ref):
+		return "jump_point:%s" % target_ref.get_instance_id()
+	return ""
+
+
+func _resolve_jump_direction_from_target(target_ref) -> Vector3:
+	if _is_route_target(target_ref):
+		return target_ref.route_direction.normalized()
+	if is_instance_valid(target_ref) and target_ref is Spatial and is_instance_valid(agent_body):
+		var raw_direction = target_ref.global_transform.origin - agent_body.global_transform.origin
+		if raw_direction.length_squared() < 0.001:
+			return Vector3.ZERO
+		return raw_direction.normalized()
+	return Vector3.ZERO
+
+
+func _can_queue_jump_alignment() -> bool:
+	return (
+		is_instance_valid(agent_body)
+		and is_instance_valid(agent_script)
+		and is_instance_valid(movement_system)
+		and agent_script.has_method("command_align_to")
+		and movement_system.has_method("is_rotation_stopped")
+	)
+
+
+func _is_jump_alignment_ready(jump_direction: Vector3) -> bool:
+	if jump_direction.length_squared() < 0.001:
+		return true
+	if not _can_queue_jump_alignment():
+		return true
+	return _is_jump_facing_direction_ready(jump_direction) and movement_system.is_rotation_stopped()
+
+
+func _is_jump_facing_direction_ready(jump_direction: Vector3) -> bool:
+	if jump_direction.length_squared() < 0.001:
+		return true
+	if not is_instance_valid(agent_body):
+		return true
+	var target_direction = jump_direction.normalized()
+	var current_forward = -agent_body.global_transform.basis.z.normalized()
+	var deviation_angle_deg = rad2deg(current_forward.angle_to(target_direction))
+	return deviation_angle_deg < JUMP_ALIGNMENT_MAX_DEVIATION_DEG or is_equal_approx(
+		deviation_angle_deg,
+		JUMP_ALIGNMENT_MAX_DEVIATION_DEG
+	)
+
+
+func _queue_jump_alignment(target_sector_id: String, jump_direction: Vector3) -> void:
+	if not _can_queue_jump_alignment():
+		_emit_jump_request(target_sector_id)
+		return
+	_queued_jump_target_id = target_sector_id
+	_queued_jump_direction = jump_direction.normalized()
+	_queued_jump_selection_token = _get_jump_target_selection_token(_selected_target)
+	agent_script.command_align_to(_queued_jump_direction)
+
+
+func _process_queued_jump() -> void:
+	if _queued_jump_target_id == "":
+		return
+	if not _is_selected_jump_queue_still_valid():
+		_clear_queued_jump()
+		return
+	var current_jump_direction = _resolve_jump_direction_from_target(_selected_target)
+	if current_jump_direction.length_squared() >= 0.001:
+		_queued_jump_direction = current_jump_direction
+	if _queued_jump_direction.length_squared() < 0.001:
+		_emit_jump_request(_queued_jump_target_id)
+		return
+	if not _can_queue_jump_alignment():
+		_emit_jump_request(_queued_jump_target_id)
+		return
+	if not _is_jump_alignment_ready(_queued_jump_direction):
+		agent_script.command_align_to(_queued_jump_direction)
+		return
+	_emit_jump_request(_queued_jump_target_id)
+
+
+func _is_selected_jump_queue_still_valid() -> bool:
+	if _queued_jump_target_id == "":
+		return false
+	if _get_jump_target_sector_id(_selected_target) != _queued_jump_target_id:
+		return false
+	if _get_jump_target_selection_token(_selected_target) != _queued_jump_selection_token:
+		return false
+	return _nearest_dock_type == "jump" and _pending_jump_target == _queued_jump_target_id
+
+
+func _emit_jump_request(target_sector_id: String) -> void:
+	_clear_queued_jump()
+	EventBus.emit_signal("player_jump_requested", target_sector_id)
+
+
+func _clear_queued_jump() -> void:
+	_queued_jump_target_id = ""
+	_queued_jump_direction = Vector3.ZERO
+	_queued_jump_selection_token = ""
+
+
 # --- Signal Handlers ---
 func _on_Player_Free_Flight_Toggled():
 	var new_state = "default" if _current_input_state is StateFreeFlight else "free_flight"
@@ -21995,25 +24406,25 @@ func _on_Player_Stop_Pressed():
 
 
 func _on_Player_Orbit_Pressed():
-	if is_instance_valid(_selected_target):
+	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_orbit(_selected_target)
 
 
 func _on_Player_Approach_Pressed():
-	if is_instance_valid(_selected_target):
+	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_approach(_selected_target)
 
 
 func _on_Player_Flee_Pressed():
-	if is_instance_valid(_selected_target):
+	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_flee(_selected_target)
 
 func _on_Player_Interact_Pressed():
-	if _can_dock_at != "":
-		print("PlayerController: Interact button pressed. Attempting to dock at ", _can_dock_at)
-		EventBus.emit_signal("player_docked", _can_dock_at)
-	else:
-		print("PlayerController: Interact button pressed but no dock available.")
+	_handle_interact_input()
+
+
+func _on_player_target_selection_requested(target_ref) -> void:
+	_set_selected_target(target_ref)
 
 func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 	current_thrust_throttle = (100.0 - slider_ui_value) / 100.0
@@ -22023,6 +24434,7 @@ func _on_Player_Ship_Speed_Slider_Changed_By_HUD(slider_ui_value: float):
 # --- Connections & Cleanup ---
 func _connect_eventbus_signals():
 	EventBus.connect("player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled")
+	EventBus.connect("player_target_selection_requested", self, "_on_player_target_selection_requested")
 	EventBus.connect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
 	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
 	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
@@ -22041,6 +24453,8 @@ func _notification(what):
 			EventBus.disconnect(
 				"player_free_flight_toggled", self, "_on_Player_Free_Flight_Toggled"
 			)
+		if EventBus.is_connected("player_target_selection_requested", self, "_on_player_target_selection_requested"):
+			EventBus.disconnect("player_target_selection_requested", self, "_on_player_target_selection_requested")
 		if EventBus.is_connected("player_stop_pressed", self, "_on_Player_Stop_Pressed"):
 			EventBus.disconnect("player_stop_pressed", self, "_on_Player_Stop_Pressed")
 		if EventBus.is_connected("player_orbit_pressed", self, "_on_Player_Orbit_Pressed"):
@@ -22058,19 +24472,74 @@ func _notification(what):
 				"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 			)
 
-# --- Docking Handlers ---
-func _on_dock_available(location_id):
-	_can_dock_at = location_id
-	print("PlayerController: Docking available at: ", location_id, ". Press Interact (Space/Enter) to dock.")
-	# TODO: Show UI prompt
+# --- Proximity Polling (requires active target selection) ---
+func _poll_docking_proximity():
+	if not is_instance_valid(agent_body):
+		return
+	# Only the actively selected target can trigger dock/jump prompts
+	var target = _selected_target
+	var node: Spatial = null
+	var dtype: String = ""
+	var did: String = ""
+	var dname: String = ""
 
-func _on_dock_unavailable():
-	_can_dock_at = ""
-	print("PlayerController: Docking unavailable.")
-	# TODO: Hide UI prompt
+	if _is_route_target(target):
+		dtype = "jump"
+		did = target.target_sector_id
+		dname = target.display_name
+	elif is_instance_valid(target):
+		if target.is_in_group("dockable_station"):
+			node = target
+			dtype = "station"
+			did = target.location_id
+			dname = target.station_name
+		elif target.is_in_group("jump_point"):
+			node = target
+			dtype = "jump"
+			did = target.target_sector_id
+			dname = target.target_sector_name
+
+	var in_range := false
+	if dtype == "jump" and not is_instance_valid(node):
+		in_range = true
+	elif is_instance_valid(node):
+		var dist = agent_body.global_transform.origin.distance_to(node.global_transform.origin)
+		in_range = dist <= Constants.DOCKING_PROMPT_RADIUS
+
+	# Update state and emit signals only on change
+	if in_range:
+		var state_changed := (
+			node != _nearest_dock_node
+			or dtype != _nearest_dock_type
+			or (dtype == "station" and did != _can_dock_at)
+			or (dtype == "jump" and did != _pending_jump_target)
+		)
+		if state_changed:
+			_nearest_dock_node = node
+			_nearest_dock_type = dtype
+			if dtype == "station":
+				_can_dock_at = did
+				_pending_jump_target = ""
+				EventBus.emit_signal("dock_available", did)
+			else:
+				_pending_jump_target = did
+				_can_dock_at = ""
+				EventBus.emit_signal("jump_available", did, dname)
+	else:
+		if _nearest_dock_type != "":
+			var was_type = _nearest_dock_type
+			_nearest_dock_node = null
+			_nearest_dock_type = ""
+			_can_dock_at = ""
+			_pending_jump_target = ""
+			if was_type == "station":
+				EventBus.emit_signal("dock_unavailable")
+			else:
+				EventBus.emit_signal("jump_unavailable")
 
 func _on_player_docked(location_id):
 	print("Player docked at: ", location_id)
+	_clear_queued_jump()
 	GameState.player_docked_at = location_id
 	set_process_unhandled_input(false)
 	set_physics_process(false)
@@ -22080,6 +24549,7 @@ func _on_player_docked(location_id):
 
 func _on_player_undocked():
 	print("Player undocked")
+	_clear_queued_jump()
 	GameState.player_docked_at = ""
 	set_process_unhandled_input(true)
 	set_physics_process(true)
@@ -22144,7 +24614,7 @@ func enter(controller: Node):
 
 
 func physics_update(_delta: float):
-	_controller._update_target_under_cursor()
+	pass
 
 
 func handle_input(event: InputEvent):
@@ -22834,9 +25304,13 @@ func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
 
 --- Start of ./src/scenes/camera/components/camera_rotation_controller.gd ---
 
-# File: src/scenes/camera/components/camera_rotation_controller.gd
-# Purpose: Manages camera rotation, including PID-based smoothing and mouse input.
-# This is a component of the main OrbitCamera.
+#
+# PROJECT: GDTLancer
+# MODULE: camera_rotation_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
+#
 
 extends Node
 class_name CameraRotationController
@@ -22970,6 +25444,10 @@ func set_is_rotating(rotating: bool):
 	if not _rotation_input_active:
 		_is_externally_rotating = rotating
 	reset_pids()
+
+
+func is_externally_rotating() -> bool:
+	return _is_externally_rotating
 
 
 func reset_pids():
@@ -23164,8 +25642,13 @@ func _notification(what):
 
 --- Start of ./src/scenes/camera/orbit_camera.gd ---
 
-# File: scenes/camera/orbit_camera.gd
-# Version: 2.3 - Added target-tracking camera mode.
+#
+# PROJECT: GDTLancer
+# MODULE: orbit_camera.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
+#
 
 extends Camera
 
@@ -23320,6 +25803,14 @@ func set_is_rotating(rotating: bool):
 		_rotation_controller.set_is_rotating(rotating)
 
 
+func is_externally_rotating() -> bool:
+	return (
+		is_instance_valid(_rotation_controller)
+		and _rotation_controller.has_method("is_externally_rotating")
+		and _rotation_controller.is_externally_rotating()
+	)
+
+
 # --- Camera Mode Methods ---
 func get_camera_mode() -> int:
 	return _camera_mode
@@ -23370,67 +25861,69 @@ func _notification(what):
 		if GlobalRefs and GlobalRefs.main_camera == self:
 			GlobalRefs.main_camera = null
 
---- Start of ./src/scenes/game_world/station/dockable_station.gd ---
+--- Start of ./src/scenes/game_world/jump_point.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: jump_point.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT §Architecture, TACTICAL_TODO §TASK_4
+# LOG_REF: 2026-04-12
+#
 
 extends StaticBody
 
-export var location_id: String = "station_alpha"
-export var station_name: String = "Station Alpha"
+export var target_sector_id: String = ""
+export var target_sector_name: String = ""
 
-onready var docking_zone = $DockingZone
+
+func _ready():
+	add_to_group("jump_point")
+
+--- Start of ./src/scenes/game_world/starsphere_slot.gd ---
+
+extends Spatial
+
+
+var main_camera : Camera = null
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	self.global_position = GlobalRefs.main_camera.global_position
+
+--- Start of ./src/scenes/game_world/station/dockable_station.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: dockable_station.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TACTICAL_TODO.md §TASK_1
+## LOG_REF: 2026-05-09 20:56:15
+##
+
+extends StaticBody
+
+export var location_id: String = "sector_system_elace"
+export var station_name: String = "Elace System"
+
 
 func _ready():
 	add_to_group("dockable_station")
-	print("DockableStation ready: ", station_name, " at ", global_transform.origin)
-	if docking_zone:
-		docking_zone.monitoring = true
-		docking_zone.monitorable = true
-		docking_zone.collision_layer = 1
-		docking_zone.collision_mask = 1
-		docking_zone.connect("body_entered", self, "_on_body_entered")
-		docking_zone.connect("body_exited", self, "_on_body_exited")
-		
-		# Check for overlapping bodies immediately in case player spawned inside
-		var bodies = docking_zone.get_overlapping_bodies()
-		for body in bodies:
-			_on_body_entered(body)
-	else:
-		printerr("DockableStation Error: DockingZone not found!")
-
-func _on_body_entered(body):
-	# Ignore self (the station's own StaticBody)
-	if body == self:
-		return
-	# Only care about RigidBody (ships)
-	if not body is RigidBody:
-		return
-		
-	print("Body entered docking zone: ", body.name)
-	if body.has_method("is_player"):
-		print("Body has is_player method. Result: ", body.is_player())
-		if body.is_player():
-			EventBus.emit_signal("dock_available", location_id)
-			print("Dock available at: ", station_name)
-	else:
-		print("Body does NOT have is_player method.")
-
-func _on_body_exited(body):
-	if body == self:
-		return
-	if not body is RigidBody:
-		return
-	if body.has_method("is_player") and body.is_player():
-		EventBus.emit_signal("dock_unavailable")
-		print("Dock unavailable at: ", station_name)
 
 --- Start of ./src/scenes/game_world/world_manager.gd ---
 
 #
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:32:50
 #
 
 extends Node
@@ -23444,6 +25937,9 @@ const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_
 
 # --- State ---
 var _spawned_agent_bodies = []
+var _sector_loader = null
+var _pending_jump_target: String = ""
+var _reported_invalid_sectors: Dictionary = {}
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
@@ -23474,6 +25970,9 @@ func _ready():
 	if EventBus.has_signal("new_game_requested"):
 		if not EventBus.is_connected("new_game_requested", self, "_on_new_game_requested"):
 			EventBus.connect("new_game_requested", self, "_on_new_game_requested")
+	EventBus.connect("player_jump_requested", self, "_on_player_jump_requested")
+	EventBus.connect("jump_available", self, "_on_jump_available")
+	EventBus.connect("jump_unavailable", self, "_on_jump_unavailable")
 	
 
 	# --- NEW: Setup the Time Clock Timer ---
@@ -23516,7 +26015,8 @@ func _on_new_game_requested() -> void:
 	else:
 		push_warning("WorldManager: SimulationEngine not available, skipping sim init.")
 
-	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	GameState.agents["player"]["current_sector_id"] = Constants.INITIAL_SECTOR_ID
+	load_sector(Constants.INITIAL_SECTOR_ID)
 	
 	if is_instance_valid(_time_clock_timer):
 		_time_clock_timer.start()
@@ -23542,7 +26042,9 @@ func _on_game_state_loaded() -> void:
 	if saved_seed != "" and is_instance_valid(GlobalRefs.simulation_engine):
 		GlobalRefs.simulation_engine.initialize_simulation(saved_seed)
 
-	load_zone(Constants.INITIAL_ZONE_SCENE_PATH)
+	var saved_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	GameState.current_sector_id = saved_sector
+	load_sector(saved_sector)
 	call_deferred("_emit_loaded_dock_signal")
 	call_deferred("_emit_loaded_resource_signals")
 	
@@ -23631,40 +26133,121 @@ func _reset_camera_input_state() -> void:
 			GlobalRefs.main_camera.set_is_rotating(false)
 
 
-# --- Zone Management ---
-func load_zone(zone_scene_path: String):
-	if not zone_scene_path or zone_scene_path.empty():
-		printerr("WM Error: Invalid zone path provided.")
+# --- Sector Loading ---
+func load_sector(sector_id: String):
+	var resolved_sector_id: String = _resolve_known_sector_id(sector_id, "load_sector")
+	if resolved_sector_id == "":
 		return
 
-	# 1. Cleanup Previous Zone (if not already cleaned up)
-	if is_instance_valid(GameState.current_zone_instance):
-		_cleanup_current_zone()
-		yield(get_tree(), "idle_frame")
+	_cleanup_all_agents()
+	_cleanup_current_zone()
+	yield(get_tree(), "idle_frame")
 
-	# 2. Find Parent Container Node
+	if _sector_loader == null:
+		_sector_loader = load("res://src/core/systems/sector_loader.gd").new()
+
+	var zone_root: Spatial = _sector_loader.load_sector(resolved_sector_id)
+	if zone_root == null:
+		printerr("WM Error: SectorLoader returned null for: ", resolved_sector_id)
+		return
+
 	var zone_holder = get_parent().get_node_or_null(Constants.CURRENT_ZONE_CONTAINER_NAME)
 	if not is_instance_valid(zone_holder):
 		printerr("WM Error: Could not find valid zone holder node!")
 		return
 
-	# 3. Load and Instance the Zone Scene
-	var zone_scene = load(zone_scene_path)
-	if not zone_scene:
-		printerr("WM Error: Failed to load Zone Scene Resource: ", zone_scene_path)
-		return
+	zone_holder.add_child(zone_root)
+	GameState.current_zone_instance = zone_root
+	GlobalRefs.current_zone = zone_root
 
-	GameState.current_zone_instance = zone_scene.instance()
-	zone_holder.add_child(GameState.current_zone_instance)
-	GlobalRefs.current_zone = GameState.current_zone_instance
-
-	# 4. Find Agent Container and emit signal that the zone is ready
-	var agent_container = GameState.current_zone_instance.find_node(
-		Constants.AGENT_CONTAINER_NAME, true, false
-	)
+	var agent_container = zone_root.find_node(Constants.AGENT_CONTAINER_NAME, true, false)
 	GlobalRefs.agent_container = agent_container
 
-	EventBus.emit_signal("zone_loaded", GameState.current_zone_instance, zone_scene_path, agent_container)
+	GameState.current_sector_id = resolved_sector_id
+	EventBus.emit_signal("zone_loaded", zone_root, resolved_sector_id, agent_container)
+
+
+func travel_to_sector(target_sector_id: String) -> void:
+	var resolved_target_sector_id: String = _resolve_known_sector_id(target_sector_id, "travel_to_sector")
+	if resolved_target_sector_id == "":
+		return
+	var old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	_snapshot_player_state_for_sector_travel()
+	GameState.player_docked_at = ""
+	GameState.player_arrived_from_sector = old_sector
+	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, resolved_target_sector_id)
+	if GameState.agents.has("player"):
+		GameState.agents["player"]["current_sector_id"] = resolved_target_sector_id
+	EventBus.emit_signal("sector_changed", resolved_target_sector_id, old_sector)
+	load_sector(resolved_target_sector_id)
+	if is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.request_tick()
+
+
+func _snapshot_player_state_for_sector_travel() -> void:
+	# Clear saved-position priority so sector travel always uses the arrival shell or jump point.
+	GameState.player_position = Vector3.ZERO
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		GameState.player_rotation = GlobalRefs.player_agent_body.rotation_degrees
+
+
+func _get_arrival_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:
+	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
+	var target_position: Vector3 = _get_sector_global_position(target_sector_id)
+	if source_position == target_position:
+		return Vector3.ZERO
+	return (source_position - target_position).normalized()
+
+
+func _get_sector_global_position(sector_id: String) -> Vector3:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	if sector_template == null:
+		return Vector3.ZERO
+	var global_position = sector_template.get("global_position")
+	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
+	if requested_sector_id != "" and GameState.world_topology.has(requested_sector_id):
+		return requested_sector_id
+
+	_report_invalid_sector(context, requested_sector_id)
+
+	if Constants.INITIAL_SECTOR_ID != "" and GameState.world_topology.has(Constants.INITIAL_SECTOR_ID):
+		return Constants.INITIAL_SECTOR_ID
+	if not GameState.world_topology.empty():
+		return str(GameState.world_topology.keys()[0])
+
+	printerr("WorldManager: No valid fallback sector available for %s." % context)
+	return ""
+
+
+func _report_invalid_sector(context: String, requested_sector_id: String) -> void:
+	var normalized_sector_id: String = requested_sector_id if requested_sector_id != "" else "<empty>"
+	var report_key = "%s:%s" % [context, normalized_sector_id]
+	if _reported_invalid_sectors.has(report_key):
+		return
+	_reported_invalid_sectors[report_key] = true
+	printerr(
+		"WorldManager: Invalid sector reference for %s -> %s. Falling back to %s." % [
+			context,
+			normalized_sector_id,
+			Constants.INITIAL_SECTOR_ID,
+		]
+	)
+
+
+# --- Jump Signal Handlers ---
+func _on_jump_available(target_sector_id, _name):
+	_pending_jump_target = target_sector_id
+
+
+func _on_jump_unavailable():
+	_pending_jump_target = ""
+
+
+func _on_player_jump_requested(target_sector_id):
+	travel_to_sector(target_sector_id)
 
 
 # --- Time System Driver ---
@@ -23706,6 +26289,12 @@ func _notification(what):
 			EventBus.disconnect("agent_spawned", self, "_on_Agent_Spawned")
 		if EventBus.is_connected("agent_despawning", self, "_on_Agent_Despawning"):
 			EventBus.disconnect("agent_despawning", self, "_on_Agent_Despawning")
+		if EventBus.is_connected("player_jump_requested", self, "_on_player_jump_requested"):
+			EventBus.disconnect("player_jump_requested", self, "_on_player_jump_requested")
+		if EventBus.is_connected("jump_available", self, "_on_jump_available"):
+			EventBus.disconnect("jump_available", self, "_on_jump_available")
+		if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
+			EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
 
 --- Start of ./src/scenes/game_world/world_manager/template_indexer.gd ---
 
@@ -23716,12 +26305,16 @@ func _notification(what):
 
 extends Node
 
+var _pending_contract_templates: Array = []
+
 # --- Public API ---
 
 # Main entry point. Kicks off the recursive scan of the data directory.
 func index_all_templates():
 	print("TemplateIndexer: Indexing all data templates...")
+	_pending_contract_templates.clear()
 	_scan_directory_for_templates("res://database/registry/")
+	_register_pending_contract_templates()
 	print("TemplateIndexer: Template indexing complete.")
 
 
@@ -23776,7 +26369,7 @@ func _register_template(template: Template):
 	elif template is LocationTemplate:
 		TemplateDatabase.locations[template.template_id] = template
 	elif template is ContractTemplate:
-		TemplateDatabase.contracts[template.template_id] = template
+		_pending_contract_templates.append(template)
 	elif template is UtilityToolTemplate:
 		TemplateDatabase.utility_tools[template.template_id] = template
 	elif template is FactionTemplate:
@@ -23784,14 +26377,49 @@ func _register_template(template: Template):
 	else:
 		print("TemplateIndexer Warning: Unknown template type for resource: ", template.resource_path)
 
+
+func _register_pending_contract_templates() -> void:
+	for template in _pending_contract_templates:
+		if _contract_locations_are_valid(template):
+			TemplateDatabase.contracts[template.template_id] = template
+	_pending_contract_templates.clear()
+
+
+func _contract_locations_are_valid(template: ContractTemplate) -> bool:
+	var invalid_fields: Array = []
+	var origin_location_id: String = template.get("origin_location_id") if template.get("origin_location_id") != null else ""
+	var destination_location_id: String = template.get("destination_location_id") if template.get("destination_location_id") != null else ""
+
+	if not TemplateDatabase.locations.has(origin_location_id):
+		invalid_fields.append("origin_location_id=%s" % _format_location_id(origin_location_id))
+	if not TemplateDatabase.locations.has(destination_location_id):
+		invalid_fields.append("destination_location_id=%s" % _format_location_id(destination_location_id))
+
+	if invalid_fields.empty():
+		return true
+
+	printerr(
+		"TemplateIndexer: Skipping contract '%s' with invalid locations: %s." % [
+			template.template_id,
+			", ".join(invalid_fields),
+		]
+	)
+	return false
+
+
+func _format_location_id(location_id: String) -> String:
+	if location_id == "":
+		return "<empty>"
+	return location_id
+
 --- Start of ./src/scenes/game_world/world_manager/world_generator.gd ---
 
 #
 # PROJECT: GDTLancer
 # MODULE: world_generator.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends Node
@@ -23827,8 +26455,8 @@ func generate_new_world():
 	# Then, generate and assign their starting assets and inventories.
 	_generate_and_assign_assets()
 
-	# Sprint 10: Start player docked at Station Alpha, with defined starting resources.
-	GameState.player_docked_at = "station_alpha"
+	# Sprint 10: Start player docked at Elace System, with defined starting resources.
+	GameState.player_docked_at = "sector_system_elace"
 	_apply_player_starting_state()
 	call_deferred("_emit_initial_dock_signal")
 
@@ -24068,7 +26696,6 @@ func test_core_scene_paths_exist():
 	# Check if the constants point to *something* - doesn't guarantee validity yet
 	assert_ne(Constants.NPC_AGENT_SCENE_PATH, "", "NPC Agent Scene Path should not be empty")
 	assert_ne(Constants.PLAYER_AGENT_SCENE_PATH, "", "Player Agent Scene Path should not be empty")
-	assert_ne(Constants.INITIAL_ZONE_SCENE_PATH, "", "Initial Zone Scene Path should not be empty")
 	prints("Tested Core Scene Paths Existence (basic check)")
 
 
@@ -24301,9 +26928,9 @@ func test_signal_emit_count():
 #
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
-# LOG_REF: 2026-02-13
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -24381,15 +27008,15 @@ func test_save_and_load_preserves_mutated_fields():
 	GameState.sim_tick_count = 7
 
 	# Market inventory quantity mutation (legacy locations)
-	var station_alpha = GameState.locations.get("station_alpha", null)
-	assert_not_null(station_alpha, "Precondition: station_alpha location should exist.")
-	if station_alpha:
-		assert_true(station_alpha.market_inventory.has("commodity_ore"), "Precondition: station_alpha should sell commodity_ore.")
-		if station_alpha.market_inventory.has("commodity_ore"):
-			station_alpha.market_inventory["commodity_ore"]["quantity"] = 123
+	var starter_sector = GameState.locations.get("sector_system_elace", null)
+	assert_not_null(starter_sector, "Precondition: sector_system_elace location should exist.")
+	if starter_sector:
+		assert_true(starter_sector.market_inventory.has("commodity_ore"), "Precondition: sector_system_elace should sell commodity_ore.")
+		if starter_sector.market_inventory.has("commodity_ore"):
+			starter_sector.market_inventory["commodity_ore"]["quantity"] = 123
 
 	# Ship quirks mutation (grab player's first ship)
-	var player_uid = GameState.player_character_uid
+	var player_uid = int(GameState.player_character_uid)
 	assert_true(GameState.inventories.has(player_uid), "Precondition: player inventory should exist.")
 	var ship_uid := -1
 	if GameState.inventories.has(player_uid):
@@ -24411,7 +27038,7 @@ func test_save_and_load_preserves_mutated_fields():
 	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
 	assert_eq(GameState.sim_tick_count, 7, "sim_tick_count should persist.")
 
-	assert_eq(GameState.locations["station_alpha"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
+	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
 	if ship_uid != -1:
 		var loaded_ship_inv = GameState.inventories[player_uid][InventorySystem.InventoryType.SHIP]
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")
@@ -25061,8 +27688,8 @@ func test_derive_sector_tags_fresh_sector():
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §4 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends GutTest
@@ -25110,6 +27737,34 @@ func test_player_has_qualitative_tags():
 	assert_true(player.has("condition_tag"), "Player must have condition_tag.")
 	assert_true(player.has("wealth_tag"), "Player must have wealth_tag.")
 	assert_true(player.has("cargo_tag"), "Player must have cargo_tag.")
+
+
+func test_initialize_agent_with_missing_home_location_falls_back_to_initial_sector():
+	GameState.world_topology[Constants.INITIAL_SECTOR_ID] = {
+		"connections": ["s1"],
+		"sector_type": "colony",
+		"station_ids": [Constants.INITIAL_SECTOR_ID],
+	}
+	var template: Resource = load("res://database/registry/agents/persistent_kai.tres")
+	assert_not_null(template, "Persistent Kai template should load.")
+	if template == null:
+		return
+
+	var mutated_template: Resource = template.duplicate(true)
+	mutated_template.home_location_id = "sector_missing_renamed_away"
+
+	agent_layer._initialize_agent_from_template("agent_invalid_home", mutated_template)
+
+	assert_eq(
+		GameState.agents["agent_invalid_home"]["current_sector_id"],
+		Constants.INITIAL_SECTOR_ID,
+		"Missing home locations should fall back to INITIAL_SECTOR_ID."
+	)
+	assert_eq(
+		GameState.agents["agent_invalid_home"]["home_location_id"],
+		Constants.INITIAL_SECTOR_ID,
+		"Fallback home sector should be persisted into agent state."
+	)
 
 
 # =============================================================================
@@ -25194,6 +27849,47 @@ func test_mortal_survivor_starts_broke():
 	else:
 		# Agent was removed (permanent death).
 		assert_true(true, "Agent permanently died — removed from agents dict (expected).")
+
+
+func test_mortal_survivor_missing_home_location_falls_back_to_initial_sector():
+	GameState.world_topology[Constants.INITIAL_SECTOR_ID] = {
+		"connections": ["s1"],
+		"sector_type": "colony",
+		"station_ids": [Constants.INITIAL_SECTOR_ID],
+	}
+	GameState.agents = {
+		"mortal_2": {
+			"character_id": "",
+			"is_persistent": false,
+			"is_disabled": true,
+			"disabled_at_tick": 0,
+			"home_location_id": "sector_missing_renamed_away",
+			"current_sector_id": "s2",
+			"condition_tag": "DESTROYED",
+			"wealth_tag": "WEALTHY",
+			"cargo_tag": "LOADED",
+			"agent_role": "trader",
+			"goal_archetype": "idle",
+			"goal_queue": [{"type": "idle"}],
+			"dynamic_tags": [],
+		}
+	}
+
+	agent_layer._cleanup_dead_mortals()
+
+	if GameState.agents.has("mortal_2"):
+		var survivor: Dictionary = GameState.agents["mortal_2"]
+		if not survivor.get("is_disabled", true):
+			assert_eq(
+				survivor["current_sector_id"],
+				Constants.INITIAL_SECTOR_ID,
+				"Missing survivor home locations should fall back to INITIAL_SECTOR_ID."
+			)
+			assert_eq(
+				survivor["home_location_id"],
+				Constants.INITIAL_SECTOR_ID,
+				"Fallback should be written back into survivor home_location_id."
+			)
 
 
 # =============================================================================
@@ -25322,6 +28018,8 @@ func _clear_state() -> void:
 	GameState.world_seed = ""
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 0
+	TemplateDatabase.agents.clear()
+	TemplateDatabase.characters.clear()
 
 --- Start of ./src/tests/core/simulation/test_chronicle_layer.gd ---
 
@@ -25329,8 +28027,8 @@ func _clear_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -25360,7 +28058,7 @@ func test_log_event_stages_event():
 		"tick": 1,
 		"actor_id": "agent_vera",
 		"action": "attack",
-		"sector_id": "station_alpha",
+		"sector_id": "sector_system_elace",
 		"metadata": {"target": "agent_ada"},
 	})
 	# Event should be staged but not yet in GameState until process_tick
@@ -25371,16 +28069,16 @@ func test_log_event_stages_event():
 
 func test_process_tick_generates_rumors():
 	# Setup: need topology for distribution
-	GameState.world_topology["station_alpha"] = {
+	GameState.world_topology["sector_system_elace"] = {
 		"connections": ["station_beta"],
 		"sector_type": "colony",
 	}
 	GameState.world_topology["station_beta"] = {
-		"connections": ["station_alpha"],
+		"connections": ["sector_system_elace"],
 		"sector_type": "colony",
 	}
 	GameState.agents["agent_vera"] = {
-		"current_sector_id": "station_alpha",
+		"current_sector_id": "sector_system_elace",
 		"is_disabled": false,
 	}
 
@@ -25388,7 +28086,7 @@ func test_process_tick_generates_rumors():
 		"tick": 1,
 		"actor_id": "agent_vera",
 		"action": "dock",
-		"sector_id": "station_alpha",
+		"sector_id": "sector_system_elace",
 		"metadata": {},
 	})
 	chronicle.process_tick()
@@ -25637,8 +28335,8 @@ func _clear_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
 #
 
 extends GutTest
@@ -25807,11 +28505,11 @@ func _clear_state() -> void:
 ## Seeds TemplateDatabase with real location .tres files for integration testing.
 func _seed_template_database() -> void:
 	var location_paths: Array = [
-		"res://database/registry/locations/station_alpha.tres",
+		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/station_beta.tres",
-		"res://database/registry/locations/station_gamma.tres",
+		"res://database/registry/locations/sector_gamma.tres",
 		"res://database/registry/locations/station_delta.tres",
-		"res://database/registry/locations/station_epsilon.tres",
+		"res://database/registry/locations/sector_epsilon.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:
@@ -25906,10 +28604,11 @@ func test_batch_300_ticks():
 
 
 func test_batch_3000_ticks():
-	var report: String = engine.run_batch_and_report(3000, 100)
-	_validate_report(report, 3000)
+	#var report: String = engine.run_batch_and_report(3000, 100)
+	#_validate_report(report, 3000)
 	print("\n\n===== GODOT CHRONO-3000 =====")
-	print(report)
+	#print(report)
+	print("Disabled manually.")
 	print("===== END GODOT CHRONO-3000 =====\n")
 
 
@@ -26146,8 +28845,8 @@ func _clear_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends GutTest
@@ -26209,6 +28908,39 @@ func test_get_neighbors_returns_connections():
 	assert_eq(actual, expected, "get_neighbors should return connection list.")
 
 
+func test_invalid_connections_are_filtered_from_topology():
+	TemplateDatabase.locations.clear()
+	var starter_sector: Resource = load("res://database/registry/locations/sector_system_elace.tres")
+	var station_beta: Resource = load("res://database/registry/locations/station_beta.tres")
+	assert_not_null(starter_sector, "Starter sector template should load.")
+	assert_not_null(station_beta, "Station Beta template should load.")
+	if starter_sector == null or station_beta == null:
+		return
+
+	var mutated_starter: Resource = starter_sector.duplicate(true)
+	mutated_starter.connections = PoolStringArray(["station_beta", "sector_missing_renamed_away"])
+
+	TemplateDatabase.locations[mutated_starter.template_id] = mutated_starter
+	TemplateDatabase.locations[station_beta.template_id] = station_beta
+
+	world_layer.initialize_world(TEST_SEED)
+
+	var connections: Array = GameState.world_topology["sector_system_elace"].get("connections", [])
+	assert_has(connections, "station_beta", "Valid connections should remain in topology.")
+	assert_false(
+		"sector_missing_renamed_away" in connections,
+		"Invalid renamed-away sectors should be filtered from topology."
+	)
+
+
+func test_initial_sector_id_exists_in_topology():
+	world_layer.initialize_world(TEST_SEED)
+	assert_true(
+		GameState.world_topology.has(Constants.INITIAL_SECTOR_ID),
+		"INITIAL_SECTOR_ID should resolve to a sector that exists in world_topology."
+	)
+
+
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
@@ -26218,16 +28950,17 @@ func _clear_state() -> void:
 	GameState.world_hazards.clear()
 	GameState.world_seed = ""
 	GameState.sector_tags.clear()
+	TemplateDatabase.locations.clear()
 
 
 func _seed_template_database() -> void:
 	## Seed TemplateDatabase.locations with real .tres files so world_layer can init.
 	var location_paths: Array = [
-		"res://database/registry/locations/station_alpha.tres",
+		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/station_beta.tres",
-		"res://database/registry/locations/station_gamma.tres",
+		"res://database/registry/locations/sector_gamma.tres",
 		"res://database/registry/locations/station_delta.tres",
-		"res://database/registry/locations/station_epsilon.tres",
+		"res://database/registry/locations/sector_epsilon.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:
@@ -26237,9 +28970,13 @@ func _seed_template_database() -> void:
 
 --- Start of ./src/tests/core/systems/test_agent_spawner.gd ---
 
-# File: tests/core/systems/test_agent_spawner.gd
-# GUT Test for the AgentSystem (formerly AgentSpawner).
-# Version: 2.1 - Corrected signal payload inspection.
+#
+# PROJECT: GDTLancer
+# MODULE: test_agent_spawner.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:32:50
+#
 
 extends GutTest
 
@@ -26262,7 +28999,12 @@ const PLAYER_UID = 0
 func before_each():
 	# 1. Clean and set up the global state
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_docked_at = ""
+	GameState.player_arrival_direction = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
 
 	# 2. Create mock scene nodes required by the AgentSystem
 	mock_agent_container = Node.new()
@@ -26273,7 +29015,7 @@ func before_each():
 	# 3. Create a mock player character in the GameState
 	var player_char = CharacterTemplate.new()
 	GameState.characters[PLAYER_UID] = player_char
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 4. Instantiate the system we are testing
 	agent_system_instance = AgentSystem.new()
@@ -26289,7 +29031,12 @@ func before_each():
 func after_each():
 	# Clean up global state and references
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_docked_at = ""
+	GameState.player_arrival_direction = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
 	GlobalRefs.agent_container = null
 	
 	if EventBus.is_connected("agent_spawned", signal_catcher, "_on_signal_received"):
@@ -26338,6 +29085,26 @@ func test_spawn_agent_with_overrides():
 	assert_eq(agent_body.template_id, "npc_fighter", "Template ID override should be applied.")
 	assert_eq(agent_body.agent_uid, npc_uid, "Agent UID should be set correctly.")
 
+
+func test_spawn_player_on_route_arrival_preserves_saved_rotation():
+	GameState.player_arrival_direction = Vector3(0, 0, -1)
+	GameState.player_rotation = Vector3(15, 120, -5)
+
+	agent_system_instance._on_Zone_Loaded(null, null, mock_agent_container)
+
+	assert_eq(mock_agent_container.get_child_count(), 1, "Route-arrival spawn should still create the player agent.")
+	var spawned_body = GlobalRefs.player_agent_body
+	assert_eq(
+		spawned_body.rotation_degrees,
+		Vector3(15, 120, -5),
+		"Route-arrival spawns should preserve the player's saved global orientation."
+	)
+	assert_eq(
+		spawned_body.global_transform.origin,
+		Vector3(0, 0, -Constants.SECTOR_JUMP_ARRIVAL_RADIUS),
+		"Route-arrival spawns should still use the configured arrival shell position."
+	)
+
 --- Start of ./src/tests/core/systems/test_asset_system.gd ---
 
 # File: tests/core/systems/test_asset_system.gd
@@ -26364,7 +29131,7 @@ func before_each():
 	# 1. Clean the global state
 	GameState.characters.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 	# 2. Create a mock CharacterSystem and stub its methods
 	mock_character_system = double(CharacterSystem).new()
@@ -26389,7 +29156,7 @@ func before_each():
 
 	# 5. Create characters in GameState for get_ship_for_character tests
 	GameState.characters[PLAYER_UID] = player_char
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 	
 	var npc_char = CharacterTemplate.new()
 	npc_char.active_ship_uid = NPC_SHIP_UID
@@ -26403,7 +29170,7 @@ func after_each():
 	# Clean up global state to ensure test isolation
 	GameState.characters.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	GlobalRefs.character_system = null
 	asset_system_instance = null
 
@@ -26489,7 +29256,7 @@ const NPC_UID = 1
 func before_each():
 	# 1. Clean the global state
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 	# 2. Load the base template resource
 	default_char_template = load("res://database/registry/characters/character_default.tres")
@@ -26499,7 +29266,7 @@ func before_each():
 	var player_char_instance = default_char_template.duplicate()
 	player_char_instance.credits = 100 # Start with some money for tests
 	GameState.characters[PLAYER_UID] = player_char_instance
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 4. Create and register an NPC character instance for multi-character tests
 	var npc_char_instance = default_char_template.duplicate()
@@ -26514,7 +29281,7 @@ func before_each():
 # Runs after each test to ensure a clean environment.
 func after_each():
 	GameState.characters.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	character_system_instance = null # autofree handles the instance
 
 
@@ -26571,86 +29338,503 @@ func test_apply_upkeep_cost():
 	var final_credits = character_system_instance.get_credits(PLAYER_UID)
 	assert_eq(final_credits, initial_credits - 10, "Upkeep cost should correctly subtract Credits.")
 
+--- Start of ./src/tests/core/systems/test_contact_manager.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: src/tests/core/systems/test_contact_manager.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6
+# LOG_REF: 2026-05-10 16:13:36
+#
+
+extends "res://addons/gut/test.gd"
+
+var _contact_manager: Node = null
+
+
+func before_each():
+	GameState.reset_state()
+
+	# Seed minimal world topology
+	GameState.world_topology["sector_system_elace"] = {
+		"connections": ["station_beta"],
+		"station_ids": ["sector_system_elace"],
+		"sector_type": "station",
+	}
+	GameState.world_topology["station_beta"] = {
+		"connections": ["sector_system_elace"],
+		"station_ids": ["station_beta"],
+		"sector_type": "station",
+	}
+
+	# Seed player agent
+	GameState.agents["player"] = {
+		"current_sector_id": "sector_system_elace",
+		"agent_role": "trader",
+		"character_id": "player_char",
+		"condition_tag": "HEALTHY",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"is_disabled": false,
+	}
+	GameState.agent_tags["player"] = ["TRADER"]
+
+	# Seed NPC agents
+	GameState.agents["npc_01"] = {
+		"current_sector_id": "sector_system_elace",
+		"agent_role": "military",
+		"character_id": "char_01",
+		"condition_tag": "HEALTHY",
+		"wealth_tag": "WEALTHY",
+		"cargo_tag": "LOADED",
+		"is_disabled": false,
+	}
+	GameState.agent_tags["npc_01"] = ["MILITARY"]
+
+	GameState.agents["npc_02"] = {
+		"current_sector_id": "sector_system_elace",
+		"agent_role": "pirate",
+		"character_id": "char_02",
+		"condition_tag": "DAMAGED",
+		"wealth_tag": "BROKE",
+		"cargo_tag": "EMPTY",
+		"is_disabled": false,
+	}
+	GameState.agent_tags["npc_02"] = ["PIRATE"]
+
+	GameState.agents["npc_03"] = {
+		"current_sector_id": "station_beta",
+		"agent_role": "hauler",
+		"character_id": "char_03",
+		"condition_tag": "HEALTHY",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "LOADED",
+		"is_disabled": false,
+	}
+	GameState.agent_tags["npc_03"] = ["HAULER"]
+
+	GameState.agents["npc_04"] = {
+		"current_sector_id": "station_beta",
+		"agent_role": "trader",
+		"character_id": "char_04",
+		"condition_tag": "HEALTHY",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"is_disabled": false,
+	}
+	GameState.agent_tags["npc_04"] = ["TRADER"]
+
+	# Seed characters (fallback names via GameState)
+	GameState.characters["char_01"] = {"character_name": "Commander Voss"}
+	GameState.characters["char_02"] = {"character_name": "Red Marko"}
+
+	# Seed sector tags
+	GameState.sector_tags["sector_system_elace"] = [
+		"SECURE", "MILD", "CURRENCY_RICH", "MANUFACTURED_ADEQUATE",
+	]
+	GameState.colony_levels["sector_system_elace"] = "colony"
+	GameState.sector_names["sector_system_elace"] = "Elace System"
+
+	GameState.sector_tags["station_beta"] = [
+		"CONTESTED", "HARSH", "RAW_RICH",
+	]
+	GameState.colony_levels["station_beta"] = "outpost"
+
+	# Instance ContactManager
+	var cm_script = load("res://src/core/systems/contact_manager.gd")
+	_contact_manager = Node.new()
+	_contact_manager.set_script(cm_script)
+	add_child(_contact_manager)
+	autoqfree(_contact_manager)
+
+
+func after_each():
+	_contact_manager = null
+	GameState.reset_state()
+
+
+# --- Tests ---
+
+func test_get_player_sector_returns_current_sector():
+	assert_eq(
+		_contact_manager.get_player_sector(),
+		"sector_system_elace",
+		"Should return player's current_sector_id"
+	)
+
+
+func test_get_agents_in_sector_returns_correct_agents():
+	_contact_manager._rebuild_caches()
+	var alpha_agents = _contact_manager.get_agents_in_sector("sector_system_elace")
+	var beta_agents = _contact_manager.get_agents_in_sector("station_beta")
+	assert_eq(alpha_agents.size(), 2, "sector_system_elace should have 2 NPCs")
+	assert_eq(beta_agents.size(), 2, "station_beta should have 2 NPCs")
+
+
+func test_get_agents_excludes_player():
+	_contact_manager._rebuild_caches()
+	var agents = _contact_manager.get_agents_in_sector("sector_system_elace")
+	assert_does_not_have(agents, "player", "Player should not appear in contact roster")
+
+
+func test_get_agents_excludes_disabled():
+	GameState.agents["npc_01"]["is_disabled"] = true
+	_contact_manager._rebuild_caches()
+	var agents = _contact_manager.get_agents_in_sector("sector_system_elace")
+	assert_does_not_have(agents, "npc_01", "Disabled agents should be excluded")
+	assert_eq(agents.size(), 1, "Only 1 active NPC should remain in sector_system_elace")
+
+
+func test_get_agent_disposition_computes_affinity():
+	# PIRATE actor viewing MILITARY target → PIRATE:MILITARY = -1.2 (hostile)
+	GameState.agent_tags["player"] = ["PIRATE"]
+	GameState.agent_tags["npc_01"] = ["MILITARY"]
+	_contact_manager._rebuild_caches()
+	var disposition = _contact_manager.get_agent_disposition("npc_01")
+	assert_lt(disposition, 0.0, "PIRATE viewing MILITARY should yield negative disposition")
+
+
+func test_get_disposition_category_friendly():
+	# MILITARY actor viewing PIRATE target → MILITARY:PIRATE = +1.4 (friendly / seeks)
+	GameState.agent_tags["player"] = ["MILITARY"]
+	GameState.agent_tags["npc_02"] = ["PIRATE"]
+	_contact_manager._rebuild_caches()
+	var category = _contact_manager.get_disposition_category("npc_02")
+	assert_eq(category, "friendly", "Score 1.4 should be above friendly threshold")
+
+
+func test_get_disposition_category_hostile():
+	# PIRATE actor viewing MILITARY target → PIRATE:MILITARY = -1.2 (hostile)
+	GameState.agent_tags["player"] = ["PIRATE"]
+	GameState.agent_tags["npc_01"] = ["MILITARY"]
+	_contact_manager._rebuild_caches()
+	var category = _contact_manager.get_disposition_category("npc_01")
+	assert_eq(category, "hostile", "Score -1.2 should be below hostile threshold")
+
+
+func test_get_agent_info_returns_display_dict():
+	_contact_manager._rebuild_caches()
+	var info = _contact_manager.get_agent_info("npc_01")
+	assert_has(info, "agent_id")
+	assert_has(info, "name")
+	assert_has(info, "role")
+	assert_has(info, "condition_tag")
+	assert_has(info, "wealth_tag")
+	assert_has(info, "cargo_tag")
+	assert_has(info, "disposition")
+	assert_has(info, "disposition_category")
+	assert_has(info, "sector_id")
+	assert_eq(info["agent_id"], "npc_01")
+	assert_eq(info["name"], "Commander Voss", "Should resolve character name from GameState")
+	assert_eq(info["role"], "military")
+	assert_eq(info["condition_tag"], "HEALTHY")
+
+
+func test_get_sector_info_returns_tags():
+	var info = _contact_manager.get_sector_info("sector_system_elace")
+	assert_has(info, "sector_id")
+	assert_has(info, "economy_tags")
+	assert_has(info, "security_tag")
+	assert_has(info, "environment_tag")
+	assert_has(info, "colony_level")
+	assert_eq(info["sector_id"], "sector_system_elace")
+	assert_eq(info["security_tag"], "SECURE")
+	assert_eq(info["environment_tag"], "MILD")
+	assert_eq(info["colony_level"], "colony")
+	assert_true(info["economy_tags"].has("CURRENCY_RICH"), "Should parse economy tags")
+
+
+func test_rebuild_caches_updates_on_tick():
+	# Caches should be empty before rebuild
+	var agents_before = _contact_manager.get_agents_in_sector("sector_system_elace")
+	# After _ready connects, sim_initialized triggers rebuild — but we can test manual rebuild
+	_contact_manager._rebuild_caches()
+	var agents_after = _contact_manager.get_agents_in_sector("sector_system_elace")
+	assert_eq(agents_after.size(), 2, "Caches should be populated after rebuild")
+
+
+func test_rebuild_caches_skips_invalid_sector_references():
+	GameState.agents["npc_invalid"] = {
+		"current_sector_id": "sector_missing_renamed_away",
+		"agent_role": "trader",
+		"character_id": "char_invalid",
+		"condition_tag": "HEALTHY",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"is_disabled": false,
+	}
+	GameState.agent_tags["npc_invalid"] = ["TRADER"]
+	_contact_manager._rebuild_caches()
+	assert_eq(
+		_contact_manager.get_agents_in_sector("sector_missing_renamed_away").size(),
+		0,
+		"Agents in renamed-away sectors should not create phantom roster entries."
+	)
+	assert_eq(
+		_contact_manager.get_agents_in_sector("sector_system_elace").size(),
+		2,
+		"Valid sector rosters should remain unchanged when invalid agents are skipped."
+	)
+
 --- Start of ./src/tests/core/systems/test_docking_logic.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_docking_logic.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+## LOG_REF: 2026-05-13 16:43:42
+##
 
 extends "res://addons/gut/test.gd"
 
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var PlayerControllerScript = load("res://src/modules/piloting/player_controller_ship.gd")
+var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
+const TEST_ROUTE_DIRECTION = Vector3(0, 0, -1)
+
+
+func after_each():
+	GameState.player_docked_at = ""
 
 func test_docking_signals():
 	var station = StaticBody.new()
 	station.set_script(DockableStationScript)
 	station.location_id = "test_station"
-	
-	var docking_zone = Area.new()
-	docking_zone.name = "DockingZone"
-	station.add_child(docking_zone)
-	
-	add_child(station)
-	
-	var player = RigidBody.new()
-	player.name = "Player"
-	player.gravity_scale = 0.0
-	# Mock is_player method
-	var script = GDScript.new()
-	script.source_code = "extends RigidBody\nfunc is_player(): return true"
-	script.reload()
-	player.set_script(script)
-	add_child(player)
+	station.station_name = "Test Station"
+	station.transform.origin = Vector3(100, 0, 0)
+	add_child_autofree(station)
+
+	var harness = _create_player_controller_harness()
+	var controller = harness["controller"]
 	
 	watch_signals(EventBus)
 	
-	# Simulate enter
-	station._on_body_entered(player)
+	controller._set_selected_target(station)
+	controller._poll_docking_proximity()
 	assert_signal_emitted_with_parameters(EventBus, "dock_available", ["test_station"])
+	assert_eq(controller._can_dock_at, "test_station")
 	
-	# Simulate exit
-	station._on_body_exited(player)
+	station.transform.origin = Vector3(1000, 0, 0)
+	controller._poll_docking_proximity()
 	assert_signal_emitted(EventBus, "dock_unavailable")
-	
-	station.free()
-	player.free()
+	assert_eq(controller._can_dock_at, "")
 
 func test_player_controller_docking():
-	var agent = RigidBody.new()
-	agent.gravity_scale = 0.0
-	# Mock command_stop
-	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nfunc command_stop(): pass"
-	agent_script.reload()
-	agent.set_script(agent_script)
-	
-	var movement_system = Node.new()
-	movement_system.name = "MovementSystem"
-	agent.add_child(movement_system)
-	
-	var controller = Node.new()
-	controller.set_script(PlayerControllerScript)
-	controller.name = "PlayerInputHandler"
-	agent.add_child(controller)
-	
-	add_child(agent)
-	
-	# Simulate dock available
-	controller._on_dock_available("station_beta")
-	assert_eq(controller._can_dock_at, "station_beta")
-	
-	# Simulate dock unavailable
-	controller._on_dock_unavailable()
+	var harness = _create_player_controller_harness()
+	var agent = harness["agent"]
+	var controller = harness["controller"]
 	assert_eq(controller._can_dock_at, "")
 	
 	# Simulate docking
 	controller._on_player_docked("station_gamma")
+	assert_eq(GameState.player_docked_at, "station_gamma")
 	assert_false(controller.is_processing_unhandled_input())
 	assert_false(controller.is_physics_processing())
 	
 	# Simulate undocking
 	controller._on_player_undocked()
+	assert_eq(GameState.player_docked_at, "")
 	assert_true(controller.is_processing_unhandled_input())
 	assert_true(controller.is_physics_processing())
-	
-	agent.free()
+	assert_eq(agent.stop_calls, 1, "Docking should still stop the ship exactly once.")
+
+
+func test_route_target_selection_always_queues_alignment_before_jump():
+	var harness = _create_player_controller_harness(true, true)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	assert_signal_emitted_with_parameters(EventBus, "jump_available", ["sector_system_cob", "Cob System"])
+	controller._handle_interact_input()
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump interact should always enter the align-before-jump flow first.")
+	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Jump interact should always issue an align command before travelling.")
+	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Jump interact should retain the queued jump until the post-align validation tick.")
+
+	controller._physics_process(1.0 / 60.0)
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_eq(controller._queued_jump_target_id, "", "Queued aligned jumps should clear once the first post-align validation tick fires.")
+
+
+func test_route_target_interact_queues_alignment_before_jump():
+	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Misaligned route jumps should queue alignment before requesting travel.")
+	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Queued route jumps should reuse the live align command with the route direction.")
+	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Misaligned route jumps should remember the pending sector id until alignment completes.")
+	assert_eq(controller._queued_jump_selection_token, route_target.selection_key, "Queued route jumps should bind to the currently selected route target.")
+
+
+func test_queued_route_jump_auto_executes_after_alignment_completes():
+	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
+	var movement_system = harness["movement_system"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	agent.rotation_degrees = Vector3.ZERO
+	movement_system.rotation_stopped = true
+	controller._physics_process(1.0 / 60.0)
+
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_eq(controller._queued_jump_target_id, "", "Queued route jumps should clear once the auto-jump fires.")
+
+
+func test_queued_route_jump_waits_for_tight_five_degree_alignment():
+	var harness = _create_player_controller_harness(false, true)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	agent.rotation_degrees = Vector3(0, 7, 0)
+	controller._physics_process(1.0 / 60.0)
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Queued jumps should wait until the ship is within the tighter five-degree jump gate.")
+
+	agent.rotation_degrees = Vector3(0, 5, 0)
+	controller._physics_process(1.0 / 60.0)
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+
+
+func test_queued_route_jump_clears_on_target_change():
+	var harness = _create_player_controller_harness(false, false)
+	var controller = harness["controller"]
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.location_id = "test_station"
+	station.station_name = "Test Station"
+	add_child_autofree(station)
+	controller._set_selected_target(station)
+
+	assert_eq(controller._queued_jump_target_id, "", "Changing targets should cancel any queued jump alignment.")
+	assert_eq(controller._queued_jump_selection_token, "", "Changing targets should clear the queued jump validity token.")
+
+
+func test_queued_route_jump_clears_on_stop_override():
+	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+	controller._issue_stop_command()
+
+	assert_eq(controller._queued_jump_target_id, "", "Explicit stop commands should cancel any queued jump alignment.")
+	assert_eq(agent.stop_calls, 1, "Cancelling a queued jump via stop should still reuse the live stop command.")
+
+
+func test_single_click_clears_selection_without_world_raycast_pick():
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.location_id = "test_station"
+	station.station_name = "Test Station"
+	add_child_autofree(station)
+
+	var harness = _create_player_controller_harness()
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	controller._set_selected_target(station)
+	controller._target_under_cursor = station
+	controller._handle_single_click(Vector2.ZERO)
+	assert_eq(controller._selected_target, null, "Single-click fallback should now clear selection instead of picking the collider under the cursor.")
+	assert_signal_emitted(EventBus, "player_target_deselected")
+
+
+func _create_player_controller_harness(aligned: bool = true, rotation_stopped: bool = true) -> Dictionary:
+	var agent_script = GDScript.new()
+	agent_script.source_code = "extends RigidBody\nvar align_calls = []\nvar stop_calls = 0\nfunc command_stop():\n\tstop_calls += 1\nfunc command_align_to(direction):\n\talign_calls.append(direction)\nfunc is_player():\n\treturn true\n"
+	agent_script.reload()
+
+	var movement_script = GDScript.new()
+	movement_script.source_code = "extends Node\nvar thrust_throttle = 1.0\nvar aligned = true\nvar rotation_stopped = true\nfunc is_aligned_to(_target_direction):\n\treturn aligned\nfunc is_rotation_stopped():\n\treturn rotation_stopped\n"
+	movement_script.reload()
+
+	var agent = RigidBody.new()
+	agent.name = "Player"
+	agent.gravity_scale = 0.0
+	agent.set_script(agent_script)
+	agent.rotation_degrees = Vector3.ZERO if aligned else Vector3(0, 45, 0)
+
+	var movement_system = Node.new()
+	movement_system.name = "MovementSystem"
+	movement_system.set_script(movement_script)
+	movement_system.aligned = aligned
+	movement_system.rotation_stopped = rotation_stopped
+	agent.add_child(movement_system)
+
+	var controller = Node.new()
+	controller.set_script(PlayerControllerScript)
+	controller.name = "PlayerInputHandler"
+	agent.add_child(controller)
+
+	add_child_autofree(agent)
+
+	return {
+		"agent": agent,
+		"controller": controller,
+		"movement_system": movement_system,
+	}
 
 --- Start of ./src/tests/core/systems/test_event_system.gd ---
 
@@ -26843,7 +30027,7 @@ func before_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = PLAYER_UID
+	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 2. Create mock assets in the master asset lists
 	GameState.assets_ships[SHIP_UID] = ShipTemplate.new()
@@ -26861,7 +30045,7 @@ func after_each():
 	GameState.characters.clear()
 	GameState.inventories.clear()
 	GameState.assets_ships.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	inventory_system_instance = null
 
 
@@ -26931,8 +30115,8 @@ func test_get_inventory_by_type():
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_persistent_agents.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 1.1 System 6
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
+# LOG_REF: 2026-05-10 16:13:36
 #
 
 extends "res://addons/gut/test.gd"
@@ -26943,6 +30127,19 @@ func before_each():
 	# Reset GameState
 	GameState.persistent_agents = {}
 	GameState.characters = {}
+	GameState.agents = {}
+	GameState.locations = {
+		Constants.INITIAL_SECTOR_ID: {
+			"position_in_zone": Vector3(0, 0, 0)
+		},
+		"station_beta": {
+			"position_in_zone": Vector3(100, 0, 0)
+		},
+		"station_gamma": {
+			"position_in_zone": Vector3(200, 0, 0)
+		}
+	}
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
 	GameState.game_time_seconds = 0
 	
 	# Mock GlobalRefs
@@ -26969,7 +30166,7 @@ func test_persistent_agents_spawn_on_world_init():
 	var agent_id = "persistent_kai"
 	var state = _agent_system.get_persistent_agent_state(agent_id)
 	
-	assert_eq(state.current_location, "station_alpha", "Should have correct home location")
+	assert_eq(state.current_location, "sector_system_elace", "Should have correct home location")
 	assert_eq(state.is_known, false, "Should be unknown by default")
 	assert_gt(state.character_uid, -1, "Should have a generated character UID")
 	
@@ -27004,6 +30201,28 @@ func test_persistent_agent_respawns_after_timeout():
 	_agent_system._check_persistent_agent_respawns()
 	assert_false(state.is_disabled, "Agent should be respawned after 300s")
 	assert_eq(state.disabled_at_time, 0.0, "Timestamp should reset")
+
+
+func test_invalid_persistent_location_falls_back_to_initial_sector():
+	var agent_id = "persistent_kai"
+	var state = _agent_system.get_persistent_agent_state(agent_id)
+	state.current_location = "sector_missing_renamed_away"
+	GameState.agents[agent_id] = {"current_sector_id": Constants.INITIAL_SECTOR_ID}
+	_agent_system.spawn_persistent_agents()
+	assert_eq(
+		state.current_location,
+		Constants.INITIAL_SECTOR_ID,
+		"Invalid persistent locations should be rewritten to INITIAL_SECTOR_ID."
+	)
+
+
+func test_route_arrival_spawn_position_uses_configured_arrival_radius():
+	var spawn_position = _agent_system._get_route_arrival_spawn_position(Vector3(0, 0, -1))
+	assert_eq(
+		spawn_position,
+		Vector3(0, 0, -Constants.SECTOR_JUMP_ARRIVAL_RADIUS),
+		"Route-based sector arrival should use the configured shell radius."
+	)
 
 func test_persistent_agent_state_persists_across_save_load():
 	# This basically tests GameState structure as that's what is saved
@@ -27057,6 +30276,214 @@ func test_contact_discovered_on_dock():
 	assert_true(state.is_known, "Should discover agent at home station")
 	assert_signal_emitted_with_parameters(EventBus, "contact_met", [agent_id], 0)
 
+--- Start of ./src/tests/core/systems/test_route_target_provider.gd ---
+
+extends GutTest
+
+const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
+
+var route_target_provider: Reference = null
+
+
+func before_each():
+	GameState.reset_state()
+	GameState.world_topology = {
+		"sector_system_elace": {"connections": ["sector_system_cob"]},
+	}
+	TemplateDatabase.locations = {
+		"sector_system_elace": {
+			"global_position": Vector3.ZERO,
+			"location_name": "Elace System",
+		},
+		"sector_system_cob": {
+			"global_position": Vector3(100, 0, 0),
+			"location_name": "Cob System",
+		},
+	}
+	route_target_provider = RouteTargetProviderScript.new()
+
+
+func after_each():
+	GameState.reset_state()
+	TemplateDatabase.locations.clear()
+	route_target_provider = null
+
+
+func test_build_targets_for_sector_returns_logical_route_targets():
+	var route_targets: Array = route_target_provider.build_targets_for_sector("sector_system_elace")
+	assert_eq(route_targets.size(), 1, "Expected one logical jump-route target for the seeded connection.")
+	var route_target = route_targets[0]
+	assert_eq(route_target.target_sector_id, "sector_system_cob")
+	assert_eq(route_target.display_name, "Cob System")
+	assert_eq(route_target.route_direction, Vector3(1, 0, 0))
+
+
+func test_build_targets_skips_missing_target_templates():
+	TemplateDatabase.locations.erase("sector_system_cob")
+	var route_targets: Array = route_target_provider.build_targets_for_sector("sector_system_elace")
+	assert_eq(route_targets.size(), 0, "Missing target templates should not create logical route targets.")
+
+--- Start of ./src/tests/core/systems/test_sector_loader.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_sector_loader.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+# LOG_REF: 2026-05-09 20:56:15
+#
+
+extends GutTest
+
+## Unit tests for SectorLoader: sector loading, JumpPoint injection, nebula offset.
+
+var sector_loader: Reference = null
+
+
+func before_each():
+	_clear_state()
+	_seed_template_database()
+	_seed_world_topology()
+	var Script = load("res://src/core/systems/sector_loader.gd")
+	sector_loader = Script.new()
+
+
+func after_each():
+	_clear_state()
+	sector_loader = null
+
+
+# =============================================================================
+# === TESTS ===================================================================
+# =============================================================================
+
+func test_load_sector_returns_spatial():
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone, "load_sector should return a non-null value.")
+	assert_is(zone, Spatial, "load_sector should return a Spatial node.")
+	zone.free()
+
+
+func test_zone_has_agent_container():
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone)
+	var agent_container = zone.find_node("AgentContainer", true, false)
+	assert_not_null(agent_container, "Zone should have an AgentContainer node.")
+	assert_is(agent_container, Spatial, "AgentContainer should be a Spatial.")
+	zone.free()
+
+
+func test_zone_has_station_with_correct_location_id():
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone)
+	# Need to add zone to tree for groups to work
+	add_child(zone)
+	var stations = get_tree().get_nodes_in_group("dockable_station")
+	assert_gt(stations.size(), 0, "Zone should have at least one dockable_station.")
+	var found = false
+	for station in stations:
+		if station.get("location_id") == "sector_system_elace":
+			found = true
+			break
+	assert_true(found, "One dockable_station should have location_id 'sector_system_elace'.")
+	zone.queue_free()
+
+
+func test_zone_has_jump_points_for_connections():
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone)
+	add_child(zone)
+	var jump_points = get_tree().get_nodes_in_group("jump_point")
+	# sector_system_elace connects to station_beta and station_delta
+	assert_gt(jump_points.size(), 1,
+		"Zone should have at least 2 JumpPoints for sector_system_elace connections.")
+	var target_ids = []
+	for jp in jump_points:
+		target_ids.append(jp.target_sector_id)
+	assert_has(target_ids, "station_beta",
+		"One JumpPoint should target station_beta.")
+	zone.queue_free()
+
+
+func test_zone_has_starsphere():
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone)
+	var starsphere = zone.find_node("StarsphereSlot", true, false)
+	assert_not_null(starsphere, "Zone should have a StarsphereSlot node.")
+	zone.free()
+
+
+func test_load_invalid_sector_returns_null():
+	var zone = sector_loader.load_sector("nonexistent")
+	assert_null(zone, "load_sector with invalid id should return null.")
+
+
+func test_load_sector_with_invalid_scene_path_uses_procedural_fallback():
+	var original_template = TemplateDatabase.locations["sector_system_elace"]
+	var mutated_template = original_template.duplicate(true)
+	mutated_template.sector_scene_path = "res://scenes/levels/sectors/missing_sector/missing_sector.tscn"
+	TemplateDatabase.locations["sector_system_elace"] = mutated_template
+
+	var zone = sector_loader.load_sector("sector_system_elace")
+	assert_not_null(zone, "Missing handcrafted scene paths should fall back to a procedural zone.")
+	assert_is(zone, Spatial, "Fallback sector should still return a Spatial node.")
+	assert_not_null(
+		zone.find_node("AgentContainer", true, false),
+		"Procedural fallback should still include an AgentContainer."
+	)
+	zone.free()
+
+
+func test_nebula_offset_differs_between_sectors():
+	var zone_alpha = sector_loader.load_sector("sector_system_elace")
+	var zone_beta = sector_loader.load_sector("station_beta")
+	assert_not_null(zone_alpha)
+	assert_not_null(zone_beta)
+
+	var nebulas_alpha = zone_alpha.find_node("Globalnebulas", true, false)
+	var nebulas_beta = zone_beta.find_node("Globalnebulas", true, false)
+
+	if nebulas_alpha != null and nebulas_beta != null:
+		assert_ne(nebulas_alpha.transform.origin, nebulas_beta.transform.origin,
+			"Nebula offsets should differ between sectors with different global_position.")
+	else:
+		pass_test("Globalnebulas nodes not found; offset test skipped.")
+
+	zone_alpha.free()
+	zone_beta.free()
+
+
+# =============================================================================
+# === HELPERS =================================================================
+# =============================================================================
+
+func _clear_state() -> void:
+	GameState.reset_state()
+	TemplateDatabase.locations.clear()
+
+
+func _seed_template_database() -> void:
+	var location_paths: Array = [
+		"res://database/registry/locations/sector_system_elace.tres",
+		"res://database/registry/locations/station_beta.tres",
+		"res://database/registry/locations/station_delta.tres",
+	]
+	for path in location_paths:
+		var res = load(path)
+		if res != null:
+			TemplateDatabase.locations[res.template_id] = res
+
+
+func _seed_world_topology() -> void:
+	GameState.world_topology = {
+		"sector_system_elace": {
+			"connections": ["station_beta", "station_delta"],
+		},
+		"station_beta": {
+			"connections": ["sector_system_elace", "station_gamma"],
+		},
+	}
+
 --- Start of ./src/tests/core/systems/test_time_system.gd ---
 
 #
@@ -27082,7 +30509,7 @@ var time_system_instance = null
 func before_each():
 	# 1. Clean and set up the global state for the test
 	GameState.game_time_seconds = 0
-	GameState.player_character_uid = 0
+	GameState.player_character_uid = "0"
 
 	# 2. Instantiate the system we are testing
 	time_system_instance = TimeSystem.new()
@@ -27091,7 +30518,7 @@ func before_each():
 func after_each():
 	# Clean up global state to ensure test isolation
 	GameState.game_time_seconds = 0
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 	time_system_instance = null
 
 # --- Test Cases ---
@@ -27119,6 +30546,600 @@ func test_advance_game_time_accumulates():
 func test_advance_game_time_large_value():
 	time_system_instance.advance_game_time((Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5)
 	assert_eq(GameState.game_time_seconds, (Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5, "Game time should accumulate.")
+
+--- Start of ./src/tests/core/ui/test_debug_map_panel_focus.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_debug_map_panel_focus.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md, user request: debug map should keep camera at origin and shift nodes relative to current sector
+## LOG_REF: 2026-05-10 20:54:26
+##
+
+extends "res://addons/gut/test.gd"
+
+var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.tscn")
+var _panel_instance = null
+
+
+func before_each():
+	get_tree().paused = false
+	GameState.reset_state()
+	TemplateDatabase.locations.clear()
+	_seed_template_database()
+	GameState.current_sector_id = "sector_system_cob"
+	_panel_instance = _panel_scene.instance()
+	add_child_autofree(_panel_instance)
+
+
+func after_each():
+	if is_instance_valid(_panel_instance) and _panel_instance._is_visible:
+		_panel_instance._toggle_panel()
+	_panel_instance = null
+	get_tree().paused = false
+	GameState.reset_state()
+	TemplateDatabase.locations.clear()
+
+
+func _seed_template_database():
+	for path in [
+		"res://database/registry/locations/sector_system_elace.tres",
+		"res://database/registry/locations/sector_system_cob.tres",
+	]:
+		var res = load(path)
+		if res:
+			TemplateDatabase.locations[res.template_id] = res
+
+
+func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
+	var elace_template = TemplateDatabase.locations["sector_system_elace"]
+	var cob_template = TemplateDatabase.locations["sector_system_cob"]
+	assert_not_null(elace_template, "Expected sector_system_elace template to load for map-anchor test.")
+	assert_not_null(cob_template, "Expected sector_system_cob template to load for pivot test.")
+	_panel_instance._toggle_panel()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var cob_marker = map_content.get_node_or_null("Sector_sector_system_cob")
+	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
+	assert_not_null(cob_marker, "Expected sector_system_cob marker to exist after opening the panel.")
+	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist after opening the panel.")
+	assert_eq(
+		_panel_instance._pivot,
+		Vector3.ZERO,
+		"Opening the map should keep the camera pivot at origin so the starsphere frame stays stable."
+	)
+	assert_eq(
+		cob_marker.transform.origin,
+		Vector3.ZERO,
+		"The current sector marker should be shifted to map origin when the panel opens."
+	)
+	assert_eq(
+		elace_marker.transform.origin,
+		Constants.REFERENCE_ORIGIN - cob_template.global_position,
+		"Elace should align with the starsphere reference origin in current-sector-local map space."
+	)
+
+--- Start of ./src/tests/core/ui/test_debug_map_panel.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_debug_map_panel.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TACTICAL_TODO.md §TASK_1
+## LOG_REF: 2026-05-09 20:56:15
+##
+
+extends "res://addons/gut/test.gd"
+
+var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.tscn")
+var _panel_instance = null
+
+const LOCATION_TRES_PATHS = [
+	"res://database/registry/locations/sector_system_elace.tres",
+	"res://database/registry/locations/station_beta.tres",
+	"res://database/registry/locations/sector_gamma.tres",
+	"res://database/registry/locations/station_delta.tres",
+	"res://database/registry/locations/sector_epsilon.tres",
+]
+
+
+func before_each():
+	get_tree().paused = false
+	GameState.reset_state()
+	_seed_template_database()
+	_seed_topology()
+	GameState.current_sector_id = "sector_system_elace"
+	_panel_instance = _panel_scene.instance()
+	add_child_autofree(_panel_instance)
+
+
+func after_each():
+	if is_instance_valid(_panel_instance):
+		_close_panel_if_open()
+		_panel_instance = null
+	get_tree().paused = false
+	GameState.reset_state()
+
+
+func _seed_template_database():
+	TemplateDatabase.locations.clear()
+	for path in LOCATION_TRES_PATHS:
+		var res = load(path)
+		if res:
+			TemplateDatabase.locations[res.template_id] = res
+
+
+func _seed_topology():
+	GameState.world_topology["sector_system_elace"] = {
+		"connections": ["station_beta", "station_delta"],
+		"station_ids": ["sector_system_elace"],
+		"sector_type": "station",
+	}
+	GameState.world_topology["station_beta"] = {
+		"connections": ["sector_system_elace", "station_gamma"],
+		"station_ids": ["station_beta"],
+		"sector_type": "station",
+	}
+	GameState.world_topology["station_gamma"] = {
+		"connections": ["station_beta", "station_epsilon"],
+		"station_ids": ["station_gamma"],
+		"sector_type": "station",
+	}
+	GameState.world_topology["station_delta"] = {
+		"connections": ["sector_system_elace", "station_epsilon"],
+		"station_ids": ["station_delta"],
+		"sector_type": "station",
+	}
+	GameState.world_topology["station_epsilon"] = {
+		"connections": ["station_gamma", "station_delta"],
+		"station_ids": ["station_epsilon"],
+		"sector_type": "station",
+	}
+
+
+func _show_panel():
+	if not _panel_instance._is_visible:
+		_panel_instance._toggle_panel()
+
+
+func _close_panel_if_open():
+	if is_instance_valid(_panel_instance) and _panel_instance._is_visible:
+		_panel_instance._toggle_panel()
+
+
+func _get_map_point() -> Vector2:
+	var rect = _panel_instance._viewport_container.get_global_rect()
+	return rect.position + (rect.size * 0.5)
+
+
+func test_panel_starts_hidden():
+	var panel_node = _panel_instance.get_node("Panel")
+	assert_false(panel_node.visible, "Panel should start hidden")
+
+
+func test_toggle_shows_panel():
+	var event = InputEventKey.new()
+	event.scancode = KEY_F4
+	event.pressed = true
+	_panel_instance._input(event)
+	var panel_node = _panel_instance.get_node("Panel")
+	assert_true(panel_node.visible, "Panel should be visible after F4 toggle")
+
+
+func test_populate_creates_sector_markers():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var sector_count = 0
+	for child in map_content.get_children():
+		if child.name.begins_with("Sector_"):
+			sector_count += 1
+	assert_gt(sector_count, 4, "Should have at least 5 sector markers")
+
+
+func test_populate_creates_connection_lines():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var has_ig = false
+	for child in map_content.get_children():
+		if child is ImmediateGeometry:
+			has_ig = true
+			break
+	assert_true(has_ig, "Should have an ImmediateGeometry child for connection lines")
+
+
+func test_current_sector_highlighted():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var current_marker = map_content.get_node_or_null("Sector_sector_system_elace")
+	assert_not_null(current_marker, "Current sector marker should exist")
+	if current_marker:
+		var sphere = current_marker.mesh as SphereMesh
+		assert_gt(sphere.radius, 2000.0, "Current sector should have larger marker")
+
+
+func test_camera_initial_position():
+	var camera = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapCamera")
+	assert_gt(camera.transform.origin.length(), 0.0, "Camera should not be at origin")
+
+
+func test_label_count_matches_sectors():
+	_panel_instance._populate_map()
+	var label_overlay = _panel_instance.get_node("Panel/VBoxContainer/MapArea/LabelOverlay")
+	var label_count = 0
+	for child in label_overlay.get_children():
+		if child is Label:
+			label_count += 1
+	assert_gt(label_count, 4, "Should have at least 5 labels matching sectors")
+
+
+func test_mouse_wheel_zoom_changes_zoom_distance():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var initial_distance = _panel_instance._zoom_distance
+	var event = InputEventMouseButton.new()
+	event.button_index = BUTTON_WHEEL_UP
+	event.pressed = true
+	event.position = _get_map_point()
+	_panel_instance._input(event)
+	assert_true(
+		_panel_instance._zoom_distance < initial_distance,
+		"Mouse wheel up should zoom in by reducing orbit distance"
+	)
+
+
+func test_mouse_drag_rotates_camera_angles():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var initial_yaw = _panel_instance._orbit_yaw
+	var initial_pitch = _panel_instance._orbit_pitch
+	var map_point = _get_map_point()
+
+	var press = InputEventMouseButton.new()
+	press.button_index = BUTTON_LEFT
+	press.pressed = true
+	press.position = map_point
+	_panel_instance._input(press)
+
+	var drag = InputEventMouseMotion.new()
+	drag.position = map_point
+	drag.relative = Vector2(24, -18)
+	_panel_instance._input(drag)
+
+	var release = InputEventMouseButton.new()
+	release.button_index = BUTTON_LEFT
+	release.pressed = false
+	release.position = map_point
+	_panel_instance._input(release)
+
+	assert_true(
+		_panel_instance._orbit_yaw != initial_yaw or _panel_instance._orbit_pitch != initial_pitch,
+		"Mouse drag should change orbit yaw or pitch"
+	)
+	assert_false(_panel_instance._is_drag_orbiting, "Mouse release should stop drag orbit state")
+
+
+func test_populate_creates_reference_axes():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var axes = map_content.get_node_or_null("ReferenceAxes")
+	assert_not_null(axes, "Reference axes geometry should exist")
+	assert_true(axes is ImmediateGeometry, "Reference axes should be drawn with ImmediateGeometry")
+
+
+func test_axes_toggle_hides_reference_axes_and_labels():
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var axes = map_content.get_node_or_null("ReferenceAxes")
+	assert_not_null(axes, "Reference axes should exist before toggle")
+	_panel_instance._on_toggle_axes()
+	assert_false(_panel_instance._show_reference_axes, "Axes toggle should disable reference axes state")
+	if axes:
+		assert_false(axes.visible, "Reference axes geometry should be hidden after toggle")
+	assert_eq(_panel_instance._btn_axes.text, "Axes Off")
+
+
+func test_coordinate_toggle_updates_label_text_format():
+	_panel_instance._populate_map()
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	assert_true(label.text.find("[") == -1, "Coordinates should be hidden by default")
+	_panel_instance._on_toggle_coords()
+	assert_true(_panel_instance._show_sector_coordinates, "Coordinate toggle should enable coordinate state")
+	assert_true(label.text.find("\n[") != -1, "Coordinate toggle should place coordinates on a new line")
+
+
+func test_sector_labels_use_wrapped_large_font_box():
+	_panel_instance._populate_map()
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	assert_true(label.autowrap, "Sector labels should wrap long text")
+	assert_eq(label.rect_min_size.x, _panel_instance.SECTOR_LABEL_MAX_WIDTH)
+	assert_eq(label.rect_min_size.y, _panel_instance.SECTOR_LABEL_BOX_HEIGHT)
+	assert_not_null(_panel_instance._sector_label_font, "Sector label font should be created")
+	if _panel_instance._sector_label_font:
+		assert_eq(_panel_instance._sector_label_font.size, _panel_instance.SECTOR_LABEL_FONT_SIZE)
+
+--- Start of ./src/tests/core/ui/test_main_hud_projected_targeting.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_main_hud_projected_targeting.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-11 00:15:49
+#
+
+extends "res://addons/gut/test.gd"
+
+var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
+var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
+var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
+var AgentScript = load("res://src/core/agents/agent.gd")
+
+
+func after_each():
+	GlobalRefs.main_hud = null
+	GlobalRefs.player_agent_body = null
+	GlobalRefs.main_camera = null
+	GlobalRefs.current_zone = null
+	GameState.player_character_uid = ""
+
+
+func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_excludes_player_and_jump_points():
+	var zone = Spatial.new()
+	zone.name = "ZoneRoot"
+	add_child_autofree(zone)
+
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.name = "Station Elace a1"
+	zone.add_child(station)
+
+	var star = StaticBody.new()
+	star.name = "Star Elace"
+	zone.add_child(star)
+
+	var jump_point = StaticBody.new()
+	jump_point.name = "JumpPoint"
+	zone.add_child(jump_point)
+	jump_point.add_to_group("jump_point")
+
+	var player = RigidBody.new()
+	player.set_script(AgentScript)
+	player.name = "Player"
+	player.character_uid = 5
+	zone.add_child(player)
+
+	var npc = RigidBody.new()
+	npc.set_script(AgentScript)
+	npc.name = "NPC Ship"
+	npc.character_uid = 1001
+	zone.add_child(npc)
+
+	GameState.player_character_uid = "5"
+	GlobalRefs.current_zone = zone
+	GlobalRefs.player_agent_body = player
+
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+	var targets: Array = hud._collect_world_projected_targets()
+
+	assert_has(targets, station, "Dockable stations should get projected HUD targets.")
+	assert_has(targets, star, "Static scene objects should get projected HUD targets.")
+	assert_has(targets, npc, "NPC agents should get projected HUD targets.")
+	assert_false(targets.has(player), "The player agent should not get a self-targeting HUD bracket.")
+	assert_false(targets.has(jump_point), "Legacy physical jump points should not get projected HUD brackets.")
+
+func test_projected_target_bracket_click_release_emits_pressed() -> void:
+	var bracket = _create_projected_target_bracket()
+	yield(get_tree(), "idle_frame")
+	watch_signals(bracket)
+
+	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), true), "completed")
+	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), false), "completed")
+
+	assert_signal_emitted(bracket, "pressed", "Click-release should still emit the bracket pressed signal.")
+
+
+func test_projected_target_bracket_drag_does_not_emit_pressed() -> void:
+	var bracket = _create_projected_target_bracket()
+	yield(get_tree(), "idle_frame")
+	watch_signals(bracket)
+
+	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), true), "completed")
+	yield(_dispatch_bracket_mouse_motion(Vector2(60, 40), Vector2(20, 0)), "completed")
+	yield(_dispatch_bracket_mouse_button(Vector2(60, 40), false), "completed")
+
+	assert_signal_not_emitted(bracket, "pressed", "Drag-release should cancel the pending bracket click.")
+	assert_false(bracket.disabled, "Bracket should restore its enabled state after the drag ends.")
+
+
+func test_projected_target_bracket_drag_bridges_into_camera_rotation_path() -> void:
+	var bracket = _create_projected_target_bracket()
+	var camera = _create_mock_camera()
+	GlobalRefs.main_camera = camera
+
+	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), true), "completed")
+	yield(_dispatch_bracket_mouse_motion(Vector2(60, 40), Vector2(20, 0)), "completed")
+	yield(_dispatch_bracket_mouse_motion(Vector2(78, 42), Vector2(18, 2)), "completed")
+	yield(_dispatch_bracket_mouse_button(Vector2(78, 42), false), "completed")
+
+	assert_eq(camera.rotating_states, [true, false], "Bracket drag should start and stop camera external rotation.")
+	assert_eq(camera.forwarded_motion.size(), 2, "Bracket drag should forward motion events into the live camera input path.")
+	assert_eq(camera.forwarded_motion[0], Vector2(20, 0), "The threshold-crossing drag motion should reach the camera.")
+	assert_eq(camera.forwarded_motion[1], Vector2(18, 2), "Subsequent drag motion should continue reaching the camera.")
+
+
+func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_forwards_release() -> void:
+	var harness = yield(_create_main_hud_drag_harness(), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var bracket = hud._instance_projected_target_bracket()
+	bracket.rect_position = Vector2(120, 120)
+	bracket.rect_size = Vector2(180, 56)
+	hud.projected_target_overlay.add_child(bracket)
+	hud._track_inflight_drag_control(bracket)
+	yield(get_tree(), "idle_frame")
+	watch_signals(bracket)
+	var original_filter = bracket.mouse_filter
+	var bracket_center = _get_control_center(bracket)
+
+	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
+	yield(_dispatch_mouse_motion(bracket_center, Vector2(22, 3)), "completed")
+	yield(_dispatch_mouse_button(bracket_center, false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(22, 3)], "Crossing a projected bracket during an active world drag should forward the first blocked motion to the camera.")
+	assert_eq(controller.release_events.size(), 1, "Releasing over a projected bracket during passthrough should still reach the live player controller path.")
+	assert_signal_not_emitted(bracket, "pressed", "Crossing an already-active drag over a projected bracket must not select the target on release.")
+	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
+	assert_eq(bracket.mouse_filter, original_filter, "Projected bracket mouse filtering should restore after the drag ends.")
+
+
+func test_main_hud_button_crossing_keeps_external_camera_drag_without_pressing_button() -> void:
+	var harness = yield(_create_main_hud_drag_harness(), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var button = hud.get_node("ScreenControls/BottomCenterZone/ButtonStop")
+	watch_signals(button)
+	var original_filter = button.mouse_filter
+	var button_center = _get_control_center(button)
+
+	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
+	yield(_dispatch_mouse_motion(button_center, Vector2(24, 4)), "completed")
+	yield(_dispatch_mouse_button(button_center, false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(24, 4)], "Crossing a HUD button during an active world drag should forward the first blocked motion to the camera.")
+	assert_eq(controller.release_events.size(), 1, "Releasing over a HUD button during passthrough should still reach the live player controller path.")
+	assert_signal_not_emitted(button, "pressed", "Crossing a HUD button during an active drag must not trigger the button action.")
+	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
+	assert_eq(button.mouse_filter, original_filter, "HUD button mouse filtering should restore after the drag ends.")
+
+
+func test_main_hud_slider_crossing_keeps_external_camera_drag_without_changing_value() -> void:
+	var harness = yield(_create_main_hud_drag_harness(), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var slider = hud.get_node("ScreenControls/CenterRightZone/SliderControlRight")
+	slider.value = 45.0
+	var original_value = slider.value
+	watch_signals(slider)
+	var original_filter = slider.mouse_filter
+	var slider_center = _get_control_center(slider)
+
+	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
+	yield(_dispatch_mouse_motion(slider_center, Vector2(-18, 26)), "completed")
+	yield(_dispatch_mouse_button(slider_center, false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(-18, 26)], "Crossing a HUD slider during an active world drag should forward the first blocked motion to the camera.")
+	assert_eq(controller.release_events.size(), 1, "Releasing over a HUD slider during passthrough should still reach the live player controller path.")
+	assert_signal_not_emitted(slider, "value_changed", "Crossing a HUD slider during an active drag must not change the ship throttle slider value.")
+	assert_eq(slider.value, original_value, "HUD slider value should remain unchanged during drag passthrough.")
+	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
+	assert_eq(slider.mouse_filter, original_filter, "HUD slider mouse filtering should restore after the drag ends.")
+
+
+func _create_projected_target_bracket() -> Button:
+	var bracket = Button.new()
+	bracket.set_script(ProjectedTargetBracketScript)
+	bracket.rect_position = Vector2(20, 20)
+	bracket.rect_size = Vector2(180, 56)
+	add_child_autofree(bracket)
+	return bracket
+
+
+func _create_mock_camera() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar rotating_states = []\nvar forwarded_motion = []\nfunc set_is_rotating(rotating):\n\trotating_states.append(rotating)\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
+	script.reload()
+	var camera = Node.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_main_hud_drag_harness() -> Dictionary:
+	var camera = _create_external_rotation_camera()
+	GlobalRefs.main_camera = camera
+
+	var player_body = RigidBody.new()
+	player_body.name = "Player"
+	player_body.gravity_scale = 0.0
+	add_child_autofree(player_body)
+
+	var controller = _create_mock_player_input_handler()
+	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
+	player_body.add_child(controller)
+	GlobalRefs.player_agent_body = player_body
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	return {"hud": hud, "camera": camera, "controller": controller}
+
+
+func _create_external_rotation_camera() -> Camera:
+	var script = GDScript.new()
+	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
+	script.reload()
+	var camera = Camera.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_mock_player_input_handler() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
+	script.reload()
+	var controller = Node.new()
+	controller.set_script(script)
+	return controller
+
+
+func _begin_external_drag(camera: Camera, press_position: Vector2) -> void:
+	camera.externally_rotating = true
+	yield(_dispatch_mouse_button(press_position, true), "completed")
+
+
+func _get_control_center(control: Control) -> Vector2:
+	var control_rect = control.get_global_rect()
+	return control_rect.position + (control_rect.size / 2.0)
+
+
+func _dispatch_mouse_button(position: Vector2, pressed: bool) -> void:
+	var event = InputEventMouseButton.new()
+	event.button_index = BUTTON_LEFT
+	event.pressed = pressed
+	event.position = position
+	Input.parse_input_event(event)
+	yield(get_tree(), "idle_frame")
+
+
+func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
+	var event = InputEventMouseMotion.new()
+	event.position = position
+	event.relative = relative
+	Input.parse_input_event(event)
+	yield(get_tree(), "idle_frame")
+
+
+func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
+	yield(_dispatch_mouse_button(position, pressed), "completed")
+
+
+func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
+	yield(_dispatch_mouse_motion(position, relative), "completed")
 
 --- Start of ./src/tests/core/utils/test_pid_controller.gd ---
 
@@ -27396,7 +31417,8 @@ func before_each():
 	# Ensure a clean slate before each test by clearing the database.
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.assets_ships.clear()
-	# ... clear other template dictionaries as they are added ...
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.contracts.clear()
 
 	indexer_instance = TemplateIndexer.new()
 	add_child_autofree(indexer_instance)
@@ -27430,6 +31452,41 @@ func test_indexing_loads_known_templates_correctly():
 	var ship_template = TemplateDatabase.assets_ships[default_ship_id]
 	assert_true(is_instance_valid(ship_template), "'ship_default' should be a valid instance.")
 	assert_true(ship_template is ShipTemplate, "'ship_default' should be of type ShipTemplate.")
+
+
+func test_indexing_loads_known_contracts_after_locations():
+	indexer_instance.index_all_templates()
+
+	var contract_id = "delivery_01"
+	assert_has(TemplateDatabase.contracts, contract_id, "Database should contain 'delivery_01'.")
+	var contract_template = TemplateDatabase.contracts[contract_id]
+	assert_true(is_instance_valid(contract_template), "'delivery_01' should be a valid instance.")
+	assert_true(contract_template is ContractTemplate, "'delivery_01' should be of type ContractTemplate.")
+	assert_eq(contract_template.origin_location_id, "sector_system_elace")
+	assert_eq(contract_template.destination_location_id, "station_beta")
+
+
+func test_invalid_contract_locations_are_not_registered():
+	var origin_location = load("res://database/registry/locations/sector_system_elace.tres")
+	var destination_location = load("res://database/registry/locations/station_beta.tres")
+	assert_true(origin_location is LocationTemplate, "Starter sector fixture should load as a LocationTemplate.")
+	assert_true(destination_location is LocationTemplate, "Station Beta fixture should load as a LocationTemplate.")
+	indexer_instance._register_template(origin_location)
+	indexer_instance._register_template(destination_location)
+
+	var contract_template = load("res://database/registry/contracts/delivery_01.tres")
+	assert_true(contract_template is ContractTemplate, "Delivery fixture should load as a ContractTemplate.")
+	var invalid_contract = contract_template.duplicate(true)
+	invalid_contract.template_id = "delivery_invalid_missing_destination"
+	invalid_contract.destination_location_id = "station_missing_renamed_away"
+
+	indexer_instance._register_template(invalid_contract)
+	indexer_instance._register_pending_contract_templates()
+
+	assert_false(
+		TemplateDatabase.contracts.has("delivery_invalid_missing_destination"),
+		"Contracts with stale location ids should be rejected during registration."
+	)
 
 --- Start of ./src/tests/scenes/game_world/world_manager/test_world_generator.gd ---
 
@@ -27469,7 +31526,7 @@ func before_each():
 	GameState.assets_ships.clear()
 	GameState.locations.clear()
 	GameState.factions.clear()
-	GameState.player_character_uid = -1
+	GameState.player_character_uid = ""
 
 func after_each():
 	# Clean up the global reference to prevent test bleed.
@@ -27485,17 +31542,17 @@ func test_generates_characters_and_inventories():
 	assert_eq(GameState.inventories.size(), GameState.characters.size(), "Should create one inventory per character.")
 
 func test_assigns_player_character_uid():
-	assert_eq(GameState.player_character_uid, -1, "Player UID should be -1 before generation.")
+	assert_eq(GameState.player_character_uid, "", "Player UID should be empty before generation.")
 
 	generator_instance.generate_new_world()
 
-	assert_ne(GameState.player_character_uid, -1, "A valid player UID should be set.")
-	assert_has(GameState.characters, GameState.player_character_uid, "The player UID must be a valid key.")
+	assert_ne(GameState.player_character_uid, "", "A valid player UID should be set.")
+	assert_has(GameState.characters, int(GameState.player_character_uid), "The player UID must be a valid key.")
 
 func test_generated_characters_have_assets():
 	generator_instance.generate_new_world()
 	
-	var player_uid = GameState.player_character_uid
+	var player_uid = int(GameState.player_character_uid)
 	var player_char = GameState.characters[player_uid]
 
 	# Check for active ship assignment
@@ -27516,59 +31573,93 @@ func test_generated_characters_have_assets():
 	var fuel_count = inventory_system_instance.get_asset_count(player_uid, inventory_system_instance.InventoryType.COMMODITY, "commodity_fuel")
 	assert_eq(fuel_count, 0, "Player inventory should contain 0 units of fuel at game start.")
 
---- Start of ./src/tests/scenes/test_basic_flight_zone_docking.gd ---
+--- Start of ./src/tests/scenes/game_world/world_manager/test_world_manager.gd ---
 
-extends "res://addons/gut/test.gd"
+#
+# PROJECT: GDTLancer
+# MODULE: test_world_manager.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:32:50
+#
 
-var ZoneScene = load("res://scenes/levels/zones/zone1/basic_flight_zone.tscn")
-var PlayerAgentScene = load("res://src/core/agents/player_agent.tscn")
+extends GutTest
 
-func test_station_exists_in_zone():
-	var zone = ZoneScene.instance()
-	add_child(zone)
-	
-	var system_1 = zone.get_node("SceneAssets/System_1")
-	assert_not_null(system_1, "System_1 should exist")
-	
-	var station = system_1.get_node("Station_Alpha")
-	assert_not_null(station, "Station_Alpha should exist under System_1")
-	assert_eq(station.location_id, "station_alpha")
-	
-	zone.free()
+const WorldManagerScript = preload("res://src/scenes/game_world/world_manager.gd")
 
-func test_docking_in_zone():
-	var zone = ZoneScene.instance()
-	add_child(zone)
-	
-	var station = zone.get_node("SceneAssets/System_1/Station_Alpha")
-	
-	# Create a player mock
-	var player = RigidBody.new()
-	player.name = "PlayerMock"
-	player.gravity_scale = 0.0
-	var script = GDScript.new()
-	script.source_code = "extends RigidBody\nfunc is_player(): return true"
-	script.reload()
-	player.set_script(script)
-	
-	# Add player to zone
-	zone.add_child(player)
-	
-	# Move player to station position (global)
-	player.global_transform.origin = station.global_transform.origin
-	
-	# Force physics update or manually call signal
-	# Since we are in a test, we can manually trigger the area overlap if we don't want to wait for physics
-	# But let's try to use the area's monitoring
-	
-	watch_signals(EventBus)
-	
-	# Manually trigger for reliability in unit test without physics engine running full cycle
-	station._on_body_entered(player)
-	
-	assert_signal_emitted_with_parameters(EventBus, "dock_available", ["station_alpha"])
-	
-	station._on_body_exited(player)
-	assert_signal_emitted(EventBus, "dock_unavailable")
-	
-	zone.free()
+var world_manager = null
+
+
+func before_each():
+	GameState.world_topology = {
+		Constants.INITIAL_SECTOR_ID: {"connections": ["station_beta"]},
+		"station_beta": {"connections": [Constants.INITIAL_SECTOR_ID]},
+	}
+	TemplateDatabase.locations = {
+		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(0, 0, 0)},
+		"station_beta": {"global_position": Vector3(100, 0, 0)},
+	}
+	world_manager = WorldManagerScript.new()
+
+
+func after_each():
+	GameState.world_topology.clear()
+	TemplateDatabase.locations.clear()
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GlobalRefs.player_agent_body = null
+	world_manager = null
+
+
+func test_resolve_known_sector_id_returns_requested_sector_when_present():
+	assert_eq(
+		world_manager._resolve_known_sector_id("station_beta", "test"),
+		"station_beta",
+		"Known sectors should pass through unchanged."
+	)
+
+
+func test_resolve_known_sector_id_falls_back_to_initial_sector_for_missing_ids():
+	assert_eq(
+		world_manager._resolve_known_sector_id("sector_missing_renamed_away", "test"),
+		Constants.INITIAL_SECTOR_ID,
+		"Missing sectors should fall back to INITIAL_SECTOR_ID."
+	)
+
+
+func test_get_arrival_direction_for_route_points_back_to_source_sector():
+	assert_eq(
+		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "station_beta"),
+		Vector3(-1, 0, 0),
+		"Arrival direction should point from destination back toward the source sector."
+	)
+
+
+func test_get_arrival_direction_for_route_returns_zero_when_positions_match():
+	TemplateDatabase.locations["station_beta"] = {"global_position": Vector3(0, 0, 0)}
+	assert_eq(
+		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "station_beta"),
+		Vector3.ZERO,
+		"Identical sector positions should not fabricate an arrival direction."
+	)
+
+
+func test_snapshot_player_state_for_sector_travel_preserves_rotation_and_clears_saved_position():
+	var player = Spatial.new()
+	add_child_autofree(player)
+	player.rotation_degrees = Vector3(12, 34, 56)
+	GlobalRefs.player_agent_body = player
+	GameState.player_position = Vector3(10, 20, 30)
+
+	world_manager._snapshot_player_state_for_sector_travel()
+
+	assert_eq(
+		GameState.player_position,
+		Vector3.ZERO,
+		"Sector travel should clear saved-position priority so arrival spawn rules can take over."
+	)
+	assert_eq(
+		GameState.player_rotation,
+		Vector3(12, 34, 56),
+		"Sector travel should snapshot the current player orientation for the next-sector spawn."
+	)

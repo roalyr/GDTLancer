@@ -1,6 +1,10 @@
-# File: tests/core/systems/test_agent_spawner.gd
-# GUT Test for the AgentSystem (formerly AgentSpawner).
-# Version: 2.1 - Corrected signal payload inspection.
+#
+# PROJECT: GDTLancer
+# MODULE: test_agent_spawner.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-13 16:32:50
+#
 
 extends GutTest
 
@@ -24,6 +28,11 @@ func before_each():
 	# 1. Clean and set up the global state
 	GameState.characters.clear()
 	GameState.player_character_uid = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_docked_at = ""
+	GameState.player_arrival_direction = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
 
 	# 2. Create mock scene nodes required by the AgentSystem
 	mock_agent_container = Node.new()
@@ -51,6 +60,11 @@ func after_each():
 	# Clean up global state and references
 	GameState.characters.clear()
 	GameState.player_character_uid = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_docked_at = ""
+	GameState.player_arrival_direction = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
 	GlobalRefs.agent_container = null
 	
 	if EventBus.is_connected("agent_spawned", signal_catcher, "_on_signal_received"):
@@ -98,3 +112,23 @@ func test_spawn_agent_with_overrides():
 	assert_eq(agent_body.agent_type, "test_npc", "Agent type override should be applied.")
 	assert_eq(agent_body.template_id, "npc_fighter", "Template ID override should be applied.")
 	assert_eq(agent_body.agent_uid, npc_uid, "Agent UID should be set correctly.")
+
+
+func test_spawn_player_on_route_arrival_preserves_saved_rotation():
+	GameState.player_arrival_direction = Vector3(0, 0, -1)
+	GameState.player_rotation = Vector3(15, 120, -5)
+
+	agent_system_instance._on_Zone_Loaded(null, null, mock_agent_container)
+
+	assert_eq(mock_agent_container.get_child_count(), 1, "Route-arrival spawn should still create the player agent.")
+	var spawned_body = GlobalRefs.player_agent_body
+	assert_eq(
+		spawned_body.rotation_degrees,
+		Vector3(15, 120, -5),
+		"Route-arrival spawns should preserve the player's saved global orientation."
+	)
+	assert_eq(
+		spawned_body.global_transform.origin,
+		Vector3(0, 0, -Constants.SECTOR_JUMP_ARRIVAL_RADIUS),
+		"Route-arrival spawns should still use the configured arrival shell position."
+	)
