@@ -8,8 +8,8 @@
 [ext_resource path="res://assets/art/ui/main_menu/button_save_game.png" type="Texture" id=6]
 [ext_resource path="res://assets/art/ui/main_menu/button_settings.png" type="Texture" id=7]
 [ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=8]
-[ext_resource path="res://addons/gut/gui/GutSceneTheme.tres" type="Theme" id=9]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=10]
+[ext_resource path="res://assets/art/ui/controls/button_close.png" type="Texture" id=11]
 
 [sub_resource type="DynamicFont" id=4]
 size = 50
@@ -38,6 +38,9 @@ __meta__ = {
 [node name="ScreenControls" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls"]
 visible = false
@@ -45,6 +48,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
 anchor_left = 0.5
@@ -72,6 +78,9 @@ color = Color( 1, 1, 1, 0.12549 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0.14902, 0.211765, 0.196078, 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="MainButtonsHBoxContainer" type="HBoxContainer" parent="ScreenControls"]
 anchor_left = 0.5
@@ -84,12 +93,18 @@ margin_right = 960.0
 margin_bottom = 205.0
 theme = ExtResource( 2 )
 alignment = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonStartNewGame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 130.0
 margin_right = 430.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonStartNewGame"]
 anchor_left = 0.5
@@ -99,6 +114,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonNew" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonStartNewGame/LabelContainerControl"]
 anchor_left = 0.5
@@ -114,12 +132,18 @@ custom_fonts/font = SubResource( 4 )
 text = "New"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonLoadGame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 470.0
 margin_right = 770.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame"]
 anchor_left = 0.5
@@ -129,6 +153,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonLoad" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame/LabelContainerControl"]
 anchor_left = 0.5
@@ -144,12 +171,18 @@ custom_fonts/font = SubResource( 4 )
 text = "Load"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonSaveGame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 810.0
 margin_right = 1110.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 6 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame"]
 anchor_left = 0.5
@@ -159,6 +192,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonSave" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame/LabelContainerControl"]
 anchor_left = 0.5
@@ -174,12 +210,18 @@ custom_fonts/font = SubResource( 4 )
 text = "Save"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonSettings" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 1150.0
 margin_right = 1450.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 7 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSettings"]
 anchor_left = 0.5
@@ -189,6 +231,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonSettings" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSettings/LabelContainerControl"]
 anchor_left = 0.5
@@ -204,12 +249,18 @@ custom_fonts/font = SubResource( 4 )
 text = "Settings"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonExitgame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 1490.0
 margin_right = 1790.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonExitgame"]
 anchor_left = 0.5
@@ -219,6 +270,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonExit" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonExitgame/LabelContainerControl"]
 anchor_left = 0.5
@@ -234,6 +288,9 @@ custom_fonts/font = SubResource( 4 )
 text = "Exit"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="TitleLabel" type="Label" parent="ScreenControls"]
 anchor_left = 0.5
@@ -242,9 +299,12 @@ margin_left = -217.5
 margin_top = 40.0
 margin_right = 217.5
 margin_bottom = 158.0
-theme = ExtResource( 9 )
+theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 1 )
 text = "GDTLancer"
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="TimeLabel" type="Label" parent="ScreenControls"]
 anchor_left = 1.0
@@ -255,9 +315,12 @@ margin_left = -152.0
 margin_top = -100.0
 margin_right = -40.0
 margin_bottom = -40.0
-theme = ExtResource( 9 )
+theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 2 )
 text = "14:45"
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="VersionLabel" type="Label" parent="ScreenControls"]
 anchor_top = 1.0
@@ -266,6 +329,20 @@ margin_left = 40.0
 margin_top = -100.0
 margin_right = 256.0
 margin_bottom = -40.0
-theme = ExtResource( 9 )
+theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 3 )
 text = "version 0.1"
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonClose" type="TextureButton" parent="ScreenControls"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -100.0
+margin_bottom = 100.0
+texture_normal = ExtResource( 11 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}

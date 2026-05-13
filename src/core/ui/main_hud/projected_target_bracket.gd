@@ -29,7 +29,7 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	keep_pressed_outside = false
-	rect_min_size = Vector2(180, 56)
+	rect_min_size = Vector2(200, 100)
 	_ensure_background_panel()
 	_ensure_frame_panel()
 	_ensure_label()

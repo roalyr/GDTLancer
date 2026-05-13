@@ -3,4 +3,6 @@
 [ext_resource path="res://src/core/ui/main_hud/projected_target_bracket.gd" type="Script" id=1]
 
 [node name="ProjectedTargetBracket" type="Button"]
+margin_right = 16.0
+margin_bottom = 47.0
 script = ExtResource( 1 )
