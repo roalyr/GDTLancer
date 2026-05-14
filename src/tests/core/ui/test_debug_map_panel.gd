@@ -3,7 +3,7 @@
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-## LOG_REF: 2026-05-09 20:56:15
+## LOG_REF: 2026-05-14 01:14:26
 ##
 
 extends "res://addons/gut/test.gd"
@@ -13,9 +13,9 @@ var _panel_instance = null
 
 const LOCATION_TRES_PATHS = [
 	"res://database/registry/locations/sector_system_elace.tres",
-	"res://database/registry/locations/station_beta.tres",
+	"res://database/registry/locations/sector_system_cob.tres",
 	"res://database/registry/locations/sector_gamma.tres",
-	"res://database/registry/locations/station_delta.tres",
+	"res://database/registry/locations/sector_system_lywin.tres",
 	"res://database/registry/locations/sector_epsilon.tres",
 ]
 
@@ -48,28 +48,28 @@ func _seed_template_database():
 
 func _seed_topology():
 	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["station_beta", "station_delta"],
+		"connections": ["sector_system_cob", "sector_gamma"],
 		"station_ids": ["sector_system_elace"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_beta"] = {
-		"connections": ["sector_system_elace", "station_gamma"],
-		"station_ids": ["station_beta"],
+	GameState.world_topology["sector_system_cob"] = {
+		"connections": ["sector_system_elace", "sector_system_lywin"],
+		"station_ids": ["sector_system_cob"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_gamma"] = {
-		"connections": ["station_beta", "station_epsilon"],
-		"station_ids": ["station_gamma"],
+	GameState.world_topology["sector_gamma"] = {
+		"connections": ["sector_system_elace", "sector_epsilon"],
+		"station_ids": ["sector_gamma"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_delta"] = {
-		"connections": ["sector_system_elace", "station_epsilon"],
-		"station_ids": ["station_delta"],
+	GameState.world_topology["sector_system_lywin"] = {
+		"connections": ["sector_system_cob", "sector_epsilon"],
+		"station_ids": ["sector_system_lywin"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_epsilon"] = {
-		"connections": ["station_gamma", "station_delta"],
-		"station_ids": ["station_epsilon"],
+	GameState.world_topology["sector_epsilon"] = {
+		"connections": ["sector_gamma", "sector_system_lywin"],
+		"station_ids": ["sector_epsilon"],
 		"sector_type": "station",
 	}
 

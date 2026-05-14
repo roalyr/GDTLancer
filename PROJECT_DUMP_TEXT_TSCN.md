@@ -1873,7 +1873,7 @@ text = "Close"
 
 --- Start of ./scenes/levels/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -1886,6 +1886,7 @@ text = "Close"
 [ext_resource path="res://src/core/systems/inventory_system.gd" type="Script" id=15]
 [ext_resource path="res://src/scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
+[ext_resource path="res://scenes/ui/menus/debug_window.tscn" type="PackedScene" id=18]
 [ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
 [ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
@@ -1924,6 +1925,8 @@ script = ExtResource( 27 )
 script = ExtResource( 16 )
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
+
+[node name="DebugWindow" parent="." instance=ExtResource( 18 )]
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 
@@ -5351,20 +5354,20 @@ material_override = SubResource( 6 )
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
 [ext_resource path="res://assets/art/ui/controls/button_orbit.png" type="Texture" id=3]
-[ext_resource path="res://assets/art/ui/controls/_placeholder_map.png" type="Texture" id=4]
+[ext_resource path="res://assets/art/ui/controls/button_placeholder.png" type="Texture" id=4]
 [ext_resource path="res://assets/art/ui/controls/button_flee.png" type="Texture" id=5]
 [ext_resource path="res://assets/art/ui/controls/button_stop.png" type="Texture" id=6]
 [ext_resource path="res://assets/art/ui/controls/button_free_flight.png" type="Texture" id=7]
 [ext_resource path="res://assets/art/ui/controls/button_options.png" type="Texture" id=8]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=9]
-[ext_resource path="res://assets/art/ui/controls/button_info.png" type="Texture" id=10]
+[ext_resource path="res://assets/art/ui/controls/button_debug.png" type="Texture" id=10]
 [ext_resource path="res://assets/art/ui/controls/button_camera.png" type="Texture" id=11]
 [ext_resource path="res://assets/art/ui/controls/button_ui_opacity.png" type="Texture" id=12]
 [ext_resource path="res://assets/art/ui/controls/button_attack.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
 [ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
-[ext_resource path="res://scenes/ui/hud/radar_display.tscn" type="PackedScene" id=16]
-[ext_resource path="res://scenes/ui/hud/sector_info_panel.tscn" type="PackedScene" id=17]
+[ext_resource path="res://assets/art/ui/controls/button_character.png" type="Texture" id=18]
+[ext_resource path="res://assets/art/ui/controls/button_ship.png" type="Texture" id=19]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -5377,6 +5380,9 @@ script = ExtResource( 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ScreenControls" type="Control" parent="."]
 anchor_right = 1.0
@@ -5386,6 +5392,9 @@ margin_top = 20.0
 margin_right = -20.0
 margin_bottom = -20.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls"]
 visible = false
@@ -5393,6 +5402,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
 anchor_left = 0.5
@@ -5428,16 +5440,51 @@ margin_right = 450.0
 margin_bottom = 300.0
 mouse_filter = 2
 color = Color( 0.219608, 0.619608, 0.172549, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="CenterLeftZone" type="Control" parent="ScreenControls"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -1040.0
-margin_right = 940.0
+margin_right = 375.0
 mouse_filter = 2
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/CenterLeftZone"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/CenterLeftZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/CenterLeftZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
 
 [node name="ButtonMenu" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
@@ -5446,8 +5493,11 @@ margin_top = -100.0
 margin_right = 100.0
 texture_normal = ExtResource( 8 )
 expand = true
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="ButtonInfo" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+[node name="ButtonDebug" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 120.0
@@ -5455,6 +5505,59 @@ margin_top = -100.0
 margin_right = 220.0
 texture_normal = ExtResource( 10 )
 expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonPlaceholder" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 240.0
+margin_top = -100.0
+margin_right = 340.0
+texture_normal = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonPlaceholder2" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 240.0
+margin_top = -1040.0
+margin_right = 340.0
+margin_bottom = -940.0
+texture_normal = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonPlaceholder3" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 120.0
+margin_top = -1040.0
+margin_right = 220.0
+margin_bottom = -940.0
+texture_normal = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonPlaceholder4" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -1040.0
+margin_right = 100.0
+margin_bottom = -940.0
+texture_normal = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="SliderControlLeft" type="VSlider" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 0.5
@@ -5467,6 +5570,7 @@ theme = ExtResource( 9 )
 tick_count = 10
 ticks_on_borders = true
 __meta__ = {
+"_edit_lock_": true,
 "_editor_description_": "Zoom"
 }
 
@@ -5478,7 +5582,8 @@ margin_top = 250.0
 margin_right = 100.0
 margin_bottom = 290.0
 __meta__ = {
-"_edit_group_": true
+"_edit_group_": true,
+"_edit_lock_": true
 }
 
 [node name="LabelZoomSlider" type="Label" parent="ScreenControls/CenterLeftZone/LabelContainer"]
@@ -5494,15 +5599,18 @@ theme = ExtResource( 9 )
 text = "ZOOM"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="BottomCenterZone" type="Control" parent="ScreenControls"]
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -960.0
+margin_left = -565.0
 margin_top = -170.0
-margin_right = 960.0
+margin_right = 565.0
 mouse_filter = 2
 __meta__ = {
 "_edit_lock_": true
@@ -5548,6 +5656,9 @@ margin_top = 20.0
 margin_right = -85.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 3 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonOrbit" type="Label" parent="ScreenControls/BottomCenterZone/ButtonOrbit"]
 anchor_left = 0.5
@@ -5562,6 +5673,9 @@ theme = ExtResource( 9 )
 text = "ORBIT"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonStop" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
@@ -5571,6 +5685,9 @@ margin_top = 20.0
 margin_right = 235.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 6 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonStop" type="Label" parent="ScreenControls/BottomCenterZone/ButtonStop"]
 anchor_left = 0.5
@@ -5585,6 +5702,9 @@ theme = ExtResource( 9 )
 text = "STOP"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonManualFlight" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
@@ -5594,6 +5714,9 @@ margin_top = 20.0
 margin_right = 75.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 7 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonManualFlight" type="Label" parent="ScreenControls/BottomCenterZone/ButtonManualFlight"]
 anchor_left = 0.5
@@ -5608,6 +5731,9 @@ theme = ExtResource( 9 )
 text = "MANUAL"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonApproach" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
@@ -5617,6 +5743,9 @@ margin_top = 20.0
 margin_right = -405.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonApproach" type="Label" parent="ScreenControls/BottomCenterZone/ButtonApproach"]
 anchor_left = 0.5
@@ -5632,6 +5761,9 @@ theme = ExtResource( 9 )
 text = "APPROACH"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonFlee" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
@@ -5641,6 +5773,9 @@ margin_top = 20.0
 margin_right = -245.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonFlee" type="Label" parent="ScreenControls/BottomCenterZone/ButtonFlee"]
 anchor_left = 0.5
@@ -5655,6 +5790,9 @@ theme = ExtResource( 9 )
 text = "FLEE"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonDock" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
@@ -5664,6 +5802,9 @@ margin_top = 20.0
 margin_right = 395.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 15 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonDock" type="Label" parent="ScreenControls/BottomCenterZone/ButtonDock"]
 anchor_left = 0.5
@@ -5679,6 +5820,9 @@ theme = ExtResource( 9 )
 text = "DOCK"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonAttack" type="TextureButton" parent="ScreenControls/BottomCenterZone"]
 anchor_left = 0.5
@@ -5688,6 +5832,9 @@ margin_top = 20.0
 margin_right = 555.0
 margin_bottom = 170.0
 texture_normal = ExtResource( 13 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonAttack" type="Label" parent="ScreenControls/BottomCenterZone/ButtonAttack"]
 anchor_left = 0.5
@@ -5703,18 +5850,53 @@ theme = ExtResource( 9 )
 text = "ATTACK"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="CenterRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -940.0
+margin_left = -375.0
 margin_top = -1040.0
 mouse_filter = 2
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/CenterRightZone"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/CenterRightZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/CenterRightZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
 
 [node name="ButtonUIOpacity" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
@@ -5725,6 +5907,9 @@ margin_left = -100.0
 margin_top = -100.0
 texture_normal = ExtResource( 12 )
 expand = true
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonCamera" type="TextureButton" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
@@ -5736,6 +5921,67 @@ margin_top = -100.0
 margin_right = -120.0
 texture_normal = ExtResource( 11 )
 expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonPlaceholder" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -340.0
+margin_top = -100.0
+margin_right = -240.0
+texture_normal = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonCharacter" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -340.0
+margin_top = -1040.0
+margin_right = -240.0
+margin_bottom = -940.0
+texture_normal = ExtResource( 18 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonShip" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -220.0
+margin_top = -1040.0
+margin_right = -120.0
+margin_bottom = -940.0
+texture_normal = ExtResource( 19 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonPlaceholder4" type="TextureButton" parent="ScreenControls/CenterRightZone"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -100.0
+margin_top = -1040.0
+margin_bottom = -940.0
+texture_normal = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="SliderControlRight" type="VSlider" parent="ScreenControls/CenterRightZone"]
 anchor_left = 1.0
@@ -5751,6 +5997,7 @@ theme = ExtResource( 9 )
 tick_count = 10
 ticks_on_borders = true
 __meta__ = {
+"_edit_lock_": true,
 "_editor_description_": "Speed"
 }
 
@@ -5793,7 +6040,8 @@ margin_top = 250.0
 margin_right = -30.0
 margin_bottom = 290.0
 __meta__ = {
-"_edit_group_": true
+"_edit_group_": true,
+"_edit_lock_": true
 }
 
 [node name="LabelThrustSlider" type="Label" parent="ScreenControls/CenterRightZone/LabelContainer"]
@@ -5809,174 +6057,126 @@ theme = ExtResource( 9 )
 text = "THRUST"
 align = 1
 script = ExtResource( 14 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="TopLeftZone" type="Control" parent="ScreenControls"]
-margin_right = 470.0
-margin_bottom = 470.0
+margin_left = 375.0
+margin_right = 940.0
+margin_bottom = 195.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="LabelCredits" type="Label" parent="ScreenControls/TopLeftZone"]
-margin_right = 40.0
-margin_bottom = 14.0
-theme = ExtResource( 9 )
-text = "Credits:"
-
-[node name="LabelFP" type="Label" parent="ScreenControls/TopLeftZone"]
-margin_top = 39.0
-margin_right = 103.0
-margin_bottom = 66.0
-theme = ExtResource( 9 )
-text = "Current FP: "
-
-[node name="LabelTime" type="Label" parent="ScreenControls/TopLeftZone"]
-margin_top = 78.0
-margin_right = 103.0
-margin_bottom = 105.0
-theme = ExtResource( 9 )
-text = "Time (TU): 0"
-
-[node name="LabelPlayerHull" type="Label" parent="ScreenControls/TopLeftZone"]
-margin_top = 110.0
-margin_right = 103.0
-margin_bottom = 137.0
-theme = ExtResource( 9 )
-text = "Hull: --"
-
-[node name="PlayerHullBar" type="ProgressBar" parent="ScreenControls/TopLeftZone"]
-margin_top = 140.0
-margin_right = 150.0
-margin_bottom = 154.0
-value = 100.0
-
-[node name="ButtonCharacter" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 165.0
-margin_right = 111.0
-margin_bottom = 215.0
-theme = ExtResource( 9 )
-text = "SIM DEBUG"
-
-[node name="ButtonNarrativeStatus" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 229.0
-margin_right = 111.0
-margin_bottom = 279.0
-theme = ExtResource( 9 )
-text = "MAP DEBUG"
-
-[node name="ButtonInventory" type="Button" parent="ScreenControls/TopLeftZone"]
-margin_top = 293.0
-margin_right = 111.0
-margin_bottom = 343.0
-theme = ExtResource( 9 )
-
-[node name="TopCenterZone" type="Control" parent="ScreenControls"]
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -450.0
-margin_right = 450.0
-margin_bottom = 200.0
-mouse_filter = 2
-
-[node name="DockingPrompt" type="Panel" parent="ScreenControls/TopCenterZone"]
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/TopLeftZone"]
 visible = false
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -200.0
-margin_top = 20.0
-margin_right = 200.0
-margin_bottom = 60.0
-
-[node name="Label" type="Label" parent="ScreenControls/TopCenterZone/DockingPrompt"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-text = "Docking Available - Press Interact"
-align = 1
-valign = 1
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="TargetInfoPanel" type="PanelContainer" parent="ScreenControls/TopCenterZone"]
-visible = false
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/TopLeftZone/_ScreenUIArea"]
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
-margin_left = -150.0
-margin_top = 70.0
-margin_right = 150.0
-margin_bottom = 130.0
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ScreenControls/TopCenterZone/TargetInfoPanel"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 293.0
-margin_bottom = 53.0
-
-[node name="LabelTargetName" type="Label" parent="ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer"]
-margin_right = 286.0
-margin_bottom = 14.0
-text = "Target Name"
-align = 1
-
-[node name="TargetHullBar" type="ProgressBar" parent="ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer"]
-margin_top = 18.0
-margin_right = 286.0
-margin_bottom = 32.0
-value = 100.0
-
-[node name="SectorInfoPanel" parent="ScreenControls/TopCenterZone" instance=ExtResource( 17 )]
-visible = false
-margin_top = 140.0
-margin_bottom = 190.0
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/TopLeftZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
 
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -470.0
-margin_bottom = 470.0
+margin_left = -940.0
+margin_right = -375.0
+margin_bottom = 196.0
 mouse_filter = 2
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="_PlaceholderMap" type="TextureRect" parent="ScreenControls/TopRightZone"]
+[node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls/TopRightZone"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 10.0
-margin_top = 10.0
-margin_right = -10.0
-margin_bottom = -10.0
-texture = ExtResource( 4 )
-expand = true
+mouse_filter = 2
+color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="RadarDisplay" parent="ScreenControls/TopRightZone" instance=ExtResource( 16 )]
-visible = false
+[node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/TopRightZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -1.0
+margin_top = -540.0
+margin_right = 1.0
+margin_bottom = 540.0
+color = Color( 1, 1, 1, 0.12549 )
 
-[node name="GameOverOverlay" type="Control" parent="."]
+[node name="_CentralHorizontalLine" type="ColorRect" parent="ScreenControls/TopRightZone/_ScreenUIArea"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -960.0
+margin_top = -1.0
+margin_right = 960.0
+margin_bottom = 1.0
+color = Color( 1, 1, 1, 0.12549 )
+
+[node name="GameOverOverlay (to be made into a dedicated window like main menu)" type="Control" parent="."]
 pause_mode = 2
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 1
 
-[node name="CenterContainer" type="CenterContainer" parent="GameOverOverlay"]
+[node name="CenterContainer" type="CenterContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="PanelContainer" type="PanelContainer" parent="GameOverOverlay/CenterContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer"]
 margin_left = 953.0
 margin_top = 533.0
 margin_right = 967.0
 margin_bottom = 547.0
 theme = ExtResource( 9 )
 
-[node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay/CenterContainer/PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer"]
 margin_left = 7.0
 margin_top = 7.0
 margin_right = 146.0
 margin_bottom = 69.0
 
-[node name="LabelGameOver" type="Label" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
+[node name="LabelGameOver" type="Label" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
 margin_right = 139.0
 margin_bottom = 27.0
 theme = ExtResource( 9 )
 text = "GAME OVER"
 align = 1
 
-[node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer"]
+[node name="ButtonReturnToMenu" type="Button" parent="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer"]
 margin_top = 31.0
 margin_right = 139.0
 margin_bottom = 62.0
@@ -5984,6 +6184,7 @@ theme = ExtResource( 9 )
 text = "Return to Menu"
 
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
+[connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonDebug" to="." method="_on_ButtonDebug_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
@@ -5994,18 +6195,102 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonAttack" to="." method="_on_ButtonAttack_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
-[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter" to="." method="_on_ButtonCharacter_pressed"]
-[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory" to="." method="_on_ButtonInventory_pressed"]
-[connection signal="pressed" from="GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]
+[connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]
 
 --- Start of ./scenes/ui/hud/projected_target_bracket.tscn ---
 
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/projected_target_bracket.gd" type="Script" id=1]
+[ext_resource path="res://assets/art/ui/controls/bracket_targeting.png" type="Texture" id=2]
+[ext_resource path="res://assets/art/ui/controls/bracket_targeting_selected.png" type="Texture" id=3]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=4]
+[ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=5]
 
 [node name="ProjectedTargetBracket" type="Button"]
+margin_right = 150.0
+margin_bottom = 150.0
+focus_mode = 0
+theme = ExtResource( 4 )
+flat = true
 script = ExtResource( 1 )
+
+[node name="BracketNormal" type="TextureRect" parent="."]
+modulate = Color( 0.35, 0.95, 1, 0.95 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource( 2 )
+stretch_mode = 4
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="BracketSelected" type="TextureRect" parent="."]
+modulate = Color( 1, 0.901961, 0.34902, 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource( 3 )
+stretch_mode = 4
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="DistancePanel" type="Control" parent="BracketSelected"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 12.0
+margin_top = -50.0
+margin_right = 92.0
+margin_bottom = -12.0
+mouse_filter = 2
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="DistanceLabel" type="Label" parent="BracketSelected/DistancePanel"]
+modulate = Color( 1, 0.901961, 0.34902, 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "0000k"
+align = 1
+valign = 1
+autowrap = true
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="InfoPanel" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -140.0
+margin_top = 25.0
+margin_right = 140.0
+margin_bottom = 81.0
+mouse_filter = 2
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="InfoLabel" type="Label" parent="InfoPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "TARGET"
+align = 1
+valign = 1
+autowrap = true
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 --- Start of ./scenes/ui/hud/radar_display.tscn ---
 
@@ -6094,11 +6379,12 @@ scroll_active = false
 
 --- Start of ./scenes/ui/hud/sim_debug_panel.tscn ---
 
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://src/core/ui/sim_debug_panel/sim_debug_panel.gd" type="Script" id=1]
 [ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=3]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=4]
 
 [sub_resource type="DynamicFont" id=1]
 size = 22
@@ -6164,10 +6450,7 @@ rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 3 )
 text = "< Back"
 
-[node name="BtnClose" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-rect_min_size = Vector2( 100, 0 )
-theme = ExtResource( 3 )
-text = "Close"
+[node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 4 )]
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
 margin_top = 40.0
@@ -6177,6 +6460,116 @@ size_flags_vertical = 3
 custom_fonts/bold_font = SubResource( 1 )
 custom_fonts/normal_font = SubResource( 1 )
 bbcode_enabled = true
+
+--- Start of ./scenes/ui/menus/debug_window.tscn ---
+
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://src/core/ui/debug_window/debug_window.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=3]
+
+[node name="DebugWindow" type="Control"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+mouse_filter = 1
+script = ExtResource( 1 )
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0, 0, 0, 0.4 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -380.0
+margin_top = -340.0
+margin_right = 380.0
+margin_bottom = 340.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+custom_constants/separation = 16
+
+[node name="debug_HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_right = 720.0
+margin_bottom = 150.0
+alignment = 1
+
+[node name="debug_LabelTitle" type="Label" parent="Panel/VBoxContainer/debug_HeaderRow"]
+size_flags_horizontal = 3
+margin_top = 61.0
+margin_right = 570.0
+margin_bottom = 88.0
+text = "Debug Window"
+
+[node name="debug_ButtonClose" parent="Panel/VBoxContainer/debug_HeaderRow" instance=ExtResource( 3 )]
+margin_left = 570.0
+margin_right = 720.0
+margin_bottom = 150.0
+
+[node name="debug_LabelCredits" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 166.0
+margin_right = 720.0
+margin_bottom = 193.0
+text = "Credits: --"
+
+[node name="debug_LabelFP" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 209.0
+margin_right = 720.0
+margin_bottom = 236.0
+text = "Current FP: --"
+
+[node name="debug_LabelTime" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 252.0
+margin_right = 720.0
+margin_bottom = 279.0
+text = "Time: 00:00"
+
+[node name="debug_LabelPlayerHull" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 295.0
+margin_right = 720.0
+margin_bottom = 322.0
+text = "Hull: 100%"
+
+[node name="debug_PlayerHullBar" type="ProgressBar" parent="Panel/VBoxContainer"]
+margin_top = 338.0
+margin_right = 720.0
+margin_bottom = 352.0
+value = 100.0
+
+[node name="debug_ButtonSimPanel" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 368.0
+margin_right = 720.0
+margin_bottom = 418.0
+rect_min_size = Vector2( 0, 50 )
+text = "SIM DEBUG"
+
+[node name="debug_ButtonMapPanel" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 434.0
+margin_right = 720.0
+margin_bottom = 484.0
+rect_min_size = Vector2( 0, 50 )
+text = "MAP DEBUG"
+
+[node name="debug_ButtonInventory" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 500.0
+margin_right = 720.0
+margin_bottom = 550.0
+rect_min_size = Vector2( 0, 50 )
+disabled = true
+text = "Placeholder"
 
 --- Start of ./scenes/ui/menus/main_menu.tscn ---
 
@@ -6190,8 +6583,8 @@ bbcode_enabled = true
 [ext_resource path="res://assets/art/ui/main_menu/button_save_game.png" type="Texture" id=6]
 [ext_resource path="res://assets/art/ui/main_menu/button_settings.png" type="Texture" id=7]
 [ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=8]
-[ext_resource path="res://addons/gut/gui/GutSceneTheme.tres" type="Theme" id=9]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=10]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=11]
 
 [sub_resource type="DynamicFont" id=4]
 size = 50
@@ -6220,6 +6613,9 @@ __meta__ = {
 [node name="ScreenControls" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_ScreenUIArea" type="ColorRect" parent="ScreenControls"]
 visible = false
@@ -6227,6 +6623,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color( 0.431373, 0.431373, 0.431373, 0.168627 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="_CentralVerticalLine" type="ColorRect" parent="ScreenControls/_ScreenUIArea"]
 anchor_left = 0.5
@@ -6254,6 +6653,9 @@ color = Color( 1, 1, 1, 0.12549 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0.14902, 0.211765, 0.196078, 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="MainButtonsHBoxContainer" type="HBoxContainer" parent="ScreenControls"]
 anchor_left = 0.5
@@ -6266,12 +6668,18 @@ margin_right = 960.0
 margin_bottom = 205.0
 theme = ExtResource( 2 )
 alignment = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonStartNewGame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 130.0
 margin_right = 430.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonStartNewGame"]
 anchor_left = 0.5
@@ -6281,6 +6689,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonNew" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonStartNewGame/LabelContainerControl"]
 anchor_left = 0.5
@@ -6296,12 +6707,18 @@ custom_fonts/font = SubResource( 4 )
 text = "New"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonLoadGame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 470.0
 margin_right = 770.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 4 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame"]
 anchor_left = 0.5
@@ -6311,6 +6728,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonLoad" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame/LabelContainerControl"]
 anchor_left = 0.5
@@ -6326,12 +6746,18 @@ custom_fonts/font = SubResource( 4 )
 text = "Load"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonSaveGame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 810.0
 margin_right = 1110.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 6 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame"]
 anchor_left = 0.5
@@ -6341,6 +6767,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonSave" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame/LabelContainerControl"]
 anchor_left = 0.5
@@ -6356,12 +6785,18 @@ custom_fonts/font = SubResource( 4 )
 text = "Save"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonSettings" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 1150.0
 margin_right = 1450.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 7 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSettings"]
 anchor_left = 0.5
@@ -6371,6 +6806,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonSettings" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonSettings/LabelContainerControl"]
 anchor_left = 0.5
@@ -6386,12 +6824,18 @@ custom_fonts/font = SubResource( 4 )
 text = "Settings"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ButtonExitgame" type="TextureButton" parent="ScreenControls/MainButtonsHBoxContainer"]
 margin_left = 1490.0
 margin_right = 1790.0
 margin_bottom = 450.0
 texture_normal = ExtResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelContainerControl" type="Control" parent="ScreenControls/MainButtonsHBoxContainer/ButtonExitgame"]
 anchor_left = 0.5
@@ -6401,6 +6845,9 @@ anchor_bottom = 1.0
 margin_left = -150.0
 margin_top = -75.0
 margin_right = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="LabelButtonExit" type="Label" parent="ScreenControls/MainButtonsHBoxContainer/ButtonExitgame/LabelContainerControl"]
 anchor_left = 0.5
@@ -6416,6 +6863,9 @@ custom_fonts/font = SubResource( 4 )
 text = "Exit"
 align = 1
 script = ExtResource( 10 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="TitleLabel" type="Label" parent="ScreenControls"]
 anchor_left = 0.5
@@ -6424,9 +6874,12 @@ margin_left = -217.5
 margin_top = 40.0
 margin_right = 217.5
 margin_bottom = 158.0
-theme = ExtResource( 9 )
+theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 1 )
 text = "GDTLancer"
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="TimeLabel" type="Label" parent="ScreenControls"]
 anchor_left = 1.0
@@ -6437,9 +6890,12 @@ margin_left = -152.0
 margin_top = -100.0
 margin_right = -40.0
 margin_bottom = -40.0
-theme = ExtResource( 9 )
+theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 2 )
 text = "14:45"
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="VersionLabel" type="Label" parent="ScreenControls"]
 anchor_top = 1.0
@@ -6448,16 +6904,30 @@ margin_left = 40.0
 margin_top = -100.0
 margin_right = 256.0
 margin_bottom = -40.0
-theme = ExtResource( 9 )
+theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 3 )
 text = "version 0.1"
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ButtonClose" parent="ScreenControls" instance=ExtResource( 11 )]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -150.0
+margin_right = 0.0
+margin_bottom = 150.0
+__meta__ = {
+"_edit_lock_": true
+}
 
 --- Start of ./scenes/ui/menus/station_menu/StationMenu.tscn ---
 
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/ui/station_menu/station_menu.gd" type="Script" id=1]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=3]
 
 [node name="StationMenu" type="Control"]
 anchor_right = 1.0
@@ -6491,57 +6961,81 @@ margin_right = -20.0
 margin_bottom = -20.0
 custom_constants/separation = 15
 
-[node name="LabelStationName" type="Label" parent="Panel/VBoxContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
 margin_right = 360.0
-margin_bottom = 27.0
+margin_bottom = 150.0
+
+[node name="LabelStationName" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+size_flags_horizontal = 3
+margin_top = 61.0
+margin_right = 210.0
+margin_bottom = 88.0
 text = "Station Name"
 align = 1
 
-[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 42.0
+[node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 3 )]
+margin_left = 210.0
 margin_right = 360.0
-margin_bottom = 46.0
+margin_bottom = 150.0
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+margin_top = 165.0
+margin_right = 360.0
+margin_bottom = 169.0
 
 [node name="LabelInfo" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 61.0
+margin_top = 184.0
 margin_right = 360.0
-margin_bottom = 88.0
+margin_bottom = 211.0
 text = ""
 align = 1
 
 [node name="BtnTrade" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 103.0
+margin_top = 226.0
 margin_right = 360.0
-margin_bottom = 153.0
+margin_bottom = 276.0
 rect_min_size = Vector2( 0, 50 )
 text = "Trade (coming soon)"
 
 [node name="BtnContracts" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 168.0
+margin_top = 291.0
 margin_right = 360.0
-margin_bottom = 218.0
+margin_bottom = 341.0
 rect_min_size = Vector2( 0, 50 )
 text = "Contracts (coming soon)"
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 233.0
+margin_top = 356.0
 margin_right = 360.0
-margin_bottom = 237.0
+margin_bottom = 360.0
 
 [node name="BtnUndock" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 252.0
+margin_top = 375.0
 margin_right = 360.0
-margin_bottom = 302.0
+margin_bottom = 425.0
 rect_min_size = Vector2( 0, 50 )
 text = "Undock"
 
+--- Start of ./scenes/ui/shared/window_close_button.tscn ---
+
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://assets/art/ui/controls/button_close.png" type="Texture" id=1]
+
+[node name="WindowCloseButton" type="TextureButton"]
+rect_min_size = Vector2( 150, 150 )
+focus_mode = 0
+texture_normal = ExtResource( 1 )
+expand = true
+
 --- Start of ./src/core/ui/debug_map_panel/debug_map_panel.tscn ---
 
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://src/core/ui/debug_map_panel/debug_map_panel.gd" type="Script" id=1]
 [ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=3]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=4]
 
 [sub_resource type="DynamicFont" id=1]
 size = 18
@@ -6639,10 +7133,7 @@ rect_min_size = Vector2( 70, 0 )
 theme = ExtResource( 3 )
 text = "Reset"
 
-[node name="BtnClose" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-rect_min_size = Vector2( 60, 0 )
-theme = ExtResource( 3 )
-text = "Close"
+[node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 4 )]
 
 [node name="MapArea" type="Control" parent="Panel/VBoxContainer"]
 size_flags_vertical = 3

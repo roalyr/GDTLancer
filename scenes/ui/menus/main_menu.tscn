@@ -9,7 +9,7 @@
 [ext_resource path="res://assets/art/ui/main_menu/button_settings.png" type="Texture" id=7]
 [ext_resource path="res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=10]
-[ext_resource path="res://assets/art/ui/controls/button_close.png" type="Texture" id=11]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=11]
 
 [sub_resource type="DynamicFont" id=4]
 size = 50
@@ -336,13 +336,12 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonClose" type="TextureButton" parent="ScreenControls"]
+[node name="ButtonClose" parent="ScreenControls" instance=ExtResource( 11 )]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = -100.0
-margin_bottom = 100.0
-texture_normal = ExtResource( 11 )
-expand = true
+margin_left = -150.0
+margin_right = 0.0
+margin_bottom = 150.0
 __meta__ = {
 "_edit_lock_": true
 }

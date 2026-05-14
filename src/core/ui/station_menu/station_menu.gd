@@ -2,13 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md
-# LOG_REF: 2026-02-13
-#
-# Rebuilt after TASK 15 cleanup.  Old version was coupled to deleted systems
-# (ContractSystem, TradingSystem, NarrativeActionSystem).  This version keeps
-# the undock flow intact and provides placeholder hooks for future trade /
-# contract UI once those systems are rebuilt on the simulation foundation.
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 02:59:12
 #
 
 extends Control
@@ -25,8 +20,9 @@ extends Control
 # =============================================================================
 
 onready var _panel: Panel = $Panel
-onready var _label_station_name: Label = $Panel/VBoxContainer/LabelStationName
+onready var _label_station_name: Label = $Panel/VBoxContainer/HeaderRow/LabelStationName
 onready var _label_info: Label = $Panel/VBoxContainer/LabelInfo
+onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 onready var _btn_trade: Button = $Panel/VBoxContainer/BtnTrade
 onready var _btn_contracts: Button = $Panel/VBoxContainer/BtnContracts
 onready var _btn_undock: Button = $Panel/VBoxContainer/BtnUndock
@@ -51,6 +47,7 @@ func _ready() -> void:
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 
 	# --- Button connections ---
+	_btn_close.connect("pressed", self, "_on_close_pressed")
 	_btn_undock.connect("pressed", self, "_on_undock_pressed")
 	_btn_trade.connect("pressed", self, "_on_trade_pressed")
 	_btn_contracts.connect("pressed", self, "_on_contracts_pressed")
@@ -74,12 +71,25 @@ func _on_player_undocked() -> void:
 	print("StationMenu: Closed")
 
 
+func open_for_current_dock() -> void:
+	if GameState.player_docked_at == "":
+		return
+	_current_location_id = GameState.player_docked_at
+	_update_station_label(_current_location_id)
+	_update_info_label()
+	visible = true
+
+
 # =============================================================================
 # === BUTTON CALLBACKS ========================================================
 # =============================================================================
 
 func _on_undock_pressed() -> void:
 	EventBus.emit_signal("player_undocked")
+
+
+func _on_close_pressed() -> void:
+	visible = false
 
 
 func _on_trade_pressed() -> void:

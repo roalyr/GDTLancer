@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -11,6 +11,7 @@
 [ext_resource path="res://src/core/systems/inventory_system.gd" type="Script" id=15]
 [ext_resource path="res://src/scenes/game_world/world_rendering.gd" type="Script" id=16]
 [ext_resource path="res://scenes/ui/menus/main_menu.tscn" type="PackedScene" id=17]
+[ext_resource path="res://scenes/ui/menus/debug_window.tscn" type="PackedScene" id=18]
 [ext_resource path="res://scenes/ui/hud/sim_debug_panel.tscn" type="PackedScene" id=25]
 [ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
@@ -49,6 +50,8 @@ script = ExtResource( 27 )
 script = ExtResource( 16 )
 
 [node name="MainHUD" parent="." instance=ExtResource( 2 )]
+
+[node name="DebugWindow" parent="." instance=ExtResource( 18 )]
 
 [node name="MainMenu" parent="." instance=ExtResource( 17 )]
 

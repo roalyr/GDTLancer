@@ -29,7 +29,7 @@ onready var _btn_run_30: Button = $Panel/VBoxContainer/HeaderRow/BtnRun30
 onready var _btn_run_300: Button = $Panel/VBoxContainer/HeaderRow/BtnRun300
 onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
-onready var _btn_close: Button = $Panel/VBoxContainer/HeaderRow/BtnClose
+onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 
 
 # =============================================================================

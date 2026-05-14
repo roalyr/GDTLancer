@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -15,8 +15,6 @@
 [ext_resource path="res://assets/art/ui/controls/button_attack.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
 [ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
-[ext_resource path="res://scenes/ui/hud/radar_display.tscn" type="PackedScene" id=16]
-[ext_resource path="res://scenes/ui/hud/sector_info_panel.tscn" type="PackedScene" id=17]
 [ext_resource path="res://assets/art/ui/controls/button_character.png" type="Texture" id=18]
 [ext_resource path="res://assets/art/ui/controls/button_ship.png" type="Texture" id=19]
 
@@ -753,124 +751,6 @@ margin_right = 960.0
 margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
 
-[node name="LabelCredits (to be moved to debug)" type="Label" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_right = 40.0
-margin_bottom = 14.0
-theme = ExtResource( 9 )
-text = "Credits:"
-
-[node name="LabelFP (to be moved to debug)" type="Label" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 39.0
-margin_right = 103.0
-margin_bottom = 66.0
-theme = ExtResource( 9 )
-text = "Current FP: "
-
-[node name="LabelTime (to be moved to debug)" type="Label" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 78.0
-margin_right = 103.0
-margin_bottom = 105.0
-theme = ExtResource( 9 )
-text = "Time (TU): 0"
-
-[node name="LabelPlayerHull (to be moved to debug)" type="Label" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 110.0
-margin_right = 103.0
-margin_bottom = 137.0
-theme = ExtResource( 9 )
-text = "Hull: --"
-
-[node name="PlayerHullBar (to be moved to debug)" type="ProgressBar" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 140.0
-margin_right = 150.0
-margin_bottom = 154.0
-value = 100.0
-
-[node name="ButtonCharacter (to be moved to debug)" type="Button" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 165.0
-margin_right = 111.0
-margin_bottom = 215.0
-theme = ExtResource( 9 )
-text = "SIM DEBUG"
-
-[node name="ButtonNarrativeStatus (to be moved to debug)" type="Button" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 229.0
-margin_right = 111.0
-margin_bottom = 279.0
-theme = ExtResource( 9 )
-text = "MAP DEBUG"
-
-[node name="ButtonInventory (to be moved to debug)" type="Button" parent="ScreenControls/TopLeftZone"]
-visible = false
-margin_top = 293.0
-margin_right = 111.0
-margin_bottom = 343.0
-theme = ExtResource( 9 )
-
-[node name="TopCenterZone (to be removed)" type="Control" parent="ScreenControls"]
-visible = false
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -450.0
-margin_right = 450.0
-margin_bottom = 200.0
-mouse_filter = 2
-
-[node name="DockingPrompt (to be removed)" type="Panel" parent="ScreenControls/TopCenterZone (to be removed)"]
-visible = false
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -200.0
-margin_top = 20.0
-margin_right = 200.0
-margin_bottom = 60.0
-
-[node name="Label" type="Label" parent="ScreenControls/TopCenterZone (to be removed)/DockingPrompt (to be removed)"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-text = "Docking Available - Press Interact"
-align = 1
-valign = 1
-
-[node name="TargetInfoPanel (to be removed)" type="PanelContainer" parent="ScreenControls/TopCenterZone (to be removed)"]
-visible = false
-anchor_left = 0.5
-anchor_right = 0.5
-margin_left = -150.0
-margin_top = 70.0
-margin_right = 150.0
-margin_bottom = 130.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="ScreenControls/TopCenterZone (to be removed)/TargetInfoPanel (to be removed)"]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 293.0
-margin_bottom = 53.0
-
-[node name="LabelTargetName" type="Label" parent="ScreenControls/TopCenterZone (to be removed)/TargetInfoPanel (to be removed)/VBoxContainer"]
-margin_right = 286.0
-margin_bottom = 14.0
-text = "Target Name"
-align = 1
-
-[node name="TargetHullBar" type="ProgressBar" parent="ScreenControls/TopCenterZone (to be removed)/TargetInfoPanel (to be removed)/VBoxContainer"]
-margin_top = 18.0
-margin_right = 286.0
-margin_bottom = 32.0
-value = 100.0
-
-[node name="SectorInfoPanel (to be removed)" parent="ScreenControls/TopCenterZone (to be removed)" instance=ExtResource( 17 )]
-visible = false
-margin_top = 140.0
-margin_bottom = 190.0
-
 [node name="TopRightZone" type="Control" parent="ScreenControls"]
 anchor_left = 1.0
 anchor_right = 1.0
@@ -914,9 +794,6 @@ margin_right = 960.0
 margin_bottom = 1.0
 color = Color( 1, 1, 1, 0.12549 )
 
-[node name="RadarDisplay (to be removed)" parent="ScreenControls/TopRightZone" instance=ExtResource( 16 )]
-visible = false
-
 [node name="GameOverOverlay (to be made into a dedicated window like main menu)" type="Control" parent="."]
 pause_mode = 2
 visible = false
@@ -956,6 +833,7 @@ theme = ExtResource( 9 )
 text = "Return to Menu"
 
 [connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonMenu" to="." method="_on_ButtonMenu_pressed"]
+[connection signal="pressed" from="ScreenControls/CenterLeftZone/ButtonDebug" to="." method="_on_ButtonDebug_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterLeftZone/SliderControlLeft" to="." method="_on_SliderControlLeft_value_changed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonOrbit" to="." method="_on_ButtonOrbit_pressed"]
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonStop" to="." method="_on_ButtonStop_pressed"]
@@ -966,6 +844,4 @@ text = "Return to Menu"
 [connection signal="pressed" from="ScreenControls/BottomCenterZone/ButtonAttack" to="." method="_on_ButtonAttack_pressed"]
 [connection signal="pressed" from="ScreenControls/CenterRightZone/ButtonUIOpacity" to="." method="_on_ButtonUIOpacity_pressed"]
 [connection signal="value_changed" from="ScreenControls/CenterRightZone/SliderControlRight" to="." method="_on_SliderControlRight_value_changed"]
-[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonCharacter (to be moved to debug)" to="." method="_on_ButtonCharacter_pressed"]
-[connection signal="pressed" from="ScreenControls/TopLeftZone/ButtonInventory (to be moved to debug)" to="." method="_on_ButtonInventory_pressed"]
 [connection signal="pressed" from="GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu" to="." method="_on_ButtonReturnToMenu_pressed"]

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 02:59:12
 #
 
 extends Control
@@ -15,6 +15,7 @@ const RouteTargetProviderScript = preload("res://src/core/targeting/route_target
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
+	"ScreenControls/CenterLeftZone/ButtonDebug",
 	"ScreenControls/CenterLeftZone/ButtonInfo",
 	"ScreenControls/CenterLeftZone/SliderControlLeft",
 	"ScreenControls/BottomCenterZone/ButtonOrbit",
@@ -26,10 +27,7 @@ const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/BottomCenterZone/ButtonAttack",
 	"ScreenControls/CenterRightZone/ButtonUIOpacity",
 	"ScreenControls/CenterRightZone/ButtonCamera",
-	"ScreenControls/CenterRightZone/SliderControlRight",
-	"ScreenControls/TopLeftZone/ButtonCharacter",
-	"ScreenControls/TopLeftZone/ButtonNarrativeStatus",
-	"ScreenControls/TopLeftZone/ButtonInventory"
+	"ScreenControls/CenterRightZone/SliderControlRight"
 ]
 
 # --- Sub-Screens ---
@@ -38,41 +36,23 @@ var _station_menu_instance = null
 
 # --- Nodes ---
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
-onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
-onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
-onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
-onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
-onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
-onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
-onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
+onready var button_debug: TextureButton = $ScreenControls/CenterLeftZone/ButtonDebug
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
-onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
-onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
 # --- Game Over UI ---
-onready var game_over_overlay: Control = $GameOverOverlay
-onready var button_return_to_menu: Button = $GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu
-
-# --- Combat HUD Nodes ---
-onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/TargetInfoPanel
-onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
-onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
-
-# --- Simulation HUD Panels ---
-onready var radar_display = $ScreenControls/TopRightZone/RadarDisplay
-onready var sector_info_panel = $ScreenControls/TopCenterZone/SectorInfoPanel
+onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
+onready var button_return_to_menu: Button = $"GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu"
 
 # --- State ---
 var _current_target = null
 var _main_camera: Camera = null
-var _current_target_uid: int = -1  # UID of current combat target for hull tracking
 var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
 var _hud_alpha = 1.0
 var _dock_location_id: String = ""  # Currently available dock location
-var _jump_target_name: String = ""  # Currently available jump target name
+var _jump_target_id: String = ""  # Currently available jump route target
 var _route_target_provider: Reference = RouteTargetProviderScript.new()
 var _route_target_buttons: Dictionary = {}
 var _world_target_buttons: Dictionary = {}
@@ -80,6 +60,8 @@ var _tracked_inflight_drag_controls: Array = []
 var _tracked_inflight_drag_filters: Dictionary = {}
 var _inflight_drag_passthrough_active: bool = false
 var _inflight_drag_passthrough_sync_pending: bool = false
+var _projected_target_drag_passthrough_active: bool = false
+var _projected_target_drag_source: Control = null
 
 # --- Initialization ---
 func _ready():
@@ -150,11 +132,6 @@ func _ready():
 		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
 			EventBus.connect("sector_changed", self, "_on_sector_changed")
 
-		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_for_panels"):
-			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_for_panels")
-		if not EventBus.is_connected("sim_initialized", self, "_on_sim_initialized_for_panels"):
-			EventBus.connect("sim_initialized", self, "_on_sim_initialized_for_panels")
-
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
@@ -162,10 +139,6 @@ func _ready():
 	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
 	set_process_input(true)
-	
-	# Ensure target info panel starts hidden
-	if target_info_panel:
-		target_info_panel.visible = false
 
 	# Connect ButtonMenu to open main menu
 	if is_instance_valid(button_menu):
@@ -177,10 +150,9 @@ func _ready():
 		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
 			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
 
-	# Reuse placeholder top-left buttons for debug tools.
-	if is_instance_valid(button_narrative_status):
-		if not button_narrative_status.is_connected("pressed", self, "_on_ButtonNarrativeStatus_pressed"):
-			button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
+	if is_instance_valid(button_debug):
+		if not button_debug.is_connected("pressed", self, "_on_ButtonDebug_pressed"):
+			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
 
 	_register_inflight_drag_controls()
 
@@ -212,9 +184,6 @@ func _on_Player_Target_Selected(target_node):
 	if _is_target_valid(target_node):
 		_current_target = target_node
 		_refresh_process_state()
-		
-		# Update combat target info panel
-		_update_target_info_panel(target_node)
 		_update_route_target_selection_state()
 		_update_world_target_selection_state()
 		
@@ -228,9 +197,6 @@ func _on_Player_Target_Selected(target_node):
 
 func _on_Player_Target_Deselected():
 	_current_target = null
-	_current_target_uid = -1
-	if target_info_panel:
-		target_info_panel.visible = false
 	_update_route_target_selection_state()
 	_update_world_target_selection_state()
 	_refresh_process_state()
@@ -274,22 +240,15 @@ func _on_player_fp_changed(_new_fp_value = null):
 
 
 func _refresh_player_resources() -> void:
-	if not is_instance_valid(label_credits) or not is_instance_valid(label_fp):
-		return
-	if not is_instance_valid(GlobalRefs.character_system):
-		return
-	var player_char = GlobalRefs.character_system.get_player_character()
-	if not is_instance_valid(player_char):
-		return
-	label_credits.text = "Credits: " + str(player_char.credits)
-	label_fp.text = "Current FP: " + str(player_char.focus_points)
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_resources"):
+		debug_window.call("refresh_debug_window_resources")
 
 
 func _refresh_time_display() -> void:
-	if not is_instance_valid(label_time):
-		return
-	var time_str = "%02d:%02d" % [GameState.game_time_seconds / 60, GameState.game_time_seconds % 60]
-	label_time.text = "Time: " + time_str
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_time_display"):
+		debug_window.call("refresh_debug_window_time_display")
 
 
 func _on_sim_tick_completed(_tick_count: int = 0) -> void:
@@ -302,6 +261,21 @@ func _on_game_time_advanced(_seconds_added: int = 0) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if _projected_target_drag_passthrough_active:
+		if event is InputEventMouseMotion:
+			_forward_inflight_drag_motion(event)
+			get_tree().set_input_as_handled()
+			return
+		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
+			_end_projected_target_drag_passthrough(event)
+			get_tree().set_input_as_handled()
+			return
+	if event is InputEventMouseMotion and not _inflight_drag_passthrough_active:
+		if _is_external_camera_drag_active() and _is_pointer_over_tracked_inflight_control(event.position):
+			_set_inflight_drag_passthrough(true)
+			_forward_inflight_drag_motion(event)
+			get_tree().set_input_as_handled()
+			return
 	if not _inflight_drag_passthrough_active:
 		return
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
@@ -322,6 +296,12 @@ func _on_ButtonMenu_pressed() -> void:
 	"""Handle menu button press - opens main menu."""
 	if EventBus:
 		EventBus.emit_signal("main_menu_requested")
+
+
+func _on_ButtonDebug_pressed() -> void:
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("toggle_debug_window"):
+		debug_window.call("toggle_debug_window")
 
 
 func _on_ButtonCamera_pressed() -> void:
@@ -382,6 +362,32 @@ func _on_inflight_drag_control_gui_input(event: InputEvent, control: Control) ->
 	get_tree().set_input_as_handled()
 
 
+func begin_projected_target_drag_passthrough(source_control: Control, initial_motion_event: InputEventMouseMotion = null) -> void:
+	_projected_target_drag_source = source_control if is_instance_valid(source_control) else null
+	_projected_target_drag_passthrough_active = true
+	_set_inflight_drag_passthrough(true)
+	if initial_motion_event != null:
+		_forward_inflight_drag_motion(initial_motion_event)
+
+
+func is_projected_target_drag_passthrough_active() -> bool:
+	return _projected_target_drag_passthrough_active
+
+
+func _end_projected_target_drag_passthrough(release_event: InputEventMouseButton = null) -> void:
+	if is_instance_valid(_projected_target_drag_source) and _projected_target_drag_source.has_method("reset_pointer_tracking_from_main_hud"):
+		_projected_target_drag_source.call("reset_pointer_tracking_from_main_hud")
+	_projected_target_drag_source = null
+	_projected_target_drag_passthrough_active = false
+	if release_event != null:
+		_forward_inflight_drag_release(release_event)
+	else:
+		var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+		if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
+			camera.set_is_rotating(false)
+	_set_inflight_drag_passthrough(false)
+
+
 func _is_external_camera_drag_active() -> bool:
 	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
 	return is_instance_valid(camera) and camera.has_method("is_externally_rotating") and camera.is_externally_rotating()
@@ -414,6 +420,18 @@ func _compact_tracked_inflight_drag_controls() -> void:
 	_tracked_inflight_drag_controls = valid_controls
 
 
+func _is_pointer_over_tracked_inflight_control(pointer_position: Vector2) -> bool:
+	_compact_tracked_inflight_drag_controls()
+	for control in _tracked_inflight_drag_controls:
+		if not is_instance_valid(control):
+			continue
+		if not control.visible:
+			continue
+		if control.get_global_rect().has_point(pointer_position):
+			return true
+	return false
+
+
 func _forward_inflight_drag_motion(motion_event: InputEventMouseMotion) -> void:
 	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
 	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
@@ -426,13 +444,15 @@ func _forward_inflight_drag_release(release_event: InputEventMouseButton) -> voi
 		var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
 		if is_instance_valid(player_controller) and player_controller.has_method("_unhandled_input"):
 			player_controller.call("_unhandled_input", release_event)
-			return
 	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
 	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
 		camera.set_is_rotating(false)
 
 
 func _sync_inflight_drag_passthrough() -> void:
+	if _projected_target_drag_passthrough_active and not _is_external_camera_drag_active():
+		_end_projected_target_drag_passthrough()
+		return
 	if _inflight_drag_passthrough_active and not _is_external_camera_drag_active():
 		_set_inflight_drag_passthrough(false)
 
@@ -584,6 +604,10 @@ func _on_ButtonInteract_pressed():
 
 
 func _on_ButtonDock_pressed():
+	if GameState.player_docked_at != "":
+		if is_instance_valid(_station_menu_instance) and _station_menu_instance.has_method("open_for_current_dock"):
+			_station_menu_instance.call("open_for_current_dock")
+		return
 	if EventBus:
 		EventBus.emit_signal("player_dock_pressed")
 
@@ -600,40 +624,32 @@ func _on_SliderControlLeft_value_changed(value):
 # --- Docking UI Handlers ---
 func _on_dock_available(location_id):
 	_dock_location_id = location_id
-	_update_docking_prompt()
+	_refresh_projected_target_info_hints()
 
 func _on_dock_unavailable():
 	_dock_location_id = ""
-	_update_docking_prompt()
+	_refresh_projected_target_info_hints()
 
 func _on_player_docked(_location_id):
 	_dock_location_id = ""
-	_jump_target_name = ""
-	_update_docking_prompt()
+	_jump_target_id = ""
+	_refresh_projected_target_info_hints()
 
 
 # --- Jump UI Handlers ---
-func _on_jump_available(_target_id, target_name) -> void:
-	_jump_target_name = target_name
-	_update_docking_prompt()
+func _on_jump_available(target_id, _target_name) -> void:
+	_jump_target_id = str(target_id)
+	_refresh_projected_target_info_hints()
 
 
 func _on_jump_unavailable() -> void:
-	_jump_target_name = ""
-	_update_docking_prompt()
+	_jump_target_id = ""
+	_refresh_projected_target_info_hints()
 
 
-func _update_docking_prompt():
-	if not docking_prompt or not docking_label:
-		return
-	if _dock_location_id != "":
-		docking_prompt.visible = true
-		docking_label.text = "Docking Available - Press Dock"
-	elif _jump_target_name != "":
-		docking_prompt.visible = true
-		docking_label.text = "Jump Available: %s - Press Interact" % _jump_target_name
-	else:
-		docking_prompt.visible = false
+func _refresh_projected_target_info_hints() -> void:
+	_update_route_target_selection_state()
+	_update_world_target_selection_state()
 
 
 # --- Dock/Attack Feedback Handlers ---
@@ -690,6 +706,13 @@ func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:
 		panel.call(toggle_method)
 
 
+func _get_debug_window() -> Node:
+	var parent_node = get_parent()
+	if not is_instance_valid(parent_node):
+		return null
+	return parent_node.get_node_or_null("DebugWindow")
+
+
 # --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
 
 func _connect_combat_signals() -> void:
@@ -698,13 +721,9 @@ func _connect_combat_signals() -> void:
 
 
 func _refresh_player_hull() -> void:
-	if not is_instance_valid(label_player_hull) or not is_instance_valid(player_hull_bar):
-		return
-	# Read hull from GameState agent layer (simulation-first architecture)
-	var player_agent: Dictionary = GameState.agents.get("player", {})
-	var hull_pct: float = player_agent.get("hull_integrity", 1.0)
-	player_hull_bar.value = hull_pct * 100.0
-	label_player_hull.text = "Hull: " + str(int(round(hull_pct * 100.0))) + "%"
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_player_hull"):
+		debug_window.call("refresh_debug_window_player_hull")
 
 
 func _deferred_refresh_player_hull() -> void:
@@ -717,88 +736,12 @@ func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _sour
 	_refresh_player_hull()
 
 
-func _update_target_info_panel(target_node) -> void:
-	"""Update the target info panel with the selected target's info."""
-	if not target_info_panel:
-		return
-	if _is_route_target(target_node):
-		_current_target_uid = -1
-		target_info_panel.visible = false
-		return
-	
-	# Get target's agent_uid if available
-	if target_node.get("agent_uid") != null:
-		_current_target_uid = target_node.agent_uid
-	else:
-		_current_target_uid = -1
-		target_info_panel.visible = false
-		return
-	
-	# Set target name
-	var target_name: String = "Unknown"
-	if target_node.get("agent_name") != null:
-		target_name = target_node.agent_name
-	elif target_node.name:
-		target_name = target_node.name
-	
-	if label_target_name:
-		label_target_name.text = target_name
-	
-	# Update hull bar
-	_update_target_hull_bar()
-	
-	target_info_panel.visible = true
-
-
-func _update_target_hull_bar() -> void:
-	"""Update the target hull progress bar from GameState agent data."""
-	if not target_hull_bar or _current_target_uid < 0:
-		return
-	# CombatSystem removed — hull data now lives in GameState agents
-	target_hull_bar.value = 100.0
-
-
-func _on_damage_dealt(target_uid: int, _amount: float, _source_uid: int) -> void:
-	"""Handle damage_dealt signal from CombatSystem to update hull bar."""
-	if target_uid == _current_target_uid:
-		_update_target_hull_bar()
-
-
-func _on_ship_disabled(ship_uid: int) -> void:
-	"""Handle ship_disabled signal - target destroyed."""
-	if ship_uid == _current_target_uid:
-		if target_hull_bar:
-			target_hull_bar.value = 0.0
-		# Optionally change display to show "DISABLED" or similar
-		if label_target_name:
-			label_target_name.text = label_target_name.text + " [DISABLED]"
-
-
 func _on_ButtonUIOpacity_pressed() -> void:
 	"""Handle main HUD transparency (cycle)."""
 	_hud_alpha -= 0.25
 	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
-
-
-# --- Simulation HUD Panel Refresh ---
-
-func _on_sim_tick_for_panels(_tick_count) -> void:
-	_refresh_hud_panels()
-
-
-func _on_sim_initialized_for_panels(_seed) -> void:
-	_refresh_hud_panels()
-
-
-func _refresh_hud_panels() -> void:
-	if is_instance_valid(GlobalRefs.contact_manager):
-		if is_instance_valid(radar_display):
-			radar_display.refresh(GlobalRefs.contact_manager)
-		if is_instance_valid(sector_info_panel):
-			sector_info_panel.refresh(GlobalRefs.contact_manager)
-
 
 func _on_zone_unloading(_zone_node) -> void:
 	_clear_route_target_overlay()
@@ -1017,6 +960,8 @@ func _update_route_target_selection_state() -> void:
 		var button = _route_target_buttons[selection_key]
 		if is_instance_valid(button):
 			button.set_selected_state(selection_key == selected_key)
+			if button.has_method("set_context_hint"):
+				button.call("set_context_hint", _get_projected_target_context_hint(button.target_ref))
 
 
 func _get_world_target_instance_id() -> int:
@@ -1025,12 +970,28 @@ func _get_world_target_instance_id() -> int:
 	return -1
 
 
+func _get_projected_target_context_hint(target_ref) -> String:
+	if _is_route_target(target_ref):
+		if _jump_target_id != "" and str(target_ref.target_sector_id) == _jump_target_id:
+			return "Jump Ready"
+		return "Jump Route"
+	if target_ref is Node and is_instance_valid(target_ref) and target_ref.is_in_group("dockable_station"):
+		if _dock_location_id != "" and str(target_ref.get("location_id")) == _dock_location_id:
+			return "Dock Ready"
+		return "Dock Target"
+	if target_ref == _current_target and _is_target_valid(target_ref):
+		return "Target Locked"
+	return ""
+
+
 func _update_world_target_selection_state() -> void:
 	var selected_instance_id = _get_world_target_instance_id()
 	for instance_id in _world_target_buttons:
 		var button = _world_target_buttons[instance_id]
 		if is_instance_valid(button):
 			button.set_selected_state(instance_id == selected_instance_id)
+			if button.has_method("set_context_hint"):
+				button.call("set_context_hint", _get_projected_target_context_hint(button.target_ref))
 
 
 func _on_route_target_button_pressed(route_target) -> void:

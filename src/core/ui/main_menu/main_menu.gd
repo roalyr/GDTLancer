@@ -1,9 +1,18 @@
+##
+## PROJECT: GDTLancer
+## MODULE: main_menu.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-13 16:47:02
+##
+
 extends Control
 
 onready var btn_new_game = $ScreenControls/MainButtonsHBoxContainer/ButtonStartNewGame
 onready var btn_load_game = $ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame
 onready var btn_save_game = $ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame
 onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitgame
+onready var btn_close = $ScreenControls/ButtonClose
 
 # Save notification popup (created dynamically)
 var _save_popup: AcceptDialog = null
@@ -20,12 +29,15 @@ func _ready() -> void:
 		btn_save_game.connect("pressed", self, "_on_save_game_pressed")
 	if is_instance_valid(btn_exit_game) and not btn_exit_game.is_connected("pressed", self, "_on_exit_game_pressed"):
 		btn_exit_game.connect("pressed", self, "_on_exit_game_pressed")
+	if is_instance_valid(btn_close) and not btn_close.is_connected("pressed", self, "_on_close_pressed"):
+		btn_close.connect("pressed", self, "_on_close_pressed")
 
 	if is_instance_valid(EventBus) and EventBus.has_signal("main_menu_requested"):
 		if not EventBus.is_connected("main_menu_requested", self, "_show_menu"):
 			EventBus.connect("main_menu_requested", self, "_show_menu")
 
 	_update_load_button_state()
+	_refresh_close_button_state()
 	# If nothing else requests it, show menu on boot.
 	call_deferred("_show_menu")
 
@@ -82,6 +94,13 @@ func _on_exit_game_pressed() -> void:
 	get_tree().quit()
 
 
+func _on_close_pressed() -> void:
+	if not _has_active_game_session():
+		return
+	visible = false
+	get_tree().paused = false
+
+
 func _update_load_button_state() -> void:
 	if not is_instance_valid(btn_load_game):
 		return
@@ -91,8 +110,19 @@ func _update_load_button_state() -> void:
 		btn_load_game.disabled = true
 
 
+func _refresh_close_button_state() -> void:
+	if not is_instance_valid(btn_close):
+		return
+	btn_close.disabled = not _has_active_game_session()
+
+
+func _has_active_game_session() -> bool:
+	return GameState.current_sector_id != "" or is_instance_valid(GameState.current_zone_instance)
+
+
 func _show_menu() -> void:
 	visible = true
 	get_tree().paused = true
 	_update_load_button_state()
+	_refresh_close_button_state()
 

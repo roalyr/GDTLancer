@@ -10,7 +10,9 @@ extends "res://addons/gut/test.gd"
 
 var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
+var ProjectedTargetBracketScene = load("res://scenes/ui/hud/projected_target_bracket.tscn")
 var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var AgentScript = load("res://src/core/agents/agent.gd")
 
@@ -73,6 +75,165 @@ func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_ex
 	assert_false(targets.has(player), "The player agent should not get a self-targeting HUD bracket.")
 	assert_false(targets.has(jump_point), "Legacy physical jump points should not get projected HUD brackets.")
 
+
+func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_routes() -> void:
+	var bracket = _create_projected_target_bracket()
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		Vector3(1, 0, 0)
+	)
+	bracket.configure_target(route_target)
+	yield(get_tree(), "idle_frame")
+
+	var info_label = bracket.get_node_or_null("InfoPanel/InfoLabel")
+	assert_not_null(info_label, "Projected target bracket scene should own the info label node.")
+	assert_eq(
+		info_label.get_script().resource_path,
+		"res://src/core/ui/helpers/CenteredGrowingLabel.gd",
+		"Projected target labels should reuse CenteredGrowingLabel."
+	)
+	assert_eq(info_label.text, "Cob System\nJump Route", "Route brackets should show jump context under the bracket.")
+	assert_true(bracket.get_node("InfoPanel").visible, "Configured brackets should reveal their info panel.")
+
+
+func test_projected_target_bracket_station_label_shows_dock_context() -> void:
+	var bracket = _create_projected_target_bracket()
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.station_name = "Elace Exchange"
+	add_child_autofree(station)
+	bracket.configure_target(station, station.station_name)
+	yield(get_tree(), "idle_frame")
+
+	var info_label = bracket.get_node("InfoPanel/InfoLabel")
+	assert_eq(info_label.text, "Elace Exchange\nDock Target", "Dockable stations should show dock context under their brackets.")
+
+
+func test_projected_target_bracket_distance_formatter_matches_requested_magnitudes() -> void:
+	var bracket = _create_projected_target_bracket()
+
+	assert_eq(bracket._format_distance_label(3.0), "3", "Single-digit distances should render without padding or suffix.")
+	assert_eq(bracket._format_distance_label(14.0), "14", "Two-digit distances should render without padding or suffix.")
+	assert_eq(bracket._format_distance_label(211.0), "211", "Three-digit distances should render without padding or suffix.")
+	assert_eq(bracket._format_distance_label(1899.0), "1899", "Four-digit short distances should remain in local units.")
+	assert_eq(bracket._format_distance_label(2340.0), "2.34k", "Lower kilounit distances should keep two decimals.")
+	assert_eq(bracket._format_distance_label(34500.0), "34.5k", "Mid-range kilounit distances should keep one decimal.")
+	assert_eq(bracket._format_distance_label(276000.0), "276k", "Large kilounit distances should render as whole kilounits.")
+	assert_eq(bracket._format_distance_label(999000.0), "999k", "Upper in-range kilounit distances should cap at whole kilounits.")
+	assert_eq(bracket._format_distance_label(1000000.0), "FAR", "Distances beyond the readable range should render as FAR.")
+
+
+func test_projected_target_bracket_selected_jump_route_shows_far_distance_label() -> void:
+	var bracket = _create_projected_target_bracket()
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		Vector3(1, 0, 0)
+	)
+
+	bracket.configure_target(route_target)
+	bracket.set_selected_state(true)
+	yield(get_tree(), "idle_frame")
+
+	var distance_panel = bracket.get_node("BracketSelected/DistancePanel")
+	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	assert_true(distance_panel.is_visible_in_tree(), "Selected jump routes should not suppress the distance panel visibility.")
+	assert_eq(distance_label.text, "FAR", "Selected jump routes should render FAR in the distance label.")
+
+
+func test_projected_target_bracket_selected_local_target_updates_distance_label_live() -> void:
+	var bracket = _create_projected_target_bracket()
+	var player = RigidBody.new()
+	player.name = "Player"
+	player.translation = Vector3.ZERO
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.station_name = "Elace Exchange"
+	station.translation = Vector3(3000, 0, 0)
+	add_child_autofree(station)
+
+	bracket.configure_target(station, station.station_name)
+	bracket.set_selected_state(true)
+	yield(get_tree(), "idle_frame")
+
+	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	assert_eq(distance_label.text, "3k", "Selected local targets should use the compact distance format without leading zeros.")
+
+	station.translation = Vector3(4000, 0, 0)
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(distance_label.text, "4k", "Selected target distance should update while the target moves in the local scene.")
+
+
+func test_projected_target_bracket_selected_jump_point_shows_far_distance_label() -> void:
+	var bracket = _create_projected_target_bracket()
+	var player = RigidBody.new()
+	player.name = "Player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+
+	var jump_point = StaticBody.new()
+	jump_point.name = "JumpPoint"
+	jump_point.translation = Vector3(3000, 0, 0)
+	jump_point.add_to_group("jump_point")
+	add_child_autofree(jump_point)
+
+	bracket.configure_target(jump_point, "Jump")
+	bracket.set_selected_state(true)
+	yield(get_tree(), "idle_frame")
+
+	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	assert_eq(distance_label.text, "FAR", "Jump points should render FAR in the selected-target distance label.")
+
+
+func test_projected_target_bracket_selected_texture_visibility_tracks_state() -> void:
+	var bracket = _create_projected_target_bracket()
+	yield(get_tree(), "idle_frame")
+
+	var normal_bracket = bracket.get_node("BracketNormal")
+	var selected_bracket = bracket.get_node("BracketSelected")
+	assert_eq(normal_bracket.stretch_mode, TextureRect.STRETCH_KEEP_CENTERED, "Normal bracket should use the raw texture without scaling.")
+	assert_eq(selected_bracket.stretch_mode, TextureRect.STRETCH_KEEP_CENTERED, "Selected bracket should use the raw texture without scaling.")
+	assert_true(normal_bracket.visible, "Normal bracket texture should be visible by default.")
+	assert_false(selected_bracket.visible, "Selected bracket texture should start hidden.")
+
+	bracket.set_selected_state(true)
+
+	assert_false(normal_bracket.visible, "Normal bracket texture should hide once selected.")
+	assert_true(selected_bracket.visible, "Selected bracket texture should appear once selected.")
+
+
+func test_projected_target_bracket_label_has_no_background_frame() -> void:
+	var bracket = _create_projected_target_bracket()
+	yield(get_tree(), "idle_frame")
+
+	assert_false(bracket.get_node("InfoPanel") is PanelContainer, "Bracket label should render as text only without a panel frame.")
+
+
+func test_main_hud_scene_no_longer_instantiates_removed_target_prompt_panels() -> void:
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	assert_null(
+		hud.get_node_or_null("ScreenControls/TopCenterZone (to be removed)"),
+		"MainHUD should not keep the old top-center prompt container in the active scene."
+	)
+	assert_null(
+		hud.get_node_or_null("ScreenControls/TopRightZone/RadarDisplay (to be removed)"),
+		"MainHUD should not keep the removed radar panel in the active scene."
+	)
+
 func test_projected_target_bracket_click_release_emits_pressed() -> void:
 	var bracket = _create_projected_target_bracket()
 	yield(get_tree(), "idle_frame")
@@ -113,6 +274,17 @@ func test_projected_target_bracket_drag_bridges_into_camera_rotation_path() -> v
 	assert_eq(camera.forwarded_motion[1], Vector2(18, 2), "Subsequent drag motion should continue reaching the camera.")
 
 
+func test_projected_target_bracket_hover_wheel_forwards_zoom_input_to_camera() -> void:
+	var bracket = _create_projected_target_bracket()
+	var camera = _create_scroll_mock_camera()
+	GlobalRefs.main_camera = camera
+
+	yield(_dispatch_bracket_mouse_wheel(Vector2(40, 40), BUTTON_WHEEL_UP), "completed")
+	yield(_dispatch_bracket_mouse_wheel(Vector2(40, 40), BUTTON_WHEEL_DOWN), "completed")
+
+	assert_eq(camera.forwarded_wheel_buttons, [BUTTON_WHEEL_UP, BUTTON_WHEEL_DOWN], "Hovering a target bracket should still forward mouse wheel zoom input to the camera.")
+
+
 func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_forwards_release() -> void:
 	var harness = yield(_create_main_hud_drag_harness(), "completed")
 	var hud = harness["hud"]
@@ -120,7 +292,7 @@ func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_for
 	var controller = harness["controller"]
 	var bracket = hud._instance_projected_target_bracket()
 	bracket.rect_position = Vector2(120, 120)
-	bracket.rect_size = Vector2(180, 56)
+	bracket.rect_size = Vector2(150, 150)
 	hud.projected_target_overlay.add_child(bracket)
 	hud._track_inflight_drag_control(bracket)
 	yield(get_tree(), "idle_frame")
@@ -138,6 +310,31 @@ func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_for
 	assert_signal_not_emitted(bracket, "pressed", "Crossing an already-active drag over a projected bracket must not select the target on release.")
 	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
 	assert_eq(bracket.mouse_filter, original_filter, "Projected bracket mouse filtering should restore after the drag ends.")
+
+
+func test_projected_target_drag_continues_after_bracket_hides_offscreen() -> void:
+	var harness = yield(_create_main_hud_drag_harness(false), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var bracket = hud._instance_projected_target_bracket()
+	bracket.rect_position = Vector2(120, 120)
+	hud.projected_target_overlay.add_child(bracket)
+	hud._track_inflight_drag_control(bracket)
+	yield(get_tree(), "idle_frame")
+	var bracket_center = _get_control_center(bracket)
+
+	yield(_dispatch_mouse_button(bracket_center, true), "completed")
+	yield(_dispatch_mouse_motion(bracket_center + Vector2(20, 0), Vector2(20, 0)), "completed")
+	bracket.visible = false
+	yield(_dispatch_mouse_motion(Vector2(420, 240), Vector2(18, 2)), "completed")
+	yield(_dispatch_mouse_button(Vector2(420, 240), false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(20, 0), Vector2(18, 2)], "MainHUD should keep forwarding bracket drag motion even after the bracket hides off-screen.")
+	assert_eq(controller.release_events.size(), 1, "Releasing an off-screen bracket drag should still reach the live controller release path.")
+	assert_false(camera.externally_rotating, "Off-screen bracket drag release should stop external camera rotation even when the controller does not clear camera state.")
+	assert_false(bracket.disabled, "Bracket drag state should reset even when release happens after the bracket hides.")
 
 
 func test_main_hud_button_crossing_keeps_external_camera_drag_without_pressing_button() -> void:
@@ -188,10 +385,9 @@ func test_main_hud_slider_crossing_keeps_external_camera_drag_without_changing_v
 
 
 func _create_projected_target_bracket() -> Button:
-	var bracket = Button.new()
-	bracket.set_script(ProjectedTargetBracketScript)
+	var bracket = ProjectedTargetBracketScene.instance()
 	bracket.rect_position = Vector2(20, 20)
-	bracket.rect_size = Vector2(180, 56)
+	bracket.rect_size = Vector2(150, 150)
 	add_child_autofree(bracket)
 	return bracket
 
@@ -206,7 +402,17 @@ func _create_mock_camera() -> Node:
 	return camera
 
 
-func _create_main_hud_drag_harness() -> Dictionary:
+func _create_scroll_mock_camera() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar forwarded_wheel_buttons = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.pressed and (event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN):\n\t\tforwarded_wheel_buttons.append(event.button_index)\n"
+	script.reload()
+	var camera = Node.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_main_hud_drag_harness(stop_camera_on_release: bool = true) -> Dictionary:
 	var camera = _create_external_rotation_camera()
 	GlobalRefs.main_camera = camera
 
@@ -215,7 +421,7 @@ func _create_main_hud_drag_harness() -> Dictionary:
 	player_body.gravity_scale = 0.0
 	add_child_autofree(player_body)
 
-	var controller = _create_mock_player_input_handler()
+	var controller = _create_mock_player_input_handler(stop_camera_on_release)
 	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
 	player_body.add_child(controller)
 	GlobalRefs.player_agent_body = player_body
@@ -229,7 +435,7 @@ func _create_main_hud_drag_harness() -> Dictionary:
 
 func _create_external_rotation_camera() -> Camera:
 	var script = GDScript.new()
-	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
+	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc set_is_rotating(rotating):\n\texternally_rotating = rotating\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
 	script.reload()
 	var camera = Camera.new()
 	camera.set_script(script)
@@ -237,9 +443,12 @@ func _create_external_rotation_camera() -> Camera:
 	return camera
 
 
-func _create_mock_player_input_handler() -> Node:
+func _create_mock_player_input_handler(stop_camera_on_release: bool = true) -> Node:
 	var script = GDScript.new()
-	script.source_code = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
+	var source = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n"
+	if stop_camera_on_release:
+		source += "\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
+	script.source_code = source
 	script.reload()
 	var controller = Node.new()
 	controller.set_script(script)
@@ -265,6 +474,15 @@ func _dispatch_mouse_button(position: Vector2, pressed: bool) -> void:
 	yield(get_tree(), "idle_frame")
 
 
+func _dispatch_mouse_wheel(position: Vector2, button_index: int) -> void:
+	var event = InputEventMouseButton.new()
+	event.button_index = button_index
+	event.pressed = true
+	event.position = position
+	Input.parse_input_event(event)
+	yield(get_tree(), "idle_frame")
+
+
 func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
 	var event = InputEventMouseMotion.new()
 	event.position = position
@@ -275,6 +493,10 @@ func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
 
 func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
 	yield(_dispatch_mouse_button(position, pressed), "completed")
+
+
+func _dispatch_bracket_mouse_wheel(position: Vector2, button_index: int) -> void:
+	yield(_dispatch_mouse_wheel(position, button_index), "completed")
 
 
 func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:

@@ -21602,6 +21602,122 @@ func _notification(what):
 		if EventBus and EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
 			EventBus.disconnect("sim_tick_completed", self, "_on_sim_tick_completed")
 
+--- Start of ./src/core/ui/debug_window/debug_window.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: debug_window.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 01:01:21
+#
+
+extends Control
+
+onready var debug_button_close: BaseButton = $Panel/VBoxContainer/debug_HeaderRow/debug_ButtonClose
+onready var debug_label_credits: Label = $Panel/VBoxContainer/debug_LabelCredits
+onready var debug_label_fp: Label = $Panel/VBoxContainer/debug_LabelFP
+onready var debug_label_time: Label = $Panel/VBoxContainer/debug_LabelTime
+onready var debug_label_player_hull: Label = $Panel/VBoxContainer/debug_LabelPlayerHull
+onready var debug_player_hull_bar: ProgressBar = $Panel/VBoxContainer/debug_PlayerHullBar
+onready var debug_button_sim_panel: Button = $Panel/VBoxContainer/debug_ButtonSimPanel
+onready var debug_button_map_panel: Button = $Panel/VBoxContainer/debug_ButtonMapPanel
+onready var debug_button_inventory: Button = $Panel/VBoxContainer/debug_ButtonInventory
+
+var _is_visible: bool = false
+
+
+func _ready() -> void:
+	pause_mode = Node.PAUSE_MODE_PROCESS
+	visible = false
+	if is_instance_valid(debug_button_close) and not debug_button_close.is_connected("pressed", self, "_on_debug_button_close_pressed"):
+		debug_button_close.connect("pressed", self, "_on_debug_button_close_pressed")
+	if is_instance_valid(debug_button_sim_panel) and not debug_button_sim_panel.is_connected("pressed", self, "_on_debug_button_sim_panel_pressed"):
+		debug_button_sim_panel.connect("pressed", self, "_on_debug_button_sim_panel_pressed")
+	if is_instance_valid(debug_button_map_panel) and not debug_button_map_panel.is_connected("pressed", self, "_on_debug_button_map_panel_pressed"):
+		debug_button_map_panel.connect("pressed", self, "_on_debug_button_map_panel_pressed")
+	if is_instance_valid(debug_button_inventory) and not debug_button_inventory.is_connected("pressed", self, "_on_debug_button_inventory_pressed"):
+		debug_button_inventory.connect("pressed", self, "_on_debug_button_inventory_pressed")
+	call_deferred("refresh_debug_window_state")
+
+
+func toggle_debug_window() -> void:
+	_is_visible = not _is_visible
+	visible = _is_visible
+	if _is_visible:
+		refresh_debug_window_state()
+
+
+func hide_debug_window() -> void:
+	_is_visible = false
+	visible = false
+
+
+func refresh_debug_window_state() -> void:
+	refresh_debug_window_resources()
+	refresh_debug_window_time_display()
+	refresh_debug_window_player_hull()
+
+
+func refresh_debug_window_resources() -> void:
+	if not is_instance_valid(debug_label_credits) or not is_instance_valid(debug_label_fp):
+		return
+	if not is_instance_valid(GlobalRefs.character_system):
+		debug_label_credits.text = "Credits: --"
+		debug_label_fp.text = "Current FP: --"
+		return
+	var player_char = GlobalRefs.character_system.get_player_character()
+	if not is_instance_valid(player_char):
+		debug_label_credits.text = "Credits: --"
+		debug_label_fp.text = "Current FP: --"
+		return
+	debug_label_credits.text = "Credits: " + str(player_char.credits)
+	debug_label_fp.text = "Current FP: " + str(player_char.focus_points)
+
+
+func refresh_debug_window_time_display() -> void:
+	if not is_instance_valid(debug_label_time):
+		return
+	var time_str = "%02d:%02d" % [GameState.game_time_seconds / 60, GameState.game_time_seconds % 60]
+	debug_label_time.text = "Time: " + time_str
+
+
+func refresh_debug_window_player_hull() -> void:
+	if not is_instance_valid(debug_label_player_hull) or not is_instance_valid(debug_player_hull_bar):
+		return
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	var hull_pct: float = player_agent.get("hull_integrity", 1.0)
+	debug_player_hull_bar.value = hull_pct * 100.0
+	debug_label_player_hull.text = "Hull: " + str(int(round(hull_pct * 100.0))) + "%"
+
+
+func _on_debug_button_close_pressed() -> void:
+	hide_debug_window()
+
+
+func _on_debug_button_sim_panel_pressed() -> void:
+	_toggle_named_panel("SimDebugPanel", "_toggle")
+
+
+func _on_debug_button_map_panel_pressed() -> void:
+	_toggle_named_panel("DebugMapPanel", "_toggle_panel")
+
+
+func _on_debug_button_inventory_pressed() -> void:
+	pass
+
+
+func _toggle_named_panel(panel_name: String, toggle_method: String) -> void:
+	var scene_root = get_tree().current_scene
+	if not is_instance_valid(scene_root):
+		return
+	var panel = scene_root.find_node(panel_name, true, false)
+	if not is_instance_valid(panel):
+		printerr("DebugWindow: Missing panel: %s" % panel_name)
+		return
+	if panel.has_method(toggle_method):
+		panel.call(toggle_method)
+
 --- Start of ./src/core/ui/helpers/CenteredGrowingLabel.gd ---
 
 # File: res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd
@@ -21671,8 +21787,8 @@ func get_parent_control() -> Control:
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 02:59:12
 #
 
 extends Control
@@ -21684,6 +21800,7 @@ const RouteTargetProviderScript = preload("res://src/core/targeting/route_target
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
+	"ScreenControls/CenterLeftZone/ButtonDebug",
 	"ScreenControls/CenterLeftZone/ButtonInfo",
 	"ScreenControls/CenterLeftZone/SliderControlLeft",
 	"ScreenControls/BottomCenterZone/ButtonOrbit",
@@ -21695,10 +21812,7 @@ const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/BottomCenterZone/ButtonAttack",
 	"ScreenControls/CenterRightZone/ButtonUIOpacity",
 	"ScreenControls/CenterRightZone/ButtonCamera",
-	"ScreenControls/CenterRightZone/SliderControlRight",
-	"ScreenControls/TopLeftZone/ButtonCharacter",
-	"ScreenControls/TopLeftZone/ButtonNarrativeStatus",
-	"ScreenControls/TopLeftZone/ButtonInventory"
+	"ScreenControls/CenterRightZone/SliderControlRight"
 ]
 
 # --- Sub-Screens ---
@@ -21707,41 +21821,23 @@ var _station_menu_instance = null
 
 # --- Nodes ---
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
-onready var label_credits: Label = $ScreenControls/TopLeftZone/LabelCredits
-onready var label_fp: Label = $ScreenControls/TopLeftZone/LabelFP
-onready var label_time: Label = $ScreenControls/TopLeftZone/LabelTime
-onready var label_player_hull: Label = $ScreenControls/TopLeftZone/LabelPlayerHull
-onready var player_hull_bar: ProgressBar = $ScreenControls/TopLeftZone/PlayerHullBar
-onready var button_character: Button = $ScreenControls/TopLeftZone/ButtonCharacter
-onready var button_narrative_status: Button = $ScreenControls/TopLeftZone/ButtonNarrativeStatus
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
+onready var button_debug: TextureButton = $ScreenControls/CenterLeftZone/ButtonDebug
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
-onready var docking_prompt: Control = $ScreenControls/TopCenterZone/DockingPrompt
-onready var docking_label: Label = $ScreenControls/TopCenterZone/DockingPrompt/Label
 
 # --- Game Over UI ---
-onready var game_over_overlay: Control = $GameOverOverlay
-onready var button_return_to_menu: Button = $GameOverOverlay/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu
-
-# --- Combat HUD Nodes ---
-onready var target_info_panel: PanelContainer = $ScreenControls/TopCenterZone/TargetInfoPanel
-onready var label_target_name: Label = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/LabelTargetName
-onready var target_hull_bar: ProgressBar = $ScreenControls/TopCenterZone/TargetInfoPanel/VBoxContainer/TargetHullBar
-
-# --- Simulation HUD Panels ---
-onready var radar_display = $ScreenControls/TopRightZone/RadarDisplay
-onready var sector_info_panel = $ScreenControls/TopCenterZone/SectorInfoPanel
+onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
+onready var button_return_to_menu: Button = $"GameOverOverlay (to be made into a dedicated window like main menu)/CenterContainer/PanelContainer/VBoxContainer/ButtonReturnToMenu"
 
 # --- State ---
 var _current_target = null
 var _main_camera: Camera = null
-var _current_target_uid: int = -1  # UID of current combat target for hull tracking
 var _player_uid: int = -1
 var _is_game_over: bool = false
 var _action_feedback_popup: AcceptDialog = null  # Popup for dock/attack feedback
 var _hud_alpha = 1.0
 var _dock_location_id: String = ""  # Currently available dock location
-var _jump_target_name: String = ""  # Currently available jump target name
+var _jump_target_id: String = ""  # Currently available jump route target
 var _route_target_provider: Reference = RouteTargetProviderScript.new()
 var _route_target_buttons: Dictionary = {}
 var _world_target_buttons: Dictionary = {}
@@ -21749,6 +21845,8 @@ var _tracked_inflight_drag_controls: Array = []
 var _tracked_inflight_drag_filters: Dictionary = {}
 var _inflight_drag_passthrough_active: bool = false
 var _inflight_drag_passthrough_sync_pending: bool = false
+var _projected_target_drag_passthrough_active: bool = false
+var _projected_target_drag_source: Control = null
 
 # --- Initialization ---
 func _ready():
@@ -21819,11 +21917,6 @@ func _ready():
 		if not EventBus.is_connected("sector_changed", self, "_on_sector_changed"):
 			EventBus.connect("sector_changed", self, "_on_sector_changed")
 
-		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_for_panels"):
-			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_for_panels")
-		if not EventBus.is_connected("sim_initialized", self, "_on_sim_initialized_for_panels"):
-			EventBus.connect("sim_initialized", self, "_on_sim_initialized_for_panels")
-
 	else:
 		printerr("MainHUD Error: EventBus not available!")
 
@@ -21831,10 +21924,6 @@ func _ready():
 	call_deferred("_refresh_player_resources")
 	call_deferred("_deferred_refresh_player_hull")
 	set_process_input(true)
-	
-	# Ensure target info panel starts hidden
-	if target_info_panel:
-		target_info_panel.visible = false
 
 	# Connect ButtonMenu to open main menu
 	if is_instance_valid(button_menu):
@@ -21846,10 +21935,9 @@ func _ready():
 		if not button_camera.is_connected("pressed", self, "_on_ButtonCamera_pressed"):
 			button_camera.connect("pressed", self, "_on_ButtonCamera_pressed")
 
-	# Reuse placeholder top-left buttons for debug tools.
-	if is_instance_valid(button_narrative_status):
-		if not button_narrative_status.is_connected("pressed", self, "_on_ButtonNarrativeStatus_pressed"):
-			button_narrative_status.connect("pressed", self, "_on_ButtonNarrativeStatus_pressed")
+	if is_instance_valid(button_debug):
+		if not button_debug.is_connected("pressed", self, "_on_ButtonDebug_pressed"):
+			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
 
 	_register_inflight_drag_controls()
 
@@ -21881,9 +21969,6 @@ func _on_Player_Target_Selected(target_node):
 	if _is_target_valid(target_node):
 		_current_target = target_node
 		_refresh_process_state()
-		
-		# Update combat target info panel
-		_update_target_info_panel(target_node)
 		_update_route_target_selection_state()
 		_update_world_target_selection_state()
 		
@@ -21897,9 +21982,6 @@ func _on_Player_Target_Selected(target_node):
 
 func _on_Player_Target_Deselected():
 	_current_target = null
-	_current_target_uid = -1
-	if target_info_panel:
-		target_info_panel.visible = false
 	_update_route_target_selection_state()
 	_update_world_target_selection_state()
 	_refresh_process_state()
@@ -21943,22 +22025,15 @@ func _on_player_fp_changed(_new_fp_value = null):
 
 
 func _refresh_player_resources() -> void:
-	if not is_instance_valid(label_credits) or not is_instance_valid(label_fp):
-		return
-	if not is_instance_valid(GlobalRefs.character_system):
-		return
-	var player_char = GlobalRefs.character_system.get_player_character()
-	if not is_instance_valid(player_char):
-		return
-	label_credits.text = "Credits: " + str(player_char.credits)
-	label_fp.text = "Current FP: " + str(player_char.focus_points)
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_resources"):
+		debug_window.call("refresh_debug_window_resources")
 
 
 func _refresh_time_display() -> void:
-	if not is_instance_valid(label_time):
-		return
-	var time_str = "%02d:%02d" % [GameState.game_time_seconds / 60, GameState.game_time_seconds % 60]
-	label_time.text = "Time: " + time_str
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_time_display"):
+		debug_window.call("refresh_debug_window_time_display")
 
 
 func _on_sim_tick_completed(_tick_count: int = 0) -> void:
@@ -21971,6 +22046,21 @@ func _on_game_time_advanced(_seconds_added: int = 0) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if _projected_target_drag_passthrough_active:
+		if event is InputEventMouseMotion:
+			_forward_inflight_drag_motion(event)
+			get_tree().set_input_as_handled()
+			return
+		if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
+			_end_projected_target_drag_passthrough(event)
+			get_tree().set_input_as_handled()
+			return
+	if event is InputEventMouseMotion and not _inflight_drag_passthrough_active:
+		if _is_external_camera_drag_active() and _is_pointer_over_tracked_inflight_control(event.position):
+			_set_inflight_drag_passthrough(true)
+			_forward_inflight_drag_motion(event)
+			get_tree().set_input_as_handled()
+			return
 	if not _inflight_drag_passthrough_active:
 		return
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
@@ -21991,6 +22081,12 @@ func _on_ButtonMenu_pressed() -> void:
 	"""Handle menu button press - opens main menu."""
 	if EventBus:
 		EventBus.emit_signal("main_menu_requested")
+
+
+func _on_ButtonDebug_pressed() -> void:
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("toggle_debug_window"):
+		debug_window.call("toggle_debug_window")
 
 
 func _on_ButtonCamera_pressed() -> void:
@@ -22051,6 +22147,32 @@ func _on_inflight_drag_control_gui_input(event: InputEvent, control: Control) ->
 	get_tree().set_input_as_handled()
 
 
+func begin_projected_target_drag_passthrough(source_control: Control, initial_motion_event: InputEventMouseMotion = null) -> void:
+	_projected_target_drag_source = source_control if is_instance_valid(source_control) else null
+	_projected_target_drag_passthrough_active = true
+	_set_inflight_drag_passthrough(true)
+	if initial_motion_event != null:
+		_forward_inflight_drag_motion(initial_motion_event)
+
+
+func is_projected_target_drag_passthrough_active() -> bool:
+	return _projected_target_drag_passthrough_active
+
+
+func _end_projected_target_drag_passthrough(release_event: InputEventMouseButton = null) -> void:
+	if is_instance_valid(_projected_target_drag_source) and _projected_target_drag_source.has_method("reset_pointer_tracking_from_main_hud"):
+		_projected_target_drag_source.call("reset_pointer_tracking_from_main_hud")
+	_projected_target_drag_source = null
+	_projected_target_drag_passthrough_active = false
+	if release_event != null:
+		_forward_inflight_drag_release(release_event)
+	else:
+		var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+		if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
+			camera.set_is_rotating(false)
+	_set_inflight_drag_passthrough(false)
+
+
 func _is_external_camera_drag_active() -> bool:
 	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
 	return is_instance_valid(camera) and camera.has_method("is_externally_rotating") and camera.is_externally_rotating()
@@ -22083,6 +22205,18 @@ func _compact_tracked_inflight_drag_controls() -> void:
 	_tracked_inflight_drag_controls = valid_controls
 
 
+func _is_pointer_over_tracked_inflight_control(pointer_position: Vector2) -> bool:
+	_compact_tracked_inflight_drag_controls()
+	for control in _tracked_inflight_drag_controls:
+		if not is_instance_valid(control):
+			continue
+		if not control.visible:
+			continue
+		if control.get_global_rect().has_point(pointer_position):
+			return true
+	return false
+
+
 func _forward_inflight_drag_motion(motion_event: InputEventMouseMotion) -> void:
 	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
 	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
@@ -22095,13 +22229,15 @@ func _forward_inflight_drag_release(release_event: InputEventMouseButton) -> voi
 		var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
 		if is_instance_valid(player_controller) and player_controller.has_method("_unhandled_input"):
 			player_controller.call("_unhandled_input", release_event)
-			return
 	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
 	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
 		camera.set_is_rotating(false)
 
 
 func _sync_inflight_drag_passthrough() -> void:
+	if _projected_target_drag_passthrough_active and not _is_external_camera_drag_active():
+		_end_projected_target_drag_passthrough()
+		return
 	if _inflight_drag_passthrough_active and not _is_external_camera_drag_active():
 		_set_inflight_drag_passthrough(false)
 
@@ -22253,6 +22389,10 @@ func _on_ButtonInteract_pressed():
 
 
 func _on_ButtonDock_pressed():
+	if GameState.player_docked_at != "":
+		if is_instance_valid(_station_menu_instance) and _station_menu_instance.has_method("open_for_current_dock"):
+			_station_menu_instance.call("open_for_current_dock")
+		return
 	if EventBus:
 		EventBus.emit_signal("player_dock_pressed")
 
@@ -22269,40 +22409,32 @@ func _on_SliderControlLeft_value_changed(value):
 # --- Docking UI Handlers ---
 func _on_dock_available(location_id):
 	_dock_location_id = location_id
-	_update_docking_prompt()
+	_refresh_projected_target_info_hints()
 
 func _on_dock_unavailable():
 	_dock_location_id = ""
-	_update_docking_prompt()
+	_refresh_projected_target_info_hints()
 
 func _on_player_docked(_location_id):
 	_dock_location_id = ""
-	_jump_target_name = ""
-	_update_docking_prompt()
+	_jump_target_id = ""
+	_refresh_projected_target_info_hints()
 
 
 # --- Jump UI Handlers ---
-func _on_jump_available(_target_id, target_name) -> void:
-	_jump_target_name = target_name
-	_update_docking_prompt()
+func _on_jump_available(target_id, _target_name) -> void:
+	_jump_target_id = str(target_id)
+	_refresh_projected_target_info_hints()
 
 
 func _on_jump_unavailable() -> void:
-	_jump_target_name = ""
-	_update_docking_prompt()
+	_jump_target_id = ""
+	_refresh_projected_target_info_hints()
 
 
-func _update_docking_prompt():
-	if not docking_prompt or not docking_label:
-		return
-	if _dock_location_id != "":
-		docking_prompt.visible = true
-		docking_label.text = "Docking Available - Press Dock"
-	elif _jump_target_name != "":
-		docking_prompt.visible = true
-		docking_label.text = "Jump Available: %s - Press Interact" % _jump_target_name
-	else:
-		docking_prompt.visible = false
+func _refresh_projected_target_info_hints() -> void:
+	_update_route_target_selection_state()
+	_update_world_target_selection_state()
 
 
 # --- Dock/Attack Feedback Handlers ---
@@ -22359,6 +22491,13 @@ func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:
 		panel.call(toggle_method)
 
 
+func _get_debug_window() -> Node:
+	var parent_node = get_parent()
+	if not is_instance_valid(parent_node):
+		return null
+	return parent_node.get_node_or_null("DebugWindow")
+
+
 # --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
 
 func _connect_combat_signals() -> void:
@@ -22367,13 +22506,9 @@ func _connect_combat_signals() -> void:
 
 
 func _refresh_player_hull() -> void:
-	if not is_instance_valid(label_player_hull) or not is_instance_valid(player_hull_bar):
-		return
-	# Read hull from GameState agent layer (simulation-first architecture)
-	var player_agent: Dictionary = GameState.agents.get("player", {})
-	var hull_pct: float = player_agent.get("hull_integrity", 1.0)
-	player_hull_bar.value = hull_pct * 100.0
-	label_player_hull.text = "Hull: " + str(int(round(hull_pct * 100.0))) + "%"
+	var debug_window = _get_debug_window()
+	if is_instance_valid(debug_window) and debug_window.has_method("refresh_debug_window_player_hull"):
+		debug_window.call("refresh_debug_window_player_hull")
 
 
 func _deferred_refresh_player_hull() -> void:
@@ -22386,88 +22521,12 @@ func _on_any_damage_dealt_refresh_player(_target_uid: int, _amount: float, _sour
 	_refresh_player_hull()
 
 
-func _update_target_info_panel(target_node) -> void:
-	"""Update the target info panel with the selected target's info."""
-	if not target_info_panel:
-		return
-	if _is_route_target(target_node):
-		_current_target_uid = -1
-		target_info_panel.visible = false
-		return
-	
-	# Get target's agent_uid if available
-	if target_node.get("agent_uid") != null:
-		_current_target_uid = target_node.agent_uid
-	else:
-		_current_target_uid = -1
-		target_info_panel.visible = false
-		return
-	
-	# Set target name
-	var target_name: String = "Unknown"
-	if target_node.get("agent_name") != null:
-		target_name = target_node.agent_name
-	elif target_node.name:
-		target_name = target_node.name
-	
-	if label_target_name:
-		label_target_name.text = target_name
-	
-	# Update hull bar
-	_update_target_hull_bar()
-	
-	target_info_panel.visible = true
-
-
-func _update_target_hull_bar() -> void:
-	"""Update the target hull progress bar from GameState agent data."""
-	if not target_hull_bar or _current_target_uid < 0:
-		return
-	# CombatSystem removed — hull data now lives in GameState agents
-	target_hull_bar.value = 100.0
-
-
-func _on_damage_dealt(target_uid: int, _amount: float, _source_uid: int) -> void:
-	"""Handle damage_dealt signal from CombatSystem to update hull bar."""
-	if target_uid == _current_target_uid:
-		_update_target_hull_bar()
-
-
-func _on_ship_disabled(ship_uid: int) -> void:
-	"""Handle ship_disabled signal - target destroyed."""
-	if ship_uid == _current_target_uid:
-		if target_hull_bar:
-			target_hull_bar.value = 0.0
-		# Optionally change display to show "DISABLED" or similar
-		if label_target_name:
-			label_target_name.text = label_target_name.text + " [DISABLED]"
-
-
 func _on_ButtonUIOpacity_pressed() -> void:
 	"""Handle main HUD transparency (cycle)."""
 	_hud_alpha -= 0.25
 	self.set_modulate(Color(1, 1, 1, _hud_alpha))
 	if _hud_alpha <= 0.0:
 		_hud_alpha = 1.0
-
-
-# --- Simulation HUD Panel Refresh ---
-
-func _on_sim_tick_for_panels(_tick_count) -> void:
-	_refresh_hud_panels()
-
-
-func _on_sim_initialized_for_panels(_seed) -> void:
-	_refresh_hud_panels()
-
-
-func _refresh_hud_panels() -> void:
-	if is_instance_valid(GlobalRefs.contact_manager):
-		if is_instance_valid(radar_display):
-			radar_display.refresh(GlobalRefs.contact_manager)
-		if is_instance_valid(sector_info_panel):
-			sector_info_panel.refresh(GlobalRefs.contact_manager)
-
 
 func _on_zone_unloading(_zone_node) -> void:
 	_clear_route_target_overlay()
@@ -22686,6 +22745,8 @@ func _update_route_target_selection_state() -> void:
 		var button = _route_target_buttons[selection_key]
 		if is_instance_valid(button):
 			button.set_selected_state(selection_key == selected_key)
+			if button.has_method("set_context_hint"):
+				button.call("set_context_hint", _get_projected_target_context_hint(button.target_ref))
 
 
 func _get_world_target_instance_id() -> int:
@@ -22694,12 +22755,28 @@ func _get_world_target_instance_id() -> int:
 	return -1
 
 
+func _get_projected_target_context_hint(target_ref) -> String:
+	if _is_route_target(target_ref):
+		if _jump_target_id != "" and str(target_ref.target_sector_id) == _jump_target_id:
+			return "Jump Ready"
+		return "Jump Route"
+	if target_ref is Node and is_instance_valid(target_ref) and target_ref.is_in_group("dockable_station"):
+		if _dock_location_id != "" and str(target_ref.get("location_id")) == _dock_location_id:
+			return "Dock Ready"
+		return "Dock Target"
+	if target_ref == _current_target and _is_target_valid(target_ref):
+		return "Target Locked"
+	return ""
+
+
 func _update_world_target_selection_state() -> void:
 	var selected_instance_id = _get_world_target_instance_id()
 	for instance_id in _world_target_buttons:
 		var button = _world_target_buttons[instance_id]
 		if is_instance_valid(button):
 			button.set_selected_state(instance_id == selected_instance_id)
+			if button.has_method("set_context_hint"):
+				button.call("set_context_hint", _get_projected_target_context_hint(button.target_ref))
 
 
 func _on_route_target_button_pressed(route_target) -> void:
@@ -22723,17 +22800,24 @@ func _on_world_target_button_pressed(target_node) -> void:
 
 extends Button
 
-const BRACKET_BACKGROUND_STYLE = preload("res://assets/art/ui/controls/projected_targets/projected_target_bracket_background.tres")
-const BRACKET_NORMAL_STYLE = preload("res://assets/art/ui/controls/projected_targets/projected_target_bracket_normal.tres")
-const BRACKET_SELECTED_STYLE = preload("res://assets/art/ui/controls/projected_targets/projected_target_bracket_selected.tres")
+const BRACKET_TEXTURE_RECT_SIZE = Vector2(150, 150)
+const DISTANCE_KILOUNIT_SCALE = 1000.0
+const DISTANCE_PLAIN_THRESHOLD = 2000.0
+const DISTANCE_DECIMAL_K_THRESHOLD = 10000.0
+const DISTANCE_SINGLE_DECIMAL_K_THRESHOLD = 100000.0
+const DISTANCE_FAR_THRESHOLD = 1000000.0
 const DRAG_THRESHOLD_PX_SQ = 10 * 10
 
 var target_ref = null
 var _is_selected: bool = false
-var _background_panel: Panel = null
-var _frame_panel: Panel = null
-var _label: Label = null
+var _normal_bracket: TextureRect = null
+var _selected_bracket: TextureRect = null
+var _distance_panel: Control = null
+var _distance_label: Label = null
+var _info_panel: Control = null
+var _info_label: Label = null
 var _target_label: String = ""
+var _context_hint: String = ""
 var _press_position: Vector2 = Vector2.ZERO
 var _is_pointer_pressed: bool = false
 var _is_dragging_pointer: bool = false
@@ -22744,15 +22828,24 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	keep_pressed_outside = false
-	rect_min_size = Vector2(180, 56)
-	_ensure_background_panel()
-	_ensure_frame_panel()
-	_ensure_label()
+	rect_min_size = BRACKET_TEXTURE_RECT_SIZE
+	_cache_scene_nodes()
 	_apply_bracket_style()
 	_sync_label()
+	_sync_distance_label()
+	set_process(false)
+
+
+func _process(_delta: float) -> void:
+	_sync_distance_label()
 
 
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN:
+			_forward_camera_input(event)
+			return
+
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
 			_begin_pointer_tracking(event.position)
@@ -22769,6 +22862,8 @@ func _input(event: InputEvent) -> void:
 	if not (_is_pointer_pressed or _is_dragging_pointer or disabled):
 		return
 	if event is InputEventMouseMotion and _is_dragging_pointer:
+		if _is_main_hud_drag_passthrough_active():
+			return
 		_forward_camera_drag_motion(event)
 		return
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
@@ -22779,6 +22874,8 @@ func configure_target(new_target_ref, new_target_label: String = "") -> void:
 	target_ref = new_target_ref
 	_target_label = new_target_label
 	_sync_label()
+	_sync_distance_label()
+	_refresh_distance_process_state()
 
 
 func set_selected_state(is_selected: bool) -> void:
@@ -22786,6 +22883,16 @@ func set_selected_state(is_selected: bool) -> void:
 		return
 	_is_selected = is_selected
 	_apply_bracket_style()
+	_sync_label()
+	_sync_distance_label()
+	_refresh_distance_process_state()
+
+
+func set_context_hint(new_context_hint: String = "") -> void:
+	if _context_hint == new_context_hint:
+		return
+	_context_hint = new_context_hint
+	_sync_label()
 
 
 func _begin_pointer_tracking(pointer_position: Vector2) -> void:
@@ -22800,12 +22907,21 @@ func _cancel_pending_click_for_drag(motion_event: InputEventMouseMotion) -> void
 	_is_dragging_pointer = true
 	disabled = true
 	_set_camera_drag_state(true)
-	_forward_camera_drag_motion(motion_event)
+	if not _begin_main_hud_drag_passthrough(motion_event):
+		_forward_camera_drag_motion(motion_event)
 
 
 func _finish_pointer_tracking() -> void:
-	if _is_dragging_pointer:
+	if _is_dragging_pointer and not _is_main_hud_drag_passthrough_active():
 		_set_camera_drag_state(false)
+	_reset_pointer_tracking_state()
+
+
+func reset_pointer_tracking_from_main_hud() -> void:
+	_reset_pointer_tracking_state()
+
+
+func _reset_pointer_tracking_state() -> void:
 	_is_pointer_pressed = false
 	_is_dragging_pointer = false
 	if disabled:
@@ -22819,75 +22935,187 @@ func _set_camera_drag_state(is_rotating: bool) -> void:
 
 
 func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
+	_forward_camera_input(motion_event)
+
+
+func _forward_camera_input(event: InputEvent) -> void:
 	var camera = GlobalRefs.main_camera
 	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
-		camera.call("_unhandled_input", motion_event)
+		camera.call("_unhandled_input", event)
 
 
-func _ensure_background_panel() -> void:
-	if _background_panel != null:
-		return
-	_background_panel = Panel.new()
-	_background_panel.name = "Background"
-	_configure_fill_control(_background_panel)
-	_background_panel.add_stylebox_override("panel", BRACKET_BACKGROUND_STYLE)
-	add_child(_background_panel)
+func _cache_scene_nodes() -> void:
+	_normal_bracket = get_node_or_null("BracketNormal")
+	_selected_bracket = get_node_or_null("BracketSelected")
+	_distance_panel = get_node_or_null("BracketSelected/DistancePanel")
+	_distance_label = get_node_or_null("BracketSelected/DistancePanel/DistanceLabel")
+	_info_panel = get_node_or_null("InfoPanel")
+	_info_label = get_node_or_null("InfoPanel/InfoLabel")
 
+	if is_instance_valid(_normal_bracket):
+		_normal_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_normal_bracket.focus_mode = Control.FOCUS_NONE
 
-func _ensure_frame_panel() -> void:
-	if _frame_panel != null:
-		return
-	_frame_panel = Panel.new()
-	_frame_panel.name = "Frame"
-	_configure_fill_control(_frame_panel)
-	add_child(_frame_panel)
+	if is_instance_valid(_selected_bracket):
+		_selected_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_selected_bracket.focus_mode = Control.FOCUS_NONE
 
+	if is_instance_valid(_distance_panel):
+		_distance_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_distance_panel.focus_mode = Control.FOCUS_NONE
 
-func _ensure_label() -> void:
-	if _label != null:
-		return
-	_label = Label.new()
-	_label.name = "Label"
-	_label.anchor_right = 1.0
-	_label.anchor_bottom = 1.0
-	_label.margin_left = 10.0
-	_label.margin_top = 8.0
-	_label.margin_right = -10.0
-	_label.margin_bottom = -8.0
-	_label.align = Label.ALIGN_CENTER
-	_label.valign = Label.VALIGN_CENTER
-	_label.autowrap = true
-	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_label)
+	if is_instance_valid(_distance_label):
+		_distance_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_distance_label.focus_mode = Control.FOCUS_NONE
 
+	if is_instance_valid(_info_panel):
+		_info_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_info_panel.focus_mode = Control.FOCUS_NONE
 
-func _configure_fill_control(control: Control) -> void:
-	control.anchor_right = 1.0
-	control.anchor_bottom = 1.0
-	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	control.focus_mode = Control.FOCUS_NONE
+	if is_instance_valid(_info_label):
+		_info_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_info_label.focus_mode = Control.FOCUS_NONE
 
 
 func _apply_bracket_style() -> void:
-	if _frame_panel == null:
-		return
-	var bracket_style = BRACKET_SELECTED_STYLE if _is_selected else BRACKET_NORMAL_STYLE
-	_frame_panel.add_stylebox_override("panel", bracket_style)
+	if is_instance_valid(_normal_bracket):
+		_normal_bracket.visible = not _is_selected
+	if is_instance_valid(_selected_bracket):
+		_selected_bracket.visible = _is_selected
 
 
 func _sync_label() -> void:
-	if _label == null:
+	if not is_instance_valid(_info_label):
 		return
+	var label_text = _build_label_text()
+	_info_label.text = label_text
+	if is_instance_valid(_info_panel):
+		_info_panel.visible = label_text != ""
+
+
+func _sync_distance_label() -> void:
+	if not is_instance_valid(_distance_label):
+		return
+	_distance_label.text = _build_distance_label_text()
+
+
+func _build_distance_label_text() -> String:
+	if not _is_selected:
+		return ""
+	if _is_route_target(target_ref):
+		return "FAR"
+	if not (target_ref is Spatial and is_instance_valid(target_ref)):
+		return ""
+	if target_ref.is_in_group("jump_point"):
+		return "FAR"
+	if not target_ref.is_inside_tree():
+		return ""
+	var player_agent = GlobalRefs.player_agent_body
+	if not (player_agent is Spatial and is_instance_valid(player_agent)):
+		return ""
+	var distance_units = player_agent.global_transform.origin.distance_to(target_ref.global_transform.origin)
+	return _format_distance_label(distance_units)
+
+
+func _format_distance_label(distance_units: float) -> String:
+	var safe_distance_units = max(0.0, distance_units)
+	if safe_distance_units >= DISTANCE_FAR_THRESHOLD:
+		return "FAR"
+	if safe_distance_units < DISTANCE_PLAIN_THRESHOLD:
+		return str(int(round(safe_distance_units)))
+
+	var distance_kilounits = safe_distance_units / DISTANCE_KILOUNIT_SCALE
+	if safe_distance_units < DISTANCE_DECIMAL_K_THRESHOLD:
+		return "%sk" % _trim_trailing_decimal_zeros("%.2f" % distance_kilounits)
+	if safe_distance_units < DISTANCE_SINGLE_DECIMAL_K_THRESHOLD:
+		return "%sk" % _trim_trailing_decimal_zeros("%.1f" % distance_kilounits)
+	return "%dk" % int(floor(distance_kilounits))
+
+
+func _trim_trailing_decimal_zeros(value_text: String) -> String:
+	var trimmed_text = value_text
+	while trimmed_text.find(".") != -1 and trimmed_text.ends_with("0"):
+		trimmed_text = trimmed_text.substr(0, trimmed_text.length() - 1)
+	if trimmed_text.ends_with("."):
+		trimmed_text = trimmed_text.substr(0, trimmed_text.length() - 1)
+	return trimmed_text
+
+
+func _refresh_distance_process_state() -> void:
+	set_process(_is_selected)
+
+
+func _build_label_text() -> String:
+	var primary_text = _resolve_primary_label()
+	var secondary_text = _resolve_secondary_label()
+	if primary_text == "":
+		return secondary_text
+	if secondary_text == "":
+		return primary_text
+	return "%s\n%s" % [primary_text, secondary_text]
+
+
+func _resolve_primary_label() -> String:
 	if _target_label != "":
-		_label.text = _target_label
-	elif target_ref != null and target_ref.get("display_name") != null:
-		_label.text = str(target_ref.display_name)
-	elif target_ref != null and target_ref.get("name") != null:
-		_label.text = str(target_ref.name).replace("_", " ")
-	else:
-		_label.text = ""
+		return _target_label
+	if target_ref == null:
+		return ""
+	if target_ref.get("display_name") != null and str(target_ref.get("display_name")) != "":
+		return str(target_ref.get("display_name"))
+	if target_ref.get("station_name") != null and str(target_ref.get("station_name")) != "":
+		return str(target_ref.get("station_name"))
+	if target_ref.get("agent_name") != null and str(target_ref.get("agent_name")) != "":
+		return str(target_ref.get("agent_name"))
+	if target_ref.get("name") != null and str(target_ref.get("name")) != "":
+		return str(target_ref.get("name")).replace("_", " ")
+	if target_ref.get("target_sector_id") != null and str(target_ref.get("target_sector_id")) != "":
+		return str(target_ref.get("target_sector_id"))
+	return ""
+
+
+func _resolve_secondary_label() -> String:
+	if _context_hint != "":
+		return _context_hint
+	if _is_route_target(target_ref):
+		return "Jump Route"
+	if _is_dockable_target(target_ref):
+		return "Dock Target"
+	if _is_selected:
+		return "Target Locked"
+	return ""
+
+
+func _is_route_target(target_candidate) -> bool:
+	return target_candidate != null and target_candidate.get("target_kind") == "jump_route"
+
+
+func _is_dockable_target(target_candidate) -> bool:
+	return target_candidate is Node and is_instance_valid(target_candidate) and target_candidate.is_in_group("dockable_station")
+
+
+func _begin_main_hud_drag_passthrough(initial_motion_event: InputEventMouseMotion) -> bool:
+	var main_hud = GlobalRefs.main_hud
+	if not is_instance_valid(main_hud):
+		return false
+	if not main_hud.has_method("begin_projected_target_drag_passthrough"):
+		return false
+	main_hud.call("begin_projected_target_drag_passthrough", self, initial_motion_event)
+	return true
+
+
+func _is_main_hud_drag_passthrough_active() -> bool:
+	var main_hud = GlobalRefs.main_hud
+	return is_instance_valid(main_hud) and main_hud.has_method("is_projected_target_drag_passthrough_active") and main_hud.call("is_projected_target_drag_passthrough_active")
 
 --- Start of ./src/core/ui/main_menu/main_menu.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: main_menu.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-13 16:47:02
+##
 
 extends Control
 
@@ -22895,6 +23123,7 @@ onready var btn_new_game = $ScreenControls/MainButtonsHBoxContainer/ButtonStartN
 onready var btn_load_game = $ScreenControls/MainButtonsHBoxContainer/ButtonLoadGame
 onready var btn_save_game = $ScreenControls/MainButtonsHBoxContainer/ButtonSaveGame
 onready var btn_exit_game = $ScreenControls/MainButtonsHBoxContainer/ButtonExitgame
+onready var btn_close = $ScreenControls/ButtonClose
 
 # Save notification popup (created dynamically)
 var _save_popup: AcceptDialog = null
@@ -22911,12 +23140,15 @@ func _ready() -> void:
 		btn_save_game.connect("pressed", self, "_on_save_game_pressed")
 	if is_instance_valid(btn_exit_game) and not btn_exit_game.is_connected("pressed", self, "_on_exit_game_pressed"):
 		btn_exit_game.connect("pressed", self, "_on_exit_game_pressed")
+	if is_instance_valid(btn_close) and not btn_close.is_connected("pressed", self, "_on_close_pressed"):
+		btn_close.connect("pressed", self, "_on_close_pressed")
 
 	if is_instance_valid(EventBus) and EventBus.has_signal("main_menu_requested"):
 		if not EventBus.is_connected("main_menu_requested", self, "_show_menu"):
 			EventBus.connect("main_menu_requested", self, "_show_menu")
 
 	_update_load_button_state()
+	_refresh_close_button_state()
 	# If nothing else requests it, show menu on boot.
 	call_deferred("_show_menu")
 
@@ -22973,6 +23205,13 @@ func _on_exit_game_pressed() -> void:
 	get_tree().quit()
 
 
+func _on_close_pressed() -> void:
+	if not _has_active_game_session():
+		return
+	visible = false
+	get_tree().paused = false
+
+
 func _update_load_button_state() -> void:
 	if not is_instance_valid(btn_load_game):
 		return
@@ -22982,10 +23221,21 @@ func _update_load_button_state() -> void:
 		btn_load_game.disabled = true
 
 
+func _refresh_close_button_state() -> void:
+	if not is_instance_valid(btn_close):
+		return
+	btn_close.disabled = not _has_active_game_session()
+
+
+func _has_active_game_session() -> bool:
+	return GameState.current_sector_id != "" or is_instance_valid(GameState.current_zone_instance)
+
+
 func _show_menu() -> void:
 	visible = true
 	get_tree().paused = true
 	_update_load_button_state()
+	_refresh_close_button_state()
 
 --- Start of ./src/core/ui/radar_display/radar_display.gd ---
 
@@ -23249,7 +23499,7 @@ onready var _btn_run_30: Button = $Panel/VBoxContainer/HeaderRow/BtnRun30
 onready var _btn_run_300: Button = $Panel/VBoxContainer/HeaderRow/BtnRun300
 onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
-onready var _btn_close: Button = $Panel/VBoxContainer/HeaderRow/BtnClose
+onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 
 
 # =============================================================================
@@ -23636,13 +23886,8 @@ func _plain_to_bbcode(text: String) -> String:
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md
-# LOG_REF: 2026-02-13
-#
-# Rebuilt after TASK 15 cleanup.  Old version was coupled to deleted systems
-# (ContractSystem, TradingSystem, NarrativeActionSystem).  This version keeps
-# the undock flow intact and provides placeholder hooks for future trade /
-# contract UI once those systems are rebuilt on the simulation foundation.
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 02:59:12
 #
 
 extends Control
@@ -23659,8 +23904,9 @@ extends Control
 # =============================================================================
 
 onready var _panel: Panel = $Panel
-onready var _label_station_name: Label = $Panel/VBoxContainer/LabelStationName
+onready var _label_station_name: Label = $Panel/VBoxContainer/HeaderRow/LabelStationName
 onready var _label_info: Label = $Panel/VBoxContainer/LabelInfo
+onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 onready var _btn_trade: Button = $Panel/VBoxContainer/BtnTrade
 onready var _btn_contracts: Button = $Panel/VBoxContainer/BtnContracts
 onready var _btn_undock: Button = $Panel/VBoxContainer/BtnUndock
@@ -23685,6 +23931,7 @@ func _ready() -> void:
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 
 	# --- Button connections ---
+	_btn_close.connect("pressed", self, "_on_close_pressed")
 	_btn_undock.connect("pressed", self, "_on_undock_pressed")
 	_btn_trade.connect("pressed", self, "_on_trade_pressed")
 	_btn_contracts.connect("pressed", self, "_on_contracts_pressed")
@@ -23708,12 +23955,25 @@ func _on_player_undocked() -> void:
 	print("StationMenu: Closed")
 
 
+func open_for_current_dock() -> void:
+	if GameState.player_docked_at == "":
+		return
+	_current_location_id = GameState.player_docked_at
+	_update_station_label(_current_location_id)
+	_update_info_label()
+	visible = true
+
+
 # =============================================================================
 # === BUTTON CALLBACKS ========================================================
 # =============================================================================
 
 func _on_undock_pressed() -> void:
 	EventBus.emit_signal("player_undocked")
+
+
+func _on_close_pressed() -> void:
+	visible = false
 
 
 func _on_trade_pressed() -> void:
@@ -30626,7 +30886,7 @@ func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-## LOG_REF: 2026-05-09 20:56:15
+## LOG_REF: 2026-05-14 01:14:26
 ##
 
 extends "res://addons/gut/test.gd"
@@ -30636,9 +30896,9 @@ var _panel_instance = null
 
 const LOCATION_TRES_PATHS = [
 	"res://database/registry/locations/sector_system_elace.tres",
-	"res://database/registry/locations/station_beta.tres",
+	"res://database/registry/locations/sector_system_cob.tres",
 	"res://database/registry/locations/sector_gamma.tres",
-	"res://database/registry/locations/station_delta.tres",
+	"res://database/registry/locations/sector_system_lywin.tres",
 	"res://database/registry/locations/sector_epsilon.tres",
 ]
 
@@ -30671,28 +30931,28 @@ func _seed_template_database():
 
 func _seed_topology():
 	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["station_beta", "station_delta"],
+		"connections": ["sector_system_cob", "sector_gamma"],
 		"station_ids": ["sector_system_elace"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_beta"] = {
-		"connections": ["sector_system_elace", "station_gamma"],
-		"station_ids": ["station_beta"],
+	GameState.world_topology["sector_system_cob"] = {
+		"connections": ["sector_system_elace", "sector_system_lywin"],
+		"station_ids": ["sector_system_cob"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_gamma"] = {
-		"connections": ["station_beta", "station_epsilon"],
-		"station_ids": ["station_gamma"],
+	GameState.world_topology["sector_gamma"] = {
+		"connections": ["sector_system_elace", "sector_epsilon"],
+		"station_ids": ["sector_gamma"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_delta"] = {
-		"connections": ["sector_system_elace", "station_epsilon"],
-		"station_ids": ["station_delta"],
+	GameState.world_topology["sector_system_lywin"] = {
+		"connections": ["sector_system_cob", "sector_epsilon"],
+		"station_ids": ["sector_system_lywin"],
 		"sector_type": "station",
 	}
-	GameState.world_topology["station_epsilon"] = {
-		"connections": ["station_gamma", "station_delta"],
-		"station_ids": ["station_epsilon"],
+	GameState.world_topology["sector_epsilon"] = {
+		"connections": ["sector_gamma", "sector_system_lywin"],
+		"station_ids": ["sector_epsilon"],
 		"sector_type": "station",
 	}
 
@@ -30857,6 +31117,122 @@ func test_sector_labels_use_wrapped_large_font_box():
 	if _panel_instance._sector_label_font:
 		assert_eq(_panel_instance._sector_label_font.size, _panel_instance.SECTOR_LABEL_FONT_SIZE)
 
+--- Start of ./src/tests/core/ui/test_debug_window.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_debug_window.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §6; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-14 02:59:12
+##
+
+extends "res://addons/gut/test.gd"
+
+var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
+var DebugWindowScene = load("res://scenes/ui/menus/debug_window.tscn")
+var MainMenuScene = load("res://scenes/ui/menus/main_menu.tscn")
+var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
+
+
+func after_each() -> void:
+	get_tree().paused = false
+	GlobalRefs.main_hud = null
+	GlobalRefs.main_camera = null
+	GlobalRefs.player_agent_body = null
+	GlobalRefs.current_zone = null
+	GameState.current_sector_id = ""
+	GameState.player_docked_at = ""
+	GameState.player_character_uid = ""
+	GameState.locations.clear()
+
+
+func test_button_debug_toggles_debug_window_sibling() -> void:
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var debug_window = DebugWindowScene.instance()
+	root.add_child(debug_window)
+
+	var hud = MainHUDScene.instance()
+	root.add_child(hud)
+	yield(get_tree(), "idle_frame")
+
+	var button_debug: TextureButton = hud.get_node("ScreenControls/CenterLeftZone/ButtonDebug")
+	assert_false(debug_window.visible, "DebugWindow should start hidden.")
+
+	button_debug.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+	assert_true(debug_window.visible, "MainHUD ButtonDebug should open the dedicated DebugWindow.")
+
+	button_debug.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+	assert_false(debug_window.visible, "Pressing ButtonDebug again should hide the DebugWindow.")
+
+
+func test_main_menu_close_hides_and_unpauses_live_session() -> void:
+	GameState.current_sector_id = "sector_system_elace"
+
+	var main_menu = MainMenuScene.instance()
+	add_child_autofree(main_menu)
+	main_menu._show_menu()
+
+	assert_true(main_menu.visible, "MainMenu should be visible after showing the live-session menu.")
+	assert_true(get_tree().paused, "Showing the main menu during a live session should pause gameplay.")
+
+	var close_button: BaseButton = main_menu.get_node("ScreenControls/ButtonClose")
+	close_button.emit_signal("pressed")
+
+	assert_false(main_menu.visible, "MainMenu close should dismiss the menu during a live session.")
+	assert_false(get_tree().paused, "MainMenu close should unpause gameplay during a live session.")
+
+
+func test_station_menu_close_hides_without_undocking_and_reopens() -> void:
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+	GameState.player_docked_at = "station_beta"
+	yield(get_tree(), "idle_frame")
+
+	station_menu._on_player_docked("station_beta")
+	assert_true(station_menu.visible, "Docking should open the station menu.")
+
+	var close_button: BaseButton = station_menu.get_node("Panel/VBoxContainer/HeaderRow/BtnClose")
+	close_button.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+
+	assert_false(station_menu.visible, "Closing the station menu should hide it.")
+	assert_eq(GameState.player_docked_at, "station_beta", "Closing the station menu must not undock the player.")
+
+	station_menu.open_for_current_dock()
+	yield(get_tree(), "idle_frame")
+	assert_true(station_menu.visible, "StationMenu should reopen for the current docked location.")
+
+
+func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	root.add_child(hud)
+	yield(get_tree(), "idle_frame")
+
+	GameState.player_docked_at = "station_beta"
+	watch_signals(EventBus)
+
+	hud._on_ButtonDock_pressed()
+	yield(get_tree(), "idle_frame")
+
+	assert_true(hud._station_menu_instance.visible, "MainHUD dock button should reopen the station menu while already docked.")
+	assert_signal_not_emitted(EventBus, "player_dock_pressed", "Reopening the station menu while docked should not emit a fresh docking request.")
+
 --- Start of ./src/tests/core/ui/test_main_hud_projected_targeting.gd ---
 
 #
@@ -30871,7 +31247,9 @@ extends "res://addons/gut/test.gd"
 
 var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
+var ProjectedTargetBracketScene = load("res://scenes/ui/hud/projected_target_bracket.tscn")
 var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var AgentScript = load("res://src/core/agents/agent.gd")
 
@@ -30934,6 +31312,165 @@ func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_ex
 	assert_false(targets.has(player), "The player agent should not get a self-targeting HUD bracket.")
 	assert_false(targets.has(jump_point), "Legacy physical jump points should not get projected HUD brackets.")
 
+
+func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_routes() -> void:
+	var bracket = _create_projected_target_bracket()
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		Vector3(1, 0, 0)
+	)
+	bracket.configure_target(route_target)
+	yield(get_tree(), "idle_frame")
+
+	var info_label = bracket.get_node_or_null("InfoPanel/InfoLabel")
+	assert_not_null(info_label, "Projected target bracket scene should own the info label node.")
+	assert_eq(
+		info_label.get_script().resource_path,
+		"res://src/core/ui/helpers/CenteredGrowingLabel.gd",
+		"Projected target labels should reuse CenteredGrowingLabel."
+	)
+	assert_eq(info_label.text, "Cob System\nJump Route", "Route brackets should show jump context under the bracket.")
+	assert_true(bracket.get_node("InfoPanel").visible, "Configured brackets should reveal their info panel.")
+
+
+func test_projected_target_bracket_station_label_shows_dock_context() -> void:
+	var bracket = _create_projected_target_bracket()
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.station_name = "Elace Exchange"
+	add_child_autofree(station)
+	bracket.configure_target(station, station.station_name)
+	yield(get_tree(), "idle_frame")
+
+	var info_label = bracket.get_node("InfoPanel/InfoLabel")
+	assert_eq(info_label.text, "Elace Exchange\nDock Target", "Dockable stations should show dock context under their brackets.")
+
+
+func test_projected_target_bracket_distance_formatter_matches_requested_magnitudes() -> void:
+	var bracket = _create_projected_target_bracket()
+
+	assert_eq(bracket._format_distance_label(3.0), "3", "Single-digit distances should render without padding or suffix.")
+	assert_eq(bracket._format_distance_label(14.0), "14", "Two-digit distances should render without padding or suffix.")
+	assert_eq(bracket._format_distance_label(211.0), "211", "Three-digit distances should render without padding or suffix.")
+	assert_eq(bracket._format_distance_label(1899.0), "1899", "Four-digit short distances should remain in local units.")
+	assert_eq(bracket._format_distance_label(2340.0), "2.34k", "Lower kilounit distances should keep two decimals.")
+	assert_eq(bracket._format_distance_label(34500.0), "34.5k", "Mid-range kilounit distances should keep one decimal.")
+	assert_eq(bracket._format_distance_label(276000.0), "276k", "Large kilounit distances should render as whole kilounits.")
+	assert_eq(bracket._format_distance_label(999000.0), "999k", "Upper in-range kilounit distances should cap at whole kilounits.")
+	assert_eq(bracket._format_distance_label(1000000.0), "FAR", "Distances beyond the readable range should render as FAR.")
+
+
+func test_projected_target_bracket_selected_jump_route_shows_far_distance_label() -> void:
+	var bracket = _create_projected_target_bracket()
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		Vector3(1, 0, 0)
+	)
+
+	bracket.configure_target(route_target)
+	bracket.set_selected_state(true)
+	yield(get_tree(), "idle_frame")
+
+	var distance_panel = bracket.get_node("BracketSelected/DistancePanel")
+	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	assert_true(distance_panel.is_visible_in_tree(), "Selected jump routes should not suppress the distance panel visibility.")
+	assert_eq(distance_label.text, "FAR", "Selected jump routes should render FAR in the distance label.")
+
+
+func test_projected_target_bracket_selected_local_target_updates_distance_label_live() -> void:
+	var bracket = _create_projected_target_bracket()
+	var player = RigidBody.new()
+	player.name = "Player"
+	player.translation = Vector3.ZERO
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.station_name = "Elace Exchange"
+	station.translation = Vector3(3000, 0, 0)
+	add_child_autofree(station)
+
+	bracket.configure_target(station, station.station_name)
+	bracket.set_selected_state(true)
+	yield(get_tree(), "idle_frame")
+
+	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	assert_eq(distance_label.text, "3k", "Selected local targets should use the compact distance format without leading zeros.")
+
+	station.translation = Vector3(4000, 0, 0)
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(distance_label.text, "4k", "Selected target distance should update while the target moves in the local scene.")
+
+
+func test_projected_target_bracket_selected_jump_point_shows_far_distance_label() -> void:
+	var bracket = _create_projected_target_bracket()
+	var player = RigidBody.new()
+	player.name = "Player"
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+
+	var jump_point = StaticBody.new()
+	jump_point.name = "JumpPoint"
+	jump_point.translation = Vector3(3000, 0, 0)
+	jump_point.add_to_group("jump_point")
+	add_child_autofree(jump_point)
+
+	bracket.configure_target(jump_point, "Jump")
+	bracket.set_selected_state(true)
+	yield(get_tree(), "idle_frame")
+
+	var distance_label = bracket.get_node("BracketSelected/DistancePanel/DistanceLabel")
+	assert_eq(distance_label.text, "FAR", "Jump points should render FAR in the selected-target distance label.")
+
+
+func test_projected_target_bracket_selected_texture_visibility_tracks_state() -> void:
+	var bracket = _create_projected_target_bracket()
+	yield(get_tree(), "idle_frame")
+
+	var normal_bracket = bracket.get_node("BracketNormal")
+	var selected_bracket = bracket.get_node("BracketSelected")
+	assert_eq(normal_bracket.stretch_mode, TextureRect.STRETCH_KEEP_CENTERED, "Normal bracket should use the raw texture without scaling.")
+	assert_eq(selected_bracket.stretch_mode, TextureRect.STRETCH_KEEP_CENTERED, "Selected bracket should use the raw texture without scaling.")
+	assert_true(normal_bracket.visible, "Normal bracket texture should be visible by default.")
+	assert_false(selected_bracket.visible, "Selected bracket texture should start hidden.")
+
+	bracket.set_selected_state(true)
+
+	assert_false(normal_bracket.visible, "Normal bracket texture should hide once selected.")
+	assert_true(selected_bracket.visible, "Selected bracket texture should appear once selected.")
+
+
+func test_projected_target_bracket_label_has_no_background_frame() -> void:
+	var bracket = _create_projected_target_bracket()
+	yield(get_tree(), "idle_frame")
+
+	assert_false(bracket.get_node("InfoPanel") is PanelContainer, "Bracket label should render as text only without a panel frame.")
+
+
+func test_main_hud_scene_no_longer_instantiates_removed_target_prompt_panels() -> void:
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	assert_null(
+		hud.get_node_or_null("ScreenControls/TopCenterZone (to be removed)"),
+		"MainHUD should not keep the old top-center prompt container in the active scene."
+	)
+	assert_null(
+		hud.get_node_or_null("ScreenControls/TopRightZone/RadarDisplay (to be removed)"),
+		"MainHUD should not keep the removed radar panel in the active scene."
+	)
+
 func test_projected_target_bracket_click_release_emits_pressed() -> void:
 	var bracket = _create_projected_target_bracket()
 	yield(get_tree(), "idle_frame")
@@ -30974,6 +31511,17 @@ func test_projected_target_bracket_drag_bridges_into_camera_rotation_path() -> v
 	assert_eq(camera.forwarded_motion[1], Vector2(18, 2), "Subsequent drag motion should continue reaching the camera.")
 
 
+func test_projected_target_bracket_hover_wheel_forwards_zoom_input_to_camera() -> void:
+	var bracket = _create_projected_target_bracket()
+	var camera = _create_scroll_mock_camera()
+	GlobalRefs.main_camera = camera
+
+	yield(_dispatch_bracket_mouse_wheel(Vector2(40, 40), BUTTON_WHEEL_UP), "completed")
+	yield(_dispatch_bracket_mouse_wheel(Vector2(40, 40), BUTTON_WHEEL_DOWN), "completed")
+
+	assert_eq(camera.forwarded_wheel_buttons, [BUTTON_WHEEL_UP, BUTTON_WHEEL_DOWN], "Hovering a target bracket should still forward mouse wheel zoom input to the camera.")
+
+
 func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_forwards_release() -> void:
 	var harness = yield(_create_main_hud_drag_harness(), "completed")
 	var hud = harness["hud"]
@@ -30981,7 +31529,7 @@ func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_for
 	var controller = harness["controller"]
 	var bracket = hud._instance_projected_target_bracket()
 	bracket.rect_position = Vector2(120, 120)
-	bracket.rect_size = Vector2(180, 56)
+	bracket.rect_size = Vector2(150, 150)
 	hud.projected_target_overlay.add_child(bracket)
 	hud._track_inflight_drag_control(bracket)
 	yield(get_tree(), "idle_frame")
@@ -30999,6 +31547,31 @@ func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_for
 	assert_signal_not_emitted(bracket, "pressed", "Crossing an already-active drag over a projected bracket must not select the target on release.")
 	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
 	assert_eq(bracket.mouse_filter, original_filter, "Projected bracket mouse filtering should restore after the drag ends.")
+
+
+func test_projected_target_drag_continues_after_bracket_hides_offscreen() -> void:
+	var harness = yield(_create_main_hud_drag_harness(false), "completed")
+	var hud = harness["hud"]
+	var camera = harness["camera"]
+	var controller = harness["controller"]
+	var bracket = hud._instance_projected_target_bracket()
+	bracket.rect_position = Vector2(120, 120)
+	hud.projected_target_overlay.add_child(bracket)
+	hud._track_inflight_drag_control(bracket)
+	yield(get_tree(), "idle_frame")
+	var bracket_center = _get_control_center(bracket)
+
+	yield(_dispatch_mouse_button(bracket_center, true), "completed")
+	yield(_dispatch_mouse_motion(bracket_center + Vector2(20, 0), Vector2(20, 0)), "completed")
+	bracket.visible = false
+	yield(_dispatch_mouse_motion(Vector2(420, 240), Vector2(18, 2)), "completed")
+	yield(_dispatch_mouse_button(Vector2(420, 240), false), "completed")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(camera.forwarded_motion, [Vector2(20, 0), Vector2(18, 2)], "MainHUD should keep forwarding bracket drag motion even after the bracket hides off-screen.")
+	assert_eq(controller.release_events.size(), 1, "Releasing an off-screen bracket drag should still reach the live controller release path.")
+	assert_false(camera.externally_rotating, "Off-screen bracket drag release should stop external camera rotation even when the controller does not clear camera state.")
+	assert_false(bracket.disabled, "Bracket drag state should reset even when release happens after the bracket hides.")
 
 
 func test_main_hud_button_crossing_keeps_external_camera_drag_without_pressing_button() -> void:
@@ -31049,10 +31622,9 @@ func test_main_hud_slider_crossing_keeps_external_camera_drag_without_changing_v
 
 
 func _create_projected_target_bracket() -> Button:
-	var bracket = Button.new()
-	bracket.set_script(ProjectedTargetBracketScript)
+	var bracket = ProjectedTargetBracketScene.instance()
 	bracket.rect_position = Vector2(20, 20)
-	bracket.rect_size = Vector2(180, 56)
+	bracket.rect_size = Vector2(150, 150)
 	add_child_autofree(bracket)
 	return bracket
 
@@ -31067,7 +31639,17 @@ func _create_mock_camera() -> Node:
 	return camera
 
 
-func _create_main_hud_drag_harness() -> Dictionary:
+func _create_scroll_mock_camera() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar forwarded_wheel_buttons = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.pressed and (event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN):\n\t\tforwarded_wheel_buttons.append(event.button_index)\n"
+	script.reload()
+	var camera = Node.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_main_hud_drag_harness(stop_camera_on_release: bool = true) -> Dictionary:
 	var camera = _create_external_rotation_camera()
 	GlobalRefs.main_camera = camera
 
@@ -31076,7 +31658,7 @@ func _create_main_hud_drag_harness() -> Dictionary:
 	player_body.gravity_scale = 0.0
 	add_child_autofree(player_body)
 
-	var controller = _create_mock_player_input_handler()
+	var controller = _create_mock_player_input_handler(stop_camera_on_release)
 	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
 	player_body.add_child(controller)
 	GlobalRefs.player_agent_body = player_body
@@ -31090,7 +31672,7 @@ func _create_main_hud_drag_harness() -> Dictionary:
 
 func _create_external_rotation_camera() -> Camera:
 	var script = GDScript.new()
-	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
+	script.source_code = "extends Camera\nvar externally_rotating = false\nvar forwarded_motion = []\nfunc set_is_rotating(rotating):\n\texternally_rotating = rotating\nfunc is_externally_rotating():\n\treturn externally_rotating\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\tforwarded_motion.append(event.relative)\n"
 	script.reload()
 	var camera = Camera.new()
 	camera.set_script(script)
@@ -31098,9 +31680,12 @@ func _create_external_rotation_camera() -> Camera:
 	return camera
 
 
-func _create_mock_player_input_handler() -> Node:
+func _create_mock_player_input_handler(stop_camera_on_release: bool = true) -> Node:
 	var script = GDScript.new()
-	script.source_code = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
+	var source = "extends Node\nvar release_events = []\nfunc _unhandled_input(event):\n\tif event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:\n\t\trelease_events.append(event.position)\n"
+	if stop_camera_on_release:
+		source += "\t\tvar camera = GlobalRefs.main_camera\n\t\tif is_instance_valid(camera):\n\t\t\tcamera.externally_rotating = false\n"
+	script.source_code = source
 	script.reload()
 	var controller = Node.new()
 	controller.set_script(script)
@@ -31126,6 +31711,15 @@ func _dispatch_mouse_button(position: Vector2, pressed: bool) -> void:
 	yield(get_tree(), "idle_frame")
 
 
+func _dispatch_mouse_wheel(position: Vector2, button_index: int) -> void:
+	var event = InputEventMouseButton.new()
+	event.button_index = button_index
+	event.pressed = true
+	event.position = position
+	Input.parse_input_event(event)
+	yield(get_tree(), "idle_frame")
+
+
 func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
 	var event = InputEventMouseMotion.new()
 	event.position = position
@@ -31136,6 +31730,10 @@ func _dispatch_mouse_motion(position: Vector2, relative: Vector2) -> void:
 
 func _dispatch_bracket_mouse_button(position: Vector2, pressed: bool) -> void:
 	yield(_dispatch_mouse_button(position, pressed), "completed")
+
+
+func _dispatch_bracket_mouse_wheel(position: Vector2, button_index: int) -> void:
+	yield(_dispatch_mouse_wheel(position, button_index), "completed")
 
 
 func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
