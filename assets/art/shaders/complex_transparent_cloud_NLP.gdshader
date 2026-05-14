@@ -10,35 +10,20 @@ render_mode
 	ambient_light_disabled,
 	depth_draw_opaque;
 
-uniform float vertex_mask_power = 1.0;
-uniform float vertex_mask_overlay = 0.0;
-uniform float albedo_strength = 1.0;
-
-uniform float lum_weight_r = 1.0;
-uniform float lum_weight_g = 1.0;
-uniform float lum_weight_b = 1.0;
-
-uniform float color_power_r = 1.0;
-uniform float color_power_g = 1.0;
-uniform float color_power_b = 1.0;
-uniform float color_multiplier_r = 1.0;
-uniform float color_multiplier_g = 1.0;
-uniform float color_multiplier_b = 1.0;
-
 uniform vec4 albedo : hint_color;
 uniform vec4 albedo_rim : hint_color;
 uniform vec4 albedo_ambient : hint_color;
 
-uniform float normal_intensity = 1.0;
-uniform float normal_detail_power = 1.0;
-uniform float normal_detail_factor = 1.0;
-uniform float normal_strength = 1.0;
-uniform float normal_detail_clamp = 1.0;
+uniform float normal_intensity : hint_range(-1.0, 1.0) = 1.0;
+uniform float normal_detail_power : hint_range(0.0, 5.0) = 1.0;
+uniform float normal_detail_factor : hint_range(0.0, 5.0) = 0.1;
+uniform float normal_strength : hint_range(0.0, 5.0) = 1.0;
+uniform float normal_detail_clamp : hint_range(0.0, 1.0) = 1.0;
 
-uniform float rim_factor = 1.0;
-uniform float rim_strength = 1.0;
-uniform float rim_exponent = 1.0;
-uniform float rim_ambient_exponent = 1.0;
+uniform float rim_factor : hint_range(0.0, 5.0) = 1.0;
+uniform float rim_strength : hint_range(0.0, 5.0) = 1.0;
+uniform float rim_exponent : hint_range(0.0, 5.0) = 1.0;
+uniform float rim_ambient_exponent : hint_range(0.0, 5.0) = 1.0;
 
 uniform float fade_distance_near = 1e5;
 uniform float fade_distance_far = 1e6;
@@ -120,17 +105,8 @@ void fragment()
 	float rim_normal_detail = clamp((dt_normal_detail), 1e-6, 1.0);
 	float rim = clamp(pow(dt,rim_exponent), 1e-6, 1.0);
 	float rim_ambient = clamp(pow(dt,rim_ambient_exponent), 1e-6, 1.0);
-
-	float luminosity = dot(COLOR.rgb, vec3(lum_weight_r, lum_weight_g, lum_weight_b));
-	luminosity = max(luminosity, 0.0);
-
-	// Now use this calculated luminosity value in your original formula
-	float vertex_mask = vertex_mask_overlay + pow(luminosity, vertex_mask_power);
-	if (vertex_mask < 0.01) {
-		discard;
-	}
 	
-	ALBEDO = albedo_strength * albedo.rgb * COLOR.rgb;
+	ALBEDO = albedo.rgb;
 	
 	// Emulate normal map
 	float normal_mask = clamp(1.0 - pow((1.0-rim_normal_detail) * normal_detail_power, normal_detail_factor), 1e-6, normal_detail_clamp);
@@ -139,16 +115,6 @@ void fragment()
 	// Apply rim
 	float rim_mask = pow((1.0 - rim)*rim, rim_factor);
 	ALBEDO += rim_strength * rim_mask * normal_mask * albedo_rim.rgb;
-	
-	// Apply vertex mask
-	ALBEDO *= vertex_mask;
-	
-	// color tweak.
-	ALBEDO = vec3(
-		pow(ALBEDO.r, color_power_r)*color_multiplier_r,
-		pow(ALBEDO.g, color_power_g)*color_multiplier_g,
-		pow(ALBEDO.b, color_power_b)*color_multiplier_b
-	);
 
 	// Fade near and far.
 	float dist = length(VERTEX);
