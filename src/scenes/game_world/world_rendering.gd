@@ -1,14 +1,24 @@
+#
+# PROJECT: GDTLancer
+# MODULE: world_rendering.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-16 01:02:19
+#
+
 # File: scenes/game_world/world_rendering.gd
 # Version: 1.0 - Handles rendering options for viewport as a whole.
 
 extends Node
 
+# This is a section that holds rendering settings.
 var viewport_downscale_factor = 1.0
 var viewport_msaa = Viewport.MSAA_DISABLED
 var viewport_fxaa = false
 var viewport_disable_3d = false
 var viewport_sharpen_intensity = 0.5
 var viewport_keep_3d_linear = false
+var projected_target_center_fade_enabled = true
 
 
 var _viewport_size = Vector2(1920, 1080)

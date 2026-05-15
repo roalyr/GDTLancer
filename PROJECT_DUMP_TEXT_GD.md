@@ -15983,6 +15983,14 @@ func execute(delta: float):
 
 --- Start of ./src/core/agents/components/navigation_system.gd ---
 
+#
+# PROJECT: GDTLancer
+# MODULE: navigation_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 03:05:12
+#
+
 # File: res://core/agents/components/navigation_system.gd
 # Version: 3.0 - RigidBody physics with thrust-based 6DOF flight.
 
@@ -16098,6 +16106,10 @@ func set_command_align_to(direction: Vector3):
 		set_command_idle()
 		return
 	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
+
+
+func get_current_command_type() -> int:
+	return int(_current_command.get("type", CommandType.IDLE))
 
 
 # --- Main Update Logic (Called from AgentBody._integrate_forces) ---
@@ -21787,8 +21799,8 @@ func get_parent_control() -> Control:
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 02:59:12
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-16 01:02:19
 #
 
 extends Control
@@ -21798,10 +21810,25 @@ extends Control
 
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
+const BUTTON_ACTIVE_MODULATE = Color8(255, 230, 89, 255)
+const BUTTON_INACTIVE_MODULATE = Color8(255, 255, 255, 255)
+const PROJECTED_TARGET_EDGE_ALPHA = 0.1
+const PROJECTED_TARGET_EDGE_POW = 0.75
+const CAMERA_MODE_TARGET_TRACKING = 1
+const NAV_COMMAND_IDLE = 0
+const NAV_COMMAND_APPROACH = 4
+const NAV_COMMAND_ORBIT = 5
+const NAV_COMMAND_FLEE = 6
+const OVERLAY_KIND_STRUCTURES = "structures"
+const OVERLAY_KIND_STELLAR = "stellar"
+const OVERLAY_KIND_JUMP = "jump"
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
 	"ScreenControls/CenterLeftZone/ButtonDebug",
 	"ScreenControls/CenterLeftZone/ButtonInfo",
+	"ScreenControls/CenterLeftZone/ButtonOverlayStructures",
+	"ScreenControls/CenterLeftZone/ButtonOverlayStellar",
+	"ScreenControls/CenterLeftZone/ButtonOverlayJump",
 	"ScreenControls/CenterLeftZone/SliderControlLeft",
 	"ScreenControls/BottomCenterZone/ButtonOrbit",
 	"ScreenControls/BottomCenterZone/ButtonStop",
@@ -21823,6 +21850,13 @@ var _station_menu_instance = null
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var button_debug: TextureButton = $ScreenControls/CenterLeftZone/ButtonDebug
+onready var button_overlay_structures: TextureButton = $ScreenControls/CenterLeftZone/ButtonOverlayStructures
+onready var button_overlay_stellar: TextureButton = $ScreenControls/CenterLeftZone/ButtonOverlayStellar
+onready var button_overlay_jump: TextureButton = $ScreenControls/CenterLeftZone/ButtonOverlayJump
+onready var button_orbit: TextureButton = $ScreenControls/BottomCenterZone/ButtonOrbit
+onready var button_manual_flight: TextureButton = $ScreenControls/BottomCenterZone/ButtonManualFlight
+onready var button_approach: TextureButton = $ScreenControls/BottomCenterZone/ButtonApproach
+onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/ButtonFlee
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 
 # --- Game Over UI ---
@@ -21847,6 +21881,9 @@ var _inflight_drag_passthrough_active: bool = false
 var _inflight_drag_passthrough_sync_pending: bool = false
 var _projected_target_drag_passthrough_active: bool = false
 var _projected_target_drag_source: Control = null
+var _overlay_structures_enabled: bool = true
+var _overlay_stellar_enabled: bool = true
+var _overlay_jump_enabled: bool = true
 
 # --- Initialization ---
 func _ready():
@@ -21939,7 +21976,12 @@ func _ready():
 		if not button_debug.is_connected("pressed", self, "_on_ButtonDebug_pressed"):
 			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
 
+	_connect_overlay_toggle_button(button_overlay_structures, "_on_ButtonOverlayStructures_pressed")
+	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
+	_connect_overlay_toggle_button(button_overlay_jump, "_on_ButtonOverlayJump_pressed")
+
 	_register_inflight_drag_controls()
+	_refresh_toggle_button_states()
 
 	# Initialize TU display
 	_refresh_time_display()
@@ -21960,6 +22002,7 @@ func _process(_delta):
 
 	_update_route_target_overlay()
 	_update_world_target_overlay()
+	_refresh_toggle_button_states()
 	if _inflight_drag_passthrough_active:
 		_sync_inflight_drag_passthrough()
 
@@ -21976,6 +22019,7 @@ func _on_Player_Target_Selected(target_node):
 		var camera = GlobalRefs.main_camera
 		if is_instance_valid(camera) and camera.get_camera_mode() == 1 and target_node is Spatial:  # TARGET_TRACKING
 			camera.set_look_at_target(target_node)
+		_refresh_toggle_button_states()
 	else:
 		_on_Player_Target_Deselected()
 
@@ -21991,6 +22035,7 @@ func _on_Player_Target_Deselected():
 	var camera = GlobalRefs.main_camera
 	if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
 		camera.set_camera_mode(0)  # ORBIT
+	_refresh_toggle_button_states()
 
 
 func _on_agent_despawning(agent_body) -> void:
@@ -22099,13 +22144,21 @@ func _on_ButtonCamera_pressed() -> void:
 	camera.toggle_camera_mode()
 	
 	# If switching to target tracking mode, set the look_at_target
-	if camera.get_camera_mode() == 1:  # TARGET_TRACKING = 1
+	if camera.get_camera_mode() == CAMERA_MODE_TARGET_TRACKING:
 		if _current_target is Spatial and is_instance_valid(_current_target):
 			camera.set_look_at_target(_current_target)
 		else:
 			# No target selected, switch back to orbit mode
 			camera.set_camera_mode(0)  # ORBIT = 0
 			print("Camera: No target selected for tracking mode.")
+	_refresh_toggle_button_states()
+
+
+func _connect_overlay_toggle_button(button: TextureButton, method_name: String) -> void:
+	if not is_instance_valid(button):
+		return
+	if not button.is_connected("pressed", self, method_name):
+		button.connect("pressed", self, method_name)
 
 
 func _register_inflight_drag_controls() -> void:
@@ -22362,6 +22415,7 @@ func _on_ButtonReturnToMenu_pressed() -> void:
 func _on_ButtonFreeFlight_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_free_flight_toggled")
+	_refresh_toggle_button_states()
 
 
 func _on_ButtonStop_pressed():
@@ -22372,16 +22426,37 @@ func _on_ButtonStop_pressed():
 func _on_ButtonOrbit_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_orbit_pressed")
+	_refresh_toggle_button_states()
 
 
 func _on_ButtonApproach_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_approach_pressed")
+	_refresh_toggle_button_states()
 
 
 func _on_ButtonFlee_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_flee_pressed")
+	_refresh_toggle_button_states()
+
+
+func _on_ButtonOverlayStructures_pressed() -> void:
+	_overlay_structures_enabled = not _overlay_structures_enabled
+	_refresh_toggle_button_states()
+	_update_world_target_overlay()
+
+
+func _on_ButtonOverlayStellar_pressed() -> void:
+	_overlay_stellar_enabled = not _overlay_stellar_enabled
+	_refresh_toggle_button_states()
+	_update_world_target_overlay()
+
+
+func _on_ButtonOverlayJump_pressed() -> void:
+	_overlay_jump_enabled = not _overlay_jump_enabled
+	_refresh_toggle_button_states()
+	_update_route_target_overlay()
 
 func _on_ButtonInteract_pressed():
 	if EventBus:
@@ -22496,6 +22571,126 @@ func _get_debug_window() -> Node:
 	if not is_instance_valid(parent_node):
 		return null
 	return parent_node.get_node_or_null("DebugWindow")
+
+
+func _get_player_controller() -> Node:
+	var player_agent = GlobalRefs.player_agent_body
+	if not is_instance_valid(player_agent):
+		return null
+	return player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+
+
+func _is_player_free_flight_active() -> bool:
+	var player_controller = _get_player_controller()
+	return is_instance_valid(player_controller) and player_controller.has_method("is_free_flight_active") and player_controller.is_free_flight_active()
+
+
+func _get_player_navigation_command_type() -> int:
+	var player_controller = _get_player_controller()
+	if is_instance_valid(player_controller) and player_controller.has_method("get_active_navigation_command_type"):
+		return int(player_controller.get_active_navigation_command_type())
+	return NAV_COMMAND_IDLE
+
+
+func _is_camera_target_follow_active() -> bool:
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	if not is_instance_valid(camera):
+		return false
+	if not camera.has_method("get_camera_mode") or camera.get_camera_mode() != CAMERA_MODE_TARGET_TRACKING:
+		return false
+	if not camera.has_method("get_look_at_target"):
+		return true
+	var look_at_target = camera.get_look_at_target()
+	return look_at_target is Spatial and is_instance_valid(look_at_target)
+
+
+func _refresh_toggle_button_states() -> void:
+	_apply_button_toggle_state(button_overlay_structures, _overlay_structures_enabled)
+	_apply_button_toggle_state(button_overlay_stellar, _overlay_stellar_enabled)
+	_apply_button_toggle_state(button_overlay_jump, _overlay_jump_enabled)
+
+	var is_free_flight_active = _is_player_free_flight_active()
+	var active_navigation_command_type = _get_player_navigation_command_type()
+	_apply_button_toggle_state(button_manual_flight, is_free_flight_active)
+	_apply_button_toggle_state(button_orbit, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_ORBIT)
+	_apply_button_toggle_state(button_approach, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_APPROACH)
+	_apply_button_toggle_state(button_flee, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_FLEE)
+	_apply_button_toggle_state(button_camera, _is_camera_target_follow_active())
+
+
+func _apply_button_toggle_state(button: TextureButton, is_active: bool) -> void:
+	if not is_instance_valid(button):
+		return
+	button.modulate = BUTTON_ACTIVE_MODULATE if is_active else BUTTON_INACTIVE_MODULATE
+
+
+func _get_world_rendering_node() -> Node:
+	var scene_root = get_tree().current_scene
+	if not is_instance_valid(scene_root):
+		return null
+	return scene_root.get_node_or_null("WorldRendering")
+
+
+func _is_projected_target_center_fade_enabled() -> bool:
+	var world_rendering = _get_world_rendering_node()
+	if not is_instance_valid(world_rendering):
+		return false
+	return bool(world_rendering.get("projected_target_center_fade_enabled"))
+
+
+func _get_projected_target_distance_fade_alpha(screen_pos: Vector2, viewport_rect: Rect2) -> float:
+	if not _is_projected_target_center_fade_enabled():
+		return 1.0
+	var viewport_center = viewport_rect.position + (viewport_rect.size / 2.0)
+	var max_distance = max((viewport_rect.size / 2.0).length(), 1.0)
+	var normalized_distance = clamp(screen_pos.distance_to(viewport_center) / max_distance, 0.0, 1.0)
+	return _compute_projected_target_distance_fade_alpha(normalized_distance)
+
+
+func _compute_projected_target_distance_fade_alpha(normalized_distance: float) -> float:
+	var safe_normalized_distance = clamp(normalized_distance, 0.0, 1.0)
+	return lerp(1.0, PROJECTED_TARGET_EDGE_ALPHA, pow(safe_normalized_distance, PROJECTED_TARGET_EDGE_POW))
+
+
+func _apply_projected_target_distance_fade(button: Control, fade_alpha: float) -> void:
+	if is_instance_valid(button) and button.has_method("set_distance_fade_alpha"):
+		button.call("set_distance_fade_alpha", fade_alpha)
+
+
+func _get_projected_target_overlay_kind(target_ref) -> String:
+	if _is_route_target(target_ref):
+		return OVERLAY_KIND_JUMP
+	if not (target_ref is Node and is_instance_valid(target_ref)):
+		return ""
+	if target_ref.is_in_group("jump_point"):
+		return OVERLAY_KIND_JUMP
+	if _is_stellar_target(target_ref):
+		return OVERLAY_KIND_STELLAR
+	return OVERLAY_KIND_STRUCTURES
+
+
+func _is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
+	match overlay_kind:
+		OVERLAY_KIND_STRUCTURES:
+			return _overlay_structures_enabled
+		OVERLAY_KIND_STELLAR:
+			return _overlay_stellar_enabled
+		OVERLAY_KIND_JUMP:
+			return _overlay_jump_enabled
+		_:
+			return true
+
+
+func _is_stellar_target(target_node: Node) -> bool:
+	if not (target_node is StaticBody):
+		return false
+	if target_node.is_in_group("dockable_station") or target_node.is_in_group("jump_point"):
+		return false
+	var lower_name = str(target_node.name).to_lower()
+	for token in ["star", "planet", "moon", "sun"]:
+		if lower_name.find(token) != -1:
+			return true
+	return false
 
 
 # --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
@@ -22668,6 +22863,12 @@ func _update_route_target_overlay() -> void:
 		var route_target = button.target_ref
 		if not _is_route_target(route_target):
 			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
+			continue
+		var overlay_kind = _get_projected_target_overlay_kind(route_target)
+		if not _is_projected_target_overlay_enabled(overlay_kind):
+			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
 			continue
 		var target_world_position: Vector3 = _get_target_world_position(route_target)
 		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
@@ -22677,6 +22878,9 @@ func _update_route_target_overlay() -> void:
 		button.visible = is_in_front and is_on_screen
 		if button.visible:
 			button.rect_position = screen_pos - (button.rect_size / 2.0)
+			_apply_projected_target_distance_fade(button, _get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
+		else:
+			_apply_projected_target_distance_fade(button, 1.0)
 
 
 func _collect_world_projected_targets() -> Array:
@@ -22722,6 +22926,12 @@ func _update_world_target_overlay() -> void:
 		var target_node = button.target_ref
 		if not (target_node is Spatial and is_instance_valid(target_node)):
 			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
+			continue
+		var overlay_kind = _get_projected_target_overlay_kind(target_node)
+		if not _is_projected_target_overlay_enabled(overlay_kind):
+			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
 			continue
 		var target_world_position: Vector3 = _get_target_world_position(target_node)
 		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
@@ -22731,6 +22941,9 @@ func _update_world_target_overlay() -> void:
 		button.visible = is_in_front and is_on_screen
 		if button.visible:
 			button.rect_position = screen_pos - (button.rect_size / 2.0)
+			_apply_projected_target_distance_fade(button, _get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
+		else:
+			_apply_projected_target_distance_fade(button, 1.0)
 
 
 func _get_route_target_selection_key() -> String:
@@ -22794,8 +23007,8 @@ func _on_world_target_button_pressed(target_node) -> void:
 # PROJECT: GDTLancer
 # MODULE: projected_target_bracket.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-10 23:51:42
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-16 01:02:19
 #
 
 extends Button
@@ -22821,6 +23034,7 @@ var _context_hint: String = ""
 var _press_position: Vector2 = Vector2.ZERO
 var _is_pointer_pressed: bool = false
 var _is_dragging_pointer: bool = false
+var _distance_fade_alpha: float = 1.0
 
 
 func _ready() -> void:
@@ -22831,6 +23045,7 @@ func _ready() -> void:
 	rect_min_size = BRACKET_TEXTURE_RECT_SIZE
 	_cache_scene_nodes()
 	_apply_bracket_style()
+	_apply_distance_fade_alpha()
 	_sync_label()
 	_sync_distance_label()
 	set_process(false)
@@ -22893,6 +23108,14 @@ func set_context_hint(new_context_hint: String = "") -> void:
 		return
 	_context_hint = new_context_hint
 	_sync_label()
+
+
+func set_distance_fade_alpha(distance_fade_alpha: float) -> void:
+	var safe_alpha = clamp(distance_fade_alpha, 0.0, 1.0)
+	if is_equal_approx(_distance_fade_alpha, safe_alpha):
+		return
+	_distance_fade_alpha = safe_alpha
+	_apply_distance_fade_alpha()
 
 
 func _begin_pointer_tracking(pointer_position: Vector2) -> void:
@@ -22982,6 +23205,10 @@ func _apply_bracket_style() -> void:
 		_normal_bracket.visible = not _is_selected
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
+
+
+func _apply_distance_fade_alpha() -> void:
+	modulate = Color(1, 1, 1, _distance_fade_alpha)
 
 
 func _sync_label() -> void:
@@ -24140,7 +24367,7 @@ func _physics_process(delta):
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:43:42
+# LOG_REF: 2026-05-14 03:05:12
 #
 
 extends Node
@@ -24376,6 +24603,18 @@ func _get_current_target() -> RigidBody:
 	if is_instance_valid(_selected_target) and _selected_target is RigidBody:
 		return _selected_target as RigidBody
 	return null
+
+
+func is_free_flight_active() -> bool:
+	return _current_input_state is StateFreeFlight
+
+
+func get_active_navigation_command_type() -> int:
+	if is_instance_valid(agent_body):
+		var navigation_system = agent_body.get_node_or_null("NavigationSystem")
+		if is_instance_valid(navigation_system) and navigation_system.has_method("get_current_command_type"):
+			return navigation_system.get_current_command_type()
+	return 0
 
 
 func _is_route_target(target_ref) -> bool:
@@ -26880,17 +27119,27 @@ func _get_new_ship_uid() -> int:
 
 --- Start of ./src/scenes/game_world/world_rendering.gd ---
 
+#
+# PROJECT: GDTLancer
+# MODULE: world_rendering.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-16 01:02:19
+#
+
 # File: scenes/game_world/world_rendering.gd
 # Version: 1.0 - Handles rendering options for viewport as a whole.
 
 extends Node
 
+# This is a section that holds rendering settings.
 var viewport_downscale_factor = 1.0
 var viewport_msaa = Viewport.MSAA_DISABLED
 var viewport_fxaa = false
 var viewport_disable_3d = false
 var viewport_sharpen_intensity = 0.5
 var viewport_keep_3d_linear = false
+var projected_target_center_fade_enabled = true
 
 
 var _viewport_size = Vector2(1920, 1080)
@@ -31250,8 +31499,11 @@ var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
 var ProjectedTargetBracketScene = load("res://scenes/ui/hud/projected_target_bracket.tscn")
 var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
 var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
+var NavigationSystemScript = load("res://src/core/agents/components/navigation_system.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var AgentScript = load("res://src/core/agents/agent.gd")
+var PlayerControllerShipScript = load("res://src/modules/piloting/player_controller_ship.gd")
+var StateFreeFlightScript = load("res://src/modules/piloting/player_input_states/state_free_flight.gd")
 
 
 func after_each():
@@ -31311,6 +31563,156 @@ func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_ex
 	assert_has(targets, npc, "NPC agents should get projected HUD targets.")
 	assert_false(targets.has(player), "The player agent should not get a self-targeting HUD bracket.")
 	assert_false(targets.has(jump_point), "Legacy physical jump points should not get projected HUD brackets.")
+
+
+func test_navigation_system_accessor_returns_current_command_type() -> void:
+	var navigation_system = autofree(NavigationSystemScript.new())
+	navigation_system._current_command = {"type": navigation_system.CommandType.APPROACH}
+
+	assert_eq(
+		navigation_system.get_current_command_type(),
+		navigation_system.CommandType.APPROACH,
+		"NavigationSystem should expose the active command type through the HUD-safe accessor."
+	)
+
+	navigation_system._current_command = {}
+	assert_eq(
+		navigation_system.get_current_command_type(),
+		navigation_system.CommandType.IDLE,
+		"NavigationSystem should fall back to IDLE when no command is active."
+	)
+
+
+func test_player_controller_accessors_report_free_flight_and_navigation_command() -> void:
+	var controller = autofree(PlayerControllerShipScript.new())
+	controller._current_input_state = autofree(StateFreeFlightScript.new())
+
+	var agent_body = RigidBody.new()
+	add_child_autofree(agent_body)
+	var navigation_system = NavigationSystemScript.new()
+	navigation_system.name = "NavigationSystem"
+	navigation_system._current_command = {"type": navigation_system.CommandType.FLEE}
+	agent_body.add_child(navigation_system)
+	controller.agent_body = agent_body
+
+	assert_true(controller.is_free_flight_active(), "PlayerControllerShip should expose free-flight state through the new accessor.")
+	assert_eq(
+		controller.get_active_navigation_command_type(),
+		navigation_system.CommandType.FLEE,
+		"PlayerControllerShip should surface the live NavigationSystem command type through the new accessor."
+	)
+
+	controller._current_input_state = null
+	assert_false(controller.is_free_flight_active(), "Free-flight accessor should turn off once the free-flight state is no longer active.")
+
+
+func test_main_hud_overlay_classification_and_filtering_track_requested_categories() -> void:
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		Vector3(0, 0, -100)
+	)
+	var stellar = StaticBody.new()
+	stellar.name = "Planet Elace A"
+	add_child_autofree(stellar)
+	var structure = StaticBody.new()
+	structure.name = "Relay Station"
+	structure.add_to_group("dockable_station")
+	add_child_autofree(structure)
+
+	assert_eq(hud._get_projected_target_overlay_kind(route_target), hud.OVERLAY_KIND_JUMP, "Jump routes should classify into the Jump overlay bucket.")
+	assert_eq(hud._get_projected_target_overlay_kind(stellar), hud.OVERLAY_KIND_STELLAR, "Named celestial bodies should classify into the Stellar overlay bucket.")
+	assert_eq(hud._get_projected_target_overlay_kind(structure), hud.OVERLAY_KIND_STRUCTURES, "Stations and other non-celestial world targets should stay in the Structures overlay bucket.")
+
+	hud._on_ButtonOverlayStructures_pressed()
+	assert_false(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STRUCTURES), "Structures overlay toggle should disable the Structures bucket when switched off.")
+	assert_true(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STELLAR), "Disabling Structures must not disable Stellar overlays.")
+	hud._on_ButtonOverlayStructures_pressed()
+	assert_true(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STRUCTURES), "Structures overlay toggle should re-enable the Structures bucket on the next press.")
+
+
+func test_main_hud_refreshes_persistent_button_states_from_live_owners() -> void:
+	var camera = _create_toggle_state_camera()
+	GlobalRefs.main_camera = camera
+
+	var player_body = RigidBody.new()
+	player_body.name = "Player"
+	add_child_autofree(player_body)
+	var controller = _create_toggle_state_controller()
+	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
+	player_body.add_child(controller)
+	GlobalRefs.player_agent_body = player_body
+
+	var tracked_target = Spatial.new()
+	add_child_autofree(tracked_target)
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(hud.button_overlay_structures.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Overlay toggles should start in the ON visual state.")
+	assert_eq(hud.button_overlay_stellar.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Overlay toggles should start in the ON visual state.")
+	assert_eq(hud.button_overlay_jump.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Overlay toggles should start in the ON visual state.")
+
+	controller.free_flight_active = true
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_IDLE
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_manual_flight.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Manual Flight should highlight while free flight is active.")
+	assert_eq(hud.button_orbit.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Orbit should remain inactive while free flight owns piloting.")
+
+	controller.free_flight_active = false
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_ORBIT
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_manual_flight.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Manual Flight should clear once free flight is inactive.")
+	assert_eq(hud.button_orbit.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Orbit should highlight while orbit command is active.")
+
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_APPROACH
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_approach.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Approach should highlight while the approach command is active.")
+	assert_eq(hud.button_orbit.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Only the active persistent command should stay highlighted.")
+
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_FLEE
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_flee.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Flee should highlight while the flee command is active.")
+	assert_eq(hud.button_approach.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Approach should clear after the command changes.")
+
+	camera.camera_mode = MainHUDScript.CAMERA_MODE_TARGET_TRACKING
+	camera.look_target = tracked_target
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_camera.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Camera button should highlight while target-follow mode is active.")
+
+	hud._on_ButtonOverlayJump_pressed()
+	assert_eq(hud.button_overlay_jump.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Overlay buttons should use the OFF visual state after their toggle is disabled.")
+
+
+func test_main_hud_projected_target_distance_fade_alpha_matches_center_and_edge_targets() -> void:
+	var hud = autofree(MainHUDScript.new())
+
+	assert_almost_eq(
+		hud._compute_projected_target_distance_fade_alpha(0.0),
+		1.0,
+		0.0001,
+		"Projected targets should stay fully opaque at screen center."
+	)
+	assert_almost_eq(
+		hud._compute_projected_target_distance_fade_alpha(1.0),
+		0.1,
+		0.0001,
+		"Projected targets should retain roughly 10% opacity at the screen edge."
+	)
+	assert_true(
+		hud._compute_projected_target_distance_fade_alpha(0.5) < 1.0 and hud._compute_projected_target_distance_fade_alpha(0.5) > 0.1,
+		"Projected target fade should interpolate between center and edge opacity."
+	)
 
 
 func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_routes() -> void:
@@ -31678,6 +32080,25 @@ func _create_external_rotation_camera() -> Camera:
 	camera.set_script(script)
 	add_child_autofree(camera)
 	return camera
+
+
+func _create_toggle_state_camera() -> Camera:
+	var script = GDScript.new()
+	script.source_code = "extends Camera\nvar camera_mode = 0\nvar look_target = null\nfunc get_camera_mode() -> int:\n\treturn camera_mode\nfunc get_look_at_target():\n\treturn look_target\n"
+	script.reload()
+	var camera = Camera.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_toggle_state_controller() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar free_flight_active = false\nvar nav_command_type = 0\nfunc is_free_flight_active() -> bool:\n\treturn free_flight_active\nfunc get_active_navigation_command_type() -> int:\n\treturn nav_command_type\n"
+	script.reload()
+	var controller = Node.new()
+	controller.set_script(script)
+	return controller
 
 
 func _create_mock_player_input_handler(stop_camera_on_release: bool = true) -> Node:

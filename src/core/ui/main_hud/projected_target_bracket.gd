@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: projected_target_bracket.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-10 23:51:42
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-16 01:02:19
 #
 
 extends Button
@@ -29,6 +29,7 @@ var _context_hint: String = ""
 var _press_position: Vector2 = Vector2.ZERO
 var _is_pointer_pressed: bool = false
 var _is_dragging_pointer: bool = false
+var _distance_fade_alpha: float = 1.0
 
 
 func _ready() -> void:
@@ -39,6 +40,7 @@ func _ready() -> void:
 	rect_min_size = BRACKET_TEXTURE_RECT_SIZE
 	_cache_scene_nodes()
 	_apply_bracket_style()
+	_apply_distance_fade_alpha()
 	_sync_label()
 	_sync_distance_label()
 	set_process(false)
@@ -101,6 +103,14 @@ func set_context_hint(new_context_hint: String = "") -> void:
 		return
 	_context_hint = new_context_hint
 	_sync_label()
+
+
+func set_distance_fade_alpha(distance_fade_alpha: float) -> void:
+	var safe_alpha = clamp(distance_fade_alpha, 0.0, 1.0)
+	if is_equal_approx(_distance_fade_alpha, safe_alpha):
+		return
+	_distance_fade_alpha = safe_alpha
+	_apply_distance_fade_alpha()
 
 
 func _begin_pointer_tracking(pointer_position: Vector2) -> void:
@@ -190,6 +200,10 @@ func _apply_bracket_style() -> void:
 		_normal_bracket.visible = not _is_selected
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
+
+
+func _apply_distance_fade_alpha() -> void:
+	modulate = Color(1, 1, 1, _distance_fade_alpha)
 
 
 func _sync_label() -> void:

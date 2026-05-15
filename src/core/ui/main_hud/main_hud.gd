@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 02:59:12
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-16 01:02:19
 #
 
 extends Control
@@ -13,10 +13,25 @@ extends Control
 
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
 const ProjectedTargetBracketScene = preload("res://scenes/ui/hud/projected_target_bracket.tscn")
+const BUTTON_ACTIVE_MODULATE = Color8(255, 230, 89, 255)
+const BUTTON_INACTIVE_MODULATE = Color8(255, 255, 255, 255)
+const PROJECTED_TARGET_EDGE_ALPHA = 0.1
+const PROJECTED_TARGET_EDGE_POW = 0.75
+const CAMERA_MODE_TARGET_TRACKING = 1
+const NAV_COMMAND_IDLE = 0
+const NAV_COMMAND_APPROACH = 4
+const NAV_COMMAND_ORBIT = 5
+const NAV_COMMAND_FLEE = 6
+const OVERLAY_KIND_STRUCTURES = "structures"
+const OVERLAY_KIND_STELLAR = "stellar"
+const OVERLAY_KIND_JUMP = "jump"
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
 	"ScreenControls/CenterLeftZone/ButtonDebug",
 	"ScreenControls/CenterLeftZone/ButtonInfo",
+	"ScreenControls/CenterLeftZone/ButtonOverlayStructures",
+	"ScreenControls/CenterLeftZone/ButtonOverlayStellar",
+	"ScreenControls/CenterLeftZone/ButtonOverlayJump",
 	"ScreenControls/CenterLeftZone/SliderControlLeft",
 	"ScreenControls/BottomCenterZone/ButtonOrbit",
 	"ScreenControls/BottomCenterZone/ButtonStop",
@@ -38,6 +53,13 @@ var _station_menu_instance = null
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
 onready var button_menu: TextureButton = $ScreenControls/CenterLeftZone/ButtonMenu
 onready var button_debug: TextureButton = $ScreenControls/CenterLeftZone/ButtonDebug
+onready var button_overlay_structures: TextureButton = $ScreenControls/CenterLeftZone/ButtonOverlayStructures
+onready var button_overlay_stellar: TextureButton = $ScreenControls/CenterLeftZone/ButtonOverlayStellar
+onready var button_overlay_jump: TextureButton = $ScreenControls/CenterLeftZone/ButtonOverlayJump
+onready var button_orbit: TextureButton = $ScreenControls/BottomCenterZone/ButtonOrbit
+onready var button_manual_flight: TextureButton = $ScreenControls/BottomCenterZone/ButtonManualFlight
+onready var button_approach: TextureButton = $ScreenControls/BottomCenterZone/ButtonApproach
+onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/ButtonFlee
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
 
 # --- Game Over UI ---
@@ -62,6 +84,9 @@ var _inflight_drag_passthrough_active: bool = false
 var _inflight_drag_passthrough_sync_pending: bool = false
 var _projected_target_drag_passthrough_active: bool = false
 var _projected_target_drag_source: Control = null
+var _overlay_structures_enabled: bool = true
+var _overlay_stellar_enabled: bool = true
+var _overlay_jump_enabled: bool = true
 
 # --- Initialization ---
 func _ready():
@@ -154,7 +179,12 @@ func _ready():
 		if not button_debug.is_connected("pressed", self, "_on_ButtonDebug_pressed"):
 			button_debug.connect("pressed", self, "_on_ButtonDebug_pressed")
 
+	_connect_overlay_toggle_button(button_overlay_structures, "_on_ButtonOverlayStructures_pressed")
+	_connect_overlay_toggle_button(button_overlay_stellar, "_on_ButtonOverlayStellar_pressed")
+	_connect_overlay_toggle_button(button_overlay_jump, "_on_ButtonOverlayJump_pressed")
+
 	_register_inflight_drag_controls()
+	_refresh_toggle_button_states()
 
 	# Initialize TU display
 	_refresh_time_display()
@@ -175,6 +205,7 @@ func _process(_delta):
 
 	_update_route_target_overlay()
 	_update_world_target_overlay()
+	_refresh_toggle_button_states()
 	if _inflight_drag_passthrough_active:
 		_sync_inflight_drag_passthrough()
 
@@ -191,6 +222,7 @@ func _on_Player_Target_Selected(target_node):
 		var camera = GlobalRefs.main_camera
 		if is_instance_valid(camera) and camera.get_camera_mode() == 1 and target_node is Spatial:  # TARGET_TRACKING
 			camera.set_look_at_target(target_node)
+		_refresh_toggle_button_states()
 	else:
 		_on_Player_Target_Deselected()
 
@@ -206,6 +238,7 @@ func _on_Player_Target_Deselected():
 	var camera = GlobalRefs.main_camera
 	if is_instance_valid(camera) and camera.get_camera_mode() == 1:  # TARGET_TRACKING
 		camera.set_camera_mode(0)  # ORBIT
+	_refresh_toggle_button_states()
 
 
 func _on_agent_despawning(agent_body) -> void:
@@ -314,13 +347,21 @@ func _on_ButtonCamera_pressed() -> void:
 	camera.toggle_camera_mode()
 	
 	# If switching to target tracking mode, set the look_at_target
-	if camera.get_camera_mode() == 1:  # TARGET_TRACKING = 1
+	if camera.get_camera_mode() == CAMERA_MODE_TARGET_TRACKING:
 		if _current_target is Spatial and is_instance_valid(_current_target):
 			camera.set_look_at_target(_current_target)
 		else:
 			# No target selected, switch back to orbit mode
 			camera.set_camera_mode(0)  # ORBIT = 0
 			print("Camera: No target selected for tracking mode.")
+	_refresh_toggle_button_states()
+
+
+func _connect_overlay_toggle_button(button: TextureButton, method_name: String) -> void:
+	if not is_instance_valid(button):
+		return
+	if not button.is_connected("pressed", self, method_name):
+		button.connect("pressed", self, method_name)
 
 
 func _register_inflight_drag_controls() -> void:
@@ -577,6 +618,7 @@ func _on_ButtonReturnToMenu_pressed() -> void:
 func _on_ButtonFreeFlight_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_free_flight_toggled")
+	_refresh_toggle_button_states()
 
 
 func _on_ButtonStop_pressed():
@@ -587,16 +629,37 @@ func _on_ButtonStop_pressed():
 func _on_ButtonOrbit_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_orbit_pressed")
+	_refresh_toggle_button_states()
 
 
 func _on_ButtonApproach_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_approach_pressed")
+	_refresh_toggle_button_states()
 
 
 func _on_ButtonFlee_pressed():
 	if EventBus:
 		EventBus.emit_signal("player_flee_pressed")
+	_refresh_toggle_button_states()
+
+
+func _on_ButtonOverlayStructures_pressed() -> void:
+	_overlay_structures_enabled = not _overlay_structures_enabled
+	_refresh_toggle_button_states()
+	_update_world_target_overlay()
+
+
+func _on_ButtonOverlayStellar_pressed() -> void:
+	_overlay_stellar_enabled = not _overlay_stellar_enabled
+	_refresh_toggle_button_states()
+	_update_world_target_overlay()
+
+
+func _on_ButtonOverlayJump_pressed() -> void:
+	_overlay_jump_enabled = not _overlay_jump_enabled
+	_refresh_toggle_button_states()
+	_update_route_target_overlay()
 
 func _on_ButtonInteract_pressed():
 	if EventBus:
@@ -711,6 +774,126 @@ func _get_debug_window() -> Node:
 	if not is_instance_valid(parent_node):
 		return null
 	return parent_node.get_node_or_null("DebugWindow")
+
+
+func _get_player_controller() -> Node:
+	var player_agent = GlobalRefs.player_agent_body
+	if not is_instance_valid(player_agent):
+		return null
+	return player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+
+
+func _is_player_free_flight_active() -> bool:
+	var player_controller = _get_player_controller()
+	return is_instance_valid(player_controller) and player_controller.has_method("is_free_flight_active") and player_controller.is_free_flight_active()
+
+
+func _get_player_navigation_command_type() -> int:
+	var player_controller = _get_player_controller()
+	if is_instance_valid(player_controller) and player_controller.has_method("get_active_navigation_command_type"):
+		return int(player_controller.get_active_navigation_command_type())
+	return NAV_COMMAND_IDLE
+
+
+func _is_camera_target_follow_active() -> bool:
+	var camera = GlobalRefs.main_camera if is_instance_valid(GlobalRefs.main_camera) else _main_camera
+	if not is_instance_valid(camera):
+		return false
+	if not camera.has_method("get_camera_mode") or camera.get_camera_mode() != CAMERA_MODE_TARGET_TRACKING:
+		return false
+	if not camera.has_method("get_look_at_target"):
+		return true
+	var look_at_target = camera.get_look_at_target()
+	return look_at_target is Spatial and is_instance_valid(look_at_target)
+
+
+func _refresh_toggle_button_states() -> void:
+	_apply_button_toggle_state(button_overlay_structures, _overlay_structures_enabled)
+	_apply_button_toggle_state(button_overlay_stellar, _overlay_stellar_enabled)
+	_apply_button_toggle_state(button_overlay_jump, _overlay_jump_enabled)
+
+	var is_free_flight_active = _is_player_free_flight_active()
+	var active_navigation_command_type = _get_player_navigation_command_type()
+	_apply_button_toggle_state(button_manual_flight, is_free_flight_active)
+	_apply_button_toggle_state(button_orbit, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_ORBIT)
+	_apply_button_toggle_state(button_approach, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_APPROACH)
+	_apply_button_toggle_state(button_flee, not is_free_flight_active and active_navigation_command_type == NAV_COMMAND_FLEE)
+	_apply_button_toggle_state(button_camera, _is_camera_target_follow_active())
+
+
+func _apply_button_toggle_state(button: TextureButton, is_active: bool) -> void:
+	if not is_instance_valid(button):
+		return
+	button.modulate = BUTTON_ACTIVE_MODULATE if is_active else BUTTON_INACTIVE_MODULATE
+
+
+func _get_world_rendering_node() -> Node:
+	var scene_root = get_tree().current_scene
+	if not is_instance_valid(scene_root):
+		return null
+	return scene_root.get_node_or_null("WorldRendering")
+
+
+func _is_projected_target_center_fade_enabled() -> bool:
+	var world_rendering = _get_world_rendering_node()
+	if not is_instance_valid(world_rendering):
+		return false
+	return bool(world_rendering.get("projected_target_center_fade_enabled"))
+
+
+func _get_projected_target_distance_fade_alpha(screen_pos: Vector2, viewport_rect: Rect2) -> float:
+	if not _is_projected_target_center_fade_enabled():
+		return 1.0
+	var viewport_center = viewport_rect.position + (viewport_rect.size / 2.0)
+	var max_distance = max((viewport_rect.size / 2.0).length(), 1.0)
+	var normalized_distance = clamp(screen_pos.distance_to(viewport_center) / max_distance, 0.0, 1.0)
+	return _compute_projected_target_distance_fade_alpha(normalized_distance)
+
+
+func _compute_projected_target_distance_fade_alpha(normalized_distance: float) -> float:
+	var safe_normalized_distance = clamp(normalized_distance, 0.0, 1.0)
+	return lerp(1.0, PROJECTED_TARGET_EDGE_ALPHA, pow(safe_normalized_distance, PROJECTED_TARGET_EDGE_POW))
+
+
+func _apply_projected_target_distance_fade(button: Control, fade_alpha: float) -> void:
+	if is_instance_valid(button) and button.has_method("set_distance_fade_alpha"):
+		button.call("set_distance_fade_alpha", fade_alpha)
+
+
+func _get_projected_target_overlay_kind(target_ref) -> String:
+	if _is_route_target(target_ref):
+		return OVERLAY_KIND_JUMP
+	if not (target_ref is Node and is_instance_valid(target_ref)):
+		return ""
+	if target_ref.is_in_group("jump_point"):
+		return OVERLAY_KIND_JUMP
+	if _is_stellar_target(target_ref):
+		return OVERLAY_KIND_STELLAR
+	return OVERLAY_KIND_STRUCTURES
+
+
+func _is_projected_target_overlay_enabled(overlay_kind: String) -> bool:
+	match overlay_kind:
+		OVERLAY_KIND_STRUCTURES:
+			return _overlay_structures_enabled
+		OVERLAY_KIND_STELLAR:
+			return _overlay_stellar_enabled
+		OVERLAY_KIND_JUMP:
+			return _overlay_jump_enabled
+		_:
+			return true
+
+
+func _is_stellar_target(target_node: Node) -> bool:
+	if not (target_node is StaticBody):
+		return false
+	if target_node.is_in_group("dockable_station") or target_node.is_in_group("jump_point"):
+		return false
+	var lower_name = str(target_node.name).to_lower()
+	for token in ["star", "planet", "moon", "sun"]:
+		if lower_name.find(token) != -1:
+			return true
+	return false
 
 
 # --- Combat HUD Functions (stubs — CombatSystem removed, rebuild later) ---
@@ -883,6 +1066,12 @@ func _update_route_target_overlay() -> void:
 		var route_target = button.target_ref
 		if not _is_route_target(route_target):
 			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
+			continue
+		var overlay_kind = _get_projected_target_overlay_kind(route_target)
+		if not _is_projected_target_overlay_enabled(overlay_kind):
+			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
 			continue
 		var target_world_position: Vector3 = _get_target_world_position(route_target)
 		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
@@ -892,6 +1081,9 @@ func _update_route_target_overlay() -> void:
 		button.visible = is_in_front and is_on_screen
 		if button.visible:
 			button.rect_position = screen_pos - (button.rect_size / 2.0)
+			_apply_projected_target_distance_fade(button, _get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
+		else:
+			_apply_projected_target_distance_fade(button, 1.0)
 
 
 func _collect_world_projected_targets() -> Array:
@@ -937,6 +1129,12 @@ func _update_world_target_overlay() -> void:
 		var target_node = button.target_ref
 		if not (target_node is Spatial and is_instance_valid(target_node)):
 			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
+			continue
+		var overlay_kind = _get_projected_target_overlay_kind(target_node)
+		if not _is_projected_target_overlay_enabled(overlay_kind):
+			button.visible = false
+			_apply_projected_target_distance_fade(button, 1.0)
 			continue
 		var target_world_position: Vector3 = _get_target_world_position(target_node)
 		var target_dir = (target_world_position - _main_camera.global_transform.origin).normalized()
@@ -946,6 +1144,9 @@ func _update_world_target_overlay() -> void:
 		button.visible = is_in_front and is_on_screen
 		if button.visible:
 			button.rect_position = screen_pos - (button.rect_size / 2.0)
+			_apply_projected_target_distance_fade(button, _get_projected_target_distance_fade_alpha(screen_pos, viewport_rect))
+		else:
+			_apply_projected_target_distance_fade(button, 1.0)
 
 
 func _get_route_target_selection_key() -> String:

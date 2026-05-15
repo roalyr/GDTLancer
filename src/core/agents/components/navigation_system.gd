@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: navigation_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-14 03:05:12
+#
+
 # File: res://core/agents/components/navigation_system.gd
 # Version: 3.0 - RigidBody physics with thrust-based 6DOF flight.
 
@@ -113,6 +121,10 @@ func set_command_align_to(direction: Vector3):
 		set_command_idle()
 		return
 	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
+
+
+func get_current_command_type() -> int:
+	return int(_current_command.get("type", CommandType.IDLE))
 
 
 # --- Main Update Logic (Called from AgentBody._integrate_forces) ---

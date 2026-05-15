@@ -59,6 +59,7 @@ Button/styles/normal = SubResource( 7 )
 Button/styles/pressed = SubResource( 7 )
 HBoxContainer/constants/separation = 40
 ItemList/fonts/font = SubResource( 1 )
+Label/colors/font_color_shadow = Color( 0, 0, 0, 0.827451 )
 Label/fonts/font = SubResource( 2 )
 RichTextLabel/fonts/normal_font = SubResource( 2 )
 TabContainer/fonts/font = SubResource( 2 )

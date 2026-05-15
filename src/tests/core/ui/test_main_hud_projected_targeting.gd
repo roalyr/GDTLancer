@@ -13,8 +13,11 @@ var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
 var ProjectedTargetBracketScene = load("res://scenes/ui/hud/projected_target_bracket.tscn")
 var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
 var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
+var NavigationSystemScript = load("res://src/core/agents/components/navigation_system.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
 var AgentScript = load("res://src/core/agents/agent.gd")
+var PlayerControllerShipScript = load("res://src/modules/piloting/player_controller_ship.gd")
+var StateFreeFlightScript = load("res://src/modules/piloting/player_input_states/state_free_flight.gd")
 
 
 func after_each():
@@ -74,6 +77,156 @@ func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_ex
 	assert_has(targets, npc, "NPC agents should get projected HUD targets.")
 	assert_false(targets.has(player), "The player agent should not get a self-targeting HUD bracket.")
 	assert_false(targets.has(jump_point), "Legacy physical jump points should not get projected HUD brackets.")
+
+
+func test_navigation_system_accessor_returns_current_command_type() -> void:
+	var navigation_system = autofree(NavigationSystemScript.new())
+	navigation_system._current_command = {"type": navigation_system.CommandType.APPROACH}
+
+	assert_eq(
+		navigation_system.get_current_command_type(),
+		navigation_system.CommandType.APPROACH,
+		"NavigationSystem should expose the active command type through the HUD-safe accessor."
+	)
+
+	navigation_system._current_command = {}
+	assert_eq(
+		navigation_system.get_current_command_type(),
+		navigation_system.CommandType.IDLE,
+		"NavigationSystem should fall back to IDLE when no command is active."
+	)
+
+
+func test_player_controller_accessors_report_free_flight_and_navigation_command() -> void:
+	var controller = autofree(PlayerControllerShipScript.new())
+	controller._current_input_state = autofree(StateFreeFlightScript.new())
+
+	var agent_body = RigidBody.new()
+	add_child_autofree(agent_body)
+	var navigation_system = NavigationSystemScript.new()
+	navigation_system.name = "NavigationSystem"
+	navigation_system._current_command = {"type": navigation_system.CommandType.FLEE}
+	agent_body.add_child(navigation_system)
+	controller.agent_body = agent_body
+
+	assert_true(controller.is_free_flight_active(), "PlayerControllerShip should expose free-flight state through the new accessor.")
+	assert_eq(
+		controller.get_active_navigation_command_type(),
+		navigation_system.CommandType.FLEE,
+		"PlayerControllerShip should surface the live NavigationSystem command type through the new accessor."
+	)
+
+	controller._current_input_state = null
+	assert_false(controller.is_free_flight_active(), "Free-flight accessor should turn off once the free-flight state is no longer active.")
+
+
+func test_main_hud_overlay_classification_and_filtering_track_requested_categories() -> void:
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		Vector3(0, 0, -100)
+	)
+	var stellar = StaticBody.new()
+	stellar.name = "Planet Elace A"
+	add_child_autofree(stellar)
+	var structure = StaticBody.new()
+	structure.name = "Relay Station"
+	structure.add_to_group("dockable_station")
+	add_child_autofree(structure)
+
+	assert_eq(hud._get_projected_target_overlay_kind(route_target), hud.OVERLAY_KIND_JUMP, "Jump routes should classify into the Jump overlay bucket.")
+	assert_eq(hud._get_projected_target_overlay_kind(stellar), hud.OVERLAY_KIND_STELLAR, "Named celestial bodies should classify into the Stellar overlay bucket.")
+	assert_eq(hud._get_projected_target_overlay_kind(structure), hud.OVERLAY_KIND_STRUCTURES, "Stations and other non-celestial world targets should stay in the Structures overlay bucket.")
+
+	hud._on_ButtonOverlayStructures_pressed()
+	assert_false(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STRUCTURES), "Structures overlay toggle should disable the Structures bucket when switched off.")
+	assert_true(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STELLAR), "Disabling Structures must not disable Stellar overlays.")
+	hud._on_ButtonOverlayStructures_pressed()
+	assert_true(hud._is_projected_target_overlay_enabled(hud.OVERLAY_KIND_STRUCTURES), "Structures overlay toggle should re-enable the Structures bucket on the next press.")
+
+
+func test_main_hud_refreshes_persistent_button_states_from_live_owners() -> void:
+	var camera = _create_toggle_state_camera()
+	GlobalRefs.main_camera = camera
+
+	var player_body = RigidBody.new()
+	player_body.name = "Player"
+	add_child_autofree(player_body)
+	var controller = _create_toggle_state_controller()
+	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
+	player_body.add_child(controller)
+	GlobalRefs.player_agent_body = player_body
+
+	var tracked_target = Spatial.new()
+	add_child_autofree(tracked_target)
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(hud.button_overlay_structures.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Overlay toggles should start in the ON visual state.")
+	assert_eq(hud.button_overlay_stellar.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Overlay toggles should start in the ON visual state.")
+	assert_eq(hud.button_overlay_jump.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Overlay toggles should start in the ON visual state.")
+
+	controller.free_flight_active = true
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_IDLE
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_manual_flight.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Manual Flight should highlight while free flight is active.")
+	assert_eq(hud.button_orbit.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Orbit should remain inactive while free flight owns piloting.")
+
+	controller.free_flight_active = false
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_ORBIT
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_manual_flight.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Manual Flight should clear once free flight is inactive.")
+	assert_eq(hud.button_orbit.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Orbit should highlight while orbit command is active.")
+
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_APPROACH
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_approach.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Approach should highlight while the approach command is active.")
+	assert_eq(hud.button_orbit.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Only the active persistent command should stay highlighted.")
+
+	controller.nav_command_type = MainHUDScript.NAV_COMMAND_FLEE
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_flee.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Flee should highlight while the flee command is active.")
+	assert_eq(hud.button_approach.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Approach should clear after the command changes.")
+
+	camera.camera_mode = MainHUDScript.CAMERA_MODE_TARGET_TRACKING
+	camera.look_target = tracked_target
+	hud._refresh_toggle_button_states()
+	assert_eq(hud.button_camera.modulate, MainHUDScript.BUTTON_ACTIVE_MODULATE, "Camera button should highlight while target-follow mode is active.")
+
+	hud._on_ButtonOverlayJump_pressed()
+	assert_eq(hud.button_overlay_jump.modulate, MainHUDScript.BUTTON_INACTIVE_MODULATE, "Overlay buttons should use the OFF visual state after their toggle is disabled.")
+
+
+func test_main_hud_projected_target_distance_fade_alpha_matches_center_and_edge_targets() -> void:
+	var hud = autofree(MainHUDScript.new())
+
+	assert_almost_eq(
+		hud._compute_projected_target_distance_fade_alpha(0.0),
+		1.0,
+		0.0001,
+		"Projected targets should stay fully opaque at screen center."
+	)
+	assert_almost_eq(
+		hud._compute_projected_target_distance_fade_alpha(1.0),
+		0.1,
+		0.0001,
+		"Projected targets should retain roughly 10% opacity at the screen edge."
+	)
+	assert_true(
+		hud._compute_projected_target_distance_fade_alpha(0.5) < 1.0 and hud._compute_projected_target_distance_fade_alpha(0.5) > 0.1,
+		"Projected target fade should interpolate between center and edge opacity."
+	)
 
 
 func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_routes() -> void:
@@ -441,6 +594,25 @@ func _create_external_rotation_camera() -> Camera:
 	camera.set_script(script)
 	add_child_autofree(camera)
 	return camera
+
+
+func _create_toggle_state_camera() -> Camera:
+	var script = GDScript.new()
+	script.source_code = "extends Camera\nvar camera_mode = 0\nvar look_target = null\nfunc get_camera_mode() -> int:\n\treturn camera_mode\nfunc get_look_at_target():\n\treturn look_target\n"
+	script.reload()
+	var camera = Camera.new()
+	camera.set_script(script)
+	add_child_autofree(camera)
+	return camera
+
+
+func _create_toggle_state_controller() -> Node:
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar free_flight_active = false\nvar nav_command_type = 0\nfunc is_free_flight_active() -> bool:\n\treturn free_flight_active\nfunc get_active_navigation_command_type() -> int:\n\treturn nav_command_type\n"
+	script.reload()
+	var controller = Node.new()
+	controller.set_script(script)
+	return controller
 
 
 func _create_mock_player_input_handler(stop_camera_on_release: bool = true) -> Node:

@@ -5065,35 +5065,23 @@ func _ready():
 
 [sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 2 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = 1.0
-shader_param/lum_weight_r = 1.0
-shader_param/lum_weight_g = 0.859
-shader_param/lum_weight_b = -0.607
-shader_param/color_power_r = 0.922
-shader_param/color_power_g = 1.124
-shader_param/color_power_b = 1.021
-shader_param/color_multiplier_r = 1.451
-shader_param/color_multiplier_g = 1.971
-shader_param/color_multiplier_b = 1.265
-shader_param/albedo = Color( 0, 0.0509804, 0.0509804, 1 )
-shader_param/albedo_rim = Color( 0.439216, 0.360784, 0, 1 )
-shader_param/albedo_ambient = Color( 0.027451, 0.12549, 0.0235294, 1 )
+shader_param/albedo = Color( 0, 0.0705882, 0.0705882, 1 )
+shader_param/albedo_rim = Color( 1, 0.376471, 0, 1 )
+shader_param/albedo_ambient = Color( 0.027451, 0.0901961, 0, 1 )
 shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 4.0
-shader_param/normal_detail_factor = 2.0
-shader_param/normal_strength = 0.4
-shader_param/normal_detail_clamp = 0.951
-shader_param/rim_factor = 1.2
-shader_param/rim_strength = 2.0
-shader_param/rim_exponent = 0.6
-shader_param/rim_ambient_exponent = 2.0
+shader_param/normal_detail_power = 5.0
+shader_param/normal_detail_factor = 2.372
+shader_param/normal_strength = 0.37
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.307
+shader_param/rim_strength = 2.041
+shader_param/rim_exponent = 0.476
+shader_param/rim_ambient_exponent = 4.479
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.2
 shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -2.0
+shader_param/normal_detail_uv1_scale = -3.569
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
@@ -5114,35 +5102,23 @@ noise = SubResource( 3 )
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = ExtResource( 2 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = 1.181
-shader_param/lum_weight_r = -0.308
-shader_param/lum_weight_g = 0.121
-shader_param/lum_weight_b = 0.851
-shader_param/color_power_r = 1.228
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.27
-shader_param/color_multiplier_g = 1.294
-shader_param/color_multiplier_b = 1.041
-shader_param/albedo = Color( 0.176471, 0.0313726, 0, 1 )
-shader_param/albedo_rim = Color( 0, 0.486275, 1, 1 )
-shader_param/albedo_ambient = Color( 0.00392157, 0.027451, 0.0196078, 1 )
-shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 4.985
-shader_param/normal_detail_factor = 0.409
-shader_param/normal_strength = 1.343
+shader_param/albedo = Color( 0.0745098, 0.0117647, 0, 1 )
+shader_param/albedo_rim = Color( 0, 0.0156863, 0.0352941, 1 )
+shader_param/albedo_ambient = Color( 0.00392157, 0.054902, 0, 1 )
+shader_param/normal_intensity = 0.652
+shader_param/normal_detail_power = 2.52
+shader_param/normal_detail_factor = 0.18
+shader_param/normal_strength = 2.069
 shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 0.9
-shader_param/rim_strength = 0.505
-shader_param/rim_exponent = 0.481
-shader_param/rim_ambient_exponent = 1.953
+shader_param/rim_factor = 0.485
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 5.0
+shader_param/rim_ambient_exponent = 4.564
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.2
 shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -0.5
+shader_param/normal_detail_uv1_scale = -2.506
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
@@ -5152,35 +5128,23 @@ shader_param/normal_noise = SubResource( 4 )
 
 [sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 2 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = 1.0
-shader_param/lum_weight_r = 1.0
-shader_param/lum_weight_g = 1.0
-shader_param/lum_weight_b = 1.0
-shader_param/color_power_r = 1.0
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.0
-shader_param/color_multiplier_g = 1.0
-shader_param/color_multiplier_b = 1.0
-shader_param/albedo = Color( 0, 0.164706, 0.105882, 1 )
-shader_param/albedo_rim = Color( 0, 0, 0, 1 )
-shader_param/albedo_ambient = Color( 0, 0, 0.0313726, 1 )
+shader_param/albedo = Color( 0, 0.0431373, 0.219608, 1 )
+shader_param/albedo_rim = Color( 0.0588235, 0.109804, 0.156863, 1 )
+shader_param/albedo_ambient = Color( 0.0117647, 0.0509804, 0.0627451, 1 )
 shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 2.17
-shader_param/normal_detail_factor = 0.248
-shader_param/normal_strength = -0.184
+shader_param/normal_detail_power = 5.0
+shader_param/normal_detail_factor = 0.4
+shader_param/normal_strength = 0.2
 shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 1.0
-shader_param/rim_strength = 1.0
-shader_param/rim_exponent = 1.0
-shader_param/rim_ambient_exponent = 1.0
+shader_param/rim_factor = 1.496
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 5.0
+shader_param/rim_ambient_exponent = 2.143
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.2
 shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -0.28
+shader_param/normal_detail_uv1_scale = -0.254
 shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
 shader_param/scale_start = 100000.0
 shader_param/scale_end_mul = 100.0
@@ -5190,18 +5154,6 @@ shader_param/normal_noise = ExtResource( 6 )
 
 [sub_resource type="ShaderMaterial" id=6]
 shader = ExtResource( 2 )
-shader_param/vertex_mask_power = 1.0
-shader_param/vertex_mask_overlay = 0.0
-shader_param/albedo_strength = -1.242
-shader_param/lum_weight_r = -0.193
-shader_param/lum_weight_g = 1.0
-shader_param/lum_weight_b = 1.0
-shader_param/color_power_r = 1.0
-shader_param/color_power_g = 1.0
-shader_param/color_power_b = 1.0
-shader_param/color_multiplier_r = 1.0
-shader_param/color_multiplier_g = 1.0
-shader_param/color_multiplier_b = 0.932
 shader_param/albedo = Color( 0, 0, 0.0117647, 1 )
 shader_param/albedo_rim = Color( 0.45098, 0.45098, 0.45098, 1 )
 shader_param/albedo_ambient = Color( 0.00392157, 0.0156863, 0.0392157, 1 )
@@ -5233,92 +5185,98 @@ __meta__ = {
 }
 
 [node name="ClusterA" type="Spatial" parent="."]
-transform = Transform( -0.207212, 0.408861, 0.446669, -0.479269, -0.411242, 0.105134, 0.339467, -0.331031, 0.421079, 276963, -146078, -455377 )
+transform = Transform( -0.207212, 0.408861, 0.446669, -0.479269, -0.411242, 0.105134, 0.339467, -0.331031, 0.421079, 8655.56, -193353, -364406 )
 
 [node name="spheroid" parent="ClusterA" instance=ExtResource( 1 )]
-transform = Transform( -11468.5, 71096, 61539.7, 24198.7, -50095.1, 149348, 126577, 11236.1, -10531.7, 183591, 14648.6, -26881.8 )
+transform = Transform( -11468.5, 71096, 61539.7, 24198.7, -50095.1, 149348, 126577, 11236.1, -10531.7, -199615, 196235, -325802 )
 
 [node name="Spheroid" parent="ClusterA/spheroid" index="0"]
 material_override = SubResource( 1 )
 
 [node name="spheroid2" parent="ClusterA" instance=ExtResource( 1 )]
-transform = Transform( 53962.5, 102106, 54519.2, -89588.9, -26699, 172308, 98294.6, -143237, 66075.4, 106986, 150299, 108379 )
+transform = Transform( 53962.5, 102106, 54519.2, -89588.9, -26699, 172308, 98294.6, -143237, 66075.4, -111196, 190454, -442150 )
 
 [node name="Spheroid" parent="ClusterA/spheroid2" index="0"]
 transform = Transform( 0.829987, 0.00768842, -0.581861, 0.238535, -1.00958, 0.0232532, -0.475861, -0.377517, -0.78696, -0.134238, -0.31044, -0.475308 )
 material_override = SubResource( 1 )
 
 [node name="spheroid3" parent="ClusterA" instance=ExtResource( 1 )]
-transform = Transform( 194042, -38851.3, -149026, 29923.4, 187949, -42734.6, 160582, 11923.3, 188041, -1195.41, -19458.4, -64407 )
+transform = Transform( 194042, -38851.3, -149026, 29923.3, 187949, -42734.6, 160582, 11923.3, 188041, -69535.5, 103105, -201030 )
 
 [node name="Spheroid" parent="ClusterA/spheroid3" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
 [node name="spheroid4" parent="ClusterA" instance=ExtResource( 1 )]
-transform = Transform( -29453.9, -177194, 93306.5, -24422.3, -90428.1, -179438, 198765, -37368.5, -8220.91, -240660, 73110, 172710 )
+transform = Transform( -29453.9, -177194, 93306.5, -24422.3, -90428.1, -179438, 198765, -37368.5, -8220.87, -259486, 84157.8, -257839 )
 
 [node name="Spheroid" parent="ClusterA/spheroid4" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
+[node name="ClusterA2" type="Spatial" parent="."]
+transform = Transform( -0.499423, -0.0293612, -0.653852, -0.671697, 0.240053, 0.537996, 0.115365, 0.913515, -0.194197, 85456.2, -1936.12, -322450 )
+
+[node name="spheroid" parent="ClusterA2" instance=ExtResource( 1 )]
+transform = Transform( -11468.5, 71096, 61539.7, 24198.7, -50095.1, 149348, 126577, 11236.1, -10531.7, -123395, -47571.6, -178471 )
+
+[node name="Spheroid" parent="ClusterA2/spheroid" index="0"]
+material_override = SubResource( 1 )
+
+[node name="spheroid2" parent="ClusterA2" instance=ExtResource( 1 )]
+transform = Transform( -25264.1, 112869, 115233, -130035, -16147.6, 95796.5, 39008, -136798, 145844, 53942.3, -199760, -287988 )
+
+[node name="Spheroid" parent="ClusterA2/spheroid2" index="0"]
+transform = Transform( 0.829987, 0.00768842, -0.581861, 0.238535, -1.00958, 0.0232532, -0.475861, -0.377517, -0.78696, -0.134238, -0.31044, -0.475308 )
+material_override = SubResource( 1 )
+
+[node name="spheroid3" parent="ClusterA2" instance=ExtResource( 1 )]
+transform = Transform( 94972.3, -190368, -74849.5, 206737, 55567.3, 30268, 13823.4, -83883.3, 232327, -71718.6, 105172, -204678 )
+
+[node name="Spheroid" parent="ClusterA2/spheroid3" index="0"]
+transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
+material_override = SubResource( 1 )
+
+[node name="spheroid4" parent="ClusterA2" instance=ExtResource( 1 )]
+transform = Transform( -29453.9, -177194, 93306.4, -24422.3, -90428.1, -179438, 198765, -37368.5, -8220.87, -112326, 25224.5, -216845 )
+
+[node name="Spheroid" parent="ClusterA2/spheroid4" index="0"]
+transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
+material_override = SubResource( 1 )
+
 [node name="ClusterB" type="Spatial" parent="."]
-transform = Transform( 0.355427, -0.874839, 0.815478, -1.39761, -0.419515, -0.908569, 1.13696, -0.242205, -1.37179, 324035, 0, 260115 )
-
-[node name="nebula_1" parent="ClusterB" instance=ExtResource( 4 )]
-transform = Transform( -10116.3, 26664.3, 0, -89920.3, -10116.3, 0, 0, 0, 50000, 0, 0, 0 )
-
-[node name="nebula_1" parent="ClusterB/nebula_1" index="0"]
-material_override = SubResource( 2 )
-
-[node name="nebula_2" parent="ClusterB" instance=ExtResource( 4 )]
-transform = Transform( -48599.5, 2461.52, 82797.9, -12921.2, 95399.7, -17148.7, -82622.1, -5872, -47907.6, 0, 0, 30720 )
-
-[node name="nebula_1" parent="ClusterB/nebula_2" index="0"]
-material_override = SubResource( 2 )
-
-[node name="nebula_3" parent="ClusterB" instance=ExtResource( 4 )]
-transform = Transform( 57928.4, 38551.4, -145443, 21777.7, -155931, -130709, -161322, 7601.24, -57458.6, 30372, -5950.66, 90109.7 )
-
-[node name="nebula_1" parent="ClusterB/nebula_3" index="0"]
-material_override = SubResource( 2 )
+transform = Transform( -0.0725186, -0.839348, 0.363187, -1.23566, 0.153811, 0.952019, -0.990386, -0.130444, -1.21439, 140103, -119461, 557084 )
 
 [node name="nebula_4" parent="ClusterB" instance=ExtResource( 4 )]
-transform = Transform( -107170, -58281.8, -212811, 376972, 76889.5, -260853, 120846, -122810, 52565.2, 54944.6, -4891.06, 171414 )
+transform = Transform( -81020.7, 80145.8, -38206.3, 113494, -6147.82, -84651.2, -59422.2, -91690.6, -61193.8, 11879, 106178, 141110 )
 
 [node name="nebula_1" parent="ClusterB/nebula_4" index="0"]
+transform = Transform( 1, -1.19209e-07, 0, 4.47035e-08, 1, 0, 3.72529e-08, -1.78814e-07, 1, -0.313653, -0.196829, 1.16247 )
+material_override = SubResource( 2 )
+
+[node name="nebula_5" parent="ClusterB" instance=ExtResource( 4 )]
+transform = Transform( 145936, -124384, 1565.87, 1307.19, 80681.7, -190893, 111065, 135910, 83109.8, -112776, -220433, 59064.4 )
+
+[node name="nebula_1" parent="ClusterB/nebula_5" index="0"]
 material_override = SubResource( 2 )
 
 [node name="ClusterC" type="Spatial" parent="."]
 transform = Transform( 0.458892, 0.0579308, -0.281655, 0.0222194, 0.521709, 0.143506, 0.286692, -0.133161, 0.439709, -482132, -4545.31, 218681 )
 
-[node name="nebula_2" parent="ClusterC" instance=ExtResource( 5 )]
-transform = Transform( 50000, 0, 0, 0, 50000, 0, 0, 0, 50000, 0, 0, 0 )
-visible = false
-
-[node name="nebula_2" parent="ClusterC/nebula_2" index="0"]
-material_override = SubResource( 5 )
-
-[node name="nebula_3" parent="ClusterC" instance=ExtResource( 5 )]
-transform = Transform( -63258.4, 164952, -54942.7, -79243.2, 24685.8, 165350, 154752, 80068.3, 62210.7, 0, 0, 0 )
-
-[node name="nebula_2" parent="ClusterC/nebula_3" index="0"]
-material_override = SubResource( 5 )
-
 [node name="nebula_4" parent="ClusterC" instance=ExtResource( 5 )]
-transform = Transform( 161317, 407884, -141316, -59683.8, 170488, 423952, 427525, -130106, 112507, 0, 0, 0 )
+transform = Transform( -719696, 448823, -306724, 541547, 547534, -469486, -47421.8, -558792, -706393, 0, 0.03125, 0 )
 
 [node name="nebula_2" parent="ClusterC/nebula_4" index="0"]
 material_override = SubResource( 5 )
 
 [node name="nebula_5" parent="ClusterC" instance=ExtResource( 5 )]
-transform = Transform( -458110, -920536, -95565.2, 861090, -463036, 332426, -339183, 67783.7, 973008, 0, 0, 0 )
+transform = Transform( -527606, -1.06018e+06, -110063, 991720, -533280, 382856, -390638, 78066.6, 1.12062e+06, 0, 0, 0 )
 
 [node name="nebula_2" parent="ClusterC/nebula_5" index="0"]
 material_override = SubResource( 5 )
 
 [node name="Cluster D" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -737688, 373430, -364971 )
+transform = Transform( -0.859772, -0.0592988, -0.241692, -0.122096, -0.656957, 0.595516, -0.21685, 0.605004, 0.622965, -554998, 284016, -225420 )
 
 [node name="nebula_3" parent="Cluster D" instance=ExtResource( 7 )]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
@@ -5336,12 +5294,12 @@ material_override = SubResource( 6 )
 [editable path="ClusterA/spheroid2"]
 [editable path="ClusterA/spheroid3"]
 [editable path="ClusterA/spheroid4"]
-[editable path="ClusterB/nebula_1"]
-[editable path="ClusterB/nebula_2"]
-[editable path="ClusterB/nebula_3"]
+[editable path="ClusterA2/spheroid"]
+[editable path="ClusterA2/spheroid2"]
+[editable path="ClusterA2/spheroid3"]
+[editable path="ClusterA2/spheroid4"]
 [editable path="ClusterB/nebula_4"]
-[editable path="ClusterC/nebula_2"]
-[editable path="ClusterC/nebula_3"]
+[editable path="ClusterB/nebula_5"]
 [editable path="ClusterC/nebula_4"]
 [editable path="ClusterC/nebula_5"]
 [editable path="Cluster D/nebula_3"]
@@ -5349,7 +5307,7 @@ material_override = SubResource( 6 )
 
 --- Start of ./scenes/ui/hud/main_hud.tscn ---
 
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://src/core/ui/main_hud/main_hud.gd" type="Script" id=1]
 [ext_resource path="res://assets/art/ui/controls/button_approach.png" type="Texture" id=2]
@@ -5366,8 +5324,11 @@ material_override = SubResource( 6 )
 [ext_resource path="res://assets/art/ui/controls/button_attack.png" type="Texture" id=13]
 [ext_resource path="res://src/core/ui/helpers/CenteredGrowingLabel.gd" type="Script" id=14]
 [ext_resource path="res://assets/art/ui/controls/button_dock.png" type="Texture" id=15]
+[ext_resource path="res://assets/art/ui/controls/button_planet.png" type="Texture" id=16]
+[ext_resource path="res://assets/art/ui/controls/button_system.png" type="Texture" id=17]
 [ext_resource path="res://assets/art/ui/controls/button_character.png" type="Texture" id=18]
 [ext_resource path="res://assets/art/ui/controls/button_ship.png" type="Texture" id=19]
+[ext_resource path="res://assets/art/ui/controls/button_structure.png" type="Texture" id=20]
 
 [node name="MainHUD" type="Control"]
 anchor_right = 1.0
@@ -5521,39 +5482,39 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonPlaceholder2" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+[node name="ButtonOverlayStructures" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 240.0
 margin_top = -1040.0
 margin_right = 340.0
 margin_bottom = -940.0
-texture_normal = ExtResource( 4 )
+texture_normal = ExtResource( 20 )
 expand = true
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonPlaceholder3" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+[node name="ButtonOverlayStellar" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_left = 120.0
 margin_top = -1040.0
 margin_right = 220.0
 margin_bottom = -940.0
-texture_normal = ExtResource( 4 )
+texture_normal = ExtResource( 16 )
 expand = true
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ButtonPlaceholder4" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
+[node name="ButtonOverlayJump" type="TextureButton" parent="ScreenControls/CenterLeftZone"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -1040.0
 margin_right = 100.0
 margin_bottom = -940.0
-texture_normal = ExtResource( 4 )
+texture_normal = ExtResource( 17 )
 expand = true
 __meta__ = {
 "_edit_lock_": true

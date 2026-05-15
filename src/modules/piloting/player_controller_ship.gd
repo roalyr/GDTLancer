@@ -3,7 +3,7 @@
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:43:42
+# LOG_REF: 2026-05-14 03:05:12
 #
 
 extends Node
@@ -239,6 +239,18 @@ func _get_current_target() -> RigidBody:
 	if is_instance_valid(_selected_target) and _selected_target is RigidBody:
 		return _selected_target as RigidBody
 	return null
+
+
+func is_free_flight_active() -> bool:
+	return _current_input_state is StateFreeFlight
+
+
+func get_active_navigation_command_type() -> int:
+	if is_instance_valid(agent_body):
+		var navigation_system = agent_body.get_node_or_null("NavigationSystem")
+		if is_instance_valid(navigation_system) and navigation_system.has_method("get_current_command_type"):
+			return navigation_system.get_current_command_type()
+	return 0
 
 
 func _is_route_target(target_ref) -> bool:
