@@ -66,7 +66,7 @@ void fragment()
 	// Fade near and far.
 	// TOFDO fade in too?
 	float dist = length(VERTEX);
-	float fade_out = clamp(smoothstep(fade_distance_far, 0.0, dist), 1e-6, 1.0); 
+	float fade_out = clamp(smoothstep(0.0, fade_distance_far, dist), 1e-6, 1.0); 
 	float fade = pow(fade_out, fade_power);
 	ALBEDO *= fade;
 }

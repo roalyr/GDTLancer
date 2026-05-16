@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_surface.tres" type="Material" id=1]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=2]
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_corona.tres" type="Material" id=3]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=4]
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_sprite.tres" type="Material" id=5]
+[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=6]
 
 [sub_resource type="SphereShape" id=1]
 radius = 5000.0
@@ -12,7 +13,22 @@ radius = 5000.0
 [sub_resource type="SphereMesh" id=2]
 
 [sub_resource type="SphereMesh" id=3]
-radial_segments = 32
+rings = 64
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 0.92549, 0.682353, 0.262745, 1 )
+shader_param/scale_near = 0.1
+shader_param/scale_peak = 0.2
+shader_param/scale_far = 0.05
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.25
+shader_param/intensity = 0.638
+shader_param/exponent = 3.0
 
 [sub_resource type="Shader" id=4]
 code = "shader_type spatial;
@@ -94,6 +110,12 @@ transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -7
 [node name="Plane" parent="ModelAdditional/Star_sprite_square_wide" index="0"]
 material_override = ExtResource( 5 )
 
+[node name="Star_sprite_square_wide_far" parent="ModelAdditional" instance=ExtResource( 2 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="ModelAdditional/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 8 )
+
 [node name="StarHalo" type="MeshInstance" parent="ModelAdditional"]
 transform = Transform( 15346.5, 6148.67, -226.985, -6095.09, 15108.6, -2819.9, -841.251, 2701.05, 16290.2, 0, 0, 0 )
 material_override = SubResource( 5 )
@@ -106,3 +128,4 @@ light_energy = 1.5
 omni_range = 100000.0
 
 [editable path="ModelAdditional/Star_sprite_square_wide"]
+[editable path="ModelAdditional/Star_sprite_square_wide_far"]
