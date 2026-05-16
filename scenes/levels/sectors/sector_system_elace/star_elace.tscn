@@ -17,7 +17,7 @@ rings = 64
 
 [sub_resource type="ShaderMaterial" id=8]
 shader = ExtResource( 6 )
-shader_param/albedo = Color( 0.92549, 0.682353, 0.262745, 1 )
+shader_param/albedo = Color( 1, 0.603922, 0.427451, 1 )
 shader_param/scale_near = 0.1
 shader_param/scale_peak = 0.2
 shader_param/scale_far = 0.05
@@ -26,8 +26,8 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
-shader_param/intensity = 0.638
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.531
 shader_param/exponent = 3.0
 
 [sub_resource type="Shader" id=4]

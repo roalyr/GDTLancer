@@ -4,19 +4,19 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "station_gamma"
-location_name = "Freeport Gamma"
-location_type = "station"
-position_in_zone = Vector3( 46000, -200, 500 )
-interaction_radius = 150.0
+template_id = "sector_system_vidr"
+location_name = "Vidr System"
+location_type = "system"
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_gamma/sector_gamma.tscn"
-global_position = Vector3( -140000, -100000, -190000 )
+global_position = Vector3( -150000, -260000, -330000 )
 is_procedural = false
 procedural_type = "deep_space"
 procedural_hints = {
 }
-sector_description = "Lawless freeport near a cold star. Rich propellant sources draw traders and pirates alike."
-connections = PoolStringArray( "station_delta", "station_epsilon" )
+sector_description = ""
+connections = PoolStringArray( "sector_system_lywin" )
 sector_type = "frontier"
 radiation_level = 0.15
 thermal_background_k = 250.0

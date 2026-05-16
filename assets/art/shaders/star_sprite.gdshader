@@ -17,7 +17,7 @@ uniform float distance_power : hint_range(0.1, 8.0) = 2.0;
 
 uniform float fade_distance_near = 1e5;
 uniform float fade_distance_far = 1e6;
-uniform float fade_power = .25;
+uniform float fade_power = .4;
 
 uniform float intensity : hint_range(0.0, 1.0) = 1.0;
 uniform float exponent : hint_range(0.0, 50.0, 0.1) = 3.0;

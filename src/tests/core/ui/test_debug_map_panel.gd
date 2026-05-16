@@ -103,6 +103,25 @@ func test_toggle_shows_panel():
 	assert_true(panel_node.visible, "Panel should be visible after F4 toggle")
 
 
+func test_opening_panel_uses_isolated_viewport_world_and_cleans_up_backdrop():
+	_show_panel()
+	assert_true(
+		_panel_instance._viewport.own_world,
+		"Debug map viewport should render in its own world so it does not inherit live gameplay starsphere content."
+	)
+	assert_not_null(
+		_panel_instance._map_nebula_holder,
+		"Opening the panel should create a dedicated nebula backdrop inside the map viewport."
+	)
+	var star_elace = _panel_instance._map_nebula_holder.get_node_or_null(
+		"Globalnebulas/SectorStars (clipped by near plane which is 10u)/Star Elace"
+	)
+	assert_not_null(star_elace, "The dedicated map backdrop should include the sector-star anchors.")
+	_close_panel_if_open()
+	assert_null(_panel_instance._map_nebula_holder, "Closing the panel should release the dedicated map backdrop.")
+	assert_null(_panel_instance._map_world_env, "Closing the panel should release the map world environment.")
+
+
 func test_populate_creates_sector_markers():
 	_panel_instance._populate_map()
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")

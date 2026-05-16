@@ -13,6 +13,6 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
+shader_param/fade_power = 0.4
 shader_param/intensity = 0.4
 shader_param/exponent = 3.0

@@ -64,6 +64,39 @@ func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
 	)
 	assert_eq(
 		elace_marker.transform.origin,
-		Constants.REFERENCE_ORIGIN - cob_template.global_position,
+		Constants.get_reference_origin_offset(cob_template.global_position),
 		"Elace should align with the starsphere reference origin in current-sector-local map space."
+	)
+
+
+func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
+	var cob_template = TemplateDatabase.locations["sector_system_cob"]
+	assert_not_null(cob_template, "Expected sector_system_cob template to load for backdrop-alignment test.")
+	_panel_instance._toggle_panel()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var cob_marker = map_content.get_node_or_null("Sector_sector_system_cob")
+	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
+	assert_not_null(cob_marker, "Expected sector_system_cob marker to exist for backdrop alignment test.")
+	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist for backdrop alignment test.")
+	var backdrop = _panel_instance._map_nebula_holder
+	assert_not_null(backdrop, "Opening the panel should create a dedicated nebula backdrop inside the map viewport.")
+	assert_eq(
+		backdrop.transform.origin,
+		Constants.get_reference_origin_offset(cob_template.global_position),
+		"The map nebula backdrop should use the same current-sector-local offset as the reference origin."
+	)
+	var star_root_path = "Globalnebulas/SectorStars (clipped by near plane which is 10u)"
+	var star_cob = backdrop.get_node_or_null("%s/Star Cob" % star_root_path)
+	var star_elace = backdrop.get_node_or_null("%s/Star Elace" % star_root_path)
+	assert_not_null(star_cob, "Expected Star Cob to exist in the dedicated map backdrop.")
+	assert_not_null(star_elace, "Expected Star Elace to exist in the dedicated map backdrop.")
+	assert_eq(
+		star_cob.global_transform.origin,
+		cob_marker.global_transform.origin,
+		"Star Cob in the backdrop should land on the same map-space position as the Cob sector marker."
+	)
+	assert_eq(
+		star_elace.global_transform.origin,
+		elace_marker.global_transform.origin,
+		"Star Elace in the backdrop should land on the same map-space position as the Elace sector marker."
 	)

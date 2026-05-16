@@ -191,6 +191,10 @@ const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_positi
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
 const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
 
+
+func get_reference_origin_offset(world_position: Vector3) -> Vector3:
+	return REFERENCE_ORIGIN - world_position
+
 # ---- CONTACT MANAGER ----
 const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5
 const DISPOSITION_HOSTILE_THRESHOLD: float = -0.5

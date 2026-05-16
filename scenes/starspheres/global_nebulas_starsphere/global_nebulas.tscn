@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=1]
 [ext_resource path="res://assets/art/shaders/complex_transparent_cloud_NLP.gdshader" type="Shader" id=2]
@@ -135,7 +135,7 @@ shader_param/normal_noise = ExtResource( 3 )
 
 [sub_resource type="ShaderMaterial" id=9]
 shader = ExtResource( 9 )
-shader_param/albedo = Color( 0.772549, 0.313726, 0.278431, 1 )
+shader_param/albedo = Color( 0.588235, 0.247059, 0.113725, 1 )
 shader_param/scale_near = 0.2
 shader_param/scale_peak = 0.6
 shader_param/scale_far = 0.1
@@ -144,13 +144,13 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
-shader_param/intensity = 0.4
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.799
 shader_param/exponent = 3.0
 
 [sub_resource type="ShaderMaterial" id=8]
 shader = ExtResource( 9 )
-shader_param/albedo = Color( 0.92549, 0.682353, 0.262745, 1 )
+shader_param/albedo = Color( 1, 0.603922, 0.427451, 1 )
 shader_param/scale_near = 0.1
 shader_param/scale_peak = 0.2
 shader_param/scale_far = 0.05
@@ -159,9 +159,39 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
-shader_param/intensity = 0.638
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.531
 shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=14]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0.796078, 0.188235, 0.141176, 1 )
+shader_param/scale_near = 0.2
+shader_param/scale_peak = 0.6
+shader_param/scale_far = 0.1
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.463
+shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=15]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 1, 0.964706, 0.12549, 1 )
+shader_param/scale_near = 0.1
+shader_param/scale_peak = 0.2
+shader_param/scale_far = 0.05
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.671
+shader_param/exponent = 2.1
 
 [sub_resource type="ShaderMaterial" id=10]
 shader = ExtResource( 9 )
@@ -174,7 +204,7 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
+shader_param/fade_power = 0.4
 shader_param/intensity = 1.0
 shader_param/exponent = 3.0
 
@@ -189,7 +219,7 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
+shader_param/fade_power = 0.4
 shader_param/intensity = 0.4
 shader_param/exponent = 3.0
 
@@ -204,7 +234,7 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
+shader_param/fade_power = 0.4
 shader_param/intensity = 0.643
 shader_param/exponent = 3.0
 
@@ -219,7 +249,7 @@ shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
 shader_param/fade_distance_near = 100000.0
 shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.25
+shader_param/fade_power = 0.4
 shader_param/intensity = 0.764
 shader_param/exponent = 3.0
 
@@ -351,6 +381,21 @@ transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -7
 [node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide_far" index="0"]
 material_override = SubResource( 8 )
 
+[node name="Star Vidr" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -150000, -260000, -330000 )
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 14 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 15 )
+
 [node name="Stars Lywin" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 70000, 16000, -110000 )
 
@@ -397,6 +442,8 @@ material_override = SubResource( 13 )
 [editable path="Cluster D/nebula_4"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide_far"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide"]

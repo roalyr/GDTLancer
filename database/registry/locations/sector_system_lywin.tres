@@ -8,7 +8,7 @@ template_id = "sector_system_lywin"
 location_name = "Lywin System"
 location_type = "system"
 position_in_zone = Vector3( 0, 0, 0 )
-interaction_radius = 150.0
+interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_lywin/sector_system_lywin.tscn"
 global_position = Vector3( 70000, 16000, -110000 )
 is_procedural = false
@@ -16,7 +16,7 @@ procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_cob", "sector_system_elace" )
+connections = PoolStringArray( "sector_system_vidr", "sector_system_elace" )
 sector_type = "colony"
 radiation_level = 0.02
 thermal_background_k = 295.0

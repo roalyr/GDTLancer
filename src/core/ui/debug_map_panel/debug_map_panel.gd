@@ -30,6 +30,7 @@ const SECTOR_LABEL_MAX_WIDTH = 260.0
 const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
 const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
+const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
 
 # --- Node references ---
 onready var _panel = $Panel
@@ -66,12 +67,22 @@ func _ready():
 	_panel.visible = false
 	_is_visible = false
 	_sector_label_font = _build_sector_label_font()
+	_configure_map_viewport_world()
 	set_process(false)
 	_connect_buttons()
 	_refresh_axes_button_text()
 	if EventBus.has_signal("sim_tick_completed"):
 		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
 			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
+
+
+func _configure_map_viewport_world():
+	if not is_instance_valid(_viewport):
+		return
+	_viewport.own_world = true
+	_viewport.render_target_clear_mode = Viewport.CLEAR_MODE_ALWAYS
+	_viewport.transparent_bg = false
+	_viewport.update_worlds()
 
 
 func _input(event):
@@ -112,10 +123,6 @@ func _toggle_panel():
 func _process(_delta):
 	if not _is_visible:
 		return
-	# TODO: this render nebula in background, which is effectively rendering it twice.
-	# Rename to galaxy background?
-	#if is_instance_valid(_map_nebula_holder) and is_instance_valid(_camera):
-	#	_map_nebula_holder.global_transform.origin = _camera.global_transform.origin
 	_update_label_positions()
 
 
@@ -166,22 +173,20 @@ func _get_mouse_wheel_zoom_factor() -> float:
 # =========================================================================
 
 func _setup_map_environment():
-	if is_instance_valid(_map_world_env):
-		return  # already set up
+	_configure_map_viewport_world()
 	# Add WorldEnvironment so the map viewport has the same background as the game
-	var env_res = load("res://assets/art/environments/global_environment.tres")
-	if env_res:
-		_map_world_env = WorldEnvironment.new()
-		_map_world_env.environment = env_res
-		_viewport.add_child(_map_world_env)
-	# TODO: Use Galaxy background here instead.
-	# Instance the global nebula into the map viewport
-	#var nebula_scene = load("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
-	#if nebula_scene:
-		#_map_nebula_holder = Spatial.new()
-		#_map_nebula_holder.name = "MapNebulaHolder"
-		#_map_nebula_holder.add_child(nebula_scene.instance())
-		#_viewport.add_child(_map_nebula_holder)
+	if not is_instance_valid(_map_world_env):
+		var env_res = load("res://assets/art/environments/global_environment.tres")
+		if env_res:
+			_map_world_env = WorldEnvironment.new()
+			_map_world_env.environment = env_res
+			_viewport.add_child(_map_world_env)
+	if not is_instance_valid(_map_nebula_holder):
+		_map_nebula_holder = Spatial.new()
+		_map_nebula_holder.name = "MapNebulaHolder"
+		_map_nebula_holder.add_child(GLOBAL_NEBULAS_SCENE.instance())
+		_viewport.add_child(_map_nebula_holder)
+	_sync_map_nebula_holder()
 
 
 func _cleanup_map_environment():
@@ -243,6 +248,7 @@ func _restore_scene_models():
 
 func _populate_map():
 	_map_world_anchor = _get_current_sector_world_anchor()
+	_sync_map_nebula_holder()
 	_clear_map()
 	_create_sector_markers()
 	_create_connection_lines()
@@ -428,7 +434,7 @@ func _create_reference_axes():
 			"arrow_dirs": [Vector3(1, 0, 0), Vector3(0, 1, 0)],
 		},
 	]
-	var axis_origin = _to_map_space_position(Constants.REFERENCE_ORIGIN)
+	var axis_origin = Constants.get_reference_origin_offset(_map_world_anchor)
 	var notch_specs = [
 		{"distance": 100000.0, "text": "1e5"},
 		{"distance": 200000.0, "text": "2e5"},
@@ -534,6 +540,12 @@ func _get_sector_position(sector_id: String):
 		if "global_position" in template:
 			return _to_map_space_position(template.global_position)
 	return null
+
+
+func _sync_map_nebula_holder():
+	if not is_instance_valid(_map_nebula_holder):
+		return
+	_map_nebula_holder.transform.origin = Constants.get_reference_origin_offset(_map_world_anchor)
 
 
 func _to_map_space_position(world_position: Vector3) -> Vector3:

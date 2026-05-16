@@ -91,7 +91,7 @@ func _offset_nebula(zone_root: Spatial, template) -> void:
 	var nebulas = slot.find_node("Globalnebulas", true, false)
 	if nebulas == null:
 		return
-	var offset = Constants.REFERENCE_ORIGIN - template.global_position
+	var offset = Constants.get_reference_origin_offset(template.global_position)
 	nebulas.transform.origin = offset
 
 
