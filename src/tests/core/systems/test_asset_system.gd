@@ -26,6 +26,7 @@ func before_each():
 
 	# 2. Create a mock CharacterSystem and stub its methods
 	mock_character_system = double(CharacterSystem).new()
+	stub(mock_character_system, "_ready").to_return(null)
 	add_child_autofree(mock_character_system)
 
 	var player_char = CharacterTemplate.new()

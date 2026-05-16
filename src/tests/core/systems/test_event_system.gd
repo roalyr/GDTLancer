@@ -19,6 +19,7 @@ class DummySpawner:
 		npc.gravity_scale = 0.0
 		npc.set("agent_uid", 1000 + spawn_count)
 		npc.translation = position
+		add_child(npc)
 		return npc
 
 
@@ -49,7 +50,6 @@ func before_each() -> void:
 
 	_event_system = EventSystem.new()
 	add_child_autofree(_event_system)
-	_event_system._ready()
 
 
 ## Cleanup after each test: clear global references.

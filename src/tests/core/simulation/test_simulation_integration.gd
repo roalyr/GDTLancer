@@ -3,7 +3,7 @@
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# LOG_REF: 2026-05-16 22:38:42
 #
 
 extends GutTest
@@ -24,13 +24,11 @@ func before_each():
 	_seed_template_database()
 	var Script = load("res://src/core/simulation/simulation_engine.gd")
 	engine = Script.new()
-	add_child(engine)
+	add_child_autofree(engine)
 	engine.initialize_simulation(TEST_SEED)
 
 
 func after_each():
-	if is_instance_valid(engine):
-		engine.queue_free()
 	engine = null
 	_clear_state()
 

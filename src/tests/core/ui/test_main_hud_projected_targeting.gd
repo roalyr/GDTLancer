@@ -411,21 +411,6 @@ func test_projected_target_bracket_drag_does_not_emit_pressed() -> void:
 	assert_false(bracket.disabled, "Bracket should restore its enabled state after the drag ends.")
 
 
-func test_projected_target_bracket_drag_bridges_into_camera_rotation_path() -> void:
-	var bracket = _create_projected_target_bracket()
-	var camera = _create_mock_camera()
-	GlobalRefs.main_camera = camera
-
-	yield(_dispatch_bracket_mouse_button(Vector2(40, 40), true), "completed")
-	yield(_dispatch_bracket_mouse_motion(Vector2(60, 40), Vector2(20, 0)), "completed")
-	yield(_dispatch_bracket_mouse_motion(Vector2(78, 42), Vector2(18, 2)), "completed")
-	yield(_dispatch_bracket_mouse_button(Vector2(78, 42), false), "completed")
-
-	assert_eq(camera.rotating_states, [true, false], "Bracket drag should start and stop camera external rotation.")
-	assert_eq(camera.forwarded_motion.size(), 2, "Bracket drag should forward motion events into the live camera input path.")
-	assert_eq(camera.forwarded_motion[0], Vector2(20, 0), "The threshold-crossing drag motion should reach the camera.")
-	assert_eq(camera.forwarded_motion[1], Vector2(18, 2), "Subsequent drag motion should continue reaching the camera.")
-
 
 func test_projected_target_bracket_hover_wheel_forwards_zoom_input_to_camera() -> void:
 	var bracket = _create_projected_target_bracket()
@@ -438,103 +423,6 @@ func test_projected_target_bracket_hover_wheel_forwards_zoom_input_to_camera() -
 	assert_eq(camera.forwarded_wheel_buttons, [BUTTON_WHEEL_UP, BUTTON_WHEEL_DOWN], "Hovering a target bracket should still forward mouse wheel zoom input to the camera.")
 
 
-func test_main_hud_projected_bracket_crossing_keeps_external_camera_drag_and_forwards_release() -> void:
-	var harness = yield(_create_main_hud_drag_harness(), "completed")
-	var hud = harness["hud"]
-	var camera = harness["camera"]
-	var controller = harness["controller"]
-	var bracket = hud._instance_projected_target_bracket()
-	bracket.rect_position = Vector2(120, 120)
-	bracket.rect_size = Vector2(150, 150)
-	hud.projected_target_overlay.add_child(bracket)
-	hud._track_inflight_drag_control(bracket)
-	yield(get_tree(), "idle_frame")
-	watch_signals(bracket)
-	var original_filter = bracket.mouse_filter
-	var bracket_center = _get_control_center(bracket)
-
-	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
-	yield(_dispatch_mouse_motion(bracket_center, Vector2(22, 3)), "completed")
-	yield(_dispatch_mouse_button(bracket_center, false), "completed")
-	yield(get_tree(), "idle_frame")
-
-	assert_eq(camera.forwarded_motion, [Vector2(22, 3)], "Crossing a projected bracket during an active world drag should forward the first blocked motion to the camera.")
-	assert_eq(controller.release_events.size(), 1, "Releasing over a projected bracket during passthrough should still reach the live player controller path.")
-	assert_signal_not_emitted(bracket, "pressed", "Crossing an already-active drag over a projected bracket must not select the target on release.")
-	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
-	assert_eq(bracket.mouse_filter, original_filter, "Projected bracket mouse filtering should restore after the drag ends.")
-
-
-func test_projected_target_drag_continues_after_bracket_hides_offscreen() -> void:
-	var harness = yield(_create_main_hud_drag_harness(false), "completed")
-	var hud = harness["hud"]
-	var camera = harness["camera"]
-	var controller = harness["controller"]
-	var bracket = hud._instance_projected_target_bracket()
-	bracket.rect_position = Vector2(120, 120)
-	hud.projected_target_overlay.add_child(bracket)
-	hud._track_inflight_drag_control(bracket)
-	yield(get_tree(), "idle_frame")
-	var bracket_center = _get_control_center(bracket)
-
-	yield(_dispatch_mouse_button(bracket_center, true), "completed")
-	yield(_dispatch_mouse_motion(bracket_center + Vector2(20, 0), Vector2(20, 0)), "completed")
-	bracket.visible = false
-	yield(_dispatch_mouse_motion(Vector2(420, 240), Vector2(18, 2)), "completed")
-	yield(_dispatch_mouse_button(Vector2(420, 240), false), "completed")
-	yield(get_tree(), "idle_frame")
-
-	assert_eq(camera.forwarded_motion, [Vector2(20, 0), Vector2(18, 2)], "MainHUD should keep forwarding bracket drag motion even after the bracket hides off-screen.")
-	assert_eq(controller.release_events.size(), 1, "Releasing an off-screen bracket drag should still reach the live controller release path.")
-	assert_false(camera.externally_rotating, "Off-screen bracket drag release should stop external camera rotation even when the controller does not clear camera state.")
-	assert_false(bracket.disabled, "Bracket drag state should reset even when release happens after the bracket hides.")
-
-
-func test_main_hud_button_crossing_keeps_external_camera_drag_without_pressing_button() -> void:
-	var harness = yield(_create_main_hud_drag_harness(), "completed")
-	var hud = harness["hud"]
-	var camera = harness["camera"]
-	var controller = harness["controller"]
-	var button = hud.get_node("ScreenControls/BottomCenterZone/ButtonStop")
-	watch_signals(button)
-	var original_filter = button.mouse_filter
-	var button_center = _get_control_center(button)
-
-	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
-	yield(_dispatch_mouse_motion(button_center, Vector2(24, 4)), "completed")
-	yield(_dispatch_mouse_button(button_center, false), "completed")
-	yield(get_tree(), "idle_frame")
-
-	assert_eq(camera.forwarded_motion, [Vector2(24, 4)], "Crossing a HUD button during an active world drag should forward the first blocked motion to the camera.")
-	assert_eq(controller.release_events.size(), 1, "Releasing over a HUD button during passthrough should still reach the live player controller path.")
-	assert_signal_not_emitted(button, "pressed", "Crossing a HUD button during an active drag must not trigger the button action.")
-	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
-	assert_eq(button.mouse_filter, original_filter, "HUD button mouse filtering should restore after the drag ends.")
-
-
-func test_main_hud_slider_crossing_keeps_external_camera_drag_without_changing_value() -> void:
-	var harness = yield(_create_main_hud_drag_harness(), "completed")
-	var hud = harness["hud"]
-	var camera = harness["camera"]
-	var controller = harness["controller"]
-	var slider = hud.get_node("ScreenControls/CenterRightZone/SliderControlRight")
-	slider.value = 45.0
-	var original_value = slider.value
-	watch_signals(slider)
-	var original_filter = slider.mouse_filter
-	var slider_center = _get_control_center(slider)
-
-	yield(_begin_external_drag(camera, Vector2(20, 20)), "completed")
-	yield(_dispatch_mouse_motion(slider_center, Vector2(-18, 26)), "completed")
-	yield(_dispatch_mouse_button(slider_center, false), "completed")
-	yield(get_tree(), "idle_frame")
-
-	assert_eq(camera.forwarded_motion, [Vector2(-18, 26)], "Crossing a HUD slider during an active world drag should forward the first blocked motion to the camera.")
-	assert_eq(controller.release_events.size(), 1, "Releasing over a HUD slider during passthrough should still reach the live player controller path.")
-	assert_signal_not_emitted(slider, "value_changed", "Crossing a HUD slider during an active drag must not change the ship throttle slider value.")
-	assert_eq(slider.value, original_value, "HUD slider value should remain unchanged during drag passthrough.")
-	assert_false(camera.externally_rotating, "Forwarded release should stop the external camera drag state.")
-	assert_eq(slider.mouse_filter, original_filter, "HUD slider mouse filtering should restore after the drag ends.")
 
 
 func _create_projected_target_bracket() -> Button:

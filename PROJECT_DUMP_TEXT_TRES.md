@@ -65,15 +65,15 @@ noise = SubResource( 23 )
 shader = ExtResource( 1 )
 shader_param/corona_color = Color( 0.345098, 0.219608, 0.14902, 1 )
 shader_param/strength_corona = 40.0
-shader_param/exponent_corona = 2.0
+shader_param/exponent_corona = 1.871
 shader_param/exponent_corona_rim = 2.0
-shader_param/corona_floor_power = 5.0
+shader_param/corona_floor_power = 5.023
 shader_param/corona_floor = 1.3
-shader_param/fade_distance_far = 50000.0
-shader_param/fade_power = 1.0
-shader_param/displacement_power = 0.05
-shader_param/displacement_scale_xz = 0.95
-shader_param/displacement_scale_y = 0.9
+shader_param/fade_distance_far = 5000.0
+shader_param/fade_power = 5.0
+shader_param/displacement_power = 0.0575
+shader_param/displacement_scale_xz = 0.9
+shader_param/displacement_scale_y = 0.8745
 shader_param/displacement_velocity = 0.1
 shader_param/scale_start = 3000.0
 shader_param/scale_end_mul = 27.0
@@ -89,16 +89,18 @@ shader_param/displacement_texture = SubResource( 24 )
 
 [resource]
 shader = ExtResource( 1 )
-shader_param/albedo = Color( 1, 0.635294, 0.435294, 1 )
-shader_param/scale = 0.297
-shader_param/flare_distance = 40000.0
-shader_param/flare_size = 3.0
-shader_param/attenuation = 0.749
-shader_param/intensity = 1.0
+shader_param/albedo = Color( 0.996078, 0.392157, 0.345098, 1 )
+shader_param/scale_near = 0.2
+shader_param/scale_peak = 1.2
+shader_param/scale_far = 0.1
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.4
 shader_param/exponent = 3.0
-shader_param/pulse_factor = 0.9
-shader_param/pulse_rate = 1.0
-shader_param/phase = 0.0
 
 --- Start of ./assets/art/materials/scene_materials/star_1_surface.tres ---
 
@@ -109,15 +111,17 @@ shader_param/phase = 0.0
 
 [resource]
 shader = ExtResource( 2 )
-shader_param/rim_color = Color( 1, 1, 1, 1 )
-shader_param/overlay_color = Color( 0.615686, 0.376471, 0.215686, 1 )
+shader_param/rim_color = Color( 1, 0.952941, 0.262745, 1 )
+shader_param/overlay_color = Color( 0.752941, 0.443137, 0.333333, 1 )
 shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
-shader_param/fade_color = Color( 0.909804, 0.784314, 0.662745, 1 )
+shader_param/fade_color = Color( 1, 1, 1, 1 )
 shader_param/major_phase = 0.95
 shader_param/major_detail_intensity = 1.0
 shader_param/major_detail_level = 0.5
-shader_param/detail_decay_distance = 30000.0
-shader_param/detail_decay_power = 2.0
+shader_param/detail_decay_distance = 100000.0
+shader_param/detail_decay_power = 1.0
+shader_param/fade_distance_far = 50000.0
+shader_param/fade_power = 1.0
 shader_param/major_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
 shader_param/rim_strength = 1.0
@@ -1645,68 +1649,6 @@ danger_level = 3
 initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
 available_contract_ids = [  ]
 
---- Start of ./database/registry/locations/sector_gamma.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "station_gamma"
-location_name = "Freeport Gamma"
-location_type = "station"
-position_in_zone = Vector3( 46000, -200, 500 )
-interaction_radius = 150.0
-sector_scene_path = "res://scenes/levels/sectors/sector_gamma/sector_gamma.tscn"
-global_position = Vector3( -140000, -100000, -190000 )
-is_procedural = false
-procedural_type = "deep_space"
-procedural_hints = {
-}
-sector_description = "Lawless freeport near a cold star. Rich propellant sources draw traders and pirates alike."
-connections = PoolStringArray( "station_delta", "station_epsilon" )
-sector_type = "frontier"
-radiation_level = 0.15
-thermal_background_k = 250.0
-gravity_well_penalty = 1.5
-mineral_density = 0.8
-propellant_sources = 1.2
-station_power_output = 80.0
-stockpile_capacity = 800
-market_inventory = {
-"commodity_food": {
-"buy_price": 25,
-"quantity": 60,
-"sell_price": 20
-},
-"commodity_fuel": {
-"buy_price": 20,
-"quantity": 150,
-"sell_price": 15
-},
-"commodity_luxury": {
-"buy_price": 120,
-"quantity": 10,
-"sell_price": 100
-},
-"commodity_ore": {
-"buy_price": 12,
-"quantity": 80,
-"sell_price": 10
-},
-"commodity_tech": {
-"buy_price": 55,
-"quantity": 30,
-"sell_price": 45
-}
-}
-available_services = [ "trade", "contracts", "black_market" ]
-controlling_faction_id = "faction_independents"
-danger_level = 4
-initial_sector_tags = PoolStringArray( "FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE", "HOSTILE_THREATENED" )
-available_contract_ids = [ "delivery_05", "delivery_06" ]
-
 --- Start of ./database/registry/locations/sector_system_cob.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
@@ -1718,8 +1660,8 @@ script = ExtResource( 1 )
 template_id = "sector_system_cob"
 location_name = "Cob System"
 location_type = "system"
-position_in_zone = Vector3( 49500, 100, 1500 )
-interaction_radius = 150.0
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_system_cob.tscn"
 global_position = Vector3( -400000, 24000, 130000 )
 is_procedural = false
@@ -1727,7 +1669,7 @@ procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_elace", "sector_system_lywin" )
+connections = PoolStringArray( "sector_system_elace" )
 sector_type = "colony"
 radiation_level = 0.01
 thermal_background_k = 310.0
@@ -1780,8 +1722,8 @@ script = ExtResource( 1 )
 template_id = "sector_system_elace"
 location_name = "Elace System"
 location_type = "system"
-position_in_zone = Vector3( 48042, 233, -673 )
-interaction_radius = 150.0
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_elace/sector_system_elace.tscn"
 global_position = Vector3( 0, 0, 0 )
 is_procedural = false
@@ -1837,8 +1779,8 @@ script = ExtResource( 1 )
 template_id = "sector_system_lywin"
 location_name = "Lywin System"
 location_type = "system"
-position_in_zone = Vector3( 47000, 150, 800 )
-interaction_radius = 150.0
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_lywin/sector_system_lywin.tscn"
 global_position = Vector3( 70000, 16000, -110000 )
 is_procedural = false
@@ -1846,7 +1788,7 @@ procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_cob", "sector_system_elace" )
+connections = PoolStringArray( "sector_system_vidr", "sector_system_elace" )
 sector_type = "colony"
 radiation_level = 0.02
 thermal_background_k = 295.0
@@ -1882,6 +1824,68 @@ controlling_faction_id = "faction_military"
 danger_level = 1
 initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
 available_contract_ids = [  ]
+
+--- Start of ./database/registry/locations/sector_system_vidr.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_system_vidr"
+location_name = "Vidr System"
+location_type = "system"
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
+sector_scene_path = "res://scenes/levels/sectors/sector_gamma/sector_gamma.tscn"
+global_position = Vector3( -150000, -260000, -330000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_lywin" )
+sector_type = "frontier"
+radiation_level = 0.15
+thermal_background_k = 250.0
+gravity_well_penalty = 1.5
+mineral_density = 0.8
+propellant_sources = 1.2
+station_power_output = 80.0
+stockpile_capacity = 800
+market_inventory = {
+"commodity_food": {
+"buy_price": 25,
+"quantity": 60,
+"sell_price": 20
+},
+"commodity_fuel": {
+"buy_price": 20,
+"quantity": 150,
+"sell_price": 15
+},
+"commodity_luxury": {
+"buy_price": 120,
+"quantity": 10,
+"sell_price": 100
+},
+"commodity_ore": {
+"buy_price": 12,
+"quantity": 80,
+"sell_price": 10
+},
+"commodity_tech": {
+"buy_price": 55,
+"quantity": 30,
+"sell_price": 45
+}
+}
+available_services = [ "trade", "contracts", "black_market" ]
+controlling_faction_id = "faction_independents"
+danger_level = 4
+initial_sector_tags = PoolStringArray( "FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE", "HOSTILE_THREATENED" )
+available_contract_ids = [ "delivery_05", "delivery_06" ]
 
 --- Start of ./database/registry/tools/tool_ablative_laser.tres ---
 

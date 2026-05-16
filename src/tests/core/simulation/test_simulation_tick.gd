@@ -3,7 +3,7 @@
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# LOG_REF: 2026-05-16 22:38:42
 #
 
 extends GutTest
@@ -18,12 +18,10 @@ func before_each():
 	_clear_state()
 	var Script = load("res://src/core/simulation/simulation_engine.gd")
 	engine = Script.new()
-	add_child(engine)
+	add_child_autofree(engine)
 
 
 func after_each():
-	if is_instance_valid(engine):
-		engine.queue_free()
 	engine = null
 	_clear_state()
 

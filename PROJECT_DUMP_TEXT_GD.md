@@ -13710,6 +13710,10 @@ const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_positi
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
 const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
 
+
+func get_reference_origin_offset(world_position: Vector3) -> Vector3:
+	return REFERENCE_ORIGIN - world_position
+
 # ---- CONTACT MANAGER ----
 const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5
 const DISPOSITION_HOSTILE_THRESHOLD: float = -0.5
@@ -20781,7 +20785,7 @@ func _offset_nebula(zone_root: Spatial, template) -> void:
 	var nebulas = slot.find_node("Globalnebulas", true, false)
 	if nebulas == null:
 		return
-	var offset = Constants.REFERENCE_ORIGIN - template.global_position
+	var offset = Constants.get_reference_origin_offset(template.global_position)
 	nebulas.transform.origin = offset
 
 
@@ -20964,6 +20968,7 @@ const SECTOR_LABEL_MAX_WIDTH = 260.0
 const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
 const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
+const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
 
 # --- Node references ---
 onready var _panel = $Panel
@@ -21000,12 +21005,22 @@ func _ready():
 	_panel.visible = false
 	_is_visible = false
 	_sector_label_font = _build_sector_label_font()
+	_configure_map_viewport_world()
 	set_process(false)
 	_connect_buttons()
 	_refresh_axes_button_text()
 	if EventBus.has_signal("sim_tick_completed"):
 		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
 			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
+
+
+func _configure_map_viewport_world():
+	if not is_instance_valid(_viewport):
+		return
+	_viewport.own_world = true
+	_viewport.render_target_clear_mode = Viewport.CLEAR_MODE_ALWAYS
+	_viewport.transparent_bg = false
+	_viewport.update_worlds()
 
 
 func _input(event):
@@ -21046,10 +21061,6 @@ func _toggle_panel():
 func _process(_delta):
 	if not _is_visible:
 		return
-	# TODO: this render nebula in background, which is effectively rendering it twice.
-	# Rename to galaxy background?
-	#if is_instance_valid(_map_nebula_holder) and is_instance_valid(_camera):
-	#	_map_nebula_holder.global_transform.origin = _camera.global_transform.origin
 	_update_label_positions()
 
 
@@ -21100,22 +21111,20 @@ func _get_mouse_wheel_zoom_factor() -> float:
 # =========================================================================
 
 func _setup_map_environment():
-	if is_instance_valid(_map_world_env):
-		return  # already set up
+	_configure_map_viewport_world()
 	# Add WorldEnvironment so the map viewport has the same background as the game
-	var env_res = load("res://assets/art/environments/global_environment.tres")
-	if env_res:
-		_map_world_env = WorldEnvironment.new()
-		_map_world_env.environment = env_res
-		_viewport.add_child(_map_world_env)
-	# TODO: Use Galaxy background here instead.
-	# Instance the global nebula into the map viewport
-	#var nebula_scene = load("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
-	#if nebula_scene:
-		#_map_nebula_holder = Spatial.new()
-		#_map_nebula_holder.name = "MapNebulaHolder"
-		#_map_nebula_holder.add_child(nebula_scene.instance())
-		#_viewport.add_child(_map_nebula_holder)
+	if not is_instance_valid(_map_world_env):
+		var env_res = load("res://assets/art/environments/global_environment.tres")
+		if env_res:
+			_map_world_env = WorldEnvironment.new()
+			_map_world_env.environment = env_res
+			_viewport.add_child(_map_world_env)
+	if not is_instance_valid(_map_nebula_holder):
+		_map_nebula_holder = Spatial.new()
+		_map_nebula_holder.name = "MapNebulaHolder"
+		_map_nebula_holder.add_child(GLOBAL_NEBULAS_SCENE.instance())
+		_viewport.add_child(_map_nebula_holder)
+	_sync_map_nebula_holder()
 
 
 func _cleanup_map_environment():
@@ -21177,6 +21186,7 @@ func _restore_scene_models():
 
 func _populate_map():
 	_map_world_anchor = _get_current_sector_world_anchor()
+	_sync_map_nebula_holder()
 	_clear_map()
 	_create_sector_markers()
 	_create_connection_lines()
@@ -21362,7 +21372,7 @@ func _create_reference_axes():
 			"arrow_dirs": [Vector3(1, 0, 0), Vector3(0, 1, 0)],
 		},
 	]
-	var axis_origin = _to_map_space_position(Constants.REFERENCE_ORIGIN)
+	var axis_origin = Constants.get_reference_origin_offset(_map_world_anchor)
 	var notch_specs = [
 		{"distance": 100000.0, "text": "1e5"},
 		{"distance": 200000.0, "text": "2e5"},
@@ -21468,6 +21478,12 @@ func _get_sector_position(sector_id: String):
 		if "global_position" in template:
 			return _to_map_space_position(template.global_position)
 	return null
+
+
+func _sync_map_nebula_holder():
+	if not is_instance_valid(_map_nebula_holder):
+		return
+	_map_nebula_holder.transform.origin = Constants.get_reference_origin_offset(_map_world_anchor)
 
 
 func _to_map_space_position(world_position: Vector3) -> Vector3:
@@ -24366,8 +24382,8 @@ func _physics_process(delta):
 # PROJECT: GDTLancer
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-14 03:05:12
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 18:32:14
 #
 
 extends Node
@@ -24473,6 +24489,9 @@ func _change_state(new_state_name: String):
 
 
 func _physics_process(delta: float):
+	if _is_jump_transition_active():
+		_clear_queued_jump()
+		return
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
 	_poll_docking_proximity()
@@ -24480,6 +24499,8 @@ func _physics_process(delta: float):
 
 
 func _unhandled_input(event: InputEvent):
+	if _is_jump_transition_active():
+		return
 	# Global inputs that work in any state
 	if event.is_action_pressed("ui_accept"):
 		_handle_interact_input()
@@ -24627,8 +24648,18 @@ func _is_selected_target_valid() -> bool:
 	return is_instance_valid(_selected_target)
 
 
+func _is_jump_transition_active() -> bool:
+	return (
+		is_instance_valid(GlobalRefs.world_manager)
+		and GlobalRefs.world_manager.has_method("is_jump_transition_active")
+		and GlobalRefs.world_manager.is_jump_transition_active()
+	)
+
+
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
+	if _is_jump_transition_active():
+		return
 	if not _is_selected_target_valid():
 		_clear_queued_jump()
 		EventBus.emit_signal("dock_action_feedback", false, "No target selected")
@@ -25808,7 +25839,7 @@ func _update_target_tracking_mode(delta: float, bob_offset: Vector3):
 # MODULE: camera_rotation_controller.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# LOG_REF: 2026-05-16 20:12:02
 #
 
 extends Node
@@ -25945,6 +25976,22 @@ func set_is_rotating(rotating: bool):
 	reset_pids()
 
 
+func set_orbit_forward_direction(direction: Vector3):
+	if direction.length_squared() < 0.001:
+		return
+	var normalized_direction = direction.normalized()
+	yaw = atan2(normalized_direction.x, normalized_direction.z)
+	pitch = clamp(-asin(clamp(normalized_direction.y, -1.0, 1.0)), pitch_min, pitch_max)
+	_target_yaw_speed = 0.0
+	_target_pitch_speed = 0.0
+	reset_pids()
+
+
+func get_orbit_forward_direction() -> Vector3:
+	var horizontal_scale = cos(pitch)
+	return Vector3(sin(yaw) * horizontal_scale, -sin(pitch), cos(yaw) * horizontal_scale).normalized()
+
+
 func is_externally_rotating() -> bool:
 	return _is_externally_rotating
 
@@ -25958,6 +26005,14 @@ func reset_pids():
 	_current_pitch_speed = 0.0
 
 --- Start of ./src/scenes/camera/components/camera_zoom_controller.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: camera_zoom_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 18:32:14
+#
 
 # File: scenes/camera/components/camera_zoom_controller.gd
 # Purpose: Manages camera zoom, distance from target, and FoV calculations.
@@ -26094,10 +26149,18 @@ func _update_fov():
 	var dyn_min_dist = _get_dynamic_min_distance()
 	var dyn_max_dist = _get_dynamic_max_distance()
 	if is_equal_approx(dyn_max_dist, dyn_min_dist):
-		_camera.fov = _max_fov_deg
+		_apply_camera_fov(_max_fov_deg)
 		return
 	var t = clamp((current_distance - dyn_min_dist) / (dyn_max_dist - dyn_min_dist), 0.0, 1.0)
-	_camera.fov = lerp(_min_fov_deg, _max_fov_deg, t)
+	_apply_camera_fov(lerp(_min_fov_deg, _max_fov_deg, t))
+
+
+func _apply_camera_fov(computed_fov: float) -> void:
+	if _camera != null and _camera.has_method("apply_zoom_controller_fov"):
+		_camera.call("apply_zoom_controller_fov", computed_fov)
+		return
+	if _camera != null:
+		_camera.fov = computed_fov
 
 
 func _get_dynamic_min_distance() -> float:
@@ -26145,8 +26208,8 @@ func _notification(what):
 # PROJECT: GDTLancer
 # MODULE: orbit_camera.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
 #
 
 extends Camera
@@ -26188,6 +26251,9 @@ var pid_output_limit_multiplier: float = 100.0
 enum CameraMode { ORBIT, TARGET_TRACKING }
 var _camera_mode: int = CameraMode.ORBIT
 var _look_at_target: Spatial = null  # Secondary target to look at
+var _zoom_controller_fov_deg: float = 70.0
+var _temporary_fov_override_active: bool = false
+var _temporary_fov_override_deg: float = 70.0
 
 # --- Component Script Paths ---
 const RotationControllerScript = preload(
@@ -26255,6 +26321,7 @@ func _ready():
 	_rotation_controller.initialize(self, config)
 	_zoom_controller.initialize(self, config)
 	_position_controller.initialize(self, _rotation_controller, _zoom_controller, config)
+	apply_zoom_controller_fov(fov)
 
 	# --- Connect Signals ---
 	if (
@@ -26308,6 +26375,74 @@ func is_externally_rotating() -> bool:
 		and _rotation_controller.has_method("is_externally_rotating")
 		and _rotation_controller.is_externally_rotating()
 	)
+
+
+func set_orbit_forward_direction(direction: Vector3) -> void:
+	if is_instance_valid(_rotation_controller) and _rotation_controller.has_method("set_orbit_forward_direction"):
+		_rotation_controller.set_orbit_forward_direction(direction)
+
+
+func get_orbit_forward_direction() -> Vector3:
+	if is_instance_valid(_rotation_controller) and _rotation_controller.has_method("get_orbit_forward_direction"):
+		return _rotation_controller.get_orbit_forward_direction()
+	return -global_transform.basis.z.normalized()
+
+
+func get_current_orbit_distance() -> float:
+	if is_instance_valid(_zoom_controller):
+		var zoom_distance = _zoom_controller.get("current_distance")
+		if zoom_distance is float or zoom_distance is int:
+			return float(zoom_distance)
+	return distance
+
+
+func restore_orbit_from_transition_view(target: Spatial, forward_direction: Vector3) -> void:
+	set_target_node(target)
+	if not is_instance_valid(target):
+		return
+	var target_forward_direction = forward_direction
+	if target_forward_direction.length_squared() < 0.001:
+		target_forward_direction = get_orbit_forward_direction()
+	set_orbit_forward_direction(target_forward_direction)
+	var orbit_forward = get_orbit_forward_direction()
+	var orbit_distance = get_current_orbit_distance()
+	var target_position = target.global_transform.origin
+	var desired_position = target_position - orbit_forward * orbit_distance
+	var up_direction = Vector3.UP
+	if abs(up_direction.dot(orbit_forward)) > 0.98:
+		up_direction = global_transform.basis.y.normalized()
+		if up_direction.length_squared() < 0.001 or abs(up_direction.dot(orbit_forward)) > 0.98:
+			up_direction = Vector3.RIGHT
+	var desired_transform = Transform(Basis(), desired_position).looking_at(target_position, up_direction)
+	global_transform = Transform(desired_transform.basis.orthonormalized(), desired_position)
+
+
+func apply_zoom_controller_fov(fov_deg: float) -> void:
+	_zoom_controller_fov_deg = fov_deg
+	_update_effective_fov()
+
+
+func set_temporary_fov_override(fov_deg: float) -> void:
+	_temporary_fov_override_active = true
+	_temporary_fov_override_deg = fov_deg
+	_update_effective_fov()
+
+
+func clear_temporary_fov_override() -> void:
+	_temporary_fov_override_active = false
+	_update_effective_fov()
+
+
+func get_zoom_controller_fov() -> float:
+	return _zoom_controller_fov_deg
+
+
+func get_effective_fov() -> float:
+	return _temporary_fov_override_deg if _temporary_fov_override_active else _zoom_controller_fov_deg
+
+
+func _update_effective_fov() -> void:
+	fov = get_effective_fov()
 
 
 # --- Camera Mode Methods ---
@@ -26379,6 +26514,275 @@ export var target_sector_name: String = ""
 func _ready():
 	add_to_group("jump_point")
 
+--- Start of ./src/scenes/game_world/jump_transition/jump_transition_rig.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: jump_transition_rig.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
+#
+
+extends Spatial
+
+const DEFAULT_TRAVEL_DIRECTION = Vector3(0, 0, -1)
+const DEFAULT_ACCELERATION = 800.0
+const DEFAULT_DECELERATION = 800.0
+const CRUISE_VELOCITY_RAMP_DURATION_SEC = 1.1
+const ARRIVAL_VELOCITY_RAMP_DURATION_SEC = 0.85
+const ROUTE_COMPLETION_TOLERANCE = 20.0
+
+var _transition_camera: Camera = null
+var _nebula_holder: Spatial = null
+var _travel_direction: Vector3 = DEFAULT_TRAVEL_DIRECTION
+var _current_velocity: float = 0.0
+var _target_velocity: float = 0.0
+var _velocity_step_rate: float = DEFAULT_ACCELERATION
+var _departure_sector_id: String = ""
+var _target_sector_id: String = ""
+var _departure_active: bool = false
+var _cruise_active: bool = false
+var _arrival_active: bool = false
+var _captured_camera_transform: Transform = Transform.IDENTITY
+var _has_captured_camera_transform: bool = false
+var _route_origin_world_position: Vector3 = Vector3.ZERO
+var _route_world_position: Vector3 = Vector3.ZERO
+var _route_target_world_position: Vector3 = Vector3.ZERO
+var _route_has_valid_positions: bool = false
+var _route_complete: bool = false
+
+
+func _ready() -> void:
+	pause_mode = Node.PAUSE_MODE_PROCESS
+	_transition_camera = get_node_or_null("TransitionCamera")
+	_nebula_holder = get_node_or_null("NebulaHolder")
+	visible = false
+	set_process(false)
+	if is_instance_valid(_transition_camera):
+		_transition_camera.pause_mode = Node.PAUSE_MODE_PROCESS
+		_transition_camera.current = false
+	_update_nebula_anchor_for_sector("")
+
+
+func capture_from_camera(camera_node: Camera) -> void:
+	if not is_instance_valid(_transition_camera) or not is_instance_valid(camera_node):
+		return
+	_captured_camera_transform = camera_node.global_transform
+	_has_captured_camera_transform = true
+	_transition_camera.global_transform = _captured_camera_transform
+	_transition_camera.fov = camera_node.fov
+
+
+func set_transition_fov(fov_deg: float) -> void:
+	if is_instance_valid(_transition_camera):
+		_transition_camera.fov = fov_deg
+
+
+func begin_departure(source_sector_id: String, target_sector_id: String, travel_direction: Vector3) -> void:
+	_departure_sector_id = source_sector_id
+	_target_sector_id = target_sector_id
+	_travel_direction = _normalize_travel_direction(travel_direction)
+	_current_velocity = 0.0
+	_target_velocity = 0.0
+	_velocity_step_rate = DEFAULT_ACCELERATION
+	_departure_active = true
+	_cruise_active = false
+	_arrival_active = false
+	_route_origin_world_position = _get_world_position_for_sector(source_sector_id)
+	_route_world_position = _get_world_position_for_sector(source_sector_id)
+	_route_target_world_position = _get_world_position_for_sector(target_sector_id)
+	_route_has_valid_positions = _route_world_position != Vector3.ZERO or _route_target_world_position != Vector3.ZERO
+	_route_complete = _get_remaining_route_distance() <= ROUTE_COMPLETION_TOLERANCE
+	visible = false
+	if is_instance_valid(_transition_camera):
+		_transition_camera.current = false
+		if _has_captured_camera_transform:
+			_transition_camera.global_transform = Transform(
+				_captured_camera_transform.basis,
+				_get_route_local_position()
+			)
+		else:
+			_transition_camera.global_transform = Transform(Basis(), _get_route_local_position())
+		_align_camera_to_travel_direction()
+	_update_nebula_anchor_for_sector(source_sector_id)
+	set_process(false)
+
+
+func begin_cruise(target_velocity: float) -> void:
+	visible = true
+	_departure_active = false
+	_cruise_active = true
+	_arrival_active = false
+	_route_complete = false
+	_target_velocity = max(target_velocity, 0.0)
+	_velocity_step_rate = max(
+		DEFAULT_ACCELERATION,
+		_target_velocity / CRUISE_VELOCITY_RAMP_DURATION_SEC
+	)
+	if is_instance_valid(_transition_camera):
+		_transition_camera.current = true
+	set_process(true)
+
+
+func begin_arrival() -> void:
+	_departure_active = false
+	_cruise_active = false
+	_arrival_active = true
+	_target_velocity = 0.0
+	_velocity_step_rate = max(
+		DEFAULT_DECELERATION,
+		_current_velocity / ARRIVAL_VELOCITY_RAMP_DURATION_SEC
+	)
+	set_process(true)
+
+
+func reset_transition_state() -> void:
+	_departure_sector_id = ""
+	_target_sector_id = ""
+	_travel_direction = DEFAULT_TRAVEL_DIRECTION
+	_current_velocity = 0.0
+	_target_velocity = 0.0
+	_velocity_step_rate = DEFAULT_ACCELERATION
+	_departure_active = false
+	_cruise_active = false
+	_arrival_active = false
+	_has_captured_camera_transform = false
+	_captured_camera_transform = Transform.IDENTITY
+	_route_origin_world_position = Vector3.ZERO
+	_route_world_position = Vector3.ZERO
+	_route_target_world_position = Vector3.ZERO
+	_route_has_valid_positions = false
+	_route_complete = false
+	visible = false
+	set_process(false)
+	if is_instance_valid(_transition_camera):
+		_transition_camera.current = false
+		_transition_camera.global_transform = Transform.IDENTITY
+	_update_nebula_anchor_for_sector("")
+
+
+func deactivate_transition_view() -> void:
+	visible = false
+	if is_instance_valid(_transition_camera):
+		_transition_camera.current = false
+
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(_transition_camera):
+		return
+	if _cruise_active and _route_has_valid_positions and _get_remaining_route_distance() <= _get_braking_distance() + ROUTE_COMPLETION_TOLERANCE:
+		begin_arrival()
+	_current_velocity = move_toward(_current_velocity, _target_velocity, _velocity_step_rate * delta)
+	var remaining_distance = _get_remaining_route_distance()
+	var travel_step = _current_velocity * delta
+	if travel_step > 0.0:
+		if _route_has_valid_positions:
+			travel_step = min(travel_step, remaining_distance)
+		if _route_has_valid_positions:
+			_route_world_position += _travel_direction * travel_step
+			_transition_camera.global_transform.origin = _get_route_local_position()
+		else:
+			_transition_camera.global_transform.origin += _travel_direction * travel_step
+	remaining_distance = _get_remaining_route_distance()
+	if _route_has_valid_positions and remaining_distance <= ROUTE_COMPLETION_TOLERANCE and _current_velocity <= ROUTE_COMPLETION_TOLERANCE:
+		_route_world_position = _route_target_world_position
+		_transition_camera.global_transform.origin = _get_route_local_position()
+		_current_velocity = 0.0
+		_target_velocity = 0.0
+		_departure_active = false
+		_cruise_active = false
+		_arrival_active = false
+		_route_complete = true
+		set_process(false)
+	elif _arrival_active and _current_velocity <= ROUTE_COMPLETION_TOLERANCE:
+		if _route_has_valid_positions:
+			_route_world_position = _route_target_world_position
+			_transition_camera.global_transform.origin = _get_route_local_position()
+		_route_complete = true
+		_arrival_active = false
+		set_process(false)
+
+
+func get_current_velocity() -> float:
+	return _current_velocity
+
+
+func is_route_complete() -> bool:
+	return _route_complete
+
+
+func get_route_world_position() -> Vector3:
+	return _route_world_position
+
+
+func get_transition_camera_forward_direction() -> Vector3:
+	if is_instance_valid(_transition_camera):
+		return -_transition_camera.global_transform.basis.z.normalized()
+	return _travel_direction
+
+
+func _normalize_travel_direction(travel_direction: Vector3) -> Vector3:
+	if travel_direction.length_squared() < 0.001:
+		return DEFAULT_TRAVEL_DIRECTION
+	return travel_direction.normalized()
+
+
+func _align_camera_to_travel_direction() -> void:
+	if not is_instance_valid(_transition_camera):
+		return
+	var up_direction = Vector3.UP
+	if _has_captured_camera_transform:
+		up_direction = _captured_camera_transform.basis.y.normalized()
+	if abs(up_direction.dot(_travel_direction)) > 0.98:
+		up_direction = Vector3.UP
+	_transition_camera.look_at(
+		_transition_camera.global_transform.origin + _travel_direction,
+		up_direction
+	)
+
+
+func _get_remaining_route_distance() -> float:
+	if not _route_has_valid_positions:
+		return 0.0
+	return _route_world_position.distance_to(_route_target_world_position)
+
+
+func _get_route_local_position() -> Vector3:
+	if not _route_has_valid_positions:
+		return Vector3.ZERO
+	return _route_world_position - _route_origin_world_position
+
+
+func _get_braking_distance() -> float:
+	var step_rate = max(_velocity_step_rate, 1.0)
+	return (_current_velocity * _current_velocity) / (2.0 * step_rate)
+
+
+func _get_world_position_for_sector(sector_id: String) -> Vector3:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	if sector_template == null:
+		return Vector3.ZERO
+	var world_position = sector_template.get("global_position")
+	return world_position if world_position is Vector3 else Vector3.ZERO
+
+
+func _update_nebula_anchor_for_sector(sector_id: String) -> void:
+	if not is_instance_valid(_nebula_holder):
+		return
+	if sector_id == "":
+		_nebula_holder.transform.origin = Vector3.ZERO
+		return
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	if sector_template == null:
+		_nebula_holder.transform.origin = Vector3.ZERO
+		return
+	var sector_position = sector_template.get("global_position")
+	if sector_position is Vector3:
+		_nebula_holder.transform.origin = Constants.get_reference_origin_offset(sector_position)
+	else:
+		_nebula_holder.transform.origin = Vector3.ZERO
+
 --- Start of ./src/scenes/game_world/starsphere_slot.gd ---
 
 extends Spatial
@@ -26421,8 +26825,8 @@ func _ready():
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:32:50
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
 #
 
 extends Node
@@ -26433,12 +26837,30 @@ extends Node
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
 const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_generator.gd")
+const JUMP_TRANSITION_RIG_NODE_NAME = "JumpTransitionRig"
+const DEFAULT_JUMP_TRANSITION_DIRECTION = Vector3(0, 0, -1)
+const DEFAULT_JUMP_TRANSITION_SPEED = 1200.0
+const JUMP_TRANSITION_TARGET_FOV_DEG = 140.0
+const JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC = 0.5
+const JUMP_TRANSITION_FOV_EASE_POWER = 2.35
+const JUMP_TRANSITION_FOV_WIDEN_DURATION_SEC = 1.25
+const JUMP_TRANSITION_FOV_RESTORE_DURATION_SEC = 1.25
+const JUMP_TRANSITION_HUD_SHOW_DELAY_SEC = 0.08
+const JUMP_TRANSITION_VELOCITY_TOLERANCE = 20.0
+const JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC = 7.5
+const JUMP_TRANSITION_LOAD_TIMEOUT_SEC = 1.5
+const JUMP_TRANSITION_ROUTE_TARGET_DURATION_SEC = 2.5
+const JUMP_TRANSITION_ROUTE_TIMEOUT_BUFFER_SEC = 2.0
 
 # --- State ---
 var _spawned_agent_bodies = []
 var _sector_loader = null
 var _pending_jump_target: String = ""
 var _reported_invalid_sectors: Dictionary = {}
+var _jump_transition_active: bool = false
+var _jump_transition_tree_was_paused: bool = false
+var _jump_transition_timer_was_running: bool = false
+var _jump_transition_mouse_mode_before_lock: int = Input.MOUSE_MODE_VISIBLE
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
@@ -26489,6 +26911,8 @@ func _ready():
 func _on_new_game_requested() -> void:
 	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
 	_reset_camera_input_state()
+	_reset_jump_transition_foundation()
+	_set_main_hud_hidden(false)
 	# Leaving the Main Menu; resume gameplay.
 	get_tree().paused = false
 	if is_instance_valid(_time_clock_timer):
@@ -26524,6 +26948,8 @@ func _on_new_game_requested() -> void:
 func _on_game_state_loaded() -> void:
 	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
 	_reset_camera_input_state()
+	_reset_jump_transition_foundation()
+	_set_main_hud_hidden(false)
 	# A saved state has been applied; we now need to load a zone so AgentSpawner can
 	# spawn the player from the restored GameState.
 	get_tree().paused = false
@@ -26670,17 +27096,125 @@ func travel_to_sector(target_sector_id: String) -> void:
 	var resolved_target_sector_id: String = _resolve_known_sector_id(target_sector_id, "travel_to_sector")
 	if resolved_target_sector_id == "":
 		return
+	if _jump_transition_active:
+		return
+	if _is_jump_transition_enabled():
+		_jump_transition_active = true
+		call_deferred("_run_jump_transition_sequence", resolved_target_sector_id)
+		return
+	_travel_to_sector_immediate(resolved_target_sector_id)
+
+
+func is_jump_transition_active() -> bool:
+	return _jump_transition_active
+
+
+func _begin_jump_transition_foundation(source_sector_id: String, target_sector_id: String) -> void:
+	var jump_transition_rig = _get_jump_transition_rig()
+	if not is_instance_valid(jump_transition_rig):
+		_reset_jump_transition_foundation()
+		return
+	if not _is_jump_transition_enabled():
+		_reset_jump_transition_foundation()
+		return
+	_jump_transition_active = true
+	if is_instance_valid(GlobalRefs.main_camera) and jump_transition_rig.has_method("capture_from_camera"):
+		jump_transition_rig.call("capture_from_camera", GlobalRefs.main_camera)
+	var departure_direction = _get_departure_direction_for_route(source_sector_id, target_sector_id)
+	if jump_transition_rig.has_method("begin_departure"):
+		jump_transition_rig.call("begin_departure", source_sector_id, target_sector_id, departure_direction)
+
+
+func _reset_jump_transition_foundation() -> void:
+	_jump_transition_active = false
+	var jump_transition_rig = _get_jump_transition_rig()
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("reset_transition_state"):
+		jump_transition_rig.call("reset_transition_state")
+	_jump_transition_mouse_mode_before_lock = Input.MOUSE_MODE_VISIBLE
+	if is_instance_valid(GlobalRefs.main_camera):
+		if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
+			GlobalRefs.main_camera.clear_temporary_fov_override()
+		GlobalRefs.main_camera.current = true
+
+
+func _run_jump_transition_sequence(target_sector_id: String) -> void:
+	var resolved_target_sector_id: String = _resolve_known_sector_id(target_sector_id, "_run_jump_transition_sequence")
+	if resolved_target_sector_id == "":
+		_reset_jump_transition_foundation()
+		return
 	var old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	_begin_jump_transition_foundation(old_sector, resolved_target_sector_id)
+	if not _jump_transition_active:
+		_travel_to_sector_immediate(resolved_target_sector_id)
+		return
+	var departure_direction = _get_departure_direction_for_route(old_sector, resolved_target_sector_id)
+	var departure_visuals_state = _prepare_jump_transition_departure_visuals(departure_direction)
+	if departure_visuals_state is GDScriptFunctionState:
+		yield(departure_visuals_state, "completed")
+	_pause_jump_transition_gameplay()
+	var fov_override_state = _animate_main_camera_fov_override(JUMP_TRANSITION_TARGET_FOV_DEG, JUMP_TRANSITION_FOV_WIDEN_DURATION_SEC)
+	if fov_override_state is GDScriptFunctionState:
+		yield(fov_override_state, "completed")
+	_prepare_sector_travel_state(resolved_target_sector_id, old_sector)
+	_cleanup_all_agents()
+	_cleanup_current_zone()
+	yield(get_tree(), "idle_frame")
+	var route_distance = _get_jump_transition_route_distance(old_sector, resolved_target_sector_id)
+	var cruise_speed = _get_jump_transition_cruise_speed(route_distance)
+	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed)
+	var jump_transition_rig = _get_jump_transition_rig()
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_fov"):
+		jump_transition_rig.call("set_transition_fov", JUMP_TRANSITION_TARGET_FOV_DEG)
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_cruise"):
+		jump_transition_rig.call("begin_cruise", cruise_speed)
+		var cruise_velocity_state = _wait_for_rig_velocity(jump_transition_rig, cruise_speed, JUMP_TRANSITION_VELOCITY_TOLERANCE, JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC)
+		if cruise_velocity_state is GDScriptFunctionState:
+			yield(cruise_velocity_state, "completed")
+		var route_completion_state = _wait_for_rig_route_completion(jump_transition_rig, route_timeout_sec)
+		if route_completion_state is GDScriptFunctionState:
+			yield(route_completion_state, "completed")
+		if jump_transition_rig.has_method("is_route_complete") and not jump_transition_rig.call("is_route_complete") and jump_transition_rig.has_method("begin_arrival"):
+			jump_transition_rig.call("begin_arrival")
+			var arrival_velocity_state = _wait_for_rig_velocity(jump_transition_rig, 0.0, JUMP_TRANSITION_VELOCITY_TOLERANCE, JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC)
+			if arrival_velocity_state is GDScriptFunctionState:
+				yield(arrival_velocity_state, "completed")
+	load_sector(resolved_target_sector_id)
+	yield(get_tree(), "idle_frame")
+	var player_ready_state = _wait_for_player_and_zone_ready(JUMP_TRANSITION_LOAD_TIMEOUT_SEC)
+	if player_ready_state is GDScriptFunctionState:
+		yield(player_ready_state, "completed")
+	_restore_gameplay_camera_at_transition_fov()
+	var fov_restore_state = _animate_main_camera_fov_restore(JUMP_TRANSITION_FOV_RESTORE_DURATION_SEC)
+	if fov_restore_state is GDScriptFunctionState:
+		yield(fov_restore_state, "completed")
+	_set_jump_transition_camera_locked(false)
+	var hud_show_delay_state = _yield_real_time(JUMP_TRANSITION_HUD_SHOW_DELAY_SEC)
+	if hud_show_delay_state is GDScriptFunctionState:
+		yield(hud_show_delay_state, "completed")
+	_set_main_hud_hidden(false)
+	_restore_jump_transition_gameplay()
+	_reset_jump_transition_foundation()
+	_request_sector_travel_tick()
+
+
+func _travel_to_sector_immediate(target_sector_id: String) -> void:
+	_prepare_sector_travel_state(target_sector_id)
+	load_sector(target_sector_id)
+	_request_sector_travel_tick()
+
+
+func _prepare_sector_travel_state(target_sector_id: String, old_sector_id: String = "") -> String:
+	var old_sector = old_sector_id
+	if old_sector == "":
+		old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
 	_snapshot_player_state_for_sector_travel()
 	GameState.player_docked_at = ""
 	GameState.player_arrived_from_sector = old_sector
-	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, resolved_target_sector_id)
+	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, target_sector_id)
 	if GameState.agents.has("player"):
-		GameState.agents["player"]["current_sector_id"] = resolved_target_sector_id
-	EventBus.emit_signal("sector_changed", resolved_target_sector_id, old_sector)
-	load_sector(resolved_target_sector_id)
-	if is_instance_valid(GlobalRefs.simulation_engine):
-		GlobalRefs.simulation_engine.request_tick()
+		GameState.agents["player"]["current_sector_id"] = target_sector_id
+	EventBus.emit_signal("sector_changed", target_sector_id, old_sector)
+	return old_sector
 
 
 func _snapshot_player_state_for_sector_travel() -> void:
@@ -26688,6 +27222,203 @@ func _snapshot_player_state_for_sector_travel() -> void:
 	GameState.player_position = Vector3.ZERO
 	if is_instance_valid(GlobalRefs.player_agent_body):
 		GameState.player_rotation = GlobalRefs.player_agent_body.rotation_degrees
+
+
+func _pause_jump_transition_gameplay() -> void:
+	_jump_transition_tree_was_paused = get_tree().paused
+	_jump_transition_timer_was_running = is_instance_valid(_time_clock_timer) and not _time_clock_timer.is_stopped()
+	if is_instance_valid(_time_clock_timer):
+		_time_clock_timer.stop()
+	get_tree().paused = true
+
+
+func _restore_jump_transition_gameplay() -> void:
+	get_tree().paused = _jump_transition_tree_was_paused
+	if _jump_transition_timer_was_running and is_instance_valid(_time_clock_timer):
+		_time_clock_timer.start()
+	_jump_transition_tree_was_paused = false
+	_jump_transition_timer_was_running = false
+
+
+func _set_jump_transition_camera_locked(is_locked: bool) -> void:
+	if is_locked:
+		_jump_transition_mouse_mode_before_lock = Input.get_mouse_mode()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(_jump_transition_mouse_mode_before_lock)
+	if not is_instance_valid(GlobalRefs.main_camera):
+		return
+	if GlobalRefs.main_camera.has_method("set_is_rotating"):
+		GlobalRefs.main_camera.set_is_rotating(false)
+	if GlobalRefs.main_camera.has_method("set_rotation_input_active"):
+		GlobalRefs.main_camera.set_rotation_input_active(
+			not is_locked and _jump_transition_mouse_mode_before_lock == Input.MOUSE_MODE_CAPTURED
+		)
+
+
+func _set_main_hud_hidden(is_hidden: bool) -> void:
+	if is_instance_valid(GlobalRefs.main_hud):
+		GlobalRefs.main_hud.visible = not is_hidden
+
+
+func _restore_gameplay_camera_at_transition_fov() -> void:
+	if not is_instance_valid(GlobalRefs.main_camera):
+		return
+	var jump_transition_rig = _get_jump_transition_rig()
+	var transition_forward_direction = Vector3.ZERO
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("get_transition_camera_forward_direction"):
+		transition_forward_direction = jump_transition_rig.call("get_transition_camera_forward_direction")
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("deactivate_transition_view"):
+		jump_transition_rig.call("deactivate_transition_view")
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		if GlobalRefs.main_camera.has_method("restore_orbit_from_transition_view"):
+			GlobalRefs.main_camera.restore_orbit_from_transition_view(
+				GlobalRefs.player_agent_body,
+				transition_forward_direction
+			)
+		elif GlobalRefs.main_camera.has_method("set_target_node"):
+			GlobalRefs.main_camera.set_target_node(GlobalRefs.player_agent_body)
+			if transition_forward_direction.length_squared() >= 0.001 and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
+				GlobalRefs.main_camera.set_orbit_forward_direction(transition_forward_direction)
+	if GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
+		GlobalRefs.main_camera.set_temporary_fov_override(JUMP_TRANSITION_TARGET_FOV_DEG)
+	GlobalRefs.main_camera.current = true
+
+
+func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
+	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
+		GlobalRefs.main_camera.set_orbit_forward_direction(departure_direction)
+	var camera_aim_state = _yield_real_time(JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC)
+	if camera_aim_state is GDScriptFunctionState:
+		yield(camera_aim_state, "completed")
+	var jump_transition_rig = _get_jump_transition_rig()
+	if is_instance_valid(jump_transition_rig) and is_instance_valid(GlobalRefs.main_camera) and jump_transition_rig.has_method("capture_from_camera"):
+		jump_transition_rig.call("capture_from_camera", GlobalRefs.main_camera)
+	_set_jump_transition_camera_locked(true)
+	_set_main_hud_hidden(true)
+
+
+func _get_jump_transition_fov_progress(linear_t: float) -> float:
+	var t = clamp(linear_t, 0.0, 1.0)
+	return pow(t, JUMP_TRANSITION_FOV_EASE_POWER)
+
+
+func _animate_main_camera_fov_override(target_fov: float, duration_sec: float):
+	if not is_instance_valid(GlobalRefs.main_camera) or not GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
+		return
+	var start_fov = GlobalRefs.main_camera.fov
+	if GlobalRefs.main_camera.has_method("get_effective_fov"):
+		start_fov = GlobalRefs.main_camera.get_effective_fov()
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration_sec * 1000.0), 1)
+	while true:
+		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
+		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
+		GlobalRefs.main_camera.set_temporary_fov_override(
+			lerp(start_fov, target_fov, _get_jump_transition_fov_progress(t))
+		)
+		if t >= 1.0:
+			break
+		yield(get_tree(), "idle_frame")
+
+
+func _animate_main_camera_fov_restore(duration_sec: float):
+	if not is_instance_valid(GlobalRefs.main_camera) or not GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
+		return
+	var start_fov = GlobalRefs.main_camera.fov
+	if GlobalRefs.main_camera.has_method("get_effective_fov"):
+		start_fov = GlobalRefs.main_camera.get_effective_fov()
+	var target_fov = start_fov
+	if GlobalRefs.main_camera.has_method("get_zoom_controller_fov"):
+		target_fov = GlobalRefs.main_camera.get_zoom_controller_fov()
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration_sec * 1000.0), 1)
+	while true:
+		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
+		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
+		GlobalRefs.main_camera.set_temporary_fov_override(
+			lerp(start_fov, target_fov, _get_jump_transition_fov_progress(t))
+		)
+		if t >= 1.0:
+			break
+		yield(get_tree(), "idle_frame")
+	if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
+		GlobalRefs.main_camera.clear_temporary_fov_override()
+
+
+func _wait_for_rig_velocity(jump_transition_rig: Node, target_velocity: float, tolerance: float, timeout_sec: float):
+	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method("get_current_velocity"):
+		return true
+	var start_time_ms = OS.get_ticks_msec()
+	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
+	while true:
+		var current_velocity = float(jump_transition_rig.call("get_current_velocity"))
+		if abs(current_velocity - target_velocity) <= tolerance:
+			return true
+		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
+			return false
+		yield(get_tree(), "idle_frame")
+
+
+func _wait_for_rig_route_completion(jump_transition_rig: Node, timeout_sec: float):
+	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method("is_route_complete"):
+		return true
+	var start_time_ms = OS.get_ticks_msec()
+	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
+	while true:
+		if bool(jump_transition_rig.call("is_route_complete")):
+			return true
+		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
+			return false
+		yield(get_tree(), "idle_frame")
+
+
+func _wait_for_player_and_zone_ready(timeout_sec: float):
+	var start_time_ms = OS.get_ticks_msec()
+	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
+	while true:
+		if is_instance_valid(GlobalRefs.current_zone) and is_instance_valid(GlobalRefs.player_agent_body):
+			return true
+		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
+			return false
+		yield(get_tree(), "idle_frame")
+
+
+func _yield_real_time(duration_sec: float):
+	if duration_sec <= 0.0:
+		return
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration_sec * 1000.0), 1)
+	while OS.get_ticks_msec() - start_time_ms < duration_ms:
+		yield(get_tree(), "idle_frame")
+
+
+func _get_jump_transition_route_distance(source_sector_id: String, target_sector_id: String) -> float:
+	return _get_sector_global_position(source_sector_id).distance_to(_get_sector_global_position(target_sector_id))
+
+
+func _get_jump_transition_cruise_speed(route_distance: float) -> float:
+	if route_distance <= 0.0:
+		return DEFAULT_JUMP_TRANSITION_SPEED
+	return max(DEFAULT_JUMP_TRANSITION_SPEED, route_distance / JUMP_TRANSITION_ROUTE_TARGET_DURATION_SEC)
+
+
+func _get_jump_transition_route_timeout_sec(route_distance: float, cruise_speed: float) -> float:
+	var effective_speed = max(cruise_speed, 1.0)
+	return max(route_distance / effective_speed, 0.0) + JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC + JUMP_TRANSITION_ROUTE_TIMEOUT_BUFFER_SEC
+
+
+func _request_sector_travel_tick() -> void:
+	if is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.request_tick()
+
+
+func _get_departure_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:
+	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
+	var target_position: Vector3 = _get_sector_global_position(target_sector_id)
+	if source_position == target_position:
+		return DEFAULT_JUMP_TRANSITION_DIRECTION
+	return (target_position - source_position).normalized()
 
 
 func _get_arrival_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:
@@ -26704,6 +27435,32 @@ func _get_sector_global_position(sector_id: String) -> Vector3:
 		return Vector3.ZERO
 	var global_position = sector_template.get("global_position")
 	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _get_world_rendering_node() -> Node:
+	var scene_tree = get_tree()
+	if scene_tree != null and is_instance_valid(scene_tree.current_scene):
+		var scene_world_rendering = scene_tree.current_scene.get_node_or_null("WorldRendering")
+		if is_instance_valid(scene_world_rendering):
+			return scene_world_rendering
+	if is_instance_valid(get_parent()):
+		var parent_world_rendering = get_parent().get_node_or_null("WorldRendering")
+		if is_instance_valid(parent_world_rendering):
+			return parent_world_rendering
+	return null
+
+
+func _is_jump_transition_enabled() -> bool:
+	var world_rendering = _get_world_rendering_node()
+	if not is_instance_valid(world_rendering):
+		return false
+	return bool(world_rendering.get("jump_transition_enabled"))
+
+
+func _get_jump_transition_rig() -> Node:
+	if is_instance_valid(get_parent()):
+		return get_parent().get_node_or_null(JUMP_TRANSITION_RIG_NODE_NAME)
+	return null
 
 
 func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
@@ -26794,6 +27551,7 @@ func _notification(what):
 			EventBus.disconnect("jump_available", self, "_on_jump_available")
 		if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
 			EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
+		_reset_jump_transition_foundation()
 
 --- Start of ./src/scenes/game_world/world_manager/template_indexer.gd ---
 
@@ -27123,8 +27881,8 @@ func _get_new_ship_uid() -> int:
 # PROJECT: GDTLancer
 # MODULE: world_rendering.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-16 01:02:19
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 17:48:36
 #
 
 # File: scenes/game_world/world_rendering.gd
@@ -27140,6 +27898,7 @@ var viewport_disable_3d = false
 var viewport_sharpen_intensity = 0.5
 var viewport_keep_3d_linear = false
 var projected_target_center_fade_enabled = true
+var jump_transition_enabled = true
 
 
 var _viewport_size = Vector2(1920, 1080)
@@ -30106,6 +30865,7 @@ const TEST_ROUTE_DIRECTION = Vector3(0, 0, -1)
 
 func after_each():
 	GameState.player_docked_at = ""
+	GlobalRefs.world_manager = null
 
 func test_docking_signals():
 	var station = StaticBody.new()
@@ -30308,6 +31068,36 @@ func test_single_click_clears_selection_without_world_raycast_pick():
 	controller._handle_single_click(Vector2.ZERO)
 	assert_eq(controller._selected_target, null, "Single-click fallback should now clear selection instead of picking the collider under the cursor.")
 	assert_signal_emitted(EventBus, "player_target_deselected")
+
+
+func test_jump_interact_ignores_input_while_transition_active():
+	var transition_script = GDScript.new()
+	transition_script.source_code = "extends Node\nfunc is_jump_transition_active():\n\treturn true\n"
+	transition_script.reload()
+	var transition_world_manager = Node.new()
+	transition_world_manager.set_script(transition_script)
+	add_child_autofree(transition_world_manager)
+	GlobalRefs.world_manager = transition_world_manager
+
+	var harness = _create_player_controller_harness(true, true)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump input should be ignored while the world manager reports an active jump transition.")
+	assert_eq(agent.align_calls.size(), 0, "Jump input should not queue new alignment while a jump transition is already active.")
+	assert_eq(controller._queued_jump_target_id, "", "Jump input should not leave a queued jump behind while transition gating is active.")
+	assert_true(controller._selected_target == route_target, "Ignoring input during a jump transition should not mutate the selected target.")
 
 
 func _create_player_controller_harness(aligned: bool = true, rotation_stopped: bool = true) -> Dictionary:
@@ -31124,8 +31914,41 @@ func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
 	)
 	assert_eq(
 		elace_marker.transform.origin,
-		Constants.REFERENCE_ORIGIN - cob_template.global_position,
+		Constants.get_reference_origin_offset(cob_template.global_position),
 		"Elace should align with the starsphere reference origin in current-sector-local map space."
+	)
+
+
+func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
+	var cob_template = TemplateDatabase.locations["sector_system_cob"]
+	assert_not_null(cob_template, "Expected sector_system_cob template to load for backdrop-alignment test.")
+	_panel_instance._toggle_panel()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var cob_marker = map_content.get_node_or_null("Sector_sector_system_cob")
+	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
+	assert_not_null(cob_marker, "Expected sector_system_cob marker to exist for backdrop alignment test.")
+	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist for backdrop alignment test.")
+	var backdrop = _panel_instance._map_nebula_holder
+	assert_not_null(backdrop, "Opening the panel should create a dedicated nebula backdrop inside the map viewport.")
+	assert_eq(
+		backdrop.transform.origin,
+		Constants.get_reference_origin_offset(cob_template.global_position),
+		"The map nebula backdrop should use the same current-sector-local offset as the reference origin."
+	)
+	var star_root_path = "Globalnebulas/SectorStars (clipped by near plane which is 10u)"
+	var star_cob = backdrop.get_node_or_null("%s/Star Cob" % star_root_path)
+	var star_elace = backdrop.get_node_or_null("%s/Star Elace" % star_root_path)
+	assert_not_null(star_cob, "Expected Star Cob to exist in the dedicated map backdrop.")
+	assert_not_null(star_elace, "Expected Star Elace to exist in the dedicated map backdrop.")
+	assert_eq(
+		star_cob.global_transform.origin,
+		cob_marker.global_transform.origin,
+		"Star Cob in the backdrop should land on the same map-space position as the Cob sector marker."
+	)
+	assert_eq(
+		star_elace.global_transform.origin,
+		elace_marker.global_transform.origin,
+		"Star Elace in the backdrop should land on the same map-space position as the Elace sector marker."
 	)
 
 --- Start of ./src/tests/core/ui/test_debug_map_panel.gd ---
@@ -31233,6 +32056,25 @@ func test_toggle_shows_panel():
 	_panel_instance._input(event)
 	var panel_node = _panel_instance.get_node("Panel")
 	assert_true(panel_node.visible, "Panel should be visible after F4 toggle")
+
+
+func test_opening_panel_uses_isolated_viewport_world_and_cleans_up_backdrop():
+	_show_panel()
+	assert_true(
+		_panel_instance._viewport.own_world,
+		"Debug map viewport should render in its own world so it does not inherit live gameplay starsphere content."
+	)
+	assert_not_null(
+		_panel_instance._map_nebula_holder,
+		"Opening the panel should create a dedicated nebula backdrop inside the map viewport."
+	)
+	var star_elace = _panel_instance._map_nebula_holder.get_node_or_null(
+		"Globalnebulas/SectorStars (clipped by near plane which is 10u)/Star Elace"
+	)
+	assert_not_null(star_elace, "The dedicated map backdrop should include the sector-star anchors.")
+	_close_panel_if_open()
+	assert_null(_panel_instance._map_nebula_holder, "Closing the panel should release the dedicated map backdrop.")
+	assert_null(_panel_instance._map_world_env, "Closing the panel should release the map world environment.")
 
 
 func test_populate_creates_sector_markers():
@@ -32386,6 +33228,68 @@ extends RigidBody
 func get_interaction_radius():
 	return 10.0
 
+--- Start of ./src/tests/scenes/camera/test_orbit_camera.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_orbit_camera.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
+#
+
+extends GutTest
+
+const OrbitCameraScript = preload("res://src/scenes/camera/orbit_camera.gd")
+
+
+func test_temporary_fov_override_takes_priority_over_zoom_controller_fov():
+	var camera = OrbitCameraScript.new()
+	add_child_autofree(camera)
+
+	camera.apply_zoom_controller_fov(65.0)
+	assert_eq(camera.fov, 65.0, "Without an override, zoom-controller FoV should drive the live camera FoV.")
+
+	camera.set_temporary_fov_override(170.0)
+	camera.apply_zoom_controller_fov(72.0)
+	assert_eq(camera.fov, 170.0, "Temporary jump-transition overrides should take priority over zoom-controller FoV updates.")
+	assert_eq(camera.get_zoom_controller_fov(), 72.0, "The base FoV should continue tracking zoom-controller updates while the override is active.")
+
+	camera.clear_temporary_fov_override()
+	assert_eq(camera.fov, 72.0, "Clearing the temporary override should restore the latest zoom-controller FoV.")
+
+
+func test_set_orbit_forward_direction_updates_orbit_orientation():
+	var camera = OrbitCameraScript.new()
+	add_child_autofree(camera)
+
+	camera.set_orbit_forward_direction(Vector3(1, 0, 0))
+
+	assert_true(
+		camera.get_orbit_forward_direction().is_equal_approx(Vector3(1, 0, 0)),
+		"Orbit-camera jump preparation should be able to aim the camera along the destination route before input locking begins."
+	)
+
+
+func test_restore_orbit_from_transition_view_snaps_camera_to_transition_facing():
+	var camera = OrbitCameraScript.new()
+	add_child_autofree(camera)
+
+	var player = Spatial.new()
+	add_child_autofree(player)
+	player.global_transform = Transform(Basis(), Vector3(120.0, 0.0, -40.0))
+
+	camera.restore_orbit_from_transition_view(player, Vector3(1, 0, 0))
+
+	assert_true(
+		camera.get_orbit_forward_direction().is_equal_approx(Vector3(1, 0, 0)),
+		"Transition restore should keep the gameplay orbit camera aligned to the jump rig's final forward direction."
+	)
+	assert_true(
+		(player.global_transform.origin - camera.global_transform.origin).normalized().is_equal_approx(Vector3(1, 0, 0)),
+		"Transition restore should snap the gameplay orbit camera behind the newly spawned player instead of resuming from stale pre-jump coordinates."
+	)
+
 --- Start of ./src/tests/scenes/game_world/world_manager/test_faction_loading.gd ---
 
 # File: src/tests/scenes/game_world/world_manager/test_faction_loading.gd
@@ -32598,8 +33502,8 @@ func test_generated_characters_have_assets():
 # PROJECT: GDTLancer
 # MODULE: test_world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:32:50
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 17:48:36
 #
 
 extends GutTest
@@ -32627,6 +33531,8 @@ func after_each():
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GlobalRefs.player_agent_body = null
+	if is_instance_valid(world_manager) and not is_instance_valid(world_manager.get_parent()):
+		world_manager.free()
 	world_manager = null
 
 
@@ -32681,4 +33587,421 @@ func test_snapshot_player_state_for_sector_travel_preserves_rotation_and_clears_
 		GameState.player_rotation,
 		Vector3(12, 34, 56),
 		"Sector travel should snapshot the current player orientation for the next-sector spawn."
+	)
+
+
+func test_jump_transition_active_defaults_false():
+	assert_false(
+		world_manager.is_jump_transition_active(),
+		"WorldManager should start with no active jump transition foundation."
+	)
+
+
+func test_begin_jump_transition_foundation_uses_rig_when_enabled():
+	var harness = _create_jump_transition_harness(true)
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+
+	assert_true(
+		world_manager.is_jump_transition_active(),
+		"Enabled transition foundations should mark the world manager as active."
+	)
+	assert_eq(
+		harness["rig"].departure_calls.size(),
+		1,
+		"Enabled transition foundations should enter the rig departure stage exactly once."
+	)
+	assert_eq(
+		harness["rig"].departure_calls[0][2],
+		Vector3(1, 0, 0),
+		"Departure travel direction should point from the source sector toward the destination sector."
+	)
+
+
+func test_begin_jump_transition_foundation_resets_when_disabled():
+	var harness = _create_jump_transition_harness(false)
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+
+	assert_false(
+		world_manager.is_jump_transition_active(),
+		"Disabled transition foundations should leave the world manager inactive."
+	)
+	assert_eq(
+		harness["rig"].reset_calls,
+		1,
+		"Disabled transition foundations should reset the rig instead of starting departure or cruise."
+	)
+	assert_eq(
+		harness["rig"].departure_calls.size(),
+		0,
+		"Disabled transition foundations should not start departure."
+	)
+
+
+func test_reset_jump_transition_foundation_clears_active_state_and_resets_rig():
+	var harness = _create_jump_transition_harness(true)
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+	world_manager._reset_jump_transition_foundation()
+
+	assert_false(
+		world_manager.is_jump_transition_active(),
+		"Resetting the transition foundation should clear the active flag."
+	)
+	assert_eq(
+		harness["rig"].reset_calls,
+		1,
+		"Resetting the transition foundation should forward the reset to the rig."
+	)
+
+
+func _create_jump_transition_harness(is_enabled: bool) -> Dictionary:
+	var container = Node.new()
+	add_child_autofree(container)
+	container.add_child(world_manager)
+
+	var rendering_script = GDScript.new()
+	rendering_script.source_code = "extends Node\nvar jump_transition_enabled = true\n"
+	rendering_script.reload()
+	var world_rendering = Node.new()
+	world_rendering.name = "WorldRendering"
+	world_rendering.set_script(rendering_script)
+	world_rendering.jump_transition_enabled = is_enabled
+	container.add_child(world_rendering)
+
+	var rig_script = GDScript.new()
+	rig_script.source_code = "extends Node\nvar departure_calls = []\nvar reset_calls = 0\nfunc begin_departure(source_sector_id, target_sector_id, travel_direction):\n\tdeparture_calls.append([source_sector_id, target_sector_id, travel_direction])\nfunc reset_transition_state():\n\treset_calls += 1\n"
+	rig_script.reload()
+	var jump_transition_rig = Node.new()
+	jump_transition_rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	jump_transition_rig.set_script(rig_script)
+	container.add_child(jump_transition_rig)
+
+	return {
+		"container": container,
+		"rig": jump_transition_rig,
+		"world_rendering": world_rendering,
+	}
+
+--- Start of ./src/tests/scenes/jump_transition/test_jump_transition_regressions.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_jump_transition_regressions.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
+#
+
+extends GutTest
+
+const WorldManagerScript = preload("res://src/scenes/game_world/world_manager.gd")
+const JumpTransitionRigScene = preload("res://scenes/prefabs/navigation/jump_transition_rig.tscn")
+
+var _original_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
+
+
+func before_each():
+	_original_mouse_mode = Input.get_mouse_mode()
+	GameState.world_topology = {
+		Constants.INITIAL_SECTOR_ID: {"connections": ["station_beta"]},
+		"station_beta": {"connections": [Constants.INITIAL_SECTOR_ID]},
+	}
+	TemplateDatabase.locations = {
+		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300)},
+		"station_beta": {"global_position": Vector3(2200, 50, -300)},
+	}
+
+
+func after_each():
+	Input.set_mouse_mode(_original_mouse_mode)
+	GameState.world_topology.clear()
+	TemplateDatabase.locations.clear()
+	GlobalRefs.main_camera = null
+	GlobalRefs.player_agent_body = null
+
+
+func test_world_manager_unlock_restores_previous_mouse_capture_state():
+	var world_manager = WorldManagerScript.new()
+	add_child_autofree(world_manager)
+
+	var camera_script = GDScript.new()
+	camera_script.source_code = "extends Node\nvar rotation_input_calls = []\nvar rotating_calls = []\nfunc set_rotation_input_active(is_active):\n\trotation_input_calls.append(is_active)\nfunc set_is_rotating(rotating):\n\trotating_calls.append(rotating)\n"
+	camera_script.reload()
+	var camera = Node.new()
+	camera.set_script(camera_script)
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	world_manager._set_jump_transition_camera_locked(true)
+
+	assert_eq(
+		Input.get_mouse_mode(),
+		Input.MOUSE_MODE_VISIBLE,
+		"Locking the jump transition should release the mouse while the cosmetic sequence is active."
+	)
+
+	world_manager._set_jump_transition_camera_locked(false)
+
+	assert_eq(
+		Input.get_mouse_mode(),
+		Input.MOUSE_MODE_CAPTURED,
+		"Unlocking the jump transition should restore the pre-jump mouse capture mode."
+	)
+	assert_eq(
+		camera.rotation_input_calls,
+		[false, true],
+		"Jump locking should disable live rotation input during the transition and restore it afterward when free-flight was active."
+	)
+	assert_eq(
+		camera.rotating_calls,
+		[false, false],
+		"Jump locking and unlock should both clear any held external camera rotation so the camera does not keep spinning after arrival."
+	)
+
+
+func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_hud():
+	var container = Node.new()
+	add_child_autofree(container)
+	var world_manager = WorldManagerScript.new()
+	container.add_child(world_manager)
+
+	var event_order = []
+
+	var rig_script = GDScript.new()
+	rig_script.source_code = "extends Node\nvar events_ref = null\nfunc capture_from_camera(_camera):\n\tevents_ref.append(\"capture\")\n"
+	rig_script.reload()
+	var rig = Node.new()
+	rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	rig.set_script(rig_script)
+	rig.events_ref = event_order
+	container.add_child(rig)
+
+	var camera_script = GDScript.new()
+	camera_script.source_code = "extends Node\nvar events_ref = null\nfunc set_orbit_forward_direction(_direction):\n\tevents_ref.append(\"aim\")\nfunc set_is_rotating(_rotating):\n\tevents_ref.append(\"stop_rotate\")\nfunc set_rotation_input_active(is_active):\n\tevents_ref.append(\"lock_\" + str(is_active))\n"
+	camera_script.reload()
+	var camera = Node.new()
+	camera.set_script(camera_script)
+	camera.events_ref = event_order
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = Control.new()
+	add_child_autofree(hud)
+	GlobalRefs.main_hud = hud
+
+	var departure_state = world_manager._prepare_jump_transition_departure_visuals(Vector3(1, 0, 0))
+	if departure_state is GDScriptFunctionState:
+		yield(departure_state, "completed")
+
+	assert_eq(
+		event_order,
+		["aim", "capture", "stop_rotate", "lock_False"],
+		"Jump departure visuals should aim the orbit camera first, then capture that pose for the transition rig, then lock camera input."
+	)
+	assert_false(hud.visible, "Jump departure visuals should hide the HUD immediately before the FoV shift begins.")
+
+
+func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_static():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	var source_camera = Camera.new()
+	add_child_autofree(source_camera)
+	var source_basis = Basis()
+	source_basis = source_basis.rotated(Vector3.UP, deg2rad(45.0))
+	source_basis = source_basis.rotated(Vector3.RIGHT, deg2rad(-15.0))
+	source_camera.global_transform = Transform(source_basis, Vector3(75, 20, -40))
+
+	rig.capture_from_camera(source_camera)
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+
+	var transition_camera = rig.get_node("TransitionCamera")
+	var nebula_holder = rig.get_node("NebulaHolder")
+	var expected_anchor = Constants.get_reference_origin_offset(
+		TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"]
+	)
+
+	assert_eq(
+		transition_camera.fov,
+		source_camera.fov,
+		"The transition camera should inherit the live gameplay camera FoV before the widened transition handoff."
+	)
+	assert_eq(
+		transition_camera.global_transform.origin,
+		Vector3.ZERO,
+		"The transition camera should start at the current-sector-local origin so the transition starsphere matches the local-scene and map alignment frame."
+	)
+	assert_true(
+		(-transition_camera.global_transform.basis.z).normalized().is_equal_approx(Vector3(1, 0, 0)),
+		"The transition camera should lock its orientation to face the destination travel direction."
+	)
+	assert_eq(
+		nebula_holder.transform.origin,
+		expected_anchor,
+		"The transition rig should anchor its starsphere to the source-sector reference offset instead of recentering it on the camera."
+	)
+
+	rig.set_transition_fov(WorldManagerScript.JUMP_TRANSITION_TARGET_FOV_DEG)
+	rig.begin_cruise(WorldManagerScript.DEFAULT_JUMP_TRANSITION_SPEED)
+	rig._process(1.0)
+
+	assert_eq(
+		transition_camera.fov,
+		WorldManagerScript.JUMP_TRANSITION_TARGET_FOV_DEG,
+		"The visible jump-scene camera should keep the widened transition FoV instead of snapping back to its normal authored FoV during cruise."
+	)
+
+	assert_true(
+		transition_camera.global_transform.origin.distance_to(source_camera.global_transform.origin) > 0.1,
+		"Cruise should move the transition camera through the jump scene."
+	)
+	assert_eq(
+		transition_camera.global_transform.origin,
+		rig.get_route_world_position() - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
+		"Transition-camera travel should be expressed in current-sector-local coordinates so star sprites stay aligned during jump cruise."
+	)
+	assert_eq(
+		nebula_holder.transform.origin,
+		expected_anchor,
+		"The transition starsphere anchor should remain static while the transition camera moves through it."
+	)
+	assert_true(
+		rig.get_route_world_position().x > TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"].x,
+		"Jump cruise should advance the internal route position toward the destination instead of idling on a fixed hold timer."
+	)
+
+
+func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view():
+	var container = Node.new()
+	add_child_autofree(container)
+	var world_manager = WorldManagerScript.new()
+	container.add_child(world_manager)
+
+	var rig_script = GDScript.new()
+	rig_script.source_code = "extends Node\nvar deactivate_calls = 0\nfunc deactivate_transition_view():\n\tdeactivate_calls += 1\nfunc get_transition_camera_forward_direction():\n\treturn Vector3(1, 0, 0)\n"
+	rig_script.reload()
+	var rig = Node.new()
+	rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	rig.set_script(rig_script)
+	container.add_child(rig)
+
+	var camera_script = GDScript.new()
+	camera_script.source_code = "extends Node\nvar target_calls = []\nvar restore_calls = []\nvar fov_calls = []\nvar current = false\nfunc restore_orbit_from_transition_view(target, direction):\n\trestore_calls.append([target, direction])\nfunc set_target_node(target):\n\ttarget_calls.append(target)\nfunc set_temporary_fov_override(value):\n\tfov_calls.append(value)\n"
+	camera_script.reload()
+	var camera = Node.new()
+	camera.set_script(camera_script)
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var player = Spatial.new()
+	add_child_autofree(player)
+	GlobalRefs.player_agent_body = player
+
+	world_manager._restore_gameplay_camera_at_transition_fov()
+
+	assert_eq(
+		rig.deactivate_calls,
+		1,
+		"Restoring the gameplay camera should first deactivate the transition rig view so its starsphere is no longer visible on arrival."
+	)
+	assert_eq(
+		camera.restore_calls.size(),
+		1,
+		"Gameplay camera restore should hand the orbit camera the transition rig's final pose instead of only rebinding the target."
+	)
+	assert_true(
+		camera.restore_calls[0][0] == player,
+		"Gameplay camera restore should target the live player agent body."
+	)
+	assert_true(
+		camera.restore_calls[0][1].is_equal_approx(Vector3(1, 0, 0)),
+		"Gameplay camera restore should reuse the jump rig's final forward direction so arrival does not flip back to stale orbit coordinates."
+	)
+	assert_eq(
+		camera.target_calls.size(),
+		0,
+		"Gameplay camera restore should defer target rebinding to the synced orbit restore path when that API is available."
+	)
+	assert_eq(
+		camera.fov_calls,
+		[WorldManagerScript.JUMP_TRANSITION_TARGET_FOV_DEG],
+		"Gameplay camera restore should hand over at the widened transition FoV before animating back to the zoom-controller FoV."
+	)
+	assert_true(camera.current, "Gameplay camera restore should hand current-camera ownership back to the main camera.")
+
+
+func test_jump_transition_fov_progress_eases_in_toward_the_wide_fov():
+	var world_manager = WorldManagerScript.new()
+	add_child_autofree(world_manager)
+
+	assert_eq(
+		world_manager._get_jump_transition_fov_progress(0.0),
+		0.0,
+		"FoV easing should start at the unmodified progress value."
+	)
+	assert_true(
+		world_manager._get_jump_transition_fov_progress(0.5) < 0.25,
+		"FoV easing should now stay behind the old quadratic midpoint so the widened jump FoV accelerates more gradually at the start."
+	)
+	assert_eq(
+		world_manager._get_jump_transition_fov_progress(1.0),
+		1.0,
+		"FoV easing should still reach the full target FoV at the end of the animation."
+	)
+
+
+func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_target_speed():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	var source_camera = Camera.new()
+	add_child_autofree(source_camera)
+	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
+
+	rig.capture_from_camera(source_camera)
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_cruise(WorldManagerScript.DEFAULT_JUMP_TRANSITION_SPEED)
+	rig._process(0.5)
+
+	assert_true(
+		rig.get_current_velocity() > 0.0,
+		"Jump cruise should still accelerate forward during the transition."
+	)
+	assert_true(
+		rig.get_current_velocity() < 700.0,
+		"Jump cruise should ramp up more gradually than the prior near-instant acceleration so the transition has a softer takeoff."
+	)
+	rig.reset_transition_state()
+
+
+func test_jump_transition_rig_completes_route_when_destination_is_reached():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	var source_camera = Camera.new()
+	add_child_autofree(source_camera)
+	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
+
+	rig.capture_from_camera(source_camera)
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_cruise(4000.0)
+
+	for _step in range(60):
+		rig._process(0.1)
+		if rig.is_route_complete():
+			break
+
+	assert_true(
+		rig.is_route_complete(),
+		"Jump transition should finish based on reaching the destination route position instead of waiting on a fixed cruise timer."
+	)
+	assert_eq(
+		rig.get_route_world_position(),
+		TemplateDatabase.locations["station_beta"]["global_position"],
+		"Completed jump transitions should clamp the internal route position to the destination coordinate for deterministic arrival handoff."
+	)
+	assert_eq(
+		rig.get_node("TransitionCamera").global_transform.origin,
+		TemplateDatabase.locations["station_beta"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
+		"Completed jump transitions should end at the destination in current-sector-local space so the starsphere matches local-scene and map coordinates."
 	)

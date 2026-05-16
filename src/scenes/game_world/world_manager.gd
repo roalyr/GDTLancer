@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 20:25:31
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
+# LOG_REF: 2026-05-16 21:53:01
 #
 
 extends Node
@@ -14,20 +14,6 @@ extends Node
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
 const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_generator.gd")
-const JUMP_TRANSITION_RIG_NODE_NAME = "JumpTransitionRig"
-const DEFAULT_JUMP_TRANSITION_DIRECTION = Vector3(0, 0, -1)
-const DEFAULT_JUMP_TRANSITION_SPEED = 1200.0
-const JUMP_TRANSITION_TARGET_FOV_DEG = 140.0
-const JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC = 0.5
-const JUMP_TRANSITION_FOV_EASE_POWER = 2.35
-const JUMP_TRANSITION_FOV_WIDEN_DURATION_SEC = 1.25
-const JUMP_TRANSITION_FOV_RESTORE_DURATION_SEC = 1.25
-const JUMP_TRANSITION_HUD_SHOW_DELAY_SEC = 0.08
-const JUMP_TRANSITION_VELOCITY_TOLERANCE = 20.0
-const JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC = 7.5
-const JUMP_TRANSITION_LOAD_TIMEOUT_SEC = 1.5
-const JUMP_TRANSITION_ROUTE_TARGET_DURATION_SEC = 2.5
-const JUMP_TRANSITION_ROUTE_TIMEOUT_BUFFER_SEC = 2.0
 
 # --- State ---
 var _spawned_agent_bodies = []
@@ -329,7 +315,10 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if departure_visuals_state is GDScriptFunctionState:
 		yield(departure_visuals_state, "completed")
 	_pause_jump_transition_gameplay()
-	var fov_override_state = _animate_main_camera_fov_override(JUMP_TRANSITION_TARGET_FOV_DEG, JUMP_TRANSITION_FOV_WIDEN_DURATION_SEC)
+	var fov_override_state = _animate_main_camera_fov_override(
+		Constants.JUMP_TRANSITION_TARGET_FOV_DEG,
+		Constants.JUMP_TRANSITION_FOV_DURATION_SEC
+	)
 	if fov_override_state is GDScriptFunctionState:
 		yield(fov_override_state, "completed")
 	_prepare_sector_travel_state(resolved_target_sector_id, old_sector)
@@ -341,10 +330,15 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed)
 	var jump_transition_rig = _get_jump_transition_rig()
 	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_fov"):
-		jump_transition_rig.call("set_transition_fov", JUMP_TRANSITION_TARGET_FOV_DEG)
+		jump_transition_rig.call("set_transition_fov", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
 	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_cruise"):
 		jump_transition_rig.call("begin_cruise", cruise_speed)
-		var cruise_velocity_state = _wait_for_rig_velocity(jump_transition_rig, cruise_speed, JUMP_TRANSITION_VELOCITY_TOLERANCE, JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC)
+		var cruise_velocity_state = _wait_for_rig_velocity(
+			jump_transition_rig,
+			cruise_speed,
+			Constants.JUMP_TRANSITION_VELOCITY_TOLERANCE,
+			Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
+		)
 		if cruise_velocity_state is GDScriptFunctionState:
 			yield(cruise_velocity_state, "completed")
 		var route_completion_state = _wait_for_rig_route_completion(jump_transition_rig, route_timeout_sec)
@@ -352,20 +346,25 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 			yield(route_completion_state, "completed")
 		if jump_transition_rig.has_method("is_route_complete") and not jump_transition_rig.call("is_route_complete") and jump_transition_rig.has_method("begin_arrival"):
 			jump_transition_rig.call("begin_arrival")
-			var arrival_velocity_state = _wait_for_rig_velocity(jump_transition_rig, 0.0, JUMP_TRANSITION_VELOCITY_TOLERANCE, JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC)
+			var arrival_velocity_state = _wait_for_rig_velocity(
+				jump_transition_rig,
+				0.0,
+				Constants.JUMP_TRANSITION_VELOCITY_TOLERANCE,
+				Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
+			)
 			if arrival_velocity_state is GDScriptFunctionState:
 				yield(arrival_velocity_state, "completed")
 	load_sector(resolved_target_sector_id)
 	yield(get_tree(), "idle_frame")
-	var player_ready_state = _wait_for_player_and_zone_ready(JUMP_TRANSITION_LOAD_TIMEOUT_SEC)
+	var player_ready_state = _wait_for_player_and_zone_ready(Constants.JUMP_TRANSITION_LOAD_TIMEOUT_SEC)
 	if player_ready_state is GDScriptFunctionState:
 		yield(player_ready_state, "completed")
 	_restore_gameplay_camera_at_transition_fov()
-	var fov_restore_state = _animate_main_camera_fov_restore(JUMP_TRANSITION_FOV_RESTORE_DURATION_SEC)
+	var fov_restore_state = _animate_main_camera_fov_restore(Constants.JUMP_TRANSITION_FOV_DURATION_SEC)
 	if fov_restore_state is GDScriptFunctionState:
 		yield(fov_restore_state, "completed")
 	_set_jump_transition_camera_locked(false)
-	var hud_show_delay_state = _yield_real_time(JUMP_TRANSITION_HUD_SHOW_DELAY_SEC)
+	var hud_show_delay_state = _yield_real_time(Constants.JUMP_TRANSITION_HUD_SHOW_DELAY_SEC)
 	if hud_show_delay_state is GDScriptFunctionState:
 		yield(hud_show_delay_state, "completed")
 	_set_main_hud_hidden(false)
@@ -458,14 +457,14 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 			if transition_forward_direction.length_squared() >= 0.001 and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
 				GlobalRefs.main_camera.set_orbit_forward_direction(transition_forward_direction)
 	if GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
-		GlobalRefs.main_camera.set_temporary_fov_override(JUMP_TRANSITION_TARGET_FOV_DEG)
+		GlobalRefs.main_camera.set_temporary_fov_override(Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
 	GlobalRefs.main_camera.current = true
 
 
 func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
 	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
 		GlobalRefs.main_camera.set_orbit_forward_direction(departure_direction)
-	var camera_aim_state = _yield_real_time(JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC)
+	var camera_aim_state = _yield_real_time(Constants.JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC)
 	if camera_aim_state is GDScriptFunctionState:
 		yield(camera_aim_state, "completed")
 	var jump_transition_rig = _get_jump_transition_rig()
@@ -477,7 +476,7 @@ func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
 
 func _get_jump_transition_fov_progress(linear_t: float) -> float:
 	var t = clamp(linear_t, 0.0, 1.0)
-	return pow(t, JUMP_TRANSITION_FOV_EASE_POWER)
+	return pow(t, Constants.JUMP_TRANSITION_FOV_EASE_POWER)
 
 
 func _animate_main_camera_fov_override(target_fov: float, duration_sec: float):
@@ -576,13 +575,18 @@ func _get_jump_transition_route_distance(source_sector_id: String, target_sector
 
 func _get_jump_transition_cruise_speed(route_distance: float) -> float:
 	if route_distance <= 0.0:
-		return DEFAULT_JUMP_TRANSITION_SPEED
-	return max(DEFAULT_JUMP_TRANSITION_SPEED, route_distance / JUMP_TRANSITION_ROUTE_TARGET_DURATION_SEC)
+		return 0.0
+	var effective_travel_window_sec = max(
+		Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC - Constants.JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC,
+		0.1
+	)
+	return route_distance / effective_travel_window_sec
 
 
 func _get_jump_transition_route_timeout_sec(route_distance: float, cruise_speed: float) -> float:
-	var effective_speed = max(cruise_speed, 1.0)
-	return max(route_distance / effective_speed, 0.0) + JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC + JUMP_TRANSITION_ROUTE_TIMEOUT_BUFFER_SEC
+	if route_distance <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE or cruise_speed <= 0.0:
+		return Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
+	return Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC + Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
 
 
 func _request_sector_travel_tick() -> void:
@@ -594,7 +598,7 @@ func _get_departure_direction_for_route(source_sector_id: String, target_sector_
 	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
 	var target_position: Vector3 = _get_sector_global_position(target_sector_id)
 	if source_position == target_position:
-		return DEFAULT_JUMP_TRANSITION_DIRECTION
+		return Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 	return (target_position - source_position).normalized()
 
 
@@ -636,7 +640,7 @@ func _is_jump_transition_enabled() -> bool:
 
 func _get_jump_transition_rig() -> Node:
 	if is_instance_valid(get_parent()):
-		return get_parent().get_node_or_null(JUMP_TRANSITION_RIG_NODE_NAME)
+		return get_parent().get_node_or_null(Constants.JUMP_TRANSITION_RIG_NODE_NAME)
 	return null
 
 

@@ -3,7 +3,7 @@
 # MODULE: test_agent_spawner.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:32:50
+# LOG_REF: 2026-05-16 22:38:42
 #
 
 extends GutTest
@@ -66,6 +66,8 @@ func after_each():
 	GameState.player_arrival_direction = Vector3.ZERO
 	GameState.player_arrived_from_sector = ""
 	GlobalRefs.agent_container = null
+	GlobalRefs.agent_spawner = null
+	GlobalRefs.player_agent_body = null
 	
 	if EventBus.is_connected("agent_spawned", signal_catcher, "_on_signal_received"):
 		EventBus.disconnect("agent_spawned", signal_catcher, "_on_signal_received")

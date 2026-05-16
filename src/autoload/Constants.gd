@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md, TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
+# LOG_REF: 2026-05-16 21:53:01
 #
 
 extends Node
@@ -190,6 +190,23 @@ const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0   # Arrival shell radius for r
 const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_position (nebula reference)
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
 const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
+
+# ---- JUMP TRANSITION ----
+const JUMP_TRANSITION_RIG_NODE_NAME: String = "JumpTransitionRig"
+const JUMP_TRANSITION_DEFAULT_DIRECTION: Vector3 = Vector3(0, 0, -1)
+const JUMP_TRANSITION_TARGET_FOV_DEG: float = 160.0
+const JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC: float = 2.0
+const JUMP_TRANSITION_FOV_EASE_POWER: float = 2.35
+const JUMP_TRANSITION_FOV_DURATION_SEC: float = 3.4
+const JUMP_TRANSITION_HUD_SHOW_DELAY_SEC: float = 1.5
+const JUMP_TRANSITION_VELOCITY_TOLERANCE: float = 20.0
+const JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC: float = 7.5
+const JUMP_TRANSITION_LOAD_TIMEOUT_SEC: float = 1.5
+# Route distance is converted into cruise speed using this total travel window.
+const JUMP_TRANSITION_TRAVEL_DURATION_SEC: float = 10.0
+# Takeoff and arrival use the same mirrored speed ramp.
+const JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC: float = 2.0
+const JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE: float = 20.0
 
 
 func get_reference_origin_offset(world_position: Vector3) -> Vector3:

@@ -57,12 +57,12 @@ func test_indexing_loads_known_contracts_after_locations():
 	assert_true(is_instance_valid(contract_template), "'delivery_01' should be a valid instance.")
 	assert_true(contract_template is ContractTemplate, "'delivery_01' should be of type ContractTemplate.")
 	assert_eq(contract_template.origin_location_id, "sector_system_elace")
-	assert_eq(contract_template.destination_location_id, "station_beta")
+	assert_eq(contract_template.destination_location_id, "sector_system_cob")
 
 
 func test_invalid_contract_locations_are_not_registered():
 	var origin_location = load("res://database/registry/locations/sector_system_elace.tres")
-	var destination_location = load("res://database/registry/locations/station_beta.tres")
+	var destination_location = load("res://database/registry/locations/sector_system_lywin.tres")
 	assert_true(origin_location is LocationTemplate, "Starter sector fixture should load as a LocationTemplate.")
 	assert_true(destination_location is LocationTemplate, "Station Beta fixture should load as a LocationTemplate.")
 	indexer_instance._register_template(origin_location)

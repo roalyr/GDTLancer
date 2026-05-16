@@ -2,28 +2,18 @@
 # PROJECT: GDTLancer
 # MODULE: jump_transition_rig.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 20:25:31
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
+# LOG_REF: 2026-05-16 21:53:01
 #
 
 extends Spatial
 
-const DEFAULT_TRAVEL_DIRECTION = Vector3(0, 0, -1)
-const DEFAULT_ACCELERATION = 800.0
-const DEFAULT_DECELERATION = 800.0
-const CRUISE_VELOCITY_RAMP_DURATION_SEC = 1.1
-const ARRIVAL_VELOCITY_RAMP_DURATION_SEC = 0.85
-const ROUTE_COMPLETION_TOLERANCE = 20.0
-
 var _transition_camera: Camera = null
 var _nebula_holder: Spatial = null
-var _travel_direction: Vector3 = DEFAULT_TRAVEL_DIRECTION
+var _travel_direction: Vector3 = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 var _current_velocity: float = 0.0
 var _target_velocity: float = 0.0
-var _velocity_step_rate: float = DEFAULT_ACCELERATION
-var _departure_sector_id: String = ""
-var _target_sector_id: String = ""
-var _departure_active: bool = false
+var _velocity_step_rate: float = 0.0
 var _cruise_active: bool = false
 var _arrival_active: bool = false
 var _captured_camera_transform: Transform = Transform.IDENTITY
@@ -62,20 +52,17 @@ func set_transition_fov(fov_deg: float) -> void:
 
 
 func begin_departure(source_sector_id: String, target_sector_id: String, travel_direction: Vector3) -> void:
-	_departure_sector_id = source_sector_id
-	_target_sector_id = target_sector_id
 	_travel_direction = _normalize_travel_direction(travel_direction)
 	_current_velocity = 0.0
 	_target_velocity = 0.0
-	_velocity_step_rate = DEFAULT_ACCELERATION
-	_departure_active = true
+	_velocity_step_rate = 0.0
 	_cruise_active = false
 	_arrival_active = false
 	_route_origin_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_target_world_position = _get_world_position_for_sector(target_sector_id)
 	_route_has_valid_positions = _route_world_position != Vector3.ZERO or _route_target_world_position != Vector3.ZERO
-	_route_complete = _get_remaining_route_distance() <= ROUTE_COMPLETION_TOLERANCE
+	_route_complete = _get_remaining_route_distance() <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE
 	visible = false
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
@@ -93,40 +80,29 @@ func begin_departure(source_sector_id: String, target_sector_id: String, travel_
 
 func begin_cruise(target_velocity: float) -> void:
 	visible = true
-	_departure_active = false
 	_cruise_active = true
 	_arrival_active = false
 	_route_complete = false
 	_target_velocity = max(target_velocity, 0.0)
-	_velocity_step_rate = max(
-		DEFAULT_ACCELERATION,
-		_target_velocity / CRUISE_VELOCITY_RAMP_DURATION_SEC
-	)
+	_velocity_step_rate = _get_velocity_step_rate(_target_velocity)
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = true
 	set_process(true)
 
 
 func begin_arrival() -> void:
-	_departure_active = false
 	_cruise_active = false
 	_arrival_active = true
 	_target_velocity = 0.0
-	_velocity_step_rate = max(
-		DEFAULT_DECELERATION,
-		_current_velocity / ARRIVAL_VELOCITY_RAMP_DURATION_SEC
-	)
+	_velocity_step_rate = _get_velocity_step_rate(_current_velocity)
 	set_process(true)
 
 
 func reset_transition_state() -> void:
-	_departure_sector_id = ""
-	_target_sector_id = ""
-	_travel_direction = DEFAULT_TRAVEL_DIRECTION
+	_travel_direction = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 	_current_velocity = 0.0
 	_target_velocity = 0.0
-	_velocity_step_rate = DEFAULT_ACCELERATION
-	_departure_active = false
+	_velocity_step_rate = 0.0
 	_cruise_active = false
 	_arrival_active = false
 	_has_captured_camera_transform = false
@@ -153,7 +129,7 @@ func deactivate_transition_view() -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(_transition_camera):
 		return
-	if _cruise_active and _route_has_valid_positions and _get_remaining_route_distance() <= _get_braking_distance() + ROUTE_COMPLETION_TOLERANCE:
+	if _cruise_active and _route_has_valid_positions and _get_remaining_route_distance() <= _get_braking_distance() + Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE:
 		begin_arrival()
 	_current_velocity = move_toward(_current_velocity, _target_velocity, _velocity_step_rate * delta)
 	var remaining_distance = _get_remaining_route_distance()
@@ -167,17 +143,16 @@ func _process(delta: float) -> void:
 		else:
 			_transition_camera.global_transform.origin += _travel_direction * travel_step
 	remaining_distance = _get_remaining_route_distance()
-	if _route_has_valid_positions and remaining_distance <= ROUTE_COMPLETION_TOLERANCE and _current_velocity <= ROUTE_COMPLETION_TOLERANCE:
+	if _route_has_valid_positions and remaining_distance <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE and _current_velocity <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE:
 		_route_world_position = _route_target_world_position
 		_transition_camera.global_transform.origin = _get_route_local_position()
 		_current_velocity = 0.0
 		_target_velocity = 0.0
-		_departure_active = false
 		_cruise_active = false
 		_arrival_active = false
 		_route_complete = true
 		set_process(false)
-	elif _arrival_active and _current_velocity <= ROUTE_COMPLETION_TOLERANCE:
+	elif _arrival_active and _current_velocity <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE:
 		if _route_has_valid_positions:
 			_route_world_position = _route_target_world_position
 			_transition_camera.global_transform.origin = _get_route_local_position()
@@ -206,7 +181,7 @@ func get_transition_camera_forward_direction() -> Vector3:
 
 func _normalize_travel_direction(travel_direction: Vector3) -> Vector3:
 	if travel_direction.length_squared() < 0.001:
-		return DEFAULT_TRAVEL_DIRECTION
+		return Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 	return travel_direction.normalized()
 
 
@@ -239,6 +214,11 @@ func _get_route_local_position() -> Vector3:
 func _get_braking_distance() -> float:
 	var step_rate = max(_velocity_step_rate, 1.0)
 	return (_current_velocity * _current_velocity) / (2.0 * step_rate)
+
+
+func _get_velocity_step_rate(reference_velocity: float) -> float:
+	var ramp_duration_sec = max(Constants.JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC, 0.001)
+	return max(reference_velocity / ramp_duration_sec, 1.0)
 
 
 func _get_world_position_for_sector(sector_id: String) -> Vector3:

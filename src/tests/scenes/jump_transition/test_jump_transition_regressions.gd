@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 20:25:31
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
+# LOG_REF: 2026-05-16 21:53:01
 #
 
 extends GutTest
@@ -86,7 +86,7 @@ func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_h
 	rig_script.source_code = "extends Node\nvar events_ref = null\nfunc capture_from_camera(_camera):\n\tevents_ref.append(\"capture\")\n"
 	rig_script.reload()
 	var rig = Node.new()
-	rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	rig.name = Constants.JUMP_TRANSITION_RIG_NODE_NAME
 	rig.set_script(rig_script)
 	rig.events_ref = event_order
 	container.add_child(rig)
@@ -156,13 +156,13 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 		"The transition rig should anchor its starsphere to the source-sector reference offset instead of recentering it on the camera."
 	)
 
-	rig.set_transition_fov(WorldManagerScript.JUMP_TRANSITION_TARGET_FOV_DEG)
-	rig.begin_cruise(WorldManagerScript.DEFAULT_JUMP_TRANSITION_SPEED)
+	rig.set_transition_fov(Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
+	rig.begin_cruise(1000.0)
 	rig._process(1.0)
 
 	assert_eq(
 		transition_camera.fov,
-		WorldManagerScript.JUMP_TRANSITION_TARGET_FOV_DEG,
+		Constants.JUMP_TRANSITION_TARGET_FOV_DEG,
 		"The visible jump-scene camera should keep the widened transition FoV instead of snapping back to its normal authored FoV during cruise."
 	)
 
@@ -196,7 +196,7 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 	rig_script.source_code = "extends Node\nvar deactivate_calls = 0\nfunc deactivate_transition_view():\n\tdeactivate_calls += 1\nfunc get_transition_camera_forward_direction():\n\treturn Vector3(1, 0, 0)\n"
 	rig_script.reload()
 	var rig = Node.new()
-	rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	rig.name = Constants.JUMP_TRANSITION_RIG_NODE_NAME
 	rig.set_script(rig_script)
 	container.add_child(rig)
 
@@ -239,7 +239,7 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 	)
 	assert_eq(
 		camera.fov_calls,
-		[WorldManagerScript.JUMP_TRANSITION_TARGET_FOV_DEG],
+		[Constants.JUMP_TRANSITION_TARGET_FOV_DEG],
 		"Gameplay camera restore should hand over at the widened transition FoV before animating back to the zoom-controller FoV."
 	)
 	assert_true(camera.current, "Gameplay camera restore should hand current-camera ownership back to the main camera.")
@@ -275,7 +275,7 @@ func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_
 
 	rig.capture_from_camera(source_camera)
 	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
-	rig.begin_cruise(WorldManagerScript.DEFAULT_JUMP_TRANSITION_SPEED)
+	rig.begin_cruise(1000.0)
 	rig._process(0.5)
 
 	assert_true(

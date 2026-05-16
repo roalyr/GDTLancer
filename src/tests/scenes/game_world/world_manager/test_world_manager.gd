@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 17:48:36
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
+# LOG_REF: 2026-05-16 21:38:04
 #
 
 extends GutTest
@@ -171,7 +171,7 @@ func _create_jump_transition_harness(is_enabled: bool) -> Dictionary:
 	rig_script.source_code = "extends Node\nvar departure_calls = []\nvar reset_calls = 0\nfunc begin_departure(source_sector_id, target_sector_id, travel_direction):\n\tdeparture_calls.append([source_sector_id, target_sector_id, travel_direction])\nfunc reset_transition_state():\n\treset_calls += 1\n"
 	rig_script.reload()
 	var jump_transition_rig = Node.new()
-	jump_transition_rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	jump_transition_rig.name = Constants.JUMP_TRANSITION_RIG_NODE_NAME
 	jump_transition_rig.set_script(rig_script)
 	container.add_child(jump_transition_rig)
 

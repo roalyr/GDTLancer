@@ -3,7 +3,7 @@
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 18:32:14
+# LOG_REF: 2026-05-16 22:38:42
 #
 
 extends Node
@@ -58,7 +58,10 @@ func _ready():
 
 	_tool_controller = agent_body.get_node_or_null("ToolController")
 
-	_states = {"default": StateDefault.new(), "free_flight": StateFreeFlight.new()}
+	_states = {
+		"default": _register_input_state("StateDefault", StateDefault.new()),
+		"free_flight": _register_input_state("StateFreeFlight", StateFreeFlight.new()),
+	}
 
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
@@ -67,6 +70,15 @@ func _ready():
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
+
+
+func _register_input_state(node_name: String, state: InputState) -> InputState:
+	if state == null:
+		return null
+	state.name = node_name
+	if state.get_parent() != self:
+		add_child(state)
+	return state
 
 
 func _deferred_ready_setup():

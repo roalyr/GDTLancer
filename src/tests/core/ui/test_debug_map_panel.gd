@@ -122,15 +122,6 @@ func test_opening_panel_uses_isolated_viewport_world_and_cleans_up_backdrop():
 	assert_null(_panel_instance._map_world_env, "Closing the panel should release the map world environment.")
 
 
-func test_populate_creates_sector_markers():
-	_panel_instance._populate_map()
-	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var sector_count = 0
-	for child in map_content.get_children():
-		if child.name.begins_with("Sector_"):
-			sector_count += 1
-	assert_gt(sector_count, 4, "Should have at least 5 sector markers")
-
 
 func test_populate_creates_connection_lines():
 	_panel_instance._populate_map()

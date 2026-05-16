@@ -1873,7 +1873,7 @@ text = "Close"
 
 --- Start of ./scenes/levels/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -1891,6 +1891,7 @@ text = "Close"
 [ext_resource path="res://src/core/simulation/simulation_engine.gd" type="Script" id=26]
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
 [ext_resource path="res://src/core/ui/debug_map_panel/debug_map_panel.tscn" type="PackedScene" id=28]
+[ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
 
 [node name="MainGameScene" type="Node"]
 
@@ -1936,6 +1937,8 @@ __meta__ = {
 }
 
 [node name="OrbitCamera" parent="." instance=ExtResource( 3 )]
+
+[node name="JumpTransitionRig" parent="." instance=ExtResource( 29 )]
 
 [node name="SimDebugPanel" parent="." instance=ExtResource( 25 )]
 
@@ -3045,13 +3048,14 @@ editor_only = true
 
 --- Start of ./scenes/levels/sectors/sector_system_elace/star_elace.tscn ---
 
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_surface.tres" type="Material" id=1]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=2]
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_corona.tres" type="Material" id=3]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=4]
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_sprite.tres" type="Material" id=5]
+[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=6]
 
 [sub_resource type="SphereShape" id=1]
 radius = 5000.0
@@ -3059,7 +3063,22 @@ radius = 5000.0
 [sub_resource type="SphereMesh" id=2]
 
 [sub_resource type="SphereMesh" id=3]
-radial_segments = 32
+rings = 64
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = ExtResource( 6 )
+shader_param/albedo = Color( 1, 0.603922, 0.427451, 1 )
+shader_param/scale_near = 2.948
+shader_param/scale_peak = 0.2
+shader_param/scale_far = 0.05
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 0.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.762
+shader_param/exponent = 3.0
 
 [sub_resource type="Shader" id=4]
 code = "shader_type spatial;
@@ -3141,6 +3160,12 @@ transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -7
 [node name="Plane" parent="ModelAdditional/Star_sprite_square_wide" index="0"]
 material_override = ExtResource( 5 )
 
+[node name="Star_sprite_square_wide_far" parent="ModelAdditional" instance=ExtResource( 2 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="ModelAdditional/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 8 )
+
 [node name="StarHalo" type="MeshInstance" parent="ModelAdditional"]
 transform = Transform( 15346.5, 6148.67, -226.985, -6095.09, 15108.6, -2819.9, -841.251, 2701.05, 16290.2, 0, 0, 0 )
 material_override = SubResource( 5 )
@@ -3153,6 +3178,7 @@ light_energy = 1.5
 omni_range = 100000.0
 
 [editable path="ModelAdditional/Star_sprite_square_wide"]
+[editable path="ModelAdditional/Star_sprite_square_wide_far"]
 
 --- Start of ./scenes/levels/sectors/sector_system_lywin/sector_system_lywin.tscn ---
 
@@ -5011,6 +5037,34 @@ mesh = SubResource( 2 )
 [node name="CollisionShape" type="CollisionShape" parent="DetectionZone"]
 shape = SubResource( 4 )
 
+--- Start of ./scenes/prefabs/navigation/jump_transition_rig.tscn ---
+
+; PROJECT: GDTLancer
+; MODULE: jump_transition_rig.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+; LOG_REF: 2026-05-16 17:48:36
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/scenes/game_world/jump_transition/jump_transition_rig.gd" type="Script" id=1]
+[ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=2]
+
+[node name="JumpTransitionRig" type="Spatial"]
+visible = false
+pause_mode = 2
+script = ExtResource( 1 )
+
+[node name="NebulaHolder" type="Spatial" parent="."]
+pause_mode = 2
+
+[node name="Globalnebulas" parent="NebulaHolder" instance=ExtResource( 2 )]
+
+[node name="TransitionCamera" type="Camera" parent="."]
+pause_mode = 2
+current = false
+fov = 95.0
+far = 1000000.0
+
 --- Start of ./scenes/prefabs/station/DockableStation.tscn ---
 
 [gd_scene load_steps=6 format=2]
@@ -5045,7 +5099,7 @@ shape = SubResource( 3 )
 
 --- Start of ./scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn ---
 
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=1]
 [ext_resource path="res://assets/art/shaders/complex_transparent_cloud_NLP.gdshader" type="Shader" id=2]
@@ -5054,6 +5108,8 @@ shape = SubResource( 3 )
 [ext_resource path="res://assets/models/nebulas/nebula_2.glb" type="PackedScene" id=5]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=6]
 [ext_resource path="res://assets/models/nebulas/nebula_3.glb" type="PackedScene" id=7]
+[ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=9]
+[ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
 
 [sub_resource type="GDScript" id=7]
 script/source = "extends Spatial
@@ -5178,6 +5234,126 @@ shader_param/scale_power = 1.0
 shader_param/scale_min = 0.5
 shader_param/normal_noise = ExtResource( 3 )
 
+[sub_resource type="ShaderMaterial" id=9]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0.588235, 0.247059, 0.113725, 1 )
+shader_param/scale_near = 10.0
+shader_param/scale_peak = 0.6
+shader_param/scale_far = 0.1
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 0.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.799
+shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 1, 0.603922, 0.427451, 1 )
+shader_param/scale_near = 2.948
+shader_param/scale_peak = 0.2
+shader_param/scale_far = 0.05
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 0.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.762
+shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=14]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0.796078, 0.188235, 0.141176, 1 )
+shader_param/scale_near = 0.2
+shader_param/scale_peak = 0.6
+shader_param/scale_far = 0.1
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.463
+shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=15]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 1, 0.964706, 0.12549, 1 )
+shader_param/scale_near = 0.1
+shader_param/scale_peak = 0.2
+shader_param/scale_far = 0.05
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.671
+shader_param/exponent = 2.1
+
+[sub_resource type="ShaderMaterial" id=10]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0.321569, 0.0470588, 0, 1 )
+shader_param/scale_near = 10.0
+shader_param/scale_peak = 0.5
+shader_param/scale_far = 0.1
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 0.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 1.0
+shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=11]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 1, 0.984314, 1, 1 )
+shader_param/scale_near = 2.415
+shader_param/scale_peak = 0.1
+shader_param/scale_far = 0.1
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 0.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.687
+shader_param/exponent = 3.5
+
+[sub_resource type="ShaderMaterial" id=12]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 0, 0.345098, 0.290196, 1 )
+shader_param/scale_near = 0.2
+shader_param/scale_peak = 1.2
+shader_param/scale_far = 0.35
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.643
+shader_param/exponent = 3.0
+
+[sub_resource type="ShaderMaterial" id=13]
+shader = ExtResource( 9 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/scale_near = 0.1
+shader_param/scale_peak = 0.5
+shader_param/scale_far = 0.2
+shader_param/peak_distance = 40000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.3
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/intensity = 0.764
+shader_param/exponent = 3.0
+
 [node name="Globalnebulas" type="Spatial"]
 script = SubResource( 7 )
 __meta__ = {
@@ -5290,6 +5466,67 @@ transform = Transform( -68227.9, 4023.75, 49825.2, 48033.5, -18062.9, 67233.2, 1
 [node name="nebula_3" parent="Cluster D/nebula_4" index="0"]
 material_override = SubResource( 6 )
 
+[node name="SectorStars (clipped by near plane which is 10u)" type="Spatial" parent="."]
+
+[node name="Star Elace" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Elace" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 9 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Elace" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 8 )
+
+[node name="Star Vidr" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -150000, -260000, -330000 )
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 14 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 15 )
+
+[node name="Stars Lywin" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 70000, 16000, -110000 )
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 10 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 11 )
+
+[node name="Star Cob" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -400000, 24000, 130000 )
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Cob" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 12 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Cob" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 13 )
+
 [editable path="ClusterA/spheroid"]
 [editable path="ClusterA/spheroid2"]
 [editable path="ClusterA/spheroid3"]
@@ -5304,6 +5541,14 @@ material_override = SubResource( 6 )
 [editable path="ClusterC/nebula_5"]
 [editable path="Cluster D/nebula_3"]
 [editable path="Cluster D/nebula_4"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide_far"]
 
 --- Start of ./scenes/ui/hud/main_hud.tscn ---
 
