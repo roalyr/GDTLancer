@@ -3,7 +3,7 @@
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-17 01:41:07
 #
 
 extends Node
@@ -33,6 +33,7 @@ var _queued_jump_selection_token: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
 var _nearest_dock_type: String = ""      # "station" or "jump"
 const JUMP_ALIGNMENT_MAX_DEVIATION_DEG: float = 5.0
+const JUMP_ALIGNMENT_FULL_THRUST_SCALE: float = 1.0
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -122,7 +123,7 @@ func _change_state(new_state_name: String):
 
 func _physics_process(delta: float):
 	if _is_jump_transition_active():
-		_clear_queued_jump()
+		_clear_queued_jump(false)
 		return
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
@@ -512,7 +513,19 @@ func _queue_jump_alignment(target_sector_id: String, jump_direction: Vector3) ->
 	_queued_jump_target_id = target_sector_id
 	_queued_jump_direction = jump_direction.normalized()
 	_queued_jump_selection_token = _get_jump_target_selection_token(_selected_target)
-	agent_script.command_align_to(_queued_jump_direction)
+	_command_jump_alignment(_queued_jump_direction)
+
+
+func _command_jump_alignment(jump_direction: Vector3) -> void:
+	if jump_direction.length_squared() < 0.001:
+		return
+	var normalized_direction = jump_direction.normalized()
+	agent_script.command_align_to(
+		normalized_direction,
+		true,
+		JUMP_ALIGNMENT_FULL_THRUST_SCALE,
+		true
+	)
 
 
 func _process_queued_jump() -> void:
@@ -531,7 +544,7 @@ func _process_queued_jump() -> void:
 		_emit_jump_request(_queued_jump_target_id)
 		return
 	if not _is_jump_alignment_ready(_queued_jump_direction):
-		agent_script.command_align_to(_queued_jump_direction)
+		_command_jump_alignment(_queued_jump_direction)
 		return
 	_emit_jump_request(_queued_jump_target_id)
 
@@ -547,14 +560,25 @@ func _is_selected_jump_queue_still_valid() -> bool:
 
 
 func _emit_jump_request(target_sector_id: String) -> void:
-	_clear_queued_jump()
+	_clear_queued_jump(false)
 	EventBus.emit_signal("player_jump_requested", target_sector_id)
 
 
-func _clear_queued_jump() -> void:
+func _clear_queued_jump(cancel_active_jump_alignment: bool = true) -> void:
+	if cancel_active_jump_alignment:
+		_cancel_active_queued_jump_alignment_command()
 	_queued_jump_target_id = ""
 	_queued_jump_direction = Vector3.ZERO
 	_queued_jump_selection_token = ""
+
+
+func _cancel_active_queued_jump_alignment_command() -> void:
+	if _queued_jump_target_id == "":
+		return
+	if not is_instance_valid(agent_script):
+		return
+	if agent_script.has_method("command_idle"):
+		agent_script.command_idle()
 
 
 # --- Signal Handlers ---

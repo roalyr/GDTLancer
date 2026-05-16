@@ -10,13 +10,13 @@ location_type = "system"
 position_in_zone = Vector3( 0, 0, 0 )
 interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_system_cob.tscn"
-global_position = Vector3( -400000, 24000, 130000 )
+global_position = Vector3( -480000, -7300, 235000 )
 is_procedural = false
 procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_elace" )
+connections = PoolStringArray( "sector_system_elace", "sector_system_ebreeta" )
 sector_type = "colony"
 radiation_level = 0.01
 thermal_background_k = 310.0

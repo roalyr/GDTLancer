@@ -3,7 +3,7 @@
 ## MODULE: test_docking_logic.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-## LOG_REF: 2026-05-13 16:43:42
+## LOG_REF: 2026-05-17 01:41:07
 ##
 
 extends "res://addons/gut/test.gd"
@@ -79,6 +79,7 @@ func test_route_target_selection_always_queues_alignment_before_jump():
 	controller._handle_interact_input()
 	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump interact should always enter the align-before-jump flow first.")
 	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Jump interact should always issue an align command before travelling.")
+	assert_eq(agent.align_options, [[true, 1.0, true]], "Queued jumps should keep the ship actively driving toward the jump point until the transition despawns the scene, even when already aligned.")
 	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Jump interact should retain the queued jump until the post-align validation tick.")
 
 	controller._physics_process(1.0 / 60.0)
@@ -104,6 +105,7 @@ func test_route_target_interact_queues_alignment_before_jump():
 
 	assert_signal_not_emitted(EventBus, "player_jump_requested", "Misaligned route jumps should queue alignment before requesting travel.")
 	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Queued route jumps should reuse the live align command with the route direction.")
+	assert_eq(agent.align_options, [[true, 1.0, true]], "Misaligned queued jump alignment should keep applying full forward thrust and heading control until the old scene is torn down.")
 	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Misaligned route jumps should remember the pending sector id until alignment completes.")
 	assert_eq(controller._queued_jump_selection_token, route_target.selection_key, "Queued route jumps should bind to the currently selected route target.")
 
@@ -181,6 +183,7 @@ func test_queued_route_jump_clears_on_target_change():
 
 	assert_eq(controller._queued_jump_target_id, "", "Changing targets should cancel any queued jump alignment.")
 	assert_eq(controller._queued_jump_selection_token, "", "Changing targets should clear the queued jump validity token.")
+	assert_eq(agent.idle_calls, 1, "Cancelling a queued jump via target change should clear the persistent jump-approach command.")
 
 
 func test_queued_route_jump_clears_on_stop_override():
@@ -253,7 +256,7 @@ func test_jump_interact_ignores_input_while_transition_active():
 
 func _create_player_controller_harness(aligned: bool = true, rotation_stopped: bool = true) -> Dictionary:
 	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nvar align_calls = []\nvar stop_calls = 0\nfunc command_stop():\n\tstop_calls += 1\nfunc command_align_to(direction):\n\talign_calls.append(direction)\nfunc is_player():\n\treturn true\n"
+	agent_script.source_code = "extends RigidBody\nvar align_calls = []\nvar align_options = []\nvar idle_calls = 0\nvar stop_calls = 0\nfunc command_stop():\n\tstop_calls += 1\nfunc command_idle():\n\tidle_calls += 1\nfunc command_align_to(direction, apply_forward_thrust=false, forward_thrust_scale=1.0, persist_until_cleared=false):\n\talign_calls.append(direction)\n\talign_options.append([apply_forward_thrust, forward_thrust_scale, persist_until_cleared])\nfunc is_player():\n\treturn true\n"
 	agent_script.reload()
 
 	var movement_script = GDScript.new()

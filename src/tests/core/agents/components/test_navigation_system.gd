@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: test_navigation_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-17 01:41:07
+#
+
 extends GutTest
 # Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 
@@ -166,6 +174,22 @@ func test_set_command_align_to():
 
 	nav_system.update_navigation(0.1)
 	assert_called(mock_movement_system, "request_rotation_to_pid")
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.IDLE)
+
+
+func test_set_command_align_to_with_forward_thrust():
+	signal_catcher.reset()
+	var direction = Vector3.BACK.normalized()
+	nav_system.set_command_align_to(direction, true, 1.0, true)
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
+	assert_true(nav_system._current_command.apply_forward_thrust)
+	assert_eq(nav_system._current_command.forward_thrust_scale, 1.0)
+	assert_true(nav_system._current_command.persist_until_cleared)
+
+	nav_system.update_navigation(0.1)
+	assert_called(mock_movement_system, "request_rotation_to_pid")
+	assert_called(mock_movement_system, "request_thrust_forward")
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
 
 func test_invalid_target_in_update_switches_to_stopping():

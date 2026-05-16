@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: agent.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
+# LOG_REF: 2026-05-17 01:30:40
+#
+
 # File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
 # Version: 4.0 - RigidBody 6DOF physics with thrust-based flight.
 
@@ -158,6 +166,13 @@ func command_move_direction(direction: Vector3):
 		printerr("AgentBody: Cannot command_move_direction - NavigationSystem invalid.")
 
 
+func command_idle():
+	if is_instance_valid(navigation_system):
+		navigation_system.set_command_idle()
+	else:
+		printerr("AgentBody: Cannot command_idle - NavigationSystem invalid.")
+
+
 func command_approach(target: Spatial):
 	if is_instance_valid(navigation_system):
 		navigation_system.set_command_approach(target)
@@ -197,9 +212,19 @@ func command_flee(target: Spatial):
 		printerr("AgentBody: Cannot command_flee - NavigationSystem invalid.")
 
 
-func command_align_to(direction: Vector3):
+func command_align_to(
+	direction: Vector3,
+	apply_forward_thrust: bool = false,
+	forward_thrust_scale: float = 1.0,
+	persist_until_cleared: bool = false
+):
 	if is_instance_valid(navigation_system):
-		navigation_system.set_command_align_to(direction)
+		navigation_system.set_command_align_to(
+			direction,
+			apply_forward_thrust,
+			forward_thrust_scale,
+			persist_until_cleared
+		)
 	else:
 		printerr("AgentBody: Cannot command_align_to - NavigationSystem invalid.")
 

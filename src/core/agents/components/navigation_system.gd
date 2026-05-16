@@ -3,7 +3,7 @@
 # MODULE: navigation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 03:05:12
+# LOG_REF: 2026-05-17 01:41:07
 #
 
 # File: res://core/agents/components/navigation_system.gd
@@ -116,11 +116,22 @@ func set_command_flee(target: Spatial):
 	_current_command = {"type": CommandType.FLEE, "target_node": target}
 
 
-func set_command_align_to(direction: Vector3):
+func set_command_align_to(
+	direction: Vector3,
+	apply_forward_thrust: bool = false,
+	forward_thrust_scale: float = 1.0,
+	persist_until_cleared: bool = false
+):
 	if direction.length_squared() < 0.001:
 		set_command_idle()
 		return
-	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
+	_current_command = {
+		"type": CommandType.ALIGN_TO,
+		"target_dir": direction.normalized(),
+		"apply_forward_thrust": apply_forward_thrust,
+		"forward_thrust_scale": clamp(forward_thrust_scale, 0.0, 1.0),
+		"persist_until_cleared": persist_until_cleared
+	}
 
 
 func get_current_command_type() -> int:
