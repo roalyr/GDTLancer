@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: orbit_camera.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 20:25:31
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
+# LOG_REF: 2026-05-16 23:40:29
 #
 
 extends Camera
@@ -62,6 +62,8 @@ const PositionControllerScript = preload(
 var _rotation_controller: Node = null
 var _zoom_controller: Node = null
 var _position_controller: Node = null
+var _local_scene_particles_root: Spatial = null
+var _local_scene_particle_emitters = []
 
 
 # --- Initialization ---
@@ -116,6 +118,8 @@ func _ready():
 	_zoom_controller.initialize(self, config)
 	_position_controller.initialize(self, _rotation_controller, _zoom_controller, config)
 	apply_zoom_controller_fov(fov)
+	_local_scene_particles_root = get_node_or_null("LocalSceneParticles")
+	_cache_local_scene_particle_emitters()
 
 	# --- Connect Signals ---
 	if (
@@ -190,6 +194,22 @@ func get_current_orbit_distance() -> float:
 	return distance
 
 
+func set_local_scene_particles_active(is_active: bool, clear_existing: bool = false) -> void:
+	if is_instance_valid(_local_scene_particles_root):
+		_local_scene_particles_root.visible = is_active
+	for emitter in _local_scene_particle_emitters:
+		if not is_instance_valid(emitter):
+			continue
+		emitter.visible = is_active
+		if emitter.has_method("set_effect_active"):
+			emitter.call("set_effect_active", is_active, clear_existing)
+		else:
+			emitter.emitting = false
+			if clear_existing and emitter.has_method("restart"):
+				emitter.restart()
+			emitter.emitting = is_active
+
+
 func restore_orbit_from_transition_view(target: Spatial, forward_direction: Vector3) -> void:
 	set_target_node(target)
 	if not is_instance_valid(target):
@@ -209,6 +229,15 @@ func restore_orbit_from_transition_view(target: Spatial, forward_direction: Vect
 			up_direction = Vector3.RIGHT
 	var desired_transform = Transform(Basis(), desired_position).looking_at(target_position, up_direction)
 	global_transform = Transform(desired_transform.basis.orthonormalized(), desired_position)
+
+
+func _cache_local_scene_particle_emitters() -> void:
+	_local_scene_particle_emitters.clear()
+	if not is_instance_valid(_local_scene_particles_root):
+		return
+	for emitter in _local_scene_particles_root.get_children():
+		if emitter is CPUParticles:
+			_local_scene_particle_emitters.append(emitter)
 
 
 func apply_zoom_controller_fov(fov_deg: float) -> void:

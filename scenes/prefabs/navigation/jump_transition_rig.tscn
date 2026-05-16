@@ -1,16 +1,16 @@
-; PROJECT: GDTLancer
-; MODULE: jump_transition_rig.tscn
-; STATUS: [Level 2 - Implementation]
-; TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-; LOG_REF: 2026-05-16 17:48:36
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://src/scenes/game_world/jump_transition/jump_transition_rig.gd" type="Script" id=1]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=2]
+[ext_resource path="res://assets/art/effects/particle_quad.tres" type="QuadMesh" id=3]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.5, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 0.501961, 1, 1, 1, 0 )
 
 [node name="JumpTransitionRig" type="Spatial"]
-visible = false
 pause_mode = 2
+visible = false
 script = ExtResource( 1 )
 
 [node name="NebulaHolder" type="Spatial" parent="."]
@@ -20,6 +20,84 @@ pause_mode = 2
 
 [node name="TransitionCamera" type="Camera" parent="."]
 pause_mode = 2
-current = false
 fov = 95.0
-far = 1000000.0
+far = 1e+06
+
+[node name="JumpTransitionParticles" type="Spatial" parent="TransitionCamera"]
+pause_mode = 2
+
+[node name="NearJumpParticles" type="CPUParticles" parent="TransitionCamera/JumpTransitionParticles"]
+amount = 50
+lifetime = 3.0
+local_coords = false
+mesh = ExtResource( 3 )
+emission_shape = 2
+emission_box_extents = Vector3( 2000, 2000, 5000 )
+direction = Vector3( 0, 0, 1 )
+spread = 10.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 8.0
+color_ramp = SubResource( 1 )
+
+[node name="FarJumpParticles" type="CPUParticles" parent="TransitionCamera/JumpTransitionParticles"]
+amount = 200
+lifetime = 10.0
+local_coords = false
+mesh = ExtResource( 3 )
+emission_shape = 2
+emission_box_extents = Vector3( 50000, 50000, 100000 )
+direction = Vector3( 0, 0, 1 )
+spread = 100.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 8.0
+color_ramp = SubResource( 1 )
+
+[node name="FarJumpParticles2" type="CPUParticles" parent="TransitionCamera/JumpTransitionParticles"]
+amount = 100
+lifetime = 30.0
+local_coords = false
+mesh = ExtResource( 3 )
+emission_shape = 2
+emission_box_extents = Vector3( 150000, 150000, 250000 )
+direction = Vector3( 0, 0, 1 )
+spread = 100.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 8.0
+color_ramp = SubResource( 1 )
+
+[node name="VeryFarJumpParticles" type="CPUParticles" parent="TransitionCamera/JumpTransitionParticles"]
+amount = 512
+lifetime = 60.0
+local_coords = false
+mesh = ExtResource( 3 )
+emission_shape = 2
+emission_box_extents = Vector3( 500000, 500000, 500000 )
+direction = Vector3( 0, 0, 1 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 1.0
+initial_velocity_random = 0.5
+damping = 0.5
+scale_amount = 8.0
+color_ramp = SubResource( 1 )
+hue_variation = 0.19
+hue_variation_random = 1.0
+
+[node name="TransitionOverlayLayer" type="CanvasLayer" parent="."]
+pause_mode = 2
+layer = 50
+
+[node name="TransitionOverlay" type="ColorRect" parent="TransitionOverlayLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0, 0, 0, 0.780392 )

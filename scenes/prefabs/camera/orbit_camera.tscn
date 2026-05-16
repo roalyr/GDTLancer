@@ -9,6 +9,7 @@ offsets = PoolRealArray( 0, 0.5, 1 )
 colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 0.501961, 1, 1, 1, 0 )
 
 [node name="OrbitCamera" type="Camera"]
+current = true
 near = 10.0
 far = 2e+06
 script = ExtResource( 1 )
@@ -16,7 +17,9 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="NearDustParticles" type="CPUParticles" parent="."]
+[node name="LocalSceneParticles" type="Spatial" parent="."]
+
+[node name="NearDustParticles" type="CPUParticles" parent="LocalSceneParticles"]
 amount = 50
 lifetime = 3.0
 local_coords = false
@@ -36,7 +39,7 @@ min_camera_speed_threshold = 5.0
 max_camera_speed_for_effect = 300.0
 velocity_offset_scale = -100.0
 
-[node name="FarDustParticles" type="CPUParticles" parent="."]
+[node name="FarDustParticles" type="CPUParticles" parent="LocalSceneParticles"]
 amount = 200
 lifetime = 10.0
 local_coords = false
@@ -56,7 +59,7 @@ min_camera_speed_threshold = 0.0
 max_camera_speed_for_effect = 10.0
 velocity_offset_scale = -300.0
 
-[node name="FarDustParticles2" type="CPUParticles" parent="."]
+[node name="FarDustParticles2" type="CPUParticles" parent="LocalSceneParticles"]
 amount = 100
 lifetime = 30.0
 local_coords = false
@@ -76,7 +79,7 @@ min_camera_speed_threshold = 0.0
 max_camera_speed_for_effect = 10.0
 velocity_offset_scale = -1200.0
 
-[node name="VeryFarDustParticles" type="CPUParticles" parent="."]
+[node name="VeryFarDustParticles" type="CPUParticles" parent="LocalSceneParticles"]
 visible = false
 amount = 512
 lifetime = 60.0

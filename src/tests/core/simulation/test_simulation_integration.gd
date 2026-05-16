@@ -171,10 +171,8 @@ func _clear_state() -> void:
 func _seed_template_database() -> void:
 	var location_paths: Array = [
 		"res://database/registry/locations/sector_system_elace.tres",
-		"res://database/registry/locations/station_beta.tres",
-		"res://database/registry/locations/sector_gamma.tres",
-		"res://database/registry/locations/station_delta.tres",
-		"res://database/registry/locations/sector_epsilon.tres",
+		"res://database/registry/locations/sector_system_cob.tres",
+		"res://database/registry/locations/sector_system_lywin.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:

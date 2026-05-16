@@ -14,9 +14,7 @@ var _panel_instance = null
 const LOCATION_TRES_PATHS = [
 	"res://database/registry/locations/sector_system_elace.tres",
 	"res://database/registry/locations/sector_system_cob.tres",
-	"res://database/registry/locations/sector_gamma.tres",
 	"res://database/registry/locations/sector_system_lywin.tres",
-	"res://database/registry/locations/sector_epsilon.tres",
 ]
 
 

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
-# LOG_REF: 2026-05-16 21:53:01
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
+# LOG_REF: 2026-05-16 23:40:29
 #
 
 extends GutTest
@@ -83,7 +83,7 @@ func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_h
 	var event_order = []
 
 	var rig_script = GDScript.new()
-	rig_script.source_code = "extends Node\nvar events_ref = null\nfunc capture_from_camera(_camera):\n\tevents_ref.append(\"capture\")\n"
+	rig_script.source_code = "extends Node\nvar events_ref = null\nfunc capture_from_camera(_camera):\n\tevents_ref.append(\"capture\")\nfunc set_transition_particles_active(is_active, clear_existing=false):\n\tevents_ref.append(\"transition_particles_\" + str(is_active) + \"_\" + str(clear_existing))\nfunc _set_transition_overlay_active(is_active):\n\tevents_ref.append(\"cover_\" + str(is_active))\n"
 	rig_script.reload()
 	var rig = Node.new()
 	rig.name = Constants.JUMP_TRANSITION_RIG_NODE_NAME
@@ -92,7 +92,7 @@ func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_h
 	container.add_child(rig)
 
 	var camera_script = GDScript.new()
-	camera_script.source_code = "extends Node\nvar events_ref = null\nfunc set_orbit_forward_direction(_direction):\n\tevents_ref.append(\"aim\")\nfunc set_is_rotating(_rotating):\n\tevents_ref.append(\"stop_rotate\")\nfunc set_rotation_input_active(is_active):\n\tevents_ref.append(\"lock_\" + str(is_active))\n"
+	camera_script.source_code = "extends Node\nvar events_ref = null\nfunc set_orbit_forward_direction(_direction):\n\tevents_ref.append(\"aim\")\nfunc set_local_scene_particles_active(is_active, clear_existing=false):\n\tevents_ref.append(\"local_particles_\" + str(is_active) + \"_\" + str(clear_existing))\nfunc set_is_rotating(_rotating):\n\tevents_ref.append(\"stop_rotate\")\nfunc set_rotation_input_active(is_active):\n\tevents_ref.append(\"lock_\" + str(is_active))\n"
 	camera_script.reload()
 	var camera = Node.new()
 	camera.set_script(camera_script)
@@ -110,10 +110,62 @@ func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_h
 
 	assert_eq(
 		event_order,
-		["aim", "capture", "stop_rotate", "lock_False"],
-		"Jump departure visuals should aim the orbit camera first, then capture that pose for the transition rig, then lock camera input."
+		["aim", "capture", "transition_particles_False_True", "stop_rotate", "lock_False", "cover_True"],
+		"Jump departure visuals should aim the orbit camera first, capture that pose, clear any transition-only particles, lock camera input, and then enable the transition cover before the scene swap."
 	)
 	assert_false(hud.visible, "Jump departure visuals should hide the HUD immediately before the FoV shift begins.")
+
+
+func test_jump_transition_rig_exposes_overlay_and_clears_transition_visual_scaffold():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	var transition_overlay = rig.get_node("TransitionOverlayLayer/TransitionOverlay")
+	var transition_particles = rig.get_node("TransitionCamera/JumpTransitionParticles")
+
+	assert_true(transition_overlay is ColorRect, "The jump rig should expose a CanvasItem-based TransitionOverlay for swap masking.")
+	assert_true(transition_particles is Spatial, "The jump rig should expose a dedicated JumpTransitionParticles container for jump-only emitters.")
+	assert_eq(transition_particles.get_child_count(), 4, "The jump rig should scaffold the duplicated transition particle emitters inside the dedicated container.")
+
+	rig._set_transition_overlay_active(true)
+	rig.set_transition_particles_active(true, true)
+
+	assert_true(transition_overlay.visible, "The transition cover should become visible when the rig enables the swap mask.")
+	assert_true(transition_particles.visible, "The dedicated jump-transition particle container should become visible when activated.")
+	for emitter in transition_particles.get_children():
+		assert_true(emitter is CPUParticles, "Jump-transition particle scaffolding must stay on CPUParticles for GLES2 compatibility.")
+		assert_true(emitter.emitting, "Each jump-transition particle emitter should start emitting when the dedicated transition particle group is activated.")
+
+	rig.reset_transition_state()
+
+	assert_false(transition_overlay.visible, "Resetting the rig should clear the transition cover back to its idle hidden state.")
+	assert_false(transition_particles.visible, "Resetting the rig should hide the dedicated jump-transition particle container.")
+	for emitter in transition_particles.get_children():
+		assert_false(emitter.emitting, "Resetting the rig should leave every jump-transition particle emitter fully cleared and idle.")
+
+
+func test_jump_transition_gameplay_pause_and_restore_toggle_local_scene_particles():
+	var world_manager = WorldManagerScript.new()
+	add_child_autofree(world_manager)
+	var initial_paused_state = get_tree().paused
+
+	var camera_script = GDScript.new()
+	camera_script.source_code = "extends Node\nvar particle_calls = []\nfunc set_local_scene_particles_active(is_active, clear_existing=false):\n\tparticle_calls.append([is_active, clear_existing])\n"
+	camera_script.reload()
+	var camera = Node.new()
+	camera.set_script(camera_script)
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	world_manager._pause_jump_transition_gameplay()
+	world_manager._restore_jump_transition_gameplay()
+
+	assert_eq(
+		camera.particle_calls,
+		[[false, true], [true, true]],
+		"Jump transition gameplay pause/restore should explicitly clear local-scene particles before despawn and resume them only after the transition ends."
+	)
+	assert_eq(get_tree().paused, initial_paused_state, "Jump transition gameplay restore should return the scene tree to its prior pause state.")
 
 
 func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_static():
@@ -193,7 +245,7 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 	container.add_child(world_manager)
 
 	var rig_script = GDScript.new()
-	rig_script.source_code = "extends Node\nvar deactivate_calls = 0\nfunc deactivate_transition_view():\n\tdeactivate_calls += 1\nfunc get_transition_camera_forward_direction():\n\treturn Vector3(1, 0, 0)\n"
+	rig_script.source_code = "extends Node\nvar deactivate_calls = 0\nvar overlay_calls = []\nvar particle_calls = []\nfunc deactivate_transition_view():\n\tdeactivate_calls += 1\nfunc get_transition_camera_forward_direction():\n\treturn Vector3(1, 0, 0)\nfunc set_transition_particles_active(is_active, clear_existing=false):\n\tparticle_calls.append([is_active, clear_existing])\nfunc _set_transition_overlay_active(is_active):\n\toverlay_calls.append(is_active)\n"
 	rig_script.reload()
 	var rig = Node.new()
 	rig.name = Constants.JUMP_TRANSITION_RIG_NODE_NAME
@@ -241,6 +293,16 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 		camera.fov_calls,
 		[Constants.JUMP_TRANSITION_TARGET_FOV_DEG],
 		"Gameplay camera restore should hand over at the widened transition FoV before animating back to the zoom-controller FoV."
+	)
+	assert_eq(
+		rig.overlay_calls,
+		[false],
+		"Gameplay camera restore should clear the transition cover once the destination scene is ready to be revealed."
+	)
+	assert_eq(
+		rig.particle_calls,
+		[[false, true]],
+		"Gameplay camera restore should explicitly clear transition-only particles before handing control back to the gameplay camera."
 	)
 	assert_true(camera.current, "Gameplay camera restore should hand current-camera ownership back to the main camera.")
 

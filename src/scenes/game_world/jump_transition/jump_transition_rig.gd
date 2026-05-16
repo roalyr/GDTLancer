@@ -2,14 +2,17 @@
 # PROJECT: GDTLancer
 # MODULE: jump_transition_rig.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
-# LOG_REF: 2026-05-16 21:53:01
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
+# LOG_REF: 2026-05-16 23:40:29
 #
 
 extends Spatial
 
 var _transition_camera: Camera = null
 var _nebula_holder: Spatial = null
+var _jump_transition_particles: Spatial = null
+var _transition_overlay: ColorRect = null
+var _transition_particle_emitters = []
 var _travel_direction: Vector3 = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 var _current_velocity: float = 0.0
 var _target_velocity: float = 0.0
@@ -29,11 +32,16 @@ func _ready() -> void:
 	pause_mode = Node.PAUSE_MODE_PROCESS
 	_transition_camera = get_node_or_null("TransitionCamera")
 	_nebula_holder = get_node_or_null("NebulaHolder")
+	_jump_transition_particles = get_node_or_null("TransitionCamera/JumpTransitionParticles")
+	_transition_overlay = get_node_or_null("TransitionOverlayLayer/TransitionOverlay")
 	visible = false
 	set_process(false)
 	if is_instance_valid(_transition_camera):
 		_transition_camera.pause_mode = Node.PAUSE_MODE_PROCESS
 		_transition_camera.current = false
+	_cache_transition_particle_emitters()
+	_set_transition_overlay_active(false)
+	set_transition_particles_active(false, true)
 	_update_nebula_anchor_for_sector("")
 
 
@@ -64,6 +72,8 @@ func begin_departure(source_sector_id: String, target_sector_id: String, travel_
 	_route_has_valid_positions = _route_world_position != Vector3.ZERO or _route_target_world_position != Vector3.ZERO
 	_route_complete = _get_remaining_route_distance() <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE
 	visible = false
+	_set_transition_overlay_active(false)
+	set_transition_particles_active(false, true)
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
 		if _has_captured_camera_transform:
@@ -117,6 +127,8 @@ func reset_transition_state() -> void:
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
 		_transition_camera.global_transform = Transform.IDENTITY
+	_set_transition_overlay_active(false)
+	set_transition_particles_active(false, true)
 	_update_nebula_anchor_for_sector("")
 
 
@@ -124,6 +136,7 @@ func deactivate_transition_view() -> void:
 	visible = false
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
+	set_transition_particles_active(false, true)
 
 
 func _process(delta: float) -> void:
@@ -177,6 +190,44 @@ func get_transition_camera_forward_direction() -> Vector3:
 	if is_instance_valid(_transition_camera):
 		return -_transition_camera.global_transform.basis.z.normalized()
 	return _travel_direction
+
+
+func _set_transition_overlay_active(is_active: bool) -> void:
+	if not is_instance_valid(_transition_overlay):
+		return
+	_transition_overlay.visible = is_active
+	if is_active:
+		_transition_overlay.raise()
+
+
+func set_transition_particles_active(is_active: bool, clear_existing: bool = false) -> void:
+	if not is_instance_valid(_jump_transition_particles):
+		return
+	_jump_transition_particles.visible = is_active
+	for emitter in _transition_particle_emitters:
+		if not is_instance_valid(emitter):
+			continue
+		emitter.visible = is_active
+		emitter.emitting = false
+		if clear_existing and emitter.has_method("restart"):
+			emitter.restart()
+		emitter.emitting = is_active
+
+
+func _set_jump_transition_particles_active(is_active: bool, clear_existing: bool = false) -> void:
+	set_transition_particles_active(is_active, clear_existing)
+
+
+func _cache_transition_particle_emitters() -> void:
+	_transition_particle_emitters.clear()
+	if not is_instance_valid(_jump_transition_particles):
+		return
+	for emitter in _jump_transition_particles.get_children():
+		if emitter is CPUParticles:
+			emitter.pause_mode = Node.PAUSE_MODE_PROCESS
+			emitter.visible = false
+			emitter.emitting = false
+			_transition_particle_emitters.append(emitter)
 
 
 func _normalize_travel_direction(travel_direction: Vector3) -> Vector3:

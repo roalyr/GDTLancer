@@ -1,7 +1,13 @@
-# File: res://scenes/camera/camera_particles_controller.gd
-# Purpose: Controls the space dust (CPUParticles) effect attached to the camera,
-#          adjusting emission, velocity, and emitter position based on
-#          the CAMERA's movement speed. (GLES2 Compatible)
+#
+# PROJECT: GDTLancer
+# MODULE: camera_particles_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
+# LOG_REF: 2026-05-16 23:40:29
+#
+
+# Controls the space dust CPUParticles attached to the gameplay camera,
+# adjusting emission, velocity, and emitter position from camera movement.
 extends CPUParticles  # Use CPUParticles for GLES2
 
 # --- Tunable Parameters ---
@@ -18,11 +24,12 @@ var _camera: Camera = null
 # --- State ---
 var _previous_camera_pos: Vector3 = Vector3.ZERO
 var _initialized: bool = false
+var _effect_active: bool = true
 
 
 func _ready():
-	# Get camera reference (assuming this node is a direct child of the camera)
-	_camera = get_parent() as Camera
+	# Resolve the owning camera even when emitters are grouped under a container.
+	_camera = _resolve_camera_ancestor()
 	if not _camera:
 		printerr("CameraParticlesController Error: Parent node is not a Camera!")
 		set_process(false)
@@ -48,17 +55,23 @@ func _initialize_position():
 		set_process(false)
 
 
+func set_effect_active(is_active: bool, clear_existing: bool = false) -> void:
+	_effect_active = is_active
+	visible = is_active
+	_apply_idle_state(true)
+	if clear_existing and has_method("restart"):
+		restart()
+		emitting = false
+
+
 func _process(delta: float):
 	# Ensure camera is valid and initialized
 	if not _initialized or not is_instance_valid(_camera):
-		# Keep particles off if camera isn't ready
-		if self.emitting:
-			self.emitting = false
-		if self.gravity != Vector3.ZERO:
-			self.gravity = Vector3.ZERO
-		# Reset offset if camera becomes invalid
-		if self.transform.origin != Vector3.ZERO:
-			self.transform.origin = Vector3.ZERO
+		_apply_idle_state(false)
+		return
+
+	if not _effect_active:
+		_apply_idle_state(true)
 		return
 
 	# --- Calculate Camera Movement ---
@@ -91,3 +104,23 @@ func _process(delta: float):
 	else:
 		if self.emitting:
 			self.emitting = false
+
+
+func _apply_idle_state(reset_previous_position: bool) -> void:
+	if reset_previous_position and is_instance_valid(_camera):
+		_previous_camera_pos = _camera.global_transform.origin
+	if self.emitting:
+		self.emitting = false
+	if self.gravity != Vector3.ZERO:
+		self.gravity = Vector3.ZERO
+	if self.transform.origin != Vector3.ZERO:
+		self.transform.origin = Vector3.ZERO
+
+
+func _resolve_camera_ancestor() -> Camera:
+	var current_node = get_parent()
+	while is_instance_valid(current_node):
+		if current_node is Camera:
+			return current_node
+		current_node = current_node.get_parent()
+	return null

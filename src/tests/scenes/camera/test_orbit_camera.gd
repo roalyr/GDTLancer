@@ -2,12 +2,13 @@
 # PROJECT: GDTLancer
 # MODULE: test_orbit_camera.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 20:25:31
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
+# LOG_REF: 2026-05-16 23:40:29
 #
 
 extends GutTest
 
+const OrbitCameraScene = preload("res://scenes/prefabs/camera/orbit_camera.tscn")
 const OrbitCameraScript = preload("res://src/scenes/camera/orbit_camera.gd")
 
 
@@ -57,3 +58,23 @@ func test_restore_orbit_from_transition_view_snaps_camera_to_transition_facing()
 		(player.global_transform.origin - camera.global_transform.origin).normalized().is_equal_approx(Vector3(1, 0, 0)),
 		"Transition restore should snap the gameplay orbit camera behind the newly spawned player instead of resuming from stale pre-jump coordinates."
 	)
+
+
+func test_set_local_scene_particles_active_toggles_group_visibility_and_clears_emitters():
+	var camera = OrbitCameraScene.instance()
+	add_child_autofree(camera)
+
+	var local_particles = camera.get_node("LocalSceneParticles")
+
+	camera.set_local_scene_particles_active(false, true)
+
+	assert_false(local_particles.visible, "Disabling local-scene particles should hide the dedicated gameplay particle group during jump transition pause.")
+	for emitter in local_particles.get_children():
+		assert_false(emitter.visible, "Disabling local-scene particles should hide each gameplay-camera emitter.")
+		assert_false(emitter.emitting, "Disabling local-scene particles with clear_existing should leave every gameplay-camera emitter cleared and idle.")
+
+	camera.set_local_scene_particles_active(true, true)
+
+	assert_true(local_particles.visible, "Re-enabling local-scene particles should restore the gameplay particle group after the transition ends.")
+	for emitter in local_particles.get_children():
+		assert_true(emitter.visible, "Re-enabling local-scene particles should restore each emitter's visibility under the gameplay camera.")
