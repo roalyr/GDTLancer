@@ -16,6 +16,7 @@ const TEST_ROUTE_DIRECTION = Vector3(0, 0, -1)
 
 func after_each():
 	GameState.player_docked_at = ""
+	GlobalRefs.world_manager = null
 
 func test_docking_signals():
 	var station = StaticBody.new()
@@ -218,6 +219,36 @@ func test_single_click_clears_selection_without_world_raycast_pick():
 	controller._handle_single_click(Vector2.ZERO)
 	assert_eq(controller._selected_target, null, "Single-click fallback should now clear selection instead of picking the collider under the cursor.")
 	assert_signal_emitted(EventBus, "player_target_deselected")
+
+
+func test_jump_interact_ignores_input_while_transition_active():
+	var transition_script = GDScript.new()
+	transition_script.source_code = "extends Node\nfunc is_jump_transition_active():\n\treturn true\n"
+	transition_script.reload()
+	var transition_world_manager = Node.new()
+	transition_world_manager.set_script(transition_script)
+	add_child_autofree(transition_world_manager)
+	GlobalRefs.world_manager = transition_world_manager
+
+	var harness = _create_player_controller_harness(true, true)
+	var agent = harness["agent"]
+	var controller = harness["controller"]
+	watch_signals(EventBus)
+
+	var route_target = RouteTargetScript.new().configure(
+		"sector_system_elace",
+		"sector_system_cob",
+		"Cob System",
+		TEST_ROUTE_DIRECTION
+	)
+	controller._set_selected_target(route_target)
+	controller._poll_docking_proximity()
+	controller._handle_interact_input()
+
+	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump input should be ignored while the world manager reports an active jump transition.")
+	assert_eq(agent.align_calls.size(), 0, "Jump input should not queue new alignment while a jump transition is already active.")
+	assert_eq(controller._queued_jump_target_id, "", "Jump input should not leave a queued jump behind while transition gating is active.")
+	assert_true(controller._selected_target == route_target, "Ignoring input during a jump transition should not mutate the selected target.")
 
 
 func _create_player_controller_harness(aligned: bool = true, rotation_stopped: bool = true) -> Dictionary:

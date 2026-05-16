@@ -1,0 +1,25 @@
+; PROJECT: GDTLancer
+; MODULE: jump_transition_rig.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+; LOG_REF: 2026-05-16 17:48:36
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/scenes/game_world/jump_transition/jump_transition_rig.gd" type="Script" id=1]
+[ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=2]
+
+[node name="JumpTransitionRig" type="Spatial"]
+visible = false
+pause_mode = 2
+script = ExtResource( 1 )
+
+[node name="NebulaHolder" type="Spatial" parent="."]
+pause_mode = 2
+
+[node name="Globalnebulas" parent="NebulaHolder" instance=ExtResource( 2 )]
+
+[node name="TransitionCamera" type="Camera" parent="."]
+pause_mode = 2
+current = false
+fov = 95.0
+far = 1000000.0

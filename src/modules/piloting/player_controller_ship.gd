@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-14 03:05:12
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 18:32:14
 #
 
 extends Node
@@ -109,6 +109,9 @@ func _change_state(new_state_name: String):
 
 
 func _physics_process(delta: float):
+	if _is_jump_transition_active():
+		_clear_queued_jump()
+		return
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
 	_poll_docking_proximity()
@@ -116,6 +119,8 @@ func _physics_process(delta: float):
 
 
 func _unhandled_input(event: InputEvent):
+	if _is_jump_transition_active():
+		return
 	# Global inputs that work in any state
 	if event.is_action_pressed("ui_accept"):
 		_handle_interact_input()
@@ -263,8 +268,18 @@ func _is_selected_target_valid() -> bool:
 	return is_instance_valid(_selected_target)
 
 
+func _is_jump_transition_active() -> bool:
+	return (
+		is_instance_valid(GlobalRefs.world_manager)
+		and GlobalRefs.world_manager.has_method("is_jump_transition_active")
+		and GlobalRefs.world_manager.is_jump_transition_active()
+	)
+
+
 # --- Contextual Interact ---
 func _handle_interact_input() -> void:
+	if _is_jump_transition_active():
+		return
 	if not _is_selected_target_valid():
 		_clear_queued_jump()
 		EventBus.emit_signal("dock_action_feedback", false, "No target selected")

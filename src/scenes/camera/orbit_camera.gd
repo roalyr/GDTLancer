@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: orbit_camera.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
 #
 
 extends Camera
@@ -45,6 +45,9 @@ var pid_output_limit_multiplier: float = 100.0
 enum CameraMode { ORBIT, TARGET_TRACKING }
 var _camera_mode: int = CameraMode.ORBIT
 var _look_at_target: Spatial = null  # Secondary target to look at
+var _zoom_controller_fov_deg: float = 70.0
+var _temporary_fov_override_active: bool = false
+var _temporary_fov_override_deg: float = 70.0
 
 # --- Component Script Paths ---
 const RotationControllerScript = preload(
@@ -112,6 +115,7 @@ func _ready():
 	_rotation_controller.initialize(self, config)
 	_zoom_controller.initialize(self, config)
 	_position_controller.initialize(self, _rotation_controller, _zoom_controller, config)
+	apply_zoom_controller_fov(fov)
 
 	# --- Connect Signals ---
 	if (
@@ -165,6 +169,74 @@ func is_externally_rotating() -> bool:
 		and _rotation_controller.has_method("is_externally_rotating")
 		and _rotation_controller.is_externally_rotating()
 	)
+
+
+func set_orbit_forward_direction(direction: Vector3) -> void:
+	if is_instance_valid(_rotation_controller) and _rotation_controller.has_method("set_orbit_forward_direction"):
+		_rotation_controller.set_orbit_forward_direction(direction)
+
+
+func get_orbit_forward_direction() -> Vector3:
+	if is_instance_valid(_rotation_controller) and _rotation_controller.has_method("get_orbit_forward_direction"):
+		return _rotation_controller.get_orbit_forward_direction()
+	return -global_transform.basis.z.normalized()
+
+
+func get_current_orbit_distance() -> float:
+	if is_instance_valid(_zoom_controller):
+		var zoom_distance = _zoom_controller.get("current_distance")
+		if zoom_distance is float or zoom_distance is int:
+			return float(zoom_distance)
+	return distance
+
+
+func restore_orbit_from_transition_view(target: Spatial, forward_direction: Vector3) -> void:
+	set_target_node(target)
+	if not is_instance_valid(target):
+		return
+	var target_forward_direction = forward_direction
+	if target_forward_direction.length_squared() < 0.001:
+		target_forward_direction = get_orbit_forward_direction()
+	set_orbit_forward_direction(target_forward_direction)
+	var orbit_forward = get_orbit_forward_direction()
+	var orbit_distance = get_current_orbit_distance()
+	var target_position = target.global_transform.origin
+	var desired_position = target_position - orbit_forward * orbit_distance
+	var up_direction = Vector3.UP
+	if abs(up_direction.dot(orbit_forward)) > 0.98:
+		up_direction = global_transform.basis.y.normalized()
+		if up_direction.length_squared() < 0.001 or abs(up_direction.dot(orbit_forward)) > 0.98:
+			up_direction = Vector3.RIGHT
+	var desired_transform = Transform(Basis(), desired_position).looking_at(target_position, up_direction)
+	global_transform = Transform(desired_transform.basis.orthonormalized(), desired_position)
+
+
+func apply_zoom_controller_fov(fov_deg: float) -> void:
+	_zoom_controller_fov_deg = fov_deg
+	_update_effective_fov()
+
+
+func set_temporary_fov_override(fov_deg: float) -> void:
+	_temporary_fov_override_active = true
+	_temporary_fov_override_deg = fov_deg
+	_update_effective_fov()
+
+
+func clear_temporary_fov_override() -> void:
+	_temporary_fov_override_active = false
+	_update_effective_fov()
+
+
+func get_zoom_controller_fov() -> float:
+	return _zoom_controller_fov_deg
+
+
+func get_effective_fov() -> float:
+	return _temporary_fov_override_deg if _temporary_fov_override_active else _zoom_controller_fov_deg
+
+
+func _update_effective_fov() -> void:
+	fov = get_effective_fov()
 
 
 # --- Camera Mode Methods ---

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_rendering.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-16 01:02:19
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 17:48:36
 #
 
 # File: scenes/game_world/world_rendering.gd
@@ -19,6 +19,7 @@ var viewport_disable_3d = false
 var viewport_sharpen_intensity = 0.5
 var viewport_keep_3d_linear = false
 var projected_target_center_fade_enabled = true
+var jump_transition_enabled = true
 
 
 var _viewport_size = Vector2(1920, 1080)

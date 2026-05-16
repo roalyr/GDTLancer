@@ -1,3 +1,11 @@
+#
+# PROJECT: GDTLancer
+# MODULE: camera_zoom_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 18:32:14
+#
+
 # File: scenes/camera/components/camera_zoom_controller.gd
 # Purpose: Manages camera zoom, distance from target, and FoV calculations.
 # This is a component of the main OrbitCamera.
@@ -133,10 +141,18 @@ func _update_fov():
 	var dyn_min_dist = _get_dynamic_min_distance()
 	var dyn_max_dist = _get_dynamic_max_distance()
 	if is_equal_approx(dyn_max_dist, dyn_min_dist):
-		_camera.fov = _max_fov_deg
+		_apply_camera_fov(_max_fov_deg)
 		return
 	var t = clamp((current_distance - dyn_min_dist) / (dyn_max_dist - dyn_min_dist), 0.0, 1.0)
-	_camera.fov = lerp(_min_fov_deg, _max_fov_deg, t)
+	_apply_camera_fov(lerp(_min_fov_deg, _max_fov_deg, t))
+
+
+func _apply_camera_fov(computed_fov: float) -> void:
+	if _camera != null and _camera.has_method("apply_zoom_controller_fov"):
+		_camera.call("apply_zoom_controller_fov", computed_fov)
+		return
+	if _camera != null:
+		_camera.fov = computed_fov
 
 
 func _get_dynamic_min_distance() -> float:

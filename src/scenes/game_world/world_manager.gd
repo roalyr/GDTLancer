@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:32:50
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 20:25:31
 #
 
 extends Node
@@ -14,12 +14,30 @@ extends Node
 # --- Component Scripts ---
 const TemplateIndexer = preload("res://src/scenes/game_world/world_manager/template_indexer.gd")
 const WorldGenerator = preload("res://src/scenes/game_world/world_manager/world_generator.gd")
+const JUMP_TRANSITION_RIG_NODE_NAME = "JumpTransitionRig"
+const DEFAULT_JUMP_TRANSITION_DIRECTION = Vector3(0, 0, -1)
+const DEFAULT_JUMP_TRANSITION_SPEED = 1200.0
+const JUMP_TRANSITION_TARGET_FOV_DEG = 140.0
+const JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC = 0.5
+const JUMP_TRANSITION_FOV_EASE_POWER = 2.35
+const JUMP_TRANSITION_FOV_WIDEN_DURATION_SEC = 1.25
+const JUMP_TRANSITION_FOV_RESTORE_DURATION_SEC = 1.25
+const JUMP_TRANSITION_HUD_SHOW_DELAY_SEC = 0.08
+const JUMP_TRANSITION_VELOCITY_TOLERANCE = 20.0
+const JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC = 7.5
+const JUMP_TRANSITION_LOAD_TIMEOUT_SEC = 1.5
+const JUMP_TRANSITION_ROUTE_TARGET_DURATION_SEC = 2.5
+const JUMP_TRANSITION_ROUTE_TIMEOUT_BUFFER_SEC = 2.0
 
 # --- State ---
 var _spawned_agent_bodies = []
 var _sector_loader = null
 var _pending_jump_target: String = ""
 var _reported_invalid_sectors: Dictionary = {}
+var _jump_transition_active: bool = false
+var _jump_transition_tree_was_paused: bool = false
+var _jump_transition_timer_was_running: bool = false
+var _jump_transition_mouse_mode_before_lock: int = Input.MOUSE_MODE_VISIBLE
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
@@ -70,6 +88,8 @@ func _ready():
 func _on_new_game_requested() -> void:
 	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
 	_reset_camera_input_state()
+	_reset_jump_transition_foundation()
+	_set_main_hud_hidden(false)
 	# Leaving the Main Menu; resume gameplay.
 	get_tree().paused = false
 	if is_instance_valid(_time_clock_timer):
@@ -105,6 +125,8 @@ func _on_new_game_requested() -> void:
 func _on_game_state_loaded() -> void:
 	# Ensure we don't inherit mouse/camera capture/rotation state from a prior session.
 	_reset_camera_input_state()
+	_reset_jump_transition_foundation()
+	_set_main_hud_hidden(false)
 	# A saved state has been applied; we now need to load a zone so AgentSpawner can
 	# spawn the player from the restored GameState.
 	get_tree().paused = false
@@ -251,17 +273,125 @@ func travel_to_sector(target_sector_id: String) -> void:
 	var resolved_target_sector_id: String = _resolve_known_sector_id(target_sector_id, "travel_to_sector")
 	if resolved_target_sector_id == "":
 		return
+	if _jump_transition_active:
+		return
+	if _is_jump_transition_enabled():
+		_jump_transition_active = true
+		call_deferred("_run_jump_transition_sequence", resolved_target_sector_id)
+		return
+	_travel_to_sector_immediate(resolved_target_sector_id)
+
+
+func is_jump_transition_active() -> bool:
+	return _jump_transition_active
+
+
+func _begin_jump_transition_foundation(source_sector_id: String, target_sector_id: String) -> void:
+	var jump_transition_rig = _get_jump_transition_rig()
+	if not is_instance_valid(jump_transition_rig):
+		_reset_jump_transition_foundation()
+		return
+	if not _is_jump_transition_enabled():
+		_reset_jump_transition_foundation()
+		return
+	_jump_transition_active = true
+	if is_instance_valid(GlobalRefs.main_camera) and jump_transition_rig.has_method("capture_from_camera"):
+		jump_transition_rig.call("capture_from_camera", GlobalRefs.main_camera)
+	var departure_direction = _get_departure_direction_for_route(source_sector_id, target_sector_id)
+	if jump_transition_rig.has_method("begin_departure"):
+		jump_transition_rig.call("begin_departure", source_sector_id, target_sector_id, departure_direction)
+
+
+func _reset_jump_transition_foundation() -> void:
+	_jump_transition_active = false
+	var jump_transition_rig = _get_jump_transition_rig()
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("reset_transition_state"):
+		jump_transition_rig.call("reset_transition_state")
+	_jump_transition_mouse_mode_before_lock = Input.MOUSE_MODE_VISIBLE
+	if is_instance_valid(GlobalRefs.main_camera):
+		if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
+			GlobalRefs.main_camera.clear_temporary_fov_override()
+		GlobalRefs.main_camera.current = true
+
+
+func _run_jump_transition_sequence(target_sector_id: String) -> void:
+	var resolved_target_sector_id: String = _resolve_known_sector_id(target_sector_id, "_run_jump_transition_sequence")
+	if resolved_target_sector_id == "":
+		_reset_jump_transition_foundation()
+		return
 	var old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	_begin_jump_transition_foundation(old_sector, resolved_target_sector_id)
+	if not _jump_transition_active:
+		_travel_to_sector_immediate(resolved_target_sector_id)
+		return
+	var departure_direction = _get_departure_direction_for_route(old_sector, resolved_target_sector_id)
+	var departure_visuals_state = _prepare_jump_transition_departure_visuals(departure_direction)
+	if departure_visuals_state is GDScriptFunctionState:
+		yield(departure_visuals_state, "completed")
+	_pause_jump_transition_gameplay()
+	var fov_override_state = _animate_main_camera_fov_override(JUMP_TRANSITION_TARGET_FOV_DEG, JUMP_TRANSITION_FOV_WIDEN_DURATION_SEC)
+	if fov_override_state is GDScriptFunctionState:
+		yield(fov_override_state, "completed")
+	_prepare_sector_travel_state(resolved_target_sector_id, old_sector)
+	_cleanup_all_agents()
+	_cleanup_current_zone()
+	yield(get_tree(), "idle_frame")
+	var route_distance = _get_jump_transition_route_distance(old_sector, resolved_target_sector_id)
+	var cruise_speed = _get_jump_transition_cruise_speed(route_distance)
+	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed)
+	var jump_transition_rig = _get_jump_transition_rig()
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_fov"):
+		jump_transition_rig.call("set_transition_fov", JUMP_TRANSITION_TARGET_FOV_DEG)
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_cruise"):
+		jump_transition_rig.call("begin_cruise", cruise_speed)
+		var cruise_velocity_state = _wait_for_rig_velocity(jump_transition_rig, cruise_speed, JUMP_TRANSITION_VELOCITY_TOLERANCE, JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC)
+		if cruise_velocity_state is GDScriptFunctionState:
+			yield(cruise_velocity_state, "completed")
+		var route_completion_state = _wait_for_rig_route_completion(jump_transition_rig, route_timeout_sec)
+		if route_completion_state is GDScriptFunctionState:
+			yield(route_completion_state, "completed")
+		if jump_transition_rig.has_method("is_route_complete") and not jump_transition_rig.call("is_route_complete") and jump_transition_rig.has_method("begin_arrival"):
+			jump_transition_rig.call("begin_arrival")
+			var arrival_velocity_state = _wait_for_rig_velocity(jump_transition_rig, 0.0, JUMP_TRANSITION_VELOCITY_TOLERANCE, JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC)
+			if arrival_velocity_state is GDScriptFunctionState:
+				yield(arrival_velocity_state, "completed")
+	load_sector(resolved_target_sector_id)
+	yield(get_tree(), "idle_frame")
+	var player_ready_state = _wait_for_player_and_zone_ready(JUMP_TRANSITION_LOAD_TIMEOUT_SEC)
+	if player_ready_state is GDScriptFunctionState:
+		yield(player_ready_state, "completed")
+	_restore_gameplay_camera_at_transition_fov()
+	var fov_restore_state = _animate_main_camera_fov_restore(JUMP_TRANSITION_FOV_RESTORE_DURATION_SEC)
+	if fov_restore_state is GDScriptFunctionState:
+		yield(fov_restore_state, "completed")
+	_set_jump_transition_camera_locked(false)
+	var hud_show_delay_state = _yield_real_time(JUMP_TRANSITION_HUD_SHOW_DELAY_SEC)
+	if hud_show_delay_state is GDScriptFunctionState:
+		yield(hud_show_delay_state, "completed")
+	_set_main_hud_hidden(false)
+	_restore_jump_transition_gameplay()
+	_reset_jump_transition_foundation()
+	_request_sector_travel_tick()
+
+
+func _travel_to_sector_immediate(target_sector_id: String) -> void:
+	_prepare_sector_travel_state(target_sector_id)
+	load_sector(target_sector_id)
+	_request_sector_travel_tick()
+
+
+func _prepare_sector_travel_state(target_sector_id: String, old_sector_id: String = "") -> String:
+	var old_sector = old_sector_id
+	if old_sector == "":
+		old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
 	_snapshot_player_state_for_sector_travel()
 	GameState.player_docked_at = ""
 	GameState.player_arrived_from_sector = old_sector
-	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, resolved_target_sector_id)
+	GameState.player_arrival_direction = _get_arrival_direction_for_route(old_sector, target_sector_id)
 	if GameState.agents.has("player"):
-		GameState.agents["player"]["current_sector_id"] = resolved_target_sector_id
-	EventBus.emit_signal("sector_changed", resolved_target_sector_id, old_sector)
-	load_sector(resolved_target_sector_id)
-	if is_instance_valid(GlobalRefs.simulation_engine):
-		GlobalRefs.simulation_engine.request_tick()
+		GameState.agents["player"]["current_sector_id"] = target_sector_id
+	EventBus.emit_signal("sector_changed", target_sector_id, old_sector)
+	return old_sector
 
 
 func _snapshot_player_state_for_sector_travel() -> void:
@@ -269,6 +399,203 @@ func _snapshot_player_state_for_sector_travel() -> void:
 	GameState.player_position = Vector3.ZERO
 	if is_instance_valid(GlobalRefs.player_agent_body):
 		GameState.player_rotation = GlobalRefs.player_agent_body.rotation_degrees
+
+
+func _pause_jump_transition_gameplay() -> void:
+	_jump_transition_tree_was_paused = get_tree().paused
+	_jump_transition_timer_was_running = is_instance_valid(_time_clock_timer) and not _time_clock_timer.is_stopped()
+	if is_instance_valid(_time_clock_timer):
+		_time_clock_timer.stop()
+	get_tree().paused = true
+
+
+func _restore_jump_transition_gameplay() -> void:
+	get_tree().paused = _jump_transition_tree_was_paused
+	if _jump_transition_timer_was_running and is_instance_valid(_time_clock_timer):
+		_time_clock_timer.start()
+	_jump_transition_tree_was_paused = false
+	_jump_transition_timer_was_running = false
+
+
+func _set_jump_transition_camera_locked(is_locked: bool) -> void:
+	if is_locked:
+		_jump_transition_mouse_mode_before_lock = Input.get_mouse_mode()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(_jump_transition_mouse_mode_before_lock)
+	if not is_instance_valid(GlobalRefs.main_camera):
+		return
+	if GlobalRefs.main_camera.has_method("set_is_rotating"):
+		GlobalRefs.main_camera.set_is_rotating(false)
+	if GlobalRefs.main_camera.has_method("set_rotation_input_active"):
+		GlobalRefs.main_camera.set_rotation_input_active(
+			not is_locked and _jump_transition_mouse_mode_before_lock == Input.MOUSE_MODE_CAPTURED
+		)
+
+
+func _set_main_hud_hidden(is_hidden: bool) -> void:
+	if is_instance_valid(GlobalRefs.main_hud):
+		GlobalRefs.main_hud.visible = not is_hidden
+
+
+func _restore_gameplay_camera_at_transition_fov() -> void:
+	if not is_instance_valid(GlobalRefs.main_camera):
+		return
+	var jump_transition_rig = _get_jump_transition_rig()
+	var transition_forward_direction = Vector3.ZERO
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("get_transition_camera_forward_direction"):
+		transition_forward_direction = jump_transition_rig.call("get_transition_camera_forward_direction")
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("deactivate_transition_view"):
+		jump_transition_rig.call("deactivate_transition_view")
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		if GlobalRefs.main_camera.has_method("restore_orbit_from_transition_view"):
+			GlobalRefs.main_camera.restore_orbit_from_transition_view(
+				GlobalRefs.player_agent_body,
+				transition_forward_direction
+			)
+		elif GlobalRefs.main_camera.has_method("set_target_node"):
+			GlobalRefs.main_camera.set_target_node(GlobalRefs.player_agent_body)
+			if transition_forward_direction.length_squared() >= 0.001 and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
+				GlobalRefs.main_camera.set_orbit_forward_direction(transition_forward_direction)
+	if GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
+		GlobalRefs.main_camera.set_temporary_fov_override(JUMP_TRANSITION_TARGET_FOV_DEG)
+	GlobalRefs.main_camera.current = true
+
+
+func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
+	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
+		GlobalRefs.main_camera.set_orbit_forward_direction(departure_direction)
+	var camera_aim_state = _yield_real_time(JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC)
+	if camera_aim_state is GDScriptFunctionState:
+		yield(camera_aim_state, "completed")
+	var jump_transition_rig = _get_jump_transition_rig()
+	if is_instance_valid(jump_transition_rig) and is_instance_valid(GlobalRefs.main_camera) and jump_transition_rig.has_method("capture_from_camera"):
+		jump_transition_rig.call("capture_from_camera", GlobalRefs.main_camera)
+	_set_jump_transition_camera_locked(true)
+	_set_main_hud_hidden(true)
+
+
+func _get_jump_transition_fov_progress(linear_t: float) -> float:
+	var t = clamp(linear_t, 0.0, 1.0)
+	return pow(t, JUMP_TRANSITION_FOV_EASE_POWER)
+
+
+func _animate_main_camera_fov_override(target_fov: float, duration_sec: float):
+	if not is_instance_valid(GlobalRefs.main_camera) or not GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
+		return
+	var start_fov = GlobalRefs.main_camera.fov
+	if GlobalRefs.main_camera.has_method("get_effective_fov"):
+		start_fov = GlobalRefs.main_camera.get_effective_fov()
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration_sec * 1000.0), 1)
+	while true:
+		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
+		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
+		GlobalRefs.main_camera.set_temporary_fov_override(
+			lerp(start_fov, target_fov, _get_jump_transition_fov_progress(t))
+		)
+		if t >= 1.0:
+			break
+		yield(get_tree(), "idle_frame")
+
+
+func _animate_main_camera_fov_restore(duration_sec: float):
+	if not is_instance_valid(GlobalRefs.main_camera) or not GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
+		return
+	var start_fov = GlobalRefs.main_camera.fov
+	if GlobalRefs.main_camera.has_method("get_effective_fov"):
+		start_fov = GlobalRefs.main_camera.get_effective_fov()
+	var target_fov = start_fov
+	if GlobalRefs.main_camera.has_method("get_zoom_controller_fov"):
+		target_fov = GlobalRefs.main_camera.get_zoom_controller_fov()
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration_sec * 1000.0), 1)
+	while true:
+		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
+		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
+		GlobalRefs.main_camera.set_temporary_fov_override(
+			lerp(start_fov, target_fov, _get_jump_transition_fov_progress(t))
+		)
+		if t >= 1.0:
+			break
+		yield(get_tree(), "idle_frame")
+	if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
+		GlobalRefs.main_camera.clear_temporary_fov_override()
+
+
+func _wait_for_rig_velocity(jump_transition_rig: Node, target_velocity: float, tolerance: float, timeout_sec: float):
+	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method("get_current_velocity"):
+		return true
+	var start_time_ms = OS.get_ticks_msec()
+	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
+	while true:
+		var current_velocity = float(jump_transition_rig.call("get_current_velocity"))
+		if abs(current_velocity - target_velocity) <= tolerance:
+			return true
+		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
+			return false
+		yield(get_tree(), "idle_frame")
+
+
+func _wait_for_rig_route_completion(jump_transition_rig: Node, timeout_sec: float):
+	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method("is_route_complete"):
+		return true
+	var start_time_ms = OS.get_ticks_msec()
+	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
+	while true:
+		if bool(jump_transition_rig.call("is_route_complete")):
+			return true
+		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
+			return false
+		yield(get_tree(), "idle_frame")
+
+
+func _wait_for_player_and_zone_ready(timeout_sec: float):
+	var start_time_ms = OS.get_ticks_msec()
+	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
+	while true:
+		if is_instance_valid(GlobalRefs.current_zone) and is_instance_valid(GlobalRefs.player_agent_body):
+			return true
+		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
+			return false
+		yield(get_tree(), "idle_frame")
+
+
+func _yield_real_time(duration_sec: float):
+	if duration_sec <= 0.0:
+		return
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration_sec * 1000.0), 1)
+	while OS.get_ticks_msec() - start_time_ms < duration_ms:
+		yield(get_tree(), "idle_frame")
+
+
+func _get_jump_transition_route_distance(source_sector_id: String, target_sector_id: String) -> float:
+	return _get_sector_global_position(source_sector_id).distance_to(_get_sector_global_position(target_sector_id))
+
+
+func _get_jump_transition_cruise_speed(route_distance: float) -> float:
+	if route_distance <= 0.0:
+		return DEFAULT_JUMP_TRANSITION_SPEED
+	return max(DEFAULT_JUMP_TRANSITION_SPEED, route_distance / JUMP_TRANSITION_ROUTE_TARGET_DURATION_SEC)
+
+
+func _get_jump_transition_route_timeout_sec(route_distance: float, cruise_speed: float) -> float:
+	var effective_speed = max(cruise_speed, 1.0)
+	return max(route_distance / effective_speed, 0.0) + JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC + JUMP_TRANSITION_ROUTE_TIMEOUT_BUFFER_SEC
+
+
+func _request_sector_travel_tick() -> void:
+	if is_instance_valid(GlobalRefs.simulation_engine):
+		GlobalRefs.simulation_engine.request_tick()
+
+
+func _get_departure_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:
+	var source_position: Vector3 = _get_sector_global_position(source_sector_id)
+	var target_position: Vector3 = _get_sector_global_position(target_sector_id)
+	if source_position == target_position:
+		return DEFAULT_JUMP_TRANSITION_DIRECTION
+	return (target_position - source_position).normalized()
 
 
 func _get_arrival_direction_for_route(source_sector_id: String, target_sector_id: String) -> Vector3:
@@ -285,6 +612,32 @@ func _get_sector_global_position(sector_id: String) -> Vector3:
 		return Vector3.ZERO
 	var global_position = sector_template.get("global_position")
 	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _get_world_rendering_node() -> Node:
+	var scene_tree = get_tree()
+	if scene_tree != null and is_instance_valid(scene_tree.current_scene):
+		var scene_world_rendering = scene_tree.current_scene.get_node_or_null("WorldRendering")
+		if is_instance_valid(scene_world_rendering):
+			return scene_world_rendering
+	if is_instance_valid(get_parent()):
+		var parent_world_rendering = get_parent().get_node_or_null("WorldRendering")
+		if is_instance_valid(parent_world_rendering):
+			return parent_world_rendering
+	return null
+
+
+func _is_jump_transition_enabled() -> bool:
+	var world_rendering = _get_world_rendering_node()
+	if not is_instance_valid(world_rendering):
+		return false
+	return bool(world_rendering.get("jump_transition_enabled"))
+
+
+func _get_jump_transition_rig() -> Node:
+	if is_instance_valid(get_parent()):
+		return get_parent().get_node_or_null(JUMP_TRANSITION_RIG_NODE_NAME)
+	return null
 
 
 func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
@@ -375,3 +728,4 @@ func _notification(what):
 			EventBus.disconnect("jump_available", self, "_on_jump_available")
 		if EventBus.is_connected("jump_unavailable", self, "_on_jump_unavailable"):
 			EventBus.disconnect("jump_unavailable", self, "_on_jump_unavailable")
+		_reset_jump_transition_foundation()

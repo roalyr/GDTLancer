@@ -3,7 +3,7 @@
 # MODULE: camera_rotation_controller.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# LOG_REF: 2026-05-16 20:12:02
 #
 
 extends Node
@@ -138,6 +138,22 @@ func set_is_rotating(rotating: bool):
 	if not _rotation_input_active:
 		_is_externally_rotating = rotating
 	reset_pids()
+
+
+func set_orbit_forward_direction(direction: Vector3):
+	if direction.length_squared() < 0.001:
+		return
+	var normalized_direction = direction.normalized()
+	yaw = atan2(normalized_direction.x, normalized_direction.z)
+	pitch = clamp(-asin(clamp(normalized_direction.y, -1.0, 1.0)), pitch_min, pitch_max)
+	_target_yaw_speed = 0.0
+	_target_pitch_speed = 0.0
+	reset_pids()
+
+
+func get_orbit_forward_direction() -> Vector3:
+	var horizontal_scale = cos(pitch)
+	return Vector3(sin(yaw) * horizontal_scale, -sin(pitch), cos(yaw) * horizontal_scale).normalized()
 
 
 func is_externally_rotating() -> bool:

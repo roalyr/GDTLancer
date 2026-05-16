@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-13 16:32:50
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
+# LOG_REF: 2026-05-16 17:48:36
 #
 
 extends GutTest
@@ -31,6 +31,8 @@ func after_each():
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GlobalRefs.player_agent_body = null
+	if is_instance_valid(world_manager) and not is_instance_valid(world_manager.get_parent()):
+		world_manager.free()
 	world_manager = null
 
 
@@ -86,3 +88,95 @@ func test_snapshot_player_state_for_sector_travel_preserves_rotation_and_clears_
 		Vector3(12, 34, 56),
 		"Sector travel should snapshot the current player orientation for the next-sector spawn."
 	)
+
+
+func test_jump_transition_active_defaults_false():
+	assert_false(
+		world_manager.is_jump_transition_active(),
+		"WorldManager should start with no active jump transition foundation."
+	)
+
+
+func test_begin_jump_transition_foundation_uses_rig_when_enabled():
+	var harness = _create_jump_transition_harness(true)
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+
+	assert_true(
+		world_manager.is_jump_transition_active(),
+		"Enabled transition foundations should mark the world manager as active."
+	)
+	assert_eq(
+		harness["rig"].departure_calls.size(),
+		1,
+		"Enabled transition foundations should enter the rig departure stage exactly once."
+	)
+	assert_eq(
+		harness["rig"].departure_calls[0][2],
+		Vector3(1, 0, 0),
+		"Departure travel direction should point from the source sector toward the destination sector."
+	)
+
+
+func test_begin_jump_transition_foundation_resets_when_disabled():
+	var harness = _create_jump_transition_harness(false)
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+
+	assert_false(
+		world_manager.is_jump_transition_active(),
+		"Disabled transition foundations should leave the world manager inactive."
+	)
+	assert_eq(
+		harness["rig"].reset_calls,
+		1,
+		"Disabled transition foundations should reset the rig instead of starting departure or cruise."
+	)
+	assert_eq(
+		harness["rig"].departure_calls.size(),
+		0,
+		"Disabled transition foundations should not start departure."
+	)
+
+
+func test_reset_jump_transition_foundation_clears_active_state_and_resets_rig():
+	var harness = _create_jump_transition_harness(true)
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+	world_manager._reset_jump_transition_foundation()
+
+	assert_false(
+		world_manager.is_jump_transition_active(),
+		"Resetting the transition foundation should clear the active flag."
+	)
+	assert_eq(
+		harness["rig"].reset_calls,
+		1,
+		"Resetting the transition foundation should forward the reset to the rig."
+	)
+
+
+func _create_jump_transition_harness(is_enabled: bool) -> Dictionary:
+	var container = Node.new()
+	add_child_autofree(container)
+	container.add_child(world_manager)
+
+	var rendering_script = GDScript.new()
+	rendering_script.source_code = "extends Node\nvar jump_transition_enabled = true\n"
+	rendering_script.reload()
+	var world_rendering = Node.new()
+	world_rendering.name = "WorldRendering"
+	world_rendering.set_script(rendering_script)
+	world_rendering.jump_transition_enabled = is_enabled
+	container.add_child(world_rendering)
+
+	var rig_script = GDScript.new()
+	rig_script.source_code = "extends Node\nvar departure_calls = []\nvar reset_calls = 0\nfunc begin_departure(source_sector_id, target_sector_id, travel_direction):\n\tdeparture_calls.append([source_sector_id, target_sector_id, travel_direction])\nfunc reset_transition_state():\n\treset_calls += 1\n"
+	rig_script.reload()
+	var jump_transition_rig = Node.new()
+	jump_transition_rig.name = WorldManagerScript.JUMP_TRANSITION_RIG_NODE_NAME
+	jump_transition_rig.set_script(rig_script)
+	container.add_child(jump_transition_rig)
+
+	return {
+		"container": container,
+		"rig": jump_transition_rig,
+		"world_rendering": world_rendering,
+	}

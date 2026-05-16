@@ -136,13 +136,13 @@ shader_param/normal_noise = ExtResource( 3 )
 [sub_resource type="ShaderMaterial" id=9]
 shader = ExtResource( 9 )
 shader_param/albedo = Color( 0.588235, 0.247059, 0.113725, 1 )
-shader_param/scale_near = 0.2
+shader_param/scale_near = 10.0
 shader_param/scale_peak = 0.6
 shader_param/scale_far = 0.1
 shader_param/peak_distance = 40000.0
 shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
-shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_near = 0.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.4
 shader_param/intensity = 0.799
@@ -151,16 +151,16 @@ shader_param/exponent = 3.0
 [sub_resource type="ShaderMaterial" id=8]
 shader = ExtResource( 9 )
 shader_param/albedo = Color( 1, 0.603922, 0.427451, 1 )
-shader_param/scale_near = 0.1
+shader_param/scale_near = 2.948
 shader_param/scale_peak = 0.2
 shader_param/scale_far = 0.05
 shader_param/peak_distance = 40000.0
 shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
-shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_near = 0.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.4
-shader_param/intensity = 0.531
+shader_param/intensity = 0.762
 shader_param/exponent = 3.0
 
 [sub_resource type="ShaderMaterial" id=14]
@@ -196,13 +196,13 @@ shader_param/exponent = 2.1
 [sub_resource type="ShaderMaterial" id=10]
 shader = ExtResource( 9 )
 shader_param/albedo = Color( 0.321569, 0.0470588, 0, 1 )
-shader_param/scale_near = 0.2
+shader_param/scale_near = 10.0
 shader_param/scale_peak = 0.5
 shader_param/scale_far = 0.1
 shader_param/peak_distance = 40000.0
 shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
-shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_near = 0.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.4
 shader_param/intensity = 1.0
@@ -211,17 +211,17 @@ shader_param/exponent = 3.0
 [sub_resource type="ShaderMaterial" id=11]
 shader = ExtResource( 9 )
 shader_param/albedo = Color( 1, 0.984314, 1, 1 )
-shader_param/scale_near = 0.1
+shader_param/scale_near = 2.415
 shader_param/scale_peak = 0.1
 shader_param/scale_far = 0.1
 shader_param/peak_distance = 40000.0
 shader_param/fade_ratio = 10.0
 shader_param/distance_power = 0.3
-shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_near = 0.0
 shader_param/fade_distance_far = 1e+06
 shader_param/fade_power = 0.4
-shader_param/intensity = 0.4
-shader_param/exponent = 3.0
+shader_param/intensity = 0.687
+shader_param/exponent = 3.5
 
 [sub_resource type="ShaderMaterial" id=12]
 shader = ExtResource( 9 )
