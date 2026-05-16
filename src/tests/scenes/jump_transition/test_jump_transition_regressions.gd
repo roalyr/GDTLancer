@@ -3,7 +3,7 @@
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-16 23:40:29
+# LOG_REF: 2026-05-17 01:12:04
 #
 
 extends GutTest
@@ -110,10 +110,14 @@ func test_prepare_jump_transition_departure_visuals_aims_before_lock_and_hides_h
 
 	assert_eq(
 		event_order,
-		["aim", "capture", "transition_particles_False_True", "stop_rotate", "lock_False", "cover_True"],
-		"Jump departure visuals should aim the orbit camera first, capture that pose, clear any transition-only particles, lock camera input, and then enable the transition cover before the scene swap."
+		["aim", "capture", "transition_particles_False_True", "stop_rotate", "lock_False"],
+		"Jump departure visuals should aim the orbit camera first, capture that pose, clear any transition-only particles, and lock camera input before the FoV-driven overlay window begins."
 	)
 	assert_false(hud.visible, "Jump departure visuals should hide the HUD immediately before the FoV shift begins.")
+	assert_false(
+		event_order.has("cover_True"),
+		"Jump departure visuals should no longer force the overlay on before the FoV widen starts; TASK_2 shifts that timing into the orchestration path."
+	)
 
 
 func test_jump_transition_rig_exposes_overlay_and_clears_transition_visual_scaffold():
@@ -296,8 +300,8 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 	)
 	assert_eq(
 		rig.overlay_calls,
-		[false],
-		"Gameplay camera restore should clear the transition cover once the destination scene is ready to be revealed."
+		[],
+		"Gameplay camera restore should no longer hard-clear the overlay; the timed arrival envelope now releases only after FoV stabilization completes."
 	)
 	assert_eq(
 		rig.particle_calls,
@@ -305,6 +309,128 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 		"Gameplay camera restore should explicitly clear transition-only particles before handing control back to the gameplay camera."
 	)
 	assert_true(camera.current, "Gameplay camera restore should hand current-camera ownership back to the main camera.")
+
+
+func test_jump_transition_rig_begin_arrival_starts_overlay_window():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	rig.begin_arrival()
+	rig._process(0.25)
+
+	assert_true(
+		rig.get_transition_overlay_alpha() > 0.0,
+		"Beginning arrival should start the rig-owned overlay window immediately so decel can carry visual cover into the arrival handoff."
+	)
+	assert_true(
+		rig.get_node("TransitionOverlayLayer/TransitionOverlay").visible,
+		"The TransitionOverlay should become visible as soon as the arrival overlay window begins."
+	)
+
+
+func test_jump_transition_rig_arrival_fade_in_uses_faster_curve_and_duration_than_departure():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	rig.begin_departure_overlay_window()
+	rig._process(0.25)
+	var departure_alpha = rig.get_transition_overlay_alpha()
+
+	rig.reset_transition_state()
+	rig.begin_arrival_overlay_window()
+	rig._process(0.25)
+	var arrival_alpha = rig.get_transition_overlay_alpha()
+	var expected_arrival_alpha = Constants.JUMP_TRANSITION_OVERLAY_PEAK_ALPHA * pow(
+		clamp(
+			0.25 / Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_DURATION_SEC,
+			0.0,
+			1.0
+		),
+		Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_CURVE_POWER
+	)
+
+	assert_true(
+		arrival_alpha > departure_alpha,
+		"Arrival fade-in should use its dedicated faster rise settings so the destination scene is covered sooner during deceleration than the shared departure fade-in profile."
+	)
+	assert_true(
+		abs(arrival_alpha - expected_arrival_alpha) <= 0.001,
+		"Arrival fade-in should now be driven by its dedicated duration plus curve parameter instead of reusing the full FoV duration."
+	)
+
+
+func test_jump_transition_rig_arrival_release_countdown_starts_when_overlay_reaches_full_opacity():
+	var rig = JumpTransitionRigScene.instance()
+	add_child_autofree(rig)
+
+	rig.begin_arrival_overlay_window()
+	rig._process(Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_DURATION_SEC)
+	var peak_alpha = rig.get_transition_overlay_alpha()
+	rig._process(0.25)
+
+	assert_eq(
+		peak_alpha,
+		Constants.JUMP_TRANSITION_OVERLAY_PEAK_ALPHA,
+		"Arrival overlay rise should still reach full opacity before the post-arrival countdown begins."
+	)
+	assert_eq(
+		rig.get_transition_overlay_alpha(),
+		peak_alpha,
+		"Arrival overlay should hold at full opacity after the rise completes instead of starting to fade immediately."
+	)
+
+	rig._process(Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_POST_FULL_OPACITY_HOLD_SEC)
+	rig._process(0.1)
+	assert_true(
+		rig.get_transition_overlay_alpha() < peak_alpha,
+		"Arrival overlay release should start only after the configured full-opacity hold has elapsed."
+	)
+
+
+func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_boundaries():
+	var event_order = []
+
+	var world_manager_script = GDScript.new()
+	world_manager_script.source_code = "extends \"res://src/scenes/game_world/world_manager.gd\"\nvar events_ref = null\nvar rig_ref = null\nfunc _resolve_known_sector_id(sector_id, _context=\"\"):\n\treturn sector_id\nfunc _begin_jump_transition_foundation(_source_sector_id, _target_sector_id):\n\t_jump_transition_active = true\nfunc _prepare_jump_transition_departure_visuals(_departure_direction):\n\tevents_ref.append(\"prepare_visuals\")\nfunc _pause_jump_transition_gameplay():\n\tevents_ref.append(\"pause_gameplay\")\nfunc _animate_main_camera_fov_override(_target_fov, _duration_sec):\n\tevents_ref.append(\"fov_override\")\nfunc _prepare_sector_travel_state(_target_sector_id, _old_sector_id=\"\"):\n\tevents_ref.append(\"prepare_sector_state\")\n\treturn _old_sector_id\nfunc _cleanup_all_agents():\n\tevents_ref.append(\"cleanup_agents\")\nfunc _cleanup_current_zone():\n\tevents_ref.append(\"cleanup_zone\")\nfunc _get_jump_transition_route_distance(_old_sector_id, _target_sector_id):\n\treturn 1000.0\nfunc _get_jump_transition_cruise_speed(_route_distance):\n\treturn 250.0\nfunc _get_jump_transition_route_timeout_sec(_route_distance, _cruise_speed):\n\treturn 1.0\nfunc _get_jump_transition_rig():\n\treturn rig_ref\nfunc _wait_for_rig_velocity(_jump_transition_rig, _target_velocity, _tolerance, _timeout_sec):\n\tevents_ref.append(\"wait_velocity\")\nfunc _wait_for_rig_route_completion(_jump_transition_rig, _timeout_sec):\n\tevents_ref.append(\"wait_route\")\nfunc load_sector(_sector_id):\n\tevents_ref.append(\"load_sector\")\nfunc _wait_for_player_and_zone_ready(_timeout_sec):\n\tevents_ref.append(\"wait_ready\")\nfunc _restore_gameplay_camera_at_transition_fov():\n\tevents_ref.append(\"restore_camera\")\nfunc _animate_main_camera_fov_restore(_duration_sec):\n\tevents_ref.append(\"fov_restore\")\nfunc _set_jump_transition_camera_locked(is_locked):\n\tevents_ref.append(\"lock_\" + str(is_locked))\nfunc _yield_real_time(_duration_sec):\n\tevents_ref.append(\"hud_delay\")\nfunc _set_main_hud_hidden(is_hidden):\n\tevents_ref.append(\"hud_\" + str(is_hidden))\nfunc _restore_jump_transition_gameplay():\n\tevents_ref.append(\"restore_gameplay\")\nfunc _reset_jump_transition_foundation():\n\tevents_ref.append(\"reset_foundation\")\n\t_jump_transition_active = false\nfunc _request_sector_travel_tick():\n\tevents_ref.append(\"request_tick\")\nfunc _get_departure_direction_for_route(_source_sector_id, _target_sector_id):\n\treturn Vector3(1, 0, 0)\n"
+	world_manager_script.reload()
+	var world_manager = Node.new()
+	world_manager.set_script(world_manager_script)
+	world_manager.events_ref = event_order
+	add_child_autofree(world_manager)
+
+	var rig_script = GDScript.new()
+	rig_script.source_code = "extends Node\nvar events_ref = null\nvar route_complete = false\nfunc set_transition_fov(_fov_deg):\n\tevents_ref.append(\"set_transition_fov\")\nfunc begin_cruise(_target_velocity):\n\tevents_ref.append(\"begin_cruise\")\nfunc set_transition_particles_active(is_active, clear_existing=false):\n\tevents_ref.append(\"transition_particles_\" + str(is_active) + \"_\" + str(clear_existing))\nfunc on_departure_cruise_entered():\n\tevents_ref.append(\"departure_hold\")\nfunc is_route_complete():\n\treturn route_complete\nfunc begin_arrival():\n\tevents_ref.append(\"begin_arrival\")\n\troute_complete = true\nfunc begin_departure_overlay_window():\n\tevents_ref.append(\"departure_overlay_start\")\nfunc on_arrival_fov_stabilized():\n\tevents_ref.append(\"arrival_hold\")\n"
+	rig_script.reload()
+	var rig = Node.new()
+	rig.set_script(rig_script)
+	rig.events_ref = event_order
+	world_manager.rig_ref = rig
+
+	var sequence_state = world_manager._run_jump_transition_sequence("station_beta")
+	if sequence_state is GDScriptFunctionState:
+		yield(sequence_state, "completed")
+
+	assert_true(
+		event_order.find("departure_overlay_start") > event_order.find("pause_gameplay"),
+		"Jump orchestration should start the departure overlay window after gameplay pause bookkeeping and immediately before the FoV widen phase."
+	)
+	assert_true(
+		event_order.find("departure_overlay_start") < event_order.find("fov_override"),
+		"Jump orchestration should not delay the departure overlay until after the FoV widen begins."
+	)
+	assert_true(
+		event_order.find("departure_hold") > event_order.find("begin_cruise"),
+		"Jump orchestration should extend the departure overlay window into the first part of cruise instead of clearing it at cruise entry."
+	)
+	assert_false(
+		event_order.has("arrival_hold"),
+		"Jump orchestration should no longer wait for a manager-driven FoV-stabilization callback before the arrival overlay countdown begins."
+	)
+	assert_eq(
+		event_order.count("hud_delay"),
+		1,
+		"Jump orchestration should keep the existing HUD reveal delay but should no longer add a second stabilization-based wait for arrival overlay release."
+	)
 
 
 func test_jump_transition_fov_progress_eases_in_toward_the_wide_fov():

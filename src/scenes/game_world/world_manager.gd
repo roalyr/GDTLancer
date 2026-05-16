@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-16 23:40:29
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1
+# LOG_REF: 2026-05-17 00:59:39
 #
 
 extends Node
@@ -306,6 +306,7 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 		_reset_jump_transition_foundation()
 		return
 	var old_sector = _resolve_known_sector_id(GameState.current_sector_id, "GameState.current_sector_id")
+	var jump_transition_rig = _get_jump_transition_rig()
 	_begin_jump_transition_foundation(old_sector, resolved_target_sector_id)
 	if not _jump_transition_active:
 		_travel_to_sector_immediate(resolved_target_sector_id)
@@ -315,6 +316,8 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if departure_visuals_state is GDScriptFunctionState:
 		yield(departure_visuals_state, "completed")
 	_pause_jump_transition_gameplay()
+	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_departure_overlay_window"):
+		jump_transition_rig.call("begin_departure_overlay_window")
 	var fov_override_state = _animate_main_camera_fov_override(
 		Constants.JUMP_TRANSITION_TARGET_FOV_DEG,
 		Constants.JUMP_TRANSITION_FOV_DURATION_SEC
@@ -328,15 +331,16 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	var route_distance = _get_jump_transition_route_distance(old_sector, resolved_target_sector_id)
 	var cruise_speed = _get_jump_transition_cruise_speed(route_distance)
 	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed)
-	var jump_transition_rig = _get_jump_transition_rig()
+	if not is_instance_valid(jump_transition_rig):
+		jump_transition_rig = _get_jump_transition_rig()
 	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_fov"):
 		jump_transition_rig.call("set_transition_fov", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
 	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_cruise"):
 		jump_transition_rig.call("begin_cruise", cruise_speed)
 		if jump_transition_rig.has_method("set_transition_particles_active"):
 			jump_transition_rig.call("set_transition_particles_active", true, true)
-		if jump_transition_rig.has_method("_set_transition_overlay_active"):
-			jump_transition_rig.call("_set_transition_overlay_active", false)
+		if jump_transition_rig.has_method("on_departure_cruise_entered"):
+			jump_transition_rig.call("on_departure_cruise_entered")
 		var cruise_velocity_state = _wait_for_rig_velocity(
 			jump_transition_rig,
 			cruise_speed,
@@ -358,8 +362,6 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 			)
 			if arrival_velocity_state is GDScriptFunctionState:
 				yield(arrival_velocity_state, "completed")
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("_set_transition_overlay_active"):
-		jump_transition_rig.call("_set_transition_overlay_active", true)
 	load_sector(resolved_target_sector_id)
 	yield(get_tree(), "idle_frame")
 	var player_ready_state = _wait_for_player_and_zone_ready(Constants.JUMP_TRANSITION_LOAD_TIMEOUT_SEC)
@@ -471,8 +473,6 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 	if GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
 		GlobalRefs.main_camera.set_temporary_fov_override(Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
 	GlobalRefs.main_camera.current = true
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("_set_transition_overlay_active"):
-		jump_transition_rig.call("_set_transition_overlay_active", false)
 
 
 func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
@@ -488,8 +488,6 @@ func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
 		jump_transition_rig.call("set_transition_particles_active", false, true)
 	_set_jump_transition_camera_locked(true)
 	_set_main_hud_hidden(true)
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("_set_transition_overlay_active"):
-		jump_transition_rig.call("_set_transition_overlay_active", true)
 
 
 func _get_jump_transition_fov_progress(linear_t: float) -> float:
