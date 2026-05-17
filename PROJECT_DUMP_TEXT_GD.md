@@ -21397,20 +21397,27 @@ func _get_route_direction(source_position: Vector3, target_position: Vector3) ->
 # PROJECT: GDTLancer
 # MODULE: debug_map_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
-# LOG_REF: 2026-05-17 15:43:57
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-17 20:19:04
 #
 
 extends CanvasLayer
+
+const MainHUDScript = preload("res://src/core/ui/main_hud/main_hud.gd")
 
 # --- Camera defaults ---
 const DEFAULT_ORBIT_DISTANCE = 500000.0
 const MIN_ZOOM = 1000.0
 const MAX_ZOOM = 800000.0
+const DEFAULT_MAP_CAMERA_FOV = 60.0
+const MIN_MAP_CAMERA_FOV = 35.0
+const MAX_MAP_CAMERA_FOV = 95.0
+const MAP_CAMERA_FOV_STEP = 5.0
 const ORBIT_STEP = 0.15  # radians per button press
 const ZOOM_FACTOR = 1.3
 const PAN_STEP_RATIO = 0.1  # fraction of current zoom distance
 const MOUSE_ORBIT_SENSITIVITY = ORBIT_STEP / 50.0
+const MOUSE_PAN_SENSITIVITY = 1.0 / 80.0
 const MOUSE_WHEEL_ZOOM_BLEND = 0.35
 const AXIS_LENGTH = 500000.0
 const AXIS_ARROW_SIZE = 15000.0
@@ -21421,6 +21428,9 @@ const AXIS_TRUNK_OFFSET = 1200.0
 const MAP_LABEL_BASE_FONT_SIZE = 18
 const SECTOR_LABEL_FONT_SCALE = 1.5
 const SECTOR_LABEL_FONT_SIZE = int(MAP_LABEL_BASE_FONT_SIZE * SECTOR_LABEL_FONT_SCALE)
+const MAP_LABEL_CAMERA_DISTANCE_FADE_START = 1e4
+const MAP_LABEL_CAMERA_DISTANCE_FADE_RANGE = 1e6
+const MAP_LABEL_NORMALIZED_DISTANCE_POW = 2.5
 const SECTOR_LABEL_MAX_WIDTH = 260.0
 const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
@@ -21429,9 +21439,18 @@ const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_st
 const AUTHORED_SECTOR_COLOR = Color(0.3, 0.8, 1.0, 1.0)
 const AUTHORED_ROUTE_COLOR = Color(0.5, 0.8, 0.5, 0.6)
 const DISCOVERED_SECTOR_FALLBACK_COLOR = Color(0.95, 0.72, 0.34, 1.0)
+const READABILITY_BUTTON_MIN_WIDTH = 96.0
+const TASK2_BUTTON_MIN_WIDTH = 78.0
+const BTN_LABELS = "BtnLabels"
+const BTN_LINES = "BtnLines"
+const BTN_ICONS = "BtnIcons"
+const BTN_FOV_IN = "BtnFovIn"
+const BTN_FOV_OUT = "BtnFovOut"
+const BTN_AA = "BtnAA"
 
 # --- Node references ---
 onready var _panel = $Panel
+onready var _header_row: HBoxContainer = $Panel/VBoxContainer/HeaderRow
 onready var _viewport_container = $Panel/VBoxContainer/MapArea/ViewportContainer
 onready var _viewport = $Panel/VBoxContainer/MapArea/ViewportContainer/Viewport
 onready var _camera = $Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapCamera
@@ -21458,17 +21477,25 @@ var _hidden_scene_nodes: Array = []
 var _map_world_env: WorldEnvironment = null
 var _map_nebula_holder: Spatial = null
 var _is_drag_orbiting: bool = false
+var _is_drag_panning: bool = false
 var _sector_label_font: DynamicFont = null
+var _show_sector_labels: bool = true
+var _show_connection_lines: bool = true
+var _show_sector_icons: bool = true
 
 
 func _ready():
 	_panel.visible = false
 	_is_visible = false
 	_sector_label_font = _build_sector_label_font()
+	_ensure_task2_buttons()
+	_ensure_readability_buttons()
 	_configure_map_viewport_world()
 	set_process(false)
 	_connect_buttons()
 	_refresh_axes_button_text()
+	_refresh_readability_button_texts()
+	_refresh_task2_button_texts()
 	if EventBus.has_signal("sim_tick_completed"):
 		if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
 			EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
@@ -21506,9 +21533,11 @@ func _toggle_panel():
 		_setup_map_environment()
 		_reset_camera()
 		_populate_map()
+		_refresh_task2_button_texts()
 		set_process(true)
 	else:
 		_is_drag_orbiting = false
+		_is_drag_panning = false
 		_clear_map()
 		_cleanup_map_environment()
 		_restore_scene_models()
@@ -21534,9 +21563,17 @@ func _handle_map_mouse_input(event):
 		if event.button_index == BUTTON_LEFT:
 			if event.pressed and _is_mouse_over_map_viewport(event.position):
 				_is_drag_orbiting = true
+				_is_drag_panning = false
 				get_tree().set_input_as_handled()
 			else:
 				_is_drag_orbiting = false
+		elif event.button_index == BUTTON_RIGHT:
+			if event.pressed and _is_mouse_over_map_viewport(event.position):
+				_is_drag_panning = true
+				_is_drag_orbiting = false
+				get_tree().set_input_as_handled()
+			else:
+				_is_drag_panning = false
 		elif event.pressed and _is_mouse_over_map_viewport(event.position):
 			var wheel_factor = _get_mouse_wheel_zoom_factor()
 			if event.button_index == BUTTON_WHEEL_UP:
@@ -21546,15 +21583,22 @@ func _handle_map_mouse_input(event):
 				_zoom(wheel_factor)
 				get_tree().set_input_as_handled()
 	elif event is InputEventMouseMotion:
-		if not _is_drag_orbiting:
+		if _is_drag_orbiting:
+			if not _is_mouse_over_map_viewport(event.position):
+				_is_drag_orbiting = false
+				return
+			_orbit_rotate(
+				event.relative.x * MOUSE_ORBIT_SENSITIVITY,
+				-event.relative.y * MOUSE_ORBIT_SENSITIVITY
+			)
+			get_tree().set_input_as_handled()
+			return
+		if not _is_drag_panning:
 			return
 		if not _is_mouse_over_map_viewport(event.position):
-			_is_drag_orbiting = false
+			_is_drag_panning = false
 			return
-		_orbit_rotate(
-			event.relative.x * MOUSE_ORBIT_SENSITIVITY,
-			-event.relative.y * MOUSE_ORBIT_SENSITIVITY
-		)
+		_pan_from_mouse_delta(event.relative)
 		get_tree().set_input_as_handled()
 
 
@@ -21652,6 +21696,7 @@ func _populate_map():
 	_create_connection_lines()
 	_set_reference_axes_visible(_show_reference_axes)
 	_update_camera()
+	_apply_readability_visibility_state()
 
 
 func _clear_map():
@@ -21690,6 +21735,7 @@ func _create_sector_markers():
 
 		mesh_instance.transform.origin = pos
 		mesh_instance.name = "Sector_%s" % sector_id
+		mesh_instance.visible = _show_sector_icons
 		_map_content.add_child(mesh_instance)
 
 		# Create label in overlay
@@ -21701,6 +21747,7 @@ func _create_sector_markers():
 		label.add_constant_override("shadow_offset_x", 1)
 		label.add_constant_override("shadow_offset_y", 1)
 		label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
+		label.visible = _show_sector_labels
 		_label_overlay.add_child(label)
 
 		_sector_labels[sector_id] = {
@@ -21770,6 +21817,7 @@ func _create_connection_lines():
 	mat.flags_unshaded = true
 	mat.vertex_color_use_as_albedo = true
 	ig.material_override = mat
+	ig.visible = _show_connection_lines
 
 	ig.begin(Mesh.PRIMITIVE_LINES)
 	for sector_id in GameState.world_topology:
@@ -21900,6 +21948,109 @@ func _set_reference_axes_visible(visible: bool):
 func _refresh_axes_button_text():
 	if is_instance_valid(_btn_axes):
 		_btn_axes.text = "Axes On" if _show_reference_axes else "Axes Off"
+
+
+func _apply_readability_visibility_state() -> void:
+	_set_connection_lines_visible(_show_connection_lines)
+	_set_sector_markers_visible(_show_sector_icons)
+	if _show_sector_labels:
+		_update_label_positions()
+	else:
+		_set_sector_labels_visible(false)
+	_refresh_readability_button_texts()
+
+
+func _set_connection_lines_visible(visible: bool) -> void:
+	var connection_lines = _map_content.get_node_or_null("ConnectionLines")
+	if is_instance_valid(connection_lines):
+		connection_lines.visible = visible
+
+
+func _set_sector_markers_visible(visible: bool) -> void:
+	for sector_id in _sector_labels:
+		var marker = _sector_labels[sector_id].get("marker", null)
+		if is_instance_valid(marker):
+			marker.visible = visible
+
+
+func _set_sector_labels_visible(visible: bool) -> void:
+	for sector_id in _sector_labels:
+		var label = _sector_labels[sector_id].get("label", null)
+		if is_instance_valid(label):
+			label.visible = visible
+
+
+func _refresh_readability_button_texts() -> void:
+	var labels_button = _get_readability_button(BTN_LABELS)
+	if is_instance_valid(labels_button):
+		labels_button.text = "Labels On" if _show_sector_labels else "Labels Off"
+	var lines_button = _get_readability_button(BTN_LINES)
+	if is_instance_valid(lines_button):
+		lines_button.text = "Lines On" if _show_connection_lines else "Lines Off"
+	var icons_button = _get_readability_button(BTN_ICONS)
+	if is_instance_valid(icons_button):
+		icons_button.text = "Icons On" if _show_sector_icons else "Icons Off"
+
+
+func _refresh_task2_button_texts() -> void:
+	var aa_button = _header_row.get_node_or_null(BTN_AA)
+	if is_instance_valid(aa_button):
+		aa_button.text = _get_viewport_msaa_button_text()
+
+
+func _get_viewport_msaa_button_text() -> String:
+	match _viewport.msaa:
+		Viewport.MSAA_2X:
+			return "AA 2x"
+		Viewport.MSAA_4X:
+			return "AA 4x"
+		_:
+			return "AA Off"
+
+
+func _get_readability_button(button_name: String) -> Button:
+	var button = _header_row.get_node_or_null(button_name)
+	return button if button is Button else null
+
+
+func _ensure_readability_buttons() -> void:
+	_ensure_header_toggle_button(BTN_LABELS, "Labels On")
+	_ensure_header_toggle_button(BTN_LINES, "Lines On")
+	_ensure_header_toggle_button(BTN_ICONS, "Icons On")
+
+
+func _ensure_task2_buttons() -> void:
+	_ensure_header_action_button(BTN_FOV_IN, "FoV+", TASK2_BUTTON_MIN_WIDTH)
+	_ensure_header_action_button(BTN_FOV_OUT, "FoV-", TASK2_BUTTON_MIN_WIDTH)
+	_ensure_header_action_button(BTN_AA, "AA Off", TASK2_BUTTON_MIN_WIDTH)
+
+
+func _ensure_header_toggle_button(button_name: String, button_text: String) -> Button:
+	return _ensure_header_action_button(button_name, button_text, READABILITY_BUTTON_MIN_WIDTH)
+
+
+func _ensure_header_action_button(button_name: String, button_text: String, button_width: float) -> Button:
+	var existing_button = _get_readability_button(button_name)
+	if is_instance_valid(existing_button):
+		return existing_button
+	var button = Button.new()
+	button.name = button_name
+	button.text = button_text
+	button.rect_min_size = Vector2(button_width, 0)
+	var theme_source = _header_row.get_node_or_null("BtnCoords")
+	if is_instance_valid(theme_source):
+		button.theme = theme_source.theme
+	_header_row.add_child(button)
+	var insert_before = _header_row.get_node_or_null("BtnCoords")
+	if is_instance_valid(insert_before):
+		_header_row.move_child(button, insert_before.get_index())
+	return button
+
+
+func _connect_header_button(button_name: String, method_name: String) -> void:
+	var button = _header_row.get_node_or_null(button_name)
+	if is_instance_valid(button) and not button.is_connected("pressed", self, method_name):
+		button.connect("pressed", self, method_name)
 
 
 func _add_axis_trunk_lines(ig: ImmediateGeometry, from_pos: Vector3, to_pos: Vector3, offset_dir: Vector3):
@@ -22044,7 +22195,19 @@ func _update_label_positions():
 
 	for sector_id in _sector_labels:
 		var data = _sector_labels[sector_id]
-		_update_projected_label(data["label"], data["pos_3d"], data["screen_offset"], vp_size, 50.0)
+		var sector_label: Label = data["label"]
+		if not _show_sector_labels:
+			if is_instance_valid(sector_label):
+				sector_label.visible = false
+			continue
+		_update_projected_label(
+			sector_label,
+			data["pos_3d"],
+			data["screen_offset"],
+			vp_size,
+			50.0,
+			_get_map_label_camera_distance_fade_alpha(data["pos_3d"])
+		)
 
 	for data in _reference_labels:
 		if not _show_reference_axes:
@@ -22061,7 +22224,7 @@ func _update_label_positions():
 		)
 
 
-func _update_projected_label(label: Label, pos_3d: Vector3, screen_offset: Vector2, vp_size: Vector2, padding: float):
+func _update_projected_label(label: Label, pos_3d: Vector3, screen_offset: Vector2, vp_size: Vector2, padding: float, distance_fade_alpha: float = 1.0):
 	var cam_transform = _camera.global_transform
 	var to_point = pos_3d - cam_transform.origin
 	if cam_transform.basis.z.dot(to_point) > 0:
@@ -22072,6 +22235,47 @@ func _update_projected_label(label: Label, pos_3d: Vector3, screen_offset: Vecto
 	label.rect_position = screen_pos + screen_offset
 	label.visible = (screen_pos.x >= -padding and screen_pos.x <= vp_size.x + padding
 		and screen_pos.y >= -padding and screen_pos.y <= vp_size.y + padding)
+	if label.visible:
+		var screen_fade_alpha = _get_map_label_distance_fade_alpha(screen_pos, Rect2(Vector2.ZERO, vp_size))
+		label.modulate = Color(
+			1,
+			1,
+			1,
+			screen_fade_alpha * distance_fade_alpha
+		)
+	else:
+		label.modulate = Color(1, 1, 1, 1)
+
+
+func _get_map_label_distance_fade_alpha(screen_pos: Vector2, viewport_rect: Rect2) -> float:
+	var viewport_center = viewport_rect.position + (viewport_rect.size / 2.0)
+	var max_distance = max((viewport_rect.size / 2.0).length(), 1.0)
+	var normalized_distance = clamp(screen_pos.distance_to(viewport_center) / max_distance, 0.0, 1.0)
+	return _compute_map_label_distance_fade_alpha(normalized_distance)
+
+
+func _compute_map_label_distance_fade_alpha(normalized_distance: float) -> float:
+	var safe_normalized_distance = clamp(normalized_distance, 0.0, 1.0)
+	var shaped_normalized_distance = pow(safe_normalized_distance, MAP_LABEL_NORMALIZED_DISTANCE_POW)
+	return lerp(1.0, MainHUDScript.PROJECTED_TARGET_EDGE_ALPHA, shaped_normalized_distance)
+
+
+func _get_map_label_camera_distance_fade_alpha(pos_3d: Vector3) -> float:
+	if not is_instance_valid(_camera):
+		return 1.0
+	var camera_distance = _camera.global_transform.origin.distance_to(pos_3d)
+	return _compute_map_label_camera_distance_fade_alpha(camera_distance)
+
+
+func _compute_map_label_camera_distance_fade_alpha(camera_distance: float) -> float:
+	if camera_distance <= MAP_LABEL_CAMERA_DISTANCE_FADE_START:
+		return 1.0
+	var normalized_distance = clamp(
+		(camera_distance - MAP_LABEL_CAMERA_DISTANCE_FADE_START) / MAP_LABEL_CAMERA_DISTANCE_FADE_RANGE,
+		0.0,
+		1.0
+	)
+	return _compute_map_label_distance_fade_alpha(normalized_distance)
 
 
 # =========================================================================
@@ -22107,12 +22311,38 @@ func _pan(direction: Vector3):
 	_update_camera()
 
 
+func _pan_from_mouse_delta(relative: Vector2) -> void:
+	_pan(Vector3(
+		-relative.x * MOUSE_PAN_SENSITIVITY,
+		relative.y * MOUSE_PAN_SENSITIVITY,
+		0.0
+	))
+
+
+func _step_camera_fov(delta_degrees: float) -> void:
+	if not is_instance_valid(_camera):
+		return
+	_camera.fov = clamp(_camera.fov + delta_degrees, MIN_MAP_CAMERA_FOV, MAX_MAP_CAMERA_FOV)
+	_refresh_task2_button_texts()
+
+
+func _cycle_viewport_msaa() -> void:
+	var cycle_modes = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X]
+	var current_index = cycle_modes.find(_viewport.msaa)
+	if current_index == -1:
+		current_index = 0
+	_viewport.msaa = cycle_modes[(current_index + 1) % cycle_modes.size()]
+	_refresh_task2_button_texts()
+
+
 func _reset_camera():
 	_orbit_yaw = 0.0
 	_orbit_pitch = 0.5
 	_zoom_distance = DEFAULT_ORBIT_DISTANCE
+	_camera.fov = DEFAULT_MAP_CAMERA_FOV
 	_pivot = Vector3.ZERO
 	_update_camera()
+	_refresh_task2_button_texts()
 
 
 func _get_current_sector_world_anchor() -> Vector3:
@@ -22130,21 +22360,28 @@ func _get_current_sector_world_anchor() -> Vector3:
 # =========================================================================
 
 func _connect_buttons():
-	var header = $Panel/VBoxContainer/HeaderRow
-	header.get_node("BtnRotL").connect("pressed", self, "_on_rot_l")
-	header.get_node("BtnRotR").connect("pressed", self, "_on_rot_r")
-	header.get_node("BtnRotU").connect("pressed", self, "_on_rot_u")
-	header.get_node("BtnRotD").connect("pressed", self, "_on_rot_d")
-	header.get_node("BtnZoomIn").connect("pressed", self, "_on_zoom_in")
-	header.get_node("BtnZoomOut").connect("pressed", self, "_on_zoom_out")
-	header.get_node("BtnAxes").connect("pressed", self, "_on_toggle_axes")
-	header.get_node("BtnCoords").connect("pressed", self, "_on_toggle_coords")
-	header.get_node("BtnPanL").connect("pressed", self, "_on_pan_l")
-	header.get_node("BtnPanR").connect("pressed", self, "_on_pan_r")
-	header.get_node("BtnPanU").connect("pressed", self, "_on_pan_u")
-	header.get_node("BtnPanD").connect("pressed", self, "_on_pan_d")
-	header.get_node("BtnReset").connect("pressed", self, "_on_reset")
-	header.get_node("BtnClose").connect("pressed", self, "_on_close")
+	_ensure_task2_buttons()
+	_ensure_readability_buttons()
+	_connect_header_button("BtnRotL", "_on_rot_l")
+	_connect_header_button("BtnRotR", "_on_rot_r")
+	_connect_header_button("BtnRotU", "_on_rot_u")
+	_connect_header_button("BtnRotD", "_on_rot_d")
+	_connect_header_button("BtnZoomIn", "_on_zoom_in")
+	_connect_header_button("BtnZoomOut", "_on_zoom_out")
+	_connect_header_button(BTN_FOV_IN, "_on_fov_in")
+	_connect_header_button(BTN_FOV_OUT, "_on_fov_out")
+	_connect_header_button(BTN_AA, "_on_cycle_aa")
+	_connect_header_button(BTN_LABELS, "_on_toggle_labels")
+	_connect_header_button(BTN_LINES, "_on_toggle_lines")
+	_connect_header_button(BTN_ICONS, "_on_toggle_icons")
+	_connect_header_button("BtnAxes", "_on_toggle_axes")
+	_connect_header_button("BtnCoords", "_on_toggle_coords")
+	_connect_header_button("BtnPanL", "_on_pan_l")
+	_connect_header_button("BtnPanR", "_on_pan_r")
+	_connect_header_button("BtnPanU", "_on_pan_u")
+	_connect_header_button("BtnPanD", "_on_pan_d")
+	_connect_header_button("BtnReset", "_on_reset")
+	_connect_header_button("BtnClose", "_on_close")
 
 
 func _on_rot_l(): _orbit_rotate(-ORBIT_STEP, 0.0)
@@ -22153,12 +22390,26 @@ func _on_rot_u(): _orbit_rotate(0.0, ORBIT_STEP)
 func _on_rot_d(): _orbit_rotate(0.0, -ORBIT_STEP)
 func _on_zoom_in(): _zoom(1.0 / ZOOM_FACTOR)
 func _on_zoom_out(): _zoom(ZOOM_FACTOR)
+func _on_fov_in(): _step_camera_fov(-MAP_CAMERA_FOV_STEP)
+func _on_fov_out(): _step_camera_fov(MAP_CAMERA_FOV_STEP)
+func _on_cycle_aa(): _cycle_viewport_msaa()
+func _on_toggle_labels():
+	_show_sector_labels = not _show_sector_labels
+	_apply_readability_visibility_state()
+func _on_toggle_lines():
+	_show_connection_lines = not _show_connection_lines
+	_apply_readability_visibility_state()
+func _on_toggle_icons():
+	_show_sector_icons = not _show_sector_icons
+	_apply_readability_visibility_state()
 func _on_toggle_axes():
 	_show_reference_axes = not _show_reference_axes
 	_set_reference_axes_visible(_show_reference_axes)
 func _on_toggle_coords():
 	_show_sector_coordinates = not _show_sector_coordinates
 	_refresh_sector_label_texts()
+	if _show_sector_labels:
+		_update_label_positions()
 func _on_pan_l(): _pan(Vector3(-1, 0, 0))
 func _on_pan_r(): _pan(Vector3(1, 0, 0))
 func _on_pan_u(): _pan(Vector3(0, 1, 0))
@@ -33059,8 +33310,8 @@ func test_advance_game_time_large_value():
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel_focus.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md, user request: debug map should keep camera at origin and shift nodes relative to current sector
-## LOG_REF: 2026-05-10 20:54:26
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §6.3; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_2
+## LOG_REF: 2026-05-17 20:19:04
 ##
 
 extends "res://addons/gut/test.gd"
@@ -33130,6 +33381,7 @@ func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
 	var cob_template = TemplateDatabase.locations["sector_system_cob"]
 	assert_not_null(cob_template, "Expected sector_system_cob template to load for backdrop-alignment test.")
 	_panel_instance._toggle_panel()
+	yield(get_tree(), "idle_frame")
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
 	var cob_marker = map_content.get_node_or_null("Sector_sector_system_cob")
 	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
@@ -33143,19 +33395,67 @@ func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
 		"The map nebula backdrop should use the same current-sector-local offset as the reference origin."
 	)
 	var star_root_path = "Globalnebulas/SectorStars (clipped by near plane which is 10u)"
-	var star_cob = backdrop.get_node_or_null("%s/Star Cob" % star_root_path)
-	var star_elace = backdrop.get_node_or_null("%s/Star Elace" % star_root_path)
+	var star_cob = backdrop.get_node_or_null("%s/_Star Cob" % star_root_path)
+	var star_elace = backdrop.get_node_or_null("%s/Star Elace Sprite" % star_root_path)
 	assert_not_null(star_cob, "Expected Star Cob to exist in the dedicated map backdrop.")
 	assert_not_null(star_elace, "Expected Star Elace to exist in the dedicated map backdrop.")
-	assert_eq(
-		star_cob.global_transform.origin,
-		cob_marker.global_transform.origin,
-		"Star Cob in the backdrop should land on the same map-space position as the Cob sector marker."
+	if star_cob and star_elace:
+		assert_eq(
+			star_cob.global_transform.origin,
+			cob_marker.global_transform.origin,
+			"Star Cob in the backdrop should land on the same map-space position as the Cob sector marker."
+		)
+		assert_eq(
+			star_elace.global_transform.origin,
+			elace_marker.global_transform.origin,
+			"Star Elace in the backdrop should land on the same map-space position as the Elace sector marker."
+		)
+
+
+func test_right_mouse_drag_pans_camera_without_changing_orbit_angles():
+	_panel_instance._toggle_panel()
+	yield(get_tree(), "idle_frame")
+	var initial_pivot = _panel_instance._pivot
+	var initial_yaw = _panel_instance._orbit_yaw
+	var initial_pitch = _panel_instance._orbit_pitch
+	var viewport_rect = _panel_instance._viewport_container.get_global_rect()
+	var map_point = viewport_rect.position + (viewport_rect.size * 0.5)
+
+	var press = InputEventMouseButton.new()
+	press.button_index = BUTTON_RIGHT
+	press.pressed = true
+	press.position = map_point
+	_panel_instance._input(press)
+
+	var drag = InputEventMouseMotion.new()
+	drag.position = map_point
+	drag.relative = Vector2(32, -20)
+	_panel_instance._input(drag)
+
+	var release = InputEventMouseButton.new()
+	release.button_index = BUTTON_RIGHT
+	release.pressed = false
+	release.position = map_point
+	_panel_instance._input(release)
+
+	assert_ne(
+		_panel_instance._pivot,
+		initial_pivot,
+		"Right mouse drag should pan the map by moving the camera pivot in camera space."
 	)
 	assert_eq(
-		star_elace.global_transform.origin,
-		elace_marker.global_transform.origin,
-		"Star Elace in the backdrop should land on the same map-space position as the Elace sector marker."
+		_panel_instance._orbit_yaw,
+		initial_yaw,
+		"Right mouse drag should not reuse the left-drag orbit yaw path."
+	)
+	assert_eq(
+		_panel_instance._orbit_pitch,
+		initial_pitch,
+		"Right mouse drag should not reuse the left-drag orbit pitch path."
+	)
+	assert_false(
+		_panel_instance._is_drag_panning,
+		"Right mouse release should stop the dedicated drag-pan state."
 	)
 
 --- Start of ./src/tests/core/ui/test_debug_map_panel.gd ---
@@ -33164,13 +33464,14 @@ func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
-## LOG_REF: 2026-05-17 15:43:57
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
+## LOG_REF: 2026-05-17 19:00:00
 ##
 
 extends "res://addons/gut/test.gd"
 
 const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
+const MainHUDScript = preload("res://src/core/ui/main_hud/main_hud.gd")
 
 var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.tscn")
 var _panel_instance = null
@@ -33319,6 +33620,156 @@ func test_label_count_matches_sectors():
 		if child is Label:
 			label_count += 1
 	assert_gt(label_count, 4, "Should have at least 5 labels matching sectors")
+
+
+func test_readability_toggles_hide_labels_lines_and_icons_and_survive_refresh():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	assert_not_null(header.get_node_or_null("BtnLabels"), "TASK_1 should add a dedicated labels toggle button to the header row.")
+	assert_not_null(header.get_node_or_null("BtnLines"), "TASK_1 should add a dedicated lines toggle button to the header row.")
+	assert_not_null(header.get_node_or_null("BtnIcons"), "TASK_1 should add a dedicated icons toggle button to the header row.")
+
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var marker = _panel_instance._sector_labels["sector_system_elace"]["marker"]
+	var connection_lines = _panel_instance._map_content.get_node_or_null("ConnectionLines")
+	assert_true(label.visible, "Sector labels should be visible before the readability toggles are disabled.")
+	assert_true(marker.visible, "Sector icons should be visible before the readability toggles are disabled.")
+	assert_true(connection_lines.visible, "Connection lines should be visible before the readability toggles are disabled.")
+
+	_panel_instance._on_toggle_labels()
+	_panel_instance._on_toggle_lines()
+	_panel_instance._on_toggle_icons()
+
+	assert_eq(header.get_node("BtnLabels").text, "Labels Off")
+	assert_eq(header.get_node("BtnLines").text, "Lines Off")
+	assert_eq(header.get_node("BtnIcons").text, "Icons Off")
+	assert_false(label.visible, "Disabling labels should hide existing sector labels immediately.")
+	assert_false(marker.visible, "Disabling icons should hide existing sector markers immediately.")
+	assert_false(connection_lines.visible, "Disabling lines should hide existing route geometry immediately.")
+
+	_panel_instance._on_sim_tick_completed(1)
+	var refreshed_label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var refreshed_marker = _panel_instance._sector_labels["sector_system_elace"]["marker"]
+	var refreshed_connection_lines = _panel_instance._map_content.get_node_or_null("ConnectionLines")
+	assert_false(refreshed_label.visible, "Readability label state should survive sim-tick-driven map repopulation.")
+	assert_false(refreshed_marker.visible, "Readability icon state should survive sim-tick-driven map repopulation.")
+	assert_false(refreshed_connection_lines.visible, "Readability line state should survive sim-tick-driven map repopulation.")
+
+
+func test_task2_header_buttons_adjust_fov_with_clamping():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	assert_not_null(header.get_node_or_null("BtnFovIn"), "TASK_2 should add a dedicated FoV+ button to the header row.")
+	assert_not_null(header.get_node_or_null("BtnFovOut"), "TASK_2 should add a dedicated FoV- button to the header row.")
+
+	var initial_fov = _panel_instance._camera.fov
+	_panel_instance._on_fov_in()
+	assert_true(
+		_panel_instance._camera.fov < initial_fov,
+		"FoV+ controls should narrow the map camera field of view for a tighter framing."
+	)
+	for _step in range(20):
+		_panel_instance._on_fov_in()
+	assert_eq(
+		_panel_instance._camera.fov,
+		_panel_instance.MIN_MAP_CAMERA_FOV,
+		"FoV+ controls should clamp at the contracted minimum field of view."
+	)
+	for _step in range(40):
+		_panel_instance._on_fov_out()
+	assert_eq(
+		_panel_instance._camera.fov,
+		_panel_instance.MAX_MAP_CAMERA_FOV,
+		"FoV- controls should clamp at the contracted maximum field of view."
+	)
+
+
+func test_task2_aa_button_cycles_disabled_2x_and_4x():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	var aa_button = header.get_node_or_null("BtnAA")
+	assert_not_null(aa_button, "TASK_2 should add a dedicated AA cycle button to the header row.")
+	assert_eq(aa_button.text, "AA Off")
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_DISABLED)
+
+	_panel_instance._on_cycle_aa()
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_2X)
+	assert_eq(aa_button.text, "AA 2x")
+
+	_panel_instance._on_cycle_aa()
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_4X)
+	assert_eq(aa_button.text, "AA 4x")
+
+	_panel_instance._on_cycle_aa()
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_DISABLED)
+	assert_eq(aa_button.text, "AA Off")
+
+
+func test_map_label_fade_curve_uses_debug_map_normalized_distance_power_with_main_hud_edge_alpha():
+	var edge_alpha: float = MainHUDScript.PROJECTED_TARGET_EDGE_ALPHA
+	var normalized_distance_pow: float = _panel_instance.MAP_LABEL_NORMALIZED_DISTANCE_POW
+	assert_almost_eq(
+		_panel_instance._compute_map_label_distance_fade_alpha(0.0),
+		lerp(1.0, edge_alpha, pow(0.0, normalized_distance_pow)),
+		0.0001,
+		"Map labels should stay fully opaque at the viewport center."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_distance_fade_alpha(0.5),
+		lerp(1.0, edge_alpha, pow(0.5, normalized_distance_pow)),
+		0.0001,
+		"Map labels should use the dedicated debug-map normalized-distance power instead of reusing MainHUD's edge-distance exponent."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_distance_fade_alpha(1.0),
+		lerp(1.0, edge_alpha, pow(1.0, normalized_distance_pow)),
+		0.0001,
+		"Map labels should still clamp to the same MainHUD-derived edge alpha at the fade limit."
+	)
+
+
+func test_map_label_camera_distance_fade_starts_around_1e5_and_reduces_far_labels():
+	assert_almost_eq(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(50000.0),
+		1.0,
+		0.0001,
+		"Map labels should stay fully opaque before the configured camera-distance fade start."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(100000.0),
+		1.0,
+		0.0001,
+		"Map labels should begin fading at roughly 1e5 units, not before it."
+	)
+	assert_true(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(500000.0) < 1.0,
+		"Labels farther than the configured 1e5-unit threshold should become fainter with camera distance."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(1100000.0),
+		MainHUDScript.PROJECTED_TARGET_EDGE_ALPHA,
+		0.0001,
+		"Very distant labels should clamp to the same minimum alpha used by the existing screen-position fade."
+	)
+
+
+func test_map_label_projection_multiplies_screen_fade_with_camera_distance_fade():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var projected_screen_pos = _panel_instance._camera.unproject_position(Vector3.ZERO)
+	var screen_fade_alpha = _panel_instance._get_map_label_distance_fade_alpha(projected_screen_pos, Rect2(Vector2.ZERO, _panel_instance._viewport.size))
+	var camera_fade_alpha = _panel_instance._get_map_label_camera_distance_fade_alpha(Vector3.ZERO)
+	_panel_instance._update_projected_label(label, Vector3.ZERO, Vector2.ZERO, _panel_instance._viewport.size, 50.0, camera_fade_alpha)
+	assert_almost_eq(
+		label.modulate.a,
+		screen_fade_alpha * camera_fade_alpha,
+		0.0001,
+		"Projected map labels should multiply the existing screen-position fade by the new camera-distance fade."
+	)
 
 
 func test_mouse_wheel_zoom_changes_zoom_distance():

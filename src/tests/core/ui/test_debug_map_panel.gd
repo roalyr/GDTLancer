@@ -2,13 +2,14 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
-## LOG_REF: 2026-05-17 15:43:57
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
+## LOG_REF: 2026-05-17 19:00:00
 ##
 
 extends "res://addons/gut/test.gd"
 
 const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
+const MainHUDScript = preload("res://src/core/ui/main_hud/main_hud.gd")
 
 var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.tscn")
 var _panel_instance = null
@@ -157,6 +158,156 @@ func test_label_count_matches_sectors():
 		if child is Label:
 			label_count += 1
 	assert_gt(label_count, 4, "Should have at least 5 labels matching sectors")
+
+
+func test_readability_toggles_hide_labels_lines_and_icons_and_survive_refresh():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	assert_not_null(header.get_node_or_null("BtnLabels"), "TASK_1 should add a dedicated labels toggle button to the header row.")
+	assert_not_null(header.get_node_or_null("BtnLines"), "TASK_1 should add a dedicated lines toggle button to the header row.")
+	assert_not_null(header.get_node_or_null("BtnIcons"), "TASK_1 should add a dedicated icons toggle button to the header row.")
+
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var marker = _panel_instance._sector_labels["sector_system_elace"]["marker"]
+	var connection_lines = _panel_instance._map_content.get_node_or_null("ConnectionLines")
+	assert_true(label.visible, "Sector labels should be visible before the readability toggles are disabled.")
+	assert_true(marker.visible, "Sector icons should be visible before the readability toggles are disabled.")
+	assert_true(connection_lines.visible, "Connection lines should be visible before the readability toggles are disabled.")
+
+	_panel_instance._on_toggle_labels()
+	_panel_instance._on_toggle_lines()
+	_panel_instance._on_toggle_icons()
+
+	assert_eq(header.get_node("BtnLabels").text, "Labels Off")
+	assert_eq(header.get_node("BtnLines").text, "Lines Off")
+	assert_eq(header.get_node("BtnIcons").text, "Icons Off")
+	assert_false(label.visible, "Disabling labels should hide existing sector labels immediately.")
+	assert_false(marker.visible, "Disabling icons should hide existing sector markers immediately.")
+	assert_false(connection_lines.visible, "Disabling lines should hide existing route geometry immediately.")
+
+	_panel_instance._on_sim_tick_completed(1)
+	var refreshed_label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var refreshed_marker = _panel_instance._sector_labels["sector_system_elace"]["marker"]
+	var refreshed_connection_lines = _panel_instance._map_content.get_node_or_null("ConnectionLines")
+	assert_false(refreshed_label.visible, "Readability label state should survive sim-tick-driven map repopulation.")
+	assert_false(refreshed_marker.visible, "Readability icon state should survive sim-tick-driven map repopulation.")
+	assert_false(refreshed_connection_lines.visible, "Readability line state should survive sim-tick-driven map repopulation.")
+
+
+func test_task2_header_buttons_adjust_fov_with_clamping():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	assert_not_null(header.get_node_or_null("BtnFovIn"), "TASK_2 should add a dedicated FoV+ button to the header row.")
+	assert_not_null(header.get_node_or_null("BtnFovOut"), "TASK_2 should add a dedicated FoV- button to the header row.")
+
+	var initial_fov = _panel_instance._camera.fov
+	_panel_instance._on_fov_in()
+	assert_true(
+		_panel_instance._camera.fov < initial_fov,
+		"FoV+ controls should narrow the map camera field of view for a tighter framing."
+	)
+	for _step in range(20):
+		_panel_instance._on_fov_in()
+	assert_eq(
+		_panel_instance._camera.fov,
+		_panel_instance.MIN_MAP_CAMERA_FOV,
+		"FoV+ controls should clamp at the contracted minimum field of view."
+	)
+	for _step in range(40):
+		_panel_instance._on_fov_out()
+	assert_eq(
+		_panel_instance._camera.fov,
+		_panel_instance.MAX_MAP_CAMERA_FOV,
+		"FoV- controls should clamp at the contracted maximum field of view."
+	)
+
+
+func test_task2_aa_button_cycles_disabled_2x_and_4x():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	var aa_button = header.get_node_or_null("BtnAA")
+	assert_not_null(aa_button, "TASK_2 should add a dedicated AA cycle button to the header row.")
+	assert_eq(aa_button.text, "AA Off")
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_DISABLED)
+
+	_panel_instance._on_cycle_aa()
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_2X)
+	assert_eq(aa_button.text, "AA 2x")
+
+	_panel_instance._on_cycle_aa()
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_4X)
+	assert_eq(aa_button.text, "AA 4x")
+
+	_panel_instance._on_cycle_aa()
+	assert_eq(_panel_instance._viewport.msaa, Viewport.MSAA_DISABLED)
+	assert_eq(aa_button.text, "AA Off")
+
+
+func test_map_label_fade_curve_uses_debug_map_normalized_distance_power_with_main_hud_edge_alpha():
+	var edge_alpha: float = MainHUDScript.PROJECTED_TARGET_EDGE_ALPHA
+	var normalized_distance_pow: float = _panel_instance.MAP_LABEL_NORMALIZED_DISTANCE_POW
+	assert_almost_eq(
+		_panel_instance._compute_map_label_distance_fade_alpha(0.0),
+		lerp(1.0, edge_alpha, pow(0.0, normalized_distance_pow)),
+		0.0001,
+		"Map labels should stay fully opaque at the viewport center."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_distance_fade_alpha(0.5),
+		lerp(1.0, edge_alpha, pow(0.5, normalized_distance_pow)),
+		0.0001,
+		"Map labels should use the dedicated debug-map normalized-distance power instead of reusing MainHUD's edge-distance exponent."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_distance_fade_alpha(1.0),
+		lerp(1.0, edge_alpha, pow(1.0, normalized_distance_pow)),
+		0.0001,
+		"Map labels should still clamp to the same MainHUD-derived edge alpha at the fade limit."
+	)
+
+
+func test_map_label_camera_distance_fade_starts_around_1e5_and_reduces_far_labels():
+	assert_almost_eq(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(50000.0),
+		1.0,
+		0.0001,
+		"Map labels should stay fully opaque before the configured camera-distance fade start."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(100000.0),
+		1.0,
+		0.0001,
+		"Map labels should begin fading at roughly 1e5 units, not before it."
+	)
+	assert_true(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(500000.0) < 1.0,
+		"Labels farther than the configured 1e5-unit threshold should become fainter with camera distance."
+	)
+	assert_almost_eq(
+		_panel_instance._compute_map_label_camera_distance_fade_alpha(1100000.0),
+		MainHUDScript.PROJECTED_TARGET_EDGE_ALPHA,
+		0.0001,
+		"Very distant labels should clamp to the same minimum alpha used by the existing screen-position fade."
+	)
+
+
+func test_map_label_projection_multiplies_screen_fade_with_camera_distance_fade():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var projected_screen_pos = _panel_instance._camera.unproject_position(Vector3.ZERO)
+	var screen_fade_alpha = _panel_instance._get_map_label_distance_fade_alpha(projected_screen_pos, Rect2(Vector2.ZERO, _panel_instance._viewport.size))
+	var camera_fade_alpha = _panel_instance._get_map_label_camera_distance_fade_alpha(Vector3.ZERO)
+	_panel_instance._update_projected_label(label, Vector3.ZERO, Vector2.ZERO, _panel_instance._viewport.size, 50.0, camera_fade_alpha)
+	assert_almost_eq(
+		label.modulate.a,
+		screen_fade_alpha * camera_fade_alpha,
+		0.0001,
+		"Projected map labels should multiply the existing screen-position fade by the new camera-distance fade."
+	)
 
 
 func test_mouse_wheel_zoom_changes_zoom_distance():

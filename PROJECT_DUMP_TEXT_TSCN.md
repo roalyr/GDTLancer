@@ -5224,121 +5224,6 @@ func _ready():
 
 "
 
-[sub_resource type="ShaderMaterial" id=1]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0, 0.0705882, 0.0705882, 1 )
-shader_param/albedo_rim = Color( 1, 0.376471, 0, 1 )
-shader_param/albedo_ambient = Color( 0.027451, 0.0901961, 0, 1 )
-shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 5.0
-shader_param/normal_detail_factor = 2.372
-shader_param/normal_strength = 0.37
-shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 1.307
-shader_param/rim_strength = 2.041
-shader_param/rim_exponent = 0.476
-shader_param/rim_ambient_exponent = 4.479
-shader_param/fade_distance_near = 100000.0
-shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.2
-shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -3.569
-shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/normal_noise = ExtResource( 3 )
-
-[sub_resource type="OpenSimplexNoise" id=3]
-octaves = 9
-period = 25.0
-
-[sub_resource type="NoiseTexture" id=4]
-width = 128
-height = 128
-seamless = true
-as_normalmap = true
-noise = SubResource( 3 )
-
-[sub_resource type="ShaderMaterial" id=2]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0.0745098, 0.0117647, 0, 1 )
-shader_param/albedo_rim = Color( 0, 0.0156863, 0.0352941, 1 )
-shader_param/albedo_ambient = Color( 0, 0.0431373, 0, 1 )
-shader_param/normal_intensity = 0.652
-shader_param/normal_detail_power = 2.52
-shader_param/normal_detail_factor = 0.18
-shader_param/normal_strength = 1.387
-shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 0.777
-shader_param/rim_strength = 5.0
-shader_param/rim_exponent = 5.0
-shader_param/rim_ambient_exponent = 4.564
-shader_param/fade_distance_near = 100000.0
-shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.2
-shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -2.506
-shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/normal_noise = SubResource( 4 )
-
-[sub_resource type="ShaderMaterial" id=5]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0, 0.0431373, 0.219608, 1 )
-shader_param/albedo_rim = Color( 0.0588235, 0.109804, 0.156863, 1 )
-shader_param/albedo_ambient = Color( 0.0117647, 0.0509804, 0.0627451, 1 )
-shader_param/normal_intensity = 1.0
-shader_param/normal_detail_power = 5.0
-shader_param/normal_detail_factor = 0.4
-shader_param/normal_strength = 0.2
-shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 1.496
-shader_param/rim_strength = 5.0
-shader_param/rim_exponent = 5.0
-shader_param/rim_ambient_exponent = 2.143
-shader_param/fade_distance_near = 800000.0
-shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.4
-shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -0.254
-shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/normal_noise = ExtResource( 6 )
-
-[sub_resource type="ShaderMaterial" id=6]
-shader = ExtResource( 2 )
-shader_param/albedo = Color( 0, 0, 0, 1 )
-shader_param/albedo_rim = Color( 0.45098, 0.45098, 0.45098, 1 )
-shader_param/albedo_ambient = Color( 0.00392157, 0.0156863, 0.0392157, 1 )
-shader_param/normal_intensity = 0.228
-shader_param/normal_detail_power = 2.258
-shader_param/normal_detail_factor = 0.562
-shader_param/normal_strength = 2.144
-shader_param/normal_detail_clamp = 1.0
-shader_param/rim_factor = 1.229
-shader_param/rim_strength = 1.674
-shader_param/rim_exponent = 0.378
-shader_param/rim_ambient_exponent = 1.188
-shader_param/fade_distance_near = 100000.0
-shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.2
-shader_param/uv1_blend_sharpness = 10.0
-shader_param/normal_detail_uv1_scale = -2.573
-shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
-shader_param/scale_start = 100000.0
-shader_param/scale_end_mul = 100.0
-shader_param/scale_power = 1.0
-shader_param/scale_min = 0.5
-shader_param/normal_noise = ExtResource( 3 )
-
 [sub_resource type="ShaderMaterial" id=14]
 shader = ExtResource( 9 )
 shader_param/albedo = Color( 0.796078, 0.188235, 0.141176, 1 )
@@ -5459,277 +5344,398 @@ shader_param/fade_power = 0.4
 shader_param/intensity = 0.752
 shader_param/exponent = 3.0
 
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0, 0.0705882, 0.0705882, 1 )
+shader_param/albedo_rim = Color( 1, 0.376471, 0, 1 )
+shader_param/albedo_ambient = Color( 0.027451, 0.0901961, 0, 1 )
+shader_param/normal_intensity = 1.0
+shader_param/normal_detail_power = 5.0
+shader_param/normal_detail_factor = 2.372
+shader_param/normal_strength = 0.37
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.307
+shader_param/rim_strength = 2.041
+shader_param/rim_exponent = 0.476
+shader_param/rim_ambient_exponent = 4.479
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.2
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = -3.569
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = ExtResource( 3 )
+
+[sub_resource type="OpenSimplexNoise" id=3]
+octaves = 9
+period = 25.0
+
+[sub_resource type="NoiseTexture" id=4]
+width = 128
+height = 128
+seamless = true
+as_normalmap = true
+noise = SubResource( 3 )
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0.0745098, 0.0117647, 0, 1 )
+shader_param/albedo_rim = Color( 0, 0.0156863, 0.0352941, 1 )
+shader_param/albedo_ambient = Color( 0, 0.0431373, 0, 1 )
+shader_param/normal_intensity = 0.652
+shader_param/normal_detail_power = 2.52
+shader_param/normal_detail_factor = 0.18
+shader_param/normal_strength = 1.387
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 0.777
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 5.0
+shader_param/rim_ambient_exponent = 4.564
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.2
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = -2.506
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = SubResource( 4 )
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0, 0.0431373, 0.219608, 1 )
+shader_param/albedo_rim = Color( 0.0588235, 0.109804, 0.156863, 1 )
+shader_param/albedo_ambient = Color( 0.0117647, 0.0509804, 0.0627451, 1 )
+shader_param/normal_intensity = 1.0
+shader_param/normal_detail_power = 5.0
+shader_param/normal_detail_factor = 0.4
+shader_param/normal_strength = 0.2
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.496
+shader_param/rim_strength = 5.0
+shader_param/rim_exponent = 5.0
+shader_param/rim_ambient_exponent = 2.143
+shader_param/fade_distance_near = 800000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.4
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = -0.254
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = ExtResource( 6 )
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = ExtResource( 2 )
+shader_param/albedo = Color( 0, 0, 0, 1 )
+shader_param/albedo_rim = Color( 0.45098, 0.45098, 0.45098, 1 )
+shader_param/albedo_ambient = Color( 0.00392157, 0.0156863, 0.0392157, 1 )
+shader_param/normal_intensity = 0.228
+shader_param/normal_detail_power = 2.258
+shader_param/normal_detail_factor = 0.562
+shader_param/normal_strength = 2.144
+shader_param/normal_detail_clamp = 1.0
+shader_param/rim_factor = 1.229
+shader_param/rim_strength = 1.674
+shader_param/rim_exponent = 0.378
+shader_param/rim_ambient_exponent = 1.188
+shader_param/fade_distance_near = 100000.0
+shader_param/fade_distance_far = 1e+06
+shader_param/fade_power = 0.2
+shader_param/uv1_blend_sharpness = 10.0
+shader_param/normal_detail_uv1_scale = -2.573
+shader_param/normal_detail_uv1_offset = Vector3( 0, 0, 0 )
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
+shader_param/scale_power = 1.0
+shader_param/scale_min = 0.5
+shader_param/normal_noise = ExtResource( 3 )
+
 [node name="Globalnebulas" type="Spatial"]
 script = SubResource( 7 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="ClusterA" type="Spatial" parent="."]
+[node name="SectorStars (clipped by near plane which is 10u)" type="Spatial" parent="."]
+
+[node name="_Star Vidr" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -150000, -260000, -330000 )
+visible = false
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/_Star Vidr" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Star Vidr/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 14 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/_Star Vidr" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Star Vidr/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 15 )
+
+[node name="_Stars Lywin" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 70000, 16000, -110000 )
+visible = false
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/_Stars Lywin" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Stars Lywin/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 10 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/_Stars Lywin" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Stars Lywin/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 11 )
+
+[node name="_Star Cob" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -480000, -7300, 235000 )
+visible = false
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/_Star Cob" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Star Cob/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 12 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/_Star Cob" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Star Cob/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 13 )
+
+[node name="_Star Ebreeta" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -477000, 77000, 881000 )
+visible = false
+
+[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/_Star Ebreeta" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Star Ebreeta/Star_sprite_square_wide" index="0"]
+material_override = SubResource( 16 )
+
+[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/_Star Ebreeta" instance=ExtResource( 10 )]
+transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
+
+[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/_Star Ebreeta/Star_sprite_square_wide_far" index="0"]
+material_override = SubResource( 17 )
+
+[node name="Star Elace Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 8 )]
+
+[node name="Large nebulas" type="Spatial" parent="."]
+
+[node name="ClusterA" type="Spatial" parent="Large nebulas"]
 transform = Transform( -0.207212, 0.408861, 0.446669, -0.479269, -0.411242, 0.105134, 0.339467, -0.331031, 0.421079, 8655.56, -193353, -364406 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="spheroid" parent="ClusterA" instance=ExtResource( 1 )]
+[node name="spheroid" parent="Large nebulas/ClusterA" instance=ExtResource( 1 )]
 transform = Transform( -29301.6, 181648, 157232, 61826.9, -127991, 381579, 323400, 28707.9, -26908.2, -369209, 124049, -304188 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA/spheroid" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA/spheroid" index="0"]
 material_override = SubResource( 1 )
 
-[node name="spheroid2" parent="ClusterA" instance=ExtResource( 1 )]
+[node name="spheroid2" parent="Large nebulas/ClusterA" instance=ExtResource( 1 )]
 transform = Transform( 53962.5, 102106, 54519.2, -89588.9, -26699, 172308, 98294.6, -143237, 66075.4, -120892, 189748, -461744 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA/spheroid2" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA/spheroid2" index="0"]
 transform = Transform( 0.829987, 0.00768842, -0.581861, 0.238535, -1.00958, 0.0232532, -0.475861, -0.377517, -0.78696, -0.134238, -0.31044, -0.475308 )
 material_override = SubResource( 1 )
 
-[node name="spheroid3" parent="ClusterA" instance=ExtResource( 1 )]
+[node name="spheroid3" parent="Large nebulas/ClusterA" instance=ExtResource( 1 )]
 transform = Transform( 194042, -38851.3, -149026, 29923.3, 187949, -42734.6, 160582, 11923.3, 188041, -33952.5, 115012, -185849 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA/spheroid3" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA/spheroid3" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
-[node name="spheroid4" parent="ClusterA" instance=ExtResource( 1 )]
+[node name="spheroid4" parent="Large nebulas/ClusterA" instance=ExtResource( 1 )]
 transform = Transform( -29453.9, -177194, 93306.5, -24422.3, -90428.1, -179438, 198765, -37368.5, -8220.85, -279577, 76404.1, -260134 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA/spheroid4" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA/spheroid4" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
-[node name="ClusterA2" type="Spatial" parent="."]
+[node name="ClusterA2" type="Spatial" parent="Large nebulas"]
 transform = Transform( -0.499423, -0.0293612, -0.653852, -0.671697, 0.240053, 0.537996, 0.115365, 0.913515, -0.194197, 85456.2, -1936.12, -322450 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="spheroid" parent="ClusterA2" instance=ExtResource( 1 )]
+[node name="spheroid" parent="Large nebulas/ClusterA2" instance=ExtResource( 1 )]
 transform = Transform( -11468.5, 71096, 61539.7, 24198.7, -50095.1, 149348, 126577, 11236.1, -10531.7, -123395, -47571.6, -178471 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA2/spheroid" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA2/spheroid" index="0"]
 material_override = SubResource( 1 )
 
-[node name="spheroid2" parent="ClusterA2" instance=ExtResource( 1 )]
+[node name="spheroid2" parent="Large nebulas/ClusterA2" instance=ExtResource( 1 )]
 transform = Transform( -25264.1, 112869, 115233, -130035, -16147.6, 95796.5, 39008, -136798, 145844, 53942.3, -199760, -287988 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA2/spheroid2" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA2/spheroid2" index="0"]
 transform = Transform( 0.829987, 0.00768842, -0.581861, 0.238535, -1.00958, 0.0232532, -0.475861, -0.377517, -0.78696, -0.134238, -0.31044, -0.475308 )
 material_override = SubResource( 1 )
 
-[node name="spheroid3" parent="ClusterA2" instance=ExtResource( 1 )]
+[node name="spheroid3" parent="Large nebulas/ClusterA2" instance=ExtResource( 1 )]
 transform = Transform( 94972.3, -190368, -74849.5, 206737, 55567.3, 30268, 13823.4, -83883.3, 232327, -71718.6, 105172, -204678 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA2/spheroid3" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA2/spheroid3" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
-[node name="spheroid4" parent="ClusterA2" instance=ExtResource( 1 )]
+[node name="spheroid4" parent="Large nebulas/ClusterA2" instance=ExtResource( 1 )]
 transform = Transform( -29453.9, -177194, 93306.4, -24422.3, -90428.1, -179438, 198765, -37368.5, -8220.87, -112326, 25224.5, -216845 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Spheroid" parent="ClusterA2/spheroid4" index="0"]
+[node name="Spheroid" parent="Large nebulas/ClusterA2/spheroid4" index="0"]
 transform = Transform( 1, 1.86265e-09, 1.49012e-08, 1.49012e-08, 1, -7.45058e-09, 0, -1.86265e-09, 1, 0, 0, 0 )
 material_override = SubResource( 1 )
 
-[node name="ClusterB" type="Spatial" parent="."]
+[node name="ClusterB" type="Spatial" parent="Large nebulas"]
 transform = Transform( -0.0725186, -0.839348, 0.363187, -1.23566, 0.153811, 0.952019, -0.990386, -0.130444, -1.21439, 140103, -119461, 557084 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="nebula_4" parent="ClusterB" instance=ExtResource( 4 )]
+[node name="nebula_4" parent="Large nebulas/ClusterB" instance=ExtResource( 4 )]
 transform = Transform( -81020.7, 80145.8, -38206.3, 113494, -6147.82, -84651.2, -59422.2, -91690.6, -61193.8, 11879, 106178, 141110 )
 
-[node name="nebula_1" parent="ClusterB/nebula_4" index="0"]
+[node name="nebula_1" parent="Large nebulas/ClusterB/nebula_4" index="0"]
 transform = Transform( 1, -1.19209e-07, 0, 4.47035e-08, 1, 0, 3.72529e-08, -1.78814e-07, 1, -0.313653, -0.196829, 1.16247 )
 material_override = SubResource( 2 )
 
-[node name="nebula_5" parent="ClusterB" instance=ExtResource( 4 )]
+[node name="nebula_5" parent="Large nebulas/ClusterB" instance=ExtResource( 4 )]
 transform = Transform( 145936, -124384, 1565.87, 1307.19, 80681.7, -190893, 111065, 135910, 83109.8, -112776, -220433, 59064.4 )
 
-[node name="nebula_1" parent="ClusterB/nebula_5" index="0"]
+[node name="nebula_1" parent="Large nebulas/ClusterB/nebula_5" index="0"]
 material_override = SubResource( 2 )
 
-[node name="nebula_6" parent="ClusterB" instance=ExtResource( 4 )]
+[node name="nebula_6" parent="Large nebulas/ClusterB" instance=ExtResource( 4 )]
 transform = Transform( -119673, -265836, -101351, -150371, 49154.1, 294949, -256623, 145888, -98457.9, -185278, -212266, 29460.6 )
 
-[node name="nebula_1" parent="ClusterB/nebula_6" index="0"]
+[node name="nebula_1" parent="Large nebulas/ClusterB/nebula_6" index="0"]
 material_override = SubResource( 2 )
 
-[node name="ClusterC" type="Spatial" parent="."]
+[node name="ClusterC" type="Spatial" parent="Large nebulas"]
 transform = Transform( 0.458892, 0.0579308, -0.281655, 0.0222194, 0.521709, 0.143506, 0.286692, -0.133161, 0.439709, -482132, -4545.31, 218681 )
 
-[node name="nebula_4" parent="ClusterC" instance=ExtResource( 5 )]
+[node name="nebula_4" parent="Large nebulas/ClusterC" instance=ExtResource( 5 )]
 transform = Transform( -727796, 446697, -301355, 427949, 453742, -313871, -79531.4, -587706, -666123, 495967, -204468, 274148 )
 
-[node name="nebula_2" parent="ClusterC/nebula_4" index="0"]
+[node name="nebula_2" parent="Large nebulas/ClusterC/nebula_4" index="0"]
 material_override = SubResource( 5 )
 
-[node name="nebula_5" parent="ClusterC" instance=ExtResource( 5 )]
+[node name="nebula_5" parent="Large nebulas/ClusterC" instance=ExtResource( 5 )]
 transform = Transform( -279087, -549482, -60726.3, 416487, -213094, 119705, -231011, 58457.2, 561790, 17047.4, -14066.2, 26785.4 )
 
-[node name="nebula_2" parent="ClusterC/nebula_5" index="0"]
+[node name="nebula_2" parent="Large nebulas/ClusterC/nebula_5" index="0"]
 material_override = SubResource( 5 )
 
-[node name="Cluster D" type="Spatial" parent="."]
+[node name="Cluster D" type="Spatial" parent="Large nebulas"]
 transform = Transform( -0.226865, -0.382231, -0.776899, 0.467201, -0.730211, 0.222832, -0.728968, -0.349043, 0.384596, -493564, 128577, 850992 )
 
-[node name="nebula_3" parent="Cluster D" instance=ExtResource( 7 )]
+[node name="nebula_3" parent="Large nebulas/Cluster D" instance=ExtResource( 7 )]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
 
-[node name="nebula_3" parent="Cluster D/nebula_3" index="0"]
+[node name="nebula_3" parent="Large nebulas/Cluster D/nebula_3" index="0"]
 material_override = SubResource( 6 )
 
-[node name="nebula_4" parent="Cluster D" instance=ExtResource( 7 )]
+[node name="nebula_4" parent="Large nebulas/Cluster D" instance=ExtResource( 7 )]
 transform = Transform( -68227.9, 4023.75, 49825.2, 48033.5, -18062.9, 67233.2, 13839.2, 82530.8, 12285.6, -83770.7, 41297.6, 66914.3 )
 
-[node name="nebula_3" parent="Cluster D/nebula_4" index="0"]
+[node name="nebula_3" parent="Large nebulas/Cluster D/nebula_4" index="0"]
 material_override = SubResource( 6 )
 
-[node name="nebula_5" parent="Cluster D" instance=ExtResource( 7 )]
+[node name="nebula_5" parent="Large nebulas/Cluster D" instance=ExtResource( 7 )]
 transform = Transform( -6703.04, 21497.9, 110265, 81187, 77275.1, -10130.7, -77647.4, 78941.8, -20111.2, -11990.6, 12001.5, 8882.25 )
 
-[node name="nebula_3" parent="Cluster D/nebula_5" index="0"]
+[node name="nebula_3" parent="Large nebulas/Cluster D/nebula_5" index="0"]
 transform = Transform( 1, -1.49012e-07, 0, 1.2666e-07, 1, 5.21541e-08, -1.49012e-07, -3.72529e-08, 0.999999, -0.716848, -1.5566, 1.45116 )
 material_override = SubResource( 6 )
 
-[node name="Cluster D2" type="Spatial" parent="."]
+[node name="Cluster D2" type="Spatial" parent="Large nebulas"]
 transform = Transform( 0.880774, -0.25702, -1.30459, -0.215979, -1.57171, 0.163833, -1.31201, 0.0861885, -0.902763, -493564, 128577, 850992 )
 
-[node name="nebula_3" parent="Cluster D2" instance=ExtResource( 7 )]
+[node name="nebula_3" parent="Large nebulas/Cluster D2" instance=ExtResource( 7 )]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
 
-[node name="nebula_3" parent="Cluster D2/nebula_3" index="0"]
+[node name="nebula_3" parent="Large nebulas/Cluster D2/nebula_3" index="0"]
 material_override = SubResource( 6 )
 
-[node name="nebula_4" parent="Cluster D2" instance=ExtResource( 7 )]
+[node name="nebula_4" parent="Large nebulas/Cluster D2" instance=ExtResource( 7 )]
 transform = Transform( -68227.9, 4023.75, 49825.2, 48033.5, -18062.9, 67233.2, 13839.2, 82530.8, 12285.6, -83770.7, 41297.6, 66914.3 )
 
-[node name="nebula_3" parent="Cluster D2/nebula_4" index="0"]
+[node name="nebula_3" parent="Large nebulas/Cluster D2/nebula_4" index="0"]
 material_override = SubResource( 6 )
 
-[node name="nebula_5" parent="Cluster D2" instance=ExtResource( 7 )]
+[node name="nebula_5" parent="Large nebulas/Cluster D2" instance=ExtResource( 7 )]
 transform = Transform( -6703.04, 21497.9, 110265, 81187, 77275.1, -10130.7, -77647.4, 78941.8, -20111.2, -11990.6, 12001.5, 8882.25 )
 
-[node name="nebula_3" parent="Cluster D2/nebula_5" index="0"]
+[node name="nebula_3" parent="Large nebulas/Cluster D2/nebula_5" index="0"]
 transform = Transform( 1, -1.49012e-07, 0, 1.2666e-07, 1, 5.21541e-08, -1.49012e-07, -3.72529e-08, 0.999999, -0.716848, -1.5566, 1.45116 )
 material_override = SubResource( 6 )
 
-[node name="SectorStars (clipped by near plane which is 10u)" type="Spatial" parent="."]
-
-[node name="Star Vidr" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -150000, -260000, -330000 )
-
-[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide" index="0"]
-material_override = SubResource( 14 )
-
-[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far" index="0"]
-material_override = SubResource( 15 )
-
-[node name="Stars Lywin" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 70000, 16000, -110000 )
-
-[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide" index="0"]
-material_override = SubResource( 10 )
-
-[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide_far" index="0"]
-material_override = SubResource( 11 )
-
-[node name="Star Cob" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -480000, -7300, 235000 )
-
-[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Cob" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide" index="0"]
-material_override = SubResource( 12 )
-
-[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Cob" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide_far" index="0"]
-material_override = SubResource( 13 )
-
-[node name="Star Ebreeta" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -477000, 77000, 881000 )
-
-[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Ebreeta" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Ebreeta/Star_sprite_square_wide" index="0"]
-material_override = SubResource( 16 )
-
-[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Ebreeta" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Ebreeta/Star_sprite_square_wide_far" index="0"]
-material_override = SubResource( 17 )
-
-[node name="Star Elace Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 8 )]
-
-[editable path="ClusterA/spheroid"]
-[editable path="ClusterA/spheroid2"]
-[editable path="ClusterA/spheroid3"]
-[editable path="ClusterA/spheroid4"]
-[editable path="ClusterA2/spheroid"]
-[editable path="ClusterA2/spheroid2"]
-[editable path="ClusterA2/spheroid3"]
-[editable path="ClusterA2/spheroid4"]
-[editable path="ClusterB/nebula_4"]
-[editable path="ClusterB/nebula_5"]
-[editable path="ClusterB/nebula_6"]
-[editable path="ClusterC/nebula_4"]
-[editable path="ClusterC/nebula_5"]
-[editable path="Cluster D/nebula_3"]
-[editable path="Cluster D/nebula_4"]
-[editable path="Cluster D/nebula_5"]
-[editable path="Cluster D2/nebula_3"]
-[editable path="Cluster D2/nebula_4"]
-[editable path="Cluster D2/nebula_5"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide_far"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Cob/Star_sprite_square_wide_far"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Ebreeta/Star_sprite_square_wide"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Ebreeta/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Star Vidr/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Star Vidr/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Stars Lywin/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Stars Lywin/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Star Cob/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Star Cob/Star_sprite_square_wide_far"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Star Ebreeta/Star_sprite_square_wide"]
+[editable path="SectorStars (clipped by near plane which is 10u)/_Star Ebreeta/Star_sprite_square_wide_far"]
+[editable path="Large nebulas/ClusterA/spheroid"]
+[editable path="Large nebulas/ClusterA/spheroid2"]
+[editable path="Large nebulas/ClusterA/spheroid3"]
+[editable path="Large nebulas/ClusterA/spheroid4"]
+[editable path="Large nebulas/ClusterA2/spheroid"]
+[editable path="Large nebulas/ClusterA2/spheroid2"]
+[editable path="Large nebulas/ClusterA2/spheroid3"]
+[editable path="Large nebulas/ClusterA2/spheroid4"]
+[editable path="Large nebulas/ClusterB/nebula_4"]
+[editable path="Large nebulas/ClusterB/nebula_5"]
+[editable path="Large nebulas/ClusterB/nebula_6"]
+[editable path="Large nebulas/ClusterC/nebula_4"]
+[editable path="Large nebulas/ClusterC/nebula_5"]
+[editable path="Large nebulas/Cluster D/nebula_3"]
+[editable path="Large nebulas/Cluster D/nebula_4"]
+[editable path="Large nebulas/Cluster D/nebula_5"]
+[editable path="Large nebulas/Cluster D2/nebula_3"]
+[editable path="Large nebulas/Cluster D2/nebula_4"]
+[editable path="Large nebulas/Cluster D2/nebula_5"]
 
 --- Start of ./scenes/ui/hud/main_hud.tscn ---
 
