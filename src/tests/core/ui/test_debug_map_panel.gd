@@ -2,11 +2,13 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-## LOG_REF: 2026-05-14 01:14:26
+## TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+## LOG_REF: 2026-05-17 15:43:57
 ##
 
 extends "res://addons/gut/test.gd"
+
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.tscn")
 var _panel_instance = null
@@ -112,7 +114,7 @@ func test_opening_panel_uses_isolated_viewport_world_and_cleans_up_backdrop():
 		"Opening the panel should create a dedicated nebula backdrop inside the map viewport."
 	)
 	var star_elace = _panel_instance._map_nebula_holder.get_node_or_null(
-		"Globalnebulas/SectorStars (clipped by near plane which is 10u)/Star Elace"
+		"Globalnebulas/SectorStars (clipped by near plane which is 10u)/Star Elace Sprite"
 	)
 	assert_not_null(star_elace, "The dedicated map backdrop should include the sector-star anchors.")
 	_close_panel_if_open()
@@ -241,3 +243,58 @@ func test_sector_labels_use_wrapped_large_font_box():
 	assert_not_null(_panel_instance._sector_label_font, "Sector label font should be created")
 	if _panel_instance._sector_label_font:
 		assert_eq(_panel_instance._sector_label_font.size, _panel_instance.SECTOR_LABEL_FONT_SIZE)
+
+
+func test_discovered_sector_marker_uses_distinct_color_and_label_prefix():
+	_seed_discovered_sector()
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var marker = map_content.get_node_or_null("Sector_discovered_1")
+	assert_not_null(marker, "Discovered sectors should create a map marker once their runtime template is registered.")
+	var material = marker.material_override as SpatialMaterial
+	assert_eq(
+		material.albedo_color,
+		_panel_instance._get_sector_marker_color("discovered_1", TemplateDatabase.locations["discovered_1"]),
+		"Discovered markers should use their discovery-specific color instead of the authored-sector cyan."
+	)
+	var label = _panel_instance._sector_labels["discovered_1"]["label"]
+	assert_true(label.text.find("DISC ") != -1, "Discovered sector labels should carry an explicit discovery prefix.")
+
+
+func test_sim_tick_refresh_adds_discovered_sector_marker_when_panel_visible():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	_seed_discovered_sector()
+	_panel_instance._on_sim_tick_completed(1)
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	assert_not_null(
+		map_content.get_node_or_null("Sector_discovered_1"),
+		"Visible debug map panels should repopulate and show newly discovered runtime sectors on sim-tick refresh."
+	)
+	assert_ne(
+		_panel_instance._get_connection_line_color("sector_system_elace", "discovered_1"),
+		_panel_instance._get_connection_line_color("sector_system_elace", "sector_system_cob"),
+		"Discovered routes should use a distinct line color from authored handcrafted links."
+	)
+
+
+func _seed_discovered_sector():
+	var discovered_template = LocationTemplateScript.new()
+	discovered_template.template_id = "discovered_1"
+	discovered_template.location_name = "Amber Gate"
+	discovered_template.location_type = "asteroid_field"
+	discovered_template.global_position = Vector3(48000, 4000, 0)
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	discovered_template.procedural_hints = {
+		"low_visibility": true,
+		"discovered_from": "sector_system_elace",
+	}
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["discovered_1"] = {
+		"connections": ["sector_system_elace"],
+		"station_ids": ["discovered_1"],
+		"sector_type": "deep_space",
+	}
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_gamma", "discovered_1"]
+	GameState.sector_names["discovered_1"] = "Amber Gate"

@@ -3,7 +3,7 @@
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-16 01:02:19
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends Control
@@ -77,6 +77,8 @@ var _dock_location_id: String = ""  # Currently available dock location
 var _jump_target_id: String = ""  # Currently available jump route target
 var _route_target_provider: Reference = RouteTargetProviderScript.new()
 var _route_target_buttons: Dictionary = {}
+var _route_target_overlay_sector_id: String = ""
+var _route_target_overlay_signature: String = ""
 var _world_target_buttons: Dictionary = {}
 var _tracked_inflight_drag_controls: Array = []
 var _tracked_inflight_drag_filters: Dictionary = {}
@@ -287,6 +289,7 @@ func _refresh_time_display() -> void:
 func _on_sim_tick_completed(_tick_count: int = 0) -> void:
 	_refresh_time_display()
 	_refresh_player_resources()
+	_sync_route_target_overlay_with_topology()
 
 
 func _on_game_time_advanced(_seconds_added: int = 0) -> void:
@@ -989,6 +992,8 @@ func _clear_route_target_overlay() -> void:
 			_untrack_inflight_drag_control(button)
 			button.queue_free()
 	_route_target_buttons.clear()
+	_route_target_overlay_sector_id = ""
+	_route_target_overlay_signature = ""
 	_refresh_process_state()
 
 
@@ -1014,6 +1019,8 @@ func _rebuild_route_target_overlay() -> void:
 	var current_sector_id: String = GameState.current_sector_id
 	if current_sector_id == "":
 		return
+	_route_target_overlay_sector_id = current_sector_id
+	_route_target_overlay_signature = _get_route_target_overlay_signature(current_sector_id)
 	var route_targets: Array = _route_target_provider.build_targets_for_sector(current_sector_id)
 	for route_target in route_targets:
 		var button = _instance_projected_target_bracket()
@@ -1027,6 +1034,24 @@ func _rebuild_route_target_overlay() -> void:
 		_route_target_buttons[route_target.selection_key] = button
 	_update_route_target_selection_state()
 	_refresh_process_state()
+
+
+func _sync_route_target_overlay_with_topology() -> void:
+	var current_sector_id: String = GameState.current_sector_id
+	var route_signature: String = _get_route_target_overlay_signature(current_sector_id)
+	if current_sector_id != _route_target_overlay_sector_id or route_signature != _route_target_overlay_signature:
+		_rebuild_route_target_overlay()
+
+
+func _get_route_target_overlay_signature(sector_id: String) -> String:
+	if sector_id == "":
+		return ""
+	var connections: Array = GameState.world_topology.get(sector_id, {}).get("connections", [])
+	var normalized_connections: Array = []
+	for target_sector_id in connections:
+		normalized_connections.append(str(target_sector_id))
+	normalized_connections.sort()
+	return "%s|%s" % [sector_id, str(normalized_connections)]
 
 
 func _rebuild_world_target_overlay() -> void:

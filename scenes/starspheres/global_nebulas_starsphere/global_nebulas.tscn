@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=1]
 [ext_resource path="res://assets/art/shaders/complex_transparent_cloud_NLP.gdshader" type="Shader" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://assets/models/nebulas/nebula_2.glb" type="PackedScene" id=5]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=6]
 [ext_resource path="res://assets/models/nebulas/nebula_3.glb" type="PackedScene" id=7]
+[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace_sprite.tscn" type="PackedScene" id=8]
 [ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=9]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
 
@@ -132,36 +133,6 @@ shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
 shader_param/scale_min = 0.5
 shader_param/normal_noise = ExtResource( 3 )
-
-[sub_resource type="ShaderMaterial" id=9]
-shader = ExtResource( 9 )
-shader_param/albedo = Color( 0.588235, 0.247059, 0.113725, 1 )
-shader_param/scale_near = 10.0
-shader_param/scale_peak = 0.6
-shader_param/scale_far = 0.1
-shader_param/peak_distance = 40000.0
-shader_param/fade_ratio = 10.0
-shader_param/distance_power = 0.3
-shader_param/fade_distance_near = 0.0
-shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.4
-shader_param/intensity = 0.799
-shader_param/exponent = 3.0
-
-[sub_resource type="ShaderMaterial" id=8]
-shader = ExtResource( 9 )
-shader_param/albedo = Color( 1, 0.603922, 0.427451, 1 )
-shader_param/scale_near = 2.948
-shader_param/scale_peak = 0.2
-shader_param/scale_far = 0.05
-shader_param/peak_distance = 40000.0
-shader_param/fade_ratio = 10.0
-shader_param/distance_power = 0.3
-shader_param/fade_distance_near = 0.0
-shader_param/fade_distance_far = 1e+06
-shader_param/fade_power = 0.4
-shader_param/intensity = 0.762
-shader_param/exponent = 3.0
 
 [sub_resource type="ShaderMaterial" id=14]
 shader = ExtResource( 9 )
@@ -465,20 +436,6 @@ material_override = SubResource( 6 )
 
 [node name="SectorStars (clipped by near plane which is 10u)" type="Spatial" parent="."]
 
-[node name="Star Elace" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
-
-[node name="Star_sprite_square_wide" parent="SectorStars (clipped by near plane which is 10u)/Star Elace" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide" index="0"]
-material_override = SubResource( 9 )
-
-[node name="Star_sprite_square_wide_far" parent="SectorStars (clipped by near plane which is 10u)/Star Elace" instance=ExtResource( 10 )]
-transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -763.2, 2450.45, 14778.8, 0, 0, 0 )
-
-[node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide_far" index="0"]
-material_override = SubResource( 8 )
-
 [node name="Star Vidr" type="Spatial" parent="SectorStars (clipped by near plane which is 10u)"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -150000, -260000, -330000 )
 
@@ -539,6 +496,8 @@ transform = Transform( 13922.7, 5578.2, -205.932, -5529.6, 13706.9, -2558.28, -7
 [node name="Plane" parent="SectorStars (clipped by near plane which is 10u)/Star Ebreeta/Star_sprite_square_wide_far" index="0"]
 material_override = SubResource( 17 )
 
+[node name="Star Elace Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 8 )]
+
 [editable path="ClusterA/spheroid"]
 [editable path="ClusterA/spheroid2"]
 [editable path="ClusterA/spheroid3"]
@@ -558,8 +517,6 @@ material_override = SubResource( 17 )
 [editable path="Cluster D2/nebula_3"]
 [editable path="Cluster D2/nebula_4"]
 [editable path="Cluster D2/nebula_5"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide"]
-[editable path="SectorStars (clipped by near plane which is 10u)/Star Elace/Star_sprite_square_wide_far"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Star Vidr/Star_sprite_square_wide_far"]
 [editable path="SectorStars (clipped by near plane which is 10u)/Stars Lywin/Star_sprite_square_wide"]

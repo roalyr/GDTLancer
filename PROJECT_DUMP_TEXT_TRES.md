@@ -45,7 +45,7 @@ size = Vector2( 0.002, 0.002 )
 [resource]
 background_mode = 1
 background_sky = SubResource( 1 )
-background_color = Color( 0.0705882, 0.0588235, 0.0980392, 1 )
+background_color = Color( 0.0431373, 0.0235294, 0.0588235, 1 )
 
 --- Start of ./assets/art/materials/scene_materials/star_1_corona.tres ---
 
@@ -111,7 +111,7 @@ shader_param/exponent = 3.0
 
 [resource]
 shader = ExtResource( 2 )
-shader_param/rim_color = Color( 1, 0.952941, 0.262745, 1 )
+shader_param/rim_color = Color( 1, 1, 1, 1 )
 shader_param/overlay_color = Color( 0.752941, 0.443137, 0.333333, 1 )
 shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
 shader_param/fade_color = Color( 1, 1, 1, 1 )
@@ -1592,63 +1592,6 @@ description = "The dominant commercial entity in the sector."
 faction_color = Color( 0.0, 0.6, 0.8, 1 )
 default_standing = 0
 
---- Start of ./database/registry/locations/sector_epsilon.tres ---
-
-[gd_resource type="Resource" load_steps=2 format=2]
-
-[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
-
-[resource]
-script = ExtResource( 1 )
-template_id = "station_epsilon"
-location_name = "Epsilon Refinery Complex"
-location_type = "station"
-position_in_zone = Vector3( 44500, -100, 1200 )
-interaction_radius = 150.0
-sector_scene_path = "res://scenes/levels/sectors/sector_epsilon/sector_epsilon.tscn"
-global_position = Vector3( -290000, -10000, -270000 )
-is_procedural = false
-procedural_type = "deep_space"
-procedural_hints = {
-}
-sector_description = "Remote refinery complex. High mineral density but harsh environment."
-connections = PoolStringArray( "station_gamma" )
-sector_type = "outpost"
-radiation_level = 0.12
-thermal_background_k = 260.0
-gravity_well_penalty = 1.3
-mineral_density = 1.5
-propellant_sources = 0.8
-station_power_output = 90.0
-stockpile_capacity = 900
-market_inventory = {
-"commodity_food": {
-"buy_price": 26,
-"quantity": 50,
-"sell_price": 21
-},
-"commodity_fuel": {
-"buy_price": 18,
-"quantity": 120,
-"sell_price": 14
-},
-"commodity_ore": {
-"buy_price": 10,
-"quantity": 150,
-"sell_price": 8
-},
-"commodity_tech": {
-"buy_price": 60,
-"quantity": 20,
-"sell_price": 48
-}
-}
-available_services = [ "trade", "refuel", "repair" ]
-controlling_faction_id = "faction_miners"
-danger_level = 3
-initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
-available_contract_ids = [  ]
-
 --- Start of ./database/registry/locations/sector_system_cob.tres ---
 
 [gd_resource type="Resource" load_steps=2 format=2]
@@ -1663,13 +1606,13 @@ location_type = "system"
 position_in_zone = Vector3( 0, 0, 0 )
 interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_system_cob.tscn"
-global_position = Vector3( -400000, 24000, 130000 )
+global_position = Vector3( -480000, -7300, 235000 )
 is_procedural = false
 procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_elace" )
+connections = PoolStringArray( "sector_system_elace", "sector_system_ebreeta" )
 sector_type = "colony"
 radiation_level = 0.01
 thermal_background_k = 310.0
@@ -1710,6 +1653,63 @@ controlling_faction_id = "faction_traders"
 danger_level = 2
 initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH" )
 available_contract_ids = [ "delivery_03", "delivery_04" ]
+
+--- Start of ./database/registry/locations/sector_system_ebreeta.tres ---
+
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_system_ebreeta"
+location_name = "Ebreeta System"
+location_type = "system"
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
+sector_scene_path = "res://scenes/levels/sectors/sector_epsilon/sector_epsilon.tscn"
+global_position = Vector3( -477000, 77000, 881000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_cob" )
+sector_type = "outpost"
+radiation_level = 0.12
+thermal_background_k = 260.0
+gravity_well_penalty = 1.3
+mineral_density = 1.5
+propellant_sources = 0.8
+station_power_output = 90.0
+stockpile_capacity = 900
+market_inventory = {
+"commodity_food": {
+"buy_price": 26,
+"quantity": 50,
+"sell_price": 21
+},
+"commodity_fuel": {
+"buy_price": 18,
+"quantity": 120,
+"sell_price": 14
+},
+"commodity_ore": {
+"buy_price": 10,
+"quantity": 150,
+"sell_price": 8
+},
+"commodity_tech": {
+"buy_price": 60,
+"quantity": 20,
+"sell_price": 48
+}
+}
+available_services = [ "trade", "refuel", "repair" ]
+controlling_faction_id = "faction_miners"
+danger_level = 3
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [  ]
 
 --- Start of ./database/registry/locations/sector_system_elace.tres ---
 

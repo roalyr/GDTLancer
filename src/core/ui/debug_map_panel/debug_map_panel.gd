@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: debug_map_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_4 — Debug Map Panel Interaction + Spatial Annotation Upgrade
-# LOG_REF: 2026-05-09 18:46:53
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+# LOG_REF: 2026-05-17 15:43:57
 #
 
 extends CanvasLayer
@@ -31,6 +31,9 @@ const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
 const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
 const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+const AUTHORED_SECTOR_COLOR = Color(0.3, 0.8, 1.0, 1.0)
+const AUTHORED_ROUTE_COLOR = Color(0.5, 0.8, 0.5, 0.6)
+const DISCOVERED_SECTOR_FALLBACK_COLOR = Color(0.95, 0.72, 0.34, 1.0)
 
 # --- Node references ---
 onready var _panel = $Panel
@@ -268,28 +271,26 @@ func _clear_map():
 func _create_sector_markers():
 	for sector_id in TemplateDatabase.locations:
 		var template = TemplateDatabase.locations[sector_id]
-		if not template or not ("global_position" in template):
+		var global_position: Vector3 = _get_template_global_position(template)
+		if template == null or global_position == null:
 			continue
-		var pos: Vector3 = _to_map_space_position(template.global_position)
+		var pos: Vector3 = _to_map_space_position(global_position)
+		var marker_color: Color = _get_sector_marker_color(sector_id, template)
+		var label_color: Color = _get_sector_label_color(sector_id, template)
+		var marker_radius: float = _get_sector_marker_radius(sector_id, template)
 
 		# Sector marker sphere
 		var mesh_instance = MeshInstance.new()
 		var sphere = SphereMesh.new()
-		sphere.radius = 2000.0
-		sphere.height = 4000.0
+		sphere.radius = marker_radius
+		sphere.height = marker_radius * 2.0
 		sphere.radial_segments = 12
 		sphere.rings = 6
 		mesh_instance.mesh = sphere
 
 		var mat = SpatialMaterial.new()
 		mat.flags_unshaded = true
-		# Color by current sector highlight
-		if sector_id == GameState.current_sector_id:
-			mat.albedo_color = Color(1.0, 1.0, 0.2, 1.0)  # yellow for current
-			sphere.radius = 3000.0
-			sphere.height = 6000.0
-		else:
-			mat.albedo_color = Color(0.3, 0.8, 1.0, 1.0)  # cyan for others
+		mat.albedo_color = marker_color
 		mesh_instance.material_override = mat
 
 		mesh_instance.transform.origin = pos
@@ -299,12 +300,9 @@ func _create_sector_markers():
 		# Create label in overlay
 		var label = Label.new()
 		_configure_sector_label(label)
-		var loc_name = template.location_name if "location_name" in template else sector_id
+		var loc_name: String = _get_template_location_name(template, sector_id)
 		label.text = loc_name
-		if sector_id == GameState.current_sector_id:
-			label.add_color_override("font_color", Color(1, 1, 0.2, 1.0))
-		else:
-			label.add_color_override("font_color", Color(1, 1, 1, 0.9))
+		label.add_color_override("font_color", label_color)
 		label.add_constant_override("shadow_offset_x", 1)
 		label.add_constant_override("shadow_offset_y", 1)
 		label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
@@ -354,6 +352,9 @@ func _refresh_sector_label_texts():
 
 func _build_sector_label_text(sector_id: String, data: Dictionary) -> String:
 	var name_text = data.get("base_name", sector_id)
+	var template = TemplateDatabase.locations.get(sector_id)
+	if _is_discovered_sector(sector_id, template):
+		name_text = "DISC %s" % name_text
 	if sector_id == GameState.current_sector_id:
 		name_text = ">> %s <<" % name_text
 	if not _show_sector_coordinates:
@@ -392,7 +393,7 @@ func _create_connection_lines():
 			var to_pos = _get_sector_position(target_id)
 			if from_pos == null or to_pos == null:
 				continue
-			ig.set_color(Color(0.5, 0.8, 0.5, 0.6))
+			ig.set_color(_get_connection_line_color(sector_id, target_id))
 			ig.add_vertex(from_pos)
 			ig.add_vertex(to_pos)
 	ig.end()
@@ -534,11 +535,94 @@ func _create_projected_overlay_label(node_name: String, text: String, pos_3d: Ve
 	})
 
 
+func _get_template_value(template, key: String, default_value = null):
+	if template == null:
+		return default_value
+	if template is Dictionary:
+		return template.get(key, default_value)
+	var value = template.get(key)
+	return value if value != null else default_value
+
+
+func _get_template_global_position(template):
+	var global_position = _get_template_value(template, "global_position", null)
+	return global_position if global_position is Vector3 else null
+
+
+func _get_template_location_name(template, fallback_sector_id: String) -> String:
+	var location_name = _get_template_value(template, "location_name", fallback_sector_id)
+	return str(location_name) if str(location_name) != "" else fallback_sector_id
+
+
+func _is_discovered_sector(sector_id: String, template = null) -> bool:
+	var resolved_template = template if template != null else TemplateDatabase.locations.get(sector_id)
+	var hints = _get_template_value(resolved_template, "procedural_hints", {})
+	if hints is Dictionary and bool(hints.get("low_visibility", false)):
+		return true
+	return sector_id.begins_with("discovered_")
+
+
+func _get_discovery_sector_color(sector_id: String, template = null) -> Color:
+	var resolved_template = template if template != null else TemplateDatabase.locations.get(sector_id)
+	var procedural_type: String = str(_get_template_value(resolved_template, "procedural_type", "deep_space"))
+	match procedural_type:
+		"asteroid_field":
+			return Color(0.95, 0.72, 0.34, 1.0)
+		"comet_shoal":
+			return Color(0.66, 0.9, 1.0, 1.0)
+		"rogue_planet":
+			return Color(0.62, 0.72, 0.86, 1.0)
+		"dark_nebula":
+			return Color(0.44, 0.74, 0.69, 1.0)
+		"remnant_field":
+			return Color(0.82, 0.62, 0.54, 1.0)
+		_:
+			return DISCOVERED_SECTOR_FALLBACK_COLOR
+
+
+func _get_sector_marker_color(sector_id: String, template = null) -> Color:
+	if sector_id == GameState.current_sector_id:
+		return Color(1.0, 1.0, 0.2, 1.0)
+	if _is_discovered_sector(sector_id, template):
+		return _get_discovery_sector_color(sector_id, template)
+	return AUTHORED_SECTOR_COLOR
+
+
+func _get_sector_label_color(sector_id: String, template = null) -> Color:
+	if sector_id == GameState.current_sector_id:
+		return Color(1, 1, 0.2, 1.0)
+	if _is_discovered_sector(sector_id, template):
+		var discovery_color: Color = _get_discovery_sector_color(sector_id, template)
+		return Color(discovery_color.r, discovery_color.g, discovery_color.b, 0.96)
+	return Color(1, 1, 1, 0.9)
+
+
+func _get_sector_marker_radius(sector_id: String, template = null) -> float:
+	if sector_id == GameState.current_sector_id:
+		return 3000.0
+	if _is_discovered_sector(sector_id, template):
+		return 2400.0
+	return 2000.0
+
+
+func _get_connection_line_color(source_sector_id: String, target_sector_id: String) -> Color:
+	var source_template = TemplateDatabase.locations.get(source_sector_id)
+	var target_template = TemplateDatabase.locations.get(target_sector_id)
+	if _is_discovered_sector(source_sector_id, source_template):
+		var source_color: Color = _get_discovery_sector_color(source_sector_id, source_template)
+		return Color(source_color.r, source_color.g, source_color.b, 0.78)
+	if _is_discovered_sector(target_sector_id, target_template):
+		var target_color: Color = _get_discovery_sector_color(target_sector_id, target_template)
+		return Color(target_color.r, target_color.g, target_color.b, 0.78)
+	return AUTHORED_ROUTE_COLOR
+
+
 func _get_sector_position(sector_id: String):
 	if TemplateDatabase.locations.has(sector_id):
 		var template = TemplateDatabase.locations[sector_id]
-		if "global_position" in template:
-			return _to_map_space_position(template.global_position)
+		var global_position: Vector3 = _get_template_global_position(template)
+		if global_position != null:
+			return _to_map_space_position(global_position)
 	return null
 
 
@@ -640,8 +724,9 @@ func _get_current_sector_world_anchor() -> Vector3:
 	var current_sector_id: String = GameState.current_sector_id
 	if current_sector_id != "" and TemplateDatabase.locations.has(current_sector_id):
 		var template = TemplateDatabase.locations[current_sector_id]
-		if template and ("global_position" in template):
-			return template.global_position
+		var global_position: Vector3 = _get_template_global_position(template)
+		if global_position != null:
+			return global_position
 	return Vector3.ZERO
 
 

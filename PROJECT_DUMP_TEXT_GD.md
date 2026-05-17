@@ -13521,8 +13521,8 @@ func get_accuracy_at_range(distance: float) -> float:
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
-# LOG_REF: 2026-05-17 01:12:04
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §7; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends Node
@@ -13677,7 +13677,7 @@ const EVENT_BUFFER_CAP: int = 200
 const RUMOR_BUFFER_CAP: int = 200
 const RESPAWN_COOLDOWN_TICKS: int = 1
 const RESPAWN_COOLDOWN_MAX_DEBT: int = 25
-const MAX_SECTOR_COUNT: int = 20
+const MAX_SECTOR_COUNT: int = 220
 const EXPLORATION_COOLDOWN_TICKS: int = 10
 const EXPLORATION_SUCCESS_CHANCE: float = 0.1
 
@@ -13686,6 +13686,23 @@ const MAX_CONNECTIONS_PER_SECTOR: int = 4
 const EXTRA_CONNECTION_1_CHANCE: float = 0.20
 const EXTRA_CONNECTION_2_CHANCE: float = 0.05
 const LOOP_MIN_HOPS: int = 3
+
+# --- Discovery Spatialization ---
+const DISCOVERY_BRANCH_DISTANCE_BASE: float = 96000.0
+const DISCOVERY_BRANCH_DISTANCE_JITTER: float = 24000.0
+const DISCOVERY_BRANCH_MIN_CLEARANCE: float = 36000.0
+const DISCOVERY_BRANCH_POSITION_ATTEMPTS: int = 14
+const DISCOVERY_BRANCH_DIRECTION_JITTER_DEG: float = 32.0
+const DISCOVERY_BRANCH_JITTER_PER_EXISTING_BRANCH_DEG: float = 18.0
+const DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG: float = 26.0
+const DISCOVERY_BRANCH_ANGLE_SCORE_WEIGHT: float = 1200.0
+const DISCOVERY_PLANAR_VERTICAL_JITTER: float = 6000.0
+const DISCOVERY_VERTICAL_BRANCH_CHANCE: float = 0.14
+const DISCOVERY_VERTICAL_BRANCH_CONTINUE_CHANCE: float = 0.60
+const DISCOVERY_VERTICAL_BRANCH_Y_BIAS: float = 0.72
+const DISCOVERY_VERTICAL_BRANCH_MIN_OFFSET: float = 6000.0
+const DISCOVERY_VERTICAL_BRANCH_MAX_OFFSET: float = 14000.0
+const DISCOVERY_MAX_LINK_DISTANCE: float = 164000.0
 
 # --- Catastrophe ---
 const CATASTROPHE_CHANCE_PER_TICK: float = 0.005
@@ -14864,6 +14881,14 @@ func get_template(template_id: String) -> Resource:
 
 --- Start of ./src/core/agents/agent.gd ---
 
+#
+# PROJECT: GDTLancer
+# MODULE: agent.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
+# LOG_REF: 2026-05-17 01:30:40
+#
+
 # File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
 # Version: 4.0 - RigidBody 6DOF physics with thrust-based flight.
 
@@ -15024,6 +15049,13 @@ func command_move_direction(direction: Vector3):
 		printerr("AgentBody: Cannot command_move_direction - NavigationSystem invalid.")
 
 
+func command_idle():
+	if is_instance_valid(navigation_system):
+		navigation_system.set_command_idle()
+	else:
+		printerr("AgentBody: Cannot command_idle - NavigationSystem invalid.")
+
+
 func command_approach(target: Spatial):
 	if is_instance_valid(navigation_system):
 		navigation_system.set_command_approach(target)
@@ -15063,9 +15095,19 @@ func command_flee(target: Spatial):
 		printerr("AgentBody: Cannot command_flee - NavigationSystem invalid.")
 
 
-func command_align_to(direction: Vector3):
+func command_align_to(
+	direction: Vector3,
+	apply_forward_thrust: bool = false,
+	forward_thrust_scale: float = 1.0,
+	persist_until_cleared: bool = false
+):
 	if is_instance_valid(navigation_system):
-		navigation_system.set_command_align_to(direction)
+		navigation_system.set_command_align_to(
+			direction,
+			apply_forward_thrust,
+			forward_thrust_scale,
+			persist_until_cleared
+		)
 	else:
 		printerr("AgentBody: Cannot command_align_to - NavigationSystem invalid.")
 
@@ -15456,6 +15498,14 @@ func get_forward() -> Vector3:
 
 --- Start of ./src/core/agents/components/navigation_system/command_align_to.gd ---
 
+#
+# PROJECT: GDTLancer
+# MODULE: command_align_to.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
+# LOG_REF: 2026-05-17 01:30:40
+#
+
 # File: core/agents/components/navigation_system/command_align_to.gd
 # Version: 3.0 - RigidBody physics with PID-controlled rotation.
 extends Node
@@ -15476,19 +15526,25 @@ func execute(delta: float):
 		return
 	
 	var target_dir = _nav_sys._current_command.get("target_dir", Vector3.ZERO)
+	var persist_until_cleared = _nav_sys._current_command.get("persist_until_cleared", false)
 	if target_dir.length_squared() < 0.001:
 		_nav_sys.set_command_idle()
 		return
 	
 	# Rotate toward target direction using PID
 	_movement_system.request_rotation_to_pid(target_dir, delta)
+	if _nav_sys._current_command.get("apply_forward_thrust", false):
+		_movement_system.request_thrust_forward(
+			_nav_sys._current_command.get("forward_thrust_scale", 1.0)
+		)
 	
 	# Check if aligned (use tighter threshold for alignment command)
 	var current_fwd = -_agent_body.global_transform.basis.z.normalized()
 	if current_fwd.dot(target_dir.normalized()) > 0.999:
 		# Also ensure angular velocity is near zero
 		if _agent_body.angular_velocity.length() < 0.1:
-			_nav_sys.set_command_idle()
+			if not persist_until_cleared:
+				_nav_sys.set_command_idle()
 		else:
 			_movement_system.request_rotation_damping_pid(delta)
 
@@ -16015,7 +16071,7 @@ func execute(delta: float):
 # MODULE: navigation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 03:05:12
+# LOG_REF: 2026-05-17 01:41:07
 #
 
 # File: res://core/agents/components/navigation_system.gd
@@ -16128,11 +16184,22 @@ func set_command_flee(target: Spatial):
 	_current_command = {"type": CommandType.FLEE, "target_node": target}
 
 
-func set_command_align_to(direction: Vector3):
+func set_command_align_to(
+	direction: Vector3,
+	apply_forward_thrust: bool = false,
+	forward_thrust_scale: float = 1.0,
+	persist_until_cleared: bool = false
+):
 	if direction.length_squared() < 0.001:
 		set_command_idle()
 		return
-	_current_command = {"type": CommandType.ALIGN_TO, "target_dir": direction.normalized()}
+	_current_command = {
+		"type": CommandType.ALIGN_TO,
+		"target_dir": direction.normalized(),
+		"apply_forward_thrust": apply_forward_thrust,
+		"forward_thrust_scale": clamp(forward_thrust_scale, 0.0, 1.0),
+		"persist_until_cleared": persist_until_cleared
+	}
 
 
 func get_current_command_type() -> int:
@@ -16667,11 +16734,13 @@ func _unique(values: Array) -> Array:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-10 16:13:36
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends Reference
+
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 ## AgentLayer: Qualitative agent layer using affinity-driven tag transitions.
 ##
@@ -16690,6 +16759,7 @@ var affinity_matrix: Reference = null
 ## Per-tick seeded RNG for determinism.
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _reported_invalid_sectors: Dictionary = {}
+var _last_exploration_outcome: String = ""
 
 ## Name-generation pools for discovered sectors.
 var _FRONTIER_PREFIXES: Array = [
@@ -16701,6 +16771,38 @@ var _FRONTIER_SUFFIXES: Array = [
 	"Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
 	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
 	"Anchorage", "Waypoint", "Depot",
+]
+var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
+	{
+		"procedural_type": "asteroid_field",
+		"location_type": "asteroid_field",
+		"sector_type": "deep_space",
+		"description": "A sparse asteroid field with faint returns and narrow survey lanes.",
+	},
+	{
+		"procedural_type": "comet_shoal",
+		"location_type": "debris_field",
+		"sector_type": "deep_space",
+		"description": "A loose comet shoal whose volatile traces only surface under deliberate scans.",
+	},
+	{
+		"procedural_type": "rogue_planet",
+		"location_type": "debris_field",
+		"sector_type": "deep_space",
+		"description": "A cold rogue planet drifting in deep dark with almost no ambient signature.",
+	},
+	{
+		"procedural_type": "dark_nebula",
+		"location_type": "debris_field",
+		"sector_type": "hazard_zone",
+		"description": "A dark nebula pocket that hides weak contacts behind dense interference.",
+	},
+	{
+		"procedural_type": "remnant_field",
+		"location_type": "debris_field",
+		"sector_type": "deep_space",
+		"description": "A dim remnant field of cold wreckage and ancient stellar ash.",
+	},
 ]
 
 
@@ -16963,9 +17065,10 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 	var sector_id: String = agent.get("current_sector_id", "")
 
 	# Explorers prioritise exploration
-	if "FRONTIER" in sector_tags and agent.get("agent_role") == "explorer":
+	if agent.get("agent_role") == "explorer":
 		_try_exploration(agent_id, agent, sector_id)
-		return
+		if _last_exploration_outcome == "discovered":
+			return
 
 	if score >= Constants.ATTACK_THRESHOLD and "HAS_SALVAGE" in sector_tags:
 		_action_harvest(agent_id, agent, sector_id)
@@ -16991,7 +17094,58 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 		_log_event(agent_id, "flee", sector_id, {"reason": "sector_affinity"})
 		return
 
+	if agent.get("agent_role") == "explorer" and _is_exploration_cooldown_active(agent):
+		_action_move_random(agent_id, agent)
+		return
+
 	_action_move_toward_role_target(agent_id, agent)
+
+
+func _get_sector_type(sector_id: String) -> String:
+	var topology: Dictionary = GameState.world_topology.get(sector_id, {})
+	var topology_sector_type = topology.get("sector_type", null)
+	if topology_sector_type != null and str(topology_sector_type) != "":
+		return str(topology_sector_type)
+
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	var template_sector_type = _get_template_value(sector_template, "sector_type", "")
+	return "" if template_sector_type == null else str(template_sector_type)
+
+
+func _get_exploration_success_modifier(sector_id: String, sector_tags: Array) -> float:
+	var sector_type: String = _get_sector_type(sector_id)
+	var modifier: float = 0.75
+	match sector_type:
+		"hub":
+			modifier = 0.4
+		"colony":
+			modifier = 0.6
+		"outpost":
+			modifier = 0.82
+		"frontier":
+			modifier = 1.0
+		"deep_space", "hazard_zone":
+			modifier = 0.9
+		_:
+			modifier = 0.75
+
+	if _has_frontier_pressure(sector_tags):
+		modifier = min(1.0, modifier + 0.15)
+	return modifier
+
+
+func _has_frontier_pressure(sector_tags: Array) -> bool:
+	return (
+		"HARSH" in sector_tags
+		or "EXTREME" in sector_tags
+		or "LAWLESS" in sector_tags
+		or "CONTESTED" in sector_tags
+	)
+
+
+func _is_exploration_cooldown_active(agent: Dictionary) -> bool:
+	var last_discovery: int = int(agent.get("last_discovery_tick", -999))
+	return GameState.sim_tick_count - last_discovery < Constants.EXPLORATION_COOLDOWN_TICKS
 
 
 # =============================================================================
@@ -17138,33 +17292,41 @@ func _post_combat_dispersal(agent_id: String, agent: Dictionary) -> void:
 # =============================================================================
 
 func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) -> void:
+	_last_exploration_outcome = "blocked"
+
 	# Cap check
 	if GameState.world_topology.size() >= Constants.MAX_SECTOR_COUNT:
+		_last_exploration_outcome = "cap"
 		_log_event(agent_id, "expedition_failed", sector_id, {})
 		return
 
 	if agent.get("wealth_tag") == "BROKE":
+		_last_exploration_outcome = "broke"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "broke"})
 		return
 
 	# Per-agent cooldown
 	var last_discovery: int = int(agent.get("last_discovery_tick", -999))
 	if GameState.sim_tick_count - last_discovery < Constants.EXPLORATION_COOLDOWN_TICKS:
+		_last_exploration_outcome = "cooldown"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "cooldown"})
 		return
 
 	# Probability gate — diminishing returns
 	var sector_count: int = GameState.world_topology.size()
 	var saturation: float = float(sector_count) / float(Constants.MAX_SECTOR_COUNT)
-	var effective_chance: float = Constants.EXPLORATION_SUCCESS_CHANCE * (1.0 - saturation)
+	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+	var sector_modifier: float = _get_exploration_success_modifier(sector_id, sector_tags)
+	var effective_chance: float = Constants.EXPLORATION_SUCCESS_CHANCE * (1.0 - saturation) * sector_modifier
 	if _rng.randf() > effective_chance:
+		_last_exploration_outcome = "nothing_found"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "nothing_found"})
 		return
 
 	agent["last_discovery_tick"] = GameState.sim_tick_count
-	GameState.discovered_sector_count += 1
-	var new_id: String = "discovered_" + str(GameState.discovered_sector_count)
-	var new_name: String = _generate_sector_name()
+	var next_discovery_count: int = GameState.discovered_sector_count + 1
+	var new_id: String = "discovered_" + str(next_discovery_count)
+	var new_name: String = _generate_sector_name_for_count(next_discovery_count)
 
 	# Determine connections (filament topology)
 	var source_id: String = sector_id
@@ -17176,6 +17338,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 				fallback_candidates.append(neighbor_id)
 
 		if fallback_candidates.empty():
+			_last_exploration_outcome = "region_saturated"
 			_log_event(agent_id, "expedition_failed", sector_id, {"reason": "region_saturated"})
 			return
 
@@ -17200,6 +17363,15 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		if loop_candidate != null and not (loop_candidate in connections):
 			connections.append(loop_candidate)
 
+	var profile: Dictionary = _select_discovered_sector_profile(new_id)
+	var placement: Dictionary = _build_discovered_sector_placement(new_id, source_id)
+	if not bool(placement.get("is_valid", true)):
+		_last_exploration_outcome = "spatially_blocked"
+		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "spatially_blocked"})
+		return
+	var global_position: Vector3 = placement.get("global_position", Vector3.ZERO)
+	connections = _filter_spatially_plausible_connections(source_id, connections, global_position)
+
 	# Pick initial tags (frontier bias: harsh, poor, contested)
 	var sec_roll: float = _rng.randf()
 	var security: String = "LAWLESS" if sec_roll < 0.45 else ("CONTESTED" if sec_roll < 0.85 else "SECURE")
@@ -17218,7 +17390,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 	GameState.world_topology[new_id] = {
 		"connections": Array(connections),
 		"station_ids": [new_id],
-		"sector_type": "frontier",
+		"sector_type": str(profile.get("sector_type", "deep_space")),
 	}
 	for conn_id in connections:
 		var conn_data: Dictionary = GameState.world_topology.get(conn_id, {})
@@ -17256,26 +17428,288 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 			Constants.ECONOMY_CHANGE_TICKS_MAX
 		)
 	GameState.hostile_infestation_progress[new_id] = 0
+	GameState.discovered_sector_count = next_discovery_count
+	_register_discovered_sector_template(new_id, new_name, connections, global_position, initial_tags, profile, placement)
+	_last_exploration_outcome = "discovered"
 
 	# Record
 	GameState.sector_names[new_id] = new_name
 	GameState.discovery_log.append({
 		"tick": GameState.sim_tick_count,
 		"discoverer": agent_id,
-		"from": sector_id,
+		"from": source_id,
+		"requested_from": sector_id,
 		"new_sector": new_id,
 		"name": new_name,
+		"procedural_type": str(profile.get("procedural_type", "deep_space")),
+		"global_position": global_position,
+		"branch_separation_deg": float(placement.get("branch_separation_deg", 180.0)),
+		"branch_mode": str(placement.get("branch_mode", "planar")),
 	})
-	_log_event(agent_id, "sector_discovered", sector_id, {
+	_log_event(agent_id, "sector_discovered", source_id, {
 		"new_sector": new_id,
 		"name": new_name,
 		"connections": connections,
+		"requested_from": sector_id,
+		"procedural_type": str(profile.get("procedural_type", "deep_space")),
+		"global_position": global_position,
 	})
 
 
+func _select_discovered_sector_profile(new_id: String) -> Dictionary:
+	var profile_rng: RandomNumberGenerator = _make_discovery_rng("profile", new_id)
+	return _LOW_VISIBILITY_DISCOVERY_PROFILES[profile_rng.randi() % _LOW_VISIBILITY_DISCOVERY_PROFILES.size()].duplicate(true)
+
+
+func _build_discovered_sector_placement(new_id: String, source_id: String) -> Dictionary:
+	var placement_rng: RandomNumberGenerator = _make_discovery_rng("placement", new_id)
+	var source_position: Vector3 = _get_sector_global_position(source_id)
+	var branch_mode: String = "vertical" if _should_use_vertical_discovery_branch(source_id, placement_rng) else "planar"
+	var preferred_direction: Vector3 = _get_discovery_base_direction(source_id, placement_rng)
+	var best_candidate: Vector3 = source_position + (preferred_direction * Constants.DISCOVERY_BRANCH_DISTANCE_BASE)
+	var best_axis: Vector3 = preferred_direction
+	var best_clearance: float = -1.0
+	var best_branch_separation: float = 180.0
+	var best_score: float = -INF
+	var required_branch_separation: float = _get_required_discovery_branch_angle(source_id)
+
+	for _attempt in range(Constants.DISCOVERY_BRANCH_POSITION_ATTEMPTS):
+		var distance: float = Constants.DISCOVERY_BRANCH_DISTANCE_BASE + placement_rng.randf_range(
+			-Constants.DISCOVERY_BRANCH_DISTANCE_JITTER,
+			Constants.DISCOVERY_BRANCH_DISTANCE_JITTER
+		)
+		var branch_axis: Vector3 = _build_discovery_branch_axis(source_id, preferred_direction, branch_mode, placement_rng)
+		var candidate: Vector3 = source_position + (branch_axis * distance)
+		candidate.y += placement_rng.randf_range(
+			-Constants.DISCOVERY_PLANAR_VERTICAL_JITTER,
+			Constants.DISCOVERY_PLANAR_VERTICAL_JITTER
+		)
+		if branch_mode == "vertical":
+			var vertical_sign: float = -1.0 if placement_rng.randf() < 0.5 else 1.0
+			candidate.y += vertical_sign * placement_rng.randf_range(
+				Constants.DISCOVERY_VERTICAL_BRANCH_MIN_OFFSET,
+				Constants.DISCOVERY_VERTICAL_BRANCH_MAX_OFFSET
+			)
+
+		var clearance: float = _measure_discovery_clearance(candidate, source_id)
+		var branch_separation_deg: float = _measure_discovery_branch_separation(source_id, candidate)
+		var candidate_score: float = clearance + (branch_separation_deg * Constants.DISCOVERY_BRANCH_ANGLE_SCORE_WEIGHT)
+		if candidate_score > best_score:
+			best_score = candidate_score
+			best_clearance = clearance
+			best_candidate = candidate
+			best_axis = branch_axis
+			best_branch_separation = branch_separation_deg
+		if clearance >= Constants.DISCOVERY_BRANCH_MIN_CLEARANCE and branch_separation_deg >= required_branch_separation:
+			break
+
+	return {
+		"global_position": best_candidate,
+		"branch_axis": best_axis,
+		"branch_separation_deg": best_branch_separation,
+		"branch_mode": branch_mode,
+		"is_valid": best_clearance >= Constants.DISCOVERY_BRANCH_MIN_CLEARANCE and best_branch_separation >= required_branch_separation,
+	}
+
+
+func _build_discovery_branch_axis(source_id: String, preferred_direction: Vector3, branch_mode: String, placement_rng: RandomNumberGenerator) -> Vector3:
+	var planar_direction: Vector3 = Vector3(preferred_direction.x, 0.0, preferred_direction.z)
+	if planar_direction.length_squared() < 0.001:
+		planar_direction = _random_planar_direction(placement_rng)
+	planar_direction = planar_direction.normalized()
+	var jitter_span_deg: float = min(
+		88.0,
+		Constants.DISCOVERY_BRANCH_DIRECTION_JITTER_DEG + (
+			float(_get_discovered_branch_count(source_id)) * Constants.DISCOVERY_BRANCH_JITTER_PER_EXISTING_BRANCH_DEG
+		)
+	)
+	planar_direction = planar_direction.rotated(
+		Vector3.UP,
+		deg2rad(placement_rng.randf_range(
+			-jitter_span_deg,
+			jitter_span_deg
+		))
+	)
+
+	if branch_mode != "vertical":
+		return Vector3(
+			planar_direction.x,
+			preferred_direction.y,
+			planar_direction.z
+		).normalized()
+
+	var vertical_sign: float = -1.0 if placement_rng.randf() < 0.5 else 1.0
+	var branch_axis: Vector3 = (planar_direction * (1.0 - Constants.DISCOVERY_VERTICAL_BRANCH_Y_BIAS)) + (
+		Vector3.UP * vertical_sign * Constants.DISCOVERY_VERTICAL_BRANCH_Y_BIAS
+	)
+	return branch_axis.normalized()
+
+
+func _get_discovery_base_direction(source_id: String, placement_rng: RandomNumberGenerator) -> Vector3:
+	var inherited_axis: Vector3 = _get_inherited_discovery_axis(source_id)
+	var source_position: Vector3 = _get_sector_global_position(source_id)
+	var away_bias: Vector3 = Vector3.ZERO
+	var neighbors: Array = GameState.world_topology.get(source_id, {}).get("connections", [])
+	for neighbor_id in neighbors:
+		var neighbor_position: Vector3 = _get_sector_global_position(neighbor_id)
+		var away_vector: Vector3 = source_position - neighbor_position
+		if away_vector.length_squared() > 0.001:
+			away_bias += away_vector.normalized()
+
+	if inherited_axis.length_squared() > 0.001:
+		away_bias += inherited_axis.normalized() * 1.35
+
+	if away_bias.length_squared() < 0.001:
+		return _random_planar_direction(placement_rng)
+	return away_bias.normalized()
+
+
+func _get_inherited_discovery_axis(source_id: String) -> Vector3:
+	var source_template = TemplateDatabase.locations.get(source_id)
+	var hints = _get_template_value(source_template, "procedural_hints", {})
+	if not (hints is Dictionary):
+		return Vector3.ZERO
+	var branch_axis = hints.get("branch_axis", Vector3.ZERO)
+	if branch_axis is Vector3 and branch_axis.length_squared() > 0.001:
+		return branch_axis
+	return Vector3.ZERO
+
+
+func _should_use_vertical_discovery_branch(source_id: String, placement_rng: RandomNumberGenerator) -> bool:
+	var source_template = TemplateDatabase.locations.get(source_id)
+	if bool(_get_template_value(source_template, "is_procedural", false)):
+		var hints = _get_template_value(source_template, "procedural_hints", {})
+		if hints is Dictionary and str(hints.get("branch_mode", "planar")) == "vertical":
+			return placement_rng.randf() < Constants.DISCOVERY_VERTICAL_BRANCH_CONTINUE_CHANCE
+	return placement_rng.randf() < Constants.DISCOVERY_VERTICAL_BRANCH_CHANCE
+
+
+func _measure_discovery_clearance(candidate_position: Vector3, source_id: String) -> float:
+	var nearest_distance: float = INF
+	for sector_id in TemplateDatabase.locations:
+		if sector_id == source_id:
+			continue
+		var sector_position: Vector3 = _get_sector_global_position(sector_id)
+		var distance: float = candidate_position.distance_to(sector_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+	if nearest_distance == INF:
+		return Constants.DISCOVERY_BRANCH_MIN_CLEARANCE
+	return nearest_distance
+
+
+func _measure_discovery_branch_separation(source_id: String, candidate_position: Vector3) -> float:
+	var source_position: Vector3 = _get_sector_global_position(source_id)
+	var candidate_axis: Vector3 = candidate_position - source_position
+	if candidate_axis.length_squared() < 0.001:
+		return 180.0
+	candidate_axis = candidate_axis.normalized()
+	var min_angle_deg: float = 180.0
+	var neighbors: Array = GameState.world_topology.get(source_id, {}).get("connections", [])
+	for neighbor_id in neighbors:
+		if not _is_discovered_sector_id(str(neighbor_id)):
+			continue
+		var neighbor_axis: Vector3 = _get_sector_global_position(str(neighbor_id)) - source_position
+		if neighbor_axis.length_squared() < 0.001:
+			continue
+		min_angle_deg = min(min_angle_deg, rad2deg(candidate_axis.angle_to(neighbor_axis.normalized())))
+	return min_angle_deg
+
+
+func _get_required_discovery_branch_angle(source_id: String) -> float:
+	return Constants.DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG if _get_discovered_branch_count(source_id) > 0 else 0.0
+
+
+func _get_discovered_branch_count(source_id: String) -> int:
+	var count: int = 0
+	var neighbors: Array = GameState.world_topology.get(source_id, {}).get("connections", [])
+	for neighbor_id in neighbors:
+		if _is_discovered_sector_id(str(neighbor_id)):
+			count += 1
+	return count
+
+
+func _is_discovered_sector_id(sector_id: String) -> bool:
+	if sector_id.begins_with("discovered_"):
+		return true
+	var hints = _get_template_value(TemplateDatabase.locations.get(sector_id), "procedural_hints", {})
+	return hints is Dictionary and bool(hints.get("low_visibility", false))
+
+
+func _filter_spatially_plausible_connections(source_id: String, candidate_connections: Array, global_position: Vector3) -> Array:
+	var filtered_connections: Array = [source_id]
+	for idx in range(1, candidate_connections.size()):
+		var target_id: String = str(candidate_connections[idx])
+		var target_position: Vector3 = _get_sector_global_position(target_id)
+		if global_position.distance_to(target_position) <= Constants.DISCOVERY_MAX_LINK_DISTANCE:
+			filtered_connections.append(target_id)
+	return filtered_connections
+
+
+func _register_discovered_sector_template(
+		new_id: String,
+		new_name: String,
+		connections: Array,
+		global_position: Vector3,
+		initial_tags: Array,
+		profile: Dictionary,
+		placement: Dictionary) -> void:
+	var template = LocationTemplateScript.new()
+	template.template_id = new_id
+	template.location_name = new_name
+	template.location_type = str(profile.get("location_type", "debris_field"))
+	template.sector_scene_path = ""
+	template.global_position = global_position
+	template.is_procedural = true
+	template.procedural_type = str(profile.get("procedural_type", "deep_space"))
+	template.procedural_hints = {
+		"branch_axis": placement.get("branch_axis", Vector3.FORWARD),
+		"branch_mode": placement.get("branch_mode", "planar"),
+		"branch_separation_deg": placement.get("branch_separation_deg", 180.0),
+		"discovered_from": connections[0] if not connections.empty() else "",
+		"low_visibility": true,
+		"source_distance": global_position.distance_to(_get_sector_global_position(connections[0])) if not connections.empty() else 0.0,
+	}
+	template.sector_description = str(profile.get("description", "A dim deep-space contact that demanded a deliberate search."))
+	template.connections = PoolStringArray(connections)
+	template.sector_type = str(profile.get("sector_type", "deep_space"))
+	template.initial_sector_tags = PoolStringArray(initial_tags)
+	TemplateDatabase.locations[new_id] = template
+
+
+func _make_discovery_rng(purpose: String, new_id: String) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(GameState.world_seed) + ":" + purpose + ":" + new_id + ":" + str(GameState.sim_tick_count))
+	return rng
+
+
+func _get_template_value(template, key: String, default_value = null):
+	if template == null:
+		return default_value
+	if template is Dictionary:
+		return template.get(key, default_value)
+	var value = template.get(key)
+	return value if value != null else default_value
+
+
+func _get_sector_global_position(sector_id: String) -> Vector3:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	var global_position = _get_template_value(sector_template, "global_position", null)
+	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _random_planar_direction(placement_rng: RandomNumberGenerator) -> Vector3:
+	var angle: float = placement_rng.randf_range(-PI, PI)
+	return Vector3(cos(angle), 0.0, sin(angle)).normalized()
+
+
 func _generate_sector_name() -> String:
+	return _generate_sector_name_for_count(GameState.discovered_sector_count)
+
+
+func _generate_sector_name_for_count(discovery_count: int) -> String:
 	var name_rng := RandomNumberGenerator.new()
-	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(GameState.discovered_sector_count))
+	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(discovery_count))
 	var prefix: String = _FRONTIER_PREFIXES[name_rng.randi() % _FRONTIER_PREFIXES.size()]
 	var suffix: String = _FRONTIER_SUFFIXES[name_rng.randi() % _FRONTIER_SUFFIXES.size()]
 	return prefix + " " + suffix
@@ -20963,8 +21397,8 @@ func _get_route_direction(source_position: Vector3, target_position: Vector3) ->
 # PROJECT: GDTLancer
 # MODULE: debug_map_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_4 — Debug Map Panel Interaction + Spatial Annotation Upgrade
-# LOG_REF: 2026-05-09 18:46:53
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+# LOG_REF: 2026-05-17 15:43:57
 #
 
 extends CanvasLayer
@@ -20992,6 +21426,9 @@ const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
 const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
 const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+const AUTHORED_SECTOR_COLOR = Color(0.3, 0.8, 1.0, 1.0)
+const AUTHORED_ROUTE_COLOR = Color(0.5, 0.8, 0.5, 0.6)
+const DISCOVERED_SECTOR_FALLBACK_COLOR = Color(0.95, 0.72, 0.34, 1.0)
 
 # --- Node references ---
 onready var _panel = $Panel
@@ -21229,28 +21666,26 @@ func _clear_map():
 func _create_sector_markers():
 	for sector_id in TemplateDatabase.locations:
 		var template = TemplateDatabase.locations[sector_id]
-		if not template or not ("global_position" in template):
+		var global_position: Vector3 = _get_template_global_position(template)
+		if template == null or global_position == null:
 			continue
-		var pos: Vector3 = _to_map_space_position(template.global_position)
+		var pos: Vector3 = _to_map_space_position(global_position)
+		var marker_color: Color = _get_sector_marker_color(sector_id, template)
+		var label_color: Color = _get_sector_label_color(sector_id, template)
+		var marker_radius: float = _get_sector_marker_radius(sector_id, template)
 
 		# Sector marker sphere
 		var mesh_instance = MeshInstance.new()
 		var sphere = SphereMesh.new()
-		sphere.radius = 2000.0
-		sphere.height = 4000.0
+		sphere.radius = marker_radius
+		sphere.height = marker_radius * 2.0
 		sphere.radial_segments = 12
 		sphere.rings = 6
 		mesh_instance.mesh = sphere
 
 		var mat = SpatialMaterial.new()
 		mat.flags_unshaded = true
-		# Color by current sector highlight
-		if sector_id == GameState.current_sector_id:
-			mat.albedo_color = Color(1.0, 1.0, 0.2, 1.0)  # yellow for current
-			sphere.radius = 3000.0
-			sphere.height = 6000.0
-		else:
-			mat.albedo_color = Color(0.3, 0.8, 1.0, 1.0)  # cyan for others
+		mat.albedo_color = marker_color
 		mesh_instance.material_override = mat
 
 		mesh_instance.transform.origin = pos
@@ -21260,12 +21695,9 @@ func _create_sector_markers():
 		# Create label in overlay
 		var label = Label.new()
 		_configure_sector_label(label)
-		var loc_name = template.location_name if "location_name" in template else sector_id
+		var loc_name: String = _get_template_location_name(template, sector_id)
 		label.text = loc_name
-		if sector_id == GameState.current_sector_id:
-			label.add_color_override("font_color", Color(1, 1, 0.2, 1.0))
-		else:
-			label.add_color_override("font_color", Color(1, 1, 1, 0.9))
+		label.add_color_override("font_color", label_color)
 		label.add_constant_override("shadow_offset_x", 1)
 		label.add_constant_override("shadow_offset_y", 1)
 		label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
@@ -21315,6 +21747,9 @@ func _refresh_sector_label_texts():
 
 func _build_sector_label_text(sector_id: String, data: Dictionary) -> String:
 	var name_text = data.get("base_name", sector_id)
+	var template = TemplateDatabase.locations.get(sector_id)
+	if _is_discovered_sector(sector_id, template):
+		name_text = "DISC %s" % name_text
 	if sector_id == GameState.current_sector_id:
 		name_text = ">> %s <<" % name_text
 	if not _show_sector_coordinates:
@@ -21353,7 +21788,7 @@ func _create_connection_lines():
 			var to_pos = _get_sector_position(target_id)
 			if from_pos == null or to_pos == null:
 				continue
-			ig.set_color(Color(0.5, 0.8, 0.5, 0.6))
+			ig.set_color(_get_connection_line_color(sector_id, target_id))
 			ig.add_vertex(from_pos)
 			ig.add_vertex(to_pos)
 	ig.end()
@@ -21495,11 +21930,94 @@ func _create_projected_overlay_label(node_name: String, text: String, pos_3d: Ve
 	})
 
 
+func _get_template_value(template, key: String, default_value = null):
+	if template == null:
+		return default_value
+	if template is Dictionary:
+		return template.get(key, default_value)
+	var value = template.get(key)
+	return value if value != null else default_value
+
+
+func _get_template_global_position(template):
+	var global_position = _get_template_value(template, "global_position", null)
+	return global_position if global_position is Vector3 else null
+
+
+func _get_template_location_name(template, fallback_sector_id: String) -> String:
+	var location_name = _get_template_value(template, "location_name", fallback_sector_id)
+	return str(location_name) if str(location_name) != "" else fallback_sector_id
+
+
+func _is_discovered_sector(sector_id: String, template = null) -> bool:
+	var resolved_template = template if template != null else TemplateDatabase.locations.get(sector_id)
+	var hints = _get_template_value(resolved_template, "procedural_hints", {})
+	if hints is Dictionary and bool(hints.get("low_visibility", false)):
+		return true
+	return sector_id.begins_with("discovered_")
+
+
+func _get_discovery_sector_color(sector_id: String, template = null) -> Color:
+	var resolved_template = template if template != null else TemplateDatabase.locations.get(sector_id)
+	var procedural_type: String = str(_get_template_value(resolved_template, "procedural_type", "deep_space"))
+	match procedural_type:
+		"asteroid_field":
+			return Color(0.95, 0.72, 0.34, 1.0)
+		"comet_shoal":
+			return Color(0.66, 0.9, 1.0, 1.0)
+		"rogue_planet":
+			return Color(0.62, 0.72, 0.86, 1.0)
+		"dark_nebula":
+			return Color(0.44, 0.74, 0.69, 1.0)
+		"remnant_field":
+			return Color(0.82, 0.62, 0.54, 1.0)
+		_:
+			return DISCOVERED_SECTOR_FALLBACK_COLOR
+
+
+func _get_sector_marker_color(sector_id: String, template = null) -> Color:
+	if sector_id == GameState.current_sector_id:
+		return Color(1.0, 1.0, 0.2, 1.0)
+	if _is_discovered_sector(sector_id, template):
+		return _get_discovery_sector_color(sector_id, template)
+	return AUTHORED_SECTOR_COLOR
+
+
+func _get_sector_label_color(sector_id: String, template = null) -> Color:
+	if sector_id == GameState.current_sector_id:
+		return Color(1, 1, 0.2, 1.0)
+	if _is_discovered_sector(sector_id, template):
+		var discovery_color: Color = _get_discovery_sector_color(sector_id, template)
+		return Color(discovery_color.r, discovery_color.g, discovery_color.b, 0.96)
+	return Color(1, 1, 1, 0.9)
+
+
+func _get_sector_marker_radius(sector_id: String, template = null) -> float:
+	if sector_id == GameState.current_sector_id:
+		return 3000.0
+	if _is_discovered_sector(sector_id, template):
+		return 2400.0
+	return 2000.0
+
+
+func _get_connection_line_color(source_sector_id: String, target_sector_id: String) -> Color:
+	var source_template = TemplateDatabase.locations.get(source_sector_id)
+	var target_template = TemplateDatabase.locations.get(target_sector_id)
+	if _is_discovered_sector(source_sector_id, source_template):
+		var source_color: Color = _get_discovery_sector_color(source_sector_id, source_template)
+		return Color(source_color.r, source_color.g, source_color.b, 0.78)
+	if _is_discovered_sector(target_sector_id, target_template):
+		var target_color: Color = _get_discovery_sector_color(target_sector_id, target_template)
+		return Color(target_color.r, target_color.g, target_color.b, 0.78)
+	return AUTHORED_ROUTE_COLOR
+
+
 func _get_sector_position(sector_id: String):
 	if TemplateDatabase.locations.has(sector_id):
 		var template = TemplateDatabase.locations[sector_id]
-		if "global_position" in template:
-			return _to_map_space_position(template.global_position)
+		var global_position: Vector3 = _get_template_global_position(template)
+		if global_position != null:
+			return _to_map_space_position(global_position)
 	return null
 
 
@@ -21601,8 +22119,9 @@ func _get_current_sector_world_anchor() -> Vector3:
 	var current_sector_id: String = GameState.current_sector_id
 	if current_sector_id != "" and TemplateDatabase.locations.has(current_sector_id):
 		var template = TemplateDatabase.locations[current_sector_id]
-		if template and ("global_position" in template):
-			return template.global_position
+		var global_position: Vector3 = _get_template_global_position(template)
+		if global_position != null:
+			return global_position
 	return Vector3.ZERO
 
 
@@ -21839,7 +22358,7 @@ func get_parent_control() -> Control:
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-16 01:02:19
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends Control
@@ -21913,6 +22432,8 @@ var _dock_location_id: String = ""  # Currently available dock location
 var _jump_target_id: String = ""  # Currently available jump route target
 var _route_target_provider: Reference = RouteTargetProviderScript.new()
 var _route_target_buttons: Dictionary = {}
+var _route_target_overlay_sector_id: String = ""
+var _route_target_overlay_signature: String = ""
 var _world_target_buttons: Dictionary = {}
 var _tracked_inflight_drag_controls: Array = []
 var _tracked_inflight_drag_filters: Dictionary = {}
@@ -22123,6 +22644,7 @@ func _refresh_time_display() -> void:
 func _on_sim_tick_completed(_tick_count: int = 0) -> void:
 	_refresh_time_display()
 	_refresh_player_resources()
+	_sync_route_target_overlay_with_topology()
 
 
 func _on_game_time_advanced(_seconds_added: int = 0) -> void:
@@ -22825,6 +23347,8 @@ func _clear_route_target_overlay() -> void:
 			_untrack_inflight_drag_control(button)
 			button.queue_free()
 	_route_target_buttons.clear()
+	_route_target_overlay_sector_id = ""
+	_route_target_overlay_signature = ""
 	_refresh_process_state()
 
 
@@ -22850,6 +23374,8 @@ func _rebuild_route_target_overlay() -> void:
 	var current_sector_id: String = GameState.current_sector_id
 	if current_sector_id == "":
 		return
+	_route_target_overlay_sector_id = current_sector_id
+	_route_target_overlay_signature = _get_route_target_overlay_signature(current_sector_id)
 	var route_targets: Array = _route_target_provider.build_targets_for_sector(current_sector_id)
 	for route_target in route_targets:
 		var button = _instance_projected_target_bracket()
@@ -22863,6 +23389,24 @@ func _rebuild_route_target_overlay() -> void:
 		_route_target_buttons[route_target.selection_key] = button
 	_update_route_target_selection_state()
 	_refresh_process_state()
+
+
+func _sync_route_target_overlay_with_topology() -> void:
+	var current_sector_id: String = GameState.current_sector_id
+	var route_signature: String = _get_route_target_overlay_signature(current_sector_id)
+	if current_sector_id != _route_target_overlay_sector_id or route_signature != _route_target_overlay_signature:
+		_rebuild_route_target_overlay()
+
+
+func _get_route_target_overlay_signature(sector_id: String) -> String:
+	if sector_id == "":
+		return ""
+	var connections: Array = GameState.world_topology.get(sector_id, {}).get("connections", [])
+	var normalized_connections: Array = []
+	for target_sector_id in connections:
+		normalized_connections.append(str(target_sector_id))
+	normalized_connections.sort()
+	return "%s|%s" % [sector_id, str(normalized_connections)]
 
 
 func _rebuild_world_target_overlay() -> void:
@@ -23738,8 +24282,8 @@ func _color_world_age(age: String) -> String:
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_12
-# LOG_REF: 2026-05-09 18:40:25
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+# LOG_REF: 2026-05-17 15:43:57
 #
 
 extends CanvasLayer
@@ -23846,6 +24390,7 @@ func _on_run_batch(tick_count: int) -> void:
 	var engine = GlobalRefs.simulation_engine
 	if not engine.has_method("run_batch_and_report"):
 		return
+	var discovery_start_index: int = GameState.discovery_log.size()
 
 	# Determine epoch size based on tick count
 	var epoch_size: int = 1
@@ -23855,6 +24400,7 @@ func _on_run_batch(tick_count: int) -> void:
 		epoch_size = 10
 
 	var report: String = engine.run_batch_and_report(tick_count, epoch_size)
+	report = _append_batch_discovery_summary(report, discovery_start_index)
 
 	# Also dump to console for LLM agent consumption
 	print("\n" + report + "\n")
@@ -23922,12 +24468,17 @@ func _refresh() -> void:
 			var topo: Dictionary = GameState.world_topology[sector_id]
 			var haz: Dictionary = GameState.world_hazards.get(sector_id, {})
 			var sector_name: String = GameState.sector_names.get(sector_id, sector_id)
-			var sector_hdr: String = "  [%s] %s" % [sector_id, sector_name if sector_name != sector_id else ""]
-			bb += _bbcolor(sector_hdr.strip_edges(), "white")
-			var line1: String = "  type=%s  conn=%s  env=%s" % [
+			var template = TemplateDatabase.locations.get(sector_id)
+			var is_discovered: bool = _is_discovered_sector(sector_id, template)
+			var procedural_type: String = _get_procedural_type(template)
+			var sector_prefix: String = "[DISC] " if is_discovered else ""
+			var sector_hdr: String = "  [%s] %s%s" % [sector_id, sector_prefix, sector_name if sector_name != sector_id else ""]
+			bb += _bbcolor(sector_hdr.strip_edges(), "aqua" if is_discovered else "white")
+			var line1: String = "  type=%s  conn=%s  env=%s%s" % [
 				str(topo.get("sector_type", "?")),
 				str(topo.get("connections", [])),
-				str(haz.get("environment", "?"))
+				str(haz.get("environment", "?")),
+				"  proc=%s" % procedural_type if is_discovered else ""
 			]
 			bb += line1 + "\n"
 			pt += sector_hdr.strip_edges() + line1 + "\n"
@@ -23969,6 +24520,15 @@ func _refresh() -> void:
 			GameState.discovered_sector_count, Constants.MAX_SECTOR_COUNT]
 		bb += disc_line + "\n"
 		pt += disc_line + "\n"
+		var recent_discoveries: Array = _get_recent_discoveries(5)
+		if not recent_discoveries.empty():
+			var discovery_header: String = "  Recent discoveries:"
+			bb += _bbcolor(discovery_header, "aqua") + "\n"
+			pt += discovery_header + "\n"
+			for discovery in recent_discoveries:
+				var discovery_line: String = "    NEW SECTOR DISCOVERED: %s" % _format_discovery_entry(discovery)
+				bb += _bbcolor(discovery_line, "aqua") + "\n"
+				pt += discovery_line + "\n"
 
 	# --- Agent Layer ---
 	bb += _section_header("AGENT LAYER")
@@ -24134,6 +24694,8 @@ func _plain_to_bbcode(text: String) -> String:
 			bb += _bbcolor(s, "lime") + "\n"
 		elif s.find("NEW SECTOR DISCOVERED") != -1:
 			bb += _bbcolor(s, "aqua") + "\n"
+		elif s.find("DISCOVERY SUMMARY") != -1:
+			bb += _bbcolor(s, "aqua") + "\n"
 		elif s.find("Combat:") != -1:
 			bb += _bbcolor(s, "orange") + "\n"
 		elif s.find("Commerce:") != -1:
@@ -24145,6 +24707,58 @@ func _plain_to_bbcode(text: String) -> String:
 		else:
 			bb += s + "\n"
 	return bb
+
+
+func _append_batch_discovery_summary(report: String, discovery_start_index: int) -> String:
+	if discovery_start_index >= GameState.discovery_log.size():
+		return report
+	var appended: String = "\n\n================================================================\nDISCOVERY SUMMARY\n================================================================\n"
+	for idx in range(discovery_start_index, GameState.discovery_log.size()):
+		appended += "  NEW SECTOR DISCOVERED: %s\n" % _format_discovery_entry(GameState.discovery_log[idx])
+	return report + appended
+
+
+func _get_recent_discoveries(limit: int) -> Array:
+	if GameState.discovery_log.empty():
+		return []
+	var start_index: int = max(0, GameState.discovery_log.size() - limit)
+	var recent: Array = []
+	for idx in range(start_index, GameState.discovery_log.size()):
+		recent.append(GameState.discovery_log[idx])
+	return recent
+
+
+func _format_discovery_entry(discovery: Dictionary) -> String:
+	var sector_id: String = str(discovery.get("new_sector", "?"))
+	var sector_name: String = str(discovery.get("name", sector_id))
+	var from_sector: String = str(discovery.get("from", "?"))
+	var procedural_type: String = str(discovery.get("procedural_type", "deep_space"))
+	var connections: Array = discovery.get("connections", [])
+	return "T%d %s [%s] from %s type=%s conn=%s" % [
+		int(discovery.get("tick", 0)),
+		sector_name,
+		sector_id,
+		from_sector,
+		procedural_type,
+		str(connections),
+	]
+
+
+func _is_discovered_sector(sector_id: String, template = null) -> bool:
+	var resolved_template = template if template != null else TemplateDatabase.locations.get(sector_id)
+	if sector_id.begins_with("discovered_"):
+		return true
+	if resolved_template == null:
+		return false
+	var hints = resolved_template.get("procedural_hints")
+	return hints is Dictionary and bool(hints.get("low_visibility", false))
+
+
+func _get_procedural_type(template) -> String:
+	if template == null:
+		return ""
+	var procedural_type = template.get("procedural_type")
+	return str(procedural_type) if procedural_type != null else ""
 
 --- Start of ./src/core/ui/station_menu/station_menu.gd ---
 
@@ -24406,7 +25020,7 @@ func _physics_process(delta):
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-17 01:41:07
 #
 
 extends Node
@@ -24436,6 +25050,7 @@ var _queued_jump_selection_token: String = ""
 var _nearest_dock_node: Spatial = null   # Nearest station or jump point in prompt range
 var _nearest_dock_type: String = ""      # "station" or "jump"
 const JUMP_ALIGNMENT_MAX_DEVIATION_DEG: float = 5.0
+const JUMP_ALIGNMENT_FULL_THRUST_SCALE: float = 1.0
 
 # --- Preload States ---
 const StateBase = preload("res://src/modules/piloting/player_input_states/state_base.gd")
@@ -24525,7 +25140,7 @@ func _change_state(new_state_name: String):
 
 func _physics_process(delta: float):
 	if _is_jump_transition_active():
-		_clear_queued_jump()
+		_clear_queued_jump(false)
 		return
 	if _current_input_state and _current_input_state.has_method("physics_update"):
 		_current_input_state.physics_update(delta)
@@ -24915,7 +25530,19 @@ func _queue_jump_alignment(target_sector_id: String, jump_direction: Vector3) ->
 	_queued_jump_target_id = target_sector_id
 	_queued_jump_direction = jump_direction.normalized()
 	_queued_jump_selection_token = _get_jump_target_selection_token(_selected_target)
-	agent_script.command_align_to(_queued_jump_direction)
+	_command_jump_alignment(_queued_jump_direction)
+
+
+func _command_jump_alignment(jump_direction: Vector3) -> void:
+	if jump_direction.length_squared() < 0.001:
+		return
+	var normalized_direction = jump_direction.normalized()
+	agent_script.command_align_to(
+		normalized_direction,
+		true,
+		JUMP_ALIGNMENT_FULL_THRUST_SCALE,
+		true
+	)
 
 
 func _process_queued_jump() -> void:
@@ -24934,7 +25561,7 @@ func _process_queued_jump() -> void:
 		_emit_jump_request(_queued_jump_target_id)
 		return
 	if not _is_jump_alignment_ready(_queued_jump_direction):
-		agent_script.command_align_to(_queued_jump_direction)
+		_command_jump_alignment(_queued_jump_direction)
 		return
 	_emit_jump_request(_queued_jump_target_id)
 
@@ -24950,14 +25577,25 @@ func _is_selected_jump_queue_still_valid() -> bool:
 
 
 func _emit_jump_request(target_sector_id: String) -> void:
-	_clear_queued_jump()
+	_clear_queued_jump(false)
 	EventBus.emit_signal("player_jump_requested", target_sector_id)
 
 
-func _clear_queued_jump() -> void:
+func _clear_queued_jump(cancel_active_jump_alignment: bool = true) -> void:
+	if cancel_active_jump_alignment:
+		_cancel_active_queued_jump_alignment_command()
 	_queued_jump_target_id = ""
 	_queued_jump_direction = Vector3.ZERO
 	_queued_jump_selection_token = ""
+
+
+func _cancel_active_queued_jump_alignment_command() -> void:
+	if _queued_jump_target_id == "":
+		return
+	if not is_instance_valid(agent_script):
+		return
+	if agent_script.has_method("command_idle"):
+		agent_script.command_idle()
 
 
 # --- Signal Handlers ---
@@ -28956,6 +29594,14 @@ func test_throttle_affects_force():
 
 --- Start of ./src/tests/core/agents/components/test_navigation_system.gd ---
 
+#
+# PROJECT: GDTLancer
+# MODULE: test_navigation_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+# LOG_REF: 2026-05-17 01:41:07
+#
+
 extends GutTest
 # Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 
@@ -29124,6 +29770,22 @@ func test_set_command_align_to():
 
 	nav_system.update_navigation(0.1)
 	assert_called(mock_movement_system, "request_rotation_to_pid")
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.IDLE)
+
+
+func test_set_command_align_to_with_forward_thrust():
+	signal_catcher.reset()
+	var direction = Vector3.BACK.normalized()
+	nav_system.set_command_align_to(direction, true, 1.0, true)
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
+	assert_true(nav_system._current_command.apply_forward_thrust)
+	assert_eq(nav_system._current_command.forward_thrust_scale, 1.0)
+	assert_true(nav_system._current_command.persist_until_cleared)
+
+	nav_system.update_navigation(0.1)
+	assert_called(mock_movement_system, "request_rotation_to_pid")
+	assert_called(mock_movement_system, "request_thrust_forward")
+	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
 
 func test_invalid_target_in_update_switches_to_stopping():
@@ -29266,8 +29928,8 @@ func test_derive_sector_tags_fresh_sector():
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends GutTest
@@ -29560,6 +30222,162 @@ func test_harvest_collects_salvage():
 
 
 # =============================================================================
+# === DISCOVERY REGISTRATION ==================================================
+# =============================================================================
+
+func test_try_exploration_registers_runtime_location_template():
+	var explorer: Dictionary = {
+		"wealth_tag": "COMFORTABLE",
+		"last_discovery_tick": -999,
+	}
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	agent_layer._rng.seed = 13
+	agent_layer._try_exploration("explorer", explorer, "s1")
+
+	assert_eq(GameState.discovered_sector_count, 1, "Successful exploration should increment the discovered sector counter.")
+	assert_true(TemplateDatabase.locations.has("discovered_1"), "A discovered sector should register a runtime LocationTemplate.")
+	assert_eq(GameState.discovery_log.size(), 1, "Successful exploration should append one discovery-log entry.")
+
+	var discovered_template = TemplateDatabase.locations["discovered_1"]
+	var source_position: Vector3 = TemplateDatabase.locations["s1"]["global_position"]
+	var handcrafted_neighbor_position: Vector3 = TemplateDatabase.locations["s2"]["global_position"]
+	var discovered_position: Vector3 = discovered_template.global_position
+	var discovered_distance: float = discovered_position.distance_to(source_position)
+	var handcrafted_distance: float = handcrafted_neighbor_position.distance_to(source_position)
+
+	assert_true(discovered_template.is_procedural, "Discovered sectors should register as procedural templates.")
+	assert_eq(discovered_template.template_id, "discovered_1")
+	assert_eq(discovered_template.location_name, GameState.sector_names["discovered_1"])
+	assert_true(
+		discovered_template.procedural_type in ["asteroid_field", "comet_shoal", "rogue_planet", "dark_nebula", "remnant_field"],
+		"Discovered sectors should use one of the low-visibility procedural profiles."
+	)
+	assert_true(discovered_template.procedural_hints.get("low_visibility", false), "Discovered sectors should carry the low-visibility runtime hint.")
+	assert_eq(GameState.discovery_log[0]["from"], "s1", "Discovery log should record the connected source sector.")
+	assert_eq(GameState.discovery_log[0]["global_position"], discovered_position)
+	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
+
+
+func test_filter_spatially_plausible_connections_drops_far_links():
+	TemplateDatabase.locations["near"] = {"global_position": Vector3(52000, 0, 0)}
+	TemplateDatabase.locations["far"] = {"global_position": Vector3(220000, 0, 0)}
+
+	var filtered_connections: Array = agent_layer._filter_spatially_plausible_connections(
+		"s1",
+		["s1", "near", "far"],
+		Vector3(48000, 4000, 0)
+	)
+
+	assert_eq(filtered_connections, ["s1", "near"], "Spatial filtering should keep plausible nearby links and drop distant ones.")
+
+
+func test_resolve_sector_interaction_moves_explorer_after_cooldown_scan_failure():
+	GameState.sim_tick_count = 5
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents["explorer"] = {
+		"agent_role": "explorer",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"last_discovery_tick": 0,
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+	}
+
+	agent_layer._resolve_sector_interaction("explorer", 0.0, GameState.sector_tags["s1"])
+
+	assert_eq(GameState.discovered_sector_count, 0, "Cooldown failures should not create a discovery.")
+	assert_eq(
+		GameState.agents["explorer"]["current_sector_id"],
+		"s2",
+		"Explorers should keep moving after a failed cooldown scan instead of pinning to one frontier sector."
+	)
+
+
+func test_get_exploration_success_modifier_keeps_hub_surveys_diminished():
+	GameState.world_topology["hub_sector"] = {
+		"connections": ["s1"],
+		"sector_type": "hub",
+		"station_ids": ["hub_sector"],
+	}
+	GameState.world_topology["frontier_sector"] = {
+		"connections": ["s1"],
+		"sector_type": "frontier",
+		"station_ids": ["frontier_sector"],
+	}
+	TemplateDatabase.locations["hub_sector"] = {
+		"global_position": Vector3(220000, 0, 0),
+		"location_name": "Core Hub",
+		"sector_type": "hub",
+		"procedural_hints": {},
+	}
+	TemplateDatabase.locations["frontier_sector"] = {
+		"global_position": Vector3(-220000, 0, 0),
+		"location_name": "Outer Rim",
+		"sector_type": "frontier",
+		"procedural_hints": {},
+	}
+
+	var hub_modifier: float = agent_layer._get_exploration_success_modifier(
+		"hub_sector",
+		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"]
+	)
+	var frontier_modifier: float = agent_layer._get_exploration_success_modifier(
+		"frontier_sector",
+		["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	)
+
+	assert_true(hub_modifier > 0.0, "Hub sectors should reduce but not eliminate survey success odds.")
+	assert_true(hub_modifier < frontier_modifier, "Hub survey odds should remain below frontier survey odds.")
+
+
+func test_build_discovered_sector_placement_separates_from_existing_discovery_branch():
+	GameState.world_topology["source"] = {
+		"connections": ["parent", "discovered_existing"],
+		"sector_type": "deep_space",
+		"station_ids": ["source"],
+	}
+	GameState.world_topology["parent"] = {
+		"connections": ["source"],
+		"sector_type": "colony",
+		"station_ids": ["parent"],
+	}
+	GameState.world_topology["discovered_existing"] = {
+		"connections": ["source"],
+		"sector_type": "deep_space",
+		"station_ids": ["discovered_existing"],
+	}
+	TemplateDatabase.locations["source"] = {
+		"global_position": Vector3.ZERO,
+		"is_procedural": true,
+		"procedural_hints": {
+			"branch_axis": Vector3.RIGHT,
+			"branch_mode": "planar",
+		},
+	}
+	TemplateDatabase.locations["parent"] = {
+		"global_position": Vector3(-96000, 0, 0),
+		"is_procedural": false,
+		"procedural_hints": {},
+	}
+	TemplateDatabase.locations["discovered_existing"] = {
+		"global_position": Vector3(96000, 0, 0),
+		"is_procedural": true,
+		"procedural_hints": {
+			"low_visibility": true,
+		},
+	}
+
+	var placement: Dictionary = agent_layer._build_discovered_sector_placement("discovered_2", "source")
+
+	assert_true(bool(placement.get("is_valid", false)), "Sibling discovery branches should find a valid, non-overlapping placement when space exists.")
+	assert_true(
+		float(placement.get("branch_separation_deg", 0.0)) >= Constants.DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG,
+		"Secondary discovery branches should fan away from existing discovered siblings instead of staying nearly parallel."
+	)
+
+
+# =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
 
@@ -29577,6 +30395,19 @@ func _seed_minimal_state() -> void:
 	}
 	GameState.world_hazards = {"s1": {"environment": "MILD"}, "s2": {"environment": "MILD"}}
 	GameState.grid_dominion = {"s1": {"security_tag": "SECURE"}, "s2": {"security_tag": "SECURE"}}
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.locations["s1"] = {
+		"global_position": Vector3.ZERO,
+		"location_name": "Source Sector",
+		"is_procedural": false,
+		"procedural_hints": {},
+	}
+	TemplateDatabase.locations["s2"] = {
+		"global_position": Vector3(180000, 0, 0),
+		"location_name": "Neighbor Sector",
+		"is_procedural": false,
+		"procedural_hints": {},
+	}
 
 
 func _clear_state() -> void:
@@ -29602,6 +30433,7 @@ func _clear_state() -> void:
 	GameState.sim_tick_count = 0
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
+	TemplateDatabase.locations.clear()
 
 --- Start of ./src/tests/core/simulation/test_chronicle_layer.gd ---
 
@@ -31156,7 +31988,7 @@ func test_rebuild_caches_skips_invalid_sector_references():
 ## MODULE: test_docking_logic.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-## LOG_REF: 2026-05-13 16:43:42
+## LOG_REF: 2026-05-17 01:41:07
 ##
 
 extends "res://addons/gut/test.gd"
@@ -31232,6 +32064,7 @@ func test_route_target_selection_always_queues_alignment_before_jump():
 	controller._handle_interact_input()
 	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump interact should always enter the align-before-jump flow first.")
 	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Jump interact should always issue an align command before travelling.")
+	assert_eq(agent.align_options, [[true, 1.0, true]], "Queued jumps should keep the ship actively driving toward the jump point until the transition despawns the scene, even when already aligned.")
 	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Jump interact should retain the queued jump until the post-align validation tick.")
 
 	controller._physics_process(1.0 / 60.0)
@@ -31257,6 +32090,7 @@ func test_route_target_interact_queues_alignment_before_jump():
 
 	assert_signal_not_emitted(EventBus, "player_jump_requested", "Misaligned route jumps should queue alignment before requesting travel.")
 	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Queued route jumps should reuse the live align command with the route direction.")
+	assert_eq(agent.align_options, [[true, 1.0, true]], "Misaligned queued jump alignment should keep applying full forward thrust and heading control until the old scene is torn down.")
 	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Misaligned route jumps should remember the pending sector id until alignment completes.")
 	assert_eq(controller._queued_jump_selection_token, route_target.selection_key, "Queued route jumps should bind to the currently selected route target.")
 
@@ -31334,6 +32168,7 @@ func test_queued_route_jump_clears_on_target_change():
 
 	assert_eq(controller._queued_jump_target_id, "", "Changing targets should cancel any queued jump alignment.")
 	assert_eq(controller._queued_jump_selection_token, "", "Changing targets should clear the queued jump validity token.")
+	assert_eq(agent.idle_calls, 1, "Cancelling a queued jump via target change should clear the persistent jump-approach command.")
 
 
 func test_queued_route_jump_clears_on_stop_override():
@@ -31406,7 +32241,7 @@ func test_jump_interact_ignores_input_while_transition_active():
 
 func _create_player_controller_harness(aligned: bool = true, rotation_stopped: bool = true) -> Dictionary:
 	var agent_script = GDScript.new()
-	agent_script.source_code = "extends RigidBody\nvar align_calls = []\nvar stop_calls = 0\nfunc command_stop():\n\tstop_calls += 1\nfunc command_align_to(direction):\n\talign_calls.append(direction)\nfunc is_player():\n\treturn true\n"
+	agent_script.source_code = "extends RigidBody\nvar align_calls = []\nvar align_options = []\nvar idle_calls = 0\nvar stop_calls = 0\nfunc command_stop():\n\tstop_calls += 1\nfunc command_idle():\n\tidle_calls += 1\nfunc command_align_to(direction, apply_forward_thrust=false, forward_thrust_scale=1.0, persist_until_cleared=false):\n\talign_calls.append(direction)\n\talign_options.append([apply_forward_thrust, forward_thrust_scale, persist_until_cleared])\nfunc is_player():\n\treturn true\n"
 	agent_script.reload()
 
 	var movement_script = GDScript.new()
@@ -31882,9 +32717,18 @@ func test_known_vs_unknown_agents_state():
 
 --- Start of ./src/tests/core/systems/test_route_target_provider.gd ---
 
+##
+## PROJECT: GDTLancer
+## MODULE: test_route_target_provider.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+## LOG_REF: 2026-05-17 15:43:57
+##
+
 extends GutTest
 
 const RouteTargetProviderScript = preload("res://src/core/targeting/route_target_provider.gd")
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 var route_target_provider: Reference = null
 
@@ -31927,17 +32771,37 @@ func test_build_targets_skips_missing_target_templates():
 	var route_targets: Array = route_target_provider.build_targets_for_sector("sector_system_elace")
 	assert_eq(route_targets.size(), 0, "Missing target templates should not create logical route targets.")
 
+
+func test_build_targets_for_runtime_discovered_sector_uses_registered_template():
+	var discovered_template = LocationTemplateScript.new()
+	discovered_template.template_id = "discovered_1"
+	discovered_template.location_name = "Amber Gate"
+	discovered_template.global_position = Vector3(48000, 0, 0)
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["sector_system_elace"] = {"connections": ["discovered_1"]}
+
+	var route_targets: Array = route_target_provider.build_targets_for_sector("sector_system_elace")
+	assert_eq(route_targets.size(), 1, "Runtime-discovered sectors should still create logical jump-route targets.")
+	var route_target = route_targets[0]
+	assert_eq(route_target.target_sector_id, "discovered_1")
+	assert_eq(route_target.display_name, "Amber Gate")
+	assert_eq(route_target.route_direction, Vector3(1, 0, 0))
+
 --- Start of ./src/tests/core/systems/test_sector_loader.gd ---
 
 #
 # PROJECT: GDTLancer
 # MODULE: test_sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-16 22:38:42
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+# LOG_REF: 2026-05-17 15:43:57
 #
 
 extends GutTest
+
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 ## Unit tests for SectorLoader: sector loading, JumpPoint injection, nebula offset.
 
@@ -32038,6 +32902,24 @@ func test_load_sector_with_invalid_scene_path_uses_procedural_fallback():
 	zone.free()
 
 
+func test_load_runtime_discovered_sector_uses_procedural_fallback_and_jump_routes():
+	_seed_discovered_sector()
+	var zone = sector_loader.load_sector("discovered_1")
+	assert_not_null(zone, "Runtime-discovered sectors should load through the generic procedural fallback.")
+	assert_not_null(zone.find_node("AgentContainer", true, false), "Discovered fallback sectors should still contain an AgentContainer.")
+	assert_not_null(zone.find_node("StarsphereSlot", true, false), "Discovered fallback sectors should still contain a StarsphereSlot.")
+	add_child_autoqfree(zone)
+
+	var jump_points: Array = []
+	for child in zone.get_children():
+		if child.is_in_group("jump_point"):
+			jump_points.append(child)
+
+	assert_eq(jump_points.size(), 1, "Discovered fallback sectors should inject jump points for their registered connections.")
+	assert_eq(jump_points[0].target_sector_id, "sector_system_elace")
+	assert_eq(jump_points[0].target_sector_name, "Elace System")
+
+
 #func test_nebula_offset_differs_between_sectors():
 #	var zone_alpha = sector_loader.load_sector("sector_system_elace")
 	# Error, returns Null for sector_system_lywin
@@ -32091,6 +32973,22 @@ func _seed_world_topology() -> void:
 			"connections": ["sector_system_elace"],
 		},
 	}
+
+
+func _seed_discovered_sector() -> void:
+	var discovered_template = LocationTemplateScript.new()
+	discovered_template.template_id = "discovered_1"
+	discovered_template.location_name = "Amber Gate"
+	discovered_template.location_type = "asteroid_field"
+	discovered_template.global_position = Vector3(48000, 2000, 0)
+	discovered_template.sector_scene_path = ""
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["discovered_1"] = {
+		"connections": ["sector_system_elace"],
+	}
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]
 
 --- Start of ./src/tests/core/systems/test_time_system.gd ---
 
@@ -32266,11 +33164,13 @@ func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-## LOG_REF: 2026-05-14 01:14:26
+## TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+## LOG_REF: 2026-05-17 15:43:57
 ##
 
 extends "res://addons/gut/test.gd"
+
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.tscn")
 var _panel_instance = null
@@ -32376,7 +33276,7 @@ func test_opening_panel_uses_isolated_viewport_world_and_cleans_up_backdrop():
 		"Opening the panel should create a dedicated nebula backdrop inside the map viewport."
 	)
 	var star_elace = _panel_instance._map_nebula_holder.get_node_or_null(
-		"Globalnebulas/SectorStars (clipped by near plane which is 10u)/Star Elace"
+		"Globalnebulas/SectorStars (clipped by near plane which is 10u)/Star Elace Sprite"
 	)
 	assert_not_null(star_elace, "The dedicated map backdrop should include the sector-star anchors.")
 	_close_panel_if_open()
@@ -32506,6 +33406,61 @@ func test_sector_labels_use_wrapped_large_font_box():
 	if _panel_instance._sector_label_font:
 		assert_eq(_panel_instance._sector_label_font.size, _panel_instance.SECTOR_LABEL_FONT_SIZE)
 
+
+func test_discovered_sector_marker_uses_distinct_color_and_label_prefix():
+	_seed_discovered_sector()
+	_panel_instance._populate_map()
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	var marker = map_content.get_node_or_null("Sector_discovered_1")
+	assert_not_null(marker, "Discovered sectors should create a map marker once their runtime template is registered.")
+	var material = marker.material_override as SpatialMaterial
+	assert_eq(
+		material.albedo_color,
+		_panel_instance._get_sector_marker_color("discovered_1", TemplateDatabase.locations["discovered_1"]),
+		"Discovered markers should use their discovery-specific color instead of the authored-sector cyan."
+	)
+	var label = _panel_instance._sector_labels["discovered_1"]["label"]
+	assert_true(label.text.find("DISC ") != -1, "Discovered sector labels should carry an explicit discovery prefix.")
+
+
+func test_sim_tick_refresh_adds_discovered_sector_marker_when_panel_visible():
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+	_seed_discovered_sector()
+	_panel_instance._on_sim_tick_completed(1)
+	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
+	assert_not_null(
+		map_content.get_node_or_null("Sector_discovered_1"),
+		"Visible debug map panels should repopulate and show newly discovered runtime sectors on sim-tick refresh."
+	)
+	assert_ne(
+		_panel_instance._get_connection_line_color("sector_system_elace", "discovered_1"),
+		_panel_instance._get_connection_line_color("sector_system_elace", "sector_system_cob"),
+		"Discovered routes should use a distinct line color from authored handcrafted links."
+	)
+
+
+func _seed_discovered_sector():
+	var discovered_template = LocationTemplateScript.new()
+	discovered_template.template_id = "discovered_1"
+	discovered_template.location_name = "Amber Gate"
+	discovered_template.location_type = "asteroid_field"
+	discovered_template.global_position = Vector3(48000, 4000, 0)
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	discovered_template.procedural_hints = {
+		"low_visibility": true,
+		"discovered_from": "sector_system_elace",
+	}
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["discovered_1"] = {
+		"connections": ["sector_system_elace"],
+		"station_ids": ["discovered_1"],
+		"sector_type": "deep_space",
+	}
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_gamma", "discovered_1"]
+	GameState.sector_names["discovered_1"] = "Amber Gate"
+
 --- Start of ./src/tests/core/ui/test_debug_window.gd ---
 
 ##
@@ -32629,7 +33584,7 @@ func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
 # MODULE: test_main_hud_projected_targeting.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends "res://addons/gut/test.gd"
@@ -32638,6 +33593,7 @@ var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
 var ProjectedTargetBracketScene = load("res://scenes/ui/hud/projected_target_bracket.tscn")
 var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+var LocationTemplateScript = load("res://database/definitions/location_template.gd")
 var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
 var NavigationSystemScript = load("res://src/core/agents/components/navigation_system.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
@@ -32652,6 +33608,83 @@ func after_each():
 	GlobalRefs.main_camera = null
 	GlobalRefs.current_zone = null
 	GameState.player_character_uid = ""
+	GameState.reset_state()
+	TemplateDatabase.locations.clear()
+
+
+func test_main_hud_rebuilds_route_overlay_when_sim_tick_adds_current_sector_discovery() -> void:
+	GameState.current_sector_id = "sector_system_elace"
+	GameState.world_topology = {
+		"sector_system_elace": {
+			"connections": ["sector_system_cob"],
+			"station_ids": ["sector_system_elace"],
+			"sector_type": "colony",
+		},
+		"sector_system_cob": {
+			"connections": ["sector_system_elace"],
+			"station_ids": ["sector_system_cob"],
+			"sector_type": "colony",
+		},
+	}
+	TemplateDatabase.locations["sector_system_elace"] = _make_location_template(
+		"sector_system_elace",
+		"Elace System",
+		Vector3.ZERO
+	)
+	TemplateDatabase.locations["sector_system_cob"] = _make_location_template(
+		"sector_system_cob",
+		"Cob System",
+		Vector3(180000, 0, 0)
+	)
+
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	assert_true(
+		hud._route_target_buttons.has("jump_route:sector_system_elace:sector_system_cob"),
+		"Initial route overlays should include the authored connected sector."
+	)
+	assert_false(
+		hud._route_target_buttons.has("jump_route:sector_system_elace:discovered_1"),
+		"Discovered routes should not exist before the topology mutation is applied."
+	)
+
+	var discovered_template = _make_location_template(
+		"discovered_1",
+		"Amber Gate",
+		Vector3(96000, 12000, 42000)
+	)
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	discovered_template.procedural_hints = {
+		"low_visibility": true,
+		"discovered_from": "sector_system_elace",
+	}
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["discovered_1"] = {
+		"connections": ["sector_system_elace"],
+		"station_ids": ["discovered_1"],
+		"sector_type": "deep_space",
+	}
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "discovered_1"]
+
+	hud._on_sim_tick_completed(1)
+
+	assert_true(
+		hud._route_target_buttons.has("jump_route:sector_system_elace:discovered_1"),
+		"Sim tick refresh should rebuild jump-route overlays when a new route is added to the current sector."
+	)
+	assert_eq(hud._route_target_buttons.size(), 2, "Current-sector discoveries should add a second jump-route overlay without requiring sector travel.")
+	assert_eq(
+		hud._route_target_buttons["jump_route:sector_system_elace:discovered_1"].target_ref.display_name,
+		"Amber Gate",
+		"Rebuilt jump-route overlays should use the discovered sector's runtime display name."
+	)
 
 
 func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_excludes_player_and_jump_points():
@@ -33057,6 +34090,14 @@ func _create_projected_target_bracket() -> Button:
 	bracket.rect_size = Vector2(150, 150)
 	add_child_autofree(bracket)
 	return bracket
+
+
+func _make_location_template(template_id: String, location_name: String, global_position: Vector3):
+	var template = LocationTemplateScript.new()
+	template.template_id = template_id
+	template.location_name = location_name
+	template.global_position = global_position
+	return template
 
 
 func _create_mock_camera() -> Node:

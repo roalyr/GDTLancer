@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends GutTest
@@ -296,6 +296,162 @@ func test_harvest_collects_salvage():
 
 
 # =============================================================================
+# === DISCOVERY REGISTRATION ==================================================
+# =============================================================================
+
+func test_try_exploration_registers_runtime_location_template():
+	var explorer: Dictionary = {
+		"wealth_tag": "COMFORTABLE",
+		"last_discovery_tick": -999,
+	}
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	agent_layer._rng.seed = 13
+	agent_layer._try_exploration("explorer", explorer, "s1")
+
+	assert_eq(GameState.discovered_sector_count, 1, "Successful exploration should increment the discovered sector counter.")
+	assert_true(TemplateDatabase.locations.has("discovered_1"), "A discovered sector should register a runtime LocationTemplate.")
+	assert_eq(GameState.discovery_log.size(), 1, "Successful exploration should append one discovery-log entry.")
+
+	var discovered_template = TemplateDatabase.locations["discovered_1"]
+	var source_position: Vector3 = TemplateDatabase.locations["s1"]["global_position"]
+	var handcrafted_neighbor_position: Vector3 = TemplateDatabase.locations["s2"]["global_position"]
+	var discovered_position: Vector3 = discovered_template.global_position
+	var discovered_distance: float = discovered_position.distance_to(source_position)
+	var handcrafted_distance: float = handcrafted_neighbor_position.distance_to(source_position)
+
+	assert_true(discovered_template.is_procedural, "Discovered sectors should register as procedural templates.")
+	assert_eq(discovered_template.template_id, "discovered_1")
+	assert_eq(discovered_template.location_name, GameState.sector_names["discovered_1"])
+	assert_true(
+		discovered_template.procedural_type in ["asteroid_field", "comet_shoal", "rogue_planet", "dark_nebula", "remnant_field"],
+		"Discovered sectors should use one of the low-visibility procedural profiles."
+	)
+	assert_true(discovered_template.procedural_hints.get("low_visibility", false), "Discovered sectors should carry the low-visibility runtime hint.")
+	assert_eq(GameState.discovery_log[0]["from"], "s1", "Discovery log should record the connected source sector.")
+	assert_eq(GameState.discovery_log[0]["global_position"], discovered_position)
+	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
+
+
+func test_filter_spatially_plausible_connections_drops_far_links():
+	TemplateDatabase.locations["near"] = {"global_position": Vector3(52000, 0, 0)}
+	TemplateDatabase.locations["far"] = {"global_position": Vector3(220000, 0, 0)}
+
+	var filtered_connections: Array = agent_layer._filter_spatially_plausible_connections(
+		"s1",
+		["s1", "near", "far"],
+		Vector3(48000, 4000, 0)
+	)
+
+	assert_eq(filtered_connections, ["s1", "near"], "Spatial filtering should keep plausible nearby links and drop distant ones.")
+
+
+func test_resolve_sector_interaction_moves_explorer_after_cooldown_scan_failure():
+	GameState.sim_tick_count = 5
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents["explorer"] = {
+		"agent_role": "explorer",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"last_discovery_tick": 0,
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+	}
+
+	agent_layer._resolve_sector_interaction("explorer", 0.0, GameState.sector_tags["s1"])
+
+	assert_eq(GameState.discovered_sector_count, 0, "Cooldown failures should not create a discovery.")
+	assert_eq(
+		GameState.agents["explorer"]["current_sector_id"],
+		"s2",
+		"Explorers should keep moving after a failed cooldown scan instead of pinning to one frontier sector."
+	)
+
+
+func test_get_exploration_success_modifier_keeps_hub_surveys_diminished():
+	GameState.world_topology["hub_sector"] = {
+		"connections": ["s1"],
+		"sector_type": "hub",
+		"station_ids": ["hub_sector"],
+	}
+	GameState.world_topology["frontier_sector"] = {
+		"connections": ["s1"],
+		"sector_type": "frontier",
+		"station_ids": ["frontier_sector"],
+	}
+	TemplateDatabase.locations["hub_sector"] = {
+		"global_position": Vector3(220000, 0, 0),
+		"location_name": "Core Hub",
+		"sector_type": "hub",
+		"procedural_hints": {},
+	}
+	TemplateDatabase.locations["frontier_sector"] = {
+		"global_position": Vector3(-220000, 0, 0),
+		"location_name": "Outer Rim",
+		"sector_type": "frontier",
+		"procedural_hints": {},
+	}
+
+	var hub_modifier: float = agent_layer._get_exploration_success_modifier(
+		"hub_sector",
+		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"]
+	)
+	var frontier_modifier: float = agent_layer._get_exploration_success_modifier(
+		"frontier_sector",
+		["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	)
+
+	assert_true(hub_modifier > 0.0, "Hub sectors should reduce but not eliminate survey success odds.")
+	assert_true(hub_modifier < frontier_modifier, "Hub survey odds should remain below frontier survey odds.")
+
+
+func test_build_discovered_sector_placement_separates_from_existing_discovery_branch():
+	GameState.world_topology["source"] = {
+		"connections": ["parent", "discovered_existing"],
+		"sector_type": "deep_space",
+		"station_ids": ["source"],
+	}
+	GameState.world_topology["parent"] = {
+		"connections": ["source"],
+		"sector_type": "colony",
+		"station_ids": ["parent"],
+	}
+	GameState.world_topology["discovered_existing"] = {
+		"connections": ["source"],
+		"sector_type": "deep_space",
+		"station_ids": ["discovered_existing"],
+	}
+	TemplateDatabase.locations["source"] = {
+		"global_position": Vector3.ZERO,
+		"is_procedural": true,
+		"procedural_hints": {
+			"branch_axis": Vector3.RIGHT,
+			"branch_mode": "planar",
+		},
+	}
+	TemplateDatabase.locations["parent"] = {
+		"global_position": Vector3(-96000, 0, 0),
+		"is_procedural": false,
+		"procedural_hints": {},
+	}
+	TemplateDatabase.locations["discovered_existing"] = {
+		"global_position": Vector3(96000, 0, 0),
+		"is_procedural": true,
+		"procedural_hints": {
+			"low_visibility": true,
+		},
+	}
+
+	var placement: Dictionary = agent_layer._build_discovered_sector_placement("discovered_2", "source")
+
+	assert_true(bool(placement.get("is_valid", false)), "Sibling discovery branches should find a valid, non-overlapping placement when space exists.")
+	assert_true(
+		float(placement.get("branch_separation_deg", 0.0)) >= Constants.DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG,
+		"Secondary discovery branches should fan away from existing discovered siblings instead of staying nearly parallel."
+	)
+
+
+# =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
 
@@ -313,6 +469,19 @@ func _seed_minimal_state() -> void:
 	}
 	GameState.world_hazards = {"s1": {"environment": "MILD"}, "s2": {"environment": "MILD"}}
 	GameState.grid_dominion = {"s1": {"security_tag": "SECURE"}, "s2": {"security_tag": "SECURE"}}
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.locations["s1"] = {
+		"global_position": Vector3.ZERO,
+		"location_name": "Source Sector",
+		"is_procedural": false,
+		"procedural_hints": {},
+	}
+	TemplateDatabase.locations["s2"] = {
+		"global_position": Vector3(180000, 0, 0),
+		"location_name": "Neighbor Sector",
+		"is_procedural": false,
+		"procedural_hints": {},
+	}
 
 
 func _clear_state() -> void:
@@ -338,3 +507,4 @@ func _clear_state() -> void:
 	GameState.sim_tick_count = 0
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
+	TemplateDatabase.locations.clear()

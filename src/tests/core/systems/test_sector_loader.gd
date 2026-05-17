@@ -2,11 +2,13 @@
 # PROJECT: GDTLancer
 # MODULE: test_sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-16 22:38:42
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+# LOG_REF: 2026-05-17 15:43:57
 #
 
 extends GutTest
+
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 ## Unit tests for SectorLoader: sector loading, JumpPoint injection, nebula offset.
 
@@ -107,6 +109,24 @@ func test_load_sector_with_invalid_scene_path_uses_procedural_fallback():
 	zone.free()
 
 
+func test_load_runtime_discovered_sector_uses_procedural_fallback_and_jump_routes():
+	_seed_discovered_sector()
+	var zone = sector_loader.load_sector("discovered_1")
+	assert_not_null(zone, "Runtime-discovered sectors should load through the generic procedural fallback.")
+	assert_not_null(zone.find_node("AgentContainer", true, false), "Discovered fallback sectors should still contain an AgentContainer.")
+	assert_not_null(zone.find_node("StarsphereSlot", true, false), "Discovered fallback sectors should still contain a StarsphereSlot.")
+	add_child_autoqfree(zone)
+
+	var jump_points: Array = []
+	for child in zone.get_children():
+		if child.is_in_group("jump_point"):
+			jump_points.append(child)
+
+	assert_eq(jump_points.size(), 1, "Discovered fallback sectors should inject jump points for their registered connections.")
+	assert_eq(jump_points[0].target_sector_id, "sector_system_elace")
+	assert_eq(jump_points[0].target_sector_name, "Elace System")
+
+
 #func test_nebula_offset_differs_between_sectors():
 #	var zone_alpha = sector_loader.load_sector("sector_system_elace")
 	# Error, returns Null for sector_system_lywin
@@ -160,3 +180,19 @@ func _seed_world_topology() -> void:
 			"connections": ["sector_system_elace"],
 		},
 	}
+
+
+func _seed_discovered_sector() -> void:
+	var discovered_template = LocationTemplateScript.new()
+	discovered_template.template_id = "discovered_1"
+	discovered_template.location_name = "Amber Gate"
+	discovered_template.location_type = "asteroid_field"
+	discovered_template.global_position = Vector3(48000, 2000, 0)
+	discovered_template.sector_scene_path = ""
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["discovered_1"] = {
+		"connections": ["sector_system_elace"],
+	}
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]

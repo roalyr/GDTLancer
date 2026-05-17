@@ -5,7 +5,7 @@
 
 [resource]
 shader = ExtResource( 2 )
-shader_param/rim_color = Color( 1, 0.952941, 0.262745, 1 )
+shader_param/rim_color = Color( 1, 1, 1, 1 )
 shader_param/overlay_color = Color( 0.752941, 0.443137, 0.333333, 1 )
 shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
 shader_param/fade_color = Color( 1, 1, 1, 1 )

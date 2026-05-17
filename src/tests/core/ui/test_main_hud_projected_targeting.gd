@@ -3,7 +3,7 @@
 # MODULE: test_main_hud_projected_targeting.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-11 00:15:49
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends "res://addons/gut/test.gd"
@@ -12,6 +12,7 @@ var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var MainHUDScript = load("res://src/core/ui/main_hud/main_hud.gd")
 var ProjectedTargetBracketScene = load("res://scenes/ui/hud/projected_target_bracket.tscn")
 var ProjectedTargetBracketScript = load("res://src/core/ui/main_hud/projected_target_bracket.gd")
+var LocationTemplateScript = load("res://database/definitions/location_template.gd")
 var RouteTargetScript = load("res://src/core/targeting/route_target.gd")
 var NavigationSystemScript = load("res://src/core/agents/components/navigation_system.gd")
 var DockableStationScript = load("res://src/scenes/game_world/station/dockable_station.gd")
@@ -26,6 +27,83 @@ func after_each():
 	GlobalRefs.main_camera = null
 	GlobalRefs.current_zone = null
 	GameState.player_character_uid = ""
+	GameState.reset_state()
+	TemplateDatabase.locations.clear()
+
+
+func test_main_hud_rebuilds_route_overlay_when_sim_tick_adds_current_sector_discovery() -> void:
+	GameState.current_sector_id = "sector_system_elace"
+	GameState.world_topology = {
+		"sector_system_elace": {
+			"connections": ["sector_system_cob"],
+			"station_ids": ["sector_system_elace"],
+			"sector_type": "colony",
+		},
+		"sector_system_cob": {
+			"connections": ["sector_system_elace"],
+			"station_ids": ["sector_system_cob"],
+			"sector_type": "colony",
+		},
+	}
+	TemplateDatabase.locations["sector_system_elace"] = _make_location_template(
+		"sector_system_elace",
+		"Elace System",
+		Vector3.ZERO
+	)
+	TemplateDatabase.locations["sector_system_cob"] = _make_location_template(
+		"sector_system_cob",
+		"Cob System",
+		Vector3(180000, 0, 0)
+	)
+
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	assert_true(
+		hud._route_target_buttons.has("jump_route:sector_system_elace:sector_system_cob"),
+		"Initial route overlays should include the authored connected sector."
+	)
+	assert_false(
+		hud._route_target_buttons.has("jump_route:sector_system_elace:discovered_1"),
+		"Discovered routes should not exist before the topology mutation is applied."
+	)
+
+	var discovered_template = _make_location_template(
+		"discovered_1",
+		"Amber Gate",
+		Vector3(96000, 12000, 42000)
+	)
+	discovered_template.is_procedural = true
+	discovered_template.procedural_type = "asteroid_field"
+	discovered_template.procedural_hints = {
+		"low_visibility": true,
+		"discovered_from": "sector_system_elace",
+	}
+	TemplateDatabase.locations["discovered_1"] = discovered_template
+	GameState.world_topology["discovered_1"] = {
+		"connections": ["sector_system_elace"],
+		"station_ids": ["discovered_1"],
+		"sector_type": "deep_space",
+	}
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "discovered_1"]
+
+	hud._on_sim_tick_completed(1)
+
+	assert_true(
+		hud._route_target_buttons.has("jump_route:sector_system_elace:discovered_1"),
+		"Sim tick refresh should rebuild jump-route overlays when a new route is added to the current sector."
+	)
+	assert_eq(hud._route_target_buttons.size(), 2, "Current-sector discoveries should add a second jump-route overlay without requiring sector travel.")
+	assert_eq(
+		hud._route_target_buttons["jump_route:sector_system_elace:discovered_1"].target_ref.display_name,
+		"Amber Gate",
+		"Rebuilt jump-route overlays should use the discovered sector's runtime display name."
+	)
 
 
 func test_collect_world_projected_targets_includes_scene_objects_and_npcs_but_excludes_player_and_jump_points():
@@ -431,6 +509,14 @@ func _create_projected_target_bracket() -> Button:
 	bracket.rect_size = Vector2(150, 150)
 	add_child_autofree(bracket)
 	return bracket
+
+
+func _make_location_template(template_id: String, location_name: String, global_position: Vector3):
+	var template = LocationTemplateScript.new()
+	template.template_id = template_id
+	template.location_name = location_name
+	template.global_position = global_position
+	return template
 
 
 func _create_mock_camera() -> Node:

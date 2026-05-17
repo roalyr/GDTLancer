@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_12
-# LOG_REF: 2026-05-09 18:40:25
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
+# LOG_REF: 2026-05-17 15:43:57
 #
 
 extends CanvasLayer
@@ -110,6 +110,7 @@ func _on_run_batch(tick_count: int) -> void:
 	var engine = GlobalRefs.simulation_engine
 	if not engine.has_method("run_batch_and_report"):
 		return
+	var discovery_start_index: int = GameState.discovery_log.size()
 
 	# Determine epoch size based on tick count
 	var epoch_size: int = 1
@@ -119,6 +120,7 @@ func _on_run_batch(tick_count: int) -> void:
 		epoch_size = 10
 
 	var report: String = engine.run_batch_and_report(tick_count, epoch_size)
+	report = _append_batch_discovery_summary(report, discovery_start_index)
 
 	# Also dump to console for LLM agent consumption
 	print("\n" + report + "\n")
@@ -186,12 +188,17 @@ func _refresh() -> void:
 			var topo: Dictionary = GameState.world_topology[sector_id]
 			var haz: Dictionary = GameState.world_hazards.get(sector_id, {})
 			var sector_name: String = GameState.sector_names.get(sector_id, sector_id)
-			var sector_hdr: String = "  [%s] %s" % [sector_id, sector_name if sector_name != sector_id else ""]
-			bb += _bbcolor(sector_hdr.strip_edges(), "white")
-			var line1: String = "  type=%s  conn=%s  env=%s" % [
+			var template = TemplateDatabase.locations.get(sector_id)
+			var is_discovered: bool = _is_discovered_sector(sector_id, template)
+			var procedural_type: String = _get_procedural_type(template)
+			var sector_prefix: String = "[DISC] " if is_discovered else ""
+			var sector_hdr: String = "  [%s] %s%s" % [sector_id, sector_prefix, sector_name if sector_name != sector_id else ""]
+			bb += _bbcolor(sector_hdr.strip_edges(), "aqua" if is_discovered else "white")
+			var line1: String = "  type=%s  conn=%s  env=%s%s" % [
 				str(topo.get("sector_type", "?")),
 				str(topo.get("connections", [])),
-				str(haz.get("environment", "?"))
+				str(haz.get("environment", "?")),
+				"  proc=%s" % procedural_type if is_discovered else ""
 			]
 			bb += line1 + "\n"
 			pt += sector_hdr.strip_edges() + line1 + "\n"
@@ -233,6 +240,15 @@ func _refresh() -> void:
 			GameState.discovered_sector_count, Constants.MAX_SECTOR_COUNT]
 		bb += disc_line + "\n"
 		pt += disc_line + "\n"
+		var recent_discoveries: Array = _get_recent_discoveries(5)
+		if not recent_discoveries.empty():
+			var discovery_header: String = "  Recent discoveries:"
+			bb += _bbcolor(discovery_header, "aqua") + "\n"
+			pt += discovery_header + "\n"
+			for discovery in recent_discoveries:
+				var discovery_line: String = "    NEW SECTOR DISCOVERED: %s" % _format_discovery_entry(discovery)
+				bb += _bbcolor(discovery_line, "aqua") + "\n"
+				pt += discovery_line + "\n"
 
 	# --- Agent Layer ---
 	bb += _section_header("AGENT LAYER")
@@ -398,6 +414,8 @@ func _plain_to_bbcode(text: String) -> String:
 			bb += _bbcolor(s, "lime") + "\n"
 		elif s.find("NEW SECTOR DISCOVERED") != -1:
 			bb += _bbcolor(s, "aqua") + "\n"
+		elif s.find("DISCOVERY SUMMARY") != -1:
+			bb += _bbcolor(s, "aqua") + "\n"
 		elif s.find("Combat:") != -1:
 			bb += _bbcolor(s, "orange") + "\n"
 		elif s.find("Commerce:") != -1:
@@ -409,3 +427,55 @@ func _plain_to_bbcode(text: String) -> String:
 		else:
 			bb += s + "\n"
 	return bb
+
+
+func _append_batch_discovery_summary(report: String, discovery_start_index: int) -> String:
+	if discovery_start_index >= GameState.discovery_log.size():
+		return report
+	var appended: String = "\n\n================================================================\nDISCOVERY SUMMARY\n================================================================\n"
+	for idx in range(discovery_start_index, GameState.discovery_log.size()):
+		appended += "  NEW SECTOR DISCOVERED: %s\n" % _format_discovery_entry(GameState.discovery_log[idx])
+	return report + appended
+
+
+func _get_recent_discoveries(limit: int) -> Array:
+	if GameState.discovery_log.empty():
+		return []
+	var start_index: int = max(0, GameState.discovery_log.size() - limit)
+	var recent: Array = []
+	for idx in range(start_index, GameState.discovery_log.size()):
+		recent.append(GameState.discovery_log[idx])
+	return recent
+
+
+func _format_discovery_entry(discovery: Dictionary) -> String:
+	var sector_id: String = str(discovery.get("new_sector", "?"))
+	var sector_name: String = str(discovery.get("name", sector_id))
+	var from_sector: String = str(discovery.get("from", "?"))
+	var procedural_type: String = str(discovery.get("procedural_type", "deep_space"))
+	var connections: Array = discovery.get("connections", [])
+	return "T%d %s [%s] from %s type=%s conn=%s" % [
+		int(discovery.get("tick", 0)),
+		sector_name,
+		sector_id,
+		from_sector,
+		procedural_type,
+		str(connections),
+	]
+
+
+func _is_discovered_sector(sector_id: String, template = null) -> bool:
+	var resolved_template = template if template != null else TemplateDatabase.locations.get(sector_id)
+	if sector_id.begins_with("discovered_"):
+		return true
+	if resolved_template == null:
+		return false
+	var hints = resolved_template.get("procedural_hints")
+	return hints is Dictionary and bool(hints.get("low_visibility", false))
+
+
+func _get_procedural_type(template) -> String:
+	if template == null:
+		return ""
+	var procedural_type = template.get("procedural_type")
+	return str(procedural_type) if procedural_type != null else ""

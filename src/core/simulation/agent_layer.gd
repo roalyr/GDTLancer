@@ -2,11 +2,13 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-10 16:13:36
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
+# LOG_REF: 2026-05-17 16:51:08
 #
 
 extends Reference
+
+const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
 
 ## AgentLayer: Qualitative agent layer using affinity-driven tag transitions.
 ##
@@ -25,6 +27,7 @@ var affinity_matrix: Reference = null
 ## Per-tick seeded RNG for determinism.
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _reported_invalid_sectors: Dictionary = {}
+var _last_exploration_outcome: String = ""
 
 ## Name-generation pools for discovered sectors.
 var _FRONTIER_PREFIXES: Array = [
@@ -36,6 +39,38 @@ var _FRONTIER_SUFFIXES: Array = [
 	"Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
 	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
 	"Anchorage", "Waypoint", "Depot",
+]
+var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
+	{
+		"procedural_type": "asteroid_field",
+		"location_type": "asteroid_field",
+		"sector_type": "deep_space",
+		"description": "A sparse asteroid field with faint returns and narrow survey lanes.",
+	},
+	{
+		"procedural_type": "comet_shoal",
+		"location_type": "debris_field",
+		"sector_type": "deep_space",
+		"description": "A loose comet shoal whose volatile traces only surface under deliberate scans.",
+	},
+	{
+		"procedural_type": "rogue_planet",
+		"location_type": "debris_field",
+		"sector_type": "deep_space",
+		"description": "A cold rogue planet drifting in deep dark with almost no ambient signature.",
+	},
+	{
+		"procedural_type": "dark_nebula",
+		"location_type": "debris_field",
+		"sector_type": "hazard_zone",
+		"description": "A dark nebula pocket that hides weak contacts behind dense interference.",
+	},
+	{
+		"procedural_type": "remnant_field",
+		"location_type": "debris_field",
+		"sector_type": "deep_space",
+		"description": "A dim remnant field of cold wreckage and ancient stellar ash.",
+	},
 ]
 
 
@@ -298,9 +333,10 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 	var sector_id: String = agent.get("current_sector_id", "")
 
 	# Explorers prioritise exploration
-	if "FRONTIER" in sector_tags and agent.get("agent_role") == "explorer":
+	if agent.get("agent_role") == "explorer":
 		_try_exploration(agent_id, agent, sector_id)
-		return
+		if _last_exploration_outcome == "discovered":
+			return
 
 	if score >= Constants.ATTACK_THRESHOLD and "HAS_SALVAGE" in sector_tags:
 		_action_harvest(agent_id, agent, sector_id)
@@ -326,7 +362,58 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 		_log_event(agent_id, "flee", sector_id, {"reason": "sector_affinity"})
 		return
 
+	if agent.get("agent_role") == "explorer" and _is_exploration_cooldown_active(agent):
+		_action_move_random(agent_id, agent)
+		return
+
 	_action_move_toward_role_target(agent_id, agent)
+
+
+func _get_sector_type(sector_id: String) -> String:
+	var topology: Dictionary = GameState.world_topology.get(sector_id, {})
+	var topology_sector_type = topology.get("sector_type", null)
+	if topology_sector_type != null and str(topology_sector_type) != "":
+		return str(topology_sector_type)
+
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	var template_sector_type = _get_template_value(sector_template, "sector_type", "")
+	return "" if template_sector_type == null else str(template_sector_type)
+
+
+func _get_exploration_success_modifier(sector_id: String, sector_tags: Array) -> float:
+	var sector_type: String = _get_sector_type(sector_id)
+	var modifier: float = 0.75
+	match sector_type:
+		"hub":
+			modifier = 0.4
+		"colony":
+			modifier = 0.6
+		"outpost":
+			modifier = 0.82
+		"frontier":
+			modifier = 1.0
+		"deep_space", "hazard_zone":
+			modifier = 0.9
+		_:
+			modifier = 0.75
+
+	if _has_frontier_pressure(sector_tags):
+		modifier = min(1.0, modifier + 0.15)
+	return modifier
+
+
+func _has_frontier_pressure(sector_tags: Array) -> bool:
+	return (
+		"HARSH" in sector_tags
+		or "EXTREME" in sector_tags
+		or "LAWLESS" in sector_tags
+		or "CONTESTED" in sector_tags
+	)
+
+
+func _is_exploration_cooldown_active(agent: Dictionary) -> bool:
+	var last_discovery: int = int(agent.get("last_discovery_tick", -999))
+	return GameState.sim_tick_count - last_discovery < Constants.EXPLORATION_COOLDOWN_TICKS
 
 
 # =============================================================================
@@ -473,33 +560,41 @@ func _post_combat_dispersal(agent_id: String, agent: Dictionary) -> void:
 # =============================================================================
 
 func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) -> void:
+	_last_exploration_outcome = "blocked"
+
 	# Cap check
 	if GameState.world_topology.size() >= Constants.MAX_SECTOR_COUNT:
+		_last_exploration_outcome = "cap"
 		_log_event(agent_id, "expedition_failed", sector_id, {})
 		return
 
 	if agent.get("wealth_tag") == "BROKE":
+		_last_exploration_outcome = "broke"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "broke"})
 		return
 
 	# Per-agent cooldown
 	var last_discovery: int = int(agent.get("last_discovery_tick", -999))
 	if GameState.sim_tick_count - last_discovery < Constants.EXPLORATION_COOLDOWN_TICKS:
+		_last_exploration_outcome = "cooldown"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "cooldown"})
 		return
 
 	# Probability gate — diminishing returns
 	var sector_count: int = GameState.world_topology.size()
 	var saturation: float = float(sector_count) / float(Constants.MAX_SECTOR_COUNT)
-	var effective_chance: float = Constants.EXPLORATION_SUCCESS_CHANCE * (1.0 - saturation)
+	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+	var sector_modifier: float = _get_exploration_success_modifier(sector_id, sector_tags)
+	var effective_chance: float = Constants.EXPLORATION_SUCCESS_CHANCE * (1.0 - saturation) * sector_modifier
 	if _rng.randf() > effective_chance:
+		_last_exploration_outcome = "nothing_found"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "nothing_found"})
 		return
 
 	agent["last_discovery_tick"] = GameState.sim_tick_count
-	GameState.discovered_sector_count += 1
-	var new_id: String = "discovered_" + str(GameState.discovered_sector_count)
-	var new_name: String = _generate_sector_name()
+	var next_discovery_count: int = GameState.discovered_sector_count + 1
+	var new_id: String = "discovered_" + str(next_discovery_count)
+	var new_name: String = _generate_sector_name_for_count(next_discovery_count)
 
 	# Determine connections (filament topology)
 	var source_id: String = sector_id
@@ -511,6 +606,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 				fallback_candidates.append(neighbor_id)
 
 		if fallback_candidates.empty():
+			_last_exploration_outcome = "region_saturated"
 			_log_event(agent_id, "expedition_failed", sector_id, {"reason": "region_saturated"})
 			return
 
@@ -535,6 +631,15 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		if loop_candidate != null and not (loop_candidate in connections):
 			connections.append(loop_candidate)
 
+	var profile: Dictionary = _select_discovered_sector_profile(new_id)
+	var placement: Dictionary = _build_discovered_sector_placement(new_id, source_id)
+	if not bool(placement.get("is_valid", true)):
+		_last_exploration_outcome = "spatially_blocked"
+		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "spatially_blocked"})
+		return
+	var global_position: Vector3 = placement.get("global_position", Vector3.ZERO)
+	connections = _filter_spatially_plausible_connections(source_id, connections, global_position)
+
 	# Pick initial tags (frontier bias: harsh, poor, contested)
 	var sec_roll: float = _rng.randf()
 	var security: String = "LAWLESS" if sec_roll < 0.45 else ("CONTESTED" if sec_roll < 0.85 else "SECURE")
@@ -553,7 +658,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 	GameState.world_topology[new_id] = {
 		"connections": Array(connections),
 		"station_ids": [new_id],
-		"sector_type": "frontier",
+		"sector_type": str(profile.get("sector_type", "deep_space")),
 	}
 	for conn_id in connections:
 		var conn_data: Dictionary = GameState.world_topology.get(conn_id, {})
@@ -591,26 +696,288 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 			Constants.ECONOMY_CHANGE_TICKS_MAX
 		)
 	GameState.hostile_infestation_progress[new_id] = 0
+	GameState.discovered_sector_count = next_discovery_count
+	_register_discovered_sector_template(new_id, new_name, connections, global_position, initial_tags, profile, placement)
+	_last_exploration_outcome = "discovered"
 
 	# Record
 	GameState.sector_names[new_id] = new_name
 	GameState.discovery_log.append({
 		"tick": GameState.sim_tick_count,
 		"discoverer": agent_id,
-		"from": sector_id,
+		"from": source_id,
+		"requested_from": sector_id,
 		"new_sector": new_id,
 		"name": new_name,
+		"procedural_type": str(profile.get("procedural_type", "deep_space")),
+		"global_position": global_position,
+		"branch_separation_deg": float(placement.get("branch_separation_deg", 180.0)),
+		"branch_mode": str(placement.get("branch_mode", "planar")),
 	})
-	_log_event(agent_id, "sector_discovered", sector_id, {
+	_log_event(agent_id, "sector_discovered", source_id, {
 		"new_sector": new_id,
 		"name": new_name,
 		"connections": connections,
+		"requested_from": sector_id,
+		"procedural_type": str(profile.get("procedural_type", "deep_space")),
+		"global_position": global_position,
 	})
 
 
+func _select_discovered_sector_profile(new_id: String) -> Dictionary:
+	var profile_rng: RandomNumberGenerator = _make_discovery_rng("profile", new_id)
+	return _LOW_VISIBILITY_DISCOVERY_PROFILES[profile_rng.randi() % _LOW_VISIBILITY_DISCOVERY_PROFILES.size()].duplicate(true)
+
+
+func _build_discovered_sector_placement(new_id: String, source_id: String) -> Dictionary:
+	var placement_rng: RandomNumberGenerator = _make_discovery_rng("placement", new_id)
+	var source_position: Vector3 = _get_sector_global_position(source_id)
+	var branch_mode: String = "vertical" if _should_use_vertical_discovery_branch(source_id, placement_rng) else "planar"
+	var preferred_direction: Vector3 = _get_discovery_base_direction(source_id, placement_rng)
+	var best_candidate: Vector3 = source_position + (preferred_direction * Constants.DISCOVERY_BRANCH_DISTANCE_BASE)
+	var best_axis: Vector3 = preferred_direction
+	var best_clearance: float = -1.0
+	var best_branch_separation: float = 180.0
+	var best_score: float = -INF
+	var required_branch_separation: float = _get_required_discovery_branch_angle(source_id)
+
+	for _attempt in range(Constants.DISCOVERY_BRANCH_POSITION_ATTEMPTS):
+		var distance: float = Constants.DISCOVERY_BRANCH_DISTANCE_BASE + placement_rng.randf_range(
+			-Constants.DISCOVERY_BRANCH_DISTANCE_JITTER,
+			Constants.DISCOVERY_BRANCH_DISTANCE_JITTER
+		)
+		var branch_axis: Vector3 = _build_discovery_branch_axis(source_id, preferred_direction, branch_mode, placement_rng)
+		var candidate: Vector3 = source_position + (branch_axis * distance)
+		candidate.y += placement_rng.randf_range(
+			-Constants.DISCOVERY_PLANAR_VERTICAL_JITTER,
+			Constants.DISCOVERY_PLANAR_VERTICAL_JITTER
+		)
+		if branch_mode == "vertical":
+			var vertical_sign: float = -1.0 if placement_rng.randf() < 0.5 else 1.0
+			candidate.y += vertical_sign * placement_rng.randf_range(
+				Constants.DISCOVERY_VERTICAL_BRANCH_MIN_OFFSET,
+				Constants.DISCOVERY_VERTICAL_BRANCH_MAX_OFFSET
+			)
+
+		var clearance: float = _measure_discovery_clearance(candidate, source_id)
+		var branch_separation_deg: float = _measure_discovery_branch_separation(source_id, candidate)
+		var candidate_score: float = clearance + (branch_separation_deg * Constants.DISCOVERY_BRANCH_ANGLE_SCORE_WEIGHT)
+		if candidate_score > best_score:
+			best_score = candidate_score
+			best_clearance = clearance
+			best_candidate = candidate
+			best_axis = branch_axis
+			best_branch_separation = branch_separation_deg
+		if clearance >= Constants.DISCOVERY_BRANCH_MIN_CLEARANCE and branch_separation_deg >= required_branch_separation:
+			break
+
+	return {
+		"global_position": best_candidate,
+		"branch_axis": best_axis,
+		"branch_separation_deg": best_branch_separation,
+		"branch_mode": branch_mode,
+		"is_valid": best_clearance >= Constants.DISCOVERY_BRANCH_MIN_CLEARANCE and best_branch_separation >= required_branch_separation,
+	}
+
+
+func _build_discovery_branch_axis(source_id: String, preferred_direction: Vector3, branch_mode: String, placement_rng: RandomNumberGenerator) -> Vector3:
+	var planar_direction: Vector3 = Vector3(preferred_direction.x, 0.0, preferred_direction.z)
+	if planar_direction.length_squared() < 0.001:
+		planar_direction = _random_planar_direction(placement_rng)
+	planar_direction = planar_direction.normalized()
+	var jitter_span_deg: float = min(
+		88.0,
+		Constants.DISCOVERY_BRANCH_DIRECTION_JITTER_DEG + (
+			float(_get_discovered_branch_count(source_id)) * Constants.DISCOVERY_BRANCH_JITTER_PER_EXISTING_BRANCH_DEG
+		)
+	)
+	planar_direction = planar_direction.rotated(
+		Vector3.UP,
+		deg2rad(placement_rng.randf_range(
+			-jitter_span_deg,
+			jitter_span_deg
+		))
+	)
+
+	if branch_mode != "vertical":
+		return Vector3(
+			planar_direction.x,
+			preferred_direction.y,
+			planar_direction.z
+		).normalized()
+
+	var vertical_sign: float = -1.0 if placement_rng.randf() < 0.5 else 1.0
+	var branch_axis: Vector3 = (planar_direction * (1.0 - Constants.DISCOVERY_VERTICAL_BRANCH_Y_BIAS)) + (
+		Vector3.UP * vertical_sign * Constants.DISCOVERY_VERTICAL_BRANCH_Y_BIAS
+	)
+	return branch_axis.normalized()
+
+
+func _get_discovery_base_direction(source_id: String, placement_rng: RandomNumberGenerator) -> Vector3:
+	var inherited_axis: Vector3 = _get_inherited_discovery_axis(source_id)
+	var source_position: Vector3 = _get_sector_global_position(source_id)
+	var away_bias: Vector3 = Vector3.ZERO
+	var neighbors: Array = GameState.world_topology.get(source_id, {}).get("connections", [])
+	for neighbor_id in neighbors:
+		var neighbor_position: Vector3 = _get_sector_global_position(neighbor_id)
+		var away_vector: Vector3 = source_position - neighbor_position
+		if away_vector.length_squared() > 0.001:
+			away_bias += away_vector.normalized()
+
+	if inherited_axis.length_squared() > 0.001:
+		away_bias += inherited_axis.normalized() * 1.35
+
+	if away_bias.length_squared() < 0.001:
+		return _random_planar_direction(placement_rng)
+	return away_bias.normalized()
+
+
+func _get_inherited_discovery_axis(source_id: String) -> Vector3:
+	var source_template = TemplateDatabase.locations.get(source_id)
+	var hints = _get_template_value(source_template, "procedural_hints", {})
+	if not (hints is Dictionary):
+		return Vector3.ZERO
+	var branch_axis = hints.get("branch_axis", Vector3.ZERO)
+	if branch_axis is Vector3 and branch_axis.length_squared() > 0.001:
+		return branch_axis
+	return Vector3.ZERO
+
+
+func _should_use_vertical_discovery_branch(source_id: String, placement_rng: RandomNumberGenerator) -> bool:
+	var source_template = TemplateDatabase.locations.get(source_id)
+	if bool(_get_template_value(source_template, "is_procedural", false)):
+		var hints = _get_template_value(source_template, "procedural_hints", {})
+		if hints is Dictionary and str(hints.get("branch_mode", "planar")) == "vertical":
+			return placement_rng.randf() < Constants.DISCOVERY_VERTICAL_BRANCH_CONTINUE_CHANCE
+	return placement_rng.randf() < Constants.DISCOVERY_VERTICAL_BRANCH_CHANCE
+
+
+func _measure_discovery_clearance(candidate_position: Vector3, source_id: String) -> float:
+	var nearest_distance: float = INF
+	for sector_id in TemplateDatabase.locations:
+		if sector_id == source_id:
+			continue
+		var sector_position: Vector3 = _get_sector_global_position(sector_id)
+		var distance: float = candidate_position.distance_to(sector_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+	if nearest_distance == INF:
+		return Constants.DISCOVERY_BRANCH_MIN_CLEARANCE
+	return nearest_distance
+
+
+func _measure_discovery_branch_separation(source_id: String, candidate_position: Vector3) -> float:
+	var source_position: Vector3 = _get_sector_global_position(source_id)
+	var candidate_axis: Vector3 = candidate_position - source_position
+	if candidate_axis.length_squared() < 0.001:
+		return 180.0
+	candidate_axis = candidate_axis.normalized()
+	var min_angle_deg: float = 180.0
+	var neighbors: Array = GameState.world_topology.get(source_id, {}).get("connections", [])
+	for neighbor_id in neighbors:
+		if not _is_discovered_sector_id(str(neighbor_id)):
+			continue
+		var neighbor_axis: Vector3 = _get_sector_global_position(str(neighbor_id)) - source_position
+		if neighbor_axis.length_squared() < 0.001:
+			continue
+		min_angle_deg = min(min_angle_deg, rad2deg(candidate_axis.angle_to(neighbor_axis.normalized())))
+	return min_angle_deg
+
+
+func _get_required_discovery_branch_angle(source_id: String) -> float:
+	return Constants.DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG if _get_discovered_branch_count(source_id) > 0 else 0.0
+
+
+func _get_discovered_branch_count(source_id: String) -> int:
+	var count: int = 0
+	var neighbors: Array = GameState.world_topology.get(source_id, {}).get("connections", [])
+	for neighbor_id in neighbors:
+		if _is_discovered_sector_id(str(neighbor_id)):
+			count += 1
+	return count
+
+
+func _is_discovered_sector_id(sector_id: String) -> bool:
+	if sector_id.begins_with("discovered_"):
+		return true
+	var hints = _get_template_value(TemplateDatabase.locations.get(sector_id), "procedural_hints", {})
+	return hints is Dictionary and bool(hints.get("low_visibility", false))
+
+
+func _filter_spatially_plausible_connections(source_id: String, candidate_connections: Array, global_position: Vector3) -> Array:
+	var filtered_connections: Array = [source_id]
+	for idx in range(1, candidate_connections.size()):
+		var target_id: String = str(candidate_connections[idx])
+		var target_position: Vector3 = _get_sector_global_position(target_id)
+		if global_position.distance_to(target_position) <= Constants.DISCOVERY_MAX_LINK_DISTANCE:
+			filtered_connections.append(target_id)
+	return filtered_connections
+
+
+func _register_discovered_sector_template(
+		new_id: String,
+		new_name: String,
+		connections: Array,
+		global_position: Vector3,
+		initial_tags: Array,
+		profile: Dictionary,
+		placement: Dictionary) -> void:
+	var template = LocationTemplateScript.new()
+	template.template_id = new_id
+	template.location_name = new_name
+	template.location_type = str(profile.get("location_type", "debris_field"))
+	template.sector_scene_path = ""
+	template.global_position = global_position
+	template.is_procedural = true
+	template.procedural_type = str(profile.get("procedural_type", "deep_space"))
+	template.procedural_hints = {
+		"branch_axis": placement.get("branch_axis", Vector3.FORWARD),
+		"branch_mode": placement.get("branch_mode", "planar"),
+		"branch_separation_deg": placement.get("branch_separation_deg", 180.0),
+		"discovered_from": connections[0] if not connections.empty() else "",
+		"low_visibility": true,
+		"source_distance": global_position.distance_to(_get_sector_global_position(connections[0])) if not connections.empty() else 0.0,
+	}
+	template.sector_description = str(profile.get("description", "A dim deep-space contact that demanded a deliberate search."))
+	template.connections = PoolStringArray(connections)
+	template.sector_type = str(profile.get("sector_type", "deep_space"))
+	template.initial_sector_tags = PoolStringArray(initial_tags)
+	TemplateDatabase.locations[new_id] = template
+
+
+func _make_discovery_rng(purpose: String, new_id: String) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(GameState.world_seed) + ":" + purpose + ":" + new_id + ":" + str(GameState.sim_tick_count))
+	return rng
+
+
+func _get_template_value(template, key: String, default_value = null):
+	if template == null:
+		return default_value
+	if template is Dictionary:
+		return template.get(key, default_value)
+	var value = template.get(key)
+	return value if value != null else default_value
+
+
+func _get_sector_global_position(sector_id: String) -> Vector3:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	var global_position = _get_template_value(sector_template, "global_position", null)
+	return global_position if global_position is Vector3 else Vector3.ZERO
+
+
+func _random_planar_direction(placement_rng: RandomNumberGenerator) -> Vector3:
+	var angle: float = placement_rng.randf_range(-PI, PI)
+	return Vector3(cos(angle), 0.0, sin(angle)).normalized()
+
+
 func _generate_sector_name() -> String:
+	return _generate_sector_name_for_count(GameState.discovered_sector_count)
+
+
+func _generate_sector_name_for_count(discovery_count: int) -> String:
 	var name_rng := RandomNumberGenerator.new()
-	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(GameState.discovered_sector_count))
+	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(discovery_count))
 	var prefix: String = _FRONTIER_PREFIXES[name_rng.randi() % _FRONTIER_PREFIXES.size()]
 	var suffix: String = _FRONTIER_SUFFIXES[name_rng.randi() % _FRONTIER_SUFFIXES.size()]
 	return prefix + " " + suffix

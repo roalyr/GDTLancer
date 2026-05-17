@@ -7,17 +7,17 @@ render_mode
 
 uniform vec4 albedo : hint_color = vec4(1.0);
 
-uniform float scale_near : hint_range(0.0, 10.0) = 0.20;
-uniform float scale_peak : hint_range(0.0, 10.0) = 1.20;
-uniform float scale_far : hint_range(0.0, 10.0) = 0.35;
+uniform float scale_near : hint_range(0.0, 10.0) = 10.0;
+uniform float scale_peak : hint_range(0.0, 10.0) = 6.0;
+uniform float scale_far : hint_range(0.0, 10.0) = 0.2;
 
-uniform float peak_distance = 40000.0;
+uniform float peak_distance = 5000.0;
 uniform float fade_ratio : hint_range(1.0, 20.0) = 10.0;
-uniform float distance_power : hint_range(0.1, 8.0) = 2.0;
+uniform float distance_power : hint_range(0.1, 8.0) = 0.4;
 
-uniform float fade_distance_near = 1e5;
-uniform float fade_distance_far = 1e6;
-uniform float fade_power = .4;
+uniform float fade_distance_near : hint_range(0.0, 1e6) = 1e4;
+uniform float fade_distance_far : hint_range(0.0, 1e6) = 1e6;
+uniform float fade_power = 5;
 
 uniform float intensity : hint_range(0.0, 1.0) = 1.0;
 uniform float exponent : hint_range(0.0, 50.0, 0.1) = 3.0;
