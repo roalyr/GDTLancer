@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-17 01:12:04
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 15:37:28
 #
 
 extends GutTest
@@ -17,12 +17,12 @@ var _original_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
 func before_each():
 	_original_mouse_mode = Input.get_mouse_mode()
 	GameState.world_topology = {
-		Constants.INITIAL_SECTOR_ID: {"connections": ["station_beta"]},
-		"station_beta": {"connections": [Constants.INITIAL_SECTOR_ID]},
+		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_system_cob"]},
+		"sector_system_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 	TemplateDatabase.locations = {
 		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300)},
-		"station_beta": {"global_position": Vector3(2200, 50, -300)},
+		"sector_system_cob": {"global_position": Vector3(2200, 50, -300)},
 	}
 
 
@@ -184,7 +184,7 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 	source_camera.global_transform = Transform(source_basis, Vector3(75, 20, -40))
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
 
 	var transition_camera = rig.get_node("TransitionCamera")
 	var nebula_holder = rig.get_node("NebulaHolder")
@@ -406,7 +406,7 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	rig.events_ref = event_order
 	world_manager.rig_ref = rig
 
-	var sequence_state = world_manager._run_jump_transition_sequence("station_beta")
+	var sequence_state = world_manager._run_jump_transition_sequence("sector_system_cob")
 	if sequence_state is GDScriptFunctionState:
 		yield(sequence_state, "completed")
 
@@ -462,7 +462,7 @@ func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_
 	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
 	rig.begin_cruise(1000.0)
 	rig._process(0.5)
 
@@ -486,7 +486,7 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
 	rig.begin_cruise(4000.0)
 
 	for _step in range(60):
@@ -500,11 +500,11 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	)
 	assert_eq(
 		rig.get_route_world_position(),
-		TemplateDatabase.locations["station_beta"]["global_position"],
+		TemplateDatabase.locations["sector_system_cob"]["global_position"],
 		"Completed jump transitions should clamp the internal route position to the destination coordinate for deterministic arrival handoff."
 	)
 	assert_eq(
 		rig.get_node("TransitionCamera").global_transform.origin,
-		TemplateDatabase.locations["station_beta"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
+		TemplateDatabase.locations["sector_system_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
 		"Completed jump transitions should end at the destination in current-sector-local space so the starsphere matches local-scene and map coordinates."
 	)

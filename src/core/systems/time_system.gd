@@ -3,7 +3,7 @@
 # MODULE: time_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
-# LOG_REF: 2026-02-13
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -19,7 +19,8 @@ extends Node
 
 func _ready():
 	GlobalRefs.set_time_system(self)
-	print("TimeSystem Ready (pure clock mode).")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("TimeSystem Ready (pure clock mode).")
 
 
 # --- Public API ---

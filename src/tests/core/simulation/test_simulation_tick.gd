@@ -3,7 +3,7 @@
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends GutTest
@@ -16,6 +16,7 @@ var engine: Node = null
 
 func before_each():
 	_clear_state()
+	_seed_template_database()
 	var Script = load("res://src/core/simulation/simulation_engine.gd")
 	engine = Script.new()
 	add_child_autofree(engine)
@@ -140,3 +141,21 @@ func _clear_state() -> void:
 	GameState.world_age_cycle_count = 0
 	GameState.sim_tick_count = 0
 	GameState.sub_tick_accumulator = 0
+	TemplateDatabase.actions.clear()
+	TemplateDatabase.agents.clear()
+	TemplateDatabase.characters.clear()
+	TemplateDatabase.assets_ships.clear()
+	TemplateDatabase.assets_modules.clear()
+	TemplateDatabase.assets_commodities.clear()
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.contracts.clear()
+	TemplateDatabase.utility_tools.clear()
+	TemplateDatabase.factions.clear()
+	TemplateDatabase.contacts.clear()
+
+
+func _seed_template_database() -> void:
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	var indexer = TemplateIndexer.new()
+	indexer.index_all_templates()
+	indexer.free()

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -29,9 +29,13 @@ func reset_to_defaults() -> void:
 	GameState.player_character_uid = ""
 
 	# --- Scene State ---
+	GameState.current_zone_instance = null
+	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
+	GameState.player_arrival_direction = Vector3.ZERO
 
 	# --- Layer 1: World ---
 	GameState.world_topology.clear()
@@ -87,7 +91,8 @@ func save_game(slot_id: int = 0) -> bool:
 	if err == OK:
 		file.store_var(save_data, true)
 		file.close()
-		print("Game saved successfully to: ", path)
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("Game saved successfully to: ", path)
 		return true
 	else:
 		printerr("Error saving game to path: ", path, " Error code: ", err)
@@ -125,7 +130,8 @@ func load_game(slot_id: int = 0) -> bool:
 	_deserialize_and_apply_game_state(save_data)
 	
 	EventBus.emit_signal("game_state_loaded")
-	print("Game state loaded successfully. Emitted game_state_loaded signal.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Game state loaded successfully. Emitted game_state_loaded signal.")
 	return true
 
 
@@ -168,6 +174,50 @@ func _ensure_save_dir_exists() -> void:
 		if err != OK:
 			printerr("GameStateManager Error: Could not create save dir: ", SAVE_DIR, " (", err, ")")
 
+
+func _get_scene_current_sector_id_for_save() -> String:
+	if GameState.current_sector_id != "":
+		return GameState.current_sector_id
+	var player_agent_state = GameState.agents.get("player", {})
+	if player_agent_state is Dictionary:
+		var agent_sector_id: String = str(player_agent_state.get("current_sector_id", ""))
+		if agent_sector_id != "":
+			return agent_sector_id
+	if GameState.player_docked_at != "":
+		return GameState.player_docked_at
+	return ""
+
+
+func _resolve_saved_current_sector_id(save_data: Dictionary) -> String:
+	var saved_current_sector_id: String = str(save_data.get("current_sector_id", ""))
+	if saved_current_sector_id != "":
+		return saved_current_sector_id
+	var saved_agents = save_data.get("agents", {})
+	if saved_agents is Dictionary:
+		var player_agent_state = saved_agents.get("player", {})
+		if player_agent_state is Dictionary:
+			var agent_sector_id: String = str(player_agent_state.get("current_sector_id", ""))
+			if agent_sector_id != "":
+				return agent_sector_id
+	var saved_docked_at: String = str(save_data.get("player_docked_at", ""))
+	if saved_docked_at != "":
+		return saved_docked_at
+	return ""
+
+
+func _synchronize_loaded_player_sector_state() -> void:
+	if GameState.current_sector_id == "":
+		return
+	if not GameState.agents.has("player"):
+		return
+	var player_agent_state = GameState.agents["player"]
+	if not (player_agent_state is Dictionary):
+		return
+	if str(player_agent_state.get("current_sector_id", "")) != "":
+		return
+	player_agent_state["current_sector_id"] = GameState.current_sector_id
+	GameState.agents["player"] = player_agent_state
+
 # --- Serialization (Live State -> Dictionary) ---
 
 func _serialize_game_state() -> Dictionary:
@@ -178,9 +228,12 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["game_time_seconds"] = GameState.game_time_seconds
 	state_dict["sim_tick_count"] = GameState.sim_tick_count
 	state_dict["world_seed"] = GameState.world_seed
+	state_dict["current_sector_id"] = _get_scene_current_sector_id_for_save()
 	state_dict["player_docked_at"] = GameState.player_docked_at
 	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
 	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
+	state_dict["player_arrived_from_sector"] = GameState.player_arrived_from_sector
+	state_dict["player_arrival_direction"] = _serialize_vector3(GameState.player_arrival_direction)
 
 	# --- Layer 1: World (static, but saved for deterministic restore) ---
 	state_dict["world_topology"] = GameState.world_topology.duplicate(true)
@@ -279,9 +332,12 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.game_time_seconds = save_data.get("game_time_seconds", save_data.get("current_tu", 0))
 	GameState.sim_tick_count = save_data.get("sim_tick_count", 0)
 	GameState.world_seed = save_data.get("world_seed", "")
+	GameState.current_sector_id = _resolve_saved_current_sector_id(save_data)
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
+	GameState.player_arrived_from_sector = save_data.get("player_arrived_from_sector", "")
+	GameState.player_arrival_direction = _deserialize_vector3(save_data.get("player_arrival_direction", {}))
 
 	# --- Layer 1: World ---
 	GameState.world_topology = save_data.get("world_topology", {}).duplicate(true) if save_data.has("world_topology") else {}
@@ -316,6 +372,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	# --- Legacy ---
 	GameState.locations = _deserialize_resource_dict_by_string_key(save_data.get("locations", {}))
 	GameState.factions = _deserialize_resource_dict_by_string_key(save_data.get("factions", {}))
+	_synchronize_loaded_player_sector_state()
 
 func _deserialize_resource(res_data: Dictionary) -> Resource:
 	if not res_data.has("template_id"):

@@ -3,7 +3,7 @@
 # MODULE: agent.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
-# LOG_REF: 2026-05-17 01:30:40
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 # File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
@@ -43,10 +43,11 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.character_uid = overrides.get("character_uid", -1)
 	self.is_hostile = overrides.get("hostile", false)
 	
-	if is_player():
-		print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
-	else:
-		print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid, " Hostile: ", self.is_hostile)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		if is_player():
+			print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
+		else:
+			print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid, " Hostile: ", self.is_hostile)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -70,15 +71,16 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
 
-	print(
-		"AgentBody '",
-		self.name,
-		"' initialized with character_uid=",
-		self.character_uid,
-		" using template '",
-		self.template_id,
-		"'."
-	)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print(
+			"AgentBody '",
+			self.name,
+			"' initialized with character_uid=",
+			self.character_uid,
+			" using template '",
+			self.template_id,
+			"'."
+		)
 
 
 # Retrieves movement parameters from the character's active ship template.
@@ -107,7 +109,7 @@ func _get_movement_params_from_ship() -> Dictionary:
 		}
 	else:
 		# Fallback to Constants defaults if no ship found (normal for persistent NPCs)
-		if uid_valid:
+		if uid_valid and Constants.VERBOSE_RUNTIME_LOGS:
 			print("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
 		return {
 			"mass": Constants.DEFAULT_SHIP_MASS,

@@ -3,7 +3,7 @@
 # MODULE: EventBus.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-03-21
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -100,4 +100,5 @@ signal sector_changed(new_sector_id, old_sector_id)
 
 
 func _ready():
-	print("EventBus Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("EventBus Ready.")

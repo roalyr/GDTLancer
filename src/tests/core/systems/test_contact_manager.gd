@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_contact_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6
-# LOG_REF: 2026-05-10 16:13:36
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 15:37:28
 #
 
 extends "res://addons/gut/test.gd"
@@ -16,14 +16,14 @@ func before_each():
 
 	# Seed minimal world topology
 	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["station_beta"],
+		"connections": ["sector_system_cob"],
 		"station_ids": ["sector_system_elace"],
-		"sector_type": "station",
+		"sector_type": "colony",
 	}
-	GameState.world_topology["station_beta"] = {
+	GameState.world_topology["sector_system_cob"] = {
 		"connections": ["sector_system_elace"],
-		"station_ids": ["station_beta"],
-		"sector_type": "station",
+		"station_ids": ["sector_system_cob"],
+		"sector_type": "outpost",
 	}
 
 	# Seed player agent
@@ -62,7 +62,7 @@ func before_each():
 	GameState.agent_tags["npc_02"] = ["PIRATE"]
 
 	GameState.agents["npc_03"] = {
-		"current_sector_id": "station_beta",
+		"current_sector_id": "sector_system_cob",
 		"agent_role": "hauler",
 		"character_id": "char_03",
 		"condition_tag": "HEALTHY",
@@ -73,7 +73,7 @@ func before_each():
 	GameState.agent_tags["npc_03"] = ["HAULER"]
 
 	GameState.agents["npc_04"] = {
-		"current_sector_id": "station_beta",
+		"current_sector_id": "sector_system_cob",
 		"agent_role": "trader",
 		"character_id": "char_04",
 		"condition_tag": "HEALTHY",
@@ -94,10 +94,10 @@ func before_each():
 	GameState.colony_levels["sector_system_elace"] = "colony"
 	GameState.sector_names["sector_system_elace"] = "Elace System"
 
-	GameState.sector_tags["station_beta"] = [
+	GameState.sector_tags["sector_system_cob"] = [
 		"CONTESTED", "HARSH", "RAW_RICH",
 	]
-	GameState.colony_levels["station_beta"] = "outpost"
+	GameState.colony_levels["sector_system_cob"] = "outpost"
 
 	# Instance ContactManager
 	var cm_script = load("res://src/core/systems/contact_manager.gd")
@@ -125,9 +125,9 @@ func test_get_player_sector_returns_current_sector():
 func test_get_agents_in_sector_returns_correct_agents():
 	_contact_manager._rebuild_caches()
 	var alpha_agents = _contact_manager.get_agents_in_sector("sector_system_elace")
-	var beta_agents = _contact_manager.get_agents_in_sector("station_beta")
+	var cob_agents = _contact_manager.get_agents_in_sector("sector_system_cob")
 	assert_eq(alpha_agents.size(), 2, "sector_system_elace should have 2 NPCs")
-	assert_eq(beta_agents.size(), 2, "station_beta should have 2 NPCs")
+	assert_eq(cob_agents.size(), 2, "sector_system_cob should have 2 NPCs")
 
 
 func test_get_agents_excludes_player():

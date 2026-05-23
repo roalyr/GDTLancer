@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: tool_controller.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 ## ToolController: Manages tool (weapon) firing and cooldowns for an agent.
@@ -11,6 +11,8 @@
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
+const COMBAT_UNAVAILABLE_REASON = "combat_unavailable"
+const COMBAT_UNAVAILABLE_MESSAGE = "Combat actions are unavailable while the combat layer is rebuilt."
 
 signal weapon_fired(weapon_index, target_position)
 signal weapon_cooldown_started(weapon_index, duration)
@@ -21,6 +23,7 @@ var _agent_body: RigidBody = null  # Parent AgentBody
 var _ship_template = null  # Linked ShipTemplate (via AssetSystem)
 var _weapons: Array = []  # Loaded UtilityToolTemplate instances
 var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
+var _deferred_combatant_uids: Dictionary = {}  # uid -> true while combat handoff is deferred
 
 
 # --- Initialization ---
@@ -50,7 +53,8 @@ func _load_weapons_from_ship() -> void:
 			_ship_template = agent_ship
 	
 	if not is_instance_valid(_ship_template):
-		print("ToolController: No ship template available for agent, cannot load weapons.")
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("ToolController: No ship template available for agent, cannot load weapons.")
 		return  # No ship available
 
 	# Load each equipped tool template
@@ -70,19 +74,21 @@ func _load_weapons_from_ship() -> void:
 			_cooldowns[_weapons.size() - 1] = 0.0
 	
 	if _weapons.size() > 0:
-		print("ToolController: Loaded ", _weapons.size(), " weapon(s) for agent")
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("ToolController: Loaded ", _weapons.size(), " weapon(s) for agent")
 	else:
 		# Helpful during manual integration verification.
-		print(
-			"ToolController: No weapons loaded for agent_uid=",
-			_agent_body.get("agent_uid"),
-			" ship=",
-			_ship_template.get("template_id"),
-			" equipped_weapons=",
-			_ship_template.get("equipped_weapons"),
-			" equipped_tools=",
-			_ship_template.get("equipped_tools")
-		)
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print(
+				"ToolController: No weapons loaded for agent_uid=",
+				_agent_body.get("agent_uid"),
+				" ship=",
+				_ship_template.get("template_id"),
+				" equipped_weapons=",
+				_ship_template.get("equipped_weapons"),
+				" equipped_tools=",
+				_ship_template.get("equipped_tools")
+			)
 
 
 func _physics_process(delta: float) -> void:
@@ -116,10 +122,26 @@ func get_cooldown_remaining(index: int) -> float:
 
 
 func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3) -> Dictionary:
-	# CombatSystem removed — rebuild later on Agent layer
-	return {"success": false, "reason": "CombatSystem not available (removed)"}
+	var attacker_uid: int = -1
+	if is_instance_valid(_agent_body):
+		var raw_attacker_uid = _agent_body.get("agent_uid")
+		if raw_attacker_uid != null:
+			attacker_uid = int(raw_attacker_uid)
+
+	_ensure_combatant_registered(attacker_uid)
+	_ensure_combatant_registered(target_uid)
+
+	return {
+		"success": false,
+		"reason": COMBAT_UNAVAILABLE_REASON,
+		"message": COMBAT_UNAVAILABLE_MESSAGE,
+		"weapon_index": weapon_index,
+		"target_uid": target_uid,
+		"target_position": target_position,
+	}
 
 
 func _ensure_combatant_registered(uid: int) -> void:
-	# CombatSystem removed — no-op stub
-	pass
+	if uid < 0:
+		return
+	_deferred_combatant_uids[uid] = true

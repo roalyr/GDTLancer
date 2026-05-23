@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_persistent_agents.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 15:37:28
 #
 
 extends "res://addons/gut/test.gd"
@@ -19,10 +19,10 @@ func before_each():
 		Constants.INITIAL_SECTOR_ID: {
 			"position_in_zone": Vector3(0, 0, 0)
 		},
-		"station_beta": {
+		"sector_system_cob": {
 			"position_in_zone": Vector3(100, 0, 0)
 		},
-		"station_gamma": {
+		"sector_system_lywin": {
 			"position_in_zone": Vector3(200, 0, 0)
 		}
 	}
@@ -153,12 +153,12 @@ func test_known_vs_unknown_agents_state():
 #func test_contact_discovered_on_dock():
 #	var agent_id = "persistent_vera"
 #	var state = _agent_system.get_persistent_agent_state(agent_id)
-	# Vera is at station_beta
+	#	# Vera is at sector_system_cob
 #	assert_eq(state.is_known, false)
 #	
 #	# Simulate docking signal
 #	watch_signals(EventBus)
-#	_agent_system._on_player_docked("sector_system_lywin")
+	#	_agent_system._on_player_docked("sector_system_cob")
 #	
 	# Errors here
 #	assert_true(state.is_known, "Should discover agent at home station")

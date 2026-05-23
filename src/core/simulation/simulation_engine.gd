@@ -3,7 +3,7 @@
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_11
-# LOG_REF: 2026-02-21 (TASK_11)
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -78,7 +78,8 @@ func _ready() -> void:
 	if not EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
 		EventBus.connect("player_undocked", self, "_on_player_undocked")
 
-	print("SimulationEngine: Ready. Awaiting initialize_simulation() call.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("SimulationEngine: Ready. Awaiting initialize_simulation() call.")
 
 
 func _exit_tree() -> void:
@@ -96,7 +97,8 @@ func _exit_tree() -> void:
 ## Initializes the full simulation from a seed string.
 ## Must be called once before any ticks are processed.
 func initialize_simulation(seed_string: String) -> void:
-	print("SimulationEngine: Initializing simulation with seed '%s'..." % seed_string)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("SimulationEngine: Initializing simulation with seed '%s'..." % seed_string)
 
 	# Step 1: World Layer — build static topology and hazards from templates
 	world_layer.initialize_world(seed_string)
@@ -118,10 +120,11 @@ func initialize_simulation(seed_string: String) -> void:
 	# Emit initialization signal
 	EventBus.emit_signal("sim_initialized", seed_string)
 
-	print("SimulationEngine: Initialization complete. World-age: %s, Tick: %d" % [
-		GameState.world_age,
-		GameState.sim_tick_count
-	])
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("SimulationEngine: Initialization complete. World-age: %s, Tick: %d" % [
+			GameState.world_age,
+			GameState.sim_tick_count
+		])
 
 
 # =============================================================================

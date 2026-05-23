@@ -1,3 +1,11 @@
+##
+## PROJECT: GDTLancer
+## MODULE: event_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 ## EventSystem: Combat tracking and encounter management (DISABLED — random spawns removed).
 ##
 ## Random encounter spawning is disabled. All NPCs come from the simulation.
@@ -21,7 +29,8 @@ func _ready() -> void:
 		EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 		EventBus.connect("agent_despawning", self, "_on_agent_despawning")
 
-	print("EventSystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("EventSystem Ready.")
 
 
 ## Handles agent disabled signal; removes from active hostiles and checks for combat end.

@@ -20,11 +20,17 @@ CONTEXT: Read 'TRUTH_PROJECT.md' for Project Stack and Context.
 TASK:
 1. Analyze all 'TRUTH_*.md' files and the last 5 entries of 'SESSION_LOG.md'.
 2. Identify the single next logical milestone.
-3. Overwrite 'TACTICAL_TODO.md' with a machine-readable Implementation Contract.
+3. Overwrite 'TACTICAL_TODO.md' with a machine-readable Implementation Contract that declares both milestone scope and owned files.
+
+SCHEMA RULE:
+For multi-surface stabilization milestones, prefer TARGET_SCOPE + TARGET_FILES over a single TARGET_FILE.
+Single-file milestones may still use TARGET_FILES with one entry.
 
 OUTPUT FORMAT (TACTICAL_TODO.md):
 ## CURRENT GOAL: [Name]
-- TARGET_FILE: [Path]
+- TARGET_SCOPE: [Subsystem / behavioral boundary / milestone intent]
+- TARGET_FILES:
+  - [Path] — [Why it is in scope]
 - TRUTH_RELIANCE: [Reference specific section of Truth file]
 - TECHNICAL_CONSTRAINTS: [List strictly from TRUTH_PROJECT.md]
 - ATOMIC_TASKS:
@@ -57,8 +63,9 @@ TASK: Implement the first unchecked "- [ ]" in 'TACTICAL_TODO.md'.
 
 STRICT RULES:
 1. ZERO DEVIATION: Do not alter signatures, patterns, or scopes defined by the Architect. Do not add unrequested features.
-2. Use the UNIVERSAL HEADER (below) at the top of every modified/new file, formatted in the target language's comment syntax.
-3. Update 'SESSION_LOG.md' immediately after applying changes.
+2. Respect both TARGET_SCOPE and TARGET_FILES. You may modify listed files and only narrow adjacent owners required to satisfy an atomic task without violating scope.
+3. Use the UNIVERSAL HEADER (below) at the top of every modified/new file, formatted in the target language's comment syntax.
+4. Update 'SESSION_LOG.md' immediately after applying changes.
 
 UNIVERSAL HEADER:
 PROJECT: {{Project_Name}}
@@ -95,9 +102,10 @@ TASK: Ensure the Developer's output strictly adheres to the Architect's vision, 
 
 STRICT RULES:
 1. Cross-reference the Developer's code against the specific ATOMIC_TASKS in 'TACTICAL_TODO.md'.
-2. Identify any hallucinations, scope creep, or missing implementation details.
-3. Fix the code directly to resolve any identified inconsistencies.
-4. Mark the task as [x] in 'TACTICAL_TODO.md' ONLY after confirming total compliance.
+2. Validate compliance against both TARGET_SCOPE and TARGET_FILES.
+3. Identify any hallucinations, scope creep, missing implementation details, or unjustified edits outside the declared ownership boundary.
+4. Fix the code directly only within the declared scope or in a narrow adjacent owner required to resolve a verified inconsistency.
+5. Mark the task as [x] in 'TACTICAL_TODO.md' ONLY after confirming total compliance.
 
 OUTPUT BEHAVIOR:
 1. Output brief analysis of deviations found (if any).

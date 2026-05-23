@@ -3,7 +3,7 @@
 # MODULE: CoreMechanicsAPI.gd
 # STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -18,7 +18,8 @@ var _rng = RandomNumberGenerator.new()
 func _ready():
 	# Seed the random number generator once when the game starts
 	_rng.randomize()
-	print("CoreMechanicsAPI Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("CoreMechanicsAPI Ready.")
 
 
 # --- Core Action Resolution ---

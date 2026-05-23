@@ -7,10 +7,12 @@
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-13 16:32:50
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends Node
+
+const VERBOSE_PERSISTENT_AGENT_LOGS = false
 
 const PERSISTENT_AGENT_IDS = [
 	"persistent_kai", "persistent_juno", 
@@ -41,7 +43,8 @@ func _ready():
 	# Listen for player docking to handle contact discovery (Task 11)
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	
-	print("AgentSpawner Ready.")
+	if VERBOSE_PERSISTENT_AGENT_LOGS:
+		print("AgentSpawner Ready.")
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
@@ -412,7 +415,8 @@ func spawn_persistent_agents() -> void:
 		
 		if is_instance_valid(agent_body):
 			_active_persistent_agents[agent_id] = agent_body
-			print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
+			if VERBOSE_PERSISTENT_AGENT_LOGS:
+				print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
 		else:
 			print("AgentSpawner: FAILED to spawn persistent agent '%s' at %s" % [agent_id, current_loc])
 
@@ -429,7 +433,8 @@ func _on_Agent_Disabled(agent_body) -> void:
 
 
 func _handle_persistent_agent_disable(agent_id: String) -> void:
-	print("Persistent Agent Disabled: ", agent_id)
+	if VERBOSE_PERSISTENT_AGENT_LOGS:
+		print("Persistent Agent Disabled: ", agent_id)
 	if GameState.persistent_agents.has(agent_id):
 		var state = GameState.persistent_agents[agent_id]
 		state["is_disabled"] = true
@@ -456,7 +461,8 @@ func _check_persistent_agent_respawns() -> void:
 				
 			if GameState.game_time_seconds - disabled_time >= timeout:
 				# Respawn Logic
-				print("Persistent Agent Respawning: ", agent_id)
+				if VERBOSE_PERSISTENT_AGENT_LOGS:
+					print("Persistent Agent Respawning: ", agent_id)
 				state["is_disabled"] = false
 				state["disabled_at_time"] = 0.0
 				# Reset to home location (assuming they respawn at home, not where they died)
@@ -486,7 +492,8 @@ func _on_player_docked(location_id: String) -> void:
 		if home == location_id:
 			state["is_known"] = true
 			EventBus.emit_signal("contact_met", agent_id)
-			print("Contact Discovered: ", agent_id, " at ", location_id)
+			if VERBOSE_PERSISTENT_AGENT_LOGS:
+				print("Contact Discovered: ", agent_id, " at ", location_id)
 
 
 func _resolve_known_location_id(requested_location_id: String, context: String) -> String:

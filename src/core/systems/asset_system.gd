@@ -1,3 +1,11 @@
+##
+## PROJECT: GDTLancer
+## MODULE: asset_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: core/systems/asset_system.gd
 # Purpose: Provides a logical API for accessing asset data stored in GameState.
 # This system is STATELESS. All data is read from the GameState autoload.
@@ -7,7 +15,8 @@ extends Node
 
 func _ready():
 	GlobalRefs.set_asset_system(self)
-	print("AssetSystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("AssetSystem Ready.")
 
 
 # --- Public API ---

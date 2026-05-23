@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
-## LOG_REF: 2026-05-17 19:00:00
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6.3, §7; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_4
+## LOG_REF: 2026-05-23 15:54:26
 ##
 
 extends "res://addons/gut/test.gd"
@@ -18,6 +18,8 @@ const LOCATION_TRES_PATHS = [
 	"res://database/registry/locations/sector_system_elace.tres",
 	"res://database/registry/locations/sector_system_cob.tres",
 	"res://database/registry/locations/sector_system_lywin.tres",
+	"res://database/registry/locations/sector_system_vidr.tres",
+	"res://database/registry/locations/sector_system_ebreeta.tres",
 ]
 
 
@@ -48,31 +50,16 @@ func _seed_template_database():
 
 
 func _seed_topology():
-	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["sector_system_cob", "sector_gamma"],
-		"station_ids": ["sector_system_elace"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_system_cob"] = {
-		"connections": ["sector_system_elace", "sector_system_lywin"],
-		"station_ids": ["sector_system_cob"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_gamma"] = {
-		"connections": ["sector_system_elace", "sector_epsilon"],
-		"station_ids": ["sector_gamma"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_system_lywin"] = {
-		"connections": ["sector_system_cob", "sector_epsilon"],
-		"station_ids": ["sector_system_lywin"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_epsilon"] = {
-		"connections": ["sector_gamma", "sector_system_lywin"],
-		"station_ids": ["sector_epsilon"],
-		"sector_type": "station",
-	}
+	for sector_id in TemplateDatabase.locations.keys():
+		var template = TemplateDatabase.locations[sector_id]
+		var connections: Array = []
+		for connected_sector_id in template.connections:
+			connections.append(connected_sector_id)
+		GameState.world_topology[sector_id] = {
+			"connections": connections,
+			"station_ids": [sector_id],
+			"sector_type": template.sector_type,
+		}
 
 
 func _show_panel():
@@ -447,5 +434,5 @@ func _seed_discovered_sector():
 		"station_ids": ["discovered_1"],
 		"sector_type": "deep_space",
 	}
-	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_gamma", "discovered_1"]
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]
 	GameState.sector_names["discovered_1"] = "Amber Gate"

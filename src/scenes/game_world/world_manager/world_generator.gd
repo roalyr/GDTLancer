@@ -3,10 +3,12 @@
 # MODULE: world_generator.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends Node
+
+const VERBOSE_WORLD_BOOT_LOGS = false
 
 ## WorldGenerator: Creates initial game state including characters, ships, locations, and contracts.
 ## Populates GameState dictionaries from TemplateDatabase resources.
@@ -22,7 +24,8 @@ var _next_ship_uid: int = 0
 
 # Main entry point. Generates all necessary data for a new game.
 func generate_new_world():
-	print("WorldGenerator: Generating new world state...")
+	if VERBOSE_WORLD_BOOT_LOGS:
+		print("WorldGenerator: Generating new world state...")
 
 	# Load all locations into GameState first (they are keyed by template_id).
 	_load_locations()
@@ -44,7 +47,8 @@ func generate_new_world():
 	_apply_player_starting_state()
 	call_deferred("_emit_initial_dock_signal")
 
-	print("WorldGenerator: New world state generated.")
+	if VERBOSE_WORLD_BOOT_LOGS:
+		print("WorldGenerator: New world state generated.")
 
 
 func _apply_player_starting_state() -> void:
@@ -118,20 +122,16 @@ func _get_dock_position_in_zone(location_id: String):
 # Loads all location templates into GameState.locations.
 # Locations are stored directly by their template_id (they don't have UIDs).
 func _load_locations():
-	print("WorldGenerator: Loading locations...")
 	for template_id in TemplateDatabase.locations:
 		var template = TemplateDatabase.locations[template_id]
 		# Duplicate to allow runtime modifications (e.g., market price fluctuation).
 		GameState.locations[template_id] = template.duplicate()
-		print("... Loaded location: ", template.location_name)
 
 
 func _load_factions():
-	print("WorldGenerator: Loading factions...")
 	for template_id in TemplateDatabase.factions:
 		var template = TemplateDatabase.factions[template_id]
 		GameState.factions[template_id] = template.duplicate()
-		print("... Loaded faction: ", template.faction_id)
 
 
 # Creates a unique instance of a character from a template and registers it
@@ -151,14 +151,10 @@ func _create_character_from_template(template: CharacterTemplate):
 	# Designate the player character.
 	if template.template_id == "character_default":
 		GameState.player_character_uid = uid
-		print("... Player character created with UID: ", uid)
-	else:
-		print("... NPC character created with UID: ", uid)
 
 
 # Generates starting assets and assigns them to characters using the InventorySystem.
 func _generate_and_assign_assets():
-	print("WorldGenerator: Generating and assigning starting assets...")
 	for char_uid in GameState.characters:
 		var character = GameState.characters[char_uid]
 		
@@ -169,7 +165,6 @@ func _generate_and_assign_assets():
 			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.SHIP, ship_uid)
 			# Set this ship as the character's active vessel.
 			character.active_ship_uid = ship_uid
-			print("... Assigned ship (UID: %d) to character %s" % [ship_uid, character.character_name])
 
 		# NOTE: Module assignment removed — assets_modules pruned in sim rework.
 		# Module support will be rebuilt on the Agent layer.

@@ -3,7 +3,7 @@
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-02-21 (TASK_7)
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Reference
@@ -91,7 +91,8 @@ func initialize_grid() -> void:
 		if not GameState.hostile_infestation_progress.has(sector_id):
 			GameState.hostile_infestation_progress[sector_id] = 0
 
-	print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
 
 
 # =============================================================================

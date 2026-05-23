@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
+# LOG_REF: 2026-05-23 15:12:10
 #
 
 extends GutTest
@@ -77,7 +77,8 @@ func test_save_and_load_restores_identical_state():
 func test_save_and_load_preserves_mutated_fields():
 	# Mutate fields that change during gameplay and must persist.
 	GameState.game_time_seconds = 42
-	GameState.player_docked_at = "station_beta"
+	GameState.current_sector_id = "sector_system_cob"
+	GameState.player_docked_at = "sector_system_cob"
 	GameState.sim_tick_count = 7
 
 	# Market inventory quantity mutation (legacy locations)
@@ -108,7 +109,8 @@ func test_save_and_load_preserves_mutated_fields():
 
 	# Assertions — fields that still exist in GameState
 	assert_eq(GameState.game_time_seconds, 42, "game_time_seconds should persist.")
-	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
+	assert_eq(GameState.current_sector_id, "sector_system_cob", "current_sector_id should persist.")
+	assert_eq(GameState.player_docked_at, "sector_system_cob", "player_docked_at should persist.")
 	assert_eq(GameState.sim_tick_count, 7, "sim_tick_count should persist.")
 
 	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
@@ -116,6 +118,51 @@ func test_save_and_load_preserves_mutated_fields():
 		var loaded_ship_inv = GameState.inventories[player_uid][InventorySystem.InventoryType.SHIP]
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")
 		assert_eq(loaded_ship_inv[ship_uid].ship_quirks, ["scratched_hull"], "Ship quirks should persist.")
+
+
+func test_save_and_load_preserves_scene_state_restore_fields():
+	GameState.current_sector_id = "sector_system_cob"
+	GameState.player_docked_at = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3(15, 120, -5)
+	GameState.player_arrived_from_sector = "sector_system_elace"
+	GameState.player_arrival_direction = Vector3(0, 0, -1)
+
+	var save_success = GameStateManager.save_game(TEST_SLOT)
+	assert_true(save_success, "Game should save successfully.")
+	_clear_game_state()
+	var load_success = GameStateManager.load_game(TEST_SLOT)
+	assert_true(load_success, "Game should load successfully.")
+
+	assert_eq(GameState.current_sector_id, "sector_system_cob", "current_sector_id should survive save/load for load-game sector bootstrap.")
+	assert_eq(GameState.player_rotation, Vector3(15, 120, -5), "player_rotation should survive save/load for arrival restore.")
+	assert_eq(GameState.player_arrived_from_sector, "sector_system_elace", "player_arrived_from_sector should survive save/load until spawn consumes it.")
+	assert_eq(GameState.player_arrival_direction, Vector3(0, 0, -1), "player_arrival_direction should survive save/load until spawn consumes it.")
+
+
+func test_serialize_backfills_current_sector_id_from_docked_sector_when_scene_field_is_empty():
+	GameState.current_sector_id = ""
+	GameState.player_docked_at = "sector_system_elace"
+
+	var save_data = GameStateManager._serialize_game_state()
+
+	assert_eq(save_data.get("current_sector_id", ""), "sector_system_elace", "Serialization should backfill current_sector_id from the docked sector for scene-state bootstrap consistency.")
+
+
+func test_deserialize_backfills_current_sector_id_from_player_agent_for_legacy_save_data():
+	var save_data = _deep_copy_game_state()
+	save_data.erase("current_sector_id")
+	save_data["player_docked_at"] = ""
+	save_data["agents"] = {
+		"player": {
+			"current_sector_id": "sector_system_cob"
+		}
+	}
+
+	GameStateManager._deserialize_and_apply_game_state(save_data)
+
+	assert_eq(GameState.current_sector_id, "sector_system_cob", "Deserialization should recover current_sector_id from the player agent for legacy saves that predate the scene-state field.")
+	assert_eq(GameState.agents.get("player", {}).get("current_sector_id", ""), "sector_system_cob", "Recovered player agent sector state should stay aligned with GameState.current_sector_id.")
 
 # --- Helper Functions ---
 
@@ -143,8 +190,13 @@ func _clear_game_state():
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
+	GameState.current_sector_id = ""
 	GameState.player_character_uid = ""
 	GameState.player_docked_at = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
+	GameState.player_arrival_direction = Vector3.ZERO
 	GameState.game_time_seconds = 0
 	GameState.sim_tick_count = 0
 	GameState.world_seed = ""

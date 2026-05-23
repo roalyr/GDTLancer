@@ -3,7 +3,7 @@
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends GutTest
@@ -116,12 +116,14 @@ func _clear_state() -> void:
 
 
 func _seed_template_database() -> void:
-	## Seed TemplateDatabase.locations with real .tres files so world_layer can init.
+	## Seed TemplateDatabase.locations with the full live 5-sector registry so world_layer tests
+	## exercise the canonical topology instead of producing partial-graph warnings.
 	var location_paths: Array = [
 		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/sector_system_cob.tres",
 		"res://database/registry/locations/sector_system_lywin.tres",
-		"res://database/registry/locations/sector_epsilon.tres",
+		"res://database/registry/locations/sector_system_vidr.tres",
+		"res://database/registry/locations/sector_system_ebreeta.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:

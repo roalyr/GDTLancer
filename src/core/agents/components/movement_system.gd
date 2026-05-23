@@ -1,3 +1,11 @@
+##
+## PROJECT: GDTLancer
+## MODULE: movement_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONSTRAINTS.md §1
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: res://core/agents/components/movement_system.gd
 # Version: 3.0 - RigidBody physics with PID-controlled 6DOF thrust-based flight system.
 # Purpose: Handles the low-level execution of agent movement via forces and torques.
@@ -60,17 +68,18 @@ func initialize_movement_params(params: Dictionary):
 	# Reset PID states
 	reset_pid_states()
 	
-	print(
-		(
-			"MovementSystem Initialized: LinearThrust=%.1f, AngularThrust=%.1f, Mass=%.1f, Align=%.1f"
-			% [
-				linear_thrust,
-				angular_thrust,
-				mass,
-				alignment_threshold_angle_deg
-			]
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print(
+			(
+				"MovementSystem Initialized: LinearThrust=%.1f, AngularThrust=%.1f, Mass=%.1f, Align=%.1f"
+				% [
+					linear_thrust,
+					angular_thrust,
+					mass,
+					alignment_threshold_angle_deg
+				]
+			)
 		)
-	)
 
 
 func reset_pid_states():

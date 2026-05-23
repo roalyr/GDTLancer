@@ -3,10 +3,12 @@
 # MODULE: GlobalRefs.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-03-21
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends Node
+
+const VERBOSE_REF_LOGS = false
 
 # --- Key Node & UI References ---
 # Other scripts access these directly (e.g., GlobalRefs.player_agent_body)
@@ -34,7 +36,8 @@ var contact_manager = null setget set_contact_manager
 
 
 func _ready():
-	print("GlobalRefs Ready.")
+	if VERBOSE_REF_LOGS:
+		print("GlobalRefs Ready.")
 	# This script is a passive container; references are set by other nodes.
 
 
@@ -44,7 +47,8 @@ func set_player_agent_body(new_ref):
 	if new_ref == player_agent_body: return
 	if new_ref == null or is_instance_valid(new_ref):
 		player_agent_body = new_ref
-		print("GlobalRefs: Player Agent ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Player Agent ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Player Agent ref: ", new_ref)
 
@@ -52,7 +56,8 @@ func set_main_camera(new_ref):
 	if new_ref == main_camera: return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_camera = new_ref
-		print("GlobalRefs: Main Camera ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Main Camera ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid Main Camera ref: ", new_ref)
 
@@ -60,7 +65,8 @@ func set_world_manager(new_ref):
 	if new_ref == world_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		world_manager = new_ref
-		print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid World Manager ref: ", new_ref)
 
@@ -68,7 +74,8 @@ func set_current_zone(new_ref):
 	if new_ref == current_zone: return
 	if new_ref == null or is_instance_valid(new_ref):
 		current_zone = new_ref
-		print("GlobalRefs: Current Zone ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Current Zone ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Current Zone ref: ", new_ref)
 
@@ -76,7 +83,8 @@ func set_agent_container(new_ref):
 	if new_ref == agent_container: return
 	if new_ref == null or is_instance_valid(new_ref):
 		agent_container = new_ref
-		print("GlobalRefs: Agent Container ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Agent Container ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Agent Container ref: ", new_ref)
 
@@ -84,7 +92,8 @@ func set_game_state_manager(new_ref):
 	if new_ref == game_state_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		game_state_manager = new_ref
-		print("GlobalRefs: GameStateManager ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: GameStateManager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid GameStateManager ref: ", new_ref)
 
@@ -94,7 +103,8 @@ func set_agent_spawner(new_ref):
 	if new_ref == agent_spawner: return
 	if new_ref == null or is_instance_valid(new_ref):
 		agent_spawner = new_ref
-		print("GlobalRefs: AgentSpawner ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: AgentSpawner ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid AgentSpawner ref: ", new_ref)
 
@@ -102,7 +112,8 @@ func set_asset_system(new_ref):
 	if new_ref == asset_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		asset_system = new_ref
-		print("GlobalRefs: AssetSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: AssetSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid AssetSystem ref: ", new_ref)
 
@@ -110,7 +121,8 @@ func set_character_system(new_ref):
 	if new_ref == character_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		character_system = new_ref
-		print("GlobalRefs: CharacterSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: CharacterSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid CharacterSystem ref: ", new_ref)
 
@@ -118,7 +130,8 @@ func set_inventory_system(new_ref):
 	if new_ref == inventory_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		inventory_system = new_ref
-		print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid InventorySystem ref: ", new_ref)
 
@@ -126,7 +139,8 @@ func set_time_system(new_ref):
 	if new_ref == time_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		time_system = new_ref
-		print("GlobalRefs: TimeSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: TimeSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid TimeSystem ref: ", new_ref)
 
@@ -134,7 +148,8 @@ func set_event_system(new_ref):
 	if new_ref == event_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		event_system = new_ref
-		print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
 
@@ -142,7 +157,8 @@ func set_simulation_engine(new_ref):
 	if new_ref == simulation_engine: return
 	if new_ref == null or is_instance_valid(new_ref):
 		simulation_engine = new_ref
-		print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
 
@@ -150,7 +166,8 @@ func set_contact_manager(new_ref):
 	if new_ref == contact_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		contact_manager = new_ref
-		print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid ContactManager ref: ", new_ref)
 
@@ -161,7 +178,8 @@ func set_main_hud(new_ref):
 	if new_ref == main_hud: return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_hud = new_ref
-		print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
 

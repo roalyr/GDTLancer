@@ -1,3 +1,11 @@
+##
+## PROJECT: GDTLancer
+## MODULE: inventory_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: core/systems/inventory_system.gd
 # Purpose: Provides a unified, stateless API for managing all character inventories.
 # Version: 4.0 - Reworked for a unified, asset-agnostic architecture.
@@ -10,7 +18,8 @@ enum InventoryType { SHIP, MODULE, COMMODITY }
 
 func _ready():
 	GlobalRefs.set_inventory_system(self)
-	print("InventorySystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("InventorySystem Ready.")
 
 
 # --- Public API ---

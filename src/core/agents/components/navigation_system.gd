@@ -3,7 +3,7 @@
 # MODULE: navigation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-17 01:41:07
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 # File: res://core/agents/components/navigation_system.gd
@@ -46,7 +46,8 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 
 	_initialize_command_handlers()
 
-	print("NavigationSystem Initialized.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("NavigationSystem Initialized.")
 	set_command_idle()
 
 

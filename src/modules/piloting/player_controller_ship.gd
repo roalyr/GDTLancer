@@ -3,7 +3,7 @@
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-17 01:41:07
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -110,12 +110,12 @@ func _get_camera_reference():
 
 
 func _change_state(new_state_name: String):
-	if _current_input_state and _current_input_state.has_method("exit"):
+	if _current_input_state != null:
 		_current_input_state.exit()
 
 	if _states.has(new_state_name):
 		_current_input_state = _states[new_state_name]
-		if _current_input_state.has_method("enter"):
+		if _current_input_state != null:
 			_current_input_state.enter(self)
 	else:
 		printerr("PlayerController Error: Attempted to change to unknown state: ", new_state_name)
@@ -125,7 +125,7 @@ func _physics_process(delta: float):
 	if _is_jump_transition_active():
 		_clear_queued_jump(false)
 		return
-	if _current_input_state and _current_input_state.has_method("physics_update"):
+	if _current_input_state != null:
 		_current_input_state.physics_update(delta)
 	_poll_docking_proximity()
 	_process_queued_jump()
@@ -190,7 +190,7 @@ func _unhandled_input(event: InputEvent):
 		return
 
 	# Delegate other inputs to the current state
-	if _current_input_state and _current_input_state.has_method("handle_input"):
+	if _current_input_state != null:
 		_current_input_state.handle_input(event)
 
 
@@ -724,7 +724,8 @@ func _poll_docking_proximity():
 				EventBus.emit_signal("jump_unavailable")
 
 func _on_player_docked(location_id):
-	print("Player docked at: ", location_id)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Player docked at: ", location_id)
 	_clear_queued_jump()
 	GameState.player_docked_at = location_id
 	set_process_unhandled_input(false)
@@ -734,7 +735,8 @@ func _on_player_docked(location_id):
 		agent_script.command_stop()
 
 func _on_player_undocked():
-	print("Player undocked")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Player undocked")
 	_clear_queued_jump()
 	GameState.player_docked_at = ""
 	set_process_unhandled_input(true)

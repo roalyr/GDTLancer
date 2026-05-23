@@ -3,7 +3,7 @@
 # MODULE: world_rendering.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 17:48:36
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 # File: scenes/game_world/world_rendering.gd
@@ -31,7 +31,8 @@ func _ready():
 	get_viewport().disable_3d = viewport_disable_3d
 	get_viewport().sharpen_intensity = viewport_sharpen_intensity
 	get_viewport().keep_3d_linear = viewport_keep_3d_linear
-	print("Viewport: Is ready")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Viewport: Is ready")
 
 func _process(delta):
 	# Handle each option via signal instead maybe.
@@ -40,4 +41,5 @@ func _process(delta):
 	if _viewport_size != _prev_viewport_size:
 		get_viewport().size = _viewport_size / viewport_downscale_factor
 		_prev_viewport_size = get_viewport().size
-		print(_viewport_size)
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print(_viewport_size)

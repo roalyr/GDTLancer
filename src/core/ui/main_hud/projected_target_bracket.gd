@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: projected_target_bracket.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-16 01:02:19
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-23 16:10:55
 #
 
 extends Button
@@ -147,9 +147,7 @@ func _reset_pointer_tracking_state() -> void:
 
 
 func _set_camera_drag_state(is_rotating: bool) -> void:
-	var camera = GlobalRefs.main_camera
-	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
-		camera.set_is_rotating(is_rotating)
+	_call_camera_bridge_method("set_is_rotating", [is_rotating])
 
 
 func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
@@ -157,9 +155,7 @@ func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
 
 
 func _forward_camera_input(event: InputEvent) -> void:
-	var camera = GlobalRefs.main_camera
-	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
-		camera.call("_unhandled_input", event)
+	_call_camera_bridge_method("_unhandled_input", [event])
 
 
 func _cache_scene_nodes() -> void:
@@ -316,15 +312,33 @@ func _is_dockable_target(target_candidate) -> bool:
 
 
 func _begin_main_hud_drag_passthrough(initial_motion_event: InputEventMouseMotion) -> bool:
-	var main_hud = GlobalRefs.main_hud
+	var main_hud = _get_main_hud_drag_passthrough_bridge()
 	if not is_instance_valid(main_hud):
 		return false
-	if not main_hud.has_method("begin_projected_target_drag_passthrough"):
-		return false
-	main_hud.call("begin_projected_target_drag_passthrough", self, initial_motion_event)
+	main_hud.begin_projected_target_drag_passthrough(self, initial_motion_event)
 	return true
 
 
 func _is_main_hud_drag_passthrough_active() -> bool:
+	var main_hud = _get_main_hud_drag_passthrough_bridge()
+	return is_instance_valid(main_hud) and main_hud.is_projected_target_drag_passthrough_active()
+
+
+func _get_main_hud_drag_passthrough_bridge() -> Node:
 	var main_hud = GlobalRefs.main_hud
-	return is_instance_valid(main_hud) and main_hud.has_method("is_projected_target_drag_passthrough_active") and main_hud.call("is_projected_target_drag_passthrough_active")
+	if not is_instance_valid(main_hud):
+		return null
+	if not main_hud.has_method("begin_projected_target_drag_passthrough"):
+		return null
+	if not main_hud.has_method("is_projected_target_drag_passthrough_active"):
+		return null
+	return main_hud
+
+
+func _call_camera_bridge_method(method_name: String, args: Array = [], default_value = null):
+	var camera = GlobalRefs.main_camera
+	if not is_instance_valid(camera) or not camera.has_method(method_name):
+		return default_value
+	if args.empty():
+		return camera.call(method_name)
+	return camera.callv(method_name, args)

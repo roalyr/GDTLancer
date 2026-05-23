@@ -3,7 +3,7 @@
 # MODULE: world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-10 16:13:36
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Reference
@@ -74,7 +74,8 @@ func initialize_world(seed_string: String) -> void:
 
 	_validate_initial_sector_id()
 
-	print("WorldLayer: Initialized %d sectors." % GameState.world_topology.size())
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("WorldLayer: Initialized %d sectors." % GameState.world_topology.size())
 
 
 # =============================================================================

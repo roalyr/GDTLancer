@@ -3,7 +3,7 @@
 # MODULE: orbit_camera.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-16 23:40:29
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Camera
@@ -154,7 +154,8 @@ func set_target_node(new_target: Spatial):
 	# When the target changes, inform the relevant components.
 	_zoom_controller.set_target(new_target)
 	_position_controller.set_target(new_target)
-	print("OrbitCamera target set to: ", new_target.name if new_target else "null")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("OrbitCamera target set to: ", new_target.name if new_target else "null")
 
 
 func set_rotation_input_active(is_active: bool):

@@ -3,7 +3,7 @@
 ## MODULE: test_docking_logic.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-## LOG_REF: 2026-05-17 01:41:07
+## LOG_REF: 2026-05-23 16:28:25
 ##
 
 extends "res://addons/gut/test.gd"
@@ -162,6 +162,7 @@ func test_queued_route_jump_waits_for_tight_five_degree_alignment():
 
 func test_queued_route_jump_clears_on_target_change():
 	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
 	var controller = harness["controller"]
 
 	var route_target = RouteTargetScript.new().configure(

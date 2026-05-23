@@ -1,3 +1,11 @@
+##
+## PROJECT: GDTLancer
+## MODULE: template_indexer.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §2, §3.4, §6; TRUTH_SIMULATION-GRAPH.md §2.1
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: src/scenes/game_world/world_manager/template_indexer.gd
 # Purpose: Scans the project's data directories to find and register all
 #          .tres template files into the TemplateDatabase autoload.
@@ -11,11 +19,13 @@ var _pending_contract_templates: Array = []
 
 # Main entry point. Kicks off the recursive scan of the data directory.
 func index_all_templates():
-	print("TemplateIndexer: Indexing all data templates...")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("TemplateIndexer: Indexing all data templates...")
 	_pending_contract_templates.clear()
 	_scan_directory_for_templates("res://database/registry/")
 	_register_pending_contract_templates()
-	print("TemplateIndexer: Template indexing complete.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("TemplateIndexer: Template indexing complete.")
 
 
 # --- Private Logic ---

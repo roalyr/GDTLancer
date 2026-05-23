@@ -3,7 +3,7 @@
 # MODULE: test_navigation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-17 01:41:07
+# LOG_REF: 2026-05-23 16:43:24
 #
 
 extends GutTest
@@ -168,7 +168,8 @@ func test_set_command_flee():
 
 func test_set_command_align_to():
 	signal_catcher.reset()
-	var direction = Vector3.BACK.normalized()
+	var direction = (-agent_body.global_transform.basis.z).normalized()
+	agent_body.angular_velocity = Vector3.ZERO
 	nav_system.set_command_align_to(direction)
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 

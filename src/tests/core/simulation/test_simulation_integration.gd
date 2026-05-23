@@ -3,7 +3,7 @@
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends GutTest
@@ -165,46 +165,22 @@ func _clear_state() -> void:
 	GameState.world_age_cycle_count = 0
 	GameState.sim_tick_count = 0
 	GameState.sub_tick_accumulator = 0
-
-
-## Seeds TemplateDatabase with real location .tres files for integration testing.
-func _seed_template_database() -> void:
-	var location_paths: Array = [
-		"res://database/registry/locations/sector_system_elace.tres",
-		"res://database/registry/locations/sector_system_cob.tres",
-		"res://database/registry/locations/sector_system_lywin.tres",
-	]
-	TemplateDatabase.locations.clear()
-	for path in location_paths:
-		var res = load(path)
-		if res != null:
-			TemplateDatabase.locations[res.template_id] = res
-
-	var agent_dir: String = "res://database/registry/agents/"
-	var agent_files: Array = [
-		"player_default.tres", "npc_default.tres", "npc_hostile_default.tres",
-		"persistent_vera.tres", "persistent_ada.tres", "persistent_kai.tres",
-		"persistent_milo.tres", "persistent_siv.tres", "persistent_juno.tres",
-		"persistent_nyx.tres", "persistent_orin.tres", "persistent_nova.tres",
-		"persistent_rex.tres", "persistent_crow.tres", "persistent_zara.tres",
-		"persistent_vex.tres",
-	]
+	TemplateDatabase.actions.clear()
 	TemplateDatabase.agents.clear()
-	for fname in agent_files:
-		var res = load(agent_dir + fname)
-		if res != null:
-			TemplateDatabase.agents[res.template_id] = res
-
-	var char_dir: String = "res://database/registry/characters/"
-	var char_files: Array = [
-		"character_default.tres", "character_vera.tres", "character_ada.tres",
-		"character_kai.tres", "character_milo.tres", "character_siv.tres",
-		"character_juno.tres", "character_nyx.tres", "character_orin.tres",
-		"character_nova.tres", "character_rex.tres", "character_crow.tres",
-		"character_zara.tres", "character_vex.tres",
-	]
 	TemplateDatabase.characters.clear()
-	for fname in char_files:
-		var res = load(char_dir + fname)
-		if res != null:
-			TemplateDatabase.characters[res.template_id] = res
+	TemplateDatabase.assets_ships.clear()
+	TemplateDatabase.assets_modules.clear()
+	TemplateDatabase.assets_commodities.clear()
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.contracts.clear()
+	TemplateDatabase.utility_tools.clear()
+	TemplateDatabase.factions.clear()
+	TemplateDatabase.contacts.clear()
+
+
+## Seeds TemplateDatabase with the live registry so simulation tests do not inherit partial template state.
+func _seed_template_database() -> void:
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	var indexer = TemplateIndexer.new()
+	indexer.index_all_templates()
+	indexer.free()

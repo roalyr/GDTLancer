@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-17 16:51:08
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6, §7; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 15:24:18
 #
 
 extends Control
@@ -25,6 +25,7 @@ const NAV_COMMAND_FLEE = 6
 const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
+const INVENTORY_DEFERRED_MESSAGE = "Inventory management is deferred. Use the debug window for current resource inspection until the inventory screen is rebuilt."
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
 	"ScreenControls/CenterLeftZone/ButtonDebug",
@@ -740,6 +741,8 @@ func _show_action_feedback_popup(action_type: String, success: bool, message: St
 	
 	_action_feedback_popup.dialog_text = message
 	_action_feedback_popup.popup_centered()
+
+
 func _on_SliderControlRight_value_changed(value):
 	# SPEED (maximum) limiter.
 	# This slider is inverted (rotated by 180) for the sake of appearance.
@@ -756,8 +759,7 @@ func _on_ButtonNarrativeStatus_pressed():
 
 
 func _on_ButtonInventory_pressed():
-	# TODO: Rebuild on simulation foundation
-	pass
+	_show_action_feedback_popup("Inventory", false, INVENTORY_DEFERRED_MESSAGE)
 
 
 func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:

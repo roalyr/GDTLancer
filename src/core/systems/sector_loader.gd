@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT §Architecture, TACTICAL_TODO §TASK_5
-# LOG_REF: 2026-03-27
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-23 16:36:08
 #
 
 extends Reference
@@ -36,12 +36,26 @@ func load_sector(sector_id: String) -> Spatial:
 
 
 func _load_zone_root(template, sector_id: String) -> Spatial:
-	if template.sector_scene_path != "":
-		var scene = load(template.sector_scene_path)
+	var scene_path = str(template.sector_scene_path)
+	if scene_path != "":
+		var scene = _load_handcrafted_scene(scene_path)
 		if scene != null:
-			return scene.instance()
-		_report_invalid_scene_path(sector_id, template.sector_scene_path)
+			var zone_root = scene.instance()
+			if zone_root is Spatial:
+				return zone_root
+			if is_instance_valid(zone_root):
+				zone_root.free()
+		_report_invalid_scene_path(sector_id, scene_path)
 	return _build_procedural_fallback(sector_id)
+
+
+func _load_handcrafted_scene(scene_path: String) -> PackedScene:
+	if scene_path == "":
+		return null
+	if not ResourceLoader.exists(scene_path, "PackedScene"):
+		return null
+	var scene = load(scene_path)
+	return scene if scene is PackedScene else null
 
 
 func _report_invalid_scene_path(sector_id: String, scene_path: String) -> void:

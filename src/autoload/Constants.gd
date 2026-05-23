@@ -3,13 +3,15 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §7; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-17 16:51:08
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
 
 ## Constants: Global game constants, thresholds, and configuration values.
 ## Centralizes magic numbers for balance tuning and consistency.
+
+const VERBOSE_RUNTIME_LOGS = false
 
 # --- Action Approach Enum ---
 enum ActionApproach { CAUTIOUS, NEUTRAL, RISKY }

@@ -3,7 +3,7 @@
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-17 16:51:08
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Reference
@@ -101,7 +101,8 @@ func initialize_agents() -> void:
 			continue
 		_initialize_agent_from_template(agent_id, template)
 
-	print("AgentLayer: Initialized %d agents." % GameState.agents.size())
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("AgentLayer: Initialized %d agents." % GameState.agents.size())
 
 
 ## Processes all Agent-layer logic for one tick.
