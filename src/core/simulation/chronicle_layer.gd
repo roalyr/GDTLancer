@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_9
-# LOG_REF: 2026-02-21 (TASK_9)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-24 00:25:24
 #
 
 extends Reference
@@ -30,7 +30,12 @@ var _max_agent_memory: int = 20
 ##
 ## @param event_packet  Dictionary — {tick, actor_id, action, sector_id, metadata}
 func log_event(event_packet: Dictionary) -> void:
-	var packet: Dictionary = event_packet.duplicate()
+	var packet: Dictionary = _normalize_event_packet(event_packet)
+	_staging_buffer.append(packet)
+
+
+func _normalize_event_packet(event_packet: Dictionary) -> Dictionary:
+	var packet: Dictionary = event_packet.duplicate(true)
 	if not packet.has("tick"):
 		packet["tick"] = GameState.sim_tick_count
 	if not packet.has("actor_id"):
@@ -39,13 +44,15 @@ func log_event(event_packet: Dictionary) -> void:
 		packet["action"] = "unknown"
 	if not packet.has("sector_id"):
 		packet["sector_id"] = ""
-	if not packet.has("metadata"):
+	if not packet.has("metadata") or not (packet.get("metadata", {}) is Dictionary):
 		packet["metadata"] = {}
-	_staging_buffer.append(packet)
+	else:
+		packet["metadata"] = packet.get("metadata", {}).duplicate(true)
+	return packet
 
 
 ## Processes all Chronicle Layer steps for one tick.
-func process_tick() -> void:
+func process_tick(_config: Dictionary = {}) -> void:
 	if _staging_buffer.empty():
 		return
 
@@ -173,6 +180,12 @@ func _humanize_action(action: String) -> String:
 			return "harvested salvage"
 		"load_cargo":
 			return "loaded cargo"
+		"contract_claimed":
+			return "claimed a relief contract"
+		"contract_loaded":
+			return "loaded relief cargo"
+		"contract_completed":
+			return "completed a relief delivery"
 		"flee":
 			return "fled"
 		"exploration":
@@ -189,6 +202,10 @@ func _humanize_action(action: String) -> String:
 			return "was permanently lost"
 		"catastrophe":
 			return "witnessed catastrophe"
+		"catastrophe_death":
+			return "was lost in catastrophe"
+		"expedition_failed":
+			return "failed an expedition"
 		"age_change":
 			return "reported a world-age shift"
 		_:

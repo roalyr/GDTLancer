@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-23 23:05:10
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-24 00:25:24
 #
 
 extends Node
@@ -179,7 +179,7 @@ func process_tick() -> void:
 	agent_layer.process_tick(_tick_config)
 
 	# --- Step 6: Chronicle Layer ---
-	chronicle_layer.process_tick()
+	chronicle_layer.process_tick(_tick_config)
 
 	# Emit tick-completed signal
 	EventBus.emit_signal("sim_tick_completed", GameState.sim_tick_count)
@@ -285,13 +285,13 @@ func is_initialized() -> bool:
 ## Runs `tick_count` ticks and returns a chronicle-style narrative report.
 ## Events are grouped into epochs of `epoch_size` ticks (default 1 for small
 ## runs, increase for large runs like 300/3000).
-func run_batch_and_report(tick_count: int, epoch_size: int = 1) -> String:
+func run_batch_and_report(tick_count: int, epoch_size: int = 1, report_request: Dictionary = {}) -> String:
 	if not _initialized:
 		push_warning("SimulationEngine: run_batch_and_report() called but not initialized.")
 		return "(simulation not initialized)"
 	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
 	var report: Reference = ReportScript.new()
-	return report.run_and_report(self, tick_count, epoch_size)
+	return report.run_and_report(self, tick_count, epoch_size, report_request)
 
 
 ## Allows runtime config overrides for tuning/debugging.

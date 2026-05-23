@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md
-# LOG_REF: 2026-05-23 17:04:30
+# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
+# LOG_REF: 2026-05-24 00:00:03
 #
 
 extends GutTest
@@ -45,6 +45,57 @@ func test_batch_30_ticks():
 		print(report)
 		print("===== END GODOT CHRONO-30 =====\n")
 
+
+func test_sector_focus_report_supports_requested_focus_and_sort_mode():
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var report: String = report_generator.run_and_report(engine, 30, 1, {
+		"focus_mode": "sector",
+		"focus_id": "sector_system_elace",
+		"sort_mode": "sector",
+		"detail_level": "verbose",
+	})
+
+	assert_true(report.find("REPORT MODE: SECTOR") != -1,
+		"Focused report should expose the requested sector mode in the header.")
+	assert_true(report.find("FOCUS: sector_system_elace") != -1,
+		"Focused report should expose the requested sector id in the header.")
+	assert_true(report.find("Detailed event log (sector order):") != -1,
+		"Focused report should expose a sector-sorted detailed log section.")
+	assert_true(report.find("FOCUSED SUMMARY") != -1,
+		"Focused report should emit a focused summary instead of the default world summary.")
+
+
+func test_agent_focus_report_supports_requested_focus_and_sort_mode():
+	var agent_ids: Array = GameState.agents.keys()
+	agent_ids.sort()
+	var focus_agent_id: String = ""
+	for agent_id in agent_ids:
+		if str(agent_id) != "player":
+			focus_agent_id = str(agent_id)
+			break
+	assert_true(focus_agent_id != "", "A non-player agent should exist for focused reporting.")
+	if focus_agent_id == "":
+		return
+
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var report: String = report_generator.run_and_report(engine, 10, 1, {
+		"focus_mode": "agent",
+		"focus_id": focus_agent_id,
+		"sort_mode": "agent",
+		"detail_level": "standard",
+	})
+
+	assert_true(report.find("REPORT MODE: AGENT") != -1,
+		"Focused report should expose the requested agent mode in the header.")
+	assert_true(report.find("FOCUS: %s" % focus_agent_id) != -1,
+		"Focused report should expose the requested agent id in the header.")
+	assert_true(report.find("Detailed event log (agent order):") != -1,
+		"Focused report should expose an agent-sorted detailed log section.")
+	assert_true(report.find("Current agent state:") != -1,
+		"Agent-focused reports should include an integral agent-state summary.")
+
 # =============================================================================
 # === VALIDATION ==============================================================
 # =============================================================================
@@ -58,6 +109,8 @@ func _validate_report(report: String, tick_count: int) -> void:
 		"Report should contain OVERALL SUMMARY.")
 	assert_true(report.find("Epoch 1:") != -1,
 		"Report should contain at least Epoch 1.")
+	assert_true(report.find("Detailed event log (chronological order):") != -1,
+		"Default report should now include a detailed chronological event log section.")
 	assert_true(report.find("Simulation ran for %d ticks" % tick_count) != -1,
 		"Summary should state correct tick count (%d)." % tick_count)
 	assert_true(report.find("Active pilots:") != -1,

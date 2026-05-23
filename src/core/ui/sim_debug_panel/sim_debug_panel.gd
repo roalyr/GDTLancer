@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
-# LOG_REF: 2026-05-17 15:43:57
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-24 00:08:25
 #
 
 extends CanvasLayer
@@ -31,6 +31,12 @@ onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
 onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 
+var _controls_row: HBoxContainer = null
+var _focus_mode_option: OptionButton = null
+var _focus_id_option: OptionButton = null
+var _sort_mode_option: OptionButton = null
+var _detail_level_option: OptionButton = null
+
 
 # =============================================================================
 # === STATE ===================================================================
@@ -44,6 +50,24 @@ var _showing_report: bool = false
 var _report_text: String = ""
 var _report_bbcode: String = ""
 
+const _FOCUS_MODE_ITEMS := [
+	{"label": "World", "value": "world"},
+	{"label": "Sector", "value": "sector"},
+	{"label": "Agent", "value": "agent"},
+]
+
+const _SORT_MODE_ITEMS := [
+	{"label": "Chronological", "value": "chronological"},
+	{"label": "Sector", "value": "sector"},
+	{"label": "Agent", "value": "agent"},
+]
+
+const _DETAIL_LEVEL_ITEMS := [
+	{"label": "Summary", "value": "summary"},
+	{"label": "Standard", "value": "standard"},
+	{"label": "Verbose", "value": "verbose"},
+]
+
 
 # =============================================================================
 # === LIFECYCLE ===============================================================
@@ -52,6 +76,9 @@ var _report_bbcode: String = ""
 func _ready() -> void:
 	layer = 100  # Render above everything
 	_panel.visible = false
+	_build_report_controls()
+	_populate_static_report_options()
+	_refresh_report_controls()
 	EventBus.connect("sim_tick_completed", self, "_on_tick")
 	_btn_dump.connect("pressed", self, "_on_dump_pressed")
 	_btn_tick.connect("pressed", self, "_on_tick_pressed")
@@ -82,6 +109,7 @@ func _toggle() -> void:
 	_visible = not _visible
 	_panel.visible = _visible
 	if _visible:
+		_refresh_report_controls()
 		_refresh()
 
 
@@ -91,6 +119,7 @@ func _toggle() -> void:
 
 func _on_tick(_tick_count: int = 0) -> void:
 	if _visible:
+		_refresh_report_controls()
 		_refresh()
 
 
@@ -110,6 +139,8 @@ func _on_run_batch(tick_count: int) -> void:
 	var engine = GlobalRefs.simulation_engine
 	if not engine.has_method("run_batch_and_report"):
 		return
+	_refresh_report_controls()
+	var report_request: Dictionary = _current_report_request()
 	var discovery_start_index: int = GameState.discovery_log.size()
 
 	# Determine epoch size based on tick count
@@ -119,7 +150,7 @@ func _on_run_batch(tick_count: int) -> void:
 	elif tick_count >= 300:
 		epoch_size = 10
 
-	var report: String = engine.run_batch_and_report(tick_count, epoch_size)
+	var report: String = engine.run_batch_and_report(tick_count, epoch_size, report_request)
 	report = _append_batch_discovery_summary(report, discovery_start_index)
 
 	# Also dump to console for LLM agent consumption
@@ -130,7 +161,7 @@ func _on_run_batch(tick_count: int) -> void:
 	_report_bbcode = _plain_to_bbcode(report)
 	_showing_report = true
 	_btn_back.visible = true
-	_header_label.text = "CHRONICLE REPORT (%d ticks)  [Back to return]" % tick_count
+	_header_label.text = "CHRONICLE REPORT (%d ticks, %s)  [Back to return]" % [tick_count, _report_request_header(report_request)]
 	_rich_text.bbcode_text = _report_bbcode
 	_last_plain_text = _report_text
 
@@ -147,6 +178,10 @@ func _on_back_pressed() -> void:
 func _on_close_pressed() -> void:
 	if _visible:
 		_toggle()
+
+
+func _on_focus_mode_selected(_index: int) -> void:
+	_refresh_focus_id_options()
 
 
 # =============================================================================
@@ -479,3 +514,200 @@ func _get_procedural_type(template) -> String:
 		return ""
 	var procedural_type = template.get("procedural_type")
 	return str(procedural_type) if procedural_type != null else ""
+
+
+func _build_report_controls() -> void:
+	if _controls_row != null:
+		return
+	var vbox: VBoxContainer = $Panel/VBoxContainer
+	_controls_row = HBoxContainer.new()
+	_controls_row.name = "ReportControlsRow"
+	vbox.add_child(_controls_row)
+	vbox.move_child(_controls_row, 1)
+
+	_add_report_label(_controls_row, "Focus")
+	_focus_mode_option = _create_report_option_button("FocusModeOption", 140)
+	_controls_row.add_child(_focus_mode_option)
+	_focus_mode_option.connect("item_selected", self, "_on_focus_mode_selected")
+
+	_add_report_label(_controls_row, "Entity")
+	_focus_id_option = _create_report_option_button("FocusIdOption", 300)
+	_controls_row.add_child(_focus_id_option)
+
+	_add_report_label(_controls_row, "Sort")
+	_sort_mode_option = _create_report_option_button("SortModeOption", 170)
+	_controls_row.add_child(_sort_mode_option)
+
+	_add_report_label(_controls_row, "Detail")
+	_detail_level_option = _create_report_option_button("DetailLevelOption", 150)
+	_controls_row.add_child(_detail_level_option)
+
+
+func _populate_static_report_options() -> void:
+	_populate_option_button(_focus_mode_option, _FOCUS_MODE_ITEMS, "world")
+	_populate_option_button(_sort_mode_option, _SORT_MODE_ITEMS, "chronological")
+	_populate_option_button(_detail_level_option, _DETAIL_LEVEL_ITEMS, "standard")
+
+
+func _refresh_report_controls() -> void:
+	if _focus_mode_option == null:
+		return
+	_refresh_focus_id_options()
+
+
+func _refresh_focus_id_options() -> void:
+	if _focus_id_option == null:
+		return
+	var previous_focus_id: String = _selected_option_value(_focus_id_option, "")
+	var focus_mode: String = _selected_option_value(_focus_mode_option, "world")
+	_clear_option_button(_focus_id_option)
+	_focus_id_option.disabled = false
+
+	if focus_mode == "world":
+		_focus_id_option.add_item("World")
+		_focus_id_option.set_item_metadata(0, "world")
+		_focus_id_option.select(0)
+		_focus_id_option.disabled = true
+		return
+
+	var focus_ids: Array = _current_focus_ids(focus_mode)
+	if focus_ids.empty():
+		_focus_id_option.add_item("(none available)")
+		_focus_id_option.set_item_metadata(0, "")
+		_focus_id_option.select(0)
+		_focus_id_option.disabled = true
+		return
+
+	var selected_index: int = 0
+	for focus_id in focus_ids:
+		var focus_id_string: String = str(focus_id)
+		_focus_id_option.add_item(_focus_id_label(focus_mode, focus_id_string))
+		var item_index: int = _focus_id_option.get_item_count() - 1
+		_focus_id_option.set_item_metadata(item_index, focus_id_string)
+		if focus_id_string == previous_focus_id:
+			selected_index = item_index
+	_focus_id_option.select(selected_index)
+
+
+func _current_report_request() -> Dictionary:
+	var focus_mode: String = _selected_option_value(_focus_mode_option, "world")
+	var focus_id: String = _selected_option_value(_focus_id_option, "world")
+	if focus_mode == "world":
+		focus_id = "world"
+	return {
+		"focus_mode": focus_mode,
+		"focus_id": focus_id,
+		"sort_mode": _selected_option_value(_sort_mode_option, "chronological"),
+		"detail_level": _selected_option_value(_detail_level_option, "standard"),
+	}
+
+
+func _report_request_header(report_request: Dictionary) -> String:
+	var focus_mode: String = str(report_request.get("focus_mode", "world"))
+	if focus_mode == "world":
+		return "world"
+	var focus_id: String = str(report_request.get("focus_id", ""))
+	return "%s:%s" % [focus_mode, _focus_id_label(focus_mode, focus_id)]
+
+
+func _current_focus_ids(focus_mode: String) -> Array:
+	if focus_mode == "sector":
+		var sector_ids: Array = []
+		var seen_sector_ids: Dictionary = {}
+		for sector_id in GameState.world_topology.keys():
+			var sector_key: String = str(sector_id)
+			if seen_sector_ids.has(sector_key):
+				continue
+			seen_sector_ids[sector_key] = true
+			sector_ids.append(sector_key)
+		for sector_id in GameState.sector_tags.keys():
+			var tag_sector_key: String = str(sector_id)
+			if seen_sector_ids.has(tag_sector_key):
+				continue
+			seen_sector_ids[tag_sector_key] = true
+			sector_ids.append(tag_sector_key)
+		sector_ids.sort()
+		return sector_ids
+	if focus_mode == "agent":
+		var agent_ids: Array = []
+		for agent_id in GameState.agents.keys():
+			agent_ids.append(str(agent_id))
+		agent_ids.sort()
+		return agent_ids
+	return ["world"]
+
+
+func _focus_id_label(focus_mode: String, focus_id: String) -> String:
+	if focus_mode == "sector":
+		return _format_sector_focus_label(focus_id)
+	if focus_mode == "agent":
+		return _format_agent_focus_label(focus_id)
+	return "World"
+
+
+func _format_sector_focus_label(sector_id: String) -> String:
+	if sector_id == "":
+		return "(no sector)"
+	var sector_name: String = GameState.sector_names.get(sector_id, sector_id)
+	if TemplateDatabase.locations.has(sector_id):
+		var sector_template = TemplateDatabase.locations.get(sector_id)
+		if sector_template != null and sector_template.get("location_name") != null:
+			sector_name = str(sector_template.get("location_name"))
+	if sector_name == sector_id:
+		return sector_id
+	return "%s [%s]" % [sector_name, sector_id]
+
+
+func _format_agent_focus_label(agent_id: String) -> String:
+	if agent_id == "player":
+		return "Player [player]"
+	var agent: Dictionary = GameState.agents.get(agent_id, {})
+	if agent.empty():
+		return agent_id
+	var char_name: String = _get_character_name(str(agent.get("character_id", "")))
+	var role: String = str(agent.get("agent_role", "idle"))
+	if char_name == agent_id or char_name == "(unnamed)":
+		return "%s [%s]" % [agent_id, role]
+	return "%s (%s) [%s]" % [char_name, role, agent_id]
+
+
+func _add_report_label(parent: HBoxContainer, text: String) -> void:
+	var label := Label.new()
+	label.text = text + ":"
+	label.rect_min_size = Vector2(48, 0)
+	parent.add_child(label)
+
+
+func _create_report_option_button(name: String, min_width: int) -> OptionButton:
+	var button := OptionButton.new()
+	button.name = name
+	button.rect_min_size = Vector2(min_width, 0)
+	return button
+
+
+func _populate_option_button(button: OptionButton, items: Array, default_value: String) -> void:
+	if button == null:
+		return
+	_clear_option_button(button)
+	var selected_index: int = 0
+	for item in items:
+		button.add_item(str(item.get("label", item.get("value", ""))))
+		var item_index: int = button.get_item_count() - 1
+		button.set_item_metadata(item_index, str(item.get("value", "")))
+		if str(item.get("value", "")) == default_value:
+			selected_index = item_index
+	button.select(selected_index)
+
+
+func _clear_option_button(button: OptionButton) -> void:
+	while button.get_item_count() > 0:
+		button.remove_item(0)
+
+
+func _selected_option_value(button: OptionButton, default_value: String) -> String:
+	if button == null:
+		return default_value
+	var selected_index: int = button.get_selected()
+	if selected_index < 0 or selected_index >= button.get_item_count():
+		return default_value
+	return str(button.get_item_metadata(selected_index))

@@ -3,7 +3,7 @@
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
-# LOG_REF: 2026-05-23 22:58:53
+# LOG_REF: 2026-05-24 00:39:14
 #
 
 extends GutTest
@@ -175,15 +175,15 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 	var load_success = GameStateManager.load_game(TEST_SLOT)
 	assert_true(load_success, "Game should load successfully.")
 
-	assert_eq(GameState.contract_generation_pressure, {"sector_system_cob": {"RAW": 2}},
+	_assert_deep_equal(GameState.contract_generation_pressure, {"sector_system_cob": {"RAW": 2}},
 		"contract_generation_pressure should survive save/load.")
-	assert_eq(GameState.contract_generation_threshold, {"sector_system_cob": {"RAW": 3}},
+	_assert_deep_equal(GameState.contract_generation_threshold, {"sector_system_cob": {"RAW": 3}},
 		"contract_generation_threshold should survive save/load.")
 	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("origin_location_id", ""), "sector_system_elace",
 		"runtime_contract_occurrences should survive save/load.")
-	assert_eq(GameState.runtime_contract_occurrences_by_target_sector, {"sector_system_cob": [occurrence_id]},
+	_assert_deep_equal(GameState.runtime_contract_occurrences_by_target_sector, {"sector_system_cob": [occurrence_id]},
 		"runtime contract target index should survive save/load.")
-	assert_eq(GameState.runtime_contract_occurrences_by_source_sector, {"sector_system_elace": [occurrence_id]},
+	_assert_deep_equal(GameState.runtime_contract_occurrences_by_source_sector, {"sector_system_elace": [occurrence_id]},
 		"runtime contract source index should survive save/load.")
 
 
@@ -258,3 +258,8 @@ func _deep_copy_game_state() -> Dictionary:
 	# We now call the private methods on the GameStateManager itself to get the
 	# serialized copy, since it's the authority on serialization.
 	return GameStateManager._serialize_game_state()
+
+
+func _assert_deep_equal(actual, expected, message: String) -> void:
+	var result = compare_deep(expected, actual)
+	assert_true(result.are_equal(), "%s\n%s" % [message, result.summary])

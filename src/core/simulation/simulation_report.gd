@@ -2,14 +2,15 @@
 # PROJECT: GDTLancer
 # MODULE: simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6
-# LOG_REF: 2026-02-23
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-24 00:16:48
 #
 
 extends Reference
 
 ## SimulationReport: Generates chronicle-style narrative reports of simulation
-## runs, matching the Python sandbox's `main.py --chronicle` output format.
+## runs, matching the Python sandbox's `main.py --chronicle` output format
+## while also supporting focus-aware and sort-aware scoped analysis.
 ##
 ## Usage:
 ##   var report = SimulationReport.new()
@@ -19,7 +20,7 @@ extends Reference
 ##   var text = report.finalize()    # overall summary
 ##
 ## Or use the convenience method:
-##   var text = report.run_and_report(engine, tick_count, epoch_size)
+##   var text = report.run_and_report(engine, tick_count, epoch_size, report_request)
 
 
 # =============================================================================
@@ -41,6 +42,9 @@ var _total_ticks: int = 0
 ## Seed string.
 var _seed: String = ""
 
+## Normalized request describing report focus and formatting.
+var _report_request: Dictionary = {}
+
 
 # =============================================================================
 # === CONVENIENCE: ONE-SHOT RUN ===============================================
@@ -48,12 +52,13 @@ var _seed: String = ""
 
 ## Runs `tick_count` ticks on the given engine and returns the full chronicle
 ## report as a plain-text string. Events are grouped into epochs of `epoch_size`.
-func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
+func run_and_report(engine, tick_count: int, epoch_size: int = 1, report_request: Dictionary = {}) -> String:
 	_lines.clear()
 	_all_events.clear()
 	_prev_sector_snap.clear()
 	_total_ticks = tick_count
 	_seed = GameState.world_seed
+	_report_request = _normalize_report_request(report_request)
 
 	# Identity-based deduplication: track which event objects we've already
 	# copied so that the 200-event rolling cap in ChronicleLayer doesn't
@@ -74,6 +79,12 @@ func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
 	_lines.append("================================================================")
 	_lines.append("CHRONICLE OF THE SECTOR  (seed: %s)" % _seed)
 	_lines.append("================================================================")
+	_lines.append("REPORT MODE: %s  |  FOCUS: %s  |  SORT: %s  |  DETAIL: %s" % [
+		str(_report_request.get("focus_mode", "world")).to_upper(),
+		str(_report_request.get("focus_id", "world")),
+		str(_report_request.get("sort_mode", "chronological")),
+		str(_report_request.get("detail_level", "standard")),
+	])
 	_lines.append("")
 
 	var epoch_start: int = GameState.sim_tick_count
@@ -109,10 +120,12 @@ func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
 				epoch_num, epoch_start + 1, epoch_end, age
 			])
 
-			# Narrative
-			var narrative: Array = _epoch_narrative(epoch_events)
-			if not narrative.empty():
-				_lines.append_array(narrative)
+			var epoch_summary: Array = _epoch_summary(epoch_events)
+			if not epoch_summary.empty():
+				_lines.append_array(epoch_summary)
+			var detailed_log: Array = _epoch_detailed_log(epoch_events)
+			if not detailed_log.empty():
+				_lines.append_array(detailed_log)
 			_lines.append("")
 
 			epoch_start = epoch_end
@@ -122,6 +135,31 @@ func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
 	_lines.append_array(_summary())
 
 	return PoolStringArray(_lines).join("\n")
+
+
+func _normalize_report_request(report_request: Dictionary) -> Dictionary:
+	var focus_mode: String = str(report_request.get("focus_mode", "world")).to_lower()
+	if not (focus_mode in ["world", "sector", "agent"]):
+		focus_mode = "world"
+
+	var sort_mode: String = str(report_request.get("sort_mode", "chronological")).to_lower()
+	if not (sort_mode in ["chronological", "sector", "agent"]):
+		sort_mode = "chronological"
+
+	var detail_level: String = str(report_request.get("detail_level", "standard")).to_lower()
+	if not (detail_level in ["summary", "standard", "verbose"]):
+		detail_level = "standard"
+
+	var focus_id: String = str(report_request.get("focus_id", ""))
+	if focus_mode == "world" or focus_id == "":
+		focus_id = "world" if focus_mode == "world" else focus_id
+
+	return {
+		"focus_mode": focus_mode,
+		"focus_id": focus_id,
+		"sort_mode": sort_mode,
+		"detail_level": detail_level,
+	}
 
 
 # =============================================================================
@@ -137,7 +175,29 @@ func _collect_epoch_events(events: Array, start: int, end: int) -> Array:
 	return result
 
 
-func _epoch_narrative(epoch_events: Array) -> Array:
+func _epoch_summary(epoch_events: Array) -> Array:
+	var current_snap: Dictionary = _take_sector_snapshot()
+	var changed_sectors: Array = _detect_sector_changes(_prev_sector_snap, current_snap)
+	var focused_changes: Array = []
+	if str(_report_request.get("focus_mode", "world")) == "sector":
+		focused_changes = _detect_sector_changes(
+			_prev_sector_snap,
+			current_snap,
+			str(_report_request.get("focus_id", ""))
+		)
+	_prev_sector_snap = current_snap
+
+	var filtered_events: Array = _filter_report_events(epoch_events)
+	match str(_report_request.get("focus_mode", "world")):
+		"sector":
+			return _sector_epoch_summary(filtered_events, current_snap, focused_changes)
+		"agent":
+			return _agent_epoch_summary(filtered_events)
+		_:
+			return _world_epoch_summary(filtered_events, changed_sectors)
+
+
+func _world_epoch_summary(epoch_events: Array, changed_sectors: Array) -> Array:
 	var lines: Array = []
 
 	# Count actions
@@ -191,11 +251,6 @@ func _epoch_narrative(epoch_events: Array) -> Array:
 	var respawn_count: int = counts.get("respawn", 0)
 	var survived_count: int = counts.get("survived", 0)
 	var perma_deaths: int = counts.get("perma_death", 0)
-
-	# ---- Sector state change detection ----
-	var cur_snap: Dictionary = _take_sector_snapshot()
-	var changed_sectors: Array = _detect_sector_changes(_prev_sector_snap, cur_snap)
-	_prev_sector_snap = cur_snap
 
 	# ---- World age changes ----
 	for new_age in age_changes:
@@ -301,11 +356,289 @@ func _epoch_narrative(epoch_events: Array) -> Array:
 	return lines
 
 
+func _sector_epoch_summary(epoch_events: Array, current_snap: Dictionary, sector_changes: Array) -> Array:
+	var lines: Array = []
+	var focus_sector_id: String = str(_report_request.get("focus_id", ""))
+	var focus_label: String = _sector_label_with_id(focus_sector_id)
+	var action_totals: Dictionary = _count_actions(epoch_events)
+
+	for entry in sector_changes:
+		lines.append("  %s: %s." % [entry[0], entry[1]])
+
+	if epoch_events.empty():
+		lines.append("  Sector focus: %s had no relevant events this epoch." % focus_label)
+	else:
+		lines.append("  Sector focus: %s logged %d relevant events." % [focus_label, epoch_events.size()])
+		var action_parts: Array = _format_action_totals(action_totals)
+		if not action_parts.empty():
+			lines.append("  Action totals: %s." % PoolStringArray(action_parts).join(", "))
+		var actor_counts: Dictionary = _collect_actor_counts(epoch_events)
+		if not actor_counts.empty():
+			lines.append("  Active actors: %s." % _format_count_entries(actor_counts, "agent"))
+
+	if current_snap.has(focus_sector_id):
+		var snap: Dictionary = current_snap.get(focus_sector_id, {})
+		lines.append("  Current sector state: %s economy, %s security, %s environment [%s]." % [
+			str(snap.get("economy", "adequate")),
+			str(snap.get("security", "contested")),
+			str(snap.get("environment", "mild")),
+			str(snap.get("colony", "frontier")),
+		])
+		var connections: Array = Array(GameState.world_topology.get(focus_sector_id, {}).get("connections", []))
+		if not connections.empty():
+			var connection_labels: Array = []
+			for connection_id in connections:
+				connection_labels.append(_sector_label_with_id(str(connection_id)))
+			lines.append("  Connected sectors: %s." % PoolStringArray(connection_labels).join(", "))
+	else:
+		lines.append("  Current sector state: unavailable for %s." % focus_label)
+
+	return lines
+
+
+func _agent_epoch_summary(epoch_events: Array) -> Array:
+	var lines: Array = []
+	var focus_agent_id: String = str(_report_request.get("focus_id", ""))
+	var focus_label: String = _actor_label_with_id(focus_agent_id)
+	var action_totals: Dictionary = _count_actions(epoch_events)
+
+	if epoch_events.empty():
+		lines.append("  Agent focus: %s had no relevant events this epoch." % focus_label)
+	else:
+		lines.append("  Agent focus: %s logged %d relevant events." % [focus_label, epoch_events.size()])
+		var action_parts: Array = _format_action_totals(action_totals)
+		if not action_parts.empty():
+			lines.append("  Action totals: %s." % PoolStringArray(action_parts).join(", "))
+		var sector_counts: Dictionary = _collect_sector_counts(epoch_events)
+		if not sector_counts.empty():
+			lines.append("  Sector trail: %s." % _format_count_entries(sector_counts, "sector"))
+
+	var agent: Dictionary = GameState.agents.get(focus_agent_id, {})
+	if agent.empty():
+		lines.append("  Current agent state: unavailable for %s." % focus_label)
+	else:
+		lines.append("  Current agent state: sector=%s cond=%s wealth=%s cargo=%s goal=%s." % [
+			_sector_label_with_id(str(agent.get("current_sector_id", ""))),
+			str(agent.get("condition_tag", "?")),
+			str(agent.get("wealth_tag", "?")),
+			str(agent.get("cargo_tag", "?")),
+			str(agent.get("goal_archetype", "none")),
+		])
+
+	return lines
+
+
+func _epoch_detailed_log(epoch_events: Array) -> Array:
+	if str(_report_request.get("detail_level", "standard")) == "summary":
+		return []
+
+	var lines: Array = []
+	var filtered_events: Array = _filter_report_events(epoch_events)
+	var sort_mode: String = str(_report_request.get("sort_mode", "chronological"))
+	lines.append("  Detailed event log (%s order):" % sort_mode)
+
+	if filtered_events.empty():
+		lines.append("    (no relevant events)")
+		return lines
+
+	var ordered_events: Array = filtered_events.duplicate(true)
+	ordered_events.sort_custom(self, "_sort_events_by_request")
+	for event in ordered_events:
+		lines.append("    %s" % _format_detailed_event(event))
+
+	return lines
+
+
+func _filter_report_events(events: Array) -> Array:
+	var filtered: Array = []
+	for event in events:
+		if _event_matches_report_request(event):
+			filtered.append(event)
+	return filtered
+
+
+func _event_matches_report_request(event: Dictionary) -> bool:
+	var focus_mode: String = str(_report_request.get("focus_mode", "world"))
+	if focus_mode == "world":
+		return true
+	var focus_id: String = str(_report_request.get("focus_id", ""))
+	if focus_id == "":
+		return true
+	if focus_mode == "sector":
+		return _event_references_sector(event, focus_id)
+	if focus_mode == "agent":
+		return _event_references_agent(event, focus_id)
+	return true
+
+
+func _event_references_sector(event: Dictionary, sector_id: String) -> bool:
+	if str(event.get("sector_id", "")) == sector_id:
+		return true
+	var metadata: Dictionary = event.get("metadata", {})
+	for key in ["from", "target_sector_id", "source_sector_id", "requested_from", "new_sector"]:
+		if str(metadata.get(key, "")) == sector_id:
+			return true
+	var connections: Array = Array(metadata.get("connections", []))
+	for connection_id in connections:
+		if str(connection_id) == sector_id:
+			return true
+	return false
+
+
+func _event_references_agent(event: Dictionary, agent_id: String) -> bool:
+	if str(event.get("actor_id", "")) == agent_id:
+		return true
+	var metadata: Dictionary = event.get("metadata", {})
+	for key in ["target", "claimant_agent_id"]:
+		if str(metadata.get(key, "")) == agent_id:
+			return true
+	return false
+
+
+func _count_actions(events: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for event in events:
+		var action: String = str(event.get("action", ""))
+		counts[action] = int(counts.get(action, 0)) + 1
+	return counts
+
+
+func _collect_actor_counts(events: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for event in events:
+		var actor_id: String = str(event.get("actor_id", ""))
+		if actor_id == "":
+			continue
+		counts[actor_id] = int(counts.get(actor_id, 0)) + 1
+	return counts
+
+
+func _collect_sector_counts(events: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for event in events:
+		var sector_id: String = str(event.get("sector_id", ""))
+		if sector_id == "":
+			continue
+		counts[sector_id] = int(counts.get(sector_id, 0)) + 1
+	return counts
+
+
+func _format_action_totals(action_totals: Dictionary) -> Array:
+	var parts: Array = []
+	for action in _sorted_keys(action_totals):
+		parts.append("%s=%d" % [action, int(action_totals[action])])
+	return parts
+
+
+func _format_count_entries(counts: Dictionary, mode: String) -> String:
+	var parts: Array = []
+	for key in _sorted_keys(counts):
+		var label: String = str(key)
+		if mode == "agent":
+			label = _actor_label_with_id(str(key))
+		elif mode == "sector":
+			label = _sector_label_with_id(str(key))
+		parts.append("%s=%d" % [label, int(counts[key])])
+	return PoolStringArray(parts).join(", ")
+
+
+func _format_detailed_event(event: Dictionary) -> String:
+	var tick: int = int(event.get("tick", 0))
+	var actor_id: String = str(event.get("actor_id", ""))
+	var sector_id: String = str(event.get("sector_id", ""))
+	var action: String = str(event.get("action", "unknown"))
+	var base_line: String = "T%s [%s] %s %s" % [
+		_pad_int(tick, 4),
+		_sector_label_with_id(sector_id),
+		_actor_label_with_id(actor_id),
+		_humanize_action(action),
+	]
+
+	var metadata: Dictionary = event.get("metadata", {})
+	if metadata.empty():
+		return base_line
+
+	var detail_level: String = str(_report_request.get("detail_level", "standard"))
+	var max_items: int = 3
+	if detail_level == "verbose":
+		max_items = -1
+	var metadata_text: String = _format_metadata(metadata, max_items)
+	if metadata_text == "":
+		return base_line
+	return "%s | %s" % [base_line, metadata_text]
+
+
+func _format_metadata(metadata: Dictionary, max_items: int) -> String:
+	var keys: Array = _sorted_keys(metadata)
+	if keys.empty():
+		return ""
+
+	var parts: Array = []
+	var item_count: int = 0
+	for key in keys:
+		if max_items >= 0 and item_count >= max_items:
+			break
+		parts.append("%s=%s" % [key, _format_metadata_value(str(key), metadata[key])])
+		item_count += 1
+
+	if max_items >= 0 and keys.size() > max_items:
+		parts.append("+%d more" % (keys.size() - max_items))
+
+	return PoolStringArray(parts).join("; ")
+
+
+func _format_metadata_value(key: String, value) -> String:
+	if key in ["from", "target_sector_id", "source_sector_id", "requested_from", "new_sector"]:
+		return _sector_label_with_id(str(value))
+	if key in ["target", "claimant_agent_id"]:
+		return _actor_label_with_id(str(value))
+	if value is Array:
+		var values: Array = []
+		for item in value:
+			if key == "connections":
+				values.append(_sector_label_with_id(str(item)))
+			else:
+				values.append(str(item))
+		return "[%s]" % PoolStringArray(values).join(", ")
+	return str(value)
+
+
+func _sort_events_by_request(a: Dictionary, b: Dictionary) -> bool:
+	return _event_sort_key(a) < _event_sort_key(b)
+
+
+func _event_sort_key(event: Dictionary) -> String:
+	var tick_key: String = _pad_int(int(event.get("tick", 0)), 8)
+	var sector_key: String = _sector_label_with_id(str(event.get("sector_id", ""))).to_lower()
+	var actor_key: String = _actor_label_with_id(str(event.get("actor_id", ""))).to_lower()
+	var action_key: String = str(event.get("action", "")).to_lower()
+	match str(_report_request.get("sort_mode", "chronological")):
+		"sector":
+			return "%s|%s|%s|%s" % [sector_key, tick_key, actor_key, action_key]
+		"agent":
+			return "%s|%s|%s|%s" % [actor_key, tick_key, sector_key, action_key]
+		_:
+			return "%s|%s|%s|%s" % [tick_key, sector_key, actor_key, action_key]
+
+
+func _pad_int(value: int, width: int) -> String:
+	var text: String = str(value)
+	while text.length() < width:
+		text = "0" + text
+	return text
+
+
 # =============================================================================
 # === OVERALL SUMMARY =========================================================
 # =============================================================================
 
 func _summary() -> Array:
+	if str(_report_request.get("focus_mode", "world")) != "world":
+		return _focused_summary()
+	return _world_summary()
+
+
+func _world_summary() -> Array:
 	var lines: Array = []
 
 	# Count action totals
@@ -409,6 +742,65 @@ func _summary() -> Array:
 	return lines
 
 
+func _focused_summary() -> Array:
+	var lines: Array = []
+	var focus_mode: String = str(_report_request.get("focus_mode", "world"))
+	var focus_id: String = str(_report_request.get("focus_id", ""))
+	var relevant_events: Array = _filter_report_events(_all_events)
+	var action_totals: Dictionary = _count_actions(relevant_events)
+
+	lines.append("================================================================")
+	lines.append("FOCUSED SUMMARY")
+	lines.append("================================================================")
+	lines.append("  Focus mode: %s  |  focus id: %s" % [focus_mode, focus_id])
+	lines.append("  Simulation ran for %d ticks with %d relevant events captured." % [
+		_total_ticks,
+		relevant_events.size(),
+	])
+	var action_parts: Array = _format_action_totals(action_totals)
+	if not action_parts.empty():
+		lines.append("  Action totals: %s" % PoolStringArray(action_parts).join(", "))
+
+	if focus_mode == "sector":
+		if GameState.sector_tags.has(focus_id):
+			var tags: Array = GameState.sector_tags.get(focus_id, [])
+			lines.append("  Final sector state: %s economy, %s, %s environment [%s]" % [
+				_economy_label(tags),
+				_security_label(tags),
+				_environment_label(tags),
+				GameState.colony_levels.get(focus_id, "frontier"),
+			])
+			var connections: Array = Array(GameState.world_topology.get(focus_id, {}).get("connections", []))
+			var connection_labels: Array = []
+			for connection_id in connections:
+				connection_labels.append(_sector_label_with_id(str(connection_id)))
+			lines.append("  Connections: %s" % (
+				PoolStringArray(connection_labels).join(", ") if not connection_labels.empty() else "(isolated)"
+			))
+		else:
+			lines.append("  Final sector state: unavailable for %s" % _sector_label_with_id(focus_id))
+		var actor_counts: Dictionary = _collect_actor_counts(relevant_events)
+		if not actor_counts.empty():
+			lines.append("  Active actors: %s" % _format_count_entries(actor_counts, "agent"))
+	elif focus_mode == "agent":
+		var agent: Dictionary = GameState.agents.get(focus_id, {})
+		if agent.empty():
+			lines.append("  Final agent state: unavailable for %s" % _actor_label_with_id(focus_id))
+		else:
+			lines.append("  Final agent state: sector=%s cond=%s wealth=%s cargo=%s goal=%s" % [
+				_sector_label_with_id(str(agent.get("current_sector_id", ""))),
+				str(agent.get("condition_tag", "?")),
+				str(agent.get("wealth_tag", "?")),
+				str(agent.get("cargo_tag", "?")),
+				str(agent.get("goal_archetype", "none")),
+			])
+		var sector_counts: Dictionary = _collect_sector_counts(relevant_events)
+		if not sector_counts.empty():
+			lines.append("  Sector trail: %s" % _format_count_entries(sector_counts, "sector"))
+
+	return lines
+
+
 # =============================================================================
 # === SECTOR SNAPSHOT & CHANGE DETECTION ======================================
 # =============================================================================
@@ -427,9 +819,11 @@ func _take_sector_snapshot() -> Dictionary:
 	return snap
 
 
-func _detect_sector_changes(prev: Dictionary, cur: Dictionary) -> Array:
+func _detect_sector_changes(prev: Dictionary, cur: Dictionary, focus_sector_id: String = "") -> Array:
 	var changes: Array = []
 	for sid in cur:
+		if focus_sector_id != "" and str(sid) != focus_sector_id:
+			continue
 		var c: Dictionary = cur[sid]
 		var p: Dictionary = prev.get(sid, {})
 		var parts: Array = []
@@ -496,6 +890,70 @@ func _resolve_character_name(char_id: String, fallback: String = "") -> String:
 		elif c is Dictionary and c.has("character_name"):
 			return c["character_name"]
 	return char_id
+
+
+func _sector_label_with_id(sector_id: String) -> String:
+	if sector_id == "":
+		return "deep space"
+	var label: String = _loc(sector_id)
+	if label == sector_id:
+		return sector_id
+	return "%s/%s" % [label, sector_id]
+
+
+func _actor_label_with_id(actor_id: String) -> String:
+	if actor_id == "":
+		return "unknown"
+	var label: String = _agent_display(actor_id)
+	if label == actor_id:
+		return actor_id
+	return "%s/%s" % [label, actor_id]
+
+
+func _humanize_action(action: String) -> String:
+	match action:
+		"move":
+			return "moved"
+		"attack":
+			return "attacked"
+		"agent_trade":
+			return "traded"
+		"dock":
+			return "docked"
+		"harvest":
+			return "harvested salvage"
+		"load_cargo":
+			return "loaded cargo"
+		"contract_claimed":
+			return "claimed a relief contract"
+		"contract_loaded":
+			return "loaded relief cargo"
+		"contract_completed":
+			return "completed a relief delivery"
+		"flee":
+			return "fled"
+		"exploration":
+			return "explored"
+		"sector_discovered":
+			return "discovered a new sector"
+		"spawn":
+			return "appeared"
+		"respawn":
+			return "returned"
+		"survived":
+			return "narrowly survived destruction"
+		"perma_death":
+			return "was permanently lost"
+		"catastrophe":
+			return "witnessed catastrophe"
+		"catastrophe_death":
+			return "was lost in catastrophe"
+		"expedition_failed":
+			return "failed an expedition"
+		"age_change":
+			return "reported a world-age shift"
+		_:
+			return action
 
 
 # =============================================================================

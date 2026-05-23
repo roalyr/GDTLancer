@@ -3,7 +3,7 @@
 # MODULE: test_contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md TASK_4; TRUTH_SIMULATION-GRAPH.md §6.4
-# LOG_REF: 2026-05-23 23:11:32
+# LOG_REF: 2026-05-24 00:28:56
 #
 
 extends GutTest
@@ -67,6 +67,7 @@ func test_process_tick_respects_occurrence_caps() -> void:
 func test_process_tick_requires_nearby_qualifying_sources() -> void:
 	GameState.sector_tags["b"] = ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.sector_tags["c"] = ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH"]
+	GameState.world_topology["b"]["connections"].append("e")
 	GameState.world_topology["e"] = {"connections": ["b"], "sector_type": "colony", "station_ids": ["e"]}
 	GameState.sector_tags["e"] = ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_POOR"]
 

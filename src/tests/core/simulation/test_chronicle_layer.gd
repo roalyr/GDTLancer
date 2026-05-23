@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
+# LOG_REF: 2026-05-24 00:00:03
 #
 
 extends GutTest
@@ -85,6 +85,47 @@ func test_event_has_required_fields():
 	assert_true(ev.has("actor_id"), "Event must have actor_id.")
 	assert_true(ev.has("action"), "Event must have action.")
 	assert_true(ev.has("sector_id"), "Event must have sector_id.")
+	assert_true(ev.has("metadata"), "Event must retain metadata as a Dictionary.")
+
+
+func test_log_event_deep_copies_nested_metadata():
+	var metadata := {
+		"target": "agent_ada",
+		"connections": ["sector_system_elace"],
+	}
+	chronicle.log_event({
+		"tick": 2,
+		"actor_id": "agent_vera",
+		"action": "contract_completed",
+		"sector_id": "sector_system_elace",
+		"metadata": metadata,
+	})
+	metadata["target"] = "agent_mutated"
+	metadata["connections"].append("sector_system_cob")
+
+	chronicle.process_tick()
+
+	var event: Dictionary = GameState.chronicle_events[0]
+	var stored_meta: Dictionary = event.get("metadata", {})
+	assert_eq(stored_meta.get("target", ""), "agent_ada",
+		"ChronicleLayer should deep-copy metadata so later mutations do not corrupt stored events.")
+	assert_eq(Array(stored_meta.get("connections", [])).size(), 1,
+		"Nested metadata arrays should also be deep-copied.")
+
+
+func test_contract_action_rumor_uses_humanized_text():
+	chronicle.log_event({
+		"tick": 3,
+		"actor_id": "hauler_1",
+		"action": "contract_completed",
+		"sector_id": "sector_system_elace",
+		"metadata": {},
+	})
+
+	chronicle.process_tick()
+
+	assert_true(str(GameState.chronicle_rumors[0]).find("completed a relief delivery") != -1,
+		"Chronicle rumors should humanize the new runtime contract actions.")
 
 
 func test_buffer_capped_at_limit():
