@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 23:11:32
 #
 
 extends Reference
@@ -126,7 +126,7 @@ func process_tick(config: Dictionary) -> void:
 			_check_respawn(agent_id, agent)
 			continue
 
-		_evaluate_goals(agent)
+		_evaluate_goals(agent, agent_id)
 		_execute_action(agent_id, agent)
 
 	_check_catastrophe()
@@ -217,11 +217,16 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 # === PRIVATE — GOAL EVALUATION ===============================================
 # =============================================================================
 
-func _evaluate_goals(agent: Dictionary) -> void:
+func _evaluate_goals(agent: Dictionary, agent_id: String = "") -> void:
 	var tags: Array = agent.get("sentiment_tags", [])
 	if "DESPERATE" in tags:
 		agent["goal_archetype"] = "flee_to_safety"
 		agent["goal_queue"] = [{"type": "flee_to_safety"}]
+		return
+	var runtime_contract_id: String = _best_runtime_contract_occurrence_id(agent_id, agent, tags)
+	if runtime_contract_id != "":
+		agent["goal_archetype"] = "service_contract"
+		agent["goal_queue"] = [{"type": "service_contract", "occurrence_id": runtime_contract_id}]
 		return
 	agent["goal_archetype"] = "affinity_scan"
 	agent["goal_queue"] = [{"type": "affinity_scan"}]
@@ -237,6 +242,9 @@ func _execute_action(agent_id: String, agent: Dictionary) -> void:
 
 	if goal == "flee_to_safety":
 		_action_flee_to_safety(agent_id, agent)
+		return
+	if goal == "service_contract":
+		_action_service_contract(agent_id, agent, str(goal_queue[0].get("occurrence_id", "")))
 		return
 	if goal == "affinity_scan":
 		_action_affinity_scan(agent_id, agent)
@@ -418,6 +426,203 @@ func _is_exploration_cooldown_active(agent: Dictionary) -> bool:
 
 
 # =============================================================================
+# === PRIVATE — RUNTIME CONTRACTS =============================================
+# =============================================================================
+
+func _best_runtime_contract_occurrence_id(agent_id: String, agent: Dictionary, actor_tags: Array) -> String:
+	var role: String = str(agent.get("agent_role", "idle"))
+	if not (role in ["trader", "hauler"]):
+		return ""
+	if actor_tags.empty() or affinity_matrix == null:
+		return ""
+
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+	var cargo_loaded: bool = agent.get("cargo_tag", "EMPTY") == "LOADED"
+	var occurrence_ids: Array = GameState.runtime_contract_occurrences.keys()
+	occurrence_ids.sort()
+	var best_occurrence_id: String = ""
+	var best_score: float = -1000000.0
+
+	for occurrence_id in occurrence_ids:
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		var required_roles: Array = Array(occurrence.get("required_roles", []))
+		if not (role in required_roles):
+			continue
+		var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+		if claimant_agent_id != "" and claimant_agent_id != agent_id:
+			continue
+		if cargo_loaded and claimant_agent_id != agent_id:
+			continue
+
+		var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+		var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+		var route_goal_sector_id: String = target_sector_id if cargo_loaded else source_sector_id
+		var hops_to_goal: int = _sector_hops_between(current_sector_id, route_goal_sector_id)
+		if hops_to_goal < 0:
+			continue
+
+		var score: float = affinity_matrix.compute_affinity(actor_tags, Array(occurrence.get("priority_tags", [])))
+		if claimant_agent_id == agent_id:
+			score += 6.0
+		if current_sector_id == route_goal_sector_id:
+			score += 1.5
+		score -= float(hops_to_goal)
+
+		if score > best_score or (is_equal_approx(score, best_score) and (best_occurrence_id == "" or occurrence_id < best_occurrence_id)):
+			best_score = score
+			best_occurrence_id = occurrence_id
+
+	return best_occurrence_id
+
+
+func _action_service_contract(agent_id: String, agent: Dictionary, occurrence_id: String) -> void:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		_action_move_toward_role_target(agent_id, agent)
+		return
+	if not _claim_runtime_contract_occurrence(agent_id, agent, occurrence_id):
+		_action_move_toward_role_target(agent_id, agent)
+		return
+
+	occurrence = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+
+	if source_sector_id == "" or target_sector_id == "" or current_sector_id == "":
+		_release_runtime_contract_claim(agent_id, occurrence_id)
+		_action_move_toward_role_target(agent_id, agent)
+		return
+
+	if agent.get("cargo_tag", "EMPTY") == "EMPTY":
+		if current_sector_id != source_sector_id:
+			_action_move_toward_sector(agent_id, agent, source_sector_id)
+			return
+		if _load_runtime_contract_cargo(agent_id, agent, occurrence_id, source_sector_id):
+			return
+	else:
+		if current_sector_id != target_sector_id:
+			_action_move_toward_sector(agent_id, agent, target_sector_id)
+			return
+		if _complete_runtime_contract_occurrence(agent_id, agent, occurrence_id, target_sector_id):
+			return
+
+	_action_move_toward_role_target(agent_id, agent)
+
+
+func _claim_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occurrence_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	var required_roles: Array = Array(occurrence.get("required_roles", []))
+	if not (str(agent.get("agent_role", "idle")) in required_roles):
+		return false
+	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+	if claimant_agent_id != "" and claimant_agent_id != agent_id:
+		return false
+
+	if claimant_agent_id == "":
+		occurrence["claimant_agent_id"] = agent_id
+		occurrence["status"] = "claimed"
+		occurrence["claimed_at_tick"] = GameState.sim_tick_count
+		_log_event(agent_id, "contract_claimed", str(agent.get("current_sector_id", "")), {
+			"occurrence_id": occurrence_id,
+			"target_sector_id": str(occurrence.get("target_sector_id", "")),
+		})
+	else:
+		occurrence["status"] = str(occurrence.get("status", "claimed"))
+
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	return true
+
+
+func _release_runtime_contract_claim(agent_id: String, occurrence_id: String) -> void:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return
+	if str(occurrence.get("claimant_agent_id", "")) != agent_id:
+		return
+	occurrence["claimant_agent_id"] = ""
+	occurrence["status"] = "open"
+	if occurrence.has("claimed_at_tick"):
+		occurrence.erase("claimed_at_tick")
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+
+
+func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
+	if agent.get("cargo_tag", "EMPTY") != "EMPTY":
+		return false
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if sector_id != str(occurrence.get("source_sector_id", "")):
+		return false
+	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+		return false
+
+	agent["cargo_tag"] = "LOADED"
+	if str(agent.get("agent_role", "idle")) == "trader":
+		_wealth_step_down(agent)
+	occurrence["status"] = "in_transit"
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	_log_event(agent_id, "contract_loaded", sector_id, {
+		"occurrence_id": occurrence_id,
+		"target_sector_id": str(occurrence.get("target_sector_id", "")),
+	})
+	return true
+
+
+func _complete_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if agent.get("cargo_tag", "EMPTY") != "LOADED":
+		return false
+	if sector_id != str(occurrence.get("target_sector_id", "")):
+		return false
+	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+		return false
+
+	_try_dock(agent_id, agent, sector_id)
+	_log_event(agent_id, "contract_completed", sector_id, {
+		"occurrence_id": occurrence_id,
+		"source_sector_id": str(occurrence.get("source_sector_id", "")),
+	})
+	_remove_runtime_contract_occurrence(occurrence_id)
+	return true
+
+
+func _remove_runtime_contract_occurrence(occurrence_id: String) -> void:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	GameState.runtime_contract_occurrences.erase(occurrence_id)
+	_remove_runtime_contract_index_entry(GameState.runtime_contract_occurrences_by_target_sector, target_sector_id, occurrence_id)
+	_remove_runtime_contract_index_entry(GameState.runtime_contract_occurrences_by_source_sector, source_sector_id, occurrence_id)
+
+
+func _remove_runtime_contract_index_entry(index: Dictionary, sector_id: String, occurrence_id: String) -> void:
+	if not index.has(sector_id):
+		return
+	var updated_ids: Array = []
+	for existing_id in Array(index.get(sector_id, [])):
+		if existing_id != occurrence_id:
+			updated_ids.append(existing_id)
+	if updated_ids.empty():
+		index.erase(sector_id)
+	else:
+		index[sector_id] = updated_ids
+
+
+# =============================================================================
 # === PRIVATE — DOCK / HARVEST / CARGO ========================================
 # =============================================================================
 
@@ -495,6 +700,16 @@ func _action_move_toward(agent_id: String, agent: Dictionary, target_sector_id: 
 		_log_event(agent_id, "move", target_sector_id, {"from": current})
 
 
+func _action_move_toward_sector(agent_id: String, agent: Dictionary, target_sector_id: String) -> void:
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+	if current_sector_id == "" or current_sector_id == target_sector_id:
+		return
+	var route: Array = _build_sector_route(current_sector_id, target_sector_id)
+	if route.empty():
+		return
+	_action_move_toward(agent_id, agent, str(route[0]))
+
+
 func _action_move_random(agent_id: String, agent: Dictionary) -> void:
 	var current: String = agent.get("current_sector_id", "")
 	var neighbors: Array = GameState.world_topology.get(current, {}).get("connections", [])
@@ -554,6 +769,51 @@ func _post_combat_dispersal(agent_id: String, agent: Dictionary) -> void:
 			best_count = count
 			best_sector = neighbors[i]
 	_action_move_toward(agent_id, agent, best_sector)
+
+
+func _build_sector_route(start_sector_id: String, target_sector_id: String) -> Array:
+	if start_sector_id == "" or target_sector_id == "" or start_sector_id == target_sector_id:
+		return []
+	var frontier: Array = [start_sector_id]
+	var visited: Dictionary = {start_sector_id: true}
+	var parents: Dictionary = {}
+
+	while not frontier.empty():
+		var sector_id: String = str(frontier[0])
+		frontier.remove(0)
+		var neighbors: Array = Array(GameState.world_topology.get(sector_id, {}).get("connections", []))
+		neighbors.sort()
+		for neighbor_id in neighbors:
+			if visited.has(neighbor_id):
+				continue
+			visited[neighbor_id] = true
+			parents[neighbor_id] = sector_id
+			if neighbor_id == target_sector_id:
+				return _reconstruct_sector_route(parents, start_sector_id, target_sector_id)
+			frontier.append(neighbor_id)
+
+	return []
+
+
+func _reconstruct_sector_route(parents: Dictionary, start_sector_id: String, target_sector_id: String) -> Array:
+	var route: Array = [target_sector_id]
+	var cursor: String = target_sector_id
+	while parents.has(cursor):
+		cursor = str(parents[cursor])
+		route.insert(0, cursor)
+	if route.empty() or route[0] != start_sector_id:
+		return []
+	route.remove(0)
+	return route
+
+
+func _sector_hops_between(start_sector_id: String, target_sector_id: String) -> int:
+	if start_sector_id == "" or target_sector_id == "":
+		return -1
+	if start_sector_id == target_sector_id:
+		return 0
+	var route: Array = _build_sector_route(start_sector_id, target_sector_id)
+	return -1 if route.empty() else route.size()
 
 
 # =============================================================================

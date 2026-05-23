@@ -1,32 +1,29 @@
-## CURRENT GOAL: Pre-Feature Stabilization Sweep
-- TARGET_SCOPE: Godot runtime stabilization before new features: canonical sector/location authoring, scene-state persistence/bootstrap hardening, graceful deferred-system boundaries, wider active-suite canonicalization, and high-friction compatibility seam reduction.
+<!--
+PROJECT: GDTLancer
+MODULE: TACTICAL_TODO.md
+STATUS: [Level 2 - Implementation]
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; MODEL-CASCADE-PROTOCOL.md ROLE: Lead QA & Code Verificator
+LOG_REF: 2026-05-23 23:24:49
+-->
+
+## CURRENT GOAL: Qualitative Demand-Driven Contract Foundations
+- TARGET_SCOPE: Implement the first runtime slice of demand-driven contracts without numeric stockpiles, prices, or authored per-location contract lists. Scope covers sector demand pressure, demand tags, runtime occurrence scaffolding, and tick-order/test coverage.
 - TARGET_FILES:
-  - database/definitions/location_template.gd — canonical location/sector field contract and legacy/deferred-field boundary.
-  - TRUTH_CONTENT-CREATION-MANUAL.md — refined canonical authoring guide for sectors, locations, naming, and validation.
-  - src/autoload/GameState.gd — scene-state inventory and persistence decisions.
-  - src/autoload/GameStateManager.gd — save/load serialization and deserialization contract.
-  - src/scenes/game_world/world_manager.gd — new-game/load-game/current-sector bootstrap and fallback behavior.
-  - src/scenes/game_world/world_manager/world_generator.gd — canonical new-game location loading and starter-state bootstrap.
-  - src/core/systems/sector_loader.gd — canonical consumer of `sector_scene_path` and `global_position`.
-  - src/core/ui/station_menu/station_menu.gd — explicit graceful deferred-service UI behavior and reopen rules.
-  - src/core/ui/main_hud/main_hud.gd — deferred inventory/combat hooks and HUD compatibility seam cleanup.
-  - src/core/ui/main_hud/projected_target_bracket.gd — projected-target bridge contract hardening.
-  - src/core/agents/components/tool_controller.gd — explicit combat-unavailable boundary instead of drift.
-  - src/modules/piloting/player_controller_ship.gd — input-state lifecycle and dock/jump compatibility behavior.
-  - src/tests/autoload/test_game_state_manager.gd — scene-state persistence and round-trip coverage.
-  - src/tests/core/ui/test_debug_window.gd — docked UI reopen and deferred-service stub coverage.
-  - src/tests/core/ui/test_debug_map_panel.gd — canonical registry seeding alignment.
-  - src/tests/core/systems/test_persistent_agents.gd — stale inline location-fixture cleanup.
-  - src/tests/core/systems/test_contact_manager.gd — canonical sector-fixture cleanup or explicit defer decision.
-  - src/tests/scenes/game_world/world_manager/test_world_manager.gd — bootstrap/current-sector/jump fixture cleanup.
-  - src/tests/scenes/jump_transition/test_jump_transition_regressions.gd — canonical target-sector fixture cleanup.
-- TRUTH_RELIANCE: ["TRUTH_PROJECT.md § Project Stack and Context", "TRUTH_CONTENT-CREATION-MANUAL.md §2 Directory Structure Reference", "TRUTH_CONTENT-CREATION-MANUAL.md §3.4 Adding a New Location", "TRUTH_CONTENT-CREATION-MANUAL.md §6 Testing Your Content", "TRUTH_CONTENT-CREATION-MANUAL.md §7 Common Mistakes", "TRUTH_SIMULATION-GRAPH.md §2.1 The World Nodes (Static Topology — Layer 1)", "TRUTH_SIMULATION-GRAPH.md §3.3 The Life & Death Cycle", "TRUTH_SIMULATION-GRAPH.md §6.4 System Interaction Matrix", "TRUTH_CONSTRAINTS.md §1"]
-- TECHNICAL_CONSTRAINTS: ["Platform (primary): Godot3 (3.6 stable)", "Graphics: GLES2 (for performance and compatibility)", "Additional: Python3 (for sandbox)"]
+  - src/autoload/Constants.gd — bounded qualitative pressure thresholds and caps.
+  - src/autoload/GameState.gd — per-sector demand pressure, thresholds, and future runtime occurrence state.
+  - src/core/simulation/affinity_matrix.gd — shared demand-tag vocabulary.
+  - src/core/simulation/grid_layer.gd — demand-pressure CA and relief-oriented sector tags.
+  - src/core/simulation/simulation_engine.gd — future contract-generation hook between BridgeSystems and AgentLayer.
+  - src/tests/core/simulation/test_grid_layer.gd — demand-pressure and relief-tag coverage.
+  - src/tests/core/simulation/test_simulation_tick.gd — future tick-order lock once the generator lands.
+  - TRUTH_SIMULATION-GRAPH.md — later qualitative-truth realignment.
+  - TRUTH_CONTENT-CREATION-MANUAL.md — later authored-contract/manual cleanup.
+- TRUTH_RELIANCE: ["SESSION-LOG.md 2026-02-21 qualitative rewrite entries", "TRUTH_PROJECT.md § Project Stack and Context", "TRUTH_SIMULATION-GRAPH.md §3.2", "TRUTH_SIMULATION-GRAPH.md §6.4", "TRUTH_CONSTRAINTS.md §1"]
+- TECHNICAL_CONSTRAINTS: ["Platform (primary): Godot3 (3.6 stable)", "Graphics: GLES2 (for performance and compatibility)", "Simulation must remain qualitative/tag-driven", "Do not introduce numeric stockpiles, prices, or matter accounting", "Bounded counters, cooldowns, and thresholds are allowed as qualitative support state"]
 - ATOMIC_TASKS:
-  - [x] TASK_0: Inventory active legacy seams and classify each as `graceful_stub`, `explicit_compatibility_boundary`, or `redundant_drift`. Required signatures: preserve public entry points currently used by MainHUD, StationMenu, ToolController, WorldManager jump-transition flow, and PlayerController input-state setup; add no new gameplay features.
-  - [x] TASK_1: Canonicalize the live location/sector contract around the current `sector_system_*` registry model and refine `TRUTH_CONTENT-CREATION-MANUAL.md` into the canonical sector/location authoring guide. Required signatures/fields: preserve exported names `sector_scene_path`, `global_position`, `connections`, `sector_type`, `market_inventory`, `available_services`, `danger_level`, and `available_contract_ids`; do not break existing `.tres` loading or Godot3 export syntax.
-  - [x] TASK_2: Harden scene-state persistence/bootstrap so new-game boot, load-game boot, docked state, and current-sector selection all follow the same canonical contract. Required signatures: preserve `GameStateManager.gd::_serialize_game_state()`, `GameStateManager.gd::_deserialize_and_apply_game_state()`, `world_manager.gd::func _on_new_game_requested() -> void`, `world_manager.gd::func _on_game_state_loaded() -> void`, `world_manager.gd::func load_sector(sector_id: String)`, and `world_generator.gd::func _load_locations()`.
-  - [x] TASK_3: Replace bare TODO/pass/print drift in docked/menu/HUD deferred-service entry points with explicit graceful placeholder behavior and clear state-aware reopen rules. Required signatures: preserve `station_menu.gd::open_for_current_dock()`, `station_menu.gd::func _on_trade_pressed() -> void`, `station_menu.gd::func _on_contracts_pressed() -> void`, `main_hud.gd::func _on_ButtonInventory_pressed()`, `tool_controller.gd::func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3) -> Dictionary`, and `tool_controller.gd::func _ensure_combatant_registered(uid: int) -> void`.
-  - [x] TASK_4: Normalize stale `station_*` assumptions across the wider active Godot test suite wherever location identity affects live runtime behavior or bootstrap semantics. Required signatures/helpers: preserve existing focused test entry points such as `test_debug_map_panel.gd::_seed_template_database()` and current GUT suite structure; prefer real `.tres` seeding where runtime semantics matter.
-  - [x] TASK_5: Reduce high-friction compatibility seams without adding features. Required signatures: preserve MainHUD projected-target overlay behavior, projected-target bracket public methods, WorldManager jump-transition orchestration entry points, and PlayerController input-state registration/public piloting accessors; convert fragile method-existence drift into clearer compatibility boundaries where practical.
-  - [x] VERIFICATION: Success criteria/tests to run: refined manual matches the live sector/location contract; all persisted scene-state fields intentionally kept for runtime restore survive round-trip save/load; new game and load game enter the correct active sector; docked UI close/reopen and deferred-service stubs behave explicitly and gracefully; active tests no longer rely on deleted `station_*` registry resources where canonical live ids are required; run targeted GUT slices for `res://src/tests/autoload/test_game_state_manager.gd`, `res://src/tests/core/ui/test_debug_window.gd`, `res://src/tests/core/ui/test_debug_map_panel.gd`, `res://src/tests/core/systems/test_persistent_agents.gd`, `res://src/tests/core/systems/test_contact_manager.gd`, `res://src/tests/scenes/game_world/world_manager/test_world_manager.gd`, `res://src/tests/scenes/jump_transition/test_jump_transition_regressions.gd`, then run a widened active suite and `godot --no-window --quit`.
+  - [x] TASK_1: Introduce qualitative demand tag vocabulary plus per-sector pressure/threshold state in GameState/GridLayer/AffinityMatrix, and surface relief-oriented tags from sustained `*_POOR` conditions. Required signatures: preserve `GridLayer.initialize_grid()` and `GridLayer.process_tick(config)`; do not add numeric economy fields.
+  - [x] TASK_2: Add a dedicated runtime contract occurrence store and generator that turns active demand tags into bounded contract dictionaries sourced from nearby qualifying sectors. Required signatures: preserve GameState qualitative storage patterns and avoid authored contract templates for the normal path.
+  - [x] TASK_3: Insert the runtime contract generator into SimulationEngine tick order after BridgeSystems and before AgentLayer, then lock that ordering with focused tests.
+  - [x] TASK_4: Extend AgentLayer so traders and haulers can notice, claim, and satisfy runtime qualitative contract occurrences using existing tag and affinity behavior.
+  - [x] TASK_5: Realign docs and authoring boundaries so location and contract templates become optional curated overrides instead of the default runtime contract path.
+  - [x] VERIFICATION: Success criteria/tests to run: touched-file diagnostics stay clean; demand tags only appear after sustained poor pressure and clear under relief; relief routing surfaces via tags rather than numbers; future generator step is tick-order tested; defer full GUT and manual verification to the user's final pass.

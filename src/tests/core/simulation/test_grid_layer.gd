@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-23 22:47:52
 #
 
 extends GutTest
@@ -39,6 +39,10 @@ func test_initialize_grid_seeds_progress_counters():
 			"economy_upgrade_progress should be seeded for '%s'." % sector_id)
 		assert_true(GameState.security_upgrade_progress.has(sector_id),
 			"security_upgrade_progress should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_generation_pressure.has(sector_id),
+			"contract_generation_pressure should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_generation_threshold.has(sector_id),
+			"contract_generation_threshold should be seeded for '%s'." % sector_id)
 
 
 func test_economy_transitions_require_sustained_pressure():
@@ -72,6 +76,64 @@ func test_economy_transitions_require_sustained_pressure():
 		"RAW_POOR should upgrade to RAW_ADEQUATE after 3 ticks of pressure.")
 	assert_does_not_have(GameState.sector_tags["a"], "RAW_POOR",
 		"RAW_POOR tag should be removed after upgrade.")
+
+
+func test_contract_demand_tags_require_sustained_pressure():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_generation_threshold["a"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+
+	grid.process_tick({})
+	assert_does_not_have(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Demand tags should not appear before their threshold is met.")
+	assert_eq(GameState.contract_generation_pressure["a"]["RAW"], 1,
+		"Pressure should increment while RAW_POOR pressure is sustained.")
+
+	grid.process_tick({})
+	var tags: Array = GameState.sector_tags["a"]
+	assert_has(tags, "CONTRACT_DEMAND_RAW",
+		"RAW demand should appear after sustained poor pressure.")
+	assert_has(tags, "CONTRACT_DEMAND_MANUFACTURED",
+		"MANUFACTURED demand should appear after sustained poor pressure.")
+	assert_has(tags, "CONTRACT_DEMAND_CURRENCY",
+		"CURRENCY demand should appear after sustained poor pressure.")
+	assert_has(tags, "RELIEF_NEEDED",
+		"Multiple simultaneous demand tags should surface RELIEF_NEEDED.")
+
+
+func test_trade_relief_tags_active_then_clear_contract_pressure():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_generation_threshold["a"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+
+	for _i in range(3):
+		grid.process_tick({})
+
+	assert_has(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Demand should be active before relief arrives.")
+
+	GameState.agents["relief_trader"] = {
+		"current_sector_id": "a",
+		"agent_role": "trader",
+		"cargo_tag": "LOADED",
+		"is_disabled": false,
+	}
+
+	grid.process_tick({})
+	var active_relief_tags: Array = GameState.sector_tags["a"]
+	assert_has(active_relief_tags, "TRADE_LANE_ACTIVE",
+		"Active relief traffic should surface a trade-lane tag while demand remains active.")
+	assert_has(active_relief_tags, "CONTRACT_DEMAND_RAW",
+		"Demand should persist for one tick while relief pressure decays.")
+
+	grid.process_tick({})
+	var cleared_tags: Array = GameState.sector_tags["a"]
+	assert_does_not_have(cleared_tags, "CONTRACT_DEMAND_RAW",
+		"Demand should clear once relief reduces pressure below the threshold.")
+	assert_does_not_have(cleared_tags, "RELIEF_NEEDED",
+		"RELIEF_NEEDED should clear after demand pressure resolves.")
+	assert_does_not_have(cleared_tags, "TRADE_LANE_ACTIVE",
+		"TRADE_LANE_ACTIVE should clear once no demand tag remains.")
 
 
 func test_security_only_one_tag_present():
@@ -182,6 +244,8 @@ func _clear_state() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.agents.clear()
 	GameState.world_seed = ""

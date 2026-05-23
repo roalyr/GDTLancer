@@ -1,9 +1,34 @@
+<!--
+PROJECT: GDTLancer
+MODULE: TRUTH_SIMULATION-GRAPH.md
+STATUS: [Level 2 - Implementation]
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TACTICAL_TODO.md TASK_5
+LOG_REF: 2026-05-23 23:21:08
+-->
+
 # 8.1-GDD-Simulation-Graph-System
 
-**Version:** 1.2
-**Date:** February 15, 2026
-**Status:** Draft / Foundation
+**Version:** 1.3
+**Date:** 2026-05-23
+**Status:** Mixed Historical Design + Live Implementation Notes
 **Related:** `8-GDD-Simulation-Architecture.md`, `1.2-GDD-Core-Cellular-Automata.md`, `TACTICAL_TODO.md`
+
+---
+
+## 0. Implementation Reality (2026-05-23)
+
+This file still contains substantial **historical numeric design language** from the pre-pivot simulation model. The live Godot runtime no longer treats numeric stockpiles, price deltas, or matter-conservation buckets as the authoritative simulation substrate.
+
+For the current implementation in `src/core/simulation/`:
+
+* `WorldLayer` provides topology and hazard seeds.
+* `GridLayer` is a qualitative tag-transition CA with bounded counters and thresholds.
+* `BridgeSystems` + `AffinityMatrix` refresh derived sector/agent/world tags.
+* `contract_generation_system.gd` builds bounded runtime contract occurrences from active demand tags.
+* `AgentLayer` claims and services those runtime occurrences via cargo/dock flow.
+* Authored `ContractTemplate` resources and `LocationTemplate.available_contract_ids` are **optional curated overrides**, not the default contract pipeline.
+
+Until this document is fully rewritten, treat **Sections 1 through 5 as archived design intent**. Section 6 below is the authoritative implementation map for the live qualitative runtime.
 
 ---
 
@@ -370,60 +395,49 @@ With this graph, a "Gold Rush" is mathematically inevitable:
 
 How this graph maps to the code systems (both Python sandbox and target Godot architecture).
 
-### 6.1 The `MarketSystem` / Grid Layer (The Heart)
+### 6.1 The `GridLayer` / Qualitative Demand CA
 
-* **Responsibility:** Handles all `Stockpile ↔ Inventory` transfers.
-* **Logic:**
-  * Calculates Price based on Supply/Demand (`CA_PRICE_SENSITIVITY`, `commodity_price_deltas`).
-  * Executes the "Metabolism" tick (Station consumption via `CONSUMPTION_RATE_PER_TICK`).
-  * **Crucial:** Calculates the "Entropy Tax" from consumption and credits the Hostile Pools (`CONSUMPTION_ENTROPY_TAX`).
-  * Handles Colony Level progression (`COLONY_UPGRADE_*` / `COLONY_DOWNGRADE_*` thresholds).
-* **Files:** `grid_layer.py` / `src/core/simulation/grid_layer.gd`, `ca_rules.py` / `ca_rules.gd`
+* **Responsibility:** Evolves sector state through qualitative tags rather than numeric commodity ledgers.
+* **Live logic:**
+   * Steps economy, security, environment, hostile pressure, and colony progression through bounded counters and thresholds.
+   * Surfaces `CONTRACT_DEMAND_*`, `RELIEF_NEEDED`, and `TRADE_LANE_ACTIVE` tags from sustained `*_POOR` sector states and relief traffic.
+   * Maintains only qualitative support state (`*_progress`, thresholds, cooldowns); it does not own numeric stockpiles or prices.
+* **Files:** `src/core/simulation/grid_layer.gd`, `src/autoload/GameState.gd`, `src/autoload/Constants.gd`
 
-### 6.2 The `HostileManager` / Bridge Systems (The Gut)
+### 6.2 The `BridgeSystems` + `AffinityMatrix` / Tag Derivation Layer
 
-* **Responsibility:** Manages the Hostile Pools and hostile lifecycle.
-* **Logic:**
-  * **Passive Input:** Accumulates entropy from MarketSystem (consumption tax) and Agent movement (fuel burn).
-  * **Active Output:** Checks `pool > HOSTILE_POOL_PRESSURE_THRESHOLD`. If true, spawns units at highest-threat sectors.
-  * **Raid Logic:** When hostile count in sector exceeds `HOSTILE_RAID_THRESHOLD`, raids convert stockpiles → wrecks.
-  * **Wreck Feeding:** In low-security sectors, hostiles salvage wrecks back into pool.
-* **Files:** `bridge_systems.py` / `src/core/simulation/bridge_systems.gd`
+* **Responsibility:** Refreshes normalized sector, agent, and world tags after each grid tick.
+* **Live logic:**
+   * Rebuilds security/environment/economy tags while preserving custom qualitative tags such as runtime demand markers.
+   * Derives role/personality/cargo tags for agents so downstream behavior stays affinity-driven.
+   * Keeps the shared tag vocabulary authoritative for both sector-state transitions and agent choice.
+* **Files:** `src/core/simulation/bridge_systems.gd`, `src/core/simulation/affinity_matrix.gd`
 
-### 6.3 The `LifecycleSystem` / Agent Layer (The Womb/Tomb)
+### 6.3 The `ContractGenerationSystem` + `AgentLayer` / Runtime Delivery Loop
 
-* **Responsibility:** Spawning and Despawning agents.
-* **Logic:**
-  * **Named Agent Respawn:** Check Station Inventory → If sufficient stockpile: debit `Station(Stockpile)`, credit `Agent(Hull/Fuel)`, spawn. If insufficient: queue respawn (creates natural "Recession" mechanic).
-  * **Mortal Agent Spawn:** Requires `MORTAL_SPAWN_MIN_STOCKPILE` and `MORTAL_SPAWN_MIN_SECURITY`. Permanently dies — no respawn.
-  * **Death → Wreck:** All agent matter (hull + fuel + cargo) transferred to `wrecks` in current sector.
-* **Files:** `agent_layer.py` / `src/core/simulation/agent_layer.gd`
+* **Responsibility:** Converts qualitative demand into runtime contract occurrences, then resolves those occurrences through agent behavior.
+* **Live logic:**
+   * `contract_generation_system.gd` runs after `BridgeSystems` and before `AgentLayer` each tick.
+   * Active `CONTRACT_DEMAND_*` tags become bounded runtime delivery occurrences sourced from nearby qualifying sectors.
+   * Claimed/in-transit occurrences are retained across generator refresh so multi-tick deliveries survive even if the demand tag clears.
+   * Traders and haulers claim occurrences by affinity, route to source sectors, load cargo, travel to target sectors, and complete deliveries through the existing cargo/dock flow.
+* **Files:** `src/core/simulation/contract_generation_system.gd`, `src/core/simulation/simulation_engine.gd`, `src/core/simulation/agent_layer.gd`
 
 ### 6.4 System Interaction Matrix
 
 | Source System | Destination System | Data Transferred | Edge Type |
 |---|---|---|---|
-| Grid (Extraction) | Agent (Inventory) | Ore/Fuel matter | Production |
-| Agent (Trade) | Grid (Stockpile) | Commodity matter | Production |
-| Agent (Payment) | Grid (Stockpile) | Specie matter | Production |
-| Grid (Metabolism) | Hostile Pool | Entropy tax matter | Consumption |
-| Grid (Metabolism) | World (Hidden Res.) | Waste matter | Consumption |
-| Agent (Propulsion) | Hostile Pool | Fuel exhaust mass | Consumption |
-| Agent (Ship Systems) | Hostile Pool | Fuel exhaust mass (displacement) | Consumption |
-| Grid (Station Power) | Hostile Pool | Fuel exhaust mass (displacement) | Consumption |
-| Grid (Colony Maint.) | Hidden Res. + Hostile Pool | Maintenance waste matter | Consumption |
-| Grid (Stockpile) | Agent (Hull/Fuel/Specie) | Ship + starting Specie matter | Lifecycle |
-| Colony Infrastructure | Grid (Stockpile) | Emergency Draft matter (downgrade) | Lifecycle |
-| Agent (Death) | Wrecks | All agent matter (incl. Specie) | Lifecycle |
-| Hostile Pool | Hostile (Biomass) | Spawn cost matter | Lifecycle |
-| Hostile (Death) | Wrecks | Biomass matter | Lifecycle |
-| Wrecks (Salvage) | Agent (Inventory) | Salvage matter | Reclamation |
-| Wrecks (Decay, 70%) | World (Hidden Res.) | Debris matter | Reclamation |
-| Wrecks (Decay, 30%) | **Slag** | **Permanently lost** | Heat Death |
-| Wrecks (Low-Sec) | Hostile Pool | Scavenged matter | Reclamation |
-| World (Hidden) | World (Exposed) | Discovered matter | Prospecting |
-| UNDISCOVERED_POOL | TOTAL_MATTER | New sector resources | Discovery |
-| Hostiles (Raid) | Wrecks | Raided stockpile | Destruction |
+| WorldLayer | GridLayer | Sector topology, hazards, starting tags | Initialization |
+| GridLayer | Sector Tags | Economy/security/environment/hostile/colony transitions | Qualitative CA |
+| GridLayer | Demand State | `contract_generation_pressure`, thresholds, demand tags | Qualitative CA |
+| BridgeSystems | Sector Tags | Normalized tags + preserved custom demand markers | Derivation |
+| AffinityMatrix | AgentLayer | Role/condition/cargo affinities and vocabulary | Decision Support |
+| ContractGenerationSystem | Runtime Contract Store | Bounded occurrence dictionaries from active demand tags | Runtime Generation |
+| Runtime Contract Store | AgentLayer | Claimable `delivery`-style qualitative occurrences | Goal Selection |
+| AgentLayer | Runtime Contract Store | Claim, in-transit, and completion state | Runtime Resolution |
+| AgentLayer | Sector Tags | Relief movement, docking, cargo delivery side effects | Simulation Action |
+| AgentLayer | Chronicle | Claim/load/complete and movement events | Event Capture |
+| ContractTemplate / `available_contract_ids` | Docked/UI or curated content entry points | Optional handcrafted override content | Curated Override |
 
 ---
 

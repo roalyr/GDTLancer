@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-17 16:51:08
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 23:11:32
 #
 
 extends GutTest
@@ -279,6 +279,90 @@ func test_dock_sells_cargo_and_heals():
 	assert_eq(agent["wealth_tag"], "WEALTHY", "Wealth should step up from cargo sale.")
 
 
+func test_hauler_prefers_and_claims_raw_runtime_contract_by_affinity():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s1:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s1:CURRENCY", "CURRENCY", "s2", "s1"),
+		"runtime_contract:s1:RAW": _make_runtime_contract_occurrence("runtime_contract:s1:RAW", "RAW", "s2", "s1"),
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {
+		"s1": ["runtime_contract:s1:CURRENCY", "runtime_contract:s1:RAW"],
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"s2": ["runtime_contract:s1:CURRENCY", "runtime_contract:s1:RAW"],
+	}
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+		"sentiment_tags": ["HAULER", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+
+	var hauler: Dictionary = GameState.agents["hauler_1"]
+	agent_layer._evaluate_goals(hauler, "hauler_1")
+
+	assert_eq(hauler["goal_archetype"], "service_contract",
+		"Haulers should switch to service_contract when runtime occurrences are available.")
+	assert_eq(hauler["goal_queue"][0].get("occurrence_id", ""), "runtime_contract:s1:RAW",
+		"Haulers should prefer RAW demand by affinity over weaker runtime contract categories.")
+
+	agent_layer._execute_action("hauler_1", hauler)
+
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s1:RAW"].get("claimant_agent_id", ""), "hauler_1",
+		"Haulers should claim the selected runtime contract occurrence.")
+	assert_eq(hauler["current_sector_id"], "s2",
+		"Haulers should start moving toward the contract source when not already there.")
+
+
+func test_trader_claims_and_completes_runtime_contract_delivery():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
+	GameState.agents["trader_1"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+		"sentiment_tags": ["TRADER", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+
+	var trader: Dictionary = GameState.agents["trader_1"]
+	agent_layer._evaluate_goals(trader, "trader_1")
+	agent_layer._execute_action("trader_1", trader)
+
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("claimant_agent_id", ""), "trader_1",
+		"Traders should claim runtime contract occurrences before delivery.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "in_transit",
+		"Claimed contracts should switch to in_transit once the trader loads cargo at the source.")
+	assert_eq(trader["cargo_tag"], "LOADED",
+		"Traders should load contract cargo at the source sector.")
+	assert_eq(trader["wealth_tag"], "BROKE",
+		"Trader loading should still pay the existing upfront wealth cost.")
+
+	trader["sentiment_tags"] = ["TRADER", "HEALTHY", "BROKE", "LOADED"]
+	agent_layer._evaluate_goals(trader, "trader_1")
+	agent_layer._execute_action("trader_1", trader)
+	assert_eq(trader["current_sector_id"], "s2",
+		"Traders should move toward the contract target while carrying cargo.")
+
+	agent_layer._evaluate_goals(trader, "trader_1")
+	agent_layer._execute_action("trader_1", trader)
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
+		"Completed runtime contract occurrences should be removed from the active store.")
+	assert_eq(trader["cargo_tag"], "EMPTY",
+		"Traders should unload cargo when completing a runtime contract at the target.")
+	assert_eq(trader["wealth_tag"], "COMFORTABLE",
+		"Trader delivery should reuse the normal dock payout step on completion.")
+
+
 # =============================================================================
 # === HARVEST ACTION ==========================================================
 # =============================================================================
@@ -493,6 +577,9 @@ func _clear_state() -> void:
 	GameState.characters.clear()
 	GameState.agent_tags.clear()
 	GameState.colony_levels.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
 	GameState.mortal_agent_counter = 0
@@ -508,3 +595,31 @@ func _clear_state() -> void:
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.locations.clear()
+
+
+func _make_runtime_contract_occurrence(occurrence_id: String, category: String, source_sector_id: String, target_sector_id: String) -> Dictionary:
+	var category_priority_tags: Dictionary = {
+		"RAW": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+		"MANUFACTURED": ["CONTRACT_DEMAND_MANUFACTURED", "RELIEF_NEEDED", "CONTESTED"],
+		"CURRENCY": ["CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED", "CONTESTED"],
+	}
+	return {
+		"occurrence_id": occurrence_id,
+		"generator_id": "qualitative_demand",
+		"contract_type": "delivery",
+		"commodity_category": category,
+		"demand_tag": "CONTRACT_DEMAND_%s" % category,
+		"source_sector_id": source_sector_id,
+		"target_sector_id": target_sector_id,
+		"origin_location_id": source_sector_id,
+		"destination_location_id": target_sector_id,
+		"status": "open",
+		"claimant_agent_id": "",
+		"required_roles": ["trader", "hauler"],
+		"priority_tags": category_priority_tags.get(category, ["RELIEF_NEEDED", "CONTESTED"]),
+		"route_hops": 1,
+		"created_at_tick": GameState.sim_tick_count,
+		"last_refreshed_tick": GameState.sim_tick_count,
+		"title": "%s Relief Route" % category.capitalize(),
+		"description": "%s relief from %s to %s." % [category.capitalize(), source_sector_id, target_sector_id],
+	}

@@ -2,15 +2,16 @@
 # PROJECT: GDTLancer
 # MODULE: contract_template.gd
 # STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.5; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4; TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-05-23 23:21:08
 #
 
 extends "res://database/definitions/template.gd"
 class_name ContractTemplate
 
-## ContractTemplate: Resource definition for contract instances.
-## Stores type, requirements, rewards, and expiration tracking.
+## ContractTemplate: Resource definition for optional curated contract overrides.
+## The default runtime contract path now uses generated qualitative occurrences;
+## this resource remains for tutorial, story, fallback, or deliberately handcrafted exceptions.
 
 # Contract identification
 export var contract_type: String = "delivery"  # delivery, combat, exploration

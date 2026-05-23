@@ -3,7 +3,7 @@
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-23 17:04:30
+# LOG_REF: 2026-05-23 23:05:10
 #
 
 extends GutTest
@@ -148,6 +148,11 @@ func _clear_state() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []

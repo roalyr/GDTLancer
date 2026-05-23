@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-23 22:58:53
 #
 
 extends Node
@@ -104,6 +104,34 @@ var economy_downgrade_progress: Dictionary = {}
 
 ## Per-sector per-category change threshold. Key: sector_id, Value: {category: int}.
 var economy_change_threshold: Dictionary = {}
+
+
+# =========================================================================
+# === QUALITATIVE CONTRACT DEMAND ========================================
+# =========================================================================
+
+## Per-sector per-category pressure toward runtime demand tags.
+## Key: sector_id, Value: {category: int}.
+var contract_generation_pressure: Dictionary = {}
+
+## Per-sector per-category ticks required before demand tags appear.
+## Key: sector_id, Value: {category: int}.
+var contract_generation_threshold: Dictionary = {}
+
+
+# =========================================================================
+# === RUNTIME CONTRACT OCCURRENCES =======================================
+# =========================================================================
+
+## Generated runtime contract occurrences keyed by occurrence_id.
+## Value: qualitative delivery contract Dictionary.
+var runtime_contract_occurrences: Dictionary = {}
+
+## Occurrence ids grouped by demand/target sector. Key: sector_id, Value: Array.
+var runtime_contract_occurrences_by_target_sector: Dictionary = {}
+
+## Occurrence ids grouped by source sector. Key: sector_id, Value: Array.
+var runtime_contract_occurrences_by_source_sector: Dictionary = {}
 
 
 # =========================================================================
@@ -254,6 +282,11 @@ func reset_state() -> void:
 	economy_upgrade_progress.clear()
 	economy_downgrade_progress.clear()
 	economy_change_threshold.clear()
+	contract_generation_pressure.clear()
+	contract_generation_threshold.clear()
+	runtime_contract_occurrences.clear()
+	runtime_contract_occurrences_by_target_sector.clear()
+	runtime_contract_occurrences_by_source_sector.clear()
 	hostile_infestation_progress.clear()
 	catastrophe_log.clear()
 	sector_disabled_until.clear()

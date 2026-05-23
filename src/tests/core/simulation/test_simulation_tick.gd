@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-05-23 17:04:30
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 23:05:10
 #
 
 extends GutTest
@@ -12,6 +12,34 @@ extends GutTest
 ## NOTE: SimulationEngine extends Node and must be added to the tree.
 
 var engine: Node = null
+
+
+class TickOrderSpy extends Reference:
+	var order: Array = []
+	var label: String = ""
+	var delegate: Reference = null
+
+	func _init(p_order: Array, p_label: String, p_delegate: Reference = null) -> void:
+		order = p_order
+		label = p_label
+		delegate = p_delegate
+
+	func process_tick(config: Dictionary) -> void:
+		order.append(label)
+		if delegate != null and delegate.has_method("process_tick"):
+			delegate.process_tick(config)
+
+
+class AgentOrderSpy extends Reference:
+	var order: Array = []
+	var seen_occurrence_count: int = -1
+
+	func _init(p_order: Array) -> void:
+		order = p_order
+
+	func process_tick(_config: Dictionary) -> void:
+		seen_occurrence_count = GameState.runtime_contract_occurrences.size()
+		order.append("agent")
 
 
 func before_each():
@@ -101,6 +129,33 @@ func test_get_config_has_required_keys():
 	assert_true(config.has("colony_upgrade_ticks_required"), "Config must have colony_upgrade_ticks_required.")
 	assert_true(config.has("respawn_cooldown_ticks"), "Config must have respawn_cooldown_ticks.")
 	assert_true(config.has("mortal_global_cap"), "Config must have mortal_global_cap.")
+	assert_true(config.has("contract_occurrence_global_cap"), "Config must have contract_occurrence_global_cap.")
+
+
+func test_contract_generation_runs_between_bridge_and_agent_layer():
+	engine.initialize_simulation("tick_test_seed")
+	GameState.world_age_timer = 5
+	_seed_contract_tick_state()
+
+	var order: Array = []
+	engine.grid_layer = TickOrderSpy.new(order, "grid")
+	engine.bridge_systems = TickOrderSpy.new(order, "bridge")
+	engine.contract_generation_system = TickOrderSpy.new(order, "contract", engine.contract_generation_system)
+	var agent_spy = AgentOrderSpy.new(order)
+	engine.agent_layer = agent_spy
+	engine.chronicle_layer = TickOrderSpy.new(order, "chronicle")
+	engine.set_config("contract_occurrence_global_cap", 1)
+	engine.set_config("contract_occurrence_per_sector_cap", 1)
+	engine.set_config("contract_source_search_max_hops", 1)
+
+	engine.process_tick()
+
+	assert_eq(order, ["grid", "bridge", "contract", "agent", "chronicle"],
+		"SimulationEngine should run contract generation after BridgeSystems and before AgentLayer.")
+	assert_eq(agent_spy.seen_occurrence_count, 1,
+		"AgentLayer should observe runtime contract occurrences generated earlier in the same tick.")
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Contract generation should run during the tick and produce the expected occurrence.")
 
 
 # =============================================================================
@@ -124,6 +179,11 @@ func _clear_state() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
@@ -152,6 +212,28 @@ func _clear_state() -> void:
 	TemplateDatabase.utility_tools.clear()
 	TemplateDatabase.factions.clear()
 	TemplateDatabase.contacts.clear()
+
+
+func _seed_contract_tick_state() -> void:
+	GameState.world_topology = {
+		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
+	}
+	GameState.sector_names = {"a": "Alpha", "b": "Beta"}
+	GameState.sector_tags = {
+		"a": [
+			"STATION", "CONTESTED", "MILD",
+			"RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE",
+			"CONTRACT_DEMAND_RAW", "RELIEF_NEEDED"
+		],
+		"b": [
+			"STATION", "SECURE", "MILD",
+			"RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"
+		],
+	}
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 
 
 func _seed_template_database() -> void:

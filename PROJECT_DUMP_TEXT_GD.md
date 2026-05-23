@@ -13358,24 +13358,27 @@ export var default_standing: int = 0
 # PROJECT: GDTLancer
 # MODULE: location_template.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 2 (World Layer)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §6.4; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §7
+# LOG_REF: 2026-05-23 14:59:44
 #
 
 extends Template
 class_name LocationTemplate
 
-## LocationTemplate: Defines a sector/location including its World Layer physical properties.
-## Used both as scene-level location data AND as the source for simulation Layer 1 initialization.
+## LocationTemplate: Canonical sector/location resource contract.
+## Authored registry entries are sector-level resources keyed by ids such as
+## `sector_system_elace`; scene-local dockables remain inside `sector_scene_path`.
+## This resource drives sector loading, topology, and the current compatibility
+## data consumed by docked UI and bootstrap flows.
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
-export var location_type: String = "station"  # station, outpost, debris_field, asteroid_field
-export var position_in_zone: Vector3 = Vector3.ZERO
-export var interaction_radius: float = 100.0  # How close player must be to dock
+export var location_type: String = "station"  # system, outpost, station, debris_field, asteroid_field
+export var position_in_zone: Vector3 = Vector3.ZERO  # Optional in-scene dock anchor or interaction point.
+export var interaction_radius: float = 100.0  # Dock/interact radius when a scene-level anchor uses this resource directly.
 
 # --- Sector Scene Configuration ---
-## Path to the handcrafted .tscn scene for this sector. Empty for procedural sectors.
+## Path to the handcrafted sector .tscn. Leave empty only for procedural sectors.
 export var sector_scene_path: String = ""
 ## Galactic position of this sector. Drives starsphere offset and JumpPoint directions.
 export var global_position: Vector3 = Vector3.ZERO
@@ -13391,9 +13394,9 @@ export var procedural_hints: Dictionary = {}
 export var sector_description: String = ""
 
 # --- World Layer: Topology (Section 2) ---
-## IDs of sectors this location connects to (defines the sector graph for CA neighbors).
+## IDs of connected sectors. These define the world-topology graph and jump routes.
 export var connections: PoolStringArray = PoolStringArray()
-## Classification: hub / frontier / deep_space / hazard_zone
+## Classification: colony / outpost / frontier / deep_space / hazard_zone
 export var sector_type: String = "frontier"
 
 # --- World Layer: Hazards (Section 2) ---
@@ -13410,28 +13413,29 @@ export var mineral_density: float = 0.5
 ## Finite propellant source density. Depleted by extraction over ticks.
 export var propellant_sources: float = 0.5
 
-# --- World Layer: Station Infrastructure ---
-## Power output capacity of station infrastructure.
+# --- World Layer: Settlement Infrastructure ---
+## Power output capacity of the sector's primary service hub / station infrastructure.
 export var station_power_output: float = 100.0
-## Maximum commodity stockpile the station can hold.
+## Maximum commodity stockpile the sector's service hub can hold.
 export var stockpile_capacity: int = 1000
 
-# --- Market & Services (legacy, used by scene-level systems) ---
-# Market inventory: commodity_template_id -> {price: int, quantity: int}
+# --- Market & Services (compatibility boundary for current scene/UI systems) ---
+# Market inventory: commodity_template_id -> {buy_price: int, sell_price: int, quantity: int}
 export var market_inventory: Dictionary = {}
+## Service ids exposed by the current docked UI until service simulation is rebuilt.
 export var available_services: Array = ["trade", "contracts"]
 
 # --- Faction Control ---
 export var controlling_faction_id: String = ""
 
-# --- Danger (legacy, superseded by grid_dominion.pirate_activity) ---
+# --- Danger (legacy scene/UI hint; superseded by richer simulation state) ---
 export var danger_level: int = 0
 
 # --- Qualitative Simulation ---
 ## Initial sector tags for qualitative tag simulation.
 export var initial_sector_tags: PoolStringArray = PoolStringArray()
 
-# --- Contracts (legacy, will be rebuilt on Agent layer) ---
+# --- Contracts (compatibility ids retained until Agent-layer contract flow lands) ---
 export var available_contract_ids: Array = []
 
 --- Start of ./database/definitions/template.gd ---
@@ -13522,13 +13526,15 @@ func get_accuracy_at_range(distance: float) -> float:
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §7; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-17 16:51:08
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
 
 ## Constants: Global game constants, thresholds, and configuration values.
 ## Centralizes magic numbers for balance tuning and consistency.
+
+const VERBOSE_RUNTIME_LOGS = false
 
 # --- Action Approach Enum ---
 enum ActionApproach { CAUTIOUS, NEUTRAL, RISKY }
@@ -13765,7 +13771,7 @@ const DISPOSITION_HOSTILE_THRESHOLD: float = -0.5
 # MODULE: CoreMechanicsAPI.gd
 # STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -13780,7 +13786,8 @@ var _rng = RandomNumberGenerator.new()
 func _ready():
 	# Seed the random number generator once when the game starts
 	_rng.randomize()
-	print("CoreMechanicsAPI Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("CoreMechanicsAPI Ready.")
 
 
 # --- Core Action Resolution ---
@@ -13879,7 +13886,7 @@ func perform_action_check(
 # MODULE: EventBus.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-03-21
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -13976,7 +13983,8 @@ signal sector_changed(new_sector_id, old_sector_id)
 
 
 func _ready():
-	print("EventBus Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("EventBus Ready.")
 
 --- Start of ./src/autoload/GameState.gd ---
 
@@ -14261,8 +14269,8 @@ func reset_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 8 (Simulation Architecture)
-# LOG_REF: 2026-02-13
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -14288,9 +14296,13 @@ func reset_to_defaults() -> void:
 	GameState.player_character_uid = ""
 
 	# --- Scene State ---
+	GameState.current_zone_instance = null
+	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
+	GameState.player_arrival_direction = Vector3.ZERO
 
 	# --- Layer 1: World ---
 	GameState.world_topology.clear()
@@ -14346,7 +14358,8 @@ func save_game(slot_id: int = 0) -> bool:
 	if err == OK:
 		file.store_var(save_data, true)
 		file.close()
-		print("Game saved successfully to: ", path)
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("Game saved successfully to: ", path)
 		return true
 	else:
 		printerr("Error saving game to path: ", path, " Error code: ", err)
@@ -14384,7 +14397,8 @@ func load_game(slot_id: int = 0) -> bool:
 	_deserialize_and_apply_game_state(save_data)
 	
 	EventBus.emit_signal("game_state_loaded")
-	print("Game state loaded successfully. Emitted game_state_loaded signal.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Game state loaded successfully. Emitted game_state_loaded signal.")
 	return true
 
 
@@ -14427,6 +14441,50 @@ func _ensure_save_dir_exists() -> void:
 		if err != OK:
 			printerr("GameStateManager Error: Could not create save dir: ", SAVE_DIR, " (", err, ")")
 
+
+func _get_scene_current_sector_id_for_save() -> String:
+	if GameState.current_sector_id != "":
+		return GameState.current_sector_id
+	var player_agent_state = GameState.agents.get("player", {})
+	if player_agent_state is Dictionary:
+		var agent_sector_id: String = str(player_agent_state.get("current_sector_id", ""))
+		if agent_sector_id != "":
+			return agent_sector_id
+	if GameState.player_docked_at != "":
+		return GameState.player_docked_at
+	return ""
+
+
+func _resolve_saved_current_sector_id(save_data: Dictionary) -> String:
+	var saved_current_sector_id: String = str(save_data.get("current_sector_id", ""))
+	if saved_current_sector_id != "":
+		return saved_current_sector_id
+	var saved_agents = save_data.get("agents", {})
+	if saved_agents is Dictionary:
+		var player_agent_state = saved_agents.get("player", {})
+		if player_agent_state is Dictionary:
+			var agent_sector_id: String = str(player_agent_state.get("current_sector_id", ""))
+			if agent_sector_id != "":
+				return agent_sector_id
+	var saved_docked_at: String = str(save_data.get("player_docked_at", ""))
+	if saved_docked_at != "":
+		return saved_docked_at
+	return ""
+
+
+func _synchronize_loaded_player_sector_state() -> void:
+	if GameState.current_sector_id == "":
+		return
+	if not GameState.agents.has("player"):
+		return
+	var player_agent_state = GameState.agents["player"]
+	if not (player_agent_state is Dictionary):
+		return
+	if str(player_agent_state.get("current_sector_id", "")) != "":
+		return
+	player_agent_state["current_sector_id"] = GameState.current_sector_id
+	GameState.agents["player"] = player_agent_state
+
 # --- Serialization (Live State -> Dictionary) ---
 
 func _serialize_game_state() -> Dictionary:
@@ -14437,9 +14495,12 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["game_time_seconds"] = GameState.game_time_seconds
 	state_dict["sim_tick_count"] = GameState.sim_tick_count
 	state_dict["world_seed"] = GameState.world_seed
+	state_dict["current_sector_id"] = _get_scene_current_sector_id_for_save()
 	state_dict["player_docked_at"] = GameState.player_docked_at
 	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
 	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
+	state_dict["player_arrived_from_sector"] = GameState.player_arrived_from_sector
+	state_dict["player_arrival_direction"] = _serialize_vector3(GameState.player_arrival_direction)
 
 	# --- Layer 1: World (static, but saved for deterministic restore) ---
 	state_dict["world_topology"] = GameState.world_topology.duplicate(true)
@@ -14538,9 +14599,12 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.game_time_seconds = save_data.get("game_time_seconds", save_data.get("current_tu", 0))
 	GameState.sim_tick_count = save_data.get("sim_tick_count", 0)
 	GameState.world_seed = save_data.get("world_seed", "")
+	GameState.current_sector_id = _resolve_saved_current_sector_id(save_data)
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
+	GameState.player_arrived_from_sector = save_data.get("player_arrived_from_sector", "")
+	GameState.player_arrival_direction = _deserialize_vector3(save_data.get("player_arrival_direction", {}))
 
 	# --- Layer 1: World ---
 	GameState.world_topology = save_data.get("world_topology", {}).duplicate(true) if save_data.has("world_topology") else {}
@@ -14575,6 +14639,7 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	# --- Legacy ---
 	GameState.locations = _deserialize_resource_dict_by_string_key(save_data.get("locations", {}))
 	GameState.factions = _deserialize_resource_dict_by_string_key(save_data.get("factions", {}))
+	_synchronize_loaded_player_sector_state()
 
 func _deserialize_resource(res_data: Dictionary) -> Resource:
 	if not res_data.has("template_id"):
@@ -14669,10 +14734,12 @@ func _deserialize_vector3(data) -> Vector3:
 # MODULE: GlobalRefs.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-03-21
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends Node
+
+const VERBOSE_REF_LOGS = false
 
 # --- Key Node & UI References ---
 # Other scripts access these directly (e.g., GlobalRefs.player_agent_body)
@@ -14700,7 +14767,8 @@ var contact_manager = null setget set_contact_manager
 
 
 func _ready():
-	print("GlobalRefs Ready.")
+	if VERBOSE_REF_LOGS:
+		print("GlobalRefs Ready.")
 	# This script is a passive container; references are set by other nodes.
 
 
@@ -14710,7 +14778,8 @@ func set_player_agent_body(new_ref):
 	if new_ref == player_agent_body: return
 	if new_ref == null or is_instance_valid(new_ref):
 		player_agent_body = new_ref
-		print("GlobalRefs: Player Agent ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Player Agent ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Player Agent ref: ", new_ref)
 
@@ -14718,7 +14787,8 @@ func set_main_camera(new_ref):
 	if new_ref == main_camera: return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_camera = new_ref
-		print("GlobalRefs: Main Camera ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Main Camera ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid Main Camera ref: ", new_ref)
 
@@ -14726,7 +14796,8 @@ func set_world_manager(new_ref):
 	if new_ref == world_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		world_manager = new_ref
-		print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: World Manager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid World Manager ref: ", new_ref)
 
@@ -14734,7 +14805,8 @@ func set_current_zone(new_ref):
 	if new_ref == current_zone: return
 	if new_ref == null or is_instance_valid(new_ref):
 		current_zone = new_ref
-		print("GlobalRefs: Current Zone ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Current Zone ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Current Zone ref: ", new_ref)
 
@@ -14742,7 +14814,8 @@ func set_agent_container(new_ref):
 	if new_ref == agent_container: return
 	if new_ref == null or is_instance_valid(new_ref):
 		agent_container = new_ref
-		print("GlobalRefs: Agent Container ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Agent Container ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Agent Container ref: ", new_ref)
 
@@ -14750,7 +14823,8 @@ func set_game_state_manager(new_ref):
 	if new_ref == game_state_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		game_state_manager = new_ref
-		print("GlobalRefs: GameStateManager ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: GameStateManager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid GameStateManager ref: ", new_ref)
 
@@ -14760,7 +14834,8 @@ func set_agent_spawner(new_ref):
 	if new_ref == agent_spawner: return
 	if new_ref == null or is_instance_valid(new_ref):
 		agent_spawner = new_ref
-		print("GlobalRefs: AgentSpawner ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: AgentSpawner ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid AgentSpawner ref: ", new_ref)
 
@@ -14768,7 +14843,8 @@ func set_asset_system(new_ref):
 	if new_ref == asset_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		asset_system = new_ref
-		print("GlobalRefs: AssetSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: AssetSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid AssetSystem ref: ", new_ref)
 
@@ -14776,7 +14852,8 @@ func set_character_system(new_ref):
 	if new_ref == character_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		character_system = new_ref
-		print("GlobalRefs: CharacterSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: CharacterSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid CharacterSystem ref: ", new_ref)
 
@@ -14784,7 +14861,8 @@ func set_inventory_system(new_ref):
 	if new_ref == inventory_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		inventory_system = new_ref
-		print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: InventorySystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid InventorySystem ref: ", new_ref)
 
@@ -14792,7 +14870,8 @@ func set_time_system(new_ref):
 	if new_ref == time_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		time_system = new_ref
-		print("GlobalRefs: TimeSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: TimeSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid TimeSystem ref: ", new_ref)
 
@@ -14800,7 +14879,8 @@ func set_event_system(new_ref):
 	if new_ref == event_system: return
 	if new_ref == null or is_instance_valid(new_ref):
 		event_system = new_ref
-		print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: EventSystem ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid EventSystem ref: ", new_ref)
 
@@ -14808,7 +14888,8 @@ func set_simulation_engine(new_ref):
 	if new_ref == simulation_engine: return
 	if new_ref == null or is_instance_valid(new_ref):
 		simulation_engine = new_ref
-		print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: SimulationEngine ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid SimulationEngine ref: ", new_ref)
 
@@ -14816,7 +14897,8 @@ func set_contact_manager(new_ref):
 	if new_ref == contact_manager: return
 	if new_ref == null or is_instance_valid(new_ref):
 		contact_manager = new_ref
-		print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: ContactManager ref ", "set." if new_ref else "cleared.")
 	else:
 		printerr("GlobalRefs Error: Invalid ContactManager ref: ", new_ref)
 
@@ -14827,7 +14909,8 @@ func set_main_hud(new_ref):
 	if new_ref == main_hud: return
 	if new_ref == null or is_instance_valid(new_ref):
 		main_hud = new_ref
-		print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
+		if VERBOSE_REF_LOGS:
+			print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
 
@@ -14886,7 +14969,7 @@ func get_template(template_id: String) -> Resource:
 # MODULE: agent.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
-# LOG_REF: 2026-05-17 01:30:40
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 # File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
@@ -14926,10 +15009,11 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	self.character_uid = overrides.get("character_uid", -1)
 	self.is_hostile = overrides.get("hostile", false)
 	
-	if is_player():
-		print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
-	else:
-		print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid, " Hostile: ", self.is_hostile)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		if is_player():
+			print("AgentBody initialized as PLAYER. UID: ", self.agent_uid, " CharUID: ", self.character_uid)
+		else:
+			print("AgentBody initialized as NPC. UID: ", self.agent_uid, " CharUID: ", self.character_uid, " Hostile: ", self.is_hostile)
 
 	movement_system = get_node_or_null("MovementSystem")
 	navigation_system = get_node_or_null("NavigationSystem")
@@ -14953,15 +15037,16 @@ func initialize(template: AgentTemplate, overrides: Dictionary = {}, p_agent_uid
 	movement_system.initialize_movement_params(move_params)
 	navigation_system.initialize_navigation(nav_params, movement_system)
 
-	print(
-		"AgentBody '",
-		self.name,
-		"' initialized with character_uid=",
-		self.character_uid,
-		" using template '",
-		self.template_id,
-		"'."
-	)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print(
+			"AgentBody '",
+			self.name,
+			"' initialized with character_uid=",
+			self.character_uid,
+			" using template '",
+			self.template_id,
+			"'."
+		)
 
 
 # Retrieves movement parameters from the character's active ship template.
@@ -14990,7 +15075,7 @@ func _get_movement_params_from_ship() -> Dictionary:
 		}
 	else:
 		# Fallback to Constants defaults if no ship found (normal for persistent NPCs)
-		if uid_valid:
+		if uid_valid and Constants.VERBOSE_RUNTIME_LOGS:
 			print("AgentBody: No ship found for character_uid=", character_uid, ", using defaults.")
 		return {
 			"mass": Constants.DEFAULT_SHIP_MASS,
@@ -15125,6 +15210,14 @@ func despawn():
 
 --- Start of ./src/core/agents/components/movement_system.gd ---
 
+##
+## PROJECT: GDTLancer
+## MODULE: movement_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONSTRAINTS.md §1
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: res://core/agents/components/movement_system.gd
 # Version: 3.0 - RigidBody physics with PID-controlled 6DOF thrust-based flight system.
 # Purpose: Handles the low-level execution of agent movement via forces and torques.
@@ -15187,17 +15280,18 @@ func initialize_movement_params(params: Dictionary):
 	# Reset PID states
 	reset_pid_states()
 	
-	print(
-		(
-			"MovementSystem Initialized: LinearThrust=%.1f, AngularThrust=%.1f, Mass=%.1f, Align=%.1f"
-			% [
-				linear_thrust,
-				angular_thrust,
-				mass,
-				alignment_threshold_angle_deg
-			]
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print(
+			(
+				"MovementSystem Initialized: LinearThrust=%.1f, AngularThrust=%.1f, Mass=%.1f, Align=%.1f"
+				% [
+					linear_thrust,
+					angular_thrust,
+					mass,
+					alignment_threshold_angle_deg
+				]
+			)
 		)
-	)
 
 
 func reset_pid_states():
@@ -16071,7 +16165,7 @@ func execute(delta: float):
 # MODULE: navigation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-17 01:41:07
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 # File: res://core/agents/components/navigation_system.gd
@@ -16114,7 +16208,8 @@ func initialize_navigation(nav_params: Dictionary, move_sys_ref: Node):
 
 	_initialize_command_handlers()
 
-	print("NavigationSystem Initialized.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("NavigationSystem Initialized.")
 	set_command_idle()
 
 
@@ -16271,9 +16366,9 @@ func _get_target_effective_size(target_node: Spatial) -> float:
 #
 # PROJECT: GDTLancer
 # MODULE: tool_controller.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TACTICAL_TODO.md - Naming Standardization
-# LOG_REF: 2026-01-28-QA-Intern
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 ## ToolController: Manages tool (weapon) firing and cooldowns for an agent.
@@ -16281,6 +16376,8 @@ func _get_target_effective_size(target_node: Spatial) -> float:
 extends Node
 
 const UtilityToolTemplate = preload("res://database/definitions/utility_tool_template.gd")
+const COMBAT_UNAVAILABLE_REASON = "combat_unavailable"
+const COMBAT_UNAVAILABLE_MESSAGE = "Combat actions are unavailable while the combat layer is rebuilt."
 
 signal weapon_fired(weapon_index, target_position)
 signal weapon_cooldown_started(weapon_index, duration)
@@ -16291,6 +16388,7 @@ var _agent_body: RigidBody = null  # Parent AgentBody
 var _ship_template = null  # Linked ShipTemplate (via AssetSystem)
 var _weapons: Array = []  # Loaded UtilityToolTemplate instances
 var _cooldowns: Dictionary = {}  # weapon_index -> remaining_time
+var _deferred_combatant_uids: Dictionary = {}  # uid -> true while combat handoff is deferred
 
 
 # --- Initialization ---
@@ -16320,7 +16418,8 @@ func _load_weapons_from_ship() -> void:
 			_ship_template = agent_ship
 	
 	if not is_instance_valid(_ship_template):
-		print("ToolController: No ship template available for agent, cannot load weapons.")
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("ToolController: No ship template available for agent, cannot load weapons.")
 		return  # No ship available
 
 	# Load each equipped tool template
@@ -16340,19 +16439,21 @@ func _load_weapons_from_ship() -> void:
 			_cooldowns[_weapons.size() - 1] = 0.0
 	
 	if _weapons.size() > 0:
-		print("ToolController: Loaded ", _weapons.size(), " weapon(s) for agent")
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print("ToolController: Loaded ", _weapons.size(), " weapon(s) for agent")
 	else:
 		# Helpful during manual integration verification.
-		print(
-			"ToolController: No weapons loaded for agent_uid=",
-			_agent_body.get("agent_uid"),
-			" ship=",
-			_ship_template.get("template_id"),
-			" equipped_weapons=",
-			_ship_template.get("equipped_weapons"),
-			" equipped_tools=",
-			_ship_template.get("equipped_tools")
-		)
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print(
+				"ToolController: No weapons loaded for agent_uid=",
+				_agent_body.get("agent_uid"),
+				" ship=",
+				_ship_template.get("template_id"),
+				" equipped_weapons=",
+				_ship_template.get("equipped_weapons"),
+				" equipped_tools=",
+				_ship_template.get("equipped_tools")
+			)
 
 
 func _physics_process(delta: float) -> void:
@@ -16386,13 +16487,29 @@ func get_cooldown_remaining(index: int) -> float:
 
 
 func fire_at_target(weapon_index: int, target_uid: int, target_position: Vector3) -> Dictionary:
-	# CombatSystem removed — rebuild later on Agent layer
-	return {"success": false, "reason": "CombatSystem not available (removed)"}
+	var attacker_uid: int = -1
+	if is_instance_valid(_agent_body):
+		var raw_attacker_uid = _agent_body.get("agent_uid")
+		if raw_attacker_uid != null:
+			attacker_uid = int(raw_attacker_uid)
+
+	_ensure_combatant_registered(attacker_uid)
+	_ensure_combatant_registered(target_uid)
+
+	return {
+		"success": false,
+		"reason": COMBAT_UNAVAILABLE_REASON,
+		"message": COMBAT_UNAVAILABLE_MESSAGE,
+		"weapon_index": weapon_index,
+		"target_uid": target_uid,
+		"target_position": target_position,
+	}
 
 
 func _ensure_combatant_registered(uid: int) -> void:
-	# CombatSystem removed — no-op stub
-	pass
+	if uid < 0:
+		return
+	_deferred_combatant_uids[uid] = true
 
 --- Start of ./src/core/simulation/affinity_matrix.gd ---
 
@@ -16735,7 +16852,7 @@ func _unique(values: Array) -> Array:
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-17 16:51:08
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Reference
@@ -16833,7 +16950,8 @@ func initialize_agents() -> void:
 			continue
 		_initialize_agent_from_template(agent_id, template)
 
-	print("AgentLayer: Initialized %d agents." % GameState.agents.size())
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("AgentLayer: Initialized %d agents." % GameState.agents.size())
 
 
 ## Processes all Agent-layer logic for one tick.
@@ -18415,7 +18533,7 @@ func _humanize_action(action: String) -> String:
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-02-21 (TASK_7)
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Reference
@@ -18503,7 +18621,8 @@ func initialize_grid() -> void:
 		if not GameState.hostile_infestation_progress.has(sector_id):
 			GameState.hostile_infestation_progress[sector_id] = 0
 
-	print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
 
 
 # =============================================================================
@@ -18958,7 +19077,7 @@ func _unique(tags: Array) -> Array:
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_11
-# LOG_REF: 2026-02-21 (TASK_11)
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -19033,7 +19152,8 @@ func _ready() -> void:
 	if not EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
 		EventBus.connect("player_undocked", self, "_on_player_undocked")
 
-	print("SimulationEngine: Ready. Awaiting initialize_simulation() call.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("SimulationEngine: Ready. Awaiting initialize_simulation() call.")
 
 
 func _exit_tree() -> void:
@@ -19051,7 +19171,8 @@ func _exit_tree() -> void:
 ## Initializes the full simulation from a seed string.
 ## Must be called once before any ticks are processed.
 func initialize_simulation(seed_string: String) -> void:
-	print("SimulationEngine: Initializing simulation with seed '%s'..." % seed_string)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("SimulationEngine: Initializing simulation with seed '%s'..." % seed_string)
 
 	# Step 1: World Layer — build static topology and hazards from templates
 	world_layer.initialize_world(seed_string)
@@ -19073,10 +19194,11 @@ func initialize_simulation(seed_string: String) -> void:
 	# Emit initialization signal
 	EventBus.emit_signal("sim_initialized", seed_string)
 
-	print("SimulationEngine: Initialization complete. World-age: %s, Tick: %d" % [
-		GameState.world_age,
-		GameState.sim_tick_count
-	])
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("SimulationEngine: Initialization complete. World-age: %s, Tick: %d" % [
+			GameState.world_age,
+			GameState.sim_tick_count
+		])
 
 
 # =============================================================================
@@ -19815,7 +19937,7 @@ func _array_sum(arr: Array) -> int:
 # MODULE: world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-10 16:13:36
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Reference
@@ -19886,7 +20008,8 @@ func initialize_world(seed_string: String) -> void:
 
 	_validate_initial_sector_id()
 
-	print("WorldLayer: Initialized %d sectors." % GameState.world_topology.size())
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("WorldLayer: Initialized %d sectors." % GameState.world_topology.size())
 
 
 # =============================================================================
@@ -19973,10 +20096,12 @@ func _validate_initial_sector_id() -> void:
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-13 16:32:50
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends Node
+
+const VERBOSE_PERSISTENT_AGENT_LOGS = false
 
 const PERSISTENT_AGENT_IDS = [
 	"persistent_kai", "persistent_juno", 
@@ -20007,7 +20132,8 @@ func _ready():
 	# Listen for player docking to handle contact discovery (Task 11)
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	
-	print("AgentSpawner Ready.")
+	if VERBOSE_PERSISTENT_AGENT_LOGS:
+		print("AgentSpawner Ready.")
 
 
 func _on_Zone_Loaded(_zone_instance, _zone_path, agent_container_node):
@@ -20378,7 +20504,8 @@ func spawn_persistent_agents() -> void:
 		
 		if is_instance_valid(agent_body):
 			_active_persistent_agents[agent_id] = agent_body
-			print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
+			if VERBOSE_PERSISTENT_AGENT_LOGS:
+				print("AgentSpawner: Spawned persistent agent '%s' at %s (pos=%s)" % [agent_id, current_loc, str(agent_body.global_transform.origin)])
 		else:
 			print("AgentSpawner: FAILED to spawn persistent agent '%s' at %s" % [agent_id, current_loc])
 
@@ -20395,7 +20522,8 @@ func _on_Agent_Disabled(agent_body) -> void:
 
 
 func _handle_persistent_agent_disable(agent_id: String) -> void:
-	print("Persistent Agent Disabled: ", agent_id)
+	if VERBOSE_PERSISTENT_AGENT_LOGS:
+		print("Persistent Agent Disabled: ", agent_id)
 	if GameState.persistent_agents.has(agent_id):
 		var state = GameState.persistent_agents[agent_id]
 		state["is_disabled"] = true
@@ -20422,7 +20550,8 @@ func _check_persistent_agent_respawns() -> void:
 				
 			if GameState.game_time_seconds - disabled_time >= timeout:
 				# Respawn Logic
-				print("Persistent Agent Respawning: ", agent_id)
+				if VERBOSE_PERSISTENT_AGENT_LOGS:
+					print("Persistent Agent Respawning: ", agent_id)
 				state["is_disabled"] = false
 				state["disabled_at_time"] = 0.0
 				# Reset to home location (assuming they respawn at home, not where they died)
@@ -20452,7 +20581,8 @@ func _on_player_docked(location_id: String) -> void:
 		if home == location_id:
 			state["is_known"] = true
 			EventBus.emit_signal("contact_met", agent_id)
-			print("Contact Discovered: ", agent_id, " at ", location_id)
+			if VERBOSE_PERSISTENT_AGENT_LOGS:
+				print("Contact Discovered: ", agent_id, " at ", location_id)
 
 
 func _resolve_known_location_id(requested_location_id: String, context: String) -> String:
@@ -20493,6 +20623,14 @@ func _report_invalid_location(context: String, requested_location_id: String, me
 
 --- Start of ./src/core/systems/asset_system.gd ---
 
+##
+## PROJECT: GDTLancer
+## MODULE: asset_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: core/systems/asset_system.gd
 # Purpose: Provides a logical API for accessing asset data stored in GameState.
 # This system is STATELESS. All data is read from the GameState autoload.
@@ -20502,7 +20640,8 @@ extends Node
 
 func _ready():
 	GlobalRefs.set_asset_system(self)
-	print("AssetSystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("AssetSystem Ready.")
 
 
 # --- Public API ---
@@ -20567,7 +20706,7 @@ func get_ships_for_character(character_uid: int) -> Array:
 # MODULE: character_system.gd
 # STATUS: Level 3 - Verified
 # TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -20578,7 +20717,8 @@ extends Node
 
 func _ready():
 	GlobalRefs.set_character_system(self)
-	print("CharacterSystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("CharacterSystem Ready.")
 
 
 # --- Public API ---
@@ -20911,6 +21051,14 @@ func _parse_economy_tags(tags: Array) -> Array:
 
 --- Start of ./src/core/systems/event_system.gd ---
 
+##
+## PROJECT: GDTLancer
+## MODULE: event_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 ## EventSystem: Combat tracking and encounter management (DISABLED — random spawns removed).
 ##
 ## Random encounter spawning is disabled. All NPCs come from the simulation.
@@ -20934,7 +21082,8 @@ func _ready() -> void:
 		EventBus.connect("agent_disabled", self, "_on_agent_disabled")
 		EventBus.connect("agent_despawning", self, "_on_agent_despawning")
 
-	print("EventSystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("EventSystem Ready.")
 
 
 ## Handles agent disabled signal; removes from active hostiles and checks for combat end.
@@ -21049,6 +21198,14 @@ func _notification(what: int) -> void:
 
 --- Start of ./src/core/systems/inventory_system.gd ---
 
+##
+## PROJECT: GDTLancer
+## MODULE: inventory_system.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.4
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: core/systems/inventory_system.gd
 # Purpose: Provides a unified, stateless API for managing all character inventories.
 # Version: 4.0 - Reworked for a unified, asset-agnostic architecture.
@@ -21061,7 +21218,8 @@ enum InventoryType { SHIP, MODULE, COMMODITY }
 
 func _ready():
 	GlobalRefs.set_inventory_system(self)
-	print("InventorySystem Ready.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("InventorySystem Ready.")
 
 
 # --- Public API ---
@@ -21153,8 +21311,8 @@ func _get_master_asset_instance(inventory_type: int, asset_uid: int) -> Resource
 # PROJECT: GDTLancer
 # MODULE: sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT §Architecture, TACTICAL_TODO §TASK_5
-# LOG_REF: 2026-03-27
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-23 16:36:08
 #
 
 extends Reference
@@ -21187,12 +21345,26 @@ func load_sector(sector_id: String) -> Spatial:
 
 
 func _load_zone_root(template, sector_id: String) -> Spatial:
-	if template.sector_scene_path != "":
-		var scene = load(template.sector_scene_path)
+	var scene_path = str(template.sector_scene_path)
+	if scene_path != "":
+		var scene = _load_handcrafted_scene(scene_path)
 		if scene != null:
-			return scene.instance()
-		_report_invalid_scene_path(sector_id, template.sector_scene_path)
+			var zone_root = scene.instance()
+			if zone_root is Spatial:
+				return zone_root
+			if is_instance_valid(zone_root):
+				zone_root.free()
+		_report_invalid_scene_path(sector_id, scene_path)
 	return _build_procedural_fallback(sector_id)
+
+
+func _load_handcrafted_scene(scene_path: String) -> PackedScene:
+	if scene_path == "":
+		return null
+	if not ResourceLoader.exists(scene_path, "PackedScene"):
+		return null
+	var scene = load(scene_path)
+	return scene if scene is PackedScene else null
 
 
 func _report_invalid_scene_path(sector_id: String, scene_path: String) -> void:
@@ -21274,7 +21446,7 @@ func _build_procedural_fallback(sector_id: String) -> Spatial:
 # MODULE: time_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md Section 7 (Tick Sequence)
-# LOG_REF: 2026-02-13
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -21290,7 +21462,8 @@ extends Node
 
 func _ready():
 	GlobalRefs.set_time_system(self)
-	print("TimeSystem Ready (pure clock mode).")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("TimeSystem Ready (pure clock mode).")
 
 
 # --- Public API ---
@@ -21398,7 +21571,7 @@ func _get_route_direction(source_position: Vector3, target_position: Vector3) ->
 # MODULE: debug_map_panel.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-17 20:19:04
+# LOG_REF: 2026-05-23 16:43:24
 #
 
 extends CanvasLayer
@@ -21428,7 +21601,7 @@ const AXIS_TRUNK_OFFSET = 1200.0
 const MAP_LABEL_BASE_FONT_SIZE = 18
 const SECTOR_LABEL_FONT_SCALE = 1.5
 const SECTOR_LABEL_FONT_SIZE = int(MAP_LABEL_BASE_FONT_SIZE * SECTOR_LABEL_FONT_SCALE)
-const MAP_LABEL_CAMERA_DISTANCE_FADE_START = 1e4
+const MAP_LABEL_CAMERA_DISTANCE_FADE_START = 1e5
 const MAP_LABEL_CAMERA_DISTANCE_FADE_RANGE = 1e6
 const MAP_LABEL_NORMALIZED_DISTANCE_POW = 2.5
 const SECTOR_LABEL_MAX_WIDTH = 260.0
@@ -22608,8 +22781,8 @@ func get_parent_control() -> Control:
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-17 16:51:08
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6, §7; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 15:24:18
 #
 
 extends Control
@@ -22631,6 +22804,7 @@ const NAV_COMMAND_FLEE = 6
 const OVERLAY_KIND_STRUCTURES = "structures"
 const OVERLAY_KIND_STELLAR = "stellar"
 const OVERLAY_KIND_JUMP = "jump"
+const INVENTORY_DEFERRED_MESSAGE = "Inventory management is deferred. Use the debug window for current resource inspection until the inventory screen is rebuilt."
 const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/CenterLeftZone/ButtonMenu",
 	"ScreenControls/CenterLeftZone/ButtonDebug",
@@ -23346,6 +23520,8 @@ func _show_action_feedback_popup(action_type: String, success: bool, message: St
 	
 	_action_feedback_popup.dialog_text = message
 	_action_feedback_popup.popup_centered()
+
+
 func _on_SliderControlRight_value_changed(value):
 	# SPEED (maximum) limiter.
 	# This slider is inverted (rotated by 180) for the sake of appearance.
@@ -23362,8 +23538,7 @@ func _on_ButtonNarrativeStatus_pressed():
 
 
 func _on_ButtonInventory_pressed():
-	# TODO: Rebuild on simulation foundation
-	pass
+	_show_action_feedback_popup("Inventory", false, INVENTORY_DEFERRED_MESSAGE)
 
 
 func _toggle_debug_panel(panel_name: String, toggle_method: String) -> void:
@@ -23841,8 +24016,8 @@ func _on_world_target_button_pressed(target_node) -> void:
 # PROJECT: GDTLancer
 # MODULE: projected_target_bracket.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §5.4, §6; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-16 01:02:19
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-23 16:10:55
 #
 
 extends Button
@@ -23986,9 +24161,7 @@ func _reset_pointer_tracking_state() -> void:
 
 
 func _set_camera_drag_state(is_rotating: bool) -> void:
-	var camera = GlobalRefs.main_camera
-	if is_instance_valid(camera) and camera.has_method("set_is_rotating"):
-		camera.set_is_rotating(is_rotating)
+	_call_camera_bridge_method("set_is_rotating", [is_rotating])
 
 
 func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
@@ -23996,9 +24169,7 @@ func _forward_camera_drag_motion(motion_event: InputEventMouseMotion) -> void:
 
 
 func _forward_camera_input(event: InputEvent) -> void:
-	var camera = GlobalRefs.main_camera
-	if is_instance_valid(camera) and camera.has_method("_unhandled_input"):
-		camera.call("_unhandled_input", event)
+	_call_camera_bridge_method("_unhandled_input", [event])
 
 
 func _cache_scene_nodes() -> void:
@@ -24155,18 +24326,36 @@ func _is_dockable_target(target_candidate) -> bool:
 
 
 func _begin_main_hud_drag_passthrough(initial_motion_event: InputEventMouseMotion) -> bool:
-	var main_hud = GlobalRefs.main_hud
+	var main_hud = _get_main_hud_drag_passthrough_bridge()
 	if not is_instance_valid(main_hud):
 		return false
-	if not main_hud.has_method("begin_projected_target_drag_passthrough"):
-		return false
-	main_hud.call("begin_projected_target_drag_passthrough", self, initial_motion_event)
+	main_hud.begin_projected_target_drag_passthrough(self, initial_motion_event)
 	return true
 
 
 func _is_main_hud_drag_passthrough_active() -> bool:
+	var main_hud = _get_main_hud_drag_passthrough_bridge()
+	return is_instance_valid(main_hud) and main_hud.is_projected_target_drag_passthrough_active()
+
+
+func _get_main_hud_drag_passthrough_bridge() -> Node:
 	var main_hud = GlobalRefs.main_hud
-	return is_instance_valid(main_hud) and main_hud.has_method("is_projected_target_drag_passthrough_active") and main_hud.call("is_projected_target_drag_passthrough_active")
+	if not is_instance_valid(main_hud):
+		return null
+	if not main_hud.has_method("begin_projected_target_drag_passthrough"):
+		return null
+	if not main_hud.has_method("is_projected_target_drag_passthrough_active"):
+		return null
+	return main_hud
+
+
+func _call_camera_bridge_method(method_name: String, args: Array = [], default_value = null):
+	var camera = GlobalRefs.main_camera
+	if not is_instance_valid(camera) or not camera.has_method(method_name):
+		return default_value
+	if args.empty():
+		return camera.call(method_name)
+	return camera.callv(method_name, args)
 
 --- Start of ./src/core/ui/main_menu/main_menu.gd ---
 
@@ -25017,16 +25206,16 @@ func _get_procedural_type(template) -> String:
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 02:59:12
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6, §7; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Control
 
 ## StationMenu: Overlay that appears while the player is docked at a station.
 ##
-## Shows the station name, a set of action buttons (Trade, Contracts — currently
-## stubbed), and a prominent Undock button that emits `player_undocked` via
+## Shows the station name, a set of action buttons with explicit deferred-service
+## feedback, and a prominent Undock button that emits `player_undocked` via
 ## EventBus so the PlayerController re-enables input processing.
 
 
@@ -25048,6 +25237,7 @@ onready var _btn_undock: Button = $Panel/VBoxContainer/BtnUndock
 # =============================================================================
 
 var _current_location_id: String = ""
+var _service_status_message: String = ""
 
 
 # =============================================================================
@@ -25074,22 +25264,31 @@ func _ready() -> void:
 
 func _on_player_docked(location_id: String) -> void:
 	_current_location_id = location_id
+	_service_status_message = ""
 	_update_station_label(location_id)
 	_update_info_label()
 	visible = true
-	print("StationMenu: Opened for location '", location_id, "'")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("StationMenu: Opened for location '", location_id, "'")
 
 
 func _on_player_undocked() -> void:
 	visible = false
 	_current_location_id = ""
-	print("StationMenu: Closed")
+	_service_status_message = ""
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("StationMenu: Closed")
 
 
 func open_for_current_dock() -> void:
 	if GameState.player_docked_at == "":
+		visible = false
+		_current_location_id = ""
+		_service_status_message = ""
+		_update_info_label()
 		return
 	_current_location_id = GameState.player_docked_at
+	_service_status_message = ""
 	_update_station_label(_current_location_id)
 	_update_info_label()
 	visible = true
@@ -25108,24 +25307,64 @@ func _on_close_pressed() -> void:
 
 
 func _on_trade_pressed() -> void:
-	# TODO: Open trade interface once TradingSystem is rebuilt on simulation.
-	print("StationMenu: Trade pressed (not yet implemented)")
+	_show_deferred_service_feedback(
+		"Trade",
+		"trade",
+		"Trading remains unavailable while the trading layer is rebuilt."
+	)
 
 
 func _on_contracts_pressed() -> void:
-	# TODO: Open contract interface once ContractSystem is rebuilt on simulation.
-	print("StationMenu: Contracts pressed (not yet implemented)")
+	_show_deferred_service_feedback(
+		"Contracts",
+		"contracts",
+		"Contracts remain unavailable while the contract layer is rebuilt."
+	)
 
 
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
 
+func _show_deferred_service_feedback(service_label: String, service_id: String, deferred_message: String) -> void:
+	if GameState.player_docked_at == "":
+		visible = false
+		_current_location_id = ""
+		_service_status_message = ""
+		_update_info_label()
+		return
+
+	if GameState.player_docked_at != _current_location_id:
+		_current_location_id = GameState.player_docked_at
+		_update_station_label(_current_location_id)
+
+	if _location_offers_service(_current_location_id, service_id):
+		_service_status_message = deferred_message
+	else:
+		_service_status_message = "%s is not offered at this dock." % service_label
+	_update_info_label()
+
+
+func _location_offers_service(location_id: String, service_id: String) -> bool:
+	if location_id == "" or not GameState.locations.has(location_id):
+		return true
+
+	var location_record = GameState.locations[location_id]
+	var available_services = null
+	if location_record is Dictionary:
+		available_services = location_record.get("available_services", null)
+	elif location_record is Object and "available_services" in location_record:
+		available_services = location_record.available_services
+
+	return not (available_services is Array) or service_id in available_services
+
 func _update_station_label(location_id: String) -> void:
 	var display_name: String = location_id
 	if GameState.locations.has(location_id):
 		var loc = GameState.locations[location_id]
-		if loc is Object and "location_name" in loc and loc.location_name != "":
+		if loc is Dictionary and str(loc.get("location_name", "")) != "":
+			display_name = str(loc.get("location_name", ""))
+		elif loc is Object and "location_name" in loc and loc.location_name != "":
 			display_name = loc.location_name
 	_label_station_name.text = display_name
 
@@ -25138,6 +25377,10 @@ func _update_info_label() -> void:
 		var pc = GameState.characters[player_uid]
 		info_text += "Credits: %d" % pc.credits
 		info_text += "    FP: %d" % pc.focus_points
+	if _service_status_message != "":
+		if info_text != "":
+			info_text += "\n"
+		info_text += _service_status_message
 	_label_info.text = info_text
 
 
@@ -25271,7 +25514,7 @@ func _physics_process(delta):
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-17 01:41:07
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Node
@@ -25378,12 +25621,12 @@ func _get_camera_reference():
 
 
 func _change_state(new_state_name: String):
-	if _current_input_state and _current_input_state.has_method("exit"):
+	if _current_input_state != null:
 		_current_input_state.exit()
 
 	if _states.has(new_state_name):
 		_current_input_state = _states[new_state_name]
-		if _current_input_state.has_method("enter"):
+		if _current_input_state != null:
 			_current_input_state.enter(self)
 	else:
 		printerr("PlayerController Error: Attempted to change to unknown state: ", new_state_name)
@@ -25393,7 +25636,7 @@ func _physics_process(delta: float):
 	if _is_jump_transition_active():
 		_clear_queued_jump(false)
 		return
-	if _current_input_state and _current_input_state.has_method("physics_update"):
+	if _current_input_state != null:
 		_current_input_state.physics_update(delta)
 	_poll_docking_proximity()
 	_process_queued_jump()
@@ -25458,7 +25701,7 @@ func _unhandled_input(event: InputEvent):
 		return
 
 	# Delegate other inputs to the current state
-	if _current_input_state and _current_input_state.has_method("handle_input"):
+	if _current_input_state != null:
 		_current_input_state.handle_input(event)
 
 
@@ -25992,7 +26235,8 @@ func _poll_docking_proximity():
 				EventBus.emit_signal("jump_unavailable")
 
 func _on_player_docked(location_id):
-	print("Player docked at: ", location_id)
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Player docked at: ", location_id)
 	_clear_queued_jump()
 	GameState.player_docked_at = location_id
 	set_process_unhandled_input(false)
@@ -26002,7 +26246,8 @@ func _on_player_docked(location_id):
 		agent_script.command_stop()
 
 func _on_player_undocked():
-	print("Player undocked")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Player undocked")
 	_clear_queued_jump()
 	GameState.player_docked_at = ""
 	set_process_unhandled_input(true)
@@ -27166,7 +27411,7 @@ func _notification(what):
 # MODULE: orbit_camera.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3, §7; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-16 23:40:29
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends Camera
@@ -27317,7 +27562,8 @@ func set_target_node(new_target: Spatial):
 	# When the target changes, inform the relevant components.
 	_zoom_controller.set_target(new_target)
 	_position_controller.set_target(new_target)
-	print("OrbitCamera target set to: ", new_target.name if new_target else "null")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("OrbitCamera target set to: ", new_target.name if new_target else "null")
 
 
 func set_rotation_input_active(is_active: bool):
@@ -28005,7 +28251,7 @@ func _ready():
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-17 00:59:39
+# LOG_REF: 2026-05-23 15:59:10
 #
 
 extends Node
@@ -28283,18 +28529,24 @@ func _begin_jump_transition_foundation(source_sector_id: String, target_sector_i
 		_reset_jump_transition_foundation()
 		return
 	_jump_transition_active = true
-	if is_instance_valid(GlobalRefs.main_camera) and jump_transition_rig.has_method("capture_from_camera"):
-		jump_transition_rig.call("capture_from_camera", GlobalRefs.main_camera)
+	if is_instance_valid(GlobalRefs.main_camera):
+		_call_jump_transition_rig_method(
+			jump_transition_rig,
+			"capture_from_camera",
+			[GlobalRefs.main_camera]
+		)
 	var departure_direction = _get_departure_direction_for_route(source_sector_id, target_sector_id)
-	if jump_transition_rig.has_method("begin_departure"):
-		jump_transition_rig.call("begin_departure", source_sector_id, target_sector_id, departure_direction)
+	_call_jump_transition_rig_method(
+		jump_transition_rig,
+		"begin_departure",
+		[source_sector_id, target_sector_id, departure_direction]
+	)
 
 
 func _reset_jump_transition_foundation() -> void:
 	_jump_transition_active = false
 	var jump_transition_rig = _get_jump_transition_rig()
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("reset_transition_state"):
-		jump_transition_rig.call("reset_transition_state")
+	_call_jump_transition_rig_method(jump_transition_rig, "reset_transition_state")
 	_jump_transition_mouse_mode_before_lock = Input.MOUSE_MODE_VISIBLE
 	if is_instance_valid(GlobalRefs.main_camera):
 		if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
@@ -28318,8 +28570,7 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if departure_visuals_state is GDScriptFunctionState:
 		yield(departure_visuals_state, "completed")
 	_pause_jump_transition_gameplay()
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_departure_overlay_window"):
-		jump_transition_rig.call("begin_departure_overlay_window")
+	_call_jump_transition_rig_method(jump_transition_rig, "begin_departure_overlay_window")
 	var fov_override_state = _animate_main_camera_fov_override(
 		Constants.JUMP_TRANSITION_TARGET_FOV_DEG,
 		Constants.JUMP_TRANSITION_FOV_DURATION_SEC
@@ -28335,14 +28586,19 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed)
 	if not is_instance_valid(jump_transition_rig):
 		jump_transition_rig = _get_jump_transition_rig()
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_fov"):
-		jump_transition_rig.call("set_transition_fov", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("begin_cruise"):
-		jump_transition_rig.call("begin_cruise", cruise_speed)
-		if jump_transition_rig.has_method("set_transition_particles_active"):
-			jump_transition_rig.call("set_transition_particles_active", true, true)
-		if jump_transition_rig.has_method("on_departure_cruise_entered"):
-			jump_transition_rig.call("on_departure_cruise_entered")
+	_call_jump_transition_rig_method(
+		jump_transition_rig,
+		"set_transition_fov",
+		[Constants.JUMP_TRANSITION_TARGET_FOV_DEG]
+	)
+	if _jump_transition_rig_supports_method(jump_transition_rig, "begin_cruise"):
+		_call_jump_transition_rig_method(jump_transition_rig, "begin_cruise", [cruise_speed])
+		_call_jump_transition_rig_method(
+			jump_transition_rig,
+			"set_transition_particles_active",
+			[true, true]
+		)
+		_call_jump_transition_rig_method(jump_transition_rig, "on_departure_cruise_entered")
 		var cruise_velocity_state = _wait_for_rig_velocity(
 			jump_transition_rig,
 			cruise_speed,
@@ -28354,8 +28610,16 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 		var route_completion_state = _wait_for_rig_route_completion(jump_transition_rig, route_timeout_sec)
 		if route_completion_state is GDScriptFunctionState:
 			yield(route_completion_state, "completed")
-		if jump_transition_rig.has_method("is_route_complete") and not jump_transition_rig.call("is_route_complete") and jump_transition_rig.has_method("begin_arrival"):
-			jump_transition_rig.call("begin_arrival")
+		var route_complete = bool(
+			_call_jump_transition_rig_method(
+				jump_transition_rig,
+				"is_route_complete",
+				[],
+				true
+			)
+		)
+		if not route_complete and _jump_transition_rig_supports_method(jump_transition_rig, "begin_arrival"):
+			_call_jump_transition_rig_method(jump_transition_rig, "begin_arrival")
 			var arrival_velocity_state = _wait_for_rig_velocity(
 				jump_transition_rig,
 				0.0,
@@ -28456,12 +28720,20 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 		return
 	var jump_transition_rig = _get_jump_transition_rig()
 	var transition_forward_direction = Vector3.ZERO
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("get_transition_camera_forward_direction"):
-		transition_forward_direction = jump_transition_rig.call("get_transition_camera_forward_direction")
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("deactivate_transition_view"):
-		jump_transition_rig.call("deactivate_transition_view")
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_particles_active"):
-		jump_transition_rig.call("set_transition_particles_active", false, true)
+	var transition_forward_direction_value = _call_jump_transition_rig_method(
+		jump_transition_rig,
+		"get_transition_camera_forward_direction",
+		[],
+		Vector3.ZERO
+	)
+	if transition_forward_direction_value is Vector3:
+		transition_forward_direction = transition_forward_direction_value
+	_call_jump_transition_rig_method(jump_transition_rig, "deactivate_transition_view")
+	_call_jump_transition_rig_method(
+		jump_transition_rig,
+		"set_transition_particles_active",
+		[false, true]
+	)
 	if is_instance_valid(GlobalRefs.player_agent_body):
 		if GlobalRefs.main_camera.has_method("restore_orbit_from_transition_view"):
 			GlobalRefs.main_camera.restore_orbit_from_transition_view(
@@ -28484,10 +28756,17 @@ func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
 	if camera_aim_state is GDScriptFunctionState:
 		yield(camera_aim_state, "completed")
 	var jump_transition_rig = _get_jump_transition_rig()
-	if is_instance_valid(jump_transition_rig) and is_instance_valid(GlobalRefs.main_camera) and jump_transition_rig.has_method("capture_from_camera"):
-		jump_transition_rig.call("capture_from_camera", GlobalRefs.main_camera)
-	if is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method("set_transition_particles_active"):
-		jump_transition_rig.call("set_transition_particles_active", false, true)
+	if is_instance_valid(GlobalRefs.main_camera):
+		_call_jump_transition_rig_method(
+			jump_transition_rig,
+			"capture_from_camera",
+			[GlobalRefs.main_camera]
+		)
+	_call_jump_transition_rig_method(
+		jump_transition_rig,
+		"set_transition_particles_active",
+		[false, true]
+	)
 	_set_jump_transition_camera_locked(true)
 	_set_main_hud_hidden(true)
 
@@ -28541,12 +28820,14 @@ func _animate_main_camera_fov_restore(duration_sec: float):
 
 
 func _wait_for_rig_velocity(jump_transition_rig: Node, target_velocity: float, tolerance: float, timeout_sec: float):
-	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method("get_current_velocity"):
+	if not _jump_transition_rig_supports_method(jump_transition_rig, "get_current_velocity"):
 		return true
 	var start_time_ms = OS.get_ticks_msec()
 	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
 	while true:
-		var current_velocity = float(jump_transition_rig.call("get_current_velocity"))
+		var current_velocity = float(
+			_call_jump_transition_rig_method(jump_transition_rig, "get_current_velocity", [], 0.0)
+		)
 		if abs(current_velocity - target_velocity) <= tolerance:
 			return true
 		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
@@ -28555,12 +28836,12 @@ func _wait_for_rig_velocity(jump_transition_rig: Node, target_velocity: float, t
 
 
 func _wait_for_rig_route_completion(jump_transition_rig: Node, timeout_sec: float):
-	if not is_instance_valid(jump_transition_rig) or not jump_transition_rig.has_method("is_route_complete"):
+	if not _jump_transition_rig_supports_method(jump_transition_rig, "is_route_complete"):
 		return true
 	var start_time_ms = OS.get_ticks_msec()
 	var timeout_ms = max(int(timeout_sec * 1000.0), 1)
 	while true:
-		if bool(jump_transition_rig.call("is_route_complete")):
+		if bool(_call_jump_transition_rig_method(jump_transition_rig, "is_route_complete", [], true)):
 			return true
 		if OS.get_ticks_msec() - start_time_ms >= timeout_ms:
 			return false
@@ -28662,6 +28943,23 @@ func _get_jump_transition_rig() -> Node:
 	return null
 
 
+func _jump_transition_rig_supports_method(jump_transition_rig: Node, method_name: String) -> bool:
+	return is_instance_valid(jump_transition_rig) and jump_transition_rig.has_method(method_name)
+
+
+func _call_jump_transition_rig_method(
+		jump_transition_rig: Node,
+		method_name: String,
+		args: Array = [],
+		default_value = null
+	):
+	if not _jump_transition_rig_supports_method(jump_transition_rig, method_name):
+		return default_value
+	if args.empty():
+		return jump_transition_rig.call(method_name)
+	return jump_transition_rig.callv(method_name, args)
+
+
 func _resolve_known_sector_id(requested_sector_id: String, context: String) -> String:
 	if requested_sector_id != "" and GameState.world_topology.has(requested_sector_id):
 		return requested_sector_id
@@ -28754,6 +29052,14 @@ func _notification(what):
 
 --- Start of ./src/scenes/game_world/world_manager/template_indexer.gd ---
 
+##
+## PROJECT: GDTLancer
+## MODULE: template_indexer.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §2, §3.4, §6; TRUTH_SIMULATION-GRAPH.md §2.1
+## LOG_REF: 2026-05-23 17:10:12
+##
+
 # File: src/scenes/game_world/world_manager/template_indexer.gd
 # Purpose: Scans the project's data directories to find and register all
 #          .tres template files into the TemplateDatabase autoload.
@@ -28767,11 +29073,13 @@ var _pending_contract_templates: Array = []
 
 # Main entry point. Kicks off the recursive scan of the data directory.
 func index_all_templates():
-	print("TemplateIndexer: Indexing all data templates...")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("TemplateIndexer: Indexing all data templates...")
 	_pending_contract_templates.clear()
 	_scan_directory_for_templates("res://database/registry/")
 	_register_pending_contract_templates()
-	print("TemplateIndexer: Template indexing complete.")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("TemplateIndexer: Template indexing complete.")
 
 
 # --- Private Logic ---
@@ -28875,10 +29183,12 @@ func _format_location_id(location_id: String) -> String:
 # MODULE: world_generator.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends Node
+
+const VERBOSE_WORLD_BOOT_LOGS = false
 
 ## WorldGenerator: Creates initial game state including characters, ships, locations, and contracts.
 ## Populates GameState dictionaries from TemplateDatabase resources.
@@ -28894,7 +29204,8 @@ var _next_ship_uid: int = 0
 
 # Main entry point. Generates all necessary data for a new game.
 func generate_new_world():
-	print("WorldGenerator: Generating new world state...")
+	if VERBOSE_WORLD_BOOT_LOGS:
+		print("WorldGenerator: Generating new world state...")
 
 	# Load all locations into GameState first (they are keyed by template_id).
 	_load_locations()
@@ -28916,7 +29227,8 @@ func generate_new_world():
 	_apply_player_starting_state()
 	call_deferred("_emit_initial_dock_signal")
 
-	print("WorldGenerator: New world state generated.")
+	if VERBOSE_WORLD_BOOT_LOGS:
+		print("WorldGenerator: New world state generated.")
 
 
 func _apply_player_starting_state() -> void:
@@ -28990,20 +29302,16 @@ func _get_dock_position_in_zone(location_id: String):
 # Loads all location templates into GameState.locations.
 # Locations are stored directly by their template_id (they don't have UIDs).
 func _load_locations():
-	print("WorldGenerator: Loading locations...")
 	for template_id in TemplateDatabase.locations:
 		var template = TemplateDatabase.locations[template_id]
 		# Duplicate to allow runtime modifications (e.g., market price fluctuation).
 		GameState.locations[template_id] = template.duplicate()
-		print("... Loaded location: ", template.location_name)
 
 
 func _load_factions():
-	print("WorldGenerator: Loading factions...")
 	for template_id in TemplateDatabase.factions:
 		var template = TemplateDatabase.factions[template_id]
 		GameState.factions[template_id] = template.duplicate()
-		print("... Loaded faction: ", template.faction_id)
 
 
 # Creates a unique instance of a character from a template and registers it
@@ -29023,14 +29331,10 @@ func _create_character_from_template(template: CharacterTemplate):
 	# Designate the player character.
 	if template.template_id == "character_default":
 		GameState.player_character_uid = uid
-		print("... Player character created with UID: ", uid)
-	else:
-		print("... NPC character created with UID: ", uid)
 
 
 # Generates starting assets and assigns them to characters using the InventorySystem.
 func _generate_and_assign_assets():
-	print("WorldGenerator: Generating and assigning starting assets...")
 	for char_uid in GameState.characters:
 		var character = GameState.characters[char_uid]
 		
@@ -29041,7 +29345,6 @@ func _generate_and_assign_assets():
 			GlobalRefs.inventory_system.add_asset(char_uid, GlobalRefs.inventory_system.InventoryType.SHIP, ship_uid)
 			# Set this ship as the character's active vessel.
 			character.active_ship_uid = ship_uid
-			print("... Assigned ship (UID: %d) to character %s" % [ship_uid, character.character_name])
 
 		# NOTE: Module assignment removed — assets_modules pruned in sim rework.
 		# Module support will be rebuilt on the Agent layer.
@@ -29081,7 +29384,7 @@ func _get_new_ship_uid() -> int:
 # MODULE: world_rendering.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-16 17:48:36
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 # File: scenes/game_world/world_rendering.gd
@@ -29109,7 +29412,8 @@ func _ready():
 	get_viewport().disable_3d = viewport_disable_3d
 	get_viewport().sharpen_intensity = viewport_sharpen_intensity
 	get_viewport().keep_3d_linear = viewport_keep_3d_linear
-	print("Viewport: Is ready")
+	if Constants.VERBOSE_RUNTIME_LOGS:
+		print("Viewport: Is ready")
 
 func _process(delta):
 	# Handle each option via signal instead maybe.
@@ -29118,7 +29422,8 @@ func _process(delta):
 	if _viewport_size != _prev_viewport_size:
 		get_viewport().size = _viewport_size / viewport_downscale_factor
 		_prev_viewport_size = get_viewport().size
-		print(_viewport_size)
+		if Constants.VERBOSE_RUNTIME_LOGS:
+			print(_viewport_size)
 
 --- Start of ./src/tests/autoload/test_constants.gd ---
 
@@ -29396,8 +29701,8 @@ func test_signal_emit_count():
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
+# LOG_REF: 2026-05-23 15:12:10
 #
 
 extends GutTest
@@ -29471,7 +29776,8 @@ func test_save_and_load_restores_identical_state():
 func test_save_and_load_preserves_mutated_fields():
 	# Mutate fields that change during gameplay and must persist.
 	GameState.game_time_seconds = 42
-	GameState.player_docked_at = "station_beta"
+	GameState.current_sector_id = "sector_system_cob"
+	GameState.player_docked_at = "sector_system_cob"
 	GameState.sim_tick_count = 7
 
 	# Market inventory quantity mutation (legacy locations)
@@ -29502,7 +29808,8 @@ func test_save_and_load_preserves_mutated_fields():
 
 	# Assertions — fields that still exist in GameState
 	assert_eq(GameState.game_time_seconds, 42, "game_time_seconds should persist.")
-	assert_eq(GameState.player_docked_at, "station_beta", "player_docked_at should persist.")
+	assert_eq(GameState.current_sector_id, "sector_system_cob", "current_sector_id should persist.")
+	assert_eq(GameState.player_docked_at, "sector_system_cob", "player_docked_at should persist.")
 	assert_eq(GameState.sim_tick_count, 7, "sim_tick_count should persist.")
 
 	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 123, "Market inventory quantity should persist.")
@@ -29510,6 +29817,51 @@ func test_save_and_load_preserves_mutated_fields():
 		var loaded_ship_inv = GameState.inventories[player_uid][InventorySystem.InventoryType.SHIP]
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")
 		assert_eq(loaded_ship_inv[ship_uid].ship_quirks, ["scratched_hull"], "Ship quirks should persist.")
+
+
+func test_save_and_load_preserves_scene_state_restore_fields():
+	GameState.current_sector_id = "sector_system_cob"
+	GameState.player_docked_at = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3(15, 120, -5)
+	GameState.player_arrived_from_sector = "sector_system_elace"
+	GameState.player_arrival_direction = Vector3(0, 0, -1)
+
+	var save_success = GameStateManager.save_game(TEST_SLOT)
+	assert_true(save_success, "Game should save successfully.")
+	_clear_game_state()
+	var load_success = GameStateManager.load_game(TEST_SLOT)
+	assert_true(load_success, "Game should load successfully.")
+
+	assert_eq(GameState.current_sector_id, "sector_system_cob", "current_sector_id should survive save/load for load-game sector bootstrap.")
+	assert_eq(GameState.player_rotation, Vector3(15, 120, -5), "player_rotation should survive save/load for arrival restore.")
+	assert_eq(GameState.player_arrived_from_sector, "sector_system_elace", "player_arrived_from_sector should survive save/load until spawn consumes it.")
+	assert_eq(GameState.player_arrival_direction, Vector3(0, 0, -1), "player_arrival_direction should survive save/load until spawn consumes it.")
+
+
+func test_serialize_backfills_current_sector_id_from_docked_sector_when_scene_field_is_empty():
+	GameState.current_sector_id = ""
+	GameState.player_docked_at = "sector_system_elace"
+
+	var save_data = GameStateManager._serialize_game_state()
+
+	assert_eq(save_data.get("current_sector_id", ""), "sector_system_elace", "Serialization should backfill current_sector_id from the docked sector for scene-state bootstrap consistency.")
+
+
+func test_deserialize_backfills_current_sector_id_from_player_agent_for_legacy_save_data():
+	var save_data = _deep_copy_game_state()
+	save_data.erase("current_sector_id")
+	save_data["player_docked_at"] = ""
+	save_data["agents"] = {
+		"player": {
+			"current_sector_id": "sector_system_cob"
+		}
+	}
+
+	GameStateManager._deserialize_and_apply_game_state(save_data)
+
+	assert_eq(GameState.current_sector_id, "sector_system_cob", "Deserialization should recover current_sector_id from the player agent for legacy saves that predate the scene-state field.")
+	assert_eq(GameState.agents.get("player", {}).get("current_sector_id", ""), "sector_system_cob", "Recovered player agent sector state should stay aligned with GameState.current_sector_id.")
 
 # --- Helper Functions ---
 
@@ -29537,8 +29889,13 @@ func _clear_game_state():
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
+	GameState.current_sector_id = ""
 	GameState.player_character_uid = ""
 	GameState.player_docked_at = ""
+	GameState.player_position = Vector3.ZERO
+	GameState.player_rotation = Vector3.ZERO
+	GameState.player_arrived_from_sector = ""
+	GameState.player_arrival_direction = Vector3.ZERO
 	GameState.game_time_seconds = 0
 	GameState.sim_tick_count = 0
 	GameState.world_seed = ""
@@ -29850,7 +30207,7 @@ func test_throttle_affects_force():
 # MODULE: test_navigation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-17 01:41:07
+# LOG_REF: 2026-05-23 16:43:24
 #
 
 extends GutTest
@@ -30015,7 +30372,8 @@ func test_set_command_flee():
 
 func test_set_command_align_to():
 	signal_catcher.reset()
-	var direction = Vector3.BACK.normalized()
+	var direction = (-agent_body.global_transform.basis.z).normalized()
+	agent_body.angular_velocity = Vector3.ZERO
 	nav_system.set_command_align_to(direction)
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.ALIGN_TO)
 
@@ -30053,6 +30411,62 @@ func test_invalid_target_in_update_switches_to_stopping():
 
 	assert_eq(nav_system._current_command.type, nav_system.CommandType.STOPPING)
 	assert_called(mock_movement_system, "request_rotation_damping_pid")
+
+--- Start of ./src/tests/core/agents/components/test_tool_controller.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_tool_controller.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 15:24:18
+#
+
+extends GutTest
+
+const ToolControllerScript = preload("res://src/core/agents/components/tool_controller.gd")
+
+
+class AgentBodyHarness:
+	extends RigidBody
+	var agent_uid = 0
+	var character_uid = -1
+
+
+func test_fire_at_target_returns_explicit_combat_unavailable_boundary() -> void:
+	var harness = _create_tool_controller_harness(17)
+	var result: Dictionary = harness["controller"].fire_at_target(0, 99, Vector3(1, 2, 3))
+
+	assert_false(result.get("success", true), "Deferred combat fire attempts should fail explicitly instead of pretending to succeed.")
+	assert_eq(result.get("reason", ""), "combat_unavailable", "Deferred combat fire attempts should report the canonical combat-unavailable reason.")
+	assert_true(
+		str(result.get("message", "")).find("Combat actions are unavailable while the combat layer is rebuilt.") != -1,
+		"Deferred combat fire attempts should explain why combat is unavailable."
+	)
+	assert_true(harness["controller"]._deferred_combatant_uids.has(17), "Attacker uid should be tracked at the deferred combat boundary.")
+	assert_true(harness["controller"]._deferred_combatant_uids.has(99), "Target uid should be tracked at the deferred combat boundary.")
+
+
+func test_ensure_combatant_registered_ignores_invalid_uid() -> void:
+	var harness = _create_tool_controller_harness(17)
+	harness["controller"]._ensure_combatant_registered(-1)
+
+	assert_false(harness["controller"]._deferred_combatant_uids.has(-1), "Invalid combatant ids should be ignored by the deferred combat boundary.")
+
+
+func _create_tool_controller_harness(agent_uid: int) -> Dictionary:
+	var agent_body = AgentBodyHarness.new()
+	agent_body.agent_uid = agent_uid
+	add_child_autofree(agent_body)
+
+	var controller = ToolControllerScript.new()
+	agent_body.add_child(controller)
+	controller._agent_body = agent_body
+
+	return {
+		"agent_body": agent_body,
+		"controller": controller,
+	}
 
 --- Start of ./src/tests/core/simulation/test_affinity_matrix.gd ---
 
@@ -31001,7 +31415,7 @@ func _clear_state() -> void:
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends GutTest
@@ -31163,49 +31577,25 @@ func _clear_state() -> void:
 	GameState.world_age_cycle_count = 0
 	GameState.sim_tick_count = 0
 	GameState.sub_tick_accumulator = 0
-
-
-## Seeds TemplateDatabase with real location .tres files for integration testing.
-func _seed_template_database() -> void:
-	var location_paths: Array = [
-		"res://database/registry/locations/sector_system_elace.tres",
-		"res://database/registry/locations/sector_system_cob.tres",
-		"res://database/registry/locations/sector_system_lywin.tres",
-	]
-	TemplateDatabase.locations.clear()
-	for path in location_paths:
-		var res = load(path)
-		if res != null:
-			TemplateDatabase.locations[res.template_id] = res
-
-	var agent_dir: String = "res://database/registry/agents/"
-	var agent_files: Array = [
-		"player_default.tres", "npc_default.tres", "npc_hostile_default.tres",
-		"persistent_vera.tres", "persistent_ada.tres", "persistent_kai.tres",
-		"persistent_milo.tres", "persistent_siv.tres", "persistent_juno.tres",
-		"persistent_nyx.tres", "persistent_orin.tres", "persistent_nova.tres",
-		"persistent_rex.tres", "persistent_crow.tres", "persistent_zara.tres",
-		"persistent_vex.tres",
-	]
+	TemplateDatabase.actions.clear()
 	TemplateDatabase.agents.clear()
-	for fname in agent_files:
-		var res = load(agent_dir + fname)
-		if res != null:
-			TemplateDatabase.agents[res.template_id] = res
-
-	var char_dir: String = "res://database/registry/characters/"
-	var char_files: Array = [
-		"character_default.tres", "character_vera.tres", "character_ada.tres",
-		"character_kai.tres", "character_milo.tres", "character_siv.tres",
-		"character_juno.tres", "character_nyx.tres", "character_orin.tres",
-		"character_nova.tres", "character_rex.tres", "character_crow.tres",
-		"character_zara.tres", "character_vex.tres",
-	]
 	TemplateDatabase.characters.clear()
-	for fname in char_files:
-		var res = load(char_dir + fname)
-		if res != null:
-			TemplateDatabase.characters[res.template_id] = res
+	TemplateDatabase.assets_ships.clear()
+	TemplateDatabase.assets_modules.clear()
+	TemplateDatabase.assets_commodities.clear()
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.contracts.clear()
+	TemplateDatabase.utility_tools.clear()
+	TemplateDatabase.factions.clear()
+	TemplateDatabase.contacts.clear()
+
+
+## Seeds TemplateDatabase with the live registry so simulation tests do not inherit partial template state.
+func _seed_template_database() -> void:
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	var indexer = TemplateIndexer.new()
+	indexer.index_all_templates()
+	indexer.free()
 
 --- Start of ./src/tests/core/simulation/test_simulation_report.gd ---
 
@@ -31214,10 +31604,12 @@ func _seed_template_database() -> void:
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends GutTest
+
+const PRINT_FULL_REPORTS = false
 
 ## Smoke tests for SimulationReport batch runs: 30, 300, 3000 ticks.
 ## Validates that the report generates correctly and contains expected sections.
@@ -31249,18 +31641,10 @@ func after_each():
 func test_batch_30_ticks():
 	var report: String = engine.run_batch_and_report(30, 1)
 	_validate_report(report, 30)
-	print("\n\n===== GODOT CHRONO-30 =====")
-	print(report)
-	print("===== END GODOT CHRONO-30 =====\n")
-
-
-func test_batch_300_ticks():
-	pending("Disabled manually until the longer batch-report check is restored.")
-
-
-func test_batch_3000_ticks():
-	pending("Disabled manually until the longer batch-report check is restored.")
-
+	if PRINT_FULL_REPORTS:
+		print("\n\n===== GODOT CHRONO-30 =====")
+		print(report)
+		print("===== END GODOT CHRONO-30 =====\n")
 
 # =============================================================================
 # === VALIDATION ==============================================================
@@ -31334,13 +31718,24 @@ func _clear_state():
 		GameState.world_age = ""
 		GameState.world_age_timer = 0
 		GameState.world_age_cycle_count = 0
+	TemplateDatabase.actions.clear()
+	TemplateDatabase.agents.clear()
+	TemplateDatabase.characters.clear()
+	TemplateDatabase.assets_ships.clear()
+	TemplateDatabase.assets_modules.clear()
+	TemplateDatabase.assets_commodities.clear()
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.contracts.clear()
+	TemplateDatabase.utility_tools.clear()
+	TemplateDatabase.factions.clear()
+	TemplateDatabase.contacts.clear()
 
 
 func _seed_template_database():
-	if TemplateDatabase.locations.empty():
-		var TemplateIndexer = load("res://src/core/database/template_indexer.gd")
-		var indexer = TemplateIndexer.new()
-		indexer.index_all()
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	var indexer = TemplateIndexer.new()
+	indexer.index_all_templates()
+	indexer.free()
 
 --- Start of ./src/tests/core/simulation/test_simulation_tick.gd ---
 
@@ -31349,7 +31744,7 @@ func _seed_template_database():
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:04:30
 #
 
 extends GutTest
@@ -31362,6 +31757,7 @@ var engine: Node = null
 
 func before_each():
 	_clear_state()
+	_seed_template_database()
 	var Script = load("res://src/core/simulation/simulation_engine.gd")
 	engine = Script.new()
 	add_child_autofree(engine)
@@ -31486,6 +31882,24 @@ func _clear_state() -> void:
 	GameState.world_age_cycle_count = 0
 	GameState.sim_tick_count = 0
 	GameState.sub_tick_accumulator = 0
+	TemplateDatabase.actions.clear()
+	TemplateDatabase.agents.clear()
+	TemplateDatabase.characters.clear()
+	TemplateDatabase.assets_ships.clear()
+	TemplateDatabase.assets_modules.clear()
+	TemplateDatabase.assets_commodities.clear()
+	TemplateDatabase.locations.clear()
+	TemplateDatabase.contracts.clear()
+	TemplateDatabase.utility_tools.clear()
+	TemplateDatabase.factions.clear()
+	TemplateDatabase.contacts.clear()
+
+
+func _seed_template_database() -> void:
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	var indexer = TemplateIndexer.new()
+	indexer.index_all_templates()
+	indexer.free()
 
 --- Start of ./src/tests/core/simulation/test_world_layer.gd ---
 
@@ -31494,7 +31908,7 @@ func _clear_state() -> void:
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# LOG_REF: 2026-05-23 17:10:12
 #
 
 extends GutTest
@@ -31607,12 +32021,14 @@ func _clear_state() -> void:
 
 
 func _seed_template_database() -> void:
-	## Seed TemplateDatabase.locations with real .tres files so world_layer can init.
+	## Seed TemplateDatabase.locations with the full live 5-sector registry so world_layer tests
+	## exercise the canonical topology instead of producing partial-graph warnings.
 	var location_paths: Array = [
 		"res://database/registry/locations/sector_system_elace.tres",
 		"res://database/registry/locations/sector_system_cob.tres",
 		"res://database/registry/locations/sector_system_lywin.tres",
-		"res://database/registry/locations/sector_epsilon.tres",
+		"res://database/registry/locations/sector_system_vidr.tres",
+		"res://database/registry/locations/sector_system_ebreeta.tres",
 	]
 	TemplateDatabase.locations.clear()
 	for path in location_paths:
@@ -31999,8 +32415,8 @@ func test_apply_upkeep_cost():
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_contact_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6
-# LOG_REF: 2026-05-10 16:13:36
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 15:37:28
 #
 
 extends "res://addons/gut/test.gd"
@@ -32013,14 +32429,14 @@ func before_each():
 
 	# Seed minimal world topology
 	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["station_beta"],
+		"connections": ["sector_system_cob"],
 		"station_ids": ["sector_system_elace"],
-		"sector_type": "station",
+		"sector_type": "colony",
 	}
-	GameState.world_topology["station_beta"] = {
+	GameState.world_topology["sector_system_cob"] = {
 		"connections": ["sector_system_elace"],
-		"station_ids": ["station_beta"],
-		"sector_type": "station",
+		"station_ids": ["sector_system_cob"],
+		"sector_type": "outpost",
 	}
 
 	# Seed player agent
@@ -32059,7 +32475,7 @@ func before_each():
 	GameState.agent_tags["npc_02"] = ["PIRATE"]
 
 	GameState.agents["npc_03"] = {
-		"current_sector_id": "station_beta",
+		"current_sector_id": "sector_system_cob",
 		"agent_role": "hauler",
 		"character_id": "char_03",
 		"condition_tag": "HEALTHY",
@@ -32070,7 +32486,7 @@ func before_each():
 	GameState.agent_tags["npc_03"] = ["HAULER"]
 
 	GameState.agents["npc_04"] = {
-		"current_sector_id": "station_beta",
+		"current_sector_id": "sector_system_cob",
 		"agent_role": "trader",
 		"character_id": "char_04",
 		"condition_tag": "HEALTHY",
@@ -32091,10 +32507,10 @@ func before_each():
 	GameState.colony_levels["sector_system_elace"] = "colony"
 	GameState.sector_names["sector_system_elace"] = "Elace System"
 
-	GameState.sector_tags["station_beta"] = [
+	GameState.sector_tags["sector_system_cob"] = [
 		"CONTESTED", "HARSH", "RAW_RICH",
 	]
-	GameState.colony_levels["station_beta"] = "outpost"
+	GameState.colony_levels["sector_system_cob"] = "outpost"
 
 	# Instance ContactManager
 	var cm_script = load("res://src/core/systems/contact_manager.gd")
@@ -32122,9 +32538,9 @@ func test_get_player_sector_returns_current_sector():
 func test_get_agents_in_sector_returns_correct_agents():
 	_contact_manager._rebuild_caches()
 	var alpha_agents = _contact_manager.get_agents_in_sector("sector_system_elace")
-	var beta_agents = _contact_manager.get_agents_in_sector("station_beta")
+	var cob_agents = _contact_manager.get_agents_in_sector("sector_system_cob")
 	assert_eq(alpha_agents.size(), 2, "sector_system_elace should have 2 NPCs")
-	assert_eq(beta_agents.size(), 2, "station_beta should have 2 NPCs")
+	assert_eq(cob_agents.size(), 2, "sector_system_cob should have 2 NPCs")
 
 
 func test_get_agents_excludes_player():
@@ -32239,7 +32655,7 @@ func test_rebuild_caches_skips_invalid_sector_references():
 ## MODULE: test_docking_logic.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-## LOG_REF: 2026-05-17 01:41:07
+## LOG_REF: 2026-05-23 16:28:25
 ##
 
 extends "res://addons/gut/test.gd"
@@ -32398,6 +32814,7 @@ func test_queued_route_jump_waits_for_tight_five_degree_alignment():
 
 func test_queued_route_jump_clears_on_target_change():
 	var harness = _create_player_controller_harness(false, false)
+	var agent = harness["agent"]
 	var controller = harness["controller"]
 
 	var route_target = RouteTargetScript.new().configure(
@@ -32804,8 +33221,8 @@ func test_get_inventory_by_type():
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_persistent_agents.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-16 22:38:42
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 15:37:28
 #
 
 extends "res://addons/gut/test.gd"
@@ -32821,10 +33238,10 @@ func before_each():
 		Constants.INITIAL_SECTOR_ID: {
 			"position_in_zone": Vector3(0, 0, 0)
 		},
-		"station_beta": {
+		"sector_system_cob": {
 			"position_in_zone": Vector3(100, 0, 0)
 		},
-		"station_gamma": {
+		"sector_system_lywin": {
 			"position_in_zone": Vector3(200, 0, 0)
 		}
 	}
@@ -32955,12 +33372,12 @@ func test_known_vs_unknown_agents_state():
 #func test_contact_discovered_on_dock():
 #	var agent_id = "persistent_vera"
 #	var state = _agent_system.get_persistent_agent_state(agent_id)
-	# Vera is at station_beta
+	#	# Vera is at sector_system_cob
 #	assert_eq(state.is_known, false)
 #	
 #	# Simulate docking signal
 #	watch_signals(EventBus)
-#	_agent_system._on_player_docked("sector_system_lywin")
+	#	_agent_system._on_player_docked("sector_system_cob")
 #	
 	# Errors here
 #	assert_true(state.is_known, "Should discover agent at home station")
@@ -33464,8 +33881,8 @@ func test_right_mouse_drag_pans_camera_without_changing_orbit_angles():
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
-## LOG_REF: 2026-05-17 19:00:00
+## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6.3, §7; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_4
+## LOG_REF: 2026-05-23 15:54:26
 ##
 
 extends "res://addons/gut/test.gd"
@@ -33480,6 +33897,8 @@ const LOCATION_TRES_PATHS = [
 	"res://database/registry/locations/sector_system_elace.tres",
 	"res://database/registry/locations/sector_system_cob.tres",
 	"res://database/registry/locations/sector_system_lywin.tres",
+	"res://database/registry/locations/sector_system_vidr.tres",
+	"res://database/registry/locations/sector_system_ebreeta.tres",
 ]
 
 
@@ -33510,31 +33929,16 @@ func _seed_template_database():
 
 
 func _seed_topology():
-	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["sector_system_cob", "sector_gamma"],
-		"station_ids": ["sector_system_elace"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_system_cob"] = {
-		"connections": ["sector_system_elace", "sector_system_lywin"],
-		"station_ids": ["sector_system_cob"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_gamma"] = {
-		"connections": ["sector_system_elace", "sector_epsilon"],
-		"station_ids": ["sector_gamma"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_system_lywin"] = {
-		"connections": ["sector_system_cob", "sector_epsilon"],
-		"station_ids": ["sector_system_lywin"],
-		"sector_type": "station",
-	}
-	GameState.world_topology["sector_epsilon"] = {
-		"connections": ["sector_gamma", "sector_system_lywin"],
-		"station_ids": ["sector_epsilon"],
-		"sector_type": "station",
-	}
+	for sector_id in TemplateDatabase.locations.keys():
+		var template = TemplateDatabase.locations[sector_id]
+		var connections: Array = []
+		for connected_sector_id in template.connections:
+			connections.append(connected_sector_id)
+		GameState.world_topology[sector_id] = {
+			"connections": connections,
+			"station_ids": [sector_id],
+			"sector_type": template.sector_type,
+		}
 
 
 func _show_panel():
@@ -33909,7 +34313,7 @@ func _seed_discovered_sector():
 		"station_ids": ["discovered_1"],
 		"sector_type": "deep_space",
 	}
-	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_gamma", "discovered_1"]
+	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]
 	GameState.sector_names["discovered_1"] = "Amber Gate"
 
 --- Start of ./src/tests/core/ui/test_debug_window.gd ---
@@ -33918,8 +34322,8 @@ func _seed_discovered_sector():
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_window.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §6; TACTICAL_TODO.md TASK_1
-## LOG_REF: 2026-05-14 02:59:12
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_4
+## LOG_REF: 2026-05-23 15:37:28
 ##
 
 extends "res://addons/gut/test.gd"
@@ -33939,6 +34343,7 @@ func after_each() -> void:
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
 	GameState.player_character_uid = ""
+	GameState.characters.clear()
 	GameState.locations.clear()
 
 
@@ -33989,10 +34394,10 @@ func test_main_menu_close_hides_and_unpauses_live_session() -> void:
 func test_station_menu_close_hides_without_undocking_and_reopens() -> void:
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
-	GameState.player_docked_at = "station_beta"
+	GameState.player_docked_at = "sector_system_elace"
 	yield(get_tree(), "idle_frame")
 
-	station_menu._on_player_docked("station_beta")
+	station_menu._on_player_docked("sector_system_elace")
 	assert_true(station_menu.visible, "Docking should open the station menu.")
 
 	var close_button: BaseButton = station_menu.get_node("Panel/VBoxContainer/HeaderRow/BtnClose")
@@ -34000,11 +34405,52 @@ func test_station_menu_close_hides_without_undocking_and_reopens() -> void:
 	yield(get_tree(), "idle_frame")
 
 	assert_false(station_menu.visible, "Closing the station menu should hide it.")
-	assert_eq(GameState.player_docked_at, "station_beta", "Closing the station menu must not undock the player.")
+	assert_eq(GameState.player_docked_at, "sector_system_elace", "Closing the station menu must not undock the player.")
 
 	station_menu.open_for_current_dock()
 	yield(get_tree(), "idle_frame")
 	assert_true(station_menu.visible, "StationMenu should reopen for the current docked location.")
+
+
+func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_docked() -> void:
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+	yield(get_tree(), "idle_frame")
+
+	GameState.player_docked_at = "sector_system_elace"
+	station_menu._on_player_docked("sector_system_elace")
+	assert_true(station_menu.visible, "Precondition: docking should open the station menu.")
+
+	GameState.player_docked_at = ""
+	station_menu.open_for_current_dock()
+	yield(get_tree(), "idle_frame")
+
+	assert_false(station_menu.visible, "StationMenu should hide instead of reopening from stale dock state.")
+
+
+func test_station_menu_service_buttons_show_explicit_deferred_feedback() -> void:
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+	GameState.player_docked_at = "sector_system_elace"
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["trade", "contracts", "repair"],
+	}
+	yield(get_tree(), "idle_frame")
+
+	station_menu.open_for_current_dock()
+	station_menu._on_trade_pressed()
+	var info_label: Label = station_menu.get_node("Panel/VBoxContainer/LabelInfo")
+	assert_true(
+		info_label.text.find("Trading remains unavailable while the trading layer is rebuilt.") != -1,
+		"Trade should show explicit deferred-service feedback instead of a bare print/TODO stub."
+	)
+
+	station_menu._on_contracts_pressed()
+	assert_true(
+		info_label.text.find("Contracts remain unavailable while the contract layer is rebuilt.") != -1,
+		"Contracts should show explicit deferred-service feedback instead of a bare print/TODO stub."
+	)
 
 
 func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
@@ -34019,7 +34465,7 @@ func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
 	root.add_child(hud)
 	yield(get_tree(), "idle_frame")
 
-	GameState.player_docked_at = "station_beta"
+	GameState.player_docked_at = "sector_system_elace"
 	watch_signals(EventBus)
 
 	hud._on_ButtonDock_pressed()
@@ -34027,6 +34473,30 @@ func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
 
 	assert_true(hud._station_menu_instance.visible, "MainHUD dock button should reopen the station menu while already docked.")
 	assert_signal_not_emitted(EventBus, "player_dock_pressed", "Reopening the station menu while docked should not emit a fresh docking request.")
+
+
+func test_main_hud_inventory_button_shows_explicit_placeholder_popup() -> void:
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var camera = Camera.new()
+	add_child_autofree(camera)
+	GlobalRefs.main_camera = camera
+
+	var hud = MainHUDScene.instance()
+	root.add_child(hud)
+	yield(get_tree(), "idle_frame")
+
+	hud._on_ButtonInventory_pressed()
+	yield(get_tree(), "idle_frame")
+
+	assert_true(is_instance_valid(hud._action_feedback_popup), "Inventory button should create a feedback popup for the deferred inventory surface.")
+	assert_eq(hud._action_feedback_popup.window_title, "Inventory Failed", "Deferred inventory feedback should use the failure popup title.")
+	assert_true(
+		hud._action_feedback_popup.dialog_text.find("Inventory management is deferred.") != -1,
+		"Inventory button should explain that the screen is deferred instead of doing nothing."
+	)
+	assert_true(hud._action_feedback_popup.visible, "Deferred inventory feedback should be visible to the player.")
 
 --- Start of ./src/tests/core/ui/test_main_hud_projected_targeting.gd ---
 
@@ -35201,8 +35671,8 @@ func test_generated_characters_have_assets():
 # PROJECT: GDTLancer
 # MODULE: test_world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3
-# LOG_REF: 2026-05-16 21:38:04
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 16:43:24
 #
 
 extends GutTest
@@ -35214,12 +35684,12 @@ var world_manager = null
 
 func before_each():
 	GameState.world_topology = {
-		Constants.INITIAL_SECTOR_ID: {"connections": ["station_beta"]},
-		"station_beta": {"connections": [Constants.INITIAL_SECTOR_ID]},
+		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_system_cob"]},
+		"sector_system_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 	TemplateDatabase.locations = {
 		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(0, 0, 0)},
-		"station_beta": {"global_position": Vector3(100, 0, 0)},
+		"sector_system_cob": {"global_position": Vector3(100, 0, 0)},
 	}
 	world_manager = WorldManagerScript.new()
 
@@ -35237,8 +35707,8 @@ func after_each():
 
 func test_resolve_known_sector_id_returns_requested_sector_when_present():
 	assert_eq(
-		world_manager._resolve_known_sector_id("station_beta", "test"),
-		"station_beta",
+		world_manager._resolve_known_sector_id("sector_system_cob", "test"),
+		"sector_system_cob",
 		"Known sectors should pass through unchanged."
 	)
 
@@ -35253,16 +35723,16 @@ func test_resolve_known_sector_id_falls_back_to_initial_sector_for_missing_ids()
 
 func test_get_arrival_direction_for_route_points_back_to_source_sector():
 	assert_eq(
-		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "station_beta"),
+		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "sector_system_cob"),
 		Vector3(-1, 0, 0),
 		"Arrival direction should point from destination back toward the source sector."
 	)
 
 
 func test_get_arrival_direction_for_route_returns_zero_when_positions_match():
-	TemplateDatabase.locations["station_beta"] = {"global_position": Vector3(0, 0, 0)}
+	TemplateDatabase.locations["sector_system_cob"] = {"global_position": Vector3(0, 0, 0)}
 	assert_eq(
-		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "station_beta"),
+		world_manager._get_arrival_direction_for_route(Constants.INITIAL_SECTOR_ID, "sector_system_cob"),
 		Vector3.ZERO,
 		"Identical sector positions should not fabricate an arrival direction."
 	)
@@ -35298,7 +35768,11 @@ func test_jump_transition_active_defaults_false():
 
 func test_begin_jump_transition_foundation_uses_rig_when_enabled():
 	var harness = _create_jump_transition_harness(true)
-	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_system_cob")
+	var expected_direction = _compute_expected_departure_direction(
+		Constants.INITIAL_SECTOR_ID,
+		"sector_system_cob"
+	)
 
 	assert_true(
 		world_manager.is_jump_transition_active(),
@@ -35309,16 +35783,17 @@ func test_begin_jump_transition_foundation_uses_rig_when_enabled():
 		1,
 		"Enabled transition foundations should enter the rig departure stage exactly once."
 	)
-	assert_eq(
+	_assert_vector3_almost_eq(
 		harness["rig"].departure_calls[0][2],
-		Vector3(1, 0, 0),
+		expected_direction,
+		0.0001,
 		"Departure travel direction should point from the source sector toward the destination sector."
 	)
 
 
 func test_begin_jump_transition_foundation_resets_when_disabled():
 	var harness = _create_jump_transition_harness(false)
-	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_system_cob")
 
 	assert_false(
 		world_manager.is_jump_transition_active(),
@@ -35338,7 +35813,7 @@ func test_begin_jump_transition_foundation_resets_when_disabled():
 
 func test_reset_jump_transition_foundation_clears_active_state_and_resets_rig():
 	var harness = _create_jump_transition_harness(true)
-	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "station_beta")
+	world_manager._begin_jump_transition_foundation(Constants.INITIAL_SECTOR_ID, "sector_system_cob")
 	world_manager._reset_jump_transition_foundation()
 
 	assert_false(
@@ -35380,14 +35855,28 @@ func _create_jump_transition_harness(is_enabled: bool) -> Dictionary:
 		"world_rendering": world_rendering,
 	}
 
+
+func _compute_expected_departure_direction(source_sector_id: String, target_sector_id: String) -> Vector3:
+	var source_position = world_manager._get_sector_global_position(source_sector_id)
+	var target_position = world_manager._get_sector_global_position(target_sector_id)
+	if source_position == target_position:
+		return Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
+	return (target_position - source_position).normalized()
+
+
+func _assert_vector3_almost_eq(actual: Vector3, expected: Vector3, tolerance: float, message: String) -> void:
+	assert_almost_eq(actual.x, expected.x, tolerance, "%s (x component)" % message)
+	assert_almost_eq(actual.y, expected.y, tolerance, "%s (y component)" % message)
+	assert_almost_eq(actual.z, expected.z, tolerance, "%s (z component)" % message)
+
 --- Start of ./src/tests/scenes/jump_transition/test_jump_transition_regressions.gd ---
 
 #
 # PROJECT: GDTLancer
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-17 01:12:04
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 15:37:28
 #
 
 extends GutTest
@@ -35401,12 +35890,12 @@ var _original_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
 func before_each():
 	_original_mouse_mode = Input.get_mouse_mode()
 	GameState.world_topology = {
-		Constants.INITIAL_SECTOR_ID: {"connections": ["station_beta"]},
-		"station_beta": {"connections": [Constants.INITIAL_SECTOR_ID]},
+		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_system_cob"]},
+		"sector_system_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 	TemplateDatabase.locations = {
 		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300)},
-		"station_beta": {"global_position": Vector3(2200, 50, -300)},
+		"sector_system_cob": {"global_position": Vector3(2200, 50, -300)},
 	}
 
 
@@ -35568,7 +36057,7 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 	source_camera.global_transform = Transform(source_basis, Vector3(75, 20, -40))
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
 
 	var transition_camera = rig.get_node("TransitionCamera")
 	var nebula_holder = rig.get_node("NebulaHolder")
@@ -35790,7 +36279,7 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	rig.events_ref = event_order
 	world_manager.rig_ref = rig
 
-	var sequence_state = world_manager._run_jump_transition_sequence("station_beta")
+	var sequence_state = world_manager._run_jump_transition_sequence("sector_system_cob")
 	if sequence_state is GDScriptFunctionState:
 		yield(sequence_state, "completed")
 
@@ -35846,7 +36335,7 @@ func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_
 	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
 	rig.begin_cruise(1000.0)
 	rig._process(0.5)
 
@@ -35870,7 +36359,7 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "station_beta", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
 	rig.begin_cruise(4000.0)
 
 	for _step in range(60):
@@ -35884,11 +36373,11 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	)
 	assert_eq(
 		rig.get_route_world_position(),
-		TemplateDatabase.locations["station_beta"]["global_position"],
+		TemplateDatabase.locations["sector_system_cob"]["global_position"],
 		"Completed jump transitions should clamp the internal route position to the destination coordinate for deterministic arrival handoff."
 	)
 	assert_eq(
 		rig.get_node("TransitionCamera").global_transform.origin,
-		TemplateDatabase.locations["station_beta"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
+		TemplateDatabase.locations["sector_system_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
 		"Completed jump transitions should end at the destination in current-sector-local space so the starsphere matches local-scene and map coordinates."
 	)

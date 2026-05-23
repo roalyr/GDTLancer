@@ -3,7 +3,7 @@
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
-# LOG_REF: 2026-05-23 15:12:10
+# LOG_REF: 2026-05-23 22:58:53
 #
 
 extends GutTest
@@ -140,6 +140,53 @@ func test_save_and_load_preserves_scene_state_restore_fields():
 	assert_eq(GameState.player_arrival_direction, Vector3(0, 0, -1), "player_arrival_direction should survive save/load until spawn consumes it.")
 
 
+func test_save_and_load_preserves_runtime_contract_occurrence_state():
+	var occurrence_id: String = "runtime_contract:sector_system_cob:RAW"
+	GameState.contract_generation_pressure = {"sector_system_cob": {"RAW": 2}}
+	GameState.contract_generation_threshold = {"sector_system_cob": {"RAW": 3}}
+	GameState.runtime_contract_occurrences = {
+		occurrence_id: {
+			"occurrence_id": occurrence_id,
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "sector_system_elace",
+			"target_sector_id": "sector_system_cob",
+			"origin_location_id": "sector_system_elace",
+			"destination_location_id": "sector_system_cob",
+			"status": "open",
+			"claimant_agent_id": "",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 7,
+			"last_refreshed_tick": 7,
+			"title": "Raw Relief Route to sector_system_cob",
+			"description": "Raw demand in sector_system_cob can be relieved from sector_system_elace.",
+		}
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {"sector_system_cob": [occurrence_id]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"sector_system_elace": [occurrence_id]}
+
+	var save_success = GameStateManager.save_game(TEST_SLOT)
+	assert_true(save_success, "Game should save successfully.")
+	_clear_game_state()
+	var load_success = GameStateManager.load_game(TEST_SLOT)
+	assert_true(load_success, "Game should load successfully.")
+
+	assert_eq(GameState.contract_generation_pressure, {"sector_system_cob": {"RAW": 2}},
+		"contract_generation_pressure should survive save/load.")
+	assert_eq(GameState.contract_generation_threshold, {"sector_system_cob": {"RAW": 3}},
+		"contract_generation_threshold should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("origin_location_id", ""), "sector_system_elace",
+		"runtime_contract_occurrences should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences_by_target_sector, {"sector_system_cob": [occurrence_id]},
+		"runtime contract target index should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences_by_source_sector, {"sector_system_elace": [occurrence_id]},
+		"runtime contract source index should survive save/load.")
+
+
 func test_serialize_backfills_current_sector_id_from_docked_sector_when_scene_field_is_empty():
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = "sector_system_elace"
@@ -187,6 +234,11 @@ func _clear_game_state():
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_11
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-23 23:05:10
 #
 
 extends Node
@@ -15,8 +15,9 @@ extends Node
 ##   Step 1: World Layer — static topology, no per-tick processing
 ##   Step 2: Grid Layer — qualitative CA tag transitions
 ##   Step 3: Bridge Systems — cross-layer tag refresh (affinity-derived)
-##   Step 4: Agent Layer — NPC goal evaluation and action execution
-##   Step 5: Chronicle Layer — event capture and rumor generation
+##   Step 4: Contract Generation — runtime qualitative occurrence refresh
+##   Step 5: Agent Layer — NPC goal evaluation and action execution
+##   Step 6: Chronicle Layer — event capture and rumor generation
 ##
 ## Python reference: python_sandbox/core/simulation/simulation_engine.py
 
@@ -29,6 +30,7 @@ var world_layer: Reference = null
 var grid_layer: Reference = null
 var agent_layer: Reference = null
 var bridge_systems: Reference = null
+var contract_generation_system: Reference = null
 var chronicle_layer: Reference = null
 var affinity_matrix: Reference = null
 
@@ -50,6 +52,7 @@ func _ready() -> void:
 	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
 	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
 	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
+	var ContractGenerationSystemScript = load("res://src/core/simulation/contract_generation_system.gd")
 	var ChronicleLayerScript = load("res://src/core/simulation/chronicle_layer.gd")
 
 	# Instantiate processors
@@ -58,6 +61,7 @@ func _ready() -> void:
 	grid_layer = GridLayerScript.new()
 	agent_layer = AgentLayerScript.new()
 	bridge_systems = BridgeSystemsScript.new()
+	contract_generation_system = ContractGenerationSystemScript.new()
 	chronicle_layer = ChronicleLayerScript.new()
 
 	# Wire shared dependencies
@@ -108,6 +112,9 @@ func initialize_simulation(seed_string: String) -> void:
 
 	# Step 3: Agent Layer — seed agents from templates
 	agent_layer.initialize_agents()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 
 	# Initialize world-age cycle
 	GameState.world_age = Constants.WORLD_AGE_CYCLE[0]
@@ -165,10 +172,13 @@ func process_tick() -> void:
 	# --- Step 3: Bridge Systems ---
 	bridge_systems.process_tick(_tick_config)
 
-	# --- Step 4: Agent Layer ---
+	# --- Step 4: Contract Generation ---
+	contract_generation_system.process_tick(_tick_config)
+
+	# --- Step 5: Agent Layer ---
 	agent_layer.process_tick(_tick_config)
 
-	# --- Step 5: Chronicle Layer ---
+	# --- Step 6: Chronicle Layer ---
 	chronicle_layer.process_tick()
 
 	# Emit tick-completed signal
@@ -252,6 +262,9 @@ func _build_tick_config() -> void:
 		"mortal_global_cap": Constants.MORTAL_GLOBAL_CAP,
 		"mortal_spawn_required_security": Array(Constants.MORTAL_SPAWN_REQUIRED_SECURITY),
 		"mortal_spawn_blocked_sector_tags": Array(Constants.MORTAL_SPAWN_BLOCKED_SECTOR_TAGS),
+		"contract_occurrence_global_cap": Constants.CONTRACT_OCCURRENCE_GLOBAL_CAP,
+		"contract_occurrence_per_sector_cap": Constants.CONTRACT_OCCURRENCE_PER_SECTOR_CAP,
+		"contract_source_search_max_hops": Constants.CONTRACT_SOURCE_SEARCH_MAX_HOPS,
 	}
 
 

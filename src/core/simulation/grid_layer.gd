@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-23 22:47:52
 #
 
 extends Reference
@@ -73,6 +73,10 @@ func initialize_grid() -> void:
 			GameState.economy_downgrade_progress[sector_id] = {}
 		if not GameState.economy_change_threshold.has(sector_id):
 			GameState.economy_change_threshold[sector_id] = {}
+		if not GameState.contract_generation_pressure.has(sector_id):
+			GameState.contract_generation_pressure[sector_id] = {}
+		if not GameState.contract_generation_threshold.has(sector_id):
+			GameState.contract_generation_threshold[sector_id] = {}
 
 		for category in CATEGORIES:
 			if not GameState.economy_upgrade_progress[sector_id].has(category):
@@ -85,6 +89,15 @@ func initialize_grid() -> void:
 				GameState.economy_change_threshold[sector_id][category] = thresh_rng.randi_range(
 					Constants.ECONOMY_CHANGE_TICKS_MIN,
 					Constants.ECONOMY_CHANGE_TICKS_MAX
+				)
+			if not GameState.contract_generation_pressure[sector_id].has(category):
+				GameState.contract_generation_pressure[sector_id][category] = 0
+			if not GameState.contract_generation_threshold[sector_id].has(category):
+				var contract_rng := RandomNumberGenerator.new()
+				contract_rng.seed = hash(str(GameState.world_seed) + ":contract_thresh:" + sector_id + ":" + category)
+				GameState.contract_generation_threshold[sector_id][category] = contract_rng.randi_range(
+					Constants.CONTRACT_PRESSURE_TICKS_MIN,
+					Constants.CONTRACT_PRESSURE_TICKS_MAX
 				)
 
 		# Hostile infestation progress
@@ -117,6 +130,7 @@ func process_tick(config: Dictionary) -> void:
 		tags = _step_environment(tags, sector_id)
 		tags = _step_hostile_presence(tags, sector_id)
 		tags = _step_colony_level(tags, sector_id)
+		tags = _step_contract_demand(tags, sector_id)
 		new_tags[sector_id] = _unique(tags)
 
 	GameState.sector_tags = new_tags
@@ -434,6 +448,62 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 
 
 # =============================================================================
+# === PRIVATE — CONTRACT DEMAND STEP ==========================================
+# =============================================================================
+
+func _step_contract_demand(tags: Array, sector_id: String) -> Array:
+	var result: Array = Array(tags)
+	var serviceable: bool = _is_contract_service_sector(result)
+	var active_relief: bool = _has_active_trade_relief(sector_id)
+	var sector_disabled: bool = _sector_recently_disabled(sector_id)
+	var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(sector_id, {})
+	var sector_thresholds: Dictionary = GameState.contract_generation_threshold.get(sector_id, {})
+	var demand_count: int = 0
+
+	for category in CATEGORIES:
+		var poor_tag: String = category + "_POOR"
+		var demand_tag: String = _contract_demand_tag(category)
+		var threshold: int = sector_thresholds.get(category, Constants.CONTRACT_PRESSURE_TICKS_MIN)
+		var pressure: int = sector_pressure.get(category, 0)
+		var can_generate: bool = serviceable and (poor_tag in result) and not sector_disabled
+
+		if can_generate:
+			if active_relief:
+				pressure = max(0, pressure - Constants.CONTRACT_RELIEF_DECAY_PER_TICK)
+			else:
+				pressure = min(Constants.CONTRACT_PRESSURE_CAP, pressure + 1)
+		else:
+			pressure = max(0, pressure - 1)
+
+		sector_pressure[category] = pressure
+		if can_generate and pressure >= threshold:
+			result = _add_tag(result, demand_tag)
+		else:
+			result = _remove_tag(result, demand_tag)
+
+		if demand_tag in result:
+			demand_count += 1
+
+	GameState.contract_generation_pressure[sector_id] = sector_pressure
+
+	if active_relief and demand_count > 0:
+		result = _add_tag(result, "TRADE_LANE_ACTIVE")
+	else:
+		result = _remove_tag(result, "TRADE_LANE_ACTIVE")
+
+	var needs_relief: bool = demand_count >= 2
+	if demand_count > 0 and (_security_tag(result) != "SECURE" or GameState.world_age == "DISRUPTION"):
+		needs_relief = true
+
+	if needs_relief:
+		result = _add_tag(result, "RELIEF_NEEDED")
+	else:
+		result = _remove_tag(result, "RELIEF_NEEDED")
+
+	return result
+
+
+# =============================================================================
 # === PRIVATE — AGENT QUERIES =================================================
 # =============================================================================
 
@@ -479,9 +549,23 @@ func _active_agent_count_in_sector(sector_id: String) -> int:
 	return count
 
 
+func _has_active_trade_relief(sector_id: String) -> bool:
+	var role_counts: Dictionary = _role_counts_for_sector(sector_id)
+	return _loaded_trade_count_for_sector(sector_id) > 0 \
+		or role_counts.get("trader", 0) > 0 \
+		or role_counts.get("hauler", 0) > 0
+
+
 # =============================================================================
 # === PRIVATE — TAG HELPERS ===================================================
 # =============================================================================
+
+func _is_contract_service_sector(tags: Array) -> bool:
+	return "STATION" in tags or "FRONTIER" in tags
+
+
+func _contract_demand_tag(category: String) -> String:
+	return "CONTRACT_DEMAND_%s" % category
 
 func _economy_level(tags: Array, category: String) -> String:
 	for level in ECONOMY_LEVELS:
@@ -522,6 +606,21 @@ func _replace_one_of(tags: Array, options: Array, replacement: String) -> Array:
 			base.append(tag)
 	base.append(replacement)
 	return base
+
+
+func _add_tag(tags: Array, tag: String) -> Array:
+	var result: Array = Array(tags)
+	if not (tag in result):
+		result.append(tag)
+	return result
+
+
+func _remove_tag(tags: Array, tag: String) -> Array:
+	var result: Array = []
+	for existing_tag in tags:
+		if existing_tag != tag:
+			result.append(existing_tag)
+	return result
 
 
 ## Returns true if sector is currently disabled (catastrophe cooldown).

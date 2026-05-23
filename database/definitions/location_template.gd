@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: location_template.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §6.4; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §7
-# LOG_REF: 2026-05-23 14:59:44
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §3.5, §7
+# LOG_REF: 2026-05-23 23:21:08
 #
 
 extends Template
@@ -13,7 +13,9 @@ class_name LocationTemplate
 ## Authored registry entries are sector-level resources keyed by ids such as
 ## `sector_system_elace`; scene-local dockables remain inside `sector_scene_path`.
 ## This resource drives sector loading, topology, and the current compatibility
-## data consumed by docked UI and bootstrap flows.
+## data consumed by docked UI and bootstrap flows. Runtime qualitative demand
+## and default contract generation come from simulation tags, not from authored
+## `available_contract_ids` lists.
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
@@ -65,6 +67,7 @@ export var stockpile_capacity: int = 1000
 
 # --- Market & Services (compatibility boundary for current scene/UI systems) ---
 # Market inventory: commodity_template_id -> {buy_price: int, sell_price: int, quantity: int}
+# Used by current docked trade/UI flows; not the authoritative live economy model.
 export var market_inventory: Dictionary = {}
 ## Service ids exposed by the current docked UI until service simulation is rebuilt.
 export var available_services: Array = ["trade", "contracts"]
@@ -79,5 +82,5 @@ export var danger_level: int = 0
 ## Initial sector tags for qualitative tag simulation.
 export var initial_sector_tags: PoolStringArray = PoolStringArray()
 
-# --- Contracts (compatibility ids retained until Agent-layer contract flow lands) ---
+# --- Contracts (optional curated override ids for docked/UI entry points) ---
 export var available_contract_ids: Array = []

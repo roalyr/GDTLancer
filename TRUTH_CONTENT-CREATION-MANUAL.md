@@ -2,14 +2,14 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_CONTENT-CREATION-MANUAL.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §6.4; TACTICAL_TODO.md TASK_1
-LOG_REF: 2026-05-23 17:23:21
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TACTICAL_TODO.md TASK_5
+LOG_REF: 2026-05-23 23:21:08
 -->
 
 # Content Creation Manual
 
 **GDTLancer Designer & Artist Guide**  
-**Version:** 1.4
+**Version:** 1.5
 **Date:** 2026-05-23
 
 ---
@@ -23,7 +23,7 @@ LOG_REF: 2026-05-23 17:23:21
    - [Adding a New Commodity](#32-adding-a-new-commodity)
    - [Adding a New Tool](#33-adding-a-new-tool)
     - [Adding a New Sector / Location](#34-adding-a-new-sector--location)
-   - [Adding a New Contract](#35-adding-a-new-contract)
+    - [Adding a Curated Contract Override](#35-adding-a-curated-contract-override)
    - [Adding a New Character](#36-adding-a-new-character)
    - [Adding a New Agent Type](#37-adding-a-new-agent-type)
 4. [Tuning & Balance](#4-tuning--balance)
@@ -47,6 +47,8 @@ This manual is for **Designers** and **Artists** who want to add or modify game 
 **Your primary workspace is `/database` and `/assets`.**
 
 For world authoring, treat every file in `/database/registry/locations/` as a **sector-level registry resource** keyed by ids such as `sector_system_elace`. Dockable stations and other interactables live inside the referenced sector scene.
+
+For contracts, the default runtime path is now **simulation-driven**. `GridLayer` surfaces `CONTRACT_DEMAND_*` tags, `contract_generation_system.gd` turns them into runtime occurrences, and `AgentLayer` claims and services those occurrences. Authored `ContractTemplate` resources and `available_contract_ids` lists are now **optional curated overrides** for tutorial, story, or hand-authored exception content rather than the normal contract pipeline.
 
 ---
 
@@ -79,7 +81,7 @@ database/
 │   │   ├── modules/      # module_*.tres
 │   │   └── ships/        # ship_*.tres
 │   ├── characters/       # character_*.tres
-│   ├── contracts/        # delivery_*.tres, combat_*.tres, etc.
+│   ├── contracts/        # Optional curated contract overrides (tutorial/story/fallback)
 │   ├── locations/        # sector_system_*.tres, sector_runtime_*.tres
 │   ├── quirks/           # quirk_*.tres (Sprint 11)
 │   ├── tools/            # tool_*.tres
@@ -259,6 +261,8 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 
 **Canonical model:** each entry in `/database/registry/locations/` is a sector-level `LocationTemplate` resource. It owns the sector id, galactic position, topology, scene-loading path, and compatibility data used by the current docked UI and bootstrap flow.
 
+**Contract boundary:** the live simulation does **not** require authored per-sector contract lists. Runtime demand contracts are generated from qualitative sector tags and nearby source sectors. `available_contract_ids` remains optional for curated overrides only.
+
 **Example: Creating `sector_system_nexus` - a new colony hub sector**
 
 #### Step 1: DATA - Create Sector Definition
@@ -285,10 +289,10 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 ├── controlling_faction_id: "faction_traders"
 ├── danger_level: 1
 ├── initial_sector_tags: PoolStringArray("STATION", "SECURE", "MILD")
-└── available_contract_ids: ["delivery_nexus_run"]
+└── available_contract_ids: []  # Optional curated overrides only
 ```
 
-Keep the other world-layer fields aligned with your chosen source template or tuned intentionally for the new sector: `radiation_level`, `thermal_background_k`, `gravity_well_penalty`, `mineral_density`, `propellant_sources`, `station_power_output`, and `stockpile_capacity` all feed the live sector contract.
+Keep the other world-layer fields aligned with your chosen source template or tuned intentionally for the new sector: `radiation_level`, `thermal_background_k`, `gravity_well_penalty`, `mineral_density`, `propellant_sources`, `station_power_output`, and `stockpile_capacity` remain part of the authored sector resource. The live qualitative simulation primarily reads topology, tags, and bounded progression state; do not treat these numeric fields as the driver of runtime contract generation.
 
 **Use these live field names:**
 - `template_id`, not `id`
@@ -297,6 +301,7 @@ Keep the other world-layer fields aligned with your chosen source template or tu
 - `market_inventory`, not `trade_goods`
 - `available_services`, not `services`
 - `global_position`, not `position`
+- `available_contract_ids` is optional; leave it empty unless you are deliberately exposing curated override contracts at that sector
 
 #### Step 2: SCENE - Create the Sector Scene
 
@@ -317,11 +322,15 @@ If the sector should use the procedural fallback instead of a handcrafted scene:
 
 ---
 
-### 3.5 Adding a New Contract
+### 3.5 Adding a Curated Contract Override
 
-**Example: Creating a cargo delivery mission**
+**Default behavior:** do **not** author one `.tres` contract per demand case. The live runtime creates qualitative delivery occurrences from `CONTRACT_DEMAND_*` tags and nearby qualifying sectors.
 
-#### Step 1: DATA - Create Contract Definition
+**Use this section only when you need a curated override** such as a tutorial mission, a story contract, a handcrafted fallback, or a deliberately authored exception that should not depend on the procedural demand generator.
+
+**Example: Creating an optional cargo delivery override**
+
+#### Step 1: DATA - Create Override Definition
 
 1. Navigate to `/database/registry/contracts/`
 2. Duplicate `delivery_01.tres` → `delivery_nexus_run.tres`
@@ -346,6 +355,10 @@ If the sector should use the procedural fallback instead of a handcrafted scene:
 ```
 
 Use `title`, `issuer_id`, `origin_location_id`, and `required_commodity_id` exactly as exported by `contract_template.gd`. The live template does not expose `display_name`, `cargo_type`, or `required_reputation`.
+
+If you want the override to appear at a specific sector, add its `template_id` to that sector's `available_contract_ids`. If you leave `available_contract_ids` empty, the sector still participates in the live simulation-driven contract pipeline.
+
+Do **not** create authored `ContractTemplate` resources just to mirror qualitative `CONTRACT_DEMAND_*` tags. Those occurrences are generated at runtime and should remain data-free by default.
 
 ---
 
@@ -463,10 +476,12 @@ When tuning, inspect the owning script first and treat the manual as orientation
 
 ### 4.3 Economy Balance
 
-Commodity prices are set per-item in their `.tres` files. Sector-level availability and local pricing live on the `LocationTemplate` resource:
-- `market_inventory`: per-sector commodity entries keyed by commodity template id using `{buy_price, sell_price, quantity}`
+Commodity prices are still authored per-item in their `.tres` files for the current docked trade/UI compatibility surface. Sector-level availability and local pricing live on the `LocationTemplate` resource:
+- `market_inventory`: per-sector docked trade assumptions keyed by commodity template id using `{buy_price, sell_price, quantity}`
 - `available_services`: docked UI service list currently exposed for that sector
-- `stockpile_capacity`: sector hub capacity for local commodity storage assumptions
+- `stockpile_capacity`: authored world/sector context field, not the driver of the live qualitative contract generator
+
+The live simulation economy itself is qualitative. Sector progression and runtime contract generation come from tags, bounded counters, and the demand-occurrence pipeline, not from authored `market_inventory` entries or `available_contract_ids` lists.
 
 ### 4.4 Combat Balance
 
@@ -540,6 +555,7 @@ After adding content:
 2. Open your `.tres` file in the Inspector
 3. Check for red error icons (missing references)
 4. If you added or changed a sector resource, confirm the id and scene path follow the canonical sector model (`sector_system_*`, `sector_scene_path`, `connections`, `global_position`)
+5. If you authored a curated contract override, confirm its `origin_location_id` and `destination_location_id` point at live sector ids in `/database/registry/locations/`
 5. Run the game and check the console for errors
 
 ### 6.2 Runtime Testing
@@ -604,6 +620,10 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 **Problem:** Authored ships, tools, contracts, characters, or agents with legacy keys such as `display_name`, `range`, `cargo_type`, `profession`, `ship_template`, or `behavior`  
 **Solution:** Check the matching script in `/database/definitions/` first and mirror only its exported fields. The examples in Sections 3.1 through 3.7 now use the live schema.
 
+### ❌ Treating `available_contract_ids` As The Default Runtime Contract Pipeline
+**Problem:** Authored a `.tres` contract for every local demand case or assumed sectors must list `available_contract_ids` to generate contracts  
+**Solution:** Leave runtime demand to the qualitative simulation. Only use `ContractTemplate` resources and `available_contract_ids` for curated override content such as tutorials, story contracts, or explicit handcrafted exceptions.
+
 ### ❌ Case Sensitivity
 **Problem:** Resource ID "Ship_Corsair" doesn't match lookup "ship_corsair"  
 **Solution:** Use consistent lowercase_snake_case for all IDs
@@ -626,7 +646,7 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 | Add a commodity | `/database/registry/assets/commodities/` | `commodity_default.tres` |
 | Add a tool | `/database/registry/tools/` | `tool_ablative_laser.tres` |
 | Add a sector/location | `/database/registry/locations/` | `sector_system_elace.tres` |
-| Add a contract | `/database/registry/contracts/` | `delivery_01.tres` |
+| Add a curated contract override | `/database/registry/contracts/` | `delivery_01.tres` |
 | Add a character | `/database/registry/characters/` | `character_default.tres` |
 | Add an NPC type | `/database/registry/agents/` | `npc_default.tres` or a matching `persistent_*.tres` |
 | Add a 3D model | `/assets/models/ships/` | N/A (just import .glb) |

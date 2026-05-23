@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-23 22:58:53
 #
 
 extends Node
@@ -54,6 +54,11 @@ func reset_to_defaults() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 
 	# --- Layer 3: Agents ---
@@ -252,6 +257,11 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["economy_upgrade_progress"] = GameState.economy_upgrade_progress.duplicate(true)
 	state_dict["economy_downgrade_progress"] = GameState.economy_downgrade_progress.duplicate(true)
 	state_dict["economy_change_threshold"] = GameState.economy_change_threshold.duplicate(true)
+	state_dict["contract_generation_pressure"] = GameState.contract_generation_pressure.duplicate(true)
+	state_dict["contract_generation_threshold"] = GameState.contract_generation_threshold.duplicate(true)
+	state_dict["runtime_contract_occurrences"] = GameState.runtime_contract_occurrences.duplicate(true)
+	state_dict["runtime_contract_occurrences_by_target_sector"] = GameState.runtime_contract_occurrences_by_target_sector.duplicate(true)
+	state_dict["runtime_contract_occurrences_by_source_sector"] = GameState.runtime_contract_occurrences_by_source_sector.duplicate(true)
 	state_dict["hostile_infestation_progress"] = GameState.hostile_infestation_progress.duplicate(true)
 
 	# --- Layer 3: Agents ---
@@ -356,6 +366,11 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.economy_upgrade_progress = save_data.get("economy_upgrade_progress", {}).duplicate(true) if save_data.has("economy_upgrade_progress") else {}
 	GameState.economy_downgrade_progress = save_data.get("economy_downgrade_progress", {}).duplicate(true) if save_data.has("economy_downgrade_progress") else {}
 	GameState.economy_change_threshold = save_data.get("economy_change_threshold", {}).duplicate(true) if save_data.has("economy_change_threshold") else {}
+	GameState.contract_generation_pressure = save_data.get("contract_generation_pressure", {}).duplicate(true) if save_data.has("contract_generation_pressure") else {}
+	GameState.contract_generation_threshold = save_data.get("contract_generation_threshold", {}).duplicate(true) if save_data.has("contract_generation_threshold") else {}
+	GameState.runtime_contract_occurrences = save_data.get("runtime_contract_occurrences", {}).duplicate(true) if save_data.has("runtime_contract_occurrences") else {}
+	GameState.runtime_contract_occurrences_by_target_sector = save_data.get("runtime_contract_occurrences_by_target_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_target_sector") else {}
+	GameState.runtime_contract_occurrences_by_source_sector = save_data.get("runtime_contract_occurrences_by_source_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_source_sector") else {}
 	GameState.hostile_infestation_progress = save_data.get("hostile_infestation_progress", {}).duplicate(true) if save_data.has("hostile_infestation_progress") else {}
 
 	# --- Layer 3: Agents ---
