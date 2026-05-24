@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-23 22:47:52
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-24 19:53:28
 #
 
 extends Reference
@@ -157,6 +157,7 @@ func _step_economy(tags: Array, neighbor_tags: Array, sector_id: String) -> Arra
 
 	var loaded_trade: int = _loaded_trade_count_for_sector(sector_id)
 	var colony_level: String = GameState.colony_levels.get(sector_id, "frontier")
+	var max_idx_for_level: int = _economy_max_index_for_level(colony_level)
 	var has_active_commerce: bool = loaded_trade > 0 or colony_level in ["colony", "hub"]
 	var has_pirate_or_infestation: bool = role_counts.get("pirate", 0) > 0 or "HOSTILE_INFESTED" in result
 
@@ -168,6 +169,7 @@ func _step_economy(tags: Array, neighbor_tags: Array, sector_id: String) -> Arra
 		var delta: int = 0
 
 		var threshold: int = sector_thresholds.get(category, Constants.ECONOMY_CHANGE_TICKS_MIN)
+		var upgrade_threshold: int = _economy_upgrade_threshold_for_level(threshold, colony_level)
 
 		# Homeostatic pressure
 		if level == "RICH":
@@ -217,12 +219,14 @@ func _step_economy(tags: Array, neighbor_tags: Array, sector_id: String) -> Arra
 			up_progress = 0
 			down_progress = 0
 
-		if up_progress >= threshold and idx < 2:
-			idx = min(2, idx + 1)
+		if up_progress >= upgrade_threshold and idx < max_idx_for_level:
+			idx = min(max_idx_for_level, idx + 1)
 			up_progress = 0
 		elif down_progress >= threshold and idx > 0:
 			idx = max(0, idx - 1)
 			down_progress = 0
+
+		idx = min(idx, max_idx_for_level)
 
 		sector_upgrade_progress[category] = up_progress
 		sector_downgrade_progress[category] = down_progress
@@ -244,6 +248,8 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 	var idx: int = SECURITY_LEVELS.find(security)
 	if idx < 0:
 		idx = 1  # CONTESTED fallback
+	var colony_level: String = GameState.colony_levels.get(sector_id, "frontier")
+	var max_idx_for_level: int = _security_max_index_for_level(colony_level)
 	var role_counts: Dictionary = _role_counts_for_sector(sector_id)
 	var delta: int = 0
 
@@ -291,6 +297,7 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 	var threshold: int = GameState.security_change_threshold.get(
 		sector_id, Constants.SECURITY_CHANGE_TICKS_MIN
 	)
+	var upgrade_threshold: int = _security_upgrade_threshold_for_level(threshold, colony_level)
 
 	if delta >= 1:
 		up_progress += 1
@@ -302,12 +309,14 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 		up_progress = 0
 		down_progress = 0
 
-	if up_progress >= threshold and idx < 2:
-		idx = min(2, idx + 1)
+	if up_progress >= upgrade_threshold and idx < max_idx_for_level:
+		idx = min(max_idx_for_level, idx + 1)
 		up_progress = 0
 	elif down_progress >= threshold and idx > 0:
 		idx = max(0, idx - 1)
 		down_progress = 0
+
+	idx = min(idx, max_idx_for_level)
 
 	GameState.security_upgrade_progress[sector_id] = up_progress
 	GameState.security_downgrade_progress[sector_id] = down_progress
@@ -396,14 +405,12 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 	var levels: Array = Constants.COLONY_LEVELS
 	var up_progress: int = GameState.colony_upgrade_progress.get(sector_id, 0)
 	var down_progress: int = GameState.colony_downgrade_progress.get(sector_id, 0)
+	var upgrade_threshold: int = _colony_upgrade_threshold_for_level(level)
 
 	# Check upgrade requirements
-	var economy_ok: bool = true
-	for req in Constants.COLONY_UPGRADE_REQUIRED_ECONOMY:
-		if not (req in tags or req.replace("_ADEQUATE", "_RICH") in tags):
-			economy_ok = false
-			break
-	var security_ok: bool = Constants.COLONY_UPGRADE_REQUIRED_SECURITY in tags
+	var economy_ok: bool = _colony_upgrade_economy_ok(tags)
+	var security_ok: bool = _colony_upgrade_security_ok(tags, level)
+	var environment_ok: bool = _colony_upgrade_environment_ok(tags, level)
 
 	# Check downgrade triggers
 	var degrade: bool = Constants.COLONY_DOWNGRADE_SECURITY_TRIGGER in tags
@@ -413,7 +420,7 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 				degrade = true
 				break
 
-	if economy_ok and security_ok:
+	if economy_ok and security_ok and environment_ok:
 		up_progress += 1
 		down_progress = 0
 	elif degrade:
@@ -432,7 +439,7 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 	if level_idx < 0:
 		level_idx = 0
 
-	if up_progress >= Constants.COLONY_UPGRADE_TICKS_REQUIRED and level_idx < levels.size() - 1:
+	if up_progress >= upgrade_threshold and level_idx < levels.size() - 1:
 		level = levels[level_idx + 1]
 		up_progress = 0
 	elif down_progress >= Constants.COLONY_DOWNGRADE_TICKS_REQUIRED and level_idx > 0:
@@ -556,6 +563,63 @@ func _has_active_trade_relief(sector_id: String) -> bool:
 		or role_counts.get("hauler", 0) > 0
 
 
+func _economy_upgrade_threshold_for_level(base_threshold: int, colony_level: String) -> int:
+	if colony_level == "frontier":
+		return base_threshold + Constants.FRONTIER_ECONOMY_UPGRADE_TICKS_BONUS
+	if colony_level == "outpost":
+		return base_threshold + Constants.OUTPOST_ECONOMY_UPGRADE_TICKS_BONUS
+	return base_threshold
+
+
+func _economy_max_index_for_level(colony_level: String) -> int:
+	if colony_level == "frontier":
+		var frontier_max_idx: int = ECONOMY_LEVELS.find(Constants.FRONTIER_MAX_ECONOMY_LEVEL)
+		return frontier_max_idx if frontier_max_idx >= 0 else 1
+	return ECONOMY_LEVELS.size() - 1
+
+
+func _security_upgrade_threshold_for_level(base_threshold: int, colony_level: String) -> int:
+	if colony_level == "frontier":
+		return base_threshold + Constants.FRONTIER_SECURITY_UPGRADE_TICKS_BONUS
+	if colony_level == "outpost":
+		return base_threshold + Constants.OUTPOST_SECURITY_UPGRADE_TICKS_BONUS
+	return base_threshold
+
+
+func _security_max_index_for_level(colony_level: String) -> int:
+	if colony_level == "frontier":
+		var frontier_max_idx: int = SECURITY_LEVELS.find(Constants.FRONTIER_MAX_SECURITY_LEVEL)
+		return frontier_max_idx if frontier_max_idx >= 0 else 1
+	return SECURITY_LEVELS.size() - 1
+
+
+func _colony_upgrade_threshold_for_level(level: String) -> int:
+	if level == "frontier":
+		return Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED
+	if level == "outpost":
+		return Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED
+	return Constants.COLONY_UPGRADE_TICKS_REQUIRED
+
+
+func _colony_upgrade_economy_ok(tags: Array) -> bool:
+	for req in Constants.COLONY_UPGRADE_REQUIRED_ECONOMY:
+		if not (req in tags or req.replace("_ADEQUATE", "_RICH") in tags):
+			return false
+	return true
+
+
+func _colony_upgrade_security_ok(tags: Array, level: String) -> bool:
+	if level == "frontier":
+		return _security_level_index(_security_tag(tags)) >= _security_level_index(Constants.FRONTIER_TO_OUTPOST_REQUIRED_SECURITY)
+	return Constants.COLONY_UPGRADE_REQUIRED_SECURITY in tags
+
+
+func _colony_upgrade_environment_ok(tags: Array, level: String) -> bool:
+	if level == "frontier":
+		return not (Constants.FRONTIER_TO_OUTPOST_BLOCKED_ENVIRONMENT in tags)
+	return true
+
+
 # =============================================================================
 # === PRIVATE — TAG HELPERS ===================================================
 # =============================================================================
@@ -586,6 +650,11 @@ func _environment_tag(tags: Array) -> String:
 		if tag in tags:
 			return tag
 	return "MILD"
+
+
+func _security_level_index(security_tag: String) -> int:
+	var idx: int = SECURITY_LEVELS.find(security_tag)
+	return idx if idx >= 0 else 1
 
 
 ## Replaces all tags starting with prefix with a single replacement tag.

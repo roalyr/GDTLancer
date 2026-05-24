@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-23 22:47:52
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-24 19:53:28
 #
 
 extends GutTest
@@ -206,6 +206,74 @@ func test_colony_hub_maintenance_drains_economy():
 		"Hub with no trade should lose CURRENCY_RICH.")
 
 
+func test_frontier_security_caps_at_contested_until_outpost():
+	_seed_single_sector_state(
+		"frontier_security_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+
+	grid.process_tick({})
+
+	assert_has(GameState.sector_tags["frontier_sector"], "CONTESTED",
+		"Frontier sectors should not retain SECURE while they are still at the frontier colony level.")
+	assert_does_not_have(GameState.sector_tags["frontier_sector"], "SECURE",
+		"Frontier sectors should stay capped at CONTESTED until they progress into an outpost.")
+
+
+func test_frontier_economy_caps_at_adequate_until_outpost():
+	_seed_single_sector_state(
+		"frontier_economy_seed",
+		["FRONTIER", "CONTESTED", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+		"frontier"
+	)
+
+	grid.process_tick({})
+
+	var tags: Array = GameState.sector_tags["frontier_sector"]
+	assert_has(tags, "RAW_ADEQUATE",
+		"Frontier sectors should not keep RAW_RICH before they stabilize into an outpost.")
+	assert_has(tags, "MANUFACTURED_ADEQUATE",
+		"Frontier sectors should not keep MANUFACTURED_RICH before they stabilize into an outpost.")
+	assert_has(tags, "CURRENCY_ADEQUATE",
+		"Frontier sectors should not keep CURRENCY_RICH before they stabilize into an outpost.")
+	assert_does_not_have(tags, "RAW_RICH",
+		"Frontier sectors should be capped at ADEQUATE economy while they are still frontier-level.")
+
+
+func test_frontier_colony_upgrade_requires_extended_stability():
+	_seed_single_sector_state(
+		"frontier_upgrade_seed",
+		["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+
+	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
+		"Frontier sectors should require the longer stabilization threshold before becoming outposts.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"A stable frontier sector should eventually advance once the longer frontier threshold is actually met.")
+
+
+func test_extreme_frontier_cannot_upgrade_until_conditions_soften():
+	_seed_single_sector_state(
+		"frontier_extreme_seed",
+		["FRONTIER", "CONTESTED", "EXTREME", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+
+	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
+		"Extreme frontier sectors should not upgrade into outposts until their environment is no longer the blocked frontier state.")
+
+
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
@@ -228,6 +296,26 @@ func _seed_minimal_state() -> void:
 		"mil_1": {"current_sector_id": "a", "agent_role": "military", "is_disabled": false, "cargo_tag": "EMPTY"},
 		"pir_1": {"current_sector_id": "b", "agent_role": "pirate", "is_disabled": false, "cargo_tag": "EMPTY"},
 	}
+
+
+func _seed_single_sector_state(seed_string: String, tags: Array, colony_level: String) -> void:
+	_clear_state()
+	GameState.world_seed = seed_string
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0
+	GameState.world_topology = {
+		"frontier_sector": {"connections": [], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
+	}
+	GameState.sector_tags = {
+		"frontier_sector": Array(tags),
+	}
+	GameState.grid_dominion = {"frontier_sector": {"security_tag": grid._security_tag(tags)}}
+	GameState.world_hazards = {"frontier_sector": {"environment": grid._environment_tag(tags)}}
+	GameState.agents = {}
+	grid.initialize_grid()
+	GameState.colony_levels["frontier_sector"] = colony_level
+	GameState.security_change_threshold["frontier_sector"] = 1
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1}
 
 
 func _clear_state() -> void:

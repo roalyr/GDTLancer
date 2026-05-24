@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 23:11:32
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-24 19:32:24
 #
 
 extends Reference
@@ -28,18 +28,6 @@ var affinity_matrix: Reference = null
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _reported_invalid_sectors: Dictionary = {}
 var _last_exploration_outcome: String = ""
-
-## Name-generation pools for discovered sectors.
-var _FRONTIER_PREFIXES: Array = [
-	"Void", "Drift", "Nebula", "Rim", "Edge", "Shadow", "Iron",
-	"Crimson", "Amber", "Frozen", "Ashen", "Silent", "Storm",
-	"Obsidian", "Crystal", "Pale", "Dark",
-]
-var _FRONTIER_SUFFIXES: Array = [
-	"Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
-	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
-	"Anchorage", "Waypoint", "Depot",
-]
 var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
 	{
 		"procedural_type": "asteroid_field",
@@ -340,12 +328,17 @@ func _resolve_agent_interaction(actor_id: String, target_id: String, score: floa
 func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Array) -> void:
 	var agent: Dictionary = GameState.agents.get(agent_id, {})
 	var sector_id: String = agent.get("current_sector_id", "")
+	var explorer_waiting: bool = false
+	var at_station: bool = "STATION" in sector_tags or "FRONTIER" in sector_tags
 
 	# Explorers prioritise exploration
 	if agent.get("agent_role") == "explorer":
-		_try_exploration(agent_id, agent, sector_id)
-		if _last_exploration_outcome == "discovered":
-			return
+		if _should_attempt_exploration(agent, sector_id, sector_tags):
+			_try_exploration(agent_id, agent, sector_id)
+			if _last_exploration_outcome == "discovered":
+				return
+		else:
+			explorer_waiting = true
 
 	if score >= Constants.ATTACK_THRESHOLD and "HAS_SALVAGE" in sector_tags:
 		_action_harvest(agent_id, agent, sector_id)
@@ -355,7 +348,6 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 		agent.get("condition_tag") == "DAMAGED"
 		or agent.get("cargo_tag") == "LOADED"
 	)
-	var at_station: bool = "STATION" in sector_tags or "FRONTIER" in sector_tags
 
 	if needs_dock and at_station:
 		_try_dock(agent_id, agent, sector_id)
@@ -371,8 +363,8 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 		_log_event(agent_id, "flee", sector_id, {"reason": "sector_affinity"})
 		return
 
-	if agent.get("agent_role") == "explorer" and _is_exploration_cooldown_active(agent):
-		_action_move_random(agent_id, agent)
+	if explorer_waiting:
+		_handle_explorer_non_exploration_turn(agent_id, agent, sector_id, sector_tags, at_station)
 		return
 
 	_action_move_toward_role_target(agent_id, agent)
@@ -423,6 +415,50 @@ func _has_frontier_pressure(sector_tags: Array) -> bool:
 func _is_exploration_cooldown_active(agent: Dictionary) -> bool:
 	var last_discovery: int = int(agent.get("last_discovery_tick", -999))
 	return GameState.sim_tick_count - last_discovery < Constants.EXPLORATION_COOLDOWN_TICKS
+
+
+func _should_attempt_exploration(agent: Dictionary, sector_id: String, sector_tags: Array) -> bool:
+	if agent.get("wealth_tag") == "BROKE":
+		return false
+	if _is_exploration_cooldown_active(agent):
+		return false
+	if not _is_exploration_anchor_sector(sector_id, sector_tags):
+		return false
+	return _has_local_exploration_outlet(sector_id)
+
+
+func _handle_explorer_non_exploration_turn(agent_id: String, agent: Dictionary, sector_id: String, sector_tags: Array, at_station: bool) -> void:
+	if agent.get("wealth_tag") == "BROKE":
+		if at_station:
+			return
+		_action_move_toward_exploration_target(agent_id, agent)
+		return
+
+	if _is_exploration_cooldown_active(agent) and _is_exploration_anchor_sector(sector_id, sector_tags) and _has_local_exploration_outlet(sector_id):
+		return
+
+	_action_move_toward_exploration_target(agent_id, agent)
+
+
+func _is_exploration_anchor_sector(sector_id: String, sector_tags: Array) -> bool:
+	if "FRONTIER" in sector_tags:
+		return true
+	if _has_frontier_pressure(sector_tags):
+		return true
+	if _is_discovered_sector_id(sector_id):
+		return true
+	var sector_type: String = _get_sector_type(sector_id)
+	return sector_type in ["frontier", "deep_space", "hazard_zone"]
+
+
+func _has_local_exploration_outlet(sector_id: String) -> bool:
+	if _graph_degree(sector_id) < Constants.MAX_CONNECTIONS_PER_SECTOR:
+		return true
+	var neighbors: Array = Array(GameState.world_topology.get(sector_id, {}).get("connections", []))
+	for neighbor_id in neighbors:
+		if _graph_degree(str(neighbor_id)) < Constants.MAX_CONNECTIONS_PER_SECTOR:
+			return true
+	return false
 
 
 # =============================================================================
@@ -719,8 +755,55 @@ func _action_move_random(agent_id: String, agent: Dictionary) -> void:
 	_action_move_toward(agent_id, agent, target)
 
 
+func _action_move_toward_exploration_target(agent_id: String, agent: Dictionary) -> void:
+	var current: String = agent.get("current_sector_id", "")
+	var neighbors: Array = Array(GameState.world_topology.get(current, {}).get("connections", []))
+	if neighbors.empty():
+		return
+
+	var best_sector: String = ""
+	var best_score: float = -1000000.0
+	for neighbor_id in neighbors:
+		var neighbor_key: String = str(neighbor_id)
+		var n_tags: Array = Array(GameState.sector_tags.get(neighbor_key, []))
+		var score: float = 0.0
+		if _is_exploration_anchor_sector(neighbor_key, n_tags):
+			score += 4.0
+		if _has_frontier_pressure(n_tags):
+			score += 1.5
+		if "FRONTIER" in n_tags:
+			score += 1.5
+		if _is_discovered_sector_id(neighbor_key):
+			score += 1.0
+
+		var degree: int = _graph_degree(neighbor_key)
+		if degree < Constants.MAX_CONNECTIONS_PER_SECTOR:
+			score += 1.25
+		if degree <= 2:
+			score += 0.75
+
+		if agent.get("wealth_tag") == "BROKE" and ("STATION" in n_tags or "FRONTIER" in n_tags):
+			score += 2.5
+		if agent.get("condition_tag") == "DAMAGED" and ("STATION" in n_tags or "FRONTIER" in n_tags):
+			score += 1.0
+
+		score -= float(_active_agent_count_in_sector(neighbor_key)) * 0.25
+
+		if score > best_score or (is_equal_approx(score, best_score) and (best_sector == "" or neighbor_key < best_sector)):
+			best_score = score
+			best_sector = neighbor_key
+
+	if best_sector != "":
+		_action_move_toward(agent_id, agent, best_sector)
+	else:
+		_action_move_random(agent_id, agent)
+
+
 func _action_move_toward_role_target(agent_id: String, agent: Dictionary) -> void:
 	var role: String = agent.get("agent_role", "idle")
+	if role == "explorer":
+		_action_move_toward_exploration_target(agent_id, agent)
+		return
 	var current: String = agent.get("current_sector_id", "")
 	var neighbors: Array = GameState.world_topology.get(current, {}).get("connections", [])
 	if neighbors.empty():
@@ -875,10 +958,12 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		fallback_candidates.sort_custom(self, "_sort_by_degree")
 		source_id = fallback_candidates[0]
 
+	var source_tags: Array = Array(GameState.sector_tags.get(source_id, sector_tags))
+	var connection_chances: Dictionary = _get_discovery_connection_chances(source_id, source_tags)
 	var connections: Array = [source_id]
 
 	var extra_one_added: bool = false
-	if _rng.randf() < Constants.EXTRA_CONNECTION_1_CHANCE:
+	if _rng.randf() < float(connection_chances.get("extra_one", Constants.EXTRA_CONNECTION_1_CHANCE)):
 		var nearby: Array = _nearby_candidates(source_id, connections)
 		if not nearby.empty():
 			nearby.sort()
@@ -887,7 +972,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 				connections.append(extra_one)
 				extra_one_added = true
 
-	if extra_one_added and _rng.randf() < Constants.EXTRA_CONNECTION_2_CHANCE:
+	if extra_one_added and _rng.randf() < float(connection_chances.get("extra_two", Constants.EXTRA_CONNECTION_2_CHANCE)):
 		var loop_candidate = _distant_loop_candidate(source_id, connections)
 		if loop_candidate != null and not (loop_candidate in connections):
 			connections.append(loop_candidate)
@@ -1175,6 +1260,18 @@ func _filter_spatially_plausible_connections(source_id: String, candidate_connec
 	return filtered_connections
 
 
+func _get_discovery_connection_chances(source_id: String, source_tags: Array) -> Dictionary:
+	var extra_one: float = Constants.EXTRA_CONNECTION_1_CHANCE
+	var extra_two: float = Constants.EXTRA_CONNECTION_2_CHANCE
+	if _is_exploration_anchor_sector(source_id, source_tags) or _graph_degree(source_id) <= 2:
+		extra_one = max(extra_one, Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE)
+		extra_two = max(extra_two, Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE)
+	return {
+		"extra_one": extra_one,
+		"extra_two": extra_two,
+	}
+
+
 func _register_discovered_sector_template(
 		new_id: String,
 		new_name: String,
@@ -1239,8 +1336,12 @@ func _generate_sector_name() -> String:
 func _generate_sector_name_for_count(discovery_count: int) -> String:
 	var name_rng := RandomNumberGenerator.new()
 	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(discovery_count))
-	var prefix: String = _FRONTIER_PREFIXES[name_rng.randi() % _FRONTIER_PREFIXES.size()]
-	var suffix: String = _FRONTIER_SUFFIXES[name_rng.randi() % _FRONTIER_SUFFIXES.size()]
+	var prefixes: Array = Array(Constants.FRONTIER_DISCOVERY_NAME_PREFIXES)
+	var suffixes: Array = Array(Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES)
+	if prefixes.empty() or suffixes.empty():
+		return "Unnamed Reach"
+	var prefix: String = prefixes[name_rng.randi() % prefixes.size()]
+	var suffix: String = suffixes[name_rng.randi() % suffixes.size()]
 	return prefix + " " + suffix
 
 
@@ -1443,7 +1544,7 @@ func _spawn_mortal_agents() -> void:
 	GameState.mortal_agent_counter += 1
 	var agent_id: String = "mortal_" + str(GameState.mortal_agent_counter)
 	spawn_sector = _resolve_known_sector_id(spawn_sector, "%s.spawn_sector" % agent_id)
-	var role: String = Constants.MORTAL_ROLES[_rng.randi() % Constants.MORTAL_ROLES.size()]
+	var role: String = _pick_mortal_spawn_role()
 
 	GameState.agents[agent_id] = {
 		"character_id": "",
@@ -1461,6 +1562,39 @@ func _spawn_mortal_agents() -> void:
 		"dynamic_tags": [],
 	}
 	_log_event(agent_id, "spawn", spawn_sector, {})
+
+
+func _pick_mortal_spawn_role() -> String:
+	var role_pool: Array = Array(Constants.MORTAL_ROLES)
+	if _should_limit_mortal_explorer_spawn():
+		var filtered_roles: Array = []
+		for role_name in role_pool:
+			if str(role_name) != "explorer":
+				filtered_roles.append(str(role_name))
+		if not filtered_roles.empty():
+			role_pool = filtered_roles
+	return str(role_pool[_rng.randi() % role_pool.size()])
+
+
+func _should_limit_mortal_explorer_spawn() -> bool:
+	var frontier_sector_count: int = 0
+	for sector_id in GameState.sector_tags:
+		var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		if _is_exploration_anchor_sector(str(sector_id), tags):
+			frontier_sector_count += 1
+
+	var explorer_cap: int = max(
+		1,
+		int(ceil(float(frontier_sector_count) / float(Constants.MORTAL_EXPLORER_FRONTIER_SECTOR_RATIO)))
+	)
+	var active_explorer_count: int = 0
+	for agent_id in GameState.agents:
+		var agent: Dictionary = Dictionary(GameState.agents.get(agent_id, {}))
+		if agent.get("is_disabled", false):
+			continue
+		if str(agent.get("agent_role", "")) == "explorer":
+			active_explorer_count += 1
+	return active_explorer_count >= explorer_cap
 
 
 func _cleanup_dead_mortals() -> void:
@@ -1530,7 +1664,10 @@ func _apply_upkeep() -> void:
 		if agent.get("wealth_tag") == "BROKE":
 			var s_tags: Array = GameState.sector_tags.get(agent.get("current_sector_id", ""), [])
 			if "STATION" in s_tags or "FRONTIER" in s_tags:
-				if _rng.randf() < Constants.BROKE_RECOVERY_CHANCE:
+				var recovery_chance: float = Constants.BROKE_RECOVERY_CHANCE
+				if str(agent.get("agent_role", "")) == "explorer":
+					recovery_chance = min(1.0, recovery_chance + Constants.EXPLORER_BROKE_RECOVERY_CHANCE_BONUS)
+				if _rng.randf() < recovery_chance:
 					agent["wealth_tag"] = "COMFORTABLE"
 
 

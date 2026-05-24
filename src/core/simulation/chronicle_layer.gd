@@ -3,7 +3,7 @@
 # MODULE: chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-24 00:25:24
+# LOG_REF: 2026-05-24 00:46:12
 #
 
 extends Reference
@@ -52,7 +52,7 @@ func _normalize_event_packet(event_packet: Dictionary) -> Dictionary:
 
 
 ## Processes all Chronicle Layer steps for one tick.
-func process_tick(_config: Dictionary = {}) -> void:
+func process_tick() -> void:
 	if _staging_buffer.empty():
 		return
 

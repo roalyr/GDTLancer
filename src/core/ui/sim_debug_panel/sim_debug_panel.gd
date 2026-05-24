@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-24 00:08:25
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-24 15:04:06
 #
 
 extends CanvasLayer
@@ -32,6 +32,7 @@ onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
 onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 
 var _controls_row: HBoxContainer = null
+var _report_mode_option: OptionButton = null
 var _focus_mode_option: OptionButton = null
 var _focus_id_option: OptionButton = null
 var _sort_mode_option: OptionButton = null
@@ -49,6 +50,11 @@ var _last_plain_text: String = ""
 var _showing_report: bool = false
 var _report_text: String = ""
 var _report_bbcode: String = ""
+
+const _REPORT_MODE_ITEMS := [
+	{"label": "Focused Chronicle", "value": "focused"},
+	{"label": "Composite Research", "value": "composite"},
+]
 
 const _FOCUS_MODE_ITEMS := [
 	{"label": "World", "value": "world"},
@@ -137,20 +143,34 @@ func _on_run_batch(tick_count: int) -> void:
 	if not is_instance_valid(GlobalRefs.simulation_engine):
 		return
 	var engine = GlobalRefs.simulation_engine
-	if not engine.has_method("run_batch_and_report"):
-		return
 	_refresh_report_controls()
-	var report_request: Dictionary = _current_report_request()
 	var discovery_start_index: int = GameState.discovery_log.size()
+	var report_mode: String = _selected_option_value(_report_mode_option, "focused")
+	var report: String = ""
+	var header_text: String = ""
 
-	# Determine epoch size based on tick count
-	var epoch_size: int = 1
-	if tick_count >= 3000:
-		epoch_size = 100
-	elif tick_count >= 300:
-		epoch_size = 10
+	if report_mode == "composite":
+		if not engine.has_method("run_composite_research_report"):
+			return
+		var composite_tick_counts: Array = _composite_tick_counts_up_to(tick_count)
+		var composite_request: Dictionary = _current_composite_request()
+		report = engine.run_composite_research_report(composite_tick_counts, composite_request)
+		header_text = "COMPOSITE RESEARCH REPORT (%s)  [Back to return]" % _composite_tick_count_label(composite_tick_counts)
+	else:
+		if not engine.has_method("run_batch_and_report"):
+			return
+		var report_request: Dictionary = _current_report_request()
 
-	var report: String = engine.run_batch_and_report(tick_count, epoch_size, report_request)
+		# Determine epoch size based on tick count
+		var epoch_size: int = 1
+		if tick_count >= 3000:
+			epoch_size = 100
+		elif tick_count >= 300:
+			epoch_size = 10
+
+		report = engine.run_batch_and_report(tick_count, epoch_size, report_request)
+		header_text = "CHRONICLE REPORT (%d ticks, %s)  [Back to return]" % [tick_count, _report_request_header(report_request)]
+
 	report = _append_batch_discovery_summary(report, discovery_start_index)
 
 	# Also dump to console for LLM agent consumption
@@ -161,7 +181,7 @@ func _on_run_batch(tick_count: int) -> void:
 	_report_bbcode = _plain_to_bbcode(report)
 	_showing_report = true
 	_btn_back.visible = true
-	_header_label.text = "CHRONICLE REPORT (%d ticks, %s)  [Back to return]" % [tick_count, _report_request_header(report_request)]
+	_header_label.text = header_text
 	_rich_text.bbcode_text = _report_bbcode
 	_last_plain_text = _report_text
 
@@ -182,6 +202,10 @@ func _on_close_pressed() -> void:
 
 func _on_focus_mode_selected(_index: int) -> void:
 	_refresh_focus_id_options()
+
+
+func _on_report_mode_selected(_index: int) -> void:
+	_refresh_report_controls()
 
 
 # =============================================================================
@@ -451,6 +475,10 @@ func _plain_to_bbcode(text: String) -> String:
 			bb += _bbcolor(s, "aqua") + "\n"
 		elif s.find("DISCOVERY SUMMARY") != -1:
 			bb += _bbcolor(s, "aqua") + "\n"
+		elif s.find("COMPOSITE RESEARCH CHRONICLE") != -1 or s.find("COMPOSITE WINDOW:") != -1:
+			bb += _bbcolor(s, "cyan") + "\n"
+		elif s.find("SAMPLED SECTORS") != -1 or s.find("SAMPLED AGENTS") != -1:
+			bb += _bbcolor(s, "white") + "\n"
 		elif s.find("Combat:") != -1:
 			bb += _bbcolor(s, "orange") + "\n"
 		elif s.find("Commerce:") != -1:
@@ -525,6 +553,11 @@ func _build_report_controls() -> void:
 	vbox.add_child(_controls_row)
 	vbox.move_child(_controls_row, 1)
 
+	_add_report_label(_controls_row, "Output")
+	_report_mode_option = _create_report_option_button("ReportModeOption", 180)
+	_controls_row.add_child(_report_mode_option)
+	_report_mode_option.connect("item_selected", self, "_on_report_mode_selected")
+
 	_add_report_label(_controls_row, "Focus")
 	_focus_mode_option = _create_report_option_button("FocusModeOption", 140)
 	_controls_row.add_child(_focus_mode_option)
@@ -544,13 +577,23 @@ func _build_report_controls() -> void:
 
 
 func _populate_static_report_options() -> void:
+	_populate_option_button(_report_mode_option, _REPORT_MODE_ITEMS, "focused")
 	_populate_option_button(_focus_mode_option, _FOCUS_MODE_ITEMS, "world")
 	_populate_option_button(_sort_mode_option, _SORT_MODE_ITEMS, "chronological")
 	_populate_option_button(_detail_level_option, _DETAIL_LEVEL_ITEMS, "standard")
 
 
 func _refresh_report_controls() -> void:
-	if _focus_mode_option == null:
+	if _report_mode_option == null or _focus_mode_option == null:
+		return
+	var is_composite_mode: bool = _selected_option_value(_report_mode_option, "focused") == "composite"
+	_focus_mode_option.disabled = is_composite_mode
+	if is_composite_mode:
+		_clear_option_button(_focus_id_option)
+		_focus_id_option.add_item("(automatic sampling)")
+		_focus_id_option.set_item_metadata(0, "")
+		_focus_id_option.select(0)
+		_focus_id_option.disabled = true
 		return
 	_refresh_focus_id_options()
 
@@ -602,6 +645,17 @@ func _current_report_request() -> Dictionary:
 	}
 
 
+func _current_composite_request() -> Dictionary:
+	return {
+		"sort_mode": _selected_option_value(_sort_mode_option, "chronological"),
+		"detail_level": _selected_option_value(_detail_level_option, "standard"),
+		"sector_types": _current_sector_types(),
+		"agent_roles": _current_agent_roles(),
+		"include_persistent": true,
+		"include_mortal": true,
+	}
+
+
 func _report_request_header(report_request: Dictionary) -> String:
 	var focus_mode: String = str(report_request.get("focus_mode", "world"))
 	if focus_mode == "world":
@@ -635,6 +689,48 @@ func _current_focus_ids(focus_mode: String) -> Array:
 		agent_ids.sort()
 		return agent_ids
 	return ["world"]
+
+
+func _current_sector_types() -> Array:
+	var sector_types: Array = []
+	for sector_id in GameState.world_topology.keys():
+		var sector_type: String = str(GameState.world_topology.get(sector_id, {}).get("sector_type", ""))
+		if sector_type == "" or sector_type in sector_types:
+			continue
+		sector_types.append(sector_type)
+	sector_types.sort()
+	return sector_types
+
+
+func _current_agent_roles() -> Array:
+	var agent_roles: Array = []
+	for agent_id in GameState.agents.keys():
+		if str(agent_id) == "player":
+			continue
+		var role: String = str(GameState.agents.get(agent_id, {}).get("agent_role", ""))
+		if role == "" or role in agent_roles:
+			continue
+		agent_roles.append(role)
+	agent_roles.sort()
+	return agent_roles
+
+
+func _composite_tick_counts_up_to(tick_count: int) -> Array:
+	var requested_tick_counts: Array = []
+	for milestone in Constants.COMPOSITE_RESEARCH_TICK_COUNTS:
+		var milestone_tick_count: int = int(milestone)
+		if milestone_tick_count <= tick_count:
+			requested_tick_counts.append(milestone_tick_count)
+	if requested_tick_counts.empty():
+		requested_tick_counts.append(tick_count)
+	return requested_tick_counts
+
+
+func _composite_tick_count_label(tick_counts: Array) -> String:
+	var labels: Array = []
+	for tick_count in tick_counts:
+		labels.append(str(tick_count))
+	return PoolStringArray(labels).join(", ")
 
 
 func _focus_id_label(focus_mode: String, focus_id: String) -> String:

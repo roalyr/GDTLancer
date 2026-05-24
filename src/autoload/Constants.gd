@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §7; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-23 22:58:53
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONTENT-CREATION-MANUAL.md §4.1, §4.3; TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-24 19:53:28
 #
 
 extends Node
@@ -42,6 +42,7 @@ const NPC_HOSTILE_TEMPLATE_PATH = "res://database/registry/agents/npc_hostile_de
 # Base UI Scenes
 const MAIN_HUD_SCENE_PATH = "res://scenes/ui/hud/main_hud.tscn"
 const MAIN_MENU_SCENE_PATH = "res://scenes/ui/menus/main_menu.tscn"
+const COMPOSITE_RESEARCH_TICK_COUNTS: Array = [30, 300, 3000]
 
 # --- Common Node Names ---
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
@@ -118,16 +119,26 @@ const COLONY_UPGRADE_REQUIRED_ECONOMY: Array = ["RAW_ADEQUATE", "MANUFACTURED_AD
 const COLONY_DOWNGRADE_SECURITY_TRIGGER: String = "LAWLESS"
 const COLONY_DOWNGRADE_ECONOMY_TRIGGER: Array = ["RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
 const COLONY_MINIMUM_LEVEL: String = "outpost"
+const FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED: int = 16
+const OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED: int = 12
+const FRONTIER_TO_OUTPOST_REQUIRED_SECURITY: String = "CONTESTED"
+const FRONTIER_TO_OUTPOST_BLOCKED_ENVIRONMENT: String = "EXTREME"
 
 # --- Security Progression ---
 const SECURITY_CHANGE_TICKS_MIN: int = 3
 const SECURITY_CHANGE_TICKS_MAX: int = 6
+const FRONTIER_SECURITY_UPGRADE_TICKS_BONUS: int = 2
+const OUTPOST_SECURITY_UPGRADE_TICKS_BONUS: int = 1
+const FRONTIER_MAX_SECURITY_LEVEL: String = "CONTESTED"
 
 # --- Economy Progression ---
 const ECONOMY_UPGRADE_TICKS_REQUIRED: int = 3
 const ECONOMY_DOWNGRADE_TICKS_REQUIRED: int = 3
 const ECONOMY_CHANGE_TICKS_MIN: int = 2
 const ECONOMY_CHANGE_TICKS_MAX: int = 5
+const FRONTIER_ECONOMY_UPGRADE_TICKS_BONUS: int = 2
+const OUTPOST_ECONOMY_UPGRADE_TICKS_BONUS: int = 1
+const FRONTIER_MAX_ECONOMY_LEVEL: String = "ADEQUATE"
 
 # --- Qualitative Contract Demand ---
 const CONTRACT_PRESSURE_TICKS_MIN: int = 2
@@ -153,6 +164,7 @@ const COMBAT_COOLDOWN_TICKS: int = 5
 const AGENT_UPKEEP_CHANCE: float = 0.05
 const WEALTHY_DRAIN_CHANCE: float = 0.08
 const BROKE_RECOVERY_CHANCE: float = 0.15
+const EXPLORER_BROKE_RECOVERY_CHANCE_BONUS: float = 0.20
 
 # --- Mortal Agent Lifecycle ---
 const MORTAL_GLOBAL_CAP: int = 200
@@ -161,6 +173,7 @@ const MORTAL_SPAWN_BLOCKED_SECTOR_TAGS: Array = ["DISABLED", "HOSTILE_INFESTED"]
 const MORTAL_SPAWN_MIN_ECONOMY_TAGS: Array = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]
 const MORTAL_SPAWN_CHANCE: float = 0.2
 const MORTAL_ROLES: Array = ["trader", "hauler", "prospector", "explorer", "pirate"]
+const MORTAL_EXPLORER_FRONTIER_SECTOR_RATIO: int = 24
 const MORTAL_SURVIVAL_CHANCE: float = 0.4
 const DISRUPTION_MORTAL_ATTRITION_CHANCE: float = 0.03
 
@@ -173,10 +186,24 @@ const MAX_SECTOR_COUNT: int = 220
 const EXPLORATION_COOLDOWN_TICKS: int = 10
 const EXPLORATION_SUCCESS_CHANCE: float = 0.1
 
+# --- Discovery Naming ---
+const FRONTIER_DISCOVERY_NAME_PREFIXES: Array = [
+	"Void", "Drift", "Nebula", "Rim", "Edge", "Shadow", "Iron",
+	"Crimson", "Amber", "Frozen", "Ashen", "Silent", "Storm",
+	"Obsidian", "Crystal", "Pale", "Dark",
+]
+const FRONTIER_DISCOVERY_NAME_SUFFIXES: Array = [
+	"Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
+	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
+	"Anchorage", "Waypoint", "Depot",
+]
+
 # --- Topology ---
 const MAX_CONNECTIONS_PER_SECTOR: int = 4
 const EXTRA_CONNECTION_1_CHANCE: float = 0.20
 const EXTRA_CONNECTION_2_CHANCE: float = 0.05
+const FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE: float = 0.55
+const FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE: float = 0.30
 const LOOP_MIN_HOPS: int = 3
 
 # --- Discovery Spatialization ---

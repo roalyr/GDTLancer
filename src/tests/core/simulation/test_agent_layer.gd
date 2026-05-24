@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 23:11:32
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-24 19:32:24
 #
 
 extends GutTest
@@ -114,6 +114,29 @@ func test_mortal_spawn_in_adequate_sector():
 	# With adequate economy, at least one mortal should eventually spawn
 	assert_gt(GameState.mortal_agent_counter, 0,
 		"Mortals should be able to spawn in a sector with ADEQUATE economy.")
+
+
+func test_pick_mortal_spawn_role_filters_explorer_when_frontier_pressure_is_full():
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = [
+		"FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents = {
+		"persistent_nova": {
+			"agent_role": "explorer",
+			"current_sector_id": "s1",
+			"is_persistent": true,
+			"is_disabled": false,
+		}
+	}
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	agent_layer._rng = rng
+
+	var role: String = agent_layer._pick_mortal_spawn_role()
+
+	assert_ne(role, "explorer",
+		"Mortal spawning should reroll away from explorer when active explorer pressure already fills the frontier allowance.")
 
 
 # =============================================================================
@@ -417,6 +440,22 @@ func test_try_exploration_registers_runtime_location_template():
 	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
 
 
+func test_generate_sector_name_for_count_uses_centralized_constants_name_pools():
+	GameState.world_seed = "frontier-name-seed"
+	var generated_name: String = agent_layer._generate_sector_name_for_count(3)
+	var repeated_name: String = agent_layer._generate_sector_name_for_count(3)
+
+	assert_eq(generated_name, repeated_name,
+		"Name generation should remain deterministic after moving the name pools into Constants.")
+	var name_parts: Array = generated_name.split(" ")
+	assert_eq(name_parts.size(), 2,
+		"Frontier discovery names should still be built from a prefix and a suffix.")
+	assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES,
+		"The generated discovery-name prefix should come from the centralized Constants pool.")
+	assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
+		"The generated discovery-name suffix should come from the centralized Constants pool.")
+
+
 func test_filter_spatially_plausible_connections_drops_far_links():
 	TemplateDatabase.locations["near"] = {"global_position": Vector3(52000, 0, 0)}
 	TemplateDatabase.locations["far"] = {"global_position": Vector3(220000, 0, 0)}
@@ -430,8 +469,9 @@ func test_filter_spatially_plausible_connections_drops_far_links():
 	assert_eq(filtered_connections, ["s1", "near"], "Spatial filtering should keep plausible nearby links and drop distant ones.")
 
 
-func test_resolve_sector_interaction_moves_explorer_after_cooldown_scan_failure():
+func test_resolve_sector_interaction_holds_cooling_explorer_on_viable_frontier_anchor():
 	GameState.sim_tick_count = 5
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
 		"agent_role": "explorer",
@@ -447,9 +487,54 @@ func test_resolve_sector_interaction_moves_explorer_after_cooldown_scan_failure(
 	assert_eq(GameState.discovered_sector_count, 0, "Cooldown failures should not create a discovery.")
 	assert_eq(
 		GameState.agents["explorer"]["current_sector_id"],
-		"s2",
-		"Explorers should keep moving after a failed cooldown scan instead of pinning to one frontier sector."
+		"s1",
+		"Cooling explorers should hold a viable frontier anchor instead of ping-ponging away from an open survey edge."
 	)
+	assert_eq(_count_chronicle_actions("expedition_failed"), 0,
+		"Cooling explorers should stop logging futile expedition failures while waiting on the frontier.")
+
+
+func test_resolve_sector_interaction_repositions_cooling_explorer_toward_frontier_anchor():
+	GameState.sim_tick_count = 5
+	GameState.world_topology["s2"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.sector_tags["s2"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents["explorer"] = {
+		"agent_role": "explorer",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"last_discovery_tick": 0,
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+	}
+
+	agent_layer._resolve_sector_interaction("explorer", 0.0, GameState.sector_tags["s1"])
+
+	assert_eq(GameState.agents["explorer"]["current_sector_id"], "s2",
+		"Cooling explorers should move toward the nearest frontier anchor when their current sector is a poor survey origin.")
+	assert_eq(_count_chronicle_actions("expedition_failed"), 0,
+		"Cooling explorers should reposition without logging a guaranteed cooldown failure first.")
+
+
+func test_resolve_sector_interaction_holds_broke_explorer_on_frontier_anchor():
+	GameState.sim_tick_count = 20
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents["explorer"] = {
+		"agent_role": "explorer",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"last_discovery_tick": -999,
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+	}
+
+	agent_layer._resolve_sector_interaction("explorer", 0.0, GameState.sector_tags["s1"])
+
+	assert_eq(GameState.agents["explorer"]["current_sector_id"], "s1",
+		"Broke explorers should stay on a frontier anchor to recover instead of throwing away turns on guaranteed failed expeditions.")
+	assert_eq(_count_chronicle_actions("expedition_failed"), 0,
+		"Broke explorers at a frontier anchor should stop generating futile broke-failure spam.")
 
 
 func test_get_exploration_success_modifier_keeps_hub_surveys_diminished():
@@ -533,6 +618,21 @@ func test_build_discovered_sector_placement_separates_from_existing_discovery_br
 		float(placement.get("branch_separation_deg", 0.0)) >= Constants.DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG,
 		"Secondary discovery branches should fan away from existing discovered siblings instead of staying nearly parallel."
 	)
+
+
+func test_get_discovery_connection_chances_bias_frontier_anchors():
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+
+	var connection_chances: Dictionary = agent_layer._get_discovery_connection_chances(
+		"s1",
+		GameState.sector_tags["s1"]
+	)
+
+	assert_eq(float(connection_chances.get("extra_one", 0.0)), Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE,
+		"Frontier anchors should use the tuned first extra-link chance instead of the generic baseline.")
+	assert_eq(float(connection_chances.get("extra_two", 0.0)), Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE,
+		"Frontier anchors should use the tuned loop-link chance instead of the generic baseline.")
 
 
 # =============================================================================
@@ -623,3 +723,11 @@ func _make_runtime_contract_occurrence(occurrence_id: String, category: String, 
 		"title": "%s Relief Route" % category.capitalize(),
 		"description": "%s relief from %s to %s." % [category.capitalize(), source_sector_id, target_sector_id],
 	}
+
+
+func _count_chronicle_actions(action_name: String) -> int:
+	var count: int = 0
+	for event in GameState.chronicle_events:
+		if str(event.get("action", "")) == action_name:
+			count += 1
+	return count

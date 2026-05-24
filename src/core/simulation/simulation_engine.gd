@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-24 00:25:24
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends Node
@@ -179,10 +179,27 @@ func process_tick() -> void:
 	agent_layer.process_tick(_tick_config)
 
 	# --- Step 6: Chronicle Layer ---
-	chronicle_layer.process_tick(_tick_config)
+	_call_process_tick(chronicle_layer, _tick_config)
 
 	# Emit tick-completed signal
 	EventBus.emit_signal("sim_tick_completed", GameState.sim_tick_count)
+
+
+func _call_process_tick(layer: Object, config: Dictionary) -> void:
+	if layer == null or not is_instance_valid(layer):
+		return
+	if _process_tick_argument_count(layer) > 0:
+		layer.call("process_tick", config)
+		return
+	layer.call("process_tick")
+
+
+func _process_tick_argument_count(layer: Object) -> int:
+	for method_info in layer.get_method_list():
+		if str(method_info.get("name", "")) != "process_tick":
+			continue
+		return Array(method_info.get("args", [])).size()
+	return 0
 
 
 ## Advances the simulation by the given number of sub-ticks.
@@ -292,6 +309,17 @@ func run_batch_and_report(tick_count: int, epoch_size: int = 1, report_request: 
 	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
 	var report: Reference = ReportScript.new()
 	return report.run_and_report(self, tick_count, epoch_size, report_request)
+
+
+## Runs one cumulative research pass and emits bundled chronicle sections for
+## each requested milestone (for example 30, 300, and 3000 ticks).
+func run_composite_research_report(tick_counts: Array, composite_request: Dictionary = {}) -> String:
+	if not _initialized:
+		push_warning("SimulationEngine: run_composite_research_report() called but not initialized.")
+		return "(simulation not initialized)"
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report: Reference = ReportScript.new()
+	return report.run_composite_report(self, tick_counts, composite_request)
 
 
 ## Allows runtime config overrides for tuning/debugging.

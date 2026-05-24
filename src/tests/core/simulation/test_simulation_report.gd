@@ -3,7 +3,7 @@
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
-# LOG_REF: 2026-05-24 00:00:03
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends GutTest
@@ -95,6 +95,44 @@ func test_agent_focus_report_supports_requested_focus_and_sort_mode():
 		"Focused report should expose an agent-sorted detailed log section.")
 	assert_true(report.find("Current agent state:") != -1,
 		"Agent-focused reports should include an integral agent-state summary.")
+
+
+func test_composite_report_collects_requested_windows_with_deterministic_samples():
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var report: String = report_generator.run_composite_report(engine, [10, 30], {})
+
+	assert_true(report.find("COMPOSITE RESEARCH CHRONICLE") != -1,
+		"Composite reports should expose a dedicated research chronicle header.")
+	assert_true(report.find("COMPOSITE WINDOW: 10 ticks") != -1,
+		"Composite reports should capture the first requested cumulative window.")
+	assert_true(report.find("COMPOSITE WINDOW: 30 ticks") != -1,
+		"Composite reports should capture the later requested cumulative window from the same run.")
+	assert_true(report.find("SAMPLED SECTORS") != -1,
+		"Composite reports should include deterministic sampled sector sections.")
+	assert_true(report.find("SAMPLED AGENTS") != -1,
+		"Composite reports should include deterministic sampled agent sections.")
+	assert_true(report.find("Focus mode: sector") != -1,
+		"Composite reports should reuse the existing focused sector summary surface.")
+	assert_true(report.find("Focus mode: agent") != -1,
+		"Composite reports should reuse the existing focused agent summary surface.")
+
+
+func test_composite_sampling_helpers_are_deterministic_for_same_state():
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var normalized_request: Dictionary = report_generator._normalize_composite_request({})
+	var sector_samples_a: Dictionary = report_generator._sample_sector_ids_by_type(30, normalized_request)
+	var sector_samples_b: Dictionary = report_generator._sample_sector_ids_by_type(30, normalized_request)
+	var sector_compare = compare_deep(sector_samples_a, sector_samples_b)
+	assert_true(sector_compare.are_equal(),
+		"Sector sampling should be deterministic for the same seed and milestone.\n" + sector_compare.summary)
+
+	var agent_samples_a: Array = report_generator._sample_agent_entries(30, normalized_request)
+	var agent_samples_b: Array = report_generator._sample_agent_entries(30, normalized_request)
+	var agent_compare = compare_deep(agent_samples_a, agent_samples_b)
+	assert_true(agent_compare.are_equal(),
+		"Agent sampling should be deterministic for the same seed and milestone.\n" + agent_compare.summary)
 
 # =============================================================================
 # === VALIDATION ==============================================================

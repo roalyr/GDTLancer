@@ -3,7 +3,7 @@
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-23 23:05:10
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends GutTest
@@ -156,6 +156,20 @@ func test_contract_generation_runs_between_bridge_and_agent_layer():
 		"AgentLayer should observe runtime contract occurrences generated earlier in the same tick.")
 	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
 		"Contract generation should run during the tick and produce the expected occurrence.")
+
+
+func test_run_composite_research_report_advances_once_to_largest_requested_window():
+	engine.initialize_simulation("tick_test_seed")
+	var report: String = engine.run_composite_research_report([5, 10], {})
+
+	assert_true(report.find("COMPOSITE RESEARCH CHRONICLE") != -1,
+		"SimulationEngine should expose the new composite research report surface.")
+	assert_true(report.find("COMPOSITE WINDOW: 5 ticks") != -1,
+		"Composite reports should include the first requested milestone.")
+	assert_true(report.find("COMPOSITE WINDOW: 10 ticks") != -1,
+		"Composite reports should include the largest requested milestone.")
+	assert_eq(GameState.sim_tick_count, 10,
+		"Composite reporting should advance the live simulation only to the largest requested cumulative window.")
 
 
 # =============================================================================

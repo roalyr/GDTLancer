@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_sim_debug_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md TASK_3; TRUTH_SIMULATION-GRAPH.md §5, §6.4
-## LOG_REF: 2026-05-24 00:12:37
+## TRUTH_LINK: TACTICAL_TODO.md TASK_2; TRUTH_SIMULATION-GRAPH.md §0, §5
+## LOG_REF: 2026-05-24 15:04:06
 ##
 
 extends "res://addons/gut/test.gd"
@@ -19,6 +19,8 @@ class FakeSimulationEngine extends Node:
 	var last_tick_count: int = -1
 	var last_epoch_size: int = -1
 	var last_report_request: Dictionary = {}
+	var last_composite_tick_counts: Array = []
+	var last_composite_request: Dictionary = {}
 
 	func request_tick() -> void:
 		request_tick_calls += 1
@@ -34,6 +36,14 @@ class FakeSimulationEngine extends Node:
 			str(report_request.get("detail_level", "standard")),
 			str(report_request.get("focus_mode", "world")),
 			str(report_request.get("focus_id", "world")),
+		]
+
+	func run_composite_research_report(tick_counts: Array, composite_request: Dictionary = {}) -> String:
+		last_composite_tick_counts = tick_counts.duplicate()
+		last_composite_request = composite_request.duplicate(true)
+		return "================================================================\nCOMPOSITE RESEARCH CHRONICLE  (seed: panel-test-seed)\n================================================================\nWINDOWS: %s\n\n================================================================\nCOMPOSITE WINDOW: %d ticks\n================================================================\nSAMPLED SECTORS\n  (stub)\n\nSAMPLED AGENTS\n  (stub)\n" % [
+			PoolStringArray(tick_counts).join(", "),
+			int(tick_counts[tick_counts.size() - 1]) if not tick_counts.empty() else 0,
 		]
 
 
@@ -77,6 +87,8 @@ func test_panel_builds_report_controls_without_leaving_live_snapshot_mode() -> v
 		"SimDebugPanel should remain in the live snapshot mode by default.")
 	assert_not_null(_panel_instance._controls_row,
 		"TASK_3 coverage expects the panel to build a dedicated report-controls row.")
+	assert_eq(_panel_instance._selected_option_value(_panel_instance._report_mode_option, ""), "focused",
+		"Report output mode should default to the focused chronicle flow.")
 	assert_eq(_panel_instance._selected_option_value(_panel_instance._focus_mode_option, ""), "world",
 		"Focus mode should default to the world-wide chronicle report.")
 	assert_eq(_panel_instance._selected_option_value(_panel_instance._sort_mode_option, ""), "chronological",
@@ -153,6 +165,45 @@ func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -
 		"Back should restore the live snapshot view instead of leaving the panel in report mode.")
 	assert_eq(_panel_instance._header_label.text, "SIM DEBUG  [F3 to close]",
 		"Back should restore the standard live-view panel header.")
+
+
+func test_composite_mode_runs_cumulative_bundle_and_disables_manual_focus_controls() -> void:
+	yield(get_tree(), "idle_frame")
+	_panel_instance._toggle()
+
+	_select_option_by_metadata(_panel_instance._report_mode_option, "composite")
+	_panel_instance._on_report_mode_selected(_panel_instance._report_mode_option.get_selected())
+	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
+	_select_option_by_metadata(_panel_instance._detail_level_option, "summary")
+
+	assert_true(_panel_instance._focus_mode_option.disabled,
+		"Composite research mode should disable manual focus selection.")
+	assert_true(_panel_instance._focus_id_option.disabled,
+		"Composite research mode should disable the manual entity selector.")
+
+	_panel_instance._on_run_batch(300)
+
+	var tick_compare = compare_deep([30, 300], _engine_double.last_composite_tick_counts)
+	assert_true(tick_compare.are_equal(),
+		"Composite mode should request the cumulative milestone windows up to the selected button.\n" + tick_compare.summary)
+	assert_eq(str(_engine_double.last_composite_request.get("sort_mode", "")), "agent",
+		"Composite mode should forward the selected sort mode to the composite request.")
+	assert_eq(str(_engine_double.last_composite_request.get("detail_level", "")), "summary",
+		"Composite mode should forward the selected detail level to the composite request.")
+	assert_true(bool(_engine_double.last_composite_request.get("include_persistent", false)),
+		"Composite mode should include persistent agents in the sampled research request.")
+	assert_true(bool(_engine_double.last_composite_request.get("include_mortal", false)),
+		"Composite mode should include mortal agents in the sampled research request.")
+	assert_true(Array(_engine_double.last_composite_request.get("sector_types", [])).has("colony"),
+		"Composite mode should sample the currently loaded sector types.")
+	assert_true(Array(_engine_double.last_composite_request.get("agent_roles", [])).has("trader"),
+		"Composite mode should sample the currently loaded agent roles.")
+	assert_true(Array(_engine_double.last_composite_request.get("agent_roles", [])).has("hauler"),
+		"Composite mode should include each visible non-player role once.")
+	assert_true(_panel_instance._header_label.text.find("COMPOSITE RESEARCH REPORT") != -1,
+		"Composite mode should show a dedicated research header in the panel.")
+	assert_true(_panel_instance._last_plain_text.find("COMPOSITE RESEARCH CHRONICLE") != -1,
+		"Composite mode should cache the bundled research report as the last plain-text output.")
 
 
 func _seed_sim_state() -> void:
