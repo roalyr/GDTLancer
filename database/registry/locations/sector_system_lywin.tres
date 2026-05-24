@@ -17,7 +17,7 @@ procedural_hints = {
 }
 sector_description = ""
 connections = PoolStringArray( "sector_system_vidr", "sector_system_elace" )
-sector_type = "colony"
+sector_type = "outpost"
 radiation_level = 0.02
 thermal_background_k = 295.0
 gravity_well_penalty = 1.1
@@ -50,5 +50,5 @@ market_inventory = {
 available_services = [ "trade", "refuel", "repair", "contracts" ]
 controlling_faction_id = "faction_military"
 danger_level = 1
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR" )
 available_contract_ids = [  ]

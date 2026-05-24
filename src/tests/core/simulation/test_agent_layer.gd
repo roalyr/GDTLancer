@@ -3,7 +3,7 @@
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-24 19:32:24
+# LOG_REF: 2026-05-25 00:24:59
 #
 
 extends GutTest
@@ -114,6 +114,23 @@ func test_mortal_spawn_in_adequate_sector():
 	# With adequate economy, at least one mortal should eventually spawn
 	assert_gt(GameState.mortal_agent_counter, 0,
 		"Mortals should be able to spawn in a sector with ADEQUATE economy.")
+
+
+func test_late_prosperity_increases_mortal_spawn_multiplier():
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
+	var early_multiplier: float = agent_layer._mortal_spawn_age_multiplier()
+
+	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
+	var late_multiplier: float = agent_layer._mortal_spawn_age_multiplier()
+
+	GameState.world_age = "DISRUPTION"
+	var disruption_multiplier: float = agent_layer._mortal_spawn_age_multiplier()
+
+	assert_gt(late_multiplier, early_multiplier,
+		"Late prosperity should raise mortal spawn pressure relative to the opening frontier phase.")
+	assert_lt(disruption_multiplier, early_multiplier,
+		"Disruption should suppress mortal influx relative to early prosperity.")
 
 
 func test_pick_mortal_spawn_role_filters_explorer_when_frontier_pressure_is_full():

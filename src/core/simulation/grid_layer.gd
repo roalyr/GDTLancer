@@ -3,7 +3,7 @@
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-24 19:53:28
+# LOG_REF: 2026-05-25 00:32:22
 #
 
 extends Reference
@@ -563,12 +563,46 @@ func _has_active_trade_relief(sector_id: String) -> bool:
 		or role_counts.get("hauler", 0) > 0
 
 
+func _prosperity_growth_stage() -> int:
+	if GameState.world_age != "PROSPERITY":
+		return 0
+	var total_ticks: int = int(Constants.WORLD_AGE_DURATIONS.get("PROSPERITY", 0))
+	var current_timer: int = int(GameState.world_age_timer)
+	if total_ticks <= 0 or current_timer <= 0:
+		return 0
+	var elapsed_ticks: int = total_ticks - current_timer
+	if elapsed_ticks < 0:
+		elapsed_ticks = 0
+	var progress_ratio: float = float(elapsed_ticks) / float(total_ticks)
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_2_RATIO:
+		return 2
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_1_RATIO:
+		return 1
+	return 0
+
+
 func _economy_upgrade_threshold_for_level(base_threshold: int, colony_level: String) -> int:
+	var threshold: int = base_threshold
 	if colony_level == "frontier":
-		return base_threshold + Constants.FRONTIER_ECONOMY_UPGRADE_TICKS_BONUS
-	if colony_level == "outpost":
-		return base_threshold + Constants.OUTPOST_ECONOMY_UPGRADE_TICKS_BONUS
-	return base_threshold
+		threshold += Constants.FRONTIER_ECONOMY_UPGRADE_TICKS_BONUS
+	elif colony_level == "outpost":
+		threshold += Constants.OUTPOST_ECONOMY_UPGRADE_TICKS_BONUS
+
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_LATE
+				1:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_MID
+		"DISRUPTION":
+			threshold += 1
+		"RECOVERY":
+			threshold -= 1
+
+	if threshold < Constants.ECONOMY_CHANGE_TICKS_MIN:
+		threshold = Constants.ECONOMY_CHANGE_TICKS_MIN
+	return threshold
 
 
 func _economy_max_index_for_level(colony_level: String) -> int:
@@ -579,11 +613,27 @@ func _economy_max_index_for_level(colony_level: String) -> int:
 
 
 func _security_upgrade_threshold_for_level(base_threshold: int, colony_level: String) -> int:
+	var threshold: int = base_threshold
 	if colony_level == "frontier":
-		return base_threshold + Constants.FRONTIER_SECURITY_UPGRADE_TICKS_BONUS
-	if colony_level == "outpost":
-		return base_threshold + Constants.OUTPOST_SECURITY_UPGRADE_TICKS_BONUS
-	return base_threshold
+		threshold += Constants.FRONTIER_SECURITY_UPGRADE_TICKS_BONUS
+	elif colony_level == "outpost":
+		threshold += Constants.OUTPOST_SECURITY_UPGRADE_TICKS_BONUS
+
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_LATE
+				1:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_MID
+		"DISRUPTION":
+			threshold += 1
+		"RECOVERY":
+			threshold -= 1
+
+	if threshold < Constants.SECURITY_CHANGE_TICKS_MIN:
+		threshold = Constants.SECURITY_CHANGE_TICKS_MIN
+	return threshold
 
 
 func _security_max_index_for_level(colony_level: String) -> int:
@@ -594,11 +644,36 @@ func _security_max_index_for_level(colony_level: String) -> int:
 
 
 func _colony_upgrade_threshold_for_level(level: String) -> int:
+	var threshold: int = Constants.COLONY_UPGRADE_TICKS_REQUIRED
 	if level == "frontier":
-		return Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED
+		threshold = Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED
+	elif level == "outpost":
+		threshold = Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED
+
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_LATE
+				1:
+					threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_MID
+		"DISRUPTION":
+			threshold += 2
+		"RECOVERY":
+			threshold -= 1
+
+	var minimum_threshold: int = _minimum_colony_upgrade_threshold_for_level(level)
+	if threshold < minimum_threshold:
+		threshold = minimum_threshold
+	return threshold
+
+
+func _minimum_colony_upgrade_threshold_for_level(level: String) -> int:
+	if level == "frontier":
+		return 12
 	if level == "outpost":
-		return Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED
-	return Constants.COLONY_UPGRADE_TICKS_REQUIRED
+		return 8
+	return 6
 
 
 func _colony_upgrade_economy_ok(tags: Array) -> bool:
@@ -617,6 +692,8 @@ func _colony_upgrade_security_ok(tags: Array, level: String) -> bool:
 func _colony_upgrade_environment_ok(tags: Array, level: String) -> bool:
 	if level == "frontier":
 		return not (Constants.FRONTIER_TO_OUTPOST_BLOCKED_ENVIRONMENT in tags)
+	if level == "outpost":
+		return not (Constants.OUTPOST_TO_COLONY_BLOCKED_ENVIRONMENT in tags)
 	return true
 
 

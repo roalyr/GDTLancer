@@ -17,7 +17,7 @@ procedural_hints = {
 }
 sector_description = ""
 connections = PoolStringArray( "sector_system_cob" )
-sector_type = "outpost"
+sector_type = "frontier"
 radiation_level = 0.12
 thermal_background_k = 260.0
 gravity_well_penalty = 1.3
@@ -50,5 +50,5 @@ market_inventory = {
 available_services = [ "trade", "refuel", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 3
-initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+initial_sector_tags = PoolStringArray( "FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_POOR" )
 available_contract_ids = [  ]

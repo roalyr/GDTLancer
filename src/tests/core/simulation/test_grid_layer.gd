@@ -3,7 +3,7 @@
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-24 19:53:28
+# LOG_REF: 2026-05-25 00:24:59
 #
 
 extends GutTest
@@ -244,7 +244,7 @@ func test_frontier_economy_caps_at_adequate_until_outpost():
 func test_frontier_colony_upgrade_requires_extended_stability():
 	_seed_single_sector_state(
 		"frontier_upgrade_seed",
-		["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		["FRONTIER", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
 		"frontier"
 	)
 
@@ -272,6 +272,68 @@ func test_extreme_frontier_cannot_upgrade_until_conditions_soften():
 
 	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
 		"Extreme frontier sectors should not upgrade into outposts until their environment is no longer the blocked frontier state.")
+
+
+func test_harsh_frontier_can_upgrade_once_stability_window_is_met():
+	_seed_single_sector_state(
+		"frontier_harsh_seed",
+		["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+
+	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
+		"Harsh frontier sectors should still respect the full stabilization window before becoming outposts.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Harsh frontier sectors should be allowed to mature once the stability window is met; only extreme conditions should hard-block promotion.")
+
+
+func test_outpost_colony_upgrade_requires_extended_stability():
+	_seed_single_sector_state(
+		"outpost_upgrade_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+
+	for _i in range(Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Outposts should hold their intermediate identity for the longer stabilization window before maturing into colonies.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"A stable outpost should still eventually advance once the longer outpost threshold is actually met.")
+
+
+func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
+	_seed_single_sector_state(
+		"outpost_late_prosperity_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
+	var reduced_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	assert_lt(reduced_threshold, Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
+		"Late prosperity should shorten the stabilization window for mature outposts so some hubs can emerge organically before the age ends.")
+
+	for _i in range(reduced_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Stable outposts should still wait for the reduced late-prosperity threshold rather than upgrading immediately.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"Late prosperity should let a stable outpost mature sooner than the base threshold so the world can grow into colonies and hubs organically.")
 
 
 # =============================================================================

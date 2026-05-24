@@ -3,7 +3,7 @@
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-24 19:32:24
+# LOG_REF: 2026-05-25 00:32:22
 #
 
 extends Reference
@@ -1536,7 +1536,8 @@ func _spawn_mortal_agents() -> void:
 	# Diminishing returns: more agents → lower spawn chance
 	var agent_count: int = GameState.agents.size()
 	var saturation: float = float(agent_count) / float(Constants.MORTAL_GLOBAL_CAP)
-	var effective_chance: float = Constants.MORTAL_SPAWN_CHANCE * (1.0 - saturation)
+	var effective_chance: float = Constants.MORTAL_SPAWN_CHANCE * _mortal_spawn_age_multiplier() * (1.0 - saturation)
+	effective_chance = clamp(effective_chance, 0.0, 1.0)
 	if _rng.randf() > effective_chance:
 		return
 
@@ -1562,6 +1563,41 @@ func _spawn_mortal_agents() -> void:
 		"dynamic_tags": [],
 	}
 	_log_event(agent_id, "spawn", spawn_sector, {})
+
+
+func _mortal_spawn_age_multiplier() -> float:
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					return Constants.PROSPERITY_MORTAL_SPAWN_MULTIPLIER_LATE
+				1:
+					return Constants.PROSPERITY_MORTAL_SPAWN_MULTIPLIER_MID
+				_:
+					return Constants.PROSPERITY_MORTAL_SPAWN_MULTIPLIER_EARLY
+		"DISRUPTION":
+			return Constants.DISRUPTION_MORTAL_SPAWN_MULTIPLIER
+		"RECOVERY":
+			return Constants.RECOVERY_MORTAL_SPAWN_MULTIPLIER
+	return 1.0
+
+
+func _prosperity_growth_stage() -> int:
+	if GameState.world_age != "PROSPERITY":
+		return 0
+	var total_ticks: int = int(Constants.WORLD_AGE_DURATIONS.get("PROSPERITY", 0))
+	var current_timer: int = int(GameState.world_age_timer)
+	if total_ticks <= 0 or current_timer <= 0:
+		return 0
+	var elapsed_ticks: int = total_ticks - current_timer
+	if elapsed_ticks < 0:
+		elapsed_ticks = 0
+	var progress_ratio: float = float(elapsed_ticks) / float(total_ticks)
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_2_RATIO:
+		return 2
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_1_RATIO:
+		return 1
+	return 0
 
 
 func _pick_mortal_spawn_role() -> String:

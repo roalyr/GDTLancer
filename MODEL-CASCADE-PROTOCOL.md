@@ -36,6 +36,8 @@ OUTPUT FORMAT (TACTICAL_TODO.md):
 - ATOMIC_TASKS:
   - [ ] TASK_1: [Description + Required Signatures]
   - [ ] TASK_2: [Description + Required Signatures]
+  - [ ] TASK_...
+    ...
   - [ ] VERIFICATION: [Success criteria/Tests to run]
 
 CONFIRMATION: "Architect: Strategy updated in TACTICAL_TODO.md."

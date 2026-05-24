@@ -3,7 +3,7 @@
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-23 17:10:12
+# LOG_REF: 2026-05-25 00:24:59
 #
 
 extends GutTest
@@ -101,6 +101,35 @@ func test_initial_sector_id_exists_in_topology():
 		GameState.world_topology.has(Constants.INITIAL_SECTOR_ID),
 		"INITIAL_SECTOR_ID should resolve to a sector that exists in world_topology."
 	)
+
+
+func test_live_registry_starts_without_seeded_colonies_or_hubs():
+	world_layer.initialize_world(TEST_SEED)
+	var frontier_count: int = 0
+	var outpost_count: int = 0
+	for sector_id in GameState.world_topology:
+		var sector_type: String = str(GameState.world_topology[sector_id].get("sector_type", "frontier"))
+		if sector_type == "frontier":
+			frontier_count += 1
+		elif sector_type == "outpost":
+			outpost_count += 1
+		assert_false(sector_type in ["colony", "hub"],
+			"Starter sector '%s' should no longer seed a mature colony/hub baseline." % sector_id)
+	assert_gt(frontier_count, 0,
+		"The live starter registry should include at least one frontier sector in the opening world state.")
+	assert_gt(outpost_count, 0,
+		"The live starter registry should include at least one outpost sector in the opening world state.")
+
+
+func test_live_registry_starts_with_modest_security_and_economy():
+	world_layer.initialize_world(TEST_SEED)
+	for sector_id in GameState.sector_tags:
+		var tags: Array = GameState.sector_tags[sector_id]
+		assert_false("SECURE" in tags,
+			"Starter sector '%s' should begin below the fully stabilized secure state." % sector_id)
+		for tag in tags:
+			assert_false(str(tag).ends_with("_RICH"),
+				"Starter sector '%s' should no longer seed rich economy tags at tick zero." % sector_id)
 
 
 # =============================================================================
