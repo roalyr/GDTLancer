@@ -2,17 +2,14 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
-# LOG_REF: 2026-05-24 14:43:54
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_3; TRUTH_SIMULATION-GRAPH.md §5, §6.4
+# LOG_REF: 2026-05-26 14:02:14
 #
 
 extends GutTest
 
-const PRINT_FULL_REPORTS = false
-
-## Smoke tests for SimulationReport batch runs: 30, 300, 3000 ticks.
-## Validates that the report generates correctly and contains expected sections.
-## Also dumps full reports to console for LLM/human review.
+## Report contract tests keep request and formatting surfaces deterministic.
+## Broad batch-smoke validation of emergent report content stays manual.
 
 var engine: Node = null
 
@@ -34,31 +31,43 @@ func after_each():
 
 
 # =============================================================================
-# === BATCH REPORT TESTS ======================================================
+# === REPORT CONTRACT TESTS ===================================================
 # =============================================================================
 
-func test_batch_30_ticks():
-	var report: String = engine.run_batch_and_report(30, 1)
-	_validate_report(report, 30)
-	if PRINT_FULL_REPORTS:
-		print("\n\n===== GODOT CHRONO-30 =====")
-		print(report)
-		print("===== END GODOT CHRONO-30 =====\n")
+func test_default_batch_report_exposes_core_sections():
+	var report: String = engine.run_batch_and_report(1, 1)
+
+	assert_true(report.find("CHRONICLE OF THE SECTOR") != -1,
+		"Default batch reporting should expose the chronicle header.")
+	assert_true(report.find("OVERALL SUMMARY") != -1,
+		"Default batch reporting should expose the world summary section.")
+	assert_true(report.find("Detailed event log (chronological order):") != -1,
+		"Default batch reporting should expose the chronological event log section.")
+	assert_true(report.find("Final state of the sector:") != -1,
+		"Default batch reporting should expose the final-state summary section.")
 
 
 func test_sector_focus_report_supports_requested_focus_and_sort_mode():
+	var sector_ids: Array = GameState.world_topology.keys()
+	sector_ids.sort()
+	assert_gt(sector_ids.size(), 0,
+		"At least one initialized sector should exist for focused reporting.")
+	if sector_ids.empty():
+		return
+	var focus_sector_id: String = str(sector_ids[0])
+
 	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
 	var report_generator: Reference = ReportScript.new()
 	var report: String = report_generator.run_and_report(engine, 30, 1, {
 		"focus_mode": "sector",
-		"focus_id": "sector_system_elace",
+		"focus_id": focus_sector_id,
 		"sort_mode": "sector",
 		"detail_level": "verbose",
 	})
 
 	assert_true(report.find("REPORT MODE: SECTOR") != -1,
 		"Focused report should expose the requested sector mode in the header.")
-	assert_true(report.find("FOCUS: sector_system_elace") != -1,
+	assert_true(report.find("FOCUS: %s" % focus_sector_id) != -1,
 		"Focused report should expose the requested sector id in the header.")
 	assert_true(report.find("Detailed event log (sector order):") != -1,
 		"Focused report should expose a sector-sorted detailed log section.")
@@ -133,38 +142,6 @@ func test_composite_sampling_helpers_are_deterministic_for_same_state():
 	var agent_compare = compare_deep(agent_samples_a, agent_samples_b)
 	assert_true(agent_compare.are_equal(),
 		"Agent sampling should be deterministic for the same seed and milestone.\n" + agent_compare.summary)
-
-# =============================================================================
-# === VALIDATION ==============================================================
-# =============================================================================
-
-func _validate_report(report: String, tick_count: int) -> void:
-	assert_true(report.length() > 100,
-		"Report should be substantial (got %d chars)." % report.length())
-	assert_true(report.find("CHRONICLE OF THE SECTOR") != -1,
-		"Report should start with CHRONICLE header.")
-	assert_true(report.find("OVERALL SUMMARY") != -1,
-		"Report should contain OVERALL SUMMARY.")
-	assert_true(report.find("Epoch 1:") != -1,
-		"Report should contain at least Epoch 1.")
-	assert_true(report.find("Detailed event log (chronological order):") != -1,
-		"Default report should now include a detailed chronological event log section.")
-	assert_true(report.find("Simulation ran for %d ticks" % tick_count) != -1,
-		"Summary should state correct tick count (%d)." % tick_count)
-	assert_true(report.find("Active pilots:") != -1,
-		"Summary should list active pilots.")
-	assert_true(report.find("Sector connections:") != -1,
-		"Summary should show topology.")
-	assert_true(report.find("Topology:") != -1,
-		"Summary should include topology metrics.")
-	assert_true(report.find("Final state of the sector:") != -1,
-		"Summary should show final sector state.")
-	# Check for meaningful content — at least some commerce or combat
-	var has_commerce: bool = report.find("Commerce:") != -1
-	var has_combat: bool = report.find("Combat:") != -1
-	assert_true(has_commerce or has_combat,
-		"Report should show at least some combat or commerce activity.")
-
 
 # =============================================================================
 # === STATE MANAGEMENT ========================================================

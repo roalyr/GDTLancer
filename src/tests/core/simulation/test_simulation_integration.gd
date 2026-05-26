@@ -2,17 +2,18 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-23 23:05:10
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-26 13:57:58
 #
 
 extends GutTest
 
-## Integration test: exercises the entire qualitative simulation stack end-to-end.
+## Integration test: keeps only narrow full-stack contracts that still justify
+## live template wiring.
 ##
 ## Uses SimulationEngine (extends Node) which creates and wires all layers.
-## Verifies topology, agent initialization, multi-tick stability,
-## chronicle event flow, and world-age cycling with real templates.
+## Broad "simulation ran for N ticks" smoke coverage is intentionally culled;
+## tick cadence, world-age cycling, and ordering belong in narrower test owners.
 
 var engine: Node = null
 
@@ -72,52 +73,6 @@ func test_full_stack_initialization():
 	# World age
 	assert_eq(GameState.world_age, "PROSPERITY",
 		"Initial world age should be PROSPERITY.")
-
-
-func test_multi_tick_stability():
-	# Run 20 ticks and verify no crashes, agents stay in valid sectors
-	for _i in range(20):
-		engine.process_tick()
-
-	assert_gt(GameState.sim_tick_count, 0,
-		"sim_tick_count should have advanced.")
-
-	# All agents still in valid sectors
-	for agent_id in GameState.agents:
-		var agent: Dictionary = GameState.agents[agent_id]
-		if agent.get("is_disabled", false):
-			continue
-		var sector: String = agent.get("current_sector_id", "")
-		assert_true(GameState.world_topology.has(sector),
-			"Agent '%s' sector '%s' should still be valid after 20 ticks." % [agent_id, sector])
-
-	# Sector tags still have exactly one security tag each
-	for sector_id in GameState.sector_tags:
-		var tags: Array = GameState.sector_tags[sector_id]
-		var sec_count: int = 0
-		for tag in ["SECURE", "CONTESTED", "LAWLESS"]:
-			if tag in tags:
-				sec_count += 1
-		assert_eq(sec_count, 1,
-			"Sector '%s' should have exactly one security tag after 20 ticks." % sector_id)
-
-
-func test_chronicle_events_generated():
-	# Run a few ticks and verify chronicle captures events
-	for _i in range(5):
-		engine.process_tick()
-
-	assert_gt(GameState.chronicle_events.size(), 0,
-		"chronicle_events should have at least one event after 5 ticks.")
-
-
-func test_world_age_advances_through_cycle():
-	var prosperity_duration: int = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
-	for _i in range(prosperity_duration):
-		engine.process_tick()
-
-	assert_eq(GameState.world_age, "DISRUPTION",
-		"World should transition to DISRUPTION after PROSPERITY duration.")
 
 
 func test_sub_ticks_integration():

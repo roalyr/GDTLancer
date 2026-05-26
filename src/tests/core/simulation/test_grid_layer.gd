@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-26 10:15:51
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_SIMULATION-GRAPH.md §3; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-26 14:02:14
 #
 
 extends GutTest
@@ -155,19 +155,15 @@ func test_hostile_infestation_builds_gradually():
 	grid.initialize_grid()
 	GameState.hostile_infestation_progress["b"] = 0
 
-	# Tick 1 & 2: not yet infested
-	grid.process_tick({})
-	assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
-		"HOSTILE_INFESTED should NOT appear after 1 tick.")
+	var infestation_threshold: int = int(Constants.HOSTILE_INFESTATION_TICKS_REQUIRED)
+	for _i in range(infestation_threshold - 1):
+		grid.process_tick({})
+		assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
+			"HOSTILE_INFESTED should not appear before the current live infestation threshold is met.")
 
-	grid.process_tick({})
-	assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
-		"HOSTILE_INFESTED should NOT appear after 2 ticks.")
-
-	# Tick 3: infestation threshold reached
 	grid.process_tick({})
 	assert_has(GameState.sector_tags["b"], "HOSTILE_INFESTED",
-		"HOSTILE_INFESTED should appear after 3 ticks of LAWLESS+HARSH.")
+		"HOSTILE_INFESTED should appear once the current live infestation threshold is reached under sustained LAWLESS+HARSH pressure.")
 
 
 func test_colony_hub_maintenance_drains_economy():
@@ -265,11 +261,12 @@ func test_extreme_frontier_cannot_upgrade_until_conditions_soften():
 		"frontier"
 	)
 
-	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED + 2):
+	var frontier_threshold: int = grid._colony_upgrade_threshold_for_level("frontier")
+	for _i in range(frontier_threshold + 2):
 		grid.process_tick({})
 
 	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
-		"Extreme frontier sectors should not upgrade into outposts until their environment is no longer the blocked frontier state.")
+		"Extreme frontier sectors should not upgrade into outposts even after the current live stabilization window if their environment stays in the blocked frontier state.")
 
 
 func test_harsh_frontier_can_upgrade_once_stability_window_is_met():
@@ -318,11 +315,12 @@ func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
 		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"],
 		"outpost"
 	)
+	var baseline_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
 	GameState.world_age = "PROSPERITY"
 	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
 	var reduced_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
-	assert_lt(reduced_threshold, Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
-		"Late prosperity should shorten the stabilization window for mature outposts so some hubs can emerge organically before the age ends.")
+	assert_lt(reduced_threshold, baseline_threshold,
+		"Late prosperity should shorten the outpost stabilization window relative to the current early-prosperity threshold from the live helper path.")
 
 	for _i in range(reduced_threshold - 1):
 		grid.process_tick({})
@@ -461,11 +459,12 @@ func test_recovery_raises_colony_hub_upgrade_threshold():
 		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
 		"colony"
 	)
+	var prosperity_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
 	GameState.world_age = "RECOVERY"
 
 	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
-	assert_true(recovery_threshold > Constants.COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED,
-		"Recovery should stop acting like a fast track into hubs and instead require a longer stabilization window for colony-to-hub promotion.")
+	assert_gt(recovery_threshold, prosperity_threshold,
+		"Recovery should require a longer colony-to-hub stabilization window than the current prosperity baseline from the live helper path.")
 
 
 func test_recovery_raises_outpost_colony_upgrade_threshold():
@@ -474,11 +473,12 @@ func test_recovery_raises_outpost_colony_upgrade_threshold():
 		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
 		"outpost"
 	)
+	var prosperity_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
 	GameState.world_age = "RECOVERY"
 
 	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
-	assert_true(recovery_threshold > Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
-		"Recovery should stop acting like a fast track from outposts into colonies and require a longer stabilization window instead.")
+	assert_gt(recovery_threshold, prosperity_threshold,
+		"Recovery should require a longer outpost-to-colony stabilization window than the current prosperity baseline from the live helper path.")
 
 
 # =============================================================================

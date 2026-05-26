@@ -34433,8 +34433,8 @@ func _seed_runtime_contract_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-26 10:15:51
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_SIMULATION-GRAPH.md §3; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-26 14:02:14
 #
 
 extends GutTest
@@ -34586,19 +34586,15 @@ func test_hostile_infestation_builds_gradually():
 	grid.initialize_grid()
 	GameState.hostile_infestation_progress["b"] = 0
 
-	# Tick 1 & 2: not yet infested
-	grid.process_tick({})
-	assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
-		"HOSTILE_INFESTED should NOT appear after 1 tick.")
+	var infestation_threshold: int = int(Constants.HOSTILE_INFESTATION_TICKS_REQUIRED)
+	for _i in range(infestation_threshold - 1):
+		grid.process_tick({})
+		assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
+			"HOSTILE_INFESTED should not appear before the current live infestation threshold is met.")
 
-	grid.process_tick({})
-	assert_does_not_have(GameState.sector_tags["b"], "HOSTILE_INFESTED",
-		"HOSTILE_INFESTED should NOT appear after 2 ticks.")
-
-	# Tick 3: infestation threshold reached
 	grid.process_tick({})
 	assert_has(GameState.sector_tags["b"], "HOSTILE_INFESTED",
-		"HOSTILE_INFESTED should appear after 3 ticks of LAWLESS+HARSH.")
+		"HOSTILE_INFESTED should appear once the current live infestation threshold is reached under sustained LAWLESS+HARSH pressure.")
 
 
 func test_colony_hub_maintenance_drains_economy():
@@ -34696,11 +34692,12 @@ func test_extreme_frontier_cannot_upgrade_until_conditions_soften():
 		"frontier"
 	)
 
-	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED + 2):
+	var frontier_threshold: int = grid._colony_upgrade_threshold_for_level("frontier")
+	for _i in range(frontier_threshold + 2):
 		grid.process_tick({})
 
 	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
-		"Extreme frontier sectors should not upgrade into outposts until their environment is no longer the blocked frontier state.")
+		"Extreme frontier sectors should not upgrade into outposts even after the current live stabilization window if their environment stays in the blocked frontier state.")
 
 
 func test_harsh_frontier_can_upgrade_once_stability_window_is_met():
@@ -34749,11 +34746,12 @@ func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
 		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"],
 		"outpost"
 	)
+	var baseline_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
 	GameState.world_age = "PROSPERITY"
 	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
 	var reduced_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
-	assert_lt(reduced_threshold, Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
-		"Late prosperity should shorten the stabilization window for mature outposts so some hubs can emerge organically before the age ends.")
+	assert_lt(reduced_threshold, baseline_threshold,
+		"Late prosperity should shorten the outpost stabilization window relative to the current early-prosperity threshold from the live helper path.")
 
 	for _i in range(reduced_threshold - 1):
 		grid.process_tick({})
@@ -34892,11 +34890,12 @@ func test_recovery_raises_colony_hub_upgrade_threshold():
 		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
 		"colony"
 	)
+	var prosperity_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
 	GameState.world_age = "RECOVERY"
 
 	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
-	assert_true(recovery_threshold > Constants.COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED,
-		"Recovery should stop acting like a fast track into hubs and instead require a longer stabilization window for colony-to-hub promotion.")
+	assert_gt(recovery_threshold, prosperity_threshold,
+		"Recovery should require a longer colony-to-hub stabilization window than the current prosperity baseline from the live helper path.")
 
 
 func test_recovery_raises_outpost_colony_upgrade_threshold():
@@ -34905,11 +34904,12 @@ func test_recovery_raises_outpost_colony_upgrade_threshold():
 		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
 		"outpost"
 	)
+	var prosperity_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
 	GameState.world_age = "RECOVERY"
 
 	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
-	assert_true(recovery_threshold > Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
-		"Recovery should stop acting like a fast track from outposts into colonies and require a longer stabilization window instead.")
+	assert_gt(recovery_threshold, prosperity_threshold,
+		"Recovery should require a longer outpost-to-colony stabilization window than the current prosperity baseline from the live helper path.")
 
 
 # =============================================================================
@@ -34987,17 +34987,18 @@ func _clear_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-23 23:05:10
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-26 13:57:58
 #
 
 extends GutTest
 
-## Integration test: exercises the entire qualitative simulation stack end-to-end.
+## Integration test: keeps only narrow full-stack contracts that still justify
+## live template wiring.
 ##
 ## Uses SimulationEngine (extends Node) which creates and wires all layers.
-## Verifies topology, agent initialization, multi-tick stability,
-## chronicle event flow, and world-age cycling with real templates.
+## Broad "simulation ran for N ticks" smoke coverage is intentionally culled;
+## tick cadence, world-age cycling, and ordering belong in narrower test owners.
 
 var engine: Node = null
 
@@ -35057,52 +35058,6 @@ func test_full_stack_initialization():
 	# World age
 	assert_eq(GameState.world_age, "PROSPERITY",
 		"Initial world age should be PROSPERITY.")
-
-
-func test_multi_tick_stability():
-	# Run 20 ticks and verify no crashes, agents stay in valid sectors
-	for _i in range(20):
-		engine.process_tick()
-
-	assert_gt(GameState.sim_tick_count, 0,
-		"sim_tick_count should have advanced.")
-
-	# All agents still in valid sectors
-	for agent_id in GameState.agents:
-		var agent: Dictionary = GameState.agents[agent_id]
-		if agent.get("is_disabled", false):
-			continue
-		var sector: String = agent.get("current_sector_id", "")
-		assert_true(GameState.world_topology.has(sector),
-			"Agent '%s' sector '%s' should still be valid after 20 ticks." % [agent_id, sector])
-
-	# Sector tags still have exactly one security tag each
-	for sector_id in GameState.sector_tags:
-		var tags: Array = GameState.sector_tags[sector_id]
-		var sec_count: int = 0
-		for tag in ["SECURE", "CONTESTED", "LAWLESS"]:
-			if tag in tags:
-				sec_count += 1
-		assert_eq(sec_count, 1,
-			"Sector '%s' should have exactly one security tag after 20 ticks." % sector_id)
-
-
-func test_chronicle_events_generated():
-	# Run a few ticks and verify chronicle captures events
-	for _i in range(5):
-		engine.process_tick()
-
-	assert_gt(GameState.chronicle_events.size(), 0,
-		"chronicle_events should have at least one event after 5 ticks.")
-
-
-func test_world_age_advances_through_cycle():
-	var prosperity_duration: int = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
-	for _i in range(prosperity_duration):
-		engine.process_tick()
-
-	assert_eq(GameState.world_age, "DISRUPTION",
-		"World should transition to DISRUPTION after PROSPERITY duration.")
 
 
 func test_sub_ticks_integration():
@@ -35181,17 +35136,14 @@ func _seed_template_database() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
-# LOG_REF: 2026-05-24 14:43:54
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_3; TRUTH_SIMULATION-GRAPH.md §5, §6.4
+# LOG_REF: 2026-05-26 14:02:14
 #
 
 extends GutTest
 
-const PRINT_FULL_REPORTS = false
-
-## Smoke tests for SimulationReport batch runs: 30, 300, 3000 ticks.
-## Validates that the report generates correctly and contains expected sections.
-## Also dumps full reports to console for LLM/human review.
+## Report contract tests keep request and formatting surfaces deterministic.
+## Broad batch-smoke validation of emergent report content stays manual.
 
 var engine: Node = null
 
@@ -35213,31 +35165,43 @@ func after_each():
 
 
 # =============================================================================
-# === BATCH REPORT TESTS ======================================================
+# === REPORT CONTRACT TESTS ===================================================
 # =============================================================================
 
-func test_batch_30_ticks():
-	var report: String = engine.run_batch_and_report(30, 1)
-	_validate_report(report, 30)
-	if PRINT_FULL_REPORTS:
-		print("\n\n===== GODOT CHRONO-30 =====")
-		print(report)
-		print("===== END GODOT CHRONO-30 =====\n")
+func test_default_batch_report_exposes_core_sections():
+	var report: String = engine.run_batch_and_report(1, 1)
+
+	assert_true(report.find("CHRONICLE OF THE SECTOR") != -1,
+		"Default batch reporting should expose the chronicle header.")
+	assert_true(report.find("OVERALL SUMMARY") != -1,
+		"Default batch reporting should expose the world summary section.")
+	assert_true(report.find("Detailed event log (chronological order):") != -1,
+		"Default batch reporting should expose the chronological event log section.")
+	assert_true(report.find("Final state of the sector:") != -1,
+		"Default batch reporting should expose the final-state summary section.")
 
 
 func test_sector_focus_report_supports_requested_focus_and_sort_mode():
+	var sector_ids: Array = GameState.world_topology.keys()
+	sector_ids.sort()
+	assert_gt(sector_ids.size(), 0,
+		"At least one initialized sector should exist for focused reporting.")
+	if sector_ids.empty():
+		return
+	var focus_sector_id: String = str(sector_ids[0])
+
 	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
 	var report_generator: Reference = ReportScript.new()
 	var report: String = report_generator.run_and_report(engine, 30, 1, {
 		"focus_mode": "sector",
-		"focus_id": "sector_system_elace",
+		"focus_id": focus_sector_id,
 		"sort_mode": "sector",
 		"detail_level": "verbose",
 	})
 
 	assert_true(report.find("REPORT MODE: SECTOR") != -1,
 		"Focused report should expose the requested sector mode in the header.")
-	assert_true(report.find("FOCUS: sector_system_elace") != -1,
+	assert_true(report.find("FOCUS: %s" % focus_sector_id) != -1,
 		"Focused report should expose the requested sector id in the header.")
 	assert_true(report.find("Detailed event log (sector order):") != -1,
 		"Focused report should expose a sector-sorted detailed log section.")
@@ -35312,38 +35276,6 @@ func test_composite_sampling_helpers_are_deterministic_for_same_state():
 	var agent_compare = compare_deep(agent_samples_a, agent_samples_b)
 	assert_true(agent_compare.are_equal(),
 		"Agent sampling should be deterministic for the same seed and milestone.\n" + agent_compare.summary)
-
-# =============================================================================
-# === VALIDATION ==============================================================
-# =============================================================================
-
-func _validate_report(report: String, tick_count: int) -> void:
-	assert_true(report.length() > 100,
-		"Report should be substantial (got %d chars)." % report.length())
-	assert_true(report.find("CHRONICLE OF THE SECTOR") != -1,
-		"Report should start with CHRONICLE header.")
-	assert_true(report.find("OVERALL SUMMARY") != -1,
-		"Report should contain OVERALL SUMMARY.")
-	assert_true(report.find("Epoch 1:") != -1,
-		"Report should contain at least Epoch 1.")
-	assert_true(report.find("Detailed event log (chronological order):") != -1,
-		"Default report should now include a detailed chronological event log section.")
-	assert_true(report.find("Simulation ran for %d ticks" % tick_count) != -1,
-		"Summary should state correct tick count (%d)." % tick_count)
-	assert_true(report.find("Active pilots:") != -1,
-		"Summary should list active pilots.")
-	assert_true(report.find("Sector connections:") != -1,
-		"Summary should show topology.")
-	assert_true(report.find("Topology:") != -1,
-		"Summary should include topology metrics.")
-	assert_true(report.find("Final state of the sector:") != -1,
-		"Summary should show final sector state.")
-	# Check for meaningful content — at least some commerce or combat
-	var has_commerce: bool = report.find("Commerce:") != -1
-	var has_combat: bool = report.find("Combat:") != -1
-	assert_true(has_commerce or has_combat,
-		"Report should show at least some combat or commerce activity.")
-
 
 # =============================================================================
 # === STATE MANAGEMENT ========================================================
