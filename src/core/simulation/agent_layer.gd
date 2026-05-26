@@ -3,12 +3,13 @@
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-25 00:32:22
+# LOG_REF: 2026-05-25 02:39:14
 #
 
 extends Reference
 
 const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
+const LegacySystemNameGeneratorScript = preload("res://src/core/utils/legacy_system_name_generator.gd")
 
 ## AgentLayer: Qualitative agent layer using affinity-driven tag transitions.
 ##
@@ -23,6 +24,7 @@ var _chronicle: Reference = null
 
 ## Injected by SimulationEngine — the AffinityMatrix for affinity scoring.
 var affinity_matrix: Reference = null
+var _legacy_system_name_generator: Reference = LegacySystemNameGeneratorScript.new()
 
 ## Per-tick seeded RNG for determinism.
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -938,7 +940,6 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 	agent["last_discovery_tick"] = GameState.sim_tick_count
 	var next_discovery_count: int = GameState.discovered_sector_count + 1
 	var new_id: String = "discovered_" + str(next_discovery_count)
-	var new_name: String = _generate_sector_name_for_count(next_discovery_count)
 
 	# Determine connections (filament topology)
 	var source_id: String = sector_id
@@ -999,6 +1000,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		econ_tags.append(prefix + "_" + level)
 
 	var initial_tags: Array = ["FRONTIER", security, environment] + econ_tags
+	var new_name: String = _generate_sector_name_for_discovery(next_discovery_count, profile, initial_tags)
 
 	# Wire into the world graph (bidirectional)
 	GameState.world_topology[new_id] = {
@@ -1334,15 +1336,147 @@ func _generate_sector_name() -> String:
 
 
 func _generate_sector_name_for_count(discovery_count: int) -> String:
-	var name_rng := RandomNumberGenerator.new()
-	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(discovery_count))
 	var prefixes: Array = Array(Constants.FRONTIER_DISCOVERY_NAME_PREFIXES)
 	var suffixes: Array = Array(Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES)
-	if prefixes.empty() or suffixes.empty():
+	return _build_discovery_sector_name_candidate(discovery_count, 0, prefixes, suffixes)
+
+
+func _generate_sector_name_for_discovery(discovery_count: int, profile: Dictionary, initial_tags: Array) -> String:
+	var procedural_type: String = str(profile.get("procedural_type", "deep_space"))
+	var prefixes: Array = _get_discovery_prefix_word_pool(procedural_type, initial_tags)
+	var suffixes: Array = _get_discovery_suffix_word_pool(initial_tags)
+	return _generate_unique_discovery_sector_name(discovery_count, prefixes, suffixes)
+
+
+func _generate_unique_discovery_sector_name(discovery_count: int, prefixes: Array, suffixes: Array) -> String:
+	var used_names: Dictionary = _used_sector_display_names()
+	var max_attempts: int = Constants.DISCOVERY_NAME_UNIQUENESS_MAX_ATTEMPTS
+	for attempt in range(max_attempts):
+		var candidate: String = _build_discovery_sector_name_candidate(discovery_count, attempt, prefixes, suffixes)
+		if not used_names.has(candidate.to_lower()):
+			return candidate
+	for attempt in range(max_attempts, max_attempts + 12):
+		var fallback: String = _build_multi_root_discovery_name_candidate(discovery_count, attempt)
+		if not used_names.has(fallback.to_lower()):
+			return fallback
+	return "Unnamed Reach " + str(discovery_count)
+
+
+func _build_discovery_sector_name_candidate(discovery_count: int, attempt: int, prefixes: Array, suffixes: Array) -> String:
+	var generated_root: String = _generate_discovery_name_root(discovery_count, attempt)
+	var seed_key: String = _discovery_name_seed_key(discovery_count, attempt)
+	var prefix_word: String = _select_discovery_name_word(prefixes, seed_key + ":prefix")
+	var suffix_word: String = _select_discovery_name_word(suffixes, seed_key + ":suffix", prefix_word)
+	return _compose_discovery_sector_name(generated_root, prefix_word, suffix_word)
+
+
+func _build_multi_root_discovery_name_candidate(discovery_count: int, attempt: int) -> String:
+	var leading_root: String = _generate_discovery_name_root(discovery_count, attempt)
+	var trailing_root: String = _legacy_system_name_generator.generate_system_name(
+		_discovery_name_seed_key(discovery_count, attempt) + ":tail",
+		3,
+		4
+	)
+	if trailing_root.empty():
+		return leading_root
+	return leading_root + " " + trailing_root
+
+
+func _generate_discovery_name_root(discovery_count: int, attempt: int = 0) -> String:
+	return _legacy_system_name_generator.generate_system_name(
+		_discovery_name_seed_key(discovery_count, attempt),
+		Constants.DISCOVERY_SYSTEM_NAME_LENGTH_MIN,
+		Constants.DISCOVERY_SYSTEM_NAME_LENGTH_MAX
+	)
+
+
+func _compose_discovery_sector_name(generated_root: String, prefix_word: String, suffix_word: String) -> String:
+	var cleaned_root: String = str(generated_root).strip_edges()
+	if cleaned_root.empty():
 		return "Unnamed Reach"
-	var prefix: String = prefixes[name_rng.randi() % prefixes.size()]
-	var suffix: String = suffixes[name_rng.randi() % suffixes.size()]
-	return prefix + " " + suffix
+	var word_budget: int = _discovery_name_word_budget(cleaned_root.length())
+	var composed_name: String = cleaned_root
+	if word_budget >= 2 and not prefix_word.empty():
+		composed_name = prefix_word + " " + composed_name
+	if word_budget >= 1 and not suffix_word.empty():
+		composed_name += " " + suffix_word
+	return composed_name
+
+
+func _discovery_name_word_budget(root_length: int) -> int:
+	if root_length <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
+		return 2
+	if root_length <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
+		return 1
+	return 0
+
+
+func _select_discovery_name_word(words: Array, seed_key: String, excluded_word: String = "") -> String:
+	if words.empty():
+		return ""
+	var word_rng := RandomNumberGenerator.new()
+	word_rng.seed = hash(str(GameState.world_seed) + ":discovery_word:" + str(seed_key))
+	var index: int = word_rng.randi() % words.size()
+	var selected_word: String = str(words[index])
+	if not excluded_word.empty() and selected_word == excluded_word and words.size() > 1:
+		selected_word = str(words[(index + 1) % words.size()])
+	return selected_word
+
+
+func _discovery_name_seed_key(discovery_count: int, attempt: int) -> String:
+	return str(GameState.world_seed) + ":discovery_name:" + str(discovery_count) + ":" + str(attempt)
+
+
+func _used_sector_display_names() -> Dictionary:
+	var used_names: Dictionary = {}
+	for sector_name in GameState.sector_names.values():
+		var known_name: String = str(sector_name).strip_edges()
+		if not known_name.empty():
+			used_names[known_name.to_lower()] = true
+	for sector_id in TemplateDatabase.locations:
+		var template_name: String = str(_get_template_value(TemplateDatabase.locations.get(sector_id), "location_name", "")).strip_edges()
+		if not template_name.empty():
+			used_names[template_name.to_lower()] = true
+	return used_names
+
+
+func _get_discovery_prefix_word_pool(procedural_type: String, initial_tags: Array) -> Array:
+	var procedural_pool = Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE.get(procedural_type, [])
+	if procedural_pool is Array and not procedural_pool.empty():
+		return Array(procedural_pool)
+	var environment_pool = Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_ENVIRONMENT.get(_discovery_environment_tag(initial_tags), [])
+	if environment_pool is Array and not environment_pool.empty():
+		return Array(environment_pool)
+	return Array(Constants.FRONTIER_DISCOVERY_NAME_PREFIXES)
+
+
+func _get_discovery_suffix_word_pool(initial_tags: Array) -> Array:
+	var economy_level: String = _discovery_economy_level(initial_tags)
+	var economy_pool = Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL.get(economy_level, [])
+	if economy_pool is Array and not economy_pool.empty():
+		return Array(economy_pool)
+	return Array(Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES)
+
+
+func _discovery_environment_tag(initial_tags: Array) -> String:
+	for environment_tag in ["EXTREME", "HARSH", "MILD"]:
+		if environment_tag in initial_tags:
+			return environment_tag
+	return "MILD"
+
+
+func _discovery_economy_level(initial_tags: Array) -> String:
+	var counts: Dictionary = {"POOR": 0, "ADEQUATE": 0, "RICH": 0}
+	for tag in initial_tags:
+		var tag_text: String = str(tag)
+		for economy_level in ["POOR", "ADEQUATE", "RICH"]:
+			if tag_text.ends_with("_" + economy_level):
+				counts[economy_level] = int(counts.get(economy_level, 0)) + 1
+	if int(counts.get("RICH", 0)) >= 2:
+		return "RICH"
+	if int(counts.get("POOR", 0)) >= 2:
+		return "POOR"
+	return "ADEQUATE"
 
 
 func _graph_degree(sector_id: String) -> int:

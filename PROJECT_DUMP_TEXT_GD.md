@@ -13255,15 +13255,16 @@ export var initial_wealth_tag: String = "COMFORTABLE"
 # PROJECT: GDTLancer
 # MODULE: contract_template.gd
 # STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.5; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4; TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-05-23 23:21:08
 #
 
 extends "res://database/definitions/template.gd"
 class_name ContractTemplate
 
-## ContractTemplate: Resource definition for contract instances.
-## Stores type, requirements, rewards, and expiration tracking.
+## ContractTemplate: Resource definition for optional curated contract overrides.
+## The default runtime contract path now uses generated qualitative occurrences;
+## this resource remains for tutorial, story, fallback, or deliberately handcrafted exceptions.
 
 # Contract identification
 export var contract_type: String = "delivery"  # delivery, combat, exploration
@@ -13358,8 +13359,8 @@ export var default_standing: int = 0
 # PROJECT: GDTLancer
 # MODULE: location_template.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §6.4; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §7
-# LOG_REF: 2026-05-23 14:59:44
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §3.5, §7
+# LOG_REF: 2026-05-23 23:21:08
 #
 
 extends Template
@@ -13369,7 +13370,9 @@ class_name LocationTemplate
 ## Authored registry entries are sector-level resources keyed by ids such as
 ## `sector_system_elace`; scene-local dockables remain inside `sector_scene_path`.
 ## This resource drives sector loading, topology, and the current compatibility
-## data consumed by docked UI and bootstrap flows.
+## data consumed by docked UI and bootstrap flows. Runtime qualitative demand
+## and default contract generation come from simulation tags, not from authored
+## `available_contract_ids` lists.
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
@@ -13421,6 +13424,7 @@ export var stockpile_capacity: int = 1000
 
 # --- Market & Services (compatibility boundary for current scene/UI systems) ---
 # Market inventory: commodity_template_id -> {buy_price: int, sell_price: int, quantity: int}
+# Used by current docked trade/UI flows; not the authoritative live economy model.
 export var market_inventory: Dictionary = {}
 ## Service ids exposed by the current docked UI until service simulation is rebuilt.
 export var available_services: Array = ["trade", "contracts"]
@@ -13435,7 +13439,7 @@ export var danger_level: int = 0
 ## Initial sector tags for qualitative tag simulation.
 export var initial_sector_tags: PoolStringArray = PoolStringArray()
 
-# --- Contracts (compatibility ids retained until Agent-layer contract flow lands) ---
+# --- Contracts (optional curated override ids for docked/UI entry points) ---
 export var available_contract_ids: Array = []
 
 --- Start of ./database/definitions/template.gd ---
@@ -13525,8 +13529,8 @@ func get_accuracy_at_range(distance: float) -> float:
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §7; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONTENT-CREATION-MANUAL.md §4.1, §4.3; TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-25 15:57:53
 #
 
 extends Node
@@ -13565,6 +13569,7 @@ const NPC_HOSTILE_TEMPLATE_PATH = "res://database/registry/agents/npc_hostile_de
 # Base UI Scenes
 const MAIN_HUD_SCENE_PATH = "res://scenes/ui/hud/main_hud.tscn"
 const MAIN_MENU_SCENE_PATH = "res://scenes/ui/menus/main_menu.tscn"
+const COMPOSITE_RESEARCH_TICK_COUNTS: Array = [30, 300, 3000]
 
 # --- Common Node Names ---
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"
@@ -13631,6 +13636,17 @@ const WORLD_AGE_CONFIGS: Dictionary = {
 	"DISRUPTION": {},
 	"RECOVERY": {},
 }
+const PROSPERITY_GROWTH_STAGE_1_RATIO: float = 0.34
+const PROSPERITY_GROWTH_STAGE_2_RATIO: float = 0.67
+const PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_MID: int = 1
+const PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_LATE: int = 2
+const PROSPERITY_COLONY_UPGRADE_REDUCTION_MID: int = 1
+const PROSPERITY_COLONY_UPGRADE_REDUCTION_LATE: int = 3
+const PROSPERITY_MORTAL_SPAWN_MULTIPLIER_EARLY: float = 0.75
+const PROSPERITY_MORTAL_SPAWN_MULTIPLIER_MID: float = 1.0
+const PROSPERITY_MORTAL_SPAWN_MULTIPLIER_LATE: float = 1.3
+const DISRUPTION_MORTAL_SPAWN_MULTIPLIER: float = 0.45
+const RECOVERY_MORTAL_SPAWN_MULTIPLIER: float = 0.85
 
 # --- Colony Structure ---
 const COLONY_LEVELS: Array = ["frontier", "outpost", "colony", "hub"]
@@ -13641,16 +13657,47 @@ const COLONY_UPGRADE_REQUIRED_ECONOMY: Array = ["RAW_ADEQUATE", "MANUFACTURED_AD
 const COLONY_DOWNGRADE_SECURITY_TRIGGER: String = "LAWLESS"
 const COLONY_DOWNGRADE_ECONOMY_TRIGGER: Array = ["RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
 const COLONY_MINIMUM_LEVEL: String = "outpost"
+const FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED: int = 16
+const OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED: int = 15
+const COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED: int = 15
+const OUTPOST_TO_COLONY_REQUIRED_RICH_ECONOMY_COUNT: int = 1
+const OUTPOST_TO_COLONY_SELF_SUFFICIENT_RICH_ECONOMY_COUNT: int = 2
+const OUTPOST_TO_COLONY_GROWTH_SUPPORT_REQUIRED: int = 2
+const COLONY_TO_HUB_REQUIRED_ECONOMY: Array = ["RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"]
+const FRONTIER_TO_OUTPOST_REQUIRED_SECURITY: String = "CONTESTED"
+const FRONTIER_TO_OUTPOST_BLOCKED_ENVIRONMENT: String = "EXTREME"
+const OUTPOST_TO_COLONY_BLOCKED_ENVIRONMENT: String = "EXTREME"
+const PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_MID: int = 1
+const PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_LATE: int = 2
+const PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_MID: int = 1
+const PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_LATE: int = 2
+const RECOVERY_OUTPOST_TO_COLONY_UPGRADE_PENALTY: int = 2
+const RECOVERY_COLONY_TO_HUB_UPGRADE_PENALTY: int = 2
 
 # --- Security Progression ---
 const SECURITY_CHANGE_TICKS_MIN: int = 3
 const SECURITY_CHANGE_TICKS_MAX: int = 6
+const FRONTIER_SECURITY_UPGRADE_TICKS_BONUS: int = 2
+const OUTPOST_SECURITY_UPGRADE_TICKS_BONUS: int = 1
+const FRONTIER_MAX_SECURITY_LEVEL: String = "CONTESTED"
 
 # --- Economy Progression ---
 const ECONOMY_UPGRADE_TICKS_REQUIRED: int = 3
 const ECONOMY_DOWNGRADE_TICKS_REQUIRED: int = 3
 const ECONOMY_CHANGE_TICKS_MIN: int = 2
 const ECONOMY_CHANGE_TICKS_MAX: int = 5
+const FRONTIER_ECONOMY_UPGRADE_TICKS_BONUS: int = 2
+const OUTPOST_ECONOMY_UPGRADE_TICKS_BONUS: int = 1
+const FRONTIER_MAX_ECONOMY_LEVEL: String = "ADEQUATE"
+
+# --- Qualitative Contract Demand ---
+const CONTRACT_PRESSURE_TICKS_MIN: int = 2
+const CONTRACT_PRESSURE_TICKS_MAX: int = 4
+const CONTRACT_PRESSURE_CAP: int = 6
+const CONTRACT_RELIEF_DECAY_PER_TICK: int = 1
+const CONTRACT_OCCURRENCE_GLOBAL_CAP: int = 18
+const CONTRACT_OCCURRENCE_PER_SECTOR_CAP: int = 3
+const CONTRACT_SOURCE_SEARCH_MAX_HOPS: int = 2
 
 # --- Hostile Infestation Progression ---
 const HOSTILE_INFESTATION_TICKS_REQUIRED: int = 3
@@ -13667,14 +13714,16 @@ const COMBAT_COOLDOWN_TICKS: int = 5
 const AGENT_UPKEEP_CHANCE: float = 0.05
 const WEALTHY_DRAIN_CHANCE: float = 0.08
 const BROKE_RECOVERY_CHANCE: float = 0.15
+const EXPLORER_BROKE_RECOVERY_CHANCE_BONUS: float = 0.20
 
 # --- Mortal Agent Lifecycle ---
 const MORTAL_GLOBAL_CAP: int = 200
 const MORTAL_SPAWN_REQUIRED_SECURITY: Array = ["SECURE", "CONTESTED", "LAWLESS"]
 const MORTAL_SPAWN_BLOCKED_SECTOR_TAGS: Array = ["DISABLED", "HOSTILE_INFESTED"]
 const MORTAL_SPAWN_MIN_ECONOMY_TAGS: Array = ["RAW_ADEQUATE", "RAW_RICH", "MANUFACTURED_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE", "CURRENCY_RICH"]
-const MORTAL_SPAWN_CHANCE: float = 0.2
+const MORTAL_SPAWN_CHANCE: float = 0.16
 const MORTAL_ROLES: Array = ["trader", "hauler", "prospector", "explorer", "pirate"]
+const MORTAL_EXPLORER_FRONTIER_SECTOR_RATIO: int = 40
 const MORTAL_SURVIVAL_CHANCE: float = 0.4
 const DISRUPTION_MORTAL_ATTRITION_CHANCE: float = 0.03
 
@@ -13687,10 +13736,46 @@ const MAX_SECTOR_COUNT: int = 220
 const EXPLORATION_COOLDOWN_TICKS: int = 10
 const EXPLORATION_SUCCESS_CHANCE: float = 0.1
 
+# --- Discovery Naming ---
+const FRONTIER_DISCOVERY_NAME_PREFIXES: Array = [
+	"Void", "Drift", "Nebula", "Rim", "Edge", "Shadow", "Iron",
+	"Crimson", "Amber", "Frozen", "Ashen", "Silent", "Storm",
+	"Obsidian", "Crystal", "Pale", "Dark",
+]
+const FRONTIER_DISCOVERY_NAME_SUFFIXES: Array = [
+	"Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
+	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
+	"Anchorage", "Waypoint", "Depot",
+]
+const FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE: Dictionary = {
+	"asteroid_field": ["Iron", "Shard", "Cinder", "Flint", "Gravel", "Broken", "Ore"],
+	"comet_shoal": ["Rime", "Frost", "Tail", "Comet", "Wake", "Glint", "Ice"],
+	"rogue_planet": ["Pale", "Silent", "Nomad", "Dusk", "Night", "Far", "Wander"],
+	"dark_nebula": ["Void", "Umbral", "Shadow", "Obsidian", "Veil", "Black", "Gloom"],
+	"remnant_field": ["Relic", "Ashen", "Broken", "Ember", "Grave", "Shattered", "Cinder"],
+}
+const FRONTIER_DISCOVERY_NAME_PREFIXES_BY_ENVIRONMENT: Dictionary = {
+	"MILD": ["Still", "Quiet", "Silver", "Soft", "Calm", "Clear"],
+	"HARSH": ["Ashen", "Storm", "Rime", "Broken", "Jagged", "Cinder"],
+	"EXTREME": ["Void", "Bleak", "Frozen", "Obsidian", "Black", "Grim"],
+}
+const FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL: Dictionary = {
+	"POOR": ["Reach", "Hollow", "Frontier", "Drift", "Waste", "Scar", "Shelf"],
+	"ADEQUATE": ["Passage", "Crossing", "Point", "Waypoint", "Shelf", "Span", "Threshold"],
+	"RICH": ["Anchorage", "Depot", "Haven", "Reserve", "Cache", "Gate", "Exchange"],
+}
+const DISCOVERY_SYSTEM_NAME_LENGTH_MIN: int = 4
+const DISCOVERY_SYSTEM_NAME_LENGTH_MAX: int = 7
+const DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH: int = 4
+const DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH: int = 6
+const DISCOVERY_NAME_UNIQUENESS_MAX_ATTEMPTS: int = 48
+
 # --- Topology ---
 const MAX_CONNECTIONS_PER_SECTOR: int = 4
 const EXTRA_CONNECTION_1_CHANCE: float = 0.20
 const EXTRA_CONNECTION_2_CHANCE: float = 0.05
+const FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE: float = 0.55
+const FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE: float = 0.30
 const LOOP_MIN_HOPS: int = 3
 
 # --- Discovery Spatialization ---
@@ -13992,8 +14077,8 @@ func _ready():
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-23 22:58:53
 #
 
 extends Node
@@ -14094,6 +14179,34 @@ var economy_downgrade_progress: Dictionary = {}
 
 ## Per-sector per-category change threshold. Key: sector_id, Value: {category: int}.
 var economy_change_threshold: Dictionary = {}
+
+
+# =========================================================================
+# === QUALITATIVE CONTRACT DEMAND ========================================
+# =========================================================================
+
+## Per-sector per-category pressure toward runtime demand tags.
+## Key: sector_id, Value: {category: int}.
+var contract_generation_pressure: Dictionary = {}
+
+## Per-sector per-category ticks required before demand tags appear.
+## Key: sector_id, Value: {category: int}.
+var contract_generation_threshold: Dictionary = {}
+
+
+# =========================================================================
+# === RUNTIME CONTRACT OCCURRENCES =======================================
+# =========================================================================
+
+## Generated runtime contract occurrences keyed by occurrence_id.
+## Value: qualitative delivery contract Dictionary.
+var runtime_contract_occurrences: Dictionary = {}
+
+## Occurrence ids grouped by demand/target sector. Key: sector_id, Value: Array.
+var runtime_contract_occurrences_by_target_sector: Dictionary = {}
+
+## Occurrence ids grouped by source sector. Key: sector_id, Value: Array.
+var runtime_contract_occurrences_by_source_sector: Dictionary = {}
 
 
 # =========================================================================
@@ -14244,6 +14357,11 @@ func reset_state() -> void:
 	economy_upgrade_progress.clear()
 	economy_downgrade_progress.clear()
 	economy_change_threshold.clear()
+	contract_generation_pressure.clear()
+	contract_generation_threshold.clear()
+	runtime_contract_occurrences.clear()
+	runtime_contract_occurrences_by_target_sector.clear()
+	runtime_contract_occurrences_by_source_sector.clear()
 	hostile_infestation_progress.clear()
 	catastrophe_log.clear()
 	sector_disabled_until.clear()
@@ -14269,8 +14387,8 @@ func reset_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-23 22:58:53
 #
 
 extends Node
@@ -14321,6 +14439,11 @@ func reset_to_defaults() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 
 	# --- Layer 3: Agents ---
@@ -14519,6 +14642,11 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["economy_upgrade_progress"] = GameState.economy_upgrade_progress.duplicate(true)
 	state_dict["economy_downgrade_progress"] = GameState.economy_downgrade_progress.duplicate(true)
 	state_dict["economy_change_threshold"] = GameState.economy_change_threshold.duplicate(true)
+	state_dict["contract_generation_pressure"] = GameState.contract_generation_pressure.duplicate(true)
+	state_dict["contract_generation_threshold"] = GameState.contract_generation_threshold.duplicate(true)
+	state_dict["runtime_contract_occurrences"] = GameState.runtime_contract_occurrences.duplicate(true)
+	state_dict["runtime_contract_occurrences_by_target_sector"] = GameState.runtime_contract_occurrences_by_target_sector.duplicate(true)
+	state_dict["runtime_contract_occurrences_by_source_sector"] = GameState.runtime_contract_occurrences_by_source_sector.duplicate(true)
 	state_dict["hostile_infestation_progress"] = GameState.hostile_infestation_progress.duplicate(true)
 
 	# --- Layer 3: Agents ---
@@ -14623,6 +14751,11 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.economy_upgrade_progress = save_data.get("economy_upgrade_progress", {}).duplicate(true) if save_data.has("economy_upgrade_progress") else {}
 	GameState.economy_downgrade_progress = save_data.get("economy_downgrade_progress", {}).duplicate(true) if save_data.has("economy_downgrade_progress") else {}
 	GameState.economy_change_threshold = save_data.get("economy_change_threshold", {}).duplicate(true) if save_data.has("economy_change_threshold") else {}
+	GameState.contract_generation_pressure = save_data.get("contract_generation_pressure", {}).duplicate(true) if save_data.has("contract_generation_pressure") else {}
+	GameState.contract_generation_threshold = save_data.get("contract_generation_threshold", {}).duplicate(true) if save_data.has("contract_generation_threshold") else {}
+	GameState.runtime_contract_occurrences = save_data.get("runtime_contract_occurrences", {}).duplicate(true) if save_data.has("runtime_contract_occurrences") else {}
+	GameState.runtime_contract_occurrences_by_target_sector = save_data.get("runtime_contract_occurrences_by_target_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_target_sector") else {}
+	GameState.runtime_contract_occurrences_by_source_sector = save_data.get("runtime_contract_occurrences_by_source_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_source_sector") else {}
 	GameState.hostile_infestation_progress = save_data.get("hostile_infestation_progress", {}).duplicate(true) if save_data.has("hostile_infestation_progress") else {}
 
 	# --- Layer 3: Agents ---
@@ -16517,8 +16650,8 @@ func _ensure_combatant_registered(uid: int) -> void:
 # PROJECT: GDTLancer
 # MODULE: affinity_matrix.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-02-23
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 23:11:32
 #
 
 extends Reference
@@ -16543,6 +16676,8 @@ const SECTOR_ENVIRONMENT_TAGS: Array = ["MILD", "HARSH", "EXTREME"]
 const SECTOR_SPECIAL_TAGS: Array = [
 	"STATION", "FRONTIER", "HAS_SALVAGE", "DISABLED",
 	"HOSTILE_INFESTED", "HOSTILE_THREATENED",
+	"CONTRACT_DEMAND_RAW", "CONTRACT_DEMAND_MANUFACTURED", "CONTRACT_DEMAND_CURRENCY",
+	"RELIEF_NEEDED", "TRADE_LANE_ACTIVE",
 ]
 
 const AGENT_CONDITION_TAGS: Array = ["HEALTHY", "DAMAGED", "DESTROYED"]
@@ -16597,12 +16732,20 @@ const AFFINITY_MATRIX: Dictionary = {
 	"TRADER:HOSTILE_INFESTED": -1.2,
 	"TRADER:CURRENCY_RICH": 1.0,
 	"TRADER:MANUFACTURED_RICH": 0.6,
+	"TRADER:CONTRACT_DEMAND_CURRENCY": 1.1,
+	"TRADER:CONTRACT_DEMAND_MANUFACTURED": 0.9,
+	"TRADER:CONTRACT_DEMAND_RAW": 0.4,
+	"TRADER:RELIEF_NEEDED": 0.7,
 
 	# Hauler preferences
 	"HAULER:RAW_RICH": 0.9,
 	"HAULER:MANUFACTURED_POOR": 0.8,
 	"HAULER:STATION": 0.6,
 	"HAULER:LAWLESS": -0.8,
+	"HAULER:CONTRACT_DEMAND_RAW": 1.1,
+	"HAULER:CONTRACT_DEMAND_MANUFACTURED": 0.8,
+	"HAULER:CONTRACT_DEMAND_CURRENCY": 0.3,
+	"HAULER:RELIEF_NEEDED": 0.6,
 
 	# Prospector / scavenger
 	"PROSPECTOR:FRONTIER": 1.0,
@@ -16851,13 +16994,14 @@ func _unique(values: Array) -> Array:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-25 02:39:14
 #
 
 extends Reference
 
 const LocationTemplateScript = preload("res://database/definitions/location_template.gd")
+const LegacySystemNameGeneratorScript = preload("res://src/core/utils/legacy_system_name_generator.gd")
 
 ## AgentLayer: Qualitative agent layer using affinity-driven tag transitions.
 ##
@@ -16872,23 +17016,12 @@ var _chronicle: Reference = null
 
 ## Injected by SimulationEngine — the AffinityMatrix for affinity scoring.
 var affinity_matrix: Reference = null
+var _legacy_system_name_generator: Reference = LegacySystemNameGeneratorScript.new()
 
 ## Per-tick seeded RNG for determinism.
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _reported_invalid_sectors: Dictionary = {}
 var _last_exploration_outcome: String = ""
-
-## Name-generation pools for discovered sectors.
-var _FRONTIER_PREFIXES: Array = [
-	"Void", "Drift", "Nebula", "Rim", "Edge", "Shadow", "Iron",
-	"Crimson", "Amber", "Frozen", "Ashen", "Silent", "Storm",
-	"Obsidian", "Crystal", "Pale", "Dark",
-]
-var _FRONTIER_SUFFIXES: Array = [
-	"Reach", "Expanse", "Passage", "Crossing", "Haven", "Point",
-	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
-	"Anchorage", "Waypoint", "Depot",
-]
 var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
 	{
 		"procedural_type": "asteroid_field",
@@ -16975,7 +17108,7 @@ func process_tick(config: Dictionary) -> void:
 			_check_respawn(agent_id, agent)
 			continue
 
-		_evaluate_goals(agent)
+		_evaluate_goals(agent, agent_id)
 		_execute_action(agent_id, agent)
 
 	_check_catastrophe()
@@ -17066,11 +17199,16 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 # === PRIVATE — GOAL EVALUATION ===============================================
 # =============================================================================
 
-func _evaluate_goals(agent: Dictionary) -> void:
+func _evaluate_goals(agent: Dictionary, agent_id: String = "") -> void:
 	var tags: Array = agent.get("sentiment_tags", [])
 	if "DESPERATE" in tags:
 		agent["goal_archetype"] = "flee_to_safety"
 		agent["goal_queue"] = [{"type": "flee_to_safety"}]
+		return
+	var runtime_contract_id: String = _best_runtime_contract_occurrence_id(agent_id, agent, tags)
+	if runtime_contract_id != "":
+		agent["goal_archetype"] = "service_contract"
+		agent["goal_queue"] = [{"type": "service_contract", "occurrence_id": runtime_contract_id}]
 		return
 	agent["goal_archetype"] = "affinity_scan"
 	agent["goal_queue"] = [{"type": "affinity_scan"}]
@@ -17086,6 +17224,9 @@ func _execute_action(agent_id: String, agent: Dictionary) -> void:
 
 	if goal == "flee_to_safety":
 		_action_flee_to_safety(agent_id, agent)
+		return
+	if goal == "service_contract":
+		_action_service_contract(agent_id, agent, str(goal_queue[0].get("occurrence_id", "")))
 		return
 	if goal == "affinity_scan":
 		_action_affinity_scan(agent_id, agent)
@@ -17181,12 +17322,17 @@ func _resolve_agent_interaction(actor_id: String, target_id: String, score: floa
 func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Array) -> void:
 	var agent: Dictionary = GameState.agents.get(agent_id, {})
 	var sector_id: String = agent.get("current_sector_id", "")
+	var explorer_waiting: bool = false
+	var at_station: bool = "STATION" in sector_tags or "FRONTIER" in sector_tags
 
 	# Explorers prioritise exploration
 	if agent.get("agent_role") == "explorer":
-		_try_exploration(agent_id, agent, sector_id)
-		if _last_exploration_outcome == "discovered":
-			return
+		if _should_attempt_exploration(agent, sector_id, sector_tags):
+			_try_exploration(agent_id, agent, sector_id)
+			if _last_exploration_outcome == "discovered":
+				return
+		else:
+			explorer_waiting = true
 
 	if score >= Constants.ATTACK_THRESHOLD and "HAS_SALVAGE" in sector_tags:
 		_action_harvest(agent_id, agent, sector_id)
@@ -17196,7 +17342,6 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 		agent.get("condition_tag") == "DAMAGED"
 		or agent.get("cargo_tag") == "LOADED"
 	)
-	var at_station: bool = "STATION" in sector_tags or "FRONTIER" in sector_tags
 
 	if needs_dock and at_station:
 		_try_dock(agent_id, agent, sector_id)
@@ -17212,8 +17357,8 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 		_log_event(agent_id, "flee", sector_id, {"reason": "sector_affinity"})
 		return
 
-	if agent.get("agent_role") == "explorer" and _is_exploration_cooldown_active(agent):
-		_action_move_random(agent_id, agent)
+	if explorer_waiting:
+		_handle_explorer_non_exploration_turn(agent_id, agent, sector_id, sector_tags, at_station)
 		return
 
 	_action_move_toward_role_target(agent_id, agent)
@@ -17264,6 +17409,247 @@ func _has_frontier_pressure(sector_tags: Array) -> bool:
 func _is_exploration_cooldown_active(agent: Dictionary) -> bool:
 	var last_discovery: int = int(agent.get("last_discovery_tick", -999))
 	return GameState.sim_tick_count - last_discovery < Constants.EXPLORATION_COOLDOWN_TICKS
+
+
+func _should_attempt_exploration(agent: Dictionary, sector_id: String, sector_tags: Array) -> bool:
+	if agent.get("wealth_tag") == "BROKE":
+		return false
+	if _is_exploration_cooldown_active(agent):
+		return false
+	if not _is_exploration_anchor_sector(sector_id, sector_tags):
+		return false
+	return _has_local_exploration_outlet(sector_id)
+
+
+func _handle_explorer_non_exploration_turn(agent_id: String, agent: Dictionary, sector_id: String, sector_tags: Array, at_station: bool) -> void:
+	if agent.get("wealth_tag") == "BROKE":
+		if at_station:
+			return
+		_action_move_toward_exploration_target(agent_id, agent)
+		return
+
+	if _is_exploration_cooldown_active(agent) and _is_exploration_anchor_sector(sector_id, sector_tags) and _has_local_exploration_outlet(sector_id):
+		return
+
+	_action_move_toward_exploration_target(agent_id, agent)
+
+
+func _is_exploration_anchor_sector(sector_id: String, sector_tags: Array) -> bool:
+	if "FRONTIER" in sector_tags:
+		return true
+	if _has_frontier_pressure(sector_tags):
+		return true
+	if _is_discovered_sector_id(sector_id):
+		return true
+	var sector_type: String = _get_sector_type(sector_id)
+	return sector_type in ["frontier", "deep_space", "hazard_zone"]
+
+
+func _has_local_exploration_outlet(sector_id: String) -> bool:
+	if _graph_degree(sector_id) < Constants.MAX_CONNECTIONS_PER_SECTOR:
+		return true
+	var neighbors: Array = Array(GameState.world_topology.get(sector_id, {}).get("connections", []))
+	for neighbor_id in neighbors:
+		if _graph_degree(str(neighbor_id)) < Constants.MAX_CONNECTIONS_PER_SECTOR:
+			return true
+	return false
+
+
+# =============================================================================
+# === PRIVATE — RUNTIME CONTRACTS =============================================
+# =============================================================================
+
+func _best_runtime_contract_occurrence_id(agent_id: String, agent: Dictionary, actor_tags: Array) -> String:
+	var role: String = str(agent.get("agent_role", "idle"))
+	if not (role in ["trader", "hauler"]):
+		return ""
+	if actor_tags.empty() or affinity_matrix == null:
+		return ""
+
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+	var cargo_loaded: bool = agent.get("cargo_tag", "EMPTY") == "LOADED"
+	var occurrence_ids: Array = GameState.runtime_contract_occurrences.keys()
+	occurrence_ids.sort()
+	var best_occurrence_id: String = ""
+	var best_score: float = -1000000.0
+
+	for occurrence_id in occurrence_ids:
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		var required_roles: Array = Array(occurrence.get("required_roles", []))
+		if not (role in required_roles):
+			continue
+		var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+		if claimant_agent_id != "" and claimant_agent_id != agent_id:
+			continue
+		if cargo_loaded and claimant_agent_id != agent_id:
+			continue
+
+		var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+		var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+		var route_goal_sector_id: String = target_sector_id if cargo_loaded else source_sector_id
+		var hops_to_goal: int = _sector_hops_between(current_sector_id, route_goal_sector_id)
+		if hops_to_goal < 0:
+			continue
+
+		var score: float = affinity_matrix.compute_affinity(actor_tags, Array(occurrence.get("priority_tags", [])))
+		if claimant_agent_id == agent_id:
+			score += 6.0
+		if current_sector_id == route_goal_sector_id:
+			score += 1.5
+		score -= float(hops_to_goal)
+
+		if score > best_score or (is_equal_approx(score, best_score) and (best_occurrence_id == "" or occurrence_id < best_occurrence_id)):
+			best_score = score
+			best_occurrence_id = occurrence_id
+
+	return best_occurrence_id
+
+
+func _action_service_contract(agent_id: String, agent: Dictionary, occurrence_id: String) -> void:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		_action_move_toward_role_target(agent_id, agent)
+		return
+	if not _claim_runtime_contract_occurrence(agent_id, agent, occurrence_id):
+		_action_move_toward_role_target(agent_id, agent)
+		return
+
+	occurrence = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+
+	if source_sector_id == "" or target_sector_id == "" or current_sector_id == "":
+		_release_runtime_contract_claim(agent_id, occurrence_id)
+		_action_move_toward_role_target(agent_id, agent)
+		return
+
+	if agent.get("cargo_tag", "EMPTY") == "EMPTY":
+		if current_sector_id != source_sector_id:
+			_action_move_toward_sector(agent_id, agent, source_sector_id)
+			return
+		if _load_runtime_contract_cargo(agent_id, agent, occurrence_id, source_sector_id):
+			return
+	else:
+		if current_sector_id != target_sector_id:
+			_action_move_toward_sector(agent_id, agent, target_sector_id)
+			return
+		if _complete_runtime_contract_occurrence(agent_id, agent, occurrence_id, target_sector_id):
+			return
+
+	_action_move_toward_role_target(agent_id, agent)
+
+
+func _claim_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occurrence_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	var required_roles: Array = Array(occurrence.get("required_roles", []))
+	if not (str(agent.get("agent_role", "idle")) in required_roles):
+		return false
+	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+	if claimant_agent_id != "" and claimant_agent_id != agent_id:
+		return false
+
+	if claimant_agent_id == "":
+		occurrence["claimant_agent_id"] = agent_id
+		occurrence["status"] = "claimed"
+		occurrence["claimed_at_tick"] = GameState.sim_tick_count
+		_log_event(agent_id, "contract_claimed", str(agent.get("current_sector_id", "")), {
+			"occurrence_id": occurrence_id,
+			"target_sector_id": str(occurrence.get("target_sector_id", "")),
+		})
+	else:
+		occurrence["status"] = str(occurrence.get("status", "claimed"))
+
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	return true
+
+
+func _release_runtime_contract_claim(agent_id: String, occurrence_id: String) -> void:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return
+	if str(occurrence.get("claimant_agent_id", "")) != agent_id:
+		return
+	occurrence["claimant_agent_id"] = ""
+	occurrence["status"] = "open"
+	if occurrence.has("claimed_at_tick"):
+		occurrence.erase("claimed_at_tick")
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+
+
+func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
+	if agent.get("cargo_tag", "EMPTY") != "EMPTY":
+		return false
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if sector_id != str(occurrence.get("source_sector_id", "")):
+		return false
+	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+		return false
+
+	agent["cargo_tag"] = "LOADED"
+	if str(agent.get("agent_role", "idle")) == "trader":
+		_wealth_step_down(agent)
+	occurrence["status"] = "in_transit"
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	_log_event(agent_id, "contract_loaded", sector_id, {
+		"occurrence_id": occurrence_id,
+		"target_sector_id": str(occurrence.get("target_sector_id", "")),
+	})
+	return true
+
+
+func _complete_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if agent.get("cargo_tag", "EMPTY") != "LOADED":
+		return false
+	if sector_id != str(occurrence.get("target_sector_id", "")):
+		return false
+	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+		return false
+
+	_try_dock(agent_id, agent, sector_id)
+	_log_event(agent_id, "contract_completed", sector_id, {
+		"occurrence_id": occurrence_id,
+		"source_sector_id": str(occurrence.get("source_sector_id", "")),
+	})
+	_remove_runtime_contract_occurrence(occurrence_id)
+	return true
+
+
+func _remove_runtime_contract_occurrence(occurrence_id: String) -> void:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	GameState.runtime_contract_occurrences.erase(occurrence_id)
+	_remove_runtime_contract_index_entry(GameState.runtime_contract_occurrences_by_target_sector, target_sector_id, occurrence_id)
+	_remove_runtime_contract_index_entry(GameState.runtime_contract_occurrences_by_source_sector, source_sector_id, occurrence_id)
+
+
+func _remove_runtime_contract_index_entry(index: Dictionary, sector_id: String, occurrence_id: String) -> void:
+	if not index.has(sector_id):
+		return
+	var updated_ids: Array = []
+	for existing_id in Array(index.get(sector_id, [])):
+		if existing_id != occurrence_id:
+			updated_ids.append(existing_id)
+	if updated_ids.empty():
+		index.erase(sector_id)
+	else:
+		index[sector_id] = updated_ids
 
 
 # =============================================================================
@@ -17344,6 +17730,16 @@ func _action_move_toward(agent_id: String, agent: Dictionary, target_sector_id: 
 		_log_event(agent_id, "move", target_sector_id, {"from": current})
 
 
+func _action_move_toward_sector(agent_id: String, agent: Dictionary, target_sector_id: String) -> void:
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+	if current_sector_id == "" or current_sector_id == target_sector_id:
+		return
+	var route: Array = _build_sector_route(current_sector_id, target_sector_id)
+	if route.empty():
+		return
+	_action_move_toward(agent_id, agent, str(route[0]))
+
+
 func _action_move_random(agent_id: String, agent: Dictionary) -> void:
 	var current: String = agent.get("current_sector_id", "")
 	var neighbors: Array = GameState.world_topology.get(current, {}).get("connections", [])
@@ -17353,8 +17749,55 @@ func _action_move_random(agent_id: String, agent: Dictionary) -> void:
 	_action_move_toward(agent_id, agent, target)
 
 
+func _action_move_toward_exploration_target(agent_id: String, agent: Dictionary) -> void:
+	var current: String = agent.get("current_sector_id", "")
+	var neighbors: Array = Array(GameState.world_topology.get(current, {}).get("connections", []))
+	if neighbors.empty():
+		return
+
+	var best_sector: String = ""
+	var best_score: float = -1000000.0
+	for neighbor_id in neighbors:
+		var neighbor_key: String = str(neighbor_id)
+		var n_tags: Array = Array(GameState.sector_tags.get(neighbor_key, []))
+		var score: float = 0.0
+		if _is_exploration_anchor_sector(neighbor_key, n_tags):
+			score += 4.0
+		if _has_frontier_pressure(n_tags):
+			score += 1.5
+		if "FRONTIER" in n_tags:
+			score += 1.5
+		if _is_discovered_sector_id(neighbor_key):
+			score += 1.0
+
+		var degree: int = _graph_degree(neighbor_key)
+		if degree < Constants.MAX_CONNECTIONS_PER_SECTOR:
+			score += 1.25
+		if degree <= 2:
+			score += 0.75
+
+		if agent.get("wealth_tag") == "BROKE" and ("STATION" in n_tags or "FRONTIER" in n_tags):
+			score += 2.5
+		if agent.get("condition_tag") == "DAMAGED" and ("STATION" in n_tags or "FRONTIER" in n_tags):
+			score += 1.0
+
+		score -= float(_active_agent_count_in_sector(neighbor_key)) * 0.25
+
+		if score > best_score or (is_equal_approx(score, best_score) and (best_sector == "" or neighbor_key < best_sector)):
+			best_score = score
+			best_sector = neighbor_key
+
+	if best_sector != "":
+		_action_move_toward(agent_id, agent, best_sector)
+	else:
+		_action_move_random(agent_id, agent)
+
+
 func _action_move_toward_role_target(agent_id: String, agent: Dictionary) -> void:
 	var role: String = agent.get("agent_role", "idle")
+	if role == "explorer":
+		_action_move_toward_exploration_target(agent_id, agent)
+		return
 	var current: String = agent.get("current_sector_id", "")
 	var neighbors: Array = GameState.world_topology.get(current, {}).get("connections", [])
 	if neighbors.empty():
@@ -17405,6 +17848,51 @@ func _post_combat_dispersal(agent_id: String, agent: Dictionary) -> void:
 	_action_move_toward(agent_id, agent, best_sector)
 
 
+func _build_sector_route(start_sector_id: String, target_sector_id: String) -> Array:
+	if start_sector_id == "" or target_sector_id == "" or start_sector_id == target_sector_id:
+		return []
+	var frontier: Array = [start_sector_id]
+	var visited: Dictionary = {start_sector_id: true}
+	var parents: Dictionary = {}
+
+	while not frontier.empty():
+		var sector_id: String = str(frontier[0])
+		frontier.remove(0)
+		var neighbors: Array = Array(GameState.world_topology.get(sector_id, {}).get("connections", []))
+		neighbors.sort()
+		for neighbor_id in neighbors:
+			if visited.has(neighbor_id):
+				continue
+			visited[neighbor_id] = true
+			parents[neighbor_id] = sector_id
+			if neighbor_id == target_sector_id:
+				return _reconstruct_sector_route(parents, start_sector_id, target_sector_id)
+			frontier.append(neighbor_id)
+
+	return []
+
+
+func _reconstruct_sector_route(parents: Dictionary, start_sector_id: String, target_sector_id: String) -> Array:
+	var route: Array = [target_sector_id]
+	var cursor: String = target_sector_id
+	while parents.has(cursor):
+		cursor = str(parents[cursor])
+		route.insert(0, cursor)
+	if route.empty() or route[0] != start_sector_id:
+		return []
+	route.remove(0)
+	return route
+
+
+func _sector_hops_between(start_sector_id: String, target_sector_id: String) -> int:
+	if start_sector_id == "" or target_sector_id == "":
+		return -1
+	if start_sector_id == target_sector_id:
+		return 0
+	var route: Array = _build_sector_route(start_sector_id, target_sector_id)
+	return -1 if route.empty() else route.size()
+
+
 # =============================================================================
 # === PRIVATE — EXPLORATION ===================================================
 # =============================================================================
@@ -17444,7 +17932,6 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 	agent["last_discovery_tick"] = GameState.sim_tick_count
 	var next_discovery_count: int = GameState.discovered_sector_count + 1
 	var new_id: String = "discovered_" + str(next_discovery_count)
-	var new_name: String = _generate_sector_name_for_count(next_discovery_count)
 
 	# Determine connections (filament topology)
 	var source_id: String = sector_id
@@ -17464,10 +17951,12 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		fallback_candidates.sort_custom(self, "_sort_by_degree")
 		source_id = fallback_candidates[0]
 
+	var source_tags: Array = Array(GameState.sector_tags.get(source_id, sector_tags))
+	var connection_chances: Dictionary = _get_discovery_connection_chances(source_id, source_tags)
 	var connections: Array = [source_id]
 
 	var extra_one_added: bool = false
-	if _rng.randf() < Constants.EXTRA_CONNECTION_1_CHANCE:
+	if _rng.randf() < float(connection_chances.get("extra_one", Constants.EXTRA_CONNECTION_1_CHANCE)):
 		var nearby: Array = _nearby_candidates(source_id, connections)
 		if not nearby.empty():
 			nearby.sort()
@@ -17476,7 +17965,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 				connections.append(extra_one)
 				extra_one_added = true
 
-	if extra_one_added and _rng.randf() < Constants.EXTRA_CONNECTION_2_CHANCE:
+	if extra_one_added and _rng.randf() < float(connection_chances.get("extra_two", Constants.EXTRA_CONNECTION_2_CHANCE)):
 		var loop_candidate = _distant_loop_candidate(source_id, connections)
 		if loop_candidate != null and not (loop_candidate in connections):
 			connections.append(loop_candidate)
@@ -17503,6 +17992,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		econ_tags.append(prefix + "_" + level)
 
 	var initial_tags: Array = ["FRONTIER", security, environment] + econ_tags
+	var new_name: String = _generate_sector_name_for_discovery(next_discovery_count, profile, initial_tags)
 
 	# Wire into the world graph (bidirectional)
 	GameState.world_topology[new_id] = {
@@ -17764,6 +18254,18 @@ func _filter_spatially_plausible_connections(source_id: String, candidate_connec
 	return filtered_connections
 
 
+func _get_discovery_connection_chances(source_id: String, source_tags: Array) -> Dictionary:
+	var extra_one: float = Constants.EXTRA_CONNECTION_1_CHANCE
+	var extra_two: float = Constants.EXTRA_CONNECTION_2_CHANCE
+	if _is_exploration_anchor_sector(source_id, source_tags) or _graph_degree(source_id) <= 2:
+		extra_one = max(extra_one, Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE)
+		extra_two = max(extra_two, Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE)
+	return {
+		"extra_one": extra_one,
+		"extra_two": extra_two,
+	}
+
+
 func _register_discovered_sector_template(
 		new_id: String,
 		new_name: String,
@@ -17826,11 +18328,147 @@ func _generate_sector_name() -> String:
 
 
 func _generate_sector_name_for_count(discovery_count: int) -> String:
-	var name_rng := RandomNumberGenerator.new()
-	name_rng.seed = hash(str(GameState.world_seed) + ":discovery:" + str(discovery_count))
-	var prefix: String = _FRONTIER_PREFIXES[name_rng.randi() % _FRONTIER_PREFIXES.size()]
-	var suffix: String = _FRONTIER_SUFFIXES[name_rng.randi() % _FRONTIER_SUFFIXES.size()]
-	return prefix + " " + suffix
+	var prefixes: Array = Array(Constants.FRONTIER_DISCOVERY_NAME_PREFIXES)
+	var suffixes: Array = Array(Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES)
+	return _build_discovery_sector_name_candidate(discovery_count, 0, prefixes, suffixes)
+
+
+func _generate_sector_name_for_discovery(discovery_count: int, profile: Dictionary, initial_tags: Array) -> String:
+	var procedural_type: String = str(profile.get("procedural_type", "deep_space"))
+	var prefixes: Array = _get_discovery_prefix_word_pool(procedural_type, initial_tags)
+	var suffixes: Array = _get_discovery_suffix_word_pool(initial_tags)
+	return _generate_unique_discovery_sector_name(discovery_count, prefixes, suffixes)
+
+
+func _generate_unique_discovery_sector_name(discovery_count: int, prefixes: Array, suffixes: Array) -> String:
+	var used_names: Dictionary = _used_sector_display_names()
+	var max_attempts: int = Constants.DISCOVERY_NAME_UNIQUENESS_MAX_ATTEMPTS
+	for attempt in range(max_attempts):
+		var candidate: String = _build_discovery_sector_name_candidate(discovery_count, attempt, prefixes, suffixes)
+		if not used_names.has(candidate.to_lower()):
+			return candidate
+	for attempt in range(max_attempts, max_attempts + 12):
+		var fallback: String = _build_multi_root_discovery_name_candidate(discovery_count, attempt)
+		if not used_names.has(fallback.to_lower()):
+			return fallback
+	return "Unnamed Reach " + str(discovery_count)
+
+
+func _build_discovery_sector_name_candidate(discovery_count: int, attempt: int, prefixes: Array, suffixes: Array) -> String:
+	var generated_root: String = _generate_discovery_name_root(discovery_count, attempt)
+	var seed_key: String = _discovery_name_seed_key(discovery_count, attempt)
+	var prefix_word: String = _select_discovery_name_word(prefixes, seed_key + ":prefix")
+	var suffix_word: String = _select_discovery_name_word(suffixes, seed_key + ":suffix", prefix_word)
+	return _compose_discovery_sector_name(generated_root, prefix_word, suffix_word)
+
+
+func _build_multi_root_discovery_name_candidate(discovery_count: int, attempt: int) -> String:
+	var leading_root: String = _generate_discovery_name_root(discovery_count, attempt)
+	var trailing_root: String = _legacy_system_name_generator.generate_system_name(
+		_discovery_name_seed_key(discovery_count, attempt) + ":tail",
+		3,
+		4
+	)
+	if trailing_root.empty():
+		return leading_root
+	return leading_root + " " + trailing_root
+
+
+func _generate_discovery_name_root(discovery_count: int, attempt: int = 0) -> String:
+	return _legacy_system_name_generator.generate_system_name(
+		_discovery_name_seed_key(discovery_count, attempt),
+		Constants.DISCOVERY_SYSTEM_NAME_LENGTH_MIN,
+		Constants.DISCOVERY_SYSTEM_NAME_LENGTH_MAX
+	)
+
+
+func _compose_discovery_sector_name(generated_root: String, prefix_word: String, suffix_word: String) -> String:
+	var cleaned_root: String = str(generated_root).strip_edges()
+	if cleaned_root.empty():
+		return "Unnamed Reach"
+	var word_budget: int = _discovery_name_word_budget(cleaned_root.length())
+	var composed_name: String = cleaned_root
+	if word_budget >= 2 and not prefix_word.empty():
+		composed_name = prefix_word + " " + composed_name
+	if word_budget >= 1 and not suffix_word.empty():
+		composed_name += " " + suffix_word
+	return composed_name
+
+
+func _discovery_name_word_budget(root_length: int) -> int:
+	if root_length <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
+		return 2
+	if root_length <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
+		return 1
+	return 0
+
+
+func _select_discovery_name_word(words: Array, seed_key: String, excluded_word: String = "") -> String:
+	if words.empty():
+		return ""
+	var word_rng := RandomNumberGenerator.new()
+	word_rng.seed = hash(str(GameState.world_seed) + ":discovery_word:" + str(seed_key))
+	var index: int = word_rng.randi() % words.size()
+	var selected_word: String = str(words[index])
+	if not excluded_word.empty() and selected_word == excluded_word and words.size() > 1:
+		selected_word = str(words[(index + 1) % words.size()])
+	return selected_word
+
+
+func _discovery_name_seed_key(discovery_count: int, attempt: int) -> String:
+	return str(GameState.world_seed) + ":discovery_name:" + str(discovery_count) + ":" + str(attempt)
+
+
+func _used_sector_display_names() -> Dictionary:
+	var used_names: Dictionary = {}
+	for sector_name in GameState.sector_names.values():
+		var known_name: String = str(sector_name).strip_edges()
+		if not known_name.empty():
+			used_names[known_name.to_lower()] = true
+	for sector_id in TemplateDatabase.locations:
+		var template_name: String = str(_get_template_value(TemplateDatabase.locations.get(sector_id), "location_name", "")).strip_edges()
+		if not template_name.empty():
+			used_names[template_name.to_lower()] = true
+	return used_names
+
+
+func _get_discovery_prefix_word_pool(procedural_type: String, initial_tags: Array) -> Array:
+	var procedural_pool = Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE.get(procedural_type, [])
+	if procedural_pool is Array and not procedural_pool.empty():
+		return Array(procedural_pool)
+	var environment_pool = Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_ENVIRONMENT.get(_discovery_environment_tag(initial_tags), [])
+	if environment_pool is Array and not environment_pool.empty():
+		return Array(environment_pool)
+	return Array(Constants.FRONTIER_DISCOVERY_NAME_PREFIXES)
+
+
+func _get_discovery_suffix_word_pool(initial_tags: Array) -> Array:
+	var economy_level: String = _discovery_economy_level(initial_tags)
+	var economy_pool = Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL.get(economy_level, [])
+	if economy_pool is Array and not economy_pool.empty():
+		return Array(economy_pool)
+	return Array(Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES)
+
+
+func _discovery_environment_tag(initial_tags: Array) -> String:
+	for environment_tag in ["EXTREME", "HARSH", "MILD"]:
+		if environment_tag in initial_tags:
+			return environment_tag
+	return "MILD"
+
+
+func _discovery_economy_level(initial_tags: Array) -> String:
+	var counts: Dictionary = {"POOR": 0, "ADEQUATE": 0, "RICH": 0}
+	for tag in initial_tags:
+		var tag_text: String = str(tag)
+		for economy_level in ["POOR", "ADEQUATE", "RICH"]:
+			if tag_text.ends_with("_" + economy_level):
+				counts[economy_level] = int(counts.get(economy_level, 0)) + 1
+	if int(counts.get("RICH", 0)) >= 2:
+		return "RICH"
+	if int(counts.get("POOR", 0)) >= 2:
+		return "POOR"
+	return "ADEQUATE"
 
 
 func _graph_degree(sector_id: String) -> int:
@@ -18024,7 +18662,8 @@ func _spawn_mortal_agents() -> void:
 	# Diminishing returns: more agents → lower spawn chance
 	var agent_count: int = GameState.agents.size()
 	var saturation: float = float(agent_count) / float(Constants.MORTAL_GLOBAL_CAP)
-	var effective_chance: float = Constants.MORTAL_SPAWN_CHANCE * (1.0 - saturation)
+	var effective_chance: float = Constants.MORTAL_SPAWN_CHANCE * _mortal_spawn_age_multiplier() * (1.0 - saturation)
+	effective_chance = clamp(effective_chance, 0.0, 1.0)
 	if _rng.randf() > effective_chance:
 		return
 
@@ -18032,7 +18671,7 @@ func _spawn_mortal_agents() -> void:
 	GameState.mortal_agent_counter += 1
 	var agent_id: String = "mortal_" + str(GameState.mortal_agent_counter)
 	spawn_sector = _resolve_known_sector_id(spawn_sector, "%s.spawn_sector" % agent_id)
-	var role: String = Constants.MORTAL_ROLES[_rng.randi() % Constants.MORTAL_ROLES.size()]
+	var role: String = _pick_mortal_spawn_role()
 
 	GameState.agents[agent_id] = {
 		"character_id": "",
@@ -18050,6 +18689,74 @@ func _spawn_mortal_agents() -> void:
 		"dynamic_tags": [],
 	}
 	_log_event(agent_id, "spawn", spawn_sector, {})
+
+
+func _mortal_spawn_age_multiplier() -> float:
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					return Constants.PROSPERITY_MORTAL_SPAWN_MULTIPLIER_LATE
+				1:
+					return Constants.PROSPERITY_MORTAL_SPAWN_MULTIPLIER_MID
+				_:
+					return Constants.PROSPERITY_MORTAL_SPAWN_MULTIPLIER_EARLY
+		"DISRUPTION":
+			return Constants.DISRUPTION_MORTAL_SPAWN_MULTIPLIER
+		"RECOVERY":
+			return Constants.RECOVERY_MORTAL_SPAWN_MULTIPLIER
+	return 1.0
+
+
+func _prosperity_growth_stage() -> int:
+	if GameState.world_age != "PROSPERITY":
+		return 0
+	var total_ticks: int = int(Constants.WORLD_AGE_DURATIONS.get("PROSPERITY", 0))
+	var current_timer: int = int(GameState.world_age_timer)
+	if total_ticks <= 0 or current_timer <= 0:
+		return 0
+	var elapsed_ticks: int = total_ticks - current_timer
+	if elapsed_ticks < 0:
+		elapsed_ticks = 0
+	var progress_ratio: float = float(elapsed_ticks) / float(total_ticks)
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_2_RATIO:
+		return 2
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_1_RATIO:
+		return 1
+	return 0
+
+
+func _pick_mortal_spawn_role() -> String:
+	var role_pool: Array = Array(Constants.MORTAL_ROLES)
+	if _should_limit_mortal_explorer_spawn():
+		var filtered_roles: Array = []
+		for role_name in role_pool:
+			if str(role_name) != "explorer":
+				filtered_roles.append(str(role_name))
+		if not filtered_roles.empty():
+			role_pool = filtered_roles
+	return str(role_pool[_rng.randi() % role_pool.size()])
+
+
+func _should_limit_mortal_explorer_spawn() -> bool:
+	var frontier_sector_count: int = 0
+	for sector_id in GameState.sector_tags:
+		var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		if _is_exploration_anchor_sector(str(sector_id), tags):
+			frontier_sector_count += 1
+
+	var explorer_cap: int = max(
+		1,
+		int(ceil(float(frontier_sector_count) / float(Constants.MORTAL_EXPLORER_FRONTIER_SECTOR_RATIO)))
+	)
+	var active_explorer_count: int = 0
+	for agent_id in GameState.agents:
+		var agent: Dictionary = Dictionary(GameState.agents.get(agent_id, {}))
+		if agent.get("is_disabled", false):
+			continue
+		if str(agent.get("agent_role", "")) == "explorer":
+			active_explorer_count += 1
+	return active_explorer_count >= explorer_cap
 
 
 func _cleanup_dead_mortals() -> void:
@@ -18119,7 +18826,10 @@ func _apply_upkeep() -> void:
 		if agent.get("wealth_tag") == "BROKE":
 			var s_tags: Array = GameState.sector_tags.get(agent.get("current_sector_id", ""), [])
 			if "STATION" in s_tags or "FRONTIER" in s_tags:
-				if _rng.randf() < Constants.BROKE_RECOVERY_CHANCE:
+				var recovery_chance: float = Constants.BROKE_RECOVERY_CHANCE
+				if str(agent.get("agent_role", "")) == "explorer":
+					recovery_chance = min(1.0, recovery_chance + Constants.EXPLORER_BROKE_RECOVERY_CHANCE_BONUS)
+				if _rng.randf() < recovery_chance:
 					agent["wealth_tag"] = "COMFORTABLE"
 
 
@@ -18334,8 +19044,8 @@ func _refresh_world_tags() -> void:
 # PROJECT: GDTLancer
 # MODULE: chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_9
-# LOG_REF: 2026-02-21 (TASK_9)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §5, §6.4; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-24 00:46:12
 #
 
 extends Reference
@@ -18362,7 +19072,12 @@ var _max_agent_memory: int = 20
 ##
 ## @param event_packet  Dictionary — {tick, actor_id, action, sector_id, metadata}
 func log_event(event_packet: Dictionary) -> void:
-	var packet: Dictionary = event_packet.duplicate()
+	var packet: Dictionary = _normalize_event_packet(event_packet)
+	_staging_buffer.append(packet)
+
+
+func _normalize_event_packet(event_packet: Dictionary) -> Dictionary:
+	var packet: Dictionary = event_packet.duplicate(true)
 	if not packet.has("tick"):
 		packet["tick"] = GameState.sim_tick_count
 	if not packet.has("actor_id"):
@@ -18371,9 +19086,11 @@ func log_event(event_packet: Dictionary) -> void:
 		packet["action"] = "unknown"
 	if not packet.has("sector_id"):
 		packet["sector_id"] = ""
-	if not packet.has("metadata"):
+	if not packet.has("metadata") or not (packet.get("metadata", {}) is Dictionary):
 		packet["metadata"] = {}
-	_staging_buffer.append(packet)
+	else:
+		packet["metadata"] = packet.get("metadata", {}).duplicate(true)
+	return packet
 
 
 ## Processes all Chronicle Layer steps for one tick.
@@ -18505,6 +19222,12 @@ func _humanize_action(action: String) -> String:
 			return "harvested salvage"
 		"load_cargo":
 			return "loaded cargo"
+		"contract_claimed":
+			return "claimed a relief contract"
+		"contract_loaded":
+			return "loaded relief cargo"
+		"contract_completed":
+			return "completed a relief delivery"
 		"flee":
 			return "fled"
 		"exploration":
@@ -18521,10 +19244,323 @@ func _humanize_action(action: String) -> String:
 			return "was permanently lost"
 		"catastrophe":
 			return "witnessed catastrophe"
+		"catastrophe_death":
+			return "was lost in catastrophe"
+		"expedition_failed":
+			return "failed an expedition"
 		"age_change":
 			return "reported a world-age shift"
 		_:
 			return action
+
+--- Start of ./src/core/simulation/contract_generation_system.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: contract_generation_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-23 23:11:32
+#
+
+extends Reference
+
+## ContractGenerationSystem: Builds runtime qualitative contract occurrences
+## from active sector demand tags without relying on authored templates.
+
+const CATEGORIES: Array = ["RAW", "MANUFACTURED", "CURRENCY"]
+const SECURITY_TAGS: Array = ["SECURE", "CONTESTED", "LAWLESS"]
+
+
+func process_tick(config: Dictionary) -> void:
+	var previous_occurrences: Dictionary = GameState.runtime_contract_occurrences
+	var generated_occurrences: Dictionary = {}
+	var occurrences_by_target: Dictionary = {}
+	var occurrences_by_source: Dictionary = {}
+	var sector_ids: Array = GameState.world_topology.keys()
+	sector_ids.sort()
+	var global_cap: int = int(config.get("contract_occurrence_global_cap", Constants.CONTRACT_OCCURRENCE_GLOBAL_CAP))
+	var per_sector_cap: int = int(config.get("contract_occurrence_per_sector_cap", Constants.CONTRACT_OCCURRENCE_PER_SECTOR_CAP))
+	_seed_retained_occurrences(
+		previous_occurrences,
+		generated_occurrences,
+		occurrences_by_target,
+		occurrences_by_source,
+		global_cap
+	)
+
+	for sector_id in sector_ids:
+		if generated_occurrences.size() >= global_cap:
+			break
+
+		var target_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		var demand_categories: Array = _active_demand_categories(target_tags)
+		if demand_categories.empty():
+			continue
+
+		var generated_for_sector: int = 0
+		for category in demand_categories:
+			if generated_occurrences.size() >= global_cap:
+				break
+			if generated_for_sector >= per_sector_cap:
+				break
+
+			var source_packet: Dictionary = _find_best_source_sector(sector_id, category, config)
+			if source_packet.empty():
+				continue
+
+			var occurrence_id: String = _occurrence_id(sector_id, category)
+			var occurrence: Dictionary = _build_occurrence(
+				occurrence_id,
+				sector_id,
+				category,
+				target_tags,
+				source_packet
+			)
+			occurrence = _merge_existing_occurrence_state(
+				occurrence,
+				previous_occurrences.get(occurrence_id, {})
+			)
+			generated_occurrences[occurrence_id] = occurrence
+			_index_occurrence(occurrences_by_target, sector_id, occurrence_id)
+			_index_occurrence(occurrences_by_source, str(source_packet.get("sector_id", "")), occurrence_id)
+			generated_for_sector += 1
+
+	GameState.runtime_contract_occurrences = generated_occurrences
+	GameState.runtime_contract_occurrences_by_target_sector = occurrences_by_target
+	GameState.runtime_contract_occurrences_by_source_sector = occurrences_by_source
+
+
+func _seed_retained_occurrences(
+	previous_occurrences: Dictionary,
+	generated_occurrences: Dictionary,
+	occurrences_by_target: Dictionary,
+	occurrences_by_source: Dictionary,
+	global_cap: int
+) -> void:
+	var occurrence_ids: Array = previous_occurrences.keys()
+	occurrence_ids.sort()
+	for occurrence_id in occurrence_ids:
+		if generated_occurrences.size() >= global_cap:
+			break
+		var previous_occurrence: Dictionary = previous_occurrences.get(occurrence_id, {})
+		if not _should_retain_claimed_occurrence(previous_occurrence):
+			continue
+		var retained_occurrence: Dictionary = previous_occurrence.duplicate(true)
+		retained_occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+		generated_occurrences[occurrence_id] = retained_occurrence
+		_index_occurrence(
+			occurrences_by_target,
+			str(retained_occurrence.get("target_sector_id", "")),
+			occurrence_id
+		)
+		_index_occurrence(
+			occurrences_by_source,
+			str(retained_occurrence.get("source_sector_id", "")),
+			occurrence_id
+		)
+
+
+func _should_retain_claimed_occurrence(previous_occurrence: Dictionary) -> bool:
+	if previous_occurrence.empty():
+		return false
+	var claimant_agent_id: String = str(previous_occurrence.get("claimant_agent_id", ""))
+	if claimant_agent_id == "":
+		return false
+	var status: String = str(previous_occurrence.get("status", "open"))
+	if not (status in ["claimed", "in_transit"]):
+		return false
+	return _claimant_is_valid(claimant_agent_id, previous_occurrence)
+
+
+func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrence: Dictionary) -> Dictionary:
+	if previous_occurrence.empty():
+		return occurrence
+	if previous_occurrence.has("created_at_tick"):
+		occurrence["created_at_tick"] = int(previous_occurrence.get("created_at_tick", GameState.sim_tick_count))
+	var claimant_agent_id: String = str(previous_occurrence.get("claimant_agent_id", ""))
+	if claimant_agent_id != "" and _claimant_is_valid(claimant_agent_id, occurrence):
+		occurrence["claimant_agent_id"] = claimant_agent_id
+		occurrence["status"] = str(previous_occurrence.get("status", "claimed"))
+		if previous_occurrence.has("claimed_at_tick"):
+			occurrence["claimed_at_tick"] = int(previous_occurrence.get("claimed_at_tick", GameState.sim_tick_count))
+	return occurrence
+
+
+func _claimant_is_valid(agent_id: String, occurrence: Dictionary) -> bool:
+	if agent_id == "" or not GameState.agents.has(agent_id):
+		return false
+	var agent: Dictionary = GameState.agents.get(agent_id, {})
+	if agent.empty() or agent.get("is_disabled", false):
+		return false
+	var required_roles: Array = Array(occurrence.get("required_roles", []))
+	return str(agent.get("agent_role", "idle")) in required_roles
+
+
+func _active_demand_categories(tags: Array) -> Array:
+	var categories: Array = []
+	for category in CATEGORIES:
+		if _contract_demand_tag(category) in tags:
+			categories.append(category)
+	return categories
+
+
+func _find_best_source_sector(target_sector_id: String, category: String, config: Dictionary) -> Dictionary:
+	var max_hops: int = int(config.get("contract_source_search_max_hops", Constants.CONTRACT_SOURCE_SEARCH_MAX_HOPS))
+	var frontier: Array = [{"sector_id": target_sector_id, "distance": 0}]
+	var visited: Dictionary = {target_sector_id: true}
+	var best_candidate: Dictionary = {}
+	var best_score: float = -1000000.0
+	var best_sector_id: String = ""
+
+	while not frontier.empty():
+		var packet: Dictionary = frontier[0]
+		frontier.remove(0)
+		var sector_id: String = str(packet.get("sector_id", ""))
+		var distance: int = int(packet.get("distance", 0))
+
+		if sector_id != target_sector_id and _is_qualifying_source_sector(sector_id, category):
+			var score: float = _source_score(sector_id, category, distance)
+			if best_candidate.empty() or score > best_score or (is_equal_approx(score, best_score) and sector_id < best_sector_id):
+				best_candidate = {"sector_id": sector_id, "distance": distance}
+				best_score = score
+				best_sector_id = sector_id
+
+		if distance >= max_hops:
+			continue
+
+		var neighbor_ids: Array = Array(GameState.world_topology.get(sector_id, {}).get("connections", []))
+		neighbor_ids.sort()
+		for neighbor_id in neighbor_ids:
+			if visited.has(neighbor_id):
+				continue
+			visited[neighbor_id] = true
+			frontier.append({"sector_id": neighbor_id, "distance": distance + 1})
+
+	return best_candidate
+
+
+func _is_qualifying_source_sector(sector_id: String, category: String) -> bool:
+	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	if tags.empty():
+		return false
+	if not _is_serviceable_sector(tags):
+		return false
+	if "DISABLED" in tags or "HOSTILE_INFESTED" in tags or "LAWLESS" in tags:
+		return false
+	return (category + "_ADEQUATE") in tags or (category + "_RICH") in tags
+
+
+func _source_score(sector_id: String, category: String, distance: int) -> float:
+	var score: float = 0.0
+	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	if (category + "_RICH") in tags:
+		score += 6.0
+	elif (category + "_ADEQUATE") in tags:
+		score += 3.0
+
+	if "SECURE" in tags:
+		score += 2.0
+	elif "CONTESTED" in tags:
+		score += 1.0
+
+	if "TRADE_LANE_ACTIVE" in tags:
+		score += 1.0
+	if "STATION" in tags:
+		score += 0.5
+
+	score -= float(distance) * 1.5
+	return score
+
+
+func _build_occurrence(occurrence_id: String, target_sector_id: String, category: String, target_tags: Array, source_packet: Dictionary) -> Dictionary:
+	var source_sector_id: String = str(source_packet.get("sector_id", ""))
+	var route_hops: int = int(source_packet.get("distance", 0))
+	var category_label: String = _category_label(category)
+	var source_label: String = _sector_label(source_sector_id)
+	var target_label: String = _sector_label(target_sector_id)
+	return {
+		"occurrence_id": occurrence_id,
+		"generator_id": "qualitative_demand",
+		"contract_type": "delivery",
+		"commodity_category": category,
+		"demand_tag": _contract_demand_tag(category),
+		"source_sector_id": source_sector_id,
+		"target_sector_id": target_sector_id,
+		"origin_location_id": source_sector_id,
+		"destination_location_id": target_sector_id,
+		"status": "open",
+		"claimant_agent_id": "",
+		"required_roles": ["trader", "hauler"],
+		"priority_tags": _build_priority_tags(target_tags, category),
+		"route_hops": route_hops,
+		"created_at_tick": GameState.sim_tick_count,
+		"last_refreshed_tick": GameState.sim_tick_count,
+		"title": "%s Relief Route to %s" % [category_label, target_label],
+		"description": "%s demand in %s can be relieved from %s." % [category_label, target_label, source_label],
+	}
+
+
+func _build_priority_tags(target_tags: Array, category: String) -> Array:
+	var tags: Array = [_contract_demand_tag(category), _security_tag(target_tags)]
+	if "RELIEF_NEEDED" in target_tags:
+		tags.append("RELIEF_NEEDED")
+	if GameState.world_age == "DISRUPTION":
+		tags.append("WORLD_AGE_DISRUPTION")
+	return _unique(tags)
+
+
+func _occurrence_id(target_sector_id: String, category: String) -> String:
+	return "runtime_contract:%s:%s" % [target_sector_id, category]
+
+
+func _contract_demand_tag(category: String) -> String:
+	return "CONTRACT_DEMAND_%s" % category
+
+
+func _is_serviceable_sector(tags: Array) -> bool:
+	return "STATION" in tags or "FRONTIER" in tags
+
+
+func _category_label(category: String) -> String:
+	match category:
+		"RAW":
+			return "Raw"
+		"MANUFACTURED":
+			return "Manufactured"
+		"CURRENCY":
+			return "Currency"
+		_:
+			return category.capitalize()
+
+
+func _security_tag(tags: Array) -> String:
+	for security_tag in SECURITY_TAGS:
+		if security_tag in tags:
+			return security_tag
+	return "CONTESTED"
+
+
+func _sector_label(sector_id: String) -> String:
+	return str(GameState.sector_names.get(sector_id, sector_id))
+
+
+func _index_occurrence(index: Dictionary, sector_id: String, occurrence_id: String) -> void:
+	if sector_id == "":
+		return
+	if not index.has(sector_id):
+		index[sector_id] = []
+	index[sector_id].append(occurrence_id)
+
+
+func _unique(values: Array) -> Array:
+	var seen: Dictionary = {}
+	var result: Array = []
+	for value in values:
+		if not seen.has(value):
+			seen[value] = true
+			result.append(value)
+	return result
 
 --- Start of ./src/core/simulation/grid_layer.gd ---
 
@@ -18532,8 +19568,8 @@ func _humanize_action(action: String) -> String:
 # PROJECT: GDTLancer
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-25 15:57:53
 #
 
 extends Reference
@@ -18603,6 +19639,10 @@ func initialize_grid() -> void:
 			GameState.economy_downgrade_progress[sector_id] = {}
 		if not GameState.economy_change_threshold.has(sector_id):
 			GameState.economy_change_threshold[sector_id] = {}
+		if not GameState.contract_generation_pressure.has(sector_id):
+			GameState.contract_generation_pressure[sector_id] = {}
+		if not GameState.contract_generation_threshold.has(sector_id):
+			GameState.contract_generation_threshold[sector_id] = {}
 
 		for category in CATEGORIES:
 			if not GameState.economy_upgrade_progress[sector_id].has(category):
@@ -18615,6 +19655,15 @@ func initialize_grid() -> void:
 				GameState.economy_change_threshold[sector_id][category] = thresh_rng.randi_range(
 					Constants.ECONOMY_CHANGE_TICKS_MIN,
 					Constants.ECONOMY_CHANGE_TICKS_MAX
+				)
+			if not GameState.contract_generation_pressure[sector_id].has(category):
+				GameState.contract_generation_pressure[sector_id][category] = 0
+			if not GameState.contract_generation_threshold[sector_id].has(category):
+				var contract_rng := RandomNumberGenerator.new()
+				contract_rng.seed = hash(str(GameState.world_seed) + ":contract_thresh:" + sector_id + ":" + category)
+				GameState.contract_generation_threshold[sector_id][category] = contract_rng.randi_range(
+					Constants.CONTRACT_PRESSURE_TICKS_MIN,
+					Constants.CONTRACT_PRESSURE_TICKS_MAX
 				)
 
 		# Hostile infestation progress
@@ -18647,6 +19696,7 @@ func process_tick(config: Dictionary) -> void:
 		tags = _step_environment(tags, sector_id)
 		tags = _step_hostile_presence(tags, sector_id)
 		tags = _step_colony_level(tags, sector_id)
+		tags = _step_contract_demand(tags, sector_id)
 		new_tags[sector_id] = _unique(tags)
 
 	GameState.sector_tags = new_tags
@@ -18673,6 +19723,7 @@ func _step_economy(tags: Array, neighbor_tags: Array, sector_id: String) -> Arra
 
 	var loaded_trade: int = _loaded_trade_count_for_sector(sector_id)
 	var colony_level: String = GameState.colony_levels.get(sector_id, "frontier")
+	var max_idx_for_level: int = _economy_max_index_for_level(colony_level)
 	var has_active_commerce: bool = loaded_trade > 0 or colony_level in ["colony", "hub"]
 	var has_pirate_or_infestation: bool = role_counts.get("pirate", 0) > 0 or "HOSTILE_INFESTED" in result
 
@@ -18684,6 +19735,7 @@ func _step_economy(tags: Array, neighbor_tags: Array, sector_id: String) -> Arra
 		var delta: int = 0
 
 		var threshold: int = sector_thresholds.get(category, Constants.ECONOMY_CHANGE_TICKS_MIN)
+		var upgrade_threshold: int = _economy_upgrade_threshold_for_level(threshold, colony_level)
 
 		# Homeostatic pressure
 		if level == "RICH":
@@ -18733,12 +19785,14 @@ func _step_economy(tags: Array, neighbor_tags: Array, sector_id: String) -> Arra
 			up_progress = 0
 			down_progress = 0
 
-		if up_progress >= threshold and idx < 2:
-			idx = min(2, idx + 1)
+		if up_progress >= upgrade_threshold and idx < max_idx_for_level:
+			idx = min(max_idx_for_level, idx + 1)
 			up_progress = 0
 		elif down_progress >= threshold and idx > 0:
 			idx = max(0, idx - 1)
 			down_progress = 0
+
+		idx = min(idx, max_idx_for_level)
 
 		sector_upgrade_progress[category] = up_progress
 		sector_downgrade_progress[category] = down_progress
@@ -18760,6 +19814,8 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 	var idx: int = SECURITY_LEVELS.find(security)
 	if idx < 0:
 		idx = 1  # CONTESTED fallback
+	var colony_level: String = GameState.colony_levels.get(sector_id, "frontier")
+	var max_idx_for_level: int = _security_max_index_for_level(colony_level)
 	var role_counts: Dictionary = _role_counts_for_sector(sector_id)
 	var delta: int = 0
 
@@ -18807,6 +19863,7 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 	var threshold: int = GameState.security_change_threshold.get(
 		sector_id, Constants.SECURITY_CHANGE_TICKS_MIN
 	)
+	var upgrade_threshold: int = _security_upgrade_threshold_for_level(threshold, colony_level)
 
 	if delta >= 1:
 		up_progress += 1
@@ -18818,12 +19875,14 @@ func _step_security(tags: Array, neighbor_tags: Array, sector_id: String) -> Arr
 		up_progress = 0
 		down_progress = 0
 
-	if up_progress >= threshold and idx < 2:
-		idx = min(2, idx + 1)
+	if up_progress >= upgrade_threshold and idx < max_idx_for_level:
+		idx = min(max_idx_for_level, idx + 1)
 		up_progress = 0
 	elif down_progress >= threshold and idx > 0:
 		idx = max(0, idx - 1)
 		down_progress = 0
+
+	idx = min(idx, max_idx_for_level)
 
 	GameState.security_upgrade_progress[sector_id] = up_progress
 	GameState.security_downgrade_progress[sector_id] = down_progress
@@ -18912,14 +19971,12 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 	var levels: Array = Constants.COLONY_LEVELS
 	var up_progress: int = GameState.colony_upgrade_progress.get(sector_id, 0)
 	var down_progress: int = GameState.colony_downgrade_progress.get(sector_id, 0)
+	var upgrade_threshold: int = _colony_upgrade_threshold_for_level(level)
 
 	# Check upgrade requirements
-	var economy_ok: bool = true
-	for req in Constants.COLONY_UPGRADE_REQUIRED_ECONOMY:
-		if not (req in tags or req.replace("_ADEQUATE", "_RICH") in tags):
-			economy_ok = false
-			break
-	var security_ok: bool = Constants.COLONY_UPGRADE_REQUIRED_SECURITY in tags
+	var economy_ok: bool = _colony_upgrade_economy_ok(tags, level, sector_id)
+	var security_ok: bool = _colony_upgrade_security_ok(tags, level)
+	var environment_ok: bool = _colony_upgrade_environment_ok(tags, level)
 
 	# Check downgrade triggers
 	var degrade: bool = Constants.COLONY_DOWNGRADE_SECURITY_TRIGGER in tags
@@ -18929,7 +19986,7 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 				degrade = true
 				break
 
-	if economy_ok and security_ok:
+	if economy_ok and security_ok and environment_ok:
 		up_progress += 1
 		down_progress = 0
 	elif degrade:
@@ -18948,7 +20005,7 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 	if level_idx < 0:
 		level_idx = 0
 
-	if up_progress >= Constants.COLONY_UPGRADE_TICKS_REQUIRED and level_idx < levels.size() - 1:
+	if up_progress >= upgrade_threshold and level_idx < levels.size() - 1:
 		level = levels[level_idx + 1]
 		up_progress = 0
 	elif down_progress >= Constants.COLONY_DOWNGRADE_TICKS_REQUIRED and level_idx > 0:
@@ -18961,6 +20018,62 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 	GameState.colony_upgrade_progress[sector_id] = up_progress
 	GameState.colony_downgrade_progress[sector_id] = down_progress
 	return tags
+
+
+# =============================================================================
+# === PRIVATE — CONTRACT DEMAND STEP ==========================================
+# =============================================================================
+
+func _step_contract_demand(tags: Array, sector_id: String) -> Array:
+	var result: Array = Array(tags)
+	var serviceable: bool = _is_contract_service_sector(result)
+	var active_relief: bool = _has_active_trade_relief(sector_id)
+	var sector_disabled: bool = _sector_recently_disabled(sector_id)
+	var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(sector_id, {})
+	var sector_thresholds: Dictionary = GameState.contract_generation_threshold.get(sector_id, {})
+	var demand_count: int = 0
+
+	for category in CATEGORIES:
+		var poor_tag: String = category + "_POOR"
+		var demand_tag: String = _contract_demand_tag(category)
+		var threshold: int = sector_thresholds.get(category, Constants.CONTRACT_PRESSURE_TICKS_MIN)
+		var pressure: int = sector_pressure.get(category, 0)
+		var can_generate: bool = serviceable and (poor_tag in result) and not sector_disabled
+
+		if can_generate:
+			if active_relief:
+				pressure = max(0, pressure - Constants.CONTRACT_RELIEF_DECAY_PER_TICK)
+			else:
+				pressure = min(Constants.CONTRACT_PRESSURE_CAP, pressure + 1)
+		else:
+			pressure = max(0, pressure - 1)
+
+		sector_pressure[category] = pressure
+		if can_generate and pressure >= threshold:
+			result = _add_tag(result, demand_tag)
+		else:
+			result = _remove_tag(result, demand_tag)
+
+		if demand_tag in result:
+			demand_count += 1
+
+	GameState.contract_generation_pressure[sector_id] = sector_pressure
+
+	if active_relief and demand_count > 0:
+		result = _add_tag(result, "TRADE_LANE_ACTIVE")
+	else:
+		result = _remove_tag(result, "TRADE_LANE_ACTIVE")
+
+	var needs_relief: bool = demand_count >= 2
+	if demand_count > 0 and (_security_tag(result) != "SECURE" or GameState.world_age == "DISRUPTION"):
+		needs_relief = true
+
+	if needs_relief:
+		result = _add_tag(result, "RELIEF_NEEDED")
+	else:
+		result = _remove_tag(result, "RELIEF_NEEDED")
+
+	return result
 
 
 # =============================================================================
@@ -19009,9 +20122,229 @@ func _active_agent_count_in_sector(sector_id: String) -> int:
 	return count
 
 
+func _has_active_trade_relief(sector_id: String) -> bool:
+	return _has_active_commerce_presence(sector_id)
+
+
+func _has_active_commerce_presence(sector_id: String) -> bool:
+	var role_counts: Dictionary = _role_counts_for_sector(sector_id)
+	return _loaded_trade_count_for_sector(sector_id) > 0 \
+		or role_counts.get("trader", 0) > 0 \
+		or role_counts.get("hauler", 0) > 0
+
+
+func _prosperity_growth_stage() -> int:
+	if GameState.world_age != "PROSPERITY":
+		return 0
+	var total_ticks: int = int(Constants.WORLD_AGE_DURATIONS.get("PROSPERITY", 0))
+	var current_timer: int = int(GameState.world_age_timer)
+	if total_ticks <= 0 or current_timer <= 0:
+		return 0
+	var elapsed_ticks: int = total_ticks - current_timer
+	if elapsed_ticks < 0:
+		elapsed_ticks = 0
+	var progress_ratio: float = float(elapsed_ticks) / float(total_ticks)
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_2_RATIO:
+		return 2
+	if progress_ratio >= Constants.PROSPERITY_GROWTH_STAGE_1_RATIO:
+		return 1
+	return 0
+
+
+func _economy_upgrade_threshold_for_level(base_threshold: int, colony_level: String) -> int:
+	var threshold: int = base_threshold
+	if colony_level == "frontier":
+		threshold += Constants.FRONTIER_ECONOMY_UPGRADE_TICKS_BONUS
+	elif colony_level == "outpost":
+		threshold += Constants.OUTPOST_ECONOMY_UPGRADE_TICKS_BONUS
+
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_LATE
+				1:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_MID
+		"DISRUPTION":
+			threshold += 1
+		"RECOVERY":
+			threshold -= 1
+
+	if threshold < Constants.ECONOMY_CHANGE_TICKS_MIN:
+		threshold = Constants.ECONOMY_CHANGE_TICKS_MIN
+	return threshold
+
+
+func _economy_max_index_for_level(colony_level: String) -> int:
+	if colony_level == "frontier":
+		var frontier_max_idx: int = ECONOMY_LEVELS.find(Constants.FRONTIER_MAX_ECONOMY_LEVEL)
+		return frontier_max_idx if frontier_max_idx >= 0 else 1
+	return ECONOMY_LEVELS.size() - 1
+
+
+func _security_upgrade_threshold_for_level(base_threshold: int, colony_level: String) -> int:
+	var threshold: int = base_threshold
+	if colony_level == "frontier":
+		threshold += Constants.FRONTIER_SECURITY_UPGRADE_TICKS_BONUS
+	elif colony_level == "outpost":
+		threshold += Constants.OUTPOST_SECURITY_UPGRADE_TICKS_BONUS
+
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_LATE
+				1:
+					threshold -= Constants.PROSPERITY_ECONOMY_SECURITY_UPGRADE_REDUCTION_MID
+		"DISRUPTION":
+			threshold += 1
+		"RECOVERY":
+			threshold -= 1
+
+	if threshold < Constants.SECURITY_CHANGE_TICKS_MIN:
+		threshold = Constants.SECURITY_CHANGE_TICKS_MIN
+	return threshold
+
+
+func _security_max_index_for_level(colony_level: String) -> int:
+	if colony_level == "frontier":
+		var frontier_max_idx: int = SECURITY_LEVELS.find(Constants.FRONTIER_MAX_SECURITY_LEVEL)
+		return frontier_max_idx if frontier_max_idx >= 0 else 1
+	return SECURITY_LEVELS.size() - 1
+
+
+func _colony_upgrade_threshold_for_level(level: String) -> int:
+	var threshold: int = Constants.COLONY_UPGRADE_TICKS_REQUIRED
+	if level == "frontier":
+		threshold = Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED
+	elif level == "outpost":
+		threshold = Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED
+	elif level == "colony":
+		threshold = Constants.COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED
+
+	match GameState.world_age:
+		"PROSPERITY":
+			match _prosperity_growth_stage():
+				2:
+					if level == "colony":
+						threshold -= Constants.PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_LATE
+					elif level == "outpost":
+						threshold -= Constants.PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_LATE
+					else:
+						threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_LATE
+				1:
+					if level == "colony":
+						threshold -= Constants.PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_MID
+					elif level == "outpost":
+						threshold -= Constants.PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_MID
+					else:
+						threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_MID
+		"DISRUPTION":
+			threshold += 2
+		"RECOVERY":
+			if level == "colony":
+				threshold += Constants.RECOVERY_COLONY_TO_HUB_UPGRADE_PENALTY
+			elif level == "outpost":
+				threshold += Constants.RECOVERY_OUTPOST_TO_COLONY_UPGRADE_PENALTY
+			else:
+				threshold -= 1
+
+	var minimum_threshold: int = _minimum_colony_upgrade_threshold_for_level(level)
+	if threshold < minimum_threshold:
+		threshold = minimum_threshold
+	return threshold
+
+
+func _minimum_colony_upgrade_threshold_for_level(level: String) -> int:
+	if level == "frontier":
+		return 12
+	if level == "outpost":
+		return 11
+	if level == "colony":
+		return 11
+	return 6
+
+
+func _colony_upgrade_economy_ok(tags: Array, level: String, sector_id: String = "") -> bool:
+	if level == "colony":
+		for req in Constants.COLONY_TO_HUB_REQUIRED_ECONOMY:
+			if not (req in tags):
+				return false
+		return true
+	if not _meets_colony_upgrade_economy_floor(tags):
+		return false
+	if level == "outpost":
+		var rich_count: int = _rich_economy_tag_count(tags)
+		if rich_count < Constants.OUTPOST_TO_COLONY_REQUIRED_RICH_ECONOMY_COUNT:
+			return false
+		if rich_count >= Constants.OUTPOST_TO_COLONY_SELF_SUFFICIENT_RICH_ECONOMY_COUNT:
+			return true
+		return _outpost_colony_growth_support_score(sector_id) >= Constants.OUTPOST_TO_COLONY_GROWTH_SUPPORT_REQUIRED
+	return true
+
+
+func _meets_colony_upgrade_economy_floor(tags: Array) -> bool:
+	for req in Constants.COLONY_UPGRADE_REQUIRED_ECONOMY:
+		if not (req in tags or req.replace("_ADEQUATE", "_RICH") in tags):
+			return false
+	return true
+
+
+func _rich_economy_tag_count(tags: Array) -> int:
+	var rich_count: int = 0
+	for tag in tags:
+		if str(tag).ends_with("_RICH"):
+			rich_count += 1
+	return rich_count
+
+
+func _outpost_colony_growth_support_score(sector_id: String) -> int:
+	if sector_id == "":
+		return 0
+
+	var support_score: int = 0
+	if _has_active_commerce_presence(sector_id):
+		support_score += 1
+
+	for neighbor_id in GameState.world_topology.get(sector_id, {}).get("connections", []):
+		var neighbor_level: String = GameState.colony_levels.get(neighbor_id, "frontier")
+		if neighbor_level in ["colony", "hub"]:
+			support_score += 2
+			continue
+		if neighbor_level != "outpost":
+			continue
+
+		var neighbor_tags: Array = GameState.sector_tags.get(neighbor_id, [])
+		if Constants.COLONY_UPGRADE_REQUIRED_SECURITY in neighbor_tags and _meets_colony_upgrade_economy_floor(neighbor_tags):
+			support_score += 1
+
+	return support_score
+
+
+func _colony_upgrade_security_ok(tags: Array, level: String) -> bool:
+	if level == "frontier":
+		return _security_level_index(_security_tag(tags)) >= _security_level_index(Constants.FRONTIER_TO_OUTPOST_REQUIRED_SECURITY)
+	return Constants.COLONY_UPGRADE_REQUIRED_SECURITY in tags
+
+
+func _colony_upgrade_environment_ok(tags: Array, level: String) -> bool:
+	if level == "frontier":
+		return not (Constants.FRONTIER_TO_OUTPOST_BLOCKED_ENVIRONMENT in tags)
+	if level == "outpost":
+		return not (Constants.OUTPOST_TO_COLONY_BLOCKED_ENVIRONMENT in tags)
+	return true
+
+
 # =============================================================================
 # === PRIVATE — TAG HELPERS ===================================================
 # =============================================================================
+
+func _is_contract_service_sector(tags: Array) -> bool:
+	return "STATION" in tags or "FRONTIER" in tags
+
+
+func _contract_demand_tag(category: String) -> String:
+	return "CONTRACT_DEMAND_%s" % category
 
 func _economy_level(tags: Array, category: String) -> String:
 	for level in ECONOMY_LEVELS:
@@ -19034,6 +20367,11 @@ func _environment_tag(tags: Array) -> String:
 	return "MILD"
 
 
+func _security_level_index(security_tag: String) -> int:
+	var idx: int = SECURITY_LEVELS.find(security_tag)
+	return idx if idx >= 0 else 1
+
+
 ## Replaces all tags starting with prefix with a single replacement tag.
 func _replace_prefix(tags: Array, prefix: String, replacement: String) -> Array:
 	var base: Array = []
@@ -19052,6 +20390,21 @@ func _replace_one_of(tags: Array, options: Array, replacement: String) -> Array:
 			base.append(tag)
 	base.append(replacement)
 	return base
+
+
+func _add_tag(tags: Array, tag: String) -> Array:
+	var result: Array = Array(tags)
+	if not (tag in result):
+		result.append(tag)
+	return result
+
+
+func _remove_tag(tags: Array, tag: String) -> Array:
+	var result: Array = []
+	for existing_tag in tags:
+		if existing_tag != tag:
+			result.append(existing_tag)
+	return result
 
 
 ## Returns true if sector is currently disabled (catastrophe cooldown).
@@ -19076,8 +20429,8 @@ func _unique(tags: Array) -> Array:
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_11
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends Node
@@ -19089,8 +20442,9 @@ extends Node
 ##   Step 1: World Layer — static topology, no per-tick processing
 ##   Step 2: Grid Layer — qualitative CA tag transitions
 ##   Step 3: Bridge Systems — cross-layer tag refresh (affinity-derived)
-##   Step 4: Agent Layer — NPC goal evaluation and action execution
-##   Step 5: Chronicle Layer — event capture and rumor generation
+##   Step 4: Contract Generation — runtime qualitative occurrence refresh
+##   Step 5: Agent Layer — NPC goal evaluation and action execution
+##   Step 6: Chronicle Layer — event capture and rumor generation
 ##
 ## Python reference: python_sandbox/core/simulation/simulation_engine.py
 
@@ -19103,6 +20457,7 @@ var world_layer: Reference = null
 var grid_layer: Reference = null
 var agent_layer: Reference = null
 var bridge_systems: Reference = null
+var contract_generation_system: Reference = null
 var chronicle_layer: Reference = null
 var affinity_matrix: Reference = null
 
@@ -19124,6 +20479,7 @@ func _ready() -> void:
 	var GridLayerScript = load("res://src/core/simulation/grid_layer.gd")
 	var AgentLayerScript = load("res://src/core/simulation/agent_layer.gd")
 	var BridgeSystemsScript = load("res://src/core/simulation/bridge_systems.gd")
+	var ContractGenerationSystemScript = load("res://src/core/simulation/contract_generation_system.gd")
 	var ChronicleLayerScript = load("res://src/core/simulation/chronicle_layer.gd")
 
 	# Instantiate processors
@@ -19132,6 +20488,7 @@ func _ready() -> void:
 	grid_layer = GridLayerScript.new()
 	agent_layer = AgentLayerScript.new()
 	bridge_systems = BridgeSystemsScript.new()
+	contract_generation_system = ContractGenerationSystemScript.new()
 	chronicle_layer = ChronicleLayerScript.new()
 
 	# Wire shared dependencies
@@ -19182,6 +20539,9 @@ func initialize_simulation(seed_string: String) -> void:
 
 	# Step 3: Agent Layer — seed agents from templates
 	agent_layer.initialize_agents()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 
 	# Initialize world-age cycle
 	GameState.world_age = Constants.WORLD_AGE_CYCLE[0]
@@ -19239,14 +20599,34 @@ func process_tick() -> void:
 	# --- Step 3: Bridge Systems ---
 	bridge_systems.process_tick(_tick_config)
 
-	# --- Step 4: Agent Layer ---
+	# --- Step 4: Contract Generation ---
+	contract_generation_system.process_tick(_tick_config)
+
+	# --- Step 5: Agent Layer ---
 	agent_layer.process_tick(_tick_config)
 
-	# --- Step 5: Chronicle Layer ---
-	chronicle_layer.process_tick()
+	# --- Step 6: Chronicle Layer ---
+	_call_process_tick(chronicle_layer, _tick_config)
 
 	# Emit tick-completed signal
 	EventBus.emit_signal("sim_tick_completed", GameState.sim_tick_count)
+
+
+func _call_process_tick(layer: Object, config: Dictionary) -> void:
+	if layer == null or not is_instance_valid(layer):
+		return
+	if _process_tick_argument_count(layer) > 0:
+		layer.call("process_tick", config)
+		return
+	layer.call("process_tick")
+
+
+func _process_tick_argument_count(layer: Object) -> int:
+	for method_info in layer.get_method_list():
+		if str(method_info.get("name", "")) != "process_tick":
+			continue
+		return Array(method_info.get("args", [])).size()
+	return 0
 
 
 ## Advances the simulation by the given number of sub-ticks.
@@ -19326,6 +20706,9 @@ func _build_tick_config() -> void:
 		"mortal_global_cap": Constants.MORTAL_GLOBAL_CAP,
 		"mortal_spawn_required_security": Array(Constants.MORTAL_SPAWN_REQUIRED_SECURITY),
 		"mortal_spawn_blocked_sector_tags": Array(Constants.MORTAL_SPAWN_BLOCKED_SECTOR_TAGS),
+		"contract_occurrence_global_cap": Constants.CONTRACT_OCCURRENCE_GLOBAL_CAP,
+		"contract_occurrence_per_sector_cap": Constants.CONTRACT_OCCURRENCE_PER_SECTOR_CAP,
+		"contract_source_search_max_hops": Constants.CONTRACT_SOURCE_SEARCH_MAX_HOPS,
 	}
 
 
@@ -19346,13 +20729,24 @@ func is_initialized() -> bool:
 ## Runs `tick_count` ticks and returns a chronicle-style narrative report.
 ## Events are grouped into epochs of `epoch_size` ticks (default 1 for small
 ## runs, increase for large runs like 300/3000).
-func run_batch_and_report(tick_count: int, epoch_size: int = 1) -> String:
+func run_batch_and_report(tick_count: int, epoch_size: int = 1, report_request: Dictionary = {}) -> String:
 	if not _initialized:
 		push_warning("SimulationEngine: run_batch_and_report() called but not initialized.")
 		return "(simulation not initialized)"
 	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
 	var report: Reference = ReportScript.new()
-	return report.run_and_report(self, tick_count, epoch_size)
+	return report.run_and_report(self, tick_count, epoch_size, report_request)
+
+
+## Runs one cumulative research pass and emits bundled chronicle sections for
+## each requested milestone (for example 30, 300, and 3000 ticks).
+func run_composite_research_report(tick_counts: Array, composite_request: Dictionary = {}) -> String:
+	if not _initialized:
+		push_warning("SimulationEngine: run_composite_research_report() called but not initialized.")
+		return "(simulation not initialized)"
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report: Reference = ReportScript.new()
+	return report.run_composite_report(self, tick_counts, composite_request)
 
 
 ## Allows runtime config overrides for tuning/debugging.
@@ -19370,14 +20764,15 @@ func get_config() -> Dictionary:
 # PROJECT: GDTLancer
 # MODULE: simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6
-# LOG_REF: 2026-02-23
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends Reference
 
 ## SimulationReport: Generates chronicle-style narrative reports of simulation
-## runs, matching the Python sandbox's `main.py --chronicle` output format.
+## runs, matching the Python sandbox's `main.py --chronicle` output format
+## while also supporting focus-aware and sort-aware scoped analysis.
 ##
 ## Usage:
 ##   var report = SimulationReport.new()
@@ -19387,7 +20782,7 @@ extends Reference
 ##   var text = report.finalize()    # overall summary
 ##
 ## Or use the convenience method:
-##   var text = report.run_and_report(engine, tick_count, epoch_size)
+##   var text = report.run_and_report(engine, tick_count, epoch_size, report_request)
 
 
 # =============================================================================
@@ -19409,6 +20804,9 @@ var _total_ticks: int = 0
 ## Seed string.
 var _seed: String = ""
 
+## Normalized request describing report focus and formatting.
+var _report_request: Dictionary = {}
+
 
 # =============================================================================
 # === CONVENIENCE: ONE-SHOT RUN ===============================================
@@ -19416,12 +20814,13 @@ var _seed: String = ""
 
 ## Runs `tick_count` ticks on the given engine and returns the full chronicle
 ## report as a plain-text string. Events are grouped into epochs of `epoch_size`.
-func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
+func run_and_report(engine, tick_count: int, epoch_size: int = 1, report_request: Dictionary = {}) -> String:
 	_lines.clear()
 	_all_events.clear()
 	_prev_sector_snap.clear()
 	_total_ticks = tick_count
 	_seed = GameState.world_seed
+	_report_request = _normalize_report_request(report_request)
 
 	# Identity-based deduplication: track which event objects we've already
 	# copied so that the 200-event rolling cap in ChronicleLayer doesn't
@@ -19442,6 +20841,12 @@ func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
 	_lines.append("================================================================")
 	_lines.append("CHRONICLE OF THE SECTOR  (seed: %s)" % _seed)
 	_lines.append("================================================================")
+	_lines.append("REPORT MODE: %s  |  FOCUS: %s  |  SORT: %s  |  DETAIL: %s" % [
+		str(_report_request.get("focus_mode", "world")).to_upper(),
+		str(_report_request.get("focus_id", "world")),
+		str(_report_request.get("sort_mode", "chronological")),
+		str(_report_request.get("detail_level", "standard")),
+	])
 	_lines.append("")
 
 	var epoch_start: int = GameState.sim_tick_count
@@ -19477,10 +20882,12 @@ func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
 				epoch_num, epoch_start + 1, epoch_end, age
 			])
 
-			# Narrative
-			var narrative: Array = _epoch_narrative(epoch_events)
-			if not narrative.empty():
-				_lines.append_array(narrative)
+			var epoch_summary: Array = _epoch_summary(epoch_events)
+			if not epoch_summary.empty():
+				_lines.append_array(epoch_summary)
+			var detailed_log: Array = _epoch_detailed_log(epoch_events)
+			if not detailed_log.empty():
+				_lines.append_array(detailed_log)
 			_lines.append("")
 
 			epoch_start = epoch_end
@@ -19490,6 +20897,293 @@ func run_and_report(engine, tick_count: int, epoch_size: int = 1) -> String:
 	_lines.append_array(_summary())
 
 	return PoolStringArray(_lines).join("\n")
+
+
+## Runs one cumulative research pass and emits a bundled chronicle that
+## captures requested milestones from the same live simulation run.
+func run_composite_report(engine, tick_counts: Array, composite_request: Dictionary = {}) -> String:
+	_lines.clear()
+	_all_events.clear()
+	_prev_sector_snap.clear()
+	_total_ticks = 0
+	_seed = GameState.world_seed
+	_report_request = {}
+
+	var normalized_tick_counts: Array = _normalize_composite_tick_counts(tick_counts)
+	if normalized_tick_counts.empty():
+		return "(no composite tick windows requested)"
+
+	var normalized_request: Dictionary = _normalize_composite_request(composite_request)
+	var tick_labels: Array = []
+	for tick_count in normalized_tick_counts:
+		tick_labels.append(str(tick_count))
+
+	_lines.append("================================================================")
+	_lines.append("COMPOSITE RESEARCH CHRONICLE  (seed: %s)" % _seed)
+	_lines.append("================================================================")
+	_lines.append("WINDOWS: %s" % PoolStringArray(tick_labels).join(", "))
+	_lines.append("SECTOR SAMPLING: one deterministic sample per sector type")
+	_lines.append("AGENT SAMPLING: one deterministic sample per role and persistence class")
+	_lines.append("")
+
+	var seen_event_refs: Dictionary = {}
+	var all_new_events: Array = []
+	for existing_event in GameState.chronicle_events:
+		seen_event_refs[existing_event] = true
+
+	var start_tick: int = GameState.sim_tick_count
+	var next_window_index: int = 0
+	var max_tick_count: int = int(normalized_tick_counts[normalized_tick_counts.size() - 1])
+
+	while GameState.sim_tick_count - start_tick < max_tick_count:
+		engine.process_tick()
+
+		for event in GameState.chronicle_events:
+			if seen_event_refs.has(event):
+				continue
+			seen_event_refs[event] = true
+			all_new_events.append(event)
+
+		var elapsed_ticks: int = GameState.sim_tick_count - start_tick
+		while next_window_index < normalized_tick_counts.size() and elapsed_ticks >= int(normalized_tick_counts[next_window_index]):
+			var window_tick_count: int = int(normalized_tick_counts[next_window_index])
+			var window_end_tick: int = start_tick + window_tick_count
+			var window_events: Array = _collect_epoch_events(all_new_events, start_tick, window_end_tick)
+			_lines.append_array(_build_composite_window_section(window_tick_count, window_events, normalized_request))
+			if next_window_index < normalized_tick_counts.size() - 1:
+				_lines.append("")
+			next_window_index += 1
+
+	return PoolStringArray(_lines).join("\n")
+
+
+func _normalize_report_request(report_request: Dictionary) -> Dictionary:
+	var focus_mode: String = str(report_request.get("focus_mode", "world")).to_lower()
+	if not (focus_mode in ["world", "sector", "agent"]):
+		focus_mode = "world"
+
+	var sort_mode: String = str(report_request.get("sort_mode", "chronological")).to_lower()
+	if not (sort_mode in ["chronological", "sector", "agent"]):
+		sort_mode = "chronological"
+
+	var detail_level: String = str(report_request.get("detail_level", "standard")).to_lower()
+	if not (detail_level in ["summary", "standard", "verbose"]):
+		detail_level = "standard"
+
+	var focus_id: String = str(report_request.get("focus_id", ""))
+	if focus_mode == "world" or focus_id == "":
+		focus_id = "world" if focus_mode == "world" else focus_id
+
+	return {
+		"focus_mode": focus_mode,
+		"focus_id": focus_id,
+		"sort_mode": sort_mode,
+		"detail_level": detail_level,
+	}
+
+
+func _normalize_composite_tick_counts(tick_counts: Array) -> Array:
+	var normalized: Array = []
+	var seen_values: Dictionary = {}
+	for raw_value in tick_counts:
+		var tick_count: int = int(raw_value)
+		if tick_count <= 0:
+			continue
+		if seen_values.has(tick_count):
+			continue
+		seen_values[tick_count] = true
+		normalized.append(tick_count)
+	normalized.sort()
+	return normalized
+
+
+func _normalize_composite_request(composite_request: Dictionary) -> Dictionary:
+	var detail_level: String = str(composite_request.get("detail_level", "summary")).to_lower()
+	if not (detail_level in ["summary", "standard", "verbose"]):
+		detail_level = "summary"
+
+	var sort_mode: String = str(composite_request.get("sort_mode", "chronological")).to_lower()
+	if not (sort_mode in ["chronological", "sector", "agent"]):
+		sort_mode = "chronological"
+
+	var sector_types: Array = []
+	for sector_type in Array(composite_request.get("sector_types", [])):
+		var normalized_sector_type: String = str(sector_type)
+		if normalized_sector_type == "" or normalized_sector_type in sector_types:
+			continue
+		sector_types.append(normalized_sector_type)
+	sector_types.sort()
+
+	var agent_roles: Array = []
+	for agent_role in Array(composite_request.get("agent_roles", [])):
+		var normalized_agent_role: String = str(agent_role)
+		if normalized_agent_role == "" or normalized_agent_role in agent_roles:
+			continue
+		agent_roles.append(normalized_agent_role)
+	agent_roles.sort()
+
+	return {
+		"detail_level": detail_level,
+		"sort_mode": sort_mode,
+		"sector_types": sector_types,
+		"agent_roles": agent_roles,
+		"include_persistent": bool(composite_request.get("include_persistent", true)),
+		"include_mortal": bool(composite_request.get("include_mortal", true)),
+	}
+
+
+func _build_composite_window_section(window_tick_count: int, window_events: Array, composite_request: Dictionary) -> Array:
+	var lines: Array = []
+	var previous_all_events: Array = _all_events
+	var previous_total_ticks: int = _total_ticks
+	var previous_report_request: Dictionary = _report_request.duplicate(true)
+
+	_all_events = window_events.duplicate(true)
+	_total_ticks = window_tick_count
+	_report_request = _normalize_report_request({
+		"focus_mode": "world",
+		"focus_id": "world",
+		"sort_mode": "chronological",
+		"detail_level": "standard",
+	})
+
+	lines.append("================================================================")
+	lines.append("COMPOSITE WINDOW: %d ticks" % window_tick_count)
+	lines.append("================================================================")
+	lines.append("  Captured events: %d" % _all_events.size())
+	lines.append_array(_world_summary())
+
+	lines.append("")
+	lines.append("================================================================")
+	lines.append("SAMPLED SECTORS")
+	lines.append("================================================================")
+	var sector_samples: Dictionary = _sample_sector_ids_by_type(window_tick_count, composite_request)
+	if sector_samples.empty():
+		lines.append("  (no eligible sector samples)")
+	else:
+		for sector_type in _sorted_keys(sector_samples):
+			var sector_id: String = str(sector_samples[sector_type])
+			_report_request = _normalize_report_request({
+				"focus_mode": "sector",
+				"focus_id": sector_id,
+				"sort_mode": str(composite_request.get("sort_mode", "chronological")),
+				"detail_level": str(composite_request.get("detail_level", "summary")),
+			})
+			lines.append("  Sector type sample [%s]: %s" % [str(sector_type), _sector_label_with_id(sector_id)])
+			lines.append_array(_focused_summary())
+			if str(composite_request.get("detail_level", "summary")) != "summary":
+				lines.append_array(_epoch_detailed_log(_all_events))
+			lines.append("")
+		if not lines.empty() and lines[lines.size() - 1] == "":
+			lines.remove(lines.size() - 1)
+
+	lines.append("")
+	lines.append("================================================================")
+	lines.append("SAMPLED AGENTS")
+	lines.append("================================================================")
+	var agent_samples: Array = _sample_agent_entries(window_tick_count, composite_request)
+	if agent_samples.empty():
+		lines.append("  (no eligible agent samples)")
+	else:
+		for sample in agent_samples:
+			var agent_id: String = str(sample.get("agent_id", ""))
+			_report_request = _normalize_report_request({
+				"focus_mode": "agent",
+				"focus_id": agent_id,
+				"sort_mode": str(composite_request.get("sort_mode", "chronological")),
+				"detail_level": str(composite_request.get("detail_level", "summary")),
+			})
+			lines.append("  Agent sample [%s %s]: %s" % [
+				str(sample.get("agent_class", "unknown")),
+				str(sample.get("agent_role", "unknown")),
+				_actor_label_with_id(agent_id),
+			])
+			lines.append_array(_focused_summary())
+			if str(composite_request.get("detail_level", "summary")) != "summary":
+				lines.append_array(_epoch_detailed_log(_all_events))
+			lines.append("")
+		if not lines.empty() and lines[lines.size() - 1] == "":
+			lines.remove(lines.size() - 1)
+
+	_all_events = previous_all_events
+	_total_ticks = previous_total_ticks
+	_report_request = previous_report_request
+	return lines
+
+
+func _sample_sector_ids_by_type(window_tick_count: int, composite_request: Dictionary) -> Dictionary:
+	var requested_sector_types: Array = Array(composite_request.get("sector_types", []))
+	var candidates_by_type: Dictionary = {}
+	for sector_id in _sorted_keys(GameState.world_topology):
+		var topology: Dictionary = GameState.world_topology.get(sector_id, {})
+		var sector_type: String = str(topology.get("sector_type", "unknown"))
+		if sector_type == "":
+			sector_type = "unknown"
+		if not requested_sector_types.empty() and not (sector_type in requested_sector_types):
+			continue
+		if not candidates_by_type.has(sector_type):
+			candidates_by_type[sector_type] = []
+		candidates_by_type[sector_type].append(str(sector_id))
+
+	var samples: Dictionary = {}
+	for sector_type in _sorted_keys(candidates_by_type):
+		var sector_ids: Array = Array(candidates_by_type[sector_type])
+		sector_ids.sort()
+		if sector_ids.empty():
+			continue
+		var sample_index: int = _deterministic_index(sector_ids.size(), "%s:sector:%s:%d" % [_seed, str(sector_type), window_tick_count])
+		samples[sector_type] = str(sector_ids[sample_index])
+	return samples
+
+
+func _sample_agent_entries(window_tick_count: int, composite_request: Dictionary) -> Array:
+	var requested_agent_roles: Array = Array(composite_request.get("agent_roles", []))
+	var include_persistent: bool = bool(composite_request.get("include_persistent", true))
+	var include_mortal: bool = bool(composite_request.get("include_mortal", true))
+	var candidates_by_class_and_role: Dictionary = {}
+
+	for agent_id in _sorted_keys(GameState.agents):
+		if str(agent_id) == "player":
+			continue
+		var agent: Dictionary = GameState.agents.get(agent_id, {})
+		if bool(agent.get("is_disabled", false)):
+			continue
+		var agent_role: String = str(agent.get("agent_role", "idle"))
+		if not requested_agent_roles.empty() and not (agent_role in requested_agent_roles):
+			continue
+		var agent_class: String = "persistent" if bool(agent.get("is_persistent", false)) else "mortal"
+		if agent_class == "persistent" and not include_persistent:
+			continue
+		if agent_class == "mortal" and not include_mortal:
+			continue
+		var group_key: String = "%s|%s" % [agent_class, agent_role]
+		if not candidates_by_class_and_role.has(group_key):
+			candidates_by_class_and_role[group_key] = []
+		candidates_by_class_and_role[group_key].append(str(agent_id))
+
+	var samples: Array = []
+	for group_key in _sorted_keys(candidates_by_class_and_role):
+		var agent_ids: Array = Array(candidates_by_class_and_role[group_key])
+		agent_ids.sort()
+		if agent_ids.empty():
+			continue
+		var parts: Array = str(group_key).split("|")
+		var sample_index: int = _deterministic_index(agent_ids.size(), "%s:agent:%s:%d" % [_seed, str(group_key), window_tick_count])
+		samples.append({
+			"agent_id": str(agent_ids[sample_index]),
+			"agent_class": str(parts[0]),
+			"agent_role": str(parts[1]),
+		})
+	return samples
+
+
+func _deterministic_index(size: int, key: String) -> int:
+	if size <= 1:
+		return 0
+	var hashed_value: int = int(hash(key))
+	if hashed_value < 0:
+		hashed_value = -hashed_value
+	return hashed_value % size
 
 
 # =============================================================================
@@ -19505,7 +21199,29 @@ func _collect_epoch_events(events: Array, start: int, end: int) -> Array:
 	return result
 
 
-func _epoch_narrative(epoch_events: Array) -> Array:
+func _epoch_summary(epoch_events: Array) -> Array:
+	var current_snap: Dictionary = _take_sector_snapshot()
+	var changed_sectors: Array = _detect_sector_changes(_prev_sector_snap, current_snap)
+	var focused_changes: Array = []
+	if str(_report_request.get("focus_mode", "world")) == "sector":
+		focused_changes = _detect_sector_changes(
+			_prev_sector_snap,
+			current_snap,
+			str(_report_request.get("focus_id", ""))
+		)
+	_prev_sector_snap = current_snap
+
+	var filtered_events: Array = _filter_report_events(epoch_events)
+	match str(_report_request.get("focus_mode", "world")):
+		"sector":
+			return _sector_epoch_summary(filtered_events, current_snap, focused_changes)
+		"agent":
+			return _agent_epoch_summary(filtered_events)
+		_:
+			return _world_epoch_summary(filtered_events, changed_sectors)
+
+
+func _world_epoch_summary(epoch_events: Array, changed_sectors: Array) -> Array:
 	var lines: Array = []
 
 	# Count actions
@@ -19559,11 +21275,6 @@ func _epoch_narrative(epoch_events: Array) -> Array:
 	var respawn_count: int = counts.get("respawn", 0)
 	var survived_count: int = counts.get("survived", 0)
 	var perma_deaths: int = counts.get("perma_death", 0)
-
-	# ---- Sector state change detection ----
-	var cur_snap: Dictionary = _take_sector_snapshot()
-	var changed_sectors: Array = _detect_sector_changes(_prev_sector_snap, cur_snap)
-	_prev_sector_snap = cur_snap
 
 	# ---- World age changes ----
 	for new_age in age_changes:
@@ -19669,11 +21380,289 @@ func _epoch_narrative(epoch_events: Array) -> Array:
 	return lines
 
 
+func _sector_epoch_summary(epoch_events: Array, current_snap: Dictionary, sector_changes: Array) -> Array:
+	var lines: Array = []
+	var focus_sector_id: String = str(_report_request.get("focus_id", ""))
+	var focus_label: String = _sector_label_with_id(focus_sector_id)
+	var action_totals: Dictionary = _count_actions(epoch_events)
+
+	for entry in sector_changes:
+		lines.append("  %s: %s." % [entry[0], entry[1]])
+
+	if epoch_events.empty():
+		lines.append("  Sector focus: %s had no relevant events this epoch." % focus_label)
+	else:
+		lines.append("  Sector focus: %s logged %d relevant events." % [focus_label, epoch_events.size()])
+		var action_parts: Array = _format_action_totals(action_totals)
+		if not action_parts.empty():
+			lines.append("  Action totals: %s." % PoolStringArray(action_parts).join(", "))
+		var actor_counts: Dictionary = _collect_actor_counts(epoch_events)
+		if not actor_counts.empty():
+			lines.append("  Active actors: %s." % _format_count_entries(actor_counts, "agent"))
+
+	if current_snap.has(focus_sector_id):
+		var snap: Dictionary = current_snap.get(focus_sector_id, {})
+		lines.append("  Current sector state: %s economy, %s security, %s environment [%s]." % [
+			str(snap.get("economy", "adequate")),
+			str(snap.get("security", "contested")),
+			str(snap.get("environment", "mild")),
+			str(snap.get("colony", "frontier")),
+		])
+		var connections: Array = Array(GameState.world_topology.get(focus_sector_id, {}).get("connections", []))
+		if not connections.empty():
+			var connection_labels: Array = []
+			for connection_id in connections:
+				connection_labels.append(_sector_label_with_id(str(connection_id)))
+			lines.append("  Connected sectors: %s." % PoolStringArray(connection_labels).join(", "))
+	else:
+		lines.append("  Current sector state: unavailable for %s." % focus_label)
+
+	return lines
+
+
+func _agent_epoch_summary(epoch_events: Array) -> Array:
+	var lines: Array = []
+	var focus_agent_id: String = str(_report_request.get("focus_id", ""))
+	var focus_label: String = _actor_label_with_id(focus_agent_id)
+	var action_totals: Dictionary = _count_actions(epoch_events)
+
+	if epoch_events.empty():
+		lines.append("  Agent focus: %s had no relevant events this epoch." % focus_label)
+	else:
+		lines.append("  Agent focus: %s logged %d relevant events." % [focus_label, epoch_events.size()])
+		var action_parts: Array = _format_action_totals(action_totals)
+		if not action_parts.empty():
+			lines.append("  Action totals: %s." % PoolStringArray(action_parts).join(", "))
+		var sector_counts: Dictionary = _collect_sector_counts(epoch_events)
+		if not sector_counts.empty():
+			lines.append("  Sector trail: %s." % _format_count_entries(sector_counts, "sector"))
+
+	var agent: Dictionary = GameState.agents.get(focus_agent_id, {})
+	if agent.empty():
+		lines.append("  Current agent state: unavailable for %s." % focus_label)
+	else:
+		lines.append("  Current agent state: sector=%s cond=%s wealth=%s cargo=%s goal=%s." % [
+			_sector_label_with_id(str(agent.get("current_sector_id", ""))),
+			str(agent.get("condition_tag", "?")),
+			str(agent.get("wealth_tag", "?")),
+			str(agent.get("cargo_tag", "?")),
+			str(agent.get("goal_archetype", "none")),
+		])
+
+	return lines
+
+
+func _epoch_detailed_log(epoch_events: Array) -> Array:
+	if str(_report_request.get("detail_level", "standard")) == "summary":
+		return []
+
+	var lines: Array = []
+	var filtered_events: Array = _filter_report_events(epoch_events)
+	var sort_mode: String = str(_report_request.get("sort_mode", "chronological"))
+	lines.append("  Detailed event log (%s order):" % sort_mode)
+
+	if filtered_events.empty():
+		lines.append("    (no relevant events)")
+		return lines
+
+	var ordered_events: Array = filtered_events.duplicate(true)
+	ordered_events.sort_custom(self, "_sort_events_by_request")
+	for event in ordered_events:
+		lines.append("    %s" % _format_detailed_event(event))
+
+	return lines
+
+
+func _filter_report_events(events: Array) -> Array:
+	var filtered: Array = []
+	for event in events:
+		if _event_matches_report_request(event):
+			filtered.append(event)
+	return filtered
+
+
+func _event_matches_report_request(event: Dictionary) -> bool:
+	var focus_mode: String = str(_report_request.get("focus_mode", "world"))
+	if focus_mode == "world":
+		return true
+	var focus_id: String = str(_report_request.get("focus_id", ""))
+	if focus_id == "":
+		return true
+	if focus_mode == "sector":
+		return _event_references_sector(event, focus_id)
+	if focus_mode == "agent":
+		return _event_references_agent(event, focus_id)
+	return true
+
+
+func _event_references_sector(event: Dictionary, sector_id: String) -> bool:
+	if str(event.get("sector_id", "")) == sector_id:
+		return true
+	var metadata: Dictionary = event.get("metadata", {})
+	for key in ["from", "target_sector_id", "source_sector_id", "requested_from", "new_sector"]:
+		if str(metadata.get(key, "")) == sector_id:
+			return true
+	var connections: Array = Array(metadata.get("connections", []))
+	for connection_id in connections:
+		if str(connection_id) == sector_id:
+			return true
+	return false
+
+
+func _event_references_agent(event: Dictionary, agent_id: String) -> bool:
+	if str(event.get("actor_id", "")) == agent_id:
+		return true
+	var metadata: Dictionary = event.get("metadata", {})
+	for key in ["target", "claimant_agent_id"]:
+		if str(metadata.get(key, "")) == agent_id:
+			return true
+	return false
+
+
+func _count_actions(events: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for event in events:
+		var action: String = str(event.get("action", ""))
+		counts[action] = int(counts.get(action, 0)) + 1
+	return counts
+
+
+func _collect_actor_counts(events: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for event in events:
+		var actor_id: String = str(event.get("actor_id", ""))
+		if actor_id == "":
+			continue
+		counts[actor_id] = int(counts.get(actor_id, 0)) + 1
+	return counts
+
+
+func _collect_sector_counts(events: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for event in events:
+		var sector_id: String = str(event.get("sector_id", ""))
+		if sector_id == "":
+			continue
+		counts[sector_id] = int(counts.get(sector_id, 0)) + 1
+	return counts
+
+
+func _format_action_totals(action_totals: Dictionary) -> Array:
+	var parts: Array = []
+	for action in _sorted_keys(action_totals):
+		parts.append("%s=%d" % [action, int(action_totals[action])])
+	return parts
+
+
+func _format_count_entries(counts: Dictionary, mode: String) -> String:
+	var parts: Array = []
+	for key in _sorted_keys(counts):
+		var label: String = str(key)
+		if mode == "agent":
+			label = _actor_label_with_id(str(key))
+		elif mode == "sector":
+			label = _sector_label_with_id(str(key))
+		parts.append("%s=%d" % [label, int(counts[key])])
+	return PoolStringArray(parts).join(", ")
+
+
+func _format_detailed_event(event: Dictionary) -> String:
+	var tick: int = int(event.get("tick", 0))
+	var actor_id: String = str(event.get("actor_id", ""))
+	var sector_id: String = str(event.get("sector_id", ""))
+	var action: String = str(event.get("action", "unknown"))
+	var base_line: String = "T%s [%s] %s %s" % [
+		_pad_int(tick, 4),
+		_sector_label_with_id(sector_id),
+		_actor_label_with_id(actor_id),
+		_humanize_action(action),
+	]
+
+	var metadata: Dictionary = event.get("metadata", {})
+	if metadata.empty():
+		return base_line
+
+	var detail_level: String = str(_report_request.get("detail_level", "standard"))
+	var max_items: int = 3
+	if detail_level == "verbose":
+		max_items = -1
+	var metadata_text: String = _format_metadata(metadata, max_items)
+	if metadata_text == "":
+		return base_line
+	return "%s | %s" % [base_line, metadata_text]
+
+
+func _format_metadata(metadata: Dictionary, max_items: int) -> String:
+	var keys: Array = _sorted_keys(metadata)
+	if keys.empty():
+		return ""
+
+	var parts: Array = []
+	var item_count: int = 0
+	for key in keys:
+		if max_items >= 0 and item_count >= max_items:
+			break
+		parts.append("%s=%s" % [key, _format_metadata_value(str(key), metadata[key])])
+		item_count += 1
+
+	if max_items >= 0 and keys.size() > max_items:
+		parts.append("+%d more" % (keys.size() - max_items))
+
+	return PoolStringArray(parts).join("; ")
+
+
+func _format_metadata_value(key: String, value) -> String:
+	if key in ["from", "target_sector_id", "source_sector_id", "requested_from", "new_sector"]:
+		return _sector_label_with_id(str(value))
+	if key in ["target", "claimant_agent_id"]:
+		return _actor_label_with_id(str(value))
+	if value is Array:
+		var values: Array = []
+		for item in value:
+			if key == "connections":
+				values.append(_sector_label_with_id(str(item)))
+			else:
+				values.append(str(item))
+		return "[%s]" % PoolStringArray(values).join(", ")
+	return str(value)
+
+
+func _sort_events_by_request(a: Dictionary, b: Dictionary) -> bool:
+	return _event_sort_key(a) < _event_sort_key(b)
+
+
+func _event_sort_key(event: Dictionary) -> String:
+	var tick_key: String = _pad_int(int(event.get("tick", 0)), 8)
+	var sector_key: String = _sector_label_with_id(str(event.get("sector_id", ""))).to_lower()
+	var actor_key: String = _actor_label_with_id(str(event.get("actor_id", ""))).to_lower()
+	var action_key: String = str(event.get("action", "")).to_lower()
+	match str(_report_request.get("sort_mode", "chronological")):
+		"sector":
+			return "%s|%s|%s|%s" % [sector_key, tick_key, actor_key, action_key]
+		"agent":
+			return "%s|%s|%s|%s" % [actor_key, tick_key, sector_key, action_key]
+		_:
+			return "%s|%s|%s|%s" % [tick_key, sector_key, actor_key, action_key]
+
+
+func _pad_int(value: int, width: int) -> String:
+	var text: String = str(value)
+	while text.length() < width:
+		text = "0" + text
+	return text
+
+
 # =============================================================================
 # === OVERALL SUMMARY =========================================================
 # =============================================================================
 
 func _summary() -> Array:
+	if str(_report_request.get("focus_mode", "world")) != "world":
+		return _focused_summary()
+	return _world_summary()
+
+
+func _world_summary() -> Array:
 	var lines: Array = []
 
 	# Count action totals
@@ -19777,6 +21766,65 @@ func _summary() -> Array:
 	return lines
 
 
+func _focused_summary() -> Array:
+	var lines: Array = []
+	var focus_mode: String = str(_report_request.get("focus_mode", "world"))
+	var focus_id: String = str(_report_request.get("focus_id", ""))
+	var relevant_events: Array = _filter_report_events(_all_events)
+	var action_totals: Dictionary = _count_actions(relevant_events)
+
+	lines.append("================================================================")
+	lines.append("FOCUSED SUMMARY")
+	lines.append("================================================================")
+	lines.append("  Focus mode: %s  |  focus id: %s" % [focus_mode, focus_id])
+	lines.append("  Simulation ran for %d ticks with %d relevant events captured." % [
+		_total_ticks,
+		relevant_events.size(),
+	])
+	var action_parts: Array = _format_action_totals(action_totals)
+	if not action_parts.empty():
+		lines.append("  Action totals: %s" % PoolStringArray(action_parts).join(", "))
+
+	if focus_mode == "sector":
+		if GameState.sector_tags.has(focus_id):
+			var tags: Array = GameState.sector_tags.get(focus_id, [])
+			lines.append("  Final sector state: %s economy, %s, %s environment [%s]" % [
+				_economy_label(tags),
+				_security_label(tags),
+				_environment_label(tags),
+				GameState.colony_levels.get(focus_id, "frontier"),
+			])
+			var connections: Array = Array(GameState.world_topology.get(focus_id, {}).get("connections", []))
+			var connection_labels: Array = []
+			for connection_id in connections:
+				connection_labels.append(_sector_label_with_id(str(connection_id)))
+			lines.append("  Connections: %s" % (
+				PoolStringArray(connection_labels).join(", ") if not connection_labels.empty() else "(isolated)"
+			))
+		else:
+			lines.append("  Final sector state: unavailable for %s" % _sector_label_with_id(focus_id))
+		var actor_counts: Dictionary = _collect_actor_counts(relevant_events)
+		if not actor_counts.empty():
+			lines.append("  Active actors: %s" % _format_count_entries(actor_counts, "agent"))
+	elif focus_mode == "agent":
+		var agent: Dictionary = GameState.agents.get(focus_id, {})
+		if agent.empty():
+			lines.append("  Final agent state: unavailable for %s" % _actor_label_with_id(focus_id))
+		else:
+			lines.append("  Final agent state: sector=%s cond=%s wealth=%s cargo=%s goal=%s" % [
+				_sector_label_with_id(str(agent.get("current_sector_id", ""))),
+				str(agent.get("condition_tag", "?")),
+				str(agent.get("wealth_tag", "?")),
+				str(agent.get("cargo_tag", "?")),
+				str(agent.get("goal_archetype", "none")),
+			])
+		var sector_counts: Dictionary = _collect_sector_counts(relevant_events)
+		if not sector_counts.empty():
+			lines.append("  Sector trail: %s" % _format_count_entries(sector_counts, "sector"))
+
+	return lines
+
+
 # =============================================================================
 # === SECTOR SNAPSHOT & CHANGE DETECTION ======================================
 # =============================================================================
@@ -19795,9 +21843,11 @@ func _take_sector_snapshot() -> Dictionary:
 	return snap
 
 
-func _detect_sector_changes(prev: Dictionary, cur: Dictionary) -> Array:
+func _detect_sector_changes(prev: Dictionary, cur: Dictionary, focus_sector_id: String = "") -> Array:
 	var changes: Array = []
 	for sid in cur:
+		if focus_sector_id != "" and str(sid) != focus_sector_id:
+			continue
 		var c: Dictionary = cur[sid]
 		var p: Dictionary = prev.get(sid, {})
 		var parts: Array = []
@@ -19864,6 +21914,70 @@ func _resolve_character_name(char_id: String, fallback: String = "") -> String:
 		elif c is Dictionary and c.has("character_name"):
 			return c["character_name"]
 	return char_id
+
+
+func _sector_label_with_id(sector_id: String) -> String:
+	if sector_id == "":
+		return "deep space"
+	var label: String = _loc(sector_id)
+	if label == sector_id:
+		return sector_id
+	return "%s/%s" % [label, sector_id]
+
+
+func _actor_label_with_id(actor_id: String) -> String:
+	if actor_id == "":
+		return "unknown"
+	var label: String = _agent_display(actor_id)
+	if label == actor_id:
+		return actor_id
+	return "%s/%s" % [label, actor_id]
+
+
+func _humanize_action(action: String) -> String:
+	match action:
+		"move":
+			return "moved"
+		"attack":
+			return "attacked"
+		"agent_trade":
+			return "traded"
+		"dock":
+			return "docked"
+		"harvest":
+			return "harvested salvage"
+		"load_cargo":
+			return "loaded cargo"
+		"contract_claimed":
+			return "claimed a relief contract"
+		"contract_loaded":
+			return "loaded relief cargo"
+		"contract_completed":
+			return "completed a relief delivery"
+		"flee":
+			return "fled"
+		"exploration":
+			return "explored"
+		"sector_discovered":
+			return "discovered a new sector"
+		"spawn":
+			return "appeared"
+		"respawn":
+			return "returned"
+		"survived":
+			return "narrowly survived destruction"
+		"perma_death":
+			return "was permanently lost"
+		"catastrophe":
+			return "witnessed catastrophe"
+		"catastrophe_death":
+			return "was lost in catastrophe"
+		"expedition_failed":
+			return "failed an expedition"
+		"age_change":
+			return "reported a world-age shift"
+		_:
+			return action
 
 
 # =============================================================================
@@ -24722,8 +26836,8 @@ func _color_world_age(age: String) -> String:
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
-# LOG_REF: 2026-05-17 15:43:57
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-24 15:04:06
 #
 
 extends CanvasLayer
@@ -24751,6 +26865,13 @@ onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
 onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 
+var _controls_row: HBoxContainer = null
+var _report_mode_option: OptionButton = null
+var _focus_mode_option: OptionButton = null
+var _focus_id_option: OptionButton = null
+var _sort_mode_option: OptionButton = null
+var _detail_level_option: OptionButton = null
+
 
 # =============================================================================
 # === STATE ===================================================================
@@ -24764,6 +26885,29 @@ var _showing_report: bool = false
 var _report_text: String = ""
 var _report_bbcode: String = ""
 
+const _REPORT_MODE_ITEMS := [
+	{"label": "Focused Chronicle", "value": "focused"},
+	{"label": "Composite Research", "value": "composite"},
+]
+
+const _FOCUS_MODE_ITEMS := [
+	{"label": "World", "value": "world"},
+	{"label": "Sector", "value": "sector"},
+	{"label": "Agent", "value": "agent"},
+]
+
+const _SORT_MODE_ITEMS := [
+	{"label": "Chronological", "value": "chronological"},
+	{"label": "Sector", "value": "sector"},
+	{"label": "Agent", "value": "agent"},
+]
+
+const _DETAIL_LEVEL_ITEMS := [
+	{"label": "Summary", "value": "summary"},
+	{"label": "Standard", "value": "standard"},
+	{"label": "Verbose", "value": "verbose"},
+]
+
 
 # =============================================================================
 # === LIFECYCLE ===============================================================
@@ -24772,6 +26916,9 @@ var _report_bbcode: String = ""
 func _ready() -> void:
 	layer = 100  # Render above everything
 	_panel.visible = false
+	_build_report_controls()
+	_populate_static_report_options()
+	_refresh_report_controls()
 	EventBus.connect("sim_tick_completed", self, "_on_tick")
 	_btn_dump.connect("pressed", self, "_on_dump_pressed")
 	_btn_tick.connect("pressed", self, "_on_tick_pressed")
@@ -24802,6 +26949,7 @@ func _toggle() -> void:
 	_visible = not _visible
 	_panel.visible = _visible
 	if _visible:
+		_refresh_report_controls()
 		_refresh()
 
 
@@ -24811,6 +26959,7 @@ func _toggle() -> void:
 
 func _on_tick(_tick_count: int = 0) -> void:
 	if _visible:
+		_refresh_report_controls()
 		_refresh()
 
 
@@ -24828,18 +26977,34 @@ func _on_run_batch(tick_count: int) -> void:
 	if not is_instance_valid(GlobalRefs.simulation_engine):
 		return
 	var engine = GlobalRefs.simulation_engine
-	if not engine.has_method("run_batch_and_report"):
-		return
+	_refresh_report_controls()
 	var discovery_start_index: int = GameState.discovery_log.size()
+	var report_mode: String = _selected_option_value(_report_mode_option, "focused")
+	var report: String = ""
+	var header_text: String = ""
 
-	# Determine epoch size based on tick count
-	var epoch_size: int = 1
-	if tick_count >= 3000:
-		epoch_size = 100
-	elif tick_count >= 300:
-		epoch_size = 10
+	if report_mode == "composite":
+		if not engine.has_method("run_composite_research_report"):
+			return
+		var composite_tick_counts: Array = _composite_tick_counts_up_to(tick_count)
+		var composite_request: Dictionary = _current_composite_request()
+		report = engine.run_composite_research_report(composite_tick_counts, composite_request)
+		header_text = "COMPOSITE RESEARCH REPORT (%s)  [Back to return]" % _composite_tick_count_label(composite_tick_counts)
+	else:
+		if not engine.has_method("run_batch_and_report"):
+			return
+		var report_request: Dictionary = _current_report_request()
 
-	var report: String = engine.run_batch_and_report(tick_count, epoch_size)
+		# Determine epoch size based on tick count
+		var epoch_size: int = 1
+		if tick_count >= 3000:
+			epoch_size = 100
+		elif tick_count >= 300:
+			epoch_size = 10
+
+		report = engine.run_batch_and_report(tick_count, epoch_size, report_request)
+		header_text = "CHRONICLE REPORT (%d ticks, %s)  [Back to return]" % [tick_count, _report_request_header(report_request)]
+
 	report = _append_batch_discovery_summary(report, discovery_start_index)
 
 	# Also dump to console for LLM agent consumption
@@ -24850,7 +27015,7 @@ func _on_run_batch(tick_count: int) -> void:
 	_report_bbcode = _plain_to_bbcode(report)
 	_showing_report = true
 	_btn_back.visible = true
-	_header_label.text = "CHRONICLE REPORT (%d ticks)  [Back to return]" % tick_count
+	_header_label.text = header_text
 	_rich_text.bbcode_text = _report_bbcode
 	_last_plain_text = _report_text
 
@@ -24867,6 +27032,14 @@ func _on_back_pressed() -> void:
 func _on_close_pressed() -> void:
 	if _visible:
 		_toggle()
+
+
+func _on_focus_mode_selected(_index: int) -> void:
+	_refresh_focus_id_options()
+
+
+func _on_report_mode_selected(_index: int) -> void:
+	_refresh_report_controls()
 
 
 # =============================================================================
@@ -25136,6 +27309,10 @@ func _plain_to_bbcode(text: String) -> String:
 			bb += _bbcolor(s, "aqua") + "\n"
 		elif s.find("DISCOVERY SUMMARY") != -1:
 			bb += _bbcolor(s, "aqua") + "\n"
+		elif s.find("COMPOSITE RESEARCH CHRONICLE") != -1 or s.find("COMPOSITE WINDOW:") != -1:
+			bb += _bbcolor(s, "cyan") + "\n"
+		elif s.find("SAMPLED SECTORS") != -1 or s.find("SAMPLED AGENTS") != -1:
+			bb += _bbcolor(s, "white") + "\n"
 		elif s.find("Combat:") != -1:
 			bb += _bbcolor(s, "orange") + "\n"
 		elif s.find("Commerce:") != -1:
@@ -25199,6 +27376,271 @@ func _get_procedural_type(template) -> String:
 		return ""
 	var procedural_type = template.get("procedural_type")
 	return str(procedural_type) if procedural_type != null else ""
+
+
+func _build_report_controls() -> void:
+	if _controls_row != null:
+		return
+	var vbox: VBoxContainer = $Panel/VBoxContainer
+	_controls_row = HBoxContainer.new()
+	_controls_row.name = "ReportControlsRow"
+	vbox.add_child(_controls_row)
+	vbox.move_child(_controls_row, 1)
+
+	_add_report_label(_controls_row, "Output")
+	_report_mode_option = _create_report_option_button("ReportModeOption", 180)
+	_controls_row.add_child(_report_mode_option)
+	_report_mode_option.connect("item_selected", self, "_on_report_mode_selected")
+
+	_add_report_label(_controls_row, "Focus")
+	_focus_mode_option = _create_report_option_button("FocusModeOption", 140)
+	_controls_row.add_child(_focus_mode_option)
+	_focus_mode_option.connect("item_selected", self, "_on_focus_mode_selected")
+
+	_add_report_label(_controls_row, "Entity")
+	_focus_id_option = _create_report_option_button("FocusIdOption", 300)
+	_controls_row.add_child(_focus_id_option)
+
+	_add_report_label(_controls_row, "Sort")
+	_sort_mode_option = _create_report_option_button("SortModeOption", 170)
+	_controls_row.add_child(_sort_mode_option)
+
+	_add_report_label(_controls_row, "Detail")
+	_detail_level_option = _create_report_option_button("DetailLevelOption", 150)
+	_controls_row.add_child(_detail_level_option)
+
+
+func _populate_static_report_options() -> void:
+	_populate_option_button(_report_mode_option, _REPORT_MODE_ITEMS, "focused")
+	_populate_option_button(_focus_mode_option, _FOCUS_MODE_ITEMS, "world")
+	_populate_option_button(_sort_mode_option, _SORT_MODE_ITEMS, "chronological")
+	_populate_option_button(_detail_level_option, _DETAIL_LEVEL_ITEMS, "standard")
+
+
+func _refresh_report_controls() -> void:
+	if _report_mode_option == null or _focus_mode_option == null:
+		return
+	var is_composite_mode: bool = _selected_option_value(_report_mode_option, "focused") == "composite"
+	_focus_mode_option.disabled = is_composite_mode
+	if is_composite_mode:
+		_clear_option_button(_focus_id_option)
+		_focus_id_option.add_item("(automatic sampling)")
+		_focus_id_option.set_item_metadata(0, "")
+		_focus_id_option.select(0)
+		_focus_id_option.disabled = true
+		return
+	_refresh_focus_id_options()
+
+
+func _refresh_focus_id_options() -> void:
+	if _focus_id_option == null:
+		return
+	var previous_focus_id: String = _selected_option_value(_focus_id_option, "")
+	var focus_mode: String = _selected_option_value(_focus_mode_option, "world")
+	_clear_option_button(_focus_id_option)
+	_focus_id_option.disabled = false
+
+	if focus_mode == "world":
+		_focus_id_option.add_item("World")
+		_focus_id_option.set_item_metadata(0, "world")
+		_focus_id_option.select(0)
+		_focus_id_option.disabled = true
+		return
+
+	var focus_ids: Array = _current_focus_ids(focus_mode)
+	if focus_ids.empty():
+		_focus_id_option.add_item("(none available)")
+		_focus_id_option.set_item_metadata(0, "")
+		_focus_id_option.select(0)
+		_focus_id_option.disabled = true
+		return
+
+	var selected_index: int = 0
+	for focus_id in focus_ids:
+		var focus_id_string: String = str(focus_id)
+		_focus_id_option.add_item(_focus_id_label(focus_mode, focus_id_string))
+		var item_index: int = _focus_id_option.get_item_count() - 1
+		_focus_id_option.set_item_metadata(item_index, focus_id_string)
+		if focus_id_string == previous_focus_id:
+			selected_index = item_index
+	_focus_id_option.select(selected_index)
+
+
+func _current_report_request() -> Dictionary:
+	var focus_mode: String = _selected_option_value(_focus_mode_option, "world")
+	var focus_id: String = _selected_option_value(_focus_id_option, "world")
+	if focus_mode == "world":
+		focus_id = "world"
+	return {
+		"focus_mode": focus_mode,
+		"focus_id": focus_id,
+		"sort_mode": _selected_option_value(_sort_mode_option, "chronological"),
+		"detail_level": _selected_option_value(_detail_level_option, "standard"),
+	}
+
+
+func _current_composite_request() -> Dictionary:
+	return {
+		"sort_mode": _selected_option_value(_sort_mode_option, "chronological"),
+		"detail_level": _selected_option_value(_detail_level_option, "standard"),
+		"sector_types": _current_sector_types(),
+		"agent_roles": _current_agent_roles(),
+		"include_persistent": true,
+		"include_mortal": true,
+	}
+
+
+func _report_request_header(report_request: Dictionary) -> String:
+	var focus_mode: String = str(report_request.get("focus_mode", "world"))
+	if focus_mode == "world":
+		return "world"
+	var focus_id: String = str(report_request.get("focus_id", ""))
+	return "%s:%s" % [focus_mode, _focus_id_label(focus_mode, focus_id)]
+
+
+func _current_focus_ids(focus_mode: String) -> Array:
+	if focus_mode == "sector":
+		var sector_ids: Array = []
+		var seen_sector_ids: Dictionary = {}
+		for sector_id in GameState.world_topology.keys():
+			var sector_key: String = str(sector_id)
+			if seen_sector_ids.has(sector_key):
+				continue
+			seen_sector_ids[sector_key] = true
+			sector_ids.append(sector_key)
+		for sector_id in GameState.sector_tags.keys():
+			var tag_sector_key: String = str(sector_id)
+			if seen_sector_ids.has(tag_sector_key):
+				continue
+			seen_sector_ids[tag_sector_key] = true
+			sector_ids.append(tag_sector_key)
+		sector_ids.sort()
+		return sector_ids
+	if focus_mode == "agent":
+		var agent_ids: Array = []
+		for agent_id in GameState.agents.keys():
+			agent_ids.append(str(agent_id))
+		agent_ids.sort()
+		return agent_ids
+	return ["world"]
+
+
+func _current_sector_types() -> Array:
+	var sector_types: Array = []
+	for sector_id in GameState.world_topology.keys():
+		var sector_type: String = str(GameState.world_topology.get(sector_id, {}).get("sector_type", ""))
+		if sector_type == "" or sector_type in sector_types:
+			continue
+		sector_types.append(sector_type)
+	sector_types.sort()
+	return sector_types
+
+
+func _current_agent_roles() -> Array:
+	var agent_roles: Array = []
+	for agent_id in GameState.agents.keys():
+		if str(agent_id) == "player":
+			continue
+		var role: String = str(GameState.agents.get(agent_id, {}).get("agent_role", ""))
+		if role == "" or role in agent_roles:
+			continue
+		agent_roles.append(role)
+	agent_roles.sort()
+	return agent_roles
+
+
+func _composite_tick_counts_up_to(tick_count: int) -> Array:
+	var requested_tick_counts: Array = []
+	for milestone in Constants.COMPOSITE_RESEARCH_TICK_COUNTS:
+		var milestone_tick_count: int = int(milestone)
+		if milestone_tick_count <= tick_count:
+			requested_tick_counts.append(milestone_tick_count)
+	if requested_tick_counts.empty():
+		requested_tick_counts.append(tick_count)
+	return requested_tick_counts
+
+
+func _composite_tick_count_label(tick_counts: Array) -> String:
+	var labels: Array = []
+	for tick_count in tick_counts:
+		labels.append(str(tick_count))
+	return PoolStringArray(labels).join(", ")
+
+
+func _focus_id_label(focus_mode: String, focus_id: String) -> String:
+	if focus_mode == "sector":
+		return _format_sector_focus_label(focus_id)
+	if focus_mode == "agent":
+		return _format_agent_focus_label(focus_id)
+	return "World"
+
+
+func _format_sector_focus_label(sector_id: String) -> String:
+	if sector_id == "":
+		return "(no sector)"
+	var sector_name: String = GameState.sector_names.get(sector_id, sector_id)
+	if TemplateDatabase.locations.has(sector_id):
+		var sector_template = TemplateDatabase.locations.get(sector_id)
+		if sector_template != null and sector_template.get("location_name") != null:
+			sector_name = str(sector_template.get("location_name"))
+	if sector_name == sector_id:
+		return sector_id
+	return "%s [%s]" % [sector_name, sector_id]
+
+
+func _format_agent_focus_label(agent_id: String) -> String:
+	if agent_id == "player":
+		return "Player [player]"
+	var agent: Dictionary = GameState.agents.get(agent_id, {})
+	if agent.empty():
+		return agent_id
+	var char_name: String = _get_character_name(str(agent.get("character_id", "")))
+	var role: String = str(agent.get("agent_role", "idle"))
+	if char_name == agent_id or char_name == "(unnamed)":
+		return "%s [%s]" % [agent_id, role]
+	return "%s (%s) [%s]" % [char_name, role, agent_id]
+
+
+func _add_report_label(parent: HBoxContainer, text: String) -> void:
+	var label := Label.new()
+	label.text = text + ":"
+	label.rect_min_size = Vector2(48, 0)
+	parent.add_child(label)
+
+
+func _create_report_option_button(name: String, min_width: int) -> OptionButton:
+	var button := OptionButton.new()
+	button.name = name
+	button.rect_min_size = Vector2(min_width, 0)
+	return button
+
+
+func _populate_option_button(button: OptionButton, items: Array, default_value: String) -> void:
+	if button == null:
+		return
+	_clear_option_button(button)
+	var selected_index: int = 0
+	for item in items:
+		button.add_item(str(item.get("label", item.get("value", ""))))
+		var item_index: int = button.get_item_count() - 1
+		button.set_item_metadata(item_index, str(item.get("value", "")))
+		if str(item.get("value", "")) == default_value:
+			selected_index = item_index
+	button.select(selected_index)
+
+
+func _clear_option_button(button: OptionButton) -> void:
+	while button.get_item_count() > 0:
+		button.remove_item(0)
+
+
+func _selected_option_value(button: OptionButton, default_value: String) -> String:
+	if button == null:
+		return default_value
+	var selected_index: int = button.get_selected()
+	if selected_index < 0 or selected_index >= button.get_item_count():
+		return default_value
+	return str(button.get_item_metadata(selected_index))
 
 --- Start of ./src/core/ui/station_menu/station_menu.gd ---
 
@@ -25402,6 +27844,162 @@ extends MeshInstance
 
 func _ready():
 	self.hide()
+
+--- Start of ./src/core/utils/legacy_system_name_generator.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: legacy_system_name_generator.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-25 03:03:55
+#
+
+extends Reference
+class_name LegacySystemNameGenerator
+
+const _LEGACY_VOWEL_WEIGHTS: Array = [
+	["y", 1],
+	["u", 2],
+	["o", 4],
+	["i", 4],
+	["a", 5],
+	["e", 6],
+]
+const _LEGACY_CONSONANT_WEIGHTS: Array = [
+	["q", 1], ["j", 1], ["z", 1], ["x", 1],
+	["v", 5], ["k", 5],
+	["w", 7],
+	["f", 9],
+	["b", 11],
+	["g", 12],
+	["h", 15], ["m", 15],
+	["p", 16],
+	["d", 17],
+	["c", 23],
+	["l", 28],
+	["s", 29],
+	["n", 34],
+	["t", 35],
+	["r", 39],
+]
+const _LEGACY_VOWEL_CHARS: String = "aeiouy"
+const _LEGACY_CONSONANT_CHARS: String = "bcdfghjklmnpqrstvwxyz"
+
+
+func generate_system_name(seed_key: String, length_min: int = 4, length_max: int = 7) -> String:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(seed_key) + ":legacy_system_name")
+	var consonant_pool: Array = _build_weighted_char_pool(_LEGACY_CONSONANT_WEIGHTS, rng)
+	var vowel_pool: Array = _build_weighted_char_pool(_LEGACY_VOWEL_WEIGHTS, rng)
+	var resolved_min: int = length_min
+	var resolved_max: int = length_max
+	if resolved_min > resolved_max:
+		resolved_min = length_max
+		resolved_max = length_min
+	var generated_length: int = rng.randi_range(resolved_min, resolved_max)
+	var max_vowels_consecutive: int = 0
+	var max_consonants_consecutive: int = 0
+	var structure_roll: float = rng.randf()
+	if structure_roll < 0.3:
+		max_vowels_consecutive = 1
+		max_consonants_consecutive = 2
+	elif structure_roll < 0.6:
+		max_vowels_consecutive = 2
+		max_consonants_consecutive = 2
+	else:
+		max_vowels_consecutive = 1
+		max_consonants_consecutive = 1
+		generated_length += 1
+
+	var vowel_streak: int = 0
+	var consonant_streak: int = 0
+	var generated_name: String = ""
+	for _idx in range(generated_length):
+		var choose_vowel: bool = rng.randf() < 0.5
+		if choose_vowel:
+			if vowel_streak < max_vowels_consecutive:
+				generated_name += _pick_weighted_char(vowel_pool, rng)
+				vowel_streak += 1
+				consonant_streak = 0
+			else:
+				generated_name += _pick_weighted_char(consonant_pool, rng)
+				vowel_streak = 0
+				consonant_streak += 1
+		else:
+			if consonant_streak < max_consonants_consecutive:
+				generated_name += _pick_weighted_char(consonant_pool, rng)
+				consonant_streak += 1
+				vowel_streak = 0
+			else:
+				generated_name += _pick_weighted_char(vowel_pool, rng)
+				consonant_streak = 0
+				vowel_streak += 1
+
+	generated_name = _trim_legacy_edges(generated_name)
+	if generated_name.empty():
+		generated_name = _pick_weighted_char(vowel_pool, rng) + _pick_weighted_char(consonant_pool, rng)
+	return generated_name.capitalize()
+
+
+func _build_weighted_char_pool(weights: Array, rng: RandomNumberGenerator) -> Array:
+	var pool: Array = []
+	for entry in weights:
+		if not (entry is Array) or entry.size() < 2:
+			continue
+		var char_text: String = str(entry[0])
+		var repeats: int = int(entry[1])
+		for _idx in range(repeats):
+			pool.append(char_text)
+	for idx in range(pool.size() - 1, 0, -1):
+		var swap_idx: int = rng.randi_range(0, idx)
+		var swap_value = pool[idx]
+		pool[idx] = pool[swap_idx]
+		pool[swap_idx] = swap_value
+	return pool
+
+
+func _pick_weighted_char(pool: Array, rng: RandomNumberGenerator) -> String:
+	if pool.empty():
+		return ""
+	return str(pool[rng.randi() % pool.size()])
+
+
+func _trim_legacy_edges(generated_name: String) -> String:
+	var trimmed_name: String = generated_name
+	if trimmed_name.length() >= 2:
+		var first_char: String = trimmed_name.substr(0, 1).to_lower()
+		var second_char: String = trimmed_name.substr(1, 1).to_lower()
+		if _is_consonant(first_char) and _is_consonant(second_char):
+			trimmed_name = trimmed_name.substr(1, trimmed_name.length() - 1)
+	if not trimmed_name.empty() and trimmed_name.substr(0, 1).to_lower() == "x":
+		trimmed_name = trimmed_name.substr(1, trimmed_name.length() - 1)
+	if not trimmed_name.empty():
+		var last_char: String = trimmed_name.substr(trimmed_name.length() - 1, 1).to_lower()
+		if last_char == "x" or last_char == "y":
+			trimmed_name = trimmed_name.substr(0, trimmed_name.length() - 1)
+	trimmed_name = _soften_internal_y(trimmed_name)
+	return trimmed_name
+
+
+func _soften_internal_y(generated_name: String) -> String:
+	if generated_name.length() < 3:
+		return generated_name
+	var softened_name: String = ""
+	for idx in range(generated_name.length()):
+		var current_char: String = generated_name.substr(idx, 1)
+		if current_char.to_lower() == "y" and idx > 0 and idx < generated_name.length() - 1:
+			var previous_char: String = generated_name.substr(idx - 1, 1)
+			var next_char: String = generated_name.substr(idx + 1, 1)
+			if _is_consonant(previous_char) and _is_consonant(next_char):
+				softened_name += "i"
+				continue
+		softened_name += current_char
+	return softened_name
+
+
+func _is_consonant(char_text: String) -> bool:
+	return _LEGACY_CONSONANT_CHARS.find(char_text.to_lower()) != -1 and _LEGACY_VOWEL_CHARS.find(char_text.to_lower()) == -1
 
 --- Start of ./src/core/utils/pid_controller.gd ---
 
@@ -29702,7 +32300,7 @@ func test_signal_emit_count():
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
-# LOG_REF: 2026-05-23 15:12:10
+# LOG_REF: 2026-05-24 00:39:14
 #
 
 extends GutTest
@@ -29839,6 +32437,53 @@ func test_save_and_load_preserves_scene_state_restore_fields():
 	assert_eq(GameState.player_arrival_direction, Vector3(0, 0, -1), "player_arrival_direction should survive save/load until spawn consumes it.")
 
 
+func test_save_and_load_preserves_runtime_contract_occurrence_state():
+	var occurrence_id: String = "runtime_contract:sector_system_cob:RAW"
+	GameState.contract_generation_pressure = {"sector_system_cob": {"RAW": 2}}
+	GameState.contract_generation_threshold = {"sector_system_cob": {"RAW": 3}}
+	GameState.runtime_contract_occurrences = {
+		occurrence_id: {
+			"occurrence_id": occurrence_id,
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "sector_system_elace",
+			"target_sector_id": "sector_system_cob",
+			"origin_location_id": "sector_system_elace",
+			"destination_location_id": "sector_system_cob",
+			"status": "open",
+			"claimant_agent_id": "",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 7,
+			"last_refreshed_tick": 7,
+			"title": "Raw Relief Route to sector_system_cob",
+			"description": "Raw demand in sector_system_cob can be relieved from sector_system_elace.",
+		}
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {"sector_system_cob": [occurrence_id]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"sector_system_elace": [occurrence_id]}
+
+	var save_success = GameStateManager.save_game(TEST_SLOT)
+	assert_true(save_success, "Game should save successfully.")
+	_clear_game_state()
+	var load_success = GameStateManager.load_game(TEST_SLOT)
+	assert_true(load_success, "Game should load successfully.")
+
+	_assert_deep_equal(GameState.contract_generation_pressure, {"sector_system_cob": {"RAW": 2}},
+		"contract_generation_pressure should survive save/load.")
+	_assert_deep_equal(GameState.contract_generation_threshold, {"sector_system_cob": {"RAW": 3}},
+		"contract_generation_threshold should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("origin_location_id", ""), "sector_system_elace",
+		"runtime_contract_occurrences should survive save/load.")
+	_assert_deep_equal(GameState.runtime_contract_occurrences_by_target_sector, {"sector_system_cob": [occurrence_id]},
+		"runtime contract target index should survive save/load.")
+	_assert_deep_equal(GameState.runtime_contract_occurrences_by_source_sector, {"sector_system_elace": [occurrence_id]},
+		"runtime contract source index should survive save/load.")
+
+
 func test_serialize_backfills_current_sector_id_from_docked_sector_when_scene_field_is_empty():
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = "sector_system_elace"
@@ -29886,6 +32531,11 @@ func _clear_game_state():
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
@@ -29905,6 +32555,11 @@ func _deep_copy_game_state() -> Dictionary:
 	# We now call the private methods on the GameStateManager itself to get the
 	# serialized copy, since it's the authority on serialization.
 	return GameStateManager._serialize_game_state()
+
+
+func _assert_deep_equal(actual, expected, message: String) -> void:
+	var result = compare_deep(expected, actual)
+	assert_true(result.are_equal(), "%s\n%s" % [message, result.summary])
 
 --- Start of ./src/tests/autoload/test_global_refs.gd ---
 
@@ -30593,8 +33248,8 @@ func test_derive_sector_tags_fresh_sector():
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §3.3, §6.4
-# LOG_REF: 2026-05-17 16:51:08
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-26 10:07:11
 #
 
 extends GutTest
@@ -30705,6 +33360,46 @@ func test_mortal_spawn_in_adequate_sector():
 	# With adequate economy, at least one mortal should eventually spawn
 	assert_gt(GameState.mortal_agent_counter, 0,
 		"Mortals should be able to spawn in a sector with ADEQUATE economy.")
+
+
+func test_late_prosperity_increases_mortal_spawn_multiplier():
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
+	var early_multiplier: float = agent_layer._mortal_spawn_age_multiplier()
+
+	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
+	var late_multiplier: float = agent_layer._mortal_spawn_age_multiplier()
+
+	GameState.world_age = "DISRUPTION"
+	var disruption_multiplier: float = agent_layer._mortal_spawn_age_multiplier()
+
+	assert_gt(late_multiplier, early_multiplier,
+		"Late prosperity should raise mortal spawn pressure relative to the opening frontier phase.")
+	assert_lt(disruption_multiplier, early_multiplier,
+		"Disruption should suppress mortal influx relative to early prosperity.")
+
+
+func test_pick_mortal_spawn_role_filters_explorer_when_frontier_pressure_is_full():
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = [
+		"FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents = {
+		"persistent_nova": {
+			"agent_role": "explorer",
+			"current_sector_id": "s1",
+			"is_persistent": true,
+			"is_disabled": false,
+		}
+	}
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	agent_layer._rng = rng
+
+	var role: String = agent_layer._pick_mortal_spawn_role()
+
+	assert_ne(role, "explorer",
+		"Mortal spawning should reroll away from explorer when active explorer pressure already fills the frontier allowance.")
 
 
 # =============================================================================
@@ -30870,6 +33565,90 @@ func test_dock_sells_cargo_and_heals():
 	assert_eq(agent["wealth_tag"], "WEALTHY", "Wealth should step up from cargo sale.")
 
 
+func test_hauler_prefers_and_claims_raw_runtime_contract_by_affinity():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s1:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s1:CURRENCY", "CURRENCY", "s2", "s1"),
+		"runtime_contract:s1:RAW": _make_runtime_contract_occurrence("runtime_contract:s1:RAW", "RAW", "s2", "s1"),
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {
+		"s1": ["runtime_contract:s1:CURRENCY", "runtime_contract:s1:RAW"],
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"s2": ["runtime_contract:s1:CURRENCY", "runtime_contract:s1:RAW"],
+	}
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+		"sentiment_tags": ["HAULER", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+
+	var hauler: Dictionary = GameState.agents["hauler_1"]
+	agent_layer._evaluate_goals(hauler, "hauler_1")
+
+	assert_eq(hauler["goal_archetype"], "service_contract",
+		"Haulers should switch to service_contract when runtime occurrences are available.")
+	assert_eq(hauler["goal_queue"][0].get("occurrence_id", ""), "runtime_contract:s1:RAW",
+		"Haulers should prefer RAW demand by affinity over weaker runtime contract categories.")
+
+	agent_layer._execute_action("hauler_1", hauler)
+
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s1:RAW"].get("claimant_agent_id", ""), "hauler_1",
+		"Haulers should claim the selected runtime contract occurrence.")
+	assert_eq(hauler["current_sector_id"], "s2",
+		"Haulers should start moving toward the contract source when not already there.")
+
+
+func test_trader_claims_and_completes_runtime_contract_delivery():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
+	GameState.agents["trader_1"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+		"sentiment_tags": ["TRADER", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+
+	var trader: Dictionary = GameState.agents["trader_1"]
+	agent_layer._evaluate_goals(trader, "trader_1")
+	agent_layer._execute_action("trader_1", trader)
+
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("claimant_agent_id", ""), "trader_1",
+		"Traders should claim runtime contract occurrences before delivery.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "in_transit",
+		"Claimed contracts should switch to in_transit once the trader loads cargo at the source.")
+	assert_eq(trader["cargo_tag"], "LOADED",
+		"Traders should load contract cargo at the source sector.")
+	assert_eq(trader["wealth_tag"], "BROKE",
+		"Trader loading should still pay the existing upfront wealth cost.")
+
+	trader["sentiment_tags"] = ["TRADER", "HEALTHY", "BROKE", "LOADED"]
+	agent_layer._evaluate_goals(trader, "trader_1")
+	agent_layer._execute_action("trader_1", trader)
+	assert_eq(trader["current_sector_id"], "s2",
+		"Traders should move toward the contract target while carrying cargo.")
+
+	agent_layer._evaluate_goals(trader, "trader_1")
+	agent_layer._execute_action("trader_1", trader)
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
+		"Completed runtime contract occurrences should be removed from the active store.")
+	assert_eq(trader["cargo_tag"], "EMPTY",
+		"Traders should unload cargo when completing a runtime contract at the target.")
+	assert_eq(trader["wealth_tag"], "COMFORTABLE",
+		"Trader delivery should reuse the normal dock payout step on completion.")
+
+
 # =============================================================================
 # === HARVEST ACTION ==========================================================
 # =============================================================================
@@ -30924,6 +33703,136 @@ func test_try_exploration_registers_runtime_location_template():
 	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
 
 
+func test_generate_sector_name_for_count_uses_centralized_constants_name_pools():
+	GameState.world_seed = "frontier-name-seed"
+	var generated_root: String = agent_layer._generate_discovery_name_root(3)
+	var generated_name: String = agent_layer._generate_sector_name_for_count(3)
+	var repeated_name: String = agent_layer._generate_sector_name_for_count(3)
+
+	assert_eq(generated_name, repeated_name,
+		"Count-based discovery naming should remain deterministic after switching to the legacy system-name generator.")
+	assert_false(generated_root.empty(),
+		"Count-based discovery naming should produce a generated legacy root.")
+	var name_parts: Array = generated_name.split(" ")
+	if generated_root.length() <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 3,
+			"Short generated roots should carry both a prefix hint and a suffix hint.")
+		assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES,
+			"Short generated roots should prepend a curated prefix hint.")
+		assert_eq(str(name_parts[1]), generated_root,
+			"Short generated roots should stay centered between the curated hint words.")
+		assert_true(str(name_parts[2]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
+			"Short generated roots should append a curated suffix hint.")
+	elif generated_root.length() <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 2,
+			"Medium generated roots should append one curated hint word.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Medium generated roots should stay in the lead position.")
+		assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
+			"Medium generated roots should append a curated suffix hint.")
+	else:
+		assert_eq(name_parts.size(), 1,
+			"Long generated roots should stand on their own without extra hint words.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Long generated roots should pass through unchanged.")
+
+
+func test_generate_sector_name_for_discovery_uses_curated_word_banks():
+	GameState.world_seed = "frontier-name-seed"
+	var profile: Dictionary = {"procedural_type": "dark_nebula"}
+	var initial_tags: Array = [
+		"FRONTIER", "HARSH", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"
+	]
+	var generated_root: String = agent_layer._generate_discovery_name_root(7)
+	var generated_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+	var repeated_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+
+	assert_eq(generated_name, repeated_name,
+		"Profile-aware discovery naming should remain deterministic for the same discovery count and hint data.")
+	var name_parts: Array = generated_name.split(" ")
+	if generated_root.length() <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 3,
+			"Short generated roots should keep both curated hint banks in profile-aware discovery names.")
+		assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE["dark_nebula"],
+			"Profile-aware discovery naming should use the procedural-type-specific prefix pool when one exists.")
+		assert_eq(str(name_parts[1]), generated_root,
+			"The generated system-name root should stay centered in the profile-aware name.")
+		assert_true(str(name_parts[2]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL["RICH"],
+			"Profile-aware discovery naming should use the economy-specific suffix pool when tags indicate a rich site.")
+	elif generated_root.length() <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 2,
+			"Medium generated roots should keep a single economy hint word in profile-aware discovery names.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Medium generated roots should lead profile-aware discovery names.")
+		assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL["RICH"],
+			"Profile-aware discovery naming should append the economy-specific hint when the root is medium-length.")
+	else:
+		assert_eq(name_parts.size(), 1,
+			"Long generated roots should not receive extra hint words even in profile-aware naming.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Long generated roots should pass through unchanged in profile-aware discovery names.")
+
+
+func test_legacy_system_name_generator_returns_public_deterministic_short_names():
+	var GeneratorScript = load("res://src/core/utils/legacy_system_name_generator.gd")
+	var generator = GeneratorScript.new()
+	var generated_name: String = generator.generate_system_name("legacy-generator-seed", 4, 7)
+	var repeated_name: String = generator.generate_system_name("legacy-generator-seed", 4, 7)
+
+	assert_eq(generated_name, repeated_name,
+		"The ported legacy system-name generator should be deterministic for the same seed input.")
+	assert_gt(generated_name.length(), 1,
+		"The ported legacy system-name generator should return a non-trivial short root.")
+	assert_true(generated_name.length() <= 8,
+		"The ported legacy system-name generator should stay in the short-name range used by the legacy sandbox.")
+	assert_eq(generated_name.find(" "), -1,
+		"The public legacy system-name generator should emit a single short root without extra words.")
+
+
+func test_legacy_system_name_generator_softens_internal_y_between_consonants():
+	var GeneratorScript = load("res://src/core/utils/legacy_system_name_generator.gd")
+	var generator = GeneratorScript.new()
+
+	assert_eq(generator._soften_internal_y("Ryhazi"), "Rihazi",
+		"The limited readability pass should soften internal y when it lands between consonants.")
+	assert_eq(generator._soften_internal_y("Ysutu"), "Ysutu",
+		"The limited readability pass should keep an opening y untouched.")
+	assert_eq(generator._soften_internal_y("Ayla"), "Ayla",
+		"The limited readability pass should avoid rewriting every interior y indiscriminately.")
+
+
+func test_compose_discovery_sector_name_uses_generated_root_length_budget():
+	assert_eq(agent_layer._compose_discovery_sector_name("Cob", "Umbral", "Passage"), "Umbral Cob Passage",
+		"Very short generated roots should use both curated hint banks.")
+	assert_eq(agent_layer._compose_discovery_sector_name("Elace", "Umbral", "Passage"), "Elace Passage",
+		"Medium generated roots should keep only one curated hint word.")
+	assert_eq(agent_layer._compose_discovery_sector_name("Aurelius", "Umbral", "Passage"), "Aurelius",
+		"Long generated roots should stand alone without extra hint words.")
+
+
+func test_generate_sector_name_for_discovery_avoids_existing_display_name_collisions():
+	GameState.world_seed = "frontier-name-seed"
+	var profile: Dictionary = {"procedural_type": "dark_nebula"}
+	var initial_tags: Array = [
+		"FRONTIER", "HARSH", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"
+	]
+	var colliding_name: String = agent_layer._build_discovery_sector_name_candidate(
+		7,
+		0,
+		agent_layer._get_discovery_prefix_word_pool("dark_nebula", initial_tags),
+		agent_layer._get_discovery_suffix_word_pool(initial_tags)
+	)
+	GameState.sector_names["existing_collision"] = colliding_name
+
+	var unique_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+	var repeated_unique_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+
+	assert_ne(unique_name, colliding_name,
+		"Profile-aware discovery naming should skip names that already exist in the world state.")
+	assert_eq(unique_name, repeated_unique_name,
+		"Collision avoidance should remain deterministic for the same discovery count and existing-name set.")
+
+
 func test_filter_spatially_plausible_connections_drops_far_links():
 	TemplateDatabase.locations["near"] = {"global_position": Vector3(52000, 0, 0)}
 	TemplateDatabase.locations["far"] = {"global_position": Vector3(220000, 0, 0)}
@@ -30937,8 +33846,9 @@ func test_filter_spatially_plausible_connections_drops_far_links():
 	assert_eq(filtered_connections, ["s1", "near"], "Spatial filtering should keep plausible nearby links and drop distant ones.")
 
 
-func test_resolve_sector_interaction_moves_explorer_after_cooldown_scan_failure():
+func test_resolve_sector_interaction_holds_cooling_explorer_on_viable_frontier_anchor():
 	GameState.sim_tick_count = 5
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
 		"agent_role": "explorer",
@@ -30954,9 +33864,54 @@ func test_resolve_sector_interaction_moves_explorer_after_cooldown_scan_failure(
 	assert_eq(GameState.discovered_sector_count, 0, "Cooldown failures should not create a discovery.")
 	assert_eq(
 		GameState.agents["explorer"]["current_sector_id"],
-		"s2",
-		"Explorers should keep moving after a failed cooldown scan instead of pinning to one frontier sector."
+		"s1",
+		"Cooling explorers should hold a viable frontier anchor instead of ping-ponging away from an open survey edge."
 	)
+	assert_eq(_count_chronicle_actions("expedition_failed"), 0,
+		"Cooling explorers should stop logging futile expedition failures while waiting on the frontier.")
+
+
+func test_resolve_sector_interaction_repositions_cooling_explorer_toward_frontier_anchor():
+	GameState.sim_tick_count = 5
+	GameState.world_topology["s2"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.sector_tags["s2"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents["explorer"] = {
+		"agent_role": "explorer",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"last_discovery_tick": 0,
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+	}
+
+	agent_layer._resolve_sector_interaction("explorer", 0.0, GameState.sector_tags["s1"])
+
+	assert_eq(GameState.agents["explorer"]["current_sector_id"], "s2",
+		"Cooling explorers should move toward the nearest frontier anchor when their current sector is a poor survey origin.")
+	assert_eq(_count_chronicle_actions("expedition_failed"), 0,
+		"Cooling explorers should reposition without logging a guaranteed cooldown failure first.")
+
+
+func test_resolve_sector_interaction_holds_broke_explorer_on_frontier_anchor():
+	GameState.sim_tick_count = 20
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.agents["explorer"] = {
+		"agent_role": "explorer",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"last_discovery_tick": -999,
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+	}
+
+	agent_layer._resolve_sector_interaction("explorer", 0.0, GameState.sector_tags["s1"])
+
+	assert_eq(GameState.agents["explorer"]["current_sector_id"], "s1",
+		"Broke explorers should stay on a frontier anchor to recover instead of throwing away turns on guaranteed failed expeditions.")
+	assert_eq(_count_chronicle_actions("expedition_failed"), 0,
+		"Broke explorers at a frontier anchor should stop generating futile broke-failure spam.")
 
 
 func test_get_exploration_success_modifier_keeps_hub_surveys_diminished():
@@ -31042,6 +33997,21 @@ func test_build_discovered_sector_placement_separates_from_existing_discovery_br
 	)
 
 
+func test_get_discovery_connection_chances_bias_frontier_anchors():
+	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+
+	var connection_chances: Dictionary = agent_layer._get_discovery_connection_chances(
+		"s1",
+		GameState.sector_tags["s1"]
+	)
+
+	assert_eq(float(connection_chances.get("extra_one", 0.0)), Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE,
+		"Frontier anchors should use the tuned first extra-link chance instead of the generic baseline.")
+	assert_eq(float(connection_chances.get("extra_two", 0.0)), Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE,
+		"Frontier anchors should use the tuned loop-link chance instead of the generic baseline.")
+
+
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
@@ -31084,6 +34054,9 @@ func _clear_state() -> void:
 	GameState.characters.clear()
 	GameState.agent_tags.clear()
 	GameState.colony_levels.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
 	GameState.mortal_agent_counter = 0
@@ -31100,14 +34073,50 @@ func _clear_state() -> void:
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.locations.clear()
 
+
+func _make_runtime_contract_occurrence(occurrence_id: String, category: String, source_sector_id: String, target_sector_id: String) -> Dictionary:
+	var category_priority_tags: Dictionary = {
+		"RAW": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+		"MANUFACTURED": ["CONTRACT_DEMAND_MANUFACTURED", "RELIEF_NEEDED", "CONTESTED"],
+		"CURRENCY": ["CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED", "CONTESTED"],
+	}
+	return {
+		"occurrence_id": occurrence_id,
+		"generator_id": "qualitative_demand",
+		"contract_type": "delivery",
+		"commodity_category": category,
+		"demand_tag": "CONTRACT_DEMAND_%s" % category,
+		"source_sector_id": source_sector_id,
+		"target_sector_id": target_sector_id,
+		"origin_location_id": source_sector_id,
+		"destination_location_id": target_sector_id,
+		"status": "open",
+		"claimant_agent_id": "",
+		"required_roles": ["trader", "hauler"],
+		"priority_tags": category_priority_tags.get(category, ["RELIEF_NEEDED", "CONTESTED"]),
+		"route_hops": 1,
+		"created_at_tick": GameState.sim_tick_count,
+		"last_refreshed_tick": GameState.sim_tick_count,
+		"title": "%s Relief Route" % category.capitalize(),
+		"description": "%s relief from %s to %s." % [category.capitalize(), source_sector_id, target_sector_id],
+	}
+
+
+func _count_chronicle_actions(action_name: String) -> int:
+	var count: int = 0
+	for event in GameState.chronicle_events:
+		if str(event.get("action", "")) == action_name:
+			count += 1
+	return count
+
 --- Start of ./src/tests/core/simulation/test_chronicle_layer.gd ---
 
 #
 # PROJECT: GDTLancer
 # MODULE: test_chronicle_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-09 20:56:15
+# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
+# LOG_REF: 2026-05-24 00:00:03
 #
 
 extends GutTest
@@ -31189,6 +34198,47 @@ func test_event_has_required_fields():
 	assert_true(ev.has("actor_id"), "Event must have actor_id.")
 	assert_true(ev.has("action"), "Event must have action.")
 	assert_true(ev.has("sector_id"), "Event must have sector_id.")
+	assert_true(ev.has("metadata"), "Event must retain metadata as a Dictionary.")
+
+
+func test_log_event_deep_copies_nested_metadata():
+	var metadata := {
+		"target": "agent_ada",
+		"connections": ["sector_system_elace"],
+	}
+	chronicle.log_event({
+		"tick": 2,
+		"actor_id": "agent_vera",
+		"action": "contract_completed",
+		"sector_id": "sector_system_elace",
+		"metadata": metadata,
+	})
+	metadata["target"] = "agent_mutated"
+	metadata["connections"].append("sector_system_cob")
+
+	chronicle.process_tick()
+
+	var event: Dictionary = GameState.chronicle_events[0]
+	var stored_meta: Dictionary = event.get("metadata", {})
+	assert_eq(stored_meta.get("target", ""), "agent_ada",
+		"ChronicleLayer should deep-copy metadata so later mutations do not corrupt stored events.")
+	assert_eq(Array(stored_meta.get("connections", [])).size(), 1,
+		"Nested metadata arrays should also be deep-copied.")
+
+
+func test_contract_action_rumor_uses_humanized_text():
+	chronicle.log_event({
+		"tick": 3,
+		"actor_id": "hauler_1",
+		"action": "contract_completed",
+		"sector_id": "sector_system_elace",
+		"metadata": {},
+	})
+
+	chronicle.process_tick()
+
+	assert_true(str(GameState.chronicle_rumors[0]).find("completed a relief delivery") != -1,
+		"Chronicle rumors should humanize the new runtime contract actions.")
 
 
 func test_buffer_capped_at_limit():
@@ -31216,14 +34266,175 @@ func _clear_state() -> void:
 	GameState.world_topology.clear()
 	GameState.agents.clear()
 
+--- Start of ./src/tests/core/simulation/test_contract_generation_system.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: test_contract_generation_system.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md TASK_4; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-24 00:28:56
+#
+
+extends GutTest
+
+var generator: Reference = null
+
+
+func before_each() -> void:
+	GameState.reset_state()
+	var Script = load("res://src/core/simulation/contract_generation_system.gd")
+	generator = Script.new()
+	_seed_runtime_contract_state()
+
+
+func after_each() -> void:
+	GameState.reset_state()
+	generator = null
+
+
+func test_process_tick_generates_occurrences_for_active_demand_tags() -> void:
+	generator.process_tick({})
+
+	assert_eq(GameState.runtime_contract_occurrences.size(), 3,
+		"One runtime occurrence should be generated for each active demand tag.")
+	assert_eq(GameState.runtime_contract_occurrences_by_target_sector.get("a", []).size(), 3,
+		"Demand sector should index all generated occurrences.")
+
+	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(raw_contract.get("origin_location_id", ""), "b",
+		"RAW demand should source from the strongest nearby RAW sector.")
+	assert_eq(raw_contract.get("destination_location_id", ""), "a",
+		"Generated occurrences should point at the demand sector.")
+	assert_eq(raw_contract.get("contract_type", ""), "delivery",
+		"Runtime occurrences should use delivery semantics.")
+	assert_eq(raw_contract.get("required_roles", []), ["trader", "hauler"],
+		"Runtime occurrences should advertise the trader/hauler roles for later agent use.")
+
+	var manufactured_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:MANUFACTURED", {})
+	assert_eq(manufactured_contract.get("origin_location_id", ""), "c",
+		"MANUFACTURED demand should source from the best nearby manufactured supplier.")
+
+	var currency_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:CURRENCY", {})
+	assert_eq(currency_contract.get("origin_location_id", ""), "c",
+		"CURRENCY demand should source from the best nearby currency supplier.")
+	assert_has(GameState.runtime_contract_occurrences_by_source_sector.get("c", []), "runtime_contract:a:CURRENCY",
+		"Source-sector index should include generated occurrences.")
+
+
+func test_process_tick_respects_occurrence_caps() -> void:
+	generator.process_tick({
+		"contract_occurrence_global_cap": 1,
+		"contract_occurrence_per_sector_cap": 1,
+	})
+
+	assert_eq(GameState.runtime_contract_occurrences.size(), 1,
+		"Generator should respect the configured global occurrence cap.")
+	assert_eq(GameState.runtime_contract_occurrences_by_target_sector.get("a", []).size(), 1,
+		"Generator should respect the configured per-sector cap.")
+
+
+func test_process_tick_requires_nearby_qualifying_sources() -> void:
+	GameState.sector_tags["b"] = ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.sector_tags["c"] = ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH"]
+	GameState.world_topology["b"]["connections"].append("e")
+	GameState.world_topology["e"] = {"connections": ["b"], "sector_type": "colony", "station_ids": ["e"]}
+	GameState.sector_tags["e"] = ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+
+	generator.process_tick({"contract_source_search_max_hops": 1})
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"No RAW occurrence should be generated when the only valid source is beyond the hop limit.")
+
+	generator.process_tick({"contract_source_search_max_hops": 2})
+	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(raw_contract.get("origin_location_id", ""), "e",
+		"RAW demand should source from the nearest qualifying sector once the hop limit allows it.")
+	assert_eq(raw_contract.get("route_hops", -1), 2,
+		"Generated occurrences should record the qualitative route distance in hops.")
+
+
+func test_process_tick_retains_claimed_occurrence_without_active_demand_tag() -> void:
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "b",
+		"is_disabled": false,
+		"cargo_tag": "LOADED",
+	}
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "in_transit",
+			"claimant_agent_id": "hauler_1",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 2,
+			"claimed_at_tick": 3,
+			"last_refreshed_tick": 4,
+		}
+	}
+
+	generator.process_tick({})
+
+	var retained_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(retained_contract.get("claimant_agent_id", ""), "hauler_1",
+		"Claimed occurrences should survive generator refresh even after the demand tag clears.")
+	assert_eq(retained_contract.get("status", ""), "in_transit",
+		"Generator should preserve the claimed occurrence status for in-flight deliveries.")
+	assert_eq(int(retained_contract.get("created_at_tick", -1)), 2,
+		"Generator should preserve the original creation tick while the delivery remains active.")
+	assert_eq(int(retained_contract.get("last_refreshed_tick", -1)), GameState.sim_tick_count,
+		"Generator should refresh retained occurrences to the current tick.")
+
+
+func _seed_runtime_contract_state() -> void:
+	GameState.world_seed = "runtime_contract_seed"
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 5
+	GameState.world_topology = {
+		"a": {"connections": ["b", "c"], "sector_type": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
+		"c": {"connections": ["a"], "sector_type": "colony", "station_ids": ["c"]},
+	}
+	GameState.sector_names = {"a": "Alpha", "b": "Beta", "c": "Gamma", "e": "Epsilon"}
+	GameState.sector_tags = {
+		"a": [
+			"STATION", "CONTESTED", "MILD",
+			"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR",
+			"CONTRACT_DEMAND_RAW", "CONTRACT_DEMAND_MANUFACTURED", "CONTRACT_DEMAND_CURRENCY",
+			"RELIEF_NEEDED"
+		],
+		"b": [
+			"STATION", "SECURE", "MILD",
+			"RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE",
+			"TRADE_LANE_ACTIVE"
+		],
+		"c": [
+			"STATION", "SECURE", "MILD",
+			"RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_RICH"
+		],
+	}
+
 --- Start of ./src/tests/core/simulation/test_grid_layer.gd ---
 
 #
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-02-21 (TASK_13)
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-26 10:15:51
 #
 
 extends GutTest
@@ -31259,11 +34470,15 @@ func test_initialize_grid_seeds_progress_counters():
 			"economy_upgrade_progress should be seeded for '%s'." % sector_id)
 		assert_true(GameState.security_upgrade_progress.has(sector_id),
 			"security_upgrade_progress should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_generation_pressure.has(sector_id),
+			"contract_generation_pressure should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_generation_threshold.has(sector_id),
+			"contract_generation_threshold should be seeded for '%s'." % sector_id)
 
 
 func test_economy_transitions_require_sustained_pressure():
 	# Sector "a" is RAW_POOR. With a loaded trader present during RECOVERY,
-	# it should upgrade to RAW_ADEQUATE after threshold ticks.
+	# it should upgrade only after the effective recovery-adjusted threshold.
 	GameState.world_age = "RECOVERY"
 	GameState.agents["trader_1"] = {
 		"current_sector_id": "a",
@@ -31276,22 +34491,77 @@ func test_economy_transitions_require_sustained_pressure():
 
 	# Force economy threshold to 3 for predictability
 	GameState.economy_change_threshold["a"] = {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3}
+	var effective_threshold: int = grid._economy_upgrade_threshold_for_level(3, GameState.colony_levels["a"])
 
-	# Tick 1 & 2: should still be RAW_POOR (pressure accumulating)
-	grid.process_tick({})
-	assert_has(GameState.sector_tags["a"], "RAW_POOR",
-		"RAW_POOR should persist after 1 tick (threshold=3).")
+	for _i in range(effective_threshold - 1):
+		grid.process_tick({})
+		assert_has(GameState.sector_tags["a"], "RAW_POOR",
+			"RAW_POOR should persist until the effective recovery-adjusted threshold is met.")
 
-	grid.process_tick({})
-	assert_has(GameState.sector_tags["a"], "RAW_POOR",
-		"RAW_POOR should persist after 2 ticks.")
-
-	# Tick 3: threshold reached, should upgrade
+	# Once the effective threshold is reached, the poor tag should clear.
 	grid.process_tick({})
 	assert_has(GameState.sector_tags["a"], "RAW_ADEQUATE",
-		"RAW_POOR should upgrade to RAW_ADEQUATE after 3 ticks of pressure.")
+		"RAW_POOR should upgrade to RAW_ADEQUATE once the effective threshold is reached.")
 	assert_does_not_have(GameState.sector_tags["a"], "RAW_POOR",
 		"RAW_POOR tag should be removed after upgrade.")
+
+
+func test_contract_demand_tags_require_sustained_pressure():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_generation_threshold["a"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+
+	grid.process_tick({})
+	assert_does_not_have(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Demand tags should not appear before their threshold is met.")
+	assert_eq(GameState.contract_generation_pressure["a"]["RAW"], 1,
+		"Pressure should increment while RAW_POOR pressure is sustained.")
+
+	grid.process_tick({})
+	var tags: Array = GameState.sector_tags["a"]
+	assert_has(tags, "CONTRACT_DEMAND_RAW",
+		"RAW demand should appear after sustained poor pressure.")
+	assert_has(tags, "CONTRACT_DEMAND_MANUFACTURED",
+		"MANUFACTURED demand should appear after sustained poor pressure.")
+	assert_has(tags, "CONTRACT_DEMAND_CURRENCY",
+		"CURRENCY demand should appear after sustained poor pressure.")
+	assert_has(tags, "RELIEF_NEEDED",
+		"Multiple simultaneous demand tags should surface RELIEF_NEEDED.")
+
+
+func test_trade_relief_tags_active_then_clear_contract_pressure():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_generation_threshold["a"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+
+	for _i in range(3):
+		grid.process_tick({})
+
+	assert_has(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Demand should be active before relief arrives.")
+
+	GameState.agents["relief_trader"] = {
+		"current_sector_id": "a",
+		"agent_role": "trader",
+		"cargo_tag": "LOADED",
+		"is_disabled": false,
+	}
+
+	grid.process_tick({})
+	var active_relief_tags: Array = GameState.sector_tags["a"]
+	assert_has(active_relief_tags, "TRADE_LANE_ACTIVE",
+		"Active relief traffic should surface a trade-lane tag while demand remains active.")
+	assert_has(active_relief_tags, "CONTRACT_DEMAND_RAW",
+		"Demand should persist for one tick while relief pressure decays.")
+
+	grid.process_tick({})
+	var cleared_tags: Array = GameState.sector_tags["a"]
+	assert_does_not_have(cleared_tags, "CONTRACT_DEMAND_RAW",
+		"Demand should clear once relief reduces pressure below the threshold.")
+	assert_does_not_have(cleared_tags, "RELIEF_NEEDED",
+		"RELIEF_NEEDED should clear after demand pressure resolves.")
+	assert_does_not_have(cleared_tags, "TRADE_LANE_ACTIVE",
+		"TRADE_LANE_ACTIVE should clear once no demand tag remains.")
 
 
 func test_security_only_one_tag_present():
@@ -31364,6 +34634,284 @@ func test_colony_hub_maintenance_drains_economy():
 		"Hub with no trade should lose CURRENCY_RICH.")
 
 
+func test_frontier_security_caps_at_contested_until_outpost():
+	_seed_single_sector_state(
+		"frontier_security_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+
+	grid.process_tick({})
+
+	assert_has(GameState.sector_tags["frontier_sector"], "CONTESTED",
+		"Frontier sectors should not retain SECURE while they are still at the frontier colony level.")
+	assert_does_not_have(GameState.sector_tags["frontier_sector"], "SECURE",
+		"Frontier sectors should stay capped at CONTESTED until they progress into an outpost.")
+
+
+func test_frontier_economy_caps_at_adequate_until_outpost():
+	_seed_single_sector_state(
+		"frontier_economy_seed",
+		["FRONTIER", "CONTESTED", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+		"frontier"
+	)
+
+	grid.process_tick({})
+
+	var tags: Array = GameState.sector_tags["frontier_sector"]
+	assert_has(tags, "RAW_ADEQUATE",
+		"Frontier sectors should not keep RAW_RICH before they stabilize into an outpost.")
+	assert_has(tags, "MANUFACTURED_ADEQUATE",
+		"Frontier sectors should not keep MANUFACTURED_RICH before they stabilize into an outpost.")
+	assert_has(tags, "CURRENCY_ADEQUATE",
+		"Frontier sectors should not keep CURRENCY_RICH before they stabilize into an outpost.")
+	assert_does_not_have(tags, "RAW_RICH",
+		"Frontier sectors should be capped at ADEQUATE economy while they are still frontier-level.")
+
+
+func test_frontier_colony_upgrade_requires_extended_stability():
+	_seed_single_sector_state(
+		"frontier_upgrade_seed",
+		["FRONTIER", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+	var frontier_threshold: int = grid._colony_upgrade_threshold_for_level("frontier")
+
+	for _i in range(frontier_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
+		"Frontier sectors should require their full current stabilization threshold before becoming outposts.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"A stable frontier sector should eventually advance once the longer frontier threshold is actually met.")
+
+
+func test_extreme_frontier_cannot_upgrade_until_conditions_soften():
+	_seed_single_sector_state(
+		"frontier_extreme_seed",
+		["FRONTIER", "CONTESTED", "EXTREME", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+
+	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
+		"Extreme frontier sectors should not upgrade into outposts until their environment is no longer the blocked frontier state.")
+
+
+func test_harsh_frontier_can_upgrade_once_stability_window_is_met():
+	_seed_single_sector_state(
+		"frontier_harsh_seed",
+		["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"frontier"
+	)
+	var frontier_threshold: int = grid._colony_upgrade_threshold_for_level("frontier")
+
+	for _i in range(frontier_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
+		"Harsh frontier sectors should still respect the full current stabilization threshold before becoming outposts.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Harsh frontier sectors should be allowed to mature once the stability window is met; only extreme conditions should hard-block promotion.")
+
+
+func test_outpost_colony_upgrade_requires_extended_stability():
+	_seed_single_sector_state(
+		"outpost_upgrade_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+
+	for _i in range(colony_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Outposts should hold their intermediate identity for the full current stabilization threshold before maturing into colonies.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"A stable outpost should still eventually advance once the longer outpost threshold is actually met.")
+
+
+func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
+	_seed_single_sector_state(
+		"outpost_late_prosperity_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
+	var reduced_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	assert_lt(reduced_threshold, Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
+		"Late prosperity should shorten the stabilization window for mature outposts so some hubs can emerge organically before the age ends.")
+
+	for _i in range(reduced_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Stable outposts should still wait for the reduced late-prosperity threshold rather than upgrading immediately.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"Late prosperity should let a stable outpost mature sooner than the base threshold so the world can grow into colonies and hubs organically.")
+
+
+func test_outpost_colony_upgrade_requires_at_least_one_rich_economy_tag():
+	_seed_single_sector_state(
+		"outpost_rich_gate_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	for _i in range(colony_threshold + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Adequate outposts should not normalize into colonies until at least part of their economy actually matures beyond the floor state.")
+
+
+func test_single_rich_outpost_needs_growth_support_before_becoming_colony():
+	_seed_single_sector_state(
+		"outpost_growth_support_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	for _i in range(colony_threshold + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"A one-rich outpost without active commerce or settled support should hold as an outpost instead of normalizing into a colony by default.")
+
+
+func test_supported_single_rich_outpost_can_still_mature_into_colony():
+	_clear_state()
+	GameState.world_seed = "outpost_supported_growth_seed"
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0
+	GameState.world_topology = {
+		"frontier_sector": {"connections": ["inner_colony"], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
+		"inner_colony": {"connections": ["frontier_sector"], "sector_type": "colony", "station_ids": ["inner_colony"]},
+	}
+	GameState.sector_tags = {
+		"frontier_sector": ["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"inner_colony": ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+	}
+	GameState.grid_dominion = {
+		"frontier_sector": {"security_tag": "SECURE"},
+		"inner_colony": {"security_tag": "SECURE"},
+	}
+	GameState.world_hazards = {
+		"frontier_sector": {"environment": "MILD"},
+		"inner_colony": {"environment": "MILD"},
+	}
+	GameState.agents = {}
+
+	grid.initialize_grid()
+	GameState.colony_levels["frontier_sector"] = "outpost"
+	GameState.colony_levels["inner_colony"] = "colony"
+	GameState.security_change_threshold["frontier_sector"] = 1
+	GameState.security_change_threshold["inner_colony"] = 1
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.economy_change_threshold["inner_colony"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	for _i in range(colony_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Supported outposts should still respect the full stabilization window before maturing.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"A one-rich outpost that is already linked into a settled colony network should still be able to mature organically.")
+
+
+func test_colony_hub_upgrade_requires_rich_economy():
+	_seed_single_sector_state(
+		"colony_hub_gate_seed",
+		["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"colony"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var hub_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
+	for _i in range(hub_threshold + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"Adequate colonies should not promote into hubs until they actually reach the richer economy gate for the final maturity step.")
+
+
+func test_late_prosperity_colony_hub_upgrade_stays_slower_than_outpost_growth():
+	_seed_single_sector_state(
+		"colony_late_prosperity_seed",
+		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+		"colony"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
+
+	var hub_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
+	var outpost_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	assert_true(hub_threshold >= outpost_threshold,
+		"Late prosperity should not make colony-to-hub maturation faster than outpost-to-colony growth; the richer economy gate still keeps hubs slower in practice.")
+
+	for _i in range(hub_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"Rich colonies should still wait for the longer late-prosperity hub threshold instead of upgrading immediately.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "hub",
+		"Late prosperity should still allow a rich, stable colony to become a hub once the slower final threshold is actually met.")
+
+
+func test_recovery_raises_colony_hub_upgrade_threshold():
+	_seed_single_sector_state(
+		"colony_recovery_seed",
+		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+		"colony"
+	)
+	GameState.world_age = "RECOVERY"
+
+	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
+	assert_true(recovery_threshold > Constants.COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED,
+		"Recovery should stop acting like a fast track into hubs and instead require a longer stabilization window for colony-to-hub promotion.")
+
+
+func test_recovery_raises_outpost_colony_upgrade_threshold():
+	_seed_single_sector_state(
+		"outpost_recovery_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.world_age = "RECOVERY"
+
+	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	assert_true(recovery_threshold > Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
+		"Recovery should stop acting like a fast track from outposts into colonies and require a longer stabilization window instead.")
+
+
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
@@ -31371,6 +34919,7 @@ func test_colony_hub_maintenance_drains_economy():
 func _seed_minimal_state() -> void:
 	GameState.world_seed = "grid_test_seed"
 	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
 		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
@@ -31388,6 +34937,27 @@ func _seed_minimal_state() -> void:
 	}
 
 
+func _seed_single_sector_state(seed_string: String, tags: Array, colony_level: String) -> void:
+	_clear_state()
+	GameState.world_seed = seed_string
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
+	GameState.sim_tick_count = 0
+	GameState.world_topology = {
+		"frontier_sector": {"connections": [], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
+	}
+	GameState.sector_tags = {
+		"frontier_sector": Array(tags),
+	}
+	GameState.grid_dominion = {"frontier_sector": {"security_tag": grid._security_tag(tags)}}
+	GameState.world_hazards = {"frontier_sector": {"environment": grid._environment_tag(tags)}}
+	GameState.agents = {}
+	grid.initialize_grid()
+	GameState.colony_levels["frontier_sector"] = colony_level
+	GameState.security_change_threshold["frontier_sector"] = 99
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+
 func _clear_state() -> void:
 	GameState.world_topology.clear()
 	GameState.world_hazards.clear()
@@ -31402,10 +34972,13 @@ func _clear_state() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.agents.clear()
 	GameState.world_seed = ""
 	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = 0
 	GameState.sim_tick_count = 0
 
 --- Start of ./src/tests/core/simulation/test_simulation_integration.gd ---
@@ -31415,7 +34988,7 @@ func _clear_state() -> void:
 # MODULE: test_simulation_integration.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TACTICAL_TODO.md §TASK_1
-# LOG_REF: 2026-05-23 17:04:30
+# LOG_REF: 2026-05-23 23:05:10
 #
 
 extends GutTest
@@ -31560,6 +35133,11 @@ func _clear_state() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
@@ -31603,8 +35181,8 @@ func _seed_template_database() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md
-# LOG_REF: 2026-05-23 17:04:30
+# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §5, §6.4
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends GutTest
@@ -31646,6 +35224,95 @@ func test_batch_30_ticks():
 		print(report)
 		print("===== END GODOT CHRONO-30 =====\n")
 
+
+func test_sector_focus_report_supports_requested_focus_and_sort_mode():
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var report: String = report_generator.run_and_report(engine, 30, 1, {
+		"focus_mode": "sector",
+		"focus_id": "sector_system_elace",
+		"sort_mode": "sector",
+		"detail_level": "verbose",
+	})
+
+	assert_true(report.find("REPORT MODE: SECTOR") != -1,
+		"Focused report should expose the requested sector mode in the header.")
+	assert_true(report.find("FOCUS: sector_system_elace") != -1,
+		"Focused report should expose the requested sector id in the header.")
+	assert_true(report.find("Detailed event log (sector order):") != -1,
+		"Focused report should expose a sector-sorted detailed log section.")
+	assert_true(report.find("FOCUSED SUMMARY") != -1,
+		"Focused report should emit a focused summary instead of the default world summary.")
+
+
+func test_agent_focus_report_supports_requested_focus_and_sort_mode():
+	var agent_ids: Array = GameState.agents.keys()
+	agent_ids.sort()
+	var focus_agent_id: String = ""
+	for agent_id in agent_ids:
+		if str(agent_id) != "player":
+			focus_agent_id = str(agent_id)
+			break
+	assert_true(focus_agent_id != "", "A non-player agent should exist for focused reporting.")
+	if focus_agent_id == "":
+		return
+
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var report: String = report_generator.run_and_report(engine, 10, 1, {
+		"focus_mode": "agent",
+		"focus_id": focus_agent_id,
+		"sort_mode": "agent",
+		"detail_level": "standard",
+	})
+
+	assert_true(report.find("REPORT MODE: AGENT") != -1,
+		"Focused report should expose the requested agent mode in the header.")
+	assert_true(report.find("FOCUS: %s" % focus_agent_id) != -1,
+		"Focused report should expose the requested agent id in the header.")
+	assert_true(report.find("Detailed event log (agent order):") != -1,
+		"Focused report should expose an agent-sorted detailed log section.")
+	assert_true(report.find("Current agent state:") != -1,
+		"Agent-focused reports should include an integral agent-state summary.")
+
+
+func test_composite_report_collects_requested_windows_with_deterministic_samples():
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var report: String = report_generator.run_composite_report(engine, [10, 30], {})
+
+	assert_true(report.find("COMPOSITE RESEARCH CHRONICLE") != -1,
+		"Composite reports should expose a dedicated research chronicle header.")
+	assert_true(report.find("COMPOSITE WINDOW: 10 ticks") != -1,
+		"Composite reports should capture the first requested cumulative window.")
+	assert_true(report.find("COMPOSITE WINDOW: 30 ticks") != -1,
+		"Composite reports should capture the later requested cumulative window from the same run.")
+	assert_true(report.find("SAMPLED SECTORS") != -1,
+		"Composite reports should include deterministic sampled sector sections.")
+	assert_true(report.find("SAMPLED AGENTS") != -1,
+		"Composite reports should include deterministic sampled agent sections.")
+	assert_true(report.find("Focus mode: sector") != -1,
+		"Composite reports should reuse the existing focused sector summary surface.")
+	assert_true(report.find("Focus mode: agent") != -1,
+		"Composite reports should reuse the existing focused agent summary surface.")
+
+
+func test_composite_sampling_helpers_are_deterministic_for_same_state():
+	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
+	var report_generator: Reference = ReportScript.new()
+	var normalized_request: Dictionary = report_generator._normalize_composite_request({})
+	var sector_samples_a: Dictionary = report_generator._sample_sector_ids_by_type(30, normalized_request)
+	var sector_samples_b: Dictionary = report_generator._sample_sector_ids_by_type(30, normalized_request)
+	var sector_compare = compare_deep(sector_samples_a, sector_samples_b)
+	assert_true(sector_compare.are_equal(),
+		"Sector sampling should be deterministic for the same seed and milestone.\n" + sector_compare.summary)
+
+	var agent_samples_a: Array = report_generator._sample_agent_entries(30, normalized_request)
+	var agent_samples_b: Array = report_generator._sample_agent_entries(30, normalized_request)
+	var agent_compare = compare_deep(agent_samples_a, agent_samples_b)
+	assert_true(agent_compare.are_equal(),
+		"Agent sampling should be deterministic for the same seed and milestone.\n" + agent_compare.summary)
+
 # =============================================================================
 # === VALIDATION ==============================================================
 # =============================================================================
@@ -31659,6 +35326,8 @@ func _validate_report(report: String, tick_count: int) -> void:
 		"Report should contain OVERALL SUMMARY.")
 	assert_true(report.find("Epoch 1:") != -1,
 		"Report should contain at least Epoch 1.")
+	assert_true(report.find("Detailed event log (chronological order):") != -1,
+		"Default report should now include a detailed chronological event log section.")
 	assert_true(report.find("Simulation ran for %d ticks" % tick_count) != -1,
 		"Summary should state correct tick count (%d)." % tick_count)
 	assert_true(report.find("Active pilots:") != -1,
@@ -31743,8 +35412,8 @@ func _seed_template_database():
 # PROJECT: GDTLancer
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_13
-# LOG_REF: 2026-05-23 17:04:30
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-24 14:43:54
 #
 
 extends GutTest
@@ -31753,6 +35422,34 @@ extends GutTest
 ## NOTE: SimulationEngine extends Node and must be added to the tree.
 
 var engine: Node = null
+
+
+class TickOrderSpy extends Reference:
+	var order: Array = []
+	var label: String = ""
+	var delegate: Reference = null
+
+	func _init(p_order: Array, p_label: String, p_delegate: Reference = null) -> void:
+		order = p_order
+		label = p_label
+		delegate = p_delegate
+
+	func process_tick(config: Dictionary) -> void:
+		order.append(label)
+		if delegate != null and delegate.has_method("process_tick"):
+			delegate.process_tick(config)
+
+
+class AgentOrderSpy extends Reference:
+	var order: Array = []
+	var seen_occurrence_count: int = -1
+
+	func _init(p_order: Array) -> void:
+		order = p_order
+
+	func process_tick(_config: Dictionary) -> void:
+		seen_occurrence_count = GameState.runtime_contract_occurrences.size()
+		order.append("agent")
 
 
 func before_each():
@@ -31842,6 +35539,47 @@ func test_get_config_has_required_keys():
 	assert_true(config.has("colony_upgrade_ticks_required"), "Config must have colony_upgrade_ticks_required.")
 	assert_true(config.has("respawn_cooldown_ticks"), "Config must have respawn_cooldown_ticks.")
 	assert_true(config.has("mortal_global_cap"), "Config must have mortal_global_cap.")
+	assert_true(config.has("contract_occurrence_global_cap"), "Config must have contract_occurrence_global_cap.")
+
+
+func test_contract_generation_runs_between_bridge_and_agent_layer():
+	engine.initialize_simulation("tick_test_seed")
+	GameState.world_age_timer = 5
+	_seed_contract_tick_state()
+
+	var order: Array = []
+	engine.grid_layer = TickOrderSpy.new(order, "grid")
+	engine.bridge_systems = TickOrderSpy.new(order, "bridge")
+	engine.contract_generation_system = TickOrderSpy.new(order, "contract", engine.contract_generation_system)
+	var agent_spy = AgentOrderSpy.new(order)
+	engine.agent_layer = agent_spy
+	engine.chronicle_layer = TickOrderSpy.new(order, "chronicle")
+	engine.set_config("contract_occurrence_global_cap", 1)
+	engine.set_config("contract_occurrence_per_sector_cap", 1)
+	engine.set_config("contract_source_search_max_hops", 1)
+
+	engine.process_tick()
+
+	assert_eq(order, ["grid", "bridge", "contract", "agent", "chronicle"],
+		"SimulationEngine should run contract generation after BridgeSystems and before AgentLayer.")
+	assert_eq(agent_spy.seen_occurrence_count, 1,
+		"AgentLayer should observe runtime contract occurrences generated earlier in the same tick.")
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Contract generation should run during the tick and produce the expected occurrence.")
+
+
+func test_run_composite_research_report_advances_once_to_largest_requested_window():
+	engine.initialize_simulation("tick_test_seed")
+	var report: String = engine.run_composite_research_report([5, 10], {})
+
+	assert_true(report.find("COMPOSITE RESEARCH CHRONICLE") != -1,
+		"SimulationEngine should expose the new composite research report surface.")
+	assert_true(report.find("COMPOSITE WINDOW: 5 ticks") != -1,
+		"Composite reports should include the first requested milestone.")
+	assert_true(report.find("COMPOSITE WINDOW: 10 ticks") != -1,
+		"Composite reports should include the largest requested milestone.")
+	assert_eq(GameState.sim_tick_count, 10,
+		"Composite reporting should advance the live simulation only to the largest requested cumulative window.")
 
 
 # =============================================================================
@@ -31865,6 +35603,11 @@ func _clear_state() -> void:
 	GameState.economy_upgrade_progress.clear()
 	GameState.economy_downgrade_progress.clear()
 	GameState.economy_change_threshold.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
@@ -31895,6 +35638,28 @@ func _clear_state() -> void:
 	TemplateDatabase.contacts.clear()
 
 
+func _seed_contract_tick_state() -> void:
+	GameState.world_topology = {
+		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
+	}
+	GameState.sector_names = {"a": "Alpha", "b": "Beta"}
+	GameState.sector_tags = {
+		"a": [
+			"STATION", "CONTESTED", "MILD",
+			"RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE",
+			"CONTRACT_DEMAND_RAW", "RELIEF_NEEDED"
+		],
+		"b": [
+			"STATION", "SECURE", "MILD",
+			"RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"
+		],
+	}
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
+
+
 func _seed_template_database() -> void:
 	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
 	var indexer = TemplateIndexer.new()
@@ -31908,7 +35673,7 @@ func _seed_template_database() -> void:
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-23 17:10:12
+# LOG_REF: 2026-05-25 00:24:59
 #
 
 extends GutTest
@@ -32006,6 +35771,35 @@ func test_initial_sector_id_exists_in_topology():
 		GameState.world_topology.has(Constants.INITIAL_SECTOR_ID),
 		"INITIAL_SECTOR_ID should resolve to a sector that exists in world_topology."
 	)
+
+
+func test_live_registry_starts_without_seeded_colonies_or_hubs():
+	world_layer.initialize_world(TEST_SEED)
+	var frontier_count: int = 0
+	var outpost_count: int = 0
+	for sector_id in GameState.world_topology:
+		var sector_type: String = str(GameState.world_topology[sector_id].get("sector_type", "frontier"))
+		if sector_type == "frontier":
+			frontier_count += 1
+		elif sector_type == "outpost":
+			outpost_count += 1
+		assert_false(sector_type in ["colony", "hub"],
+			"Starter sector '%s' should no longer seed a mature colony/hub baseline." % sector_id)
+	assert_gt(frontier_count, 0,
+		"The live starter registry should include at least one frontier sector in the opening world state.")
+	assert_gt(outpost_count, 0,
+		"The live starter registry should include at least one outpost sector in the opening world state.")
+
+
+func test_live_registry_starts_with_modest_security_and_economy():
+	world_layer.initialize_world(TEST_SEED)
+	for sector_id in GameState.sector_tags:
+		var tags: Array = GameState.sector_tags[sector_id]
+		assert_false("SECURE" in tags,
+			"Starter sector '%s' should begin below the fully stabilized secure state." % sector_id)
+		for tag in tags:
+			assert_false(str(tag).ends_with("_RICH"),
+				"Starter sector '%s' should no longer seed rich economy tags at tick zero." % sector_id)
 
 
 # =============================================================================
@@ -35149,6 +38943,319 @@ func _dispatch_bracket_mouse_wheel(position: Vector2, button_index: int) -> void
 
 func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
 	yield(_dispatch_mouse_motion(position, relative), "completed")
+
+--- Start of ./src/tests/core/ui/test_sim_debug_panel.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_sim_debug_panel.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TACTICAL_TODO.md TASK_2; TRUTH_SIMULATION-GRAPH.md §0, §5
+## LOG_REF: 2026-05-24 15:04:06
+##
+
+extends "res://addons/gut/test.gd"
+
+const SimDebugPanelScene = preload("res://scenes/ui/hud/sim_debug_panel.tscn")
+
+var _panel_instance = null
+var _engine_double = null
+
+
+class FakeSimulationEngine extends Node:
+	var request_tick_calls: int = 0
+	var last_tick_count: int = -1
+	var last_epoch_size: int = -1
+	var last_report_request: Dictionary = {}
+	var last_composite_tick_counts: Array = []
+	var last_composite_request: Dictionary = {}
+
+	func request_tick() -> void:
+		request_tick_calls += 1
+
+	func run_batch_and_report(tick_count: int, epoch_size: int = 1, report_request: Dictionary = {}) -> String:
+		last_tick_count = tick_count
+		last_epoch_size = epoch_size
+		last_report_request = report_request.duplicate(true)
+		return "================================================================\nCHRONICLE OF THE SECTOR  (seed: panel-test-seed)\n================================================================\nREPORT MODE: %s  |  FOCUS: %s  |  SORT: %s  |  DETAIL: %s\n\n--- Epoch 1: ticks 1-1 [PROSPERITY] ---\n  A quiet period. Routine patrols continued without incident.\n\nFOCUSED SUMMARY\n  Focus mode: %s  |  focus id: %s\n" % [
+			str(report_request.get("focus_mode", "world")).to_upper(),
+			str(report_request.get("focus_id", "world")),
+			str(report_request.get("sort_mode", "chronological")),
+			str(report_request.get("detail_level", "standard")),
+			str(report_request.get("focus_mode", "world")),
+			str(report_request.get("focus_id", "world")),
+		]
+
+	func run_composite_research_report(tick_counts: Array, composite_request: Dictionary = {}) -> String:
+		last_composite_tick_counts = tick_counts.duplicate()
+		last_composite_request = composite_request.duplicate(true)
+		return "================================================================\nCOMPOSITE RESEARCH CHRONICLE  (seed: panel-test-seed)\n================================================================\nWINDOWS: %s\n\n================================================================\nCOMPOSITE WINDOW: %d ticks\n================================================================\nSAMPLED SECTORS\n  (stub)\n\nSAMPLED AGENTS\n  (stub)\n" % [
+			PoolStringArray(tick_counts).join(", "),
+			int(tick_counts[tick_counts.size() - 1]) if not tick_counts.empty() else 0,
+		]
+
+
+func before_each() -> void:
+	get_tree().paused = false
+	_seed_sim_state()
+	_engine_double = FakeSimulationEngine.new()
+	add_child_autofree(_engine_double)
+	GlobalRefs.simulation_engine = _engine_double
+	_panel_instance = SimDebugPanelScene.instance()
+	add_child_autofree(_panel_instance)
+
+
+func after_each() -> void:
+	get_tree().paused = false
+	GlobalRefs.simulation_engine = null
+	_panel_instance = null
+	_engine_double = null
+	TemplateDatabase.locations.clear()
+	if GameState.has_method("reset_state"):
+		GameState.reset_state()
+	else:
+		GameState.world_topology.clear()
+		GameState.world_hazards.clear()
+		GameState.world_tags.clear()
+		GameState.sector_tags.clear()
+		GameState.grid_dominion.clear()
+		GameState.colony_levels.clear()
+		GameState.agents.clear()
+		GameState.characters.clear()
+		GameState.chronicle_events.clear()
+		GameState.chronicle_rumors.clear()
+		GameState.discovery_log.clear()
+		GameState.sector_names.clear()
+
+
+func test_panel_builds_report_controls_without_leaving_live_snapshot_mode() -> void:
+	yield(get_tree(), "idle_frame")
+
+	assert_false(_panel_instance._showing_report,
+		"SimDebugPanel should remain in the live snapshot mode by default.")
+	assert_not_null(_panel_instance._controls_row,
+		"TASK_3 coverage expects the panel to build a dedicated report-controls row.")
+	assert_eq(_panel_instance._selected_option_value(_panel_instance._report_mode_option, ""), "focused",
+		"Report output mode should default to the focused chronicle flow.")
+	assert_eq(_panel_instance._selected_option_value(_panel_instance._focus_mode_option, ""), "world",
+		"Focus mode should default to the world-wide chronicle report.")
+	assert_eq(_panel_instance._selected_option_value(_panel_instance._sort_mode_option, ""), "chronological",
+		"Sort mode should default to chronological order.")
+	assert_eq(_panel_instance._selected_option_value(_panel_instance._detail_level_option, ""), "standard",
+		"Detail level should default to the standard chronicle output.")
+	assert_true(_panel_instance._focus_id_option.disabled,
+		"Entity selection should stay disabled while the focus mode is world-wide.")
+	assert_eq(_panel_instance._selected_option_value(_panel_instance._focus_id_option, ""), "world",
+		"The world-wide focus should pin the entity selector to the world sentinel value.")
+
+
+func test_focus_mode_selection_refreshes_sector_and_agent_entities() -> void:
+	yield(get_tree(), "idle_frame")
+
+	var sector_focus_index: int = _find_option_index_by_metadata(_panel_instance._focus_mode_option, "sector")
+	assert_true(sector_focus_index >= 0, "Sector focus option should exist.")
+	_panel_instance._focus_mode_option.select(sector_focus_index)
+	_panel_instance._on_focus_mode_selected(sector_focus_index)
+
+	assert_false(_panel_instance._focus_id_option.disabled,
+		"Sector focus should enable entity selection.")
+	assert_true(_option_button_contains_metadata(_panel_instance._focus_id_option, "sector_system_elace"),
+		"Sector focus should list current sector ids as report entities.")
+	assert_true(_option_button_contains_text(_panel_instance._focus_id_option, "Elace"),
+		"Sector focus labels should be human-readable when sector names are available.")
+
+	var agent_focus_index: int = _find_option_index_by_metadata(_panel_instance._focus_mode_option, "agent")
+	assert_true(agent_focus_index >= 0, "Agent focus option should exist.")
+	_panel_instance._focus_mode_option.select(agent_focus_index)
+	_panel_instance._on_focus_mode_selected(agent_focus_index)
+
+	assert_true(_option_button_contains_metadata(_panel_instance._focus_id_option, "agent_vera"),
+		"Agent focus should list the current simulation agents as report entities.")
+	assert_true(_option_button_contains_text(_panel_instance._focus_id_option, "Vera"),
+		"Agent focus labels should use character names when available.")
+
+
+func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -> void:
+	yield(get_tree(), "idle_frame")
+	_panel_instance._toggle()
+
+	var sector_focus_index: int = _find_option_index_by_metadata(_panel_instance._focus_mode_option, "sector")
+	_panel_instance._focus_mode_option.select(sector_focus_index)
+	_panel_instance._on_focus_mode_selected(sector_focus_index)
+	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_system_elace")
+	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
+	_select_option_by_metadata(_panel_instance._detail_level_option, "verbose")
+
+	_panel_instance._on_run_batch(300)
+
+	assert_eq(_engine_double.last_tick_count, 300,
+		"Run 300 should still request a 300-tick batch from the simulation engine.")
+	assert_eq(_engine_double.last_epoch_size, 10,
+		"Run 300 should preserve the contracted epoch-size scaling.")
+	assert_eq(str(_engine_double.last_report_request.get("focus_mode", "")), "sector",
+		"SimDebugPanel should forward the selected focus mode to the batch-report request.")
+	assert_eq(str(_engine_double.last_report_request.get("focus_id", "")), "sector_system_elace",
+		"SimDebugPanel should forward the selected focus entity to the batch-report request.")
+	assert_eq(str(_engine_double.last_report_request.get("sort_mode", "")), "agent",
+		"SimDebugPanel should forward the selected sort mode to the batch-report request.")
+	assert_eq(str(_engine_double.last_report_request.get("detail_level", "")), "verbose",
+		"SimDebugPanel should forward the selected detail level to the batch-report request.")
+	assert_true(_panel_instance._showing_report,
+		"Running a batch should switch the panel into report mode.")
+	assert_true(_panel_instance._header_label.text.find("sector:") != -1,
+		"The report header should reflect the selected scoped-analysis mode.")
+	assert_true(_panel_instance._header_label.text.find("sector_system_elace") != -1,
+		"The report header should reflect the selected scoped-analysis entity.")
+
+	_panel_instance._on_back_pressed()
+
+	assert_false(_panel_instance._showing_report,
+		"Back should restore the live snapshot view instead of leaving the panel in report mode.")
+	assert_eq(_panel_instance._header_label.text, "SIM DEBUG  [F3 to close]",
+		"Back should restore the standard live-view panel header.")
+
+
+func test_composite_mode_runs_cumulative_bundle_and_disables_manual_focus_controls() -> void:
+	yield(get_tree(), "idle_frame")
+	_panel_instance._toggle()
+
+	_select_option_by_metadata(_panel_instance._report_mode_option, "composite")
+	_panel_instance._on_report_mode_selected(_panel_instance._report_mode_option.get_selected())
+	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
+	_select_option_by_metadata(_panel_instance._detail_level_option, "summary")
+
+	assert_true(_panel_instance._focus_mode_option.disabled,
+		"Composite research mode should disable manual focus selection.")
+	assert_true(_panel_instance._focus_id_option.disabled,
+		"Composite research mode should disable the manual entity selector.")
+
+	_panel_instance._on_run_batch(300)
+
+	var tick_compare = compare_deep([30, 300], _engine_double.last_composite_tick_counts)
+	assert_true(tick_compare.are_equal(),
+		"Composite mode should request the cumulative milestone windows up to the selected button.\n" + tick_compare.summary)
+	assert_eq(str(_engine_double.last_composite_request.get("sort_mode", "")), "agent",
+		"Composite mode should forward the selected sort mode to the composite request.")
+	assert_eq(str(_engine_double.last_composite_request.get("detail_level", "")), "summary",
+		"Composite mode should forward the selected detail level to the composite request.")
+	assert_true(bool(_engine_double.last_composite_request.get("include_persistent", false)),
+		"Composite mode should include persistent agents in the sampled research request.")
+	assert_true(bool(_engine_double.last_composite_request.get("include_mortal", false)),
+		"Composite mode should include mortal agents in the sampled research request.")
+	assert_true(Array(_engine_double.last_composite_request.get("sector_types", [])).has("colony"),
+		"Composite mode should sample the currently loaded sector types.")
+	assert_true(Array(_engine_double.last_composite_request.get("agent_roles", [])).has("trader"),
+		"Composite mode should sample the currently loaded agent roles.")
+	assert_true(Array(_engine_double.last_composite_request.get("agent_roles", [])).has("hauler"),
+		"Composite mode should include each visible non-player role once.")
+	assert_true(_panel_instance._header_label.text.find("COMPOSITE RESEARCH REPORT") != -1,
+		"Composite mode should show a dedicated research header in the panel.")
+	assert_true(_panel_instance._last_plain_text.find("COMPOSITE RESEARCH CHRONICLE") != -1,
+		"Composite mode should cache the bundled research report as the last plain-text output.")
+
+
+func _seed_sim_state() -> void:
+	if GameState.has_method("reset_state"):
+		GameState.reset_state()
+	TemplateDatabase.locations.clear()
+	GameState.world_seed = "panel_test_seed"
+	GameState.sim_tick_count = 7
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = 5
+	GameState.world_age_cycle_count = 1
+	GameState.world_topology = {
+		"sector_system_elace": {"connections": ["sector_system_cob"], "station_ids": ["sector_system_elace"], "sector_type": "colony"},
+		"sector_system_cob": {"connections": ["sector_system_elace"], "station_ids": ["sector_system_cob"], "sector_type": "colony"},
+	}
+	GameState.world_hazards = {
+		"sector_system_elace": {"environment": "MILD"},
+		"sector_system_cob": {"environment": "HARSH"},
+	}
+	GameState.world_tags = ["WORLD_AGE_PROSPERITY"]
+	GameState.sector_tags = {
+		"sector_system_elace": ["STATION", "SECURE", "MILD", "RAW_POOR"],
+		"sector_system_cob": ["STATION", "CONTESTED", "HARSH", "RAW_RICH"],
+	}
+	GameState.grid_dominion = {
+		"sector_system_elace": {"security_tag": "SECURE"},
+		"sector_system_cob": {"security_tag": "CONTESTED"},
+	}
+	GameState.colony_levels = {
+		"sector_system_elace": "colony",
+		"sector_system_cob": "outpost",
+	}
+	GameState.sector_names = {
+		"sector_system_elace": "Elace",
+		"sector_system_cob": "Cob",
+	}
+	GameState.characters = {
+		"character_vera": {"character_name": "Vera"},
+		"character_dax": {"character_name": "Dax"},
+	}
+	GameState.agents = {
+		"player": {
+			"character_id": "character_vera",
+			"agent_role": "idle",
+			"current_sector_id": "sector_system_elace",
+			"condition_tag": "HEALTHY",
+			"wealth_tag": "COMFORTABLE",
+			"cargo_tag": "EMPTY",
+			"goal_archetype": "idle",
+			"is_disabled": false,
+			"is_persistent": true,
+		},
+		"agent_vera": {
+			"character_id": "character_vera",
+			"agent_role": "trader",
+			"current_sector_id": "sector_system_elace",
+			"condition_tag": "HEALTHY",
+			"wealth_tag": "WEALTHY",
+			"cargo_tag": "EMPTY",
+			"goal_archetype": "service_contract",
+			"is_disabled": false,
+			"is_persistent": true,
+		},
+		"agent_dax": {
+			"character_id": "character_dax",
+			"agent_role": "hauler",
+			"current_sector_id": "sector_system_cob",
+			"condition_tag": "DAMAGED",
+			"wealth_tag": "BROKE",
+			"cargo_tag": "LOADED",
+			"goal_archetype": "service_contract",
+			"is_disabled": false,
+			"is_persistent": true,
+		},
+	}
+	GameState.chronicle_events = []
+	GameState.chronicle_rumors = []
+	GameState.discovery_log = []
+
+
+func _find_option_index_by_metadata(button: OptionButton, expected_value: String) -> int:
+	for index in range(button.get_item_count()):
+		if str(button.get_item_metadata(index)) == expected_value:
+			return index
+	return -1
+
+
+func _select_option_by_metadata(button: OptionButton, expected_value: String) -> void:
+	var option_index: int = _find_option_index_by_metadata(button, expected_value)
+	assert_true(option_index >= 0,
+		"OptionButton should contain metadata '%s'." % expected_value)
+	if option_index >= 0:
+		button.select(option_index)
+
+
+func _option_button_contains_metadata(button: OptionButton, expected_value: String) -> bool:
+	return _find_option_index_by_metadata(button, expected_value) >= 0
+
+
+func _option_button_contains_text(button: OptionButton, expected_fragment: String) -> bool:
+	for index in range(button.get_item_count()):
+		if button.get_item_text(index).find(expected_fragment) != -1:
+			return true
+	return false
 
 --- Start of ./src/tests/core/utils/test_pid_controller.gd ---
 

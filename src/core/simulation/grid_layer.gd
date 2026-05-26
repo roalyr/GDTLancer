@@ -3,7 +3,7 @@
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-25 00:32:22
+# LOG_REF: 2026-05-25 15:57:53
 #
 
 extends Reference
@@ -408,7 +408,7 @@ func _step_colony_level(tags: Array, sector_id: String) -> Array:
 	var upgrade_threshold: int = _colony_upgrade_threshold_for_level(level)
 
 	# Check upgrade requirements
-	var economy_ok: bool = _colony_upgrade_economy_ok(tags)
+	var economy_ok: bool = _colony_upgrade_economy_ok(tags, level, sector_id)
 	var security_ok: bool = _colony_upgrade_security_ok(tags, level)
 	var environment_ok: bool = _colony_upgrade_environment_ok(tags, level)
 
@@ -557,6 +557,10 @@ func _active_agent_count_in_sector(sector_id: String) -> int:
 
 
 func _has_active_trade_relief(sector_id: String) -> bool:
+	return _has_active_commerce_presence(sector_id)
+
+
+func _has_active_commerce_presence(sector_id: String) -> bool:
 	var role_counts: Dictionary = _role_counts_for_sector(sector_id)
 	return _loaded_trade_count_for_sector(sector_id) > 0 \
 		or role_counts.get("trader", 0) > 0 \
@@ -649,18 +653,35 @@ func _colony_upgrade_threshold_for_level(level: String) -> int:
 		threshold = Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED
 	elif level == "outpost":
 		threshold = Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED
+	elif level == "colony":
+		threshold = Constants.COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED
 
 	match GameState.world_age:
 		"PROSPERITY":
 			match _prosperity_growth_stage():
 				2:
-					threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_LATE
+					if level == "colony":
+						threshold -= Constants.PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_LATE
+					elif level == "outpost":
+						threshold -= Constants.PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_LATE
+					else:
+						threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_LATE
 				1:
-					threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_MID
+					if level == "colony":
+						threshold -= Constants.PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_MID
+					elif level == "outpost":
+						threshold -= Constants.PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_MID
+					else:
+						threshold -= Constants.PROSPERITY_COLONY_UPGRADE_REDUCTION_MID
 		"DISRUPTION":
 			threshold += 2
 		"RECOVERY":
-			threshold -= 1
+			if level == "colony":
+				threshold += Constants.RECOVERY_COLONY_TO_HUB_UPGRADE_PENALTY
+			elif level == "outpost":
+				threshold += Constants.RECOVERY_OUTPOST_TO_COLONY_UPGRADE_PENALTY
+			else:
+				threshold -= 1
 
 	var minimum_threshold: int = _minimum_colony_upgrade_threshold_for_level(level)
 	if threshold < minimum_threshold:
@@ -672,15 +693,66 @@ func _minimum_colony_upgrade_threshold_for_level(level: String) -> int:
 	if level == "frontier":
 		return 12
 	if level == "outpost":
-		return 8
+		return 11
+	if level == "colony":
+		return 11
 	return 6
 
 
-func _colony_upgrade_economy_ok(tags: Array) -> bool:
+func _colony_upgrade_economy_ok(tags: Array, level: String, sector_id: String = "") -> bool:
+	if level == "colony":
+		for req in Constants.COLONY_TO_HUB_REQUIRED_ECONOMY:
+			if not (req in tags):
+				return false
+		return true
+	if not _meets_colony_upgrade_economy_floor(tags):
+		return false
+	if level == "outpost":
+		var rich_count: int = _rich_economy_tag_count(tags)
+		if rich_count < Constants.OUTPOST_TO_COLONY_REQUIRED_RICH_ECONOMY_COUNT:
+			return false
+		if rich_count >= Constants.OUTPOST_TO_COLONY_SELF_SUFFICIENT_RICH_ECONOMY_COUNT:
+			return true
+		return _outpost_colony_growth_support_score(sector_id) >= Constants.OUTPOST_TO_COLONY_GROWTH_SUPPORT_REQUIRED
+	return true
+
+
+func _meets_colony_upgrade_economy_floor(tags: Array) -> bool:
 	for req in Constants.COLONY_UPGRADE_REQUIRED_ECONOMY:
 		if not (req in tags or req.replace("_ADEQUATE", "_RICH") in tags):
 			return false
 	return true
+
+
+func _rich_economy_tag_count(tags: Array) -> int:
+	var rich_count: int = 0
+	for tag in tags:
+		if str(tag).ends_with("_RICH"):
+			rich_count += 1
+	return rich_count
+
+
+func _outpost_colony_growth_support_score(sector_id: String) -> int:
+	if sector_id == "":
+		return 0
+
+	var support_score: int = 0
+	if _has_active_commerce_presence(sector_id):
+		support_score += 1
+
+	for neighbor_id in GameState.world_topology.get(sector_id, {}).get("connections", []):
+		var neighbor_level: String = GameState.colony_levels.get(neighbor_id, "frontier")
+		if neighbor_level in ["colony", "hub"]:
+			support_score += 2
+			continue
+		if neighbor_level != "outpost":
+			continue
+
+		var neighbor_tags: Array = GameState.sector_tags.get(neighbor_id, [])
+		if Constants.COLONY_UPGRADE_REQUIRED_SECURITY in neighbor_tags and _meets_colony_upgrade_economy_floor(neighbor_tags):
+			support_score += 1
+
+	return support_score
 
 
 func _colony_upgrade_security_ok(tags: Array, level: String) -> bool:

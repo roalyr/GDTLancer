@@ -3,7 +3,7 @@
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-25 00:24:59
+# LOG_REF: 2026-05-26 10:07:11
 #
 
 extends GutTest
@@ -459,18 +459,132 @@ func test_try_exploration_registers_runtime_location_template():
 
 func test_generate_sector_name_for_count_uses_centralized_constants_name_pools():
 	GameState.world_seed = "frontier-name-seed"
+	var generated_root: String = agent_layer._generate_discovery_name_root(3)
 	var generated_name: String = agent_layer._generate_sector_name_for_count(3)
 	var repeated_name: String = agent_layer._generate_sector_name_for_count(3)
 
 	assert_eq(generated_name, repeated_name,
-		"Name generation should remain deterministic after moving the name pools into Constants.")
+		"Count-based discovery naming should remain deterministic after switching to the legacy system-name generator.")
+	assert_false(generated_root.empty(),
+		"Count-based discovery naming should produce a generated legacy root.")
 	var name_parts: Array = generated_name.split(" ")
-	assert_eq(name_parts.size(), 2,
-		"Frontier discovery names should still be built from a prefix and a suffix.")
-	assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES,
-		"The generated discovery-name prefix should come from the centralized Constants pool.")
-	assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
-		"The generated discovery-name suffix should come from the centralized Constants pool.")
+	if generated_root.length() <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 3,
+			"Short generated roots should carry both a prefix hint and a suffix hint.")
+		assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES,
+			"Short generated roots should prepend a curated prefix hint.")
+		assert_eq(str(name_parts[1]), generated_root,
+			"Short generated roots should stay centered between the curated hint words.")
+		assert_true(str(name_parts[2]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
+			"Short generated roots should append a curated suffix hint.")
+	elif generated_root.length() <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 2,
+			"Medium generated roots should append one curated hint word.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Medium generated roots should stay in the lead position.")
+		assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
+			"Medium generated roots should append a curated suffix hint.")
+	else:
+		assert_eq(name_parts.size(), 1,
+			"Long generated roots should stand on their own without extra hint words.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Long generated roots should pass through unchanged.")
+
+
+func test_generate_sector_name_for_discovery_uses_curated_word_banks():
+	GameState.world_seed = "frontier-name-seed"
+	var profile: Dictionary = {"procedural_type": "dark_nebula"}
+	var initial_tags: Array = [
+		"FRONTIER", "HARSH", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"
+	]
+	var generated_root: String = agent_layer._generate_discovery_name_root(7)
+	var generated_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+	var repeated_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+
+	assert_eq(generated_name, repeated_name,
+		"Profile-aware discovery naming should remain deterministic for the same discovery count and hint data.")
+	var name_parts: Array = generated_name.split(" ")
+	if generated_root.length() <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 3,
+			"Short generated roots should keep both curated hint banks in profile-aware discovery names.")
+		assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE["dark_nebula"],
+			"Profile-aware discovery naming should use the procedural-type-specific prefix pool when one exists.")
+		assert_eq(str(name_parts[1]), generated_root,
+			"The generated system-name root should stay centered in the profile-aware name.")
+		assert_true(str(name_parts[2]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL["RICH"],
+			"Profile-aware discovery naming should use the economy-specific suffix pool when tags indicate a rich site.")
+	elif generated_root.length() <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
+		assert_eq(name_parts.size(), 2,
+			"Medium generated roots should keep a single economy hint word in profile-aware discovery names.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Medium generated roots should lead profile-aware discovery names.")
+		assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL["RICH"],
+			"Profile-aware discovery naming should append the economy-specific hint when the root is medium-length.")
+	else:
+		assert_eq(name_parts.size(), 1,
+			"Long generated roots should not receive extra hint words even in profile-aware naming.")
+		assert_eq(str(name_parts[0]), generated_root,
+			"Long generated roots should pass through unchanged in profile-aware discovery names.")
+
+
+func test_legacy_system_name_generator_returns_public_deterministic_short_names():
+	var GeneratorScript = load("res://src/core/utils/legacy_system_name_generator.gd")
+	var generator = GeneratorScript.new()
+	var generated_name: String = generator.generate_system_name("legacy-generator-seed", 4, 7)
+	var repeated_name: String = generator.generate_system_name("legacy-generator-seed", 4, 7)
+
+	assert_eq(generated_name, repeated_name,
+		"The ported legacy system-name generator should be deterministic for the same seed input.")
+	assert_gt(generated_name.length(), 1,
+		"The ported legacy system-name generator should return a non-trivial short root.")
+	assert_true(generated_name.length() <= 8,
+		"The ported legacy system-name generator should stay in the short-name range used by the legacy sandbox.")
+	assert_eq(generated_name.find(" "), -1,
+		"The public legacy system-name generator should emit a single short root without extra words.")
+
+
+func test_legacy_system_name_generator_softens_internal_y_between_consonants():
+	var GeneratorScript = load("res://src/core/utils/legacy_system_name_generator.gd")
+	var generator = GeneratorScript.new()
+
+	assert_eq(generator._soften_internal_y("Ryhazi"), "Rihazi",
+		"The limited readability pass should soften internal y when it lands between consonants.")
+	assert_eq(generator._soften_internal_y("Ysutu"), "Ysutu",
+		"The limited readability pass should keep an opening y untouched.")
+	assert_eq(generator._soften_internal_y("Ayla"), "Ayla",
+		"The limited readability pass should avoid rewriting every interior y indiscriminately.")
+
+
+func test_compose_discovery_sector_name_uses_generated_root_length_budget():
+	assert_eq(agent_layer._compose_discovery_sector_name("Cob", "Umbral", "Passage"), "Umbral Cob Passage",
+		"Very short generated roots should use both curated hint banks.")
+	assert_eq(agent_layer._compose_discovery_sector_name("Elace", "Umbral", "Passage"), "Elace Passage",
+		"Medium generated roots should keep only one curated hint word.")
+	assert_eq(agent_layer._compose_discovery_sector_name("Aurelius", "Umbral", "Passage"), "Aurelius",
+		"Long generated roots should stand alone without extra hint words.")
+
+
+func test_generate_sector_name_for_discovery_avoids_existing_display_name_collisions():
+	GameState.world_seed = "frontier-name-seed"
+	var profile: Dictionary = {"procedural_type": "dark_nebula"}
+	var initial_tags: Array = [
+		"FRONTIER", "HARSH", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"
+	]
+	var colliding_name: String = agent_layer._build_discovery_sector_name_candidate(
+		7,
+		0,
+		agent_layer._get_discovery_prefix_word_pool("dark_nebula", initial_tags),
+		agent_layer._get_discovery_suffix_word_pool(initial_tags)
+	)
+	GameState.sector_names["existing_collision"] = colliding_name
+
+	var unique_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+	var repeated_unique_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
+
+	assert_ne(unique_name, colliding_name,
+		"Profile-aware discovery naming should skip names that already exist in the world state.")
+	assert_eq(unique_name, repeated_unique_name,
+		"Collision avoidance should remain deterministic for the same discovery count and existing-name set.")
 
 
 func test_filter_spatially_plausible_connections_drops_far_links():

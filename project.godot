@@ -84,6 +84,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://src/modules/piloting/player_input_states/state_base.gd"
 }, {
+"base": "Reference",
+"class": "LegacySystemNameGenerator",
+"language": "GDScript",
+"path": "res://src/core/utils/legacy_system_name_generator.gd"
+}, {
 "base": "Template",
 "class": "LocationTemplate",
 "language": "GDScript",
@@ -130,6 +135,7 @@ _global_script_class_icons={
 "GutHookScript": "",
 "GutTest": "",
 "InputState": "",
+"LegacySystemNameGenerator": "",
 "LocationTemplate": "",
 "ModuleTemplate": "",
 "PIDController": "",

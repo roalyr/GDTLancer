@@ -3,7 +3,7 @@
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-25 00:24:59
+# LOG_REF: 2026-05-26 10:15:51
 #
 
 extends GutTest
@@ -47,7 +47,7 @@ func test_initialize_grid_seeds_progress_counters():
 
 func test_economy_transitions_require_sustained_pressure():
 	# Sector "a" is RAW_POOR. With a loaded trader present during RECOVERY,
-	# it should upgrade to RAW_ADEQUATE after threshold ticks.
+	# it should upgrade only after the effective recovery-adjusted threshold.
 	GameState.world_age = "RECOVERY"
 	GameState.agents["trader_1"] = {
 		"current_sector_id": "a",
@@ -60,20 +60,17 @@ func test_economy_transitions_require_sustained_pressure():
 
 	# Force economy threshold to 3 for predictability
 	GameState.economy_change_threshold["a"] = {"RAW": 3, "MANUFACTURED": 3, "CURRENCY": 3}
+	var effective_threshold: int = grid._economy_upgrade_threshold_for_level(3, GameState.colony_levels["a"])
 
-	# Tick 1 & 2: should still be RAW_POOR (pressure accumulating)
-	grid.process_tick({})
-	assert_has(GameState.sector_tags["a"], "RAW_POOR",
-		"RAW_POOR should persist after 1 tick (threshold=3).")
+	for _i in range(effective_threshold - 1):
+		grid.process_tick({})
+		assert_has(GameState.sector_tags["a"], "RAW_POOR",
+			"RAW_POOR should persist until the effective recovery-adjusted threshold is met.")
 
-	grid.process_tick({})
-	assert_has(GameState.sector_tags["a"], "RAW_POOR",
-		"RAW_POOR should persist after 2 ticks.")
-
-	# Tick 3: threshold reached, should upgrade
+	# Once the effective threshold is reached, the poor tag should clear.
 	grid.process_tick({})
 	assert_has(GameState.sector_tags["a"], "RAW_ADEQUATE",
-		"RAW_POOR should upgrade to RAW_ADEQUATE after 3 ticks of pressure.")
+		"RAW_POOR should upgrade to RAW_ADEQUATE once the effective threshold is reached.")
 	assert_does_not_have(GameState.sector_tags["a"], "RAW_POOR",
 		"RAW_POOR tag should be removed after upgrade.")
 
@@ -247,12 +244,13 @@ func test_frontier_colony_upgrade_requires_extended_stability():
 		["FRONTIER", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
 		"frontier"
 	)
+	var frontier_threshold: int = grid._colony_upgrade_threshold_for_level("frontier")
 
-	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED - 1):
+	for _i in range(frontier_threshold - 1):
 		grid.process_tick({})
 
 	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
-		"Frontier sectors should require the longer stabilization threshold before becoming outposts.")
+		"Frontier sectors should require their full current stabilization threshold before becoming outposts.")
 
 	grid.process_tick({})
 
@@ -280,12 +278,13 @@ func test_harsh_frontier_can_upgrade_once_stability_window_is_met():
 		["FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
 		"frontier"
 	)
+	var frontier_threshold: int = grid._colony_upgrade_threshold_for_level("frontier")
 
-	for _i in range(Constants.FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED - 1):
+	for _i in range(frontier_threshold - 1):
 		grid.process_tick({})
 
 	assert_eq(GameState.colony_levels["frontier_sector"], "frontier",
-		"Harsh frontier sectors should still respect the full stabilization window before becoming outposts.")
+		"Harsh frontier sectors should still respect the full current stabilization threshold before becoming outposts.")
 
 	grid.process_tick({})
 
@@ -296,15 +295,16 @@ func test_harsh_frontier_can_upgrade_once_stability_window_is_met():
 func test_outpost_colony_upgrade_requires_extended_stability():
 	_seed_single_sector_state(
 		"outpost_upgrade_seed",
-		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"],
 		"outpost"
 	)
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
 
-	for _i in range(Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED - 1):
+	for _i in range(colony_threshold - 1):
 		grid.process_tick({})
 
 	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
-		"Outposts should hold their intermediate identity for the longer stabilization window before maturing into colonies.")
+		"Outposts should hold their intermediate identity for the full current stabilization threshold before maturing into colonies.")
 
 	grid.process_tick({})
 
@@ -315,7 +315,7 @@ func test_outpost_colony_upgrade_requires_extended_stability():
 func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
 	_seed_single_sector_state(
 		"outpost_late_prosperity_seed",
-		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"],
 		"outpost"
 	)
 	GameState.world_age = "PROSPERITY"
@@ -336,6 +336,151 @@ func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
 		"Late prosperity should let a stable outpost mature sooner than the base threshold so the world can grow into colonies and hubs organically.")
 
 
+func test_outpost_colony_upgrade_requires_at_least_one_rich_economy_tag():
+	_seed_single_sector_state(
+		"outpost_rich_gate_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	for _i in range(colony_threshold + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Adequate outposts should not normalize into colonies until at least part of their economy actually matures beyond the floor state.")
+
+
+func test_single_rich_outpost_needs_growth_support_before_becoming_colony():
+	_seed_single_sector_state(
+		"outpost_growth_support_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	for _i in range(colony_threshold + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"A one-rich outpost without active commerce or settled support should hold as an outpost instead of normalizing into a colony by default.")
+
+
+func test_supported_single_rich_outpost_can_still_mature_into_colony():
+	_clear_state()
+	GameState.world_seed = "outpost_supported_growth_seed"
+	GameState.world_age = "PROSPERITY"
+	GameState.sim_tick_count = 0
+	GameState.world_topology = {
+		"frontier_sector": {"connections": ["inner_colony"], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
+		"inner_colony": {"connections": ["frontier_sector"], "sector_type": "colony", "station_ids": ["inner_colony"]},
+	}
+	GameState.sector_tags = {
+		"frontier_sector": ["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"inner_colony": ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+	}
+	GameState.grid_dominion = {
+		"frontier_sector": {"security_tag": "SECURE"},
+		"inner_colony": {"security_tag": "SECURE"},
+	}
+	GameState.world_hazards = {
+		"frontier_sector": {"environment": "MILD"},
+		"inner_colony": {"environment": "MILD"},
+	}
+	GameState.agents = {}
+
+	grid.initialize_grid()
+	GameState.colony_levels["frontier_sector"] = "outpost"
+	GameState.colony_levels["inner_colony"] = "colony"
+	GameState.security_change_threshold["frontier_sector"] = 1
+	GameState.security_change_threshold["inner_colony"] = 1
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.economy_change_threshold["inner_colony"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var colony_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	for _i in range(colony_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "outpost",
+		"Supported outposts should still respect the full stabilization window before maturing.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"A one-rich outpost that is already linked into a settled colony network should still be able to mature organically.")
+
+
+func test_colony_hub_upgrade_requires_rich_economy():
+	_seed_single_sector_state(
+		"colony_hub_gate_seed",
+		["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"colony"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+
+	var hub_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
+	for _i in range(hub_threshold + 2):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"Adequate colonies should not promote into hubs until they actually reach the richer economy gate for the final maturity step.")
+
+
+func test_late_prosperity_colony_hub_upgrade_stays_slower_than_outpost_growth():
+	_seed_single_sector_state(
+		"colony_late_prosperity_seed",
+		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+		"colony"
+	)
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = max(1, int(Constants.WORLD_AGE_DURATIONS["PROSPERITY"] * 0.2))
+
+	var hub_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
+	var outpost_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	assert_true(hub_threshold >= outpost_threshold,
+		"Late prosperity should not make colony-to-hub maturation faster than outpost-to-colony growth; the richer economy gate still keeps hubs slower in practice.")
+
+	for _i in range(hub_threshold - 1):
+		grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "colony",
+		"Rich colonies should still wait for the longer late-prosperity hub threshold instead of upgrading immediately.")
+
+	grid.process_tick({})
+
+	assert_eq(GameState.colony_levels["frontier_sector"], "hub",
+		"Late prosperity should still allow a rich, stable colony to become a hub once the slower final threshold is actually met.")
+
+
+func test_recovery_raises_colony_hub_upgrade_threshold():
+	_seed_single_sector_state(
+		"colony_recovery_seed",
+		["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
+		"colony"
+	)
+	GameState.world_age = "RECOVERY"
+
+	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("colony")
+	assert_true(recovery_threshold > Constants.COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED,
+		"Recovery should stop acting like a fast track into hubs and instead require a longer stabilization window for colony-to-hub promotion.")
+
+
+func test_recovery_raises_outpost_colony_upgrade_threshold():
+	_seed_single_sector_state(
+		"outpost_recovery_seed",
+		["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
+		"outpost"
+	)
+	GameState.world_age = "RECOVERY"
+
+	var recovery_threshold: int = grid._colony_upgrade_threshold_for_level("outpost")
+	assert_true(recovery_threshold > Constants.OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED,
+		"Recovery should stop acting like a fast track from outposts into colonies and require a longer stabilization window instead.")
+
+
 # =============================================================================
 # === HELPERS =================================================================
 # =============================================================================
@@ -343,6 +488,7 @@ func test_late_prosperity_allows_stable_outpost_to_advance_sooner():
 func _seed_minimal_state() -> void:
 	GameState.world_seed = "grid_test_seed"
 	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
 		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
@@ -364,6 +510,7 @@ func _seed_single_sector_state(seed_string: String, tags: Array, colony_level: S
 	_clear_state()
 	GameState.world_seed = seed_string
 	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
 		"frontier_sector": {"connections": [], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
@@ -376,8 +523,8 @@ func _seed_single_sector_state(seed_string: String, tags: Array, colony_level: S
 	GameState.agents = {}
 	grid.initialize_grid()
 	GameState.colony_levels["frontier_sector"] = colony_level
-	GameState.security_change_threshold["frontier_sector"] = 1
-	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1}
+	GameState.security_change_threshold["frontier_sector"] = 99
+	GameState.economy_change_threshold["frontier_sector"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
 
 
 func _clear_state() -> void:
@@ -400,4 +547,5 @@ func _clear_state() -> void:
 	GameState.agents.clear()
 	GameState.world_seed = ""
 	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = 0
 	GameState.sim_tick_count = 0

@@ -1615,7 +1615,7 @@ procedural_hints = {
 }
 sector_description = ""
 connections = PoolStringArray( "sector_system_elace", "sector_system_ebreeta" )
-sector_type = "colony"
+sector_type = "outpost"
 radiation_level = 0.01
 thermal_background_k = 310.0
 gravity_well_penalty = 1.0
@@ -1653,7 +1653,7 @@ market_inventory = {
 available_services = [ "trade", "contracts" ]
 controlling_faction_id = "faction_traders"
 danger_level = 2
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH" )
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
 available_contract_ids = [ "delivery_03", "delivery_04" ]
 
 --- Start of ./database/registry/locations/sector_system_ebreeta.tres ---
@@ -1677,7 +1677,7 @@ procedural_hints = {
 }
 sector_description = ""
 connections = PoolStringArray( "sector_system_cob" )
-sector_type = "outpost"
+sector_type = "frontier"
 radiation_level = 0.12
 thermal_background_k = 260.0
 gravity_well_penalty = 1.3
@@ -1710,7 +1710,7 @@ market_inventory = {
 available_services = [ "trade", "refuel", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 3
-initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "HARSH", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+initial_sector_tags = PoolStringArray( "FRONTIER", "CONTESTED", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_POOR" )
 available_contract_ids = [  ]
 
 --- Start of ./database/registry/locations/sector_system_elace.tres ---
@@ -1734,7 +1734,7 @@ procedural_hints = {
 }
 sector_description = ""
 connections = PoolStringArray( "sector_system_cob", "sector_system_lywin" )
-sector_type = "colony"
+sector_type = "outpost"
 radiation_level = 0.05
 thermal_background_k = 280.0
 gravity_well_penalty = 1.2
@@ -1767,7 +1767,7 @@ market_inventory = {
 available_services = [ "trade", "contracts", "repair" ]
 controlling_faction_id = "faction_miners"
 danger_level = 1
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
 available_contract_ids = [ "delivery_01", "delivery_02" ]
 
 --- Start of ./database/registry/locations/sector_system_lywin.tres ---
@@ -1791,7 +1791,7 @@ procedural_hints = {
 }
 sector_description = ""
 connections = PoolStringArray( "sector_system_vidr", "sector_system_elace" )
-sector_type = "colony"
+sector_type = "outpost"
 radiation_level = 0.02
 thermal_background_k = 295.0
 gravity_well_penalty = 1.1
@@ -1824,7 +1824,7 @@ market_inventory = {
 available_services = [ "trade", "refuel", "repair", "contracts" ]
 controlling_faction_id = "faction_military"
 danger_level = 1
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE" )
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR" )
 available_contract_ids = [  ]
 
 --- Start of ./database/registry/locations/sector_system_vidr.tres ---
@@ -1886,7 +1886,7 @@ market_inventory = {
 available_services = [ "trade", "contracts", "black_market" ]
 controlling_faction_id = "faction_independents"
 danger_level = 4
-initial_sector_tags = PoolStringArray( "FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE", "HOSTILE_THREATENED" )
+initial_sector_tags = PoolStringArray( "FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_POOR", "CURRENCY_POOR", "HOSTILE_THREATENED" )
 available_contract_ids = [ "delivery_05", "delivery_06" ]
 
 --- Start of ./database/registry/tools/tool_ablative_laser.tres ---

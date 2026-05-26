@@ -3,7 +3,7 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONTENT-CREATION-MANUAL.md §4.1, §4.3; TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-25 00:24:59
+# LOG_REF: 2026-05-25 15:57:53
 #
 
 extends Node
@@ -131,10 +131,21 @@ const COLONY_DOWNGRADE_SECURITY_TRIGGER: String = "LAWLESS"
 const COLONY_DOWNGRADE_ECONOMY_TRIGGER: Array = ["RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"]
 const COLONY_MINIMUM_LEVEL: String = "outpost"
 const FRONTIER_COLONY_UPGRADE_TICKS_REQUIRED: int = 16
-const OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED: int = 12
+const OUTPOST_COLONY_UPGRADE_TICKS_REQUIRED: int = 15
+const COLONY_TO_HUB_UPGRADE_TICKS_REQUIRED: int = 15
+const OUTPOST_TO_COLONY_REQUIRED_RICH_ECONOMY_COUNT: int = 1
+const OUTPOST_TO_COLONY_SELF_SUFFICIENT_RICH_ECONOMY_COUNT: int = 2
+const OUTPOST_TO_COLONY_GROWTH_SUPPORT_REQUIRED: int = 2
+const COLONY_TO_HUB_REQUIRED_ECONOMY: Array = ["RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"]
 const FRONTIER_TO_OUTPOST_REQUIRED_SECURITY: String = "CONTESTED"
 const FRONTIER_TO_OUTPOST_BLOCKED_ENVIRONMENT: String = "EXTREME"
 const OUTPOST_TO_COLONY_BLOCKED_ENVIRONMENT: String = "EXTREME"
+const PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_MID: int = 1
+const PROSPERITY_OUTPOST_TO_COLONY_UPGRADE_REDUCTION_LATE: int = 2
+const PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_MID: int = 1
+const PROSPERITY_COLONY_TO_HUB_UPGRADE_REDUCTION_LATE: int = 2
+const RECOVERY_OUTPOST_TO_COLONY_UPGRADE_PENALTY: int = 2
+const RECOVERY_COLONY_TO_HUB_UPGRADE_PENALTY: int = 2
 
 # --- Security Progression ---
 const SECURITY_CHANGE_TICKS_MIN: int = 3
@@ -209,6 +220,28 @@ const FRONTIER_DISCOVERY_NAME_SUFFIXES: Array = [
 	"Drift", "Hollow", "Gate", "Threshold", "Frontier", "Shelf",
 	"Anchorage", "Waypoint", "Depot",
 ]
+const FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE: Dictionary = {
+	"asteroid_field": ["Iron", "Shard", "Cinder", "Flint", "Gravel", "Broken", "Ore"],
+	"comet_shoal": ["Rime", "Frost", "Tail", "Comet", "Wake", "Glint", "Ice"],
+	"rogue_planet": ["Pale", "Silent", "Nomad", "Dusk", "Night", "Far", "Wander"],
+	"dark_nebula": ["Void", "Umbral", "Shadow", "Obsidian", "Veil", "Black", "Gloom"],
+	"remnant_field": ["Relic", "Ashen", "Broken", "Ember", "Grave", "Shattered", "Cinder"],
+}
+const FRONTIER_DISCOVERY_NAME_PREFIXES_BY_ENVIRONMENT: Dictionary = {
+	"MILD": ["Still", "Quiet", "Silver", "Soft", "Calm", "Clear"],
+	"HARSH": ["Ashen", "Storm", "Rime", "Broken", "Jagged", "Cinder"],
+	"EXTREME": ["Void", "Bleak", "Frozen", "Obsidian", "Black", "Grim"],
+}
+const FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL: Dictionary = {
+	"POOR": ["Reach", "Hollow", "Frontier", "Drift", "Waste", "Scar", "Shelf"],
+	"ADEQUATE": ["Passage", "Crossing", "Point", "Waypoint", "Shelf", "Span", "Threshold"],
+	"RICH": ["Anchorage", "Depot", "Haven", "Reserve", "Cache", "Gate", "Exchange"],
+}
+const DISCOVERY_SYSTEM_NAME_LENGTH_MIN: int = 4
+const DISCOVERY_SYSTEM_NAME_LENGTH_MAX: int = 7
+const DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH: int = 4
+const DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH: int = 6
+const DISCOVERY_NAME_UNIQUENESS_MAX_ATTEMPTS: int = 48
 
 # --- Topology ---
 const MAX_CONNECTIONS_PER_SECTOR: int = 4
