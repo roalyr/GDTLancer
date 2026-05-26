@@ -3,7 +3,7 @@
 # MODULE: debug_map_panel.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 16:43:24
+# LOG_REF: 2026-05-26 18:46:00
 #
 
 extends CanvasLayer
@@ -39,6 +39,11 @@ const MAP_LABEL_NORMALIZED_DISTANCE_POW = 2.5
 const SECTOR_LABEL_MAX_WIDTH = 260.0
 const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
+const CONTRACT_COUNT_LABEL_FONT_SIZE = MAP_LABEL_BASE_FONT_SIZE
+const CONTRACT_COUNT_LABEL_MAX_WIDTH = 132.0
+const CONTRACT_COUNT_LABEL_BOX_HEIGHT = 30.0
+const CONTRACT_COUNT_LABEL_COLOR = Color(1.0, 0.78, 0.24, 0.94)
+const CONTRACT_TOGGLE_BUTTON_MIN_WIDTH = 126.0
 const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
 const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
 const AUTHORED_SECTOR_COLOR = Color(0.3, 0.8, 1.0, 1.0)
@@ -47,6 +52,7 @@ const DISCOVERED_SECTOR_FALLBACK_COLOR = Color(0.95, 0.72, 0.34, 1.0)
 const READABILITY_BUTTON_MIN_WIDTH = 96.0
 const TASK2_BUTTON_MIN_WIDTH = 78.0
 const BTN_LABELS = "BtnLabels"
+const BTN_CONTRACT_COUNTS = "BtnContractCounts"
 const BTN_LINES = "BtnLines"
 const BTN_ICONS = "BtnIcons"
 const BTN_FOV_IN = "BtnFovIn"
@@ -84,7 +90,9 @@ var _map_nebula_holder: Spatial = null
 var _is_drag_orbiting: bool = false
 var _is_drag_panning: bool = false
 var _sector_label_font: DynamicFont = null
+var _contract_count_label_font: DynamicFont = null
 var _show_sector_labels: bool = true
+var _show_contract_counts: bool = true
 var _show_connection_lines: bool = true
 var _show_sector_icons: bool = true
 
@@ -93,6 +101,7 @@ func _ready():
 	_panel.visible = false
 	_is_visible = false
 	_sector_label_font = _build_sector_label_font()
+	_contract_count_label_font = _build_contract_count_label_font()
 	_ensure_task2_buttons()
 	_ensure_readability_buttons()
 	_configure_map_viewport_world()
@@ -355,14 +364,22 @@ func _create_sector_markers():
 		label.visible = _show_sector_labels
 		_label_overlay.add_child(label)
 
+		var contract_label = Label.new()
+		_configure_contract_count_label(contract_label)
+		contract_label.visible = _show_contract_counts
+		_label_overlay.add_child(contract_label)
+
 		_sector_labels[sector_id] = {
 			"marker": mesh_instance,
 			"label": label,
+			"contract_label": contract_label,
 			"base_name": loc_name,
 			"pos_3d": pos,
 			"screen_offset": _get_sector_label_screen_offset(),
+			"contract_screen_offset": _get_contract_count_label_screen_offset(),
 		}
 	_refresh_sector_label_texts()
+	_refresh_sector_contract_count_texts()
 
 
 func _configure_sector_label(label: Label):
@@ -377,17 +394,43 @@ func _configure_sector_label(label: Label):
 
 
 func _build_sector_label_font() -> DynamicFont:
+	return _build_label_font(SECTOR_LABEL_FONT_SIZE)
+
+
+func _build_contract_count_label_font() -> DynamicFont:
+	return _build_label_font(CONTRACT_COUNT_LABEL_FONT_SIZE)
+
+
+func _build_label_font(font_size: int) -> DynamicFont:
 	var font_data = load(SECTOR_LABEL_FONT_PATH)
 	if not font_data:
 		return null
 	var font = DynamicFont.new()
 	font.font_data = font_data
-	font.size = SECTOR_LABEL_FONT_SIZE
+	font.size = font_size
 	return font
+
+
+func _configure_contract_count_label(label: Label) -> void:
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.align = Label.ALIGN_CENTER
+	label.valign = Label.VALIGN_CENTER
+	label.rect_min_size = Vector2(CONTRACT_COUNT_LABEL_MAX_WIDTH, CONTRACT_COUNT_LABEL_BOX_HEIGHT)
+	label.rect_size = label.rect_min_size
+	if is_instance_valid(_contract_count_label_font):
+		label.add_font_override("font", _contract_count_label_font)
+	label.add_color_override("font_color", CONTRACT_COUNT_LABEL_COLOR)
+	label.add_constant_override("shadow_offset_x", 1)
+	label.add_constant_override("shadow_offset_y", 1)
+	label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
 
 
 func _get_sector_label_screen_offset() -> Vector2:
 	return Vector2(-SECTOR_LABEL_MAX_WIDTH * 0.5, -(SECTOR_LABEL_BOX_HEIGHT + SECTOR_LABEL_GAP))
+
+
+func _get_contract_count_label_screen_offset() -> Vector2:
+	return Vector2((SECTOR_LABEL_MAX_WIDTH * 0.5) + 8.0, -(SECTOR_LABEL_BOX_HEIGHT + SECTOR_LABEL_GAP) + 8.0)
 
 
 func _refresh_sector_label_texts():
@@ -395,6 +438,39 @@ func _refresh_sector_label_texts():
 		var data = _sector_labels[sector_id]
 		var label: Label = data["label"]
 		label.text = _build_sector_label_text(sector_id, data)
+
+
+func _refresh_sector_contract_count_texts() -> void:
+	for sector_id in _sector_labels:
+		var data = _sector_labels[sector_id]
+		var contract_label: Label = data.get("contract_label", null)
+		if not is_instance_valid(contract_label):
+			continue
+		contract_label.text = _build_contract_count_label_text(_contract_count_for_sector(sector_id))
+
+
+func _build_contract_count_label_text(contract_count: int) -> String:
+	return "Contracts: %d" % contract_count
+
+
+func _contract_count_for_sector(sector_id: String) -> int:
+	if sector_id == "":
+		return 0
+
+	var contract_count: int = 0
+	var seen_occurrence_ids: Dictionary = {}
+	var occurrence_ids: Array = Array(GameState.runtime_contract_occurrences_by_source_sector.get(sector_id, []))
+	for occurrence_id in occurrence_ids:
+		if seen_occurrence_ids.has(occurrence_id):
+			continue
+		seen_occurrence_ids[occurrence_id] = true
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if not bool(occurrence.get("player_displayable", true)):
+			continue
+		contract_count += 1
+	return contract_count
 
 
 func _build_sector_label_text(sector_id: String, data: Dictionary) -> String:
@@ -558,10 +634,11 @@ func _refresh_axes_button_text():
 func _apply_readability_visibility_state() -> void:
 	_set_connection_lines_visible(_show_connection_lines)
 	_set_sector_markers_visible(_show_sector_icons)
-	if _show_sector_labels:
+	if _show_sector_labels or _show_contract_counts:
 		_update_label_positions()
 	else:
 		_set_sector_labels_visible(false)
+		_set_contract_count_labels_visible(false)
 	_refresh_readability_button_texts()
 
 
@@ -585,10 +662,20 @@ func _set_sector_labels_visible(visible: bool) -> void:
 			label.visible = visible
 
 
+func _set_contract_count_labels_visible(visible: bool) -> void:
+	for sector_id in _sector_labels:
+		var contract_label = _sector_labels[sector_id].get("contract_label", null)
+		if is_instance_valid(contract_label):
+			contract_label.visible = visible
+
+
 func _refresh_readability_button_texts() -> void:
 	var labels_button = _get_readability_button(BTN_LABELS)
 	if is_instance_valid(labels_button):
 		labels_button.text = "Labels On" if _show_sector_labels else "Labels Off"
+	var contract_counts_button = _get_readability_button(BTN_CONTRACT_COUNTS)
+	if is_instance_valid(contract_counts_button):
+		contract_counts_button.text = "Contracts On" if _show_contract_counts else "Contracts Off"
 	var lines_button = _get_readability_button(BTN_LINES)
 	if is_instance_valid(lines_button):
 		lines_button.text = "Lines On" if _show_connection_lines else "Lines Off"
@@ -620,6 +707,7 @@ func _get_readability_button(button_name: String) -> Button:
 
 func _ensure_readability_buttons() -> void:
 	_ensure_header_toggle_button(BTN_LABELS, "Labels On")
+	_ensure_header_action_button(BTN_CONTRACT_COUNTS, "Contracts On", CONTRACT_TOGGLE_BUTTON_MIN_WIDTH)
 	_ensure_header_toggle_button(BTN_LINES, "Lines On")
 	_ensure_header_toggle_button(BTN_ICONS, "Icons On")
 
@@ -801,18 +889,33 @@ func _update_label_positions():
 	for sector_id in _sector_labels:
 		var data = _sector_labels[sector_id]
 		var sector_label: Label = data["label"]
+		var contract_label: Label = data.get("contract_label", null)
+		var distance_fade_alpha = _get_map_label_camera_distance_fade_alpha(data["pos_3d"])
 		if not _show_sector_labels:
 			if is_instance_valid(sector_label):
 				sector_label.visible = false
-			continue
-		_update_projected_label(
-			sector_label,
-			data["pos_3d"],
-			data["screen_offset"],
-			vp_size,
-			50.0,
-			_get_map_label_camera_distance_fade_alpha(data["pos_3d"])
-		)
+		else:
+			_update_projected_label(
+				sector_label,
+				data["pos_3d"],
+				data["screen_offset"],
+				vp_size,
+				50.0,
+				distance_fade_alpha
+			)
+
+		if not _show_contract_counts:
+			if is_instance_valid(contract_label):
+				contract_label.visible = false
+		else:
+			_update_projected_label(
+				contract_label,
+				data["pos_3d"],
+				data.get("contract_screen_offset", Vector2.ZERO),
+				vp_size,
+				50.0,
+				distance_fade_alpha
+			)
 
 	for data in _reference_labels:
 		if not _show_reference_axes:
@@ -977,6 +1080,7 @@ func _connect_buttons():
 	_connect_header_button(BTN_FOV_OUT, "_on_fov_out")
 	_connect_header_button(BTN_AA, "_on_cycle_aa")
 	_connect_header_button(BTN_LABELS, "_on_toggle_labels")
+	_connect_header_button(BTN_CONTRACT_COUNTS, "_on_toggle_contract_counts")
 	_connect_header_button(BTN_LINES, "_on_toggle_lines")
 	_connect_header_button(BTN_ICONS, "_on_toggle_icons")
 	_connect_header_button("BtnAxes", "_on_toggle_axes")
@@ -1000,6 +1104,9 @@ func _on_fov_out(): _step_camera_fov(MAP_CAMERA_FOV_STEP)
 func _on_cycle_aa(): _cycle_viewport_msaa()
 func _on_toggle_labels():
 	_show_sector_labels = not _show_sector_labels
+	_apply_readability_visibility_state()
+func _on_toggle_contract_counts():
+	_show_contract_counts = not _show_contract_counts
 	_apply_readability_visibility_state()
 func _on_toggle_lines():
 	_show_connection_lines = not _show_connection_lines

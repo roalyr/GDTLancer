@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 22:58:53
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-26 16:38:00
 #
 
 extends Node
@@ -32,6 +32,8 @@ func reset_to_defaults() -> void:
 	GameState.current_zone_instance = null
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GameState.player_arrived_from_sector = ""
@@ -60,6 +62,8 @@ func reset_to_defaults() -> void:
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.hostile_infestation_progress.clear()
+	GameState.discovered_sectors.clear()
+	GameState.station_by_id.clear()
 
 	# --- Layer 3: Agents ---
 	GameState.characters.clear()
@@ -235,6 +239,8 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["world_seed"] = GameState.world_seed
 	state_dict["current_sector_id"] = _get_scene_current_sector_id_for_save()
 	state_dict["player_docked_at"] = GameState.player_docked_at
+	state_dict["player_claimed_occurrence_id"] = GameState.player_claimed_occurrence_id
+	state_dict["player_cargo_tag"] = GameState.player_cargo_tag
 	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
 	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
 	state_dict["player_arrived_from_sector"] = GameState.player_arrived_from_sector
@@ -263,6 +269,8 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["runtime_contract_occurrences_by_target_sector"] = GameState.runtime_contract_occurrences_by_target_sector.duplicate(true)
 	state_dict["runtime_contract_occurrences_by_source_sector"] = GameState.runtime_contract_occurrences_by_source_sector.duplicate(true)
 	state_dict["hostile_infestation_progress"] = GameState.hostile_infestation_progress.duplicate(true)
+	state_dict["discovered_sectors"] = GameState.discovered_sectors.duplicate(true)
+	state_dict["station_by_id"] = GameState.station_by_id.duplicate(true)
 
 	# --- Layer 3: Agents ---
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
@@ -344,6 +352,8 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.world_seed = save_data.get("world_seed", "")
 	GameState.current_sector_id = _resolve_saved_current_sector_id(save_data)
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
+	GameState.player_claimed_occurrence_id = save_data.get("player_claimed_occurrence_id", "")
+	GameState.player_cargo_tag = save_data.get("player_cargo_tag", "EMPTY")
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 	GameState.player_arrived_from_sector = save_data.get("player_arrived_from_sector", "")
@@ -372,6 +382,8 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.runtime_contract_occurrences_by_target_sector = save_data.get("runtime_contract_occurrences_by_target_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_target_sector") else {}
 	GameState.runtime_contract_occurrences_by_source_sector = save_data.get("runtime_contract_occurrences_by_source_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_source_sector") else {}
 	GameState.hostile_infestation_progress = save_data.get("hostile_infestation_progress", {}).duplicate(true) if save_data.has("hostile_infestation_progress") else {}
+	GameState.discovered_sectors = save_data.get("discovered_sectors", []).duplicate(true) if save_data.has("discovered_sectors") else []
+	GameState.station_by_id = save_data.get("station_by_id", {}).duplicate(true) if save_data.has("station_by_id") else {}
 
 	# --- Layer 3: Agents ---
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))

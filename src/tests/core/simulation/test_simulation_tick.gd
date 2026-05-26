@@ -3,7 +3,7 @@
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-24 14:43:54
+## LOG_REF: 2026-05-26 19:02:00
 #
 
 extends GutTest
@@ -130,6 +130,15 @@ func test_get_config_has_required_keys():
 	assert_true(config.has("respawn_cooldown_ticks"), "Config must have respawn_cooldown_ticks.")
 	assert_true(config.has("mortal_global_cap"), "Config must have mortal_global_cap.")
 	assert_true(config.has("contract_occurrence_global_cap"), "Config must have contract_occurrence_global_cap.")
+
+
+func test_initialize_simulation_bootstraps_starter_contracts_before_first_tick():
+	engine.initialize_simulation("tick_test_seed")
+
+	assert_gt(GameState.runtime_contract_occurrences.size(), 0,
+		"Initialization should preseed runtime contracts from authored starting poor sectors before the first live tick.")
+	assert_gt(Array(GameState.runtime_contract_occurrences_by_source_sector.get(Constants.INITIAL_SECTOR_ID, [])).size(), 0,
+		"Initialization should expose source-side player-facing contracts at the starter sector before the first docking tick.")
 
 
 func test_contract_generation_runs_between_bridge_and_agent_layer():

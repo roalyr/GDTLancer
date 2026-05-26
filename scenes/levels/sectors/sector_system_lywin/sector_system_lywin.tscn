@@ -276,6 +276,7 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40200, 250, -15200 )
 
 [node name="Star Lywin A" parent="SceneAssets" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 15528.9, 1396.49, 5909.2 )
 
 [node name="Planet Lywin A a" parent="SceneAssets/Star Lywin A" instance=ExtResource( 9 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 43395.1, 3600.17, -12229.2 )

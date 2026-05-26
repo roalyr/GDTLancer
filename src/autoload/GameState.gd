@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 22:58:53
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-26 16:38:00
 #
 
 extends Node
@@ -172,6 +172,13 @@ var discovery_log: Array = []
 ## Display names for discovered sectors. Key: sector_id, Value: String.
 var sector_names: Dictionary = {}
 
+## Discovered sector ids (ordered by discovery sequence).
+var discovered_sectors: Array = []
+
+## Generated station metadata keyed by station id.
+## Value: {id, display_name, sector_id, location_id, docking_point: Vector3}
+var station_by_id: Dictionary = {}
+
 
 # =========================================================================
 # === CHRONICLE (event capture) ==========================================
@@ -219,6 +226,12 @@ var current_sector_id: String = ""
 
 ## Location ID of docked station, or empty string if in space.
 var player_docked_at: String = ""
+
+## Player-selected runtime contract occurrence id, or empty when none is selected.
+var player_claimed_occurrence_id: String = ""
+
+## Player contract cargo mirror for runtime contract flow (EMPTY/LOADED).
+var player_cargo_tag: String = "EMPTY"
 
 ## Player spatial position in the active zone.
 var player_position: Vector3 = Vector3.ZERO
@@ -295,6 +308,8 @@ func reset_state() -> void:
 	discovered_sector_count = 0
 	discovery_log.clear()
 	sector_names.clear()
+	discovered_sectors.clear()
+	station_by_id.clear()
 	chronicle_events.clear()
 	chronicle_rumors.clear()
 	sim_tick_count = 0
@@ -303,5 +318,8 @@ func reset_state() -> void:
 	world_age_timer = 0
 	world_age_cycle_count = 0
 	current_sector_id = ""
+	player_docked_at = ""
+	player_claimed_occurrence_id = ""
+	player_cargo_tag = "EMPTY"
 	player_arrived_from_sector = ""
 	player_arrival_direction = Vector3.ZERO

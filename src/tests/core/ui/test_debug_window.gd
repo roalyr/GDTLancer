@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_window.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_4
-## LOG_REF: 2026-05-23 15:37:28
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_6
+## LOG_REF: 2026-05-26 18:20:00
 ##
 
 extends "res://addons/gut/test.gd"
@@ -108,7 +108,7 @@ func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_dock
 	assert_false(station_menu.visible, "StationMenu should hide instead of reopening from stale dock state.")
 
 
-func test_station_menu_service_buttons_show_explicit_deferred_feedback() -> void:
+func test_station_menu_service_buttons_show_explicit_trade_feedback_and_contract_availability_status() -> void:
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
 	GameState.player_docked_at = "sector_system_elace"
@@ -128,8 +128,8 @@ func test_station_menu_service_buttons_show_explicit_deferred_feedback() -> void
 
 	station_menu._on_contracts_pressed()
 	assert_true(
-		info_label.text.find("Contracts remain unavailable while the contract layer is rebuilt.") != -1,
-		"Contracts should show explicit deferred-service feedback instead of a bare print/TODO stub."
+		info_label.text.find("No contracts available at this dock.") != -1,
+		"Contracts should report availability status from the live contract board flow instead of a deferred placeholder message."
 	)
 
 

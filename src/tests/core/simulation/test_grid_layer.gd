@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_SIMULATION-GRAPH.md §3; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-26 14:02:14
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_SIMULATION-GRAPH.md §3; TACTICAL_TODO.md TASK_7
+# LOG_REF: 2026-05-26 18:08:00
 #
 
 extends GutTest
@@ -131,6 +131,28 @@ func test_trade_relief_tags_active_then_clear_contract_pressure():
 		"RELIEF_NEEDED should clear after demand pressure resolves.")
 	assert_does_not_have(cleared_tags, "TRADE_LANE_ACTIVE",
 		"TRADE_LANE_ACTIVE should clear once no demand tag remains.")
+
+
+func test_contract_demand_tags_clear_when_pressure_drops_below_threshold_gate():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_generation_threshold["a"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+
+	# Build active demand first.
+	for _i in range(3):
+		grid.process_tick({})
+
+	assert_has(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Precondition: RAW demand should be active before forcing pressure below threshold.")
+
+	# Completion-style relief mutates pressure directly; this test verifies the
+	# GridLayer gate responds strictly to pressure-threshold state on the next tick.
+	GameState.contract_generation_pressure["a"]["RAW"] = 0
+
+	grid.process_tick({})
+
+	assert_does_not_have(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Demand tags should clear when pressure is below threshold, preserving deterministic gate behavior for completion relief paths.")
 
 
 func test_security_only_one_tag_present():

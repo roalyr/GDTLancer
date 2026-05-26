@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 23:11:32
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_1, TASK_5
+# LOG_REF: 2026-05-26 19:48:00
 #
 
 extends Reference
@@ -53,6 +53,8 @@ func process_tick(config: Dictionary) -> void:
 				continue
 
 			var occurrence_id: String = _occurrence_id(sector_id, category)
+			if _was_completed_last_tick(previous_occurrences.get(occurrence_id, {})):
+				continue
 			var occurrence: Dictionary = _build_occurrence(
 				occurrence_id,
 				sector_id,
@@ -87,7 +89,7 @@ func _seed_retained_occurrences(
 		if generated_occurrences.size() >= global_cap:
 			break
 		var previous_occurrence: Dictionary = previous_occurrences.get(occurrence_id, {})
-		if not _should_retain_claimed_occurrence(previous_occurrence):
+		if not (_should_retain_claimed_occurrence(previous_occurrence) or _should_retain_recent_open_occurrence(previous_occurrence)):
 			continue
 		var retained_occurrence: Dictionary = previous_occurrence.duplicate(true)
 		retained_occurrence["last_refreshed_tick"] = GameState.sim_tick_count
@@ -116,6 +118,21 @@ func _should_retain_claimed_occurrence(previous_occurrence: Dictionary) -> bool:
 	return _claimant_is_valid(claimant_agent_id, previous_occurrence)
 
 
+func _should_retain_recent_open_occurrence(previous_occurrence: Dictionary) -> bool:
+	if previous_occurrence.empty():
+		return false
+	if str(previous_occurrence.get("status", "open")) != "open":
+		return false
+	if str(previous_occurrence.get("claimant_agent_id", "")) != "":
+		return false
+	if not bool(previous_occurrence.get("player_displayable", true)):
+		return false
+	var created_at_tick: int = int(previous_occurrence.get("created_at_tick", -1))
+	if created_at_tick < 0:
+		return false
+	return created_at_tick >= GameState.sim_tick_count - 1
+
+
 func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrence: Dictionary) -> Dictionary:
 	if previous_occurrence.empty():
 		return occurrence
@@ -127,7 +144,22 @@ func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrenc
 		occurrence["status"] = str(previous_occurrence.get("status", "claimed"))
 		if previous_occurrence.has("claimed_at_tick"):
 			occurrence["claimed_at_tick"] = int(previous_occurrence.get("claimed_at_tick", GameState.sim_tick_count))
+	if previous_occurrence.has("player_displayable"):
+		occurrence["player_displayable"] = bool(previous_occurrence.get("player_displayable", true))
+	if previous_occurrence.has("required_cargo_tag"):
+		occurrence["required_cargo_tag"] = str(previous_occurrence.get("required_cargo_tag", ""))
+	if previous_occurrence.has("reward_credits"):
+		occurrence["reward_credits"] = int(previous_occurrence.get("reward_credits", 0))
 	return occurrence
+
+
+func _was_completed_last_tick(previous_occurrence: Dictionary) -> bool:
+	if previous_occurrence.empty():
+		return false
+	if str(previous_occurrence.get("status", "open")) != "completed":
+		return false
+	var completed_at_tick: int = int(previous_occurrence.get("completed_at_tick", -1))
+	return completed_at_tick >= 0 and completed_at_tick < GameState.sim_tick_count
 
 
 func _claimant_is_valid(agent_id: String, occurrence: Dictionary) -> bool:
@@ -222,6 +254,9 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 	var category_label: String = _category_label(category)
 	var source_label: String = _sector_label(source_sector_id)
 	var target_label: String = _sector_label(target_sector_id)
+	var required_cargo_tag: String = _cargo_tag_for_category(category)
+	# UI-facing reward metadata for player contract board; does not drive CA economy simulation.
+	var reward_credits: int = _calculate_reward_credits(category, route_hops)
 	return {
 		"occurrence_id": occurrence_id,
 		"generator_id": "qualitative_demand",
@@ -230,6 +265,7 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"demand_tag": _contract_demand_tag(category),
 		"source_sector_id": source_sector_id,
 		"target_sector_id": target_sector_id,
+		"destination_sector_id": target_sector_id,
 		"origin_location_id": source_sector_id,
 		"destination_location_id": target_sector_id,
 		"status": "open",
@@ -241,6 +277,9 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"last_refreshed_tick": GameState.sim_tick_count,
 		"title": "%s Relief Route to %s" % [category_label, target_label],
 		"description": "%s demand in %s can be relieved from %s." % [category_label, target_label, source_label],
+		"player_displayable": true,
+		"required_cargo_tag": required_cargo_tag,
+		"reward_credits": reward_credits,
 	}
 
 
@@ -288,11 +327,40 @@ func _sector_label(sector_id: String) -> String:
 	return str(GameState.sector_names.get(sector_id, sector_id))
 
 
+func _cargo_tag_for_category(category: String) -> String:
+	match category:
+		"RAW":
+			return "RAW_COMMODITY"
+		"MANUFACTURED":
+			return "MANUFACTURED_COMMODITY"
+		"CURRENCY":
+			return "CURRENCY_COMMODITY"
+		_:
+			return "UNKNOWN_COMMODITY"
+
+
+func _calculate_reward_credits(category: String, route_hops: int) -> int:
+	var base_reward: int = 0
+	match category:
+		"RAW":
+			base_reward = 100
+		"MANUFACTURED":
+			base_reward = 150
+		"CURRENCY":
+			base_reward = 200
+		_:
+			base_reward = 50
+	var distance_bonus: int = route_hops * 25
+	return base_reward + distance_bonus
+
+
 func _index_occurrence(index: Dictionary, sector_id: String, occurrence_id: String) -> void:
 	if sector_id == "":
 		return
 	if not index.has(sector_id):
 		index[sector_id] = []
+	if occurrence_id in index[sector_id]:
+		return
 	index[sector_id].append(occurrence_id)
 
 

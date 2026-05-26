@@ -3,7 +3,7 @@
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-24 14:43:54
+# LOG_REF: 2026-05-26 19:02:00
 #
 
 extends Node
@@ -121,6 +121,7 @@ func initialize_simulation(seed_string: String) -> void:
 	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS[GameState.world_age]
 	GameState.world_age_cycle_count = 0
 	_apply_age_config()
+	_seed_initial_runtime_contract_occurrences()
 
 	_initialized = true
 
@@ -132,6 +133,13 @@ func initialize_simulation(seed_string: String) -> void:
 			GameState.world_age,
 			GameState.sim_tick_count
 		])
+
+
+func _seed_initial_runtime_contract_occurrences() -> void:
+	if grid_layer != null and is_instance_valid(grid_layer) and grid_layer.has_method("seed_initial_contract_demand"):
+		grid_layer.call("seed_initial_contract_demand")
+	if contract_generation_system != null and is_instance_valid(contract_generation_system):
+		contract_generation_system.process_tick(_tick_config)
 
 
 # =============================================================================

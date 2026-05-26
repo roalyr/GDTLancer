@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-26 10:07:11
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_7
+# LOG_REF: 2026-05-26 18:08:00
 #
 
 extends GutTest
@@ -14,6 +14,21 @@ extends GutTest
 var agent_layer: Reference = null
 var affinity: Reference = null
 var chronicle: Reference = null
+
+
+class FakeCharacterSystem:
+	extends Reference
+
+	var add_credits_calls: Array = []
+
+	func add_credits(character_uid, amount: int) -> void:
+		add_credits_calls.append({"character_uid": character_uid, "amount": amount})
+		if GameState.characters.has(character_uid):
+			GameState.characters[character_uid].credits += amount
+			return
+		var int_uid: int = int(character_uid)
+		if GameState.characters.has(int_uid):
+			GameState.characters[int_uid].credits += amount
 
 
 func before_each():
@@ -363,6 +378,9 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 	}
 	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
 	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
+	GameState.sector_tags["s2"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
+	GameState.contract_generation_threshold["s2"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 3}
+	GameState.contract_generation_pressure["s2"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 3}
 	GameState.agents["trader_1"] = {
 		"agent_role": "trader",
 		"current_sector_id": "s1",
@@ -401,6 +419,113 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 		"Traders should unload cargo when completing a runtime contract at the target.")
 	assert_eq(trader["wealth_tag"], "COMFORTABLE",
 		"Trader delivery should reuse the normal dock payout step on completion.")
+	assert_eq(int(GameState.contract_generation_pressure["s2"].get("CURRENCY", -1)), 1,
+		"NPC contract completion should apply deterministic destination-sector demand pressure relief.")
+	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
+		"NPC contract completion should clear demand tag when pressure falls below threshold.")
+
+
+func test_player_requires_docked_and_explicit_contract_selection_for_service_goal():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
+	}
+	GameState.agents["player"] = {
+		"agent_role": "idle",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+	}
+
+	var player: Dictionary = GameState.agents["player"]
+
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	agent_layer._evaluate_goals(player, "player")
+	assert_eq(player["goal_archetype"], "idle",
+		"Player should stay idle when not docked, even if a contract id is selected.")
+
+	GameState.player_docked_at = "s1"
+	GameState.player_claimed_occurrence_id = ""
+	agent_layer._evaluate_goals(player, "player")
+	assert_eq(player["goal_archetype"], "idle",
+		"Player should stay idle when docked but no explicit contract id is selected.")
+
+	GameState.player_docked_at = "s1"
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	agent_layer._evaluate_goals(player, "player")
+	assert_eq(player["goal_archetype"], "service_contract",
+		"Player should enter service_contract only when docked and explicitly selected.")
+
+
+func test_player_claims_loads_and_completes_selected_runtime_contract():
+	var fake_character_system := FakeCharacterSystem.new()
+	GlobalRefs.character_system = fake_character_system
+	GameState.player_character_uid = "1"
+	GameState.characters[1] = {"credits": 40, "focus_points": 0}
+
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
+	GameState.sector_tags["s2"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
+	GameState.contract_generation_threshold["s2"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 3}
+	GameState.contract_generation_pressure["s2"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 3}
+	GameState.agents["player"] = {
+		"agent_role": "idle",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+	}
+
+	var player: Dictionary = GameState.agents["player"]
+	GameState.player_docked_at = "s1"
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:CURRENCY"
+	GameState.player_cargo_tag = "EMPTY"
+
+	agent_layer._evaluate_goals(player, "player")
+	agent_layer._execute_action("player", player)
+
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("claimant_agent_id", ""), "player",
+		"Player should claim the explicitly selected runtime contract occurrence.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "in_transit",
+		"Player-selected contract should switch to in_transit after loading cargo at source.")
+	assert_eq(player["cargo_tag"], "LOADED",
+		"Player simulation cargo tag should switch to LOADED after contract load.")
+	assert_eq(GameState.player_cargo_tag, "LOADED",
+		"GameState player_cargo_tag should mirror the LOADED contract cargo state.")
+
+	player["current_sector_id"] = "s2"
+	GameState.player_docked_at = "s2"
+	agent_layer._evaluate_goals(player, "player")
+	agent_layer._execute_action("player", player)
+
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
+		"Player completion should preserve the occurrence as completed until generator refresh removes it.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", "")), "completed",
+		"Player completion should mark the occurrence status as completed.")
+	assert_eq(player["cargo_tag"], "EMPTY",
+		"Player simulation cargo tag should reset to EMPTY after delivery.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"GameState player_cargo_tag should reset to EMPTY on completion.")
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"GameState player_claimed_occurrence_id should clear on completion.")
+	assert_eq(GameState.characters[1].credits, 265,
+		"Player completion should apply reward credits through the character system path.")
+	assert_eq(fake_character_system.add_credits_calls.size(), 1,
+		"Player completion should call CharacterSystem.add_credits exactly once.")
+	assert_eq(int(fake_character_system.add_credits_calls[0].get("amount", 0)), 225,
+		"CharacterSystem.add_credits should receive the contract reward amount.")
+	assert_eq(int(GameState.contract_generation_pressure["s2"].get("CURRENCY", -1)), 1,
+		"Player contract completion should apply the same destination-sector demand pressure relief as NPC completion.")
+	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
+		"Player contract completion should clear demand tag when pressure falls below threshold.")
 
 
 # =============================================================================
@@ -455,6 +580,31 @@ func test_try_exploration_registers_runtime_location_template():
 	assert_eq(GameState.discovery_log[0]["from"], "s1", "Discovery log should record the connected source sector.")
 	assert_eq(GameState.discovery_log[0]["global_position"], discovered_position)
 	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
+	assert_true(GameState.station_by_id.has("station_discovered_1"),
+		"Discovery should generate one deterministic procedural station for the discovered sector.")
+	assert_eq(Array(GameState.world_topology["discovered_1"].get("station_ids", [])).size(), 1,
+		"Discovered sectors should keep a one-station-per-sector mapping.")
+
+
+func test_generate_procedural_station_for_sector_registers_deterministic_station_data():
+	GameState.sector_names["s1"] = "Source Sector"
+	var generated_station_a: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
+	var generated_station_b: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
+
+	assert_eq(str(generated_station_a.get("id", "")), "station_s1",
+		"Generated station id should follow deterministic sector-based naming.")
+	assert_eq(str(generated_station_a.get("display_name", "")), "Source Sector Station",
+		"Generated station display name should use '<Sector Name> Station'.")
+	assert_eq(str(generated_station_a.get("id", "")), str(generated_station_b.get("id", "")),
+		"Generating a station for the same sector twice should be deterministic.")
+	assert_eq(generated_station_a.get("docking_point", Vector3.ZERO), generated_station_b.get("docking_point", Vector3.ZERO),
+		"Procedural docking point should be stable for the same seed and sector id.")
+	assert_true(GameState.station_by_id.has("station_s1"),
+		"Generated station should be registered in GameState.station_by_id.")
+	assert_eq(Array(GameState.world_topology["s1"].get("station_ids", [])).size(), 1,
+		"Generated station registration should keep one station id in world topology for the sector.")
+	assert_true(GameState.locations.has("station_s1"),
+		"Generated station should be exposed through legacy location records for docking systems.")
 
 
 func test_generate_sector_name_for_count_uses_centralized_constants_name_pools():
@@ -784,6 +934,20 @@ func _seed_minimal_state() -> void:
 	}
 	GameState.world_hazards = {"s1": {"environment": "MILD"}, "s2": {"environment": "MILD"}}
 	GameState.grid_dominion = {"s1": {"security_tag": "SECURE"}, "s2": {"security_tag": "SECURE"}}
+	GameState.contract_generation_threshold = {
+		"s1": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+		"s2": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_generation_pressure = {
+		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.discovered_sectors = []
+	GameState.station_by_id.clear()
+	GlobalRefs.character_system = null
 	TemplateDatabase.locations.clear()
 	TemplateDatabase.locations["s1"] = {
 		"global_position": Vector3.ZERO,
@@ -811,6 +975,8 @@ func _clear_state() -> void:
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
 	GameState.mortal_agent_counter = 0
@@ -823,6 +989,11 @@ func _clear_state() -> void:
 	GameState.world_seed = ""
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 0
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.discovered_sectors = []
+	GameState.station_by_id.clear()
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.locations.clear()
@@ -849,6 +1020,9 @@ func _make_runtime_contract_occurrence(occurrence_id: String, category: String, 
 		"required_roles": ["trader", "hauler"],
 		"priority_tags": category_priority_tags.get(category, ["RELIEF_NEEDED", "CONTESTED"]),
 		"route_hops": 1,
+		"player_displayable": true,
+		"required_cargo_tag": "%s_COMMODITY" % category,
+		"reward_credits": 225,
 		"created_at_tick": GameState.sim_tick_count,
 		"last_refreshed_tick": GameState.sim_tick_count,
 		"title": "%s Relief Route" % category.capitalize(),

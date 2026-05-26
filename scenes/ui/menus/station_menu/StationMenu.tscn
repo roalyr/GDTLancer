@@ -1,3 +1,9 @@
+; PROJECT: GDTLancer
+; MODULE: StationMenu.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TACTICAL_TODO.md TASK_6
+; LOG_REF: 2026-05-26 19:48:00
+
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/ui/station_menu/station_menu.gd" type="Script" id=1]
@@ -18,75 +24,99 @@ mouse_filter = 1
 color = Color( 0, 0, 0, 0.5 )
 
 [node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -200.0
-margin_top = -200.0
-margin_right = 200.0
-margin_bottom = 200.0
+self_modulate = Color( 0, 0, 0, 0.85 )
+anchor_right = 1.0
+anchor_bottom = 1.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 15
+margin_left = 12.0
+margin_top = 12.0
+margin_right = -12.0
+margin_bottom = -12.0
+custom_constants/separation = 12
 
 [node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
-margin_right = 360.0
+margin_right = 1896.0
 margin_bottom = 150.0
 
 [node name="LabelStationName" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
-size_flags_horizontal = 3
 margin_top = 61.0
-margin_right = 210.0
+margin_right = 1706.0
 margin_bottom = 88.0
+size_flags_horizontal = 3
 text = "Station Name"
-align = 1
 
 [node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 3 )]
-margin_left = 210.0
-margin_right = 360.0
+margin_left = 1746.0
+margin_right = 1896.0
 margin_bottom = 150.0
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 165.0
-margin_right = 360.0
-margin_bottom = 169.0
+margin_top = 162.0
+margin_right = 1896.0
+margin_bottom = 166.0
 
 [node name="LabelInfo" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 184.0
-margin_right = 360.0
-margin_bottom = 211.0
-text = ""
-align = 1
+margin_top = 178.0
+margin_right = 1896.0
+margin_bottom = 232.0
+rect_min_size = Vector2( 0, 54 )
+autowrap = true
+
+[node name="ContractBoard" type="VBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 244.0
+margin_right = 1896.0
+margin_bottom = 854.0
+size_flags_vertical = 3
+custom_constants/separation = 8
+
+[node name="BoardHeaderLabel" type="Label" parent="Panel/VBoxContainer/ContractBoard"]
+margin_right = 1896.0
+margin_bottom = 27.0
+text = "CONTRACT BOARD"
+
+[node name="StationListLabel" type="Label" parent="Panel/VBoxContainer/ContractBoard"]
+margin_top = 35.0
+margin_right = 1896.0
+margin_bottom = 62.0
+text = "Stations: None"
+autowrap = true
+
+[node name="ContractScroll" type="ScrollContainer" parent="Panel/VBoxContainer/ContractBoard"]
+margin_top = 70.0
+margin_right = 1896.0
+margin_bottom = 610.0
+size_flags_vertical = 3
+
+[node name="ContractList" type="VBoxContainer" parent="Panel/VBoxContainer/ContractBoard/ContractScroll"]
+margin_right = 1896.0
+size_flags_horizontal = 3
+custom_constants/separation = 6
 
 [node name="BtnTrade" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 226.0
-margin_right = 360.0
-margin_bottom = 276.0
+margin_top = 866.0
+margin_right = 1896.0
+margin_bottom = 916.0
 rect_min_size = Vector2( 0, 50 )
 text = "Trade (coming soon)"
 
 [node name="BtnContracts" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 291.0
-margin_right = 360.0
-margin_bottom = 341.0
+margin_top = 928.0
+margin_right = 1896.0
+margin_bottom = 978.0
 rect_min_size = Vector2( 0, 50 )
-text = "Contracts (coming soon)"
+text = "Accept Contract"
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 356.0
-margin_right = 360.0
-margin_bottom = 360.0
+margin_top = 990.0
+margin_right = 1896.0
+margin_bottom = 994.0
 
 [node name="BtnUndock" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 375.0
-margin_right = 360.0
-margin_bottom = 425.0
+margin_top = 1006.0
+margin_right = 1896.0
+margin_bottom = 1056.0
 rect_min_size = Vector2( 0, 50 )
 text = "Undock"

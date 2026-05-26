@@ -3,7 +3,7 @@
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6.3, §7; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_4
-## LOG_REF: 2026-05-23 15:54:26
+## LOG_REF: 2026-05-26 18:46:00
 ##
 
 extends "res://addons/gut/test.gd"
@@ -180,6 +180,39 @@ func test_readability_toggles_hide_labels_lines_and_icons_and_survive_refresh():
 	assert_false(refreshed_label.visible, "Readability label state should survive sim-tick-driven map repopulation.")
 	assert_false(refreshed_marker.visible, "Readability icon state should survive sim-tick-driven map repopulation.")
 	assert_false(refreshed_connection_lines.visible, "Readability line state should survive sim-tick-driven map repopulation.")
+
+
+func test_contract_count_toggle_shows_source_side_board_counts_in_separate_colored_labels():
+	_seed_contract_occurrences()
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	var contract_button: Button = header.get_node_or_null("BtnContractCounts")
+	assert_not_null(contract_button, "Debug map should expose a dedicated contract-count toggle button in the header row.")
+	assert_eq(contract_button.text, "Contracts On")
+
+	var sector_label_data: Dictionary = _panel_instance._sector_labels["sector_system_elace"]
+	var name_label: Label = sector_label_data["label"]
+	var contract_label: Label = sector_label_data["contract_label"]
+	assert_true(contract_label != name_label,
+		"Contract counts should render in a separate label node instead of being folded into the sector name label.")
+	assert_true(contract_label.visible,
+		"Contract count labels should be visible by default while the contract-count toggle is enabled.")
+	assert_true(contract_label.text.find("3") != -1,
+		"Contract count labels should show all source-side player-displayable runtime contracts the station board can surface, including already-claimed rows.")
+	assert_ne(contract_label.get("custom_colors/font_color"), name_label.get("custom_colors/font_color"),
+		"Contract count labels should use a distinct color from the sector name labels.")
+
+	_panel_instance._on_toggle_contract_counts()
+	assert_eq(contract_button.text, "Contracts Off")
+	assert_false(contract_label.visible,
+		"Turning contract counts off should hide the separate contract-count labels immediately.")
+
+	_panel_instance._on_sim_tick_completed(1)
+	var refreshed_contract_label: Label = _panel_instance._sector_labels["sector_system_elace"]["contract_label"]
+	assert_false(refreshed_contract_label.visible,
+		"Contract count visibility should survive sim-tick-driven map repopulation.")
 
 
 func test_task2_header_buttons_adjust_fov_with_clamping():
@@ -436,3 +469,52 @@ func _seed_discovered_sector():
 	}
 	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]
 	GameState.sector_names["discovered_1"] = "Amber Gate"
+
+
+func _seed_contract_occurrences() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:sector_system_elace:RAW_1": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW_1",
+			"source_sector_id": "sector_system_elace",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_elace:RAW_2": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW_2",
+			"source_sector_id": "sector_system_elace",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_elace:RAW_claimed": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW_claimed",
+			"source_sector_id": "sector_system_elace",
+			"status": "in_transit",
+			"claimant_agent_id": "hauler_1",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_cob:CURRENCY": {
+			"occurrence_id": "runtime_contract:sector_system_cob:CURRENCY",
+			"source_sector_id": "sector_system_cob",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_vidr:HIDDEN": {
+			"occurrence_id": "runtime_contract:sector_system_vidr:HIDDEN",
+			"source_sector_id": "sector_system_vidr",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": false,
+		},
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"sector_system_elace": [
+			"runtime_contract:sector_system_elace:RAW_1",
+			"runtime_contract:sector_system_elace:RAW_2",
+			"runtime_contract:sector_system_elace:RAW_claimed",
+		],
+		"sector_system_cob": ["runtime_contract:sector_system_cob:CURRENCY"],
+		"sector_system_vidr": ["runtime_contract:sector_system_vidr:HIDDEN"],
+	}

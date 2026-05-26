@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1; TRUTH_SIMULATION-GRAPH.md §6.4
-# LOG_REF: 2026-05-23 16:36:08
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-26 16:38:00
 #
 
 extends Reference
@@ -14,6 +14,7 @@ extends Reference
 
 const JumpPointScene = preload("res://scenes/prefabs/navigation/JumpPoint.tscn")
 const GlobalNebulasScene = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+const DockableStationScene = preload("res://scenes/prefabs/station/DockableStation.tscn")
 const StarsphereSlotScript = preload("res://src/scenes/game_world/starsphere_slot.gd")
 
 var _reported_invalid_scene_paths: Dictionary = {}
@@ -30,9 +31,34 @@ func load_sector(sector_id: String) -> Spatial:
 
 	var zone_root: Spatial = _load_zone_root(template, sector_id)
 
+	_inject_generated_station(zone_root, sector_id)
 	_inject_jump_points(zone_root, sector_id, template)
 	_offset_nebula(zone_root, template)
 	return zone_root
+
+
+func _inject_generated_station(zone_root: Spatial, sector_id: String) -> void:
+	if not is_instance_valid(zone_root):
+		return
+	if zone_root.find_node("Station", true, false) != null:
+		return
+
+	var station_ids: Array = Array(GameState.world_topology.get(sector_id, {}).get("station_ids", []))
+	if station_ids.empty():
+		return
+
+	var station_id: String = str(station_ids[0])
+	var station_data: Dictionary = GameState.station_by_id.get(station_id, {})
+	var station_name: String = str(station_data.get("display_name", station_id))
+	var docking_point: Vector3 = station_data.get("docking_point", Vector3.ZERO)
+
+	var station_instance = DockableStationScene.instance()
+	station_instance.name = "Station"
+	station_instance.location_id = station_id
+	station_instance.station_name = station_name
+	station_instance.transform.origin = docking_point
+	zone_root.add_child(station_instance)
+	station_instance.owner = zone_root
 
 
 func _load_zone_root(template, sector_id: String) -> Spatial:

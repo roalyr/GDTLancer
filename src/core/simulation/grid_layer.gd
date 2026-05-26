@@ -3,7 +3,7 @@
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-25 15:57:53
+# LOG_REF: 2026-05-26 19:02:00
 #
 
 extends Reference
@@ -106,6 +106,47 @@ func initialize_grid() -> void:
 
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
+
+
+## Seeds contract-demand tags and pressure from the authored starting world state
+## so the player-facing contract board is populated before the first live tick.
+func seed_initial_contract_demand() -> void:
+	for sector_id in GameState.world_topology:
+		var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		var serviceable: bool = _is_contract_service_sector(tags)
+		var sector_disabled: bool = _sector_recently_disabled(sector_id)
+		var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(sector_id, {})
+		var sector_thresholds: Dictionary = GameState.contract_generation_threshold.get(sector_id, {})
+		var demand_count: int = 0
+
+		for category in CATEGORIES:
+			var poor_tag: String = category + "_POOR"
+			var demand_tag: String = _contract_demand_tag(category)
+			var threshold: int = int(sector_thresholds.get(category, Constants.CONTRACT_PRESSURE_TICKS_MIN))
+			var can_generate: bool = serviceable and (poor_tag in tags) and not sector_disabled
+
+			if can_generate:
+				sector_pressure[category] = max(int(sector_pressure.get(category, 0)), threshold)
+				tags = _add_tag(tags, demand_tag)
+			else:
+				tags = _remove_tag(tags, demand_tag)
+
+			if demand_tag in tags:
+				demand_count += 1
+
+		GameState.contract_generation_pressure[sector_id] = sector_pressure
+		tags = _remove_tag(tags, "TRADE_LANE_ACTIVE")
+
+		var needs_relief: bool = demand_count >= 2
+		if demand_count > 0 and (_security_tag(tags) != "SECURE" or GameState.world_age == "DISRUPTION"):
+			needs_relief = true
+
+		if needs_relief:
+			tags = _add_tag(tags, "RELIEF_NEEDED")
+		else:
+			tags = _remove_tag(tags, "RELIEF_NEEDED")
+
+		GameState.sector_tags[sector_id] = _unique(tags)
 
 
 # =============================================================================
