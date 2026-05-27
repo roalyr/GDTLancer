@@ -2,7 +2,7 @@
 PROJECT: GDTLancer
 MODULE: SESSION-LOG.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
 LOG_REF: 2026-05-27 04:38:18
 -->
 

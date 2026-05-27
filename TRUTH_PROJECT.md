@@ -13,6 +13,13 @@ LOG_REF: 2026-05-27 04:35:01
 - Graphics: GLES2 (for performance and compatibility)
 - Additional: Python3 (for sandbox)
 
+### Compatibility Constraints
+
+- Forbidden GDScript syntax in this repo: `@export`, `@onready`, and `await`.
+- Prefer Godot3-compatible typed GDScript patterns and stable scene/resource loading behavior.
+- Fresh agent sessions should start from [MODEL-CASCADE-PROTOCOL.md](MODEL-CASCADE-PROTOCOL.md), then read this file, [TACTICAL_TODO.md](TACTICAL_TODO.md), and [SESSION-LOG.md](SESSION-LOG.md) before loading targeted truth sections.
+- Do not treat frozen GDD snapshots, `PROJECT_DUMP_TEXT_*`, focused simulation logs, or other generated artifacts as default session context.
+
 ### Agent Parity Principle
 
 - The player is a first-class simulation agent under the same fundamental world contracts as NPC agents.
@@ -42,3 +49,19 @@ LOG_REF: 2026-05-27 04:35:01
 - When a test fails because the project intentionally rebalanced a live tuning seam, rewrite or remove the balance-coupled assertion rather than forcing the runtime back to an obsolete metric.
 - UI-focused GUT tests should assert behavior/state transitions (signals, visibility, enabled/disabled state, data plumbing, and interaction outcomes) instead of literal label text, unless that text is explicitly required by a truth-level contract.
 - Any GUT fixture that instantiates gameplay orchestrators or panels capable of mutating global engine state must restore that state in teardown. In practice this includes at minimum `get_tree().paused`, mouse capture/mode, and any temporary scene-owner overrides. A test that leaves the SceneTree paused, input captured, or another global owner mutated is invalid even if its local assertions pass, because it can stall or poison the remainder of the suite.
+
+## Workflow And Scope Boundary
+
+- `TACTICAL_TODO.md` is Architect-owned.
+- Implement only the first unchecked task in `TACTICAL_TODO.md`.
+- `TARGET_SCOPE` defines the behavioral boundary.
+- `TARGET_FILES` define the primary ownership list.
+- Narrow adjacent owners are allowed only when directly required to preserve signatures, serialization, initialization, scene wiring, or focused validation for the active task.
+- If the required change widens behavior outside `TARGET_SCOPE` or requires non-narrow owners outside `TARGET_FILES`, return control to the Architect instead of improvising scope.
+
+## Session Logging Boundary
+
+- `SESSION-LOG.md` is reverse chronological; newest entries are at the top.
+- Log entries should keep the result short and machine-scannable, such as `SUCCESS`, `PARTIAL`, `FAILED`, or `PENDING_MANUAL`.
+- Notes should identify touched files or `none`, the focused validation that ran, and whether manual validation is pending or complete.
+- Human/manual validation is distinct from code verification and should be logged separately when a milestone requires it.

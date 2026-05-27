@@ -5,7 +5,7 @@ SCRIPT_NAME=$(basename "$0")
 
 # Default values
 INPUT_DIR="."
-OUTPUT_FILE="PROJECT_DUMP_TEXT_TRES.md" # Default output, will be excluded
+OUTPUT_FILE="archive/PROJECT_DUMP_TEXT_TRES.md" # Default archived output, will be excluded
 FILE_EXTENSION="tres" # Default file extension
 EXCLUDE_WORDS=()
 EXCLUDE_DIRS=(".git") # Exclude .git by default
@@ -126,6 +126,7 @@ if [ "$OUTPUT_FILE_BASENAME" = "$SCRIPT_NAME" ] && [ "$OUTPUT_FILE" = "$0" ]; th
     echo "Error: Output file cannot be the script file itself ('$SCRIPT_NAME')." >&2
     exit 1
 fi
+mkdir -p "$(dirname "$OUTPUT_FILE")"
 > "$OUTPUT_FILE"
 echo "Output file '$OUTPUT_FILE' created/cleared."
 

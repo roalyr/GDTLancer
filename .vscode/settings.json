@@ -2,5 +2,13 @@
     "godotTools.editorPath.godot3": "/home/roalyr/Software_archive/Apps/Godot for 3D open Worlds/godot-for-3d-open-worlds-3.x/bin/godot.x11.opt.tools.x86_64",
     "chat.tools.terminal.autoApprove": {
         "godot": true
+    },
+    "search.exclude": {
+        "archive/**": true,
+        "PROJECT_DUMP_TEXT_*.md": true,
+        "Project_dump_text_*.sh": true,
+        "TRUTH-GDD-COMBINED-TEXT-MAJOR-CHANGE-frozen-2026.02.13.md": true,
+        "log_300_focused.txt": true,
+        "log_3000_focused.txt": true
     }
 }

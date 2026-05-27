@@ -3,7 +3,7 @@
 # --- Configuration ---
 DEFAULT_EXCLUDE_DIRS=(".git") # Directories to exclude by default
 TARGET_PATH="."                  # Default directory to run tree on
-OUTPUT_FILE="PROJECT_DUMP_TEXT_ENHANCED_TREE.md"                   # Default: print to stdout
+OUTPUT_FILE="archive/PROJECT_DUMP_TEXT_ENHANCED_TREE.md"           # Default archived output file
 
 # --- Arrays for User Exclusions ---
 USER_EXCLUDE_DIRS=(".import" "addons" "__pycache__")
@@ -114,6 +114,7 @@ echo "----------------------------------------"
 # Execute the command
 if [ -n "$OUTPUT_FILE" ]; then
   # Write to file
+  mkdir -p "$(dirname "$OUTPUT_FILE")"
   if "${tree_cmd[@]}" > "$OUTPUT_FILE"; then
     echo "Tree structure saved to '$OUTPUT_FILE'"
     # Add the final report (directory/file count) from tree to the file as well

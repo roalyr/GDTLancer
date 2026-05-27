@@ -8,7 +8,15 @@
 
 This project aims to create a unique experience blending the freedom of classic space sims with the deep, player-driven stories found in tabletop roleplaying games, all presented in a distinct neo-retro 3D visual style.
 
-**Current Status:** Phase 1 Implementation (Sprint 11 - Ship Quirks System)
+**Current Status:** Active Phase 1 implementation with a contract-driven Architect -> Developer -> Verificator workflow.
+
+## Contributor And Agent Start Here
+
+For active work in this repository, start from `MODEL-CASCADE-PROTOCOL.md` only.
+
+That file is the sole session-entry router for Architect, Developer, and Verificator passes. It contains the linked read path for current truth/state files, role transition rules, canonical implementation anchors, and archive/search-hygiene rules.
+
+Do not start fresh sessions from frozen GDD snapshots, `PROJECT_DUMP_TEXT_*`, focused simulation logs, or other generated reference artifacts.
 
 ### Core Concepts & Features (Based on Design):
 
