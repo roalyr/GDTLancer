@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_1, TASK_5; TRUTH_SIMULATION-GRAPH.md §6.4
-## LOG_REF: 2026-05-26 19:48:00
+# TRUTH_LINK: TACTICAL_TODO.md TASK_4, TASK_7; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-27 04:13:47
 #
 
 extends GutTest
@@ -70,6 +70,10 @@ func test_process_tick_requires_nearby_qualifying_sources() -> void:
 	GameState.world_topology["b"]["connections"].append("e")
 	GameState.world_topology["e"] = {"connections": ["b"], "sector_type": "colony", "station_ids": ["e"]}
 	GameState.sector_tags["e"] = ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+	GameState.contract_cargo_supply["e"] = {"RAW": 1, "MANUFACTURED": 0, "CURRENCY": 0}
+	GameState.contract_cargo_reserved["e"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
+	GameState.contract_payment_supply["e"] = {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1}
+	GameState.contract_payment_reserved["e"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
 
 	generator.process_tick({"contract_source_search_max_hops": 1})
 	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
@@ -166,6 +170,21 @@ func test_process_tick_retains_recent_open_occurrence_for_one_refresh_without_ac
 		"Recent open occurrence retention should keep the source-sector index populated for the grace refresh.")
 
 
+func test_process_tick_requires_backing_supply_and_payment_bundles() -> void:
+	GameState.contract_cargo_supply["b"]["RAW"] = 0
+	GameState.contract_cargo_supply["c"]["RAW"] = 0
+	GameState.contract_payment_supply["a"]["MANUFACTURED"] = 0
+
+	generator.process_tick({})
+
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Generator should not advertise a RAW occurrence when no source cargo unit backs it.")
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:MANUFACTURED"),
+		"Generator should not advertise a MANUFACTURED occurrence when the target cannot fund its reward bundle.")
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:a:CURRENCY"),
+		"Unaffected categories should still generate when both source cargo and target payment backing exist.")
+
+
 func test_player_facing_metadata_present_in_generated_occurrences() -> void:
 	generator.process_tick({})
 
@@ -178,6 +197,16 @@ func test_player_facing_metadata_present_in_generated_occurrences() -> void:
 		"Generated occurrence should have source_sector_id field.")
 	assert_eq(raw_contract.get("source_sector_id", ""), "b",
 		"source_sector_id should match the source sector.")
+	assert_true(raw_contract.has("source_accounting_sector_id"),
+		"Generated occurrence should have source_accounting_sector_id field.")
+	assert_eq(raw_contract.get("source_accounting_sector_id", ""), "b",
+		"source_accounting_sector_id should match the sector backing source cargo supply.")
+	assert_eq(bool(raw_contract.get("source_reserved", true)), false,
+		"Generated occurrences should start with no source-side reservation consumed.")
+	assert_eq(bool(raw_contract.get("payment_reserved", true)), false,
+		"Generated occurrences should start with no target-side payment reservation consumed.")
+	assert_eq(bool(raw_contract.get("cargo_picked_up", true)), false,
+		"Generated occurrences should start before any cargo has been picked up.")
 	assert_true(raw_contract.has("destination_sector_id"),
 		"Generated occurrence should have destination_sector_id field.")
 	assert_eq(raw_contract.get("destination_sector_id", ""), "a",
@@ -186,6 +215,10 @@ func test_player_facing_metadata_present_in_generated_occurrences() -> void:
 		"Generated occurrence should have target_sector_id field.")
 	assert_eq(raw_contract.get("target_sector_id", ""), "a",
 		"target_sector_id should match the demand sector.")
+	assert_true(raw_contract.has("payment_accounting_sector_id"),
+		"Generated occurrence should have payment_accounting_sector_id field.")
+	assert_eq(raw_contract.get("payment_accounting_sector_id", ""), "a",
+		"payment_accounting_sector_id should match the sector backing target-side payment supply.")
 	assert_true(raw_contract.has("required_cargo_tag"),
 		"Generated occurrence should have required_cargo_tag field.")
 	assert_eq(raw_contract.get("required_cargo_tag", ""), "RAW_COMMODITY",
@@ -194,6 +227,10 @@ func test_player_facing_metadata_present_in_generated_occurrences() -> void:
 		"Generated occurrence should have reward_credits field.")
 	assert_gt(int(raw_contract.get("reward_credits", 0)), 0,
 		"reward_credits should be a positive integer.")
+	assert_true(raw_contract.has("completed_at_tick"),
+		"Generated occurrence should have completed_at_tick field.")
+	assert_eq(int(raw_contract.get("completed_at_tick", -2)), -1,
+		"Generated occurrences should initialize completion state as incomplete.")
 
 
 func test_player_facing_metadata_categorizes_correctly_by_type() -> void:
@@ -274,6 +311,8 @@ func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() ->
 			"demand_tag": "CONTRACT_DEMAND_RAW",
 			"source_sector_id": "b",
 			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
 			"origin_location_id": "b",
 			"destination_location_id": "a",
 			"status": "in_transit",
@@ -287,6 +326,10 @@ func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() ->
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
 			"reward_credits": 125,
+			"source_reserved": true,
+			"payment_reserved": true,
+			"cargo_picked_up": true,
+			"completed_at_tick": -1,
 		}
 	}
 
@@ -299,6 +342,75 @@ func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() ->
 		"required_cargo_tag should survive claimed occurrence retention.")
 	assert_eq(int(retained_contract.get("reward_credits", 0)), 125,
 		"reward_credits should survive claimed occurrence retention.")
+	assert_eq(str(retained_contract.get("source_accounting_sector_id", "")), "b",
+		"source_accounting_sector_id should survive claimed occurrence retention.")
+	assert_eq(str(retained_contract.get("payment_accounting_sector_id", "")), "a",
+		"payment_accounting_sector_id should survive claimed occurrence retention.")
+	assert_eq(bool(retained_contract.get("source_reserved", false)), true,
+		"source-side reservation state should survive claimed occurrence retention.")
+	assert_eq(bool(retained_contract.get("payment_reserved", false)), true,
+		"target-side payment reservation state should survive claimed occurrence retention.")
+	assert_eq(bool(retained_contract.get("cargo_picked_up", false)), true,
+		"Cargo pickup state should survive claimed occurrence retention.")
+	assert_eq(int(retained_contract.get("completed_at_tick", -2)), -1,
+		"Incomplete retained occurrences should preserve their completion-state sentinel.")
+
+
+func test_process_tick_retains_player_in_transit_occurrence_without_active_demand_tag() -> void:
+	GameState.agents["player"] = {
+		"agent_role": "idle",
+		"current_sector_id": "b",
+		"is_disabled": false,
+		"cargo_tag": "LOADED",
+	}
+	GameState.player_claimed_occurrence_id = "runtime_contract:a:RAW"
+	GameState.player_cargo_tag = "LOADED"
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "in_transit",
+			"claimant_agent_id": "player",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 2,
+			"claimed_at_tick": 3,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"source_reserved": false,
+			"payment_reserved": true,
+			"cargo_picked_up": true,
+			"completed_at_tick": -1,
+		}
+	}
+
+	generator.process_tick({})
+
+	var retained_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(str(retained_contract.get("claimant_agent_id", "")), "player",
+		"Player-held in-transit occurrences should survive generator refresh even though the player agent role stays idle.")
+	assert_eq(str(retained_contract.get("status", "")), "in_transit",
+		"Generator should preserve in-transit status for player-held runtime deliveries.")
+	assert_eq(bool(retained_contract.get("player_displayable", false)), true,
+		"Player-held retained occurrences must remain visible to the Contract Board.")
+	assert_has(GameState.runtime_contract_occurrences_by_source_sector.get("b", []), "runtime_contract:a:RAW",
+		"Retained player-held deliveries should stay indexed by source sector for board/debug visibility.")
 
 
 func test_completed_occurrence_is_removed_on_next_generator_tick() -> void:
@@ -360,4 +472,24 @@ func _seed_runtime_contract_state() -> void:
 			"STATION", "SECURE", "MILD",
 			"RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_RICH"
 		],
+	}
+	GameState.contract_cargo_supply = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 2, "MANUFACTURED": 1, "CURRENCY": 1},
+		"c": {"RAW": 1, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_cargo_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"c": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_payment_supply = {
+		"a": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+		"b": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+		"c": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+	}
+	GameState.contract_payment_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"c": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
 	}

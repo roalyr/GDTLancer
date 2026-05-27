@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
-# LOG_REF: 2026-05-24 00:39:14
+# TRUTH_LINK: TACTICAL_TODO.md TASK_3, TASK_4, TASK_7; TRUTH_PROJECT.md § Project Stack and Context
+# LOG_REF: 2026-05-27 04:09:45
 #
 
 extends GutTest
@@ -144,6 +144,12 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 	var occurrence_id: String = "runtime_contract:sector_system_cob:RAW"
 	GameState.contract_generation_pressure = {"sector_system_cob": {"RAW": 2}}
 	GameState.contract_generation_threshold = {"sector_system_cob": {"RAW": 3}}
+	GameState.contract_cargo_supply = {"sector_system_elace": {"RAW": 1}}
+	GameState.contract_cargo_reserved = {"sector_system_elace": {"RAW": 1}}
+	GameState.contract_payment_supply = {"sector_system_cob": {"RAW": 2}}
+	GameState.contract_payment_reserved = {"sector_system_cob": {"RAW": 1}}
+	GameState.player_claimed_occurrence_id = occurrence_id
+	GameState.player_cargo_tag = "EMPTY"
 	GameState.runtime_contract_occurrences = {
 		occurrence_id: {
 			"occurrence_id": occurrence_id,
@@ -153,14 +159,21 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 			"demand_tag": "CONTRACT_DEMAND_RAW",
 			"source_sector_id": "sector_system_elace",
 			"target_sector_id": "sector_system_cob",
+			"source_accounting_sector_id": "sector_system_elace",
+			"payment_accounting_sector_id": "sector_system_cob",
 			"origin_location_id": "sector_system_elace",
 			"destination_location_id": "sector_system_cob",
-			"status": "open",
-			"claimant_agent_id": "",
+			"status": "claimed",
+			"claimant_agent_id": "player",
 			"required_roles": ["trader", "hauler"],
 			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
 			"route_hops": 1,
+			"source_reserved": true,
+			"payment_reserved": true,
+			"cargo_picked_up": false,
 			"created_at_tick": 7,
+			"claimed_at_tick": 7,
+			"completed_at_tick": -1,
 			"last_refreshed_tick": 7,
 			"title": "Raw Relief Route to sector_system_cob",
 			"description": "Raw demand in sector_system_cob can be relieved from sector_system_elace.",
@@ -179,8 +192,32 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 		"contract_generation_pressure should survive save/load.")
 	_assert_deep_equal(GameState.contract_generation_threshold, {"sector_system_cob": {"RAW": 3}},
 		"contract_generation_threshold should survive save/load.")
+	_assert_deep_equal(GameState.contract_cargo_supply, {"sector_system_elace": {"RAW": 1}},
+		"contract_cargo_supply should survive save/load.")
+	_assert_deep_equal(GameState.contract_cargo_reserved, {"sector_system_elace": {"RAW": 1}},
+		"contract_cargo_reserved should survive save/load.")
+	_assert_deep_equal(GameState.contract_payment_supply, {"sector_system_cob": {"RAW": 2}},
+		"contract_payment_supply should survive save/load.")
+	_assert_deep_equal(GameState.contract_payment_reserved, {"sector_system_cob": {"RAW": 1}},
+		"contract_payment_reserved should survive save/load.")
+	assert_eq(GameState.player_claimed_occurrence_id, occurrence_id,
+		"player_claimed_occurrence_id should survive save/load.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"player_cargo_tag should survive save/load.")
 	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("origin_location_id", ""), "sector_system_elace",
 		"runtime_contract_occurrences should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("source_accounting_sector_id", ""), "sector_system_elace",
+		"source_accounting_sector_id should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("payment_accounting_sector_id", ""), "sector_system_cob",
+		"payment_accounting_sector_id should survive save/load.")
+	assert_eq(bool(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("source_reserved", false)), true,
+		"Runtime occurrence reservation state should survive save/load.")
+	assert_eq(bool(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("payment_reserved", false)), true,
+		"Runtime occurrence payment reservation state should survive save/load.")
+	assert_eq(bool(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("cargo_picked_up", true)), false,
+		"Runtime occurrence cargo pickup state should survive save/load.")
+	assert_eq(int(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("completed_at_tick", -2)), -1,
+		"Runtime occurrence incomplete completion-state sentinel should survive save/load.")
 	_assert_deep_equal(GameState.runtime_contract_occurrences_by_target_sector, {"sector_system_cob": [occurrence_id]},
 		"runtime contract target index should survive save/load.")
 	_assert_deep_equal(GameState.runtime_contract_occurrences_by_source_sector, {"sector_system_elace": [occurrence_id]},
@@ -211,6 +248,61 @@ func test_deserialize_backfills_current_sector_id_from_player_agent_for_legacy_s
 	assert_eq(GameState.current_sector_id, "sector_system_cob", "Deserialization should recover current_sector_id from the player agent for legacy saves that predate the scene-state field.")
 	assert_eq(GameState.agents.get("player", {}).get("current_sector_id", ""), "sector_system_cob", "Recovered player agent sector state should stay aligned with GameState.current_sector_id.")
 
+
+func test_reset_to_defaults_clears_full_runtime_and_scene_state() -> void:
+	var stray_zone := Node.new()
+	add_child_autofree(stray_zone)
+
+	GameState.game_time_seconds = 91
+	GameState.current_zone_instance = stray_zone
+	GameState.player_position = Vector3(5, 6, 7)
+	GameState.player_rotation = Vector3(10, 20, 30)
+	GameState.colony_level_history = [
+		{"sector_id": "sector_system_elace", "levels": ["outpost", "colony"]}
+	]
+	GameState.catastrophe_log = [{"tick": 3, "sector_id": "sector_system_elace"}]
+	GameState.sector_disabled_until = {"sector_system_elace": 99}
+	GameState.mortal_agent_counter = 4
+	GameState.mortal_agent_deaths = [{"tick": 2, "agent_id": "mortal_4"}]
+	GameState.discovered_sector_count = 2
+	GameState.discovery_log = [{"sector_id": "discovered_1"}]
+	GameState.sector_names = {"sector_system_elace": "Elace"}
+	GameState.sub_tick_accumulator = 6
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = 17
+	GameState.world_age_cycle_count = 3
+	GameState.locations["test_location"] = {"display_name": "Stray"}
+	GameState.factions["test_faction"] = {"name": "Stray Faction"}
+	GameState.assets_commodities["test_commodity"] = {"display_name": "Ore"}
+	GameState.persistent_agents["test_agent"] = {"role": "trader"}
+	GameState.inventories[1] = {"cargo": {}}
+	GameState.assets_ships[1] = {"template_id": "ship_test"}
+
+	GameStateManager.reset_to_defaults()
+
+	assert_eq(GameState.game_time_seconds, 0, "reset_to_defaults should clear game_time_seconds for a true new game.")
+	assert_eq(GameState.current_zone_instance, null, "reset_to_defaults should drop the previous live zone instance.")
+	assert_eq(GameState.player_position, Vector3.ZERO, "reset_to_defaults should clear saved player position.")
+	assert_eq(GameState.player_rotation, Vector3.ZERO, "reset_to_defaults should clear saved player rotation.")
+	assert_eq(GameState.colony_level_history.size(), 0, "reset_to_defaults should clear colony level history.")
+	assert_eq(GameState.catastrophe_log.size(), 0, "reset_to_defaults should clear catastrophe history.")
+	assert_eq(GameState.sector_disabled_until.size(), 0, "reset_to_defaults should clear disabled-sector timers.")
+	assert_eq(GameState.mortal_agent_counter, 0, "reset_to_defaults should clear mortal counters.")
+	assert_eq(GameState.mortal_agent_deaths.size(), 0, "reset_to_defaults should clear mortal death history.")
+	assert_eq(GameState.discovered_sector_count, 0, "reset_to_defaults should clear discovered sector count.")
+	assert_eq(GameState.discovery_log.size(), 0, "reset_to_defaults should clear discovery history.")
+	assert_eq(GameState.sector_names.size(), 0, "reset_to_defaults should clear sector display names.")
+	assert_eq(GameState.sub_tick_accumulator, 0, "reset_to_defaults should clear sub-tick accumulator state.")
+	assert_eq(GameState.world_age, "", "reset_to_defaults should clear world-age phase state.")
+	assert_eq(GameState.world_age_timer, 0, "reset_to_defaults should clear world-age timer state.")
+	assert_eq(GameState.world_age_cycle_count, 0, "reset_to_defaults should clear completed world-age cycle count.")
+	assert_eq(GameState.locations.size(), 0, "reset_to_defaults should clear cached locations.")
+	assert_eq(GameState.factions.size(), 0, "reset_to_defaults should clear cached factions.")
+	assert_eq(GameState.assets_commodities.size(), 0, "reset_to_defaults should clear cached commodities.")
+	assert_eq(GameState.persistent_agents.size(), 0, "reset_to_defaults should clear legacy persistent-agent mirrors.")
+	assert_eq(GameState.inventories.size(), 0, "reset_to_defaults should clear inventories.")
+	assert_eq(GameState.assets_ships.size(), 0, "reset_to_defaults should clear ship assets.")
+
 # --- Helper Functions ---
 
 func _clear_game_state():
@@ -236,6 +328,10 @@ func _clear_game_state():
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
@@ -245,6 +341,8 @@ func _clear_game_state():
 	GameState.current_sector_id = ""
 	GameState.player_character_uid = ""
 	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GameState.player_arrived_from_sector = ""

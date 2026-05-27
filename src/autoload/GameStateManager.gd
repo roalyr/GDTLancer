@@ -3,7 +3,7 @@
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-26 16:38:00
+# LOG_REF: 2026-05-27 03:54:44
 #
 
 extends Node
@@ -22,65 +22,19 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 # --- Public API ---
 
 func reset_to_defaults() -> void:
-	# --- Simulation Meta ---
-	GameState.world_seed = ""
-	GameState.game_time_seconds = 0
-	GameState.sim_tick_count = 0
-	GameState.player_character_uid = ""
+	GameState.reset_state()
 
-	# --- Scene State ---
+	# Fields owned outside GameState.reset_state() still need a full new-game wipe.
+	GameState.game_time_seconds = 0
 	GameState.current_zone_instance = null
-	GameState.current_sector_id = ""
-	GameState.player_docked_at = ""
-	GameState.player_claimed_occurrence_id = ""
-	GameState.player_cargo_tag = "EMPTY"
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
-	GameState.player_arrived_from_sector = ""
-	GameState.player_arrival_direction = Vector3.ZERO
-
-	# --- Layer 1: World ---
-	GameState.world_topology.clear()
-	GameState.world_hazards.clear()
-	GameState.world_tags = []
-	GameState.sector_tags.clear()
-
-	# --- Layer 2: Grid ---
-	GameState.grid_dominion.clear()
-	GameState.colony_levels.clear()
-	GameState.colony_upgrade_progress.clear()
-	GameState.colony_downgrade_progress.clear()
-	GameState.security_upgrade_progress.clear()
-	GameState.security_downgrade_progress.clear()
-	GameState.security_change_threshold.clear()
-	GameState.economy_upgrade_progress.clear()
-	GameState.economy_downgrade_progress.clear()
-	GameState.economy_change_threshold.clear()
-	GameState.contract_generation_pressure.clear()
-	GameState.contract_generation_threshold.clear()
-	GameState.runtime_contract_occurrences.clear()
-	GameState.runtime_contract_occurrences_by_target_sector.clear()
-	GameState.runtime_contract_occurrences_by_source_sector.clear()
-	GameState.hostile_infestation_progress.clear()
-	GameState.discovered_sectors.clear()
-	GameState.station_by_id.clear()
-
-	# --- Layer 3: Agents ---
-	GameState.characters.clear()
-	GameState.agents.clear()
-	GameState.agent_tags.clear()
-	GameState.assets_ships.clear()
-	GameState.inventories.clear()
-
-	# --- Layer 4: Chronicle ---
-	GameState.chronicle_events = []
-	GameState.chronicle_rumors = []
-
-	# --- Legacy (kept for compatibility) ---
 	GameState.locations.clear()
 	GameState.factions.clear()
 	GameState.assets_commodities.clear()
 	GameState.persistent_agents.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
 
 func save_game(slot_id: int = 0) -> bool:
 	_ensure_save_dir_exists()
@@ -265,6 +219,10 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["economy_change_threshold"] = GameState.economy_change_threshold.duplicate(true)
 	state_dict["contract_generation_pressure"] = GameState.contract_generation_pressure.duplicate(true)
 	state_dict["contract_generation_threshold"] = GameState.contract_generation_threshold.duplicate(true)
+	state_dict["contract_cargo_supply"] = GameState.contract_cargo_supply.duplicate(true)
+	state_dict["contract_cargo_reserved"] = GameState.contract_cargo_reserved.duplicate(true)
+	state_dict["contract_payment_supply"] = GameState.contract_payment_supply.duplicate(true)
+	state_dict["contract_payment_reserved"] = GameState.contract_payment_reserved.duplicate(true)
 	state_dict["runtime_contract_occurrences"] = GameState.runtime_contract_occurrences.duplicate(true)
 	state_dict["runtime_contract_occurrences_by_target_sector"] = GameState.runtime_contract_occurrences_by_target_sector.duplicate(true)
 	state_dict["runtime_contract_occurrences_by_source_sector"] = GameState.runtime_contract_occurrences_by_source_sector.duplicate(true)
@@ -378,6 +336,10 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.economy_change_threshold = save_data.get("economy_change_threshold", {}).duplicate(true) if save_data.has("economy_change_threshold") else {}
 	GameState.contract_generation_pressure = save_data.get("contract_generation_pressure", {}).duplicate(true) if save_data.has("contract_generation_pressure") else {}
 	GameState.contract_generation_threshold = save_data.get("contract_generation_threshold", {}).duplicate(true) if save_data.has("contract_generation_threshold") else {}
+	GameState.contract_cargo_supply = save_data.get("contract_cargo_supply", {}).duplicate(true) if save_data.has("contract_cargo_supply") else {}
+	GameState.contract_cargo_reserved = save_data.get("contract_cargo_reserved", {}).duplicate(true) if save_data.has("contract_cargo_reserved") else {}
+	GameState.contract_payment_supply = save_data.get("contract_payment_supply", {}).duplicate(true) if save_data.has("contract_payment_supply") else {}
+	GameState.contract_payment_reserved = save_data.get("contract_payment_reserved", {}).duplicate(true) if save_data.has("contract_payment_reserved") else {}
 	GameState.runtime_contract_occurrences = save_data.get("runtime_contract_occurrences", {}).duplicate(true) if save_data.has("runtime_contract_occurrences") else {}
 	GameState.runtime_contract_occurrences_by_target_sector = save_data.get("runtime_contract_occurrences_by_target_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_target_sector") else {}
 	GameState.runtime_contract_occurrences_by_source_sector = save_data.get("runtime_contract_occurrences_by_source_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_source_sector") else {}

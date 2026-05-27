@@ -3,7 +3,7 @@
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 15:37:28
+# LOG_REF: 2026-05-27 04:29:00
 #
 
 extends GutTest
@@ -27,6 +27,8 @@ func before_each():
 
 
 func after_each():
+	if get_tree() != null:
+		get_tree().paused = false
 	Input.set_mouse_mode(_original_mouse_mode)
 	GameState.world_topology.clear()
 	TemplateDatabase.locations.clear()
@@ -404,6 +406,7 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	var rig = Node.new()
 	rig.set_script(rig_script)
 	rig.events_ref = event_order
+	add_child_autofree(rig)
 	world_manager.rig_ref = rig
 
 	var sequence_state = world_manager._run_jump_transition_sequence("sector_system_cob")
@@ -454,6 +457,7 @@ func test_jump_transition_fov_progress_eases_in_toward_the_wide_fov():
 
 
 func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_target_speed():
+	TemplateDatabase.locations["sector_system_cob"]["global_position"] = Vector3(6200, 50, -300)
 	var rig = JumpTransitionRigScene.instance()
 	add_child_autofree(rig)
 

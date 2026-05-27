@@ -43,6 +43,31 @@ func test_initialize_grid_seeds_progress_counters():
 			"contract_generation_pressure should be seeded for '%s'." % sector_id)
 		assert_true(GameState.contract_generation_threshold.has(sector_id),
 			"contract_generation_threshold should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_cargo_supply.has(sector_id),
+			"contract_cargo_supply should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_payment_supply.has(sector_id),
+			"contract_payment_supply should be seeded for '%s'." % sector_id)
+
+
+func test_contract_accounting_refills_toward_cap_without_resetting_reservations():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.economy_change_threshold["b"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_cargo_supply["b"]["RAW"] = 0
+	GameState.contract_cargo_reserved["b"]["RAW"] = 1
+	GameState.contract_payment_supply["a"]["RAW"] = 0
+	GameState.contract_payment_reserved["a"]["RAW"] = 1
+
+	grid.process_tick({})
+
+	assert_eq(int(GameState.contract_cargo_supply["b"].get("RAW", -1)), 1,
+		"Contract cargo supply should recover by one unit per tick toward the tag-derived cap.")
+	assert_eq(int(GameState.contract_cargo_reserved["b"].get("RAW", -1)), 1,
+		"Reserved contract cargo should remain locked while the source sector recovers around it.")
+	assert_eq(int(GameState.contract_payment_supply["a"].get("RAW", -1)), 1,
+		"Contract payment supply should recover by one unit per tick toward the sector cap.")
+	assert_eq(int(GameState.contract_payment_reserved["a"].get("RAW", -1)), 1,
+		"Reserved payment bundles should remain locked until a claim is released or completed.")
 
 
 func test_economy_transitions_require_sustained_pressure():
@@ -565,6 +590,10 @@ func _clear_state() -> void:
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.agents.clear()
 	GameState.world_seed = ""

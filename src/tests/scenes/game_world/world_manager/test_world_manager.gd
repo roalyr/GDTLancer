@@ -3,7 +3,7 @@
 # MODULE: test_world_manager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 16:43:24
+# LOG_REF: 2026-05-27 04:19:04
 #
 
 extends GutTest
@@ -26,6 +26,8 @@ func before_each():
 
 
 func after_each():
+	if get_tree() != null:
+		get_tree().paused = false
 	GameState.world_topology.clear()
 	TemplateDatabase.locations.clear()
 	GameState.player_position = Vector3.ZERO

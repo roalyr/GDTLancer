@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-05-26 18:08:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6, TASK_7, TASK_8
+# LOG_REF: 2026-05-27 04:13:47
 #
 
 extends GutTest
@@ -357,6 +357,8 @@ func test_hauler_prefers_and_claims_raw_runtime_contract_by_affinity():
 	}
 
 	var hauler: Dictionary = GameState.agents["hauler_1"]
+	assert_true(_advance_until_npc_claim_can_succeed("hauler_1", "runtime_contract:s1:RAW"),
+		"Test fixture should advance into a deterministic post-grace tick where NPC claim chance succeeds.")
 	agent_layer._evaluate_goals(hauler, "hauler_1")
 
 	assert_eq(hauler["goal_archetype"], "service_contract",
@@ -370,6 +372,99 @@ func test_hauler_prefers_and_claims_raw_runtime_contract_by_affinity():
 		"Haulers should claim the selected runtime contract occurrence.")
 	assert_eq(hauler["current_sector_id"], "s2",
 		"Haulers should start moving toward the contract source when not already there.")
+
+
+func test_npc_cannot_claim_new_runtime_contract_on_the_tick_it_appears() -> void:
+	GameState.sim_tick_count = 5
+	GameState.world_seed = "claim_grace_seed"
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s1:RAW": _make_runtime_contract_occurrence("runtime_contract:s1:RAW", "RAW", "s2", "s1"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s1:RAW"]["created_at_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences_by_target_sector = {"s1": ["runtime_contract:s1:RAW"]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"s2": ["runtime_contract:s1:RAW"]}
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+		"sentiment_tags": ["HAULER", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+
+	var hauler: Dictionary = GameState.agents["hauler_1"]
+	var claim_success: bool = agent_layer._claim_runtime_contract_occurrence("hauler_1", hauler, "runtime_contract:s1:RAW")
+
+	assert_false(claim_success,
+		"NPCs should not reserve a brand-new runtime contract on the same tick it appears.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s1:RAW"].get("claimant_agent_id", ""), "",
+		"Same-tick NPC claim attempts should leave the occurrence unclaimed for player reaction time.")
+	assert_eq(int(GameState.contract_cargo_reserved["s2"].get("RAW", -1)), 0,
+		"Blocked same-tick NPC claims should not reserve source-side cargo units.")
+	assert_eq(int(GameState.contract_payment_reserved["s1"].get("RAW", -1)), 0,
+		"Blocked same-tick NPC claims should not reserve target-side payment bundles.")
+
+
+func test_npc_mandatory_rest_duration_tracks_condition_and_wealth() -> void:
+	var wealthy_trader: Dictionary = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "WEALTHY",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "affinity_scan",
+		"goal_queue": [{"type": "affinity_scan"}],
+		"sentiment_tags": ["TRADER", "HEALTHY", "WEALTHY", "EMPTY"],
+	}
+	var desperate_trader: Dictionary = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"condition_tag": "DAMAGED",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "affinity_scan",
+		"goal_queue": [{"type": "affinity_scan"}],
+		"sentiment_tags": ["TRADER", "DAMAGED", "BROKE", "EMPTY", "DESPERATE"],
+	}
+	GameState.agents["wealthy_1"] = wealthy_trader
+	GameState.agents["desperate_1"] = desperate_trader
+
+	agent_layer._schedule_npc_rest_after_action("wealthy_1", wealthy_trader, "affinity_scan")
+	agent_layer._schedule_npc_rest_after_action("desperate_1", desperate_trader, "affinity_scan")
+
+	assert_eq(int(wealthy_trader.get("rest_ticks_remaining", -1)), 3,
+		"Healthy wealthy NPCs should receive the longest mandatory idle break.")
+	assert_eq(int(desperate_trader.get("rest_ticks_remaining", -1)), 1,
+		"Desperate NPCs should only receive a one-tick mandatory break.")
+
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	assert_eq(wealthy_trader["goal_archetype"], "idle",
+		"Healthy wealthy NPCs should enter idle state while consuming their mandatory break.")
+	assert_eq(int(wealthy_trader.get("rest_ticks_remaining", -1)), 2,
+		"Idle evaluation should consume exactly one wealthy rest tick at a time.")
+
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	assert_eq(wealthy_trader["goal_archetype"], "idle",
+		"Healthy wealthy NPCs should stay idle until all scheduled rest ticks are spent.")
+	assert_eq(int(wealthy_trader.get("rest_ticks_remaining", -1)), 0,
+		"All wealthy rest ticks should be consumed before the NPC resumes work.")
+
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	assert_eq(wealthy_trader["goal_archetype"], "affinity_scan",
+		"Once the break ends, healthy wealthy NPCs should resume normal affinity evaluation.")
+
+	agent_layer._evaluate_goals(desperate_trader, "desperate_1")
+	assert_eq(desperate_trader["goal_archetype"], "idle",
+		"Desperate NPCs should still spend their single mandatory break tick in idle state.")
+	assert_eq(int(desperate_trader.get("rest_ticks_remaining", -1)), 0,
+		"The desperate break should clear after one idle evaluation tick.")
+
+	agent_layer._evaluate_goals(desperate_trader, "desperate_1")
+	assert_eq(desperate_trader["goal_archetype"], "flee_to_safety",
+		"After the short break, desperate NPCs should return to their urgent safety-driven behavior.")
 
 
 func test_trader_claims_and_completes_runtime_contract_delivery():
@@ -393,6 +488,8 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 	}
 
 	var trader: Dictionary = GameState.agents["trader_1"]
+	assert_true(_advance_until_npc_claim_can_succeed("trader_1", "runtime_contract:s2:CURRENCY"),
+		"Test fixture should advance into a deterministic post-grace tick where NPC claim chance succeeds.")
 	agent_layer._evaluate_goals(trader, "trader_1")
 	agent_layer._execute_action("trader_1", trader)
 
@@ -404,6 +501,18 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 		"Traders should load contract cargo at the source sector.")
 	assert_eq(trader["wealth_tag"], "BROKE",
 		"Trader loading should still pay the existing upfront wealth cost.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("CURRENCY", -1)), 1,
+		"NPC pickup should consume the previously reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("CURRENCY", -1)), 0,
+		"NPC pickup should clear the source-side reservation bucket once cargo is loaded.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"NPC claim should hold one target-side payment bundle out of the available pool.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 1,
+		"NPC claim should keep the target-side payment bundle reserved while cargo is in transit.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("source_reserved", true)), false,
+		"Source reservation should be consumed once the NPC loads cargo.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("cargo_picked_up", false)), true,
+		"Cargo pickup state should be tracked on the shared runtime occurrence for NPC flow.")
 
 	trader["sentiment_tags"] = ["TRADER", "HEALTHY", "BROKE", "LOADED"]
 	agent_layer._evaluate_goals(trader, "trader_1")
@@ -419,13 +528,17 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 		"Traders should unload cargo when completing a runtime contract at the target.")
 	assert_eq(trader["wealth_tag"], "COMFORTABLE",
 		"Trader delivery should reuse the normal dock payout step on completion.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
+		"NPC completion should consume the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"NPC completion should not restore the consumed payment bundle to the available pool.")
 	assert_eq(int(GameState.contract_generation_pressure["s2"].get("CURRENCY", -1)), 1,
 		"NPC contract completion should apply deterministic destination-sector demand pressure relief.")
 	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
 		"NPC contract completion should clear demand tag when pressure falls below threshold.")
 
 
-func test_player_requires_docked_and_explicit_contract_selection_for_service_goal():
+func test_player_goal_evaluation_stays_idle_even_with_selected_contract() -> void:
 	GameState.runtime_contract_occurrences = {
 		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
 	}
@@ -445,22 +558,56 @@ func test_player_requires_docked_and_explicit_contract_selection_for_service_goa
 	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
 	agent_layer._evaluate_goals(player, "player")
 	assert_eq(player["goal_archetype"], "idle",
-		"Player should stay idle when not docked, even if a contract id is selected.")
+		"Player should stay idle even with a selected contract because contract actions are board-driven, not auto-serviced.")
 
 	GameState.player_docked_at = "s1"
 	GameState.player_claimed_occurrence_id = ""
 	agent_layer._evaluate_goals(player, "player")
 	assert_eq(player["goal_archetype"], "idle",
-		"Player should stay idle when docked but no explicit contract id is selected.")
+		"Player should stay idle when no contract is selected.")
 
 	GameState.player_docked_at = "s1"
 	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
 	agent_layer._evaluate_goals(player, "player")
-	assert_eq(player["goal_archetype"], "service_contract",
-		"Player should enter service_contract only when docked and explicitly selected.")
+	assert_eq(player["goal_archetype"], "idle",
+		"Player should remain idle even when docked and selected because contract service requires explicit board actions.")
 
 
-func test_player_claims_loads_and_completes_selected_runtime_contract():
+func test_player_accept_and_release_restore_reserved_contract_units_before_pickup():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
+	}
+
+	var accepted: bool = agent_layer.player_accept_runtime_contract("runtime_contract:s2:RAW")
+
+	assert_true(accepted,
+		"Player should be able to reserve a visible runtime contract through the explicit accept path.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("RAW", -1)), 1,
+		"Accepting a contract should reserve one source-side cargo unit immediately.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("RAW", -1)), 1,
+		"Accepting a contract should move one source-side unit into the reserved bucket.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("RAW", -1)), 1,
+		"Accepting a contract should reserve one target-side payment bundle immediately.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("RAW", -1)), 1,
+		"Accepting a contract should move one payment bundle into the reserved bucket.")
+	assert_eq(str(GameState.player_cargo_tag), "EMPTY",
+		"Accepting a contract should not auto-load player cargo.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"].get("status", "")), "claimed",
+		"Accepting a contract should reserve it without switching directly to in_transit.")
+
+	agent_layer._release_runtime_contract_claim("player", "runtime_contract:s2:RAW")
+
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("RAW", -1)), 2,
+		"Releasing an unpicked claim should restore the reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("RAW", -1)), 0,
+		"Releasing an unpicked claim should clear the source-side reservation bucket.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("RAW", -1)), 2,
+		"Releasing an unpicked claim should restore the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("RAW", -1)), 0,
+		"Releasing an unpicked claim should clear the target-side payment reservation bucket.")
+
+
+func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_docking_gate() -> void:
 	var fake_character_system := FakeCharacterSystem.new()
 	GlobalRefs.character_system = fake_character_system
 	GameState.player_character_uid = "1"
@@ -471,7 +618,7 @@ func test_player_claims_loads_and_completes_selected_runtime_contract():
 	}
 	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
 	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
-	GameState.sector_tags["s2"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
+	GameState.sector_tags["s2"] = ["CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
 	GameState.contract_generation_threshold["s2"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 3}
 	GameState.contract_generation_pressure["s2"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 3}
 	GameState.agents["player"] = {
@@ -483,34 +630,53 @@ func test_player_claims_loads_and_completes_selected_runtime_contract():
 		"goal_archetype": "idle",
 		"goal_queue": [{"type": "idle"}],
 	}
-
-	var player: Dictionary = GameState.agents["player"]
-	GameState.player_docked_at = "s1"
-	GameState.player_claimed_occurrence_id = "runtime_contract:s2:CURRENCY"
+	GameState.player_docked_at = ""
 	GameState.player_cargo_tag = "EMPTY"
 
-	agent_layer._evaluate_goals(player, "player")
-	agent_layer._execute_action("player", player)
-
+	var accepted: bool = agent_layer.player_accept_runtime_contract("runtime_contract:s2:CURRENCY")
+	assert_true(accepted,
+		"Player should be able to accept a contract through the explicit board-facing helper.")
 	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("claimant_agent_id", ""), "player",
 		"Player should claim the explicitly selected runtime contract occurrence.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "claimed",
+		"Accept should reserve the contract without switching directly to in_transit.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"Accept should not auto-load player cargo.")
+
+	var pickup_success: bool = agent_layer.player_pick_up_runtime_contract("runtime_contract:s2:CURRENCY")
+	assert_true(pickup_success,
+		"Player should pick up contract cargo only through the explicit pickup helper at the source sector.")
 	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "in_transit",
-		"Player-selected contract should switch to in_transit after loading cargo at source.")
-	assert_eq(player["cargo_tag"], "LOADED",
+		"Explicit pickup should switch the contract to in_transit after loading cargo at source.")
+	assert_eq(GameState.agents["player"].get("cargo_tag", ""), "LOADED",
 		"Player simulation cargo tag should switch to LOADED after contract load.")
 	assert_eq(GameState.player_cargo_tag, "LOADED",
 		"GameState player_cargo_tag should mirror the LOADED contract cargo state.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("CURRENCY", -1)), 1,
+		"Loading contract cargo should consume the previously reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("CURRENCY", -1)), 0,
+		"Loading contract cargo should clear the source-side reservation bucket once the cargo is picked up.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"Claiming the contract should hold one target-side payment bundle out of the available pool.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 1,
+		"Target-side payment should stay reserved while the player is in transit.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("source_reserved", true)), false,
+		"Player pickup should consume the source-side reservation through the shared accounting helper.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("cargo_picked_up", false)), true,
+		"Player pickup should mark cargo_picked_up on the shared runtime occurrence.")
 
-	player["current_sector_id"] = "s2"
-	GameState.player_docked_at = "s2"
-	agent_layer._evaluate_goals(player, "player")
-	agent_layer._execute_action("player", player)
+	GameState.agents["player"]["current_sector_id"] = "s2"
+	GameState.current_sector_id = "s2"
+	GameState.player_docked_at = ""
 
+	var completion_success: bool = agent_layer.player_complete_runtime_contract("runtime_contract:s2:CURRENCY")
+	assert_true(completion_success,
+		"Player should complete the contract through the explicit completion helper without a docking gate.")
 	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
 		"Player completion should preserve the occurrence as completed until generator refresh removes it.")
 	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", "")), "completed",
 		"Player completion should mark the occurrence status as completed.")
-	assert_eq(player["cargo_tag"], "EMPTY",
+	assert_eq(GameState.agents["player"].get("cargo_tag", ""), "EMPTY",
 		"Player simulation cargo tag should reset to EMPTY after delivery.")
 	assert_eq(GameState.player_cargo_tag, "EMPTY",
 		"GameState player_cargo_tag should reset to EMPTY on completion.")
@@ -522,6 +688,12 @@ func test_player_claims_loads_and_completes_selected_runtime_contract():
 		"Player completion should call CharacterSystem.add_credits exactly once.")
 	assert_eq(int(fake_character_system.add_credits_calls[0].get("amount", 0)), 225,
 		"CharacterSystem.add_credits should receive the contract reward amount.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
+		"Completion should consume the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"Completion should not restore the consumed payment bundle to the available pool.")
+	assert_eq(int(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("completed_at_tick", -1)), GameState.sim_tick_count,
+		"Player completion should stamp completed_at_tick on the retained occurrence.")
 	assert_eq(int(GameState.contract_generation_pressure["s2"].get("CURRENCY", -1)), 1,
 		"Player contract completion should apply the same destination-sector demand pressure relief as NPC completion.")
 	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
@@ -942,6 +1114,22 @@ func _seed_minimal_state() -> void:
 		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
 		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
 	}
+	GameState.contract_cargo_supply = {
+		"s1": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+		"s2": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_cargo_reserved = {
+		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_payment_supply = {
+		"s1": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+		"s2": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_payment_reserved = {
+		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
 	GameState.player_docked_at = ""
 	GameState.player_claimed_occurrence_id = ""
 	GameState.player_cargo_tag = "EMPTY"
@@ -977,6 +1165,10 @@ func _clear_state() -> void:
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
 	GameState.mortal_agent_counter = 0
@@ -1023,11 +1215,29 @@ func _make_runtime_contract_occurrence(occurrence_id: String, category: String, 
 		"player_displayable": true,
 		"required_cargo_tag": "%s_COMMODITY" % category,
 		"reward_credits": 225,
+		"source_reserved": false,
+		"payment_reserved": false,
+		"cargo_picked_up": false,
 		"created_at_tick": GameState.sim_tick_count,
 		"last_refreshed_tick": GameState.sim_tick_count,
 		"title": "%s Relief Route" % category.capitalize(),
 		"description": "%s relief from %s to %s." % [category.capitalize(), source_sector_id, target_sector_id],
 	}
+
+
+func _advance_until_npc_claim_can_succeed(agent_id: String, occurrence_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	occurrence["created_at_tick"] = 0
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	var first_claim_tick: int = max(1, int(Constants.NPC_RUNTIME_CONTRACT_CLAIM_GRACE_TICKS))
+	for candidate_tick in range(first_claim_tick, 256):
+		GameState.sim_tick_count = candidate_tick
+		occurrence = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if agent_layer._can_npc_claim_open_runtime_contract(agent_id, occurrence_id, occurrence):
+			return true
+	return false
 
 
 func _count_chronicle_actions(action_name: String) -> int:

@@ -3,7 +3,7 @@ PROJECT: GDTLancer
 MODULE: TRUTH_PROJECT.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary
-LOG_REF: 2026-05-26 18:20:00
+LOG_REF: 2026-05-27 04:35:01
 -->
 
 ## Project Stack And Context
@@ -41,3 +41,4 @@ LOG_REF: 2026-05-26 18:20:00
 - Prefer exact-file or narrow-folder GUT runs over broad suite execution while iterating on rebalance-heavy systems, and keep fixtures locally seeded so unrelated registry/template refactors do not create false failures.
 - When a test fails because the project intentionally rebalanced a live tuning seam, rewrite or remove the balance-coupled assertion rather than forcing the runtime back to an obsolete metric.
 - UI-focused GUT tests should assert behavior/state transitions (signals, visibility, enabled/disabled state, data plumbing, and interaction outcomes) instead of literal label text, unless that text is explicitly required by a truth-level contract.
+- Any GUT fixture that instantiates gameplay orchestrators or panels capable of mutating global engine state must restore that state in teardown. In practice this includes at minimum `get_tree().paused`, mouse capture/mode, and any temporary scene-owner overrides. A test that leaves the SceneTree paused, input captured, or another global owner mutated is invalid even if its local assertions pass, because it can stall or poison the remainder of the suite.

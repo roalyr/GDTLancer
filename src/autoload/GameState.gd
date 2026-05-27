@@ -118,6 +118,22 @@ var contract_generation_pressure: Dictionary = {}
 ## Key: sector_id, Value: {category: int}.
 var contract_generation_threshold: Dictionary = {}
 
+## Per-sector per-category unreserved source-side contract cargo units.
+## Key: sector_id, Value: {category: int}.
+var contract_cargo_supply: Dictionary = {}
+
+## Per-sector per-category reserved source-side contract cargo units.
+## Key: sector_id, Value: {category: int}.
+var contract_cargo_reserved: Dictionary = {}
+
+## Per-sector per-category unreserved target-side reward/specie bundles.
+## Key: sector_id, Value: {category: int}.
+var contract_payment_supply: Dictionary = {}
+
+## Per-sector per-category reserved target-side reward/specie bundles.
+## Key: sector_id, Value: {category: int}.
+var contract_payment_reserved: Dictionary = {}
+
 
 # =========================================================================
 # === RUNTIME CONTRACT OCCURRENCES =======================================
@@ -297,6 +313,10 @@ func reset_state() -> void:
 	economy_change_threshold.clear()
 	contract_generation_pressure.clear()
 	contract_generation_threshold.clear()
+	contract_cargo_supply.clear()
+	contract_cargo_reserved.clear()
+	contract_payment_supply.clear()
+	contract_payment_reserved.clear()
 	runtime_contract_occurrences.clear()
 	runtime_contract_occurrences_by_target_sector.clear()
 	runtime_contract_occurrences_by_source_sector.clear()

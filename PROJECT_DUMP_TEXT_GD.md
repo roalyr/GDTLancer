@@ -13529,8 +13529,8 @@ func get_accuracy_at_range(distance: float) -> float:
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONTENT-CREATION-MANUAL.md §4.1, §4.3; TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-25 15:57:53
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6
+# LOG_REF: 2026-05-27 03:35:47
 #
 
 extends Node
@@ -13698,6 +13698,8 @@ const CONTRACT_RELIEF_DECAY_PER_TICK: int = 1
 const CONTRACT_OCCURRENCE_GLOBAL_CAP: int = 18
 const CONTRACT_OCCURRENCE_PER_SECTOR_CAP: int = 3
 const CONTRACT_SOURCE_SEARCH_MAX_HOPS: int = 2
+const NPC_RUNTIME_CONTRACT_CLAIM_GRACE_TICKS: int = 1
+const NPC_RUNTIME_CONTRACT_CLAIM_CHANCE: float = 0.33
 
 # --- Hostile Infestation Progression ---
 const HOSTILE_INFESTATION_TICKS_REQUIRED: int = 3
@@ -14077,8 +14079,8 @@ func _ready():
 # PROJECT: GDTLancer
 # MODULE: GameState.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 22:58:53
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-26 16:38:00
 #
 
 extends Node
@@ -14193,6 +14195,22 @@ var contract_generation_pressure: Dictionary = {}
 ## Key: sector_id, Value: {category: int}.
 var contract_generation_threshold: Dictionary = {}
 
+## Per-sector per-category unreserved source-side contract cargo units.
+## Key: sector_id, Value: {category: int}.
+var contract_cargo_supply: Dictionary = {}
+
+## Per-sector per-category reserved source-side contract cargo units.
+## Key: sector_id, Value: {category: int}.
+var contract_cargo_reserved: Dictionary = {}
+
+## Per-sector per-category unreserved target-side reward/specie bundles.
+## Key: sector_id, Value: {category: int}.
+var contract_payment_supply: Dictionary = {}
+
+## Per-sector per-category reserved target-side reward/specie bundles.
+## Key: sector_id, Value: {category: int}.
+var contract_payment_reserved: Dictionary = {}
+
 
 # =========================================================================
 # === RUNTIME CONTRACT OCCURRENCES =======================================
@@ -14247,6 +14265,13 @@ var discovery_log: Array = []
 ## Display names for discovered sectors. Key: sector_id, Value: String.
 var sector_names: Dictionary = {}
 
+## Discovered sector ids (ordered by discovery sequence).
+var discovered_sectors: Array = []
+
+## Generated station metadata keyed by station id.
+## Value: {id, display_name, sector_id, location_id, docking_point: Vector3}
+var station_by_id: Dictionary = {}
+
 
 # =========================================================================
 # === CHRONICLE (event capture) ==========================================
@@ -14294,6 +14319,12 @@ var current_sector_id: String = ""
 
 ## Location ID of docked station, or empty string if in space.
 var player_docked_at: String = ""
+
+## Player-selected runtime contract occurrence id, or empty when none is selected.
+var player_claimed_occurrence_id: String = ""
+
+## Player contract cargo mirror for runtime contract flow (EMPTY/LOADED).
+var player_cargo_tag: String = "EMPTY"
 
 ## Player spatial position in the active zone.
 var player_position: Vector3 = Vector3.ZERO
@@ -14359,6 +14390,10 @@ func reset_state() -> void:
 	economy_change_threshold.clear()
 	contract_generation_pressure.clear()
 	contract_generation_threshold.clear()
+	contract_cargo_supply.clear()
+	contract_cargo_reserved.clear()
+	contract_payment_supply.clear()
+	contract_payment_reserved.clear()
 	runtime_contract_occurrences.clear()
 	runtime_contract_occurrences_by_target_sector.clear()
 	runtime_contract_occurrences_by_source_sector.clear()
@@ -14370,6 +14405,8 @@ func reset_state() -> void:
 	discovered_sector_count = 0
 	discovery_log.clear()
 	sector_names.clear()
+	discovered_sectors.clear()
+	station_by_id.clear()
 	chronicle_events.clear()
 	chronicle_rumors.clear()
 	sim_tick_count = 0
@@ -14378,6 +14415,9 @@ func reset_state() -> void:
 	world_age_timer = 0
 	world_age_cycle_count = 0
 	current_sector_id = ""
+	player_docked_at = ""
+	player_claimed_occurrence_id = ""
+	player_cargo_tag = "EMPTY"
 	player_arrived_from_sector = ""
 	player_arrival_direction = Vector3.ZERO
 
@@ -14387,8 +14427,8 @@ func reset_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: GameStateManager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 22:58:53
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §2.1, §3.2, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-27 03:54:44
 #
 
 extends Node
@@ -14407,61 +14447,19 @@ const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
 # --- Public API ---
 
 func reset_to_defaults() -> void:
-	# --- Simulation Meta ---
-	GameState.world_seed = ""
-	GameState.game_time_seconds = 0
-	GameState.sim_tick_count = 0
-	GameState.player_character_uid = ""
+	GameState.reset_state()
 
-	# --- Scene State ---
+	# Fields owned outside GameState.reset_state() still need a full new-game wipe.
+	GameState.game_time_seconds = 0
 	GameState.current_zone_instance = null
-	GameState.current_sector_id = ""
-	GameState.player_docked_at = ""
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
-	GameState.player_arrived_from_sector = ""
-	GameState.player_arrival_direction = Vector3.ZERO
-
-	# --- Layer 1: World ---
-	GameState.world_topology.clear()
-	GameState.world_hazards.clear()
-	GameState.world_tags = []
-	GameState.sector_tags.clear()
-
-	# --- Layer 2: Grid ---
-	GameState.grid_dominion.clear()
-	GameState.colony_levels.clear()
-	GameState.colony_upgrade_progress.clear()
-	GameState.colony_downgrade_progress.clear()
-	GameState.security_upgrade_progress.clear()
-	GameState.security_downgrade_progress.clear()
-	GameState.security_change_threshold.clear()
-	GameState.economy_upgrade_progress.clear()
-	GameState.economy_downgrade_progress.clear()
-	GameState.economy_change_threshold.clear()
-	GameState.contract_generation_pressure.clear()
-	GameState.contract_generation_threshold.clear()
-	GameState.runtime_contract_occurrences.clear()
-	GameState.runtime_contract_occurrences_by_target_sector.clear()
-	GameState.runtime_contract_occurrences_by_source_sector.clear()
-	GameState.hostile_infestation_progress.clear()
-
-	# --- Layer 3: Agents ---
-	GameState.characters.clear()
-	GameState.agents.clear()
-	GameState.agent_tags.clear()
-	GameState.assets_ships.clear()
-	GameState.inventories.clear()
-
-	# --- Layer 4: Chronicle ---
-	GameState.chronicle_events = []
-	GameState.chronicle_rumors = []
-
-	# --- Legacy (kept for compatibility) ---
 	GameState.locations.clear()
 	GameState.factions.clear()
 	GameState.assets_commodities.clear()
 	GameState.persistent_agents.clear()
+	GameState.inventories.clear()
+	GameState.assets_ships.clear()
 
 func save_game(slot_id: int = 0) -> bool:
 	_ensure_save_dir_exists()
@@ -14620,6 +14618,8 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["world_seed"] = GameState.world_seed
 	state_dict["current_sector_id"] = _get_scene_current_sector_id_for_save()
 	state_dict["player_docked_at"] = GameState.player_docked_at
+	state_dict["player_claimed_occurrence_id"] = GameState.player_claimed_occurrence_id
+	state_dict["player_cargo_tag"] = GameState.player_cargo_tag
 	state_dict["player_position"] = _serialize_vector3(GameState.player_position)
 	state_dict["player_rotation"] = _serialize_vector3(GameState.player_rotation)
 	state_dict["player_arrived_from_sector"] = GameState.player_arrived_from_sector
@@ -14644,10 +14644,16 @@ func _serialize_game_state() -> Dictionary:
 	state_dict["economy_change_threshold"] = GameState.economy_change_threshold.duplicate(true)
 	state_dict["contract_generation_pressure"] = GameState.contract_generation_pressure.duplicate(true)
 	state_dict["contract_generation_threshold"] = GameState.contract_generation_threshold.duplicate(true)
+	state_dict["contract_cargo_supply"] = GameState.contract_cargo_supply.duplicate(true)
+	state_dict["contract_cargo_reserved"] = GameState.contract_cargo_reserved.duplicate(true)
+	state_dict["contract_payment_supply"] = GameState.contract_payment_supply.duplicate(true)
+	state_dict["contract_payment_reserved"] = GameState.contract_payment_reserved.duplicate(true)
 	state_dict["runtime_contract_occurrences"] = GameState.runtime_contract_occurrences.duplicate(true)
 	state_dict["runtime_contract_occurrences_by_target_sector"] = GameState.runtime_contract_occurrences_by_target_sector.duplicate(true)
 	state_dict["runtime_contract_occurrences_by_source_sector"] = GameState.runtime_contract_occurrences_by_source_sector.duplicate(true)
 	state_dict["hostile_infestation_progress"] = GameState.hostile_infestation_progress.duplicate(true)
+	state_dict["discovered_sectors"] = GameState.discovered_sectors.duplicate(true)
+	state_dict["station_by_id"] = GameState.station_by_id.duplicate(true)
 
 	# --- Layer 3: Agents ---
 	state_dict["characters"] = _serialize_resource_dict(GameState.characters)
@@ -14729,6 +14735,8 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.world_seed = save_data.get("world_seed", "")
 	GameState.current_sector_id = _resolve_saved_current_sector_id(save_data)
 	GameState.player_docked_at = save_data.get("player_docked_at", "")
+	GameState.player_claimed_occurrence_id = save_data.get("player_claimed_occurrence_id", "")
+	GameState.player_cargo_tag = save_data.get("player_cargo_tag", "EMPTY")
 	GameState.player_position = _deserialize_vector3(save_data.get("player_position", {}))
 	GameState.player_rotation = _deserialize_vector3(save_data.get("player_rotation", {}))
 	GameState.player_arrived_from_sector = save_data.get("player_arrived_from_sector", "")
@@ -14753,10 +14761,16 @@ func _deserialize_and_apply_game_state(save_data: Dictionary):
 	GameState.economy_change_threshold = save_data.get("economy_change_threshold", {}).duplicate(true) if save_data.has("economy_change_threshold") else {}
 	GameState.contract_generation_pressure = save_data.get("contract_generation_pressure", {}).duplicate(true) if save_data.has("contract_generation_pressure") else {}
 	GameState.contract_generation_threshold = save_data.get("contract_generation_threshold", {}).duplicate(true) if save_data.has("contract_generation_threshold") else {}
+	GameState.contract_cargo_supply = save_data.get("contract_cargo_supply", {}).duplicate(true) if save_data.has("contract_cargo_supply") else {}
+	GameState.contract_cargo_reserved = save_data.get("contract_cargo_reserved", {}).duplicate(true) if save_data.has("contract_cargo_reserved") else {}
+	GameState.contract_payment_supply = save_data.get("contract_payment_supply", {}).duplicate(true) if save_data.has("contract_payment_supply") else {}
+	GameState.contract_payment_reserved = save_data.get("contract_payment_reserved", {}).duplicate(true) if save_data.has("contract_payment_reserved") else {}
 	GameState.runtime_contract_occurrences = save_data.get("runtime_contract_occurrences", {}).duplicate(true) if save_data.has("runtime_contract_occurrences") else {}
 	GameState.runtime_contract_occurrences_by_target_sector = save_data.get("runtime_contract_occurrences_by_target_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_target_sector") else {}
 	GameState.runtime_contract_occurrences_by_source_sector = save_data.get("runtime_contract_occurrences_by_source_sector", {}).duplicate(true) if save_data.has("runtime_contract_occurrences_by_source_sector") else {}
 	GameState.hostile_infestation_progress = save_data.get("hostile_infestation_progress", {}).duplicate(true) if save_data.has("hostile_infestation_progress") else {}
+	GameState.discovered_sectors = save_data.get("discovered_sectors", []).duplicate(true) if save_data.has("discovered_sectors") else []
+	GameState.station_by_id = save_data.get("station_by_id", {}).duplicate(true) if save_data.has("station_by_id") else {}
 
 	# --- Layer 3: Agents ---
 	GameState.assets_ships = _deserialize_resource_dict(save_data.get("assets_ships", {}))
@@ -16994,8 +17008,8 @@ func _unique(values: Array) -> Array:
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-25 02:39:14
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6, TASK_8
+# LOG_REF: 2026-05-27 03:44:19
 #
 
 extends Reference
@@ -17022,6 +17036,7 @@ var _legacy_system_name_generator: Reference = LegacySystemNameGeneratorScript.n
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _reported_invalid_sectors: Dictionary = {}
 var _last_exploration_outcome: String = ""
+var _CONTRACT_CATEGORIES: Array = ["RAW", "MANUFACTURED", "CURRENCY"]
 var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
 	{
 		"procedural_type": "asteroid_field",
@@ -17097,8 +17112,6 @@ func process_tick(config: Dictionary) -> void:
 	# Iterate over a snapshot of keys to allow mutation
 	var agent_ids: Array = GameState.agents.keys()
 	for agent_id in agent_ids:
-		if agent_id == "player":
-			continue
 		if not GameState.agents.has(agent_id):
 			continue
 
@@ -17153,6 +17166,8 @@ func _initialize_player() -> void:
 		"cargo_tag": "EMPTY",
 		"dynamic_tags": [],
 	}
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
 
 
 func _initialize_agent_from_template(agent_id: String, template: Resource) -> void:
@@ -17191,6 +17206,7 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 		"condition_tag": _pick_tag(initial_tags, ["HEALTHY", "DAMAGED", "DESTROYED"], "HEALTHY"),
 		"wealth_tag": _pick_tag(initial_tags, ["WEALTHY", "COMFORTABLE", "BROKE"], "COMFORTABLE"),
 		"cargo_tag": _pick_tag(initial_tags, ["LOADED", "EMPTY"], "EMPTY"),
+		"rest_ticks_remaining": 0,
 		"dynamic_tags": [],
 	}
 
@@ -17200,6 +17216,16 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 # =============================================================================
 
 func _evaluate_goals(agent: Dictionary, agent_id: String = "") -> void:
+	# Player contract interactions are user-driven through the contract board, not auto-serviced here.
+	if agent_id == "player":
+		agent["goal_archetype"] = "idle"
+		agent["goal_queue"] = [{"type": "idle"}]
+		return
+	if _consume_mandatory_npc_rest_tick(agent_id, agent):
+		agent["goal_archetype"] = "idle"
+		agent["goal_queue"] = [{"type": "idle"}]
+		return
+
 	var tags: Array = agent.get("sentiment_tags", [])
 	if "DESPERATE" in tags:
 		agent["goal_archetype"] = "flee_to_safety"
@@ -17224,12 +17250,68 @@ func _execute_action(agent_id: String, agent: Dictionary) -> void:
 
 	if goal == "flee_to_safety":
 		_action_flee_to_safety(agent_id, agent)
+		_schedule_npc_rest_after_action(agent_id, agent, goal)
 		return
 	if goal == "service_contract":
 		_action_service_contract(agent_id, agent, str(goal_queue[0].get("occurrence_id", "")))
+		_schedule_npc_rest_after_action(agent_id, agent, goal)
 		return
 	if goal == "affinity_scan":
 		_action_affinity_scan(agent_id, agent)
+		_schedule_npc_rest_after_action(agent_id, agent, goal)
+
+
+func _consume_mandatory_npc_rest_tick(agent_id: String, agent: Dictionary) -> bool:
+	if agent_id == "player":
+		return false
+	if _should_skip_mandatory_npc_rest(agent_id, agent):
+		agent["rest_ticks_remaining"] = 0
+		return false
+	var remaining_rest_ticks: int = max(0, int(agent.get("rest_ticks_remaining", 0)))
+	if remaining_rest_ticks <= 0:
+		return false
+	agent["rest_ticks_remaining"] = remaining_rest_ticks - 1
+	return true
+
+
+func _schedule_npc_rest_after_action(agent_id: String, agent: Dictionary, goal: String) -> void:
+	if agent_id == "player" or goal == "idle":
+		return
+	if agent.get("is_disabled", false):
+		return
+	if _should_skip_mandatory_npc_rest(agent_id, agent):
+		agent["rest_ticks_remaining"] = 0
+		return
+	agent["rest_ticks_remaining"] = _mandatory_rest_ticks_for_agent(agent)
+
+
+func _should_skip_mandatory_npc_rest(agent_id: String, agent: Dictionary) -> bool:
+	if str(agent.get("cargo_tag", "EMPTY")) == "LOADED":
+		return true
+	return _has_active_runtime_contract_claim(agent_id)
+
+
+func _has_active_runtime_contract_claim(agent_id: String) -> bool:
+	for occurrence_id in GameState.runtime_contract_occurrences.keys():
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if str(occurrence.get("claimant_agent_id", "")) != agent_id:
+			continue
+		if str(occurrence.get("status", "")) == "completed":
+			continue
+		return true
+	return false
+
+
+func _mandatory_rest_ticks_for_agent(agent: Dictionary) -> int:
+	var condition_tag: String = str(agent.get("condition_tag", "HEALTHY"))
+	var wealth_tag: String = str(agent.get("wealth_tag", "COMFORTABLE"))
+	if condition_tag == "HEALTHY" and wealth_tag == "WEALTHY":
+		return 3
+	if condition_tag == "HEALTHY" and wealth_tag == "COMFORTABLE":
+		return 2
+	return 1
 
 
 func _action_flee_to_safety(agent_id: String, agent: Dictionary) -> void:
@@ -17459,7 +17541,111 @@ func _has_local_exploration_outlet(sector_id: String) -> bool:
 # === PRIVATE — RUNTIME CONTRACTS =============================================
 # =============================================================================
 
+func player_accept_runtime_contract(occurrence_id: String) -> bool:
+	var selected_occurrence_id: String = str(occurrence_id)
+	if selected_occurrence_id == "":
+		return false
+
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(selected_occurrence_id, {})
+	if occurrence.empty():
+		return false
+
+	var existing_claim_id: String = str(GameState.player_claimed_occurrence_id)
+	if existing_claim_id != "" and existing_claim_id != selected_occurrence_id:
+		return false
+
+	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+	if claimant_agent_id != "" and claimant_agent_id != "player":
+		return false
+	if claimant_agent_id == "" and not _reserve_runtime_contract_resources(occurrence):
+		return false
+
+	GameState.player_claimed_occurrence_id = selected_occurrence_id
+	occurrence["claimant_agent_id"] = "player"
+	occurrence["status"] = "claimed"
+	occurrence["claimed_at_tick"] = GameState.sim_tick_count
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[selected_occurrence_id] = occurrence
+
+	if claimant_agent_id == "":
+		_log_event("player", "contract_claimed", _player_current_sector_id(), {
+			"occurrence_id": selected_occurrence_id,
+			"target_sector_id": str(occurrence.get("target_sector_id", "")),
+		})
+
+	return true
+
+
+func player_pick_up_runtime_contract(occurrence_id: String) -> bool:
+	var selected_occurrence_id: String = str(occurrence_id)
+	if selected_occurrence_id == "":
+		return false
+	if str(GameState.player_claimed_occurrence_id) != selected_occurrence_id:
+		return false
+	if not GameState.agents.has("player"):
+		return false
+
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	if player_agent.empty():
+		return false
+
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(selected_occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if str(occurrence.get("claimant_agent_id", "")) != "player":
+		return false
+
+	var current_sector_id: String = _player_current_sector_id()
+	if current_sector_id == "":
+		return false
+
+	var pickup_success: bool = _load_runtime_contract_cargo("player", player_agent, selected_occurrence_id, current_sector_id)
+	if pickup_success:
+		GameState.agents["player"] = player_agent
+	return pickup_success
+
+
+func player_complete_runtime_contract(occurrence_id: String) -> bool:
+	var selected_occurrence_id: String = str(occurrence_id)
+	if selected_occurrence_id == "":
+		return false
+	if str(GameState.player_claimed_occurrence_id) != selected_occurrence_id:
+		return false
+	if not GameState.agents.has("player"):
+		return false
+
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	if player_agent.empty():
+		return false
+
+	var current_sector_id: String = _player_current_sector_id()
+	if current_sector_id == "":
+		return false
+
+	var completion_success: bool = _complete_player_contract_delivery(player_agent, selected_occurrence_id, current_sector_id)
+	if completion_success:
+		GameState.agents["player"] = player_agent
+	return completion_success
+
+
+func _player_current_sector_id() -> String:
+	if GameState.agents.has("player"):
+		var player_agent: Dictionary = GameState.agents.get("player", {})
+		if not player_agent.empty() and str(player_agent.get("current_sector_id", "")) != "":
+			return str(player_agent.get("current_sector_id", ""))
+	return str(GameState.current_sector_id)
+
 func _best_runtime_contract_occurrence_id(agent_id: String, agent: Dictionary, actor_tags: Array) -> String:
+	if agent_id == "player":
+		if not _player_can_service_contract(agent):
+			return ""
+		var player_occurrence_id: String = str(GameState.player_claimed_occurrence_id)
+		if player_occurrence_id == "":
+			return ""
+		if not GameState.runtime_contract_occurrences.has(player_occurrence_id):
+			return ""
+		return player_occurrence_id
+
 	var role: String = str(agent.get("agent_role", "idle"))
 	if not (role in ["trader", "hauler"]):
 		return ""
@@ -17510,9 +17696,13 @@ func _best_runtime_contract_occurrence_id(agent_id: String, agent: Dictionary, a
 func _action_service_contract(agent_id: String, agent: Dictionary, occurrence_id: String) -> void:
 	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
 	if occurrence.empty():
+		if agent_id == "player":
+			return
 		_action_move_toward_role_target(agent_id, agent)
 		return
 	if not _claim_runtime_contract_occurrence(agent_id, agent, occurrence_id):
+		if agent_id == "player":
+			return
 		_action_move_toward_role_target(agent_id, agent)
 		return
 
@@ -17523,22 +17713,33 @@ func _action_service_contract(agent_id: String, agent: Dictionary, occurrence_id
 
 	if source_sector_id == "" or target_sector_id == "" or current_sector_id == "":
 		_release_runtime_contract_claim(agent_id, occurrence_id)
+		if agent_id == "player":
+			return
 		_action_move_toward_role_target(agent_id, agent)
 		return
 
 	if agent.get("cargo_tag", "EMPTY") == "EMPTY":
 		if current_sector_id != source_sector_id:
+			if agent_id == "player":
+				return
 			_action_move_toward_sector(agent_id, agent, source_sector_id)
 			return
 		if _load_runtime_contract_cargo(agent_id, agent, occurrence_id, source_sector_id):
 			return
 	else:
 		if current_sector_id != target_sector_id:
+			if agent_id == "player":
+				return
 			_action_move_toward_sector(agent_id, agent, target_sector_id)
 			return
-		if _complete_runtime_contract_occurrence(agent_id, agent, occurrence_id, target_sector_id):
+		if agent_id == "player":
+			if _complete_player_contract_delivery(agent, occurrence_id, target_sector_id):
+				return
+		elif _complete_runtime_contract_occurrence(agent_id, agent, occurrence_id, target_sector_id):
 			return
 
+	if agent_id == "player":
+		return
 	_action_move_toward_role_target(agent_id, agent)
 
 
@@ -17546,14 +17747,24 @@ func _claim_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occ
 	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
 	if occurrence.empty():
 		return false
-	var required_roles: Array = Array(occurrence.get("required_roles", []))
-	if not (str(agent.get("agent_role", "idle")) in required_roles):
-		return false
+	if agent_id == "player":
+		if not _player_can_service_contract(agent):
+			return false
+		if str(GameState.player_claimed_occurrence_id) != occurrence_id:
+			return false
+	else:
+		var required_roles: Array = Array(occurrence.get("required_roles", []))
+		if not (str(agent.get("agent_role", "idle")) in required_roles):
+			return false
 	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
 	if claimant_agent_id != "" and claimant_agent_id != agent_id:
 		return false
 
 	if claimant_agent_id == "":
+		if agent_id != "player" and not _can_npc_claim_open_runtime_contract(agent_id, occurrence_id, occurrence):
+			return false
+		if not _reserve_runtime_contract_resources(occurrence):
+			return false
 		occurrence["claimant_agent_id"] = agent_id
 		occurrence["status"] = "claimed"
 		occurrence["claimed_at_tick"] = GameState.sim_tick_count
@@ -17569,17 +17780,56 @@ func _claim_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occ
 	return true
 
 
+func _can_npc_claim_open_runtime_contract(agent_id: String, occurrence_id: String, occurrence: Dictionary) -> bool:
+	var claim_grace_ticks: int = max(0, int(Constants.NPC_RUNTIME_CONTRACT_CLAIM_GRACE_TICKS))
+	var created_at_tick: int = int(occurrence.get("created_at_tick", GameState.sim_tick_count))
+	if GameState.sim_tick_count - created_at_tick < claim_grace_ticks:
+		return false
+
+	var claim_chance: float = clamp(float(Constants.NPC_RUNTIME_CONTRACT_CLAIM_CHANCE), 0.0, 1.0)
+	if claim_chance <= 0.0:
+		return false
+	if claim_chance >= 1.0:
+		return true
+
+	var claim_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	claim_rng.seed = hash(str(GameState.world_seed) + ":contract_claim:" + str(GameState.sim_tick_count) + ":" + occurrence_id + ":" + agent_id)
+	return claim_rng.randf() < claim_chance
+
+
 func _release_runtime_contract_claim(agent_id: String, occurrence_id: String) -> void:
 	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
 	if occurrence.empty():
 		return
 	if str(occurrence.get("claimant_agent_id", "")) != agent_id:
 		return
+	var category: String = str(occurrence.get("commodity_category", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	if bool(occurrence.get("source_reserved", false)) and not bool(occurrence.get("cargo_picked_up", false)):
+		_release_contract_accounting_unit(
+			GameState.contract_cargo_supply,
+			GameState.contract_cargo_reserved,
+			source_sector_id,
+			category
+		)
+	occurrence["source_reserved"] = false
+	if bool(occurrence.get("payment_reserved", false)):
+		_release_contract_accounting_unit(
+			GameState.contract_payment_supply,
+			GameState.contract_payment_reserved,
+			target_sector_id,
+			category
+		)
+	occurrence["payment_reserved"] = false
 	occurrence["claimant_agent_id"] = ""
 	occurrence["status"] = "open"
 	if occurrence.has("claimed_at_tick"):
 		occurrence.erase("claimed_at_tick")
 	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	if agent_id == "player":
+		GameState.player_claimed_occurrence_id = ""
+		GameState.player_cargo_tag = "EMPTY"
 
 
 func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
@@ -17593,10 +17843,23 @@ func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrenc
 	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
 	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
 		return false
+	if not _reserve_runtime_contract_resources(occurrence):
+		return false
+	if not _consume_reserved_contract_unit(
+		GameState.contract_cargo_reserved,
+		sector_id,
+		str(occurrence.get("commodity_category", ""))
+	):
+		return false
 
 	agent["cargo_tag"] = "LOADED"
+	if agent_id == "player":
+		GameState.player_cargo_tag = "LOADED"
+		agent["contract_cargo_tag"] = str(occurrence.get("required_cargo_tag", ""))
 	if str(agent.get("agent_role", "idle")) == "trader":
 		_wealth_step_down(agent)
+	occurrence["source_reserved"] = false
+	occurrence["cargo_picked_up"] = true
 	occurrence["status"] = "in_transit"
 	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
 	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
@@ -17618,13 +17881,240 @@ func _complete_runtime_contract_occurrence(agent_id: String, agent: Dictionary, 
 	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
 	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
 		return false
+	if not _reserve_runtime_contract_resources(occurrence):
+		return false
+	if not _consume_reserved_contract_unit(
+		GameState.contract_payment_reserved,
+		sector_id,
+		str(occurrence.get("commodity_category", ""))
+	):
+		return false
 
 	_try_dock(agent_id, agent, sector_id)
+	occurrence["payment_reserved"] = false
+	_apply_contract_completion_sector_impact(occurrence, sector_id)
 	_log_event(agent_id, "contract_completed", sector_id, {
 		"occurrence_id": occurrence_id,
 		"source_sector_id": str(occurrence.get("source_sector_id", "")),
 	})
 	_remove_runtime_contract_occurrence(occurrence_id)
+	return true
+
+
+func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if str(GameState.player_claimed_occurrence_id) != occurrence_id:
+		return false
+	if str(occurrence.get("claimant_agent_id", "")) != "player":
+		return false
+	if str(occurrence.get("target_sector_id", "")) != sector_id:
+		return false
+	if str(agent.get("cargo_tag", "EMPTY")) != "LOADED":
+		return false
+	if str(GameState.player_cargo_tag) != "LOADED":
+		return false
+
+	var required_cargo_tag: String = str(occurrence.get("required_cargo_tag", ""))
+	if required_cargo_tag != "":
+		var loaded_cargo_tag: String = str(agent.get("contract_cargo_tag", required_cargo_tag))
+		if loaded_cargo_tag != required_cargo_tag:
+			return false
+	if not _reserve_runtime_contract_resources(occurrence):
+		return false
+	if not _consume_reserved_contract_unit(
+		GameState.contract_payment_reserved,
+		sector_id,
+		str(occurrence.get("commodity_category", ""))
+	):
+		return false
+
+	agent["cargo_tag"] = "EMPTY"
+	if agent.has("contract_cargo_tag"):
+		agent.erase("contract_cargo_tag")
+	GameState.player_cargo_tag = "EMPTY"
+
+	var reward_credits: int = int(occurrence.get("reward_credits", 0))
+	if reward_credits > 0 and GlobalRefs.character_system != null and GlobalRefs.character_system.has_method("add_credits"):
+		var player_character_uid = GameState.player_character_uid
+		if player_character_uid != "":
+			GlobalRefs.character_system.add_credits(player_character_uid, reward_credits)
+
+	_apply_contract_completion_sector_impact(occurrence, sector_id)
+
+	occurrence["status"] = "completed"
+	occurrence["claimant_agent_id"] = ""
+	occurrence["payment_reserved"] = false
+	if occurrence.has("claimed_at_tick"):
+		occurrence.erase("claimed_at_tick")
+	occurrence["completed_at_tick"] = GameState.sim_tick_count
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+
+	GameState.player_claimed_occurrence_id = ""
+	_log_event("player", "contract_completed", sector_id, {
+		"occurrence_id": occurrence_id,
+		"source_sector_id": str(occurrence.get("source_sector_id", "")),
+		"reward_credits": reward_credits,
+	})
+	return true
+
+
+func _reserve_runtime_contract_resources(occurrence: Dictionary) -> bool:
+	if occurrence.empty():
+		return false
+	var category: String = str(occurrence.get("commodity_category", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	if category == "" or source_sector_id == "" or target_sector_id == "":
+		return false
+
+	var reserved_source_now: bool = false
+	if not bool(occurrence.get("cargo_picked_up", false)) and not bool(occurrence.get("source_reserved", false)):
+		if not _reserve_contract_accounting_unit(
+			GameState.contract_cargo_supply,
+			GameState.contract_cargo_reserved,
+			source_sector_id,
+			category
+		):
+			return false
+		occurrence["source_reserved"] = true
+		reserved_source_now = true
+
+	if not bool(occurrence.get("payment_reserved", false)):
+		if not _reserve_contract_accounting_unit(
+			GameState.contract_payment_supply,
+			GameState.contract_payment_reserved,
+			target_sector_id,
+			category
+		):
+			if reserved_source_now:
+				_release_contract_accounting_unit(
+					GameState.contract_cargo_supply,
+					GameState.contract_cargo_reserved,
+					source_sector_id,
+					category
+				)
+				occurrence["source_reserved"] = false
+			return false
+		occurrence["payment_reserved"] = true
+
+	return true
+
+
+func _reserve_contract_accounting_unit(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var available_units: int = int(supply_by_sector.get(category, 0))
+	if available_units <= 0:
+		return false
+	supply_by_sector[category] = available_units - 1
+	reserved_by_sector[category] = int(reserved_by_sector.get(category, 0)) + 1
+	supply_root[sector_id] = supply_by_sector
+	reserved_root[sector_id] = reserved_by_sector
+	return true
+
+
+func _release_contract_accounting_unit(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var reserved_units: int = int(reserved_by_sector.get(category, 0))
+	if reserved_units <= 0:
+		return false
+	reserved_by_sector[category] = reserved_units - 1
+	supply_by_sector[category] = int(supply_by_sector.get(category, 0)) + 1
+	supply_root[sector_id] = supply_by_sector
+	reserved_root[sector_id] = reserved_by_sector
+	return true
+
+
+func _consume_reserved_contract_unit(reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var reserved_units: int = int(reserved_by_sector.get(category, 0))
+	if reserved_units <= 0:
+		return false
+	reserved_by_sector[category] = reserved_units - 1
+	reserved_root[sector_id] = reserved_by_sector
+	return true
+
+
+func _apply_contract_completion_sector_impact(occurrence: Dictionary, target_sector_id: String) -> void:
+	if target_sector_id == "":
+		return
+	if not GameState.contract_generation_pressure.has(target_sector_id):
+		return
+
+	var category: String = str(occurrence.get("commodity_category", ""))
+	if not (category in _CONTRACT_CATEGORIES):
+		return
+
+	var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(target_sector_id, {})
+	var previous_pressure: int = int(sector_pressure.get(category, 0))
+	var completion_relief_decay: int = max(1, int(Constants.CONTRACT_RELIEF_DECAY_PER_TICK) + 1)
+	sector_pressure[category] = max(0, previous_pressure - completion_relief_decay)
+	GameState.contract_generation_pressure[target_sector_id] = sector_pressure
+
+	_refresh_contract_demand_tags_for_sector(target_sector_id)
+
+
+func _refresh_contract_demand_tags_for_sector(sector_id: String) -> void:
+	if sector_id == "":
+		return
+	if not GameState.sector_tags.has(sector_id):
+		return
+
+	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	var serviceable: bool = "STATION" in tags or "FRONTIER" in tags
+	var sector_disabled: bool = _sector_recently_disabled(sector_id)
+	var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(sector_id, {})
+	var sector_thresholds: Dictionary = GameState.contract_generation_threshold.get(sector_id, {})
+	var demand_count: int = 0
+
+	for category in _CONTRACT_CATEGORIES:
+		var demand_tag: String = _contract_demand_tag(category)
+		var poor_tag: String = "%s_POOR" % category
+		var threshold: int = int(sector_thresholds.get(category, Constants.CONTRACT_PRESSURE_TICKS_MIN))
+		var pressure: int = int(sector_pressure.get(category, 0))
+		var can_generate: bool = serviceable and (poor_tag in tags) and not sector_disabled
+
+		if can_generate and pressure >= threshold:
+			tags = _add_tag(tags, demand_tag)
+		else:
+			tags = _remove_tag(tags, demand_tag)
+
+		if demand_tag in tags:
+			demand_count += 1
+
+	tags = _remove_tag(tags, "TRADE_LANE_ACTIVE")
+
+	var needs_relief: bool = demand_count >= 2
+	if demand_count > 0 and (_security_tag(tags) != "SECURE" or GameState.world_age == "DISRUPTION"):
+		needs_relief = true
+
+	if needs_relief:
+		tags = _add_tag(tags, "RELIEF_NEEDED")
+	else:
+		tags = _remove_tag(tags, "RELIEF_NEEDED")
+
+	GameState.sector_tags[sector_id] = tags
+
+
+func _contract_demand_tag(category: String) -> String:
+	return "CONTRACT_DEMAND_%s" % category
+
+
+func _player_can_service_contract(agent: Dictionary) -> bool:
+	if str(GameState.player_claimed_occurrence_id) == "":
+		return false
+	if str(agent.get("agent_role", "idle")) != "idle":
+		return false
 	return true
 
 
@@ -18042,6 +18532,9 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 
 	# Record
 	GameState.sector_names[new_id] = new_name
+	if not (new_id in GameState.discovered_sectors):
+		GameState.discovered_sectors.append(new_id)
+	var generated_station: Dictionary = _generate_procedural_station_for_sector(new_id)
 	GameState.discovery_log.append({
 		"tick": GameState.sim_tick_count,
 		"discoverer": agent_id,
@@ -18053,6 +18546,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		"global_position": global_position,
 		"branch_separation_deg": float(placement.get("branch_separation_deg", 180.0)),
 		"branch_mode": str(placement.get("branch_mode", "planar")),
+		"generated_station_id": str(generated_station.get("id", "")),
 	})
 	_log_event(agent_id, "sector_discovered", source_id, {
 		"new_sector": new_id,
@@ -18061,7 +18555,78 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 		"requested_from": sector_id,
 		"procedural_type": str(profile.get("procedural_type", "deep_space")),
 		"global_position": global_position,
+		"generated_station_id": str(generated_station.get("id", "")),
 	})
+
+
+func _generate_procedural_station_for_sector(sector_id: String) -> Dictionary:
+	if sector_id == "":
+		return {}
+	if not GameState.world_topology.has(sector_id):
+		return {}
+	if not TemplateDatabase.locations.has(sector_id):
+		return {}
+
+	var station_id: String = "station_%s" % sector_id
+	if GameState.station_by_id.has(station_id):
+		return Dictionary(GameState.station_by_id.get(station_id, {})).duplicate(true)
+
+	var sector_name: String = str(GameState.sector_names.get(sector_id, ""))
+	if sector_name == "":
+		sector_name = str(_get_template_value(TemplateDatabase.locations.get(sector_id), "location_name", sector_id))
+	var station_name: String = "%s Station" % sector_name
+	var docking_point: Vector3 = _build_procedural_station_docking_point(sector_id)
+
+	var station_data: Dictionary = {
+		"id": station_id,
+		"display_name": station_name,
+		"sector_id": sector_id,
+		"location_id": station_id,
+		"docking_point": docking_point,
+	}
+	GameState.station_by_id[station_id] = station_data.duplicate(true)
+
+	var world_sector: Dictionary = GameState.world_topology.get(sector_id, {})
+	world_sector["station_ids"] = [station_id]
+	GameState.world_topology[sector_id] = world_sector
+
+	var sector_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	if not ("STATION" in sector_tags):
+		sector_tags.append("STATION")
+	GameState.sector_tags[sector_id] = sector_tags
+
+	GameState.locations[station_id] = {
+		"location_name": station_name,
+		"position_in_zone": docking_point,
+		"available_services": ["trade", "contracts"],
+		"sector_id": sector_id,
+	}
+
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	var hints = _get_template_value(sector_template, "procedural_hints", {})
+	if not (hints is Dictionary):
+		hints = {}
+	hints["procedural_station_id"] = station_id
+	hints["procedural_station_name"] = station_name
+	hints["procedural_station_docking_point"] = docking_point
+	if sector_template is Dictionary:
+		sector_template["procedural_hints"] = hints
+		TemplateDatabase.locations[sector_id] = sector_template
+	else:
+		sector_template.procedural_hints = hints
+
+	return station_data.duplicate(true)
+
+
+func _build_procedural_station_docking_point(sector_id: String) -> Vector3:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(GameState.world_seed) + ":procedural_station:" + sector_id)
+	var radial_distance: float = 2800.0 + rng.randf_range(0.0, 1900.0)
+	var angle: float = rng.randf_range(-PI, PI)
+	var x: float = cos(angle) * radial_distance
+	var z: float = sin(angle) * radial_distance
+	var y: float = rng.randf_range(-220.0, 220.0)
+	return Vector3(x, y, z)
 
 
 func _select_discovered_sector_profile(new_id: String) -> Dictionary:
@@ -18686,6 +19251,7 @@ func _spawn_mortal_agents() -> void:
 		"condition_tag": "HEALTHY",
 		"wealth_tag": "BROKE",
 		"cargo_tag": "EMPTY",
+		"rest_ticks_remaining": 0,
 		"dynamic_tags": [],
 	}
 	_log_event(agent_id, "spawn", spawn_sector, {})
@@ -18905,6 +19471,30 @@ func _add_tag(tags: Array, tag: String) -> Array:
 	var result: Array = Array(tags)
 	result.append(tag)
 	return result
+
+
+func _remove_tag(tags: Array, tag: String) -> Array:
+	var result: Array = []
+	for existing_tag in tags:
+		if existing_tag != tag:
+			result.append(existing_tag)
+	return result
+
+
+func _security_tag(tags: Array) -> String:
+	if "SECURE" in tags:
+		return "SECURE"
+	if "CONTESTED" in tags:
+		return "CONTESTED"
+	if "LAWLESS" in tags:
+		return "LAWLESS"
+	return "CONTESTED"
+
+
+func _sector_recently_disabled(sector_id: String) -> bool:
+	if sector_id == "":
+		return false
+	return int(GameState.sector_disabled_until.get(sector_id, -1)) >= GameState.sim_tick_count
 
 
 func _active_agent_count_in_sector(sector_id: String) -> int:
@@ -19260,7 +19850,7 @@ func _humanize_action(action: String) -> String:
 # MODULE: contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 23:11:32
+# LOG_REF: 2026-05-27 04:02:51
 #
 
 extends Reference
@@ -19277,6 +19867,8 @@ func process_tick(config: Dictionary) -> void:
 	var generated_occurrences: Dictionary = {}
 	var occurrences_by_target: Dictionary = {}
 	var occurrences_by_source: Dictionary = {}
+	var allocated_source_backing: Dictionary = {}
+	var allocated_payment_backing: Dictionary = {}
 	var sector_ids: Array = GameState.world_topology.keys()
 	sector_ids.sort()
 	var global_cap: int = int(config.get("contract_occurrence_global_cap", Constants.CONTRACT_OCCURRENCE_GLOBAL_CAP))
@@ -19286,7 +19878,9 @@ func process_tick(config: Dictionary) -> void:
 		generated_occurrences,
 		occurrences_by_target,
 		occurrences_by_source,
-		global_cap
+		global_cap,
+		allocated_source_backing,
+		allocated_payment_backing
 	)
 
 	for sector_id in sector_ids:
@@ -19305,11 +19899,19 @@ func process_tick(config: Dictionary) -> void:
 			if generated_for_sector >= per_sector_cap:
 				break
 
-			var source_packet: Dictionary = _find_best_source_sector(sector_id, category, config)
+			var occurrence_id: String = _occurrence_id(sector_id, category)
+			if _was_completed_last_tick(previous_occurrences.get(occurrence_id, {})):
+				continue
+			if generated_occurrences.has(occurrence_id):
+				generated_for_sector += 1
+				continue
+			if not _can_allocate_target_payment(sector_id, category, allocated_payment_backing):
+				continue
+
+			var source_packet: Dictionary = _find_best_source_sector(sector_id, category, config, allocated_source_backing)
 			if source_packet.empty():
 				continue
 
-			var occurrence_id: String = _occurrence_id(sector_id, category)
 			var occurrence: Dictionary = _build_occurrence(
 				occurrence_id,
 				sector_id,
@@ -19321,6 +19923,7 @@ func process_tick(config: Dictionary) -> void:
 				occurrence,
 				previous_occurrences.get(occurrence_id, {})
 			)
+			_register_occurrence_accounting(occurrence, allocated_source_backing, allocated_payment_backing)
 			generated_occurrences[occurrence_id] = occurrence
 			_index_occurrence(occurrences_by_target, sector_id, occurrence_id)
 			_index_occurrence(occurrences_by_source, str(source_packet.get("sector_id", "")), occurrence_id)
@@ -19336,7 +19939,9 @@ func _seed_retained_occurrences(
 	generated_occurrences: Dictionary,
 	occurrences_by_target: Dictionary,
 	occurrences_by_source: Dictionary,
-	global_cap: int
+	global_cap: int,
+	allocated_source_backing: Dictionary,
+	allocated_payment_backing: Dictionary
 ) -> void:
 	var occurrence_ids: Array = previous_occurrences.keys()
 	occurrence_ids.sort()
@@ -19344,7 +19949,7 @@ func _seed_retained_occurrences(
 		if generated_occurrences.size() >= global_cap:
 			break
 		var previous_occurrence: Dictionary = previous_occurrences.get(occurrence_id, {})
-		if not _should_retain_claimed_occurrence(previous_occurrence):
+		if not (_should_retain_claimed_occurrence(previous_occurrence) or _should_retain_recent_open_occurrence(previous_occurrence)):
 			continue
 		var retained_occurrence: Dictionary = previous_occurrence.duplicate(true)
 		retained_occurrence["last_refreshed_tick"] = GameState.sim_tick_count
@@ -19359,6 +19964,7 @@ func _seed_retained_occurrences(
 			str(retained_occurrence.get("source_sector_id", "")),
 			occurrence_id
 		)
+		_register_occurrence_accounting(retained_occurrence, allocated_source_backing, allocated_payment_backing)
 
 
 func _should_retain_claimed_occurrence(previous_occurrence: Dictionary) -> bool:
@@ -19373,18 +19979,60 @@ func _should_retain_claimed_occurrence(previous_occurrence: Dictionary) -> bool:
 	return _claimant_is_valid(claimant_agent_id, previous_occurrence)
 
 
+func _should_retain_recent_open_occurrence(previous_occurrence: Dictionary) -> bool:
+	if previous_occurrence.empty():
+		return false
+	if str(previous_occurrence.get("status", "open")) != "open":
+		return false
+	if str(previous_occurrence.get("claimant_agent_id", "")) != "":
+		return false
+	if not bool(previous_occurrence.get("player_displayable", true)):
+		return false
+	var created_at_tick: int = int(previous_occurrence.get("created_at_tick", -1))
+	if created_at_tick < 0:
+		return false
+	return created_at_tick >= GameState.sim_tick_count - 1
+
+
 func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrence: Dictionary) -> Dictionary:
 	if previous_occurrence.empty():
 		return occurrence
 	if previous_occurrence.has("created_at_tick"):
 		occurrence["created_at_tick"] = int(previous_occurrence.get("created_at_tick", GameState.sim_tick_count))
+	if previous_occurrence.has("source_accounting_sector_id"):
+		occurrence["source_accounting_sector_id"] = str(previous_occurrence.get("source_accounting_sector_id", occurrence.get("source_sector_id", "")))
+	if previous_occurrence.has("payment_accounting_sector_id"):
+		occurrence["payment_accounting_sector_id"] = str(previous_occurrence.get("payment_accounting_sector_id", occurrence.get("target_sector_id", "")))
 	var claimant_agent_id: String = str(previous_occurrence.get("claimant_agent_id", ""))
 	if claimant_agent_id != "" and _claimant_is_valid(claimant_agent_id, occurrence):
 		occurrence["claimant_agent_id"] = claimant_agent_id
 		occurrence["status"] = str(previous_occurrence.get("status", "claimed"))
 		if previous_occurrence.has("claimed_at_tick"):
 			occurrence["claimed_at_tick"] = int(previous_occurrence.get("claimed_at_tick", GameState.sim_tick_count))
+	if previous_occurrence.has("completed_at_tick"):
+		occurrence["completed_at_tick"] = int(previous_occurrence.get("completed_at_tick", -1))
+	if previous_occurrence.has("player_displayable"):
+		occurrence["player_displayable"] = bool(previous_occurrence.get("player_displayable", true))
+	if previous_occurrence.has("required_cargo_tag"):
+		occurrence["required_cargo_tag"] = str(previous_occurrence.get("required_cargo_tag", ""))
+	if previous_occurrence.has("reward_credits"):
+		occurrence["reward_credits"] = int(previous_occurrence.get("reward_credits", 0))
+	if previous_occurrence.has("source_reserved"):
+		occurrence["source_reserved"] = bool(previous_occurrence.get("source_reserved", false))
+	if previous_occurrence.has("payment_reserved"):
+		occurrence["payment_reserved"] = bool(previous_occurrence.get("payment_reserved", false))
+	if previous_occurrence.has("cargo_picked_up"):
+		occurrence["cargo_picked_up"] = bool(previous_occurrence.get("cargo_picked_up", false))
 	return occurrence
+
+
+func _was_completed_last_tick(previous_occurrence: Dictionary) -> bool:
+	if previous_occurrence.empty():
+		return false
+	if str(previous_occurrence.get("status", "open")) != "completed":
+		return false
+	var completed_at_tick: int = int(previous_occurrence.get("completed_at_tick", -1))
+	return completed_at_tick >= 0 and completed_at_tick < GameState.sim_tick_count
 
 
 func _claimant_is_valid(agent_id: String, occurrence: Dictionary) -> bool:
@@ -19393,6 +20041,8 @@ func _claimant_is_valid(agent_id: String, occurrence: Dictionary) -> bool:
 	var agent: Dictionary = GameState.agents.get(agent_id, {})
 	if agent.empty() or agent.get("is_disabled", false):
 		return false
+	if agent_id == "player":
+		return str(GameState.player_claimed_occurrence_id) == str(occurrence.get("occurrence_id", ""))
 	var required_roles: Array = Array(occurrence.get("required_roles", []))
 	return str(agent.get("agent_role", "idle")) in required_roles
 
@@ -19405,7 +20055,7 @@ func _active_demand_categories(tags: Array) -> Array:
 	return categories
 
 
-func _find_best_source_sector(target_sector_id: String, category: String, config: Dictionary) -> Dictionary:
+func _find_best_source_sector(target_sector_id: String, category: String, config: Dictionary, allocated_source_backing: Dictionary) -> Dictionary:
 	var max_hops: int = int(config.get("contract_source_search_max_hops", Constants.CONTRACT_SOURCE_SEARCH_MAX_HOPS))
 	var frontier: Array = [{"sector_id": target_sector_id, "distance": 0}]
 	var visited: Dictionary = {target_sector_id: true}
@@ -19419,7 +20069,7 @@ func _find_best_source_sector(target_sector_id: String, category: String, config
 		var sector_id: String = str(packet.get("sector_id", ""))
 		var distance: int = int(packet.get("distance", 0))
 
-		if sector_id != target_sector_id and _is_qualifying_source_sector(sector_id, category):
+		if sector_id != target_sector_id and _is_qualifying_source_sector(sector_id, category, allocated_source_backing):
 			var score: float = _source_score(sector_id, category, distance)
 			if best_candidate.empty() or score > best_score or (is_equal_approx(score, best_score) and sector_id < best_sector_id):
 				best_candidate = {"sector_id": sector_id, "distance": distance}
@@ -19440,7 +20090,7 @@ func _find_best_source_sector(target_sector_id: String, category: String, config
 	return best_candidate
 
 
-func _is_qualifying_source_sector(sector_id: String, category: String) -> bool:
+func _is_qualifying_source_sector(sector_id: String, category: String, allocated_source_backing: Dictionary) -> bool:
 	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
 	if tags.empty():
 		return false
@@ -19448,7 +20098,9 @@ func _is_qualifying_source_sector(sector_id: String, category: String) -> bool:
 		return false
 	if "DISABLED" in tags or "HOSTILE_INFESTED" in tags or "LAWLESS" in tags:
 		return false
-	return (category + "_ADEQUATE") in tags or (category + "_RICH") in tags
+	if not ((category + "_ADEQUATE") in tags or (category + "_RICH") in tags):
+		return false
+	return _can_allocate_source_cargo(sector_id, category, allocated_source_backing)
 
 
 func _source_score(sector_id: String, category: String, distance: int) -> float:
@@ -19479,6 +20131,9 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 	var category_label: String = _category_label(category)
 	var source_label: String = _sector_label(source_sector_id)
 	var target_label: String = _sector_label(target_sector_id)
+	var required_cargo_tag: String = _cargo_tag_for_category(category)
+	# UI-facing reward metadata for player contract board; does not drive CA economy simulation.
+	var reward_credits: int = _calculate_reward_credits(category, route_hops)
 	return {
 		"occurrence_id": occurrence_id,
 		"generator_id": "qualitative_demand",
@@ -19487,6 +20142,9 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"demand_tag": _contract_demand_tag(category),
 		"source_sector_id": source_sector_id,
 		"target_sector_id": target_sector_id,
+		"source_accounting_sector_id": source_sector_id,
+		"payment_accounting_sector_id": target_sector_id,
+		"destination_sector_id": target_sector_id,
 		"origin_location_id": source_sector_id,
 		"destination_location_id": target_sector_id,
 		"status": "open",
@@ -19495,9 +20153,16 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"priority_tags": _build_priority_tags(target_tags, category),
 		"route_hops": route_hops,
 		"created_at_tick": GameState.sim_tick_count,
+		"completed_at_tick": -1,
 		"last_refreshed_tick": GameState.sim_tick_count,
 		"title": "%s Relief Route to %s" % [category_label, target_label],
 		"description": "%s demand in %s can be relieved from %s." % [category_label, target_label, source_label],
+		"player_displayable": true,
+		"required_cargo_tag": required_cargo_tag,
+		"reward_credits": reward_credits,
+		"source_reserved": false,
+		"payment_reserved": false,
+		"cargo_picked_up": false,
 	}
 
 
@@ -19545,11 +20210,96 @@ func _sector_label(sector_id: String) -> String:
 	return str(GameState.sector_names.get(sector_id, sector_id))
 
 
+func _cargo_tag_for_category(category: String) -> String:
+	match category:
+		"RAW":
+			return "RAW_COMMODITY"
+		"MANUFACTURED":
+			return "MANUFACTURED_COMMODITY"
+		"CURRENCY":
+			return "CURRENCY_COMMODITY"
+		_:
+			return "UNKNOWN_COMMODITY"
+
+
+func _calculate_reward_credits(category: String, route_hops: int) -> int:
+	var base_reward: int = 0
+	match category:
+		"RAW":
+			base_reward = 100
+		"MANUFACTURED":
+			base_reward = 150
+		"CURRENCY":
+			base_reward = 200
+		_:
+			base_reward = 50
+	var distance_bonus: int = route_hops * 25
+	return base_reward + distance_bonus
+
+
+func _register_occurrence_accounting(occurrence: Dictionary, allocated_source_backing: Dictionary, allocated_payment_backing: Dictionary) -> void:
+	var category: String = str(occurrence.get("commodity_category", ""))
+	if not (category in CATEGORIES):
+		return
+	_increment_allocated_count(
+		allocated_source_backing,
+		str(occurrence.get("source_sector_id", "")),
+		category
+	)
+	_increment_allocated_count(
+		allocated_payment_backing,
+		str(occurrence.get("target_sector_id", "")),
+		category
+	)
+
+
+func _can_allocate_source_cargo(sector_id: String, category: String, allocated_source_backing: Dictionary) -> bool:
+	return _allocated_count(allocated_source_backing, sector_id, category) < _sector_category_backing(
+		GameState.contract_cargo_supply,
+		GameState.contract_cargo_reserved,
+		sector_id,
+		category
+	)
+
+
+func _can_allocate_target_payment(sector_id: String, category: String, allocated_payment_backing: Dictionary) -> bool:
+	return _allocated_count(allocated_payment_backing, sector_id, category) < _sector_category_backing(
+		GameState.contract_payment_supply,
+		GameState.contract_payment_reserved,
+		sector_id,
+		category
+	)
+
+
+func _sector_category_backing(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> int:
+	if sector_id == "":
+		return 0
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	return int(max(0, int(supply_by_sector.get(category, 0)) + int(reserved_by_sector.get(category, 0))))
+
+
+func _allocated_count(allocated_root: Dictionary, sector_id: String, category: String) -> int:
+	if sector_id == "":
+		return 0
+	return int(allocated_root.get(sector_id, {}).get(category, 0))
+
+
+func _increment_allocated_count(allocated_root: Dictionary, sector_id: String, category: String) -> void:
+	if sector_id == "" or not (category in CATEGORIES):
+		return
+	var allocated_by_sector: Dictionary = allocated_root.get(sector_id, {})
+	allocated_by_sector[category] = int(allocated_by_sector.get(category, 0)) + 1
+	allocated_root[sector_id] = allocated_by_sector
+
+
 func _index_occurrence(index: Dictionary, sector_id: String, occurrence_id: String) -> void:
 	if sector_id == "":
 		return
 	if not index.has(sector_id):
 		index[sector_id] = []
+	if occurrence_id in index[sector_id]:
+		return
 	index[sector_id].append(occurrence_id)
 
 
@@ -19569,7 +20319,7 @@ func _unique(values: Array) -> Array:
 # MODULE: grid_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-25 15:57:53
+# LOG_REF: 2026-05-26 19:02:00
 #
 
 extends Reference
@@ -19577,7 +20327,7 @@ extends Reference
 ## GridLayer: Tag-transition CA engine for economy, security, environment, and colony layers.
 ##
 ## Operates on GameState.sector_tags via qualitative tag transitions each tick.
-## No numeric stockpiles, prices, or matter conservation — purely tag-based.
+## No open-ended stockpiles or prices; only bounded internal counters back runtime contract cargo/payment.
 ##
 ## Python reference: python_sandbox/core/simulation/grid_layer.py
 
@@ -19670,8 +20420,53 @@ func initialize_grid() -> void:
 		if not GameState.hostile_infestation_progress.has(sector_id):
 			GameState.hostile_infestation_progress[sector_id] = 0
 
+	_refresh_contract_accounting_state(true)
+
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
+
+
+## Seeds contract-demand tags and pressure from the authored starting world state
+## so the player-facing contract board is populated before the first live tick.
+func seed_initial_contract_demand() -> void:
+	for sector_id in GameState.world_topology:
+		var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		var serviceable: bool = _is_contract_service_sector(tags)
+		var sector_disabled: bool = _sector_recently_disabled(sector_id)
+		var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(sector_id, {})
+		var sector_thresholds: Dictionary = GameState.contract_generation_threshold.get(sector_id, {})
+		var demand_count: int = 0
+
+		for category in CATEGORIES:
+			var poor_tag: String = category + "_POOR"
+			var demand_tag: String = _contract_demand_tag(category)
+			var threshold: int = int(sector_thresholds.get(category, Constants.CONTRACT_PRESSURE_TICKS_MIN))
+			var can_generate: bool = serviceable and (poor_tag in tags) and not sector_disabled
+
+			if can_generate:
+				sector_pressure[category] = max(int(sector_pressure.get(category, 0)), threshold)
+				tags = _add_tag(tags, demand_tag)
+			else:
+				tags = _remove_tag(tags, demand_tag)
+
+			if demand_tag in tags:
+				demand_count += 1
+
+		GameState.contract_generation_pressure[sector_id] = sector_pressure
+		tags = _remove_tag(tags, "TRADE_LANE_ACTIVE")
+
+		var needs_relief: bool = demand_count >= 2
+		if demand_count > 0 and (_security_tag(tags) != "SECURE" or GameState.world_age == "DISRUPTION"):
+			needs_relief = true
+
+		if needs_relief:
+			tags = _add_tag(tags, "RELIEF_NEEDED")
+		else:
+			tags = _remove_tag(tags, "RELIEF_NEEDED")
+
+		GameState.sector_tags[sector_id] = _unique(tags)
+
+	_refresh_contract_accounting_state(false)
 
 
 # =============================================================================
@@ -19706,6 +20501,8 @@ func process_tick(config: Dictionary) -> void:
 		if not GameState.grid_dominion.has(sector_id):
 			GameState.grid_dominion[sector_id] = {}
 		GameState.grid_dominion[sector_id]["security_tag"] = _security_tag(GameState.sector_tags[sector_id])
+
+	_refresh_contract_accounting_state(false)
 
 
 # =============================================================================
@@ -20076,6 +20873,106 @@ func _step_contract_demand(tags: Array, sector_id: String) -> Array:
 	return result
 
 
+func _refresh_contract_accounting_state(initial_seed: bool) -> void:
+	for sector_id in GameState.world_topology:
+		_ensure_contract_accounting_sector(sector_id)
+		var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		var cargo_supply: Dictionary = GameState.contract_cargo_supply.get(sector_id, {})
+		var cargo_reserved: Dictionary = GameState.contract_cargo_reserved.get(sector_id, {})
+		var payment_supply: Dictionary = GameState.contract_payment_supply.get(sector_id, {})
+		var payment_reserved: Dictionary = GameState.contract_payment_reserved.get(sector_id, {})
+
+		for category in CATEGORIES:
+			cargo_supply[category] = _step_contract_accounting_supply(
+				int(cargo_supply.get(category, 0)),
+				_contract_cargo_supply_cap(tags, sector_id, category),
+				initial_seed
+			)
+			cargo_reserved[category] = max(0, int(cargo_reserved.get(category, 0)))
+			payment_supply[category] = _step_contract_accounting_supply(
+				int(payment_supply.get(category, 0)),
+				_contract_payment_supply_cap(tags, sector_id, category),
+				initial_seed
+			)
+			payment_reserved[category] = max(0, int(payment_reserved.get(category, 0)))
+
+		GameState.contract_cargo_supply[sector_id] = cargo_supply
+		GameState.contract_cargo_reserved[sector_id] = cargo_reserved
+		GameState.contract_payment_supply[sector_id] = payment_supply
+		GameState.contract_payment_reserved[sector_id] = payment_reserved
+
+
+func _ensure_contract_accounting_sector(sector_id: String) -> void:
+	if not GameState.contract_cargo_supply.has(sector_id):
+		GameState.contract_cargo_supply[sector_id] = {}
+	if not GameState.contract_cargo_reserved.has(sector_id):
+		GameState.contract_cargo_reserved[sector_id] = {}
+	if not GameState.contract_payment_supply.has(sector_id):
+		GameState.contract_payment_supply[sector_id] = {}
+	if not GameState.contract_payment_reserved.has(sector_id):
+		GameState.contract_payment_reserved[sector_id] = {}
+
+
+func _step_contract_accounting_supply(current_supply: int, cap: int, initial_seed: bool) -> int:
+	var bounded_cap: int = max(0, cap)
+	var bounded_supply: int = max(0, current_supply)
+	if initial_seed:
+		return bounded_cap
+	if bounded_supply < bounded_cap:
+		return bounded_supply + 1
+	if bounded_supply > bounded_cap:
+		return bounded_supply - 1
+	return bounded_supply
+
+
+func _contract_cargo_supply_cap(tags: Array, sector_id: String, category: String) -> int:
+	if not _is_contract_service_sector(tags) or _sector_recently_disabled(sector_id):
+		return 0
+
+	var base_supply: int = 0
+	match _economy_level(tags, category):
+		"ADEQUATE":
+			base_supply = 1
+		"RICH":
+			base_supply = 2
+		_:
+			base_supply = 0
+
+	if base_supply <= 0:
+		return 0
+
+	var colony_level: String = str(GameState.colony_levels.get(sector_id, "frontier"))
+	match colony_level:
+		"frontier":
+			return int(min(base_supply, 1))
+		"colony", "hub":
+			return base_supply + 1
+		_:
+			return base_supply
+
+
+func _contract_payment_supply_cap(tags: Array, sector_id: String, category: String) -> int:
+	if not _is_contract_service_sector(tags) or _sector_recently_disabled(sector_id):
+		return 0
+
+	var base_supply: int = 1
+	match str(GameState.colony_levels.get(sector_id, "frontier")):
+		"colony":
+			base_supply = 2
+		"hub":
+			base_supply = 3
+		_:
+			base_supply = 1
+
+	if _security_tag(tags) == "LAWLESS":
+		base_supply = max(0, base_supply - 1)
+
+	if _contract_demand_tag(category) in tags or (category + "_POOR") in tags:
+		base_supply = max(base_supply, 1)
+
+	return base_supply
+
+
 # =============================================================================
 # === PRIVATE — AGENT QUERIES =================================================
 # =============================================================================
@@ -20430,7 +21327,7 @@ func _unique(tags: Array) -> Array:
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-24 14:43:54
+# LOG_REF: 2026-05-26 19:02:00
 #
 
 extends Node
@@ -20548,6 +21445,7 @@ func initialize_simulation(seed_string: String) -> void:
 	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS[GameState.world_age]
 	GameState.world_age_cycle_count = 0
 	_apply_age_config()
+	_seed_initial_runtime_contract_occurrences()
 
 	_initialized = true
 
@@ -20559,6 +21457,13 @@ func initialize_simulation(seed_string: String) -> void:
 			GameState.world_age,
 			GameState.sim_tick_count
 		])
+
+
+func _seed_initial_runtime_contract_occurrences() -> void:
+	if grid_layer != null and is_instance_valid(grid_layer) and grid_layer.has_method("seed_initial_contract_demand"):
+		grid_layer.call("seed_initial_contract_demand")
+	if contract_generation_system != null and is_instance_valid(contract_generation_system):
+		contract_generation_system.process_tick(_tick_config)
 
 
 # =============================================================================
@@ -20582,6 +21487,30 @@ func request_tick() -> void:
 		push_warning("SimulationEngine: Tick requested but simulation not initialized.")
 		return
 	process_tick()
+
+
+func player_accept_runtime_contract(occurrence_id: String) -> bool:
+	if agent_layer == null or not is_instance_valid(agent_layer):
+		return false
+	if not agent_layer.has_method("player_accept_runtime_contract"):
+		return false
+	return bool(agent_layer.call("player_accept_runtime_contract", occurrence_id))
+
+
+func player_pick_up_runtime_contract(occurrence_id: String) -> bool:
+	if agent_layer == null or not is_instance_valid(agent_layer):
+		return false
+	if not agent_layer.has_method("player_pick_up_runtime_contract"):
+		return false
+	return bool(agent_layer.call("player_pick_up_runtime_contract", occurrence_id))
+
+
+func player_complete_runtime_contract(occurrence_id: String) -> bool:
+	if agent_layer == null or not is_instance_valid(agent_layer):
+		return false
+	if not agent_layer.has_method("player_complete_runtime_contract"):
+		return false
+	return bool(agent_layer.call("player_complete_runtime_contract", occurrence_id))
 
 
 ## Processes one full simulation tick through all layers.
@@ -23425,8 +24354,8 @@ func _get_master_asset_instance(inventory_type: int, asset_uid: int) -> Resource
 # PROJECT: GDTLancer
 # MODULE: sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1; TRUTH_SIMULATION-GRAPH.md §6.4
-# LOG_REF: 2026-05-23 16:36:08
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-26 16:38:00
 #
 
 extends Reference
@@ -23437,6 +24366,7 @@ extends Reference
 
 const JumpPointScene = preload("res://scenes/prefabs/navigation/JumpPoint.tscn")
 const GlobalNebulasScene = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
+const DockableStationScene = preload("res://scenes/prefabs/station/DockableStation.tscn")
 const StarsphereSlotScript = preload("res://src/scenes/game_world/starsphere_slot.gd")
 
 var _reported_invalid_scene_paths: Dictionary = {}
@@ -23453,9 +24383,34 @@ func load_sector(sector_id: String) -> Spatial:
 
 	var zone_root: Spatial = _load_zone_root(template, sector_id)
 
+	_inject_generated_station(zone_root, sector_id)
 	_inject_jump_points(zone_root, sector_id, template)
 	_offset_nebula(zone_root, template)
 	return zone_root
+
+
+func _inject_generated_station(zone_root: Spatial, sector_id: String) -> void:
+	if not is_instance_valid(zone_root):
+		return
+	if zone_root.find_node("Station", true, false) != null:
+		return
+
+	var station_ids: Array = Array(GameState.world_topology.get(sector_id, {}).get("station_ids", []))
+	if station_ids.empty():
+		return
+
+	var station_id: String = str(station_ids[0])
+	var station_data: Dictionary = GameState.station_by_id.get(station_id, {})
+	var station_name: String = str(station_data.get("display_name", station_id))
+	var docking_point: Vector3 = station_data.get("docking_point", Vector3.ZERO)
+
+	var station_instance = DockableStationScene.instance()
+	station_instance.name = "Station"
+	station_instance.location_id = station_id
+	station_instance.station_name = station_name
+	station_instance.transform.origin = docking_point
+	zone_root.add_child(station_instance)
+	station_instance.owner = zone_root
 
 
 func _load_zone_root(template, sector_id: String) -> Spatial:
@@ -23678,6 +24633,293 @@ func _get_route_direction(source_position: Vector3, target_position: Vector3) ->
 		return DEFAULT_ROUTE_DIRECTION
 	return raw_direction.normalized()
 
+--- Start of ./src/core/ui/contract_board/contract_board.gd ---
+
+#
+# PROJECT: GDTLancer
+# MODULE: contract_board.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_6
+# LOG_REF: 2026-05-27 03:54:44
+#
+
+extends CanvasLayer
+
+onready var _panel: Panel = $Panel
+onready var _summary_label: Label = $Panel/VBoxContainer/SummaryLabel
+onready var _contract_list: VBoxContainer = $Panel/VBoxContainer/ContractScroll/ContractList
+onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
+
+var _visible: bool = false
+var _feedback_message: String = ""
+
+
+func _ready() -> void:
+	layer = 100
+	pause_mode = Node.PAUSE_MODE_PROCESS
+	_panel.visible = false
+	if not _btn_close.is_connected("pressed", self, "_on_close_pressed"):
+		_btn_close.connect("pressed", self, "_on_close_pressed")
+	if not EventBus.is_connected("sim_tick_completed", self, "_on_sim_tick_completed"):
+		EventBus.connect("sim_tick_completed", self, "_on_sim_tick_completed")
+	call_deferred("_refresh")
+
+
+func _toggle() -> void:
+	_visible = not _visible
+	_panel.visible = _visible
+	if _visible:
+		_refresh()
+
+
+func show_board() -> void:
+	_visible = true
+	_panel.visible = true
+	_refresh()
+
+
+func _on_close_pressed() -> void:
+	_visible = false
+	_panel.visible = false
+
+
+func _on_sim_tick_completed(_tick_count: int = 0) -> void:
+	if _visible:
+		_refresh()
+
+
+func _refresh() -> void:
+	if not is_instance_valid(_summary_label) or not is_instance_valid(_contract_list):
+		return
+
+	for child in _contract_list.get_children():
+		child.queue_free()
+
+	_summary_label.text = _build_summary_text()
+
+	var entries: Array = _visible_occurrences()
+	if entries.empty():
+		_add_status_row("No runtime contracts available.")
+		return
+
+	for occurrence in entries:
+		_add_occurrence_row(occurrence)
+
+
+func _build_summary_text() -> String:
+	var lines: Array = []
+	lines.append("Current Sector: %s" % _sector_display_name(_player_current_sector_id()))
+	lines.append("Player Cargo: %s" % _display_contract_value(str(GameState.player_cargo_tag), "Empty"))
+	var claim_id: String = str(GameState.player_claimed_occurrence_id)
+	lines.append("Selected Contract: %s" % (claim_id if claim_id != "" else "None"))
+	lines.append("Workflow: Accept reserves only. Pick Up at FROM. Complete at TO.")
+	if _feedback_message != "":
+		lines.append(_feedback_message)
+	return "\n".join(lines)
+
+
+func _visible_occurrences() -> Array:
+	var occurrence_ids: Array = GameState.runtime_contract_occurrences.keys()
+	occurrence_ids.sort()
+	var entries: Array = []
+	for occurrence_id in occurrence_ids:
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if not bool(occurrence.get("player_displayable", true)):
+			continue
+		entries.append(occurrence)
+	return entries
+
+
+func _add_status_row(message: String) -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.name = "StatusRow"
+
+	var label: Label = Label.new()
+	label.name = "EntryLabel"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap = true
+	label.text = message
+	row.add_child(label)
+
+	_contract_list.add_child(row)
+
+
+func _add_occurrence_row(occurrence: Dictionary) -> void:
+	var occurrence_id: String = str(occurrence.get("occurrence_id", ""))
+	var row: VBoxContainer = VBoxContainer.new()
+	row.name = "ContractRow_%s" % occurrence_id.replace(":", "_")
+	row.add_constant_override("separation", 8)
+
+	var label: Label = Label.new()
+	label.name = "EntryLabel"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap = true
+	label.text = _occurrence_entry_text(occurrence)
+	row.add_child(label)
+
+	var button_row: HBoxContainer = HBoxContainer.new()
+	button_row.name = "ButtonRow"
+	button_row.add_constant_override("separation", 8)
+
+	var accept_button: Button = Button.new()
+	accept_button.name = "AcceptButton"
+	accept_button.text = "Accept"
+	accept_button.disabled = not _can_accept_occurrence(occurrence)
+	accept_button.connect("pressed", self, "_on_accept_pressed", [occurrence_id])
+	button_row.add_child(accept_button)
+
+	var pickup_button: Button = Button.new()
+	pickup_button.name = "PickupButton"
+	pickup_button.text = "Pick Up"
+	pickup_button.disabled = not _can_pick_up_occurrence(occurrence)
+	pickup_button.connect("pressed", self, "_on_pickup_pressed", [occurrence_id])
+	button_row.add_child(pickup_button)
+
+	var complete_button: Button = Button.new()
+	complete_button.name = "CompleteButton"
+	complete_button.text = "Complete"
+	complete_button.disabled = not _can_complete_occurrence(occurrence)
+	complete_button.connect("pressed", self, "_on_complete_pressed", [occurrence_id])
+	button_row.add_child(complete_button)
+
+	row.add_child(button_row)
+	_contract_list.add_child(row)
+
+
+func _occurrence_entry_text(occurrence: Dictionary) -> String:
+	var occurrence_id: String = str(occurrence.get("occurrence_id", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+	var claimant_display: String = _display_claimant_name(claimant_agent_id)
+	var status_display: String = str(occurrence.get("status", "open")).capitalize().replace("_", " ")
+	var reward_credits: int = int(occurrence.get("reward_credits", 0))
+	var cargo_tag: String = _display_contract_value(str(occurrence.get("required_cargo_tag", "UNKNOWN_COMMODITY")), "Unknown commodity")
+	var lines: Array = []
+	lines.append("Ref: %s" % occurrence_id)
+	lines.append("TAKE: %s" % cargo_tag)
+	lines.append("FROM: %s" % _sector_display_name(source_sector_id))
+	lines.append("TO: %s" % _sector_display_name(target_sector_id))
+	lines.append("REWARD: %d credits" % reward_credits)
+	lines.append("Status: %s | Claimant: %s" % [status_display, claimant_display])
+	lines.append("Backing: %s" % _occurrence_backing_text(occurrence))
+	lines.append("Next: %s" % _occurrence_next_action_text(occurrence))
+	return "\n".join(lines)
+
+
+func _occurrence_backing_text(occurrence: Dictionary) -> String:
+	var source_state: String = "source reserved" if bool(occurrence.get("source_reserved", false)) else "source open"
+	var payment_state: String = "payment reserved" if bool(occurrence.get("payment_reserved", false)) else "payment open"
+	var cargo_state: String = "cargo picked up" if bool(occurrence.get("cargo_picked_up", false)) else "cargo not picked up"
+	return "%s, %s, %s" % [source_state, payment_state, cargo_state]
+
+
+func _occurrence_next_action_text(occurrence: Dictionary) -> String:
+	var source_name: String = _sector_display_name(str(occurrence.get("source_sector_id", "")))
+	var target_name: String = _sector_display_name(str(occurrence.get("target_sector_id", "")))
+	if _can_complete_occurrence(occurrence):
+		return "Complete delivery here at %s" % target_name
+	if _can_pick_up_occurrence(occurrence):
+		return "Pick up cargo here at %s" % source_name
+	if str(occurrence.get("claimant_agent_id", "")) == "player":
+		if str(GameState.player_cargo_tag) == "LOADED":
+			return "Travel to %s and complete delivery" % target_name
+		return "Travel to %s and pick up cargo" % source_name
+	if _can_accept_occurrence(occurrence):
+		return "Accept to reserve cargo and payout"
+	return "Awaiting another actor or state change"
+
+
+func _display_contract_value(raw_value: String, fallback: String) -> String:
+	if raw_value == "":
+		return fallback
+	return raw_value.to_lower().replace("_", " ").capitalize()
+
+
+func _display_claimant_name(claimant_agent_id: String) -> String:
+	if claimant_agent_id == "":
+		return "Unclaimed"
+	if claimant_agent_id == "player":
+		return "Player"
+	return claimant_agent_id
+
+
+func _can_accept_occurrence(occurrence: Dictionary) -> bool:
+	var occurrence_id: String = str(occurrence.get("occurrence_id", ""))
+	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+	var active_claim_id: String = str(GameState.player_claimed_occurrence_id)
+	if claimant_agent_id != "" and claimant_agent_id != "player":
+		return false
+	if active_claim_id != "" and active_claim_id != occurrence_id:
+		return false
+	return str(occurrence.get("status", "open")) in ["open", "claimed"]
+
+
+func _can_pick_up_occurrence(occurrence: Dictionary) -> bool:
+	if str(GameState.player_cargo_tag) != "EMPTY":
+		return false
+	if str(GameState.player_claimed_occurrence_id) != str(occurrence.get("occurrence_id", "")):
+		return false
+	if str(occurrence.get("claimant_agent_id", "")) != "player":
+		return false
+	if str(occurrence.get("status", "open")) != "claimed":
+		return false
+	if not bool(occurrence.get("source_reserved", false)):
+		return false
+	return _player_current_sector_id() == str(occurrence.get("source_sector_id", ""))
+
+
+func _can_complete_occurrence(occurrence: Dictionary) -> bool:
+	if str(GameState.player_cargo_tag) != "LOADED":
+		return false
+	if str(GameState.player_claimed_occurrence_id) != str(occurrence.get("occurrence_id", "")):
+		return false
+	if str(occurrence.get("claimant_agent_id", "")) != "player":
+		return false
+	if str(occurrence.get("status", "open")) != "in_transit":
+		return false
+	return _player_current_sector_id() == str(occurrence.get("target_sector_id", ""))
+
+
+func _on_accept_pressed(occurrence_id: String) -> void:
+	_feedback_message = "Unable to reserve contract."
+	if is_instance_valid(GlobalRefs.simulation_engine) and GlobalRefs.simulation_engine.has_method("player_accept_runtime_contract"):
+		if GlobalRefs.simulation_engine.player_accept_runtime_contract(occurrence_id):
+			_feedback_message = "Reserved contract %s." % occurrence_id
+	_refresh()
+
+
+func _on_pickup_pressed(occurrence_id: String) -> void:
+	_feedback_message = "Unable to pick up cargo."
+	if is_instance_valid(GlobalRefs.simulation_engine) and GlobalRefs.simulation_engine.has_method("player_pick_up_runtime_contract"):
+		if GlobalRefs.simulation_engine.player_pick_up_runtime_contract(occurrence_id):
+			_feedback_message = "Picked up contract cargo for %s." % occurrence_id
+	_refresh()
+
+
+func _on_complete_pressed(occurrence_id: String) -> void:
+	_feedback_message = "Unable to complete contract."
+	if is_instance_valid(GlobalRefs.simulation_engine) and GlobalRefs.simulation_engine.has_method("player_complete_runtime_contract"):
+		if GlobalRefs.simulation_engine.player_complete_runtime_contract(occurrence_id):
+			_feedback_message = "Completed contract %s." % occurrence_id
+	_refresh()
+
+
+func _player_current_sector_id() -> String:
+	if GameState.agents.has("player"):
+		var player_agent: Dictionary = GameState.agents.get("player", {})
+		if not player_agent.empty() and str(player_agent.get("current_sector_id", "")) != "":
+			return str(player_agent.get("current_sector_id", ""))
+	return str(GameState.current_sector_id)
+
+
+func _sector_display_name(sector_id: String) -> String:
+	if sector_id == "":
+		return "Unknown"
+	return str(GameState.sector_names.get(sector_id, sector_id))
+
 --- Start of ./src/core/ui/debug_map_panel/debug_map_panel.gd ---
 
 #
@@ -23685,7 +24927,7 @@ func _get_route_direction(source_position: Vector3, target_position: Vector3) ->
 # MODULE: debug_map_panel.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6.3; TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-23 16:43:24
+# LOG_REF: 2026-05-26 18:46:00
 #
 
 extends CanvasLayer
@@ -23721,6 +24963,11 @@ const MAP_LABEL_NORMALIZED_DISTANCE_POW = 2.5
 const SECTOR_LABEL_MAX_WIDTH = 260.0
 const SECTOR_LABEL_BOX_HEIGHT = 96.0
 const SECTOR_LABEL_GAP = 10.0
+const CONTRACT_COUNT_LABEL_FONT_SIZE = MAP_LABEL_BASE_FONT_SIZE
+const CONTRACT_COUNT_LABEL_MAX_WIDTH = 132.0
+const CONTRACT_COUNT_LABEL_BOX_HEIGHT = 30.0
+const CONTRACT_COUNT_LABEL_COLOR = Color(1.0, 0.78, 0.24, 0.94)
+const CONTRACT_TOGGLE_BUTTON_MIN_WIDTH = 126.0
 const SECTOR_LABEL_FONT_PATH = "res://assets/fonts/Roboto_Condensed/static/RobotoCondensed-Regular.ttf"
 const GLOBAL_NEBULAS_SCENE = preload("res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn")
 const AUTHORED_SECTOR_COLOR = Color(0.3, 0.8, 1.0, 1.0)
@@ -23729,6 +24976,7 @@ const DISCOVERED_SECTOR_FALLBACK_COLOR = Color(0.95, 0.72, 0.34, 1.0)
 const READABILITY_BUTTON_MIN_WIDTH = 96.0
 const TASK2_BUTTON_MIN_WIDTH = 78.0
 const BTN_LABELS = "BtnLabels"
+const BTN_CONTRACT_COUNTS = "BtnContractCounts"
 const BTN_LINES = "BtnLines"
 const BTN_ICONS = "BtnIcons"
 const BTN_FOV_IN = "BtnFovIn"
@@ -23766,7 +25014,9 @@ var _map_nebula_holder: Spatial = null
 var _is_drag_orbiting: bool = false
 var _is_drag_panning: bool = false
 var _sector_label_font: DynamicFont = null
+var _contract_count_label_font: DynamicFont = null
 var _show_sector_labels: bool = true
+var _show_contract_counts: bool = true
 var _show_connection_lines: bool = true
 var _show_sector_icons: bool = true
 
@@ -23775,6 +25025,7 @@ func _ready():
 	_panel.visible = false
 	_is_visible = false
 	_sector_label_font = _build_sector_label_font()
+	_contract_count_label_font = _build_contract_count_label_font()
 	_ensure_task2_buttons()
 	_ensure_readability_buttons()
 	_configure_map_viewport_world()
@@ -24037,14 +25288,22 @@ func _create_sector_markers():
 		label.visible = _show_sector_labels
 		_label_overlay.add_child(label)
 
+		var contract_label = Label.new()
+		_configure_contract_count_label(contract_label)
+		contract_label.visible = _show_contract_counts
+		_label_overlay.add_child(contract_label)
+
 		_sector_labels[sector_id] = {
 			"marker": mesh_instance,
 			"label": label,
+			"contract_label": contract_label,
 			"base_name": loc_name,
 			"pos_3d": pos,
 			"screen_offset": _get_sector_label_screen_offset(),
+			"contract_screen_offset": _get_contract_count_label_screen_offset(),
 		}
 	_refresh_sector_label_texts()
+	_refresh_sector_contract_count_texts()
 
 
 func _configure_sector_label(label: Label):
@@ -24059,17 +25318,43 @@ func _configure_sector_label(label: Label):
 
 
 func _build_sector_label_font() -> DynamicFont:
+	return _build_label_font(SECTOR_LABEL_FONT_SIZE)
+
+
+func _build_contract_count_label_font() -> DynamicFont:
+	return _build_label_font(CONTRACT_COUNT_LABEL_FONT_SIZE)
+
+
+func _build_label_font(font_size: int) -> DynamicFont:
 	var font_data = load(SECTOR_LABEL_FONT_PATH)
 	if not font_data:
 		return null
 	var font = DynamicFont.new()
 	font.font_data = font_data
-	font.size = SECTOR_LABEL_FONT_SIZE
+	font.size = font_size
 	return font
+
+
+func _configure_contract_count_label(label: Label) -> void:
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.align = Label.ALIGN_CENTER
+	label.valign = Label.VALIGN_CENTER
+	label.rect_min_size = Vector2(CONTRACT_COUNT_LABEL_MAX_WIDTH, CONTRACT_COUNT_LABEL_BOX_HEIGHT)
+	label.rect_size = label.rect_min_size
+	if is_instance_valid(_contract_count_label_font):
+		label.add_font_override("font", _contract_count_label_font)
+	label.add_color_override("font_color", CONTRACT_COUNT_LABEL_COLOR)
+	label.add_constant_override("shadow_offset_x", 1)
+	label.add_constant_override("shadow_offset_y", 1)
+	label.add_color_override("font_color_shadow", Color(0, 0, 0, 0.8))
 
 
 func _get_sector_label_screen_offset() -> Vector2:
 	return Vector2(-SECTOR_LABEL_MAX_WIDTH * 0.5, -(SECTOR_LABEL_BOX_HEIGHT + SECTOR_LABEL_GAP))
+
+
+func _get_contract_count_label_screen_offset() -> Vector2:
+	return Vector2((SECTOR_LABEL_MAX_WIDTH * 0.5) + 8.0, -(SECTOR_LABEL_BOX_HEIGHT + SECTOR_LABEL_GAP) + 8.0)
 
 
 func _refresh_sector_label_texts():
@@ -24077,6 +25362,39 @@ func _refresh_sector_label_texts():
 		var data = _sector_labels[sector_id]
 		var label: Label = data["label"]
 		label.text = _build_sector_label_text(sector_id, data)
+
+
+func _refresh_sector_contract_count_texts() -> void:
+	for sector_id in _sector_labels:
+		var data = _sector_labels[sector_id]
+		var contract_label: Label = data.get("contract_label", null)
+		if not is_instance_valid(contract_label):
+			continue
+		contract_label.text = _build_contract_count_label_text(_contract_count_for_sector(sector_id))
+
+
+func _build_contract_count_label_text(contract_count: int) -> String:
+	return "Contracts: %d" % contract_count
+
+
+func _contract_count_for_sector(sector_id: String) -> int:
+	if sector_id == "":
+		return 0
+
+	var contract_count: int = 0
+	var seen_occurrence_ids: Dictionary = {}
+	var occurrence_ids: Array = Array(GameState.runtime_contract_occurrences_by_source_sector.get(sector_id, []))
+	for occurrence_id in occurrence_ids:
+		if seen_occurrence_ids.has(occurrence_id):
+			continue
+		seen_occurrence_ids[occurrence_id] = true
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if not bool(occurrence.get("player_displayable", true)):
+			continue
+		contract_count += 1
+	return contract_count
 
 
 func _build_sector_label_text(sector_id: String, data: Dictionary) -> String:
@@ -24240,10 +25558,11 @@ func _refresh_axes_button_text():
 func _apply_readability_visibility_state() -> void:
 	_set_connection_lines_visible(_show_connection_lines)
 	_set_sector_markers_visible(_show_sector_icons)
-	if _show_sector_labels:
+	if _show_sector_labels or _show_contract_counts:
 		_update_label_positions()
 	else:
 		_set_sector_labels_visible(false)
+		_set_contract_count_labels_visible(false)
 	_refresh_readability_button_texts()
 
 
@@ -24267,10 +25586,20 @@ func _set_sector_labels_visible(visible: bool) -> void:
 			label.visible = visible
 
 
+func _set_contract_count_labels_visible(visible: bool) -> void:
+	for sector_id in _sector_labels:
+		var contract_label = _sector_labels[sector_id].get("contract_label", null)
+		if is_instance_valid(contract_label):
+			contract_label.visible = visible
+
+
 func _refresh_readability_button_texts() -> void:
 	var labels_button = _get_readability_button(BTN_LABELS)
 	if is_instance_valid(labels_button):
 		labels_button.text = "Labels On" if _show_sector_labels else "Labels Off"
+	var contract_counts_button = _get_readability_button(BTN_CONTRACT_COUNTS)
+	if is_instance_valid(contract_counts_button):
+		contract_counts_button.text = "Contracts On" if _show_contract_counts else "Contracts Off"
 	var lines_button = _get_readability_button(BTN_LINES)
 	if is_instance_valid(lines_button):
 		lines_button.text = "Lines On" if _show_connection_lines else "Lines Off"
@@ -24302,6 +25631,7 @@ func _get_readability_button(button_name: String) -> Button:
 
 func _ensure_readability_buttons() -> void:
 	_ensure_header_toggle_button(BTN_LABELS, "Labels On")
+	_ensure_header_action_button(BTN_CONTRACT_COUNTS, "Contracts On", CONTRACT_TOGGLE_BUTTON_MIN_WIDTH)
 	_ensure_header_toggle_button(BTN_LINES, "Lines On")
 	_ensure_header_toggle_button(BTN_ICONS, "Icons On")
 
@@ -24483,18 +25813,33 @@ func _update_label_positions():
 	for sector_id in _sector_labels:
 		var data = _sector_labels[sector_id]
 		var sector_label: Label = data["label"]
+		var contract_label: Label = data.get("contract_label", null)
+		var distance_fade_alpha = _get_map_label_camera_distance_fade_alpha(data["pos_3d"])
 		if not _show_sector_labels:
 			if is_instance_valid(sector_label):
 				sector_label.visible = false
-			continue
-		_update_projected_label(
-			sector_label,
-			data["pos_3d"],
-			data["screen_offset"],
-			vp_size,
-			50.0,
-			_get_map_label_camera_distance_fade_alpha(data["pos_3d"])
-		)
+		else:
+			_update_projected_label(
+				sector_label,
+				data["pos_3d"],
+				data["screen_offset"],
+				vp_size,
+				50.0,
+				distance_fade_alpha
+			)
+
+		if not _show_contract_counts:
+			if is_instance_valid(contract_label):
+				contract_label.visible = false
+		else:
+			_update_projected_label(
+				contract_label,
+				data["pos_3d"],
+				data.get("contract_screen_offset", Vector2.ZERO),
+				vp_size,
+				50.0,
+				distance_fade_alpha
+			)
 
 	for data in _reference_labels:
 		if not _show_reference_axes:
@@ -24659,6 +26004,7 @@ func _connect_buttons():
 	_connect_header_button(BTN_FOV_OUT, "_on_fov_out")
 	_connect_header_button(BTN_AA, "_on_cycle_aa")
 	_connect_header_button(BTN_LABELS, "_on_toggle_labels")
+	_connect_header_button(BTN_CONTRACT_COUNTS, "_on_toggle_contract_counts")
 	_connect_header_button(BTN_LINES, "_on_toggle_lines")
 	_connect_header_button(BTN_ICONS, "_on_toggle_icons")
 	_connect_header_button("BtnAxes", "_on_toggle_axes")
@@ -24682,6 +26028,9 @@ func _on_fov_out(): _step_camera_fov(MAP_CAMERA_FOV_STEP)
 func _on_cycle_aa(): _cycle_viewport_msaa()
 func _on_toggle_labels():
 	_show_sector_labels = not _show_sector_labels
+	_apply_readability_visibility_state()
+func _on_toggle_contract_counts():
+	_show_contract_counts = not _show_contract_counts
 	_apply_readability_visibility_state()
 func _on_toggle_lines():
 	_show_connection_lines = not _show_connection_lines
@@ -24717,7 +26066,7 @@ func _notification(what):
 # MODULE: debug_window.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 01:01:21
+# LOG_REF: 2026-05-27 04:29:00
 #
 
 extends Control
@@ -24730,7 +26079,7 @@ onready var debug_label_player_hull: Label = $Panel/VBoxContainer/debug_LabelPla
 onready var debug_player_hull_bar: ProgressBar = $Panel/VBoxContainer/debug_PlayerHullBar
 onready var debug_button_sim_panel: Button = $Panel/VBoxContainer/debug_ButtonSimPanel
 onready var debug_button_map_panel: Button = $Panel/VBoxContainer/debug_ButtonMapPanel
-onready var debug_button_inventory: Button = $Panel/VBoxContainer/debug_ButtonInventory
+onready var debug_button_contract_board: Button = $Panel/VBoxContainer/debug_ButtonContractBoard
 
 var _is_visible: bool = false
 
@@ -24744,8 +26093,8 @@ func _ready() -> void:
 		debug_button_sim_panel.connect("pressed", self, "_on_debug_button_sim_panel_pressed")
 	if is_instance_valid(debug_button_map_panel) and not debug_button_map_panel.is_connected("pressed", self, "_on_debug_button_map_panel_pressed"):
 		debug_button_map_panel.connect("pressed", self, "_on_debug_button_map_panel_pressed")
-	if is_instance_valid(debug_button_inventory) and not debug_button_inventory.is_connected("pressed", self, "_on_debug_button_inventory_pressed"):
-		debug_button_inventory.connect("pressed", self, "_on_debug_button_inventory_pressed")
+	if is_instance_valid(debug_button_contract_board) and not debug_button_contract_board.is_connected("pressed", self, "_on_debug_button_contract_board_pressed"):
+		debug_button_contract_board.connect("pressed", self, "_on_debug_button_contract_board_pressed")
 	call_deferred("refresh_debug_window_state")
 
 
@@ -24811,20 +26160,41 @@ func _on_debug_button_map_panel_pressed() -> void:
 	_toggle_named_panel("DebugMapPanel", "_toggle_panel")
 
 
-func _on_debug_button_inventory_pressed() -> void:
-	pass
+func _on_debug_button_contract_board_pressed() -> void:
+	_toggle_named_panel("ContractBoard", "_toggle")
 
 
 func _toggle_named_panel(panel_name: String, toggle_method: String) -> void:
-	var scene_root = get_tree().current_scene
-	if not is_instance_valid(scene_root):
-		return
-	var panel = scene_root.find_node(panel_name, true, false)
+	var panel = _find_named_panel(panel_name)
 	if not is_instance_valid(panel):
 		printerr("DebugWindow: Missing panel: %s" % panel_name)
 		return
 	if panel.has_method(toggle_method):
 		panel.call(toggle_method)
+
+
+func _find_named_panel(panel_name: String) -> Node:
+	var scene_root = get_tree().current_scene
+	if is_instance_valid(scene_root):
+		var scene_panel = scene_root.find_node(panel_name, true, false)
+		if is_instance_valid(scene_panel):
+			return scene_panel
+
+	var ancestor_root: Node = self
+	while is_instance_valid(ancestor_root.get_parent()):
+		ancestor_root = ancestor_root.get_parent()
+	if is_instance_valid(ancestor_root):
+		var ancestor_panel = ancestor_root.find_node(panel_name, true, false)
+		if is_instance_valid(ancestor_panel):
+			return ancestor_panel
+
+	var tree_root = get_tree().root
+	if is_instance_valid(tree_root):
+		var tree_panel = tree_root.find_node(panel_name, true, false)
+		if is_instance_valid(tree_panel):
+			return tree_panel
+
+	return null
 
 --- Start of ./src/core/ui/helpers/CenteredGrowingLabel.gd ---
 
@@ -27648,8 +29018,8 @@ func _selected_option_value(button: OptionButton, default_value: String) -> Stri
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6, §7; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-27 04:29:00
 #
 
 extends Control
@@ -27757,11 +29127,7 @@ func _on_trade_pressed() -> void:
 
 
 func _on_contracts_pressed() -> void:
-	_show_deferred_service_feedback(
-		"Contracts",
-		"contracts",
-		"Contracts remain unavailable while the contract layer is rebuilt."
-	)
+	_open_contract_board()
 
 
 # =============================================================================
@@ -27812,18 +29178,86 @@ func _update_station_label(location_id: String) -> void:
 
 
 func _update_info_label() -> void:
-	# Show basic player resource summary while docked.
-	var info_text: String = ""
+	var lines: Array = []
+	var dock_sector_id: String = _current_dock_sector_id()
+	if dock_sector_id != "":
+		lines.append("Current Sector: %s" % _sector_display_name(dock_sector_id))
+	lines.append("Contracts are handled from the global Contract Board.")
+
 	var player_uid: int = int(GameState.player_character_uid)
 	if player_uid >= 0 and GameState.characters.has(player_uid):
 		var pc = GameState.characters[player_uid]
-		info_text += "Credits: %d" % pc.credits
-		info_text += "    FP: %d" % pc.focus_points
+		lines.append("Credits: %d    FP: %d" % [pc.credits, pc.focus_points])
+	var active_occurrence_id: String = str(GameState.player_claimed_occurrence_id)
+	if active_occurrence_id != "":
+		lines.append("Active Contract: %s" % active_occurrence_id)
+
 	if _service_status_message != "":
-		if info_text != "":
-			info_text += "\n"
-		info_text += _service_status_message
-	_label_info.text = info_text
+		lines.append(_service_status_message)
+
+	_refresh_contract_button_text()
+	_label_info.text = "\n".join(lines)
+
+
+func _refresh_contract_button_text() -> void:
+	_btn_contracts.text = "Open Contract Board"
+	_btn_contracts.disabled = false
+
+
+func _open_contract_board() -> void:
+	var contract_board = _find_contract_board()
+	if not is_instance_valid(contract_board):
+		_service_status_message = "Contract Board is unavailable."
+		_update_info_label()
+		return
+
+	if contract_board.has_method("show_board"):
+		contract_board.call("show_board")
+		_service_status_message = "Opened the global Contract Board."
+	else:
+		_service_status_message = "Contract Board is unavailable."
+	_update_info_label()
+
+
+func _find_contract_board() -> Node:
+	var scene_root = get_tree().current_scene
+	if is_instance_valid(scene_root):
+		var scene_board = scene_root.find_node("ContractBoard", true, false)
+		if is_instance_valid(scene_board):
+			return scene_board
+
+	var ancestor_root: Node = self
+	while is_instance_valid(ancestor_root.get_parent()):
+		ancestor_root = ancestor_root.get_parent()
+	if is_instance_valid(ancestor_root):
+		var ancestor_board = ancestor_root.find_node("ContractBoard", true, false)
+		if is_instance_valid(ancestor_board):
+			return ancestor_board
+
+	var tree_root = get_tree().root
+	if is_instance_valid(tree_root):
+		var tree_board = tree_root.find_node("ContractBoard", true, false)
+		if is_instance_valid(tree_board):
+			return tree_board
+
+	return null
+
+
+func _current_dock_sector_id() -> String:
+	# Dock location ids can differ from sector ids; prefer explicit scene/agent sector state.
+	if str(GameState.current_sector_id) != "":
+		return str(GameState.current_sector_id)
+	if GameState.agents.has("player"):
+		var player_agent: Dictionary = GameState.agents.get("player", {})
+		if not player_agent.empty() and str(player_agent.get("current_sector_id", "")) != "":
+			return str(player_agent.get("current_sector_id", ""))
+	return str(_current_location_id)
+
+
+func _sector_display_name(sector_id: String) -> String:
+	if sector_id == "":
+		return "Unknown"
+	return str(GameState.sector_names.get(sector_id, sector_id))
 
 
 # =============================================================================
@@ -32299,8 +33733,8 @@ func test_signal_emit_count():
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md §TASK_2; TRUTH_PROJECT.md § Project Stack and Context
-# LOG_REF: 2026-05-24 00:39:14
+# TRUTH_LINK: TACTICAL_TODO.md TASK_3, TASK_4, TASK_7; TRUTH_PROJECT.md § Project Stack and Context
+# LOG_REF: 2026-05-27 04:09:45
 #
 
 extends GutTest
@@ -32441,6 +33875,12 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 	var occurrence_id: String = "runtime_contract:sector_system_cob:RAW"
 	GameState.contract_generation_pressure = {"sector_system_cob": {"RAW": 2}}
 	GameState.contract_generation_threshold = {"sector_system_cob": {"RAW": 3}}
+	GameState.contract_cargo_supply = {"sector_system_elace": {"RAW": 1}}
+	GameState.contract_cargo_reserved = {"sector_system_elace": {"RAW": 1}}
+	GameState.contract_payment_supply = {"sector_system_cob": {"RAW": 2}}
+	GameState.contract_payment_reserved = {"sector_system_cob": {"RAW": 1}}
+	GameState.player_claimed_occurrence_id = occurrence_id
+	GameState.player_cargo_tag = "EMPTY"
 	GameState.runtime_contract_occurrences = {
 		occurrence_id: {
 			"occurrence_id": occurrence_id,
@@ -32450,14 +33890,21 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 			"demand_tag": "CONTRACT_DEMAND_RAW",
 			"source_sector_id": "sector_system_elace",
 			"target_sector_id": "sector_system_cob",
+			"source_accounting_sector_id": "sector_system_elace",
+			"payment_accounting_sector_id": "sector_system_cob",
 			"origin_location_id": "sector_system_elace",
 			"destination_location_id": "sector_system_cob",
-			"status": "open",
-			"claimant_agent_id": "",
+			"status": "claimed",
+			"claimant_agent_id": "player",
 			"required_roles": ["trader", "hauler"],
 			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
 			"route_hops": 1,
+			"source_reserved": true,
+			"payment_reserved": true,
+			"cargo_picked_up": false,
 			"created_at_tick": 7,
+			"claimed_at_tick": 7,
+			"completed_at_tick": -1,
 			"last_refreshed_tick": 7,
 			"title": "Raw Relief Route to sector_system_cob",
 			"description": "Raw demand in sector_system_cob can be relieved from sector_system_elace.",
@@ -32476,8 +33923,32 @@ func test_save_and_load_preserves_runtime_contract_occurrence_state():
 		"contract_generation_pressure should survive save/load.")
 	_assert_deep_equal(GameState.contract_generation_threshold, {"sector_system_cob": {"RAW": 3}},
 		"contract_generation_threshold should survive save/load.")
+	_assert_deep_equal(GameState.contract_cargo_supply, {"sector_system_elace": {"RAW": 1}},
+		"contract_cargo_supply should survive save/load.")
+	_assert_deep_equal(GameState.contract_cargo_reserved, {"sector_system_elace": {"RAW": 1}},
+		"contract_cargo_reserved should survive save/load.")
+	_assert_deep_equal(GameState.contract_payment_supply, {"sector_system_cob": {"RAW": 2}},
+		"contract_payment_supply should survive save/load.")
+	_assert_deep_equal(GameState.contract_payment_reserved, {"sector_system_cob": {"RAW": 1}},
+		"contract_payment_reserved should survive save/load.")
+	assert_eq(GameState.player_claimed_occurrence_id, occurrence_id,
+		"player_claimed_occurrence_id should survive save/load.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"player_cargo_tag should survive save/load.")
 	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("origin_location_id", ""), "sector_system_elace",
 		"runtime_contract_occurrences should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("source_accounting_sector_id", ""), "sector_system_elace",
+		"source_accounting_sector_id should survive save/load.")
+	assert_eq(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("payment_accounting_sector_id", ""), "sector_system_cob",
+		"payment_accounting_sector_id should survive save/load.")
+	assert_eq(bool(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("source_reserved", false)), true,
+		"Runtime occurrence reservation state should survive save/load.")
+	assert_eq(bool(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("payment_reserved", false)), true,
+		"Runtime occurrence payment reservation state should survive save/load.")
+	assert_eq(bool(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("cargo_picked_up", true)), false,
+		"Runtime occurrence cargo pickup state should survive save/load.")
+	assert_eq(int(GameState.runtime_contract_occurrences.get(occurrence_id, {}).get("completed_at_tick", -2)), -1,
+		"Runtime occurrence incomplete completion-state sentinel should survive save/load.")
 	_assert_deep_equal(GameState.runtime_contract_occurrences_by_target_sector, {"sector_system_cob": [occurrence_id]},
 		"runtime contract target index should survive save/load.")
 	_assert_deep_equal(GameState.runtime_contract_occurrences_by_source_sector, {"sector_system_elace": [occurrence_id]},
@@ -32508,6 +33979,61 @@ func test_deserialize_backfills_current_sector_id_from_player_agent_for_legacy_s
 	assert_eq(GameState.current_sector_id, "sector_system_cob", "Deserialization should recover current_sector_id from the player agent for legacy saves that predate the scene-state field.")
 	assert_eq(GameState.agents.get("player", {}).get("current_sector_id", ""), "sector_system_cob", "Recovered player agent sector state should stay aligned with GameState.current_sector_id.")
 
+
+func test_reset_to_defaults_clears_full_runtime_and_scene_state() -> void:
+	var stray_zone := Node.new()
+	add_child_autofree(stray_zone)
+
+	GameState.game_time_seconds = 91
+	GameState.current_zone_instance = stray_zone
+	GameState.player_position = Vector3(5, 6, 7)
+	GameState.player_rotation = Vector3(10, 20, 30)
+	GameState.colony_level_history = [
+		{"sector_id": "sector_system_elace", "levels": ["outpost", "colony"]}
+	]
+	GameState.catastrophe_log = [{"tick": 3, "sector_id": "sector_system_elace"}]
+	GameState.sector_disabled_until = {"sector_system_elace": 99}
+	GameState.mortal_agent_counter = 4
+	GameState.mortal_agent_deaths = [{"tick": 2, "agent_id": "mortal_4"}]
+	GameState.discovered_sector_count = 2
+	GameState.discovery_log = [{"sector_id": "discovered_1"}]
+	GameState.sector_names = {"sector_system_elace": "Elace"}
+	GameState.sub_tick_accumulator = 6
+	GameState.world_age = "PROSPERITY"
+	GameState.world_age_timer = 17
+	GameState.world_age_cycle_count = 3
+	GameState.locations["test_location"] = {"display_name": "Stray"}
+	GameState.factions["test_faction"] = {"name": "Stray Faction"}
+	GameState.assets_commodities["test_commodity"] = {"display_name": "Ore"}
+	GameState.persistent_agents["test_agent"] = {"role": "trader"}
+	GameState.inventories[1] = {"cargo": {}}
+	GameState.assets_ships[1] = {"template_id": "ship_test"}
+
+	GameStateManager.reset_to_defaults()
+
+	assert_eq(GameState.game_time_seconds, 0, "reset_to_defaults should clear game_time_seconds for a true new game.")
+	assert_eq(GameState.current_zone_instance, null, "reset_to_defaults should drop the previous live zone instance.")
+	assert_eq(GameState.player_position, Vector3.ZERO, "reset_to_defaults should clear saved player position.")
+	assert_eq(GameState.player_rotation, Vector3.ZERO, "reset_to_defaults should clear saved player rotation.")
+	assert_eq(GameState.colony_level_history.size(), 0, "reset_to_defaults should clear colony level history.")
+	assert_eq(GameState.catastrophe_log.size(), 0, "reset_to_defaults should clear catastrophe history.")
+	assert_eq(GameState.sector_disabled_until.size(), 0, "reset_to_defaults should clear disabled-sector timers.")
+	assert_eq(GameState.mortal_agent_counter, 0, "reset_to_defaults should clear mortal counters.")
+	assert_eq(GameState.mortal_agent_deaths.size(), 0, "reset_to_defaults should clear mortal death history.")
+	assert_eq(GameState.discovered_sector_count, 0, "reset_to_defaults should clear discovered sector count.")
+	assert_eq(GameState.discovery_log.size(), 0, "reset_to_defaults should clear discovery history.")
+	assert_eq(GameState.sector_names.size(), 0, "reset_to_defaults should clear sector display names.")
+	assert_eq(GameState.sub_tick_accumulator, 0, "reset_to_defaults should clear sub-tick accumulator state.")
+	assert_eq(GameState.world_age, "", "reset_to_defaults should clear world-age phase state.")
+	assert_eq(GameState.world_age_timer, 0, "reset_to_defaults should clear world-age timer state.")
+	assert_eq(GameState.world_age_cycle_count, 0, "reset_to_defaults should clear completed world-age cycle count.")
+	assert_eq(GameState.locations.size(), 0, "reset_to_defaults should clear cached locations.")
+	assert_eq(GameState.factions.size(), 0, "reset_to_defaults should clear cached factions.")
+	assert_eq(GameState.assets_commodities.size(), 0, "reset_to_defaults should clear cached commodities.")
+	assert_eq(GameState.persistent_agents.size(), 0, "reset_to_defaults should clear legacy persistent-agent mirrors.")
+	assert_eq(GameState.inventories.size(), 0, "reset_to_defaults should clear inventories.")
+	assert_eq(GameState.assets_ships.size(), 0, "reset_to_defaults should clear ship assets.")
+
 # --- Helper Functions ---
 
 func _clear_game_state():
@@ -32533,6 +34059,10 @@ func _clear_game_state():
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
@@ -32542,6 +34072,8 @@ func _clear_game_state():
 	GameState.current_sector_id = ""
 	GameState.player_character_uid = ""
 	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
 	GameState.player_position = Vector3.ZERO
 	GameState.player_rotation = Vector3.ZERO
 	GameState.player_arrived_from_sector = ""
@@ -33248,8 +34780,8 @@ func test_derive_sector_tags_fresh_sector():
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-26 10:07:11
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6, TASK_7, TASK_8
+# LOG_REF: 2026-05-27 04:13:47
 #
 
 extends GutTest
@@ -33260,6 +34792,21 @@ extends GutTest
 var agent_layer: Reference = null
 var affinity: Reference = null
 var chronicle: Reference = null
+
+
+class FakeCharacterSystem:
+	extends Reference
+
+	var add_credits_calls: Array = []
+
+	func add_credits(character_uid, amount: int) -> void:
+		add_credits_calls.append({"character_uid": character_uid, "amount": amount})
+		if GameState.characters.has(character_uid):
+			GameState.characters[character_uid].credits += amount
+			return
+		var int_uid: int = int(character_uid)
+		if GameState.characters.has(int_uid):
+			GameState.characters[int_uid].credits += amount
 
 
 func before_each():
@@ -33588,6 +35135,8 @@ func test_hauler_prefers_and_claims_raw_runtime_contract_by_affinity():
 	}
 
 	var hauler: Dictionary = GameState.agents["hauler_1"]
+	assert_true(_advance_until_npc_claim_can_succeed("hauler_1", "runtime_contract:s1:RAW"),
+		"Test fixture should advance into a deterministic post-grace tick where NPC claim chance succeeds.")
 	agent_layer._evaluate_goals(hauler, "hauler_1")
 
 	assert_eq(hauler["goal_archetype"], "service_contract",
@@ -33603,12 +35152,108 @@ func test_hauler_prefers_and_claims_raw_runtime_contract_by_affinity():
 		"Haulers should start moving toward the contract source when not already there.")
 
 
+func test_npc_cannot_claim_new_runtime_contract_on_the_tick_it_appears() -> void:
+	GameState.sim_tick_count = 5
+	GameState.world_seed = "claim_grace_seed"
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s1:RAW": _make_runtime_contract_occurrence("runtime_contract:s1:RAW", "RAW", "s2", "s1"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s1:RAW"]["created_at_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences_by_target_sector = {"s1": ["runtime_contract:s1:RAW"]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"s2": ["runtime_contract:s1:RAW"]}
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+		"sentiment_tags": ["HAULER", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+
+	var hauler: Dictionary = GameState.agents["hauler_1"]
+	var claim_success: bool = agent_layer._claim_runtime_contract_occurrence("hauler_1", hauler, "runtime_contract:s1:RAW")
+
+	assert_false(claim_success,
+		"NPCs should not reserve a brand-new runtime contract on the same tick it appears.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s1:RAW"].get("claimant_agent_id", ""), "",
+		"Same-tick NPC claim attempts should leave the occurrence unclaimed for player reaction time.")
+	assert_eq(int(GameState.contract_cargo_reserved["s2"].get("RAW", -1)), 0,
+		"Blocked same-tick NPC claims should not reserve source-side cargo units.")
+	assert_eq(int(GameState.contract_payment_reserved["s1"].get("RAW", -1)), 0,
+		"Blocked same-tick NPC claims should not reserve target-side payment bundles.")
+
+
+func test_npc_mandatory_rest_duration_tracks_condition_and_wealth() -> void:
+	var wealthy_trader: Dictionary = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "WEALTHY",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "affinity_scan",
+		"goal_queue": [{"type": "affinity_scan"}],
+		"sentiment_tags": ["TRADER", "HEALTHY", "WEALTHY", "EMPTY"],
+	}
+	var desperate_trader: Dictionary = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"condition_tag": "DAMAGED",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "affinity_scan",
+		"goal_queue": [{"type": "affinity_scan"}],
+		"sentiment_tags": ["TRADER", "DAMAGED", "BROKE", "EMPTY", "DESPERATE"],
+	}
+	GameState.agents["wealthy_1"] = wealthy_trader
+	GameState.agents["desperate_1"] = desperate_trader
+
+	agent_layer._schedule_npc_rest_after_action("wealthy_1", wealthy_trader, "affinity_scan")
+	agent_layer._schedule_npc_rest_after_action("desperate_1", desperate_trader, "affinity_scan")
+
+	assert_eq(int(wealthy_trader.get("rest_ticks_remaining", -1)), 3,
+		"Healthy wealthy NPCs should receive the longest mandatory idle break.")
+	assert_eq(int(desperate_trader.get("rest_ticks_remaining", -1)), 1,
+		"Desperate NPCs should only receive a one-tick mandatory break.")
+
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	assert_eq(wealthy_trader["goal_archetype"], "idle",
+		"Healthy wealthy NPCs should enter idle state while consuming their mandatory break.")
+	assert_eq(int(wealthy_trader.get("rest_ticks_remaining", -1)), 2,
+		"Idle evaluation should consume exactly one wealthy rest tick at a time.")
+
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	assert_eq(wealthy_trader["goal_archetype"], "idle",
+		"Healthy wealthy NPCs should stay idle until all scheduled rest ticks are spent.")
+	assert_eq(int(wealthy_trader.get("rest_ticks_remaining", -1)), 0,
+		"All wealthy rest ticks should be consumed before the NPC resumes work.")
+
+	agent_layer._evaluate_goals(wealthy_trader, "wealthy_1")
+	assert_eq(wealthy_trader["goal_archetype"], "affinity_scan",
+		"Once the break ends, healthy wealthy NPCs should resume normal affinity evaluation.")
+
+	agent_layer._evaluate_goals(desperate_trader, "desperate_1")
+	assert_eq(desperate_trader["goal_archetype"], "idle",
+		"Desperate NPCs should still spend their single mandatory break tick in idle state.")
+	assert_eq(int(desperate_trader.get("rest_ticks_remaining", -1)), 0,
+		"The desperate break should clear after one idle evaluation tick.")
+
+	agent_layer._evaluate_goals(desperate_trader, "desperate_1")
+	assert_eq(desperate_trader["goal_archetype"], "flee_to_safety",
+		"After the short break, desperate NPCs should return to their urgent safety-driven behavior.")
+
+
 func test_trader_claims_and_completes_runtime_contract_delivery():
 	GameState.runtime_contract_occurrences = {
 		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
 	}
 	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
 	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
+	GameState.sector_tags["s2"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
+	GameState.contract_generation_threshold["s2"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 3}
+	GameState.contract_generation_pressure["s2"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 3}
 	GameState.agents["trader_1"] = {
 		"agent_role": "trader",
 		"current_sector_id": "s1",
@@ -33621,6 +35266,8 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 	}
 
 	var trader: Dictionary = GameState.agents["trader_1"]
+	assert_true(_advance_until_npc_claim_can_succeed("trader_1", "runtime_contract:s2:CURRENCY"),
+		"Test fixture should advance into a deterministic post-grace tick where NPC claim chance succeeds.")
 	agent_layer._evaluate_goals(trader, "trader_1")
 	agent_layer._execute_action("trader_1", trader)
 
@@ -33632,6 +35279,18 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 		"Traders should load contract cargo at the source sector.")
 	assert_eq(trader["wealth_tag"], "BROKE",
 		"Trader loading should still pay the existing upfront wealth cost.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("CURRENCY", -1)), 1,
+		"NPC pickup should consume the previously reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("CURRENCY", -1)), 0,
+		"NPC pickup should clear the source-side reservation bucket once cargo is loaded.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"NPC claim should hold one target-side payment bundle out of the available pool.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 1,
+		"NPC claim should keep the target-side payment bundle reserved while cargo is in transit.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("source_reserved", true)), false,
+		"Source reservation should be consumed once the NPC loads cargo.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("cargo_picked_up", false)), true,
+		"Cargo pickup state should be tracked on the shared runtime occurrence for NPC flow.")
 
 	trader["sentiment_tags"] = ["TRADER", "HEALTHY", "BROKE", "LOADED"]
 	agent_layer._evaluate_goals(trader, "trader_1")
@@ -33647,6 +35306,176 @@ func test_trader_claims_and_completes_runtime_contract_delivery():
 		"Traders should unload cargo when completing a runtime contract at the target.")
 	assert_eq(trader["wealth_tag"], "COMFORTABLE",
 		"Trader delivery should reuse the normal dock payout step on completion.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
+		"NPC completion should consume the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"NPC completion should not restore the consumed payment bundle to the available pool.")
+	assert_eq(int(GameState.contract_generation_pressure["s2"].get("CURRENCY", -1)), 1,
+		"NPC contract completion should apply deterministic destination-sector demand pressure relief.")
+	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
+		"NPC contract completion should clear demand tag when pressure falls below threshold.")
+
+
+func test_player_goal_evaluation_stays_idle_even_with_selected_contract() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
+	}
+	GameState.agents["player"] = {
+		"agent_role": "idle",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+	}
+
+	var player: Dictionary = GameState.agents["player"]
+
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	agent_layer._evaluate_goals(player, "player")
+	assert_eq(player["goal_archetype"], "idle",
+		"Player should stay idle even with a selected contract because contract actions are board-driven, not auto-serviced.")
+
+	GameState.player_docked_at = "s1"
+	GameState.player_claimed_occurrence_id = ""
+	agent_layer._evaluate_goals(player, "player")
+	assert_eq(player["goal_archetype"], "idle",
+		"Player should stay idle when no contract is selected.")
+
+	GameState.player_docked_at = "s1"
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	agent_layer._evaluate_goals(player, "player")
+	assert_eq(player["goal_archetype"], "idle",
+		"Player should remain idle even when docked and selected because contract service requires explicit board actions.")
+
+
+func test_player_accept_and_release_restore_reserved_contract_units_before_pickup():
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
+	}
+
+	var accepted: bool = agent_layer.player_accept_runtime_contract("runtime_contract:s2:RAW")
+
+	assert_true(accepted,
+		"Player should be able to reserve a visible runtime contract through the explicit accept path.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("RAW", -1)), 1,
+		"Accepting a contract should reserve one source-side cargo unit immediately.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("RAW", -1)), 1,
+		"Accepting a contract should move one source-side unit into the reserved bucket.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("RAW", -1)), 1,
+		"Accepting a contract should reserve one target-side payment bundle immediately.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("RAW", -1)), 1,
+		"Accepting a contract should move one payment bundle into the reserved bucket.")
+	assert_eq(str(GameState.player_cargo_tag), "EMPTY",
+		"Accepting a contract should not auto-load player cargo.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"].get("status", "")), "claimed",
+		"Accepting a contract should reserve it without switching directly to in_transit.")
+
+	agent_layer._release_runtime_contract_claim("player", "runtime_contract:s2:RAW")
+
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("RAW", -1)), 2,
+		"Releasing an unpicked claim should restore the reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("RAW", -1)), 0,
+		"Releasing an unpicked claim should clear the source-side reservation bucket.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("RAW", -1)), 2,
+		"Releasing an unpicked claim should restore the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("RAW", -1)), 0,
+		"Releasing an unpicked claim should clear the target-side payment reservation bucket.")
+
+
+func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_docking_gate() -> void:
+	var fake_character_system := FakeCharacterSystem.new()
+	GlobalRefs.character_system = fake_character_system
+	GameState.player_character_uid = "1"
+	GameState.characters[1] = {"credits": 40, "focus_points": 0}
+
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
+	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
+	GameState.sector_tags["s2"] = ["CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
+	GameState.contract_generation_threshold["s2"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 3}
+	GameState.contract_generation_pressure["s2"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 3}
+	GameState.agents["player"] = {
+		"agent_role": "idle",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"goal_archetype": "idle",
+		"goal_queue": [{"type": "idle"}],
+	}
+	GameState.player_docked_at = ""
+	GameState.player_cargo_tag = "EMPTY"
+
+	var accepted: bool = agent_layer.player_accept_runtime_contract("runtime_contract:s2:CURRENCY")
+	assert_true(accepted,
+		"Player should be able to accept a contract through the explicit board-facing helper.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("claimant_agent_id", ""), "player",
+		"Player should claim the explicitly selected runtime contract occurrence.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "claimed",
+		"Accept should reserve the contract without switching directly to in_transit.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"Accept should not auto-load player cargo.")
+
+	var pickup_success: bool = agent_layer.player_pick_up_runtime_contract("runtime_contract:s2:CURRENCY")
+	assert_true(pickup_success,
+		"Player should pick up contract cargo only through the explicit pickup helper at the source sector.")
+	assert_eq(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", ""), "in_transit",
+		"Explicit pickup should switch the contract to in_transit after loading cargo at source.")
+	assert_eq(GameState.agents["player"].get("cargo_tag", ""), "LOADED",
+		"Player simulation cargo tag should switch to LOADED after contract load.")
+	assert_eq(GameState.player_cargo_tag, "LOADED",
+		"GameState player_cargo_tag should mirror the LOADED contract cargo state.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("CURRENCY", -1)), 1,
+		"Loading contract cargo should consume the previously reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["s1"].get("CURRENCY", -1)), 0,
+		"Loading contract cargo should clear the source-side reservation bucket once the cargo is picked up.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"Claiming the contract should hold one target-side payment bundle out of the available pool.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 1,
+		"Target-side payment should stay reserved while the player is in transit.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("source_reserved", true)), false,
+		"Player pickup should consume the source-side reservation through the shared accounting helper.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("cargo_picked_up", false)), true,
+		"Player pickup should mark cargo_picked_up on the shared runtime occurrence.")
+
+	GameState.agents["player"]["current_sector_id"] = "s2"
+	GameState.current_sector_id = "s2"
+	GameState.player_docked_at = ""
+
+	var completion_success: bool = agent_layer.player_complete_runtime_contract("runtime_contract:s2:CURRENCY")
+	assert_true(completion_success,
+		"Player should complete the contract through the explicit completion helper without a docking gate.")
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
+		"Player completion should preserve the occurrence as completed until generator refresh removes it.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", "")), "completed",
+		"Player completion should mark the occurrence status as completed.")
+	assert_eq(GameState.agents["player"].get("cargo_tag", ""), "EMPTY",
+		"Player simulation cargo tag should reset to EMPTY after delivery.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"GameState player_cargo_tag should reset to EMPTY on completion.")
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"GameState player_claimed_occurrence_id should clear on completion.")
+	assert_eq(GameState.characters[1].credits, 265,
+		"Player completion should apply reward credits through the character system path.")
+	assert_eq(fake_character_system.add_credits_calls.size(), 1,
+		"Player completion should call CharacterSystem.add_credits exactly once.")
+	assert_eq(int(fake_character_system.add_credits_calls[0].get("amount", 0)), 225,
+		"CharacterSystem.add_credits should receive the contract reward amount.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
+		"Completion should consume the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
+		"Completion should not restore the consumed payment bundle to the available pool.")
+	assert_eq(int(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("completed_at_tick", -1)), GameState.sim_tick_count,
+		"Player completion should stamp completed_at_tick on the retained occurrence.")
+	assert_eq(int(GameState.contract_generation_pressure["s2"].get("CURRENCY", -1)), 1,
+		"Player contract completion should apply the same destination-sector demand pressure relief as NPC completion.")
+	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
+		"Player contract completion should clear demand tag when pressure falls below threshold.")
 
 
 # =============================================================================
@@ -33701,6 +35530,31 @@ func test_try_exploration_registers_runtime_location_template():
 	assert_eq(GameState.discovery_log[0]["from"], "s1", "Discovery log should record the connected source sector.")
 	assert_eq(GameState.discovery_log[0]["global_position"], discovered_position)
 	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
+	assert_true(GameState.station_by_id.has("station_discovered_1"),
+		"Discovery should generate one deterministic procedural station for the discovered sector.")
+	assert_eq(Array(GameState.world_topology["discovered_1"].get("station_ids", [])).size(), 1,
+		"Discovered sectors should keep a one-station-per-sector mapping.")
+
+
+func test_generate_procedural_station_for_sector_registers_deterministic_station_data():
+	GameState.sector_names["s1"] = "Source Sector"
+	var generated_station_a: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
+	var generated_station_b: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
+
+	assert_eq(str(generated_station_a.get("id", "")), "station_s1",
+		"Generated station id should follow deterministic sector-based naming.")
+	assert_eq(str(generated_station_a.get("display_name", "")), "Source Sector Station",
+		"Generated station display name should use '<Sector Name> Station'.")
+	assert_eq(str(generated_station_a.get("id", "")), str(generated_station_b.get("id", "")),
+		"Generating a station for the same sector twice should be deterministic.")
+	assert_eq(generated_station_a.get("docking_point", Vector3.ZERO), generated_station_b.get("docking_point", Vector3.ZERO),
+		"Procedural docking point should be stable for the same seed and sector id.")
+	assert_true(GameState.station_by_id.has("station_s1"),
+		"Generated station should be registered in GameState.station_by_id.")
+	assert_eq(Array(GameState.world_topology["s1"].get("station_ids", [])).size(), 1,
+		"Generated station registration should keep one station id in world topology for the sector.")
+	assert_true(GameState.locations.has("station_s1"),
+		"Generated station should be exposed through legacy location records for docking systems.")
 
 
 func test_generate_sector_name_for_count_uses_centralized_constants_name_pools():
@@ -34030,6 +35884,36 @@ func _seed_minimal_state() -> void:
 	}
 	GameState.world_hazards = {"s1": {"environment": "MILD"}, "s2": {"environment": "MILD"}}
 	GameState.grid_dominion = {"s1": {"security_tag": "SECURE"}, "s2": {"security_tag": "SECURE"}}
+	GameState.contract_generation_threshold = {
+		"s1": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+		"s2": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_generation_pressure = {
+		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_cargo_supply = {
+		"s1": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+		"s2": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_cargo_reserved = {
+		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_payment_supply = {
+		"s1": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+		"s2": {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_payment_reserved = {
+		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.discovered_sectors = []
+	GameState.station_by_id.clear()
+	GlobalRefs.character_system = null
 	TemplateDatabase.locations.clear()
 	TemplateDatabase.locations["s1"] = {
 		"global_position": Vector3.ZERO,
@@ -34057,6 +35941,12 @@ func _clear_state() -> void:
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
+	GameState.contract_generation_pressure.clear()
+	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.chronicle_events = []
 	GameState.chronicle_rumors = []
 	GameState.mortal_agent_counter = 0
@@ -34069,6 +35959,11 @@ func _clear_state() -> void:
 	GameState.world_seed = ""
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 0
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.discovered_sectors = []
+	GameState.station_by_id.clear()
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.locations.clear()
@@ -34095,11 +35990,32 @@ func _make_runtime_contract_occurrence(occurrence_id: String, category: String, 
 		"required_roles": ["trader", "hauler"],
 		"priority_tags": category_priority_tags.get(category, ["RELIEF_NEEDED", "CONTESTED"]),
 		"route_hops": 1,
+		"player_displayable": true,
+		"required_cargo_tag": "%s_COMMODITY" % category,
+		"reward_credits": 225,
+		"source_reserved": false,
+		"payment_reserved": false,
+		"cargo_picked_up": false,
 		"created_at_tick": GameState.sim_tick_count,
 		"last_refreshed_tick": GameState.sim_tick_count,
 		"title": "%s Relief Route" % category.capitalize(),
 		"description": "%s relief from %s to %s." % [category.capitalize(), source_sector_id, target_sector_id],
 	}
+
+
+func _advance_until_npc_claim_can_succeed(agent_id: String, occurrence_id: String) -> bool:
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+	if occurrence.empty():
+		return false
+	occurrence["created_at_tick"] = 0
+	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+	var first_claim_tick: int = max(1, int(Constants.NPC_RUNTIME_CONTRACT_CLAIM_GRACE_TICKS))
+	for candidate_tick in range(first_claim_tick, 256):
+		GameState.sim_tick_count = candidate_tick
+		occurrence = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if agent_layer._can_npc_claim_open_runtime_contract(agent_id, occurrence_id, occurrence):
+			return true
+	return false
 
 
 func _count_chronicle_actions(action_name: String) -> int:
@@ -34272,8 +36188,8 @@ func _clear_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_4; TRUTH_SIMULATION-GRAPH.md §6.4
-# LOG_REF: 2026-05-24 00:28:56
+# TRUTH_LINK: TACTICAL_TODO.md TASK_4, TASK_7; TRUTH_SIMULATION-GRAPH.md §6.4
+# LOG_REF: 2026-05-27 04:13:47
 #
 
 extends GutTest
@@ -34340,6 +36256,10 @@ func test_process_tick_requires_nearby_qualifying_sources() -> void:
 	GameState.world_topology["b"]["connections"].append("e")
 	GameState.world_topology["e"] = {"connections": ["b"], "sector_type": "colony", "station_ids": ["e"]}
 	GameState.sector_tags["e"] = ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_POOR"]
+	GameState.contract_cargo_supply["e"] = {"RAW": 1, "MANUFACTURED": 0, "CURRENCY": 0}
+	GameState.contract_cargo_reserved["e"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
+	GameState.contract_payment_supply["e"] = {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1}
+	GameState.contract_payment_reserved["e"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
 
 	generator.process_tick({"contract_source_search_max_hops": 1})
 	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
@@ -34399,6 +36319,319 @@ func test_process_tick_retains_claimed_occurrence_without_active_demand_tag() ->
 		"Generator should refresh retained occurrences to the current tick.")
 
 
+func test_process_tick_retains_recent_open_occurrence_for_one_refresh_without_active_demand_tag() -> void:
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "open",
+			"claimant_agent_id": "",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 4,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+		}
+	}
+
+	generator.process_tick({})
+
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"A newly opened player-facing occurrence should survive one generator refresh even if demand cleared on the next tick.")
+	assert_has(GameState.runtime_contract_occurrences_by_source_sector.get("b", []), "runtime_contract:a:RAW",
+		"Recent open occurrence retention should keep the source-sector index populated for the grace refresh.")
+
+
+func test_process_tick_requires_backing_supply_and_payment_bundles() -> void:
+	GameState.contract_cargo_supply["b"]["RAW"] = 0
+	GameState.contract_cargo_supply["c"]["RAW"] = 0
+	GameState.contract_payment_supply["a"]["MANUFACTURED"] = 0
+
+	generator.process_tick({})
+
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Generator should not advertise a RAW occurrence when no source cargo unit backs it.")
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:MANUFACTURED"),
+		"Generator should not advertise a MANUFACTURED occurrence when the target cannot fund its reward bundle.")
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:a:CURRENCY"),
+		"Unaffected categories should still generate when both source cargo and target payment backing exist.")
+
+
+func test_player_facing_metadata_present_in_generated_occurrences() -> void:
+	generator.process_tick({})
+
+	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_true(raw_contract.has("player_displayable"),
+		"Generated occurrence should have player_displayable field.")
+	assert_eq(bool(raw_contract.get("player_displayable", false)), true,
+		"player_displayable should be true for runtime-generated occurrences.")
+	assert_true(raw_contract.has("source_sector_id"),
+		"Generated occurrence should have source_sector_id field.")
+	assert_eq(raw_contract.get("source_sector_id", ""), "b",
+		"source_sector_id should match the source sector.")
+	assert_true(raw_contract.has("source_accounting_sector_id"),
+		"Generated occurrence should have source_accounting_sector_id field.")
+	assert_eq(raw_contract.get("source_accounting_sector_id", ""), "b",
+		"source_accounting_sector_id should match the sector backing source cargo supply.")
+	assert_eq(bool(raw_contract.get("source_reserved", true)), false,
+		"Generated occurrences should start with no source-side reservation consumed.")
+	assert_eq(bool(raw_contract.get("payment_reserved", true)), false,
+		"Generated occurrences should start with no target-side payment reservation consumed.")
+	assert_eq(bool(raw_contract.get("cargo_picked_up", true)), false,
+		"Generated occurrences should start before any cargo has been picked up.")
+	assert_true(raw_contract.has("destination_sector_id"),
+		"Generated occurrence should have destination_sector_id field.")
+	assert_eq(raw_contract.get("destination_sector_id", ""), "a",
+		"destination_sector_id should match the demand sector.")
+	assert_true(raw_contract.has("target_sector_id"),
+		"Generated occurrence should have target_sector_id field.")
+	assert_eq(raw_contract.get("target_sector_id", ""), "a",
+		"target_sector_id should match the demand sector.")
+	assert_true(raw_contract.has("payment_accounting_sector_id"),
+		"Generated occurrence should have payment_accounting_sector_id field.")
+	assert_eq(raw_contract.get("payment_accounting_sector_id", ""), "a",
+		"payment_accounting_sector_id should match the sector backing target-side payment supply.")
+	assert_true(raw_contract.has("required_cargo_tag"),
+		"Generated occurrence should have required_cargo_tag field.")
+	assert_eq(raw_contract.get("required_cargo_tag", ""), "RAW_COMMODITY",
+		"required_cargo_tag should be derived from the commodity category.")
+	assert_true(raw_contract.has("reward_credits"),
+		"Generated occurrence should have reward_credits field.")
+	assert_gt(int(raw_contract.get("reward_credits", 0)), 0,
+		"reward_credits should be a positive integer.")
+	assert_true(raw_contract.has("completed_at_tick"),
+		"Generated occurrence should have completed_at_tick field.")
+	assert_eq(int(raw_contract.get("completed_at_tick", -2)), -1,
+		"Generated occurrences should initialize completion state as incomplete.")
+
+
+func test_player_facing_metadata_categorizes_correctly_by_type() -> void:
+	generator.process_tick({})
+
+	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(raw_contract.get("required_cargo_tag", ""), "RAW_COMMODITY",
+		"RAW category should produce RAW_COMMODITY tag.")
+
+	var manufactured_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:MANUFACTURED", {})
+	assert_eq(manufactured_contract.get("required_cargo_tag", ""), "MANUFACTURED_COMMODITY",
+		"MANUFACTURED category should produce MANUFACTURED_COMMODITY tag.")
+
+	var currency_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:CURRENCY", {})
+	assert_eq(currency_contract.get("required_cargo_tag", ""), "CURRENCY_COMMODITY",
+		"CURRENCY category should produce CURRENCY_COMMODITY tag.")
+
+
+func test_reward_credits_calculated_by_distance() -> void:
+	generator.process_tick({})
+
+	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	var raw_reward: int = int(raw_contract.get("reward_credits", 0))
+	var raw_hops: int = int(raw_contract.get("route_hops", 0))
+	assert_eq(raw_reward, 100 + (raw_hops * 25),
+		"RAW reward should equal base 100 plus 25 per hop.")
+
+	var manufactured_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:MANUFACTURED", {})
+	var manufactured_reward: int = int(manufactured_contract.get("reward_credits", 0))
+	var manufactured_hops: int = int(manufactured_contract.get("route_hops", 0))
+	assert_eq(manufactured_reward, 150 + (manufactured_hops * 25),
+		"MANUFACTURED reward should equal base 150 plus 25 per hop.")
+
+	var currency_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:CURRENCY", {})
+	var currency_reward: int = int(currency_contract.get("reward_credits", 0))
+	var currency_hops: int = int(currency_contract.get("route_hops", 0))
+	assert_eq(currency_reward, 200 + (currency_hops * 25),
+		"CURRENCY reward should equal base 200 plus 25 per hop.")
+
+
+func test_player_facing_metadata_survives_generator_refresh() -> void:
+	generator.process_tick({})
+
+	var original_raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	var original_displayable: bool = bool(original_raw_contract.get("player_displayable", false))
+	var original_cargo_tag: String = str(original_raw_contract.get("required_cargo_tag", ""))
+	var original_reward: int = int(original_raw_contract.get("reward_credits", 0))
+
+	GameState.sim_tick_count += 1
+	generator.process_tick({})
+
+	var refreshed_raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(bool(refreshed_raw_contract.get("player_displayable", false)), original_displayable,
+		"player_displayable should survive generator refresh.")
+	assert_eq(str(refreshed_raw_contract.get("required_cargo_tag", "")), original_cargo_tag,
+		"required_cargo_tag should survive generator refresh.")
+	assert_eq(int(refreshed_raw_contract.get("reward_credits", 0)), original_reward,
+		"reward_credits should survive generator refresh.")
+
+
+func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() -> void:
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "b",
+		"is_disabled": false,
+		"cargo_tag": "LOADED",
+	}
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "in_transit",
+			"claimant_agent_id": "hauler_1",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 2,
+			"claimed_at_tick": 3,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"source_reserved": true,
+			"payment_reserved": true,
+			"cargo_picked_up": true,
+			"completed_at_tick": -1,
+		}
+	}
+
+	generator.process_tick({})
+
+	var retained_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(bool(retained_contract.get("player_displayable", false)), true,
+		"player_displayable should survive claimed occurrence retention.")
+	assert_eq(str(retained_contract.get("required_cargo_tag", "")), "RAW_COMMODITY",
+		"required_cargo_tag should survive claimed occurrence retention.")
+	assert_eq(int(retained_contract.get("reward_credits", 0)), 125,
+		"reward_credits should survive claimed occurrence retention.")
+	assert_eq(str(retained_contract.get("source_accounting_sector_id", "")), "b",
+		"source_accounting_sector_id should survive claimed occurrence retention.")
+	assert_eq(str(retained_contract.get("payment_accounting_sector_id", "")), "a",
+		"payment_accounting_sector_id should survive claimed occurrence retention.")
+	assert_eq(bool(retained_contract.get("source_reserved", false)), true,
+		"source-side reservation state should survive claimed occurrence retention.")
+	assert_eq(bool(retained_contract.get("payment_reserved", false)), true,
+		"target-side payment reservation state should survive claimed occurrence retention.")
+	assert_eq(bool(retained_contract.get("cargo_picked_up", false)), true,
+		"Cargo pickup state should survive claimed occurrence retention.")
+	assert_eq(int(retained_contract.get("completed_at_tick", -2)), -1,
+		"Incomplete retained occurrences should preserve their completion-state sentinel.")
+
+
+func test_process_tick_retains_player_in_transit_occurrence_without_active_demand_tag() -> void:
+	GameState.agents["player"] = {
+		"agent_role": "idle",
+		"current_sector_id": "b",
+		"is_disabled": false,
+		"cargo_tag": "LOADED",
+	}
+	GameState.player_claimed_occurrence_id = "runtime_contract:a:RAW"
+	GameState.player_cargo_tag = "LOADED"
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "in_transit",
+			"claimant_agent_id": "player",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 2,
+			"claimed_at_tick": 3,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"source_reserved": false,
+			"payment_reserved": true,
+			"cargo_picked_up": true,
+			"completed_at_tick": -1,
+		}
+	}
+
+	generator.process_tick({})
+
+	var retained_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(str(retained_contract.get("claimant_agent_id", "")), "player",
+		"Player-held in-transit occurrences should survive generator refresh even though the player agent role stays idle.")
+	assert_eq(str(retained_contract.get("status", "")), "in_transit",
+		"Generator should preserve in-transit status for player-held runtime deliveries.")
+	assert_eq(bool(retained_contract.get("player_displayable", false)), true,
+		"Player-held retained occurrences must remain visible to the Contract Board.")
+	assert_has(GameState.runtime_contract_occurrences_by_source_sector.get("b", []), "runtime_contract:a:RAW",
+		"Retained player-held deliveries should stay indexed by source sector for board/debug visibility.")
+
+
+func test_completed_occurrence_is_removed_on_next_generator_tick() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "completed",
+			"claimant_agent_id": "",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 4,
+			"completed_at_tick": 5,
+			"last_refreshed_tick": 5,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+		}
+	}
+
+	GameState.sim_tick_count = 6
+	generator.process_tick({})
+
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Completed occurrences should be removed from active generation on the next tick.")
+
+
 func _seed_runtime_contract_state() -> void:
 	GameState.world_seed = "runtime_contract_seed"
 	GameState.world_age = "PROSPERITY"
@@ -34426,6 +36659,26 @@ func _seed_runtime_contract_state() -> void:
 			"RAW_ADEQUATE", "MANUFACTURED_RICH", "CURRENCY_RICH"
 		],
 	}
+	GameState.contract_cargo_supply = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 2, "MANUFACTURED": 1, "CURRENCY": 1},
+		"c": {"RAW": 1, "MANUFACTURED": 2, "CURRENCY": 2},
+	}
+	GameState.contract_cargo_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"c": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_payment_supply = {
+		"a": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+		"b": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+		"c": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+	}
+	GameState.contract_payment_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"c": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
 
 --- Start of ./src/tests/core/simulation/test_grid_layer.gd ---
 
@@ -34433,8 +36686,8 @@ func _seed_runtime_contract_state() -> void:
 # PROJECT: GDTLancer
 # MODULE: test_grid_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_SIMULATION-GRAPH.md §3; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-26 14:02:14
+# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_SIMULATION-GRAPH.md §3; TACTICAL_TODO.md TASK_7
+# LOG_REF: 2026-05-26 18:08:00
 #
 
 extends GutTest
@@ -34474,6 +36727,31 @@ func test_initialize_grid_seeds_progress_counters():
 			"contract_generation_pressure should be seeded for '%s'." % sector_id)
 		assert_true(GameState.contract_generation_threshold.has(sector_id),
 			"contract_generation_threshold should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_cargo_supply.has(sector_id),
+			"contract_cargo_supply should be seeded for '%s'." % sector_id)
+		assert_true(GameState.contract_payment_supply.has(sector_id),
+			"contract_payment_supply should be seeded for '%s'." % sector_id)
+
+
+func test_contract_accounting_refills_toward_cap_without_resetting_reservations():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.economy_change_threshold["b"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_cargo_supply["b"]["RAW"] = 0
+	GameState.contract_cargo_reserved["b"]["RAW"] = 1
+	GameState.contract_payment_supply["a"]["RAW"] = 0
+	GameState.contract_payment_reserved["a"]["RAW"] = 1
+
+	grid.process_tick({})
+
+	assert_eq(int(GameState.contract_cargo_supply["b"].get("RAW", -1)), 1,
+		"Contract cargo supply should recover by one unit per tick toward the tag-derived cap.")
+	assert_eq(int(GameState.contract_cargo_reserved["b"].get("RAW", -1)), 1,
+		"Reserved contract cargo should remain locked while the source sector recovers around it.")
+	assert_eq(int(GameState.contract_payment_supply["a"].get("RAW", -1)), 1,
+		"Contract payment supply should recover by one unit per tick toward the sector cap.")
+	assert_eq(int(GameState.contract_payment_reserved["a"].get("RAW", -1)), 1,
+		"Reserved payment bundles should remain locked until a claim is released or completed.")
 
 
 func test_economy_transitions_require_sustained_pressure():
@@ -34562,6 +36840,28 @@ func test_trade_relief_tags_active_then_clear_contract_pressure():
 		"RELIEF_NEEDED should clear after demand pressure resolves.")
 	assert_does_not_have(cleared_tags, "TRADE_LANE_ACTIVE",
 		"TRADE_LANE_ACTIVE should clear once no demand tag remains.")
+
+
+func test_contract_demand_tags_clear_when_pressure_drops_below_threshold_gate():
+	grid.initialize_grid()
+	GameState.economy_change_threshold["a"] = {"RAW": 99, "MANUFACTURED": 99, "CURRENCY": 99}
+	GameState.contract_generation_threshold["a"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 2}
+
+	# Build active demand first.
+	for _i in range(3):
+		grid.process_tick({})
+
+	assert_has(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Precondition: RAW demand should be active before forcing pressure below threshold.")
+
+	# Completion-style relief mutates pressure directly; this test verifies the
+	# GridLayer gate responds strictly to pressure-threshold state on the next tick.
+	GameState.contract_generation_pressure["a"]["RAW"] = 0
+
+	grid.process_tick({})
+
+	assert_does_not_have(GameState.sector_tags["a"], "CONTRACT_DEMAND_RAW",
+		"Demand tags should clear when pressure is below threshold, preserving deterministic gate behavior for completion relief paths.")
 
 
 func test_security_only_one_tag_present():
@@ -34974,6 +37274,10 @@ func _clear_state() -> void:
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.hostile_infestation_progress.clear()
 	GameState.agents.clear()
 	GameState.world_seed = ""
@@ -35090,6 +37394,10 @@ func _clear_state() -> void:
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
@@ -35345,7 +37653,7 @@ func _seed_template_database():
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-24 14:43:54
+## LOG_REF: 2026-05-27 04:13:47
 #
 
 extends GutTest
@@ -35474,6 +37782,15 @@ func test_get_config_has_required_keys():
 	assert_true(config.has("contract_occurrence_global_cap"), "Config must have contract_occurrence_global_cap.")
 
 
+func test_initialize_simulation_bootstraps_starter_contracts_before_first_tick():
+	engine.initialize_simulation("tick_test_seed")
+
+	assert_gt(GameState.runtime_contract_occurrences.size(), 0,
+		"Initialization should preseed runtime contracts from authored starting poor sectors before the first live tick.")
+	assert_gt(Array(GameState.runtime_contract_occurrences_by_source_sector.get(Constants.INITIAL_SECTOR_ID, [])).size(), 0,
+		"Initialization should expose source-side player-facing contracts at the starter sector before the first docking tick.")
+
+
 func test_contract_generation_runs_between_bridge_and_agent_layer():
 	engine.initialize_simulation("tick_test_seed")
 	GameState.world_age_timer = 5
@@ -35537,6 +37854,10 @@ func _clear_state() -> void:
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
@@ -35590,6 +37911,22 @@ func _seed_contract_tick_state() -> void:
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
+	GameState.contract_cargo_supply = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+	}
+	GameState.contract_cargo_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_payment_supply = {
+		"a": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+		"b": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+	}
+	GameState.contract_payment_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
 
 
 func _seed_template_database() -> void:
@@ -37447,6 +39784,193 @@ func test_advance_game_time_large_value():
 	time_system_instance.advance_game_time((Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5)
 	assert_eq(GameState.game_time_seconds, (Constants.WORLD_TICK_INTERVAL_SECONDS * 2) + 5, "Game time should accumulate.")
 
+--- Start of ./src/tests/core/ui/test_contract_board.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_contract_board.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TACTICAL_TODO.md TASK_6; TACTICAL_TODO.md TASK_7
+## LOG_REF: 2026-05-27 03:35:47
+##
+
+extends "res://addons/gut/test.gd"
+
+var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
+
+
+class FakeSimulationEngine:
+	extends Reference
+
+	var accept_calls: Array = []
+
+	func player_accept_runtime_contract(occurrence_id: String) -> bool:
+		accept_calls.append(occurrence_id)
+		GameState.player_claimed_occurrence_id = occurrence_id
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			return false
+		occurrence["claimant_agent_id"] = "player"
+		occurrence["status"] = "claimed"
+		occurrence["source_reserved"] = true
+		occurrence["payment_reserved"] = true
+		occurrence["cargo_picked_up"] = false
+		GameState.runtime_contract_occurrences[occurrence_id] = occurrence
+		return true
+
+	func player_pick_up_runtime_contract(_occurrence_id: String) -> bool:
+		return false
+
+	func player_complete_runtime_contract(_occurrence_id: String) -> bool:
+		return false
+
+
+func before_each() -> void:
+	_seed_state()
+
+
+func after_each() -> void:
+	GlobalRefs.simulation_engine = null
+	GameState.current_sector_id = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.sector_names.clear()
+	GameState.agents.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
+
+
+func test_contract_board_lists_player_displayable_occurrences() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_occurrence("runtime_contract:s2:RAW", true),
+		"runtime_contract:s3:RAW": _make_occurrence("runtime_contract:s3:RAW", false),
+	}
+
+	var contract_board = ContractBoardScene.instance()
+	add_child_autofree(contract_board)
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	var contract_list: VBoxContainer = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	assert_eq(contract_list.get_child_count(), 1,
+		"ContractBoard should list only player-displayable runtime occurrences.")
+
+
+func test_contract_board_accept_button_routes_to_simulation_engine() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_occurrence("runtime_contract:s2:RAW", true),
+	}
+	GlobalRefs.simulation_engine = FakeSimulationEngine.new()
+
+	var contract_board = ContractBoardScene.instance()
+	add_child_autofree(contract_board)
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	var contract_list: VBoxContainer = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	var row: VBoxContainer = contract_list.get_child(0)
+	var accept_button: Button = row.get_node("ButtonRow/AcceptButton")
+	accept_button.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+
+	var engine: FakeSimulationEngine = GlobalRefs.simulation_engine
+	assert_eq(engine.accept_calls, ["runtime_contract:s2:RAW"],
+		"ContractBoard Accept should route through the simulation engine helper.")
+	assert_eq(GameState.player_claimed_occurrence_id, "runtime_contract:s2:RAW",
+		"Accept should update the shared player claim state.")
+
+
+func test_contract_board_gates_pickup_and_complete_buttons_by_player_state() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_occurrence("runtime_contract:s2:RAW", true),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["status"] = "claimed"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["source_reserved"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+
+	var contract_board = ContractBoardScene.instance()
+	add_child_autofree(contract_board)
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	var contract_list: VBoxContainer = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	var row: VBoxContainer = contract_list.get_child(0)
+	var entry_label: Label = row.get_node("EntryLabel")
+	var pickup_button: Button = row.get_node("ButtonRow/PickupButton")
+	var complete_button: Button = row.get_node("ButtonRow/CompleteButton")
+	assert_true(entry_label.text.find("Backing: source reserved, payment reserved, cargo not picked up") != -1,
+		"ContractBoard rows should expose reservation and pickup state for debug use.")
+	assert_false(pickup_button.disabled,
+		"Pick Up should be enabled when the player is in the source sector with a claimed empty-cargo contract.")
+	assert_true(complete_button.disabled,
+		"Complete should stay disabled before cargo is picked up and the player reaches the target sector.")
+
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["source_reserved"] = false
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	contract_list = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	row = contract_list.get_child(0)
+	pickup_button = row.get_node("ButtonRow/PickupButton")
+	assert_true(pickup_button.disabled,
+		"Pick Up should stay disabled when the claimed contract has no live source-side reservation.")
+
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["source_reserved"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["cargo_picked_up"] = true
+	GameState.current_sector_id = "s2"
+	GameState.agents["player"]["current_sector_id"] = "s2"
+	GameState.player_cargo_tag = "LOADED"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["status"] = "in_transit"
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	contract_list = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	row = contract_list.get_child(0)
+	pickup_button = row.get_node("ButtonRow/PickupButton")
+	complete_button = row.get_node("ButtonRow/CompleteButton")
+	assert_true(pickup_button.disabled,
+		"Pick Up should disable once the player is already carrying contract cargo.")
+	assert_false(complete_button.disabled,
+		"Complete should enable when the player reaches the target sector with loaded cargo.")
+
+
+func _seed_state() -> void:
+	GameState.current_sector_id = "s1"
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.sector_names = {
+		"s1": "Source",
+		"s2": "Target",
+	}
+	GameState.agents = {
+		"player": {
+			"current_sector_id": "s1",
+			"cargo_tag": "EMPTY",
+		}
+	}
+	GameState.runtime_contract_occurrences.clear()
+
+
+func _make_occurrence(occurrence_id: String, player_displayable: bool) -> Dictionary:
+	return {
+		"occurrence_id": occurrence_id,
+		"source_sector_id": "s1",
+		"target_sector_id": "s2",
+		"required_cargo_tag": "RAW_COMMODITY",
+		"reward_credits": 125,
+		"status": "open",
+		"claimant_agent_id": "",
+		"source_reserved": false,
+		"payment_reserved": false,
+		"cargo_picked_up": false,
+		"player_displayable": player_displayable,
+	}
+
 --- Start of ./src/tests/core/ui/test_debug_map_panel_focus.gd ---
 
 ##
@@ -37608,7 +40132,7 @@ func test_right_mouse_drag_pans_camera_without_changing_orbit_angles():
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6.3, §7; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_4
-## LOG_REF: 2026-05-23 15:54:26
+## LOG_REF: 2026-05-26 18:46:00
 ##
 
 extends "res://addons/gut/test.gd"
@@ -37785,6 +40309,39 @@ func test_readability_toggles_hide_labels_lines_and_icons_and_survive_refresh():
 	assert_false(refreshed_label.visible, "Readability label state should survive sim-tick-driven map repopulation.")
 	assert_false(refreshed_marker.visible, "Readability icon state should survive sim-tick-driven map repopulation.")
 	assert_false(refreshed_connection_lines.visible, "Readability line state should survive sim-tick-driven map repopulation.")
+
+
+func test_contract_count_toggle_shows_source_side_board_counts_in_separate_colored_labels():
+	_seed_contract_occurrences()
+	_show_panel()
+	yield(get_tree(), "idle_frame")
+
+	var header = _panel_instance.get_node("Panel/VBoxContainer/HeaderRow")
+	var contract_button: Button = header.get_node_or_null("BtnContractCounts")
+	assert_not_null(contract_button, "Debug map should expose a dedicated contract-count toggle button in the header row.")
+	assert_eq(contract_button.text, "Contracts On")
+
+	var sector_label_data: Dictionary = _panel_instance._sector_labels["sector_system_elace"]
+	var name_label: Label = sector_label_data["label"]
+	var contract_label: Label = sector_label_data["contract_label"]
+	assert_true(contract_label != name_label,
+		"Contract counts should render in a separate label node instead of being folded into the sector name label.")
+	assert_true(contract_label.visible,
+		"Contract count labels should be visible by default while the contract-count toggle is enabled.")
+	assert_true(contract_label.text.find("3") != -1,
+		"Contract count labels should show all source-side player-displayable runtime contracts the station board can surface, including already-claimed rows.")
+	assert_ne(contract_label.get("custom_colors/font_color"), name_label.get("custom_colors/font_color"),
+		"Contract count labels should use a distinct color from the sector name labels.")
+
+	_panel_instance._on_toggle_contract_counts()
+	assert_eq(contract_button.text, "Contracts Off")
+	assert_false(contract_label.visible,
+		"Turning contract counts off should hide the separate contract-count labels immediately.")
+
+	_panel_instance._on_sim_tick_completed(1)
+	var refreshed_contract_label: Label = _panel_instance._sector_labels["sector_system_elace"]["contract_label"]
+	assert_false(refreshed_contract_label.visible,
+		"Contract count visibility should survive sim-tick-driven map repopulation.")
 
 
 func test_task2_header_buttons_adjust_fov_with_clamping():
@@ -38042,20 +40599,70 @@ func _seed_discovered_sector():
 	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]
 	GameState.sector_names["discovered_1"] = "Amber Gate"
 
+
+func _seed_contract_occurrences() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:sector_system_elace:RAW_1": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW_1",
+			"source_sector_id": "sector_system_elace",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_elace:RAW_2": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW_2",
+			"source_sector_id": "sector_system_elace",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_elace:RAW_claimed": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW_claimed",
+			"source_sector_id": "sector_system_elace",
+			"status": "in_transit",
+			"claimant_agent_id": "hauler_1",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_cob:CURRENCY": {
+			"occurrence_id": "runtime_contract:sector_system_cob:CURRENCY",
+			"source_sector_id": "sector_system_cob",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_vidr:HIDDEN": {
+			"occurrence_id": "runtime_contract:sector_system_vidr:HIDDEN",
+			"source_sector_id": "sector_system_vidr",
+			"status": "open",
+			"claimant_agent_id": "",
+			"player_displayable": false,
+		},
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"sector_system_elace": [
+			"runtime_contract:sector_system_elace:RAW_1",
+			"runtime_contract:sector_system_elace:RAW_2",
+			"runtime_contract:sector_system_elace:RAW_claimed",
+		],
+		"sector_system_cob": ["runtime_contract:sector_system_cob:CURRENCY"],
+		"sector_system_vidr": ["runtime_contract:sector_system_vidr:HIDDEN"],
+	}
+
 --- Start of ./src/tests/core/ui/test_debug_window.gd ---
 
 ##
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_window.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_4
-## LOG_REF: 2026-05-23 15:37:28
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-27 04:30:42
 ##
 
 extends "res://addons/gut/test.gd"
 
 var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var DebugWindowScene = load("res://scenes/ui/menus/debug_window.tscn")
+var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
 var MainMenuScene = load("res://scenes/ui/menus/main_menu.tscn")
 var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 
@@ -38066,6 +40673,7 @@ func after_each() -> void:
 	GlobalRefs.main_camera = null
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.current_zone = null
+	GlobalRefs.simulation_engine = null
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
 	GameState.player_character_uid = ""
@@ -38098,6 +40706,30 @@ func test_button_debug_toggles_debug_window_sibling() -> void:
 	button_debug.emit_signal("pressed")
 	yield(get_tree(), "idle_frame")
 	assert_false(debug_window.visible, "Pressing ButtonDebug again should hide the DebugWindow.")
+
+
+func test_debug_window_contract_board_button_toggles_contract_board_panel() -> void:
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var debug_window = DebugWindowScene.instance()
+	root.add_child(debug_window)
+
+	var contract_board = ContractBoardScene.instance()
+	root.add_child(contract_board)
+	yield(get_tree(), "idle_frame")
+
+	var contract_board_panel: Panel = contract_board.get_node("Panel")
+	assert_false(contract_board_panel.visible, "ContractBoard should start hidden.")
+
+	var contract_button: Button = debug_window.get_node("Panel/VBoxContainer/debug_ButtonContractBoard")
+	contract_button.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+	assert_true(contract_board_panel.visible, "DebugWindow contract board button should open the ContractBoard overlay.")
+
+	contract_button.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+	assert_false(contract_board_panel.visible, "Pressing the contract board button again should hide the ContractBoard overlay.")
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:
@@ -38154,7 +40786,7 @@ func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_dock
 	assert_false(station_menu.visible, "StationMenu should hide instead of reopening from stale dock state.")
 
 
-func test_station_menu_service_buttons_show_explicit_deferred_feedback() -> void:
+func test_station_menu_service_buttons_show_explicit_trade_feedback_and_do_not_claim_contracts() -> void:
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
 	GameState.player_docked_at = "sector_system_elace"
@@ -38173,10 +40805,10 @@ func test_station_menu_service_buttons_show_explicit_deferred_feedback() -> void
 	)
 
 	station_menu._on_contracts_pressed()
-	assert_true(
-		info_label.text.find("Contracts remain unavailable while the contract layer is rebuilt.") != -1,
-		"Contracts should show explicit deferred-service feedback instead of a bare print/TODO stub."
-	)
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"StationMenu should not claim contracts directly from its service button path.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"StationMenu should not load contract cargo directly from its service button path.")
 
 
 func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
@@ -39189,6 +41821,197 @@ func _option_button_contains_text(button: OptionButton, expected_fragment: Strin
 			return true
 	return false
 
+--- Start of ./src/tests/core/ui/test_station_menu.gd ---
+
+##
+## PROJECT: GDTLancer
+## MODULE: test_station_menu.gd
+## STATUS: [Level 2 - Implementation]
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-27 04:30:42
+##
+
+extends "res://addons/gut/test.gd"
+
+var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
+var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
+
+
+func before_each() -> void:
+	_seed_base_state()
+
+
+func after_each() -> void:
+	GameState.player_docked_at = ""
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.current_sector_id = ""
+	GameState.player_character_uid = ""
+	GameState.characters.clear()
+	GameState.agents.clear()
+	GameState.locations.clear()
+	GameState.sector_names.clear()
+	GameState.world_topology.clear()
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
+	GameState.station_by_id.clear()
+
+
+func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_contracts_exist() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:sector_system_elace:RAW": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW",
+			"source_sector_id": "sector_system_elace",
+			"target_sector_id": "sector_system_nyx",
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"status": "open",
+			"player_displayable": true,
+		},
+		"runtime_contract:sector_system_vidr:RAW": {
+			"occurrence_id": "runtime_contract:sector_system_vidr:RAW",
+			"source_sector_id": "sector_system_vidr",
+			"target_sector_id": "sector_system_elace",
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 140,
+			"status": "open",
+			"player_displayable": true,
+		},
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"sector_system_elace": ["runtime_contract:sector_system_elace:RAW"],
+		"sector_system_vidr": ["runtime_contract:sector_system_vidr:RAW"],
+	}
+
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	assert_true(station_menu.get_node_or_null("Panel/VBoxContainer/ContractBoard") == null,
+		"StationMenu should not embed a contract board once the global ContractBoard owns contract actions.")
+
+
+func test_station_menu_contract_button_opens_remote_contract_board_without_mutating_contract_state() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:sector_system_elace:CURRENCY": {
+			"occurrence_id": "runtime_contract:sector_system_elace:CURRENCY",
+			"source_sector_id": "sector_system_elace",
+			"target_sector_id": "sector_system_nyx",
+			"required_cargo_tag": "CURRENCY_COMMODITY",
+			"reward_credits": 225,
+			"status": "open",
+			"player_displayable": true,
+			"claimant_agent_id": "",
+		},
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"sector_system_elace": ["runtime_contract:sector_system_elace:CURRENCY"],
+	}
+	GameState.agents["player"] = {
+		"cargo_tag": "EMPTY",
+		"current_sector_id": "sector_system_elace",
+	}
+
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var contract_board = ContractBoardScene.instance()
+	root.add_child(contract_board)
+
+	var station_menu = StationMenuScene.instance()
+	root.add_child(station_menu)
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	assert_true(station_menu.get_node_or_null("Panel/VBoxContainer/ContractBoard") == null,
+		"StationMenu should remain a docking-only shell instead of rendering embedded contract rows.")
+
+	station_menu._on_contracts_pressed()
+	yield(get_tree(), "idle_frame")
+
+	var contract_board_panel: Panel = contract_board.get_node("Panel")
+	assert_true(contract_board_panel.visible,
+		"StationMenu Contracts button should open the global ContractBoard overlay.")
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"Opening the global ContractBoard from StationMenu should not claim a contract directly.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"Opening the global ContractBoard from StationMenu should not load cargo.")
+
+
+func test_station_menu_contract_button_does_not_claim_or_load_when_global_board_is_missing() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:sector_system_elace:RAW": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW",
+			"source_sector_id": "sector_system_elace",
+			"target_sector_id": "sector_system_nyx",
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"status": "open",
+			"player_displayable": true,
+			"claimant_agent_id": "",
+		},
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"sector_system_elace": ["runtime_contract:sector_system_elace:RAW"],
+	}
+	GameState.agents["player"] = {
+		"cargo_tag": "EMPTY",
+		"current_sector_id": "sector_system_elace",
+	}
+
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	station_menu._on_contracts_pressed()
+
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"StationMenu should not claim contracts directly when the global board is unavailable.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"StationMenu should not load cargo directly when the global board is unavailable.")
+	assert_true(station_menu.visible,
+		"StationMenu should remain open as a docking shell when the global board is unavailable.")
+
+
+func _seed_base_state() -> void:
+	GameState.player_docked_at = "sector_system_elace"
+	GameState.current_sector_id = "sector_system_elace"
+	GameState.player_claimed_occurrence_id = ""
+	GameState.player_cargo_tag = "EMPTY"
+	GameState.player_character_uid = "1"
+	GameState.characters = {
+		1: {"credits": 100, "focus_points": 3},
+	}
+	GameState.locations = {
+		"sector_system_elace": {
+			"location_name": "Elace System",
+			"available_services": ["trade", "contracts"],
+		},
+	}
+	GameState.sector_names = {
+		"sector_system_elace": "Elace",
+		"sector_system_vidr": "Vidr",
+		"sector_system_nyx": "Nyx",
+	}
+	GameState.world_topology = {
+		"sector_system_elace": {
+			"connections": [],
+			"sector_type": "colony",
+			"station_ids": [],
+		},
+	}
+	GameState.runtime_contract_occurrences.clear()
+	GameState.runtime_contract_occurrences_by_source_sector.clear()
+	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.station_by_id.clear()
+
 --- Start of ./src/tests/core/utils/test_pid_controller.gd ---
 
 # tests/core/utils/test_pid_controller.gd
@@ -39711,7 +42534,7 @@ func test_generated_characters_have_assets():
 # MODULE: test_world_manager.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §7; TRUTH_SIMULATION-GRAPH.md §1, §3.2, §3.3; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 16:43:24
+# LOG_REF: 2026-05-27 04:19:04
 #
 
 extends GutTest
@@ -39734,6 +42557,8 @@ func before_each():
 
 
 func after_each():
+	if get_tree() != null:
+		get_tree().paused = false
 	GameState.world_topology.clear()
 	TemplateDatabase.locations.clear()
 	GameState.player_position = Vector3.ZERO
@@ -39915,7 +42740,7 @@ func _assert_vector3_almost_eq(actual: Vector3, expected: Vector3, tolerance: fl
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 15:37:28
+# LOG_REF: 2026-05-27 04:29:00
 #
 
 extends GutTest
@@ -39939,6 +42764,8 @@ func before_each():
 
 
 func after_each():
+	if get_tree() != null:
+		get_tree().paused = false
 	Input.set_mouse_mode(_original_mouse_mode)
 	GameState.world_topology.clear()
 	TemplateDatabase.locations.clear()
@@ -40316,6 +43143,7 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	var rig = Node.new()
 	rig.set_script(rig_script)
 	rig.events_ref = event_order
+	add_child_autofree(rig)
 	world_manager.rig_ref = rig
 
 	var sequence_state = world_manager._run_jump_transition_sequence("sector_system_cob")
@@ -40366,6 +43194,7 @@ func test_jump_transition_fov_progress_eases_in_toward_the_wide_fov():
 
 
 func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_target_speed():
+	TemplateDatabase.locations["sector_system_cob"]["global_position"] = Vector3(6200, 50, -300)
 	var rig = JumpTransitionRigScene.instance()
 	add_child_autofree(rig)
 

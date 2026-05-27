@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_1, TASK_5
-# LOG_REF: 2026-05-26 19:48:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-05-27 04:02:51
 #
 
 extends Reference
@@ -20,6 +20,8 @@ func process_tick(config: Dictionary) -> void:
 	var generated_occurrences: Dictionary = {}
 	var occurrences_by_target: Dictionary = {}
 	var occurrences_by_source: Dictionary = {}
+	var allocated_source_backing: Dictionary = {}
+	var allocated_payment_backing: Dictionary = {}
 	var sector_ids: Array = GameState.world_topology.keys()
 	sector_ids.sort()
 	var global_cap: int = int(config.get("contract_occurrence_global_cap", Constants.CONTRACT_OCCURRENCE_GLOBAL_CAP))
@@ -29,7 +31,9 @@ func process_tick(config: Dictionary) -> void:
 		generated_occurrences,
 		occurrences_by_target,
 		occurrences_by_source,
-		global_cap
+		global_cap,
+		allocated_source_backing,
+		allocated_payment_backing
 	)
 
 	for sector_id in sector_ids:
@@ -48,13 +52,19 @@ func process_tick(config: Dictionary) -> void:
 			if generated_for_sector >= per_sector_cap:
 				break
 
-			var source_packet: Dictionary = _find_best_source_sector(sector_id, category, config)
-			if source_packet.empty():
-				continue
-
 			var occurrence_id: String = _occurrence_id(sector_id, category)
 			if _was_completed_last_tick(previous_occurrences.get(occurrence_id, {})):
 				continue
+			if generated_occurrences.has(occurrence_id):
+				generated_for_sector += 1
+				continue
+			if not _can_allocate_target_payment(sector_id, category, allocated_payment_backing):
+				continue
+
+			var source_packet: Dictionary = _find_best_source_sector(sector_id, category, config, allocated_source_backing)
+			if source_packet.empty():
+				continue
+
 			var occurrence: Dictionary = _build_occurrence(
 				occurrence_id,
 				sector_id,
@@ -66,6 +76,7 @@ func process_tick(config: Dictionary) -> void:
 				occurrence,
 				previous_occurrences.get(occurrence_id, {})
 			)
+			_register_occurrence_accounting(occurrence, allocated_source_backing, allocated_payment_backing)
 			generated_occurrences[occurrence_id] = occurrence
 			_index_occurrence(occurrences_by_target, sector_id, occurrence_id)
 			_index_occurrence(occurrences_by_source, str(source_packet.get("sector_id", "")), occurrence_id)
@@ -81,7 +92,9 @@ func _seed_retained_occurrences(
 	generated_occurrences: Dictionary,
 	occurrences_by_target: Dictionary,
 	occurrences_by_source: Dictionary,
-	global_cap: int
+	global_cap: int,
+	allocated_source_backing: Dictionary,
+	allocated_payment_backing: Dictionary
 ) -> void:
 	var occurrence_ids: Array = previous_occurrences.keys()
 	occurrence_ids.sort()
@@ -104,6 +117,7 @@ func _seed_retained_occurrences(
 			str(retained_occurrence.get("source_sector_id", "")),
 			occurrence_id
 		)
+		_register_occurrence_accounting(retained_occurrence, allocated_source_backing, allocated_payment_backing)
 
 
 func _should_retain_claimed_occurrence(previous_occurrence: Dictionary) -> bool:
@@ -138,18 +152,30 @@ func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrenc
 		return occurrence
 	if previous_occurrence.has("created_at_tick"):
 		occurrence["created_at_tick"] = int(previous_occurrence.get("created_at_tick", GameState.sim_tick_count))
+	if previous_occurrence.has("source_accounting_sector_id"):
+		occurrence["source_accounting_sector_id"] = str(previous_occurrence.get("source_accounting_sector_id", occurrence.get("source_sector_id", "")))
+	if previous_occurrence.has("payment_accounting_sector_id"):
+		occurrence["payment_accounting_sector_id"] = str(previous_occurrence.get("payment_accounting_sector_id", occurrence.get("target_sector_id", "")))
 	var claimant_agent_id: String = str(previous_occurrence.get("claimant_agent_id", ""))
 	if claimant_agent_id != "" and _claimant_is_valid(claimant_agent_id, occurrence):
 		occurrence["claimant_agent_id"] = claimant_agent_id
 		occurrence["status"] = str(previous_occurrence.get("status", "claimed"))
 		if previous_occurrence.has("claimed_at_tick"):
 			occurrence["claimed_at_tick"] = int(previous_occurrence.get("claimed_at_tick", GameState.sim_tick_count))
+	if previous_occurrence.has("completed_at_tick"):
+		occurrence["completed_at_tick"] = int(previous_occurrence.get("completed_at_tick", -1))
 	if previous_occurrence.has("player_displayable"):
 		occurrence["player_displayable"] = bool(previous_occurrence.get("player_displayable", true))
 	if previous_occurrence.has("required_cargo_tag"):
 		occurrence["required_cargo_tag"] = str(previous_occurrence.get("required_cargo_tag", ""))
 	if previous_occurrence.has("reward_credits"):
 		occurrence["reward_credits"] = int(previous_occurrence.get("reward_credits", 0))
+	if previous_occurrence.has("source_reserved"):
+		occurrence["source_reserved"] = bool(previous_occurrence.get("source_reserved", false))
+	if previous_occurrence.has("payment_reserved"):
+		occurrence["payment_reserved"] = bool(previous_occurrence.get("payment_reserved", false))
+	if previous_occurrence.has("cargo_picked_up"):
+		occurrence["cargo_picked_up"] = bool(previous_occurrence.get("cargo_picked_up", false))
 	return occurrence
 
 
@@ -168,6 +194,8 @@ func _claimant_is_valid(agent_id: String, occurrence: Dictionary) -> bool:
 	var agent: Dictionary = GameState.agents.get(agent_id, {})
 	if agent.empty() or agent.get("is_disabled", false):
 		return false
+	if agent_id == "player":
+		return str(GameState.player_claimed_occurrence_id) == str(occurrence.get("occurrence_id", ""))
 	var required_roles: Array = Array(occurrence.get("required_roles", []))
 	return str(agent.get("agent_role", "idle")) in required_roles
 
@@ -180,7 +208,7 @@ func _active_demand_categories(tags: Array) -> Array:
 	return categories
 
 
-func _find_best_source_sector(target_sector_id: String, category: String, config: Dictionary) -> Dictionary:
+func _find_best_source_sector(target_sector_id: String, category: String, config: Dictionary, allocated_source_backing: Dictionary) -> Dictionary:
 	var max_hops: int = int(config.get("contract_source_search_max_hops", Constants.CONTRACT_SOURCE_SEARCH_MAX_HOPS))
 	var frontier: Array = [{"sector_id": target_sector_id, "distance": 0}]
 	var visited: Dictionary = {target_sector_id: true}
@@ -194,7 +222,7 @@ func _find_best_source_sector(target_sector_id: String, category: String, config
 		var sector_id: String = str(packet.get("sector_id", ""))
 		var distance: int = int(packet.get("distance", 0))
 
-		if sector_id != target_sector_id and _is_qualifying_source_sector(sector_id, category):
+		if sector_id != target_sector_id and _is_qualifying_source_sector(sector_id, category, allocated_source_backing):
 			var score: float = _source_score(sector_id, category, distance)
 			if best_candidate.empty() or score > best_score or (is_equal_approx(score, best_score) and sector_id < best_sector_id):
 				best_candidate = {"sector_id": sector_id, "distance": distance}
@@ -215,7 +243,7 @@ func _find_best_source_sector(target_sector_id: String, category: String, config
 	return best_candidate
 
 
-func _is_qualifying_source_sector(sector_id: String, category: String) -> bool:
+func _is_qualifying_source_sector(sector_id: String, category: String, allocated_source_backing: Dictionary) -> bool:
 	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
 	if tags.empty():
 		return false
@@ -223,7 +251,9 @@ func _is_qualifying_source_sector(sector_id: String, category: String) -> bool:
 		return false
 	if "DISABLED" in tags or "HOSTILE_INFESTED" in tags or "LAWLESS" in tags:
 		return false
-	return (category + "_ADEQUATE") in tags or (category + "_RICH") in tags
+	if not ((category + "_ADEQUATE") in tags or (category + "_RICH") in tags):
+		return false
+	return _can_allocate_source_cargo(sector_id, category, allocated_source_backing)
 
 
 func _source_score(sector_id: String, category: String, distance: int) -> float:
@@ -265,6 +295,8 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"demand_tag": _contract_demand_tag(category),
 		"source_sector_id": source_sector_id,
 		"target_sector_id": target_sector_id,
+		"source_accounting_sector_id": source_sector_id,
+		"payment_accounting_sector_id": target_sector_id,
 		"destination_sector_id": target_sector_id,
 		"origin_location_id": source_sector_id,
 		"destination_location_id": target_sector_id,
@@ -274,12 +306,16 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"priority_tags": _build_priority_tags(target_tags, category),
 		"route_hops": route_hops,
 		"created_at_tick": GameState.sim_tick_count,
+		"completed_at_tick": -1,
 		"last_refreshed_tick": GameState.sim_tick_count,
 		"title": "%s Relief Route to %s" % [category_label, target_label],
 		"description": "%s demand in %s can be relieved from %s." % [category_label, target_label, source_label],
 		"player_displayable": true,
 		"required_cargo_tag": required_cargo_tag,
 		"reward_credits": reward_credits,
+		"source_reserved": false,
+		"payment_reserved": false,
+		"cargo_picked_up": false,
 	}
 
 
@@ -352,6 +388,62 @@ func _calculate_reward_credits(category: String, route_hops: int) -> int:
 			base_reward = 50
 	var distance_bonus: int = route_hops * 25
 	return base_reward + distance_bonus
+
+
+func _register_occurrence_accounting(occurrence: Dictionary, allocated_source_backing: Dictionary, allocated_payment_backing: Dictionary) -> void:
+	var category: String = str(occurrence.get("commodity_category", ""))
+	if not (category in CATEGORIES):
+		return
+	_increment_allocated_count(
+		allocated_source_backing,
+		str(occurrence.get("source_sector_id", "")),
+		category
+	)
+	_increment_allocated_count(
+		allocated_payment_backing,
+		str(occurrence.get("target_sector_id", "")),
+		category
+	)
+
+
+func _can_allocate_source_cargo(sector_id: String, category: String, allocated_source_backing: Dictionary) -> bool:
+	return _allocated_count(allocated_source_backing, sector_id, category) < _sector_category_backing(
+		GameState.contract_cargo_supply,
+		GameState.contract_cargo_reserved,
+		sector_id,
+		category
+	)
+
+
+func _can_allocate_target_payment(sector_id: String, category: String, allocated_payment_backing: Dictionary) -> bool:
+	return _allocated_count(allocated_payment_backing, sector_id, category) < _sector_category_backing(
+		GameState.contract_payment_supply,
+		GameState.contract_payment_reserved,
+		sector_id,
+		category
+	)
+
+
+func _sector_category_backing(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> int:
+	if sector_id == "":
+		return 0
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	return int(max(0, int(supply_by_sector.get(category, 0)) + int(reserved_by_sector.get(category, 0))))
+
+
+func _allocated_count(allocated_root: Dictionary, sector_id: String, category: String) -> int:
+	if sector_id == "":
+		return 0
+	return int(allocated_root.get(sector_id, {}).get(category, 0))
+
+
+func _increment_allocated_count(allocated_root: Dictionary, sector_id: String, category: String) -> void:
+	if sector_id == "" or not (category in CATEGORIES):
+		return
+	var allocated_by_sector: Dictionary = allocated_root.get(sector_id, {})
+	allocated_by_sector[category] = int(allocated_by_sector.get(category, 0)) + 1
+	allocated_root[sector_id] = allocated_by_sector
 
 
 func _index_occurrence(index: Dictionary, sector_id: String, occurrence_id: String) -> void:

@@ -1873,7 +1873,7 @@ text = "Close"
 
 --- Start of ./scenes/levels/game_world/main_game_scene.tscn ---
 
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://src/scenes/game_world/world_manager.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ui/hud/main_hud.tscn" type="PackedScene" id=2]
@@ -1892,6 +1892,7 @@ text = "Close"
 [ext_resource path="res://src/core/systems/contact_manager.gd" type="Script" id=27]
 [ext_resource path="res://src/core/ui/debug_map_panel/debug_map_panel.tscn" type="PackedScene" id=28]
 [ext_resource path="res://scenes/prefabs/navigation/jump_transition_rig.tscn" type="PackedScene" id=29]
+[ext_resource path="res://scenes/ui/menus/contract_board/ContractBoard.tscn" type="PackedScene" id=30]
 
 [node name="MainGameScene" type="Node"]
 
@@ -1943,6 +1944,8 @@ __meta__ = {
 [node name="SimDebugPanel" parent="." instance=ExtResource( 25 )]
 
 [node name="DebugMapPanel" parent="." instance=ExtResource( 28 )]
+
+[node name="ContractBoard" parent="." instance=ExtResource( 30 )]
 
 --- Start of ./scenes/levels/sectors/sector_epsilon/Planet_epsilon.tscn ---
 
@@ -3483,6 +3486,7 @@ __meta__ = {
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 40200, 250, -15200 )
 
 [node name="Star Lywin A" parent="SceneAssets" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 15528.9, 1396.49, 5909.2 )
 
 [node name="Planet Lywin A a" parent="SceneAssets/Star Lywin A" instance=ExtResource( 9 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 43395.1, 3600.17, -12229.2 )
@@ -6787,7 +6791,6 @@ font_data = ExtResource( 2 )
 script = ExtResource( 1 )
 
 [node name="Panel" type="Panel" parent="."]
-visible = false
 self_modulate = Color( 0, 0, 0, 0.85 )
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -6806,47 +6809,71 @@ margin_bottom = -8.0
 
 [node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
 margin_right = 1884.0
-margin_bottom = 36.0
+margin_bottom = 150.0
 
 [node name="HeaderLabel" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+margin_top = 61.0
+margin_right = 816.0
+margin_bottom = 88.0
 size_flags_horizontal = 3
 custom_fonts/font = SubResource( 1 )
 text = "SIM DEBUG  [F3 to close]"
 
 [node name="BtnDumpConsole" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 820.0
+margin_right = 1040.0
+margin_bottom = 150.0
 rect_min_size = Vector2( 220, 0 )
 theme = ExtResource( 3 )
 text = "Dump to Console"
 
 [node name="BtnTick" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 1044.0
+margin_right = 1224.0
+margin_bottom = 150.0
 rect_min_size = Vector2( 180, 0 )
 theme = ExtResource( 3 )
 text = "Advance 1 Tick"
 
 [node name="BtnRun30" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 1228.0
+margin_right = 1348.0
+margin_bottom = 150.0
 rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 3 )
 text = "Run 30"
 
 [node name="BtnRun300" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 1352.0
+margin_right = 1472.0
+margin_bottom = 150.0
 rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 3 )
 text = "Run 300"
 
 [node name="BtnRun3000" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 1476.0
+margin_right = 1606.0
+margin_bottom = 150.0
 rect_min_size = Vector2( 130, 0 )
 theme = ExtResource( 3 )
 text = "Run 3000"
 
 [node name="BtnBack" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 1610.0
+margin_right = 1730.0
+margin_bottom = 150.0
 rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 3 )
 text = "< Back"
 
 [node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 4 )]
+margin_left = 1734.0
+margin_right = 1884.0
+margin_bottom = 150.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]
-margin_top = 40.0
+margin_top = 154.0
 margin_right = 1884.0
 margin_bottom = 1044.0
 size_flags_vertical = 3
@@ -6854,7 +6881,85 @@ custom_fonts/bold_font = SubResource( 1 )
 custom_fonts/normal_font = SubResource( 1 )
 bbcode_enabled = true
 
+--- Start of ./scenes/ui/menus/contract_board/ContractBoard.tscn ---
+
+; PROJECT: GDTLancer
+; MODULE: ContractBoard.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TACTICAL_TODO.md TASK_1
+; LOG_REF: 2026-05-27 02:49:16
+
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://src/core/ui/contract_board/contract_board.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+[ext_resource path="res://scenes/ui/shared/window_close_button.tscn" type="PackedScene" id=3]
+
+[node name="ContractBoard" type="CanvasLayer"]
+script = ExtResource( 1 )
+
+[node name="Panel" type="Panel" parent="."]
+visible = false
+self_modulate = Color( 0, 0, 0, 0.85 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+theme = ExtResource( 2 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+custom_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_right = 1848.0
+margin_bottom = 150.0
+
+[node name="HeaderLabel" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+margin_top = 61.0
+margin_right = 1698.0
+margin_bottom = 88.0
+size_flags_horizontal = 3
+text = "CONTRACT BOARD"
+
+[node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 3 )]
+margin_left = 1698.0
+margin_right = 1848.0
+margin_bottom = 150.0
+
+[node name="SummaryLabel" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 162.0
+margin_right = 1848.0
+margin_bottom = 251.0
+autowrap = true
+text = "Contract board summary"
+
+[node name="ContractScroll" type="ScrollContainer" parent="Panel/VBoxContainer"]
+margin_top = 263.0
+margin_right = 1848.0
+margin_bottom = 1000.0
+size_flags_vertical = 3
+
+[node name="ContractList" type="VBoxContainer" parent="Panel/VBoxContainer/ContractScroll"]
+margin_right = 1848.0
+margin_bottom = 737.0
+size_flags_horizontal = 3
+custom_constants/separation = 12
+
 --- Start of ./scenes/ui/menus/debug_window.tscn ---
+
+; PROJECT: GDTLancer
+; MODULE: debug_window.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
+; LOG_REF: 2026-05-27 02:49:16
 
 [gd_scene load_steps=4 format=2]
 
@@ -6866,8 +6971,8 @@ bbcode_enabled = true
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 2 )
 mouse_filter = 1
+theme = ExtResource( 2 )
 script = ExtResource( 1 )
 
 [node name="Background" type="ColorRect" parent="."]
@@ -6901,10 +7006,10 @@ margin_bottom = 150.0
 alignment = 1
 
 [node name="debug_LabelTitle" type="Label" parent="Panel/VBoxContainer/debug_HeaderRow"]
-size_flags_horizontal = 3
 margin_top = 61.0
-margin_right = 570.0
+margin_right = 530.0
 margin_bottom = 88.0
+size_flags_horizontal = 3
 text = "Debug Window"
 
 [node name="debug_ButtonClose" parent="Panel/VBoxContainer/debug_HeaderRow" instance=ExtResource( 3 )]
@@ -6939,30 +7044,29 @@ text = "Hull: 100%"
 [node name="debug_PlayerHullBar" type="ProgressBar" parent="Panel/VBoxContainer"]
 margin_top = 338.0
 margin_right = 720.0
-margin_bottom = 352.0
+margin_bottom = 365.0
 value = 100.0
 
 [node name="debug_ButtonSimPanel" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 368.0
+margin_top = 381.0
 margin_right = 720.0
-margin_bottom = 418.0
+margin_bottom = 431.0
 rect_min_size = Vector2( 0, 50 )
 text = "SIM DEBUG"
 
 [node name="debug_ButtonMapPanel" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 434.0
+margin_top = 447.0
 margin_right = 720.0
-margin_bottom = 484.0
+margin_bottom = 497.0
 rect_min_size = Vector2( 0, 50 )
 text = "MAP DEBUG"
 
-[node name="debug_ButtonInventory" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 500.0
+[node name="debug_ButtonContractBoard" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 513.0
 margin_right = 720.0
-margin_bottom = 550.0
+margin_bottom = 563.0
 rect_min_size = Vector2( 0, 50 )
-disabled = true
-text = "Placeholder"
+text = "CONTRACT BOARD"
 
 --- Start of ./scenes/ui/menus/main_menu.tscn ---
 
@@ -7316,6 +7420,12 @@ __meta__ = {
 
 --- Start of ./scenes/ui/menus/station_menu/StationMenu.tscn ---
 
+; PROJECT: GDTLancer
+; MODULE: StationMenu.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
+; LOG_REF: 2026-05-27 02:49:16
+
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/ui/station_menu/station_menu.gd" type="Script" id=1]
@@ -7336,76 +7446,74 @@ mouse_filter = 1
 color = Color( 0, 0, 0, 0.5 )
 
 [node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -200.0
-margin_top = -200.0
-margin_right = 200.0
-margin_bottom = 200.0
+self_modulate = Color( 0, 0, 0, 0.85 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 227.0
+margin_top = 174.0
+margin_right = -223.0
+margin_bottom = -174.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-custom_constants/separation = 15
+margin_left = 12.0
+margin_top = 12.0
+margin_right = -12.0
+margin_bottom = -12.0
+custom_constants/separation = 12
 
 [node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
-margin_right = 360.0
+margin_right = 1446.0
 margin_bottom = 150.0
 
 [node name="LabelStationName" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
-size_flags_horizontal = 3
 margin_top = 61.0
-margin_right = 210.0
+margin_right = 1256.0
 margin_bottom = 88.0
+size_flags_horizontal = 3
 text = "Station Name"
-align = 1
 
 [node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 3 )]
-margin_left = 210.0
-margin_right = 360.0
+margin_left = 1296.0
+margin_right = 1446.0
 margin_bottom = 150.0
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 165.0
-margin_right = 360.0
-margin_bottom = 169.0
+margin_top = 162.0
+margin_right = 1446.0
+margin_bottom = 166.0
 
 [node name="LabelInfo" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 184.0
-margin_right = 360.0
-margin_bottom = 211.0
-text = ""
-align = 1
+margin_top = 178.0
+margin_right = 1446.0
+margin_bottom = 282.0
+rect_min_size = Vector2( 0, 104 )
+autowrap = true
 
 [node name="BtnTrade" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 226.0
-margin_right = 360.0
-margin_bottom = 276.0
+margin_top = 294.0
+margin_right = 1446.0
+margin_bottom = 344.0
 rect_min_size = Vector2( 0, 50 )
 text = "Trade (coming soon)"
 
 [node name="BtnContracts" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 291.0
-margin_right = 360.0
-margin_bottom = 341.0
+margin_top = 356.0
+margin_right = 1446.0
+margin_bottom = 406.0
 rect_min_size = Vector2( 0, 50 )
-text = "Contracts (coming soon)"
+text = "Open Contract Board"
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 356.0
-margin_right = 360.0
-margin_bottom = 360.0
+margin_top = 418.0
+margin_right = 1446.0
+margin_bottom = 422.0
 
 [node name="BtnUndock" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 375.0
-margin_right = 360.0
-margin_bottom = 425.0
+margin_top = 434.0
+margin_right = 1446.0
+margin_bottom = 484.0
 rect_min_size = Vector2( 0, 50 )
 text = "Undock"
 

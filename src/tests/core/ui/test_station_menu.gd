@@ -2,12 +2,13 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_station_menu.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TACTICAL_TODO.md TASK_6
-## LOG_REF: 2026-05-26 17:38:00
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-27 04:30:42
 ##
 
 extends "res://addons/gut/test.gd"
 
+var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
 var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 
 
@@ -29,10 +30,14 @@ func after_each() -> void:
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.station_by_id.clear()
 
 
-func test_contract_board_lists_only_current_sector_source_occurrences() -> void:
+func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_contracts_exist() -> void:
 	GameState.runtime_contract_occurrences = {
 		"runtime_contract:sector_system_elace:RAW": {
 			"occurrence_id": "runtime_contract:sector_system_elace:RAW",
@@ -63,19 +68,11 @@ func test_contract_board_lists_only_current_sector_source_occurrences() -> void:
 	station_menu._on_player_docked("sector_system_elace")
 	yield(get_tree(), "idle_frame")
 
-	var contract_list: VBoxContainer = station_menu.get_node("Panel/VBoxContainer/ContractBoard/ContractScroll/ContractList")
-	assert_eq(contract_list.get_child_count(), 1,
-		"Contract board should show only source-side occurrences for the current dock sector.")
-
-	var row: HBoxContainer = contract_list.get_child(0)
-	var entry_label: Label = row.get_node("EntryLabel")
-	assert_true(entry_label.text.find("runtime_contract:sector_system_elace:RAW") != -1,
-		"Contract board should include the current sector source occurrence.")
-	assert_true(entry_label.text.find("runtime_contract:sector_system_vidr:RAW") == -1,
-		"Contract board should exclude occurrences sourced from other sectors.")
+	assert_true(station_menu.get_node_or_null("Panel/VBoxContainer/ContractBoard") == null,
+		"StationMenu should not embed a contract board once the global ContractBoard owns contract actions.")
 
 
-func test_contract_row_accept_button_updates_player_contract_state() -> void:
+func test_station_menu_contract_button_opens_remote_contract_board_without_mutating_contract_state() -> void:
 	GameState.runtime_contract_occurrences = {
 		"runtime_contract:sector_system_elace:CURRENCY": {
 			"occurrence_id": "runtime_contract:sector_system_elace:CURRENCY",
@@ -96,31 +93,51 @@ func test_contract_row_accept_button_updates_player_contract_state() -> void:
 		"current_sector_id": "sector_system_elace",
 	}
 
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var contract_board = ContractBoardScene.instance()
+	root.add_child(contract_board)
+
 	var station_menu = StationMenuScene.instance()
-	add_child_autofree(station_menu)
+	root.add_child(station_menu)
 	station_menu._on_player_docked("sector_system_elace")
 	yield(get_tree(), "idle_frame")
 
-	var contract_list: VBoxContainer = station_menu.get_node("Panel/VBoxContainer/ContractBoard/ContractScroll/ContractList")
-	var row: HBoxContainer = contract_list.get_child(0)
-	var accept_button: Button = row.get_node("AcceptButton")
-	accept_button.emit_signal("pressed")
+	assert_true(station_menu.get_node_or_null("Panel/VBoxContainer/ContractBoard") == null,
+		"StationMenu should remain a docking-only shell instead of rendering embedded contract rows.")
+
+	station_menu._on_contracts_pressed()
 	yield(get_tree(), "idle_frame")
 
-	assert_eq(GameState.player_claimed_occurrence_id, "runtime_contract:sector_system_elace:CURRENCY",
-		"Clicking Accept should claim the selected occurrence for the player.")
-	assert_eq(GameState.player_cargo_tag, "LOADED",
-		"Clicking Accept should load player contract cargo state.")
-	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:sector_system_elace:CURRENCY"].get("claimant_agent_id", "")), "player",
-		"Accepted occurrence should set claimant_agent_id to player.")
-	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:sector_system_elace:CURRENCY"].get("status", "")), "in_transit",
-		"Accepted occurrence should transition to in_transit.")
+	var contract_board_panel: Panel = contract_board.get_node("Panel")
+	assert_true(contract_board_panel.visible,
+		"StationMenu Contracts button should open the global ContractBoard overlay.")
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"Opening the global ContractBoard from StationMenu should not claim a contract directly.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"Opening the global ContractBoard from StationMenu should not load cargo.")
 
 
-func test_contract_board_station_listing_shows_procedural_station_names() -> void:
-	GameState.world_topology["sector_system_elace"]["station_ids"] = ["station_sector_system_elace"]
-	GameState.station_by_id["station_sector_system_elace"] = {
-		"display_name": "Elace Station",
+func test_station_menu_contract_button_does_not_claim_or_load_when_global_board_is_missing() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:sector_system_elace:RAW": {
+			"occurrence_id": "runtime_contract:sector_system_elace:RAW",
+			"source_sector_id": "sector_system_elace",
+			"target_sector_id": "sector_system_nyx",
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"status": "open",
+			"player_displayable": true,
+			"claimant_agent_id": "",
+		},
+	}
+	GameState.runtime_contract_occurrences_by_source_sector = {
+		"sector_system_elace": ["runtime_contract:sector_system_elace:RAW"],
+	}
+	GameState.agents["player"] = {
+		"cargo_tag": "EMPTY",
+		"current_sector_id": "sector_system_elace",
 	}
 
 	var station_menu = StationMenuScene.instance()
@@ -128,9 +145,14 @@ func test_contract_board_station_listing_shows_procedural_station_names() -> voi
 	station_menu._on_player_docked("sector_system_elace")
 	yield(get_tree(), "idle_frame")
 
-	var station_list_label: Label = station_menu.get_node("Panel/VBoxContainer/ContractBoard/StationListLabel")
-	assert_true(station_list_label.text.find("Elace Station") != -1,
-		"Station listing should include procedural station display names in the current sector.")
+	station_menu._on_contracts_pressed()
+
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"StationMenu should not claim contracts directly when the global board is unavailable.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"StationMenu should not load cargo directly when the global board is unavailable.")
+	assert_true(station_menu.visible,
+		"StationMenu should remain open as a docking shell when the global board is unavailable.")
 
 
 func _seed_base_state() -> void:

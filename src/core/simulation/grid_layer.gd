@@ -11,7 +11,7 @@ extends Reference
 ## GridLayer: Tag-transition CA engine for economy, security, environment, and colony layers.
 ##
 ## Operates on GameState.sector_tags via qualitative tag transitions each tick.
-## No numeric stockpiles, prices, or matter conservation — purely tag-based.
+## No open-ended stockpiles or prices; only bounded internal counters back runtime contract cargo/payment.
 ##
 ## Python reference: python_sandbox/core/simulation/grid_layer.py
 
@@ -104,6 +104,8 @@ func initialize_grid() -> void:
 		if not GameState.hostile_infestation_progress.has(sector_id):
 			GameState.hostile_infestation_progress[sector_id] = 0
 
+	_refresh_contract_accounting_state(true)
+
 	if Constants.VERBOSE_RUNTIME_LOGS:
 		print("GridLayer: Initialized grid state for %d sectors." % GameState.world_topology.size())
 
@@ -148,6 +150,8 @@ func seed_initial_contract_demand() -> void:
 
 		GameState.sector_tags[sector_id] = _unique(tags)
 
+	_refresh_contract_accounting_state(false)
+
 
 # =============================================================================
 # === TICK PROCESSING =========================================================
@@ -181,6 +185,8 @@ func process_tick(config: Dictionary) -> void:
 		if not GameState.grid_dominion.has(sector_id):
 			GameState.grid_dominion[sector_id] = {}
 		GameState.grid_dominion[sector_id]["security_tag"] = _security_tag(GameState.sector_tags[sector_id])
+
+	_refresh_contract_accounting_state(false)
 
 
 # =============================================================================
@@ -549,6 +555,106 @@ func _step_contract_demand(tags: Array, sector_id: String) -> Array:
 		result = _remove_tag(result, "RELIEF_NEEDED")
 
 	return result
+
+
+func _refresh_contract_accounting_state(initial_seed: bool) -> void:
+	for sector_id in GameState.world_topology:
+		_ensure_contract_accounting_sector(sector_id)
+		var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+		var cargo_supply: Dictionary = GameState.contract_cargo_supply.get(sector_id, {})
+		var cargo_reserved: Dictionary = GameState.contract_cargo_reserved.get(sector_id, {})
+		var payment_supply: Dictionary = GameState.contract_payment_supply.get(sector_id, {})
+		var payment_reserved: Dictionary = GameState.contract_payment_reserved.get(sector_id, {})
+
+		for category in CATEGORIES:
+			cargo_supply[category] = _step_contract_accounting_supply(
+				int(cargo_supply.get(category, 0)),
+				_contract_cargo_supply_cap(tags, sector_id, category),
+				initial_seed
+			)
+			cargo_reserved[category] = max(0, int(cargo_reserved.get(category, 0)))
+			payment_supply[category] = _step_contract_accounting_supply(
+				int(payment_supply.get(category, 0)),
+				_contract_payment_supply_cap(tags, sector_id, category),
+				initial_seed
+			)
+			payment_reserved[category] = max(0, int(payment_reserved.get(category, 0)))
+
+		GameState.contract_cargo_supply[sector_id] = cargo_supply
+		GameState.contract_cargo_reserved[sector_id] = cargo_reserved
+		GameState.contract_payment_supply[sector_id] = payment_supply
+		GameState.contract_payment_reserved[sector_id] = payment_reserved
+
+
+func _ensure_contract_accounting_sector(sector_id: String) -> void:
+	if not GameState.contract_cargo_supply.has(sector_id):
+		GameState.contract_cargo_supply[sector_id] = {}
+	if not GameState.contract_cargo_reserved.has(sector_id):
+		GameState.contract_cargo_reserved[sector_id] = {}
+	if not GameState.contract_payment_supply.has(sector_id):
+		GameState.contract_payment_supply[sector_id] = {}
+	if not GameState.contract_payment_reserved.has(sector_id):
+		GameState.contract_payment_reserved[sector_id] = {}
+
+
+func _step_contract_accounting_supply(current_supply: int, cap: int, initial_seed: bool) -> int:
+	var bounded_cap: int = max(0, cap)
+	var bounded_supply: int = max(0, current_supply)
+	if initial_seed:
+		return bounded_cap
+	if bounded_supply < bounded_cap:
+		return bounded_supply + 1
+	if bounded_supply > bounded_cap:
+		return bounded_supply - 1
+	return bounded_supply
+
+
+func _contract_cargo_supply_cap(tags: Array, sector_id: String, category: String) -> int:
+	if not _is_contract_service_sector(tags) or _sector_recently_disabled(sector_id):
+		return 0
+
+	var base_supply: int = 0
+	match _economy_level(tags, category):
+		"ADEQUATE":
+			base_supply = 1
+		"RICH":
+			base_supply = 2
+		_:
+			base_supply = 0
+
+	if base_supply <= 0:
+		return 0
+
+	var colony_level: String = str(GameState.colony_levels.get(sector_id, "frontier"))
+	match colony_level:
+		"frontier":
+			return int(min(base_supply, 1))
+		"colony", "hub":
+			return base_supply + 1
+		_:
+			return base_supply
+
+
+func _contract_payment_supply_cap(tags: Array, sector_id: String, category: String) -> int:
+	if not _is_contract_service_sector(tags) or _sector_recently_disabled(sector_id):
+		return 0
+
+	var base_supply: int = 1
+	match str(GameState.colony_levels.get(sector_id, "frontier")):
+		"colony":
+			base_supply = 2
+		"hub":
+			base_supply = 3
+		_:
+			base_supply = 1
+
+	if _security_tag(tags) == "LAWLESS":
+		base_supply = max(0, base_supply - 1)
+
+	if _contract_demand_tag(category) in tags or (category + "_POOR") in tags:
+		base_supply = max(base_supply, 1)
+
+	return base_supply
 
 
 # =============================================================================

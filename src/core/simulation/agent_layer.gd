@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §2.3; TACTICAL_TODO.md TASK_7
-# LOG_REF: 2026-05-26 18:08:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6, TASK_8
+# LOG_REF: 2026-05-27 03:44:19
 #
 
 extends Reference
@@ -200,6 +200,7 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 		"condition_tag": _pick_tag(initial_tags, ["HEALTHY", "DAMAGED", "DESTROYED"], "HEALTHY"),
 		"wealth_tag": _pick_tag(initial_tags, ["WEALTHY", "COMFORTABLE", "BROKE"], "COMFORTABLE"),
 		"cargo_tag": _pick_tag(initial_tags, ["LOADED", "EMPTY"], "EMPTY"),
+		"rest_ticks_remaining": 0,
 		"dynamic_tags": [],
 	}
 
@@ -209,8 +210,12 @@ func _initialize_agent_from_template(agent_id: String, template: Resource) -> vo
 # =============================================================================
 
 func _evaluate_goals(agent: Dictionary, agent_id: String = "") -> void:
-	# Keep player inert unless the UI explicitly selected a contract while docked.
-	if agent_id == "player" and not _player_can_service_contract(agent):
+	# Player contract interactions are user-driven through the contract board, not auto-serviced here.
+	if agent_id == "player":
+		agent["goal_archetype"] = "idle"
+		agent["goal_queue"] = [{"type": "idle"}]
+		return
+	if _consume_mandatory_npc_rest_tick(agent_id, agent):
 		agent["goal_archetype"] = "idle"
 		agent["goal_queue"] = [{"type": "idle"}]
 		return
@@ -239,12 +244,68 @@ func _execute_action(agent_id: String, agent: Dictionary) -> void:
 
 	if goal == "flee_to_safety":
 		_action_flee_to_safety(agent_id, agent)
+		_schedule_npc_rest_after_action(agent_id, agent, goal)
 		return
 	if goal == "service_contract":
 		_action_service_contract(agent_id, agent, str(goal_queue[0].get("occurrence_id", "")))
+		_schedule_npc_rest_after_action(agent_id, agent, goal)
 		return
 	if goal == "affinity_scan":
 		_action_affinity_scan(agent_id, agent)
+		_schedule_npc_rest_after_action(agent_id, agent, goal)
+
+
+func _consume_mandatory_npc_rest_tick(agent_id: String, agent: Dictionary) -> bool:
+	if agent_id == "player":
+		return false
+	if _should_skip_mandatory_npc_rest(agent_id, agent):
+		agent["rest_ticks_remaining"] = 0
+		return false
+	var remaining_rest_ticks: int = max(0, int(agent.get("rest_ticks_remaining", 0)))
+	if remaining_rest_ticks <= 0:
+		return false
+	agent["rest_ticks_remaining"] = remaining_rest_ticks - 1
+	return true
+
+
+func _schedule_npc_rest_after_action(agent_id: String, agent: Dictionary, goal: String) -> void:
+	if agent_id == "player" or goal == "idle":
+		return
+	if agent.get("is_disabled", false):
+		return
+	if _should_skip_mandatory_npc_rest(agent_id, agent):
+		agent["rest_ticks_remaining"] = 0
+		return
+	agent["rest_ticks_remaining"] = _mandatory_rest_ticks_for_agent(agent)
+
+
+func _should_skip_mandatory_npc_rest(agent_id: String, agent: Dictionary) -> bool:
+	if str(agent.get("cargo_tag", "EMPTY")) == "LOADED":
+		return true
+	return _has_active_runtime_contract_claim(agent_id)
+
+
+func _has_active_runtime_contract_claim(agent_id: String) -> bool:
+	for occurrence_id in GameState.runtime_contract_occurrences.keys():
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if str(occurrence.get("claimant_agent_id", "")) != agent_id:
+			continue
+		if str(occurrence.get("status", "")) == "completed":
+			continue
+		return true
+	return false
+
+
+func _mandatory_rest_ticks_for_agent(agent: Dictionary) -> int:
+	var condition_tag: String = str(agent.get("condition_tag", "HEALTHY"))
+	var wealth_tag: String = str(agent.get("wealth_tag", "COMFORTABLE"))
+	if condition_tag == "HEALTHY" and wealth_tag == "WEALTHY":
+		return 3
+	if condition_tag == "HEALTHY" and wealth_tag == "COMFORTABLE":
+		return 2
+	return 1
 
 
 func _action_flee_to_safety(agent_id: String, agent: Dictionary) -> void:
@@ -474,6 +535,100 @@ func _has_local_exploration_outlet(sector_id: String) -> bool:
 # === PRIVATE — RUNTIME CONTRACTS =============================================
 # =============================================================================
 
+func player_accept_runtime_contract(occurrence_id: String) -> bool:
+	var selected_occurrence_id: String = str(occurrence_id)
+	if selected_occurrence_id == "":
+		return false
+
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(selected_occurrence_id, {})
+	if occurrence.empty():
+		return false
+
+	var existing_claim_id: String = str(GameState.player_claimed_occurrence_id)
+	if existing_claim_id != "" and existing_claim_id != selected_occurrence_id:
+		return false
+
+	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
+	if claimant_agent_id != "" and claimant_agent_id != "player":
+		return false
+	if claimant_agent_id == "" and not _reserve_runtime_contract_resources(occurrence):
+		return false
+
+	GameState.player_claimed_occurrence_id = selected_occurrence_id
+	occurrence["claimant_agent_id"] = "player"
+	occurrence["status"] = "claimed"
+	occurrence["claimed_at_tick"] = GameState.sim_tick_count
+	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
+	GameState.runtime_contract_occurrences[selected_occurrence_id] = occurrence
+
+	if claimant_agent_id == "":
+		_log_event("player", "contract_claimed", _player_current_sector_id(), {
+			"occurrence_id": selected_occurrence_id,
+			"target_sector_id": str(occurrence.get("target_sector_id", "")),
+		})
+
+	return true
+
+
+func player_pick_up_runtime_contract(occurrence_id: String) -> bool:
+	var selected_occurrence_id: String = str(occurrence_id)
+	if selected_occurrence_id == "":
+		return false
+	if str(GameState.player_claimed_occurrence_id) != selected_occurrence_id:
+		return false
+	if not GameState.agents.has("player"):
+		return false
+
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	if player_agent.empty():
+		return false
+
+	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(selected_occurrence_id, {})
+	if occurrence.empty():
+		return false
+	if str(occurrence.get("claimant_agent_id", "")) != "player":
+		return false
+
+	var current_sector_id: String = _player_current_sector_id()
+	if current_sector_id == "":
+		return false
+
+	var pickup_success: bool = _load_runtime_contract_cargo("player", player_agent, selected_occurrence_id, current_sector_id)
+	if pickup_success:
+		GameState.agents["player"] = player_agent
+	return pickup_success
+
+
+func player_complete_runtime_contract(occurrence_id: String) -> bool:
+	var selected_occurrence_id: String = str(occurrence_id)
+	if selected_occurrence_id == "":
+		return false
+	if str(GameState.player_claimed_occurrence_id) != selected_occurrence_id:
+		return false
+	if not GameState.agents.has("player"):
+		return false
+
+	var player_agent: Dictionary = GameState.agents.get("player", {})
+	if player_agent.empty():
+		return false
+
+	var current_sector_id: String = _player_current_sector_id()
+	if current_sector_id == "":
+		return false
+
+	var completion_success: bool = _complete_player_contract_delivery(player_agent, selected_occurrence_id, current_sector_id)
+	if completion_success:
+		GameState.agents["player"] = player_agent
+	return completion_success
+
+
+func _player_current_sector_id() -> String:
+	if GameState.agents.has("player"):
+		var player_agent: Dictionary = GameState.agents.get("player", {})
+		if not player_agent.empty() and str(player_agent.get("current_sector_id", "")) != "":
+			return str(player_agent.get("current_sector_id", ""))
+	return str(GameState.current_sector_id)
+
 func _best_runtime_contract_occurrence_id(agent_id: String, agent: Dictionary, actor_tags: Array) -> String:
 	if agent_id == "player":
 		if not _player_can_service_contract(agent):
@@ -600,6 +755,10 @@ func _claim_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occ
 		return false
 
 	if claimant_agent_id == "":
+		if agent_id != "player" and not _can_npc_claim_open_runtime_contract(agent_id, occurrence_id, occurrence):
+			return false
+		if not _reserve_runtime_contract_resources(occurrence):
+			return false
 		occurrence["claimant_agent_id"] = agent_id
 		occurrence["status"] = "claimed"
 		occurrence["claimed_at_tick"] = GameState.sim_tick_count
@@ -615,12 +774,48 @@ func _claim_runtime_contract_occurrence(agent_id: String, agent: Dictionary, occ
 	return true
 
 
+func _can_npc_claim_open_runtime_contract(agent_id: String, occurrence_id: String, occurrence: Dictionary) -> bool:
+	var claim_grace_ticks: int = max(0, int(Constants.NPC_RUNTIME_CONTRACT_CLAIM_GRACE_TICKS))
+	var created_at_tick: int = int(occurrence.get("created_at_tick", GameState.sim_tick_count))
+	if GameState.sim_tick_count - created_at_tick < claim_grace_ticks:
+		return false
+
+	var claim_chance: float = clamp(float(Constants.NPC_RUNTIME_CONTRACT_CLAIM_CHANCE), 0.0, 1.0)
+	if claim_chance <= 0.0:
+		return false
+	if claim_chance >= 1.0:
+		return true
+
+	var claim_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	claim_rng.seed = hash(str(GameState.world_seed) + ":contract_claim:" + str(GameState.sim_tick_count) + ":" + occurrence_id + ":" + agent_id)
+	return claim_rng.randf() < claim_chance
+
+
 func _release_runtime_contract_claim(agent_id: String, occurrence_id: String) -> void:
 	var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
 	if occurrence.empty():
 		return
 	if str(occurrence.get("claimant_agent_id", "")) != agent_id:
 		return
+	var category: String = str(occurrence.get("commodity_category", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	if bool(occurrence.get("source_reserved", false)) and not bool(occurrence.get("cargo_picked_up", false)):
+		_release_contract_accounting_unit(
+			GameState.contract_cargo_supply,
+			GameState.contract_cargo_reserved,
+			source_sector_id,
+			category
+		)
+	occurrence["source_reserved"] = false
+	if bool(occurrence.get("payment_reserved", false)):
+		_release_contract_accounting_unit(
+			GameState.contract_payment_supply,
+			GameState.contract_payment_reserved,
+			target_sector_id,
+			category
+		)
+	occurrence["payment_reserved"] = false
 	occurrence["claimant_agent_id"] = ""
 	occurrence["status"] = "open"
 	if occurrence.has("claimed_at_tick"):
@@ -642,6 +837,14 @@ func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrenc
 	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
 	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
 		return false
+	if not _reserve_runtime_contract_resources(occurrence):
+		return false
+	if not _consume_reserved_contract_unit(
+		GameState.contract_cargo_reserved,
+		sector_id,
+		str(occurrence.get("commodity_category", ""))
+	):
+		return false
 
 	agent["cargo_tag"] = "LOADED"
 	if agent_id == "player":
@@ -649,6 +852,8 @@ func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrenc
 		agent["contract_cargo_tag"] = str(occurrence.get("required_cargo_tag", ""))
 	if str(agent.get("agent_role", "idle")) == "trader":
 		_wealth_step_down(agent)
+	occurrence["source_reserved"] = false
+	occurrence["cargo_picked_up"] = true
 	occurrence["status"] = "in_transit"
 	occurrence["last_refreshed_tick"] = GameState.sim_tick_count
 	GameState.runtime_contract_occurrences[occurrence_id] = occurrence
@@ -670,8 +875,17 @@ func _complete_runtime_contract_occurrence(agent_id: String, agent: Dictionary, 
 	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
 	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
 		return false
+	if not _reserve_runtime_contract_resources(occurrence):
+		return false
+	if not _consume_reserved_contract_unit(
+		GameState.contract_payment_reserved,
+		sector_id,
+		str(occurrence.get("commodity_category", ""))
+	):
+		return false
 
 	_try_dock(agent_id, agent, sector_id)
+	occurrence["payment_reserved"] = false
 	_apply_contract_completion_sector_impact(occurrence, sector_id)
 	_log_event(agent_id, "contract_completed", sector_id, {
 		"occurrence_id": occurrence_id,
@@ -696,15 +910,19 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 	if str(GameState.player_cargo_tag) != "LOADED":
 		return false
 
-	var sector_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
-	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
-		return false
-
 	var required_cargo_tag: String = str(occurrence.get("required_cargo_tag", ""))
 	if required_cargo_tag != "":
 		var loaded_cargo_tag: String = str(agent.get("contract_cargo_tag", required_cargo_tag))
 		if loaded_cargo_tag != required_cargo_tag:
 			return false
+	if not _reserve_runtime_contract_resources(occurrence):
+		return false
+	if not _consume_reserved_contract_unit(
+		GameState.contract_payment_reserved,
+		sector_id,
+		str(occurrence.get("commodity_category", ""))
+	):
+		return false
 
 	agent["cargo_tag"] = "EMPTY"
 	if agent.has("contract_cargo_tag"):
@@ -721,6 +939,7 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 
 	occurrence["status"] = "completed"
 	occurrence["claimant_agent_id"] = ""
+	occurrence["payment_reserved"] = false
 	if occurrence.has("claimed_at_tick"):
 		occurrence.erase("claimed_at_tick")
 	occurrence["completed_at_tick"] = GameState.sim_tick_count
@@ -733,6 +952,90 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 		"source_sector_id": str(occurrence.get("source_sector_id", "")),
 		"reward_credits": reward_credits,
 	})
+	return true
+
+
+func _reserve_runtime_contract_resources(occurrence: Dictionary) -> bool:
+	if occurrence.empty():
+		return false
+	var category: String = str(occurrence.get("commodity_category", ""))
+	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	if category == "" or source_sector_id == "" or target_sector_id == "":
+		return false
+
+	var reserved_source_now: bool = false
+	if not bool(occurrence.get("cargo_picked_up", false)) and not bool(occurrence.get("source_reserved", false)):
+		if not _reserve_contract_accounting_unit(
+			GameState.contract_cargo_supply,
+			GameState.contract_cargo_reserved,
+			source_sector_id,
+			category
+		):
+			return false
+		occurrence["source_reserved"] = true
+		reserved_source_now = true
+
+	if not bool(occurrence.get("payment_reserved", false)):
+		if not _reserve_contract_accounting_unit(
+			GameState.contract_payment_supply,
+			GameState.contract_payment_reserved,
+			target_sector_id,
+			category
+		):
+			if reserved_source_now:
+				_release_contract_accounting_unit(
+					GameState.contract_cargo_supply,
+					GameState.contract_cargo_reserved,
+					source_sector_id,
+					category
+				)
+				occurrence["source_reserved"] = false
+			return false
+		occurrence["payment_reserved"] = true
+
+	return true
+
+
+func _reserve_contract_accounting_unit(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var available_units: int = int(supply_by_sector.get(category, 0))
+	if available_units <= 0:
+		return false
+	supply_by_sector[category] = available_units - 1
+	reserved_by_sector[category] = int(reserved_by_sector.get(category, 0)) + 1
+	supply_root[sector_id] = supply_by_sector
+	reserved_root[sector_id] = reserved_by_sector
+	return true
+
+
+func _release_contract_accounting_unit(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var reserved_units: int = int(reserved_by_sector.get(category, 0))
+	if reserved_units <= 0:
+		return false
+	reserved_by_sector[category] = reserved_units - 1
+	supply_by_sector[category] = int(supply_by_sector.get(category, 0)) + 1
+	supply_root[sector_id] = supply_by_sector
+	reserved_root[sector_id] = reserved_by_sector
+	return true
+
+
+func _consume_reserved_contract_unit(reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var reserved_units: int = int(reserved_by_sector.get(category, 0))
+	if reserved_units <= 0:
+		return false
+	reserved_by_sector[category] = reserved_units - 1
+	reserved_root[sector_id] = reserved_by_sector
 	return true
 
 
@@ -802,8 +1105,6 @@ func _contract_demand_tag(category: String) -> String:
 
 
 func _player_can_service_contract(agent: Dictionary) -> bool:
-	if str(GameState.player_docked_at) == "":
-		return false
 	if str(GameState.player_claimed_occurrence_id) == "":
 		return false
 	if str(agent.get("agent_role", "idle")) != "idle":
@@ -1944,6 +2245,7 @@ func _spawn_mortal_agents() -> void:
 		"condition_tag": "HEALTHY",
 		"wealth_tag": "BROKE",
 		"cargo_tag": "EMPTY",
+		"rest_ticks_remaining": 0,
 		"dynamic_tags": [],
 	}
 	_log_event(agent_id, "spawn", spawn_sector, {})

@@ -165,6 +165,30 @@ func request_tick() -> void:
 	process_tick()
 
 
+func player_accept_runtime_contract(occurrence_id: String) -> bool:
+	if agent_layer == null or not is_instance_valid(agent_layer):
+		return false
+	if not agent_layer.has_method("player_accept_runtime_contract"):
+		return false
+	return bool(agent_layer.call("player_accept_runtime_contract", occurrence_id))
+
+
+func player_pick_up_runtime_contract(occurrence_id: String) -> bool:
+	if agent_layer == null or not is_instance_valid(agent_layer):
+		return false
+	if not agent_layer.has_method("player_pick_up_runtime_contract"):
+		return false
+	return bool(agent_layer.call("player_pick_up_runtime_contract", occurrence_id))
+
+
+func player_complete_runtime_contract(occurrence_id: String) -> bool:
+	if agent_layer == null or not is_instance_valid(agent_layer):
+		return false
+	if not agent_layer.has_method("player_complete_runtime_contract"):
+		return false
+	return bool(agent_layer.call("player_complete_runtime_contract", occurrence_id))
+
+
 ## Processes one full simulation tick through all layers.
 func process_tick() -> void:
 	GameState.sim_tick_count += 1

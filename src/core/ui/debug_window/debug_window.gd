@@ -3,7 +3,7 @@
 # MODULE: debug_window.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-14 01:01:21
+# LOG_REF: 2026-05-27 04:29:00
 #
 
 extends Control
@@ -16,7 +16,7 @@ onready var debug_label_player_hull: Label = $Panel/VBoxContainer/debug_LabelPla
 onready var debug_player_hull_bar: ProgressBar = $Panel/VBoxContainer/debug_PlayerHullBar
 onready var debug_button_sim_panel: Button = $Panel/VBoxContainer/debug_ButtonSimPanel
 onready var debug_button_map_panel: Button = $Panel/VBoxContainer/debug_ButtonMapPanel
-onready var debug_button_inventory: Button = $Panel/VBoxContainer/debug_ButtonInventory
+onready var debug_button_contract_board: Button = $Panel/VBoxContainer/debug_ButtonContractBoard
 
 var _is_visible: bool = false
 
@@ -30,8 +30,8 @@ func _ready() -> void:
 		debug_button_sim_panel.connect("pressed", self, "_on_debug_button_sim_panel_pressed")
 	if is_instance_valid(debug_button_map_panel) and not debug_button_map_panel.is_connected("pressed", self, "_on_debug_button_map_panel_pressed"):
 		debug_button_map_panel.connect("pressed", self, "_on_debug_button_map_panel_pressed")
-	if is_instance_valid(debug_button_inventory) and not debug_button_inventory.is_connected("pressed", self, "_on_debug_button_inventory_pressed"):
-		debug_button_inventory.connect("pressed", self, "_on_debug_button_inventory_pressed")
+	if is_instance_valid(debug_button_contract_board) and not debug_button_contract_board.is_connected("pressed", self, "_on_debug_button_contract_board_pressed"):
+		debug_button_contract_board.connect("pressed", self, "_on_debug_button_contract_board_pressed")
 	call_deferred("refresh_debug_window_state")
 
 
@@ -97,17 +97,38 @@ func _on_debug_button_map_panel_pressed() -> void:
 	_toggle_named_panel("DebugMapPanel", "_toggle_panel")
 
 
-func _on_debug_button_inventory_pressed() -> void:
-	pass
+func _on_debug_button_contract_board_pressed() -> void:
+	_toggle_named_panel("ContractBoard", "_toggle")
 
 
 func _toggle_named_panel(panel_name: String, toggle_method: String) -> void:
-	var scene_root = get_tree().current_scene
-	if not is_instance_valid(scene_root):
-		return
-	var panel = scene_root.find_node(panel_name, true, false)
+	var panel = _find_named_panel(panel_name)
 	if not is_instance_valid(panel):
 		printerr("DebugWindow: Missing panel: %s" % panel_name)
 		return
 	if panel.has_method(toggle_method):
 		panel.call(toggle_method)
+
+
+func _find_named_panel(panel_name: String) -> Node:
+	var scene_root = get_tree().current_scene
+	if is_instance_valid(scene_root):
+		var scene_panel = scene_root.find_node(panel_name, true, false)
+		if is_instance_valid(scene_panel):
+			return scene_panel
+
+	var ancestor_root: Node = self
+	while is_instance_valid(ancestor_root.get_parent()):
+		ancestor_root = ancestor_root.get_parent()
+	if is_instance_valid(ancestor_root):
+		var ancestor_panel = ancestor_root.find_node(panel_name, true, false)
+		if is_instance_valid(ancestor_panel):
+			return ancestor_panel
+
+	var tree_root = get_tree().root
+	if is_instance_valid(tree_root):
+		var tree_panel = tree_root.find_node(panel_name, true, false)
+		if is_instance_valid(tree_panel):
+			return tree_panel
+
+	return null

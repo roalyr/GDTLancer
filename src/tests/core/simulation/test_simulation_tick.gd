@@ -3,7 +3,7 @@
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-## LOG_REF: 2026-05-26 19:02:00
+## LOG_REF: 2026-05-27 04:13:47
 #
 
 extends GutTest
@@ -204,6 +204,10 @@ func _clear_state() -> void:
 	GameState.economy_change_threshold.clear()
 	GameState.contract_generation_pressure.clear()
 	GameState.contract_generation_threshold.clear()
+	GameState.contract_cargo_supply.clear()
+	GameState.contract_cargo_reserved.clear()
+	GameState.contract_payment_supply.clear()
+	GameState.contract_payment_reserved.clear()
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
@@ -257,6 +261,22 @@ func _seed_contract_tick_state() -> void:
 	GameState.runtime_contract_occurrences.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
+	GameState.contract_cargo_supply = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+	}
+	GameState.contract_cargo_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.contract_payment_supply = {
+		"a": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+		"b": {"RAW": 1, "MANUFACTURED": 1, "CURRENCY": 1},
+	}
+	GameState.contract_payment_reserved = {
+		"a": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
 
 
 func _seed_template_database() -> void:

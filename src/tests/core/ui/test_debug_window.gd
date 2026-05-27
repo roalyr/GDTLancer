@@ -2,14 +2,15 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_window.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_6
-## LOG_REF: 2026-05-26 18:20:00
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-27 04:30:42
 ##
 
 extends "res://addons/gut/test.gd"
 
 var MainHUDScene = load("res://scenes/ui/hud/main_hud.tscn")
 var DebugWindowScene = load("res://scenes/ui/menus/debug_window.tscn")
+var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
 var MainMenuScene = load("res://scenes/ui/menus/main_menu.tscn")
 var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 
@@ -20,6 +21,7 @@ func after_each() -> void:
 	GlobalRefs.main_camera = null
 	GlobalRefs.player_agent_body = null
 	GlobalRefs.current_zone = null
+	GlobalRefs.simulation_engine = null
 	GameState.current_sector_id = ""
 	GameState.player_docked_at = ""
 	GameState.player_character_uid = ""
@@ -52,6 +54,30 @@ func test_button_debug_toggles_debug_window_sibling() -> void:
 	button_debug.emit_signal("pressed")
 	yield(get_tree(), "idle_frame")
 	assert_false(debug_window.visible, "Pressing ButtonDebug again should hide the DebugWindow.")
+
+
+func test_debug_window_contract_board_button_toggles_contract_board_panel() -> void:
+	var root = Node.new()
+	add_child_autofree(root)
+
+	var debug_window = DebugWindowScene.instance()
+	root.add_child(debug_window)
+
+	var contract_board = ContractBoardScene.instance()
+	root.add_child(contract_board)
+	yield(get_tree(), "idle_frame")
+
+	var contract_board_panel: Panel = contract_board.get_node("Panel")
+	assert_false(contract_board_panel.visible, "ContractBoard should start hidden.")
+
+	var contract_button: Button = debug_window.get_node("Panel/VBoxContainer/debug_ButtonContractBoard")
+	contract_button.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+	assert_true(contract_board_panel.visible, "DebugWindow contract board button should open the ContractBoard overlay.")
+
+	contract_button.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+	assert_false(contract_board_panel.visible, "Pressing the contract board button again should hide the ContractBoard overlay.")
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:
@@ -108,7 +134,7 @@ func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_dock
 	assert_false(station_menu.visible, "StationMenu should hide instead of reopening from stale dock state.")
 
 
-func test_station_menu_service_buttons_show_explicit_trade_feedback_and_contract_availability_status() -> void:
+func test_station_menu_service_buttons_show_explicit_trade_feedback_and_do_not_claim_contracts() -> void:
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
 	GameState.player_docked_at = "sector_system_elace"
@@ -127,10 +153,10 @@ func test_station_menu_service_buttons_show_explicit_trade_feedback_and_contract
 	)
 
 	station_menu._on_contracts_pressed()
-	assert_true(
-		info_label.text.find("No contracts available at this dock.") != -1,
-		"Contracts should report availability status from the live contract board flow instead of a deferred placeholder message."
-	)
+	assert_eq(GameState.player_claimed_occurrence_id, "",
+		"StationMenu should not claim contracts directly from its service button path.")
+	assert_eq(GameState.player_cargo_tag, "EMPTY",
+		"StationMenu should not load contract cargo directly from its service button path.")
 
 
 func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:

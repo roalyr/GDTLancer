@@ -1,3 +1,9 @@
+; PROJECT: GDTLancer
+; MODULE: debug_window.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
+; LOG_REF: 2026-05-27 02:49:16
+
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/ui/debug_window/debug_window.gd" type="Script" id=1]
@@ -98,10 +104,9 @@ margin_bottom = 497.0
 rect_min_size = Vector2( 0, 50 )
 text = "MAP DEBUG"
 
-[node name="debug_ButtonInventory" type="Button" parent="Panel/VBoxContainer"]
+[node name="debug_ButtonContractBoard" type="Button" parent="Panel/VBoxContainer"]
 margin_top = 513.0
 margin_right = 720.0
 margin_bottom = 563.0
 rect_min_size = Vector2( 0, 50 )
-disabled = true
-text = "Placeholder"
+text = "CONTRACT BOARD"
