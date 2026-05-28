@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2, §3.3, §6.4; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-27 04:02:51
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §6.4; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-27 05:18:00
 #
 
 extends Reference
@@ -103,6 +103,7 @@ func _seed_retained_occurrences(
 			break
 		var previous_occurrence: Dictionary = previous_occurrences.get(occurrence_id, {})
 		if not (_should_retain_claimed_occurrence(previous_occurrence) or _should_retain_recent_open_occurrence(previous_occurrence)):
+			_cleanup_unretained_claim(previous_occurrence)
 			continue
 		var retained_occurrence: Dictionary = previous_occurrence.duplicate(true)
 		retained_occurrence["last_refreshed_tick"] = GameState.sim_tick_count
@@ -129,7 +130,11 @@ func _should_retain_claimed_occurrence(previous_occurrence: Dictionary) -> bool:
 	var status: String = str(previous_occurrence.get("status", "open"))
 	if not (status in ["claimed", "in_transit"]):
 		return false
-	return _claimant_is_valid(claimant_agent_id, previous_occurrence)
+	if not _claimant_is_valid(claimant_agent_id, previous_occurrence):
+		return false
+	if not bool(previous_occurrence.get("cargo_picked_up", false)):
+		return _pre_pickup_occurrence_remains_serviceable(previous_occurrence)
+	return true
 
 
 func _should_retain_recent_open_occurrence(previous_occurrence: Dictionary) -> bool:
@@ -198,6 +203,50 @@ func _claimant_is_valid(agent_id: String, occurrence: Dictionary) -> bool:
 		return str(GameState.player_claimed_occurrence_id) == str(occurrence.get("occurrence_id", ""))
 	var required_roles: Array = Array(occurrence.get("required_roles", []))
 	return str(agent.get("agent_role", "idle")) in required_roles
+
+
+func _pre_pickup_occurrence_remains_serviceable(previous_occurrence: Dictionary) -> bool:
+	var source_sector_id: String = str(previous_occurrence.get("source_sector_id", ""))
+	var target_sector_id: String = str(previous_occurrence.get("target_sector_id", ""))
+	return _occurrence_endpoint_is_serviceable(source_sector_id) and _occurrence_endpoint_is_serviceable(target_sector_id)
+
+
+func _occurrence_endpoint_is_serviceable(sector_id: String) -> bool:
+	if sector_id == "":
+		return false
+	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	if tags.empty():
+		return false
+	if "DISABLED" in tags:
+		return false
+	return _is_serviceable_sector(tags)
+
+
+func _cleanup_unretained_claim(previous_occurrence: Dictionary) -> void:
+	if previous_occurrence.empty():
+		return
+	if str(previous_occurrence.get("claimant_agent_id", "")) == "":
+		return
+	var status: String = str(previous_occurrence.get("status", "open"))
+	if not (status in ["claimed", "in_transit"]):
+		return
+	var category: String = str(previous_occurrence.get("commodity_category", ""))
+	var source_sector_id: String = str(previous_occurrence.get("source_accounting_sector_id", previous_occurrence.get("source_sector_id", "")))
+	var payment_sector_id: String = str(previous_occurrence.get("payment_accounting_sector_id", previous_occurrence.get("target_sector_id", "")))
+	if bool(previous_occurrence.get("source_reserved", false)):
+		_release_contract_accounting_unit(
+			GameState.contract_cargo_supply,
+			GameState.contract_cargo_reserved,
+			source_sector_id,
+			category
+		)
+	if bool(previous_occurrence.get("payment_reserved", false)):
+		_release_contract_accounting_unit(
+			GameState.contract_payment_supply,
+			GameState.contract_payment_reserved,
+			payment_sector_id,
+			category
+		)
 
 
 func _active_demand_categories(tags: Array) -> Array:
@@ -444,6 +493,21 @@ func _increment_allocated_count(allocated_root: Dictionary, sector_id: String, c
 	var allocated_by_sector: Dictionary = allocated_root.get(sector_id, {})
 	allocated_by_sector[category] = int(allocated_by_sector.get(category, 0)) + 1
 	allocated_root[sector_id] = allocated_by_sector
+
+
+func _release_contract_accounting_unit(supply_root: Dictionary, reserved_root: Dictionary, sector_id: String, category: String) -> bool:
+	if sector_id == "" or category == "":
+		return false
+	var supply_by_sector: Dictionary = supply_root.get(sector_id, {})
+	var reserved_by_sector: Dictionary = reserved_root.get(sector_id, {})
+	var reserved_units: int = int(reserved_by_sector.get(category, 0))
+	if reserved_units <= 0:
+		return false
+	reserved_by_sector[category] = reserved_units - 1
+	supply_by_sector[category] = int(supply_by_sector.get(category, 0)) + 1
+	supply_root[sector_id] = supply_by_sector
+	reserved_root[sector_id] = reserved_by_sector
+	return true
 
 
 func _index_occurrence(index: Dictionary, sector_id: String, occurrence_id: String) -> void:

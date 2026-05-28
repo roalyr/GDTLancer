@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_4, TASK_7; TRUTH_SIMULATION-GRAPH.md §6.4
-# LOG_REF: 2026-05-27 04:13:47
+# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4
+# LOG_REF: 2026-05-27 05:18:00
 #
 
 extends GutTest
@@ -131,6 +131,171 @@ func test_process_tick_retains_claimed_occurrence_without_active_demand_tag() ->
 		"Generator should preserve the original creation tick while the delivery remains active.")
 	assert_eq(int(retained_contract.get("last_refreshed_tick", -1)), GameState.sim_tick_count,
 		"Generator should refresh retained occurrences to the current tick.")
+
+
+func test_process_tick_releases_reserved_claim_when_claimant_is_invalid_before_pickup() -> void:
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.contract_cargo_supply["b"]["RAW"] = 1
+	GameState.contract_cargo_reserved["b"]["RAW"] = 1
+	GameState.contract_payment_supply["a"]["RAW"] = 0
+	GameState.contract_payment_reserved["a"]["RAW"] = 1
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "claimed",
+			"claimant_agent_id": "hauler_1",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 4,
+			"claimed_at_tick": 4,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"source_reserved": true,
+			"payment_reserved": true,
+			"cargo_picked_up": false,
+			"completed_at_tick": -1,
+		}
+	}
+
+	generator.process_tick({})
+
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Generator should drop a pre-pickup claimed occurrence when its claimant is no longer valid.")
+	assert_eq(int(GameState.contract_cargo_supply["b"].get("RAW", -1)), 2,
+		"Dropping an invalid pre-pickup claim should restore the reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_cargo_reserved["b"].get("RAW", -1)), 0,
+		"Dropping an invalid pre-pickup claim should clear the source-side reservation bucket.")
+	assert_eq(int(GameState.contract_payment_supply["a"].get("RAW", -1)), 1,
+		"Dropping an invalid pre-pickup claim should restore the reserved target-side payment bundle.")
+	assert_eq(int(GameState.contract_payment_reserved["a"].get("RAW", -1)), 0,
+		"Dropping an invalid pre-pickup claim should clear the target-side payment reservation bucket.")
+
+
+func test_process_tick_releases_prepickup_claim_when_target_sector_is_disabled() -> void:
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "b",
+		"is_disabled": false,
+		"cargo_tag": "EMPTY",
+	}
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD", "DISABLED",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.contract_cargo_supply["b"]["RAW"] = 1
+	GameState.contract_cargo_reserved["b"]["RAW"] = 1
+	GameState.contract_payment_supply["a"]["RAW"] = 0
+	GameState.contract_payment_reserved["a"]["RAW"] = 1
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "claimed",
+			"claimant_agent_id": "hauler_1",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 4,
+			"claimed_at_tick": 4,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"source_reserved": true,
+			"payment_reserved": true,
+			"cargo_picked_up": false,
+			"completed_at_tick": -1,
+		}
+	}
+
+	generator.process_tick({})
+
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:a:RAW"),
+		"Generator should drop a pre-pickup claim when the target sector is disabled before cargo is loaded.")
+	assert_eq(int(GameState.contract_cargo_supply["b"].get("RAW", -1)), 2,
+		"Disabled-sector pre-pickup cleanup should restore the reserved source-side cargo unit.")
+	assert_eq(int(GameState.contract_payment_supply["a"].get("RAW", -1)), 1,
+		"Disabled-sector pre-pickup cleanup should restore the reserved target-side payment bundle.")
+
+
+func test_process_tick_retains_in_transit_occurrence_when_target_sector_is_disabled() -> void:
+	GameState.agents["hauler_1"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "b",
+		"is_disabled": false,
+		"cargo_tag": "LOADED",
+	}
+	GameState.sector_tags["a"] = [
+		"STATION", "CONTESTED", "MILD", "DISABLED",
+		"RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"
+	]
+	GameState.contract_payment_supply["a"]["RAW"] = 0
+	GameState.contract_payment_reserved["a"]["RAW"] = 1
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:a:RAW": {
+			"occurrence_id": "runtime_contract:a:RAW",
+			"generator_id": "qualitative_demand",
+			"contract_type": "delivery",
+			"commodity_category": "RAW",
+			"demand_tag": "CONTRACT_DEMAND_RAW",
+			"source_sector_id": "b",
+			"target_sector_id": "a",
+			"source_accounting_sector_id": "b",
+			"payment_accounting_sector_id": "a",
+			"origin_location_id": "b",
+			"destination_location_id": "a",
+			"status": "in_transit",
+			"claimant_agent_id": "hauler_1",
+			"required_roles": ["trader", "hauler"],
+			"priority_tags": ["CONTRACT_DEMAND_RAW", "RELIEF_NEEDED", "CONTESTED"],
+			"route_hops": 1,
+			"created_at_tick": 4,
+			"claimed_at_tick": 4,
+			"last_refreshed_tick": 4,
+			"player_displayable": true,
+			"required_cargo_tag": "RAW_COMMODITY",
+			"reward_credits": 125,
+			"source_reserved": false,
+			"payment_reserved": true,
+			"cargo_picked_up": true,
+			"completed_at_tick": -1,
+		}
+	}
+
+	generator.process_tick({})
+
+	var retained_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_eq(str(retained_contract.get("status", "")), "in_transit",
+		"Generator should retain a picked-up in-transit occurrence even while the target sector is disabled.")
+	assert_eq(bool(retained_contract.get("payment_reserved", false)), true,
+		"Target-side payment reservation should stay held while the disabled target blocks completion.")
+	assert_eq(int(GameState.contract_payment_supply["a"].get("RAW", -1)), 0,
+		"Blocked in-transit retention should keep the reserved payment bundle out of the available pool.")
 
 
 func test_process_tick_retains_recent_open_occurrence_for_one_refresh_without_active_demand_tag() -> void:

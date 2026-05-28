@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_contract_board.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md TASK_6; TACTICAL_TODO.md TASK_7
-## LOG_REF: 2026-05-27 03:35:47
+## TRUTH_LINK: TACTICAL_TODO.md TASK_3
+## LOG_REF: 2026-05-27 18:18:00
 ##
 
 extends "res://addons/gut/test.gd"
@@ -47,6 +47,9 @@ func after_each() -> void:
 	GameState.player_claimed_occurrence_id = ""
 	GameState.player_cargo_tag = "EMPTY"
 	GameState.sector_names.clear()
+	GameState.sector_tags.clear()
+	GameState.sector_disabled_until.clear()
+	GameState.sim_tick_count = 0
 	GameState.agents.clear()
 	GameState.runtime_contract_occurrences.clear()
 	GameState.contract_cargo_supply.clear()
@@ -151,14 +154,81 @@ func test_contract_board_gates_pickup_and_complete_buttons_by_player_state() -> 
 		"Complete should enable when the player reaches the target sector with loaded cargo.")
 
 
+func test_contract_board_blocks_pickup_while_source_sector_is_disabled() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_occurrence("runtime_contract:s2:RAW", true),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["status"] = "claimed"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["source_reserved"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "DISABLED"]
+
+	var contract_board = ContractBoardScene.instance()
+	add_child_autofree(contract_board)
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	var contract_list: VBoxContainer = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	var row: VBoxContainer = contract_list.get_child(0)
+	var entry_label: Label = row.get_node("EntryLabel")
+	var pickup_button: Button = row.get_node("ButtonRow/PickupButton")
+
+	assert_true(pickup_button.disabled,
+		"Pick Up should stay disabled while the source sector is disabled.")
+	assert_true(entry_label.text.find("waiting for source recovery") != -1,
+		"ContractBoard should surface that the contract is waiting for source recovery.")
+	assert_true(entry_label.text.find("Next: Waiting for source recovery at Source") != -1,
+		"ContractBoard should provide a source-recovery specific next-step hint.")
+
+
+func test_contract_board_blocks_completion_while_target_sector_is_disabled() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_occurrence("runtime_contract:s2:RAW", true),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["status"] = "in_transit"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["cargo_picked_up"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	GameState.player_cargo_tag = "LOADED"
+	GameState.current_sector_id = "s2"
+	GameState.agents["player"]["current_sector_id"] = "s2"
+	GameState.sector_tags["s2"] = ["STATION", "CONTESTED", "MILD", "DISABLED"]
+
+	var contract_board = ContractBoardScene.instance()
+	add_child_autofree(contract_board)
+	contract_board.show_board()
+	yield(get_tree(), "idle_frame")
+
+	var contract_list: VBoxContainer = contract_board.get_node("Panel/VBoxContainer/ContractScroll/ContractList")
+	var row: VBoxContainer = contract_list.get_child(0)
+	var entry_label: Label = row.get_node("EntryLabel")
+	var complete_button: Button = row.get_node("ButtonRow/CompleteButton")
+
+	assert_true(complete_button.disabled,
+		"Complete should stay disabled while the target sector is disabled.")
+	assert_true(entry_label.text.find("waiting for target recovery") != -1,
+		"ContractBoard should surface that the contract is waiting for target recovery.")
+	assert_true(entry_label.text.find("Next: Waiting for target recovery at Target") != -1,
+		"ContractBoard should provide a target-recovery specific next-step hint.")
+
+
 func _seed_state() -> void:
 	GameState.current_sector_id = "s1"
 	GameState.player_claimed_occurrence_id = ""
 	GameState.player_cargo_tag = "EMPTY"
+	GameState.sim_tick_count = 0
 	GameState.sector_names = {
 		"s1": "Source",
 		"s2": "Target",
 	}
+	GameState.sector_tags = {
+		"s1": ["STATION", "SECURE", "MILD"],
+		"s2": ["STATION", "CONTESTED", "MILD"],
+	}
+	GameState.sector_disabled_until.clear()
 	GameState.agents = {
 		"player": {
 			"current_sector_id": "s1",

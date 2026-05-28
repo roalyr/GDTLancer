@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6, TASK_7, TASK_8
-# LOG_REF: 2026-05-27 04:13:47
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-27 16:18:30
 #
 
 extends GutTest
@@ -698,6 +698,147 @@ func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_do
 		"Player contract completion should apply the same destination-sector demand pressure relief as NPC completion.")
 	assert_does_not_have(GameState.sector_tags["s2"], "CONTRACT_DEMAND_CURRENCY",
 		"Player contract completion should clear demand tag when pressure falls below threshold.")
+
+
+func test_player_pickup_rejects_disabled_source_sector() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["status"] = "claimed"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["source_reserved"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "DISABLED", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+
+	var pickup_success: bool = agent_layer.player_pick_up_runtime_contract("runtime_contract:s2:RAW")
+
+	assert_false(pickup_success,
+		"Player pickup should fail when the source sector is disabled.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"].get("status", "")), "claimed",
+		"Disabled-source pickup failures should leave the claimed occurrence intact until generator recovery logic runs.")
+	assert_eq(str(GameState.player_cargo_tag), "EMPTY",
+		"Blocked pickup should not change player cargo state.")
+	assert_eq(bool(GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"].get("source_reserved", false)), true,
+		"Blocked pickup should not consume the reserved source-side cargo unit.")
+
+
+func test_npc_completion_rejects_disabled_target_and_keeps_in_transit_occurrence() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["claimant_agent_id"] = "trader_1"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["status"] = "in_transit"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["cargo_picked_up"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["payment_reserved"] = true
+	GameState.contract_payment_supply["s2"]["CURRENCY"] = 1
+	GameState.contract_payment_reserved["s2"]["CURRENCY"] = 1
+	GameState.sector_tags["s2"] = ["STATION", "CONTESTED", "MILD", "DISABLED", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR"]
+	var trader: Dictionary = {
+		"agent_role": "trader",
+		"current_sector_id": "s2",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+	}
+
+	var completion_success: bool = agent_layer._complete_runtime_contract_occurrence("trader_1", trader, "runtime_contract:s2:CURRENCY", "s2")
+
+	assert_false(completion_success,
+		"NPC completion should fail when the target sector is disabled.")
+	assert_true(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
+		"Blocked completion should retain the in-transit occurrence instead of removing it.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", "")), "in_transit",
+		"Blocked completion should preserve in-transit status.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 1,
+		"Blocked completion should keep the reserved target-side payment bundle held.")
+	assert_eq(str(trader.get("cargo_tag", "")), "LOADED",
+		"Blocked completion should leave cargo loaded while the delivery waits for recovery.")
+
+
+func test_player_completion_rejects_disabled_target_and_keeps_claim_state() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["status"] = "in_transit"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["cargo_picked_up"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:CURRENCY"
+	GameState.player_cargo_tag = "LOADED"
+	GameState.agents["player"]["current_sector_id"] = "s2"
+	GameState.agents["player"]["cargo_tag"] = "LOADED"
+	GameState.agents["player"]["contract_cargo_tag"] = "CURRENCY_COMMODITY"
+	GameState.current_sector_id = "s2"
+	GameState.sector_tags["s2"] = ["STATION", "CONTESTED", "MILD", "DISABLED", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR"]
+
+	var completion_success: bool = agent_layer.player_complete_runtime_contract("runtime_contract:s2:CURRENCY")
+
+	assert_false(completion_success,
+		"Player completion should fail when the target sector is disabled.")
+	assert_eq(str(GameState.player_claimed_occurrence_id), "runtime_contract:s2:CURRENCY",
+		"Blocked player completion should keep the claimed occurrence selected.")
+	assert_eq(str(GameState.player_cargo_tag), "LOADED",
+		"Blocked player completion should keep player cargo loaded until recovery.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"].get("status", "")), "in_transit",
+		"Blocked player completion should preserve the in-transit occurrence state.")
+
+
+func test_claimant_cleanup_releases_prepickup_claim_and_clears_player_mirrors() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:RAW": _make_runtime_contract_occurrence("runtime_contract:s2:RAW", "RAW", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["status"] = "claimed"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["source_reserved"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:RAW"
+	var player: Dictionary = GameState.agents["player"]
+
+	agent_layer._clear_runtime_contract_claims_for_agent("player", player)
+
+	assert_eq(str(GameState.player_claimed_occurrence_id), "",
+		"Claim cleanup should clear the player-occurrence mirror immediately.")
+	assert_eq(int(GameState.contract_cargo_supply["s1"].get("RAW", -1)), 2,
+		"Claim cleanup should restore the reserved source-side cargo unit for a pre-pickup player claim.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("RAW", -1)), 2,
+		"Claim cleanup should restore the reserved target-side payment bundle for a pre-pickup player claim.")
+	assert_eq(str(GameState.runtime_contract_occurrences["runtime_contract:s2:RAW"].get("status", "")), "open",
+		"Pre-pickup claimant cleanup should reopen the occurrence for later claims.")
+
+
+func test_claimant_cleanup_removes_picked_up_occurrence_and_releases_payment_reservation() -> void:
+	GameState.runtime_contract_occurrences = {
+		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
+	}
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["claimant_agent_id"] = "player"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["status"] = "in_transit"
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["cargo_picked_up"] = true
+	GameState.runtime_contract_occurrences["runtime_contract:s2:CURRENCY"]["payment_reserved"] = true
+	GameState.player_claimed_occurrence_id = "runtime_contract:s2:CURRENCY"
+	GameState.player_cargo_tag = "LOADED"
+	GameState.agents["player"]["cargo_tag"] = "LOADED"
+	GameState.agents["player"]["contract_cargo_tag"] = "CURRENCY_COMMODITY"
+	GameState.contract_payment_supply["s2"]["CURRENCY"] = 1
+	GameState.contract_payment_reserved["s2"]["CURRENCY"] = 1
+	var player: Dictionary = GameState.agents["player"]
+
+	agent_layer._clear_runtime_contract_claims_for_agent("player", player)
+
+	assert_false(GameState.runtime_contract_occurrences.has("runtime_contract:s2:CURRENCY"),
+		"Claimant loss after pickup should remove the in-transit occurrence immediately instead of leaving a stranded claim.")
+	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 2,
+		"Claimant loss after pickup should restore the reserved payment bundle.")
+	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
+		"Claimant loss after pickup should clear the reserved payment bucket.")
+	assert_eq(str(GameState.player_claimed_occurrence_id), "",
+		"Claimant loss after pickup should clear the player-occurrence mirror.")
+	assert_eq(str(GameState.player_cargo_tag), "EMPTY",
+		"Claimant loss after pickup should clear the player cargo mirror.")
+	assert_eq(str(player.get("cargo_tag", "")), "EMPTY",
+		"Claimant loss after pickup should clear the live player cargo state.")
+	assert_false(player.has("contract_cargo_tag"),
+		"Claimant loss after pickup should clear any live contract cargo tag on the claimant.")
 
 
 # =============================================================================

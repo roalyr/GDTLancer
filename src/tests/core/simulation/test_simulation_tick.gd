@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6 + TACTICAL_TODO.md TASK_3
-## LOG_REF: 2026-05-27 04:13:47
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.5; TACTICAL_TODO.md TASK_1
+## LOG_REF: 2026-05-28 14:01:46
 #
 
 extends GutTest
@@ -179,6 +179,47 @@ func test_run_composite_research_report_advances_once_to_largest_requested_windo
 		"Composite reports should include the largest requested milestone.")
 	assert_eq(GameState.sim_tick_count, 10,
 		"Composite reporting should advance the live simulation only to the largest requested cumulative window.")
+
+
+func test_run_silent_simulation_log_advances_exact_ticks_and_returns_summary_metadata():
+	engine.initialize_simulation("tick_test_seed")
+	var summary: Dictionary = engine.run_silent_simulation_log(3, {"requested_by": "test_simulation_tick"})
+
+	assert_eq(GameState.sim_tick_count, 3,
+		"Silent raw logging should advance the live simulation by the exact requested tick count.")
+	assert_eq(str(summary.get("schema_id", "")), "gdtlancer.sim_snapshot.v1",
+		"Silent raw logging should report the contracted schema id in its summary metadata.")
+	assert_eq(int(summary.get("tick_start", -1)), 0,
+		"Silent raw logging should report the pre-run tick boundary in its summary metadata.")
+	assert_eq(int(summary.get("tick_end", -1)), 3,
+		"Silent raw logging should report the post-run tick boundary in its summary metadata.")
+	assert_eq(int(summary.get("ticks_processed", -1)), 3,
+		"Silent raw logging should report the exact number of processed ticks.")
+	assert_eq(int(summary.get("record_count", -1)), 5,
+		"Silent raw logging should count run-started, per-tick, and run-finished records in its summary metadata.")
+	assert_true(str(summary.get("run_id", "")) != "",
+		"Silent raw logging should stamp a deterministic run id in its summary metadata.")
+
+
+func test_start_silent_raw_stream_enables_continuous_processing_without_a_tick_limit() -> void:
+	engine.initialize_simulation("tick_test_seed")
+	var summary: Dictionary = engine.start_silent_raw_stream({"requested_by": "test_simulation_tick"})
+
+	assert_eq(GameState.sim_tick_count, 0,
+		"Starting the continuous raw stream should not consume a tick synchronously inside the button callback.")
+	assert_eq(str(summary.get("stream_mode", "")), "continuous",
+		"Continuous raw streaming should advertise the continuous stream mode in its summary metadata.")
+	assert_true(bool(summary.get("active", false)),
+		"Continuous raw streaming should report itself as active once started.")
+	assert_eq(int(summary.get("record_count", -1)), 1,
+		"Continuous raw streaming should emit only the run-started record immediately at activation time.")
+	assert_true(engine.is_silent_raw_stream_active(),
+		"SimulationEngine should keep the continuous raw stream active after the start call returns.")
+
+	engine._process(0.016)
+
+	assert_eq(GameState.sim_tick_count, 1,
+		"Continuous raw streaming should continue advancing the live simulation after activation.")
 
 
 # =============================================================================

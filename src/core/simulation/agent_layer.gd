@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6, TASK_8
-# LOG_REF: 2026-05-27 03:44:19
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-05-27 16:18:30
 #
 
 extends Reference
@@ -371,6 +371,7 @@ func _resolve_agent_interaction(actor_id: String, target_id: String, score: floa
 		if new_target_condition == "DESTROYED":
 			target["is_disabled"] = true
 			target["disabled_at_tick"] = GameState.sim_tick_count
+			_clear_runtime_contract_claims_for_agent(target_id, target)
 			GameState.sector_tags[current_sector] = _add_tag(GameState.sector_tags.get(current_sector, []), "HAS_SALVAGE")
 			actor["cargo_tag"] = "LOADED"
 
@@ -713,6 +714,8 @@ func _action_service_contract(agent_id: String, agent: Dictionary, occurrence_id
 		return
 
 	if agent.get("cargo_tag", "EMPTY") == "EMPTY":
+		if not _is_contract_service_sector_available(source_sector_id):
+			return
 		if current_sector_id != source_sector_id:
 			if agent_id == "player":
 				return
@@ -721,6 +724,8 @@ func _action_service_contract(agent_id: String, agent: Dictionary, occurrence_id
 		if _load_runtime_contract_cargo(agent_id, agent, occurrence_id, source_sector_id):
 			return
 	else:
+		if not _is_contract_service_sector_available(target_sector_id):
+			return
 		if current_sector_id != target_sector_id:
 			if agent_id == "player":
 				return
@@ -798,8 +803,8 @@ func _release_runtime_contract_claim(agent_id: String, occurrence_id: String) ->
 	if str(occurrence.get("claimant_agent_id", "")) != agent_id:
 		return
 	var category: String = str(occurrence.get("commodity_category", ""))
-	var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
-	var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+	var source_sector_id: String = str(occurrence.get("source_accounting_sector_id", occurrence.get("source_sector_id", "")))
+	var target_sector_id: String = str(occurrence.get("payment_accounting_sector_id", occurrence.get("target_sector_id", "")))
 	if bool(occurrence.get("source_reserved", false)) and not bool(occurrence.get("cargo_picked_up", false)):
 		_release_contract_accounting_unit(
 			GameState.contract_cargo_supply,
@@ -826,6 +831,49 @@ func _release_runtime_contract_claim(agent_id: String, occurrence_id: String) ->
 		GameState.player_cargo_tag = "EMPTY"
 
 
+func _clear_runtime_contract_claims_for_agent(agent_id: String, agent: Dictionary) -> void:
+	var occurrence_ids: Array = GameState.runtime_contract_occurrences.keys()
+	occurrence_ids.sort()
+	var cleared_loaded_contract: bool = false
+
+	for occurrence_id in occurrence_ids:
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if str(occurrence.get("claimant_agent_id", "")) != agent_id:
+			continue
+
+		if not bool(occurrence.get("cargo_picked_up", false)):
+			var source_sector_id: String = str(occurrence.get("source_sector_id", ""))
+			var target_sector_id: String = str(occurrence.get("target_sector_id", ""))
+			_release_runtime_contract_claim(agent_id, occurrence_id)
+			if not _is_contract_service_sector_available(source_sector_id) or not _is_contract_service_sector_available(target_sector_id):
+				_remove_runtime_contract_occurrence(occurrence_id)
+			continue
+
+		var category: String = str(occurrence.get("commodity_category", ""))
+		var payment_sector_id: String = str(occurrence.get("payment_accounting_sector_id", occurrence.get("target_sector_id", "")))
+		if bool(occurrence.get("payment_reserved", false)):
+			_release_contract_accounting_unit(
+				GameState.contract_payment_supply,
+				GameState.contract_payment_reserved,
+				payment_sector_id,
+				category
+			)
+		_remove_runtime_contract_occurrence(occurrence_id)
+		cleared_loaded_contract = true
+
+	if cleared_loaded_contract:
+		agent["cargo_tag"] = "EMPTY"
+		if agent.has("contract_cargo_tag"):
+			agent.erase("contract_cargo_tag")
+		if agent_id == "player":
+			GameState.player_cargo_tag = "EMPTY"
+
+	if agent_id == "player":
+		GameState.player_claimed_occurrence_id = ""
+
+
 func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrence_id: String, sector_id: String) -> bool:
 	if agent.get("cargo_tag", "EMPTY") != "EMPTY":
 		return false
@@ -834,8 +882,7 @@ func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrenc
 		return false
 	if sector_id != str(occurrence.get("source_sector_id", "")):
 		return false
-	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
-	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+	if not _is_contract_service_sector_available(sector_id):
 		return false
 	if not _reserve_runtime_contract_resources(occurrence):
 		return false
@@ -872,8 +919,7 @@ func _complete_runtime_contract_occurrence(agent_id: String, agent: Dictionary, 
 		return false
 	if sector_id != str(occurrence.get("target_sector_id", "")):
 		return false
-	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
-	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+	if not _is_contract_service_sector_available(sector_id):
 		return false
 	if not _reserve_runtime_contract_resources(occurrence):
 		return false
@@ -908,6 +954,8 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 	if str(agent.get("cargo_tag", "EMPTY")) != "LOADED":
 		return false
 	if str(GameState.player_cargo_tag) != "LOADED":
+		return false
+	if not _is_contract_service_sector_available(sector_id):
 		return false
 
 	var required_cargo_tag: String = str(occurrence.get("required_cargo_tag", ""))
@@ -1134,6 +1182,17 @@ func _remove_runtime_contract_index_entry(index: Dictionary, sector_id: String, 
 		index.erase(sector_id)
 	else:
 		index[sector_id] = updated_ids
+
+
+func _is_contract_service_sector_available(sector_id: String) -> bool:
+	if sector_id == "":
+		return false
+	var sector_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
+		return false
+	if "DISABLED" in sector_tags:
+		return false
+	return not _sector_recently_disabled(sector_id)
 
 
 # =============================================================================
@@ -2185,6 +2244,8 @@ func _check_catastrophe() -> void:
 			to_kill.append(agent_id)
 
 	for agent_id in to_kill:
+		var doomed_agent: Dictionary = GameState.agents.get(agent_id, {})
+		_clear_runtime_contract_claims_for_agent(agent_id, doomed_agent)
 		GameState.mortal_agent_deaths.append({"tick": GameState.sim_tick_count, "agent_id": agent_id})
 		_log_event(agent_id, "catastrophe_death", sector_id, {})
 		GameState.agents.erase(agent_id)
@@ -2336,6 +2397,7 @@ func _cleanup_dead_mortals() -> void:
 	# Survivors: reset at home with minimal resources
 	for agent_id in to_survive:
 		var agent: Dictionary = GameState.agents[agent_id]
+		_clear_runtime_contract_claims_for_agent(agent_id, agent)
 		var home_sector_id: String = _resolve_known_sector_id(
 			agent.get("home_location_id", ""),
 			"%s.home_location_id" % agent_id
@@ -2350,6 +2412,8 @@ func _cleanup_dead_mortals() -> void:
 
 	# Permanent deaths
 	for agent_id in to_remove:
+		var dead_agent: Dictionary = GameState.agents[agent_id]
+		_clear_runtime_contract_claims_for_agent(agent_id, dead_agent)
 		GameState.mortal_agent_deaths.append({"tick": GameState.sim_tick_count, "agent_id": agent_id})
 		_log_event(agent_id, "perma_death", GameState.agents[agent_id].get("current_sector_id", ""), {})
 		GameState.agents.erase(agent_id)
@@ -2371,6 +2435,7 @@ func _apply_upkeep() -> void:
 			if ("HARSH" in s_tags or "EXTREME" in s_tags) and _rng.randf() < Constants.DISRUPTION_MORTAL_ATTRITION_CHANCE:
 				agent["is_disabled"] = true
 				agent["disabled_at_tick"] = GameState.sim_tick_count
+				_clear_runtime_contract_claims_for_agent(agent_id, agent)
 				continue
 
 		# Random degradation

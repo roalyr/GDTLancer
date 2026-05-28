@@ -2,14 +2,14 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_SIMULATION-GRAPH.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TACTICAL_TODO.md TASK_5
-LOG_REF: 2026-05-23 23:21:08
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_1
+LOG_REF: 2026-05-28 14:01:46
 -->
 
 # 8.1-GDD-Simulation-Graph-System
 
-**Version:** 1.3
-**Date:** 2026-05-23
+**Version:** 1.5
+**Date:** 2026-05-28
 **Status:** Mixed Historical Design + Live Implementation Notes
 **Related:** `8-GDD-Simulation-Architecture.md`, `1.2-GDD-Core-Cellular-Automata.md`, `TACTICAL_TODO.md`
 
@@ -26,6 +26,7 @@ For the current implementation in `src/core/simulation/`:
 * `BridgeSystems` + `AffinityMatrix` refresh derived sector/agent/world tags.
 * `contract_generation_system.gd` builds bounded runtime contract occurrences from active demand tags.
 * `AgentLayer` claims and services those runtime occurrences via cargo/dock flow.
+* `simulation_raw_logger.gd` provides an additive console-only JSON-lines stream for full per-tick snapshots without replacing the chronicle/composite report surfaces, and the Sim Debug Panel now starts that raw stream in continuous mode until process exit.
 * Authored `ContractTemplate` resources and `LocationTemplate.available_contract_ids` are **optional curated overrides**, not the default contract pipeline.
 
 Until this document is fully rewritten, treat **Sections 1 through 5 as archived design intent**. Section 6 below is the authoritative implementation map for the live qualitative runtime.
@@ -401,6 +402,7 @@ How this graph maps to the code systems (both Python sandbox and target Godot ar
 * **Live logic:**
    * Steps economy, security, environment, hostile pressure, and colony progression through bounded counters and thresholds.
    * Surfaces `CONTRACT_DEMAND_*`, `RELIEF_NEEDED`, and `TRADE_LANE_ACTIVE` tags from sustained `*_POOR` sector states and relief traffic.
+   * Surfaces catastrophe-disabled sector state through `DISABLED` tags and recovery timers, which downstream delivery systems treat as a service gate rather than a new economy model.
    * Maintains only qualitative support state (`*_progress`, thresholds, cooldowns); it does not own numeric stockpiles or prices.
 * **Files:** `src/core/simulation/grid_layer.gd`, `src/autoload/GameState.gd`, `src/autoload/Constants.gd`
 
@@ -419,8 +421,13 @@ How this graph maps to the code systems (both Python sandbox and target Godot ar
 * **Live logic:**
    * `contract_generation_system.gd` runs after `BridgeSystems` and before `AgentLayer` each tick.
    * Active `CONTRACT_DEMAND_*` tags become bounded runtime delivery occurrences sourced from nearby qualifying sectors.
-   * Claimed/in-transit occurrences are retained across generator refresh so multi-tick deliveries survive even if the demand tag clears.
+   * Each occurrence carries shared accounting ownership (`source_accounting_sector_id`, `payment_accounting_sector_id`) plus reservation state (`source_reserved`, `payment_reserved`, `cargo_picked_up`) so player and NPC delivery flow use the same bounded source/payment seam.
+   * Claimed/in-transit occurrences are retained across generator refresh so multi-tick deliveries survive even if the demand tag clears, but pre-pickup claims that lose a valid claimant or become unserviceable must release reserved source/payment backing instead of silently stranding it.
    * Traders and haulers claim occurrences by affinity, route to source sectors, load cargo, travel to target sectors, and complete deliveries through the existing cargo/dock flow.
+   * Player contract actions stay explicit through the Contract Board helpers, but pickup/completion consequences share the same `AgentLayer` gates and accounting transitions as NPC deliveries.
+   * When the source sector is disabled, pickup is blocked; when the target sector is disabled after pickup, the in-transit occurrence remains retained and the held payment reservation stays blocked until recovery or claimant cleanup resolves it.
+   * Claimant disable/death cleanup must clear player mirrors, reopen or remove the affected occurrence according to pickup state, and restore any stranded reservation backing so the runtime store never carries a dead claim indefinitely.
+   * The Contract Board is read-only against this seam: it reflects reservation state and disabled-source/disabled-target recovery waits, but it does not become a second authority for contract lifecycle changes.
 * **Files:** `src/core/simulation/contract_generation_system.gd`, `src/core/simulation/simulation_engine.gd`, `src/core/simulation/agent_layer.gd`
 
 ### 6.4 System Interaction Matrix
@@ -432,12 +439,34 @@ How this graph maps to the code systems (both Python sandbox and target Godot ar
 | GridLayer | Demand State | `contract_generation_pressure`, thresholds, demand tags | Qualitative CA |
 | BridgeSystems | Sector Tags | Normalized tags + preserved custom demand markers | Derivation |
 | AffinityMatrix | AgentLayer | Role/condition/cargo affinities and vocabulary | Decision Support |
-| ContractGenerationSystem | Runtime Contract Store | Bounded occurrence dictionaries from active demand tags | Runtime Generation |
-| Runtime Contract Store | AgentLayer | Claimable `delivery`-style qualitative occurrences | Goal Selection |
-| AgentLayer | Runtime Contract Store | Claim, in-transit, and completion state | Runtime Resolution |
+| GridLayer / Sector Tags | ContractGenerationSystem | `CONTRACT_DEMAND_*` tags plus disabled-sector serviceability context | Runtime Generation Gate |
+| ContractGenerationSystem | Runtime Contract Store | Bounded occurrence dictionaries, accounting-owner ids, and reservation state | Runtime Generation |
+| Runtime Contract Store | AgentLayer | Claimable `delivery`-style qualitative occurrences with shared reservation/cargo state | Goal Selection |
+| GridLayer / Sector Tags | AgentLayer | Disabled-source and disabled-target gating for pickup/completion | Action Gate |
+| AgentLayer | Runtime Contract Store | Claim, reservation release, blocked in-transit retention, claimant cleanup, and completion state | Runtime Resolution |
 | AgentLayer | Sector Tags | Relief movement, docking, cargo delivery side effects | Simulation Action |
 | AgentLayer | Chronicle | Claim/load/complete and movement events | Event Capture |
+| Runtime Contract Store | ContractBoard | Player-visible occurrence state, reservation flags, and recovery-wait hints | Read-Only UI |
+| SimDebugPanel | SimulationEngine | Continuous raw-stream start request metadata | Debug Control |
+| SimulationEngine | SimulationRawLogger | Live tick processing and current tick config | Raw Snapshot Stream |
+| SimulationRawLogger | Console JSONL Stream | `run_started`, repeated `tick_snapshot`, and best-effort `run_finished` records | Raw Observability |
 | ContractTemplate / `available_contract_ids` | Docked/UI or curated content entry points | Optional handcrafted override content | Curated Override |
+
+### 6.5 The `SimDebugPanel` + `SimulationRawLogger` / Continuous Raw Stream
+
+* **Responsibility:** Starts additive console-only continuous raw logging for the live simulation without replacing the existing chronicle/composite report view.
+* **Live logic:**
+   * `sim_debug_panel.gd` keeps the existing `Run 30`, `Run 300`, and `Run 3000` report buttons intact, and routes `Run Raw Simulation` through `SimulationEngine.start_silent_raw_stream(...)`.
+   * `simulation_engine.gd` owns the continuous raw-stream loop; once started, `_process()` keeps advancing live ticks and forwarding them into `simulation_raw_logger.gd` until the process exits or the engine is torn down.
+   * The earlier bounded helper `SimulationEngine.run_silent_simulation_log(...)` remains additive for finite probes, but the panel-owned raw path is now the continuous stream.
+   * `simulation_raw_logger.gd` emits one JSON object per line with `schema_id = "gdtlancer.sim_snapshot.v1"`.
+   * `run_started` records advertise `run_id`, `tick_start`, `stream_mode`, the request context, the active tick config, the auto-captured `game_state_fields` list, and the normalization contract the later parser must obey.
+   * `tick_snapshot` records emit once per processed tick and carry `run_id`, `tick_index`, `sim_tick`, the active tick config, and a full `game_state` payload.
+   * `run_finished` records close bounded runs normally and close continuous runs only on graceful shutdown/teardown; if the process is killed hard, downstream tooling must tolerate a stream that ends after the last `tick_snapshot` without a closing record.
+   * `game_state` is sourced from `GameState.get_script().get_script_property_list()` without a `PROPERTY_USAGE_STORAGE` filter, so live autoload fields are not dropped and new simulation fields appear automatically without maintaining a second manual whitelist.
+   * Non-scalar Godot Variants are normalized into JSON-safe dictionaries tagged by `__type`; vectors, colors, resources, nodes/objects, transforms, node paths, RIDs, and pooled arrays must preserve enough metadata for a later offline parser to reconstruct meaning.
+   * Dictionary keys are stringified at emission time, so downstream tooling should treat JSON objects as normalized views of Godot dictionaries rather than assuming original key types were all strings.
+* **Files:** `src/core/ui/sim_debug_panel/sim_debug_panel.gd`, `scenes/ui/hud/sim_debug_panel.tscn`, `src/core/simulation/simulation_engine.gd`, `src/core/simulation/simulation_raw_logger.gd`
 
 ---
 

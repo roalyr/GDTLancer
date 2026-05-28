@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_board.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_6
-# LOG_REF: 2026-05-27 03:54:44
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-05-27 18:18:00
 #
 
 extends CanvasLayer
@@ -176,12 +176,19 @@ func _occurrence_backing_text(occurrence: Dictionary) -> String:
 	var source_state: String = "source reserved" if bool(occurrence.get("source_reserved", false)) else "source open"
 	var payment_state: String = "payment reserved" if bool(occurrence.get("payment_reserved", false)) else "payment open"
 	var cargo_state: String = "cargo picked up" if bool(occurrence.get("cargo_picked_up", false)) else "cargo not picked up"
+	var blocked_state: String = _occurrence_blocked_state_text(occurrence)
+	if blocked_state != "":
+		return "%s, %s, %s, %s" % [source_state, payment_state, cargo_state, blocked_state]
 	return "%s, %s, %s" % [source_state, payment_state, cargo_state]
 
 
 func _occurrence_next_action_text(occurrence: Dictionary) -> String:
 	var source_name: String = _sector_display_name(str(occurrence.get("source_sector_id", "")))
 	var target_name: String = _sector_display_name(str(occurrence.get("target_sector_id", "")))
+	if _is_occurrence_waiting_for_source_recovery(occurrence):
+		return "Waiting for source recovery at %s" % source_name
+	if _is_occurrence_waiting_for_target_recovery(occurrence):
+		return "Waiting for target recovery at %s" % target_name
 	if _can_complete_occurrence(occurrence):
 		return "Complete delivery here at %s" % target_name
 	if _can_pick_up_occurrence(occurrence):
@@ -231,6 +238,8 @@ func _can_pick_up_occurrence(occurrence: Dictionary) -> bool:
 		return false
 	if not bool(occurrence.get("source_reserved", false)):
 		return false
+	if _is_occurrence_waiting_for_source_recovery(occurrence):
+		return false
 	return _player_current_sector_id() == str(occurrence.get("source_sector_id", ""))
 
 
@@ -242,6 +251,8 @@ func _can_complete_occurrence(occurrence: Dictionary) -> bool:
 	if str(occurrence.get("claimant_agent_id", "")) != "player":
 		return false
 	if str(occurrence.get("status", "open")) != "in_transit":
+		return false
+	if _is_occurrence_waiting_for_target_recovery(occurrence):
 		return false
 	return _player_current_sector_id() == str(occurrence.get("target_sector_id", ""))
 
@@ -282,3 +293,38 @@ func _sector_display_name(sector_id: String) -> String:
 	if sector_id == "":
 		return "Unknown"
 	return str(GameState.sector_names.get(sector_id, sector_id))
+
+
+func _occurrence_blocked_state_text(occurrence: Dictionary) -> String:
+	if _is_occurrence_waiting_for_source_recovery(occurrence):
+		return "waiting for source recovery"
+	if _is_occurrence_waiting_for_target_recovery(occurrence):
+		return "waiting for target recovery"
+	return ""
+
+
+func _is_occurrence_waiting_for_source_recovery(occurrence: Dictionary) -> bool:
+	if bool(occurrence.get("cargo_picked_up", false)):
+		return false
+	if str(occurrence.get("status", "open")) != "claimed":
+		return false
+	if not bool(occurrence.get("source_reserved", false)):
+		return false
+	return _is_sector_disabled_for_contracts(str(occurrence.get("source_sector_id", "")))
+
+
+func _is_occurrence_waiting_for_target_recovery(occurrence: Dictionary) -> bool:
+	if not bool(occurrence.get("cargo_picked_up", false)):
+		return false
+	if str(occurrence.get("status", "open")) != "in_transit":
+		return false
+	return _is_sector_disabled_for_contracts(str(occurrence.get("target_sector_id", "")))
+
+
+func _is_sector_disabled_for_contracts(sector_id: String) -> bool:
+	if sector_id == "":
+		return false
+	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	if "DISABLED" in tags:
+		return true
+	return int(GameState.sector_disabled_until.get(sector_id, -1)) >= GameState.sim_tick_count

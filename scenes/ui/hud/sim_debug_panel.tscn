@@ -1,3 +1,9 @@
+; PROJECT: GDTLancer
+; MODULE: sim_debug_panel.tscn
+; STATUS: [Level 2 - Implementation]
+; TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.5; TACTICAL_TODO.md TASK_1
+; LOG_REF: 2026-05-28 14:01:46
+
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://src/core/ui/sim_debug_panel/sim_debug_panel.gd" type="Script" id=1]
@@ -35,63 +41,71 @@ margin_bottom = 150.0
 
 [node name="HeaderLabel" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
 margin_top = 61.0
-margin_right = 816.0
+margin_right = 500.0
 margin_bottom = 88.0
 size_flags_horizontal = 3
 custom_fonts/font = SubResource( 1 )
 text = "SIM DEBUG  [F3 to close]"
 
 [node name="BtnDumpConsole" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-margin_left = 820.0
-margin_right = 1040.0
+margin_left = 504.0
+margin_right = 684.0
 margin_bottom = 150.0
-rect_min_size = Vector2( 220, 0 )
+rect_min_size = Vector2( 180, 0 )
 theme = ExtResource( 3 )
 text = "Dump to Console"
 
 [node name="BtnTick" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-margin_left = 1044.0
-margin_right = 1224.0
+margin_left = 688.0
+margin_right = 868.0
 margin_bottom = 150.0
 rect_min_size = Vector2( 180, 0 )
 theme = ExtResource( 3 )
 text = "Advance 1 Tick"
 
 [node name="BtnRun30" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-margin_left = 1228.0
-margin_right = 1348.0
+margin_left = 872.0
+margin_right = 982.0
 margin_bottom = 150.0
-rect_min_size = Vector2( 120, 0 )
+rect_min_size = Vector2( 110, 0 )
 theme = ExtResource( 3 )
 text = "Run 30"
 
 [node name="BtnRun300" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-margin_left = 1352.0
-margin_right = 1472.0
+margin_left = 986.0
+margin_right = 1096.0
 margin_bottom = 150.0
-rect_min_size = Vector2( 120, 0 )
+rect_min_size = Vector2( 110, 0 )
 theme = ExtResource( 3 )
 text = "Run 300"
 
 [node name="BtnRun3000" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-margin_left = 1476.0
-margin_right = 1606.0
+margin_left = 1100.0
+margin_right = 1230.0
 margin_bottom = 150.0
 rect_min_size = Vector2( 130, 0 )
 theme = ExtResource( 3 )
 text = "Run 3000"
 
+[node name="BtnRunSilent" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 1234.0
+margin_right = 1494.0
+margin_bottom = 150.0
+rect_min_size = Vector2( 260, 0 )
+theme = ExtResource( 3 )
+text = "Run Raw Simulation"
+
 [node name="BtnBack" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
-margin_left = 1610.0
-margin_right = 1730.0
+margin_left = 1498.0
+margin_right = 1618.0
 margin_bottom = 150.0
 rect_min_size = Vector2( 120, 0 )
 theme = ExtResource( 3 )
 text = "< Back"
 
 [node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 4 )]
-margin_left = 1734.0
-margin_right = 1884.0
+margin_left = 1622.0
+margin_right = 1772.0
 margin_bottom = 150.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel/VBoxContainer"]

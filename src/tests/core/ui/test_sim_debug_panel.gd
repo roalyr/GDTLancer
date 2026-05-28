@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_sim_debug_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md TASK_2; TRUTH_SIMULATION-GRAPH.md §0, §5
-## LOG_REF: 2026-05-24 15:04:06
+## TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §6.5
+## LOG_REF: 2026-05-28 14:01:46
 ##
 
 extends "res://addons/gut/test.gd"
@@ -21,6 +21,8 @@ class FakeSimulationEngine extends Node:
 	var last_report_request: Dictionary = {}
 	var last_composite_tick_counts: Array = []
 	var last_composite_request: Dictionary = {}
+	var last_raw_stream_request: Dictionary = {}
+	var raw_stream_calls: int = 0
 
 	func request_tick() -> void:
 		request_tick_calls += 1
@@ -45,6 +47,20 @@ class FakeSimulationEngine extends Node:
 			PoolStringArray(tick_counts).join(", "),
 			int(tick_counts[tick_counts.size() - 1]) if not tick_counts.empty() else 0,
 		]
+
+	func start_silent_raw_stream(log_request: Dictionary = {}) -> Dictionary:
+		raw_stream_calls += 1
+		last_raw_stream_request = log_request.duplicate(true)
+		return {
+			"schema_id": "gdtlancer.sim_snapshot.v1",
+			"run_id": "panel-test-seed:7:continuous",
+			"tick_start": GameState.sim_tick_count,
+			"tick_end": GameState.sim_tick_count,
+			"ticks_processed": 0,
+			"record_count": 1,
+			"stream_mode": "continuous",
+			"active": true,
+		}
 
 
 func before_each() -> void:
@@ -95,6 +111,8 @@ func test_panel_builds_report_controls_without_leaving_live_snapshot_mode() -> v
 		"Sort mode should default to chronological order.")
 	assert_eq(_panel_instance._selected_option_value(_panel_instance._detail_level_option, ""), "standard",
 		"Detail level should default to the standard chronicle output.")
+	assert_eq(_panel_instance._btn_run_silent.text, "Run Raw Simulation",
+		"The raw-stream button should advertise the continuous unfiltered logging mode explicitly.")
 	assert_true(_panel_instance._focus_id_option.disabled,
 		"Entity selection should stay disabled while the focus mode is world-wide.")
 	assert_eq(_panel_instance._selected_option_value(_panel_instance._focus_id_option, ""), "world",
@@ -204,6 +222,39 @@ func test_composite_mode_runs_cumulative_bundle_and_disables_manual_focus_contro
 		"Composite mode should show a dedicated research header in the panel.")
 	assert_true(_panel_instance._last_plain_text.find("COMPOSITE RESEARCH CHRONICLE") != -1,
 		"Composite mode should cache the bundled research report as the last plain-text output.")
+
+
+func test_silent_run_starts_continuous_unfiltered_stream_and_keeps_live_snapshot_mode() -> void:
+	yield(get_tree(), "idle_frame")
+	_panel_instance._toggle()
+
+	var sector_focus_index: int = _find_option_index_by_metadata(_panel_instance._focus_mode_option, "sector")
+	_panel_instance._focus_mode_option.select(sector_focus_index)
+	_panel_instance._on_focus_mode_selected(sector_focus_index)
+	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_system_elace")
+	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
+	_select_option_by_metadata(_panel_instance._detail_level_option, "verbose")
+
+	_panel_instance._on_run_silent_pressed()
+
+	assert_eq(_engine_double.raw_stream_calls, 1,
+		"Raw simulation should route through the continuous engine stream helper exactly once.")
+	assert_eq(str(_engine_double.last_raw_stream_request.get("requested_by", "")), "sim_debug_panel",
+		"Raw simulation should identify the Sim Debug Panel as the request source.")
+	assert_eq(str(_engine_double.last_raw_stream_request.get("stream_mode", "")), "continuous",
+		"Raw simulation should request the continuous stream mode instead of a bounded batch.")
+	assert_eq(str(_engine_double.last_raw_stream_request.get("capture_scope", "")), "full_game_state",
+		"Raw simulation should request the full unfiltered GameState capture.")
+	assert_false(_engine_double.last_raw_stream_request.has("focus_mode"),
+		"Raw simulation should not forward scoped-analysis filters into the raw stream request.")
+	assert_false(_engine_double.last_raw_stream_request.has("sort_mode"),
+		"Raw simulation should not forward report sorting hints into the raw stream request.")
+	assert_false(_engine_double.last_raw_stream_request.has("detail_level"),
+		"Raw simulation should not forward report detail hints into the raw stream request.")
+	assert_false(_panel_instance._showing_report,
+		"Silent run must keep the panel in live snapshot mode instead of switching to report mode.")
+	assert_eq(_panel_instance._header_label.text, "SIM DEBUG  [F3 to close]",
+		"Silent run should keep the standard live-view header instead of replacing it with a report banner.")
 
 
 func _seed_sim_state() -> void:

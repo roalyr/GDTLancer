@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-26 19:02:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §6.5; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-28 14:01:46
 #
 
 extends Node
@@ -40,6 +40,11 @@ var _initialized: bool = false
 ## Config dictionary passed to all layer processors each tick.
 var _tick_config: Dictionary = {}
 
+const CONTINUOUS_RAW_STREAM_TICKS_PER_FRAME := 1
+
+var _silent_raw_stream_active: bool = false
+var _silent_raw_stream_logger: Reference = null
+
 
 # =============================================================================
 # === LIFECYCLE ===============================================================
@@ -71,6 +76,7 @@ func _ready() -> void:
 
 	# Build tick config
 	_build_tick_config()
+	set_process(false)
 
 	# Register in GlobalRefs
 	GlobalRefs.simulation_engine = self
@@ -87,11 +93,20 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_stop_silent_raw_stream()
 	if EventBus.is_connected("player_docked", self, "_on_player_docked"):
 		EventBus.disconnect("player_docked", self, "_on_player_docked")
 	if EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
 		EventBus.disconnect("player_undocked", self, "_on_player_undocked")
 	GlobalRefs.simulation_engine = null
+
+
+func _process(_delta: float) -> void:
+	if not _silent_raw_stream_active or _silent_raw_stream_logger == null:
+		return
+	for _tick_index in range(CONTINUOUS_RAW_STREAM_TICKS_PER_FRAME):
+		process_tick()
+		_silent_raw_stream_logger.log_continuous_tick(self)
 
 
 # =============================================================================
@@ -352,6 +367,62 @@ func run_composite_research_report(tick_counts: Array, composite_request: Dictio
 	var ReportScript = load("res://src/core/simulation/simulation_report.gd")
 	var report: Reference = ReportScript.new()
 	return report.run_composite_report(self, tick_counts, composite_request)
+
+
+## Runs `tick_count` ticks and emits a full JSON-lines snapshot stream to the
+## console without taking over the Sim Debug Panel report view.
+func run_silent_simulation_log(tick_count: int, log_request: Dictionary = {}) -> Dictionary:
+	if not _initialized:
+		push_warning("SimulationEngine: run_silent_simulation_log() called but not initialized.")
+		return {
+			"schema_id": "gdtlancer.sim_snapshot.v1",
+			"run_id": "",
+			"tick_start": GameState.sim_tick_count,
+			"tick_end": GameState.sim_tick_count,
+			"ticks_processed": 0,
+			"record_count": 0,
+		}
+	var RawLoggerScript = load("res://src/core/simulation/simulation_raw_logger.gd")
+	var raw_logger: Reference = RawLoggerScript.new()
+	return raw_logger.run_and_log(self, tick_count, log_request)
+
+
+## Starts an unbounded raw JSON-lines stream that advances the simulation
+## continuously until the process exits or the engine is torn down.
+func start_silent_raw_stream(log_request: Dictionary = {}) -> Dictionary:
+	if not _initialized:
+		push_warning("SimulationEngine: start_silent_raw_stream() called but not initialized.")
+		return {
+			"schema_id": "gdtlancer.sim_snapshot.v1",
+			"run_id": "",
+			"tick_start": GameState.sim_tick_count,
+			"tick_end": GameState.sim_tick_count,
+			"ticks_processed": 0,
+			"record_count": 0,
+			"stream_mode": "continuous",
+			"active": false,
+		}
+	if _silent_raw_stream_active and _silent_raw_stream_logger != null:
+		return _silent_raw_stream_logger.active_run_summary()
+	var RawLoggerScript = load("res://src/core/simulation/simulation_raw_logger.gd")
+	_silent_raw_stream_logger = RawLoggerScript.new()
+	_silent_raw_stream_active = true
+	set_process(true)
+	return _silent_raw_stream_logger.begin_continuous_run(self, log_request)
+
+
+func is_silent_raw_stream_active() -> bool:
+	return _silent_raw_stream_active
+
+
+func _stop_silent_raw_stream() -> Dictionary:
+	if not _silent_raw_stream_active or _silent_raw_stream_logger == null:
+		return {}
+	_silent_raw_stream_active = false
+	set_process(false)
+	var summary: Dictionary = _silent_raw_stream_logger.finish_continuous_run(self)
+	_silent_raw_stream_logger = null
+	return summary
 
 
 ## Allows runtime config overrides for tuning/debugging.

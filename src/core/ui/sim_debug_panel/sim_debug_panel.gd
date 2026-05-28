@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: sim_debug_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §5; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-05-24 15:04:06
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §6.5; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-05-28 14:01:46
 #
 
 extends CanvasLayer
@@ -28,6 +28,7 @@ onready var _btn_tick: Button = $Panel/VBoxContainer/HeaderRow/BtnTick
 onready var _btn_run_30: Button = $Panel/VBoxContainer/HeaderRow/BtnRun30
 onready var _btn_run_300: Button = $Panel/VBoxContainer/HeaderRow/BtnRun300
 onready var _btn_run_3000: Button = $Panel/VBoxContainer/HeaderRow/BtnRun3000
+onready var _btn_run_silent: Button = $Panel/VBoxContainer/HeaderRow/BtnRunSilent
 onready var _btn_back: Button = $Panel/VBoxContainer/HeaderRow/BtnBack
 onready var _btn_close: BaseButton = $Panel/VBoxContainer/HeaderRow/BtnClose
 
@@ -91,6 +92,7 @@ func _ready() -> void:
 	_btn_run_30.connect("pressed", self, "_on_run_batch", [30])
 	_btn_run_300.connect("pressed", self, "_on_run_batch", [300])
 	_btn_run_3000.connect("pressed", self, "_on_run_batch", [3000])
+	_btn_run_silent.connect("pressed", self, "_on_run_silent_pressed")
 	_btn_back.connect("pressed", self, "_on_back_pressed")
 	_btn_close.connect("pressed", self, "_on_close_pressed")
 	_btn_back.visible = false
@@ -184,6 +186,17 @@ func _on_run_batch(tick_count: int) -> void:
 	_header_label.text = header_text
 	_rich_text.bbcode_text = _report_bbcode
 	_last_plain_text = _report_text
+
+
+func _on_run_silent_pressed() -> void:
+	if not is_instance_valid(GlobalRefs.simulation_engine):
+		return
+	var engine = GlobalRefs.simulation_engine
+	if not engine.has_method("start_silent_raw_stream"):
+		return
+	engine.start_silent_raw_stream(_current_raw_log_request())
+	if not _showing_report:
+		_refresh()
 
 
 ## Returns to the live state view from a report view.
@@ -653,6 +666,14 @@ func _current_composite_request() -> Dictionary:
 		"agent_roles": _current_agent_roles(),
 		"include_persistent": true,
 		"include_mortal": true,
+	}
+
+
+func _current_raw_log_request() -> Dictionary:
+	return {
+		"requested_by": "sim_debug_panel",
+		"stream_mode": "continuous",
+		"capture_scope": "full_game_state",
 	}
 
 
