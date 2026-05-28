@@ -5,7 +5,7 @@ import os
 import sqlite3
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 
 DB_FILE = "legends.db"
@@ -54,6 +54,15 @@ INTERESTING_CONTRACT_FIELDS = (
     "reward_credits",
     "completed_at_tick",
 )
+PAGE_SNAPSHOT_LIMIT = 200
+PAGE_EVENT_LIMIT = 200
+PAGE_MUTATION_LIMIT = 300
+PAGE_AGENT_LIMIT = 80
+PAGE_SECTOR_LIMIT = 80
+RELATED_MUTATION_LIMIT = 5
+ENTITY_HISTORY_LIMIT = 6
+DETAIL_CHANGE_LIMIT = 40
+DETAIL_EVENT_LIMIT = 40
 
 
 def connect_db():
@@ -145,10 +154,6 @@ def stable_signature(value):
     return hashlib.sha1(stable_json(value).encode("utf-8")).hexdigest()
 
 
-def pretty_json(value):
-    return html.escape(json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False))
-
-
 def short_value(value, limit=120):
     text = json.dumps(value, sort_keys=True, ensure_ascii=False)
     if len(text) <= limit:
@@ -165,6 +170,128 @@ def safe_int(value, default=0):
 
 def field_label(field_name):
     return field_name.replace("_", " ")
+
+
+def readable_value(value, depth=0):
+    if value is None:
+        return "none"
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if depth >= 2:
+        return short_value(value, 80)
+    if isinstance(value, list):
+        if not value:
+            return "none"
+        rendered = [readable_value(item, depth + 1) for item in value[:4]]
+        text = ", ".join(rendered)
+        if len(value) > 4:
+            text += f", +{len(value) - 4} more"
+        return text
+    if isinstance(value, dict):
+        if not value:
+            return "none"
+        rendered = []
+        items = list(value.items())
+        for key, item in items[:3]:
+            rendered.append(f"{field_label(str(key))}: {readable_value(item, depth + 1)}")
+        text = "; ".join(rendered)
+        if len(items) > 3:
+            text += f"; +{len(items) - 3} more"
+        return text
+    return str(value)
+
+
+def summary_list_html(pairs, empty_text="Nothing captured."):
+    items = []
+    for label, value in pairs:
+        if value in (None, "", "none"):
+            continue
+        items.append(
+            f"<li><b>{html.escape(label)}</b>: {html.escape(str(value))}</li>"
+        )
+    if not items:
+        return f"<span class='muted'><i>{html.escape(empty_text)}</i></span>"
+    return "<ul class='compact-list'>" + "".join(items) + "</ul>"
+
+
+def run_range_text(row):
+    start_tick = row["tick_start"]
+    latest_tick = row["latest_tick"]
+    if start_tick is None and latest_tick is None:
+        return "unknown"
+    if latest_tick is None or latest_tick == start_tick:
+        return f"t{start_tick}"
+    return f"t{start_tick} -> t{latest_tick}"
+
+
+def snapshot_summary(row):
+    parts = [
+        f"age {row['world_age'] or 'unknown'}",
+        f"{row['discovered_sectors']} discovered",
+        f"{row['active_contracts']} active contracts",
+        f"{row['chronicle_event_count']} events",
+        f"{row['mutation_count']} changes",
+    ]
+    if row["deaths"]:
+        parts.append(f"{row['deaths']} deaths")
+    return " | ".join(parts)
+
+
+def agent_state_summary_html(agent_data):
+    pairs = [
+        ("role", readable_value(agent_data.get("agent_role"))),
+        ("condition", readable_value(agent_data.get("condition_tag"))),
+        ("wealth", readable_value(agent_data.get("wealth_tag"))),
+        ("cargo", readable_value(agent_data.get("cargo_tag"))),
+        ("sector", readable_value(agent_data.get("current_sector_id"))),
+        ("goal", readable_value(agent_data.get("goal_archetype"))),
+    ]
+    if agent_data.get("rest_ticks_remaining"):
+        pairs.append(("rest ticks", readable_value(agent_data.get("rest_ticks_remaining"))))
+    if agent_data.get("is_disabled"):
+        pairs.append(("disabled", "yes"))
+    if agent_data.get("sentiment_tags"):
+        pairs.append(("sentiment", readable_value(agent_data.get("sentiment_tags"))))
+    if agent_data.get("dynamic_tags"):
+        pairs.append(("dynamic", readable_value(agent_data.get("dynamic_tags"))))
+    return summary_list_html(pairs, "No agent state captured.")
+
+
+def sector_state_summary_html(sector_data):
+    dominion = sector_data.get("dominion") if isinstance(sector_data.get("dominion"), dict) else {}
+    pairs = [
+        ("security", readable_value(dominion.get("security_tag"))),
+        ("colony", readable_value(sector_data.get("colony_level"))),
+        ("tags", readable_value(sector_data.get("tags"))),
+        ("contract pressure", readable_value(sector_data.get("generation_pressure"))),
+        ("cargo supply", readable_value(sector_data.get("cargo_supply"))),
+        ("payment supply", readable_value(sector_data.get("payment_supply"))),
+    ]
+    return summary_list_html(pairs, "No sector state captured.")
+
+
+def mutation_line_html(mutation_row, include_tick=False):
+    entity_type = mutation_row["entity_type"]
+    entity_id = mutation_row["entity_id"]
+    summary = mutation_row["summary"]
+    prefix = ""
+    if include_tick:
+        prefix = f"<span class='tick-pill'>t{mutation_row['tick']}</span> "
+    return (
+        f"<li>{prefix}{mutation_badge(entity_type)} <b>{html.escape(entity_id)}</b>: "
+        f"{html.escape(summary)}</li>"
+    )
+
+
+def mutation_list_html(rows, limit, empty_text, include_tick=False):
+    if not rows:
+        return f"<span class='muted'><i>{html.escape(empty_text)}</i></span>"
+    shown_rows = rows[:limit]
+    items = [mutation_line_html(row, include_tick=include_tick) for row in shown_rows]
+    hidden_count = len(rows) - len(shown_rows)
+    if hidden_count > 0:
+        items.append(f"<li class='muted'>+{hidden_count} more changes not shown.</li>")
+    return "<ul class='compact-list'>" + "".join(items) + "</ul>"
 
 
 def changes_to_summary(changes):
@@ -512,16 +639,133 @@ def mutation_badge(entity_type):
     return f"<span class='badge badge-{html.escape(entity_type)}'>{html.escape(entity_type)}</span>"
 
 
-def mutation_html(mutation_row):
-    data = json.loads(mutation_row["data"])
-    entity_type = mutation_row["entity_type"]
-    entity_id = mutation_row["entity_id"]
-    summary = mutation_row["summary"] or changes_to_summary(data)
+def query_value(query, key, default=""):
+    values = query.get(key)
+    if not values:
+        return default
+    return values[0]
+
+
+def query_page(query, key="page", default=1):
+    return max(1, safe_int(query_value(query, key, default), default))
+
+
+def total_pages(total_count, per_page):
+    if per_page <= 0:
+        return 1
+    return max(1, (total_count + per_page - 1) // per_page)
+
+
+def clamp_page(page, total_count, per_page):
+    return min(max(1, page), total_pages(total_count, per_page))
+
+
+def page_offset(page, per_page):
+    return max(0, (page - 1) * per_page)
+
+
+def build_url(path, params=None):
+    filtered = {}
+    for key, value in (params or {}).items():
+        if value in (None, ""):
+            continue
+        filtered[key] = value
+    query_string = urlencode(filtered)
+    if not query_string:
+        return path
+    return f"{path}?{query_string}"
+
+
+def pagination_html(path, current_page, per_page, total_count, base_params=None, param_name="page"):
+    total_page_count = total_pages(total_count, per_page)
+    if total_page_count <= 1:
+        return ""
+
+    current_page = clamp_page(current_page, total_count, per_page)
+    base_params = dict(base_params or {})
+    links = []
+
+    def link_html(label, page_number, current=False):
+        if current:
+            return f"<span class='current-page'>{html.escape(str(label))}</span>"
+        params = dict(base_params)
+        params[param_name] = page_number
+        return f"<a class='page-link' href='{html.escape(build_url(path, params))}'>{html.escape(str(label))}</a>"
+
+    if current_page > 1:
+        links.append(link_html("First", 1))
+        links.append(link_html("Prev", current_page - 1))
+
+    start_page = max(1, current_page - 2)
+    end_page = min(total_page_count, current_page + 2)
+    if start_page > 1:
+        links.append("<span class='muted'>...</span>")
+
+    for page_number in range(start_page, end_page + 1):
+        links.append(link_html(page_number, page_number, current=page_number == current_page))
+
+    if end_page < total_page_count:
+        links.append("<span class='muted'>...</span>")
+
+    if current_page < total_page_count:
+        links.append(link_html("Next", current_page + 1))
+        links.append(link_html("Last", total_page_count))
+
     return (
-        f"<div class='mutation-entry'>{mutation_badge(entity_type)} "
-        f"<b>{html.escape(entity_id)}</b>: {html.escape(summary)}"
-        f"<details><summary>View diff</summary><pre>{pretty_json(data)}</pre></details></div>"
+        "<div class='pagination'>"
+        f"<span class='muted'>Page {current_page} of {total_page_count} ({total_count} items)</span>"
+        + "".join(links)
+        + "</div>"
     )
+
+
+def fetch_related_mutations(c, run_id, tick, actor_id, target_id, sector_id, limit):
+    c.execute(
+        """
+        SELECT entity_type, entity_id, summary, data, tick
+        FROM mutations
+        WHERE run_id = ? AND tick = ? AND (
+            (entity_type = 'agent' AND entity_id IN (?, ?)) OR
+            (entity_type = 'sector' AND entity_id = ?) OR
+            entity_type = 'world'
+        )
+        ORDER BY CASE entity_type
+            WHEN 'agent' THEN 0
+            WHEN 'sector' THEN 1
+            WHEN 'contract' THEN 2
+            WHEN 'world' THEN 3
+            ELSE 4
+        END, entity_id ASC
+        LIMIT ?
+        """,
+        [run_id, tick, actor_id or "", target_id or "", sector_id or "", limit],
+    )
+    return c.fetchall()
+
+
+def event_list_html(c, rows, empty_text, related_limit=RELATED_MUTATION_LIMIT):
+    if not rows:
+        return f"<span class='muted'><i>{html.escape(empty_text)}</i></span>"
+
+    items = []
+    for row in rows:
+        event_data = json.loads(row["data"])
+        related_rows = fetch_related_mutations(
+            c,
+            row["run_id"],
+            row["tick"],
+            row["actor_id"],
+            row["target_id"],
+            row["sector_id"],
+            related_limit + 1,
+        )
+        items.append(
+            "<li class='history-entry'>"
+            f"<div><span class='tick-pill'>t{row['tick']}</span>{format_event(event_data)}</div>"
+            f"<div class='history-outcome'>{mutation_list_html(related_rows, related_limit, 'No same-tick outcome matched this event.')}</div>"
+            "</li>"
+        )
+    return "<ul class='history-list'>" + "".join(items) + "</ul>"
 
 
 def page_shell(title, body):
@@ -530,31 +774,41 @@ def page_shell(title, body):
     <head>
         <title>{html.escape(title)}</title>
         <style>
-            body {{ font-family: monospace; background: #181a1f; color: #d7dae0; padding: 20px; line-height: 1.45; }}
+            body {{ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #10141a; color: #d7dae0; padding: 20px; line-height: 1.5; }}
             a {{ color: #79c0ff; text-decoration: none; }}
             a:hover {{ text-decoration: underline; }}
             h1, h2, h3 {{ margin-bottom: 0.4em; }}
+            h1 {{ font-size: 1.7rem; }}
             table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
-            th, td {{ border: 1px solid #3a3f4b; padding: 10px; text-align: left; vertical-align: top; }}
+            th, td {{ border: 1px solid #2d3440; padding: 10px; text-align: left; vertical-align: top; }}
             th {{ background: #242833; }}
             .nav {{ margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #3a3f4b; }}
             .nav a {{ margin-right: 12px; }}
-            .hint {{ color: #9da5b4; max-width: 90ch; }}
+            .hint {{ color: #9da5b4; max-width: 90ch; margin: 0 0 12px; }}
+            .muted {{ color: #8b949e; }}
             .badge {{ display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 0.9em; margin-right: 6px; }}
             .badge-agent {{ background: #1f6feb33; color: #79c0ff; }}
             .badge-sector {{ background: #2ea04333; color: #7ee787; }}
             .badge-contract {{ background: #d2992233; color: #e3b341; }}
             .badge-world {{ background: #8957e533; color: #d2a8ff; }}
             .mutation-entry {{ margin-bottom: 8px; }}
-            details {{ margin-top: 6px; }}
-            pre {{ white-space: pre-wrap; word-break: break-word; margin: 8px 0 0; }}
             ul {{ margin: 6px 0; padding-left: 18px; }}
+            .compact-list {{ margin: 0; padding-left: 18px; }}
+            .compact-list li {{ margin: 0 0 4px; }}
+            .tick-pill {{ display: inline-block; padding: 1px 6px; border-radius: 999px; background: #21262d; color: #c9d1d9; font-size: 0.82em; margin-right: 6px; }}
+            .pagination {{ display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }}
+            .page-link, .current-page {{ padding: 4px 9px; border: 1px solid #2d3440; border-radius: 999px; }}
+            .current-page {{ background: #1f6feb33; color: #79c0ff; }}
+            .history-list {{ margin: 0; padding-left: 18px; }}
+            .history-entry {{ margin: 0 0 14px; }}
+            .history-outcome {{ margin: 6px 0 0 8px; }}
             .event-move {{ color: #79c0ff; }}
             .event-attack {{ color: #ff7b72; }}
             .event-dock {{ color: #7ee787; }}
             .event-trade {{ color: #e3b341; }}
             .event-fail {{ color: #ffa657; }}
             .event-default {{ color: #d7dae0; }}
+            small {{ color: #8b949e; }}
         </style>
     </head>
     <body>
@@ -577,104 +831,123 @@ class LegendsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         conn = connect_db()
         c = conn.cursor()
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
 
         self.send_response(200)
         self.send_header("Content-type", "text/html; charset=utf-8")
         self.end_headers()
 
         if path == "/snapshots":
+            requested_page = query_page(query)
+            c.execute("SELECT COUNT(*) FROM snapshots")
+            total_count = c.fetchone()[0]
+            page = clamp_page(requested_page, total_count, PAGE_SNAPSHOT_LIMIT)
             c.execute(
                 """
                 SELECT run_id, tick, tick_index, discovered_sectors, deaths, world_age, active_contracts, chronicle_event_count, mutation_count
                 FROM snapshots
-                ORDER BY run_id ASC, tick ASC
-                """
+                ORDER BY run_id DESC, tick DESC
+                LIMIT ?
+                OFFSET ?
+                """,
+                (PAGE_SNAPSHOT_LIMIT, page_offset(page, PAGE_SNAPSHOT_LIMIT)),
             )
             rows = c.fetchall()
+            pager = pagination_html("/snapshots", page, PAGE_SNAPSHOT_LIMIT, total_count)
             body = [
                 "<h2>Timeline Snapshots</h2>",
-                "<p class='hint'>Each row is a full raw snapshot summary. Mutation count is inferred from changed state between adjacent snapshots in the same run.</p>",
+                f"<p class='hint'>Browse the full snapshot timeline page by page. Newest snapshots stay first here; use pagination to walk older history.</p>",
+                pager,
                 "<table><tr><th>Run</th><th>Tick</th><th>Summary</th></tr>",
             ]
             for row in rows:
-                summary = (
-                    f"tick_index={row['tick_index']} | world_age={html.escape(str(row['world_age']))} | "
-                    f"discovered={row['discovered_sectors']} | deaths={row['deaths']} | "
-                    f"active_contracts={row['active_contracts']} | chronicle_events={row['chronicle_event_count']} | "
-                    f"mutations={row['mutation_count']}"
-                )
                 body.append(
-                    f"<tr><td>{html.escape(row['run_id'])}</td><td>{row['tick']}</td><td>{summary}</td></tr>"
+                    "<tr>"
+                    f"<td>{html.escape(row['run_id'])}</td>"
+                    f"<td><b>t{row['tick']}</b><br><small>tick index {row['tick_index']}</small></td>"
+                    f"<td>{html.escape(snapshot_summary(row))}</td>"
+                    "</tr>"
                 )
             body.append("</table>")
+            body.append(pager)
             html_body = "".join(body)
 
         elif path == "/events":
+            requested_page = query_page(query)
+            c.execute("SELECT COUNT(*) FROM events")
+            total_count = c.fetchone()[0]
+            page = clamp_page(requested_page, total_count, PAGE_EVENT_LIMIT)
             c.execute(
                 """
                 SELECT run_id, tick, action, actor_id, target_id, sector_id, data
                 FROM events
-                ORDER BY run_id ASC, tick ASC
+                ORDER BY run_id DESC, tick DESC
+                LIMIT ?
+                OFFSET ?
                 """
+                ,
+                (PAGE_EVENT_LIMIT, page_offset(page, PAGE_EVENT_LIMIT))
             )
             rows = c.fetchall()
+            pager = pagination_html("/events", page, PAGE_EVENT_LIMIT, total_count)
             body = [
                 "<h2>Chronicle Events</h2>",
-                "<p class='hint'>Related mutations are inferred from the same tick. They show what changed on that tick for the actor, target, touched sector, or world state; they do not claim perfect causal attribution yet.</p>",
-                "<table><tr><th>Tick</th><th>Event</th><th>Observed Mutations</th><th>Raw JSON</th></tr>",
+                f"<p class='hint'>Browse chronicle events page by page. Each row pairs the event with the most relevant same-tick outcome summaries.</p>",
+                pager,
+                "<table><tr><th>Tick</th><th>Event</th><th>Observed Outcome</th></tr>",
             ]
             for row in rows:
                 event_data = json.loads(row["data"])
-                params = [row["run_id"], row["tick"], row["actor_id"] or "", row["target_id"] or "", row["sector_id"] or ""]
-                c.execute(
-                    """
-                    SELECT entity_type, entity_id, summary, data
-                    FROM mutations
-                    WHERE run_id = ? AND tick = ? AND (
-                        (entity_type = 'agent' AND entity_id IN (?, ?)) OR
-                        (entity_type = 'sector' AND entity_id = ?) OR
-                        entity_type = 'world'
-                    )
-                    ORDER BY CASE entity_type
-                        WHEN 'agent' THEN 0
-                        WHEN 'sector' THEN 1
-                        WHEN 'contract' THEN 2
-                        WHEN 'world' THEN 3
-                        ELSE 4
-                    END, entity_id ASC
-                    """,
-                    params,
+                related = fetch_related_mutations(
+                    c,
+                    row["run_id"],
+                    row["tick"],
+                    row["actor_id"],
+                    row["target_id"],
+                    row["sector_id"],
+                    RELATED_MUTATION_LIMIT + 1,
                 )
-                related = c.fetchall()
-                if related:
-                    mutation_block = "".join(mutation_html(mutation_row) for mutation_row in related)
-                else:
-                    mutation_block = "<i>No same-tick mutation summary matched this event.</i>"
+                mutation_block = mutation_list_html(
+                    related,
+                    RELATED_MUTATION_LIMIT,
+                    "No same-tick outcome matched this event.",
+                )
                 body.append(
                     "<tr>"
                     f"<td>{row['tick']}<br><small>{html.escape(row['run_id'])}</small></td>"
                     f"<td>{format_event(event_data)}</td>"
                     f"<td>{mutation_block}</td>"
-                    f"<td><details><summary>View Data</summary><pre>{pretty_json(event_data)}</pre></details></td>"
                     "</tr>"
                 )
             body.append("</table>")
+            body.append(pager)
             html_body = "".join(body)
 
         elif path == "/mutations":
+            requested_page = query_page(query)
+            c.execute("SELECT COUNT(*) FROM mutations")
+            total_count = c.fetchone()[0]
+            page = clamp_page(requested_page, total_count, PAGE_MUTATION_LIMIT)
             c.execute(
                 """
                 SELECT run_id, tick, entity_type, entity_id, summary, data
                 FROM mutations
-                ORDER BY run_id ASC, tick ASC, entity_type ASC, entity_id ASC
+                ORDER BY run_id DESC, tick DESC, entity_type ASC, entity_id ASC
+                LIMIT ?
+                OFFSET ?
                 """
+                ,
+                (PAGE_MUTATION_LIMIT, page_offset(page, PAGE_MUTATION_LIMIT))
             )
             rows = c.fetchall()
+            pager = pagination_html("/mutations", page, PAGE_MUTATION_LIMIT, total_count)
             body = [
                 "<h2>Mutations</h2>",
-                "<p class='hint'>These rows are inferred from diffs between adjacent snapshots in the same run. They are already useful for browsing current logs, and the table is ready to display future explicit runtime mutation records when the logger grows that task.</p>",
-                "<table><tr><th>Tick</th><th>Entity</th><th>Summary</th><th>Diff</th></tr>",
+                f"<p class='hint'>Browse inferred changes page by page. This remains the highest-signal outcome view when you want history without raw snapshot noise.</p>",
+                pager,
+                "<table><tr><th>Tick</th><th>Entity</th><th>Outcome</th></tr>",
             ]
             for row in rows:
                 body.append(
@@ -682,121 +955,323 @@ class LegendsHandler(BaseHTTPRequestHandler):
                     f"<td>{row['tick']}<br><small>{html.escape(row['run_id'])}</small></td>"
                     f"<td>{mutation_badge(row['entity_type'])}<b>{html.escape(row['entity_id'])}</b></td>"
                     f"<td>{html.escape(row['summary'])}</td>"
-                    f"<td><details><summary>View diff</summary><pre>{pretty_json(json.loads(row['data']))}</pre></details></td>"
                     "</tr>"
                 )
             body.append("</table>")
+            body.append(pager)
             html_body = "".join(body)
 
+        elif path == "/agent":
+            run_id = query_value(query, "run_id")
+            agent_id = query_value(query, "agent_id")
+            list_page = query_value(query, "list_page", 1)
+            if not run_id or not agent_id:
+                html_body = (
+                    "<h2>Agent History</h2>"
+                    "<p class='hint'>Choose an agent from the Agents page to view the full paged history.</p>"
+                )
+            else:
+                c.execute(
+                    "SELECT data FROM agents WHERE run_id = ? AND agent_id = ?",
+                    (run_id, agent_id),
+                )
+                agent_row = c.fetchone()
+                if agent_row is None:
+                    html_body = (
+                        f"<h2>Agent History: {html.escape(agent_id)}</h2>"
+                        "<p class='hint'>That agent was not found in the parsed run cache.</p>"
+                    )
+                else:
+                    agent_data = json.loads(agent_row["data"])
+                    c.execute(
+                        "SELECT COUNT(*) FROM mutations WHERE run_id = ? AND entity_type = 'agent' AND entity_id = ?",
+                        (run_id, agent_id),
+                    )
+                    change_count = c.fetchone()[0]
+                    c.execute(
+                        "SELECT COUNT(*) FROM events WHERE run_id = ? AND (actor_id = ? OR target_id = ?)",
+                        (run_id, agent_id, agent_id),
+                    )
+                    event_count = c.fetchone()[0]
+                    changes_page = clamp_page(query_page(query, "changes_page"), change_count, DETAIL_CHANGE_LIMIT)
+                    events_page = clamp_page(query_page(query, "events_page"), event_count, DETAIL_EVENT_LIMIT)
+                    c.execute(
+                        """
+                        SELECT tick, entity_type, entity_id, summary, data
+                        FROM mutations
+                        WHERE run_id = ? AND entity_type = 'agent' AND entity_id = ?
+                        ORDER BY tick ASC
+                        LIMIT ?
+                        OFFSET ?
+                        """,
+                        (run_id, agent_id, DETAIL_CHANGE_LIMIT, page_offset(changes_page, DETAIL_CHANGE_LIMIT)),
+                    )
+                    change_rows = c.fetchall()
+                    c.execute(
+                        """
+                        SELECT run_id, tick, action, actor_id, target_id, sector_id, data
+                        FROM events
+                        WHERE run_id = ? AND (actor_id = ? OR target_id = ?)
+                        ORDER BY tick ASC, signature ASC
+                        LIMIT ?
+                        OFFSET ?
+                        """,
+                        (run_id, agent_id, agent_id, DETAIL_EVENT_LIMIT, page_offset(events_page, DETAIL_EVENT_LIMIT)),
+                    )
+                    event_rows = c.fetchall()
+                    change_pager = pagination_html(
+                        "/agent",
+                        changes_page,
+                        DETAIL_CHANGE_LIMIT,
+                        change_count,
+                        base_params={"run_id": run_id, "agent_id": agent_id, "events_page": events_page, "list_page": list_page},
+                        param_name="changes_page",
+                    )
+                    event_pager = pagination_html(
+                        "/agent",
+                        events_page,
+                        DETAIL_EVENT_LIMIT,
+                        event_count,
+                        base_params={"run_id": run_id, "agent_id": agent_id, "changes_page": changes_page, "list_page": list_page},
+                        param_name="events_page",
+                    )
+                    body = [
+                        f"<h2>Agent History: {html.escape(agent_id)}</h2>",
+                        f"<p class='hint'><a href='{html.escape(build_url('/agents', {'page': list_page}))}'>Back to agents</a> | Run {html.escape(run_id)} | This timeline is ordered from earliest to latest.</p>",
+                        "<h3>Current State</h3>",
+                        agent_state_summary_html(agent_data),
+                        f"<p class='hint'>{change_count} recorded agent changes and {event_count} related chronicle events.</p>",
+                        "<h3>Change Timeline</h3>",
+                        change_pager,
+                        mutation_list_html(change_rows, DETAIL_CHANGE_LIMIT, "No recorded agent changes.", include_tick=True),
+                        change_pager,
+                        "<h3>Event Timeline</h3>",
+                        event_pager,
+                        event_list_html(c, event_rows, "No chronicle events involve this agent.", related_limit=3),
+                        event_pager,
+                    ]
+                    html_body = "".join(body)
+
+        elif path == "/sector":
+            run_id = query_value(query, "run_id")
+            sector_id = query_value(query, "sector_id")
+            list_page = query_value(query, "list_page", 1)
+            if not run_id or not sector_id:
+                html_body = (
+                    "<h2>Sector History</h2>"
+                    "<p class='hint'>Choose a sector from the Sectors page to view the full paged history.</p>"
+                )
+            else:
+                c.execute(
+                    "SELECT data FROM sectors WHERE run_id = ? AND sector_id = ?",
+                    (run_id, sector_id),
+                )
+                sector_row = c.fetchone()
+                if sector_row is None:
+                    html_body = (
+                        f"<h2>Sector History: {html.escape(sector_id)}</h2>"
+                        "<p class='hint'>That sector was not found in the parsed run cache.</p>"
+                    )
+                else:
+                    sector_data = json.loads(sector_row["data"])
+                    c.execute(
+                        "SELECT COUNT(*) FROM mutations WHERE run_id = ? AND entity_type = 'sector' AND entity_id = ?",
+                        (run_id, sector_id),
+                    )
+                    change_count = c.fetchone()[0]
+                    c.execute(
+                        "SELECT COUNT(*) FROM events WHERE run_id = ? AND sector_id = ?",
+                        (run_id, sector_id),
+                    )
+                    event_count = c.fetchone()[0]
+                    changes_page = clamp_page(query_page(query, "changes_page"), change_count, DETAIL_CHANGE_LIMIT)
+                    events_page = clamp_page(query_page(query, "events_page"), event_count, DETAIL_EVENT_LIMIT)
+                    c.execute(
+                        """
+                        SELECT tick, entity_type, entity_id, summary, data
+                        FROM mutations
+                        WHERE run_id = ? AND entity_type = 'sector' AND entity_id = ?
+                        ORDER BY tick ASC
+                        LIMIT ?
+                        OFFSET ?
+                        """,
+                        (run_id, sector_id, DETAIL_CHANGE_LIMIT, page_offset(changes_page, DETAIL_CHANGE_LIMIT)),
+                    )
+                    change_rows = c.fetchall()
+                    c.execute(
+                        """
+                        SELECT run_id, tick, action, actor_id, target_id, sector_id, data
+                        FROM events
+                        WHERE run_id = ? AND sector_id = ?
+                        ORDER BY tick ASC, signature ASC
+                        LIMIT ?
+                        OFFSET ?
+                        """,
+                        (run_id, sector_id, DETAIL_EVENT_LIMIT, page_offset(events_page, DETAIL_EVENT_LIMIT)),
+                    )
+                    event_rows = c.fetchall()
+                    change_pager = pagination_html(
+                        "/sector",
+                        changes_page,
+                        DETAIL_CHANGE_LIMIT,
+                        change_count,
+                        base_params={"run_id": run_id, "sector_id": sector_id, "events_page": events_page, "list_page": list_page},
+                        param_name="changes_page",
+                    )
+                    event_pager = pagination_html(
+                        "/sector",
+                        events_page,
+                        DETAIL_EVENT_LIMIT,
+                        event_count,
+                        base_params={"run_id": run_id, "sector_id": sector_id, "changes_page": changes_page, "list_page": list_page},
+                        param_name="events_page",
+                    )
+                    body = [
+                        f"<h2>Sector History: {html.escape(sector_id)}</h2>",
+                        f"<p class='hint'><a href='{html.escape(build_url('/sectors', {'page': list_page}))}'>Back to sectors</a> | Run {html.escape(run_id)} | This timeline is ordered from earliest to latest.</p>",
+                        "<h3>Current State</h3>",
+                        sector_state_summary_html(sector_data),
+                        f"<p class='hint'>{change_count} recorded sector changes and {event_count} chronicle events in this sector.</p>",
+                        "<h3>Change Timeline</h3>",
+                        change_pager,
+                        mutation_list_html(change_rows, DETAIL_CHANGE_LIMIT, "No recorded sector changes.", include_tick=True),
+                        change_pager,
+                        "<h3>Event Timeline</h3>",
+                        event_pager,
+                        event_list_html(c, event_rows, "No chronicle events occurred in this sector.", related_limit=3),
+                        event_pager,
+                    ]
+                    html_body = "".join(body)
+
         elif path == "/agents":
-            c.execute("SELECT run_id, agent_id, data FROM agents ORDER BY run_id ASC, agent_id ASC")
+            requested_page = query_page(query)
+            c.execute("SELECT COUNT(*) FROM agents")
+            total_count = c.fetchone()[0]
+            page = clamp_page(requested_page, total_count, PAGE_AGENT_LIMIT)
+            c.execute(
+                "SELECT run_id, agent_id, data FROM agents ORDER BY run_id DESC, agent_id ASC LIMIT ? OFFSET ?",
+                (PAGE_AGENT_LIMIT, page_offset(page, PAGE_AGENT_LIMIT)),
+            )
             rows = c.fetchall()
+            pager = pagination_html("/agents", page, PAGE_AGENT_LIMIT, total_count)
             body = [
                 "<h2>Agents</h2>",
-                "<table><tr><th>Agent</th><th>Latest State</th><th>Mutation History</th><th>Raw JSON</th></tr>",
+                f"<p class='hint'>Browse agents page by page. Open any row to inspect the full change and event history from start to finish.</p>",
+                pager,
+                "<table><tr><th>Agent</th><th>Current State</th><th>Recent Changes</th></tr>",
             ]
             for row in rows:
                 agent_data = json.loads(row["data"])
-                latest = (
-                    f"role={html.escape(str(agent_data.get('agent_role', 'unknown')))}<br>"
-                    f"condition={html.escape(str(agent_data.get('condition_tag', 'unknown')))}<br>"
-                    f"wealth={html.escape(str(agent_data.get('wealth_tag', 'unknown')))}<br>"
-                    f"cargo={html.escape(str(agent_data.get('cargo_tag', 'unknown')))}<br>"
-                    f"sector={html.escape(str(agent_data.get('current_sector_id', 'unknown')))}"
+                detail_link = build_url(
+                    "/agent",
+                    {"run_id": row["run_id"], "agent_id": row["agent_id"], "list_page": page},
                 )
                 c.execute(
                     """
                     SELECT tick, entity_type, entity_id, summary, data
                     FROM mutations
                     WHERE run_id = ? AND entity_type = 'agent' AND entity_id = ?
-                    ORDER BY tick ASC
+                    ORDER BY tick DESC
+                    LIMIT ?
                     """,
-                    (row["run_id"], row["agent_id"]),
+                    (row["run_id"], row["agent_id"], ENTITY_HISTORY_LIMIT + 1),
                 )
                 mutation_rows = c.fetchall()
-                if mutation_rows:
-                    mutation_block = "".join(
-                        f"<div class='mutation-entry'>[tick {mutation_row['tick']}] {mutation_html(mutation_row)}</div>"
-                        for mutation_row in mutation_rows
-                    )
-                else:
-                    mutation_block = "<i>No inferred mutations recorded.</i>"
+                mutation_block = mutation_list_html(
+                    mutation_rows,
+                    ENTITY_HISTORY_LIMIT,
+                    "No recent changes recorded.",
+                    include_tick=True,
+                )
                 body.append(
                     "<tr>"
-                    f"<td><b>{html.escape(row['agent_id'])}</b><br><small>{html.escape(row['run_id'])}</small></td>"
-                    f"<td>{latest}</td>"
+                    f"<td><a href='{html.escape(detail_link)}'><b>{html.escape(row['agent_id'])}</b></a><br><small>{html.escape(row['run_id'])}</small><br><small><a href='{html.escape(detail_link)}'>View full history</a></small></td>"
+                    f"<td>{agent_state_summary_html(agent_data)}</td>"
                     f"<td>{mutation_block}</td>"
-                    f"<td><details><summary>View Data</summary><pre>{pretty_json(agent_data)}</pre></details></td>"
                     "</tr>"
                 )
             body.append("</table>")
+            body.append(pager)
             html_body = "".join(body)
 
         elif path == "/sectors":
-            c.execute("SELECT run_id, sector_id, data FROM sectors ORDER BY run_id ASC, sector_id ASC")
+            requested_page = query_page(query)
+            c.execute("SELECT COUNT(*) FROM sectors")
+            total_count = c.fetchone()[0]
+            page = clamp_page(requested_page, total_count, PAGE_SECTOR_LIMIT)
+            c.execute(
+                "SELECT run_id, sector_id, data FROM sectors ORDER BY run_id DESC, sector_id ASC LIMIT ? OFFSET ?",
+                (PAGE_SECTOR_LIMIT, page_offset(page, PAGE_SECTOR_LIMIT)),
+            )
             rows = c.fetchall()
+            pager = pagination_html("/sectors", page, PAGE_SECTOR_LIMIT, total_count)
             body = [
                 "<h2>Sectors</h2>",
-                "<table><tr><th>Sector</th><th>Latest State</th><th>Mutation History</th><th>Raw JSON</th></tr>",
+                f"<p class='hint'>Browse sectors page by page. Open any row to inspect the full sector change and event history from start to finish.</p>",
+                pager,
+                "<table><tr><th>Sector</th><th>Current State</th><th>Recent Changes</th></tr>",
             ]
             for row in rows:
                 sector_data = json.loads(row["data"])
-                latest_lines = []
-                for key, value in sector_data.items():
-                    latest_lines.append(f"<b>{html.escape(key)}</b>: {html.escape(short_value(value, 220))}")
-                latest = "<br>".join(latest_lines) if latest_lines else "<i>No sector state captured.</i>"
+                detail_link = build_url(
+                    "/sector",
+                    {"run_id": row["run_id"], "sector_id": row["sector_id"], "list_page": page},
+                )
                 c.execute(
                     """
                     SELECT tick, entity_type, entity_id, summary, data
                     FROM mutations
                     WHERE run_id = ? AND entity_type = 'sector' AND entity_id = ?
-                    ORDER BY tick ASC
+                    ORDER BY tick DESC
+                    LIMIT ?
                     """,
-                    (row["run_id"], row["sector_id"]),
+                    (row["run_id"], row["sector_id"], ENTITY_HISTORY_LIMIT + 1),
                 )
                 mutation_rows = c.fetchall()
-                if mutation_rows:
-                    mutation_block = "".join(
-                        f"<div class='mutation-entry'>[tick {mutation_row['tick']}] {mutation_html(mutation_row)}</div>"
-                        for mutation_row in mutation_rows
-                    )
-                else:
-                    mutation_block = "<i>No inferred sector mutations recorded.</i>"
+                mutation_block = mutation_list_html(
+                    mutation_rows,
+                    ENTITY_HISTORY_LIMIT,
+                    "No recent sector changes recorded.",
+                    include_tick=True,
+                )
                 body.append(
                     "<tr>"
-                    f"<td><b>{html.escape(row['sector_id'])}</b><br><small>{html.escape(row['run_id'])}</small></td>"
-                    f"<td>{latest}</td>"
+                    f"<td><a href='{html.escape(detail_link)}'><b>{html.escape(row['sector_id'])}</b></a><br><small>{html.escape(row['run_id'])}</small><br><small><a href='{html.escape(detail_link)}'>View full history</a></small></td>"
+                    f"<td>{sector_state_summary_html(sector_data)}</td>"
                     f"<td>{mutation_block}</td>"
-                    f"<td><details><summary>View Data</summary><pre>{pretty_json(sector_data)}</pre></details></td>"
                     "</tr>"
                 )
             body.append("</table>")
+            body.append(pager)
             html_body = "".join(body)
 
         else:
             c.execute(
                 """
-                SELECT run_id, stream_mode, tick_start, tick_end,
+                SELECT run_id, stream_mode, tick_start,
+                       COALESCE(tick_end, (SELECT MAX(tick) FROM snapshots WHERE snapshots.run_id = runs.run_id), tick_start) AS latest_tick,
+                       finished_record,
                        (SELECT COUNT(*) FROM snapshots WHERE snapshots.run_id = runs.run_id) AS snapshot_count,
                        (SELECT COUNT(*) FROM events WHERE events.run_id = runs.run_id) AS event_count,
                        (SELECT COUNT(*) FROM mutations WHERE mutations.run_id = runs.run_id) AS mutation_count
                 FROM runs
-                ORDER BY run_id ASC
+                ORDER BY run_id DESC
                 """
             )
             rows = c.fetchall()
             body = [
                 "<h2>Runs</h2>",
-                "<p class='hint'>This browser keeps the raw snapshots intact and derives readable same-tick mutations from adjacent snapshots. That gives you an interim outcome view today while the runtime-side explicit mutation task remains pending.</p>",
-                "<table><tr><th>Run</th><th>Mode</th><th>Range</th><th>Counts</th></tr>",
+                "<p class='hint'>This browser now prioritizes readable outcomes: recent timelines, event lines, and compact change summaries. Raw payloads stay in the log file, not on the page.</p>",
+                "<table><tr><th>Run</th><th>Status</th><th>Range</th><th>Activity</th></tr>",
             ]
             for row in rows:
+                status = "finished" if row["finished_record"] else "open-ended"
                 body.append(
                     "<tr>"
                     f"<td>{html.escape(row['run_id'])}</td>"
-                    f"<td>{html.escape(str(row['stream_mode']))}</td>"
-                    f"<td>{row['tick_start']} -> {row['tick_end']}</td>"
-                    f"<td>snapshots={row['snapshot_count']} | events={row['event_count']} | mutations={row['mutation_count']}</td>"
+                    f"<td>{html.escape(str(row['stream_mode']))} / {status}</td>"
+                    f"<td>{html.escape(run_range_text(row))}</td>"
+                    f"<td>{row['snapshot_count']} snapshots | {row['event_count']} events | {row['mutation_count']} changes</td>"
                     "</tr>"
                 )
             body.append("</table>")
