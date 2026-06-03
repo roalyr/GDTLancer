@@ -3,7 +3,7 @@
 ## MODULE: test_debug_window.gd
 ## STATUS: [Level 2 - Implementation]
 ## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_CONSTRAINTS.md §1; TACTICAL_TODO.md TASK_1
-## LOG_REF: 2026-05-27 04:30:42
+## LOG_REF: 2026-06-04 00:54:15
 ##
 
 extends "res://addons/gut/test.gd"
@@ -141,15 +141,16 @@ func test_station_menu_service_buttons_show_explicit_trade_feedback_and_do_not_c
 	GameState.locations["sector_system_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["trade", "contracts", "repair"],
+		"market_inventory": {},
 	}
 	yield(get_tree(), "idle_frame")
 
 	station_menu.open_for_current_dock()
 	station_menu._on_trade_pressed()
-	var info_label: Label = station_menu.get_node("Panel/VBoxContainer/LabelInfo")
+	var market_section = station_menu.get_node("Panel/VBoxContainer/MarketSection")
 	assert_true(
-		info_label.text.find("Trading remains unavailable while the trading layer is rebuilt.") != -1,
-		"Trade should show explicit deferred-service feedback instead of a bare print/TODO stub."
+		market_section.visible,
+		"Trade should toggle visibility of the market section."
 	)
 
 	station_menu._on_contracts_pressed()

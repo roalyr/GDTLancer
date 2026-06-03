@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_station_menu.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
-## LOG_REF: 2026-05-27 04:30:42
+## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_4
+## LOG_REF: 2026-06-04 00:58:35
 ##
 
 extends "res://addons/gut/test.gd"
@@ -11,8 +11,22 @@ extends "res://addons/gut/test.gd"
 var ContractBoardScene = load("res://scenes/ui/menus/contract_board/ContractBoard.tscn")
 var StationMenuScene = load("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 
+const CharacterSystem = preload("res://src/core/systems/character_system.gd")
+const InventorySystem = preload("res://src/core/systems/inventory_system.gd")
+
+var _char_sys: CharacterSystem
+var _inv_sys: InventorySystem
+
 
 func before_each() -> void:
+	_char_sys = CharacterSystem.new()
+	add_child_autofree(_char_sys)
+	GlobalRefs.character_system = _char_sys
+
+	_inv_sys = InventorySystem.new()
+	add_child_autofree(_inv_sys)
+	GlobalRefs.inventory_system = _inv_sys
+
 	_seed_base_state()
 
 
@@ -35,6 +49,8 @@ func after_each() -> void:
 	GameState.contract_payment_supply.clear()
 	GameState.contract_payment_reserved.clear()
 	GameState.station_by_id.clear()
+	GlobalRefs.character_system = null
+	GlobalRefs.inventory_system = null
 
 
 func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_contracts_exist() -> void:
@@ -164,6 +180,8 @@ func _seed_base_state() -> void:
 	GameState.characters = {
 		1: {"credits": 100, "focus_points": 3},
 	}
+	if GlobalRefs.inventory_system:
+		GlobalRefs.inventory_system.create_inventory_for_character(1)
 	GameState.locations = {
 		"sector_system_elace": {
 			"location_name": "Elace System",
@@ -186,3 +204,143 @@ func _seed_base_state() -> void:
 	GameState.runtime_contract_occurrences_by_source_sector.clear()
 	GameState.runtime_contract_occurrences_by_target_sector.clear()
 	GameState.station_by_id.clear()
+
+
+func test_station_menu_gating_and_button_text() -> void:
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+
+	# 1. Test only lawful trade offered
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["trade", "contracts"],
+		"market_inventory": {},
+	}
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(station_menu._btn_trade.text, "Trade", "Button text should be 'Trade' when only lawful trade is offered.")
+	
+	station_menu._on_trade_pressed()
+	assert_true(station_menu._market_section.visible, "Market section should be visible.")
+	assert_eq(station_menu._label_market_header.text, "Market (Lawful)", "Header should read 'Market (Lawful)'.")
+
+	# 2. Test only black market offered
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["black_market", "contracts"],
+		"market_inventory": {},
+	}
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(station_menu._btn_trade.text, "Access Black Market", "Button text should be 'Access Black Market' when only black market is offered.")
+	
+	station_menu._on_trade_pressed()
+	assert_true(station_menu._market_section.visible, "Market section should be visible.")
+	assert_eq(station_menu._label_market_header.text, "Black Market (Illicit)", "Header should read 'Black Market (Illicit)'.")
+
+	# 3. Test both offered
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["trade", "black_market", "contracts"],
+		"market_inventory": {},
+	}
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	assert_eq(station_menu._btn_trade.text, "Trade", "Button text should be 'Trade' when both are offered.")
+	
+	station_menu._on_trade_pressed()
+	assert_true(station_menu._market_section.visible, "Market section should be visible.")
+	assert_eq(station_menu._label_market_header.text, "Market & Black Market", "Header should read 'Market & Black Market'.")
+
+	# 4. Test neither offered
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["contracts"],
+		"market_inventory": {},
+	}
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	station_menu._on_trade_pressed()
+	assert_false(station_menu._market_section.visible, "Market section should NOT be visible when neither trade nor black market is offered.")
+	assert_true(station_menu._service_status_message.find("Trade is not offered") != -1, "Feedback message should be set.")
+
+
+func test_station_menu_transaction_buy_and_sell() -> void:
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+
+	# Setup player character and inventory
+	var player_uid = 1
+	GameState.player_character_uid = str(player_uid)
+	GameState.characters = {
+		player_uid: {"credits": 100, "focus_points": 3},
+	}
+	if GlobalRefs.inventory_system:
+		GlobalRefs.inventory_system.create_inventory_for_character(player_uid)
+		var inv = GameState.inventories[player_uid][2]
+		inv.clear()
+
+	# Setup market inventory
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_ore": {
+				"buy_price": 10,
+				"sell_price": 8,
+				"quantity": 5,
+			}
+		},
+	}
+
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+
+	# Open trade
+	station_menu._on_trade_pressed()
+	yield(get_tree(), "idle_frame")
+
+	# Verify UI elements generated
+	assert_eq(station_menu._market_list.get_child_count(), 1, "There should be one row generated for commodity_ore.")
+	var row = station_menu._market_list.get_child(0)
+	var btn_buy: Button = row.get_child(4)
+	var btn_sell: Button = row.get_child(5)
+
+	assert_false(btn_buy.disabled, "Buy button should be enabled.")
+	assert_true(btn_sell.disabled, "Sell button should be disabled as player has 0 ore.")
+
+	# Perform buy
+	btn_buy.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+
+	# Assert credits reduced, player got asset, station quantity decremented
+	var pc = GameState.characters[player_uid]
+	assert_eq(pc.credits, 90, "Player credits should decrease by buy_price (10).")
+	assert_eq(GlobalRefs.inventory_system.get_asset_count(player_uid, 2, "commodity_ore"), 1, "Player should have 1 commodity_ore in inventory.")
+	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 4, "Station commodity quantity should decrease to 4.")
+
+	# Refresh UI is automatic, let's verify buttons state
+	row = station_menu._market_list.get_child(0)
+	btn_buy = row.get_child(4)
+	btn_sell = row.get_child(5)
+	assert_false(btn_buy.disabled, "Buy button should remain enabled.")
+	assert_false(btn_sell.disabled, "Sell button should now be enabled as player has 1 ore.")
+
+	# Perform sell
+	btn_sell.emit_signal("pressed")
+	yield(get_tree(), "idle_frame")
+
+	# Assert credits increased, player lost asset, station quantity incremented
+	assert_eq(pc.credits, 98, "Player credits should increase by sell_price (8) to 98.")
+	assert_eq(GlobalRefs.inventory_system.get_asset_count(player_uid, 2, "commodity_ore"), 0, "Player should have 0 commodity_ore in inventory.")
+	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 5, "Station commodity quantity should increase back to 5.")
+
+	row = station_menu._market_list.get_child(0)
+	btn_buy = row.get_child(4)
+	btn_sell = row.get_child(5)
+	assert_false(btn_buy.disabled, "Buy button should remain enabled.")
+	assert_true(btn_sell.disabled, "Sell button should be disabled again.")

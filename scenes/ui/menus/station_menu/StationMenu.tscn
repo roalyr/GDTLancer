@@ -2,7 +2,7 @@
 ; MODULE: StationMenu.tscn
 ; STATUS: [Level 2 - Implementation]
 ; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
-; LOG_REF: 2026-05-27 02:49:16
+; LOG_REF: 2026-06-04 00:54:15
 
 [gd_scene load_steps=4 format=2]
 
@@ -82,6 +82,31 @@ margin_right = 1446.0
 margin_bottom = 406.0
 rect_min_size = Vector2( 0, 50 )
 text = "Open Contract Board"
+
+[node name="MarketSection" type="VBoxContainer" parent="Panel/VBoxContainer"]
+visible = false
+margin_top = 412.0
+margin_right = 1446.0
+margin_bottom = 600.0
+size_flags_vertical = 3
+custom_constants/separation = 8
+
+[node name="LabelMarketHeader" type="Label" parent="Panel/VBoxContainer/MarketSection"]
+margin_right = 1446.0
+margin_bottom = 27.0
+text = "Market (Lawful)"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBoxContainer/MarketSection"]
+margin_top = 35.0
+margin_right = 1446.0
+margin_bottom = 188.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="MarketList" type="VBoxContainer" parent="Panel/VBoxContainer/MarketSection/ScrollContainer"]
+margin_right = 1446.0
+size_flags_horizontal = 3
+custom_constants/separation = 6
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
 margin_top = 418.0
