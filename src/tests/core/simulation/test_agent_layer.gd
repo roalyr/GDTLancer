@@ -2,7 +2,7 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3; TACTICAL_TODO.md TASK_2
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §8.6, §8.7; TACTICAL_TODO.md TASK_4
 # LOG_REF: 2026-05-27 16:18:30
 #
 
@@ -317,6 +317,192 @@ func test_replace_one():
 
 
 # =============================================================================
+# === INTERACTION RESOLUTION ==================================================
+# =============================================================================
+
+func test_same_faction_agents_do_not_escalate_to_attack() -> void:
+	GameState.agents["pirate_a"] = {
+		"agent_role": "pirate",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"rest_ticks_remaining": 0,
+		"sentiment_tags": ["PIRATE", "FACTION_PIRATES", "LEGAL_ILLICIT", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+	GameState.agents["pirate_b"] = {
+		"agent_role": "pirate",
+		"current_sector_id": "s1",
+		"wealth_tag": "WEALTHY",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"rest_ticks_remaining": 0,
+		"sentiment_tags": ["PIRATE", "FACTION_PIRATES", "LEGAL_ILLICIT", "HEALTHY", "WEALTHY", "LOADED"],
+	}
+
+	var handled: bool = agent_layer._resolve_agent_interaction(
+		"pirate_a",
+		"pirate_b",
+		Constants.ATTACK_THRESHOLD + 0.5
+	)
+
+	assert_false(handled,
+		"Same-faction humans should not escalate into the attack path solely because cargo or wealth made the score high.")
+	assert_eq(str(GameState.agents["pirate_b"].get("condition_tag", "")), "HEALTHY",
+		"Blocked same-faction escalation should leave the target condition unchanged.")
+	assert_false(bool(GameState.agents["pirate_b"].get("is_disabled", false)),
+		"Blocked same-faction escalation should not disable the target.")
+	assert_eq(_count_chronicle_actions("attack"), 0,
+		"Blocked same-faction escalation should not log an attack event.")
+
+
+func test_attack_threshold_resolves_to_non_lethal_disruption() -> void:
+	GameState.agents["pirate_a"] = {
+		"agent_role": "pirate",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"rest_ticks_remaining": 0,
+		"sentiment_tags": ["PIRATE", "FACTION_PIRATES", "LEGAL_ILLICIT", "HEALTHY", "COMFORTABLE", "EMPTY"],
+	}
+	GameState.agents["trader_b"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "WEALTHY",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"rest_ticks_remaining": 0,
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL", "HEALTHY", "WEALTHY", "LOADED"],
+	}
+
+	var handled: bool = agent_layer._resolve_agent_interaction(
+		"pirate_a",
+		"trader_b",
+		Constants.ATTACK_THRESHOLD + 0.5
+	)
+	chronicle.process_tick()
+
+	assert_true(handled,
+		"A lawful versus illicit high-score conflict should still resolve through the interaction path.")
+	assert_eq(str(GameState.agents["trader_b"].get("condition_tag", "")), "DAMAGED",
+		"Human-to-human attacks should now degrade into non-lethal disruption instead of destruction.")
+	assert_false(bool(GameState.agents["trader_b"].get("is_disabled", false)),
+		"Non-lethal disruption should not disable the target agent.")
+	assert_does_not_have(GameState.sector_tags["s1"], "HAS_SALVAGE",
+		"Non-lethal disruption should not generate salvage as if the target had been destroyed.")
+	assert_eq(_count_chronicle_actions("attack"), 1,
+		"Non-lethal disruption should continue to register as one combat engagement for reporting.")
+
+
+func test_trade_threshold_rejects_lawful_illicit_pairing() -> void:
+	GameState.agents["trader_a"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL", "HEALTHY", "COMFORTABLE", "LOADED", "CARGO_MARKET", "CARGO_LAWFUL"],
+	}
+	GameState.agents["pirate_b"] = {
+		"agent_role": "pirate",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["PIRATE", "FACTION_PIRATES", "LEGAL_ILLICIT", "HEALTHY", "BROKE", "EMPTY"],
+	}
+
+	var handled: bool = agent_layer._resolve_agent_interaction(
+		"trader_a",
+		"pirate_b",
+		Constants.TRADE_THRESHOLD + 0.1
+	)
+
+	assert_false(handled,
+		"A lawful versus illicit pairing should not fall through to the generic trade cargo flip.")
+	assert_eq(str(GameState.agents["trader_a"].get("cargo_tag", "")), "LOADED",
+		"Rejected trade should leave the lawful actor's cargo in place.")
+	assert_eq(str(GameState.agents["pirate_b"].get("cargo_tag", "")), "EMPTY",
+		"Rejected trade should not hand cargo to the illicit counterpart.")
+	assert_eq(_count_chronicle_actions("agent_trade"), 0,
+		"Rejected lawful versus illicit trade should not log a trade event.")
+
+
+func test_trade_threshold_rejects_protected_contract_cargo() -> void:
+	GameState.agents["trader_a"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"contract_cargo_tag": "RAW_COMMODITY",
+		"sentiment_tags": [
+			"TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL", "HEALTHY", "COMFORTABLE", "LOADED",
+			"CARGO_CONTRACT", "CARGO_PROTECTED", "HAS_CONTRACT_CLAIM"
+		],
+	}
+	GameState.agents["hauler_b"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["HAULER", "FACTION_MINERS", "LEGAL_LAWFUL", "HEALTHY", "BROKE", "EMPTY"],
+	}
+
+	var handled: bool = agent_layer._resolve_agent_interaction(
+		"trader_a",
+		"hauler_b",
+		Constants.TRADE_THRESHOLD + 0.1
+	)
+
+	assert_false(handled,
+		"Protected runtime contract cargo must not leak through the generic trade path.")
+	assert_eq(str(GameState.agents["trader_a"].get("cargo_tag", "")), "LOADED",
+		"Protected contract cargo should remain on the claimant after a blocked generic trade.")
+	assert_eq(str(GameState.agents["hauler_b"].get("cargo_tag", "")), "EMPTY",
+		"Blocked contract-cargo trade should not transfer the reserved bundle.")
+	assert_eq(str(GameState.agents["trader_a"].get("contract_cargo_tag", "")), "RAW_COMMODITY",
+		"Blocked generic trade should preserve the claimant's live contract cargo tag.")
+
+
+func test_trade_threshold_still_allows_lawful_commerce_exchange() -> void:
+	GameState.agents["trader_a"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL", "HEALTHY", "COMFORTABLE", "LOADED", "CARGO_MARKET", "CARGO_LAWFUL"],
+	}
+	GameState.agents["hauler_b"] = {
+		"agent_role": "hauler",
+		"current_sector_id": "s1",
+		"wealth_tag": "BROKE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["HAULER", "FACTION_MINERS", "LEGAL_LAWFUL", "HEALTHY", "BROKE", "EMPTY"],
+	}
+
+	var handled: bool = agent_layer._resolve_agent_interaction(
+		"trader_a",
+		"hauler_b",
+		Constants.TRADE_THRESHOLD + 0.1
+	)
+	chronicle.process_tick()
+
+	assert_true(handled,
+		"Compatible lawful commerce pairings should still be able to exchange cargo.")
+	assert_eq(str(GameState.agents["trader_a"].get("cargo_tag", "")), "EMPTY",
+		"Successful lawful trade should unload the source actor.")
+	assert_eq(str(GameState.agents["hauler_b"].get("cargo_tag", "")), "LOADED",
+		"Successful lawful trade should load the destination actor.")
+	assert_eq(_count_chronicle_actions("agent_trade"), 1,
+		"Compatible lawful trade should still log one trade event.")
+
+
+# =============================================================================
 # === DOCK ACTION =============================================================
 # =============================================================================
 
@@ -618,7 +804,7 @@ func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_do
 	}
 	GameState.runtime_contract_occurrences_by_target_sector = {"s2": ["runtime_contract:s2:CURRENCY"]}
 	GameState.runtime_contract_occurrences_by_source_sector = {"s1": ["runtime_contract:s2:CURRENCY"]}
-	GameState.sector_tags["s2"] = ["CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
+	GameState.sector_tags["s2"] = ["STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_POOR", "CONTRACT_DEMAND_CURRENCY", "RELIEF_NEEDED"]
 	GameState.contract_generation_threshold["s2"] = {"RAW": 2, "MANUFACTURED": 2, "CURRENCY": 3}
 	GameState.contract_generation_pressure["s2"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 3}
 	GameState.agents["player"] = {
@@ -686,6 +872,8 @@ func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_do
 		"Player completion should apply reward credits through the character system path.")
 	assert_eq(fake_character_system.add_credits_calls.size(), 1,
 		"Player completion should call CharacterSystem.add_credits exactly once.")
+	if fake_character_system.add_credits_calls.size() != 1:
+		return
 	assert_eq(int(fake_character_system.add_credits_calls[0].get("amount", 0)), 225,
 		"CharacterSystem.add_credits should receive the contract reward amount.")
 	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
@@ -1270,6 +1458,22 @@ func _seed_minimal_state() -> void:
 	GameState.contract_payment_reserved = {
 		"s1": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
 		"s2": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
+	}
+	GameState.agents = {
+		"player": {
+			"agent_role": "idle",
+			"current_sector_id": "s1",
+			"home_location_id": "s1",
+			"wealth_tag": "COMFORTABLE",
+			"condition_tag": "HEALTHY",
+			"cargo_tag": "EMPTY",
+			"goal_archetype": "idle",
+			"goal_queue": [{"type": "idle"}],
+			"is_disabled": false,
+			"disabled_at_tick": -1,
+			"is_persistent": true,
+			"dynamic_tags": [],
+		}
 	}
 	GameState.player_docked_at = ""
 	GameState.player_claimed_occurrence_id = ""

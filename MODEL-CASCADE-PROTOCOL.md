@@ -1,3 +1,11 @@
+<!--
+PROJECT: GDTLancer
+MODULE: MODEL-CASCADE-PROTOCOL.md
+STATUS: [Level 2 - Implementation]
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Session Logging Boundary
+LOG_REF: 2026-05-30 16:06:36
+-->
+
 WORKSPACE CONFIGURATION
 
 Each project must maintain the following "Truth" and "State" files:
@@ -28,6 +36,7 @@ Read only when the active task requires it:
 3. [STABILIZATION_SEAM_INVENTORY.md](STABILIZATION_SEAM_INVENTORY.md) — retained or carry-forward seam guidance when reopening a compatibility area.
 4. [TRUTH_CONSTRAINTS.md](TRUTH_CONSTRAINTS.md) — compatibility reference for older contracts and historical log links; no longer required as a default first-read surface.
 5. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
+6. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes and follow-on milestone order; load for architect/design pivots, truth rewrites, and setting-alignment work.
 
 Do not load by default:
 
@@ -38,7 +47,7 @@ Do not load by default:
 WORKFLOW CONTEXT LAYERS
 
   CONTROL PLANE (default first-read set): MODEL-CASCADE-PROTOCOL.md, TRUTH_PROJECT.md, TACTICAL_TODO.md, SESSION_LOG.md.
-  LIVE REFERENCE (load only the targeted sections needed for the active task): relevant TRUTH_*.md files linked above.
+  LIVE REFERENCE (load only the targeted sections needed for the active task): relevant TRUTH_*.md files linked above, plus `GDD-REVISION-LEDGER.md` for architect/design pivot work.
   ARCHIVE / GENERATED REFERENCE (do not load by default): frozen GDD snapshots, `archive/PROJECT_DUMP_TEXT_*`, archived focused simulation logs, and other generated artifacts unless the active task explicitly depends on them.
 
 CORE CONSTRAINTS

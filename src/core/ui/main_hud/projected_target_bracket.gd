@@ -50,25 +50,29 @@ func _process(_delta: float) -> void:
 	_sync_distance_label()
 
 
-func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN:
-			_forward_camera_input(event)
-			return
+func _gui_input(_event: InputEvent) -> void:
+	pass
 
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
-		if event.pressed:
-			_begin_pointer_tracking(event.position)
-		else:
-			_finish_pointer_tracking()
-		return
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.pressed and (event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN):
+			if _is_pointer_hover_position(event.position):
+				_forward_camera_input(event)
+			return
+		if event.button_index == BUTTON_LEFT:
+			if event.pressed:
+				if not disabled and _is_pointer_hover_position(event.position):
+					_begin_pointer_tracking(event.position)
+			else:
+				if _is_pointer_pressed or _is_dragging_pointer:
+					_finish_pointer_tracking_at(event.position)
+			return
 
 	if event is InputEventMouseMotion and _is_pointer_pressed and not _is_dragging_pointer:
 		if event.position.distance_squared_to(_press_position) > DRAG_THRESHOLD_PX_SQ:
 			_cancel_pending_click_for_drag(event)
 
-
-func _input(event: InputEvent) -> void:
 	if not (_is_pointer_pressed or _is_dragging_pointer or disabled):
 		return
 	if event is InputEventMouseMotion and _is_dragging_pointer:
@@ -77,7 +81,7 @@ func _input(event: InputEvent) -> void:
 		_forward_camera_drag_motion(event)
 		return
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and not event.pressed:
-		_finish_pointer_tracking()
+		_finish_pointer_tracking_at(event.position)
 
 
 func configure_target(new_target_ref, new_target_label: String = "") -> void:
@@ -133,6 +137,13 @@ func _finish_pointer_tracking() -> void:
 	if _is_dragging_pointer and not _is_main_hud_drag_passthrough_active():
 		_set_camera_drag_state(false)
 	_reset_pointer_tracking_state()
+
+
+func _finish_pointer_tracking_at(pointer_position: Vector2) -> void:
+	var should_emit_pressed: bool = _is_pointer_pressed and not _is_dragging_pointer and _is_pointer_hover_position(pointer_position)
+	_finish_pointer_tracking()
+	if should_emit_pressed:
+		emit_signal("pressed")
 
 
 func reset_pointer_tracking_from_main_hud() -> void:
@@ -342,3 +353,7 @@ func _call_camera_bridge_method(method_name: String, args: Array = [], default_v
 	if args.empty():
 		return camera.call(method_name)
 	return camera.callv(method_name, args)
+
+
+func _is_pointer_hover_position(pointer_position: Vector2) -> bool:
+	return visible and get_global_rect().has_point(pointer_position)

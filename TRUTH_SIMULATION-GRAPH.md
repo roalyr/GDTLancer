@@ -2,8 +2,8 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_SIMULATION-GRAPH.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_1
-LOG_REF: 2026-05-28 14:01:46
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_PROJECT.md § Automated Testing Boundary; GDD-REVISION-LEDGER.md REV_003; GDD-REVISION-LEDGER.md REV_004; TACTICAL_TODO.md TASK_1
+LOG_REF: 2026-06-03 19:48:31
 -->
 
 # 8.1-GDD-Simulation-Graph-System
@@ -23,9 +23,9 @@ For the current implementation in `src/core/simulation/`:
 
 * `WorldLayer` provides topology and hazard seeds.
 * `GridLayer` is a qualitative tag-transition CA with bounded counters and thresholds.
-* `BridgeSystems` + `AffinityMatrix` refresh derived sector/agent/world tags.
+* `BridgeSystems` + `AffinityMatrix` refresh derived sector/agent/world tags, including faction, legality, and cargo-provenance semantics needed by the live interaction layer.
 * `contract_generation_system.gd` builds bounded runtime contract occurrences from active demand tags.
-* `AgentLayer` claims and services those runtime occurrences via cargo/dock flow.
+* `AgentLayer` claims and services those runtime occurrences via cargo/dock flow, and routine human-to-human interactions should resolve through non-lethal disruption or gated trade rather than generic lethal combat.
 * `simulation_raw_logger.gd` provides an additive console-only JSON-lines stream for full per-tick snapshots without replacing the chronicle/composite report surfaces, and the Sim Debug Panel now starts that raw stream in continuous mode until process exit.
 * Authored `ContractTemplate` resources and `LocationTemplate.available_contract_ids` are **optional curated overrides**, not the default contract pipeline.
 
@@ -424,7 +424,10 @@ How this graph maps to the code systems (both Python sandbox and target Godot ar
    * Each occurrence carries shared accounting ownership (`source_accounting_sector_id`, `payment_accounting_sector_id`) plus reservation state (`source_reserved`, `payment_reserved`, `cargo_picked_up`) so player and NPC delivery flow use the same bounded source/payment seam.
    * Claimed/in-transit occurrences are retained across generator refresh so multi-tick deliveries survive even if the demand tag clears, but pre-pickup claims that lose a valid claimant or become unserviceable must release reserved source/payment backing instead of silently stranding it.
    * Traders and haulers claim occurrences by affinity, route to source sectors, load cargo, travel to target sectors, and complete deliveries through the existing cargo/dock flow.
+   * `BridgeSystems` + `AffinityMatrix` must derive faction, legality, and cargo-provenance tags from the existing character, sector-control, and agent cargo state before `AgentLayer` resolves human interactions.
+   * Human-to-human interaction should distinguish lawful cooperation, illicit exchange, coercive disruption, and exceptional lethal force. Routine internal human conflict must not disable or destroy other humans by default.
    * Player contract actions stay explicit through the Contract Board helpers, but pickup/completion consequences share the same `AgentLayer` gates and accounting transitions as NPC deliveries.
+   * Active runtime contract cargo and reservation-backed deliveries are protected cargo, not generic bilateral trade inventory. Generic interaction logic must not leak or confiscate that cargo unless a later contract explicitly redefines the shared delivery seam.
    * When the source sector is disabled, pickup is blocked; when the target sector is disabled after pickup, the in-transit occurrence remains retained and the held payment reservation stays blocked until recovery or claimant cleanup resolves it.
    * Claimant disable/death cleanup must clear player mirrors, reopen or remove the affected occurrence according to pickup state, and restore any stranded reservation backing so the runtime store never carries a dead claim indefinitely.
    * The Contract Board is read-only against this seam: it reflects reservation state and disabled-source/disabled-target recovery waits, but it does not become a second authority for contract lifecycle changes.
@@ -437,15 +440,15 @@ How this graph maps to the code systems (both Python sandbox and target Godot ar
 | WorldLayer | GridLayer | Sector topology, hazards, starting tags | Initialization |
 | GridLayer | Sector Tags | Economy/security/environment/hostile/colony transitions | Qualitative CA |
 | GridLayer | Demand State | `contract_generation_pressure`, thresholds, demand tags | Qualitative CA |
-| BridgeSystems | Sector Tags | Normalized tags + preserved custom demand markers | Derivation |
-| AffinityMatrix | AgentLayer | Role/condition/cargo affinities and vocabulary | Decision Support |
+| BridgeSystems | Sector / Agent Tags | Normalized tags plus preserved custom demand markers, faction-control context, legality context, and cargo-provenance hints | Derivation |
+| AffinityMatrix | AgentLayer | Role, condition, cargo, faction, and legality affinities plus the shared vocabulary that scores them | Decision Support |
 | GridLayer / Sector Tags | ContractGenerationSystem | `CONTRACT_DEMAND_*` tags plus disabled-sector serviceability context | Runtime Generation Gate |
 | ContractGenerationSystem | Runtime Contract Store | Bounded occurrence dictionaries, accounting-owner ids, and reservation state | Runtime Generation |
 | Runtime Contract Store | AgentLayer | Claimable `delivery`-style qualitative occurrences with shared reservation/cargo state | Goal Selection |
-| GridLayer / Sector Tags | AgentLayer | Disabled-source and disabled-target gating for pickup/completion | Action Gate |
+| GridLayer / Sector Tags | AgentLayer | Disabled-source and disabled-target gating for pickup/completion, plus lawful/unlawful context for human interaction | Action Gate |
 | AgentLayer | Runtime Contract Store | Claim, reservation release, blocked in-transit retention, claimant cleanup, and completion state | Runtime Resolution |
-| AgentLayer | Sector Tags | Relief movement, docking, cargo delivery side effects | Simulation Action |
-| AgentLayer | Chronicle | Claim/load/complete and movement events | Event Capture |
+| AgentLayer | Sector Tags | Relief movement, docking, cargo delivery side effects, and non-lethal disruption fallout | Simulation Action |
+| AgentLayer | Chronicle | Claim/load/complete, movement, trade, coercive, and other interaction events | Event Capture |
 | Runtime Contract Store | ContractBoard | Player-visible occurrence state, reservation flags, and recovery-wait hints | Read-Only UI |
 | SimDebugPanel | SimulationEngine | Continuous raw-stream start request metadata | Debug Control |
 | SimulationEngine | SimulationRawLogger | Live tick processing and current tick config | Raw Snapshot Stream |
@@ -562,6 +565,8 @@ These questions were raised during initial graph design and have been resolved:
 
 * Both Named (persistent) and Mortal (expendable) agents share **all roles** — trader, miner, prospector, salvager, pirate, military. Role selection is driven by the agent's goal queue and situational context, not a fixed class.
 * There is no separate "caravan" NPC type. Mortal agents spawned by prosperous sectors naturally fill the trader role when price disparities exist.
+* Agent-mediated trade does **not** mean every human pairing should behave like a free, lawful market edge. Faction, legality, and cargo-provenance tags may gate whether an interaction is cooperative trade, illicit exchange, coercive seizure, or no trade at all.
+* Active runtime contract cargo is protected delivery state, not generic bilateral trade inventory.
 * This keeps the graph simple — the `Agent(Inventory)` node is the **only** mobile matter carrier. No station-to-station edge needed.
 * **Graph impact:** No new edges. The existing `Agent(Trade)` ↔ `Grid(Stockpile)` edges handle all commerce. Agent diversity is behavioral, not structural.
 
@@ -571,6 +576,7 @@ These questions were raised during initial graph design and have been resolved:
 
 * Influence is defined by **who explored and colonized** a sector. The founding faction's identity persists through the colony.
 * Colonies spawn agents of their faction. Those agents propagate population and influence to neighboring sectors naturally through trade and migration.
+* In the live qualitative interaction layer, faction and legality remain informational tags, but they now also act as decision inputs for who humans cooperate with, trade with, coerce, or refuse.
 * `faction_influence` is a signal (like Economic Heat), not a material. It doesn't enter the Axiom 1 sum.
 * **Graph impact:** No new matter edges. Faction influence lives in the **Information Graph** (Section 5), not the Matter Graph. It's driven by agent population density and colony ownership.
 * **Gameplay consequence:** Factions expand/contract organically based on economic success and population, not by spending resources on a "claim" mechanic.
@@ -586,6 +592,24 @@ These questions were raised during initial graph design and have been resolved:
 * This creates a natural carrying capacity per sector — a colony can only sustain a level that its economy can feed.
 * **Graph impact:** New edge in Section 3.4: `Station(Stockpile: Tech/Ore)` → `Hidden Resources + Hostile Pool` (maintenance waste follows the standard entropy split). Emergency Draft edge: `Colony Infrastructure` → `Station(Stockpile)`.
 * **Gameplay consequence:** Colonies are living things, not permanent achievements. A supply disruption cascades: colony downgrade → reduced extraction → further supply problems → potential Emergency Draft → faction-wide resource strain.
+
+### 8.6 Routine Human Conflict → Non-Lethal by Default
+
+**Decision:** Routine human-to-human conflict should resolve through **non-lethal disruption** by default.
+
+* Coercion, sabotage, interception, extortion, and forced dispersal are valid human interaction outcomes.
+* Generic human interaction should not disable or destroy another human by default just because wealth, cargo, or aggression tags align.
+* Lethal combat pressure should remain concentrated primarily in external hostile forces, with exceptional human lethality treated as a later explicit doctrine or combat-system seam rather than the default simulation baseline.
+* **Graph impact:** No new matter edge is required for this doctrine. The primary change is to the live interaction gate and the kinds of chronicle events the human interaction seam emits.
+
+### 8.7 Cargo Provenance And Legality → Qualitative Interaction Gates
+
+**Decision:** Cargo provenance and legality are qualitative interaction gates, not a return to numeric inventory accounting.
+
+* The live interaction seam may distinguish categories such as protected contract cargo, ordinary lawful cargo, illicit cargo, and salvage without introducing numeric trade ledgers.
+* Those provenance tags determine whether another human treats the cargo as tradable, contraband, protected service state, or a coercive target.
+* Protected runtime contract cargo must remain attached to the shared contract occurrence and reservation seam until a later milestone explicitly changes that rule.
+* **Graph impact:** No new matter accounting bucket is added. Provenance is an interaction tag that changes routing and compatibility, not a separate conserved quantity.
 
 ---
 

@@ -58,17 +58,64 @@ func _refresh_agent_tags() -> void:
 		if agent.get("is_disabled", false):
 			continue
 
-		var character_id: String = agent.get("character_id", "")
-		var char_data: Dictionary = GameState.characters.get(character_id, {})
+		var char_data: Dictionary = _lookup_character_data(agent)
 
 		var has_cargo: bool = false
 		var initial_tags: Array = agent.get("initial_tags", [])
 		if "LOADED" in initial_tags or agent.get("cargo_tag", "") == "LOADED":
 			has_cargo = true
 
-		var tags: Array = affinity_matrix.derive_agent_tags(char_data, agent, has_cargo)
+		var tag_context: Dictionary = _build_agent_tag_context(agent_id, agent)
+		var tags: Array = affinity_matrix.derive_agent_tags(char_data, tag_context, has_cargo)
 		GameState.agent_tags[agent_id] = tags
 		agent["sentiment_tags"] = tags
+
+
+func _lookup_character_data(agent: Dictionary) -> Dictionary:
+	var character_id_value = agent.get("character_id", "")
+	if GameState.characters.has(character_id_value):
+		var direct_match = GameState.characters.get(character_id_value, {})
+		if direct_match is Dictionary:
+			return direct_match
+
+	var character_id: String = str(character_id_value)
+	if GameState.characters.has(character_id):
+		var string_match = GameState.characters.get(character_id, {})
+		if string_match is Dictionary:
+			return string_match
+
+	if character_id.is_valid_integer():
+		var numeric_character_id: int = int(character_id)
+		if GameState.characters.has(numeric_character_id):
+			var numeric_match = GameState.characters.get(numeric_character_id, {})
+			if numeric_match is Dictionary:
+				return numeric_match
+
+	return {}
+
+
+func _build_agent_tag_context(agent_id: String, agent: Dictionary) -> Dictionary:
+	var context: Dictionary = agent.duplicate(true)
+	var current_sector_id: String = str(agent.get("current_sector_id", ""))
+	var current_sector_tags: Array = Array(GameState.sector_tags.get(current_sector_id, []))
+	context["current_sector_tags"] = current_sector_tags.duplicate()
+	context["sector_legality_tag"] = affinity_matrix.derive_sector_legality_tag(current_sector_tags)
+	context["sector_faction_tag"] = affinity_matrix.derive_sector_faction_tag(current_sector_tags)
+	context["has_active_contract_claim"] = _agent_has_active_contract_claim(agent_id)
+	return context
+
+
+func _agent_has_active_contract_claim(agent_id: String) -> bool:
+	for occurrence_id in GameState.runtime_contract_occurrences.keys():
+		var occurrence: Dictionary = GameState.runtime_contract_occurrences.get(occurrence_id, {})
+		if occurrence.empty():
+			continue
+		if str(occurrence.get("claimant_agent_id", "")) != agent_id:
+			continue
+		if str(occurrence.get("status", "")) == "completed":
+			continue
+		return true
+	return false
 
 
 # =============================================================================

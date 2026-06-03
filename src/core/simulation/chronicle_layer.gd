@@ -157,9 +157,11 @@ func _resolve_location_name(sector_id: String) -> String:
 		return ""
 	# Try TemplateDatabase
 	if TemplateDatabase.locations.has(sector_id):
-		var loc: Resource = TemplateDatabase.locations[sector_id]
-		if is_instance_valid(loc) and loc.get("location_name") != null:
-			return loc.location_name
+		var loc = TemplateDatabase.locations[sector_id]
+		if loc is Dictionary:
+			return str(loc.get("location_name", sector_id))
+		if loc is Resource and is_instance_valid(loc) and loc.get("location_name") != null:
+			return str(loc.location_name)
 	# Try sector_names in GameState
 	if GameState.sector_names.has(sector_id):
 		return GameState.sector_names[sector_id]

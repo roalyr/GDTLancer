@@ -2,7 +2,7 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3; TACTICAL_TODO.md TASK_2
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §8.6, §8.7; TACTICAL_TODO.md TASK_3
 # LOG_REF: 2026-05-27 16:18:30
 #
 
@@ -362,25 +362,28 @@ func _resolve_agent_interaction(actor_id: String, target_id: String, score: floa
 		return false
 
 	var current_sector: String = actor.get("current_sector_id", "")
+	var actor_tags: Array = Array(actor.get("sentiment_tags", []))
+	var target_tags: Array = Array(target.get("sentiment_tags", []))
 
 	if score >= Constants.ATTACK_THRESHOLD:
-		var new_target_condition: String = "DESTROYED" if target.get("condition_tag") == "DAMAGED" else "DAMAGED"
-		target["condition_tag"] = new_target_condition
+		if not _can_agents_escalate_to_disruption(actor, target, actor_tags, target_tags):
+			return false
+		var cargo_seized: bool = _apply_non_lethal_disruption(actor_id, actor, target_id, target, actor_tags, target_tags)
 		actor["last_attack_tick"] = GameState.sim_tick_count
-
-		if new_target_condition == "DESTROYED":
-			target["is_disabled"] = true
-			target["disabled_at_tick"] = GameState.sim_tick_count
-			_clear_runtime_contract_claims_for_agent(target_id, target)
-			GameState.sector_tags[current_sector] = _add_tag(GameState.sector_tags.get(current_sector, []), "HAS_SALVAGE")
-			actor["cargo_tag"] = "LOADED"
-
-		_log_event(actor_id, "attack", current_sector, {"target": target_id})
+		_log_event(actor_id, "attack", current_sector, {
+			"target": target_id,
+			"outcome": "non_lethal_disruption",
+			"cargo_seized": cargo_seized,
+		})
 		_post_combat_dispersal(actor_id, actor)
 		return true
 
 	if score >= Constants.TRADE_THRESHOLD:
+		if not _can_agents_trade(actor, target, actor_tags, target_tags):
+			return false
 		_bilateral_trade(actor, target)
+		_sync_player_cargo_mirror(actor_id, actor)
+		_sync_player_cargo_mirror(target_id, target)
 		_log_event(actor_id, "agent_trade", current_sector, {"target": target_id})
 		return true
 
@@ -2182,14 +2185,186 @@ func _is_combat_cooldown_active(agent: Dictionary) -> bool:
 
 
 func _bilateral_trade(actor: Dictionary, target: Dictionary) -> void:
-	var actor_loaded: bool = actor.get("cargo_tag") == "LOADED"
-	var target_loaded: bool = target.get("cargo_tag") == "LOADED"
+	var actor_loaded: bool = str(actor.get("cargo_tag", "EMPTY")) == "LOADED"
+	var target_loaded: bool = str(target.get("cargo_tag", "EMPTY")) == "LOADED"
 	if actor_loaded and not target_loaded:
-		actor["cargo_tag"] = "EMPTY"
-		target["cargo_tag"] = "LOADED"
+		_transfer_cargo_between_agents(actor, target)
 	elif target_loaded and not actor_loaded:
-		target["cargo_tag"] = "EMPTY"
-		actor["cargo_tag"] = "LOADED"
+		_transfer_cargo_between_agents(target, actor)
+
+
+func _can_agents_escalate_to_disruption(actor: Dictionary, target: Dictionary, actor_tags: Array, target_tags: Array) -> bool:
+	if _share_aligned_faction(actor_tags, target_tags):
+		return false
+
+	var actor_legality_tag: String = _agent_legality_tag(actor_tags)
+	var target_legality_tag: String = _agent_legality_tag(target_tags)
+
+	if "MILITARY" in actor_tags and target_legality_tag == "LEGAL_ILLICIT":
+		return true
+	if "PIRATE" in actor_tags and target_legality_tag != "LEGAL_ILLICIT":
+		return true
+	if actor_legality_tag == "LEGAL_LAWFUL" and target_legality_tag == "LEGAL_ILLICIT":
+		return true
+	if actor_legality_tag == "LEGAL_ILLICIT" and target_legality_tag == "LEGAL_LAWFUL":
+		return true
+
+	return false
+
+
+func _apply_non_lethal_disruption(
+		actor_id: String,
+		actor: Dictionary,
+		target_id: String,
+		target: Dictionary,
+		actor_tags: Array,
+		target_tags: Array
+	) -> bool:
+	var cargo_seized: bool = false
+	target["condition_tag"] = "DAMAGED"
+	_wealth_step_down(target)
+	target["rest_ticks_remaining"] = max(int(target.get("rest_ticks_remaining", 0)), 1)
+	if target_id != "player":
+		target["goal_archetype"] = "flee_to_safety"
+		target["goal_queue"] = [{"type": "flee_to_safety"}]
+
+	if _can_actor_seize_cargo(actor, target, actor_tags, target_tags):
+		cargo_seized = _transfer_cargo_between_agents(target, actor)
+
+	_sync_player_cargo_mirror(actor_id, actor)
+	_sync_player_cargo_mirror(target_id, target)
+	return cargo_seized
+
+
+func _can_actor_seize_cargo(actor: Dictionary, target: Dictionary, actor_tags: Array, target_tags: Array) -> bool:
+	if not ("PIRATE" in actor_tags):
+		return false
+	if "PIRATE" in target_tags:
+		return false
+	if _share_aligned_faction(actor_tags, target_tags):
+		return false
+	if _has_protected_contract_cargo(target, target_tags):
+		return false
+	return str(actor.get("cargo_tag", "EMPTY")) == "EMPTY" and str(target.get("cargo_tag", "EMPTY")) == "LOADED"
+
+
+func _can_agents_trade(actor: Dictionary, target: Dictionary, actor_tags: Array, target_tags: Array) -> bool:
+	var actor_loaded: bool = str(actor.get("cargo_tag", "EMPTY")) == "LOADED"
+	var target_loaded: bool = str(target.get("cargo_tag", "EMPTY")) == "LOADED"
+	if actor_loaded == target_loaded:
+		return false
+	if _has_protected_contract_cargo(actor, actor_tags) or _has_protected_contract_cargo(target, target_tags):
+		return false
+
+	var actor_role: String = str(actor.get("agent_role", "idle"))
+	var target_role: String = str(target.get("agent_role", "idle"))
+	if not (_is_commerce_role(actor_role) or _is_commerce_role(target_role)):
+		return false
+	if actor_role == "military" or target_role == "military":
+		return false
+
+	var actor_legality_tag: String = _agent_legality_tag(actor_tags)
+	var target_legality_tag: String = _agent_legality_tag(target_tags)
+	if _trade_legality_blocks_exchange(actor_legality_tag, target_legality_tag):
+		return false
+	if ("PIRATE" in actor_tags or "PIRATE" in target_tags) and not (
+		actor_legality_tag == "LEGAL_ILLICIT" and target_legality_tag == "LEGAL_ILLICIT"
+	):
+		return false
+
+	return true
+
+
+func _is_commerce_role(role: String) -> bool:
+	return role in ["trader", "hauler", "prospector"]
+
+
+func _trade_legality_blocks_exchange(actor_legality_tag: String, target_legality_tag: String) -> bool:
+	if actor_legality_tag == "LEGAL_LAWFUL" and target_legality_tag == "LEGAL_ILLICIT":
+		return true
+	if actor_legality_tag == "LEGAL_ILLICIT" and target_legality_tag == "LEGAL_LAWFUL":
+		return true
+	if actor_legality_tag == "LEGAL_TOLERATED" and target_legality_tag == "LEGAL_ILLICIT":
+		return true
+	if actor_legality_tag == "LEGAL_ILLICIT" and target_legality_tag == "LEGAL_TOLERATED":
+		return true
+	return false
+
+
+func _has_protected_contract_cargo(agent: Dictionary, tags: Array) -> bool:
+	if str(agent.get("cargo_tag", "EMPTY")) != "LOADED":
+		return false
+	if str(agent.get("contract_cargo_tag", "")) != "":
+		return true
+	return ("CARGO_PROTECTED" in tags) or ("CARGO_CONTRACT" in tags)
+
+
+func _share_aligned_faction(actor_tags: Array, target_tags: Array) -> bool:
+	var actor_faction_tag: String = _tag_with_prefix(actor_tags, "FACTION_")
+	var target_faction_tag: String = _tag_with_prefix(target_tags, "FACTION_")
+	if actor_faction_tag == "" or target_faction_tag == "":
+		return false
+	if actor_faction_tag == "FACTION_UNALIGNED" or target_faction_tag == "FACTION_UNALIGNED":
+		return false
+	return actor_faction_tag == target_faction_tag
+
+
+func _agent_legality_tag(tags: Array) -> String:
+	var explicit_tag: String = _tag_with_prefix(tags, "LEGAL_")
+	if explicit_tag != "":
+		return explicit_tag
+	if "PIRATE" in tags:
+		return "LEGAL_ILLICIT"
+	if "TRADER" in tags or "HAULER" in tags or "MILITARY" in tags:
+		return "LEGAL_LAWFUL"
+	return "LEGAL_TOLERATED"
+
+
+func _tag_with_prefix(tags: Array, prefix: String) -> String:
+	for tag in tags:
+		var label: String = str(tag)
+		if label.begins_with(prefix):
+			return label
+	return ""
+
+
+func _transfer_cargo_between_agents(source: Dictionary, destination: Dictionary) -> bool:
+	if str(source.get("cargo_tag", "EMPTY")) != "LOADED":
+		return false
+	if str(destination.get("cargo_tag", "EMPTY")) != "EMPTY":
+		return false
+
+	destination["cargo_tag"] = "LOADED"
+	source["cargo_tag"] = "EMPTY"
+
+	if source.has("contract_cargo_tag"):
+		destination["contract_cargo_tag"] = source.get("contract_cargo_tag", "")
+	elif destination.has("contract_cargo_tag"):
+		destination.erase("contract_cargo_tag")
+
+	if source.has("cargo_provenance_tag"):
+		destination["cargo_provenance_tag"] = source.get("cargo_provenance_tag", "")
+	elif destination.has("cargo_provenance_tag"):
+		destination.erase("cargo_provenance_tag")
+
+	if source.has("cargo_legality_tag"):
+		destination["cargo_legality_tag"] = source.get("cargo_legality_tag", "")
+	elif destination.has("cargo_legality_tag"):
+		destination.erase("cargo_legality_tag")
+
+	if source.has("contract_cargo_tag"):
+		source.erase("contract_cargo_tag")
+	if source.has("cargo_provenance_tag"):
+		source.erase("cargo_provenance_tag")
+	if source.has("cargo_legality_tag"):
+		source.erase("cargo_legality_tag")
+
+	return true
+
+
+func _sync_player_cargo_mirror(agent_id: String, agent: Dictionary) -> void:
+	if agent_id == "player":
+		GameState.player_cargo_tag = str(agent.get("cargo_tag", "EMPTY"))
 
 
 # =============================================================================

@@ -63,6 +63,74 @@ RELATED_MUTATION_LIMIT = 5
 ENTITY_HISTORY_LIMIT = 6
 DETAIL_CHANGE_LIMIT = 40
 DETAIL_EVENT_LIMIT = 40
+LOW_SIGNAL_AGENT_FIELDS = {"goal_archetype", "rest_ticks_remaining", "sentiment_tags", "dynamic_tags"}
+GENERIC_AGENT_EVENT_FIELDS = {
+    "condition_tag",
+    "wealth_tag",
+    "cargo_tag",
+    "current_sector_id",
+    "is_disabled",
+    "disabled_at_tick",
+    "last_attack_tick",
+}
+GENERIC_SECTOR_EVENT_FIELDS = {
+    "dominion",
+    "tags",
+    "generation_pressure",
+    "cargo_reserved",
+    "payment_reserved",
+    "cargo_supply",
+    "payment_supply",
+    "colony_level",
+}
+GENERIC_WORLD_EVENT_FIELDS = {"discovered_sector_count", "discovered_sectors", "discovery_log", "mortal_agent_counter", "mortal_agent_deaths"}
+ACTION_AGENT_FIELDS = {
+    "move": {"current_sector_id"},
+    "dock": {"cargo_tag", "condition_tag", "wealth_tag", "is_disabled", "disabled_at_tick"},
+    "attack:actor": {"last_attack_tick"},
+    "attack:target": {"condition_tag", "is_disabled", "disabled_at_tick"},
+    "agent_trade:actor": {"cargo_tag", "wealth_tag", "condition_tag"},
+    "agent_trade:target": {"cargo_tag", "wealth_tag", "condition_tag"},
+    "expedition_failed": {"current_sector_id"},
+    "load_cargo": {"cargo_tag", "wealth_tag"},
+    "harvest": {"cargo_tag", "wealth_tag"},
+    "contract_claimed": {"current_sector_id", "cargo_tag", "condition_tag"},
+    "contract_loaded": {"cargo_tag", "wealth_tag"},
+    "contract_completed": {"cargo_tag", "wealth_tag", "condition_tag", "is_disabled"},
+    "respawn": {"condition_tag", "current_sector_id", "is_disabled", "disabled_at_tick", "wealth_tag"},
+    "sector_discovered": {"current_sector_id", "condition_tag", "wealth_tag"},
+    "spawn": {"created"},
+}
+ACTION_SECTOR_FIELDS = {
+    "attack": {"dominion", "tags"},
+    "agent_trade": {"cargo_supply", "payment_supply", "generation_pressure", "tags"},
+    "dock": {"cargo_supply", "payment_supply", "cargo_reserved", "payment_reserved", "tags", "dominion"},
+    "load_cargo": {"cargo_supply", "cargo_reserved", "tags"},
+    "harvest": {"cargo_supply", "cargo_reserved", "tags"},
+    "contract_claimed": {"generation_pressure", "cargo_reserved", "payment_reserved", "tags"},
+    "contract_loaded": {"cargo_supply", "cargo_reserved"},
+    "contract_completed": {"generation_pressure", "payment_reserved", "payment_supply", "cargo_reserved", "tags"},
+    "respawn": {"generation_pressure", "dominion", "tags"},
+    "expedition_failed": {"generation_pressure", "tags"},
+    "spawn": {"dominion", "tags", "cargo_supply", "payment_supply"},
+}
+ACTION_WORLD_FIELDS = {
+    "sector_discovered": {"discovered_sector_count", "discovered_sectors", "discovery_log"},
+    "spawn": {"mortal_agent_counter", "mortal_agent_deaths"},
+}
+ACTION_CONTRACT_FIELDS = {
+    "contract_claimed": {"status", "claimant_agent_id", "source_reserved", "payment_reserved"},
+    "contract_loaded": {"status", "source_reserved", "cargo_picked_up"},
+    "contract_completed": {"status", "completed_at_tick", "payment_reserved", "cargo_picked_up"},
+}
+ACTION_OUTCOME_PRIORITY = {
+    "attack": [("agent", "target"), ("agent", "actor"), ("sector", "sector"), ("world", "world")],
+    "contract_claimed": [("contract", "contract"), ("agent", "actor"), ("sector", "sector"), ("world", "world")],
+    "contract_loaded": [("contract", "contract"), ("agent", "actor"), ("sector", "sector"), ("world", "world")],
+    "contract_completed": [("contract", "contract"), ("agent", "actor"), ("sector", "sector"), ("world", "world")],
+    "sector_discovered": [("world", "world"), ("agent", "actor"), ("sector", "sector")],
+    "spawn": [("agent", "actor"), ("world", "world"), ("sector", "sector")],
+}
 
 
 def connect_db():
@@ -281,6 +349,173 @@ def mutation_line_html(mutation_row, include_tick=False):
         f"<li>{prefix}{mutation_badge(entity_type)} <b>{html.escape(entity_id)}</b>: "
         f"{html.escape(summary)}</li>"
     )
+
+
+def material_change_summary(changes):
+    parts = []
+    for field_name, delta in sorted(changes.items()):
+        if field_name == "created":
+            created = delta.get("after") if isinstance(delta.get("after"), dict) else {}
+            role = created.get("agent_role") or created.get("status") or created.get("template_id")
+            sector = created.get("current_sector_id") or created.get("source_sector_id") or created.get("target_sector_id")
+            text = "created"
+            if role:
+                text += f" {role}"
+            if sector:
+                text += f" at {sector}"
+            parts.append(text)
+            continue
+        if field_name == "removed":
+            parts.append("removed")
+            continue
+        if field_name == "value":
+            parts.append(f"updated to {readable_value(delta.get('after'))}")
+            continue
+        before = short_value(delta.get("before"))
+        after = short_value(delta.get("after"))
+        parts.append(f"{field_label(field_name)}: {before} -> {after}")
+    return "; ".join(parts)
+
+
+def event_relation(entity_type, entity_id, actor_id, target_id, sector_id):
+    if entity_type == "agent":
+        if entity_id == actor_id:
+            return "actor"
+        if entity_id == target_id:
+            return "target"
+        return "other"
+    if entity_type == "sector":
+        return "sector" if entity_id == sector_id else "other"
+    if entity_type == "world":
+        return "world"
+    if entity_type == "contract":
+        return "contract"
+    return "other"
+
+
+def event_allowlist(action, entity_type, relation):
+    if entity_type == "agent":
+        if relation == "actor":
+            if f"{action}:actor" in ACTION_AGENT_FIELDS:
+                return ACTION_AGENT_FIELDS[f"{action}:actor"]
+            if action in ACTION_AGENT_FIELDS:
+                return ACTION_AGENT_FIELDS[action]
+            return None
+        if relation == "target":
+            if f"{action}:target" in ACTION_AGENT_FIELDS:
+                return ACTION_AGENT_FIELDS[f"{action}:target"]
+            return None
+        return set()
+    if entity_type == "sector":
+        if relation != "sector":
+            return set()
+        return ACTION_SECTOR_FIELDS.get(action) if action in ACTION_SECTOR_FIELDS else None
+    if entity_type == "world":
+        if relation != "world":
+            return set()
+        return ACTION_WORLD_FIELDS.get(action) if action in ACTION_WORLD_FIELDS else None
+    if entity_type == "contract":
+        if relation != "contract":
+            return set()
+        return ACTION_CONTRACT_FIELDS.get(action) if action in ACTION_CONTRACT_FIELDS else None
+    return set()
+
+
+def generic_material_fields(entity_type):
+    if entity_type == "agent":
+        return GENERIC_AGENT_EVENT_FIELDS
+    if entity_type == "sector":
+        return GENERIC_SECTOR_EVENT_FIELDS
+    if entity_type == "world":
+        return GENERIC_WORLD_EVENT_FIELDS
+    if entity_type == "contract":
+        return set(INTERESTING_CONTRACT_FIELDS) | {"created", "removed", "value"}
+    return set()
+
+
+def has_effective_delta(field_name, delta):
+    if field_name in {"created", "removed"}:
+        return True
+    return delta.get("before") != delta.get("after")
+
+
+def significant_change_subset(entity_type, changes, field_names, allow_generic_fallback):
+    subset = {}
+    for field_name in field_names or ():
+        if field_name in changes and has_effective_delta(field_name, changes[field_name]):
+            subset[field_name] = changes[field_name]
+    if subset:
+        return subset
+    if not allow_generic_fallback:
+        return {}
+
+    fallback = {}
+    for field_name, delta in changes.items():
+        if not has_effective_delta(field_name, delta):
+            continue
+        if field_name in {"created", "removed"}:
+            fallback[field_name] = delta
+        elif field_name == "value":
+            continue
+        elif entity_type == "agent":
+            if field_name in LOW_SIGNAL_AGENT_FIELDS:
+                continue
+            if field_name in GENERIC_AGENT_EVENT_FIELDS:
+                fallback[field_name] = delta
+        elif field_name in generic_material_fields(entity_type):
+            fallback[field_name] = delta
+    return fallback
+
+
+def event_outcome_rank(action, entity_type, relation):
+    ordered_pairs = ACTION_OUTCOME_PRIORITY.get(
+        action,
+        [("agent", "actor"), ("agent", "target"), ("contract", "contract"), ("sector", "sector"), ("world", "world")],
+    )
+    rank_map = {pair: index for index, pair in enumerate(ordered_pairs)}
+    return rank_map.get((entity_type, relation), 9)
+
+
+def scoped_event_mutations(event_data, candidate_rows, limit):
+    action = event_data.get("action")
+    metadata = event_data.get("metadata") if isinstance(event_data.get("metadata"), dict) else {}
+    actor_id = event_data.get("actor_id")
+    target_id = metadata.get("target")
+    sector_id = event_data.get("sector_id")
+    scoped = []
+
+    for row in candidate_rows:
+        entity_type = row["entity_type"]
+        entity_id = row["entity_id"]
+        relation = event_relation(entity_type, entity_id, actor_id, target_id, sector_id)
+        if relation == "other":
+            continue
+
+        data = json.loads(row["data"])
+        allowlist = event_allowlist(action, entity_type, relation)
+        filtered = significant_change_subset(
+            entity_type,
+            data,
+            allowlist,
+            allow_generic_fallback=(allowlist is None and entity_type == "agent" and relation in ("actor", "target")),
+        )
+        if not filtered:
+            continue
+
+        scoped.append(
+            {
+                "tick": row["tick"],
+                "entity_type": entity_type,
+                "entity_id": entity_id,
+                "summary": material_change_summary(filtered),
+                "data": filtered,
+                "_rank": event_outcome_rank(action, entity_type, relation),
+                "_field_count": len(filtered),
+            }
+        )
+
+    scoped.sort(key=lambda item: (item["_rank"], -item["_field_count"], item["entity_id"]))
+    return scoped[:limit]
 
 
 def mutation_list_html(rows, limit, empty_text, include_tick=False):
@@ -727,12 +962,13 @@ def fetch_related_mutations(c, run_id, tick, actor_id, target_id, sector_id, lim
         WHERE run_id = ? AND tick = ? AND (
             (entity_type = 'agent' AND entity_id IN (?, ?)) OR
             (entity_type = 'sector' AND entity_id = ?) OR
+            entity_type = 'contract' OR
             entity_type = 'world'
         )
         ORDER BY CASE entity_type
             WHEN 'agent' THEN 0
-            WHEN 'sector' THEN 1
-            WHEN 'contract' THEN 2
+            WHEN 'contract' THEN 1
+            WHEN 'sector' THEN 2
             WHEN 'world' THEN 3
             ELSE 4
         END, entity_id ASC
@@ -750,19 +986,20 @@ def event_list_html(c, rows, empty_text, related_limit=RELATED_MUTATION_LIMIT):
     items = []
     for row in rows:
         event_data = json.loads(row["data"])
-        related_rows = fetch_related_mutations(
+        candidate_rows = fetch_related_mutations(
             c,
             row["run_id"],
             row["tick"],
             row["actor_id"],
             row["target_id"],
             row["sector_id"],
-            related_limit + 1,
+            related_limit * 4,
         )
+        related_rows = scoped_event_mutations(event_data, candidate_rows, related_limit + 1)
         items.append(
             "<li class='history-entry'>"
             f"<div><span class='tick-pill'>t{row['tick']}</span>{format_event(event_data)}</div>"
-            f"<div class='history-outcome'>{mutation_list_html(related_rows, related_limit, 'No same-tick outcome matched this event.')}</div>"
+            f"<div class='history-outcome'>{mutation_list_html(related_rows, related_limit, 'No material event-scoped outcome matched this event.')}</div>"
             "</li>"
         )
     return "<ul class='history-list'>" + "".join(items) + "</ul>"
@@ -894,25 +1131,26 @@ class LegendsHandler(BaseHTTPRequestHandler):
             pager = pagination_html("/events", page, PAGE_EVENT_LIMIT, total_count)
             body = [
                 "<h2>Chronicle Events</h2>",
-                f"<p class='hint'>Browse chronicle events page by page. Each row pairs the event with the most relevant same-tick outcome summaries.</p>",
+                f"<p class='hint'>Browse chronicle events page by page. Each row pairs the event with the most relevant event-scoped outcome summaries.</p>",
                 pager,
                 "<table><tr><th>Tick</th><th>Event</th><th>Observed Outcome</th></tr>",
             ]
             for row in rows:
                 event_data = json.loads(row["data"])
-                related = fetch_related_mutations(
+                candidate_rows = fetch_related_mutations(
                     c,
                     row["run_id"],
                     row["tick"],
                     row["actor_id"],
                     row["target_id"],
                     row["sector_id"],
-                    RELATED_MUTATION_LIMIT + 1,
+                    RELATED_MUTATION_LIMIT * 4,
                 )
+                related = scoped_event_mutations(event_data, candidate_rows, RELATED_MUTATION_LIMIT + 1)
                 mutation_block = mutation_list_html(
                     related,
                     RELATED_MUTATION_LIMIT,
-                    "No same-tick outcome matched this event.",
+                    "No material event-scoped outcome matched this event.",
                 )
                 body.append(
                     "<tr>"
