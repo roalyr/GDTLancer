@@ -3,13 +3,15 @@ PROJECT: GDTLancer
 MODULE: SESSION-LOG.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-LOG_REF: 2026-05-28 14:01:46
+LOG_REF: 2026-06-04 02:24:00
 -->
 
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
 | :--- | :--- | :--- | :--- | :--- |
+| 2026-06-04 02:24:00 | Verificator | Verified TASK_1, TASK_2, TASK_3, TASK_4, and VERIFICATION for NPC Dock-Market Exchange | SUCCESS | Verified NPC dock-trade gating, event logging, and quantity mutations. Headless unit test suite passes with all 583/583 assertions, and live chronicle logs confirm active NPC market transaction events. Code verification is complete. |
+| 2026-06-04 02:16:00 | Developer | Implemented TASK_1, TASK_2, TASK_3, and TASK_4: NPC Dock-Market Exchange | SUCCESS | Implemented NPC dock-market trade logic with lawful/black-market service gating and symmetric quantity adjustments. Added chronicle logging of NPC dock trades. Documented separation of NPC/player mutations in both source files. Added unit test coverage in `test_agent_layer.gd` and verified that the entire test suite passes cleanly. Touched files: `src/core/simulation/agent_layer.gd`, `src/core/ui/station_menu/station_menu.gd`, `src/tests/core/simulation/test_agent_layer.gd`, `SESSION-LOG.md`. Headless validation clean, all 583/583 test assertions passed. |
 | 2026-06-04 01:21:00 | Architect | Defined next milestone: NPC Dock-Market Exchange And Dynamic Market Quantities | SUCCESS | The dock-trade activation milestone is fully complete. The next implementation slice makes NPC agents interact with station `market_inventory` through the same buy/sell seam the player already uses, routed through `available_services` gating and the live legality context. This advances the Lawful/Unlawful Market Simulation follow-on from the GDD revision ledger (REV_004) while staying within the one-sector-one-dockable world model (REV_002). Touched files: `TACTICAL_TODO.md`, `SESSION-LOG.md`; validation used contract cross-read against `TRUTH_PROJECT.md`, `TRUTH_SIMULATION-GRAPH.md`, `GDD-REVISION-LEDGER.md`, and the last five session entries; manual validation remains pending for NPC dock-trade observability. |
 | 2026-06-04 01:03:00 | Verificator | Verified TASK_2, TASK_3, TASK_4, and VERIFICATION for Lawful And Black-Market Dock Trade Activation | SUCCESS | All tasks verified. Gating, title rendering, and buy/sell mutations fully match the contract. UI test suite passes with 67/67 assertions. Touched files: TACTICAL_TODO.md, SESSION-LOG.md. |
 | 2026-06-04 01:02:00 | Developer | Implemented TASK_2, TASK_3, and TASK_4: Route services, mutations, and coverage | SUCCESS | Routed trade and black_market through station_menu.gd. Integrated buy/sell mutations with CharacterSystem and InventorySystem, and added comprehensive gating/transaction coverage in test_station_menu.gd. Touched files: src/core/ui/station_menu/station_menu.gd, src/tests/core/ui/test_station_menu.gd, SESSION-LOG.md. |

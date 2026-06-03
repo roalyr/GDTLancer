@@ -3,7 +3,7 @@
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §8.6, §8.7; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-27 16:18:30
+# LOG_REF: 2026-06-04 02:16:00
 #
 
 extends GutTest
@@ -1591,3 +1591,158 @@ func _count_chronicle_actions(action_name: String) -> int:
 		if str(event.get("action", "")) == action_name:
 			count += 1
 	return count
+
+
+# =============================================================================
+# === NPC DOCK-MARKET TRADE TESTS =============================================
+# =============================================================================
+
+func test_npc_dock_trade_sell_increments_market_quantity() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+	GameState.agents["agent_trader"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+	}
+
+	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "s1")
+	chronicle.process_tick()
+
+	var trader = GameState.agents["agent_trader"]
+	assert_eq(trader["cargo_tag"], "EMPTY", "Trader cargo should be sold and empty.")
+	assert_eq(trader["wealth_tag"], "WEALTHY", "Trader wealth should step up.")
+	
+	var market = GameState.locations["s1"]["market_inventory"]
+	assert_eq(int(market["ore"]["quantity"]), 6, "Market quantity should increment from NPC sell.")
+	
+	assert_gt(_count_chronicle_actions("npc_dock_trade"), 0, "NPC dock trade event should be logged.")
+
+
+func test_npc_dock_trade_buy_decrements_market_quantity() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+	GameState.agents["agent_trader"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+	}
+
+	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "s1")
+	chronicle.process_tick()
+
+	var trader = GameState.agents["agent_trader"]
+	assert_eq(trader["cargo_tag"], "LOADED", "Trader cargo should be loaded from buy.")
+	assert_eq(trader["wealth_tag"], "BROKE", "Trader wealth should step down.")
+	
+	var market = GameState.locations["s1"]["market_inventory"]
+	assert_eq(int(market["ore"]["quantity"]), 4, "Market quantity should decrement from NPC buy.")
+	
+	assert_gt(_count_chronicle_actions("npc_dock_trade"), 0, "NPC dock trade event should be logged.")
+
+
+func test_npc_no_trade_service_does_not_trade() -> void:
+	GameState.locations["s1"] = {
+		"available_services": [],
+		"market_inventory": {
+			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+	GameState.agents["agent_trader"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+	}
+
+	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "s1")
+
+	var trader = GameState.agents["agent_trader"]
+	assert_eq(trader["cargo_tag"], "EMPTY", "Trader cargo should still be empty (qualitative fallback).")
+	assert_eq(trader["wealth_tag"], "WEALTHY", "Trader wealth should still step up (qualitative fallback).")
+	
+	var market = GameState.locations["s1"]["market_inventory"]
+	assert_eq(int(market["ore"]["quantity"]), 5, "Market quantity should not change when trade service is absent.")
+
+
+func test_npc_protected_contract_cargo_does_not_sell() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+	GameState.agents["agent_trader"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"contract_cargo_tag": "RAW_COMMODITY",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL", "CARGO_PROTECTED"],
+	}
+
+	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "s1")
+
+	var trader = GameState.agents["agent_trader"]
+	assert_eq(trader["cargo_tag"], "LOADED", "Protected contract cargo should not be unloaded.")
+	assert_eq(trader["wealth_tag"], "COMFORTABLE", "Wealth should not change since cargo was not sold.")
+	
+	var market = GameState.locations["s1"]["market_inventory"]
+	assert_eq(int(market["ore"]["quantity"]), 5, "Market quantity should not change when selling protected contract cargo.")
+
+
+func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["black_market"],
+		"market_inventory": {
+			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+	
+	# Case A: Lawful agent should fail to use black_market
+	GameState.agents["agent_lawful"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+	}
+	agent_layer._try_dock("agent_lawful", GameState.agents["agent_lawful"], "s1")
+	
+	var lawful = GameState.agents["agent_lawful"]
+	assert_eq(lawful["cargo_tag"], "EMPTY", "Lawful cargo empty (fallback qualitative sell).")
+	var market = GameState.locations["s1"]["market_inventory"]
+	assert_eq(int(market["ore"]["quantity"]), 5, "Lawful agent should not mutate black market inventory.")
+	
+	# Case B: Illicit agent should succeed to use black_market
+	GameState.agents["agent_illicit"] = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["PIRATE", "LEGAL_ILLICIT"],
+	}
+	agent_layer._try_dock("agent_illicit", GameState.agents["agent_illicit"], "s1")
+	
+	var illicit = GameState.agents["agent_illicit"]
+	assert_eq(illicit["cargo_tag"], "EMPTY", "Illicit cargo sold.")
+	assert_eq(int(market["ore"]["quantity"]), 6, "Illicit agent should successfully mutate black market inventory.")

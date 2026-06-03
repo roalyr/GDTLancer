@@ -3,7 +3,7 @@
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-04 00:54:15
+# LOG_REF: 2026-06-04 02:11:00
 #
 
 extends Control
@@ -374,6 +374,11 @@ func _update_market_ui() -> void:
 		_market_list.add_child(row)
 
 
+# NOTE: NPC dock-trade buy/sell mutations are not shared with this class because:
+# 1. This class is part of the player UI, whereas NPC transactions are pure simulation backend in agent_layer.gd.
+# 2. Player transactions mutate numeric character credits and actual inventory assets via GlobalRefs.
+# 3. NPC transactions mutate qualitative wealth_tags (e.g. step_down) and cargo_tags (e.g. LOADED) rather than numeric values.
+# 4. The only shared data mutation is the direct symmetric adjustment of market_inventory quantity, which is kept inline for simplicity.
 func _on_buy_pressed(commodity_id: String, price: int) -> void:
 	var player_uid = int(GameState.player_character_uid)
 	var char_sys = GlobalRefs.character_system

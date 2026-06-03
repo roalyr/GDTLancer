@@ -3,7 +3,7 @@
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §8.6, §8.7; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-27 16:18:30
+# LOG_REF: 2026-06-04 02:11:00
 #
 
 extends Reference
@@ -1209,9 +1209,20 @@ func _try_dock(agent_id: String, agent: Dictionary, sector_id: String) -> void:
 
 	var sold_cargo: bool = false
 	if agent.get("cargo_tag") == "LOADED":
-		agent["cargo_tag"] = "EMPTY"
-		_wealth_step_up(agent)
-		sold_cargo = true
+		if not _has_protected_contract_cargo(agent, agent.get("sentiment_tags", [])):
+			if _attempt_npc_market_sell(agent_id, agent, sector_id):
+				sold_cargo = true
+			else:
+				# Fallback to qualitative cargo sell
+				agent["cargo_tag"] = "EMPTY"
+				_wealth_step_up(agent)
+				sold_cargo = true
+
+	# Attempt buy if we did not just sell cargo in this dock action
+	if not sold_cargo and agent.get("cargo_tag") == "EMPTY" and agent.get("wealth_tag") != "BROKE":
+		var role: String = agent.get("agent_role", "idle")
+		if role in ["trader", "hauler", "prospector"]:
+			_attempt_npc_market_buy(agent_id, agent, sector_id)
 
 	if agent.get("condition_tag") == "DAMAGED":
 		agent["condition_tag"] = "HEALTHY"
@@ -1240,6 +1251,12 @@ func _try_load_cargo(agent_id: String, agent: Dictionary, sector_id: String) -> 
 
 	var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
 	var role: String = agent.get("agent_role", "idle")
+
+	# Attempt quantitative market buy if at station/frontier with market service
+	if ("STATION" in sector_tags or "FRONTIER" in sector_tags) and role in ["trader", "hauler", "prospector"]:
+		if _attempt_npc_market_buy(agent_id, agent, sector_id):
+			return true
+
 	var can_load: bool = false
 
 	if role in ["hauler", "prospector"]:
@@ -1262,6 +1279,135 @@ func _try_load_cargo(agent_id: String, agent: Dictionary, sector_id: String) -> 
 		_log_event(agent_id, "load_cargo", sector_id, {})
 		return true
 	return false
+
+
+# NOTE: NPC dock-trade buy/sell mutations are not shared with station_menu.gd because:
+# 1. station_menu.gd is a player UI Control Node, while agent_layer.gd is a pure backend simulation class.
+# 2. Player transactions mutate numeric character credits and actual inventory assets via GlobalRefs.
+# 3. NPC transactions mutate qualitative wealth_tags (e.g. step_down) and cargo_tags (e.g. LOADED) rather than numeric values.
+# 4. The only shared data mutation is the direct symmetric adjustment of market_inventory quantity, which is kept inline for simplicity.
+func _location_offers_service(location_id: String, service_id: String) -> bool:
+	if location_id == "" or not GameState.locations.has(location_id):
+		return true
+
+	var location_record = GameState.locations[location_id]
+	var available_services = null
+	if location_record is Dictionary:
+		available_services = location_record.get("available_services", null)
+	elif location_record is Object and "available_services" in location_record:
+		available_services = location_record.available_services
+
+	return not (available_services is Array) or service_id in available_services
+
+
+func _can_agent_trade_at_location(agent: Dictionary, location_id: String) -> bool:
+	var tags: Array = agent.get("sentiment_tags", [])
+	var legality: String = _agent_legality_tag(tags)
+
+	var can_use_lawful: bool = _location_offers_service(location_id, "trade") and legality != "LEGAL_ILLICIT"
+	var can_use_black_market: bool = _location_offers_service(location_id, "black_market") and legality != "LEGAL_LAWFUL"
+
+	return can_use_lawful or can_use_black_market
+
+
+func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: String) -> bool:
+	if not _can_agent_trade_at_location(agent, sector_id):
+		return false
+	if agent.get("cargo_tag", "EMPTY") != "LOADED":
+		return false
+	if _has_protected_contract_cargo(agent, agent.get("sentiment_tags", [])):
+		return false
+
+	var location_record = GameState.locations.get(sector_id, null)
+	if location_record == null:
+		return false
+
+	var market_inventory: Dictionary = {}
+	if location_record is Dictionary:
+		market_inventory = location_record.get("market_inventory", {})
+	elif location_record is Object and "market_inventory" in location_record:
+		market_inventory = location_record.market_inventory
+
+	if market_inventory.empty():
+		return false
+
+	var commodity_ids = market_inventory.keys()
+	commodity_ids.sort()
+	if commodity_ids.empty():
+		return false
+
+	var commodity_id = commodity_ids[0]
+	var sell_price = int(market_inventory[commodity_id].get("sell_price", 0))
+
+	# Mutate market quantity
+	market_inventory[commodity_id]["quantity"] += 1
+
+	# Mutate agent cargo and wealth
+	agent["cargo_tag"] = "EMPTY"
+	_wealth_step_up(agent)
+
+	# Log NPC dock-trade event
+	_log_event(agent_id, "npc_dock_trade", sector_id, {
+		"commodity_id": commodity_id,
+		"price": sell_price,
+		"quantity": market_inventory[commodity_id]["quantity"],
+		"action_type": "sell"
+	})
+
+	return true
+
+
+func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: String) -> bool:
+	if not _can_agent_trade_at_location(agent, sector_id):
+		return false
+	if agent.get("cargo_tag", "EMPTY") != "EMPTY":
+		return false
+	if agent.get("wealth_tag", "COMFORTABLE") == "BROKE":
+		return false
+
+	var location_record = GameState.locations.get(sector_id, null)
+	if location_record == null:
+		return false
+
+	var market_inventory: Dictionary = {}
+	if location_record is Dictionary:
+		market_inventory = location_record.get("market_inventory", {})
+	elif location_record is Object and "market_inventory" in location_record:
+		market_inventory = location_record.market_inventory
+
+	if market_inventory.empty():
+		return false
+
+	var commodity_ids = market_inventory.keys()
+	commodity_ids.sort()
+
+	var bought_commodity_id = ""
+	var buy_price = 0
+	for comm_id in commodity_ids:
+		if int(market_inventory[comm_id].get("quantity", 0)) > 0:
+			bought_commodity_id = comm_id
+			buy_price = int(market_inventory[comm_id].get("buy_price", 0))
+			break
+
+	if bought_commodity_id == "":
+		return false
+
+	# Mutate market quantity
+	market_inventory[bought_commodity_id]["quantity"] -= 1
+
+	# Mutate agent cargo and wealth
+	agent["cargo_tag"] = "LOADED"
+	_wealth_step_down(agent)
+
+	# Log NPC dock-trade event
+	_log_event(agent_id, "npc_dock_trade", sector_id, {
+		"commodity_id": bought_commodity_id,
+		"price": buy_price,
+		"quantity": market_inventory[bought_commodity_id]["quantity"],
+		"action_type": "buy"
+	})
+
+	return true
 
 
 # =============================================================================

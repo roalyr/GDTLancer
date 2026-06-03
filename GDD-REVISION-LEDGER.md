@@ -53,8 +53,8 @@ For each revision entry, use the same fields:
 - Live Reality: The current affinity-driven interaction seam allows direct agent attacks whenever tag scores exceed the attack threshold, including pirate-on-pirate cases, and lethal outcomes still occur in human-human encounters.
 - Frozen / Legacy Tension: The desired setting direction now treats a tiny interdependent human population as too valuable for routine lethal internal warfare.
 - Approved Direction: Human conflict should evolve toward mostly non-lethal pressure, sabotage, coercion, corruption, staged accidents, and other indirect confrontation. Lethal combat should concentrate primarily in external hostile forces such as alien or drone threats.
-- Status: Active implementation slice
-- Blocked By: Current milestone `Faction And Interaction Doctrine Refactor`
+- Status: Approved direction
+- Blocked By: None
 - Follow-on Owners: Current interaction milestone; future combat rebuild milestone
 - Evidence: `src/core/simulation/agent_layer.gd::_resolve_agent_interaction()`; `src/core/simulation/affinity_matrix.gd`; `TACTICAL_TODO.md` current goal `Faction And Interaction Doctrine Refactor`; user-approved setting direction 2026-05-30
 
@@ -64,8 +64,8 @@ For each revision entry, use the same fields:
 - Live Reality: Peer `agent_trade` is a qualitative cargo handoff (`LOADED` / `EMPTY`) without cargo provenance, reputation, or lawful/unlawful market routing. Sector legality is currently only a tag and affinity influence seam.
 - Frozen / Legacy Tension: The emerging setting now wants clearer lawful or unlawful distinctions and eventually more explicit social or factional context than the present generic trade logic provides.
 - Approved Direction: Do not solve lawful versus unlawful trade by immediately adding multiple dockables per sector. First design a later social-simulation milestone around faction tags, cargo provenance, trade gating, and legal or illegal interaction rules within the existing one-sector-one-dockable world model.
-- Status: Active implementation slice
-- Blocked By: Current milestone `Faction And Interaction Doctrine Refactor`
+- Status: Approved direction
+- Blocked By: None
 - Follow-on Owners: Current interaction milestone; future social and economic simulation milestone
 - Evidence: `src/core/simulation/agent_layer.gd::_bilateral_trade()`; `src/core/simulation/affinity_matrix.gd`; `TRUTH_SIMULATION-GRAPH.md §8.3`; `TRUTH_SIMULATION-GRAPH.md §8.4`; `TACTICAL_TODO.md` current goal `Faction And Interaction Doctrine Refactor`
 
