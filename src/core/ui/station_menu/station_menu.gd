@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-04 02:11:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
+# LOG_REF: 2026-06-04 11:28:00
 #
 
 extends Control
@@ -312,7 +312,7 @@ func _update_market_ui() -> void:
 	var inv_sys = GlobalRefs.inventory_system
 
 	var player_credits = 0
-	if char_sys:
+	if is_instance_valid(char_sys):
 		player_credits = char_sys.get_credits(player_uid)
 
 	var commodity_ids = market_inv.keys()
@@ -325,7 +325,7 @@ func _update_market_ui() -> void:
 		var qty = int(data.get("quantity", 0))
 
 		var player_qty = 0
-		if inv_sys:
+		if is_instance_valid(inv_sys):
 			player_qty = inv_sys.get_asset_count(player_uid, 2, comm_id) # 2 = COMMODITY
 
 		var comm_name = comm_id
@@ -384,7 +384,7 @@ func _on_buy_pressed(commodity_id: String, price: int) -> void:
 	var char_sys = GlobalRefs.character_system
 	var inv_sys = GlobalRefs.inventory_system
 
-	if char_sys and inv_sys:
+	if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
 		char_sys.subtract_credits(player_uid, price)
 		inv_sys.add_asset(player_uid, 2, commodity_id, 1)
 
@@ -404,7 +404,7 @@ func _on_sell_pressed(commodity_id: String, price: int) -> void:
 	var char_sys = GlobalRefs.character_system
 	var inv_sys = GlobalRefs.inventory_system
 
-	if char_sys and inv_sys:
+	if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
 		var player_qty = inv_sys.get_asset_count(player_uid, 2, commodity_id)
 		if player_qty > 0:
 			char_sys.add_credits(player_uid, price)

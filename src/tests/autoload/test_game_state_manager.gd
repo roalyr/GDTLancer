@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_game_state_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_3, TASK_4, TASK_7; TRUTH_PROJECT.md § Project Stack and Context
-# LOG_REF: 2026-05-27 04:09:45
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-06-04 02:36:00
 #
 
 extends GutTest
@@ -118,6 +118,35 @@ func test_save_and_load_preserves_mutated_fields():
 		var loaded_ship_inv = GameState.inventories[player_uid][InventorySystem.InventoryType.SHIP]
 		assert_true(loaded_ship_inv.has(ship_uid), "Loaded player ship inventory should contain the mutated ship.")
 		assert_eq(loaded_ship_inv[ship_uid].ship_quirks, ["scratched_hull"], "Ship quirks should persist.")
+
+
+func test_save_and_load_preserves_plain_dict_location_market_inventory():
+	GameState.locations["synthetic_discovered_1"] = {
+		"location_name": "Test Station",
+		"market_inventory": {
+			"commodity_ore": {
+				"buy_price": 8,
+				"sell_price": 6,
+				"quantity": 77
+			}
+		}
+	}
+	
+	GameState.locations["synthetic_discovered_1"]["market_inventory"]["commodity_ore"]["quantity"] = 42
+
+	var save_success = GameStateManager.save_game(TEST_SLOT)
+	assert_true(save_success, "Game should save successfully with plain-dict location.")
+	_clear_game_state()
+	
+	assert_false(GameState.locations.has("synthetic_discovered_1"), "Locations should be empty after clear state.")
+	
+	var load_success = GameStateManager.load_game(TEST_SLOT)
+	assert_true(load_success, "Game should load successfully with plain-dict location.")
+	
+	assert_true(GameState.locations.has("synthetic_discovered_1"), "synthetic_discovered_1 location should be loaded.")
+	var loaded_loc = GameState.locations["synthetic_discovered_1"]
+	assert_true(loaded_loc.has("market_inventory"), "Loaded location should have market_inventory.")
+	assert_eq(int(loaded_loc["market_inventory"]["commodity_ore"]["quantity"]), 42, "Mutated quantity must persist through round-trip.")
 
 
 func test_save_and_load_preserves_scene_state_restore_fields():

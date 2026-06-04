@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §8.6, §8.7; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-06-04 02:16:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_SIMULATION-GRAPH.md §6.3, §8.3, §8.7; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-06-04 02:36:00
 #
 
 extends GutTest
@@ -1531,6 +1531,7 @@ func _clear_state() -> void:
 	GameState.player_cargo_tag = "EMPTY"
 	GameState.discovered_sectors = []
 	GameState.station_by_id.clear()
+	GameState.locations.clear()
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.locations.clear()
@@ -1746,3 +1747,113 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 	var illicit = GameState.agents["agent_illicit"]
 	assert_eq(illicit["cargo_tag"], "EMPTY", "Illicit cargo sold.")
 	assert_eq(int(market["ore"]["quantity"]), 6, "Illicit agent should successfully mutate black market inventory.")
+
+
+func test_discovered_station_has_seeded_market_inventory() -> void:
+	GameState.world_seed = "test_market_seed"
+	GameState.sector_names["s1"] = "Source Sector"
+	GameState.world_topology["s1"] = {
+		"connections": ["s2"],
+		"sector_type": "colony",
+		"station_ids": ["s1"]
+	}
+	TemplateDatabase.locations["s1"] = {
+		"global_position": Vector3.ZERO,
+		"location_name": "Source Sector",
+		"is_procedural": true,
+		"procedural_hints": {},
+	}
+
+	var generated_station: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
+	var station_id = generated_station["id"]
+
+	assert_true(GameState.locations.has(station_id), "Generated station should exist in GameState.locations")
+	var location_record = GameState.locations[station_id]
+	assert_true(location_record.has("market_inventory"), "Locations entry should have market_inventory key")
+	
+	var market_inventory: Dictionary = location_record["market_inventory"]
+	var expected_commodities = ["commodity_food", "commodity_fuel", "commodity_ore", "commodity_tech"]
+	for comm_id in expected_commodities:
+		assert_true(market_inventory.has(comm_id), "Market inventory should contain %s" % comm_id)
+		var comm_data = market_inventory[comm_id]
+		assert_true(comm_data.has("buy_price"), "Commodity %s should have buy_price" % comm_id)
+		assert_true(comm_data.has("sell_price"), "Commodity %s should have sell_price" % comm_id)
+		assert_true(comm_data.has("quantity"), "Commodity %s should have quantity" % comm_id)
+		assert_true(comm_data["quantity"] >= 5 and comm_data["quantity"] <= 20, "Quantity for %s should be in 5-20 range" % comm_id)
+		assert_true(comm_data["buy_price"] is int, "buy_price must be int")
+		assert_true(comm_data["sell_price"] is int, "sell_price must be int")
+		assert_true(comm_data["quantity"] is int, "quantity must be int")
+
+
+func test_npc_dock_trade_at_discovered_station_sell() -> void:
+	GameState.world_seed = "test_market_seed"
+	GameState.sector_names["discovered_test_sector"] = "Source Sector"
+	GameState.world_topology["discovered_test_sector"] = {
+		"connections": ["s2"],
+		"sector_type": "colony",
+		"station_ids": ["discovered_test_sector"]
+	}
+	TemplateDatabase.locations["discovered_test_sector"] = {
+		"global_position": Vector3.ZERO,
+		"location_name": "Source Sector",
+		"is_procedural": true,
+		"procedural_hints": {},
+	}
+	
+	var generated_station = agent_layer._generate_procedural_station_for_sector("discovered_test_sector")
+	var station_id = generated_station["id"]
+	
+	var market = GameState.locations[station_id]["market_inventory"]
+	var food_baseline = market["commodity_food"]["quantity"]
+	
+	GameState.agents["agent_trader"] = {
+		"agent_role": "trader",
+		"current_sector_id": "discovered_test_sector",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "LOADED",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+	}
+	
+	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "discovered_test_sector")
+	
+	var trader = GameState.agents["agent_trader"]
+	assert_eq(trader["cargo_tag"], "EMPTY", "Trader cargo tag should become EMPTY after selling.")
+	assert_eq(market["commodity_food"]["quantity"], food_baseline + 1, "Market commodity_food quantity should increment by 1.")
+
+
+func test_npc_dock_trade_at_discovered_station_buy() -> void:
+	GameState.world_seed = "test_market_seed"
+	GameState.sector_names["discovered_test_sector"] = "Source Sector"
+	GameState.world_topology["discovered_test_sector"] = {
+		"connections": ["s2"],
+		"sector_type": "colony",
+		"station_ids": ["discovered_test_sector"]
+	}
+	TemplateDatabase.locations["discovered_test_sector"] = {
+		"global_position": Vector3.ZERO,
+		"location_name": "Source Sector",
+		"is_procedural": true,
+		"procedural_hints": {},
+	}
+	
+	var generated_station = agent_layer._generate_procedural_station_for_sector("discovered_test_sector")
+	var station_id = generated_station["id"]
+	
+	var market = GameState.locations[station_id]["market_inventory"]
+	market["commodity_food"]["quantity"] = 10
+	
+	GameState.agents["agent_trader"] = {
+		"agent_role": "trader",
+		"current_sector_id": "discovered_test_sector",
+		"wealth_tag": "COMFORTABLE",
+		"condition_tag": "HEALTHY",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+	}
+	
+	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "discovered_test_sector")
+	
+	var trader = GameState.agents["agent_trader"]
+	assert_eq(trader["cargo_tag"], "LOADED", "Trader cargo tag should become LOADED after buying.")
+	assert_eq(market["commodity_food"]["quantity"], 9, "Market commodity_food quantity should decrement by 1.")

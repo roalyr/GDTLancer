@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §8.6, §8.7; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-06-04 02:11:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_SIMULATION-GRAPH.md §6.3, §8.3, §8.7; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-06-04 02:36:00
 #
 
 extends Reference
@@ -1311,14 +1311,18 @@ func _can_agent_trade_at_location(agent: Dictionary, location_id: String) -> boo
 
 
 func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: String) -> bool:
-	if not _can_agent_trade_at_location(agent, sector_id):
+	var location_id := sector_id
+	if not GameState.locations.has(location_id) and GameState.locations.has("station_" + sector_id):
+		location_id = "station_" + sector_id
+
+	if not _can_agent_trade_at_location(agent, location_id):
 		return false
 	if agent.get("cargo_tag", "EMPTY") != "LOADED":
 		return false
 	if _has_protected_contract_cargo(agent, agent.get("sentiment_tags", [])):
 		return false
 
-	var location_record = GameState.locations.get(sector_id, null)
+	var location_record = GameState.locations.get(location_id, null)
 	if location_record == null:
 		return false
 
@@ -1358,14 +1362,18 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 
 
 func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: String) -> bool:
-	if not _can_agent_trade_at_location(agent, sector_id):
+	var location_id := sector_id
+	if not GameState.locations.has(location_id) and GameState.locations.has("station_" + sector_id):
+		location_id = "station_" + sector_id
+
+	if not _can_agent_trade_at_location(agent, location_id):
 		return false
 	if agent.get("cargo_tag", "EMPTY") != "EMPTY":
 		return false
 	if agent.get("wealth_tag", "COMFORTABLE") == "BROKE":
 		return false
 
-	var location_record = GameState.locations.get(sector_id, null)
+	var location_record = GameState.locations.get(location_id, null)
 	if location_record == null:
 		return false
 
@@ -1797,11 +1805,38 @@ func _generate_procedural_station_for_sector(sector_id: String) -> Dictionary:
 		sector_tags.append("STATION")
 	GameState.sector_tags[sector_id] = sector_tags
 
+	var market_rng := RandomNumberGenerator.new()
+	market_rng.seed = hash(str(GameState.world_seed) + ":" + station_id)
+
+	var seeded_market: Dictionary = {
+		"commodity_food": {
+			"buy_price": 30,
+			"sell_price": 25,
+			"quantity": market_rng.randi_range(5, 20)
+		},
+		"commodity_fuel": {
+			"buy_price": 25,
+			"sell_price": 20,
+			"quantity": market_rng.randi_range(5, 20)
+		},
+		"commodity_ore": {
+			"buy_price": 8,
+			"sell_price": 6,
+			"quantity": market_rng.randi_range(5, 20)
+		},
+		"commodity_tech": {
+			"buy_price": 80,
+			"sell_price": 65,
+			"quantity": market_rng.randi_range(5, 20)
+		}
+	}
+
 	GameState.locations[station_id] = {
 		"location_name": station_name,
 		"position_in_zone": docking_point,
 		"available_services": ["trade", "contracts"],
 		"sector_id": sector_id,
+		"market_inventory": seeded_market,
 	}
 
 	var sector_template = TemplateDatabase.locations.get(sector_id)
