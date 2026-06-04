@@ -217,9 +217,24 @@ var corsair = TemplateDatabase.get_template("ship_corsair")
 ├── base_value: 5000
 ```
 
-The live `CommodityTemplate` is intentionally minimal right now. If you need fields such as legality, volatility, or category, add them to the definition script first rather than inventing ad hoc `.tres` keys.
+The live `CommodityTemplate` is intentionally minimal right now. If you need fields such as legality or volatility, add them to the definition script first. However, economic category classification is mapped programmatically via the **Commodity Classification Registry** (Step 2) to connect the qualitative and quantitative systems.
 
-#### Step 2: ART - (Optional) Add Icon
+#### Step 2: REGISTRATION - Register Commodity Category
+
+Every tradeable commodity must be mapped to an economic category in the **Commodity Classification Registry** inside `Constants.gd` (`/src/autoload/Constants.gd`).
+
+1. Open `Constants.gd` and locate the `COMMODITY_CLASSIFICATION` dictionary.
+2. Add your commodity's `template_id` and map it to one of the three authoritative simulation categories: `"RAW"`, `"MANUFACTURED"`, or `"CURRENCY"`.
+   ```gdscript
+   const COMMODITY_CLASSIFICATION: Dictionary = {
+       ...
+       "commodity_quantum_crystals": "CURRENCY"
+   }
+   ```
+
+*This mapping is the authoritative bridge. Unclassified commodities will fail the registration invariant and will not be procedurally seeded at stations or traded by NPCs.*
+
+#### Step 3: ART - (Optional) Add Icon
 
 1. Create 64x64 PNG icon
 2. Save to `/assets/art/ui/commodities/icon_quantum_crystals.png`
@@ -476,12 +491,18 @@ When tuning, inspect the owning script first and treat the manual as orientation
 
 ### 4.3 Economy Balance
 
-Commodity prices are still authored per-item in their `.tres` files for the current docked trade/UI compatibility surface. Sector-level availability and local pricing live on the `LocationTemplate` resource:
-- `market_inventory`: per-sector docked trade assumptions keyed by commodity template id using `{buy_price, sell_price, quantity}`
-- `available_services`: docked UI service list currently exposed for that sector
-- `stockpile_capacity`: authored world/sector context field, not the driver of the live qualitative contract generator
+Commodity prices and quantities for authored stations are defined in their `.tres` files under `/database/registry/locations/`. However, procedurally generated stations seed their markets dynamically as a projection of their sector's economy tags (`RAW_*`, `MANUFACTURED_*`, `CURRENCY_*` at `POOR`, `ADEQUATE`, or `RICH` levels).
 
-The live simulation economy itself is qualitative. Sector progression and runtime contract generation come from tags, bounded counters, and the demand-occurrence pipeline, not from authored `market_inventory` entries or `available_contract_ids` lists.
+The bridge between these tags and specific commodities is governed by the **Commodity Classification Registry** in `Constants.gd`:
+- `Constants.COMMODITY_CLASSIFICATION` maps each tradeable commodity ID to its simulation category (`RAW`, `MANUFACTURED`, `CURRENCY`).
+- Seeding maps sector economy levels (`POOR`, `ADEQUATE`, `RICH`) to quantity ranges and price multipliers defined in `Constants.ECONOMY_LEVEL_PARAMS`:
+  - **RICH**: High stock (15–40), low prices (0.7x multiplier).
+  - **ADEQUATE**: Medium stock (5–20), base price (1.0x multiplier).
+  - **POOR**: Low stock (0–5), high prices (1.5x multiplier).
+- Seeding calculates buy prices using `base_value` from the commodity template resource, and derives sell prices using `Constants.COMMODITY_SELL_PRICE_FRACTION` (default: `0.8`).
+- Restocking is tick-driven and slowly pulls depleted quantities back toward the baseline (capped by `Constants.MARKET_RESTOCK_MAX_QUANTITY`).
+
+The live simulation economy itself remains qualitative. Sector progression and runtime contract generation come from tags, bounded counters, and the demand-occurrence pipeline. Procedural market inventories act as a local quantitative projection of these qualitative tags.
 
 ### 4.4 Combat Balance
 

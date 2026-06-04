@@ -80,12 +80,24 @@ For each revision entry, use the same fields:
 - Follow-on Owners: Future hierarchy and topology program
 - Evidence: `database/definitions/location_template.gd`; `src/core/simulation/world_layer.gd`; `src/core/systems/sector_loader.gd`; `src/core/simulation/agent_layer.gd`
 
+### REV_006: Commodity Classification Registry and Tag-Governed Seeding
+
+- Domain: Economy and Commodity Classification
+- Live Reality: The Commodity Classification Registry (`Constants.COMMODITY_CLASSIFICATION`) maps quantitative goods to their qualitative categories. Procedural stations seed their markets as a direct projection of sector tags (`POOR`/`ADEQUATE`/`RICH` levels) using template `base_value` multipliers and a standard sell price fraction.
+- Frozen / Legacy Tension: Legacy procedural seeding used static commodity listings and hardcoded prices/quantities, completely decoupled from qualitative tags.
+- Approved Direction: Build a strict one-way authority where qualitative economy tags govern quantitative station market generation. Quantitative inventory state acts as a local projection of tags and does not feed back to qualitative simulation.
+- Status: Approved direction
+- Blocked By: None
+- Follow-on Owners: Phase 1 implementation milestone
+- Evidence: `commodity_classification_architecture.md`; `src/autoload/Constants.gd`; `src/core/simulation/agent_layer.gd`
+
 ## Follow-on Milestone Order
 
-1. `Universe Doctrine Alignment Ledger` — create this ledger and wire it into the architect workflow.
-2. `Faction And Interaction Doctrine Refactor` — define faction tags, lawful or unlawful interaction policy, cargo provenance, and non-lethal human conflict rules without rebuilding topology.
-3. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them.
-4. `Hierarchical Universe Topology Program` — revisit star, planetary, and sub-planetary structure only after the doctrine and social-simulation seams are coherent.
+1. `Universe Doctrine Alignment Ledger` — create this ledger and wire it into the architect workflow. (Completed)
+2. `Faction And Interaction Doctrine Refactor` — define faction tags, lawful or unlawful interaction policy, cargo provenance, and non-lethal human conflict rules without rebuilding topology. (Completed)
+3. `Commodity Classification Registry & Tag-Governed Market Seeding` — build the classification registry and tag-governed procedural market seeding. (Active)
+4. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them.
+5. `Hierarchical Universe Topology Program` — revisit star, planetary, and sub-planetary structure only after the doctrine and social-simulation seams are coherent.
 
 ## Usage Notes
 
