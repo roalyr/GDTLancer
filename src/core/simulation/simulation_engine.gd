@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §0, §6.5; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-28 14:01:46
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-06-04 11:56:52
 #
 
 extends Node
@@ -224,6 +224,8 @@ func process_tick() -> void:
 
 	# --- Step 5: Agent Layer ---
 	agent_layer.process_tick(_tick_config)
+	if agent_layer.has_method("_tick_market_restock"):
+		agent_layer._tick_market_restock()
 
 	# --- Step 6: Chronicle Layer ---
 	_call_process_tick(chronicle_layer, _tick_config)

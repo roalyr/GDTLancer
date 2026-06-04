@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_SIMULATION-GRAPH.md §6.3, §8.3, §8.7; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-04 02:36:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-06-04 11:56:52
 #
 
 extends GutTest
@@ -1857,3 +1857,56 @@ func test_npc_dock_trade_at_discovered_station_buy() -> void:
 	var trader = GameState.agents["agent_trader"]
 	assert_eq(trader["cargo_tag"], "LOADED", "Trader cargo tag should become LOADED after buying.")
 	assert_eq(market["commodity_food"]["quantity"], 9, "Market commodity_food quantity should decrement by 1.")
+
+
+func test_market_restock_depleted_to_rate() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": 0}
+		}
+	}
+	agent_layer._tick_market_restock()
+	var qty = GameState.locations["s1"]["market_inventory"]["commodity_food"]["quantity"]
+	assert_eq(qty, Constants.MARKET_RESTOCK_RATE_PER_TICK, "Quantity should increment by restock rate.")
+
+
+func test_market_restock_ceiling_clamp() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": Constants.MARKET_RESTOCK_MAX_QUANTITY}
+		}
+	}
+	agent_layer._tick_market_restock()
+	var qty = GameState.locations["s1"]["market_inventory"]["commodity_food"]["quantity"]
+	assert_eq(qty, Constants.MARKET_RESTOCK_MAX_QUANTITY, "Quantity should not exceed restock ceiling.")
+
+
+func test_market_restock_clamp_near_ceiling() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": Constants.MARKET_RESTOCK_MAX_QUANTITY - 2}
+		}
+	}
+	# Perform 3 restocks to force it past the ceiling
+	agent_layer._tick_market_restock()
+	agent_layer._tick_market_restock()
+	agent_layer._tick_market_restock()
+	var qty = GameState.locations["s1"]["market_inventory"]["commodity_food"]["quantity"]
+	assert_eq(qty, Constants.MARKET_RESTOCK_MAX_QUANTITY, "Quantity should clamp exactly to the ceiling.")
+
+
+func test_market_restock_prices_unchanged() -> void:
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": 10}
+		}
+	}
+	agent_layer._tick_market_restock()
+	var comm = GameState.locations["s1"]["market_inventory"]["commodity_food"]
+	assert_eq(comm["buy_price"], 30, "buy_price should not change.")
+	assert_eq(comm["sell_price"], 25, "sell_price should not change.")
+

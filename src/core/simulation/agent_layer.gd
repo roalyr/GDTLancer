@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_SIMULATION-GRAPH.md §6.3, §8.3, §8.7; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-04 02:36:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-06-04 11:56:52
 #
 
 extends Reference
@@ -121,6 +121,25 @@ func process_tick(config: Dictionary) -> void:
 	_check_catastrophe()
 	_spawn_mortal_agents()
 	_cleanup_dead_mortals()
+
+
+## Periodically restocks market inventories for discovered (plain dict) station locations.
+func _tick_market_restock() -> void:
+	for location_id in GameState.locations:
+		var entry = GameState.locations[location_id]
+		if entry is Dictionary:
+			var market_inv = entry.get("market_inventory")
+			if market_inv is Dictionary:
+				for commodity_id in market_inv:
+					var comm_data = market_inv[commodity_id]
+					if comm_data is Dictionary:
+						var quantity = int(comm_data.get("quantity", 0))
+						if quantity < Constants.MARKET_RESTOCK_MAX_QUANTITY:
+							comm_data["quantity"] = int(min(quantity + Constants.MARKET_RESTOCK_RATE_PER_TICK, Constants.MARKET_RESTOCK_MAX_QUANTITY))
+		elif entry is Object:
+			# Guard: do not crash. Access .market_inventory safely if present but do not mutate.
+			if "market_inventory" in entry:
+				var _unused_market_inv = entry.market_inventory
 
 
 # =============================================================================

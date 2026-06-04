@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_tick.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §6.5; TACTICAL_TODO.md TASK_1
-## LOG_REF: 2026-05-28 14:01:46
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-06-04 11:56:52
 #
 
 extends GutTest
@@ -220,6 +220,26 @@ func test_start_silent_raw_stream_enables_continuous_processing_without_a_tick_l
 
 	assert_eq(GameState.sim_tick_count, 1,
 		"Continuous raw streaming should continue advancing the live simulation after activation.")
+
+
+func test_tick_order_market_restock_fires_after_agent_actions() -> void:
+	engine.initialize_simulation("tick_test_seed")
+
+	# Inject a depleted plain-dict location market commodity
+	GameState.locations["synthetic_station_test"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": 0}
+		}
+	}
+
+	# Execute one tick
+	engine.process_tick()
+
+	# Assert that quantity is now positive (restocked)
+	var qty = GameState.locations["synthetic_station_test"]["market_inventory"]["commodity_food"]["quantity"]
+	assert_gt(qty, 0, "Depleted market quantity should be positive after one tick.")
+	assert_true(qty >= Constants.MARKET_RESTOCK_RATE_PER_TICK, "Quantity should increase by at least restock rate.")
 
 
 # =============================================================================

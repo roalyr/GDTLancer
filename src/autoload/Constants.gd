@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §6.3; TACTICAL_TODO.md TASK_5, TASK_6
-# LOG_REF: 2026-05-27 03:35:47
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1
+# LOG_REF: 2026-06-04 11:56:52
 #
 
 extends Node
@@ -88,6 +88,10 @@ const MAX_THRUST_THROTTLE = 1.0
 # 60 seconds = 1 minute tick? Or longer? Keeping 60 for now.
 const WORLD_TICK_INTERVAL_SECONDS = 60
 const TIME_TICK_INTERVAL_SECONDS = 1.0 # Real-time seconds per game-time update (simulation speed)
+
+# --- Station Market Periodic Restocking ---
+const MARKET_RESTOCK_RATE_PER_TICK: int = 1
+const MARKET_RESTOCK_MAX_QUANTITY: int = 50
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
