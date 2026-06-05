@@ -3,29 +3,26 @@ PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Workflow And Scope Boundary; commodity_classification_architecture.md §6
-LOG_REF: 2026-06-05 21:00:00
+LOG_REF: 2026-06-06 01:04:11
 -->
 
-## CURRENT GOAL: NPC Category-Aware Trade & Contract Commodity Resolution
+## CURRENT GOAL: Dynamic Market Pricing & Tag-Aware Restock Baselines (Phase 3)
 
-- TARGET_SCOPE: Implement Phase 2 of the Commodity Classification architecture. Add a helper to `Constants.gd` to fetch random commodities by category. Update `contract_generation_system.gd` to assign a specific `commodity_id` to generated contract occurrences. Update `agent_layer.gd` so NPC dock-trade remembers what specific commodity was bought by storing it in `agent["cargo_commodity_id"]`, and forces the agent to sell that exact commodity later. If an agent with a generic qualitative `LOADED` tag (no specific commodity) tries to sell, assign them a random or fallback commodity to sell. Update contract pickup to assign the contract's `commodity_id` to the agent.
+- TARGET_SCOPE: Implement Phase 3 of the Commodity Classification architecture. Replace the flat `MARKET_RESTOCK_MAX_QUANTITY` with a dynamic, tag-aware restock baseline derived from the sector's economy tag (`POOR`/`ADEQUATE`/`RICH` ranges in `Constants.ECONOMY_LEVEL_PARAMS`). Update market restocking to pull quantities toward this baseline. Implement dynamic pricing so that as stock drops below the baseline, prices increase, and as stock exceeds the baseline, prices decrease. 
 - TARGET_FILES:
-  - src/autoload/Constants.gd — Add helper functions for category-to-commodity mapping.
-  - src/core/simulation/contract_generation_system.gd — Assign `commodity_id` to new occurrences.
-  - src/core/simulation/agent_layer.gd — Update buy/sell and contract pickup/dropoff logic.
-  - src/tests/core/simulation/test_contract_generation_system.gd — Add test for `commodity_id` resolution.
-  - src/tests/core/simulation/test_agent_layer.gd — Update and add tests for quantitative cargo memory.
+  - src/autoload/Constants.gd — Add dynamic pricing tuning constants and baseline helper.
+  - src/core/simulation/agent_layer.gd — Update `_process_market_restock` to use tag-aware baselines and integrate dynamic pricing into buy/sell logic.
+  - src/tests/core/simulation/test_agent_layer.gd — Add assertions for dynamic pricing and tag-aware restock baselines.
 - TRUTH_RELIANCE: ["commodity_classification_architecture.md §6", "TRUTH_PROJECT.md § Project Stack And Context", "TRUTH_PROJECT.md § Compatibility Constraints", "TRUTH_PROJECT.md § Automated Testing Boundary"]
 - TECHNICAL_CONSTRAINTS: ["Platform (primary): Godot3 (3.6 stable)", "Graphics: GLES2", "Forbidden GDScript syntax in this repo: `@export`, `@onready`, and `await`."]
-- OUT_OF_SCOPE: Dynamic pricing from supply/demand (Phase 3), Tag-Aware Restock Baselines (Phase 3), Player UI inventory updates (Player currently uses a different inventory system in `station_menu.gd`).
+- OUT_OF_SCOPE: Lawful / Unlawful Market Simulation, Faction trade gating, new commodities (Phase 4).
 - PREAPPROVED_ADJACENT_OWNERS:
   - SESSION-LOG.md — required state log.
 - VALIDATION_PLAN: Run `godot -s addons/gut/gut_cmdln.gd` to confirm all assertions pass cleanly. Add focused unit assertions.
-- MANUAL_VALIDATION: none required for Phase 2 beyond tests.
+- MANUAL_VALIDATION: none required for Phase 3 beyond tests.
 - ATOMIC_TASKS:
-  - [x] TASK_1: Update Constants.gd. Add a helper function `get_random_commodity_for_category(category: String, rng: RandomNumberGenerator) -> String` that returns a random commodity ID from `COMMODITY_CLASSIFICATION` matching the given category. If none found, return empty string.
-  - [x] TASK_2: Update contract_generation_system.gd. In `_build_occurrence()`, call the new helper using `category` and `_rng` to assign `"commodity_id"` to the occurrence. If it returns empty string, default to `"commodity_default"`.
-  - [x] TASK_3: Update agent_layer.gd. In `_attempt_npc_market_buy()`, select a commodity to buy (e.g. randomly from those with quantity > 0) instead of alphabetically. Store the selected ID in `agent["cargo_commodity_id"]`. In `_attempt_npc_market_sell()`, check if `agent` has `"cargo_commodity_id"`. If so, sell that specific commodity. If not (generic qualitative load), pick a random commodity from `COMMODITY_CLASSIFICATION` (excluding `commodity_default`) to sell. Clear `agent["cargo_commodity_id"]` after selling.
-  - [x] TASK_4: Update agent_layer.gd contract handling. In `_load_runtime_contract_cargo()`, set `agent["cargo_commodity_id"] = occurrence.get("commodity_id", "")`. In `_complete_runtime_contract_occurrence()`, clear `agent["cargo_commodity_id"]` and remove it from the dictionary.
-  - [x] TASK_5: Update unit tests in `test_contract_generation_system.gd` and `test_agent_layer.gd` to assert the new `commodity_id` behavior and quantitative cargo memory.
+  - [x] TASK_1: Update Constants.gd. Add a dynamic pricing elasticity constant (e.g., `DYNAMIC_PRICE_ELASTICITY = 0.5`) and define a helper function `get_tag_aware_baseline_quantity(category: String, level: String) -> int` to return the median of the quantity range for a given economy level.
+  - [x] TASK_2: Update agent_layer.gd restocking logic. In `_process_market_restock`, resolve the sector's economy tags to determine the baseline quantity for each commodity in the station's inventory. Restock up to the baseline quantity instead of the flat `MARKET_RESTOCK_MAX_QUANTITY`.
+  - [x] TASK_3: Update agent_layer.gd pricing logic. Whenever calculating a buy or sell price for a commodity transaction, apply a dynamic pricing modifier based on the ratio of current quantity to the tag-aware baseline quantity. Update player and NPC transaction functions to use this dynamically calculated price instead of the stored static price.
+  - [x] TASK_4: Update test_agent_layer.gd to assert that restocking respects tag-aware baselines and that prices scale dynamically based on stock levels.
   - [x] VERIFICATION: Execute the GUT test suite and verify that all tests pass. Output the command line and verify the results.

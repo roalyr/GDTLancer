@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-06-06 00:26:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_4; commodity_classification_architecture.md §6
+# LOG_REF: 2026-06-06 00:55:00
 #
 
 extends GutTest
@@ -1879,22 +1879,26 @@ func test_market_restock_depleted_to_rate() -> void:
 
 
 func test_market_restock_ceiling_clamp() -> void:
+	var category = Constants.COMMODITY_CLASSIFICATION["commodity_food"]
+	var baseline = Constants.get_tag_aware_baseline_quantity(category, "ADEQUATE")
 	GameState.locations["s1"] = {
 		"available_services": ["trade"],
 		"market_inventory": {
-			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": Constants.MARKET_RESTOCK_MAX_QUANTITY}
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": baseline}
 		}
 	}
 	agent_layer._tick_market_restock()
 	var qty = GameState.locations["s1"]["market_inventory"]["commodity_food"]["quantity"]
-	assert_eq(qty, Constants.MARKET_RESTOCK_MAX_QUANTITY, "Quantity should not exceed restock ceiling.")
+	assert_eq(qty, baseline, "Quantity should not exceed restock baseline ceiling.")
 
 
 func test_market_restock_clamp_near_ceiling() -> void:
+	var category = Constants.COMMODITY_CLASSIFICATION["commodity_food"]
+	var baseline = Constants.get_tag_aware_baseline_quantity(category, "ADEQUATE")
 	GameState.locations["s1"] = {
 		"available_services": ["trade"],
 		"market_inventory": {
-			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": Constants.MARKET_RESTOCK_MAX_QUANTITY - 2}
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": baseline - 2}
 		}
 	}
 	# Perform 3 restocks to force it past the ceiling
@@ -1902,7 +1906,7 @@ func test_market_restock_clamp_near_ceiling() -> void:
 	agent_layer._tick_market_restock()
 	agent_layer._tick_market_restock()
 	var qty = GameState.locations["s1"]["market_inventory"]["commodity_food"]["quantity"]
-	assert_eq(qty, Constants.MARKET_RESTOCK_MAX_QUANTITY, "Quantity should clamp exactly to the ceiling.")
+	assert_eq(qty, baseline, "Quantity should clamp exactly to the baseline ceiling.")
 
 
 func test_market_restock_prices_unchanged() -> void:
@@ -1916,6 +1920,64 @@ func test_market_restock_prices_unchanged() -> void:
 	var comm = GameState.locations["s1"]["market_inventory"]["commodity_food"]
 	assert_eq(comm["buy_price"], 30, "buy_price should not change.")
 	assert_eq(comm["sell_price"], 25, "sell_price should not change.")
+
+
+func test_market_restock_respects_tag_aware_baselines() -> void:
+	# Test POOR economy (baseline = 2)
+	GameState.sector_tags["s1"] = ["MANUFACTURED_POOR"]
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": 0}
+		}
+	}
+	# Restock twice
+	agent_layer._tick_market_restock()
+	agent_layer._tick_market_restock()
+	var qty = GameState.locations["s1"]["market_inventory"]["commodity_food"]["quantity"]
+	assert_eq(qty, 2, "Quantity should clamp to POOR baseline (2).")
+
+	# Test RICH economy (baseline = 27)
+	GameState.sector_tags["s2"] = ["MANUFACTURED_RICH"]
+	GameState.locations["s2"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 25, "quantity": 25}
+		}
+	}
+	# Restock 3 times
+	agent_layer._tick_market_restock()
+	agent_layer._tick_market_restock()
+	agent_layer._tick_market_restock()
+	qty = GameState.locations["s2"]["market_inventory"]["commodity_food"]["quantity"]
+	assert_eq(qty, 27, "Quantity should clamp to RICH baseline (27).")
+
+
+func test_dynamic_pricing_scales_with_stock_levels() -> void:
+	GameState.sector_tags["s1"] = ["MANUFACTURED_ADEQUATE"] # baseline = 12
+	GameState.locations["s1"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_food": {"buy_price": 30, "sell_price": 24, "quantity": 12}
+		}
+	}
+	
+	var base_buy = 30
+	var base_sell = 24
+	
+	# quantity = baseline (12) -> dynamic price = base price
+	var p_eq_buy = Constants.get_dynamic_price(base_buy, 12, 12)
+	assert_eq(p_eq_buy, base_buy, "Price at baseline should equal base price.")
+	
+	# quantity = 0 -> price increases
+	var p_low_buy = Constants.get_dynamic_price(base_buy, 0, 12)
+	assert_gt(p_low_buy, base_buy, "Price below baseline should be higher than base price.")
+	assert_eq(p_low_buy, 45, "Price at 0 stock should increase by 50% with 0.5 elasticity.")
+	
+	# quantity = 24 -> price decreases
+	var p_high_buy = Constants.get_dynamic_price(base_buy, 24, 12)
+	assert_lt(p_high_buy, base_buy, "Price above baseline should be lower than base price.")
+	assert_eq(p_high_buy, 15, "Price at 2x baseline stock should decrease by 50% with 0.5 elasticity.")
 
 
 func test_commodity_classification_completeness() -> void:

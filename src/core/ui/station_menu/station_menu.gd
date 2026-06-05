@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
-# LOG_REF: 2026-06-04 11:28:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3; commodity_classification_architecture.md §6
+# LOG_REF: 2026-06-06 00:55:00
 #
 
 extends Control
@@ -320,9 +320,20 @@ func _update_market_ui() -> void:
 
 	for comm_id in commodity_ids:
 		var data = market_inv[comm_id]
-		var buy_price = int(data.get("buy_price", 0))
-		var sell_price = int(data.get("sell_price", 0))
+		var base_buy = int(data.get("buy_price", 0))
+		var base_sell = int(data.get("sell_price", 0))
 		var qty = int(data.get("quantity", 0))
+
+		var sector_id = _current_location_id
+		if sector_id.begins_with("station_"):
+			sector_id = sector_id.replace("station_", "")
+		var sector_tags = GameState.sector_tags.get(sector_id, [])
+		var category = Constants.COMMODITY_CLASSIFICATION.get(comm_id, "RAW")
+		var level = Constants.get_economy_level_for_category(sector_tags, category)
+		var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
+
+		var buy_price = Constants.get_dynamic_price(base_buy, qty, baseline)
+		var sell_price = Constants.get_dynamic_price(base_sell, qty, baseline)
 
 		var player_qty = 0
 		if is_instance_valid(inv_sys):

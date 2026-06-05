@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-06 00:16:20
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1; commodity_classification_architecture.md §6
+# LOG_REF: 2026-06-06 00:55:00
 #
 
 extends Node
@@ -121,6 +121,26 @@ const ECONOMY_LEVEL_PARAMS: Dictionary = {
 }
 
 const COMMODITY_SELL_PRICE_FRACTION: float = 0.8
+const DYNAMIC_PRICE_ELASTICITY: float = 0.5
+
+
+func get_tag_aware_baseline_quantity(_category: String, level: String) -> int:
+	if ECONOMY_LEVEL_PARAMS.has(level):
+		var params: Dictionary = ECONOMY_LEVEL_PARAMS[level]
+		var min_q: int = params.get("min_quantity", 0)
+		var max_q: int = params.get("max_quantity", 0)
+		return int((min_q + max_q) / 2)
+	return 10
+
+
+func get_dynamic_price(base_price: int, quantity: int, baseline: int) -> int:
+	if baseline <= 0:
+		baseline = 1
+	var ratio: float = float(quantity) / float(baseline)
+	var modifier: float = 1.0 + DYNAMIC_PRICE_ELASTICITY * (1.0 - ratio)
+	modifier = clamp(modifier, 0.2, 2.0)
+	var price: int = int(round(base_price * modifier))
+	return int(max(price, 1))
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0

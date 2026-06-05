@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-06-06 00:24:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_2; TACTICAL_TODO.md TASK_3; commodity_classification_architecture.md §6
+# LOG_REF: 2026-06-06 00:55:00
 #
 
 extends Reference
@@ -125,17 +125,32 @@ func process_tick(config: Dictionary) -> void:
 
 ## Periodically restocks market inventories for discovered (plain dict) station locations.
 func _tick_market_restock() -> void:
+	_process_market_restock()
+
+
+func _process_market_restock() -> void:
 	for location_id in GameState.locations:
 		var entry = GameState.locations[location_id]
 		if entry is Dictionary:
 			var market_inv = entry.get("market_inventory")
 			if market_inv is Dictionary:
+				var sector_id: String = str(entry.get("sector_id", ""))
+				if sector_id == "" and location_id.begins_with("station_"):
+					sector_id = location_id.replace("station_", "")
+				if sector_id == "":
+					sector_id = location_id
+				var sector_tags: Array = GameState.sector_tags.get(sector_id, [])
+				
 				for commodity_id in market_inv:
 					var comm_data = market_inv[commodity_id]
 					if comm_data is Dictionary:
 						var quantity = int(comm_data.get("quantity", 0))
-						if quantity < Constants.MARKET_RESTOCK_MAX_QUANTITY:
-							comm_data["quantity"] = int(min(quantity + Constants.MARKET_RESTOCK_RATE_PER_TICK, Constants.MARKET_RESTOCK_MAX_QUANTITY))
+						var category: String = Constants.COMMODITY_CLASSIFICATION.get(commodity_id, "RAW")
+						var level: String = Constants.get_economy_level_for_category(sector_tags, category)
+						var baseline: int = Constants.get_tag_aware_baseline_quantity(category, level)
+						
+						if quantity < baseline:
+							comm_data["quantity"] = int(min(quantity + Constants.MARKET_RESTOCK_RATE_PER_TICK, baseline))
 		elif entry is Object:
 			# Guard: do not crash. Access .market_inventory safely if present but do not mutate.
 			if "market_inventory" in entry:
@@ -1385,7 +1400,13 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 			"sell_price": 40
 		}
 
-	var sell_price = int(market_inventory[commodity_id].get("sell_price", 0))
+	var base_sell_price = int(market_inventory[commodity_id].get("sell_price", 0))
+	var quantity = int(market_inventory[commodity_id].get("quantity", 0))
+	var category = Constants.COMMODITY_CLASSIFICATION.get(commodity_id, "RAW")
+	var sector_tags = GameState.sector_tags.get(sector_id, [])
+	var level = Constants.get_economy_level_for_category(sector_tags, category)
+	var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
+	var sell_price = Constants.get_dynamic_price(base_sell_price, quantity, baseline)
 
 	# Mutate market quantity
 	market_inventory[commodity_id]["quantity"] += 1
@@ -1443,7 +1464,14 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	if not available_commodities.empty():
 		var idx: int = _rng.randi() % available_commodities.size()
 		bought_commodity_id = available_commodities[idx]
-		buy_price = int(market_inventory[bought_commodity_id].get("buy_price", 0))
+		
+		var base_buy_price = int(market_inventory[bought_commodity_id].get("buy_price", 0))
+		var quantity = int(market_inventory[bought_commodity_id].get("quantity", 0))
+		var category = Constants.COMMODITY_CLASSIFICATION.get(bought_commodity_id, "RAW")
+		var sector_tags = GameState.sector_tags.get(sector_id, [])
+		var level = Constants.get_economy_level_for_category(sector_tags, category)
+		var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
+		buy_price = Constants.get_dynamic_price(base_buy_price, quantity, baseline)
 
 	if bought_commodity_id == "":
 		return false

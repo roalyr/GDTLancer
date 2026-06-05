@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_station_menu.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_4
-## LOG_REF: 2026-06-04 00:58:35
+## TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_4; commodity_classification_architecture.md §6
+## LOG_REF: 2026-06-06 00:55:00
 ##
 
 extends "res://addons/gut/test.gd"
@@ -319,7 +319,7 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 
 	# Assert credits reduced, player got asset, station quantity decremented
 	var pc = GameState.characters[player_uid]
-	assert_eq(pc.credits, 90, "Player credits should decrease by buy_price (10).")
+	assert_eq(pc.credits, 87, "Player credits should decrease by buy_price (13).")
 	assert_eq(GlobalRefs.inventory_system.get_asset_count(player_uid, 2, "commodity_ore"), 1, "Player should have 1 commodity_ore in inventory.")
 	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 4, "Station commodity quantity should decrease to 4.")
 
@@ -335,7 +335,7 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 	yield(get_tree(), "idle_frame")
 
 	# Assert credits increased, player lost asset, station quantity incremented
-	assert_eq(pc.credits, 98, "Player credits should increase by sell_price (8) to 98.")
+	assert_eq(pc.credits, 98, "Player credits should increase by sell_price (11) to 98.")
 	assert_eq(GlobalRefs.inventory_system.get_asset_count(player_uid, 2, "commodity_ore"), 0, "Player should have 0 commodity_ore in inventory.")
 	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 5, "Station commodity quantity should increase back to 5.")
 
