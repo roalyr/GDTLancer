@@ -2,8 +2,8 @@
 PROJECT: GDTLancer
 MODULE: GDD-REVISION-LEDGER.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_SIMULATION-GRAPH.md §0; TRUTH_SIMULATION-GRAPH.md §6.3; TRUTH_SIMULATION-GRAPH.md §8.3; TRUTH_SIMULATION-GRAPH.md §8.4
-LOG_REF: 2026-06-03 19:48:31
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_SIMULATION-GRAPH.md §0; TRUTH_SIMULATION-GRAPH.md §6.3; TRUTH_SIMULATION-GRAPH.md §8.3; TRUTH_SIMULATION-GRAPH.md §8.4; TACTICAL_TODO.md TASK_2; commodity_classification_architecture.md
+LOG_REF: 2026-06-06 01:10:00
 -->
 
 # GDD Revision Ledger - GDTLancer
@@ -95,7 +95,7 @@ For each revision entry, use the same fields:
 
 1. `Universe Doctrine Alignment Ledger` — create this ledger and wire it into the architect workflow. (Completed)
 2. `Faction And Interaction Doctrine Refactor` — define faction tags, lawful or unlawful interaction policy, cargo provenance, and non-lethal human conflict rules without rebuilding topology. (Completed)
-3. `Commodity Classification Registry & Tag-Governed Market Seeding` — build the classification registry and tag-governed procedural market seeding. (Active)
+3. `Commodity Classification Registry & Tag-Governed Market Seeding` — build the classification registry and tag-governed procedural market seeding. (Completed)
 4. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them.
 5. `Hierarchical Universe Topology Program` — revisit star, planetary, and sub-planetary structure only after the doctrine and social-simulation seams are coherent.
 

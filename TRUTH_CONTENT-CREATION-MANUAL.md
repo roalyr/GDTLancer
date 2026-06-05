@@ -2,8 +2,8 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_CONTENT-CREATION-MANUAL.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TACTICAL_TODO.md TASK_5
-LOG_REF: 2026-05-23 23:21:08
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TACTICAL_TODO.md TASK_1; commodity_classification_architecture.md
+LOG_REF: 2026-06-06 01:10:00
 -->
 
 # Content Creation Manual
@@ -499,8 +499,10 @@ The bridge between these tags and specific commodities is governed by the **Comm
   - **RICH**: High stock (15–40), low prices (0.7x multiplier).
   - **ADEQUATE**: Medium stock (5–20), base price (1.0x multiplier).
   - **POOR**: Low stock (0–5), high prices (1.5x multiplier).
-- Seeding calculates buy prices using `base_value` from the commodity template resource, and derives sell prices using `Constants.COMMODITY_SELL_PRICE_FRACTION` (default: `0.8`).
-- Restocking is tick-driven and slowly pulls depleted quantities back toward the baseline (capped by `Constants.MARKET_RESTOCK_MAX_QUANTITY`).
+- Seeding calculates base buy prices using `base_value` from the commodity template resource, and derives base sell prices using `Constants.COMMODITY_SELL_PRICE_FRACTION` (default: `0.8`).
+- Restocking is tick-driven and slowly pulls depleted quantities back toward the baseline quantity (derived via `Constants.get_tag_aware_baseline_quantity()`, which is the median/average of the `min_quantity` and `max_quantity` range for that economy level) at a rate of `Constants.MARKET_RESTOCK_RATE_PER_TICK` (default: `1`) per tick. The flat cap `MARKET_RESTOCK_MAX_QUANTITY` is no longer used for restock limits.
+- Dynamic pricing is applied on top of the base prices for both player and NPC transactions. Price scales dynamically based on the ratio of current stock to the baseline stock using `Constants.get_dynamic_price()`. The price modifier is calculated as:
+  `modifier = 1.0 + DYNAMIC_PRICE_ELASTICITY * (1.0 - (current_quantity / baseline_quantity))` (where `DYNAMIC_PRICE_ELASTICITY = 0.5`), clamped between `0.2` and `2.0`.
 
 The live simulation economy itself remains qualitative. Sector progression and runtime contract generation come from tags, bounded counters, and the demand-occurrence pipeline. Procedural market inventories act as a local quantitative projection of these qualitative tags.
 
