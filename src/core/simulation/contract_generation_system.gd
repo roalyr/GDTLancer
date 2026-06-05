@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §6.4; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-27 05:18:00
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §6.4; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-06-06 00:20:00
 #
 
 extends Reference
@@ -14,8 +14,11 @@ extends Reference
 const CATEGORIES: Array = ["RAW", "MANUFACTURED", "CURRENCY"]
 const SECURITY_TAGS: Array = ["SECURE", "CONTESTED", "LAWLESS"]
 
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+
 
 func process_tick(config: Dictionary) -> void:
+	_rng.seed = hash(str(GameState.world_seed) + ":contract_generation:" + str(GameState.sim_tick_count))
 	var previous_occurrences: Dictionary = GameState.runtime_contract_occurrences
 	var generated_occurrences: Dictionary = {}
 	var occurrences_by_target: Dictionary = {}
@@ -155,6 +158,8 @@ func _should_retain_recent_open_occurrence(previous_occurrence: Dictionary) -> b
 func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrence: Dictionary) -> Dictionary:
 	if previous_occurrence.empty():
 		return occurrence
+	if previous_occurrence.has("commodity_id"):
+		occurrence["commodity_id"] = str(previous_occurrence.get("commodity_id", "commodity_default"))
 	if previous_occurrence.has("created_at_tick"):
 		occurrence["created_at_tick"] = int(previous_occurrence.get("created_at_tick", GameState.sim_tick_count))
 	if previous_occurrence.has("source_accounting_sector_id"):
@@ -336,11 +341,15 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 	var required_cargo_tag: String = _cargo_tag_for_category(category)
 	# UI-facing reward metadata for player contract board; does not drive CA economy simulation.
 	var reward_credits: int = _calculate_reward_credits(category, route_hops)
+	var commodity_id: String = Constants.get_random_commodity_for_category(category, _rng)
+	if commodity_id == "":
+		commodity_id = "commodity_default"
 	return {
 		"occurrence_id": occurrence_id,
 		"generator_id": "qualitative_demand",
 		"contract_type": "delivery",
 		"commodity_category": category,
+		"commodity_id": commodity_id,
 		"demand_tag": _contract_demand_tag(category),
 		"source_sector_id": source_sector_id,
 		"target_sector_id": target_sector_id,

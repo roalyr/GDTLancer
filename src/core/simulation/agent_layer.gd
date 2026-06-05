@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-05 23:52:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-06-06 00:24:00
 #
 
 extends Reference
@@ -889,6 +889,8 @@ func _clear_runtime_contract_claims_for_agent(agent_id: String, agent: Dictionar
 		agent["cargo_tag"] = "EMPTY"
 		if agent.has("contract_cargo_tag"):
 			agent.erase("contract_cargo_tag")
+		if agent.has("cargo_commodity_id"):
+			agent.erase("cargo_commodity_id")
 		if agent_id == "player":
 			GameState.player_cargo_tag = "EMPTY"
 
@@ -916,6 +918,7 @@ func _load_runtime_contract_cargo(agent_id: String, agent: Dictionary, occurrenc
 		return false
 
 	agent["cargo_tag"] = "LOADED"
+	agent["cargo_commodity_id"] = occurrence.get("commodity_id", "")
 	if agent_id == "player":
 		GameState.player_cargo_tag = "LOADED"
 		agent["contract_cargo_tag"] = str(occurrence.get("required_cargo_tag", ""))
@@ -953,6 +956,9 @@ func _complete_runtime_contract_occurrence(agent_id: String, agent: Dictionary, 
 		return false
 
 	_try_dock(agent_id, agent, sector_id)
+	agent["cargo_tag"] = "EMPTY"
+	if agent.has("cargo_commodity_id"):
+		agent.erase("cargo_commodity_id")
 	occurrence["payment_reserved"] = false
 	_apply_contract_completion_sector_impact(occurrence, sector_id)
 	_log_event(agent_id, "contract_completed", sector_id, {
@@ -997,6 +1003,8 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 	agent["cargo_tag"] = "EMPTY"
 	if agent.has("contract_cargo_tag"):
 		agent.erase("contract_cargo_tag")
+	if agent.has("cargo_commodity_id"):
+		agent.erase("cargo_commodity_id")
 	GameState.player_cargo_tag = "EMPTY"
 
 	var reward_credits: int = int(occurrence.get("reward_credits", 0))
@@ -1354,12 +1362,29 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 	if market_inventory.empty():
 		return false
 
-	var commodity_ids = market_inventory.keys()
-	commodity_ids.sort()
-	if commodity_ids.empty():
+	var commodity_id = ""
+	if agent.has("cargo_commodity_id") and str(agent["cargo_commodity_id"]) != "":
+		commodity_id = str(agent["cargo_commodity_id"])
+	else:
+		var potential_commodities: Array = []
+		for key in Constants.COMMODITY_CLASSIFICATION:
+			if key != "commodity_default":
+				potential_commodities.append(key)
+		potential_commodities.sort()
+		if not potential_commodities.empty():
+			var idx: int = _rng.randi() % potential_commodities.size()
+			commodity_id = potential_commodities[idx]
+
+	if commodity_id == "":
 		return false
 
-	var commodity_id = commodity_ids[0]
+	if not market_inventory.has(commodity_id):
+		market_inventory[commodity_id] = {
+			"quantity": 0,
+			"buy_price": 50,
+			"sell_price": 40
+		}
+
 	var sell_price = int(market_inventory[commodity_id].get("sell_price", 0))
 
 	# Mutate market quantity
@@ -1367,6 +1392,8 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 
 	# Mutate agent cargo and wealth
 	agent["cargo_tag"] = "EMPTY"
+	if agent.has("cargo_commodity_id"):
+		agent.erase("cargo_commodity_id")
 	_wealth_step_up(agent)
 
 	# Log NPC dock-trade event
@@ -1405,16 +1432,18 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	if market_inventory.empty():
 		return false
 
-	var commodity_ids = market_inventory.keys()
-	commodity_ids.sort()
+	var available_commodities: Array = []
+	for comm_id in market_inventory:
+		if int(market_inventory[comm_id].get("quantity", 0)) > 0:
+			available_commodities.append(comm_id)
+	available_commodities.sort()
 
 	var bought_commodity_id = ""
 	var buy_price = 0
-	for comm_id in commodity_ids:
-		if int(market_inventory[comm_id].get("quantity", 0)) > 0:
-			bought_commodity_id = comm_id
-			buy_price = int(market_inventory[comm_id].get("buy_price", 0))
-			break
+	if not available_commodities.empty():
+		var idx: int = _rng.randi() % available_commodities.size()
+		bought_commodity_id = available_commodities[idx]
+		buy_price = int(market_inventory[bought_commodity_id].get("buy_price", 0))
 
 	if bought_commodity_id == "":
 		return false
@@ -1424,6 +1453,7 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 
 	# Mutate agent cargo and wealth
 	agent["cargo_tag"] = "LOADED"
+	agent["cargo_commodity_id"] = bought_commodity_id
 	_wealth_step_down(agent)
 
 	# Log NPC dock-trade event

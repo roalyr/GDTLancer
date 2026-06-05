@@ -3,13 +3,19 @@ PROJECT: GDTLancer
 MODULE: SESSION-LOG.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Session Logging Boundary; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-LOG_REF: 2026-06-04 11:53:00
+LOG_REF: 2026-06-06 00:28:00
 -->
 
 # SESSION LOG - GDTLancer
 
 | Timestamp | Agent | Action | Result | Note for Future Agents |
 | :--- | :--- | :--- | :--- | :--- |
+| 2026-06-06 00:28:00 | Verificator | Verify TASK_3, TASK_4, TASK_5, and VERIFICATION for NPC Category-Aware Trade & Contract Commodity Resolution | SUCCESS | Checked all remaining atomic tasks. Verified cargo commodity memory, category-aware market transaction selection, and contract cargo load/unload hooks. Ran the entire GUT test suite successfully (383 passed, 0 failed). Code verification is complete. |
+| 2026-06-06 00:26:00 | Developer | Implement TASK_3 and TASK_4: NPC commodity trade intelligence and contract cargo memory | SUCCESS | Updated NPC market buy/sell to use category-aware random selection and track cargo_commodity_id. Wired contract cargo pickup and delivery completion to set/erase cargo_commodity_id and ensure NPC cargo tag is emptied on delivery. Touched: src/core/simulation/agent_layer.gd. Awaiting verification. |
+| 2026-06-06 00:24:00 | Verificator | Verify TASK_2: Contract commodity_id assignment | SUCCESS | Verified declaration, seeding, and usage of _rng in contract_generation_system.gd. Verified that commodity_id is populated on occurrence generation and preserved correctly on merge. Checked type contracts and default fallback. |
+| 2026-06-06 00:22:00 | Developer | Implement TASK_2: Contract commodity_id assignment | SUCCESS | Declared/seeded _rng in ContractGenerationSystem and assigned commodity_id to occurrences using Constants helper, defaulting to commodity_default. Preserved commodity_id in merge state. Touched: src/core/simulation/contract_generation_system.gd. Awaiting verification. |
+| 2026-06-06 00:20:00 | Verificator | Verify TASK_1: Constants category helper | SUCCESS | Verified implementation of get_random_commodity_for_category in Constants.gd. The helper maps categories to random matching commodities using RandomNumberGenerator. Checked type contracts, deterministic random indexing, and empty case. |
+| 2026-06-06 00:18:00 | Developer | Implement TASK_1: Constants category helper | SUCCESS | Added get_random_commodity_for_category helper function to Constants.gd. Touched: src/autoload/Constants.gd. Awaiting verification. |
 | 2026-06-05 23:59:59 | Verificator | Verify TASK_1, TASK_2, TASK_3, and VERIFICATION for Commodity Classification Registry & Tag-Governed Market Seeding | SUCCESS | Checked all atomic tasks and verified that the implementation strictly adheres to the scope and constraints. The full test suite (381 tests) and engine boot are completely clean. NPC trade category intelligence, dynamic prices, and authored station updates remain out of scope. Code verification is complete. |
 | 2026-06-05 23:59:00 | Developer | Implement TASK_3: Unit tests for classification and tag-governed market seeding | SUCCESS | Added unit tests to test_agent_layer.gd checking mapping completeness, economy tag parsing, and correctness of prices, quantities, and price/quantity ranges. Awaiting verification. |
 | 2026-06-05 23:55:00 | Developer | Implement TASK_2: Tag-governed procedural market seeding in agent_layer.gd | SUCCESS | Replaced hardcoded market seeding in _generate_procedural_station_for_sector with dynamic, tag-governed market seeding using base_value from CommodityTemplate, level multipliers, and sell fractions. Awaiting verification. |

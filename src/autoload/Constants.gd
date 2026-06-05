@@ -3,7 +3,7 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-05 23:36:42
+# LOG_REF: 2026-06-06 00:16:20
 #
 
 extends Node
@@ -359,6 +359,17 @@ func get_economy_level_for_category(sector_tags: Array, category: String) -> Str
 		if (category + "_" + level) in sector_tags:
 			return level
 	return "ADEQUATE"
+
+
+func get_random_commodity_for_category(category: String, rng: RandomNumberGenerator) -> String:
+	var matching: Array = []
+	for commodity_id in COMMODITY_CLASSIFICATION:
+		if COMMODITY_CLASSIFICATION[commodity_id] == category:
+			matching.append(commodity_id)
+	if matching.size() == 0:
+		return ""
+	var index: int = rng.randi() % matching.size()
+	return matching[index]
 
 # ---- CONTACT MANAGER ----
 const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5

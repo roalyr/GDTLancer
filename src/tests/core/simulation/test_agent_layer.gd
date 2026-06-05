@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-06-05 23:52:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_5
+# LOG_REF: 2026-06-06 00:26:00
 #
 
 extends GutTest
@@ -1611,6 +1611,7 @@ func test_npc_dock_trade_sell_increments_market_quantity() -> void:
 		"wealth_tag": "COMFORTABLE",
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
+		"cargo_commodity_id": "ore",
 		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
 	}
 
@@ -1724,6 +1725,7 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 		"wealth_tag": "COMFORTABLE",
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
+		"cargo_commodity_id": "ore",
 		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
 	}
 	agent_layer._try_dock("agent_lawful", GameState.agents["agent_lawful"], "s1")
@@ -1740,6 +1742,7 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 		"wealth_tag": "COMFORTABLE",
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
+		"cargo_commodity_id": "ore",
 		"sentiment_tags": ["PIRATE", "LEGAL_ILLICIT"],
 	}
 	agent_layer._try_dock("agent_illicit", GameState.agents["agent_illicit"], "s1")
@@ -1812,6 +1815,7 @@ func test_npc_dock_trade_at_discovered_station_sell() -> void:
 		"wealth_tag": "COMFORTABLE",
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
+		"cargo_commodity_id": "commodity_food",
 		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
 	}
 	
@@ -1841,6 +1845,9 @@ func test_npc_dock_trade_at_discovered_station_buy() -> void:
 	var station_id = generated_station["id"]
 	
 	var market = GameState.locations[station_id]["market_inventory"]
+	for key in market:
+		if key != "commodity_food":
+			market[key]["quantity"] = 0
 	market["commodity_food"]["quantity"] = 10
 	
 	GameState.agents["agent_trader"] = {
@@ -1984,4 +1991,41 @@ func test_tag_governed_procedural_market_seeding() -> void:
 	
 	# 4. Exclude commodity_default
 	assert_false(market.has("commodity_default"))
+
+
+func test_npc_quantitative_cargo_memory_and_contract_cargo_resolution() -> void:
+	# Test contract cargo loading maps commodity_id
+	GameState.runtime_contract_occurrences["occ1"] = {
+		"occurrence_id": "occ1",
+		"commodity_category": "RAW",
+		"commodity_id": "commodity_ore",
+		"required_cargo_tag": "RAW_COMMODITY",
+		"source_sector_id": "s1",
+		"target_sector_id": "s2",
+		"status": "claimed",
+		"claimant_agent_id": "agent_trader",
+		"source_reserved": true,
+		"payment_reserved": true,
+	}
+	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD"]
+	GameState.sector_tags["s2"] = ["STATION", "SECURE", "MILD"]
+	GameState.contract_cargo_reserved["s1"] = {"RAW": 1}
+	
+	var agent = {
+		"agent_role": "trader",
+		"current_sector_id": "s1",
+		"cargo_tag": "EMPTY",
+	}
+	
+	var loaded: bool = agent_layer._load_runtime_contract_cargo("agent_trader", agent, "occ1", "s1")
+	assert_true(loaded, "Cargo should be loaded successfully.")
+	assert_eq(agent.get("cargo_tag"), "LOADED", "Cargo tag should be LOADED.")
+	assert_eq(agent.get("cargo_commodity_id"), "commodity_ore", "cargo_commodity_id should match contract's commodity_id.")
+	
+	# Test contract cargo completion clears cargo_commodity_id
+	GameState.contract_payment_reserved["s2"] = {"RAW": 1}
+	var completed: bool = agent_layer._complete_runtime_contract_occurrence("agent_trader", agent, "occ1", "s2")
+	assert_true(completed, "Contract should complete successfully.")
+	assert_eq(agent.get("cargo_tag"), "EMPTY", "Agent cargo should be empty.")
+	assert_false(agent.has("cargo_commodity_id"), "cargo_commodity_id should be cleared.")
 

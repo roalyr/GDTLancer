@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_1; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4
-# LOG_REF: 2026-05-27 05:18:00
+# TRUTH_LINK: TACTICAL_TODO.md TASK_5; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4
+# LOG_REF: 2026-06-06 00:26:00
 #
 
 extends GutTest
@@ -658,3 +658,21 @@ func _seed_runtime_contract_state() -> void:
 		"b": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
 		"c": {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0},
 	}
+
+
+func test_generated_occurrence_assigns_commodity_id() -> void:
+	generator.process_tick({})
+
+	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
+	assert_true(raw_contract.has("commodity_id"), "Occurrence should have a commodity_id key.")
+	var comm_id: String = raw_contract.get("commodity_id", "")
+	assert_ne(comm_id, "", "commodity_id should not be empty.")
+	assert_true(comm_id in ["commodity_ore", "commodity_fuel"], "RAW category should map to commodity_ore or commodity_fuel.")
+
+	var mfg_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:MANUFACTURED", {})
+	var mfg_comm_id: String = mfg_contract.get("commodity_id", "")
+	assert_true(mfg_comm_id in ["commodity_food", "commodity_tech"], "MANUFACTURED category should map to commodity_food or commodity_tech.")
+
+	var curr_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:CURRENCY", {})
+	var curr_comm_id: String = curr_contract.get("commodity_id", "")
+	assert_eq(curr_comm_id, "commodity_luxury", "CURRENCY category should map to commodity_luxury.")
