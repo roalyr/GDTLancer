@@ -3,7 +3,7 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-04 11:56:52
+# LOG_REF: 2026-06-05 23:36:42
 #
 
 extends Node
@@ -92,6 +92,35 @@ const TIME_TICK_INTERVAL_SECONDS = 1.0 # Real-time seconds per game-time update 
 # --- Station Market Periodic Restocking ---
 const MARKET_RESTOCK_RATE_PER_TICK: int = 1
 const MARKET_RESTOCK_MAX_QUANTITY: int = 50
+
+# --- Commodity Classification & Seeding ---
+const COMMODITY_CLASSIFICATION: Dictionary = {
+	"commodity_ore":    "RAW",
+	"commodity_fuel":   "RAW",
+	"commodity_food":   "MANUFACTURED",
+	"commodity_tech":   "MANUFACTURED",
+	"commodity_luxury": "CURRENCY",
+}
+
+const ECONOMY_LEVEL_PARAMS: Dictionary = {
+	"RICH": {
+		"min_quantity": 15,
+		"max_quantity": 40,
+		"price_multiplier": 0.7
+	},
+	"ADEQUATE": {
+		"min_quantity": 5,
+		"max_quantity": 20,
+		"price_multiplier": 1.0
+	},
+	"POOR": {
+		"min_quantity": 0,
+		"max_quantity": 5,
+		"price_multiplier": 1.5
+	}
+}
+
+const COMMODITY_SELL_PRICE_FRACTION: float = 0.8
 
 # --- Gameplay / Physics Approximations ---
 const ORBIT_FULL_SPEED_RADIUS = 2000.0
@@ -323,6 +352,13 @@ const JUMP_TRANSITION_OVERLAY_ARRIVAL_POST_FULL_OPACITY_HOLD_SEC: float = 2.0
 
 func get_reference_origin_offset(world_position: Vector3) -> Vector3:
 	return REFERENCE_ORIGIN - world_position
+
+
+func get_economy_level_for_category(sector_tags: Array, category: String) -> String:
+	for level in ["POOR", "ADEQUATE", "RICH"]:
+		if (category + "_" + level) in sector_tags:
+			return level
+	return "ADEQUATE"
 
 # ---- CONTACT MANAGER ----
 const DISPOSITION_FRIENDLY_THRESHOLD: float = 0.5

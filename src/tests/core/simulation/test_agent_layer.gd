@@ -3,7 +3,7 @@
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-06-04 11:56:52
+# LOG_REF: 2026-06-05 23:52:00
 #
 
 extends GutTest
@@ -1909,4 +1909,79 @@ func test_market_restock_prices_unchanged() -> void:
 	var comm = GameState.locations["s1"]["market_inventory"]["commodity_food"]
 	assert_eq(comm["buy_price"], 30, "buy_price should not change.")
 	assert_eq(comm["sell_price"], 25, "sell_price should not change.")
+
+
+func test_commodity_classification_completeness() -> void:
+	var expected_keys = ["commodity_ore", "commodity_fuel", "commodity_food", "commodity_tech", "commodity_luxury"]
+	assert_eq(Constants.COMMODITY_CLASSIFICATION.keys().size(), expected_keys.size(), "Should have exactly 5 commodities registered.")
+	for key in expected_keys:
+		assert_true(Constants.COMMODITY_CLASSIFICATION.has(key), "Registry should include " + key)
+	assert_false(Constants.COMMODITY_CLASSIFICATION.has("commodity_default"), "Registry should exclude commodity_default")
+
+
+func test_economy_level_for_category_parsing() -> void:
+	assert_eq(Constants.get_economy_level_for_category(["RAW_POOR"], "RAW"), "POOR")
+	assert_eq(Constants.get_economy_level_for_category(["RAW_ADEQUATE"], "RAW"), "ADEQUATE")
+	assert_eq(Constants.get_economy_level_for_category(["RAW_RICH"], "RAW"), "RICH")
+	assert_eq(Constants.get_economy_level_for_category([], "RAW"), "ADEQUATE")
+	assert_eq(Constants.get_economy_level_for_category(["RAW_INVALID"], "RAW"), "ADEQUATE")
+
+
+func test_tag_governed_procedural_market_seeding() -> void:
+	# Pre-seed commodity templates in TemplateDatabase to be completely robust
+	var mock_base_values = {
+		"commodity_ore": 10,
+		"commodity_fuel": 25,
+		"commodity_food": 20,
+		"commodity_tech": 60,
+		"commodity_luxury": 100
+	}
+	for cid in mock_base_values:
+		if not TemplateDatabase.assets_commodities.has(cid):
+			var t = CommodityTemplate.new()
+			t.template_id = cid
+			t.base_value = mock_base_values[cid]
+			TemplateDatabase.assets_commodities[cid] = t
+		else:
+			# Ensure the template has the correct base value for our assertions
+			TemplateDatabase.assets_commodities[cid].base_value = mock_base_values[cid]
+
+	GameState.sector_tags["s1"] = ["RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE"]
+	GameState.locations.clear()
+	GameState.station_by_id.clear()
+	
+	var _station = agent_layer._generate_procedural_station_for_sector("s1")
+	assert_true(GameState.locations.has("station_s1"), "Location should be seeded.")
+	var market = GameState.locations["station_s1"]["market_inventory"]
+	
+	# 1. RAW_RICH: commodity_ore, commodity_fuel (multiplier 0.7x, qty 15-40)
+	assert_true(market.has("commodity_ore"))
+	assert_true(market["commodity_ore"]["quantity"] >= 15 and market["commodity_ore"]["quantity"] <= 40)
+	assert_eq(market["commodity_ore"]["buy_price"], 7) # round(10 * 0.7)
+	assert_eq(market["commodity_ore"]["sell_price"], 6) # round(7 * 0.8) = 5.6 -> 6
+	
+	assert_true(market.has("commodity_fuel"))
+	assert_true(market["commodity_fuel"]["quantity"] >= 15 and market["commodity_fuel"]["quantity"] <= 40)
+	assert_eq(market["commodity_fuel"]["buy_price"], 18) # round(25 * 0.7) = 17.5 -> 18
+	assert_eq(market["commodity_fuel"]["sell_price"], 14) # round(18 * 0.8) = 14.4 -> 14
+	
+	# 2. MANUFACTURED_POOR: commodity_food, commodity_tech (multiplier 1.5x, qty 0-5)
+	assert_true(market.has("commodity_food"))
+	assert_true(market["commodity_food"]["quantity"] >= 0 and market["commodity_food"]["quantity"] <= 5)
+	assert_eq(market["commodity_food"]["buy_price"], 30) # round(20 * 1.5)
+	assert_eq(market["commodity_food"]["sell_price"], 24) # round(30 * 0.8)
+	
+	assert_true(market.has("commodity_tech"))
+	assert_true(market["commodity_tech"]["quantity"] >= 0 and market["commodity_tech"]["quantity"] <= 5)
+	assert_eq(market["commodity_tech"]["buy_price"], 90) # round(60 * 1.5)
+	assert_eq(market["commodity_tech"]["sell_price"], 72) # round(90 * 0.8)
+	
+	# 3. CURRENCY_ADEQUATE: commodity_luxury (multiplier 1.0x, qty 5-20)
+	assert_true(market.has("commodity_luxury"))
+	assert_true(market["commodity_luxury"]["quantity"] >= 5 and market["commodity_luxury"]["quantity"] <= 20)
+	assert_eq(market["commodity_luxury"]["buy_price"], 100) # round(100 * 1.0)
+	assert_eq(market["commodity_luxury"]["sell_price"], 80) # round(100 * 0.8)
+	
+	# 4. Exclude commodity_default
+	assert_false(market.has("commodity_default"))
 

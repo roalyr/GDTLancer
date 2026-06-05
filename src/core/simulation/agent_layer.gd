@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-06-04 11:56:52
+# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-06-05 23:52:00
 #
 
 extends Reference
@@ -1827,28 +1827,33 @@ func _generate_procedural_station_for_sector(sector_id: String) -> Dictionary:
 	var market_rng := RandomNumberGenerator.new()
 	market_rng.seed = hash(str(GameState.world_seed) + ":" + station_id)
 
-	var seeded_market: Dictionary = {
-		"commodity_food": {
-			"buy_price": 30,
-			"sell_price": 25,
-			"quantity": market_rng.randi_range(5, 20)
-		},
-		"commodity_fuel": {
-			"buy_price": 25,
-			"sell_price": 20,
-			"quantity": market_rng.randi_range(5, 20)
-		},
-		"commodity_ore": {
-			"buy_price": 8,
-			"sell_price": 6,
-			"quantity": market_rng.randi_range(5, 20)
-		},
-		"commodity_tech": {
-			"buy_price": 80,
-			"sell_price": 65,
-			"quantity": market_rng.randi_range(5, 20)
+	var seeded_market: Dictionary = {}
+	for commodity_id in Constants.COMMODITY_CLASSIFICATION:
+		if commodity_id == "commodity_default":
+			continue
+		var category: String = Constants.COMMODITY_CLASSIFICATION[commodity_id]
+		var level: String = Constants.get_economy_level_for_category(sector_tags, category)
+		var params: Dictionary = Constants.ECONOMY_LEVEL_PARAMS.get(level, Constants.ECONOMY_LEVEL_PARAMS["ADEQUATE"])
+		
+		var min_qty: int = params.get("min_quantity", 5)
+		var max_qty: int = params.get("max_quantity", 20)
+		var multiplier: float = params.get("price_multiplier", 1.0)
+		
+		var base_value: int = 10
+		if TemplateDatabase.assets_commodities.has(commodity_id):
+			var template = TemplateDatabase.assets_commodities[commodity_id]
+			if template and "base_value" in template:
+				base_value = template.base_value
+		
+		var quantity: int = market_rng.randi_range(min_qty, max_qty)
+		var buy_price: int = int(round(base_value * multiplier))
+		var sell_price: int = int(round(buy_price * Constants.COMMODITY_SELL_PRICE_FRACTION))
+		
+		seeded_market[commodity_id] = {
+			"buy_price": buy_price,
+			"sell_price": sell_price,
+			"quantity": quantity
 		}
-	}
 
 	GameState.locations[station_id] = {
 		"location_name": station_name,
