@@ -344,3 +344,70 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 	btn_sell = row.get_child(5)
 	assert_false(btn_buy.disabled, "Buy button should remain enabled.")
 	assert_true(btn_sell.disabled, "Sell button should be disabled again.")
+
+
+func test_station_menu_contraband_gating() -> void:
+	# Pre-seed commodity templates
+	var ore_temp = CommodityTemplate.new()
+	ore_temp.template_id = "commodity_ore"
+	ore_temp.commodity_name = "Ore"
+	TemplateDatabase.assets_commodities["commodity_ore"] = ore_temp
+
+	var contra_temp = CommodityTemplate.new()
+	contra_temp.template_id = "commodity_contraband"
+	contra_temp.commodity_name = "Contraband"
+	TemplateDatabase.assets_commodities["commodity_contraband"] = contra_temp
+
+	var player_uid = 100
+	GameState.player_character_uid = player_uid
+	var pc = {"credits": 1000, "focus_points": 5}
+	GameState.characters[player_uid] = pc
+
+	var station_menu = StationMenuScene.instance()
+	add_child_autofree(station_menu)
+
+	# 1. Station offers only trade (lawful)
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_ore": {"buy_price": 10, "sell_price": 5, "quantity": 5},
+			"commodity_contraband": {"buy_price": 200, "sell_price": 150, "quantity": 5}
+		}
+	}
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+	station_menu._on_trade_pressed()
+	yield(get_tree(), "idle_frame")
+
+	# It should list commodity_ore but not commodity_contraband
+	var rows = station_menu._market_list.get_children()
+	assert_eq(rows.size(), 1, "Only 1 commodity should be listed under lawful trade.")
+	assert_eq(rows[0].get_child(0).text, "Ore", "First listed item should be Ore.")
+
+	# Close trade UI
+	station_menu._on_trade_pressed()
+
+	# 2. Station offers only black market
+	GameState.locations["sector_system_elace"] = {
+		"location_name": "Elace System",
+		"available_services": ["black_market"],
+		"market_inventory": {
+			"commodity_ore": {"buy_price": 10, "sell_price": 5, "quantity": 5},
+			"commodity_contraband": {"buy_price": 200, "sell_price": 150, "quantity": 5}
+		}
+	}
+	station_menu._on_player_docked("sector_system_elace")
+	yield(get_tree(), "idle_frame")
+	station_menu._on_trade_pressed()
+	yield(get_tree(), "idle_frame")
+
+	# Both should be listed (Black market lists both legal ore and illegal contraband)
+	rows = station_menu._market_list.get_children()
+	assert_eq(rows.size(), 2, "Both commodities should be listed in the Black Market.")
+	var names = []
+	for r in rows:
+		names.append(r.get_child(0).text)
+	names.sort()
+	assert_eq(names, ["Contraband", "Ore"], "Listed items should be Contraband and Ore.")
+

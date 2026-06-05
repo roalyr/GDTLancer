@@ -667,7 +667,7 @@ func test_generated_occurrence_assigns_commodity_id() -> void:
 	assert_true(raw_contract.has("commodity_id"), "Occurrence should have a commodity_id key.")
 	var comm_id: String = raw_contract.get("commodity_id", "")
 	assert_ne(comm_id, "", "commodity_id should not be empty.")
-	assert_true(comm_id in ["commodity_ore", "commodity_fuel"], "RAW category should map to commodity_ore or commodity_fuel.")
+	assert_true(comm_id in ["commodity_ore", "commodity_fuel", "commodity_scrap"], "RAW category should map to commodity_ore, commodity_fuel, or commodity_scrap.")
 
 	var mfg_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:MANUFACTURED", {})
 	var mfg_comm_id: String = mfg_contract.get("commodity_id", "")
@@ -675,4 +675,4 @@ func test_generated_occurrence_assigns_commodity_id() -> void:
 
 	var curr_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:CURRENCY", {})
 	var curr_comm_id: String = curr_contract.get("commodity_id", "")
-	assert_eq(curr_comm_id, "commodity_luxury", "CURRENCY category should map to commodity_luxury.")
+	assert_true(curr_comm_id in ["commodity_luxury", "commodity_specie"], "CURRENCY category should map to commodity_luxury or commodity_specie.")

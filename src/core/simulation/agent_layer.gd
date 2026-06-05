@@ -1352,6 +1352,26 @@ func _can_agent_trade_at_location(agent: Dictionary, location_id: String) -> boo
 	return can_use_lawful or can_use_black_market
 
 
+func _can_agent_trade_commodity(agent: Dictionary, commodity_id: String, location_id: String) -> bool:
+	var is_illegal: bool = commodity_id in Constants.ILLEGAL_COMMODITIES
+	var tags: Array = agent.get("sentiment_tags", [])
+	var legality: String = _agent_legality_tag(tags)
+	var is_pirate: bool = agent.get("agent_role") == "pirate" or "PIRATE" in tags
+	var has_illicit_cargo: bool = "ILLICIT_CARGO" in agent.get("agent_tags", []) or "ILLICIT_CARGO" in tags
+	var is_stance_illicit: bool = int(agent.get("legality_stance", 0)) < 0
+
+	var can_use_lawful = _location_offers_service(location_id, "trade")
+	var can_use_black_market = _location_offers_service(location_id, "black_market")
+
+	if is_illegal:
+		var agent_allows_black = (legality != "LEGAL_LAWFUL" or is_pirate or has_illicit_cargo or is_stance_illicit)
+		return can_use_black_market and agent_allows_black
+	else:
+		var ok_lawful = can_use_lawful and (legality != "LEGAL_ILLICIT" and not is_pirate and not is_stance_illicit)
+		var ok_black = can_use_black_market and (legality != "LEGAL_LAWFUL" or is_pirate or has_illicit_cargo or is_stance_illicit)
+		return ok_lawful or ok_black
+
+
 func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: String) -> bool:
 	var location_id := sector_id
 	if not GameState.locations.has(location_id) and GameState.locations.has("station_" + sector_id):
@@ -1383,14 +1403,14 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 	else:
 		var potential_commodities: Array = []
 		for key in Constants.COMMODITY_CLASSIFICATION:
-			if key != "commodity_default":
+			if key != "commodity_default" and _can_agent_trade_commodity(agent, key, location_id):
 				potential_commodities.append(key)
 		potential_commodities.sort()
 		if not potential_commodities.empty():
 			var idx: int = _rng.randi() % potential_commodities.size()
 			commodity_id = potential_commodities[idx]
 
-	if commodity_id == "":
+	if commodity_id == "" or not _can_agent_trade_commodity(agent, commodity_id, location_id):
 		return false
 
 	if not market_inventory.has(commodity_id):
@@ -1455,7 +1475,7 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 
 	var available_commodities: Array = []
 	for comm_id in market_inventory:
-		if int(market_inventory[comm_id].get("quantity", 0)) > 0:
+		if int(market_inventory[comm_id].get("quantity", 0)) > 0 and _can_agent_trade_commodity(agent, comm_id, location_id):
 			available_commodities.append(comm_id)
 	available_commodities.sort()
 
@@ -1473,7 +1493,7 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 		var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
 		buy_price = Constants.get_dynamic_price(base_buy_price, quantity, baseline)
 
-	if bought_commodity_id == "":
+	if bought_commodity_id == "" or not _can_agent_trade_commodity(agent, bought_commodity_id, location_id):
 		return false
 
 	# Mutate market quantity

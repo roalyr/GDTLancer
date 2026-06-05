@@ -96,7 +96,7 @@ For each revision entry, use the same fields:
 1. `Universe Doctrine Alignment Ledger` — create this ledger and wire it into the architect workflow. (Completed)
 2. `Faction And Interaction Doctrine Refactor` — define faction tags, lawful or unlawful interaction policy, cargo provenance, and non-lethal human conflict rules without rebuilding topology. (Completed)
 3. `Commodity Classification Registry & Tag-Governed Market Seeding` — build the classification registry and tag-governed procedural market seeding. (Completed)
-4. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them.
+4. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them. (Completed)
 5. `Hierarchical Universe Topology Program` — revisit star, planetary, and sub-planetary structure only after the doctrine and social-simulation seams are coherent.
 
 ## Usage Notes

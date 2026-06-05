@@ -1981,8 +1981,8 @@ func test_dynamic_pricing_scales_with_stock_levels() -> void:
 
 
 func test_commodity_classification_completeness() -> void:
-	var expected_keys = ["commodity_ore", "commodity_fuel", "commodity_food", "commodity_tech", "commodity_luxury"]
-	assert_eq(Constants.COMMODITY_CLASSIFICATION.keys().size(), expected_keys.size(), "Should have exactly 5 commodities registered.")
+	var expected_keys = ["commodity_ore", "commodity_fuel", "commodity_food", "commodity_tech", "commodity_luxury", "commodity_specie", "commodity_scrap", "commodity_contraband"]
+	assert_eq(Constants.COMMODITY_CLASSIFICATION.keys().size(), expected_keys.size(), "Should have exactly 8 commodities registered.")
 	for key in expected_keys:
 		assert_true(Constants.COMMODITY_CLASSIFICATION.has(key), "Registry should include " + key)
 	assert_false(Constants.COMMODITY_CLASSIFICATION.has("commodity_default"), "Registry should exclude commodity_default")
@@ -2090,4 +2090,70 @@ func test_npc_quantitative_cargo_memory_and_contract_cargo_resolution() -> void:
 	assert_true(completed, "Contract should complete successfully.")
 	assert_eq(agent.get("cargo_tag"), "EMPTY", "Agent cargo should be empty.")
 	assert_false(agent.has("cargo_commodity_id"), "cargo_commodity_id should be cleared.")
+
+
+func test_npc_contraband_trade_gating() -> void:
+	# Pre-seed locations
+	GameState.locations["station_lawful_only"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_contraband": {"buy_price": 200, "sell_price": 150, "quantity": 5},
+			"commodity_ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+	GameState.locations["station_black_only"] = {
+		"available_services": ["black_market"],
+		"market_inventory": {
+			"commodity_contraband": {"buy_price": 200, "sell_price": 150, "quantity": 5},
+			"commodity_ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
+		}
+	}
+
+	# Agent setups
+	var lawful_agent = {
+		"agent_role": "trader",
+		"current_sector_id": "lawful_only",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"]
+	}
+	var illicit_agent = {
+		"agent_role": "pirate",
+		"current_sector_id": "black_only",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["PIRATE", "LEGAL_ILLICIT"]
+	}
+
+	# 1. Lawful agent cannot buy contraband
+	# We force the available commodities list check inside _attempt_npc_market_buy
+	# If we attempt to buy at station_lawful_only, it should only buy commodity_ore and never commodity_contraband
+	# Let's verify by repeatedly buying or asserting that _can_agent_trade_commodity is false for contraband
+	assert_false(agent_layer._can_agent_trade_commodity(lawful_agent, "commodity_contraband", "station_lawful_only"))
+	assert_true(agent_layer._can_agent_trade_commodity(lawful_agent, "commodity_ore", "station_lawful_only"))
+
+	# 2. Illicit agent can buy contraband at black market
+	assert_true(agent_layer._can_agent_trade_commodity(illicit_agent, "commodity_contraband", "station_black_only"))
+	# Illicit agent can also buy ore (lawful commodity) at black market
+	assert_true(agent_layer._can_agent_trade_commodity(illicit_agent, "commodity_ore", "station_black_only"))
+
+	# 3. Illicit agent cannot buy contraband at a station with only trade (no black market)
+	assert_false(agent_layer._can_agent_trade_commodity(illicit_agent, "commodity_contraband", "station_lawful_only"))
+
+	# 4. Lawful agent cannot sell contraband
+	lawful_agent["cargo_tag"] = "LOADED"
+	lawful_agent["cargo_commodity_id"] = "commodity_contraband"
+	lawful_agent["current_sector_id"] = "lawful_only"
+	var sell_result = agent_layer._attempt_npc_market_sell("agent_lawful", lawful_agent, "lawful_only")
+	assert_false(sell_result, "Lawful agent should not be able to sell contraband.")
+	assert_eq(lawful_agent["cargo_tag"], "LOADED", "Cargo should remain loaded.")
+
+	# 5. Illicit agent can sell contraband at black market
+	illicit_agent["cargo_tag"] = "LOADED"
+	illicit_agent["cargo_commodity_id"] = "commodity_contraband"
+	illicit_agent["current_sector_id"] = "black_only"
+	var sell_result_illicit = agent_layer._attempt_npc_market_sell("agent_illicit", illicit_agent, "black_only")
+	assert_true(sell_result_illicit, "Illicit agent should successfully sell contraband at black market.")
+	assert_eq(illicit_agent["cargo_tag"], "EMPTY", "Cargo should be empty after selling.")
+
 

@@ -95,12 +95,17 @@ const MARKET_RESTOCK_MAX_QUANTITY: int = 50
 
 # --- Commodity Classification & Seeding ---
 const COMMODITY_CLASSIFICATION: Dictionary = {
-	"commodity_ore":    "RAW",
-	"commodity_fuel":   "RAW",
-	"commodity_food":   "MANUFACTURED",
-	"commodity_tech":   "MANUFACTURED",
-	"commodity_luxury": "CURRENCY",
+	"commodity_ore":        "RAW",
+	"commodity_fuel":       "RAW",
+	"commodity_scrap":      "RAW",
+	"commodity_food":       "MANUFACTURED",
+	"commodity_tech":       "MANUFACTURED",
+	"commodity_contraband": "MANUFACTURED",
+	"commodity_luxury":     "CURRENCY",
+	"commodity_specie":     "CURRENCY",
 }
+
+const ILLEGAL_COMMODITIES: Array = ["commodity_contraband"]
 
 const ECONOMY_LEVEL_PARAMS: Dictionary = {
 	"RICH": {
@@ -384,7 +389,7 @@ func get_economy_level_for_category(sector_tags: Array, category: String) -> Str
 func get_random_commodity_for_category(category: String, rng: RandomNumberGenerator) -> String:
 	var matching: Array = []
 	for commodity_id in COMMODITY_CLASSIFICATION:
-		if COMMODITY_CLASSIFICATION[commodity_id] == category:
+		if COMMODITY_CLASSIFICATION[commodity_id] == category and not (commodity_id in ILLEGAL_COMMODITIES):
 			matching.append(commodity_id)
 	if matching.size() == 0:
 		return ""

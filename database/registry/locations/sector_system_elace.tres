@@ -26,6 +26,11 @@ propellant_sources = 0.3
 station_power_output = 150.0
 stockpile_capacity = 1500
 market_inventory = {
+"commodity_contraband": {
+"buy_price": 80,
+"quantity": 15,
+"sell_price": 65
+},
 "commodity_food": {
 "buy_price": 30,
 "quantity": 40,
@@ -40,14 +45,9 @@ market_inventory = {
 "buy_price": 8,
 "quantity": 200,
 "sell_price": 6
-},
-"commodity_tech": {
-"buy_price": 80,
-"quantity": 15,
-"sell_price": 65
 }
 }
-available_services = [ "trade", "contracts", "repair" ]
+available_services = [ "trade", "contracts", "repair", "black_market" ]
 controlling_faction_id = "faction_miners"
 danger_level = 1
 initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )

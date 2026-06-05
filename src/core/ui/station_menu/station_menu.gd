@@ -319,6 +319,12 @@ func _update_market_ui() -> void:
 	commodity_ids.sort()
 
 	for comm_id in commodity_ids:
+		var is_illegal = comm_id in Constants.ILLEGAL_COMMODITIES
+		if is_illegal and not has_black:
+			continue
+		if not is_illegal and not has_lawful and not has_black:
+			continue
+
 		var data = market_inv[comm_id]
 		var base_buy = int(data.get("buy_price", 0))
 		var base_sell = int(data.get("sell_price", 0))
