@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_debug_map_panel.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §6.3, §7; TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, §6.4; TACTICAL_TODO.md TASK_4
-## LOG_REF: 2026-05-26 18:46:00
+## TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+## LOG_REF: 2026-06-07 16:45:00
 ##
 
 extends "res://addons/gut/test.gd"
@@ -453,7 +453,6 @@ func _seed_discovered_sector():
 	var discovered_template = LocationTemplateScript.new()
 	discovered_template.template_id = "discovered_1"
 	discovered_template.location_name = "Amber Gate"
-	discovered_template.location_type = "asteroid_field"
 	discovered_template.global_position = Vector3(48000, 4000, 0)
 	discovered_template.is_procedural = true
 	discovered_template.procedural_type = "asteroid_field"

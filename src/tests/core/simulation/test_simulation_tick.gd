@@ -304,8 +304,8 @@ func _clear_state() -> void:
 
 func _seed_contract_tick_state() -> void:
 	GameState.world_topology = {
-		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
-		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
+		"a": {"connections": ["b"], "development_level": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "development_level": "colony", "station_ids": ["b"]},
 	}
 	GameState.sector_names = {"a": "Alpha", "b": "Beta"}
 	GameState.sector_tags = {

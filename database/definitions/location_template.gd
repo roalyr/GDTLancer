@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: location_template.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TRUTH_CONTENT-CREATION-MANUAL.md §3.4, §3.5, §7
-# LOG_REF: 2026-05-23 23:21:08
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 16:45:00
 #
 
 extends Template
@@ -19,7 +19,6 @@ class_name LocationTemplate
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
-export var location_type: String = "station"  # system, outpost, station, debris_field, asteroid_field
 export var position_in_zone: Vector3 = Vector3.ZERO  # Optional in-scene dock anchor or interaction point.
 export var interaction_radius: float = 100.0  # Dock/interact radius when a scene-level anchor uses this resource directly.
 
@@ -42,8 +41,11 @@ export var sector_description: String = ""
 # --- World Layer: Topology (Section 2) ---
 ## IDs of connected sectors. These define the world-topology graph and jump routes.
 export var connections: PoolStringArray = PoolStringArray()
-## Classification: colony / outpost / frontier / deep_space / hazard_zone
-export var sector_type: String = "frontier"
+## Celestial geographic classification: star / planet / moon / deep_space / hazard_zone
+export var sector_type: String = "star"
+
+## Dockable infrastructure level: frontier / outpost / colony / hub
+export var development_level: String = "frontier"
 
 # --- World Layer: Hazards (Section 2) ---
 ## Environmental radiation (0.0 = safe, 1.0 = lethal). Increases entropy and wreck degradation.

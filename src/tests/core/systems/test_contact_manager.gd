@@ -18,12 +18,12 @@ func before_each():
 	GameState.world_topology["sector_system_elace"] = {
 		"connections": ["sector_system_cob"],
 		"station_ids": ["sector_system_elace"],
-		"sector_type": "colony",
+		"development_level": "colony",
 	}
 	GameState.world_topology["sector_system_cob"] = {
 		"connections": ["sector_system_elace"],
 		"station_ids": ["sector_system_cob"],
-		"sector_type": "outpost",
+		"development_level": "outpost",
 	}
 
 	# Seed player agent

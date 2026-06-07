@@ -37,12 +37,12 @@ func test_main_hud_rebuilds_route_overlay_when_sim_tick_adds_current_sector_disc
 		"sector_system_elace": {
 			"connections": ["sector_system_cob"],
 			"station_ids": ["sector_system_elace"],
-			"sector_type": "colony",
+			"development_level": "colony",
 		},
 		"sector_system_cob": {
 			"connections": ["sector_system_elace"],
 			"station_ids": ["sector_system_cob"],
-			"sector_type": "colony",
+			"development_level": "colony",
 		},
 	}
 	TemplateDatabase.locations["sector_system_elace"] = _make_location_template(

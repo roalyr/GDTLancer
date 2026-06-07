@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 16:45:00
 #
 
 extends Reference
@@ -57,7 +57,8 @@ func initialize_world(seed_string: String) -> void:
 		GameState.world_topology[location_id] = {
 			"connections": connections,
 			"station_ids": [location_id],
-			"sector_type": loc.get("sector_type") if loc.get("sector_type") else "frontier",
+			"sector_type": loc.get("sector_type") if loc.get("sector_type") else "star",
+			"development_level": loc.get("development_level") if loc.get("development_level") else "frontier",
 		}
 
 		# --- Initial sector tags ---

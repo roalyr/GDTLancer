@@ -196,7 +196,7 @@ func _seed_base_state() -> void:
 	GameState.world_topology = {
 		"sector_system_elace": {
 			"connections": [],
-			"sector_type": "colony",
+			"development_level": "colony",
 			"station_ids": [],
 		},
 	}

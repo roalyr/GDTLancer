@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-25 00:24:59
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 16:45:00
 #
 
 extends GutTest
@@ -105,20 +105,15 @@ func test_initial_sector_id_exists_in_topology():
 
 func test_live_registry_starts_without_seeded_colonies_or_hubs():
 	world_layer.initialize_world(TEST_SEED)
-	var frontier_count: int = 0
-	var outpost_count: int = 0
+	var star_count: int = 0
 	for sector_id in GameState.world_topology:
-		var sector_type: String = str(GameState.world_topology[sector_id].get("sector_type", "frontier"))
-		if sector_type == "frontier":
-			frontier_count += 1
-		elif sector_type == "outpost":
-			outpost_count += 1
-		assert_false(sector_type in ["colony", "hub"],
+		var sector_type: String = str(GameState.world_topology[sector_id].get("sector_type", "star"))
+		if sector_type == "star":
+			star_count += 1
+		assert_false(sector_type in ["colony", "hub", "frontier", "outpost"],
 			"Starter sector '%s' should no longer seed a mature colony/hub baseline." % sector_id)
-	assert_gt(frontier_count, 0,
-		"The live starter registry should include at least one frontier sector in the opening world state.")
-	assert_gt(outpost_count, 0,
-		"The live starter registry should include at least one outpost sector in the opening world state.")
+	assert_gt(star_count, 0,
+		"The live starter registry should include star sectors in the opening world state.")
 
 
 func test_live_registry_starts_with_modest_security_and_economy():

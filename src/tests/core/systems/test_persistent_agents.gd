@@ -105,11 +105,8 @@ func test_invalid_persistent_location_falls_back_to_initial_sector():
 
 func test_route_arrival_spawn_position_uses_configured_arrival_radius():
 	var spawn_position = _agent_system._get_route_arrival_spawn_position(Vector3(0, 0, -1))
-	assert_eq(
-		spawn_position,
-		Vector3(0, 0, -Constants.SECTOR_JUMP_ARRIVAL_RADIUS),
-		"Route-based sector arrival should use the configured shell radius."
-	)
+	var distance = spawn_position.length()
+	assert_true(distance >= 1400.0 and distance <= 2600.0, "Route-based sector arrival should use the configured random anchor offset.")
 
 func test_persistent_agent_state_persists_across_save_load():
 	# This basically tests GameState structure as that's what is saved

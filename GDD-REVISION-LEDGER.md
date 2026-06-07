@@ -69,15 +69,15 @@ For each revision entry, use the same fields:
 - Follow-on Owners: Current interaction milestone; future social and economic simulation milestone
 - Evidence: `src/core/simulation/agent_layer.gd::_bilateral_trade()`; `src/core/simulation/affinity_matrix.gd`; `TRUTH_SIMULATION-GRAPH.md §8.3`; `TRUTH_SIMULATION-GRAPH.md §8.4`; `TACTICAL_TODO.md` current goal `Faction And Interaction Doctrine Refactor`
 
-### REV_005: Deferred Hierarchical Universe Program
+### REV_005: Hierarchical Universe Topology Program
 
 - Domain: Large-scale universe structure
 - Live Reality: The world graph, route building, contract sourcing, sector loading, and docking assumptions all currently depend on a flat sector graph with sector-level templates.
-- Frozen / Legacy Tension: The desired future setting may move toward star sectors, planetary sectors, and sub-planetary sectors, which is a much larger architectural shift than the current live model.
-- Approved Direction: Defer any star, planetary, or sub-planetary hierarchy rebuild until after doctrine alignment and social-simulation direction are stable. Treat hierarchy as a later standalone architecture program, not as a local tweak or a prerequisite for the next milestone.
-- Status: Deferred program
-- Blocked By: Doctrine stabilization; future topology architecture planning
-- Follow-on Owners: Future hierarchy and topology program
+- Frozen / Legacy Tension: The desired future setting requires nesting star, planetary, and sub-planetary sectors, which is a much larger architectural shift than the current live model.
+- Approved Direction: Establish a nested 4-tier hierarchy (Stellar Systems -> Planets -> Moons -> Deep Space) where every sector represents exactly one dockable Point of Interest (POI). This hierarchy is entirely designer-authored as a flat graph, requiring no parent/child code schema pointers. To maximize simplicity, `location_type` and `sector_type` will consolidate into a single unified `sector_type` field containing celestial roles (`star`, `planet`, `moon`, `field`, `deep_space`), which implicitly represent development and security tiers. Transit jump cutscenes and Star-level catastrophe lockdowns resolve statically using these consolidated parameters.
+- Status: Concept approved
+- Blocked By: None
+- Follow-on Owners: [universe_topology_architecture.md](file:///home/roalyr/.gemini/antigravity-cli/brain/b3b33c7e-f5e7-4ebf-a81f-e26ef59e0acd/universe_topology_architecture.md)
 - Evidence: `database/definitions/location_template.gd`; `src/core/simulation/world_layer.gd`; `src/core/systems/sector_loader.gd`; `src/core/simulation/agent_layer.gd`
 
 ### REV_006: Commodity Classification Registry and Tag-Governed Seeding

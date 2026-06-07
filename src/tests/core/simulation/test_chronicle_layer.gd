@@ -46,11 +46,11 @@ func test_process_tick_generates_rumors():
 	# Setup: need topology for distribution
 	GameState.world_topology["sector_system_elace"] = {
 		"connections": ["station_beta"],
-		"sector_type": "colony",
+		"development_level": "colony",
 	}
 	GameState.world_topology["station_beta"] = {
 		"connections": ["sector_system_elace"],
-		"sector_type": "colony",
+		"development_level": "colony",
 	}
 	GameState.agents["agent_vera"] = {
 		"current_sector_id": "sector_system_elace",

@@ -18,7 +18,7 @@ extends Node
 # =========================================================================
 
 ## Sector connectivity graph. Key: sector_id (String).
-## Value: {connections: Array, station_ids: Array, sector_type: String}
+## Value: {connections: Array, station_ids: Array, sector_type: String, development_level: String}
 var world_topology: Dictionary = {}
 
 ## Environmental hazards per sector. Key: sector_id (String).

@@ -71,7 +71,7 @@ func test_player_has_qualitative_tags():
 func test_initialize_agent_with_missing_home_location_falls_back_to_initial_sector():
 	GameState.world_topology[Constants.INITIAL_SECTOR_ID] = {
 		"connections": ["s1"],
-		"sector_type": "colony",
+		"development_level": "colony",
 		"station_ids": [Constants.INITIAL_SECTOR_ID],
 	}
 	var template: Resource = load("res://database/registry/agents/persistent_kai.tres")
@@ -149,7 +149,7 @@ func test_late_prosperity_increases_mortal_spawn_multiplier():
 
 
 func test_pick_mortal_spawn_role_filters_explorer_when_frontier_pressure_is_full():
-	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = [
 		"FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents = {
@@ -223,7 +223,7 @@ func test_mortal_survivor_starts_broke():
 func test_mortal_survivor_missing_home_location_falls_back_to_initial_sector():
 	GameState.world_topology[Constants.INITIAL_SECTOR_ID] = {
 		"connections": ["s1"],
-		"sector_type": "colony",
+		"development_level": "colony",
 		"station_ids": [Constants.INITIAL_SECTOR_ID],
 	}
 	GameState.agents = {
@@ -1054,7 +1054,7 @@ func test_try_exploration_registers_runtime_location_template():
 		"wealth_tag": "COMFORTABLE",
 		"last_discovery_tick": -999,
 	}
-	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	agent_layer._rng.seed = 13
 	agent_layer._try_exploration("explorer", explorer, "s1")
@@ -1253,7 +1253,7 @@ func test_filter_spatially_plausible_connections_drops_far_links():
 
 func test_resolve_sector_interaction_holds_cooling_explorer_on_viable_frontier_anchor():
 	GameState.sim_tick_count = 5
-	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
 		"agent_role": "explorer",
@@ -1278,7 +1278,7 @@ func test_resolve_sector_interaction_holds_cooling_explorer_on_viable_frontier_a
 
 func test_resolve_sector_interaction_repositions_cooling_explorer_toward_frontier_anchor():
 	GameState.sim_tick_count = 5
-	GameState.world_topology["s2"]["sector_type"] = "frontier"
+	GameState.world_topology["s2"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.sector_tags["s2"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
@@ -1300,7 +1300,7 @@ func test_resolve_sector_interaction_repositions_cooling_explorer_toward_frontie
 
 func test_resolve_sector_interaction_holds_broke_explorer_on_frontier_anchor():
 	GameState.sim_tick_count = 20
-	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.agents["explorer"] = {
 		"agent_role": "explorer",
@@ -1322,24 +1322,26 @@ func test_resolve_sector_interaction_holds_broke_explorer_on_frontier_anchor():
 func test_get_exploration_success_modifier_keeps_hub_surveys_diminished():
 	GameState.world_topology["hub_sector"] = {
 		"connections": ["s1"],
-		"sector_type": "hub",
+		"development_level": "hub",
 		"station_ids": ["hub_sector"],
 	}
+	GameState.colony_levels["hub_sector"] = "hub"
 	GameState.world_topology["frontier_sector"] = {
 		"connections": ["s1"],
-		"sector_type": "frontier",
+		"development_level": "frontier",
 		"station_ids": ["frontier_sector"],
 	}
+	GameState.colony_levels["frontier_sector"] = "frontier"
 	TemplateDatabase.locations["hub_sector"] = {
 		"global_position": Vector3(220000, 0, 0),
 		"location_name": "Core Hub",
-		"sector_type": "hub",
+		"development_level": "hub",
 		"procedural_hints": {},
 	}
 	TemplateDatabase.locations["frontier_sector"] = {
 		"global_position": Vector3(-220000, 0, 0),
 		"location_name": "Outer Rim",
-		"sector_type": "frontier",
+		"development_level": "frontier",
 		"procedural_hints": {},
 	}
 
@@ -1364,7 +1366,7 @@ func test_build_discovered_sector_placement_separates_from_existing_discovery_br
 	}
 	GameState.world_topology["parent"] = {
 		"connections": ["source"],
-		"sector_type": "colony",
+		"development_level": "colony",
 		"station_ids": ["parent"],
 	}
 	GameState.world_topology["discovered_existing"] = {
@@ -1403,7 +1405,7 @@ func test_build_discovered_sector_placement_separates_from_existing_discovery_br
 
 
 func test_get_discovery_connection_chances_bias_frontier_anchors():
-	GameState.world_topology["s1"]["sector_type"] = "frontier"
+	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 
 	var connection_chances: Dictionary = agent_layer._get_discovery_connection_chances(
@@ -1426,8 +1428,8 @@ func _seed_minimal_state() -> void:
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
-		"s1": {"connections": ["s2"], "sector_type": "colony", "station_ids": ["s1"]},
-		"s2": {"connections": ["s1"], "sector_type": "colony", "station_ids": ["s2"]},
+		"s1": {"connections": ["s2"], "development_level": "colony", "station_ids": ["s1"]},
+		"s2": {"connections": ["s1"], "development_level": "colony", "station_ids": ["s2"]},
 	}
 	GameState.sector_tags = {
 		"s1": ["STATION", "SECURE", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
@@ -1757,7 +1759,7 @@ func test_discovered_station_has_seeded_market_inventory() -> void:
 	GameState.sector_names["s1"] = "Source Sector"
 	GameState.world_topology["s1"] = {
 		"connections": ["s2"],
-		"sector_type": "colony",
+		"development_level": "colony",
 		"station_ids": ["s1"]
 	}
 	TemplateDatabase.locations["s1"] = {
@@ -1793,7 +1795,7 @@ func test_npc_dock_trade_at_discovered_station_sell() -> void:
 	GameState.sector_names["discovered_test_sector"] = "Source Sector"
 	GameState.world_topology["discovered_test_sector"] = {
 		"connections": ["s2"],
-		"sector_type": "colony",
+		"development_level": "colony",
 		"station_ids": ["discovered_test_sector"]
 	}
 	TemplateDatabase.locations["discovered_test_sector"] = {
@@ -1831,7 +1833,7 @@ func test_npc_dock_trade_at_discovered_station_buy() -> void:
 	GameState.sector_names["discovered_test_sector"] = "Source Sector"
 	GameState.world_topology["discovered_test_sector"] = {
 		"connections": ["s2"],
-		"sector_type": "colony",
+		"development_level": "colony",
 		"station_ids": ["discovered_test_sector"]
 	}
 	TemplateDatabase.locations["discovered_test_sector"] = {

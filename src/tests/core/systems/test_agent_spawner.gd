@@ -129,8 +129,8 @@ func test_spawn_player_on_route_arrival_preserves_saved_rotation():
 		Vector3(15, 120, -5),
 		"Route-arrival spawns should preserve the player's saved global orientation."
 	)
-	assert_eq(
-		spawned_body.global_transform.origin,
-		Vector3(0, 0, -Constants.SECTOR_JUMP_ARRIVAL_RADIUS),
-		"Route-arrival spawns should still use the configured arrival shell position."
+	var distance_from_origin = spawned_body.global_transform.origin.length()
+	assert_true(
+		distance_from_origin >= 1400.0 and distance_from_origin <= 2600.0,
+		"Route-arrival spawns should apply a varied offset near the anchor position."
 	)

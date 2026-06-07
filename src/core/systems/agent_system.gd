@@ -89,30 +89,28 @@ func spawn_player():
 		var dock_pos = _get_dock_position_in_zone(GameState.player_docked_at)
 		if dock_pos != null:
 			player_spawn_pos = dock_pos + Vector3(0, 5, 15)
-	# Priority 3: If arrived via logical route, spawn on the configured arrival shell.
-	elif GameState.player_arrival_direction != Vector3.ZERO:
-		player_spawn_pos = _get_route_arrival_spawn_position(GameState.player_arrival_direction)
-		player_spawn_rot = GameState.player_rotation
-		should_apply_spawn_rotation = true
-		GameState.player_arrival_direction = Vector3.ZERO
-		GameState.player_arrived_from_sector = ""
-	# Priority 3: If arrived via jump, spawn at the return jump point
-	elif GameState.player_arrived_from_sector != "":
-		var jp = _find_jump_point_targeting(GameState.player_arrived_from_sector)
-		if jp != null:
-			player_spawn_pos = jp.transform.origin + Vector3(0, 5, 15)
-		player_spawn_rot = GameState.player_rotation
-		should_apply_spawn_rotation = true
-		GameState.player_arrived_from_sector = ""
-	# Priority 4: Use zone entry point (new game)
-	elif is_instance_valid(GlobalRefs.current_zone):
-		var entry_node = null
-		if Constants.ENTRY_POINT_NAMES.size() > 0:
-			entry_node = GlobalRefs.current_zone.find_node(
-				Constants.ENTRY_POINT_NAMES[0], true, false
-			)
-		if entry_node is Spatial:
-			player_spawn_pos = entry_node.global_transform.origin + Vector3(0, 5, 15)
+	# Priority 3: Use zone entry point (new game or jump arrival)
+	else:
+		var anchor_pos = Vector3.ZERO
+		if is_instance_valid(GlobalRefs.current_zone):
+			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
+			if entry_node and entry_node is Spatial:
+				anchor_pos = entry_node.global_transform.origin
+		
+		# Generate a random offset around the anchor (approx 2000 units)
+		var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+		var random_dist = rand_range(1500, 2500)
+		player_spawn_pos = anchor_pos + (random_dir * random_dist)
+		
+		if GameState.player_arrival_direction != Vector3.ZERO:
+			player_spawn_rot = GameState.player_rotation
+			should_apply_spawn_rotation = true
+			GameState.player_arrival_direction = Vector3.ZERO
+			GameState.player_arrived_from_sector = ""
+		elif GameState.player_arrived_from_sector != "":
+			player_spawn_rot = GameState.player_rotation
+			should_apply_spawn_rotation = true
+			GameState.player_arrived_from_sector = ""
 
 	# Get the player character UID from GameState
 	var player_char_uid = GameState.player_character_uid
@@ -179,10 +177,15 @@ func _find_jump_point_targeting(sector_id: String) -> Spatial:
 
 
 func _get_route_arrival_spawn_position(arrival_direction: Vector3) -> Vector3:
-	var normalized_direction: Vector3 = arrival_direction.normalized()
-	if normalized_direction == Vector3.ZERO:
-		return Vector3.ZERO
-	return normalized_direction * Constants.SECTOR_JUMP_ARRIVAL_RADIUS
+	var anchor_pos = Vector3.ZERO
+	if is_instance_valid(GlobalRefs.current_zone):
+		var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
+		if entry_node and entry_node is Spatial:
+			anchor_pos = entry_node.global_transform.origin
+	
+	var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+	var random_dist = rand_range(1500, 2500)
+	return anchor_pos + (random_dir * random_dist)
 
 
 # Spawns an NPC agent linked to a specific character.

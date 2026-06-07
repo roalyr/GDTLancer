@@ -1,0 +1,58 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_system_cob"
+location_name = "Cob System"
+position_in_zone = Vector3( 0, 0, 0 )
+interaction_radius = 0.0
+sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_system_cob.tscn"
+global_position = Vector3( -480000, -7300, 235000 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_system_elace", "sector_system_ebreeta" )
+sector_type = "star"
+radiation_level = 0.01
+thermal_background_k = 310.0
+gravity_well_penalty = 1.0
+mineral_density = 0.3
+propellant_sources = 0.8
+station_power_output = 120.0
+stockpile_capacity = 1200
+market_inventory = {
+"commodity_food": {
+"buy_price": 22,
+"quantity": 80,
+"sell_price": 18
+},
+"commodity_fuel": {
+"buy_price": 30,
+"quantity": 60,
+"sell_price": 25
+},
+"commodity_luxury": {
+"buy_price": 90,
+"quantity": 20,
+"sell_price": 75
+},
+"commodity_ore": {
+"buy_price": 15,
+"quantity": 30,
+"sell_price": 12
+},
+"commodity_tech": {
+"buy_price": 70,
+"quantity": 50,
+"sell_price": 55
+}
+}
+available_services = [ "trade", "contracts" ]
+controlling_faction_id = "faction_traders"
+danger_level = 2
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [ "delivery_03", "delivery_04" ]

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_2; TACTICAL_TODO.md TASK_3; commodity_classification_architecture.md §6
-# LOG_REF: 2026-06-06 00:55:00
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 16:45:00
 #
 
 extends Reference
@@ -34,32 +34,27 @@ var _CONTRACT_CATEGORIES: Array = ["RAW", "MANUFACTURED", "CURRENCY"]
 var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
 	{
 		"procedural_type": "asteroid_field",
-		"location_type": "asteroid_field",
-		"sector_type": "deep_space",
+		"sector_type": "star",
 		"description": "A sparse asteroid field with faint returns and narrow survey lanes.",
 	},
 	{
 		"procedural_type": "comet_shoal",
-		"location_type": "debris_field",
-		"sector_type": "deep_space",
+		"sector_type": "star",
 		"description": "A loose comet shoal whose volatile traces only surface under deliberate scans.",
 	},
 	{
 		"procedural_type": "rogue_planet",
-		"location_type": "debris_field",
-		"sector_type": "deep_space",
+		"sector_type": "star",
 		"description": "A cold rogue planet drifting in deep dark with almost no ambient signature.",
 	},
 	{
 		"procedural_type": "dark_nebula",
-		"location_type": "debris_field",
-		"sector_type": "hazard_zone",
+		"sector_type": "star",
 		"description": "A dark nebula pocket that hides weak contacts behind dense interference.",
 	},
 	{
 		"procedural_type": "remnant_field",
-		"location_type": "debris_field",
-		"sector_type": "deep_space",
+		"sector_type": "star",
 		"description": "A dim remnant field of cold wreckage and ancient stellar ash.",
 	},
 ]
@@ -437,7 +432,7 @@ func _resolve_sector_interaction(agent_id: String, score: float, sector_tags: Ar
 	var agent: Dictionary = GameState.agents.get(agent_id, {})
 	var sector_id: String = agent.get("current_sector_id", "")
 	var explorer_waiting: bool = false
-	var at_station: bool = "STATION" in sector_tags or "FRONTIER" in sector_tags
+	var at_station: bool = true
 
 	# Explorers prioritise exploration
 	if agent.get("agent_role") == "explorer":
@@ -490,9 +485,10 @@ func _get_sector_type(sector_id: String) -> String:
 
 
 func _get_exploration_success_modifier(sector_id: String, sector_tags: Array) -> float:
+	var dev_level: String = GameState.colony_levels.get(sector_id, "frontier")
 	var sector_type: String = _get_sector_type(sector_id)
 	var modifier: float = 0.75
-	match sector_type:
+	match dev_level:
 		"hub":
 			modifier = 0.4
 		"colony":
@@ -501,13 +497,18 @@ func _get_exploration_success_modifier(sector_id: String, sector_tags: Array) ->
 			modifier = 0.82
 		"frontier":
 			modifier = 1.0
-		"deep_space", "hazard_zone":
-			modifier = 0.9
-		_:
-			modifier = 0.75
+	if sector_type in ["deep_space", "hazard_zone"]:
+		modifier *= 0.9
+	elif sector_type == "star":
+		modifier *= 1.2
+	elif sector_type == "planet":
+		modifier *= 1.0
+	elif sector_type == "moon":
+		modifier *= 0.8
 
 	if _has_frontier_pressure(sector_tags):
 		modifier = min(1.0, modifier + 0.15)
+		
 	return modifier
 
 
@@ -1158,7 +1159,7 @@ func _refresh_contract_demand_tags_for_sector(sector_id: String) -> void:
 		return
 
 	var tags: Array = Array(GameState.sector_tags.get(sector_id, []))
-	var serviceable: bool = "STATION" in tags or "FRONTIER" in tags
+	var serviceable: bool = true
 	var sector_disabled: bool = _sector_recently_disabled(sector_id)
 	var sector_pressure: Dictionary = GameState.contract_generation_pressure.get(sector_id, {})
 	var sector_thresholds: Dictionary = GameState.contract_generation_threshold.get(sector_id, {})
@@ -1233,8 +1234,6 @@ func _is_contract_service_sector_available(sector_id: String) -> bool:
 	if sector_id == "":
 		return false
 	var sector_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
-	if not ("STATION" in sector_tags or "FRONTIER" in sector_tags):
-		return false
 	if "DISABLED" in sector_tags:
 		return false
 	return not _sector_recently_disabled(sector_id)
@@ -1245,9 +1244,6 @@ func _is_contract_service_sector_available(sector_id: String) -> bool:
 # =============================================================================
 
 func _try_dock(agent_id: String, agent: Dictionary, sector_id: String) -> void:
-	var s_tags: Array = GameState.sector_tags.get(sector_id, [])
-	if not ("STATION" in s_tags or "FRONTIER" in s_tags):
-		return
 
 	var sold_cargo: bool = false
 	if agent.get("cargo_tag") == "LOADED":
@@ -1295,7 +1291,7 @@ func _try_load_cargo(agent_id: String, agent: Dictionary, sector_id: String) -> 
 	var role: String = agent.get("agent_role", "idle")
 
 	# Attempt quantitative market buy if at station/frontier with market service
-	if ("STATION" in sector_tags or "FRONTIER" in sector_tags) and role in ["trader", "hauler", "prospector"]:
+	if role in ["trader", "hauler", "prospector"]:
 		if _attempt_npc_market_buy(agent_id, agent, sector_id):
 			return true
 
@@ -1304,7 +1300,7 @@ func _try_load_cargo(agent_id: String, agent: Dictionary, sector_id: String) -> 
 	if role in ["hauler", "prospector"]:
 		can_load = "RAW_RICH" in sector_tags or "MANUFACTURED_RICH" in sector_tags
 	elif role == "trader":
-		can_load = ("STATION" in sector_tags or "FRONTIER" in sector_tags) and agent.get("wealth_tag") != "BROKE"
+		can_load = agent.get("wealth_tag") != "BROKE"
 	elif role == "pirate":
 		can_load = "HAS_SALVAGE" in sector_tags
 
@@ -1573,9 +1569,9 @@ func _action_move_toward_exploration_target(agent_id: String, agent: Dictionary)
 		if degree <= 2:
 			score += 0.75
 
-		if agent.get("wealth_tag") == "BROKE" and ("STATION" in n_tags or "FRONTIER" in n_tags):
+		if agent.get("wealth_tag") == "BROKE":
 			score += 2.5
-		if agent.get("condition_tag") == "DAMAGED" and ("STATION" in n_tags or "FRONTIER" in n_tags):
+		if agent.get("condition_tag") == "DAMAGED":
 			score += 1.0
 
 		score -= float(_active_agent_count_in_sector(neighbor_key)) * 0.25
@@ -1768,7 +1764,7 @@ func _try_exploration(agent_id: String, agent: Dictionary, sector_id: String) ->
 			connections.append(loop_candidate)
 
 	var profile: Dictionary = _select_discovered_sector_profile(new_id)
-	var placement: Dictionary = _build_discovered_sector_placement(new_id, source_id)
+	var placement: Dictionary = _build_discovered_sector_placement(new_id, source_id, profile)
 	if not bool(placement.get("is_valid", true)):
 		_last_exploration_outcome = "spatially_blocked"
 		_log_event(agent_id, "expedition_failed", sector_id, {"reason": "spatially_blocked"})
@@ -1973,12 +1969,37 @@ func _select_discovered_sector_profile(new_id: String) -> Dictionary:
 	return _LOW_VISIBILITY_DISCOVERY_PROFILES[profile_rng.randi() % _LOW_VISIBILITY_DISCOVERY_PROFILES.size()].duplicate(true)
 
 
-func _build_discovered_sector_placement(new_id: String, source_id: String) -> Dictionary:
+func _build_discovered_sector_placement(new_id: String, source_id: String, profile: Dictionary) -> Dictionary:
 	var placement_rng: RandomNumberGenerator = _make_discovery_rng("placement", new_id)
 	var source_position: Vector3 = _get_sector_global_position(source_id)
 	var branch_mode: String = "vertical" if _should_use_vertical_discovery_branch(source_id, placement_rng) else "planar"
 	var preferred_direction: Vector3 = _get_discovery_base_direction(source_id, placement_rng)
-	var best_candidate: Vector3 = source_position + (preferred_direction * Constants.DISCOVERY_BRANCH_DISTANCE_BASE)
+	
+	var source_type: String = _get_sector_type(source_id)
+	var target_type: String = str(profile.get("sector_type", "deep_space"))
+	
+	var base_dist: float = Constants.DISCOVERY_BRANCH_DISTANCE_BASE
+	var jitter_dist: float = Constants.DISCOVERY_BRANCH_DISTANCE_JITTER
+	
+	# Adjust distances according to sector type pairs
+	if source_type == "star" and target_type == "star":
+		base_dist = 300000.0
+		jitter_dist = 200000.0
+	elif source_type == "star" and target_type == "planet":
+		base_dist = 75000.0
+		jitter_dist = 25000.0
+	elif source_type == "planet" and target_type == "moon":
+		base_dist = 7500.0
+		jitter_dist = 2500.0
+	elif target_type == "deep_space" or target_type == "hazard_zone":
+		if source_type == "star":
+			base_dist = 150000.0
+			jitter_dist = 50000.0
+		else:
+			base_dist = 50000.0
+			jitter_dist = 25000.0
+
+	var best_candidate: Vector3 = source_position + (preferred_direction * base_dist)
 	var best_axis: Vector3 = preferred_direction
 	var best_clearance: float = -1.0
 	var best_branch_separation: float = 180.0
@@ -1986,10 +2007,7 @@ func _build_discovered_sector_placement(new_id: String, source_id: String) -> Di
 	var required_branch_separation: float = _get_required_discovery_branch_angle(source_id)
 
 	for _attempt in range(Constants.DISCOVERY_BRANCH_POSITION_ATTEMPTS):
-		var distance: float = Constants.DISCOVERY_BRANCH_DISTANCE_BASE + placement_rng.randf_range(
-			-Constants.DISCOVERY_BRANCH_DISTANCE_JITTER,
-			Constants.DISCOVERY_BRANCH_DISTANCE_JITTER
-		)
+		var distance: float = base_dist + placement_rng.randf_range(-jitter_dist, jitter_dist)
 		var branch_axis: Vector3 = _build_discovery_branch_axis(source_id, preferred_direction, branch_mode, placement_rng)
 		var candidate: Vector3 = source_position + (branch_axis * distance)
 		candidate.y += placement_rng.randf_range(
@@ -2181,7 +2199,6 @@ func _register_discovered_sector_template(
 	var template = LocationTemplateScript.new()
 	template.template_id = new_id
 	template.location_name = new_name
-	template.location_type = str(profile.get("location_type", "debris_field"))
 	template.sector_scene_path = ""
 	template.global_position = global_position
 	template.is_procedural = true
@@ -2905,10 +2922,9 @@ func _apply_upkeep() -> void:
 		if agent.get("wealth_tag") == "WEALTHY" and _rng.randf() < Constants.WEALTHY_DRAIN_CHANCE:
 			agent["wealth_tag"] = "COMFORTABLE"
 
-		# Subsistence recovery: broke agents at station can slowly recover
+		# Subsistence recovery: broke agents can slowly recover
 		if agent.get("wealth_tag") == "BROKE":
-			var s_tags: Array = GameState.sector_tags.get(agent.get("current_sector_id", ""), [])
-			if "STATION" in s_tags or "FRONTIER" in s_tags:
+			if true:
 				var recovery_chance: float = Constants.BROKE_RECOVERY_CHANCE
 				if str(agent.get("agent_role", "")) == "explorer":
 					recovery_chance = min(1.0, recovery_chance + Constants.EXPLORER_BROKE_RECOVERY_CHANCE_BONUS)

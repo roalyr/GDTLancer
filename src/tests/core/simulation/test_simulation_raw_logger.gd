@@ -117,7 +117,7 @@ func _seed_state() -> void:
 	GameState.player_position = Vector3(1, 2, 3)
 	GameState.current_zone_instance = zone_node
 	GameState.world_topology = {
-		"sector_system_elace": {"connections": ["sector_system_cob"], "station_ids": ["sector_system_elace"], "sector_type": "colony"},
+		"sector_system_elace": {"connections": ["sector_system_cob"], "station_ids": ["sector_system_elace"], "development_level": "colony"},
 	}
 	GameState.locations = {
 		"debug_location": Resource.new(),

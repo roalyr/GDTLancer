@@ -68,7 +68,7 @@ func test_process_tick_requires_nearby_qualifying_sources() -> void:
 	GameState.sector_tags["b"] = ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
 	GameState.sector_tags["c"] = ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_RICH", "CURRENCY_RICH"]
 	GameState.world_topology["b"]["connections"].append("e")
-	GameState.world_topology["e"] = {"connections": ["b"], "sector_type": "colony", "station_ids": ["e"]}
+	GameState.world_topology["e"] = {"connections": ["b"], "development_level": "colony", "station_ids": ["e"]}
 	GameState.sector_tags["e"] = ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_POOR"]
 	GameState.contract_cargo_supply["e"] = {"RAW": 1, "MANUFACTURED": 0, "CURRENCY": 0}
 	GameState.contract_cargo_reserved["e"] = {"RAW": 0, "MANUFACTURED": 0, "CURRENCY": 0}
@@ -616,9 +616,9 @@ func _seed_runtime_contract_state() -> void:
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 5
 	GameState.world_topology = {
-		"a": {"connections": ["b", "c"], "sector_type": "colony", "station_ids": ["a"]},
-		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
-		"c": {"connections": ["a"], "sector_type": "colony", "station_ids": ["c"]},
+		"a": {"connections": ["b", "c"], "development_level": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "development_level": "colony", "station_ids": ["b"]},
+		"c": {"connections": ["a"], "development_level": "colony", "station_ids": ["c"]},
 	}
 	GameState.sector_names = {"a": "Alpha", "b": "Beta", "c": "Gamma", "e": "Epsilon"}
 	GameState.sector_tags = {

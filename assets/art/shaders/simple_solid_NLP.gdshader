@@ -4,35 +4,9 @@ shader_type spatial;
 render_mode 
     blend_mix, 
     cull_back, 
-    depth_draw_opaque,
-    specular_disabled, 
-    ambient_light_disabled; 
+    depth_draw_opaque; 
 
 uniform vec4 paint_color : hint_color = vec4(1.0);
-
-// The color of the object when LIT (e.g., Warm Cream)
-uniform vec4 light_tint : hint_color = vec4(1.0, 0.95, 0.9, 1.0); 
-// The color of the object in SHADOW (e.g., Cold Purple/Teal)
-uniform vec4 shadow_tint : hint_color = vec4(0.15, 0.15, 0.25, 1.0); 
-
-// Moves the shadow line. < 0.0 = More Light, > 0.0 = More Shadow
-uniform float shadow_bias : hint_range(-1.0, 1.0) = 0.0; 
-// 0.01 = Hard Anime Line, 1.0 = Soft Painterly Gradient
-uniform float shadow_softness : hint_range(0.01, 1.0) = 0.1; 
-// 1.0 = Flat Lit Area (Anime), 0.0 = Detailed 3D Lit Area
-uniform float shadow_normal_blend : hint_range(0.0, 1.0) = 0.5;
-
-uniform vec4 spec_tint : hint_color = vec4(1.0, 1.0, 1.0, 0.5);
-uniform float spec_intensity : hint_range(0.0, 5.0) = 0.0;
-// Higher = Smaller, tighter highlight
-uniform float spec_glossiness : hint_range(1.0, 100.0) = 10.0; 
-// 0.0 = Hard Edge Dot, 1.0 = Soft Bloom
-uniform float spec_softness : hint_range(0.0, 1.0) = 0.1; 
-
-uniform vec4 rim_color : hint_color = vec4(0.5, 0.7, 1.0, 1.0);
-uniform float rim_width : hint_range(0.0, 10.0) = 3.0;
-uniform float rim_power : hint_range(0.0, 10.0) = 2.0;
-uniform bool rim_mask_on_shadow = true; 
 
 uniform sampler2D detail_texture : hint_albedo; // Green channel used for scratches/dirt
 uniform sampler2D normal_texture : hint_normal;
@@ -106,54 +80,4 @@ void fragment() {
     // 3. Apply Paint
     // Base Color + (Detail * Strength). Clamped to avoid negative colors.
     ALBEDO = max(paint_color.rgb + (vec3(detail_val) * detail_paint_strength), vec3(0.0));
-}
-
-void light() {
-    // --- 1. SHADOW / LIT CALCULATIONS ---
-    float NdotL = dot(NORMAL, LIGHT);
-    
-    // A. The Terminator (Shadow Mask)
-    // Calculates where the hard line is drawn
-    float transition_start = shadow_bias - shadow_softness;
-    float transition_end = shadow_bias + shadow_softness;
-    float shadow_mask = smoothstep(transition_start, transition_end, NdotL);
-    
-    // B. The Surface Shading (Normal Map Detail)
-    // Calculates the soft 3D shading
-    float surface_shading = clamp(NdotL, 0.0, 1.0);
-    
-    // C. The Lit Color Mix
-    // Blends betwen Flat Anime Color (light_tint) and Detailed 3D Color (light_tint * shading)
-    vec3 lit_layer_flat = light_tint.rgb;
-    vec3 lit_layer_detailed = lit_layer_flat * surface_shading;
-    vec3 final_lit_layer = mix(lit_layer_detailed, lit_layer_flat, shadow_normal_blend);
-
-    // D. Final Base Lighting
-    vec3 base_lighting = mix(shadow_tint.rgb, final_lit_layer, shadow_mask);
-    
-    // --- 2. RIM EFFECT ---
-    float NdotV = dot(NORMAL, VIEW);
-    float fresnel = pow(1.0 - clamp(NdotV, 0.0, 1.0), rim_width);
-    
-    // Masking rim if requested
-    float rim_mask = rim_mask_on_shadow ? (1.0 - shadow_mask) : 1.0;
-    vec3 rim_final = rim_color.rgb * fresnel * rim_power * rim_mask;
-    
-    // --- 3. SPECULAR IMITATION ---
-    // Blinn-Phong half-vector
-    vec3 H = normalize(VIEW + LIGHT);
-    float NdotH = max(0.0, dot(NORMAL, H));
-    
-    // Glossiness (Size of spot)
-    float spec_raw = pow(NdotH, spec_glossiness);
-    
-    // Softness (Edge of spot)
-    float spec_blob = smoothstep(0.5 - spec_softness * 0.5, 0.5 + spec_softness * 0.5, spec_raw);
-    
-    vec3 spec_final = spec_blob * spec_tint.rgb * spec_intensity;
-
-    // --- 4. OUTPUT ---
-    // Paint * (Lighting + Rim) + Specular
-    vec3 final_color = (base_lighting + rim_final) * ATTENUATION;
-    DIFFUSE_LIGHT += (ALBEDO * final_color) + (spec_final * ATTENUATION);
 }

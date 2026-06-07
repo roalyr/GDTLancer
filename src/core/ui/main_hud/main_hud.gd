@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_CONTENT-CREATION-MANUAL.md §5.4, §6, §7; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-23 15:24:18
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 17:05:00
 #
 
 extends Control

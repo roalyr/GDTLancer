@@ -3,7 +3,7 @@ PROJECT: GDTLancer
 MODULE: TRUTH_CONTENT-CREATION-MANUAL.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TACTICAL_TODO.md TASK_1; commodity_classification_architecture.md
-LOG_REF: 2026-06-06 01:10:00
+LOG_REF: 2026-06-07 16:30:00
 -->
 
 # Content Creation Manual
@@ -290,13 +290,12 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 [Resource - LocationTemplate]
 ├── template_id: "sector_system_nexus"
 ├── location_name: "Nexus System"
-├── location_type: "system"
 ├── position_in_zone: Vector3(0, 0, 0)
 ├── interaction_radius: 0.0
 ├── sector_scene_path: "res://scenes/levels/sectors/sector_system_nexus/sector_system_nexus.tscn"
 ├── global_position: Vector3(120000, 15000, -240000)
 ├── connections: PoolStringArray("sector_system_elace", "sector_system_cob")
-├── sector_type: "colony"
+├── sector_type: "planet"  # Consolidated topology category: star, planet, moon, field, deep_space
 ├── market_inventory:
 │   ├── commodity_food: {buy_price: 24, sell_price: 19, quantity: 80}
 │   └── commodity_tech: {buy_price: 72, sell_price: 58, quantity: 30}
@@ -316,6 +315,7 @@ Keep the other world-layer fields aligned with your chosen source template or tu
 - `market_inventory`, not `trade_goods`
 - `available_services`, not `services`
 - `global_position`, not `position`
+- `sector_type` (Consolidated category for topology roles: `star`, `planet`, `moon`, `field`, `deep_space`. `location_type` is deprecated and ignored.)
 - `available_contract_ids` is optional; leave it empty unless you are deliberately exposing curated override contracts at that sector
 
 #### Step 2: SCENE - Create the Sector Scene

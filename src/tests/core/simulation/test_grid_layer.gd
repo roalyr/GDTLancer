@@ -219,7 +219,7 @@ func test_colony_hub_maintenance_drains_economy():
 	GameState.world_seed = "maint-seed"
 	GameState.world_age = "PROSPERITY"
 	GameState.world_topology = {
-		"hub_sector": {"connections": [], "sector_type": "hub", "station_ids": ["hub_sector"]},
+		"hub_sector": {"connections": [], "development_level": "hub", "station_ids": ["hub_sector"]},
 	}
 	GameState.sector_tags = {
 		"hub_sector": ["STATION", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_RICH"],
@@ -419,8 +419,8 @@ func test_supported_single_rich_outpost_can_still_mature_into_colony():
 	GameState.world_age = "PROSPERITY"
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
-		"frontier_sector": {"connections": ["inner_colony"], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
-		"inner_colony": {"connections": ["frontier_sector"], "sector_type": "colony", "station_ids": ["inner_colony"]},
+		"frontier_sector": {"connections": ["inner_colony"], "development_level": "frontier", "station_ids": ["frontier_sector"]},
+		"inner_colony": {"connections": ["frontier_sector"], "development_level": "colony", "station_ids": ["inner_colony"]},
 	}
 	GameState.sector_tags = {
 		"frontier_sector": ["FRONTIER", "SECURE", "MILD", "RAW_RICH", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"],
@@ -538,8 +538,8 @@ func _seed_minimal_state() -> void:
 	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
-		"a": {"connections": ["b"], "sector_type": "colony", "station_ids": ["a"]},
-		"b": {"connections": ["a"], "sector_type": "colony", "station_ids": ["b"]},
+		"a": {"connections": ["b"], "development_level": "colony", "station_ids": ["a"]},
+		"b": {"connections": ["a"], "development_level": "colony", "station_ids": ["b"]},
 	}
 	GameState.sector_tags = {
 		"a": ["STATION", "SECURE", "MILD", "RAW_POOR", "MANUFACTURED_POOR", "CURRENCY_POOR"],
@@ -560,7 +560,7 @@ func _seed_single_sector_state(seed_string: String, tags: Array, colony_level: S
 	GameState.world_age_timer = Constants.WORLD_AGE_DURATIONS["PROSPERITY"]
 	GameState.sim_tick_count = 0
 	GameState.world_topology = {
-		"frontier_sector": {"connections": [], "sector_type": "frontier", "station_ids": ["frontier_sector"]},
+		"frontier_sector": {"connections": [], "development_level": "frontier", "station_ids": ["frontier_sector"]},
 	}
 	GameState.sector_tags = {
 		"frontier_sector": Array(tags),

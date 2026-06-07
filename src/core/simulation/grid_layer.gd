@@ -44,7 +44,7 @@ func initialize_grid() -> void:
 
 		# Colony level
 		if not GameState.colony_levels.has(sector_id):
-			GameState.colony_levels[sector_id] = data.get("sector_type", "frontier")
+			GameState.colony_levels[sector_id] = data.get("development_level", "frontier")
 
 		# Dominion
 		if not GameState.grid_dominion.has(sector_id):

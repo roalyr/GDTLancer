@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3; TRUTH_SIMULATION-GRAPH.md §3.2, §3.3
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 17:05:00
 #
 
 extends Node
@@ -293,31 +293,29 @@ func _is_jump_transition_active() -> bool:
 func _handle_interact_input() -> void:
 	if _is_jump_transition_active():
 		return
-	if not _is_selected_target_valid():
+
+	if is_instance_valid(_selected_target):
+		if _is_route_target(_selected_target) or _selected_target.is_in_group("jump_point"):
+			_attempt_selected_jump()
+			return
+		elif _selected_target.is_in_group("dockable_station"):
+			var dist = agent_body.global_transform.origin.distance_to(
+				_selected_target.global_transform.origin
+			)
+			if dist > Constants.DOCKING_ACTION_RADIUS:
+				_clear_queued_jump()
+				EventBus.emit_signal("dock_action_feedback", false, "Target is too far away")
+				return
+			_clear_queued_jump()
+			EventBus.emit_signal("player_docked", _selected_target.location_id)
+			return
+
+	if GameState.current_sector_id != "":
 		_clear_queued_jump()
-		EventBus.emit_signal("dock_action_feedback", false, "No target selected")
-		return
-	if _is_route_target(_selected_target):
-		_attempt_selected_jump()
-		return
-	var is_station = _selected_target.is_in_group("dockable_station")
-	var is_jump = _selected_target.is_in_group("jump_point")
-	if not is_station and not is_jump:
+		EventBus.emit_signal("player_docked", GameState.current_sector_id)
+	else:
 		_clear_queued_jump()
 		EventBus.emit_signal("dock_action_feedback", false, "Can not dock with target")
-		return
-	var dist = agent_body.global_transform.origin.distance_to(
-		_selected_target.global_transform.origin
-	)
-	if dist > Constants.DOCKING_ACTION_RADIUS:
-		_clear_queued_jump()
-		EventBus.emit_signal("dock_action_feedback", false, "Target is too far away")
-		return
-	if is_station:
-		_clear_queued_jump()
-		EventBus.emit_signal("player_docked", _selected_target.location_id)
-	else:
-		_attempt_selected_jump()
 
 
 # --- Dock/Attack Button Handlers ---

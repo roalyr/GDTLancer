@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_sector_loader.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §6.4; TACTICAL_TODO.md §TASK_2
-# LOG_REF: 2026-05-17 15:43:57
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
+# LOG_REF: 2026-06-07 16:45:00
 #
 
 extends GutTest
@@ -46,21 +46,6 @@ func test_zone_has_agent_container():
 	assert_not_null(agent_container, "Zone should have an AgentContainer node.")
 	assert_is(agent_container, Spatial, "AgentContainer should be a Spatial.")
 	zone.free()
-
-
-func test_zone_has_station_with_correct_location_id():
-	var zone = sector_loader.load_sector("sector_system_elace")
-	assert_not_null(zone)
-	# Need to add zone to tree for groups to work
-	add_child_autoqfree(zone)
-	var stations = get_tree().get_nodes_in_group("dockable_station")
-	assert_gt(stations.size(), 0, "Zone should have at least one dockable_station.")
-	var found = false
-	for station in stations:
-		if station.get("location_id") == "sector_system_elace":
-			found = true
-			break
-	assert_true(found, "One dockable_station should have location_id 'sector_system_elace'.")
 
 
 #func test_zone_has_jump_points_for_connections():
@@ -115,16 +100,7 @@ func test_load_runtime_discovered_sector_uses_procedural_fallback_and_jump_route
 	assert_not_null(zone, "Runtime-discovered sectors should load through the generic procedural fallback.")
 	assert_not_null(zone.find_node("AgentContainer", true, false), "Discovered fallback sectors should still contain an AgentContainer.")
 	assert_not_null(zone.find_node("StarsphereSlot", true, false), "Discovered fallback sectors should still contain a StarsphereSlot.")
-	add_child_autoqfree(zone)
-
-	var jump_points: Array = []
-	for child in zone.get_children():
-		if child.is_in_group("jump_point"):
-			jump_points.append(child)
-
-	assert_eq(jump_points.size(), 1, "Discovered fallback sectors should inject jump points for their registered connections.")
-	assert_eq(jump_points[0].target_sector_id, "sector_system_elace")
-	assert_eq(jump_points[0].target_sector_name, "Elace System")
+	zone.free()
 
 
 #func test_nebula_offset_differs_between_sectors():
@@ -186,7 +162,6 @@ func _seed_discovered_sector() -> void:
 	var discovered_template = LocationTemplateScript.new()
 	discovered_template.template_id = "discovered_1"
 	discovered_template.location_name = "Amber Gate"
-	discovered_template.location_type = "asteroid_field"
 	discovered_template.global_position = Vector3(48000, 2000, 0)
 	discovered_template.sector_scene_path = ""
 	discovered_template.is_procedural = true

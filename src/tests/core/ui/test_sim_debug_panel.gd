@@ -212,7 +212,7 @@ func test_composite_mode_runs_cumulative_bundle_and_disables_manual_focus_contro
 		"Composite mode should include persistent agents in the sampled research request.")
 	assert_true(bool(_engine_double.last_composite_request.get("include_mortal", false)),
 		"Composite mode should include mortal agents in the sampled research request.")
-	assert_true(Array(_engine_double.last_composite_request.get("sector_types", [])).has("colony"),
+	assert_true(Array(_engine_double.last_composite_request.get("sector_types", [])).has("star"),
 		"Composite mode should sample the currently loaded sector types.")
 	assert_true(Array(_engine_double.last_composite_request.get("agent_roles", [])).has("trader"),
 		"Composite mode should sample the currently loaded agent roles.")
@@ -267,8 +267,8 @@ func _seed_sim_state() -> void:
 	GameState.world_age_timer = 5
 	GameState.world_age_cycle_count = 1
 	GameState.world_topology = {
-		"sector_system_elace": {"connections": ["sector_system_cob"], "station_ids": ["sector_system_elace"], "sector_type": "colony"},
-		"sector_system_cob": {"connections": ["sector_system_elace"], "station_ids": ["sector_system_cob"], "sector_type": "colony"},
+		"sector_system_elace": {"connections": ["sector_system_cob"], "station_ids": ["sector_system_elace"], "development_level": "colony", "sector_type": "star"},
+		"sector_system_cob": {"connections": ["sector_system_elace"], "station_ids": ["sector_system_cob"], "development_level": "colony", "sector_type": "star"},
 	}
 	GameState.world_hazards = {
 		"sector_system_elace": {"environment": "MILD"},

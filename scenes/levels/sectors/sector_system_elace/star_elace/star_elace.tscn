@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_surface.tres" type="Material" id=1]
-[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace_sprite.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace/star_elace_sprite.tscn" type="PackedScene" id=2]
 [ext_resource path="res://assets/art/materials/scene_materials/star_1_corona.tres" type="Material" id=3]
 [ext_resource path="res://src/core/utils/rotating_object.gd" type="Script" id=4]
 

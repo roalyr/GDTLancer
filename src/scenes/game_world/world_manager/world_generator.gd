@@ -42,10 +42,9 @@ func generate_new_world():
 	# Then, generate and assign their starting assets and inventories.
 	_generate_and_assign_assets()
 
-	# Sprint 10: Start player docked at Elace System, with defined starting resources.
-	GameState.player_docked_at = "sector_system_elace"
+	# Sprint 10: Start player at system entry point instead of docked.
+	GameState.player_docked_at = ""
 	_apply_player_starting_state()
-	call_deferred("_emit_initial_dock_signal")
 
 	if VERBOSE_WORLD_BOOT_LOGS:
 		print("WorldGenerator: New world state generated.")
