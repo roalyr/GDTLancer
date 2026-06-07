@@ -59,6 +59,7 @@ scale_amount = 8.0
 color_ramp = SubResource( 1 )
 
 [node name="FarJumpParticles2" type="CPUParticles" parent="TransitionCamera/JumpTransitionParticles"]
+visible = false
 amount = 100
 lifetime = 30.0
 local_coords = false
@@ -75,6 +76,7 @@ scale_amount = 8.0
 color_ramp = SubResource( 1 )
 
 [node name="VeryFarJumpParticles" type="CPUParticles" parent="TransitionCamera/JumpTransitionParticles"]
+visible = false
 amount = 512
 lifetime = 60.0
 local_coords = false

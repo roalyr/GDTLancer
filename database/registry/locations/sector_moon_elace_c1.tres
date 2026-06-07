@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "sector_moon_elace_c1"
 location_name = "Elace Moon C1"
-position_in_zone = Vector3( 0, 0, 0 )
+jump_in_distance = 2000.0
 interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_elace/sector_moon_elace_c1.tscn"
 global_position = Vector3( 92000, 0, -80000 )

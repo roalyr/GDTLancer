@@ -70,16 +70,17 @@ radial_segments = 32
 [sub_resource type="ShaderMaterial" id=27]
 shader = ExtResource( 3 )
 shader_param/albedo = Color( 0.823529, 0.384314, 0.247059, 1 )
-shader_param/scale = 0.16
-shader_param/flare_distance = 40000.0
-shader_param/flare_size = 3.0
-shader_param/attenuation = 0.749
+shader_param/scale_near = 10.0
+shader_param/scale_peak = 6.0
+shader_param/scale_far = 0.2
+shader_param/peak_distance = 5000.0
+shader_param/fade_ratio = 10.0
+shader_param/distance_power = 0.4
+shader_param/fade_distance_near = 15000.0
+shader_param/fade_distance_far = 2e+06
+shader_param/fade_power = 5.0
 shader_param/intensity = 1.0
 shader_param/exponent = 3.0
-shader_param/pulse_factor = 0.9
-shader_param/pulse_rate = 1.0
-shader_param/phase = 0.0
-shader_param/Fcoef = 0.001
 
 [sub_resource type="Shader" id=29]
 code = "shader_type spatial;

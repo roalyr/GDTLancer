@@ -22,9 +22,19 @@ var agent_system_instance = null
 var mock_agent_container = null
 var signal_catcher = null
 const PLAYER_UID = 0
+var _original_locations = {}
 
 
 func before_each():
+	_original_locations = TemplateDatabase.locations
+	TemplateDatabase.locations = {
+		Constants.INITIAL_SECTOR_ID: {
+			"jump_in_distance": 2000.0,
+			"sector_type": "moon"
+		}
+	}
+	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
+
 	# 1. Clean and set up the global state
 	GameState.characters.clear()
 	GameState.player_character_uid = ""
@@ -57,6 +67,7 @@ func before_each():
 
 
 func after_each():
+	TemplateDatabase.locations = _original_locations
 	# Clean up global state and references
 	GameState.characters.clear()
 	GameState.player_character_uid = ""
@@ -131,6 +142,6 @@ func test_spawn_player_on_route_arrival_preserves_saved_rotation():
 	)
 	var distance_from_origin = spawned_body.global_transform.origin.length()
 	assert_true(
-		distance_from_origin >= 1400.0 and distance_from_origin <= 2600.0,
-		"Route-arrival spawns should apply a varied offset near the anchor position."
+		distance_from_origin >= 1799.0 and distance_from_origin <= 2201.0,
+		"Route-arrival spawns should apply a varied offset near the anchor position (+/- 10%)."
 	)

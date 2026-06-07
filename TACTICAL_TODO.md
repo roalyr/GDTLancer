@@ -2,26 +2,27 @@
 PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; GDD-REVISION-LEDGER.md REV_005
-LOG_REF: 2026-06-07 16:30:00
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; MODEL-CASCADE-PROTOCOL.md § Role: Lead Systems Architect
+LOG_REF: 2026-06-07 23:32:53
 -->
 
-## CURRENT GOAL: Virtual Docking & Topology Schema Consolidation
+## CURRENT GOAL: Spawning Offset by Celestial Type (jump_in_distance)
 
-- TARGET_SCOPE: Consolidate sector classification schemas and implement "virtual docking", allowing the player to dock to the current sector from anywhere within it. Remove legacy `location_type` fields from templates and scrub outdated procedural station and jumpgate injection from `sector_loader.gd`. Ensure simulation relies solely on `sector_type` set to `"star"`.
+- TARGET_SCOPE: Replace the obsolete `position_in_zone` field in location templates with `jump_in_distance`. Link it to the code in `agent_system.gd` to dynamically calculate player/agent spawn and arrival offsets from origin or EntryPoint at `jump_in_distance` (+/- 10% variation). Update the python template generator, all location registry tres resources, and unit tests to mock and validate this new behavior.
 - TARGET_FILES:
-  - database/definitions/location_template.gd — Remove `location_type`, keep `sector_type`.
-  - database/registry/locations/*.tres — Update all sector templates to remove `location_type` and set `sector_type` to `"star"`.
-  - src/core/systems/sector_loader.gd — Remove `_inject_generated_station` and `_inject_jump_points` logic.
-  - src/core/simulation/agent_layer.gd — Adapt NPC dock logic to virtual docking (no need to locate a station node).
-  - src/modules/piloting/player_controller_ship.gd — Adapt player proximity docking rules to allow docking anywhere in the sector.
-  - src/core/ui/main_hud/main_hud.gd — Adapt HUD docking rules/buttons to support virtual docking.
-  - (Any relevant tests to maintain GUT suite parity).
-- TRUTH_RELIANCE: ["GDD-REVISION-LEDGER.md REV_005", "universe_topology_architecture.md"]
-- TECHNICAL_CONSTRAINTS: ["Keep GUT authoritative for stable contracts", "Do not introduce structural code changes for hierarchy yet."]
+  - database/definitions/location_template.gd — Replace `position_in_zone` with `jump_in_distance`.
+  - generate_registry.py — Update to output `jump_in_distance` (10k for stars, 5k for planets, 2k for moons).
+  - database/registry/locations/*.tres — Replaced `position_in_zone` with `jump_in_distance`.
+  - src/core/systems/agent_system.gd — Implement dynamic offset calculations and remove `position_in_zone` fallback.
+  - src/tests/core/systems/test_persistent_agents.gd — Mock `jump_in_distance` and update spawn offset assertion.
+  - src/tests/core/systems/test_agent_spawner.gd — Mock `jump_in_distance` and update spawn offset assertion.
+- TRUTH_RELIANCE: ["MODEL-CASCADE-PROTOCOL.md", "TRUTH_CONTENT-CREATION-MANUAL.md"]
+- TECHNICAL_CONSTRAINTS: ["Forbidden GDScript syntax: @export, @onready, await", "Graphics target GLES2", "Godot 3.6 stable compatibility"]
+- OUT_OF_SCOPE: "Tuning other player/NPC stats, changing scene node hierarchies, altering world topologies."
+- VALIDATION_PLAN: "Run Gut tests in test_persistent_agents.gd and test_agent_spawner.gd to ensure correct offset calculations and regression-free operation."
 - ATOMIC_TASKS:
-  - [x] TASK_1: Update `location_template.gd` and all sector `.tres` templates. Remove `location_type` entirely and ensure `sector_type` defaults and is set to `"star"` across all registry entries. Adjust simulation layers (`agent_layer.gd`, `world_layer.gd`, etc) that relied on `location_type` to use `sector_type`.
-  - [x] TASK_2: Clean up `sector_loader.gd` by completely removing the logic for injecting JumpPoints and procedural dockable stations.
-  - [x] TASK_3: Update `player_controller_ship.gd` and `main_hud.gd` to implement "virtual docking": pressing dock connects the player to the current sector's market/services from any location in the sector without requiring a physical station target or proximity (preserve targeted jumping to other sectors).
-  - [x] TASK_4: Update `agent_layer.gd` to ensure NPCs can execute dock-market trade or contracts from anywhere in the sector, bypassing previous physical station distance/location checks.
-  - [x] VERIFICATION: Ensure all unit tests pass and that both the player and NPCs can successfully dock and interact with the sector from any coordinate.
+  - [x] TASK_1: Replace `position_in_zone` with `jump_in_distance` in `location_template.gd` and `generate_registry.py`.
+  - [x] TASK_2: Update all registry `.tres` files to use `jump_in_distance` (10k for stars, 5k for planets, 2k for moons).
+  - [x] TASK_3: Link `jump_in_distance` in `agent_system.gd` for dynamic player spawning and arrival offsets calculation (+/- 10% variation).
+  - [x] TASK_4: Update unit tests in `test_persistent_agents.gd` and `test_agent_spawner.gd` to mock `jump_in_distance` and validate spawn offset thresholds.
+  - [x] VERIFICATION: Run the full test suite and verify all tests pass cleanly.

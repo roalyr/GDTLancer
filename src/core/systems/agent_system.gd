@@ -78,6 +78,8 @@ func spawn_player():
 	var player_spawn_pos = Vector3.ZERO
 	var player_spawn_rot = Vector3.ZERO
 	var should_apply_spawn_rotation = false
+	var is_jump_in = false
+	var jump_in_anchor = Vector3.ZERO
 	
 	# Priority 1: Use saved position if it's not zero (loaded game)
 	if GameState.player_position != Vector3.ZERO:
@@ -97,10 +99,14 @@ func spawn_player():
 			if entry_node and entry_node is Spatial:
 				anchor_pos = entry_node.global_transform.origin
 		
-		# Generate a random offset around the anchor (approx 2000 units)
+		# Generate a random offset around the anchor based on jump_in_distance (+/- 10% variation)
+		var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
 		var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-		var random_dist = rand_range(1500, 2500)
+		var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
 		player_spawn_pos = anchor_pos + (random_dir * random_dist)
+		
+		is_jump_in = true
+		jump_in_anchor = anchor_pos
 		
 		if GameState.player_arrival_direction != Vector3.ZERO:
 			player_spawn_rot = GameState.player_rotation
@@ -135,6 +141,14 @@ func spawn_player():
 		GlobalRefs.player_agent_body = _player_agent_body
 		EventBus.emit_signal("camera_set_target_requested", _player_agent_body)
 		EventBus.emit_signal("player_spawned", _player_agent_body)
+		
+		# On jump-in trigger camera aim at target origin (coord origin or Entry point)
+		if is_jump_in:
+			var camera = GlobalRefs.main_camera
+			if is_instance_valid(camera) and camera.has_method("set_orbit_forward_direction"):
+				var look_dir = (jump_in_anchor - player_spawn_pos).normalized()
+				if look_dir.length_squared() > 0.001:
+					camera.set_orbit_forward_direction(look_dir)
 	else:
 		printerr("AgentSpawner Error: Failed to spawn player agent body!")
 
@@ -156,15 +170,39 @@ func _get_dock_position_in_zone(location_id: String):
 			if station.get("location_id") == location_id:
 				return station.global_transform.origin
 
-	# Fallback: use template data if present.
-	if GameState.locations.has(location_id):
-		var loc = GameState.locations[location_id]
-		if loc is Resource and loc.get("position_in_zone") is Vector3:
-			return loc.position_in_zone
-		if loc is Dictionary and loc.get("position_in_zone") is Vector3:
-			return loc["position_in_zone"]
-
 	return null
+
+
+func _get_jump_in_distance_for_sector(sector_id: String) -> float:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	var sector_type = "deep_space"
+	var distance = -1.0
+	
+	if sector_template != null:
+		if sector_template is Dictionary:
+			if sector_template.has("jump_in_distance"):
+				distance = float(sector_template["jump_in_distance"])
+			if sector_template.has("sector_type"):
+				sector_type = sector_template["sector_type"]
+		elif sector_template is Object:
+			if "jump_in_distance" in sector_template:
+				distance = float(sector_template.jump_in_distance)
+			if "sector_type" in sector_template:
+				sector_type = sector_template.sector_type
+				
+	if distance > 0.0:
+		return distance
+		
+	# Fallback based on sector type
+	match sector_type.to_lower():
+		"star", "star_companion":
+			return 20000.0
+		"planet":
+			return 5000.0
+		"moon":
+			return 2000.0
+		_:
+			return 5000.0
 
 
 func _find_jump_point_targeting(sector_id: String) -> Spatial:
@@ -183,8 +221,10 @@ func _get_route_arrival_spawn_position(arrival_direction: Vector3) -> Vector3:
 		if entry_node and entry_node is Spatial:
 			anchor_pos = entry_node.global_transform.origin
 	
+	# Generate a random offset around the anchor based on jump_in_distance (+/- 10% variation)
+	var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
 	var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
-	var random_dist = rand_range(1500, 2500)
+	var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
 	return anchor_pos + (random_dir * random_dist)
 
 

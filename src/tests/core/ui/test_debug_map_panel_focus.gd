@@ -17,7 +17,7 @@ func before_each():
 	GameState.reset_state()
 	TemplateDatabase.locations.clear()
 	_seed_template_database()
-	GameState.current_sector_id = "sector_system_cob"
+	GameState.current_sector_id = "sector_system_lywin_A"
 	_panel_instance = _panel_scene.instance()
 	add_child_autofree(_panel_instance)
 
@@ -34,7 +34,7 @@ func after_each():
 func _seed_template_database():
 	for path in [
 		"res://database/registry/locations/sector_system_elace.tres",
-		"res://database/registry/locations/sector_system_cob.tres",
+		"res://database/registry/locations/sector_system_lywin_A.tres",
 	]:
 		var res = load(path)
 		if res:
@@ -43,14 +43,14 @@ func _seed_template_database():
 
 func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
 	var elace_template = TemplateDatabase.locations["sector_system_elace"]
-	var cob_template = TemplateDatabase.locations["sector_system_cob"]
+	var lywin_a_template = TemplateDatabase.locations["sector_system_lywin_A"]
 	assert_not_null(elace_template, "Expected sector_system_elace template to load for map-anchor test.")
-	assert_not_null(cob_template, "Expected sector_system_cob template to load for pivot test.")
+	assert_not_null(lywin_a_template, "Expected sector_system_lywin_A template to load for pivot test.")
 	_panel_instance._toggle_panel()
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var cob_marker = map_content.get_node_or_null("Sector_sector_system_cob")
+	var lywin_a_marker = map_content.get_node_or_null("Sector_sector_system_lywin_A")
 	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
-	assert_not_null(cob_marker, "Expected sector_system_cob marker to exist after opening the panel.")
+	assert_not_null(lywin_a_marker, "Expected sector_system_lywin_A marker to exist after opening the panel.")
 	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist after opening the panel.")
 	assert_eq(
 		_panel_instance._pivot,
@@ -58,44 +58,44 @@ func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
 		"Opening the map should keep the camera pivot at origin so the starsphere frame stays stable."
 	)
 	assert_eq(
-		cob_marker.transform.origin,
+		lywin_a_marker.transform.origin,
 		Vector3.ZERO,
 		"The current sector marker should be shifted to map origin when the panel opens."
 	)
 	assert_eq(
 		elace_marker.transform.origin,
-		Constants.get_reference_origin_offset(cob_template.global_position),
+		Constants.get_reference_origin_offset(lywin_a_template.global_position),
 		"Elace should align with the starsphere reference origin in current-sector-local map space."
 	)
 
 
 func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
-	var cob_template = TemplateDatabase.locations["sector_system_cob"]
-	assert_not_null(cob_template, "Expected sector_system_cob template to load for backdrop-alignment test.")
+	var lywin_a_template = TemplateDatabase.locations["sector_system_lywin_A"]
+	assert_not_null(lywin_a_template, "Expected sector_system_lywin_A template to load for backdrop-alignment test.")
 	_panel_instance._toggle_panel()
 	yield(get_tree(), "idle_frame")
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var cob_marker = map_content.get_node_or_null("Sector_sector_system_cob")
+	var lywin_a_marker = map_content.get_node_or_null("Sector_sector_system_lywin_A")
 	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
-	assert_not_null(cob_marker, "Expected sector_system_cob marker to exist for backdrop alignment test.")
+	assert_not_null(lywin_a_marker, "Expected sector_system_lywin_A marker to exist for backdrop alignment test.")
 	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist for backdrop alignment test.")
 	var backdrop = _panel_instance._map_nebula_holder
 	assert_not_null(backdrop, "Opening the panel should create a dedicated nebula backdrop inside the map viewport.")
 	assert_eq(
 		backdrop.transform.origin,
-		Constants.get_reference_origin_offset(cob_template.global_position),
+		Constants.get_reference_origin_offset(lywin_a_template.global_position),
 		"The map nebula backdrop should use the same current-sector-local offset as the reference origin."
 	)
 	var star_root_path = "Globalnebulas/SectorStars (clipped by near plane which is 10u)"
-	var star_cob = backdrop.get_node_or_null("%s/_Star Cob" % star_root_path)
+	var star_lywin_a = backdrop.get_node_or_null("%s/Star Lywin A Sprite" % star_root_path)
 	var star_elace = backdrop.get_node_or_null("%s/Star Elace Sprite" % star_root_path)
-	assert_not_null(star_cob, "Expected Star Cob to exist in the dedicated map backdrop.")
+	assert_not_null(star_lywin_a, "Expected Star Lywin A Sprite to exist in the dedicated map backdrop.")
 	assert_not_null(star_elace, "Expected Star Elace to exist in the dedicated map backdrop.")
-	if star_cob and star_elace:
+	if star_lywin_a and star_elace:
 		assert_eq(
-			star_cob.global_transform.origin,
-			cob_marker.global_transform.origin,
-			"Star Cob in the backdrop should land on the same map-space position as the Cob sector marker."
+			star_lywin_a.global_transform.origin,
+			lywin_a_marker.global_transform.origin,
+			"Star Lywin A Sprite in the backdrop should land on the same map-space position as the Lywin A sector marker."
 		)
 		assert_eq(
 			star_elace.global_transform.origin,

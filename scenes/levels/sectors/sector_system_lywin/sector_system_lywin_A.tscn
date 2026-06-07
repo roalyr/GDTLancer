@@ -3,7 +3,7 @@
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=2]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace/star_elace.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/star_lywin_A.tscn" type="PackedScene" id=8]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true
@@ -12,7 +12,7 @@ albedo_color = Color( 0, 0.0862745, 0.0901961, 1 )
 
 [sub_resource type="SphereMesh" id=2]
 
-[node name="Sector System Elace" type="Spatial"]
+[node name="Sector System Lywin A" type="Spatial"]
 
 [node name="_PlayableArea" type="MeshInstance" parent="."]
 transform = Transform( 100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0 )
@@ -40,6 +40,6 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star Elace" parent="SceneAssets" instance=ExtResource( 4 )]
+[node name="Star Lywin A" parent="SceneAssets" instance=ExtResource( 8 )]
 
 [node name="EntryPoint" type="Spatial" parent="SceneAssets"]

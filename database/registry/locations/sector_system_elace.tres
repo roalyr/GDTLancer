@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "sector_system_elace"
 location_name = "Elace System"
-position_in_zone = Vector3( 0, 0, 0 )
+jump_in_distance = 15000.0
 interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_elace/sector_system_elace.tscn"
 global_position = Vector3( 0, 0, 0 )
@@ -15,7 +15,7 @@ procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_cob", "sector_system_lywin", "sector_planet_elace_a", "sector_planet_elace_b", "sector_planet_elace_c" )
+connections = PoolStringArray( "sector_system_cob", "sector_system_lywin_A", "sector_system_vidr", "sector_planet_elace_a", "sector_planet_elace_b", "sector_planet_elace_c" )
 sector_type = "star"
 development_level = "hub"
 radiation_level = 0.05

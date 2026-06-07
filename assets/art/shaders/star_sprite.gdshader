@@ -15,8 +15,8 @@ uniform float peak_distance = 5000.0;
 uniform float fade_ratio : hint_range(1.0, 20.0) = 10.0;
 uniform float distance_power : hint_range(0.1, 8.0) = 0.4;
 
-uniform float fade_distance_near : hint_range(0.0, 1e6) = 1e4;
-uniform float fade_distance_far : hint_range(0.0, 1e6) = 1e6;
+uniform float fade_distance_near : hint_range(0.0, 1e6) = 1.5e4;
+uniform float fade_distance_far : hint_range(0.0, 2e6) = 2e6;
 uniform float fade_power = 5;
 
 uniform float intensity : hint_range(0.0, 1.0) = 1.0;

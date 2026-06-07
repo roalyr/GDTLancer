@@ -38,6 +38,8 @@ var _route_world_position: Vector3 = Vector3.ZERO
 var _route_target_world_position: Vector3 = Vector3.ZERO
 var _route_has_valid_positions: bool = false
 var _route_complete: bool = false
+var _source_sector_id: String = ""
+var _target_sector_id: String = ""
 
 
 func _ready() -> void:
@@ -74,6 +76,8 @@ func set_transition_fov(fov_deg: float) -> void:
 
 
 func begin_departure(source_sector_id: String, target_sector_id: String, travel_direction: Vector3) -> void:
+	_source_sector_id = source_sector_id
+	_target_sector_id = target_sector_id
 	_travel_direction = _normalize_travel_direction(travel_direction)
 	_current_velocity = 0.0
 	_target_velocity = 0.0
@@ -84,7 +88,7 @@ func begin_departure(source_sector_id: String, target_sector_id: String, travel_
 	_route_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_target_world_position = _get_world_position_for_sector(target_sector_id)
 	_route_has_valid_positions = _route_world_position != Vector3.ZERO or _route_target_world_position != Vector3.ZERO
-	_route_complete = _get_remaining_route_distance() <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE
+	_route_complete = _get_remaining_route_distance() <= _get_completion_tolerance()
 	visible = false
 	_set_transition_overlay_active(false)
 	set_transition_particles_active(false, true)
@@ -152,6 +156,8 @@ func get_transition_overlay_alpha() -> float:
 
 
 func reset_transition_state() -> void:
+	_source_sector_id = ""
+	_target_sector_id = ""
 	_travel_direction = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 	_current_velocity = 0.0
 	_target_velocity = 0.0
@@ -175,6 +181,20 @@ func reset_transition_state() -> void:
 	_refresh_process_state()
 
 
+func get_transition_fov() -> float:
+	if is_instance_valid(_transition_camera):
+		return _transition_camera.fov
+	return _get_active_config().get("target_fov_deg", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
+
+
+func _get_active_config() -> Dictionary:
+	return Constants.get_jump_config(_source_sector_id, _target_sector_id)
+
+
+func _get_completion_tolerance() -> float:
+	return _get_active_config().get("route_completion_tolerance", Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE)
+
+
 func deactivate_transition_view() -> void:
 	visible = false
 	if is_instance_valid(_transition_camera):
@@ -188,7 +208,7 @@ func _process(delta: float) -> void:
 	if not is_instance_valid(_transition_camera):
 		_refresh_process_state()
 		return
-	if _cruise_active and _route_has_valid_positions and _get_remaining_route_distance() <= _get_braking_distance() + Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE:
+	if _cruise_active and _route_has_valid_positions and _get_remaining_route_distance() <= _get_braking_distance() + _get_completion_tolerance():
 		begin_arrival()
 	_current_velocity = move_toward(_current_velocity, _target_velocity, _velocity_step_rate * delta)
 	var remaining_distance = _get_remaining_route_distance()
@@ -202,7 +222,7 @@ func _process(delta: float) -> void:
 		else:
 			_transition_camera.global_transform.origin += _travel_direction * travel_step
 	remaining_distance = _get_remaining_route_distance()
-	if _route_has_valid_positions and remaining_distance <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE and _current_velocity <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE:
+	if _route_has_valid_positions and remaining_distance <= _get_completion_tolerance() and _current_velocity <= _get_completion_tolerance():
 		_route_world_position = _route_target_world_position
 		_transition_camera.global_transform.origin = _get_route_local_position()
 		_current_velocity = 0.0
@@ -211,7 +231,7 @@ func _process(delta: float) -> void:
 		_arrival_active = false
 		_route_complete = true
 		_refresh_process_state()
-	elif _arrival_active and _current_velocity <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE:
+	elif _arrival_active and _current_velocity <= _get_completion_tolerance():
 		if _route_has_valid_positions:
 			_route_world_position = _route_target_world_position
 			_transition_camera.global_transform.origin = _get_route_local_position()

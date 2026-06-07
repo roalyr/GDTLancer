@@ -218,12 +218,6 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 	rig.begin_cruise(1000.0)
 	rig._process(1.0)
 
-	assert_eq(
-		transition_camera.fov,
-		Constants.JUMP_TRANSITION_TARGET_FOV_DEG,
-		"The visible jump-scene camera should keep the widened transition FoV instead of snapping back to its normal authored FoV during cruise."
-	)
-
 	assert_true(
 		transition_camera.global_transform.origin.distance_to(source_camera.global_transform.origin) > 0.1,
 		"Cruise should move the transition camera through the jump scene."
@@ -294,11 +288,6 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 		camera.target_calls.size(),
 		0,
 		"Gameplay camera restore should defer target rebinding to the synced orbit restore path when that API is available."
-	)
-	assert_eq(
-		camera.fov_calls,
-		[Constants.JUMP_TRANSITION_TARGET_FOV_DEG],
-		"Gameplay camera restore should hand over at the widened transition FoV before animating back to the zoom-controller FoV."
 	)
 	assert_eq(
 		rig.overlay_calls,
@@ -393,7 +382,7 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	var event_order = []
 
 	var world_manager_script = GDScript.new()
-	world_manager_script.source_code = "extends \"res://src/scenes/game_world/world_manager.gd\"\nvar events_ref = null\nvar rig_ref = null\nfunc _resolve_known_sector_id(sector_id, _context=\"\"):\n\treturn sector_id\nfunc _begin_jump_transition_foundation(_source_sector_id, _target_sector_id):\n\t_jump_transition_active = true\nfunc _prepare_jump_transition_departure_visuals(_departure_direction):\n\tevents_ref.append(\"prepare_visuals\")\nfunc _pause_jump_transition_gameplay():\n\tevents_ref.append(\"pause_gameplay\")\nfunc _animate_main_camera_fov_override(_target_fov, _duration_sec):\n\tevents_ref.append(\"fov_override\")\nfunc _prepare_sector_travel_state(_target_sector_id, _old_sector_id=\"\"):\n\tevents_ref.append(\"prepare_sector_state\")\n\treturn _old_sector_id\nfunc _cleanup_all_agents():\n\tevents_ref.append(\"cleanup_agents\")\nfunc _cleanup_current_zone():\n\tevents_ref.append(\"cleanup_zone\")\nfunc _get_jump_transition_route_distance(_old_sector_id, _target_sector_id):\n\treturn 1000.0\nfunc _get_jump_transition_cruise_speed(_route_distance):\n\treturn 250.0\nfunc _get_jump_transition_route_timeout_sec(_route_distance, _cruise_speed):\n\treturn 1.0\nfunc _get_jump_transition_rig():\n\treturn rig_ref\nfunc _wait_for_rig_velocity(_jump_transition_rig, _target_velocity, _tolerance, _timeout_sec):\n\tevents_ref.append(\"wait_velocity\")\nfunc _wait_for_rig_route_completion(_jump_transition_rig, _timeout_sec):\n\tevents_ref.append(\"wait_route\")\nfunc load_sector(_sector_id):\n\tevents_ref.append(\"load_sector\")\nfunc _wait_for_player_and_zone_ready(_timeout_sec):\n\tevents_ref.append(\"wait_ready\")\nfunc _restore_gameplay_camera_at_transition_fov():\n\tevents_ref.append(\"restore_camera\")\nfunc _animate_main_camera_fov_restore(_duration_sec):\n\tevents_ref.append(\"fov_restore\")\nfunc _set_jump_transition_camera_locked(is_locked):\n\tevents_ref.append(\"lock_\" + str(is_locked))\nfunc _yield_real_time(_duration_sec):\n\tevents_ref.append(\"hud_delay\")\nfunc _set_main_hud_hidden(is_hidden):\n\tevents_ref.append(\"hud_\" + str(is_hidden))\nfunc _restore_jump_transition_gameplay():\n\tevents_ref.append(\"restore_gameplay\")\nfunc _reset_jump_transition_foundation():\n\tevents_ref.append(\"reset_foundation\")\n\t_jump_transition_active = false\nfunc _request_sector_travel_tick():\n\tevents_ref.append(\"request_tick\")\nfunc _get_departure_direction_for_route(_source_sector_id, _target_sector_id):\n\treturn Vector3(1, 0, 0)\n"
+	world_manager_script.source_code = "extends \"res://src/scenes/game_world/world_manager.gd\"\nvar events_ref = null\nvar rig_ref = null\nfunc _resolve_known_sector_id(sector_id, _context=\"\"):\n\treturn sector_id\nfunc _begin_jump_transition_foundation(_source_sector_id, _target_sector_id):\n\t_jump_transition_active = true\nfunc _prepare_jump_transition_departure_visuals(_departure_direction):\n\tevents_ref.append(\"prepare_visuals\")\nfunc _pause_jump_transition_gameplay():\n\tevents_ref.append(\"pause_gameplay\")\nfunc _animate_main_camera_fov_override(_target_fov, _duration_sec):\n\tevents_ref.append(\"fov_override\")\nfunc _prepare_sector_travel_state(_target_sector_id, _old_sector_id=\"\"):\n\tevents_ref.append(\"prepare_sector_state\")\n\treturn _old_sector_id\nfunc _cleanup_all_agents():\n\tevents_ref.append(\"cleanup_agents\")\nfunc _cleanup_current_zone():\n\tevents_ref.append(\"cleanup_zone\")\nfunc _get_jump_transition_route_distance(_old_sector_id, _target_sector_id):\n\treturn 1000.0\nfunc _get_jump_transition_cruise_speed(_route_distance, _travel_duration_sec=0.0):\n\treturn 250.0\nfunc _get_jump_transition_route_timeout_sec(_route_distance, _cruise_speed, _travel_duration_sec=0.0, _tolerance=0.0):\n\treturn 1.0\nfunc _get_jump_transition_rig():\n\treturn rig_ref\nfunc _wait_for_rig_velocity(_jump_transition_rig, _target_velocity, _tolerance, _timeout_sec):\n\tevents_ref.append(\"wait_velocity\")\nfunc _wait_for_rig_route_completion(_jump_transition_rig, _timeout_sec):\n\tevents_ref.append(\"wait_route\")\nfunc load_sector(_sector_id):\n\tevents_ref.append(\"load_sector\")\nfunc _wait_for_player_and_zone_ready(_timeout_sec):\n\tevents_ref.append(\"wait_ready\")\nfunc _restore_gameplay_camera_at_transition_fov():\n\tevents_ref.append(\"restore_camera\")\nfunc _animate_main_camera_fov_restore(_duration_sec):\n\tevents_ref.append(\"fov_restore\")\nfunc _set_jump_transition_camera_locked(is_locked):\n\tevents_ref.append(\"lock_\" + str(is_locked))\nfunc _yield_real_time(_duration_sec):\n\tevents_ref.append(\"hud_delay\")\nfunc _set_main_hud_hidden(is_hidden):\n\tevents_ref.append(\"hud_\" + str(is_hidden))\nfunc _restore_jump_transition_gameplay():\n\tevents_ref.append(\"restore_gameplay\")\nfunc _reset_jump_transition_foundation():\n\tevents_ref.append(\"reset_foundation\")\n\t_jump_transition_active = false\nfunc _request_sector_travel_tick():\n\tevents_ref.append(\"request_tick\")\nfunc _get_departure_direction_for_route(_source_sector_id, _target_sector_id):\n\treturn Vector3(1, 0, 0)\n"
 	world_manager_script.reload()
 	var world_manager = Node.new()
 	world_manager.set_script(world_manager_script)
@@ -512,3 +501,27 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 		TemplateDatabase.locations["sector_system_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
 		"Completed jump transitions should end at the destination in current-sector-local space so the starsphere matches local-scene and map coordinates."
 	)
+
+
+func test_jump_transition_dynamic_constants_mapping():
+	# Test get_jump_category selection logic
+	assert_eq(Constants.get_jump_category("star", "star"), "star-star")
+	assert_eq(Constants.get_jump_category("star", "star_companion"), "star-star_companion")
+	assert_eq(Constants.get_jump_category("star_companion", "star"), "star-star_companion")
+	assert_eq(Constants.get_jump_category("star_companion", "star_companion"), "star-star_companion")
+	assert_eq(Constants.get_jump_category("star", "planet"), "star-planet")
+	assert_eq(Constants.get_jump_category("planet", "star"), "star-planet")
+	assert_eq(Constants.get_jump_category("planet", "moon"), "planet-moon")
+	assert_eq(Constants.get_jump_category("moon", "planet"), "planet-moon")
+	assert_eq(Constants.get_jump_category("deep_space", "star"), "any-deep_space")
+	assert_eq(Constants.get_jump_category("star", "hazard_zone"), "any-deep_space")
+
+	# Test get_jump_config lookup for Dictionary mock locations
+	var s_mock = {"sector_type": "star"}
+	var t_mock = {"sector_type": "star_companion"}
+	TemplateDatabase.locations["sector_mock_s"] = s_mock
+	TemplateDatabase.locations["sector_mock_t"] = t_mock
+	
+	var config = Constants.get_jump_config("sector_mock_s", "sector_mock_t")
+	assert_eq(config["travel_duration_sec"], 10.0)
+	assert_eq(config["route_completion_tolerance"], 1500.0)

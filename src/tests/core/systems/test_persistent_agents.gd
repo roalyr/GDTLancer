@@ -9,23 +9,30 @@
 extends "res://addons/gut/test.gd"
 
 var _agent_system: Node = null
+var _original_locations = {}
 
 func before_each():
+	_original_locations = TemplateDatabase.locations
 	# Reset GameState
 	GameState.persistent_agents = {}
 	GameState.characters = {}
 	GameState.agents = {}
-	GameState.locations = {
+	var mock_locs = {
 		Constants.INITIAL_SECTOR_ID: {
-			"position_in_zone": Vector3(0, 0, 0)
+			"jump_in_distance": 2000.0,
+			"sector_type": "moon"
 		},
 		"sector_system_cob": {
-			"position_in_zone": Vector3(100, 0, 0)
+			"jump_in_distance": 5000.0,
+			"sector_type": "planet"
 		},
 		"sector_system_lywin": {
-			"position_in_zone": Vector3(200, 0, 0)
+			"jump_in_distance": 10000.0,
+			"sector_type": "star"
 		}
 	}
+	GameState.locations = mock_locs
+	TemplateDatabase.locations = mock_locs
 	GameState.current_sector_id = Constants.INITIAL_SECTOR_ID
 	GameState.game_time_seconds = 0
 	
@@ -42,6 +49,11 @@ func before_each():
 	_agent_system.set_script(agent_script)
 	add_child(_agent_system) # It registers itself to GlobalRefs in _ready
 	autoqfree(_agent_system)
+
+
+func after_each():
+	TemplateDatabase.locations = _original_locations
+
 
 func test_persistent_agents_spawn_on_world_init():
 	# Mock location availability (AgentSystem checks if dock position exists)
@@ -106,7 +118,7 @@ func test_invalid_persistent_location_falls_back_to_initial_sector():
 func test_route_arrival_spawn_position_uses_configured_arrival_radius():
 	var spawn_position = _agent_system._get_route_arrival_spawn_position(Vector3(0, 0, -1))
 	var distance = spawn_position.length()
-	assert_true(distance >= 1400.0 and distance <= 2600.0, "Route-based sector arrival should use the configured random anchor offset.")
+	assert_true(distance >= 1799.0 and distance <= 2201.0, "Route-based sector arrival should use the jump_in_distance offset (+/- 10%).")
 
 func test_persistent_agent_state_persists_across_save_load():
 	# This basically tests GameState structure as that's what is saved

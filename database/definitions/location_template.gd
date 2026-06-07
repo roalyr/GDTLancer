@@ -19,7 +19,7 @@ class_name LocationTemplate
 
 # --- Identity & Scene ---
 export var location_name: String = "Unknown Station"
-export var position_in_zone: Vector3 = Vector3.ZERO  # Optional in-scene dock anchor or interaction point.
+export var jump_in_distance: float = 5000.0  # Distance from origin or EntryPoint for spawning / jump-in (+/- 10% variation).
 export var interaction_radius: float = 100.0  # Dock/interact radius when a scene-level anchor uses this resource directly.
 
 # --- Sector Scene Configuration ---
@@ -41,7 +41,7 @@ export var sector_description: String = ""
 # --- World Layer: Topology (Section 2) ---
 ## IDs of connected sectors. These define the world-topology graph and jump routes.
 export var connections: PoolStringArray = PoolStringArray()
-## Celestial geographic classification: star / planet / moon / deep_space / hazard_zone
+## Celestial geographic classification: star / star_companion / planet / moon / deep_space / hazard_zone
 export var sector_type: String = "star"
 
 ## Dockable infrastructure level: frontier / outpost / colony / hub

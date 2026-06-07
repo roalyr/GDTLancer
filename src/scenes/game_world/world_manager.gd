@@ -317,6 +317,11 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if not _jump_transition_active:
 		_travel_to_sector_immediate(resolved_target_sector_id)
 		return
+	var jump_config = Constants.get_jump_config(old_sector, resolved_target_sector_id)
+	var target_fov = jump_config.get("target_fov_deg", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
+	var travel_duration = jump_config.get("travel_duration_sec", Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC)
+	var tolerance = jump_config.get("route_completion_tolerance", Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE)
+
 	var departure_direction = _get_departure_direction_for_route(old_sector, resolved_target_sector_id)
 	var departure_visuals_state = _prepare_jump_transition_departure_visuals(departure_direction)
 	if departure_visuals_state is GDScriptFunctionState:
@@ -324,7 +329,7 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	_pause_jump_transition_gameplay()
 	_call_jump_transition_rig_method(jump_transition_rig, "begin_departure_overlay_window")
 	var fov_override_state = _animate_main_camera_fov_override(
-		Constants.JUMP_TRANSITION_TARGET_FOV_DEG,
+		target_fov,
 		Constants.JUMP_TRANSITION_FOV_DURATION_SEC
 	)
 	if fov_override_state is GDScriptFunctionState:
@@ -334,14 +339,14 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	_cleanup_current_zone()
 	yield(get_tree(), "idle_frame")
 	var route_distance = _get_jump_transition_route_distance(old_sector, resolved_target_sector_id)
-	var cruise_speed = _get_jump_transition_cruise_speed(route_distance)
-	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed)
+	var cruise_speed = _get_jump_transition_cruise_speed(route_distance, travel_duration)
+	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed, travel_duration, tolerance)
 	if not is_instance_valid(jump_transition_rig):
 		jump_transition_rig = _get_jump_transition_rig()
 	_call_jump_transition_rig_method(
 		jump_transition_rig,
 		"set_transition_fov",
-		[Constants.JUMP_TRANSITION_TARGET_FOV_DEG]
+		[target_fov]
 	)
 	if _jump_transition_rig_supports_method(jump_transition_rig, "begin_cruise"):
 		_call_jump_transition_rig_method(jump_transition_rig, "begin_cruise", [cruise_speed])
@@ -480,6 +485,19 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 	)
 	if transition_forward_direction_value is Vector3:
 		transition_forward_direction = transition_forward_direction_value
+		
+	# On jump-in trigger camera aim at target origin (coord origin or Entry point)
+	if is_instance_valid(GlobalRefs.player_agent_body):
+		var anchor_pos = Vector3.ZERO
+		if is_instance_valid(GlobalRefs.current_zone):
+			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
+			if entry_node and entry_node is Spatial:
+				anchor_pos = entry_node.global_transform.origin
+		var player_pos = GlobalRefs.player_agent_body.global_transform.origin
+		var target_origin_dir = (anchor_pos - player_pos).normalized()
+		if target_origin_dir.length_squared() > 0.001:
+			transition_forward_direction = target_origin_dir
+			
 	_call_jump_transition_rig_method(jump_transition_rig, "deactivate_transition_view")
 	_call_jump_transition_rig_method(
 		jump_transition_rig,
@@ -496,8 +514,14 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 			GlobalRefs.main_camera.set_target_node(GlobalRefs.player_agent_body)
 			if transition_forward_direction.length_squared() >= 0.001 and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
 				GlobalRefs.main_camera.set_orbit_forward_direction(transition_forward_direction)
+	var target_fov = float(_call_jump_transition_rig_method(
+		jump_transition_rig,
+		"get_transition_fov",
+		[],
+		Constants.JUMP_TRANSITION_TARGET_FOV_DEG
+	))
 	if GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
-		GlobalRefs.main_camera.set_temporary_fov_override(Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
+		GlobalRefs.main_camera.set_temporary_fov_override(target_fov)
 	GlobalRefs.main_camera.current = true
 
 
@@ -624,20 +648,20 @@ func _get_jump_transition_route_distance(source_sector_id: String, target_sector
 	return _get_sector_global_position(source_sector_id).distance_to(_get_sector_global_position(target_sector_id))
 
 
-func _get_jump_transition_cruise_speed(route_distance: float) -> float:
+func _get_jump_transition_cruise_speed(route_distance: float, travel_duration_sec: float = Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC) -> float:
 	if route_distance <= 0.0:
 		return 0.0
 	var effective_travel_window_sec = max(
-		Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC - Constants.JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC,
+		travel_duration_sec - Constants.JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC,
 		0.1
 	)
 	return route_distance / effective_travel_window_sec
 
 
-func _get_jump_transition_route_timeout_sec(route_distance: float, cruise_speed: float) -> float:
-	if route_distance <= Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE or cruise_speed <= 0.0:
+func _get_jump_transition_route_timeout_sec(route_distance: float, cruise_speed: float, travel_duration_sec: float = Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC, tolerance: float = Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE) -> float:
+	if route_distance <= tolerance or cruise_speed <= 0.0:
 		return Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
-	return Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC + Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
+	return travel_duration_sec + Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
 
 
 func _request_sector_travel_tick() -> void:
