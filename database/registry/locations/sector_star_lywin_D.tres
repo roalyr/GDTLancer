@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "sector_star_lywin_D"
 location_name = "Lywin D"
-jump_in_distance = 5000.0
+jump_in_distance = 12000.0
 interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_lywin/sector_star_lywin_D.tscn"
 global_position = Vector3( 560100, -62000, 513000 )

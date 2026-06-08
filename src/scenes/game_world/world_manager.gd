@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: world_manager.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-23 15:59:10
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-06-08 02:04:00
 #
 
 extends Node
@@ -24,6 +24,8 @@ var _jump_transition_active: bool = false
 var _jump_transition_tree_was_paused: bool = false
 var _jump_transition_timer_was_running: bool = false
 var _jump_transition_mouse_mode_before_lock: int = Input.MOUSE_MODE_VISIBLE
+var _recorded_fov: float = 70.0
+var _recorded_zoom_distance: float = 55.0
 
 # --- Nodes ---
 var _time_clock_timer: Timer = null
@@ -317,91 +319,162 @@ func _run_jump_transition_sequence(target_sector_id: String) -> void:
 	if not _jump_transition_active:
 		_travel_to_sector_immediate(resolved_target_sector_id)
 		return
-	var jump_config = Constants.get_jump_config(old_sector, resolved_target_sector_id)
-	var target_fov = jump_config.get("target_fov_deg", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
-	var travel_duration = jump_config.get("travel_duration_sec", Constants.JUMP_TRANSITION_TRAVEL_DURATION_SEC)
-	var tolerance = jump_config.get("route_completion_tolerance", Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE)
 
 	var departure_direction = _get_departure_direction_for_route(old_sector, resolved_target_sector_id)
+
+	# Step 1: Ship orienting and accelerating, camera locked, HUD hidden, camera state recorded
 	var departure_visuals_state = _prepare_jump_transition_departure_visuals(departure_direction)
 	if departure_visuals_state is GDScriptFunctionState:
 		yield(departure_visuals_state, "completed")
+
+	# Record camera state
+	if is_instance_valid(GlobalRefs.main_camera):
+		_recorded_fov = GlobalRefs.main_camera.fov
+		if GlobalRefs.main_camera.has_method("get_current_orbit_distance"):
+			_recorded_zoom_distance = GlobalRefs.main_camera.get_current_orbit_distance()
+		else:
+			_recorded_zoom_distance = GlobalRefs.main_camera.distance
+
+	# Resume/ensure ship acceleration
+	if is_instance_valid(GlobalRefs.player_agent_body) and GlobalRefs.player_agent_body.has_method("command_align_to"):
+		GlobalRefs.player_agent_body.command_align_to(departure_direction, true, 1.0, true)
+
+	# Acceleration resumes during JUMP_ACCEL_DURATION
+	var accel_state = _yield_real_time(Constants.JUMP_ACCEL_DURATION)
+	if accel_state is GDScriptFunctionState:
+		yield(accel_state, "completed")
+
+	# Step 2: Fade-in to black begins
+	var fade_in_state = _fade_transition_overlay(1.0, Constants.JUMP_FADE_DURATION)
+	if fade_in_state is GDScriptFunctionState:
+		yield(fade_in_state, "completed")
+
+	# Step 3: When scene is hidden, unload old scene, enable transition camera and start movement
 	_pause_jump_transition_gameplay()
-	_call_jump_transition_rig_method(jump_transition_rig, "begin_departure_overlay_window")
-	var fov_override_state = _animate_main_camera_fov_override(
-		target_fov,
-		Constants.JUMP_TRANSITION_FOV_DURATION_SEC
-	)
-	if fov_override_state is GDScriptFunctionState:
-		yield(fov_override_state, "completed")
+
 	_prepare_sector_travel_state(resolved_target_sector_id, old_sector)
 	_cleanup_all_agents()
 	_cleanup_current_zone()
 	yield(get_tree(), "idle_frame")
-	var route_distance = _get_jump_transition_route_distance(old_sector, resolved_target_sector_id)
-	var cruise_speed = _get_jump_transition_cruise_speed(route_distance, travel_duration)
-	var route_timeout_sec = _get_jump_transition_route_timeout_sec(route_distance, cruise_speed, travel_duration, tolerance)
-	if not is_instance_valid(jump_transition_rig):
-		jump_transition_rig = _get_jump_transition_rig()
-	_call_jump_transition_rig_method(
-		jump_transition_rig,
-		"set_transition_fov",
-		[target_fov]
-	)
-	if _jump_transition_rig_supports_method(jump_transition_rig, "begin_cruise"):
-		_call_jump_transition_rig_method(jump_transition_rig, "begin_cruise", [cruise_speed])
-		_call_jump_transition_rig_method(
-			jump_transition_rig,
-			"set_transition_particles_active",
-			[true, true]
-		)
-		_call_jump_transition_rig_method(jump_transition_rig, "on_departure_cruise_entered")
-		var cruise_velocity_state = _wait_for_rig_velocity(
-			jump_transition_rig,
-			cruise_speed,
-			Constants.JUMP_TRANSITION_VELOCITY_TOLERANCE,
-			Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
-		)
-		if cruise_velocity_state is GDScriptFunctionState:
-			yield(cruise_velocity_state, "completed")
-		var route_completion_state = _wait_for_rig_route_completion(jump_transition_rig, route_timeout_sec)
-		if route_completion_state is GDScriptFunctionState:
-			yield(route_completion_state, "completed")
-		var route_complete = bool(
-			_call_jump_transition_rig_method(
-				jump_transition_rig,
-				"is_route_complete",
-				[],
-				true
-			)
-		)
-		if not route_complete and _jump_transition_rig_supports_method(jump_transition_rig, "begin_arrival"):
-			_call_jump_transition_rig_method(jump_transition_rig, "begin_arrival")
-			var arrival_velocity_state = _wait_for_rig_velocity(
-				jump_transition_rig,
-				0.0,
-				Constants.JUMP_TRANSITION_VELOCITY_TOLERANCE,
-				Constants.JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC
-			)
-			if arrival_velocity_state is GDScriptFunctionState:
-				yield(arrival_velocity_state, "completed")
+
+	# Enable transition camera/rig and configure
+	if is_instance_valid(jump_transition_rig):
+		if jump_transition_rig.has_method("capture_from_camera") and is_instance_valid(GlobalRefs.main_camera):
+			jump_transition_rig.capture_from_camera(GlobalRefs.main_camera)
+
+		# Set transition camera fov to the max orbit camera fov
+		if jump_transition_rig.has_method("set_transition_fov"):
+			jump_transition_rig.set_transition_fov(Constants.MAX_ORBIT_CAMERA_FOV)
+		elif "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
+			jump_transition_rig._transition_camera.fov = Constants.MAX_ORBIT_CAMERA_FOV
+
+		# Initialize transition rig route details
+		if jump_transition_rig.has_method("begin_departure"):
+			jump_transition_rig.begin_departure(old_sector, resolved_target_sector_id, departure_direction)
+
+		# Make sure the rig is visible and active for rendering
+		if "visible" in jump_transition_rig:
+			jump_transition_rig.visible = true
+
+		if "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
+			jump_transition_rig._transition_camera.current = true
+
+		if jump_transition_rig.has_method("set_transition_particles_active"):
+			jump_transition_rig.set_transition_particles_active(true, true)
+
+	# Gradually lift the fade
+	var fade_out_rig_state = _fade_transition_overlay(0.0, Constants.JUMP_FADE_DURATION)
+	if fade_out_rig_state is GDScriptFunctionState:
+		yield(fade_out_rig_state, "completed")
+
+	# Step 4: Movement continues for travel duration. Fade-in begins at threshold.
+	var source_type = _get_sector_type(old_sector)
+	var target_type = _get_sector_type(resolved_target_sector_id)
+	var travel_duration = Constants.get_jump_travel_duration(source_type, target_type)
+
+	var travel_time: float = 0.0
+	var threshold_time: float = max(travel_duration - Constants.JUMP_FADE_DURATION, 0.0)
+	var fade_in_started: bool = false
+
+	while travel_time < travel_duration:
+		# Use get_process_delta_time since gameplay tree is paused during transition
+		var frame_delta = get_process_delta_time()
+		travel_time += frame_delta
+		var t = clamp(travel_time / travel_duration, 0.0, 1.0)
+		# Smootherstep easing (Ken Perlin's formula: 6t^5 - 15t^4 + 10t^3)
+		# This guarantees that both velocity and acceleration start and end at 0.
+		var eased_t = t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+
+		# Interpolate rig position
+		if is_instance_valid(jump_transition_rig):
+			if jump_transition_rig.has_method("update_travel_progress"):
+				jump_transition_rig.update_travel_progress(eased_t)
+			else:
+				if "_route_has_valid_positions" in jump_transition_rig and jump_transition_rig._route_has_valid_positions:
+					jump_transition_rig._route_world_position = lerp(
+						jump_transition_rig._route_origin_world_position,
+						jump_transition_rig._route_target_world_position,
+						eased_t
+					)
+					if "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
+						jump_transition_rig._transition_camera.global_transform.origin = jump_transition_rig._get_route_local_position()
+
+		# At threshold, start the fade-in to black asynchronously
+		if travel_time >= threshold_time and not fade_in_started:
+			fade_in_started = true
+			_fade_transition_overlay_async(1.0, Constants.JUMP_FADE_DURATION)
+
+		yield(get_tree(), "idle_frame")
+
+	# Ensure overlay is fully opaque
+	var final_fade_state = _fade_transition_overlay(1.0, 0.1)
+	if final_fade_state is GDScriptFunctionState:
+		yield(final_fade_state, "completed")
+
+	# Deactivate transition rig view
+	if is_instance_valid(jump_transition_rig):
+		if jump_transition_rig.has_method("deactivate_transition_view"):
+			jump_transition_rig.deactivate_transition_view()
+		else:
+			if "visible" in jump_transition_rig:
+				jump_transition_rig.visible = false
+			if "_transition_camera" in jump_transition_rig and is_instance_valid(jump_transition_rig._transition_camera):
+				jump_transition_rig._transition_camera.current = false
+		if jump_transition_rig.has_method("set_transition_particles_active"):
+			jump_transition_rig.set_transition_particles_active(false, true)
+
+	# Load destination sector
 	load_sector(resolved_target_sector_id)
 	yield(get_tree(), "idle_frame")
+
 	var player_ready_state = _wait_for_player_and_zone_ready(Constants.JUMP_TRANSITION_LOAD_TIMEOUT_SEC)
 	if player_ready_state is GDScriptFunctionState:
 		yield(player_ready_state, "completed")
-	_restore_gameplay_camera_at_transition_fov()
-	var fov_restore_state = _animate_main_camera_fov_restore(Constants.JUMP_TRANSITION_FOV_DURATION_SEC)
-	if fov_restore_state is GDScriptFunctionState:
-		yield(fov_restore_state, "completed")
-	_set_jump_transition_camera_locked(false)
-	var hud_show_delay_state = _yield_real_time(Constants.JUMP_TRANSITION_HUD_SHOW_DELAY_SEC)
-	if hud_show_delay_state is GDScriptFunctionState:
-		yield(hud_show_delay_state, "completed")
-	_set_main_hud_hidden(false)
+
+	# Restore camera zoom and FoV
+	_restore_gameplay_camera_at_recorded_state()
+
+	# Unpause gameplay
 	_restore_jump_transition_gameplay()
+
+	# Fade lifts gradually
+	var final_fade_out_state = _fade_transition_overlay(0.0, Constants.JUMP_FADE_DURATION)
+	if final_fade_out_state is GDScriptFunctionState:
+		yield(final_fade_out_state, "completed")
+
+	# HUD returns in the very end
+	_set_main_hud_hidden(false)
+
+	_set_jump_transition_camera_locked(false)
 	_reset_jump_transition_foundation()
 	_request_sector_travel_tick()
+
+
+func _get_sector_type(sector_id: String) -> String:
+	var sector_template = TemplateDatabase.locations.get(sector_id)
+	if sector_template != null and "sector_type" in sector_template:
+		return sector_template.sector_type
+	return "star"
 
 
 func _travel_to_sector_immediate(target_sector_id: String) -> void:
@@ -473,6 +546,10 @@ func _set_main_hud_hidden(is_hidden: bool) -> void:
 
 
 func _restore_gameplay_camera_at_transition_fov() -> void:
+	_restore_gameplay_camera_at_recorded_state()
+
+
+func _restore_gameplay_camera_at_recorded_state() -> void:
 	if not is_instance_valid(GlobalRefs.main_camera):
 		return
 	var jump_transition_rig = _get_jump_transition_rig()
@@ -504,6 +581,23 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 		"set_transition_particles_active",
 		[false, true]
 	)
+
+	# Restore recorded FoV
+	if GlobalRefs.main_camera.has_method("apply_zoom_controller_fov"):
+		GlobalRefs.main_camera.apply_zoom_controller_fov(_recorded_fov)
+	elif "fov" in GlobalRefs.main_camera:
+		GlobalRefs.main_camera.fov = _recorded_fov
+		
+	# Restore recorded zoom distance
+	if "_zoom_controller" in GlobalRefs.main_camera and GlobalRefs.main_camera._zoom_controller != null and GlobalRefs.main_camera._zoom_controller.has_method("_set_and_update_zoom_distance"):
+		GlobalRefs.main_camera._zoom_controller._set_and_update_zoom_distance(_recorded_zoom_distance, false)
+	elif "distance" in GlobalRefs.main_camera:
+		GlobalRefs.main_camera.distance = _recorded_zoom_distance
+
+	# Clear temporary fov override if any
+	if GlobalRefs.main_camera.has_method("clear_temporary_fov_override"):
+		GlobalRefs.main_camera.clear_temporary_fov_override()
+
 	if is_instance_valid(GlobalRefs.player_agent_body):
 		if GlobalRefs.main_camera.has_method("restore_orbit_from_transition_view"):
 			GlobalRefs.main_camera.restore_orbit_from_transition_view(
@@ -514,21 +608,39 @@ func _restore_gameplay_camera_at_transition_fov() -> void:
 			GlobalRefs.main_camera.set_target_node(GlobalRefs.player_agent_body)
 			if transition_forward_direction.length_squared() >= 0.001 and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
 				GlobalRefs.main_camera.set_orbit_forward_direction(transition_forward_direction)
-	var target_fov = float(_call_jump_transition_rig_method(
-		jump_transition_rig,
-		"get_transition_fov",
-		[],
-		Constants.JUMP_TRANSITION_TARGET_FOV_DEG
-	))
-	if GlobalRefs.main_camera.has_method("set_temporary_fov_override"):
-		GlobalRefs.main_camera.set_temporary_fov_override(target_fov)
+
 	GlobalRefs.main_camera.current = true
+
+
+func _fade_transition_overlay(target_alpha: float, duration: float):
+	var rig = _get_jump_transition_rig()
+	if not is_instance_valid(rig):
+		return
+	var start_alpha = 0.0
+	if rig.has_method("get_transition_overlay_alpha"):
+		start_alpha = rig.get_transition_overlay_alpha()
+		
+	var start_time_ms = OS.get_ticks_msec()
+	var duration_ms = max(int(duration * 1000.0), 1)
+	while true:
+		var elapsed_ms = OS.get_ticks_msec() - start_time_ms
+		var t = clamp(float(elapsed_ms) / float(duration_ms), 0.0, 1.0)
+		var current_alpha = lerp(start_alpha, target_alpha, t)
+		if rig.has_method("_apply_transition_overlay_alpha"):
+			rig._apply_transition_overlay_alpha(current_alpha)
+		if t >= 1.0:
+			break
+		yield(get_tree(), "idle_frame")
+
+
+func _fade_transition_overlay_async(target_alpha: float, duration: float) -> void:
+	_fade_transition_overlay(target_alpha, duration)
 
 
 func _prepare_jump_transition_departure_visuals(departure_direction: Vector3):
 	if is_instance_valid(GlobalRefs.main_camera) and GlobalRefs.main_camera.has_method("set_orbit_forward_direction"):
 		GlobalRefs.main_camera.set_orbit_forward_direction(departure_direction)
-	var camera_aim_state = _yield_real_time(Constants.JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC)
+	var camera_aim_state = _yield_real_time(1.0)
 	if camera_aim_state is GDScriptFunctionState:
 		yield(camera_aim_state, "completed")
 	var jump_transition_rig = _get_jump_transition_rig()

@@ -50,5 +50,5 @@ market_inventory = {
 available_services = [ "trade", "contracts", "repair", "black_market" ]
 controlling_faction_id = "faction_miners"
 danger_level = 1
-initial_sector_tags = PoolStringArray( "STATION", "SECURE", "MILD", "MANUFACTURED_RICH" )
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "MANUFACTURED_ADEQUATE" )
 available_contract_ids = [ "delivery_01", "delivery_02" ]

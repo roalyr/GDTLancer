@@ -3,7 +3,7 @@
 # MODULE: test_world_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 16:45:00
+# LOG_REF: 2026-06-08 01:55:00
 #
 
 extends GutTest
@@ -140,17 +140,8 @@ func _clear_state() -> void:
 
 
 func _seed_template_database() -> void:
-	## Seed TemplateDatabase.locations with the full live 5-sector registry so world_layer tests
-	## exercise the canonical topology instead of producing partial-graph warnings.
-	var location_paths: Array = [
-		"res://database/registry/locations/sector_system_elace.tres",
-		"res://database/registry/locations/sector_system_cob.tres",
-		"res://database/registry/locations/sector_system_lywin.tres",
-		"res://database/registry/locations/sector_system_vidr.tres",
-		"res://database/registry/locations/sector_system_ebreeta.tres",
-	]
+	var TemplateIndexer = load("res://src/scenes/game_world/world_manager/template_indexer.gd")
+	var indexer = TemplateIndexer.new()
 	TemplateDatabase.locations.clear()
-	for path in location_paths:
-		var res = load(path)
-		if res != null:
-			TemplateDatabase.locations[res.template_id] = res
+	indexer.index_all_templates()
+	indexer.free()

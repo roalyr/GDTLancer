@@ -3,7 +3,7 @@
 # MODULE: test_jump_transition_regressions.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_DOCS_Particle shaders_Godot_3.6.md note plus §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-27 04:29:00
+# LOG_REF: 2026-06-08 02:20:00
 #
 
 extends GutTest
@@ -196,8 +196,8 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 
 	assert_eq(
 		transition_camera.fov,
-		source_camera.fov,
-		"The transition camera should inherit the live gameplay camera FoV before the widened transition handoff."
+		Constants.MAX_ORBIT_CAMERA_FOV,
+		"The transition camera should use the maximum orbit camera FoV."
 	)
 	assert_eq(
 		transition_camera.global_transform.origin,
@@ -214,7 +214,7 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 		"The transition rig should anchor its starsphere to the source-sector reference offset instead of recentering it on the camera."
 	)
 
-	rig.set_transition_fov(Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
+	rig.set_transition_fov(Constants.MAX_ORBIT_CAMERA_FOV)
 	rig.begin_cruise(1000.0)
 	rig._process(1.0)
 
@@ -302,87 +302,28 @@ func test_restore_gameplay_camera_at_transition_fov_deactivates_transition_view(
 	assert_true(camera.current, "Gameplay camera restore should hand current-camera ownership back to the main camera.")
 
 
-func test_jump_transition_rig_begin_arrival_starts_overlay_window():
+func test_fade_transition_overlay_drives_rig_overlay():
+	var container = Node.new()
+	add_child_autofree(container)
+	var world_manager = WorldManagerScript.new()
+	container.add_child(world_manager)
+
 	var rig = JumpTransitionRigScene.instance()
-	add_child_autofree(rig)
+	rig.name = Constants.JUMP_TRANSITION_RIG_NODE_NAME
+	container.add_child(rig)
 
-	rig.begin_arrival()
-	rig._process(0.25)
+	var fade_state = world_manager._fade_transition_overlay(0.8, 0.05)
+	if fade_state is GDScriptFunctionState:
+		yield(fade_state, "completed")
 
-	assert_true(
-		rig.get_transition_overlay_alpha() > 0.0,
-		"Beginning arrival should start the rig-owned overlay window immediately so decel can carry visual cover into the arrival handoff."
-	)
-	assert_true(
-		rig.get_node("TransitionOverlayLayer/TransitionOverlay").visible,
-		"The TransitionOverlay should become visible as soon as the arrival overlay window begins."
-	)
+	assert_eq(rig.get_transition_overlay_alpha(), 0.8, "The overlay alpha should be driven to the target value by the WorldManager fade coroutine.")
 
 
-func test_jump_transition_rig_arrival_fade_in_uses_faster_curve_and_duration_than_departure():
-	var rig = JumpTransitionRigScene.instance()
-	add_child_autofree(rig)
-
-	rig.begin_departure_overlay_window()
-	rig._process(0.25)
-	var departure_alpha = rig.get_transition_overlay_alpha()
-
-	rig.reset_transition_state()
-	rig.begin_arrival_overlay_window()
-	rig._process(0.25)
-	var arrival_alpha = rig.get_transition_overlay_alpha()
-	var expected_arrival_alpha = Constants.JUMP_TRANSITION_OVERLAY_PEAK_ALPHA * pow(
-		clamp(
-			0.25 / Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_DURATION_SEC,
-			0.0,
-			1.0
-		),
-		Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_CURVE_POWER
-	)
-
-	assert_true(
-		arrival_alpha > departure_alpha,
-		"Arrival fade-in should use its dedicated faster rise settings so the destination scene is covered sooner during deceleration than the shared departure fade-in profile."
-	)
-	assert_true(
-		abs(arrival_alpha - expected_arrival_alpha) <= 0.001,
-		"Arrival fade-in should now be driven by its dedicated duration plus curve parameter instead of reusing the full FoV duration."
-	)
-
-
-func test_jump_transition_rig_arrival_release_countdown_starts_when_overlay_reaches_full_opacity():
-	var rig = JumpTransitionRigScene.instance()
-	add_child_autofree(rig)
-
-	rig.begin_arrival_overlay_window()
-	rig._process(Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_DURATION_SEC)
-	var peak_alpha = rig.get_transition_overlay_alpha()
-	rig._process(0.25)
-
-	assert_eq(
-		peak_alpha,
-		Constants.JUMP_TRANSITION_OVERLAY_PEAK_ALPHA,
-		"Arrival overlay rise should still reach full opacity before the post-arrival countdown begins."
-	)
-	assert_eq(
-		rig.get_transition_overlay_alpha(),
-		peak_alpha,
-		"Arrival overlay should hold at full opacity after the rise completes instead of starting to fade immediately."
-	)
-
-	rig._process(Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_POST_FULL_OPACITY_HOLD_SEC)
-	rig._process(0.1)
-	assert_true(
-		rig.get_transition_overlay_alpha() < peak_alpha,
-		"Arrival overlay release should start only after the configured full-opacity hold has elapsed."
-	)
-
-
-func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_boundaries():
+func test_run_jump_transition_sequence_simplified_flow():
 	var event_order = []
 
 	var world_manager_script = GDScript.new()
-	world_manager_script.source_code = "extends \"res://src/scenes/game_world/world_manager.gd\"\nvar events_ref = null\nvar rig_ref = null\nfunc _resolve_known_sector_id(sector_id, _context=\"\"):\n\treturn sector_id\nfunc _begin_jump_transition_foundation(_source_sector_id, _target_sector_id):\n\t_jump_transition_active = true\nfunc _prepare_jump_transition_departure_visuals(_departure_direction):\n\tevents_ref.append(\"prepare_visuals\")\nfunc _pause_jump_transition_gameplay():\n\tevents_ref.append(\"pause_gameplay\")\nfunc _animate_main_camera_fov_override(_target_fov, _duration_sec):\n\tevents_ref.append(\"fov_override\")\nfunc _prepare_sector_travel_state(_target_sector_id, _old_sector_id=\"\"):\n\tevents_ref.append(\"prepare_sector_state\")\n\treturn _old_sector_id\nfunc _cleanup_all_agents():\n\tevents_ref.append(\"cleanup_agents\")\nfunc _cleanup_current_zone():\n\tevents_ref.append(\"cleanup_zone\")\nfunc _get_jump_transition_route_distance(_old_sector_id, _target_sector_id):\n\treturn 1000.0\nfunc _get_jump_transition_cruise_speed(_route_distance, _travel_duration_sec=0.0):\n\treturn 250.0\nfunc _get_jump_transition_route_timeout_sec(_route_distance, _cruise_speed, _travel_duration_sec=0.0, _tolerance=0.0):\n\treturn 1.0\nfunc _get_jump_transition_rig():\n\treturn rig_ref\nfunc _wait_for_rig_velocity(_jump_transition_rig, _target_velocity, _tolerance, _timeout_sec):\n\tevents_ref.append(\"wait_velocity\")\nfunc _wait_for_rig_route_completion(_jump_transition_rig, _timeout_sec):\n\tevents_ref.append(\"wait_route\")\nfunc load_sector(_sector_id):\n\tevents_ref.append(\"load_sector\")\nfunc _wait_for_player_and_zone_ready(_timeout_sec):\n\tevents_ref.append(\"wait_ready\")\nfunc _restore_gameplay_camera_at_transition_fov():\n\tevents_ref.append(\"restore_camera\")\nfunc _animate_main_camera_fov_restore(_duration_sec):\n\tevents_ref.append(\"fov_restore\")\nfunc _set_jump_transition_camera_locked(is_locked):\n\tevents_ref.append(\"lock_\" + str(is_locked))\nfunc _yield_real_time(_duration_sec):\n\tevents_ref.append(\"hud_delay\")\nfunc _set_main_hud_hidden(is_hidden):\n\tevents_ref.append(\"hud_\" + str(is_hidden))\nfunc _restore_jump_transition_gameplay():\n\tevents_ref.append(\"restore_gameplay\")\nfunc _reset_jump_transition_foundation():\n\tevents_ref.append(\"reset_foundation\")\n\t_jump_transition_active = false\nfunc _request_sector_travel_tick():\n\tevents_ref.append(\"request_tick\")\nfunc _get_departure_direction_for_route(_source_sector_id, _target_sector_id):\n\treturn Vector3(1, 0, 0)\n"
+	world_manager_script.source_code = "extends \"res://src/scenes/game_world/world_manager.gd\"\nvar events_ref = null\nvar rig_ref = null\nfunc _resolve_known_sector_id(sector_id, _context=\"\"):\n\treturn sector_id\nfunc _begin_jump_transition_foundation(_source_sector_id, _target_sector_id):\n\t_jump_transition_active = true\nfunc _prepare_jump_transition_departure_visuals(_departure_direction):\n\tevents_ref.append(\"prepare_visuals\")\nfunc _pause_jump_transition_gameplay():\n\tevents_ref.append(\"pause_gameplay\")\nfunc _prepare_sector_travel_state(_target_sector_id, _old_sector_id=\"\"):\n\tevents_ref.append(\"prepare_sector_state\")\n\treturn _old_sector_id\nfunc _cleanup_all_agents():\n\tevents_ref.append(\"cleanup_agents\")\nfunc _cleanup_current_zone():\n\tevents_ref.append(\"cleanup_zone\")\nfunc _get_jump_transition_rig():\n\treturn rig_ref\nfunc load_sector(_sector_id):\n\tevents_ref.append(\"load_sector\")\nfunc _wait_for_player_and_zone_ready(_timeout_sec):\n\tevents_ref.append(\"wait_ready\")\nfunc _restore_gameplay_camera_at_recorded_state():\n\tevents_ref.append(\"restore_camera\")\nfunc _set_jump_transition_camera_locked(is_locked):\n\tevents_ref.append(\"lock_\" + str(is_locked))\nfunc _yield_real_time(_duration_sec):\n\tevents_ref.append(\"yield_\" + str(_duration_sec))\nfunc _set_main_hud_hidden(is_hidden):\n\tevents_ref.append(\"hud_\" + str(is_hidden))\nfunc _restore_jump_transition_gameplay():\n\tevents_ref.append(\"restore_gameplay\")\nfunc _reset_jump_transition_foundation():\n\tevents_ref.append(\"reset_foundation\")\n\t_jump_transition_active = false\nfunc _request_sector_travel_tick():\n\tevents_ref.append(\"request_tick\")\nfunc _get_departure_direction_for_route(_source_sector_id, _target_sector_id):\n\treturn Vector3(1, 0, 0)\nfunc _fade_transition_overlay(target_alpha, duration):\n\tevents_ref.append(\"fade_\" + str(target_alpha))\nfunc _fade_transition_overlay_async(target_alpha, duration):\n\tevents_ref.append(\"fade_async_\" + str(target_alpha))\n"
 	world_manager_script.reload()
 	var world_manager = Node.new()
 	world_manager.set_script(world_manager_script)
@@ -390,7 +331,7 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	add_child_autofree(world_manager)
 
 	var rig_script = GDScript.new()
-	rig_script.source_code = "extends Node\nvar events_ref = null\nvar route_complete = false\nfunc set_transition_fov(_fov_deg):\n\tevents_ref.append(\"set_transition_fov\")\nfunc begin_cruise(_target_velocity):\n\tevents_ref.append(\"begin_cruise\")\nfunc set_transition_particles_active(is_active, clear_existing=false):\n\tevents_ref.append(\"transition_particles_\" + str(is_active) + \"_\" + str(clear_existing))\nfunc on_departure_cruise_entered():\n\tevents_ref.append(\"departure_hold\")\nfunc is_route_complete():\n\treturn route_complete\nfunc begin_arrival():\n\tevents_ref.append(\"begin_arrival\")\n\troute_complete = true\nfunc begin_departure_overlay_window():\n\tevents_ref.append(\"departure_overlay_start\")\nfunc on_arrival_fov_stabilized():\n\tevents_ref.append(\"arrival_hold\")\n"
+	rig_script.source_code = "extends Node\nvar events_ref = null\nfunc set_transition_fov(_fov_deg):\n\tevents_ref.append(\"set_transition_fov\")\nfunc begin_departure(_source, _target, _dir):\n\tevents_ref.append(\"begin_departure\")\nfunc set_transition_particles_active(is_active, clear_existing=false):\n\tevents_ref.append(\"particles_\" + str(is_active))\nfunc deactivate_transition_view():\n\tevents_ref.append(\"deactivate\")\n"
 	rig_script.reload()
 	var rig = Node.new()
 	rig.set_script(rig_script)
@@ -401,73 +342,19 @@ func test_run_jump_transition_sequence_uses_overlay_envelope_hooks_at_contract_b
 	var sequence_state = world_manager._run_jump_transition_sequence("sector_system_cob")
 	if sequence_state is GDScriptFunctionState:
 		yield(sequence_state, "completed")
-
-	assert_true(
-		event_order.find("departure_overlay_start") > event_order.find("pause_gameplay"),
-		"Jump orchestration should start the departure overlay window after gameplay pause bookkeeping and immediately before the FoV widen phase."
-	)
-	assert_true(
-		event_order.find("departure_overlay_start") < event_order.find("fov_override"),
-		"Jump orchestration should not delay the departure overlay until after the FoV widen begins."
-	)
-	assert_true(
-		event_order.find("departure_hold") > event_order.find("begin_cruise"),
-		"Jump orchestration should extend the departure overlay window into the first part of cruise instead of clearing it at cruise entry."
-	)
-	assert_false(
-		event_order.has("arrival_hold"),
-		"Jump orchestration should no longer wait for a manager-driven FoV-stabilization callback before the arrival overlay countdown begins."
-	)
-	assert_eq(
-		event_order.count("hud_delay"),
-		1,
-		"Jump orchestration should keep the existing HUD reveal delay but should no longer add a second stabilization-based wait for arrival overlay release."
-	)
-
-
-func test_jump_transition_fov_progress_eases_in_toward_the_wide_fov():
-	var world_manager = WorldManagerScript.new()
-	add_child_autofree(world_manager)
-
-	assert_eq(
-		world_manager._get_jump_transition_fov_progress(0.0),
-		0.0,
-		"FoV easing should start at the unmodified progress value."
-	)
-	assert_true(
-		world_manager._get_jump_transition_fov_progress(0.5) < 0.25,
-		"FoV easing should now stay behind the old quadratic midpoint so the widened jump FoV accelerates more gradually at the start."
-	)
-	assert_eq(
-		world_manager._get_jump_transition_fov_progress(1.0),
-		1.0,
-		"FoV easing should still reach the full target FoV at the end of the animation."
-	)
-
-
-func test_jump_transition_rig_cruise_accelerates_more_gradually_before_reaching_target_speed():
-	TemplateDatabase.locations["sector_system_cob"]["global_position"] = Vector3(6200, 50, -300)
-	var rig = JumpTransitionRigScene.instance()
-	add_child_autofree(rig)
-
-	var source_camera = Camera.new()
-	add_child_autofree(source_camera)
-	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
-
-	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
-	rig.begin_cruise(1000.0)
-	rig._process(0.5)
-
-	assert_true(
-		rig.get_current_velocity() > 0.0,
-		"Jump cruise should still accelerate forward during the transition."
-	)
-	assert_true(
-		rig.get_current_velocity() < 700.0,
-		"Jump cruise should ramp up more gradually than the prior near-instant acceleration so the transition has a softer takeoff."
-	)
-	rig.reset_transition_state()
+	assert_true(event_order.find("prepare_visuals") != -1, "Should prepare visuals.")
+	assert_true(event_order.find("yield_" + str(Constants.JUMP_ACCEL_DURATION)) != -1, "Should yield JUMP_ACCEL_DURATION.")
+	assert_true(event_order.find("fade_1.0") < event_order.find("pause_gameplay"), "Should fade to black before pausing gameplay.")
+	assert_true(event_order.find("pause_gameplay") < event_order.find("prepare_sector_state"), "Should pause gameplay before clearing sector.")
+	assert_true(event_order.find("cleanup_agents") != -1, "Should clean up agents.")
+	assert_true(event_order.find("cleanup_zone") != -1, "Should clean up zone.")
+	assert_true(event_order.find("begin_departure") != -1, "Should tell the rig to begin departure.")
+	assert_true(event_order.find("particles_True") != -1, "Should enable particles.")
+	assert_true(event_order.find("deactivate") != -1, "Should deactivate transition view before loading sector.")
+	assert_true(event_order.find("load_sector") != -1, "Should load destination sector.")
+	assert_true(event_order.find("restore_camera") != -1, "Should restore camera to destination orbit.")
+	assert_true(event_order.find("restore_gameplay") != -1, "Should restore gameplay pause state.")
+	assert_true(event_order.find("reset_foundation") != -1, "Should reset transition foundation.")
 
 
 func test_jump_transition_rig_completes_route_when_destination_is_reached():
@@ -503,25 +390,25 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	)
 
 
-func test_jump_transition_dynamic_constants_mapping():
-	# Test get_jump_category selection logic
-	assert_eq(Constants.get_jump_category("star", "star"), "star-star")
-	assert_eq(Constants.get_jump_category("star", "star_companion"), "star-star_companion")
-	assert_eq(Constants.get_jump_category("star_companion", "star"), "star-star_companion")
-	assert_eq(Constants.get_jump_category("star_companion", "star_companion"), "star-star_companion")
-	assert_eq(Constants.get_jump_category("star", "planet"), "star-planet")
-	assert_eq(Constants.get_jump_category("planet", "star"), "star-planet")
-	assert_eq(Constants.get_jump_category("planet", "moon"), "planet-moon")
-	assert_eq(Constants.get_jump_category("moon", "planet"), "planet-moon")
-	assert_eq(Constants.get_jump_category("deep_space", "star"), "any-deep_space")
-	assert_eq(Constants.get_jump_category("star", "hazard_zone"), "any-deep_space")
+func test_dynamic_travel_durations_for_pairs():
+	# star-star
+	assert_eq(Constants.get_jump_travel_duration("star", "star"), 20.0, "star-star travel should take 20 seconds.")
+	# star-star_companion (order-independent)
+	assert_eq(Constants.get_jump_travel_duration("star", "star_companion"), 15.0, "star-star_companion travel should take 15 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("star_companion", "star"), 15.0, "star_companion-star travel should take 15 seconds.")
+	# star-planet
+	assert_eq(Constants.get_jump_travel_duration("star", "planet"), 10.0, "star-planet travel should take 10 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("planet", "star"), 10.0, "planet-star travel should take 10 seconds.")
+	# planet-moon
+	assert_eq(Constants.get_jump_travel_duration("planet", "moon"), 5.0, "planet-moon travel should take 5 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("moon", "planet"), 5.0, "moon-planet travel should take 5 seconds.")
+	# any-deep_space
+	assert_eq(Constants.get_jump_travel_duration("star", "deep_space"), 8.0, "star-deep_space travel should take 8 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("deep_space", "planet"), 8.0, "deep_space-planet travel should take 8 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("deep_space", "deep_space"), 8.0, "deep_space-deep_space travel should take 8 seconds.")
+	# fallback/unknown defaults to JUMP_TRAVEL_DURATION (20.0)
+	assert_eq(Constants.get_jump_travel_duration("unknown_a", "unknown_b"), 20.0, "Fallback duration should be 20 seconds.")
 
-	# Test get_jump_config lookup for Dictionary mock locations
-	var s_mock = {"sector_type": "star"}
-	var t_mock = {"sector_type": "star_companion"}
-	TemplateDatabase.locations["sector_mock_s"] = s_mock
-	TemplateDatabase.locations["sector_mock_t"] = t_mock
-	
-	var config = Constants.get_jump_config("sector_mock_s", "sector_mock_t")
-	assert_eq(config["travel_duration_sec"], 10.0)
-	assert_eq(config["route_completion_tolerance"], 1500.0)
+
+
+

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: jump_transition_rig.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1
-# LOG_REF: 2026-05-17 01:12:04
+# TRUTH_LINK: TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §4, §6.1, §6.3, §7; TRUTH_DOCS_CanvasItem_Godot_3.6.md §Render modes; TRUTH_SIMULATION-GRAPH.md §1; TACTICAL_TODO.md TASK_3
+# LOG_REF: 2026-06-08 02:20:00
 #
 
 extends Spatial
@@ -56,7 +56,7 @@ func _ready() -> void:
 		_transition_camera.pause_mode = Node.PAUSE_MODE_PROCESS
 		_transition_camera.current = false
 	_cache_transition_particle_emitters()
-	_set_transition_overlay_active(false)
+	_apply_transition_overlay_alpha(0.0)
 	set_transition_particles_active(false, true)
 	_update_nebula_anchor_for_sector("")
 
@@ -67,7 +67,7 @@ func capture_from_camera(camera_node: Camera) -> void:
 	_captured_camera_transform = camera_node.global_transform
 	_has_captured_camera_transform = true
 	_transition_camera.global_transform = _captured_camera_transform
-	_transition_camera.fov = camera_node.fov
+	_transition_camera.fov = Constants.MAX_ORBIT_CAMERA_FOV
 
 
 func set_transition_fov(fov_deg: float) -> void:
@@ -81,16 +81,14 @@ func begin_departure(source_sector_id: String, target_sector_id: String, travel_
 	_travel_direction = _normalize_travel_direction(travel_direction)
 	_current_velocity = 0.0
 	_target_velocity = 0.0
-	_velocity_step_rate = 0.0
 	_cruise_active = false
 	_arrival_active = false
 	_route_origin_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_world_position = _get_world_position_for_sector(source_sector_id)
 	_route_target_world_position = _get_world_position_for_sector(target_sector_id)
 	_route_has_valid_positions = _route_world_position != Vector3.ZERO or _route_target_world_position != Vector3.ZERO
-	_route_complete = _get_remaining_route_distance() <= _get_completion_tolerance()
+	_route_complete = false
 	visible = false
-	_set_transition_overlay_active(false)
 	set_transition_particles_active(false, true)
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
@@ -103,7 +101,7 @@ func begin_departure(source_sector_id: String, target_sector_id: String, travel_
 			_transition_camera.global_transform = Transform(Basis(), _get_route_local_position())
 		_align_camera_to_travel_direction()
 	_update_nebula_anchor_for_sector(source_sector_id)
-	_refresh_process_state()
+	set_process(false)
 
 
 func begin_cruise(target_velocity: float) -> void:
@@ -112,43 +110,51 @@ func begin_cruise(target_velocity: float) -> void:
 	_arrival_active = false
 	_route_complete = false
 	_target_velocity = max(target_velocity, 0.0)
-	_velocity_step_rate = _get_velocity_step_rate(_target_velocity)
+	_current_velocity = _target_velocity
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = true
-	_refresh_process_state()
+	set_process(true)
 
 
 func begin_arrival() -> void:
 	_cruise_active = false
 	_arrival_active = true
 	_target_velocity = 0.0
-	_velocity_step_rate = _get_velocity_step_rate(_current_velocity)
-	begin_arrival_overlay_window()
-	_refresh_process_state()
+	_current_velocity = 0.0
+	_route_complete = true
+	set_process(false)
+
+
+func update_travel_progress(t: float) -> void:
+	if _route_has_valid_positions:
+		var old_pos = _route_world_position
+		_route_world_position = lerp(_route_origin_world_position, _route_target_world_position, t)
+		
+		# Estimate current velocity based on position change and delta time
+		var delta = get_process_delta_time()
+		if delta > 0.0001:
+			_current_velocity = old_pos.distance_to(_route_world_position) / delta
+		else:
+			_current_velocity = 0.0
+
+		if is_instance_valid(_transition_camera):
+			_transition_camera.global_transform.origin = _get_route_local_position()
 
 
 func begin_departure_overlay_window() -> void:
-	_begin_transition_overlay_window(
-		_get_transition_overlay_default_curve_power(),
-		Constants.JUMP_TRANSITION_FOV_DURATION_SEC,
-		0.0
-	)
+	pass
 
 
 func on_departure_cruise_entered() -> void:
-	_begin_transition_overlay_decay(Constants.JUMP_TRANSITION_OVERLAY_POST_DEPARTURE_HOLD_SEC)
+	pass
 
 
 func begin_arrival_overlay_window() -> void:
-	_begin_transition_overlay_window(
-		_get_transition_overlay_arrival_fade_in_curve_power(),
-		_get_transition_overlay_arrival_fade_in_duration_sec(),
-		Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_POST_FULL_OPACITY_HOLD_SEC
-	)
+	pass
 
 
 func on_arrival_fov_stabilized() -> void:
-	return
+	pass
 
 
 func get_transition_overlay_alpha() -> float:
@@ -161,7 +167,6 @@ func reset_transition_state() -> void:
 	_travel_direction = Constants.JUMP_TRANSITION_DEFAULT_DIRECTION
 	_current_velocity = 0.0
 	_target_velocity = 0.0
-	_velocity_step_rate = 0.0
 	_cruise_active = false
 	_arrival_active = false
 	_has_captured_camera_transform = false
@@ -175,24 +180,16 @@ func reset_transition_state() -> void:
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
 		_transition_camera.global_transform = Transform.IDENTITY
-	_set_transition_overlay_active(false)
+	_apply_transition_overlay_alpha(0.0)
 	set_transition_particles_active(false, true)
 	_update_nebula_anchor_for_sector("")
-	_refresh_process_state()
+	set_process(false)
 
 
 func get_transition_fov() -> float:
 	if is_instance_valid(_transition_camera):
 		return _transition_camera.fov
-	return _get_active_config().get("target_fov_deg", Constants.JUMP_TRANSITION_TARGET_FOV_DEG)
-
-
-func _get_active_config() -> Dictionary:
-	return Constants.get_jump_config(_source_sector_id, _target_sector_id)
-
-
-func _get_completion_tolerance() -> float:
-	return _get_active_config().get("route_completion_tolerance", Constants.JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE)
+	return Constants.MAX_ORBIT_CAMERA_FOV
 
 
 func deactivate_transition_view() -> void:
@@ -200,44 +197,26 @@ func deactivate_transition_view() -> void:
 	if is_instance_valid(_transition_camera):
 		_transition_camera.current = false
 	set_transition_particles_active(false, true)
-	_refresh_process_state()
+	set_process(false)
 
 
 func _process(delta: float) -> void:
-	_update_transition_overlay_envelope(delta)
-	if not is_instance_valid(_transition_camera):
-		_refresh_process_state()
-		return
-	if _cruise_active and _route_has_valid_positions and _get_remaining_route_distance() <= _get_braking_distance() + _get_completion_tolerance():
-		begin_arrival()
-	_current_velocity = move_toward(_current_velocity, _target_velocity, _velocity_step_rate * delta)
-	var remaining_distance = _get_remaining_route_distance()
-	var travel_step = _current_velocity * delta
-	if travel_step > 0.0:
-		if _route_has_valid_positions:
-			travel_step = min(travel_step, remaining_distance)
-		if _route_has_valid_positions:
-			_route_world_position += _travel_direction * travel_step
-			_transition_camera.global_transform.origin = _get_route_local_position()
+	if _cruise_active:
+		var remaining = _get_remaining_route_distance()
+		var step = _target_velocity * delta
+		if remaining > 0.0:
+			step = min(step, remaining)
+			_route_world_position += _travel_direction * step
+			if is_instance_valid(_transition_camera):
+				_transition_camera.global_transform.origin = _get_route_local_position()
+			if _get_remaining_route_distance() <= 0.1:
+				_route_complete = true
+				_cruise_active = false
+				set_process(false)
 		else:
-			_transition_camera.global_transform.origin += _travel_direction * travel_step
-	remaining_distance = _get_remaining_route_distance()
-	if _route_has_valid_positions and remaining_distance <= _get_completion_tolerance() and _current_velocity <= _get_completion_tolerance():
-		_route_world_position = _route_target_world_position
-		_transition_camera.global_transform.origin = _get_route_local_position()
-		_current_velocity = 0.0
-		_target_velocity = 0.0
-		_cruise_active = false
-		_arrival_active = false
-		_route_complete = true
-		_refresh_process_state()
-	elif _arrival_active and _current_velocity <= _get_completion_tolerance():
-		if _route_has_valid_positions:
-			_route_world_position = _route_target_world_position
-			_transition_camera.global_transform.origin = _get_route_local_position()
-		_route_complete = true
-		_arrival_active = false
-		_refresh_process_state()
+			_route_complete = true
+			_cruise_active = false
+			set_process(false)
 
 
 func get_current_velocity() -> float:
@@ -259,16 +238,7 @@ func get_transition_camera_forward_direction() -> Vector3:
 
 
 func _set_transition_overlay_active(is_active: bool) -> void:
-	_transition_overlay_immediate_override = is_active
-	_transition_overlay_state = OverlayEnvelopeState.INACTIVE
-	_transition_overlay_elapsed_sec = 0.0
-	_transition_overlay_duration_sec = 0.0
-	_transition_overlay_rise_curve_power = _get_transition_overlay_default_curve_power()
-	_transition_overlay_auto_decay_duration_sec = 0.0
-	_transition_overlay_hold_decay_duration_sec = 0.0
-	_transition_overlay_decay_start_alpha = 0.0
-	_apply_transition_overlay_alpha(_get_transition_overlay_peak_alpha() if is_active else 0.0)
-	_refresh_process_state()
+	_apply_transition_overlay_alpha(1.0 if is_active else 0.0)
 
 
 func set_transition_particles_active(is_active: bool, clear_existing: bool = false) -> void:
@@ -289,76 +259,8 @@ func _set_jump_transition_particles_active(is_active: bool, clear_existing: bool
 	set_transition_particles_active(is_active, clear_existing)
 
 
-func _begin_transition_overlay_window(curve_power: float, duration_sec: float, auto_decay_duration_sec: float) -> void:
-	_transition_overlay_immediate_override = false
-	_transition_overlay_state = OverlayEnvelopeState.RISING
-	_transition_overlay_elapsed_sec = 0.0
-	_transition_overlay_duration_sec = max(duration_sec, 0.001)
-	_transition_overlay_rise_curve_power = _clamp_transition_overlay_curve_power(curve_power)
-	_transition_overlay_auto_decay_duration_sec = max(auto_decay_duration_sec, 0.0)
-	_transition_overlay_hold_decay_duration_sec = max(auto_decay_duration_sec, 0.0)
-	_transition_overlay_decay_start_alpha = 0.0
-	_apply_transition_overlay_alpha(0.0)
-	_refresh_process_state()
-
-
-func _begin_transition_overlay_decay(hold_duration_sec: float) -> void:
-	if _transition_overlay_state == OverlayEnvelopeState.INACTIVE and _transition_overlay_alpha <= 0.0:
-		return
-	_transition_overlay_immediate_override = false
-	_transition_overlay_state = OverlayEnvelopeState.DECAYING
-	_transition_overlay_elapsed_sec = 0.0
-	_transition_overlay_duration_sec = max(hold_duration_sec, 0.001)
-	_transition_overlay_decay_start_alpha = _transition_overlay_alpha
-	_refresh_process_state()
-
-
-func _update_transition_overlay_envelope(delta: float) -> void:
-	if _transition_overlay_immediate_override:
-		return
-	match _transition_overlay_state:
-		OverlayEnvelopeState.INACTIVE:
-			return
-		OverlayEnvelopeState.RISING:
-			_transition_overlay_elapsed_sec += delta
-			var rise_t = clamp(_transition_overlay_elapsed_sec / max(_transition_overlay_duration_sec, 0.001), 0.0, 1.0)
-			_apply_transition_overlay_alpha(
-				lerp(0.0, _get_transition_overlay_peak_alpha(), _get_transition_overlay_curve_weight(rise_t, _transition_overlay_rise_curve_power))
-			)
-			if rise_t >= 1.0 and _transition_overlay_auto_decay_duration_sec > 0.0:
-				var hold_duration_sec = _transition_overlay_auto_decay_duration_sec
-				_transition_overlay_auto_decay_duration_sec = 0.0
-				_transition_overlay_state = OverlayEnvelopeState.HOLDING
-				_transition_overlay_elapsed_sec = 0.0
-				_transition_overlay_duration_sec = hold_duration_sec
-		OverlayEnvelopeState.HOLDING:
-			_transition_overlay_elapsed_sec += delta
-			var hold_t = clamp(_transition_overlay_elapsed_sec / max(_transition_overlay_duration_sec, 0.001), 0.0, 1.0)
-			_apply_transition_overlay_alpha(_get_transition_overlay_peak_alpha())
-			if hold_t >= 1.0:
-				var decay_duration_sec = _transition_overlay_hold_decay_duration_sec
-				_transition_overlay_hold_decay_duration_sec = 0.0
-				_begin_transition_overlay_decay(decay_duration_sec)
-		OverlayEnvelopeState.DECAYING:
-			_transition_overlay_elapsed_sec += delta
-			var decay_t = clamp(_transition_overlay_elapsed_sec / max(_transition_overlay_duration_sec, 0.001), 0.0, 1.0)
-			_apply_transition_overlay_alpha(
-				lerp(_transition_overlay_decay_start_alpha, 0.0, _get_transition_overlay_curve_weight(decay_t, _get_transition_overlay_default_curve_power()))
-			)
-			if decay_t >= 1.0:
-				_transition_overlay_state = OverlayEnvelopeState.INACTIVE
-				_transition_overlay_elapsed_sec = 0.0
-				_transition_overlay_duration_sec = 0.0
-				_transition_overlay_rise_curve_power = _get_transition_overlay_default_curve_power()
-				_transition_overlay_auto_decay_duration_sec = 0.0
-				_transition_overlay_hold_decay_duration_sec = 0.0
-				_transition_overlay_decay_start_alpha = 0.0
-				_apply_transition_overlay_alpha(0.0)
-				_refresh_process_state()
-
-
 func _apply_transition_overlay_alpha(alpha: float) -> void:
-	_transition_overlay_alpha = clamp(alpha, 0.0, _get_transition_overlay_peak_alpha())
+	_transition_overlay_alpha = clamp(alpha, 0.0, 1.0)
 	if not is_instance_valid(_transition_overlay):
 		return
 	_transition_overlay.visible = _transition_overlay_alpha > 0.001
@@ -370,34 +272,6 @@ func _apply_transition_overlay_alpha(alpha: float) -> void:
 	)
 	if _transition_overlay.visible:
 		_transition_overlay.raise()
-
-
-func _get_transition_overlay_peak_alpha() -> float:
-	return clamp(Constants.JUMP_TRANSITION_OVERLAY_PEAK_ALPHA, 0.0, 1.0)
-
-
-func _get_transition_overlay_curve_weight(linear_t: float, curve_power: float) -> float:
-	return pow(clamp(linear_t, 0.0, 1.0), _clamp_transition_overlay_curve_power(curve_power))
-
-
-func _get_transition_overlay_default_curve_power() -> float:
-	return _clamp_transition_overlay_curve_power(Constants.JUMP_TRANSITION_OVERLAY_CURVE_POWER)
-
-
-func _get_transition_overlay_arrival_fade_in_curve_power() -> float:
-	return _clamp_transition_overlay_curve_power(Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_CURVE_POWER)
-
-
-func _get_transition_overlay_arrival_fade_in_duration_sec() -> float:
-	return max(Constants.JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_DURATION_SEC, 0.001)
-
-
-func _clamp_transition_overlay_curve_power(curve_power: float) -> float:
-	return clamp(curve_power, 0.5, 0.75)
-
-
-func _refresh_process_state() -> void:
-	set_process(_cruise_active or _arrival_active or _transition_overlay_state != OverlayEnvelopeState.INACTIVE)
 
 
 func _cache_transition_particle_emitters() -> void:
@@ -442,16 +316,6 @@ func _get_route_local_position() -> Vector3:
 	if not _route_has_valid_positions:
 		return Vector3.ZERO
 	return _route_world_position - _route_origin_world_position
-
-
-func _get_braking_distance() -> float:
-	var step_rate = max(_velocity_step_rate, 1.0)
-	return (_current_velocity * _current_velocity) / (2.0 * step_rate)
-
-
-func _get_velocity_step_rate(reference_velocity: float) -> float:
-	var ramp_duration_sec = max(Constants.JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC, 0.001)
-	return max(reference_velocity / ramp_duration_sec, 1.0)
 
 
 func _get_world_position_for_sector(sector_id: String) -> Vector3:

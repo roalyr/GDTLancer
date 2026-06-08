@@ -3,7 +3,7 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 22:22:23
+# LOG_REF: 2026-06-08 02:04:00
 #
 
 extends Node
@@ -352,115 +352,42 @@ const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content place
 const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
 
 # ---- JUMP TRANSITION ----
+const JUMP_ACCEL_DURATION: float = 3.0
+const JUMP_FADE_DURATION: float = 3.0
+const JUMP_TRAVEL_DURATION: float = 20.0
+const MAX_ORBIT_CAMERA_FOV: float = 100.0
+
+const JUMP_DURATION_STAR_STAR: float = 30.0
+const JUMP_DURATION_STAR_STAR_COMPANION: float = 15.0
+const JUMP_DURATION_STAR_PLANET: float = 10.0
+const JUMP_DURATION_PLANET_MOON: float = 5.0
+const JUMP_DURATION_ANY_DEEP_SPACE: float = 15.0
+
 const JUMP_TRANSITION_RIG_NODE_NAME: String = "JumpTransitionRig"
 const JUMP_TRANSITION_DEFAULT_DIRECTION: Vector3 = Vector3(0, 0, -1)
-const JUMP_TRANSITION_TARGET_FOV_DEG: float = 140.0
-const JUMP_TRANSITION_CAMERA_AIM_DURATION_SEC: float = 2.0
-const JUMP_TRANSITION_FOV_EASE_POWER: float = 2.35
-const JUMP_TRANSITION_FOV_DURATION_SEC: float = 5.0
-const JUMP_TRANSITION_HUD_SHOW_DELAY_SEC: float = 1.5
-const JUMP_TRANSITION_VELOCITY_TOLERANCE: float = 20.0
-const JUMP_TRANSITION_VELOCITY_TIMEOUT_SEC: float = 7.5
 const JUMP_TRANSITION_LOAD_TIMEOUT_SEC: float = 1.5
-# Route distance is converted into cruise speed using this total travel window.
-const JUMP_TRANSITION_TRAVEL_DURATION_SEC: float = 15.0
-# Takeoff and arrival use the same mirrored speed ramp.
-const JUMP_TRANSITION_SPEED_RAMP_DURATION_SEC: float = 2.0
-const JUMP_TRANSITION_ROUTE_COMPLETION_TOLERANCE: float = 2000.0
-const JUMP_TRANSITION_OVERLAY_PEAK_ALPHA: float = 1.0
-const JUMP_TRANSITION_OVERLAY_CURVE_POWER: float = 0.70
-const JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_CURVE_POWER: float = 0.5
-const JUMP_TRANSITION_OVERLAY_ARRIVAL_FADE_IN_DURATION_SEC: float = 1.0
-const JUMP_TRANSITION_OVERLAY_POST_DEPARTURE_HOLD_SEC: float = 2.0
-const JUMP_TRANSITION_OVERLAY_ARRIVAL_POST_FULL_OPACITY_HOLD_SEC: float = 2.0
-const JUMP_TRANSITION_STAR_STAR = {
-	"target_fov_deg": 130.0,
-	"travel_duration_sec": 30.0,
-	"route_completion_tolerance": 2000.0
-}
-const JUMP_TRANSITION_STAR_STAR_COMPANION = {
-	"target_fov_deg": 110.0,
-	"travel_duration_sec": 10.0,
-	"route_completion_tolerance": 1500.0
-}
-const JUMP_TRANSITION_STAR_PLANET = {
-	"target_fov_deg": 100.0,
-	"travel_duration_sec": 8.0,
-	"route_completion_tolerance": 1000.0
-}
-const JUMP_TRANSITION_PLANET_MOON = {
-	"target_fov_deg": 90.0,
-	"travel_duration_sec": 5.0,
-	"route_completion_tolerance": 500.0
-}
-const JUMP_TRANSITION_ANY_DEEP_SPACE = {
-	"target_fov_deg": 120.0,
-	"travel_duration_sec": 12.0,
-	"route_completion_tolerance": 1800.0
-}
-const JUMP_TRANSITION_DEFAULT = {
-	"target_fov_deg": 130.0,
-	"travel_duration_sec": 15.0,
-	"route_completion_tolerance": 2000.0
-}
-
-const JUMP_TRANSITIONS = {
-	"star-star": JUMP_TRANSITION_STAR_STAR,
-	"star-star_companion": JUMP_TRANSITION_STAR_STAR_COMPANION,
-	"star-planet": JUMP_TRANSITION_STAR_PLANET,
-	"planet-moon": JUMP_TRANSITION_PLANET_MOON,
-	"any-deep_space": JUMP_TRANSITION_ANY_DEEP_SPACE,
-	"default": JUMP_TRANSITION_DEFAULT
-}
 
 
-func get_jump_category(source_type: String, target_type: String) -> String:
-	var s = source_type.to_lower()
-	var t = target_type.to_lower()
+func get_jump_travel_duration(type_a: String, type_b: String) -> float:
+	var a = type_a.to_lower()
+	var b = type_b.to_lower()
 	
-	if s == "deep_space" or t == "deep_space" or s == "hazard_zone" or t == "hazard_zone":
-		return "any-deep_space"
+	if a == "deep_space" or b == "deep_space":
+		return JUMP_DURATION_ANY_DEEP_SPACE
 		
-	if s == "star_companion" or t == "star_companion":
-		if s == "star" or t == "star" or s == "star_companion" or t == "star_companion":
-			return "star-star_companion"
-			
-	if s == "star" and t == "star":
-		return "star-star"
-		
-	if (s == "star" or s == "star_companion") and t == "planet":
-		return "star-planet"
-	if (t == "star" or t == "star_companion") and s == "planet":
-		return "star-planet"
-		
-	if s == "planet" and t == "moon":
-		return "planet-moon"
-	if t == "planet" and s == "moon":
-		return "planet-moon"
-		
-	return "default"
-
-
-func get_jump_config(source_sector_id: String, target_sector_id: String) -> Dictionary:
-	var s_template = TemplateDatabase.locations.get(source_sector_id)
-	var t_template = TemplateDatabase.locations.get(target_sector_id)
+	var pair = [a, b]
+	pair.sort()
 	
-	var s_type = "deep_space"
-	if s_template != null:
-		if s_template is Dictionary and s_template.has("sector_type"):
-			s_type = s_template["sector_type"]
-		elif s_template is Object and "sector_type" in s_template:
-			s_type = s_template.sector_type
-			
-	var t_type = "deep_space"
-	if t_template != null:
-		if t_template is Dictionary and t_template.has("sector_type"):
-			t_type = t_template["sector_type"]
-		elif t_template is Object and "sector_type" in t_template:
-			t_type = t_template.sector_type
-			
-	var category = get_jump_category(s_type, t_type)
-	return JUMP_TRANSITIONS.get(category, JUMP_TRANSITIONS["default"])
+	if pair == ["star", "star"]:
+		return JUMP_DURATION_STAR_STAR
+	elif pair == ["star", "star_companion"]:
+		return JUMP_DURATION_STAR_STAR_COMPANION
+	elif pair == ["planet", "star"]:
+		return JUMP_DURATION_STAR_PLANET
+	elif pair == ["moon", "planet"]:
+		return JUMP_DURATION_PLANET_MOON
+		
+	return JUMP_TRAVEL_DURATION
 
 
 func get_reference_origin_offset(world_position: Vector3) -> Vector3:

@@ -25,7 +25,7 @@ var min_distance_multiplier: float = 1.0
 var max_distance_multiplier: float = 5.0
 var preferred_distance_multiplier: float = 1.0
 var min_fov_deg: float = 25.0
-var max_fov_deg: float = 100.0
+var max_fov_deg: float = Constants.MAX_ORBIT_CAMERA_FOV
 
 # --- Rotation & PID ---
 var pitch_min_deg: float = -83.0
