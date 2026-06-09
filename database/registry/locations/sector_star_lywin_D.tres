@@ -5,17 +5,17 @@
 [resource]
 script = ExtResource( 1 )
 template_id = "sector_star_lywin_D"
-location_name = "Lywin D"
+location_name = "Lywin D Star"
 jump_in_distance = 12000.0
 interaction_radius = 0.0
-sector_scene_path = "res://scenes/levels/sectors/sector_system_lywin/sector_star_lywin_D.tscn"
+sector_scene_path = "res://scenes/levels/sectors/sector_star_lywin/sector_star_lywin_D.tscn"
 global_position = Vector3( 560100, -62000, 513000 )
 is_procedural = false
 procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_lywin_A", "sector_star_lywin_B", "sector_star_lywin_C" )
+connections = PoolStringArray( "sector_star_lywin_A", "sector_star_lywin_B", "sector_star_lywin_C" )
 sector_type = "star_companion"
 development_level = "colony"
 radiation_level = 0.05

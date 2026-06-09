@@ -1,0 +1,54 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://database/definitions/location_template.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+template_id = "sector_star_elace"
+location_name = "Elace Star"
+jump_in_distance = 20000.0
+interaction_radius = 0.0
+sector_scene_path = "res://scenes/levels/sectors/sector_star_elace/sector_star_elace.tscn"
+global_position = Vector3( 0, 0, 0 )
+is_procedural = false
+procedural_type = "deep_space"
+procedural_hints = {
+}
+sector_description = ""
+connections = PoolStringArray( "sector_star_cob", "sector_star_lywin_A", "sector_star_vidr", "sector_planet_elace_a", "sector_planet_elace_b", "sector_planet_elace_c" )
+sector_type = "star"
+development_level = "hub"
+radiation_level = 0.05
+thermal_background_k = 280.0
+gravity_well_penalty = 1.2
+mineral_density = 2.0
+propellant_sources = 0.3
+station_power_output = 150.0
+stockpile_capacity = 1500
+market_inventory = {
+"commodity_contraband": {
+"buy_price": 80,
+"quantity": 15,
+"sell_price": 65
+},
+"commodity_food": {
+"buy_price": 30,
+"quantity": 40,
+"sell_price": 25
+},
+"commodity_fuel": {
+"buy_price": 25,
+"quantity": 100,
+"sell_price": 20
+},
+"commodity_ore": {
+"buy_price": 8,
+"quantity": 200,
+"sell_price": 6
+}
+}
+available_services = [ "trade", "contracts", "repair", "black_market" ]
+controlling_faction_id = "faction_miners"
+danger_level = 1
+initial_sector_tags = PoolStringArray( "STATION", "CONTESTED", "MILD", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE" )
+available_contract_ids = [ "delivery_01", "delivery_02" ]

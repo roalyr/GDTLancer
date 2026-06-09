@@ -349,7 +349,7 @@ const DOCKING_ACTION_RADIUS: float = 300.0           # Distance at which dock/ju
 const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0   # Arrival shell radius for route-based sector jumps
 const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_position (nebula reference)
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
-const INITIAL_SECTOR_ID: String = "sector_system_elace"    # Starting sector for new game
+const INITIAL_SECTOR_ID: String = "sector_star_elace"    # Starting sector for new game
 
 # ---- JUMP TRANSITION ----
 const JUMP_ACCEL_DURATION: float = 3.0

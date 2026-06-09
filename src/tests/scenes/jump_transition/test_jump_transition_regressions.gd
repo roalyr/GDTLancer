@@ -17,12 +17,12 @@ var _original_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
 func before_each():
 	_original_mouse_mode = Input.get_mouse_mode()
 	GameState.world_topology = {
-		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_system_cob"]},
-		"sector_system_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
+		Constants.INITIAL_SECTOR_ID: {"connections": ["sector_star_cob"]},
+		"sector_star_cob": {"connections": [Constants.INITIAL_SECTOR_ID]},
 	}
 	TemplateDatabase.locations = {
 		Constants.INITIAL_SECTOR_ID: {"global_position": Vector3(1200, 50, -300)},
-		"sector_system_cob": {"global_position": Vector3(2200, 50, -300)},
+		"sector_star_cob": {"global_position": Vector3(2200, 50, -300)},
 	}
 
 
@@ -186,7 +186,7 @@ func test_jump_transition_rig_preserves_camera_pose_and_keeps_nebula_anchor_stat
 	source_camera.global_transform = Transform(source_basis, Vector3(75, 20, -40))
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_star_cob", Vector3(1, 0, 0))
 
 	var transition_camera = rig.get_node("TransitionCamera")
 	var nebula_holder = rig.get_node("NebulaHolder")
@@ -339,7 +339,7 @@ func test_run_jump_transition_sequence_simplified_flow():
 	add_child_autofree(rig)
 	world_manager.rig_ref = rig
 
-	var sequence_state = world_manager._run_jump_transition_sequence("sector_system_cob")
+	var sequence_state = world_manager._run_jump_transition_sequence("sector_star_cob")
 	if sequence_state is GDScriptFunctionState:
 		yield(sequence_state, "completed")
 	assert_true(event_order.find("prepare_visuals") != -1, "Should prepare visuals.")
@@ -366,7 +366,7 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	source_camera.global_transform = Transform(Basis(), Vector3.ZERO)
 
 	rig.capture_from_camera(source_camera)
-	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_system_cob", Vector3(1, 0, 0))
+	rig.begin_departure(Constants.INITIAL_SECTOR_ID, "sector_star_cob", Vector3(1, 0, 0))
 	rig.begin_cruise(4000.0)
 
 	for _step in range(60):
@@ -380,12 +380,12 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 	)
 	assert_eq(
 		rig.get_route_world_position(),
-		TemplateDatabase.locations["sector_system_cob"]["global_position"],
+		TemplateDatabase.locations["sector_star_cob"]["global_position"],
 		"Completed jump transitions should clamp the internal route position to the destination coordinate for deterministic arrival handoff."
 	)
 	assert_eq(
 		rig.get_node("TransitionCamera").global_transform.origin,
-		TemplateDatabase.locations["sector_system_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
+		TemplateDatabase.locations["sector_star_cob"]["global_position"] - TemplateDatabase.locations[Constants.INITIAL_SECTOR_ID]["global_position"],
 		"Completed jump transitions should end at the destination in current-sector-local space so the starsphere matches local-scene and map coordinates."
 	)
 

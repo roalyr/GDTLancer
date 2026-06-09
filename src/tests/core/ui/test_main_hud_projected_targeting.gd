@@ -32,26 +32,26 @@ func after_each():
 
 
 func test_main_hud_rebuilds_route_overlay_when_sim_tick_adds_current_sector_discovery() -> void:
-	GameState.current_sector_id = "sector_system_elace"
+	GameState.current_sector_id = "sector_star_elace"
 	GameState.world_topology = {
-		"sector_system_elace": {
-			"connections": ["sector_system_cob"],
-			"station_ids": ["sector_system_elace"],
+		"sector_star_elace": {
+			"connections": ["sector_star_cob"],
+			"station_ids": ["sector_star_elace"],
 			"development_level": "colony",
 		},
-		"sector_system_cob": {
-			"connections": ["sector_system_elace"],
-			"station_ids": ["sector_system_cob"],
+		"sector_star_cob": {
+			"connections": ["sector_star_elace"],
+			"station_ids": ["sector_star_cob"],
 			"development_level": "colony",
 		},
 	}
-	TemplateDatabase.locations["sector_system_elace"] = _make_location_template(
-		"sector_system_elace",
+	TemplateDatabase.locations["sector_star_elace"] = _make_location_template(
+		"sector_star_elace",
 		"Elace System",
 		Vector3.ZERO
 	)
-	TemplateDatabase.locations["sector_system_cob"] = _make_location_template(
-		"sector_system_cob",
+	TemplateDatabase.locations["sector_star_cob"] = _make_location_template(
+		"sector_star_cob",
 		"Cob System",
 		Vector3(180000, 0, 0)
 	)
@@ -65,11 +65,11 @@ func test_main_hud_rebuilds_route_overlay_when_sim_tick_adds_current_sector_disc
 	yield(get_tree(), "idle_frame")
 
 	assert_true(
-		hud._route_target_buttons.has("jump_route:sector_system_elace:sector_system_cob"),
+		hud._route_target_buttons.has("jump_route:sector_star_elace:sector_star_cob"),
 		"Initial route overlays should include the authored connected sector."
 	)
 	assert_false(
-		hud._route_target_buttons.has("jump_route:sector_system_elace:discovered_1"),
+		hud._route_target_buttons.has("jump_route:sector_star_elace:discovered_1"),
 		"Discovered routes should not exist before the topology mutation is applied."
 	)
 
@@ -82,25 +82,25 @@ func test_main_hud_rebuilds_route_overlay_when_sim_tick_adds_current_sector_disc
 	discovered_template.procedural_type = "asteroid_field"
 	discovered_template.procedural_hints = {
 		"low_visibility": true,
-		"discovered_from": "sector_system_elace",
+		"discovered_from": "sector_star_elace",
 	}
 	TemplateDatabase.locations["discovered_1"] = discovered_template
 	GameState.world_topology["discovered_1"] = {
-		"connections": ["sector_system_elace"],
+		"connections": ["sector_star_elace"],
 		"station_ids": ["discovered_1"],
 		"sector_type": "deep_space",
 	}
-	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "discovered_1"]
+	GameState.world_topology["sector_star_elace"]["connections"] = ["sector_star_cob", "discovered_1"]
 
 	hud._on_sim_tick_completed(1)
 
 	assert_true(
-		hud._route_target_buttons.has("jump_route:sector_system_elace:discovered_1"),
+		hud._route_target_buttons.has("jump_route:sector_star_elace:discovered_1"),
 		"Sim tick refresh should rebuild jump-route overlays when a new route is added to the current sector."
 	)
 	assert_eq(hud._route_target_buttons.size(), 2, "Current-sector discoveries should add a second jump-route overlay without requiring sector travel.")
 	assert_eq(
-		hud._route_target_buttons["jump_route:sector_system_elace:discovered_1"].target_ref.display_name,
+		hud._route_target_buttons["jump_route:sector_star_elace:discovered_1"].target_ref.display_name,
 		"Amber Gate",
 		"Rebuilt jump-route overlays should use the discovered sector's runtime display name."
 	)
@@ -208,8 +208,8 @@ func test_main_hud_overlay_classification_and_filtering_track_requested_categori
 	yield(get_tree(), "idle_frame")
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		Vector3(0, 0, -100)
 	)
@@ -310,8 +310,8 @@ func test_main_hud_projected_target_distance_fade_alpha_matches_center_and_edge_
 func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_routes() -> void:
 	var bracket = _create_projected_target_bracket()
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		Vector3(1, 0, 0)
 	)
@@ -359,8 +359,8 @@ func test_projected_target_bracket_distance_formatter_matches_requested_magnitud
 func test_projected_target_bracket_selected_jump_route_shows_far_distance_label() -> void:
 	var bracket = _create_projected_target_bracket()
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		Vector3(1, 0, 0)
 	)

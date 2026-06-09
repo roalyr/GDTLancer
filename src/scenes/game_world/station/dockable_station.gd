@@ -8,7 +8,7 @@
 
 extends StaticBody
 
-export var location_id: String = "sector_system_elace"
+export var location_id: String = "sector_star_elace"
 export var station_name: String = "Elace System"
 
 

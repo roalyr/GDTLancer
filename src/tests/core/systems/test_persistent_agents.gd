@@ -22,11 +22,11 @@ func before_each():
 			"jump_in_distance": 2000.0,
 			"sector_type": "moon"
 		},
-		"sector_system_cob": {
+		"sector_star_cob": {
 			"jump_in_distance": 5000.0,
 			"sector_type": "planet"
 		},
-		"sector_system_lywin": {
+		"sector_star_lywin": {
 			"jump_in_distance": 10000.0,
 			"sector_type": "star"
 		}
@@ -65,7 +65,7 @@ func test_persistent_agents_spawn_on_world_init():
 	var agent_id = "persistent_kai"
 	var state = _agent_system.get_persistent_agent_state(agent_id)
 	
-	assert_eq(state.current_location, "sector_system_elace", "Should have correct home location")
+	assert_eq(state.current_location, "sector_star_elace", "Should have correct home location")
 	assert_eq(state.is_known, false, "Should be unknown by default")
 	assert_gt(state.character_uid, -1, "Should have a generated character UID")
 	
@@ -162,12 +162,12 @@ func test_known_vs_unknown_agents_state():
 #func test_contact_discovered_on_dock():
 #	var agent_id = "persistent_vera"
 #	var state = _agent_system.get_persistent_agent_state(agent_id)
-	#	# Vera is at sector_system_cob
+	#	# Vera is at sector_star_cob
 #	assert_eq(state.is_known, false)
 #	
 #	# Simulate docking signal
 #	watch_signals(EventBus)
-	#	_agent_system._on_player_docked("sector_system_cob")
+	#	_agent_system._on_player_docked("sector_star_cob")
 #	
 	# Errors here
 #	assert_true(state.is_known, "Should discover agent at home station")

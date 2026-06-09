@@ -71,8 +71,8 @@ func test_get_neighbors_returns_connections():
 
 #func test_invalid_connections_are_filtered_from_topology():
 #	TemplateDatabase.locations.clear()
-#	var starter_sector: Resource = load("res://database/registry/locations/sector_system_elace.tres")
-#	var station_beta: Resource = load("res://database/registry/locations/sector_system_lywin.tres")
+#	var starter_sector: Resource = load("res://database/registry/locations/sector_star_elace.tres")
+#	var station_beta: Resource = load("res://database/registry/locations/sector_star_lywin.tres")
 #	assert_not_null(starter_sector, "Starter sector template should load.")
 #	assert_not_null(station_beta, "Station Beta template should load.")
 #	if starter_sector == null or station_beta == null:
@@ -86,9 +86,9 @@ func test_get_neighbors_returns_connections():
 
 #	world_layer.initialize_world(TEST_SEED)
 
-#	var connections: Array = GameState.world_topology["sector_system_elace"].get("connections", [])
+#	var connections: Array = GameState.world_topology["sector_star_elace"].get("connections", [])
 	# Error here
-	#assert_has(connections, "sector_system_lywin", "Valid connections should remain in topology.")
+	#assert_has(connections, "sector_star_lywin", "Valid connections should remain in topology.")
 #	assert_false(
 #		"sector_missing_renamed_away" in connections,
 #		"Invalid renamed-away sectors should be filtered from topology."

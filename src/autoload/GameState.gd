@@ -237,7 +237,7 @@ var game_time_seconds: int = 0
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
-## ID of the currently loaded sector (e.g. "sector_system_elace").
+## ID of the currently loaded sector (e.g. "sector_star_elace").
 var current_sector_id: String = ""
 
 ## Location ID of docked station, or empty string if in space.

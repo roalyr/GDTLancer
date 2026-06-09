@@ -6,4 +6,4 @@
 script = ExtResource( 1 )
 template_id = "agent_npc_hostile_default"
 agent_type = "npc"
-home_location_id = "sector_system_elace"
+home_location_id = "sector_star_elace"

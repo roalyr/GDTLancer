@@ -11,7 +11,7 @@ class_name LocationTemplate
 
 ## LocationTemplate: Canonical sector/location resource contract.
 ## Authored registry entries are sector-level resources keyed by ids such as
-## `sector_system_elace`; scene-local dockables remain inside `sector_scene_path`.
+## `sector_star_elace`; scene-local dockables remain inside `sector_scene_path`.
 ## This resource drives sector loading, topology, and the current compatibility
 ## data consumed by docked UI and bootstrap flows. Runtime qualitative demand
 ## and default contract generation come from simulation tags, not from authored

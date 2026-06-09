@@ -33,7 +33,7 @@ func test_log_event_stages_event():
 		"tick": 1,
 		"actor_id": "agent_vera",
 		"action": "attack",
-		"sector_id": "sector_system_elace",
+		"sector_id": "sector_star_elace",
 		"metadata": {"target": "agent_ada"},
 	})
 	# Event should be staged but not yet in GameState until process_tick
@@ -44,16 +44,16 @@ func test_log_event_stages_event():
 
 func test_process_tick_generates_rumors():
 	# Setup: need topology for distribution
-	GameState.world_topology["sector_system_elace"] = {
+	GameState.world_topology["sector_star_elace"] = {
 		"connections": ["station_beta"],
 		"development_level": "colony",
 	}
 	GameState.world_topology["station_beta"] = {
-		"connections": ["sector_system_elace"],
+		"connections": ["sector_star_elace"],
 		"development_level": "colony",
 	}
 	GameState.agents["agent_vera"] = {
-		"current_sector_id": "sector_system_elace",
+		"current_sector_id": "sector_star_elace",
 		"is_disabled": false,
 	}
 
@@ -61,7 +61,7 @@ func test_process_tick_generates_rumors():
 		"tick": 1,
 		"actor_id": "agent_vera",
 		"action": "dock",
-		"sector_id": "sector_system_elace",
+		"sector_id": "sector_star_elace",
 		"metadata": {},
 	})
 	chronicle.process_tick()
@@ -91,17 +91,17 @@ func test_event_has_required_fields():
 func test_log_event_deep_copies_nested_metadata():
 	var metadata := {
 		"target": "agent_ada",
-		"connections": ["sector_system_elace"],
+		"connections": ["sector_star_elace"],
 	}
 	chronicle.log_event({
 		"tick": 2,
 		"actor_id": "agent_vera",
 		"action": "contract_completed",
-		"sector_id": "sector_system_elace",
+		"sector_id": "sector_star_elace",
 		"metadata": metadata,
 	})
 	metadata["target"] = "agent_mutated"
-	metadata["connections"].append("sector_system_cob")
+	metadata["connections"].append("sector_star_cob")
 
 	chronicle.process_tick()
 
@@ -118,7 +118,7 @@ func test_contract_action_rumor_uses_humanized_text():
 		"tick": 3,
 		"actor_id": "hauler_1",
 		"action": "contract_completed",
-		"sector_id": "sector_system_elace",
+		"sector_id": "sector_star_elace",
 		"metadata": {},
 	})
 

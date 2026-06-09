@@ -68,22 +68,22 @@ func test_route_target_selection_always_queues_alignment_before_jump():
 	watch_signals(EventBus)
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)
 	controller._set_selected_target(route_target)
 	controller._poll_docking_proximity()
-	assert_signal_emitted_with_parameters(EventBus, "jump_available", ["sector_system_cob", "Cob System"])
+	assert_signal_emitted_with_parameters(EventBus, "jump_available", ["sector_star_cob", "Cob System"])
 	controller._handle_interact_input()
 	assert_signal_not_emitted(EventBus, "player_jump_requested", "Jump interact should always enter the align-before-jump flow first.")
 	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Jump interact should always issue an align command before travelling.")
 	assert_eq(agent.align_options, [[true, 1.0, true]], "Queued jumps should keep the ship actively driving toward the jump point until the transition despawns the scene, even when already aligned.")
-	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Jump interact should retain the queued jump until the post-align validation tick.")
+	assert_eq(controller._queued_jump_target_id, "sector_star_cob", "Jump interact should retain the queued jump until the post-align validation tick.")
 
 	controller._physics_process(1.0 / 60.0)
-	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_star_cob"])
 	assert_eq(controller._queued_jump_target_id, "", "Queued aligned jumps should clear once the first post-align validation tick fires.")
 
 
@@ -94,8 +94,8 @@ func test_route_target_interact_queues_alignment_before_jump():
 	watch_signals(EventBus)
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)
@@ -106,7 +106,7 @@ func test_route_target_interact_queues_alignment_before_jump():
 	assert_signal_not_emitted(EventBus, "player_jump_requested", "Misaligned route jumps should queue alignment before requesting travel.")
 	assert_eq(agent.align_calls, [TEST_ROUTE_DIRECTION], "Queued route jumps should reuse the live align command with the route direction.")
 	assert_eq(agent.align_options, [[true, 1.0, true]], "Misaligned queued jump alignment should keep applying full forward thrust and heading control until the old scene is torn down.")
-	assert_eq(controller._queued_jump_target_id, "sector_system_cob", "Misaligned route jumps should remember the pending sector id until alignment completes.")
+	assert_eq(controller._queued_jump_target_id, "sector_star_cob", "Misaligned route jumps should remember the pending sector id until alignment completes.")
 	assert_eq(controller._queued_jump_selection_token, route_target.selection_key, "Queued route jumps should bind to the currently selected route target.")
 
 
@@ -118,8 +118,8 @@ func test_queued_route_jump_auto_executes_after_alignment_completes():
 	watch_signals(EventBus)
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)
@@ -131,7 +131,7 @@ func test_queued_route_jump_auto_executes_after_alignment_completes():
 	movement_system.rotation_stopped = true
 	controller._physics_process(1.0 / 60.0)
 
-	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_star_cob"])
 	assert_eq(controller._queued_jump_target_id, "", "Queued route jumps should clear once the auto-jump fires.")
 
 
@@ -142,8 +142,8 @@ func test_queued_route_jump_waits_for_tight_five_degree_alignment():
 	watch_signals(EventBus)
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)
@@ -157,7 +157,7 @@ func test_queued_route_jump_waits_for_tight_five_degree_alignment():
 
 	agent.rotation_degrees = Vector3(0, 5, 0)
 	controller._physics_process(1.0 / 60.0)
-	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_system_cob"])
+	assert_signal_emitted_with_parameters(EventBus, "player_jump_requested", ["sector_star_cob"])
 
 
 func test_queued_route_jump_clears_on_target_change():
@@ -166,8 +166,8 @@ func test_queued_route_jump_clears_on_target_change():
 	var controller = harness["controller"]
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)
@@ -193,8 +193,8 @@ func test_queued_route_jump_clears_on_stop_override():
 	var controller = harness["controller"]
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)
@@ -240,8 +240,8 @@ func test_jump_interact_ignores_input_while_transition_active():
 	watch_signals(EventBus)
 
 	var route_target = RouteTargetScript.new().configure(
-		"sector_system_elace",
-		"sector_system_cob",
+		"sector_star_elace",
+		"sector_star_cob",
 		"Cob System",
 		TEST_ROUTE_DIRECTION
 	)

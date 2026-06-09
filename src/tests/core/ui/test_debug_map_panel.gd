@@ -15,11 +15,11 @@ var _panel_scene = preload("res://src/core/ui/debug_map_panel/debug_map_panel.ts
 var _panel_instance = null
 
 const LOCATION_TRES_PATHS = [
-	"res://database/registry/locations/sector_system_elace.tres",
-	"res://database/registry/locations/sector_system_cob.tres",
-	"res://database/registry/locations/sector_system_lywin.tres",
-	"res://database/registry/locations/sector_system_vidr.tres",
-	"res://database/registry/locations/sector_system_ebreeta.tres",
+	"res://database/registry/locations/sector_star_elace.tres",
+	"res://database/registry/locations/sector_star_cob.tres",
+	"res://database/registry/locations/sector_star_lywin.tres",
+	"res://database/registry/locations/sector_star_vidr.tres",
+	"res://database/registry/locations/sector_star_ebreeta.tres",
 ]
 
 
@@ -28,7 +28,7 @@ func before_each():
 	GameState.reset_state()
 	_seed_template_database()
 	_seed_topology()
-	GameState.current_sector_id = "sector_system_elace"
+	GameState.current_sector_id = "sector_star_elace"
 	_panel_instance = _panel_scene.instance()
 	add_child_autofree(_panel_instance)
 
@@ -125,7 +125,7 @@ func test_populate_creates_connection_lines():
 func test_current_sector_highlighted():
 	_panel_instance._populate_map()
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var current_marker = map_content.get_node_or_null("Sector_sector_system_elace")
+	var current_marker = map_content.get_node_or_null("Sector_sector_star_elace")
 	assert_not_null(current_marker, "Current sector marker should exist")
 	if current_marker:
 		var sphere = current_marker.mesh as SphereMesh
@@ -155,8 +155,8 @@ func test_readability_toggles_hide_labels_lines_and_icons_and_survive_refresh():
 	assert_not_null(header.get_node_or_null("BtnLines"), "TASK_1 should add a dedicated lines toggle button to the header row.")
 	assert_not_null(header.get_node_or_null("BtnIcons"), "TASK_1 should add a dedicated icons toggle button to the header row.")
 
-	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
-	var marker = _panel_instance._sector_labels["sector_system_elace"]["marker"]
+	var label = _panel_instance._sector_labels["sector_star_elace"]["label"]
+	var marker = _panel_instance._sector_labels["sector_star_elace"]["marker"]
 	var connection_lines = _panel_instance._map_content.get_node_or_null("ConnectionLines")
 	assert_true(label.visible, "Sector labels should be visible before the readability toggles are disabled.")
 	assert_true(marker.visible, "Sector icons should be visible before the readability toggles are disabled.")
@@ -174,8 +174,8 @@ func test_readability_toggles_hide_labels_lines_and_icons_and_survive_refresh():
 	assert_false(connection_lines.visible, "Disabling lines should hide existing route geometry immediately.")
 
 	_panel_instance._on_sim_tick_completed(1)
-	var refreshed_label = _panel_instance._sector_labels["sector_system_elace"]["label"]
-	var refreshed_marker = _panel_instance._sector_labels["sector_system_elace"]["marker"]
+	var refreshed_label = _panel_instance._sector_labels["sector_star_elace"]["label"]
+	var refreshed_marker = _panel_instance._sector_labels["sector_star_elace"]["marker"]
 	var refreshed_connection_lines = _panel_instance._map_content.get_node_or_null("ConnectionLines")
 	assert_false(refreshed_label.visible, "Readability label state should survive sim-tick-driven map repopulation.")
 	assert_false(refreshed_marker.visible, "Readability icon state should survive sim-tick-driven map repopulation.")
@@ -192,7 +192,7 @@ func test_contract_count_toggle_shows_source_side_board_counts_in_separate_color
 	assert_not_null(contract_button, "Debug map should expose a dedicated contract-count toggle button in the header row.")
 	assert_eq(contract_button.text, "Contracts On")
 
-	var sector_label_data: Dictionary = _panel_instance._sector_labels["sector_system_elace"]
+	var sector_label_data: Dictionary = _panel_instance._sector_labels["sector_star_elace"]
 	var name_label: Label = sector_label_data["label"]
 	var contract_label: Label = sector_label_data["contract_label"]
 	assert_true(contract_label != name_label,
@@ -210,7 +210,7 @@ func test_contract_count_toggle_shows_source_side_board_counts_in_separate_color
 		"Turning contract counts off should hide the separate contract-count labels immediately.")
 
 	_panel_instance._on_sim_tick_completed(1)
-	var refreshed_contract_label: Label = _panel_instance._sector_labels["sector_system_elace"]["contract_label"]
+	var refreshed_contract_label: Label = _panel_instance._sector_labels["sector_star_elace"]["contract_label"]
 	assert_false(refreshed_contract_label.visible,
 		"Contract count visibility should survive sim-tick-driven map repopulation.")
 
@@ -317,7 +317,7 @@ func test_map_label_camera_distance_fade_starts_around_1e5_and_reduces_far_label
 func test_map_label_projection_multiplies_screen_fade_with_camera_distance_fade():
 	_show_panel()
 	yield(get_tree(), "idle_frame")
-	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var label = _panel_instance._sector_labels["sector_star_elace"]["label"]
 	var projected_screen_pos = _panel_instance._camera.unproject_position(Vector3.ZERO)
 	var screen_fade_alpha = _panel_instance._get_map_label_distance_fade_alpha(projected_screen_pos, Rect2(Vector2.ZERO, _panel_instance._viewport.size))
 	var camera_fade_alpha = _panel_instance._get_map_label_camera_distance_fade_alpha(Vector3.ZERO)
@@ -398,7 +398,7 @@ func test_axes_toggle_hides_reference_axes_and_labels():
 
 func test_coordinate_toggle_updates_label_text_format():
 	_panel_instance._populate_map()
-	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var label = _panel_instance._sector_labels["sector_star_elace"]["label"]
 	assert_true(label.text.find("[") == -1, "Coordinates should be hidden by default")
 	_panel_instance._on_toggle_coords()
 	assert_true(_panel_instance._show_sector_coordinates, "Coordinate toggle should enable coordinate state")
@@ -407,7 +407,7 @@ func test_coordinate_toggle_updates_label_text_format():
 
 func test_sector_labels_use_wrapped_large_font_box():
 	_panel_instance._populate_map()
-	var label = _panel_instance._sector_labels["sector_system_elace"]["label"]
+	var label = _panel_instance._sector_labels["sector_star_elace"]["label"]
 	assert_true(label.autowrap, "Sector labels should wrap long text")
 	assert_eq(label.rect_min_size.x, _panel_instance.SECTOR_LABEL_MAX_WIDTH)
 	assert_eq(label.rect_min_size.y, _panel_instance.SECTOR_LABEL_BOX_HEIGHT)
@@ -443,8 +443,8 @@ func test_sim_tick_refresh_adds_discovered_sector_marker_when_panel_visible():
 		"Visible debug map panels should repopulate and show newly discovered runtime sectors on sim-tick refresh."
 	)
 	assert_ne(
-		_panel_instance._get_connection_line_color("sector_system_elace", "discovered_1"),
-		_panel_instance._get_connection_line_color("sector_system_elace", "sector_system_cob"),
+		_panel_instance._get_connection_line_color("sector_star_elace", "discovered_1"),
+		_panel_instance._get_connection_line_color("sector_star_elace", "sector_star_cob"),
 		"Discovered routes should use a distinct line color from authored handcrafted links."
 	)
 
@@ -458,62 +458,62 @@ func _seed_discovered_sector():
 	discovered_template.procedural_type = "asteroid_field"
 	discovered_template.procedural_hints = {
 		"low_visibility": true,
-		"discovered_from": "sector_system_elace",
+		"discovered_from": "sector_star_elace",
 	}
 	TemplateDatabase.locations["discovered_1"] = discovered_template
 	GameState.world_topology["discovered_1"] = {
-		"connections": ["sector_system_elace"],
+		"connections": ["sector_star_elace"],
 		"station_ids": ["discovered_1"],
 		"sector_type": "deep_space",
 	}
-	GameState.world_topology["sector_system_elace"]["connections"] = ["sector_system_cob", "sector_system_lywin", "discovered_1"]
+	GameState.world_topology["sector_star_elace"]["connections"] = ["sector_star_cob", "sector_star_lywin", "discovered_1"]
 	GameState.sector_names["discovered_1"] = "Amber Gate"
 
 
 func _seed_contract_occurrences() -> void:
 	GameState.runtime_contract_occurrences = {
-		"runtime_contract:sector_system_elace:RAW_1": {
-			"occurrence_id": "runtime_contract:sector_system_elace:RAW_1",
-			"source_sector_id": "sector_system_elace",
+		"runtime_contract:sector_star_elace:RAW_1": {
+			"occurrence_id": "runtime_contract:sector_star_elace:RAW_1",
+			"source_sector_id": "sector_star_elace",
 			"status": "open",
 			"claimant_agent_id": "",
 			"player_displayable": true,
 		},
-		"runtime_contract:sector_system_elace:RAW_2": {
-			"occurrence_id": "runtime_contract:sector_system_elace:RAW_2",
-			"source_sector_id": "sector_system_elace",
+		"runtime_contract:sector_star_elace:RAW_2": {
+			"occurrence_id": "runtime_contract:sector_star_elace:RAW_2",
+			"source_sector_id": "sector_star_elace",
 			"status": "open",
 			"claimant_agent_id": "",
 			"player_displayable": true,
 		},
-		"runtime_contract:sector_system_elace:RAW_claimed": {
-			"occurrence_id": "runtime_contract:sector_system_elace:RAW_claimed",
-			"source_sector_id": "sector_system_elace",
+		"runtime_contract:sector_star_elace:RAW_claimed": {
+			"occurrence_id": "runtime_contract:sector_star_elace:RAW_claimed",
+			"source_sector_id": "sector_star_elace",
 			"status": "in_transit",
 			"claimant_agent_id": "hauler_1",
 			"player_displayable": true,
 		},
-		"runtime_contract:sector_system_cob:CURRENCY": {
-			"occurrence_id": "runtime_contract:sector_system_cob:CURRENCY",
-			"source_sector_id": "sector_system_cob",
+		"runtime_contract:sector_star_cob:CURRENCY": {
+			"occurrence_id": "runtime_contract:sector_star_cob:CURRENCY",
+			"source_sector_id": "sector_star_cob",
 			"status": "open",
 			"claimant_agent_id": "",
 			"player_displayable": true,
 		},
-		"runtime_contract:sector_system_vidr:HIDDEN": {
-			"occurrence_id": "runtime_contract:sector_system_vidr:HIDDEN",
-			"source_sector_id": "sector_system_vidr",
+		"runtime_contract:sector_star_vidr:HIDDEN": {
+			"occurrence_id": "runtime_contract:sector_star_vidr:HIDDEN",
+			"source_sector_id": "sector_star_vidr",
 			"status": "open",
 			"claimant_agent_id": "",
 			"player_displayable": false,
 		},
 	}
 	GameState.runtime_contract_occurrences_by_source_sector = {
-		"sector_system_elace": [
-			"runtime_contract:sector_system_elace:RAW_1",
-			"runtime_contract:sector_system_elace:RAW_2",
-			"runtime_contract:sector_system_elace:RAW_claimed",
+		"sector_star_elace": [
+			"runtime_contract:sector_star_elace:RAW_1",
+			"runtime_contract:sector_star_elace:RAW_2",
+			"runtime_contract:sector_star_elace:RAW_claimed",
 		],
-		"sector_system_cob": ["runtime_contract:sector_system_cob:CURRENCY"],
-		"sector_system_vidr": ["runtime_contract:sector_system_vidr:HIDDEN"],
+		"sector_star_cob": ["runtime_contract:sector_star_cob:CURRENCY"],
+		"sector_star_vidr": ["runtime_contract:sector_star_vidr:HIDDEN"],
 	}

@@ -15,20 +15,20 @@ func before_each():
 	GameState.reset_state()
 
 	# Seed minimal world topology
-	GameState.world_topology["sector_system_elace"] = {
-		"connections": ["sector_system_cob"],
-		"station_ids": ["sector_system_elace"],
+	GameState.world_topology["sector_star_elace"] = {
+		"connections": ["sector_star_cob"],
+		"station_ids": ["sector_star_elace"],
 		"development_level": "colony",
 	}
-	GameState.world_topology["sector_system_cob"] = {
-		"connections": ["sector_system_elace"],
-		"station_ids": ["sector_system_cob"],
+	GameState.world_topology["sector_star_cob"] = {
+		"connections": ["sector_star_elace"],
+		"station_ids": ["sector_star_cob"],
 		"development_level": "outpost",
 	}
 
 	# Seed player agent
 	GameState.agents["player"] = {
-		"current_sector_id": "sector_system_elace",
+		"current_sector_id": "sector_star_elace",
 		"agent_role": "trader",
 		"character_id": "player_char",
 		"condition_tag": "HEALTHY",
@@ -40,7 +40,7 @@ func before_each():
 
 	# Seed NPC agents
 	GameState.agents["npc_01"] = {
-		"current_sector_id": "sector_system_elace",
+		"current_sector_id": "sector_star_elace",
 		"agent_role": "military",
 		"character_id": "char_01",
 		"condition_tag": "HEALTHY",
@@ -51,7 +51,7 @@ func before_each():
 	GameState.agent_tags["npc_01"] = ["MILITARY"]
 
 	GameState.agents["npc_02"] = {
-		"current_sector_id": "sector_system_elace",
+		"current_sector_id": "sector_star_elace",
 		"agent_role": "pirate",
 		"character_id": "char_02",
 		"condition_tag": "DAMAGED",
@@ -62,7 +62,7 @@ func before_each():
 	GameState.agent_tags["npc_02"] = ["PIRATE"]
 
 	GameState.agents["npc_03"] = {
-		"current_sector_id": "sector_system_cob",
+		"current_sector_id": "sector_star_cob",
 		"agent_role": "hauler",
 		"character_id": "char_03",
 		"condition_tag": "HEALTHY",
@@ -73,7 +73,7 @@ func before_each():
 	GameState.agent_tags["npc_03"] = ["HAULER"]
 
 	GameState.agents["npc_04"] = {
-		"current_sector_id": "sector_system_cob",
+		"current_sector_id": "sector_star_cob",
 		"agent_role": "trader",
 		"character_id": "char_04",
 		"condition_tag": "HEALTHY",
@@ -88,16 +88,16 @@ func before_each():
 	GameState.characters["char_02"] = {"character_name": "Red Marko"}
 
 	# Seed sector tags
-	GameState.sector_tags["sector_system_elace"] = [
+	GameState.sector_tags["sector_star_elace"] = [
 		"SECURE", "MILD", "CURRENCY_RICH", "MANUFACTURED_ADEQUATE",
 	]
-	GameState.colony_levels["sector_system_elace"] = "colony"
-	GameState.sector_names["sector_system_elace"] = "Elace System"
+	GameState.colony_levels["sector_star_elace"] = "colony"
+	GameState.sector_names["sector_star_elace"] = "Elace System"
 
-	GameState.sector_tags["sector_system_cob"] = [
+	GameState.sector_tags["sector_star_cob"] = [
 		"CONTESTED", "HARSH", "RAW_RICH",
 	]
-	GameState.colony_levels["sector_system_cob"] = "outpost"
+	GameState.colony_levels["sector_star_cob"] = "outpost"
 
 	# Instance ContactManager
 	var cm_script = load("res://src/core/systems/contact_manager.gd")
@@ -117,31 +117,31 @@ func after_each():
 func test_get_player_sector_returns_current_sector():
 	assert_eq(
 		_contact_manager.get_player_sector(),
-		"sector_system_elace",
+		"sector_star_elace",
 		"Should return player's current_sector_id"
 	)
 
 
 func test_get_agents_in_sector_returns_correct_agents():
 	_contact_manager._rebuild_caches()
-	var alpha_agents = _contact_manager.get_agents_in_sector("sector_system_elace")
-	var cob_agents = _contact_manager.get_agents_in_sector("sector_system_cob")
-	assert_eq(alpha_agents.size(), 2, "sector_system_elace should have 2 NPCs")
-	assert_eq(cob_agents.size(), 2, "sector_system_cob should have 2 NPCs")
+	var alpha_agents = _contact_manager.get_agents_in_sector("sector_star_elace")
+	var cob_agents = _contact_manager.get_agents_in_sector("sector_star_cob")
+	assert_eq(alpha_agents.size(), 2, "sector_star_elace should have 2 NPCs")
+	assert_eq(cob_agents.size(), 2, "sector_star_cob should have 2 NPCs")
 
 
 func test_get_agents_excludes_player():
 	_contact_manager._rebuild_caches()
-	var agents = _contact_manager.get_agents_in_sector("sector_system_elace")
+	var agents = _contact_manager.get_agents_in_sector("sector_star_elace")
 	assert_does_not_have(agents, "player", "Player should not appear in contact roster")
 
 
 func test_get_agents_excludes_disabled():
 	GameState.agents["npc_01"]["is_disabled"] = true
 	_contact_manager._rebuild_caches()
-	var agents = _contact_manager.get_agents_in_sector("sector_system_elace")
+	var agents = _contact_manager.get_agents_in_sector("sector_star_elace")
 	assert_does_not_have(agents, "npc_01", "Disabled agents should be excluded")
-	assert_eq(agents.size(), 1, "Only 1 active NPC should remain in sector_system_elace")
+	assert_eq(agents.size(), 1, "Only 1 active NPC should remain in sector_star_elace")
 
 
 func test_get_agent_disposition_computes_affinity():
@@ -190,13 +190,13 @@ func test_get_agent_info_returns_display_dict():
 
 
 func test_get_sector_info_returns_tags():
-	var info = _contact_manager.get_sector_info("sector_system_elace")
+	var info = _contact_manager.get_sector_info("sector_star_elace")
 	assert_has(info, "sector_id")
 	assert_has(info, "economy_tags")
 	assert_has(info, "security_tag")
 	assert_has(info, "environment_tag")
 	assert_has(info, "colony_level")
-	assert_eq(info["sector_id"], "sector_system_elace")
+	assert_eq(info["sector_id"], "sector_star_elace")
 	assert_eq(info["security_tag"], "SECURE")
 	assert_eq(info["environment_tag"], "MILD")
 	assert_eq(info["colony_level"], "colony")
@@ -205,10 +205,10 @@ func test_get_sector_info_returns_tags():
 
 func test_rebuild_caches_updates_on_tick():
 	# Caches should be empty before rebuild
-	var agents_before = _contact_manager.get_agents_in_sector("sector_system_elace")
+	var agents_before = _contact_manager.get_agents_in_sector("sector_star_elace")
 	# After _ready connects, sim_initialized triggers rebuild — but we can test manual rebuild
 	_contact_manager._rebuild_caches()
-	var agents_after = _contact_manager.get_agents_in_sector("sector_system_elace")
+	var agents_after = _contact_manager.get_agents_in_sector("sector_star_elace")
 	assert_eq(agents_after.size(), 2, "Caches should be populated after rebuild")
 
 
@@ -230,7 +230,7 @@ func test_rebuild_caches_skips_invalid_sector_references():
 		"Agents in renamed-away sectors should not create phantom roster entries."
 	)
 	assert_eq(
-		_contact_manager.get_agents_in_sector("sector_system_elace").size(),
+		_contact_manager.get_agents_in_sector("sector_star_elace").size(),
 		2,
 		"Valid sector rosters should remain unchanged when invalid agents are skipped."
 	)

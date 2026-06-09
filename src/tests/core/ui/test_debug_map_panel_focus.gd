@@ -17,7 +17,7 @@ func before_each():
 	GameState.reset_state()
 	TemplateDatabase.locations.clear()
 	_seed_template_database()
-	GameState.current_sector_id = "sector_system_lywin_A"
+	GameState.current_sector_id = "sector_star_lywin_A"
 	_panel_instance = _panel_scene.instance()
 	add_child_autofree(_panel_instance)
 
@@ -33,8 +33,8 @@ func after_each():
 
 func _seed_template_database():
 	for path in [
-		"res://database/registry/locations/sector_system_elace.tres",
-		"res://database/registry/locations/sector_system_lywin_A.tres",
+		"res://database/registry/locations/sector_star_elace.tres",
+		"res://database/registry/locations/sector_star_lywin_A.tres",
 	]:
 		var res = load(path)
 		if res:
@@ -42,16 +42,16 @@ func _seed_template_database():
 
 
 func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
-	var elace_template = TemplateDatabase.locations["sector_system_elace"]
-	var lywin_a_template = TemplateDatabase.locations["sector_system_lywin_A"]
-	assert_not_null(elace_template, "Expected sector_system_elace template to load for map-anchor test.")
-	assert_not_null(lywin_a_template, "Expected sector_system_lywin_A template to load for pivot test.")
+	var elace_template = TemplateDatabase.locations["sector_star_elace"]
+	var lywin_a_template = TemplateDatabase.locations["sector_star_lywin_A"]
+	assert_not_null(elace_template, "Expected sector_star_elace template to load for map-anchor test.")
+	assert_not_null(lywin_a_template, "Expected sector_star_lywin_A template to load for pivot test.")
 	_panel_instance._toggle_panel()
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var lywin_a_marker = map_content.get_node_or_null("Sector_sector_system_lywin_A")
-	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
-	assert_not_null(lywin_a_marker, "Expected sector_system_lywin_A marker to exist after opening the panel.")
-	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist after opening the panel.")
+	var lywin_a_marker = map_content.get_node_or_null("Sector_sector_star_lywin_A")
+	var elace_marker = map_content.get_node_or_null("Sector_sector_star_elace")
+	assert_not_null(lywin_a_marker, "Expected sector_star_lywin_A marker to exist after opening the panel.")
+	assert_not_null(elace_marker, "Expected sector_star_elace marker to exist after opening the panel.")
 	assert_eq(
 		_panel_instance._pivot,
 		Vector3.ZERO,
@@ -70,15 +70,15 @@ func test_opening_panel_keeps_camera_at_origin_and_shifts_sector_markers():
 
 
 func test_opening_panel_aligns_backdrop_sector_stars_with_sector_markers():
-	var lywin_a_template = TemplateDatabase.locations["sector_system_lywin_A"]
-	assert_not_null(lywin_a_template, "Expected sector_system_lywin_A template to load for backdrop-alignment test.")
+	var lywin_a_template = TemplateDatabase.locations["sector_star_lywin_A"]
+	assert_not_null(lywin_a_template, "Expected sector_star_lywin_A template to load for backdrop-alignment test.")
 	_panel_instance._toggle_panel()
 	yield(get_tree(), "idle_frame")
 	var map_content = _panel_instance.get_node("Panel/VBoxContainer/MapArea/ViewportContainer/Viewport/MapContent")
-	var lywin_a_marker = map_content.get_node_or_null("Sector_sector_system_lywin_A")
-	var elace_marker = map_content.get_node_or_null("Sector_sector_system_elace")
-	assert_not_null(lywin_a_marker, "Expected sector_system_lywin_A marker to exist for backdrop alignment test.")
-	assert_not_null(elace_marker, "Expected sector_system_elace marker to exist for backdrop alignment test.")
+	var lywin_a_marker = map_content.get_node_or_null("Sector_sector_star_lywin_A")
+	var elace_marker = map_content.get_node_or_null("Sector_sector_star_elace")
+	assert_not_null(lywin_a_marker, "Expected sector_star_lywin_A marker to exist for backdrop alignment test.")
+	assert_not_null(elace_marker, "Expected sector_star_elace marker to exist for backdrop alignment test.")
 	var backdrop = _panel_instance._map_nebula_holder
 	assert_not_null(backdrop, "Opening the panel should create a dedicated nebula backdrop inside the map viewport.")
 	assert_eq(

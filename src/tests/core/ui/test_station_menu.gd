@@ -55,19 +55,19 @@ func after_each() -> void:
 
 func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_contracts_exist() -> void:
 	GameState.runtime_contract_occurrences = {
-		"runtime_contract:sector_system_elace:RAW": {
-			"occurrence_id": "runtime_contract:sector_system_elace:RAW",
-			"source_sector_id": "sector_system_elace",
-			"target_sector_id": "sector_system_nyx",
+		"runtime_contract:sector_star_elace:RAW": {
+			"occurrence_id": "runtime_contract:sector_star_elace:RAW",
+			"source_sector_id": "sector_star_elace",
+			"target_sector_id": "sector_star_nyx",
 			"required_cargo_tag": "RAW_COMMODITY",
 			"reward_credits": 125,
 			"status": "open",
 			"player_displayable": true,
 		},
-		"runtime_contract:sector_system_vidr:RAW": {
-			"occurrence_id": "runtime_contract:sector_system_vidr:RAW",
-			"source_sector_id": "sector_system_vidr",
-			"target_sector_id": "sector_system_elace",
+		"runtime_contract:sector_star_vidr:RAW": {
+			"occurrence_id": "runtime_contract:sector_star_vidr:RAW",
+			"source_sector_id": "sector_star_vidr",
+			"target_sector_id": "sector_star_elace",
 			"required_cargo_tag": "RAW_COMMODITY",
 			"reward_credits": 140,
 			"status": "open",
@@ -75,13 +75,13 @@ func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_
 		},
 	}
 	GameState.runtime_contract_occurrences_by_source_sector = {
-		"sector_system_elace": ["runtime_contract:sector_system_elace:RAW"],
-		"sector_system_vidr": ["runtime_contract:sector_system_vidr:RAW"],
+		"sector_star_elace": ["runtime_contract:sector_star_elace:RAW"],
+		"sector_star_vidr": ["runtime_contract:sector_star_vidr:RAW"],
 	}
 
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	assert_true(station_menu.get_node_or_null("Panel/VBoxContainer/ContractBoard") == null,
@@ -90,10 +90,10 @@ func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_
 
 func test_station_menu_contract_button_opens_remote_contract_board_without_mutating_contract_state() -> void:
 	GameState.runtime_contract_occurrences = {
-		"runtime_contract:sector_system_elace:CURRENCY": {
-			"occurrence_id": "runtime_contract:sector_system_elace:CURRENCY",
-			"source_sector_id": "sector_system_elace",
-			"target_sector_id": "sector_system_nyx",
+		"runtime_contract:sector_star_elace:CURRENCY": {
+			"occurrence_id": "runtime_contract:sector_star_elace:CURRENCY",
+			"source_sector_id": "sector_star_elace",
+			"target_sector_id": "sector_star_nyx",
 			"required_cargo_tag": "CURRENCY_COMMODITY",
 			"reward_credits": 225,
 			"status": "open",
@@ -102,11 +102,11 @@ func test_station_menu_contract_button_opens_remote_contract_board_without_mutat
 		},
 	}
 	GameState.runtime_contract_occurrences_by_source_sector = {
-		"sector_system_elace": ["runtime_contract:sector_system_elace:CURRENCY"],
+		"sector_star_elace": ["runtime_contract:sector_star_elace:CURRENCY"],
 	}
 	GameState.agents["player"] = {
 		"cargo_tag": "EMPTY",
-		"current_sector_id": "sector_system_elace",
+		"current_sector_id": "sector_star_elace",
 	}
 
 	var root = Node.new()
@@ -117,7 +117,7 @@ func test_station_menu_contract_button_opens_remote_contract_board_without_mutat
 
 	var station_menu = StationMenuScene.instance()
 	root.add_child(station_menu)
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	assert_true(station_menu.get_node_or_null("Panel/VBoxContainer/ContractBoard") == null,
@@ -137,10 +137,10 @@ func test_station_menu_contract_button_opens_remote_contract_board_without_mutat
 
 func test_station_menu_contract_button_does_not_claim_or_load_when_global_board_is_missing() -> void:
 	GameState.runtime_contract_occurrences = {
-		"runtime_contract:sector_system_elace:RAW": {
-			"occurrence_id": "runtime_contract:sector_system_elace:RAW",
-			"source_sector_id": "sector_system_elace",
-			"target_sector_id": "sector_system_nyx",
+		"runtime_contract:sector_star_elace:RAW": {
+			"occurrence_id": "runtime_contract:sector_star_elace:RAW",
+			"source_sector_id": "sector_star_elace",
+			"target_sector_id": "sector_star_nyx",
 			"required_cargo_tag": "RAW_COMMODITY",
 			"reward_credits": 125,
 			"status": "open",
@@ -149,16 +149,16 @@ func test_station_menu_contract_button_does_not_claim_or_load_when_global_board_
 		},
 	}
 	GameState.runtime_contract_occurrences_by_source_sector = {
-		"sector_system_elace": ["runtime_contract:sector_system_elace:RAW"],
+		"sector_star_elace": ["runtime_contract:sector_star_elace:RAW"],
 	}
 	GameState.agents["player"] = {
 		"cargo_tag": "EMPTY",
-		"current_sector_id": "sector_system_elace",
+		"current_sector_id": "sector_star_elace",
 	}
 
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	station_menu._on_contracts_pressed()
@@ -172,8 +172,8 @@ func test_station_menu_contract_button_does_not_claim_or_load_when_global_board_
 
 
 func _seed_base_state() -> void:
-	GameState.player_docked_at = "sector_system_elace"
-	GameState.current_sector_id = "sector_system_elace"
+	GameState.player_docked_at = "sector_star_elace"
+	GameState.current_sector_id = "sector_star_elace"
 	GameState.player_claimed_occurrence_id = ""
 	GameState.player_cargo_tag = "EMPTY"
 	GameState.player_character_uid = "1"
@@ -183,18 +183,18 @@ func _seed_base_state() -> void:
 	if GlobalRefs.inventory_system:
 		GlobalRefs.inventory_system.create_inventory_for_character(1)
 	GameState.locations = {
-		"sector_system_elace": {
+		"sector_star_elace": {
 			"location_name": "Elace System",
 			"available_services": ["trade", "contracts"],
 		},
 	}
 	GameState.sector_names = {
-		"sector_system_elace": "Elace",
-		"sector_system_vidr": "Vidr",
-		"sector_system_nyx": "Nyx",
+		"sector_star_elace": "Elace",
+		"sector_star_vidr": "Vidr",
+		"sector_star_nyx": "Nyx",
 	}
 	GameState.world_topology = {
-		"sector_system_elace": {
+		"sector_star_elace": {
 			"connections": [],
 			"development_level": "colony",
 			"station_ids": [],
@@ -211,12 +211,12 @@ func test_station_menu_gating_and_button_text() -> void:
 	add_child_autofree(station_menu)
 
 	# 1. Test only lawful trade offered
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["trade", "contracts"],
 		"market_inventory": {},
 	}
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	assert_eq(station_menu._btn_trade.text, "Trade", "Button text should be 'Trade' when only lawful trade is offered.")
@@ -226,12 +226,12 @@ func test_station_menu_gating_and_button_text() -> void:
 	assert_eq(station_menu._label_market_header.text, "Market (Lawful)", "Header should read 'Market (Lawful)'.")
 
 	# 2. Test only black market offered
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["black_market", "contracts"],
 		"market_inventory": {},
 	}
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	assert_eq(station_menu._btn_trade.text, "Access Black Market", "Button text should be 'Access Black Market' when only black market is offered.")
@@ -241,12 +241,12 @@ func test_station_menu_gating_and_button_text() -> void:
 	assert_eq(station_menu._label_market_header.text, "Black Market (Illicit)", "Header should read 'Black Market (Illicit)'.")
 
 	# 3. Test both offered
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["trade", "black_market", "contracts"],
 		"market_inventory": {},
 	}
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	assert_eq(station_menu._btn_trade.text, "Trade", "Button text should be 'Trade' when both are offered.")
@@ -256,12 +256,12 @@ func test_station_menu_gating_and_button_text() -> void:
 	assert_eq(station_menu._label_market_header.text, "Market & Black Market", "Header should read 'Market & Black Market'.")
 
 	# 4. Test neither offered
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["contracts"],
 		"market_inventory": {},
 	}
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	station_menu._on_trade_pressed()
@@ -285,7 +285,7 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 		inv.clear()
 
 	# Setup market inventory
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["trade"],
 		"market_inventory": {
@@ -297,7 +297,7 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 		},
 	}
 
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 
 	# Open trade
@@ -321,7 +321,7 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 	var pc = GameState.characters[player_uid]
 	assert_eq(pc.credits, 87, "Player credits should decrease by buy_price (13).")
 	assert_eq(GlobalRefs.inventory_system.get_asset_count(player_uid, 2, "commodity_ore"), 1, "Player should have 1 commodity_ore in inventory.")
-	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 4, "Station commodity quantity should decrease to 4.")
+	assert_eq(GameState.locations["sector_star_elace"].market_inventory["commodity_ore"]["quantity"], 4, "Station commodity quantity should decrease to 4.")
 
 	# Refresh UI is automatic, let's verify buttons state
 	row = station_menu._market_list.get_child(0)
@@ -337,7 +337,7 @@ func test_station_menu_transaction_buy_and_sell() -> void:
 	# Assert credits increased, player lost asset, station quantity incremented
 	assert_eq(pc.credits, 98, "Player credits should increase by sell_price (11) to 98.")
 	assert_eq(GlobalRefs.inventory_system.get_asset_count(player_uid, 2, "commodity_ore"), 0, "Player should have 0 commodity_ore in inventory.")
-	assert_eq(GameState.locations["sector_system_elace"].market_inventory["commodity_ore"]["quantity"], 5, "Station commodity quantity should increase back to 5.")
+	assert_eq(GameState.locations["sector_star_elace"].market_inventory["commodity_ore"]["quantity"], 5, "Station commodity quantity should increase back to 5.")
 
 	row = station_menu._market_list.get_child(0)
 	btn_buy = row.get_child(4)
@@ -367,7 +367,7 @@ func test_station_menu_contraband_gating() -> void:
 	add_child_autofree(station_menu)
 
 	# 1. Station offers only trade (lawful)
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["trade"],
 		"market_inventory": {
@@ -375,7 +375,7 @@ func test_station_menu_contraband_gating() -> void:
 			"commodity_contraband": {"buy_price": 200, "sell_price": 150, "quantity": 5}
 		}
 	}
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 	station_menu._on_trade_pressed()
 	yield(get_tree(), "idle_frame")
@@ -389,7 +389,7 @@ func test_station_menu_contraband_gating() -> void:
 	station_menu._on_trade_pressed()
 
 	# 2. Station offers only black market
-	GameState.locations["sector_system_elace"] = {
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["black_market"],
 		"market_inventory": {
@@ -397,7 +397,7 @@ func test_station_menu_contraband_gating() -> void:
 			"commodity_contraband": {"buy_price": 200, "sell_price": 150, "quantity": 5}
 		}
 	}
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	yield(get_tree(), "idle_frame")
 	station_menu._on_trade_pressed()
 	yield(get_tree(), "idle_frame")

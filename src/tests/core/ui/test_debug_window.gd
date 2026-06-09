@@ -81,7 +81,7 @@ func test_debug_window_contract_board_button_toggles_contract_board_panel() -> v
 
 
 func test_main_menu_close_hides_and_unpauses_live_session() -> void:
-	GameState.current_sector_id = "sector_system_elace"
+	GameState.current_sector_id = "sector_star_elace"
 
 	var main_menu = MainMenuScene.instance()
 	add_child_autofree(main_menu)
@@ -100,10 +100,10 @@ func test_main_menu_close_hides_and_unpauses_live_session() -> void:
 func test_station_menu_close_hides_without_undocking_and_reopens() -> void:
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
-	GameState.player_docked_at = "sector_system_elace"
+	GameState.player_docked_at = "sector_star_elace"
 	yield(get_tree(), "idle_frame")
 
-	station_menu._on_player_docked("sector_system_elace")
+	station_menu._on_player_docked("sector_star_elace")
 	assert_true(station_menu.visible, "Docking should open the station menu.")
 
 	var close_button: BaseButton = station_menu.get_node("Panel/VBoxContainer/HeaderRow/BtnClose")
@@ -111,7 +111,7 @@ func test_station_menu_close_hides_without_undocking_and_reopens() -> void:
 	yield(get_tree(), "idle_frame")
 
 	assert_false(station_menu.visible, "Closing the station menu should hide it.")
-	assert_eq(GameState.player_docked_at, "sector_system_elace", "Closing the station menu must not undock the player.")
+	assert_eq(GameState.player_docked_at, "sector_star_elace", "Closing the station menu must not undock the player.")
 
 	station_menu.open_for_current_dock()
 	yield(get_tree(), "idle_frame")
@@ -123,8 +123,8 @@ func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_dock
 	add_child_autofree(station_menu)
 	yield(get_tree(), "idle_frame")
 
-	GameState.player_docked_at = "sector_system_elace"
-	station_menu._on_player_docked("sector_system_elace")
+	GameState.player_docked_at = "sector_star_elace"
+	station_menu._on_player_docked("sector_star_elace")
 	assert_true(station_menu.visible, "Precondition: docking should open the station menu.")
 
 	GameState.player_docked_at = ""
@@ -137,8 +137,8 @@ func test_station_menu_open_for_current_dock_hides_when_player_is_no_longer_dock
 func test_station_menu_service_buttons_show_explicit_trade_feedback_and_do_not_claim_contracts() -> void:
 	var station_menu = StationMenuScene.instance()
 	add_child_autofree(station_menu)
-	GameState.player_docked_at = "sector_system_elace"
-	GameState.locations["sector_system_elace"] = {
+	GameState.player_docked_at = "sector_star_elace"
+	GameState.locations["sector_star_elace"] = {
 		"location_name": "Elace System",
 		"available_services": ["trade", "contracts", "repair"],
 		"market_inventory": {},
@@ -172,7 +172,7 @@ func test_main_hud_dock_button_reopens_station_menu_while_docked() -> void:
 	root.add_child(hud)
 	yield(get_tree(), "idle_frame")
 
-	GameState.player_docked_at = "sector_system_elace"
+	GameState.player_docked_at = "sector_star_elace"
 	watch_signals(EventBus)
 
 	hud._on_ButtonDock_pressed()

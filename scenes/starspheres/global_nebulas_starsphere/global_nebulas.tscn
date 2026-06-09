@@ -7,11 +7,11 @@
 [ext_resource path="res://assets/models/nebulas/nebula_2.glb" type="PackedScene" id=5]
 [ext_resource path="res://assets/art/textures/sbs-noise_texture_pack-512x512/normal_maps/Voronoi 8 - 512x512.png" type="Texture" id=6]
 [ext_resource path="res://assets/models/nebulas/nebula_3.glb" type="PackedScene" id=7]
-[ext_resource path="res://scenes/levels/sectors/sector_system_elace/star_elace/star_elace_sprite.tscn" type="PackedScene" id=8]
+[ext_resource path="res://scenes/levels/sectors/sector_star_elace/star_elace/star_elace_sprite.tscn" type="PackedScene" id=8]
 [ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=9]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
-[ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/star_lywin_sprite.tscn" type="PackedScene" id=11]
-[ext_resource path="res://scenes/levels/sectors/sector_system_cob/star_cob/star_cob_sprite.tscn" type="PackedScene" id=12]
+[ext_resource path="res://scenes/levels/sectors/sector_star_lywin/stars_lywin/star_lywin_sprite.tscn" type="PackedScene" id=11]
+[ext_resource path="res://scenes/levels/sectors/sector_star_cob/star_cob/star_cob_sprite.tscn" type="PackedScene" id=12]
 
 [sub_resource type="GDScript" id=7]
 script/source = "extends Spatial

@@ -129,7 +129,7 @@ func test_focus_mode_selection_refreshes_sector_and_agent_entities() -> void:
 
 	assert_false(_panel_instance._focus_id_option.disabled,
 		"Sector focus should enable entity selection.")
-	assert_true(_option_button_contains_metadata(_panel_instance._focus_id_option, "sector_system_elace"),
+	assert_true(_option_button_contains_metadata(_panel_instance._focus_id_option, "sector_star_elace"),
 		"Sector focus should list current sector ids as report entities.")
 	assert_true(_option_button_contains_text(_panel_instance._focus_id_option, "Elace"),
 		"Sector focus labels should be human-readable when sector names are available.")
@@ -152,7 +152,7 @@ func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -
 	var sector_focus_index: int = _find_option_index_by_metadata(_panel_instance._focus_mode_option, "sector")
 	_panel_instance._focus_mode_option.select(sector_focus_index)
 	_panel_instance._on_focus_mode_selected(sector_focus_index)
-	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_system_elace")
+	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_star_elace")
 	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
 	_select_option_by_metadata(_panel_instance._detail_level_option, "verbose")
 
@@ -164,7 +164,7 @@ func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -
 		"Run 300 should preserve the contracted epoch-size scaling.")
 	assert_eq(str(_engine_double.last_report_request.get("focus_mode", "")), "sector",
 		"SimDebugPanel should forward the selected focus mode to the batch-report request.")
-	assert_eq(str(_engine_double.last_report_request.get("focus_id", "")), "sector_system_elace",
+	assert_eq(str(_engine_double.last_report_request.get("focus_id", "")), "sector_star_elace",
 		"SimDebugPanel should forward the selected focus entity to the batch-report request.")
 	assert_eq(str(_engine_double.last_report_request.get("sort_mode", "")), "agent",
 		"SimDebugPanel should forward the selected sort mode to the batch-report request.")
@@ -174,7 +174,7 @@ func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -
 		"Running a batch should switch the panel into report mode.")
 	assert_true(_panel_instance._header_label.text.find("sector:") != -1,
 		"The report header should reflect the selected scoped-analysis mode.")
-	assert_true(_panel_instance._header_label.text.find("sector_system_elace") != -1,
+	assert_true(_panel_instance._header_label.text.find("sector_star_elace") != -1,
 		"The report header should reflect the selected scoped-analysis entity.")
 
 	_panel_instance._on_back_pressed()
@@ -231,7 +231,7 @@ func test_silent_run_starts_continuous_unfiltered_stream_and_keeps_live_snapshot
 	var sector_focus_index: int = _find_option_index_by_metadata(_panel_instance._focus_mode_option, "sector")
 	_panel_instance._focus_mode_option.select(sector_focus_index)
 	_panel_instance._on_focus_mode_selected(sector_focus_index)
-	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_system_elace")
+	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_star_elace")
 	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
 	_select_option_by_metadata(_panel_instance._detail_level_option, "verbose")
 
@@ -267,29 +267,29 @@ func _seed_sim_state() -> void:
 	GameState.world_age_timer = 5
 	GameState.world_age_cycle_count = 1
 	GameState.world_topology = {
-		"sector_system_elace": {"connections": ["sector_system_cob"], "station_ids": ["sector_system_elace"], "development_level": "colony", "sector_type": "star"},
-		"sector_system_cob": {"connections": ["sector_system_elace"], "station_ids": ["sector_system_cob"], "development_level": "colony", "sector_type": "star"},
+		"sector_star_elace": {"connections": ["sector_star_cob"], "station_ids": ["sector_star_elace"], "development_level": "colony", "sector_type": "star"},
+		"sector_star_cob": {"connections": ["sector_star_elace"], "station_ids": ["sector_star_cob"], "development_level": "colony", "sector_type": "star"},
 	}
 	GameState.world_hazards = {
-		"sector_system_elace": {"environment": "MILD"},
-		"sector_system_cob": {"environment": "HARSH"},
+		"sector_star_elace": {"environment": "MILD"},
+		"sector_star_cob": {"environment": "HARSH"},
 	}
 	GameState.world_tags = ["WORLD_AGE_PROSPERITY"]
 	GameState.sector_tags = {
-		"sector_system_elace": ["STATION", "SECURE", "MILD", "RAW_POOR"],
-		"sector_system_cob": ["STATION", "CONTESTED", "HARSH", "RAW_RICH"],
+		"sector_star_elace": ["STATION", "SECURE", "MILD", "RAW_POOR"],
+		"sector_star_cob": ["STATION", "CONTESTED", "HARSH", "RAW_RICH"],
 	}
 	GameState.grid_dominion = {
-		"sector_system_elace": {"security_tag": "SECURE"},
-		"sector_system_cob": {"security_tag": "CONTESTED"},
+		"sector_star_elace": {"security_tag": "SECURE"},
+		"sector_star_cob": {"security_tag": "CONTESTED"},
 	}
 	GameState.colony_levels = {
-		"sector_system_elace": "colony",
-		"sector_system_cob": "outpost",
+		"sector_star_elace": "colony",
+		"sector_star_cob": "outpost",
 	}
 	GameState.sector_names = {
-		"sector_system_elace": "Elace",
-		"sector_system_cob": "Cob",
+		"sector_star_elace": "Elace",
+		"sector_star_cob": "Cob",
 	}
 	GameState.characters = {
 		"character_vera": {"character_name": "Vera"},
@@ -299,7 +299,7 @@ func _seed_sim_state() -> void:
 		"player": {
 			"character_id": "character_vera",
 			"agent_role": "idle",
-			"current_sector_id": "sector_system_elace",
+			"current_sector_id": "sector_star_elace",
 			"condition_tag": "HEALTHY",
 			"wealth_tag": "COMFORTABLE",
 			"cargo_tag": "EMPTY",
@@ -310,7 +310,7 @@ func _seed_sim_state() -> void:
 		"agent_vera": {
 			"character_id": "character_vera",
 			"agent_role": "trader",
-			"current_sector_id": "sector_system_elace",
+			"current_sector_id": "sector_star_elace",
 			"condition_tag": "HEALTHY",
 			"wealth_tag": "WEALTHY",
 			"cargo_tag": "EMPTY",
@@ -321,7 +321,7 @@ func _seed_sim_state() -> void:
 		"agent_dax": {
 			"character_id": "character_dax",
 			"agent_role": "hauler",
-			"current_sector_id": "sector_system_cob",
+			"current_sector_id": "sector_star_cob",
 			"condition_tag": "DAMAGED",
 			"wealth_tag": "BROKE",
 			"cargo_tag": "LOADED",

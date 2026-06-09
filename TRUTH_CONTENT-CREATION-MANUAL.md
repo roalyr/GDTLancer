@@ -46,7 +46,7 @@ This manual is for **Designers** and **Artists** who want to add or modify game 
 
 **Your primary workspace is `/database` and `/assets`.**
 
-For world authoring, treat every file in `/database/registry/locations/` as a **sector-level registry resource** keyed by ids such as `sector_system_elace`. Dockable stations and other interactables live inside the referenced sector scene.
+For world authoring, treat every file in `/database/registry/locations/` as a **sector-level registry resource** keyed by ids such as `sector_star_elace`. Dockable stations and other interactables live inside the referenced sector scene.
 
 For contracts, the default runtime path is now **simulation-driven**. `GridLayer` surfaces `CONTRACT_DEMAND_*` tags, `contract_generation_system.gd` turns them into runtime occurrences, and `AgentLayer` claims and services those occurrences. Authored `ContractTemplate` resources and `available_contract_ids` lists are now **optional curated overrides** for tutorial, story, or hand-authored exception content rather than the normal contract pipeline.
 
@@ -82,7 +82,7 @@ database/
 │   │   └── ships/        # ship_*.tres
 │   ├── characters/       # character_*.tres
 │   ├── contracts/        # Optional curated contract overrides (tutorial/story/fallback)
-│   ├── locations/        # sector_system_*.tres, sector_runtime_*.tres
+│   ├── locations/        # sector_star_*.tres, sector_runtime_*.tres
 │   ├── quirks/           # quirk_*.tres (Sprint 11)
 │   ├── tools/            # tool_*.tres
 │   └── zones/            # Zone configuration data
@@ -132,7 +132,7 @@ scenes/
 │   └── screens/          # inventory, character_status, etc.
 │
 └── levels/               # Playable areas
-    ├── sectors/          # sector_system_elace/, sector_system_cob/, etc.
+    ├── sectors/          # sector_star_elace/, sector_star_cob/, etc.
     ├── zones/            # basic_flight_zone.tscn
     └── game_world/       # main_game_scene.tscn
 ```
@@ -278,23 +278,23 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 
 **Contract boundary:** the live simulation does **not** require authored per-sector contract lists. Runtime demand contracts are generated from qualitative sector tags and nearby source sectors. `available_contract_ids` remains optional for curated overrides only.
 
-**Example: Creating `sector_system_nexus` - a new colony hub sector**
+**Example: Creating `sector_star_nexus` - a new colony hub sector**
 
 #### Step 1: DATA - Create Sector Definition
 
 1. Navigate to `/database/registry/locations/`
-2. Duplicate `sector_system_elace.tres` → `sector_system_nexus.tres`
+2. Duplicate `sector_star_elace.tres` → `sector_star_nexus.tres`
 3. Edit the cloned resource in the Inspector:
 
 ```
 [Resource - LocationTemplate]
-├── template_id: "sector_system_nexus"
+├── template_id: "sector_star_nexus"
 ├── location_name: "Nexus System"
 ├── jump_in_distance: 5000.0
 ├── interaction_radius: 0.0
-├── sector_scene_path: "res://scenes/levels/sectors/sector_system_nexus/sector_system_nexus.tscn"
+├── sector_scene_path: "res://scenes/levels/sectors/sector_star_nexus/sector_star_nexus.tscn"
 ├── global_position: Vector3(120000, 15000, -240000)
-├── connections: PoolStringArray("sector_system_elace", "sector_system_cob")
+├── connections: PoolStringArray("sector_star_elace", "sector_star_cob")
 ├── sector_type: "planet"  # Consolidated topology category: star, star_companion, planet, moon, field, deep_space
 ├── market_inventory:
 │   ├── commodity_food: {buy_price: 24, sell_price: 19, quantity: 80}
@@ -320,9 +320,9 @@ Keep the other world-layer fields aligned with your chosen source template or tu
 
 #### Step 2: SCENE - Create the Sector Scene
 
-1. Create a folder under `/scenes/levels/sectors/`, for example `/scenes/levels/sectors/sector_system_nexus/`
-2. Duplicate an existing sector scene folder such as `/scenes/levels/sectors/sector_system_elace/` if you want a handcrafted starting point
-3. Save the main scene as `/scenes/levels/sectors/sector_system_nexus/sector_system_nexus.tscn`
+1. Create a folder under `/scenes/levels/sectors/`, for example `/scenes/levels/sectors/sector_star_nexus/`
+2. Duplicate an existing sector scene folder such as `/scenes/levels/sectors/sector_star_elace/` if you want a handcrafted starting point
+3. Save the main scene as `/scenes/levels/sectors/sector_star_nexus/sector_star_nexus.tscn`
 4. Point `sector_scene_path` in the `.tres` to that main sector scene
 5. Keep dockable stations and other interactables inside the sector scene itself; if a dockable station should satisfy docking/bootstrap lookups, its `location_id` must match the sector resource `template_id`
 
@@ -359,8 +359,8 @@ If the sector should use the procedural fallback instead of a handcrafted scene:
 ├── description: "Deliver quantum crystals to Nexus System. Payment on delivery."
 ├── issuer_id: "trade_dispatch_nexus"
 ├── faction_id: "faction_traders"
-├── origin_location_id: "sector_system_elace"
-├── destination_location_id: "sector_system_nexus"
+├── origin_location_id: "sector_star_elace"
+├── destination_location_id: "sector_star_nexus"
 ├── required_commodity_id: "commodity_quantum_crystals"
 ├── required_quantity: 10
 ├── time_limit_seconds: 500  # Seconds
@@ -424,7 +424,7 @@ The live character template is simulation-facing. It does not currently expose `
 ├── template_id: "persistent_pirate_patrol"
 ├── agent_type: "npc"
 ├── is_persistent: true
-├── home_location_id: "sector_system_vidr"
+├── home_location_id: "sector_star_vidr"
 ├── character_template_id: "character_crow"
 ├── respawn_timeout_seconds: 300.0
 ├── agent_role: "pirate"
@@ -577,7 +577,7 @@ After adding content:
 1. Open Godot Editor
 2. Open your `.tres` file in the Inspector
 3. Check for red error icons (missing references)
-4. If you added or changed a sector resource, confirm the id and scene path follow the canonical sector model (`sector_system_*`, `sector_scene_path`, `connections`, `global_position`)
+4. If you added or changed a sector resource, confirm the id and scene path follow the canonical sector model (`sector_star_*`, `sector_scene_path`, `connections`, `global_position`)
 5. If you authored a curated contract override, confirm its `origin_location_id` and `destination_location_id` point at live sector ids in `/database/registry/locations/`
 5. Run the game and check the console for errors
 
@@ -585,7 +585,7 @@ After adding content:
 
 To test a new sector resource in a debug console or temporary tool script:
 ```gdscript
-var sector_data = TemplateDatabase.locations.get("sector_system_nexus")
+var sector_data = TemplateDatabase.locations.get("sector_star_nexus")
 print(sector_data.location_name)      # Should print "Nexus System"
 print(sector_data.sector_scene_path)  # Should print the sector .tscn path
 ```
@@ -628,8 +628,8 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 **Solution:** Use `template_id`, `location_name`, `sector_scene_path`, `available_services`, `market_inventory`, and `global_position`
 
 ### ❌ Non-Canonical Sector IDs
-**Problem:** Created location resources named like `station_nexus` while the live registry/topology uses `sector_system_*` ids  
-**Solution:** Author registry locations with canonical sector ids such as `sector_system_nexus`; keep individual stations inside the sector scene
+**Problem:** Created location resources named like `station_nexus` while the live registry/topology uses `sector_star_*` ids  
+**Solution:** Author registry locations with canonical sector ids such as `sector_star_nexus`; keep individual stations inside the sector scene
 
 ### ❌ One-Way Connections
 **Problem:** Added a new target to one sector's `connections` array but did not update the reciprocal sector  
@@ -668,7 +668,7 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 | Add a ship | `/database/registry/assets/ships/` | `ship_default.tres` |
 | Add a commodity | `/database/registry/assets/commodities/` | `commodity_default.tres` |
 | Add a tool | `/database/registry/tools/` | `tool_ablative_laser.tres` |
-| Add a sector/location | `/database/registry/locations/` | `sector_system_elace.tres` |
+| Add a sector/location | `/database/registry/locations/` | `sector_star_elace.tres` |
 | Add a curated contract override | `/database/registry/contracts/` | `delivery_01.tres` |
 | Add a character | `/database/registry/characters/` | `character_default.tres` |
 | Add an NPC type | `/database/registry/agents/` | `npc_default.tres` or a matching `persistent_*.tres` |
