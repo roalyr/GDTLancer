@@ -62,7 +62,7 @@ func test_indexing_loads_known_contracts_after_locations():
 
 func test_invalid_contract_locations_are_not_registered():
 	var origin_location = load("res://database/registry/locations/sector_star_elace.tres")
-	var destination_location = load("res://database/registry/locations/sector_star_lywin_A.tres")
+	var destination_location = load("res://database/registry/locations/sector_star_lywin.tres")
 	assert_true(origin_location is LocationTemplate, "Starter sector fixture should load as a LocationTemplate.")
 	assert_true(destination_location is LocationTemplate, "Station Beta fixture should load as a LocationTemplate.")
 	indexer_instance._register_template(origin_location)

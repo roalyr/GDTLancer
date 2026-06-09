@@ -10,7 +10,7 @@
 [ext_resource path="res://scenes/levels/sectors/sector_star_elace/star_elace/star_elace_sprite.tscn" type="PackedScene" id=8]
 [ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=9]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
-[ext_resource path="res://scenes/levels/sectors/sector_star_lywin/stars_lywin/star_lywin_sprite.tscn" type="PackedScene" id=11]
+[ext_resource path="res://scenes/levels/sectors/sector_star_lywin/star_lywin/star_lywin_sprite.tscn" type="PackedScene" id=11]
 [ext_resource path="res://scenes/levels/sectors/sector_star_cob/star_cob/star_cob_sprite.tscn" type="PackedScene" id=12]
 
 [sub_resource type="GDScript" id=7]
@@ -198,7 +198,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Star Lywin A Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 11 )]
+[node name="Star Lywin Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 500000, -50000, 500000 )
 
 [node name="Star Lywin B Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 11 )]

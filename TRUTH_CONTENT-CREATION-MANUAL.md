@@ -276,6 +276,15 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 
 **Canonical model:** each entry in `/database/registry/locations/` is a sector-level `LocationTemplate` resource. It owns the sector id, galactic position, topology, scene-loading path, and compatibility data used by the current docked UI and bootstrap flow.
 
+**Naming Convention and Hierarchy:**
+- The primary star of a system is always the main sector and determines the folder structure (e.g., `sector_star_elace`, `sector_star_cob`, `sector_star_lywin`).
+- Its scene file lives at the root of that folder: `sector_star_elace.tscn`.
+- Inside the sector folder, individual celestial bodies have their own subfolders and scenes:
+  - `star_elace/star_elace.tscn` (the star object itself)
+  - `planet_elace_a/planet_elace_a.tscn`
+  - `moon_elace_a1/moon_elace_a1.tscn`
+- Secondary or companion stars (e.g., Lywin B, C, D) are treated as separate `LocationTemplate` resources but with `sector_type: "star_companion"`. Their main sector scenes (e.g., `sector_star_lywin_B.tscn`) also reside in the primary system's folder, alongside their celestial object subfolders (`star_lywin_B/star_lywin_B.tscn`).
+
 **Contract boundary:** the live simulation does **not** require authored per-sector contract lists. Runtime demand contracts are generated from qualitative sector tags and nearby source sectors. `available_contract_ids` remains optional for curated overrides only.
 
 **Example: Creating `sector_star_nexus` - a new colony hub sector**

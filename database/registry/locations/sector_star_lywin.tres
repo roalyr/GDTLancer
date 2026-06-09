@@ -4,11 +4,11 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "sector_star_lywin_A"
-location_name = "Lywin A Star"
+template_id = "sector_star_lywin"
+location_name = "Lywin Star"
 jump_in_distance = 12000.0
 interaction_radius = 0.0
-sector_scene_path = "res://scenes/levels/sectors/sector_star_lywin/sector_star_lywin_A.tscn"
+sector_scene_path = "res://scenes/levels/sectors/sector_star_lywin/sector_star_lywin.tscn"
 global_position = Vector3( 500000, -50000, 500000 )
 is_procedural = false
 procedural_type = "deep_space"

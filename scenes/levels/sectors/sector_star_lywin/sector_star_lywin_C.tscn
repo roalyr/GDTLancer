@@ -3,7 +3,7 @@
 [ext_resource path="res://src/core/utils/editor_object.gd" type="Script" id=1]
 [ext_resource path="res://scenes/starspheres/global_nebulas_starsphere/global_nebulas.tscn" type="PackedScene" id=2]
 [ext_resource path="res://src/scenes/game_world/starsphere_slot.gd" type="Script" id=3]
-[ext_resource path="res://scenes/levels/sectors/sector_star_lywin/stars_lywin/star_lywin_C.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/levels/sectors/sector_star_lywin/star_lywin_C/star_lywin_C.tscn" type="PackedScene" id=4]
 
 [sub_resource type="SpatialMaterial" id=1]
 flags_unshaded = true

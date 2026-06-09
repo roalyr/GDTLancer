@@ -15,7 +15,7 @@ procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_star_cob", "sector_star_lywin_A", "sector_star_vidr", "sector_planet_elace_a", "sector_planet_elace_b", "sector_planet_elace_c" )
+connections = PoolStringArray( "sector_star_cob", "sector_star_lywin", "sector_star_vidr", "sector_planet_elace_a", "sector_planet_elace_b", "sector_planet_elace_c" )
 sector_type = "star"
 development_level = "hub"
 radiation_level = 0.05
