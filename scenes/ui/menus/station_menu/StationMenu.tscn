@@ -1,9 +1,3 @@
-; PROJECT: GDTLancer
-; MODULE: StationMenu.tscn
-; STATUS: [Level 2 - Implementation]
-; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
-; LOG_REF: 2026-06-04 00:54:15
-
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/ui/station_menu/station_menu.gd" type="Script" id=1]
@@ -43,43 +37,43 @@ custom_constants/separation = 12
 
 [node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
 margin_right = 1446.0
-margin_bottom = 150.0
+margin_bottom = 27.0
 
 [node name="LabelStationName" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
-margin_top = 61.0
-margin_right = 1256.0
-margin_bottom = 88.0
+margin_right = 1446.0
+margin_bottom = 27.0
 size_flags_horizontal = 3
 text = "Station Name"
 
 [node name="BtnClose" parent="Panel/VBoxContainer/HeaderRow" instance=ExtResource( 3 )]
+visible = false
 margin_left = 1296.0
 margin_right = 1446.0
 margin_bottom = 150.0
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 162.0
+margin_top = 39.0
 margin_right = 1446.0
-margin_bottom = 166.0
+margin_bottom = 43.0
 
 [node name="LabelInfo" type="Label" parent="Panel/VBoxContainer"]
-margin_top = 178.0
+margin_top = 55.0
 margin_right = 1446.0
-margin_bottom = 282.0
+margin_bottom = 159.0
 rect_min_size = Vector2( 0, 104 )
 autowrap = true
 
 [node name="BtnTrade" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 294.0
+margin_top = 171.0
 margin_right = 1446.0
-margin_bottom = 344.0
+margin_bottom = 221.0
 rect_min_size = Vector2( 0, 50 )
 text = "Trade (coming soon)"
 
 [node name="BtnContracts" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 356.0
+margin_top = 233.0
 margin_right = 1446.0
-margin_bottom = 406.0
+margin_bottom = 283.0
 rect_min_size = Vector2( 0, 50 )
 text = "Open Contract Board"
 
@@ -109,13 +103,13 @@ size_flags_horizontal = 3
 custom_constants/separation = 6
 
 [node name="HSeparator2" type="HSeparator" parent="Panel/VBoxContainer"]
-margin_top = 418.0
+margin_top = 295.0
 margin_right = 1446.0
-margin_bottom = 422.0
+margin_bottom = 299.0
 
 [node name="BtnUndock" type="Button" parent="Panel/VBoxContainer"]
-margin_top = 434.0
+margin_top = 311.0
 margin_right = 1446.0
-margin_bottom = 484.0
+margin_bottom = 361.0
 rect_min_size = Vector2( 0, 50 )
 text = "Undock"

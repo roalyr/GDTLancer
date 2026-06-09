@@ -1395,7 +1395,7 @@ func test_build_discovered_sector_placement_separates_from_existing_discovery_br
 		},
 	}
 
-	var placement: Dictionary = agent_layer._build_discovered_sector_placement("discovered_2", "source")
+	var placement: Dictionary = agent_layer._build_discovered_sector_placement("discovered_2", "source", {})
 
 	assert_true(bool(placement.get("is_valid", false)), "Sibling discovery branches should find a valid, non-overlapping placement when space exists.")
 	assert_true(

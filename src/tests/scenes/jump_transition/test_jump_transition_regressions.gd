@@ -392,7 +392,7 @@ func test_jump_transition_rig_completes_route_when_destination_is_reached():
 
 func test_dynamic_travel_durations_for_pairs():
 	# star-star
-	assert_eq(Constants.get_jump_travel_duration("star", "star"), 20.0, "star-star travel should take 20 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("star", "star"), 30.0, "star-star travel should take 30 seconds.")
 	# star-star_companion (order-independent)
 	assert_eq(Constants.get_jump_travel_duration("star", "star_companion"), 15.0, "star-star_companion travel should take 15 seconds.")
 	assert_eq(Constants.get_jump_travel_duration("star_companion", "star"), 15.0, "star_companion-star travel should take 15 seconds.")
@@ -403,9 +403,9 @@ func test_dynamic_travel_durations_for_pairs():
 	assert_eq(Constants.get_jump_travel_duration("planet", "moon"), 5.0, "planet-moon travel should take 5 seconds.")
 	assert_eq(Constants.get_jump_travel_duration("moon", "planet"), 5.0, "moon-planet travel should take 5 seconds.")
 	# any-deep_space
-	assert_eq(Constants.get_jump_travel_duration("star", "deep_space"), 8.0, "star-deep_space travel should take 8 seconds.")
-	assert_eq(Constants.get_jump_travel_duration("deep_space", "planet"), 8.0, "deep_space-planet travel should take 8 seconds.")
-	assert_eq(Constants.get_jump_travel_duration("deep_space", "deep_space"), 8.0, "deep_space-deep_space travel should take 8 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("star", "deep_space"), 15.0, "star-deep_space travel should take 15 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("deep_space", "planet"), 15.0, "deep_space-planet travel should take 15 seconds.")
+	assert_eq(Constants.get_jump_travel_duration("deep_space", "deep_space"), 15.0, "deep_space-deep_space travel should take 15 seconds.")
 	# fallback/unknown defaults to JUMP_TRAVEL_DURATION (20.0)
 	assert_eq(Constants.get_jump_travel_duration("unknown_a", "unknown_b"), 20.0, "Fallback duration should be 20 seconds.")
 

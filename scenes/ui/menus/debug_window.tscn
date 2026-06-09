@@ -1,9 +1,3 @@
-; PROJECT: GDTLancer
-; MODULE: debug_window.tscn
-; STATUS: [Level 2 - Implementation]
-; TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TACTICAL_TODO.md TASK_1
-; LOG_REF: 2026-05-27 02:49:16
-
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/core/ui/debug_window/debug_window.gd" type="Script" id=1]

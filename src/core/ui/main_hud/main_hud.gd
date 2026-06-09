@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 17:05:00
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md; TACTICAL_TODO.md TASK_2
+# LOG_REF: 2026-06-09 20:56:00
 #
 
 extends Control
@@ -62,6 +62,8 @@ onready var button_manual_flight: TextureButton = $ScreenControls/BottomCenterZo
 onready var button_approach: TextureButton = $ScreenControls/BottomCenterZone/ButtonApproach
 onready var button_flee: TextureButton = $ScreenControls/BottomCenterZone/ButtonFlee
 onready var button_camera: TextureButton = $ScreenControls/CenterRightZone/ButtonCamera
+onready var button_dock: TextureButton = $ScreenControls/BottomCenterZone/ButtonDock
+onready var label_button_dock: Label = $ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock
 
 # --- Game Over UI ---
 onready var game_over_overlay: Control = $"GameOverOverlay (to be made into a dedicated window like main menu)"
@@ -196,6 +198,7 @@ func _ready():
 	_station_menu_instance = StationMenuScene.instance()
 	add_child(_station_menu_instance)
 	_refresh_process_state()
+	_update_dock_button_label()
 	call_deferred("_rebuild_projected_target_overlays")
 
 
@@ -220,6 +223,7 @@ func _on_Player_Target_Selected(target_node):
 		_refresh_process_state()
 		_update_route_target_selection_state()
 		_update_world_target_selection_state()
+		_update_dock_button_label()
 		
 		# Update camera look_at_target if in target tracking mode
 		var camera = GlobalRefs.main_camera
@@ -236,6 +240,7 @@ func _on_Player_Target_Deselected():
 	_update_world_target_selection_state()
 	_refresh_process_state()
 	_refresh_player_hull()
+	_update_dock_button_label()
 	
 	# If camera is in target tracking mode, switch back to orbit mode
 	var camera = GlobalRefs.main_camera
@@ -867,7 +872,19 @@ func _apply_projected_target_distance_fade(button: Control, fade_alpha: float) -
 
 func _get_projected_target_overlay_kind(target_ref) -> String:
 	if _is_route_target(target_ref):
-		return OVERLAY_KIND_JUMP
+		var dest_id = target_ref.get("target_sector_id")
+		var sector_type = "star"
+		if dest_id != null and dest_id != "":
+			if GameState.world_topology.has(dest_id) and GameState.world_topology[dest_id].has("sector_type"):
+				sector_type = GameState.world_topology[dest_id].sector_type
+			elif TemplateDatabase.locations.has(dest_id):
+				var loc = TemplateDatabase.locations[dest_id]
+				if loc != null and loc.get("sector_type") != null:
+					sector_type = loc.sector_type
+		if sector_type == "star":
+			return OVERLAY_KIND_JUMP
+		else:
+			return OVERLAY_KIND_STELLAR
 	if not (target_ref is Node and is_instance_valid(target_ref)):
 		return ""
 	if target_ref.is_in_group("jump_point"):
@@ -1198,14 +1215,19 @@ func _get_world_target_instance_id() -> int:
 	return -1
 
 
+func _update_dock_button_label() -> void:
+	if not is_instance_valid(label_button_dock):
+		return
+	if _current_target != null and (_is_route_target(_current_target) or (is_instance_valid(_current_target) and _current_target.is_in_group("jump_point"))):
+		label_button_dock.text = "TRAVEL"
+	else:
+		label_button_dock.text = "DOCK"
+
+
 func _get_projected_target_context_hint(target_ref) -> String:
 	if _is_route_target(target_ref):
-		if _jump_target_id != "" and str(target_ref.target_sector_id) == _jump_target_id:
-			return "Jump Ready"
-		return "Jump Route"
+		return ""
 	if target_ref is Node and is_instance_valid(target_ref) and target_ref.is_in_group("dockable_station"):
-		if _dock_location_id != "" and str(target_ref.get("location_id")) == _dock_location_id:
-			return "Dock Ready"
 		return "Dock Target"
 	if target_ref == _current_target and _is_target_valid(target_ref):
 		return "Target Locked"

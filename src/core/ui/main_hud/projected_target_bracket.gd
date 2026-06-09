@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: projected_target_bracket.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_SIMULATION-GRAPH.md §6.4
-# LOG_REF: 2026-05-23 16:10:55
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_SIMULATION-GRAPH.md §6.4; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-06-09 20:56:00
 #
 
 extends Button
@@ -43,11 +43,19 @@ func _ready() -> void:
 	_apply_distance_fade_alpha()
 	_sync_label()
 	_sync_distance_label()
-	set_process(false)
+	set_process(true)
 
 
 func _process(_delta: float) -> void:
-	_sync_distance_label()
+	if _is_selected:
+		_sync_distance_label()
+		
+	if _is_free_flight_active():
+		if mouse_filter != Control.MOUSE_FILTER_IGNORE:
+			mouse_filter = Control.MOUSE_FILTER_IGNORE
+	else:
+		if mouse_filter != Control.MOUSE_FILTER_STOP:
+			mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 func _gui_input(_event: InputEvent) -> void:
@@ -55,6 +63,14 @@ func _gui_input(_event: InputEvent) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and not _is_pointer_pressed and not _is_dragging_pointer:
+		if _is_free_flight_active():
+			var player_agent = GlobalRefs.player_agent_body
+			if is_instance_valid(player_agent):
+				var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+				if is_instance_valid(player_controller) and player_controller.has_method("_unhandled_input"):
+					player_controller._unhandled_input(event)
+
 	if event is InputEventMouseButton:
 		if event.pressed and (event.button_index == BUTTON_WHEEL_UP or event.button_index == BUTTON_WHEEL_DOWN):
 			if _is_pointer_hover_position(event.position):
@@ -87,6 +103,7 @@ func _input(event: InputEvent) -> void:
 func configure_target(new_target_ref, new_target_label: String = "") -> void:
 	target_ref = new_target_ref
 	_target_label = new_target_label
+	_apply_bracket_style()
 	_sync_label()
 	_sync_distance_label()
 	_refresh_distance_process_state()
@@ -205,6 +222,10 @@ func _cache_scene_nodes() -> void:
 func _apply_bracket_style() -> void:
 	if is_instance_valid(_normal_bracket):
 		_normal_bracket.visible = not _is_selected
+		if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
+			_normal_bracket.modulate = _get_jump_route_color()
+		else:
+			_normal_bracket.modulate = Color(0.35, 0.95, 1, 0.95)
 	if is_instance_valid(_selected_bracket):
 		_selected_bracket.visible = _is_selected
 
@@ -218,6 +239,10 @@ func _sync_label() -> void:
 		return
 	var label_text = _build_label_text()
 	_info_label.text = label_text
+	if _is_route_target(target_ref) or _is_jump_point_target(target_ref):
+		_info_label.add_color_override("font_color", _get_jump_route_color())
+	else:
+		_info_label.remove_color_override("font_color")
 	if is_instance_valid(_info_panel):
 		_info_panel.visible = label_text != ""
 
@@ -271,7 +296,7 @@ func _trim_trailing_decimal_zeros(value_text: String) -> String:
 
 
 func _refresh_distance_process_state() -> void:
-	set_process(_is_selected)
+	pass
 
 
 func _build_label_text() -> String:
@@ -306,7 +331,7 @@ func _resolve_secondary_label() -> String:
 	if _context_hint != "":
 		return _context_hint
 	if _is_route_target(target_ref):
-		return "Jump Route"
+		return ""
 	if _is_dockable_target(target_ref):
 		return "Dock Target"
 	if _is_selected:
@@ -320,6 +345,37 @@ func _is_route_target(target_candidate) -> bool:
 
 func _is_dockable_target(target_candidate) -> bool:
 	return target_candidate is Node and is_instance_valid(target_candidate) and target_candidate.is_in_group("dockable_station")
+
+
+func _is_jump_point_target(target_candidate) -> bool:
+	return target_candidate is Node and is_instance_valid(target_candidate) and target_candidate.is_in_group("jump_point")
+
+
+func _is_free_flight_active() -> bool:
+	var player_agent = GlobalRefs.player_agent_body
+	if not is_instance_valid(player_agent):
+		return false
+	var player_controller = player_agent.get_node_or_null(Constants.PLAYER_INPUT_HANDLER_NAME)
+	return is_instance_valid(player_controller) and player_controller.has_method("is_free_flight_active") and player_controller.is_free_flight_active()
+
+
+func _get_jump_route_color() -> Color:
+	var sector_type = ""
+	if target_ref != null:
+		var dest_id = ""
+		if target_ref.get("target_sector_id") != null:
+			dest_id = str(target_ref.get("target_sector_id"))
+		elif "target_sector_id" in target_ref:
+			dest_id = str(target_ref.target_sector_id)
+			
+		if dest_id != "":
+			if GameState.world_topology.has(dest_id) and GameState.world_topology[dest_id].has("sector_type"):
+				sector_type = GameState.world_topology[dest_id].sector_type
+			elif TemplateDatabase.locations.has(dest_id):
+				var loc = TemplateDatabase.locations[dest_id]
+				if loc != null and loc.get("sector_type") != null:
+					sector_type = loc.sector_type
+	return Constants.get_jump_type_color(sector_type)
 
 
 func _begin_main_hud_drag_passthrough(initial_motion_event: InputEventMouseMotion) -> bool:

@@ -3,7 +3,7 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1; universe_topology_architecture.md
-# LOG_REF: 2026-06-08 02:04:00
+# LOG_REF: 2026-06-09 20:56:00
 #
 
 extends Node
@@ -43,6 +43,28 @@ const NPC_HOSTILE_TEMPLATE_PATH = "res://database/registry/agents/npc_hostile_de
 const MAIN_HUD_SCENE_PATH = "res://scenes/ui/hud/main_hud.tscn"
 const MAIN_MENU_SCENE_PATH = "res://scenes/ui/menus/main_menu.tscn"
 const COMPOSITE_RESEARCH_TICK_COUNTS: Array = [30, 300, 3000]
+
+const COLOR_UI_JUMP_ROUTE = Color(0.0, 0.7, 1.0, 1.0) # Fallback / Default
+const COLOR_UI_JUMP_STAR = Color(0.95, 0.65, 0.15, 1.0)      # Warm Gold
+const COLOR_UI_JUMP_STAR_COMPANION = Color(0.85, 0.45, 0.85, 1.0) # Violet / Orchid
+const COLOR_UI_JUMP_PLANET = Color(0.15, 0.85, 0.45, 1.0)    # Emerald Green
+const COLOR_UI_JUMP_MOON = Color(0.65, 0.8, 0.95, 1.0)       # Ice Blue
+const COLOR_UI_JUMP_DEEP_SPACE = Color(0.5, 0.5, 0.9, 1.0)    # Slate Blue / Indigo
+
+func get_jump_type_color(sector_type: String) -> Color:
+	match sector_type.to_lower():
+		"star":
+			return COLOR_UI_JUMP_STAR
+		"star_companion":
+			return COLOR_UI_JUMP_STAR_COMPANION
+		"planet":
+			return COLOR_UI_JUMP_PLANET
+		"moon":
+			return COLOR_UI_JUMP_MOON
+		"deep_space", "hazard_zone":
+			return COLOR_UI_JUMP_DEEP_SPACE
+		_:
+			return COLOR_UI_JUMP_ROUTE
 
 # --- Common Node Names ---
 const CURRENT_ZONE_CONTAINER_NAME = "CurrentZoneContainer"

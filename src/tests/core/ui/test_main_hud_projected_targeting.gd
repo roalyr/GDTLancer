@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_main_hud_projected_targeting.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3
-# LOG_REF: 2026-05-17 16:51:08
+# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §4.2, §6.1, §6.3; TACTICAL_TODO.md TASK_4
+# LOG_REF: 2026-06-09 20:56:00
 #
 
 extends "res://addons/gut/test.gd"
@@ -325,8 +325,46 @@ func test_projected_target_bracket_scene_owns_centered_info_label_for_jump_route
 		"res://src/core/ui/helpers/CenteredGrowingLabel.gd",
 		"Projected target labels should reuse CenteredGrowingLabel."
 	)
-	assert_eq(info_label.text, "Cob System\nJump Route", "Route brackets should show jump context under the bracket.")
+	assert_eq(info_label.text, "Cob System", "Route brackets should show jump context under the bracket.")
+	assert_eq(info_label.get_color("font_color"), Constants.COLOR_UI_JUMP_ROUTE, "Route label should be colored as a jump route.")
 	assert_true(bracket.get_node("InfoPanel").visible, "Configured brackets should reveal their info panel.")
+
+
+func test_projected_target_bracket_applies_colors_by_jump_type() -> void:
+	var bracket = _create_projected_target_bracket()
+	var types = ["star", "star_companion", "planet", "moon", "deep_space"]
+	var colors = [
+		Constants.COLOR_UI_JUMP_STAR,
+		Constants.COLOR_UI_JUMP_STAR_COMPANION,
+		Constants.COLOR_UI_JUMP_PLANET,
+		Constants.COLOR_UI_JUMP_MOON,
+		Constants.COLOR_UI_JUMP_DEEP_SPACE
+	]
+	
+	for i in range(types.size()):
+		var type = types[i]
+		var expected_color = colors[i]
+		var sector_id = "sector_test_" + type
+		GameState.world_topology[sector_id] = {
+			"sector_type": type,
+			"connections": [],
+			"station_ids": []
+		}
+		
+		var route_target = RouteTargetScript.new().configure(
+			"sector_star_elace",
+			sector_id,
+			"Test System " + type,
+			Vector3(1, 0, 0)
+		)
+		bracket.configure_target(route_target)
+		yield(get_tree(), "idle_frame")
+		
+		var info_label = bracket.get_node("InfoPanel/InfoLabel")
+		var normal_bracket = bracket.get_node("BracketNormal")
+		
+		assert_eq(info_label.get_color("font_color"), expected_color, "Label font color should match the jump type: " + type)
+		assert_eq(normal_bracket.modulate, expected_color, "Normal bracket modulate should match the jump type: " + type)
 
 
 func test_projected_target_bracket_station_label_shows_dock_context() -> void:
@@ -501,6 +539,34 @@ func test_projected_target_bracket_hover_wheel_forwards_zoom_input_to_camera() -
 	assert_eq(camera.forwarded_wheel_buttons, [BUTTON_WHEEL_UP, BUTTON_WHEEL_DOWN], "Hovering a target bracket should still forward mouse wheel zoom input to the camera.")
 
 
+func test_projected_target_bracket_forwards_mouse_motion_to_controller_in_free_flight() -> void:
+	var bracket = _create_projected_target_bracket()
+
+	var player_body = RigidBody.new()
+	player_body.name = "Player"
+	add_child_autofree(player_body)
+
+	var script = GDScript.new()
+	script.source_code = "extends Node\nvar received_motion_events = []\nfunc is_free_flight_active() -> bool:\n\treturn true\nfunc _unhandled_input(event):\n\tif event is InputEventMouseMotion:\n\t\treceived_motion_events.append(event)\n"
+	script.reload()
+	var controller = Node.new()
+	controller.set_script(script)
+	controller.name = Constants.PLAYER_INPUT_HANDLER_NAME
+	player_body.add_child(controller)
+	GlobalRefs.player_agent_body = player_body
+
+	yield(get_tree(), "idle_frame")
+
+	var motion_event = InputEventMouseMotion.new()
+	motion_event.position = Vector2(40, 40)
+	motion_event.relative = Vector2(5, 5)
+
+	bracket._input(motion_event)
+
+	assert_eq(controller.received_motion_events.size(), 1, "Bracket should forward passive mouse motion to player controller when free flight is active.")
+	assert_eq(controller.received_motion_events[0].relative, Vector2(5, 5), "Forwarded event should match the original event details.")
+
+
 
 
 func _create_projected_target_bracket() -> Button:
@@ -647,3 +713,37 @@ func _dispatch_bracket_mouse_wheel(position: Vector2, button_index: int) -> void
 
 func _dispatch_bracket_mouse_motion(position: Vector2, relative: Vector2) -> void:
 	yield(_dispatch_mouse_motion(position, relative), "completed")
+
+
+func test_main_hud_dock_button_label_toggles_between_dock_and_travel() -> void:
+	var hud = MainHUDScene.instance()
+	add_child_autofree(hud)
+	yield(get_tree(), "idle_frame")
+
+	var label_dock = hud.get_node("ScreenControls/BottomCenterZone/ButtonDock/LabelButtonDock")
+	assert_eq(label_dock.text, "DOCK", "Dock button label should be DOCK by default.")
+
+	# Select a non-jump target (e.g. station)
+	var station = StaticBody.new()
+	station.set_script(DockableStationScript)
+	station.station_name = "Elace Exchange"
+	add_child_autofree(station)
+	hud._on_Player_Target_Selected(station)
+	yield(get_tree(), "idle_frame")
+	assert_eq(label_dock.text, "DOCK", "Dock button label should remain DOCK when a station target is selected.")
+
+	# Select a route target (jump target)
+	var route_target = RouteTargetScript.new().configure(
+		"sector_star_elace",
+		"sector_star_cob",
+		"Cob System",
+		Vector3(1, 0, 0)
+	)
+	hud._on_Player_Target_Selected(route_target)
+	yield(get_tree(), "idle_frame")
+	assert_eq(label_dock.text, "TRAVEL", "Dock button label should change to TRAVEL when a jump route is selected.")
+
+	# Deselect target
+	hud._on_Player_Target_Deselected()
+	yield(get_tree(), "idle_frame")
+	assert_eq(label_dock.text, "DOCK", "Dock button label should return to DOCK on target deselect.")
