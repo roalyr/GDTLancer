@@ -1,0 +1,4 @@
+[gd_scene format=2]
+
+[node name="DirectionalLightElace" type="DirectionalLight"]
+light_color = Color( 0.909804, 0.760784, 0.52549, 1 )

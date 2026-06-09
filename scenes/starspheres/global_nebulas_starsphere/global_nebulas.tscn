@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://assets/models/nebulas/spheroid.glb" type="PackedScene" id=1]
 [ext_resource path="res://assets/art/shaders/complex_transparent_cloud_NLP.gdshader" type="Shader" id=2]
@@ -11,6 +11,7 @@
 [ext_resource path="res://assets/art/shaders/star_sprite.gdshader" type="Shader" id=9]
 [ext_resource path="res://assets/models/sprites/Star_sprite_square_wide.glb" type="PackedScene" id=10]
 [ext_resource path="res://scenes/levels/sectors/sector_system_lywin/stars_lywin/star_lywin_sprite.tscn" type="PackedScene" id=11]
+[ext_resource path="res://scenes/levels/sectors/sector_system_cob/star_cob/star_cob_sprite.tscn" type="PackedScene" id=12]
 
 [sub_resource type="GDScript" id=7]
 script/source = "extends Spatial
@@ -208,6 +209,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 504000, -52000, 494000 )
 
 [node name="Star Lywin D Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 560100, -62000, 513000 )
+
+[node name="Star Cob Sprite" parent="SectorStars (clipped by near plane which is 10u)" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -558000, 11000, 124800 )
 
 [node name="Large nebulas" type="Spatial" parent="."]
 

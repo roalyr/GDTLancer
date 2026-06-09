@@ -15,8 +15,8 @@ uniform float exponent_corona_rim = 2;
 uniform float corona_floor_power = 5.0;
 uniform float corona_floor : hint_range(0.0, 2, 5e-4) = 1.3;
 
-uniform float fade_distance_far = 5e4;
-uniform float fade_power = 1.0;
+uniform float fade_distance_far = 15000;
+uniform float fade_power = 6.0;
 
 uniform sampler2D displacement_texture;
 uniform float displacement_power : hint_range(-0.4, 0.4, 5e-4) = 0.05;

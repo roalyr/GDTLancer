@@ -20,9 +20,6 @@ uniform float major_detail_level  = 0.5;
 uniform float detail_decay_distance = 50000;
 uniform float detail_decay_power : hint_range(0.0, 5.0, 5e-4) = 2.0;
 
-uniform float fade_distance_far = 5e4;
-uniform float fade_power = 1.0;
-
 uniform sampler2D major_detail_noise : hint_albedo;
 
 uniform float major_detail_scale : hint_range(1.0, 10.0, 1.0) = 1;

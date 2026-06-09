@@ -4,19 +4,19 @@
 
 [resource]
 script = ExtResource( 1 )
-template_id = "sector_system_cob"
-location_name = "Cob System"
-jump_in_distance = 45000.0
+template_id = "sector_planet_cob_a"
+location_name = "Planet Cob a"
+jump_in_distance = 5000.0
 interaction_radius = 0.0
-sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_system_cob.tscn"
-global_position = Vector3( -558000, 11000, 124800 )
+sector_scene_path = "res://scenes/levels/sectors/sector_system_cob/sector_planet_cob_a.tscn"
+global_position = Vector3( -550000, 10000, 80000 )
 is_procedural = false
 procedural_type = "deep_space"
 procedural_hints = {
 }
 sector_description = ""
-connections = PoolStringArray( "sector_system_elace", "sector_planet_cob_a" )
-sector_type = "star"
+connections = PoolStringArray( "sector_system_cob" )
+sector_type = "planet"
 development_level = "colony"
 radiation_level = 0.05
 thermal_background_k = 280.0

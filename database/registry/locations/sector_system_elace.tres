@@ -6,7 +6,7 @@
 script = ExtResource( 1 )
 template_id = "sector_system_elace"
 location_name = "Elace System"
-jump_in_distance = 15000.0
+jump_in_distance = 20000.0
 interaction_radius = 0.0
 sector_scene_path = "res://scenes/levels/sectors/sector_system_elace/sector_system_elace.tscn"
 global_position = Vector3( 0, 0, 0 )

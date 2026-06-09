@@ -5,24 +5,22 @@
 
 [resource]
 shader = ExtResource( 2 )
-shader_param/rim_color = Color( 1, 1, 1, 1 )
+shader_param/rim_color = Color( 0.74902, 0.74902, 0.74902, 1 )
 shader_param/overlay_color = Color( 0.752941, 0.443137, 0.333333, 1 )
 shader_param/surface_color = Color( 0.85098, 0.74902, 0.639216, 1 )
 shader_param/fade_color = Color( 1, 1, 1, 1 )
 shader_param/major_phase = 0.95
 shader_param/major_detail_intensity = 1.0
 shader_param/major_detail_level = 0.5
-shader_param/detail_decay_distance = 100000.0
-shader_param/detail_decay_power = 1.0
-shader_param/fade_distance_far = 50000.0
-shader_param/fade_power = 1.0
+shader_param/detail_decay_distance = 50000.0
+shader_param/detail_decay_power = 2.0
 shader_param/major_detail_scale = 1.0
 shader_param/major_detail_flow = 0.01
 shader_param/rim_strength = 1.0
 shader_param/rim_exponent = 0.03
 shader_param/rim_intensity = 10.0
-shader_param/scale_start = 3000.0
-shader_param/scale_end_mul = 25.0
+shader_param/scale_start = 100000.0
+shader_param/scale_end_mul = 100.0
 shader_param/scale_power = 1.0
-shader_param/scale_min = 0.25
+shader_param/scale_min = 0.5
 shader_param/major_detail_noise = ExtResource( 1 )

@@ -19,7 +19,7 @@ uniform float rim_outer_exponent = 3.0;
 
 uniform float fade_distance_near = 100;
 uniform float fade_distance_far = 1000;
-uniform float fade_power = .2;
+uniform float fade_power = 1.0;
 
 // Non-linear perspective
 uniform float scale_start = 100000;
