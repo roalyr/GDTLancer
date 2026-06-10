@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: character_system.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-05-23 17:10:12
-#
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.6
+# LOG_REF: 2026-06-10 23:19:26
 
 extends Node
 
@@ -42,6 +40,34 @@ func get_player_character() -> CharacterTemplate:
 # Convenience function to get the player's UID.
 func get_player_character_uid() -> String:
 	return GameState.player_character_uid
+
+
+# Creates a new character based on a template, assigns a unique UID, and stores it in GameState.
+func create_character(template_id: String) -> int:
+	if not TemplateDatabase.characters.has(template_id):
+		printerr("CharacterSystem Error: Character template not found in TemplateDatabase: ", template_id)
+		return -1
+
+	var template: CharacterTemplate = TemplateDatabase.characters[template_id]
+	var new_character = template.duplicate()
+
+	# Generate a new unique UID (1000 + incremental)
+	var max_uid = 1000
+	if not GameState.characters.empty():
+		for k in GameState.characters.keys():
+			var k_int = int(str(k))
+			if k_int >= max_uid:
+				max_uid = k_int + 1
+	var char_uid = max_uid
+
+	# Populate initial credits and focus points based on the template
+	new_character.credits = template.credits
+	new_character.focus_points = template.focus_points
+
+	# Store in GameState
+	GameState.characters[char_uid] = new_character
+
+	return char_uid
 
 
 # --- Stat Modification API (Operates on GameState) ---

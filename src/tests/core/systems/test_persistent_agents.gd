@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_persistent_agents.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3, TACTICAL_TODO.md TASK_4
-# LOG_REF: 2026-05-23 15:37:28
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.3; TRUTH_CONTENT-CREATION-MANUAL.md §3.6
+# LOG_REF: 2026-06-10 23:23:12
 #
 
 extends "res://addons/gut/test.gd"
@@ -162,13 +162,100 @@ func test_known_vs_unknown_agents_state():
 #func test_contact_discovered_on_dock():
 #	var agent_id = "persistent_vera"
 #	var state = _agent_system.get_persistent_agent_state(agent_id)
-	#	# Vera is at sector_star_cob
+#	# Vera is at sector_star_cob
 #	assert_eq(state.is_known, false)
 #	
 #	# Simulate docking signal
 #	watch_signals(EventBus)
-	#	_agent_system._on_player_docked("sector_star_cob")
+#	_agent_system._on_player_docked("sector_star_cob")
 #	
-	# Errors here
+#	# Errors here
 #	assert_true(state.is_known, "Should discover agent at home station")
 #	assert_signal_emitted_with_parameters(EventBus, "contact_met", [agent_id], 0)
+
+
+func test_spawn_npc_generates_character_and_inventory():
+	var char_system_script = load("res://src/core/systems/character_system.gd")
+	var char_system = char_system_script.new()
+	add_child(char_system)
+	autoqfree(char_system)
+	
+	var inv_system_script = load("res://src/core/systems/inventory_system.gd")
+	var inv_system = inv_system_script.new()
+	add_child(inv_system)
+	autoqfree(inv_system)
+	
+	assert_not_null(GlobalRefs.character_system, "character_system should be valid")
+	assert_not_null(GlobalRefs.inventory_system, "inventory_system should be valid")
+	
+	var character_template = load("res://database/registry/characters/character_default.tres")
+	TemplateDatabase.characters["character_default"] = character_template
+	
+	var agent_template = AgentTemplate.new()
+	agent_template.agent_type = "npc"
+	agent_template.character_template_id = "character_default"
+	
+	var mock_container = Node.new()
+	mock_container.name = "AgentContainer"
+	add_child(mock_container)
+	autoqfree(mock_container)
+	GlobalRefs.agent_container = mock_container
+	
+	var overrides = {
+		"character_uid": -1,
+		"agent_type": "npc",
+		"template_id": "npc_default"
+	}
+	
+	var agent_body = _agent_system.spawn_agent(
+		"res://src/tests/helpers/mock_agent.tscn",
+		Vector3.ZERO,
+		agent_template,
+		overrides,
+		123
+	)
+	
+	assert_not_null(agent_body, "Agent body should spawn successfully")
+	var char_uid = agent_body.init_data["overrides"]["character_uid"]
+	assert_gt(char_uid, -1, "Spawned NPC should have a generated character UID")
+	
+	var char_data = GameState.characters.get(char_uid)
+	assert_not_null(char_data, "Character data should be registered in GameState")
+	assert_true(GameState.inventories.has(char_uid), "Inventory should be registered in GameState")
+
+
+func test_spawn_npc_from_template_generates_character_and_inventory():
+	var char_system_script = load("res://src/core/systems/character_system.gd")
+	var char_system = char_system_script.new()
+	add_child(char_system)
+	autoqfree(char_system)
+	
+	var inv_system_script = load("res://src/core/systems/inventory_system.gd")
+	var inv_system = inv_system_script.new()
+	add_child(inv_system)
+	autoqfree(inv_system)
+	
+	var character_template = load("res://database/registry/characters/character_default.tres")
+	TemplateDatabase.characters["character_default"] = character_template
+	
+	var mock_container = Node.new()
+	mock_container.name = "AgentContainer"
+	add_child(mock_container)
+	autoqfree(mock_container)
+	GlobalRefs.agent_container = mock_container
+	
+	var agent_template_path = "res://database/registry/agents/persistent_kai.tres"
+	var kai_char = load("res://database/registry/characters/character_kai.tres")
+	TemplateDatabase.characters["character_kai"] = kai_char
+	
+	var agent_body = _agent_system.spawn_npc_from_template(
+		agent_template_path,
+		Vector3.ZERO,
+		{"character_uid": -1, "template_id": "persistent_kai"}
+	)
+	
+	assert_not_null(agent_body, "Agent body should spawn successfully")
+	var char_uid = agent_body.character_uid
+	assert_gt(char_uid, -1, "Spawned NPC should have a generated character UID")
+	assert_true(GameState.characters.has(char_uid), "Character should exist in GameState")
+	assert_true(GameState.inventories.has(char_uid), "Inventory should exist in GameState")

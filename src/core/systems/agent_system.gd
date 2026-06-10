@@ -1,14 +1,8 @@
-# File: core/systems/agent_system.gd
-# Purpose: Manages agent spawning in virtual space (ships). Assembles agents from
-# character data and their inventory of assets.
-# Version: 2.2 - Added Persistent Agent lifecycle management.
-#
 # PROJECT: GDTLancer
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TRUTH_SIMULATION-GRAPH.md §2.1, §3.3
-# LOG_REF: 2026-05-23 17:04:30
-#
+# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.3; TRUTH_CONTENT-CREATION-MANUAL.md §3.6
+# LOG_REF: 2026-06-10 23:41:19
 
 extends Node
 
@@ -170,6 +164,13 @@ func _get_dock_position_in_zone(location_id: String):
 			if station.get("location_id") == location_id:
 				return station.global_transform.origin
 
+		# If the location is the current sector itself (virtual docking), spawn at the EntryPoint or origin
+		if location_id == GameState.current_sector_id:
+			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
+			if entry_node and entry_node is Spatial:
+				return entry_node.global_transform.origin
+			return Vector3.ZERO
+
 	return null
 
 
@@ -240,6 +241,19 @@ func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> RigidBod
 		printerr("AgentSpawner Error: Failed to load NPC AgentTemplate.")
 		return null
 	
+	var final_position = position
+	if position == Vector3.ZERO:
+		var anchor_pos = Vector3.ZERO
+		if is_instance_valid(GlobalRefs.current_zone):
+			var entry_node = GlobalRefs.current_zone.find_node("EntryPoint", true, false)
+			if entry_node and entry_node is Spatial:
+				anchor_pos = entry_node.global_transform.origin
+		
+		var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
+		var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+		var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
+		final_position = anchor_pos + (random_dir * random_dist)
+
 	var npc_overrides = {
 		"agent_type": "npc",
 		"template_id": "npc_default",
@@ -248,7 +262,7 @@ func spawn_npc(character_uid: int, position: Vector3 = Vector3.ZERO) -> RigidBod
 	var agent_uid = _get_next_agent_uid()
 	
 	var npc_body = spawn_agent(
-		Constants.NPC_AGENT_SCENE_PATH, position, npc_template, npc_overrides, agent_uid
+		Constants.NPC_AGENT_SCENE_PATH, final_position, npc_template, npc_overrides, agent_uid
 	)
 	
 	return npc_body
@@ -274,6 +288,17 @@ func spawn_npc_from_template(agent_template_path: String, position: Vector3 = Ve
 	if not npc_overrides.has("character_uid"):
 		npc_overrides["character_uid"] = -1
 
+	var char_uid = npc_overrides.get("character_uid", -1)
+	if str(char_uid) == "-1" or str(char_uid) == "":
+		var char_template_id = npc_template.character_template_id
+		if char_template_id == "":
+			char_template_id = "character_default"
+		if is_instance_valid(GlobalRefs.character_system):
+			char_uid = GlobalRefs.character_system.create_character(char_template_id)
+			npc_overrides["character_uid"] = char_uid
+			if is_instance_valid(GlobalRefs.inventory_system):
+				GlobalRefs.inventory_system.create_inventory_for_character(char_uid)
+
 	var agent_uid = _get_next_agent_uid()
 	return spawn_agent(Constants.NPC_AGENT_SCENE_PATH, position, npc_template, npc_overrides, agent_uid)
 
@@ -296,6 +321,18 @@ func spawn_agent(
 	overrides: Dictionary = {},
 	agent_uid: int = -1
 ) -> RigidBody:
+	var final_overrides = overrides.duplicate(true)
+	var char_uid = final_overrides.get("character_uid", -1)
+	if str(char_uid) == "-1" or str(char_uid) == "":
+		var char_template_id = agent_template.character_template_id
+		if char_template_id == "":
+			char_template_id = "character_default"
+		if is_instance_valid(GlobalRefs.character_system):
+			char_uid = GlobalRefs.character_system.create_character(char_template_id)
+			final_overrides["character_uid"] = char_uid
+			if is_instance_valid(GlobalRefs.inventory_system):
+				GlobalRefs.inventory_system.create_inventory_for_character(char_uid)
+
 	var container = GlobalRefs.agent_container
 	if not is_instance_valid(container):
 		printerr("AgentSpawner Spawn Error: Invalid GlobalRefs.agent_container.")
@@ -326,10 +363,10 @@ func spawn_agent(
 	agent_node.global_transform.origin = position
 
 	if agent_node.has_method("initialize"):
-		agent_node.initialize(agent_template, overrides, agent_uid)
+		agent_node.initialize(agent_template, final_overrides, agent_uid)
 
 	EventBus.emit_signal(
-		"agent_spawned", agent_node, {"template": agent_template, "overrides": overrides, "agent_uid": agent_uid}
+		"agent_spawned", agent_node, {"template": agent_template, "overrides": final_overrides, "agent_uid": agent_uid}
 	)
 
 	# The controller is a child of the AgentBody (agent_node), not the scene root.
@@ -396,14 +433,14 @@ func spawn_persistent_agents() -> void:
 		# Check if already active/spawned
 		if _active_persistent_agents.has(agent_id) and is_instance_valid(_active_persistent_agents[agent_id]):
 			continue
-
+ 
 		# Sector filter: only spawn agents whose simulation says they're in the loaded sector
 		var sim_sector = ""
 		if GameState.agents.has(agent_id):
 			sim_sector = GameState.agents[agent_id].get("current_sector_id", "")
 		if sim_sector != GameState.current_sector_id:
 			continue
-
+ 
 		var state = get_persistent_agent_state(agent_id)
 		
 		if state.get("is_disabled", false):
@@ -442,15 +479,23 @@ func spawn_persistent_agents() -> void:
 		}
 		
 		var uid = _get_next_agent_uid()
-		var spawn_offset = Vector3(
-			rand_range(-50, 50),
-			rand_range(-20, 20),
-			rand_range(-50, 50)
-		)
+		var final_spawn_pos = spawn_pos
+		if current_loc == GameState.current_sector_id:
+			var base_dist = _get_jump_in_distance_for_sector(GameState.current_sector_id)
+			var random_dir = Vector3(rand_range(-1, 1), rand_range(-1, 1), rand_range(-1, 1)).normalized()
+			var random_dist = rand_range(base_dist * 0.9, base_dist * 1.1)
+			final_spawn_pos = spawn_pos + (random_dir * random_dist)
+		else:
+			var spawn_offset = Vector3(
+				rand_range(-50, 50),
+				rand_range(-20, 20),
+				rand_range(-50, 50)
+			)
+			final_spawn_pos = spawn_pos + spawn_offset
 		
 		var agent_body = spawn_agent(
 			Constants.NPC_AGENT_SCENE_PATH,
-			spawn_pos + spawn_offset,
+			final_spawn_pos,
 			agent_template,
 			overrides,
 			uid

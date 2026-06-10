@@ -3,21 +3,19 @@ PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; MODEL-CASCADE-PROTOCOL.md § Role: Lead Systems Architect
-LOG_REF: 2026-06-09 20:56:00
+LOG_REF: 2026-06-10 23:13:00
 -->
 
-## CURRENT GOAL: UI Overlay Simplification and Manual Flight Passthrough
-- TARGET_SCOPE: Simplify jump route projected targeting labels by using a distinct color (defined in Constants.gd) instead of the redundant "Jump Route" text. Re-map the HUD overlay buttons: `ButtonOverlayJump` toggles star jump routes, `ButtonOverlayStellar` toggles all other jump routes (planets/moons) alongside intra-sector stellar targets, and `ButtonOverlayStructures` remains as-is. Finally, ensure the projected target brackets do not consume passive mouse drag motion during manual flight mode (mouse filter or drag forwarding).
+## CURRENT GOAL: NPC Persistent Instantiation and Character State Linking
+- TARGET_SCOPE: Resolve the pending TODO in `agent_system.gd` to ensure all spawned NPCs are properly backed by a `CharacterTemplate` in `GameState.characters` and an inventory via `InventorySystem`. If an NPC is spawned without a valid `character_uid`, generate a character sheet from the `character_template_id` specified in the `AgentTemplate`, link it, and initialize its credits and assets.
 - TARGET_FILES:
-  - src/autoload/Constants.gd — Add a UI color constant for jump routes.
-  - src/core/ui/main_hud/main_hud.gd — Update `_get_projected_target_overlay_kind()` to differentiate jump routes based on the destination sector type (`star` vs others).
-  - src/core/ui/main_hud/projected_target_bracket.gd — Apply the custom color for jump targets, remove the "Jump Route" string, and correctly forward or ignore mouse motion during manual flight to avoid steering lock.
-  - src/tests/core/ui/test_main_hud_projected_targeting.gd — Update assertions for the label text, color, and overlay routing to match the new behavior.
-- TRUTH_RELIANCE: MODEL-CASCADE-PROTOCOL.md
+  - src/core/systems/agent_system.gd — Add logic to create and link characters and inventories during NPC spawn.
+  - src/core/systems/character_system.gd — Expose a helper to generate a default character sheet.
+  - src/tests/core/systems/test_persistent_agents.gd — Add assertions to verify that spawned NPCs have valid character and inventory data.
+- TRUTH_RELIANCE: TRUTH_SIMULATION-GRAPH.md §2.3; TRUTH_CONTENT-CREATION-MANUAL.md §3.6
 - TECHNICAL_CONSTRAINTS: "Forbidden GDScript syntax: @export, @onready, await", "Graphics target GLES2", "Godot 3.6 stable compatibility"
 - ATOMIC_TASKS:
-  - [x] TASK_1: Update `Constants.gd` to include `COLOR_UI_JUMP_ROUTE`.
-  - [x] TASK_2: In `main_hud.gd`, update `_get_projected_target_overlay_kind()` to check the destination sector type for route targets. If `sector_type` is `"star"`, return `OVERLAY_KIND_JUMP`. Otherwise (e.g. `"planet"`, `"moon"`), return `OVERLAY_KIND_STELLAR`. Leave intra-sector stellar bodies as `OVERLAY_KIND_STELLAR`.
-  - [x] TASK_3: In `projected_target_bracket.gd`, update `_resolve_secondary_label()` to return `""` instead of `"Jump Route"`. Update `_sync_label()` to apply `Constants.COLOR_UI_JUMP_ROUTE` to `_info_label.add_color_override("font_color", ...)` if `_is_route_target(target_ref)` or it's a jump point; otherwise clear the color override.
-  - [ ] TASK_4: In `projected_target_bracket.gd`, update `_input()` to ensure `InputEventMouseMotion` is forwarded to `_unhandled_input` of the ship controller (or not consumed) if the pointer is not dragging, not pressed, and `is_free_flight_active()` is true.
-  - [ ] VERIFICATION: Update and run `test_main_hud_projected_targeting.gd` to verify the label color, text removal, and the new `OVERLAY_KIND` logic for jump targets.
+  - [x] TASK_1: In `character_system.gd`, add a `create_character(template_id: String) -> int` helper that reads the template from `TemplateDatabase.characters`, generates a new `CharacterTemplate` instance, assigns it a unique UID, populates initial credits and focus points based on the template, stores it in `GameState.characters`, and returns the UID.
+  - [x] TASK_2: In `agent_system.gd`, update `spawn_agent` and `spawn_npc_from_template` so that if `character_uid` is -1 or missing, it calls `GlobalRefs.character_system.create_character(agent_template.character_template_id)` to generate one. Assign this UID to the NPC overrides and link it to the agent instance.
+  - [x] TASK_3: In `agent_system.gd` after creating the character, call `GlobalRefs.inventory_system.create_inventory_for_character(character_uid)` to ensure the NPC has a valid container for assets and cargo.
+  - [x] VERIFICATION: Run tests in `test_persistent_agents.gd` and `test_agent_spawner.gd` (if it exists) to ensure NPCs successfully generate with linked characters and inventories without crashing.
