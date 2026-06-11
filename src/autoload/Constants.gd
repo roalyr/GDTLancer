@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_1; universe_topology_architecture.md
-# LOG_REF: 2026-06-09 20:56:00
-#
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 20:09:30
 
 extends Node
 
@@ -79,6 +77,7 @@ const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 const FOCUS_MAX_DEFAULT = 3
 const FOCUS_BOOST_PER_POINT = 1
 const DEFAULT_UPKEEP_COST = 5
+const CREDIT_TRUST_THRESHOLD = 0.3
 
 # --- RigidBody Physics Parameters (6DOF Flight) ---
 # Global drag coefficients - prevent endless acceleration in space

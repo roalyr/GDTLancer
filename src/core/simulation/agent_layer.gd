@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-11 00:48:00
-#
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 20:22:11
 
 extends Reference
 
@@ -1424,8 +1422,23 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 	var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
 	var sell_price = Constants.get_dynamic_price(base_sell_price, quantity, baseline)
 
+	var payer_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	var payee_tags: Array = Array(agent.get("sentiment_tags", []))
+	var instrument: String = _resolve_payment_instrument(payer_tags, payee_tags)
+
+	if instrument == "specie":
+		var station_specie = 0
+		if market_inventory.has("commodity_specie"):
+			station_specie = int(market_inventory["commodity_specie"].get("quantity", 0))
+		if station_specie < 1:
+			return false
+
 	# Mutate market quantity
 	market_inventory[commodity_id]["quantity"] += 1
+
+	if instrument == "specie":
+		if market_inventory.has("commodity_specie"):
+			market_inventory["commodity_specie"]["quantity"] -= 1
 
 	# Mutate agent cargo and wealth
 	agent["cargo_tag"] = "EMPTY"
@@ -1434,19 +1447,16 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 	_wealth_step_up(agent)
 
 	# Quantitative inventory and credit mutations for NPC parity
-	var character_uid = -1
-	if agent.has("character_uid") and agent["character_uid"] != null:
-		character_uid = int(agent["character_uid"])
-	elif GameState.persistent_agents.has(agent_id):
-		var p_agent = GameState.persistent_agents[agent_id]
-		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
-			character_uid = int(p_agent["character_uid"])
+	var character_uid = _get_character_uid(agent)
 
 	if character_uid != -1:
 		var char_sys = GlobalRefs.character_system
 		var inv_sys = GlobalRefs.inventory_system
 		if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
-			char_sys.add_credits(character_uid, sell_price)
+			if instrument == "credits":
+				char_sys.add_credits(character_uid, sell_price)
+			else: # specie
+				inv_sys.add_asset(character_uid, 2, "commodity_specie", 1)
 			inv_sys.remove_asset(character_uid, 2, commodity_id, 1)
 
 	# Log NPC dock-trade event
@@ -1508,21 +1518,26 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	if bought_commodity_id == "" or not _can_agent_trade_commodity(agent, bought_commodity_id, location_id):
 		return false
 
-	# Enforce numeric credit gating if the NPC has a valid character UID
-	var character_uid_check = -1
-	if agent.has("character_uid") and agent["character_uid"] != null:
-		character_uid_check = int(agent["character_uid"])
-	elif GameState.persistent_agents.has(agent_id):
-		var p_agent = GameState.persistent_agents[agent_id]
-		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
-			character_uid_check = int(p_agent["character_uid"])
+	var payer_tags: Array = Array(agent.get("sentiment_tags", []))
+	var payee_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
+	var instrument: String = _resolve_payment_instrument(payer_tags, payee_tags)
+
+	# Enforce numeric gating if the NPC has a valid character UID
+	var character_uid_check = _get_character_uid(agent)
 
 	if character_uid_check != -1:
-		var char_sys = GlobalRefs.character_system
-		if is_instance_valid(char_sys):
-			var current_credits = int(char_sys.get_credits(character_uid_check))
-			if current_credits < buy_price:
-				return false
+		if instrument == "credits":
+			var char_sys = GlobalRefs.character_system
+			if is_instance_valid(char_sys):
+				var current_credits = int(char_sys.get_credits(character_uid_check))
+				if current_credits < buy_price:
+					return false
+		else: # specie
+			var inv_sys = GlobalRefs.inventory_system
+			if is_instance_valid(inv_sys):
+				var current_specie = inv_sys.get_asset_count(character_uid_check, 2, "commodity_specie")
+				if current_specie < 1:
+					return false
 
 	# Mutate market quantity
 	market_inventory[bought_commodity_id]["quantity"] -= 1
@@ -1533,19 +1548,23 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	_wealth_step_down(agent)
 
 	# Quantitative inventory and credit mutations for NPC parity
-	var character_uid = -1
-	if agent.has("character_uid") and agent["character_uid"] != null:
-		character_uid = int(agent["character_uid"])
-	elif GameState.persistent_agents.has(agent_id):
-		var p_agent = GameState.persistent_agents[agent_id]
-		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
-			character_uid = int(p_agent["character_uid"])
+	var character_uid = character_uid_check
 
 	if character_uid != -1:
 		var char_sys = GlobalRefs.character_system
 		var inv_sys = GlobalRefs.inventory_system
 		if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
-			char_sys.subtract_credits(character_uid, buy_price)
+			if instrument == "credits":
+				char_sys.subtract_credits(character_uid, buy_price)
+			else: # specie
+				inv_sys.remove_asset(character_uid, 2, "commodity_specie", 1)
+				if not market_inventory.has("commodity_specie"):
+					market_inventory["commodity_specie"] = {
+						"quantity": 0,
+						"buy_price": 50,
+						"sell_price": 40
+					}
+				market_inventory["commodity_specie"]["quantity"] += 1
 			inv_sys.add_asset(character_uid, 2, bought_commodity_id, 1)
 
 	# Log NPC dock-trade event
@@ -2535,10 +2554,28 @@ func _is_combat_cooldown_active(agent: Dictionary) -> bool:
 func _bilateral_trade(actor: Dictionary, target: Dictionary) -> void:
 	var actor_loaded: bool = str(actor.get("cargo_tag", "EMPTY")) == "LOADED"
 	var target_loaded: bool = str(target.get("cargo_tag", "EMPTY")) == "LOADED"
+
+	var payer: Dictionary = target if actor_loaded else actor
+	var payee: Dictionary = actor if actor_loaded else target
+	var payer_tags: Array = Array(payer.get("sentiment_tags", []))
+	var payee_tags: Array = Array(payee.get("sentiment_tags", []))
+	var instrument: String = _resolve_payment_instrument(payer_tags, payee_tags)
+
+	var cargo_transferred := false
 	if actor_loaded and not target_loaded:
-		_transfer_cargo_between_agents(actor, target)
+		cargo_transferred = _transfer_cargo_between_agents(actor, target)
 	elif target_loaded and not actor_loaded:
-		_transfer_cargo_between_agents(target, actor)
+		cargo_transferred = _transfer_cargo_between_agents(target, actor)
+
+	if cargo_transferred and instrument == "specie":
+		var payer_uid = _get_character_uid(payer)
+		var payee_uid = _get_character_uid(payee)
+		var inv_sys = GlobalRefs.inventory_system
+		if is_instance_valid(inv_sys):
+			if payer_uid != -1:
+				inv_sys.remove_asset(payer_uid, 2, "commodity_specie", 1)
+			if payee_uid != -1:
+				inv_sys.add_asset(payee_uid, 2, "commodity_specie", 1)
 
 
 func _can_agents_escalate_to_disruption(actor: Dictionary, target: Dictionary, actor_tags: Array, target_tags: Array) -> bool:
@@ -2620,6 +2657,20 @@ func _can_agents_trade(actor: Dictionary, target: Dictionary, actor_tags: Array,
 	):
 		return false
 
+	# Dual-economy trust-gated payment instrument routing
+	var payer = target if actor_loaded else actor
+	var payee = actor if actor_loaded else target
+	var payer_tags = Array(payer.get("sentiment_tags", []))
+	var payee_tags = Array(payee.get("sentiment_tags", []))
+	var instrument = _resolve_payment_instrument(payer_tags, payee_tags)
+	if instrument == "specie":
+		var payer_uid = _get_character_uid(payer)
+		if payer_uid != -1:
+			var inv_sys = GlobalRefs.inventory_system
+			if is_instance_valid(inv_sys):
+				if inv_sys.get_asset_count(payer_uid, 2, "commodity_specie") < 1:
+					return false
+
 	return true
 
 
@@ -2655,6 +2706,46 @@ func _share_aligned_faction(actor_tags: Array, target_tags: Array) -> bool:
 	if actor_faction_tag == "FACTION_UNALIGNED" or target_faction_tag == "FACTION_UNALIGNED":
 		return false
 	return actor_faction_tag == target_faction_tag
+
+
+func _get_character_uid(agent: Dictionary) -> int:
+	if agent.has("character_uid") and agent["character_uid"] != null:
+		return int(agent["character_uid"])
+	for agent_id in GameState.agents:
+		if GameState.agents[agent_id] == agent:
+			if GameState.persistent_agents.has(agent_id):
+				var p_agent = GameState.persistent_agents[agent_id]
+				if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
+					return int(p_agent["character_uid"])
+			if agent_id == "player" and "player_character_uid" in GameState and GameState.player_character_uid != null:
+				return int(GameState.player_character_uid)
+			break
+	return -1
+
+
+func _resolve_payment_instrument(payer_tags: Array, payee_tags: Array) -> String:
+	var payer_has_faction := false
+	var payee_has_faction := false
+	
+	for tag in payer_tags:
+		var t = str(tag)
+		if t.begins_with("FACTION_") and t != "FACTION_UNALIGNED":
+			payer_has_faction = true
+			break
+			
+	for tag in payee_tags:
+		var t = str(tag)
+		if t.begins_with("FACTION_") and t != "FACTION_UNALIGNED":
+			payee_has_faction = true
+			break
+			
+	if not payer_has_faction or not payee_has_faction:
+		return "specie"
+		
+	var affinity: float = affinity_matrix.compute_affinity(payer_tags, payee_tags)
+	if affinity >= Constants.CREDIT_TRUST_THRESHOLD:
+		return "credits"
+	return "specie"
 
 
 func _agent_legality_tag(tags: Array) -> String:

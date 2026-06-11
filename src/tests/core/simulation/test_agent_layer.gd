@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-11 00:48:00
-#
+# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 20:09:30
 
 extends GutTest
 
@@ -1627,6 +1625,7 @@ func test_npc_dock_trade_sell_increments_market_quantity() -> void:
 			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
 		}
 	}
+	GameState.sector_tags["s1"] = ["SECURE", "FACTION_TRADERS"]
 	GameState.agents["agent_trader"] = {
 		"agent_role": "trader",
 		"current_sector_id": "s1",
@@ -1634,7 +1633,7 @@ func test_npc_dock_trade_sell_increments_market_quantity() -> void:
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
 		"cargo_commodity_id": "ore",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL"],
 	}
 
 	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "s1")
@@ -1657,13 +1656,14 @@ func test_npc_dock_trade_buy_decrements_market_quantity() -> void:
 			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
 		}
 	}
+	GameState.sector_tags["s1"] = ["SECURE", "FACTION_TRADERS"]
 	GameState.agents["agent_trader"] = {
 		"agent_role": "trader",
 		"current_sector_id": "s1",
 		"wealth_tag": "COMFORTABLE",
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "EMPTY",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL"],
 	}
 
 	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "s1")
@@ -1739,6 +1739,7 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 			"ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
 		}
 	}
+	GameState.sector_tags["s1"] = ["SECURE", "FACTION_TRADERS"]
 	
 	# Case A: Lawful agent should fail to use black_market
 	GameState.agents["agent_lawful"] = {
@@ -1748,7 +1749,7 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
 		"cargo_commodity_id": "ore",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL"],
 	}
 	agent_layer._try_dock("agent_lawful", GameState.agents["agent_lawful"], "s1")
 	
@@ -1765,7 +1766,7 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 		"condition_tag": "HEALTHY",
 		"cargo_tag": "LOADED",
 		"cargo_commodity_id": "ore",
-		"sentiment_tags": ["PIRATE", "LEGAL_ILLICIT"],
+		"sentiment_tags": ["PIRATE", "FACTION_TRADERS", "LEGAL_ILLICIT"],
 	}
 	agent_layer._try_dock("agent_illicit", GameState.agents["agent_illicit"], "s1")
 	
@@ -2130,6 +2131,8 @@ func test_npc_contraband_trade_gating() -> void:
 			"commodity_ore": {"buy_price": 10, "sell_price": 5, "quantity": 5}
 		}
 	}
+	GameState.sector_tags["lawful_only"] = ["SECURE", "FACTION_TRADERS"]
+	GameState.sector_tags["black_only"] = ["SECURE", "FACTION_TRADERS"]
 
 	# Agent setups
 	var lawful_agent = {
@@ -2137,14 +2140,14 @@ func test_npc_contraband_trade_gating() -> void:
 		"current_sector_id": "lawful_only",
 		"wealth_tag": "COMFORTABLE",
 		"cargo_tag": "EMPTY",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"]
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL"]
 	}
 	var illicit_agent = {
 		"agent_role": "pirate",
 		"current_sector_id": "black_only",
 		"wealth_tag": "COMFORTABLE",
 		"cargo_tag": "EMPTY",
-		"sentiment_tags": ["PIRATE", "LEGAL_ILLICIT"]
+		"sentiment_tags": ["PIRATE", "FACTION_TRADERS", "LEGAL_ILLICIT"]
 	}
 
 	# 1. Lawful agent cannot buy contraband
@@ -2244,7 +2247,7 @@ func test_npc_dock_trade_quantitative_parity() -> void:
 			"commodity_ore": {"buy_price": 20, "sell_price": 10, "quantity": 5}
 		}
 	}
-	GameState.sector_tags["test_sector"] = ["SECURE"]
+	GameState.sector_tags["test_sector"] = ["SECURE", "FACTION_TRADERS"]
 
 	# 3. Setup agent linked to character_uid
 	var npc_agent = {
@@ -2254,7 +2257,7 @@ func test_npc_dock_trade_quantitative_parity() -> void:
 		"wealth_tag": "COMFORTABLE",
 		"cargo_tag": "LOADED",
 		"cargo_commodity_id": "commodity_ore",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"]
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL"]
 	}
 
 	# --- SELL TEST ---
@@ -2310,7 +2313,7 @@ func test_npc_dock_trade_credit_gating() -> void:
 			"commodity_ore": {"buy_price": 20, "sell_price": 10, "quantity": 5}
 		}
 	}
-	GameState.sector_tags["test_sector"] = ["SECURE"]
+	GameState.sector_tags["test_sector"] = ["SECURE", "FACTION_TRADERS"]
 
 	# 3. Setup agent linked to character_uid with EMPTY cargo
 	var npc_agent = {
@@ -2319,7 +2322,7 @@ func test_npc_dock_trade_credit_gating() -> void:
 		"current_sector_id": "test_sector",
 		"wealth_tag": "COMFORTABLE",
 		"cargo_tag": "EMPTY",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"]
+		"sentiment_tags": ["TRADER", "FACTION_TRADERS", "LEGAL_LAWFUL"]
 	}
 
 	# Execute Buy when unable to afford it
@@ -2331,6 +2334,137 @@ func test_npc_dock_trade_credit_gating() -> void:
 	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 0, "Inventory should remain empty.")
 	assert_eq(int(GameState.locations["station_test_sector"]["market_inventory"]["commodity_ore"]["quantity"]), 5, "Market quantity should remain unchanged.")
 	assert_eq(npc_agent["cargo_tag"], "EMPTY", "NPC cargo tag should remain qualitative EMPTY.")
+
+
+func test_resolve_payment_instrument_same_faction_above_threshold() -> void:
+	var payer_tags = ["FACTION_MINERS", "TRADER", "LEGAL_LAWFUL"]
+	var payee_tags = ["FACTION_MINERS", "HAULER", "LEGAL_LAWFUL"]
+	var instrument = agent_layer._resolve_payment_instrument(payer_tags, payee_tags)
+	assert_eq(instrument, "credits", "Same faction above threshold should resolve to credits.")
+
+
+func test_resolve_payment_instrument_cross_faction_below_threshold() -> void:
+	var payer_tags = ["FACTION_PIRATES", "PIRATE", "LEGAL_ILLICIT"]
+	var payee_tags = ["FACTION_MILITARY", "MILITARY", "LEGAL_LAWFUL"]
+	var instrument = agent_layer._resolve_payment_instrument(payer_tags, payee_tags)
+	assert_eq(instrument, "specie", "Cross faction below threshold should resolve to specie.")
+
+
+func test_resolve_payment_instrument_factionless_payer() -> void:
+	var payer_tags = ["FACTION_UNALIGNED", "TRADER", "LEGAL_TOLERATED"]
+	var payee_tags = ["FACTION_MINERS", "HAULER", "LEGAL_LAWFUL"]
+	var instrument = agent_layer._resolve_payment_instrument(payer_tags, payee_tags)
+	assert_eq(instrument, "specie", "Factionless payer should resolve to specie.")
+
+
+func test_resolve_payment_instrument_factionless_payee() -> void:
+	var payer_tags = ["FACTION_MINERS", "TRADER", "LEGAL_LAWFUL"]
+	var payee_tags = ["FACTION_UNALIGNED", "HAULER", "LEGAL_TOLERATED"]
+	var instrument = agent_layer._resolve_payment_instrument(payer_tags, payee_tags)
+	assert_eq(instrument, "specie", "Factionless payee should resolve to specie.")
+
+
+func test_specie_market_buy_and_sell_routing() -> void:
+	# 1. Setup mock systems
+	var fake_char_sys = FakeCharacterSystem.new()
+	var fake_inv_sys = FakeInventorySystem.new()
+	GlobalRefs.character_system = fake_char_sys
+	GlobalRefs.inventory_system = fake_inv_sys
+
+	var test_char_uid = 9999
+	GameState.characters[test_char_uid] = {
+		"credits": 1000
+	}
+
+	# 2. Setup factionless location (payee tags will resolve to specie)
+	GameState.locations["station_test_specie"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_ore": {"buy_price": 20, "sell_price": 10, "quantity": 5}
+		}
+	}
+	GameState.sector_tags["test_specie"] = ["SECURE", "FACTION_UNALIGNED"]
+
+	# 3. Setup factionless agent with NO specie in inventory (buy should fail)
+	var npc_agent = {
+		"character_uid": test_char_uid,
+		"agent_role": "trader",
+		"current_sector_id": "test_specie",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["TRADER", "FACTION_UNALIGNED", "LEGAL_LAWFUL"]
+	}
+
+	var buy_fail = agent_layer._attempt_npc_market_buy("npc_test_specie_agent", npc_agent, "test_specie")
+	assert_false(buy_fail, "Buy should fail because agent has no specie in inventory.")
+
+	# 4. Give specie to agent, buy should succeed
+	fake_inv_sys.add_asset(test_char_uid, 2, "commodity_specie", 2)
+	var buy_ok = agent_layer._attempt_npc_market_buy("npc_test_specie_agent", npc_agent, "test_specie")
+	assert_true(buy_ok, "Buy should succeed after giving specie to agent.")
+
+	# Check mutations: credits NOT mutated, specie deducted from agent and added to market
+	assert_eq(fake_char_sys.get_credits(test_char_uid), 1000, "Credits should remain unchanged.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_specie"), 1, "Specie count should be 1 after buy.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 1, "Bought commodity should be in inventory.")
+	assert_eq(int(GameState.locations["station_test_specie"]["market_inventory"]["commodity_specie"]["quantity"]), 1, "Station should have received 1 unit of specie.")
+
+	# 5. Sell to factionless location. Station has 1 specie, so sell should succeed
+	var sell_ok = agent_layer._attempt_npc_market_sell("npc_test_specie_agent", npc_agent, "test_specie")
+	assert_true(sell_ok, "Sell should succeed because station has 1 specie.")
+
+	# Check mutations: credits NOT mutated, specie added to agent and deducted from market
+	assert_eq(fake_char_sys.get_credits(test_char_uid), 1000, "Credits should remain unchanged.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_specie"), 2, "Agent should receive 1 specie back.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 0, "Sold commodity should be removed from inventory.")
+	assert_eq(int(GameState.locations["station_test_specie"]["market_inventory"]["commodity_specie"]["quantity"]), 0, "Station should have paid 1 specie.")
+
+	# 6. Try to sell again (now agent has ore again, but station has 0 specie)
+	fake_inv_sys.add_asset(test_char_uid, 2, "commodity_ore", 1)
+	npc_agent["cargo_tag"] = "LOADED"
+	npc_agent["cargo_commodity_id"] = "commodity_ore"
+	var sell_fail = agent_layer._attempt_npc_market_sell("npc_test_specie_agent", npc_agent, "test_specie")
+	assert_false(sell_fail, "Sell should fail because station has 0 specie.")
+
+
+func test_specie_bilateral_trade() -> void:
+	var fake_inv_sys = FakeInventorySystem.new()
+	GlobalRefs.inventory_system = fake_inv_sys
+
+	var char_a_uid = 1001
+	var char_b_uid = 1002
+
+	var agent_a = {
+		"character_uid": char_a_uid,
+		"agent_role": "trader",
+		"cargo_tag": "LOADED",
+		"cargo_commodity_id": "commodity_ore",
+		"sentiment_tags": ["TRADER", "FACTION_UNALIGNED", "LEGAL_LAWFUL", "HEALTHY", "COMFORTABLE", "LOADED", "CARGO_MARKET", "CARGO_LAWFUL"]
+	}
+	var agent_b = {
+		"character_uid": char_b_uid,
+		"agent_role": "hauler",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["HAULER", "FACTION_UNALIGNED", "LEGAL_LAWFUL", "HEALTHY", "BROKE", "EMPTY"]
+	}
+
+	GameState.agents["agent_a"] = agent_a
+	GameState.agents["agent_b"] = agent_b
+
+	var can_trade_fail = agent_layer._can_agents_trade(agent_a, agent_b, agent_a["sentiment_tags"], agent_b["sentiment_tags"])
+	assert_false(can_trade_fail, "Trade should be blocked because payer has no specie.")
+
+	fake_inv_sys.add_asset(char_b_uid, 2, "commodity_specie", 1)
+
+	var can_trade_ok = agent_layer._can_agents_trade(agent_a, agent_b, agent_a["sentiment_tags"], agent_b["sentiment_tags"])
+	assert_true(can_trade_ok, "Trade should be allowed after giving specie to payer.")
+
+	agent_layer._bilateral_trade(agent_a, agent_b)
+
+	assert_eq(agent_a["cargo_tag"], "EMPTY", "Agent A should be empty.")
+	assert_eq(agent_b["cargo_tag"], "LOADED", "Agent B should be loaded.")
+	assert_eq(fake_inv_sys.get_asset_count(char_b_uid, 2, "commodity_specie"), 0, "Agent B (payer) should have paid 1 specie.")
+	assert_eq(fake_inv_sys.get_asset_count(char_a_uid, 2, "commodity_specie"), 1, "Agent A (payee) should have received 1 specie.")
 
 
 

@@ -3,7 +3,7 @@ PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Agent Parity Principle; MODEL-CASCADE-PROTOCOL.md § Role: Lead Systems Architect; GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008
-LOG_REF: 2026-06-11 20:05:00
+LOG_REF: 2026-06-11 20:25:38
 -->
 
 ## COMPLETED: Clamp credit mutations to prevent negative credits and enforce strict non-negativity
@@ -13,7 +13,7 @@ LOG_REF: 2026-06-11 20:05:00
 
 ---
 
-## CURRENT GOAL: Trust-Gated Credit vs Specie Transaction Routing
+## COMPLETED: Trust-Gated Credit vs Specie Transaction Routing
 - TARGET_SCOPE: Introduce affinity-based payment routing into agent-to-agent and agent-to-station transactions so that credit payments are only accepted when faction trust is sufficient. Below the trust threshold, transactions must route through `commodity_specie` instead. Factionless agents (no faction tag on either side) always route through specie unconditionally. This is Layer 1 of the approved dual-economy growth path (GDD-REVISION-LEDGER.md REV_008).
 - TARGET_FILES:
   - `src/autoload/Constants.gd` — Add `CREDIT_TRUST_THRESHOLD` constant (float, range 0.0–1.0, represents the minimum affinity score for credit acceptance).
@@ -29,8 +29,8 @@ LOG_REF: 2026-06-11 20:05:00
   - Existing `_bilateral_trade` and dock-market tests must continue passing without regression.
 - MANUAL_VALIDATION: Chronicle output from a multi-tick session should show NPC trade events routing through specie when cross-faction pairs interact. No automated coverage required.
 - ATOMIC_TASKS:
-  - [ ] TASK_1: Add `CREDIT_TRUST_THRESHOLD = 0.3` constant to `Constants.gd`. Value is tunable; 0.3 means any affinity score at or above 0.3 accepts credits.
-  - [ ] TASK_2: Add `_resolve_payment_instrument(payer_tags: Array, payee_tags: Array) -> String` to `agent_layer.gd`. Returns `"credits"` if both sides have at least one faction tag AND `affinity_matrix.compute_affinity(payer_tags, payee_tags) >= Constants.CREDIT_TRUST_THRESHOLD`; returns `"specie"` otherwise.
-  - [ ] TASK_3: Wire `_resolve_payment_instrument` into `_bilateral_trade` and both `_attempt_npc_market_buy` / `_attempt_npc_market_sell` so the payment leg uses the resolved instrument. When instrument is `"specie"`, deduct from payer's `commodity_specie` inventory and add to payee's `commodity_specie` inventory instead of mutating `credits`.
-  - [ ] TASK_4: Add focused unit tests in `test_agent_layer.gd` covering: same-faction above threshold → credits, cross-faction below threshold → specie, factionless payer → specie, factionless payee → specie.
-  - [ ] VERIFICATION: Run the full test suite using GUT; ensure all tests pass with zero failures.
+  - [x] TASK_1: Add `CREDIT_TRUST_THRESHOLD = 0.3` constant to `Constants.gd`. Value is tunable; 0.3 means any affinity score at or above 0.3 accepts credits.
+  - [x] TASK_2: Add `_resolve_payment_instrument(payer_tags: Array, payee_tags: Array) -> String` to `agent_layer.gd`. Returns `"credits"` if both sides have at least one faction tag AND `affinity_matrix.compute_affinity(payer_tags, payee_tags) >= Constants.CREDIT_TRUST_THRESHOLD`; returns `"specie"` otherwise.
+  - [x] TASK_3: Wire `_resolve_payment_instrument` into `_bilateral_trade` and both `_attempt_npc_market_buy` / `_attempt_npc_market_sell` so the payment leg uses the resolved instrument. When instrument is `"specie"`, deduct from payer's `commodity_specie` inventory and add to payee's `commodity_specie` inventory instead of mutating `credits`.
+  - [x] TASK_4: Add focused unit tests in `test_agent_layer.gd` covering: same-faction above threshold → credits, cross-faction below threshold → specie, factionless payer → specie, factionless payee → specie.
+  - [x] VERIFICATION: Run the full test suite using GUT; ensure all tests pass with zero failures.
