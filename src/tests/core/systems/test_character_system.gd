@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: test_character_system.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-26.md (Section 7 Platform Mechanics Divergence)
-# LOG_REF: 2026-01-28-QA-Intern
-#
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: TACTICAL_TODO.md TASK_2; TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 15:53:00
 
 extends GutTest
 
@@ -73,6 +71,13 @@ func test_credits_management():
 
 	# Test getting credits
 	assert_eq(character_system_instance.get_credits(PLAYER_UID), 125, "get_credits should return the correct value.")
+
+
+func test_credits_clamping():
+	# Start a character with 100 credits, subtract 150, assert that the remaining balance is 0 rather than -50
+	GameState.characters[PLAYER_UID].credits = 100
+	character_system_instance.subtract_credits(PLAYER_UID, 150)
+	assert_eq(GameState.characters[PLAYER_UID].credits, 0, "Credits should be clamped to 0 on negative mutation.")
 
 
 func test_fp_management():

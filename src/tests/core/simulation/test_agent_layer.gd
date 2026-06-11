@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_4; commodity_classification_architecture.md §6
-# LOG_REF: 2026-06-06 00:55:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 00:48:00
 #
 
 extends GutTest
@@ -20,6 +20,7 @@ class FakeCharacterSystem:
 	extends Reference
 
 	var add_credits_calls: Array = []
+	var subtract_credits_calls: Array = []
 
 	func add_credits(character_uid, amount: int) -> void:
 		add_credits_calls.append({"character_uid": character_uid, "amount": amount})
@@ -29,6 +30,23 @@ class FakeCharacterSystem:
 		var int_uid: int = int(character_uid)
 		if GameState.characters.has(int_uid):
 			GameState.characters[int_uid].credits += amount
+
+	func subtract_credits(character_uid, amount: int) -> void:
+		subtract_credits_calls.append({"character_uid": character_uid, "amount": amount})
+		if GameState.characters.has(character_uid):
+			GameState.characters[character_uid].credits -= amount
+			return
+		var int_uid: int = int(character_uid)
+		if GameState.characters.has(int_uid):
+			GameState.characters[int_uid].credits -= amount
+
+	func get_credits(character_uid) -> int:
+		if GameState.characters.has(character_uid):
+			return GameState.characters[character_uid].get("credits", 0)
+		var int_uid: int = int(character_uid)
+		if GameState.characters.has(int_uid):
+			return GameState.characters[int_uid].get("credits", 0)
+		return 0
 
 
 func before_each():
@@ -1537,6 +1555,8 @@ func _clear_state() -> void:
 	TemplateDatabase.agents.clear()
 	TemplateDatabase.characters.clear()
 	TemplateDatabase.locations.clear()
+	GlobalRefs.character_system = null
+	GlobalRefs.inventory_system = null
 
 
 func _make_runtime_contract_occurrence(occurrence_id: String, category: String, source_sector_id: String, target_sector_id: String) -> Dictionary:
@@ -2157,5 +2177,161 @@ func test_npc_contraband_trade_gating() -> void:
 	var sell_result_illicit = agent_layer._attempt_npc_market_sell("agent_illicit", illicit_agent, "black_only")
 	assert_true(sell_result_illicit, "Illicit agent should successfully sell contraband at black market.")
 	assert_eq(illicit_agent["cargo_tag"], "EMPTY", "Cargo should be empty after selling.")
+
+
+class FakeInventorySystem:
+	extends Reference
+
+	var add_asset_calls: Array = []
+	var remove_asset_calls: Array = []
+	var inventory: Dictionary = {} # Key: character_uid, Value: {commodity_id: count}
+
+	func add_asset(character_uid: int, inventory_type: int, asset_id, quantity: int = 1) -> void:
+		add_asset_calls.append({
+			"character_uid": character_uid,
+			"inventory_type": inventory_type,
+			"asset_id": asset_id,
+			"quantity": quantity
+		})
+		if not inventory.has(character_uid):
+			inventory[character_uid] = {}
+		var char_inv = inventory[character_uid]
+		char_inv[asset_id] = char_inv.get(asset_id, 0) + quantity
+
+	func remove_asset(character_uid: int, inventory_type: int, asset_id, quantity: int = 1) -> bool:
+		remove_asset_calls.append({
+			"character_uid": character_uid,
+			"inventory_type": inventory_type,
+			"asset_id": asset_id,
+			"quantity": quantity
+		})
+		if not inventory.has(character_uid):
+			return false
+		var char_inv = inventory[character_uid]
+		var current = char_inv.get(asset_id, 0)
+		if current < quantity:
+			return false
+		char_inv[asset_id] = current - quantity
+		if char_inv[asset_id] <= 0:
+			char_inv.erase(asset_id)
+		return true
+
+	func get_asset_count(character_uid: int, inventory_type: int, asset_id) -> int:
+		if not inventory.has(character_uid):
+			return 0
+		return inventory[character_uid].get(asset_id, 0)
+
+
+func test_npc_dock_trade_quantitative_parity() -> void:
+	# 1. Setup mock systems
+	var fake_char_sys = FakeCharacterSystem.new()
+	var fake_inv_sys = FakeInventorySystem.new()
+	GlobalRefs.character_system = fake_char_sys
+	GlobalRefs.inventory_system = fake_inv_sys
+
+	var test_char_uid = 4242
+	
+	# Seed character state
+	GameState.characters[test_char_uid] = {
+		"credits": 1000
+	}
+	fake_inv_sys.add_asset(test_char_uid, 2, "commodity_ore", 1)
+
+	# 2. Setup location with market
+	GameState.locations["station_test_sector"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_ore": {"buy_price": 20, "sell_price": 10, "quantity": 5}
+		}
+	}
+	GameState.sector_tags["test_sector"] = ["SECURE"]
+
+	# 3. Setup agent linked to character_uid
+	var npc_agent = {
+		"character_uid": test_char_uid,
+		"agent_role": "trader",
+		"current_sector_id": "test_sector",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "LOADED",
+		"cargo_commodity_id": "commodity_ore",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"]
+	}
+
+	# --- SELL TEST ---
+	assert_eq(fake_char_sys.get_credits(test_char_uid), 1000)
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 1)
+	assert_eq(int(GameState.locations["station_test_sector"]["market_inventory"]["commodity_ore"]["quantity"]), 5)
+
+	# Execute Sell
+	var sell_ok = agent_layer._attempt_npc_market_sell("npc_test_agent", npc_agent, "test_sector")
+	assert_true(sell_ok, "NPC should be able to sell commodity_ore.")
+
+	# Assert sell mutations occurred
+	assert_gt(fake_char_sys.get_credits(test_char_uid), 1000, "Credits should have increased.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 0, "Inventory commodity should be removed.")
+	assert_eq(int(GameState.locations["station_test_sector"]["market_inventory"]["commodity_ore"]["quantity"]), 6, "Market quantity should have increased by 1.")
+	assert_eq(npc_agent["cargo_tag"], "EMPTY", "NPC cargo tag should now be qualitative EMPTY.")
+	assert_false(npc_agent.has("cargo_commodity_id"), "NPC cargo commodity id should be cleared.")
+
+	# --- BUY TEST ---
+	npc_agent["cargo_tag"] = "EMPTY"
+	var credits_before_buy = fake_char_sys.get_credits(test_char_uid)
+
+	# Execute Buy
+	var buy_ok = agent_layer._attempt_npc_market_buy("npc_test_agent", npc_agent, "test_sector")
+	assert_true(buy_ok, "NPC should be able to buy commodity_ore.")
+
+	# Assert buy mutations occurred
+	assert_lt(fake_char_sys.get_credits(test_char_uid), credits_before_buy, "Credits should have decreased after buy.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 1, "Inventory should now contain bought commodity.")
+	assert_eq(int(GameState.locations["station_test_sector"]["market_inventory"]["commodity_ore"]["quantity"]), 5, "Market quantity should have decreased by 1.")
+	assert_eq(npc_agent["cargo_tag"], "LOADED", "NPC cargo tag should now be qualitative LOADED.")
+	assert_eq(npc_agent.get("cargo_commodity_id"), "commodity_ore", "NPC cargo commodity id should be set.")
+
+
+func test_npc_dock_trade_credit_gating() -> void:
+	# 1. Setup mock systems
+	var fake_char_sys = FakeCharacterSystem.new()
+	var fake_inv_sys = FakeInventorySystem.new()
+	GlobalRefs.character_system = fake_char_sys
+	GlobalRefs.inventory_system = fake_inv_sys
+
+	var test_char_uid = 4243
+	
+	# Seed character state with very few credits (5 cr)
+	GameState.characters[test_char_uid] = {
+		"credits": 5
+	}
+
+	# 2. Setup location with market where price is 20 cr
+	GameState.locations["station_test_sector"] = {
+		"available_services": ["trade"],
+		"market_inventory": {
+			"commodity_ore": {"buy_price": 20, "sell_price": 10, "quantity": 5}
+		}
+	}
+	GameState.sector_tags["test_sector"] = ["SECURE"]
+
+	# 3. Setup agent linked to character_uid with EMPTY cargo
+	var npc_agent = {
+		"character_uid": test_char_uid,
+		"agent_role": "trader",
+		"current_sector_id": "test_sector",
+		"wealth_tag": "COMFORTABLE",
+		"cargo_tag": "EMPTY",
+		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"]
+	}
+
+	# Execute Buy when unable to afford it
+	var buy_ok = agent_layer._attempt_npc_market_buy("npc_test_agent", npc_agent, "test_sector")
+	assert_false(buy_ok, "NPC should be blocked from buying since credits (5) < buy_price (20).")
+
+	# Assert no changes occurred
+	assert_eq(fake_char_sys.get_credits(test_char_uid), 5, "Credits should remain unchanged.")
+	assert_eq(fake_inv_sys.get_asset_count(test_char_uid, 2, "commodity_ore"), 0, "Inventory should remain empty.")
+	assert_eq(int(GameState.locations["station_test_sector"]["market_inventory"]["commodity_ore"]["quantity"]), 5, "Market quantity should remain unchanged.")
+	assert_eq(npc_agent["cargo_tag"], "EMPTY", "NPC cargo tag should remain qualitative EMPTY.")
+
+
 
 

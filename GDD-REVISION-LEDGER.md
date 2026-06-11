@@ -91,6 +91,33 @@ For each revision entry, use the same fields:
 - Follow-on Owners: Phase 1 implementation milestone
 - Evidence: `commodity_classification_architecture.md`; `src/autoload/Constants.gd`; `src/core/simulation/agent_layer.gd`
 
+### REV_007: Dual-Economy (Electronic Credits vs Physical Specie)
+
+- Domain: Economy and Currency
+- Live Reality: The economy operates on a dual-currency system. Electronic credits are character-profile integers: abstract, trust-bound, not counted in `TOTAL_MATTER`, clamped at a minimum of zero during subtraction in `CharacterSystem`. Physical specie (`commodity_specie`) is a cargo commodity occupying inventory slots, counted in `TOTAL_MATTER`, physically represented as dense inert metal (e.g. refined iridium discs, platinum ingots, or neutronium-alloy tokens) that is universally accepted because it requires no institutional trust. Hauling specie always has an opportunity cost in lost trade capacity.
+- Frozen / Legacy Tension: Legacy documents described credits and specie interchangeably or assumed credits were matter-backed, whereas the live simulation treats credits as electronic trust-based ledger entries and specie as a physical commodity subject to matter conservation.
+- Approved Direction:
+  - Credits remain outside `TOTAL_MATTER` unconditionally. Never count credits in the matter axiom.
+  - Any credit subtraction clamps to a minimum of `0`; negative credit balances are forbidden.
+  - Credits are faction-scoped promissory notes. The fiction of "faction-specific credits" is produced by trust routing, not separate ledgers.
+  - Credit trust follows faction presence. If a faction has no active `STATION`-tagged sectors, its allied agents can no longer perform credit transactions; isolation is emergent, not hard-coded.
+  - Factionless agents (no faction tag) transact in specie only, unconditionally.
+- Status: Approved direction
+- Blocked By: None
+- Follow-on Owners: REV_008 (trust-gated routing milestone)
+- Evidence: `TRUTH_SIMULATION-GRAPH.md §2.2.1` and `§8.1`; `src/core/systems/character_system.gd` (`subtract_credits`); `src/autoload/GameState.gd`; `dual_economy_design_draft.md` (approved 2026-06-11)
+
+### REV_008: Trust-Gated Credit vs Specie Transaction Routing
+
+- Domain: Economy, Agent Interaction, and Faction Trust
+- Live Reality: All current agent-to-agent and agent-to-station transactions mutate `credits` directly regardless of faction relationship. There is no routing logic that selects between credits and specie based on affinity.
+- Frozen / Legacy Tension: The approved dual-economy doctrine (REV_007) requires that credits be accepted only when faction trust is sufficient. The live code does not yet enforce this.
+- Approved Direction: Use `affinity_matrix.compute_affinity(payer_tags, payee_tags)` as the trust resolver. A single constant `CREDIT_TRUST_THRESHOLD` in `Constants.gd` defines the minimum affinity score for credit acceptance. Above or equal → credits. Below → specie. Factionless (either party has no faction tag) → specie unconditionally. No separate credit ledgers per faction. No exchange rate mechanics. The fiction of faction-scoped credits emerges from routing alone.
+- Status: Approved direction
+- Blocked By: None
+- Follow-on Owners: Current `Trust-Gated Credit vs Specie Transaction Routing` milestone in `TACTICAL_TODO.md`
+- Evidence: `dual_economy_design_draft.md` §3 and §5 (approved 2026-06-11); `src/core/simulation/affinity_matrix.gd` (`compute_affinity`); `src/core/simulation/agent_layer.gd` (`_bilateral_trade`, `_attempt_npc_market_buy`, `_attempt_npc_market_sell`); `src/autoload/Constants.gd`
+
 ## Follow-on Milestone Order
 
 1. `Universe Doctrine Alignment Ledger` — create this ledger and wire it into the architect workflow. (Completed)
@@ -98,6 +125,7 @@ For each revision entry, use the same fields:
 3. `Commodity Classification Registry & Tag-Governed Market Seeding` — build the classification registry and tag-governed procedural market seeding. (Completed)
 4. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them. (Completed)
 5. `Hierarchical Universe Topology Program` — revisit star, planetary, and sub-planetary structure only after the doctrine and social-simulation seams are coherent.
+6. `Trust-Gated Credit vs Specie Transaction Routing` — implement Layer 1 of the approved dual-economy growth path: affinity-based payment instrument resolution using `CREDIT_TRUST_THRESHOLD` in `Constants.gd` and `_resolve_payment_instrument` in `agent_layer.gd`.
 
 ## Usage Notes
 

@@ -2,8 +2,8 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_SIMULATION-GRAPH.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_PROJECT.md § Automated Testing Boundary; GDD-REVISION-LEDGER.md REV_003; GDD-REVISION-LEDGER.md REV_004; TACTICAL_TODO.md TASK_1
-LOG_REF: 2026-06-03 19:48:31
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
+LOG_REF: 2026-06-11 00:15:00
 -->
 
 # 8.1-GDD-Simulation-Graph-System
@@ -73,22 +73,30 @@ These are the containers where matter resides. Every unit of matter in the simul
   * Represents the workforce. Population density scales with Colony Level.
   * They do not hold matter directly — they **burn** matter to survive (`CONSUMPTION_RATE_PER_TICK`).
 
-### 2.2.1 Cash as Matter (Specie Standard)
+### 2.2.1 Cash as Matter (Specie Standard) vs electronic Credits
 
-There is no abstract currency. The economy is a **half-barter system** anchored by a single physical medium of exchange: **Specie** — standardized coins and bars of a precious, inert metal. Specie functions as cash because of its properties:
+The economy operates on a dual-currency system that balances convenience and trust:
 
-* **Inert** — does not degrade or react (zero entropy cost to hold).
-* **Dense** — high value-to-mass ratio (practical to carry).
-* **Universally accepted** — every station, every faction, every colony level.
+1. **Electronic Credits (Trust-Bound Transactions):**
+   * Abstract fiat currency tracked in character profiles (e.g. `CharacterSystem` credits).
+   * Credits allow convenient trading within factions, at secure station dock markets, and under other circumstances where there is enough trust between agents and entities.
+   * Using credits to trade with distrustful entities, black markets, or cross-faction outlaws will not be possible due to the lack of shared financial network trust.
+   * Credits are electronic promises of value and are not counted directly in the physical simulation's `TOTAL_MATTER`.
 
-`cash_reserves` is a dedicated commodity (`commodity_specie`) tracked in an agent's `cargo`, alongside ore, fuel, food, tech, and luxury. When an agent "pays", they transfer physical Specie matter. This means:
-
-* **Specie IS counted in `TOTAL_MATTER`** — it is a commodity like any other, occupying cargo or stockpile space.
-* **Paying for repairs** = transferring `commodity_specie` from `Agent(cargo)` → `Station(stockpile)`.
-* **Earning from trade** = receiving `commodity_specie` in exchange for goods. The matter itself always moves.
-* **Transaction logic is simple:** `if agent.cargo['commodity_specie'] >= cost: pay()`. No weighted basket, no multi-commodity transfer.
-* **Debt** = a promise of future Specie transfer, not matter itself (not counted in TOTAL_MATTER).
-* **Specie enters circulation** via mining (rare metal deposits) and salvage (wrecks contain Specie from dead agents). It exits circulation the same way all matter does — through entropy and slag.
+2. **Physical Specie (Barter and Hard Cash):**
+   * The ultimate baseline economy is a **half-barter system** anchored by a single physical medium of exchange: **Specie** — standardized coins and bars of a precious, inert metal.
+   * Specie cargo item (`commodity_specie`) acts as a go-to bartering hard currency, allowing agents to use the convenient credit system where trust exists, yet still rely on hard cash when there is no common ground.
+   * Specie functions as cash because of its properties:
+     * **Inert** — does not degrade or react (zero entropy cost to hold).
+     * **Dense** — high value-to-mass ratio (practical to carry).
+     * **Universally accepted** — every station, every faction, every colony level.
+   
+   * **Specie IS counted in `TOTAL_MATTER`** — it is a commodity like any other, occupying cargo or stockpile space.
+   * **Paying for repairs** = transferring `commodity_specie` from `Agent(cargo)` → `Station(stockpile)`.
+   * **Earning from trade** = receiving `commodity_specie` in exchange for goods. The matter itself always moves.
+   * **Transaction logic is simple:** `if agent.cargo['commodity_specie'] >= cost: pay()`. No weighted basket, no multi-commodity transfer.
+   * **Debt** = a promise of future Specie transfer, not matter itself (not counted in TOTAL_MATTER).
+   * **Specie enters circulation** via mining (rare metal deposits) and salvage (wrecks contain Specie from dead agents). It exits circulation the same way all matter does — through entropy and slag.
 
 ### 2.3 The Agent Nodes (Mobile Capacitors — Layer 3)
 
@@ -538,16 +546,14 @@ Every tick ends with both assertions. If either fails, matter leaked.
 
 These questions were raised during initial graph design and have been resolved:
 
-### 8.1 Cash Flow → Cash is Matter (Specie Standard)
+### 8.1 Cash Flow → Cash is Matter (Specie Standard) vs electronic Credits
 
-**Decision:** Cash is **physical commodity** — standardized coins and bars of a precious, inert metal called **Specie** (`commodity_specie`). Not an abstract number, not a weighted basket.
-
-* `cash_reserves` is a single commodity tracked in `cargo` and `stockpile`, like ore or fuel.
-* **Specie IS counted in `TOTAL_MATTER`** — it occupies the same accounting bucket as any other commodity.
-* Paying for services (repairs, docking, fuel) = transferring `commodity_specie` from Agent → Station.
-* Transaction logic is trivial: `if agent.cargo['commodity_specie'] >= cost: pay()`.
-* Debt = a promise of future Specie, not matter itself. Excluded from Axiom 1 sum.
-* **Graph impact:** Payment edge `Agent(Specie)` → `Grid(Stockpile)`. Specie lost on death becomes wreck matter. Specie enters circulation via rare mining deposits and salvage.
+**Decision:** The economy balances electronic credits with physical commodity cash (**Specie** — standardized coins and bars of a precious, inert metal, `commodity_specie`).
+* Electronic credits act as a convenient fiat ledger for trading within factions or when trust is established. Using credits to trade with distrustful or outlaw entities is blocked.
+* Specie acts as the baseline physical medium of exchange (barter standard) when trust does not exist.
+* **Specie IS counted in `TOTAL_MATTER`** — it occupies the same accounting bucket as any other commodity, whereas abstract credits do not.
+* Paying for services (repairs, docking, fuel) = transferring `commodity_specie` from Agent → Station, or deducting credits when trust/faction service is available.
+* Specie lost on death becomes wreck matter. Specie enters circulation via rare mining deposits and salvage.
 
 ### 8.2 Energy as Matter → Mass Displacement (Law 4)
 

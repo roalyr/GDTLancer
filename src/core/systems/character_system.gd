@@ -1,10 +1,11 @@
 # PROJECT: GDTLancer
 # MODULE: character_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.6
-# LOG_REF: 2026-06-10 23:19:26
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 00:55:00
 
 extends Node
+
 
 ## CharacterSystem: Stateless API for character data management.
 ## Provides credits, FP, and skill operations on CharacterTemplate instances in GameState.
@@ -83,7 +84,8 @@ func add_credits(character_uid, amount: int):
 
 func subtract_credits(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].credits -= amount
+		var new_credits = GameState.characters[character_uid].credits - amount
+		GameState.characters[character_uid].credits = max(0, new_credits)
 		# If this change was for the player, announce it.
 		if str(character_uid) == str(GameState.player_character_uid):
 			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)

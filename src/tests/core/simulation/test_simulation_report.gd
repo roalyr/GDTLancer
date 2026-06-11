@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_simulation_report.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Automated Testing Boundary; TACTICAL_TODO.md TASK_3; TRUTH_SIMULATION-GRAPH.md §5, §6.4
-# LOG_REF: 2026-05-26 14:02:14
+# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
+# LOG_REF: 2026-06-11 00:15:00
 #
 
 extends GutTest
@@ -104,6 +104,8 @@ func test_agent_focus_report_supports_requested_focus_and_sort_mode():
 		"Focused report should expose an agent-sorted detailed log section.")
 	assert_true(report.find("Current agent state:") != -1,
 		"Agent-focused reports should include an integral agent-state summary.")
+	assert_true(report.find("0 cr)") != -1,
+		"Agent-focused reports should format the agent's credits.")
 
 
 func test_composite_report_collects_requested_windows_with_deterministic_samples():

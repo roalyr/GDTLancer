@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 16:45:00
+# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle
+# LOG_REF: 2026-06-11 00:48:00
 #
 
 extends Reference
@@ -1433,6 +1433,22 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 		agent.erase("cargo_commodity_id")
 	_wealth_step_up(agent)
 
+	# Quantitative inventory and credit mutations for NPC parity
+	var character_uid = -1
+	if agent.has("character_uid") and agent["character_uid"] != null:
+		character_uid = int(agent["character_uid"])
+	elif GameState.persistent_agents.has(agent_id):
+		var p_agent = GameState.persistent_agents[agent_id]
+		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
+			character_uid = int(p_agent["character_uid"])
+
+	if character_uid != -1:
+		var char_sys = GlobalRefs.character_system
+		var inv_sys = GlobalRefs.inventory_system
+		if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
+			char_sys.add_credits(character_uid, sell_price)
+			inv_sys.remove_asset(character_uid, 2, commodity_id, 1)
+
 	# Log NPC dock-trade event
 	_log_event(agent_id, "npc_dock_trade", sector_id, {
 		"commodity_id": commodity_id,
@@ -1492,6 +1508,22 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	if bought_commodity_id == "" or not _can_agent_trade_commodity(agent, bought_commodity_id, location_id):
 		return false
 
+	# Enforce numeric credit gating if the NPC has a valid character UID
+	var character_uid_check = -1
+	if agent.has("character_uid") and agent["character_uid"] != null:
+		character_uid_check = int(agent["character_uid"])
+	elif GameState.persistent_agents.has(agent_id):
+		var p_agent = GameState.persistent_agents[agent_id]
+		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
+			character_uid_check = int(p_agent["character_uid"])
+
+	if character_uid_check != -1:
+		var char_sys = GlobalRefs.character_system
+		if is_instance_valid(char_sys):
+			var current_credits = int(char_sys.get_credits(character_uid_check))
+			if current_credits < buy_price:
+				return false
+
 	# Mutate market quantity
 	market_inventory[bought_commodity_id]["quantity"] -= 1
 
@@ -1499,6 +1531,22 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	agent["cargo_tag"] = "LOADED"
 	agent["cargo_commodity_id"] = bought_commodity_id
 	_wealth_step_down(agent)
+
+	# Quantitative inventory and credit mutations for NPC parity
+	var character_uid = -1
+	if agent.has("character_uid") and agent["character_uid"] != null:
+		character_uid = int(agent["character_uid"])
+	elif GameState.persistent_agents.has(agent_id):
+		var p_agent = GameState.persistent_agents[agent_id]
+		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
+			character_uid = int(p_agent["character_uid"])
+
+	if character_uid != -1:
+		var char_sys = GlobalRefs.character_system
+		var inv_sys = GlobalRefs.inventory_system
+		if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
+			char_sys.subtract_credits(character_uid, buy_price)
+			inv_sys.add_asset(character_uid, 2, bought_commodity_id, 1)
 
 	# Log NPC dock-trade event
 	_log_event(agent_id, "npc_dock_trade", sector_id, {
