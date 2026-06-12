@@ -47,6 +47,8 @@ signal player_orbit_pressed
 signal player_approach_pressed
 signal player_flee_pressed
 signal player_interact_pressed
+signal player_npc_interact_requested(agent_id, target_node)
+signal interact_action_feedback(success, message)
 signal player_dock_pressed  # Explicit dock button
 signal player_attack_pressed  # Explicit attack button
 signal player_camera_zoom_changed(value)

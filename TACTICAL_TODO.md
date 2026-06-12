@@ -2,35 +2,39 @@
 PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 2 - Implementation]
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Agent Parity Principle; MODEL-CASCADE-PROTOCOL.md § Role: Lead Systems Architect; GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008
-LOG_REF: 2026-06-11 20:25:38
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; MODEL-CASCADE-PROTOCOL.md § Role: Lead Systems Architect; GDD-REVISION-LEDGER.md REV_009
+LOG_REF: 2026-06-12 01:10:00
 -->
 
-## COMPLETED: Clamp credit mutations to prevent negative credits and enforce strict non-negativity
-- [x] TASK_1: Update `subtract_credits` in `character_system.gd` to set the character's credits to `max(0, GameState.characters[character_uid].credits - amount)`.
-- [x] TASK_2: Add a unit test `test_credits_clamping` in `test_character_system.gd` that starts a character with 100 credits, subtracts 150, and asserts that the remaining balance is `0` rather than `-50`.
-- [x] VERIFICATION: Full test suite passed — 391/391 tests passed successfully.
+## CURRENT GOAL: Generic Interaction Window for In-Scene Objects
 
----
+- TARGET_SCOPE: Implement a generic `InteractionWindow` Control scene that opens when the player interacts with any in-scene object (NPC agents or celestial bodies). For NPC targets, the window shows a "Trade" button; pressing it opens the existing `NpcTradePanel` if the NPC is tradeable, or shows a verbose feedback message if trade is not possible. For celestial bodies, the window shows a placeholder "No interactions available yet" message. The window is owned and instanced by `main_hud.gd` alongside existing sub-screens. The existing `player_npc_interact_requested` EventBus signal is repurposed as the trigger to open this window (replacing the current direct-open-NpcTradePanel flow in `npc_trade_panel.gd`). The `NpcTradePanel` is now opened exclusively from within the `InteractionWindow`, not directly from the EventBus signal.
 
-## COMPLETED: Trust-Gated Credit vs Specie Transaction Routing
-- TARGET_SCOPE: Introduce affinity-based payment routing into agent-to-agent and agent-to-station transactions so that credit payments are only accepted when faction trust is sufficient. Below the trust threshold, transactions must route through `commodity_specie` instead. Factionless agents (no faction tag on either side) always route through specie unconditionally. This is Layer 1 of the approved dual-economy growth path (GDD-REVISION-LEDGER.md REV_008).
 - TARGET_FILES:
-  - `src/autoload/Constants.gd` — Add `CREDIT_TRUST_THRESHOLD` constant (float, range 0.0–1.0, represents the minimum affinity score for credit acceptance).
-  - `src/core/simulation/agent_layer.gd` — Add `_resolve_payment_instrument(payer_tags, payee_tags) -> String` helper returning `"credits"` or `"specie"` based on affinity and faction tag presence. Wire into `_bilateral_trade`, `_attempt_npc_market_buy`, and `_attempt_npc_market_sell` at the payment step.
-  - `src/tests/core/simulation/test_agent_layer.gd` — Add focused unit tests: same-faction pair routes through credits; cross-faction pair below threshold routes through specie; factionless agent always routes through specie regardless of affinity.
-- TRUTH_RELIANCE: GDD-REVISION-LEDGER.md REV_007 § Approved Direction; GDD-REVISION-LEDGER.md REV_008 § Approved Direction; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_SIMULATION-GRAPH.md §8.1; TRUTH_PROJECT.md § Agent Parity Principle
+  - `scenes/ui/menus/interaction_window/InteractionWindow.tscn` — New scene: generic interaction window control node.
+  - `src/core/ui/interaction_window/interaction_window.gd` — New script: drives context-aware button population and delegates to NpcTradePanel for trade.
+  - `scenes/ui/menus/npc_trade_panel/NpcTradePanel.tscn` — Existing: no structural changes; its trigger pathway changes (see TASK_3).
+  - `src/core/ui/npc_trade_panel/npc_trade_panel.gd` — Existing: disconnect EventBus `player_npc_interact_requested`; add a public `open_for_agent(agent_id, target_node)` method callable by InteractionWindow.
+  - `src/core/ui/main_hud/main_hud.gd` — Existing: instance `InteractionWindow`, connect `player_npc_interact_requested` to open the InteractionWindow (not NpcTradePanel directly).
+
+- TRUTH_RELIANCE: TRUTH_PROJECT.md § Agent Parity Principle; GDD-REVISION-LEDGER.md REV_009; player_npc_interaction_architecture.md § Interaction UI.
+
 - TECHNICAL_CONSTRAINTS: "Forbidden GDScript syntax: @export, @onready, await", "Graphics target GLES2", "Godot 3.6 stable compatibility"
-- OUT_OF_SCOPE: Multiple credit ledgers per faction, exchange rate mechanics, credit supply ceilings, specie surcharge amounts, player UI credit display changes, faction treasury tags, contract reward currency selection (Layer 2/3 concerns).
+
+- OUT_OF_SCOPE: Celestial body interaction logic (buttons beyond a placeholder label), distance gating for interact, new EventBus signals, changes to station menu or dock flow, visual/style polish.
+
 - PREAPPROVED_ADJACENT_OWNERS:
-  - `src/core/simulation/affinity_matrix.gd` — read-only: use existing `compute_affinity()` signature; do not extend tags or scoring without a contract rewrite.
+  - `src/modules/piloting/player_controller_ship.gd` — Bug fix: incorrect agent_id type (int vs string) used for GameState.agents lookup; required to make interact signal carry correct key.
+
 - VALIDATION_PLAN:
-  - `_resolve_payment_instrument` unit tests cover: allied pair → credits, hostile pair → specie, factionless sender → specie, factionless receiver → specie.
-  - Existing `_bilateral_trade` and dock-market tests must continue passing without regression.
-- MANUAL_VALIDATION: Chronicle output from a multi-tick session should show NPC trade events routing through specie when cross-faction pairs interact. No automated coverage required.
+  - All 404 existing GUT tests must continue to pass.
+
+- MANUAL_VALIDATION: Open game in Godot editor, fly to an NPC, press Interact — InteractionWindow must appear showing NPC name/role and a Trade button. Pressing Trade opens NpcTradePanel. Close and re-target a celestial — InteractionWindow opens showing a "No interactions available" label.
+
 - ATOMIC_TASKS:
-  - [x] TASK_1: Add `CREDIT_TRUST_THRESHOLD = 0.3` constant to `Constants.gd`. Value is tunable; 0.3 means any affinity score at or above 0.3 accepts credits.
-  - [x] TASK_2: Add `_resolve_payment_instrument(payer_tags: Array, payee_tags: Array) -> String` to `agent_layer.gd`. Returns `"credits"` if both sides have at least one faction tag AND `affinity_matrix.compute_affinity(payer_tags, payee_tags) >= Constants.CREDIT_TRUST_THRESHOLD`; returns `"specie"` otherwise.
-  - [x] TASK_3: Wire `_resolve_payment_instrument` into `_bilateral_trade` and both `_attempt_npc_market_buy` / `_attempt_npc_market_sell` so the payment leg uses the resolved instrument. When instrument is `"specie"`, deduct from payer's `commodity_specie` inventory and add to payee's `commodity_specie` inventory instead of mutating `credits`.
-  - [x] TASK_4: Add focused unit tests in `test_agent_layer.gd` covering: same-faction above threshold → credits, cross-faction below threshold → specie, factionless payer → specie, factionless payee → specie.
-  - [x] VERIFICATION: Run the full test suite using GUT; ensure all tests pass with zero failures.
+  - [x] TASK_1: Create `src/core/ui/interaction_window/interaction_window.gd`.
+  - [x] TASK_2: Create `scenes/ui/menus/interaction_window/InteractionWindow.tscn`.
+  - [x] TASK_3: Modify `src/core/ui/npc_trade_panel/npc_trade_panel.gd` — remove EventBus self-trigger; add `open_for_agent()`; fix `character_uid` resolution from `persistent_agents`; fix `tags` → `dynamic_tags` bug.
+  - [x] TASK_4: Modify `src/core/ui/main_hud/main_hud.gd` — instance InteractionWindow, wire signal, add handler.
+  - [x] BUGFIX: Fix `player_controller_ship.gd` — use `template_id` (string) instead of `agent_uid` (int) for `GameState.agents` lookup. Use `_resolve_agent_id()` helper. Emit `player_npc_interact_requested` for all agent_body and celestial targets (InteractionWindow gates internally).
+  - [x] VERIFICATION: Debugged target-selection and group checks. NPC target now supports both "Agents" and "agent_body" groups, and celestials are properly identified via group/naming fallbacks. Non-RigidBody selections (like StaticBody stars/planets/moons) are now directly supported for interaction.

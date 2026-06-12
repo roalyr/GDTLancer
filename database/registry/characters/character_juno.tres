@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "character_juno"
 character_name = "Juno"
 character_icon_id = "character_juno_icon"
-faction_id = "faction_miners"
+faction_id = "traders"
 credits = 500
 focus_points = 0
 active_ship_uid = -1
@@ -23,10 +23,10 @@ faction_standings = {
 character_standings = {
 }
 personality_traits = {
-"risk_tolerance": 0.8,
-"greed": 0.7
+"greed": 0.7,
+"risk_tolerance": 0.8
 }
 description = "Young prospector, ambitious."
-goals = [ ]
+goals = [  ]
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "BROKE"

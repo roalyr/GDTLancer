@@ -7,7 +7,7 @@ script = ExtResource( 1 )
 template_id = "character_kai"
 character_name = "Kai"
 character_icon_id = "character_kai_icon"
-faction_id = "faction_miners"
+faction_id = "traders"
 credits = 1500
 focus_points = 0
 active_ship_uid = -1
@@ -23,10 +23,10 @@ faction_standings = {
 character_standings = {
 }
 personality_traits = {
-"risk_tolerance": 0.3,
-"loyalty": 0.8
+"loyalty": 0.8,
+"risk_tolerance": 0.3
 }
 description = "Veteran miner, pragmatic."
-goals = [ ]
+goals = [  ]
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "COMFORTABLE"

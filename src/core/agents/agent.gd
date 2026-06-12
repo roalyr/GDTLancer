@@ -128,6 +128,7 @@ func _register_with_combat_system() -> void:
 # --- Godot Lifecycle ---
 func _ready():
 	add_to_group("Agents")
+	add_to_group("agent_body")
 	# RigidBody settings for 6DOF space flight
 	mode = RigidBody.MODE_RIGID
 	gravity_scale = 0.0  # No gravity in space

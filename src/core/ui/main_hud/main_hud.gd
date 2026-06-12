@@ -3,7 +3,7 @@
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-09 20:56:00
+# LOG_REF: 2026-06-12 01:10:00
 #
 
 extends Control
@@ -40,7 +40,7 @@ const INFLIGHT_DRAG_CONTROL_PATHS = [
 	"ScreenControls/BottomCenterZone/ButtonApproach",
 	"ScreenControls/BottomCenterZone/ButtonFlee",
 	"ScreenControls/BottomCenterZone/ButtonDock",
-	"ScreenControls/BottomCenterZone/ButtonAttack",
+	"ScreenControls/BottomCenterZone/ButtonInteract",
 	"ScreenControls/CenterRightZone/ButtonUIOpacity",
 	"ScreenControls/CenterRightZone/ButtonCamera",
 	"ScreenControls/CenterRightZone/SliderControlRight"
@@ -49,6 +49,10 @@ const INFLIGHT_DRAG_CONTROL_PATHS = [
 # --- Sub-Screens ---
 const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 var _station_menu_instance = null
+const NpcTradePanelScene = preload("res://scenes/ui/menus/npc_trade_panel/NpcTradePanel.tscn")
+var _npc_trade_panel_instance = null
+const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window/InteractionWindow.tscn")
+var _interaction_window_instance = null
 
 # --- Nodes ---
 onready var projected_target_overlay: Control = $ProjectedTargetOverlay
@@ -137,6 +141,11 @@ func _ready():
 		# Dock/Attack feedback signals
 		EventBus.connect("dock_action_feedback", self, "_on_dock_action_feedback")
 		EventBus.connect("attack_action_feedback", self, "_on_attack_action_feedback")
+		EventBus.connect("interact_action_feedback", self, "_on_interact_action_feedback")
+
+		# NPC interaction — open InteractionWindow as gatekeeper
+		if not EventBus.is_connected("player_npc_interact_requested", self, "_on_player_npc_interact_requested"):
+			EventBus.connect("player_npc_interact_requested", self, "_on_player_npc_interact_requested")
 
 		# Combat flow (Phase 1: debug feedback)
 		if not EventBus.is_connected("combat_initiated", self, "_on_combat_initiated"):
@@ -197,6 +206,17 @@ func _ready():
 	# --- Instance Station Menu sub-screen ---
 	_station_menu_instance = StationMenuScene.instance()
 	add_child(_station_menu_instance)
+	
+	# --- Instance NPC Trade Panel sub-screen ---
+	_npc_trade_panel_instance = NpcTradePanelScene.instance()
+	add_child(_npc_trade_panel_instance)
+
+	# --- Instance Interaction Window sub-screen ---
+	_interaction_window_instance = InteractionWindowScene.instance()
+	add_child(_interaction_window_instance)
+	if is_instance_valid(_interaction_window_instance) and is_instance_valid(_npc_trade_panel_instance):
+		_interaction_window_instance.set_npc_trade_panel_ref(_npc_trade_panel_instance)
+	
 	_refresh_process_state()
 	_update_dock_button_label()
 	call_deferred("_rebuild_projected_target_overlays")
@@ -670,11 +690,6 @@ func _on_ButtonOverlayJump_pressed() -> void:
 	_refresh_toggle_button_states()
 	_update_route_target_overlay()
 
-func _on_ButtonInteract_pressed():
-	if EventBus:
-		EventBus.emit_signal("player_interact_pressed")
-
-
 func _on_ButtonDock_pressed():
 	if GameState.player_docked_at != "":
 		if is_instance_valid(_station_menu_instance) and _station_menu_instance.has_method("open_for_current_dock"):
@@ -684,9 +699,14 @@ func _on_ButtonDock_pressed():
 		EventBus.emit_signal("player_dock_pressed")
 
 
-func _on_ButtonAttack_pressed():
+func _on_ButtonInteract_pressed():
 	if EventBus:
-		EventBus.emit_signal("player_attack_pressed")
+		EventBus.emit_signal("player_interact_pressed")
+
+func _on_player_npc_interact_requested(agent_id: String, target_node: Spatial) -> void:
+	if is_instance_valid(_interaction_window_instance):
+		_interaction_window_instance.open_for_target(agent_id, target_node)
+
 
 func _on_SliderControlLeft_value_changed(value):
 	# ZOOM camera slider
@@ -731,6 +751,9 @@ func _on_dock_action_feedback(success: bool, message: String) -> void:
 
 func _on_attack_action_feedback(success: bool, message: String) -> void:
 	_show_action_feedback_popup("Attack", success, message)
+
+func _on_interact_action_feedback(success: bool, message: String) -> void:
+	_show_action_feedback_popup("Interact", success, message)
 
 
 func _show_action_feedback_popup(action_type: String, success: bool, message: String) -> void:

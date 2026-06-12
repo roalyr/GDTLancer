@@ -416,6 +416,15 @@ Do **not** create authored `ContractTemplate` resources just to mirror qualitati
 
 The live character template is simulation-facing. It does not currently expose `profession`, `portrait_path`, or `starting_*` fields, so use `description`, `skills`, standing dictionaries, and the qualitative starting tags instead.
 
+#### Faction Affiliation & The Dual-Economy Trust
+
+When defining a character template, the `faction_id` field determines the character's faction affiliation. At runtime:
+- `AffinityMatrix.build_faction_tag(faction_id)` normalizes the value by stripping any `"faction_"` prefix, converting spaces/hyphens to underscores, and capitalizing it (e.g., `faction_id = "faction_traders"` or `"traders"` normalizes to `"TRADERS"` and produces the tag `"FACTION_TRADERS"`).
+- The dual-economy system utilizes these faction tags to compute affinity/trust:
+  - If the player and the NPC belong to the same faction (or factions with high positive affinity/trust), trades will route through **credits** (promissory notes).
+  - If they are cross-faction or unaligned, and affinity falls below the `CREDIT_TRUST_THRESHOLD` (typically 0.3), trade routes through **specie** (commodities/hard currency) unconditionally.
+  - If a character has no faction (`faction_default` or unaligned), they always route through **specie**.
+
 ---
 
 ### 3.7 Adding a New Agent Type

@@ -1,0 +1,144 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/core/ui/npc_trade_panel/npc_trade_panel.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="NpcTradePanel" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -200.0
+margin_top = -150.0
+margin_right = 200.0
+margin_bottom = 150.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_right = 380.0
+margin_bottom = 20.0
+
+[node name="LabelNpcName" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+margin_right = 340.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "NPC Name — Role"
+
+[node name="BtnClose" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 344.0
+margin_right = 380.0
+margin_bottom = 20.0
+text = " X "
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+margin_top = 24.0
+margin_right = 380.0
+margin_bottom = 28.0
+
+[node name="SectionNpcSide" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 32.0
+margin_right = 380.0
+margin_bottom = 46.0
+
+[node name="LabelNpcCargo" type="Label" parent="Panel/VBoxContainer/SectionNpcSide"]
+margin_right = 188.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Cargo: Empty"
+
+[node name="LabelNpcCredits" type="Label" parent="Panel/VBoxContainer/SectionNpcSide"]
+margin_left = 192.0
+margin_right = 380.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Credits: 0 cr"
+
+[node name="SectionPlayerSide" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 50.0
+margin_right = 380.0
+margin_bottom = 64.0
+
+[node name="LabelPlayerCargo" type="Label" parent="Panel/VBoxContainer/SectionPlayerSide"]
+margin_right = 188.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Your Cargo: Empty"
+
+[node name="LabelPlayerCredits" type="Label" parent="Panel/VBoxContainer/SectionPlayerSide"]
+margin_left = 192.0
+margin_right = 380.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Your Credits: 0 cr"
+
+[node name="Spacer" type="Control" parent="Panel/VBoxContainer"]
+margin_top = 68.0
+margin_right = 380.0
+margin_bottom = 168.0
+size_flags_vertical = 3
+
+[node name="LabelPaymentInstrument" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 172.0
+margin_right = 380.0
+margin_bottom = 186.0
+text = "Payment: Unknown"
+align = 1
+
+[node name="LabelTradePrice" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 190.0
+margin_right = 380.0
+margin_bottom = 204.0
+text = "Price: ~0 cr / 0 specie"
+align = 1
+
+[node name="HBoxButtons" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 208.0
+margin_right = 380.0
+margin_bottom = 228.0
+custom_constants/separation = 20
+alignment = 1
+
+[node name="BtnBuyCargo" type="Button" parent="Panel/VBoxContainer/HBoxButtons"]
+margin_left = 49.0
+margin_right = 161.0
+margin_bottom = 20.0
+disabled = true
+text = "Buy NPC Cargo"
+
+[node name="BtnSellCargo" type="Button" parent="Panel/VBoxContainer/HBoxButtons"]
+margin_left = 181.0
+margin_right = 293.0
+margin_bottom = 20.0
+disabled = true
+text = "Sell My Cargo"
+
+[node name="Spacer2" type="Control" parent="Panel/VBoxContainer"]
+margin_top = 232.0
+margin_right = 380.0
+margin_bottom = 256.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="BtnCloseBottom" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 260.0
+margin_right = 380.0
+margin_bottom = 280.0
+text = "Close"
+
+[connection signal="pressed" from="Panel/VBoxContainer/HeaderRow/BtnClose" to="." method="_on_BtnClose_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/HBoxButtons/BtnBuyCargo" to="." method="_on_BtnBuyCargo_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/HBoxButtons/BtnSellCargo" to="." method="_on_BtnSellCargo_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/BtnCloseBottom" to="." method="_on_BtnClose_pressed"]

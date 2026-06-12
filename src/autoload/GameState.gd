@@ -60,6 +60,8 @@ var agent_tags: Dictionary = {}
 ## Player character identifier.
 var player_character_uid: String = ""
 
+## Queue of simulation mutations from real-time player interactions (cleared per tick)
+var pending_sim_mutations: Array = []
 
 # =========================================================================
 # === COLONY PROGRESSION =================================================

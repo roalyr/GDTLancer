@@ -3,7 +3,7 @@
 # MODULE: player_controller_ship.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md
-# LOG_REF: 2026-06-07 17:05:00
+# LOG_REF: 2026-06-12 01:10:00
 #
 
 extends Node
@@ -67,7 +67,6 @@ func _ready():
 	EventBus.connect("player_docked", self, "_on_player_docked")
 	EventBus.connect("player_undocked", self, "_on_player_undocked")
 	EventBus.connect("player_dock_pressed", self, "_on_dock_button_pressed")
-	EventBus.connect("player_attack_pressed", self, "_on_attack_button_pressed")
 
 	call_deferred("_deferred_ready_setup")
 	_change_state("default")
@@ -320,7 +319,17 @@ func _handle_interact_input() -> void:
 
 # --- Dock/Attack Button Handlers ---
 func _on_dock_button_pressed() -> void:
-	_handle_interact_input()
+	var target = _get_current_target()
+	if not is_instance_valid(target):
+		# No target selected: falls back to virtual dock to sector
+		_handle_interact_input()
+		return
+	
+	if target.is_in_group("dockable_station") or target.is_in_group("jump_point") or _is_route_target(target):
+		_handle_interact_input()
+	else:
+		if EventBus:
+			EventBus.emit_signal("dock_action_feedback", false, "Cannot dock with target")
 
 
 func _on_attack_button_pressed() -> void:
@@ -335,6 +344,66 @@ func _on_attack_button_pressed() -> void:
 		# Emit signal to show "no target" popup on HUD
 		if EventBus:
 			EventBus.emit_signal("attack_action_feedback", false, "No target selected")
+
+func _on_interact_button_pressed() -> void:
+	var target = _selected_target
+	if not is_instance_valid(target):
+		if EventBus:
+			EventBus.emit_signal("interact_action_feedback", false, "No target selected")
+		return
+
+	if target is Node and (target.is_in_group("agent_body") or target.is_in_group("Agents")):
+		# Always emit signal to open InteractionWindow; it will gate trade internally.
+		var agent_id: String = _resolve_agent_id(target)
+		if EventBus:
+			EventBus.emit_signal("player_npc_interact_requested", agent_id, target)
+	elif target is Node and (target.is_in_group("planet") or target.is_in_group("moon") or target.is_in_group("stellar_body") or _is_celestial(target)):
+		# Open InteractionWindow for celestials with a placeholder message.
+		var body_name: String = target.name
+		if EventBus:
+			EventBus.emit_signal("player_npc_interact_requested", "__celestial__" + body_name, target)
+	else:
+		if EventBus:
+			EventBus.emit_signal("interact_action_feedback", false, "Cannot interact with target")
+
+
+func _is_celestial(node) -> bool:
+	if not is_instance_valid(node) or not node is Node:
+		return false
+	if node.is_in_group("planet") or node.is_in_group("moon") or node.is_in_group("stellar_body"):
+		return true
+	var name_lower = node.name.to_lower()
+	if name_lower.find("star") != -1 or name_lower.find("planet") != -1 or name_lower.find("moon") != -1:
+		return true
+	return false
+
+
+func _resolve_agent_id(target) -> String:
+	if not is_instance_valid(target):
+		return ""
+	# Prefer template_id — the persistent agent string key used in GameState.agents.
+	var tid = target.get("template_id")
+	if tid != null and str(tid) != "" and str(tid) != "-1":
+		return str(tid)
+	# Fallback to node name for non-persistent agents.
+	if target is Node:
+		return target.name
+	return ""
+
+
+func _is_npc_tradeable(target) -> bool:
+	if not is_instance_valid(target) or not target is Node:
+		return false
+	if not (target.is_in_group("agent_body") or target.is_in_group("Agents")):
+		return false
+	var agent_id: String = _resolve_agent_id(target)
+	if GameState.agents.has(agent_id):
+		var role: String = str(GameState.agents[agent_id].get("agent_role", ""))
+		if role in ["trader", "hauler", "prospector"]:
+			return true
+	return false
+
+
 
 
 # --- Helper & Command Functions (Publicly callable by states) ---
@@ -603,10 +672,6 @@ func _on_Player_Flee_Pressed():
 	if _selected_target is Spatial and is_instance_valid(_selected_target):
 		agent_script.command_flee(_selected_target)
 
-func _on_Player_Interact_Pressed():
-	_handle_interact_input()
-
-
 func _on_player_target_selection_requested(target_ref) -> void:
 	_set_selected_target(target_ref)
 
@@ -623,7 +688,7 @@ func _connect_eventbus_signals():
 	EventBus.connect("player_orbit_pressed", self, "_on_Player_Orbit_Pressed")
 	EventBus.connect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 	EventBus.connect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
-	EventBus.connect("player_interact_pressed", self, "_on_Player_Interact_Pressed")
+	EventBus.connect("player_interact_pressed", self, "_on_interact_button_pressed")
 	EventBus.connect(
 		"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 	)
@@ -647,8 +712,8 @@ func _notification(what):
 			EventBus.disconnect("player_approach_pressed", self, "_on_Player_Approach_Pressed")
 		if EventBus.is_connected("player_flee_pressed", self, "_on_Player_Flee_Pressed"):
 			EventBus.disconnect("player_flee_pressed", self, "_on_Player_Flee_Pressed")
-		if EventBus.is_connected("player_interact_pressed", self, "_on_Player_Interact_Pressed"):
-			EventBus.disconnect("player_interact_pressed", self, "_on_Player_Interact_Pressed")
+		if EventBus.is_connected("player_interact_pressed", self, "_on_interact_button_pressed"):
+			EventBus.disconnect("player_interact_pressed", self, "_on_interact_button_pressed")
 		if EventBus.is_connected(
 			"player_ship_speed_changed", self, "_on_Player_Ship_Speed_Slider_Changed_By_HUD"
 		):

@@ -1,0 +1,88 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/core/ui/interaction_window/interaction_window.gd" type="Script" id=1]
+[ext_resource path="res://assets/themes/main_theme.tres" type="Theme" id=2]
+
+[node name="InteractionWindow" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -160.0
+margin_top = -120.0
+margin_right = 160.0
+margin_bottom = 120.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/VBoxContainer"]
+margin_right = 300.0
+margin_bottom = 20.0
+
+[node name="LabelTargetName" type="Label" parent="Panel/VBoxContainer/HeaderRow"]
+margin_right = 260.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Target Name — Role"
+
+[node name="BtnClose" type="Button" parent="Panel/VBoxContainer/HeaderRow"]
+margin_left = 264.0
+margin_right = 300.0
+margin_bottom = 20.0
+text = " X "
+
+[node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
+margin_top = 24.0
+margin_right = 300.0
+margin_bottom = 28.0
+
+[node name="LabelContextInfo" type="Label" parent="Panel/VBoxContainer"]
+margin_top = 32.0
+margin_right = 300.0
+margin_bottom = 60.0
+size_flags_vertical = 3
+text = ""
+align = 1
+valign = 1
+autowrap = true
+
+[node name="Spacer" type="Control" parent="Panel/VBoxContainer"]
+margin_top = 64.0
+margin_right = 300.0
+margin_bottom = 164.0
+size_flags_vertical = 3
+
+[node name="ActionButtons" type="VBoxContainer" parent="Panel/VBoxContainer"]
+margin_top = 168.0
+margin_right = 300.0
+margin_bottom = 194.0
+custom_constants/separation = 6
+
+[node name="BtnTrade" type="Button" parent="Panel/VBoxContainer/ActionButtons"]
+margin_right = 300.0
+margin_bottom = 26.0
+disabled = true
+text = "Trade"
+
+[node name="BtnCloseBottom" type="Button" parent="Panel/VBoxContainer"]
+margin_top = 198.0
+margin_right = 300.0
+margin_bottom = 218.0
+text = "Close"
+
+[connection signal="pressed" from="Panel/VBoxContainer/HeaderRow/BtnClose" to="." method="_on_BtnClose_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/ActionButtons/BtnTrade" to="." method="_on_BtnTrade_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/BtnCloseBottom" to="." method="_on_BtnClose_pressed"]

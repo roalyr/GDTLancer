@@ -71,6 +71,28 @@ func after_each():
 # === INITIALIZATION ==========================================================
 # =============================================================================
 
+func test_consume_pending_sim_mutations() -> void:
+	GameState.reset_state()
+	GameState.agents["test_npc"] = {
+		"cargo_tag": "EMPTY",
+		"wealth_tag": "BROKE",
+		"character_uid": 123
+	}
+	GameState.pending_sim_mutations.append({
+		"type": "player_npc_trade",
+		"agent_id": "test_npc",
+		"new_cargo_tag": "LOADED",
+		"new_cargo_commodity_id": "commodity_fuel",
+		"wealth_delta": 1,
+		"tick_logged": 1
+	})
+	agent_layer._consume_pending_sim_mutations()
+	var agent = GameState.agents["test_npc"]
+	assert_eq(agent.get("cargo_tag"), "LOADED")
+	assert_eq(agent.get("cargo_commodity_id"), "commodity_fuel")
+	assert_eq(agent.get("wealth_tag"), "COMFORTABLE")
+	assert_eq(GameState.pending_sim_mutations.size(), 0)
+
 func test_initialize_creates_player():
 	agent_layer.initialize_agents()
 	assert_true(GameState.agents.has("player"),

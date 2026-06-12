@@ -89,8 +89,34 @@ func initialize_agents() -> void:
 		print("AgentLayer: Initialized %d agents." % GameState.agents.size())
 
 
+## Consumes and applies pending interactions from the player that require qualitative state changes.
+func _consume_pending_sim_mutations() -> void:
+	for mutation in GameState.pending_sim_mutations:
+		if mutation.get("type") == "player_npc_trade":
+			var agent_id: String = mutation.get("agent_id", "")
+			if not GameState.agents.has(agent_id):
+				continue
+			var agent: Dictionary = GameState.agents[agent_id]
+			
+			agent["cargo_tag"] = mutation.get("new_cargo_tag", agent.get("cargo_tag", "EMPTY"))
+			if agent["cargo_tag"] == "LOADED":
+				agent["cargo_commodity_id"] = mutation.get("new_cargo_commodity_id", "")
+			elif agent.has("cargo_commodity_id"):
+				agent.erase("cargo_commodity_id")
+			
+			var delta: int = mutation.get("wealth_delta", 0)
+			if delta > 0:
+				_wealth_step_up(agent)
+			elif delta < 0:
+				_wealth_step_down(agent)
+				
+	GameState.pending_sim_mutations.clear()
+
+
 ## Processes all Agent-layer logic for one tick.
 func process_tick(config: Dictionary) -> void:
+	_consume_pending_sim_mutations()
+	
 	_rng = RandomNumberGenerator.new()
 	_rng.seed = hash(str(GameState.world_seed) + ":" + str(GameState.sim_tick_count))
 
