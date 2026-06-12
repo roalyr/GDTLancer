@@ -148,9 +148,9 @@ func test_station_menu_service_buttons_show_explicit_trade_feedback_and_do_not_c
 	station_menu.open_for_current_dock()
 	station_menu._on_trade_pressed()
 	var market_section = station_menu.get_node("Panel/VBoxContainer/MarketSection")
-	assert_true(
+	assert_false(
 		market_section.visible,
-		"Trade should toggle visibility of the market section."
+		"Trade should not make the market section visible since standalone trading is deprecated."
 	)
 
 	station_menu._on_contracts_pressed()

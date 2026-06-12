@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_character_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_2; TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-11 15:53:00
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 22:36:42
 
 extends GutTest
 
@@ -80,22 +80,7 @@ func test_credits_clamping():
 	assert_eq(GameState.characters[PLAYER_UID].credits, 0, "Credits should be clamped to 0 on negative mutation.")
 
 
-func test_fp_management():
-	# Test adding FP
-	character_system_instance.add_fp(PLAYER_UID, 2)
-	assert_eq(GameState.characters[PLAYER_UID].focus_points, 2, "FP should be 2 after adding.")
-
-	# Test subtracting FP
-	character_system_instance.subtract_fp(PLAYER_UID, 1)
-	assert_eq(GameState.characters[PLAYER_UID].focus_points, 1, "FP should be 1 after subtracting.")
-
-	# Test clamping when adding too much
-	character_system_instance.add_fp(PLAYER_UID, Constants.FOCUS_MAX_DEFAULT + 5)
-	assert_eq(GameState.characters[PLAYER_UID].focus_points, Constants.FOCUS_MAX_DEFAULT, "FP should be clamped to max value.")
-
-	# Test clamping when subtracting too much
-	character_system_instance.subtract_fp(PLAYER_UID, Constants.FOCUS_MAX_DEFAULT + 5)
-	assert_eq(GameState.characters[PLAYER_UID].focus_points, 0, "FP should be clamped to 0.")
+# NOTE: GDD REVISION - test_fp_management was pruned as focus points are no longer featured.
 
 
 func test_skill_retrieval():

@@ -1,14 +1,15 @@
 # PROJECT: GDTLancer
 # MODULE: character_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-11 00:55:00
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 22:36:42
 
 extends Node
 
 
 ## CharacterSystem: Stateless API for character data management.
-## Provides credits, FP, and skill operations on CharacterTemplate instances in GameState.
+## Provides credits and skill operations on CharacterTemplate instances in GameState.
+
 
 
 func _ready():
@@ -61,9 +62,8 @@ func create_character(template_id: String) -> int:
 				max_uid = k_int + 1
 	var char_uid = max_uid
 
-	# Populate initial credits and focus points based on the template
+	# Populate initial credits based on the template (focus_points is pruned for GDD revision)
 	new_character.credits = template.credits
-	new_character.focus_points = template.focus_points
 
 	# Store in GameState
 	GameState.characters[char_uid] = new_character
@@ -97,30 +97,8 @@ func get_credits(character_uid) -> int:
 	return 0
 
 
-func add_fp(character_uid, amount: int):
-	if GameState.characters.has(character_uid):
-		var character = GameState.characters[character_uid]
-		character.focus_points += amount
-		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
-		# If this change was for the player, announce it.
-		if str(character_uid) == str(GameState.player_character_uid):
-			EventBus.emit_signal("player_fp_changed", character.focus_points)
-
-
-func subtract_fp(character_uid, amount: int):
-	if GameState.characters.has(character_uid):
-		var character = GameState.characters[character_uid]
-		character.focus_points -= amount
-		character.focus_points = clamp(character.focus_points, 0, Constants.FOCUS_MAX_DEFAULT)
-		# If this change was for the player, announce it.
-		if str(character_uid) == str(GameState.player_character_uid):
-			EventBus.emit_signal("player_fp_changed", character.focus_points)
-
-
-func get_fp(character_uid) -> int:
-	if GameState.characters.has(character_uid):
-		return GameState.characters[character_uid].focus_points
-	return 0
+# NOTE: GDD REVISION - Focus points management functions (add_fp, subtract_fp, get_fp) 
+# have been removed as focus points are dropped in favor of direct qualitative mechanics.
 
 
 func get_skill_level(character_uid, skill_name: String) -> int:

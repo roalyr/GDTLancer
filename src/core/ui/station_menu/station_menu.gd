@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_3; commodity_classification_architecture.md §6
-# LOG_REF: 2026-06-06 00:55:00
-#
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 23:00:00
 
 extends Control
 
@@ -56,6 +54,9 @@ func _ready() -> void:
 	_btn_undock.connect("pressed", self, "_on_undock_pressed")
 	_btn_trade.connect("pressed", self, "_on_trade_pressed")
 	_btn_contracts.connect("pressed", self, "_on_contracts_pressed")
+
+	# NOTE: GDD REVISION - Hiding/disabling the deprecated trade button.
+	_btn_trade.visible = false
 
 
 # =============================================================================
@@ -115,26 +116,8 @@ func _on_close_pressed() -> void:
 
 
 func _on_trade_pressed() -> void:
-	var has_lawful = _location_offers_service(_current_location_id, "trade")
-	var has_black = _location_offers_service(_current_location_id, "black_market")
-	if not has_lawful and not has_black:
-		_show_deferred_service_feedback(
-			"Trade",
-			"trade",
-			"Trade is not offered at this dock."
-		)
-		if is_instance_valid(_market_section):
-			_market_section.visible = false
-		return
-
-	if is_instance_valid(_market_section):
-		_market_section.visible = not _market_section.visible
-		if _market_section.visible:
-			_service_status_message = ""
-			_update_market_ui()
-		else:
-			_service_status_message = ""
-		_update_info_label()
+	# NOTE: GDD REVISION - Standalone trading is deprecated/dropped.
+	pass
 
 
 func _on_contracts_pressed() -> void:

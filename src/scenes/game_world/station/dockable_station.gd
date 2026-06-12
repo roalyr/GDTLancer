@@ -2,11 +2,16 @@
 ## PROJECT: GDTLancer
 ## MODULE: dockable_station.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.4, TACTICAL_TODO.md §TASK_1
-## LOG_REF: 2026-05-09 20:56:15
+## TRUTH_LINK: gameplay_milestone_audit.md
+## LOG_REF: 2026-06-12 23:00:00
 ##
 
 extends StaticBody
+
+# NOTE: GDD REVISION - Stations as physical dockable bodies within a sector are being deprecated.
+# In the upcoming TTRPG-like simulation model, sectors themselves are treated as dockables,
+# rather than nested stations. Players dock directly to the sector to access services.
+# This StaticBody entity is maintained for physical/visual reference and collision compatibility.
 
 export var location_id: String = "sector_star_elace"
 export var station_name: String = "Elace System"

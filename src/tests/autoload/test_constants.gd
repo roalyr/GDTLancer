@@ -1,6 +1,8 @@
-# File: tests/autoload/test_constants.gd
-# GUT Test Script for Constants.gd Autoload
-# Version: 1.1 - Updated for ActionApproach thresholds
+# PROJECT: GDTLancer
+# MODULE: test_constants.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 22:36:42
 
 extends GutTest
 
@@ -29,10 +31,7 @@ func test_action_approach_enum_exists():
 	prints("Tested ActionApproach Enum")
 
 
-func test_focus_constants():
-	assert_eq(Constants.FOCUS_MAX_DEFAULT, 3, "Default Max Focus check")
-	assert_eq(Constants.FOCUS_BOOST_PER_POINT, 1, "Focus boost per point check")
-	prints("Tested Focus Constants")
+# NOTE: GDD REVISION - test_focus_constants was pruned as focus points are no longer featured.
 
 
 func test_core_scene_paths_exist():

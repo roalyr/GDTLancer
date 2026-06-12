@@ -1392,6 +1392,9 @@ func _can_agent_trade_commodity(agent: Dictionary, commodity_id: String, locatio
 		return ok_lawful or ok_black
 
 
+# --- GDD REVISION: TRADER LOGIC BLOCK (To be extracted) ---
+# NOTE: GDD REVISION - NPC dock-market trade simplified to qualitative tag flips and market quantity adjustments.
+# Numeric credits and dual-currency (specie) mutations have been stripped.
 func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: String) -> bool:
 	var location_id := sector_id
 	if not GameState.locations.has(location_id) and GameState.locations.has("station_" + sector_id):
@@ -1440,31 +1443,8 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 			"sell_price": 40
 		}
 
-	var base_sell_price = int(market_inventory[commodity_id].get("sell_price", 0))
-	var quantity = int(market_inventory[commodity_id].get("quantity", 0))
-	var category = Constants.COMMODITY_CLASSIFICATION.get(commodity_id, "RAW")
-	var sector_tags = GameState.sector_tags.get(sector_id, [])
-	var level = Constants.get_economy_level_for_category(sector_tags, category)
-	var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
-	var sell_price = Constants.get_dynamic_price(base_sell_price, quantity, baseline)
-
-	var payer_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
-	var payee_tags: Array = Array(agent.get("sentiment_tags", []))
-	var instrument: String = _resolve_payment_instrument(payer_tags, payee_tags)
-
-	if instrument == "specie":
-		var station_specie = 0
-		if market_inventory.has("commodity_specie"):
-			station_specie = int(market_inventory["commodity_specie"].get("quantity", 0))
-		if station_specie < 1:
-			return false
-
 	# Mutate market quantity
 	market_inventory[commodity_id]["quantity"] += 1
-
-	if instrument == "specie":
-		if market_inventory.has("commodity_specie"):
-			market_inventory["commodity_specie"]["quantity"] -= 1
 
 	# Mutate agent cargo and wealth
 	agent["cargo_tag"] = "EMPTY"
@@ -1472,23 +1452,10 @@ func _attempt_npc_market_sell(agent_id: String, agent: Dictionary, sector_id: St
 		agent.erase("cargo_commodity_id")
 	_wealth_step_up(agent)
 
-	# Quantitative inventory and credit mutations for NPC parity
-	var character_uid = _get_character_uid(agent)
-
-	if character_uid != -1:
-		var char_sys = GlobalRefs.character_system
-		var inv_sys = GlobalRefs.inventory_system
-		if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
-			if instrument == "credits":
-				char_sys.add_credits(character_uid, sell_price)
-			else: # specie
-				inv_sys.add_asset(character_uid, 2, "commodity_specie", 1)
-			inv_sys.remove_asset(character_uid, 2, commodity_id, 1)
-
 	# Log NPC dock-trade event
 	_log_event(agent_id, "npc_dock_trade", sector_id, {
 		"commodity_id": commodity_id,
-		"price": sell_price,
+		"price": 0, # NOTE: GDD REVISION - Numeric price is now dummy/abstract
 		"quantity": market_inventory[commodity_id]["quantity"],
 		"action_type": "sell"
 	})
@@ -1528,42 +1495,12 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	available_commodities.sort()
 
 	var bought_commodity_id = ""
-	var buy_price = 0
 	if not available_commodities.empty():
 		var idx: int = _rng.randi() % available_commodities.size()
 		bought_commodity_id = available_commodities[idx]
-		
-		var base_buy_price = int(market_inventory[bought_commodity_id].get("buy_price", 0))
-		var quantity = int(market_inventory[bought_commodity_id].get("quantity", 0))
-		var category = Constants.COMMODITY_CLASSIFICATION.get(bought_commodity_id, "RAW")
-		var sector_tags = GameState.sector_tags.get(sector_id, [])
-		var level = Constants.get_economy_level_for_category(sector_tags, category)
-		var baseline = Constants.get_tag_aware_baseline_quantity(category, level)
-		buy_price = Constants.get_dynamic_price(base_buy_price, quantity, baseline)
 
 	if bought_commodity_id == "" or not _can_agent_trade_commodity(agent, bought_commodity_id, location_id):
 		return false
-
-	var payer_tags: Array = Array(agent.get("sentiment_tags", []))
-	var payee_tags: Array = Array(GameState.sector_tags.get(sector_id, []))
-	var instrument: String = _resolve_payment_instrument(payer_tags, payee_tags)
-
-	# Enforce numeric gating if the NPC has a valid character UID
-	var character_uid_check = _get_character_uid(agent)
-
-	if character_uid_check != -1:
-		if instrument == "credits":
-			var char_sys = GlobalRefs.character_system
-			if is_instance_valid(char_sys):
-				var current_credits = int(char_sys.get_credits(character_uid_check))
-				if current_credits < buy_price:
-					return false
-		else: # specie
-			var inv_sys = GlobalRefs.inventory_system
-			if is_instance_valid(inv_sys):
-				var current_specie = inv_sys.get_asset_count(character_uid_check, 2, "commodity_specie")
-				if current_specie < 1:
-					return false
 
 	# Mutate market quantity
 	market_inventory[bought_commodity_id]["quantity"] -= 1
@@ -1573,35 +1510,16 @@ func _attempt_npc_market_buy(agent_id: String, agent: Dictionary, sector_id: Str
 	agent["cargo_commodity_id"] = bought_commodity_id
 	_wealth_step_down(agent)
 
-	# Quantitative inventory and credit mutations for NPC parity
-	var character_uid = character_uid_check
-
-	if character_uid != -1:
-		var char_sys = GlobalRefs.character_system
-		var inv_sys = GlobalRefs.inventory_system
-		if is_instance_valid(char_sys) and is_instance_valid(inv_sys):
-			if instrument == "credits":
-				char_sys.subtract_credits(character_uid, buy_price)
-			else: # specie
-				inv_sys.remove_asset(character_uid, 2, "commodity_specie", 1)
-				if not market_inventory.has("commodity_specie"):
-					market_inventory["commodity_specie"] = {
-						"quantity": 0,
-						"buy_price": 50,
-						"sell_price": 40
-					}
-				market_inventory["commodity_specie"]["quantity"] += 1
-			inv_sys.add_asset(character_uid, 2, bought_commodity_id, 1)
-
 	# Log NPC dock-trade event
 	_log_event(agent_id, "npc_dock_trade", sector_id, {
 		"commodity_id": bought_commodity_id,
-		"price": buy_price,
+		"price": 0, # NOTE: GDD REVISION - Numeric price is now dummy/abstract
 		"quantity": market_inventory[bought_commodity_id]["quantity"],
 		"action_type": "buy"
 	})
 
 	return true
+# --- END GDD REVISION: TRADER LOGIC BLOCK ---
 
 
 # =============================================================================
@@ -2750,28 +2668,9 @@ func _get_character_uid(agent: Dictionary) -> int:
 
 
 func _resolve_payment_instrument(payer_tags: Array, payee_tags: Array) -> String:
-	var payer_has_faction := false
-	var payee_has_faction := false
-	
-	for tag in payer_tags:
-		var t = str(tag)
-		if t.begins_with("FACTION_") and t != "FACTION_UNALIGNED":
-			payer_has_faction = true
-			break
-			
-	for tag in payee_tags:
-		var t = str(tag)
-		if t.begins_with("FACTION_") and t != "FACTION_UNALIGNED":
-			payee_has_faction = true
-			break
-			
-	if not payer_has_faction or not payee_has_faction:
-		return "specie"
-		
-	var affinity: float = affinity_matrix.compute_affinity(payer_tags, payee_tags)
-	if affinity >= Constants.CREDIT_TRUST_THRESHOLD:
-		return "credits"
-	return "specie"
+	# NOTE: GDD REVISION - Dual-currency routing has been pruned.
+	# We revert to a unified abstract wealth metric (credits) aligned with qualitative TTRPG/Ironsworn mechanics.
+	return "credits"
 
 
 func _agent_legality_tag(tags: Array) -> String:

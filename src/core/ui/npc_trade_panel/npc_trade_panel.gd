@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: npc_trade_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_009
-# LOG_REF: 2026-06-12 01:00:00
-#
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 23:00:00
 
 extends Control
 
@@ -37,10 +35,11 @@ func _ready() -> void:
 # --- Public API ---
 
 func open_for_agent(agent_id: String, target_node: Spatial) -> void:
+	# NOTE: GDD REVISION - Standalone trading is deprecated/dropped in favor of unified contracts.
+	# The trade panel remains permanently hidden.
 	_current_agent_id = agent_id
 	_current_target = target_node
-	_refresh_ui()
-	visible = true
+	visible = false
 
 func _on_BtnClose_pressed() -> void:
 	visible = false
@@ -132,84 +131,10 @@ func _refresh_ui() -> void:
 
 
 func _on_BtnBuyCargo_pressed() -> void:
-	if _npc_commodity_id == "": return
-	
-	var player_uid = int(GameState.player_character_uid)
-	var char_sys = GlobalRefs.character_system
-	var inv_sys = GlobalRefs.inventory_system
-	if not is_instance_valid(char_sys) or not is_instance_valid(inv_sys): return
-	
-	if _payment_instrument == "credits":
-		var p_creds = char_sys.get_credits(player_uid)
-		if p_creds < _trade_price:
-			EventBus.emit_signal("interact_action_feedback", false, "Insufficient credits.")
-			return
-		char_sys.subtract_credits(player_uid, _trade_price)
-		if _npc_char_uid != -1:
-			char_sys.add_credits(_npc_char_uid, _trade_price)
-	else:
-		var p_spec = inv_sys.get_asset_count(player_uid, 2, "commodity_specie")
-		if p_spec < 1:
-			EventBus.emit_signal("interact_action_feedback", false, "Insufficient specie.")
-			return
-		inv_sys.remove_asset(player_uid, 2, "commodity_specie", 1)
-		if _npc_char_uid != -1:
-			inv_sys.add_asset(_npc_char_uid, 2, "commodity_specie", 1)
-			
-	inv_sys.add_asset(player_uid, 2, _npc_commodity_id, 1)
-	if _npc_char_uid != -1:
-		inv_sys.remove_asset(_npc_char_uid, 2, _npc_commodity_id, 1)
-		
-	GameState.pending_sim_mutations.append({
-		"type": "player_npc_trade",
-		"agent_id": _current_agent_id,
-		"new_cargo_tag": "EMPTY",
-		"new_cargo_commodity_id": "",
-		"wealth_delta": 1,
-		"tick_logged": GameState.sim_tick_count
-	})
-	
-	EventBus.emit_signal("interact_action_feedback", true, "Bought " + _npc_commodity_id + ".")
-	_refresh_ui()
+	# NOTE: GDD REVISION - Standalone trading is deprecated/dropped.
+	pass
 
 
 func _on_BtnSellCargo_pressed() -> void:
-	if _player_commodity_id == "": return
-	
-	var player_uid = int(GameState.player_character_uid)
-	var char_sys = GlobalRefs.character_system
-	var inv_sys = GlobalRefs.inventory_system
-	if not is_instance_valid(char_sys) or not is_instance_valid(inv_sys): return
-	
-	if _payment_instrument == "credits":
-		var npc_creds = char_sys.get_credits(_npc_char_uid) if _npc_char_uid != -1 else 0
-		if npc_creds < _trade_price and _npc_char_uid != -1:
-			EventBus.emit_signal("interact_action_feedback", false, "NPC cannot afford this.")
-			return
-		if _npc_char_uid != -1:
-			char_sys.subtract_credits(_npc_char_uid, _trade_price)
-		char_sys.add_credits(player_uid, _trade_price)
-	else:
-		var npc_spec = inv_sys.get_asset_count(_npc_char_uid, 2, "commodity_specie") if _npc_char_uid != -1 else 0
-		if npc_spec < 1 and _npc_char_uid != -1:
-			EventBus.emit_signal("interact_action_feedback", false, "NPC has no specie.")
-			return
-		if _npc_char_uid != -1:
-			inv_sys.remove_asset(_npc_char_uid, 2, "commodity_specie", 1)
-		inv_sys.add_asset(player_uid, 2, "commodity_specie", 1)
-		
-	inv_sys.remove_asset(player_uid, 2, _player_commodity_id, 1)
-	if _npc_char_uid != -1:
-		inv_sys.add_asset(_npc_char_uid, 2, _player_commodity_id, 1)
-		
-	GameState.pending_sim_mutations.append({
-		"type": "player_npc_trade",
-		"agent_id": _current_agent_id,
-		"new_cargo_tag": "LOADED",
-		"new_cargo_commodity_id": _player_commodity_id,
-		"wealth_delta": -1,
-		"tick_logged": GameState.sim_tick_count
-	})
-	
-	EventBus.emit_signal("interact_action_feedback", true, "Sold " + _player_commodity_id + ".")
-	_refresh_ui()
+	# NOTE: GDD REVISION - Standalone trading is deprecated/dropped.
+	pass

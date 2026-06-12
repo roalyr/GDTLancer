@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: agent.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §2, §6.1, §6.3
-# LOG_REF: 2026-05-23 17:10:12
-#
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 22:50:00
 
 # File: res://core/agents/agent.gd (Attached to AgentBody RigidBody)
 # Version: 4.0 - RigidBody 6DOF physics with thrust-based flight.
@@ -119,8 +117,8 @@ func _get_movement_params_from_ship() -> Dictionary:
 		}
 
 
-# NOTE: CombatSystem removed — rebuild later on Agent layer.
-# _register_with_combat_system() stub kept for future use.
+# NOTE: GDD REVISION - Combat is disabled until re-imagined from the ground up.
+# This stub is DEPRECATED and should not be used.
 func _register_with_combat_system() -> void:
 	pass
 

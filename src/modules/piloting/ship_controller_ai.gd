@@ -1,10 +1,15 @@
+# PROJECT: GDTLancer
+# MODULE: ship_controller_ai.gd
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 22:50:00
 
-# File: modules/piloting/scripts/ship_controller_ai.gd
 # Attach to Node child of AgentBody in npc_agent.tscn
-# Version 3.0 - Sprint 9: Combat encounter AI state machine
 
 extends Node
 
+# NOTE: GDD REVISION - Combat is disabled until re-imagined from the ground up.
+# Real-time dogfighting is deprecated. States and systems relating to combat are marked as DEPRECATED.
 enum AIState { IDLE, PATROL, COMBAT, FLEE, DISABLED }
 
 # --- Configuration ---
@@ -125,7 +130,8 @@ func _physics_process(delta: float) -> void:
 		AIState.PATROL:
 			_process_patrol(delta)
 		AIState.COMBAT:
-			_process_combat(delta)
+			# DEPRECATED: Combat is disabled. Revert state to PATROL.
+			_change_state(AIState.PATROL)
 		AIState.FLEE:
 			_process_flee(delta)
 		AIState.DISABLED:
@@ -310,19 +316,8 @@ func _process_flee(delta: float) -> void:
 
 
 func _scan_for_target() -> RigidBody:
-	if not is_hostile:
-		return null
-	var player = GlobalRefs.player_agent_body
-	if not is_instance_valid(player) and is_instance_valid(GlobalRefs.world_manager):
-		player = GlobalRefs.world_manager.get("player_agent")
-	if not is_instance_valid(player):
-		return null
-	if not is_instance_valid(agent_script):
-		return null
-
-	var distance = agent_script.global_transform.origin.distance_to(player.global_transform.origin)
-	if distance <= aggro_range:
-		return player
+	# DEPRECATED: Real-time combat scanning is disabled.
+	return null
 	return null
 
 

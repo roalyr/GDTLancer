@@ -1,13 +1,18 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-11 20:09:30
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 22:36:42
 
 extends Node
 
 ## Constants: Global game constants, thresholds, and configuration values.
 ## Centralizes magic numbers for balance tuning and consistency.
+
+# NOTE: GDD REVISION - Inherited from Ironsworn TTRPG mechanics. Focus points, dual-currency routing,
+# and standalone trading markets are being deprecated/removed. Character wealth is reverted to a unified 
+# abstract metric (credits) aligned with qualitative resource flow.
+
 
 const VERBOSE_RUNTIME_LOGS = false
 
@@ -74,10 +79,7 @@ const AI_CONTROLLER_NODE_NAME = "AIController"
 const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 
 # --- Core Mechanics Parameters ---
-const FOCUS_MAX_DEFAULT = 3
-const FOCUS_BOOST_PER_POINT = 1
 const DEFAULT_UPKEEP_COST = 5
-const CREDIT_TRUST_THRESHOLD = 0.3
 
 # --- RigidBody Physics Parameters (6DOF Flight) ---
 # Global drag coefficients - prevent endless acceleration in space

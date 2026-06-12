@@ -1,10 +1,8 @@
-#
 # PROJECT: GDTLancer
 # MODULE: simulation_engine.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Compatibility Constraints; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-04 11:56:52
-#
+# TRUTH_LINK: gameplay_milestone_audit.md
+# LOG_REF: 2026-06-12 23:00:00
 
 extends Node
 
@@ -81,8 +79,9 @@ func _ready() -> void:
 	# Register in GlobalRefs
 	GlobalRefs.simulation_engine = self
 
-	# Simulation ticks are event-driven (dock, undock, sector travel, debug).
-	# Connect to gameplay events that trigger a tick.
+	# NOTE: GDD REVISION - Dock/undock event connections. In the upcoming revision,
+	# dock/undock will no longer produce simulation ticks. Instead, a unified delay-based
+	# ticking mechanism (e.g., every 10 minutes of game time) is planned.
 	if not EventBus.is_connected("player_docked", self, "_on_player_docked"):
 		EventBus.connect("player_docked", self, "_on_player_docked")
 	if not EventBus.is_connected("player_undocked", self, "_on_player_undocked"):
@@ -162,11 +161,15 @@ func _seed_initial_runtime_contract_occurrences() -> void:
 # =============================================================================
 
 ## Signal handler: called when player docks at a station.
+## NOTE: GDD REVISION - This event-driven trigger is deprecated. Ticks will transition
+## to a delay-based timer (e.g., 10-minute game time intervals).
 func _on_player_docked(_location_id) -> void:
 	request_tick()
 
 
 ## Signal handler: called when player undocks from a station.
+## NOTE: GDD REVISION - This event-driven trigger is deprecated. Ticks will transition
+## to a delay-based timer (e.g., 10-minute game time intervals).
 func _on_player_undocked() -> void:
 	request_tick()
 
