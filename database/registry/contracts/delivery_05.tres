@@ -16,7 +16,7 @@ required_commodity_id = "commodity_fuel"
 required_quantity = 15
 target_type = ""
 target_count = 0
-reward_credits = 180
+contract_value_class = "Mid"
 reward_reputation = 5
 reward_items = {
 }

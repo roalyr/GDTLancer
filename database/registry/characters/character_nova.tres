@@ -8,8 +8,6 @@ template_id = "character_nova"
 character_name = "Nova"
 character_icon_id = "character_nova_icon"
 faction_id = "faction_independents"
-credits = 1500
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 2,
@@ -28,5 +26,7 @@ personality_traits = {
 }
 description = "Deep-space explorer, restless."
 goals = [ ]
+wealth_tier = "COMFORTABLE"
+wealth_progress = 0
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "COMFORTABLE"

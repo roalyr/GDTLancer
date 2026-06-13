@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
-# MODULE: agent_contract.gd
+# MODULE: src/core/simulation/agent_layer/agent_contract.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md §3.2, §6.3
-# LOG_REF: 2026-06-13 03:55:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends Reference
@@ -464,11 +464,12 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 		agent.erase("cargo_commodity_id")
 	GameState.player_cargo_tag = "EMPTY"
 
-	var reward_credits: int = int(occurrence.get("reward_credits", 0))
-	if reward_credits > 0 and GlobalRefs.character_system != null and GlobalRefs.character_system.has_method("add_credits"):
+	var value_class: String = str(occurrence.get("contract_value_class", "Low"))
+	var progress_amount: int = Constants.CONTRACT_VALUE_CLASSES.get(value_class, 1)
+	if GlobalRefs.character_system != null and GlobalRefs.character_system.has_method("add_wealth_progress"):
 		var player_character_uid = GameState.player_character_uid
 		if player_character_uid != "":
-			GlobalRefs.character_system.add_credits(player_character_uid, reward_credits)
+			GlobalRefs.character_system.add_wealth_progress(player_character_uid, progress_amount)
 
 	_apply_contract_completion_sector_impact(occurrence, sector_id)
 
@@ -485,7 +486,8 @@ func _complete_player_contract_delivery(agent: Dictionary, occurrence_id: String
 	_agent_layer._log_event("player", "contract_completed", sector_id, {
 		"occurrence_id": occurrence_id,
 		"source_sector_id": str(occurrence.get("source_sector_id", "")),
-		"reward_credits": reward_credits,
+		"contract_value_class": value_class,
+		"progress_amount": progress_amount
 	})
 	return true
 

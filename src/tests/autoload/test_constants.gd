@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 22:36:42
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 00:51:29
 
 extends GutTest
 
@@ -47,3 +47,19 @@ func test_core_node_names_exist():
 	assert_true(Constants.ENTRY_POINT_NAMES is Array, "Entry Point Names should be an Array")
 	assert_true(Constants.ENTRY_POINT_NAMES.size() > 0, "Entry Point Names should not be empty")
 	prints("Tested Core Node Names Existence")
+
+
+func test_qualitative_wealth_constants_exist():
+	assert_eq(Constants.WEALTH_TRACK_MAX, 10, "WEALTH_TRACK_MAX should be 10.")
+	assert_eq(Constants.WEALTH_TIERS.size(), 3, "There should be 3 wealth tiers.")
+	assert_eq(Constants.WEALTH_TIERS["BROKE"], "Broke", "BROKE tier display name.")
+	assert_eq(Constants.WEALTH_TIERS["COMFORTABLE"], "Comfortable", "COMFORTABLE tier display name.")
+	assert_eq(Constants.WEALTH_TIERS["WEALTHY"], "Wealthy", "WEALTHY tier display name.")
+	assert_eq(Constants.WEALTH_MODIFIERS["BROKE"], -2, "Broke modifier should be -2.")
+	assert_eq(Constants.WEALTH_MODIFIERS["COMFORTABLE"], 0, "Comfortable modifier should be 0.")
+	assert_eq(Constants.WEALTH_MODIFIERS["WEALTHY"], 2, "Wealthy modifier should be 2.")
+	assert_eq(Constants.CONTRACT_VALUE_CLASSES.size(), 3, "There should be 3 contract value classes.")
+	assert_eq(Constants.CONTRACT_VALUE_CLASSES["Low"], 1, "Low value class progress increment.")
+	assert_eq(Constants.CONTRACT_VALUE_CLASSES["Mid"], 2, "Mid value class progress increment.")
+	assert_eq(Constants.CONTRACT_VALUE_CLASSES["High"], 3, "High value class progress increment.")
+	prints("Tested Qualitative Wealth Constants")

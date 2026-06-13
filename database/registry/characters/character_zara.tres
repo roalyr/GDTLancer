@@ -8,8 +8,6 @@ template_id = "character_zara"
 character_name = "Zara"
 character_icon_id = "character_zara_icon"
 faction_id = "faction_miners"
-credits = 2000
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 1,
@@ -28,5 +26,7 @@ personality_traits = {
 }
 description = "Survey specialist, maps deposits."
 goals = [ ]
+wealth_tier = "COMFORTABLE"
+wealth_progress = 0
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "COMFORTABLE"

@@ -8,8 +8,6 @@ template_id = "character_vex"
 character_name = "Vex"
 character_icon_id = "character_vex_icon"
 faction_id = "faction_pirates"
-credits = 1800
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 3,
@@ -29,5 +27,7 @@ personality_traits = {
 }
 description = "Cunning smuggler turned pirate."
 goals = [ ]
+wealth_tier = "COMFORTABLE"
+wealth_progress = 0
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "COMFORTABLE"

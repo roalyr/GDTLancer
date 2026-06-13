@@ -1,9 +1,9 @@
 #
 # PROJECT: GDTLancer
 # MODULE: contract_template.gd
-# STATUS: Level 3 - Verified
-# TRUTH_LINK: TRUTH_CONTENT-CREATION-MANUAL.md §3.5; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4; TACTICAL_TODO.md TASK_5
-# LOG_REF: 2026-05-23 23:21:08
+# STATUS: [Level 2 - Implementation]
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends "res://database/definitions/template.gd"
@@ -35,7 +35,7 @@ export var target_type: String = ""    # e.g., "pirate", "hostile"
 export var target_count: int = 0
 
 # Rewards
-export var reward_credits: int = 0
+export var contract_value_class: String = "Low"
 export var reward_reputation: int = 0
 export var reward_items: Dictionary = {}  # template_id -> quantity
 
@@ -73,7 +73,7 @@ func get_summary() -> Dictionary:
 		"title": title,
 		"type": contract_type,
 		"destination": destination_location_id,
-		"reward_credits": reward_credits,
+		"contract_value_class": contract_value_class,
 		"difficulty": difficulty,
 		"has_time_limit": time_limit_seconds > 0
 	}

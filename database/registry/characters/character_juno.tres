@@ -8,8 +8,6 @@ template_id = "character_juno"
 character_name = "Juno"
 character_icon_id = "character_juno_icon"
 faction_id = "traders"
-credits = 500
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 1,
@@ -28,5 +26,7 @@ personality_traits = {
 }
 description = "Young prospector, ambitious."
 goals = [  ]
+wealth_tier = "BROKE"
+wealth_progress = 0
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "BROKE"

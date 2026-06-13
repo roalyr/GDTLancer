@@ -16,7 +16,7 @@ required_commodity_id = "commodity_luxury"
 required_quantity = 3
 target_type = ""
 target_count = 0
-reward_credits = 150
+contract_value_class = "Mid"
 reward_reputation = 2
 reward_items = {
 }

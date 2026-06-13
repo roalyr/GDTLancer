@@ -2,22 +2,22 @@
 # PROJECT: GDTLancer
 # MODULE: database/definitions/character_template.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT-frozen-2026-01-30.md Section 3 (Architecture)
-# LOG_REF: 2026-01-30
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends Template
 class_name CharacterTemplate
 
 ## CharacterTemplate: Resource definition for character instances.
-## Stores name, credits, FP, skills, and active ship reference.
+## Stores name, wealth tier, wealth progress, skills, and active ship reference.
 
 export var character_name: String = "Unnamed"
 export var character_icon_id: String = "character_default_icon"
 export var faction_id: String = "faction_default" # Affiliation
 
-export var credits: int = 0
-export var focus_points: int = 0
+export var wealth_tier: String = "COMFORTABLE"
+export var wealth_progress: int = 0
 export var active_ship_uid: int = -1
 
 export var skills: Dictionary = {

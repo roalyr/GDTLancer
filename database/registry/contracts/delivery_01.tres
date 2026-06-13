@@ -16,7 +16,7 @@ required_commodity_id = "commodity_ore"
 required_quantity = 10
 target_type = ""
 target_count = 0
-reward_credits = 80
+contract_value_class = "Low"
 reward_reputation = 3
 reward_items = {
 }

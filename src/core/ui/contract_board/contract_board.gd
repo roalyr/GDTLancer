@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_board.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3; TACTICAL_TODO.md TASK_3
-# LOG_REF: 2026-05-27 18:18:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends CanvasLayer
@@ -158,14 +158,14 @@ func _occurrence_entry_text(occurrence: Dictionary) -> String:
 	var claimant_agent_id: String = str(occurrence.get("claimant_agent_id", ""))
 	var claimant_display: String = _display_claimant_name(claimant_agent_id)
 	var status_display: String = str(occurrence.get("status", "open")).capitalize().replace("_", " ")
-	var reward_credits: int = int(occurrence.get("reward_credits", 0))
+	var contract_value_class: String = str(occurrence.get("contract_value_class", "Low"))
 	var cargo_tag: String = _display_contract_value(str(occurrence.get("required_cargo_tag", "UNKNOWN_COMMODITY")), "Unknown commodity")
 	var lines: Array = []
 	lines.append("Ref: %s" % occurrence_id)
 	lines.append("TAKE: %s" % cargo_tag)
 	lines.append("FROM: %s" % _sector_display_name(source_sector_id))
 	lines.append("TO: %s" % _sector_display_name(target_sector_id))
-	lines.append("REWARD: %d credits" % reward_credits)
+	lines.append("REWARD: %s Value Class" % contract_value_class)
 	lines.append("Status: %s | Claimant: %s" % [status_display, claimant_display])
 	lines.append("Backing: %s" % _occurrence_backing_text(occurrence))
 	lines.append("Next: %s" % _occurrence_next_action_text(occurrence))

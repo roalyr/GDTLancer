@@ -1,12 +1,12 @@
 # PROJECT: GDTLancer
 # MODULE: test_character_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 22:36:42
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 
 extends GutTest
 
-## Unit tests for CharacterSystem: credits, FP, and skill management operations.
+## Unit tests for CharacterSystem: wealth tier, progress, and skill management operations.
 
 # --- Test Subjects ---
 const CharacterSystem = preload("res://src/core/systems/character_system.gd")
@@ -31,13 +31,16 @@ func before_each():
 
 	# 3. Create and register a player character instance in GameState
 	var player_char_instance = default_char_template.duplicate()
-	player_char_instance.credits = 100 # Start with some money for tests
+	player_char_instance.wealth_tier = "COMFORTABLE"
+	player_char_instance.wealth_progress = 5
 	GameState.characters[PLAYER_UID] = player_char_instance
 	GameState.player_character_uid = str(PLAYER_UID)
 
 	# 4. Create and register an NPC character instance for multi-character tests
 	var npc_char_instance = default_char_template.duplicate()
 	npc_char_instance.character_name = "Test NPC"
+	npc_char_instance.wealth_tier = "BROKE"
+	npc_char_instance.wealth_progress = 2
 	GameState.characters[NPC_UID] = npc_char_instance
 
 	# 5. Instantiate the system we are testing
@@ -60,27 +63,62 @@ func test_get_player_character():
 	assert_eq(player_char, GameState.characters[PLAYER_UID], "Should return the correct player character instance from GameState.")
 
 
-func test_credits_management():
-	# Test adding credits
-	character_system_instance.add_credits(PLAYER_UID, 50)
-	assert_eq(GameState.characters[PLAYER_UID].credits, 150, "Credits should be 150 after adding 50.")
+func test_wealth_management():
+	# Test adding wealth progress
+	character_system_instance.add_wealth_progress(PLAYER_UID, 3)
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 8, "Wealth progress should be 8.")
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "COMFORTABLE", "Wealth tier should remain Comfortable.")
 
-	# Test subtracting credits
-	character_system_instance.subtract_credits(PLAYER_UID, 25)
-	assert_eq(GameState.characters[PLAYER_UID].credits, 125, "Credits should be 125 after subtracting 25.")
-
-	# Test getting credits
-	assert_eq(character_system_instance.get_credits(PLAYER_UID), 125, "get_credits should return the correct value.")
-
-
-func test_credits_clamping():
-	# Start a character with 100 credits, subtract 150, assert that the remaining balance is 0 rather than -50
-	GameState.characters[PLAYER_UID].credits = 100
-	character_system_instance.subtract_credits(PLAYER_UID, 150)
-	assert_eq(GameState.characters[PLAYER_UID].credits, 0, "Credits should be clamped to 0 on negative mutation.")
+	# Test subtracting wealth progress
+	character_system_instance.subtract_wealth_progress(PLAYER_UID, 4)
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 4, "Wealth progress should be 4.")
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "COMFORTABLE", "Wealth tier should remain Comfortable.")
 
 
-# NOTE: GDD REVISION - test_fp_management was pruned as focus points are no longer featured.
+func test_promotion_wrap_around():
+	# Comfortable 5 + 5 = Wealthy 0
+	character_system_instance.add_wealth_progress(PLAYER_UID, 5)
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "WEALTHY", "Promotion to Wealthy tier.")
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 0, "Progress should wrap to 0.")
+
+	# Comfortable 5 + 6 = Wealthy 1 (wrapped over)
+	# Reset
+	GameState.characters[PLAYER_UID].wealth_tier = "COMFORTABLE"
+	GameState.characters[PLAYER_UID].wealth_progress = 5
+	character_system_instance.add_wealth_progress(PLAYER_UID, 6)
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "WEALTHY", "Promotion to Wealthy tier.")
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 1, "Progress should wrap to 1.")
+
+
+func test_demotion_wrap_around():
+	# Comfortable 5 - 6 = Broke 10
+	character_system_instance.subtract_wealth_progress(PLAYER_UID, 6)
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "BROKE", "Demotion to Broke tier.")
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 10, "Progress should wrap to 10 (Comfortable 0 -> Broke 10).")
+
+	# Comfortable 5 - 7 = Broke 9
+	# Reset
+	GameState.characters[PLAYER_UID].wealth_tier = "COMFORTABLE"
+	GameState.characters[PLAYER_UID].wealth_progress = 5
+	character_system_instance.subtract_wealth_progress(PLAYER_UID, 7)
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "BROKE", "Demotion to Broke tier.")
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 9, "Progress should wrap to 9.")
+
+
+func test_wealth_clamping_at_boundaries():
+	# Wealthy 10 + 5 should stay Wealthy 10
+	GameState.characters[PLAYER_UID].wealth_tier = "WEALTHY"
+	GameState.characters[PLAYER_UID].wealth_progress = 10
+	character_system_instance.add_wealth_progress(PLAYER_UID, 5)
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "WEALTHY", "Stays Wealthy.")
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 10, "Clamped to 10.")
+
+	# Broke 0 - 5 should stay Broke 0
+	GameState.characters[PLAYER_UID].wealth_tier = "BROKE"
+	GameState.characters[PLAYER_UID].wealth_progress = 0
+	character_system_instance.subtract_wealth_progress(PLAYER_UID, 5)
+	assert_eq(character_system_instance.get_wealth_tier(PLAYER_UID), "BROKE", "Stays Broke.")
+	assert_eq(character_system_instance.get_wealth_progress(PLAYER_UID), 0, "Clamped to 0.")
 
 
 func test_skill_retrieval():
@@ -92,7 +130,7 @@ func test_skill_retrieval():
 
 
 func test_apply_upkeep_cost():
-	var initial_credits = character_system_instance.get_credits(PLAYER_UID)
-	character_system_instance.apply_upkeep_cost(PLAYER_UID, 10)
-	var final_credits = character_system_instance.get_credits(PLAYER_UID)
-	assert_eq(final_credits, initial_credits - 10, "Upkeep cost should correctly subtract Credits.")
+	var initial_progress = character_system_instance.get_wealth_progress(PLAYER_UID)
+	character_system_instance.apply_upkeep_cost(PLAYER_UID, 3)
+	var final_progress = character_system_instance.get_wealth_progress(PLAYER_UID)
+	assert_eq(final_progress, initial_progress - 3, "Upkeep cost should correctly subtract wealth progress.")

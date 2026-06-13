@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.3, §3.4, §6.3, §6.4; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-06 00:20:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends Reference
@@ -178,8 +178,8 @@ func _merge_existing_occurrence_state(occurrence: Dictionary, previous_occurrenc
 		occurrence["player_displayable"] = bool(previous_occurrence.get("player_displayable", true))
 	if previous_occurrence.has("required_cargo_tag"):
 		occurrence["required_cargo_tag"] = str(previous_occurrence.get("required_cargo_tag", ""))
-	if previous_occurrence.has("reward_credits"):
-		occurrence["reward_credits"] = int(previous_occurrence.get("reward_credits", 0))
+	if previous_occurrence.has("contract_value_class"):
+		occurrence["contract_value_class"] = str(previous_occurrence.get("contract_value_class", "Low"))
 	if previous_occurrence.has("source_reserved"):
 		occurrence["source_reserved"] = bool(previous_occurrence.get("source_reserved", false))
 	if previous_occurrence.has("payment_reserved"):
@@ -340,7 +340,7 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 	var target_label: String = _sector_label(target_sector_id)
 	var required_cargo_tag: String = _cargo_tag_for_category(category)
 	# UI-facing reward metadata for player contract board; does not drive CA economy simulation.
-	var reward_credits: int = _calculate_reward_credits(category, route_hops)
+	var contract_value_class: String = _calculate_contract_value_class(category, route_hops)
 	var commodity_id: String = Constants.get_random_commodity_for_category(category, _rng)
 	if commodity_id == "":
 		commodity_id = "commodity_default"
@@ -370,7 +370,7 @@ func _build_occurrence(occurrence_id: String, target_sector_id: String, category
 		"description": "%s demand in %s can be relieved from %s." % [category_label, target_label, source_label],
 		"player_displayable": true,
 		"required_cargo_tag": required_cargo_tag,
-		"reward_credits": reward_credits,
+		"contract_value_class": contract_value_class,
 		"source_reserved": false,
 		"payment_reserved": false,
 		"cargo_picked_up": false,
@@ -433,19 +433,13 @@ func _cargo_tag_for_category(category: String) -> String:
 			return "UNKNOWN_COMMODITY"
 
 
-func _calculate_reward_credits(category: String, route_hops: int) -> int:
-	var base_reward: int = 0
-	match category:
-		"RAW":
-			base_reward = 100
-		"MANUFACTURED":
-			base_reward = 150
-		"CURRENCY":
-			base_reward = 200
-		_:
-			base_reward = 50
-	var distance_bonus: int = route_hops * 25
-	return base_reward + distance_bonus
+func _calculate_contract_value_class(category: String, route_hops: int) -> String:
+	if category == "RAW" and route_hops <= 1:
+		return "Low"
+	elif category == "CURRENCY" or route_hops >= 2:
+		return "High"
+	else:
+		return "Mid"
 
 
 func _register_occurrence_accounting(occurrence: Dictionary, allocated_source_backing: Dictionary, allocated_payment_backing: Dictionary) -> void:

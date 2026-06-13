@@ -142,7 +142,7 @@ func agent_display(agent_id: String) -> String:
 
 
 func resolve_character_name(char_id: String, fallback: String = "") -> String:
-	if char_id == "":
+	if char_id == "" or char_id == "null":
 		return fallback if fallback != "" else "(unnamed)"
 	if GameState.characters.has(char_id):
 		var c = GameState.characters[char_id]

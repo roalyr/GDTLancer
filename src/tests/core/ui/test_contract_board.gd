@@ -2,8 +2,8 @@
 ## PROJECT: GDTLancer
 ## MODULE: test_contract_board.gd
 ## STATUS: [Level 2 - Implementation]
-## TRUTH_LINK: TACTICAL_TODO.md TASK_3
-## LOG_REF: 2026-05-27 18:18:00
+## TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+## LOG_REF: 2026-06-14 01:00:09
 ##
 
 extends "res://addons/gut/test.gd"
@@ -244,7 +244,7 @@ func _make_occurrence(occurrence_id: String, player_displayable: bool) -> Dictio
 		"source_sector_id": "s1",
 		"target_sector_id": "s2",
 		"required_cargo_tag": "RAW_COMMODITY",
-		"reward_credits": 125,
+		"contract_value_class": "Mid",
 		"status": "open",
 		"claimant_agent_id": "",
 		"source_reserved": false,

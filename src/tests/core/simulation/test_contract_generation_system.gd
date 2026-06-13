@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_contract_generation_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TACTICAL_TODO.md TASK_5; TRUTH_SIMULATION-GRAPH.md §6.3, §6.4
-# LOG_REF: 2026-06-06 00:26:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends GutTest
@@ -165,7 +165,7 @@ func test_process_tick_releases_reserved_claim_when_claimant_is_invalid_before_p
 			"last_refreshed_tick": 4,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 			"source_reserved": true,
 			"payment_reserved": true,
 			"cargo_picked_up": false,
@@ -225,7 +225,7 @@ func test_process_tick_releases_prepickup_claim_when_target_sector_is_disabled()
 			"last_refreshed_tick": 4,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 			"source_reserved": true,
 			"payment_reserved": true,
 			"cargo_picked_up": false,
@@ -279,7 +279,7 @@ func test_process_tick_retains_in_transit_occurrence_when_target_sector_is_disab
 			"last_refreshed_tick": 4,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 			"source_reserved": false,
 			"payment_reserved": true,
 			"cargo_picked_up": true,
@@ -323,7 +323,7 @@ func test_process_tick_retains_recent_open_occurrence_for_one_refresh_without_ac
 			"last_refreshed_tick": 4,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 		}
 	}
 
@@ -388,10 +388,10 @@ func test_player_facing_metadata_present_in_generated_occurrences() -> void:
 		"Generated occurrence should have required_cargo_tag field.")
 	assert_eq(raw_contract.get("required_cargo_tag", ""), "RAW_COMMODITY",
 		"required_cargo_tag should be derived from the commodity category.")
-	assert_true(raw_contract.has("reward_credits"),
-		"Generated occurrence should have reward_credits field.")
-	assert_gt(int(raw_contract.get("reward_credits", 0)), 0,
-		"reward_credits should be a positive integer.")
+	assert_true(raw_contract.has("contract_value_class"),
+		"Generated occurrence should have contract_value_class field.")
+	assert_ne(raw_contract.get("contract_value_class", ""), "",
+		"contract_value_class should not be empty.")
 	assert_true(raw_contract.has("completed_at_tick"),
 		"Generated occurrence should have completed_at_tick field.")
 	assert_eq(int(raw_contract.get("completed_at_tick", -2)), -1,
@@ -414,26 +414,14 @@ func test_player_facing_metadata_categorizes_correctly_by_type() -> void:
 		"CURRENCY category should produce CURRENCY_COMMODITY tag.")
 
 
-func test_reward_credits_calculated_by_distance() -> void:
+func test_contract_value_class_calculated_by_distance() -> void:
 	generator.process_tick({})
 
 	var raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
-	var raw_reward: int = int(raw_contract.get("reward_credits", 0))
-	var raw_hops: int = int(raw_contract.get("route_hops", 0))
-	assert_eq(raw_reward, 100 + (raw_hops * 25),
-		"RAW reward should equal base 100 plus 25 per hop.")
-
-	var manufactured_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:MANUFACTURED", {})
-	var manufactured_reward: int = int(manufactured_contract.get("reward_credits", 0))
-	var manufactured_hops: int = int(manufactured_contract.get("route_hops", 0))
-	assert_eq(manufactured_reward, 150 + (manufactured_hops * 25),
-		"MANUFACTURED reward should equal base 150 plus 25 per hop.")
+	assert_eq(raw_contract.get("contract_value_class", ""), "Low", "RAW near source should be Low.")
 
 	var currency_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:CURRENCY", {})
-	var currency_reward: int = int(currency_contract.get("reward_credits", 0))
-	var currency_hops: int = int(currency_contract.get("route_hops", 0))
-	assert_eq(currency_reward, 200 + (currency_hops * 25),
-		"CURRENCY reward should equal base 200 plus 25 per hop.")
+	assert_eq(currency_contract.get("contract_value_class", ""), "High", "CURRENCY source should be High.")
 
 
 func test_player_facing_metadata_survives_generator_refresh() -> void:
@@ -442,7 +430,7 @@ func test_player_facing_metadata_survives_generator_refresh() -> void:
 	var original_raw_contract: Dictionary = GameState.runtime_contract_occurrences.get("runtime_contract:a:RAW", {})
 	var original_displayable: bool = bool(original_raw_contract.get("player_displayable", false))
 	var original_cargo_tag: String = str(original_raw_contract.get("required_cargo_tag", ""))
-	var original_reward: int = int(original_raw_contract.get("reward_credits", 0))
+	var original_value_class: String = str(original_raw_contract.get("contract_value_class", ""))
 
 	GameState.sim_tick_count += 1
 	generator.process_tick({})
@@ -452,8 +440,8 @@ func test_player_facing_metadata_survives_generator_refresh() -> void:
 		"player_displayable should survive generator refresh.")
 	assert_eq(str(refreshed_raw_contract.get("required_cargo_tag", "")), original_cargo_tag,
 		"required_cargo_tag should survive generator refresh.")
-	assert_eq(int(refreshed_raw_contract.get("reward_credits", 0)), original_reward,
-		"reward_credits should survive generator refresh.")
+	assert_eq(str(refreshed_raw_contract.get("contract_value_class", "")), original_value_class,
+		"contract_value_class should survive generator refresh.")
 
 
 func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() -> void:
@@ -490,7 +478,7 @@ func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() ->
 			"last_refreshed_tick": 4,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 			"source_reserved": true,
 			"payment_reserved": true,
 			"cargo_picked_up": true,
@@ -505,8 +493,8 @@ func test_player_facing_metadata_preserved_when_claimed_occurrence_retained() ->
 		"player_displayable should survive claimed occurrence retention.")
 	assert_eq(str(retained_contract.get("required_cargo_tag", "")), "RAW_COMMODITY",
 		"required_cargo_tag should survive claimed occurrence retention.")
-	assert_eq(int(retained_contract.get("reward_credits", 0)), 125,
-		"reward_credits should survive claimed occurrence retention.")
+	assert_eq(str(retained_contract.get("contract_value_class", "")), "Mid",
+		"contract_value_class should survive claimed occurrence retention.")
 	assert_eq(str(retained_contract.get("source_accounting_sector_id", "")), "b",
 		"source_accounting_sector_id should survive claimed occurrence retention.")
 	assert_eq(str(retained_contract.get("payment_accounting_sector_id", "")), "a",
@@ -557,7 +545,7 @@ func test_process_tick_retains_player_in_transit_occurrence_without_active_deman
 			"last_refreshed_tick": 4,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 			"source_reserved": false,
 			"payment_reserved": true,
 			"cargo_picked_up": true,
@@ -600,7 +588,7 @@ func test_completed_occurrence_is_removed_on_next_generator_tick() -> void:
 			"last_refreshed_tick": 5,
 			"player_displayable": true,
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 		}
 	}
 

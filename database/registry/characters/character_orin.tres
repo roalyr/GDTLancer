@@ -8,8 +8,6 @@ template_id = "character_orin"
 character_name = "Orin"
 character_icon_id = "character_orin_icon"
 faction_id = "haulers"
-credits = 2000
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 1,
@@ -29,5 +27,7 @@ personality_traits = {
 }
 description = "Bulk cargo hauler, reliable."
 goals = [ ]
+wealth_tier = "COMFORTABLE"
+wealth_progress = 0
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "COMFORTABLE"

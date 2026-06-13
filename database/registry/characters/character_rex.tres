@@ -8,8 +8,6 @@ template_id = "character_rex"
 character_name = "Rex"
 character_icon_id = "character_rex_icon"
 faction_id = "haulers"
-credits = 800
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 4,
@@ -28,5 +26,7 @@ personality_traits = {
 }
 description = "Freelancer pilot, risky."
 goals = [ ]
+wealth_tier = "BROKE"
+wealth_progress = 0
 initial_condition_tag = "HEALTHY"
 initial_wealth_tag = "BROKE"

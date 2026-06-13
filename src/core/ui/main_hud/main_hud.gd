@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: main_hud.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_005; universe_topology_architecture.md; TACTICAL_TODO.md TASK_2
-# LOG_REF: 2026-06-13 06:40:05
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends Control
@@ -131,8 +131,8 @@ func _ready():
 		):
 			EventBus.connect("player_target_deselected", self, "_on_Player_Target_Deselected")
 
-		if not EventBus.is_connected("player_credits_changed", self, "_on_player_credits_changed"):
-			EventBus.connect("player_credits_changed", self, "_on_player_credits_changed")
+		if not EventBus.is_connected("player_wealth_changed", self, "_on_player_wealth_changed"):
+			EventBus.connect("player_wealth_changed", self, "_on_player_wealth_changed")
 
 		if not EventBus.is_connected("player_fp_changed", self, "_on_player_fp_changed"):
 			EventBus.connect("player_fp_changed", self, "_on_player_fp_changed")
@@ -302,7 +302,7 @@ func _on_game_state_loaded() -> void:
 	call_deferred("_deferred_refresh_player_hull")
 
 
-func _on_player_credits_changed(_new_credits_value = null):
+func _on_player_wealth_changed(_new_tier = null, _new_progress = null):
 	_refresh_player_resources()
 
 

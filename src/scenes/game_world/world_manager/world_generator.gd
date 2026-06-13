@@ -56,11 +56,11 @@ func _apply_player_starting_state() -> void:
 		return
 	if GameState.characters.has(player_uid):
 		var player_char = GameState.characters[player_uid]
-		player_char.credits = 50
-		player_char.focus_points = 3
+		player_char.wealth_tier = "COMFORTABLE"
+		player_char.wealth_progress = 0
 		if EventBus:
-			EventBus.emit_signal("player_credits_changed", player_char.credits)
-			EventBus.emit_signal("player_fp_changed", player_char.focus_points)
+			EventBus.emit_signal("player_wealth_changed", player_char.wealth_tier, player_char.wealth_progress)
+			EventBus.emit_signal("player_credits_changed", player_char.wealth_progress)
 
 	# Starting cargo should be empty for the player.
 	if GameState.inventories.has(player_uid):

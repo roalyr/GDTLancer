@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 22:36:42
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 00:51:29
 
 extends Node
 
@@ -177,6 +177,27 @@ const TARGETING_RAY_LENGTH = 1e7
 # =============================================================================
 # === QUALITATIVE SIMULATION ==================================================
 # =============================================================================
+
+# --- Qualitative Wealth System ---
+const WEALTH_TRACK_MAX = 10
+
+const WEALTH_TIERS = {
+	"BROKE": "Broke",
+	"COMFORTABLE": "Comfortable",
+	"WEALTHY": "Wealthy"
+}
+
+const WEALTH_MODIFIERS = {
+	"BROKE": -2,
+	"COMFORTABLE": 0,
+	"WEALTHY": 2
+}
+
+const CONTRACT_VALUE_CLASSES = {
+	"Low": 1,
+	"Mid": 2,
+	"High": 3
+}
 
 # --- World Age Cycle ---
 const WORLD_AGE_CYCLE: Array = ["PROSPERITY", "DISRUPTION", "RECOVERY"]

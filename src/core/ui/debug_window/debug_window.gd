@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: debug_window.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md; TRUTH_CONSTRAINTS.md §1; TRUTH_CONTENT-CREATION-MANUAL.md §1, §2, §6; TACTICAL_TODO.md TASK_1
-# LOG_REF: 2026-05-27 04:29:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends Control
@@ -32,6 +32,8 @@ func _ready() -> void:
 		debug_button_map_panel.connect("pressed", self, "_on_debug_button_map_panel_pressed")
 	if is_instance_valid(debug_button_contract_board) and not debug_button_contract_board.is_connected("pressed", self, "_on_debug_button_contract_board_pressed"):
 		debug_button_contract_board.connect("pressed", self, "_on_debug_button_contract_board_pressed")
+	if is_instance_valid(debug_label_fp):
+		debug_label_fp.visible = false
 	call_deferred("refresh_debug_window_state")
 
 
@@ -57,16 +59,16 @@ func refresh_debug_window_resources() -> void:
 	if not is_instance_valid(debug_label_credits) or not is_instance_valid(debug_label_fp):
 		return
 	if not is_instance_valid(GlobalRefs.character_system):
-		debug_label_credits.text = "Credits: --"
-		debug_label_fp.text = "Current FP: --"
+		debug_label_credits.text = "Wealth: --"
+		debug_label_fp.text = ""
 		return
 	var player_char = GlobalRefs.character_system.get_player_character()
 	if not is_instance_valid(player_char):
-		debug_label_credits.text = "Credits: --"
-		debug_label_fp.text = "Current FP: --"
+		debug_label_credits.text = "Wealth: --"
+		debug_label_fp.text = ""
 		return
-	debug_label_credits.text = "Credits: " + str(player_char.credits)
-	debug_label_fp.text = "Current FP: " + str(player_char.focus_points)
+	debug_label_credits.text = "Wealth: " + str(player_char.wealth_tier) + " (" + str(player_char.wealth_progress) + "/10)"
+	debug_label_fp.text = ""
 
 
 func refresh_debug_window_time_display() -> void:

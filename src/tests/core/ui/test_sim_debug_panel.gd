@@ -107,10 +107,6 @@ func test_panel_builds_report_controls_without_leaving_live_snapshot_mode() -> v
 		"Report output mode should default to the focused chronicle flow.")
 	assert_eq(_panel_instance._selected_option_value(_panel_instance._focus_mode_option, ""), "world",
 		"Focus mode should default to the world-wide chronicle report.")
-	assert_eq(_panel_instance._selected_option_value(_panel_instance._sort_mode_option, ""), "chronological",
-		"Sort mode should default to chronological order.")
-	assert_eq(_panel_instance._selected_option_value(_panel_instance._detail_level_option, ""), "standard",
-		"Detail level should default to the standard chronicle output.")
 	assert_eq(_panel_instance._btn_run_silent.text, "Run Raw Simulation",
 		"The raw-stream button should advertise the continuous unfiltered logging mode explicitly.")
 	assert_true(_panel_instance._focus_id_option.disabled,
@@ -153,8 +149,6 @@ func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -
 	_panel_instance._focus_mode_option.select(sector_focus_index)
 	_panel_instance._on_focus_mode_selected(sector_focus_index)
 	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_star_elace")
-	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
-	_select_option_by_metadata(_panel_instance._detail_level_option, "verbose")
 
 	_panel_instance._on_run_batch(300)
 
@@ -166,10 +160,10 @@ func test_run_batch_passes_selected_report_request_and_returns_to_live_state() -
 		"SimDebugPanel should forward the selected focus mode to the batch-report request.")
 	assert_eq(str(_engine_double.last_report_request.get("focus_id", "")), "sector_star_elace",
 		"SimDebugPanel should forward the selected focus entity to the batch-report request.")
-	assert_eq(str(_engine_double.last_report_request.get("sort_mode", "")), "agent",
-		"SimDebugPanel should forward the selected sort mode to the batch-report request.")
-	assert_eq(str(_engine_double.last_report_request.get("detail_level", "")), "verbose",
-		"SimDebugPanel should forward the selected detail level to the batch-report request.")
+	assert_eq(str(_engine_double.last_report_request.get("sort_mode", "")), "chronological",
+		"SimDebugPanel should use chronological sort mode.")
+	assert_eq(str(_engine_double.last_report_request.get("detail_level", "")), "standard",
+		"SimDebugPanel should use standard detail level.")
 	assert_true(_panel_instance._showing_report,
 		"Running a batch should switch the panel into report mode.")
 	assert_true(_panel_instance._header_label.text.find("sector:") != -1,
@@ -191,8 +185,6 @@ func test_composite_mode_runs_cumulative_bundle_and_disables_manual_focus_contro
 
 	_select_option_by_metadata(_panel_instance._report_mode_option, "composite")
 	_panel_instance._on_report_mode_selected(_panel_instance._report_mode_option.get_selected())
-	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
-	_select_option_by_metadata(_panel_instance._detail_level_option, "summary")
 
 	assert_true(_panel_instance._focus_mode_option.disabled,
 		"Composite research mode should disable manual focus selection.")
@@ -204,10 +196,10 @@ func test_composite_mode_runs_cumulative_bundle_and_disables_manual_focus_contro
 	var tick_compare = compare_deep([30, 300], _engine_double.last_composite_tick_counts)
 	assert_true(tick_compare.are_equal(),
 		"Composite mode should request the cumulative milestone windows up to the selected button.\n" + tick_compare.summary)
-	assert_eq(str(_engine_double.last_composite_request.get("sort_mode", "")), "agent",
-		"Composite mode should forward the selected sort mode to the composite request.")
-	assert_eq(str(_engine_double.last_composite_request.get("detail_level", "")), "summary",
-		"Composite mode should forward the selected detail level to the composite request.")
+	assert_eq(str(_engine_double.last_composite_request.get("sort_mode", "")), "chronological",
+		"Composite mode should default to chronological sort mode.")
+	assert_eq(str(_engine_double.last_composite_request.get("detail_level", "")), "standard",
+		"Composite mode should default to standard detail level.")
 	assert_true(bool(_engine_double.last_composite_request.get("include_persistent", false)),
 		"Composite mode should include persistent agents in the sampled research request.")
 	assert_true(bool(_engine_double.last_composite_request.get("include_mortal", false)),
@@ -232,8 +224,6 @@ func test_silent_run_starts_continuous_unfiltered_stream_and_keeps_live_snapshot
 	_panel_instance._focus_mode_option.select(sector_focus_index)
 	_panel_instance._on_focus_mode_selected(sector_focus_index)
 	_select_option_by_metadata(_panel_instance._focus_id_option, "sector_star_elace")
-	_select_option_by_metadata(_panel_instance._sort_mode_option, "agent")
-	_select_option_by_metadata(_panel_instance._detail_level_option, "verbose")
 
 	_panel_instance._on_run_silent_pressed()
 

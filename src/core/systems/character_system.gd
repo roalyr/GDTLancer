@@ -1,14 +1,14 @@
 # PROJECT: GDTLancer
 # MODULE: character_system.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 22:36:42
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 
 extends Node
 
 
 ## CharacterSystem: Stateless API for character data management.
-## Provides credits and skill operations on CharacterTemplate instances in GameState.
+## Provides wealth_tier, wealth_progress, and skill operations on CharacterTemplate instances in GameState.
 
 
 
@@ -62,8 +62,9 @@ func create_character(template_id: String) -> int:
 				max_uid = k_int + 1
 	var char_uid = max_uid
 
-	# Populate initial credits based on the template (focus_points is pruned for GDD revision)
-	new_character.credits = template.credits
+	# Populate initial wealth properties
+	new_character.wealth_tier = template.wealth_tier
+	new_character.wealth_progress = template.wealth_progress
 
 	# Store in GameState
 	GameState.characters[char_uid] = new_character
@@ -74,31 +75,76 @@ func create_character(template_id: String) -> int:
 # --- Stat Modification API (Operates on GameState) ---
 
 
-func add_credits(character_uid, amount: int):
+func add_wealth_progress(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
-		GameState.characters[character_uid].credits += amount
+		var char_data = GameState.characters[character_uid]
+		char_data.wealth_progress += amount
+		
+		# Wrap promotion
+		while char_data.wealth_progress >= Constants.WEALTH_TRACK_MAX:
+			if char_data.wealth_tier == "BROKE":
+				char_data.wealth_tier = "COMFORTABLE"
+				char_data.wealth_progress -= Constants.WEALTH_TRACK_MAX
+			elif char_data.wealth_tier == "COMFORTABLE":
+				char_data.wealth_tier = "WEALTHY"
+				char_data.wealth_progress -= Constants.WEALTH_TRACK_MAX
+			elif char_data.wealth_tier == "WEALTHY":
+				char_data.wealth_progress = Constants.WEALTH_TRACK_MAX
+				break
+		
 		# If this change was for the player, announce it.
 		if str(character_uid) == str(GameState.player_character_uid):
-			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
+			EventBus.emit_signal("player_wealth_changed", char_data.wealth_tier, char_data.wealth_progress)
+			EventBus.emit_signal("player_credits_changed", char_data.wealth_progress)
 
 
-func subtract_credits(character_uid, amount: int):
+func subtract_wealth_progress(character_uid, amount: int):
 	if GameState.characters.has(character_uid):
-		var new_credits = GameState.characters[character_uid].credits - amount
-		GameState.characters[character_uid].credits = max(0, new_credits)
+		var char_data = GameState.characters[character_uid]
+		char_data.wealth_progress -= amount
+		
+		# Wrap demotion
+		while char_data.wealth_progress < 0:
+			if char_data.wealth_tier == "WEALTHY":
+				char_data.wealth_tier = "COMFORTABLE"
+				char_data.wealth_progress = Constants.WEALTH_TRACK_MAX + char_data.wealth_progress + 1
+			elif char_data.wealth_tier == "COMFORTABLE":
+				char_data.wealth_tier = "BROKE"
+				char_data.wealth_progress = Constants.WEALTH_TRACK_MAX + char_data.wealth_progress + 1
+			elif char_data.wealth_tier == "BROKE":
+				char_data.wealth_progress = 0
+				break
+				
 		# If this change was for the player, announce it.
 		if str(character_uid) == str(GameState.player_character_uid):
-			EventBus.emit_signal("player_credits_changed", GameState.characters[character_uid].credits)
+			EventBus.emit_signal("player_wealth_changed", char_data.wealth_tier, char_data.wealth_progress)
+			EventBus.emit_signal("player_credits_changed", char_data.wealth_progress)
 
 
-func get_credits(character_uid) -> int:
+func get_wealth_tier(character_uid) -> String:
 	if GameState.characters.has(character_uid):
-		return GameState.characters[character_uid].credits
+		return GameState.characters[character_uid].wealth_tier
+	return "BROKE"
+
+
+func get_wealth_progress(character_uid) -> int:
+	if GameState.characters.has(character_uid):
+		return GameState.characters[character_uid].wealth_progress
 	return 0
 
 
-# NOTE: GDD REVISION - Focus points management functions (add_fp, subtract_fp, get_fp) 
-# have been removed as focus points are dropped in favor of direct qualitative mechanics.
+# --- Legacy Compatibility Shims (Deprecated) ---
+
+func add_credits(character_uid, amount: int):
+	add_wealth_progress(character_uid, amount)
+
+
+func subtract_credits(character_uid, amount: int):
+	subtract_wealth_progress(character_uid, amount)
+
+
+func get_credits(character_uid) -> int:
+	return get_wealth_progress(character_uid)
 
 
 func get_skill_level(character_uid, skill_name: String) -> int:
@@ -109,7 +155,7 @@ func get_skill_level(character_uid, skill_name: String) -> int:
 
 
 func apply_upkeep_cost(character_uid, cost: int):
-	subtract_credits(character_uid, cost)
+	subtract_wealth_progress(character_uid, cost)
 
 # NOTE: The get_player_save_data() and load_player_save_data() functions have been removed.
 # This responsibility is now handled by the GameStateManager, which will serialize and

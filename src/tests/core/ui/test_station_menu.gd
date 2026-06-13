@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_station_menu.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 23:00:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 
 extends "res://addons/gut/test.gd"
 
@@ -58,7 +58,7 @@ func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_
 			"source_sector_id": "sector_star_elace",
 			"target_sector_id": "sector_star_nyx",
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Low",
 			"status": "open",
 			"player_displayable": true,
 		},
@@ -67,7 +67,7 @@ func test_station_menu_has_no_embedded_contract_board_surface_even_when_runtime_
 			"source_sector_id": "sector_star_vidr",
 			"target_sector_id": "sector_star_elace",
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 140,
+			"contract_value_class": "Mid",
 			"status": "open",
 			"player_displayable": true,
 		},
@@ -93,7 +93,7 @@ func test_station_menu_contract_button_opens_remote_contract_board_without_mutat
 			"source_sector_id": "sector_star_elace",
 			"target_sector_id": "sector_star_nyx",
 			"required_cargo_tag": "CURRENCY_COMMODITY",
-			"reward_credits": 225,
+			"contract_value_class": "High",
 			"status": "open",
 			"player_displayable": true,
 			"claimant_agent_id": "",
@@ -140,7 +140,7 @@ func test_station_menu_contract_button_does_not_claim_or_load_when_global_board_
 			"source_sector_id": "sector_star_elace",
 			"target_sector_id": "sector_star_nyx",
 			"required_cargo_tag": "RAW_COMMODITY",
-			"reward_credits": 125,
+			"contract_value_class": "Mid",
 			"status": "open",
 			"player_displayable": true,
 			"claimant_agent_id": "",

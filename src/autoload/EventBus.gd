@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: EventBus.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_GDD-COMBINED-TEXT §3 Architecture & Coding Standards
-# LOG_REF: 2026-05-23 17:10:12
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 00:51:29
 #
 
 extends Node
@@ -53,7 +53,8 @@ signal player_dock_pressed  # Explicit dock button
 signal player_attack_pressed  # Explicit attack button
 signal player_camera_zoom_changed(value)
 signal player_ship_speed_changed(value)
-signal player_credits_changed(new_credits_value)
+signal player_wealth_changed(new_tier, new_progress)
+signal player_credits_changed(new_credits_value) # DEPRECATED: to be removed in UI/System migration tasks
 signal player_fp_changed(new_fp_value)
 
 # --- Zone Loading Signals ---

@@ -8,8 +8,6 @@ template_id = "character_default"
 character_name = "Unnamed"
 character_icon_id = "character_default_icon"
 faction_id = "traders"
-credits = 10000
-focus_points = 0
 active_ship_uid = -1
 skills = {
 "combat": 1,
@@ -22,3 +20,6 @@ faction_standings = {
 }
 character_standings = {
 }
+
+wealth_tier = "COMFORTABLE"
+wealth_progress = 0

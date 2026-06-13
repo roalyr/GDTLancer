@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: npc_trade_panel.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 23:00:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 
 extends Control
 
@@ -70,7 +70,8 @@ func _refresh_ui() -> void:
 		
 	label_npc_name.text = char_name + " — " + role.capitalize()
 	
-	var npc_credits = 0
+	var npc_progress = 0
+	var npc_tier = "BROKE"
 	_npc_commodity_id = agent_state.get("cargo_commodity_id", "")
 	var npc_cargo_text = "Cargo: Empty"
 	if _npc_commodity_id != "":
@@ -81,15 +82,18 @@ func _refresh_ui() -> void:
 	var player_uid = int(GameState.player_character_uid)
 	
 	if _npc_char_uid != -1 and is_instance_valid(char_sys):
-		npc_credits = char_sys.get_credits(_npc_char_uid)
+		npc_progress = char_sys.get_wealth_progress(_npc_char_uid)
+		npc_tier = char_sys.get_wealth_tier(_npc_char_uid)
 		
 	label_npc_cargo.text = npc_cargo_text
-	label_npc_credits.text = "Credits: %d cr" % npc_credits
+	label_npc_credits.text = "Wealth: " + str(npc_tier) + " (" + str(npc_progress) + "/10)"
 	
-	var player_credits = 0
+	var player_progress = 0
+	var player_tier = "COMFORTABLE"
 	if is_instance_valid(char_sys):
-		player_credits = char_sys.get_credits(player_uid)
-	label_player_credits.text = "Your Credits: %d cr" % player_credits
+		player_progress = char_sys.get_wealth_progress(player_uid)
+		player_tier = char_sys.get_wealth_tier(player_uid)
+	label_player_credits.text = "Your Wealth: " + str(player_tier) + " (" + str(player_progress) + "/10)"
 	
 	_player_commodity_id = ""
 	if is_instance_valid(inv_sys):
@@ -122,7 +126,7 @@ func _refresh_ui() -> void:
 		else:
 			_trade_price = 10
 			
-	var price_display = str(_trade_price) + " cr" if _payment_instrument == "credits" else "1 specie"
+	var price_display = str(_trade_price) + " progress" if _payment_instrument == "credits" else "1 specie"
 	label_payment_instrument.text = "Payment: " + _payment_instrument.capitalize()
 	label_trade_price.text = "Price: ~" + price_display
 	

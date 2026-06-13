@@ -36,8 +36,6 @@ var _controls_row: HBoxContainer = null
 var _report_mode_option: OptionButton = null
 var _focus_mode_option: OptionButton = null
 var _focus_id_option: OptionButton = null
-var _sort_mode_option: OptionButton = null
-var _detail_level_option: OptionButton = null
 
 
 # =============================================================================
@@ -61,18 +59,6 @@ const _FOCUS_MODE_ITEMS := [
 	{"label": "World", "value": "world"},
 	{"label": "Sector", "value": "sector"},
 	{"label": "Agent", "value": "agent"},
-]
-
-const _SORT_MODE_ITEMS := [
-	{"label": "Chronological", "value": "chronological"},
-	{"label": "Sector", "value": "sector"},
-	{"label": "Agent", "value": "agent"},
-]
-
-const _DETAIL_LEVEL_ITEMS := [
-	{"label": "Summary", "value": "summary"},
-	{"label": "Standard", "value": "standard"},
-	{"label": "Verbose", "value": "verbose"},
 ]
 
 
@@ -580,20 +566,10 @@ func _build_report_controls() -> void:
 	_focus_id_option = _create_report_option_button("FocusIdOption", 300)
 	_controls_row.add_child(_focus_id_option)
 
-	_add_report_label(_controls_row, "Sort")
-	_sort_mode_option = _create_report_option_button("SortModeOption", 170)
-	_controls_row.add_child(_sort_mode_option)
-
-	_add_report_label(_controls_row, "Detail")
-	_detail_level_option = _create_report_option_button("DetailLevelOption", 150)
-	_controls_row.add_child(_detail_level_option)
-
 
 func _populate_static_report_options() -> void:
 	_populate_option_button(_report_mode_option, _REPORT_MODE_ITEMS, "focused")
 	_populate_option_button(_focus_mode_option, _FOCUS_MODE_ITEMS, "world")
-	_populate_option_button(_sort_mode_option, _SORT_MODE_ITEMS, "chronological")
-	_populate_option_button(_detail_level_option, _DETAIL_LEVEL_ITEMS, "standard")
 
 
 func _refresh_report_controls() -> void:
@@ -653,15 +629,15 @@ func _current_report_request() -> Dictionary:
 	return {
 		"focus_mode": focus_mode,
 		"focus_id": focus_id,
-		"sort_mode": _selected_option_value(_sort_mode_option, "chronological"),
-		"detail_level": _selected_option_value(_detail_level_option, "standard"),
+		"sort_mode": "chronological",
+		"detail_level": "standard",
 	}
 
 
 func _current_composite_request() -> Dictionary:
 	return {
-		"sort_mode": _selected_option_value(_sort_mode_option, "chronological"),
-		"detail_level": _selected_option_value(_detail_level_option, "standard"),
+		"sort_mode": "chronological",
+		"detail_level": "standard",
 		"sector_types": _current_sector_types(),
 		"agent_roles": _current_agent_roles(),
 		"include_persistent": true,

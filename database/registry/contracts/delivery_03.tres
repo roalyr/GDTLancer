@@ -16,7 +16,7 @@ required_commodity_id = "commodity_tech"
 required_quantity = 8
 target_type = ""
 target_count = 0
-reward_credits = 200
+contract_value_class = "Mid"
 reward_reputation = 4
 reward_items = {
 }

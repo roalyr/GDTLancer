@@ -79,10 +79,16 @@ func test_agent_focus_report_supports_requested_focus_and_sort_mode():
 	var agent_ids: Array = GameState.agents.keys()
 	agent_ids.sort()
 	var focus_agent_id: String = ""
+	# Prefer a persistent agent to test the "/10)" wealth progress track formatting
 	for agent_id in agent_ids:
-		if str(agent_id) != "player":
+		if str(agent_id).begins_with("persistent_"):
 			focus_agent_id = str(agent_id)
 			break
+	if focus_agent_id == "":
+		for agent_id in agent_ids:
+			if str(agent_id) != "player":
+				focus_agent_id = str(agent_id)
+				break
 	assert_true(focus_agent_id != "", "A non-player agent should exist for focused reporting.")
 	if focus_agent_id == "":
 		return
@@ -104,8 +110,25 @@ func test_agent_focus_report_supports_requested_focus_and_sort_mode():
 		"Focused report should expose an agent-sorted detailed log section.")
 	assert_true(report.find("Current agent state:") != -1,
 		"Agent-focused reports should include an integral agent-state summary.")
-	assert_true(report.find("0 cr)") != -1,
-		"Agent-focused reports should format the agent's credits.")
+
+	var has_character = false
+	var agent = GameState.agents.get(focus_agent_id, {})
+	var character_uid = -1
+	if agent.has("character_uid") and agent["character_uid"] != null:
+		character_uid = int(agent["character_uid"])
+	elif GameState.persistent_agents.has(focus_agent_id):
+		var p_agent = GameState.persistent_agents[focus_agent_id]
+		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
+			character_uid = int(p_agent["character_uid"])
+	if character_uid != -1 and GameState.characters.has(character_uid):
+		has_character = true
+
+	if has_character:
+		assert_true(report.find("/10)") != -1,
+			"Agent-focused reports should format the agent's wealth progress track.")
+	else:
+		assert_true(report.find("wealth=") != -1,
+			"Agent-focused reports should include the agent's wealth status.")
 
 
 func test_composite_report_collects_requested_windows_with_deterministic_samples():
@@ -205,3 +228,4 @@ func _seed_template_database():
 	var indexer = TemplateIndexer.new()
 	indexer.index_all_templates()
 	indexer.free()
+

@@ -2,8 +2,8 @@
 # PROJECT: GDTLancer
 # MODULE: report_summarizer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
-# LOG_REF: 2026-06-12 23:55:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 #
 
 extends Reference
@@ -258,23 +258,12 @@ func agent_epoch_summary(epoch_events: Array) -> Array:
 	if agent.empty():
 		lines.append("  Current agent state: unavailable for %s." % focus_label)
 	else:
-		var credits: int = 0
-		var character_uid = -1
-		if agent.has("character_uid") and agent["character_uid"] != null:
-			character_uid = int(agent["character_uid"])
-		elif GameState.persistent_agents.has(focus_agent_id):
-			var p_agent = GameState.persistent_agents[focus_agent_id]
-			if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
-				character_uid = int(p_agent["character_uid"])
-		
-		if character_uid != -1 and is_instance_valid(GlobalRefs.character_system):
-			credits = int(GlobalRefs.character_system.get_credits(character_uid))
+		var wealth_display: String = _format_agent_wealth(focus_agent_id, agent, false)
 
-		lines.append("  Current agent state: sector=%s cond=%s wealth=%s (%d cr) cargo=%s goal=%s." % [
+		lines.append("  Current agent state: sector=%s cond=%s wealth=%s cargo=%s goal=%s." % [
 			_formatter.sector_label_with_id(str(agent.get("current_sector_id", ""))),
 			str(agent.get("condition_tag", "?")),
-			str(agent.get("wealth_tag", "?")),
-			credits,
+			wealth_display,
 			str(agent.get("cargo_tag", "?")),
 			str(agent.get("goal_archetype", "none")),
 		])
@@ -406,23 +395,12 @@ func world_summary() -> Array:
 		if agent.get("is_disabled", false):
 			continue
 		var cond: String = str(agent.get("condition_tag", "HEALTHY")).to_lower()
-		var wealth: String = str(agent.get("wealth_tag", "COMFORTABLE")).to_lower()
 		var sector: String = _formatter.loc(str(agent.get("current_sector_id", "")))
 
-		var credits: int = 0
-		var character_uid = -1
-		if agent.has("character_uid") and agent["character_uid"] != null:
-			character_uid = int(agent["character_uid"])
-		elif GameState.persistent_agents.has(agent_id):
-			var p_agent = GameState.persistent_agents[agent_id]
-			if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
-				character_uid = int(p_agent["character_uid"])
-		
-		if character_uid != -1 and is_instance_valid(GlobalRefs.character_system):
-			credits = int(GlobalRefs.character_system.get_credits(character_uid))
+		var wealth_display: String = _format_agent_wealth(agent_id, agent, true)
 
-		lines.append("    %s: %s, %s (%d cr), at %s" % [
-			_formatter.agent_display(agent_id), cond, wealth, credits, sector])
+		lines.append("    %s: %s, %s, at %s" % [
+			_formatter.agent_display(agent_id), cond, wealth_display, sector])
 
 	return lines
 
@@ -472,23 +450,12 @@ func focused_summary() -> Array:
 		if agent.empty():
 			lines.append("  Final agent state: unavailable for %s" % _formatter.actor_label_with_id(focus_id))
 		else:
-			var credits: int = 0
-			var character_uid = -1
-			if agent.has("character_uid") and agent["character_uid"] != null:
-				character_uid = int(agent["character_uid"])
-			elif GameState.persistent_agents.has(focus_id):
-				var p_agent = GameState.persistent_agents[focus_id]
-				if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
-					character_uid = int(p_agent["character_uid"])
-			
-			if character_uid != -1 and is_instance_valid(GlobalRefs.character_system):
-				credits = int(GlobalRefs.character_system.get_credits(character_uid))
+			var wealth_display: String = _format_agent_wealth(focus_id, agent, false)
 
-			lines.append("  Final agent state: sector=%s cond=%s wealth=%s (%d cr) cargo=%s goal=%s" % [
+			lines.append("  Final agent state: sector=%s cond=%s wealth=%s cargo=%s goal=%s" % [
 				_formatter.sector_label_with_id(str(agent.get("current_sector_id", ""))),
 				str(agent.get("condition_tag", "?")),
-				str(agent.get("wealth_tag", "?")),
-				credits,
+				wealth_display,
 				str(agent.get("cargo_tag", "?")),
 				str(agent.get("goal_archetype", "none")),
 			])
@@ -542,3 +509,47 @@ func detect_sector_changes(prev: Dictionary, cur: Dictionary, focus_sector_id: S
 		if not parts.empty():
 			changes.append([_formatter.loc(sid), PoolStringArray(parts).join("; ")])
 	return changes
+
+
+func _format_agent_wealth(agent_id: String, agent: Dictionary, to_lower: bool = false) -> String:
+	var character_key = ""
+	if agent_id == "player":
+		character_key = str(GameState.player_character_uid)
+	elif agent.has("character_uid") and agent["character_uid"] != null:
+		character_key = str(agent["character_uid"])
+	elif GameState.persistent_agents.has(agent_id):
+		var p_agent = GameState.persistent_agents[agent_id]
+		if p_agent != null and p_agent.has("character_uid") and p_agent["character_uid"] != null:
+			character_key = str(p_agent["character_uid"])
+	elif agent.has("character_id") and agent["character_id"] != null:
+		character_key = str(agent["character_id"])
+
+	var has_char_progress = false
+	var w_prog = 0
+	var actual_key = character_key
+	if character_key != "" and is_instance_valid(GlobalRefs.character_system):
+		var exists = GameState.characters.has(character_key)
+		if not exists and character_key.is_valid_integer():
+			var int_key = int(character_key)
+			if GameState.characters.has(int_key):
+				exists = true
+				actual_key = int_key
+		
+		if exists:
+			has_char_progress = true
+			w_prog = GlobalRefs.character_system.get_wealth_progress(actual_key)
+
+	var w_tier = ""
+	if agent_id == "player" and has_char_progress:
+		w_tier = GlobalRefs.character_system.get_wealth_tier(actual_key)
+	else:
+		w_tier = str(agent.get("wealth_tag", "COMFORTABLE"))
+
+	if to_lower:
+		w_tier = w_tier.to_lower()
+
+	if has_char_progress:
+		return "%s (%d/10)" % [w_tier, w_prog]
+	else:
+		return w_tier
+

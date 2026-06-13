@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-11 20:09:30
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
+# LOG_REF: 2026-06-14 01:00:09
 
 extends GutTest
 
@@ -19,32 +19,115 @@ class FakeCharacterSystem:
 
 	var add_credits_calls: Array = []
 	var subtract_credits_calls: Array = []
+	var add_wealth_progress_calls: Array = []
+	var subtract_wealth_progress_calls: Array = []
 
-	func add_credits(character_uid, amount: int) -> void:
+	func add_wealth_progress(character_uid, amount: int) -> void:
+		add_wealth_progress_calls.append({"character_uid": character_uid, "amount": amount})
 		add_credits_calls.append({"character_uid": character_uid, "amount": amount})
 		if GameState.characters.has(character_uid):
-			GameState.characters[character_uid].credits += amount
+			var character = GameState.characters[character_uid]
+			if not character.has("wealth_progress"):
+				character["wealth_progress"] = 0
+			character["wealth_progress"] += amount
+			while character["wealth_progress"] >= 10:
+				var tier = character.get("wealth_tier", "COMFORTABLE")
+				if tier == "BROKE":
+					character["wealth_tier"] = "COMFORTABLE"
+					character["wealth_progress"] -= 10
+				elif tier == "COMFORTABLE":
+					character["wealth_tier"] = "WEALTHY"
+					character["wealth_progress"] -= 10
+				elif tier == "WEALTHY":
+					character["wealth_progress"] = 10
+					break
+			character["credits"] = character["wealth_progress"]
 			return
 		var int_uid: int = int(character_uid)
 		if GameState.characters.has(int_uid):
-			GameState.characters[int_uid].credits += amount
+			var character = GameState.characters[int_uid]
+			if not character.has("wealth_progress"):
+				character["wealth_progress"] = 0
+			character["wealth_progress"] += amount
+			while character["wealth_progress"] >= 10:
+				var tier = character.get("wealth_tier", "COMFORTABLE")
+				if tier == "BROKE":
+					character["wealth_tier"] = "COMFORTABLE"
+					character["wealth_progress"] -= 10
+				elif tier == "COMFORTABLE":
+					character["wealth_tier"] = "WEALTHY"
+					character["wealth_progress"] -= 10
+				elif tier == "WEALTHY":
+					character["wealth_progress"] = 10
+					break
+			character["credits"] = character["wealth_progress"]
 
-	func subtract_credits(character_uid, amount: int) -> void:
+	func subtract_wealth_progress(character_uid, amount: int) -> void:
+		subtract_wealth_progress_calls.append({"character_uid": character_uid, "amount": amount})
 		subtract_credits_calls.append({"character_uid": character_uid, "amount": amount})
 		if GameState.characters.has(character_uid):
-			GameState.characters[character_uid].credits -= amount
+			var character = GameState.characters[character_uid]
+			if not character.has("wealth_progress"):
+				character["wealth_progress"] = 0
+			character["wealth_progress"] -= amount
+			while character["wealth_progress"] < 0:
+				var tier = character.get("wealth_tier", "COMFORTABLE")
+				if tier == "WEALTHY":
+					character["wealth_tier"] = "COMFORTABLE"
+					character["wealth_progress"] = 10 + character["wealth_progress"] + 1
+				elif tier == "COMFORTABLE":
+					character["wealth_tier"] = "BROKE"
+					character["wealth_progress"] = 10 + character["wealth_progress"] + 1
+				elif tier == "BROKE":
+					character["wealth_progress"] = 0
+					break
+			character["credits"] = character["wealth_progress"]
 			return
 		var int_uid: int = int(character_uid)
 		if GameState.characters.has(int_uid):
-			GameState.characters[int_uid].credits -= amount
+			var character = GameState.characters[int_uid]
+			if not character.has("wealth_progress"):
+				character["wealth_progress"] = 0
+			character["wealth_progress"] -= amount
+			while character["wealth_progress"] < 0:
+				var tier = character.get("wealth_tier", "COMFORTABLE")
+				if tier == "WEALTHY":
+					character["wealth_tier"] = "COMFORTABLE"
+					character["wealth_progress"] = 10 + character["wealth_progress"] + 1
+				elif tier == "COMFORTABLE":
+					character["wealth_tier"] = "BROKE"
+					character["wealth_progress"] = 10 + character["wealth_progress"] + 1
+				elif tier == "BROKE":
+					character["wealth_progress"] = 0
+					break
+			character["credits"] = character["wealth_progress"]
 
-	func get_credits(character_uid) -> int:
+	func get_wealth_tier(character_uid) -> String:
 		if GameState.characters.has(character_uid):
-			return GameState.characters[character_uid].get("credits", 0)
+			return GameState.characters[character_uid].get("wealth_tier", "COMFORTABLE")
 		var int_uid: int = int(character_uid)
 		if GameState.characters.has(int_uid):
-			return GameState.characters[int_uid].get("credits", 0)
+			return GameState.characters[int_uid].get("wealth_tier", "COMFORTABLE")
+		return "COMFORTABLE"
+
+	func get_wealth_progress(character_uid) -> int:
+		if GameState.characters.has(character_uid):
+			var character = GameState.characters[character_uid]
+			return character.get("wealth_progress", character.get("credits", 0))
+		var int_uid: int = int(character_uid)
+		if GameState.characters.has(int_uid):
+			var character = GameState.characters[int_uid]
+			return character.get("wealth_progress", character.get("credits", 0))
 		return 0
+
+	func add_credits(character_uid, amount: int) -> void:
+		add_wealth_progress(character_uid, amount)
+
+	func subtract_credits(character_uid, amount: int) -> void:
+		subtract_wealth_progress(character_uid, amount)
+
+	func get_credits(character_uid) -> int:
+		return get_wealth_progress(character_uid)
 
 
 func before_each():
@@ -835,7 +918,12 @@ func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_do
 	var fake_character_system := FakeCharacterSystem.new()
 	GlobalRefs.character_system = fake_character_system
 	GameState.player_character_uid = "1"
-	GameState.characters[1] = {"credits": 40, "focus_points": 0}
+	GameState.characters[1] = {
+		"wealth_tier": "COMFORTABLE",
+		"wealth_progress": 0,
+		"credits": 40,
+		"focus_points": 0
+	}
 
 	GameState.runtime_contract_occurrences = {
 		"runtime_contract:s2:CURRENCY": _make_runtime_contract_occurrence("runtime_contract:s2:CURRENCY", "CURRENCY", "s1", "s2"),
@@ -906,14 +994,14 @@ func test_player_explicit_contract_actions_claim_pick_up_and_complete_without_do
 		"GameState player_cargo_tag should reset to EMPTY on completion.")
 	assert_eq(GameState.player_claimed_occurrence_id, "",
 		"GameState player_claimed_occurrence_id should clear on completion.")
-	assert_eq(GameState.characters[1].credits, 265,
-		"Player completion should apply reward credits through the character system path.")
-	assert_eq(fake_character_system.add_credits_calls.size(), 1,
-		"Player completion should call CharacterSystem.add_credits exactly once.")
-	if fake_character_system.add_credits_calls.size() != 1:
+	assert_eq(fake_character_system.add_wealth_progress_calls.size(), 1,
+		"Player completion should call CharacterSystem.add_wealth_progress exactly once.")
+	if fake_character_system.add_wealth_progress_calls.size() != 1:
 		return
-	assert_eq(int(fake_character_system.add_credits_calls[0].get("amount", 0)), 225,
-		"CharacterSystem.add_credits should receive the contract reward amount.")
+	assert_eq(int(fake_character_system.add_wealth_progress_calls[0].get("amount", 0)), 2,
+		"CharacterSystem.add_wealth_progress should receive the contract reward amount.")
+	assert_eq(GameState.characters[1].wealth_progress, 2,
+		"Player completion should apply reward progress through the character system path.")
 	assert_eq(int(GameState.contract_payment_reserved["s2"].get("CURRENCY", -1)), 0,
 		"Completion should consume the reserved target-side payment bundle.")
 	assert_eq(int(GameState.contract_payment_supply["s2"].get("CURRENCY", -1)), 1,
@@ -1602,7 +1690,7 @@ func _make_runtime_contract_occurrence(occurrence_id: String, category: String, 
 		"route_hops": 1,
 		"player_displayable": true,
 		"required_cargo_tag": "%s_COMMODITY" % category,
-		"reward_credits": 225,
+		"contract_value_class": "Mid",
 		"source_reserved": false,
 		"payment_reserved": false,
 		"cargo_picked_up": false,
