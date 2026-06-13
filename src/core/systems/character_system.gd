@@ -2,7 +2,7 @@
 # MODULE: character_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 01:00:09
+# LOG_REF: 2026-06-14 02:11:58
 
 extends Node
 
@@ -125,6 +125,13 @@ func get_wealth_tier(character_uid) -> String:
 	if GameState.characters.has(character_uid):
 		return GameState.characters[character_uid].wealth_tier
 	return "BROKE"
+
+
+func get_wealth_modifier(character_uid) -> int:
+	if not GameState.characters.has(character_uid):
+		return 0
+	var tier: String = get_wealth_tier(character_uid)
+	return Constants.WEALTH_MODIFIERS.get(tier, 0)
 
 
 func get_wealth_progress(character_uid) -> int:

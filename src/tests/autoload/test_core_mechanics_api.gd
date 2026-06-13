@@ -1,8 +1,8 @@
 # PROJECT: GDTLancer
 # MODULE: test_core_mechanics_api.gd
 # STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: gameplay_milestone_audit.md
-# LOG_REF: 2026-06-12 23:10:00
+# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1; TRUTH_PROJECT.md § Automated Testing Boundary
+# LOG_REF: 2026-06-14 02:11:58
 
 extends GutTest
 
@@ -67,3 +67,31 @@ func test_action_check_tier_boundaries_risky():
 	var result_crit = CoreMechanicsAPI.perform_action_check(13, 0, RISKY)
 	assert_eq(result_crit.result_tier, "CritSuccess", "[Risky] Guaranteed critical success check.")
 	prints("Tested Action Check: Risky Tier Boundaries")
+
+
+func test_wealth_modifier_shifts_roll():
+	# Seed the RNG to be identical before each check to get exactly identical dice rolls
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_default = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_comfortable = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_broke = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, -2)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_wealthy = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 2)
+	
+	# Verify values
+	assert_eq(result_default.roll_total, result_comfortable.roll_total, "Omitting modifier defaults to 0.")
+	assert_eq(result_broke.roll_total, result_comfortable.roll_total - 2, "Broke modifier shifts total down by 2.")
+	assert_eq(result_wealthy.roll_total, result_comfortable.roll_total + 2, "Wealthy modifier shifts total up by 2.")
+	
+	# Verify returned dict key
+	assert_eq(result_default.wealth_modifier, 0, "Default wealth_modifier key is 0.")
+	assert_eq(result_comfortable.wealth_modifier, 0, "Comfortable wealth_modifier key is 0.")
+	assert_eq(result_broke.wealth_modifier, -2, "Broke wealth_modifier key is -2.")
+	assert_eq(result_wealthy.wealth_modifier, 2, "Wealthy wealth_modifier key is 2.")
+	prints("Tested Action Check: Wealth Modifier Shifts Roll")
+

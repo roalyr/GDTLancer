@@ -2,7 +2,7 @@
 # MODULE: test_character_system.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 01:00:09
+# LOG_REF: 2026-06-14 02:11:58
 
 extends GutTest
 
@@ -134,3 +134,22 @@ func test_apply_upkeep_cost():
 	character_system_instance.apply_upkeep_cost(PLAYER_UID, 3)
 	var final_progress = character_system_instance.get_wealth_progress(PLAYER_UID)
 	assert_eq(final_progress, initial_progress - 3, "Upkeep cost should correctly subtract wealth progress.")
+
+
+func test_get_wealth_modifier():
+	# Test BROKE returns -2
+	GameState.characters[NPC_UID].wealth_tier = "BROKE"
+	assert_eq(character_system_instance.get_wealth_modifier(NPC_UID), -2, "Broke character returns -2.")
+
+	# Test COMFORTABLE returns 0
+	GameState.characters[NPC_UID].wealth_tier = "COMFORTABLE"
+	assert_eq(character_system_instance.get_wealth_modifier(NPC_UID), 0, "Comfortable character returns 0.")
+
+	# Test WEALTHY returns 2
+	GameState.characters[NPC_UID].wealth_tier = "WEALTHY"
+	assert_eq(character_system_instance.get_wealth_modifier(NPC_UID), 2, "Wealthy character returns 2.")
+
+	# Test unknown or missing character returns 0
+	assert_eq(character_system_instance.get_wealth_modifier("non_existent_uid"), 0, "Unknown character returns 0.")
+	prints("Tested CharacterSystem: Wealth Modifier Values")
+
