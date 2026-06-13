@@ -2,7 +2,7 @@
 # MODULE: Constants.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 00:51:29
+# LOG_REF: 2026-06-14 02:24:48
 
 extends Node
 
@@ -191,6 +191,12 @@ const WEALTH_MODIFIERS = {
 	"BROKE": -2,
 	"COMFORTABLE": 0,
 	"WEALTHY": 2
+}
+
+const CONDITION_MODIFIERS = {
+	"HEALTHY": 0,
+	"DAMAGED": -2,
+	"DESTROYED": -4
 }
 
 const CONTRACT_VALUE_CLASSES = {

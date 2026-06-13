@@ -2,7 +2,7 @@
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 01:00:09
+# LOG_REF: 2026-06-14 02:24:48
 
 extends GutTest
 
@@ -2414,6 +2414,40 @@ func test_resolve_payment_instrument_resolves_to_credits_always() -> void:
 	var unaligned_payee = ["FACTION_MINERS", "HAULER", "LEGAL_LAWFUL"]
 	var unaligned_instrument = agent_layer._resolve_payment_instrument(unaligned_payer, unaligned_payee)
 	assert_eq(unaligned_instrument, "credits", "Factionless payer should resolve to credits under the pruned model.")
+
+
+func test_get_health_modifier() -> void:
+	GameState.reset_state()
+	
+	# Test missing agent
+	var mod_missing = agent_layer.get_health_modifier("missing_agent")
+	assert_eq(mod_missing, 0, "Missing agent health modifier should default to 0.")
+	
+	# Test agent with no condition_tag
+	GameState.agents["agent_no_tag"] = {}
+	var mod_no_tag = agent_layer.get_health_modifier("agent_no_tag")
+	assert_eq(mod_no_tag, 0, "Agent with no condition_tag should default to 0 (HEALTHY).")
+	
+	# Test agent with HEALTHY condition_tag
+	GameState.agents["agent_healthy"] = {"condition_tag": "HEALTHY"}
+	var mod_healthy = agent_layer.get_health_modifier("agent_healthy")
+	assert_eq(mod_healthy, 0, "HEALTHY agent health modifier should be 0.")
+	
+	# Test agent with DAMAGED condition_tag
+	GameState.agents["agent_damaged"] = {"condition_tag": "DAMAGED"}
+	var mod_damaged = agent_layer.get_health_modifier("agent_damaged")
+	assert_eq(mod_damaged, -2, "DAMAGED agent health modifier should be -2.")
+	
+	# Test agent with DESTROYED condition_tag
+	GameState.agents["agent_destroyed"] = {"condition_tag": "DESTROYED"}
+	var mod_destroyed = agent_layer.get_health_modifier("agent_destroyed")
+	assert_eq(mod_destroyed, -4, "DESTROYED agent health modifier should be -4.")
+	
+	# Test agent with invalid condition_tag
+	GameState.agents["agent_invalid"] = {"condition_tag": "SUPER_HOT"}
+	var mod_invalid = agent_layer.get_health_modifier("agent_invalid")
+	assert_eq(mod_invalid, 0, "Agent with invalid condition_tag should default to 0.")
+
 
 
 

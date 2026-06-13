@@ -2,7 +2,7 @@
 # MODULE: test_core_mechanics_api.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1; TRUTH_PROJECT.md § Automated Testing Boundary
-# LOG_REF: 2026-06-14 02:11:58
+# LOG_REF: 2026-06-14 02:24:48
 
 extends GutTest
 
@@ -94,4 +94,31 @@ func test_wealth_modifier_shifts_roll():
 	assert_eq(result_broke.wealth_modifier, -2, "Broke wealth_modifier key is -2.")
 	assert_eq(result_wealthy.wealth_modifier, 2, "Wealthy wealth_modifier key is 2.")
 	prints("Tested Action Check: Wealth Modifier Shifts Roll")
+
+
+func test_health_modifier_shifts_roll():
+	# Seed the RNG to be identical before each check to get exactly identical dice rolls
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_default = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_healthy = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0, 0)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_damaged = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0, -2)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_destroyed = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0, -4)
+	
+	# Verify values
+	assert_eq(result_default.roll_total, result_healthy.roll_total, "Omitting health modifier defaults to 0.")
+	assert_eq(result_damaged.roll_total, result_healthy.roll_total - 2, "Damaged modifier shifts total down by 2.")
+	assert_eq(result_destroyed.roll_total, result_healthy.roll_total - 4, "Destroyed modifier shifts total down by 4.")
+	
+	# Verify returned dict key
+	assert_eq(result_default.health_modifier, 0, "Default health_modifier key is 0.")
+	assert_eq(result_healthy.health_modifier, 0, "Healthy health_modifier key is 0.")
+	assert_eq(result_damaged.health_modifier, -2, "Damaged health_modifier key is -2.")
+	assert_eq(result_destroyed.health_modifier, -4, "Destroyed health_modifier key is -4.")
+	prints("Tested Action Check: Health Modifier Shifts Roll")
 

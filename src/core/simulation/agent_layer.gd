@@ -2,7 +2,7 @@
 # MODULE: agent_layer.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: GDD-REVISION-LEDGER.md REV_007; GDD-REVISION-LEDGER.md REV_008; TRUTH_SIMULATION-GRAPH.md §2.2.1; TRUTH_PROJECT.md § Agent Parity Principle
-# LOG_REF: 2026-06-12 23:12:22
+# LOG_REF: 2026-06-14 02:24:48
 
 extends Reference
 
@@ -86,6 +86,17 @@ var _LOW_VISIBILITY_DISCOVERY_PROFILES: Array = [
 
 func set_chronicle(chronicle: Reference) -> void:
 	_chronicle = chronicle
+
+
+## Returns the quantitative health modifier of an agent based on its condition_tag.
+func get_health_modifier(agent_uid: String) -> int:
+	if not GameState.agents.has(agent_uid):
+		return 0
+	var agent: Dictionary = GameState.agents[agent_uid]
+	var tag: String = agent.get("condition_tag", "HEALTHY")
+	if Constants.CONDITION_MODIFIERS.has(tag):
+		return Constants.CONDITION_MODIFIERS[tag]
+	return 0
 
 
 ## Initializes all agents + characters from TemplateDatabase into GameState.

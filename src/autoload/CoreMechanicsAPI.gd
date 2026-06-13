@@ -2,7 +2,7 @@
 # MODULE: CoreMechanicsAPI.gd
 # STATUS: [Level 2 - Implementation]
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 02:11:58
+# LOG_REF: 2026-06-14 02:24:48
 
 extends Node
 
@@ -28,9 +28,10 @@ func _ready():
 # - skill_level: The character's relevant skill level (e.g., Computers 2).
 # - action_approach: The method used, from Constants.ActionApproach.
 # - wealth_modifier: Optional modifier based on character wealth tier.
+# - health_modifier: Optional modifier based on character health/condition tag.
 # Returns a Dictionary containing the detailed results of the check.
 func perform_action_check(
-	attribute_value: int, skill_level: int, action_approach: int, wealth_modifier: int = 0
+	attribute_value: int, skill_level: int, action_approach: int, wealth_modifier: int = 0, health_modifier: int = 0
 ) -> Dictionary:
 
 	# --- Determine Thresholds based on Approach ---
@@ -55,7 +56,7 @@ func perform_action_check(
 
 	# --- Calculate Bonuses & Final Roll ---
 	var module_modifier = attribute_value + skill_level
-	var total_roll = dice_sum + module_modifier + wealth_modifier
+	var total_roll = dice_sum + module_modifier + wealth_modifier + health_modifier
 
 	# --- Determine Outcome Tier ---
 	var result_tier: String
@@ -77,6 +78,7 @@ func perform_action_check(
 		"dice_sum": dice_sum,
 		"modifier": module_modifier,
 		"wealth_modifier": wealth_modifier,
+		"health_modifier": health_modifier,
 		"result_tier": result_tier,
 		"tier_name": tier_name,  # Added for user-facing display
 	}
