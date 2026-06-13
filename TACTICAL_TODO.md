@@ -3,39 +3,31 @@ PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 2 - Implementation]
 TRUTH_LINK: gameplay_milestone_audit.md
-LOG_REF: 2026-06-12 23:00:00
+LOG_REF: 2026-06-13 03:55:00
 -->
 
-## CURRENT GOAL: Codebase Refactoring, Pruning, and Cleanup for GDD Revision
+## CURRENT GOAL: Agent Layer Monolith Refactoring (Part 2 - Contract System)
 
-- TARGET_SCOPE: Strip the codebase of deprecated "Freelancer-clone" mechanics (dual currency, focus points, real-time combat remnants, standalone trade markets) to cleanly expose the qualitative simulation and TTRPG narrative core. The end goal is to remove as much mechanical clutter as possible, organize the remaining logic neatly, and prepare the codebase as a clean reference point for the upcoming GDD revision. **CRITICAL:** The code itself must contain extensive guiding comments (e.g., `# NOTE: GDD REVISION - ...`) outlining the new design intent.
+- TARGET_SCOPE: Extract the monolithic contract/quest handling logic, bilateral trade action resolution, and related event/resource mapping from `agent_layer.gd` into a new delegate class `agent_contract.gd` to improve modularity, maintainability, and prepare for simulation/narrative expansion. Retain backwards-compatible forwarding wrappers in `agent_layer.gd` and ensure the GUT test suite continues to pass cleanly.
 
 - TARGET_FILES:
-  - `src/core/systems/character_system.gd` — Remove focus points and dual-currency (specie vs credits) logic.
-  - `src/core/simulation/agent_layer.gd` — Prune credit/specie math; add structural guiding comments for the upcoming monolithic script split.
-  - `src/autoload/Constants.gd` — Clean up obsolete economy, combat, and module constants.
-  - `src/core/simulation/simulation_engine.gd` — Annotate the future pivot to delay-based ticks instead of dock/undock triggers.
-  - `src/core/ui/npc_trade_panel/npc_trade_panel.gd` — Deprecate standalone trade features; annotate pivot to contract-driven quests.
-  - `src/core/ui/station_menu/station_menu.gd` — Remove standalone commodity market UI code/references; annotate focus on contracts.
-  - `src/modules/piloting/ship_controller_ai.gd` — Add guiding comments deprecating dogfighting/combat AI states.
-  - `src/core/agents/agent.gd` — Remove or heavily annotate disabled combat hooks.
-  - `src/scenes/game_world/station/dockable_station.gd` — Annotate the shift to sectors-as-dockables.
+  - `src/core/simulation/agent_layer.gd` — Instantiate `agent_contract.gd` and expose wrappers forwarding all contract and bilateral trade queries.
+  - `src/core/simulation/agent_layer/agent_contract.gd` — Implement the extracted contract claim, pickup, delivery, accounting, demand-tag refresh, and player interface hooks.
 
-- TRUTH_RELIANCE: `gameplay_milestone_audit.md` (Revised 2026-06-12)
+- TRUTH_RELIANCE: `gameplay_milestone_audit.md` §3.2, §6.3
 
 - TECHNICAL_CONSTRAINTS: "Forbidden GDScript syntax: @export, @onready, await", "Graphics target GLES2", "Godot 3.6 stable compatibility"
 
-- OUT_OF_SCOPE: Actually splitting `agent_layer.gd` into separate files (we are only annotating boundaries now), writing the new GDD (this is preparation for it).
+- OUT_OF_SCOPE: Rewriting/re-enabling combat or altering core CA progression rules outside the `AgentLayer` contract mapping.
 
 - VALIDATION_PLAN:
-  - Existing GUT tests must pass. Tests specifically testing removed mechanics (like credit clamping or specie routing) must be safely pruned or adapted to qualitative tags.
+  - Existing GUT tests (especially `test_agent_layer.gd`, `test_simulation_tick.gd`, `test_simulation_report.gd`) must pass cleanly. All forwarding method signatures must match exactly.
 
-- MANUAL_VALIDATION: The game must boot. Docking and interacting must not crash. The removed sub-screens (standalone trade) should no longer be accessible.
+- MANUAL_VALIDATION: The game must boot and tick without crash or warning about invalid contract routing.
 
 - ATOMIC_TASKS:
-  - [x] TASK_1: **Prune Focus Points & Dual Currency.** In `character_system.gd` and `Constants.gd`, remove all references to `focus_points`. Strip out the dual-currency routing logic (credits vs specie, `CREDIT_TRUST_THRESHOLD`). Revert character wealth to a simple qualitative or unified abstract metric. Update related GUT tests in `test_character_system.gd` to remove numeric assertions. Add guiding comments about inheriting from Ironsworn TTRPG mechanics.
-  - [x] TASK_2: **Clean Simulation Economy Logic.** In `agent_layer.gd`, strip out the complex credit-gated purchasing math (`_attempt_npc_market_buy` / `_attempt_npc_market_sell`). Revert or simplify to pure qualitative tag flips without strict credit subtraction. Add massive guiding comments defining the future refactor boundaries (e.g., `# --- GDD REVISION: TRADER LOGIC BLOCK (To be extracted) ---`).
-  - [x] TASK_3: **Deprecate Combat & Module Remnants.** In `ship_controller_ai.gd` and `agent.gd`, add prominent `DEPRECATED` comments to combat states, weapon firing, and module system references. Comment out or remove structural dead code that implies real-time dogfighting. Note that combat is disabled until re-imagined from the ground up.
-  - [x] TASK_4: **Re-route Trade & Deprecate Standalone Markets.** In `station_menu.gd` and `npc_trade_panel.gd`, comment out or prune the standalone free-market UI logic. Add guiding comments stating that standalone trading is being dropped in favor of a unified contract/quest interface (Interaction Window). Update UI layouts to hide the broken/deprecated panels.
-  - [x] TASK_5: **Annotate Simulation Ticks & Topology.** In `simulation_engine.gd`, add guiding comments to the tick triggers noting that dock/undock will no longer produce ticks, and that a delay-based tick (e.g., 10 minutes) is planned. In `dockable_station.gd`, add comments noting that "sectors are treated as dockables themselves" and we are moving away from stations as dockables within sectors.
-  - [x] VERIFICATION: Run all GUT tests and safely prune/fix any that fail due to the removed mechanical clutter (especially in `test_agent_layer.gd` and `test_simulation_report.gd`). Verify the game boots without script errors. Ensure the codebase is saturated with `GDD REVISION` guiding comments explaining *why* things were pruned and where the design is heading.
+  - [x] TASK_1: **Create Agent Contract Delegate.** Create the delegate script `src/core/simulation/agent_layer/agent_contract.gd` subclassing `Reference`. Implement the initialization method `initialize(agent_layer_ref)`.
+  - [x] TASK_2: **Extract Contract Resolution Methods.** Move `_best_runtime_contract_occurrence_id`, `_action_service_contract`, `_claim_runtime_contract_occurrence`, `_can_npc_claim_open_runtime_contract`, `_release_runtime_contract_claim`, `_clear_runtime_contract_claims_for_agent`, `_load_runtime_contract_cargo`, `_complete_runtime_contract_occurrence`, `_complete_player_contract_delivery`, `_reserve_runtime_contract_resources`, `_reserve_contract_accounting_unit`, `_release_contract_accounting_unit`, `_consume_reserved_contract_unit`, `_apply_contract_completion_sector_impact`, `_refresh_contract_demand_tags_for_sector`, `_contract_demand_tag`, `_player_can_service_contract`, and `_remove_runtime_contract_occurrence` from `agent_layer.gd` to the new delegate.
+  - [x] TASK_3: **Extract Player Hook Methods.** Move `player_accept_runtime_contract`, `player_pick_up_runtime_contract`, and `player_complete_runtime_contract` to the delegate.
+  - [x] TASK_4: **Wire and Forward in AgentLayer.** Update `agent_layer.gd` to preload and instantiate `agent_contract.gd` as a `contracts` component. Hook up backwards-compatible forwarding wrappers for all extracted methods.
+  - [x] VERIFICATION: Run all GUT tests to verify total API compliance and zero regression in agent contract evaluation/completion. Update `SESSION-LOG.md`.
