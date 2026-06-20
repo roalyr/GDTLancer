@@ -4,8 +4,8 @@
 # OWNER: architect-governed
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# TRUTH_LINK: STRATEGICAL-TODO.md §3; GDD-REVISION-LEDGER.md REV_013
+# LOG_REF: 2026-06-20 20:45:00
 
 #
 # PROJECT: GDTLancer
@@ -43,6 +43,7 @@ func initialize_world(seed_string: String) -> void:
 	GameState.world_topology.clear()
 	GameState.world_hazards.clear()
 	GameState.sector_tags.clear()
+	GameState.in_sector_pois.clear()
 	_reported_invalid_connections.clear()
 
 	var valid_location_ids: Dictionary = {}
@@ -81,6 +82,50 @@ func initialize_world(seed_string: String) -> void:
 		GameState.world_hazards[location_id] = {
 			"environment": _derive_environment(initial_tags)
 		}
+
+		# --- In-Sector POIs ---
+		var poi_rng = RandomNumberGenerator.new()
+		poi_rng.seed = hash(seed_string + ":" + location_id)
+		var num_pois = poi_rng.randi_range(1, 4)
+		var poi_list = []
+		for i in range(num_pois):
+			var type_roll = poi_rng.randi_range(0, 3)
+			var poi_type = ""
+			var name_prefix = ""
+			match type_roll:
+				0:
+					poi_type = "derelict"
+					name_prefix = "Derelict Wreck"
+				1:
+					poi_type = "deposit"
+					name_prefix = "Mineral Deposit"
+				2:
+					poi_type = "anomaly"
+					name_prefix = "Spatial Anomaly"
+				3:
+					poi_type = "outpost"
+					name_prefix = "Service Outpost"
+			
+			var clean_sector_id = location_id.to_upper().replace("SECTOR_", "")
+			var display_name = "%s %s-%d" % [name_prefix, clean_sector_id, i + 1]
+			var poi_id = "%s_poi_%d" % [location_id, i + 1]
+			
+			var angle = poi_rng.randf_range(-PI, PI)
+			var distance = poi_rng.randf_range(Constants.POI_SPAWN_MIN_DISTANCE, Constants.POI_SPAWN_MAX_DISTANCE)
+			var x = cos(angle) * distance
+			var z = sin(angle) * distance
+			var y = poi_rng.randf_range(-distance * 0.1, distance * 0.1)
+			var position = Vector3(x, y, z)
+			
+			poi_list.append({
+				"id": poi_id,
+				"display_name": display_name,
+				"poi_type": poi_type,
+				"sector_id": location_id,
+				"position_in_sector": position,
+				"metadata": {}
+			})
+		GameState.in_sector_pois[location_id] = poi_list
 
 	_validate_initial_sector_id()
 

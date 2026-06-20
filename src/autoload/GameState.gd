@@ -5,7 +5,7 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# LOG_REF: 2026-06-20 20:15:00
 
 #
 # PROJECT: GDTLancer
@@ -39,6 +39,9 @@ var world_tags: Array = []
 
 ## World generation seed — determines all procedural content.
 var world_seed: String = ""
+
+## In-sector POIs. Key: sector_id (String), Value: Array of POI Dictionaries.
+var in_sector_pois: Dictionary = {}
 
 
 # =========================================================================
@@ -248,6 +251,9 @@ var game_time_seconds: int = 0
 ## Currently loaded zone node.
 var current_zone_instance: Node = null
 
+## Current macro UI mode (MODE_A = Kinetic Board, MODE_B = Chronicle View).
+var current_ui_mode: String = "MODE_A"
+
 ## ID of the currently loaded sector (e.g. "sector_star_elace").
 var current_sector_id: String = ""
 
@@ -341,6 +347,7 @@ func reset_state() -> void:
 	sector_names.clear()
 	discovered_sectors.clear()
 	station_by_id.clear()
+	in_sector_pois.clear()
 	chronicle_events.clear()
 	chronicle_rumors.clear()
 	sim_tick_count = 0
@@ -349,6 +356,7 @@ func reset_state() -> void:
 	world_age_timer = 0
 	world_age_cycle_count = 0
 	current_sector_id = ""
+	current_ui_mode = "MODE_A"
 	player_docked_at = ""
 	player_claimed_occurrence_id = ""
 	player_cargo_tag = "EMPTY"

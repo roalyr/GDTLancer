@@ -5,7 +5,7 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 02:24:48
+# LOG_REF: 2026-06-20 20:45:00
 
 extends Node
 
@@ -83,6 +83,16 @@ const PLAYER_INPUT_HANDLER_NAME = "PlayerInputHandler"
 
 # --- Core Mechanics Parameters ---
 const DEFAULT_UPKEEP_COST = 5
+const SUB_AGENT_TRANSFER_MORALE_PENALTY = -2
+const MORALE_INITIAL = 50
+const MORALE_MIN = 0
+const MORALE_MAX = 100
+const MORALE_DECAY_CONSECUTIVE_TICKS_LIMIT = 3
+const MORALE_DECAY_AMOUNT = -5
+const MORALE_DECAY_STARVATION_AMOUNT = -10
+const SUPPLIES_DEGRADATION_TICKS = 10
+const MORALE_MODIFIER_HIGH_THRESHOLD = 80
+const MORALE_MODIFIER_LOW_THRESHOLD = 40
 
 # --- RigidBody Physics Parameters (6DOF Flight) ---
 # Global drag coefficients - prevent endless acceleration in space
@@ -402,6 +412,8 @@ const DOCKING_ACTION_RADIUS: float = 300.0           # Distance at which dock/ju
 const SECTOR_JUMP_ARRIVAL_RADIUS: float = 50000.0   # Arrival shell radius for route-based sector jumps
 const REFERENCE_ORIGIN: Vector3 = Vector3(0, 0, 0)  # Elace System global_position (nebula reference)
 const SECTOR_CONTENT_RADIUS: float = 100000.0        # Recommended content placement radius
+const POI_SPAWN_MIN_DISTANCE: float = 20000.0        # Minimum distance from sector center (20km)
+const POI_SPAWN_MAX_DISTANCE: float = 100000.0       # Maximum distance from sector center (100km)
 const INITIAL_SECTOR_ID: String = "sector_star_elace"    # Starting sector for new game
 
 # ---- JUMP TRANSITION ----

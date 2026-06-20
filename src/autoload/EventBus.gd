@@ -5,7 +5,7 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# LOG_REF: 2026-06-20 19:52:00
 
 #
 # PROJECT: GDTLancer
@@ -47,6 +47,7 @@ signal camera_set_target_requested(target_node)
 signal camera_cycle_target_requested
 
 # --- Player Interaction Signals --- ADDED SECTION
+signal ui_mode_changed(new_mode)
 signal player_target_selection_requested(target_node)
 signal player_target_selected(target_node)
 signal player_target_deselected

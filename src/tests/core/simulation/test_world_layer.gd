@@ -4,8 +4,8 @@
 # OWNER: developer
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
+# TRUTH_LINK: STRATEGICAL-TODO.md §3; GDD-REVISION-LEDGER.md REV_013
+# LOG_REF: 2026-06-20 20:25:00
 
 #
 # PROJECT: GDTLancer
@@ -69,6 +69,20 @@ func test_connections_are_bidirectional():
 func test_seed_stored_in_game_state():
 	world_layer.initialize_world(TEST_SEED)
 	assert_eq(GameState.world_seed, TEST_SEED, "world_seed should be stored in GameState.")
+
+func test_initial_poi_generation():
+	world_layer.initialize_world(TEST_SEED)
+	assert_gt(GameState.in_sector_pois.size(), 0, "in_sector_pois should be populated.")
+	for sector_id in GameState.world_topology:
+		assert_true(GameState.in_sector_pois.has(sector_id), "Sector should have POI list registered.")
+		var pois = GameState.in_sector_pois[sector_id]
+		assert_true(pois.size() >= 1 and pois.size() <= 4, "POI count should be between 1 and 4.")
+		for poi in pois:
+			assert_not_null(poi.get("id"), "POI should have an ID.")
+			assert_not_null(poi.get("display_name"), "POI should have a display name.")
+			assert_true(poi.get("poi_type") in ["derelict", "deposit", "anomaly", "outpost"], "POI type should be valid.")
+			assert_eq(poi.get("sector_id"), sector_id, "POI should map to parent sector.")
+			assert_true(poi.get("position_in_sector") is Vector3, "POI position should be Vector3.")
 
 func test_get_neighbors_returns_connections():
 	world_layer.initialize_world(TEST_SEED)

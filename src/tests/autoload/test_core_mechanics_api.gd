@@ -5,7 +5,7 @@
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1; TRUTH_PROJECT.md § Automated Testing Boundary
-# LOG_REF: 2026-06-14 02:24:48
+# LOG_REF: 2026-06-20 19:48:00
 
 extends GutTest
 
@@ -124,3 +124,27 @@ func test_health_modifier_shifts_roll():
 	assert_eq(result_damaged.health_modifier, -2, "Damaged health_modifier key is -2.")
 	assert_eq(result_destroyed.health_modifier, -4, "Destroyed health_modifier key is -4.")
 	prints("Tested Action Check: Health Modifier Shifts Roll")
+
+
+func test_morale_modifier_shifts_roll():
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_default = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_neutral = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0, 0, 0)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_high = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0, 0, 2)
+	
+	CoreMechanicsAPI._rng.seed = 12345
+	var result_low = CoreMechanicsAPI.perform_action_check(ATTR, SKILL, CAUTIOUS, 0, 0, -2)
+	
+	assert_eq(result_default.roll_total, result_neutral.roll_total, "Omitting morale modifier defaults to 0.")
+	assert_eq(result_high.roll_total, result_neutral.roll_total + 2, "High morale modifier shifts total up by 2.")
+	assert_eq(result_low.roll_total, result_neutral.roll_total - 2, "Low morale modifier shifts total down by 2.")
+	
+	assert_eq(result_default.morale_modifier, 0, "Default morale_modifier key is 0.")
+	assert_eq(result_neutral.morale_modifier, 0, "Neutral morale_modifier key is 0.")
+	assert_eq(result_high.morale_modifier, 2, "High morale_modifier key is 2.")
+	assert_eq(result_low.morale_modifier, -2, "Low morale_modifier key is -2.")
+	prints("Tested Action Check: Morale Modifier Shifts Roll")

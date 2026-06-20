@@ -6,7 +6,7 @@ OWNER: architect
 ACCESS: read-write
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md § 1–4; TRUTH_SIMULATION-GRAPH.md § 0; GDD-REVISION-LEDGER.md § Approved Revisions
-LOG_REF: 2026-06-20 18:26:23
+LOG_REF: 2026-06-20 20:31:00
 -->
 
 # GDTLancer — Consolidated Master Design Directive
@@ -211,7 +211,7 @@ The following entries are staged for promotion into a new active `GDD-REVISION-L
 
 - **REV_009: Two-Speed Macro UX Contract** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 10)
 - **REV_010: Hardened Narrative Content Delivery** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 11)
-- **REV_011: Sub-Agent Data Layer** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 8)
+- **REV_011: Sub-Agent Data Layer** (Promoted to ledger [x]; Implemented in code [x] via Milestone 8)
 - **REV_012: Morale Stat & Crew Morale System** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 9)
 - **REV_013: Manual Space Graph & In-Sector POI Doctrine** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 12)
 - **REV_014: Prohibited Seams Registry** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 14)
@@ -348,11 +348,11 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 | # | Done | Milestone | Depends On | REV Entry |
 |---|---|---|---|---|
 | 7 | [x] | Truth File Alignment Pass | Approval of this directive | All |
-| 8 | [ ] | Sub-Agent Data Layer Scaffold | Milestone 7 | REV_011 |
-| 9 | [ ] | Morale & Supplies Stat Integration | Milestone 8 | REV_012 |
-| 10 | [ ] | Chronicle View Architecture | Milestone 7 | REV_009 |
+| 8 | [x] | Sub-Agent Data Layer Scaffold | Milestone 7 | REV_011 |
+| 9 | [x] | Morale & Supplies Stat Integration | Milestone 8 | REV_012 |
+| 10 | [x] | Chronicle View Architecture | Milestone 7 | REV_009 |
 | 11 | [ ] | Hardened Narrative Content Pipeline | Milestone 10 | REV_010 |
-| 12 | [ ] | Manual Space Graph & In-Sector POI System | Milestone 7 | REV_013 |
+| 12 | [x] | Manual Space Graph & In-Sector POI System | Milestone 7 | REV_013 |
 | 13 | [ ] | Hierarchical Universe Topology Formalization | Milestone 12 | REV_005 |
 | 14 | [ ] | Prohibited Seams Registry Formalization | Milestone 7 | REV_014 |
 

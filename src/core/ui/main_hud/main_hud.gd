@@ -4,16 +4,8 @@
 # OWNER: developer
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
-# TRUTH_LINK: None
-# LOG_REF: 2026-06-20 18:41:40
-
-#
-# PROJECT: GDTLancer
-# MODULE: main_hud.gd
-# STATUS: [Level 2 - Implementation]
-# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 01:00:09
-#
+# TRUTH_LINK: GDD-MASTER-DESIGN-DIRECTIVE.md §2; TRUTH_GAME-LOOP-VISION.md §5
+# LOG_REF: 2026-06-20 20:45:00
 
 extends Control
 
@@ -61,8 +53,6 @@ const HUDTargetProjectorClass = preload("res://src/core/ui/main_hud/hud_target_p
 # --- Sub-Screens ---
 const StationMenuScene = preload("res://scenes/ui/menus/station_menu/StationMenu.tscn")
 var _station_menu_instance = null
-const NpcTradePanelScene = preload("res://scenes/ui/menus/npc_trade_panel/NpcTradePanel.tscn")
-var _npc_trade_panel_instance = null
 const InteractionWindowScene = preload("res://scenes/ui/menus/interaction_window/InteractionWindow.tscn")
 var _interaction_window_instance = null
 
@@ -222,19 +212,17 @@ func _ready():
 	# Initialize TU display
 	_refresh_time_display()
 
+	pause_mode = PAUSE_MODE_PROCESS
+
 	# --- Instance Station Menu sub-screen ---
 	_station_menu_instance = StationMenuScene.instance()
 	add_child(_station_menu_instance)
-	
-	# --- Instance NPC Trade Panel sub-screen ---
-	_npc_trade_panel_instance = NpcTradePanelScene.instance()
-	add_child(_npc_trade_panel_instance)
 
 	# --- Instance Interaction Window sub-screen ---
 	_interaction_window_instance = InteractionWindowScene.instance()
 	add_child(_interaction_window_instance)
-	if is_instance_valid(_interaction_window_instance) and is_instance_valid(_npc_trade_panel_instance):
-		_interaction_window_instance.set_npc_trade_panel_ref(_npc_trade_panel_instance)
+	if is_instance_valid(_interaction_window_instance):
+		_interaction_window_instance.connect("closed", self, "_on_interaction_window_closed")
 	
 	_refresh_process_state()
 	_update_dock_button_label()
@@ -474,6 +462,7 @@ func _on_ButtonInteract_pressed():
 
 
 func _on_player_npc_interact_requested(agent_id: String, target_node: Spatial) -> void:
+	set_ui_mode("MODE_B")
 	if is_instance_valid(_interaction_window_instance):
 		_interaction_window_instance.open_for_target(agent_id, target_node)
 
@@ -958,3 +947,45 @@ func _get_projected_target_context_hint(target_ref) -> String:
 
 func _update_world_target_selection_state() -> void:
 	_target_projector.update_world_target_selection_state()
+
+
+func set_ui_mode(new_mode: String) -> void:
+	if new_mode == "MODE_B":
+		GameState.current_ui_mode = "MODE_B"
+		get_tree().paused = true
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		
+		# Hide Mode A HUD elements
+		if has_node("ScreenControls"):
+			get_node("ScreenControls").visible = false
+		if is_instance_valid(projected_target_overlay):
+			projected_target_overlay.visible = false
+			
+		EventBus.emit_signal("ui_mode_changed", "MODE_B")
+		
+	elif new_mode == "MODE_A":
+		GameState.current_ui_mode = "MODE_A"
+		get_tree().paused = false
+		
+		# Restore appropriate mouse mode
+		var is_free_flight = _is_player_free_flight_active()
+		if is_free_flight:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			
+		# Show Mode A HUD elements
+		if has_node("ScreenControls"):
+			get_node("ScreenControls").visible = true
+		if is_instance_valid(projected_target_overlay):
+			projected_target_overlay.visible = true
+			
+		# Ensure Mode B panels are closed
+		if is_instance_valid(_interaction_window_instance):
+			_interaction_window_instance.visible = false
+			
+		EventBus.emit_signal("ui_mode_changed", "MODE_A")
+
+
+func _on_interaction_window_closed() -> void:
+	set_ui_mode("MODE_A")

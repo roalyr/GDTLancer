@@ -99,6 +99,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://database/definitions/asset_module_template.gd"
 }, {
+"base": "Template",
+"class": "NarrativeTemplate",
+"language": "GDScript",
+"path": "res://database/definitions/narrative_template.gd"
+}, {
 "base": "Node",
 "class": "PIDController",
 "language": "GDScript",
@@ -138,6 +143,7 @@ _global_script_class_icons={
 "LegacySystemNameGenerator": "",
 "LocationTemplate": "",
 "ModuleTemplate": "",
+"NarrativeTemplate": "",
 "PIDController": "",
 "ShipTemplate": "",
 "Template": "",

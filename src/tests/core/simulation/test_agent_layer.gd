@@ -4,8 +4,8 @@
 # OWNER: developer
 # ACCESS: read-write
 # USER INSTRUCTION: NONE
-# TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
-# LOG_REF: 2026-06-14 02:24:48
+# TRUTH_LINK: STRATEGICAL-TODO.md §3; GDD-REVISION-LEDGER.md REV_013
+# LOG_REF: 2026-06-20 20:45:00
 
 extends GutTest
 
@@ -1178,206 +1178,22 @@ func test_harvest_collects_salvage():
 # === DISCOVERY REGISTRATION ==================================================
 # =============================================================================
 
-func test_try_exploration_registers_runtime_location_template():
+func test_try_exploration_is_stubbed():
 	var explorer: Dictionary = {
 		"wealth_tag": "COMFORTABLE",
 		"last_discovery_tick": -999,
 	}
 	GameState.world_topology["s1"]["development_level"] = "frontier"
 	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
+	GameState.in_sector_pois["s1"] = []
 	agent_layer._rng.seed = 13
 	agent_layer._try_exploration("explorer", explorer, "s1")
+	chronicle.process_tick()
 
-	assert_eq(GameState.discovered_sector_count, 1, "Successful exploration should increment the discovered sector counter.")
-	assert_true(TemplateDatabase.locations.has("discovered_1"), "A discovered sector should register a runtime LocationTemplate.")
-	assert_eq(GameState.discovery_log.size(), 1, "Successful exploration should append one discovery-log entry.")
-
-	var discovered_template = TemplateDatabase.locations["discovered_1"]
-	var source_position: Vector3 = TemplateDatabase.locations["s1"]["global_position"]
-	var handcrafted_neighbor_position: Vector3 = TemplateDatabase.locations["s2"]["global_position"]
-	var discovered_position: Vector3 = discovered_template.global_position
-	var discovered_distance: float = discovered_position.distance_to(source_position)
-	var handcrafted_distance: float = handcrafted_neighbor_position.distance_to(source_position)
-
-	assert_true(discovered_template.is_procedural, "Discovered sectors should register as procedural templates.")
-	assert_eq(discovered_template.template_id, "discovered_1")
-	assert_eq(discovered_template.location_name, GameState.sector_names["discovered_1"])
-	assert_true(
-		discovered_template.procedural_type in ["asteroid_field", "comet_shoal", "rogue_planet", "dark_nebula", "remnant_field"],
-		"Discovered sectors should use one of the low-visibility procedural profiles."
-	)
-	assert_true(discovered_template.procedural_hints.get("low_visibility", false), "Discovered sectors should carry the low-visibility runtime hint.")
-	assert_eq(GameState.discovery_log[0]["from"], "s1", "Discovery log should record the connected source sector.")
-	assert_eq(GameState.discovery_log[0]["global_position"], discovered_position)
-	assert_true(discovered_distance < handcrafted_distance, "Discovered sectors should spawn closer to their source than the handcrafted neighbor spacing.")
-	assert_true(GameState.station_by_id.has("station_discovered_1"),
-		"Discovery should generate one deterministic procedural station for the discovered sector.")
-	assert_eq(Array(GameState.world_topology["discovered_1"].get("station_ids", [])).size(), 1,
-		"Discovered sectors should keep a one-station-per-sector mapping.")
-
-
-func test_generate_procedural_station_for_sector_registers_deterministic_station_data():
-	GameState.sector_names["s1"] = "Source Sector"
-	var generated_station_a: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
-	var generated_station_b: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
-
-	assert_eq(str(generated_station_a.get("id", "")), "station_s1",
-		"Generated station id should follow deterministic sector-based naming.")
-	assert_eq(str(generated_station_a.get("display_name", "")), "Source Sector Station",
-		"Generated station display name should use '<Sector Name> Station'.")
-	assert_eq(str(generated_station_a.get("id", "")), str(generated_station_b.get("id", "")),
-		"Generating a station for the same sector twice should be deterministic.")
-	assert_eq(generated_station_a.get("docking_point", Vector3.ZERO), generated_station_b.get("docking_point", Vector3.ZERO),
-		"Procedural docking point should be stable for the same seed and sector id.")
-	assert_true(GameState.station_by_id.has("station_s1"),
-		"Generated station should be registered in GameState.station_by_id.")
-	assert_eq(Array(GameState.world_topology["s1"].get("station_ids", [])).size(), 1,
-		"Generated station registration should keep one station id in world topology for the sector.")
-	assert_true(GameState.locations.has("station_s1"),
-		"Generated station should be exposed through legacy location records for docking systems.")
-
-
-func test_generate_sector_name_for_count_uses_centralized_constants_name_pools():
-	GameState.world_seed = "frontier-name-seed"
-	var generated_root: String = agent_layer._generate_discovery_name_root(3)
-	var generated_name: String = agent_layer._generate_sector_name_for_count(3)
-	var repeated_name: String = agent_layer._generate_sector_name_for_count(3)
-
-	assert_eq(generated_name, repeated_name,
-		"Count-based discovery naming should remain deterministic after switching to the legacy system-name generator.")
-	assert_false(generated_root.empty(),
-		"Count-based discovery naming should produce a generated legacy root.")
-	var name_parts: Array = generated_name.split(" ")
-	if generated_root.length() <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
-		assert_eq(name_parts.size(), 3,
-			"Short generated roots should carry both a prefix hint and a suffix hint.")
-		assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES,
-			"Short generated roots should prepend a curated prefix hint.")
-		assert_eq(str(name_parts[1]), generated_root,
-			"Short generated roots should stay centered between the curated hint words.")
-		assert_true(str(name_parts[2]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
-			"Short generated roots should append a curated suffix hint.")
-	elif generated_root.length() <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
-		assert_eq(name_parts.size(), 2,
-			"Medium generated roots should append one curated hint word.")
-		assert_eq(str(name_parts[0]), generated_root,
-			"Medium generated roots should stay in the lead position.")
-		assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES,
-			"Medium generated roots should append a curated suffix hint.")
-	else:
-		assert_eq(name_parts.size(), 1,
-			"Long generated roots should stand on their own without extra hint words.")
-		assert_eq(str(name_parts[0]), generated_root,
-			"Long generated roots should pass through unchanged.")
-
-
-func test_generate_sector_name_for_discovery_uses_curated_word_banks():
-	GameState.world_seed = "frontier-name-seed"
-	var profile: Dictionary = {"procedural_type": "dark_nebula"}
-	var initial_tags: Array = [
-		"FRONTIER", "HARSH", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"
-	]
-	var generated_root: String = agent_layer._generate_discovery_name_root(7)
-	var generated_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
-	var repeated_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
-
-	assert_eq(generated_name, repeated_name,
-		"Profile-aware discovery naming should remain deterministic for the same discovery count and hint data.")
-	var name_parts: Array = generated_name.split(" ")
-	if generated_root.length() <= Constants.DISCOVERY_NAME_SHORT_ROOT_MAX_LENGTH:
-		assert_eq(name_parts.size(), 3,
-			"Short generated roots should keep both curated hint banks in profile-aware discovery names.")
-		assert_true(str(name_parts[0]) in Constants.FRONTIER_DISCOVERY_NAME_PREFIXES_BY_PROCEDURAL_TYPE["dark_nebula"],
-			"Profile-aware discovery naming should use the procedural-type-specific prefix pool when one exists.")
-		assert_eq(str(name_parts[1]), generated_root,
-			"The generated system-name root should stay centered in the profile-aware name.")
-		assert_true(str(name_parts[2]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL["RICH"],
-			"Profile-aware discovery naming should use the economy-specific suffix pool when tags indicate a rich site.")
-	elif generated_root.length() <= Constants.DISCOVERY_NAME_MEDIUM_ROOT_MAX_LENGTH:
-		assert_eq(name_parts.size(), 2,
-			"Medium generated roots should keep a single economy hint word in profile-aware discovery names.")
-		assert_eq(str(name_parts[0]), generated_root,
-			"Medium generated roots should lead profile-aware discovery names.")
-		assert_true(str(name_parts[1]) in Constants.FRONTIER_DISCOVERY_NAME_SUFFIXES_BY_ECONOMY_LEVEL["RICH"],
-			"Profile-aware discovery naming should append the economy-specific hint when the root is medium-length.")
-	else:
-		assert_eq(name_parts.size(), 1,
-			"Long generated roots should not receive extra hint words even in profile-aware naming.")
-		assert_eq(str(name_parts[0]), generated_root,
-			"Long generated roots should pass through unchanged in profile-aware discovery names.")
-
-
-func test_legacy_system_name_generator_returns_public_deterministic_short_names():
-	var GeneratorScript = load("res://src/core/utils/legacy_system_name_generator.gd")
-	var generator = GeneratorScript.new()
-	var generated_name: String = generator.generate_system_name("legacy-generator-seed", 4, 7)
-	var repeated_name: String = generator.generate_system_name("legacy-generator-seed", 4, 7)
-
-	assert_eq(generated_name, repeated_name,
-		"The ported legacy system-name generator should be deterministic for the same seed input.")
-	assert_gt(generated_name.length(), 1,
-		"The ported legacy system-name generator should return a non-trivial short root.")
-	assert_true(generated_name.length() <= 8,
-		"The ported legacy system-name generator should stay in the short-name range used by the legacy sandbox.")
-	assert_eq(generated_name.find(" "), -1,
-		"The public legacy system-name generator should emit a single short root without extra words.")
-
-
-func test_legacy_system_name_generator_softens_internal_y_between_consonants():
-	var GeneratorScript = load("res://src/core/utils/legacy_system_name_generator.gd")
-	var generator = GeneratorScript.new()
-
-	assert_eq(generator._soften_internal_y("Ryhazi"), "Rihazi",
-		"The limited readability pass should soften internal y when it lands between consonants.")
-	assert_eq(generator._soften_internal_y("Ysutu"), "Ysutu",
-		"The limited readability pass should keep an opening y untouched.")
-	assert_eq(generator._soften_internal_y("Ayla"), "Ayla",
-		"The limited readability pass should avoid rewriting every interior y indiscriminately.")
-
-
-func test_compose_discovery_sector_name_uses_generated_root_length_budget():
-	assert_eq(agent_layer._compose_discovery_sector_name("Cob", "Umbral", "Passage"), "Umbral Cob Passage",
-		"Very short generated roots should use both curated hint banks.")
-	assert_eq(agent_layer._compose_discovery_sector_name("Elace", "Umbral", "Passage"), "Elace Passage",
-		"Medium generated roots should keep only one curated hint word.")
-	assert_eq(agent_layer._compose_discovery_sector_name("Aurelius", "Umbral", "Passage"), "Aurelius",
-		"Long generated roots should stand alone without extra hint words.")
-
-
-func test_generate_sector_name_for_discovery_avoids_existing_display_name_collisions():
-	GameState.world_seed = "frontier-name-seed"
-	var profile: Dictionary = {"procedural_type": "dark_nebula"}
-	var initial_tags: Array = [
-		"FRONTIER", "HARSH", "RAW_RICH", "MANUFACTURED_RICH", "CURRENCY_ADEQUATE"
-	]
-	var colliding_name: String = agent_layer._build_discovery_sector_name_candidate(
-		7,
-		0,
-		agent_layer._get_discovery_prefix_word_pool("dark_nebula", initial_tags),
-		agent_layer._get_discovery_suffix_word_pool(initial_tags)
-	)
-	GameState.sector_names["existing_collision"] = colliding_name
-
-	var unique_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
-	var repeated_unique_name: String = agent_layer._generate_sector_name_for_discovery(7, profile, initial_tags)
-
-	assert_ne(unique_name, colliding_name,
-		"Profile-aware discovery naming should skip names that already exist in the world state.")
-	assert_eq(unique_name, repeated_unique_name,
-		"Collision avoidance should remain deterministic for the same discovery count and existing-name set.")
-
-
-func test_filter_spatially_plausible_connections_drops_far_links():
-	TemplateDatabase.locations["near"] = {"global_position": Vector3(52000, 0, 0)}
-	TemplateDatabase.locations["far"] = {"global_position": Vector3(220000, 0, 0)}
-
-	var filtered_connections: Array = agent_layer._filter_spatially_plausible_connections(
-		"s1",
-		["s1", "near", "far"],
-		Vector3(48000, 4000, 0)
-	)
-
-	assert_eq(filtered_connections, ["s1", "near"], "Spatial filtering should keep plausible nearby links and drop distant ones.")
+	assert_eq(agent_layer._last_exploration_outcome, "stubbed", "Exploration outcome should be stubbed.")
+	assert_eq(GameState.chronicle_events.size(), 1, "Should log one chronicle event.")
+	assert_eq(GameState.chronicle_events[0]["action"], "exploration_attempt")
+	assert_eq(GameState.chronicle_events[0]["metadata"]["outcome"], "stubbed")
 
 
 func test_resolve_sector_interaction_holds_cooling_explorer_on_viable_frontier_anchor():
@@ -1487,65 +1303,7 @@ func test_get_exploration_success_modifier_keeps_hub_surveys_diminished():
 	assert_true(hub_modifier < frontier_modifier, "Hub survey odds should remain below frontier survey odds.")
 
 
-func test_build_discovered_sector_placement_separates_from_existing_discovery_branch():
-	GameState.world_topology["source"] = {
-		"connections": ["parent", "discovered_existing"],
-		"sector_type": "deep_space",
-		"station_ids": ["source"],
-	}
-	GameState.world_topology["parent"] = {
-		"connections": ["source"],
-		"development_level": "colony",
-		"station_ids": ["parent"],
-	}
-	GameState.world_topology["discovered_existing"] = {
-		"connections": ["source"],
-		"sector_type": "deep_space",
-		"station_ids": ["discovered_existing"],
-	}
-	TemplateDatabase.locations["source"] = {
-		"global_position": Vector3.ZERO,
-		"is_procedural": true,
-		"procedural_hints": {
-			"branch_axis": Vector3.RIGHT,
-			"branch_mode": "planar",
-		},
-	}
-	TemplateDatabase.locations["parent"] = {
-		"global_position": Vector3(-96000, 0, 0),
-		"is_procedural": false,
-		"procedural_hints": {},
-	}
-	TemplateDatabase.locations["discovered_existing"] = {
-		"global_position": Vector3(96000, 0, 0),
-		"is_procedural": true,
-		"procedural_hints": {
-			"low_visibility": true,
-		},
-	}
 
-	var placement: Dictionary = agent_layer._build_discovered_sector_placement("discovered_2", "source", {})
-
-	assert_true(bool(placement.get("is_valid", false)), "Sibling discovery branches should find a valid, non-overlapping placement when space exists.")
-	assert_true(
-		float(placement.get("branch_separation_deg", 0.0)) >= Constants.DISCOVERY_BRANCH_MIN_SIBLING_ANGLE_DEG,
-		"Secondary discovery branches should fan away from existing discovered siblings instead of staying nearly parallel."
-	)
-
-
-func test_get_discovery_connection_chances_bias_frontier_anchors():
-	GameState.world_topology["s1"]["development_level"] = "frontier"
-	GameState.sector_tags["s1"] = ["FRONTIER", "LAWLESS", "HARSH", "RAW_ADEQUATE", "MANUFACTURED_ADEQUATE", "CURRENCY_ADEQUATE"]
-
-	var connection_chances: Dictionary = agent_layer._get_discovery_connection_chances(
-		"s1",
-		GameState.sector_tags["s1"]
-	)
-
-	assert_eq(float(connection_chances.get("extra_one", 0.0)), Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_1_CHANCE,
-		"Frontier anchors should use the tuned first extra-link chance instead of the generic baseline.")
-	assert_eq(float(connection_chances.get("extra_two", 0.0)), Constants.FRONTIER_DISCOVERY_EXTRA_CONNECTION_2_CHANCE,
-		"Frontier anchors should use the tuned loop-link chance instead of the generic baseline.")
 
 
 # =============================================================================
@@ -1888,118 +1646,7 @@ func test_npc_dock_trade_black_market_only_lawful_fails_illicit_succeeds() -> vo
 	assert_eq(int(market["ore"]["quantity"]), 6, "Illicit agent should successfully mutate black market inventory.")
 
 
-func test_discovered_station_has_seeded_market_inventory() -> void:
-	GameState.world_seed = "test_market_seed"
-	GameState.sector_names["s1"] = "Source Sector"
-	GameState.world_topology["s1"] = {
-		"connections": ["s2"],
-		"development_level": "colony",
-		"station_ids": ["s1"]
-	}
-	TemplateDatabase.locations["s1"] = {
-		"global_position": Vector3.ZERO,
-		"location_name": "Source Sector",
-		"is_procedural": true,
-		"procedural_hints": {},
-	}
 
-	var generated_station: Dictionary = agent_layer._generate_procedural_station_for_sector("s1")
-	var station_id = generated_station["id"]
-
-	assert_true(GameState.locations.has(station_id), "Generated station should exist in GameState.locations")
-	var location_record = GameState.locations[station_id]
-	assert_true(location_record.has("market_inventory"), "Locations entry should have market_inventory key")
-	
-	var market_inventory: Dictionary = location_record["market_inventory"]
-	var expected_commodities = ["commodity_food", "commodity_fuel", "commodity_ore", "commodity_tech"]
-	for comm_id in expected_commodities:
-		assert_true(market_inventory.has(comm_id), "Market inventory should contain %s" % comm_id)
-		var comm_data = market_inventory[comm_id]
-		assert_true(comm_data.has("buy_price"), "Commodity %s should have buy_price" % comm_id)
-		assert_true(comm_data.has("sell_price"), "Commodity %s should have sell_price" % comm_id)
-		assert_true(comm_data.has("quantity"), "Commodity %s should have quantity" % comm_id)
-		assert_true(comm_data["quantity"] >= 5 and comm_data["quantity"] <= 20, "Quantity for %s should be in 5-20 range" % comm_id)
-		assert_true(comm_data["buy_price"] is int, "buy_price must be int")
-		assert_true(comm_data["sell_price"] is int, "sell_price must be int")
-		assert_true(comm_data["quantity"] is int, "quantity must be int")
-
-
-func test_npc_dock_trade_at_discovered_station_sell() -> void:
-	GameState.world_seed = "test_market_seed"
-	GameState.sector_names["discovered_test_sector"] = "Source Sector"
-	GameState.world_topology["discovered_test_sector"] = {
-		"connections": ["s2"],
-		"development_level": "colony",
-		"station_ids": ["discovered_test_sector"]
-	}
-	TemplateDatabase.locations["discovered_test_sector"] = {
-		"global_position": Vector3.ZERO,
-		"location_name": "Source Sector",
-		"is_procedural": true,
-		"procedural_hints": {},
-	}
-	
-	var generated_station = agent_layer._generate_procedural_station_for_sector("discovered_test_sector")
-	var station_id = generated_station["id"]
-	
-	var market = GameState.locations[station_id]["market_inventory"]
-	var food_baseline = market["commodity_food"]["quantity"]
-	
-	GameState.agents["agent_trader"] = {
-		"agent_role": "trader",
-		"current_sector_id": "discovered_test_sector",
-		"wealth_tag": "COMFORTABLE",
-		"condition_tag": "HEALTHY",
-		"cargo_tag": "LOADED",
-		"cargo_commodity_id": "commodity_food",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
-	}
-	
-	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "discovered_test_sector")
-	
-	var trader = GameState.agents["agent_trader"]
-	assert_eq(trader["cargo_tag"], "EMPTY", "Trader cargo tag should become EMPTY after selling.")
-	assert_eq(market["commodity_food"]["quantity"], food_baseline + 1, "Market commodity_food quantity should increment by 1.")
-
-
-func test_npc_dock_trade_at_discovered_station_buy() -> void:
-	GameState.world_seed = "test_market_seed"
-	GameState.sector_names["discovered_test_sector"] = "Source Sector"
-	GameState.world_topology["discovered_test_sector"] = {
-		"connections": ["s2"],
-		"development_level": "colony",
-		"station_ids": ["discovered_test_sector"]
-	}
-	TemplateDatabase.locations["discovered_test_sector"] = {
-		"global_position": Vector3.ZERO,
-		"location_name": "Source Sector",
-		"is_procedural": true,
-		"procedural_hints": {},
-	}
-	
-	var generated_station = agent_layer._generate_procedural_station_for_sector("discovered_test_sector")
-	var station_id = generated_station["id"]
-	
-	var market = GameState.locations[station_id]["market_inventory"]
-	for key in market:
-		if key != "commodity_food":
-			market[key]["quantity"] = 0
-	market["commodity_food"]["quantity"] = 10
-	
-	GameState.agents["agent_trader"] = {
-		"agent_role": "trader",
-		"current_sector_id": "discovered_test_sector",
-		"wealth_tag": "COMFORTABLE",
-		"condition_tag": "HEALTHY",
-		"cargo_tag": "EMPTY",
-		"sentiment_tags": ["TRADER", "LEGAL_LAWFUL"],
-	}
-	
-	agent_layer._try_dock("agent_trader", GameState.agents["agent_trader"], "discovered_test_sector")
-	
-	var trader = GameState.agents["agent_trader"]
-	assert_eq(trader["cargo_tag"], "LOADED", "Trader cargo tag should become LOADED after buying.")
-	assert_eq(market["commodity_food"]["quantity"], 9, "Market commodity_food quantity should decrement by 1.")
 
 
 func test_market_restock_depleted_to_rate() -> void:
@@ -2132,63 +1779,7 @@ func test_economy_level_for_category_parsing() -> void:
 	assert_eq(Constants.get_economy_level_for_category(["RAW_INVALID"], "RAW"), "ADEQUATE")
 
 
-func test_tag_governed_procedural_market_seeding() -> void:
-	# Pre-seed commodity templates in TemplateDatabase to be completely robust
-	var mock_base_values = {
-		"commodity_ore": 10,
-		"commodity_fuel": 25,
-		"commodity_food": 20,
-		"commodity_tech": 60,
-		"commodity_luxury": 100
-	}
-	for cid in mock_base_values:
-		if not TemplateDatabase.assets_commodities.has(cid):
-			var t = CommodityTemplate.new()
-			t.template_id = cid
-			t.base_value = mock_base_values[cid]
-			TemplateDatabase.assets_commodities[cid] = t
-		else:
-			# Ensure the template has the correct base value for our assertions
-			TemplateDatabase.assets_commodities[cid].base_value = mock_base_values[cid]
 
-	GameState.sector_tags["s1"] = ["RAW_RICH", "MANUFACTURED_POOR", "CURRENCY_ADEQUATE"]
-	GameState.locations.clear()
-	GameState.station_by_id.clear()
-	
-	var _station = agent_layer._generate_procedural_station_for_sector("s1")
-	assert_true(GameState.locations.has("station_s1"), "Location should be seeded.")
-	var market = GameState.locations["station_s1"]["market_inventory"]
-	
-	# 1. RAW_RICH: commodity_ore, commodity_fuel (multiplier 0.7x, qty 15-40)
-	assert_true(market.has("commodity_ore"))
-	assert_true(market["commodity_ore"]["quantity"] >= 15 and market["commodity_ore"]["quantity"] <= 40)
-	assert_eq(market["commodity_ore"]["buy_price"], 7) # round(10 * 0.7)
-	assert_eq(market["commodity_ore"]["sell_price"], 6) # round(7 * 0.8) = 5.6 -> 6
-	
-	assert_true(market.has("commodity_fuel"))
-	assert_true(market["commodity_fuel"]["quantity"] >= 15 and market["commodity_fuel"]["quantity"] <= 40)
-	assert_eq(market["commodity_fuel"]["buy_price"], 18) # round(25 * 0.7) = 17.5 -> 18
-	assert_eq(market["commodity_fuel"]["sell_price"], 14) # round(18 * 0.8) = 14.4 -> 14
-	
-	# 2. MANUFACTURED_POOR: commodity_food, commodity_tech (multiplier 1.5x, qty 0-5)
-	assert_true(market.has("commodity_food"))
-	assert_true(market["commodity_food"]["quantity"] >= 0 and market["commodity_food"]["quantity"] <= 5)
-	assert_eq(market["commodity_food"]["buy_price"], 30) # round(20 * 1.5)
-	assert_eq(market["commodity_food"]["sell_price"], 24) # round(30 * 0.8)
-	
-	assert_true(market.has("commodity_tech"))
-	assert_true(market["commodity_tech"]["quantity"] >= 0 and market["commodity_tech"]["quantity"] <= 5)
-	assert_eq(market["commodity_tech"]["buy_price"], 90) # round(60 * 1.5)
-	assert_eq(market["commodity_tech"]["sell_price"], 72) # round(90 * 0.8)
-	
-	# 3. CURRENCY_ADEQUATE: commodity_luxury (multiplier 1.0x, qty 5-20)
-	assert_true(market.has("commodity_luxury"))
-	assert_true(market["commodity_luxury"]["quantity"] >= 5 and market["commodity_luxury"]["quantity"] <= 20)
-	assert_eq(market["commodity_luxury"]["buy_price"], 100) # round(100 * 1.0)
-	assert_eq(market["commodity_luxury"]["sell_price"], 80) # round(100 * 0.8)
-	
-	# 4. Exclude commodity_default
-	assert_false(market.has("commodity_default"))
 
 
 func test_npc_quantitative_cargo_memory_and_contract_cargo_resolution() -> void:
@@ -2450,6 +2041,212 @@ func test_get_health_modifier() -> void:
 	GameState.agents["agent_invalid"] = {"condition_tag": "SUPER_HOT"}
 	var mod_invalid = agent_layer.get_health_modifier("agent_invalid")
 	assert_eq(mod_invalid, 0, "Agent with invalid condition_tag should default to 0.")
+
+
+func test_agent_initialization_includes_sub_agents() -> void:
+	agent_layer.initialize_agents()
+	assert_true(GameState.agents.has("player"), "Player agent must exist.")
+	var player = GameState.agents["player"]
+	assert_true(player.has("sub_agents"), "Player agent must have sub_agents key.")
+	assert_true(player["sub_agents"] is Dictionary, "sub_agents must be a Dictionary.")
+
+	# Test template-spawned agent initialization
+	var template: Resource = load("res://database/registry/agents/persistent_kai.tres")
+	assert_not_null(template, "Persistent Kai template should load.")
+	if template != null:
+		agent_layer._initialize_agent_from_template("agent_kai", template)
+		assert_true(GameState.agents.has("agent_kai"), "Kai agent must exist.")
+		var kai = GameState.agents["agent_kai"]
+		assert_true(kai.has("sub_agents"), "Kai agent must have sub_agents key.")
+		assert_true(kai["sub_agents"] is Dictionary, "sub_agents must be a Dictionary.")
+
+	# Test dynamic mortal spawn initialization
+	agent_layer._rng.seed = 42
+	for i in range(100):
+		agent_layer._spawn_mortal_agents()
+		if GameState.agents.has("mortal_1"):
+			break
+	var mortal_id = "mortal_1"
+	assert_true(GameState.agents.has(mortal_id), "Mortal agent 1 must exist.")
+	var mortal = GameState.agents[mortal_id]
+	assert_true(mortal.has("sub_agents"), "Mortal agent must have sub_agents key.")
+	assert_true(mortal["sub_agents"] is Dictionary, "sub_agents must be a Dictionary.")
+
+
+func test_sub_agent_transfer() -> void:
+	GameState.agents["host_a"] = {
+		"sub_agents": {
+			"crew_1": {
+				"sub_agent_id": "crew_1",
+				"name": "Bob",
+				"morale": 50
+			}
+		}
+	}
+	GameState.agents["host_b"] = {
+		"sub_agents": {}
+	}
+
+	# Test transfer of crew_1 from host_a to host_b
+	var success = agent_layer.sub_agent_transfer("crew_1", "host_a", "host_b")
+	assert_true(success, "Transfer should succeed.")
+	
+	# Verify host_a no longer has crew_1
+	assert_false(GameState.agents["host_a"]["sub_agents"].has("crew_1"), "host_a should no longer have crew_1.")
+	
+	# Verify host_b now has crew_1
+	assert_true(GameState.agents["host_b"]["sub_agents"].has("crew_1"), "host_b should now have crew_1.")
+	
+	# Verify morale penalty was applied
+	var crew = GameState.agents["host_b"]["sub_agents"]["crew_1"]
+	assert_eq(crew["morale"], 48, "Morale penalty should be applied.") # 50 + (-2) = 48
+
+	# Test transfer with invalid host
+	var fail_host = agent_layer.sub_agent_transfer("crew_1", "host_b", "nonexistent_host")
+	assert_false(fail_host, "Transfer should fail if to_host does not exist.")
+
+	# Test transfer with nonexistent sub-agent
+	var fail_sub = agent_layer.sub_agent_transfer("nonexistent_crew", "host_b", "host_a")
+	assert_false(fail_sub, "Transfer should fail if sub-agent does not exist in from_host.")
+
+
+func test_supplies_degradation_and_replenishment() -> void:
+	GameState.agents["agent_test"] = {
+		"supplies_tag": "SUPPLIES_ADEQUATE",
+		"supplies_ticks_remaining": 2,
+		"sub_agents": {}
+	}
+	
+	# Degrade once
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	assert_eq(GameState.agents["agent_test"]["supplies_tag"], "SUPPLIES_ADEQUATE")
+	assert_eq(GameState.agents["agent_test"]["supplies_ticks_remaining"], 1)
+	
+	# Degrade again to trigger LOW
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	assert_eq(GameState.agents["agent_test"]["supplies_tag"], "SUPPLIES_LOW")
+	assert_eq(GameState.agents["agent_test"]["supplies_ticks_remaining"], Constants.SUPPLIES_DEGRADATION_TICKS)
+
+	# Set supplies_ticks_remaining to 1 and degrade again to trigger NONE
+	GameState.agents["agent_test"]["supplies_ticks_remaining"] = 1
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	assert_eq(GameState.agents["agent_test"]["supplies_tag"], "SUPPLIES_NONE")
+	assert_eq(GameState.agents["agent_test"]["supplies_ticks_remaining"], 0)
+
+	# Test replenishment via _try_dock
+	GameState.locations["station_s1"] = {
+		"available_services": ["trade"]
+	}
+	agent_layer._try_dock("agent_test", GameState.agents["agent_test"], "s1")
+	assert_eq(GameState.agents["agent_test"]["supplies_tag"], "SUPPLIES_ADEQUATE", "Replenished supplies to ADEQUATE.")
+	assert_eq(GameState.agents["agent_test"]["supplies_ticks_remaining"], Constants.SUPPLIES_DEGRADATION_TICKS)
+
+
+func test_morale_decay_in_hazard_sectors() -> void:
+	GameState.agents["agent_test"] = {
+		"supplies_tag": "SUPPLIES_ADEQUATE",
+		"supplies_ticks_remaining": 10,
+		"current_sector_id": "harsh_sector",
+		"sub_agents": {
+			"sub_1": {
+				"morale": 50,
+				"consecutive_hazard_ticks": 0
+			}
+		}
+	}
+	GameState.sector_tags["harsh_sector"] = ["HARSH"]
+	
+	# Tick 1 in hazard
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	var sub = GameState.agents["agent_test"]["sub_agents"]["sub_1"]
+	assert_eq(sub["consecutive_hazard_ticks"], 1)
+	assert_eq(sub["morale"], 50)
+
+	# Tick 2 in hazard
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	sub = GameState.agents["agent_test"]["sub_agents"]["sub_1"]
+	assert_eq(sub["consecutive_hazard_ticks"], 2)
+	assert_eq(sub["morale"], 50)
+
+	# Tick 3 in hazard -> trigger decay
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	sub = GameState.agents["agent_test"]["sub_agents"]["sub_1"]
+	assert_eq(sub["consecutive_hazard_ticks"], 0, "Hazard ticks reset after decay.")
+	assert_eq(sub["morale"], 45, "Morale decayed by MORALE_DECAY_AMOUNT (-5).")
+
+	# Test reset to 0 in mild sector
+	GameState.agents["agent_test"]["current_sector_id"] = "mild_sector"
+	GameState.sector_tags["mild_sector"] = ["MILD"]
+	sub["consecutive_hazard_ticks"] = 2
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	sub = GameState.agents["agent_test"]["sub_agents"]["sub_1"]
+	assert_eq(sub["consecutive_hazard_ticks"], 0, "Reset hazard ticks in Mild sector.")
+	assert_eq(sub["morale"], 45)
+
+
+func test_starvation_morale_penalty() -> void:
+	GameState.agents["agent_test"] = {
+		"supplies_tag": "SUPPLIES_NONE",
+		"supplies_ticks_remaining": 0,
+		"current_sector_id": "mild_sector",
+		"sub_agents": {
+			"sub_1": {
+				"morale": 50,
+				"consecutive_hazard_ticks": 0
+			}
+		}
+	}
+	GameState.sector_tags["mild_sector"] = ["MILD"]
+	
+	# Tick 1 starvation penalty (subtract 10 every tick)
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	var sub = GameState.agents["agent_test"]["sub_agents"]["sub_1"]
+	assert_eq(sub["morale"], 40, "Morale penalty applied for starvation.")
+	
+	# Tick 2 starvation penalty
+	agent_layer._update_supplies_and_morale("agent_test", GameState.agents["agent_test"])
+	sub = GameState.agents["agent_test"]["sub_agents"]["sub_1"]
+	assert_eq(sub["morale"], 30, "Morale penalty applied again.")
+
+
+func test_aggregate_morale_to_modifier_mapping() -> void:
+	GameState.agents["agent_test"] = {
+		"sub_agents": {
+			"sub_1": {"morale": 90},
+			"sub_2": {"morale": 80}
+		}
+	}
+	# Avg: 85 -> modifier 2
+	assert_eq(agent_layer.get_crew_morale_modifier("agent_test"), 2)
+
+	# Avg: 50 -> modifier 0
+	GameState.agents["agent_test"]["sub_agents"]["sub_1"]["morale"] = 50
+	GameState.agents["agent_test"]["sub_agents"]["sub_2"]["morale"] = 50
+	assert_eq(agent_layer.get_crew_morale_modifier("agent_test"), 0)
+
+	# Avg: 30 -> modifier -2
+	GameState.agents["agent_test"]["sub_agents"]["sub_1"]["morale"] = 30
+	GameState.agents["agent_test"]["sub_agents"]["sub_2"]["morale"] = 30
+	assert_eq(agent_layer.get_crew_morale_modifier("agent_test"), -2)
+
+	# Avg: 0 -> modifier -4
+	GameState.agents["agent_test"]["sub_agents"]["sub_1"]["morale"] = 0
+	GameState.agents["agent_test"]["sub_agents"]["sub_2"]["morale"] = 0
+	assert_eq(agent_layer.get_crew_morale_modifier("agent_test"), -4)
+
+	# Test player defeat trigger at 0 morale
+	GameState.agents["player"] = {
+		"supplies_tag": "SUPPLIES_NONE",
+		"supplies_ticks_remaining": 0,
+		"current_sector_id": "mild_sector",
+		"is_disabled": false,
+		"disabled_at_tick": -1,
+		"sub_agents": {
+			"sub_1": {"morale": 0}
+		}
+	}
+	agent_layer._update_supplies_and_morale("player", GameState.agents["player"])
+	assert_true(GameState.agents["player"]["is_disabled"], "Player is disabled when crew morale hits 0.")
 
 
 
