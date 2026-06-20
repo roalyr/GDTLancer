@@ -2,6 +2,9 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_CONSTRAINTS.md
 STATUS: [Level 2 - Implementation]
+OWNER: architect
+ACCESS: read-only
+USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Compatibility Constraints; TRUTH_PROJECT.md § Agent Parity Principle; TRUTH_PROJECT.md § Automated Testing Boundary; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Session Logging Boundary; MODEL-CASCADE-PROTOCOL.md
 LOG_REF: 2026-05-27 04:38:18
 -->

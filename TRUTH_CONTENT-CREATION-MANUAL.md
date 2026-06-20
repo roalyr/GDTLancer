@@ -2,6 +2,9 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_CONTENT-CREATION-MANUAL.md
 STATUS: [Level 2 - Implementation]
+OWNER: architect
+ACCESS: read-only-owner
+USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TACTICAL_TODO.md TASK_1; commodity_classification_architecture.md
 LOG_REF: 2026-06-07 16:30:00
 -->

@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: test_station_menu.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
 # LOG_REF: 2026-06-14 01:00:09
 
@@ -206,4 +209,3 @@ func _seed_base_state() -> void:
 
 # NOTE: GDD REVISION - The standalone market UI, trade gating, and contraband gating tests 
 # are pruned as standalone trading is deprecated.
-

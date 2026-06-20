@@ -2,6 +2,9 @@
 PROJECT: GDTLancer
 MODULE: TACTICAL_TODO.md
 STATUS: [Level 3 - Verification]
+OWNER: architect
+ACCESS: read-write
+USER INSTRUCTION: NONE
 TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1; TRUTH_PROJECT.md § Automated Testing Boundary
 LOG_REF: 2026-06-14 02:24:48
 -->

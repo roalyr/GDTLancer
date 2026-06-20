@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: command_stop.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: core/agents/components/navigation_system/command_stop.gd
 # Version: 3.0 - RigidBody physics with orientation-aware braking.
 # Ships can use forward or backward thrusters depending on alignment.

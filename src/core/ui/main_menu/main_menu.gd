@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: main_menu.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 ##
 ## PROJECT: GDTLancer
 ## MODULE: main_menu.gd
@@ -125,4 +134,3 @@ func _show_menu() -> void:
 	get_tree().paused = true
 	_update_load_button_state()
 	_refresh_close_button_state()
-

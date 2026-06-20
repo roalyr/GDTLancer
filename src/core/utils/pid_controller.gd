@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: pid_controller.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: core/utils/pid_controller.gd
 # Version: 1.0
 # Purpose: A reusable PID controller class.

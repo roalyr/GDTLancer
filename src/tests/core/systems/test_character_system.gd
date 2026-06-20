@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: test_character_system.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
 # LOG_REF: 2026-06-14 02:11:58
 
@@ -152,4 +155,3 @@ func test_get_wealth_modifier():
 	# Test unknown or missing character returns 0
 	assert_eq(character_system_instance.get_wealth_modifier("non_existent_uid"), 0, "Unknown character returns 0.")
 	prints("Tested CharacterSystem: Wealth Modifier Values")
-

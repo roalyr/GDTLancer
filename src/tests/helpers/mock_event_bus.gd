@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: mock_event_bus.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # tests/helpers/mock_event_bus.gd
 ## Mock EventBus for unit testing - forwards emit_signal to actual signal emission.
 extends Node

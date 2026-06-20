@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: GlobalRefs.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: GlobalRefs.gd
@@ -182,4 +191,3 @@ func set_main_hud(new_ref):
 			print("GlobalRefs: Main HUD UI ref set to ", new_ref.name if new_ref else "null")
 	else:
 		printerr("GlobalRefs Error: Invalid Main HUD UI ref: ", new_ref)
-

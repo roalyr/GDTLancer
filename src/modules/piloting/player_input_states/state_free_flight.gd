@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: state_free_flight.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: src/modules/piloting/player_input_states/state_free_flight.gd
 # Handles direct ship orientation and movement input.
 

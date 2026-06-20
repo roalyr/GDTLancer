@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: report_summarizer.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: report_summarizer.gd
@@ -552,4 +561,3 @@ func _format_agent_wealth(agent_id: String, agent: Dictionary, to_lower: bool = 
 		return "%s (%d/10)" % [w_tier, w_prog]
 	else:
 		return w_tier
-

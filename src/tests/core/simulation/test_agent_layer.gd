@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: test_agent_layer.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
 # LOG_REF: 2026-06-14 02:24:48
 
@@ -2447,7 +2450,6 @@ func test_get_health_modifier() -> void:
 	GameState.agents["agent_invalid"] = {"condition_tag": "SUPER_HOT"}
 	var mod_invalid = agent_layer.get_health_modifier("agent_invalid")
 	assert_eq(mod_invalid, 0, "Agent with invalid condition_tag should default to 0.")
-
 
 
 

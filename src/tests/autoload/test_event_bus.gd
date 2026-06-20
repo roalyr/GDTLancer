@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_event_bus.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/autoload/test_event_bus.gd
 # GUT Test Script for EventBus.gd Autoload
 # Version 1.3 - Adjusted for revised signal_catcher logic

@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: state_default.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: src/modules/piloting/player_input_states/state_default.gd
 # Handles standard flight, targeting, and camera drag input.
 

@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: npc_trade_panel.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1
 # LOG_REF: 2026-06-14 01:00:09
 

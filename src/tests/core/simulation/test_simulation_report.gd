@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_simulation_report.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: test_simulation_report.gd
@@ -228,4 +237,3 @@ func _seed_template_database():
 	var indexer = TemplateIndexer.new()
 	indexer.index_all_templates()
 	indexer.free()
-

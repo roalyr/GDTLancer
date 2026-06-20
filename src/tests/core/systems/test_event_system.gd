@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_event_system.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/core/systems/test_event_system.gd
 # Unit tests for EventSystem hostile tracking, signal emission, and edge cases.
 # Random encounter spawning is disabled — tests cover force_encounter() debug API

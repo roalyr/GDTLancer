@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_faction_loading.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: src/tests/scenes/game_world/world_manager/test_faction_loading.gd
 # GUT Test Script for Faction Loading
 # Version: 2.0 - Removed contacts and narrative_state (deleted in TASK_15)

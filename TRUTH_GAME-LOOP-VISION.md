@@ -2,6 +2,9 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_GAME-LOOP-VISION.md
 STATUS: [Level 2 - Design]
+OWNER: architect
+ACCESS: read-only-owner
+USER INSTRUCTION: Priority in tactical todo list as a file which should be revied first and foremost with recent strategic todo introduction.
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_SIMULATION-GRAPH.md § 0. Implementation Reality
 LOG_REF: 2026-06-15 01:20:00
 -->

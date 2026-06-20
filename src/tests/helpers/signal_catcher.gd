@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: signal_catcher.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/helpers/signal_catcher.gd
 # Helper script for catching signals in GUT tests
 # Version 1.2 - Reliably captures first few args, including nulls

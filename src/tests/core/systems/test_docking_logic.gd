@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_docking_logic.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 ##
 ## PROJECT: GDTLancer
 ## MODULE: test_docking_logic.gd
@@ -289,4 +298,3 @@ func _create_player_controller_harness(aligned: bool = true, rotation_stopped: b
 		"controller": controller,
 		"movement_system": movement_system,
 	}
-

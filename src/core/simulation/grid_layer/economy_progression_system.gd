@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: economy_progression_system.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §3.2 + TACTICAL_TODO.md TASK_3
 # LOG_REF: 2026-06-12 23:25:00
 

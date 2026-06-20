@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: camera_position_controller.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: scenes/camera/components/camera_position_controller.gd
 # Version: 1.2 - Added target-tracking mode for viewing both player and target.
 # Purpose: Manages camera positioning, smoothing, and bobbing effect.

@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: route_target_provider.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 extends Reference
 
 const RouteTargetScript = preload("res://src/core/targeting/route_target.gd")

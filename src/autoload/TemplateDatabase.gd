@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: TemplateDatabase.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: autoload/TemplateDatabase.gd
 # Autoload Singleton: Scanned templates from /data/ are indexed and stored here
 # Version: 1.3 - Added utility_tools dictionary and get_template method

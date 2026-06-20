@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: command_orbit.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: core/agents/components/navigation_system/command_orbit.gd
 # Version: 5.0 - Stateless tangential orbit: ship follows tangent based on velocity & turn rate.
 # The ship will naturally settle into an orbit radius determined by its turning capability.
@@ -123,4 +132,3 @@ func execute(delta: float):
 		# Partially aligned - reduced thrust
 		_movement_system.request_thrust_forward(0.4)
 	# Otherwise, let drag slow us while we turn
-

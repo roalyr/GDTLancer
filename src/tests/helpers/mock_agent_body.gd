@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: mock_agent_body.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/helpers/mock_agent_body.gd
 # A minimal agent body for the spawner to instantiate in tests.
 # Version: 3.0 - Updated to RigidBody for physics-based flight.

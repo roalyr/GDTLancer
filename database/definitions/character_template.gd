@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: character_template.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: database/definitions/character_template.gd
@@ -40,4 +49,3 @@ export var goals: Array = [] # Current goals (for future Goal System integration
 # --- Qualitative Simulation ---
 export var initial_condition_tag: String = "HEALTHY"
 export var initial_wealth_tag: String = "COMFORTABLE"
-

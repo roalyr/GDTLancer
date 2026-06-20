@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: test_core_mechanics_api.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: 1-GDD-Core-Mechanics.md § 6.1; TRUTH_PROJECT.md § Automated Testing Boundary
 # LOG_REF: 2026-06-14 02:24:48
 
@@ -121,4 +124,3 @@ func test_health_modifier_shifts_roll():
 	assert_eq(result_damaged.health_modifier, -2, "Damaged health_modifier key is -2.")
 	assert_eq(result_destroyed.health_modifier, -4, "Destroyed health_modifier key is -4.")
 	prints("Tested Action Check: Health Modifier Shifts Roll")
-

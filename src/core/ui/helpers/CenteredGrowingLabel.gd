@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: CenteredGrowingLabel.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: res://core/ui/ui_helper_classes/CenteredGrowingLabel.gd
 # Makes labels center-aligned in parent at runtime.
 # Version: 1.0

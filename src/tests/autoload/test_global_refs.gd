@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_global_refs.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/autoload/test_global_refs.gd
 # GUT Test Script for GlobalRefs.gd Autoload
 # Version: 1.2

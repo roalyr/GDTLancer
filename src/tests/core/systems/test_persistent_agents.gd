@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_persistent_agents.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: src/tests/core/systems/test_persistent_agents.gd

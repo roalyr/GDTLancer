@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_template_indexer.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/scenes/game_world/world_manager/test_template_indexer.gd
 # GUT Test Script for the TemplateIndexer component.
 # Version: 1.0

@@ -2,16 +2,19 @@
 PROJECT: GDTLancer
 MODULE: MODEL-CASCADE-PROTOCOL.md
 STATUS: [Level 2 - Implementation]
+OWNER: architect
+ACCESS: read-only-owner
+USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Workflow And Scope Boundary; TRUTH_PROJECT.md § Session Logging Boundary
 LOG_REF: 2026-05-30 16:06:36
 -->
 
 WORKSPACE CONFIGURATION
 
-Each project must maintain the following "Truth" and "State" files:
+Each project must maintain the following "Truth" and "State" files, each starting with a metadata header block that defines its owner, access levels, and user instruction:
 
-    READ-ONLY TRUTHS: TRUTH_PROJECT.md (Project specific context, tech stack, global rules), TRUTH_*.md (GDD, Datasheet, Spec, etc.).
-    READ-WRITE STATE: TACTICAL_TODO.md (Current Sprint) and SESSION_LOG.md (Loop Prevention).
+    READ-ONLY TRUTHS: TRUTH_PROJECT.md (Project specific context, tech stack, global rules), TRUTH_*.md (GDD, Datasheet, Spec, etc.). Header must specify OWNER: architect (or user/developer/architect-governed), ACCESS: read-only or read-only-owner, and USER INSTRUCTION: NONE.
+    READ-WRITE STATE: TACTICAL_TODO.md (Current Sprint; OWNER: architect, ACCESS: read-write, USER INSTRUCTION: NONE), STRATEGICAL-TODO.md (OWNER: architect, ACCESS: read-write, USER INSTRUCTION: NONE), and SESSION-LOG.md (Loop Prevention; OWNER: developer, ACCESS: read-write, USER INSTRUCTION: NONE).
 
 SESSION ENTRYPOINT
 
@@ -37,6 +40,7 @@ Read only when the active task requires it:
 4. [TRUTH_CONSTRAINTS.md](TRUTH_CONSTRAINTS.md) — compatibility reference for older contracts and historical log links; no longer required as a default first-read surface.
 5. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
 6. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes and follow-on milestone order; load for architect/design pivots, truth rewrites, and setting-alignment work.
+7. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
 
 Do not load by default:
 
@@ -46,8 +50,8 @@ Do not load by default:
 
 WORKFLOW CONTEXT LAYERS
 
-  CONTROL PLANE (default first-read set): MODEL-CASCADE-PROTOCOL.md, TRUTH_PROJECT.md, TACTICAL_TODO.md, SESSION_LOG.md.
-  LIVE REFERENCE (load only the targeted sections needed for the active task): relevant TRUTH_*.md files linked above, plus `GDD-REVISION-LEDGER.md` for architect/design pivot work.
+  CONTROL PLANE (default first-read set): MODEL-CASCADE-PROTOCOL.md, TRUTH_PROJECT.md, TACTICAL_TODO.md, STRATEGICAL-TODO.md, SESSION-LOG.md.
+  LIVE REFERENCE (load only the targeted sections needed for the active task): relevant TRUTH_*.md files linked above, plus `GDD-REVISION-LEDGER.md` for architect/design pivot work, and `STRATEGICAL-TODO.md` when planning milestones.
   ARCHIVE / GENERATED REFERENCE (do not load by default): frozen GDD snapshots, `archive/PROJECT_DUMP_TEXT_*`, archived focused simulation logs, and other generated artifacts unless the active task explicitly depends on them.
 
 CORE CONSTRAINTS
@@ -65,6 +69,7 @@ Validation boundary:
 2. Keep validation manual for long-run balance, world reasonableness, topology aesthetics, naming taste, UI copy/presentation polish, and broad smoke loops.
 3. Do not reintroduce automated 300-3000 tick full-environment simulation harnesses as the default validation surface.
 4. Human/manual validation is distinct from code verification and must be logged separately when a milestone requires it.
+5. Every SESSION_LOG.md entry should state what changed, what was validated, and whether manual validation remains pending.
 
 Routing guidance:
 
@@ -106,13 +111,20 @@ Focused validation anchors:
 
 GLOBAL WORKFLOW RULES
 
-1. TACTICAL_TODO.md is Architect-owned. Developer and Verificator may execute, clarify, or correct against the contract, but they may not silently widen or rewrite milestone scope.
+1. TACTICAL_TODO.md and STRATEGICAL-TODO.md are Architect-owned. Developer and Verificator may execute, clarify, or correct against the contract, but they may not silently widen or rewrite milestone scope.
 2. Only one implementation slice is active at a time: the first unchecked "- [ ]" item in TACTICAL_TODO.md.
 3. TARGET_SCOPE defines the behavioral boundary. TARGET_FILES define the primary ownership list. A narrow adjacent owner may be touched only when it is directly required to preserve an existing contract such as signatures, serialization, initialization, scene wiring, or focused validation for the active task.
-4. If completing the task would require a behavior change outside TARGET_SCOPE or a non-narrow owner outside TARGET_FILES, stop execution and return control to the Architect instead of improvising scope.
-5. Verificator may correct local in-scope deviations, but may not convert verification into a new implementation milestone.
-6. Human/manual validation is distinct from code verification. Verificator can close code compliance within scope, while broader manual runtime or gameplay validation remains a separate explicit status.
-7. Every SESSION_LOG.md entry should state what changed, what was validated, and whether manual validation remains pending.
+4. Access and Modification Rules: Every file's header specifies its OWNER (user | architect | architect-governed | developer), ACCESS (read-only | read-only-owner | read-write), and USER INSTRUCTION (NONE or an overriding prompt instruction string).
+   - If ACCESS is set to `read-only`, no agent may edit the file regardless of role (fully frozen/archived).
+   - If ACCESS is set to `read-only-owner`, only an agent acting in the designated OWNER role may modify the file. Other roles have read-only access.
+   - If ACCESS is set to `read-write`, the file may be modified by the matching OWNER or by downstream roles (e.g. Developers executing a contract slice) as allowed by workflow rules.
+   - USER INSTRUCTION Rules: Before reading or modifying any file during a session, the agent must check its `USER INSTRUCTION` field. If this field is anything other than `NONE`, it represents the primary source of over-ruling context for that file. The agent must prioritize and execute this instruction first, restoring the field to `USER INSTRUCTION: NONE` before acting on the file's content.
+   - Atomicity Rule for GDScript updates: For `.gd` files, the header update restoring `USER INSTRUCTION: NONE` and updating `LOG_REF` must happen in the same single commit/edit as the instruction execution itself — never deferred to a later pass.
+   - LOG_REF semantics: `LOG_REF` in headers must reflect the timestamp of the last meaningful content change, not metadata-only updates (such as header adjustments). The adoption of the new header system may be accepted as a baseline timestamp.
+5. If completing the task would require a behavior change outside TARGET_SCOPE or a non-narrow owner outside TARGET_FILES, stop execution and return control to the Architect instead of improvising scope.
+6. Verificator may correct local in-scope deviations, but may not convert verification into a new implementation milestone.
+7. Human/manual validation is distinct from code verification. Verificator can close code compliance within scope, while broader manual runtime or gameplay validation remains a separate explicit status.
+8. Every SESSION_LOG.md entry should state what changed, what was validated, and whether manual validation remains pending.
 
 ROLE TRANSITIONS
 
@@ -145,11 +157,12 @@ SCOPE AMENDMENT PATH
 
 
 ROLE: Lead Systems Architect
-CONTEXT: Start from this file. Then read [TRUTH_PROJECT.md](TRUTH_PROJECT.md), [TACTICAL_TODO.md](TACTICAL_TODO.md), and the latest entries in [SESSION-LOG.md](SESSION-LOG.md). Load only the targeted linked truth files needed for the next milestone.
+CONTEXT: Start from this file. Then read [TRUTH_PROJECT.md](TRUTH_PROJECT.md), [TACTICAL_TODO.md](TACTICAL_TODO.md), [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md), and the latest entries in [SESSION-LOG.md](SESSION-LOG.md). Load only the targeted linked truth files needed for the next milestone.
 TASK:
-1. Analyze the relevant 'TRUTH_*.md' files and the last 5 entries of 'SESSION_LOG.md'.
-2. Identify the single next logical milestone.
-3. Overwrite 'TACTICAL_TODO.md' with a machine-readable Implementation Contract that declares both milestone scope and owned files.
+1. Analyze the roadmap and checklist in [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) to identify the next unchecked strategical milestone.
+2. Analyze the relevant 'TRUTH_*.md' files and the last 5 entries of 'SESSION_LOG.md'.
+3. Identify the single next logical milestone, map it to an implementation strategy, and update the checklist in [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) as needed.
+4. Overwrite 'TACTICAL_TODO.md' with a machine-readable Implementation Contract that declares both milestone scope and owned files.
 
 SCHEMA RULE:
 For multi-surface stabilization milestones, prefer TARGET_SCOPE + TARGET_FILES over a single TARGET_FILE.
@@ -200,6 +213,9 @@ UNIVERSAL HEADER:
 PROJECT: {{Project_Name}}
 MODULE: [Filename]
 STATUS: [Level 2 - Implementation]
+OWNER: [user | architect | architect-governed | developer]
+ACCESS: [read-only | read-only-owner | read-write]
+USER INSTRUCTION: [NONE | overriding context prompt]
 TRUTH_LINK: [Section of Truth Doc]
 LOG_REF: [Last Log Timestamp]
 

@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: agent.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: gameplay_milestone_audit.md
 # LOG_REF: 2026-06-12 22:50:00
 

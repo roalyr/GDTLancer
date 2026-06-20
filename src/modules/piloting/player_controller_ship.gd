@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: player_controller_ship.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: player_controller_ship.gd
@@ -804,4 +813,3 @@ func _on_player_undocked():
 	GameState.player_docked_at = ""
 	set_process_unhandled_input(true)
 	set_physics_process(true)
-

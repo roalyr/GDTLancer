@@ -2,6 +2,9 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_SIMULATION-GRAPH.md
 STATUS: [Level 2 - Implementation]
+OWNER: architect
+ACCESS: read-only-owner
+USER INSTRUCTION: Priority in tactical todo list as a file which should be revied first and foremost with recent strategic todo introduction.
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
 LOG_REF: 2026-06-11 00:15:00
 -->

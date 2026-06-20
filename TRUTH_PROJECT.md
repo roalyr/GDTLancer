@@ -2,6 +2,9 @@
 PROJECT: GDTLancer
 MODULE: TRUTH_PROJECT.md
 STATUS: [Level 2 - Implementation]
+OWNER: architect
+ACCESS: read-only-owner
+USER INSTRUCTION: Should be updated according to new model cascade protocol update.
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary
 LOG_REF: 2026-05-27 04:35:01
 -->

@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: grid_layer.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: grid_layer.gd
@@ -660,4 +669,3 @@ func _colony_upgrade_security_ok(tags: Array, level: String) -> bool:
 
 func _colony_upgrade_environment_ok(tags: Array, level: String) -> bool:
 	return colony._colony_upgrade_environment_ok(tags, level)
-

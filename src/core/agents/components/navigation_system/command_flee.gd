@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: command_flee.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: core/agents/components/navigation_system/command_flee.gd
 # Version: 3.0 - RigidBody physics with PID-controlled flight.
 extends Node

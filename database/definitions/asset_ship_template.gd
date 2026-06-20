@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: asset_ship_template.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: core/resource/ship_template.gd
 # Purpose: Defines ships.
 # Version: 2.0 - RigidBody physics with thrust-based 6DOF flight.

@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: src/core/systems/agent_system.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: architect-governed
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: TRUTH_SIMULATION-GRAPH.md §2.3; TRUTH_CONTENT-CREATION-MANUAL.md §3.6
 # LOG_REF: 2026-06-10 23:41:19
 

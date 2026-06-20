@@ -1,6 +1,9 @@
 # PROJECT: GDTLancer
 # MODULE: station_menu.gd
 # STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
 # TRUTH_LINK: gameplay_milestone_audit.md
 # LOG_REF: 2026-06-12 23:00:00
 

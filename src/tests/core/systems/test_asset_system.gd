@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_asset_system.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # File: tests/core/systems/test_asset_system.gd
 # GUT Test for the stateless AssetSystem.
 # Version: 2.2 - Added tests for get_ship_for_character().

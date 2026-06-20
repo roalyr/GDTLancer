@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_movement_system.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 # tests/core/agents/components/test_movement_system.gd
 # Version: 2.0 - Updated for RigidBody physics with thrust-based flight.
 extends GutTest

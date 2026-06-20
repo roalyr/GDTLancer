@@ -1,3 +1,12 @@
+# PROJECT: GDTLancer
+# MODULE: test_jump_transition_regressions.gd
+# STATUS: [Level 2 - Implementation]
+# OWNER: developer
+# ACCESS: read-write
+# USER INSTRUCTION: NONE
+# TRUTH_LINK: None
+# LOG_REF: 2026-06-20 18:41:40
+
 #
 # PROJECT: GDTLancer
 # MODULE: test_jump_transition_regressions.gd
@@ -408,7 +417,6 @@ func test_dynamic_travel_durations_for_pairs():
 	assert_eq(Constants.get_jump_travel_duration("deep_space", "deep_space"), 15.0, "deep_space-deep_space travel should take 15 seconds.")
 	# fallback/unknown defaults to JUMP_TRAVEL_DURATION (20.0)
 	assert_eq(Constants.get_jump_travel_duration("unknown_a", "unknown_b"), 20.0, "Fallback duration should be 20 seconds.")
-
 
 
 
