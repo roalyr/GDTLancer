@@ -6,7 +6,7 @@ OWNER: developer
 ACCESS: read-only-owner
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
-LOG_REF: 2026-06-20 19:13:27
+LOG_REF: 2026-06-21 00:44:00
 -->
 
 # Content Creation Manual
@@ -213,11 +213,11 @@ var corsair = TemplateDatabase.get_template("ship_corsair")
 
 ```
 [Resource - CommodityTemplate]
-├── template_id: "commodity_quantum_crystals"
+├── template_id: "commodity_hull_sealant"
 ├── asset_type: "commodity"
-├── asset_icon_id: "icon_quantum_crystals"
-├── commodity_name: "Quantum Crystals"
-├── base_value: 5000
+├── asset_icon_id: "icon_hull_sealant"
+├── commodity_name: "Hull Sealant Compound"
+├── base_value: 120
 ```
 
 The live `CommodityTemplate` is intentionally minimal right now. If you need fields such as legality or volatility, add them to the definition script first. However, economic category classification is mapped programmatically via the **Commodity Classification Registry** (Step 2) to connect the qualitative and quantitative systems.
@@ -240,8 +240,8 @@ Every tradeable commodity must be mapped to an economic category in the **Commod
 #### Step 3: ART - (Optional) Add Icon
 
 1. Create 64x64 PNG icon
-2. Save to `/assets/art/ui/commodities/icon_quantum_crystals.png`
-3. Reference the icon through `asset_icon_id = "icon_quantum_crystals"` (or the current UI icon lookup used by the consuming scene); the live commodity template does not expose a direct `icon_path` field
+2. Save to `/assets/art/ui/commodities/icon_hull_sealant.png`
+3. Reference the icon through `asset_icon_id = "icon_hull_sealant"` (or the current UI icon lookup used by the consuming scene); the live commodity template does not expose a direct `icon_path` field
 
 ---
 
@@ -277,7 +277,7 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 
 ### 3.4 Adding a New Sector / Location
 
-**Canonical model:** each entry in `/database/registry/locations/` is a sector-level `LocationTemplate` resource. It owns the sector id, galactic position, topology, scene-loading path, and compatibility data used by the current docked UI and bootstrap flow.
+**Canonical model:** each entry in `/database/registry/locations/` is a sector-level `LocationTemplate` resource. It owns the sector id, global position, topology, scene-loading path, and compatibility data used by the current docked UI and bootstrap flow.
 
 **Naming Convention and Hierarchy:**
 - The primary star of a system is always the main sector and determines the folder structure (e.g., `sector_star_elace`, `sector_star_cob`, `sector_star_lywin`).
@@ -317,6 +317,9 @@ The live `UtilityToolTemplate` uses `range_effective` / `range_max` and `energy_
 ├── initial_sector_tags: PoolStringArray("STATION", "SECURE", "MILD")
 └── available_contract_ids: []  # Optional curated overrides only
 ```
+
+> [!NOTE]
+> `available_services` tags are a **mechanical abstraction** of what the people living at this anchorage actually do. They are not a menu of features the station broadcasts. When writing descriptions or narrative templates for this station, always ground the services in the people behind them: who does repairs, whose family runs the trade post, which elder mediates disputes.
 
 Keep the other world-layer fields aligned with your chosen source template or tuned intentionally for the new sector: `radiation_level`, `thermal_background_k`, `gravity_well_penalty`, `mineral_density`, `propellant_sources`, `station_power_output`, and `stockpile_capacity` remain part of the authored sector resource. The live qualitative simulation primarily reads topology, tags, and bounded progression state; do not treat these numeric fields as the driver of runtime contract generation.
 
@@ -365,20 +368,20 @@ If the sector should use the procedural fallback instead of a handcrafted scene:
 
 ```
 [Resource - ContractTemplate]
-├── template_id: "delivery_nexus_run"
+├── template_id: "delivery_cob_sealant_run"
 ├── contract_type: "delivery"
-├── title: "Nexus Supply Run"
-├── description: "Deliver quantum crystals to Nexus System. Payment on delivery."
-├── issuer_id: "trade_dispatch_nexus"
+├── title: "Sealant Run for the Cob Anchorage"
+├── description: "The Cob anchorage is running short on hull sealant compound. Dockmaster Vennar put out the word. Anyone who can make the run before the next maintenance cycle gets paid in kind."
+├── issuer_id: "dockmaster_vennar_cob"
 ├── faction_id: "faction_traders"
 ├── origin_location_id: "sector_star_elace"
-├── destination_location_id: "sector_star_nexus"
-├── required_commodity_id: "commodity_quantum_crystals"
+├── destination_location_id: "sector_star_cob"
+├── required_commodity_id: "commodity_hull_sealant"
 ├── required_quantity: 10
 ├── time_limit_seconds: 500  # Seconds
-├── reward_credits: 25000
-├── reward_reputation: 50
-└── difficulty: 2
+├── reward_credits: 0        # Settled in specie or community favour at destination
+├── reward_reputation: 20
+└── difficulty: 1
 ```
 
 Use `title`, `issuer_id`, `origin_location_id`, and `required_commodity_id` exactly as exported by `contract_template.gd`. The live template does not expose `display_name`, `cargo_type`, or `required_reputation`.
@@ -404,18 +407,21 @@ Do **not** create authored `ContractTemplate` resources just to mirror qualitati
 ├── template_id: "character_merchant_kane"
 ├── character_name: "Merchant Kane"
 ├── character_icon_id: "character_merchant_kane"
-├── description: "A shrewd trader with connections everywhere"
+├── description: "Careful haggler who knows every family at the Elace anchorage. Station-tied most of his life; rarely ventures out."
 ├── faction_id: "faction_traders"
-├── credits: 100000
+├── credits: 800
 ├── focus_points: 2
 ├── skills:
-│   ├── piloting: 3
-│   ├── trading: 8
-│   └── combat: 2
-├── reputation: 500
+│   ├── piloting: 1
+│   ├── trading: 6
+│   └── combat: 0
+├── reputation: 80
 ├── initial_condition_tag: "HEALTHY"
-└── initial_wealth_tag: "WEALTHY"
+└── initial_wealth_tag: "COMFORTABLE"
 ```
+
+> [!NOTE]
+> **Scarce Pilot Doctrine (LORE-2.2):** Most station residents cannot pilot a vessel. `piloting: 1` represents minimal exposure — enough to assist in an emergency, not to command a ship independently. Only characters explicitly intended as vessel operators should have `piloting: 3` or higher. Similarly, `combat` should reflect personal experience, not a combat loadout.
 
 The live character template is simulation-facing. It does not currently expose `profession`, `portrait_path`, or `starting_*` fields, so use `description`, `skills`, standing dictionaries, and the qualitative starting tags instead.
 
@@ -535,6 +541,9 @@ Tool stats in `/database/registry/tools/`:
 - `range_effective` / `range_max`: falloff window
 - `energy_per_shot`: Power drain per shot
 - `power_draw`: mount power requirement
+
+> [!NOTE]
+> **Not a gear-progression surface (LORE-3.1):** Combat tool stats are balance parameters for desperate last-resort situations, not an optimization or upgrade loop. Do not design content around tool tier upgrades, weapon hunting, or damage-per-second maximization. The lore frames weapons as reluctant community necessities — a poorly-maintained plasma cutter pressed into service — not a hero's arsenal.
 
 Ship defensive stats in `/database/registry/assets/ships/`:
 - `hull_integrity`: Total hit points
@@ -729,6 +738,35 @@ The colonial frontier is populated by close-knit, pragmatic communities. Authors
 - **Atmospheric Creole:** Use the sector's practical jargon creole — a setting-specific vocabulary blending low-tech mechanical terms, TTRPG nautical-slang, and localized slang. (e.g. *drift-hours*, *breaker-rigs*, *burn-water* instead of *fuel*).
 - **Material Focus:** Focus on the concrete physical and logistical realities of the frontier: hull degradation, supply depletion, heat tolerances, and interpersonal debt, avoiding high space-opera terms.
 - **Dynamic References:** Always use bracketed template placeholders (e.g. `{player_name}`, `{sub_agent_name}`, `{origin_sector}`) to keep text aligned with the live simulation state and preserve agent parity.
+
+---
+
+## 9. Canonical Lore Lexicon
+
+To maintain the grounded, low-tech, and community-centric atmosphere of *GDTLancer*, all player-facing text, narrative templates, and resource descriptions must pass through this vocabulary filter.
+
+### 9.1 Banned vs. Approved Terms
+
+| ❌ Banned Term | ✅ Approved Alternative | Rationale |
+|---|---|---|
+| Corporation / Corp / Company | Cooperative, Clan, Family, Guild, Syndicate, Coalition | LORE-1.1: Factions are small, fragile, localized groups, not monolithic corporate empires. |
+| Navy / Military / Standing Army / Fleet | Patrol, Watchkeep, Guard detail, Security detail | LORE-1.1: There are no standing military forces or central sector-governing institutions. |
+| Empire / Federation / Republic / Senate | Settlement, Coalition, Community, Alliance, Enclave | LORE-1.1: There is no centralized system government. |
+| Galactic / Interstellar / Cosmic | Local, Sector-level, Regional, Frontier | LORE-1.1: The setting is a raw, isolated, early-stage frontier. |
+| Hop in your ship / Take a quick flight / Fly over to | Prep the vessel, Run pre-launch, Crew muster, Logistical run | LORE-2.1/2.3: Space travel requires coordination, planning, and group labor. It is not casual commuting. |
+| Your ship / My ship / Personal starship | The vessel, The machine, Our boat, The rig | LORE-2.1: Starships are complex community assets, not personal cars. |
+| Loot / Drops / Gear score / Legendary | Salvage, Cache, Standing, Reputation, Scrap | LORE-3.1: Strip progression of linear MMO/RPG gear grinding. |
+| The galaxy trembles / Epic destiny / Chosen one | The sector stirs / Regional gossip / Local shift | LORE-3.2: High space opera drama is banned in favor of grounded RP text. |
+
+### 9.2 Practical Jargon Creole Examples
+
+When authoring dialogue or narrative templates, weave in low-tech mechanical and nautical terms:
+- **Burn-water / Heavy-water:** Propellant or life-support water.
+- **Drift-hours:** Time spent cruising or coasting in the void.
+- **Breaker-rigs / Iron-scows:** Mining and salvaging vessels.
+- **Hull-sweat:** Condensation or atmosphere leakage inside ship hulls.
+- **Vessel-bound:** Being trapped aboard a ship due to maintenance or vacuum.
+- **Station-tied:** Bound to station life, typically unable to afford or logistically support vessel voyages.
 
 ---
 

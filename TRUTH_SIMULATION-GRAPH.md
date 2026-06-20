@@ -38,7 +38,7 @@ Until this document is fully rewritten, treat **Sections 1 through 5 as archived
 
 ## 1. The Core Philosophy: The Closed Loop
 
-The GDTLancer universe is a **Closed Hydraulic System**. Matter is never created or destroyed within the known universe; it only changes state or location. The total mass of the known universe (`TOTAL_MATTER`) is recalculated whenever new sectors are discovered.
+The GDTLancer universe is a **Closed Hydraulic System**. Matter is never created or destroyed within the known sectors; it only changes state or location. The total mass of the mapped frontier (`TOTAL_MATTER`) is recalculated whenever new sectors are surveyed.
 
 ### The Five Laws of the Graph
 
@@ -92,7 +92,7 @@ The economy operates on a dual-currency system that balances convenience and tru
    * Specie functions as cash because of its properties:
      * **Inert** — does not degrade or react (zero entropy cost to hold).
      * **Dense** — high value-to-mass ratio (practical to carry).
-     * **Universally accepted** — every station, every faction, every colony level.
+     * **Widely accepted across known anchorages** — its physical properties make it a practical fallback when shared trust does not exist between parties.
    
    * **Specie IS counted in `TOTAL_MATTER`** — it is a commodity like any other, occupying cargo or stockpile space.
    * **Paying for repairs** = transferring `commodity_specie` from `Agent(cargo)` → `Station(stockpile)`.
@@ -103,7 +103,10 @@ The economy operates on a dual-currency system that balances convenience and tru
 
 ### 2.3 The Agent Nodes (Mobile Capacitors — Layer 3)
 
-All roles are shared by both **Named (persistent)** and **Mortal (expendable)** agents. Every agent can trade, mine, fight, prospect, salvage, or pirate depending on their goal queue and circumstances. There is no role exclusivity.
+All roles are shared by both **Named (persistent)** and **Mortal (expendable)** vessel-commanding agents. Every **vessel operator** can trade, mine, prospect, salvage, or take on patrol work depending on their goal queue and circumstances. Role selection is driven by the agent's goal queue and situational context, not a fixed class.
+
+> [!NOTE]
+> **Scarce Pilot Doctrine (LORE-2.2):** Not every person at a station is a vessel operator. The agent layer represents the frontier's rare vessel-commanding class. Station populations, maintenance workers, families, medics, and administrators are modeled through the sub-agent layer, not as primary agents.
 
 * **Agent Ship (Named / Mortal):**
   * **Hull Mass (`hull_integrity`):** The physical matter of the ship itself. Degrades via entropy, combat, hazards.
@@ -221,7 +224,7 @@ Hostile Pool ─────────────────→ Hostile(Biom
 1. **Construction (Agent Spawn):** `Station(Stockpile)` → `Agent(Hull/Fuel/Specie)`
    * *Constraint:* A Mortal Agent **cannot** spawn if the Station lacks sufficient stockpile (`MORTAL_SPAWN_MIN_STOCKPILE`). Named Agents queue for respawn if resources are insufficient.
    * *Conservation:* `stockpile` decreases by hull + fuel + starting-Specie cost; `hull_integrity` + `propellant` + `cargo(commodity_specie)` initialized. Starting Specie is physical metal withdrawn from station stockpile.
-   * **Emergency Draft:** If `total_stockpile == 0` and no agents exist in the sector, the colony **cannibalizes its own infrastructure**. The colony downgrades one level (e.g., colony → outpost), converting the freed infrastructure matter into enough stockpile to spawn one emergency agent. This prevents permanent softlocks. If already at `frontier` level, the colony issues a **Faction Distress Signal** — the owning faction's nearest colony with surplus stockpile dispatches a relief agent (matter debited from that colony's stockpile, not created from nothing).
+   * **Emergency Draft:** If `total_stockpile == 0` and no agents exist in the sector, the colony **cannibalizes its own infrastructure**. The colony downgrades one level (e.g., colony → outpost), converting the freed infrastructure matter into enough stockpile to spawn one emergency agent. This prevents permanent softlocks. If already at `frontier` level, word spreads through traders and gossip networks — a nearby community with surplus may choose to send a relief agent. Nothing is guaranteed; the response depends on prior standing, distance, and whether any vessel operator can be spared. Matter for any relief sent is debited from the originating community's stockpile, not created from nothing.
 
 2. **Destruction (Agent Death):** `Agent(Hull + Fuel + Cargo)` → `Wreck`
    * *Action:* Combat death, entropy death (hull reaches `ENTROPY_DEATH_HULL_THRESHOLD`).
@@ -262,9 +265,11 @@ To prevent confusion, the simulation uses exactly **five matter states** with no
 The known universe at Tick 0 is a small fraction of the total universe. A vast `UNDISCOVERED_MATTER_POOL` exists beyond the frontier, orders of magnitude larger than `TOTAL_MATTER`.
 
 * **Discovery:** When an agent discovers a new sector, that sector's resources (exposed + hidden) are drawn from `UNDISCOVERED_MATTER_POOL` and added to `TOTAL_MATTER`.
-* **Conservation:** `UNDISCOVERED_MATTER_POOL` decreases; `TOTAL_MATTER` increases. The grand total (`TOTAL_MATTER + UNDISCOVERED_MATTER_POOL + slag_total`) remains constant — the *true* universal constant.
-* **Gameplay consequence:** Exploration is not just map-reveal — it is the primary weapon against heat death. A civilization that stops exploring will eventually exhaust its matter budget. A civilization that pushes the frontier thrives.
-* **True finite universe:** `UNDISCOVERED_MATTER_POOL` is large but finite. The universe *will* eventually die if every sector is discovered and all matter degrades to Slag. This is intentional.
+* **Gameplay consequence:** A community that stops surveying new territory will eventually exhaust its local matter budget, slowly starving.
+* **True finite frontier:** `UNDISCOVERED_MATTER_POOL` is large but finite. The local region *will* eventually exhaust if every reachable sector is surveyed and all matter degrades to Slag. This is intentional.
+
+> [!NOTE]
+> **Archived framing caveat (LORE-1.1):** References to "civilization" in this archived section are legacy design language. On this frontier, there is no civilization-scale actor — only isolated communities struggling to survive. The mechanic is superseded; the civilizational framing does not apply.
 
 
 5. **Manifestation (Hostile Spawn):** `Hostile Pool` → `Hostile(Biomass)`
@@ -274,7 +279,7 @@ The known universe at Tick 0 is a small fraction of the total universe. A vast `
    * *Conservation:* `hostile_pool` decreases; `body_mass` of new hostile created.
 
 6. **Hostile Death:** `Hostile(Biomass)` → `Wreck`
-   * *Action:* Combat death (military agents, sector defense).
+   * *Action:* Combat death (patrol agents, sector defense).
    * *Conservation:* `body_mass` → `wrecks` in the sector.
 
 7. **Hostile Wreck Salvage (Low-Sec):** `Wreck` → `Hostile Pool`
@@ -403,7 +408,10 @@ With this graph, a "Gold Rush" is mathematically inevitable:
 5. Traders burn massive fuel to get there → `Entropy` rises → Hostile Pools grow.
 6. Hostiles detect high entropy/fuel density → Hostiles swarm Sector 6.
 7. Combat creates Wrecks → Attracts salvagers → Creates more economic activity.
-8. **Result:** High Risk / High Reward gameplay without a single line of scripted "event" code.
+8. **Result:** Community-pressure cascade gameplay without a single line of scripted "event" code.
+
+> [!NOTE]
+> **Archived framing caveat (LORE-3.3):** The "Gold Rush" metaphor above is legacy system design language describing emergent pressure dynamics. In the live simulation, agents do not rush sectors for personal profit. They respond because their home community's survival depends on it, or because a trusted contact asked them to go. The *mechanism* described here is valid; the *framing* should not carry over into chronicle text or narrative templates.
 
 ---
 
@@ -585,7 +593,7 @@ These questions were raised during initial graph design and have been resolved:
 
 **Decision:** Stations do **not** trade with each other directly. All inter-station commerce flows through agents.
 
-* Both Named (persistent) and Mortal (expendable) agents share **all roles** — trader, miner, prospector, salvager, pirate, military. Role selection is driven by the agent's goal queue and situational context, not a fixed class.
+* Both Named (persistent) and Mortal (expendable) agents share **all roles** — trader, miner, prospector, salvager, pirate, patrol. Role selection is driven by the agent's goal queue and situational context, not a fixed class.
 * There is no separate "caravan" NPC type. Mortal agents spawned by prosperous sectors naturally fill the trader role when price disparities exist.
 * Agent-mediated trade does **not** mean every human pairing should behave like a free, lawful market edge. Faction, legality, and cargo-provenance tags may gate whether an interaction is cooperative trade, illicit exchange, coercive seizure, or no trade at all.
 * Active runtime contract cargo is protected delivery state, not generic bilateral trade inventory.

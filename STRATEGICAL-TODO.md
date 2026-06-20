@@ -6,7 +6,7 @@ OWNER: architect
 ACCESS: read-write
 USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_GAME-LOOP-VISION.md § 1–4; TRUTH_SIMULATION-GRAPH.md § 0; GDD-REVISION-LEDGER.md § Approved Revisions
-LOG_REF: 2026-06-20 20:31:00
+LOG_REF: 2026-06-21 00:43:00
 -->
 
 # GDTLancer — Consolidated Master Design Directive
@@ -351,10 +351,11 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 | 8 | [x] | Sub-Agent Data Layer Scaffold | Milestone 7 | REV_011 |
 | 9 | [x] | Morale & Supplies Stat Integration | Milestone 8 | REV_012 |
 | 10 | [x] | Chronicle View Architecture | Milestone 7 | REV_009 |
-| 11 | [ ] | Hardened Narrative Content Pipeline | Milestone 10 | REV_010 |
+| L1 | [ ] | Lore Conformance Gate | Milestones 8, 9, 10, 12 | NEW |
+| 11 | [ ] | Hardened Narrative Content Pipeline | Milestone L1, Milestone 10 | REV_010 |
 | 12 | [x] | Manual Space Graph & In-Sector POI System | Milestone 7 | REV_013 |
-| 13 | [ ] | Hierarchical Universe Topology Formalization | Milestone 12 | REV_005 |
-| 14 | [ ] | Prohibited Seams Registry Formalization | Milestone 7 | REV_014 |
+| 13 | [ ] | Hierarchical Universe Topology Formalization | Milestone L1, Milestone 12 | REV_005 |
+| 14 | [ ] | Prohibited Seams Registry Formalization | Milestone L1, Milestone 7 | REV_014 |
 
 > [!TIP]
 > Milestones 8–9 (agent data) and 10–11 (UI) can proceed in parallel once the truth alignment pass (Milestone 7) is complete. Milestone 12 (space graph) is independent and can also run in parallel.

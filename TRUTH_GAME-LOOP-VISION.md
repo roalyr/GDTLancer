@@ -36,7 +36,7 @@ graph TD
 
 ### 1.1 The Credit-Barter Dual Economy
 Without centralized empires or instantaneous galactic banking, the economy functions on a local, dual-layer system:
-* **Electronic Credits:** Localized ledger balances representing trust and reputation. Factions and communities issue credit to individuals they trust. Credits are used for routine transactions within a faction's sphere of influence.
+* **Electronic Credits:** Localized ledger balances representing trust and reputation. Communities issue credit to individuals they trust. Credits are used for transactions between people who share trust — typically those working at the same anchorage or with established history together.
 * **Barter:** When trading across faction borders, with unaligned groups, or in spaces lacking infrastructural networks, transactions revert to direct commodity exchange (fuel, raw materials, tech components).
 
 ### 1.2 Space Travel & Flight: Logistical Weight, Arcade-Style Action
@@ -59,7 +59,7 @@ The player begins the game fully embedded in this social reality. Rather than st
 ### 2.1 The Embedded Clan Member
 The player is a first-class agent with the exact same magnitude of authority as NPC agents:
 * **Not a Colony Manager:** The player does not build structures or manage the colony's layout (Dwarf Fortress style). Instead, they play as an individual agent acting in their own interest, yet deeply tied to a community.
-* **A Peer Among Peers:** The relationship to the starting community feels like being part of a small clan of player friends in a multiplayer game. You share a home base, pool resources for big ventures, and look out for one another, but you control only your own ship and choices.
+* **A Peer Among Peers:** The relationship to the starting community feels like being part of a small clan of people you know by name. You share a home base, pool resources for big ventures, and look out for one another, but you answer for your own actions and choices — as the designated vessel operator when the community assigns you the mission.
 * **Bonded Agents:** The player starts with deep, pre-existing social links to specific characters in the sector (family members, close allies, or mentors). These bonded agents are not tutorial prompts; they are persistent characters the player can talk to, interact with, and rely on for physical or emotional support. They act as the player's primary anchor in the game world.
 
 ---
@@ -87,7 +87,7 @@ In this framework, the cognitive layer of the simulation focuses on relationship
 ### 4.1 Relationship-Driven Decisions
 NPC goals are derived from their family affiliations, personality traits, and standings with other agents:
 * **Community Protection:** Agents prioritize securing basic survival goods (water, fuel) for their home sectors.
-* **Reciprocity and Grudges:** If the player or another agent assists a clan member, the entire clan shifts toward a positive standing, unlocking credit lines. Conversely, harming or disrupting an agent creates a persistent grudge that restricts access to local station services.
+* **Reciprocity and Grudges:** If the player or another agent assists a clan member, the community becomes more willing to trade on trust — accepting your word as good, offering help unprompted. Conversely, harming or disrupting an agent creates a persistent grudge that restricts access to local station services.
 * **Bond Maintenance:** Bonded agents will actively try to support the player, checking in during long voyages, offering shelter during crises, or warning them of local sector hazards.
 
 ---
