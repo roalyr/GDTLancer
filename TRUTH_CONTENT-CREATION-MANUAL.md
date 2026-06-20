@@ -1,12 +1,12 @@
 <!--
 PROJECT: GDTLancer
 MODULE: TRUTH_CONTENT-CREATION-MANUAL.md
-STATUS: [Level 2 - Implementation]
-OWNER: architect
+STATUS: [Level 2 - Design]
+OWNER: developer
 ACCESS: read-only-owner
 USER INSTRUCTION: NONE
-TRUTH_LINK: TRUTH_PROJECT.md § Project Stack and Context; TRUTH_SIMULATION-GRAPH.md §6.1, §6.3, §6.4; TACTICAL_TODO.md TASK_1; commodity_classification_architecture.md
-LOG_REF: 2026-06-07 16:30:00
+TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
+LOG_REF: 2026-06-20 19:13:27
 -->
 
 # Content Creation Manual
@@ -699,4 +699,38 @@ godot --no-window -s addons/gut/gut_cmdln.gd -gdir= -gtest=res://src/tests/scene
 
 ---
 
+## 8. Narrative Template Creation (Chronicle View)
+
+Narrative text in GDTLancer is hand-authored rather than procedurally generated. Text is stored as `.tres` resource templates in a structured directory hierarchy and looked up dynamically at runtime based on sector tags.
+
+### 8.1 Directory Structure
+To prevent combinatorial filename bloat and make templates easy to manage for content authors, narrative templates must be organized in sub-folders mirroring the sector's attributes:
+```
+/database/registry/narrative/templates/{sector_type}/{economy_tag}/{security_tag}/{event_type}.tres
+```
+Where:
+- `{sector_type}`: e.g., `star`, `planet`, `moon`, `field`, `deep_space`
+- `{economy_tag}`: e.g., `poor`, `adequate`, `rich`
+- `{security_tag}`: e.g., `lawful`, `low-sec`, `unlawful`
+- `{event_type}`: e.g., `rumor`, `dock_greeting`, `encounter`, `interaction`
+
+### 8.2 Key-String Generation and Lookup Rules
+When the player docks, enters a sector, or interacts with a sub-agent, the game constructs a key path from the local sector's active state tags:
+1. **Derive Context:** Query the current sector's `sector_type`, `economy_level`, and `security_level`.
+2. **Build Path:** Map the derived tags to the directory structure. For example, a rumor in a poor, low-sec planetary sector resolves to:
+   `templates/planet/poor/low-sec/rumor.tres`
+3. **Resolve Fallback:** If the exact path does not exist, the lookup engine falls back step-by-step to generalized defaults:
+   - First fallback: swap `{security_tag}` with `default`
+   - Second fallback: swap `{economy_tag}` with `adequate` (the mid-tier baseline)
+   - Final fallback: resolve to `templates/default.tres`
+
+### 8.3 Jargon Creole Authoring Guidelines
+The colonial frontier is populated by close-knit, pragmatic communities. Authors must write narrative text following these stylistic principles:
+- **Atmospheric Creole:** Use the sector's practical jargon creole — a setting-specific vocabulary blending low-tech mechanical terms, TTRPG nautical-slang, and localized slang. (e.g. *drift-hours*, *breaker-rigs*, *burn-water* instead of *fuel*).
+- **Material Focus:** Focus on the concrete physical and logistical realities of the frontier: hull degradation, supply depletion, heat tolerances, and interpersonal debt, avoiding high space-opera terms.
+- **Dynamic References:** Always use bracketed template placeholders (e.g. `{player_name}`, `{sub_agent_name}`, `{origin_sector}`) to keep text aligned with the live simulation state and preserve agent parity.
+
+---
+
 **END OF CONTENT CREATION MANUAL**
+

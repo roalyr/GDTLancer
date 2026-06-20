@@ -35,11 +35,11 @@ This blueprint synthesizes the core systems, universe topology, and interface fr
 
 | Truth File | Relationship | Action Required | Status |
 |---|---|---|---|
-| [TRUTH_GAME-LOOP-VISION.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_GAME-LOOP-VISION.md) | **Superseded in part.** §1–§4 remain compatible but are narrower than this directive. | Extend with §1 (Two-Speed UX), §4 (Sub-Agent Layer), §5 (Prohibited Seams). | ⏳ Pending |
-| [TRUTH_SIMULATION-GRAPH.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_SIMULATION-GRAPH.md) | **§0 remains authoritative.** §1–§5 are already archived. §6+ live. | Add §3 (Universe Partitioning) directives into a new topology section or as addendum to §6. | ⏳ Pending |
-| [GDD-REVISION-LEDGER](file:///home/roalyr/Software_archive/Games/GDTLancer/archive/GDD-REVISION-LEDGER-1.md) | **Extended.** New REV entries staged below. | Create new active `GDD-REVISION-LEDGER.md` with entries REV_009–REV_014. | ⏳ Pending |
+| [TRUTH_GAME-LOOP-VISION.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_GAME-LOOP-VISION.md) | **Superseded in part.** §1–§4 remain compatible but are narrower than this directive. | Extend with §1 (Two-Speed UX), §4 (Sub-Agent Layer), §5 (Prohibited Seams). | ✅ Done |
+| [TRUTH_SIMULATION-GRAPH.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_SIMULATION-GRAPH.md) | **§0 remains authoritative.** §1–§5 are already archived. §6+ live. | Add §3 (Universe Partitioning) directives into a new topology section or as addendum to §6. | ✅ Done |
+| [GDD-REVISION-LEDGER](file:///home/roalyr/Software_archive/Games/GDTLancer/archive/GDD-REVISION-LEDGER-1.md) | **Extended.** New REV entries staged below. | Create new active `GDD-REVISION-LEDGER.md` with entries REV_009–REV_014. | ✅ Done |
 | [TRUTH_PROJECT.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_PROJECT.md) | **Compatible.** Agent Parity Principle directly reinforced by §1.3 below. | No changes required. | ✅ Done |
-| [TRUTH_CONTENT-CREATION-MANUAL.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_CONTENT-CREATION-MANUAL.md) | **Extended.** §2.3 (Hardened Content Delivery) introduces a `.tres` template directory contract. | Add content authoring section for Chronicle narrative template directory. | ⏳ Pending |
+| [TRUTH_CONTENT-CREATION-MANUAL.md](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH_CONTENT-CREATION-MANUAL.md) | **Extended.** §2.3 (Hardened Content Delivery) introduces a `.tres` template directory contract. | Add content authoring section for Chronicle narrative template directory. | ✅ Done |
 | [MODEL-CASCADE-PROTOCOL.md](file:///home/roalyr/Software_archive/Games/GDTLancer/MODEL-CASCADE-PROTOCOL.md) | **Compatible.** Linked read path should include this file when approved. | Add to `LINKED READ PATH` under "Load when the active task requires it". | ✅ Done |
 | [Frozen GDD Combined Text](file:///home/roalyr/Software_archive/Games/GDTLancer/TRUTH-GDD-COMBINED-TEXT-REVIEW-frozen-2026.06.14.md) | **Fully superseded** as design intent. Retained only as historical archive. | No changes; remains frozen. | ✅ Done |
 
@@ -209,12 +209,12 @@ The project completely avoids modeling 3D avatars, station interiors, or space-l
 
 The following entries are staged for promotion into a new active `GDD-REVISION-LEDGER.md` once this directive is approved. They follow the schema established in [GDD-REVISION-LEDGER-1.md § Entry Schema](file:///home/roalyr/Software_archive/Games/GDTLancer/archive/GDD-REVISION-LEDGER-1.md#L13).
 
-- **REV_009: Two-Speed Macro UX Contract** (Promoted to ledger [ ]; Implemented in code [ ] via Milestone 10)
-- **REV_010: Hardened Narrative Content Delivery** (Promoted to ledger [ ]; Implemented in code [ ] via Milestone 11)
-- **REV_011: Sub-Agent Data Layer** (Promoted to ledger [ ]; Implemented in code [ ] via Milestone 8)
-- **REV_012: Morale Stat & Crew Morale System** (Promoted to ledger [ ]; Implemented in code [ ] via Milestone 9)
-- **REV_013: Manual Space Graph & In-Sector POI Doctrine** (Promoted to ledger [ ]; Implemented in code [ ] via Milestone 12)
-- **REV_014: Prohibited Seams Registry** (Promoted to ledger [ ]; Implemented in code [ ] via Milestone 14)
+- **REV_009: Two-Speed Macro UX Contract** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 10)
+- **REV_010: Hardened Narrative Content Delivery** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 11)
+- **REV_011: Sub-Agent Data Layer** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 8)
+- **REV_012: Morale Stat & Crew Morale System** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 9)
+- **REV_013: Manual Space Graph & In-Sector POI Doctrine** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 12)
+- **REV_014: Prohibited Seams Registry** (Promoted to ledger [x]; Implemented in code [ ] via Milestone 14)
 
 ---
 
@@ -300,10 +300,10 @@ The following entries are staged for promotion into a new active `GDD-REVISION-L
 
 When this directive is approved, the following truth file updates should be executed as a single architect-owned milestone:
 
-- [ ] **7.1 Create New Active GDD-REVISION-LEDGER.md**
-- [ ] **7.2 Extend TRUTH_GAME-LOOP-VISION.md**
-- [ ] **7.3 Extend TRUTH_SIMULATION-GRAPH.md**
-- [ ] **7.4 Extend TRUTH_CONTENT-CREATION-MANUAL.md**
+- [x] **7.1 Create New Active GDD-REVISION-LEDGER.md**
+- [x] **7.2 Extend TRUTH_GAME-LOOP-VISION.md**
+- [x] **7.3 Extend TRUTH_SIMULATION-GRAPH.md**
+- [x] **7.4 Extend TRUTH_CONTENT-CREATION-MANUAL.md**
 - [x] **7.5 Update MODEL-CASCADE-PROTOCOL.md**
 
 ---
@@ -347,7 +347,7 @@ This extends the milestone order from [GDD-REVISION-LEDGER-1.md § Follow-on Mil
 
 | # | Done | Milestone | Depends On | REV Entry |
 |---|---|---|---|---|
-| 7 | [ ] | Truth File Alignment Pass | Approval of this directive | All |
+| 7 | [x] | Truth File Alignment Pass | Approval of this directive | All |
 | 8 | [ ] | Sub-Agent Data Layer Scaffold | Milestone 7 | REV_011 |
 | 9 | [ ] | Morale & Supplies Stat Integration | Milestone 8 | REV_012 |
 | 10 | [ ] | Chronicle View Architecture | Milestone 7 | REV_009 |

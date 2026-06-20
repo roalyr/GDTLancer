@@ -4,9 +4,9 @@ MODULE: TRUTH_SIMULATION-GRAPH.md
 STATUS: [Level 2 - Implementation]
 OWNER: architect
 ACCESS: read-only-owner
-USER INSTRUCTION: Priority in tactical todo list as a file which should be revied first and foremost with recent strategic todo introduction.
+USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context
-LOG_REF: 2026-06-11 00:15:00
+LOG_REF: 2026-06-20 19:13:27
 -->
 
 # 8.1-GDD-Simulation-Graph-System
@@ -254,7 +254,10 @@ To prevent confusion, the simulation uses exactly **five matter states** with no
 
 **Slag** is the only irreversible sink. It is the universe's thermodynamic arrow. Over infinite ticks without new sector discovery, all matter trends toward Slag and the simulation reaches heat death.
 
-### Sector Discovery (The Counter-Force to Heat Death)
+### Sector Discovery (The Counter-Force to Heat Death) — [SUPERSEDED]
+
+> [!IMPORTANT]
+> **This section is superseded** by the Manual Space Graph & In-Sector POI Spawning resolved decision (§8.8). Dynamic sector sprouting from the undiscovered pool is disabled; space topology is fixed and manual, while dynamic content is generated as POIs within sectors.
 
 The known universe at Tick 0 is a small fraction of the total universe. A vast `UNDISCOVERED_MATTER_POOL` exists beyond the frontier, orders of magnitude larger than `TOTAL_MATTER`.
 
@@ -262,6 +265,7 @@ The known universe at Tick 0 is a small fraction of the total universe. A vast `
 * **Conservation:** `UNDISCOVERED_MATTER_POOL` decreases; `TOTAL_MATTER` increases. The grand total (`TOTAL_MATTER + UNDISCOVERED_MATTER_POOL + slag_total`) remains constant — the *true* universal constant.
 * **Gameplay consequence:** Exploration is not just map-reveal — it is the primary weapon against heat death. A civilization that stops exploring will eventually exhaust its matter budget. A civilization that pushes the frontier thrives.
 * **True finite universe:** `UNDISCOVERED_MATTER_POOL` is large but finite. The universe *will* eventually die if every sector is discovered and all matter degrades to Slag. This is intentional.
+
 
 5. **Manifestation (Hostile Spawn):** `Hostile Pool` → `Hostile(Biomass)`
    * *Action:* Hostile spawning when pool exceeds threshold.
@@ -482,6 +486,15 @@ How this graph maps to the code systems (both Python sandbox and target Godot ar
    * Dictionary keys are stringified at emission time, so downstream tooling should treat JSON objects as normalized views of Godot dictionaries rather than assuming original key types were all strings.
 * **Files:** `src/core/ui/sim_debug_panel/sim_debug_panel.gd`, `scenes/ui/hud/sim_debug_panel.tscn`, `src/core/simulation/simulation_engine.gd`, `src/core/simulation/simulation_raw_logger.gd`
 
+### 6.6 Manual Space Graph & In-Sector POI System
+
+* **Responsibility:** Manages the static world topology graph and instantiates dynamic Points of Interest (POIs) within the 3D volume of sector nodes.
+* **Live logic:**
+   * The inter-sector space graph is statically defined and designer-authored (Star → Planet → Moon). Dynamic sector sprouting or deep-space sprout/decay is disabled.
+   * `world_layer.gd` reads this static graph during bootstrap and maintains the fixed routing connections.
+   * In-sector POIs (derelicts, anomalies, deposits) are spawned within the sector's 3D volume and registered as local simulation objects. They are not nodes in the world-level graph.
+* **Files:** `src/core/simulation/world_layer.gd`, `database/definitions/location_template.gd`, `src/core/systems/sector_loader.gd`
+
 ---
 
 ## 7. Graph Validation (The Unit Tests)
@@ -619,6 +632,15 @@ These questions were raised during initial graph design and have been resolved:
 * Those provenance tags determine whether another human treats the cargo as tradable, contraband, protected service state, or a coercive target.
 * Protected runtime contract cargo must remain attached to the shared contract occurrence and reservation seam until a later milestone explicitly changes that rule.
 * **Graph impact:** No new matter accounting bucket is added. Provenance is an interaction tag that changes routing and compatibility, not a separate conserved quantity.
+
+### 8.8 Manual Space Graph & In-Sector POI Spawning
+
+**Decision:** The inter-sector space graph is permanently manual and designer-authored. Dynamic sprouting or deep-space sector sprouting/decay is disabled.
+
+* Space is partitioned statically as a manual graph (Star → Planet → Moon). Celestial role determines the development and security baseline.
+* Dynamic content lives *within* sectors: derelicts, anomalies, deposits, and temporary outposts spawn dynamically inside the sector's 3D volume as local simulation objects.
+* Exploration and prospecting mechanics interact with these in-sector POIs without adding new nodes to the world graph.
+* **Graph impact:** The older agentic-sprouting and discovery pool model (drawing from `UNDISCOVERED_MATTER_POOL` to spawn new graph nodes) is **superseded** and marked inactive.
 
 ---
 

@@ -4,9 +4,9 @@ MODULE: TRUTH_PROJECT.md
 STATUS: [Level 2 - Implementation]
 OWNER: architect
 ACCESS: read-only-owner
-USER INSTRUCTION: Should be updated according to new model cascade protocol update.
+USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_PROJECT.md § Automated Testing Boundary
-LOG_REF: 2026-05-27 04:35:01
+LOG_REF: 2026-06-20 19:13:27
 -->
 
 ## Project Stack And Context
@@ -59,6 +59,7 @@ LOG_REF: 2026-05-27 04:35:01
 - Implement only the first unchecked task in `TACTICAL_TODO.md`.
 - `TARGET_SCOPE` defines the behavioral boundary.
 - `TARGET_FILES` define the primary ownership list.
+- File modifications must strictly respect the OWNER and ACCESS metadata header fields defined in [MODEL-CASCADE-PROTOCOL.md](MODEL-CASCADE-PROTOCOL.md).
 - Narrow adjacent owners are allowed only when directly required to preserve signatures, serialization, initialization, scene wiring, or focused validation for the active task.
 - If the required change widens behavior outside `TARGET_SCOPE` or requires non-narrow owners outside `TARGET_FILES`, return control to the Architect instead of improvising scope.
 

@@ -117,16 +117,6 @@ For each revision entry, use the same fields:
 - Blocked By: None
 - Follow-on Owners: Current `Trust-Gated Credit vs Specie Transaction Routing` milestone in `TACTICAL_TODO.md`
 - Evidence: `dual_economy_design_draft.md` §3 and §5 (approved 2026-06-11); `src/core/simulation/affinity_matrix.gd` (`compute_affinity`); `src/core/simulation/agent_layer.gd` (`_bilateral_trade`, `_attempt_npc_market_buy`, `_attempt_npc_market_sell`); `src/autoload/Constants.gd`
-
-## Follow-on Milestone Order
-
-1. `Universe Doctrine Alignment Ledger` — create this ledger and wire it into the architect workflow. (Completed)
-2. `Faction And Interaction Doctrine Refactor` — define faction tags, lawful or unlawful interaction policy, cargo provenance, and non-lethal human conflict rules without rebuilding topology. (Completed)
-3. `Commodity Classification Registry & Tag-Governed Market Seeding` — build the classification registry and tag-governed procedural market seeding. (Completed)
-4. `Lawful / Unlawful Market Simulation` — implement the approved social and economic rules inside the existing flat sector model if the prior milestone stabilizes them. (Completed)
-5. `Hierarchical Universe Topology Program` — revisit star, planetary, and sub-planetary structure only after the doctrine and social-simulation seams are coherent.
-6. `Trust-Gated Credit vs Specie Transaction Routing` — implement Layer 1 of the approved dual-economy growth path: affinity-based payment instrument resolution using `CREDIT_TRUST_THRESHOLD` in `Constants.gd` and `_resolve_payment_instrument` in `agent_layer.gd`.
-
 ## Usage Notes
 
 - This file is an architect and design staging surface, not the active implementation queue.

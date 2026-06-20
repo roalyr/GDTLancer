@@ -4,9 +4,9 @@ MODULE: TRUTH_GAME-LOOP-VISION.md
 STATUS: [Level 2 - Design]
 OWNER: architect
 ACCESS: read-only-owner
-USER INSTRUCTION: Priority in tactical todo list as a file which should be revied first and foremost with recent strategic todo introduction.
+USER INSTRUCTION: NONE
 TRUTH_LINK: TRUTH_PROJECT.md § Project Stack And Context; TRUTH_SIMULATION-GRAPH.md § 0. Implementation Reality
-LOG_REF: 2026-06-15 01:20:00
+LOG_REF: 2026-06-20 19:13:27
 -->
 
 # GDTLancer - Game Loop & TTRPG Simulation Vision
@@ -89,3 +89,45 @@ NPC goals are derived from their family affiliations, personality traits, and st
 * **Community Protection:** Agents prioritize securing basic survival goods (water, fuel) for their home sectors.
 * **Reciprocity and Grudges:** If the player or another agent assists a clan member, the entire clan shifts toward a positive standing, unlocking credit lines. Conversely, harming or disrupting an agent creates a persistent grudge that restricts access to local station services.
 * **Bond Maintenance:** Bonded agents will actively try to support the player, checking in during long voyages, offering shelter during crises, or warning them of local sector hazards.
+
+---
+
+## 5. Two-Speed Macro UX Contract
+
+To satisfy both kinetic and tactical playstyles, the macro loop segregates flight and interface-based interaction into two mutually exclusive, paused-or-ticking screen states.
+
+### 5.1 Mode A: The Kinetic Board (Flight Mode)
+- **Focus:** Real-time navigation, physics-based piloting, and handling of basic mechanical heat/hull limits.
+- **HUD telemetry:** Telemetry is minimal and non-intrusive. Narrative prose, logs, trade widgets, and dialogue overlays are completely suppressed.
+- **Time/Simulation:** Time flows continuously, firing World Event Ticks to advance the background qualitative cellular automaton (CA) simulation.
+
+### 5.2 Mode B: The Chronicle View (TTRPG Sheet Mode)
+- **Focus:** Paused, menu-driven 2D interfaces for trade, character standing, active contracts, and sub-agent management.
+- **Time/Simulation:** The simulation clock is fully paused, transforming the game into a meditative tabletop board game.
+- **Content pipeline:** Narrative text is hand-authored, resolving tag-based context keys against static `.tres` template folders. Procedural prose generation is forbidden.
+
+---
+
+## 6. Prohibited Seams (Scope Limits)
+
+To prevent feature creep, the following space-simulator features are strictly prohibited from implementation:
+
+- **No speculative market displays:** Transactions increment/decrement 0–10 wealth tracks based on qualitative Contract Value Classes. Surfacing raw credit integers to the player during trade is banned.
+- **No 3D on-foot navigation:** No player avatars, station interiors, or space-legs systems. All community interactions are resolved via the grid-aligned 2D menus of the Chronicle View.
+
+---
+
+## 7. Sub-Agent Layer & Morale
+
+The social dimension of GDTLancer is modeled not by scaling the primary ship simulation, but by parenting a lightweight, qualitative human software layer under primary agent entities.
+
+### 7.1 Data-Only Sub-Agent Structs
+- **Structure:** Personnel, station populations, or crew members exist as basic data sub-arrays inside parent ship or station agents.
+- **Role:** Sub-agents do not independently process simulation ticks, carry cargo, or resolve checks. They function as narrative gatekeepers, enabling or gating parent choices through relationship standing or specialized commerce roles.
+- **Transfers:** Transfers of personnel are managed via the dedicated API `sub_agent_transfer(sub_agent_id, from_host_id, to_host_id)`, with morale adjusted as a consequence of the transfer.
+
+### 7.2 The Morale Loop & Defeat Conditions
+- **Stat tracking:** Sub-agents track individual Morale stats. The parent ship or station aggregates these into an average crew Morale score used as the modifier for crew-dependent checks.
+- **Decay:** Morale decays deterministically when the parent agent spends prolonged periods in high-entropy sectors or ignores crew needs. Morale decay is a threshold-gated step function defined in constants.
+- **Defeat:** If the aggregate Morale of the player's vessel drops to 0, it triggers an immediate crew strike or mutiny, ending the voyage as a hard defeat condition.
+

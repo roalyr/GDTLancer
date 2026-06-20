@@ -39,7 +39,7 @@ Read only when the active task requires it:
 3. [STABILIZATION_SEAM_INVENTORY.md](STABILIZATION_SEAM_INVENTORY.md) — retained or carry-forward seam guidance when reopening a compatibility area.
 4. [TRUTH_CONSTRAINTS.md](TRUTH_CONSTRAINTS.md) — compatibility reference for older contracts and historical log links; no longer required as a default first-read surface.
 5. [AI-ACKNOWLEDGEMENT.md](AI-ACKNOWLEDGEMENT.md) — human review and AI-usage boundary.
-6. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes and follow-on milestone order; load for architect/design pivots, truth rewrites, and setting-alignment work.
+6. [GDD-REVISION-LEDGER.md](GDD-REVISION-LEDGER.md) — approved live-vs-frozen doctrine changes; load for architect/design pivots, truth rewrites, and setting-alignment work.
 7. [STRATEGICAL-TODO.md](STRATEGICAL-TODO.md) — consolidated master design directive and strategical roadmap checklist; load for architect milestone generation and tracking design status.
 
 Do not load by default:
